@@ -1,3 +1,10 @@
+# Boxwise react client 
+this is a hello-world of auth0 authentication, so far. It goes with the flask app at [boxwise-flask](https://github.com/boxwise/boxwise-flask)
+
+
+
+
+
 This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
 
 ## Available Scripts
