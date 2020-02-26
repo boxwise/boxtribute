@@ -10,3 +10,5 @@ After cloning the repository you should be able to build the container with
 
 If successful, after accessing your localhost this will print out the raw products-table from the testdatabase.
 
+The database is a copy of the testdatabase of the php-version created by mysqldump dropapp_dev > init.sql
+
