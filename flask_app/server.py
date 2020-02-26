@@ -15,9 +15,9 @@ APP = Flask(__name__)
 
 APP.config['MYSQL_HOST'] = '127.0.0.1'
 APP.config['MYSQL_USER'] = 'root'
-APP.config['MYSQL_PASSWORD'] = 'dropapp_root'
+APP.config['MYSQL_PASSWORD'] = 'drop'
 APP.config['MYSQL_DB'] = 'dropapp_dev'
-APP.config['MYSQL_PORT'] = 9906
+APP.config['MYSQL_PORT'] = 32000
 
 mysql = MySQL(APP)
 
