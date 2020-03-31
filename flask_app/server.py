@@ -6,18 +6,22 @@ from flask import Flask, request, jsonify, _request_ctx_stack
 from flask_cors import cross_origin
 from jose import jwt
 from flask_mysqldb import MySQL
+from dotenv import load_dotenv
+import os
 
-AUTH0_DOMAIN = 'YOUR_DOMAIN'
-API_AUDIENCE = "MY AUdience"#YOUR_API_AUDIENCE
+load_dotenv()
+
+AUTH0_DOMAIN = os.getenv('AUTH0_DOMAIN')
+API_AUDIENCE = os.getenv('AUTH0_AUDIENCE')
 ALGORITHMS = ["RS256"]
 
 APP = Flask(__name__)
 
-APP.config['MYSQL_HOST'] = '127.0.0.1'
-APP.config['MYSQL_USER'] = 'root'
-APP.config['MYSQL_PASSWORD'] = 'drop'
-APP.config['MYSQL_DB'] = 'dropapp_dev'
-APP.config['MYSQL_PORT'] = 32000
+APP.config['MYSQL_HOST'] = os.getenv('AUTH0_DOMAIN')
+APP.config['MYSQL_USER'] = os.getenv('MYSQL_USER')
+APP.config['MYSQL_PASSWORD'] = os.getenv('MYSQL_PASSWORD')
+APP.config['MYSQL_DB'] = os.getenv('MYSQL_DB')
+APP.config['MYSQL_PORT'] = os.getenv('MYSQL_PORT')
 
 mysql = MySQL(APP)
 
