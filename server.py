@@ -15,7 +15,7 @@ APP = Flask(__name__)
 
 APP.config['MYSQL_HOST'] = '127.0.0.1'
 APP.config['MYSQL_USER'] = 'root'
-APP.config['MYSQL_PASSWORD'] = 'drop'
+APP.config['MYSQL_PASSWORD'] = 'dropapp_root'
 APP.config['MYSQL_DB'] = 'dropapp_dev'
 APP.config['MYSQL_PORT'] = 32000
 
@@ -109,16 +109,23 @@ def requires_auth(f):
                         "description": "Unable to find appropriate key"}, 401)
     return decorated
 
-
-
-@APP.route("/")
-def HELLO():
+def query(sql,options):
     cur = mysql.connection.cursor()
-    cur.execute("SELECT * from camps")
+    cur.execute(sql,(options))
     mysql.connection.commit()
     data = jsonify(cur.fetchall())
     cur.close()
     return data
+
+
+@APP.route("/api/somequery/")
+def getcamps():
+    sql = "Select * from camps"
+    return query(sql,())
+
+@APP.route("/")
+def HELLO():
+    return "This is a landing page"
 # This doesn't need authentication
 @APP.route("/api/public")
 @cross_origin(origin = "localhost",headers=["Content-Type", "Authorization"])
