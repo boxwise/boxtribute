@@ -113,16 +113,23 @@ def requires_auth(f):
                         "description": "Unable to find appropriate key"}, 401)
     return decorated
 
-
-
-@APP.route("/")
-def HELLO():
+def query(sql,options):
     cur = mysql.connection.cursor()
-    cur.execute("SELECT * from camps")
+    cur.execute(sql,(options))
     mysql.connection.commit()
     data = jsonify(cur.fetchall())
     cur.close()
     return data
+
+
+@APP.route("/api/somequery/")
+def getcamps():
+    sql = "Select * from camps"
+    return query(sql,())
+
+@APP.route("/")
+def HELLO():
+    return "This is a landing page"
 # This doesn't need authentication
 @APP.route("/api/public")
 @cross_origin(origin = "localhost",headers=["Content-Type", "Authorization"])
