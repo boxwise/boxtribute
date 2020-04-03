@@ -41,20 +41,7 @@ export default function App() {
     <Router>
       <div>
         {/* "Nav-bar" */}
-        {loggedIn ? (
-          <button onClick={() => handleLogOut()} className="log-in">
-            Log Out
-          </button>
-        ) : (
-          <button
-            onClick={() => {
-              Auth0.login();
-            }}
-            className="log-in"
-          >
-            Log In
-          </button>
-        )}
+        
         {/* NOTE! 
         This works like a normal switch, so you have to put the specific routes the highest,
         and work your way down to least-specific */}
@@ -68,6 +55,17 @@ export default function App() {
           </Route>
         </Switch>
       </div>
+      {loggedIn ? (
+          <button onClick={() => handleLogOut()} className="log-in">
+            Log Out
+          </button>
+        ) : (
+          <button
+            onClick={() => {
+              Auth0.login();
+            }}
+            className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline" type="button">Sign In</button>
+        )}
     </Router>
   );
 }
