@@ -9,7 +9,7 @@ This is a docker container around the flask backend, to be used together with th
 
 After cloning the repository you should be able to build the container with 
 
-### docker-composer up --build
+### docker-compose up --build
 
 After building succesfully, the database can be accessed with the command:
 
