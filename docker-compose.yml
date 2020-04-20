@@ -4,7 +4,8 @@ services:
         build: .
         ports:
           - "5000:5000"
-        network_mode: "host"
+        networks:
+          - backend
         volumes:
           - .:/code
         environment:
@@ -20,3 +21,9 @@ services:
           - ./init.sql:/docker-entrypoint-initdb.d/init.sql
         ports:
           - "32000:3306"
+        networks:
+          - backend
+
+networks:
+    backend:
+        driver: bridge
