@@ -8,7 +8,7 @@ This is a simple flask app to be used together with the [react-client](https://g
 
 ### How do I get set up?
 
-1. Create an `.env`-file  from the file `example.env` and add values for [AUTH0-DOMAIN and API_AUDIENCE](https://auth0.com/docs/dashboard/reference/settings-application). Please use the same ones as for the corresponding [react-client](https://github.com/boxwise/boxwise-react).
+1. Create an `.env`-file  from the file `example.env` and add values for [`AUTH0-DOMAIN` and `API_AUDIENCE`](https://auth0.com/docs/dashboard/reference/settings-application). Please use the same ones as for the corresponding [react-client](https://github.com/boxwise/boxwise-react).
 
 2. To run the application, we assume you have Docker installed. You can then run:
 
