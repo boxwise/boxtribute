@@ -17,7 +17,7 @@ ALGORITHMS = ["RS256"]
 
 APP = Flask(__name__)
 
-APP.config['MYSQL_HOST'] = os.getenv('AUTH0_DOMAIN')
+APP.config['MYSQL_HOST'] = os.getenv('MYSQL_HOST')
 APP.config['MYSQL_USER'] = os.getenv('MYSQL_USER')
 APP.config['MYSQL_PASSWORD'] = os.getenv('MYSQL_PASSWORD')
 APP.config['MYSQL_DB'] = os.getenv('MYSQL_DB')
