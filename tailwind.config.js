@@ -1,4 +1,8 @@
 module.exports = {
+  purge: [
+    './src/**/*.html',
+    './src/**/*.js',
+  ],
   prefix: '',
   important: false,
   separator: ':',
