@@ -1,0 +1,134 @@
+version: 2.1
+orbs:
+  gcp-cli: circleci/gcp-cli@1.5.0
+jobs:
+  #job 1 called build
+  build:
+    # this is 'Executor', it's saying where I wanna run my code (others are "machine", "macOS", "windowsBase")
+    docker:
+      - image: circleci/python:3.7.4
+    working_directory: ~/project
+    steps:
+      - checkout
+      # load composer cache
+      - restore_cache:
+          key: deps1-{{ .Branch }}-{{ checksum "requirements.txt" }}
+      - run:
+        name: Install Python deps in a venv
+        command: |
+          python3 -m venv venv
+          . venv/bin/activate
+          pip install -r requirements.txt
+      - run: composer install -n
+      # install again, but with no dev dependencies this time (for deploy)
+      - run: composer install -n --optimize-autoloader --no-dev
+      # save composer cache
+      - save_cache:
+          key: deps1-{{ .Branch }}-{{ checksum "requirements.txt" }}
+          paths:
+            - "venv"
+      # save output
+      - persist_to_workspace:
+          root: ~/project 
+          paths:
+            - .
+  #job 2 called build
+  deploy:
+    parameters:
+      serviceName:
+        type: string
+      envVariablePrefix:
+        type: string
+    docker:
+      - image: circleci/php:7.3-stretch-node-browsers
+    steps:
+      - attach_workspace:
+          at: workspace
+      - gcp-cli/install
+      - run: sudo docker-php-ext-install pdo_mysql
+      - run: |
+          cd workspace
+          # record version
+          echo "CircleCI build number:${CIRCLE_BUILD_NUM}
+          Branch: ${CIRCLE_BRANCH}
+          Git hash: ${CIRCLE_SHA1}" > assets/version.txt
+          # generate config file
+          echo "<?php
+            \$settings['version'] = '${CIRCLE_BUILD_NUM}';
+            \$settings['db_socket'] = '/cloudsql/${BOXWISE_PRIMARYDB_SOCKET}';
+            \$settings['db_database'] = '${<< parameters.envVariablePrefix >>DBNAME}';
+            \$settings['db_user'] = '${<< parameters.envVariablePrefix >>DBNAME}';
+            \$settings['db_pass'] = '${<< parameters.envVariablePrefix >>DBPASS}';
+            \$settings['sendgrid_key'] = '${BOXWISE_SENDGRID}';
+            \$settings['sentry_key'] = '${BOXWISE_SENTRY}';" > library/config.php
+          echo "paths:
+            migrations: '%%PHINX_CONFIG_DIR%%/db/migrations'
+            seeds: '%%PHINX_CONFIG_DIR%%/db/seeds'
+          environments:
+            default_migration_table: phinxlog
+            << parameters.serviceName >>:
+                adapter: mysql
+                host: 127.0.0.1
+                name: ${<< parameters.envVariablePrefix >>DBNAME}
+                user: root
+                pass: ${BOXWISE_PRIMARYDB_ROOTPASS}
+                port: 3306
+                charset: utf8
+                mysql_attr_init_command: SET SQL_MODE = 'NO_AUTO_VALUE_ON_ZERO'
+          version_order: creation" > phinx.yml
+          # generate google app engine config for target environment
+          sed 's/service: default/service: << parameters.serviceName >>/g' app.yaml > app-<< parameters.serviceName >>.yaml
+          if [ << parameters.serviceName >> == production ]; then echo -e "\ninstance_class: F2" >> app-production.yaml; fi;
+      - run: |
+          # get google credentials
+          echo $GOOGLE_SERVICE_KEY | gcloud auth activate-service-account --key-file=-
+          gcloud --quiet config set project ${GOOGLE_PROJECT_ID}
+          # download cloud sql proxy to enable db access
+          curl -o cloud_sql_proxy https://dl.google.com/cloudsql/cloud_sql_proxy.linux.amd64
+          chmod +x cloud_sql_proxy
+      - run:
+          command: ./cloud_sql_proxy -instances=${BOXWISE_PRIMARYDB_SOCKET}=tcp:3306
+          background: true
+      - run: |
+          # wait for cloud sql proxy to initialize
+          sleep 1s
+          cd workspace
+          # apply db changes 
+          echo "Migrating << parameters.serviceName >> database"
+          vendor/bin/phinx migrate -e << parameters.serviceName >>
+          # deploy
+          gcloud app deploy app-<< parameters.serviceName >>.yaml --version ${CIRCLE_BUILD_NUM}
+          gcloud app deploy cron.yaml dispatch.yaml --version ${CIRCLE_BUILD_NUM}
+
+# this is how jobs interact with each other
+workflows:
+  build-and-deploy:
+    jobs:
+    - build
+    # - deploy:
+    #     name: deploy-staging
+    #     envVariablePrefix: BOXWISE_STAGING_
+    #     serviceName: default
+    #     requires:
+    #       - build
+    #     filters:
+    #       branches:
+    #         only: master
+    # - deploy:
+    #     name: deploy-demo
+    #     envVariablePrefix: BOXWISE_DEMO_
+    #     serviceName: demo
+    #     requires:
+    #       - build
+    #     filters:
+    #       branches:
+    #         only: production
+    # - deploy:
+    #     name: deploy-prod
+    #     envVariablePrefix: BOXWISE_PROD_
+    #     serviceName: production
+    #     requires:
+    #       - build
+    #     filters:
+    #       branches:
+    #         only: production
