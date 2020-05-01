@@ -13,9 +13,8 @@ jobs:
       # load composer cache
       - restore_cache:
           key: deps1-{{ .Branch }}-{{ checksum "requirements.txt" }}
-      - run:
-        name: Install Python deps in a venv
-        command: |
+      # Install Python deps in a venv
+      - run: |
           python3 -m venv venv
           . venv/bin/activate
           pip install -r requirements.txt
