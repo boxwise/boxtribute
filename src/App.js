@@ -4,6 +4,17 @@ import PrivateRoute from "./PrivateRoute";
 import Auth0 from "./Auth0";
 import Home from "./views/Home";
 import OrgTopLevel from "./views/Organization";
+import { ApolloProvider } from '@apollo/react-hooks';
+import ApolloClient from 'apollo-boost';
+import { ApolloTest } from "./ApolloTest";
+
+const { 
+  REACT_APP_GRAPHQL_SERVER
+} = process.env;
+
+const client = new ApolloClient({
+  uri: REACT_APP_GRAPHQL_SERVER,
+});
 
 export default function App() {
   const [loggedIn, setLoggedIn] = useState(false);
@@ -38,34 +49,36 @@ export default function App() {
   }
 
   return (
-    <Router>
-      <div>
-        {/* "Nav-bar" */}
-        
-        {/* NOTE! 
-        This works like a normal switch, so you have to put the specific routes the highest,
-        and work your way down to least-specific */}
-        <Switch>
-          <PrivateRoute path="/org" pathRedirect="/" isLoggedIn={loggedIn}>
-            <OrgTopLevel authObject={authObject} />
-          </PrivateRoute>
+    <ApolloProvider client={client}>
+      <Router>
+        <div>
+          {/* "Nav-bar" */}
+          
+          {/* NOTE! 
+          This works like a normal switch, so you have to put the specific routes the highest,
+          and work your way down to least-specific */}
+          <Switch>
+            <PrivateRoute path="/org" pathRedirect="/" isLoggedIn={loggedIn}>
+              <OrgTopLevel authObject={authObject} />
+            </PrivateRoute>
 
-          <Route path="/">
-            <Home />
-          </Route>
-        </Switch>
-      </div>
-      {loggedIn ? (
-          <button onClick={() => handleLogOut()} className="log-in">
-            Log Out
-          </button>
-        ) : (
-          <button
-            onClick={() => {
-              Auth0.login();
-            }}
-            className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline" type="button">Sign In</button>
-        )}
-    </Router>
+            <Route path="/">
+              <Home />
+            </Route>
+          </Switch>
+        </div>
+        {loggedIn ? (
+            <button onClick={() => handleLogOut()} className="log-in">
+              Log Out
+            </button>
+          ) : (
+            <button
+              onClick={() => {
+                Auth0.login();
+              }}
+              className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline" type="button">Sign In</button>
+          )}
+      </Router>
+    </ApolloProvider>
   );
 }
