@@ -7,7 +7,7 @@ services:
         networks:
           - backend
         volumes:
-          - .:/code
+          - .:/codedir
         environment:
           FLASK_ENV: development
     mysql:
