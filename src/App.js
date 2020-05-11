@@ -6,7 +6,6 @@ import Home from "./views/Home";
 import OrgTopLevel from "./views/Organization";
 import { ApolloProvider } from '@apollo/react-hooks';
 import ApolloClient from 'apollo-boost';
-import { ApolloTest } from "./ApolloTest";
 
 const { 
   REACT_APP_GRAPHQL_SERVER
