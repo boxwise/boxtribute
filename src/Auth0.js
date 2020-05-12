@@ -1,8 +1,8 @@
-import * as Auth0 from "auth0-js";
+import * as Auth0 from 'auth0-js';
 
 // get your own by making an account at Auth0 and putting these in the .env file
 // unless you change the CRA properties, both the REACT_APP_REDIRECT and REACT_APP_LOGOUT_URL=http://localhost:3000
-const { 
+const {
   REACT_APP_AUTH0_DOMAIN,
   REACT_APP_AUTH0_CLIENT_ID,
   REACT_APP_REDIRECT,
@@ -19,8 +19,8 @@ class Auth {
   login() {
     this.auth0.authorize({
       audience: REACT_APP_AUTH0_AUDIENCE,
-      scope: "openid profile email",
-      responseType: "id_token token",
+      scope: 'openid profile email',
+      responseType: 'id_token token',
       redirectUri: REACT_APP_REDIRECT,
     });
   }
@@ -28,7 +28,7 @@ class Auth {
   logout() {
     this.auth0.logout({
       returnTo: REACT_APP_LOGOUT_URL,
-      clientID: REACT_APP_AUTH0_CLIENT_ID
+      clientID: REACT_APP_AUTH0_CLIENT_ID,
     });
   }
 }

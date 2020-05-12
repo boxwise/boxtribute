@@ -1,8 +1,5 @@
-import React from "react";
-import {
-  useParams,
-  Link,
-} from "react-router-dom";
+import React from 'react';
+import { useParams, Link } from 'react-router-dom';
 
 export default function SingleOrg() {
   let { orgId } = useParams();
@@ -13,7 +10,7 @@ export default function SingleOrg() {
       <ul>
         <li>...</li>
       </ul>
-      <Link to='/'>Go Home</Link>
+      <Link to="/">Go Home</Link>
     </div>
   );
 }
