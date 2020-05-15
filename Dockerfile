@@ -1,7 +1,7 @@
 FROM python:3.8-slim-buster
 RUN mkdir /code
 WORKDIR /code
-ENV FLASK_APP server.py
+ENV FLASK_APP main
 ENV FLASK_RUN_HOST 127.0.0.1:5000
 COPY requirements.txt requirements.txt
 RUN apt-get update -y && apt-get install -y python3-pip python3-dev && \

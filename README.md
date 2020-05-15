@@ -46,4 +46,6 @@ At the moment it is easiest if remove your db-docker container with
     
 and restart it afterwards.This is only a short-term solution for now.
 
+#### Formatting
 
+Right now we are using Black for formatting. To format a file, use `black {source_file_or_directory}`. Auto-formatting to be implemented later. 

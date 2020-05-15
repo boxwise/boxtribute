@@ -8,8 +8,9 @@ services:
           - backend
         volumes:
           - .:/codedir
-        environment:
-          FLASK_ENV: development
+        # environment:
+          # TODO: debug mode: ON crashes flask in docker-compose up 
+          # FLASK_ENV: development
     mysql:
         image: mysql/mysql-server:latest
         command: --default-authentication-plugin=mysql_native_password --lower_case_table_names=1
@@ -20,6 +21,7 @@ services:
         volumes:
           - ./init.sql:/docker-entrypoint-initdb.d/init.sql
         ports:
+          # <Port exposed> : < MySQL Port running inside container>
           - "32000:3306"
         networks:
           - backend
