@@ -4,7 +4,7 @@
 # from flask_peewee.rest import RestAPI, RestResource, UserAuthentication, AdminAuthentication, RestrictOwnerResource
 
 # from app import app
-# from models import Person, Camp
+# from models import Person, Camps
 
 
 # # instantiate our api wrapper

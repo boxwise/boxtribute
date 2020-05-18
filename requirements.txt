@@ -5,6 +5,7 @@ ecdsa==0.15
 Flask==1.1.2
 Flask-Cors==3.0.8
 Flask-MySQLdb==0.2.0
+flask-peewee==3.0.3
 graphql-core==3.0.4
 itsdangerous==1.1.0
 Jinja2==2.11.2

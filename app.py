@@ -2,7 +2,7 @@ from flask import Flask
 from dotenv import load_dotenv
 import os
 # flask-peewee bindings
-from flask_peewee.db import MySQLDatabase
+from flask_peewee.db import Database
 
 
 load_dotenv()
@@ -13,13 +13,19 @@ ALGORITHMS = ["RS256"]
 
 app = Flask(__name__)
 
-app.config['MYSQL_HOST'] = os.getenv('MYSQL_HOST')
-app.config['MYSQL_USER'] = os.getenv('MYSQL_USER')
-app.config['MYSQL_PASSWORD'] = os.getenv('MYSQL_PASSWORD')
-app.config['MYSQL_DB'] = os.getenv('MYSQL_DB')
-app.config['MYSQL_PORT'] = os.getenv('MYSQL_PORT')
+app.config['DATABASE'] = {
+    "name": os.getenv("MYSQL_DB"),
+    "engine": "peewee.MySQLDatabase",
+    "user": os.getenv('MYSQL_USER'),
+    "host": os.getenv('MYSQL_HOST'),
+    "password": os.getenv('MYSQL_PASSWORD'),
+    # int, otherwise: TypeError: %d format: a number is required, not str from
+    # pymysql.connections
+    "port": int(os.getenv('MYSQL_PORT', 0)),
+}
 
-mysql =  MySQLDatabase(app)
+
+mysql = Database(app)
 
 
 def create_tables():

@@ -4,7 +4,9 @@ from .app import mysql
 class BaseModel(Model):
     """A base model that will use our MySQL database"""
     class Meta:
-        database = mysql
+        # or derive models from mysql.Model
+        database = mysql.database
+
 class Person(BaseModel):
     firstname = CharField()
     lastname = CharField()
@@ -15,7 +17,7 @@ class Person(BaseModel):
         return self.firstname
 
 
-class Camp(BaseModel):
+class Camps(BaseModel):
     id = CharField()
     organisation_id = CharField()
     name = CharField()
@@ -23,8 +25,9 @@ class Camp(BaseModel):
     def __unicode__(self):
         return self.name
 
-    def get_camps(self):
+    @staticmethod
+    def get_camps():
     # SELECT distinct id, organisation_id FROM dropapp_dev.camps;
-        return (Camp
+        return (Camps
                 .select()
-                .order_by(Camp.name))
+                .order_by(Camps.name))

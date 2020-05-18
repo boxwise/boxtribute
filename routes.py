@@ -10,7 +10,7 @@ import os
 
 from .auth_helper import AuthError, requires_auth
 from .app import app
-from .models import Person, Camp
+from .models import Person, Camps
 from .resolvers import schema
 
 
@@ -20,20 +20,10 @@ def handle_auth_error(ex):
     response.status_code = ex.status_code
     return response
 
-# TODO not sure I need these?
-# @app.before_request
-# def before_request():
-#     mysql.connect()
-
-# @app.after_request
-# def after_request(response):
-#     mysql.close()
-#     return response
-
 @app.route("/api/somequery/")
 def getcamps():
-    response = Camp.get_camps()
-    return jsonify(response)
+    response = Camps.get_camps()
+    return jsonify(list(response.dicts()))
 
 @app.route("/")
 def HELLO():
