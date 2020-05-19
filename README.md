@@ -49,3 +49,11 @@ and restart it afterwards.This is only a short-term solution for now.
 #### Formatting
 
 Right now we are using Black for formatting. To format a file, use `black {source_file_or_directory}`. Auto-formatting to be implemented later. 
+
+#### GraphQL
+We are setting up GraphQL as a data layer for this application. To check out the playground, run this project with the above docker-compose instructions, and go to localhost:5000/graphql. A sample query you can try is:
+```query {
+  allCamps {
+    name
+  }
+}```

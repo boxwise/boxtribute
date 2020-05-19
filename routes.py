@@ -10,7 +10,8 @@ import os
 
 from .auth_helper import AuthError, requires_auth
 from .app import app
-from .models import Person, Camps
+
+# from .models import Person, Camps
 from .resolvers import schema
 
 
@@ -20,28 +21,32 @@ def handle_auth_error(ex):
     response.status_code = ex.status_code
     return response
 
-@app.route("/api/somequery/")
-def getcamps():
-    response = Camps.get_camps()
-    return jsonify(list(response.dicts()))
 
 @app.route("/")
 def HELLO():
     return "This is a landing page"
+
+
 # This doesn't need authentication
 @app.route("/api/public")
-@cross_origin(origin = "localhost",headers=["Content-Type", "Authorization"])
+@cross_origin(origin="localhost", headers=["Content-Type", "Authorization"])
 def public():
-    response = "Hello from a public endpoint! You don't need to be authenticated to see this."
+    response = (
+        "Hello from a public endpoint! You don't need to be authenticated to see this."
+    )
     return jsonify(message=response)
+
 
 # This needs authentication
 @app.route("/api/private")
 @cross_origin(origin="localhost", headers=["Content-Type", "Authorization"])
 @requires_auth
 def private():
-    response = "Hello from a private endpoint! You need to be authenticated to see this."
+    response = (
+        "Hello from a private endpoint! You need to be authenticated to see this."
+    )
     return jsonify(message=response)
+
 
 @app.route("/graphql", methods=["GET"])
 def graphql_playgroud():
@@ -51,6 +56,7 @@ def graphql_playgroud():
     # exploring your API using desktop GraphQL Playground app.
     return PLAYGROUND_HTML, 200
 
+
 @app.route("/graphql", methods=["POST"])
 def graphql_server():
     # GraphQL queries are always sent as POST
@@ -58,12 +64,7 @@ def graphql_server():
 
     # Note: Passing the request to the context is optional.
     # In Flask, the current request is always accessible as flask.request
-    success, result = graphql_sync(
-        schema,
-        data,
-        context_value=request,
-        debug=app.debug
-    )
+    success, result = graphql_sync(schema, data, context_value=request, debug=app.debug)
 
     status_code = 200 if success else 400
     return jsonify(result), status_code
