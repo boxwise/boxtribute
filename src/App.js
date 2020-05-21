@@ -4,6 +4,16 @@ import PrivateRoute from './PrivateRoute';
 import Auth0 from './Auth0';
 import Home from './views/Home';
 import OrgTopLevel from './views/Organization';
+import { ApolloProvider } from '@apollo/react-hooks';
+import ApolloClient from 'apollo-boost';
+
+const { 
+  REACT_APP_GRAPHQL_SERVER
+} = process.env;
+
+const client = new ApolloClient({
+  uri: REACT_APP_GRAPHQL_SERVER,
+});
 
 export default function App() {
   const [loggedIn, setLoggedIn] = useState(false);
@@ -38,6 +48,7 @@ export default function App() {
   }
 
   return (
+    <ApolloProvider client={client}>
     <Router>
       <div>
         {/* "Nav-bar" */}
@@ -71,5 +82,6 @@ export default function App() {
         </button>
       )}
     </Router>
+    </ApolloProvider>
   );
 }
