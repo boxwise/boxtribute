@@ -18,6 +18,7 @@
     "react-qr-reader": "^2.2.1",
     "react-router-dom": "^5.1.2",
     "react-scripts": "^3.4.0",
+    "tailwind": "^4.0.0",
     "tailwindcss": "^1.2.0"
   },
   "scripts": {
@@ -25,7 +26,8 @@
     "start": "npm run build:style && react-scripts start",
     "build": "react-scripts build",
     "test": "react-scripts test",
-    "eject": "react-scripts eject"
+    "eject": "react-scripts eject",
+    "lint": "eslint . && flow"
   },
   "eslintConfig": {
     "extends": "react-app"
@@ -41,5 +43,16 @@
       "last 1 firefox version",
       "last 1 safari version"
     ]
+  },
+  "devDependencies": {
+    "eslint-config-airbnb": "^18.1.0",
+    "eslint-config-prettier": "^6.11.0",
+    "eslint-plugin-jsx-a11y": "^6.2.3",
+    "eslint-plugin-prettier": "^3.1.3",
+    "flow-bin": "^0.124.0",
+    "flow-typed": "^3.1.0",
+    "husky": "^4.2.5",
+    "lint-staged": "^10.2.2",
+    "prettier": "^2.0.5"
   }
 }

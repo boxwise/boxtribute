@@ -1,9 +1,9 @@
-import React, { useEffect, useState } from "react";
-import { BrowserRouter as Router, Switch, Route } from "react-router-dom";
-import PrivateRoute from "./PrivateRoute";
-import Auth0 from "./Auth0";
-import Home from "./views/Home";
-import OrgTopLevel from "./views/Organization";
+import React, { useEffect, useState } from 'react';
+import { BrowserRouter as Router, Switch, Route } from 'react-router-dom';
+import PrivateRoute from './PrivateRoute';
+import Auth0 from './Auth0';
+import Home from './views/Home';
+import OrgTopLevel from './views/Organization';
 import { ApolloProvider } from '@apollo/react-hooks';
 import ApolloClient from 'apollo-boost';
 
@@ -33,10 +33,10 @@ export default function App() {
     if (totalHash) {
       // remove leading # and split into components,
       // so now you have ['key1=value1', 'key2=value2']
-      const hashArray = totalHash.substr(1).split("&");
+      const hashArray = totalHash.substr(1).split('&');
       let authObject = {};
-      hashArray.forEach(item => {
-        const keyValArray = item.split("=");
+      hashArray.forEach((item) => {
+        const keyValArray = item.split('=');
         // turns [key, value] into authObject={key: value}
         authObject[keyValArray[0]] = keyValArray[1];
       });
@@ -49,35 +49,39 @@ export default function App() {
 
   return (
     <ApolloProvider client={client}>
-      <Router>
-        <div>
-          {/* "Nav-bar" */}
-          
-          {/* NOTE! 
-          This works like a normal switch, so you have to put the specific routes the highest,
-          and work your way down to least-specific */}
-          <Switch>
-            <PrivateRoute path="/org" pathRedirect="/" isLoggedIn={loggedIn}>
-              <OrgTopLevel authObject={authObject} />
-            </PrivateRoute>
+    <Router>
+      <div>
+        {/* "Nav-bar" */}
 
-            <Route path="/">
-              <Home />
-            </Route>
-          </Switch>
-        </div>
-        {loggedIn ? (
-            <button onClick={() => handleLogOut()} className="log-in">
-              Log Out
-            </button>
-          ) : (
-            <button
-              onClick={() => {
-                Auth0.login();
-              }}
-              className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline" type="button">Sign In</button>
-          )}
-      </Router>
+        {/* NOTE! 
+        This works like a normal switch, so you have to put the specific routes the highest,
+        and work your way down to least-specific */}
+        <Switch>
+          <PrivateRoute path="/org" pathNameRedirect="/" isLoggedIn={loggedIn}>
+            <OrgTopLevel authObject={authObject} />
+          </PrivateRoute>
+
+          <Route path="/">
+            <Home />
+          </Route>
+        </Switch>
+      </div>
+      {loggedIn ? (
+        <button onClick={() => handleLogOut()} className="log-in">
+          Log Out
+        </button>
+      ) : (
+        <button
+          onClick={() => {
+            Auth0.login();
+          }}
+          className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline"
+          type="button"
+        >
+          Sign In
+        </button>
+      )}
+    </Router>
     </ApolloProvider>
   );
 }

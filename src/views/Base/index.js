@@ -1,8 +1,5 @@
-import React from "react";
-import {
-  useParams,
-  Link,
-} from "react-router-dom";
+import React from 'react';
+import { useParams, Link } from 'react-router-dom';
 
 export default function Base() {
   let { orgId, baseId } = useParams();
@@ -14,7 +11,7 @@ export default function Base() {
       <ul>
         <li>...</li>
       </ul>
-      <Link to='/'>Go Home</Link>
+      <Link to="/">Go Home</Link>
     </div>
   );
 }
