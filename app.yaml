@@ -1,0 +1,7 @@
+runtime: python37
+service: api-staging
+entrypoint: gunicorn -b :$PORT server:APP
+handlers:
+- url: .*
+  script: auto
+  secure: always
