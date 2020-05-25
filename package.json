@@ -4,6 +4,8 @@
   "private": true,
   "dependencies": {
     "@apollo/react-hooks": "^3.1.5",
+    "@progress/kendo-drawing": "^1.7.0",
+    "@progress/kendo-react-pdf": "^3.14.0",
     "@testing-library/jest-dom": "^4.2.4",
     "@testing-library/react": "^9.3.2",
     "@testing-library/user-event": "^7.1.2",
@@ -13,11 +15,14 @@
     "axios": "^0.19.2",
     "graphql": "^15.0.0",
     "postcss-cli": "^7.1.0",
+    "prop-types": "^15.7.2",
     "react": "^16.12.0",
     "react-dom": "^16.12.0",
+    "react-number-picker": "^1.0.5",
     "react-qr-reader": "^2.2.1",
     "react-router-dom": "^5.1.2",
     "react-scripts": "^3.4.0",
+    "react-widgets": "^5.0.0-beta.16",
     "tailwind": "^4.0.0",
     "tailwindcss": "^1.2.0"
   },
@@ -27,7 +32,7 @@
     "build": "react-scripts build",
     "test": "react-scripts test",
     "eject": "react-scripts eject",
-    "lint": "eslint . && flow"
+    "lint": "eslint . --fix"
   },
   "eslintConfig": {
     "extends": "react-app"

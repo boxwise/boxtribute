@@ -1,8 +1,8 @@
-import React from 'react';
-import { useParams, Link } from 'react-router-dom';
+import React from "react"
+import { useParams, Link } from "react-router-dom"
 
 export default function Base() {
-  let { orgId, baseId } = useParams();
+  const { orgId, baseId } = useParams()
   return (
     <div>
       <h3>Requested organization: {orgId}</h3>
@@ -13,5 +13,5 @@ export default function Base() {
       </ul>
       <Link to="/">Go Home</Link>
     </div>
-  );
+  )
 }
