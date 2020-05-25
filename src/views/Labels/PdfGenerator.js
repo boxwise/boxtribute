@@ -2,9 +2,10 @@
 /* eslint-disable react/button-has-type */
 /* eslint-disable react/no-string-refs */
 import React, { Component } from "react"
+import { Link } from "react-router-dom"
 import { PDFExport } from "@progress/kendo-react-pdf"
-import QRUpper from "../public/Boxtribute_QR_Label_Upper.jpg"
-import QRLower from "../public/Boxtribute_QR_Label_Lower.jpg"
+import QRUpper from "../../public/Boxtribute_QR_Label_Upper.jpg"
+import QRLower from "../../public/Boxtribute_QR_Label_Lower.jpg"
 
 class PdfGenerator extends Component {
   page
@@ -76,7 +77,6 @@ class PdfGenerator extends Component {
               <img
                 ref={(image) => (this.imageLower = image)}
                 src={QRLower}
-                height="280px"
                 alt="Boxtribute Logo"
               />
               <p>
@@ -86,6 +86,7 @@ class PdfGenerator extends Component {
             </div>
           </div>
         </PDFExport>
+        <Link to="/">Go Home</Link>
       </div>
     )
   }

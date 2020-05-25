@@ -1,9 +1,9 @@
-import React from 'react';
-import { Switch, Route } from 'react-router-dom';
-import ScanBox from '../ScanBox';
-import Placeholder from '../Placeholder';
-import SingleOrg from './SingleOrg';
-import Base from '../Base';
+import React from "react"
+import { Switch, Route } from "react-router-dom"
+import ScanBox from "../ScanBox"
+import Placeholder from "../Placeholder"
+import SingleOrg from "./SingleOrg"
+import Base from "../Base"
 
 export default function OrgTopLevel({ authObject }) {
   return (
@@ -14,34 +14,34 @@ export default function OrgTopLevel({ authObject }) {
           generic <Route> here as an "index" page for all orgs, or
           the page that is shown when no specific org is selected */}
       <Switch>
-        <Route path={'/org/:orgId/base/:baseId/pick-list'}>
+        <Route path="/org/:orgId/base/:baseId/pick-list">
           <Placeholder />
         </Route>
-        <Route path={'/org/:orgId/base/:baseId/find-box'}>
+        <Route path="/org/:orgId/base/:baseId/find-box">
           <ScanBox authObject={authObject} />
         </Route>
-        <Route path={'/org/:orgId/base/:baseId/create-box'}>
+        <Route path="/org/:orgId/base/:baseId/create-box">
           <Placeholder />
         </Route>
-        <Route path={'/org/:orgId/base/:baseId/box/:boxId'}>
+        <Route path="/org/:orgId/base/:baseId/box/:boxId">
           <Placeholder />
         </Route>
-        <Route path={'/org/:orgId/base/:baseId/box/:boxId/edit'}>
+        <Route path="/org/:orgId/base/:baseId/box/:boxId/edit">
           <Placeholder />
         </Route>
-        <Route path={'/org/:orgId/base/:baseId/box/:boxId/history'}>
+        <Route path="/org/:orgId/base/:baseId/box/:boxId/history">
           <Placeholder />
         </Route>
-        <Route path={'/org/:orgId/base/:baseId'}>
+        <Route path="/org/:orgId/base/:baseId">
           <Base />
         </Route>
-        <Route path={'/org/:orgId'}>
+        <Route path="/org/:orgId">
           <SingleOrg />
         </Route>
-        <Route path={'/org'}>
+        <Route path="/org">
           <h3>Please provide an organization in the url.</h3>
         </Route>
       </Switch>
     </div>
-  );
+  )
 }
