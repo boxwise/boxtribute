@@ -4,7 +4,7 @@ This is a simple flask app to be used together with the [react-client](https://g
 ### Preparation for Installation
 
 * Install [Docker](https://www.docker.com/products/docker-desktop)
-* Get an invite to the development tenant of [Auth0](https://auth0.com/) for Boxwise. 
+* Get an invite to the development tenant of [Auth0](https://auth0.com/) for Boxwise.
 
 ### How do I get set up?
 
@@ -39,12 +39,27 @@ The password for the root-user for the db `dropapp_dev` is `dropapp_root`.
 Most of us use workbench to access the MySQL database. To establish a connection you need to enter your `localhost`-address, e.g. `127.0.0.1`, for 'Hostname' and `32000` for 'Port'.
 
 #### Re-seed your database
- 
-At the moment it is easiest if remove your db-docker container with 
+
+At the moment it is easiest if remove your db-docker container with
 
     docker rm <name of the db-docker container, e.g. boxwise-flask_mysql_1>
-    
+
 and restart it afterwards.This is only a short-term solution for now.
+
+### Development
+
+This project is developed in Python >= 3.6. For setting up the development environment, first create a Python virtual environment, e.g. by
+
+    python3 -m venv .venv
+    source .venv/bin/activate
+    pip install -r requirements-dev.txt
+    pre-commit install --overwrite
+
+Now you're all set up using Python code quality tools! `pre-commit´ automatically checks the staged patch before committing. If it rejects a patch, add the corrections and try to commit again.
+
+Run a full style-check by
+
+    pre-commit run --all-files
 
 #### Formatting
 
