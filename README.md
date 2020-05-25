@@ -46,7 +46,7 @@ At the moment it is easiest if remove your db-docker container with
 
 and restart it afterwards.This is only a short-term solution for now.
 
-## Development
+### Development
 
 This project is developed in Python >= 3.6. For setting up the development environment, first create a Python virtual environment, e.g. by
 
@@ -60,3 +60,15 @@ Now you're all set up using Python code quality tools! `pre-commit´ automatical
 Run a full style-check by
 
     pre-commit run --all-files
+
+#### Formatting
+
+Right now we are using Black for formatting. To format a file, use `black {source_file_or_directory}`. Auto-formatting to be implemented later. 
+
+#### GraphQL
+We are setting up GraphQL as a data layer for this application. To check out the playground, run this project with the above docker-compose instructions, and go to localhost:5000/graphql. A sample query you can try is:
+```query {
+  allCamps {
+    name
+  }
+}```
