@@ -1,29 +1,30 @@
 import json
-from six.moves.urllib.request import urlopen
+import os
 from functools import wraps
 
-from flask import Flask, request, jsonify, _request_ctx_stack
-from flask_cors import cross_origin
-from jose import jwt
-from flask_mysqldb import MySQL
 from dotenv import load_dotenv
-import os
+from flask import Flask, _request_ctx_stack, jsonify, request
+from flask_cors import cross_origin
+from flask_mysqldb import MySQL
+from jose import jwt
+from six.moves.urllib.request import urlopen
 
 load_dotenv()
 
-AUTH0_DOMAIN = os.getenv('AUTH0_DOMAIN')
-API_AUDIENCE = os.getenv('AUTH0_AUDIENCE')
+AUTH0_DOMAIN = os.getenv("AUTH0_DOMAIN")
+API_AUDIENCE = os.getenv("AUTH0_AUDIENCE")
 ALGORITHMS = ["RS256"]
 
 APP = Flask(__name__)
 
-APP.config['MYSQL_HOST'] = os.getenv('MYSQL_HOST')
-APP.config['MYSQL_USER'] = os.getenv('MYSQL_USER')
-APP.config['MYSQL_PASSWORD'] = os.getenv('MYSQL_PASSWORD')
-APP.config['MYSQL_DB'] = os.getenv('MYSQL_DB')
-APP.config['MYSQL_PORT'] = os.getenv('MYSQL_PORT')
+APP.config["MYSQL_HOST"] = os.getenv("MYSQL_HOST")
+APP.config["MYSQL_USER"] = os.getenv("MYSQL_USER")
+APP.config["MYSQL_PASSWORD"] = os.getenv("MYSQL_PASSWORD")
+APP.config["MYSQL_DB"] = os.getenv("MYSQL_DB")
+APP.config["MYSQL_PORT"] = os.getenv("MYSQL_PORT")
 
 mysql = MySQL(APP)
+
 
 # Error handler
 class AuthError(Exception):
@@ -31,47 +32,62 @@ class AuthError(Exception):
         self.error = error
         self.status_code = status_code
 
+
 @APP.errorhandler(AuthError)
 def handle_auth_error(ex):
     response = jsonify(ex.error)
     response.status_code = ex.status_code
     return response
 
+
 def get_token_auth_header():
     """Obtains the Access Token from the Authorization Header
     """
     auth = request.headers.get("Authorization", None)
     if not auth:
-        raise AuthError({"code": "authorization_header_missing",
-                        "description":
-                            "Authorization header is expected"}, 401)
+        raise AuthError(
+            {
+                "code": "authorization_header_missing",
+                "description": "Authorization header is expected",
+            },
+            401,
+        )
 
     parts = auth.split()
 
     if parts[0].lower() != "bearer":
-        raise AuthError({"code": "invalid_header",
-                        "description":
-                            "Authorization header must start with"
-                            " Bearer"}, 401)
+        raise AuthError(
+            {
+                "code": "invalid_header",
+                "description": "Authorization header must start with" " Bearer",
+            },
+            401,
+        )
     elif len(parts) == 1:
-        raise AuthError({"code": "invalid_header",
-                        "description": "Token not found"}, 401)
+        raise AuthError(
+            {"code": "invalid_header", "description": "Token not found"}, 401
+        )
     elif len(parts) > 2:
-        raise AuthError({"code": "invalid_header",
-                        "description":
-                            "Authorization header must be"
-                            " Bearer token"}, 401)
+        raise AuthError(
+            {
+                "code": "invalid_header",
+                "description": "Authorization header must be" " Bearer token",
+            },
+            401,
+        )
 
     token = parts[1]
     return token
 
+
 def requires_auth(f):
     """Determines if the Access Token is valid
     """
+
     @wraps(f)
     def decorated(*args, **kwargs):
         token = get_token_auth_header()
-        jsonurl = urlopen("https://"+AUTH0_DOMAIN+"/.well-known/jwks.json")
+        jsonurl = urlopen("https://" + AUTH0_DOMAIN + "/.well-known/jwks.json")
         jwks = json.loads(jsonurl.read())
         unverified_header = jwt.get_unverified_header(token)
         rsa_key = {}
@@ -82,7 +98,7 @@ def requires_auth(f):
                     "kid": key["kid"],
                     "use": key["use"],
                     "n": key["n"],
-                    "e": key["e"]
+                    "e": key["e"],
                 }
         if rsa_key:
             try:
@@ -91,31 +107,43 @@ def requires_auth(f):
                     rsa_key,
                     algorithms=ALGORITHMS,
                     audience=API_AUDIENCE,
-                    issuer="https://"+AUTH0_DOMAIN+"/"
+                    issuer="https://" + AUTH0_DOMAIN + "/",
                 )
             except jwt.ExpiredSignatureError:
-                raise AuthError({"code": "token_expired",
-                                "description": "token is expired"}, 401)
+                raise AuthError(
+                    {"code": "token_expired", "description": "token is expired"}, 401
+                )
             except jwt.JWTClaimsError:
-                raise AuthError({"code": "invalid_claims",
-                                "description":
-                                    "incorrect claims,"
-                                    "please check the audience and issuer"}, 401)
+                raise AuthError(
+                    {
+                        "code": "invalid_claims",
+                        "description": "incorrect claims,"
+                        "please check the audience and issuer",
+                    },
+                    401,
+                )
             except Exception:
-                raise AuthError({"code": "invalid_header",
-                                "description":
-                                    "Unable to parse authentication"
-                                    " token."}, 401)
+                raise AuthError(
+                    {
+                        "code": "invalid_header",
+                        "description": "Unable to parse authentication" " token.",
+                    },
+                    401,
+                )
 
             _request_ctx_stack.top.current_user = payload
             return f(*args, **kwargs)
-        raise AuthError({"code": "invalid_header",
-                        "description": "Unable to find appropriate key"}, 401)
+        raise AuthError(
+            {"code": "invalid_header", "description": "Unable to find appropriate key"},
+            401,
+        )
+
     return decorated
 
-def query(sql,options):
+
+def query(sql, options):
     cur = mysql.connection.cursor()
-    cur.execute(sql,(options))
+    cur.execute(sql, (options))
     mysql.connection.commit()
     data = jsonify(cur.fetchall())
     cur.close()
@@ -125,22 +153,30 @@ def query(sql,options):
 @APP.route("/api/somequery/")
 def getcamps():
     sql = "Select * from camps"
-    return query(sql,())
+    return query(sql, ())
+
 
 @APP.route("/")
 def HELLO():
     return "This is a landing page"
+
+
 # This doesn't need authentication
 @APP.route("/api/public")
-@cross_origin(origin = "localhost",headers=["Content-Type", "Authorization"])
+@cross_origin(origin="localhost", headers=["Content-Type", "Authorization"])
 def public():
-    response = "Hello from a public endpoint! You don't need to be authenticated to see this."
+    response = (
+        "Hello from a public endpoint! You don't need to be authenticated to see this."
+    )
     return jsonify(message=response)
+
 
 # This needs authentication
 @APP.route("/api/private")
 @cross_origin(origin="localhost", headers=["Content-Type", "Authorization"])
 @requires_auth
 def private():
-    response = "Hello from a private endpoint! You need to be authenticated to see this."
+    response = (
+        "Hello from a private endpoint! You need to be authenticated to see this."
+    )
     return jsonify(message=response)
