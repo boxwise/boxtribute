@@ -4,7 +4,6 @@ import os
 # flask-peewee bindings
 from flask_peewee.db import Database
 
-
 load_dotenv()
 
 AUTH0_DOMAIN = os.getenv('AUTH0_DOMAIN')
@@ -13,17 +12,21 @@ ALGORITHMS = ["RS256"]
 
 app = Flask(__name__)
 
-app.config['DATABASE'] = {
+# load data for database connection
+mysqldict = {
     "name": os.getenv("MYSQL_DB"),
     "engine": "peewee.MySQLDatabase",
     "user": os.getenv('MYSQL_USER'),
-    "host": os.getenv('MYSQL_HOST'),
     "password": os.getenv('MYSQL_PASSWORD'),
+}
+if os.getenv('MYSQL_UNIX_SOCKET', False): # deployment to GCLOUD
+    mysqldict["unix_socket"] = os.getenv('MYSQL_UNIX_SOCKET')
+else:
     # int, otherwise: TypeError: %d format: a number is required, not str from
     # pymysql.connections
-    "port": int(os.getenv('MYSQL_PORT', 0)),
-}
-
+    mysqldict["port"] = int(os.getenv('MYSQL_PORT', 0))
+    mysqldict["host"] = os.getenv('MYSQL_HOST')
+app.config['DATABASE'] = mysqldict
 
 mysql = Database(app)
 
