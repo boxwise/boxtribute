@@ -1,13 +1,11 @@
-import json
-import os
+from flask import Flask, request, _request_ctx_stack
 from functools import wraps
-
-from dotenv import load_dotenv
-from flask import Flask, _request_ctx_stack, jsonify, request
-from flask_cors import cross_origin
-from flask_mysqldb import MySQL
-from jose import jwt
 from six.moves.urllib.request import urlopen
+from dotenv import load_dotenv
+import os
+import json
+from jose import jwt
+
 
 load_dotenv()
 
@@ -15,30 +13,11 @@ AUTH0_DOMAIN = os.getenv("AUTH0_DOMAIN")
 API_AUDIENCE = os.getenv("AUTH0_AUDIENCE")
 ALGORITHMS = ["RS256"]
 
-APP = Flask(__name__)
-
-APP.config["MYSQL_HOST"] = os.getenv("MYSQL_HOST")
-APP.config["MYSQL_USER"] = os.getenv("MYSQL_USER")
-APP.config["MYSQL_PASSWORD"] = os.getenv("MYSQL_PASSWORD")
-APP.config["MYSQL_DB"] = os.getenv("MYSQL_DB")
-APP.config["MYSQL_PORT"] = os.getenv("MYSQL_PORT")
-
-mysql = MySQL(APP)
-
-
 # Error handler
 class AuthError(Exception):
     def __init__(self, error, status_code):
         self.error = error
         self.status_code = status_code
-
-
-@APP.errorhandler(AuthError)
-def handle_auth_error(ex):
-    response = jsonify(ex.error)
-    response.status_code = ex.status_code
-    return response
-
 
 def get_token_auth_header():
     """Obtains the Access Token from the Authorization Header
@@ -133,50 +112,6 @@ def requires_auth(f):
 
             _request_ctx_stack.top.current_user = payload
             return f(*args, **kwargs)
-        raise AuthError(
-            {"code": "invalid_header", "description": "Unable to find appropriate key"},
-            401,
-        )
-
+        raise AuthError({"code": "invalid_header",
+                        "description": "Unable to find appropriate key"}, 401)
     return decorated
-
-
-def query(sql, options):
-    cur = mysql.connection.cursor()
-    cur.execute(sql, (options))
-    mysql.connection.commit()
-    data = jsonify(cur.fetchall())
-    cur.close()
-    return data
-
-
-@APP.route("/api/somequery/")
-def getcamps():
-    sql = "Select * from camps"
-    return query(sql, ())
-
-
-@APP.route("/")
-def HELLO():
-    return "This is a landing page"
-
-
-# This doesn't need authentication
-@APP.route("/api/public")
-@cross_origin(origin="localhost", headers=["Content-Type", "Authorization"])
-def public():
-    response = (
-        "Hello from a public endpoint! You don't need to be authenticated to see this."
-    )
-    return jsonify(message=response)
-
-
-# This needs authentication
-@APP.route("/api/private")
-@cross_origin(origin="localhost", headers=["Content-Type", "Authorization"])
-@requires_auth
-def private():
-    response = (
-        "Hello from a private endpoint! You need to be authenticated to see this."
-    )
-    return jsonify(message=response)
