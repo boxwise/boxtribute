@@ -36,7 +36,7 @@ export default function OrgTopLevel({ authObject }) {
           <Base />
         </Route>
         <Route path={'/org/:orgId'}>
-          <SingleOrg />
+          <SingleOrg authObject={authObject} />
         </Route>
         <Route path={'/org'}>
           <h3>Please provide an organization in the url.</h3>
