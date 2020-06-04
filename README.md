@@ -67,11 +67,13 @@ Right now we are using Black for formatting. To format a file, use `black {sourc
 
 #### GraphQL
 We are setting up GraphQL as a data layer for this application. To check out the playground, run this project with the above docker-compose instructions, and go to localhost:5000/graphql. A sample query you can try is:
-```query {
+```
+query {
   allCamps {
     name
   }
-}```
+}
+```
 
 ### License
 See the LICENSE file for license rights and limitations (Apache 2.0).
