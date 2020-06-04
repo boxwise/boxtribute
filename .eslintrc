@@ -9,6 +9,20 @@
   "plugins": ["jsx-a11y", "prettier"],
   "rules": {
     "semi": 0,
+    // import/no-named-as-default disabled as it prevents a common pattern of exporting
+    // non-connected redux components for testing and then exporting
+    // the connected component as the default export
+    // see https://github.com/benmosher/eslint-plugin-import/issues/544
+    "import/no-named-as-default": "off",
+    // codebase uses prop types some times and not others
+    "react/prop-types": "off",
+    // should be turned on eventually, but not compatible with current codebase
+    "no-shadow": "off",
+    "@typescript-eslint/explicit-function-return-type": "off",
+    // react hook rules
+    "react-hooks/rules-of-hooks": "error",
+    "react-hooks/exhaustive-deps": "error",
+    // suport for jsx files
     "react/jsx-filename-extension": [1, { "extensions": [".js", ".jsx"] }],
     "prettier/prettier": [
       "error",
