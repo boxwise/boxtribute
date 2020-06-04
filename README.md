@@ -72,3 +72,6 @@ We are setting up GraphQL as a data layer for this application. To check out the
     name
   }
 }```
+
+#### License
+See the LICENSE file for license rights and limitations (Apache 2.0).
