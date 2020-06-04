@@ -21,7 +21,7 @@ export default function App() {
       operation.setContext({
         headers: {
           Authorization: `Bearer ${authObject.accessToken}`,
-          "X-Boxwise": authObject.idTokenPayload.email,
+          "X-Boxwise": authObject.idToken,
           "X-Clacks-Overhead": "GNU Terry Pratchett",
         },
       });
@@ -74,7 +74,7 @@ export default function App() {
               pathNameRedirect="/"
               isLoggedIn={loggedIn}
             >
-              <PdfGenerator authObject={authObject} />
+              <PdfGenerator />
             </PrivateRoute>
 
             <PrivateRoute
@@ -82,7 +82,7 @@ export default function App() {
               pathNameRedirect="/"
               isLoggedIn={loggedIn}
             >
-              <Labels authObject={authObject} />
+              <Labels />
             </PrivateRoute>
 
             <Route path="/">

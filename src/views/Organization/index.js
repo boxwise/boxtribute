@@ -5,7 +5,7 @@ import Placeholder from "../Placeholder"
 import SingleOrg from "./SingleOrg"
 import Base from "../Base"
 
-export default function OrgTopLevel({ authObject }) {
+export default function OrgTopLevel() {
   return (
     <div>
       <h2>Organization</h2>
@@ -18,7 +18,7 @@ export default function OrgTopLevel({ authObject }) {
           <Placeholder />
         </Route>
         <Route path="/org/:orgId/base/:baseId/find-box">
-          <ScanBox authObject={authObject} />
+          <ScanBox />
         </Route>
         <Route path="/org/:orgId/base/:baseId/create-box">
           <Placeholder />
@@ -36,7 +36,7 @@ export default function OrgTopLevel({ authObject }) {
           <Base />
         </Route>
         <Route path="/org/:orgId">
-          <SingleOrg authObject={authObject} />
+          <SingleOrg />
         </Route>
         <Route path="/org">
           <h3>Please provide an organization in the url.</h3>
