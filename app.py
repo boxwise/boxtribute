@@ -3,6 +3,7 @@ from dotenv import load_dotenv
 import os
 # flask-peewee bindings
 from flask_peewee.db import Database
+from flask_cors import CORS
 
 
 load_dotenv()
@@ -12,6 +13,7 @@ API_AUDIENCE = os.getenv('AUTH0_AUDIENCE')
 ALGORITHMS = ["RS256"]
 
 app = Flask(__name__)
+CORS(app)
 
 app.config['DATABASE'] = {
     "name": os.getenv("MYSQL_DB"),
