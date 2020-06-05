@@ -1,6 +1,6 @@
 FROM python:3.8-slim-buster
-RUN mkdir /code
-WORKDIR /code
+RUN mkdir /codedir
+WORKDIR /codedir
 ENV FLASK_APP main
 RUN apt-get update -y && apt-get install -y libmariadb-dev
 COPY requirements.txt .
