@@ -4,7 +4,6 @@ from flask import Flask, request, jsonify, _request_ctx_stack
 import json
 from flask_cors import cross_origin
 from jose import jwt
-from flask_mysqldb import MySQL
 from dotenv import load_dotenv
 import os
 
