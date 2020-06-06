@@ -1,3 +1,4 @@
+"""Configuration and instantiation of flask app and peewee-managed database"""
 import os
 
 from dotenv import load_dotenv

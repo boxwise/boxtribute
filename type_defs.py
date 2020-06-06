@@ -1,3 +1,4 @@
+"""GraphQL type definitions"""
 from ariadne import gql
 
 type_defs = gql(

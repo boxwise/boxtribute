@@ -1,3 +1,4 @@
+"""Model definitions for database"""
 from peewee import CharField, Model
 
 from .app import db

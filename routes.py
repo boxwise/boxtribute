@@ -1,3 +1,4 @@
+"""Construction of routes for flask app"""
 from ariadne import graphql_sync
 from ariadne.constants import PLAYGROUND_HTML
 from flask import jsonify, request

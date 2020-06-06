@@ -1,3 +1,4 @@
+"""Utilities for handling authentication"""
 import json
 import os
 from functools import wraps

@@ -1,3 +1,4 @@
+"""GraphQL resolver functionality"""
 from ariadne import ObjectType, make_executable_schema, snake_case_fallback_resolvers
 
 from .models import Camps
