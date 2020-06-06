@@ -19,6 +19,7 @@ class AuthError(Exception):
         self.error = error
         self.status_code = status_code
 
+
 def get_token_auth_header():
     """Obtains the Access Token from the Authorization Header
     """
@@ -112,6 +113,9 @@ def requires_auth(f):
 
             _request_ctx_stack.top.current_user = payload
             return f(*args, **kwargs)
-        raise AuthError({"code": "invalid_header",
-                        "description": "Unable to find appropriate key"}, 401)
+        raise AuthError(
+            {"code": "invalid_header", "description": "Unable to find appropriate key"},
+            401,
+        )
+
     return decorated
