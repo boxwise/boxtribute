@@ -5,9 +5,9 @@ blueprints here too.
 
 then when you want to run your app, you point to main.py or `main.app`
 """
-from .app import app, mysql
+from .app import mysql
 from .models import Camps
-from .routes import *
+from .routes import app
 
 
 def create_tables():

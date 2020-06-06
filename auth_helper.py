@@ -3,7 +3,7 @@ import os
 from functools import wraps
 
 from dotenv import load_dotenv
-from flask import Flask, _request_ctx_stack, request
+from flask import _request_ctx_stack, request
 from jose import jwt
 from six.moves.urllib.request import urlopen
 
@@ -12,6 +12,7 @@ load_dotenv()
 AUTH0_DOMAIN = os.getenv("AUTH0_DOMAIN")
 API_AUDIENCE = os.getenv("AUTH0_AUDIENCE")
 ALGORITHMS = ["RS256"]
+
 
 # Error handler
 class AuthError(Exception):

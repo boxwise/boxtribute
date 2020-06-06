@@ -1,12 +1,7 @@
-import json
-import os
-
-from ariadne import QueryType, graphql_sync, make_executable_schema
+from ariadne import graphql_sync
 from ariadne.constants import PLAYGROUND_HTML
-from dotenv import load_dotenv
-from flask import Flask, _request_ctx_stack, jsonify, request
+from flask import jsonify, request
 from flask_cors import cross_origin
-from jose import jwt
 
 from .app import app
 from .auth_helper import AuthError, requires_auth

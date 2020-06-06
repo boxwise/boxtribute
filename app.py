@@ -25,8 +25,3 @@ app.config["DATABASE"] = {
 
 
 mysql = Database(app)
-
-
-def create_tables():
-    Person.create_table()
-    Camp.create_table()

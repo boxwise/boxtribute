@@ -1,4 +1,4 @@
-from peewee import *
+from peewee import CharField, Model
 
 from .app import mysql
 
