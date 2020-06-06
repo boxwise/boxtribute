@@ -24,4 +24,4 @@ app.config["DATABASE"] = {
 }
 
 
-mysql = Database(app)
+db = Database(app).database

@@ -1,14 +1,13 @@
 from peewee import CharField, Model
 
-from .app import mysql
+from .app import db
 
 
 class BaseModel(Model):
     """A base model that will use our MySQL database"""
 
     class Meta:
-        # or derive models from mysql.Model
-        database = mysql.database
+        database = db
 
 
 class Person(BaseModel):
