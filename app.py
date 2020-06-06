@@ -1,8 +1,8 @@
-from flask import Flask
-from dotenv import load_dotenv
 import os
-from flask_peewee.db import Database
 
+from dotenv import load_dotenv
+from flask import Flask
+from flask_peewee.db import Database
 
 load_dotenv()
 

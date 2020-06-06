@@ -1,16 +1,15 @@
-from ariadne import QueryType, graphql_sync, make_executable_schema
-from ariadne.constants import PLAYGROUND_HTML
-from flask import Flask, request, jsonify, _request_ctx_stack
 import json
-from flask_cors import cross_origin
-from jose import jwt
-from dotenv import load_dotenv
 import os
 
-from .auth_helper import AuthError, requires_auth
-from .app import app
+from ariadne import QueryType, graphql_sync, make_executable_schema
+from ariadne.constants import PLAYGROUND_HTML
+from dotenv import load_dotenv
+from flask import Flask, _request_ctx_stack, jsonify, request
+from flask_cors import cross_origin
+from jose import jwt
 
-# from .models import Person, Camps
+from .app import app
+from .auth_helper import AuthError, requires_auth
 from .resolvers import schema
 
 

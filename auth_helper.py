@@ -1,11 +1,11 @@
-from flask import Flask, request, _request_ctx_stack
-from functools import wraps
-from six.moves.urllib.request import urlopen
-from dotenv import load_dotenv
-import os
 import json
-from jose import jwt
+import os
+from functools import wraps
 
+from dotenv import load_dotenv
+from flask import Flask, _request_ctx_stack, request
+from jose import jwt
+from six.moves.urllib.request import urlopen
 
 load_dotenv()
 
