@@ -8,6 +8,7 @@ import Home from "./views/Home"
 import OrgTopLevel from "./views/Organization"
 import PdfGenerator from "./views/Labels/PdfGenerator"
 import Labels from "./views/Labels/Labels"
+import TabBar from "./views/TabBar"
 
 const { REACT_APP_GRAPHQL_SERVER } = process.env
 
@@ -104,6 +105,7 @@ export default function App() {
             Sign In
           </button>
         )}
+        <TabBar />
       </Router>
     </ApolloProvider>
   )
