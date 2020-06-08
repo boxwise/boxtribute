@@ -8,9 +8,8 @@ services:
           - backend
         volumes:
           - .:/codedir
-        # environment:
-          # TODO: debug mode: ON crashes flask in docker-compose up 
-          # FLASK_ENV: development
+        environment:
+          FLASK_ENV: development
     mysql:
         image: mysql/mysql-server:latest
         command: --default-authentication-plugin=mysql_native_password --lower_case_table_names=1
