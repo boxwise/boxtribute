@@ -1,11 +1,15 @@
-from peewee import *
-from .app import mysql
+"""Model definitions for database"""
+from peewee import CharField, Model
+
+from .app import db
+
 
 class BaseModel(Model):
     """A base model that will use our MySQL database"""
+
     class Meta:
-        # or derive models from mysql.Model
-        database = mysql.database
+        database = db
+
 
 class Person(BaseModel):
     firstname = CharField()
@@ -27,7 +31,5 @@ class Camps(BaseModel):
 
     @staticmethod
     def get_camps():
-    # SELECT distinct id, organisation_id FROM dropapp_dev.camps;
-        return (Camps
-                .select()
-                .order_by(Camps.name))
+        # SELECT distinct id, organisation_id FROM dropapp_dev.camps;
+        return Camps.select().order_by(Camps.name)
