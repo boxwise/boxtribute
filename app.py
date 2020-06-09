@@ -1,15 +1,9 @@
 """Configuration and instantiation of flask app and peewee-managed database"""
 import os
-from dotenv import load_dotenv
+
 from flask import Flask
-from flask_peewee.db import Database
 from flask_cors import CORS
-
-load_dotenv()
-
-AUTH0_DOMAIN = os.getenv("AUTH0_DOMAIN")
-API_AUDIENCE = os.getenv("AUTH0_AUDIENCE")
-ALGORITHMS = ["RS256"]
+from flask_peewee.db import Database
 
 app = Flask(__name__)
 CORS(app)
