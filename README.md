@@ -57,6 +57,12 @@ This project is developed in Python >= 3.6. For setting up the development envir
 
 Now you're all set up using Python code quality tools! `pre-commit´ automatically checks the staged patch before committing. If it rejects a patch, add the corrections and try to commit again.
 
+#### Testing
+
+Run the test suite on your machine by executing
+
+    pytest
+
 #### Formatting and linting
 
 Run a full style-check by
