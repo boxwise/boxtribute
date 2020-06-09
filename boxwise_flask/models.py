@@ -1,17 +1,10 @@
 """Model definitions for database"""
-from peewee import CharField, Model
+from peewee import CharField
 
 from .app import db
 
 
-class BaseModel(Model):
-    """A base model that will use our MySQL database"""
-
-    class Meta:
-        database = db
-
-
-class Person(BaseModel):
+class Person(db.Model):
     firstname = CharField()
     lastname = CharField()
     camp_id = CharField()
@@ -21,7 +14,7 @@ class Person(BaseModel):
         return self.firstname
 
 
-class Camps(BaseModel):
+class Camps(db.Model):
     id = CharField()
     organisation_id = CharField()
     name = CharField()
