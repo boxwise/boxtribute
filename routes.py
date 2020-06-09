@@ -1,16 +1,11 @@
-from ariadne import QueryType, graphql_sync, make_executable_schema
+"""Construction of routes for flask app"""
+from ariadne import graphql_sync
 from ariadne.constants import PLAYGROUND_HTML
-from flask import Flask, request, jsonify, _request_ctx_stack
-import json
+from flask import jsonify, request
 from flask_cors import cross_origin
-from jose import jwt
-from dotenv import load_dotenv
-import os
 
-from .auth_helper import AuthError, requires_auth
 from .app import app
-
-# from .models import Person, Camps
+from .auth_helper import AuthError, requires_auth
 from .resolvers import schema
 
 
