@@ -101,7 +101,7 @@ export default function App() {
               <Placeholder />
             </PrivateRoute>
             <PrivateRoute
-              path="settings"
+              path="/settings"
               pathNameRedirect="/"
               isLoggedIn={loggedIn}
             >
