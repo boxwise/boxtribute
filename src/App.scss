@@ -41,6 +41,10 @@
   position: fixed;
   bottom: 0;
   width: 100%;
+
+  span{
+    color: #000;
+  }
 }
 
 @keyframes App-logo-spin {

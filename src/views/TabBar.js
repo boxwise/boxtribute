@@ -7,7 +7,7 @@ import {
   faUserCog,
   faQrcode,
 } from "@fortawesome/free-solid-svg-icons"
-import "../App.css"
+import "../App.scss"
 
 export default function TabBar() {
   const [value, setValue] = React.useState("recents")
