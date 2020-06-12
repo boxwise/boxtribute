@@ -41,15 +41,6 @@ export default function OrgTopLevel({ authObject }) {
         <Route path="/org">
           <h3>Please provide an organization in the url.</h3>
         </Route>
-        <Route path="/scan">
-          <ScanBox authObject={authObject} />
-        </Route>
-        <Route path="/warehouse">
-          <Placeholder />
-        </Route>
-        <Route path="settings">
-          <Placeholder />
-        </Route>
       </Switch>
     </div>
   )

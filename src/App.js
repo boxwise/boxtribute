@@ -9,6 +9,8 @@ import OrgTopLevel from "./views/Organization"
 import PdfGenerator from "./views/Labels/PdfGenerator"
 import Labels from "./views/Labels/Labels"
 import TabBar from "./views/TabBar"
+import Placeholder from "./views/Placeholder"
+import ScanBox from "./views/ScanBox"
 
 const { REACT_APP_GRAPHQL_SERVER } = process.env
 
@@ -84,6 +86,27 @@ export default function App() {
               <Labels authObject={authObject} />
             </PrivateRoute>
 
+            <PrivateRoute
+              path="/scan"
+              pathNameRedirect="/"
+              isLoggedIn={loggedIn}
+            >
+              <ScanBox authObject={authObject} />
+            </PrivateRoute>
+            <PrivateRoute
+              path="/warehouse"
+              pathNameRedirect="/"
+              isLoggedIn={loggedIn}
+            >
+              <Placeholder />
+            </PrivateRoute>
+            <PrivateRoute
+              path="settings"
+              pathNameRedirect="/"
+              isLoggedIn={loggedIn}
+            >
+              <Placeholder />
+            </PrivateRoute>
             <Route path="/">
               <Home />
             </Route>
