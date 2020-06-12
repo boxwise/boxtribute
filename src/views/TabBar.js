@@ -1,4 +1,5 @@
-import React from "react"
+import React, { useEffect } from "react"
+import { useHistory } from "react-router-dom"
 import BottomNavigation from "@material-ui/core/BottomNavigation"
 import BottomNavigationAction from "@material-ui/core/BottomNavigationAction"
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
@@ -10,49 +11,40 @@ import {
 import "../App.scss"
 
 export default function TabBar() {
-  const [value, setValue] = React.useState("recents")
+  const history = useHistory()
+  const [route, setRoute] = React.useState()
+
+  useEffect(() => {
+    if (route) history.push(`/${route}`)
+  }, [history, route])
 
   const handleChange = (event, newValue) => {
-    setValue(newValue)
+    setRoute(newValue)
   }
 
   return (
     <BottomNavigation
-      value={value}
+      value={route}
       onChange={handleChange}
       className="bottomNavBar"
     >
       <BottomNavigationAction
         label="Scan"
         value="scan"
-        icon={
-          <FontAwesomeIcon
-            style={{ fontSize: "1.5em" }}
-            icon={faQrcode}
-            data-tip="Confirm changes"
-          />
-        }
+        icon={<FontAwesomeIcon style={{ fontSize: "1.5em" }} icon={faQrcode} />}
       />
       <BottomNavigationAction
         label="Warehouse"
         value="warehouse"
         icon={
-          <FontAwesomeIcon
-            style={{ fontSize: "1.5em" }}
-            icon={faPeopleCarry}
-            data-tip="Confirm changes"
-          />
+          <FontAwesomeIcon style={{ fontSize: "1.5em" }} icon={faPeopleCarry} />
         }
       />
       <BottomNavigationAction
         label="Settings"
         value="settings"
         icon={
-          <FontAwesomeIcon
-            style={{ fontSize: "1.5em" }}
-            icon={faUserCog}
-            data-tip="Confirm changes"
-          />
+          <FontAwesomeIcon style={{ fontSize: "1.5em" }} icon={faUserCog} />
         }
       />
     </BottomNavigation>
