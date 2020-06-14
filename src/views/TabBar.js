@@ -5,7 +5,7 @@ import BottomNavigationAction from "@material-ui/core/BottomNavigationAction"
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
 import {
   faPeopleCarry,
-  faUserCog,
+  faCogs,
   faQrcode,
 } from "@fortawesome/free-solid-svg-icons"
 import "../App.scss"
@@ -43,9 +43,7 @@ export default function TabBar() {
       <BottomNavigationAction
         label="Settings"
         value="settings"
-        icon={
-          <FontAwesomeIcon style={{ fontSize: "1.5em" }} icon={faUserCog} />
-        }
+        icon={<FontAwesomeIcon style={{ fontSize: "1.5em" }} icon={faCogs} />}
       />
     </BottomNavigation>
   )
