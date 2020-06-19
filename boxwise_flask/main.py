@@ -15,4 +15,4 @@ app.config["DATABASE"] = {
     "port": int(os.getenv("MYSQL_PORT", 0)),
 }
 
-db.load_database()
+db.init_app(app)

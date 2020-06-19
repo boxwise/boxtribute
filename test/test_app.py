@@ -14,7 +14,7 @@ def client():
         "name": db_filepath,
         "engine": "peewee.SqliteDatabase",
     }
-    db.load_database()
+    db.init_app(app)
 
     with app.test_client() as client:
         yield client
