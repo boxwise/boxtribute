@@ -1,18 +1,8 @@
-"""Configuration and instantiation of flask app and peewee-managed database"""
+"""Main entry point for application"""
 import os
-from dotenv import load_dotenv
-from flask import Flask
-from flask_peewee.db import Database
-from flask_cors import CORS
 
-load_dotenv()
-
-AUTH0_DOMAIN = os.getenv("AUTH0_DOMAIN")
-API_AUDIENCE = os.getenv("AUTH0_AUDIENCE")
-ALGORITHMS = ["RS256"]
-
-app = Flask(__name__)
-CORS(app)
+from .app import db
+from .routes import app
 
 app.config["DATABASE"] = {
     "name": os.getenv("MYSQL_DB"),
@@ -25,5 +15,4 @@ app.config["DATABASE"] = {
     "port": int(os.getenv("MYSQL_PORT", 0)),
 }
 
-
-db = Database(app).database
+db.init_app(app)
