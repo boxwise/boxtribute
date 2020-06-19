@@ -5,14 +5,7 @@ from .app import db
 from .routes import app
 
 
-class BaseModel(Model):
-    """A base model that will use our MySQL database"""
-
-    class Meta:
-        database = db
-
-
-class Person(BaseModel):
+class Person(db.Model):
     firstname = CharField()
     lastname = CharField()
     camp_id = CharField()
@@ -22,7 +15,7 @@ class Person(BaseModel):
         return self.firstname
 
 
-class Camps(BaseModel):
+class Camps(db.Model):
     id = CharField()
     organisation_id = CharField()
     name = CharField()
@@ -32,11 +25,10 @@ class Camps(BaseModel):
 
     @staticmethod
     def get_camps():
-        # SELECT distinct id, organisation_id FROM dropapp_dev.camps;
         return Camps.select().order_by(Camps.name)
 
 
-class Cms_Usergroups_Camps(BaseModel):
+class Cms_Usergroups_Camps(db.Model):
     camp_id = CharField()
     cms_usergroups_id = CharField()
 
@@ -55,7 +47,7 @@ class Cms_Usergroups_Camps(BaseModel):
         return camp
 
 
-class Cms_Users(BaseModel):
+class Cms_Users(db.Model):
     id = CharField()
     organisation_id = CharField()
     naam = CharField()

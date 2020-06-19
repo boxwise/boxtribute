@@ -1,10 +1,8 @@
 """GraphQL resolver functionality"""
 from ariadne import ObjectType, make_executable_schema, snake_case_fallback_resolvers
-from playhouse.shortcuts import model_to_dict
 
-from .models import Camps, Cms_Users, Cms_Usergroups_Camps
+from .models import Camps, Cms_Users
 from .type_defs import type_defs
-from .routes import app
 
 query = ObjectType("Query")
 
@@ -28,7 +26,6 @@ def resolve_all_camps(_, info):
     response = Camps.get_camps()
     return list(response.dicts())
 
-
 @query.field("allUsers")
 def resolve_all_users(_, info):
     response = Cms_Users.get_all_users()
@@ -39,12 +36,6 @@ def resolve_all_users(_, info):
 def resolve_user(_, info, email):
     response = Cms_Users.get_user(email)
     return response
-
-
-@query.field("camp")
-def resolve_camp(_, info):
-    response = Cms_Usergroups_Camps.get_camp()
-    return list(response.dicts())
 
 
 schema = make_executable_schema(type_defs, query, snake_case_fallback_resolvers)

@@ -8,7 +8,6 @@ type_defs = gql(
         allBases: [Base]
         allUsers: [User]
         user(email: String): User
-        camp: [Camp]
     }
     type Base {
         id: Int!
@@ -24,10 +23,6 @@ type_defs = gql(
         valid_firstday: String
         valid_lastday: String
         camp_id: [Int]
-    }
-    type Camp{
-        camp_id: [Int]
-        cms_usergroups_id: Int
     }
 """
 )
