@@ -1,19 +1,12 @@
-import json
-import os
-
-from ariadne import QueryType, graphql_sync, make_executable_schema
+"""Construction of routes for flask app"""
+from ariadne import graphql_sync
 from ariadne.constants import PLAYGROUND_HTML
-from dotenv import load_dotenv
-from flask import Flask, _request_ctx_stack, jsonify, request
+from flask import jsonify, request
 from flask_cors import cross_origin
-from flask_mysqldb import MySQL
-from jose import jwt
 
-from app import app
-from auth_helper import AuthError, requires_auth
-
-# from .models import Person, Camps
-from resolvers import schema
+from .app import app
+from .auth_helper import AuthError, requires_auth
+from .resolvers import schema
 
 
 @app.errorhandler(AuthError)
@@ -59,6 +52,8 @@ def graphql_playgroud():
 
 
 @app.route("/graphql", methods=["POST"])
+@cross_origin(origin="localhost", headers=["Content-Type", "Authorization"])
+@requires_auth
 def graphql_server():
     # GraphQL queries are always sent as POST
     data = request.get_json()

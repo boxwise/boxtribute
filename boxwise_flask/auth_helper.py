@@ -1,23 +1,23 @@
-from flask import Flask, request, _request_ctx_stack
-from functools import wraps
-from six.moves.urllib.request import urlopen
-from dotenv import load_dotenv
-import os
+"""Utilities for handling authentication"""
 import json
+import os
+from functools import wraps
+
+from flask import _request_ctx_stack, request
 from jose import jwt
-
-
-load_dotenv()
+from six.moves.urllib.request import urlopen
 
 AUTH0_DOMAIN = os.getenv("AUTH0_DOMAIN")
 API_AUDIENCE = os.getenv("AUTH0_AUDIENCE")
 ALGORITHMS = ["RS256"]
+
 
 # Error handler
 class AuthError(Exception):
     def __init__(self, error, status_code):
         self.error = error
         self.status_code = status_code
+
 
 def get_token_auth_header():
     """Obtains the Access Token from the Authorization Header
@@ -112,6 +112,9 @@ def requires_auth(f):
 
             _request_ctx_stack.top.current_user = payload
             return f(*args, **kwargs)
-        raise AuthError({"code": "invalid_header",
-                        "description": "Unable to find appropriate key"}, 401)
+        raise AuthError(
+            {"code": "invalid_header", "description": "Unable to find appropriate key"},
+            401,
+        )
+
     return decorated

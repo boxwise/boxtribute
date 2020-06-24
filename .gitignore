@@ -2,6 +2,8 @@
 env
 .venv
 *.pyc
-/__pycache__
+__pycache__
+.eggs
+*.egg-info
 /.vscode
 .DS_Store
