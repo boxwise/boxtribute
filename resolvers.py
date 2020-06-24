@@ -1,7 +1,7 @@
 from ariadne import ObjectType, make_executable_schema, snake_case_fallback_resolvers
 from flask import jsonify
-from .type_defs import type_defs
-from .models import Camps
+from type_defs import type_defs
+from models import Camps
 
 
 query = ObjectType("Query")

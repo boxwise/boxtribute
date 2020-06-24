@@ -8,11 +8,11 @@ from flask_mysqldb import MySQL
 from dotenv import load_dotenv
 import os
 
-from .auth_helper import AuthError, requires_auth
-from .app import app
+from auth_helper import AuthError, requires_auth
+from app import app
 
 # from .models import Person, Camps
-from .resolvers import schema
+from resolvers import schema
 
 
 @app.errorhandler(AuthError)
