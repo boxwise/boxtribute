@@ -24,3 +24,9 @@ __pycache__/
 Dockerfile
 docker-compose.yml
 init.sql
+.venv
+*.pyc
+.vscode
+.DS_Store
+venv/
+requirements-dev.txt
