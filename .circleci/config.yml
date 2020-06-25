@@ -3,8 +3,13 @@ orbs:
   gcp-cli: circleci/gcp-cli@1.8.4
 jobs:
   build:
+    parameters:
+      serviceName:
+        type: string
+      envVariablePrefix:
+        type: string
     docker:
-      - image: circleci/python:3.7-stretch
+      - image: circleci/python:3.8-stretch
     working_directory: ~/project
     steps:
       - checkout
@@ -13,25 +18,8 @@ jobs:
       - run: source env/bin/activate
       # install python requirements
       - run: pip install -r requirements.txt
-  #     - persist_to_workspace:
-  #         root: ~/project
-  #         paths:
-  #           - .
-  # deploy:
-  #   parameters:
-  #     serviceName:
-  #       type: string
-  #     envVariablePrefix:
-  #       type: string
-  #   docker:
-  #     - image: circleci/python:3.7-stretch
-  #   working_directory: ~/project
-  #   steps: 
-  #     - attach_workspace:
-  #         at: workspace
       # install gcloud orb
       - gcp-cli/install
-      # - run: cd workspace
       # record version
       - run: |
           echo "CircleCI build number:${CIRCLE_BUILD_NUM}
@@ -39,87 +27,65 @@ jobs:
             Git hash: ${CIRCLE_SHA1}" > version.txt
       # generate .env file
       - run: |
-          echo "AUTH0_DOMAIN=dev-tgx41z7g.eu.auth0.com
-            \AUTH0_AUDIENCE=https://boxwise
-            \MYSQL_USER='${<< parameters.envVariablePrefix >>DBNAME}'
-            \MYSQL_PASSWORD='${<< parameters.envVariablePrefix >>DBPASS}'
-            \MYSQL_DB='${<< parameters.envVariablePrefix >>DBNAME}'
-            \MYSQL_UNIX_SOCKET='${<< parameters.envVariablePrefix >>DBPASS}'" > .env
+          echo "
+          AUTH0_DOMAIN=${<< parameters.envVariablePrefix >>AUTH0_DOMAIN}
+          AUTH0_AUDIENCE=${<< parameters.envVariablePrefix >>AUTH0_AUDIENCE}
+          MYSQL_USER=${<< parameters.envVariablePrefix >>DBNAME}
+          MYSQL_PASSWORD=${<< parameters.envVariablePrefix >>DBPASS}
+          MYSQL_DB=${<< parameters.envVariablePrefix >>DBNAME}
+          CLOUD_SQL_CONNECTION_NAME=${GCLOUD_SQL_SOCKET}" > .env
       - run: cat .env
       # generate google app engine config for target environment
-      # - run: |
-      #   sed 's/service: api-staging/service: << parameters.serviceName >>/g' app.yaml > app-<< parameters.serviceName >>.yaml
-
+      - run: |
+          sed 's/service: api-staging/service: << parameters.serviceName >>/g' app.yaml > app-<< parameters.serviceName >>.yaml
       # get google credentials
       - run: |
-          gcloud auth activate-service-account --key-file=key.json
-          gcloud --quiet config set project dropapp-242214
-      # download and install cloud sql proxy to enable db access
-      - run: |
-          curl -o cloud_sql_proxy https://dl.google.com/cloudsql/cloud_sql_proxy.linux.amd64
-          chmod +x cloud_sql_proxy
-      # - run:
-      #   command: ./cloud_sql_proxy -instances=${BOXWISE_PRIMARYDB_SOCKET}=tcp:3306
-      #   background: true
+          echo $GCLOUD_SERVICE_KEY | gcloud auth activate-service-account --key-file=-
+          gcloud --quiet config set project ${GOOGLE_PROJECT_ID}
       # deploy to GCloud
       - run: |
-          gcloud app deploy app.yaml 
-
-
-  deploy:
-    docker:
-      - image: circleci/python:3.7-stretch
-    steps:
-      - attach_workspace:
-          at: workspace
-      - gcp-cli/install
-      - run: |
-          cd workspace
-          ls -al
-build-and-deploy:
-  jobs:
-  - build
-  # deploy to staging
-  - deploy:
-    name: deploy-staging
-    envVariablePrefix: STAGING_
-    serviceName: api-staging
-    requires:
-      - build
-    filters:
-      branches:
-        only: master
-  # deploy to demo
-  - deploy:
-    name: deploy-demo
-    envVariablePrefix: DEMO_
-    serviceName: api-demo
-    requires:
-      - build
-    filters:
-      branches:
-        only: production
-  # deploy to production
-  - deploy:
-    name: deploy-prod
-    envVariablePrefix: PRODUCTION_
-    serviceName: api-production
-    requires:
-      - build
-    filters:
-      branches:
-        only: production
-  # test step on staging
-  # - test:
-  #   yarn: true
-  #   record: true
-  #   wait-on: 'https://staging.boxwise.co/'
-  #   no-workspace: true
-  #   requires:
-  #     - deploy-staging
-  #   filters:
-  #     branches:
-  #       only: master
-  #   post-steps:
-  #     - store_test_results:
-  #         path: cypress/results
+          gcloud app deploy app-<< parameters.serviceName >>.yaml
+workflows:
+  build-and-deploy:
+    jobs:
+    # deploy to staging
+    - build:
+        name: deploy-staging
+        context: GCLOUD
+        envVariablePrefix: STAGING_
+        serviceName: api-staging
+        filters:
+          branches:
+            only: feature/add-circleci
+    # # deploy to demo
+    # - build:
+    #   name: deploy-demo
+    #   context: GCLOUD
+    #   envVariablePrefix: DEMO_
+    #   serviceName: api-demo
+    #   filters:
+    #     branches:
+    #       only: production
+    # # deploy to production
+    # - build:
+    #   name: deploy-prod
+    #   context: GCLOUD
+    #   envVariablePrefix: PRODUCTION_
+    #   serviceName: api-production
+    #   filters:
+    #     branches:
+    #       only: production
+    # browser test on staging
+    # - test:
+    #   yarn: true
+    #   record: true
+    #   wait-on: 'https://staging.boxwise.co/'
+    #   no-workspace: true
+    #   requires:
+    #     - deploy-staging
+    #   filters:
+    #     branches:
+    #       only: master
+    #   post-steps:
+    #     - store_test_results:
+    #         path: cypress/results
