@@ -85,5 +85,14 @@ query {
 }
 ```
 
+#### CircleCI
+We are use CircleCI for automated testing of PRs and deployment to Google Cloud. To develop the CircleCI scripts you can run a CircleCI client locally. Please check out [the documentation](https://circleci.com/docs/2.0/local-cli/).
+
+The most important commands are
+```
+circleci config validate
+circleci local execute
+```
+
 ### License
 See the LICENSE file for license rights and limitations (Apache 2.0).
