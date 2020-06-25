@@ -9,7 +9,7 @@ jobs:
       envVariablePrefix:
         type: string
     docker:
-      - image: circleci/python:3.8-stretch
+      - image: circleci/python:3.8-buster
     working_directory: ~/project
     steps:
       - checkout
@@ -17,7 +17,7 @@ jobs:
       - run: python3 -m venv env
       - run: source env/bin/activate
       # install python requirements
-      - run: pip install -r requirements.txt
+      - run: pip install . -r requirements.txt
       # install gcloud orb
       - gcp-cli/install
       # record version
@@ -34,7 +34,6 @@ jobs:
           MYSQL_PASSWORD=${<< parameters.envVariablePrefix >>DBPASS}
           MYSQL_DB=${<< parameters.envVariablePrefix >>DBNAME}
           CLOUD_SQL_CONNECTION_NAME=${GCLOUD_SQL_SOCKET}" > .env
-      - run: cat .env
       # generate google app engine config for target environment
       - run: |
           sed 's/service: api-staging/service: << parameters.serviceName >>/g' app.yaml > app-<< parameters.serviceName >>.yaml
