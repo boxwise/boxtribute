@@ -21,7 +21,7 @@ export default function App() {
       operation.setContext({
         headers: {
           Authorization: `Bearer ${authObject.accessToken}`,
-          "X-Boxwise": authObject.idToken,
+          "X-Boxwise": authObject.idTokenPayload.email,
           "X-Clacks-Overhead": "GNU Terry Pratchett",
         },
       });
@@ -32,7 +32,7 @@ export default function App() {
     // if the login was successful, there will be a hash in the url, so you can do all the parsing work in the Auth0 file
     Auth0.handleAuthentication()
       .then((authTokens) => {
-        console.log(authTokens)
+        console.log(authTokens);
         setAuthObject(authTokens);
         !!authTokens ? setLoggedIn(true) : setLoggedIn(false);
       })
@@ -87,13 +87,16 @@ export default function App() {
             </PrivateRoute>
 
             <Route path="/">
-              <Home />
+              <Home user={loggedIn ? authObject.idTokenPayload.name : null} />
             </Route>
           </Switch>
         </div>
         {loggedIn ? (
           // eslint-disable-next-line react/button-has-type
-          <button onClick={() => handleLogOut()} className="log-in">
+          <button
+            onClick={() => handleLogOut()}
+            className="m-6 bg-gray-300 hover:bg-gray-500 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline"
+          >
             Log Out
           </button>
         ) : (
@@ -101,7 +104,7 @@ export default function App() {
             onClick={() => {
               Auth0.login();
             }}
-            className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline"
+            className="m-6 bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline"
             type="button"
           >
             Sign In

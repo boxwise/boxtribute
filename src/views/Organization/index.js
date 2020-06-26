@@ -1,14 +1,14 @@
-import React from "react"
-import { Switch, Route } from "react-router-dom"
-import ScanBox from "../ScanBox"
-import Placeholder from "../Placeholder"
-import SingleOrg from "./SingleOrg"
-import Base from "../Base"
+import React from "react";
+import { Switch, Route } from "react-router-dom";
+import ScanBox from "../ScanBox";
+import Placeholder from "../Placeholder";
+import ListAllBases from "./ListAllBases";
+import SingleBase from "./SingleBase";
+import Base from "../Base";
 
 export default function OrgTopLevel() {
   return (
-    <div>
-      <h2>Organization</h2>
+    <div className="p-6">
       {/* The Orgs page has its own <Switch> with more routes
           that build on the /org URL path. You can think of the
           generic <Route> here as an "index" page for all orgs, or
@@ -35,13 +35,16 @@ export default function OrgTopLevel() {
         <Route path="/org/:orgId/base/:baseId">
           <Base />
         </Route>
+        <Route path="/org/all">
+          <ListAllBases />
+        </Route>
         <Route path="/org/:orgId">
-          <SingleOrg />
+          <SingleBase />
         </Route>
         <Route path="/org">
           <h3>Please provide an organization in the url.</h3>
         </Route>
       </Switch>
     </div>
-  )
+  );
 }
