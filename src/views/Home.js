@@ -7,11 +7,11 @@ function Home() {
       <h2 className="w-screen flex justify-center p-2 bg-blue-500">
         Welcome to boxwise! Please log in.
       </h2>
-      <Link to="/org/abc">Org ABC</Link>
+      <Link to="/org/abc">Link for Volunteers</Link>
       <br />
-      <Link to="/org/abc/base/base1">Org ABC, Base 1</Link>
+      <Link to="/org/abc/base/base1">Link for Coordinators</Link>
       <br />
-      <Link to="/org/abc/base/base1/pick-list">Org ABC, Base 1, pick list</Link>
+      <Link to="/org/abc/base/base1/pick-list">Link for Head of Operations</Link>
       <br />
       <Link to="/pdf">Generate QR Codes</Link>
     </div>

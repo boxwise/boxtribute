@@ -32,6 +32,7 @@ export default function App() {
     // if the login was successful, there will be a hash in the url, so you can do all the parsing work in the Auth0 file
     Auth0.handleAuthentication()
       .then((authTokens) => {
+        console.log(authTokens)
         setAuthObject(authTokens);
         !!authTokens ? setLoggedIn(true) : setLoggedIn(false);
       })
