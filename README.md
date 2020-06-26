@@ -75,6 +75,9 @@ By default the flask app runs in `development` mode which has hot-reloading and 
 
 For debugging an exception in an endpoint, direct your webbrowser to that endpoint. The built-in flask debugger is shown. You can attach a console by clicking the icons on the right of the traceback lines. For more information, refer to the [documentation](https://flask.palletsprojects.com/en/1.1.x/quickstart/#debug-mode).
 
+to log to the console from inside the docker container, bring in app from app.py, and log with:
+```app.logger.warn(<whatever you want to log>)```
+
 #### GraphQL
 We are setting up GraphQL as a data layer for this application. To check out the playground, run this project with the above docker-compose instructions, and go to localhost:5000/graphql. A sample query you can try is:
 ```

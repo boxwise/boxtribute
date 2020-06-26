@@ -3,6 +3,8 @@ from ariadne import ObjectType, make_executable_schema, snake_case_fallback_reso
 
 from .models import Camps, Cms_Users
 from .type_defs import type_defs
+from .auth_helper import authorization_test
+from .app import app
 
 query = ObjectType("Query")
 
@@ -23,8 +25,19 @@ def resolve_hello(
 
 @query.field("allBases")
 def resolve_all_camps(_, info):
+    app.logger.warn(info)
+    authorization_test()
     response = Camps.get_camps()
     return list(response.dicts())
+
+
+@query.field("base")
+def resolve_camp(_, info, id):
+    app.logger.warn(info)
+    authorization_test(id)
+    response = Camps.get_camp(id)
+    return response
+
 
 @query.field("allUsers")
 def resolve_all_users(_, info):
@@ -34,6 +47,7 @@ def resolve_all_users(_, info):
 
 @query.field("user")
 def resolve_user(_, info, email):
+    authorization_test()
     response = Cms_Users.get_user(email)
     return response
 

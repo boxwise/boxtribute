@@ -1,6 +1,6 @@
 """Model definitions for database"""
 from peewee import CharField, Model, ForeignKeyField, CompositeKey
-
+from playhouse.shortcuts import model_to_dict
 from .app import db
 from .routes import app
 
@@ -19,6 +19,7 @@ class Camps(db.Model):
     id = CharField()
     organisation_id = CharField()
     name = CharField()
+    currencyname = CharField()
 
     def __unicode__(self):
         return self.name
@@ -26,6 +27,12 @@ class Camps(db.Model):
     @staticmethod
     def get_camps():
         return Camps.select().order_by(Camps.name)
+
+    @staticmethod
+    def get_camp(camp_id):
+        camp = Camps.select().where(Camps.id == camp_id).get()
+        app.logger.warn(camp)
+        return camp
 
 
 class Cms_Usergroups_Camps(db.Model):
@@ -39,12 +46,12 @@ class Cms_Usergroups_Camps(db.Model):
         return self.name
 
     @staticmethod
-    def get_camp(usergroup_id):
-        camp = (Cms_Usergroups_Camps
+    def get_camp_list(usergroup_id):
+        camp_list = (Cms_Usergroups_Camps
             .select(Cms_Usergroups_Camps.camp_id)
             .where(Cms_Usergroups_Camps.cms_usergroups_id == usergroup_id)
             )
-        return camp
+        return camp_list
 
 
 class Cms_Users(db.Model):
@@ -67,7 +74,7 @@ class Cms_Users(db.Model):
     @staticmethod
     def get_user(email):
         q = Cms_Users.select().where(Cms_Users.email == email).get()
-        camps = Cms_Usergroups_Camps.get_camp(q.cms_usergroups_id)
+        camps = Cms_Usergroups_Camps.get_camp_list(q.cms_usergroups_id)
         listOfDicts = list(camps.dicts())
         listOfCamps = []
         for item in listOfDicts:

@@ -6,6 +6,9 @@ from functools import wraps
 from flask import _request_ctx_stack, request
 from jose import jwt
 from six.moves.urllib.request import urlopen
+from .models import Cms_Users
+from .app import app
+
 
 AUTH0_DOMAIN = os.getenv("AUTH0_DOMAIN")
 API_AUDIENCE = os.getenv("AUTH0_AUDIENCE")
@@ -59,6 +62,23 @@ def get_token_auth_header():
     return token
 
 
+def get_rsa_key(token):
+    jsonurl = urlopen("https://" + AUTH0_DOMAIN + "/.well-known/jwks.json")
+    jwks = json.loads(jsonurl.read())
+    unverified_header = jwt.get_unverified_header(token)
+    rsa_key = {}
+    for key in jwks["keys"]:
+        if key["kid"] == unverified_header["kid"]:
+            rsa_key = {
+                "kty": key["kty"],
+                "kid": key["kid"],
+                "use": key["use"],
+                "n": key["n"],
+                "e": key["e"],
+            }
+            return rsa_key
+
+
 def requires_auth(f):
     """Determines if the Access Token is valid
     """
@@ -66,19 +86,7 @@ def requires_auth(f):
     @wraps(f)
     def decorated(*args, **kwargs):
         token = get_token_auth_header()
-        jsonurl = urlopen("https://" + AUTH0_DOMAIN + "/.well-known/jwks.json")
-        jwks = json.loads(jsonurl.read())
-        unverified_header = jwt.get_unverified_header(token)
-        rsa_key = {}
-        for key in jwks["keys"]:
-            if key["kid"] == unverified_header["kid"]:
-                rsa_key = {
-                    "kty": key["kty"],
-                    "kid": key["kid"],
-                    "use": key["use"],
-                    "n": key["n"],
-                    "e": key["e"],
-                }
+        rsa_key = get_rsa_key(token)
         if rsa_key:
             try:
                 payload = jwt.decode(
@@ -118,3 +126,32 @@ def requires_auth(f):
         )
 
     return decorated
+
+
+def get_id_token():
+    # TODO: pass entire id_token in under x-boxwise header, and decode here
+    email = request.headers.get("X-Boxwise", None)
+    rsa_key = get_rsa_key(id_token)
+    payload = jwt.decode(
+        id_token,
+        rsa_key,
+        algorithms=ALGORITHMS,
+        audience=API_AUDIENCE,
+        issuer="https://" + AUTH0_DOMAIN + "/",
+    )
+    return payload
+
+
+def authorization_test(base_id):
+    # look up camps and level here, compare against request
+    email = request.headers.get("X-Boxwise", None)
+    requesting_user = Cms_Users.get_user(email)
+    users_bases = requesting_user.camp_id
+    if base_id in users_bases:
+        allowed_access = True
+    else:
+        raise AuthError(
+            {"code": "unauthorized_user", "description": "Your user does not have access to this resource"}, 401
+        )
+
+    return allowed_access
