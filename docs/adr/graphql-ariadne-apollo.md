@@ -2,7 +2,7 @@
 
 ## Status
 
-Accepted, installation of Ariadne and Apollo complete. Creation of schema in progress.
+Accepted, installation of Ariadne and Apollo complete. Creation of GraphQL schema in progress.
 
 ## Context
 
@@ -29,18 +29,31 @@ TBD
 - [Graphene](https://github.com/graphql-python/graphene): Takes a code first approach. Development is [reportedly lagging behind](https://www.reddit.com/r/django/comments/egkpd5/graphenedjango_vs_ariadne/) with maintainers looking for people to take over. Oldest Python solution around, so likely quite stable. Many frustrated users on reddit.
 - [Ariadne](https://github.com/mirumee/ariadne): Takes a schema-first approach. [Excellent documentation](https://ariadnegraphql.org/docs/intro), with functionality designed to mimic industry leader Apollo server. Fewer stars compared to Graphene; however, compensates for this somewhat through their [Spectrum support channel](https://spectrum.chat/ariadne?tab=posts). Well-loved on reddit, but on 0.11 release. Supported by a small dev shop, Mirumee Software.
 
-
 ### Client
 - [Apollo Client](https://www.apollographql.com/docs/react/): Well-supported industry leader. Extensive documentation, sophisticated caching solution. Large footprint. Previously considered hard to set up and configure due to sophistication, but now has Apollo Boost package to make things super simple and speedy.
 - [urql](https://github.com/FormidableLabs/urql): A lightweight tiny server solution intended to make graphQL simple. However, it lacks one of the major benefits of the Apollo client, which is cacheing. Supported by a medium-size dev shop. Younger than Apollo Client and all of the server options.
 
 
 ## Decision
+GraphQL with single endpoint for everything was selected, paired with Ariadne server-side and Apollo client side. 
 
+Reasoning: while GraphQL may have a steeper learning curve for professional developers who are not familiar with the standard, in the long run this should be more scalable for iterations and easier to maintain than  multiple REST endpoints. In the future, should we end up ingesting external data APIs such as the UNHCR data, it will be easier to pull that all from the GraphQL endpoint as well. This should also be more favorable from a developer experience standpoint for both onboarding and maintaining the codebase. Apollo was selected on the client-side due to its maturity as a product, robust features, including sophisticated caching features, excellent documentation, and huge community. Ariadne was selected over Graphene on the client side due to it being designed to deliberately intended to mimic Apollo Server. With Ariadne being under active development by Mirumee software, and its excellent documentation that developers can cross-reference with Apollo server documentation, I believe this outweighs any cons that come from it being a less mature library than Graphene.
+
+Finally, I believe any performance concerns that could result from queries being abstracted from SQL into resolvers will be compensated for by less load on the network due to overfetching, as long as no N+1 queries are created. 
 
 ## Consequences
 
 ### Easier
+- requesting data from the backend, once initial set up is complete
+- integrating external data sources
+- readability of queries
+- making changes to the database without breaking every single existing query
+- data structure versioning (understanding and keeping track of the data structure and their relationships with one another)
 
 
 ### More difficult
+- Initial set up means that we cannot take advantage of Flask utilities to create REST endpoints for things like login and routing
+- Initial set up of data schema
+- Optimizing for query performance
+- Error handling (GraphQL does not inherently use HTTP response codes like REST)
+
