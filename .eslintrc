@@ -4,7 +4,8 @@
     "airbnb",
     "plugin:jsx-a11y/recommended",
     "prettier",
-    "prettier/react"
+    "prettier/react",
+    "plugin:import/typescript"
   ],
   "plugins": ["jsx-a11y", "prettier"],
   "rules": {
@@ -19,16 +20,28 @@
     // should be turned on eventually, but not compatible with current codebase
     "no-shadow": "off",
     "@typescript-eslint/explicit-function-return-type": "off",
+    "lines-between-class-members": "off",
     // react hook rules
     "react-hooks/rules-of-hooks": "error",
     "react-hooks/exhaustive-deps": "error",
     // suport for jsx files
-    "react/jsx-filename-extension": [1, { "extensions": [".js", ".jsx"] }],
+    "react/jsx-filename-extension": [1, { "extensions": [".js", ".jsx", ".ts", ".tsx"] }],
     "prettier/prettier": [
       "error",
       {
         "semi": false
       }
-    ]
+    ],
+    "import/extensions": [
+      "error",
+      "ignorePackages",
+      {
+        "js": "never",
+        "jsx": "never",
+        "ts": "never",
+        "tsx": "never"
+      }
+   ],
+   "no-debugger": 1
   }
 }

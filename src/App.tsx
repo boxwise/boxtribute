@@ -29,7 +29,7 @@ export default function App() {
       // remove leading # and split into components,
       // so now you have ['key1=value1', 'key2=value2']
       const hashArray = totalHash.substr(1).split("&")
-      const authObject = {}
+      const authObject: any = {}
       hashArray.forEach((item) => {
         const keyValArray = item.split("=")
         // turns [key, value] into authObject={key: value}
@@ -75,7 +75,7 @@ export default function App() {
               pathNameRedirect="/"
               isLoggedIn={loggedIn}
             >
-              <PdfGenerator authObject={authObject} />
+              <PdfGenerator />
             </PrivateRoute>
 
             <PrivateRoute
@@ -83,7 +83,7 @@ export default function App() {
               pathNameRedirect="/"
               isLoggedIn={loggedIn}
             >
-              <Labels authObject={authObject} />
+              <Labels />
             </PrivateRoute>
 
             <PrivateRoute
@@ -91,7 +91,7 @@ export default function App() {
               pathNameRedirect="/"
               isLoggedIn={loggedIn}
             >
-              <ScanBox authObject={authObject} />
+              <ScanBox />
             </PrivateRoute>
             <PrivateRoute
               path="/warehouse"

@@ -12,13 +12,13 @@ import "../App.scss"
 
 export default function TabBar() {
   const history = useHistory()
-  const [route, setRoute] = React.useState()
+  const [route, setRoute] = React.useState<string>()
 
   useEffect(() => {
     if (route) history.push(`/${route}`)
   }, [history, route])
 
-  const handleChange = (event, newValue) => {
+  const handleChange = (event, newValue: string) => {
     setRoute(newValue)
   }
 

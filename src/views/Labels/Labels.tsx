@@ -14,8 +14,9 @@ const Labels = () => {
           max={10}
           min={0}
           value={labelState}
-          // eslint-disable-next-line react/jsx-no-bind
-          onChange={(value) => setLabelState(value)}
+          onChange={(value) => {
+            if (value) setLabelState(value)
+          }}
         />
       </label>
       <Link to="/generateLabel">Generate QR Codes</Link>

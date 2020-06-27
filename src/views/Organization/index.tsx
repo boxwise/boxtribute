@@ -18,7 +18,7 @@ export default function OrgTopLevel({ authObject }) {
           <Placeholder />
         </Route>
         <Route path="/org/:orgId/base/:baseId/find-box">
-          <ScanBox authObject={authObject} />
+          <ScanBox />
         </Route>
         <Route path="/org/:orgId/base/:baseId/create-box">
           <Placeholder />
