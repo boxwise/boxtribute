@@ -8,7 +8,7 @@ Accepted, installation of Ariadne and Apollo complete. Creation of GraphQL schem
 
 Boxwise in the middle of a planned migration from the old PHP-based Dropapp, to a new app based on a new stack (Python/React). In the old app, the backend and the data model were closely intertwined, with SQL strings written directly from PHP in the code. This made it challenging to evolve the data model for the app, which imposed many product functionality constraints and slowed development time, especially since the Dropapp data model was done as a prototype rather than designed for scalability with a product-market fit in mind. As the team migrates to the new app and explores the possibility of entering new markets, it is time for us to reexamine if and how the team might benefit from a separation of concerns on the data layer. 
 
-## Decision drives
+## Decision drivers
 
 1. Scalability: how well will it support expected future changes such as DB restructuring, database migrations, etc.? What timescale is the technology expected to be defunct on? 
 2. Developer experience: given the rotating environment of loosely affiliated developers of different backgrounds, what will support the rapid onboarding of developers with our data structure? Once onboarded, is the chosen technology pleasant to use? Is it useful from a career progression standpoint? 
