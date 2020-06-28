@@ -29,7 +29,8 @@ Peewee. Despite SQLAlchemy being the gold standard of ORMs, there are no long-te
 ## Consequences
 
 ### Easier
-TBD
+- [Philipp](https://github.com/orgs/boxwise/people/pylipp) is using Peewee professionally in his place of work at Reactive Robotics!
+
 
 ### More difficult
 TBD
