@@ -6,7 +6,7 @@ Accepted, installation of Ariadne and Apollo complete. Creation of GraphQL schem
 
 ## Context
 
-TBD
+Boxwise in the middle of a planned migration from the old PHP-based Dropapp, to a new app based on a new stack (Python/React). In the old app, the backend and the data model were closely intertwined, with SQL strings written directly from PHP in the code. This made it challenging to evolve the data model for the app, which imposed many product functionality constraints and slowed development time, especially since the Dropapp data model was done as a prototype rather than designed for scalability with a product-market fit in mind. As the team migrates to the new app and explores the possibility of entering new markets, it is time for us to reexamine if and how the team might benefit from a separation of concerns on the data layer. 
 
 ## Decision drives
 
@@ -22,7 +22,7 @@ TBD
 - Full REST interface with backend. Will involve the creation of multiple endpoints and resources that devs will have to request. Well-understood by professional devs, but new devs (coming from data analysis background, for example) would need to learn the correct REST standards. Has an over/underfetching problem, which causes it to be network traffic heavy. Difficult to evolve the API as you don't know what queries are requesting which fields from specific resources. Often leads to creating one endpoint per client.
 - No data layer / separation of concerns. Would require all devs to be fluent in current table structure. All changes in data will need to be paired with a SQL query (or the equivalent in an ORM). 
 - Blended environment (GraphQL endpoint for inventory + REST endpoints for login). Logic here was that it might be easier to create a REST endpoint for login and users, as proof of concept had already started with REST, and overfetching / underfetching is less of an issue with users. [Katie](https://github.com/orgs/boxwise/people/mcgnly) said she preferred to build everything in one style as for her it would be easier. Accepted this point as she will be implementing login. 
-- GraphQL with single endpoint for everything. Benefits - avoids underfetching/overfetching problem, very readable on the front-end, query language is super easy compared to learning fresh SQL. Enables parameterized queries, and inherently supports incremental evolution as fields are explicitly specified in each query. Supported by Facebook and is being adopted by major tech companies such as Paypal, Github, eBay etc. Cons - new kid on the block, most devs are much less familiar with GraphQL as a concept. Requires devs to understand the concepts of queries, mutations, resolvers. [N+1 problem](https://engineering.shopify.com/blogs/engineering/solving-the-n-1-problem-for-graphql-through-batching#:~:text=The%20n%2B1%20problem%20means,the%20address%20for%20N%20authors). Less easy to cache than REST.
+- GraphQL with single endpoint for everything. Benefits - avoids underfetching/overfetching problem, very readable on the front-end, query language is super easy compared to learning SQL from scratch. Enables parameterized queries, and inherently supports incremental evolution as fields are explicitly specified in each query. Supported by Facebook and is being adopted by major tech companies such as Paypal, Github, eBay etc. Cons - new kid on the block, most devs are much less familiar with GraphQL as a concept. Requires devs to understand the concepts of queries, mutations, resolvers. [N+1 problem](https://engineering.shopify.com/blogs/engineering/solving-the-n-1-problem-for-graphql-through-batching#:~:text=The%20n%2B1%20problem%20means,the%20address%20for%20N%20authors). Less easy to cache than REST.
 
 ### Server
 
@@ -48,7 +48,8 @@ Finally, I believe any performance concerns that could result from queries being
 - integrating external data sources
 - readability of queries
 - making changes to the database without breaking every single existing query
-- data structure versioning (understanding and keeping track of the data structure and their relationships with one another)
+- data structures (understanding and keeping track of the data structure and their relationships with one another)
+- versioning
 
 
 ### More difficult
@@ -56,4 +57,8 @@ Finally, I believe any performance concerns that could result from queries being
 - Initial set up of data schema
 - Optimizing for query performance
 - Error handling (GraphQL does not inherently use HTTP response codes like REST)
+- potentially optimizing scalability and performance within a large scale distributed system
+
+###Further Reading
+https://goodapi.co/blog/rest-vs-graphql
 
