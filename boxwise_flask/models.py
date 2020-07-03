@@ -2,7 +2,6 @@
 from peewee import CharField, CompositeKey
 from playhouse.shortcuts import model_to_dict
 from .app import db
-from .routes import app
 
 
 class Person(db.Model):
