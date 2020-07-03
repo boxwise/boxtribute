@@ -26,7 +26,6 @@ def resolve_hello(
 @query.field("allBases")
 def resolve_all_camps(_, info):
     app.logger.warn(info)
-    authorization_test()
     response = Camps.get_camps()
     return list(response.dicts())
 
