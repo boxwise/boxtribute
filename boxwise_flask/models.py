@@ -1,8 +1,7 @@
 """Model definitions for database"""
-from peewee import CharField, Model, ForeignKeyField, CompositeKey
+from peewee import CharField, CompositeKey
 from playhouse.shortcuts import model_to_dict
 from .app import db
-from .routes import app
 
 
 class Person(db.Model):
@@ -25,13 +24,12 @@ class Camps(db.Model):
         return self.name
 
     @staticmethod
-    def get_camps():
+    def get_all_camps():
         return Camps.select().order_by(Camps.name)
 
     @staticmethod
     def get_camp(camp_id):
         camp = Camps.select().where(Camps.id == camp_id).get()
-        app.logger.warn(camp)
         return camp
 
 
@@ -40,24 +38,23 @@ class Cms_Usergroups_Camps(db.Model):
     cms_usergroups_id = CharField()
 
     class Meta:
+        # Cms_Usergroups_Camps has no primary key, so we construct a composite to use
         primary_key = CompositeKey('camp_id', 'cms_usergroups_id')
 
     def __unicode__(self):
         return self.name
 
     @staticmethod
-    def get_camp_list(usergroup_id):
-        camp_list = (Cms_Usergroups_Camps
+    def get_camp_id(usergroup_id):
+        return (Cms_Usergroups_Camps
             .select(Cms_Usergroups_Camps.camp_id)
             .where(Cms_Usergroups_Camps.cms_usergroups_id == usergroup_id)
             )
-        return camp_list
 
 
 class Cms_Users(db.Model):
     id = CharField()
     organisation_id = CharField()
-    naam = CharField()
     name = CharField(column_name='naam')
     email = CharField()
     cms_usergroups_id = CharField()
@@ -69,17 +66,15 @@ class Cms_Users(db.Model):
 
     @staticmethod
     def get_all_users():
-        return Cms_Users.select().order_by(Cms_Users.naam)
+        return Cms_Users.select().order_by(Cms_Users.name)
 
     @staticmethod
     def get_user(email):
-        q = Cms_Users.select().where(Cms_Users.email == email).get()
-        camps = Cms_Usergroups_Camps.get_camp_list(q.cms_usergroups_id)
-        listOfDicts = list(camps.dicts())
-        listOfCamps = []
-        for item in listOfDicts:
-            listOfCamps.append(item['camp_id'])
+        user = Cms_Users.select().where(Cms_Users.email == email).get()
+        camps = Cms_Usergroups_Camps.get_camp_id(user.cms_usergroups_id)
+        # camps is a peewee ModelSelect (so, many objects). convert to dict 1 at a time,
+        # and pull the camp_id from that dict, and put in a list
+        user.camp_id = [model_to_dict(item)['camp_id'] for item in camps]
 
-        q.camp_id = listOfCamps
-        return q
+        return user
 
