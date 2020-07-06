@@ -1,10 +1,10 @@
 # Readme
-This is a simple flask app to be used together with the [react-client](https://github.com/boxwise/boxwise-react) for the revamp of [Boxwise](www.boxwise.co)
+This is a simple flask app to be used together with the [react-client](https://github.com/boxwise/boxwise-react) for the revamp of [Boxtribute](www.boxtribute.org)
 
 ### Preparation for Installation
 
 * Install [Docker](https://www.docker.com/products/docker-desktop)
-* Get an invite to the development tenant of [Auth0](https://auth0.com/) for Boxwise.
+* Get an invite to the development tenant of [Auth0](https://auth0.com/) for Boxtribute.
 
 ### How do I get set up?
 
@@ -75,6 +75,21 @@ By default the flask app runs in `development` mode which has hot-reloading and 
 
 For debugging an exception in an endpoint, direct your webbrowser to that endpoint. The built-in flask debugger is shown. You can attach a console by clicking the icons on the right of the traceback lines. For more information, refer to the [documentation](https://flask.palletsprojects.com/en/1.1.x/quickstart/#debug-mode).
 
+#### Debugging in VSCode
+
+Many of our developers are using VSCode which has [a very easy-to-use debugger](https://code.visualstudio.com/docs/editor/debugging) built-in.
+A launch configuration for the debugger is added to the repo.
+
+To use the debugger:
+1. install the extensions to [access Docker container](https://marketplace.visualstudio.com/items?itemName=ms-vscode-remote.remote-containers) and to [debug python](https://marketplace.visualstudio.com/items?itemName=ms-python.python).
+2. Start the docker containers.
+3. [Attach to the running Docker container for the `web` service.](https://code.visualstudio.com/docs/remote/containers#_attaching-to-running-containers) By this step a new VSCode window will open to work from inside the `boxwise-flask_web` Docker container.
+4. [Launch the debug configuration called 'Python: Run Flask in docker container to debug'.](https://code.visualstudio.com/docs/editor/debugging#_launch-configurations)
+
+You can now set break-points in your code.
+If you want to debug a certain endpoint, set a break-point in the endpoint and call this enpoint at the port 5001, e.g.
+        `localhost:5001/api/public`
+
 #### GraphQL
 We are setting up GraphQL as a data layer for this application. To check out the playground, run this project with the above docker-compose instructions, and go to localhost:5000/graphql. A sample query you can try is:
 ```
@@ -84,6 +99,23 @@ query {
   }
 }
 ```
+
+### Docker
+
+We are using Docker containers to make it easy for everyone to spin up an development environment which is the same everywhere. In `docker-compose.yaml` two docker containers are specified - one for the mysql database called `mysql` and one for the flask backend called `web`.
+
+#### Docker networking
+
+In the docker-compose file we define a separate docker network called `backend` to which both containers are joined. Each container can now look up the hostname `web` or `db` and get back the appropriate container’s IP address.
+To access the mysql database from the `web` container there are now two ways:
+1. For example, you reach the mysql db at `MYSQL_HOST=mysql` and `MYSQL_PORT=3306` or
+2. by specifying the IP-address of the Gateway for `MYSQL_HOST` and `MYSQL_PORT=32000`.
+
+To figure out the gateway of the docker network `backend` run
+
+        docker network inspect -f '{{range .IPAM.Config}}{{.Gateway}}{{end}}' boxwise-flask_backend
+
+You can choose one of the two and specify the credentials in the `.env`-flie.
 
 ### License
 See the LICENSE file for license rights and limitations (Apache 2.0).
