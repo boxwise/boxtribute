@@ -75,6 +75,21 @@ By default the flask app runs in `development` mode which has hot-reloading and 
 
 For debugging an exception in an endpoint, direct your webbrowser to that endpoint. The built-in flask debugger is shown. You can attach a console by clicking the icons on the right of the traceback lines. For more information, refer to the [documentation](https://flask.palletsprojects.com/en/1.1.x/quickstart/#debug-mode).
 
+#### Debugging in VSCode
+
+Many of our developers are using VSCode which has [a very easy-to-use debugger](https://code.visualstudio.com/docs/editor/debugging) built-in.
+A launch configuration for the debugger is added to the repo.
+
+To use the debugger:
+1. install the extensions to [access Docker container](https://marketplace.visualstudio.com/items?itemName=ms-vscode-remote.remote-containers) and to [debug python](https://marketplace.visualstudio.com/items?itemName=ms-python.python).
+2. Start the docker containers.
+3. [Attach to the running Docker container for the `web` service.](https://code.visualstudio.com/docs/remote/containers#_attaching-to-running-containers) By this step a new VSCode window will open to work from inside the `boxwise-flask_web` Docker container.
+4. [Launch the debug configuration called 'Python: Run Flask in docker container to debug'.](https://code.visualstudio.com/docs/editor/debugging#_launch-configurations)
+
+You can now set break-points in your code.
+If you want to debug a certain endpoint, set a break-point in the endpoint and call this enpoint at the port 5001, e.g.
+        `localhost:5001/api/public`
+
 #### GraphQL
 We are setting up GraphQL as a data layer for this application. To check out the playground, run this project with the above docker-compose instructions, and go to localhost:5000/graphql. A sample query you can try is:
 ```
