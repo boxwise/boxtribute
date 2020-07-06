@@ -1,29 +1,31 @@
-version: '3.2'
+version: "3.6"
 services:
     web:
         build: .
         ports:
-          - "5000:5000"
+            - 5000:5000
+            # request localhost:5001 to run debugger in vscode (cf. README)
+            - 5001:5001
         networks:
-          - backend
+            - backend
         volumes:
-          - .:/codedir
+            - .:/codedir
         environment:
-          FLASK_ENV: development
+            FLASK_ENV: development
     mysql:
         image: mysql/mysql-server:5.7 # We run MySQL 5.7 on the production environment atm
         command: --default-authentication-plugin=mysql_native_password --lower_case_table_names=1
         environment:
-          MYSQL_ROOT_PASSWORD: dropapp_root
-          MYSQL_ROOT_HOST: '%'
-          MYSQL_DATABASE: dropapp_dev
+            MYSQL_ROOT_PASSWORD: dropapp_root
+            MYSQL_ROOT_HOST: "%"
+            MYSQL_DATABASE: dropapp_dev
         volumes:
-          - ./init.sql:/docker-entrypoint-initdb.d/init.sql
+            - ./init.sql:/docker-entrypoint-initdb.d/init.sql
         ports:
-          # <Port exposed> : < MySQL Port running inside container>
-          - "32000:3306"
+            # <Port exposed> : < MySQL Port running inside container>
+            - 32000:3306
         networks:
-          - backend
+            - backend
 
 networks:
     backend:
