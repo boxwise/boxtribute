@@ -1,10 +1,10 @@
 # Readme
-This is a simple flask app to be used together with the [react-client](https://github.com/boxwise/boxwise-react) for the revamp of [Boxwise](www.boxwise.co)
+This is a simple flask app to be used together with the [react-client](https://github.com/boxwise/boxwise-react) for the revamp of [Boxtribute](www.boxtribute.org)
 
 ### Preparation for Installation
 
 * Install [Docker](https://www.docker.com/products/docker-desktop)
-* Get an invite to the development tenant of [Auth0](https://auth0.com/) for Boxwise.
+* Get an invite to the development tenant of [Auth0](https://auth0.com/) for Boxtribute.
 
 ### How do I get set up?
 
@@ -84,6 +84,23 @@ query {
   }
 }
 ```
+
+### Docker
+
+We are using Docker containers to make it easy for everyone to spin up an development environment which is the same everywhere. In `docker-compose.yaml` two docker containers are specified - one for the mysql database called `mysql` and one for the flask backend called `web`.
+
+#### Docker networking
+
+In the docker-compose file we define a separate docker network called `backend` to which both containers are joined. Each container can now look up the hostname `web` or `db` and get back the appropriate container’s IP address.
+To access the mysql database from the `web` container there are now two ways:
+1. For example, you reach the mysql db at `MYSQL_HOST=mysql` and `MYSQL_PORT=3306` or
+2. by specifying the IP-address of the Gateway for `MYSQL_HOST` and `MYSQL_PORT=32000`.
+
+To figure out the gateway of the docker network `backend` run
+
+        docker network inspect -f '{{range .IPAM.Config}}{{.Gateway}}{{end}}' boxwise-flask_backend
+
+You can choose one of the two and specify the credentials in the `.env`-flie.
 
 ### License
 See the LICENSE file for license rights and limitations (Apache 2.0).
