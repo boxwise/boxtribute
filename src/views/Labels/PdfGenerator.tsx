@@ -1,20 +1,21 @@
 /* eslint-disable no-return-assign */
 /* eslint-disable react/button-has-type */
 /* eslint-disable react/no-string-refs */
-import React from "react"
+import React, { Component } from "react"
 import { Link } from "react-router-dom"
 import { PDFExport } from "@progress/kendo-react-pdf"
 import QRUpper from "../../public/Boxtribute_QR_Label_Upper.jpg"
 import QRLower from "../../public/Boxtribute_QR_Label_Lower.jpg"
 
-class PdfGenerator extends React.Component<IProps, IState> {
+// eslint-disable-next-line no-unused-vars
+class PdfGenerator extends Component<PdfGeneratorProps, IState> {
   page
   imageUpper
   imageLower
   canvLoaded: boolean
 
-  constructor() {
-    super({})
+  constructor(props: PdfGeneratorProps) {
+    super(props)
     this.canvLoaded = false
   }
 
@@ -93,6 +94,8 @@ class PdfGenerator extends React.Component<IProps, IState> {
 
 export default PdfGenerator
 
-interface IProps {}
+interface PdfGeneratorProps {
+  authObject: any
+}
 
 interface IState {}

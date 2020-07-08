@@ -75,7 +75,7 @@ export default function App() {
               pathNameRedirect="/"
               isLoggedIn={loggedIn}
             >
-              <PdfGenerator />
+              <PdfGenerator authObject={authObject} />
             </PrivateRoute>
 
             <PrivateRoute
@@ -83,7 +83,7 @@ export default function App() {
               pathNameRedirect="/"
               isLoggedIn={loggedIn}
             >
-              <Labels />
+              <Labels authObject={authObject} />
             </PrivateRoute>
 
             <PrivateRoute

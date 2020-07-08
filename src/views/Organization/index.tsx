@@ -5,7 +5,8 @@ import Placeholder from "../Placeholder"
 import SingleOrg from "./SingleOrg"
 import Base from "../Base"
 
-export default function OrgTopLevel({ authObject }) {
+// eslint-disable-next-line no-unused-vars
+export default function OrgTopLevel(props: IProps) {
   return (
     <div>
       <h2>Organization</h2>
@@ -44,4 +45,8 @@ export default function OrgTopLevel({ authObject }) {
       </Switch>
     </div>
   )
+}
+
+interface IProps {
+  authObject: any
 }
