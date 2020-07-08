@@ -8,7 +8,7 @@ import QRUpper from "../../public/Boxtribute_QR_Label_Upper.jpg"
 import QRLower from "../../public/Boxtribute_QR_Label_Lower.jpg"
 
 // eslint-disable-next-line no-unused-vars
-class PdfGenerator extends Component<PdfGeneratorProps, IState> {
+class PdfGenerator extends Component<PdfGeneratorProps> {
   page
   imageUpper
   imageLower
@@ -97,5 +97,3 @@ export default PdfGenerator
 interface PdfGeneratorProps {
   authObject: any
 }
-
-interface IState {}
