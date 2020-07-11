@@ -94,7 +94,7 @@ If you want to debug a certain endpoint, set a break-point in the endpoint and c
 We are setting up GraphQL as a data layer for this application. To check out the playground, run this project with the above docker-compose instructions, and go to localhost:5000/graphql. A sample query you can try is:
 ```
 query {
-  allCamps {
+  allBases {
     name
   }
 }
