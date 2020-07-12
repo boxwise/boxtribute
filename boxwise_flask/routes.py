@@ -53,7 +53,6 @@ def graphql_playgroud():
 
 @app.route("/graphql", methods=["POST"])
 @cross_origin(origin="localhost", headers=["Content-Type", "Authorization"])
-@requires_auth
 def graphql_server():
     # GraphQL queries are always sent as POST
     data = request.get_json()

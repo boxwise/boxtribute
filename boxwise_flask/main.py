@@ -12,11 +12,11 @@ db_host = os.getenv("MYSQL_HOST")
 # int, otherwise: TypeError: %d format: a number is required, not str from
 # pymysql.connections
 db_port = int(os.getenv("MYSQL_PORT", 0))
-cloud_sql_connection_name = os.getenv("CLOUD_SQL_CONNECTION_NAME", False)
+gcloud_sql_connection_name = os.getenv("GCLOUD_SQL_CONNECTION_NAME", False)
 
-if cloud_sql_connection_name:
+if gcloud_sql_connection_name:
     app.config["DATABASE"] = "mysql://{}:{}@/{}?unix_socket=/cloudsql/{}".format(
-        db_user, db_password, db_name, cloud_sql_connection_name
+        db_user, db_password, db_name, gcloud_sql_connection_name
     )
 else:
     app.config["DATABASE"] = "mysql://{}:{}@{}:{}/{}".format(

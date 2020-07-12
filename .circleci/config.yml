@@ -33,7 +33,7 @@ jobs:
           MYSQL_USER=${<< parameters.envVariablePrefix >>DBNAME}
           MYSQL_PASSWORD=${<< parameters.envVariablePrefix >>DBPASS}
           MYSQL_DB=${<< parameters.envVariablePrefix >>DBNAME}
-          CLOUD_SQL_CONNECTION_NAME=${GCLOUD_SQL_SOCKET}" > .env
+          GCLOUD_SQL_CONNECTION_NAME=${GCLOUD_SQL_CONNECTION_NAME}" > .env
       # generate google app engine config for target environment
       - run: |
           sed 's/service: api-staging/service: << parameters.serviceName >>/g' app.yaml > app-<< parameters.serviceName >>.yaml
@@ -74,17 +74,3 @@ workflows:
     #   filters:
     #     branches:
     #       only: production
-    # browser test on staging
-    # - test:
-    #   yarn: true
-    #   record: true
-    #   wait-on: 'https://staging.boxwise.co/'
-    #   no-workspace: true
-    #   requires:
-    #     - deploy-staging
-    #   filters:
-    #     branches:
-    #       only: master
-    #   post-steps:
-    #     - store_test_results:
-    #         path: cypress/results
