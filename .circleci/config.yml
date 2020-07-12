@@ -34,7 +34,7 @@ jobs:
     steps:
       # Attach workspace from build
       - attach_workspace:
-        at: ~/workspace
+        at: workspace
       - checkout
       # create virtual environment for python in the folder
       - run: source env/bin/activate
