@@ -34,4 +34,4 @@ Peewee. Despite SQLAlchemy being the gold standard of ORMs, there are no long-te
 
 
 ### More difficult
-- Harder for people already fluent with SQL to audit queries 
+- Harder for people already fluent with SQL but not Python ORMs to audit queries 
