@@ -6,8 +6,6 @@ jobs:
     parameters:
       serviceName:
         type: string
-      envVariablePrefix:
-        type: string
     docker:
       - image: circleci/python:3.8-buster
     working_directory: ~/project
@@ -28,11 +26,11 @@ jobs:
       # generate .env file
       - run: |
           echo "
-          AUTH0_DOMAIN=${<< parameters.envVariablePrefix >>AUTH0_DOMAIN}
-          AUTH0_AUDIENCE=${<< parameters.envVariablePrefix >>AUTH0_AUDIENCE}
-          MYSQL_USER=${<< parameters.envVariablePrefix >>DBNAME}
-          MYSQL_PASSWORD=${<< parameters.envVariablePrefix >>DBPASS}
-          MYSQL_DB=${<< parameters.envVariablePrefix >>DBNAME}
+          AUTH0_DOMAIN=${AUTH0_DOMAIN}
+          AUTH0_AUDIENCE=${AUTH0_AUDIENCE}
+          MYSQL_USER=${DB_NAME}
+          MYSQL_PASSWORD=${DB_PASS}
+          MYSQL_DB=${DB_NAME}
           GCLOUD_SQL_CONNECTION_NAME=${GCLOUD_SQL_CONNECTION_NAME}" > .env
       # generate google app engine config for target environment
       - run: |
@@ -50,8 +48,7 @@ workflows:
     # deploy to staging
     - build:
         name: deploy-staging
-        context: GCLOUD
-        envVariablePrefix: STAGING_
+        context: STAGING
         serviceName: api-staging
         filters:
           branches:
