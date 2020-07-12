@@ -6,6 +6,7 @@ type_defs = gql(
     type Query {
         hello: String!
         allBases: [Base]
+        orgBases(org_id: Int): [Base]
         allUsers: [User]
         user(email: String): User
     }

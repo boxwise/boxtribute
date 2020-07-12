@@ -17,6 +17,12 @@ def resolve_all_camps(_, info):
     return list(response.dicts())
 
 
+@query.field("orgBases")
+def resolve_org_bases(_, info, org_id):
+    response = Camps.get_camps_by_org_id(org_id)
+    return list(response.dicts())
+
+
 @query.field("allUsers")
 def resolve_all_users(_, info):
     response = Cms_Users.get_all_users()
