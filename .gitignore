@@ -5,5 +5,5 @@ env
 __pycache__
 .eggs
 *.egg-info
-/.vscode
 .DS_Store
+.venv
