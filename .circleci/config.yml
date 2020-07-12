@@ -3,9 +3,6 @@ orbs:
   gcp-cli: circleci/gcp-cli@1.8.4
 jobs:
   build:
-    parameters:
-      serviceName:
-        type: string
     docker:
       - image: circleci/python:3.8-buster
     working_directory: ~/project
@@ -16,6 +13,23 @@ jobs:
       - run: source env/bin/activate
       # install python requirements
       - run: pip install . -r requirements.txt
+      # save build to a CircleCI workspace
+      - persist_to_workspace:
+          root: ~/project
+          paths:
+            - .
+
+  deploy:
+    parameters:
+      serviceName:
+        type: string
+    docker:
+      - image: circleci/python:3.8-buster
+    steps:
+      # Attach workspace from build
+      - attach_workspace:
+          at: workspace
+      - run: cd workspace
       # install gcloud orb
       - gcp-cli/install
       # record version
@@ -45,11 +59,14 @@ jobs:
 workflows:
   build-and-deploy:
     jobs:
+    - build
     # deploy to staging
-    - build:
+    - deploy:
         name: deploy-staging
         context: STAGING
         serviceName: api-staging
+        requires:
+          - build
         filters:
           branches:
             only: feature/add-circleci
