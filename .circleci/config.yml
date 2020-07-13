@@ -27,13 +27,14 @@ jobs:
           paths:
             - .
 
+  # following https://circleci.com/docs/2.0/project-walkthrough/
   test:
     docker:
       - image: circleci/python:3.8-buster
     steps:
       # Attach workspace from build
       - attach_workspace:
-          at: workspace
+          at: .
       - checkout
       # create virtual environment for python in the folder
       - run: source env/bin/activate
@@ -63,9 +64,9 @@ jobs:
     steps:
       # Attach workspace from build
       - attach_workspace:
-          at: workspace
+          at: .
       - run: ls -al
-      - run: cd workspace
+      # - run: cd workspace
       - run: ls -al
       # install gcloud orb
       - gcp-cli/install
