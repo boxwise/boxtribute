@@ -49,12 +49,12 @@ jobs:
         type: string
     docker:
       - image: circleci/python:3.8-buster
-    working_directory: ~/workspace
     steps:
       # Attach workspace from build
       - attach_workspace:
           at: workspace
-      - checkout
+      - run: ls -al
+      - run: cd workspace
       # install gcloud orb
       - gcp-cli/install
       # record version
