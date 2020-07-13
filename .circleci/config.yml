@@ -119,7 +119,7 @@ workflows:
           - test-flask
         filters:
           branches:
-            only: feature/add-circleci
+            only: master
     # deploy to demo
     - deploy:
         name: deploy-demo
