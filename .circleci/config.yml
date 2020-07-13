@@ -2,15 +2,12 @@ version: 2.1
 orbs:
   gcp-cli: circleci/gcp-cli@1.8.4
 jobs:
-  build:
+  build-flask:
     docker:
       - image: circleci/python:3.8-buster
     working_directory: ~/flask
     steps:
       - checkout
-      - run: |
-          cd ..
-          ls -al
       # Restore cached dependencies
       - restore_cache:
           key: deps1-{{ .Branch }}-{{ checksum "requirements.txt" }}
@@ -32,30 +29,29 @@ jobs:
             - .
 
   # following https://circleci.com/docs/2.0/project-walkthrough/
-  test:
+  test-flask:
     docker:
       - image: circleci/python:3.8-buster
+    working_directory: ~/flask
     steps:
       # Attach workspace from build
       - attach_workspace:
           at: .
-      - checkout
-      # create virtual environment for python in the folder
-      - run: source env/bin/activate
-      # install python requirements
-      - run: pip install . -r requirements-dev.txt
+      - run:
+          name: install dev dependencies for linting and testing
+          command: |
+            env/bin/activate
+            pip install -r requirements-dev.txt
       # run linting checks
       # run tests https://circleci.com/docs/2.0/collect-test-data/#pytest
       - run:
-          name: run tests
+          name: Run pytest
           command: |
             env/bin/activate
             mkdir test-results
             pytest --junitxml=test-results/junit.xml
-
       - store_test_results:
           path: test-results
-
       - store_artifacts:
           path: test-results
 
@@ -65,74 +61,72 @@ jobs:
         type: string
     docker:
       - image: circleci/python:3.8-buster
+    working_directory: ~/flask
     steps:
-      - run: |
-          ls -al
-          cd ..
-          ls -al
       # Attach workspace from build
       - attach_workspace:
           at: .
-      - run: |
-          ls -al
-          cd ..
-          ls -al
       # install gcloud orb
       - gcp-cli/install
-      # record version
-      - run: |
-          echo "CircleCI build number:${CIRCLE_BUILD_NUM}
-            Branch: ${CIRCLE_BRANCH}
-            Git hash: ${CIRCLE_SHA1}" > version.txt
-      # generate .env file
-      - run: |
-          echo "
-          AUTH0_DOMAIN=${AUTH0_DOMAIN}
-          AUTH0_AUDIENCE=${AUTH0_AUDIENCE}
-          MYSQL_USER=${DB_NAME}
-          MYSQL_PASSWORD=${DB_PASS}
-          MYSQL_DB=${DB_NAME}
-          GCLOUD_SQL_CONNECTION_NAME=${GCLOUD_SQL_CONNECTION_NAME}" > .env
-      - run: ls -al
-      # generate google app engine config for target environment
-      - run: |
-          sed 's/service: api-staging/service: << parameters.serviceName >>/g' app.yaml > app-<< parameters.serviceName >>.yaml
-      # get google credentials
-      - run: |
-          echo $GCLOUD_SERVICE_KEY | gcloud auth activate-service-account --key-file=-
-          gcloud --quiet config set project ${GOOGLE_PROJECT_ID}
-      # deploy to GCloud
-      - run: |
-          gcloud app deploy app-<< parameters.serviceName >>.yaml
+      - run:
+          name: Create version.txt
+          command: |
+            echo "CircleCI build number:${CIRCLE_BUILD_NUM}
+              Branch: ${CIRCLE_BRANCH}
+              Git hash: ${CIRCLE_SHA1}" > version.txt
+      - run:
+          name: Generate .env file
+          command: |
+            echo "
+            AUTH0_DOMAIN=${AUTH0_DOMAIN}
+            AUTH0_AUDIENCE=${AUTH0_AUDIENCE}
+            MYSQL_USER=${DB_NAME}
+            MYSQL_PASSWORD=${DB_PASS}
+            MYSQL_DB=${DB_NAME}
+            GCLOUD_SQL_CONNECTION_NAME=${GCLOUD_SQL_CONNECTION_NAME}" > .env
+      - run:
+          name: Generate GAE app.yaml file
+          command: |
+            sed 's/service: api-staging/service: << parameters.serviceName >>/g' app.yaml > app-<< parameters.serviceName >>.yaml
+      - run:
+          name: Authenticate the gcloud orb
+          command: |
+            echo $GCLOUD_SERVICE_KEY | gcloud auth activate-service-account --key-file=-
+            gcloud --quiet config set project ${GOOGLE_PROJECT_ID}
+      - run:
+          name: Deploy to GAE
+          command: |
+            gcloud app deploy app-<< parameters.serviceName >>.yaml
 workflows:
   build-and-deploy:
     jobs:
-    - build
+    - build-flask
+    - test-flask:
+        requires:
+          - build-flask
     # deploy to staging
     - deploy:
         name: deploy-staging
         context: STAGING
         serviceName: api-staging
         requires:
-          - build
+          - test-flask
         filters:
           branches:
             only: feature/add-circleci
-    # # deploy to demo
-    # - build:
-    #   name: deploy-demo
-    #   context: GCLOUD
-    #   envVariablePrefix: DEMO_
-    #   serviceName: api-demo
-    #   filters:
-    #     branches:
-    #       only: production
-    # # deploy to production
-    # - build:
-    #   name: deploy-prod
-    #   context: GCLOUD
-    #   envVariablePrefix: PRODUCTION_
-    #   serviceName: api-production
-    #   filters:
-    #     branches:
-    #       only: production
+    # deploy to demo
+    - deploy:
+        name: deploy-demo
+        context: DEMO
+        serviceName: api-demo
+        filters:
+          branches:
+            only: production
+    # deploy to production
+    - deploy:
+        name: deploy-production
+        context: PRODUCTION
+        serviceName: api-production
+        filters:
+          branches:
+            only: production
