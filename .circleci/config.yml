@@ -40,8 +40,19 @@ jobs:
       # install python requirements
       - run: pip install . -r requirements-dev.txt
       # run linting checks
-      # run tests
-      - run: pytest
+      # run tests https://circleci.com/docs/2.0/collect-test-data/#pytest
+      - run:
+          name: run tests
+          command: |
+            env/bin/activate
+            mkdir test-results
+            pytest --junitxml=test-results/junit.xml
+
+      - store_test_results:
+          path: test-results
+
+      - store_artifacts:
+          path: test-results
 
   deploy:
     parameters:
@@ -55,6 +66,7 @@ jobs:
           at: workspace
       - run: ls -al
       - run: cd workspace
+      - run: ls -al
       # install gcloud orb
       - gcp-cli/install
       # record version
@@ -71,6 +83,7 @@ jobs:
           MYSQL_PASSWORD=${DB_PASS}
           MYSQL_DB=${DB_NAME}
           GCLOUD_SQL_CONNECTION_NAME=${GCLOUD_SQL_CONNECTION_NAME}" > .env
+      - run: ls -al
       # generate google app engine config for target environment
       - run: |
           sed 's/service: api-staging/service: << parameters.serviceName >>/g' app.yaml > app-<< parameters.serviceName >>.yaml
