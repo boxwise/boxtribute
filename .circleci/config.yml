@@ -20,7 +20,7 @@ jobs:
       - save_cache:
           key: deps1-{{ .Branch }}-{{ checksum "requirements.txt" }}
           paths:
-            - "venv"
+            - "env"
       # save build to a CircleCI workspace
       - persist_to_workspace:
           root: ~/project
@@ -50,11 +50,12 @@ jobs:
         type: string
     docker:
       - image: circleci/python:3.8-buster
+      working_directory: ~/workspace
     steps:
       # Attach workspace from build
       - attach_workspace:
-          at: /workspace
-      - run: cd /workspace
+          at: workspace
+      - checkout
       # install gcloud orb
       - gcp-cli/install
       # record version
