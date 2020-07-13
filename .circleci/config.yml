@@ -15,11 +15,11 @@ jobs:
       - restore_cache:
           key: deps1-{{ .Branch }}-{{ checksum "requirements.txt" }}
       - run:
-        name: create the python virtual environment and install non-cached dependencies
-        command: |
-          python3 -m venv env
-          source env/bin/activate
-          pip install . -r requirements.txt
+          name: create the python virtual environment and install non-cached dependencies
+          command: |
+            python3 -m venv env
+            source env/bin/activate
+            pip install . -r requirements.txt
       # Cache the installed packages
       - save_cache:
           key: deps1-{{ .Branch }}-{{ checksum "requirements.txt" }}
