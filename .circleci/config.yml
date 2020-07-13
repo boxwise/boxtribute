@@ -47,7 +47,7 @@ jobs:
       - run:
           name: Run pytest
           command: |
-            sourve env/bin/activate
+            source env/bin/activate
             mkdir test-results
             pytest --junitxml=test-results/junit.xml
       - store_test_results:
