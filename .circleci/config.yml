@@ -8,14 +8,18 @@ jobs:
     working_directory: ~/project
     steps:
       - checkout
+      - run: |
+          cd ..
+          ls -al
       # Restore cached dependencies
       - restore_cache:
           key: deps1-{{ .Branch }}-{{ checksum "requirements.txt" }}
-      # create virtual environment for python in the folder
-      - run: python3 -m venv env
-      - run: source env/bin/activate
-      # install python requirements
-      - run: pip install . -r requirements.txt
+      - run:
+        name: create the python virtual environment and install non-cached dependencies
+        command: |
+          python3 -m venv env
+          source env/bin/activate
+          pip install . -r requirements.txt
       # Cache the installed packages
       - save_cache:
           key: deps1-{{ .Branch }}-{{ checksum "requirements.txt" }}
@@ -65,9 +69,9 @@ jobs:
       # Attach workspace from build
       - attach_workspace:
           at: .
-      - run: ls -al
-      # - run: cd workspace
-      - run: ls -al
+      - run: |
+          cd ..
+          ls -al
       # install gcloud orb
       - gcp-cli/install
       # record version
