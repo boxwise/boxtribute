@@ -108,6 +108,15 @@ query {
 }
 ```
 
+#### CircleCI
+We are use CircleCI for automated testing of PRs and deployment to Google Cloud. To develop the CircleCI scripts you can run a CircleCI client locally. Please check out [the documentation](https://circleci.com/docs/2.0/local-cli/).
+
+The most important commands are
+```
+circleci config validate
+circleci local execute
+```
+
 ## Docker
 
 We are using Docker containers to make it easy for everyone to spin up an development environment which is the same everywhere. In `docker-compose.yaml` two docker containers are specified - one for the mysql database called `mysql` and one for the flask backend called `web`.
