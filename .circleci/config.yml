@@ -2,6 +2,20 @@ version: 2.1
 orbs:
   gcp-cli: circleci/gcp-cli@1.8.4
 jobs:
+  build-react:
+    docker:
+      - image: circleci/python:3.8-buster-node
+    working_directory: ~/react
+    steps:
+      - run:
+          name: Clone React Repo
+          command: |
+            cd ..
+            git clone --branch master https://github.com/boxwise/boxwise-react.git react
+            ls -al
+      - run: ls -al
+
+
   build-flask:
     docker:
       - image: circleci/python:3.8-buster
