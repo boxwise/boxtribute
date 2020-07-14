@@ -35,6 +35,9 @@ jobs:
           key: react-yarn-{{ checksum "yarn.lock" }}
           paths:
             - ~/.cache/yarn
+      - run:
+          name: Build React App
+          command: yarn build
 
 
   build-flask:
