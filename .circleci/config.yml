@@ -12,8 +12,17 @@ jobs:
           command: |
             cd ..
             git clone --branch master https://github.com/boxwise/boxwise-react.git react
-            ls -al
-      - run: ls -al
+      - run:
+          name: Generate .env file
+          command: |
+            echo "
+              REACT_APP_AUTH0_DOMAIN=${AUTH0_DOMAIN}
+              REACT_APP_AUTH0_CLIENT_ID=${REACT_APP_AUTH0_CLIENT_ID}
+              REACT_APP_AUTH0_AUDIENCE=${AUTH0_AUDIENCE}
+              REACT_APP_REDIRECT=${REACT_APP_REDIRECT}
+              REACT_APP_LOGOUT_URL=${REACT_APP_LOGOUT_URL}
+              REACT_APP_GRAPHQL_SERVER=${REACT_APP_GRAPHQL_SERVER}" > .env
+s
 
 
   build-flask:
@@ -98,12 +107,12 @@ jobs:
           name: Generate .env file
           command: |
             echo "
-            AUTH0_DOMAIN=${AUTH0_DOMAIN}
-            AUTH0_AUDIENCE=${AUTH0_AUDIENCE}
-            MYSQL_USER=${DB_NAME}
-            MYSQL_PASSWORD=${DB_PASS}
-            MYSQL_DB=${DB_NAME}
-            GCLOUD_SQL_CONNECTION_NAME=${GCLOUD_SQL_CONNECTION_NAME}" > .env
+              AUTH0_DOMAIN=${AUTH0_DOMAIN}
+              AUTH0_AUDIENCE=${AUTH0_AUDIENCE}
+              MYSQL_USER=${DB_NAME}
+              MYSQL_PASSWORD=${DB_PASS}
+              MYSQL_DB=${DB_NAME}
+              GCLOUD_SQL_CONNECTION_NAME=${GCLOUD_SQL_CONNECTION_NAME}" > .env
       - run:
           name: Generate GAE app.yaml file
           command: |
@@ -120,6 +129,7 @@ jobs:
 workflows:
   build-and-deploy:
     jobs:
+    - build-react
     - build-flask
     - test-flask:
         requires:
