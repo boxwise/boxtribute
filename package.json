@@ -2,6 +2,7 @@
   "name": "boxwise-client",
   "version": "0.1.0",
   "private": true,
+  "homepage": "http://localhost:3000/",
   "dependencies": {
     "@apollo/react-hooks": "^3.1.5",
     "@progress/kendo-drawing": "^1.7.0",
@@ -14,6 +15,7 @@
     "autoprefixer": "^9.7.5",
     "axios": "^0.19.2",
     "graphql": "^15.0.0",
+    "homepage": "^1.0.0",
     "postcss-cli": "^7.1.0",
     "prop-types": "^15.7.2",
     "react": "^16.12.0",
