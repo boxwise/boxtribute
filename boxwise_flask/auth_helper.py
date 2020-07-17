@@ -7,7 +7,6 @@ from flask import _request_ctx_stack, request
 from jose import jwt
 from six.moves.urllib.request import urlopen
 from .models import Cms_Users
-from .app import app
 
 
 AUTH0_DOMAIN = os.getenv("AUTH0_DOMAIN")
@@ -133,8 +132,6 @@ def requires_auth(f):
 
 
 def authorization_test(test_for, **kwargs):
-    app.logger.warn(test_for)
-    app.logger.warn(kwargs)
     # to make this applicable to different cases,
     # include an argument of what you would like to test for,
     # and dict of the necessary params to check
