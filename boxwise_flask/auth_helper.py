@@ -79,6 +79,39 @@ def get_rsa_key(token):
             return rsa_key
 
 
+def decode_jwt(token, rsa_key):
+    try:
+        payload = jwt.decode(
+            token,
+            rsa_key,
+            algorithms=ALGORITHMS,
+            audience=API_AUDIENCE,
+            issuer="https://" + AUTH0_DOMAIN + "/",
+        )
+    except jwt.ExpiredSignatureError:
+        raise AuthError(
+            {"code": "token_expired", "description": "token is expired"}, 401
+        )
+    except jwt.JWTClaimsError:
+        raise AuthError(
+            {
+                "code": "invalid_claims",
+                "description": "incorrect claims,"
+                "please check the audience and issuer",
+            },
+            401,
+        )
+    except Exception:
+        raise AuthError(
+            {
+                "code": "invalid_header",
+                "description": "Unable to parse authentication" " token.",
+            },
+            401,
+        )
+    return payload
+
+
 def requires_auth(f):
     """Determines if the Access Token is valid
     """
@@ -88,36 +121,7 @@ def requires_auth(f):
         token = get_token_auth_header()
         rsa_key = get_rsa_key(token)
         if rsa_key:
-            try:
-                payload = jwt.decode(
-                    token,
-                    rsa_key,
-                    algorithms=ALGORITHMS,
-                    audience=API_AUDIENCE,
-                    issuer="https://" + AUTH0_DOMAIN + "/",
-                )
-            except jwt.ExpiredSignatureError:
-                raise AuthError(
-                    {"code": "token_expired", "description": "token is expired"}, 401
-                )
-            except jwt.JWTClaimsError:
-                raise AuthError(
-                    {
-                        "code": "invalid_claims",
-                        "description": "incorrect claims,"
-                        "please check the audience and issuer",
-                    },
-                    401,
-                )
-            except Exception:
-                raise AuthError(
-                    {
-                        "code": "invalid_header",
-                        "description": "Unable to parse authentication" " token.",
-                    },
-                    401,
-                )
-
+            payload = decode_jwt(token, rsa_key)
             _request_ctx_stack.top.current_user = payload
             return f(*args, **kwargs)
         raise AuthError(
@@ -128,30 +132,48 @@ def requires_auth(f):
     return decorated
 
 
-def get_id_token():
-    # TODO: pass entire id_token in under x-boxwise header, and decode here
-    email = request.headers.get("X-Boxwise", None)
-    rsa_key = get_rsa_key(id_token)
-    payload = jwt.decode(
-        id_token,
-        rsa_key,
-        algorithms=ALGORITHMS,
-        audience=API_AUDIENCE,
-        issuer="https://" + AUTH0_DOMAIN + "/",
-    )
-    return payload
+def authorization_test(test_for, **kwargs):
+    app.logger.warn(test_for)
+    app.logger.warn(kwargs)
+    # to make this applicable to different cases,
+    # include an argument of what you would like to test for,
+    # and dict of the necessary params to check
+    # ex) authorization_test("bases", {"base_id":123})
+    token = get_token_auth_header()
+    rsa_key = get_rsa_key(token)
+    if rsa_key:
+        # the user's email is in the auth token under the custom claim:
+        # 'https://www.boxtribute.com/email'
+        # note: this isn't a real website, and doesn't have to be,
+        # but it DOES have to be in this form to work with the Auth0 rule providing it.
+        payload = decode_jwt(token, rsa_key)
+        email = payload['https://www.boxtribute.com/email']
+        requesting_user = Cms_Users.get_user(email)
+
+        if test_for == "bases":
+            allowed_access = test_base(requesting_user, kwargs["base_id"])
+        # add more test cases here
+        else:
+            raise AuthError(
+                {
+                    "code": "unknown resource",
+                    "description": "This resource is not known"
+                }, 401
+            )
+
+        if allowed_access:
+            return allowed_access
+        else:
+            raise AuthError(
+                {
+                    "code": "unauthorized_user",
+                    "description": "Your user does not have access to this resource"
+                }, 401
+            )
 
 
-def authorization_test(base_id):
-    # look up camps and level here, compare against request
-    email = request.headers.get("X-Boxwise", None)
-    requesting_user = Cms_Users.get_user(email)
+def test_base(requesting_user, base_id):
     users_bases = requesting_user.camp_id
     if base_id in users_bases:
-        allowed_access = True
-    else:
-        raise AuthError(
-            {"code": "unauthorized_user", "description": "Your user does not have access to this resource"}, 401
-        )
-
-    return allowed_access
+        return True
+    return False

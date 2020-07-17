@@ -20,7 +20,7 @@ def resolve_all_camps(_, info):
 
 @query.field("base")
 def resolve_camp(_, info, id):
-    authorization_test(id)
+    authorization_test("bases", base_id=id)
     response = Camps.get_camp(id)
     return response
 
