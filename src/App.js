@@ -85,7 +85,7 @@ export default function App() {
             </PrivateRoute>
 
             <Route path="/">
-              <Home user={loggedIn ? authObject.idTokenPayload.name : null} />
+              <Home user={loggedIn ? authObject.accessToken : null} />
             </Route>
             
           </Switch>
