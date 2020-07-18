@@ -8,6 +8,9 @@ import Home from "./views/Home"
 import OrgTopLevel from "./views/Organization"
 import PdfGenerator from "./views/Labels/PdfGenerator"
 import Labels from "./views/Labels/Labels"
+import TabBar from "./views/TabBar"
+import Placeholder from "./views/Placeholder"
+import ScanBox from "./views/ScanBox"
 
 const { REACT_APP_GRAPHQL_SERVER } = process.env
 
@@ -26,7 +29,7 @@ export default function App() {
       // remove leading # and split into components,
       // so now you have ['key1=value1', 'key2=value2']
       const hashArray = totalHash.substr(1).split("&")
-      const authObject = {}
+      const authObject: any = {}
       hashArray.forEach((item) => {
         const keyValArray = item.split("=")
         // turns [key, value] into authObject={key: value}
@@ -83,6 +86,27 @@ export default function App() {
               <Labels authObject={authObject} />
             </PrivateRoute>
 
+            <PrivateRoute
+              path="/scan"
+              pathNameRedirect="/"
+              isLoggedIn={loggedIn}
+            >
+              <ScanBox />
+            </PrivateRoute>
+            <PrivateRoute
+              path="/warehouse"
+              pathNameRedirect="/"
+              isLoggedIn={loggedIn}
+            >
+              <Placeholder />
+            </PrivateRoute>
+            <PrivateRoute
+              path="/settings"
+              pathNameRedirect="/"
+              isLoggedIn={loggedIn}
+            >
+              <Placeholder />
+            </PrivateRoute>
             <Route path="/">
               <Home />
             </Route>
@@ -104,6 +128,7 @@ export default function App() {
             Sign In
           </button>
         )}
+        <TabBar />
       </Router>
     </ApolloProvider>
   )
