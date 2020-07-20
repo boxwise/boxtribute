@@ -29,7 +29,7 @@ Peewee. Despite SQLAlchemy being the gold standard of ORMs, there are no long-te
 ## Consequences
 
 ### Easier
-- [Philipp](https://github.com/orgs/boxwise/people/pylipp) is using Peewee professionally in his place of work at Reactive Robotics, which indicates that the issue of SQLAlchemy being the industry gold standard is not too big of an issue
+- [Philipp](https://github.com/orgs/boxwise/people/pylipp) is using Peewee professionally in his place of work at Reactive Robotics, which indicates that the concern of SQLAlchemy being the industry gold standard we should move towards is not too big of an issue
 - Peewee comes with a [flask integration](http://docs.peewee-orm.com/en/latest/peewee/playhouse.html#flask-utils)
 
 
