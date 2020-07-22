@@ -31,7 +31,7 @@ Boxwise is in the middle of a planned migration from the old PHP-based Dropapp, 
 
 ### Client
 - **[Apollo Client](https://www.apollographql.com/docs/react/):** Well-supported industry leader. Extensive documentation, sophisticated caching solution. Large footprint. Previously considered hard to set up and configure due to sophistication, but now has [Apollo Boost](https://www.npmjs.com/package/apollo-boost) package to make things super simple and speedy.
-- **[urql](https://github.com/FormidableLabs/urql):** A lightweight tiny server solution intended to make graphQL simple. However, it lacks one of the major benefits of the Apollo client, which is cacheing. Supported by a medium-size dev shop. Younger than Apollo Client and all of the server options.
+- **[urql](https://github.com/FormidableLabs/urql):** A lightweight tiny client solution intended to make graphQL simple. However, it lacks one of the major benefits of the Apollo client, which is cacheing. Supported by a medium-size dev shop. Younger than Apollo Client as well as all of the server options.
 
 
 ## Decision
@@ -39,7 +39,7 @@ GraphQL with single endpoint for everything was selected, paired with Ariadne se
 
 Reasoning: while GraphQL may have a steeper learning curve for professional developers who are not familiar with the standard, in the long run this should be more scalable for iterations and easier to maintain than  multiple REST endpoints. In the future, should we end up ingesting external data APIs such as the UNHCR data, it will be easier to pull that all from the GraphQL endpoint as well. This should also be more favorable from a developer experience standpoint for both onboarding and maintaining the codebase, due to GraphQL's introspective capabilities, human-readable JSON query structure, and degree of client-side specificity in requesting field-level data. 
 
-Apollo was selected on the client-side due to its maturity as a product, robust features including sophisticated caching, excellent documentation, and huge community. Ariadne was selected over Graphene on the client side due to it being designed to deliberately intended to mimic Apollo Server. With Ariadne being under active development by Mirumee software, and its excellent documentation that developers can cross-reference with Apollo server documentation, I believe this outweighs any cons that come from it being a less mature library than Graphene.
+Apollo was selected on the client-side due to its maturity as a product, robust features including sophisticated caching, excellent documentation, and huge community. Ariadne was selected over Graphene on the server side due to it being designed to deliberately intended to mimic Apollo Server. With Ariadne being under active development by Mirumee software, and its excellent documentation that developers can cross-reference with Apollo server documentation, I believe this outweighs any cons that come from it being a less mature library than Graphene.
 
 Finally, I believe any performance concerns that could result from queries being abstracted from SQL into resolvers will be compensated for by less load on the network due to overfetching, as long as no N+1 queries are created. 
 
