@@ -43,7 +43,7 @@ export default function ListAllBases() {
           </div>
         ))}
       </ul>
-      <Link  className="mt-6 text-blue-900 hover:bg-blue-200" to="/">-> Go Home</Link>
+      <Link  className="mt-6 text-blue-900 hover:bg-blue-200" to="/">{`->`} Go Home</Link>
     </div>
   );
 }

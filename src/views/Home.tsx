@@ -11,19 +11,19 @@ function Home({ user }) {
       {user && (
         <div className="p-6">
           <Link className="text-blue-900 hover:bg-blue-200" to="/org/100000000">
-            -> Info About A Single Base You Belong To
+            {`->`} Info About A Single Base You Belong To
           </Link>
           <br />
           <Link className="text-blue-900 hover:bg-blue-200" to="/org/123">
-            -> Info About A Single Base You Do Not Belong To
+            {`->`} Info About A Single Base You Do Not Belong To
           </Link>
           <br />
           <Link className="text-blue-900 hover:bg-blue-200" to="/org/all">
-            -> List All Bases (everyone logged in can do this)
+            {`->`} List All Bases (everyone logged in can do this)
           </Link>
           <br />
           <Link className="text-blue-900 hover:bg-blue-200" to="/pdf">
-            -> Generate QR Codes
+            {`->`} Generate QR Codes
           </Link>
         </div>
       )}

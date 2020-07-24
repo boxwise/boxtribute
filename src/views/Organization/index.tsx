@@ -1,12 +1,13 @@
-import React from "react";
-import { Switch, Route } from "react-router-dom";
-import ScanBox from "../ScanBox";
-import Placeholder from "../Placeholder";
-import ListAllBases from "./ListAllBases";
-import SingleBase from "./SingleBase";
-import Base from "../Base";
+import React from "react"
+import { Switch, Route } from "react-router-dom"
+import ListAllBases from "./ListAllBases"
+import SingleBase from "./SingleBase"
+import ScanBox from "../ScanBox"
+import Placeholder from "../Placeholder"
+import Base from "../Base"
 
-export default function OrgTopLevel() {
+// eslint-disable-next-line no-unused-vars
+export default function OrgTopLevel(props: IProps) {
   return (
     <div className="p-6">
       {/* The Orgs page has its own <Switch> with more routes
@@ -46,5 +47,9 @@ export default function OrgTopLevel() {
         </Route>
       </Switch>
     </div>
-  );
+  )
+}
+
+interface IProps {
+  authObject: any
 }

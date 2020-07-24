@@ -1,10 +1,9 @@
 import React from "react"
 import { Route, Redirect } from "react-router-dom"
-import PropTypes from "prop-types"
 import AuthContext from "./AuthContext";
 
 const PrivateRoute = ({ pathName, pathNameRedirect, children }) => {
-  const AuthObject = React.useContext(AuthContext);
+  const AuthObject = React.useContext(AuthContext)
   const isLoggedIn = AuthObject.accessToken
   if (!isLoggedIn) return <Redirect to={pathNameRedirect} />
   return <Route path={pathName}>{children}</Route>

@@ -30,7 +30,7 @@ export default function SingleOrg() {
           <p key={index}>{item.message}</p>
         ))}
         <Link className="mt-6 text-blue-700 hover:bg-blue-200" to="/">
-          -> Go Home
+          {`->`} Go Home
         </Link>
       </div>
     );
@@ -46,7 +46,7 @@ export default function SingleOrg() {
         uses the currency {data.base.currencyname}
       </p>
       <Link className="mt-6 text-blue-700 hover:bg-blue-200" to="/">
-        -> Go Home
+        {`->`} Go Home
       </Link>
     </div>
   );
