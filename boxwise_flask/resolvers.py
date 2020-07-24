@@ -8,6 +8,7 @@ from ariadne import (
 
 from .models import Camps, Cms_Users
 from .type_defs import type_defs
+from .auth_helper import authorization_test
 
 query = ObjectType("Query")
 
@@ -33,6 +34,13 @@ def resolve_all_camps(_, info):
     # Subscription). Otherwise it would be a value returned by a parent resolver.
     response = Camps.get_all_camps()
     return list(response.dicts())
+
+
+@query.field("base")
+def resolve_camp(_, info, id):
+    authorization_test("bases", base_id=id)
+    response = Camps.get_camp(id)
+    return response
 
 
 @query.field("allUsers")

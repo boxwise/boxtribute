@@ -19,6 +19,7 @@ class Camps(db.Model):
     id = CharField()
     organisation_id = CharField()
     name = CharField()
+    currencyname = CharField()
 
     def __unicode__(self):
         return self.name
@@ -26,6 +27,11 @@ class Camps(db.Model):
     @staticmethod
     def get_all_camps():
         return Camps.select().order_by(Camps.name)
+
+    @staticmethod
+    def get_camp(camp_id):
+        camp = Camps.select().where(Camps.id == camp_id).get()
+        return camp
 
 
 class Cms_Usergroups_Camps(db.Model):

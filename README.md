@@ -98,8 +98,18 @@ You can now set break-points in your code.
 If you want to debug a certain endpoint, set a break-point in the endpoint and call this enpoint at the port 5001, e.g.
         `localhost:5001/api/public`
 
+to log to the console from inside the docker container, bring in app from app.py, and log with:
+        `app.logger.warn(<whatever you want to log>)`
+
 ### GraphQL
-We are setting up GraphQL as a data layer for this application. To check out the playground, run this project with the above docker-compose instructions, and go to localhost:5000/graphql. A sample query you can try is:
+We are setting up GraphQL as a data layer for this application. To check out the playground, run this project with the above docker-compose instructions, and go to localhost:5000/graphql. 
+In order to not expose personal data over an unsecured API, we require you to authenticate in order to access the graphQL endpoint. The easiest way to do this currently is:
+-  start up the frontend (go into the boxwise-react directory and run `yarn && yarn start`), log in with the demo user (user@user.co, ask Hans for the password), and the access token will be printed in the console when you inspect the page (or you can pull it out of the cookies, whatever you want). 
+- paste this long string (it will start with "ey" and then a bunch more stuff) into the bottom left section of the playground labled `HTTP Headers` as the Authorization header. 
+    - it will be in the form: `{"Authorization": "Bearer ey.....}`
+- every so often the validity of your access token will time out, so you will need to re-authenticate via the frontend and then paste a new token into the playground.
+
+A sample query you can try is:
 ```
 query {
   allBases {
