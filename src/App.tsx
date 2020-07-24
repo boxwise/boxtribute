@@ -17,7 +17,32 @@ const { REACT_APP_GRAPHQL_SERVER } = process.env
 
 export default function App() {
   const [loggedIn, setLoggedIn] = useState(false)
-  const [authObject, setAuthObject] = useState({})
+  const [authObject, setAuthObject] = useState({
+    accessToken: "",
+    idToken: "",
+    idTokenPayload: {
+      at_hash: "",
+      aud: "",
+      email: "",
+      email_verified: false,
+      exp: null,
+      iat: null,
+      iss: "",
+      name: "",
+      nickname: "",
+      nonce: "",
+      picture: "",
+      sub: "",
+      updated_at: "",
+    },
+    appState: null,
+    refreshToken: null,
+    state: "",
+    expiresIn: null,
+    //   this won't change
+    tokenType: "Bearer",
+    scope: "",
+  })
 
   const client = new ApolloClient({
     uri: REACT_APP_GRAPHQL_SERVER,
@@ -53,7 +78,32 @@ export default function App() {
   function handleLogOut() {
     window.location.hash = ""
     setLoggedIn(false)
-    setAuthObject({})
+    setAuthObject({
+      accessToken: "",
+      idToken: "",
+      idTokenPayload: {
+        at_hash: "",
+        aud: "",
+        email: "",
+        email_verified: false,
+        exp: null,
+        iat: null,
+        iss: "",
+        name: "",
+        nickname: "",
+        nonce: "",
+        picture: "",
+        sub: "",
+        updated_at: "",
+      },
+      appState: null,
+      refreshToken: null,
+      state: "",
+      expiresIn: null,
+      //   this won't change
+      tokenType: "Bearer",
+      scope: "",
+    })
     client.resetStore()
   }
 
@@ -81,26 +131,23 @@ export default function App() {
               <PrivateRoute
                 path="/scan"
                 pathNameRedirect="/"
-                isLoggedIn={loggedIn}
               >
                 <ScanBox />
               </PrivateRoute>
               <PrivateRoute
                 path="/warehouse"
                 pathNameRedirect="/"
-                isLoggedIn={loggedIn}
               >
                 <Placeholder />
               </PrivateRoute>
               <PrivateRoute
                 path="/settings"
                 pathNameRedirect="/"
-                isLoggedIn={loggedIn}
               >
                 <Placeholder />
               </PrivateRoute>
               <Route path="/">
-                <Home user={loggedIn ? authObject.idTokenPayload.name : null} />
+                <Home />
               </Route>
             </Switch>
           </div>

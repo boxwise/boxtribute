@@ -50,6 +50,4 @@ export default function OrgTopLevel(props: IProps) {
   )
 }
 
-interface IProps {
-  authObject: any
-}
+interface IProps {}
