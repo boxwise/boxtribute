@@ -29,6 +29,4 @@ const Labels = (props: LabelProps) => {
 
 export default Labels
 
-interface LabelProps {
-  authObject: any
-}
+interface LabelProps {}

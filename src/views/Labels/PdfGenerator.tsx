@@ -95,5 +95,4 @@ class PdfGenerator extends Component<PdfGeneratorProps> {
 export default PdfGenerator
 
 interface PdfGeneratorProps {
-  authObject: any
 }
