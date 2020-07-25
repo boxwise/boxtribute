@@ -1,0 +1,66 @@
+/*******************************
+     User Global Variables
+*******************************/
+
+@primaryColor: @brandBlue;
+@secondaryColor: @lightBlue;
+@brandBlue: #315c88;
+@lightBlue: #9BADC5;
+@activeBlue: #A0C6DE;
+@red: #ef404a;
+@yellow: #f4e6a0;
+@black: #333333;
+@white: #ffffff;
+
+
+
+/*-------------------
+     Fonts
+--------------------*/
+
+@headerFont        : 'Chivo', 'Archivo Black', Arial, Helvetica, sans-serif;
+@pageFont          : 'Open Sans', 'Helvetica Neue', Arial, Helvetica;
+@fontSmoothing     : antialiased;
+
+@importGoogleFonts : true;
+@googleFontName    : 'font-family-Chivo';
+@googleFontFamily  : 'Open+Sans:400,700bold|Chivo:900black';
+
+@bold              : bold;
+
+
+/*-------------------
+      Link
+--------------------*/
+
+@linkColor           : @primaryColor;
+@linkUnderline       : none;
+@linkHoverColor      : @activeBlue;
+@linkActiveColor      : @activeBlue;
+
+
+/*-------------------
+      Base Sizes
+--------------------*/
+
+@emSize   : 17.5px;
+
+/* The size of page text  */
+@fontSize : 17.5px;
+
+
+
+
+.ui.button {
+     background: @brandBlue;
+     color: @white;
+     box-shadow: 0px 2px 1px rgba(29, 68, 107, 0.2);
+     border-radius: 0;
+     margin: 1em;
+     font-weight: 600;
+     
+}
+
+
+
+

@@ -90,7 +90,7 @@ export default function App() {
         </div>
         {loggedIn ? (
           // eslint-disable-next-line react/button-has-type
-          <button onClick={() => handleLogOut()} className="log-in">
+          <button onClick={() => handleLogOut()} className="log-in ui primary button">
             Log Out
           </button>
         ) : (
@@ -98,13 +98,15 @@ export default function App() {
             onClick={() => {
               Auth0.login()
             }}
-            className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline"
+            className="ui primary button "
             type="button"
           >
-            Sign In
+            Go
           </button>
         )}
+        
       </Router>
+      
     </ApolloProvider>
   )
 }

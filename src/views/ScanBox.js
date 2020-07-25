@@ -2,6 +2,7 @@ import React, { useState } from "react"
 import QrReader from "react-qr-reader"
 import { Link } from "react-router-dom"
 
+
 function ScanBox() {
   const [data, setData] = useState("")
   const [qrError, setQrError] = useState("")

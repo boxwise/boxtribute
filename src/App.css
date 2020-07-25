@@ -1,4 +1,4 @@
-.App {
+/* .App {
   text-align: center;
 }
 
@@ -35,4 +35,26 @@
   to {
     transform: rotate(360deg);
   }
+} */
+a{
+  
+  /* display: inline-block;
+  padding: 2px; */
+  position: relative;
+}
+
+a:hover:after {
+  width:100%;
+
+}
+
+a:after{
+  /* background: none repeat scroll 0 0 transparent; */
+  bottom: 0;
+  content: "";
+  display: block;
+  height: 2px;
+  background: #315c88;
+  transition: width 1s ease 0s,;
+  width: 0;
 }
