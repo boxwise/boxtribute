@@ -3,7 +3,8 @@ import React, { useState } from "react"
 import { NumberPicker } from "react-widgets"
 import { Link } from "react-router-dom"
 
-const Labels = () => {
+// eslint-disable-next-line no-unused-vars
+const Labels = (props: LabelProps) => {
   const [labelState, setLabelState] = useState(0)
 
   return (
@@ -14,8 +15,9 @@ const Labels = () => {
           max={10}
           min={0}
           value={labelState}
-          // eslint-disable-next-line react/jsx-no-bind
-          onChange={(value) => setLabelState(value)}
+          onChange={(value) => {
+            if (value) setLabelState(value)
+          }}
         />
       </label>
       <Link to="/generateLabel">Generate QR Codes</Link>
@@ -26,3 +28,5 @@ const Labels = () => {
 }
 
 export default Labels
+
+interface LabelProps {}

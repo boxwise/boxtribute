@@ -6,7 +6,7 @@
 @secondaryColor: @lightBlue;
 @brandBlue: #315c88;
 @lightBlue: #9BADC5;
-@activeBlue: #A0C6DE;
+@activeBlue: #262A53;
 @red: #ef404a;
 @yellow: #f4e6a0;
 @black: #333333;
@@ -35,8 +35,8 @@
 
 @linkColor           : @primaryColor;
 @linkUnderline       : none;
-@linkHoverColor      : @activeBlue;
-@linkActiveColor      : @activeBlue;
+@linkHoverColor      : @secondaryColor;
+@linkActiveColor      : @secondaryColor;
 
 
 /*-------------------
@@ -51,6 +51,9 @@
 
 
 
+
+
+
 .ui.button {
      background: @brandBlue;
      color: @white;
@@ -58,9 +61,12 @@
      border-radius: 0;
      margin: 1em;
      font-weight: 600;
-     
+    padding: 16px 24px;
 }
 
-
-
+.ui.button:hover{
+         background: @activeBlue;
+         color: @white;
+         box-shadow: 0px 0px 0px ;
+}
 

@@ -28,6 +28,16 @@
   color: #61dafb;
 }
 
+.bottomNavBar{
+  position: fixed;
+  bottom: 0;
+  width: 100%;
+
+  span{
+    color: #000;
+  }
+}
+
 @keyframes App-logo-spin {
   from {
     transform: rotate(0deg);
@@ -38,8 +48,8 @@
 } */
 a{
   
-  /* display: inline-block;
-  padding: 2px; */
+  display: inline-block;
+  padding: 2px; 
   position: relative;
 }
 
@@ -49,7 +59,7 @@ a:hover:after {
 }
 
 a:after{
-  /* background: none repeat scroll 0 0 transparent; */
+  // background: none repeat scroll 0 0 transparent;
   bottom: 0;
   content: "";
   display: block;
