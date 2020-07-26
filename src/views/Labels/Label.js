@@ -8,7 +8,8 @@ const Label = (props) => {
     <div 
         style={{ 
           display: 'float', 
-          float: 'left' 
+          float: 'left',
+          marginLeft: '20px'
         }}>
       <img src={QRUpper} width={275} alt="Boxtribute Logo" />
       <div

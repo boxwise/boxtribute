@@ -49,8 +49,8 @@ class PdfGenerator extends Component {
           <div
             style={{
               paddingTop: 20,
-              marginLeft: 525,
-              marginRight: 525,
+              marginLeft: 500,
+              marginRight: 500,
             }}
           >
             <PDFExport
