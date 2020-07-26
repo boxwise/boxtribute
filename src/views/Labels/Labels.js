@@ -18,7 +18,7 @@ const Labels = () => {
           onChange={(value) => setLabelState(value)}
         />
       </label>
-      <Link to="/generateLabel">Generate QR Codes</Link>
+      <Link to={`/generateLabel/${labelState}`}>Generate QR Codes</Link>
       <br />
       <Link to="/">Go Home</Link>
     </form>

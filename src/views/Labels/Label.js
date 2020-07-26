@@ -1,0 +1,28 @@
+import React from 'react';
+import QRCode from 'qrcode.react';
+import QRUpper from '../../public/Boxtribute_QR_Label_Upper.jpg';
+import QRLower from '../../public/Boxtribute_QR_Label_Lower.jpg';
+
+const Label = (props) => {
+  return (
+    <div 
+        style={{ 
+          display: 'float', 
+          float: 'left' 
+        }}>
+      <img src={QRUpper} width={275} alt="Boxtribute Logo" />
+      <div
+        style={{
+          display: 'flex',
+          flexDirection: 'row',
+          width: 146,
+        }}
+      >
+        <img src={QRLower} alt="Boxtribute Logo" />
+        <QRCode value={props.url} includeMargin size={128} />
+      </div>
+    </div>
+  );
+};
+
+export { Label };

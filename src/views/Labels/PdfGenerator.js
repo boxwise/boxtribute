@@ -1,95 +1,74 @@
+/* eslint-disable prefer-destructuring */
+/* eslint-disable react/destructuring-assignment */
 /* eslint-disable no-return-assign */
 /* eslint-disable react/button-has-type */
 /* eslint-disable react/no-string-refs */
-import React, { Component } from "react"
-import { Link } from "react-router-dom"
-import { PDFExport } from "@progress/kendo-react-pdf"
-import QRUpper from "../../public/Boxtribute_QR_Label_Upper.jpg"
-import QRLower from "../../public/Boxtribute_QR_Label_Lower.jpg"
+import React, { Component } from 'react';
+import { Link } from 'react-router-dom';
+import { Label } from './Label';
+import { PDFExport } from '@progress/kendo-react-pdf';
+
 
 class PdfGenerator extends Component {
-  page
+  pdfExportComponent;
 
-  imageUpper
-
-  imageLower
-
-  constructor() {
-    super()
-    this.canvLoaded = false
+  constructor(props) {
+    super(props);
+    this.canvLoaded = false;
   }
 
   exportPDF = () => {
-    this.page.save()
-  }
+    this.pdfExportComponent.save();
+  };
 
   render() {
+    var labels = [];
+    for (let i = 0; i < this.props.match.params.num; i += 1) {
+      labels.push(<Label url="https://www.facebook.com" key={i} />);
+      if (i + 1 != this.props.match.params.num && (i + 1) % 4 === 0) {
+        labels.push(<div className="page-break"></div>);
+      }
+    }
     return (
-      <div
-        style={{
-          height: "112vh",
-          width: "100vw",
-          paddingTop: 20,
-          backgroundColor: "gray",
-        }}
-      >
-        {!this.canvLoaded && (
-          <canvas ref="canvas" style={{ display: "none" }} />
-        )}
-        <div style={{ textAlign: "center" }}>
-          <button
-            onClick={this.exportPDF}
-            style={{ margin: "auto", marginBottom: "15px" }}
-          >
-            Download QR Code
-          </button>
-        </div>
-        <PDFExport
-          paperSize="Letter"
-          fileName="boxwise_QR.pdf"
-          title=""
-          subject=""
-          keywords=""
-          ref={(p) => (this.page = p)}
-        >
+      <>
+        <div>
+          {!this.canvLoaded && (
+            <canvas ref="canvas" style={{ display: 'none' }} />
+          )}
+          <div style={{ textAlign: 'center' }}>
+            <button
+              className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline"
+              onClick={this.exportPDF}
+              variant="contained" 
+              color="primary"
+              style={{ margin: 'auto', marginBottom: '15px', marginTop: '15px'}}
+            >
+              Download As PDF
+            </button>
+          </div>
           <div
             style={{
-              height: 792,
-              width: 600,
-              padding: "none",
-              backgroundColor: "white",
-              boxShadow: "5px 5px 5px black",
-              margin: "auto",
-              overflowX: "hidden",
-              overflowY: "hidden",
+              paddingTop: 20,
+              marginLeft: 525,
+              marginRight: 525,
             }}
           >
-            <img
-              ref={(image) => (this.imageUpper = image)}
-              src={QRUpper}
-              width="550px"
-              height="483px"
-              alt="Boxtribute Logo"
-            />
-            <div
-              style={{ display: "flex", flexDirection: "row", width: "600px" }}
+            <PDFExport
+              paperSize="Letter"
+              fileName="boxwise_QR.pdf"
+              forcePageBreak=".page-break"
+              ref={(p) => (this.pdfExportComponent = p)}
             >
-              <img
-                ref={(image) => (this.imageLower = image)}
-                src={QRLower}
-                alt="Boxtribute Logo"
-              />
-              <p>
-                This is where the database query for the QR code would happen in
-                the code
-              </p>
-            </div>
+                {labels}
+            </PDFExport>
           </div>
-        </PDFExport>
-        <Link to="/">Go Home</Link>
-      </div>
-    )
+        </div>
+        <div style ={{display: 'inline'}}>
+          <Link to="/">Go Home</Link>
+        </div>
+      </>
+    );
   }
 }
 
-export default PdfGenerator
+export default PdfGenerator;
