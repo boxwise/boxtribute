@@ -1,6 +1,6 @@
 #!/bin/bash
 
-STAGED_FILES=$(git diff --cached --name-only --diff-filter=ACM | grep ".jsx\{0,1\}$")
+STAGED_FILES=$(git diff --cached --name-only --diff-filter=ACM | grep ".tsx\{0,1\}$")
 ESLINT="$(git rev-parse --show-toplevel)/node_modules/.bin/eslint"
 
 if [[ "$STAGED_FILES" = "" ]]; then
