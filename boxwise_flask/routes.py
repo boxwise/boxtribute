@@ -21,6 +21,7 @@ def HELLO():
     return "This is a landing page"
 
 
+# Serving React on production
 @app.route("/mobile")
 def index():
     return app.send_static_file("index.html")
