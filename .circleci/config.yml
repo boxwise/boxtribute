@@ -48,6 +48,10 @@ jobs:
               REACT_APP_REDIRECT=${REACT_APP_REDIRECT}
               REACT_APP_LOGOUT_URL=${REACT_APP_LOGOUT_URL}
               REACT_APP_GRAPHQL_SERVER=${REACT_APP_GRAPHQL_SERVER}" > .env
+      - run:
+          name: Set hompage in package.json
+          command: |
+            sed -i 's|"homepage": "http://localhost:3000/"|"homepage": "https://'$URL'/mobile"|' package.json
       # following https://circleci.com/docs/2.0/yarn/
       - restore_cache:
           name: Restore Yarn Package Cache
@@ -125,7 +129,7 @@ jobs:
               Branch: ${CIRCLE_BRANCH}
               Git hash: ${CIRCLE_SHA1}" > version.txt
       - run:
-          name: Generate .env file
+          name: Generate .env files
           command: |
             echo "
               AUTH0_DOMAIN=${AUTH0_DOMAIN}
@@ -133,7 +137,9 @@ jobs:
               MYSQL_USER=${DB_NAME}
               MYSQL_PASSWORD=${DB_PASS}
               MYSQL_DB=${DB_NAME}
-              GCLOUD_SQL_CONNECTION_NAME=${GCLOUD_SQL_CONNECTION_NAME}" > .env
+              MYSQL_SOCKET=${DB_SOCKET}
+              FLASK_STATIC_FOLDER=../react
+              FLASK_STATIC_URL_PATH=/mobile" > .env"
       - run:
           name: Generate GAE app.yaml file
           command: |
