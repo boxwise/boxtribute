@@ -52,6 +52,10 @@ jobs:
           name: Set hompage in package.json
           command: |
             sed -i 's|"homepage": "http://localhost:3000/"|"homepage": "https://'$URL'/mobile"|' package.json
+      - run:
+          name: print package.json
+          command: |
+            cat package.json
       # following https://circleci.com/docs/2.0/yarn/
       - restore_cache:
           name: Restore Yarn Package Cache
