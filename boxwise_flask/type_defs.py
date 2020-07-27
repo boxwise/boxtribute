@@ -6,12 +6,14 @@ type_defs = gql(
     type Query {
         hello: String!
         allBases: [Base]
+        base(id: String!): Base
         allUsers: [User]
         user(email: String): User
     }
     type Base {
-        id: Int!
+        id: Int
         name: String
+        currencyname: String
         organisation_id: Int
     }
     type User{
@@ -20,9 +22,14 @@ type_defs = gql(
         name: String
         email: String!
         cms_usergroups_id: Int
-        valid_firstday: String
-        valid_lastday: String
+        valid_firstday: Date
+        valid_lastday: Date
         camp_id: [Int]
+        lastlogin: Datetime
+        lastaction: Datetime
     }
+
+    scalar Datetime
+    scalar Date
 """
 )

@@ -1,5 +1,5 @@
 """Model definitions for database"""
-from peewee import CharField, CompositeKey
+from peewee import CharField, CompositeKey, DateField, DateTimeField
 from playhouse.shortcuts import model_to_dict
 
 from .app import db
@@ -19,6 +19,7 @@ class Camps(db.Model):
     id = CharField()
     organisation_id = CharField()
     name = CharField()
+    currencyname = CharField()
 
     def __unicode__(self):
         return self.name
@@ -26,6 +27,11 @@ class Camps(db.Model):
     @staticmethod
     def get_all_camps():
         return Camps.select().order_by(Camps.name)
+
+    @staticmethod
+    def get_camp(camp_id):
+        camp = Camps.select().where(Camps.id == camp_id).get()
+        return camp
 
 
 class Cms_Usergroups_Camps(db.Model):
@@ -53,8 +59,10 @@ class Cms_Users(db.Model):
     name = CharField(column_name="naam")
     email = CharField()
     cms_usergroups_id = CharField()
-    valid_firstday = CharField()
-    valid_lastday = CharField()
+    valid_firstday = DateField()
+    valid_lastday = DateField()
+    lastlogin = DateTimeField()
+    lastaction = DateTimeField()
 
     def __unicode__(self):
         return self.name
