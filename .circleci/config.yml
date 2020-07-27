@@ -139,7 +139,7 @@ jobs:
               MYSQL_DB=${DB_NAME}
               MYSQL_SOCKET=${DB_SOCKET}
               FLASK_STATIC_FOLDER=../react
-              FLASK_STATIC_URL_PATH=/mobile" > .env"
+              FLASK_STATIC_URL_PATH=/mobile" > .env
       - run:
           name: Generate GAE app.yaml file
           command: |
