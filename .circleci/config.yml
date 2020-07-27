@@ -52,10 +52,6 @@ jobs:
           name: Set hompage in package.json
           command: |
             sed -i 's|"homepage": "http://localhost:3000/"|"homepage": "https://'$URL'/mobile"|' package.json
-      - run:
-          name: print package.json
-          command: |
-            cat package.json
       # following https://circleci.com/docs/2.0/yarn/
       - restore_cache:
           name: Restore Yarn Package Cache
@@ -142,7 +138,7 @@ jobs:
               MYSQL_PASSWORD=${DB_PASS}
               MYSQL_DB=${DB_NAME}
               MYSQL_SOCKET=${DB_SOCKET}
-              FLASK_STATIC_FOLDER=../react
+              FLASK_STATIC_FOLDER=../react-build
               FLASK_STATIC_URL_PATH=/mobile" > .env
       - run:
           name: Generate GAE app.yaml file
