@@ -85,17 +85,17 @@ jobs:
       # Attach workspace from build
       - attach_workspace:
           at: .
-      - restore_cache:
-          key: flask-dev-deps-{{ checksum "requirements-dev.txt" }}
+      # - restore_cache:
+      #     key: flask-dev-deps-{{ checksum "requirements-dev.txt" }}
       - run:
           name: install dev dependencies for linting and testing
           command: |
             source env/bin/activate
             pip install -r requirements-dev.txt
-      - save_cache:
-          key: flask-dev-deps-{{ checksum "requirements-dev.txt" }}
-          paths:
-            - env
+      # - save_cache:
+      #     key: flask-dev-deps-{{ checksum "requirements-dev.txt" }}
+      #     paths:
+      #       - env
       # run linting checks
       # run tests https://circleci.com/docs/2.0/collect-test-data/#pytest
       - run:
