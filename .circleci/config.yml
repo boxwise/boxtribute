@@ -169,7 +169,7 @@ workflows:
         context: STAGING
         filters:
           branches:
-            only: circleci/add_frontend
+            only: master
 
     # deploy to staging
     - deploy:
@@ -181,7 +181,7 @@ workflows:
           - build-react-for-staging
         filters:
           branches:
-            only: circleci/add_frontend
+            only: master
 
     # deploy to demo
     - deploy:
@@ -200,3 +200,37 @@ workflows:
         filters:
           branches:
             only: production
+  # nightly workflow to deploy master from React each night
+  nightly:
+    triggers:
+      - schedule:
+          cron: "0 5 * * *"
+          filters:
+            branches:
+              only:
+                - master
+    jobs:
+      - build-flask
+
+      - test-flask:
+          requires:
+            - build-flask
+
+      - build-react:
+          name: build-react-for-staging
+          context: STAGING
+          filters:
+            branches:
+              only: master
+
+      # deploy to staging
+      - deploy:
+          name: deploy-staging
+          context: STAGING
+          serviceName: api-staging
+          requires:
+            - test-flask
+            - build-react-for-staging
+          filters:
+            branches:
+              only: master
