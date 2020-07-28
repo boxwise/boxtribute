@@ -3,11 +3,23 @@ this is a hello-world of auth0 authentication, so far. It goes with the flask ap
 
 
 
-
-
 This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
 
+## Configuration with Auth0
+
+- Ask an admin for access to the Boxtribute Auth0 project
+- copy example.env to create a new file called .env
+- in your .env file, fill in values from Auth0 for the following:
+
+  REACT_APP_AUTH0_DOMAIN (Applications --> <your application> --> Settings --> Basic Information --> Domain)
+  
+  REACT_APP_AUTH0_CLIENT_ID (Applications --> <your application> --> Settings --> Basic Information --> Client ID)
+  
+  REACT_APP_AUTH0_AUDIENCE (Applications --> APIs --> API Audience)
+
 ## Available Scripts
+
+First, [install yarn](https://classic.yarnpkg.com/en/docs/install)
 
 In the project directory, you can run:
 

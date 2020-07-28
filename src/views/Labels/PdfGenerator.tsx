@@ -7,15 +7,15 @@ import { PDFExport } from "@progress/kendo-react-pdf"
 import QRUpper from "../../public/Boxtribute_QR_Label_Upper.jpg"
 import QRLower from "../../public/Boxtribute_QR_Label_Lower.jpg"
 
-class PdfGenerator extends Component {
+// eslint-disable-next-line no-unused-vars
+class PdfGenerator extends Component<PdfGeneratorProps> {
   page
-
   imageUpper
-
   imageLower
+  canvLoaded: boolean
 
-  constructor() {
-    super()
+  constructor(props: PdfGeneratorProps) {
+    super(props)
     this.canvLoaded = false
   }
 
@@ -93,3 +93,6 @@ class PdfGenerator extends Component {
 }
 
 export default PdfGenerator
+
+interface PdfGeneratorProps {
+}

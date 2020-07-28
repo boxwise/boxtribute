@@ -25,6 +25,22 @@ class Auth {
     })
   }
 
+  handleAuthentication() {
+    return new Promise((resolve, reject) => {
+      // Auth0 returns the token in the params of the URL after successful login and redirect. Parse it to get the tokens.
+      this.auth0.parseHash((err, authResult) => {
+        if (err) return reject(err)
+        if (!authResult || !authResult.idToken) {
+          return reject(err)
+        }
+
+        // authResult contains both the accessToken (I am a recognized user who has logged in) and the idToken (here is some info about me as a specific user)
+        // because the only useful info we have about the user is the email, we need to send this to the backend and check there for access to org-specific info
+        resolve(authResult)
+      })
+    })
+  }
+
   logout() {
     this.auth0.logout({
       returnTo: REACT_APP_LOGOUT_URL,

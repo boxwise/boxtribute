@@ -28,6 +28,16 @@
   color: #61dafb;
 }
 
+.bottomNavBar{
+  position: fixed;
+  bottom: 0;
+  width: 100%;
+
+  span{
+    color: #000;
+  }
+}
+
 @keyframes App-logo-spin {
   from {
     transform: rotate(0deg);
