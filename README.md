@@ -126,8 +126,12 @@ We are use CircleCI for automated testing of PRs and deployment to Google Cloud.
 The most important commands are
 ```
 circleci config validate
-circleci local execute
+circleci local execute --job JOB_NAME
 ```
+
+##### CircleCI development tips/learnings
+- You can only trigger a job locally if it is part of a CircleCI workflow.
+- Each `run`-step in the config of CircleCI should be treated as its own terminal. If you have for example activated an virtual environment in a `run`-step, this environment is not activated in the next `run`-step.
 
 ## Docker
 
