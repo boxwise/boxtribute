@@ -1,3 +1,6 @@
+<a width="105" height="35" href="https://auth0.com/?utm_source=oss&utm_medium=gp&utm_campaign=oss" target="_blank" alt="Single Sign On & Token Based Authentication - Auth0">
+       <img width="105" height="35" alt="JWT Auth for open source projects" src="https://cdn.auth0.com/oss/badges/a0-badge-dark.png"></a>
+
 # Boxwise react client 
 This is the FE repo for the new mobile web-app of Boxwise. It goes with the BE Flask app at [boxwise-flask](https://github.com/boxwise/boxwise-flask).
 This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
