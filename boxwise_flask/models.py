@@ -55,7 +55,6 @@ class Cms_Usergroups_Camps(db.Model):
 
 class Cms_Users(db.Model):
     id = CharField()
-    organisation_id = CharField()
     name = CharField(column_name="naam")
     email = CharField()
     cms_usergroups_id = CharField()

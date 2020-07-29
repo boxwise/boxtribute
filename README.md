@@ -1,4 +1,6 @@
 [![CircleCI](https://circleci.com/gh/boxwise/boxwise-flask.svg?style=svg)](https://circleci.com/gh/boxwise/boxwise-flask)
+<a width="105" height="35" href="https://auth0.com/?utm_source=oss&utm_medium=gp&utm_campaign=oss" target="_blank" alt="Single Sign On & Token Based Authentication - Auth0">
+       <img width="105" height="35" alt="JWT Auth for open source projects" src="https://cdn.auth0.com/oss/badges/a0-badge-dark.png"></a>
 
 # Readme
 This is a simple flask app to be used together with the [react-client](https://github.com/boxwise/boxwise-react) for the revamp of [Boxtribute](www.boxtribute.org)
@@ -23,6 +25,28 @@ This is a simple flask app to be used together with the [react-client](https://g
 :warning: The initial database seed is a copy of mysql-database of the [old dropapp project](https://github.com/boxwise/boxwise-dropapp). Since this is a simple mysqldump, it may not be up to date.
 
 -----
+
+## Development Database Seed
+
+Boxwise is an application for organisations who run distribution/warehouses in multiple bases.
+Therefore the development database seed holds at least two organisations and three bases:
+* Organisation `BoxAid` working on `Lesvos` and
+* Organisation `BoxCare` working on `Samos` and in `Thessaloniki`.
+
+Each organisation has at least 3 user groups with different access levels in the app:
+* `Head of Operations` (Admin access)
+* `Coordinator`
+* `Volunteer`
+
+For each of these three user groups of each of the two organisations we created an login credential for development purposes:
+* `dev_headofops@boxaid.org`
+* `dev_coordinator@boxaid.org`
+* `dev_volunteer@boxaid.org`
+* `dev_headofops@boxcare.org`
+* `dev_coordinator@boxcare.org`
+* `dev_volunteer@boxcare.org`
+
+The password of all of these users is `password`.
 
 ### Command-line access
 
