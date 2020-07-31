@@ -11,6 +11,7 @@ app = Flask(
     static_folder=os.getenv("FLASK_STATIC_FOLDER", "static"),
     static_url_path=os.getenv("FLASK_STATIC_URL_PATH", "/static"),
 )
+
 CORS(app)
 
 db = FlaskDB()

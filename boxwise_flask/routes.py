@@ -28,7 +28,7 @@ def index():
 
 
 # This doesn't need authentication
-@app.route("/api/public")
+@app.route("/api/public", methods=["GET"])
 @cross_origin(origin="localhost", headers=["Content-Type", "Authorization"])
 def public():
     response = (
@@ -38,7 +38,7 @@ def public():
 
 
 # This needs authentication
-@app.route("/api/private")
+@app.route("/api/private", methods=["GET"])
 @cross_origin(origin="localhost", headers=["Content-Type", "Authorization"])
 @requires_auth
 def private():

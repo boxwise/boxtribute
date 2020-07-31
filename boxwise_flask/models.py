@@ -1,28 +1,36 @@
 """Model definitions for database"""
-from peewee import CharField, CompositeKey, DateField, DateTimeField
+from peewee import BigIntegerField, CharField, CompositeKey, DateField, DateTimeField
 from playhouse.shortcuts import model_to_dict
 
 from .app import db
 
 
 class Person(db.Model):
+    id = BigIntegerField()
+    camp_id = BigIntegerField()
     firstname = CharField()
     lastname = CharField()
-    camp_id = CharField()
-    id = CharField()
 
-    def __unicode__(self):
+    def __str__(self):
         return self.firstname
 
 
 class Camps(db.Model):
-    id = CharField()
-    organisation_id = CharField()
+    id = BigIntegerField()
+    organisation_id = BigIntegerField()
     name = CharField()
     currencyname = CharField()
 
-    def __unicode__(self):
-        return self.name
+    def __str__(self):
+        return (
+            self.id
+            + " "
+            + self.organisation_id
+            + " "
+            + self.name
+            + " "
+            + self.currencyname
+        )
 
     @staticmethod
     def get_all_camps():
@@ -35,15 +43,15 @@ class Camps(db.Model):
 
 
 class Cms_Usergroups_Camps(db.Model):
-    camp_id = CharField()
-    cms_usergroups_id = CharField()
+    camp_id = BigIntegerField()
+    cms_usergroups_id = BigIntegerField()
 
     class Meta:
         # Cms_Usergroups_Camps has no primary key,
         # so we construct a composite to use as one here
         primary_key = CompositeKey("camp_id", "cms_usergroups_id")
 
-    def __unicode__(self):
+    def __str__(self):
         return self.name
 
     @staticmethod
@@ -54,7 +62,7 @@ class Cms_Usergroups_Camps(db.Model):
 
 
 class Cms_Users(db.Model):
-    id = CharField()
+    id = BigIntegerField()
     name = CharField(column_name="naam")
     email = CharField()
     cms_usergroups_id = CharField()
@@ -63,8 +71,8 @@ class Cms_Users(db.Model):
     lastlogin = DateTimeField()
     lastaction = DateTimeField()
 
-    def __unicode__(self):
-        return self.name
+    def __str__(self):
+        return self.name, self.organisation_id
 
     @staticmethod
     def get_all_users():
