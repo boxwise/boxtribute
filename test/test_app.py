@@ -16,10 +16,10 @@ def client():
     """test client to setup app"""
     app.config["DATABASE"] = "sqlite:///:memory:"
 
+    db.init_app(app)
+
     with app.test_client() as client:
         yield client
-
-    db.init_app(app)
 
 
 def test_index(client):

@@ -1,4 +1,3 @@
-import json
 import os
 
 import requests
@@ -37,9 +36,8 @@ def get_user_token():
         "password": auth0_password,
     }
 
-    response = requests.post(url, json=parameters, headers=headers).text
-    responseDICT = json.loads(response)
-    return responseDICT["access_token"]
+    response = requests.post(url, json=parameters, headers=headers).json()
+    return response["access_token"]
 
 
 @memoize  # memoize code from: https://stackoverflow.com/a/815160
