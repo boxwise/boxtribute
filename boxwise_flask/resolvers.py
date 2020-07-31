@@ -1,16 +1,18 @@
 """GraphQL resolver functionality"""
 from ariadne import (
     ObjectType,
+    MutationType,
     ScalarType,
     make_executable_schema,
     snake_case_fallback_resolvers,
 )
 
-from .models import Camps, Cms_Users
+from .models import Camps, Cms_Users, Stock
 from .type_defs import type_defs
 from .auth_helper import authorization_test
 
 query = ObjectType("Query")
+mutation = MutationType()
 
 datetime_scalar = ScalarType("Datetime")
 date_scalar = ScalarType("Date")
@@ -55,4 +57,12 @@ def resolve_user(_, info, email):
     return response
 
 
-schema = make_executable_schema(type_defs, query, snake_case_fallback_resolvers)
+@mutation.field("createBox")
+def create_box(_, info, input):
+    response = Stock.create_box(input)
+    return response
+
+
+schema = make_executable_schema(
+    type_defs, [query, mutation], snake_case_fallback_resolvers
+    )

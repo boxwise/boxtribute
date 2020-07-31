@@ -1,18 +1,53 @@
 """Model definitions for database"""
-from peewee import CharField, CompositeKey, DateField, DateTimeField
+from peewee import CharField, CompositeKey, DateField, DateTimeField, IntegerField
 from playhouse.shortcuts import model_to_dict
 
 from .app import db
 
 
-class Person(db.Model):
-    firstname = CharField()
-    lastname = CharField()
-    camp_id = CharField()
-    id = CharField()
+class Stock(db.Model):
+    # INSERT INTO stock (
+    #   box_id, product_id, size_id, items, location_id,
+    #   comments, qr_id, created, created_by, box_state_id)
+    # VALUES (
+    #   :box_id, :product_id, :size_id, :items, :location_id, :comments,
+    #   :qr_id, :created, :created_by, :box_state_id)
+
+    id = IntegerField()
+    box_id = CharField()
+    product_id = CharField()
+    size_id = CharField()
+    items = CharField()
+    location_id = CharField()
+    comments = CharField()
+    qr_id = CharField()
+    created = CharField()
+    created_by = CharField()
+    box_state_id = CharField()
 
     def __unicode__(self):
-        return self.firstname
+        return self.box_id
+
+    @staticmethod
+    def create_box(box):
+        new_box = Stock.create(
+            box_id=box.get('box_id'),
+            product_id=box.get('product_id', None),
+            size_id=box.get('size_id', None),
+            items=box.get('items', None),
+            location_id=box.get('location_id', None),
+            comments=box.get('comments', None),
+            qr_id=box.get('qr_id', None),
+            created=box.get('created', None),
+            created_by=box.get('created_by', None),
+            box_state_id=box.get('box_state_id', None)
+            )
+        return new_box
+
+    @staticmethod
+    def get_box(box_id):
+        box = Stock.select().where(Stock.box_id == box_id).get()
+        return box
 
 
 class Camps(db.Model):
