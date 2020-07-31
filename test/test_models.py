@@ -1,6 +1,6 @@
-from boxwise_flask.models import Camps, Cms_Usergroups_Camps, Cms_Users, Person
+from test.database_for_testing import with_test_db
 
-from .database_for_testing import with_test_db
+from boxwise_flask.models import Camps, Cms_Usergroups_Camps, Cms_Users, Person
 
 MODELS = (Person, Camps, Cms_Usergroups_Camps, Cms_Users)
 

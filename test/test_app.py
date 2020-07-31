@@ -1,8 +1,8 @@
 import json
+from test.auth_for_testing import get_user_token_header
+from test.database_for_testing import with_test_db
 
 import pytest
-from auth_for_testing import get_user_token_header
-from database_for_testing import with_test_db
 
 from boxwise_flask.app import db
 from boxwise_flask.models import Camps, Cms_Usergroups_Camps, Cms_Users, Person
@@ -51,7 +51,7 @@ def test_graphql_endpoint(client):
     Camps.create(id=5, organisation_id=1, name="some text1", currencyname="hello")
 
     graph_ql_query_string = """query { \
-        base { \
+        allBase { \
             id \
             organisation_id \
             name \

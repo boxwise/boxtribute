@@ -1,13 +1,15 @@
 from functools import wraps
 
-from boxwise_flask.app import db
+from playhouse.sqlite_ext import SqliteExtDatabase
+
+# from boxwise_flask.app import db
 
 
 def with_test_db(dbs: tuple):
     def decorator(func):
         @wraps(func)
         def test_db_closure(*args, **kwargs):
-            test_db = db.database
+            test_db = SqliteExtDatabase(":memory:")
             with test_db.bind_ctx(dbs):
                 test_db.create_tables(dbs)
                 try:
