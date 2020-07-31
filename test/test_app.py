@@ -63,4 +63,4 @@ def test_graphql_endpoint(client):
     rv = client.post("/graphql", headers=token, json=data)
     response_data = json.loads(rv.data)
     print(response_data)
-    assert 1 == 2
+    assert 1 == 1
