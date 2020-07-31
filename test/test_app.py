@@ -51,7 +51,7 @@ def test_graphql_endpoint(client):
     Camps.create(id=5, organisation_id=1, name="some text1", currencyname="hello")
 
     graph_ql_query_string = """query { \
-        allBase { \
+        allBases { \
             id \
             organisation_id \
             name \
