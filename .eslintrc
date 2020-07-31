@@ -3,15 +3,16 @@
     "react-app",
     "airbnb",
     "plugin:jsx-a11y/recommended",
-    "prettier",
-    "prettier/react",
     "plugin:import/errors",
     "plugin:import/warnings",
     "plugin:import/typescript"
   ],
-  "plugins": ["jsx-a11y", "prettier"],
+  "plugins": ["jsx-a11y"],
   "rules": {
-    "semi": 0,
+    // driving me nuts and would have involved changing a zillion files for no real benefit
+    "react/jsx-one-expression-per-line": "off",
+    "quotes": "off",
+    "no-unused-expressions": "off",
     // import/no-named-as-default disabled as it prevents a common pattern of exporting
     // non-connected redux components for testing and then exporting
     // the connected component as the default export
@@ -30,12 +31,6 @@
     "react-hooks/exhaustive-deps": "error",
     // suport for jsx files
     "react/jsx-filename-extension": [1, { "extensions": [".js", ".jsx", ".ts", ".tsx"] }],
-    "prettier/prettier": [
-      "error",
-      {
-        "semi": false
-      }
-    ],
     "import/extensions": [
       "error",
       "ignorePackages",
