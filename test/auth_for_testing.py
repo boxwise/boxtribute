@@ -35,7 +35,6 @@ def get_user_token():
         "username": auth0_username,
         "password": auth0_password,
     }
-
     response = requests.post(url, json=parameters, headers=headers).json()
     return response["access_token"]
 

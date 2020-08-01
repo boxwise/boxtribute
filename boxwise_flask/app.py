@@ -3,7 +3,8 @@ import os
 
 from flask import Flask
 from flask_cors import CORS
-from playhouse.flask_utils import FlaskDB
+
+from .database_wrapper import DatabaseWrapper
 
 # Not able to change the static folder variables after app is initialized
 app = Flask(
@@ -14,4 +15,4 @@ app = Flask(
 
 CORS(app)
 
-db = FlaskDB()
+db = DatabaseWrapper()

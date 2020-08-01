@@ -1,4 +1,3 @@
-import json
 from test.auth_for_testing import get_user_token_header
 from test.database_for_testing import with_test_db
 
@@ -31,8 +30,7 @@ def test_index(client):
 def test_private_endpoint(client):
     """example test for private endpoint"""
     token = get_user_token_header()
-    rv = client.get("/api/private", headers=token)
-    response_data = json.loads(rv.data)
+    response_data = client.get("/api/private", headers=token).json
     assert (
         "Hello from a private endpoint! You need to be authenticated to see this."
         == response_data["message"]
@@ -60,7 +58,5 @@ def test_graphql_endpoint(client):
 
     data = {"query": graph_ql_query_string}
 
-    rv = client.post("/graphql", headers=token, json=data)
-    response_data = json.loads(rv.data)
-    print(response_data)
-    assert 1 == 1
+    response_data = client.post("/graphql", headers=token, json=data).json
+    assert response_data["data"]["allBases"][0]["id"] == 1

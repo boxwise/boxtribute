@@ -11,7 +11,7 @@ class Person(db.Model):
     firstname = CharField()
     lastname = CharField()
 
-    def __unicode__(self):
+    def __str__(self):
         return self.firstname
 
 
@@ -21,11 +21,11 @@ class Camps(db.Model):
     name = CharField()
     currencyname = CharField()
 
-    def __unicode__(self):
+    def __str__(self):
         return (
-            self.id
+            str(self.id)
             + " "
-            + self.organisation_id
+            + str(self.organisation_id)
             + " "
             + self.name
             + " "
@@ -51,7 +51,7 @@ class Cms_Usergroups_Camps(db.Model):
         # so we construct a composite to use as one here
         primary_key = CompositeKey("camp_id", "cms_usergroups_id")
 
-    def __unicode__(self):
+    def __str__(self):
         return self.name
 
     @staticmethod
@@ -71,7 +71,7 @@ class Cms_Users(db.Model):
     lastlogin = DateTimeField()
     lastaction = DateTimeField()
 
-    def __unicode__(self):
+    def __str__(self):
         return self.name, self.organisation_id
 
     @staticmethod
