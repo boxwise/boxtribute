@@ -1,4 +1,3 @@
-from test.auth_for_testing import get_user_token_header
 from test.database_for_testing import with_test_db
 
 import pytest
@@ -29,18 +28,16 @@ def test_index(client):
 
 def test_private_endpoint(client):
     """example test for private endpoint"""
-    token = get_user_token_header()
-    response_data = client.get("/api/private", headers=token).json
+    response_data = client.get("/api/private").json
     assert (
         "Hello from a private endpoint! You need to be authenticated to see this."
         == response_data["message"]
     )
 
 
-@with_test_db(MODELS)
+@with_test_db(db.database, MODELS)
 def test_graphql_endpoint(client):
     """example test for graphql endpoint"""
-    token = get_user_token_header()
 
     Camps.create(id=1, organisation_id=1, name="some text1", currencyname="hello")
     Camps.create(id=2, organisation_id=1, name="some text1", currencyname="hello")
@@ -57,6 +54,5 @@ def test_graphql_endpoint(client):
     }"""
 
     data = {"query": graph_ql_query_string}
-
-    response_data = client.post("/graphql", headers=token, json=data).json
+    response_data = client.post("/graphql", json=data).json
     assert response_data["data"]["allBases"][0]["id"] == 1
