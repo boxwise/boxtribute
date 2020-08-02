@@ -39,8 +39,8 @@ def public():
 
 # This needs authentication
 @app.route("/api/private", methods=["GET"])
-@requires_auth
 @cross_origin(origin="localhost", headers=["Content-Type", "Authorization"])
+@requires_auth
 def private():
     response = (
         "Hello from a private endpoint! You need to be authenticated to see this."
@@ -58,8 +58,8 @@ def graphql_playgroud():
 
 
 @app.route("/graphql", methods=["POST"])
-@requires_auth
 @cross_origin(origin="localhost", headers=["Content-Type", "Authorization"])
+@requires_auth
 def graphql_server():
     # GraphQL queries are always sent as POST
     data = request.get_json()
