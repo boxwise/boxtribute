@@ -1,5 +1,5 @@
 """Model definitions for database"""
-from peewee import CharField, CompositeKey
+from peewee import CharField, CompositeKey, DateField, DateTimeField
 from playhouse.shortcuts import model_to_dict
 
 from .app import db
@@ -19,6 +19,7 @@ class Camps(db.Model):
     id = CharField()
     organisation_id = CharField()
     name = CharField()
+    currencyname = CharField()
 
     def __unicode__(self):
         return self.name
@@ -30,6 +31,11 @@ class Camps(db.Model):
     @staticmethod
     def get_camps_by_org_id(org_id):
         return Camps.select().where(Camps.organisation_id == org_id)
+
+    @staticmethod
+    def get_camp(camp_id):
+        camp = Camps.select().where(Camps.id == camp_id).get()
+        return camp
 
 
 class Cms_Usergroups_Camps(db.Model):
@@ -53,12 +59,13 @@ class Cms_Usergroups_Camps(db.Model):
 
 class Cms_Users(db.Model):
     id = CharField()
-    organisation_id = CharField()
     name = CharField(column_name="naam")
     email = CharField()
     cms_usergroups_id = CharField()
-    valid_firstday = CharField()
-    valid_lastday = CharField()
+    valid_firstday = DateField()
+    valid_lastday = DateField()
+    lastlogin = DateTimeField()
+    lastaction = DateTimeField()
 
     def __unicode__(self):
         return self.name
@@ -71,7 +78,8 @@ class Cms_Users(db.Model):
     def get_user(email):
         user = Cms_Users.select().where(Cms_Users.email == email).get()
         camps = Cms_Usergroups_Camps.get_camp_id(user.cms_usergroups_id)
-        # camps is a peewee ModelSelect (so, many objects). convert to dict 1 at a time,
+        # camps is a peewee ModelSelect (so, many objects).
+        # convert to dict 1 at a time,
         # and pull the camp_id from that dict, and put in a list
         user.camp_id = [model_to_dict(item)["camp_id"] for item in camps]
 

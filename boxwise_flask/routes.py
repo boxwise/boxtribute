@@ -21,6 +21,12 @@ def HELLO():
     return "This is a landing page"
 
 
+# Serving React on production
+@app.route("/mobile")
+def index():
+    return app.send_static_file("index.html")
+
+
 # This doesn't need authentication
 @app.route("/api/public")
 @cross_origin(origin="localhost", headers=["Content-Type", "Authorization"])

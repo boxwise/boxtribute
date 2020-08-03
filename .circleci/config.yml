@@ -1,0 +1,241 @@
+version: 2.1
+orbs:
+  gcp-cli: circleci/gcp-cli@1.8.4
+  slack: circleci/slack@3.4.2
+jobs:
+  build-flask:
+    docker:
+      - image: circleci/python:3.8-buster
+    working_directory: ~/flask
+    steps:
+      - checkout
+      # Restore cached dependencies
+      - restore_cache:
+          key: flask-deps-{{ checksum "requirements.txt" }}
+      - run:
+          name: create the python virtual environment and install non-cached dependencies
+          command: |
+            python3 -m venv env
+            source env/bin/activate
+            pip install . -r requirements.txt
+      # Cache the installed packages
+      - save_cache:
+          key: flask-deps-{{ checksum "requirements.txt" }}
+          paths:
+            - env
+      # save build to a CircleCI workspace
+      - persist_to_workspace:
+          root: ~/flask
+          paths:
+            - .
+
+  build-react:
+    docker:
+      - image: circleci/python:3.8-buster-node
+    working_directory: ~/react
+    steps:
+      - run:
+          name: Clone React Repo
+          command: |
+            cd ..
+            git clone --branch master https://github.com/boxwise/boxwise-react.git react
+      - run:
+          name: Generate .env File
+          command: |
+            echo "
+              REACT_APP_AUTH0_DOMAIN=${AUTH0_DOMAIN}
+              REACT_APP_AUTH0_CLIENT_ID=${AUTH0_CLIENT_ID}
+              REACT_APP_AUTH0_AUDIENCE=${AUTH0_AUDIENCE}
+              REACT_APP_REDIRECT=${REACT_APP_REDIRECT}
+              REACT_APP_LOGOUT_URL=${REACT_APP_LOGOUT_URL}
+              REACT_APP_GRAPHQL_SERVER=${REACT_APP_GRAPHQL_SERVER}" > .env
+      - run:
+          name: Set hompage in package.json
+          command: |
+            sed -i 's|"homepage": "http://localhost:3000/"|"homepage": "https://'$URL'/mobile"|' package.json
+      # following https://circleci.com/docs/2.0/yarn/
+      - restore_cache:
+          name: Restore Yarn Package Cache
+          keys:
+            - react-yarn-{{ checksum "yarn.lock" }}
+      - run:
+          name: Install Yarn Packages
+          command: yarn install --immutable
+      - save_cache:
+          name: Save Yarn Package Cache
+          key: react-yarn-{{ checksum "yarn.lock" }}
+          paths:
+            - ~/.cache/yarn
+      - run:
+          name: Build React App
+          command: |
+            yarn build
+            mv build react-build
+      # Add build to workspace
+      - persist_to_workspace:
+          root: ~/react
+          paths:
+            - react-build
+
+  # following https://circleci.com/docs/2.0/project-walkthrough/
+  test-flask:
+    docker:
+      - image: circleci/python:3.8-buster
+    working_directory: ~/flask
+    steps:
+      # Attach workspace from build
+      - attach_workspace:
+          at: .
+      # - restore_cache:
+      #     key: flask-dev-deps-{{ checksum "requirements-dev.txt" }}
+      - run:
+          name: install dev dependencies for linting and testing
+          command: |
+            source env/bin/activate
+            pip install -r requirements-dev.txt
+      # - save_cache:
+      #     key: flask-dev-deps-{{ checksum "requirements-dev.txt" }}
+      #     paths:
+      #       - env
+      # run linting checks
+      # run tests https://circleci.com/docs/2.0/collect-test-data/#pytest
+      - run:
+          name: Run pytest
+          command: |
+            source env/bin/activate
+            mkdir test-results
+            pytest --junitxml=test-results/junit.xml
+      - store_test_results:
+          path: test-results
+      - store_artifacts:
+          path: test-results
+      - slack/notify-on-failure:
+          only_for_branches: master,production
+
+  deploy:
+    parameters:
+      serviceName:
+        type: string
+    docker:
+      - image: circleci/python:3.8-buster
+    working_directory: ~/flask
+    steps:
+      # Attach workspace from build
+      - attach_workspace:
+          at: .
+      # install gcloud orb
+      - gcp-cli/install
+      - run:
+          name: Create version.txt
+          command: |
+            echo "CircleCI build number:${CIRCLE_BUILD_NUM}
+              Branch: ${CIRCLE_BRANCH}
+              Git hash: ${CIRCLE_SHA1}" > version.txt
+      - run:
+          name: Generate .env files
+          command: |
+            echo "
+              AUTH0_DOMAIN=${AUTH0_DOMAIN}
+              AUTH0_AUDIENCE=${AUTH0_AUDIENCE}
+              MYSQL_USER=${DB_NAME}
+              MYSQL_PASSWORD=${DB_PASS}
+              MYSQL_DB=${DB_NAME}
+              MYSQL_SOCKET=${DB_SOCKET}
+              FLASK_STATIC_FOLDER=../react-build
+              FLASK_STATIC_URL_PATH=/mobile" > .env
+      - run:
+          name: Generate GAE app.yaml file
+          command: |
+            sed 's/service: api-staging/service: << parameters.serviceName >>/g' app.yaml > app-<< parameters.serviceName >>.yaml
+      - run:
+          name: Authenticate the gcloud orb
+          command: |
+            echo $GCLOUD_SERVICE_KEY | gcloud auth activate-service-account --key-file=-
+            gcloud --quiet config set project ${GOOGLE_PROJECT_ID}
+      - run:
+          name: Deploy to GAE
+          command: |
+            gcloud app deploy app-<< parameters.serviceName >>.yaml
+      - slack/notify-on-failure:
+        only_for_branches: master,production
+
+
+workflows:
+  build-and-deploy:
+    jobs:
+    - build-flask
+
+    - test-flask:
+        requires:
+          - build-flask
+
+    - build-react:
+        name: build-react-for-staging
+        context: STAGING
+        filters:
+          branches:
+            only: master
+
+    # deploy to staging
+    - deploy:
+        name: deploy-staging
+        context: STAGING
+        serviceName: api-staging
+        requires:
+          - test-flask
+          - build-react-for-staging
+        filters:
+          branches:
+            only: master
+
+    # deploy to demo
+    - deploy:
+        name: deploy-demo
+        context: DEMO
+        serviceName: api-demo
+        filters:
+          branches:
+            only: production
+
+    # deploy to production
+    - deploy:
+        name: deploy-production
+        context: PRODUCTION
+        serviceName: api-production
+        filters:
+          branches:
+            only: production
+  # nightly workflow to deploy master from React each night
+  nightly:
+    triggers:
+      - schedule:
+          cron: "0 5 * * *"
+          filters:
+            branches:
+              only:
+                - master
+    jobs:
+      - build-flask
+
+      - test-flask:
+          requires:
+            - build-flask
+
+      - build-react:
+          name: build-react-for-staging
+          context: STAGING
+          filters:
+            branches:
+              only: master
+
+      # deploy to staging
+      - deploy:
+          name: deploy-staging
+          context: STAGING
+          serviceName: api-staging
+          requires:
+            - test-flask
+            - build-react-for-staging
+          filters:
+            branches:
+              only: master

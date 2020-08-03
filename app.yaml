@@ -1,0 +1,7 @@
+runtime: python38
+service: api-staging
+entrypoint: gunicorn -b :$PORT boxwise_flask.main:app
+handlers:
+- url: .*
+  script: auto
+  secure: always

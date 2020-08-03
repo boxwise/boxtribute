@@ -1,10 +1,29 @@
 """GraphQL resolver functionality"""
-from ariadne import ObjectType, make_executable_schema, snake_case_fallback_resolvers
+from ariadne import (
+    ObjectType,
+    ScalarType,
+    make_executable_schema,
+    snake_case_fallback_resolvers,
+)
 
+from .auth_helper import authorization_test
 from .models import Camps, Cms_Users
 from .type_defs import type_defs
 
 query = ObjectType("Query")
+
+datetime_scalar = ScalarType("Datetime")
+date_scalar = ScalarType("Date")
+
+
+@datetime_scalar.serializer
+def serialize_datetime(value):
+    return value.isoformat()
+
+
+@date_scalar.serializer
+def serialize_date(value):
+    return value.isoformat()
 
 
 # registers this fn as a resolver for the "allBases" field, can use it as the
@@ -21,6 +40,13 @@ def resolve_all_camps(_, info):
 def resolve_org_bases(_, info, org_id):
     response = Camps.get_camps_by_org_id(org_id)
     return list(response.dicts())
+
+
+@query.field("base")
+def resolve_camp(_, info, id):
+    authorization_test("bases", base_id=id)
+    response = Camps.get_camp(id)
+    return response
 
 
 @query.field("allUsers")

@@ -4,15 +4,18 @@ import os
 from .app import db
 from .routes import app
 
-app.config["DATABASE"] = {
-    "name": os.getenv("MYSQL_DB"),
-    "engine": "peewee.MySQLDatabase",
-    "user": os.getenv("MYSQL_USER"),
-    "host": os.getenv("MYSQL_HOST"),
-    "password": os.getenv("MYSQL_PASSWORD"),
-    # int, otherwise: TypeError: %d format: a number is required, not str from
-    # pymysql.connections
-    "port": int(os.getenv("MYSQL_PORT", 0)),
-}
+# Prepare address of mysql host
+mysql_host = os.getenv("MYSQL_HOST", "") + (
+    ":" + os.getenv("MYSQL_PORT") if os.getenv("MYSQL_PORT", False) else ""
+)
+
+# establish database connection
+app.config["DATABASE"] = "mysql://{}:{}@{}/{}{}".format(
+    os.getenv("MYSQL_USER"),
+    os.getenv("MYSQL_PASSWORD"),
+    mysql_host,
+    os.getenv("MYSQL_DB"),
+    os.getenv("MYSQL_SOCKET", ""),
+)
 
 db.init_app(app)
