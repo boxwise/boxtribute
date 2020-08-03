@@ -29,6 +29,10 @@ class Camps(db.Model):
         return Camps.select().order_by(Camps.name)
 
     @staticmethod
+    def get_camps_by_org_id(org_id):
+        return Camps.select().where(Camps.organisation_id == org_id)
+
+    @staticmethod
     def get_camp(camp_id):
         camp = Camps.select().where(Camps.id == camp_id).get()
         return camp

@@ -6,9 +6,9 @@ from ariadne import (
     snake_case_fallback_resolvers,
 )
 
+from .auth_helper import authorization_test
 from .models import Camps, Cms_Users
 from .type_defs import type_defs
-from .auth_helper import authorization_test
 
 query = ObjectType("Query")
 
@@ -33,6 +33,14 @@ def resolve_all_camps(_, info):
     # discard the first input because it belongs to a root type (Query, Mutation,
     # Subscription). Otherwise it would be a value returned by a parent resolver.
     response = Camps.get_all_camps()
+    return list(response.dicts())
+
+
+# not everyone can see all the bases
+# see the comment in https://github.com/boxwise/boxwise-flask/pull/19
+@query.field("orgBases")
+def resolve_org_bases(_, info, org_id):
+    response = Camps.get_camps_by_org_id(org_id)
     return list(response.dicts())
 
 
