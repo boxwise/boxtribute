@@ -36,6 +36,8 @@ def resolve_all_camps(_, info):
     return list(response.dicts())
 
 
+# not everyone can see all the bases
+# see the comment in https://github.com/boxwise/boxwise-flask/pull/19
 @query.field("orgBases")
 def resolve_org_bases(_, info, org_id):
     response = Camps.get_camps_by_org_id(org_id)
