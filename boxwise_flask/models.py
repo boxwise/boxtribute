@@ -1,13 +1,13 @@
-"""Model definitions for database"""
-from peewee import BigIntegerField, CharField, CompositeKey, DateField, DateTimeField
+"""Model definitions for database."""
+from peewee import CharField, CompositeKey, DateField, DateTimeField, IntegerField
 from playhouse.shortcuts import model_to_dict
 
 from .app import db
 
 
 class Person(db.Model):
-    id = BigIntegerField()
-    camp_id = BigIntegerField()
+    id = IntegerField()
+    camp_id = IntegerField()
     firstname = CharField()
     lastname = CharField()
 
@@ -16,8 +16,8 @@ class Person(db.Model):
 
 
 class Camps(db.Model):
-    id = BigIntegerField()
-    organisation_id = BigIntegerField()
+    id = IntegerField()
+    organisation_id = IntegerField()
     name = CharField()
     currencyname = CharField()
 
@@ -43,8 +43,8 @@ class Camps(db.Model):
 
 
 class Cms_Usergroups_Camps(db.Model):
-    camp_id = BigIntegerField()
-    cms_usergroups_id = BigIntegerField()
+    camp_id = IntegerField()
+    cms_usergroups_id = IntegerField()
 
     class Meta:
         # Cms_Usergroups_Camps has no primary key,
@@ -62,7 +62,7 @@ class Cms_Usergroups_Camps(db.Model):
 
 
 class Cms_Users(db.Model):
-    id = BigIntegerField()
+    id = IntegerField()
     name = CharField(column_name="naam")
     email = CharField()
     cms_usergroups_id = CharField()
