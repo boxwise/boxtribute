@@ -1,13 +1,13 @@
 from functools import wraps
 
-from peewee import Database
+from peewee import SqliteDatabase
 
 
-def with_test_db(database: Database, models: tuple):
+def with_test_db(models: tuple):
     def decorator(func):
         @wraps(func)
         def test_db_closure(*args, **kwargs):
-            test_db = database
+            test_db = SqliteDatabase(":memory:")
             with test_db.bind_ctx(models):
                 test_db.create_tables(models)
                 try:

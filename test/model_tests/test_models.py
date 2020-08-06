@@ -1,15 +1,11 @@
-from test.database_for_testing import with_test_db
-
-from peewee import SqliteDatabase
+from test.model_tests.database_for_testing import with_test_db
 
 from boxwise_flask.models import Camps, Cms_Usergroups_Camps, Cms_Users, Person
 
 MODELS = (Person, Camps, Cms_Usergroups_Camps, Cms_Users)
 
-test_db = SqliteDatabase(":memory:")
 
-
-@with_test_db(test_db, MODELS)
+@with_test_db(MODELS)
 def test_model_method():
     """example database model test"""
 

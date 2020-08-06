@@ -2,7 +2,7 @@
 from peewee import CharField, CompositeKey, DateField, DateTimeField, IntegerField
 from playhouse.shortcuts import model_to_dict
 
-from .app import db
+from .db import db
 
 
 class Person(db.Model):
