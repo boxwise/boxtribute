@@ -13,4 +13,9 @@ def mock_decorator(*args, **kwargs):
     return decorator
 
 
+def mock_auth_test(test_for, **kwargs):
+    return True
+
+
 patch("boxwise_flask.auth_helper.requires_auth", mock_decorator()).start()
+patch("boxwise_flask.auth_helper.authorization_test", mock_auth_test).start()
