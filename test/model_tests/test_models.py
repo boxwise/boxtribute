@@ -1,4 +1,4 @@
-from test.model_tests.database_for_testing import with_test_db
+from test.model_tests.database import with_test_db
 
 from boxwise_flask.models import Camps, Cms_Usergroups_Camps, Cms_Users, Person
 
