@@ -28,6 +28,10 @@ function Home() {
           <Link className="text-blue-900 hover:bg-blue-200" to="/pdf">
             {`->`} Generate QR Codes
           </Link>
+          <br />
+          <Link className="text-blue-900 hover:bg-blue-200" to="/create-box">
+            {`->`} Create a Box
+          </Link>
         </div>
       )}
     </div>

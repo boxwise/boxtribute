@@ -12,6 +12,7 @@ import AuthContext from "./AuthContext"
 import TabBar from "./views/TabBar"
 import Placeholder from "./views/Placeholder"
 import ScanBox from "./views/ScanBox"
+import CreateBox from "./views/CreateBox"
 
 const { REACT_APP_GRAPHQL_SERVER } = process.env
 
@@ -112,12 +113,16 @@ export default function App() {
       <AuthContext.Provider value={authObject}>
         <Router>
           <div>
-            {/* NOTE! 
+            {/* NOTE!
         This works like a normal switch, so you have to put the specific routes the highest,
         and work your way down to least-specific */}
             <Switch>
               <PrivateRoute path="/org" pathNameRedirect="/">
                 <OrgTopLevel />
+              </PrivateRoute>
+
+              <PrivateRoute path="/create-box" pathNameRedirect="/">
+                <CreateBox />
               </PrivateRoute>
 
               <PrivateRoute path="/generateLabel" pathNameRedirect="/">
