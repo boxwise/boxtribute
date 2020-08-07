@@ -12,6 +12,7 @@
     // driving me nuts and would have involved changing a zillion files for no real benefit
     "react/jsx-one-expression-per-line": "off",
     "quotes": "off",
+    "semi": "off",
     "no-unused-expressions": "off",
     // import/no-named-as-default disabled as it prevents a common pattern of exporting
     // non-connected redux components for testing and then exporting
