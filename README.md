@@ -125,14 +125,15 @@ The following step are only required the first time or after you deleted a Docke
 6. Install the [python extension](https://marketplace.visualstudio.com/items?itemName=ms-python.python) inside the Docker container. 
 
 Final steps:  
-7. Set your break-points.  
-8. [Launch the debug configuration called 'Python: Run Flask in docker container to debug'.](https://code.visualstudio.com/docs/editor/debugging#_launch-configurations)
+7. [Launch the debug configuration called 'Python: Run Flask in docker container to debug'.](https://code.visualstudio.com/docs/editor/debugging#_launch-configurations)
 
-You can now set break-points in your code.
+You can now set break-points in your code.  
 If you want to debug a certain endpoint, set a break-point in the endpoint and call this enpoint at the port 5001, e.g.
         `localhost:5001/api/public`
+If you want to break on any other code lines (not endpoints), then you can only catch them during the server start-up. 
 
-to log to the console from inside the docker container, bring in app from app.py, and log with:
+#### Usage of Logger
+To log to the console from inside the docker container, import app from app.py, and log with:
         `app.logger.warn(<whatever you want to log>)`
 
 ### GraphQL
