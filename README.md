@@ -121,12 +121,12 @@ To use the debugger:
 4. A new VSCode window pops up which is run from within the docker container `boxwise-flask_web` Docker container.
 5. Open the `/codedir` in the new VSCode which popped up. The `codedir` folder is the equivalent of the repo folder in the Docker container.
 
-The following step are only required the first time:
-5. Install the [python extension](https://marketplace.visualstudio.com/items?itemName=ms-python.python) inside the Docker container. 
+The following step are only required the first time or after you deleted a Docker container:  
+6. Install the [python extension](https://marketplace.visualstudio.com/items?itemName=ms-python.python) inside the Docker container. 
 
-Final steps:
-6. Set your break-points.
-7. [Launch the debug configuration called 'Python: Run Flask in docker container to debug'.](https://code.visualstudio.com/docs/editor/debugging#_launch-configurations)
+Final steps:  
+7. Set your break-points.  
+8. [Launch the debug configuration called 'Python: Run Flask in docker container to debug'.](https://code.visualstudio.com/docs/editor/debugging#_launch-configurations)
 
 You can now set break-points in your code.
 If you want to debug a certain endpoint, set a break-point in the endpoint and call this enpoint at the port 5001, e.g.
