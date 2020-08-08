@@ -49,12 +49,12 @@ class PdfGenerator extends Component {
           <div
             style={{
               paddingTop: 20,
-              marginLeft: 500,
-              marginRight: 500,
+              marginLeft: "30%",
+              marginRight: "30%",
             }}
           >
             <PDFExport
-              paperSize="Letter"
+              paperSize="A4"
               fileName="boxwise_QR.pdf"
               forcePageBreak=".page-break"
               ref={(p) => (this.pdfExportComponent = p)}
