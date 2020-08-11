@@ -1,29 +1,34 @@
 """Construction of routes for flask app"""
 from ariadne import graphql_sync
 from ariadne.constants import PLAYGROUND_HTML
-from flask import Blueprint, jsonify, request
+from flask import jsonify, request
 from flask_cors import cross_origin
 
+from .app import app
 from .auth_helper import AuthError, requires_auth
 from .resolvers import schema
 
-main_page_blueprint = Blueprint("main_page_blueprint", __name__)
 
-
-@main_page_blueprint.errorhandler(AuthError)
+@app.errorhandler(AuthError)
 def handle_auth_error(ex):
     response = jsonify(ex.error)
     response.status_code = ex.status_code
     return response
 
 
-@main_page_blueprint.route("/")
+@app.route("/")
 def HELLO():
     return "This is a landing page"
 
 
+# Serving React on production
+@app.route("/mobile")
+def index():
+    return app.send_static_file("index.html")
+
+
 # This doesn't need authentication
-@main_page_blueprint.route("/api/public", methods=["GET"])
+@app.route("/api/public")
 @cross_origin(origin="localhost", headers=["Content-Type", "Authorization"])
 def public():
     response = (
@@ -33,7 +38,7 @@ def public():
 
 
 # This needs authentication
-@main_page_blueprint.route("/api/private", methods=["GET"])
+@app.route("/api/private")
 @cross_origin(origin="localhost", headers=["Content-Type", "Authorization"])
 @requires_auth
 def private():
@@ -43,7 +48,7 @@ def private():
     return jsonify(message=response)
 
 
-@main_page_blueprint.route("/graphql", methods=["GET"])
+@app.route("/graphql", methods=["GET"])
 def graphql_playgroud():
     # On GET request serve GraphQL Playground
     # You don't need to provide Playground if you don't want to
@@ -52,7 +57,7 @@ def graphql_playgroud():
     return PLAYGROUND_HTML, 200
 
 
-@main_page_blueprint.route("/graphql", methods=["POST"])
+@app.route("/graphql", methods=["POST"])
 @cross_origin(origin="localhost", headers=["Content-Type", "Authorization"])
 @requires_auth
 def graphql_server():
@@ -61,12 +66,7 @@ def graphql_server():
 
     # Note: Passing the request to the context is optional.
     # In Flask, the current request is always accessible as flask.request
-
-    # TODO: as the app dependency was removed from this file
-    # need to add a way to setup graphql in debug mode
-    # suggestion would be environment variables
-
-    success, result = graphql_sync(schema, data, context_value=request, debug=True)
+    success, result = graphql_sync(schema, data, context_value=request, debug=app.debug)
 
     status_code = 200 if success else 400
     return jsonify(result), status_code

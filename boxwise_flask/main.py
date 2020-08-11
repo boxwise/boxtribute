@@ -1,10 +1,8 @@
 """Main entry point for application"""
 import os
 
-from .app import create_app
-from .db import db
-
-app = create_app()
+from .app import db
+from .routes import app
 
 # Prepare address of mysql host
 mysql_host = os.getenv("MYSQL_HOST", "") + (
