@@ -1,4 +1,6 @@
 """Construction of routes for flask app"""
+import os
+
 from ariadne import graphql_sync
 from ariadne.constants import PLAYGROUND_HTML
 from flask import Blueprint, jsonify, request
@@ -71,8 +73,10 @@ def graphql_server():
     # TODO: as the app dependency was removed from this file
     # need to add a way to setup graphql in debug mode
     # suggestion would be environment variables
-
-    success, result = graphql_sync(schema, data, context_value=request, debug=True)
+    debug_graphql = bool(os.getenv("DEBUG_GRAPHQL", False))
+    success, result = graphql_sync(
+        schema, data, context_value=request, debug=debug_graphql
+    )
 
     status_code = 200 if success else 400
     return jsonify(result), status_code
