@@ -1,88 +1,163 @@
 import * as React from "react";
-import { FormControl, Input, InputLabel } from "@material-ui/core";
 import { useMutation } from "@apollo/react-hooks";
 import { gql } from "apollo-boost";
 import { useForm } from "react-hook-form";
 
 export default function CreateBox() {
   const CREATE_BOX = gql`
-    mutation($createBoxInput: createBoxInput) {
-      createBox(input: $createBoxInput)
+    mutation(
+      $boxId: Int!
+      $productId: Int!
+      $items: Int
+      $locationId: Int!
+      $comments: String!
+      $sizeId: Int!
+      $qrId: Int!
+      $boxStateId: Int!
+    ) {
+      createBox(
+        input: {
+          box_id: $boxId
+          product_id: $productId
+          size_id: $sizeId
+          items: $items
+          location_id: $locationId
+          comments: $comments
+          qr_id: $qrId
+          box_state_id: $boxStateId
+        }
+      ) {
+        id
+        box_id
+        product_id
+        items
+      }
     }
   `;
 
-  const [createBoxMutation, { loading: mutationLoading, error: mutationError }] = useMutation(CREATE_BOX);
+  const [createBoxMutation, { loading: mutationLoading, error: mutationError }] = useMutation(
+    CREATE_BOX
+  );
+
+  const [newBox, setNewBox] = React.useState();
 
   const { register, handleSubmit } = useForm();
-  const onSubmit = (data) => {
-    console.log(data);
-    createBoxMutation({ variables: { createBoxInput: data } });
+  const onSubmit = async (data) => {
+    const { boxId, productId, items, locationId, comments, sizeId, qrId, boxStateId } = data;
+
+    try {
+      const { data } = await createBoxMutation({
+        variables: {
+          boxId: Number(boxId),
+          productId: Number(productId),
+          items: Number(items),
+          locationId: Number(locationId),
+          comments,
+          sizeId: Number(sizeId),
+          qrId: Number(qrId),
+          boxStateId: Number(boxStateId),
+        },
+      });
+      setNewBox(data.createBox);
+    } catch (e) {
+      // TODO error handling
+      console.log("fail", e);
+    }
   };
 
   return (
-    <div className="">
+    <div className="flex flex-col">
       <h2>Create a Box</h2>
-
-      <form
-        onSubmit={(e) => {
-          e.preventDefault();
-          handleSubmit(onSubmit);
-        }}
-        id="make-a-box"
-        className="ui form"
-      >
-        <FormControl name="boxId">
-          <InputLabel htmlFor="boxId">boxId*</InputLabel>
-          <Input inputRef={register({ required: true, maxLength: 20 })} type="text" name="boxId" />
-        </FormControl>
-        <FormControl name="productId">
-          <InputLabel htmlFor="productId">productId*</InputLabel>
-          <Input
-            inputRef={register({ required: true, maxLength: 20 })}
-            type="text"
+      {newBox && <h1> You created box id: {newBox.box_id}</h1>}
+      <form id="make-a-box" className="flex flex-col">
+        <label className="p-2" htmlFor="boxId">
+          boxId*
+          <input
+            defaultValue={2002}
+            className="border rounded"
+            ref={register({ required: true, maxLength: 20 })}
+            type="number"
+            name="boxId"
+          />
+        </label>
+        <label className="p-2" htmlFor="productId">
+          productId*
+          <input
+            defaultValue={2}
+            className="border rounded"
+            ref={register({ required: true, maxLength: 20 })}
+            type="number"
             name="productId"
           />
-        </FormControl>
-        <FormControl name="items">
-          <InputLabel htmlFor="items">items*</InputLabel>
-          <Input inputRef={register({ required: true, maxLength: 20 })} type="text" name="items" />
-        </FormControl>
-        <FormControl name="locationId">
-          <InputLabel htmlFor="locationId">locationId*</InputLabel>
-          <Input
-            inputRef={register({ required: true, maxLength: 20 })}
-            type="text"
+        </label>
+        <label className="p-2" htmlFor="items">
+          items*
+          <input
+            defaultValue={2}
+            className="border rounded"
+            ref={register({ required: true, maxLength: 20 })}
+            type="number"
+            name="items"
+          />
+        </label>
+        <label className="p-2" htmlFor="locationId">
+          locationId*
+          <input
+            defaultValue={2}
+            className="border rounded"
+            ref={register({ required: true, maxLength: 20 })}
+            type="number"
             name="locationId"
           />
-        </FormControl>
-        <FormControl name="comments">
-          <InputLabel htmlFor="comments">comments*</InputLabel>
-          <Input
-            inputRef={register({ required: true, maxLength: 20 })}
+        </label>
+        <label className="p-2" htmlFor="comments">
+          comments*
+          <input
+            defaultValue={2}
+            className="border rounded"
+            ref={register({ required: true, maxLength: 20 })}
             type="text"
             name="comments"
           />
-        </FormControl>
-        <FormControl name="sizeId">
-          <InputLabel htmlFor="sizeId">sizeId*</InputLabel>
-          <Input inputRef={register({ required: true, maxLength: 20 })} type="text" name="sizeId" />
-        </FormControl>
-        <FormControl name="qrId">
-          <InputLabel htmlFor="qrId">qrId*</InputLabel>
-          <Input inputRef={register({ required: true, maxLength: 20 })} type="text" name="qrId" />
-        </FormControl>
-        <FormControl name="boxStateId">
-          <InputLabel htmlFor="boxStateId">boxStateId*</InputLabel>
-          <Input
-            inputRef={register({ required: true, maxLength: 20 })}
-            type="text"
+        </label>
+        <label className="p-2" htmlFor="sizeId">
+          sizeId*
+          <input
+            defaultValue={2}
+            className="border rounded"
+            ref={register({ required: true, maxLength: 20 })}
+            type="number"
+            name="sizeId"
+          />
+        </label>
+        <label className="p-2" htmlFor="qrId">
+          qrId*
+          <input
+            defaultValue={2}
+            className="border rounded"
+            ref={register({ required: true, maxLength: 20 })}
+            type="number"
+            name="qrId"
+          />
+        </label>
+        <label className="p-2" htmlFor="boxStateId">
+          boxStateId*
+          <input
+            defaultValue={2}
+            className="border rounded"
+            ref={register({ required: true, maxLength: 20 })}
+            type="number"
             name="boxStateId"
           />
-        </FormControl>
-        <button type="submit" form="make-a-box" className="ui button">
-          Save here
-        </button>
+        </label>
       </form>
+      <button
+        type="submit"
+        className="border bg-blue-400 rounded w-64"
+        onClick={handleSubmit((d) => onSubmit(d))}
+      >
+        do the mutation
+      </button>
       {mutationLoading && <p>Loading...</p>}
       {mutationError && <p>Error :( Please try again</p>}
     </div>
