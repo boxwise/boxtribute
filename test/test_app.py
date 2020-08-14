@@ -3,12 +3,13 @@ import tempfile
 
 import pytest
 
-from boxwise_flask.app import db
-from boxwise_flask.routes import app
+from boxwise_flask.app import create_app
+from boxwise_flask.db import db
 
 
 @pytest.fixture
 def client():
+    app = create_app()
     db_fd, db_filepath = tempfile.mkstemp(suffix=".sqlite3")
     app.config["DATABASE"] = {
         "name": db_filepath,
