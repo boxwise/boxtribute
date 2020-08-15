@@ -16,6 +16,7 @@ def mock_decorator(*args, **kwargs):
 
 
 def mock_auth_test(test_for, **kwargs):
+    """Fake auth function for testing"""
     return True
 
 
