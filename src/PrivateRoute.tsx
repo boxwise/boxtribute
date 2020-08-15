@@ -1,14 +1,12 @@
 import React from "react"
 import { Route, Redirect } from "react-router-dom"
-import PropTypes from "prop-types"
+import AuthContext from "./AuthContext";
 
-const PrivateRoute = ({ path, pathNameRedirect, isLoggedIn, children }) => {
+const PrivateRoute = ({ path, pathNameRedirect, children }) => {
+  const AuthObject = React.useContext(AuthContext)
+  const isLoggedIn = AuthObject.accessToken
   if (!isLoggedIn) return <Redirect to={pathNameRedirect} />
   return <Route path={path}>{children}</Route>
-}
-
-PrivateRoute.propTypes = {
-  isLoggedIn: PropTypes.bool.isRequired,
 }
 
 export default PrivateRoute

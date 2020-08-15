@@ -8,128 +8,171 @@ import Home from "./views/Home"
 import OrgTopLevel from "./views/Organization"
 import PdfGenerator from "./views/Labels/PdfGenerator"
 import Labels from "./views/Labels/Labels"
+import AuthContext from "./AuthContext"
 import TabBar from "./views/TabBar"
 import Placeholder from "./views/Placeholder"
 import ScanBox from "./views/ScanBox"
 
 const { REACT_APP_GRAPHQL_SERVER } = process.env
 
-const client = new ApolloClient({
-  uri: REACT_APP_GRAPHQL_SERVER,
-})
-
 export default function App() {
   const [loggedIn, setLoggedIn] = useState(false)
-  const [authObject, setAuthObject] = useState({})
+  const [authObject, setAuthObject] = useState({
+    accessToken: "",
+    idToken: "",
+    idTokenPayload: {
+      at_hash: "",
+      aud: "",
+      email: "",
+      email_verified: false,
+      exp: null,
+      iat: null,
+      iss: "",
+      name: "",
+      nickname: "",
+      nonce: "",
+      picture: "",
+      sub: "",
+      updated_at: "",
+    },
+    appState: null,
+    refreshToken: null,
+    state: "",
+    expiresIn: null,
+    //   this won't change
+    tokenType: "Bearer",
+    scope: "",
+  })
+
+  const client = new ApolloClient({
+    uri: REACT_APP_GRAPHQL_SERVER,
+    request: (operation) => {
+      operation.setContext({
+        headers: {
+          Authorization: `Bearer ${authObject.accessToken}`,
+          "X-Clacks-Overhead": "GNU Terry Pratchett",
+        },
+      })
+    },
+  })
 
   function handleLogIn() {
-    // Auth0 returns the token in the params of the URL after successful login and redirect
-    const totalHash = window.location.hash
-    if (totalHash) {
-      // remove leading # and split into components,
-      // so now you have ['key1=value1', 'key2=value2']
-      const hashArray = totalHash.substr(1).split("&")
-      const authObject: any = {}
-      hashArray.forEach((item) => {
-        const keyValArray = item.split("=")
-        // turns [key, value] into authObject={key: value}
-        // eslint-disable-next-line prefer-destructuring
-        authObject[keyValArray[0]] = keyValArray[1]
+    // if the login was successful, there will be a hash in the url, so you can do all the parsing work in the Auth0 file
+    Auth0.handleAuthentication()
+      .then((authTokens) => {
+        console.log("access token for the graphQL playground:", authTokens)
+        setAuthObject(authTokens)
+        authTokens ? setLoggedIn(true) : setLoggedIn(false)
       })
-      // the auth object has many items in it, we generally care about the access_token
-      setAuthObject(authObject)
-      // this is where you would also handle authorization errors from the API
-      // eslint-disable-next-line no-unused-expressions
-      authObject.access_token ? setLoggedIn(true) : setLoggedIn(false)
-    }
+      .catch((err) => {
+        // TODO: better logging and error handling
+        console.log(err)
+      })
   }
 
   useEffect(() => {
+    // on page load, see if I'm in a freshly-logged-in state back from the redirect
     handleLogIn()
   }, [])
 
   function handleLogOut() {
+    window.location.hash = ""
     setLoggedIn(false)
+    setAuthObject({
+      accessToken: "",
+      idToken: "",
+      idTokenPayload: {
+        at_hash: "",
+        aud: "",
+        email: "",
+        email_verified: false,
+        exp: null,
+        iat: null,
+        iss: "",
+        name: "",
+        nickname: "",
+        nonce: "",
+        picture: "",
+        sub: "",
+        updated_at: "",
+      },
+      appState: null,
+      refreshToken: null,
+      state: "",
+      expiresIn: null,
+      //   this won't change
+      tokenType: "Bearer",
+      scope: "",
+    })
+    client.resetStore()
   }
 
   return (
     <ApolloProvider client={client}>
-      <Router>
-        <div>
-          {/* "Nav-bar" */}
-
-          {/* NOTE! 
+      <AuthContext.Provider value={authObject}>
+        <Router>
+          <div>
+            {/* NOTE! 
         This works like a normal switch, so you have to put the specific routes the highest,
         and work your way down to least-specific */}
-          <Switch>
-            <PrivateRoute
-              path="/org"
-              pathNameRedirect="/"
-              isLoggedIn={loggedIn}
-            >
-              <OrgTopLevel authObject={authObject} />
-            </PrivateRoute>
+            <Switch>
+              <PrivateRoute path="/org" pathNameRedirect="/">
+                <OrgTopLevel />
+              </PrivateRoute>
 
-            <PrivateRoute
-              path="/generateLabel"
-              pathNameRedirect="/"
-              isLoggedIn={loggedIn}
-            >
-              <PdfGenerator authObject={authObject} />
-            </PrivateRoute>
+              <PrivateRoute path="/generateLabel" pathNameRedirect="/">
+                <PdfGenerator />
+              </PrivateRoute>
 
-            <PrivateRoute
-              path="/pdf"
-              pathNameRedirect="/"
-              isLoggedIn={loggedIn}
-            >
-              <Labels authObject={authObject} />
-            </PrivateRoute>
+              <PrivateRoute path="/pdf" pathNameRedirect="/">
+                <Labels />
+              </PrivateRoute>
 
-            <PrivateRoute
-              path="/scan"
-              pathNameRedirect="/"
-              isLoggedIn={loggedIn}
+              <PrivateRoute
+                path="/scan"
+                pathNameRedirect="/"
+              >
+                <ScanBox />
+              </PrivateRoute>
+              <PrivateRoute
+                path="/warehouse"
+                pathNameRedirect="/"
+              >
+                <Placeholder />
+              </PrivateRoute>
+              <PrivateRoute
+                path="/settings"
+                pathNameRedirect="/"
+              >
+                <Placeholder />
+              </PrivateRoute>
+              <Route path="/">
+                <Home />
+              </Route>
+            </Switch>
+          </div>
+          {loggedIn ? (
+            // eslint-disable-next-line react/button-has-type
+            <button
+              onClick={() => handleLogOut()}
+              className="m-6 bg-gray-300 hover:bg-gray-500 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline"
             >
-              <ScanBox />
-            </PrivateRoute>
-            <PrivateRoute
-              path="/warehouse"
-              pathNameRedirect="/"
-              isLoggedIn={loggedIn}
+              Log Out
+            </button>
+          ) : (
+            <button
+              onClick={() => {
+                Auth0.login()
+              }}
+              className="m-6 bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline"
+              type="button"
             >
-              <Placeholder />
-            </PrivateRoute>
-            <PrivateRoute
-              path="/settings"
-              pathNameRedirect="/"
-              isLoggedIn={loggedIn}
-            >
-              <Placeholder />
-            </PrivateRoute>
-            <Route path="/">
-              <Home />
-            </Route>
-          </Switch>
-        </div>
-        {loggedIn ? (
-          // eslint-disable-next-line react/button-has-type
-          <button onClick={() => handleLogOut()} className="log-in">
-            Log Out
-          </button>
-        ) : (
-          <button
-            onClick={() => {
-              Auth0.login()
-            }}
-            className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline"
-            type="button"
-          >
-            Sign In
-          </button>
-        )}
-        <TabBar />
-      </Router>
+              Sign In
+            </button>
+          )}
+          <TabBar />
+        </Router>
+      </AuthContext.Provider>
     </ApolloProvider>
   )
 }
