@@ -2,7 +2,7 @@ from boxwise_flask.models import Camps
 
 
 def test_model_method():
-    """example database model test"""
+    """Verify inserting test rows."""
 
     Camps.create(id=1, organisation_id=1, name="some text1", currencyname="hello")
     Camps.create(id=2, organisation_id=1, name="some text1", currencyname="hello")
