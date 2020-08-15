@@ -22,7 +22,6 @@
     "homepage": "^1.0.0",
     "node-sass": "^4.14.1",
     "postcss-cli": "^7.1.0",
-    "pre-commit": "^1.2.2",
     "prop-types": "^15.7.2",
     "react": "^16.12.0",
     "react-dom": "^16.12.0",
@@ -41,11 +40,9 @@
     "test": "react-scripts test",
     "eject": "react-scripts eject",
     "lint": "eslint . --fix",
-    "pre-commit-lint": "./pre-commit-lint.sh"
+    "format:check": "prettier --check \"src/**/*.{js,jsx,json,scss,md,ts,tsx}\"",
+    "format:write": "prettier --write \"src/**/*.{js,jsx,json,scss,md,ts,tsx}\""
   },
-  "pre-commit": [
-    "pre-commit-lint"
-  ],
   "eslintConfig": {
     "extends": "react-app"
   },
@@ -73,5 +70,15 @@
     "lint-staged": "^10.2.2",
     "prettier": "^2.0.5",
     "typescript": "^3.9.5"
+  },
+  "husky": {
+    "hooks": {
+      "pre-commit": "lint-staged"
+    }
+  },
+  "lint-staged": {
+    "src/**/*.{js,jsx,json,scss,md,ts,tsx}": [
+      "yarn run format:write"
+    ]
   }
 }
