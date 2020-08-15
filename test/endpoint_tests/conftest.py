@@ -49,5 +49,6 @@ def app():
 
 @pytest.fixture
 def client(app):
+    """The fixture simulates a client sending requests to the app."""
     client = app.test_client()
     return client
