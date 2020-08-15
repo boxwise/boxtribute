@@ -3,6 +3,8 @@ from unittest.mock import patch
 
 
 def mock_decorator(*args, **kwargs):
+    """Fake decorator for mocking other decorators."""
+
     def decorator(f):
         @wraps(f)
         def decorated_function(*args, **kwargs):
