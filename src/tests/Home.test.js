@@ -32,9 +32,7 @@ describe("renders components", () => {
 
 describe("links redirect", () => {
   const getUrl = window.location
-  const baseUrl = `${getUrl.protocol}//${getUrl.host}${
-    getUrl.pathname.split("/")[1]
-  }`
+  const baseUrl = `${getUrl.protocol}//${getUrl.host}${getUrl.pathname.split("/")[1]}`
   it("redirects to correct base for pick list", async () => {
     const abcText = getByText(/org abc, base 1, pick list/i)
     expect(abcText.href).toBe(`${baseUrl}/org/abc/base/base1/pick-list`)

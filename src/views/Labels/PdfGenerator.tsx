@@ -33,14 +33,9 @@ class PdfGenerator extends Component<PdfGeneratorProps> {
           backgroundColor: "gray",
         }}
       >
-        {!this.canvLoaded && (
-          <canvas ref="canvas" style={{ display: "none" }} />
-        )}
+        {!this.canvLoaded && <canvas ref="canvas" style={{ display: "none" }} />}
         <div style={{ textAlign: "center" }}>
-          <button
-            onClick={this.exportPDF}
-            style={{ margin: "auto", marginBottom: "15px" }}
-          >
+          <button onClick={this.exportPDF} style={{ margin: "auto", marginBottom: "15px" }}>
             Download QR Code
           </button>
         </div>
@@ -71,18 +66,9 @@ class PdfGenerator extends Component<PdfGeneratorProps> {
               height="483px"
               alt="Boxtribute Logo"
             />
-            <div
-              style={{ display: "flex", flexDirection: "row", width: "600px" }}
-            >
-              <img
-                ref={(image) => (this.imageLower = image)}
-                src={QRLower}
-                alt="Boxtribute Logo"
-              />
-              <p>
-                This is where the database query for the QR code would happen in
-                the code
-              </p>
+            <div style={{ display: "flex", flexDirection: "row", width: "600px" }}>
+              <img ref={(image) => (this.imageLower = image)} src={QRLower} alt="Boxtribute Logo" />
+              <p>This is where the database query for the QR code would happen in the code</p>
             </div>
           </div>
         </PDFExport>
@@ -94,5 +80,4 @@ class PdfGenerator extends Component<PdfGeneratorProps> {
 
 export default PdfGenerator
 
-interface PdfGeneratorProps {
-}
+interface PdfGeneratorProps {}

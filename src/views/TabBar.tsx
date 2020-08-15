@@ -3,11 +3,7 @@ import { useHistory } from "react-router-dom"
 import BottomNavigation from "@material-ui/core/BottomNavigation"
 import BottomNavigationAction from "@material-ui/core/BottomNavigationAction"
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
-import {
-  faPeopleCarry,
-  faCogs,
-  faQrcode,
-} from "@fortawesome/free-solid-svg-icons"
+import { faPeopleCarry, faCogs, faQrcode } from "@fortawesome/free-solid-svg-icons"
 import "../App.scss"
 
 export default function TabBar() {
@@ -23,11 +19,7 @@ export default function TabBar() {
   }
 
   return (
-    <BottomNavigation
-      value={route}
-      onChange={handleChange}
-      className="bottomNavBar"
-    >
+    <BottomNavigation value={route} onChange={handleChange} className="bottomNavBar">
       <BottomNavigationAction
         label="Scan"
         value="scan"
@@ -36,9 +28,7 @@ export default function TabBar() {
       <BottomNavigationAction
         label="Warehouse"
         value="warehouse"
-        icon={
-          <FontAwesomeIcon style={{ fontSize: "1.5em" }} icon={faPeopleCarry} />
-        }
+        icon={<FontAwesomeIcon style={{ fontSize: "1.5em" }} icon={faPeopleCarry} />}
       />
       <BottomNavigationAction
         label="Settings"

@@ -1,7 +1,7 @@
-import React from "react";
-import { useParams, Link } from "react-router-dom";
-import { useQuery } from "@apollo/react-hooks";
-import { gql } from "apollo-boost";
+import React from "react"
+import { useParams, Link } from "react-router-dom"
+import { useQuery } from "@apollo/react-hooks"
+import { gql } from "apollo-boost"
 
 const BASES = gql`
   {
@@ -11,13 +11,13 @@ const BASES = gql`
       name
     }
   }
-`;
+`
 
 export default function ListAllBases() {
-  const { orgId } = useParams();
-  const { loading, error, data } = useQuery(BASES);
+  const { orgId } = useParams()
+  const { loading, error, data } = useQuery(BASES)
 
-  if (loading) return <p>Loading...</p>;
+  if (loading) return <p>Loading...</p>
   if (error) {
     return (
       <div className="p-6">
@@ -28,7 +28,7 @@ export default function ListAllBases() {
         ))}
         <Link to="/">Go Home</Link>
       </div>
-    );
+    )
   }
 
   return (
@@ -43,7 +43,9 @@ export default function ListAllBases() {
           </div>
         ))}
       </ul>
-      <Link  className="mt-6 text-blue-900 hover:bg-blue-200" to="/">{`->`} Go Home</Link>
+      <Link className="mt-6 text-blue-900 hover:bg-blue-200" to="/">
+        {`->`} Go Home
+      </Link>
     </div>
-  );
+  )
 }

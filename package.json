@@ -78,7 +78,7 @@
   },
   "lint-staged": {
     "src/**/*.{js,jsx,json,scss,md,ts,tsx}": [
-      "yarn run format:write"
+      "yarn run format:check"
     ]
   }
 }

@@ -27,10 +27,9 @@ function ScanBox() {
         <div>
           <h2>Oh no!</h2>
           <p>
-            There seems to be a problem! Your device or browser may not be
-            compatible with scanning a QR code here. Please open your camera or
-            other QR-reader and use that instead. If you are on iOS, you can
-            also try using Safari.{" "}
+            There seems to be a problem! Your device or browser may not be compatible with scanning
+            a QR code here. Please open your camera or other QR-reader and use that instead. If you
+            are on iOS, you can also try using Safari.{" "}
           </p>
         </div>
       )

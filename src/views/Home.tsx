@@ -1,5 +1,5 @@
-import React from "react";
-import { Link } from "react-router-dom";
+import React from "react"
+import { Link } from "react-router-dom"
 import AuthContext from "../AuthContext"
 
 function Home() {
@@ -31,7 +31,7 @@ function Home() {
         </div>
       )}
     </div>
-  );
+  )
 }
 
-export default Home;
+export default Home
