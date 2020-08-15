@@ -23,6 +23,9 @@ MODELS = (Person, Camps, Cms_Usergroups_Camps, Cms_Users)
 
 @pytest.fixture()
 def app():
+    """Fixture providing a baseline for unit tests that rely on database operations via
+    the Flask app. Adapted from
+    https://flask.palletsprojects.com/en/1.1.x/testing/#the-testing-skeleton."""
     app = create_app()
 
     db_fd, db_filepath = tempfile.mkstemp(suffix=".sqlite3")
