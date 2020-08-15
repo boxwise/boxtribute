@@ -3,7 +3,7 @@ from boxwise_flask.models import Camps, Cms_Users
 
 
 def test_all_bases(client):
-    """example test for graphql endpoint"""
+    """Verify allBases GraphQL query endpoint"""
 
     db.connect_db()
     Camps.create(id=1, organisation_id=1, name="some text1", currencyname="hello")
@@ -28,7 +28,7 @@ def test_all_bases(client):
 
 
 def test_base(client):
-    """example test for graphql endpoint"""
+    """Verify base GraphQL query endpoint"""
 
     db.connect_db()
     Camps.create(id=1, organisation_id=1, name="some text1", currencyname="hello")
@@ -53,39 +53,27 @@ def test_base(client):
 
 
 def test_all_users(client):
-    """example test for graphql endpoint"""
+    """Verify allUsers GraphQL query endpoint"""
 
     db.connect_db()
-    Cms_Users.create(
-        id=0,
-        name="",
-        email="mr-anderson@matrix.co.uk",
-        cms_usergroups_id="",
-        valid_firstday="",
-        valid_lastday="",
-        lastlogin="",
-        lastaction="",
-    )
-    Cms_Users.create(
-        id=1,
-        name="",
-        email="hamburgerman@beef.co.uk",
-        cms_usergroups_id="",
-        valid_firstday="",
-        valid_lastday="",
-        lastlogin="",
-        lastaction="",
-    )
-    Cms_Users.create(
-        id=2,
-        name="",
-        email="marmalade@jam.co.uk",
-        cms_usergroups_id="",
-        valid_firstday="",
-        valid_lastday="",
-        lastlogin="",
-        lastaction="",
-    )
+    emails = [
+        "mr-anderson@matrix.co.uk",
+        "hamburgerman@beef.co.uk",
+        "marmalade@jam.co.uk",
+    ]
+    for i, email in enumerate(emails):
+
+        Cms_Users.create(
+            id=i,
+            name="",
+            email=email,
+            cms_usergroups_id="",
+            valid_firstday="",
+            valid_lastday="",
+            lastlogin="",
+            lastaction="",
+        )
+
     db.close_db(None)
 
     graph_ql_query_string = """query { \
@@ -103,44 +91,32 @@ def test_all_users(client):
 
 
 def test_user(client):
-    """example test for graphql endpoint"""
+    """Verify users GraphQL query endpoint"""
 
     db.connect_db()
-    Cms_Users.create(
-        id=0,
-        name="",
-        email="mr-anderson@matrix.co.uk",
-        cms_usergroups_id="",
-        valid_firstday="",
-        valid_lastday="",
-        lastlogin="",
-        lastaction="",
-    )
-    Cms_Users.create(
-        id=1,
-        name="",
-        email="hamburgerman@beef.co.uk",
-        cms_usergroups_id="",
-        valid_firstday="",
-        valid_lastday="",
-        lastlogin="",
-        lastaction="",
-    )
-    Cms_Users.create(
-        id=2,
-        name="",
-        email="marmalade@jam.co.uk",
-        cms_usergroups_id="",
-        valid_firstday="",
-        valid_lastday="",
-        lastlogin="",
-        lastaction="",
-    )
+    emails = [
+        "mr-anderson@matrix.co.uk",
+        "hamburgerman@beef.co.uk",
+        "marmalade@jam.co.uk",
+    ]
+    for i, email in enumerate(emails):
+        Cms_Users.create(
+            id=i,
+            name="",
+            email=email,
+            cms_usergroups_id="",
+            valid_firstday="",
+            valid_lastday="",
+            lastlogin="",
+            lastaction="",
+        )
+
     db.close_db(None)
-    matrix_email = '"mr-anderson@matrix.co.uk"'
+    test_id = 0
+    matrix_email = '"%s"' % emails[test_id]
     graph_ql_query_string = (
         """query User {
-                user(email: %s ) {
+                user(email: %s) {
                     id \
                     name \
                 }
@@ -150,4 +126,4 @@ def test_user(client):
     data = {"query": graph_ql_query_string}
     response_data = client.post("/graphql", json=data)
     assert response_data.status_code == 200
-    assert response_data.json["data"]["user"]["id"] == 0
+    assert response_data.json["data"]["user"]["id"] == test_id

@@ -1,11 +1,6 @@
-from test.model_tests.database import with_test_db
-
-from boxwise_flask.models import Camps, Cms_Usergroups_Camps, Cms_Users, Person
-
-MODELS = (Person, Camps, Cms_Usergroups_Camps, Cms_Users)
+from boxwise_flask.models import Camps
 
 
-@with_test_db(MODELS)
 def test_model_method():
     """example database model test"""
 

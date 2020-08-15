@@ -4,6 +4,9 @@ import requests
 
 
 def memoize(function):
+    """Wraps a function so the data is cached.
+    Each usage of the wrapped function will share the same data
+    memoize code from: https://stackoverflow.com/a/815160 """
     memo = {}
 
     def wrapper(*args):
@@ -18,6 +21,10 @@ def memoize(function):
 
 
 def get_user_token():
+    """Grabs a user token for Auth0
+    Data structure as described here
+    https://manage.auth0.com/dashboard/eu/boxtribute-dev/apis/5ef3760527b0da00215e6209/test"""  # line too long # noqa: E501
+
     auth0_domain = os.getenv("AUTH0_DOMAIN")
     auth0_client_id = os.getenv("AUTH0_CLIENT_ID")
     auth0_audience = os.getenv("AUTH0_AUDIENCE")
@@ -39,6 +46,6 @@ def get_user_token():
     return response["access_token"]
 
 
-@memoize  # memoize code from: https://stackoverflow.com/a/815160
+@memoize
 def get_user_token_header():
     return {"authorization": "Bearer " + get_user_token()}

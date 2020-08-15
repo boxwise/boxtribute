@@ -1,3 +1,14 @@
+"""Functionality for common test setups.
+See https://docs.pytest.org/en/stable/fixture.html#conftest-py-sharing-fixture-functions
+
+In general, pass fixtures as arguments to a pytest test function in order to base the
+test function on those fixtures. No additional import in the test module is required if
+the fixture is defined in the 'conftest' module.
+
+More details about the mechanism behind fixtures, and predefined fixtures at
+https://docs.pytest.org/en/stable/fixture.html#pytest-fixtures-explicit-modular-scalable
+"""
+
 import os
 import tempfile
 
