@@ -39,12 +39,9 @@ def test_all_bases(client):
     response_data = client.post("/graphql", json=data)
     assert response_data.status_code == 200
     all_bases = response_data.json["data"]["allBases"]
-    for camp in camps:
-        camper = get_base_from_graphql(camp["id"], all_bases)
-        assert camper["id"] == camp["id"]
-        assert camper["organisation_id"] == camp["organisation_id"]
-        assert camper["name"] == camp["name"]
-        assert camper["currencyname"] == camp["currencyname"]
+    for expected_camp in camps:
+        created_camp = get_base_from_graphql(expected_camp["id"], all_bases)
+        assert created_camp == expected_camp
 
 
 def test_base(client):
@@ -58,26 +55,18 @@ def test_base(client):
     db.connect_db()
 
     for camp in camps:
-        Camps.create(
-            id=camp["id"],
-            organisation_id=camp["organisation_id"],
-            name=camp["name"],
-            currencyname=camp["currencyname"],
-        )
+        Camps.create(**camp)
 
     db.close_db(None)
     test_id = 1
-    graph_ql_query_string = (
-        """query Base {
-                base(id: "%s") {
+    graph_ql_query_string = f"""query Base {{
+                base(id: "{test_id}") {{
                     id
                     organisation_id
                     name
                     currencyname
-                }
-            }"""
-        % test_id
-    )
+                }}
+            }}"""
 
     data = {"query": graph_ql_query_string}
     response_data = client.post("/graphql", json=data)
@@ -114,7 +103,7 @@ def test_all_users(client):
                     id
                     name
                 }
-            }"""
+        }"""
 
     data = {"query": graph_ql_query_string}
     response_data = client.post("/graphql", json=data)
