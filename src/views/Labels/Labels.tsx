@@ -8,7 +8,6 @@ import QRCode from 'qrcode.react';
 const Labels = (props: LabelProps) => {
   const [numState, setNumState] = useState(0)
   const [labelState, setLabelState] = useState<QRCode | undefined>(undefined)
-  // let labels : QRCode[] = []
 
   const generateCodes = (num) => {
     const temp: QRCode[] = []

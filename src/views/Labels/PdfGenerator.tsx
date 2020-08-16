@@ -1,17 +1,20 @@
 
 import React, { Component } from 'react';
-import { Link } from 'react-router-dom';
+// / import { RouteProps } from 'react-router';
+// eslint-disable-next-line import/no-extraneous-dependencies
+import { RouteComponentProps } from "react-router";
+import { withRouter, Link } from 'react-router-dom';
 import { PDFExport } from '@progress/kendo-react-pdf';
 import Label from './Label';
 
-class PdfGenerator extends Component<PdfGeneratorProps> {
+class PdfGenerator extends Component<PdfGeneratorProps & RouteComponentProps<{num}>> {
   page
   imageUpper
   imageLower
   canvLoaded: boolean
   pdfExportComponent!: PDFExport | null;
 
-  constructor(props: PdfGeneratorProps) {
+  constructor(props: PdfGeneratorProps & RouteComponentProps<{num}>) {
     super(props)
     this.canvLoaded = false
   }
@@ -22,7 +25,8 @@ class PdfGenerator extends Component<PdfGeneratorProps> {
 
   render() {
     const labels : JSX.Element[] = []
-    const num = parseInt(window.location.pathname.substring(15), 10) // this.props.match.params
+    // eslint-disable-next-line radix
+    const num = parseInt(this.props.match.params.num)
     for (let i = 0; i < num; i += 1) {
       labels.push(<Label url="https://www.facebook.com" key={i} />);
       if (i + 1 !== num && (i + 1) % 4 === 0) { // != vs !==
@@ -43,7 +47,7 @@ class PdfGenerator extends Component<PdfGeneratorProps> {
               onClick={this.exportPDF}
               // variant="contained"
               color="primary"
-              style={{ margin: 'auto', marginBottom: '15px', marginTop: '15px'}}
+              style={{ margin: 'auto', marginBottom: '15px', marginTop: '15px' }}
             >
               Download As PDF
             </button>
@@ -51,8 +55,8 @@ class PdfGenerator extends Component<PdfGeneratorProps> {
           <div
             style={{
               paddingTop: 20,
-              marginLeft: "30%",
-              marginRight: "30%",
+              marginLeft: "25%",
+              marginRight: "25%",
             }}
           >
             <PDFExport
@@ -74,7 +78,7 @@ class PdfGenerator extends Component<PdfGeneratorProps> {
   }
 }
 
-export default PdfGenerator
+export default withRouter(PdfGenerator)
 
 interface PdfGeneratorProps {
 }

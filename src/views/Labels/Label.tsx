@@ -12,15 +12,9 @@ const Label = (props) => (
     }}
   >
     <img src={QRUpper} width={275} alt="Boxtribute Logo" />
-    <div
-      style={{
-        display: 'flex',
-        flexDirection: 'row',
-        width: 146,
-      }}
-    >
-      <img src={QRLower} alt="Boxtribute Logo" />
-      <QRCode value={props.url} includeMargin size={128} />
+    <div style={{ display: 'flex', marginBottom: '20px' }}>
+      <img src={QRLower} width={155} alt="Boxtribute Logo" />
+      <QRCode value={props.url} includeMargin size={105} />
     </div>
   </div>
 );
