@@ -120,7 +120,7 @@ export default function App() {
                 <OrgTopLevel />
               </PrivateRoute>
 
-              <PrivateRoute path="/generateLabel" pathNameRedirect="/">
+              <PrivateRoute path="/generateLabel/:num" pathNameRedirect="/">
                 <PdfGenerator />
               </PrivateRoute>
 
