@@ -95,6 +95,25 @@ Run the test suite on your machine by executing
 
     pytest
 
+Two types of tests can be setup. Model tests and endpoint tests.
+
+New test files should begin with the word test so the they are discovered when running pytest.
+for example:
+```
+test_<test_file_name>.py
+```
+and similarly the test functions should have the format
+```
+def test_<test_name>():
+```
+for endpoint testing, the test functions usually take two fixtures.
+```
+def test_<test_name>(client, database):
+```
+to allow for databases to be preconfigured with data and requests to be made to the app.
+
+fixtures are configured in the `conftest.py` files which execute automatically before a test.
+
 ### Formatting and linting
 
 Run a full style-check by
@@ -121,16 +140,16 @@ To use the debugger:
 4. A new VSCode window pops up which is run from within the docker container `boxwise-flask_web` Docker container.
 5. Open the `/codedir` in the new VSCode which popped up. The `codedir` folder is the equivalent of the repo folder in the Docker container.
 
-The following step are only required the first time or after you deleted a Docker container:  
-6. Install the [python extension](https://marketplace.visualstudio.com/items?itemName=ms-python.python) inside the Docker container. 
+The following step are only required the first time or after you deleted a Docker container:
+6. Install the [python extension](https://marketplace.visualstudio.com/items?itemName=ms-python.python) inside the Docker container.
 
-Final steps:  
+Final steps:
 7. [Launch the debug configuration called 'Python: Run Flask in docker container to debug'.](https://code.visualstudio.com/docs/editor/debugging#_launch-configurations)
 
-You can now set break-points in your code.  
+You can now set break-points in your code.
 If you want to debug a certain endpoint, set a break-point in the endpoint and call this enpoint at the port 5001, e.g.
         `localhost:5001/api/public`
-If you want to break on any other code lines (not endpoints), then you can only catch them during the server start-up. 
+If you want to break on any other code lines (not endpoints), then you can only catch them during the server start-up.
 
 #### Usage of Logger
 To log to the console from inside the docker container, import app from app.py, and log with:
