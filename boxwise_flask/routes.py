@@ -9,29 +9,38 @@ from flask_cors import cross_origin
 from .auth_helper import AuthError, requires_auth
 from .resolvers import schema
 
-main_page_blueprint = Blueprint("main_page_blueprint", __name__)
+# Blueprint to serve React on production
+frontend_bp = Blueprint(
+    "frontend_bp",
+    __name__,
+    static_folder=os.getenv("FLASK_STATIC_FOLDER", "static"),
+    static_url_path=os.getenv("FLASK_STATIC_URL_PATH", "/static"),
+)
 
 
-@main_page_blueprint.errorhandler(AuthError)
+@frontend_bp.route("/mobile")
+def index():
+    return frontend_bp.send_static_file("index.html")
+
+
+# Blueprint for API
+api_bp = Blueprint("api_bp", __name__)
+
+
+@api_bp.errorhandler(AuthError)
 def handle_auth_error(ex):
     response = jsonify(ex.error)
     response.status_code = ex.status_code
     return response
 
 
-@main_page_blueprint.route("/")
+@api_bp.route("/")
 def HELLO():
     return "This is a landing page"
 
 
-# Serving React on production
-@main_page_blueprint.route("/mobile")
-def index():
-    return main_page_blueprint.send_static_file("index.html")
-
-
 # This doesn't need authentication
-@main_page_blueprint.route("/api/public", methods=["GET"])
+@api_bp.route("/api/public", methods=["GET"])
 @cross_origin(origin="localhost", headers=["Content-Type", "Authorization"])
 def public():
     response = (
@@ -41,7 +50,7 @@ def public():
 
 
 # This needs authentication
-@main_page_blueprint.route("/api/private", methods=["GET"])
+@api_bp.route("/api/private", methods=["GET"])
 @cross_origin(origin="localhost", headers=["Content-Type", "Authorization"])
 @requires_auth
 def private():
@@ -51,7 +60,7 @@ def private():
     return jsonify(message=response)
 
 
-@main_page_blueprint.route("/graphql", methods=["GET"])
+@api_bp.route("/graphql", methods=["GET"])
 def graphql_playgroud():
     # On GET request serve GraphQL Playground
     # You don't need to provide Playground if you don't want to
@@ -60,7 +69,7 @@ def graphql_playgroud():
     return PLAYGROUND_HTML, 200
 
 
-@main_page_blueprint.route("/graphql", methods=["POST"])
+@api_bp.route("/graphql", methods=["POST"])
 @cross_origin(origin="localhost", headers=["Content-Type", "Authorization"])
 @requires_auth
 def graphql_server():
