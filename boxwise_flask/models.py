@@ -14,16 +14,16 @@ class Stock(db.Model):
     #   :qr_id, :created, :created_by, :box_state_id)
 
     id = IntegerField()
-    box_id = CharField()
-    product_id = CharField()
-    size_id = CharField()
-    items = CharField()
-    location_id = CharField()
+    box_id = IntegerField()
+    product_id = IntegerField()
+    size_id = IntegerField()
+    items = IntegerField()
+    location_id = IntegerField()
     comments = CharField()
-    qr_id = CharField()
+    qr_id = IntegerField()
     created = CharField()
     created_by = CharField()
-    box_state_id = CharField()
+    box_state_id = IntegerField()
 
     def __unicode__(self):
         return self.box_id

@@ -10,6 +10,7 @@ from ariadne import (
 from .models import Camps, Cms_Users, Stock
 from .type_defs import type_defs
 from .auth_helper import authorization_test
+from .app import app
 
 query = ObjectType("Query")
 mutation = MutationType()
@@ -59,6 +60,7 @@ def resolve_user(_, info, email):
 
 @mutation.field("createBox")
 def create_box(_, info, input):
+    app.logger.warn(input)
     response = Stock.create_box(input)
     return response
 

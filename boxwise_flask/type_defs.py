@@ -52,10 +52,10 @@ type_defs = gql(
         items: Int
         location_id: Int! #this is a foreign key
         comments: String!
-        qr_id: String! #this is a foreign key
-        created: String
-        created_by: String
-        box_state_id: String! #this is a foreign key
+        qr_id: Int! #this is a foreign key
+        created: Datetime
+        created_by: Int
+        box_state_id: Int! #this is a foreign key
     }
 
     scalar Datetime
