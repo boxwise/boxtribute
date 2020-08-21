@@ -6,7 +6,7 @@ from functools import wraps
 from flask import _request_ctx_stack, request
 from jose import jwt
 from six.moves.urllib.request import urlopen
-from .models import Cms_Users
+from .models import Users
 
 
 AUTH0_DOMAIN = os.getenv("AUTH0_DOMAIN")
@@ -145,7 +145,7 @@ def authorization_test(test_for, **kwargs):
         # but it DOES have to be in this form to work with the Auth0 rule providing it.
         payload = decode_jwt(token, rsa_key)
         email = payload['https://www.boxtribute.com/email']
-        requesting_user = Cms_Users.get_user(email)
+        requesting_user = Users.get_user(email)
 
         if test_for == "bases":
             allowed_access = test_base(requesting_user, kwargs["base_id"])
@@ -170,7 +170,7 @@ def authorization_test(test_for, **kwargs):
 
 
 def test_base(requesting_user, base_id):
-    users_bases = requesting_user.camp_id
+    users_bases = requesting_user.base_id
     if base_id in users_bases:
         return True
     return False

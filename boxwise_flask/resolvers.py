@@ -8,9 +8,8 @@ from ariadne import (
 )
 
 from .auth_helper import authorization_test
-from .models import Camps, Cms_Users, Stock
+from .models import Bases, Users, Boxes
 from .type_defs import type_defs
-from .app import app
 
 query = ObjectType("Query")
 mutation = MutationType()
@@ -32,10 +31,10 @@ def serialize_date(value):
 # registers this fn as a resolver for the "allBases" field, can use it as the
 # resolver for more than one thing by just adding more decorators
 @query.field("allBases")
-def resolve_all_camps(_, info):
+def resolve_all_bases(_, info):
     # discard the first input because it belongs to a root type (Query, Mutation,
     # Subscription). Otherwise it would be a value returned by a parent resolver.
-    response = Camps.get_all_camps()
+    response = Bases.get_all_bases()
     return list(response.dicts())
 
 
@@ -43,33 +42,32 @@ def resolve_all_camps(_, info):
 # see the comment in https://github.com/boxwise/boxwise-flask/pull/19
 @query.field("orgBases")
 def resolve_org_bases(_, info, org_id):
-    response = Camps.get_camps_by_org_id(org_id)
+    response = Bases.get_bases_by_org_id(org_id)
     return list(response.dicts())
 
 
 @query.field("base")
-def resolve_camp(_, info, id):
+def resolve_base(_, info, id):
     authorization_test("bases", base_id=id)
-    response = Camps.get_camp(id)
+    response = Bases.get_base(id)
     return response
 
 
 @query.field("allUsers")
 def resolve_all_users(_, info):
-    response = Cms_Users.get_all_users()
+    response = Users.get_all_users()
     return list(response.dicts())
 
 
 @query.field("user")
 def resolve_user(_, info, email):
-    response = Cms_Users.get_user(email)
+    response = Users.get_user(email)
     return response
 
 
 @mutation.field("createBox")
 def create_box(_, info, input):
-    app.logger.warn(input)
-    response = Stock.create_box(input)
+    response = Boxes.create_box(input)
     return response
 
 

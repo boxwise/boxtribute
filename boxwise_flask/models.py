@@ -4,16 +4,17 @@ from playhouse.shortcuts import model_to_dict
 
 from .db import db
 
+# remaining db renames:
+# qr -> qrCodes
+# cms_functions -> baseModules
+# cms_usergroups -> usergroups
+# cms_usergroups_levels -> usergroupAccessLevels
 
-class Stock(db.Model):
-    # INSERT INTO stock (
-    #   box_id, product_id, size_id, items, location_id,
-    #   comments, qr_id, created, created_by, box_state_id)
-    # VALUES (
-    #   :box_id, :product_id, :size_id, :items, :location_id, :comments,
-    #   :qr_id, :created, :created_by, :box_state_id)
+class Boxes(db.Model):
+    class Meta:
+        table_name="Stock"
 
-    id = IntegerField()
+# id as an integer is the primary key
     box_id = IntegerField()
     product_id = IntegerField()
     size_id = IntegerField()
@@ -48,8 +49,10 @@ class Stock(db.Model):
     def get_box(box_id):
         box = Stock.select().where(Stock.box_id == box_id).get()
         return box
+
+
 class Person(db.Model):
-    id = IntegerField()
+# id as an integer is the primary key
     camp_id = IntegerField()
     firstname = CharField()
     lastname = CharField()
@@ -58,8 +61,11 @@ class Person(db.Model):
         return self.firstname
 
 
-class Camps(db.Model):
-    id = IntegerField()
+class Bases(db.Model):
+    class Meta:
+        table_name="Camps"
+
+# id as an integer is the primary key
     organisation_id = IntegerField()
     name = CharField()
     currencyname = CharField()
@@ -76,43 +82,49 @@ class Camps(db.Model):
         )
 
     @staticmethod
-    def get_all_camps():
-        return Camps.select().order_by(Camps.name)
+    def get_all_bases():
+        return Bases.select().order_by(Bases.name)
 
     @staticmethod
-    def get_camps_by_org_id(org_id):
-        return Camps.select().where(Camps.organisation_id == org_id)
+    def get_bases_by_org_id(org_id):
+        return Bases.select().where(Bases.organisation_id == org_id)
 
     @staticmethod
-    def get_camp(camp_id):
-        camp = Camps.select().where(Camps.id == camp_id).get()
-        return camp
+    def get_base(base_id):
+        base = Bases.select().where(Bases.id == base_id).get()
+        return base
 
 
-class Cms_Usergroups_Camps(db.Model):
-    camp_id = IntegerField()
-    cms_usergroups_id = IntegerField()
+class Usergroup_Base_Access(db.Model):
+    class Meta:
+        table_name="Cms_Usergroups_Camps"
+
+    base_id = IntegerField(column_name="camp_id")
+    usergroups_id = IntegerField(column_name="cms_usergroups_id")
 
     class Meta:
         # Cms_Usergroups_Camps has no primary key,
         # so we construct a composite to use as one here
-        primary_key = CompositeKey("camp_id", "cms_usergroups_id")
+        primary_key = CompositeKey("base_id", "usergroups_id")
 
     def __str__(self):
         return self.name
 
     @staticmethod
-    def get_camp_id(usergroup_id):
-        return Cms_Usergroups_Camps.select(Cms_Usergroups_Camps.camp_id).where(
-            Cms_Usergroups_Camps.cms_usergroups_id == usergroup_id
+    def get_base_id(usergroup_id):
+        return Usergroup_Base_Access.select(Usergroup_Base_Access.base_id).where(
+            Usergroup_Base_Access.usergroups_id == usergroup_id
         )
 
 
-class Cms_Users(db.Model):
-    id = IntegerField()
+class Users(db.Model):
+    class Meta:
+        table_name="Cms_Users"
+
+    # id as an integer is the primary key
     name = CharField(column_name="naam")
     email = CharField()
-    cms_usergroups_id = CharField()
+    usergroups_id = IntegerField(column_name="cms_usergroups_id")
     valid_firstday = DateField()
     valid_lastday = DateField()
     lastlogin = DateTimeField()
@@ -123,15 +135,15 @@ class Cms_Users(db.Model):
 
     @staticmethod
     def get_all_users():
-        return Cms_Users.select().order_by(Cms_Users.name)
+        return Users.select().order_by(Users.name)
 
     @staticmethod
     def get_user(email):
-        user = Cms_Users.select().where(Cms_Users.email == email).get()
-        camps = Cms_Usergroups_Camps.get_camp_id(user.cms_usergroups_id)
-        # camps is a peewee ModelSelect (so, many objects).
+        user = Users.select().where(Users.email == email).get()
+        bases = Cms_Usergroups_Camps.get_base_id(user.usergroups_id)
+        # bases is a peewee ModelSelect (so, many objects).
         # convert to dict 1 at a time,
-        # and pull the camp_id from that dict, and put in a list
-        user.camp_id = [model_to_dict(item)["camp_id"] for item in camps]
+        # and pull the base_id from that dict, and put in a list
+        user.base_id = [model_to_dict(item)["base_id"] for item in bases]
 
         return user

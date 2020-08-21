@@ -25,14 +25,14 @@ type_defs = gql(
         organisation_id: Int
         name: String
         email: String!
-        cms_usergroups_id: Int
+        usergroups_id: Int
         valid_firstday: Date
         valid_lastday: Date
-        camp_id: [Int]
+        base_id: [Int]
         lastlogin: Datetime
         lastaction: Datetime
     }
-    type Box{
+    type Box {
         id: Int
         box_id: String!
         product_id: String
