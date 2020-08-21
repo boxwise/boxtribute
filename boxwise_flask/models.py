@@ -1,8 +1,8 @@
-"""Model definitions for database"""
+"""Model definitions for database."""
 from peewee import CharField, CompositeKey, DateField, DateTimeField, IntegerField
 from playhouse.shortcuts import model_to_dict
 
-from .app import db
+from .db import db
 
 
 class Stock(db.Model):
@@ -48,20 +48,40 @@ class Stock(db.Model):
     def get_box(box_id):
         box = Stock.select().where(Stock.box_id == box_id).get()
         return box
+class Person(db.Model):
+    id = IntegerField()
+    camp_id = IntegerField()
+    firstname = CharField()
+    lastname = CharField()
+
+    def __str__(self):
+        return self.firstname
 
 
 class Camps(db.Model):
-    id = CharField()
-    organisation_id = CharField()
+    id = IntegerField()
+    organisation_id = IntegerField()
     name = CharField()
     currencyname = CharField()
 
-    def __unicode__(self):
-        return self.name
+    def __str__(self):
+        return (
+            str(self.id)
+            + " "
+            + str(self.organisation_id)
+            + " "
+            + self.name
+            + " "
+            + self.currencyname
+        )
 
     @staticmethod
     def get_all_camps():
         return Camps.select().order_by(Camps.name)
+
+    @staticmethod
+    def get_camps_by_org_id(org_id):
+        return Camps.select().where(Camps.organisation_id == org_id)
 
     @staticmethod
     def get_camp(camp_id):
@@ -70,15 +90,15 @@ class Camps(db.Model):
 
 
 class Cms_Usergroups_Camps(db.Model):
-    camp_id = CharField()
-    cms_usergroups_id = CharField()
+    camp_id = IntegerField()
+    cms_usergroups_id = IntegerField()
 
     class Meta:
         # Cms_Usergroups_Camps has no primary key,
         # so we construct a composite to use as one here
         primary_key = CompositeKey("camp_id", "cms_usergroups_id")
 
-    def __unicode__(self):
+    def __str__(self):
         return self.name
 
     @staticmethod
@@ -89,7 +109,7 @@ class Cms_Usergroups_Camps(db.Model):
 
 
 class Cms_Users(db.Model):
-    id = CharField()
+    id = IntegerField()
     name = CharField(column_name="naam")
     email = CharField()
     cms_usergroups_id = CharField()
@@ -98,8 +118,8 @@ class Cms_Users(db.Model):
     lastlogin = DateTimeField()
     lastaction = DateTimeField()
 
-    def __unicode__(self):
-        return self.name
+    def __str__(self):
+        return self.name, self.organisation_id
 
     @staticmethod
     def get_all_users():
