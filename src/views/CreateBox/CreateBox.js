@@ -36,7 +36,7 @@ export default function CreateBox() {
   `;
 
   const [createBoxMutation, { loading: mutationLoading, error: mutationError }] = useMutation(
-    CREATE_BOX
+    CREATE_BOX,
   );
 
   const [newBox, setNewBox] = React.useState();
@@ -48,14 +48,14 @@ export default function CreateBox() {
     try {
       const { data } = await createBoxMutation({
         variables: {
-          boxId: Number(boxId),
-          productId: Number(productId),
-          items: Number(items),
-          locationId: Number(locationId),
-          comments,
-          sizeId: Number(sizeId),
-          qrId: Number(qrId),
-          boxStateId: Number(boxStateId),
+          boxId: Number(boxId), // does this come from the QR code?
+          productId: Number(productId), // this is an input
+          items: Number(items), // this is an input
+          locationId: Number(locationId), // does this come from the QR code? or the user?
+          comments, // default to an empty string
+          sizeId: Number(sizeId), // this is an input
+          qrId: Number(qrId), // this definitely comes from the QR code
+          boxStateId: Number(boxStateId), // does this come from the QR code? What is state about?
         },
       });
       setNewBox(data.createBox);
@@ -113,7 +113,7 @@ export default function CreateBox() {
         <label className="p-2" htmlFor="comments">
           comments*
           <input
-            defaultValue={2}
+            defaultValue=""
             className="border rounded"
             ref={register({ required: true, maxLength: 20 })}
             type="text"
