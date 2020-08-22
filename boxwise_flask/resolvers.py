@@ -66,8 +66,8 @@ def resolve_user(_, info, email):
 
 
 @mutation.field("createBox")
-def create_box(_, info, input):
-    response = Boxes.create_box(input)
+def create_box(_, info, box_creation_input):
+    response = Boxes.create_box(box_creation_input)
     return response
 
 

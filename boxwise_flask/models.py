@@ -30,18 +30,18 @@ class Boxes(db.Model):
         return self.box_id
 
     @staticmethod
-    def create_box(box):
+    def create_box(box_creation_input):
         new_box = Stock.create(
-            box_id=box.get('box_id'),
-            product_id=box.get('product_id', None),
-            size_id=box.get('size_id', None),
-            items=box.get('items', None),
-            location_id=box.get('location_id', None),
-            comments=box.get('comments', None),
-            qr_id=box.get('qr_id', None),
-            created=box.get('created', None),
-            created_by=box.get('created_by', None),
-            box_state_id=box.get('box_state_id', None)
+            box_id=box_creation_input.get('box_id'),
+            product_id=box_creation_input.get('product_id', None),
+            size_id=box_creation_input.get('size_id', None),
+            items=box_creation_input.get('items', None),
+            location_id=box_creation_input.get('location_id', None),
+            comments=box_creation_input.get('comments', None),
+            qr_id=box_creation_input.get('qr_id', None),
+            created=box_creation_input.get('created', None),
+            created_by=box_creation_input.get('created_by', None),
+            box_state_id=box_creation_input.get('box_state_id', None)
             )
         return new_box
 
