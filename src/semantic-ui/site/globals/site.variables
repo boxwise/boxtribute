@@ -3,14 +3,21 @@
 *******************************/
 
 @primaryColor: @brandBlue;
-@secondaryColor: @lightBlue;
-@brandBlue: #315c88;
-@lightBlue: #9BADC5;
-@activeBlue: #262A53;
+@secondaryColor: #2E507A;
+@brandBlue: #262A53;
+@blue: @brandBlue;
+@teal:#9BADC5;
+
+
+
+@lightBlue: #A0C6DE;
+@activeBlue: #9BADC5;
 @red: #ef404a;
 @yellow: #f4e6a0;
-@black: #333333;
-@white: #ffffff;
+@grey: #71777D;
+@black: #1A1D35;
+@white: #F3F3F3;
+
 
 
 
@@ -38,6 +45,11 @@
 @linkHoverColor      : @secondaryColor;
 @linkActiveColor      : @secondaryColor;
 
+/*-------------------
+      Label
+--------------------*/
+
+@labelColor          : @primaryColor;
 
 /*-------------------
       Base Sizes
@@ -49,24 +61,11 @@
 @fontSize : 17.5px;
 
 
+@defaultBorderRadius: 0;
 
 
-
-
-
-.ui.button {
-     background: @brandBlue;
-     color: @white;
-     box-shadow: 0px 2px 1px rgba(29, 68, 107, 0.2);
-     border-radius: 0;
-     margin: 1em;
-     font-weight: 600;
-    padding: 16px 24px;
-}
-
-.ui.button:hover{
-         background: @activeBlue;
-         color: @white;
-         box-shadow: 0px 0px 0px ;
+i.icon.outline {
+    font-family: 'outline-icons';
+    color: @white;
 }
 

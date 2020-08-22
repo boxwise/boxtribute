@@ -155,7 +155,7 @@ export default function App() {
             // eslint-disable-next-line react/button-has-type
             <button
               onClick={() => handleLogOut()}
-              className="ui button"
+              className='primary'
             >
               Log Out
             </button>
