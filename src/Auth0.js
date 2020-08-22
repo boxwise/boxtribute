@@ -14,7 +14,6 @@ class Auth {
   auth0 = new Auth0.WebAuth({
     domain: REACT_APP_AUTH0_DOMAIN,
     clientID: REACT_APP_AUTH0_CLIENT_ID,
-    cacheLocation: 'localstorage',
   })
 
   login() {

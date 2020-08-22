@@ -19,7 +19,6 @@
     "auth0-js": "^9.13.2",
     "autoprefixer": "^9.7.5",
     "axios": "^0.19.2",
-    "frontier-forms": "^0.1.2",
     "graphql": "^15.0.0",
     "homepage": "^1.0.0",
     "node-sass": "^4.14.1",
