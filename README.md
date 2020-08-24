@@ -106,13 +106,13 @@ and similarly the test functions should have the format
 ```
 def test_<test_name>():
 ```
-for endpoint testing, the test functions usually take two fixtures.
+For endpoint testing, the test functions usually take two fixtures.
 ```
 def test_<test_name>(client, database):
 ```
 to allow for databases to be preconfigured with data and requests to be made to the app.
 
-fixtures are configured in the `conftest.py` files which execute automatically before a test.
+Fixtures are configured in the `conftest.py` files which execute automatically before a test.
 
 ### Formatting and linting
 
