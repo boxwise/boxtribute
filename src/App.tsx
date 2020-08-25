@@ -161,12 +161,12 @@ export default function App() {
             // eslint-disable-next-line react/button-has-type
             <button
               onClick={() => handleLogOut()}
-              className='worm'
+              className='brandBlue'
             >
               Log Out
             </button>
           ) : (
-            <Button className='secondary'
+            <Button className='brandBlue'
               onClick={() => {
                 Auth0.login()
               }}
