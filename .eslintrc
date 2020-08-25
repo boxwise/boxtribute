@@ -1,0 +1,47 @@
+{
+  "extends": [
+    "react-app",
+    "airbnb",
+    "plugin:jsx-a11y/recommended",
+    "plugin:import/errors",
+    "plugin:import/warnings",
+    "plugin:import/typescript"
+  ],
+  "plugins": ["jsx-a11y"],
+  "rules": {
+    // driving me nuts and would have involved changing a zillion files for no real benefit
+    "react/jsx-one-expression-per-line": "off",
+    "quotes": "off",
+    "semi": "off",
+    "no-unused-expressions": "off",
+    // import/no-named-as-default disabled as it prevents a common pattern of exporting
+    // non-connected redux components for testing and then exporting
+    // the connected component as the default export
+    // see https://github.com/benmosher/eslint-plugin-import/issues/544
+    "import/no-named-as-default": "off",
+    // codebase uses prop types some times and not others
+    "react/prop-types": "off",
+    // should be turned on eventually, but not compatible with current codebase
+    "no-shadow": "off",
+    // matter of preference (allows to use props.propName instead of deconstructing props first)
+    "react/destructuring-assignment": "off",
+    "@typescript-eslint/explicit-function-return-type": "off",
+    "lines-between-class-members": "off",
+    // react hook rules
+    "react-hooks/rules-of-hooks": "error",
+    "react-hooks/exhaustive-deps": "error",
+    // suport for jsx files
+    "react/jsx-filename-extension": [1, { "extensions": [".js", ".jsx", ".ts", ".tsx"] }],
+    "import/extensions": [
+      "error",
+      "ignorePackages",
+      {
+        "js": "never",
+        "jsx": "never",
+        "ts": "never",
+        "tsx": "never"
+      }
+   ],
+   "no-debugger": 1
+  }
+}
