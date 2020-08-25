@@ -1,9 +1,10 @@
 import React from "react"
 import ReactDOM from "react-dom"
-import "./styles/tailwind.css"
+
 import App from "./App"
 import * as serviceWorker from "./serviceWorker"
-import 'semantic-ui-less/semantic.less'
+import 'semantic-ui-less/semantic.less';
+import './App.css'
 
 ReactDOM.render(<App />, document.getElementById("root"))
 

@@ -8,7 +8,7 @@ import {
   faCogs,
   faQrcode,
 } from "@fortawesome/free-solid-svg-icons"
-import "../App.scss"
+// import "../App.scss"
 
 export default function TabBar() {
   const history = useHistory()

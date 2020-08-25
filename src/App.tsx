@@ -10,8 +10,13 @@ import PdfGenerator from "./views/Labels/PdfGenerator"
 import Labels from "./views/Labels/Labels"
 import AuthContext from "./AuthContext"
 import TabBar from "./views/TabBar"
+import Menu from "./views/NavMenu"
 import Placeholder from "./views/Placeholder"
 import ScanBox from "./views/ScanBox"
+import 'semantic-ui-less/semantic.less'
+import { Button, Grid } from 'semantic-ui-react'
+
+import './App.css'
 
 const { REACT_APP_GRAPHQL_SERVER } = process.env
 
@@ -112,6 +117,7 @@ export default function App() {
       <AuthContext.Provider value={authObject}>
         <Router>
           <div>
+          <Menu />
             {/* NOTE! 
         This works like a normal switch, so you have to put the specific routes the highest,
         and work your way down to least-specific */}
@@ -155,20 +161,19 @@ export default function App() {
             // eslint-disable-next-line react/button-has-type
             <button
               onClick={() => handleLogOut()}
-              className='primary'
+              className='worm'
             >
               Log Out
             </button>
           ) : (
-            <button
+            <Button className='secondary'
               onClick={() => {
                 Auth0.login()
               }}
-              className="ui button"
-              type="button"
+              
             >
               Sign In
-            </button>
+            </Button>
           )}
           <TabBar />
         </Router>

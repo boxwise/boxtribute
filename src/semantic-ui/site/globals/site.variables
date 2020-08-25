@@ -5,10 +5,9 @@
 @primaryColor: @brandBlue;
 @secondaryColor: #2E507A;
 @brandBlue: #262A53;
+@pageBackground: #ECF2F6;
 @blue: @brandBlue;
 @teal:#9BADC5;
-
-
 
 @lightBlue: #A0C6DE;
 @activeBlue: #9BADC5;
