@@ -125,6 +125,10 @@ export default function App() {
                 <CreateBox />
               </PrivateRoute>
 
+              <PrivateRoute path="/edit-box" pathNameRedirect="/">
+                <h1>Coming soon...</h1>
+              </PrivateRoute>
+
               <PrivateRoute path="/generateLabel" pathNameRedirect="/">
                 <PdfGenerator />
               </PrivateRoute>

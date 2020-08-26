@@ -2,6 +2,7 @@ import * as React from "react";
 import { useMutation } from "@apollo/react-hooks";
 import { gql } from "apollo-boost";
 import { useForm } from "react-hook-form";
+import { useLocation } from "react-router-dom";
 
 export default function CreateBox() {
   const CREATE_BOX = gql`
@@ -38,24 +39,24 @@ export default function CreateBox() {
   const [createBoxMutation, { loading: mutationLoading, error: mutationError }] = useMutation(
     CREATE_BOX,
   );
+  const location = useLocation();
+  const qrUrl = location.state.qr;
 
   const [newBox, setNewBox] = React.useState();
 
   const { register, handleSubmit } = useForm();
   const onSubmit = async (data) => {
-    const { boxId, productId, items, locationId, comments, sizeId, qrId, boxStateId } = data;
+    const { productId, items, locationId, comments, sizeId } = data;
 
     try {
       const { data } = await createBoxMutation({
         variables: {
-          boxId: Number(boxId), // does this come from the QR code?
-          productId: Number(productId), // this is an input
-          items: Number(items), // this is an input
-          locationId: Number(locationId), // does this come from the QR code? or the user?
+          productId: Number(productId),
+          items: Number(items),
+          locationId: Number(locationId), // temp, until we get this from the header
           comments: comments || "", // default to an empty string
-          sizeId: Number(sizeId), // this is an input
-          qrId: Number(qrId), // this definitely comes from the QR code
-          boxStateId: Number(boxStateId), // does this come from the QR code? What is state about?
+          sizeId: Number(sizeId),
+          qrId: Number(qrUrl),
         },
       });
       setNewBox(data.createBox);
@@ -70,14 +71,14 @@ export default function CreateBox() {
       <h2>Create a Box</h2>
       {newBox && <h1> You created box id: {newBox.box_id}</h1>}
       <form id="make-a-box" className="flex flex-col">
-        <label className="p-2" htmlFor="boxId">
-          boxId*
+        <label className="p-2" htmlFor="locationId">
+          locationId*
           <input
-            defaultValue={2002}
+            defaultValue={2}
             className="border rounded"
             ref={register({ required: true, maxLength: 20 })}
             type="number"
-            name="boxId"
+            name="locationId"
           />
         </label>
         <label className="p-2" htmlFor="productId">
@@ -100,26 +101,6 @@ export default function CreateBox() {
             name="items"
           />
         </label>
-        <label className="p-2" htmlFor="locationId">
-          locationId*
-          <input
-            defaultValue={2}
-            className="border rounded"
-            ref={register({ required: true, maxLength: 20 })}
-            type="number"
-            name="locationId"
-          />
-        </label>
-        <label className="p-2" htmlFor="comments">
-          comments*
-          <input
-            defaultValue=""
-            className="border rounded"
-            ref={register({ required: true, maxLength: 20 })}
-            type="text"
-            name="comments"
-          />
-        </label>
         <label className="p-2" htmlFor="sizeId">
           sizeId*
           <input
@@ -130,24 +111,14 @@ export default function CreateBox() {
             name="sizeId"
           />
         </label>
-        <label className="p-2" htmlFor="qrId">
-          qrId*
+        <label className="p-2" htmlFor="comments">
+          comments*
           <input
-            defaultValue={2}
+            defaultValue=""
             className="border rounded"
             ref={register({ required: true, maxLength: 20 })}
-            type="number"
-            name="qrId"
-          />
-        </label>
-        <label className="p-2" htmlFor="boxStateId">
-          boxStateId*
-          <input
-            defaultValue={2}
-            className="border rounded"
-            ref={register({ required: true, maxLength: 20 })}
-            type="number"
-            name="boxStateId"
+            type="text"
+            name="comments"
           />
         </label>
       </form>
