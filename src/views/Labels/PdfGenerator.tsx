@@ -1,36 +1,36 @@
-import React, { Component } from "react"
+import React, { Component } from "react";
 // / import { RouteProps } from 'react-router';
 // eslint-disable-next-line import/no-extraneous-dependencies
-import { RouteComponentProps } from "react-router"
-import { withRouter, Link } from "react-router-dom"
-import { PDFExport } from "@progress/kendo-react-pdf"
-import Label from "./Label"
+import { RouteComponentProps } from "react-router";
+import { withRouter, Link } from "react-router-dom";
+import { PDFExport } from "@progress/kendo-react-pdf";
+import Label from "./Label";
 
 class PdfGenerator extends Component<PdfGeneratorProps & RouteComponentProps<{ num }>> {
-  page
-  imageUpper
-  imageLower
-  canvLoaded: boolean
-  pdfExportComponent!: PDFExport | null
+  page;
+  imageUpper;
+  imageLower;
+  canvLoaded: boolean;
+  pdfExportComponent!: PDFExport | null;
 
   constructor(props: PdfGeneratorProps & RouteComponentProps<{ num }>) {
-    super(props)
-    this.canvLoaded = false
+    super(props);
+    this.canvLoaded = false;
   }
 
   exportPDF = () => {
-    if (this.pdfExportComponent !== null) this.pdfExportComponent.save()
-  }
+    if (this.pdfExportComponent !== null) this.pdfExportComponent.save();
+  };
 
   render() {
-    const labels: JSX.Element[] = []
+    const labels: JSX.Element[] = [];
     // eslint-disable-next-line radix
-    const num = parseInt(this.props.match.params.num)
+    const num = parseInt(this.props.match.params.num);
     for (let i = 0; i < num; i += 1) {
-      labels.push(<Label url="https://www.facebook.com" key={i} />)
+      labels.push(<Label url="https://www.facebook.com" key={i} />);
       if (i + 1 !== num && (i + 1) % 4 === 0) {
         // != vs !==
-        labels.push(<div className="page-break" />)
+        labels.push(<div className="page-break" />);
       }
     }
     return (
@@ -74,10 +74,10 @@ class PdfGenerator extends Component<PdfGeneratorProps & RouteComponentProps<{ n
           <Link to="/">Go Home</Link>
         </div>
       </>
-    )
+    );
   }
 }
 
-export default withRouter(PdfGenerator)
+export default withRouter(PdfGenerator);
 
 interface PdfGeneratorProps {}

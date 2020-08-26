@@ -23,7 +23,7 @@
     "react/prop-types": "off",
     // should be turned on eventually, but not compatible with current codebase
     "no-shadow": "off",
-    "no-console":"off",
+    "no-console":"warn",
     // matter of preference (allows to use props.propName instead of deconstructing props first)
     "react/destructuring-assignment": "off",
     "@typescript-eslint/explicit-function-return-type": "off",

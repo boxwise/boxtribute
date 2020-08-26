@@ -1,7 +1,7 @@
-import React from "react"
-import QRCode from "qrcode.react"
-import QRUpper from "../../public/Boxtribute_QR_Label_Upper.jpg"
-import QRLower from "../../public/Boxtribute_QR_Label_Lower.jpg"
+import React from "react";
+import QRCode from "qrcode.react";
+import QRUpper from "../../public/Boxtribute_QR_Label_Upper.jpg";
+import QRLower from "../../public/Boxtribute_QR_Label_Lower.jpg";
 
 const Label = (props) => (
   <div
@@ -17,6 +17,6 @@ const Label = (props) => (
       <QRCode value={props.url} includeMargin size={105} />
     </div>
   </div>
-)
+);
 
-export default Label
+export default Label;

@@ -1,10 +1,10 @@
-import React from "react"
-import { Link } from "react-router-dom"
-import AuthContext from "../AuthContext"
+import React from "react";
+import { Link } from "react-router-dom";
+import AuthContext from "../AuthContext";
 
 function Home() {
-  const authObject = React.useContext(AuthContext)
-  const user = authObject.idTokenPayload.name
+  const authObject = React.useContext(AuthContext);
+  const user = authObject.idTokenPayload.name;
   return (
     <div>
       <h2 className="w-screen flex justify-center p-2 bg-blue-500">
@@ -31,7 +31,7 @@ function Home() {
         </div>
       )}
     </div>
-  )
+  );
 }
 
-export default Home
+export default Home;

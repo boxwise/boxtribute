@@ -1,7 +1,7 @@
-import React from "react"
-import { useParams, Link } from "react-router-dom"
-import { useQuery } from "@apollo/react-hooks"
-import { gql } from "apollo-boost"
+import React from "react";
+import { useParams, Link } from "react-router-dom";
+import { useQuery } from "@apollo/react-hooks";
+import { gql } from "apollo-boost";
 
 const BASE = gql`
   query Base($orgId: String!) {
@@ -12,15 +12,15 @@ const BASE = gql`
       currencyname
     }
   }
-`
+`;
 
 export default function SingleOrg() {
-  const { orgId } = useParams()
+  const { orgId } = useParams();
   const { loading, error, data } = useQuery(BASE, {
     variables: { orgId },
-  })
+  });
 
-  if (loading) return <p>Loading...</p>
+  if (loading) return <p>Loading...</p>;
   if (error) {
     return (
       <div className="p-6">
@@ -33,7 +33,7 @@ export default function SingleOrg() {
           {`->`} Go Home
         </Link>
       </div>
-    )
+    );
   }
 
   return (
@@ -47,5 +47,5 @@ export default function SingleOrg() {
         {`->`} Go Home
       </Link>
     </div>
-  )
+  );
 }

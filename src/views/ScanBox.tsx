@@ -1,10 +1,10 @@
-import React, { useState } from "react"
-import QrReader from "react-qr-reader"
-import { Link } from "react-router-dom"
+import React, { useState } from "react";
+import QrReader from "react-qr-reader";
+import { Link } from "react-router-dom";
 
 function ScanBox() {
-  const [data, setData] = useState("")
-  const [qrError, setQrError] = useState("")
+  const [data, setData] = useState("");
+  const [qrError, setQrError] = useState("");
 
   const displayReader = () => {
     if (data) {
@@ -20,7 +20,7 @@ function ScanBox() {
             Scan again
           </button>
         </div>
-      )
+      );
     }
     if (qrError) {
       return (
@@ -32,7 +32,7 @@ function ScanBox() {
             are on iOS, you can also try using Safari.{" "}
           </p>
         </div>
-      )
+      );
     }
     return (
       <QrReader
@@ -41,8 +41,8 @@ function ScanBox() {
         onScan={setData}
         style={{ width: "100%" }}
       />
-    )
-  }
+    );
+  };
 
   return (
     <div>
@@ -57,7 +57,7 @@ function ScanBox() {
         Go Home
       </Link>
     </div>
-  )
+  );
 }
 
-export default ScanBox
+export default ScanBox;
