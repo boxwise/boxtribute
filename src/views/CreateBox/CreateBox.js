@@ -52,7 +52,7 @@ export default function CreateBox() {
           productId: Number(productId), // this is an input
           items: Number(items), // this is an input
           locationId: Number(locationId), // does this come from the QR code? or the user?
-          comments, // default to an empty string
+          comments: comments || "", // default to an empty string
           sizeId: Number(sizeId), // this is an input
           qrId: Number(qrId), // this definitely comes from the QR code
           boxStateId: Number(boxStateId), // does this come from the QR code? What is state about?
