@@ -40,7 +40,9 @@
     "build": "react-scripts build",
     "test": "react-scripts test",
     "eject": "react-scripts eject",
-    "lint": "eslint . --fix"
+    "lint": "eslint . --fix",
+    "format:check": "prettier --check \"src/**/*.{js,jsx,json,scss,md,ts,tsx}\"",
+    "format:write": "prettier --write \"src/**/*.{js,jsx,json,scss,md,ts,tsx}\""
   },
   "eslintConfig": {
     "extends": "react-app"
@@ -69,5 +71,15 @@
     "lint-staged": "^10.2.2",
     "prettier": "^2.0.5",
     "typescript": "^3.9.5"
+  },
+  "husky": {
+    "hooks": {
+      "pre-commit": "lint-staged"
+    }
+  },
+  "lint-staged": {
+    "src/**/*.{js,jsx,json,scss,md,ts,tsx}": [
+      "yarn run format:check"
+    ]
   }
 }

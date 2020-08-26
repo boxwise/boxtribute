@@ -1,21 +1,21 @@
 /* eslint-disable jsx-a11y/label-has-associated-control */
-import React, { useState } from "react"
-import { NumberPicker } from "react-widgets"
-import { Link } from "react-router-dom"
-import QRCode from 'qrcode.react';
+import React, { useState } from "react";
+import { NumberPicker } from "react-widgets";
+import { Link } from "react-router-dom";
+import QRCode from "qrcode.react";
 
 // eslint-disable-next-line no-unused-vars
 const Labels = (props: LabelProps) => {
-  const [numState, setNumState] = useState(0)
-  const [labelState, setLabelState] = useState<QRCode | undefined>(undefined)
+  const [numState, setNumState] = useState(0);
+  const [labelState, setLabelState] = useState<QRCode | undefined>(undefined);
 
   const generateCodes = (num) => {
-    const temp: QRCode[] = []
+    const temp: QRCode[] = [];
     for (let i = 0; i < num; i += 1) {
-      temp.push(<QRCode value="https://www.facebook.com" includeMargin size={128} key={i} />)
+      temp.push(<QRCode value="https://www.facebook.com" includeMargin size={128} key={i} />);
     }
-    setLabelState(temp)
-  }
+    setLabelState(temp);
+  };
   return (
     <div>
       <label>
@@ -25,7 +25,7 @@ const Labels = (props: LabelProps) => {
           min={0}
           value={numState}
           onChange={(value) => {
-            if (value) setNumState(value)
+            if (value) setNumState(value);
           }}
         />
       </label>
@@ -34,15 +34,13 @@ const Labels = (props: LabelProps) => {
       <button type="button" onClick={() => generateCodes(numState)}>
         Generate QR Codes
       </button>
-      <div>
-        {labelState}
-      </div>
+      <div>{labelState}</div>
       <br />
       <Link to="/">Go Home</Link>
     </div>
-  )
-}
+  );
+};
 
-export default Labels
+export default Labels;
 
 interface LabelProps {}
