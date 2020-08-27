@@ -1,5 +1,6 @@
 from boxwise_flask.db import db
-from boxwise_flask.models import Camps, Cms_Users
+from boxwise_flask.models.bases import Bases
+from boxwise_flask.models.users import Users
 
 
 def get_base_from_graphql(id, base_query):
@@ -8,7 +9,7 @@ def get_base_from_graphql(id, base_query):
 
 def test_all_bases(client):
     """Verify allBases GraphQL query endpoint"""
-    camps = [
+    bases = [
         {"id": 1, "name": "oak-tree", "organisation_id": 1, "currencyname": "pound"},
         {"id": 2, "name": "chicken", "organisation_id": 1, "currencyname": "peanuts"},
         {"id": 3, "name": "sofa", "organisation_id": 1, "currencyname": "candles"},
@@ -16,12 +17,12 @@ def test_all_bases(client):
 
     db.connect_db()
 
-    for camp in camps:
-        Camps.create(
-            id=camp["id"],
-            organisation_id=camp["organisation_id"],
-            name=camp["name"],
-            currencyname=camp["currencyname"],
+    for base in bases:
+        Bases.create(
+            id=base["id"],
+            organisation_id=base["organisation_id"],
+            name=base["name"],
+            currencyname=base["currencyname"],
         )
 
     db.close_db(None)
@@ -39,14 +40,14 @@ def test_all_bases(client):
     response_data = client.post("/graphql", json=data)
     assert response_data.status_code == 200
     all_bases = response_data.json["data"]["allBases"]
-    for expected_camp in camps:
-        created_camp = get_base_from_graphql(expected_camp["id"], all_bases)
-        assert created_camp == expected_camp
+    for expected_base in bases:
+        created_base = get_base_from_graphql(expected_base["id"], all_bases)
+        assert created_base == expected_base
 
 
 def test_base(client):
     """Verify base GraphQL query endpoint"""
-    camps = [
+    bases = [
         {"id": 1, "name": "oak-tree", "organisation_id": 1, "currencyname": "pound"},
         {"id": 2, "name": "chicken", "organisation_id": 1, "currencyname": "peanuts"},
         {"id": 3, "name": "sofa", "organisation_id": 1, "currencyname": "candles"},
@@ -54,8 +55,8 @@ def test_base(client):
 
     db.connect_db()
 
-    for camp in camps:
-        Camps.create(**camp)
+    for base in bases:
+        Bases.create(**base)
 
     db.close_db(None)
     test_id = 1
@@ -71,7 +72,7 @@ def test_base(client):
     data = {"query": graph_ql_query_string}
     response_data = client.post("/graphql", json=data)
     assert response_data.status_code == 200
-    assert response_data.json["data"]["base"] == get_base_from_graphql(test_id, camps)
+    assert response_data.json["data"]["base"] == get_base_from_graphql(test_id, bases)
 
 
 def test_all_users(client):
@@ -85,7 +86,7 @@ def test_all_users(client):
     ]
     for i, email in enumerate(emails):
 
-        Cms_Users.create(
+        Users.create(
             id=i,
             name="",
             email=email,
@@ -122,7 +123,7 @@ def test_user(client):
         "marmalade@jam.co.uk",
     ]
     for i, email in enumerate(emails):
-        Cms_Users.create(
+        Users.create(
             id=i,
             name="",
             email=email,

@@ -7,7 +7,8 @@ from ariadne import (
 )
 
 from .auth_helper import authorization_test
-from .models import Camps, Cms_Users
+from .models.bases import Bases
+from .models.users import Users
 from .type_defs import type_defs
 
 query = ObjectType("Query")
@@ -32,7 +33,7 @@ def serialize_date(value):
 def resolve_all_camps(_, info):
     # discard the first input because it belongs to a root type (Query, Mutation,
     # Subscription). Otherwise it would be a value returned by a parent resolver.
-    response = Camps.get_all_camps()
+    response = Bases.get_all_bases()
     return list(response.dicts())
 
 
@@ -40,26 +41,26 @@ def resolve_all_camps(_, info):
 # see the comment in https://github.com/boxwise/boxwise-flask/pull/19
 @query.field("orgBases")
 def resolve_org_bases(_, info, org_id):
-    response = Camps.get_camps_by_org_id(org_id)
+    response = Bases.get_camps_by_org_id(org_id)
     return list(response.dicts())
 
 
 @query.field("base")
 def resolve_camp(_, info, id):
     authorization_test("bases", base_id=id)
-    response = Camps.get_camp(id)
+    response = Bases.get_camp(id)
     return response
 
 
 @query.field("allUsers")
 def resolve_all_users(_, info):
-    response = Cms_Users.get_all_users()
+    response = Users.get_all_users()
     return list(response.dicts())
 
 
 @query.field("user")
 def resolve_user(_, info, email):
-    response = Cms_Users.get_user(email)
+    response = Users.get_user(email)
     return response
 
 
