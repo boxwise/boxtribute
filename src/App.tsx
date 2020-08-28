@@ -10,8 +10,12 @@ import PdfGenerator from "./views/Labels/PdfGenerator";
 import Labels from "./views/Labels/Labels";
 import AuthContext from "./AuthContext";
 import TabBar from "./views/TabBar";
+import Menu from "./views/NavMenu";
 import Placeholder from "./views/Placeholder";
 import ScanBox from "./views/ScanBox";
+import "semantic-ui-less/semantic.less";
+import { Button } from "semantic-ui-react";
+import "./App.css";
 
 const { REACT_APP_GRAPHQL_SERVER } = process.env;
 
@@ -113,7 +117,8 @@ export default function App() {
       <AuthContext.Provider value={authObject}>
         <Router>
           <div>
-            {/* NOTE!
+            <Menu />
+            {/* NOTE! 
         This works like a normal switch, so you have to put the specific routes the highest,
         and work your way down to least-specific */}
             <Switch>
@@ -145,22 +150,18 @@ export default function App() {
           </div>
           {loggedIn ? (
             // eslint-disable-next-line react/button-has-type
-            <button
-              onClick={() => handleLogOut()}
-              className="m-6 bg-gray-300 hover:bg-gray-500 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline"
-            >
+            <Button className="brandBlueButton" onClick={() => handleLogOut()}>
               Log Out
-            </button>
+            </Button>
           ) : (
-            <button
+            <Button
+              className="brandBlueButton"
               onClick={() => {
                 Auth0.login();
               }}
-              className="m-6 bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline"
-              type="button"
             >
               Sign In
-            </button>
+            </Button>
           )}
           <TabBar />
         </Router>
