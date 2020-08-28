@@ -14,9 +14,9 @@ import Menu from "./views/NavMenu"
 import Placeholder from "./views/Placeholder"
 import ScanBox from "./views/ScanBox"
 import 'semantic-ui-less/semantic.less'
-import { Button, Grid } from 'semantic-ui-react'
-
+import { Button} from 'semantic-ui-react'
 import './App.css'
+
 
 const { REACT_APP_GRAPHQL_SERVER } = process.env
 
@@ -159,14 +159,14 @@ export default function App() {
           </div>
           {loggedIn ? (
             // eslint-disable-next-line react/button-has-type
-            <button
+            <Button className='brandBlueButton'
               onClick={() => handleLogOut()}
-              className='brandBlue'
+              
             >
               Log Out
-            </button>
+            </Button>
           ) : (
-            <Button className='brandBlue'
+            <Button className='brandBlueButton'
               onClick={() => {
                 Auth0.login()
               }}
