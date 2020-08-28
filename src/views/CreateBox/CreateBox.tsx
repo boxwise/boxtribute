@@ -4,6 +4,23 @@ import { gql } from "apollo-boost";
 import { useForm } from "react-hook-form";
 import { useLocation } from "react-router-dom";
 
+interface NewBoxType {
+  box_id: number;
+  product_id: number;
+  size_id: number;
+  items: number;
+  location_id: number;
+  comments: string;
+  qr_id: number;
+  box_state_id: number;
+}
+
+interface LocationState {
+  state: {
+    qr: string;
+  };
+}
+
 export default function CreateBox() {
   const CREATE_BOX = gql`
     mutation(
@@ -39,10 +56,21 @@ export default function CreateBox() {
   const [createBoxMutation, { loading: mutationLoading, error: mutationError }] = useMutation(
     CREATE_BOX,
   );
-  const location = useLocation();
-  const qrUrl = location.state.qr;
 
-  const [newBox, setNewBox] = React.useState();
+  const location: LocationState = useLocation();
+
+  const qrUrl: string = location.state.qr;
+
+  const [newBox, setNewBox] = React.useState({
+    box_id: null,
+    product_id: null,
+    size_id: null,
+    items: null,
+    location_id: null,
+    comments: "",
+    qr_id: null,
+    box_state_id: null,
+  });
 
   const { register, handleSubmit } = useForm();
   const onSubmit = async (data) => {
@@ -69,7 +97,7 @@ export default function CreateBox() {
   return (
     <div className="flex flex-col">
       <h2>Create a Box</h2>
-      {newBox && <h1> You created box id: {newBox.box_id}</h1>}
+      {newBox && <h1> You created a new box!</h1>}
       <form id="make-a-box" className="flex flex-col">
         <label className="p-2" htmlFor="locationId">
           locationId*
