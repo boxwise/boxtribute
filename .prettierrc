@@ -1,5 +1,6 @@
 {
   "printWidth": 100,
   "singleQuote": false,
-  "doubleQuote": true
+  "doubleQuote": true,
+  "semi":true
 }

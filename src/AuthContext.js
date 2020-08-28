@@ -1,4 +1,4 @@
-import React from "react"
+import React from "react";
 
 const AuthContext = React.createContext({
   accessToken: "",
@@ -25,6 +25,6 @@ const AuthContext = React.createContext({
   //   this won't change
   tokenType: "Bearer",
   scope: "",
-})
+});
 
-export default AuthContext
+export default AuthContext;
