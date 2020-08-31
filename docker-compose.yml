@@ -1,7 +1,8 @@
 version: "3.6"
 services:
     web:
-        build: .
+        build:
+            context: ./flask
         ports:
             - 5000:5000
             # request localhost:5001 to run debugger in vscode (cf. README)
@@ -9,7 +10,7 @@ services:
         networks:
             - backend
         volumes:
-            - .:/codedir
+            - ./flask:/app/flask
         environment:
             FLASK_ENV: development
     mysql:
@@ -20,7 +21,7 @@ services:
             MYSQL_ROOT_HOST: "%"
             MYSQL_DATABASE: dropapp_dev
         volumes:
-            - ./init.sql:/docker-entrypoint-initdb.d/init.sql
+            - ./flask/init.sql:/docker-entrypoint-initdb.d/init.sql
         ports:
             # <Port exposed> : < MySQL Port running inside container>
             - 32000:3306
