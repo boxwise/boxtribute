@@ -1,4 +1,4 @@
-[![CircleCI](https://circleci.com/gh/boxwise/boxwise-flask.svg?style=svg)](https://circleci.com/gh/boxwise/boxwise-flask)
+[![CircleCI](https://circleci.com/gh/boxwise/boxtribute.svg?style=svg)](https://circleci.com/gh/boxwise/boxtribute)
 <a width="105" height="35" href="https://auth0.com/?utm_source=oss&utm_medium=gp&utm_campaign=oss" target="_blank" alt="Single Sign On & Token Based Authentication - Auth0">
        <img width="105" height="35" alt="JWT Auth for open source projects" src="https://cdn.auth0.com/oss/badges/a0-badge-dark.png"></a>
 
@@ -52,7 +52,7 @@ The password of all of these users is `password`.
 
 If you want to connect to the MySQL server from your host machine, you can do this using
 
-    docker exec -it <name of the db-docker container, e.g. boxwise-flask_mysql_1> mysql -u root -p
+    docker exec -it <name of the db-docker container, e.g. boxtribute_mysql_1> mysql -u root -p
 
 The mysql server in your docker container is also reachable on port `32000` of your localhost
 
@@ -68,7 +68,7 @@ Most of us use workbench to access the MySQL database. To establish a connection
 
 At the moment it is easiest if remove your db-docker container with
 
-    docker rm <name of the db-docker container, e.g. boxwise-flask_mysql_1>
+    docker rm <name of the db-docker container, e.g. boxtribute_mysql_1>
 
 and restart it afterwards.This is only a short-term solution for now.
 
@@ -136,8 +136,8 @@ A launch configuration for the debugger is added to the repo.
 To use the debugger:
 1. install the extensions to [access Docker container](https://marketplace.visualstudio.com/items?itemName=ms-vscode-remote.remote-containers) and to [debug python](https://marketplace.visualstudio.com/items?itemName=ms-python.python).
 2. Start the docker containers.
-3. [Attach to the running Docker container for the `web` service.](https://code.visualstudio.com/docs/remote/containers#_attaching-to-running-containers) By this step a new VSCode window will open to work from inside the `boxwise-flask_web` Docker container.
-4. A new VSCode window pops up which is run from within the docker container `boxwise-flask_web` Docker container.
+3. [Attach to the running Docker container for the `web` service.](https://code.visualstudio.com/docs/remote/containers#_attaching-to-running-containers) By this step a new VSCode window will open to work from inside the `boxtribute_web` Docker container.
+4. A new VSCode window pops up which is run from within the docker container `boxtribute_web` Docker container.
 5. Open the `/codedir` in the new VSCode which popped up. The `codedir` folder is the equivalent of the repo folder in the Docker container.
 
 The following step are only required the first time or after you deleted a Docker container:
@@ -198,7 +198,7 @@ To access the mysql database from the `web` container there are now two ways:
 
 To figure out the gateway of the docker network `backend` run
 
-        docker network inspect -f '{{range .IPAM.Config}}{{.Gateway}}{{end}}' boxwise-flask_backend
+        docker network inspect -f '{{range .IPAM.Config}}{{.Gateway}}{{end}}' boxtribute_backend
 
 You can choose one of the two and specify the credentials in the `.env`-file.
 
