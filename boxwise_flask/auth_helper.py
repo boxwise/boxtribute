@@ -6,8 +6,8 @@ from functools import wraps
 from flask import _request_ctx_stack, request
 from jose import jwt
 from six.moves.urllib.request import urlopen
-from .models import Users
 
+from .models.users import Users
 
 AUTH0_DOMAIN = os.getenv("AUTH0_DOMAIN")
 API_AUDIENCE = os.getenv("AUTH0_AUDIENCE")
@@ -144,7 +144,7 @@ def authorization_test(test_for, **kwargs):
         # note: this isn't a real website, and doesn't have to be,
         # but it DOES have to be in this form to work with the Auth0 rule providing it.
         payload = decode_jwt(token, rsa_key)
-        email = payload['https://www.boxtribute.com/email']
+        email = payload["https://www.boxtribute.com/email"]
         requesting_user = Users.get_user(email)
 
         if test_for == "bases":
@@ -154,8 +154,9 @@ def authorization_test(test_for, **kwargs):
             raise AuthError(
                 {
                     "code": "unknown resource",
-                    "description": "This resource is not known"
-                }, 401
+                    "description": "This resource is not known",
+                },
+                401,
             )
 
         if allowed_access:
@@ -164,8 +165,9 @@ def authorization_test(test_for, **kwargs):
             raise AuthError(
                 {
                     "code": "unauthorized_user",
-                    "description": "Your user does not have access to this resource"
-                }, 401
+                    "description": "Your user does not have access to this resource",
+                },
+                401,
             )
 
 

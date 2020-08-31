@@ -8,7 +8,10 @@ from ariadne import (
 )
 
 from .auth_helper import authorization_test
-from .models import Bases, Users, Boxes
+from .models.bases import Bases
+from .models.users import Users
+# TODO
+from .models.boxes import Boxes
 from .type_defs import type_defs
 
 query = ObjectType("Query")
