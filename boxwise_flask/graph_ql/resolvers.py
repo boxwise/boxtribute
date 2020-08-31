@@ -2,14 +2,16 @@
 from ariadne import (
     ObjectType,
     ScalarType,
+    gql,
     make_executable_schema,
     snake_case_fallback_resolvers,
 )
 
-from .auth_helper import authorization_test
-from .models.bases import Bases
-from .models.users import Users
-from .type_defs import type_defs
+from boxwise_flask.auth_helper import authorization_test
+from boxwise_flask.graph_ql.query_defs import query_defs
+from boxwise_flask.graph_ql.type_defs import type_defs
+from boxwise_flask.models.base import Base
+from boxwise_flask.models.user import User
 
 query = ObjectType("Query")
 
@@ -30,10 +32,10 @@ def serialize_date(value):
 # registers this fn as a resolver for the "allBases" field, can use it as the
 # resolver for more than one thing by just adding more decorators
 @query.field("allBases")
-def resolve_all_camps(_, info):
+def resolve_all_bases(_, info):
     # discard the first input because it belongs to a root type (Query, Mutation,
     # Subscription). Otherwise it would be a value returned by a parent resolver.
-    response = Bases.get_all_bases()
+    response = Base.get_all_bases()
     return list(response.dicts())
 
 
@@ -41,27 +43,29 @@ def resolve_all_camps(_, info):
 # see the comment in https://github.com/boxwise/boxwise-flask/pull/19
 @query.field("orgBases")
 def resolve_org_bases(_, info, org_id):
-    response = Bases.get_camps_by_org_id(org_id)
+    response = Base.get_for_organisation(org_id)
     return list(response.dicts())
 
 
 @query.field("base")
 def resolve_camp(_, info, id):
     authorization_test("bases", base_id=id)
-    response = Bases.get_camp(id)
+    response = Base.get_from_id(id)
     return response
 
 
 @query.field("allUsers")
 def resolve_all_users(_, info):
-    response = Users.get_all_users()
+    response = User.get_all_users()
     return list(response.dicts())
 
 
 @query.field("user")
 def resolve_user(_, info, email):
-    response = Users.get_user(email)
+    response = User.get_user(email)
     return response
 
 
-schema = make_executable_schema(type_defs, query, snake_case_fallback_resolvers)
+schema = make_executable_schema(
+    gql(type_defs + query_defs), query, snake_case_fallback_resolvers
+)
