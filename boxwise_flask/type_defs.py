@@ -47,16 +47,16 @@ type_defs = gql(
     }
 
     input CreateBoxInput {
-        box_id: Int!
+        box_id: Int #this is an output, but not an input
         product_id: Int! #this is a foreign key
         size_id: Int! #this is a foreign key
         items: Int
         location_id: Int! #this is a foreign key
         comments: String!
         qr_id: Int! #this is a foreign key
-        created: Datetime
-        created_by: Int
-        box_state_id: Int! #this is a foreign key
+        created: Datetime #this is an output, but not an input
+        created_by: Int #this is an output, but not an input
+        box_state_id: Int!  #this is an output, but not an input
     }
 
     scalar Datetime

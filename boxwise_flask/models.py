@@ -3,6 +3,8 @@ from peewee import CharField, CompositeKey, DateField, DateTimeField, IntegerFie
 from playhouse.shortcuts import model_to_dict
 
 from .db import db
+import time
+from datetime import date
 
 # remaining db renames:
 # qr -> qrCodes
@@ -22,7 +24,7 @@ class Boxes(db.Model):
     location_id = IntegerField()
     comments = CharField()
     qr_id = IntegerField()
-    created = CharField()
+    created = DateTimeField()
     created_by = CharField()
     box_state_id = IntegerField()
 
@@ -31,17 +33,24 @@ class Boxes(db.Model):
 
     @staticmethod
     def create_box(box_creation_input):
+
+        today = date.today()
+        qr_hash = box_creation_input.get('qr_id', None)
+        qr_from_table =  #lookup
+
         new_box = Stock.create(
-            box_id=box_creation_input.get('box_id'),
-            product_id=box_creation_input.get('product_id', None),
-            size_id=box_creation_input.get('size_id', None),
+            # box_id=box_creation_input.get('box_id'),
+            product_id=box_creation_input.get('product_id', None), #lookup
+            size_id=box_creation_input.get('size_id', None), #lookup
             items=box_creation_input.get('items', None),
-            location_id=box_creation_input.get('location_id', None),
+            location_id=box_creation_input.get('location_id', None), #lookup
             comments=box_creation_input.get('comments', None),
-            qr_id=box_creation_input.get('qr_id', None),
-            created=box_creation_input.get('created', None),
-            created_by=box_creation_input.get('created_by', None),
-            box_state_id=box_creation_input.get('box_state_id', None)
+            # for now, this will store the hash if the ID is not available
+            # We can store the ID once we can create new QR codes
+            qr_id=,
+            created=today,
+            # created_by=box_creation_input.get('created_by', None),
+            # box_state_id=box_creation_input.get('box_state_id', None)  #lookup
             )
         return new_box
 
