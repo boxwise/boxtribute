@@ -1,5 +1,5 @@
-FROM python:3.8-slim-buster
-RUN apt-get update -y && apt-get install -y libmariadb-dev
+# using alpine for smallest docker image
+FROM python:3.8-alpine
 WORKDIR /app/flask
 # install packages seperately to use docker build-caching
 # so we don't need to re-fetch these if code has changed
