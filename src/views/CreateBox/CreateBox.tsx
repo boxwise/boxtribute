@@ -3,23 +3,7 @@ import { useMutation } from "@apollo/react-hooks";
 import { gql } from "apollo-boost";
 import { useForm } from "react-hook-form";
 import { useLocation } from "react-router-dom";
-
-interface NewBoxType {
-  box_id: number;
-  product_id: number;
-  size_id: number;
-  items: number;
-  location_id: number;
-  comments: string;
-  qr_id: number;
-  box_state_id: number;
-}
-
-interface LocationState {
-  state: {
-    qr: string;
-  };
-}
+import { NewBoxType, LocationState } from "../../Types";
 
 export default function CreateBox() {
   const CREATE_BOX = gql`
@@ -58,10 +42,41 @@ export default function CreateBox() {
   );
 
   const location: LocationState = useLocation();
-
   const qrUrl: string = location.state.qr;
 
-  const [newBox, setNewBox] = React.useState({
+  const locationOptions = {
+    "Shop Lesvos": 1,
+    "LOST Lesvos": 2,
+    "SCRAP Lesvos": 3,
+    "Stockroom Lesvos": 4,
+    "WH Lesvos": 5,
+    "WH Women": 6,
+    "WH Men": 7,
+    "WH Children": 8,
+    "WH Babies": 9,
+    "WH Shoes": 10,
+    "WH New arrivals": 11,
+    "WH Hygiene": 12,
+    "WH Seasonal": 13,
+    "LOST Thessaloniki": 14,
+    "SCRAP Thessaloniki": 15,
+    "Stockroom Thessaloniki": 16,
+    WH1: 17,
+    WH2: 18,
+    "Shop Samos": 19,
+    "LOST Samos": 20,
+    "SCRAP Samos": 21,
+    "Stockroom Samos": 22,
+    TestShop: 100000000,
+    TestLOST: 100000001,
+    TestDonated: 100000002,
+    TestWarehouse: 100000003,
+    TestStockroom: 100000004,
+    TestDummyLocation: 100000005,
+    TestSCRAP: 100000006,
+  };
+
+  const [newBox, setNewBox] = React.useState<NewBoxType>({
     box_id: null,
     product_id: null,
     size_id: null,
@@ -79,11 +94,11 @@ export default function CreateBox() {
     try {
       const { data } = await createBoxMutation({
         variables: {
-          productId: Number(productId),
+          productId: Number(productId), // dropdown
           items: Number(items),
-          locationId: Number(locationId), // temp, until we get this from the header
+          locationId: Number(locationId), // dropdown
           comments: comments || "", // default to an empty string
-          sizeId: Number(sizeId),
+          sizeId: Number(sizeId), // dropdown
           qrId: Number(qrUrl),
         },
       });
@@ -101,14 +116,22 @@ export default function CreateBox() {
       <form id="make-a-box" className="flex flex-col">
         <label className="p-2" htmlFor="locationId">
           locationId*
-          <input
+          <select name="locationId" id="locationId">
+            {Object.keys(locationOptions).map((item) => (
+              <option key={item} value={locationOptions[item]}>
+                {item}
+              </option>
+            ))}
+          </select>
+          {/* <input
             defaultValue={2}
             className="border rounded"
             ref={register({ required: true, maxLength: 20 })}
             type="number"
             name="locationId"
-          />
+          /> */}
         </label>
+
         <label className="p-2" htmlFor="productId">
           productId*
           <input

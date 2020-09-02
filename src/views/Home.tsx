@@ -1,9 +1,9 @@
 import React from "react";
-import AuthContext from "../AuthContext"
+import UserContext from "../UserContext"
 
 function Home() {
-  const authObject = React.useContext(AuthContext)
-  const user = authObject.idTokenPayload.name
+  const userObject = React.useContext(UserContext)
+  const user = userObject.name
   return (
     <div>
       <h2 className="w-screen flex justify-center p-2 bg-blue-500">
