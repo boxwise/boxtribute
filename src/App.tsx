@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { BrowserRouter as Router, Switch, Route } from "react-router-dom";
 import { ApolloProvider, useQuery } from "@apollo/react-hooks";
-import { ApolloClient, gql } from "apollo-boost";
+import ApolloClient, { gql } from "apollo-boost";
 import PrivateRoute from "./PrivateRoute";
 import Auth0 from "./Auth0";
 import Home from "./views/Home";
@@ -83,7 +83,7 @@ export default function App() {
     }
   `;
 
-  const { loading, error, data} = useQuery(USER, {
+  const { loading, error, data } = useQuery(USER, {
     variables: { email: authObject?.idTokenPayload?.email || "" },
   });
 
