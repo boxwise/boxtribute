@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { BrowserRouter as Router, Switch, Route } from "react-router-dom";
-import { ApolloProvider } from "@apollo/react-hooks";
-import ApolloClient from "apollo-boost";
+import { ApolloProvider, useQuery } from "@apollo/react-hooks";
+import { ApolloClient, gql } from "apollo-boost";
 import PrivateRoute from "./PrivateRoute";
 import Auth0 from "./Auth0";
 import Home from "./views/Home";
@@ -9,6 +9,7 @@ import OrgTopLevel from "./views/Organization";
 import PdfGenerator from "./views/Labels/PdfGenerator";
 import Labels from "./views/Labels/Labels";
 import AuthContext from "./AuthContext";
+import UserContext from "./UserContext";
 import TabBar from "./views/TabBar";
 import Placeholder from "./views/Placeholder";
 import ScanBox from "./views/ScanBox";
@@ -44,20 +45,20 @@ const emptyAuthObject: AuthObjectType = {
   scope: "",
 };
 
-const emptyUserObject: UserObjectType = {
-  name: "",
-  email: "",
-  isAdmin: 0,
-  language: "english",
-  userGroupId: null,
-  validFirstDay: "",
-  validLastDay: "",
-  bases: [],
-};
+// const emptyUserObject: UserObjectType = {
+//   name: "",
+//   email: "",
+//   isAdmin: 0,
+//   language: "english",
+//   userGroupId: null,
+//   validFirstDay: "",
+//   validLastDay: "",
+//   bases: [],
+// };
 
 export default function App() {
   const [loggedIn, setLoggedIn] = useState(false);
-  const [userObject, setUserObject] = useState<UserObjectType>(emptyUserObject);
+  // const [userObject, setUserObject] = useState<UserObjectType>(emptyUserObject);
   const [authObject, setAuthObject] = useState<AuthObjectType>(emptyAuthObject);
 
   const client = new ApolloClient({
@@ -70,6 +71,20 @@ export default function App() {
         },
       });
     },
+  });
+
+  const USER = gql`
+    query User($email: String!) {
+      user(email: $email) {
+        base_id
+        name
+        usergroups_id
+      }
+    }
+  `;
+
+  const { loading, error, data} = useQuery(USER, {
+    variables: { email: authObject?.idTokenPayload?.email || "" },
   });
 
   function handleLogIn() {
@@ -99,74 +114,89 @@ export default function App() {
     window.location.hash = "";
     setLoggedIn(false);
     setAuthObject(emptyAuthObject);
-    setUserObject(emptyUserObject);
+    // TODO: does this empty out the user object as well?
     client.resetStore();
+  }
+
+  if (loading) return <p>Loading...</p>;
+  if (error) {
+    return (
+      <div className="p-6">
+        <h3>Something went wrong, please log out and try again</h3>
+        <p>Error :(</p>
+        {error.graphQLErrors.map((item) => (
+          <p key={item.name}>{item.message}</p>
+        ))}
+      </div>
+    );
   }
 
   return (
     <ApolloProvider client={client}>
       <AuthContext.Provider value={authObject}>
-        <Router>
-          <div>
-            {/* NOTE!
+        <UserContext.Provider value={data}>
+          <Router>
+            <div>
+              {/* NOTE!
         This works like a normal switch, so you have to put the specific routes the highest,
         and work your way down to least-specific */}
-            <Switch>
-              <PrivateRoute path="/org" pathNameRedirect="/">
-                <OrgTopLevel />
-              </PrivateRoute>
+              <Switch>
+                <PrivateRoute path="/org" pathNameRedirect="/">
+                  <OrgTopLevel />
+                </PrivateRoute>
 
-              <PrivateRoute path="/create-box" pathNameRedirect="/">
-                <CreateBox />
-              </PrivateRoute>
+                <PrivateRoute path="/create-box" pathNameRedirect="/">
+                  <CreateBox />
+                </PrivateRoute>
 
-              <PrivateRoute path="/edit-box" pathNameRedirect="/">
-                <h1>Coming soon...</h1>
-              </PrivateRoute>
+                <PrivateRoute path="/edit-box" pathNameRedirect="/">
+                  <h1>Coming soon...</h1>
+                </PrivateRoute>
 
-              <PrivateRoute path="/generateLabel" pathNameRedirect="/">
-                <PdfGenerator />
-              </PrivateRoute>
+                <PrivateRoute path="/generateLabel" pathNameRedirect="/">
+                  <PdfGenerator />
+                </PrivateRoute>
 
-              <PrivateRoute path="/pdf" pathNameRedirect="/">
-                <Labels />
-              </PrivateRoute>
+                <PrivateRoute path="/pdf" pathNameRedirect="/">
+                  <Labels />
+                </PrivateRoute>
 
-              <PrivateRoute path="/scan" pathNameRedirect="/">
-                <ScanBox />
-              </PrivateRoute>
-              <PrivateRoute path="/warehouse" pathNameRedirect="/">
-                <Placeholder />
-              </PrivateRoute>
-              <PrivateRoute path="/settings" pathNameRedirect="/">
-                <Placeholder />
-              </PrivateRoute>
-              <Route path="/">
-                <Home />
-              </Route>
-            </Switch>
-          </div>
-          {loggedIn ? (
-            // eslint-disable-next-line react/button-has-type
-            <button
-              onClick={() => handleLogOut()}
-              className="m-6 bg-gray-300 hover:bg-gray-500 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline"
-            >
-              Log Out
-            </button>
-          ) : (
-            <button
-              onClick={() => {
-                Auth0.login();
-              }}
-              className="m-6 bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline"
-              type="button"
-            >
-              Sign In
-            </button>
-          )}
-          <TabBar />
-        </Router>
+                <PrivateRoute path="/scan" pathNameRedirect="/">
+                  <ScanBox />
+                </PrivateRoute>
+                <PrivateRoute path="/warehouse" pathNameRedirect="/">
+                  <Placeholder />
+                </PrivateRoute>
+                <PrivateRoute path="/settings" pathNameRedirect="/">
+                  <Placeholder />
+                </PrivateRoute>
+                <Route path="/">
+                  <Home />
+                </Route>
+              </Switch>
+            </div>
+            {loggedIn ? (
+              // eslint-disable-next-line react/button-has-type
+              <button
+                onClick={() => handleLogOut()}
+                className="m-6 bg-gray-300 hover:bg-gray-500 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline"
+              >
+                Log Out
+              </button>
+            ) : (
+              <button
+                onClick={() => {
+                  Auth0.login();
+                }}
+                className="m-6 bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline"
+                type="button"
+              >
+                Sign In
+              </button>
+            )}
+            <TabBar />
+          </Router>
+        </UserContext.Provider>
       </AuthContext.Provider>
     </ApolloProvider>
   );
