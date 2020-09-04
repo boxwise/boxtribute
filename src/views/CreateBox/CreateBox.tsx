@@ -42,6 +42,7 @@ export default function CreateBox() {
           comments: comments || "",
           sizeId: Number(sizeId), // dropdown? comes from productId?
           qrBarcode,
+          createdBy: email,
         },
       });
       setNewBox(mutataionData.createBox);

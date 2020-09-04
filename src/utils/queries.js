@@ -8,6 +8,7 @@ mutation(
   $comments: String!
   $sizeId: Int
   $qrBarcode: String!
+  $createdBy: String!
 ) {
   createBox(
     input: {
@@ -17,6 +18,7 @@ mutation(
       location_id: $locationId
       comments: $comments
       qr_barcode: $qrBarcode
+      created_by: $createdBy
     }
   ) {
     id
