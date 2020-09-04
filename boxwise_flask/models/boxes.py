@@ -4,7 +4,7 @@ import time
 from datetime import date
 
 from ..db import db
-from .usergroup_base_access import UsergroupBaseAccess
+from .qr import Qrs
 
 
 class Boxes(db.Model):
@@ -30,11 +30,11 @@ class Boxes(db.Model):
     def create_box(box_creation_input):
 
         today = date.today()
-        qr_hash = box_creation_input.get('qr_id', None)
-        qr_from_table =  #lookup
+        qr_hash = box_creation_input.get('qr_barcode', None)
+        qr_from_table =  Qrs.get_qr(barcode)
 
         new_box = Stock.create(
-            # box_id=box_creation_input.get('box_id'),
+            # box_id primary
             product_id=box_creation_input.get('product_id', None), #lookup
             size_id=box_creation_input.get('size_id', None), #lookup
             items=box_creation_input.get('items', None),
@@ -42,10 +42,10 @@ class Boxes(db.Model):
             comments=box_creation_input.get('comments', None),
             # for now, this will store the hash if the ID is not available
             # We can store the ID once we can create new QR codes
-            qr_id=,
+            qr_id=qr_from_table
             created=today,
             # created_by=box_creation_input.get('created_by', None),
-            # box_state_id=box_creation_input.get('box_state_id', None)  #lookup
+            box_state_id= 1  #always 1 for create?
             )
         return new_box
 

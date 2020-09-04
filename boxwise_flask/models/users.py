@@ -27,10 +27,10 @@ class Users(db.Model):
     @staticmethod
     def get_user(email):
         user = Users.select().where(Users.email == email).get()
-        camps = UsergroupBaseAccess.get_base_id(user.cms_usergroups_id)
-        # camps is a peewee ModelSelect (so, many objects).
+        bases = UsergroupBaseAccess.get_base_id(user.cms_usergroups_id)
+        # bases is a peewee ModelSelect (so, many objects).
         # convert to dict 1 at a time,
-        # and pull the camp_id from that dict, and put in a list
-        user.camp_id = [model_to_dict(item)["camp_id"] for item in camps]
+        # and pull the base_id from that dict, and put in a list
+        user.base_id = [model_to_dict(item)["camp_id"] for item in bases]
 
         return user

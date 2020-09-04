@@ -10,7 +10,6 @@ from ariadne import (
 from .auth_helper import authorization_test
 from .models.bases import Bases
 from .models.users import Users
-# TODO
 from .models.boxes import Boxes
 from .type_defs import type_defs
 
@@ -62,6 +61,7 @@ def resolve_all_users(_, info):
     return list(response.dicts())
 
 
+# TODO get currrent user based on email in token
 @query.field("user")
 def resolve_user(_, info, email):
     response = Users.get_user(email)
