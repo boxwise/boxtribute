@@ -12,6 +12,9 @@ export default function CreateBox() {
   const authObject: AuthObjectType = React.useContext(AuthContext);
   const { email } = authObject.idTokenPayload;
 
+  // NOTE: getting the user will likely eventually have to be done in a more global-place,
+  // maybe App and make a context for it? If that happens, consider using useLazyQuery for it
+  // https://www.apollographql.com/docs/react/data/queries/#executing-queries-manually
   const { loading: queryLoading, error: queryError, data: queryData } = useQuery(USER, {
     variables: { email },
   });
@@ -22,6 +25,7 @@ export default function CreateBox() {
 
   const location: LocationState = useLocation();
   const qrUrl: string = location?.state?.qr || "I am fake";
+  const qrBarcode = qrUrl.split("barcode=")[1];
 
   const [newBox, setNewBox] = React.useState<NewBoxType>(emptyBox);
 
@@ -32,12 +36,12 @@ export default function CreateBox() {
     try {
       const { data: mutataionData } = await createBoxMutation({
         variables: {
-          productId: Number(productId), // dropdown
+          productId: Number(productId), // dropdown??
           items: Number(items),
-          locationId: Number(locationId), // dropdown
-          comments: comments || "", // default to an empty string
-          sizeId: Number(sizeId), // dropdown
-          qrId: Number(qrUrl),
+          locationId: Number(locationId),
+          comments: comments || "",
+          sizeId: Number(sizeId), // dropdown? comes from productId?
+          qrBarcode,
         },
       });
       setNewBox(mutataionData.createBox);
@@ -111,7 +115,7 @@ export default function CreateBox() {
           <input
             defaultValue=""
             className="border rounded"
-            ref={register({ required: true, maxLength: 20 })}
+            ref={register({ maxLength: 20 })}
             type="text"
             name="comments"
           />
