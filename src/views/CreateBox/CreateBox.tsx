@@ -27,7 +27,6 @@ export default function CreateBox() {
 
   const { register, handleSubmit } = useForm();
   const onSubmit = async (formFields) => {
-    console.log(formFields)
     const { productId, items, locationId, comments, sizeId } = formFields;
 
     try {
@@ -60,8 +59,6 @@ export default function CreateBox() {
       </div>
     );
   }
-
-  if (queryData) console.log("user queryData", queryData.user.base_id);
 
   return (
     <div className="flex flex-col">
