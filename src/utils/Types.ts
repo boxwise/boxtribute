@@ -26,14 +26,12 @@ export interface AuthObjectType {
 }
 
 export interface UserObjectType {
-  name: "";
-  email: "";
-  isAdmin: 0;
-  language: "english";
-  userGroupId: null;
-  validFirstDay: "";
-  validLastDay: "";
-  bases: [];
+  user: {
+    base_id: [number];
+    name: string;
+    usergroups_id: number | null;
+    __typename: string;
+  };
 }
 
 export interface NewBoxType {

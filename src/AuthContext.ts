@@ -1,5 +1,5 @@
 import React from "react"
-import { AuthObjectType } from "./Types"
+import { AuthObjectType } from "./utils/Types"
 
 const AuthContext = React.createContext<AuthObjectType>({
   accessToken: "",

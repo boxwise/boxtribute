@@ -1,9 +1,11 @@
 import React from "react";
-import UserContext from "../UserContext"
+import AuthContext from "../AuthContext"
+import { Link } from "react-router-dom";
+
 
 function Home() {
-  const userObject = React.useContext(UserContext)
-  const user = userObject.name
+  const authObject = React.useContext(AuthContext)
+  const user = authObject.idTokenPayload.name
   return (
     <div>
       <h2 className="w-screen flex justify-center p-2 bg-blue-500">
@@ -14,6 +16,7 @@ function Home() {
         <div className="p-6">
           <h4>find boxes</h4>
           <h4>orders</h4>
+          <Link to="create-box">create box</Link>
         </div>
       )}
     </div>

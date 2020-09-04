@@ -1,98 +1,37 @@
 import * as React from "react";
-import { useMutation } from "@apollo/react-hooks";
-import { gql } from "apollo-boost";
+import { useMutation, useQuery } from "@apollo/react-hooks";
 import { useForm } from "react-hook-form";
 import { useLocation } from "react-router-dom";
-import { NewBoxType, LocationState } from "../../Types";
+import AuthContext from "../../AuthContext";
+import { NewBoxType, LocationState, AuthObjectType } from "../../utils/Types";
+import { USER, CREATE_BOX } from "../../utils/queries";
+import { locationOptions } from "../../utils/locationOptions";
+import { emptyBox } from "../../utils/emptyBox";
 
 export default function CreateBox() {
-  const CREATE_BOX = gql`
-    mutation(
-      $boxId: Int!
-      $productId: Int!
-      $items: Int
-      $locationId: Int!
-      $comments: String!
-      $sizeId: Int!
-      $qrId: Int!
-      $boxStateId: Int!
-    ) {
-      createBox(
-        input: {
-          box_id: $boxId
-          product_id: $productId
-          size_id: $sizeId
-          items: $items
-          location_id: $locationId
-          comments: $comments
-          qr_id: $qrId
-          box_state_id: $boxStateId
-        }
-      ) {
-        id
-        box_id
-        product_id
-        items
-      }
-    }
-  `;
+  const authObject: AuthObjectType = React.useContext(AuthContext);
+  const { email } = authObject.idTokenPayload;
+
+  const { loading: queryLoading, error: queryError, data: queryData } = useQuery(USER, {
+    variables: { email },
+  });
 
   const [createBoxMutation, { loading: mutationLoading, error: mutationError }] = useMutation(
     CREATE_BOX,
   );
 
   const location: LocationState = useLocation();
-  const qrUrl: string = location.state.qr;
+  const qrUrl: string = location?.state?.qr || "I am fake";
 
-  const locationOptions = {
-    "Shop Lesvos": 1,
-    "LOST Lesvos": 2,
-    "SCRAP Lesvos": 3,
-    "Stockroom Lesvos": 4,
-    "WH Lesvos": 5,
-    "WH Women": 6,
-    "WH Men": 7,
-    "WH Children": 8,
-    "WH Babies": 9,
-    "WH Shoes": 10,
-    "WH New arrivals": 11,
-    "WH Hygiene": 12,
-    "WH Seasonal": 13,
-    "LOST Thessaloniki": 14,
-    "SCRAP Thessaloniki": 15,
-    "Stockroom Thessaloniki": 16,
-    WH1: 17,
-    WH2: 18,
-    "Shop Samos": 19,
-    "LOST Samos": 20,
-    "SCRAP Samos": 21,
-    "Stockroom Samos": 22,
-    TestShop: 100000000,
-    TestLOST: 100000001,
-    TestDonated: 100000002,
-    TestWarehouse: 100000003,
-    TestStockroom: 100000004,
-    TestDummyLocation: 100000005,
-    TestSCRAP: 100000006,
-  };
-
-  const [newBox, setNewBox] = React.useState<NewBoxType>({
-    box_id: null,
-    product_id: null,
-    size_id: null,
-    items: null,
-    location_id: null,
-    comments: "",
-    qr_id: null,
-    box_state_id: null,
-  });
+  const [newBox, setNewBox] = React.useState<NewBoxType>(emptyBox);
 
   const { register, handleSubmit } = useForm();
-  const onSubmit = async (data) => {
-    const { productId, items, locationId, comments, sizeId } = data;
+  const onSubmit = async (formFields) => {
+    console.log(formFields)
+    const { productId, items, locationId, comments, sizeId } = formFields;
 
     try {
-      const { data } = await createBoxMutation({
+      const { data: mutataionData } = await createBoxMutation({
         variables: {
           productId: Number(productId), // dropdown
           items: Number(items),
@@ -102,12 +41,27 @@ export default function CreateBox() {
           qrId: Number(qrUrl),
         },
       });
-      setNewBox(data.createBox);
+      setNewBox(mutataionData.createBox);
     } catch (e) {
       // TODO error handling
       console.log("fail", e);
     }
   };
+
+  if (queryLoading) return <p>Loading...</p>;
+  if (queryError) {
+    return (
+      <div className="p-6">
+        <h3>Something went wrong, please log out and try again</h3>
+        <p>Error :(</p>
+        {queryError.graphQLErrors.map((item) => (
+          <p key={item.name}>{item.message}</p>
+        ))}
+      </div>
+    );
+  }
+
+  if (queryData) console.log("user queryData", queryData.user.base_id);
 
   return (
     <div className="flex flex-col">
@@ -116,20 +70,13 @@ export default function CreateBox() {
       <form id="make-a-box" className="flex flex-col">
         <label className="p-2" htmlFor="locationId">
           locationId*
-          <select name="locationId" id="locationId">
-            {Object.keys(locationOptions).map((item) => (
-              <option key={item} value={locationOptions[item]}>
-                {item}
+          <select ref={register} name="locationId" id="locationId">
+            {queryData && queryData.user.base_id.map((item) => (
+              <option key={item} value={item}>
+                {locationOptions[item]}
               </option>
             ))}
           </select>
-          {/* <input
-            defaultValue={2}
-            className="border rounded"
-            ref={register({ required: true, maxLength: 20 })}
-            type="number"
-            name="locationId"
-          /> */}
         </label>
 
         <label className="p-2" htmlFor="productId">
@@ -176,7 +123,7 @@ export default function CreateBox() {
       <button
         type="submit"
         className="border bg-blue-400 rounded w-64"
-        onClick={handleSubmit((d) => onSubmit(d))}
+        onClick={handleSubmit((formFields) => onSubmit(formFields))}
       >
         do the mutation
       </button>
