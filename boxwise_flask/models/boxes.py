@@ -3,12 +3,9 @@ from playhouse.shortcuts import model_to_dict
 import time
 from datetime import date
 import uuid
-from flask import Flask
-
 from ..db import db
 from .qr import Qrs
 
-app = Flask(__name__)
 
 class Boxes(db.Model):
     class Meta:
@@ -37,7 +34,7 @@ class Boxes(db.Model):
         qr_from_table =  Qrs.get_qr(barcode)
         box_uuid=uuid.uuid4()
         box_short_uuid = str(box_uuid)[:11] #the table is truncating a full uuid to 11 chars, so do it preemptively
-        app.logger.warn(box_short_uuid)
+
         new_box = Boxes.create(
             box_id=box_short_uuid, #surprisingly not primary key, unique non-sequential identifier for a box
             product_id=box_creation_input.get('product_id', None), #will become a fancy dropdown on the FE
