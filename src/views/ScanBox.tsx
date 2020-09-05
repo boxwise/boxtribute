@@ -18,6 +18,7 @@ function ScanBox() {
                 qr: data,
               },
             }}
+            className="m-1 bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline"
           >
             {next}
           </Link>
@@ -56,21 +57,25 @@ function ScanBox() {
 
   return (
     <div>
-      <h2>Scan a box now:</h2>
-      <button
-        onClick={() => setNext("create-box")}
-        type="button"
-        className={`border p-4 rounded ${next === "create-box" ? "bg-blue-500" : ""}`}
-      >
-        Make a new box
-      </button>
-      <button
-        onClick={() => setNext("edit-box")}
-        type="button"
-        className={`border p-4 rounded ${next === "edit-box" ? "bg-blue-500" : ""}`}
-      >
-        Move or modify an existing box
-      </button>
+      {!data && (
+        <div>
+          <h2>Scan a box now:</h2>
+          <button
+            onClick={() => setNext("create-box")}
+            type="button"
+            className={`border p-4 rounded ${next === "create-box" ? "bg-blue-500" : ""}`}
+          >
+            Make a new box
+          </button>
+          <button
+            onClick={() => setNext("edit-box")}
+            type="button"
+            className={`border p-4 rounded ${next === "edit-box" ? "bg-blue-500" : ""}`}
+          >
+            Move or modify an existing box
+          </button>
+        </div>
+      )}
       {displayReader()}
 
       <Link
