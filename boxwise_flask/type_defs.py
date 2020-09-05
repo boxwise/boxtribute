@@ -41,7 +41,7 @@ type_defs = gql(
         location_id: String
         comments: String
         qr_id: String
-        created: String
+        created: Datetime
         created_by: String
         box_state_id: String
     }
