@@ -1,10 +1,9 @@
 from peewee import CharField, IntegerField
-from playhouse.shortcuts import model_to_dict
 
 from ..db import db
 
 
-class Qrs(db.Model):
+class Qr(db.Model):
     id = IntegerField()
     code = CharField()
 
@@ -16,6 +15,6 @@ class Qrs(db.Model):
 
     @staticmethod
     def get_qr(barcode):
-        qr = Qrs.select().where(Qrs.code == barcode).get()
+        qr = Qr.select().where(Qr.code == barcode).get()
 
         return qr

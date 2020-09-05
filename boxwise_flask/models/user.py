@@ -5,10 +5,10 @@ from ..db import db
 from .usergroup_base_access import UsergroupBaseAccess
 
 
-class Users(db.Model):
+class User(db.Model):
     name = CharField(column_name="naam")
     email = CharField()
-    cms_usergroups_id = CharField()
+    usergroup_id = CharField(column_name="cms_usergroups_id")
     valid_firstday = DateField()
     valid_lastday = DateField()
     lastlogin = DateTimeField()
@@ -22,15 +22,15 @@ class Users(db.Model):
 
     @staticmethod
     def get_all_users():
-        return Users.select().order_by(Users.name)
+        return User.select().order_by(User.name)
 
     @staticmethod
     def get_user(email):
-        user = Users.select().where(Users.email == email).get()
-        bases = UsergroupBaseAccess.get_base_id(user.cms_usergroups_id)
+        user = User.select().where(User.email == email).get()
+        bases = UsergroupBaseAccess.get_base_id(user.usergroup_id)
         # bases is a peewee ModelSelect (so, many objects).
         # convert to dict 1 at a time,
         # and pull the base_id from that dict, and put in a list
-        user.base_id = [model_to_dict(item)["camp_id"] for item in bases]
+        user.base_id = [model_to_dict(item)["base_id"] for item in bases]
 
         return user

@@ -7,7 +7,7 @@ from flask import _request_ctx_stack, request
 from jose import jwt
 from six.moves.urllib.request import urlopen
 
-from .models.users import Users
+from .models.user import User
 
 AUTH0_DOMAIN = os.getenv("AUTH0_DOMAIN")
 API_AUDIENCE = os.getenv("AUTH0_AUDIENCE")
@@ -145,7 +145,7 @@ def authorization_test(test_for, **kwargs):
         # but it DOES have to be in this form to work with the Auth0 rule providing it.
         payload = decode_jwt(token, rsa_key)
         email = payload["https://www.boxtribute.com/email"]
-        requesting_user = Users.get_user(email)
+        requesting_user = User.get_user(email)
 
         if test_for == "bases":
             allowed_access = test_base(requesting_user, kwargs["base_id"])
