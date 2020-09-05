@@ -11,7 +11,7 @@ mutation(
   $createdBy: String!
 ) {
   createBox(
-    input: {
+    box_creation_input: {
       product_id: $productId
       size_id: $sizeId
       items: $items

@@ -24,7 +24,7 @@ export default function CreateBox() {
   );
 
   const location: LocationState = useLocation();
-  const qrUrl: string = location?.state?.qr || "I am fake";
+  const qrUrl: string = location?.state?.qr || "barcode=I am fake";
   const qrBarcode = qrUrl.split("barcode=")[1];
 
   const [newBox, setNewBox] = React.useState<NewBoxType>(emptyBox);
@@ -45,6 +45,7 @@ export default function CreateBox() {
           createdBy: email,
         },
       });
+
       setNewBox(mutataionData.createBox);
     } catch (e) {
       // TODO error handling
