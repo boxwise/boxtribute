@@ -55,7 +55,7 @@ type_defs = gql(
         comments: String!
         qr_barcode: String! #this will get looked up to turn into qr_id, which is a foreign key
         created: Datetime #this is an output, but not an input
-        created_by: String!
+        created_by: String #this is null in the table consistently
         box_state_id: Int  #this is an output, but not an input
     }
 

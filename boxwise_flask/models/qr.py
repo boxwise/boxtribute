@@ -9,10 +9,10 @@ class Qrs(db.Model):
     code = CharField()
 
     class Meta:
-        table_name = "cms_users"
+        table_name = "qr"
 
     def __str__(self):
-        return self.id, self.code
+        return self.id
 
     @staticmethod
     def get_qr(barcode):
