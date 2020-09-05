@@ -12,7 +12,7 @@ type_defs = gql(
         user(email: String): User
     }
     type Mutation {
-        createBox(input:CreateBoxInput):Box
+        createBox(box_creation_input:CreateBoxInput):Box
     }
     type Base {
         id: Int
@@ -49,14 +49,14 @@ type_defs = gql(
     input CreateBoxInput {
         box_id: Int #this is an output, but not an input
         product_id: Int! #this is a foreign key
-        size_id: Int! #this is a foreign key
+        size_id: Int #this is a foreign key
         items: Int
         location_id: Int! #this is a foreign key
         comments: String!
         qr_barcode: String! #this will get looked up to turn into qr_id, which is a foreign key
         created: Datetime #this is an output, but not an input
-        created_by: Int #this is an output, but not an input
-        box_state_id: Int!  #this is an output, but not an input
+        created_by: String!
+        box_state_id: Int  #this is an output, but not an input
     }
 
     scalar Datetime

@@ -31,7 +31,7 @@ class Boxes(db.Model):
     def create_box(box_creation_input):
 
         today = date.today()
-        qr_hash = box_creation_input.get('qr_barcode', None)
+        barcode = box_creation_input.get('qr_barcode', None)
         qr_from_table =  Qrs.get_qr(barcode)
 
         user_email = User.get
@@ -43,10 +43,10 @@ class Boxes(db.Model):
             items=box_creation_input.get('items', None),
             location_id=box_creation_input.get('location_id', None), #based on the user's allowed bases
             comments=box_creation_input.get('comments', None),
-            qr_id=qr_from_table
+            qr_id=qr_from_table,
             created=today,
             created_by=box_creation_input.get('created_by', None),
-            box_state_id= 1  #always 1 for create?
+            box_state_id= 1,  #always 1 for create?
             )
         return new_box
 
