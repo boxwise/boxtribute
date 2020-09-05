@@ -1,3 +1,3 @@
-import CreateBox from './CreateBox';
+import CreateBox from "./CreateBox";
 
 export default CreateBox;

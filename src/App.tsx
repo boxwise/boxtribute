@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import { BrowserRouter as Router, Switch, Route } from "react-router-dom";
 import { ApolloProvider } from "@apollo/react-hooks";
 import ApolloClient from "apollo-boost";
+import { Button } from "semantic-ui-react";
 import PrivateRoute from "./PrivateRoute";
 import Auth0 from "./Auth0";
 import Home from "./views/Home";
@@ -10,39 +11,16 @@ import PdfGenerator from "./views/Labels/PdfGenerator";
 import Labels from "./views/Labels/Labels";
 import AuthContext from "./AuthContext";
 import TabBar from "./views/TabBar";
+import Menu from "./views/NavMenu";
 import Placeholder from "./views/Placeholder";
 import ScanBox from "./views/ScanBox";
 import CreateBox from "./views/CreateBox";
 import { AuthObjectType } from "./utils/Types";
+import { emptyAuthObject } from "./utils/emptyAuthObject";
+import "semantic-ui-less/semantic.less";
+import "./App.css";
 
 const { REACT_APP_GRAPHQL_SERVER } = process.env;
-
-const emptyAuthObject: AuthObjectType = {
-  accessToken: "",
-  idToken: "",
-  idTokenPayload: {
-    at_hash: "",
-    aud: "",
-    email: "",
-    email_verified: false,
-    exp: null,
-    iat: null,
-    iss: "",
-    name: "",
-    nickname: "",
-    nonce: "",
-    picture: "",
-    sub: "",
-    updated_at: "",
-  },
-  appState: null,
-  refreshToken: null,
-  state: "",
-  expiresIn: null,
-  //   this won't change
-  tokenType: "Bearer",
-  scope: "",
-};
 
 export default function App() {
   const [loggedIn, setLoggedIn] = useState(false);
@@ -68,9 +46,6 @@ export default function App() {
         console.log("access token for the graphQL playground:", authTokens);
         setAuthObject(authTokens);
         authTokens ? setLoggedIn(true) : setLoggedIn(false);
-        // TODO
-        // once the user is logged in, retrieve the user information
-        // then set the user info to give it to the context
       })
       .catch((err) => {
         // TODO: better logging and error handling
@@ -95,6 +70,7 @@ export default function App() {
       <AuthContext.Provider value={authObject}>
         <Router>
           <div>
+            <Menu />
             {/* NOTE!
         This works like a normal switch, so you have to put the specific routes the highest,
         and work your way down to least-specific */}
@@ -111,7 +87,7 @@ export default function App() {
                 <h1>Coming soon...</h1>
               </PrivateRoute>
 
-              <PrivateRoute path="/generateLabel" pathNameRedirect="/">
+              <PrivateRoute path="/generateLabel/:num" pathNameRedirect="/">
                 <PdfGenerator />
               </PrivateRoute>
 
@@ -135,22 +111,18 @@ export default function App() {
           </div>
           {loggedIn ? (
             // eslint-disable-next-line react/button-has-type
-            <button
-              onClick={() => handleLogOut()}
-              className="m-6 bg-gray-300 hover:bg-gray-500 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline"
-            >
+            <Button className="brandBlueButton" onClick={() => handleLogOut()}>
               Log Out
-            </button>
+            </Button>
           ) : (
-            <button
+            <Button
+              className="brandBlueButton"
               onClick={() => {
                 Auth0.login();
               }}
-              className="m-6 bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline"
-              type="button"
             >
               Sign In
-            </button>
+            </Button>
           )}
           <TabBar />
         </Router>

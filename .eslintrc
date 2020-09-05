@@ -25,6 +25,7 @@
     // should be turned on eventually, but not compatible with current codebase
     "no-shadow": "off",
     "object-curly-newline":"off",
+    "no-console":"warn",
     // matter of preference (allows to use props.propName instead of deconstructing props first)
     "react/destructuring-assignment": "off",
     "@typescript-eslint/explicit-function-return-type": "off",

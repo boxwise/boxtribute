@@ -24,6 +24,7 @@
     "node-sass": "^4.14.1",
     "postcss-cli": "^7.1.0",
     "prop-types": "^15.7.2",
+    "qrcode.react": "^1.0.0",
     "react": "^16.12.0",
     "react-dom": "^16.12.0",
     "react-hook-form": "^6.3.0",
@@ -32,16 +33,16 @@
     "react-router-dom": "^5.1.2",
     "react-scripts": "^3.4.0",
     "react-widgets": "^5.0.0-beta.16",
-    "tailwind": "^4.0.0",
-    "tailwindcss": "^1.2.0"
+    "semantic-ui-react": "^0.88.2"
   },
   "scripts": {
-    "build:style": "tailwind build src/styles/index.css -o src/styles/tailwind.css",
-    "start": "npm run build:style && react-scripts start",
+    "start": "npm run build && craco start",
     "build": "react-scripts build",
     "test": "react-scripts test",
     "eject": "react-scripts eject",
-    "lint": "eslint . --fix"
+    "lint": "eslint . --fix",
+    "format:check": "prettier --check \"src/**/*.{js,jsx,json,scss,md,ts,tsx}\"",
+    "format:write": "prettier --write \"src/**/*.{js,jsx,json,scss,md,ts,tsx}\""
   },
   "eslintConfig": {
     "extends": "react-app"
@@ -59,6 +60,8 @@
     ]
   },
   "devDependencies": {
+    "@craco/craco": "^5.6.4",
+    "@semantic-ui-react/craco-less": "^1.2.1",
     "@types/react-router-dom": "^5.1.5",
     "eslint-config-airbnb": "^18.1.0",
     "eslint-config-prettier": "^6.11.0",
@@ -69,6 +72,17 @@
     "husky": "^4.2.5",
     "lint-staged": "^10.2.2",
     "prettier": "^2.0.5",
+    "semantic-ui-less": "^2.4.1",
     "typescript": "^3.9.5"
+  },
+  "husky": {
+    "hooks": {
+      "pre-commit": "lint-staged"
+    }
+  },
+  "lint-staged": {
+    "src/**/*.{js,jsx,json,scss,md,ts,tsx}": [
+      "yarn run format:check"
+    ]
   }
 }
