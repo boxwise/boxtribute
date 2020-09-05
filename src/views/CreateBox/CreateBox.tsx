@@ -1,7 +1,7 @@
 import * as React from "react";
 import { useMutation, useQuery } from "@apollo/react-hooks";
 import { useForm } from "react-hook-form";
-import { useLocation } from "react-router-dom";
+import { useLocation, Link } from "react-router-dom";
 import AuthContext from "../../AuthContext";
 import { NewBoxType, LocationState, AuthObjectType } from "../../utils/Types";
 import { USER, CREATE_BOX } from "../../utils/queries";
@@ -25,7 +25,9 @@ export default function CreateBox() {
 
   const location: LocationState = useLocation();
   const qrUrl: string = location?.state?.qr;
+  // FOR TESTING
   const qrBarcode = qrUrl.split("barcode=")[1];
+  // const qrBarcode = "e1fdfdd942db0e764c9bea06c03ba2b";
 
   const [newBox, setNewBox] = React.useState<NewBoxType>(emptyBox);
 
@@ -45,7 +47,7 @@ export default function CreateBox() {
         },
       });
 
-      console.log(mutationData)
+      console.log(mutationData);
       setNewBox(mutationData.createBox);
     } catch (e) {
       // TODO error handling
@@ -144,6 +146,14 @@ export default function CreateBox() {
       )}
       {mutationLoading && <p>Loading...</p>}
       {mutationError && <p>Error :( Please try again</p>}
+
+      <Link
+        to="/"
+        className="m-1 leading-loose bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline"
+        type="button"
+      >
+        Go Home
+      </Link>
     </div>
   );
 }

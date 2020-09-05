@@ -8,7 +8,7 @@ function ScanBox() {
   const [qrError, setQrError] = useState("");
 
   const displayReader = () => {
-    if (data) {
+    if (data && next) {
       return (
         <div>
           <Link
@@ -57,9 +57,9 @@ function ScanBox() {
 
   return (
     <div>
-      {!data && (
+      <h2>Scan a box now:</h2>
+      {!next && (
         <div>
-          <h2>Scan a box now:</h2>
           <button
             onClick={() => setNext("create-box")}
             type="button"
