@@ -44,20 +44,8 @@ const emptyAuthObject: AuthObjectType = {
   scope: "",
 };
 
-// const emptyUserObject: UserObjectType = {
-//   name: "",
-//   email: "",
-//   isAdmin: 0,
-//   language: "english",
-//   userGroupId: null,
-//   validFirstDay: "",
-//   validLastDay: "",
-//   bases: [],
-// };
-
 export default function App() {
   const [loggedIn, setLoggedIn] = useState(false);
-  // const [userObject, setUserObject] = useState<UserObjectType>(emptyUserObject);
   const [authObject, setAuthObject] = useState<AuthObjectType>(emptyAuthObject);
 
   const client = new ApolloClient({
@@ -99,7 +87,6 @@ export default function App() {
     window.location.hash = "";
     setLoggedIn(false);
     setAuthObject(emptyAuthObject);
-    // TODO: does this empty out the user object as well?
     client.resetStore();
   }
 

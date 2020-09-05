@@ -47,7 +47,6 @@ export default function CreateBox() {
         },
       });
 
-      console.log(mutationData);
       setNewBox(mutationData.createBox);
     } catch (e) {
       // TODO error handling
