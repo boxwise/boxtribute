@@ -1,7 +1,5 @@
 import React from "react";
 import AuthContext from "../AuthContext"
-import { Link } from "react-router-dom";
-
 
 function Home() {
   const authObject = React.useContext(AuthContext)
@@ -16,7 +14,6 @@ function Home() {
         <div className="p-6">
           <h4>find boxes</h4>
           <h4>orders</h4>
-          <Link to="create-box">create box</Link>
         </div>
       )}
     </div>

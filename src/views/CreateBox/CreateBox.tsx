@@ -24,7 +24,7 @@ export default function CreateBox() {
   );
 
   const location: LocationState = useLocation();
-  const qrUrl: string = location?.state?.qr || "barcode=I am fake";
+  const qrUrl: string = location?.state?.qr;
   const qrBarcode = qrUrl.split("barcode=")[1];
 
   const [newBox, setNewBox] = React.useState<NewBoxType>(emptyBox);
@@ -34,7 +34,7 @@ export default function CreateBox() {
     const { productId, items, locationId, comments, sizeId } = formFields;
 
     try {
-      const { data: mutataionData } = await createBoxMutation({
+      const { data: mutationData } = await createBoxMutation({
         variables: {
           productId: Number(productId), // dropdown??
           items: Number(items),
@@ -42,11 +42,11 @@ export default function CreateBox() {
           comments: comments || "",
           sizeId: Number(sizeId), // dropdown? comes from productId?
           qrBarcode,
-          createdBy: email,
         },
       });
 
-      setNewBox(mutataionData.createBox);
+      console.log(mutationData)
+      setNewBox(mutationData.createBox);
     } catch (e) {
       // TODO error handling
       console.log("fail", e);
@@ -69,67 +69,79 @@ export default function CreateBox() {
   return (
     <div className="flex flex-col">
       <h2>Create a Box</h2>
-      {newBox && <h1> You created a new box!</h1>}
-      <form id="make-a-box" className="flex flex-col">
-        <label className="p-2" htmlFor="locationId">
-          locationId*
-          <select ref={register} name="locationId" id="locationId">
-            {queryData && queryData.user.base_id.map((item) => (
-              <option key={item} value={item}>
-                {locationOptions[item]}
-              </option>
-            ))}
-          </select>
-        </label>
+      {newBox.box_id && (
+        <div>
+          <h1> You created a new box!</h1>
+          <h1>The Box ID is: {newBox.box_id}</h1>
+          <h1>Please write that on the top of the label.</h1>
+          <h1>Scan another QR code to create another.</h1>
+        </div>
+      )}
+      {!newBox.box_id && (
+        <div>
+          <form id="make-a-box" className="flex flex-col">
+            <label className="p-2" htmlFor="locationId">
+              locationId*
+              <select ref={register} name="locationId" id="locationId">
+                {queryData &&
+                  queryData.user.base_id.map((item) => (
+                    <option key={item} value={item}>
+                      {locationOptions[item]}
+                    </option>
+                  ))}
+              </select>
+            </label>
 
-        <label className="p-2" htmlFor="productId">
-          productId*
-          <input
-            defaultValue={2}
-            className="border rounded"
-            ref={register({ required: true, maxLength: 20 })}
-            type="number"
-            name="productId"
-          />
-        </label>
-        <label className="p-2" htmlFor="items">
-          items*
-          <input
-            defaultValue={2}
-            className="border rounded"
-            ref={register({ required: true, maxLength: 20 })}
-            type="number"
-            name="items"
-          />
-        </label>
-        <label className="p-2" htmlFor="sizeId">
-          sizeId*
-          <input
-            defaultValue={2}
-            className="border rounded"
-            ref={register({ required: true, maxLength: 20 })}
-            type="number"
-            name="sizeId"
-          />
-        </label>
-        <label className="p-2" htmlFor="comments">
-          comments*
-          <input
-            defaultValue=""
-            className="border rounded"
-            ref={register({ maxLength: 20 })}
-            type="text"
-            name="comments"
-          />
-        </label>
-      </form>
-      <button
-        type="submit"
-        className="border bg-blue-400 rounded w-64"
-        onClick={handleSubmit((formFields) => onSubmit(formFields))}
-      >
-        do the mutation
-      </button>
+            <label className="p-2" htmlFor="productId">
+              productId*
+              <input
+                defaultValue={2}
+                className="border rounded"
+                ref={register({ required: true, maxLength: 20 })}
+                type="number"
+                name="productId"
+              />
+            </label>
+            <label className="p-2" htmlFor="items">
+              items*
+              <input
+                defaultValue={2}
+                className="border rounded"
+                ref={register({ required: true, maxLength: 20 })}
+                type="number"
+                name="items"
+              />
+            </label>
+            <label className="p-2" htmlFor="sizeId">
+              sizeId*
+              <input
+                defaultValue={2}
+                className="border rounded"
+                ref={register({ required: true, maxLength: 20 })}
+                type="number"
+                name="sizeId"
+              />
+            </label>
+            <label className="p-2" htmlFor="comments">
+              comments*
+              <input
+                defaultValue=""
+                className="border rounded"
+                ref={register({ maxLength: 20 })}
+                type="text"
+                name="comments"
+              />
+            </label>
+          </form>
+          <button
+            type="submit"
+            className="border bg-blue-400 rounded w-64"
+            onClick={handleSubmit((formFields) => onSubmit(formFields))}
+          >
+            do the mutation
+          </button>
+        </div>
+      )}
       {mutationLoading && <p>Loading...</p>}
       {mutationError && <p>Error :( Please try again</p>}
     </div>
