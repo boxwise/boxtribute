@@ -3,12 +3,22 @@ orbs:
   gcp-cli: circleci/gcp-cli@1.8.4
   slack: circleci/slack@3.4.2
 jobs:
+  checkout-to-workspace:
+    docker:
+      - image: circleci/python:3.8-buster-node
+    steps:
+      - checkout
+      - persist_to_workspace:
+          root: .
+          paths:
+            - .
   build-flask:
     docker:
       - image: circleci/python:3.8-buster
     working_directory: ~/flask
     steps:
-      - checkout
+      - attach_workspace:
+          at: ~/
       # Restore cached dependencies
       - restore_cache:
           key: flask-deps-{{ checksum "requirements.txt" }}
@@ -25,20 +35,17 @@ jobs:
             - env
       # save build to a CircleCI workspace
       - persist_to_workspace:
-          root: ~/flask
+          root: ~/
           paths:
-            - .
+            - flask/*
 
   build-react:
     docker:
       - image: circleci/python:3.8-buster-node
     working_directory: ~/react
     steps:
-      - run:
-          name: Clone React Repo
-          command: |
-            cd ..
-            git clone --branch master https://github.com/boxwise/boxwise-react.git react
+      - attach_workspace:
+          at: ~/
       - run:
           name: Generate .env File
           command: |
@@ -50,7 +57,7 @@ jobs:
               REACT_APP_LOGOUT_URL=${REACT_APP_LOGOUT_URL}
               REACT_APP_GRAPHQL_SERVER=${REACT_APP_GRAPHQL_SERVER}" > .env
       - run:
-          name: Set hompage in package.json
+          name: Set homepage in package.json
           command: |
             sed -i 's|"homepage": "http://localhost:3000/"|"homepage": "https://'$URL'/mobile"|' package.json
       # following https://circleci.com/docs/2.0/yarn/
@@ -70,12 +77,11 @@ jobs:
           name: Build React App
           command: |
             yarn build
-            mv build react-build
       # Add build to workspace
       - persist_to_workspace:
-          root: ~/react
+          root: ~/
           paths:
-            - react-build
+            - react/build
 
   # following https://circleci.com/docs/2.0/project-walkthrough/
   test-flask:
@@ -85,7 +91,7 @@ jobs:
     steps:
       # Attach workspace from build
       - attach_workspace:
-          at: .
+          at: ~/
       # - restore_cache:
       #     key: flask-dev-deps-{{ checksum "requirements-dev.txt" }}
       - run:
@@ -122,9 +128,12 @@ jobs:
     steps:
       # Attach workspace from build
       - attach_workspace:
-          at: .
+          at: ~/
       # install gcloud orb
       - gcp-cli/install
+      - run:
+          name: Copy react build into flask app for deployment
+          command: mv ../react/build react-build
       - run:
           name: Create version.txt
           command: |
@@ -159,74 +168,19 @@ jobs:
       - slack/notify-on-failure:
         only_for_branches: master,production
 
-
 workflows:
   build-and-deploy:
     jobs:
-    - build-flask
-
-    - test-flask:
-        requires:
-          - build-flask
-
-    - build-react:
-        name: build-react-for-staging
-        context: STAGING
-        filters:
-          branches:
-            only: master
-
-    # deploy to staging
-    - deploy:
-        name: deploy-staging
-        context: STAGING
-        serviceName: api-staging
-        requires:
-          - test-flask
-          - build-react-for-staging
-        filters:
-          branches:
-            only: master
-
-    # deploy to demo
-    - deploy:
-        name: deploy-demo
-        context: DEMO
-        serviceName: api-demo
-        filters:
-          branches:
-            only: production
-
-    # deploy to production
-    - deploy:
-        name: deploy-production
-        context: PRODUCTION
-        serviceName: api-production
-        filters:
-          branches:
-            only: production
-  # nightly workflow to deploy master from React each night
-  nightly:
-    triggers:
-      - schedule:
-          cron: "0 5 * * *"
-          filters:
-            branches:
-              only:
-                - master
-    jobs:
-      - build-flask
-
+      - checkout-to-workspace
+      - build-flask:
+          requires:
+            - checkout-to-workspace
       - test-flask:
           requires:
             - build-flask
-
       - build-react:
-          name: build-react-for-staging
-          context: STAGING
-          filters:
-            branches:
-              only: master
+          requires:
+            - checkout-to-workspace
 
       # deploy to staging
       - deploy:
@@ -235,7 +189,25 @@ workflows:
           serviceName: api-staging
           requires:
             - test-flask
-            - build-react-for-staging
+            - build-react
           filters:
             branches:
               only: master
+
+      # deploy to demo
+      - deploy:
+          name: deploy-demo
+          context: DEMO
+          serviceName: api-demo
+          filters:
+            branches:
+              only: production
+
+      # deploy to production
+      - deploy:
+          name: deploy-production
+          context: PRODUCTION
+          serviceName: api-production
+          filters:
+            branches:
+              only: production
