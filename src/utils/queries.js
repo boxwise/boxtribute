@@ -32,7 +32,7 @@ export const USER = gql`
     user(email: $email) {
       base_id
       name
-      usergroups_id
+      usergroup_id
     }
   }
 `;
