@@ -39,19 +39,19 @@ type_defs = gql(
     type Box {
         id: Int
         box_id: String!
-        product_id: String
-        size_id: String
+        product_id: Int
+        size_id: Int
         items: String
-        location_id: String
+        location_id: Int
         comments: String
-        qr_id: String
+        qr_id: Int
         created: Datetime
         created_by: String
-        box_state_id: String
+        box_state_id: Int
     }
 
     input CreateBoxInput {
-        box_id: Int #this is an output, but not an input
+        box_id: String #this is an output, but not an input
         product_id: Int! #this is a foreign key
         size_id: Int #this is a foreign key
         items: Int
