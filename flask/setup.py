@@ -5,7 +5,6 @@ with open("requirements.txt") as f:
 
 setup(
     name="boxwise-flask",
-    use_scm_version={"root": ".."},
     description="""Boxwise is a web application that makes it easy for
     organisations to source, store and distribute donated goods to people in
     need in a fair and dignified way.""",
@@ -14,6 +13,5 @@ setup(
     author_email="hello@boxwise.co",
     license="Apache 2.0",
     packages=find_packages(exclude=["test"]),
-    setup_requires=["setuptools_scm"],
     install_requires=REQUIREMENTS,
 )
