@@ -154,6 +154,9 @@ jobs:
           name: Generate GAE app.yaml file
           command: |
             sed 's/service: api-staging/service: << parameters.serviceName >>/g' app.yaml > app-<< parameters.serviceName >>.yaml
+      - store_artifacts:
+          name: store copy of deployment artifacts
+          path: ~/flask
       - run:
           name: Authenticate the gcloud orb
           command: |
