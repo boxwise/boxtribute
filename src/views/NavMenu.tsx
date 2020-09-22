@@ -1,5 +1,5 @@
-import React, { useEffect } from "react";
-import { Icon, Menu, Dropdown, Progress, MenuItem } from "semantic-ui-react";
+import React from "react";
+import { Icon, Menu, Dropdown } from "semantic-ui-react";
 import Logo from "../Assets/images/BoxtributeMainLogo-03.png";
 
 export default function NavMenu() {
@@ -27,7 +27,7 @@ export default function NavMenu() {
   return (
     <Menu borderless>
       <Menu.Item position="left">
-        <img src={Logo} />
+        <img src={Logo} alt="Logo" />
       </Menu.Item>
       <Menu.Item width={12}>
         <Dropdown
