@@ -203,4 +203,4 @@ To figure out the gateway of the docker network `backend` run
 You can choose one of the two and specify the credentials in the `.env`-file.
 
 ## License
-See the LICENSE file for license rights and limitations (Apache 2.0).
+See the [LICENSE](license.md) for license rights and limitations (Apache 2.0).
