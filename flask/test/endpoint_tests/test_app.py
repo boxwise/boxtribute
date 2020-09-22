@@ -1,8 +1,3 @@
-def test_index(client):
-    """Verify valid app setup by getting the landing page."""
-    rv = client.get("/")
-    assert b"This is a landing page" == rv.data
-
 
 def test_private_endpoint(client):
     """example test for private endpoint"""

@@ -12,32 +12,17 @@ from .resolvers import schema
 # Blueprint to serve React on production
 frontend_bp = Blueprint(
     "frontend_bp",
-    __name__,
-    static_folder=os.getenv("FLASK_STATIC_FOLDER", "static"),
-    static_url_path=os.getenv("FLASK_STATIC_URL_PATH", "/static"),
+    __name__
 )
-
-
-@frontend_bp.route("/mobile")
-def index():
-    return frontend_bp.send_static_file("index.html")
-
 
 # Blueprint for API
 api_bp = Blueprint("api_bp", __name__)
-
 
 @api_bp.errorhandler(AuthError)
 def handle_auth_error(ex):
     response = jsonify(ex.error)
     response.status_code = ex.status_code
     return response
-
-
-@api_bp.route("/")
-def HELLO():
-    return "This is a landing page"
-
 
 # This doesn't need authentication
 @api_bp.route("/api/public", methods=["GET"])

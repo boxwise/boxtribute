@@ -2,6 +2,11 @@ runtime: python38
 service: api-staging
 entrypoint: gunicorn -b :$PORT boxwise_flask.main:app
 handlers:
+# this seems a bit weird (I'd expect us to serve from root),
+# but preserving existing behaviour for now
+- url: /mobile
+  secure: always
+  static_dir: react-build/
 - url: .*
   script: auto
   secure: always
