@@ -153,7 +153,7 @@ jobs:
       - run:
           name: Generate GAE app.yaml file
           command: |
-            sed 's/service: api-staging/service: << parameters.serviceName >>/g' app.yaml > app-<< parameters.serviceName >>.yaml
+            sed 's/service: v2-staging/service: << parameters.serviceName >>/g' app.yaml > app-<< parameters.serviceName >>.yaml
       - store_artifacts:
           name: store copy of deployment artifacts
           path: ~/flask
@@ -187,7 +187,7 @@ workflows:
       - deploy:
           name: deploy-staging
           context: STAGING
-          serviceName: api-staging
+          serviceName: v2-staging
           requires:
             - test-flask
             - build-react
@@ -199,7 +199,7 @@ workflows:
       - deploy:
           name: deploy-demo
           context: DEMO
-          serviceName: api-demo
+          serviceName: v2-demo
           filters:
             branches:
               only: production
@@ -208,7 +208,7 @@ workflows:
       - deploy:
           name: deploy-production
           context: PRODUCTION
-          serviceName: api-production
+          serviceName: v2-production
           filters:
             branches:
               only: production
