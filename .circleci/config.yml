@@ -204,6 +204,9 @@ workflows:
           name: deploy-demo
           context: DEMO
           serviceName: v2-demo
+          requires:
+            - test-flask
+            - build-react
           filters:
             branches:
               only: production
@@ -213,6 +216,9 @@ workflows:
           name: deploy-production
           context: PRODUCTION
           serviceName: v2-production
+          requires:
+            - test-flask
+            - build-react
           filters:
             branches:
               only: production
