@@ -2,7 +2,7 @@
 from flask import Flask
 from flask_cors import CORS
 
-from .routes import api_bp, frontend_bp
+from .routes import api_bp
 
 
 def create_app():
@@ -11,6 +11,5 @@ def create_app():
 
     CORS(app)
 
-    app.register_blueprint(frontend_bp)
     app.register_blueprint(api_bp)
     return app

@@ -2,9 +2,21 @@ runtime: python38
 service: v2-staging
 entrypoint: gunicorn -b :$PORT boxwise_flask.main:app
 handlers:
-- url: /api/.*
+- url: /v2/api/.*
   script: auto
   secure: always
-- url: /
+- url: /v2/graphql
+  script: auto
   secure: always
-  static_dir: react-build/
+- url: /v2/
+  secure: always
+  static_files: react-build/index.html
+  upload: react-build/index.html
+- url: /v2
+  secure: always
+  static_files: react-build/index.html
+  upload: react-build/index.html
+- url: /v2/(.*)
+  secure: always
+  static_files: react-build/\1
+  upload: react-build/(.*)

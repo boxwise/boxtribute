@@ -9,14 +9,11 @@ from flask_cors import cross_origin
 from .auth_helper import AuthError, requires_auth
 from .resolvers import schema
 
-# Blueprint to serve React on production
-frontend_bp = Blueprint(
-    "frontend_bp",
-    __name__
-)
-
 # Blueprint for API
-api_bp = Blueprint("api_bp", __name__)
+api_bp = Blueprint("api_bp", 
+    __name__,
+    url_prefix=os.getenv("FLASK_URL_PREFIX", ""),
+)
 
 @api_bp.errorhandler(AuthError)
 def handle_auth_error(ex):

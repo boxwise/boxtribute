@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react"
-import { BrowserRouter as Router, Switch, Route } from "react-router-dom"
+import { BrowserRouter, Switch, Route } from "react-router-dom"
 import { ApolloProvider } from "@apollo/react-hooks"
 import ApolloClient from "apollo-boost"
 import PrivateRoute from "./PrivateRoute"
@@ -110,7 +110,7 @@ export default function App() {
   return (
     <ApolloProvider client={client}>
       <AuthContext.Provider value={authObject}>
-        <Router>
+        <BrowserRouter  basename={process.env.PUBLIC_URL} >
           <div>
             {/* NOTE! 
         This works like a normal switch, so you have to put the specific routes the highest,
@@ -171,7 +171,7 @@ export default function App() {
             </button>
           )}
           <TabBar />
-        </Router>
+        </BrowserRouter>
       </AuthContext.Provider>
     </ApolloProvider>
   )
