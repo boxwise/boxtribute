@@ -38,16 +38,16 @@ type_defs = gql(
 
     type Box {
         id: Int
-        box_id: String!
-        product_id: String
-        size_id: String
-        items: String
-        location_id: String
+        box_id: Int!
+        product_id: Int
+        size_id: Int
+        items: Int
+        location_id: Int
         comments: String
         qr_id: String
         created: Datetime
         created_by: String
-        box_state_id: String
+        box_state_id: Int
     }
 
     input CreateBoxInput {

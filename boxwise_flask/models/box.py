@@ -11,7 +11,6 @@ class Box(db.Model):
     class Meta:
         table_name = "Stock"
 
-    # id as an integer is the primary key
     box_id = CharField()
     product_id = IntegerField()
     size_id = IntegerField()

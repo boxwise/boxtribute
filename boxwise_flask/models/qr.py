@@ -4,7 +4,6 @@ from ..db import db
 
 
 class Qr(db.Model):
-    id = IntegerField()
     code = CharField()
 
     class Meta:
