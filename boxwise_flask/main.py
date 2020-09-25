@@ -1,8 +1,8 @@
 """Main entry point for application"""
 import os
 
-from boxwise_flask.app import create_app
-from boxwise_flask.db import db
+from .app import create_app
+from .db import db
 
 app = create_app()
 

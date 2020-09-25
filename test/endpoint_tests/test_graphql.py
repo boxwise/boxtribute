@@ -1,6 +1,6 @@
 from boxwise_flask.db import db
-from boxwise_flask.models.base import Base
-from boxwise_flask.models.user import User
+from boxwise_flask.models.bases import Bases
+from boxwise_flask.models.users import Users
 
 
 def get_base_from_graphql(id, base_query):
@@ -18,7 +18,7 @@ def test_all_bases(client):
     db.connect_db()
 
     for base in bases:
-        Base.create(
+        Bases.create(
             id=base["id"],
             organisation_id=base["organisation_id"],
             name=base["name"],
@@ -56,7 +56,7 @@ def test_base(client):
     db.connect_db()
 
     for base in bases:
-        Base.create(**base)
+        Bases.create(**base)
 
     db.close_db(None)
     test_id = 1
@@ -86,11 +86,11 @@ def test_all_users(client):
     ]
     for i, email in enumerate(emails):
 
-        User.create(
+        Users.create(
             id=i,
             name="",
             email=email,
-            usergroup_id="",
+            cms_usergroups_id="",
             valid_firstday="",
             valid_lastday="",
             lastlogin="",
@@ -122,13 +122,12 @@ def test_user(client):
         "hamburgerman@beef.co.uk",
         "marmalade@jam.co.uk",
     ]
-
     for i, email in enumerate(emails):
-        User.create(
+        Users.create(
             id=i,
             name="",
             email=email,
-            usergroup_id="",
+            cms_usergroups_id="",
             valid_firstday="",
             valid_lastday="",
             lastlogin="",
