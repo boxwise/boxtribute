@@ -17,7 +17,7 @@ class UsergroupBaseAccess(db.Model):
         return self.name
 
     @staticmethod
-    def get_base_id(usergroup_id):
+    def get_all_base_id_for(usergroup_id):
         return UsergroupBaseAccess.select(UsergroupBaseAccess.base_id).where(
             UsergroupBaseAccess.usergroup_id == usergroup_id
         )

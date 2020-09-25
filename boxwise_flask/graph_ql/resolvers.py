@@ -3,15 +3,18 @@ from ariadne import (
     MutationType,
     ObjectType,
     ScalarType,
+    gql,
     make_executable_schema,
     snake_case_fallback_resolvers,
 )
 
-from .auth_helper import authorization_test
-from .models.base import Base
-from .models.box import Box
-from .models.user import User
-from .type_defs import type_defs
+from boxwise_flask.auth_helper import authorization_test
+from boxwise_flask.graph_ql.mutation_defs import mutation_defs
+from boxwise_flask.graph_ql.query_defs import query_defs
+from boxwise_flask.graph_ql.type_defs import type_defs
+from boxwise_flask.models.base import Base
+from boxwise_flask.models.box import Box
+from boxwise_flask.models.user import User
 
 query = ObjectType("Query")
 mutation = MutationType()
@@ -44,14 +47,14 @@ def resolve_all_bases(_, info):
 # see the comment in https://github.com/boxwise/boxwise-flask/pull/19
 @query.field("orgBases")
 def resolve_org_bases(_, info, org_id):
-    response = Base.get_bases_by_org_id(org_id)
+    response = Base.get_for_organisation(org_id)
     return list(response.dicts())
 
 
 @query.field("base")
 def resolve_base(_, info, id):
     authorization_test("bases", base_id=id)
-    response = Base.get_base(id)
+    response = Base.get_from_id(id)
     return response
 
 
@@ -75,5 +78,7 @@ def create_box(_, info, box_creation_input):
 
 
 schema = make_executable_schema(
-    type_defs, [query, mutation], snake_case_fallback_resolvers
+    gql(type_defs + query_defs + mutation_defs),
+    [query, mutation],
+    snake_case_fallback_resolvers,
 )

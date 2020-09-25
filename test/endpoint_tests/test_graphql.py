@@ -125,6 +125,7 @@ def test_user(client):
         "hamburgerman@beef.co.uk",
         "marmalade@jam.co.uk",
     ]
+
     for i, email in enumerate(emails):
         User.create(
             id=i,

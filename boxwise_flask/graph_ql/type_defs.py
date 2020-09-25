@@ -3,19 +3,6 @@ from ariadne import gql
 
 type_defs = gql(
     """
-    type Query {
-        hello: String!
-        allBases: [Base]
-        orgBases(org_id: Int): [Base]
-        base(id: String!): Base
-        allUsers: [User]
-        user(email: String): User
-    }
-
-    type Mutation {
-        createBox(box_creation_input:CreateBoxInput):Box
-    }
-
     type Base {
         id: Int
         name: String
@@ -66,5 +53,5 @@ type_defs = gql(
 
     scalar Datetime
     scalar Date
-"""
+    """
 )
