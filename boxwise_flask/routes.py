@@ -6,8 +6,8 @@ from ariadne.constants import PLAYGROUND_HTML
 from flask import Blueprint, jsonify, request
 from flask_cors import cross_origin
 
-from .auth_helper import AuthError, requires_auth
-from .resolvers import schema
+from boxwise_flask.auth_helper import AuthError, requires_auth
+from boxwise_flask.graph_ql.resolvers import schema
 
 # Blueprint to serve React on production
 frontend_bp = Blueprint(

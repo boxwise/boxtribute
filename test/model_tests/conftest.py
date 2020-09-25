@@ -12,11 +12,11 @@ https://docs.pytest.org/en/stable/fixture.html#pytest-fixtures-explicit-modular-
 import pytest
 from peewee import SqliteDatabase
 
-from boxwise_flask.models.bases import Bases
+from boxwise_flask.models.base import Base
+from boxwise_flask.models.user import User
 from boxwise_flask.models.usergroup_base_access import UsergroupBaseAccess
-from boxwise_flask.models.users import Users
 
-MODELS = (Users, UsergroupBaseAccess, Bases)
+MODELS = (User, UsergroupBaseAccess, Base)
 
 
 @pytest.fixture(autouse=True)
