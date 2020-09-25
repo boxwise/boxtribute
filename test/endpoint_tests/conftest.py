@@ -16,11 +16,11 @@ import pytest
 
 from boxwise_flask.app import create_app
 from boxwise_flask.db import db
-from boxwise_flask.models.bases import Bases
+from boxwise_flask.models.base import Base
+from boxwise_flask.models.user import User
 from boxwise_flask.models.usergroup_base_access import UsergroupBaseAccess
-from boxwise_flask.models.users import Users
 
-MODELS = (Bases, UsergroupBaseAccess, Users)
+MODELS = (Base, UsergroupBaseAccess, User)
 
 
 @pytest.fixture()
