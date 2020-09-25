@@ -1,20 +1,15 @@
-from peewee import CharField, IntegerField
+from peewee import CharField
 
 from ..db import db
 
 
 class Qr(db.Model):
-    id = IntegerField()
     code = CharField()
-
-    class Meta:
-        table_name = "qr"
 
     def __str__(self):
         return self.id
 
     @staticmethod
-    def get_qr(barcode):
-        qr = Qr.select().where(Qr.code == barcode).get()
-
-        return qr
+    def get_id_from_code(code):
+        qr_id = Qr.select(Qr.id).where(Qr.code == code).get()
+        return qr_id.id
