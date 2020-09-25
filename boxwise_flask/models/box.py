@@ -1,5 +1,5 @@
 import uuid
-from datetime import date
+from datetime import datetime
 
 from peewee import CharField, DateTimeField, IntegerField
 
@@ -9,7 +9,7 @@ from .qr import Qr
 
 class Box(db.Model):
     class Meta:
-        table_name = "Stock"
+        table_name = "stock"
 
     box_id = CharField()
     product_id = IntegerField()
@@ -28,9 +28,9 @@ class Box(db.Model):
     @staticmethod
     def create_box(box_creation_input):
 
-        today = date.today()
+        today = datetime.now()
         barcode = box_creation_input.get("qr_barcode", None)
-        qr_from_table = Qr.get_qr(barcode)
+        qr_id_from_table = Qr.get_id_from_code(barcode)
         box_uuid = uuid.uuid4()
         box_short_uuid = str(box_uuid)[
             :11
@@ -50,10 +50,10 @@ class Box(db.Model):
                 "location_id", None
             ),  # based on the user's allowed bases
             comments=box_creation_input.get("comments", None),
-            qr_id=qr_from_table,
+            qr_id=qr_id_from_table,
             created=today,
             # this is consistently NULL in the table, do we want to change that?
-            created_by=None,
+            created_by=box_creation_input.get("created_by", None),
             box_state_id=1,  # always 1 for create?
         )
         return new_box

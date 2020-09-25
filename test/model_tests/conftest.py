@@ -13,10 +13,12 @@ import pytest
 from peewee import SqliteDatabase
 
 from boxwise_flask.models.base import Base
+from boxwise_flask.models.box import Box
+from boxwise_flask.models.qr import Qr
 from boxwise_flask.models.user import User
 from boxwise_flask.models.usergroup_base_access import UsergroupBaseAccess
 
-MODELS = (User, UsergroupBaseAccess, Base)
+MODELS = (User, UsergroupBaseAccess, Base, Qr, Box)
 
 
 @pytest.fixture(autouse=True)
