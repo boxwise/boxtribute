@@ -6,7 +6,7 @@ from ..db import db
 class Base(db.Model):
     organisation_id = IntegerField()
     name = CharField()
-    currencyname = CharField()
+    currency_name = CharField(column_name="currencyname")
 
     class Meta:
         table_name = "camps"
@@ -19,7 +19,7 @@ class Base(db.Model):
             + " "
             + self.name
             + " "
-            + self.currencyname
+            + self.currency_name
         )
 
     @staticmethod

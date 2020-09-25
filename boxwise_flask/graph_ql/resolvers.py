@@ -1,5 +1,6 @@
 """GraphQL resolver functionality"""
 from ariadne import (
+    MutationType,
     ObjectType,
     ScalarType,
     gql,
@@ -8,12 +9,15 @@ from ariadne import (
 )
 
 from boxwise_flask.auth_helper import authorization_test
+from boxwise_flask.graph_ql.mutation_defs import mutation_defs
 from boxwise_flask.graph_ql.query_defs import query_defs
 from boxwise_flask.graph_ql.type_defs import type_defs
 from boxwise_flask.models.base import Base
+from boxwise_flask.models.box import Box
 from boxwise_flask.models.user import User
 
 query = ObjectType("Query")
+mutation = MutationType()
 
 datetime_scalar = ScalarType("Datetime")
 date_scalar = ScalarType("Date")
@@ -48,7 +52,7 @@ def resolve_org_bases(_, info, org_id):
 
 
 @query.field("base")
-def resolve_camp(_, info, id):
+def resolve_base(_, info, id):
     authorization_test("bases", base_id=id)
     response = Base.get_from_id(id)
     return response
@@ -60,12 +64,21 @@ def resolve_all_users(_, info):
     return list(response.dicts())
 
 
+# TODO get currrent user based on email in token
 @query.field("user")
 def resolve_user(_, info, email):
     response = User.get_user(email)
     return response
 
 
+@mutation.field("createBox")
+def create_box(_, info, box_creation_input):
+    response = Box.create_box(box_creation_input)
+    return response
+
+
 schema = make_executable_schema(
-    gql(type_defs + query_defs), query, snake_case_fallback_resolvers
+    gql(type_defs + query_defs + mutation_defs),
+    [query, mutation],
+    snake_case_fallback_resolvers,
 )

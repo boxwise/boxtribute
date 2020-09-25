@@ -172,7 +172,7 @@ def authorization_test(test_for, **kwargs):
 
 
 def test_base(requesting_user, base_id):
-    users_bases = requesting_user.camp_id
+    users_bases = requesting_user.base_id
     if base_id in users_bases:
         return True
     return False
