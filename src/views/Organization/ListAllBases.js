@@ -23,8 +23,8 @@ export default function ListAllBases() {
       <div className="p-6">
         <h3>Requested base: {orgId}</h3>
         <p>Error :(</p>
-        {error.graphQLErrors.map((item, index) => (
-          <p key={index}>{item.message}</p>
+        {error.graphQLErrors.map((item) => (
+          <p key={item.message}>{item.message}</p>
         ))}
         <Link to="/">Go Home</Link>
       </div>

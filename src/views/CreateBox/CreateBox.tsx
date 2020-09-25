@@ -26,8 +26,8 @@ export default function CreateBox() {
   const location: LocationState = useLocation();
   const qrUrl: string = location?.state?.qr;
   // FOR TESTING
-  const qrBarcode = qrUrl.split("barcode=")[1];
-  // const qrBarcode = "e1fdfdd942db0e764c9bea06c03ba2b";
+  // const qrBarcode = qrUrl.split("barcode=")[1];
+  const qrBarcode = "e1fdfdd942db0e764c9bea06c03ba2b";
 
   const [newBox, setNewBox] = React.useState<NewBoxType>(emptyBox);
 

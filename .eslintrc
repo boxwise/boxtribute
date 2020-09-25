@@ -15,6 +15,8 @@
     "semi": "off",
     "camelcase":"off",
     "no-unused-expressions": "off",
+    // matter of preference
+    "import/prefer-default-export": "off",
     // import/no-named-as-default disabled as it prevents a common pattern of exporting
     // non-connected redux components for testing and then exporting
     // the connected component as the default export
@@ -25,7 +27,8 @@
     // should be turned on eventually, but not compatible with current codebase
     "no-shadow": "off",
     "object-curly-newline":"off",
-    "no-console":"warn",
+    // turning off no-console until actual error-handling/logging is done
+    // "no-console":"warn",
     // matter of preference (allows to use props.propName instead of deconstructing props first)
     "react/destructuring-assignment": "off",
     "@typescript-eslint/explicit-function-return-type": "off",
