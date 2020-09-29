@@ -1,28 +1,26 @@
 import React, { useState } from "react";
 import QrReader from "react-qr-reader";
 import { Link } from "react-router-dom";
-import { Button, Icon } from "semantic-ui-react";
-import { Header } from "semantic-ui-react";
+import { Button, Icon, Header } from "semantic-ui-react";
 
 function ScanBox() {
   const [data, setData] = useState("");
   const [qrError, setQrError] = useState("");
-  const [next, setNext] = useState("");
 
   const displayReader = () => {
-    if (data && next) {
+    if (data) {
       return (
         <div>
           <Link
             to={{
-              pathname: `/${next}`,
+              pathname: "/create-box",
               state: {
                 qr: data,
               },
             }}
-            className="m-1 bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline"
+            className="ui-button"
           >
-            {next}
+            Create the box
           </Link>
           <br />
           <Button onClick={() => setData("")}>Scan again</Button>
@@ -54,24 +52,6 @@ function ScanBox() {
   return (
     <div>
       <h2>Scan a box now:</h2>
-      {!next && (
-        <div>
-          <button
-            onClick={() => setNext("create-box")}
-            type="button"
-            className={`border p-4 rounded ${next === "create-box" ? "bg-blue-500" : ""}`}
-          >
-            Make a new box
-          </button>
-          <button
-            onClick={() => setNext("edit-box")}
-            type="button"
-            className={`border p-4 rounded ${next === "edit-box" ? "bg-blue-500" : ""}`}
-          >
-            Move or modify an existing box
-          </button>
-        </div>
-      )}
       {displayReader()}
 
       <Link to="/">

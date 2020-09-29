@@ -1,23 +1,15 @@
 import * as React from "react";
-import { useMutation, useQuery } from "@apollo/react-hooks";
+import { useMutation } from "@apollo/react-hooks";
 import { useForm } from "react-hook-form";
 import { useLocation, Link } from "react-router-dom";
-import AuthContext from "../../AuthContext";
-import { NewBoxType, LocationState, AuthObjectType } from "../../utils/Types";
-import { USER, CREATE_BOX } from "../../utils/queries";
-import { locationOptions } from "../../utils/locationOptions";
+import { NewBoxType, LocationState } from "../../utils/Types";
+import { CREATE_BOX } from "../../utils/queries";
 import { emptyBox } from "../../utils/emptyBox";
 
 export default function CreateBox() {
-  const authObject: AuthObjectType = React.useContext(AuthContext);
-  const { email } = authObject.idTokenPayload;
-
   // NOTE: getting the user will likely eventually have to be done in a more global-place,
   // maybe App and make a context for it? If that happens, consider using useLazyQuery for it
   // https://www.apollographql.com/docs/react/data/queries/#executing-queries-manually
-  const { loading: queryLoading, error: queryError, data: queryData } = useQuery(USER, {
-    variables: { email },
-  });
 
   const [createBoxMutation, { loading: mutationLoading, error: mutationError }] = useMutation(
     CREATE_BOX,
@@ -25,9 +17,7 @@ export default function CreateBox() {
 
   const location: LocationState = useLocation();
   const qrUrl: string = location?.state?.qr;
-  // FOR TESTING
-  // const qrBarcode = qrUrl.split("barcode=")[1];
-  const qrBarcode = "e1fdfdd942db0e764c9bea06c03ba2b";
+  const qrBarcode = qrUrl.split("barcode=")[1];
 
   const [newBox, setNewBox] = React.useState<NewBoxType>(emptyBox);
 
@@ -54,19 +44,6 @@ export default function CreateBox() {
     }
   };
 
-  if (queryLoading) return <p>Loading...</p>;
-  if (queryError) {
-    return (
-      <div className="p-6">
-        <h3>Something went wrong, please log out and try again</h3>
-        <p>Error :(</p>
-        {queryError.graphQLErrors.map((item) => (
-          <p key={item.name}>{item.message}</p>
-        ))}
-      </div>
-    );
-  }
-
   return (
     <div className="flex flex-col">
       <h2>Create a Box</h2>
@@ -81,16 +58,17 @@ export default function CreateBox() {
       {!newBox.box_id && (
         <div>
           <form id="make-a-box" className="flex flex-col">
+            {/* Note: eventually we will get the base from the URL,
+            which will determine the locations via a query */}
             <label className="p-2" htmlFor="locationId">
               locationId*
-              <select ref={register} name="locationId" id="locationId">
-                {queryData &&
-                  queryData.user.base_id.map((item) => (
-                    <option key={item} value={item}>
-                      {locationOptions[item]}
-                    </option>
-                  ))}
-              </select>
+              <input
+                defaultValue={2}
+                className="border rounded"
+                ref={register({ required: true, maxLength: 20 })}
+                type="number"
+                name="locationId"
+              />
             </label>
 
             <label className="p-2" htmlFor="productId">
