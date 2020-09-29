@@ -1,8 +1,7 @@
 import React, { useState } from "react";
 import QrReader from "react-qr-reader";
 import { Link } from "react-router-dom";
-import { Button, Icon } from "semantic-ui-react";
-import { Header } from "semantic-ui-react";
+import { Button, Icon, Header } from "semantic-ui-react";
 
 function ScanBox() {
   const [data, setData] = useState("");
@@ -12,7 +11,17 @@ function ScanBox() {
     if (data) {
       return (
         <div>
-          <a href={data}>{data}</a>
+          <Link
+            to={{
+              pathname: "/create-box",
+              state: {
+                qr: data,
+              },
+            }}
+            className="ui-button"
+          >
+            Create the box
+          </Link>
           <br />
           <Button onClick={() => setData("")}>Scan again</Button>
         </div>

@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import { BrowserRouter as Router, Switch, Route } from "react-router-dom";
 import { ApolloProvider } from "@apollo/react-hooks";
 import ApolloClient from "apollo-boost";
+import { Button } from "semantic-ui-react";
 import PrivateRoute from "./PrivateRoute";
 import Auth0 from "./Auth0";
 import Home from "./views/Home";
@@ -13,47 +14,24 @@ import TabBar from "./views/TabBar";
 import Menu from "./views/NavMenu";
 import Placeholder from "./views/Placeholder";
 import ScanBox from "./views/ScanBox";
+import CreateBox from "./views/CreateBox";
+import { AuthObjectType } from "./utils/Types";
+import { emptyAuthObject } from "./utils/emptyAuthObject";
 import "semantic-ui-less/semantic.less";
-import { Button } from "semantic-ui-react";
 import "./App.css";
 
 const { REACT_APP_GRAPHQL_SERVER } = process.env;
 
 export default function App() {
   const [loggedIn, setLoggedIn] = useState(false);
-  const [authObject, setAuthObject] = useState({
-    accessToken: "",
-    idToken: "",
-    idTokenPayload: {
-      at_hash: "",
-      aud: "",
-      email: "",
-      email_verified: false,
-      exp: null,
-      iat: null,
-      iss: "",
-      name: "",
-      nickname: "",
-      nonce: "",
-      picture: "",
-      sub: "",
-      updated_at: "",
-    },
-    appState: null,
-    refreshToken: null,
-    state: "",
-    expiresIn: null,
-    //   this won't change
-    tokenType: "Bearer",
-    scope: "",
-  });
+  const [authObject, setAuthObject] = useState<AuthObjectType>(emptyAuthObject);
 
   const client = new ApolloClient({
     uri: REACT_APP_GRAPHQL_SERVER,
     request: (operation) => {
       operation.setContext({
         headers: {
-          Authorization: `Bearer ${authObject.accessToken}`,
+          Authorization: `Bearer ${authObject?.accessToken}`,
           "X-Clacks-Overhead": "GNU Terry Pratchett",
         },
       });
@@ -83,32 +61,7 @@ export default function App() {
   function handleLogOut() {
     window.location.hash = "";
     setLoggedIn(false);
-    setAuthObject({
-      accessToken: "",
-      idToken: "",
-      idTokenPayload: {
-        at_hash: "",
-        aud: "",
-        email: "",
-        email_verified: false,
-        exp: null,
-        iat: null,
-        iss: "",
-        name: "",
-        nickname: "",
-        nonce: "",
-        picture: "",
-        sub: "",
-        updated_at: "",
-      },
-      appState: null,
-      refreshToken: null,
-      state: "",
-      expiresIn: null,
-      //   this won't change
-      tokenType: "Bearer",
-      scope: "",
-    });
+    setAuthObject(emptyAuthObject);
     client.resetStore();
   }
 
@@ -118,12 +71,20 @@ export default function App() {
         <Router>
           <div>
             <Menu />
-            {/* NOTE! 
+            {/* NOTE!
         This works like a normal switch, so you have to put the specific routes the highest,
         and work your way down to least-specific */}
             <Switch>
               <PrivateRoute path="/org" pathNameRedirect="/">
                 <OrgTopLevel />
+              </PrivateRoute>
+
+              <PrivateRoute path="/create-box" pathNameRedirect="/">
+                <CreateBox />
+              </PrivateRoute>
+
+              <PrivateRoute path="/edit-box" pathNameRedirect="/">
+                <h1>Coming soon...</h1>
               </PrivateRoute>
 
               <PrivateRoute path="/generateLabel/:num" pathNameRedirect="/">

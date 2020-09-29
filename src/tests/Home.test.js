@@ -12,7 +12,7 @@ beforeEach(() => {
   const queries = render(
     <BrowserRouter>
       <Home />
-    </BrowserRouter>
+    </BrowserRouter>,
   );
   getByText = queries.getByText;
   findAllyByText = queries.findAllByText;

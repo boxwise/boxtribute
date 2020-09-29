@@ -9,7 +9,7 @@ function Home() {
   return (
     <div className="home">
       <Header as="h2" textAlign="center" className="brandBlue">
-        Welcome to boxwise, {user ? user : `please log in`}.
+        Welcome to boxwise, {user || `please log in`}.
       </Header>
 
       {user ? (
@@ -30,7 +30,9 @@ function Home() {
             <div className="card">
               <div className="column-less">
                 <h3>
-                  3 <br></br>boxes
+                  3
+                  <br />
+                  boxes
                 </h3>
               </div>
               <div className="column">
@@ -56,23 +58,3 @@ function Home() {
 }
 
 export default Home;
-// {!user && <p className="p-6 text-gray-800">Please Sign In</p>}
-//       {user && (
-//         <div className="p-6">
-//           <Link  to="/org/100000000">
-//             {`->`} Info About A Single Base You Belong To
-//           </Link>
-//           <br />
-//           <Link  to="/org/123">
-//             {`->`} Info About A Single Base You Do Not Belong To
-//           </Link>
-//           <br />
-//           <Link to="/org/all">
-//             {`->`} List All Bases (everyone logged in can do this)
-//           </Link>
-//           <br />
-//           <Link to="/pdf">
-//             {`->`} Generate QR Codes
-//           </Link>
-//         </div>
-//       )}

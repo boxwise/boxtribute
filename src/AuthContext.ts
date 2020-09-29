@@ -1,6 +1,7 @@
 import React from "react";
+import { AuthObjectType } from "./utils/Types";
 
-const AuthContext = React.createContext({
+const AuthContext = React.createContext<AuthObjectType>({
   accessToken: "",
   idToken: "",
   idTokenPayload: {
