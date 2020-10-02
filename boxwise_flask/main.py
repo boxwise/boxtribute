@@ -1,23 +1,26 @@
 """Main entry point for application"""
 import os
 
-from boxwise_flask.app import create_app
-from boxwise_flask.db import db
+from .app import db
+from .routes import app
 
-app = create_app()
+# load data for database connection
+db_user = os.getenv("MYSQL_USER")
+db_password = os.getenv("MYSQL_PASSWORD")
+db_name = os.getenv("MYSQL_DB")
+db_host = os.getenv("MYSQL_HOST")
+# int, otherwise: TypeError: %d format: a number is required, not str from
+# pymysql.connections
+db_port = int(os.getenv("MYSQL_PORT", 0))
+gcloud_sql_connection_name = os.getenv("GCLOUD_SQL_CONNECTION_NAME", False)
 
-# Prepare address of mysql host
-mysql_host = os.getenv("MYSQL_HOST", "") + (
-    ":" + os.getenv("MYSQL_PORT") if os.getenv("MYSQL_PORT", False) else ""
-)
-
-# establish database connection
-app.config["DATABASE"] = "mysql://{}:{}@{}/{}{}".format(
-    os.getenv("MYSQL_USER"),
-    os.getenv("MYSQL_PASSWORD"),
-    mysql_host,
-    os.getenv("MYSQL_DB"),
-    os.getenv("MYSQL_SOCKET", ""),
-)
+if gcloud_sql_connection_name:
+    app.config["DATABASE"] = "mysql://{}:{}@/{}?unix_socket=/cloudsql/{}".format(
+        db_user, db_password, db_name, gcloud_sql_connection_name
+    )
+else:
+    app.config["DATABASE"] = "mysql://{}:{}@{}:{}/{}".format(
+        db_user, db_password, db_host, db_port, db_name
+    )
 
 db.init_app(app)
