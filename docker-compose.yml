@@ -13,6 +13,7 @@ services:
             - ./flask:/app/flask
         environment:
             FLASK_ENV: development
+            PYTHONUNBUFFERED: 1
             AUTH0_DOMAIN: ${AUTH0_DOMAIN:?auth0 config not set in .env file}
             AUTH0_AUDIENCE: ${AUTH0_AUDIENCE:?auth0 config not set in .env file}
             MYSQL_HOST: mysql
