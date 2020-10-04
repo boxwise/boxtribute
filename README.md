@@ -28,6 +28,21 @@ This is the repo for the new mobile web app of [Boxtribute](www.boxtribute.org),
 
 We are using Docker containers to make it easy for everyone to spin up an development environment which is the same everywhere. In `docker-compose.yaml` three docker containers are specified - one for the mysql database called `mysql`, one for the flask backend called `web` and one for the react front-end called `react`.
 
+### Note about NPM/Yarn
+
+When you wish to add a dependency, when you make the change to your local package.config, you will need to rebuild the docker container and relaunch.
+
+You can add packages during development without rebuilding by installing it inside the container. Your changes will last until you "docker-compose down" and will be saved on host for next build.
+
+For example, to add XYZ to the `package.json` file in the `react` folder while developing, you can run this:
+
+      docker-compose exec react yarn add XYZ
+
+(This advice has come from https://github.com/BretFisher/node-docker-good-defaults)
+
+# bind-mounting these two files in will let you add packages during development without rebuilding
+            # 
+
 ### Docker networking
 
 In the docker-compose file we define a separate docker network called `backend` to which the backend containers are joined. Each container can now look up the hostname `web` or `mysql` and get back the appropriate container’s IP address.
