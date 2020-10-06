@@ -23,8 +23,8 @@ export default function ListAllBases() {
       <div className="p-6">
         <h3>Requested base: {orgId}</h3>
         <p>Error :(</p>
-        {error.graphQLErrors.map((item, index) => (
-          <p key={index}>{item.message}</p>
+        {error.graphQLErrors.map((item) => (
+          <p key={item.message}>{item.message}</p>
         ))}
         <Link to="/">Go Home</Link>
       </div>
@@ -43,7 +43,9 @@ export default function ListAllBases() {
           </div>
         ))}
       </ul>
-      <Link  className="mt-6 text-blue-900 hover:bg-blue-200" to="/">{`->`} Go Home</Link>
+      <Link className="mt-6 text-blue-900 hover:bg-blue-200" to="/">
+        {`->`} Go Home
+      </Link>
     </div>
   );
 }

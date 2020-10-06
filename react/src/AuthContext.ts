@@ -1,6 +1,7 @@
-import React from "react"
+import React from "react";
+import { AuthObjectType } from "./utils/Types";
 
-const AuthContext = React.createContext({
+const AuthContext = React.createContext<AuthObjectType>({
   accessToken: "",
   idToken: "",
   idTokenPayload: {
@@ -25,6 +26,6 @@ const AuthContext = React.createContext({
   //   this won't change
   tokenType: "Bearer",
   scope: "",
-})
+});
 
-export default AuthContext
+export default AuthContext;

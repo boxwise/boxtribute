@@ -26,8 +26,8 @@ export default function SingleOrg() {
       <div className="p-6">
         <h3>Requested base: {orgId}</h3>
         <p>Error :(</p>
-        {error.graphQLErrors.map((item, index) => (
-          <p key={index}>{item.message}</p>
+        {error.graphQLErrors.map((item) => (
+          <p key={item.message}>{item.message}</p>
         ))}
         <Link className="mt-6 text-blue-700 hover:bg-blue-200" to="/">
           {`->`} Go Home
@@ -38,12 +38,10 @@ export default function SingleOrg() {
 
   return (
     <div className="p-6">
-      <h3 className="text-lg font-bold underline mb-4">
-        Requested base: {orgId}
-      </h3>
+      <h3 className="text-lg font-bold underline mb-4">Requested base: {orgId}</h3>
       <p className="mb-4">
-        base ID {data.base.organisation_id} has the name {data.base.name}, and
-        uses the currency {data.base.currencyname}
+        base ID {data.base.organisation_id} has the name {data.base.name}, and uses the currency{" "}
+        {data.base.currencyname}
       </p>
       <Link className="mt-6 text-blue-700 hover:bg-blue-200" to="/">
         {`->`} Go Home
