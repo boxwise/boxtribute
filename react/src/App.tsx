@@ -68,7 +68,7 @@ export default function App() {
   return (
     <ApolloProvider client={client}>
       <AuthContext.Provider value={authObject}>
-        <BrowserRouter  basename={process.env.PUBLIC_URL} >
+        <Router basename={process.env.PUBLIC_URL}>
           <div>
             <Menu />
             {/* NOTE!
@@ -125,7 +125,7 @@ export default function App() {
             </Button>
           )}
           <TabBar />
-        </BrowserRouter>
+        </Router>
       </AuthContext.Provider>
     </ApolloProvider>
   );
