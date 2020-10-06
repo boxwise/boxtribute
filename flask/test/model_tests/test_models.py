@@ -1,14 +1,14 @@
-from boxwise_flask.models import Camps
+from boxwise_flask.models.base import Base
 
 
 def test_model_method():
     """Verify inserting test rows."""
 
-    Camps.create(id=1, organisation_id=1, name="some text1", currencyname="hello")
-    Camps.create(id=2, organisation_id=1, name="some text1", currencyname="hello")
-    Camps.create(id=3, organisation_id=1, name="some text1", currencyname="hello")
-    Camps.create(id=4, organisation_id=1, name="some text1", currencyname="hello")
-    Camps.create(id=5, organisation_id=1, name="some text1", currencyname="hello")
+    Base.create(id=1, organisation_id=1, name="some text1", currency_name="hello")
+    Base.create(id=2, organisation_id=1, name="some text1", currency_name="hello")
+    Base.create(id=3, organisation_id=1, name="some text1", currency_name="hello")
+    Base.create(id=4, organisation_id=1, name="some text1", currency_name="hello")
+    Base.create(id=5, organisation_id=1, name="some text1", currency_name="hello")
 
-    x = Camps.get_all_camps()
+    x = Base.get_all_bases()
     assert len(x) == 5

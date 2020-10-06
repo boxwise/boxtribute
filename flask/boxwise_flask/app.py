@@ -2,7 +2,7 @@
 from flask import Flask
 from flask_cors import CORS
 
-from .routes import api_bp
+from boxwise_flask.routes import api_bp, frontend_bp
 
 
 def create_app():

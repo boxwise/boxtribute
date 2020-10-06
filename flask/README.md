@@ -79,5 +79,9 @@ If you want to debug a certain endpoint, set a break-point in the endpoint and c
 If you want to break on any other code lines (not endpoints), then you can only catch them during the server start-up.
 
 #### Usage of Logger
-To log to the console from inside the docker container, import app from app.py, and log with:
+To log to the console from inside the docker container, create an instance of app using:
+    `from flask import Flask`
+    `app = Flask(__name__)`
+
+and log with:
         `app.logger.warn(<whatever you want to log>)`
