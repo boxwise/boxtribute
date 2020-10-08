@@ -13,12 +13,42 @@ import pytest
 from peewee import SqliteDatabase
 
 from boxwise_flask.models.base import Base
+from boxwise_flask.models.base_module import BaseModule
 from boxwise_flask.models.box import Box
-from boxwise_flask.models.qr import Qr
+from boxwise_flask.models.box_state import BoxState
+from boxwise_flask.models.language import Language
+from boxwise_flask.models.location import Location
+from boxwise_flask.models.organisation import Organisation
+from boxwise_flask.models.product import Product
+from boxwise_flask.models.product_category import ProductCategory
+from boxwise_flask.models.product_gender import ProductGender
+from boxwise_flask.models.qr_code import QRCode
+from boxwise_flask.models.size import Size
+from boxwise_flask.models.size_range import SizeRange
 from boxwise_flask.models.user import User
+from boxwise_flask.models.usergroup import Usergroup
+from boxwise_flask.models.usergroup_access_level import UsergroupAccessLevel
 from boxwise_flask.models.usergroup_base_access import UsergroupBaseAccess
 
-MODELS = (User, UsergroupBaseAccess, Base, Qr, Box)
+MODELS = (
+    QRCode,
+    Base,
+    BaseModule,
+    Box,
+    BoxState,
+    Language,
+    Location,
+    Organisation,
+    Product,
+    ProductCategory,
+    ProductGender,
+    Size,
+    SizeRange,
+    User,
+    Usergroup,
+    UsergroupAccessLevel,
+    UsergroupBaseAccess,
+)
 
 
 @pytest.fixture(autouse=True)

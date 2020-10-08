@@ -1,12 +1,14 @@
 """Functionality for common test setups.
-See https://docs.pytest.org/en/stable/fixture.html#conftest-py-sharing-fixture-functions
+See https://docs import
+test.org/en/stable/fixture.html#conftest-py-sharing-fixture-functions
 
 In general, pass fixtures as arguments to a pytest test function in order to base the
 test function on those fixtures. No additional import in the test module is required if
 the fixture is defined in the 'conftest' module.
 
 More details about the mechanism behind fixtures, and predefined fixtures at
-https://docs.pytest.org/en/stable/fixture.html#pytest-fixtures-explicit-modular-scalable
+https://docs import
+test.org/en/stable/fixture.html#pytest-fixtures-explicit-modular-scalable
 """
 
 import os
@@ -17,12 +19,42 @@ import pytest
 from boxwise_flask.app import create_app
 from boxwise_flask.db import db
 from boxwise_flask.models.base import Base
+from boxwise_flask.models.base_module import BaseModule
 from boxwise_flask.models.box import Box
-from boxwise_flask.models.qr import Qr
+from boxwise_flask.models.box_state import BoxState
+from boxwise_flask.models.language import Language
+from boxwise_flask.models.location import Location
+from boxwise_flask.models.organisation import Organisation
+from boxwise_flask.models.product import Product
+from boxwise_flask.models.product_category import ProductCategory
+from boxwise_flask.models.product_gender import ProductGender
+from boxwise_flask.models.qr_code import QRCode
+from boxwise_flask.models.size import Size
+from boxwise_flask.models.size_range import SizeRange
 from boxwise_flask.models.user import User
+from boxwise_flask.models.usergroup import Usergroup
+from boxwise_flask.models.usergroup_access_level import UsergroupAccessLevel
 from boxwise_flask.models.usergroup_base_access import UsergroupBaseAccess
 
-MODELS = (Base, UsergroupBaseAccess, User, Qr, Box)
+MODELS = (
+    Base,
+    BaseModule,
+    Box,
+    BoxState,
+    Language,
+    Location,
+    Organisation,
+    Product,
+    ProductCategory,
+    ProductGender,
+    QRCode,
+    Size,
+    SizeRange,
+    User,
+    Usergroup,
+    UsergroupAccessLevel,
+    UsergroupBaseAccess,
+)
 
 
 @pytest.fixture()

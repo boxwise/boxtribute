@@ -1,24 +1,50 @@
-from peewee import CharField, DateField, DateTimeField
+from peewee import (
+    SQL,
+    CharField,
+    DateField,
+    DateTimeField,
+    ForeignKeyField,
+    IntegerField,
+)
 from playhouse.shortcuts import model_to_dict
 
-from ..db import db
-from .usergroup_base_access import UsergroupBaseAccess
+from boxwise_flask.db import db
+from boxwise_flask.models.language import Language
+from boxwise_flask.models.usergroup import Usergroup
+from boxwise_flask.models.usergroup_base_access import UsergroupBaseAccess
 
 
 class User(db.Model):
-    name = CharField(column_name="naam")
-    email = CharField()
-    usergroup_id = CharField(column_name="cms_usergroups_id")
-    valid_firstday = DateField()
-    valid_lastday = DateField()
-    lastlogin = DateTimeField()
+    usergroup = ForeignKeyField(
+        column_name="cms_usergroups_id", field="id", model=Usergroup, null=True
+    )
+    created = DateTimeField(null=True)
+    created_by = ForeignKeyField(
+        column_name="created_by", field="id", model="self", null=True
+    )
+    deleted = DateTimeField(null=True, default=None)
+    email = CharField(null=True, unique=True)
+    is_admin = IntegerField(constraints=[SQL("DEFAULT 0")])
+    language = ForeignKeyField(
+        column_name="language", field="id", model=Language, null=True
+    )
     lastaction = DateTimeField()
+    lastlogin = DateTimeField()
+    modified = DateTimeField(null=True)
+    modified_by = ForeignKeyField(
+        column_name="modified_by", field="id", model="self", null=True,
+    )
+    name = CharField(constraints=[SQL("DEFAULT ''")])
+    pass_ = CharField(column_name="pass", constraints=[SQL("DEFAULT ''")])
+    resetpassword = CharField(null=True)
+    valid_firstday = DateField(null=True)
+    valid_lastday = DateField(null=True)
 
     class Meta:
         table_name = "cms_users"
 
     def __str__(self):
-        return self.name, self.organisation_id
+        return self.name
 
     @staticmethod
     def get_all_users():
@@ -27,7 +53,9 @@ class User(db.Model):
     @staticmethod
     def get_user(email):
         user = User.select().where(User.email == email).get()
-        base_ids = UsergroupBaseAccess.get_all_base_id_for(user.usergroup_id)
+        base_ids = []
+        if user.usergroup:
+            base_ids = UsergroupBaseAccess.get_all_base_id_for(user.usergroup.id)
         # base_ids is a peewee ModelSelect (so, many objects).
         # convert to dict 1 at a time,
         # and pull the base_id from that dict, and put in a list

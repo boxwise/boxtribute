@@ -145,7 +145,7 @@ def authorization_test(test_for, **kwargs):
         # but it DOES have to be in this form to work with the Auth0 rule providing it.
         payload = decode_jwt(token, rsa_key)
         email = payload["https://www.boxtribute.com/email"]
-        requesting_user = User.get_user(email)
+        requesting_user = User.get_from_email(email)
 
         if test_for == "bases":
             allowed_access = test_base(requesting_user, kwargs["base_id"])
