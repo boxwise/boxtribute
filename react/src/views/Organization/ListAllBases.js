@@ -1,7 +1,6 @@
 import React from "react";
 import { useParams, Link } from "react-router-dom";
-import { useQuery } from "@apollo/client";
-import { gql } from "apollo-boost";
+import { useQuery, gql } from "@apollo/client";
 
 const BASES = gql`
   {

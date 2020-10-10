@@ -1,7 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { BrowserRouter as Router, Switch, Route } from "react-router-dom";
-import { ApolloProvider } from "@apollo/client";
-import ApolloClient from "apollo-boost";
+import { ApolloProvider, ApolloClient } from "@apollo/client";
 import { Button } from "semantic-ui-react";
 import PrivateRoute from "./PrivateRoute";
 import Auth0 from "./Auth0";
