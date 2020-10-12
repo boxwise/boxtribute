@@ -1,6 +1,5 @@
-from peewee import CharField, DateTimeField, DeferredForeignKey
-
 from boxwise_flask.db import db
+from peewee import CharField, DateTimeField, DeferredForeignKey
 
 
 class Organisation(db.Model):
@@ -9,7 +8,7 @@ class Organisation(db.Model):
     deleted = DateTimeField(null=True, default=None)
     label = CharField(null=True)
     modified = DateTimeField(null=True)
-    modified_by = DeferredForeignKey("User")
+    modified_by = DeferredForeignKey("User", null=True)
 
     class Meta:
         table_name = "organisations"

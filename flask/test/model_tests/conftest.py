@@ -9,9 +9,17 @@ More details about the mechanism behind fixtures, and predefined fixtures at
 https://docs.pytest.org/en/stable/fixture.html#pytest-fixtures-explicit-modular-scalable
 """
 
-import pytest
-from peewee import SqliteDatabase
+from test.data import (  # noqa: F401
+    default_base,
+    default_box,
+    default_box_state,
+    default_location,
+    default_organisation,
+    default_qr_code,
+    default_user,
+)
 
+import pytest
 from boxwise_flask.models.base import Base
 from boxwise_flask.models.base_module import BaseModule
 from boxwise_flask.models.box import Box
@@ -29,6 +37,7 @@ from boxwise_flask.models.user import User
 from boxwise_flask.models.usergroup import Usergroup
 from boxwise_flask.models.usergroup_access_level import UsergroupAccessLevel
 from boxwise_flask.models.usergroup_base_access import UsergroupBaseAccess
+from peewee import SqliteDatabase
 
 MODELS = (
     QRCode,
