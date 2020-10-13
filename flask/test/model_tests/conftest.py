@@ -9,15 +9,14 @@ More details about the mechanism behind fixtures, and predefined fixtures at
 https://docs.pytest.org/en/stable/fixture.html#pytest-fixtures-explicit-modular-scalable
 """
 
-from test.data import (  # noqa: F401
-    default_base,
-    default_box,
-    default_box_state,
-    default_location,
-    default_organisation,
-    default_qr_code,
-    default_user,
-)
+# Imports fixtures into tests
+from test.data.base import default_base  # noqa: F401
+from test.data.box import default_box  # noqa: F401
+from test.data.box_state import default_box_state  # noqa: F401
+from test.data.location import default_location  # noqa: F401
+from test.data.organisation import default_organisation  # noqa: F401
+from test.data.qr_code import default_qr_code  # noqa: F401
+from test.data.user import default_user  # noqa: F401
 
 import pytest
 from boxwise_flask.models.base import Base
