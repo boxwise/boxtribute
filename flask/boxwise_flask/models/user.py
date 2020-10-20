@@ -1,3 +1,7 @@
+from boxwise_flask.db import db
+from boxwise_flask.models.language import Language
+from boxwise_flask.models.usergroup import Usergroup
+from boxwise_flask.models.usergroup_base_access import UsergroupBaseAccess
 from peewee import (
     SQL,
     CharField,
@@ -7,11 +11,6 @@ from peewee import (
     IntegerField,
 )
 from playhouse.shortcuts import model_to_dict
-
-from boxwise_flask.db import db
-from boxwise_flask.models.language import Language
-from boxwise_flask.models.usergroup import Usergroup
-from boxwise_flask.models.usergroup_base_access import UsergroupBaseAccess
 
 
 class User(db.Model):
@@ -48,14 +47,16 @@ class User(db.Model):
 
     @staticmethod
     def get_all_users():
-        return User.select().order_by(User.name)
+        return list(User.select().order_by(User.name))
 
     @staticmethod
-    def get_user(email):
+    def get_from_email(email):
         user = User.select().where(User.email == email).get()
         base_ids = []
         if user.usergroup:
-            base_ids = UsergroupBaseAccess.get_all_base_id_for(user.usergroup.id)
+            base_ids = UsergroupBaseAccess.get_all_base_id_for_usergroup_id(
+                user.usergroup.id
+            )
         # base_ids is a peewee ModelSelect (so, many objects).
         # convert to dict 1 at a time,
         # and pull the base_id from that dict, and put in a list

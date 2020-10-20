@@ -1,8 +1,7 @@
-from peewee import CharField, DateTimeField, DeferredForeignKey, ForeignKeyField
-
 from boxwise_flask.db import db
 from boxwise_flask.models.organisation import Organisation
 from boxwise_flask.models.usergroup_access_level import UsergroupAccessLevel
+from peewee import CharField, DateTimeField, DeferredForeignKey, ForeignKeyField
 
 
 class Usergroup(db.Model):
@@ -15,7 +14,7 @@ class Usergroup(db.Model):
     organisation = ForeignKeyField(
         column_name="organisation_id", field="id", model=Organisation
     )
-    userlevel = ForeignKeyField(
+    usergroup_access_level = ForeignKeyField(
         column_name="userlevel", field="id", model=UsergroupAccessLevel
     )
 

@@ -1,6 +1,5 @@
-from peewee import CompositeKey, IntegerField
-
 from boxwise_flask.db import db
+from peewee import CompositeKey, IntegerField
 
 
 class UsergroupBaseAccess(db.Model):
@@ -17,7 +16,9 @@ class UsergroupBaseAccess(db.Model):
         return self.name
 
     @staticmethod
-    def get_all_base_id_for(usergroup_id):
-        return UsergroupBaseAccess.select(UsergroupBaseAccess.base_id).where(
+    def get_all_base_id_for_usergroup_id(usergroup_id):
+        query = UsergroupBaseAccess.select(UsergroupBaseAccess.base_id).where(
             UsergroupBaseAccess.usergroup_id == usergroup_id
         )
+
+        return list(query)

@@ -1,10 +1,9 @@
 from datetime import datetime
 
-from peewee import SQL, CharField, DateTimeField, ForeignKeyField, IntegerField
-
 from boxwise_flask.db import db
 from boxwise_flask.models.organisation import Organisation
 from boxwise_flask.models.user import User
+from peewee import SQL, CharField, DateTimeField, ForeignKeyField, IntegerField
 
 
 class Base(db.Model):
@@ -61,13 +60,12 @@ class Base(db.Model):
 
     @staticmethod
     def get_all_bases():
-        return Base.select().order_by(Base.name)
+        return list(Base.select().order_by(Base.name))
 
     @staticmethod
     def get_for_organisation(org_id):
-        return Base.select().where(Base.organisation_id == org_id)
+        return list(Base.select().where(Base.organisation_id == org_id))
 
     @staticmethod
     def get_from_id(base_id):
-        base = Base.select().where(Base.id == base_id).get()
-        return base
+        return Base.select().where(Base.id == base_id).get()

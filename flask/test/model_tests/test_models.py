@@ -2,7 +2,6 @@ from boxwise_flask.models.base import Base
 
 
 def test_model_method():
-    """Verify inserting test rows."""
 
     Base.create(
         id=1, organisation_id=1, name="some text1", currency_name="hello", seq=1
