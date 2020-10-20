@@ -9,24 +9,6 @@ More details about the mechanism behind fixtures, and predefined fixtures at
 https://docs.pytest.org/en/stable/fixture.html#pytest-fixtures-explicit-modular-scalable
 """
 
-# Imports fixtures into tests
-from test.data.base import default_base  # noqa: F401
-from test.data.base import default_bases  # noqa: F401
-from test.data.box import default_box  # noqa: F401
-from test.data.box_state import default_box_state  # noqa: F401
-from test.data.location import default_location  # noqa: F401
-from test.data.organisation import default_organisation  # noqa: F401
-from test.data.qr_code import default_qr_code  # noqa: F401
-from test.data.user import default_user  # noqa: F401
-from test.data.user import default_users  # noqa: F401
-from test.data.usergroup import default_usergroup  # noqa: F401
-from test.data.usergroup_access_level import (  # noqa: F401
-    default_usergroup_access_level,
-)
-from test.data.usergroup_base_access import (  # noqa: F401
-    default_usergroup_base_access_list,
-)
-
 import pytest
 from boxwise_flask.models.base import Base
 from boxwise_flask.models.base_module import BaseModule
@@ -45,6 +27,20 @@ from boxwise_flask.models.user import User
 from boxwise_flask.models.usergroup import Usergroup
 from boxwise_flask.models.usergroup_access_level import UsergroupAccessLevel
 from boxwise_flask.models.usergroup_base_access import UsergroupBaseAccess
+
+# Imports fixtures into tests
+from data.base import default_base  # noqa: F401
+from data.base import default_bases  # noqa: F401
+from data.box import default_box  # noqa: F401
+from data.box_state import default_box_state  # noqa: F401
+from data.location import default_location  # noqa: F401
+from data.organisation import default_organisation  # noqa: F401
+from data.qr_code import default_qr_code  # noqa: F401
+from data.user import default_user  # noqa: F401
+from data.user import default_users  # noqa: F401
+from data.usergroup import default_usergroup  # noqa: F401
+from data.usergroup_access_level import default_usergroup_access_level  # noqa: F401
+from data.usergroup_base_access import default_usergroup_base_access_list  # noqa: F401
 from peewee import SqliteDatabase
 
 MODELS = (
