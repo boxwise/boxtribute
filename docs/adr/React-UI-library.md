@@ -3,7 +3,7 @@ Discussion participants: [Roanna](https://github.com/aerinsol), [Soheima](https:
 
 ## Status
 
-Under Revision
+Implementing
 
 ## Context
 
@@ -17,7 +17,7 @@ However, after attempting to work with Semantic for some time, Soheima found tha
 
 1. Branding Compliance: does the library allow for us to apply our branding guidelines to the product (colors, font, etc.)? 
 2. Fit for Use Case: does it have components that support the functionality we need? Does it work across both mobile and desktop?
-3. Developer Experience: 
+3. Developer Experience: How easy is it for front-end developers to render the UI as provided in the mockups in a clean and consistent way?
 4. Maintainability: As the team grows and changes, will it be easy to maintain and evolve the UI? 
 5. Speed of Development: How fast is it to get the design we need up and running?
 
@@ -27,13 +27,13 @@ However, after attempting to work with Semantic for some time, Soheima found tha
 2. **[Semantic React](https://react.semantic-ui.com/):** Comprehensive set of components including forms, tables, and loading animations, rave reviews. Comes with style sheets for Adobe XD, Sketch, and Figma out of the box, so translating design to app implementation should be easy. Popular - 11.7K stars on Github. However, it does not have the ability for users to apply their own color scheme for their UI.
 3. **[Grommet](https://v2.grommet.io/):** Comes with their own design kit as well as some very useful functionality we would need in our application, such as forms, data visualization capabilities, and tables. Excellent examples and documentation with their own storybook.js implementation. Used by some big name corporations - Netflix, Uber, Shopify, etc.
 4. **[Ant Design](https://ant.design/):** One of the most popular UI libraries out there, 63.8K starts on Github. Designed specifically around web apps and enterprise applications. However, as a result, it is desktop oriented and does not support mobile views or mobile-first design well.
-5. **[Carbon Design](https://www.carbondesignsystem.com/):** IBM based design system, supports B2B well, but is primarily blue and gray based, and has a very "mainframe" style old school feel.
+5. **[Carbon Design](https://www.carbondesignsystem.com/):** IBM based design system, supports B2B well, but is primarily blue and gray based, and has a very "mainframe" style old school feel. Roanna dislikes this as it feels inconsistent with the modern, lightweight feel Boxtribute wishes to convey.
 6. **[Evergreen](https://evergreen.segment.com/):** 
 7. **[RebassJS](https://rebassjs.org/):** Rebass takes a different approach than the other UI libraries - rather than starting out with a whole system of UI components in the library (sidebar, header, cards, chips etc.) Rebass starts out with a few basic components and then provides the user with UI primitive that they can then use to compose their own components and create a custom design system. It further allows for both detailed theming AND application of individual styling variants for a component within a set of design contraints through [Theme UI](https://theme-ui.com/home) or [Styled System](https://styled-system.com/). Well recommended, 6.9K stars on Github.
 
 
 ## Decision
-RebassJS. 
+RebassJS. Although in an ideal world, we would have liked to start with t alibaray that has many pre-built components out of the box, in reality, libraries that had this sort of set up were either too restrictive what their components could do (Semantic - weak theme customizations; Material, Ant Design - UI components do not fit and cannot be modified to behave the way we want them to behave) or too incomplete in their pre-built components (Grommet), meaning that a separate library would have to be brought in anyway to create custom components for Boxtribute. Since there did not seem to be an easy or elegant way to integrate new custom components with an existing library, we decided to go directly with the library that was created with custom UI building in mind.
 
 ## Consequences
 
@@ -45,4 +45,5 @@ RebassJS.
 
 ### More difficult
 - Fewer ready-made components, meaning that more initial design and composition is required.
+- No built-in data visualization, a second library will be needed for this.
 - Custom documentation will need to be created specifically for Boxtribute's design system.
