@@ -5,6 +5,8 @@
 # Readme
 This is the repo for the new mobile web app of [Boxtribute](www.boxtribute.org), consisting of a [React front-end](/react) bootstrapped with [Create React App](https://github.com/facebook/create-react-app), and a [Python flask back-end](/flask).
 
+Please check out [**Contribution Guidelines**](CONTRIBUTING.md) before you get started!
+
 ## Preparation for Installation
 
 * Install [Docker](https://www.docker.com/products/docker-desktop)
@@ -39,9 +41,6 @@ For example, to add XYZ to the `package.json` file in the `react` folder while d
       docker-compose exec react yarn add XYZ
 
 (This advice has come from https://github.com/BretFisher/node-docker-good-defaults)
-
-# bind-mounting these two files in will let you add packages during development without rebuilding
-            # 
 
 ### Docker networking
 
@@ -83,7 +82,7 @@ Furthermore, here a collection of QR-Codes which can are in the dev db and can b
 ![387b0f0f5e62cebcafd48383035a92a](docs/qr/387b0f0f5e62cebcafd48383035a92a.png) ![cba56d486db6d39209dbbf9e45353c4](docs/qr/cba56d486db6d39209dbbf9e45353c4.png) ![a61e0efe25b75032b91106372674c26](docs/qr/a61e0efe25b75032b91106372674c26.png) ![f6f20e805192618def2cb400776a2aa](docs/qr/f6f20e805192618def2cb400776a2aa.png) ![12ca607ce60c484bdbb703def950c5b](docs/qr/12ca607ce60c484bdbb703def950c5b.png)
 ![13f12820c8010f2f7349962930e6bf4](docs/qr/13f12820c8010f2f7349962930e6bf4.png) ![d0e144a0a4dc0d8af55e2b686a2e97e](docs/qr/d0e144a0a4dc0d8af55e2b686a2e97e.png) ![69107b2e2b4157b5efe10415bc0bba0](docs/qr/69107b2e2b4157b5efe10415bc0bba0.png) ![b8f0730d36571e4149ba3862379bb88](docs/qr/b8f0730d36571e4149ba3862379bb88.png) ![e1fdfdd942db0e764c9bea06c03ba2b](docs/qr/e1fdfdd942db0e764c9bea06c03ba2b.png)
 
-#### CircleCI
+## CircleCI
 We are use CircleCI for automated testing of PRs and deployment to Google Cloud. To develop the CircleCI scripts you can run a CircleCI client locally. Please check out [the documentation](https://circleci.com/docs/2.0/local-cli/).
 
 The most important commands are
@@ -92,11 +91,11 @@ circleci config validate
 circleci local execute --job JOB_NAME
 ```
 
-##### CircleCI development tips/learnings
+### CircleCI development tips/learnings
 - You can only trigger a job locally if it is part of a CircleCI workflow.
 - Each `run`-step in the config of CircleCI should be treated as its own terminal. If you have for example activated an virtual environment in a `run`-step, this environment is not activated in the next `run`-step.
 
-### GraphQL
+## GraphQL
 We are setting up GraphQL as a data layer for this application. To check out the playground, run this project with the above docker-compose instructions, and go to localhost:5000/graphql.
 In order to not expose personal data over an unsecured API, we require you to authenticate in order to access the graphQL endpoint. The easiest way to do this currently is:
 -  start up the frontend (go into the boxwise-react directory and run `yarn && yarn start`), log in with the demo user (user@user.co, ask Hans for the password), and the access token will be printed in the console when you inspect the page (or you can pull it out of the cookies, whatever you want).
@@ -112,6 +111,30 @@ query {
   }
 }
 ```
+
+## Architecture overview
+
+All our architecture decisions are logged in ADRs which you can find [here](docs/adr/adr_template.md).
+Here, is a list of intro tutorials for each technologies / frameworks / languages below.
+
+#### Frontend
+
+- [Typescript](https://www.typescriptlang.org/docs/handbook/typescript-in-5-minutes.html)
+- [Custom Rebass Library](https://github.com/boxwise/react-components)
+- [React](https://reactjs.org/docs/getting-started.html)
+- [Apollo](https://www.apollographql.com/docs/react/)
+
+#### Backend
+
+- [GraphQL](https://graphql.org/learn/)
+- [Ariadne](https://ariadnegraphql.org/docs/flask-integration.html)
+- [Flask](https://flask.palletsprojects.com/en/1.1.x/tutorial/layout/)
+- [PeeWee](http://docs.peewee-orm.com/en/latest/peewee/quickstart.html)
+- MySQL
+
+#### Authentication
+
+- [Auth0](https://auth0.com/docs/quickstart/spa/react)
 
 ## License
 See the LICENSE file for license rights and limitations (Apache 2.0).
