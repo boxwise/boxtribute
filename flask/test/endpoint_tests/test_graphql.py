@@ -92,7 +92,7 @@ def test_base(client):
     db.close_db(None)
     test_id = 1
     graph_ql_query_string = f"""query Base {{
-                base(id: "{test_id}") {{
+                base(id: {test_id}) {{
                     id
                     name
                     currencyName

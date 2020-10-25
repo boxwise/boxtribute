@@ -33,7 +33,7 @@ class User(db.Model):
     modified_by = ForeignKeyField(
         column_name="modified_by", field="id", model="self", null=True,
     )
-    name = CharField(constraints=[SQL("DEFAULT ''")])
+    name = CharField(column_name="naam", constraints=[SQL("DEFAULT ''")])
     pass_ = CharField(column_name="pass", constraints=[SQL("DEFAULT ''")])
     resetpassword = CharField(null=True)
     valid_firstday = DateField(null=True)

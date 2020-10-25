@@ -7,7 +7,7 @@ query_defs = gql(
         hello: String!
         allBases: [Base]
         orgBases(org_id: Int): [Base]
-        base(id: String!): Base
+        base(id: Int!): Base
         allUsers: [User]
         user(email: String): User
     }
