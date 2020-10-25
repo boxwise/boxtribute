@@ -58,7 +58,7 @@ You can choose one of the two and specify the credentials in the `.env`-file.
 
 ## Development Database Seed 
 
-Boxwise is an application for organisations who run distribution/warehouses in multiple bases.
+Boxtribute is an application for organisations who run distribution/warehouses in multiple bases.
 Therefore the development database seed holds at least two organisations and three bases:
 * Organisation `BoxAid` working on `Lesvos` and
 * Organisation `BoxCare` working on `Samos` and in `Thessaloniki`.
@@ -77,6 +77,11 @@ For each of these three user groups of each of the two organisations we created 
 * `dev_volunteer@boxcare.org`
 
 The password of all of these users is `password`.
+
+Furthermore, here a collection of QR-Codes which can are in the dev db and can be used to create boxes.
+
+![387b0f0f5e62cebcafd48383035a92a](docs/qr/387b0f0f5e62cebcafd48383035a92a.png) ![cba56d486db6d39209dbbf9e45353c4](docs/qr/cba56d486db6d39209dbbf9e45353c4.png) ![a61e0efe25b75032b91106372674c26](docs/qr/a61e0efe25b75032b91106372674c26.png) ![f6f20e805192618def2cb400776a2aa](docs/qr/f6f20e805192618def2cb400776a2aa.png) ![12ca607ce60c484bdbb703def950c5b](docs/qr/12ca607ce60c484bdbb703def950c5b.png)
+![13f12820c8010f2f7349962930e6bf4](docs/qr/13f12820c8010f2f7349962930e6bf4.png) ![d0e144a0a4dc0d8af55e2b686a2e97e](docs/qr/d0e144a0a4dc0d8af55e2b686a2e97e.png) ![69107b2e2b4157b5efe10415bc0bba0](docs/qr/69107b2e2b4157b5efe10415bc0bba0.png) ![b8f0730d36571e4149ba3862379bb88](docs/qr/b8f0730d36571e4149ba3862379bb88.png) ![e1fdfdd942db0e764c9bea06c03ba2b](docs/qr/e1fdfdd942db0e764c9bea06c03ba2b.png)
 
 #### CircleCI
 We are use CircleCI for automated testing of PRs and deployment to Google Cloud. To develop the CircleCI scripts you can run a CircleCI client locally. Please check out [the documentation](https://circleci.com/docs/2.0/local-cli/).
