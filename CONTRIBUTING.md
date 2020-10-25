@@ -2,7 +2,7 @@
 
 First off: **thank you**. You will be helping build software that distributes clothes and food to thousands of refugees and other people in need. It gives comfort and dignity to people in a vulnerable situation. That can't be said for most open source contributions.
 
-**If you want to join and support us**, just [write us at hello@boxwise.co](mailto:hello@boxwise.co) and include your github hanlde and / or CV!
+**If you want to join and support us**, just [write us at hello@boxwise.co](mailto:hello@boxwise.co) and include your github handle and / or CV!
 
 **Do you need help using Boxwise, or you found a bug, or got an idea for a feature?** [Please write us at helpme@boxwise.co!](mailto:helpme@boxwise.co)
 
@@ -33,7 +33,7 @@ If you haven't used GitHub before, [this is a tutorial](http://makeapullrequest.
 - Commit all your progress on a branch which you started from master. [Here, guidelines how to write good commit messages](https://github.com/erlang/otp/wiki/writing-good-commit-messages).
 - Push your branch to github.
 - Create a [Pull Request](https://docs.github.com/en/free-pro-team@latest/github/collaborating-with-issues-and-pull-requests/creating-a-pull-request). The PR description should include an explanation of *why* you ended up with the solution you did and the intended behavior. Be clear, especially if you had to make a ‘call’ diverging from the description. 
-- Try to make it as easy as possible for the reviewer so that she can get back to you quickly. **Screenshots** and **step-by-step** guides are especially helpful with big PRs.
+- Try to make it as easy as possible for the reviewer so that they can get back to you quickly. **Screenshots** and **step-by-step** guides are especially helpful with big PRs.
 - [Connect your trello ticket to the PR.](https://blog.trello.com/github-and-trello-integrate-your-commits)
 - Make sure that all automated tests pass for your PR. 
 - **MOST IMPORTANT** You have to let us know that there is a PR waiting and that you need a review. Request reviews from the others. Nudge them in slack if you need the review now :)
@@ -51,6 +51,11 @@ Go to the PR in Github and the "Files Changed" Tab. Go through the changes and c
 Be constructive and do not forget to appreciate the effort.
 
 [More documentation for code reviews in Github you can find here.](https://docs.github.com/en/free-pro-team@latest/github/collaborating-with-issues-and-pull-requests/reviewing-proposed-changes-in-a-pull-request)
+
+### I want to suggest a task and create a ticket. How should I do that?
+If you want to create a ticket, add it on the bottom of the "Product Backlog" list in our trello. In the best case, write a user story to explain your reasoning. If you can add a to-do list with the proposed development steps and maybe even a rough estimation how much time you guess it would take (See the T-Shirt sizeing for time estimation).
+If you discovered a bug, there is a template in trello to create a bug ticket. Please use it.
+After creating the ticket, tag our product managers to review and prioritize your ticket. 
 
 ### I want to suggest changes in our stack / architecture. How do I do that?
 If possible create an Architecture Decision Record (ADR) as a starting point for your discussion. Please check the [ADR template](docs/adr/adr_template.md) for more information!
