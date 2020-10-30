@@ -55,7 +55,7 @@ Be constructive and do not forget to appreciate the effort.
 [More documentation for code reviews in Github you can find here.](https://docs.github.com/en/free-pro-team@latest/github/collaborating-with-issues-and-pull-requests/reviewing-proposed-changes-in-a-pull-request)
 
 ### I want to suggest a task and create a ticket. How should I do that?
-If you want to create a ticket, add it on the bottom of the "Product Backlog" list in our trello. In the best case, write a user story to explain your reasoning. If you can add a to-do list with the proposed development steps and maybe even a rough estimation how much time you guess it would take (See the T-Shirt sizeing for time estimation).
+If you want to create a ticket, add it on the bottom of the "Product Backlog" list in our trello. In the best case, write a user story to explain your reasoning. If you can add a to-do list with the proposed development steps and maybe even a rough estimation how much time you guess it would take (See the T-Shirt sizeing for time estimation).You can also bring it up with our product owner directly in one of the dev meetings.
 If you discovered a bug, there is a template in trello to create a bug ticket. Please use it.
 After creating the ticket, tag our product managers to review and prioritize your ticket.
 

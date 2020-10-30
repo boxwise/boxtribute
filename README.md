@@ -55,7 +55,7 @@ To figure out the gateway of the docker network `backend` run
 
 You can choose one of the two and specify the credentials in the `.env`-file.
 
-## Development Database Seed 
+## Development Database Seed
 
 Boxtribute is an application for organisations who run distribution/warehouses in multiple bases.
 Therefore the development database seed holds at least two organisations and three bases:
@@ -138,6 +138,7 @@ Here, is a list of intro tutorials for each technologies / frameworks / language
 
 - [GraphQL](https://graphql.org/learn/)
 - [Ariadne](https://ariadnegraphql.org/docs/flask-integration.html)
+- [Python 3.X](https://devguide.python.org/)
 - [Flask](https://flask.palletsprojects.com/en/1.1.x/tutorial/layout/)
 - [PeeWee](http://docs.peewee-orm.com/en/latest/peewee/quickstart.html)
 - MySQL
@@ -147,10 +148,9 @@ Here, is a list of intro tutorials for each technologies / frameworks / language
 - [Auth0](https://auth0.com/docs/quickstart/spa/react)
 
 #### Testing
-- [React Testing Library / Jest](https://www.freecodecamp.org/news/8-simple-steps-to-start-testing-react-apps-using-react-testing-library-and-jest/#2-testing-dom-elements)
+- [React Testing Library / Jest](https://www.freecodecamp.org/news/8-simple-steps-to-start-testing-react-apps-using-react-testing-library-and-jest/)
 - [Mocking Apollo Client](https://www.apollographql.com/docs/react/development-testing/testing/)
 - [Pytest](https://docs.pytest.org/en/stable/fixture.html)
 
 ## License
 See the LICENSE file for license rights and limitations (Apache 2.0).
-
