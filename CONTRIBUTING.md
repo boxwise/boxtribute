@@ -10,7 +10,7 @@ First off: **thank you**. You will be helping build software that distributes cl
 
 Quick summary:
 - We follow [Agile methods](https://medium.com/@svharivinod/rolling-out-features-for-zomato-using-agile-8f24bba1ddd8) ([short video](https://www.youtube.com/watch?v=QCif_-r8eK4)) to roll out new features.
-- Our sprint cycle is about a month. In this month we meet twice online - once in the middle of the month to check-in and discuss problems, once at the end/beginning of the month to demo our progress of the sprint. We ask you to join at least the demo call once per month.
+- Our [sprint](https://www.atlassian.com/agile/scrum/sprints) cycle is about a month. In this month we meet twice online - once in the middle of the month to check-in and discuss problems, once at the end/beginning of the month to demo our progress of the sprint. We ask you to join at least the demo call once per month.
 - We use slack as our main communication tool and do asynchronous [stand-ups](https://en.wikipedia.org/wiki/Stand-up_meeting) there once a week.
 - On Fridays, we offer a space for troubleshooting if you are stuck and need to dicuss something about your task.
 
@@ -56,7 +56,7 @@ Be constructive and do not forget to appreciate the effort.
 
 ### I want to suggest a task and create a ticket. How should I do that?
 If you want to create a ticket, add it on the bottom of the "Product Backlog" list in our trello. In the best case, write a user story to explain your reasoning. If you can add a to-do list with the proposed development steps and maybe even a rough estimation how much time you guess it would take (See the T-Shirt sizeing for time estimation).You can also bring it up with our product owner directly in one of the dev meetings.
-If you discovered a bug, there is a template in trello to create a bug ticket. Please use it.
+If you discovered a bug, there is a [template in trello](https://trello.com/c/YToLMBuq) to create a bug ticket. Please use it.
 After creating the ticket, tag our product managers to review and prioritize your ticket.
 
 ### I want to suggest changes in our stack / architecture. How do I do that?
