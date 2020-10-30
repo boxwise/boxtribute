@@ -14,7 +14,7 @@ Whenever you start a new shell to run tests, style-checks, or work on some code 
 
     source .venv/bin/activate
 
-Have a look at [direnv](https://github.com/direnv/direnv) if you're interested in ways to automate this procedure.
+Have a look at [direnv](https://github.com/direnv/direnv) if you're interested in ways to automate this procedure. There is already a `.envrc` file in the root of this repo. If you install `direnv` and allow to run it for your local repo, it will access the python virtual environment `venv` everytime you enter the folder via a command line.
 
 ### Testing
 
@@ -55,7 +55,7 @@ By default the flask app runs in `development` mode which has hot-reloading and 
 
 For debugging an exception in an endpoint, direct your webbrowser to that endpoint. The built-in flask debugger is shown. You can attach a console by clicking the icons on the right of the traceback lines. For more information, refer to the [documentation](https://flask.palletsprojects.com/en/1.1.x/quickstart/#debug-mode).
 
-#### Debugging in VSCode
+#### Debugging Backend in VSCode
 
 Many of our developers are using VSCode which has [a very easy-to-use debugger](https://code.visualstudio.com/docs/editor/debugging) built-in.
 A launch configuration for the debugger is added to the repo.
