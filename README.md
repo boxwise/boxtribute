@@ -111,6 +111,16 @@ query {
   }
 }
 ```
+## Testing Guidelines
+When writing tests, try to follow these guidelines if possible:
+
++ Tests should be as readable as possible and not complex at all. You should understand them by looking at them just once.
++ Local helper functions defined in test files should have functional and easy-to-understand rather than technical names. Meaning, `clickNewUserButton()` is better than `clickElementByTypeAndTestId('button','new-user-button')`.
++ More general use helpers like 'clickElementByTypeAndTestId' can be used within the local helper functions if preferred. The reason for functional naming preference lies in increased readability of tests.
++ Avoid any duplication of helper functions across several files! If using the same functions in several tests (files), there's a tendency to copy-paste the whole file and then rewrite tests. This leads to code duplication of helper functions. Instead, helper functions needed in several locations should be defined in one place should be available globally. Find the matching one by name or create a new one. Avoid creating miscellaneuos file names as it tends to lead to chaos.
++ Current codebase doesn't 100% follow everything stated above but it'd definitely help organising the test helpers accordingly from now on.
+
+![Selection_599](https://user-images.githubusercontent.com/8964422/77221481-6a190d00-6b4a-11ea-88d7-9fc70ce1c982.png)
 
 ## Architecture overview
 
@@ -135,6 +145,11 @@ Here, is a list of intro tutorials for each technologies / frameworks / language
 #### Authentication
 
 - [Auth0](https://auth0.com/docs/quickstart/spa/react)
+
+#### Testing
+- [React Testing Library / Jest](https://www.freecodecamp.org/news/8-simple-steps-to-start-testing-react-apps-using-react-testing-library-and-jest/#2-testing-dom-elements)
+- [Mocking Apollo Client](https://www.apollographql.com/docs/react/development-testing/testing/)
+- [Pytest](https://docs.pytest.org/en/stable/fixture.html)
 
 ## License
 See the LICENSE file for license rights and limitations (Apache 2.0).
