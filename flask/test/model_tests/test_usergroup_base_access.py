@@ -6,7 +6,6 @@ from boxwise_flask.models.user import UsergroupBaseAccess
 def test_get_all_base_ids_for_usergroup_id(default_usergroup_base_access_list):
 
     first_base_id = list(default_usergroup_base_access_list.keys())[0]
-
     base_ids = UsergroupBaseAccess.get_all_base_id_for_usergroup_id(
         default_usergroup_base_access_list[first_base_id]["usergroup_id"]
     )

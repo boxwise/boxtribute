@@ -1,21 +1,16 @@
-from boxwise_flask.db import db
-from boxwise_flask.models.qr_code import QRCode
+import pytest
 
 
-def test_create_box(client):
+@pytest.mark.usefixtures("default_qr_code")
+def test_create_box(client, default_qr_code):
     """Verify base GraphQL query endpoint"""
-    mock_qr = {"id": 42, "code": "999"}
-
-    db.connect_db()
-    QRCode.create(**mock_qr)
-    db.close_db(None)
     box_creation_input_string = f"""{{
                     product_id: 1,
                     items: 9999,
                     location_id: 100000005,
                     comments: "",
                     size_id: 1,
-                    qr_barcode: "{mock_qr["code"]}",
+                    qr_barcode: "{default_qr_code["code"]}",
                     created_by: "1"
                 }}"""
 
@@ -25,6 +20,7 @@ def test_create_box(client):
                 box_creation_input : {box_creation_input_string}
             ) {{
                 id
+                items
             }}
         }}"""
 
@@ -34,4 +30,4 @@ def test_create_box(client):
     created_box = response_data.json["data"]["createBox"]
 
     assert response_data.status_code == 200
-    print(created_box)
+    assert created_box["items"] == 9999

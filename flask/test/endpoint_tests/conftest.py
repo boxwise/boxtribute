@@ -15,7 +15,6 @@ import os
 import tempfile
 
 import pytest
-
 from boxwise_flask.app import create_app
 from boxwise_flask.db import db
 from boxwise_flask.models.base import Base
@@ -35,6 +34,21 @@ from boxwise_flask.models.user import User
 from boxwise_flask.models.usergroup import Usergroup
 from boxwise_flask.models.usergroup_access_level import UsergroupAccessLevel
 from boxwise_flask.models.usergroup_base_access import UsergroupBaseAccess
+
+# Imports fixtures into tests
+from data.base import default_base  # noqa: F401
+from data.base import default_bases  # noqa: F401
+from data.box import default_box  # noqa: F401
+from data.box_state import default_box_state  # noqa: F401
+from data.location import default_location  # noqa: F401
+from data.organisation import default_organisation  # noqa: F401
+from data.qr_code import default_qr_code  # noqa: F401
+from data.setup_tables import setup_tables
+from data.user import default_user  # noqa: F401
+from data.user import default_users  # noqa: F401
+from data.usergroup import default_usergroup  # noqa: F401
+from data.usergroup_access_level import default_usergroup_access_level  # noqa: F401
+from data.usergroup_base_access import default_usergroup_base_access_list  # noqa: F401
 
 MODELS = (
     Base,
@@ -74,6 +88,7 @@ def app():
 
     with db.database.bind_ctx(MODELS):
         db.database.create_tables(MODELS)
+        setup_tables()
         db.close_db(None)
         with app.app_context():
             yield app
@@ -83,7 +98,7 @@ def app():
     os.remove(db_filepath)
 
 
-@pytest.fixture
+@pytest.fixture()
 def client(app):
     """The fixture simulates a client sending requests to the app."""
     client = app.test_client()

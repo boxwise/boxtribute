@@ -1,3 +1,5 @@
+from boxwise_flask.db import db
+from boxwise_flask.models.user import User
 from peewee import (
     CharField,
     DateTimeField,
@@ -5,9 +7,6 @@ from peewee import (
     IntegerField,
     SmallIntegerField,
 )
-
-from boxwise_flask.db import db
-from boxwise_flask.models.user import User
 
 
 class BaseModule(db.Model):
@@ -19,11 +18,10 @@ class BaseModule(db.Model):
     created_by = ForeignKeyField(User, null=True, default=None, on_update="CASCADE")
     modified = DateTimeField(null=True)
     modified_by = ForeignKeyField(User, null=True, default=None, on_update="CASCADE")
-    alert = IntegerField(default=0)
     adminonly = SmallIntegerField(default=0)
     visible = SmallIntegerField()
     allusers = SmallIntegerField(default=0)
-    allcamps = SmallIntegerField(default=0)
+    allbases = SmallIntegerField(default=0)
 
     class Meta:
         table_name = "cms_functions"

@@ -1,22 +1,13 @@
-from peewee import (
-    SQL,
-    CharField,
-    DateTimeField,
-    FloatField,
-    ForeignKeyField,
-    IntegerField,
-)
-
 from boxwise_flask.db import db
 from boxwise_flask.models.base import Base
 from boxwise_flask.models.product_category import ProductCategory
 from boxwise_flask.models.product_gender import ProductGender
 from boxwise_flask.models.size_range import SizeRange
 from boxwise_flask.models.user import User
+from peewee import SQL, CharField, DateTimeField, ForeignKeyField, IntegerField
 
 
 class Product(db.Model):
-    amountneeded = FloatField(constraints=[SQL("DEFAULT 1")])
     base = ForeignKeyField(column_name="camp_id", field="id", model=Base, null=True)
     category = ForeignKeyField(
         column_name="category_id", field="id", model=ProductCategory, null=True

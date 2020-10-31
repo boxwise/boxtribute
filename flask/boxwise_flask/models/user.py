@@ -61,5 +61,4 @@ class User(db.Model):
         # convert to dict 1 at a time,
         # and pull the base_id from that dict, and put in a list
         user.base_id = [model_to_dict(item)["base_id"] for item in base_ids]
-
         return user

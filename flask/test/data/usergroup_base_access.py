@@ -1,19 +1,28 @@
 import pytest
 from boxwise_flask.models.usergroup_base_access import UsergroupBaseAccess
+from data.base import default_bases_data
+from data.usergroup import default_usergroup_data
 
 
-@pytest.fixture()
-def default_usergroup_base_access_list(default_bases, default_usergroup):
-
+def default_usergroup_base_access_list_data():
     mock_usergroup_base_access_dict = {}
-    for base_key in default_bases:
+    for base_key in default_bases_data():
         mock_usergroup_base_access = {
             "base_id": base_key,
-            "usergroup_id": default_usergroup["id"],
+            "usergroup_id": default_usergroup_data()["id"],
         }
-
-        UsergroupBaseAccess.create(**mock_usergroup_base_access)
 
         mock_usergroup_base_access_dict[base_key] = mock_usergroup_base_access
 
     return mock_usergroup_base_access_dict
+
+
+@pytest.fixture()
+def default_usergroup_base_access_list():
+    return default_usergroup_base_access_list_data()
+
+
+def create_default_usergroup_base_access_list():
+    UsergroupBaseAccess.insert_many(
+        default_usergroup_base_access_list_data().values()
+    ).execute()

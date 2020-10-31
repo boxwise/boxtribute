@@ -36,6 +36,7 @@ from data.box_state import default_box_state  # noqa: F401
 from data.location import default_location  # noqa: F401
 from data.organisation import default_organisation  # noqa: F401
 from data.qr_code import default_qr_code  # noqa: F401
+from data.setup_tables import setup_tables
 from data.user import default_user  # noqa: F401
 from data.user import default_users  # noqa: F401
 from data.usergroup import default_usergroup  # noqa: F401
@@ -70,5 +71,6 @@ def setup_db_before_test():
     _db = SqliteDatabase(":memory:")
     with _db.bind_ctx(MODELS):
         _db.create_tables(MODELS)
+        setup_tables()
         yield _db
         _db.drop_tables(MODELS)

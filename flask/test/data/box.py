@@ -3,19 +3,32 @@ from datetime import datetime
 import pytest
 from boxwise_flask.models.box import Box
 
+from .box_state import default_box_state_data
+from .location import default_location_data
 
-@pytest.fixture()
-def default_box(default_box_state, default_location):
+TIME = datetime.now()
+
+
+def default_box_data():
     mock_box = {
         "id": 2,
         "box_id": "abc",
-        "box_state": default_box_state["id"],
+        "box_state": default_box_state_data()["id"],
         "comments": "",
-        "created": datetime.now(),
+        "created": TIME,
         "created_by": None,
-        "deleted": datetime.now(),
+        "deleted": TIME,
         "items": "None",
-        "location": default_location["id"],
+        "location": default_location_data()["id"],
     }
-    Box.create(**mock_box)
+
     return mock_box
+
+
+@pytest.fixture()
+def default_box():
+    return default_box_data()
+
+
+def create_default_box():
+    Box.create(**default_box_data())

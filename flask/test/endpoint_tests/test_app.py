@@ -1,4 +1,3 @@
-
 def test_private_endpoint(client):
     """example test for private endpoint"""
     response_data = client.get("/api/private")
