@@ -14,19 +14,35 @@ class Base(db.Model):
 
     adult_age = IntegerField(constraints=[SQL("DEFAULT 15")])
 
-    cyclestart = DateTimeField(default=datetime.now(), null=True)
-    daystokeepdeletedpersons = IntegerField(
-        constraints=[SQL("DEFAULT 9999")], null=True
+    cycle_start = DateTimeField(
+        column_name="cyclestart", default=datetime.now(), null=True
+    )
+    days_to_keep_deleted_persons = IntegerField(
+        column_name="daystokeepdeletedpersons",
+        constraints=[SQL("DEFAULT 9999")],
+        null=True,
     )
     delete_inactive_users = IntegerField(constraints=[SQL("DEFAULT 30")])
     deleted = DateTimeField(null=True, default=None)
-    dropcapadult = IntegerField(constraints=[SQL("DEFAULT 99999")])
-    dropcapchild = IntegerField(constraints=[SQL("DEFAULT 99999")])
-    dropsperadult = CharField(constraints=[SQL("DEFAULT '100'")])
-    dropsperchild = CharField(constraints=[SQL("DEFAULT '100'")])
-    extraportion = IntegerField(constraints=[SQL("DEFAULT 0")], null=True)
-    familyidentifier = CharField(constraints=[SQL("DEFAULT 'Container'")])
-    idcard = IntegerField(constraints=[SQL("DEFAULT 0")])
+    dropcap_adult = IntegerField(
+        column_name="dropcapadult", constraints=[SQL("DEFAULT 99999")]
+    )
+    dropcap_child = IntegerField(
+        column_name="dropcapchild", constraints=[SQL("DEFAULT 99999")]
+    )
+    dropsper_adult = CharField(
+        column_name="dropsperadult", constraints=[SQL("DEFAULT '100'")]
+    )
+    dropsper_child = CharField(
+        column_name="dropsperchild", constraints=[SQL("DEFAULT '100'")]
+    )
+    extra_portion = IntegerField(
+        column_name="extraportion", constraints=[SQL("DEFAULT 0")], null=True
+    )
+    family_identifier = CharField(
+        column_name="familyidentifier", constraints=[SQL("DEFAULT 'Container'")]
+    )
+    idcard = IntegerField(column_name="idcard", constraints=[SQL("DEFAULT 0")])
     market = IntegerField(constraints=[SQL("DEFAULT 1")])
     modified = DateTimeField(null=True)
     modified_by = ForeignKeyField(
@@ -35,13 +51,27 @@ class Base(db.Model):
     organisation = ForeignKeyField(
         column_name="organisation_id", field="id", model=Organisation
     )
-    resettokens = IntegerField(constraints=[SQL("DEFAULT 0")], null=True)
-    schedulebreak = CharField(constraints=[SQL("DEFAULT '1'")])
-    schedulebreakduration = CharField(constraints=[SQL("DEFAULT '1'")])
-    schedulebreakstart = CharField(constraints=[SQL("DEFAULT '13:00'")])
-    schedulestart = CharField(constraints=[SQL("DEFAULT '11:00'")])
-    schedulestop = CharField(constraints=[SQL("DEFAULT '17:00'")])
-    scheduletimeslot = CharField(constraints=[SQL("DEFAULT '0.5'")])
+    resettokens = IntegerField(
+        column_name="resettokens", constraints=[SQL("DEFAULT 0")], null=True
+    )
+    schedule_break = CharField(
+        column_name="schedulebreak", constraints=[SQL("DEFAULT '1'")]
+    )
+    schedule_break_duration = CharField(
+        column_name="schedulebreakduration", constraints=[SQL("DEFAULT '1'")]
+    )
+    schedule_break_start = CharField(
+        column_name="schedulebreakstart", constraints=[SQL("DEFAULT '13:00'")]
+    )
+    schedule_start = CharField(
+        column_name="schedulestart", constraints=[SQL("DEFAULT '11:00'")]
+    )
+    schedule_stop = CharField(
+        column_name="schedulestop", constraints=[SQL("DEFAULT '17:00'")]
+    )
+    scheduletimeslot = CharField(
+        column_name="scheduletimeslot", constraints=[SQL("DEFAULT '0.5'")]
+    )
     seq = IntegerField()
 
     class Meta:
@@ -68,4 +98,4 @@ class Base(db.Model):
 
     @staticmethod
     def get_from_id(base_id):
-        return Base.select().where(Base.id == base_id).get()
+        return Base.get(Base.id == base_id)

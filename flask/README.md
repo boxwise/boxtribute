@@ -62,7 +62,7 @@ def create_default_<data_name>():
     <data_model>.create(**default_<data_name>_data())
 ```
 
-To add new data the fixtures need to be imported in the required `conftest.py` 
+To add new data the fixtures need to be imported in the required `conftest.py`
 
 Also the call to create added to `setup_tables.py` in the `test/data` directory
 
