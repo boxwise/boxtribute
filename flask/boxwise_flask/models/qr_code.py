@@ -1,6 +1,5 @@
-from peewee import SQL, CharField, DateTimeField, IntegerField
-
 from boxwise_flask.db import db
+from peewee import SQL, CharField, DateTimeField, IntegerField
 
 
 class QRCode(db.Model):
@@ -17,5 +16,4 @@ class QRCode(db.Model):
 
     @staticmethod
     def get_id_from_code(code):
-        qr_id = QRCode.select(QRCode.id).where(QRCode.code == code).get()
-        return qr_id.id
+        return QRCode.get(QRCode.code == code).id

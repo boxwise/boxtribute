@@ -2,6 +2,7 @@ from datetime import date, datetime
 
 import pytest
 from boxwise_flask.models.user import User
+from data.usergroup import default_usergroup_data
 
 TIME = datetime.now()
 TODAY = date.today()
@@ -16,16 +17,14 @@ def default_user_data():
         "valid_lastday": TODAY,
         "lastlogin": TIME,
         "lastaction": TIME,
-        "pass_": "pass",
         "is_admin": 0,
         "created": TIME,
         "created_by": None,
         "modified": None,
         "modified_by": None,
-        "resetpassword": None,
         "language": None,
         "deleted": None,
-        "usergroup": None,
+        "usergroup": default_usergroup_data()["id"],
     }
 
     return mock_user
@@ -46,13 +45,11 @@ def default_users_data():
         "valid_lastday": TODAY,
         "lastlogin": TIME,
         "lastaction": TIME,
-        "pass_": "pass",
         "is_admin": 0,
         "created": TIME,
         "created_by": None,
         "modified": None,
         "modified_by": None,
-        "resetpassword": None,
         "language": None,
         "deleted": None,
         "usergroup": None,

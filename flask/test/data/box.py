@@ -2,9 +2,9 @@ from datetime import datetime
 
 import pytest
 from boxwise_flask.models.box import Box
-
-from .box_state import default_box_state_data
-from .location import default_location_data
+from data.box_state import default_box_state_data
+from data.location import default_location_data
+from data.product import default_product_data
 
 TIME = datetime.now()
 
@@ -12,6 +12,7 @@ TIME = datetime.now()
 def default_box_data():
     mock_box = {
         "id": 2,
+        "product": default_product_data()["id"],
         "box_id": "abc",
         "box_state": default_box_state_data()["id"],
         "comments": "",

@@ -20,5 +20,5 @@ class UsergroupBaseAccess(db.Model):
         query = UsergroupBaseAccess.select(UsergroupBaseAccess.base_id).where(
             UsergroupBaseAccess.usergroup_id == usergroup_id
         )
-
-        return list(query)
+        base_ids = [usergroup_base_access.base_id for usergroup_base_access in query]
+        return base_ids

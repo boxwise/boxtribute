@@ -44,7 +44,7 @@ def test_base(client, default_bases):
     data = {"query": graph_ql_query_string}
     response_data = client.post("/graphql", json=data)
     assert response_data.status_code == 200
-    print()
+
     expected_base = default_bases[test_id]
     created_base = response_data.json["data"]["base"]
     assert created_base["id"] == expected_base["id"]

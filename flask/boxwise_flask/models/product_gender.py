@@ -1,7 +1,6 @@
-from peewee import SQL, CharField, DateTimeField, ForeignKeyField, IntegerField
-
 from boxwise_flask.db import db
 from boxwise_flask.models.user import User
+from peewee import SQL, CharField, DateTimeField, ForeignKeyField, IntegerField
 
 
 class ProductGender(db.Model):

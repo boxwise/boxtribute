@@ -3,7 +3,6 @@ from datetime import datetime
 import pytest
 from boxwise_flask.models.usergroup import Usergroup
 from data.organisation import default_organisation_data
-from data.user import default_user_data
 from data.usergroup_access_level import default_usergroup_access_level_data
 
 TIME = datetime.now()
@@ -13,11 +12,11 @@ def default_usergroup_data():
     mock_usergroup = {
         "id": 1,
         "created": TIME,
-        "created_by": default_user_data()["id"],
+        "created_by": None,
         "deleted": TIME,
-        "label": 12341234,
+        "label": "12341234",
         "modified": 12341234,
-        "modified_by": default_user_data()["id"],
+        "modified_by": None,
         "organisation": default_organisation_data()["id"],
         "usergroup_access_level": default_usergroup_access_level_data()["id"],
     }

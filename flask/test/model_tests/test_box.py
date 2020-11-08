@@ -4,7 +4,12 @@ from playhouse.shortcuts import model_to_dict
 
 
 @pytest.mark.usefixtures("default_box")
-def test_box_model(default_box):
+@pytest.mark.usefixtures("default_product")
+@pytest.mark.usefixtures("default_product_gender")
+@pytest.mark.usefixtures("default_product_category")
+def test_box_model(
+    default_box, default_product, default_product_gender, default_product_category
+):
 
     queried_box = Box.get_box(default_box["box_id"])
 
@@ -23,3 +28,6 @@ def test_box_model(default_box):
     assert queried_box_dict["items"] == default_box["items"]
     assert queried_box_dict["location"]["id"] == default_box["location"]
     assert queried_box_dict["created_by"] == default_box["created_by"]
+    assert queried_box_dict["product"]["id"] == default_product["id"]
+    assert queried_box_dict["product"]["product_gender"] == default_product_gender
+    assert queried_box_dict["product"]["product_category"] == default_product_category

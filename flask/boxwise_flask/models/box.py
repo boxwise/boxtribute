@@ -1,6 +1,12 @@
 import uuid
 from datetime import datetime
 
+from boxwise_flask.db import db
+from boxwise_flask.models.box_state import BoxState
+from boxwise_flask.models.location import Location
+from boxwise_flask.models.product import Product
+from boxwise_flask.models.size import Size
+from boxwise_flask.models.user import User
 from peewee import (
     SQL,
     CharField,
@@ -9,13 +15,6 @@ from peewee import (
     IntegerField,
     TextField,
 )
-
-from boxwise_flask.db import db
-from boxwise_flask.models.box_state import BoxState
-from boxwise_flask.models.location import Location
-from boxwise_flask.models.product import Product
-from boxwise_flask.models.size import Size
-from boxwise_flask.models.user import User
 
 from .qr_code import QRCode
 
@@ -48,9 +47,7 @@ class Box(db.Model):
     picked_by = ForeignKeyField(
         column_name="picked_by", field="id", model=User, null=True,
     )
-    product = ForeignKeyField(
-        column_name="product_id", field="id", model=Product, null=True
-    )
+    product = ForeignKeyField(column_name="product_id", field="id", model=Product)
     qr_code = ForeignKeyField(column_name="qr_id", field="id", model=QRCode, null=True)
     size = ForeignKeyField(column_name="size_id", field="id", model=Size, null=True)
 

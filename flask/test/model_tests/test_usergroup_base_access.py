@@ -11,7 +11,4 @@ def test_get_all_base_ids_for_usergroup_id(default_usergroup_base_access_list):
     )
 
     for base_id in base_ids:
-        assert (
-            base_id.base_id
-            == default_usergroup_base_access_list[base_id.base_id]["base_id"]
-        )
+        assert base_id == default_usergroup_base_access_list[base_id]["base_id"]

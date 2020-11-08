@@ -3,11 +3,10 @@ import json
 import os
 from functools import wraps
 
+from boxwise_flask.models.user import get_user_from_email_with_base_ids
 from flask import _request_ctx_stack, request
 from jose import jwt
 from six.moves.urllib.request import urlopen
-
-from .models.user import User
 
 AUTH0_DOMAIN = os.getenv("AUTH0_DOMAIN")
 API_AUDIENCE = os.getenv("AUTH0_AUDIENCE")
@@ -145,7 +144,7 @@ def authorization_test(test_for, **kwargs):
         # but it DOES have to be in this form to work with the Auth0 rule providing it.
         payload = decode_jwt(token, rsa_key)
         email = payload["https://www.boxtribute.com/email"]
-        requesting_user = User.get_from_email(email)
+        requesting_user = get_user_from_email_with_base_ids(email)
 
         if test_for == "bases":
             allowed_access = test_base(requesting_user, kwargs["base_id"])
@@ -172,7 +171,7 @@ def authorization_test(test_for, **kwargs):
 
 
 def test_base(requesting_user, base_id):
-    users_bases = requesting_user.base_id
+    users_bases = requesting_user["base_ids"]
     if base_id in users_bases:
         return True
     return False

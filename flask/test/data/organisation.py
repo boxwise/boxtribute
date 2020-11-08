@@ -1,15 +1,18 @@
 import pytest
 from boxwise_flask.models.organisation import Organisation
-from data.user import default_user_data
 
 
 def default_organisation_data():
     mock_organisation = {
         "id": 1,
-        "label": 1,
-        "created_by": default_user_data()["id"],
-        "modified_by": default_user_data()["id"],
+        "label": "1",
+        "created_by": None,
+        "modified_by": None,
+        "created": None,
+        "deleted": None,
+        "modified": None,
     }
+
     return mock_organisation
 
 

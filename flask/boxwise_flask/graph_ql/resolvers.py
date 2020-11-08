@@ -13,7 +13,7 @@ from boxwise_flask.graph_ql.query_defs import query_defs
 from boxwise_flask.graph_ql.type_defs import type_defs
 from boxwise_flask.models.base import Base
 from boxwise_flask.models.box import Box
-from boxwise_flask.models.user import User
+from boxwise_flask.models.user import User, get_user_from_email_with_base_ids
 
 query = ObjectType("Query")
 mutation = MutationType()
@@ -38,8 +38,7 @@ def serialize_date(value):
 def resolve_all_bases(_, info):
     # discard the first input because it belongs to a root type (Query, Mutation,
     # Subscription). Otherwise it would be a value returned by a parent resolver.
-    response = Base.get_all_bases()
-    return response
+    return Base.get_all_bases()
 
 
 # not everyone can see all the bases
@@ -66,8 +65,7 @@ def resolve_all_users(_, info):
 # TODO get currrent user based on email in token
 @query.field("user")
 def resolve_user(_, info, email):
-    response = User.get_from_email(email)
-    return response
+    return get_user_from_email_with_base_ids(email)
 
 
 @mutation.field("createBox")

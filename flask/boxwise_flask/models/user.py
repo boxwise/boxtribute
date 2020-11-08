@@ -34,8 +34,6 @@ class User(db.Model):
         column_name="modified_by", field="id", model="self", null=True,
     )
     name = CharField(column_name="naam", constraints=[SQL("DEFAULT ''")])
-    pass_ = CharField(column_name="pass", constraints=[SQL("DEFAULT ''")])
-    resetpassword = CharField(null=True)
     valid_firstday = DateField(null=True)
     valid_lastday = DateField(null=True)
 
@@ -51,14 +49,26 @@ class User(db.Model):
 
     @staticmethod
     def get_from_email(email):
-        user = User.select().where(User.email == email).get()
-        base_ids = []
-        if user.usergroup:
-            base_ids = UsergroupBaseAccess.get_all_base_id_for_usergroup_id(
-                user.usergroup.id
-            )
-        # base_ids is a peewee ModelSelect (so, many objects).
-        # convert to dict 1 at a time,
-        # and pull the base_id from that dict, and put in a list
-        user.base_id = [model_to_dict(item)["base_id"] for item in base_ids]
-        return user
+        return (
+            User.select(User.id, User.name, User.email, User.usergroup)
+            .where(User.email == email)
+            .get()
+        )
+
+
+def get_user_from_email_with_base_ids(email):
+    user = User.get_from_email(email)
+    user_dict = model_to_dict(user)
+
+    base_ids = []
+    if user.usergroup:
+        base_ids = UsergroupBaseAccess.get_all_base_id_for_usergroup_id(
+            user.usergroup.id
+        )
+
+    # base_ids is a peewee ModelSelect (so, many objects).
+    # convert to dict 1 at a time,
+    # and pull the base_id from that dict, and put in a list
+
+    user_dict["base_ids"] = base_ids
+    return user_dict

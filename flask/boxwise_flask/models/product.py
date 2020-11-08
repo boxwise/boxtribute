@@ -9,7 +9,7 @@ from peewee import SQL, CharField, DateTimeField, ForeignKeyField, IntegerField
 
 class Product(db.Model):
     base = ForeignKeyField(column_name="camp_id", field="id", model=Base, null=True)
-    category = ForeignKeyField(
+    product_category = ForeignKeyField(
         column_name="category_id", field="id", model=ProductCategory, null=True
     )
     comments = CharField(null=True)
@@ -29,7 +29,9 @@ class Product(db.Model):
     size_range = ForeignKeyField(
         column_name="sizegroup_id", field="id", model=SizeRange, null=True
     )
-    stockincontainer = IntegerField(constraints=[SQL("DEFAULT 0")])
+    in_shop = IntegerField(
+        column_name="stockincontainer", constraints=[SQL("DEFAULT 0")]
+    )
     value = IntegerField(constraints=[SQL("DEFAULT 0")])
 
     class Meta:

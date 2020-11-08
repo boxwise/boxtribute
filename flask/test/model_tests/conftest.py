@@ -35,8 +35,12 @@ from data.box import default_box  # noqa: F401
 from data.box_state import default_box_state  # noqa: F401
 from data.location import default_location  # noqa: F401
 from data.organisation import default_organisation  # noqa: F401
+from data.product import default_product  # noqa: F401
+from data.product_category import default_product_category  # noqa: F401
+from data.product_gender import default_product_gender  # noqa: F401
 from data.qr_code import default_qr_code  # noqa: F401
 from data.setup_tables import setup_tables
+from data.size_range import default_size_range  # noqa: F401
 from data.user import default_user  # noqa: F401
 from data.user import default_users  # noqa: F401
 from data.usergroup import default_usergroup  # noqa: F401
