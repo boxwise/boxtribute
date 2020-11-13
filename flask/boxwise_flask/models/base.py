@@ -51,7 +51,7 @@ class Base(db.Model):
     organisation = ForeignKeyField(
         column_name="organisation_id", field="id", model=Organisation
     )
-    resettokens = IntegerField(
+    reset_tokens = IntegerField(
         column_name="resettokens", constraints=[SQL("DEFAULT 0")], null=True
     )
     schedule_break = CharField(
