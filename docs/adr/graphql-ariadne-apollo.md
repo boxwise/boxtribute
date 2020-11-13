@@ -2,7 +2,7 @@
 
 ## Status
 
-Accepted, installation of Ariadne and Apollo complete. Creation of GraphQL schema in progress.
+Accepted, installation of Ariadne and Apollo complete. Creation of GraphQL schema in progress. (October 28, 2020)
 
 ## Context
 
