@@ -20,7 +20,7 @@ class ProductGender(db.Model):
         column_name="modified_by", field="id", model=User, null=True,
     )
     seq = IntegerField(null=True)
-    shortlabel = CharField(null=True)
+    short label = CharField(null=True)
 
     class Meta:
         table_name = "genders"
