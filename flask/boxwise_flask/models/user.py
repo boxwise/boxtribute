@@ -27,15 +27,15 @@ class User(db.Model):
     language = ForeignKeyField(
         column_name="language", field="id", model=Language, null=True
     )
-    lastaction = DateTimeField()
-    lastlogin = DateTimeField()
+    last_action = DateTimeField()
+    last_login = DateTimeField()
     modified = DateTimeField(null=True)
     modified_by = ForeignKeyField(
         column_name="modified_by", field="id", model="self", null=True,
     )
     name = CharField(column_name="naam", constraints=[SQL("DEFAULT ''")])
-    valid_firstday = DateField(null=True)
-    valid_lastday = DateField(null=True)
+    valid_first_day = DateField(null=True)
+    valid_last_day = DateField(null=True)
 
     class Meta:
         table_name = "cms_users"
