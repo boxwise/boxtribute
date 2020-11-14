@@ -132,7 +132,7 @@ Here, is a list of intro tutorials for each technologies / frameworks / language
 
 #### Frontend
 
-- [Typescript](https://www.typescriptlang.org/docs/handbook/typescript-in-5-minutes.html)
+- [Typescript](https://react-typescript-cheatsheet.netlify.app/)
 - [Custom Rebass Library](https://github.com/boxwise/react-components)
 - [React](https://reactjs.org/docs/getting-started.html)
 - [React Hooks](https://reactjs.org/docs/hooks-intro.html)
