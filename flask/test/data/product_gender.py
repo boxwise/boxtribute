@@ -17,7 +17,7 @@ def default_product_gender_data():
         "modified": None,
         "modified_by": None,
         "seq": None,
-        "shortlabel": None,
+        "short_label": None,
     }
 
     return mock_product_gender
