@@ -24,7 +24,7 @@ Run the test suite on your machine by executing
 
     pytest
 
-Two types of tests can be setup. Model tests and endpoint tests.
+Two types of tests can be setup. Model (unit) tests and endpoint (integration) tests.
 
 New test files should begin with the word test so the they are discovered when running pytest.
 for example:
@@ -62,9 +62,9 @@ def create_default_<data_name>():
     <data_model>.create(**default_<data_name>_data())
 ```
 
-To add new data the fixtures need to be imported in the required `conftest.py`
-
-Also the call to create added to `setup_tables.py` in the `test/data` directory
+##### Please be aware that 
+- for new data the fixtures need to be imported in the required `conftest.py` and
+- the call to create needs to be added to `setup_tables.py` in the `test/data` directory.
 
 ### Formatting and linting
 
