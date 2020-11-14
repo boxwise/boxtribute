@@ -135,6 +135,8 @@ Here, is a list of intro tutorials for each technologies / frameworks / language
 - [Typescript](https://www.typescriptlang.org/docs/handbook/typescript-in-5-minutes.html)
 - [Custom Rebass Library](https://github.com/boxwise/react-components)
 - [React](https://reactjs.org/docs/getting-started.html)
+- [React Hooks](https://reactjs.org/docs/hooks-intro.html)
+- [React Context](https://reactjs.org/docs/context.html)
 - [Apollo](https://www.apollographql.com/docs/react/)
 
 #### Backend
