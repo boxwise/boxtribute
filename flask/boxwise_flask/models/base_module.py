@@ -18,10 +18,10 @@ class BaseModule(db.Model):
     created_by = ForeignKeyField(User, null=True, default=None, on_update="CASCADE")
     modified = DateTimeField(null=True)
     modified_by = ForeignKeyField(User, null=True, default=None, on_update="CASCADE")
-    adminonly = SmallIntegerField(default=0)
+    admin_only = SmallIntegerField(default=0)
     visible = SmallIntegerField()
-    allusers = SmallIntegerField(default=0)
-    allbases = SmallIntegerField(default=0)
+    all_users = SmallIntegerField(default=0)
+    all_bases = SmallIntegerField(default=0)
 
     class Meta:
         table_name = "cms_functions"
