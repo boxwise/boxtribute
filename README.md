@@ -122,6 +122,9 @@ When writing tests, try to follow these guidelines if possible:
 
 ![Selection_599](https://user-images.githubusercontent.com/8964422/77221481-6a190d00-6b4a-11ea-88d7-9fc70ce1c982.png)
 
+Up until now, we have mainly written unit tests and integration tests on frontend and backend. Unit tests are testing single units of code in only one environment or framework, integration tests test the integration between different frameworks / technologies.
+Please find here collection of [best practices for unit tests](https://medium.com/better-programming/13-tips-for-writing-useful-unit-tests-ca20706b5368).
+
 ## Architecture overview
 
 All our architecture decisions are logged in ADRs which you can find [here](docs/adr/adr_template.md).
