@@ -153,7 +153,8 @@ Here, is a list of intro tutorials for each technologies / frameworks / language
 - [Auth0](https://auth0.com/docs/quickstart/spa/react)
 
 #### Testing
-- [React Testing Library / Jest](https://www.freecodecamp.org/news/8-simple-steps-to-start-testing-react-apps-using-react-testing-library-and-jest/)
+- [React Testing Library / Jest](https://medium.com/@boyney123/my-experience-moving-from-enzyme-to-react-testing-library-5ac65d992ce)
+- [React Testing Library / Jest Tutorial](https://www.freecodecamp.org/news/8-simple-steps-to-start-testing-react-apps-using-react-testing-library-and-jest/)
 - [Mocking Apollo Client](https://www.apollographql.com/docs/react/development-testing/testing/)
 - [Pytest](https://docs.pytest.org/en/stable/fixture.html)
 
