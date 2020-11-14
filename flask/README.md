@@ -18,11 +18,13 @@ Have a look at [direnv](https://github.com/direnv/direnv) if you're interested i
 
 ### Testing
 
+#### Writing tests
+
 Run the test suite on your machine by executing
 
     pytest
 
-Two types of tests can be setup. Model tests and endpoint tests.
+Two types of tests can be setup. Model (unit) tests and endpoint (integration) tests.
 
 New test files should begin with the word test so the they are discovered when running pytest.
 for example:
@@ -33,13 +35,36 @@ and similarly the test functions should have the format
 ```
 def test_<test_name>():
 ```
-For endpoint testing, the test functions usually take two fixtures.
+For endpoint testing, the test functions usually take one fixture along with the required data fixtures.
 ```
-def test_<test_name>(client, database):
+@pytest.mark.usefixtures("<data_fixture_name>")
+def test_<test_name>(client, <data_fixture_name>):
 ```
 to allow for databases to be preconfigured with data and requests to be made to the app.
 
 Fixtures are configured in the `conftest.py` files which execute automatically before a test.
+
+#### Setting up test data
+
+Test data is setup in the `test/data` folder and each piece of data is split up into 3 seperate parts
+1. The default data function is a dictionary which has all of the data for that database table
+```
+def default_<data_name>_data():
+```
+2. The fixture passes this data into the required tests
+```
+@pytest.fixture()
+def default_<data_name>():
+```
+3. the creation function is called on the setup of a test so that all of the data is in the database when the test is ran
+```
+def create_default_<data_name>():
+    <data_model>.create(**default_<data_name>_data())
+```
+
+##### Please be aware that 
+- for new data the fixtures need to be imported in the required `conftest.py` and
+- the call to create needs to be added to `setup_tables.py` in the `test/data` directory.
 
 ### Formatting and linting
 

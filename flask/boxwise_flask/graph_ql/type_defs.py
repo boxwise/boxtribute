@@ -28,7 +28,7 @@ type_defs = gql(
         box_id: String!
         product_id: Int
         size_id: Int
-        items: String
+        items: Int
         location_id: Int
         comments: String
         qr_id: Int

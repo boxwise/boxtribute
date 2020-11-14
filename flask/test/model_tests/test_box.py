@@ -1,31 +1,33 @@
-from datetime import datetime
-
+import pytest
+from boxwise_flask.models.box import Box
 from playhouse.shortcuts import model_to_dict
 
-from boxwise_flask.models.box import Box
 
+@pytest.mark.usefixtures("default_box")
+@pytest.mark.usefixtures("default_product")
+@pytest.mark.usefixtures("default_product_gender")
+@pytest.mark.usefixtures("default_product_category")
+def test_box_model(
+    default_box, default_product, default_product_gender, default_product_category
+):
 
-def test_box_model():
+    queried_box = Box.get_box(default_box["box_id"])
 
-    new_box = {
-        "id": 2,
-        "box_id": "abc",
-        "product_id": 1,
-        "size_id": 2,
-        "items": 3,
-        "location_id": 4,
-        "comments": "",
-        "qr_id": 1,
-        "created": datetime.now(),
-        "created_by": "",
-        "box_state_id": 1,
-    }
+    queried_box_dict = model_to_dict(queried_box)
+    if queried_box_dict != default_box:
+        print("queried_box ", queried_box_dict)
+        print("created_box ", default_box)
 
-    a = Box.create(**new_box)
-    x = Box.get_box(a.box_id)
-    as_dict = model_to_dict(x)
-    if as_dict != new_box:
-        print("output", as_dict)
-        print("input", new_box)
-
-    assert as_dict == new_box
+    assert queried_box_dict["id"] == default_box["id"]
+    assert queried_box_dict["box_id"] == default_box["box_id"]
+    assert queried_box_dict["box_state"]["id"] == default_box["box_state"]
+    assert queried_box_dict["comments"] == default_box["comments"]
+    assert queried_box_dict["created"] == default_box["created"]
+    assert queried_box_dict["created_by"] == default_box["created_by"]
+    assert queried_box_dict["deleted"] == default_box["deleted"]
+    assert queried_box_dict["items"] == default_box["items"]
+    assert queried_box_dict["location"]["id"] == default_box["location"]
+    assert queried_box_dict["created_by"] == default_box["created_by"]
+    assert queried_box_dict["product"]["id"] == default_product["id"]
+    assert queried_box_dict["product"]["product_gender"] == default_product_gender
+    assert queried_box_dict["product"]["product_category"] == default_product_category

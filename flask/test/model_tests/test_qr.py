@@ -1,9 +1,6 @@
-from boxwise_flask.models.qr import Qr
+from boxwise_flask.models.qr_code import QRCode
 
 
-def test_qr_model():
-    qr_code = {"id": 1, "code": "999"}
-
-    Qr.create(**qr_code)
-    id = Qr.get_id_from_code(qr_code["code"])
-    assert id == qr_code["id"]
+def test_qr_model(default_qr_code):
+    id = QRCode.get_id_from_code(default_qr_code["code"])
+    assert id == default_qr_code["id"]
