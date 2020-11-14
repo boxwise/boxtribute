@@ -69,7 +69,7 @@ class Base(db.Model):
     schedule_stop = CharField(
         column_name="schedulestop", constraints=[SQL("DEFAULT '17:00'")]
     )
-    scheduletimeslot = CharField(
+    schedule_timeslot = CharField(
         column_name="scheduletimeslot", constraints=[SQL("DEFAULT '0.5'")]
     )
     seq = IntegerField()
