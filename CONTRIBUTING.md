@@ -1,10 +1,10 @@
-# Contributing to Boxwise
+# Contributing to Boxtribute
 
 First off: **thank you**. You will be helping build software that distributes clothes and food to thousands of refugees and other people in need. It gives comfort and dignity to people in a vulnerable situation. Not only will you be contributing to the open source community / ecosystem of open source projects, but your contributions will directly benefits thousands of people who are stuck in a vulnerable system.
 
 **If you want to join and support us**, just [write us at hello@boxwise.co](mailto:hello@boxwise.co) and include your github handle and / or CV!
 
-**Do you need help using Boxwise, or you found a bug, or got an idea for a feature?** [Please write us at helpme@boxwise.co!](mailto:helpme@boxwise.co)
+**Do you need help using Boxtribute, or you found a bug, or got an idea for a feature?** [Please write us at helpme@boxwise.co!](mailto:helpme@boxwise.co)
 
 ### How do we work in general?
 
@@ -55,7 +55,7 @@ Be constructive and do not forget to appreciate the effort.
 [More documentation for code reviews in Github you can find here.](https://docs.github.com/en/free-pro-team@latest/github/collaborating-with-issues-and-pull-requests/reviewing-proposed-changes-in-a-pull-request)
 
 ### I want to suggest a task and create a ticket. How should I do that?
-If you want to create a ticket, add it on the bottom of the "Product Backlog" list in our trello. In the best case, write a user story to explain your reasoning. If you can add a to-do list with the proposed development steps and maybe even a rough estimation how much time you guess it would take (See the T-Shirt sizeing for time estimation).You can also bring it up with our product owner directly in one of the dev meetings.
+If you want to create a ticket, add it on the bottom of the "Feature Requests" list in our trello. In the best case, write a user story to explain your reasoning. If you can add a to-do list with the proposed development steps and maybe even a rough estimation how much time you guess it would take (See the T-Shirt sizeing for time estimation).You can also bring it up with our product owner directly in one of the dev meetings.
 If you discovered a bug, there is a [template in trello](https://trello.com/c/YToLMBuq) to create a bug ticket. Please use it.
 After creating the ticket, tag our product managers to review and prioritize your ticket.
 
