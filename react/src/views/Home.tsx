@@ -1,18 +1,17 @@
 import React from "react";
-import AuthContext from "../AuthContext";
+import { useAuth0 } from "@auth0/auth0-react";
 import { Header, Input } from "semantic-ui-react";
 
 function Home() {
-  const authObject = React.useContext(AuthContext);
-  const user = authObject.idTokenPayload.name;
+  const { isAuthenticated, user } = useAuth0();
 
   return (
     <div className="home">
       <Header as="h2" textAlign="center" className="brandBlue">
-        Welcome to boxwise, {user || `please log in`}.
+        Welcome to boxwise, {isAuthenticated ? user.name : `please log in`}.
       </Header>
 
-      {user ? (
+      {isAuthenticated ? (
         <div>
           <div className="child1">
             <div>
