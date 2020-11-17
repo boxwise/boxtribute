@@ -6,7 +6,7 @@ const BASE = gql`
   query Base($orgId: String!) {
     base(id: $orgId) {
       id
-      organisation_id
+      organisationId
       name
       currencyname
     }

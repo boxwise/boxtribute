@@ -6,7 +6,7 @@ const BASES = gql`
   {
     allBases {
       id
-      organisation_id
+      organisationId
       name
     }
   }
