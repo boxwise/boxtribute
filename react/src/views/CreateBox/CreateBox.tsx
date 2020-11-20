@@ -1,5 +1,5 @@
 import * as React from "react";
-import { useMutation } from "@apollo/react-hooks";
+import { useMutation } from "@apollo/client";
 import { useForm } from "react-hook-form";
 import { useLocation, Link } from "react-router-dom";
 import { NewBoxType, LocationState } from "../../utils/Types";
