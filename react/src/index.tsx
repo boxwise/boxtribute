@@ -8,15 +8,14 @@ import * as serviceWorker from "./serviceWorker";
 import "semantic-ui-less/semantic.less";
 
 ReactDOM.render(
-    <Router>
-        <Auth0ProviderWithHistory>
-            <ApolloWrapper>
-                <App />
-            </ApolloWrapper>
-        </Auth0ProviderWithHistory>
-    </Router>, 
-    document.getElementById("root")
-
+  <Router>
+    <Auth0ProviderWithHistory>
+      <ApolloWrapper>
+        <App />
+      </ApolloWrapper>
+    </Auth0ProviderWithHistory>
+  </Router>,
+  document.getElementById("root"),
 );
 
 // If you want your app to work offline and load faster, you can change
