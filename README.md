@@ -77,7 +77,7 @@ For each of these three user groups of each of the two organisations we created 
 
 The password of all of these users is `password`.
 
-Furthermore, here a collection of QR-Codes which can are in the dev db and can be used to create boxes.
+Furthermore, here a collection of QR-Codes which have been seeded in the dev db and can be used to test box creation.
 
 ![387b0f0f5e62cebcafd48383035a92a](docs/qr/387b0f0f5e62cebcafd48383035a92a.png) ![cba56d486db6d39209dbbf9e45353c4](docs/qr/cba56d486db6d39209dbbf9e45353c4.png) ![a61e0efe25b75032b91106372674c26](docs/qr/a61e0efe25b75032b91106372674c26.png) ![f6f20e805192618def2cb400776a2aa](docs/qr/f6f20e805192618def2cb400776a2aa.png) ![12ca607ce60c484bdbb703def950c5b](docs/qr/12ca607ce60c484bdbb703def950c5b.png)
 ![13f12820c8010f2f7349962930e6bf4](docs/qr/13f12820c8010f2f7349962930e6bf4.png) ![d0e144a0a4dc0d8af55e2b686a2e97e](docs/qr/d0e144a0a4dc0d8af55e2b686a2e97e.png) ![69107b2e2b4157b5efe10415bc0bba0](docs/qr/69107b2e2b4157b5efe10415bc0bba0.png) ![b8f0730d36571e4149ba3862379bb88](docs/qr/b8f0730d36571e4149ba3862379bb88.png) ![e1fdfdd942db0e764c9bea06c03ba2b](docs/qr/e1fdfdd942db0e764c9bea06c03ba2b.png)
