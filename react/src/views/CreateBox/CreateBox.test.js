@@ -1,9 +1,9 @@
 import React from "react";
-import { render, cleanup } from "@testing-library/react";
+import { render, fireEvent, cleanup } from "@testing-library/react";
+import "@testing-library/jest-dom";
 import { MockedProvider } from "@apollo/client/testing";
 import CreateBox from "./CreateBox";
 import { CREATE_BOX } from "../../utils/queries";
-import "@testing-library/jest-dom";
 
 const mocks = [
   {
@@ -36,9 +36,23 @@ const mocks = [
 afterEach(cleanup);
 
 describe("renders components", () => {
-  it("renders correctly initially", () => {
-    <MockedProvider mocks={mocks} addTypename={false}>
+  it("renders correct header", () => {
+    const component = render(
+      <MockedProvider mocks={[]} addTypename={false}>
+        <CreateBox />
+      </MockedProvider>,
+    );
+
+    expect(component.getByTestId("mainHeader")).toHaveTextContent("Create a Box");
+  });
+});
+
+/*
+describe("mock data", () => {
+  it("returns correct data", () => {
+    <MockedProvider mocks={mocks}>
       <CreateBox />
     </MockedProvider>;
   });
 });
+ */
