@@ -20,11 +20,14 @@ class AuthError(Exception):
         self.status_code = status_code
 
 
-def get_token_auth_header():
+def get_auth_string_from_header():
+    return request.headers.get("Authorization", None)
+
+
+def get_token_from_auth_header(header_string):
     """Obtains the Access Token from the Authorization Header
     """
-    auth = request.headers.get("Authorization", None)
-    if not auth:
+    if not header_string:
         raise AuthError(
             {
                 "code": "authorization_header_missing",
@@ -33,7 +36,7 @@ def get_token_auth_header():
             401,
         )
 
-    parts = auth.split()
+    parts = header_string.split()
 
     if parts[0].lower() != "bearer":
         raise AuthError(
@@ -116,7 +119,7 @@ def requires_auth(f):
 
     @wraps(f)
     def decorated(*args, **kwargs):
-        token = get_token_auth_header()
+        token = get_token_from_auth_header(get_auth_string_from_header())
         rsa_key = get_rsa_key(token)
         if rsa_key:
             payload = decode_jwt(token, rsa_key)
@@ -135,7 +138,7 @@ def authorization_test(test_for, **kwargs):
     # include an argument of what you would like to test for,
     # and dict of the necessary params to check
     # ex) authorization_test("bases", {"base_id":123})
-    token = get_token_auth_header()
+    token = get_token_from_auth_header(get_auth_string_from_header())
     rsa_key = get_rsa_key(token)
     if rsa_key:
         # the user's email is in the auth token under the custom claim:
