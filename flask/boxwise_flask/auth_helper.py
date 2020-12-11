@@ -150,7 +150,7 @@ def authorization_test(test_for, **kwargs):
         requesting_user = get_user_from_email_with_base_ids(email)
 
         if test_for == "bases":
-            allowed_access = test_base(requesting_user, kwargs["base_id"])
+            allowed_access = user_can_access_base(requesting_user, kwargs["base_id"])
         # add more test cases here
         else:
             raise AuthError(
@@ -173,7 +173,7 @@ def authorization_test(test_for, **kwargs):
             )
 
 
-def test_base(requesting_user, base_id):
+def user_can_access_base(requesting_user, base_id):
     users_bases = requesting_user["base_ids"]
     if base_id in users_bases:
         return True

@@ -32,6 +32,13 @@ def get_user_token():
     auth0_username = os.getenv("AUTH0_USERNAME")
     auth0_password = os.getenv("AUTH0_PASSWORD")
 
+    print(auth0_domain)
+    print(auth0_client_id)
+    print(auth0_audience)
+    print(auth0_secret)
+    print(auth0_username)
+    print(auth0_password)
+
     url = "https://" + auth0_domain + "/oauth/token"
     headers = {"content-type": "application/json"}
     parameters = {
@@ -43,9 +50,19 @@ def get_user_token():
         "password": auth0_password,
     }
     response = requests.post(url, json=parameters, headers=headers).json()
+    print(response)
+    print(response)
+    print(response)
+    print(response)
+    print(response)
     return response["access_token"]
 
 
 @memoize
 def get_user_token_header():
     return {"authorization": "Bearer " + get_user_token()}
+
+
+@memoize
+def get_user_token_string():
+    return "Bearer " + get_user_token()
