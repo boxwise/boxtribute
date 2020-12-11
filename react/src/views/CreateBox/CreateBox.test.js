@@ -4,6 +4,8 @@ import "@testing-library/jest-dom";
 import { MockedProvider } from "@apollo/client/testing";
 import CreateBox from "./CreateBox";
 import { CREATE_BOX } from "../../utils/queries";
+import { Router } from "react-router-dom";
+import { createMemoryHistory } from "history";
 
 const mocks = [
   {
@@ -37,9 +39,12 @@ afterEach(cleanup);
 
 describe("renders components", () => {
   it("renders correct header", () => {
+    const history = createMemoryHistory();
     const component = render(
       <MockedProvider mocks={[]} addTypename={false}>
-        <CreateBox />
+        <Router history={history}>
+          <CreateBox />
+        </Router>
       </MockedProvider>,
     );
 
