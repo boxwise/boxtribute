@@ -9,11 +9,16 @@ repos:
 - repo: https://github.com/asottile/seed-isort-config
   rev: v2.1.1
   hooks:
-  -   id: seed-isort-config
+  - id: seed-isort-config
 - repo: https://github.com/timothycrosley/isort
   rev: 4.3.21  # pick the isort version you'd like to use from https://github.com/timothycrosley/isort/releases
   hooks:
-  -   id: isort
+  - id: isort
+- repo: https://github.com/pre-commit/mirrors-prettier
+  rev: v2.2.1 # local node version must be higher than 10
+  hooks:
+  - id: prettier
+    types_or: [javascript, jsx, json, ts, tsx, css, scss]
 - repo: local
   hooks:
   - id: black
