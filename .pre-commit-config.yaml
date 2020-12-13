@@ -14,6 +14,25 @@ repos:
   rev: 4.3.21  # pick the isort version you'd like to use from https://github.com/timothycrosley/isort/releases
   hooks:
   - id: isort
+- repo: https://github.com/pre-commit/mirrors-eslint
+  rev: v7.15.0
+  hooks:
+  - id: eslint
+    additional_dependencies:
+    - eslint@7.15.0
+    - eslint-config-airbnb@latest
+    - eslint-config-prettier@latest
+    - eslint-config-react-app@latest
+    - eslint-plugin-prettier@latest
+    - eslint-plugin-jsx-a11y@latest
+    - eslint-plugin-import@latest
+    - eslint-plugin-react@latest
+    - eslint-plugin-flowtype@latest
+    - eslint-plugin-react-hooks@latest
+    - babel-eslint@latest
+    - typescript
+    - "@typescript-eslint/parser"
+    types_or: [javascript, jsx, ts, tsx]
 - repo: https://github.com/pre-commit/mirrors-prettier
   rev: v2.2.1 # local node version must be higher than 10
   hooks:
