@@ -40,6 +40,7 @@ afterEach(cleanup);
 describe("renders components", () => {
   it("renders correct header", () => {
     const history = createMemoryHistory();
+    history.push("/create-box");
     const component = render(
       <MockedProvider mocks={[]} addTypename={false}>
         <Router history={history}>
