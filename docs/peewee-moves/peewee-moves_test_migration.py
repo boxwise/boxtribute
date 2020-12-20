@@ -1,6 +1,8 @@
 """
 table_genders_add_foreign_key_camps
 date created: 2020-11-27 21:19:34.821372
+
+This migration must be moved into flask/boxwise_flask/migrations to work
 """
 from peewee import ForeignKeyField, SQL
 from playhouse import migrate
