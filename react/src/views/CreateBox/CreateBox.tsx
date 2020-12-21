@@ -57,7 +57,7 @@ export default function CreateBox() {
       )}
       {!newBox.box_id && (
         <div>
-          <form id="make-a-box" className="flex flex-col">
+          <form id="make-a-box" data-testid="createBoxForm" className="flex flex-col">
             {/* Note: eventually we will get the base from the URL,
             which will determine the locations via a query */}
             <label className="p-2" htmlFor="locationId">
