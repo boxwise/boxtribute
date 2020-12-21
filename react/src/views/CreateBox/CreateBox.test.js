@@ -6,6 +6,7 @@ import CreateBox from "./CreateBox";
 import { CREATE_BOX } from "../../utils/queries";
 import { Router } from "react-router-dom";
 import { createMemoryHistory } from "history";
+import "mutationobserver-shim";
 
 const mocks = [
   {
@@ -40,7 +41,9 @@ afterEach(cleanup);
 describe("renders components", () => {
   it("renders correct header", () => {
     const history = createMemoryHistory();
-    history.push("/create-box");
+    const state = { qr: "387b0f0f5e62cebcafd48383035a92a" };
+    history.push("/create-box", state);
+
     const component = render(
       <MockedProvider mocks={[]} addTypename={false}>
         <Router history={history}>
