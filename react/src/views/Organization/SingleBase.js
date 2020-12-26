@@ -3,20 +3,21 @@ import { useParams, Link } from "react-router-dom";
 import { useQuery, gql } from "@apollo/client";
 
 const BASE = gql`
-  query Base($orgId: String!) {
-    base(id: $orgId) {
+  query Base($ordIdInt: Int!) {
+    base(id: $ordIdInt) {
       id
       organisationId
       name
-      currencyname
+      currencyName
     }
   }
 `;
 
 export default function SingleOrg() {
   const { orgId } = useParams();
+  const ordIdInt = parseInt(orgId);
   const { loading, error, data } = useQuery(BASE, {
-    variables: { orgId },
+    variables: { ordIdInt },
   });
 
   if (loading) return <p>Loading...</p>;
