@@ -19,50 +19,46 @@ def memoize(function):
 
     return wrapper
 
-
 def get_user_token():
     """Grabs a user token for Auth0
     Data structure as described here
     https://manage.auth0.com/dashboard/eu/boxtribute-dev/apis/5ef3760527b0da00215e6209/test"""  # line too long # noqa: E501
 
     auth0_domain = os.getenv("AUTH0_DOMAIN")
-    auth0_client_id = os.getenv("AUTH0_CLIENT_ID")
+    auth0_client_id = os.getenv("AUTH0_CLIENT_TEST_ID")
     auth0_audience = os.getenv("AUTH0_AUDIENCE")
-    auth0_secret = os.getenv("AUTH0_CLIENT_SECRET")
+    auth0_secret = os.getenv("AUTH0_CLIENT_SECRET_TEST")
     auth0_username = os.getenv("AUTH0_USERNAME")
     auth0_password = os.getenv("AUTH0_PASSWORD")
 
     print(auth0_domain)
     print(auth0_client_id)
-    print(auth0_audience)
     print(auth0_secret)
+    print(auth0_audience)
     print(auth0_username)
     print(auth0_password)
 
     url = "https://" + auth0_domain + "/oauth/token"
-    headers = {"content-type": "application/json"}
     parameters = {
         "client_id": auth0_client_id,
         "audience": auth0_audience,
         "client_secret": auth0_secret,
-        "grant_type": "client_credentials",
+        "grant_type": "password",
         "username": auth0_username,
-        "password": auth0_password,
+        "password": auth0_password
     }
-    response = requests.post(url, json=parameters, headers=headers).json()
-    print(response)
-    print(response)
-    print(response)
-    print(response)
-    print(response)
-    return response["access_token"]
 
+    response = requests.post(url, json=parameters).json()  
+    
+    if "error" not in response:
+      return response["access_token"]
 
-@memoize
+    print(response)
+
+# @memoize
 def get_user_token_header():
     return {"authorization": "Bearer " + get_user_token()}
 
-
-@memoize
+# @memoize
 def get_user_token_string():
     return "Bearer " + get_user_token()

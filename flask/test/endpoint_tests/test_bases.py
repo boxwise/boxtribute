@@ -1,12 +1,11 @@
 import pytest
 
-
 def get_base_from_graphql(id, base_query):
     return [x for x in base_query if x["id"] == id][0]
 
-
 @pytest.mark.usefixtures("default_bases")
 def test_all_bases(client, default_bases):
+
     """Verify allBases GraphQL query endpoint"""
     graph_ql_query_string = """query {
                 allBases {
@@ -27,11 +26,10 @@ def test_all_bases(client, default_bases):
         assert created_base["name"] == expected_base["name"]
         assert created_base["currencyName"] == expected_base["currency_name"]
 
-
 @pytest.mark.usefixtures("default_bases")
 def test_base(client, default_bases):
     """Verify base GraphQL query endpoint"""
-
+    
     test_id = 1
     graph_ql_query_string = f"""query Base {{
                 base(id: {test_id}) {{
