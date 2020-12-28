@@ -18,6 +18,14 @@ def test_decode_valid_jwt():
     key = get_rsa_key(test)
     assert key != None
 
+def test_decode_invalid_jwt_no_auth_header():
+    with pytest.raises(AuthError):
+        test = get_token_from_auth_header(None)
+
+def test_decode_invalid_jwt_no_bearer():
+    with pytest.raises(AuthError):
+        test = get_token_from_auth_header("no bearer")
+
 def test_user_can_access_base_valid_user():
     user = {
       "base_ids": [1]
@@ -39,5 +47,4 @@ def test_authorization_test_bases_valid():
 
 def test_authorization_test_bases_invalid():
     with pytest.raises(AuthError):
-        a = authorization_test("hello")
-        print(a)
+        authorization_test("hello")

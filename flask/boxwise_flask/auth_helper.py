@@ -24,10 +24,6 @@ class AuthError(Exception):
 def get_auth_string_from_header():
     return request.headers.get("Authorization", None)
 
-def get_auth_string_from_header():
-    return request.headers.get("Authorization", None)
-
-
 def get_token_from_auth_header(header_string):
     """Obtains the Access Token from the Authorization Header
     """
