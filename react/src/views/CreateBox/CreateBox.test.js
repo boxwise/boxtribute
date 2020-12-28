@@ -39,30 +39,43 @@ const mocks = [
 afterEach(cleanup);
 
 describe("renders components", () => {
-  const history = createMemoryHistory();
-  const state = { qr: "387b0f0f5e62cebcafd48383035a92a" };
-  history.push("/create-box", state);
-
-  const component = render(
-    <MockedProvider mocks={[]} addTypename={false}>
-      <Router history={history}>
-        <CreateBox />
-      </Router>
-    </MockedProvider>,
-  );
-
   it("renders correct header", () => {
-    expect(component.getByTestId("mainHeader")).toHaveTextContent("Create a Box");
+    const history = createMemoryHistory();
+    const state = { qr: "387b0f0f5e62cebcafd48383035a92a" };
+    history.push("/create-box", state);
+
+    const component = render(
+      <MockedProvider mocks={[]} addTypename={false}>
+        <Router history={history}>
+          <CreateBox />
+        </Router>
+      </MockedProvider>,
+    );
+
+    expect(component.getByRole("heading", { name: /create a box/i })).toHaveTextContent(
+      "Create a Box",
+    );
   });
 
-  // Test that the form, targeted by a testid, exists
   it("renders a form", () => {
+    const history = createMemoryHistory();
+    const state = { qr: "387b0f0f5e62cebcafd48383035a92a" };
+    history.push("/create-box", state);
+
+    const component = render(
+      <MockedProvider mocks={[]} addTypename={false}>
+        <Router history={history}>
+          <CreateBox />
+        </Router>
+      </MockedProvider>,
+    );
+
     expect(component.getByTestId("createBoxForm")).toBeTruthy();
   });
 
   // Test that the form has 5 fields
 
-  // Test the labels of those 5 fields are accurate
+  // Test that the submit button is present
 });
 
 /*

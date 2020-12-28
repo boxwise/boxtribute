@@ -46,7 +46,7 @@ export default function CreateBox() {
 
   return (
     <div className="flex flex-col">
-      <h2 data-testid="mainHeader">Create a Box</h2>
+      <h2>Create a Box</h2>
       {newBox.box_id && (
         <div>
           <h1> You created a new box!</h1>
