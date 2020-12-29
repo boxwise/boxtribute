@@ -112,6 +112,9 @@ def decode_jwt(token, rsa_key):
         )
     return payload
 
+def add_user_to_request_context(payload):
+    _request_ctx_stack.top.current_user = payload
+
 def requires_auth(f):
     """Determines if the Access Token is valid
     """
@@ -122,7 +125,7 @@ def requires_auth(f):
         rsa_key = get_rsa_key(token)
         if rsa_key:
             payload = decode_jwt(token, rsa_key)
-            _request_ctx_stack.top.current_user = payload
+            add_user_to_request_context(payload)
             return f(*args, **kwargs)
         raise AuthError(
             {"code": "invalid_header", "description": "Unable to find appropriate key"},

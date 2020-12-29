@@ -6,7 +6,8 @@ from boxwise_flask.auth_helper import (  # ,; decode_jwt,; requires_auth,;
     authorization_test,
     get_rsa_key,
     get_token_from_auth_header,
-    AuthError
+    AuthError,
+    requires_auth
 )
 
 def test_decode_valid_jwt():
@@ -44,3 +45,11 @@ def test_authorization_test_bases_valid():
 def test_authorization_test_bases_invalid():
     with pytest.raises(AuthError):
         authorization_test("bases", base_id=10)
+
+def test_requires_auth_valid():
+
+    @requires_auth
+    def function_that_needs_auth():
+        return True
+
+    assert function_that_needs_auth()
