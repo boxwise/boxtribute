@@ -136,12 +136,7 @@ def authorization_test(test_for, **kwargs):
     # include an argument of what you would like to test for,
     # and dict of the necessary params to check
     # ex) authorization_test("bases", {"base_id":123})
-    print(get_auth_string_from_header())
-    print(get_auth_string_from_header())
-    print(get_auth_string_from_header())
-    print(get_auth_string_from_header())
-    print(get_auth_string_from_header())
-    print(get_auth_string_from_header())
+
     token = get_token_from_auth_header(get_auth_string_from_header())
     rsa_key = get_rsa_key(token)
     if rsa_key:
