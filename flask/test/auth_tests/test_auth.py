@@ -7,21 +7,30 @@ from boxwise_flask.auth_helper import (  # ,; decode_jwt,; requires_auth,;
     get_rsa_key,
     get_token_from_auth_header,
     AuthError,
-    requires_auth
+    requires_auth,
+    decode_jwt
 )
 
-def test_decode_valid_jwt():
-    test = get_token_from_auth_header(get_user_token_string())
-    key = get_rsa_key(test)
+def test_get_valid_jwt():
+    token = get_token_from_auth_header(get_user_token_string())
+    key = get_rsa_key(token)
     assert key != None
 
-def test_decode_invalid_jwt_no_auth_header():
+def test_get_invalid_jwt_no_auth_header():
     with pytest.raises(AuthError):
         get_token_from_auth_header(None)
 
-def test_decode_invalid_jwt_no_bearer():
+def test_get_invalid_jwt_no_bearer():
     with pytest.raises(AuthError):
         get_token_from_auth_header("no bearer")
+
+def test_get_invalid_jwt_bearer_no_token():
+    with pytest.raises(AuthError):
+        get_token_from_auth_header("bearer")
+
+def test_get_invalid_jwt_bearer_with_additonal_data():
+    with pytest.raises(AuthError):
+        get_token_from_auth_header("bearer token additional")
 
 def test_user_can_access_base_valid_user():
     user = {
@@ -53,3 +62,17 @@ def test_requires_auth_valid():
         return True
 
     assert function_that_needs_auth()
+
+def test_requires_auth_invalid_key(mocker):
+    mocker.patch("boxwise_flask.auth_helper.get_rsa_key", return_value=None)
+    @requires_auth
+    def function_that_needs_auth():
+        return True
+    with pytest.raises(AuthError):
+        function_that_needs_auth()
+
+def test_decode_valid_jwt():
+    token = get_token_from_auth_header(get_user_token_string())
+    key = get_rsa_key(token)
+
+    assert decode_jwt(token, key) != None
