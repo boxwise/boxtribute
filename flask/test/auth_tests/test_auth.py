@@ -1,9 +1,5 @@
-from auth_tests.auth import get_user_token_string
 import pytest
-from unittest.mock import patch
-
-get_auth_string_patch = patch("boxwise_flask.auth_helper.get_auth_string_from_header", get_user_token_string)
-get_auth_string_patch.start()
+from auth import get_user_token_string
 
 from boxwise_flask.auth_helper import (  # ,; decode_jwt,; requires_auth,; 
     user_can_access_base,
@@ -20,11 +16,11 @@ def test_decode_valid_jwt():
 
 def test_decode_invalid_jwt_no_auth_header():
     with pytest.raises(AuthError):
-        test = get_token_from_auth_header(None)
+        get_token_from_auth_header(None)
 
 def test_decode_invalid_jwt_no_bearer():
     with pytest.raises(AuthError):
-        test = get_token_from_auth_header("no bearer")
+        get_token_from_auth_header("no bearer")
 
 def test_user_can_access_base_valid_user():
     user = {
@@ -47,4 +43,4 @@ def test_authorization_test_bases_valid():
 
 def test_authorization_test_bases_invalid():
     with pytest.raises(AuthError):
-        authorization_test("hello")
+        authorization_test("bases", base_id=10)

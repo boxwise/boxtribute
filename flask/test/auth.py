@@ -2,7 +2,6 @@ import os
 
 import requests
 
-
 def memoize(function):
     """Wraps a function so the data is cached.
     Each usage of the wrapped function will share the same data
