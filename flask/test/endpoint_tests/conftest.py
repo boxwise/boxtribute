@@ -11,8 +11,13 @@ https://docs.pytest.org/en/stable/fixture.html#pytest-fixtures-explicit-modular-
 
 import os
 import tempfile
-
 import pytest
+from patches import requires_auth_patch
+from patches import authorization_test_patch
+
+requires_auth_patch.start()
+authorization_test_patch.start()
+
 from boxwise_flask.app import create_app
 from boxwise_flask.db import db
 from boxwise_flask.models.base import Base
