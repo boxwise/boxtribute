@@ -36,3 +36,35 @@ export const USER = gql`
     }
   }
 `;
+
+export const ALL_BASES = gql`
+  {
+    allBases {
+      id
+      organisationId
+      name
+    }
+  }
+`;
+
+export const BASE = gql`
+  query Base($baseId: Int!) {
+    base(id: $baseId) {
+      id
+      organisationId
+      name
+      currencyName
+    }
+  }
+`;
+
+export const ORG_BASES = gql`
+  query OrgBases($orgId: Int!) {
+    orgBases(org_id: $orgId) {
+      id
+      organisationId
+      name
+      currencyName
+    }
+  }
+`;
