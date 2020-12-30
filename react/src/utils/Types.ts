@@ -23,3 +23,8 @@ export interface LocationState {
     qr: string;
   };
 }
+
+export interface OrganizationBaseRouteParams {
+  orgId: string;
+  baseId: string;
+}

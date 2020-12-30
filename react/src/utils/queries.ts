@@ -46,3 +46,14 @@ export const ALL_BASES = gql`
     }
   }
 `;
+
+export const BASE = gql`
+  query Base($baseId: Int!) {
+    base(id: $baseId) {
+      id
+      organisationId
+      name
+      currencyName
+    }
+  }
+`;

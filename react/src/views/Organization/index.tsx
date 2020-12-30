@@ -2,9 +2,9 @@ import React from "react";
 import { Switch, Route } from "react-router-dom";
 import ListAllBases from "./ListAllBases";
 import SingleBase from "./SingleBase";
+import SingleOrg from "./SingleOrg";
 import ScanBox from "../ScanBox";
 import Placeholder from "../Placeholder";
-import Base from "../Base";
 
 // eslint-disable-next-line no-unused-vars
 export default function OrgTopLevel(props: IProps) {
@@ -34,13 +34,13 @@ export default function OrgTopLevel(props: IProps) {
           <Placeholder />
         </Route>
         <Route path="/org/:orgId/base/:baseId">
-          <Base />
+          <SingleBase />
         </Route>
         <Route path="/org/all">
           <ListAllBases />
         </Route>
         <Route path="/org/:orgId">
-          <SingleBase />
+          <SingleOrg />
         </Route>
         <Route path="/org">
           <h3>Please provide an organization in the url.</h3>
