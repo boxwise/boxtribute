@@ -24,7 +24,7 @@ export interface LocationState {
   };
 }
 
-export interface OrganizationBaseRouteParams {
+export interface OrganisationBaseRouteParams {
   orgId: string;
   baseId: string;
 }

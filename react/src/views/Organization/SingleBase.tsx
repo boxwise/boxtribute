@@ -2,10 +2,10 @@ import React from "react";
 import { useParams, Link } from "react-router-dom";
 import { useQuery } from "@apollo/client";
 import { BASE } from "../../utils/queries";
-import { OrganizationBaseRouteParams } from "../../utils/Types";
+import { OrganisationBaseRouteParams } from "../../utils/Types";
 
 export default function SingleBase() {
-  const baseId = parseInt(useParams<OrganizationBaseRouteParams>().baseId);
+  const baseId = parseInt(useParams<OrganisationBaseRouteParams>().baseId);
   const { loading, error, data } = useQuery(BASE, {
     variables: { baseId },
   });

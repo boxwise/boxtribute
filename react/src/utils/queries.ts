@@ -57,3 +57,14 @@ export const BASE = gql`
     }
   }
 `;
+
+export const ORG_BASES = gql`
+  query OrgBases($orgId: Int!) {
+    orgBases(org_id: $orgId) {
+      id
+      organisationId
+      name
+      currencyName
+    }
+  }
+`;
