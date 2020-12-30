@@ -36,3 +36,13 @@ export const USER = gql`
     }
   }
 `;
+
+export const ALL_BASES = gql`
+  {
+    allBases {
+      id
+      organisationId
+      name
+    }
+  }
+`;
