@@ -39,7 +39,7 @@ const mocks = [
 afterEach(cleanup);
 
 describe("renders components", () => {
-  it("renders correct header", () => {
+  it("renders a header titled, `Create a Box`", () => {
     const history = createMemoryHistory();
     const state = { qr: "387b0f0f5e62cebcafd48383035a92a" };
     history.push("/create-box", state);
@@ -73,7 +73,7 @@ describe("renders components", () => {
     expect(component.getByTestId("createBoxForm")).toBeTruthy();
   });
 
-  it("renders 5 fields within the form", () => {
+  it("renders the correct 5 fields within the form", () => {
     const history = createMemoryHistory();
     const state = { qr: "387b0f0f5e62cebcafd48383035a92a" };
     history.push("/create-box", state);
@@ -93,7 +93,23 @@ describe("renders components", () => {
     expect(component.getByText(/comments*/i)).toBeTruthy();
   });
 
-  // Test that the submit button is present
+  it("renders a submit button titled, `do the mutation`", () => {
+    const history = createMemoryHistory();
+    const state = { qr: "387b0f0f5e62cebcafd48383035a92a" };
+    history.push("/create-box", state);
+
+    const component = render(
+      <MockedProvider mocks={[]} addTypename={false}>
+        <Router history={history}>
+          <CreateBox />
+        </Router>
+      </MockedProvider>,
+    );
+
+    expect(component.getByRole("button", { name: /do the mutation/i })).toHaveTextContent(
+      "do the mutation",
+    );
+  });
 });
 
 /*
@@ -104,4 +120,4 @@ describe("mock data", () => {
     </MockedProvider>;
   });
 });
- */
+*/
