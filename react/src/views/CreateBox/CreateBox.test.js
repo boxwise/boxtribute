@@ -38,7 +38,7 @@ const mocks = [
 
 afterEach(cleanup);
 
-describe("renders components", () => {
+describe("Renders components", () => {
   it("renders a header titled, `Create a Box`", () => {
     const history = createMemoryHistory();
     const state = { qr: "387b0f0f5e62cebcafd48383035a92a" };
@@ -109,6 +109,62 @@ describe("renders components", () => {
     expect(component.getByRole("button", { name: /do the mutation/i })).toHaveTextContent(
       "do the mutation",
     );
+  });
+});
+
+describe("Required form fields prohibit submission when blank", () => {
+  it("does nothing when locationId, productId, items, and sizeId are blank", () => {
+    const history = createMemoryHistory();
+    const state = { qr: "387b0f0f5e62cebcafd48383035a92a" };
+    history.push("/create-box", state);
+
+    const component = render(
+      <MockedProvider mocks={[]} addTypename={false}>
+        <Router history={history}>
+          <CreateBox />
+        </Router>
+      </MockedProvider>,
+    );
+
+    // Target appropriate elements
+    const inputFields = component.getAllByRole("textbox");
+    const submitBtn = component.getByRole("button", { name: /do the mutation/i });
+    const formElement = component.getByTestId("createBoxForm");
+
+    // Clear the input fields
+    for (let i = 0; i < inputFields.length; i++) {
+      fireEvent.change(inputFields[i], { target: { value: "" } });
+    }
+
+    // Click the submit button
+    fireEvent.click(submitBtn);
+
+    // expect form to still exist
+    expect(formElement).toBeTruthy();
+  });
+
+  it("submits the form when locationId, productId, items, and sizeId are filled in", () => {
+    const history = createMemoryHistory();
+    const state = { qr: "387b0f0f5e62cebcafd48383035a92a" };
+    history.push("/create-box", state);
+
+    const component = render(
+      <MockedProvider mocks={[]} addTypename={false}>
+        <Router history={history}>
+          <CreateBox />
+        </Router>
+      </MockedProvider>,
+    );
+
+    // Target appropriate elements
+    const submitBtn = component.getByRole("button", { name: /do the mutation/i });
+    const formElement = component.getByTestId("createBoxForm");
+
+    // Click the submit button
+    fireEvent.click(submitBtn);
+
+    // Form should no longer exist
+    expect(formElement).toBeFalsy();
   });
 });
 
