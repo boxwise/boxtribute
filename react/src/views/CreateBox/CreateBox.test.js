@@ -1,5 +1,5 @@
 import React from "react";
-import { render, fireEvent, cleanup } from "@testing-library/react";
+import { render, waitFor, fireEvent, cleanup } from "@testing-library/react";
 import "@testing-library/jest-dom";
 import { MockedProvider } from "@apollo/client/testing";
 import CreateBox from "./CreateBox";
@@ -13,79 +13,56 @@ const mocks = [
     request: {
       query: CREATE_BOX,
       variables: {
-        productId: 123,
-        items: 50,
-        locationId: 999,
-        comments: "A good box",
-        sizeId: 25,
-        qrBarcode: "abc123",
+        productId: 2,
+        items: 2,
+        locationId: 2,
+        comments: "",
+        sizeId: 2,
+        qrBarcode: "387b0f0f5e62cebcafd48383035a92a",
       },
     },
     result: {
       data: {
-        box: {
+        createBox: {
+          id: 555,
+          box_id: 456,
           product_id: 123,
-          sizeId: 25,
           items: 50,
-          location_id: 999,
-          comments: "A good box",
-          qr_barcode: "abc123",
         },
       },
     },
   },
 ];
 
-afterEach(cleanup);
-
 describe("Renders components", () => {
-  it("renders a header titled, `Create a Box`", () => {
+  let component = null;
+  beforeEach(() => {
     const history = createMemoryHistory();
-    const state = { qr: "387b0f0f5e62cebcafd48383035a92a" };
+    const state = { qr: "barcode=387b0f0f5e62cebcafd48383035a92a" };
     history.push("/create-box", state);
 
-    const component = render(
-      <MockedProvider mocks={[]} addTypename={false}>
+    component = render(
+      <MockedProvider mocks={mocks} addTypename={false}>
         <Router history={history}>
           <CreateBox />
         </Router>
       </MockedProvider>,
     );
+  });
 
+  afterEach(cleanup);
+
+  it("renders a header titled, `Create a Box`", () => {
     expect(component.getByRole("heading", { name: /create a box/i })).toHaveTextContent(
       "Create a Box",
     );
   });
 
   it("renders a form", () => {
-    const history = createMemoryHistory();
-    const state = { qr: "387b0f0f5e62cebcafd48383035a92a" };
-    history.push("/create-box", state);
-
-    const component = render(
-      <MockedProvider mocks={[]} addTypename={false}>
-        <Router history={history}>
-          <CreateBox />
-        </Router>
-      </MockedProvider>,
-    );
-
     expect(component.getByTestId("createBoxForm")).toBeTruthy();
   });
 
   it("renders the correct 5 fields within the form", () => {
-    const history = createMemoryHistory();
-    const state = { qr: "387b0f0f5e62cebcafd48383035a92a" };
-    history.push("/create-box", state);
-
-    const component = render(
-      <MockedProvider mocks={[]} addTypename={false}>
-        <Router history={history}>
-          <CreateBox />
-        </Router>
-      </MockedProvider>,
-    );
-
     expect(component.getByText(/locationid*/i)).toBeTruthy();
     expect(component.getByText(/productid*/i)).toBeTruthy();
     expect(component.getByText(/items*/i)).toBeTruthy();
@@ -94,86 +71,78 @@ describe("Renders components", () => {
   });
 
   it("renders a submit button titled, `do the mutation`", () => {
-    const history = createMemoryHistory();
-    const state = { qr: "387b0f0f5e62cebcafd48383035a92a" };
-    history.push("/create-box", state);
-
-    const component = render(
-      <MockedProvider mocks={[]} addTypename={false}>
-        <Router history={history}>
-          <CreateBox />
-        </Router>
-      </MockedProvider>,
-    );
-
     expect(component.getByRole("button", { name: /do the mutation/i })).toHaveTextContent(
       "do the mutation",
     );
   });
 });
 
-describe("Required form fields prohibit submission when blank", () => {
-  it("does nothing when locationId, productId, items, and sizeId are blank", () => {
+describe("Submission result screen is shown the right way", () => {
+  let component = null;
+  beforeEach(() => {
     const history = createMemoryHistory();
-    const state = { qr: "387b0f0f5e62cebcafd48383035a92a" };
+    const state = { qr: "barcode=387b0f0f5e62cebcafd48383035a92a" };
     history.push("/create-box", state);
 
-    const component = render(
-      <MockedProvider mocks={[]} addTypename={false}>
+    component = render(
+      <MockedProvider mocks={mocks} addTypename={false}>
         <Router history={history}>
           <CreateBox />
         </Router>
       </MockedProvider>,
     );
+  });
 
-    // Target appropriate elements
+  afterEach(cleanup);
+
+  it("After a successful submission, the form disappears and a screen with `You created a new box` appears with a box-id", async () => {
+    const submitBtn = component.getByRole("button", { name: /do the mutation/i });
+
+    fireEvent.click(submitBtn);
+
+    await waitFor(() => component.getByTestId("createdBox"));
+
+    expect(component.queryByTestId("createBoxForm")).toBeNull();
+    expect(component.getByTestId("createdBox")).toBeTruthy();
+    expect(component.getByRole("heading", { name: /the box id is: 456/i })).toHaveTextContent(
+      "The Box ID is: 456",
+    );
+  });
+});
+
+// In Progress
+/*
+describe("Required form fields prohibit submission when blank", () => {
+  let component = null;
+  beforeEach(() => {
+    const history = createMemoryHistory();
+    const state = { qr: "barcode=387b0f0f5e62cebcafd48383035a92a" };
+    history.push("/create-box", state);
+
+    component = render(
+      <MockedProvider mocks={mocks} addTypename={false}>
+        <Router history={history}>
+          <CreateBox />
+        </Router>
+      </MockedProvider>,
+    );
+  });
+
+  afterEach(cleanup);
+
+  it("does nothing when locationId, productId, items, and sizeId are blank", async () => {
     const inputFields = component.getAllByRole("textbox");
     const submitBtn = component.getByRole("button", { name: /do the mutation/i });
-    const formElement = component.getByTestId("createBoxForm");
 
-    // Clear the input fields
     for (let i = 0; i < inputFields.length; i++) {
       fireEvent.change(inputFields[i], { target: { value: "" } });
     }
 
-    // Click the submit button
     fireEvent.click(submitBtn);
 
-    // expect form to still exist
-    expect(formElement).toBeTruthy();
-  });
+    await waitFor(() => component.getByTestId("createBoxForm"));
 
-  it("submits the form when locationId, productId, items, and sizeId are filled in", () => {
-    const history = createMemoryHistory();
-    const state = { qr: "387b0f0f5e62cebcafd48383035a92a" };
-    history.push("/create-box", state);
-
-    const component = render(
-      <MockedProvider mocks={[]} addTypename={false}>
-        <Router history={history}>
-          <CreateBox />
-        </Router>
-      </MockedProvider>,
-    );
-
-    // Target appropriate elements
-    const submitBtn = component.getByRole("button", { name: /do the mutation/i });
-    const formElement = component.getByTestId("createBoxForm");
-
-    // Click the submit button
-    fireEvent.click(submitBtn);
-
-    // Form should no longer exist
-    expect(formElement).toBeFalsy();
-  });
-});
-
-/*
-describe("mock data", () => {
-  it("returns correct data", () => {
-    <MockedProvider mocks={mocks}>
-      <CreateBox />
-    </MockedProvider>;
+    expect(component.getByTestId("createBoxForm")).toBeTruthy();
   });
 });
 */
