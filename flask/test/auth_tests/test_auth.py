@@ -74,5 +74,4 @@ def test_requires_auth_invalid_key(mocker):
 def test_decode_valid_jwt():
     token = get_token_from_auth_header(get_user_token_string())
     key = get_rsa_key(token)
-
     assert decode_jwt(token, key) != None
