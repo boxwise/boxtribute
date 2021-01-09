@@ -110,8 +110,6 @@ describe("Submission result screen is shown the right way", () => {
   });
 });
 
-// In Progress
-/*
 describe("Required form fields prohibit submission when blank", () => {
   let component = null;
   beforeEach(() => {
@@ -145,4 +143,3 @@ describe("Required form fields prohibit submission when blank", () => {
     expect(component.getByTestId("createBoxForm")).toBeTruthy();
   });
 });
-*/
