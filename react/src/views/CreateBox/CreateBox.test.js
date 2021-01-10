@@ -7,6 +7,8 @@ import { CREATE_BOX } from "../../utils/queries";
 import { Router } from "react-router-dom";
 import { createMemoryHistory } from "history";
 import "mutationobserver-shim";
+import TestRenderer from "react-test-renderer";
+const { act } = TestRenderer;
 
 const mocks = [
   {
@@ -141,5 +143,40 @@ describe("Required form fields prohibit submission when blank", () => {
     await waitFor(() => component.getByTestId("createBoxForm"));
 
     expect(component.getByTestId("createBoxForm")).toBeTruthy();
+  });
+});
+
+describe("Loading and error state after submission", () => {
+  let component = null;
+  beforeEach(() => {
+    const history = createMemoryHistory();
+    const state = { qr: "barcode=387b0f0f5e62cebcafd48383035a92a" };
+    history.push("/create-box", state);
+
+    component = TestRenderer.create(
+      <MockedProvider mocks={mocks} addTypename={false}>
+        <Router history={history}>
+          <CreateBox />
+        </Router>
+      </MockedProvider>,
+    );
+  });
+
+  afterEach(cleanup);
+
+  it("renders `loading` while loading", () => {
+    const submitBtn = component.root.findByType("button");
+
+    submitBtn.props.onClick();
+
+    const tree = component.toJSON();
+
+    expect(tree.children).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          children: ["Loading..."],
+        }),
+      ]),
+    );
   });
 });
