@@ -72,6 +72,7 @@
     "lint-staged": "^10.2.2",
     "mutationobserver-shim": "^0.3.7",
     "prettier": "^2.0.5",
+    "react-test-renderer": "^17.0.1",
     "typescript": "^3.9.5"
   },
   "husky": {
