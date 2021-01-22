@@ -32,7 +32,7 @@ def test_code_not_associated_with_box(client, qr_code_without_box):
 
 
 def test_code_does_not_exist(client):
-    code = '"%s"' % "-1"
+    code = '"-1"'
     graph_ql_query_string = f"""query Box {{
                 box(qr_code: {code}) {{
                     box_id
