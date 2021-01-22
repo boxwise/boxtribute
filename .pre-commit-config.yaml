@@ -32,7 +32,8 @@ repos:
     - babel-eslint@latest
     - typescript
     - "@typescript-eslint/parser"
-    types_or: [javascript, jsx, ts, tsx]
+    files: \.[jt]sx?$
+    types: [file]
 - repo: https://github.com/pre-commit/mirrors-prettier
   rev: v2.2.1 # local node version must be higher than 10
   hooks:

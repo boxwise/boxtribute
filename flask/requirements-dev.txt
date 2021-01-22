@@ -1,4 +1,4 @@
 black==19.10b0
 flake8==3.8.1
-pre-commit==2.4.0
+pre-commit==2.9.0
 pytest==5.4.3
