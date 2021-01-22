@@ -13,6 +13,7 @@ from boxwise_flask.graph_ql.query_defs import query_defs
 from boxwise_flask.graph_ql.type_defs import type_defs
 from boxwise_flask.models.base import Base
 from boxwise_flask.models.box import Box
+from boxwise_flask.models.qr_code import QRCode
 from boxwise_flask.models.user import User, get_user_from_email_with_base_ids
 
 query = ObjectType("Query")
@@ -66,6 +67,12 @@ def resolve_all_users(_, info):
 @query.field("user")
 def resolve_user(_, info, email):
     return get_user_from_email_with_base_ids(email)
+
+
+@query.field("box")
+def resolve_box(_, info, qr_code):
+    qr_id = QRCode.get_id_from_code(qr_code)
+    return Box.get_box_from_qr(qr_id)
 
 
 @mutation.field("createBox")

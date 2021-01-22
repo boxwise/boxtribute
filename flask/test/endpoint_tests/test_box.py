@@ -27,5 +27,19 @@ def test_code_not_associated_with_box(client, qr_code_without_box):
     data = {"query": graph_ql_query_string}
     response_data = client.post("/graphql", json=data)
     queried_box = response_data.json["data"]["box"]
-    assert response_data.json["errors"] != None
+    assert "<Model: Box> instance matching query does not exist" in response_data.json["errors"][0]["message"]
+    assert queried_box == None
+
+
+def test_code_does_not_exist(client):
+    code = '"%s"' % "-1"
+    graph_ql_query_string = f"""query Box {{
+                box(qr_code: {code}) {{
+                    box_id
+                }}
+            }}"""
+    data = {"query": graph_ql_query_string}
+    response_data = client.post("/graphql", json=data)
+    queried_box = response_data.json["data"]["box"]
+    assert "<Model: QRCode> instance matching query does not exist" in response_data.json["errors"][0]["message"]
     assert queried_box == None

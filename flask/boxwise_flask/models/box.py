@@ -92,5 +92,8 @@ class Box(db.Model):
 
     @staticmethod
     def get_box(box_id):
-        box = Box.select().where(Box.box_id == box_id).get()
-        return box
+        return Box.select().where(Box.box_id == box_id).get()
+    
+    @staticmethod
+    def get_box_from_qr(qr_id):
+        return Box.select().where(Box.qr_id == qr_id).get()
