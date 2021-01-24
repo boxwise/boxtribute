@@ -1,36 +1,50 @@
-# Boxwise react client 
+# Readme
 
-This front-end project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+This frontend project of Boxtribute was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
 
-## All available Create-React-Scripts
+## Table of Contents
 
-In the project directory, you can run:
+1. [Contribution Guidelines](../CONTRIBUTING.md)
+2. [Development Set-up](#development-set-up)
+   1. [Set-up pre-commit](#set-up-pre-commit)
+   2. [Install node and yarn](#install-node-and-yarn)
+   3. [Linting and Formatting in VSCode](#linting-and-formatting-in-vscode)
+3. [Note about yarn and Docker](#note-about-yarn-and-docker)
+4. [Testing][#testing]
 
-### `yarn start`
+## Development Set-Up
 
-Runs the app in the development mode.<br />
-Open [http://localhost:3000](http://localhost:3000) to view it in the browser.
+Following the [general set-up steps](../README.md), here a few steps that make your live easier working on the frontend.
 
-The page will reload if you make edits.<br />
-You will also see any lint errors in the console.
+### Set-up pre-commit
 
-### `yarn test`
+[Pre-commit](https://pre-commit.com/) enables us to run code quality checks, such as missing semicolons, trailing whitespace, and debug statements, before you are committing your code. We chose pre-commit since it enables us to run these checks for both frontend and backend in just one place.
+The downside is that you need python to be installed on your computer.
+Please check the [backend README}(../flask/README.md#set-up-pre-commit) to set it up.
 
-Launches the test runner in the interactive watch mode.<br />
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+### Install node and yarn
 
-### `yarn build`
+For almost all features of our development set-up you should also have [node](https://nodejs.org/en/download/) installed on your computer. You will need it to run frontend tests and the formatters and linters in your IDE(e.g. VSCode).
+We recommend you to install node through a [version control like nvm](https://github.com/nvm-sh/nvm). It provides you with much more clarity which version you are running and makes it easy to switch versions of node.
 
-Builds the app for production to the `build` folder.<br />
-It correctly bundles React in production mode and optimizes the build for the best performance.
+### Linting and Formatting in VSCode
 
-The build is minified and the filenames include the hashes.<br />
-Your app is ready to be deployed!
+We are using eslint as a linter and prettier as a formatter for the frontend. The configuration of these two is in the [`.prettierrc`-file](../.prettierrc) and [`.eslintrc`-file](../.eslintrc), respectively. There are two extensions for VSCode ([prettier](https://marketplace.visualstudio.com/items?itemName=esbenp.prettier-vscode), [eslint](dbaeumer.vscode-eslint)), which we recommend to to install.
 
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
+The settings that these extensions are used are already defined in [`.vscode/settings.json`](../.vscode/settings.json).
 
-## Learn More
+## Note about yarn and Docker
 
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
+We are using docker to spin up our dev environment. The react folder is in sync with the react Docker container. Therefore, the hot-reloading of the yarn development server should function.
 
-To learn React, check out the [React documentation](https://reactjs.org/).
+When you wish to add a dependency, e.g. when you make a change to your local package.json, you will need to rebuild the docker container and relaunch.
+
+You can add packages during development without rebuilding by installing it inside the container. Your changes will last until you "docker-compose down" and will be saved on host for next build.
+
+For example, to add XYZ to the `package.json` file in the `react` folder while developing, you can run this:
+
+      docker-compose exec react yarn add XYZ
+
+(This advice has come from https://github.com/BretFisher/node-docker-good-defaults)
+
+## Testing

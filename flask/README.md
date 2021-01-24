@@ -2,7 +2,7 @@
 ## Readme
 
 ## Table of Contents
-1. [Contribution Guidelines](CONTRIBUTING.md)
+1. [Contribution Guidelines](../CONTRIBUTING.md)
 2. [Development Set-up](#development-set-up)
     1. [Install python](#install-python)
     2. [Set-up pre-commit](#set-up-pre-commit)
