@@ -8,11 +8,11 @@
     2. [Set-up pre-commit](#set-up-pre-commit)
     3. [Linting and Formatting in VSCode](#linting-and-formatting-in-vscode)
     4. [Working with MySQL](#working-with-mysql)
-    5. [Debugging]
-3. [Testing the backend]
-4. [Database migrations]
-5. [Auth0 (Authentication and Authorization)]
-
+    5. [Debugging](#debugging)
+3. [Testing][#testing]
+4. [GraphQL Playground](#graphql-playground)
+5. [Authentication and Authorization on the backend](#authentication-and-authorization)
+4. [Database Migrations](#database-migrations)
 
 ## Development Set-up
 
@@ -29,6 +29,7 @@ These recommendations are mainly ment for people developing on the backend. If y
 - [Have a look at direnv >= v2.21.0](https://github.com/direnv/direnv). Virtual environments must be activated and deactivated. If you are moving through folders in the terminal it can easily happen that you either miss activating or deactivating the venv resulting in errors and time wasted for development. With direnv you can automate the activation and deactivation of venv depending on which folder you are in. There is already a `.envrc` file in the root of this repo. If you install `direnv` and allow to run it for your local repo, it will access the python virtual environment `venv` everytime you enter the folder via a command line.
 
 ### Set-up pre-commit
+
 [Pre-commit](https://pre-commit.com/) enables us to run code quality checks, such as missing semicolons, trailing whitespace, and debug statements, before you are committing your code. We chose pre-commit since it enables us to run these checks for both frontend and backend in just one place.
 Please follow these steps to set-up pre-commit:
 
@@ -49,6 +50,8 @@ Please follow these steps to set-up pre-commit:
     pre-commit install --overwrite
 
 Now you're all set up using Python code quality tools! `pre-commit` automatically checks the staged patch before committing. If it rejects a patch, add the corrections and try to commit again.
+
+To figure out what else you can do with pre-commit, check out this  [link](https://pre-commit.com/#usage).
 
 ### Linting and Formatting in VSCode
 
@@ -75,9 +78,47 @@ Most of our developers use [MySQL workbench](https://dev.mysql.com/doc/workbench
 
 The development database is called `dropapp_dev` and the password is `dropapp_root`.
 
-### Testing
+### Debugging
 
-#### Writing tests
+By default the flask app runs in `development` mode in the Docker container which means that hot-reloading and debugging is enabled.
+
+#### Built-in flask debugger
+
+For debugging an exception in an endpoint, direct your webbrowser to that endpoint. The built-in flask debugger is shown. You can attach a console by clicking the icons on the right of the traceback lines. For more information, refer to the [documentation](https://flask.palletsprojects.com/en/1.1.x/quickstart/#debug-mode).
+
+#### Debugging Backend in VSCode
+
+VSCode has [a very easy-to-use debugger](https://code.visualstudio.com/docs/editor/debugging) built-in.
+
+To use the debugger:
+1. install the extensions to [access Docker container](https://marketplace.visualstudio.com/items?itemName=ms-vscode-remote.remote-containers) and to [debug python](https://marketplace.visualstudio.com/items?itemName=ms-python.python).
+2. Start the docker containers.
+3. [Attach to the running Docker container for the `flask` service.](https://code.visualstudio.com/docs/remote/containers#_attaching-to-running-containers)
+4. A new VSCode window pops up which is run from within the docker container `boxtribute_flask` Docker container.
+5. Open the `/codedir` in the new VSCode which popped up. The `codedir` folder is the equivalent of the repo folder in the Docker container.
+
+The following step are only required the first time or after you deleted a Docker container:
+6. Install the [python extension](https://marketplace.visualstudio.com/items?itemName=ms-python.python) inside the Docker container.
+
+Final steps:
+7. [Launch the debug configuration called 'Python: Run Flask in docker container to debug'.](https://code.visualstudio.com/docs/editor/debugging#_launch-configurations)
+
+You can now set break-points in your code.
+If you want to debug a certain endpoint, set a break-point in the endpoint and call this enpoint at the port 5001, e.g.
+        `localhost:5001/api/public`
+If you want to break on any other code lines (not endpoints), then you can only catch them during the server start-up.
+
+#### Usage of Logger
+To log to the console from inside the docker container, create an instance of app using:
+    `from flask import Flask`
+    `app = Flask(__name__)`
+
+and log with:
+        `app.logger.warn(<whatever you want to log>)`
+
+## Testing
+
+### Writing tests
 
 Run the test suite on your machine by executing
 
@@ -103,7 +144,7 @@ to allow for databases to be preconfigured with data and requests to be made to 
 
 Fixtures are configured in the `conftest.py` files which execute automatically before a test.
 
-#### Setting up test data
+### Setting up test data
 
 Test data is setup in the `test/data` folder and each piece of data is split up into 3 seperate parts
 1. The default data function is a dictionary which has all of the data for that database table
@@ -121,51 +162,32 @@ def create_default_<data_name>():
     <data_model>.create(**default_<data_name>_data())
 ```
 
-##### Please be aware that
+#### Please be aware that
 - for new data the fixtures need to be imported in the required `conftest.py` and
 - the call to create needs to be added to `setup_tables.py` in the `test/data` directory.
 
-### Formatting and linting
+## GraphQL Playground
 
-Run a full style-check by
+We are setting up GraphQL as a data layer for this application. To check out the GraphQL playground, and go to `localhost:5000/graphql`.
+The GraphQL enpoint is secured and needs a Bearer token from Auth0 to authenticate and authorize. To work with the playground you have to add such a token from Auth0 as an http Header. Here, how this works:
 
-    pre-commit run --all-files
+1. Follow this [link](https://manage.auth0.com/dashboard/eu/boxtribute-dev/apis/5ef3760527b0da00215e6209/test) to receive a token for testing. You can also find this token in Auth0 in the menu > API > boxtribute-dev-api > Test-tab.
 
-### Debugging
+2. Insert the access token in the following format on the playground in the section on the bottom left of the playground called HTTP Headers.
+```
+{ "authorization": "Bearer <the token you retrieved from Auth0>"}
+```
 
-By default the flask app runs in `development` mode which has hot-reloading and debugging enabled.
+A sample query you can try if it works is:
+```
+query {
+  allBases {
+    name
+  }
+}
+```
 
-#### Built-in flask debugger
+## Authentication and Authorization
 
-For debugging an exception in an endpoint, direct your webbrowser to that endpoint. The built-in flask debugger is shown. You can attach a console by clicking the icons on the right of the traceback lines. For more information, refer to the [documentation](https://flask.palletsprojects.com/en/1.1.x/quickstart/#debug-mode).
 
-#### Debugging Backend in VSCode
-
-Many of our developers are using VSCode which has [a very easy-to-use debugger](https://code.visualstudio.com/docs/editor/debugging) built-in.
-A launch configuration for the debugger is added to the repo.
-
-To use the debugger:
-1. install the extensions to [access Docker container](https://marketplace.visualstudio.com/items?itemName=ms-vscode-remote.remote-containers) and to [debug python](https://marketplace.visualstudio.com/items?itemName=ms-python.python).
-2. Start the docker containers.
-3. [Attach to the running Docker container for the `web` service.](https://code.visualstudio.com/docs/remote/containers#_attaching-to-running-containers) By this step a new VSCode window will open to work from inside the `boxtribute_web` Docker container.
-4. A new VSCode window pops up which is run from within the docker container `boxtribute_web` Docker container.
-5. Open the `/codedir` in the new VSCode which popped up. The `codedir` folder is the equivalent of the repo folder in the Docker container.
-
-The following step are only required the first time or after you deleted a Docker container:
-6. Install the [python extension](https://marketplace.visualstudio.com/items?itemName=ms-python.python) inside the Docker container.
-
-Final steps:
-7. [Launch the debug configuration called 'Python: Run Flask in docker container to debug'.](https://code.visualstudio.com/docs/editor/debugging#_launch-configurations)
-
-You can now set break-points in your code.
-If you want to debug a certain endpoint, set a break-point in the endpoint and call this enpoint at the port 5001, e.g.
-        `localhost:5001/api/public`
-If you want to break on any other code lines (not endpoints), then you can only catch them during the server start-up.
-
-#### Usage of Logger
-To log to the console from inside the docker container, create an instance of app using:
-    `from flask import Flask`
-    `app = Flask(__name__)`
-
-and log with:
-        `app.logger.warn(<whatever you want to log>)`
+## Database Migrations

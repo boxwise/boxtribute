@@ -18,14 +18,16 @@ Quick summary:
 We are using trello for Task Management. Our [product owner](https://www.youtube.com/watch?v=502ILHjX9EE) assigns the tickets to everybody taking part in a sprint. Each ticket should include a user story to understand why we need the ticket. If you are missing information, do not feel shy to write in slack.
 
 ### How do I start with my task?
-We would like to do [test driven development](https://www.browserstack.com/guide/tdd-vs-bdd-vs-atdd) where possible. Thinking about the tests first forces you to have a clear image on what is needed for a screen, endpoint, or business process to work before you start coding, and to be efficient in your code by writing only the minimal amount of code needed for the tests to pass.
-Besides that, check our [guidelines](#guidelines) and [development principles](#development-principles).
+We would like to do [test driven development](https://www.browserstack.com/guide/tdd-vs-bdd-vs-atdd) where possible. Thinking about the tests first forces you to have a clear image on what is needed for a screen, endpoint, or business process to work before you start coding, and to be efficient in your code by writing only the minimal amount of code needed for the tests to pass. Check out our [Testing Guidelines](#testing-guidelines) and also the READMEs for frontend and backend which include more specific best practices.
+Besides that, check our [general guidelines](#guidelines) and [development principles](#development-principles).
 
 ### I'm stuck. How do I get help?
 Write in the #dev channel first, and ask for support head of the friday troubleshooting meeting if needed.
 Please write in **public** channels and tag people instead of writing them privately. It is completely ok to be stuck and ask for help and this way others with the same problem find the solution easier.
 
 If you want somebody to look at your code when you are stuck, then [**create a draft Pull Request**](https://github.blog/2019-02-14-introducing-draft-pull-requests/). It gives the others a quick insight in what you have done and is great to directly comment on the code.
+
+If you schedule a pair-programming session and you both use VSCode as your IDE, please check out the [LiveShare extension.](https://marketplace.visualstudio.com/items?itemName=ms-vsliveshare.vsliveshare)
 
 ### I'm finished with my task. What now?
 We are using git as versioning control and are using the methology of [Trunk Based Development](https://trunkbaseddevelopment.com/) for our [Software Development Life Cycle](https://en.wikipedia.org/wiki/Software_development_process).
@@ -79,3 +81,17 @@ These are the principles that have guided our development so far. If you're maki
 - **Optimize for contributions.** The code needs to be approachable and easy to understand, particularly for junior developers. Consider whether that clever new technology is worth it if a junior developer will struggle to get their head around it.
 - **Move fast and don't break things.** We ship continuously and test, test, test.
 - **More small PRs than single larger PRs.** Big PRs are hard to review and often create dependencies.
+
+## Testing Guidelines
+When writing tests, try to follow these guidelines if possible:
+
++ Tests should be as readable as possible and not complex at all. You should understand them by looking at them just once.
++ Local helper functions defined in test files should have functional and easy-to-understand rather than technical names. Meaning, `clickNewUserButton()` is better than `clickElementByTypeAndTestId('button','new-user-button')`.
++ More general use helpers like 'clickElementByTypeAndTestId' can be used within the local helper functions if preferred. The reason for functional naming preference lies in increased readability of tests.
++ Avoid any duplication of helper functions across several files! If using the same functions in several tests (files), there's a tendency to copy-paste the whole file and then rewrite tests. This leads to code duplication of helper functions. Instead, helper functions needed in several locations should be defined in one place should be available globally. Find the matching one by name or create a new one. Avoid creating miscellaneuos file names as it tends to lead to chaos.
++ Current codebase doesn't 100% follow everything stated above but it'd definitely help organising the test helpers accordingly from now on.
+
+![Selection_599](https://user-images.githubusercontent.com/8964422/77221481-6a190d00-6b4a-11ea-88d7-9fc70ce1c982.png)
+
+Up until now, we have mainly written unit tests and integration tests on frontend and backend. Unit tests are testing single units of code in only one environment or framework, integration tests test the integration between different frameworks / technologies.
+Please find here collection of [best practices for unit tests](https://medium.com/better-programming/13-tips-for-writing-useful-unit-tests-ca20706b5368).
