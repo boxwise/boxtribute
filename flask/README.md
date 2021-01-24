@@ -6,7 +6,7 @@
 2. [Development Set-up](#development-set-up)
     1. [Install python](#install-python)
     2. [Set-up pre-commit](#set-up-pre-commit)
-    3. [Linting and Formatting in VSCode]
+    3. [Linting and Formatting in VSCode](#linting-and-formatting-in-vscode)
     4. [MySQL workbench]
     5. [Debugging]
 3. [Testing the backend]
@@ -29,7 +29,7 @@ These recommendations are mainly ment for people developing on the backend. If y
 - [Have a look at direnv >= v2.21.0](https://github.com/direnv/direnv). Virtual environments must be activated and deactivated. If you are moving through folders in the terminal it can easily happen that you either miss activating or deactivating the venv resulting in errors and time wasted for development. With direnv you can automate the activation and deactivation of venv depending on which folder you are in. There is already a `.envrc` file in the root of this repo. If you install `direnv` and allow to run it for your local repo, it will access the python virtual environment `venv` everytime you enter the folder via a command line.
 
 ### Set-up pre-commit
-Pre-commit enables us to run code quality checks, such as missing semicolons, trailing whitespace, and debug statements, before you are committing your code. We chose pre-commit since it enables us to run these checks for both frontend and backend in just one place.
+[Pre-commit](https://pre-commit.com/) enables us to run code quality checks, such as missing semicolons, trailing whitespace, and debug statements, before you are committing your code. We chose pre-commit since it enables us to run these checks for both frontend and backend in just one place.
 Please follow these steps to set-up pre-commit:
 
 (optional) 0.1 If you have not already done it, create a venv in which you are running pre-commit. If you are using pyenv you might want to check which python version you are using with `pyenv version` or `which python`.
@@ -49,6 +49,10 @@ Please follow these steps to set-up pre-commit:
     pre-commit install --overwrite
 
 Now you're all set up using Python code quality tools! `pre-commit` automatically checks the staged patch before committing. If it rejects a patch, add the corrections and try to commit again.
+
+### Linting and Formatting in VSCode
+
+Most of our developers are using VSCode. Instead of running our linter (flake8) and our formatter (black) for python just when you are committing your code, we added a few settings in `.vscode/settings.json` so that your files are formatted and linted when you save a python file. You might want to check out this settings file.
 
 ### Testing
 

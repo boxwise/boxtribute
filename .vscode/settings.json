@@ -1,0 +1,9 @@
+{
+  // only enable if you are using a virtual environment
+  // "python.pythonPath": ".venv/bin/python",
+  "python.linting.flake8Enabled": true,
+  "python.linting.enabled": true,
+  "python.linting.pylintEnabled": false,
+  "python.formatting.provider": "black",
+  "editor.formatOnSave": true
+}
