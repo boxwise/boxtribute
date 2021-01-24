@@ -19,6 +19,7 @@ Linting formatting
 testing
 CircleCI
 Database Development Seed
+Live Share
 
 ## Preparation for Installation
 

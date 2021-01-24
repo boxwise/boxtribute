@@ -7,7 +7,7 @@
     1. [Install python](#install-python)
     2. [Set-up pre-commit](#set-up-pre-commit)
     3. [Linting and Formatting in VSCode](#linting-and-formatting-in-vscode)
-    4. [MySQL workbench]
+    4. [Working with MySQL](#working-with-mysql)
     5. [Debugging]
 3. [Testing the backend]
 4. [Database migrations]
@@ -53,6 +53,27 @@ Now you're all set up using Python code quality tools! `pre-commit` automaticall
 ### Linting and Formatting in VSCode
 
 Most of our developers are using VSCode. Instead of running our linter (flake8) and our formatter (black) for python just when you are committing your code, we added a few settings in `.vscode/settings.json` so that your files are formatted and linted when you save a python file. You might want to check out this settings file.
+
+### Working with MySQL
+
+Since we are working with docker you do not have to install a local MySQL server on your computer. Instead, you can just connect to the MySQL server in one of the Docker containers.
+
+#### General notes on Docker network
+
+In the docker-compose file we define a separate docker network called `backend` to which the backend containers are joined. Each container can now look up the hostname `flask` or `mysql` and get back the appropriate container’s IP address.
+To access the mysql database, there are now two possibilities:
+1. You reach the mysql db at `MYSQL_HOST=mysql` and `MYSQL_PORT=3306` or
+2. by specifying the IP-address of the gateway for `MYSQL_HOST` and `MYSQL_PORT=32000`.
+
+To figure out the gateway of the docker network `backend` run
+
+        docker network inspect -f '{{range .IPAM.Config}}{{.Gateway}}{{end}}' boxtribute_backend
+
+#### MySQL workbend or other editors
+
+Most of our developers use [MySQL workbench](https://dev.mysql.com/doc/workbench/en/wb-installing.html) to interact with the database directly. If you want to connect to the database, choose one of the possibilites in the former to define the conneection, e.g. Hostname is 172.18.0.1 and Port is 32000.
+
+The development database is called `dropapp_dev` and the password is `dropapp_root`.
 
 ### Testing
 
