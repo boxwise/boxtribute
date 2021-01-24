@@ -33,7 +33,7 @@ However, after attempting to work with Semantic for some time, Soheima found tha
 
 
 ## Decision
-RebassJS. Although in an ideal world, we would have liked to start with t alibaray that has many pre-built components out of the box, in reality, libraries that had this sort of set up were either too restrictive what their components could do (Semantic - weak theme customizations; Material, Ant Design - UI components do not fit and cannot be modified to behave the way we want them to behave) or too incomplete in their pre-built components (Grommet), meaning that a separate library would have to be brought in anyway to create custom components for Boxtribute. Since there did not seem to be an easy or elegant way to integrate new custom components with an existing library, we decided to go directly with the library that was created with custom UI building in mind.
+RebassJS. Although in an ideal world, we would have liked to start with a libaray that has many pre-built components out of the box, in reality, libraries that had this sort of set up were either too restrictive what their components could do (Semantic - weak theme customizations; Material, Ant Design - UI components do not fit and cannot be modified to behave the way we want them to behave) or too incomplete in their pre-built components (Grommet), meaning that a separate library would have to be brought in anyway to create custom components for Boxtribute. Since there did not seem to be an easy or elegant way to integrate new custom components with an existing library, we decided to go directly with the library that was created with custom UI building in mind.
 
 ## Consequences
 
