@@ -1,20 +1,54 @@
 
 ## Readme
 
-This project is developed in Python >= 3.6. For setting up the development environment for the first time, create a [Python virtual environment](https://docs.python.org/3.6/library/venv.html), e.g. by
+## Table of Contents
+1. [Contribution Guidelines](CONTRIBUTING.md)
+2. [Development Set-up](#development-set-up)
+    1. [Install python](#install-python)
+    2. [Set-up pre-commit](#set-up-pre-commit)
+    3. [Linting and Formatting in VSCode]
+    4. [MySQL workbench]
+    5. [Debugging]
+3. [Testing the backend]
+4. [Database migrations]
+5. [Auth0 (Authentication and Authorization)]
+
+
+## Development Set-up
+
+### Install python
+
+For almost all features of our development set-up you should [install Python >=3.6](https://www.python.org/downloads/) on your computer. You will need it to run tests on the backend and the formatters and linters on both backend and frontend.
+
+**Recommendations for backend people**
+
+These recommendations are mainly ment for people developing on the backend. If you are just a frontend person, but would like use pre-commit and the linters and formatters defined there, you can skip these steps.
+
+- [Use a version control for python like pyenv.](https://github.com/pyenv/pyenv) It provides you with much more clarity which version you are running and makes it easy to switch versions of python.
+- [Make use of virtual environments like venv.](https://docs.python.org/3/library/venv.html) You should not install all packages you need for this project globally, but focused on Boxtribute.
+- [Have a look at direnv >= v2.21.0](https://github.com/direnv/direnv). Virtual environments must be activated and deactivated. If you are moving through folders in the terminal it can easily happen that you either miss activating or deactivating the venv resulting in errors and time wasted for development. With direnv you can automate the activation and deactivation of venv depending on which folder you are in. There is already a `.envrc` file in the root of this repo. If you install `direnv` and allow to run it for your local repo, it will access the python virtual environment `venv` everytime you enter the folder via a command line.
+
+### Set-up pre-commit
+Pre-commit enables us to run code quality checks, such as missing semicolons, trailing whitespace, and debug statements, before you are committing your code. We chose pre-commit since it enables us to run these checks for both frontend and backend in just one place.
+Please follow these steps to set-up pre-commit:
+
+(optional) 0.1 If you have not already done it, create a venv in which you are running pre-commit. If you are using pyenv you might want to check which python version you are using with `pyenv version` or `which python`.
 
     python3 -m venv .venv
+
+(optional) 0.2 Activate the virtual environment. If you are not using direnv, be aware that you should do this step each time before working with python in the Boxtribute repo.
+
     source .venv/bin/activate
-    pip install -e . -r requirements-dev.txt
+
+1. Install pre-commit and the linters/formatters (all declared in `/flask/requirements-dev.txt`)
+
+    pip install -e flask -r flask/requirements-dev.txt
+
+2. Install the hooks to run pre-commit before you commit.
+
     pre-commit install --overwrite
 
 Now you're all set up using Python code quality tools! `pre-commit` automatically checks the staged patch before committing. If it rejects a patch, add the corrections and try to commit again.
-
-Whenever you start a new shell to run tests, style-checks, or work on some code in general, activate the Python virtual environment
-
-    source .venv/bin/activate
-
-Have a look at [direnv](https://github.com/direnv/direnv) if you're interested in ways to automate this procedure. There is already a `.envrc` file in the root of this repo. If you install `direnv` and allow to run it for your local repo, it will access the python virtual environment `venv` everytime you enter the folder via a command line.
 
 ### Testing
 
@@ -28,7 +62,7 @@ Two types of tests can be setup. Model (unit) tests and endpoint (integration) t
 
 New test files should begin with the word test so the they are discovered when running pytest.
 for example:
-```
+. ```
 test_<test_file_name>.py
 ```
 and similarly the test functions should have the format
@@ -62,7 +96,7 @@ def create_default_<data_name>():
     <data_model>.create(**default_<data_name>_data())
 ```
 
-##### Please be aware that 
+##### Please be aware that
 - for new data the fixtures need to be imported in the required `conftest.py` and
 - the call to create needs to be added to `setup_tables.py` in the `test/data` directory.
 

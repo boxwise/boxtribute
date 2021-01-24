@@ -7,12 +7,27 @@ This is the repo for the new mobile web app of [Boxtribute](www.boxtribute.org),
 
 Please check out [**Contribution Guidelines**](CONTRIBUTING.md) before you get started!
 
+## Table of Contents
+1. [Contribution Guidelines](CONTRIBUTING.md)
+1. [Installation](#preparation-for-installation)
+    1. [Basic steps](#preparation-for-installation)
+    2. [Frontend](/react/README.md)
+    3. [Backend](/flask/README.md)
+2. [About Docker]
+3. About IDE
+Linting formatting
+testing
+CircleCI
+Database Development Seed
+
 ## Preparation for Installation
 
 * Install [Docker](https://www.docker.com/products/docker-desktop)
 * Get in touch with the [Boxwise team](mailto:hello@boxwise.co) to get access to the [Auth0](https://auth0.com/) development tenant.
 
 ## How do I get set up?
+
+These are the most basic steps to get frontend and backend up and running. At the end, there are also further instructions to set-up your frontend and backend environment.
 
 1. Create a .env-file with the environment variables. Therefore, copy/paste `example.env` and rename it `.env`
 
@@ -26,7 +41,12 @@ Please check out [**Contribution Guidelines**](CONTRIBUTING.md) before you get s
 
        docker-compose up
 
-## Docker
+### [Further Steps]
+
+- [for frontend including react-testing-library, eslint, prettier](/react/README.md)
+- [for backend including pytest, venv, formatting and debugging](/flask/README.md)
+
+## About Docker
 
 We are using Docker containers to make it easy for everyone to spin up an development environment which is the same everywhere. In `docker-compose.yaml` three docker containers are specified - one for the mysql database called `mysql`, one for the flask backend called `web` and one for the react front-end called `react`.
 
