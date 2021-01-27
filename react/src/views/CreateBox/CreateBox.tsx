@@ -121,8 +121,8 @@ export default function CreateBox() {
           </button>
         </div>
       )}
-      {mutationLoading && <p>Loading...</p>}
-      {mutationError && <p>Error :( Please try again</p>}
+      {mutationLoading && <p data-testid="loadingState">Loading...</p>}
+      {mutationError && <p data-testid="errorState">Error :( Please try again</p>}
 
       <Link
         to="/"
