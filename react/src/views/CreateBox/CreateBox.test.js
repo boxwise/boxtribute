@@ -7,6 +7,7 @@ import { CREATE_BOX } from "../../utils/queries";
 import { Router } from "react-router-dom";
 import { createMemoryHistory } from "history";
 import "mutationobserver-shim";
+import { GraphQLError } from "graphql";
 
 const mocks = [
   {
@@ -152,7 +153,7 @@ describe("Required form fields prohibit submission when blank", () => {
   });
 });
 
-describe("Loading and error state after submission", () => {
+describe("Network error after submission", () => {
   let component = null;
   beforeEach(() => {
     const history = createMemoryHistory();
@@ -160,7 +161,25 @@ describe("Loading and error state after submission", () => {
     history.push("/create-box", state);
 
     component = render(
-      <MockedProvider mocks={[]} addTypename={false}>
+      <MockedProvider
+        mocks={[
+          {
+            request: {
+              query: CREATE_BOX,
+              variables: {
+                productId: 2,
+                items: 2,
+                locationId: 2,
+                comments: "",
+                sizeId: 2,
+                qrBarcode: "387b0f0f5e62cebcafd48383035a92a",
+              },
+            },
+            error: new Error("An error occurred"),
+          },
+        ]}
+        addTypename={false}
+      >
         <Router history={history}>
           <CreateBox />
         </Router>
@@ -170,9 +189,68 @@ describe("Loading and error state after submission", () => {
 
   afterEach(cleanup);
 
-  it("renders `Error` when the submission contains an error", async () => {});
-  // Loading state is a work in progress
-  /*
+  it("renders `Error :( Please try again` when there is a network error", async () => {
+    const submitBtn = component.getByRole("button", { name: /do the mutation/i });
+
+    fireEvent.click(submitBtn);
+
+    await waitFor(() => {
+      expect(component.getByText("Error :( Please try again")).toBeInTheDocument();
+    });
+  });
+});
+
+describe("GraphQL error after submission", () => {
+  let component = null;
+  beforeEach(() => {
+    const history = createMemoryHistory();
+    const state = { qr: "barcode=387b0f0f5e62cebcafd48383035a92a" };
+    history.push("/create-box", state);
+
+    component = render(
+      <MockedProvider
+        mocks={[
+          {
+            request: {
+              query: CREATE_BOX,
+              variables: {
+                productId: 2,
+                items: 2,
+                locationId: 2,
+                comments: "",
+                sizeId: 2,
+                qrBarcode: "387b0f0f5e62cebcafd48383035a92a",
+              },
+            },
+            result: {
+              errors: [new GraphQLError("Error!")],
+            },
+          },
+        ]}
+        addTypename={false}
+      >
+        <Router history={history}>
+          <CreateBox />
+        </Router>
+      </MockedProvider>,
+    );
+  });
+
+  afterEach(cleanup);
+
+  it("renders `Error :( Please try again` when there is a GraphQL error", async () => {
+    const submitBtn = component.getByRole("button", { name: /do the mutation/i });
+
+    fireEvent.click(submitBtn);
+
+    await waitFor(() => {
+      expect(component.getByText("Error :( Please try again")).toBeInTheDocument();
+    });
+  });
+});
+
+// Loading state is a work in progress
+/*
   it("renders `loading` while loading", async () => {
 
     const submitBtn = component.getByRole("button", { name: /do the mutation/i });
@@ -184,4 +262,3 @@ describe("Loading and error state after submission", () => {
     });
   });
   */
-});
