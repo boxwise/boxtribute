@@ -111,7 +111,6 @@ describe("Submission result screen is shown the right way", () => {
   });
 });
 
-// An error message is needed for when a required field or fields is left blank
 describe("Required form fields prohibit submission when blank", () => {
   let component = null;
   beforeEach(() => {
@@ -131,24 +130,26 @@ describe("Required form fields prohibit submission when blank", () => {
   afterEach(cleanup);
 
   it("does nothing when locationId, productId, items, and sizeId are blank", async () => {
-    const inputFields = component.getAllByRole("textbox");
+    const inputFields = component.getAllByRole("spinbutton");
     const submitBtn = component.getByRole("button", { name: /do the mutation/i });
 
     for (let i = 0; i < inputFields.length; i++) {
       fireEvent.change(inputFields[i], { target: { value: "" } });
     }
 
+    await waitFor(() => {
+      for (let i = 0; i < inputFields.length; i++) {
+        expect(inputFields[i].value).toBe("");
+      }
+    });
+
     fireEvent.click(submitBtn);
 
     await waitFor(() => {
-      // setTimeout: wait for 5 seconds before running assertions
-      setTimeout(() => {
-        expect(component).queryByTestId("createBoxForm").toBeTruthy();
-        expect(component).queryByTestId("createdBox").toBeNull();
-        expect(component).queryByTestId("loadingState").toBeNull();
-        expect(component).queryByTestId("errorState").toBeNull();
-        // expect some sort of error message to appear
-      }, 5000);
+      expect(component.queryByTestId("createBoxForm")).toBeTruthy();
+      expect(component.queryByTestId("createdBox")).toBeNull();
+      expect(component.queryByTestId("loadingState")).toBeNull();
+      expect(component.queryByTestId("errorState")).toBeNull();
     });
   });
 });
