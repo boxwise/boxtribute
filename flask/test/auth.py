@@ -31,7 +31,7 @@ def get_user_token():
     auth0_password = os.getenv("AUTH0_PASSWORD")
 
     url = "https://" + auth0_domain + "/oauth/token"
-    parameters = {
+    auth_parameters = {
         "client_id": auth0_client_id,
         "audience": auth0_audience,
         "client_secret": auth0_secret,
@@ -40,7 +40,10 @@ def get_user_token():
         "password": auth0_password
     }
 
-    response = requests.post(url, json=parameters).json()  
+    for _, v in auth_parameters.items():
+      assert v != None
+
+    response = requests.post(url, json=auth_parameters).json()  
     
     if "error" not in response:
       return response["access_token"]
