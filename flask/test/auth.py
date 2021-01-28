@@ -44,11 +44,12 @@ def get_user_token():
       assert v != None
 
     response = requests.post(url, json=auth_parameters).json()  
-    
+
     if "error" not in response:
       return response["access_token"]
 
     print(response)
+    assert "error" not in response
 
 @memoize
 def get_user_token_header():
