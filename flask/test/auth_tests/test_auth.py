@@ -1,6 +1,19 @@
 import pytest
 from auth import get_user_token_string
 
+from patches import get_auth_string_patch
+from patches import authorization_test_patch
+from patches import requires_auth_patch
+from patches import add_user_to_request_context_patch
+
+#avoid the request context to test auth functions
+add_user_to_request_context_patch.start()
+# Patch the function to get auth token from request header
+get_auth_string_patch.start()
+# as we are testing the auth functions here stop the patches that effect this
+authorization_test_patch.stop()
+requires_auth_patch.stop()
+
 from boxwise_flask.auth_helper import (  # ,; decode_jwt,; requires_auth,; 
     user_can_access_base,
     authorization_test,
