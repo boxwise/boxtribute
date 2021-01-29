@@ -59,7 +59,6 @@ class User(db.Model):
 def get_user_from_email_with_base_ids(email):
     user = User.get_from_email(email)
     user_dict = model_to_dict(user)
-
     base_ids = []
     if user.usergroup:
         base_ids = UsergroupBaseAccess.get_all_base_id_for_usergroup_id(

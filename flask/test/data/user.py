@@ -57,6 +57,26 @@ def default_users_data():
 
     users_dict[mock_user["id"]] = mock_user
 
+    mock_user = {
+        "id": 3,
+        "name": "coord",
+        "email": "dev_coordinator@boxaid.org",
+        "valid_first_day": TODAY,
+        "valid_last_day": TODAY,
+        "last_login": TIME,
+        "last_action": TIME,
+        "is_admin": 0,
+        "created": TIME,
+        "created_by": None,
+        "modified": None,
+        "modified_by": None,
+        "language": None,
+        "deleted": None,
+        "usergroup": default_usergroup_data()["id"],
+    }
+
+    users_dict[mock_user["id"]] = mock_user
+
     return users_dict
 
 

@@ -9,17 +9,8 @@ More details about the mechanism behind fixtures, and predefined fixtures at
 https://docs.pytest.org/en/stable/fixture.html#pytest-fixtures-explicit-modular-scalable
 """
 
-import os
-import tempfile
 import pytest
-from patches import requires_auth_patch
-from patches import authorization_test_patch
 
-requires_auth_patch.start()
-authorization_test_patch.start()
-
-from boxwise_flask.app import create_app
-from boxwise_flask.db import db
 from boxwise_flask.models.base import Base
 from boxwise_flask.models.base_module import BaseModule
 from boxwise_flask.models.box import Box
@@ -56,8 +47,10 @@ from data.user import default_users  # noqa: F401
 from data.usergroup import default_usergroup  # noqa: F401
 from data.usergroup_access_level import default_usergroup_access_level  # noqa: F401
 from data.usergroup_base_access import default_usergroup_base_access_list  # noqa: F401
+from peewee import SqliteDatabase
 
 MODELS = (
+    QRCode,
     Base,
     BaseModule,
     Box,
@@ -68,7 +61,6 @@ MODELS = (
     Product,
     ProductCategory,
     ProductGender,
-    QRCode,
     Size,
     SizeRange,
     User,
@@ -78,35 +70,12 @@ MODELS = (
 )
 
 
-@pytest.fixture()
-def app():
-    """Fixture providing a baseline for unit tests that rely on database operations via
-    the Flask app. Adapted from
-    https://flask.palletsprojects.com/en/1.1.x/testing/#the-testing-skeleton."""
-    app = create_app()
-
-    db_fd, db_filepath = tempfile.mkstemp(suffix=".sqlite3")
-    app.config["DATABASE"] = {
-        "name": db_filepath,
-        "engine": "peewee.SqliteDatabase",
-    }
-
-    db.init_app(app)
-
-    with db.database.bind_ctx(MODELS):
-        db.database.create_tables(MODELS)
+@pytest.fixture(autouse=True)
+def setup_db_before_test():
+    """Sets up database automatically before each test"""
+    _db = SqliteDatabase(":memory:")
+    with _db.bind_ctx(MODELS):
+        _db.create_tables(MODELS)
         setup_tables()
-        db.close_db(None)
-        with app.app_context():
-            yield app
-
-    db.close_db(None)
-    os.close(db_fd)
-    os.remove(db_filepath)
-
-
-@pytest.fixture()
-def client(app):
-    """The fixture simulates a client sending requests to the app."""
-    client = app.test_client()
-    return client
+        yield _db
+        _db.drop_tables(MODELS)

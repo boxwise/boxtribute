@@ -181,9 +181,11 @@ workflows:
     jobs:
       - checkout-to-workspace
       - build-flask:
+          context: STAGING
           requires:
             - checkout-to-workspace
       - test-flask:
+          context: STAGING
           requires:
             - build-flask
       - build-react:
