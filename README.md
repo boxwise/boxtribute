@@ -27,7 +27,7 @@ Please check out [**Contribution Guidelines**](CONTRIBUTING.md) before you get s
 
 ## How do I get set up?
 
-These are the most basic steps to get frontend and backend up and running. At the end, there are also further instructions to set-up your frontend and backend environment.
+These are the most basic steps to get frontend and backend up and running. At the end of this section, there are links to further instructions to set-up additional tools for your frontend and backend environment.
 
 1.  Create a .env-file with the environment variables. Therefore, copy/paste `example.env` and rename it `.env`
 
