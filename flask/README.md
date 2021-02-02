@@ -41,13 +41,13 @@ Please follow these steps to set-up pre-commit:
 
     source .venv/bin/activate
 
-1. Install pre-commit and the linters/formatters (all declared in `/flask/requirements-dev.txt`). Run the command from the root folder of the repo
+1.  Install pre-commit and the linters/formatters (all declared in `/flask/requirements-dev.txt`). Run the command from the root folder of the repo
 
-   pip install -e flask -r flask/requirements-dev.txt
+        pip install -e flask -r flask/requirements-dev.txt
 
-2. Install the hooks to run pre-commit before you commit.
+2.  Install the hooks to run pre-commit before you commit.
 
-   pre-commit install --overwrite
+        pre-commit install --overwrite
 
 Now you're all set up using Python code quality tools! `pre-commit` automatically checks the staged patch before committing. If it rejects a patch, add the corrections and try to commit again.
 
@@ -63,13 +63,13 @@ Since we are working with docker you do not have to install a local MySQL server
 
 #### General notes on Docker network
 
-In the docker-compose file we define a separate docker network called `back-end` to which the back-end containers are joined. Each container can now look up the hostname `flask` or `mysql` and get back the appropriate container’s IP address.
+In the docker-compose file we define a separate docker network called `backend` to which the back-end containers are joined. Each container can now look up the hostname `flask` or `mysql` and get back the appropriate container’s IP address.
 To access the mysql database, there are now two possibilities:
 
 1. You reach the mysql db at `MYSQL_HOST=mysql` and `MYSQL_PORT=3306` or
 2. by specifying the IP-address of the gateway for `MYSQL_HOST` and `MYSQL_PORT=32000`.
 
-To figure out the gateway of the docker network `back-end` run
+To figure out the gateway of the docker network `backend` run
 
         docker network inspect -f '{{range .IPAM.Config}}{{.Gateway}}{{end}}' boxtribute_backend
 
