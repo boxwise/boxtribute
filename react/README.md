@@ -10,7 +10,7 @@ This frontend project of Boxtribute was bootstrapped with [Create React App](htt
    2. [Install node and yarn](#install-node-and-yarn)
    3. [Linting and Formatting in VSCode](#linting-and-formatting-in-vscode)
 3. [Note about yarn and Docker](#note-about-yarn-and-docker)
-4. [Testing][#testing]
+4. [Testing](#testing)
 
 ## Development Set-Up
 
@@ -20,7 +20,7 @@ Following the [general set-up steps](../README.md), here a few steps that make y
 
 [Pre-commit](https://pre-commit.com/) enables us to run code quality checks, such as missing semicolons, trailing whitespace, and debug statements, before you are committing your code. We chose pre-commit since it enables us to run these checks for both frontend and backend in just one place.
 The downside is that you need python to be installed on your computer.
-Please check the [backend README}(../flask/README.md#set-up-pre-commit) to set it up.
+Please check the [backend README](../flask/README.md#set-up-pre-commit) to set it up.
 
 ### Install node and yarn
 
@@ -37,7 +37,7 @@ The settings that these extensions are used are already defined in [`.vscode/set
 
 We are using docker to spin up our dev environment. The react folder is in sync with the react Docker container. Therefore, the hot-reloading of the yarn development server should function.
 
-When you wish to add a dependency, e.g. when you make a change to your local package.json, you will need to rebuild the docker container and relaunch.
+When you wish to add a dependency, e.g. when you make a change to your local `package.json`, you will need to rebuild the docker container and relaunch.
 
 You can add packages during development without rebuilding by installing it inside the container. Your changes will last until you "docker-compose down" and will be saved on host for next build.
 
