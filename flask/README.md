@@ -22,7 +22,7 @@ For almost all features of our development set-up you should [install Python >=3
 
 **Recommendations for backend people**
 
-These recommendations are mainly ment for people developing on the backend. If you are just a frontend person, but would like use pre-commit and the linters and formatters defined there, you can skip these steps.
+These recommendations are mainly meant for people developing on the backend. If you are just a frontend person, but would like use pre-commit and the linters and formatters defined there, you can skip these steps.
 
 - [Use a version control for python like pyenv.](https://github.com/pyenv/pyenv) It provides you with much more clarity which version you are running and makes it easy to switch versions of python.
 - [Make use of virtual environments like venv.](https://docs.python.org/3/library/venv.html) You should not install all packages you need for this project globally, but focused on Boxtribute.
