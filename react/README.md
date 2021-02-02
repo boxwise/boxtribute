@@ -1,6 +1,6 @@
 # Readme
 
-This frontend project of Boxtribute was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+This front-end project of Boxtribute was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
 
 ## Table of Contents
 
@@ -14,22 +14,22 @@ This frontend project of Boxtribute was bootstrapped with [Create React App](htt
 
 ## Development Set-Up
 
-Following the [general set-up steps](../README.md), here a few steps that make your live easier working on the frontend.
+Following the [general set-up steps](../README.md), here a few steps that make your live easier working on the front-end.
 
 ### Set-up pre-commit
 
-[Pre-commit](https://pre-commit.com/) enables us to run code quality checks, such as missing semicolons, trailing whitespace, and debug statements, before you are committing your code. We chose pre-commit since it enables us to run these checks for both frontend and backend in just one place.
+[Pre-commit](https://pre-commit.com/) enables us to run code quality checks, such as missing semicolons, trailing whitespace, and debug statements, before you are committing your code. We chose pre-commit since it enables us to run these checks for both front-end and back-end in just one place.
 The downside is that you need python to be installed on your computer.
-Please check the [backend README](../flask/README.md#set-up-pre-commit) to set it up.
+Please check the [back-end README](../flask/README.md#set-up-pre-commit) to set it up.
 
 ### Install node and yarn
 
-For almost all features of our development set-up you should also have [node](https://nodejs.org/en/download/) installed on your computer. You will need it to run frontend tests and the formatters and linters in your IDE(e.g. VSCode).
+For almost all features of our development set-up you should also have [node](https://nodejs.org/en/download/) installed on your computer. You will need it to run front-end tests and the formatters and linters in your IDE(e.g. VSCode).
 We recommend you to install node through a [version control like nvm](https://github.com/nvm-sh/nvm). It provides you with much more clarity which version you are running and makes it easy to switch versions of node.
 
 ### Linting and Formatting in VSCode
 
-We are using eslint as a linter and prettier as a formatter for the frontend. The configuration of these two is in the [`.prettierrc`-file](../.prettierrc) and [`.eslintrc`-file](../.eslintrc), respectively. There are two extensions for VSCode ([prettier](https://marketplace.visualstudio.com/items?itemName=esbenp.prettier-vscode), [eslint](dbaeumer.vscode-eslint)), which we recommend to to install.
+We are using eslint as a linter and prettier as a formatter for the front-end. The configuration of these two is in the [`.prettierrc`-file](../.prettierrc) and [`.eslintrc`-file](../.eslintrc), respectively. There are two extensions for VSCode ([prettier](https://marketplace.visualstudio.com/items?itemName=esbenp.prettier-vscode), [eslint](dbaeumer.vscode-eslint)), which we recommend to to install.
 
 The settings that these extensions are used are already defined in [`.vscode/settings.json`](../.vscode/settings.json).
 

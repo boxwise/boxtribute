@@ -13,8 +13,8 @@ Please check out [**Contribution Guidelines**](CONTRIBUTING.md) before you get s
 1. [Contribution Guidelines](CONTRIBUTING.md)
 1. [Installation](#preparation-for-installation)
    1. [Basic steps](#preparation-for-installation)
-   2. [Frontend](/react/README.md)
-   3. [Backend](/flask/README.md)
+   2. [Front-end](/react/README.md)
+   3. [Back-end](/flask/README.md)
 1. [About Docker](#about-docker)
 1. [Development Database Seed](#development-database-seed)
 1. [CircleCI](#circleci)
@@ -27,7 +27,7 @@ Please check out [**Contribution Guidelines**](CONTRIBUTING.md) before you get s
 
 ## How do I get set up?
 
-These are the most basic steps to get frontend and backend up and running. At the end of this section, there are links to further instructions to set-up additional tools for your frontend and backend environment.
+These are the most basic steps to get front-end and back-end up and running. At the end of this section, there are links to further instructions to set-up additional tools for your front-end and back-end environment.
 
 1.  Create a .env-file with the environment variables. Therefore, copy/paste `example.env` and rename it `.env`
 
@@ -43,12 +43,12 @@ These are the most basic steps to get frontend and backend up and running. At th
 
 ### [Further Steps]
 
-- [for frontend including react-testing-library, eslint, prettier](/react/README.md)
-- [for backend including pytest, venv, formatting and debugging](/flask/README.md)
+- [for front-end including react-testing-library, eslint, prettier](/react/README.md)
+- [for back-end including pytest, venv, formatting and debugging](/flask/README.md)
 
 ## About Docker
 
-We are using Docker containers to make it easy for everyone to spin up an development environment which is the same everywhere. In `docker-compose.yaml` three docker containers are specified - one for the mysql database called `mysql`, one for the flask backend called `flask` and one for the react front-end called `react`.
+We are using Docker containers to make it easy for everyone to spin up an development environment which is the same everywhere. In `docker-compose.yaml` three docker containers are specified - one for the mysql database called `mysql`, one for the flask back-end called `flask` and one for the react front-end called `react`.
 
 ## Development Database Seed
 
@@ -101,7 +101,7 @@ circleci local execute --job JOB_NAME
 All our architecture decisions are logged in ADRs which you can find [here](docs/adr/adr_template.md).
 Here, is a list of intro tutorials for each technologies / frameworks / languages below.
 
-#### Frontend
+#### Front-end
 
 - [Typescript](https://react-typescript-cheatsheet.netlify.app/)
 - [Custom Rebass Library](https://github.com/boxwise/react-components)
@@ -110,7 +110,7 @@ Here, is a list of intro tutorials for each technologies / frameworks / language
 - [React Context](https://reactjs.org/docs/context.html)
 - [Apollo](https://www.apollographql.com/docs/react/)
 
-#### Backend
+#### Back-end
 
 - [GraphQL](https://graphql.org/learn/)
 - [Ariadne](https://ariadnegraphql.org/docs/flask-integration.html)
