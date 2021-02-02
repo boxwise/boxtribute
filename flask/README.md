@@ -9,7 +9,7 @@
     3. [Linting and Formatting in VSCode](#linting-and-formatting-in-vscode)
     4. [Working with MySQL](#working-with-mysql)
     5. [Debugging](#debugging)
-3. [Testing][#testing]
+3. [Testing](#testing)
 4. [GraphQL Playground](#graphql-playground)
 5. [Authentication and Authorization on the backend](#authentication-and-authorization)
 4. [Database Migrations](#database-migrations)
@@ -41,13 +41,13 @@ Please follow these steps to set-up pre-commit:
 
     source .venv/bin/activate
 
-1. Install pre-commit and the linters/formatters (all declared in `/flask/requirements-dev.txt`)
+1. Install pre-commit and the linters/formatters (all declared in `/flask/requirements-dev.txt`). Run the command from the root folder of the repo
 
-    pip install -e flask -r flask/requirements-dev.txt
+       pip install -e flask -r flask/requirements-dev.txt
 
 2. Install the hooks to run pre-commit before you commit.
 
-    pre-commit install --overwrite
+       pre-commit install --overwrite
 
 Now you're all set up using Python code quality tools! `pre-commit` automatically checks the staged patch before committing. If it rejects a patch, add the corrections and try to commit again.
 
@@ -110,11 +110,13 @@ If you want to break on any other code lines (not endpoints), then you can only 
 
 #### Usage of Logger
 To log to the console from inside the docker container, create an instance of app using:
-    `from flask import Flask`
-    `app = Flask(__name__)`
+
+    from flask import Flask
+    app = Flask(__name__)
 
 and log with:
-        `app.logger.warn(<whatever you want to log>)`
+
+    app.logger.warn(<whatever you want to log>)
 
 ## Testing
 
@@ -128,18 +130,18 @@ Two types of tests can be setup. Model (unit) tests and endpoint (integration) t
 
 New test files should begin with the word test so the they are discovered when running pytest.
 for example:
-. ```
-test_<test_file_name>.py
-```
+
+    test_<test_file_name>.py
+
 and similarly the test functions should have the format
-```
-def test_<test_name>():
-```
+
+    def test_<test_name>():
+
 For endpoint testing, the test functions usually take one fixture along with the required data fixtures.
-```
-@pytest.mark.usefixtures("<data_fixture_name>")
-def test_<test_name>(client, <data_fixture_name>):
-```
+
+    @pytest.mark.usefixtures("<data_fixture_name>")
+    def test_<test_name>(client, <data_fixture_name>):
+
 to allow for databases to be preconfigured with data and requests to be made to the app.
 
 Fixtures are configured in the `conftest.py` files which execute automatically before a test.
@@ -148,19 +150,18 @@ Fixtures are configured in the `conftest.py` files which execute automatically b
 
 Test data is setup in the `test/data` folder and each piece of data is split up into 3 seperate parts
 1. The default data function is a dictionary which has all of the data for that database table
-```
-def default_<data_name>_data():
-```
+
+        def default_<data_name>_data():
+
 2. The fixture passes this data into the required tests
-```
-@pytest.fixture()
-def default_<data_name>():
-```
+
+        @pytest.fixture()
+        def default_<data_name>():
+
 3. the creation function is called on the setup of a test so that all of the data is in the database when the test is ran
-```
-def create_default_<data_name>():
-    <data_model>.create(**default_<data_name>_data())
-```
+
+        def create_default_<data_name>():
+            <data_model>.create(**default_<data_name>_data())
 
 #### Please be aware that
 - for new data the fixtures need to be imported in the required `conftest.py` and
@@ -174,18 +175,18 @@ The GraphQL enpoint is secured and needs a Bearer token from Auth0 to authentica
 1. Follow this [link](https://manage.auth0.com/dashboard/eu/boxtribute-dev/apis/5ef3760527b0da00215e6209/test) to receive a token for testing. You can also find this token in Auth0 in the menu > API > boxtribute-dev-api > Test-tab.
 
 2. Insert the access token in the following format on the playground in the section on the bottom left of the playground called HTTP Headers.
-```
-{ "authorization": "Bearer <the token you retrieved from Auth0>"}
-```
+
+        { "authorization": "Bearer <the token you retrieved from Auth0>"}
+
 
 A sample query you can try if it works is:
-```
-query {
-  allBases {
-    name
-  }
-}
-```
+
+    query {
+        allBases {
+            name
+        }
+    }
+
 
 ## Authentication and Authorization
 
