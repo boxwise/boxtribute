@@ -20,13 +20,14 @@
 
 For almost all features of our development set-up you should [install Python >=3.6](https://www.python.org/downloads/) on your computer. You will need it to run tests on the back-end and the formatters and linters on both back-end and front-end.
 
-**Recommendations for back-end people**
+**Additional must-haves for back-end people**
+[Make use of virtual environments like venv.](https://docs.python.org/3/library/venv.html) You should not install all packages you need for this project globally, but focused on Boxtribute.
 
+**Further recommendations**
 These recommendations are mainly meant for people developing on the back-end. If you are just a front-end person, but would like use pre-commit and the linters and formatters defined there, you can skip these steps.
 
 - [Use a version control for python like pyenv.](https://github.com/pyenv/pyenv) It provides you with much more clarity which version you are running and makes it easy to switch versions of python.
-- [Make use of virtual environments like venv.](https://docs.python.org/3/library/venv.html) You should not install all packages you need for this project globally, but focused on Boxtribute.
-- [Have a look at direnv >= v2.21.0](https://github.com/direnv/direnv). Virtual environments must be activated and deactivated. If you are moving through folders in the terminal it can easily happen that you either miss activating or deactivating the venv resulting in errors and time wasted for development. With direnv you can automate the activation and deactivation of venv depending on which folder you are in. There is already a `.envrc` file in the root of this repo. If you install `direnv` and allow to run it for your local repo, it will access the python virtual environment `venv` everytime you enter the folder via a command line.
+- [Have a look at direnv >= v2.21.0](https://github.com/direnv/direnv). Virtual environments must be activated and deactivated. If you are moving through folders in the terminal it can easily happen that you either miss activating or deactivating the venv resulting in errors and time wasted for development. With direnv you can automate the activation and deactivation of venv depending on which folder you are in. There is already a `.envrc` file in the root of this repo. If you install `direnv` and allow to run it for your local repo, it will activate the python virtual environment `venv` everytime you enter the folder via a command line.
 
 ### Set-up pre-commit
 
