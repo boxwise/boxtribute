@@ -35,7 +35,7 @@ const mocks = [
   },
 ];
 
-describe("Renders components", () => {
+describe("Renders CreateBox component correctly", () => {
   let component = null;
   beforeEach(() => {
     const history = createMemoryHistory();
@@ -78,7 +78,7 @@ describe("Renders components", () => {
   });
 });
 
-describe("Submission result screen is shown the right way", () => {
+describe("Created box is displayed correctly", () => {
   let component = null;
   beforeEach(() => {
     const history = createMemoryHistory();
