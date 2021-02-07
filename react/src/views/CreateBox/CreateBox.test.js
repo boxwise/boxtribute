@@ -104,9 +104,7 @@ describe("Created box is displayed correctly", () => {
     await waitFor(() => {
       expect(component.queryByTestId("createBoxForm")).toBeNull();
       expect(component.getByTestId("createdBox")).toBeTruthy();
-      expect(component.getByRole("heading", { name: /the box id is: 456/i })).toHaveTextContent(
-        "The Box ID is: 456",
-      );
+      expect(component.findByRole("heading", { name: /the box id is: 456/i }));
     });
   });
 });
