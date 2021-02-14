@@ -4,3 +4,4 @@
 .env.production.local
 .env
 .venv
+.coverage
