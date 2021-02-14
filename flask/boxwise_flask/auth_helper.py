@@ -4,13 +4,16 @@ import os
 from functools import wraps
 
 from boxwise_flask.models.user import get_user_from_email_with_base_ids
-from flask import _request_ctx_stack, request
 from jose import jwt
 from six.moves.urllib.request import urlopen
+
+from flask import _request_ctx_stack, request
 
 AUTH0_DOMAIN = os.getenv("AUTH0_DOMAIN")
 API_AUDIENCE = os.getenv("AUTH0_AUDIENCE")
 ALGORITHMS = ["RS256"]
+SUCCESS = True
+FAILURE = False
 
 
 # Error handler
@@ -20,11 +23,14 @@ class AuthError(Exception):
         self.status_code = status_code
 
 
-def get_token_auth_header():
+def get_auth_string_from_header():
+    return request.headers.get("Authorization", None)
+
+
+def get_token_from_auth_header(header_string):
     """Obtains the Access Token from the Authorization Header
     """
-    auth = request.headers.get("Authorization", None)
-    if not auth:
+    if not header_string:
         raise AuthError(
             {
                 "code": "authorization_header_missing",
@@ -33,7 +39,7 @@ def get_token_auth_header():
             401,
         )
 
-    parts = auth.split()
+    parts = header_string.split()
 
     if parts[0].lower() != "bearer":
         raise AuthError(
@@ -110,17 +116,21 @@ def decode_jwt(token, rsa_key):
     return payload
 
 
+def add_user_to_request_context(payload):
+    _request_ctx_stack.top.current_user = payload
+
+
 def requires_auth(f):
     """Determines if the Access Token is valid
     """
 
     @wraps(f)
     def decorated(*args, **kwargs):
-        token = get_token_auth_header()
+        token = get_token_from_auth_header(get_auth_string_from_header())
         rsa_key = get_rsa_key(token)
         if rsa_key:
             payload = decode_jwt(token, rsa_key)
-            _request_ctx_stack.top.current_user = payload
+            add_user_to_request_context(payload)
             return f(*args, **kwargs)
         raise AuthError(
             {"code": "invalid_header", "description": "Unable to find appropriate key"},
@@ -135,19 +145,21 @@ def authorization_test(test_for, **kwargs):
     # include an argument of what you would like to test for,
     # and dict of the necessary params to check
     # ex) authorization_test("bases", {"base_id":123})
-    token = get_token_auth_header()
+
+    token = get_token_from_auth_header(get_auth_string_from_header())
     rsa_key = get_rsa_key(token)
     if rsa_key:
         # the user's email is in the auth token under the custom claim:
         # 'https://www.boxtribute.com/email'
         # note: this isn't a real website, and doesn't have to be,
         # but it DOES have to be in this form to work with the Auth0 rule providing it.
+        # this part of the jwt is added by a rule in auth0
         payload = decode_jwt(token, rsa_key)
         email = payload["https://www.boxtribute.com/email"]
         requesting_user = get_user_from_email_with_base_ids(email)
 
         if test_for == "bases":
-            allowed_access = test_base(requesting_user, kwargs["base_id"])
+            allowed_access = user_can_access_base(requesting_user, kwargs["base_id"])
         # add more test cases here
         else:
             raise AuthError(
@@ -170,8 +182,13 @@ def authorization_test(test_for, **kwargs):
             )
 
 
-def test_base(requesting_user, base_id):
-    users_bases = requesting_user["base_ids"]
-    if base_id in users_bases:
-        return True
-    return False
+def user_can_access_base(requesting_user, base_id):
+    if "base_ids" in requesting_user:
+        users_bases = requesting_user["base_ids"]
+        if base_id in users_bases:
+            return SUCCESS
+    else:
+        # Log error - user doesnt have base ids
+        print("user doesnt have base ids cannot validate base_id " + str(base_id))
+
+    return FAILURE

@@ -7,6 +7,7 @@ def get_base_from_graphql(id, base_query):
 
 @pytest.mark.usefixtures("default_bases")
 def test_all_bases(client, default_bases):
+
     """Verify allBases GraphQL query endpoint"""
     graph_ql_query_string = """query {
                 allBases {

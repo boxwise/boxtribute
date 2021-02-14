@@ -5,6 +5,7 @@ from boxwise_flask.models.box import Box
 from data.box_state import default_box_state_data
 from data.location import default_location_data
 from data.product import default_product_data
+from data.qr_code import default_qr_code_data
 
 TIME = datetime.now()
 
@@ -21,6 +22,7 @@ def default_box_data():
         "deleted": TIME,
         "items": "None",
         "location": default_location_data()["id"],
+        "qr_id": default_qr_code_data()["id"],
     }
 
     return mock_box

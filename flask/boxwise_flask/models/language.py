@@ -1,6 +1,5 @@
-from peewee import SQL, CharField, IntegerField
-
 from boxwise_flask.db import db
+from peewee import SQL, CharField, IntegerField
 
 
 class Language(db.Model):

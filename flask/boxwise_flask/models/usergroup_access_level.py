@@ -1,6 +1,5 @@
-from peewee import CharField, IntegerField
-
 from boxwise_flask.db import db
+from peewee import CharField, IntegerField
 
 
 class UsergroupAccessLevel(db.Model):

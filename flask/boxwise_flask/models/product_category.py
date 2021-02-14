@@ -1,6 +1,5 @@
-from peewee import SQL, CharField, ForeignKeyField, IntegerField
-
 from boxwise_flask.db import db
+from peewee import SQL, CharField, ForeignKeyField, IntegerField
 
 
 class ProductCategory(db.Model):

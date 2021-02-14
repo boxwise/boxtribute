@@ -163,7 +163,7 @@ jobs:
       - store_artifacts:
           name: Store copy of deployment artifacts
           path: ~/deploy.tar.gz
-     
+
       - run:
           name: Authenticate the gcloud orb
           command: |
@@ -181,14 +181,16 @@ workflows:
     jobs:
       - checkout-to-workspace
       - build-flask:
+          context: STAGING
           requires:
             - checkout-to-workspace
       - test-flask:
+          context: STAGING
           requires:
             - build-flask
       - build-react:
           # for now, always builds in staging context
-          # this means it will be configured with staging 
+          # this means it will be configured with staging
           # auth0 values...
           context: STAGING
           requires:

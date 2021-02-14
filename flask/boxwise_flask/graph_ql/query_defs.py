@@ -10,6 +10,7 @@ query_defs = gql(
         base(id: Int!): Base
         allUsers: [User]
         user(email: String): User
+        box(qr_code: String): Box
     }
     """
 )

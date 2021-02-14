@@ -13,9 +13,9 @@ In progress (September 27, 2020)
 ## Context or Problem Statement
 
 We are an all remote team with only bi-weekly or monthly team calls. Therefore, communication between the dev team members and transparency for all members is of the highest priority. At the moment, we have the frontend and backend code separated in two repos. We already see that the documentation is not in the same state on both repos and not all the information is in one place. The instructions to set-up the dev environment is distributed and is confusing for new people.
-In a monorepo architecture, frontend and backend developers can work on small tasks completely separately from each other, and coordinate more easily for more complex, far-reaching task.  
+In a monorepo architecture, frontend and backend developers can work on small tasks completely separately from each other, and coordinate more easily for more complex, far-reaching task.
 
-## Decision Drivers 
+## Decision Drivers
 
 - team communication
 - shared responsibility among volunteers
@@ -35,13 +35,13 @@ Mono-Repo
 
 other side-effects
 - deployment is easier since only one deployment script is needed.
-- management of frontend vs. backend versioning is reduced to a minimum. For each deployed version, you have a state at which you know that FE and BE worked together. 
+- management of frontend vs. backend versioning is reduced to a minimum. For each deployed version, you have a state at which you know that FE and BE worked together.
 - the development set-up simplifies since only one repo needs to be cloned and React could be run from within Docker.
-- all developers are aware when master is broken. If they cannot fix it they could encourage others. 
+- all developers are aware when master is broken. If they cannot fix it they could encourage others.
 
 *Con:*
 Technically, there are problems that come with a Mono-repo set up: slow code search, time for testing, chaotic repo,...
-However, according to our sources these problems really surface when 
+However, according to our sources these problems really surface when
 - the codebase becomes so large a virtual filing system is needed, such as VFS for Git from Microsoft.
 - we have hundreds of developers on our team.
 

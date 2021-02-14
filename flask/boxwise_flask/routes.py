@@ -3,23 +3,22 @@ import os
 
 from ariadne import graphql_sync
 from ariadne.constants import PLAYGROUND_HTML
-from flask import Blueprint, jsonify, request
-from flask_cors import cross_origin
-
 from boxwise_flask.auth_helper import AuthError, requires_auth
 from boxwise_flask.graph_ql.resolvers import schema
+from flask_cors import cross_origin
+
+from flask import Blueprint, jsonify, request
 
 # Blueprint for API
-api_bp = Blueprint("api_bp", 
-    __name__,
-    url_prefix=os.getenv("FLASK_URL_PREFIX", ""),
-)
+api_bp = Blueprint("api_bp", __name__, url_prefix=os.getenv("FLASK_URL_PREFIX", ""),)
+
 
 @api_bp.errorhandler(AuthError)
 def handle_auth_error(ex):
     response = jsonify(ex.error)
     response.status_code = ex.status_code
     return response
+
 
 # This doesn't need authentication
 @api_bp.route("/api/public", methods=["GET"])
