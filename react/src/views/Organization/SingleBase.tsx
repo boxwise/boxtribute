@@ -30,8 +30,8 @@ export default function SingleBase() {
     <div className="p-6">
       <h3 className="text-lg font-bold underline mb-4">Requested base ID: {baseId}</h3>
       <p className="mb-4">
-        base ID {data.base.id}, belonging to the organisation {data.base.organisationId}, has the name {data.base.name}, and uses the currency{" "}
-        {data.base.currencyname}
+        base ID {data.base.id}, belonging to the organisation {data.base.organisationId}, has the
+        name {data.base.name}, and uses the currency {data.base.currencyname}
       </p>
       <Link className="mt-6 text-blue-700 hover:bg-blue-200" to="/">
         {`->`} Go Home

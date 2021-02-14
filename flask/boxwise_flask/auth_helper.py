@@ -4,9 +4,10 @@ import os
 from functools import wraps
 
 from boxwise_flask.models.user import get_user_from_email_with_base_ids
-from flask import _request_ctx_stack, request
 from jose import jwt
 from six.moves.urllib.request import urlopen
+
+from flask import _request_ctx_stack, request
 
 AUTH0_DOMAIN = os.getenv("AUTH0_DOMAIN")
 API_AUDIENCE = os.getenv("AUTH0_AUDIENCE")
@@ -21,8 +22,10 @@ class AuthError(Exception):
         self.error = error
         self.status_code = status_code
 
+
 def get_auth_string_from_header():
     return request.headers.get("Authorization", None)
+
 
 def get_token_from_auth_header(header_string):
     """Obtains the Access Token from the Authorization Header
@@ -112,8 +115,10 @@ def decode_jwt(token, rsa_key):
         )
     return payload
 
+
 def add_user_to_request_context(payload):
     _request_ctx_stack.top.current_user = payload
+
 
 def requires_auth(f):
     """Determines if the Access Token is valid
@@ -133,6 +138,7 @@ def requires_auth(f):
         )
 
     return decorated
+
 
 def authorization_test(test_for, **kwargs):
     # to make this applicable to different cases,
@@ -175,14 +181,14 @@ def authorization_test(test_for, **kwargs):
                 401,
             )
 
+
 def user_can_access_base(requesting_user, base_id):
     if "base_ids" in requesting_user:
         users_bases = requesting_user["base_ids"]
         if base_id in users_bases:
             return SUCCESS
     else:
-        #Log error - user doesnt have base ids
+        # Log error - user doesnt have base ids
         print("user doesnt have base ids cannot validate base_id " + str(base_id))
 
     return FAILURE
-    

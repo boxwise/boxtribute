@@ -67,4 +67,3 @@ i.icon.outline {
     font-family: 'outline-icons';
     color: @white;
 }
-

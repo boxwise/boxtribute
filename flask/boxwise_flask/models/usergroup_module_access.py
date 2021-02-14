@@ -1,8 +1,7 @@
-from peewee import ForeignKeyField
-
 from boxwise_flask.db import db
 from boxwise_flask.models.base_module import BaseModule
 from boxwise_flask.models.usergroup import Usergroup
+from peewee import ForeignKeyField
 
 
 class UsergroupModuleAccess(db.Model):

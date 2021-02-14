@@ -6,12 +6,8 @@ repos:
     hooks:
       - id: trailing-whitespace
       - id: end-of-file-fixer
-  - repo: https://github.com/asottile/seed-isort-config
-    rev: v2.1.1
-    hooks:
-      - id: seed-isort-config
-  - repo: https://github.com/timothycrosley/isort
-    rev: 4.3.21 # pick the isort version you'd like to use from https://github.com/timothycrosley/isort/releases
+  - repo: https://github.com/pycqa/isort
+    rev: 5.7.0
     hooks:
       - id: isort
   - repo: https://github.com/pre-commit/mirrors-eslint

@@ -17,7 +17,7 @@ In each ADR file, write these sections:
 
 # Title
 
-Trello-card: 
+Trello-card:
 Decision Deadline
 
 ## Status
@@ -28,7 +28,7 @@ What is the status, such as proposed, accepted, rejected, deprecated, superseded
 
 What is the issue that we're seeing that is motivating this decision or change?
 
-## Decision Drivers 
+## Decision Drivers
 
 What are the key criterias on which the decision is based.
 

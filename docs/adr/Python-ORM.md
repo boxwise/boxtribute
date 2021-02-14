@@ -1,13 +1,13 @@
-# ADR: Python ORM 
+# ADR: Python ORM
 Discussion participants: [Roanna](https://github.com/orgs/boxwise/people/aerinsol), [David C](https://github.com/orgs/boxwise/people/jdcsgh), [Katie](https://github.com/orgs/boxwise/people/mcgnly)
 
 ## Status
 
-Accepted, implementation complete. 
+Accepted, implementation complete.
 
 ## Context
 
-Up to now, database changes have been managed through [Phinx](https://phinx.org/) in PHP, with SQL queries written as strings in PHP. Since we are migrating off of the old PHP code base of Dropapp and into the new codebase of Python / React, we needed to decide how to handle reading and writing to the DB going forward (GraphQL does not solve this, as you still have to hook the GraphQL interface into the DB somehow). 
+Up to now, database changes have been managed through [Phinx](https://phinx.org/) in PHP, with SQL queries written as strings in PHP. Since we are migrating off of the old PHP code base of Dropapp and into the new codebase of Python / React, we needed to decide how to handle reading and writing to the DB going forward (GraphQL does not solve this, as you still have to hook the GraphQL interface into the DB somehow).
 
 ## Decision drivers
 
@@ -34,4 +34,4 @@ Peewee. Despite SQLAlchemy being the gold standard of ORMs, there are no long-te
 
 
 ### More difficult
-- Harder for people already fluent with SQL but not Python ORMs to audit queries 
+- Harder for people already fluent with SQL but not Python ORMs to audit queries

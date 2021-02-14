@@ -8,9 +8,9 @@ accepted, implementation in progress
 
 ## Context or Problem Statement
 
-Our handling of user data is far from bullet-proof. We have stumbled upon cases where SQL injection is possible and the current password encryption is only md5. Additionally, we are building a new mobile app in React and Flask and need to implement a way to handle authentication there. 
+Our handling of user data is far from bullet-proof. We have stumbled upon cases where SQL injection is possible and the current password encryption is only md5. Additionally, we are building a new mobile app in React and Flask and need to implement a way to handle authentication there.
 
-## Decision Drivers 
+## Decision Drivers
 
 1. Security / Risk for us
 2. Ease of Use
@@ -25,8 +25,8 @@ Our handling of user data is far from bullet-proof. We have stumbled upon cases 
 
 ## Decision
 
-We are going for Auth0 since 
-- we have prior experience with Auth0 in the team, 
+We are going for Auth0 since
+- we have prior experience with Auth0 in the team,
 - a first test in an afternoon coding session were satisfying and
 - Auth0 offers a free plan for Open-source projects.
 
@@ -38,4 +38,4 @@ We are not building our own authentication solution to reduce the security risks
 We can almost drop a whole user flow.
 
 ###More difficult:
-Switching between mobile and desktop application. 
+Switching between mobile and desktop application.
