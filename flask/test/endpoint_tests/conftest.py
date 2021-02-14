@@ -11,13 +11,8 @@ https://docs.pytest.org/en/stable/fixture.html#pytest-fixtures-explicit-modular-
 
 import os
 import tempfile
+
 import pytest
-from patches import requires_auth_patch
-from patches import authorization_test_patch
-
-requires_auth_patch.start()
-authorization_test_patch.start()
-
 from boxwise_flask.app import create_app
 from boxwise_flask.db import db
 from boxwise_flask.models.base import Base
@@ -49,7 +44,7 @@ from data.product import default_product  # noqa: F401
 from data.product_category import default_product_category  # noqa: F401
 from data.product_gender import default_product_gender  # noqa: F401
 from data.qr_code import default_qr_code  # noqa: F401
-from data.qr_code import qr_code_without_box 
+from data.qr_code import qr_code_without_box  # noqa: F401
 from data.setup_tables import setup_tables
 from data.size_range import default_size_range  # noqa: F401
 from data.user import default_user  # noqa: F401
@@ -57,6 +52,11 @@ from data.user import default_users  # noqa: F401
 from data.usergroup import default_usergroup  # noqa: F401
 from data.usergroup_access_level import default_usergroup_access_level  # noqa: F401
 from data.usergroup_base_access import default_usergroup_base_access_list  # noqa: F401
+from patches import authorization_test_patch, requires_auth_patch
+
+requires_auth_patch.start()
+authorization_test_patch.start()
+
 
 MODELS = (
     Base,

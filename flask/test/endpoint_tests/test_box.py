@@ -1,5 +1,6 @@
 import pytest
 
+
 @pytest.mark.usefixtures("default_qr_code")
 @pytest.mark.usefixtures("default_box")
 def test_get_box_from_code(client, default_box, default_qr_code):
@@ -27,8 +28,11 @@ def test_code_not_associated_with_box(client, qr_code_without_box):
     data = {"query": graph_ql_query_string}
     response_data = client.post("/graphql", json=data)
     queried_box = response_data.json["data"]["box"]
-    assert "<Model: Box> instance matching query does not exist" in response_data.json["errors"][0]["message"]
-    assert queried_box == None
+    assert (
+        "<Model: Box> instance matching query does not exist"
+        in response_data.json["errors"][0]["message"]
+    )
+    assert queried_box is None
 
 
 def test_code_does_not_exist(client):
@@ -41,5 +45,8 @@ def test_code_does_not_exist(client):
     data = {"query": graph_ql_query_string}
     response_data = client.post("/graphql", json=data)
     queried_box = response_data.json["data"]["box"]
-    assert "<Model: QRCode> instance matching query does not exist" in response_data.json["errors"][0]["message"]
-    assert queried_box == None
+    assert (
+        "<Model: QRCode> instance matching query does not exist"
+        in response_data.json["errors"][0]["message"]
+    )
+    assert queried_box is None

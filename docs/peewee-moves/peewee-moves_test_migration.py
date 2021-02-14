@@ -4,12 +4,13 @@ date created: 2020-11-27 21:19:34.821372
 
 This migration must be moved into flask/boxwise_flask/migrations to work
 """
-from peewee import ForeignKeyField, SQL
-from playhouse import migrate
-from boxwise_flask.models import base
-
 import logging
-logger = logging.getLogger('peewee')
+
+from boxwise_flask.models import base
+from peewee import SQL, ForeignKeyField
+from playhouse import migrate
+
+logger = logging.getLogger("peewee")
 logger.addHandler(logging.StreamHandler())
 logger.setLevel(logging.DEBUG)
 
@@ -30,7 +31,13 @@ def downgrade(migrator):
 def upgrade_sql(migrator):
     cursor = migrator.execute_sql("ALTER TABLE genders ADD camp_id INT(11) UNSIGNED;")
     cursor.close()
-    cursor = migrator.execute_sql("ALTER TABLE genders ADD CONSTRAINT fk_camp_id FOREIGN KEY (camp_id) REFERENCES camps(id);")
+    cursor = migrator.execute_sql(
+        "ALTER TABLE \
+            genders \
+        ADD CONSTRAINT \
+            fk_camp_id \
+        FOREIGN KEY (camp_id) REFERENCES camps(id);"
+    )
     cursor.close()
 
 
@@ -63,7 +70,8 @@ def upgrade_native_peewee(migrator):
 
     # effectively runs
     # 'ALTER TABLE `genders` ADD COLUMN `camp_id` INTEGER UNSIGNED'
-    # 'ALTER TABLE `genders` ADD CONSTRAINT `fk_genders_camp_id_refs_camps` FOREIGN KEY (`camp_id`) REFERENCES `camps` (`id`)'
+    # 'ALTER TABLE `genders` ADD CONSTRAINT `fk_genders_camp_id_refs_camps` \
+    # FOREIGN KEY (`camp_id`) REFERENCES `camps` (`id`)'
     # 'CREATE INDEX `genders_camp_id` ON `genders` (`camp_id`)'
     operation = migrator.migrator.add_column("genders", "camp_id", field)
     migrate.migrate(operation)  # or operation.run()
@@ -79,7 +87,9 @@ def downgrade_native_peewee(migrator):
 def upgrade_peewee_moves(migrator):
     # raw SQL commands run are identical to those of upgrade_native_peewee()
     migrator.add_column(
-        "genders", "camp_id", "foreign_key",
+        "genders",
+        "camp_id",
+        "foreign_key",
         model=base.Base,
         field=base.Base.id,
         null=True,
@@ -94,6 +104,7 @@ def downgrade_peewee_moves(migrator):
 
 def upgrade_peewee_moves_ineffective(migrator):
     # with 'safe=False' error: Table exists
-    # The adding of the camp_id column is still effective yet peewee-moves marks the migration as not applied!!
+    # The adding of the camp_id column is still effective yet peewee-moves marks
+    # the migration as not applied!!
     with migrator.create_table("genders", safe=True) as table:
         table.foreign_key("integer", "camp_id", "camps.id")
