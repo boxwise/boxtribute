@@ -1,12 +1,9 @@
 import React from "react";
-import { render, waitFor, fireEvent, cleanup } from "@testing-library/react";
+import { render, waitFor, fireEvent, cleanup } from "../../utils/test-utils";
 import "@testing-library/jest-dom";
-import { MockedProvider } from "@apollo/client/testing";
-import CreateBox from "./CreateBox";
-import { CREATE_BOX } from "../../utils/queries";
-import { Router } from "react-router-dom";
 import { createMemoryHistory } from "history";
-import "mutationobserver-shim";
+import { CREATE_BOX } from "../../utils/queries";
+import CreateBox from "./CreateBox";
 import { GraphQLError } from "graphql";
 
 const mocks = [
@@ -35,28 +32,60 @@ const mocks = [
   },
 ];
 
+const mockNetworkError = [
+  {
+    request: {
+      query: CREATE_BOX,
+      variables: {
+        productId: 2,
+        items: 2,
+        locationId: 2,
+        comments: "",
+        sizeId: 2,
+        qrBarcode: "387b0f0f5e62cebcafd48383035a92a",
+      },
+    },
+    error: new Error("An error occurred"),
+  },
+];
+
+const mockGraphQLError = [
+  {
+    request: {
+      query: CREATE_BOX,
+      variables: {
+        productId: 2,
+        items: 2,
+        locationId: 2,
+        comments: "",
+        sizeId: 2,
+        qrBarcode: "387b0f0f5e62cebcafd48383035a92a",
+      },
+    },
+    result: {
+      errors: [new GraphQLError("Error!")],
+    },
+  },
+];
+
 describe("Renders CreateBox component correctly", () => {
-  let component = null;
+  let component;
   beforeEach(() => {
     const history = createMemoryHistory();
     const state = { qr: "barcode=387b0f0f5e62cebcafd48383035a92a" };
     history.push("/create-box", state);
 
-    component = render(
-      <MockedProvider mocks={mocks} addTypename={false}>
-        <Router history={history}>
-          <CreateBox />
-        </Router>
-      </MockedProvider>,
-    );
+    component = render(<CreateBox />, { mocks, history });
   });
 
   afterEach(cleanup);
 
   it("renders a header titled, `Create a Box`", () => {
-    expect(component.getByRole("heading", { name: /create a box/i })).toHaveTextContent(
-      "Create a Box",
-    );
+    expect(
+      component.getByRole("heading", {
+        name: /create a box/i,
+      }),
+    ).toHaveTextContent("Create a Box");
   });
 
   it("renders a form", () => {
@@ -72,68 +101,70 @@ describe("Renders CreateBox component correctly", () => {
   });
 
   it("renders a submit button titled, `do the mutation`", () => {
-    expect(component.getByRole("button", { name: /do the mutation/i })).toHaveTextContent(
-      "do the mutation",
-    );
+    expect(
+      component.getByRole("button", {
+        name: /do the mutation/i,
+      }),
+    ).toHaveTextContent("do the mutation");
   });
 });
 
 describe("Created box is displayed correctly", () => {
-  let component = null;
+  let component;
   beforeEach(() => {
     const history = createMemoryHistory();
     const state = { qr: "barcode=387b0f0f5e62cebcafd48383035a92a" };
     history.push("/create-box", state);
 
-    component = render(
-      <MockedProvider mocks={mocks} addTypename={false}>
-        <Router history={history}>
-          <CreateBox />
-        </Router>
-      </MockedProvider>,
-    );
+    component = render(<CreateBox />, { mocks, history });
   });
 
   afterEach(cleanup);
 
   it("After a successful submission, the form disappears and a screen with `You created a new box` appears with a box-id", async () => {
-    const submitBtn = component.getByRole("button", { name: /do the mutation/i });
+    const submitBtn = component.getByRole("button", {
+      name: /do the mutation/i,
+    });
 
     fireEvent.click(submitBtn);
 
     await waitFor(() => {
       expect(component.queryByTestId("createBoxForm")).toBeNull();
       expect(component.getByTestId("createdBox")).toBeTruthy();
-      expect(component.findByRole("heading", { name: /the box id is: 456/i }));
+      expect(
+        component.findByRole("heading", {
+          name: /the box id is: 456/i,
+        }),
+      );
     });
   });
 });
 
 // Need to create an error message for blank required form fields
 describe("Required form fields prohibit submission when blank", () => {
-  let component = null;
+  let component;
   beforeEach(() => {
     const history = createMemoryHistory();
     const state = { qr: "barcode=387b0f0f5e62cebcafd48383035a92a" };
     history.push("/create-box", state);
 
-    component = render(
-      <MockedProvider mocks={mocks} addTypename={false}>
-        <Router history={history}>
-          <CreateBox />
-        </Router>
-      </MockedProvider>,
-    );
+    component = render(<CreateBox />, { mocks, history });
   });
 
   afterEach(cleanup);
 
   it("does nothing when locationId, productId, items, and sizeId are blank", async () => {
     const inputFields = component.getAllByRole("spinbutton");
-    const submitBtn = component.getByRole("button", { name: /do the mutation/i });
+    const submitBtn = component.getByRole("button", {
+      name: /do the mutation/i,
+    });
 
     for (let i = 0; i < inputFields.length; i++) {
-      fireEvent.change(inputFields[i], { target: { value: "" } });
+      fireEvent.change(inputFields[i], {
+        target: {
+          value: "",
+        },
+      });
     }
 
     await waitFor(() => {
@@ -164,31 +195,7 @@ describe("Network error after submission", () => {
     const state = { qr: "barcode=387b0f0f5e62cebcafd48383035a92a" };
     history.push("/create-box", state);
 
-    component = render(
-      <MockedProvider
-        mocks={[
-          {
-            request: {
-              query: CREATE_BOX,
-              variables: {
-                productId: 2,
-                items: 2,
-                locationId: 2,
-                comments: "",
-                sizeId: 2,
-                qrBarcode: "387b0f0f5e62cebcafd48383035a92a",
-              },
-            },
-            error: new Error("An error occurred"),
-          },
-        ]}
-        addTypename={false}
-      >
-        <Router history={history}>
-          <CreateBox />
-        </Router>
-      </MockedProvider>,
-    );
+    component = render(<CreateBox />, { mockNetworkError, history });
   });
 
   afterEach(cleanup);
@@ -211,33 +218,7 @@ describe("GraphQL error after submission", () => {
     const state = { qr: "barcode=387b0f0f5e62cebcafd48383035a92a" };
     history.push("/create-box", state);
 
-    component = render(
-      <MockedProvider
-        mocks={[
-          {
-            request: {
-              query: CREATE_BOX,
-              variables: {
-                productId: 2,
-                items: 2,
-                locationId: 2,
-                comments: "",
-                sizeId: 2,
-                qrBarcode: "387b0f0f5e62cebcafd48383035a92a",
-              },
-            },
-            result: {
-              errors: [new GraphQLError("Error!")],
-            },
-          },
-        ]}
-        addTypename={false}
-      >
-        <Router history={history}>
-          <CreateBox />
-        </Router>
-      </MockedProvider>,
-    );
+    component = render(<CreateBox />, { mockGraphQLError, history });
   });
 
   afterEach(cleanup);
@@ -265,4 +246,4 @@ describe("GraphQL error after submission", () => {
       expect(component.getByText("Loading...")).toBeInTheDocument();
     });
   });
-  */
+*/
