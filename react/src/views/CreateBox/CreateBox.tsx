@@ -48,7 +48,7 @@ export default function CreateBox() {
     <div className="flex flex-col">
       <h2>Create a Box</h2>
       {newBox.box_id && (
-        <div>
+        <div data-testid="createdBox">
           <h1> You created a new box!</h1>
           <h1>The Box ID is: {newBox.box_id}</h1>
           <h1>Please write that on the top of the label.</h1>
@@ -57,7 +57,7 @@ export default function CreateBox() {
       )}
       {!newBox.box_id && (
         <div>
-          <form id="make-a-box" className="flex flex-col">
+          <form id="make-a-box" data-testid="createBoxForm" className="flex flex-col">
             {/* Note: eventually we will get the base from the URL,
             which will determine the locations via a query */}
             <label className="p-2" htmlFor="locationId">
@@ -121,8 +121,8 @@ export default function CreateBox() {
           </button>
         </div>
       )}
-      {mutationLoading && <p>Loading...</p>}
-      {mutationError && <p>Error :( Please try again</p>}
+      {mutationLoading && <p data-testid="loadingState">Loading...</p>}
+      {mutationError && <p data-testid="errorState">Error :( Please try again</p>}
 
       <Link
         to="/"
