@@ -111,11 +111,11 @@ jobs:
           command: |
             source env/bin/activate
             mkdir test-results
-            pytest --junitxml=test-results/junit.xml --cov
+            pytest --junitxml=test-results/junit.xml --cov --cov-config=../setup.cfg
       - store_test_results:
           path: test-results
       - store_artifacts:
-          path: flask/htmlcov
+          path: htmlcov
       - store_artifacts:
           path: test-results
       - slack/notify-on-failure:
