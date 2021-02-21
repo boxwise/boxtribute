@@ -177,7 +177,7 @@ From the repository root, run
 
     pytest --cov ./flask
 
-and inspect the reported output.
+and inspect the reported output. Use `coverage html` to generate an HTML report, and open it via `flask/htmlcov/index.html` to view coverage for individual source code files.
 
 ## GraphQL Playground
 
