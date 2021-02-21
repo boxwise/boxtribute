@@ -88,7 +88,7 @@ jobs:
   test-flask:
     docker:
       - image: circleci/python:3.8-buster
-    working_directory: ~/flask
+    working_directory: ~/
     steps:
       # Attach workspace from build
       - attach_workspace:
@@ -98,8 +98,8 @@ jobs:
       - run:
           name: install dev dependencies for linting and testing
           command: |
-            source env/bin/activate
-            pip install -r requirements-dev.txt
+            source flask/env/bin/activate
+            pip install -r flask/requirements-dev.txt
       # - save_cache:
       #     key: flask-dev-deps-{{ checksum "requirements-dev.txt" }}
       #     paths:
@@ -109,15 +109,15 @@ jobs:
       - run:
           name: Run pytest
           command: |
-            source env/bin/activate
-            mkdir test-results
-            pytest --junitxml=test-results/junit.xml --cov --cov-config=../setup.cfg
+            source flask/env/bin/activate
+            mkdir flask/test-results
+            pytest --junitxml=flask/test-results/junit.xml --cov flask/
       - store_test_results:
-          path: test-results
+          path: flask/test-results
       - store_artifacts:
-          path: htmlcov
+          path: flask/htmlcov
       - store_artifacts:
-          path: test-results
+          path: flask/test-results
       - slack/notify-on-failure:
           only_for_branches: master,production
 
