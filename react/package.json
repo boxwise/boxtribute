@@ -35,10 +35,17 @@
     "start": "npm run build && craco start",
     "build": "react-scripts build",
     "test": "react-scripts test",
+    "test:coverage": "cross-env CI=true yarn test --env=jsdom --coverage",
+    "test:badges": "yarn run jest-coverage-badges",
     "eject": "react-scripts eject",
     "lint": "eslint . --fix",
     "format:check": "prettier --check \"src/**/*.{js,jsx,json,scss,md,ts,tsx}\"",
     "format:write": "prettier --write \"src/**/*.{js,jsx,json,scss,md,ts,tsx}\""
+  },
+  "jest": {
+    "coverageReporters": [
+      "json-summary"
+    ]
   },
   "eslintConfig": {
     "extends": "react-app"
@@ -62,12 +69,14 @@
     "@testing-library/react": "^11.2.5",
     "@testing-library/user-event": "^12.6.3",
     "@types/react-router-dom": "^5.1.5",
+    "cross-env": "^7.0.3",
     "eslint-config-airbnb": "^18.1.0",
     "eslint-config-prettier": "^6.11.0",
     "eslint-plugin-jsx-a11y": "^6.2.3",
     "eslint-plugin-prettier": "^3.1.3",
     "flow-bin": "^0.124.0",
     "flow-typed": "^3.1.0",
+    "jest-coverage-badges": "^1.1.2",
     "mutationobserver-shim": "^0.3.7",
     "prettier": "^2.0.5",
     "typescript": "^3.9.5"
