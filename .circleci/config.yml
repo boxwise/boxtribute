@@ -112,12 +112,15 @@ jobs:
           command: |
             source flask/env/bin/activate
             mkdir flask/test-results
-            pytest --junitxml=flask/test-results/junit.xml --cov flask/
+            coverage run -m pytest --junitxml=flask/test-results/junit.xml flask/
+            coverage report
             coverage html
       - store_test_results:
           path: flask/test-results
       - store_artifacts:
           path: flask/htmlcov
+      - store_artifacts:
+          path: flask/.coverage
       - store_artifacts:
           path: flask/test-results
       - slack/notify-on-failure:
