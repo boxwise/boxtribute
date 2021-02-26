@@ -101,7 +101,7 @@ jobs:
           name: install dev dependencies for linting and testing
           command: |
             source flask/env/bin/activate
-            pip install ./flask -r flask/requirements-dev.txt
+            pip install -r flask/requirements-dev.txt
       # - save_cache:
       #     key: flask-dev-deps-{{ checksum "requirements-dev.txt" }}
       #     paths:
@@ -113,9 +113,7 @@ jobs:
           command: |
             source flask/env/bin/activate
             mkdir flask/test-results
-            coverage run -m pytest --junitxml=flask/test-results/junit.xml flask/ || true
-            ls -lisah
-            ls -lisah flask
+            coverage run -m pytest --junitxml=flask/test-results/junit.xml flask/test
             coverage html
       - store_test_results:
           path: flask/test-results
