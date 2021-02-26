@@ -4,4 +4,4 @@ pre-commit==2.9.3
 pytest>=5.4.3
 requests==2.25.0
 pytest-mock==3.3.1
-coverage==4.4.2
+pytest-cov==2.11.1

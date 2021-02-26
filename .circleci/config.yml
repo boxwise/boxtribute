@@ -112,8 +112,7 @@ jobs:
           command: |
             source flask/env/bin/activate
             mkdir flask/test-results
-            coverage run -m pytest --junitxml=flask/test-results/junit.xml flask/test
-            coverage html
+            pytest --cov --cov-report=html --junitxml=flask/test-results/junit.xml flask
       - store_test_results:
           path: flask/test-results
       - store_artifacts:

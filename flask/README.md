@@ -175,9 +175,9 @@ Test data is setup in the `test/data` folder and each piece of data is split up 
 
 From the repository root, run
 
-    pytest --cov ./flask
+    pytest --cov --cov-report=term --cov-report=html flask
 
-and inspect the reported output. Use `coverage html` to generate an HTML report, and open it via `flask/htmlcov/index.html` to view coverage for individual source code files.
+and inspect the reported output. Open the HTML report via `flask/htmlcov/index.html` to browse coverage for individual source code files.
 
 ## GraphQL Playground
 
