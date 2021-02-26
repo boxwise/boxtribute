@@ -112,6 +112,7 @@ jobs:
           name: Run pytest
           command: |
             source flask/env/bin/activate
+            pip list
             mkdir flask/test-results
             coverage run -m pytest --junitxml=flask/test-results/junit.xml flask/test
             coverage html
