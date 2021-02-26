@@ -113,7 +113,6 @@ jobs:
             source flask/env/bin/activate
             mkdir flask/test-results
             coverage run -m pytest --junitxml=flask/test-results/junit.xml flask/
-            coverage report
             coverage html
       - store_test_results:
           path: flask/test-results
