@@ -38,7 +38,6 @@ jobs:
       - persist_to_workspace:
           root: ~/
           paths:
-            - setup.cfg
             - flask/*
 
   build-react:
@@ -112,7 +111,6 @@ jobs:
           name: Run pytest
           command: |
             source flask/env/bin/activate
-            pip list
             mkdir flask/test-results
             coverage run -m pytest --junitxml=flask/test-results/junit.xml flask/test
             coverage html
@@ -120,8 +118,6 @@ jobs:
           path: flask/test-results
       - store_artifacts:
           path: flask/htmlcov
-      - store_artifacts:
-          path: flask/.coverage
       - store_artifacts:
           path: flask/test-results
       - slack/notify-on-failure:
