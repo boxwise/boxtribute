@@ -101,7 +101,7 @@ jobs:
           name: install dev dependencies for linting and testing
           command: |
             source flask/env/bin/activate
-            pip install -r flask/requirements-dev.txt
+            pip install ./flask -r flask/requirements-dev.txt
       # - save_cache:
       #     key: flask-dev-deps-{{ checksum "requirements-dev.txt" }}
       #     paths:
