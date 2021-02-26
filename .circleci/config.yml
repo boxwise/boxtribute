@@ -119,8 +119,6 @@ jobs:
           path: flask/htmlcov
       - store_artifacts:
           path: flask/test-results
-      - store_artifacts:
-          path: flask/.coverage
       - slack/notify-on-failure:
           only_for_branches: master,production
       - codecov/upload:
