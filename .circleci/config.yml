@@ -199,7 +199,7 @@ workflows:
           context: STAGING
           requires:
             - build-flask
-      - build-react:
+      - build-and-test-react:
           # for now, always builds in staging context
           # this means it will be configured with staging
           # auth0 values...
@@ -214,7 +214,7 @@ workflows:
           serviceName: v2-staging
           requires:
             - test-flask
-            - build-react
+            - build-and-test-react
           filters:
             branches:
               only: master
@@ -226,7 +226,7 @@ workflows:
           serviceName: v2-demo
           requires:
             - test-flask
-            - build-react
+            - build-and-test-react
           filters:
             branches:
               only: production
@@ -238,7 +238,7 @@ workflows:
           serviceName: v2-production
           requires:
             - test-flask
-            - build-react
+            - build-and-test-react
           filters:
             branches:
               only: production
