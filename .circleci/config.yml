@@ -87,6 +87,10 @@ jobs:
           name: Test React App Codecover
           command: |
             yarn run test:coverage
+      - store_test_results:
+          path: react/test-results
+      - store_artifacts:
+          path: react/test-results
       - codecov/upload:
           file: react/.coverage
       # Add build to workspace
