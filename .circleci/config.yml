@@ -88,11 +88,11 @@ jobs:
           command: |
             yarn run test:coverage
       - store_test_results:
-          path: react/test-results
+          path: coverage
       - store_artifacts:
-          path: react/test-results
+          path: coverage
       - codecov/upload:
-          file: react/.coverage
+          file: coverage
       # Add build to workspace
       - persist_to_workspace:
           root: ~/
