@@ -92,7 +92,7 @@ jobs:
       - store_artifacts:
           path: coverage
       - codecov/upload:
-          file: react/coverage
+          file: coverage/lcov-report
       # Add build to workspace
       - persist_to_workspace:
           root: ~/
