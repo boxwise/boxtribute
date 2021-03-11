@@ -92,7 +92,7 @@ jobs:
       - store_artifacts:
           path: coverage
       - codecov/upload:
-          file: coverage/lcov-report
+          file: coverage/clover.xml
       # Add build to workspace
       - persist_to_workspace:
           root: ~/
