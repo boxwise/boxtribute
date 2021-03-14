@@ -68,3 +68,18 @@ export const ORG_BASES = gql`
     }
   }
 `;
+
+export const BOX_BY_QR = gql`
+  query Box($qr_code: String!) {
+    box(qr_code: $qr_code) {
+      box_id
+      product_id
+      size_id
+      items
+      location_id
+      comments
+      qr_id
+      box_state_id
+    }
+  }
+`;

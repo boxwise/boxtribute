@@ -2,7 +2,7 @@ import React from "react";
 import { useParams, Link } from "react-router-dom";
 
 export default function Base() {
-  const { orgId, baseId } = useParams();
+  const { orgId, baseId } = useParams<{ orgId: string; baseId: string }>();
   return (
     <div>
       <h3>Requested organization: {orgId}</h3>
