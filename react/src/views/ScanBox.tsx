@@ -31,12 +31,12 @@ function ScanBox() {
       try {
         getQrExistsQuery({
           variables: {
-            qr_code: String(myQR),
+            qrCode: String(myQR),
           },
         });
         getQrBoxExistsQuery({
           variables: {
-            qr_code: String(myQR),
+            qrCode: String(myQR),
           },
         });
       } catch (e) {
