@@ -5,18 +5,10 @@ import { Link } from "react-router-dom";
 import { Button, Icon, Header } from "semantic-ui-react";
 import { BOX_BY_QR } from "../utils/queries";
 import { Redirect } from "react-router";
+import { emptyBox } from "../utils/emptyBox";
 
 function ScanBox() {
-  const [box, setBox] = useState({
-    box_id: "",
-    product_id: 0,
-    size_id: 0,
-    items: 0,
-    location_id: 0,
-    comments: "",
-    qr_id: 0,
-    box_state_id: 0,
-  });
+  const [box, setBox] = useState(emptyBox);
   const [boxError, setBoxError] = useState("");
   const [qr, setQR] = useState("");
   const [qrError, setQrError] = useState("");
@@ -46,12 +38,12 @@ function ScanBox() {
     },
   });
 
-  const retrieveBox = async (code) => {
+  const retrieveBox = (code) => {
     if (code) {
       const myQR = code.split("barcode=")[1];
       setQR(myQR);
       try {
-        await getBoxQuery({
+        getBoxQuery({
           variables: {
             qr_code: String(myQR),
           },
@@ -72,22 +64,7 @@ function ScanBox() {
           <p>Product ID: {box.product_id}</p>
           <p>Location ID: {box.location_id}</p>
           <br />
-          <Button
-            onClick={() =>
-              setBox({
-                box_id: "",
-                product_id: 0,
-                size_id: 0,
-                items: 0,
-                location_id: 0,
-                comments: "",
-                qr_id: 0,
-                box_state_id: 0,
-              })
-            }
-          >
-            Scan again
-          </Button>
+          <Button onClick={() => setBox(emptyBox)}>Scan again</Button>
         </div>
       );
     }
