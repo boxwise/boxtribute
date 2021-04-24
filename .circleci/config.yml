@@ -89,8 +89,6 @@ jobs:
             yarn run test:coverage
       - store_test_results:
           path: coverage
-      - store_artifacts:
-          path: coverage
       - codecov/upload:
           file: coverage/clover.xml
       # Add build to workspace
