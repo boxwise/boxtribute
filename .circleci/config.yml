@@ -91,6 +91,7 @@ jobs:
           path: coverage
       - codecov/upload:
           file: coverage/clover.xml
+          flags: frontend
       # Add build to workspace
       - persist_to_workspace:
           root: ~/
@@ -135,6 +136,7 @@ jobs:
           only_for_branches: master,production
       - codecov/upload:
           file: flask/.coverage
+          flags: backend
 
   deploy:
     parameters:
