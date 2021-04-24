@@ -35,6 +35,8 @@
     "start": "npm run build && craco start",
     "build": "react-scripts build",
     "test": "react-scripts test",
+    "test:coverage": "yarn test --env=jsdom --coverage",
+    "upload:test-report": "./node_modules/.bin/codecov",
     "eject": "react-scripts eject",
     "lint": "eslint . --fix",
     "format:check": "prettier --check \"src/**/*.{js,jsx,json,scss,md,ts,tsx}\"",
