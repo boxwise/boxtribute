@@ -40,7 +40,7 @@ jobs:
           paths:
             - flask/*
 
-  build-react:
+  build-and-test-react:
     docker:
       - image: circleci/python:3.8-buster-node
     working_directory: ~/react
@@ -79,6 +79,18 @@ jobs:
           name: Build React App
           command: |
             yarn build
+      - run:
+          name: Test React App
+          command: |
+            yarn test
+      - run:
+          name: Test React App Codecover
+          command: |
+            yarn run test:coverage
+      - store_test_results:
+          path: coverage
+      - codecov/upload:
+          file: coverage/clover.xml
       # Add build to workspace
       - persist_to_workspace:
           root: ~/
@@ -193,7 +205,7 @@ workflows:
           context: STAGING
           requires:
             - build-flask
-      - build-react:
+      - build-and-test-react:
           # for now, always builds in staging context
           # this means it will be configured with staging
           # auth0 values...
@@ -208,7 +220,7 @@ workflows:
           serviceName: v2-staging
           requires:
             - test-flask
-            - build-react
+            - build-and-test-react
           filters:
             branches:
               only: master
@@ -220,7 +232,7 @@ workflows:
           serviceName: v2-demo
           requires:
             - test-flask
-            - build-react
+            - build-and-test-react
           filters:
             branches:
               only: production
@@ -232,7 +244,7 @@ workflows:
           serviceName: v2-production
           requires:
             - test-flask
-            - build-react
+            - build-and-test-react
           filters:
             branches:
               only: production
