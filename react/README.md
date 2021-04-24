@@ -48,3 +48,11 @@ For example, to add XYZ to the `package.json` file in the `react` folder while d
 (This advice has come from https://github.com/BretFisher/node-docker-good-defaults)
 
 ## Testing
+
+Testing is done with React Testing Library and Jest.
+
+Test files are located in the same directory as the files they are testing. For example, `CreateBox.test.js` and `CreateBox.tsx` are both located in `react/src/views/CreateBox`.
+
+For integration tests, we mock the Apollo client with a `MockedProvider` component instead of the `ApolloProvider` component that is used to handle real data. More information on mocking the Apollo client can be found [here](https://www.apollographql.com/docs/react/development-testing/testing/).
+
+To eliminate repetitive code, a custom renderer was built in `react/src/utils/test-utils.js`. It allows developers to pass in three arguments (ui, mocks, and history) to render a component in a test environment. The utility also exports the entire react testing library, so you should import from this utility instead of `@testing-library/react`. See `CreateBox.test.js` for examples of the custom renderer's use.

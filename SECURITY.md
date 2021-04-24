@@ -5,7 +5,7 @@ Boxtribute is provided open source on an "as-is" basis with no warranties, impli
 
 ## Reporting a Vulnerability
 
-To report a vulnerability, please send an email to helpme@boxwise.co with "SECURITY VULNERABILITY IDENTIFIED" in the subject. In the email, please describe:
+To report a vulnerability, please send an email to help@boxtribute.org with "SECURITY VULNERABILITY IDENTIFIED" in the subject. In the email, please describe:
 1. The observed vulnerability and the expected severity in two or three sentences;
 2. The steps to reproduce it (if available); and
 3. Ideally, a suggested fix if you have one, including a reference to the relevant lines of code and associated files.
