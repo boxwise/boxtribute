@@ -35,7 +35,7 @@
     "start": "npm run build && craco start",
     "build": "react-scripts build",
     "test": "react-scripts test",
-    "test:coverage": "cross-env CI=true yarn test --env=jsdom --coverage",
+    "test:coverage": "yarn test --env=jsdom --coverage",
     "upload:test-report": "./node_modules/.bin/codecov",
     "eject": "react-scripts eject",
     "lint": "eslint . --fix",
