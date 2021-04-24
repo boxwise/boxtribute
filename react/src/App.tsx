@@ -14,6 +14,7 @@ import ScanBox from "./views/ScanBox";
 import CreateBox from "./views/CreateBox";
 import "semantic-ui-less/semantic.less";
 import "./App.css";
+import BoxInfo from "./views/BoxInfo";
 
 const PrivateRoute = ({ component, ...args }) => (
   <Route
@@ -40,6 +41,7 @@ export default function App() {
       <Switch>
         <PrivateRoute path="/org" component={OrgTopLevel} />
         <PrivateRoute path="/create-box" component={CreateBox} />
+        <PrivateRoute path="/box-info" component={BoxInfo} />
         <PrivateRoute path="/edit-box" component={Placeholder} />
         <PrivateRoute path="/generateLabel/:num" component={PdfGenerator} />
         <PrivateRoute path="/pdf" component={Labels} />

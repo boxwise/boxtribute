@@ -1,26 +1,19 @@
 import React, { useState } from "react";
-import { useLazyQuery } from "@apollo/client";
+import { useLazyQuery, useQuery } from "@apollo/client";
 import QrReader from "react-qr-reader";
 import { Link } from "react-router-dom";
 import { Button, Icon, Header } from "semantic-ui-react";
-import { QR_EXISTS, QR_BOX_EXISTS } from "../utils/queries";
+import { QR_EXISTS } from "../utils/queries";
 import { Redirect } from "react-router";
 
 function ScanBox() {
   const [qr, setQR] = useState("");
-  const [qrExists, setQrExists] = useState(null);
-  const [qrBoxExists, setQrBoxExists] = useState(null);
+  const [qrInfo, setQrInfo] = useState({ qrExists: null, qrBoxExists: null });
   const [qrError, setQrError] = useState("");
 
   const [getQrExistsQuery] = useLazyQuery(QR_EXISTS, {
     onCompleted: (data) => {
-      setQrExists(data);
-    },
-  });
-
-  const [getQrBoxExistsQuery] = useLazyQuery(QR_BOX_EXISTS, {
-    onCompleted: (data) => {
-      setQrBoxExists(data);
+      setQrInfo(data);
     },
   });
 
@@ -34,11 +27,6 @@ function ScanBox() {
             qrCode: String(myQR),
           },
         });
-        getQrBoxExistsQuery({
-          variables: {
-            qrCode: String(myQR),
-          },
-        });
       } catch (e) {
         setQrError(e);
       }
@@ -46,7 +34,7 @@ function ScanBox() {
   };
 
   const displayReader = () => {
-    if (qrExists == null && qrBoxExists == null) {
+    if (qrInfo.qrExists == null) {
       return (
         <QrReader
           delay={300}
@@ -68,7 +56,7 @@ function ScanBox() {
           </p>
         </div>
       );
-    } else if (!qrExists) {
+    } else if (!qrInfo.qrExists) {
       return (
         <div>
           <Header as="h2">Oh no!</Header>
@@ -80,24 +68,25 @@ function ScanBox() {
           </p>
         </div>
       );
-    } else if (qrExists && !qrBoxExists) {
-      return (
-        <Redirect
-          to={{
-            pathname: "/create-box",
-            state: { qr: qr },
-          }}
-        />
-      );
     } else {
-      return (
-        <Redirect
-          to={{
-            pathname: "/box-info",
-            state: { qrCode: qr },
-          }}
-        />
-      );
+      if (qrInfo.qrBoxExists)
+        return (
+          <Redirect
+            to={{
+              pathname: "/box-info",
+              state: { qr: qr },
+            }}
+          />
+        );
+      else
+        return (
+          <Redirect
+            to={{
+              pathname: "/create-box",
+              state: { qr: qr },
+            }}
+          />
+        );
     }
   };
 

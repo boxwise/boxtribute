@@ -72,11 +72,6 @@ export const ORG_BASES = gql`
 export const QR_EXISTS = gql`
   query QrExists($qrCode: String!) {
     qrExists(qr_code: $qrCode)
-  }
-`;
-
-export const QR_BOX_EXISTS = gql`
-  query QrBoxExists($qrCode: String!) {
     qrBoxExists(qr_code: $qrCode)
   }
 `;

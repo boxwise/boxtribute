@@ -3,10 +3,10 @@ import React, { useEffect, useState } from "react";
 import { emptyBox } from "../utils/emptyBox";
 import { BOX_BY_QR } from "../utils/queries";
 
-function BoxInfo(qrCode) {
+function BoxInfo(props) {
   const [box, setBox] = useState(emptyBox);
 
-  const [getBoxQuery, { loading: queryLoading, error: queryError }] = useLazyQuery(BOX_BY_QR, {
+  const [getBoxQuery] = useLazyQuery(BOX_BY_QR, {
     onCompleted: (data) => {
       var newBox = data.box;
       setBox({
@@ -24,7 +24,9 @@ function BoxInfo(qrCode) {
   });
 
   useEffect(() => {
-    getBoxQuery(qrCode);
+    getBoxQuery({
+      variables: { qrCode: props.location.state.qr },
+    });
   }, []);
 
   //TODO: replace first option with a load spinner
