@@ -171,6 +171,14 @@ Test data is setup in the `test/data` folder and each piece of data is split up 
 - for new data the fixtures need to be imported in the required `conftest.py` and
 - the call to create needs to be added to `setup_tables.py` in the `test/data` directory.
 
+### Coverage analysis
+
+From the repository root, run
+
+    pytest --cov --cov-report=term --cov-report=html flask
+
+and inspect the reported output. Open the HTML report via `flask/htmlcov/index.html` to browse coverage for individual source code files.
+
 ## GraphQL Playground
 
 We are setting up GraphQL as a data layer for this application. To check out the GraphQL playground, and go to `localhost:5000/graphql`.

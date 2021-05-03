@@ -2,10 +2,11 @@
 <a width="105" height="35" href="https://auth0.com/?utm_source=oss&utm_medium=gp&utm_campaign=oss" target="_blank" alt="Single Sign On & Token Based Authentication - Auth0">
 <img width="105" height="35" alt="JWT Auth for open source projects" src="https://cdn.auth0.com/oss/badges/a0-badge-dark.png"></a>
 
+Frontend Test Coverage: [![codecov](https://codecov.io/gh/boxwise/boxtribute/branch/master/graph/badge.svg?token=646MWM6V9H&flag=frontend)](https://codecov.io/gh/boxwise/boxtribute)
+
+Backend Test Coverage: [![codecov](https://codecov.io/gh/boxwise/boxtribute/branch/master/graph/badge.svg?token=646MWM6V9H&flag=backend)](https://codecov.io/gh/boxwise/boxtribute)
 
 Build: [![CircleCI](https://circleci.com/gh/boxwise/boxtribute.svg?style=svg)](https://circleci.com/gh/boxwise/boxtribute)
-
-React Test Coverage: [![codecov](https://codecov.io/gh/boxwise/boxtribute/branch/master/graph/badge.svg?token=646MWM6V9H)](https://codecov.io/gh/boxwise/boxtribute)
 
 # Readme
 

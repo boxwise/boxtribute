@@ -28,7 +28,7 @@ jobs:
           command: |
             python3 -m venv env
             source env/bin/activate
-            pip install . -r requirements.txt
+            pip install -e . -r requirements.txt
       # Cache the installed packages
       - save_cache:
           key: flask-deps-{{ checksum "requirements.txt" }}
@@ -91,6 +91,7 @@ jobs:
           path: coverage
       - codecov/upload:
           file: coverage/clover.xml
+          flags: frontend
       # Add build to workspace
       - persist_to_workspace:
           root: ~/
@@ -124,13 +125,16 @@ jobs:
           command: |
             source env/bin/activate
             mkdir test-results
-            pytest --junitxml=test-results/junit.xml
+            pytest --cov-report xml:test-results/coverage.xml --cov=. test
       - store_test_results:
           path: test-results
       - store_artifacts:
           path: test-results
       - slack/notify-on-failure:
           only_for_branches: master,production
+      - codecov/upload:
+          file: test-results/coverage.xml
+          flags: backend
 
   deploy:
     parameters:

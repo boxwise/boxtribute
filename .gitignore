@@ -4,3 +4,7 @@
 .env.production.local
 .env
 .venv
+.coverage
+htmlcov/
+env/
+flask/test-results
