@@ -1,6 +1,6 @@
 ariadne==0.11.0
 Flask==1.1.2
-Flask-Cors==3.0.8
+Flask-Cors==3.0.9
 PyMySQL==0.9.3
 peewee==3.13.3
 peewee-moves==2.1.0
