@@ -123,9 +123,14 @@ jobs:
       - run:
           name: Run pytest
           command: |
+            cd ..
+            docker-compose up --no-start mysql
+            docker-compose up -d mysql && sleep 20
+            cd -
             source env/bin/activate
             mkdir test-results
-            pytest --cov-report xml:test-results/coverage.xml --cov=. test
+            pytest --cov-report xml:test-results/coverage.xml --cov=. -k test_backend_connection test
+            docker-compose down
       - store_test_results:
           path: test-results
       - store_artifacts:
