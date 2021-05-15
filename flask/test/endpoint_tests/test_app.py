@@ -23,7 +23,7 @@ def test_backend_connection():
     app = create_app()
     app.testing = True
 
-    host = os.getenv("MYSQL_HOST")
+    host = os.getenv("MYSQL_HOST", "localhost")
     print(host)
 
     # cf. main.py but inserting values from docker-compose.yml

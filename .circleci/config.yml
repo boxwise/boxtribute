@@ -128,7 +128,7 @@ jobs:
             docker-compose up --no-start mysql
             docker-compose up -d mysql && sleep 20
             cd -
-            export MYSQL_HOST=$(docker network inspect -f '{{range .IPAM.Config}}{{.Gateway}}{{end}}' boxtribute_backend)
+            export MYSQL_HOST=$(docker network inspect -f '{{range .IPAM.Config}}{{.Gateway}}{{end}}' circleci_backend)
             source env/bin/activate
             mkdir test-results
             pytest --cov-report xml:test-results/coverage.xml --cov=. -k test_backend_connection test
