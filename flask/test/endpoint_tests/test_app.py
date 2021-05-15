@@ -1,3 +1,6 @@
+import shlex
+import subprocess
+
 from boxwise_flask.app import create_app
 from boxwise_flask.db import db
 
@@ -20,8 +23,22 @@ def test_backend_connection():
     """
     app = create_app()
     app.testing = True
+
+    host = (
+        subprocess.run(
+            shlex.split(
+                "docker network inspect -f '{{range .IPAM.Config}}{{.Gateway}}{{end}}' "
+                "boxtribute_backend"
+            ),
+            capture_output=True,
+        )
+        .stdout.decode()
+        .strip()
+    )
+    print(host)
+
     # cf. main.py but inserting values from docker-compose.yml
-    app.config["DATABASE"] = "mysql://root:dropapp_root@localhost:32000/dropapp_dev"
+    app.config["DATABASE"] = f"mysql://root:dropapp_root@{host}:32000/dropapp_dev"
 
     db.init_app(app)
 
