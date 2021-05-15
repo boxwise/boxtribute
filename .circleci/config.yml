@@ -120,6 +120,7 @@ jobs:
       #       - env
       # run linting checks
       # run tests https://circleci.com/docs/2.0/collect-test-data/#pytest
+      - setup_remote_docker
       - run:
           name: Run pytest
           command: |
