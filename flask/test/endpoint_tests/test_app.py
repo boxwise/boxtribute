@@ -1,5 +1,4 @@
-import shlex
-import subprocess
+import os
 
 from boxwise_flask.app import create_app
 from boxwise_flask.db import db
@@ -24,17 +23,7 @@ def test_backend_connection():
     app = create_app()
     app.testing = True
 
-    host = (
-        subprocess.run(
-            shlex.split(
-                "docker network inspect -f '{{range .IPAM.Config}}{{.Gateway}}{{end}}' "
-                "boxtribute_backend"
-            ),
-            capture_output=True,
-        )
-        .stdout.decode()
-        .strip()
-    )
+    host = os.getenv("MYSQL_HOST")
     print(host)
 
     # cf. main.py but inserting values from docker-compose.yml
