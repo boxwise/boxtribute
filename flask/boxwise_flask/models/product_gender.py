@@ -1,9 +1,11 @@
 from boxwise_flask.db import db
+from boxwise_flask.models import UnsignedIntegerField
 from boxwise_flask.models.user import User
 from peewee import SQL, CharField, DateTimeField, ForeignKeyField, IntegerField
 
 
 class ProductGender(db.Model):
+    id = UnsignedIntegerField(primary_key=True)
     adult = IntegerField(constraints=[SQL("DEFAULT 0")])
     baby = IntegerField(constraints=[SQL("DEFAULT 0")])
     child = IntegerField(constraints=[SQL("DEFAULT 0")])

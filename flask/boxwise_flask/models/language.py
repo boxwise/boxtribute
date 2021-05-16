@@ -1,8 +1,10 @@
 from boxwise_flask.db import db
+from boxwise_flask.models import UnsignedIntegerField
 from peewee import SQL, CharField, IntegerField
 
 
 class Language(db.Model):
+    id = UnsignedIntegerField(primary_key=True)
     code = CharField(null=True)
     locale = CharField(null=True)
     name = CharField(null=True)

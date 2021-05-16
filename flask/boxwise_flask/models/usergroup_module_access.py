@@ -1,10 +1,12 @@
 from boxwise_flask.db import db
+from boxwise_flask.models import UnsignedIntegerField
 from boxwise_flask.models.base_module import BaseModule
 from boxwise_flask.models.usergroup import Usergroup
 from peewee import ForeignKeyField
 
 
 class UsergroupModuleAccess(db.Model):
+    id = UnsignedIntegerField(primary_key=True)
     base_module = ForeignKeyField(
         column_name="cms_functions_id", field="id", model=BaseModule, null=True
     )

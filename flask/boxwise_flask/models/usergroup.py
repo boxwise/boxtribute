@@ -1,10 +1,12 @@
 from boxwise_flask.db import db
+from boxwise_flask.models import UnsignedIntegerField
 from boxwise_flask.models.organisation import Organisation
 from boxwise_flask.models.usergroup_access_level import UsergroupAccessLevel
 from peewee import CharField, DateTimeField, DeferredForeignKey, ForeignKeyField
 
 
 class Usergroup(db.Model):
+    id = UnsignedIntegerField(primary_key=True)
     created = DateTimeField(null=True)
     created_by = DeferredForeignKey(
         "User", column_name="created_by", null=True, default=None

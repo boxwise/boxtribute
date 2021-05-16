@@ -1,4 +1,5 @@
 from boxwise_flask.db import db
+from boxwise_flask.models import UnsignedIntegerField
 from boxwise_flask.models.base import Base
 from boxwise_flask.models.box_state import BoxState
 from boxwise_flask.models.user import User
@@ -6,6 +7,7 @@ from peewee import SQL, CharField, DateTimeField, ForeignKeyField, IntegerField
 
 
 class Location(db.Model):
+    id = UnsignedIntegerField(primary_key=True)
     box_state = ForeignKeyField(
         column_name="box_state_id",
         constraints=[SQL("DEFAULT 1")],

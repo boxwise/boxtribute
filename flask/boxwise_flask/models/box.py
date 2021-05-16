@@ -2,6 +2,7 @@ import uuid
 from datetime import datetime
 
 from boxwise_flask.db import db
+from boxwise_flask.models import UnsignedIntegerField
 from boxwise_flask.models.box_state import BoxState
 from boxwise_flask.models.location import Location
 from boxwise_flask.models.product import Product
@@ -20,6 +21,7 @@ from .qr_code import QRCode
 
 
 class Box(db.Model):
+    id = UnsignedIntegerField(primary_key=True)
     box_id = CharField(constraints=[SQL("DEFAULT ''")], index=True)
     box_state = ForeignKeyField(
         column_name="box_state_id",

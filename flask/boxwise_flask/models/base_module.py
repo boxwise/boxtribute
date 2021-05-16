@@ -1,4 +1,5 @@
 from boxwise_flask.db import db
+from boxwise_flask.models import UnsignedIntegerField
 from boxwise_flask.models.user import User
 from peewee import (
     CharField,
@@ -10,6 +11,7 @@ from peewee import (
 
 
 class BaseModule(db.Model):
+    id = UnsignedIntegerField(primary_key=True)
     parent_id = ForeignKeyField("self", null=True, default=None, on_update="CASCADE")
     title_en = CharField(255)
     include = CharField(255)

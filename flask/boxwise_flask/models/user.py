@@ -1,4 +1,5 @@
 from boxwise_flask.db import db
+from boxwise_flask.models import UnsignedIntegerField
 from boxwise_flask.models.language import Language
 from boxwise_flask.models.usergroup import Usergroup
 from boxwise_flask.models.usergroup_base_access import UsergroupBaseAccess
@@ -14,6 +15,7 @@ from playhouse.shortcuts import model_to_dict
 
 
 class User(db.Model):
+    id = UnsignedIntegerField(primary_key=True)
     usergroup = ForeignKeyField(
         column_name="cms_usergroups_id", field="id", model=Usergroup, null=True
     )

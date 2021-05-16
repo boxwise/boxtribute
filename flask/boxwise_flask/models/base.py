@@ -1,12 +1,14 @@
 from datetime import datetime
 
 from boxwise_flask.db import db
+from boxwise_flask.models import UnsignedIntegerField
 from boxwise_flask.models.organisation import Organisation
 from boxwise_flask.models.user import User
 from peewee import SQL, CharField, DateTimeField, ForeignKeyField, IntegerField
 
 
 class Base(db.Model):
+    id = UnsignedIntegerField(primary_key=True)
     name = CharField(null=True)
     currency_name = CharField(
         column_name="currencyname", constraints=[SQL("DEFAULT 'Tokens'")]

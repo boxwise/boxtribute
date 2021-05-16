@@ -1,10 +1,12 @@
 from boxwise_flask.db import db
+from boxwise_flask.models import UnsignedIntegerField
 from boxwise_flask.models.size_range import SizeRange
 from boxwise_flask.models.user import User
 from peewee import CharField, DateTimeField, ForeignKeyField, IntegerField
 
 
 class Size(db.Model):
+    id = UnsignedIntegerField(primary_key=True)
     created = DateTimeField(null=True)
     created_by = ForeignKeyField(
         column_name="created_by", field="id", model=User, null=True

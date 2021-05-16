@@ -1,4 +1,5 @@
 from boxwise_flask.db import db
+from boxwise_flask.models import UnsignedIntegerField
 from boxwise_flask.models.base import Base
 from boxwise_flask.models.product_category import ProductCategory
 from boxwise_flask.models.product_gender import ProductGender
@@ -8,6 +9,7 @@ from peewee import SQL, CharField, DateTimeField, ForeignKeyField, IntegerField
 
 
 class Product(db.Model):
+    id = UnsignedIntegerField(primary_key=True)
     base = ForeignKeyField(column_name="camp_id", field="id", model=Base, null=True)
     product_category = ForeignKeyField(
         column_name="category_id", field="id", model=ProductCategory, null=True
