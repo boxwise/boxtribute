@@ -85,6 +85,14 @@ The development database is called `dropapp_dev` and the password is `dropapp_ro
 From the Python side of the application we use an Object Relational Mapper (ORM) to interact with the database. An ORM provides a convenient abstraction interface since it leverages Python's language features and is more secure compared to using raw SQL queries.
 It was [decided](../docs/adr/Python-ORM.md) to settle with [peewee](https://docs.peewee-orm.com/en/latest/index.html) as ORM solution. It builds on models (see `flask/boxwise_flask/models/` as abstraction of the MySQL database tables.
 
+#### Auto-generating peewee model definitions
+
+The `pwiz` utility helps to generate peewee model definitions by inspecting a running database. It is already installed with the `peewee` package.
+
+1. Start the database by `docker-compose up mysql`
+1. Obtain the gateway IP of the Docker network `boxtribute_backend` as described above.
+1. Run `python -m pwiz -H XXX.XX.X.X -p 32000 -u root -e mysql -t camps -P dropapp_dev > base.py` to generate the model definitions of the `camps` table, and write them into the file `base.py`.
+
 ### Debugging
 
 By default the flask app runs in `development` mode in the Docker container which means that hot-reloading and debugging is enabled.
