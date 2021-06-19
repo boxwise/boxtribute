@@ -200,4 +200,13 @@ A sample query you can try if it works is:
 
 ## Authentication and Authorization
 
-## Database Migrations
+## Database Schema Migrations
+
+Occasionally it might be required to update the database schema. To this end we use the [peewee-moves](https://github.com/timster/peewee-moves) tool.
+`peewee-moves` runs migrations defined in Python scripts, and stores a migration history in the database. Migration management is performed by the `flask db` command. In the development environment you can
+1. run `docker-compose up` to start all services
+1. run `docker-compose exec flask sh` to open a shell in the `flask` container. Run `flask db --help` from there
+
+Migration scripts must be stored in `flask/boxwise_flask/migrations`.
+
+For an example migration, see `docs/peewee-moves/`.
