@@ -206,7 +206,11 @@ Occasionally it might be required to update the database schema. To this end we 
 `peewee-moves` runs migrations defined in Python scripts, and stores a migration history in the database. Migration management is performed by the `flask db` command. In the development environment you can
 1. run `docker-compose up` to start all services
 1. run `docker-compose exec flask sh` to open a shell in the `flask` container. Run `flask db --help` from there
+1. You can create an empty migration script via `flask db revision <migration-name>`. The file name receives an auto-incremented index. The creation date-time is stored in the top script docstring.
+1. Implement `upgrade()` and `downgrade()` functions in the script for defining the rollforward/rollback behavior.
+1. Apply all pending migrations by `flask db upgrade`, and rollback the latest migration by `flask db downgrade`.
+1. Query the current migration status of the database via `flask db status`.
 
-Migration scripts must be stored in `flask/boxwise_flask/migrations`.
+Migration scripts must be stored in `flask/boxwise_flask/migrations`, and are put under version-control.
 
 For an example migration, see `docs/peewee-moves/`.
