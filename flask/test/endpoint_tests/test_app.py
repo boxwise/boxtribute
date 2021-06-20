@@ -27,7 +27,7 @@ def test_backend_connection():
     print(host)
 
     # cf. main.py but inserting values from docker-compose.yml
-    app.config["DATABASE"] = f"mysql://root:dropapp_root@{host}:32000/dropapp_dev"
+    app.config["DATABASE"] = f"mysql://root:dropapp_root@{host}:3306/dropapp_dev"
 
     db.init_app(app)
 
