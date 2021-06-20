@@ -23,10 +23,8 @@ def test_backend_connection():
     app = create_app()
     app.testing = True
 
-    host = os.getenv("MYSQL_HOST", "127.0.0.1")
-    print(host)
-
     # cf. main.py but inserting values from docker-compose.yml
+    host = os.getenv("MYSQL_HOST", "127.0.0.1")
     app.config["DATABASE"] = f"mysql://root:dropapp_root@{host}:3306/dropapp_dev"
 
     db.init_app(app)
