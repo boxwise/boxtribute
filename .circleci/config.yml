@@ -107,7 +107,6 @@ jobs:
           MYSQL_ROOT_PASSWORD: dropapp_root
           MYSQL_DATABASE: dropapp_dev
           MYSQL_ROOT_HOST: "%"
-          MYSQL_USER: root
           MYSQL_PASSWORD: dropapp_root
         command: --default-authentication-plugin=mysql_native_password --lower_case_table_names=1
     working_directory: ~/flask
