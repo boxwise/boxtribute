@@ -3,7 +3,14 @@ from datetime import datetime
 from boxwise_flask.db import db
 from boxwise_flask.models.organisation import Organisation
 from boxwise_flask.models.user import User
-from peewee import SQL, CharField, DateTimeField, ForeignKeyField, IntegerField
+from peewee import (
+    SQL,
+    CharField,
+    DateTimeField,
+    ForeignKeyField,
+    IntegerField,
+    SmallIntegerField,
+)
 
 
 class Base(db.Model):
@@ -79,6 +86,12 @@ class Base(db.Model):
         column_name="scheduletimeslot", constraints=[SQL("DEFAULT '0.5'")]
     )
     seq = IntegerField()
+    beneficiary_is_registered = SmallIntegerField(
+        column_name="beneficiaryisregistered", default=1
+    )
+    beneficiary_is_volunteer = SmallIntegerField(
+        column_name="beneficiaryisvolunteer", default=1
+    )
 
     class Meta:
         table_name = "camps"
