@@ -46,7 +46,13 @@ class Base(db.Model):
     market = IntegerField(constraints=[SQL("DEFAULT 1")])
     modified = DateTimeField(null=True)
     modified_by = ForeignKeyField(
-        column_name="modified_by", field="id", model=User, null=True,
+        column_name="modified_by",
+        field="id",
+        model=User,
+        null=True,
+        on_delete="SET NULL",
+        on_update="CASCADE",
+        constraints=[SQL("UNSIGNED")],
     )
     organisation = ForeignKeyField(
         column_name="organisation_id", field="id", model=Organisation
@@ -78,15 +84,7 @@ class Base(db.Model):
         table_name = "camps"
 
     def __str__(self):
-        return (
-            str(self.id)
-            + " "
-            + str(self.organisation_id)
-            + " "
-            + self.name
-            + " "
-            + self.currency_name
-        )
+        return f"{self.id} {self.organisation_id} {self.name} {self.currency_name}"
 
     @staticmethod
     def get_all_bases():

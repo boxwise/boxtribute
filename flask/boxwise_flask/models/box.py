@@ -20,36 +20,88 @@ from .qr_code import QRCode
 
 
 class Box(db.Model):
-    box_id = CharField(constraints=[SQL("DEFAULT ''")], index=True)
+    box_id = CharField(constraints=[SQL("DEFAULT ''")], index=True, unique=True)
     box_state = ForeignKeyField(
         column_name="box_state_id",
         constraints=[SQL("DEFAULT 1")],
         field="id",
         model=BoxState,
+        on_update="CASCADE",
     )
     comments = TextField()
     created = DateTimeField(null=True)
     created_by = ForeignKeyField(
-        column_name="created_by", field="id", model=User, null=True
+        column_name="created_by",
+        field="id",
+        model=User,
+        null=True,
+        on_delete="SET NULL",
+        on_update="CASCADE",
+        constraints=[SQL("UNSIGNED")],
     )
     deleted = DateTimeField(null=True, default=None)
     items = IntegerField()
-    location = ForeignKeyField(column_name="location_id", field="id", model=Location)
+    location = ForeignKeyField(
+        column_name="location_id",
+        field="id",
+        model=Location,
+        on_update="CASCADE",
+        constraints=[SQL("UNSIGNED")],
+    )
     modified = DateTimeField(null=True)
     modified_by = ForeignKeyField(
-        column_name="modified_by", field="id", model=User, null=True,
+        column_name="modified_by",
+        field="id",
+        model=User,
+        null=True,
+        on_delete="SET NULL",
+        on_update="CASCADE",
+        constraints=[SQL("UNSIGNED")],
     )
     ordered = DateTimeField(null=True)
     ordered_by = ForeignKeyField(
-        column_name="ordered_by", field="id", model=User, null=True,
+        column_name="ordered_by",
+        field="id",
+        model=User,
+        null=True,
+        on_delete="SET NULL",
+        on_update="CASCADE",
+        constraints=[SQL("UNSIGNED")],
     )
     picked = IntegerField(null=True)
     picked_by = ForeignKeyField(
-        column_name="picked_by", field="id", model=User, null=True,
+        column_name="picked_by",
+        field="id",
+        model=User,
+        null=True,
+        on_delete="SET NULL",
+        on_update="CASCADE",
+        constraints=[SQL("UNSIGNED")],
     )
-    product = ForeignKeyField(column_name="product_id", field="id", model=Product)
-    qr_code = ForeignKeyField(column_name="qr_id", field="id", model=QRCode, null=True)
-    size = ForeignKeyField(column_name="size_id", field="id", model=Size, null=True)
+    product = ForeignKeyField(
+        column_name="product_id",
+        field="id",
+        model=Product,
+        on_update="CASCADE",
+        constraints=[SQL("UNSIGNED")],
+    )
+    qr_code = ForeignKeyField(
+        column_name="qr_id",
+        field="id",
+        model=QRCode,
+        null=True,
+        on_update="CASCADE",
+        unique=True,
+        constraints=[SQL("UNSIGNED")],
+    )
+    size = ForeignKeyField(
+        column_name="size_id",
+        field="id",
+        model=Size,
+        null=True,
+        on_update="CASCADE",
+        constraints=[SQL("UNSIGNED")],
+    )
 
     class Meta:
         table_name = "stock"
