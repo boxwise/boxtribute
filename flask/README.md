@@ -80,6 +80,11 @@ Most of our developers use [MySQL workbench](https://dev.mysql.com/doc/workbench
 
 The development database is called `dropapp_dev` and the password is `dropapp_root`.
 
+#### ORM
+
+From the Python side of the application we use an Object Relational Mapper (ORM) to interact with the database. An ORM provides a convenient abstraction interface since it leverages Python's language features and is more secure compared to using raw SQL queries.
+It was [decided](../docs/adr/Python-ORM.md) to settle with [peewee](https://docs.peewee-orm.com/en/latest/index.html) as ORM solution. It builds on models (see `flask/boxwise_flask/models/` as abstraction of the MySQL database tables.
+
 ### Debugging
 
 By default the flask app runs in `development` mode in the Docker container which means that hot-reloading and debugging is enabled.
