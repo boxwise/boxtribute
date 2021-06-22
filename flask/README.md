@@ -80,6 +80,11 @@ Most of our developers use [MySQL workbench](https://dev.mysql.com/doc/workbench
 
 The development database is called `dropapp_dev` and the password is `dropapp_root`.
 
+#### ORM
+
+From the Python side of the application we use an Object Relational Mapper (ORM) to interact with the database. An ORM provides a convenient abstraction interface since it leverages Python's language features and is more secure compared to using raw SQL queries.
+It was [decided](../docs/adr/Python-ORM.md) to settle with [peewee](https://docs.peewee-orm.com/en/latest/index.html) as ORM solution. It builds on models (see `flask/boxwise_flask/models/` as abstraction of the MySQL database tables.
+
 ### Debugging
 
 By default the flask app runs in `development` mode in the Docker container which means that hot-reloading and debugging is enabled.
@@ -200,4 +205,17 @@ A sample query you can try if it works is:
 
 ## Authentication and Authorization
 
-## Database Migrations
+## Database Schema Migrations
+
+Occasionally it might be required to update the database schema. To this end we use the [peewee-moves](https://github.com/timster/peewee-moves) tool.
+`peewee-moves` runs migrations defined in Python scripts, and stores a migration history in the database. Migration management is performed by the `flask db` command. In the development environment you can
+1. run `docker-compose up` to start all services
+1. run `docker-compose exec flask sh` to open a shell in the `flask` container. Run `flask db --help` from there
+1. You can create an empty migration script via `flask db revision <migration-name>`. The file name receives an auto-incremented index. The creation date-time is stored in the top script docstring.
+1. Implement `upgrade()` and `downgrade()` functions in the script for defining the rollforward/rollback behavior.
+1. Apply all pending migrations by `flask db upgrade`, and rollback the latest migration by `flask db downgrade`.
+1. Query the current migration status of the database via `flask db status`.
+
+Migration scripts must be stored in `flask/boxwise_flask/migrations`, and are put under version-control.
+
+For an example migration, see `docs/peewee-moves/`.
