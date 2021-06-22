@@ -1,5 +1,6 @@
 import os
 
+import pytest
 from boxwise_flask.app import create_app
 from boxwise_flask.db import db
 
@@ -14,6 +15,7 @@ def test_private_endpoint(client):
     )
 
 
+@pytest.mark.skipif("CIRCLECI" not in os.environ, reason="only functional in CircleCI")
 def test_backend_connection():
     """Verify that database connection is established and operational.
 
@@ -24,8 +26,7 @@ def test_backend_connection():
     app.testing = True
 
     # cf. main.py but inserting values from docker-compose.yml
-    host = os.getenv("MYSQL_HOST", "127.0.0.1")
-    app.config["DATABASE"] = f"mysql://root:dropapp_root@{host}:3306/dropapp_dev"
+    app.config["DATABASE"] = "mysql://root:dropapp_root@127.0.0.1:3306/dropapp_dev"
 
     db.init_app(app)
 
