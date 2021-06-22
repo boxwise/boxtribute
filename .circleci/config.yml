@@ -126,6 +126,12 @@ jobs:
       #       - env
       # run linting checks
       # run tests https://circleci.com/docs/2.0/collect-test-data/#pytest
+      - run:
+          name: Run pytest for unit tests
+          command: |
+            source env/bin/activate
+            mkdir test-results
+            pytest --cov-report xml:test-results/coverage.xml --cov=. -k 'not test_backend_connection' test
       # https://circleci.com/docs/2.0/postgres-config/#example-mysql-project
       - run:
       # Our primary container isn't MYSQL so run a sleep command until it's ready.
@@ -144,11 +150,10 @@ jobs:
             sudo apt-get install default-mysql-client
             mysql -h 127.0.0.1 -u root -pdropapp_root dropapp_dev < init.sql
       - run:
-          name: Run pytest
+          name: Run pytest for integration tests
           command: |
             source env/bin/activate
-            mkdir test-results
-            pytest --cov-report xml:test-results/coverage.xml --cov=. -k test_backend_connection test
+            pytest --cov-report xml:test-results/coverage.xml --cov-append --cov=. -k test_backend_connection test
       - store_test_results:
           path: test-results
       - store_artifacts:
