@@ -8,16 +8,16 @@ function BoxInfo(props) {
 
   const [getBoxQuery] = useLazyQuery(BOX_BY_QR, {
     onCompleted: (data) => {
-      var newBox = data.box;
+      var box = data.box;
       setBox({
-        box_id: newBox.box_id,
-        product_id: newBox.product_id,
-        size_id: newBox.size_id,
-        items: newBox.items,
-        location_id: newBox.location_id,
-        comments: newBox.comments,
-        qr_id: newBox.qr_id,
-        box_state_id: newBox.box_state_id,
+        box_id: box.box_id,
+        product_id: box.product_id,
+        size_id: box.size_id,
+        items: box.items,
+        location_id: box.location_id,
+        comments: box.comments,
+        qr_id: box.qr_id,
+        box_state_id: box.box_state_id,
       });
     },
     onError: (err) => {},
@@ -37,7 +37,8 @@ function BoxInfo(props) {
       <div>
         <h2>Box Found!</h2>
         <p>Box ID: {box.box_id}</p>
-        <p>Items: {box.items}</p>
+        <p># of Items: {box.items}</p>
+        <p>Product Type: {box}</p>
         <p>Product ID: {box.product_id}</p>
         <p>Location ID: {box.location_id}</p>
       </div>

@@ -35,6 +35,12 @@ type_defs = gql(
         created: Datetime
         created_by: String
         box_state_id: Int
+        product: Product
+    }
+
+    type Product {
+        id: Int!
+        name: String!
     }
 
     input CreateBoxInput {

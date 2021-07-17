@@ -15,6 +15,7 @@ from boxwise_flask.models.base import Base
 from boxwise_flask.models.box import Box
 from boxwise_flask.models.qr_code import QRCode
 from boxwise_flask.models.user import User, get_user_from_email_with_base_ids
+from boxwise_flask.models.product import Product
 
 query = ObjectType("Query")
 mutation = MutationType()
@@ -86,6 +87,11 @@ def resolve_qr_box_exists(_, info, qr_code):
     except Box.DoesNotExist:
         return False
     return True
+
+
+@query.field("product")
+def resolve_product(_, info, product_id):
+    return Product.get_product(product_id)
 
 
 @query.field("box")
