@@ -3,7 +3,7 @@ import { useLazyQuery, useMutation } from "@apollo/client";
 import { useForm } from "react-hook-form";
 import { useLocation, Link } from "react-router-dom";
 import { NewBoxType, LocationState, Product } from "../../utils/Types";
-import { CREATE_BOX, PRODUCTS } from "../../utils/queries";
+import { CREATE_BOX, PRODUCTS, SIZES_FOR_PRODUCT } from "../../utils/queries";
 import { emptyBox } from "../../utils/emptyBox";
 import { useCallback, useEffect, useState } from "react";
 
@@ -17,16 +17,25 @@ export default function CreateBox() {
   );
 
   const [products, setProducts] = useState<Product[]>();
+  const [sizes, setSizes] = useState<string[]>();
 
   const [selectedProductId, setSelectedProductId] = useState<number>();
 
   const [getProductsQuery] = useLazyQuery(PRODUCTS, {
     onCompleted: (data) => {
-      console.log(data);
-      debugger;
       setProducts(data.products);
     },
     onError: (err) => {},
+  });
+
+  const [getSizesQuery] = useLazyQuery(SIZES_FOR_PRODUCT, {
+    onCompleted: (data) => {
+      console.log(data);
+      setSizes(data.product.sizes);
+    },
+    onError: (err) => {
+      console.log(err);
+    },
   });
 
   useEffect(() => {
@@ -36,18 +45,22 @@ export default function CreateBox() {
   const changeProduct = useCallback(
     (product) => {
       const newSelectedProductId = product.target.value;
-      setSelectedProductId(newSelectedProductId);
+      setSelectedProductId(parseInt(newSelectedProductId));
     },
     [setSelectedProductId],
   );
 
   useEffect(() => {
-    alert(selectedProductId);
+    console.log(selectedProductId);
+    getSizesQuery({
+      variables: { productId: selectedProductId },
+    });
   }, [selectedProductId]);
 
-  const location: LocationState = useLocation();
-  const qrUrl: string = location?.state?.qr;
-  const qrBarcode = qrUrl.split("barcode=")[1];
+  // const location: LocationState = useLocation();
+  // const qrUrl: string = location?.state?.qr;
+  // const qrBarcode = qrUrl.split("barcode=")[1];
+  const qrBarcode = "149ff66629377f6404b5c8d32936855";
 
   const [newBox, setNewBox] = React.useState<NewBoxType>(emptyBox);
 
@@ -56,6 +69,7 @@ export default function CreateBox() {
     const { productId, items, locationId, comments, sizeId } = formFields;
 
     try {
+      console.log(formFields);
       const { data: mutationData } = await createBoxMutation({
         variables: {
           productId: Number(productId), // dropdown??
@@ -66,7 +80,6 @@ export default function CreateBox() {
           qrBarcode,
         },
       });
-
       setNewBox(mutationData.createBox);
     } catch (e) {
       // TODO error handling
@@ -101,26 +114,34 @@ export default function CreateBox() {
               />
             </label>
 
-            <label className="p-2" htmlFor="productId">
-              productId*
-              <input
-                defaultValue={2}
-                className="border rounded"
-                ref={register({ required: true, maxLength: 20 })}
-                type="number"
-                name="productId"
-              />
+            <br />
+
+            <label className="p-2" htmlFor="comments">
+              Product*
+              <select onChange={changeProduct} name="productId" ref={register()}>
+                {products?.map((product) => (
+                  <option key={product.id} value={product.id}>
+                    {product.name}
+                  </option>
+                ))}
+              </select>
             </label>
-            <label className="p-2" htmlFor="items">
-              items*
-              <input
-                defaultValue={2}
-                className="border rounded"
-                ref={register({ required: true, maxLength: 20 })}
-                type="number"
-                name="items"
-              />
+
+            <br />
+
+            <label className="p-2" htmlFor="comments">
+              Size*
+              <select>
+                {sizes?.map((size, i) => (
+                  <option key={i} value={size}>
+                    {size}
+                  </option>
+                ))}
+              </select>
             </label>
+
+            <br />
+
             <label className="p-2" htmlFor="sizeId">
               sizeId*
               <input
@@ -131,6 +152,22 @@ export default function CreateBox() {
                 name="sizeId"
               />
             </label>
+
+            <br />
+
+            <label className="p-2" htmlFor="items">
+              # of items*
+              <input
+                defaultValue={2}
+                className="border rounded"
+                ref={register({ required: true, maxLength: 20 })}
+                type="number"
+                name="items"
+              />
+            </label>
+
+            <br />
+
             <label className="p-2" htmlFor="comments">
               comments*
               <input
@@ -141,15 +178,10 @@ export default function CreateBox() {
                 name="comments"
               />
             </label>
-            <label className="p-2" htmlFor="comments">
-              Product*
-              <select onChange={changeProduct}>
-                {products?.map((product) => (
-                  <option value={product.id}>{product.name}</option>
-                ))}
-              </select>
-            </label>
+
+            <br />
           </form>
+
           <button
             type="submit"
             className="border bg-blue-400 rounded w-64"

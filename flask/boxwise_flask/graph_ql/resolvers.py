@@ -13,11 +13,16 @@ from boxwise_flask.graph_ql.query_defs import query_defs
 from boxwise_flask.graph_ql.type_defs import type_defs
 from boxwise_flask.models.base import Base
 from boxwise_flask.models.box import Box
+from boxwise_flask.models.size import Size
 from boxwise_flask.models.qr_code import QRCode
 from boxwise_flask.models.user import User, get_user_from_email_with_base_ids
 from boxwise_flask.models.product import Product
 
+import logging
+
+
 query = ObjectType("Query")
+product = ObjectType("Product")
 mutation = MutationType()
 
 datetime_scalar = ScalarType("Datetime")
@@ -102,6 +107,7 @@ def resolve_box(_, info, qr_code):
 
 @query.field("products")
 def resolve_products(_, info):
+    logging.warning('hitting products resolver!')
     return Product.get_all()
 
 
@@ -111,8 +117,22 @@ def create_box(_, info, box_creation_input):
     return response
 
 
+@product.field("sizes")
+def resolve_sizes(product_id, info_):
+    # logging.warning('hitting sizes resolver!')
+    # logging.warning(product_id)
+    logging.warning(info_)
+    product = Product.get_product(product_id)
+    # product.size_range.seq
+    sizes = Size.select(Size.label).where(
+        Size.seq == product.size_range.seq
+        )
+    return map(lambda size: size.label, sizes)
+    # return product_id
+
+
 schema = make_executable_schema(
     gql(type_defs + query_defs + mutation_defs),
-    [query, mutation],
+    [query, product, mutation],
     snake_case_fallback_resolvers,
 )

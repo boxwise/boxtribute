@@ -99,3 +99,11 @@ export const PRODUCTS = gql`
     }
   }
 `;
+
+export const SIZES_FOR_PRODUCT = gql`
+  query SizesForProduct($productId: Int!) {
+    product(product_id: $productId) {
+      sizes
+    }
+  }
+`;

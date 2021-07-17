@@ -3,6 +3,7 @@ from boxwise_flask.models.base import Base
 from boxwise_flask.models.product_category import ProductCategory
 from boxwise_flask.models.product_gender import ProductGender
 from boxwise_flask.models.size_range import SizeRange
+from boxwise_flask.models.size import Size
 from boxwise_flask.models.user import User
 from peewee import SQL, CharField, DateTimeField, ForeignKeyField, IntegerField
 
@@ -66,8 +67,14 @@ class Product(db.Model):
     value = IntegerField(constraints=[SQL("DEFAULT 0")])
     price = value
 
+    # sizes = size_range
+
     class Meta:
         table_name = "products"
+
+    # def sizes(__self__):
+    #     return 3
+    #     # Size.select.where(Size.seq == __self__.size_range.seq)
 
     @staticmethod
     def get_product(product_id):
