@@ -90,3 +90,12 @@ export const BOX_BY_QR = gql`
     }
   }
 `;
+
+export const PRODUCTS = gql`
+  query Products {
+    products {
+      id
+      name
+    }
+  }
+`;

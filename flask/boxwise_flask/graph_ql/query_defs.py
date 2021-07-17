@@ -14,6 +14,7 @@ query_defs = gql(
         qrExists(qr_code: String): Boolean
         qrBoxExists(qr_code: String): Boolean
         product(product_id: Int): Product
+        products: [Product]
     }
     """
 )

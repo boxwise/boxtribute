@@ -41,6 +41,12 @@ type_defs = gql(
     type Product {
         id: Int!
         name: String!
+        sizes: [String!]!
+        price: Float
+        createdBy: String!
+        createdOn: Datetime!
+        lastModifiedBy: String!
+        lastModifiedOn: Datetime!
     }
 
     input CreateBoxInput {

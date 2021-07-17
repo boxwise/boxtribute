@@ -100,6 +100,11 @@ def resolve_box(_, info, qr_code):
     return Box.get_box_from_qr(qr_id)
 
 
+@query.field("products")
+def resolve_products(_, info):
+    return Product.get_all()
+
+
 @mutation.field("createBox")
 def create_box(_, info, box_creation_input):
     response = Box.create_box(box_creation_input)

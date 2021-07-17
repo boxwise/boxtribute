@@ -28,3 +28,8 @@ export interface OrganisationBaseRouteParams {
   orgId: string;
   baseId: string;
 }
+
+export interface Product {
+  id: number;
+  name: string;
+}

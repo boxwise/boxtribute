@@ -64,6 +64,7 @@ class Product(db.Model):
         column_name="stockincontainer", constraints=[SQL("DEFAULT 0")]
     )
     value = IntegerField(constraints=[SQL("DEFAULT 0")])
+    price = value
 
     class Meta:
         table_name = "products"
@@ -72,3 +73,6 @@ class Product(db.Model):
     def get_product(product_id):
         return Product.get(Product.id == product_id)
 
+    @staticmethod
+    def get_all():
+        return Product.select()

@@ -1,10 +1,11 @@
 import * as React from "react";
-import { useMutation } from "@apollo/client";
+import { useLazyQuery, useMutation } from "@apollo/client";
 import { useForm } from "react-hook-form";
 import { useLocation, Link } from "react-router-dom";
-import { NewBoxType, LocationState } from "../../utils/Types";
-import { CREATE_BOX } from "../../utils/queries";
+import { NewBoxType, LocationState, Product } from "../../utils/Types";
+import { CREATE_BOX, PRODUCTS } from "../../utils/queries";
 import { emptyBox } from "../../utils/emptyBox";
+import { useEffect, useState } from "react";
 
 export default function CreateBox() {
   // NOTE: getting the user will likely eventually have to be done in a more global-place,
@@ -14,6 +15,21 @@ export default function CreateBox() {
   const [createBoxMutation, { loading: mutationLoading, error: mutationError }] = useMutation(
     CREATE_BOX,
   );
+
+  const [products, setProducts] = useState<Product[]>();
+
+  const [getProductsQuery] = useLazyQuery(PRODUCTS, {
+    onCompleted: (data) => {
+      console.log(data);
+      debugger;
+      setProducts(data.products);
+    },
+    onError: (err) => {},
+  });
+
+  useEffect(() => {
+    getProductsQuery();
+  }, []);
 
   const location: LocationState = useLocation();
   const qrUrl: string = location?.state?.qr;
@@ -110,6 +126,14 @@ export default function CreateBox() {
                 type="text"
                 name="comments"
               />
+            </label>
+            <label className="p-2" htmlFor="comments">
+              Product*
+              <select>
+                {products?.map((product) => (
+                  <option value={product.id}>{product.name}</option>
+                ))}
+              </select>
             </label>
           </form>
           <button
