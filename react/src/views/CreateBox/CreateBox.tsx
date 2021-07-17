@@ -5,7 +5,7 @@ import { useLocation, Link } from "react-router-dom";
 import { NewBoxType, LocationState, Product } from "../../utils/Types";
 import { CREATE_BOX, PRODUCTS } from "../../utils/queries";
 import { emptyBox } from "../../utils/emptyBox";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 
 export default function CreateBox() {
   // NOTE: getting the user will likely eventually have to be done in a more global-place,
@@ -17,6 +17,8 @@ export default function CreateBox() {
   );
 
   const [products, setProducts] = useState<Product[]>();
+
+  const [selectedProductId, setSelectedProductId] = useState<number>();
 
   const [getProductsQuery] = useLazyQuery(PRODUCTS, {
     onCompleted: (data) => {
@@ -30,6 +32,18 @@ export default function CreateBox() {
   useEffect(() => {
     getProductsQuery();
   }, []);
+
+  const changeProduct = useCallback(
+    (product) => {
+      const newSelectedProductId = product.target.value;
+      setSelectedProductId(newSelectedProductId);
+    },
+    [setSelectedProductId],
+  );
+
+  useEffect(() => {
+    alert(selectedProductId);
+  }, [selectedProductId]);
 
   const location: LocationState = useLocation();
   const qrUrl: string = location?.state?.qr;
@@ -129,7 +143,7 @@ export default function CreateBox() {
             </label>
             <label className="p-2" htmlFor="comments">
               Product*
-              <select>
+              <select onChange={changeProduct}>
                 {products?.map((product) => (
                   <option value={product.id}>{product.name}</option>
                 ))}
