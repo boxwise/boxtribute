@@ -63,7 +63,7 @@ function ScanBox() {
       }, 
     ];
     const clickTestQRCode = (testQRCode) => {
-      debugger; 
+      // debugger; 
       retrieveBox(testQRCode);
     };
     return <div>

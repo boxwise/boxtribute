@@ -4,7 +4,7 @@ import { emptyBox } from "../utils/emptyBox";
 import { BOX_BY_QR } from "../utils/queries";
 
 function BoxInfo(props) {
-  const [box, setBox] = useState(emptyBox);
+  const [boxData, setBox] = useState(emptyBox);
 
   const [getBoxQuery] = useLazyQuery(BOX_BY_QR, {
     onCompleted: (data) => {
@@ -30,20 +30,25 @@ function BoxInfo(props) {
   }, [getBoxQuery, props.location.state.qr]);
 
   //TODO: replace first option with a load spinner
-  const boxData =
-    box.box_id === null ? (
+  const boxDataMarkup =
+    boxData.box_id === null ? (
       <p>Fetching box now...</p>
     ) : (
       <div>
         <h2>Box Found!</h2>
-        <p>Box ID: {box.box_id}</p>
-        <p># of Items: {box.items}</p>
-        <p>Product Type: {box}</p>
-        <p>Product ID: {box.product_id}</p>
-        <p>Location ID: {box.location_id}</p>
+          <p>Box ID: {boxData.box_id}</p>
+          <p># of Items: {boxData.items}</p>
+          <p>Product Type: XXXXX-WIP-XXXXX</p>
+          <p>Product ID: {boxData.product_id}</p>
+          <p>Location ID: {boxData.location_id}</p>
       </div>
     );
-  return <>{boxData}</>;
+
+  // console.log("boxData");
+  // console.log(boxData);
+  // console.log("boxDataMarkup");
+  // console.log(boxDataMarkup);
+  return <>TEST{boxDataMarkup}</>;
 }
 
 export default BoxInfo;
