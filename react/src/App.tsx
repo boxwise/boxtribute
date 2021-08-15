@@ -41,7 +41,7 @@ export default function App() {
       <Switch>
         <PrivateRoute path="/org" component={OrgTopLevel} />
         <PrivateRoute path="/create-box" component={CreateBox} />
-        <PrivateRoute path="/box-info" component={BoxInfo} />
+        <PrivateRoute path="/box-info/:id" component={BoxInfo} />
         <PrivateRoute path="/edit-box" component={Placeholder} />
         <PrivateRoute path="/generateLabel/:num" component={PdfGenerator} />
         <PrivateRoute path="/pdf" component={Labels} />

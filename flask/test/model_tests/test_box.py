@@ -8,7 +8,7 @@ from playhouse.shortcuts import model_to_dict
 @pytest.mark.usefixtures("default_product_gender")
 @pytest.mark.usefixtures("default_product_category")
 def test_box_model(
-    default_box, default_product, default_product_gender, default_product_category
+    efaultx, default_product, default_product_gender, default_product_category
 ):
 
     queried_box = Box.get_box(default_box["box_id"])

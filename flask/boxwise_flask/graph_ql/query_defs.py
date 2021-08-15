@@ -10,9 +10,9 @@ query_defs = gql(
         base(id: Int!): Base
         allUsers: [User]
         user(email: String): User
-        box(qr_code: String): Box
+        box(id: String): Box
         qrExists(qr_code: String): Boolean
-        qrBoxExists(qr_code: String): Boolean
+        boxIdByQrCode(qr_code: String): Int
         product(product_id: Int): Product
         products: [Product]
     }

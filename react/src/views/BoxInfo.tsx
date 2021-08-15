@@ -1,10 +1,16 @@
 import { useLazyQuery } from "@apollo/client";
 import React, { useEffect, useState } from "react";
+import { useParams } from "react-router-dom";
 import { emptyBox } from "../utils/emptyBox";
 import { BOX_BY_QR } from "../utils/queries";
 
+type BoxInfoParams = {
+  id: string;
+};
+
 function BoxInfo(props) {
   const [boxData, setBox] = useState(emptyBox);
+  let { id } = useParams<BoxInfoParams>();
 
   const [getBoxQuery] = useLazyQuery(BOX_BY_QR, {
     onCompleted: (data) => {
@@ -24,10 +30,13 @@ function BoxInfo(props) {
   });
 
   useEffect(() => {
+    console.log("box id")
+    console.log(id)
     getBoxQuery({
-      variables: { qrCode: props.location.state.qr },
+      // variables: { qrCode: props.location.state.qr },
+      variables: { id },
     });
-  }, [getBoxQuery, props.location.state.qr]);
+  }, [id, getBoxQuery]);
 
   //TODO: replace first option with a load spinner
   const boxDataMarkup =

@@ -84,14 +84,15 @@ def resolve_qr_exists(_, info, qr_code):
     return True
 
 
-@query.field("qrBoxExists")
-def resolve_qr_box_exists(_, info, qr_code):
+@query.field("boxIdByQrCode")
+def resolve_box_id_by_qr_code(_, info, qr_code):
     try:
         qr_id = QRCode.get_id_from_code(qr_code)
-        Box.get_box_from_qr(qr_id)
+        box = Box.get_box_from_qr(qr_id)
+        return box.box_id
     except Box.DoesNotExist:
-        return False
-    return True
+        return None
+    return None
 
 
 @query.field("product")
@@ -100,9 +101,9 @@ def resolve_product(_, info, product_id):
 
 
 @query.field("box")
-def resolve_box(_, info, qr_code):
-    qr_id = QRCode.get_id_from_code(qr_code)
-    return Box.get_box_from_qr(qr_id)
+def resolve_box(_, info, id):
+    # qr_id = QRCode.get_id_from_code(id)
+    return Box.get_box(id)
 
 
 @query.field("products")

@@ -8,7 +8,7 @@ import { Redirect } from "react-router";
 
 function ScanBox() {
   const [qr, setQR] = useState("");
-  const [qrInfo, setQrInfo] = useState({ qrExists: null, qrBoxExists: null });
+  const [qrInfo, setQrInfo] = useState({ qrExists: null, boxIdByQrCode: null });
   const [qrError, setQrError] = useState("");
 
   const [getQrExistsQuery] = useLazyQuery(QR_EXISTS, {
@@ -123,12 +123,13 @@ function ScanBox() {
         </div>
       );
     } else {
-      if (qrInfo.qrBoxExists)
+      if (qrInfo.boxIdByQrCode)
         return (
           <Redirect
             to={{
-              pathname: "/box-info",
-              state: { qr: qr },
+              pathname: `/box-info/${qrInfo.boxIdByQrCode}`,
+              // search: qr
+              // state: { qr: qr },
             }}
           />
         );
