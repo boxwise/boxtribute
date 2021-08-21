@@ -24,6 +24,7 @@ from boxwise_flask.models.product_gender import ProductGender
 from boxwise_flask.models.qr_code import QRCode
 from boxwise_flask.models.size import Size
 from boxwise_flask.models.size_range import SizeRange
+from boxwise_flask.models.transaction import Transaction
 from boxwise_flask.models.user import User
 from boxwise_flask.models.usergroup import Usergroup
 from boxwise_flask.models.usergroup_access_level import UsergroupAccessLevel
@@ -64,6 +65,7 @@ MODELS = (
     ProductGender,
     Size,
     SizeRange,
+    Transaction,
     User,
     Usergroup,
     UsergroupAccessLevel,
