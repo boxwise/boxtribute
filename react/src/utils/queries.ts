@@ -80,10 +80,14 @@ export const BOX_BY_QR = gql`
   query Box($id: String!) {
     box(id: $id) {
       box_id
-      product_id
+      product {
+        name
+      }
       size_id
       items
-      location_id
+      location {
+        name
+      }
       comments
       qr_id
       box_state_id
