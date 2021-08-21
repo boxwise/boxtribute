@@ -18,6 +18,7 @@ from boxwise_flask.models.size import Size
 from boxwise_flask.models.qr_code import QRCode
 from boxwise_flask.models.user import User, get_user_from_email_with_base_ids
 from boxwise_flask.models.product import Product
+from boxwise_flask.models.gender import Gender
 
 import logging
 
@@ -122,6 +123,21 @@ def resolve_products(_, info):
 def create_box(_, info, box_creation_input):
     response = Box.create_box(box_creation_input)
     return response
+
+class ProductGender: 
+    def __init__(self, id, label): 
+        self.id = id
+        self.label = label
+
+
+@product.field("gender")
+def resolve_product_gender(product_id, info_): 
+    # return ProductGender(1, "SOME GENDER")
+    product = Product.get_product(product_id)
+    genders = Gender.select(Gender.id, Gender.label).where(
+        Gender.id == product.gender_id
+    ).first()
+    return genders
 
 
 @product.field("sizes")
