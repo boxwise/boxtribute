@@ -9,6 +9,7 @@ from data.product import create_default_product
 from data.product_category import create_default_product_category
 from data.product_gender import create_default_product_gender
 from data.qr_code import create_default_qr_code, create_qr_code_without_box
+from data.settings import create_default_settings
 from data.size_range import create_default_size_range
 from data.transaction import create_default_transaction
 from data.user import create_default_users
@@ -27,6 +28,7 @@ def setup_tables():
     create_default_organisation()
     create_default_qr_code()
     create_qr_code_without_box()
+    create_default_settings()
     create_default_users()
     create_default_usergroup()
     create_default_usergroup_access_level()

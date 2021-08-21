@@ -11,6 +11,7 @@ from .product import Product
 from .product_category import ProductCategory
 from .product_gender import ProductGender
 from .qr_code import QRCode
+from .settings import Settings
 from .size import Size
 from .size_range import SizeRange
 from .transaction import Transaction
@@ -33,6 +34,7 @@ MODELS = (
     ProductCategory,
     ProductGender,
     QRCode,
+    Settings,
     Size,
     SizeRange,
     Transaction,
