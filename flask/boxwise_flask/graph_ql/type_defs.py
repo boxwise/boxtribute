@@ -3,21 +3,16 @@ from ariadne import gql
 
 type_defs = gql(
     """
-    # enum ProductGender{
-    #     Men
-    #     Women
-    #     UnisexAdult
-    #     UnisexChild
-    #     UnisexBaby
-    #     TeenGirl
-    #     TeenBoy
-    #     Girl
-    #     Boy
-    # }
-
-    type ProductGender {
-        id: Int
-        label: String
+    enum ProductGender{
+        Men
+        Women
+        UnisexAdult
+        UnisexChild
+        UnisexBaby
+        TeenGirl
+        TeenBoy
+        Girl
+        Boy
     }
 
     type Base {

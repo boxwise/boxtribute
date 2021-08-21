@@ -132,12 +132,33 @@ class ProductGender:
 
 @product.field("gender")
 def resolve_product_gender(product_id, info_): 
-    # return ProductGender(1, "SOME GENDER")
     product = Product.get_product(product_id)
-    genders = Gender.select(Gender.id, Gender.label).where(
-        Gender.id == product.gender_id
-    ).first()
-    return genders
+    gender_id = product.gender_id
+
+    if gender_id == 1:
+        return 'Women'
+    elif gender_id == 2: 
+        return 'Men'
+    elif gender_id == 3: 
+        return 'UnisexAdult'
+    elif gender_id == 4: 
+        return 'Girl'
+    elif gender_id == 5: 
+        return 'Boy'
+    elif gender_id == 6: 
+        return 'UnisexChild'
+    elif gender_id == 9: 
+        return 'UnisexBaby'
+    elif gender_id == 12: 
+        return 'TeenGirl'
+    elif gender_id == 13: 
+        return 'TeenBoy'
+
+    # (4,'Girl','Girl',4,NULL,NULL,NULL,NULL,0,1,0,1,0,'0'),(5,'Boy','Boy',5,NULL,NULL,NULL,NULL,1,0,0,1,0,'0'),
+    # (6,'Unisex Child','Child',7,NULL,NULL,NULL,NULL,1,1,0,1,0,'0'),(9,'Unisex Baby','Baby',8,NULL,NULL,NULL,NULL,1,1,0,0,0,'1'),(10,'-',NULL,0,NULL,NULL,NULL,NULL,1,1,1,1,1,'1'),(11,'Unisex Kid','Kid',9,NULL,NULL,NULL,NULL,1,1,0,0,1,'0'),(12,'Teen Girl','Girl',4,NULL,NULL,NULL,NULL,0,1,1,0,0,'0'),(13,'Teen Boy','Boy',5,NULL,NULL,NULL,NULL,1,0,1,0,0,'0')
+
+
+    # return gender
 
 
 @product.field("sizes")
