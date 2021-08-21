@@ -13,6 +13,7 @@ from boxwise_flask.graph_ql.query_defs import query_defs
 from boxwise_flask.graph_ql.type_defs import type_defs
 from boxwise_flask.models.base import Base
 from boxwise_flask.models.box import Box
+from boxwise_flask.models.location import Location
 from boxwise_flask.models.size import Size
 from boxwise_flask.models.qr_code import QRCode
 from boxwise_flask.models.user import User, get_user_from_email_with_base_ids
@@ -104,6 +105,11 @@ def resolve_product(_, info, product_id):
 def resolve_box(_, info, id):
     # qr_id = QRCode.get_id_from_code(id)
     return Box.get_box(id)
+
+
+@query.field("location")
+def resolve_location(_, info, id):
+    return Location.get_location(id)
 
 
 @query.field("products")

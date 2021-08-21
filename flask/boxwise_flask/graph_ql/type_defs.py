@@ -36,6 +36,7 @@ type_defs = gql(
         created_by: String
         box_state_id: Int
         product: Product
+        location: Location
     }
 
     type Product {
@@ -47,6 +48,11 @@ type_defs = gql(
         createdOn: Datetime!
         lastModifiedBy: String!
         lastModifiedOn: Datetime!
+    }
+
+    type Location {
+        id: Int!
+        name: String!
     }
 
     input CreateBoxInput {
