@@ -5,6 +5,7 @@ from .box import Box
 from .box_state import BoxState
 from .language import Language
 from .location import Location
+from .log import Log
 from .organisation import Organisation
 from .product import Product
 from .product_category import ProductCategory
@@ -26,6 +27,7 @@ MODELS = (
     BoxState,
     Language,
     Location,
+    Log,
     Organisation,
     Product,
     ProductCategory,

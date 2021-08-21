@@ -3,6 +3,7 @@ from data.beneficiary import create_default_beneficiary
 from data.box import create_default_box
 from data.box_state import create_default_box_state
 from data.location import create_default_location
+from data.log import create_default_log
 from data.organisation import create_default_organisation
 from data.product import create_default_product
 from data.product_category import create_default_product_category
@@ -22,6 +23,7 @@ def setup_tables():
     create_default_box()
     create_default_box_state()
     create_default_location()
+    create_default_log()
     create_default_organisation()
     create_default_qr_code()
     create_qr_code_without_box()

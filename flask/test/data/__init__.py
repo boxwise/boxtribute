@@ -3,6 +3,7 @@ from .beneficiary import default_beneficiary
 from .box import default_box
 from .box_state import default_box_state
 from .location import default_location
+from .log import default_log
 from .organisation import default_organisation
 from .product import default_product
 from .product_category import default_product_category
@@ -22,6 +23,7 @@ __all__ = [
     "default_box",
     "default_box_state",
     "default_location",
+    "default_log",
     "default_organisation",
     "default_product",
     "default_product_category",
