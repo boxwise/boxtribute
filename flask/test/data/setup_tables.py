@@ -1,4 +1,5 @@
 from data.base import create_default_bases
+from data.beneficiary import create_default_beneficiary
 from data.box import create_default_box
 from data.box_state import create_default_box_state
 from data.location import create_default_location
@@ -16,6 +17,7 @@ from data.usergroup_base_access import create_default_usergroup_base_access_list
 
 def setup_tables():
     create_default_bases()
+    create_default_beneficiary()
     create_default_box()
     create_default_box_state()
     create_default_location()

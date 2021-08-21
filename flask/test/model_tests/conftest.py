@@ -12,6 +12,7 @@ https://docs.pytest.org/en/stable/fixture.html#pytest-fixtures-explicit-modular-
 import pytest
 from boxwise_flask.models.base import Base
 from boxwise_flask.models.base_module import BaseModule
+from boxwise_flask.models.beneficiary import Beneficiary
 from boxwise_flask.models.box import Box
 from boxwise_flask.models.box_state import BoxState
 from boxwise_flask.models.language import Language
@@ -31,6 +32,7 @@ from boxwise_flask.models.usergroup_base_access import UsergroupBaseAccess
 # Imports fixtures into tests
 from data.base import default_base  # noqa: F401
 from data.base import default_bases  # noqa: F401
+from data.beneficiary import default_beneficiary  # noqa: F401
 from data.box import default_box  # noqa: F401
 from data.box_state import default_box_state  # noqa: F401
 from data.location import default_location  # noqa: F401
@@ -52,6 +54,7 @@ MODELS = (
     QRCode,
     Base,
     BaseModule,
+    Beneficiary,
     Box,
     BoxState,
     Language,
