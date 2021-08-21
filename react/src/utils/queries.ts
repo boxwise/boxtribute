@@ -82,6 +82,7 @@ export const BOX_BY_QR = gql`
       box_id
       product {
         name
+        gender
       }
       size_id
       items

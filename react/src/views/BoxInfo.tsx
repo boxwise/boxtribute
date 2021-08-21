@@ -10,6 +10,7 @@ type BoxInfoParams = {
 interface BoxDetails {
   box_id: string
   product_name: string,
+  product_gender: string,
   no_of_items: number,
   location_label: string,
 }
@@ -20,10 +21,11 @@ function BoxInfo(props) {
 
   const [getBoxQuery] = useLazyQuery(BOX_BY_QR, {
     onCompleted: (data) => {
-      var box = data.box;
+      const box = data.box;
       setBox({
         box_id: box.box_id,
-        product_name: box.product_id,
+        product_name: box.product.name,
+        product_gender: box.product.gender,
         no_of_items: box.items,
         location_label: box.location.name,
         // comments: box.comments,
@@ -51,10 +53,12 @@ function BoxInfo(props) {
       <div>
         <h2>Box Found!</h2>
           <p>Box ID: {boxData.box_id}</p>
+          <p>Product Name: {boxData.product_name}</p>
+          <p>Product Size: XXXXXX</p>
           <p># of Items: {boxData.no_of_items}</p>
-          <p>Product Type: XXXXX-WIP-XXXXX</p>
-          <p>Product ID: {boxData.product_name}</p>
-          <p>Location ID: {boxData.location_label}</p>
+          <p>Product Gender: {boxData.product_gender} </p>
+          <p>Location Name: {boxData.location_label}</p>
+          <p>Box Status: XXXXXX </p>
       </div>
     );
 
