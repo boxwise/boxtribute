@@ -31,10 +31,7 @@ function BoxInfo(props) {
   });
 
   useEffect(() => {
-    console.log("box id")
-    console.log(id)
     getBoxQuery({
-      // variables: { qrCode: props.location.state.qr },
       variables: { id },
     });
   }, [id, getBoxQuery]);

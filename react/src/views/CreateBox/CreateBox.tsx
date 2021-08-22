@@ -6,7 +6,7 @@ import { BoxLocation, NewBoxType, Product } from "../../utils/Types";
 import { CREATE_BOX, LOCATIONS, PRODUCTS, SIZES_FOR_PRODUCT } from "../../utils/queries";
 import { emptyBox } from "../../utils/emptyBox";
 import { useCallback, useEffect, useState } from "react";
-
+import { PrimaryButton } from "boxwise-components"
 
 function useQuery() {
   return new URLSearchParams(useLocation().search);
@@ -203,13 +203,13 @@ export default function CreateBox() {
             {qr && <>QR code: {qr}</>}
           </form>
 
-          <button
+          <PrimaryButton
             type="submit"
             className="border bg-blue-400 rounded w-64"
             onClick={handleSubmit((formFields) => onSubmit(formFields))}
           >
-            do the mutation
-          </button>
+            Save
+          </PrimaryButton>
         </div>
       )}
       {mutationLoading && <p data-testid="loadingState">Loading...</p>}
