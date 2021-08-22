@@ -113,9 +113,12 @@ def resolve_location(_, info, id):
     return Location.get_location(id)
 
 
+@query.field("locations")
+def resolve_locations(_, info):
+    return Location.get_all()
+
 @query.field("products")
 def resolve_products(_, info):
-    logging.warning('hitting products resolver!')
     return Product.get_all()
 
 
