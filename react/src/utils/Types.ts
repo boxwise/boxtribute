@@ -18,6 +18,20 @@ export interface NewBoxType {
   box_state_id: number | null;
 }
 
+export interface BoxDetails {
+  box_id: string
+  product_name: string,
+  product_gender: string,
+  no_of_items: number,
+  location_label: string,
+}
+
+
+export interface BoxLocation {
+  id: string,
+  name: string
+}
+
 export interface LocationState {
   state: {
     qr: string;

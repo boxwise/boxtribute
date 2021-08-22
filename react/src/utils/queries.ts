@@ -96,6 +96,15 @@ export const BOX_BY_QR = gql`
   }
 `;
 
+export const LOCATIONS = gql`
+  query Locations {
+    locations {
+      id
+      name
+    }
+  }
+`;
+
 export const PRODUCTS = gql`
   query Products {
     products {

@@ -137,7 +137,7 @@ function ScanBox() {
         return (
           <Redirect
             to={{
-              pathname: "/create-box",
+              pathname: `/create-box/?qr=${qr}`,
               state: { qr: qr },
             }}
           />

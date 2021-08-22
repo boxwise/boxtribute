@@ -2,22 +2,15 @@ import { useLazyQuery } from "@apollo/client";
 import React, { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import { BOX_BY_QR } from "../utils/queries";
+import { BoxDetails } from "../utils/Types";
 
-type BoxInfoParams = {
+type BoxInfoUrlParams = {
   id: string;
 };
 
-interface BoxDetails {
-  box_id: string
-  product_name: string,
-  product_gender: string,
-  no_of_items: number,
-  location_label: string,
-}
-
 function BoxInfo(props) {
   const [boxData, setBox] = useState<BoxDetails | null>(null);
-  let { id } = useParams<BoxInfoParams>();
+  const { id } = useParams<BoxInfoUrlParams>();
 
   const [getBoxQuery] = useLazyQuery(BOX_BY_QR, {
     onCompleted: (data) => {
@@ -45,28 +38,19 @@ function BoxInfo(props) {
     });
   }, [id, getBoxQuery]);
 
-  //TODO: replace first option with a load spinner
-  const boxDataMarkup =
-    boxData === null ? (
-      <p>Fetching box now...</p>
-    ) : (
-      <div>
-        <h2>Box Found!</h2>
-          <p>Box ID: {boxData.box_id}</p>
-          <p>Product Name: {boxData.product_name}</p>
-          <p>Product Size: XXXXXX</p>
-          <p># of Items: {boxData.no_of_items}</p>
-          <p>Product Gender: {boxData.product_gender} </p>
-          <p>Location Name: {boxData.location_label}</p>
-          <p>Box Status: XXXXXX </p>
-      </div>
-    );
-
-  // console.log("boxData");
-  // console.log(boxData);
-  // console.log("boxDataMarkup");
-  // console.log(boxDataMarkup);
-  return <>TEST{boxDataMarkup}</>;
+  return <>{boxData === null ? <p>Fetching box now...</p> :
+    <div>
+      <h2>Box Found!</h2>
+      <p>Box ID: {boxData.box_id}</p>
+      <p>Location Name: {boxData.location_label}</p>
+      <p>Product Name: {boxData.product_name}</p>
+      <p>Product Size: XXXXXX</p>
+      <p># of Items: {boxData.no_of_items}</p>
+      <p>Product Gender: {boxData.product_gender} </p>
+      <p>Comments: {boxData.product_gender} </p>
+      <p>Box Status: XXXXXX</p>
+    </div>
+  }</>;
 }
 
 export default BoxInfo;
