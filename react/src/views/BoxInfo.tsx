@@ -19,6 +19,7 @@ function BoxInfo(props) {
         box_id: box.box_id,
         product_name: box.product.name,
         product_gender: box.product.gender,
+        qr_code: box.qrCode.code,
         no_of_items: box.items,
         location_label: box.location.name,
         // comments: box.comments,
@@ -49,6 +50,7 @@ function BoxInfo(props) {
       <p>Product Gender: {boxData.product_gender} </p>
       <p>Comments: {boxData.product_gender} </p>
       <p>Box Status: XXXXXX</p>
+      <p>QR Code: {boxData.qr_code}</p>
     </div>
   }</>;
 }

@@ -15,6 +15,11 @@ type_defs = gql(
         Boy
     }
 
+    type QrCode {
+        id: Int
+        code: String
+    }
+
     type Base {
         id: Int
         name: String
@@ -43,7 +48,7 @@ type_defs = gql(
         items: Int
         location_id: Int
         comments: String
-        qr_id: Int
+        qrCode: QrCode
         created: Datetime
         created_by: String
         box_state_id: Int

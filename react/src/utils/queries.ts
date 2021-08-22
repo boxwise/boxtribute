@@ -90,7 +90,10 @@ export const BOX_BY_QR = gql`
         name
       }
       comments
-      qr_id
+      qrCode {
+        id
+        code
+      }
       box_state_id
     }
   }

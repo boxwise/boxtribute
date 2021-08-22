@@ -19,8 +19,9 @@ export interface NewBoxType {
 }
 
 export interface BoxDetails {
-  box_id: string
+  box_id: string,
   product_name: string,
+  qr_code: string,
   product_gender: string,
   no_of_items: number,
   location_label: string,

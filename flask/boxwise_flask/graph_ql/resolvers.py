@@ -85,6 +85,10 @@ def resolve_qr_exists(_, info, qr_code):
         return False
     return True
 
+@query.field("qrCode")
+def resolve_qr_code(_, info, id): 
+    return QRCode.get_qr_code_by_id(id)
+
 
 @query.field("boxIdByQrCode")
 def resolve_box_id_by_qr_code(_, info, qr_code):
@@ -157,12 +161,6 @@ def resolve_product_gender(product_id, info_):
     elif gender_id == 13: 
         return 'TeenBoy'
 
-    # (4,'Girl','Girl',4,NULL,NULL,NULL,NULL,0,1,0,1,0,'0'),(5,'Boy','Boy',5,NULL,NULL,NULL,NULL,1,0,0,1,0,'0'),
-    # (6,'Unisex Child','Child',7,NULL,NULL,NULL,NULL,1,1,0,1,0,'0'),(9,'Unisex Baby','Baby',8,NULL,NULL,NULL,NULL,1,1,0,0,0,'1'),(10,'-',NULL,0,NULL,NULL,NULL,NULL,1,1,1,1,1,'1'),(11,'Unisex Kid','Kid',9,NULL,NULL,NULL,NULL,1,1,0,0,1,'0'),(12,'Teen Girl','Girl',4,NULL,NULL,NULL,NULL,0,1,1,0,0,'0'),(13,'Teen Boy','Boy',5,NULL,NULL,NULL,NULL,1,0,1,0,0,'0')
-
-
-    # return gender
-
 
 @product.field("sizes")
 def resolve_sizes(product_id, info_):
@@ -170,12 +168,10 @@ def resolve_sizes(product_id, info_):
     # logging.warning(product_id)
     logging.warning(info_)
     product = Product.get_product(product_id)
-    # product.size_range.seq
     sizes = Size.select(Size.label).where(
         Size.seq == product.size_range.seq
         )
     return map(lambda size: size.label, sizes)
-    # return product_id
 
 
 schema = make_executable_schema(
