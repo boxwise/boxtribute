@@ -20,7 +20,15 @@ class Base(db.Model):
     )
 
     adult_age = IntegerField(constraints=[SQL("DEFAULT 15")])
-
+    created = DateTimeField(null=True)
+    created_by = ForeignKeyField(
+        field="id",
+        model=User,
+        null=True,
+        on_delete="SET NULL",
+        on_update="CASCADE",
+        constraints=[SQL("UNSIGNED")],
+    )
     cycle_start = DateTimeField(
         column_name="cyclestart", default=datetime.now(), null=True
     )
