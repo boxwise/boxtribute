@@ -3,6 +3,7 @@ from .base_module import BaseModule
 from .beneficiary import Beneficiary
 from .box import Box
 from .box_state import BoxState
+from .history import DbChangeHistory
 from .language import Language
 from .location import Location
 from .log import Log
@@ -26,6 +27,7 @@ MODELS = (
     Beneficiary,
     Box,
     BoxState,
+    DbChangeHistory,
     Language,
     Location,
     Log,

@@ -2,6 +2,7 @@ from .base import default_base, default_bases
 from .beneficiary import default_beneficiary
 from .box import default_box
 from .box_state import default_box_state
+from .history import default_history
 from .location import default_location
 from .log import default_log
 from .organisation import default_organisation
@@ -23,6 +24,7 @@ __all__ = [
     "default_bases",
     "default_box",
     "default_box_state",
+    "default_history",
     "default_location",
     "default_log",
     "default_organisation",
