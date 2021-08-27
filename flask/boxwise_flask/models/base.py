@@ -95,10 +95,13 @@ class Base(db.Model):
     )
     seq = IntegerField()
     beneficiary_is_registered = SmallIntegerField(
-        column_name="beneficiaryisregistered", default=1
+        column_name="beneficiaryisregistered", constraints=[SQL("DEFAULT '1'")]
     )
     beneficiary_is_volunteer = SmallIntegerField(
-        column_name="beneficiaryisvolunteer", default=1
+        column_name="beneficiaryisvolunteer", constraints=[SQL("DEFAULT '1'")]
+    )
+    separate_shop_and_warehouse_products = SmallIntegerField(
+        column_name="separateshopandwhproducts", constraints=[SQL("DEFAULT '0'")]
     )
 
     class Meta:
