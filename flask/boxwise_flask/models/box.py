@@ -42,11 +42,7 @@ class Box(db.Model):
     deleted = DateTimeField(null=True, default=None)
     items = IntegerField()
     location = ForeignKeyField(
-        column_name="location_id",
-        field="id",
-        model=Location,
-        on_update="CASCADE",
-        constraints=[SQL("UNSIGNED")],
+        column_name="location_id", field="id", model=Location, on_update="CASCADE",
     )
     modified = DateTimeField(null=True)
     modified_by = ForeignKeyField(
@@ -79,11 +75,7 @@ class Box(db.Model):
         constraints=[SQL("UNSIGNED")],
     )
     product = ForeignKeyField(
-        column_name="product_id",
-        field="id",
-        model=Product,
-        on_update="CASCADE",
-        constraints=[SQL("UNSIGNED")],
+        column_name="product_id", field="id", model=Product, on_update="CASCADE",
     )
     qr_code = ForeignKeyField(
         column_name="qr_id",
