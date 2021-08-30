@@ -65,10 +65,11 @@ Since we are working with docker you do not have to install a local MySQL server
 #### General notes on Docker network
 
 In the docker-compose file we define a separate docker network called `backend` to which the back-end containers are joined. Each container can now look up the hostname `flask` or `mysql` and get back the appropriate container’s IP address.
-To access the mysql database, there are now two possibilities:
+To access the mysql database, there are now three possibilities:
 
 1. You reach the mysql db at `MYSQL_HOST=mysql` and `MYSQL_PORT=3306` or
-2. by specifying the IP-address of the gateway for `MYSQL_HOST` and `MYSQL_PORT=32000`.
+1. You execute the mysql command line client in the running container by `docker-compose exec mysql mysql -u root -p` or
+1. by specifying the IP-address of the gateway for `MYSQL_HOST` and `MYSQL_PORT=32000`.
 
 To figure out the gateway of the docker network `backend` run
 
