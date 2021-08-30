@@ -1,8 +1,8 @@
 import pytest
 
 
-@pytest.mark.usefixtures("default_qr_code")
-def test_create_box(client, default_qr_code):
+@pytest.mark.usefixtures("qr_code_without_box")
+def test_create_box(client, qr_code_without_box):
     """Verify base GraphQL query endpoint"""
     box_creation_input_string = f"""{{
                     product_id: 1,
@@ -10,7 +10,7 @@ def test_create_box(client, default_qr_code):
                     location_id: 100000005,
                     comments: "",
                     size_id: 1,
-                    qr_barcode: "{default_qr_code["code"]}",
+                    qr_barcode: "{qr_code_without_box["code"]}",
                     created_by: "1"
                 }}"""
 
