@@ -34,7 +34,7 @@ def test_backend_connection():
 
     data = {
         "query": """query Box {
-                box(qr_code: "fff74d8503b1a5773c301cbe1e1ff43") {
+                box(qr_code: "ffdd7f7243d74a663b417562df0ebeb") {
                     box_id
                     items
                     created
@@ -44,6 +44,6 @@ def test_backend_connection():
     response = client.post("/graphql", json=data)
     queried_box = response.json["data"]["box"]
     assert response.status_code == 200
-    assert queried_box == {"box_id": "751464", "items": 92, "created": None}
+    assert queried_box == {"box_id": "436898", "items": 87, "created": None}
 
     db.close_db(None)
