@@ -3,7 +3,14 @@ from datetime import datetime
 from boxwise_flask.db import db
 from boxwise_flask.models.organisation import Organisation
 from boxwise_flask.models.user import User
-from peewee import SQL, CharField, DateTimeField, ForeignKeyField, IntegerField
+from peewee import (
+    SQL,
+    CharField,
+    DateTimeField,
+    ForeignKeyField,
+    IntegerField,
+    SmallIntegerField,
+)
 
 
 class Base(db.Model):
@@ -13,7 +20,15 @@ class Base(db.Model):
     )
 
     adult_age = IntegerField(constraints=[SQL("DEFAULT 15")])
-
+    created = DateTimeField(null=True)
+    created_by = ForeignKeyField(
+        field="id",
+        model=User,
+        null=True,
+        on_delete="SET NULL",
+        on_update="CASCADE",
+        constraints=[SQL("UNSIGNED")],
+    )
     cycle_start = DateTimeField(
         column_name="cyclestart", default=datetime.now(), null=True
     )
@@ -46,7 +61,13 @@ class Base(db.Model):
     market = IntegerField(constraints=[SQL("DEFAULT 1")])
     modified = DateTimeField(null=True)
     modified_by = ForeignKeyField(
-        column_name="modified_by", field="id", model=User, null=True,
+        column_name="modified_by",
+        field="id",
+        model=User,
+        null=True,
+        on_delete="SET NULL",
+        on_update="CASCADE",
+        constraints=[SQL("UNSIGNED")],
     )
     organisation = ForeignKeyField(
         column_name="organisation_id", field="id", model=Organisation
@@ -73,20 +94,21 @@ class Base(db.Model):
         column_name="scheduletimeslot", constraints=[SQL("DEFAULT '0.5'")]
     )
     seq = IntegerField()
+    beneficiary_is_registered = SmallIntegerField(
+        column_name="beneficiaryisregistered", constraints=[SQL("DEFAULT '1'")]
+    )
+    beneficiary_is_volunteer = SmallIntegerField(
+        column_name="beneficiaryisvolunteer", constraints=[SQL("DEFAULT '1'")]
+    )
+    separate_shop_and_warehouse_products = SmallIntegerField(
+        column_name="separateshopandwhproducts", constraints=[SQL("DEFAULT '0'")]
+    )
 
     class Meta:
         table_name = "camps"
 
     def __str__(self):
-        return (
-            str(self.id)
-            + " "
-            + str(self.organisation_id)
-            + " "
-            + self.name
-            + " "
-            + self.currency_name
-        )
+        return f"{self.id} {self.organisation_id} {self.name} {self.currency_name}"
 
     @staticmethod
     def get_all_bases():

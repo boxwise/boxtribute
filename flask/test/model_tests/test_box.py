@@ -27,7 +27,6 @@ def test_box_model(
     assert queried_box_dict["deleted"] == default_box["deleted"]
     assert queried_box_dict["items"] == default_box["items"]
     assert queried_box_dict["location"]["id"] == default_box["location"]
-    assert queried_box_dict["created_by"] == default_box["created_by"]
     assert queried_box_dict["product"]["id"] == default_product["id"]
     assert queried_box_dict["product"]["product_gender"] == default_product_gender
     assert queried_box_dict["product"]["product_category"] == default_product_category

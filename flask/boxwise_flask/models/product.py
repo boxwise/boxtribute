@@ -8,26 +8,54 @@ from peewee import SQL, CharField, DateTimeField, ForeignKeyField, IntegerField
 
 
 class Product(db.Model):
-    base = ForeignKeyField(column_name="camp_id", field="id", model=Base, null=True)
+    base = ForeignKeyField(
+        column_name="camp_id",
+        field="id",
+        model=Base,
+        null=True,
+        on_update="CASCADE",
+        constraints=[SQL("UNSIGNED")],
+    )
     product_category = ForeignKeyField(
-        column_name="category_id", field="id", model=ProductCategory, null=True
+        column_name="category_id",
+        field="id",
+        model=ProductCategory,
+        null=True,
+        constraints=[SQL("UNSIGNED")],
     )
     comments = CharField(null=True)
     created = DateTimeField(null=True)
     created_by = ForeignKeyField(
-        column_name="created_by", field="id", model=User, null=True
+        column_name="created_by",
+        field="id",
+        model=User,
+        null=True,
+        on_delete="SET NULL",
+        on_update="CASCADE",
+        constraints=[SQL("UNSIGNED")],
     )
     deleted = DateTimeField(null=True, default=None)
     product_gender = ForeignKeyField(
-        column_name="gender_id", field="id", model=ProductGender, null=True
+        column_name="gender_id", field="id", model=ProductGender, on_update="CASCADE",
     )
     modified = DateTimeField(null=True)
     modified_by = ForeignKeyField(
-        column_name="modified_by", field="id", model=User, null=True,
+        column_name="modified_by",
+        field="id",
+        model=User,
+        null=True,
+        on_delete="SET NULL",
+        on_update="CASCADE",
+        constraints=[SQL("UNSIGNED")],
     )
     name = CharField()
     size_range = ForeignKeyField(
-        column_name="sizegroup_id", field="id", model=SizeRange, null=True
+        column_name="sizegroup_id",
+        field="id",
+        model=SizeRange,
+        null=True,
+        on_update="CASCADE",
+        constraints=[SQL("UNSIGNED")],
     )
     in_shop = IntegerField(
         column_name="stockincontainer", constraints=[SQL("DEFAULT 0")]

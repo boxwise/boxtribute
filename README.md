@@ -1,4 +1,3 @@
-
 <a width="105" height="35" href="https://auth0.com/?utm_source=oss&utm_medium=gp&utm_campaign=oss" target="_blank" alt="Single Sign On & Token Based Authentication - Auth0">
 <img width="105" height="35" alt="JWT Auth for open source projects" src="https://cdn.auth0.com/oss/badges/a0-badge-dark.png"></a>
 
@@ -72,6 +71,7 @@ Each organisation has at least 3 user groups with different access levels in the
 
 For each of these three user groups of each of the two organisations we created an login credential for development purposes:
 
+- `some.admin@boxtribute.org` (God User)
 - `dev_headofops@boxaid.org`
 - `dev_coordinator@boxaid.org`
 - `dev_volunteer@boxaid.org`
@@ -79,7 +79,7 @@ For each of these three user groups of each of the two organisations we created 
 - `dev_coordinator@boxcare.org`
 - `dev_volunteer@boxcare.org`
 
-The password of all of these users is `password`.
+The password of all of these users is `Browser_tests`.
 
 Furthermore, here a collection of QR-Codes which have been seeded in the dev db and can be used to test the box scanning and box creation.
 

@@ -12,12 +12,19 @@ class Location(db.Model):
         field="id",
         model=BoxState,
         null=True,
+        on_update="CASCADE",
     )
     base = ForeignKeyField(column_name="base_id", field="id", model=Base)
     is_stockroom = IntegerField(constraints=[SQL("DEFAULT 0")])
     created = DateTimeField(null=True)
     created_by = ForeignKeyField(
-        column_name="created_by", field="id", model=User, null=True
+        column_name="created_by",
+        field="id",
+        model=User,
+        null=True,
+        on_delete="SET NULL",
+        on_update="CASCADE",
+        constraints=[SQL("UNSIGNED")],
     )
     deleted = DateTimeField(null=True, default=None)
     is_donated = IntegerField(constraints=[SQL("DEFAULT 0")])
@@ -27,7 +34,13 @@ class Location(db.Model):
     label = CharField()
     modified = DateTimeField(null=True)
     modified_by = ForeignKeyField(
-        column_name="modified_by", field="id", model=User, null=True,
+        column_name="modified_by",
+        field="id",
+        model=User,
+        null=True,
+        on_delete="SET NULL",
+        on_update="CASCADE",
+        constraints=[SQL("UNSIGNED")],
     )
     seq = IntegerField(null=True)
     visible = IntegerField(constraints=[SQL("DEFAULT 1")])
