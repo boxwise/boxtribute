@@ -181,8 +181,8 @@ Test data is setup in the `test/data` folder and each piece of data is split up 
 
 #### Please be aware that
 
-- for new data the fixtures need to be imported in the required `conftest.py` and
-- the call to create needs to be added to `setup_tables.py` in the `test/data` directory.
+- for new data the fixtures need to be imported in `test/data/__init__.py` and
+- the call to create needs to be added to `test/data/setup_tables.py`
 
 ### Coverage analysis
 
