@@ -1,5 +1,5 @@
 black==19.10b0
-flake8==3.8.1
+flake8==3.9.2
 pre-commit==2.9.3
 pytest>=5.4.3
 requests==2.25.0
