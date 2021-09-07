@@ -63,7 +63,6 @@ function ScanBox() {
       }, 
     ];
     const clickTestQRCode = (testQRCode) => {
-      // debugger; 
       retrieveBox(testQRCode);
     };
     return <div>
@@ -127,9 +126,7 @@ function ScanBox() {
         return (
           <Redirect
             to={{
-              pathname: `/box-info/${qrInfo.boxIdByQrCode}`,
-              // search: qr
-              // state: { qr: qr },
+              pathname: `/box-info/${qrInfo.boxIdByQrCode}`
             }}
           />
         );
@@ -137,8 +134,7 @@ function ScanBox() {
         return (
           <Redirect
             to={{
-              pathname: `/create-box/?qr=${qr}`,
-              state: { qr: qr },
+              pathname: `/create-box/?qr=${qr}`
             }}
           />
         );

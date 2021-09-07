@@ -87,6 +87,8 @@ export default function CreateBox() {
 
     try {
       console.log(formFields);
+      console.log("QR:")
+      console.log(qr)
       const { data: mutationData } = await createBoxMutation({
         variables: {
           productId: Number(productId), // dropdown??

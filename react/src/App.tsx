@@ -40,7 +40,7 @@ export default function App() {
         and work your way down to least-specific */}
       <Switch>
         <PrivateRoute path="/org" component={OrgTopLevel} />
-        <PrivateRoute path="/create-box/" component={CreateBox} />
+        <PrivateRoute path="/create-box" component={CreateBox} />
         <PrivateRoute path="/box-info/:id" component={BoxInfo} />
         <PrivateRoute path="/edit-box" component={Placeholder} />
         <PrivateRoute path="/generateLabel/:num" component={PdfGenerator} />
