@@ -22,9 +22,6 @@ function BoxInfo(props) {
         qr_code: box.qrCode.code,
         no_of_items: box.items,
         location_label: box.location.name,
-        // comments: box.comments,
-        // qr_id: box.qr_id,
-        // box_state_id: box.box_state_id,
       });
     },
     onError: (err) => {},

@@ -65,18 +65,14 @@ export default function CreateBox() {
   useEffect(() => {
     getProductsQuery();
     getLocationsQuery();
-  }, []);
+  }, [getLocationsQuery, getProductsQuery]);
 
   useEffect(() => {
     getSizesQuery({
       variables: { productId: selectedProductId },
     });
-  }, [selectedProductId]);
+  }, [getSizesQuery, selectedProductId]);
 
-  // const location: LocationState = useLocation();
-  // const qrUrl: string = location?.state?.qr;
-  // const qrBarcode = qrUrl.split("barcode=")[1];
-  // const qrBarcode = "149ff66629377f6404b5c8d32936855";
   const qr = urlQueryParams.get("qr");
 
   const [newBox, setNewBox] = React.useState<NewBoxType>(emptyBox);
@@ -86,9 +82,6 @@ export default function CreateBox() {
     const { productId, items, locationId, comments, sizeId } = formFields;
 
     try {
-      console.log(formFields);
-      console.log("QR:")
-      console.log(qr)
       const { data: mutationData } = await createBoxMutation({
         variables: {
           productId: Number(productId), // dropdown??

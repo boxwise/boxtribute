@@ -67,14 +67,8 @@ class Product(db.Model):
     value = IntegerField(constraints=[SQL("DEFAULT 0")])
     price = value
 
-    # sizes = size_range
-
     class Meta:
         table_name = "products"
-
-    # def sizes(__self__):
-    #     return 3
-    #     # Size.select.where(Size.seq == __self__.size_range.seq)
 
     @staticmethod
     def get_product(product_id):
