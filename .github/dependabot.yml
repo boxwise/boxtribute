@@ -1,0 +1,12 @@
+version: 2
+updates:
+  - package-ecosystem: "pip"
+    directory: "/flask/"
+    schedule:
+      interval: "weekly"
+    assignees:
+      - "pylipp"
+  - package-ecosystem: "npm"
+    directory: "/react/"
+    schedule:
+      interval: "weekly"
