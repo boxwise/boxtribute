@@ -62,7 +62,7 @@
     "@semantic-ui-react/craco-less": "^1.2.1",
     "@testing-library/jest-dom": "^5.11.9",
     "@testing-library/react": "^11.2.5",
-    "@testing-library/user-event": "^12.6.3",
+    "@testing-library/user-event": "^13.2.1",
     "@types/react-router-dom": "^5.1.5",
     "eslint-config-airbnb": "^18.1.0",
     "eslint-config-prettier": "^6.11.0",
