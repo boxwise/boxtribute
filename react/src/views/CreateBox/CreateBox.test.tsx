@@ -144,11 +144,13 @@ describe("Created box is displayed correctly", () => {
   it("After a successful submission, the form disappears and a screen with `You created a new box` appears with a box-id", async () => {
 
     const numberOfItemsField = component.getByLabelText("# of items");
+    expect(numberOfItemsField.value).toBe("0");
     fireEvent.change(numberOfItemsField, {
       target: {
         value: 2
       }
-    })
+    });
+    expect(numberOfItemsField.value).toBe("2");
     // const submitBtn = component.getByRole("button", {
     //   name: /Save/i,
     // });
