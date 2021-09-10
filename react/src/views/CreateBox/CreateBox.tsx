@@ -1,14 +1,14 @@
 import * as React from "react";
-import { useLazyQuery, useMutation } from "@apollo/client";
+import { useLazyQuery, useMutation, useQuery } from "@apollo/client";
 import { useForm } from "react-hook-form";
 import { Link, useLocation } from "react-router-dom";
 import { BoxLocation, NewBoxType, Product } from "../../utils/Types";
 import { CREATE_BOX, LOCATIONS, PRODUCTS, SIZES_FOR_PRODUCT } from "../../utils/queries";
 import { emptyBox } from "../../utils/emptyBox";
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { PrimaryButton } from "boxwise-components"
 
-function useQuery() {
+function useUrlQuery() {
   return new URLSearchParams(useLocation().search);
 };
 
@@ -21,7 +21,14 @@ export default function CreateBox() {
     CREATE_BOX,
   );
 
-  const urlQueryParams = useQuery();
+  const _isMounted = useRef(true);
+  useEffect(() => {
+    return () => {
+      _isMounted.current = false;
+    }
+  }, []);
+
+  const urlQueryParams = useUrlQuery();
 
   const [products, setProducts] = useState<Product[]>();
   const [locations, setLocations] = useState<BoxLocation[]>();
@@ -29,25 +36,26 @@ export default function CreateBox() {
 
   const [selectedProductId, setSelectedProductId] = useState<number>();
 
-  const [getProductsQuery] = useLazyQuery(PRODUCTS, {
+  useQuery(PRODUCTS, {
     onCompleted: (data) => {
-      setProducts(data.products);
+      _isMounted && setProducts(data.products);
     },
     onError: (err) => {
       // TODO: Error handling
     },
   });
 
-  const [getLocationsQuery] = useLazyQuery(LOCATIONS, {
+
+  useQuery(LOCATIONS, {
     onCompleted: (data) => {
-      setLocations(data.locations);
+      _isMounted && setLocations(data.locations);
     }
   });
 
-  const [getSizesQuery] = useLazyQuery(SIZES_FOR_PRODUCT, {
+  useQuery(SIZES_FOR_PRODUCT, {
     onCompleted: (data) => {
       console.log(data);
-      setSizes(data.product.sizes);
+      _isMounted && setSizes(data.product.sizes);
     },
     onError: (err) => {
       console.log(err);
@@ -57,21 +65,10 @@ export default function CreateBox() {
   const changeProduct = useCallback(
     (product) => {
       const newSelectedProductId = product.target.value;
-      setSelectedProductId(parseInt(newSelectedProductId));
+      _isMounted && setSelectedProductId(parseInt(newSelectedProductId));
     },
     [setSelectedProductId],
   );
-
-  useEffect(() => {
-    getProductsQuery();
-    // getLocationsQuery();
-  }, [getLocationsQuery, getProductsQuery]);
-
-  // useEffect(() => {
-  //   getSizesQuery({
-  //     variables: { productId: selectedProductId },
-  //   });
-  // }, [getSizesQuery, selectedProductId]);
 
   const qr = urlQueryParams.get("qr");
 
