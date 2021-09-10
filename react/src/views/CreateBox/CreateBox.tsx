@@ -126,9 +126,9 @@ export default function CreateBox() {
 
             <br />
 
-            <label className="p-2" htmlFor="comments">
+            <label className="p-2" htmlFor="product">
               Product*
-              <select onChange={changeProduct} name="productId" ref={register()}>
+              <select onChange={changeProduct} id="product" name="productId" ref={register()}>
                 {products?.map((product) => (
                   <option key={product.id} value={product.id}>
                     {product.name}
@@ -165,14 +165,15 @@ export default function CreateBox() {
 
             <br />
 
-            <label className="p-2" htmlFor="items">
-              # of items*
+            <label className="p-2" htmlFor="noOfItems">
+              # of items
               <input
-                defaultValue={2}
+                defaultValue={0}
                 className="border rounded"
                 ref={register({ required: true, maxLength: 20 })}
                 type="number"
                 name="items"
+                id="noOfItems"
               />
             </label>
 

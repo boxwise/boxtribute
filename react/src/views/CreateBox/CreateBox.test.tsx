@@ -11,7 +11,7 @@ const mocks = [
     request: {
       query: CREATE_BOX,
       variables: {
-        productId: 2,
+        productId: 1,
         items: 2,
         locationId: 2,
         comments: "",
@@ -86,19 +86,18 @@ describe("Renders CreateBox component correctly", () => {
     history.push("/create-box", state);
 
     // component = render(<CreateBox />, { mocks, history });
-    // await component.findByText("Winter Jackets");
 
-    // await act(() => {
-    component = render(<CreateBox />, { mocks, history })
-    // });
-    expect(component.findByTestId("createBoxForm")).toBeTruthy();
-
+    act(() => {
+      component = render(<CreateBox />, { mocks, history })
+    });
     // act(() => render(<CreateBox />, { mocks, history }));
   });
 
   afterEach(cleanup);
 
   it("renders a header titled, `Create a Box`", async () => {
+
+
     expect(
       component.getByRole("heading", {
         name: /create a box/i,
@@ -110,13 +109,15 @@ describe("Renders CreateBox component correctly", () => {
     expect(component.findByTestId("createBoxForm")).toBeTruthy();
   });
 
-  //   it("renders the correct 5 fields within the form", () => {
-  //     // expect(component.getByText(/locationid*/i)).toBeTruthy();
-  //     // expect(component.getByText(/productid*/i)).toBeTruthy();
-  //     // expect(component.getByText(/items*/i)).toBeTruthy();
-  //     // expect(component.getByText(/sizeid*/i)).toBeTruthy();
-  //     // expect(component.getByText(/comments*/i)).toBeTruthy();
-  //   });
+  it("renders the correct 5 fields within the form", () => {
+    expect(component.getByLabelText(/Product*/i)).toBeTruthy();
+
+    // await component.findByText("Winter Jackets");
+
+    // expect(component.getByText(/items*/i)).toBeTruthy();
+    // expect(component.getByText(/sizeid*/i)).toBeTruthy();
+    // expect(component.getByText(/comments*/i)).toBeTruthy();
+  });
 
   it("renders a submit button titled, `Save`", () => {
     expect(
@@ -127,36 +128,44 @@ describe("Renders CreateBox component correctly", () => {
   });
 });
 
-  // describe("Created box is displayed correctly", () => {
-  //   let component;
-  //   beforeEach(() => {
-  //     const history = createMemoryHistory();
-  //     const state = { qr: "barcode=387b0f0f5e62cebcafd48383035a92a" };
-  //     history.push("/create-box", state);
+describe("Created box is displayed correctly", () => {
+  let component;
+  beforeEach(() => {
+    const history = createMemoryHistory();
+    const state = { qr: "barcode=387b0f0f5e62cebcafd48383035a92a" };
+    history.push("/create-box", state);
 
-  //     component = render(<CreateBox />, { mocks, history });
-  //   });
+    component = render(<CreateBox />, { mocks, history });
 
-  //   afterEach(cleanup);
+  });
 
-  //   it("After a successful submission, the form disappears and a screen with `You created a new box` appears with a box-id", async () => {
-  //     const submitBtn = component.getByRole("button", {
-  //       name: /do the mutation/i,
-  //     });
+  afterEach(cleanup);
 
-  //     fireEvent.click(submitBtn);
+  it("After a successful submission, the form disappears and a screen with `You created a new box` appears with a box-id", async () => {
 
-  //     await waitFor(() => {
-  //       expect(component.queryByTestId("createBoxForm")).toBeNull();
-  //       expect(component.getByTestId("createdBox")).toBeTruthy();
-  //       expect(
-  //         component.findByRole("heading", {
-  //           name: /the box id is: 456/i,
-  //         }),
-  //       );
-  //     });
-  //   });
-// });
+    const numberOfItemsField = component.getByLabelText("# of items");
+    fireEvent.change(numberOfItemsField, {
+      target: {
+        value: 2
+      }
+    })
+    // const submitBtn = component.getByRole("button", {
+    //   name: /Save/i,
+    // });
+
+    // fireEvent.click(submitBtn);
+
+    // await waitFor(() => {
+    //   expect(component.queryByTestId("createBoxForm")).toBeNull();
+    //   expect(component.getByTestId("createdBox")).toBeTruthy();
+    //   expect(
+    //     component.findByRole("heading", {
+    //       name: /the box id is: 456/i,
+    //     }),
+    //   );
+    // });
+  });
+});
 
 // // Need to create an error message for blank required form fields
 // describe("Required form fields prohibit submission when blank", () => {
