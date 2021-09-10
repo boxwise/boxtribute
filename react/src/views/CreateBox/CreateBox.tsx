@@ -64,14 +64,14 @@ export default function CreateBox() {
 
   useEffect(() => {
     getProductsQuery();
-    getLocationsQuery();
+    // getLocationsQuery();
   }, [getLocationsQuery, getProductsQuery]);
 
-  useEffect(() => {
-    getSizesQuery({
-      variables: { productId: selectedProductId },
-    });
-  }, [getSizesQuery, selectedProductId]);
+  // useEffect(() => {
+  //   getSizesQuery({
+  //     variables: { productId: selectedProductId },
+  //   });
+  // }, [getSizesQuery, selectedProductId]);
 
   const qr = urlQueryParams.get("qr");
 
