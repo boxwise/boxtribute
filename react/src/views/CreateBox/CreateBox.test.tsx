@@ -1,10 +1,22 @@
 import React from "react";
-import { render, waitFor, fireEvent, cleanup, act, waitForElement, findByText } from "../../utils/test-utils";
+import { render, waitFor, fireEvent, cleanup, act, waitForElement, findByText, RenderResult } from "../../utils/test-utils";
 import "@testing-library/jest-dom";
 import { createMemoryHistory } from "history";
-import { CREATE_BOX, PRODUCTS } from "../../utils/queries";
+import { CREATE_BOX, LOCATIONS, PRODUCTS, SIZES_FOR_PRODUCT } from "../../utils/queries";
 import CreateBox from "./CreateBox";
 import { GraphQLError } from "graphql";
+
+
+// mutation ($productId: Int!, $items: Int!, $locationId: Int!, $comments: String!, $sizeId: Int, $qrBarcode: String!) {
+//   createBox(box_creation_input: {product_id: $productId, size_id: $sizeId, items: $items, location_id: $locationId, comments: $comments, qr_barcode: $qrBarcode}) {
+//     id
+//     box_id
+//     product_id
+//     items
+//   }
+// }
+// , variables: {"productId":0,"items":2,"locationId":0,"comments":"","sizeId":2,"qrBarcode":null}
+
 
 const mocks = [
   {
@@ -39,7 +51,38 @@ const mocks = [
         products: [{ __typename: "Product", id: 1, name: "Winter Jackets" }]
       },
     },
-  }
+  }, 
+  {
+    request: {
+      query: LOCATIONS,
+    },
+    result: {
+      data: {
+        "locations": [
+          {
+            "__typename": "Location", 
+            "id": 1, 
+            "name": "Shop"
+          }, 
+          {
+            "__typename": "Location", 
+            "id": 2, 
+            "name": "LOST"
+          }
+        ]
+      },
+    },
+  }, 
+  // {
+  //   request: {
+  //     query: SIZES_FOR_PRODUCT,
+  //   },
+  //   result: {
+  //     data: {
+  //       products: [{ __typename: "Size", id: 1, name: "Winter Jackets" }]
+  //     },
+  //   },
+  // }
 ];
 
 const mockNetworkError = [
@@ -79,7 +122,8 @@ const mockGraphQLError = [
 ];
 
 describe("Renders CreateBox component correctly", () => {
-  let component, history;
+  let component: RenderResult; 
+  let history;
   beforeEach(async () => {
     history = createMemoryHistory();
     const state = { qr: "barcode=387b0f0f5e62cebcafd48383035a92a" };
@@ -129,7 +173,7 @@ describe("Renders CreateBox component correctly", () => {
 });
 
 describe("Created box is displayed correctly", () => {
-  let component;
+  let component: RenderResult;
   beforeEach(() => {
     const history = createMemoryHistory();
     const state = { qr: "barcode=387b0f0f5e62cebcafd48383035a92a" };
@@ -143,14 +187,21 @@ describe("Created box is displayed correctly", () => {
 
   it("After a successful submission, the form disappears and a screen with `You created a new box` appears with a box-id", async () => {
 
-    const numberOfItemsField = component.getByLabelText("# of items");
-    expect(numberOfItemsField.value).toBe("0");
-    fireEvent.change(numberOfItemsField, {
-      target: {
-        value: 2
-      }
-    });
-    expect(numberOfItemsField.value).toBe("2");
+    const productField = component.getByLabelText("Product");
+    expect(productField["value"]).toBe("");
+    // expect(component.queryByTestId('product-selector-id-1')).not.toBeInTheDocument();
+    const product1OptionField = await component.findByTestId('product-selector-id-1');
+    expect(product1OptionField).toBeInTheDocument();
+    // component.debug();
+
+    // const numberOfItemsField = component.getByLabelText("# of items");
+    // expect(numberOfItemsField.value).toBe("0");
+    // fireEvent.change(numberOfItemsField, {
+    //   target: {
+    //     value: 2
+    //   }
+    // });
+    // expect(numberOfItemsField.value).toBe("2");
     // const submitBtn = component.getByRole("button", {
     //   name: /Save/i,
     // });

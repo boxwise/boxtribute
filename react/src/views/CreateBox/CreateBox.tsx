@@ -52,15 +52,15 @@ export default function CreateBox() {
     }
   });
 
-  useQuery(SIZES_FOR_PRODUCT, {
-    onCompleted: (data) => {
-      console.log(data);
-      _isMounted && setSizes(data.product.sizes);
-    },
-    onError: (err) => {
-      console.log(err);
-    },
-  });
+  // useQuery(SIZES_FOR_PRODUCT, {
+  //   onCompleted: (data) => {
+  //     console.log(data);
+  //     _isMounted && setSizes(data.product.sizes);
+  //   },
+  //   onError: (err) => {
+  //     console.log(err);
+  //   },
+  // });
 
   const changeProduct = useCallback(
     (product) => {
@@ -127,10 +127,10 @@ export default function CreateBox() {
             <br />
 
             <label className="p-2" htmlFor="product">
-              Product*
+              Product
               <select onChange={changeProduct} id="product" name="productId" ref={register()}>
                 {products?.map((product) => (
-                  <option key={product.id} value={product.id}>
+                  <option key={product.id} value={product.id} data-testid={`product-selector-id-${product.id}`}>
                     {product.name}
                   </option>
                 ))}
