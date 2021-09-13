@@ -27,7 +27,7 @@ For almost all features of our development set-up you should [install Python >=3
 These recommendations are mainly meant for people developing on the back-end. If you are just a front-end person, but would like use pre-commit and the linters and formatters defined there, you can skip these steps.
 
 - [Use a version control for python like pyenv.](https://github.com/pyenv/pyenv) It provides you with much more clarity which version you are running and makes it easy to switch versions of python.
-- [Have a look at direnv >= v2.21.0](https://github.com/direnv/direnv). Virtual environments must be activated and deactivated. If you are moving through folders in the terminal it can easily happen that you either miss activating or deactivating the venv resulting in errors and time wasted for development. With direnv you can automate the activation and deactivation of venv depending on which folder you are in. There is already a `.envrc` file in the root of this repo. If you install `direnv` and allow to run it for your local repo, it will activate the python virtual environment `venv` everytime you enter the folder via a command line.
+- [Have a look at direnv >= v2.21.0](https://github.com/direnv/direnv). Virtual environments must be activated and deactivated. If you are moving through folders in the terminal it can easily happen that you either miss activating or deactivating the venv resulting in errors and time wasted for development. With direnv you can automate the activation and deactivation of venv depending on which folder you are in. There is already a `.envrc` file in the root of this repo. If you install `direnv` and allow to run it for your local repo, it will activate the python virtual environment `venv` every time you enter the folder via a command line.
 
 ### Set-up pre-commit
 
@@ -64,11 +64,12 @@ Since we are working with docker you do not have to install a local MySQL server
 
 #### General notes on Docker network
 
-In the docker-compose file we define a separate docker network called `backend` to which the back-end containers are joined. Each container can now look up the hostname `flask` or `mysql` and get back the appropriate container’s IP address.
-To access the mysql database, there are now two possibilities:
+In the docker-compose file we define a separate docker network called `backend` to which the back-end containers are joined. Each container can now look up the host name `flask` or `mysql` and get back the appropriate container’s IP address.
+To access the mysql database, there are now three possibilities:
 
 1. You reach the mysql db at `MYSQL_HOST=mysql` and `MYSQL_PORT=3306` or
-2. by specifying the IP-address of the gateway for `MYSQL_HOST` and `MYSQL_PORT=32000`.
+1. You execute the mysql command line client in the running container by `docker-compose exec mysql mysql -u root -p` or
+1. by specifying the IP-address of the gateway for `MYSQL_HOST` and `MYSQL_PORT=32000`.
 
 To figure out the gateway of the docker network `backend` run
 
@@ -76,7 +77,7 @@ To figure out the gateway of the docker network `backend` run
 
 #### MySQL workbend or other editors
 
-Most of our developers use [MySQL workbench](https://dev.mysql.com/doc/workbench/en/wb-installing.html) to interact with the database directly. If you want to connect to the database, choose one of the possibilites in the former to define the conneection, e.g. Hostname is 172.18.0.1 and Port is 32000.
+Most of our developers use [MySQL workbench](https://dev.mysql.com/doc/workbench/en/wb-installing.html) to interact with the database directly. If you want to connect to the database, choose one of the possibilities in the former to define the connection, e.g. Hostname is 172.18.0.1 and Port is 32000.
 
 The development database is called `dropapp_dev` and the password is `dropapp_root`.
 
@@ -99,7 +100,7 @@ By default the flask app runs in `development` mode in the Docker container whic
 
 #### Built-in flask debugger
 
-For debugging an exception in an endpoint, direct your webbrowser to that endpoint. The built-in flask debugger is shown. You can attach a console by clicking the icons on the right of the traceback lines. For more information, refer to the [documentation](https://flask.palletsprojects.com/en/1.1.x/quickstart/#debug-mode).
+For debugging an exception in an endpoint, direct your web browser to that endpoint. The built-in flask debugger is shown. You can attach a console by clicking the icons on the right of the traceback lines. For more information, refer to the [documentation](https://flask.palletsprojects.com/en/1.1.x/quickstart/#debug-mode).
 
 #### Debugging Back-end in VSCode
 
@@ -118,7 +119,7 @@ The following step are only required the first time or after you deleted a Docke
 Final steps: 7. [Launch the debug configuration called 'Python: Run Flask in docker container to debug'.](https://code.visualstudio.com/docs/editor/debugging#_launch-configurations)
 
 You can now set break-points in your code.
-If you want to debug a certain endpoint, set a break-point in the endpoint and call this enpoint at the port 5001, e.g.
+If you want to debug a certain endpoint, set a break-point in the endpoint and call this endpoint at the port 5001, e.g.
 `localhost:5001/api/public`
 If you want to break on any other code lines (not endpoints), then you can only catch them during the server start-up.
 
@@ -163,7 +164,7 @@ Fixtures are configured in the `conftest.py` files which execute automatically b
 
 ### Setting up test data
 
-Test data is setup in the `test/data` folder and each piece of data is split up into 3 seperate parts
+Test data is setup in the `test/data` folder and each piece of data is split up into 3 separate parts
 
 1.  The default data function is a dictionary which has all of the data for that database table
 
@@ -181,8 +182,8 @@ Test data is setup in the `test/data` folder and each piece of data is split up 
 
 #### Please be aware that
 
-- for new data the fixtures need to be imported in the required `conftest.py` and
-- the call to create needs to be added to `setup_tables.py` in the `test/data` directory.
+- for new data the fixtures need to be imported in `test/data/__init__.py` and
+- the call to create needs to be added to `test/data/setup_tables.py`
 
 ### Coverage analysis
 
@@ -195,7 +196,7 @@ and inspect the reported output. Open the HTML report via `flask/htmlcov/index.h
 ## GraphQL Playground
 
 We are setting up GraphQL as a data layer for this application. To check out the GraphQL playground, and go to `localhost:5000/graphql`.
-The GraphQL enpoint is secured and needs a Bearer token from Auth0 to authenticate and authorize. To work with the playground you have to add such a token from Auth0 as an http Header. Here, how this works:
+The GraphQL endpoint is secured and needs a Bearer token from Auth0 to authenticate and authorize. To work with the playground you have to add such a token from Auth0 as an HTTP header. Here, how this works:
 
 1.  Follow this [link](https://manage.auth0.com/dashboard/eu/boxtribute-dev/apis/5ef3760527b0da00215e6209/test) to receive a token for testing. You can also find this token in Auth0 in the menu > API > boxtribute-dev-api > Test-tab.
 
