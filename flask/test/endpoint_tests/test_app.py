@@ -5,16 +5,6 @@ from boxwise_flask.app import create_app
 from boxwise_flask.db import db
 
 
-def test_private_endpoint(client):
-    """example test for private endpoint"""
-    response_data = client.get("/api/private")
-    assert response_data.status_code == 200
-    assert (
-        "Hello from a private endpoint! You need to be authenticated to see this."
-        == response_data.json["message"]
-    )
-
-
 @pytest.mark.skipif("CIRCLECI" not in os.environ, reason="only functional in CircleCI")
 def test_backend_connection():
     """Verify that database connection is established and operational.

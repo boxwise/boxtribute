@@ -141,7 +141,7 @@ jobs:
           command: |
             source env/bin/activate
             mkdir test-results
-            pytest --cov-report xml:test-results/coverage.xml --cov=. -k 'not test_backend_connection' test
+            pytest --cov-report xml:test-results/coverage.xml --cov=. --ignore test/endpoint_tests/test_app.py test
       # https://circleci.com/docs/2.0/postgres-config/#example-mysql-project
       - run:
       # Our primary container isn't MYSQL so run a sleep command until it's ready.
@@ -163,7 +163,7 @@ jobs:
           name: Run pytest for integration tests
           command: |
             source env/bin/activate
-            pytest --cov-report xml:test-results/coverage.xml --cov-append --cov=. -k test_backend_connection test
+            pytest --cov-report xml:test-results/coverage.xml --cov-append --cov=. test/endpoint_tests/test_app.py
       - store_test_results:
           path: test-results
       - store_artifacts:
