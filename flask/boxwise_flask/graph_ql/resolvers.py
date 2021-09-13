@@ -99,6 +99,11 @@ def resolve_get_box_details_by_id(_, info, box_id):
     return Box.get(Box.box_id == box_id)
 
 
+@query.field("getBoxesByLocation")
+def resolve_get_boxes_by_location(_, info, location_id):
+    return Box.select().where(Box.location == location_id)
+
+
 @mutation.field("createBox")
 def create_box(_, info, box_creation_input):
     response = Box.create_box(box_creation_input)
