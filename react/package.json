@@ -10,7 +10,7 @@
     "@fortawesome/free-solid-svg-icons": "^5.13.0",
     "@fortawesome/react-fontawesome": "^0.1.10",
     "@material-ui/core": "^4.11.0",
-    "@progress/kendo-drawing": "^1.7.0",
+    "@progress/kendo-drawing": "^1.11.0",
     "@progress/kendo-react-pdf": "^3.14.0",
     "autoprefixer": "^9.7.5",
     "axios": "^0.21.1",
