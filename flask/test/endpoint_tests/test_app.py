@@ -47,3 +47,36 @@ def test_backend_connection():
     assert queried_box == {"box_id": "436898", "items": 87, "created": None}
 
     db.close_db(None)
+
+
+@pytest.mark.skipif("CIRCLECI" not in os.environ, reason="only functional in CircleCI")
+def test_get_box_details():
+    app = create_app()
+    app.testing = True
+    app.config["DATABASE"] = "mysql://root:dropapp_root@127.0.0.1:3306/dropapp_dev"
+
+    db.init_app(app)
+    client = app.test_client()
+
+    data = {
+        "query": """query Box {
+                getBoxDetails(box_id: 996559) {
+                    qr_id
+                    product_id
+                    size_id
+                    items
+                    created
+                }
+            }"""
+    }
+    response = client.post("/graphql", json=data)
+    queried_box = response.json["data"]["getBoxDetails"]
+    assert response.status_code == 200
+    assert queried_box == {
+        "qr_id": 574,
+        "items": 84,
+        "created": None,
+        "product_id": 156,
+        "size_id": 53,
+    }
+    db.close_db(None)
