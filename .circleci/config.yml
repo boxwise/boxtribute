@@ -124,7 +124,11 @@ jobs:
       #     key: flask-dev-deps-{{ checksum "requirements-dev.txt" }}
       #     paths:
       #       - env
-      # run linting checks
+      - run:
+          name: run style checks on Python files
+          command: |
+            source env/bin/activate
+            pre-commit run --files **/*.py
       # run tests https://circleci.com/docs/2.0/collect-test-data/#pytest
       - run:
           name: Run pytest for unit tests
