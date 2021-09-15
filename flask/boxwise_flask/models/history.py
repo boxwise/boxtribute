@@ -21,7 +21,11 @@ class DbChangeHistory(db.Model):
     to_float = FloatField(null=True)
     to_int = IntegerField(null=True)
     user = ForeignKeyField(
-        column_name="user_id", field="id", model=User, null=True, on_update="CASCADE",
+        column_name="user_id",
+        field="id",
+        model=User,
+        null=True,
+        on_update="CASCADE",
     )
 
     class Meta:
