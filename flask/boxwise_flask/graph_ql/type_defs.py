@@ -3,11 +3,132 @@ from ariadne import gql
 
 type_defs = gql(
     """
-    type Base {
-        id: Int
+    type Box{
+        ID: ID!
+        boxLabelNumber: Int!
+        location: Location!
+        items: Int!
+        product: Product!
+        gender: ProductGender
+        # A size from a size range, consider making this enum
+        size: String!
+        state: BoxState!
+        qrCode: QRCode!
+        createdBy: String!
+        createdOn: Datetime!
+        # The user who last changed something about the box
+        lastModifiedBy: String!
+        lastModifiedOn: Datetime!
+        comment: String
+    }
+
+    type QRCode{
+        ID: ID!
+        code: String!
+        box: Box
+        createdOn: Datetime
+        # The user who generated QR code
+        createdBy: String!
+    }
+
+    type Product{
+        ID: ID!
+        name: String!
+        category: ProductCategory!
+        sizeRange: SizeRange!
+        sizes: [String!]!
+        base: Base!
+        price: Float
+        gender: ProductGender
+        createdBy: String!
+        createdOn: Datetime!
+        # The user who last changed something about the box
+        lastModifiedBy: String!
+        lastModifiedOn: Datetime!
+    }
+
+    type ProductCategory{
+        ID: ID!
+        categoryName: String!
+        products: [Product]
+        sizeRanges: [SizeRange]
+        hasGender: Boolean!
+    }
+
+    enum ProductGender{
+        Men
+        Women
+        UnisexAdult
+        UnisexChild
+        UnisexBaby
+        TeenGirl
+        TeenBoy
+        Girl
+        Boy
+    }
+
+    enum BoxState{
+        InStock
+        Lost
+        Ordered
+        Picked
+        Donated
+        Scrap
+    }
+
+    type SizeRange{
+        ID: ID!
+        label: String!
+        sizes: [String!]!
+        productCategory: [ProductCategory!]
+    }
+
+    type Location{
+        ID: ID!
+        base: Base!
         name: String
+        isShop: Boolean!
+        isDeleted: Boolean!
+        # List of all the boxes in the location
+        boxes: [Box!]
+        hasBoxState: BoxState
+        createdOn: Datetime!
+        # The user who generated QR code
+        createdBy: String!
+        lastModifiedBy: String!
+        lastModifiedOn: Datetime!
+    }
+
+    type Base{
+        ID: ID!
+        name: String!
+        parentOrg: Organisation!
+        locations: [Location!]
         currencyName: String
-        organisationId: Int
+    }
+
+    type Organisation{
+        ID: ID!
+        name: String!
+        bases: [Base!]
+    }
+
+    type Order{
+        ID: ID!
+        fromLocation: String!
+        toLocation: String!
+        # If null means internal transfer
+        fromOrg: Int
+        # If null means internal transfer
+        toOrg: Int
+        boxes: Box!
+        # If box state of all ordered boxes have not yet been changed, then it is active
+        isActive: Boolean!
+        createdBy: String!
+        createdOn: Datetime!
+        lastModifiedBy: String
+        # Need to change int to custom scalar for datetime
+        lastModifiedOn: Int
     }
 
     type User {
@@ -21,20 +142,6 @@ type_defs = gql(
         base_id: [Int]
         lastlogin: Datetime
         lastaction: Datetime
-    }
-
-    type Box {
-        id: Int
-        box_id: String!
-        product_id: Int
-        size_id: Int
-        items: Int
-        location_id: Int
-        comments: String
-        qr_id: Int
-        created: Datetime
-        created_by: String
-        box_state_id: Int
     }
 
     input CreateBoxInput {

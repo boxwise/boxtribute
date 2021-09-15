@@ -19,7 +19,7 @@ def test_create_box(client, qr_code_without_box):
             createBox(
                 box_creation_input : {box_creation_input_string}
             ) {{
-                id
+                ID
                 items
             }}
         }}"""
