@@ -124,11 +124,17 @@ jobs:
       #     key: flask-dev-deps-{{ checksum "requirements-dev.txt" }}
       #     paths:
       #       - env
+      - restore_cache:
+          key: precommit-deps-{{ checksum "../.pre-commit-config.yaml" }}
       - run:
           name: run style checks on Python files
           command: |
             source env/bin/activate
             pre-commit run --files **/*.py
+      - save_cache:
+          key: precommit-deps-{{ checksum "../.pre-commit-config.yaml" }}
+          paths:
+            - ~/.cache/pre-commit
       # run tests https://circleci.com/docs/2.0/collect-test-data/#pytest
       - run:
           name: Run pytest for unit tests
