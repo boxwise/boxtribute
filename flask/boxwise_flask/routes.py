@@ -10,7 +10,11 @@ from flask_cors import cross_origin
 from flask import Blueprint, jsonify, request
 
 # Blueprint for API
-api_bp = Blueprint("api_bp", __name__, url_prefix=os.getenv("FLASK_URL_PREFIX", ""),)
+api_bp = Blueprint(
+    "api_bp",
+    __name__,
+    url_prefix=os.getenv("FLASK_URL_PREFIX", ""),
+)
 
 
 @api_bp.errorhandler(AuthError)

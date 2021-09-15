@@ -36,7 +36,10 @@ class Product(db.Model):
     )
     deleted = DateTimeField(null=True, default=None)
     product_gender = ForeignKeyField(
-        column_name="gender_id", field="id", model=ProductGender, on_update="CASCADE",
+        column_name="gender_id",
+        field="id",
+        model=ProductGender,
+        on_update="CASCADE",
     )
     modified = DateTimeField(null=True)
     modified_by = ForeignKeyField(

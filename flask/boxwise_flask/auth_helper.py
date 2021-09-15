@@ -28,8 +28,7 @@ def get_auth_string_from_header():
 
 
 def get_token_from_auth_header(header_string):
-    """Obtains the Access Token from the Authorization Header
-    """
+    """Obtains the Access Token from the Authorization Header"""
     if not header_string:
         raise AuthError(
             {
@@ -121,8 +120,7 @@ def add_user_to_request_context(payload):
 
 
 def requires_auth(f):
-    """Determines if the Access Token is valid
-    """
+    """Determines if the Access Token is valid"""
 
     @wraps(f)
     def decorated(*args, **kwargs):

@@ -6,7 +6,7 @@ import requests
 def memoize(function):
     """Wraps a function so the data is cached.
     Each usage of the wrapped function will share the same data
-    memoize code from: https://stackoverflow.com/a/815160 """
+    memoize code from: https://stackoverflow.com/a/815160"""
     memo = {}
 
     def wrapper(*args):

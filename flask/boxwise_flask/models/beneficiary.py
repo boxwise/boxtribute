@@ -17,12 +17,17 @@ class Beneficiary(db.Model):
         column_name="approvalsigned", constraints=[SQL("DEFAULT 0")]
     )
     bicycle_ban = DateField(column_name="bicycleban", null=True)
-    bicycle_ban_comment = TextField(column_name="bicyclebancomment",)
+    bicycle_ban_comment = TextField(
+        column_name="bicyclebancomment",
+    )
     bicycle_training = IntegerField(
         column_name="bicycletraining", constraints=[SQL("DEFAULT 0")]
     )
     base = ForeignKeyField(
-        column_name="camp_id", field="id", model=Base, on_update="CASCADE",
+        column_name="camp_id",
+        field="id",
+        model=Base,
+        on_update="CASCADE",
     )
     comments = TextField(null=True)
     container = CharField(constraints=[SQL("DEFAULT ''")], index=True)
@@ -80,7 +85,9 @@ class Beneficiary(db.Model):
     visible = IntegerField(constraints=[SQL("DEFAULT 1")])
     volunteer = IntegerField(constraints=[SQL("DEFAULT 0")])
     workshop_ban = DateField(column_name="workshopban", null=True)
-    workshop_ban_comment = TextField(column_name="workshopbancomment",)
+    workshop_ban_comment = TextField(
+        column_name="workshopbancomment",
+    )
     workshop_supervisor = IntegerField(
         column_name="workshopsupervisor", constraints=[SQL("DEFAULT 0")]
     )
