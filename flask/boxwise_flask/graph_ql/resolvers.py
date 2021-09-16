@@ -106,8 +106,7 @@ def resolve_get_box_details_by_id(_, info, box_id=None, qr_code=None):
     elif box_id is not None:
         return Box.get(Box.box_id == box_id)
 
-    qr_id = QRCode.get_id_from_code(qr_code)
-    return Box.select().where(Box.qr_id == qr_id).get()
+    return Box.select().join(QRCode).where(QRCode.code == qr_code).get()
 
 
 @query.field("getBoxesByLocation")
