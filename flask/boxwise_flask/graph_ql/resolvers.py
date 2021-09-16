@@ -88,17 +88,19 @@ def resolve_qr_box_exists(_, info, qr_code):
     return True
 
 
-@query.field("box")
-def resolve_box(_, info, qr_code):
+@query.field("getBoxDetails")
+def resolve_get_box_details_by_id(_, info, box_id=None, qr_code=None):
+    if bool(box_id) == bool(qr_code):
+        # Either both or none of the arguments are given
+        return None
+
+    elif box_id is not None:
+        return Box.get(Box.box_id == box_id)
+
     qr_id = QRCode.get_id_from_code(qr_code)
     data = Box.select().where(Box.qr_id == qr_id).dicts().get()
     data["id"] = data["box_id"]
     return data
-
-
-@query.field("getBoxDetails")
-def resolve_get_box_details_by_id(_, info, box_id):
-    return Box.get(Box.box_id == box_id)
 
 
 @query.field("getBoxesByLocation")

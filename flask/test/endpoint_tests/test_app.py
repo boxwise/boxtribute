@@ -24,14 +24,14 @@ def test_backend_connection():
 
     data = {
         "query": """query Box {
-                box(qr_code: "ffdd7f7243d74a663b417562df0ebeb") {
+                getBoxDetails(qr_code: "ffdd7f7243d74a663b417562df0ebeb") {
                     ID
                     items
                 }
             }"""
     }
     response = client.post("/graphql", json=data)
-    queried_box = response.json["data"]["box"]
+    queried_box = response.json["data"]["getBoxDetails"]
     assert response.status_code == 200
     assert queried_box == {"ID": "436898", "items": 87}
 
