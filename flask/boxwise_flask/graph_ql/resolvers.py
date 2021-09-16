@@ -1,5 +1,6 @@
 """GraphQL resolver functionality"""
 from ariadne import (
+    EnumType,
     MutationType,
     ObjectType,
     ScalarType,
@@ -14,6 +15,8 @@ from boxwise_flask.graph_ql.query_defs import query_defs
 from boxwise_flask.graph_ql.type_defs import type_defs
 from boxwise_flask.models.base import Base
 from boxwise_flask.models.box import Box
+from boxwise_flask.models.product import Product
+from boxwise_flask.models.product_gender import ProductGender
 from boxwise_flask.models.qr_code import QRCode
 from boxwise_flask.models.user import User, get_user_from_email_with_base_ids
 
@@ -114,14 +117,32 @@ def resolve_get_boxes_by_location(_, info, location_id):
     return Box.select().where(Box.location == location_id)
 
 
+@query.field("getBoxesByGender")
+@convert_kwargs_to_snake_case
+def resolve_get_boxes_by_gender(_, info, gender_id):
+    return (
+        Box.select()
+        .join(Product)
+        .join(ProductGender)
+        .where(ProductGender.id == gender_id)
+    )
+
+
 @mutation.field("createBox")
 def create_box(_, info, box_creation_input):
     response = Box.create_box(box_creation_input)
     return response
 
 
+# Translate GraphQL enum into id field of database table
+product_gender_type_def = EnumType(
+    "ProductGender",
+    {
+        "UnisexAdult": 3,
+    },
+)
 schema = make_executable_schema(
     gql(type_defs + query_defs + mutation_defs),
-    [query, mutation],
+    [query, mutation, product_gender_type_def],
     snake_case_fallback_resolvers,
 )
