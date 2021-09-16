@@ -3,6 +3,7 @@ from ariadne import (
     MutationType,
     ObjectType,
     ScalarType,
+    convert_kwargs_to_snake_case,
     gql,
     make_executable_schema,
     snake_case_fallback_resolvers,
@@ -45,6 +46,7 @@ def resolve_all_bases(_, info):
 # not everyone can see all the bases
 # see the comment in https://github.com/boxwise/boxwise-flask/pull/19
 @query.field("orgBases")
+@convert_kwargs_to_snake_case
 def resolve_org_bases(_, info, org_id):
     response = Base.get_for_organisation(org_id)
     return response
@@ -70,6 +72,7 @@ def resolve_user(_, info, email):
 
 
 @query.field("qrExists")
+@convert_kwargs_to_snake_case
 def resolve_qr_exists(_, info, qr_code):
     try:
         QRCode.get_id_from_code(qr_code)
@@ -79,6 +82,7 @@ def resolve_qr_exists(_, info, qr_code):
 
 
 @query.field("qrBoxExists")
+@convert_kwargs_to_snake_case
 def resolve_qr_box_exists(_, info, qr_code):
     try:
         qr_id = QRCode.get_id_from_code(qr_code)
@@ -89,6 +93,7 @@ def resolve_qr_box_exists(_, info, qr_code):
 
 
 @query.field("getBoxDetails")
+@convert_kwargs_to_snake_case
 def resolve_get_box_details_by_id(_, info, box_id=None, qr_code=None):
     if bool(box_id) == bool(qr_code):
         # Either both or none of the arguments are given
@@ -104,6 +109,7 @@ def resolve_get_box_details_by_id(_, info, box_id=None, qr_code=None):
 
 
 @query.field("getBoxesByLocation")
+@convert_kwargs_to_snake_case
 def resolve_get_boxes_by_location(_, info, location_id):
     return Box.select().where(Box.location == location_id)
 

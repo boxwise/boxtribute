@@ -24,7 +24,7 @@ def test_backend_connection():
 
     data = {
         "query": """query Box {
-                getBoxDetails(qr_code: "ffdd7f7243d74a663b417562df0ebeb") {
+                getBoxDetails(qrCode: "ffdd7f7243d74a663b417562df0ebeb") {
                     ID
                     items
                 }
@@ -49,7 +49,7 @@ def test_get_box_details():
 
     data = {
         "query": """query Box {
-                getBoxDetails(box_id: 996559) {
+                getBoxDetails(boxId: 996559) {
                     qrCode {
                         ID
                     }
@@ -88,7 +88,7 @@ def test_get_boxes_by_location():
 
     data = {
         "query": """query Box {
-                getBoxesByLocation(location_id: 14) {
+                getBoxesByLocation(locationId: 14) {
                     comment
                 }
             }"""

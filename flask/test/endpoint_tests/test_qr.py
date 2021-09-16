@@ -5,7 +5,7 @@ import pytest
 def test_qr_exists(client, default_qr_code):
     code = default_qr_code["code"]
     graph_ql_query_string = f"""query CheckQrExistence {{
-                qrExists(qr_code: "{code}")
+                qrExists(qrCode: "{code}")
             }}"""
     data = {"query": graph_ql_query_string}
     response = client.post("/graphql", json=data)
@@ -13,7 +13,7 @@ def test_qr_exists(client, default_qr_code):
     assert response.json["data"]["qrExists"]
 
     graph_ql_query_string = """query CheckQrExistence {
-                qrExists(qr_code: "111")
+                qrExists(qrCode: "111")
             }"""
     data = {"query": graph_ql_query_string}
     response = client.post("/graphql", json=data)

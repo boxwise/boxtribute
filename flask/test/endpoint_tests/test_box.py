@@ -6,7 +6,7 @@ import pytest
 def test_get_box_from_code(client, default_box, default_qr_code):
     code = default_qr_code["code"]
     graph_ql_query_string = f"""query Box {{
-                getBoxDetails(qr_code: "{code}") {{
+                getBoxDetails(qrCode: "{code}") {{
                     ID
                 }}
             }}"""
@@ -21,7 +21,7 @@ def test_get_box_from_code(client, default_box, default_qr_code):
 def test_code_not_associated_with_box(client, qr_code_without_box):
     code = qr_code_without_box["code"]
     graph_ql_query_string = f"""query Box {{
-                getBoxDetails(qr_code: "{code}") {{
+                getBoxDetails(qrCode: "{code}") {{
                     ID
                 }}
             }}"""
@@ -37,7 +37,7 @@ def test_code_not_associated_with_box(client, qr_code_without_box):
 
 def test_code_does_not_exist(client):
     graph_ql_query_string = """query Box {
-                getBoxDetails(qr_code: "-1") {
+                getBoxDetails(qrCode: "-1") {
                     ID
                 }
             }"""
@@ -56,7 +56,7 @@ def test_code_does_not_exist(client):
 def test_qr_box_exists(client, default_qr_code, qr_code_without_box):
     code = default_qr_code["code"]
     graph_ql_query_string = f"""query CheckQrExistence {{
-                qrBoxExists(qr_code: "{code}")
+                qrBoxExists(qrCode: "{code}")
             }}"""
     data = {"query": graph_ql_query_string}
     response = client.post("/graphql", json=data)
@@ -65,7 +65,7 @@ def test_qr_box_exists(client, default_qr_code, qr_code_without_box):
 
     code = qr_code_without_box["code"]
     graph_ql_query_string = f"""query CheckQrExistence {{
-                qrBoxExists(qr_code: "{code}")
+                qrBoxExists(qrCode: "{code}")
             }}"""
     data = {"query": graph_ql_query_string}
     response = client.post("/graphql", json=data)
