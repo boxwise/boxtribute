@@ -21,6 +21,7 @@ from boxwise_flask.models.qr_code import QRCode
 from boxwise_flask.models.user import User, get_user_from_email_with_base_ids
 
 query = ObjectType("Query")
+box = ObjectType("Box")
 mutation = MutationType()
 
 datetime_scalar = ScalarType("Datetime")
@@ -106,9 +107,7 @@ def resolve_get_box_details_by_id(_, info, box_id=None, qr_code=None):
         return Box.get(Box.box_id == box_id)
 
     qr_id = QRCode.get_id_from_code(qr_code)
-    data = Box.select().where(Box.qr_id == qr_id).dicts().get()
-    data["id"] = data["box_id"]
-    return data
+    return Box.select().where(Box.qr_id == qr_id).get()
 
 
 @query.field("getBoxesByLocation")
@@ -128,6 +127,13 @@ def resolve_get_boxes_by_gender(_, info, gender_id):
     )
 
 
+@box.field("ID")
+def resolve_box_id(obj, info):
+    # Custom resolver because the GraphQL Box.ID field refers to the peewee
+    # Box.box_id field (not id)
+    return obj.box_id
+
+
 @mutation.field("createBox")
 def create_box(_, info, box_creation_input):
     response = Box.create_box(box_creation_input)
@@ -143,6 +149,6 @@ product_gender_type_def = EnumType(
 )
 schema = make_executable_schema(
     gql(type_defs + query_defs + mutation_defs),
-    [query, mutation, product_gender_type_def],
+    [query, mutation, box, product_gender_type_def],
     snake_case_fallback_resolvers,
 )

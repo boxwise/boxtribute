@@ -122,4 +122,7 @@ def test_get_boxes_by_gender():
     queried_boxes = response.json["data"]["getBoxesByGender"]
     assert response.status_code == 200
     assert len(queried_boxes) == 47
+    # IDs are six-digit numbers
+    for box in queried_boxes:
+        assert 99999 < int(box["ID"]) < 1000000
     db.close_db(None)
