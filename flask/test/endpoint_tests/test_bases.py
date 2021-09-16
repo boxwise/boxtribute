@@ -2,7 +2,7 @@ import pytest
 
 
 def get_base_from_graphql(id, base_query):
-    return [x for x in base_query if x["ID"] == id][0]
+    return [x for x in base_query if int(x["ID"]) == id][0]
 
 
 @pytest.mark.usefixtures("default_bases")
@@ -24,7 +24,7 @@ def test_all_bases(client, default_bases):
     all_bases = response_data.json["data"]["allBases"]
     for _, expected_base in default_bases.items():
         created_base = get_base_from_graphql(expected_base["id"], all_bases)
-        assert created_base["ID"] == expected_base["id"]
+        assert int(created_base["ID"]) == expected_base["id"]
         assert created_base["name"] == expected_base["name"]
         assert created_base["currencyName"] == expected_base["currency_name"]
 
@@ -48,6 +48,6 @@ def test_base(client, default_bases):
 
     expected_base = default_bases[test_id]
     created_base = response_data.json["data"]["base"]
-    assert created_base["ID"] == expected_base["id"]
+    assert int(created_base["ID"]) == expected_base["id"]
     assert created_base["name"] == expected_base["name"]
     assert created_base["currencyName"] == expected_base["currency_name"]

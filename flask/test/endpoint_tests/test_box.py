@@ -14,7 +14,7 @@ def test_get_box_from_code(client, default_box, default_qr_code):
     response_data = client.post("/graphql", json=data)
     queried_box = response_data.json["data"]["box"]
     assert response_data.status_code == 200
-    assert int(queried_box["ID"]) == default_box["id"]
+    assert queried_box["ID"] == default_box["box_id"]
 
 
 @pytest.mark.usefixtures("qr_code_without_box")

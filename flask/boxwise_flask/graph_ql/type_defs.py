@@ -150,7 +150,7 @@ type_defs = gql(
         size_id: Int #this is a foreign key
         items: Int
         location_id: Int! #this is a foreign key
-        comments: String!
+        comment: String!
         #this will get looked up to turn into qr_id, which is a foreign key
         qr_barcode: String!
         created: Datetime #this is an output, but not an input

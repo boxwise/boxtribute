@@ -91,7 +91,9 @@ def resolve_qr_box_exists(_, info, qr_code):
 @query.field("box")
 def resolve_box(_, info, qr_code):
     qr_id = QRCode.get_id_from_code(qr_code)
-    return Box.get_box_from_qr(qr_id)
+    data = Box.select().where(Box.qr_id == qr_id).dicts().get()
+    data["id"] = data["box_id"]
+    return data
 
 
 @query.field("getBoxDetails")

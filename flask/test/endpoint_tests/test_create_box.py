@@ -8,7 +8,7 @@ def test_create_box(client, qr_code_without_box):
                     product_id: 1,
                     items: 9999,
                     location_id: 100000005,
-                    comments: "",
+                    comment: "",
                     size_id: 1,
                     qr_barcode: "{qr_code_without_box["code"]}",
                     created_by: "1"

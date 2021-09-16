@@ -28,7 +28,7 @@ class Box(db.Model):
         model=BoxState,
         on_update="CASCADE",
     )
-    comments = TextField()
+    comment = TextField(column_name="comments")
     created = DateTimeField(null=True)
     created_by = ForeignKeyField(
         column_name="created_by",
@@ -131,7 +131,7 @@ class Box(db.Model):
             location_id=box_creation_input.get(
                 "location_id", None
             ),  # based on the user's allowed bases
-            comments=box_creation_input.get("comments", None),
+            comment=box_creation_input.get("comment", None),
             qr_id=qr_id_from_table,
             created=today,
             # this is consistently NULL in the table, do we want to change that?
