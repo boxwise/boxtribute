@@ -90,7 +90,7 @@ def resolve_qr_exists(_, info, qr_code):
 def resolve_qr_box_exists(_, info, qr_code):
     try:
         qr_id = QRCode.get_id_from_code(qr_code)
-        Box.get_box_from_qr(qr_id)
+        Box.get(Box.qr_code == qr_id)
     except Box.DoesNotExist:
         return False
     return True
