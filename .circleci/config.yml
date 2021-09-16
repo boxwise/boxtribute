@@ -163,7 +163,7 @@ jobs:
           name: Run pytest for integration tests
           command: |
             source env/bin/activate
-            pytest --cov-report xml:test-results/coverage.xml --cov-append --cov=. test -k 'backend or box_details or boxes_by'
+            pytest --cov-report xml:test-results/coverage.xml --cov-append --cov=. test -k 'box_details or get_boxes'
       - store_test_results:
           path: test-results
       - store_artifacts:
