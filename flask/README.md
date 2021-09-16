@@ -69,7 +69,7 @@ To access the mysql database, there are now three possibilities:
 
 1. You reach the mysql db at `MYSQL_HOST=mysql` and `MYSQL_PORT=3306` or
 1. You execute the mysql command line client in the running container by `docker-compose exec mysql mysql -u root -p` or
-1. by specifying the IP-address of the gateway for `MYSQL_HOST` and `MYSQL_PORT=32000`.
+1. by specifying the IP-address of the gateway for `MYSQL_HOST` and `MYSQL_PORT=3306`.
 
 To figure out the gateway of the docker network `backend` run
 
@@ -77,7 +77,7 @@ To figure out the gateway of the docker network `backend` run
 
 #### MySQL workbend or other editors
 
-Most of our developers use [MySQL workbench](https://dev.mysql.com/doc/workbench/en/wb-installing.html) to interact with the database directly. If you want to connect to the database, choose one of the possibilities in the former to define the connection, e.g. Hostname is 172.18.0.1 and Port is 32000.
+Most of our developers use [MySQL workbench](https://dev.mysql.com/doc/workbench/en/wb-installing.html) to interact with the database directly. If you want to connect to the database, choose one of the possibilities in the former to define the connection, e.g. Hostname is 172.18.0.1 and Port is 3306.
 
 The development database is called `dropapp_dev` and the password is `dropapp_root`.
 
@@ -92,7 +92,7 @@ The `pwiz` utility helps to generate peewee model definitions by inspecting a ru
 
 1. Start the database by `docker-compose up mysql`
 1. Obtain the gateway IP of the Docker network `boxtribute_backend` as described above.
-1. Run `python -m pwiz -H XXX.XX.X.X -p 32000 -u root -e mysql -t camps -P dropapp_dev > base.py` to generate the model definitions of the `camps` table, and write them into the file `base.py`.
+1. Run `python -m pwiz -H XXX.XX.X.X -p 3306 -u root -e mysql -t camps -P dropapp_dev > base.py` to generate the model definitions of the `camps` table, and write them into the file `base.py`.
 
 ### Debugging
 
@@ -136,11 +136,18 @@ and log with:
 
 ## Testing
 
-### Writing tests
+### Executing tests
 
 Run the test suite on your machine by executing
 
     pytest
+
+Some tests require a running MySQL server and are disabled unless during a CircleCI pipeline. Local testing is possible by
+
+    docker-compose up -d mysql
+    CIRCLECI=1 pytest
+
+### Writing tests
 
 Two types of tests can be setup. Model (unit) tests and endpoint (integration) tests.
 
