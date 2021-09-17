@@ -17,6 +17,7 @@ import { GraphQLError } from "graphql";
 // }
 // , variables: {"productId":0,"items":2,"locationId":0,"comments":"","sizeId":2,"qrBarcode":null}
 
+// {"productId":1,"items":2,"locationId":0,"comments":"","sizeId":2,"qrBarcode":null}
 
 const mocks = [
   {
@@ -25,7 +26,7 @@ const mocks = [
       variables: {
         productId: 1,
         items: 2,
-        locationId: 2,
+        locationId: 0,
         comments: "",
         sizeId: 2,
         qrBarcode: "387b0f0f5e62cebcafd48383035a92a",
@@ -33,6 +34,12 @@ const mocks = [
     },
     result: {
       data: {
+        // createBox: {
+        //   id: 555,
+        //   box_id: 456,
+        //   product_id: 123,
+        //   items: 50,
+        // },
         createBox: {
           id: 555,
           box_id: 456,
@@ -176,11 +183,8 @@ describe("Created box is displayed correctly", () => {
   let component: RenderResult;
   beforeEach(() => {
     const history = createMemoryHistory();
-    const state = { qr: "barcode=387b0f0f5e62cebcafd48383035a92a" };
-    history.push("/create-box", state);
-
+    history.push("/create-box/?qr=387b0f0f5e62cebcafd48383035a92a");
     component = render(<CreateBox />, { mocks, history });
-
   });
 
   afterEach(cleanup);
@@ -194,29 +198,32 @@ describe("Created box is displayed correctly", () => {
     expect(product1OptionField).toBeInTheDocument();
     // component.debug();
 
-    // const numberOfItemsField = component.getByLabelText("# of items");
-    // expect(numberOfItemsField.value).toBe("0");
-    // fireEvent.change(numberOfItemsField, {
-    //   target: {
-    //     value: 2
-    //   }
-    // });
-    // expect(numberOfItemsField.value).toBe("2");
-    // const submitBtn = component.getByRole("button", {
-    //   name: /Save/i,
-    // });
+    const qrCodeLabel = component.getByText(/QR code: 387b0f0f5e62cebcafd48383035a92a/i);
+    expect(qrCodeLabel).toBeInTheDocument()
 
-    // fireEvent.click(submitBtn);
+    const numberOfItemsField = component.getByLabelText("# of items");
+    expect(numberOfItemsField.value).toBe("0");
+    fireEvent.change(numberOfItemsField, {
+      target: {
+        value: 2
+      }
+    });
+    expect(numberOfItemsField.value).toBe("2");
+    const submitBtn = component.getByRole("button", {
+      name: /Save/i,
+    });
 
-    // await waitFor(() => {
-    //   expect(component.queryByTestId("createBoxForm")).toBeNull();
-    //   expect(component.getByTestId("createdBox")).toBeTruthy();
-    //   expect(
-    //     component.findByRole("heading", {
-    //       name: /the box id is: 456/i,
-    //     }),
-    //   );
-    // });
+    fireEvent.click(submitBtn);
+
+    await waitFor(() => {
+      expect(component.queryByTestId("createBoxForm")).toBeNull();
+      expect(component.getByTestId("createdBox")).toBeTruthy();
+      expect(
+        component.findByRole("heading", {
+          name: /the box id is: 456/i,
+        }),
+      );
+    });
   });
 });
 
