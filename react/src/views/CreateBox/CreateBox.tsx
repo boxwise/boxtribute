@@ -21,13 +21,6 @@ export default function CreateBox() {
     CREATE_BOX,
   );
 
-  const _isMounted = useRef(true);
-  useEffect(() => {
-    return () => {
-      _isMounted.current = false;
-    }
-  }, []);
-
   const urlQueryParams = useUrlQuery();
 
   const [products, setProducts] = useState<Product[]>();
@@ -38,7 +31,7 @@ export default function CreateBox() {
 
   useQuery(PRODUCTS, {
     onCompleted: (data) => {
-      _isMounted && setProducts(data.products);
+      setProducts(data.products);
     },
     onError: (err) => {
       // TODO: Error handling
@@ -48,24 +41,14 @@ export default function CreateBox() {
 
   useQuery(LOCATIONS, {
     onCompleted: (data) => {
-      _isMounted && setLocations(data.locations);
+      setLocations(data.locations);
     }
   });
-
-  // useQuery(SIZES_FOR_PRODUCT, {
-  //   onCompleted: (data) => {
-  //     console.log(data);
-  //     _isMounted && setSizes(data.product.sizes);
-  //   },
-  //   onError: (err) => {
-  //     console.log(err);
-  //   },
-  // });
 
   const changeProduct = useCallback(
     (product) => {
       const newSelectedProductId = product.target.value;
-      _isMounted && setSelectedProductId(parseInt(newSelectedProductId));
+      setSelectedProductId(parseInt(newSelectedProductId));
     },
     [setSelectedProductId],
   );
