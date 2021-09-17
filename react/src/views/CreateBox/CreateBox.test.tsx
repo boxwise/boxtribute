@@ -100,9 +100,9 @@ const mockNetworkError = [
     request: {
       query: CREATE_BOX,
       variables: {
-        productId: 2,
+        productId: 1,
         items: 2,
-        locationId: 2,
+        locationId: 1,
         comments: "",
         sizeId: 2,
         qrBarcode: "387b0f0f5e62cebcafd48383035a92a",
@@ -137,8 +137,7 @@ describe("Renders CreateBox component correctly", () => {
   let history;
   beforeEach(async () => {
     history = createMemoryHistory();
-    const state = { qr: "barcode=387b0f0f5e62cebcafd48383035a92a" };
-    history.push("/create-box", state);
+    history.push("/create-box/?qr=387b0f0f5e62cebcafd48383035a92a");
 
     // component = render(<CreateBox />, { mocks, history });
 
@@ -162,7 +161,7 @@ describe("Renders CreateBox component correctly", () => {
     expect(component.getByTestId("createBoxForm")).toBeTruthy();
   });
 
-  it("renders the correct 5 fields within the form", () => {
+  it("renders the correct 5 fields and the QR code within the form", () => {
     expect(component.getByLabelText(/Product*/i)).toBeTruthy();
 
     // await component.findByText("Winter Jackets");
@@ -170,6 +169,9 @@ describe("Renders CreateBox component correctly", () => {
     // expect(component.getByText(/items*/i)).toBeTruthy();
     // expect(component.getByText(/sizeid*/i)).toBeTruthy();
     // expect(component.getByText(/comments*/i)).toBeTruthy();
+
+    const qrCodeLabel = component.getByText(/QR code: 387b0f0f5e62cebcafd48383035a92a/i);
+    expect(qrCodeLabel).toBeInTheDocument()
   });
 
   it("renders a submit button titled, `Save`", () => {
@@ -199,9 +201,6 @@ describe("Created box is displayed correctly", () => {
     const product1OptionField = await component.findByTestId('product-selector-id-1');
     expect(product1OptionField).toBeInTheDocument();
     // component.debug();
-
-    const qrCodeLabel = component.getByText(/QR code: 387b0f0f5e62cebcafd48383035a92a/i);
-    expect(qrCodeLabel).toBeInTheDocument()
 
     const numberOfItemsField = component.getByLabelText("# of items") as HTMLInputElement;
     expect(numberOfItemsField.value).toBe("0");
@@ -276,27 +275,35 @@ describe("Required form fields prohibit submission when blank", () => {
   });
 });
 
-// describe("Network error after submission", () => {
-//   let component;
-//   beforeEach(() => {
-//     const history = createMemoryHistory();
-//     history.push("/create-box/?qr=387b0f0f5e62cebcafd48383035a92a");
+describe("Network error after submission", () => {
+  let component;
+  beforeEach(() => {
+    const history = createMemoryHistory();
+    history.push("/create-box/?qr=387b0f0f5e62cebcafd48383035a92a");
 
-//     component = render(<CreateBox />, { mocks: mockNetworkError, history });
-//   });
+    component = render(<CreateBox />, { mocks: mockNetworkError, history });
+  });
 
-//   afterEach(cleanup);
+  afterEach(cleanup);
 
-//   it("renders `Error :( Please try again` when there is a network error", async () => {
-//     const submitBtn = component.getByRole("button", { name: /save/i });
+  it("renders `Error :( Please try again` when there is a network error", async () => {
 
-//     fireEvent.click(submitBtn);
+    await component.findByTestId('product-selector-id-1');
+    const numberOfItemsField = component.getByLabelText("# of items") as HTMLInputElement;
+    fireEvent.change(numberOfItemsField, {
+      target: {
+        value: 2
+      }
+    });
 
-//     await waitFor(() => {
-//       expect(component.getByText("Error :( Please try again")).toBeInTheDocument();
-//     });
-//   });
-// });
+    const submitBtn = component.getByRole("button", { name: /save/i });
+    fireEvent.click(submitBtn);
+
+    await waitFor(() => {
+      expect(component.getByText("Error :( Please try again")).toBeInTheDocument();
+    });
+  });
+});
 
 // describe("GraphQL error after submission", () => {
 //   let component;
