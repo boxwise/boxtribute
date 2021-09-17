@@ -134,7 +134,9 @@ function ScanBox() {
         return (
           <Redirect
             to={{
-              pathname: `/create-box/?qr=${qr}`
+              pathname: `/create-box`,
+              search: `?qr=${qr}`
+              
             }}
           />
         );
