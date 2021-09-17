@@ -118,9 +118,9 @@ const mockGraphQLError = [
     request: {
       query: CREATE_BOX,
       variables: {
-        productId: 2,
+        productId: 1,
         items: 2,
-        locationId: 2,
+        locationId: 1,
         comments: "",
         sizeId: 2,
         qrBarcode: "387b0f0f5e62cebcafd48383035a92a",
@@ -130,6 +130,7 @@ const mockGraphQLError = [
       errors: [new GraphQLError("Error!")],
     },
   },
+  ...productsAndLocationQueriesForInitialLoading
 ];
 
 describe("Renders CreateBox component correctly", () => {
@@ -287,7 +288,6 @@ describe("Network error after submission", () => {
   afterEach(cleanup);
 
   it("renders `Error :( Please try again` when there is a network error", async () => {
-
     await component.findByTestId('product-selector-id-1');
     const numberOfItemsField = component.getByLabelText("# of items") as HTMLInputElement;
     fireEvent.change(numberOfItemsField, {
@@ -305,28 +305,37 @@ describe("Network error after submission", () => {
   });
 });
 
-// describe("GraphQL error after submission", () => {
-//   let component;
-//   beforeEach(() => {
-//     const history = createMemoryHistory();
-//     const state = { qr: "barcode=387b0f0f5e62cebcafd48383035a92a" };
-//     history.push("/create-box", state);
+describe("GraphQL error after submission", () => {
+  let component;
+  beforeEach(() => {
+    const history = createMemoryHistory();
+    history.push("/create-box/?qr=387b0f0f5e62cebcafd48383035a92a");
 
-//     component = render(<CreateBox />, { mocks: mockGraphQLError, history });
-//   });
+    component = render(<CreateBox />, { mocks: mockGraphQLError, history });
+  });
 
-//   afterEach(cleanup);
+  afterEach(cleanup);
 
-//   it("renders `Error :( Please try again` when there is a GraphQL error", async () => {
-//     const submitBtn = component.getByRole("button", { name: /save/i });
+  it("renders `Error :( Please try again` when there is a GraphQL error", async () => {
+    await component.findByTestId('product-selector-id-1');
 
-//     fireEvent.click(submitBtn);
+    const numberOfItemsField = component.getByLabelText("# of items") as HTMLInputElement;
+    fireEvent.change(numberOfItemsField, {
+      target: {
+        value: 2
+      }
+    });
 
-//     await waitFor(() => {
-//       expect(component.getByText("Error :( Please try again")).toBeInTheDocument();
-//     });
-//   });
-// });
+    const submitBtn = component.getByRole("button", { name: /save/i });
+
+    // act(() => {
+    fireEvent.click(submitBtn);
+    // });
+    await waitFor(() => {
+      expect(component.getByText("Error :( Please try again")).toBeInTheDocument();
+    });
+  });
+});
 
 // Loading state is a work in progress
 /*
