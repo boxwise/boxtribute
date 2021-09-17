@@ -196,7 +196,7 @@ Test data is setup in the `test/data` folder and each piece of data is split up 
 
 From the repository root, run
 
-    pytest --cov --cov-report=term --cov-report=html flask
+    pytest --cov=flask/boxwise_flask --cov-report=term --cov-report=html flask
 
 and inspect the reported output. Open the HTML report via `flask/htmlcov/index.html` to browse coverage for individual source code files.
 
