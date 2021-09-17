@@ -133,6 +133,12 @@ def resolve_box_id(obj, info):
     return obj.box_id
 
 
+@box.field("state")
+def resolve_box_state(obj, info):
+    # Instead of a BoxState instance return an integer for EnumType conversion
+    return obj.box_state.id
+
+
 @mutation.field("createBox")
 def create_box(_, info, box_creation_input):
     response = Box.create_box(box_creation_input)
@@ -146,8 +152,14 @@ product_gender_type_def = EnumType(
         "UnisexAdult": 3,
     },
 )
+box_state_type_def = EnumType(
+    "BoxState",
+    {
+        "InStock": 1,
+    },
+)
 schema = make_executable_schema(
     gql(type_defs + query_defs + mutation_defs),
-    [query, mutation, box, product_gender_type_def],
+    [query, mutation, box, product_gender_type_def, box_state_type_def],
     snake_case_fallback_resolvers,
 )

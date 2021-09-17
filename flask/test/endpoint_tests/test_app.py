@@ -9,20 +9,41 @@ def test_get_box_details(mysql_app_client):
         "query": """query BoxIdAndItems {
                 getBoxDetails(qrCode: "ffdd7f7243d74a663b417562df0ebeb") {
                     ID
+                    location {
+                        ID
+                        base {
+                            ID
+                        }
+                        name
+                    }
                     items
+                    size
+                    state
                 }
             }"""
     }
     response = mysql_app_client.post("/graphql", json=data)
     queried_box = response.json["data"]["getBoxDetails"]
     assert response.status_code == 200
-    assert queried_box == {"ID": "436898", "items": 87}
+    assert queried_box == {
+        "ID": "436898",
+        "items": 87,
+        "location": {
+            "ID": "18",
+            "base": {"ID": "2"},
+            "name": None,
+        },
+        "size": "52 Mixed",
+        "state": "InStock",
+    }
 
     data = {
         "query": """query SomeBoxDetails {
                 getBoxDetails(boxId: 996559) {
                     qrCode {
                         ID
+                        code
+                        createdOn
                     }
                     product {
                         ID
@@ -38,6 +59,8 @@ def test_get_box_details(mysql_app_client):
     assert queried_box == {
         "qrCode": {
             "ID": "574",
+            "code": "224ac643d3b929f99c71c25ccde7dde",
+            "createdOn": None,
         },
         "items": 84,
         "product": {
