@@ -135,13 +135,6 @@ jobs:
           key: precommit-deps-{{ checksum "../.pre-commit-config.yaml" }}
           paths:
             - ~/.cache/pre-commit
-      # run tests https://circleci.com/docs/2.0/collect-test-data/#pytest
-      - run:
-          name: Run pytest for unit tests
-          command: |
-            source env/bin/activate
-            mkdir test-results
-            pytest --cov-report xml:test-results/coverage.xml --cov=boxwise_flask --ignore test/endpoint_tests/test_app.py test
       # https://circleci.com/docs/2.0/postgres-config/#example-mysql-project
       - run:
       # Our primary container isn't MYSQL so run a sleep command until it's ready.
@@ -159,11 +152,12 @@ jobs:
           command: |
             sudo apt-get install default-mysql-client
             mysql -h 127.0.0.1 -u root -pdropapp_root dropapp_dev < init.sql
+      # run tests https://circleci.com/docs/2.0/collect-test-data/#pytest
       - run:
-          name: Run pytest for integration tests
+          name: Run pytest
           command: |
             source env/bin/activate
-            pytest --cov-report xml:test-results/coverage.xml --cov-append --cov=boxwise_flask -k 'box_details or get_boxes' test
+            pytest --cov-report xml:test-results/coverage.xml --cov=boxwise_flask
       - store_test_results:
           path: test-results
       - store_artifacts:
