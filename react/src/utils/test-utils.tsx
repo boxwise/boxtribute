@@ -1,15 +1,16 @@
-import React from "react";
+import React, { FunctionComponent } from "react";
 import { render as rtlRender } from "@testing-library/react";
 import { MockedProvider, MockedResponse } from "@apollo/client/testing";
 import { Router } from "react-router-dom";
 import "mutationobserver-shim";
 
 function render(ui, { mocks, history, ...renderOptions }: { mocks: Array<MockedResponse>, history: any }) {
-  function Wrapper({ children }) {
-    return (
+  const Wrapper: React.FC = ({ children }) => {
+    return (<>
       <MockedProvider mocks={mocks} addTypename={false} >
-        <Router history={history}> {children} </Router>
+        <Router history={history}>{children}</Router>
       </MockedProvider>
+    </>
     );
   }
   return rtlRender(ui, {

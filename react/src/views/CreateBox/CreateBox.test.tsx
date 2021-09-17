@@ -6,19 +6,6 @@ import { CREATE_BOX, LOCATIONS, PRODUCTS, SIZES_FOR_PRODUCT } from "../../utils/
 import CreateBox from "./CreateBox";
 import { GraphQLError } from "graphql";
 
-
-// mutation ($productId: Int!, $items: Int!, $locationId: Int!, $comments: String!, $sizeId: Int, $qrBarcode: String!) {
-//   createBox(box_creation_input: {product_id: $productId, size_id: $sizeId, items: $items, location_id: $locationId, comments: $comments, qr_barcode: $qrBarcode}) {
-//     id
-//     box_id
-//     product_id
-//     items
-//   }
-// }
-// , variables: {"productId":0,"items":2,"locationId":0,"comments":"","sizeId":2,"qrBarcode":null}
-
-// {"productId":1,"items":2,"locationId":0,"comments":"","sizeId":2,"qrBarcode":null}
-
 const productsAndLocationQueriesForInitialLoading = [{
   request: {
     query: PRODUCTS,
@@ -67,12 +54,6 @@ const mocks = [
     },
     result: {
       data: {
-        // createBox: {
-        //   id: 555,
-        //   box_id: 456,
-        //   product_id: 123,
-        //   items: 50,
-        // },
         createBox: {
           id: 555,
           box_id: 456,
@@ -83,16 +64,6 @@ const mocks = [
     },
   },
   ...productsAndLocationQueriesForInitialLoading
-  // {
-  //   request: {
-  //     query: SIZES_FOR_PRODUCT,
-  //   },
-  //   result: {
-  //     data: {
-  //       products: [{ __typename: "Size", id: 1, name: "Winter Jackets" }]
-  //     },
-  //   },
-  // }
 ];
 
 const mockNetworkError = [
@@ -140,12 +111,7 @@ describe("Renders CreateBox component correctly", () => {
     history = createMemoryHistory();
     history.push("/create-box/?qr=387b0f0f5e62cebcafd48383035a92a");
 
-    // component = render(<CreateBox />, { mocks, history });
-
-    // act(() => {
-      component = render(<CreateBox />, { mocks, history })
-    // });
-    // act(() => render(<CreateBox />, { mocks, history }));
+    component = render(<CreateBox />, { mocks, history })
   });
 
   afterEach(cleanup);
@@ -198,7 +164,6 @@ describe("Created box is displayed correctly", () => {
 
     const productField = component.getByLabelText("Product");
     expect(productField["value"]).toBe("");
-    // expect(component.queryByTestId('product-selector-id-1')).not.toBeInTheDocument();
     const product1OptionField = await component.findByTestId('product-selector-id-1');
     expect(product1OptionField).toBeInTheDocument();
     // component.debug();
@@ -328,20 +293,25 @@ describe("GraphQL error after submission", () => {
 
     const submitBtn = component.getByRole("button", { name: /save/i });
 
-    // act(() => {
     fireEvent.click(submitBtn);
     // });
     await waitFor(() => {
       expect(component.getByText("Error :( Please try again")).toBeInTheDocument();
     });
   });
-});
 
-// Loading state is a work in progress
-/*
+  // Loading state is a work in progress
   it("renders `loading` while loading", async () => {
+    await component.findByTestId('product-selector-id-1');
 
-    const submitBtn = component.getByRole("button", { name: /do the mutation/i });
+    const numberOfItemsField = component.getByLabelText("# of items") as HTMLInputElement;
+    fireEvent.change(numberOfItemsField, {
+      target: {
+        value: 2
+      }
+    });
+
+    const submitBtn = component.getByRole("button", { name: /save/i });
 
     fireEvent.click(submitBtn);
 
@@ -349,4 +319,5 @@ describe("GraphQL error after submission", () => {
       expect(component.getByText("Loading...")).toBeInTheDocument();
     });
   });
-*/
+
+});
