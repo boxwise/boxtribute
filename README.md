@@ -24,6 +24,7 @@ Please check out [**Contribution Guidelines**](CONTRIBUTING.md) before you get s
 1. [Development Database Seed](#development-database-seed)
 1. [CircleCI](#circleci)
 1. [Architecture overview](#architecture-overview)
+1. [Sponsors](#sponsors)
 
 ## Preparation for Installation
 
@@ -145,3 +146,9 @@ Here, is a list of intro tutorials for each technologies / frameworks / language
 ## License
 
 See the LICENSE file for license rights and limitations (Apache 2.0).
+
+## Sponsors
+
+This project is funded by the German Federal Ministry of Education and Research (BMBF). Read more [here](https://prototypefund.de/project/boxtribute-api-fuer-datenbankzugriff-und-optimierten-austausch-von-hilfsguetern/) (German only).
+
+![BMBF logo](docs/bmbf.jpg)
