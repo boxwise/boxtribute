@@ -68,3 +68,25 @@ export const ORG_BASES = gql`
     }
   }
 `;
+
+export const QR_EXISTS = gql`
+  query QrExists($qrCode: String!) {
+    qrExists(qr_code: $qrCode)
+    qrBoxExists(qr_code: $qrCode)
+  }
+`;
+
+export const BOX_BY_QR = gql`
+  query Box($qrCode: String!) {
+    box(qr_code: $qrCode) {
+      box_id
+      product_id
+      size_id
+      items
+      location_id
+      comments
+      qr_id
+      box_state_id
+    }
+  }
+`;

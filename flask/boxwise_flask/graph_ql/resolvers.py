@@ -69,6 +69,25 @@ def resolve_user(_, info, email):
     return get_user_from_email_with_base_ids(email)
 
 
+@query.field("qrExists")
+def resolve_qr_exists(_, info, qr_code):
+    try:
+        QRCode.get_id_from_code(qr_code)
+    except QRCode.DoesNotExist:
+        return False
+    return True
+
+
+@query.field("qrBoxExists")
+def resolve_qr_box_exists(_, info, qr_code):
+    try:
+        qr_id = QRCode.get_id_from_code(qr_code)
+        Box.get_box_from_qr(qr_id)
+    except Box.DoesNotExist:
+        return False
+    return True
+
+
 @query.field("box")
 def resolve_box(_, info, qr_code):
     qr_id = QRCode.get_id_from_code(qr_code)

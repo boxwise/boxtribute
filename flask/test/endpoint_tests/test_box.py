@@ -50,3 +50,25 @@ def test_code_does_not_exist(client):
         in response_data.json["errors"][0]["message"]
     )
     assert queried_box is None
+
+
+@pytest.mark.usefixtures("default_qr_code")
+@pytest.mark.usefixtures("qr_code_without_box")
+def test_qr_box_exists(client, default_qr_code, qr_code_without_box):
+    code = default_qr_code["code"]
+    graph_ql_query_string = f"""query CheckQrExistence {{
+                qrBoxExists(qr_code: "{code}")
+            }}"""
+    data = {"query": graph_ql_query_string}
+    response = client.post("/graphql", json=data)
+    assert response.status_code == 200
+    assert response.json["data"]["qrBoxExists"]
+
+    code = qr_code_without_box["code"]
+    graph_ql_query_string = f"""query CheckQrExistence {{
+                qrBoxExists(qr_code: "{code}")
+            }}"""
+    data = {"query": graph_ql_query_string}
+    response = client.post("/graphql", json=data)
+    assert response.status_code == 200
+    assert not response.json["data"]["qrBoxExists"]
