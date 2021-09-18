@@ -20,8 +20,6 @@ from boxwise_flask.models.user import User, get_user_from_email_with_base_ids
 from boxwise_flask.models.product import Product
 from boxwise_flask.models.gender import Gender
 
-import logging
-
 
 query = ObjectType("Query")
 product = ObjectType("Product")
@@ -108,7 +106,6 @@ def resolve_product(_, info, product_id):
 
 @query.field("box")
 def resolve_box(_, info, id):
-    # qr_id = QRCode.get_id_from_code(id)
     return Box.get_box(id)
 
 
@@ -137,6 +134,7 @@ class ProductGender:
         self.label = label
 
 
+# TODO: rethink this mapping from ids to Enum values from the Graphql schema - an enum might not be what we want here
 @product.field("gender")
 def resolve_product_gender(product_id, info_): 
     product = Product.get_product(product_id)
@@ -164,9 +162,6 @@ def resolve_product_gender(product_id, info_):
 
 @product.field("sizes")
 def resolve_sizes(product_id, info_):
-    # logging.warning('hitting sizes resolver!')
-    # logging.warning(product_id)
-    logging.warning(info_)
     product = Product.get_product(product_id)
     sizes = Size.select(Size.label).where(
         Size.seq == product.size_range.seq

@@ -1,16 +1,16 @@
 import * as React from "react";
-import { useLazyQuery, useMutation, useQuery } from "@apollo/client";
+import { useMutation, useQuery } from "@apollo/client";
 import { useForm } from "react-hook-form";
 import { Link, useLocation } from "react-router-dom";
 import { BoxLocation, NewBoxType, Product } from "../../utils/Types";
-import { CREATE_BOX, LOCATIONS, PRODUCTS, SIZES_FOR_PRODUCT } from "../../utils/queries";
+import { CREATE_BOX, LOCATIONS, PRODUCTS } from "../../utils/queries";
 import { emptyBox } from "../../utils/emptyBox";
-import { useCallback, useEffect, useRef, useState } from "react";
-import { PrimaryButton } from "boxwise-components"
+import { useState } from "react";
+import { PrimaryButton } from "boxwise-components";
 
 function useUrlQuery() {
   return new URLSearchParams(useLocation().search);
-};
+}
 
 export default function CreateBox() {
   // NOTE: getting the user will likely eventually have to be done in a more global-place,
@@ -25,9 +25,7 @@ export default function CreateBox() {
 
   const [products, setProducts] = useState<Product[]>();
   const [locations, setLocations] = useState<BoxLocation[]>();
-  const [sizes, setSizes] = useState<string[]>();
-
-  const [selectedProductId, setSelectedProductId] = useState<number>();
+  const [sizes] = useState<string[]>();
 
   useQuery(PRODUCTS, {
     onCompleted: (data) => {
@@ -38,20 +36,11 @@ export default function CreateBox() {
     },
   });
 
-
   useQuery(LOCATIONS, {
     onCompleted: (data) => {
       setLocations(data.locations);
-    }
-  });
-
-  const changeProduct = useCallback(
-    (product) => {
-      const newSelectedProductId = product.target.value;
-      setSelectedProductId(parseInt(newSelectedProductId));
     },
-    [setSelectedProductId],
-  );
+  });
 
   const qr = urlQueryParams.get("qr");
 
@@ -85,7 +74,9 @@ export default function CreateBox() {
       {newBox.box_id && (
         <div data-testid="createdBox">
           <h1> You created a new box!</h1>
-          <h1>The Box ID is: <Link to={`/box-info/${newBox.box_id}`}>{newBox.box_id}</Link></h1>
+          <h1>
+            The Box ID is: <Link to={`/box-info/${newBox.box_id}`}>{newBox.box_id}</Link>
+          </h1>
           <h1>Please write that on the top of the label.</h1>
           <h1>Scan another QR code to create another.</h1>
         </div>
@@ -111,9 +102,13 @@ export default function CreateBox() {
 
             <label className="p-2" htmlFor="product">
               Product
-              <select onChange={changeProduct} id="product" name="productId" ref={register()}>
+              <select id="product" name="productId" ref={register()}>
                 {products?.map((product) => (
-                  <option key={product.id} value={product.id} data-testid={`product-selector-id-${product.id}`}>
+                  <option
+                    key={product.id}
+                    value={product.id}
+                    data-testid={`product-selector-id-${product.id}`}
+                  >
                     {product.name}
                   </option>
                 ))}
@@ -174,7 +169,6 @@ export default function CreateBox() {
             </label>
 
             <br />
-
 
             {qr && <>QR code: {qr}</>}
           </form>

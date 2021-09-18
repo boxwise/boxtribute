@@ -1,42 +1,52 @@
 import React from "react";
-import { render, waitFor, fireEvent, cleanup, act, waitForElement, findByText, RenderResult } from "../../utils/test-utils";
+import {
+  render,
+  waitFor,
+  fireEvent,
+  cleanup,
+  act,
+  waitForElement,
+  findByText,
+  RenderResult,
+} from "../../utils/test-utils";
 import "@testing-library/jest-dom";
 import { createMemoryHistory } from "history";
 import { CREATE_BOX, LOCATIONS, PRODUCTS, SIZES_FOR_PRODUCT } from "../../utils/queries";
 import CreateBox from "./CreateBox";
 import { GraphQLError } from "graphql";
 
-const productsAndLocationQueriesForInitialLoading = [{
-  request: {
-    query: PRODUCTS,
-  },
-  result: {
-    data: {
-      products: [{ __typename: "Product", id: 1, name: "Winter Jackets" }]
+const productsAndLocationQueriesForInitialLoading = [
+  {
+    request: {
+      query: PRODUCTS,
+    },
+    result: {
+      data: {
+        products: [{ __typename: "Product", id: 1, name: "Winter Jackets" }],
+      },
     },
   },
-},
   {
     request: {
       query: LOCATIONS,
     },
     result: {
       data: {
-        "locations": [
+        locations: [
           {
-            "__typename": "Location",
-            "id": 1,
-            "name": "Shop"
+            __typename: "Location",
+            id: 1,
+            name: "Shop",
           },
           {
-            "__typename": "Location",
-            "id": 2,
-            "name": "LOST"
-          }
-        ]
+            __typename: "Location",
+            id: 2,
+            name: "LOST",
+          },
+        ],
       },
-    }
-  }
+    },
+  },
 ];
 
 const mocks = [
@@ -63,7 +73,7 @@ const mocks = [
       },
     },
   },
-  ...productsAndLocationQueriesForInitialLoading
+  ...productsAndLocationQueriesForInitialLoading,
 ];
 
 const mockNetworkError = [
@@ -81,7 +91,7 @@ const mockNetworkError = [
     },
     error: new Error("An error occurred"),
   },
-  ...productsAndLocationQueriesForInitialLoading
+  ...productsAndLocationQueriesForInitialLoading,
 ];
 
 const mockGraphQLError = [
@@ -101,7 +111,7 @@ const mockGraphQLError = [
       errors: [new GraphQLError("Error!")],
     },
   },
-  ...productsAndLocationQueriesForInitialLoading
+  ...productsAndLocationQueriesForInitialLoading,
 ];
 
 describe("Renders CreateBox component correctly", () => {
@@ -111,7 +121,7 @@ describe("Renders CreateBox component correctly", () => {
     history = createMemoryHistory();
     history.push("/create-box/?qr=387b0f0f5e62cebcafd48383035a92a");
 
-    component = render(<CreateBox />, { mocks, history })
+    component = render(<CreateBox />, { mocks, history });
   });
 
   afterEach(cleanup);
@@ -128,17 +138,16 @@ describe("Renders CreateBox component correctly", () => {
     expect(component.getByTestId("createBoxForm")).toBeTruthy();
   });
 
-  it("renders the correct 5 fields and the QR code within the form", () => {
+  it("renders the correct 5 fields and the QR code within the form", async () => {
     expect(component.getByLabelText(/Product*/i)).toBeTruthy();
 
-    // await component.findByText("Winter Jackets");
-
-    // expect(component.getByText(/items*/i)).toBeTruthy();
-    // expect(component.getByText(/sizeid*/i)).toBeTruthy();
-    // expect(component.getByText(/comments*/i)).toBeTruthy();
+    await component.findByText("Winter Jackets");
+    expect(component.getByText(/sizeid*/i)).toBeTruthy();
+    expect(component.getByText(/# of items*/i)).toBeTruthy();
+    expect(component.getByText(/comments*/i)).toBeTruthy();
 
     const qrCodeLabel = component.getByText(/QR code: 387b0f0f5e62cebcafd48383035a92a/i);
-    expect(qrCodeLabel).toBeInTheDocument()
+    expect(qrCodeLabel).toBeInTheDocument();
   });
 
   it("renders a submit button titled, `Save`", () => {
@@ -161,19 +170,17 @@ describe("Created box is displayed correctly", () => {
   afterEach(cleanup);
 
   it("After a successful submission, the form disappears and a screen with `You created a new box` appears with a box-id", async () => {
-
     const productField = component.getByLabelText("Product");
     expect(productField["value"]).toBe("");
-    const product1OptionField = await component.findByTestId('product-selector-id-1');
+    const product1OptionField = await component.findByTestId("product-selector-id-1");
     expect(product1OptionField).toBeInTheDocument();
-    // component.debug();
 
     const numberOfItemsField = component.getByLabelText("# of items") as HTMLInputElement;
     expect(numberOfItemsField.value).toBe("0");
     fireEvent.change(numberOfItemsField, {
       target: {
-        value: 2
-      }
+        value: 2,
+      },
     });
     expect(numberOfItemsField.value).toBe("2");
     const submitBtn = component.getByRole("button", {
@@ -253,12 +260,12 @@ describe("Network error after submission", () => {
   afterEach(cleanup);
 
   it("renders `Error :( Please try again` when there is a network error", async () => {
-    await component.findByTestId('product-selector-id-1');
+    await component.findByTestId("product-selector-id-1");
     const numberOfItemsField = component.getByLabelText("# of items") as HTMLInputElement;
     fireEvent.change(numberOfItemsField, {
       target: {
-        value: 2
-      }
+        value: 2,
+      },
     });
 
     const submitBtn = component.getByRole("button", { name: /save/i });
@@ -282,13 +289,13 @@ describe("GraphQL error after submission", () => {
   afterEach(cleanup);
 
   it("renders `Error :( Please try again` when there is a GraphQL error", async () => {
-    await component.findByTestId('product-selector-id-1');
+    await component.findByTestId("product-selector-id-1");
 
     const numberOfItemsField = component.getByLabelText("# of items") as HTMLInputElement;
     fireEvent.change(numberOfItemsField, {
       target: {
-        value: 2
-      }
+        value: 2,
+      },
     });
 
     const submitBtn = component.getByRole("button", { name: /save/i });
@@ -302,13 +309,13 @@ describe("GraphQL error after submission", () => {
 
   // Loading state is a work in progress
   it("renders `loading` while loading", async () => {
-    await component.findByTestId('product-selector-id-1');
+    await component.findByTestId("product-selector-id-1");
 
     const numberOfItemsField = component.getByLabelText("# of items") as HTMLInputElement;
     fireEvent.change(numberOfItemsField, {
       target: {
-        value: 2
-      }
+        value: 2,
+      },
     });
 
     const submitBtn = component.getByRole("button", { name: /save/i });
@@ -319,5 +326,4 @@ describe("GraphQL error after submission", () => {
       expect(component.getByText("Loading...")).toBeInTheDocument();
     });
   });
-
 });
