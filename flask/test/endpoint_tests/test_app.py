@@ -9,6 +9,7 @@ def test_get_box_details(mysql_app_client):
         "query": """query BoxIdAndItems {
                 getBoxDetails(qrCode: "ffdd7f7243d74a663b417562df0ebeb") {
                     ID
+                    boxLabelIdentifier
                     location {
                         ID
                         base {
@@ -26,7 +27,8 @@ def test_get_box_details(mysql_app_client):
     queried_box = response.json["data"]["getBoxDetails"]
     assert response.status_code == 200
     assert queried_box == {
-        "ID": "436898",
+        "ID": "642",
+        "boxLabelIdentifier": "436898",
         "items": 87,
         "location": {
             "ID": "18",
@@ -101,7 +103,7 @@ def test_get_boxes(mysql_app_client):
     data = {
         "query": """query BoxesWithUnisexAdultProducts {
                 getBoxesByGender(genderId: UnisexAdult) {
-                    ID
+                    boxLabelIdentifier
                 }
             }"""
     }
@@ -109,6 +111,6 @@ def test_get_boxes(mysql_app_client):
     queried_boxes = response.json["data"]["getBoxesByGender"]
     assert response.status_code == 200
     assert len(queried_boxes) == 47
-    # IDs are six-digit numbers
+    # boxLabelIds are six-digit numbers
     for box in queried_boxes:
-        assert 99999 < int(box["ID"]) < 1000000
+        assert 99999 < int(box["boxLabelIdentifier"]) < 1000000

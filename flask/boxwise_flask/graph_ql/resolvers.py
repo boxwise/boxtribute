@@ -104,7 +104,7 @@ def resolve_get_box_details_by_id(_, info, box_id=None, qr_code=None):
         return None
 
     elif box_id is not None:
-        return Box.get(Box.box_id == box_id)
+        return Box.get(Box.box_label_identifier == box_id)
 
     return Box.select().join(QRCode).where(QRCode.code == qr_code).get()
 
@@ -124,13 +124,6 @@ def resolve_get_boxes_by_gender(_, info, gender_id):
         .join(ProductGender)
         .where(ProductGender.id == gender_id)
     )
-
-
-@box.field("ID")
-def resolve_box_id(obj, info):
-    # Custom resolver because the GraphQL Box.ID field refers to the peewee
-    # Box.box_id field (not id)
-    return obj.box_id
 
 
 @box.field("state")

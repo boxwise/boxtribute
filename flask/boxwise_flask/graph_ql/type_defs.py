@@ -5,7 +5,7 @@ type_defs = gql(
     """
     type Box{
         ID: ID!
-        boxLabelNumber: Int!
+        boxLabelIdentifier: String!
         location: Location!
         items: Int!
         product: Product!

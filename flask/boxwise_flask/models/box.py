@@ -20,7 +20,9 @@ from .qr_code import QRCode
 
 
 class Box(db.Model):
-    box_id = CharField(constraints=[SQL("DEFAULT ''")], index=True, unique=True)
+    box_label_identifier = CharField(
+        column_name="box_id", constraints=[SQL("DEFAULT ''")], index=True, unique=True
+    )
     box_state = ForeignKeyField(
         column_name="box_state_id",
         constraints=[SQL("DEFAULT 1")],
@@ -105,7 +107,7 @@ class Box(db.Model):
         table_name = "stock"
 
     def __unicode__(self):
-        return self.box_id
+        return self.box_label_identifier
 
     @staticmethod
     def create_box(box_creation_input):
@@ -120,7 +122,7 @@ class Box(db.Model):
 
         new_box = Box.create(
             # surprisingly not primary key, unique non-sequential identifier for a box
-            box_id=box_short_uuid,
+            box_label_identifier=box_short_uuid,
             product_id=box_creation_input.get(
                 "product_id", None
             ),  # will become a fancy dropdown on the FE
@@ -142,4 +144,4 @@ class Box(db.Model):
 
     @staticmethod
     def get_box(box_id):
-        return Box.get(Box.box_id == box_id)
+        return Box.get(Box.box_label_identifier == box_id)
