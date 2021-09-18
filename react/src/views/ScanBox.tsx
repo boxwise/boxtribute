@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { useLazyQuery, useQuery } from "@apollo/client";
+import { useLazyQuery } from "@apollo/client";
 import QrReader from "react-qr-reader";
 import { Link } from "react-router-dom";
 import { Button, Icon, Header } from "semantic-ui-react";

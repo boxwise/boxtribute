@@ -27,7 +27,7 @@ function BoxInfo(props) {
     getBoxQuery({
       variables: { qrCode: props.location.state.qr },
     });
-  }, []);
+  }, [getBoxQuery, props.location.state.qr]);
 
   //TODO: replace first option with a load spinner
   const boxData =
