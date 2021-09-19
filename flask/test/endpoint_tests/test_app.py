@@ -34,7 +34,7 @@ def test_backend_connection():
 
     data = {
         "query": """query Box {
-                box(qr_code: "ffdd7f7243d74a663b417562df0ebeb") {
+                box(id: "436898") {
                     box_id
                     items
                     created

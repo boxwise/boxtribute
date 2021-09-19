@@ -6,7 +6,6 @@ from peewee import SQL, CharField, DateTimeField, ForeignKeyField, IntegerField
 
 
 class Location(db.Model):
-    id = CharField(constraints=[SQL("DEFAULT ''")], index=True)
     box_state = ForeignKeyField(
         column_name="box_state_id",
         constraints=[SQL("DEFAULT 1")],
@@ -15,6 +14,8 @@ class Location(db.Model):
         null=True,
         on_update="CASCADE",
     )
+    base = ForeignKeyField(column_name="base_id", field="id", model=Base)
+    is_stockroom = IntegerField(constraints=[SQL("DEFAULT 0")])
     created = DateTimeField(null=True)
     created_by = ForeignKeyField(
         column_name="created_by",

@@ -19,7 +19,7 @@ def default_product_data():
         "name": "indigestion tablets",
         "size_range": default_size_range_data()["id"],
         "in_shop": 0,
-        "value": 1,
+        "price": 1,
     }
     return mock_product
 
