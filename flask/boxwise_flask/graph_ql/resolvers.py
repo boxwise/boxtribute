@@ -87,17 +87,6 @@ def resolve_qr_code(_, info, id):
     return QRCode.get(QRCode.id == id)
 
 
-@query.field("boxIdByQrCode")
-def resolve_box_id_by_qr_code(_, info, qr_code):
-    try:
-        qr_id = QRCode.get_id_from_code(qr_code)
-        box = Box.get_box_from_qr(qr_id)
-        return box.box_id
-    except Box.DoesNotExist:
-        return None
-    return None
-
-
 @query.field("product")
 def resolve_product(_, info, id):
     return Product.get_product(id)
