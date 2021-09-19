@@ -14,12 +14,10 @@ from boxwise_flask.graph_ql.type_defs import type_defs
 from boxwise_flask.models.base import Base
 from boxwise_flask.models.box import Box
 from boxwise_flask.models.location import Location
-from boxwise_flask.models.size import Size
-from boxwise_flask.models.qr_code import QRCode
-from boxwise_flask.models.user import User, get_user_from_email_with_base_ids
 from boxwise_flask.models.product import Product
-from boxwise_flask.models.gender import Gender
-
+from boxwise_flask.models.qr_code import QRCode
+from boxwise_flask.models.size import Size
+from boxwise_flask.models.user import User, get_user_from_email_with_base_ids
 
 query = ObjectType("Query")
 product = ObjectType("Product")
@@ -83,8 +81,9 @@ def resolve_qr_exists(_, info, qr_code):
         return False
     return True
 
+
 @query.field("qrCode")
-def resolve_qr_code(_, info, id): 
+def resolve_qr_code(_, info, id):
     return QRCode.get_qr_code_by_id(id)
 
 
@@ -118,6 +117,7 @@ def resolve_location(_, info, id):
 def resolve_locations(_, info):
     return Location.get_all()
 
+
 @query.field("products")
 def resolve_products(_, info):
     return Product.get_all()
@@ -128,44 +128,38 @@ def create_box(_, info, box_creation_input):
     response = Box.create_box(box_creation_input)
     return response
 
-class ProductGender: 
-    def __init__(self, id, label): 
-        self.id = id
-        self.label = label
 
-
-# TODO: rethink this mapping from ids to Enum values from the Graphql schema - an enum might not be what we want here
+# TODO: rethink this mapping from ids to Enum values from the Graphql schema -
+# an enum might not be what we want here
 @product.field("gender")
-def resolve_product_gender(product_id, info_): 
+def resolve_product_gender(product_id, info_):
     product = Product.get_product(product_id)
     gender_id = product.gender_id
 
     if gender_id == 1:
-        return 'Women'
-    elif gender_id == 2: 
-        return 'Men'
-    elif gender_id == 3: 
-        return 'UnisexAdult'
-    elif gender_id == 4: 
-        return 'Girl'
-    elif gender_id == 5: 
-        return 'Boy'
-    elif gender_id == 6: 
-        return 'UnisexChild'
-    elif gender_id == 9: 
-        return 'UnisexBaby'
-    elif gender_id == 12: 
-        return 'TeenGirl'
-    elif gender_id == 13: 
-        return 'TeenBoy'
+        return "Women"
+    elif gender_id == 2:
+        return "Men"
+    elif gender_id == 3:
+        return "UnisexAdult"
+    elif gender_id == 4:
+        return "Girl"
+    elif gender_id == 5:
+        return "Boy"
+    elif gender_id == 6:
+        return "UnisexChild"
+    elif gender_id == 9:
+        return "UnisexBaby"
+    elif gender_id == 12:
+        return "TeenGirl"
+    elif gender_id == 13:
+        return "TeenBoy"
 
 
 @product.field("sizes")
 def resolve_sizes(product_id, info_):
     product = Product.get_product(product_id)
-    sizes = Size.select(Size.label).where(
-        Size.seq == product.size_range.seq
-        )
+    sizes = Size.select(Size.label).where(Size.seq == product.size_range.seq)
     return map(lambda size: size.label, sizes)
 
 

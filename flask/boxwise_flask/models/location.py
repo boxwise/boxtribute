@@ -4,6 +4,7 @@ from boxwise_flask.models.box_state import BoxState
 from boxwise_flask.models.user import User
 from peewee import SQL, CharField, DateTimeField, ForeignKeyField, IntegerField
 
+
 class Location(db.Model):
     id = CharField(constraints=[SQL("DEFAULT ''")], index=True)
     box_state = ForeignKeyField(
@@ -47,9 +48,9 @@ class Location(db.Model):
         table_name = "locations"
 
     @staticmethod
-    def get_location(location_id): 
+    def get_location(location_id):
         return Location.get(Location.id == location_id)
-    
+
     @staticmethod
-    def get_all(): 
+    def get_all():
         return Location.select()

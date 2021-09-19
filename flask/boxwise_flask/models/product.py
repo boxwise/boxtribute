@@ -3,7 +3,6 @@ from boxwise_flask.models.base import Base
 from boxwise_flask.models.product_category import ProductCategory
 from boxwise_flask.models.product_gender import ProductGender
 from boxwise_flask.models.size_range import SizeRange
-from boxwise_flask.models.size import Size
 from boxwise_flask.models.user import User
 from peewee import SQL, CharField, DateTimeField, ForeignKeyField, IntegerField
 
