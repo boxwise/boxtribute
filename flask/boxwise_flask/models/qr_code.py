@@ -17,7 +17,3 @@ class QRCode(db.Model):
     @staticmethod
     def get_id_from_code(code):
         return QRCode.get(QRCode.code == code).id
-
-    @staticmethod
-    def get_qr_code_by_id(id):
-        return QRCode.get(QRCode.id == id)

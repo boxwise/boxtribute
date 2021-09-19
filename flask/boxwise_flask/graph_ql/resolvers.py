@@ -84,7 +84,7 @@ def resolve_qr_exists(_, info, qr_code):
 
 @query.field("qrCode")
 def resolve_qr_code(_, info, id):
-    return QRCode.get_qr_code_by_id(id)
+    return QRCode.get(QRCode.id == id)
 
 
 @query.field("boxIdByQrCode")
