@@ -47,11 +47,3 @@ class Location(db.Model):
 
     class Meta:
         table_name = "locations"
-
-    @staticmethod
-    def get_location(location_id):
-        return Location.get(Location.id == location_id)
-
-    @staticmethod
-    def get_all():
-        return Location.select()

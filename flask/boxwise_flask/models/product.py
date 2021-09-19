@@ -71,7 +71,3 @@ class Product(db.Model):
     @staticmethod
     def get_product(product_id):
         return Product.get(Product.id == product_id)
-
-    @staticmethod
-    def get_all():
-        return Product.select()

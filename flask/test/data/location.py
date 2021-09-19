@@ -15,7 +15,7 @@ def default_location_data():
         "is_lost": 0,
         "is_market": 0,
         "is_scrap": 0,
-        "name": 1,
+        "name": "Location",
         "seq": 1,
         "visible": 1,
     }

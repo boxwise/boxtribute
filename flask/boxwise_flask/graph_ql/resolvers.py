@@ -99,8 +99,8 @@ def resolve_box_id_by_qr_code(_, info, qr_code):
 
 
 @query.field("product")
-def resolve_product(_, info, product_id):
-    return Product.get_product(product_id)
+def resolve_product(_, info, id):
+    return Product.get_product(id)
 
 
 @query.field("box")
@@ -110,17 +110,17 @@ def resolve_box(_, info, id):
 
 @query.field("location")
 def resolve_location(_, info, id):
-    return Location.get_location(id)
+    return Location.get(Location.id == id)
 
 
 @query.field("locations")
 def resolve_locations(_, info):
-    return Location.get_all()
+    return Location.select()
 
 
 @query.field("products")
 def resolve_products(_, info):
-    return Product.get_all()
+    return Product.select()
 
 
 @mutation.field("createBox")
@@ -160,7 +160,7 @@ def resolve_product_gender(product_id, info_):
 def resolve_sizes(product_id, info_):
     product = Product.get_product(product_id)
     sizes = Size.select(Size.label).where(Size.seq == product.size_range.seq)
-    return map(lambda size: size.label, sizes)
+    return [size.label for size in sizes]
 
 
 schema = make_executable_schema(
