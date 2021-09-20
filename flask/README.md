@@ -202,16 +202,21 @@ and inspect the reported output. Open the HTML report via `flask/htmlcov/index.h
 
 ## GraphQL Playground
 
-We are setting up GraphQL as a data layer for this application. To check out the GraphQL playground, and go to `localhost:5000/graphql`.
-The GraphQL endpoint is secured and needs a Bearer token from Auth0 to authenticate and authorize. To work with the playground you have to add such a token from Auth0 as an HTTP header. Here, how this works:
+The back-end exposes the GraphQL API at the `/graphql` endpoint. You can experiment with the API in the GraphQL playground.
 
-1.  Follow this [link](https://manage.auth0.com/dashboard/eu/boxtribute-dev/apis/5ef3760527b0da00215e6209/test) to receive a token for testing. You can also find this token in Auth0 in the menu > API > boxtribute-dev-api > Test-tab.
-
-2.  Insert the access token in the following format on the playground in the section on the bottom left of the playground called HTTP Headers.
+1. Start the required services by `docker-compose up flask mysql`
+1. Open `localhost:5000/graphql`.
+1. Simulate being a valid, logged-in user (here: `admin@admin.co`) by fetching an authorization token (use client ID and secret from the boxtribute-dev-api test application from the Auth0 website)
+    curl --request POST \
+         --url https://boxtribute-dev.eu.auth0.com/oauth/token \
+         --header 'content-type: application/json' \
+         --data '{"client_id":"***","client_secret":"***","audience":"boxtribute-dev-api","grant_type":"password","username":"admin@admin.co","password":"Browser_tests"}'
+1. Copy the content of the `access_token` field (alternatively, you can pipe the above command ` | jq -r .access_token | xclip -i -selection c` to copy it to the system clipboard)
+1.  Insert the access token in the following format on the playground in the section on the bottom left of the playground called HTTP Headers.
 
         { "authorization": "Bearer <the token you retrieved from Auth0>"}
 
-A sample query you can try if it works is:
+1. A sample query you can try if it works is:
 
     query {
         allBases {
