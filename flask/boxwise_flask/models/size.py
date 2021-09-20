@@ -40,4 +40,4 @@ class Size(db.Model):
         table_name = "sizes"
 
     def __str__(self):
-        return f"{self.id} {self.organisation_id} {self.name} {self.currency_name}"
+        return f"{self.id} {self.label}"

@@ -1,8 +1,10 @@
 """GraphQL resolver functionality"""
 from ariadne import (
+    EnumType,
     MutationType,
     ObjectType,
     ScalarType,
+    convert_kwargs_to_snake_case,
     gql,
     make_executable_schema,
     snake_case_fallback_resolvers,
@@ -13,10 +15,13 @@ from boxwise_flask.graph_ql.query_defs import query_defs
 from boxwise_flask.graph_ql.type_defs import type_defs
 from boxwise_flask.models.base import Base
 from boxwise_flask.models.box import Box
+from boxwise_flask.models.product import Product
+from boxwise_flask.models.product_gender import ProductGender
 from boxwise_flask.models.qr_code import QRCode
 from boxwise_flask.models.user import User, get_user_from_email_with_base_ids
 
 query = ObjectType("Query")
+box = ObjectType("Box")
 mutation = MutationType()
 
 datetime_scalar = ScalarType("Datetime")
@@ -45,6 +50,7 @@ def resolve_all_bases(_, info):
 # not everyone can see all the bases
 # see the comment in https://github.com/boxwise/boxwise-flask/pull/19
 @query.field("orgBases")
+@convert_kwargs_to_snake_case
 def resolve_org_bases(_, info, org_id):
     response = Base.get_for_organisation(org_id)
     return response
@@ -70,6 +76,7 @@ def resolve_user(_, info, email):
 
 
 @query.field("qrExists")
+@convert_kwargs_to_snake_case
 def resolve_qr_exists(_, info, qr_code):
     try:
         QRCode.get_id_from_code(qr_code)
@@ -79,19 +86,50 @@ def resolve_qr_exists(_, info, qr_code):
 
 
 @query.field("qrBoxExists")
+@convert_kwargs_to_snake_case
 def resolve_qr_box_exists(_, info, qr_code):
     try:
         qr_id = QRCode.get_id_from_code(qr_code)
-        Box.get_box_from_qr(qr_id)
+        Box.get(Box.qr_code == qr_id)
     except Box.DoesNotExist:
         return False
     return True
 
 
-@query.field("box")
-def resolve_box(_, info, qr_code):
-    qr_id = QRCode.get_id_from_code(qr_code)
-    return Box.get_box_from_qr(qr_id)
+@query.field("getBoxDetails")
+@convert_kwargs_to_snake_case
+def resolve_get_box_details_by_id(_, info, box_id=None, qr_code=None):
+    if bool(box_id) == bool(qr_code):
+        # Either both or none of the arguments are given
+        return None
+
+    elif box_id is not None:
+        return Box.get(Box.box_label_identifier == box_id)
+
+    return Box.select().join(QRCode).where(QRCode.code == qr_code).get()
+
+
+@query.field("getBoxesByLocation")
+@convert_kwargs_to_snake_case
+def resolve_get_boxes_by_location(_, info, location_id):
+    return Box.select().where(Box.location == location_id)
+
+
+@query.field("getBoxesByGender")
+@convert_kwargs_to_snake_case
+def resolve_get_boxes_by_gender(_, info, gender_id):
+    return (
+        Box.select()
+        .join(Product)
+        .join(ProductGender)
+        .where(ProductGender.id == gender_id)
+    )
+
+
+@box.field("state")
+def resolve_box_state(obj, info):
+    # Instead of a BoxState instance return an integer for EnumType conversion
+    return obj.box_state.id
 
 
 @mutation.field("createBox")
@@ -100,8 +138,21 @@ def create_box(_, info, box_creation_input):
     return response
 
 
+# Translate GraphQL enum into id field of database table
+product_gender_type_def = EnumType(
+    "ProductGender",
+    {
+        "UnisexAdult": 3,
+    },
+)
+box_state_type_def = EnumType(
+    "BoxState",
+    {
+        "InStock": 1,
+    },
+)
 schema = make_executable_schema(
     gql(type_defs + query_defs + mutation_defs),
-    [query, mutation],
+    [query, mutation, box, product_gender_type_def, box_state_type_def],
     snake_case_fallback_resolvers,
 )

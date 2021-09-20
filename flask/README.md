@@ -69,7 +69,7 @@ To access the mysql database, there are now three possibilities:
 
 1. You reach the mysql db at `MYSQL_HOST=mysql` and `MYSQL_PORT=3306` or
 1. You execute the mysql command line client in the running container by `docker-compose exec mysql mysql -u root -p` or
-1. by specifying the IP-address of the gateway for `MYSQL_HOST` and `MYSQL_PORT=32000`.
+1. by specifying the IP-address of the gateway for `MYSQL_HOST` and `MYSQL_PORT=3306`.
 
 To figure out the gateway of the docker network `backend` run
 
@@ -77,7 +77,7 @@ To figure out the gateway of the docker network `backend` run
 
 #### MySQL workbend or other editors
 
-Most of our developers use [MySQL workbench](https://dev.mysql.com/doc/workbench/en/wb-installing.html) to interact with the database directly. If you want to connect to the database, choose one of the possibilities in the former to define the connection, e.g. Hostname is 172.18.0.1 and Port is 32000.
+Most of our developers use [MySQL workbench](https://dev.mysql.com/doc/workbench/en/wb-installing.html) to interact with the database directly. If you want to connect to the database, choose one of the possibilities in the former to define the connection, e.g. Hostname is 172.18.0.1 and Port is 3306.
 
 The development database is called `dropapp_dev` and the password is `dropapp_root`.
 
@@ -92,7 +92,7 @@ The `pwiz` utility helps to generate peewee model definitions by inspecting a ru
 
 1. Start the database by `docker-compose up mysql`
 1. Obtain the gateway IP of the Docker network `boxtribute_backend` as described above.
-1. Run `python -m pwiz -H XXX.XX.X.X -p 32000 -u root -e mysql -t camps -P dropapp_dev > base.py` to generate the model definitions of the `camps` table, and write them into the file `base.py`.
+1. Run `python -m pwiz -H XXX.XX.X.X -p 3306 -u root -e mysql -t camps -P dropapp_dev > base.py` to generate the model definitions of the `camps` table, and write them into the file `base.py`.
 
 ### Debugging
 
@@ -136,11 +136,18 @@ and log with:
 
 ## Testing
 
-### Writing tests
+### Executing tests
 
 Run the test suite on your machine by executing
 
     pytest
+
+Some tests require a running MySQL server and are disabled unless during a CircleCI pipeline. Local testing is possible by
+
+    docker-compose up -d mysql
+    CIRCLECI=1 pytest
+
+### Writing tests
 
 Two types of tests can be setup. Model (unit) tests and endpoint (integration) tests.
 
@@ -189,22 +196,27 @@ Test data is setup in the `test/data` folder and each piece of data is split up 
 
 From the repository root, run
 
-    pytest --cov --cov-report=term --cov-report=html flask
+    pytest --cov=flask/boxwise_flask --cov-report=term --cov-report=html flask
 
 and inspect the reported output. Open the HTML report via `flask/htmlcov/index.html` to browse coverage for individual source code files.
 
 ## GraphQL Playground
 
-We are setting up GraphQL as a data layer for this application. To check out the GraphQL playground, and go to `localhost:5000/graphql`.
-The GraphQL endpoint is secured and needs a Bearer token from Auth0 to authenticate and authorize. To work with the playground you have to add such a token from Auth0 as an HTTP header. Here, how this works:
+The back-end exposes the GraphQL API at the `/graphql` endpoint. You can experiment with the API in the GraphQL playground.
 
-1.  Follow this [link](https://manage.auth0.com/dashboard/eu/boxtribute-dev/apis/5ef3760527b0da00215e6209/test) to receive a token for testing. You can also find this token in Auth0 in the menu > API > boxtribute-dev-api > Test-tab.
-
-2.  Insert the access token in the following format on the playground in the section on the bottom left of the playground called HTTP Headers.
+1. Start the required services by `docker-compose up flask mysql`
+1. Open `localhost:5000/graphql`.
+1. Simulate being a valid, logged-in user (here: `admin@admin.co`) by fetching an authorization token (use client ID and secret from the boxtribute-dev-api test application from the Auth0 website)
+    curl --request POST \
+         --url https://boxtribute-dev.eu.auth0.com/oauth/token \
+         --header 'content-type: application/json' \
+         --data '{"client_id":"***","client_secret":"***","audience":"boxtribute-dev-api","grant_type":"password","username":"admin@admin.co","password":"Browser_tests"}'
+1. Copy the content of the `access_token` field (alternatively, you can pipe the above command ` | jq -r .access_token | xclip -i -selection c` to copy it to the system clipboard)
+1.  Insert the access token in the following format on the playground in the section on the bottom left of the playground called HTTP Headers.
 
         { "authorization": "Bearer <the token you retrieved from Auth0>"}
 
-A sample query you can try if it works is:
+1. A sample query you can try if it works is:
 
     query {
         allBases {

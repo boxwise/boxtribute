@@ -4,7 +4,7 @@ from peewee import SQL, CharField, DateTimeField, IntegerField
 
 class QRCode(db.Model):
     code = CharField(null=True)
-    created = DateTimeField(null=True)
+    created_on = DateTimeField(column_name="created", null=True)
     legacy = IntegerField(constraints=[SQL("DEFAULT 0")])
 
     class Meta:
