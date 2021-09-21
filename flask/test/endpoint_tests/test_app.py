@@ -89,18 +89,3 @@ def test_get_boxes(mysql_app_client):
     assert len(queried_boxes) == 78
     # There are no comments currently. Verify by creating a set
     assert {box["comment"] for box in queried_boxes} == {""}
-
-    data = {
-        "query": """query BoxesWithUnisexAdultProducts {
-                getBoxesByGender(genderId: UnisexAdult) {
-                    boxLabelIdentifier
-                }
-            }"""
-    }
-    response = mysql_app_client.post("/graphql", json=data)
-    queried_boxes = response.json["data"]["getBoxesByGender"]
-    assert response.status_code == 200
-    assert len(queried_boxes) == 47
-    # boxLabelIds are six-digit numbers
-    for box in queried_boxes:
-        assert 99999 < int(box["boxLabelIdentifier"]) < 1000000

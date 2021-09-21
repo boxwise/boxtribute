@@ -14,7 +14,6 @@ query_defs = gql(
         qrCode(qrCode: String!): QrCode
         qrExists(qrCode: String): Boolean
         getBoxesByLocation(locationId: Int!): [Box]
-        getBoxesByGender(genderId: ProductGender!): [Box]
     }
     """
 )
