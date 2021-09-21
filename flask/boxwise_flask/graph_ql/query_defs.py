@@ -5,9 +5,9 @@ query_defs = gql(
     """
     type Query {
         hello: String!
-        allBases: [Base]
+        bases: [Base!]!
         orgBases(orgId: Int): [Base]
-        base(id: Int!): Base
+        base(id: ID!): Base
         allUsers: [User]
         user(email: String): User
         box(boxId: String!): Box

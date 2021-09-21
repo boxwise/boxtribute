@@ -40,12 +40,8 @@ def serialize_date(value):
     return value.isoformat()
 
 
-# registers this fn as a resolver for the "allBases" field, can use it as the
-# resolver for more than one thing by just adding more decorators
-@query.field("allBases")
-def resolve_all_bases(_, info):
-    # discard the first input because it belongs to a root type (Query, Mutation,
-    # Subscription). Otherwise it would be a value returned by a parent resolver.
+@query.field("bases")
+def resolve_bases(_, info):
     return Base.get_all_bases()
 
 

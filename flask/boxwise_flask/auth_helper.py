@@ -183,7 +183,7 @@ def authorization_test(test_for, **kwargs):
 def user_can_access_base(requesting_user, base_id):
     if "base_ids" in requesting_user:
         users_bases = requesting_user["base_ids"]
-        if base_id in users_bases:
+        if int(base_id) in users_bases:
             return SUCCESS
     else:
         # Log error - user doesnt have base ids

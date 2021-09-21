@@ -39,7 +39,7 @@ export const USER = gql`
 
 export const ALL_BASES = gql`
   {
-    allBases {
+    bases {
       id
       organisationId
       name

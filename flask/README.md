@@ -219,7 +219,7 @@ The back-end exposes the GraphQL API at the `/graphql` endpoint. You can experim
 1. A sample query you can try if it works is:
 
     query {
-        allBases {
+        bases {
             name
         }
     }

@@ -109,11 +109,11 @@ class Base(db.Model):
         table_name = "camps"
 
     def __str__(self):
-        return f"{self.id} {self.organisation_id} {self.name} {self.currency_name}"
+        return f"{self.id} {self.organisation} {self.name} {self.currency_name}"
 
     @staticmethod
     def get_all_bases():
-        return list(Base.select().order_by(Base.name))
+        return Base.select().order_by(Base.name)
 
     @staticmethod
     def get_for_organisation(org_id):

@@ -7,10 +7,8 @@ def get_base_from_graphql(id, base_query):
 
 @pytest.mark.usefixtures("default_bases")
 def test_all_bases(client, default_bases):
-
-    """Verify allBases GraphQL query endpoint"""
     graph_ql_query_string = """query {
-                allBases {
+                bases {
                     id
                     name
                     currencyName
@@ -21,7 +19,7 @@ def test_all_bases(client, default_bases):
     response_data = client.post("/graphql", json=data)
 
     assert response_data.status_code == 200
-    all_bases = response_data.json["data"]["allBases"]
+    all_bases = response_data.json["data"]["bases"]
     for _, expected_base in default_bases.items():
         created_base = get_base_from_graphql(expected_base["id"], all_bases)
         assert int(created_base["id"]) == expected_base["id"]
@@ -31,8 +29,6 @@ def test_all_bases(client, default_bases):
 
 @pytest.mark.usefixtures("default_bases")
 def test_base(client, default_bases):
-    """Verify base GraphQL query endpoint"""
-
     test_id = 1
     graph_ql_query_string = f"""query Base {{
                 base(id: {test_id}) {{
