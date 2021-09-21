@@ -97,7 +97,7 @@ type Location {
 type Base {
   id: ID!
   name: String!
-  parentOrg: Organisation!
+  organisation: Organisation!
   locations: [Location!]
   currencyName: String
 }

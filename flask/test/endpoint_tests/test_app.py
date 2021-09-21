@@ -100,6 +100,9 @@ def test_get_bases(mysql_app_client):
                 organisation(id: "1") {
                     bases {
                         name
+                        organisation {
+                            id
+                        }
                     }
                 }
             }"""
