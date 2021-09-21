@@ -16,6 +16,7 @@ from boxwise_flask.graph_ql.type_defs import type_defs
 from boxwise_flask.models.base import Base
 from boxwise_flask.models.box import Box
 from boxwise_flask.models.location import Location
+from boxwise_flask.models.organisation import Organisation
 from boxwise_flask.models.product import Product
 from boxwise_flask.models.qr_code import QRCode
 from boxwise_flask.models.size import Size
@@ -43,15 +44,6 @@ def serialize_date(value):
 @query.field("bases")
 def resolve_bases(_, info):
     return Base.get_all_bases()
-
-
-# not everyone can see all the bases
-# see the comment in https://github.com/boxwise/boxwise-flask/pull/19
-@query.field("orgBases")
-@convert_kwargs_to_snake_case
-def resolve_org_bases(_, info, org_id):
-    response = Base.get_for_organisation(org_id)
-    return response
 
 
 @query.field("base")
@@ -107,6 +99,18 @@ def resolve_location(_, info, id):
     data = Location.select().where(Location.id == id).dicts().get()
     data["boxes"] = Box.select().where(Box.location == id)
     return data
+
+
+@query.field("organisation")
+def resolve_organisation(_, info, id):
+    data = Organisation.select().where(Organisation.id == id).dicts().get()
+    data["bases"] = Base.select().where(Base.organisation_id == id)
+    return data
+
+
+@query.field("organisations")
+def resolve_organisations(_, info):
+    return Organisation.select()
 
 
 @query.field("locations")

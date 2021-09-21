@@ -13,7 +13,7 @@ class Organisation(db.Model):
         constraints=[SQL("UNSIGNED")],
     )
     deleted = DateTimeField(null=True, default=None)
-    label = CharField(null=True)
+    name = CharField(column_name="label", null=True)
     modified = DateTimeField(null=True)
     modified_by = DeferredForeignKey(
         "User",

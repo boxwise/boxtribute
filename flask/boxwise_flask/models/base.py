@@ -116,9 +116,5 @@ class Base(db.Model):
         return Base.select().order_by(Base.name)
 
     @staticmethod
-    def get_for_organisation(org_id):
-        return list(Base.select().where(Base.organisation_id == org_id))
-
-    @staticmethod
     def get_from_id(base_id):
         return Base.get(Base.id == base_id)

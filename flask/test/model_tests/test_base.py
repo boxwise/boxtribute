@@ -14,7 +14,9 @@ def test_get_base_from_id(default_base):
 @pytest.mark.usefixtures("default_bases")
 def test_get_base_for_organisation(default_bases):
     first_base_id = list(default_bases.keys())[0]
-    bases = Base.get_for_organisation(default_bases[first_base_id]["organisation_id"])
+    bases = Base.select().where(
+        Base.organisation == default_bases[first_base_id]["organisation_id"]
+    )
     for base in bases:
         assert base.id == default_bases[base.id]["id"]
         assert base.seq == default_bases[base.id]["seq"]

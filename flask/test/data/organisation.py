@@ -5,7 +5,7 @@ from boxwise_flask.models.organisation import Organisation
 def default_organisation_data():
     mock_organisation = {
         "id": 1,
-        "label": "1",
+        "name": "CoolOrganisation",
         "created_by": None,
         "modified_by": None,
         "created": None,

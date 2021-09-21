@@ -91,3 +91,21 @@ def test_get_boxes(mysql_app_client):
     assert len(queried_boxes) == 78
     # There are no comments currently. Verify by creating a set
     assert {box["comment"] for box in queried_boxes} == {""}
+
+
+@pytest.mark.skipif("CIRCLECI" not in os.environ, reason="only functional in CircleCI")
+def test_get_bases(mysql_app_client):
+    data = {
+        "query": """query basesOfBoxAid {
+                organisation(id: "1") {
+                    bases {
+                        name
+                    }
+                }
+            }"""
+    }
+    response = mysql_app_client.post("/graphql", json=data)
+    queried_locations = response.json["data"]["organisation"]["bases"]
+    assert response.status_code == 200
+    assert len(queried_locations) == 1
+    assert queried_locations[0]["name"] == "Lesvos"
