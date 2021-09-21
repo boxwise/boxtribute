@@ -8,12 +8,12 @@ def test_get_box_details(mysql_app_client):
     data = {
         "query": """query BoxIdAndItems {
                 getBoxDetails(qrCode: "ffdd7f7243d74a663b417562df0ebeb") {
-                    ID
+                    id
                     boxLabelIdentifier
                     location {
-                        ID
+                        id
                         base {
-                            ID
+                            id
                         }
                         name
                     }
@@ -27,12 +27,12 @@ def test_get_box_details(mysql_app_client):
     queried_box = response.json["data"]["getBoxDetails"]
     assert response.status_code == 200
     assert queried_box == {
-        "ID": "642",
+        "id": "642",
         "boxLabelIdentifier": "436898",
         "items": 87,
         "location": {
-            "ID": "18",
-            "base": {"ID": "2"},
+            "id": "18",
+            "base": {"id": "2"},
             "name": None,
         },
         "size": "52 Mixed",
@@ -43,12 +43,12 @@ def test_get_box_details(mysql_app_client):
         "query": """query SomeBoxDetails {
                 getBoxDetails(boxId: 996559) {
                     qrCode {
-                        ID
+                        id
                         code
                         createdOn
                     }
                     product {
-                        ID
+                        id
                     }
                     size
                     items
@@ -60,13 +60,13 @@ def test_get_box_details(mysql_app_client):
     assert response.status_code == 200
     assert queried_box == {
         "qrCode": {
-            "ID": "574",
+            "id": "574",
             "code": "224ac643d3b929f99c71c25ccde7dde",
             "createdOn": None,
         },
         "items": 84,
         "product": {
-            "ID": "156",
+            "id": "156",
         },
         "size": "53 S",
     }
@@ -74,7 +74,7 @@ def test_get_box_details(mysql_app_client):
     data = {
         "query": """query BoxLookupWithTwoParameters {
                 getBoxDetails(boxId: 996559, qrCode: "deadbeef") {
-                    ID
+                    id
                 }
             }"""
     }

@@ -22,7 +22,7 @@ def test_code_not_associated_with_box(client, qr_code_without_box):
     code = qr_code_without_box["code"]
     graph_ql_query_string = f"""query Box {{
                 getBoxDetails(qrCode: "{code}") {{
-                    ID
+                    id
                 }}
             }}"""
     data = {"query": graph_ql_query_string}
@@ -38,7 +38,7 @@ def test_code_not_associated_with_box(client, qr_code_without_box):
 def test_code_does_not_exist(client):
     graph_ql_query_string = """query Box {
                 getBoxDetails(qrCode: "-1") {
-                    ID
+                    id
                 }
             }"""
     data = {"query": graph_ql_query_string}

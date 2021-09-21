@@ -4,7 +4,7 @@ from ariadne import gql
 type_defs = gql(
     """
     type Box{
-        ID: ID!
+        id: ID!
         boxLabelIdentifier: String!
         location: Location!
         items: Int!
@@ -23,7 +23,7 @@ type_defs = gql(
     }
 
     type QRCode{
-        ID: ID!
+        id: ID!
         code: String!
         box: Box
         createdOn: Datetime
@@ -32,7 +32,7 @@ type_defs = gql(
     }
 
     type Product{
-        ID: ID!
+        id: ID!
         name: String!
         category: ProductCategory!
         sizeRange: SizeRange!
@@ -48,7 +48,7 @@ type_defs = gql(
     }
 
     type ProductCategory{
-        ID: ID!
+        id: ID!
         categoryName: String!
         products: [Product]
         sizeRanges: [SizeRange]
@@ -77,14 +77,14 @@ type_defs = gql(
     }
 
     type SizeRange{
-        ID: ID!
+        id: ID!
         label: String!
         sizes: [String!]!
         productCategory: [ProductCategory!]
     }
 
     type Location{
-        ID: ID!
+        id: ID!
         base: Base!
         name: String
         isShop: Boolean!
@@ -100,7 +100,7 @@ type_defs = gql(
     }
 
     type Base{
-        ID: ID!
+        id: ID!
         name: String!
         parentOrg: Organisation!
         locations: [Location!]
@@ -108,13 +108,13 @@ type_defs = gql(
     }
 
     type Organisation{
-        ID: ID!
+        id: ID!
         name: String!
         bases: [Base!]
     }
 
     type Order{
-        ID: ID!
+        id: ID!
         fromLocation: String!
         toLocation: String!
         # If null means internal transfer
