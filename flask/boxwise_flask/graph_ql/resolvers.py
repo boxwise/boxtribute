@@ -15,6 +15,7 @@ from boxwise_flask.graph_ql.query_defs import query_defs
 from boxwise_flask.graph_ql.type_defs import type_defs
 from boxwise_flask.models.base import Base
 from boxwise_flask.models.box import Box
+from boxwise_flask.models.location import Location
 from boxwise_flask.models.qr_code import QRCode
 from boxwise_flask.models.user import User, get_user_from_email_with_base_ids
 
@@ -97,10 +98,16 @@ def resolve_box(_, info, box_id):
     return Box.get(Box.box_label_identifier == box_id)
 
 
-@query.field("getBoxesByLocation")
-@convert_kwargs_to_snake_case
-def resolve_get_boxes_by_location(_, info, location_id):
-    return Box.select().where(Box.location == location_id)
+@query.field("location")
+def resolve_location(_, info, id):
+    data = Location.select().where(Location.id == id).dicts().get()
+    data["boxes"] = Box.select().where(Box.location == id)
+    return data
+
+
+@query.field("locations")
+def resolve_locations(_, info):
+    return Location.select()
 
 
 @box.field("state")

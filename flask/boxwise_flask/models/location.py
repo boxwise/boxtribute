@@ -33,7 +33,7 @@ class Location(db.Model):
     is_lost = IntegerField(constraints=[SQL("DEFAULT 0")])
     is_market = IntegerField(constraints=[SQL("DEFAULT 0")])
     is_scrap = IntegerField(constraints=[SQL("DEFAULT 0")])
-    label = CharField()
+    name = CharField(column_name="label")
     modified = DateTimeField(null=True)
     modified_by = ForeignKeyField(
         column_name="modified_by",

@@ -35,7 +35,7 @@ def test_get_box_details(mysql_app_client):
         "location": {
             "id": "18",
             "base": {"id": "2"},
-            "name": None,
+            "name": "WH2",
         },
         "size": "52 Mixed",
         "state": "InStock",
@@ -78,13 +78,15 @@ def test_get_box_details(mysql_app_client):
 def test_get_boxes(mysql_app_client):
     data = {
         "query": """query CommentsOfLostBoxes {
-                getBoxesByLocation(locationId: 14) {
-                    comment
+                location(id: "14") {
+                    boxes {
+                        comment
+                    }
                 }
             }"""
     }
     response = mysql_app_client.post("/graphql", json=data)
-    queried_boxes = response.json["data"]["getBoxesByLocation"]
+    queried_boxes = response.json["data"]["location"]["boxes"]
     assert response.status_code == 200
     assert len(queried_boxes) == 78
     # There are no comments currently. Verify by creating a set
