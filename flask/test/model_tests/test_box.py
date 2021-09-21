@@ -31,4 +31,4 @@ def test_box_model(
     assert queried_box_dict["location"]["id"] == default_box["location"]
     assert queried_box_dict["product"]["id"] == default_product["id"]
     assert queried_box_dict["product"]["gender"] == default_product_gender
-    assert queried_box_dict["product"]["product_category"] == default_product_category
+    assert queried_box_dict["product"]["category"] == default_product_category

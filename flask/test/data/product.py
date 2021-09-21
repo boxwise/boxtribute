@@ -14,7 +14,7 @@ def default_product_data():
     mock_product = {
         "id": 1,
         "base": default_base_data()["id"],
-        "product_category": default_product_category_data()["id"],
+        "category": default_product_category_data()["id"],
         "gender": default_product_gender_data()["id"],
         "name": "indigestion tablets",
         "size_range": default_size_range_data()["id"],

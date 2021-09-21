@@ -18,6 +18,8 @@ query_defs = gql(
         locations: [Location!]!
         product(id: ID!): Product
         products: [Product!]!
+        productCategory(id: ID!): ProductCategory
+        productCategories: [ProductCategory!]!
     }
     """
 )

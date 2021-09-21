@@ -18,6 +18,7 @@ from boxwise_flask.models.box import Box
 from boxwise_flask.models.location import Location
 from boxwise_flask.models.organisation import Organisation
 from boxwise_flask.models.product import Product
+from boxwise_flask.models.product_category import ProductCategory
 from boxwise_flask.models.qr_code import QRCode
 from boxwise_flask.models.size import Size
 from boxwise_flask.models.user import User, get_user_from_email_with_base_ids
@@ -106,6 +107,18 @@ def resolve_organisation(_, info, id):
     data = Organisation.select().where(Organisation.id == id).dicts().get()
     data["bases"] = Base.select().where(Base.organisation_id == id)
     return data
+
+
+@query.field("productCategory")
+def resolve_product_category(_, info, id):
+    data = ProductCategory.select().where(ProductCategory.id == id).dicts().get()
+    data["products"] = Product.select().where(Product.category == id)
+    return data
+
+
+@query.field("productCategories")
+def resolve_product_categories(_, info):
+    return ProductCategory.select()
 
 
 @query.field("organisations")

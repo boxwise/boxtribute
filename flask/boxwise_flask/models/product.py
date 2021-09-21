@@ -16,7 +16,7 @@ class Product(db.Model):
         on_update="CASCADE",
         constraints=[SQL("UNSIGNED")],
     )
-    product_category = ForeignKeyField(
+    category = ForeignKeyField(
         column_name="category_id",
         field="id",
         model=ProductCategory,

@@ -3,7 +3,7 @@ from boxwise_flask.models.product_category import ProductCategory
 
 
 def default_product_category_data():
-    mock_product_category = {"id": 1, "label": "1", "seq": 1, "parent": None}
+    mock_product_category = {"id": 1, "name": "1", "seq": 1, "parent": None}
 
     return mock_product_category
 

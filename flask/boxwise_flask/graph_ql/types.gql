@@ -44,7 +44,7 @@ type Product {
 
 type ProductCategory {
   id: ID!
-  categoryName: String!
+  name: String!
   products: [Product]
   sizeRanges: [SizeRange]
   hasGender: Boolean!

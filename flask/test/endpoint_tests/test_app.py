@@ -112,3 +112,20 @@ def test_get_bases(mysql_app_client):
     assert response.status_code == 200
     assert len(queried_locations) == 1
     assert queried_locations[0]["name"] == "Lesvos"
+
+
+@pytest.mark.skipif("CIRCLECI" not in os.environ, reason="only functional in CircleCI")
+def test_get_products(mysql_app_client):
+    data = {
+        "query": """query getShoes {
+                productCategory(id: "5") {
+                    products {
+                        id
+                    }
+                }
+            }"""
+    }
+    response = mysql_app_client.post("/graphql", json=data)
+    queried_products = response.json["data"]["productCategory"]["products"]
+    assert response.status_code == 200
+    assert len(queried_products) == 13
