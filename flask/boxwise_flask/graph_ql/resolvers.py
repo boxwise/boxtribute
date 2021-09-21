@@ -16,11 +16,14 @@ from boxwise_flask.graph_ql.type_defs import type_defs
 from boxwise_flask.models.base import Base
 from boxwise_flask.models.box import Box
 from boxwise_flask.models.location import Location
+from boxwise_flask.models.product import Product
 from boxwise_flask.models.qr_code import QRCode
+from boxwise_flask.models.size import Size
 from boxwise_flask.models.user import User, get_user_from_email_with_base_ids
 
 query = ObjectType("Query")
 box = ObjectType("Box")
+product = ObjectType("Product")
 mutation = MutationType()
 
 datetime_scalar = ScalarType("Datetime")
@@ -92,6 +95,11 @@ def resolve_qr_code(_, info, qr_code):
     return data
 
 
+@query.field("product")
+def resolve_product(_, info, id):
+    return Product.get_product(id)
+
+
 @query.field("box")
 @convert_kwargs_to_snake_case
 def resolve_box(_, info, box_id):
@@ -110,6 +118,11 @@ def resolve_locations(_, info):
     return Location.select()
 
 
+@query.field("products")
+def resolve_products(_, info):
+    return Product.select()
+
+
 @box.field("state")
 def resolve_box_state(obj, info):
     # Instead of a BoxState instance return an integer for EnumType conversion
@@ -122,10 +135,23 @@ def create_box(_, info, box_creation_input):
     return response
 
 
+@product.field("gender")
+def resolve_product_gender(obj, info):
+    return obj.id
+
+
+@product.field("sizes")
+def resolve_sizes(product_id, info):
+    product = Product.get_product(product_id)
+    sizes = Size.select(Size.label).where(Size.seq == product.size_range.seq)
+    return [size.label for size in sizes]
+
+
 # Translate GraphQL enum into id field of database table
 product_gender_type_def = EnumType(
     "ProductGender",
     {
+        "Women": 1,
         "UnisexAdult": 3,
     },
 )
@@ -135,8 +161,10 @@ box_state_type_def = EnumType(
         "InStock": 1,
     },
 )
+
+
 schema = make_executable_schema(
     gql(type_defs + query_defs + mutation_defs),
-    [query, mutation, box, product_gender_type_def, box_state_type_def],
+    [query, mutation, box, product, product_gender_type_def, box_state_type_def],
     snake_case_fallback_resolvers,
 )

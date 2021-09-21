@@ -15,6 +15,8 @@ query_defs = gql(
         qrExists(qrCode: String): Boolean
         location(id: ID!): Location
         locations: [Location!]!
+        product(id: ID!): Product
+        products: [Product!]!
     }
     """
 )

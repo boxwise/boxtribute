@@ -15,11 +15,11 @@ def default_product_data():
         "id": 1,
         "base": default_base_data()["id"],
         "product_category": default_product_category_data()["id"],
-        "product_gender": default_product_gender_data()["id"],
+        "gender": default_product_gender_data()["id"],
         "name": "indigestion tablets",
         "size_range": default_size_range_data()["id"],
         "in_shop": 0,
-        "value": 1,
+        "price": 1,
     }
     return mock_product
 
