@@ -85,28 +85,18 @@ def resolve_qr_exists(_, info, qr_code):
     return True
 
 
-@query.field("qrBoxExists")
+@query.field("qrCode")
 @convert_kwargs_to_snake_case
-def resolve_qr_box_exists(_, info, qr_code):
-    try:
-        qr_id = QRCode.get_id_from_code(qr_code)
-        Box.get(Box.qr_code == qr_id)
-    except Box.DoesNotExist:
-        return False
-    return True
+def resolve_qr_code(_, info, qr_code):
+    data = QRCode.select().where(QRCode.code == qr_code).dicts().get()
+    data["box"] = Box.get(Box.qr_code == data["id"])
+    return data
 
 
-@query.field("getBoxDetails")
+@query.field("box")
 @convert_kwargs_to_snake_case
-def resolve_get_box_details_by_id(_, info, box_id=None, qr_code=None):
-    if bool(box_id) == bool(qr_code):
-        # Either both or none of the arguments are given
-        return None
-
-    elif box_id is not None:
-        return Box.get(Box.box_label_identifier == box_id)
-
-    return Box.select().join(QRCode).where(QRCode.code == qr_code).get()
+def resolve_box(_, info, box_id):
+    return Box.get(Box.box_label_identifier == box_id)
 
 
 @query.field("getBoxesByLocation")

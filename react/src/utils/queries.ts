@@ -71,8 +71,7 @@ export const ORG_BASES = gql`
 
 export const QR_EXISTS = gql`
   query QrExists($qrCode: String!) {
-    qrExists(qr_code: $qrCode)
-    boxIdByQrCode(qr_code: $qrCode)
+    qrExists(qrCode: $qrCode)
   }
 `;
 

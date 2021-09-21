@@ -7,24 +7,26 @@ import pytest
 def test_get_box_details(mysql_app_client):
     data = {
         "query": """query BoxIdAndItems {
-                getBoxDetails(qrCode: "ffdd7f7243d74a663b417562df0ebeb") {
-                    id
-                    boxLabelIdentifier
-                    location {
+                qrCode(qrCode: "ffdd7f7243d74a663b417562df0ebeb") {
+                    box {
                         id
-                        base {
+                        boxLabelIdentifier
+                        location {
                             id
+                            base {
+                                id
+                            }
+                            name
                         }
-                        name
+                        items
+                        size
+                        state
                     }
-                    items
-                    size
-                    state
                 }
             }"""
     }
     response = mysql_app_client.post("/graphql", json=data)
-    queried_box = response.json["data"]["getBoxDetails"]
+    queried_box = response.json["data"]["qrCode"]["box"]
     assert response.status_code == 200
     assert queried_box == {
         "id": "642",
@@ -41,7 +43,7 @@ def test_get_box_details(mysql_app_client):
 
     data = {
         "query": """query SomeBoxDetails {
-                getBoxDetails(boxId: 996559) {
+                box(boxId: "996559") {
                     qrCode {
                         id
                         code
@@ -56,7 +58,7 @@ def test_get_box_details(mysql_app_client):
             }"""
     }
     response = mysql_app_client.post("/graphql", json=data)
-    queried_box = response.json["data"]["getBoxDetails"]
+    queried_box = response.json["data"]["box"]
     assert response.status_code == 200
     assert queried_box == {
         "qrCode": {
@@ -70,18 +72,6 @@ def test_get_box_details(mysql_app_client):
         },
         "size": "53 S",
     }
-
-    data = {
-        "query": """query BoxLookupWithTwoParameters {
-                getBoxDetails(boxId: 996559, qrCode: "deadbeef") {
-                    id
-                }
-            }"""
-    }
-    response = mysql_app_client.post("/graphql", json=data)
-    queried_box = response.json["data"]["getBoxDetails"]
-    assert response.status_code == 200
-    assert queried_box is None
 
 
 @pytest.mark.skipif("CIRCLECI" not in os.environ, reason="only functional in CircleCI")

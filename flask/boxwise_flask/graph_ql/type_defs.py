@@ -13,7 +13,7 @@ type_defs = gql(
         # A size from a size range, consider making this enum
         size: String!
         state: BoxState!
-        qrCode: QRCode!
+        qrCode: QrCode!
         createdBy: String!
         createdOn: Datetime!
         # The user who last changed something about the box
@@ -22,7 +22,7 @@ type_defs = gql(
         comment: String
     }
 
-    type QRCode{
+    type QrCode{
         id: ID!
         code: String!
         box: Box
