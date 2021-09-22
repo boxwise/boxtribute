@@ -31,11 +31,11 @@ def default_user_data():
 
 
 def default_users_data():
-    users_dict = {}
+    users = {}
 
     mock_user = default_user_data()
 
-    users_dict[mock_user["id"]] = mock_user
+    users[mock_user["id"]] = mock_user
 
     mock_user = {
         "id": 2,
@@ -55,7 +55,7 @@ def default_users_data():
         "usergroup": None,
     }
 
-    users_dict[mock_user["id"]] = mock_user
+    users[mock_user["id"]] = mock_user
 
     mock_user = {
         "id": 3,
@@ -75,9 +75,9 @@ def default_users_data():
         "usergroup": default_usergroup_data()["id"],
     }
 
-    users_dict[mock_user["id"]] = mock_user
+    users[mock_user["id"]] = mock_user
 
-    return users_dict
+    return users
 
 
 @pytest.fixture()

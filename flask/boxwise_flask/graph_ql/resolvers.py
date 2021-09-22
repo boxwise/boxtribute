@@ -54,13 +54,11 @@ def resolve_base(_, info, id):
     return response
 
 
-@query.field("allUsers")
-def resolve_all_users(_, info):
-    response = User.get_all_users()
-    return response
+@query.field("users")
+def resolve_users(_, info):
+    return User.select()
 
 
-# TODO get currrent user based on email in token
 @query.field("user")
 def resolve_user(_, info, email):
     return get_user_from_email_with_base_ids(email)
@@ -178,6 +176,15 @@ box_state_type_def = EnumType(
 
 schema = make_executable_schema(
     gql(type_defs + query_defs + mutation_defs),
-    [query, mutation, box, product, product_gender_type_def, box_state_type_def],
+    [
+        query,
+        mutation,
+        date_scalar,
+        datetime_scalar,
+        box,
+        product,
+        product_gender_type_def,
+        box_state_type_def,
+    ],
     snake_case_fallback_resolvers,
 )

@@ -109,6 +109,18 @@ type Organisation {
   bases: [Base!]
 }
 
+type User {
+  id: ID!
+  organisation: Organisation
+  name: String
+  email: String!
+  validFirstDay: Date
+  validLastDay: Date
+  bases: [Base]
+  lastLogin: Datetime
+  lastAction: Datetime
+}
+
 # all below is speculative #
 type Order {
   id: ID!
@@ -126,19 +138,6 @@ type Order {
   lastModifiedBy: String
   # Need to change int to custom scalar for datetime
   lastModifiedOn: Int
-}
-
-type User {
-  id: Int!
-  organisation_id: Int
-  name: String
-  email: String!
-  usergroup_id: Int
-  valid_firstday: Date
-  valid_lastday: Date
-  base_id: [Int]
-  lastlogin: Datetime
-  lastaction: Datetime
 }
 
 input CreateBoxInput {

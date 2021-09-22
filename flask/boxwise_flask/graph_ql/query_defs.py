@@ -9,8 +9,8 @@ query_defs = gql(
         base(id: ID!): Base
         organisation(id: ID!): Organisation
         organisations: [Organisation!]!
-        allUsers: [User]
         user(email: String): User
+        users: [User!]!
         box(boxId: String!): Box
         qrCode(qrCode: String!): QrCode
         qrExists(qrCode: String): Boolean
