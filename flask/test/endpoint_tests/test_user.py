@@ -6,7 +6,8 @@ def get_user_from_list_of_dicts(id, list_of_dicts):
 
 
 @pytest.mark.usefixtures("default_users")
-def test_user_query_from_email(client, default_users):
+@pytest.mark.usefixtures("default_organisation")
+def test_user_query_from_email(client, default_users, default_organisation):
     test_id = list(default_users.keys())[0]
     expected_user = default_users[test_id]
     user_email = expected_user["email"]
@@ -19,6 +20,9 @@ def test_user_query_from_email(client, default_users):
                     validFirstDay
                     validLastDay
                     bases {{
+                        id
+                    }}
+                    organisation {{
                         id
                     }}
                     lastLogin
@@ -34,6 +38,7 @@ def test_user_query_from_email(client, default_users):
     assert queried_user["validFirstDay"] == expected_user["valid_first_day"].isoformat()
     assert queried_user["lastLogin"] == expected_user["last_login"].isoformat()
     assert [int(b["id"]) for b in queried_user["bases"]] == [1, 2, 3]
+    assert int(queried_user["organisation"]["id"]) == default_organisation["id"]
 
 
 @pytest.mark.usefixtures("default_users")

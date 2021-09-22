@@ -22,6 +22,7 @@ from boxwise_flask.models.product_category import ProductCategory
 from boxwise_flask.models.qr_code import QRCode
 from boxwise_flask.models.size import Size
 from boxwise_flask.models.user import User, get_user_from_email_with_base_ids
+from boxwise_flask.models.usergroup import Usergroup
 
 query = ObjectType("Query")
 box = ObjectType("Box")
@@ -62,7 +63,14 @@ def resolve_users(_, info):
 
 @query.field("user")
 def resolve_user(_, info, email):
-    return get_user_from_email_with_base_ids(email)
+    data = get_user_from_email_with_base_ids(email)
+    data["organisation"] = (
+        Organisation.select()
+        .join(Usergroup)
+        .where(Usergroup.id == data["usergroup"]["id"])
+        .get()
+    )
+    return data
 
 
 @query.field("qrExists")
