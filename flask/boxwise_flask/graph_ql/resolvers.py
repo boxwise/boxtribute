@@ -26,6 +26,7 @@ from boxwise_flask.models.user import User, get_user_from_email_with_base_ids
 query = ObjectType("Query")
 box = ObjectType("Box")
 product = ObjectType("Product")
+user = ObjectType("User")
 mutation = MutationType()
 
 datetime_scalar = ScalarType("Datetime")
@@ -158,6 +159,11 @@ def resolve_sizes(product_id, info):
     return [size.label for size in sizes]
 
 
+@user.field("bases")
+def resolve_user_bases(obj, info):
+    return [{"id": i} for i in obj["base_ids"]]
+
+
 # Translate GraphQL enum into id field of database table
 product_gender_type_def = EnumType(
     "ProductGender",
@@ -183,6 +189,7 @@ schema = make_executable_schema(
         datetime_scalar,
         box,
         product,
+        user,
         product_gender_type_def,
         box_state_type_def,
     ],

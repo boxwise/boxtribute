@@ -18,6 +18,9 @@ def test_user_query_from_email(client, default_users):
                     email
                     validFirstDay
                     validLastDay
+                    bases {{
+                        id
+                    }}
                     lastLogin
                     lastAction
                 }}
@@ -30,6 +33,7 @@ def test_user_query_from_email(client, default_users):
     assert int(queried_user["id"]) == test_id
     assert queried_user["validFirstDay"] == expected_user["valid_first_day"].isoformat()
     assert queried_user["lastLogin"] == expected_user["last_login"].isoformat()
+    assert [int(b["id"]) for b in queried_user["bases"]] == [1, 2, 3]
 
 
 @pytest.mark.usefixtures("default_users")
