@@ -9,10 +9,10 @@ type Box {
   size: String!
   state: BoxState!
   qrCode: QrCode!
-  createdBy: String!
+  createdBy: User!
   createdOn: Datetime!
   # The user who last changed something about the box
-  lastModifiedBy: String!
+  lastModifiedBy: User!
   lastModifiedOn: Datetime!
   comment: String
 }
@@ -23,7 +23,7 @@ type QrCode {
   box: Box
   createdOn: Datetime
   # The user who generated QR code
-  createdBy: String!
+  createdBy: User!
 }
 
 type Product {
@@ -35,10 +35,10 @@ type Product {
   base: Base!
   price: Float
   gender: ProductGender
-  createdBy: String!
+  createdBy: User!
   createdOn: Datetime!
   # The user who last changed something about the box
-  lastModifiedBy: String!
+  lastModifiedBy: User!
   lastModifiedOn: Datetime!
 }
 
@@ -90,8 +90,8 @@ type Location {
   boxState: BoxState
   createdOn: Datetime!
   # The user who generated QR code
-  createdBy: String!
-  lastModifiedBy: String!
+  createdBy: User!
+  lastModifiedBy: User!
   lastModifiedOn: Datetime!
 }
 
@@ -133,9 +133,9 @@ type Order {
   boxes: Box!
   # If box state of all ordered boxes have not yet been changed, then it is active
   isActive: Boolean!
-  createdBy: String!
+  createdBy: User!
   createdOn: Datetime!
-  lastModifiedBy: String
+  lastModifiedBy: User
   # Need to change int to custom scalar for datetime
   lastModifiedOn: Int
 }
