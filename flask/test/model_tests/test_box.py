@@ -11,7 +11,7 @@ def test_box_model(
     default_box, default_product, default_product_gender, default_product_category
 ):
 
-    queried_box = Box.get_box(default_box["box_id"])
+    queried_box = Box.get_box(default_box["box_label_identifier"])
 
     queried_box_dict = model_to_dict(queried_box)
     if queried_box_dict != default_box:
@@ -19,9 +19,11 @@ def test_box_model(
         print("created_box ", default_box)
 
     assert queried_box_dict["id"] == default_box["id"]
-    assert queried_box_dict["box_id"] == default_box["box_id"]
+    assert (
+        queried_box_dict["box_label_identifier"] == default_box["box_label_identifier"]
+    )
     assert queried_box_dict["box_state"]["id"] == default_box["box_state"]
-    assert queried_box_dict["comments"] == default_box["comments"]
+    assert queried_box_dict["comment"] == default_box["comment"]
     assert queried_box_dict["created"] == default_box["created"]
     assert queried_box_dict["created_by"] == default_box["created_by"]
     assert queried_box_dict["deleted"] == default_box["deleted"]

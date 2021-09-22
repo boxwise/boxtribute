@@ -1,49 +1,116 @@
 import os
 
 import pytest
-from boxwise_flask.app import create_app
-from boxwise_flask.db import db
-
-
-def test_private_endpoint(client):
-    """example test for private endpoint"""
-    response_data = client.get("/api/private")
-    assert response_data.status_code == 200
-    assert (
-        "Hello from a private endpoint! You need to be authenticated to see this."
-        == response_data.json["message"]
-    )
 
 
 @pytest.mark.skipif("CIRCLECI" not in os.environ, reason="only functional in CircleCI")
-def test_backend_connection():
-    """Verify that database connection is established and operational.
-
-    Follow the setup-proceduce of the main module, instantiate a test client,
-    and query a box via the GraphQL endpoint.
-    """
-    app = create_app()
-    app.testing = True
-
-    # cf. main.py but inserting values from docker-compose.yml
-    app.config["DATABASE"] = "mysql://root:dropapp_root@127.0.0.1:3306/dropapp_dev"
-
-    db.init_app(app)
-
-    client = app.test_client()
-
+def test_get_box_details(mysql_app_client):
     data = {
-        "query": """query Box {
-                box(id: "436898") {
-                    box_id
+        "query": """query BoxIdAndItems {
+                getBoxDetails(qrCode: "ffdd7f7243d74a663b417562df0ebeb") {
+                    ID
+                    boxLabelIdentifier
+                    location {
+                        ID
+                        base {
+                            ID
+                        }
+                        name
+                    }
                     items
-                    created
+                    size
+                    state
                 }
             }"""
     }
-    response = client.post("/graphql", json=data)
-    queried_box = response.json["data"]["box"]
+    response = mysql_app_client.post("/graphql", json=data)
+    queried_box = response.json["data"]["getBoxDetails"]
     assert response.status_code == 200
-    assert queried_box == {"box_id": "436898", "items": 87, "created": None}
+    assert queried_box == {
+        "ID": "642",
+        "boxLabelIdentifier": "436898",
+        "items": 87,
+        "location": {
+            "ID": "18",
+            "base": {"ID": "2"},
+            "name": None,
+        },
+        "size": "52 Mixed",
+        "state": "InStock",
+    }
 
-    db.close_db(None)
+    data = {
+        "query": """query SomeBoxDetails {
+                getBoxDetails(boxId: 996559) {
+                    qrCode {
+                        ID
+                        code
+                        createdOn
+                    }
+                    product {
+                        ID
+                    }
+                    size
+                    items
+                }
+            }"""
+    }
+    response = mysql_app_client.post("/graphql", json=data)
+    queried_box = response.json["data"]["getBoxDetails"]
+    assert response.status_code == 200
+    assert queried_box == {
+        "qrCode": {
+            "ID": "574",
+            "code": "224ac643d3b929f99c71c25ccde7dde",
+            "createdOn": None,
+        },
+        "items": 84,
+        "product": {
+            "ID": "156",
+        },
+        "size": "53 S",
+    }
+
+    data = {
+        "query": """query BoxLookupWithTwoParameters {
+                getBoxDetails(boxId: 996559, qrCode: "deadbeef") {
+                    ID
+                }
+            }"""
+    }
+    response = mysql_app_client.post("/graphql", json=data)
+    queried_box = response.json["data"]["getBoxDetails"]
+    assert response.status_code == 200
+    assert queried_box is None
+
+
+@pytest.mark.skipif("CIRCLECI" not in os.environ, reason="only functional in CircleCI")
+def test_get_boxes(mysql_app_client):
+    data = {
+        "query": """query CommentsOfLostBoxes {
+                getBoxesByLocation(locationId: 14) {
+                    comment
+                }
+            }"""
+    }
+    response = mysql_app_client.post("/graphql", json=data)
+    queried_boxes = response.json["data"]["getBoxesByLocation"]
+    assert response.status_code == 200
+    assert len(queried_boxes) == 78
+    # There are no comments currently. Verify by creating a set
+    assert {box["comment"] for box in queried_boxes} == {""}
+
+    data = {
+        "query": """query BoxesWithUnisexAdultProducts {
+                getBoxesByGender(genderId: UnisexAdult) {
+                    boxLabelIdentifier
+                }
+            }"""
+    }
+    response = mysql_app_client.post("/graphql", json=data)
+    queried_boxes = response.json["data"]["getBoxesByGender"]
+    assert response.status_code == 200
+    assert len(queried_boxes) == 47
+    # boxLabelIds are six-digit numbers
+    for box in queried_boxes:
+        assert 99999 < int(box["boxLabelIdentifier"]) < 1000000

@@ -14,9 +14,9 @@ def default_box_data():
     mock_box = {
         "id": 2,
         "product": default_product_data()["id"],
-        "box_id": "abc",
+        "box_label_identifier": "abc",
         "box_state": default_box_state_data()["id"],
-        "comments": "",
+        "comment": "",
         "created": TIME,
         "created_by": None,
         "deleted": TIME,

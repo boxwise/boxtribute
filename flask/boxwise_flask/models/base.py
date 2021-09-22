@@ -22,6 +22,7 @@ class Base(db.Model):
     adult_age = IntegerField(constraints=[SQL("DEFAULT 15")])
     created = DateTimeField(null=True)
     created_by = ForeignKeyField(
+        column_name="created_by",
         field="id",
         model=User,
         null=True,
