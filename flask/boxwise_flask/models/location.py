@@ -18,7 +18,7 @@ class Location(db.Model):
     is_stockroom = IntegerField(
         column_name="container_stock", constraints=[SQL("DEFAULT 0")]
     )
-    created = DateTimeField(null=True)
+    created_on = DateTimeField(column_name="created", null=True)
     created_by = ForeignKeyField(
         column_name="created_by",
         field="id",
@@ -34,8 +34,8 @@ class Location(db.Model):
     is_market = IntegerField(constraints=[SQL("DEFAULT 0")])
     is_scrap = IntegerField(constraints=[SQL("DEFAULT 0")])
     name = CharField(column_name="label")
-    modified = DateTimeField(null=True)
-    modified_by = ForeignKeyField(
+    last_modified_on = DateTimeField(column_name="modified", null=True)
+    last_modified_by = ForeignKeyField(
         column_name="modified_by",
         field="id",
         model=User,

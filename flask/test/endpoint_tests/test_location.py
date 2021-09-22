@@ -6,12 +6,14 @@ def test_location(client, default_location):
     graph_ql_query_string = f"""query {{
                 location(id: "{default_location['id']}") {{
                     name
+                    boxState
                 }}
             }}"""
     data = {"query": graph_ql_query_string}
     response_data = client.post("/graphql", json=data)
     queried_location = response_data.json["data"]["location"]
     assert queried_location["name"] == default_location["name"]
+    assert queried_location["boxState"] == "InStock"
 
 
 @pytest.mark.usefixtures("default_location")

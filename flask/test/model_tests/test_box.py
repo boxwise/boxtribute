@@ -24,7 +24,7 @@ def test_box_model(
     )
     assert queried_box_dict["box_state"]["id"] == default_box["box_state"]
     assert queried_box_dict["comment"] == default_box["comment"]
-    assert queried_box_dict["created"] == default_box["created"]
+    assert queried_box_dict["created_on"] == default_box["created_on"]
     assert queried_box_dict["created_by"] == default_box["created_by"]
     assert queried_box_dict["deleted"] == default_box["deleted"]
     assert queried_box_dict["items"] == default_box["items"]

@@ -17,7 +17,7 @@ def default_box_data():
         "box_label_identifier": "abc",
         "box_state": default_box_state_data()["id"],
         "comment": "",
-        "created": TIME,
+        "created_on": TIME,
         "created_by": None,
         "deleted": TIME,
         "items": "None",

@@ -24,7 +24,7 @@ class Product(db.Model):
         constraints=[SQL("UNSIGNED")],
     )
     comments = CharField(null=True)
-    created = DateTimeField(null=True)
+    created_on = DateTimeField(column_name="created", null=True)
     created_by = ForeignKeyField(
         column_name="created_by",
         field="id",
@@ -41,8 +41,8 @@ class Product(db.Model):
         model=ProductGender,
         on_update="CASCADE",
     )
-    modified = DateTimeField(null=True)
-    modified_by = ForeignKeyField(
+    last_modified_on = DateTimeField(column_name="modified", null=True)
+    last_modified_by = ForeignKeyField(
         column_name="modified_by",
         field="id",
         model=User,
