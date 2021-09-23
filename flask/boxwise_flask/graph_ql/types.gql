@@ -131,6 +131,17 @@ input CreateBoxInput {
   createdBy: String
 }
 
+
+input UpdateBoxInput {
+  boxLabelIdentifier: String!
+  productId: Int
+  sizeId: Int
+  items: Int
+  locationId: Int
+  comment: String
+  lastModifiedBy: String!
+}
+
 scalar Datetime
 scalar Date
 

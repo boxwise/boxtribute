@@ -14,7 +14,7 @@ from boxwise_flask.graph_ql.mutation_defs import mutation_defs
 from boxwise_flask.graph_ql.query_defs import query_defs
 from boxwise_flask.graph_ql.type_defs import type_defs
 from boxwise_flask.models.base import Base
-from boxwise_flask.models.box import Box, create_box
+from boxwise_flask.models.box import Box, create_box, update_box
 from boxwise_flask.models.location import Location
 from boxwise_flask.models.organisation import Organisation
 from boxwise_flask.models.product import Product
@@ -153,6 +153,12 @@ def resolve_box_state(obj, info):
 @convert_kwargs_to_snake_case
 def resolve_create_box(_, info, box_creation_input):
     return create_box(box_creation_input)
+
+
+@mutation.field("updateBox")
+@convert_kwargs_to_snake_case
+def resolve_update_box(_, info, box_update_input):
+    return update_box(box_update_input)
 
 
 @product.field("gender")

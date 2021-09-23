@@ -18,6 +18,7 @@ def test_create_box(client, qr_code_without_box):
                 boxCreationInput : {box_creation_input_string}
             ) {{
                 id
+                boxLabelIdentifier
                 items
                 location {{
                     id
@@ -42,3 +43,27 @@ def test_create_box(client, qr_code_without_box):
     assert created_box["location"]["id"] == "1"
     assert created_box["product"]["id"] == "1"
     assert created_box["qrCode"]["id"] == str(qr_code_without_box["id"])
+
+    mutation = f"""mutation {{
+            updateBox(
+                boxUpdateInput : {{
+                    items: 7777,
+                    lastModifiedBy: "2",
+                    boxLabelIdentifier: "{created_box["boxLabelIdentifier"]}"
+                }} ) {{
+                items
+                lastModifiedOn
+                createdOn
+                qrCode {{
+                    id
+                }}
+            }}
+        }}"""
+    data = {"query": mutation}
+    response = client.post("/graphql", json=data)
+    updated_box = response.json["data"]["updateBox"]
+
+    assert response.status_code == 200
+    assert updated_box["items"] == 7777
+    assert updated_box["lastModifiedOn"] != updated_box["createdOn"]
+    assert updated_box["qrCode"] == created_box["qrCode"]

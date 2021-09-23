@@ -134,3 +134,18 @@ def create_box(box_creation_input):
         **box_creation_input,
     )
     return new_box
+
+
+def update_box(box_update_input):
+    """Look up an existing Box given a UUID, and update all requested fields.
+    Insert timestamp for modification and return the box.
+    """
+    box_id = box_update_input.pop("box_label_identifier")
+    box = Box.get_box(box_id)
+
+    for field, value in box_update_input.items():
+        setattr(box, field, value)
+
+    box.last_modified_on = datetime.now()
+    box.save()
+    return box
