@@ -1,23 +1,27 @@
 import { useLazyQuery } from "@apollo/client";
 import React, { useEffect, useState } from "react";
-import { emptyBox } from "../utils/emptyBox";
+import { useParams } from "react-router-dom";
 import { BOX_BY_QR } from "../utils/queries";
+import { BoxDetails } from "../utils/Types";
+
+type BoxInfoUrlParams = {
+  id: string;
+};
 
 function BoxInfo(props) {
-  const [box, setBox] = useState(emptyBox);
+  const [boxData, setBox] = useState<BoxDetails | null>(null);
+  const { id } = useParams<BoxInfoUrlParams>();
 
   const [getBoxQuery] = useLazyQuery(BOX_BY_QR, {
     onCompleted: (data) => {
-      var newBox = data.box;
+      const box = data.box;
       setBox({
-        box_id: newBox.box_id,
-        product_id: newBox.product_id,
-        size_id: newBox.size_id,
-        items: newBox.items,
-        location_id: newBox.location_id,
-        comments: newBox.comments,
-        qr_id: newBox.qr_id,
-        box_state_id: newBox.box_state_id,
+        box_id: box.box_id,
+        product_name: box.product.name,
+        product_gender: box.product.gender,
+        qr_code: box.qrCode.code,
+        no_of_items: box.items,
+        location_label: box.location.name,
       });
     },
     onError: (err) => {},
@@ -25,24 +29,24 @@ function BoxInfo(props) {
 
   useEffect(() => {
     getBoxQuery({
-      variables: { qrCode: props.location.state.qr },
+      variables: { id },
     });
-  }, [getBoxQuery, props.location.state.qr]);
+  }, [id, getBoxQuery]);
 
-  //TODO: replace first option with a load spinner
-  const boxData =
-    box.box_id === null ? (
-      <p>Fetching box now...</p>
-    ) : (
-      <div>
-        <h2>Box Found!</h2>
-        <p>Box ID: {box.box_id}</p>
-        <p>Items: {box.items}</p>
-        <p>Product ID: {box.product_id}</p>
-        <p>Location ID: {box.location_id}</p>
-      </div>
-    );
-  return <>{boxData}</>;
+  return <>{boxData === null ? <p>Fetching box now...</p> :
+    <div>
+      <h2>Box Found!</h2>
+      <p>Box ID: {boxData.box_id}</p>
+      <p>Location Name: {boxData.location_label}</p>
+      <p>Product Name: {boxData.product_name}</p>
+      <p>Product Size: XXXXXX</p>
+      <p># of Items: {boxData.no_of_items}</p>
+      <p>Product Gender: {boxData.product_gender} </p>
+      <p>Comments: {boxData.product_gender} </p>
+      <p>Box Status: XXXXXX</p>
+      <p>QR Code: {boxData.qr_code}</p>
+    </div>
+  }</>;
 }
 
 export default BoxInfo;

@@ -1,10 +1,16 @@
 import * as React from "react";
-import { useMutation } from "@apollo/client";
+import { useMutation, useQuery } from "@apollo/client";
 import { useForm } from "react-hook-form";
-import { useLocation, Link } from "react-router-dom";
-import { NewBoxType, LocationState } from "../../utils/Types";
-import { CREATE_BOX } from "../../utils/queries";
+import { Link, useLocation } from "react-router-dom";
+import { BoxLocation, NewBoxType, Product } from "../../utils/Types";
+import { CREATE_BOX, LOCATIONS, PRODUCTS } from "../../utils/queries";
 import { emptyBox } from "../../utils/emptyBox";
+import { useState } from "react";
+import { PrimaryButton } from "boxwise-components";
+
+function useUrlQuery() {
+  return new URLSearchParams(useLocation().search);
+}
 
 export default function CreateBox() {
   // NOTE: getting the user will likely eventually have to be done in a more global-place,
@@ -15,9 +21,28 @@ export default function CreateBox() {
     CREATE_BOX,
   );
 
-  const location: LocationState = useLocation();
-  const qrUrl: string = location?.state?.qr;
-  const qrBarcode = qrUrl.split("barcode=")[1];
+  const urlQueryParams = useUrlQuery();
+
+  const [products, setProducts] = useState<Product[]>();
+  const [locations, setLocations] = useState<BoxLocation[]>();
+  const [sizes] = useState<string[]>();
+
+  useQuery(PRODUCTS, {
+    onCompleted: (data) => {
+      setProducts(data.products);
+    },
+    onError: (err) => {
+      // TODO: Error handling
+    },
+  });
+
+  useQuery(LOCATIONS, {
+    onCompleted: (data) => {
+      setLocations(data.locations);
+    },
+  });
+
+  const qr = urlQueryParams.get("qr");
 
   const [newBox, setNewBox] = React.useState<NewBoxType>(emptyBox);
 
@@ -33,10 +58,9 @@ export default function CreateBox() {
           locationId: Number(locationId),
           comments: comments || "",
           sizeId: Number(sizeId), // dropdown? comes from productId?
-          qrBarcode,
+          qrBarcode: qr,
         },
       });
-
       setNewBox(mutationData.createBox);
     } catch (e) {
       // TODO error handling
@@ -50,7 +74,9 @@ export default function CreateBox() {
       {newBox.box_id && (
         <div data-testid="createdBox">
           <h1> You created a new box!</h1>
-          <h1>The Box ID is: {newBox.box_id}</h1>
+          <h1>
+            The Box ID is: <Link to={`/box-info/${newBox.box_id}`}>{newBox.box_id}</Link>
+          </h1>
           <h1>Please write that on the top of the label.</h1>
           <h1>Scan another QR code to create another.</h1>
         </div>
@@ -60,37 +86,50 @@ export default function CreateBox() {
           <form id="make-a-box" data-testid="createBoxForm" className="flex flex-col">
             {/* Note: eventually we will get the base from the URL,
             which will determine the locations via a query */}
-            <label className="p-2" htmlFor="locationId">
-              locationId*
-              <input
-                defaultValue={2}
-                className="border rounded"
-                ref={register({ required: true, maxLength: 20 })}
-                type="number"
-                name="locationId"
-              />
+
+            <label className="p-2" htmlFor="comments">
+              Location*
+              <select name="locationId" ref={register()}>
+                {locations?.map((location) => (
+                  <option key={location.id} value={location.id}>
+                    {location.name}
+                  </option>
+                ))}
+              </select>
             </label>
 
-            <label className="p-2" htmlFor="productId">
-              productId*
-              <input
-                defaultValue={2}
-                className="border rounded"
-                ref={register({ required: true, maxLength: 20 })}
-                type="number"
-                name="productId"
-              />
+            <br />
+
+            <label className="p-2" htmlFor="product">
+              Product
+              <select id="product" name="productId" ref={register()}>
+                {products?.map((product) => (
+                  <option
+                    key={product.id}
+                    value={product.id}
+                    data-testid={`product-selector-id-${product.id}`}
+                  >
+                    {product.name}
+                  </option>
+                ))}
+              </select>
             </label>
-            <label className="p-2" htmlFor="items">
-              items*
-              <input
-                defaultValue={2}
-                className="border rounded"
-                ref={register({ required: true, maxLength: 20 })}
-                type="number"
-                name="items"
-              />
+
+            <br />
+
+            <label className="p-2" htmlFor="comments">
+              Size*
+              <select>
+                {sizes?.map((size, i) => (
+                  <option key={i} value={size}>
+                    {size}
+                  </option>
+                ))}
+              </select>
             </label>
+
+            <br />
+
             <label className="p-2" htmlFor="sizeId">
               sizeId*
               <input
@@ -101,6 +140,23 @@ export default function CreateBox() {
                 name="sizeId"
               />
             </label>
+
+            <br />
+
+            <label className="p-2" htmlFor="noOfItems">
+              # of items
+              <input
+                defaultValue={0}
+                className="border rounded"
+                ref={register({ required: true, maxLength: 20 })}
+                type="number"
+                name="items"
+                id="noOfItems"
+              />
+            </label>
+
+            <br />
+
             <label className="p-2" htmlFor="comments">
               comments*
               <input
@@ -111,14 +167,19 @@ export default function CreateBox() {
                 name="comments"
               />
             </label>
+
+            <br />
+
+            {qr && <>QR code: {qr}</>}
           </form>
-          <button
+
+          <PrimaryButton
             type="submit"
             className="border bg-blue-400 rounded w-64"
             onClick={handleSubmit((formFields) => onSubmit(formFields))}
           >
-            do the mutation
-          </button>
+            Save
+          </PrimaryButton>
         </div>
       )}
       {mutationLoading && <p data-testid="loadingState">Loading...</p>}

@@ -72,21 +72,55 @@ export const ORG_BASES = gql`
 export const QR_EXISTS = gql`
   query QrExists($qrCode: String!) {
     qrExists(qr_code: $qrCode)
-    qrBoxExists(qr_code: $qrCode)
+    boxIdByQrCode(qr_code: $qrCode)
   }
 `;
 
 export const BOX_BY_QR = gql`
-  query Box($qrCode: String!) {
-    box(qr_code: $qrCode) {
+  query Box($id: String!) {
+    box(id: $id) {
       box_id
-      product_id
+      product {
+        name
+        gender
+      }
       size_id
       items
-      location_id
+      location {
+        name
+      }
       comments
-      qr_id
+      qrCode {
+        id
+        code
+      }
       box_state_id
+    }
+  }
+`;
+
+export const LOCATIONS = gql`
+  query Locations {
+    locations {
+      id
+      name
+    }
+  }
+`;
+
+export const PRODUCTS = gql`
+  query Products {
+    products {
+      id
+      name
+    }
+  }
+`;
+
+export const SIZES_FOR_PRODUCT = gql`
+  query SizesForProduct($productId: Int!) {
+    product(id: $productId) {
+      sizes
     }
   }
 `;

@@ -1,19 +1,62 @@
 import React from "react";
-import { render, waitFor, fireEvent, cleanup } from "../../utils/test-utils";
+import {
+  render,
+  waitFor,
+  fireEvent,
+  cleanup,
+  act,
+  waitForElement,
+  findByText,
+  RenderResult,
+} from "../../utils/test-utils";
 import "@testing-library/jest-dom";
 import { createMemoryHistory } from "history";
-import { CREATE_BOX } from "../../utils/queries";
+import { CREATE_BOX, LOCATIONS, PRODUCTS, SIZES_FOR_PRODUCT } from "../../utils/queries";
 import CreateBox from "./CreateBox";
 import { GraphQLError } from "graphql";
+
+const productsAndLocationQueriesForInitialLoading = [
+  {
+    request: {
+      query: PRODUCTS,
+    },
+    result: {
+      data: {
+        products: [{ __typename: "Product", id: 1, name: "Winter Jackets" }],
+      },
+    },
+  },
+  {
+    request: {
+      query: LOCATIONS,
+    },
+    result: {
+      data: {
+        locations: [
+          {
+            __typename: "Location",
+            id: 1,
+            name: "Shop",
+          },
+          {
+            __typename: "Location",
+            id: 2,
+            name: "LOST",
+          },
+        ],
+      },
+    },
+  },
+];
 
 const mocks = [
   {
     request: {
       query: CREATE_BOX,
       variables: {
-        productId: 2,
+        productId: 1,
         items: 2,
-        locationId: 2,
+        locationId: 1,
         comments: "",
         sizeId: 2,
         qrBarcode: "387b0f0f5e62cebcafd48383035a92a",
@@ -30,6 +73,7 @@ const mocks = [
       },
     },
   },
+  ...productsAndLocationQueriesForInitialLoading,
 ];
 
 const mockNetworkError = [
@@ -37,9 +81,9 @@ const mockNetworkError = [
     request: {
       query: CREATE_BOX,
       variables: {
-        productId: 2,
+        productId: 1,
         items: 2,
-        locationId: 2,
+        locationId: 1,
         comments: "",
         sizeId: 2,
         qrBarcode: "387b0f0f5e62cebcafd48383035a92a",
@@ -47,6 +91,7 @@ const mockNetworkError = [
     },
     error: new Error("An error occurred"),
   },
+  ...productsAndLocationQueriesForInitialLoading,
 ];
 
 const mockGraphQLError = [
@@ -54,9 +99,9 @@ const mockGraphQLError = [
     request: {
       query: CREATE_BOX,
       variables: {
-        productId: 2,
+        productId: 1,
         items: 2,
-        locationId: 2,
+        locationId: 1,
         comments: "",
         sizeId: 2,
         qrBarcode: "387b0f0f5e62cebcafd48383035a92a",
@@ -66,21 +111,22 @@ const mockGraphQLError = [
       errors: [new GraphQLError("Error!")],
     },
   },
+  ...productsAndLocationQueriesForInitialLoading,
 ];
 
 describe("Renders CreateBox component correctly", () => {
-  let component;
-  beforeEach(() => {
-    const history = createMemoryHistory();
-    const state = { qr: "barcode=387b0f0f5e62cebcafd48383035a92a" };
-    history.push("/create-box", state);
+  let component: RenderResult;
+  let history;
+  beforeEach(async () => {
+    history = createMemoryHistory();
+    history.push("/create-box/?qr=387b0f0f5e62cebcafd48383035a92a");
 
     component = render(<CreateBox />, { mocks, history });
   });
 
   afterEach(cleanup);
 
-  it("renders a header titled, `Create a Box`", () => {
+  it("renders a header titled, `Create a Box`", async () => {
     expect(
       component.getByRole("heading", {
         name: /create a box/i,
@@ -92,38 +138,53 @@ describe("Renders CreateBox component correctly", () => {
     expect(component.getByTestId("createBoxForm")).toBeTruthy();
   });
 
-  it("renders the correct 5 fields within the form", () => {
-    expect(component.getByText(/locationid*/i)).toBeTruthy();
-    expect(component.getByText(/productid*/i)).toBeTruthy();
-    expect(component.getByText(/items*/i)).toBeTruthy();
+  it("renders the correct 5 fields and the QR code within the form", async () => {
+    expect(component.getByLabelText(/Product*/i)).toBeTruthy();
+
+    await component.findByText("Winter Jackets");
     expect(component.getByText(/sizeid*/i)).toBeTruthy();
+    expect(component.getByText(/# of items*/i)).toBeTruthy();
     expect(component.getByText(/comments*/i)).toBeTruthy();
+
+    const qrCodeLabel = component.getByText(/QR code: 387b0f0f5e62cebcafd48383035a92a/i);
+    expect(qrCodeLabel).toBeInTheDocument();
   });
 
-  it("renders a submit button titled, `do the mutation`", () => {
+  it("renders a submit button titled, `Save`", () => {
     expect(
       component.getByRole("button", {
-        name: /do the mutation/i,
+        name: /Save/,
       }),
-    ).toHaveTextContent("do the mutation");
+    ).toBeInTheDocument();
   });
 });
 
 describe("Created box is displayed correctly", () => {
-  let component;
+  let component: RenderResult;
   beforeEach(() => {
     const history = createMemoryHistory();
-    const state = { qr: "barcode=387b0f0f5e62cebcafd48383035a92a" };
-    history.push("/create-box", state);
-
+    history.push("/create-box/?qr=387b0f0f5e62cebcafd48383035a92a");
     component = render(<CreateBox />, { mocks, history });
   });
 
   afterEach(cleanup);
 
   it("After a successful submission, the form disappears and a screen with `You created a new box` appears with a box-id", async () => {
+    const productField = component.getByLabelText("Product");
+    expect(productField["value"]).toBe("");
+    const product1OptionField = await component.findByTestId("product-selector-id-1");
+    expect(product1OptionField).toBeInTheDocument();
+
+    const numberOfItemsField = component.getByLabelText("# of items") as HTMLInputElement;
+    expect(numberOfItemsField.value).toBe("0");
+    fireEvent.change(numberOfItemsField, {
+      target: {
+        value: 2,
+      },
+    });
+    expect(numberOfItemsField.value).toBe("2");
     const submitBtn = component.getByRole("button", {
-      name: /do the mutation/i,
+      name: /Save/i,
     });
 
     fireEvent.click(submitBtn);
@@ -145,8 +206,7 @@ describe("Required form fields prohibit submission when blank", () => {
   let component;
   beforeEach(() => {
     const history = createMemoryHistory();
-    const state = { qr: "barcode=387b0f0f5e62cebcafd48383035a92a" };
-    history.push("/create-box", state);
+    history.push("/create-box/?qr=387b0f0f5e62cebcafd48383035a92a");
 
     component = render(<CreateBox />, { mocks, history });
   });
@@ -156,7 +216,7 @@ describe("Required form fields prohibit submission when blank", () => {
   it("does nothing when locationId, productId, items, and sizeId are blank", async () => {
     const inputFields = component.getAllByRole("spinbutton");
     const submitBtn = component.getByRole("button", {
-      name: /do the mutation/i,
+      name: /Save/i,
     });
 
     for (let i = 0; i < inputFields.length; i++) {
@@ -189,20 +249,26 @@ describe("Required form fields prohibit submission when blank", () => {
 });
 
 describe("Network error after submission", () => {
-  let component = null;
+  let component;
   beforeEach(() => {
     const history = createMemoryHistory();
-    const state = { qr: "barcode=387b0f0f5e62cebcafd48383035a92a" };
-    history.push("/create-box", state);
+    history.push("/create-box/?qr=387b0f0f5e62cebcafd48383035a92a");
 
-    component = render(<CreateBox />, { mockNetworkError, history });
+    component = render(<CreateBox />, { mocks: mockNetworkError, history });
   });
 
   afterEach(cleanup);
 
   it("renders `Error :( Please try again` when there is a network error", async () => {
-    const submitBtn = component.getByRole("button", { name: /do the mutation/i });
+    await component.findByTestId("product-selector-id-1");
+    const numberOfItemsField = component.getByLabelText("# of items") as HTMLInputElement;
+    fireEvent.change(numberOfItemsField, {
+      target: {
+        value: 2,
+      },
+    });
 
+    const submitBtn = component.getByRole("button", { name: /save/i });
     fireEvent.click(submitBtn);
 
     await waitFor(() => {
@@ -212,33 +278,47 @@ describe("Network error after submission", () => {
 });
 
 describe("GraphQL error after submission", () => {
-  let component = null;
+  let component;
   beforeEach(() => {
     const history = createMemoryHistory();
-    const state = { qr: "barcode=387b0f0f5e62cebcafd48383035a92a" };
-    history.push("/create-box", state);
+    history.push("/create-box/?qr=387b0f0f5e62cebcafd48383035a92a");
 
-    component = render(<CreateBox />, { mockGraphQLError, history });
+    component = render(<CreateBox />, { mocks: mockGraphQLError, history });
   });
 
   afterEach(cleanup);
 
   it("renders `Error :( Please try again` when there is a GraphQL error", async () => {
-    const submitBtn = component.getByRole("button", { name: /do the mutation/i });
+    await component.findByTestId("product-selector-id-1");
+
+    const numberOfItemsField = component.getByLabelText("# of items") as HTMLInputElement;
+    fireEvent.change(numberOfItemsField, {
+      target: {
+        value: 2,
+      },
+    });
+
+    const submitBtn = component.getByRole("button", { name: /save/i });
 
     fireEvent.click(submitBtn);
-
+    // });
     await waitFor(() => {
       expect(component.getByText("Error :( Please try again")).toBeInTheDocument();
     });
   });
-});
 
-// Loading state is a work in progress
-/*
+  // Loading state is a work in progress
   it("renders `loading` while loading", async () => {
+    await component.findByTestId("product-selector-id-1");
 
-    const submitBtn = component.getByRole("button", { name: /do the mutation/i });
+    const numberOfItemsField = component.getByLabelText("# of items") as HTMLInputElement;
+    fireEvent.change(numberOfItemsField, {
+      target: {
+        value: 2,
+      },
+    });
+
+    const submitBtn = component.getByRole("button", { name: /save/i });
 
     fireEvent.click(submitBtn);
 
@@ -246,4 +326,4 @@ describe("GraphQL error after submission", () => {
       expect(component.getByText("Loading...")).toBeInTheDocument();
     });
   });
-*/
+});

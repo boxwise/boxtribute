@@ -8,13 +8,11 @@ import { Redirect } from "react-router";
 
 function ScanBox() {
   const [qr, setQR] = useState("");
-  const [qrInfo, setQrInfo] = useState({ qrExists: null, qrBoxExists: null });
+  const [qrInfo, setQrInfo] = useState({ qrExists: null, boxIdByQrCode: null });
   const [qrError, setQrError] = useState("");
 
   const [getQrExistsQuery] = useLazyQuery(QR_EXISTS, {
-    onCompleted: (data) => {
-      setQrInfo(data);
-    },
+    onCompleted: (data) => setQrInfo(data),
   });
 
   const retrieveBox = (code) => {
@@ -33,15 +31,75 @@ function ScanBox() {
     }
   };
 
+  const TestQRSelector = () => {
+    const testQRCodeGroups = [
+      {
+        groupName: "Codes connected to existing Boxes in the seed",
+        qrCodes: [
+          "https://staging.boxwise.co/mobile.php?barcode=387b0f0f5e62cebcafd48383035a92a",
+          "https://staging.boxwise.co/mobile.php?barcode=cba56d486db6d39209dbbf9e45353c4",
+          "https://staging.boxwise.co/mobile.php?barcode=a61e0efe25b75032b91106372674c26",
+          "https://staging.boxwise.co/mobile.php?barcode=f6f20e805192618def2cb400776a2aa",
+          "https://staging.boxwise.co/mobile.php?barcode=12ca607ce60c484bdbb703def950c5b",
+          "https://staging.boxwise.co/mobile.php?barcode=13f12820c8010f2f7349962930e6bf4",
+          "https://staging.boxwise.co/mobile.php?barcode=d0e144a0a4dc0d8af55e2b686a2e97e",
+          "https://staging.boxwise.co/mobile.php?barcode=69107b2e2b4157b5efe10415bc0bba0",
+          "https://staging.boxwise.co/mobile.php?barcode=b8f0730d36571e4149ba3862379bb88",
+          "https://staging.boxwise.co/mobile.php?barcode=e1fdfdd942db0e764c9bea06c03ba2b",
+        ],
+      },
+      {
+        groupName: "Codes not yet connected to Boxes in the seed",
+        qrCodes: [
+          "https://staging.boxwise.co/mobile.php?barcode=093f65e080a295f8076b1c5722a46aa2",
+          "https://staging.boxwise.co/mobile.php?barcode=44f683a84163b3523afe57c2e008bc8c",
+          "https://staging.boxwise.co/mobile.php?barcode=5a5ea04157ce4d020f65c3dd950f4fa3",
+          "https://staging.boxwise.co/mobile.php?barcode=5c829d1bf278615670dceeb9b3919ed2",
+          "https://staging.boxwise.co/mobile.php?barcode=4b382363fa161c111fa9ad2b335ceacd",
+          "https://staging.boxwise.co/mobile.php?barcode=b1cf83ae73adfce0d14dbe81b53cb96b",
+        ],
+      },
+    ];
+    const clickTestQRCode = (testQRCode) => {
+      retrieveBox(testQRCode);
+    };
+    return (
+      <div>
+        <h2>Test QR Codes (only in non-production)</h2>
+        <ul style={{ listStyle: "none" }}>
+          {testQRCodeGroups.map((testQRCodeGroup) => (
+            <li>
+              <h3>{testQRCodeGroup.groupName}</h3>
+              <ul>
+                {testQRCodeGroup.qrCodes.map((qrCode) => (
+                  <li>
+                    <button key={qrCode} onClick={() => clickTestQRCode(qrCode)}>
+                      {qrCode}
+                    </button>
+                  </li>
+                ))}
+              </ul>
+            </li>
+          ))}
+        </ul>
+      </div>
+    );
+  };
+
   const displayReader = () => {
     if (qrInfo.qrExists == null) {
+      const showTestQRSelector = process.env.NODE_ENV === "development";
+
       return (
-        <QrReader
-          delay={300}
-          onError={(err) => setQrError(err)}
-          onScan={retrieveBox}
-          style={{ width: "100%" }}
-        />
+        <>
+          {showTestQRSelector && <TestQRSelector />}
+          <QrReader
+            delay={300}
+            onError={(err) => setQrError(err)}
+            onScan={retrieveBox}
+            style={{ width: "100%" }}
+          />
+        </>
       );
     } else if (qrError) {
       return (
@@ -69,12 +127,11 @@ function ScanBox() {
         </div>
       );
     } else {
-      if (qrInfo.qrBoxExists)
+      if (qrInfo.boxIdByQrCode)
         return (
           <Redirect
             to={{
-              pathname: "/box-info",
-              state: { qr: qr },
+              pathname: `/box-info/${qrInfo.boxIdByQrCode}`,
             }}
           />
         );
@@ -82,8 +139,8 @@ function ScanBox() {
         return (
           <Redirect
             to={{
-              pathname: "/create-box",
-              state: { qr: qr },
+              pathname: `/create-box`,
+              search: `?qr=${qr}`,
             }}
           />
         );
