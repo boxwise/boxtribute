@@ -21,7 +21,11 @@ from .qr_code import QRCode
 
 class Box(db.Model):
     box_label_identifier = CharField(
-        column_name="box_id", constraints=[SQL("DEFAULT ''")], index=True, unique=True
+        column_name="box_id",
+        constraints=[SQL("DEFAULT ''")],
+        index=True,
+        unique=True,
+        max_length=11,
     )
     box_state = ForeignKeyField(
         column_name="box_state_id",
@@ -115,14 +119,17 @@ class Box(db.Model):
 
 
 def create_box(box_creation_input):
-    today = datetime.now()
+    """Insert information for a new Box in the database. Use current datetime
+    and box state "InStock" by default. Generate a UUID to identify the box.
+    """
+    now = datetime.now()
     qr_code = box_creation_input.pop("qr_code", None)
     qr_id = QRCode.get_id_from_code(qr_code)
 
     new_box = Box.create(
-        box_label_identifier=uuid.uuid4(),
+        box_label_identifier=str(uuid.uuid4())[: Box.box_label_identifier.max_length],
         qr_id=qr_id,
-        created_on=today,
+        created_on=now,
         box_state=1,
         **box_creation_input,
     )
