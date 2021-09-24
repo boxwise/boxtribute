@@ -122,7 +122,7 @@ def create_box(box_creation_input):
     """Insert information for a new Box in the database. Use current datetime
     and box state "InStock" by default. Generate a UUID to identify the box.
     """
-    now = datetime.now()
+    now = datetime.utcnow()
     qr_code = box_creation_input.pop("qr_code", None)
     qr_id = QRCode.get_id_from_code(qr_code) if qr_code is not None else None
 
@@ -146,6 +146,6 @@ def update_box(box_update_input):
     for field, value in box_update_input.items():
         setattr(box, field, value)
 
-    box.last_modified_on = datetime.now()
+    box.last_modified_on = datetime.utcnow()
     box.save()
     return box

@@ -31,7 +31,7 @@ class Base(db.Model):
         constraints=[SQL("UNSIGNED")],
     )
     cycle_start = DateTimeField(
-        column_name="cyclestart", default=datetime.now(), null=True
+        column_name="cyclestart", default=datetime.utcnow(), null=True
     )
     days_to_keep_deleted_persons = IntegerField(
         column_name="daystokeepdeletedpersons",
