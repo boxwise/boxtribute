@@ -124,7 +124,7 @@ def create_box(box_creation_input):
     """
     now = datetime.now()
     qr_code = box_creation_input.pop("qr_code", None)
-    qr_id = QRCode.get_id_from_code(qr_code)
+    qr_id = QRCode.get_id_from_code(qr_code) if qr_code is not None else None
 
     new_box = Box.create(
         box_label_identifier=str(uuid.uuid4())[: Box.box_label_identifier.max_length],
