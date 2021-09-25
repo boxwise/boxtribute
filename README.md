@@ -47,7 +47,7 @@ These are the most basic steps to get front-end and back-end up and running. At 
 
     docker-compose up
 
-In case you get out-of-memory related errors, please increase your max memory in your Docker settings (via Docker Settings UI -> Resources -> Memory) e.g. to 4 GB and try again.
+**NB: In case you get out-of-memory related errors, make sure your max memory is at least 4GB in your Docker settings (via *Docker Settings UI -> Resources -> Memory*) and try again.**
 
 ### [Further Steps]
 
