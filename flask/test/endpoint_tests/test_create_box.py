@@ -3,31 +3,77 @@ import pytest
 
 @pytest.mark.usefixtures("qr_code_without_box")
 def test_create_box(client, qr_code_without_box):
-    """Verify base GraphQL query endpoint"""
     box_creation_input_string = f"""{{
-                    product_id: 1,
+                    productId: 1,
                     items: 9999,
-                    location_id: 100000005,
+                    locationId: 1,
                     comment: "",
-                    size_id: 1,
-                    qr_barcode: "{qr_code_without_box["code"]}",
-                    created_by: "1"
+                    sizeId: 1,
+                    qrCode: "{qr_code_without_box["code"]}",
+                    createdBy: "1"
                 }}"""
 
-    # TODO: add location, product and qr to the responses for this
     gql_mutation_string = f"""mutation {{
             createBox(
-                box_creation_input : {box_creation_input_string}
+                boxCreationInput : {box_creation_input_string}
             ) {{
-                ID
+                id
+                boxLabelIdentifier
                 items
+                location {{
+                    id
+                }}
+                product {{
+                    id
+                }}
+                qrCode {{
+                    id
+                }}
+                state
+                createdOn
+                createdBy {{
+                    id
+                }}
+                lastModifiedOn
+                lastModifiedBy {{
+                    id
+                }}
             }}
         }}"""
 
     data = {"query": gql_mutation_string}
-    response_data = client.post("/graphql", json=data)
-    # TODO: fix this test
-    created_box = response_data.json["data"]["createBox"]
+    response = client.post("/graphql", json=data)
+    created_box = response.json["data"]["createBox"]
 
-    assert response_data.status_code == 200
+    assert response.status_code == 200
     assert created_box["items"] == 9999
+    assert created_box["state"] == "InStock"
+    assert created_box["location"]["id"] == "1"
+    assert created_box["product"]["id"] == "1"
+    assert created_box["qrCode"]["id"] == str(qr_code_without_box["id"])
+    assert created_box["createdOn"] == created_box["lastModifiedOn"]
+    assert created_box["createdBy"] == created_box["lastModifiedBy"]
+
+    mutation = f"""mutation {{
+            updateBox(
+                boxUpdateInput : {{
+                    items: 7777,
+                    lastModifiedBy: "2",
+                    boxLabelIdentifier: "{created_box["boxLabelIdentifier"]}"
+                }} ) {{
+                items
+                lastModifiedOn
+                createdOn
+                qrCode {{
+                    id
+                }}
+            }}
+        }}"""
+    data = {"query": mutation}
+    response = client.post("/graphql", json=data)
+    updated_box = response.json["data"]["updateBox"]
+
+    assert response.status_code == 200
+    assert updated_box["items"] == 7777
+    assert updated_box["lastModifiedOn"] != updated_box["createdOn"]
+    assert updated_box["qrCode"] == created_box["qrCode"]

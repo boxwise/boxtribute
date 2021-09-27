@@ -6,6 +6,7 @@ from data.box_state import default_box_state_data
 from data.location import default_location_data
 from data.product import default_product_data
 from data.qr_code import default_qr_code_data
+from data.user import default_user_data
 
 TIME = datetime.now()
 
@@ -17,8 +18,8 @@ def default_box_data():
         "box_label_identifier": "abc",
         "box_state": default_box_state_data()["id"],
         "comment": "",
-        "created": TIME,
-        "created_by": None,
+        "created_on": TIME,
+        "created_by": default_user_data()["id"],
         "deleted": TIME,
         "items": "None",
         "location": default_location_data()["id"],

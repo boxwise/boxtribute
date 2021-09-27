@@ -5,16 +5,21 @@ query_defs = gql(
     """
     type Query {
         hello: String!
-        allBases: [Base]
-        orgBases(orgId: Int): [Base]
-        base(id: Int!): Base
-        allUsers: [User]
+        bases: [Base!]!
+        base(id: ID!): Base
+        organisation(id: ID!): Organisation
+        organisations: [Organisation!]!
         user(email: String): User
+        users: [User!]!
+        box(boxId: String!): Box
+        qrCode(qrCode: String!): QrCode
         qrExists(qrCode: String): Boolean
-        qrBoxExists(qrCode: String): Boolean
-        getBoxDetails(boxId: Int, qrCode: String): Box
-        getBoxesByLocation(locationId: Int!): [Box]
-        getBoxesByGender(genderId: ProductGender!): [Box]
+        location(id: ID!): Location
+        locations: [Location!]!
+        product(id: ID!): Product
+        products: [Product!]!
+        productCategory(id: ID!): ProductCategory
+        productCategories: [ProductCategory!]!
     }
     """
 )

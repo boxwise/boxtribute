@@ -23,7 +23,7 @@ export default function ListAllBases() {
     <div className="p-6">
       <h3 className="text-lg font-bold underline mb-4">List of All Bases:</h3>
       <ul className="mb-4">
-        {data.allBases.map(({ id, organisationId, name }) => (
+        {data.bases.map(({ id, organisationId, name }) => (
           <div key={id}>
             <li>
               {organisationId}: {name}

@@ -1,0 +1,165 @@
+type Box {
+  id: ID!
+  boxLabelIdentifier: String!
+  location: Location!
+  items: Int!
+  product: Product!
+  gender: ProductGender
+  # A size from a size range, consider making this enum
+  size: String!
+  state: BoxState!
+  qrCode: QrCode!
+  createdBy: User!
+  createdOn: Datetime!
+  # The user who last changed something about the box
+  lastModifiedBy: User!
+  lastModifiedOn: Datetime!
+  comment: String
+}
+
+type QrCode {
+  id: ID!
+  code: String!
+  box: Box
+  createdOn: Datetime
+  # The user who generated QR code
+  createdBy: User!
+}
+
+type Product {
+  id: ID!
+  name: String!
+  category: ProductCategory!
+  sizeRange: SizeRange!
+  sizes: [String!]!
+  base: Base!
+  price: Float
+  gender: ProductGender
+  createdBy: User!
+  createdOn: Datetime!
+  # The user who last changed something about the box
+  lastModifiedBy: User!
+  lastModifiedOn: Datetime!
+}
+
+type ProductCategory {
+  id: ID!
+  name: String!
+  products: [Product]
+  sizeRanges: [SizeRange]
+  # Non-clothing categories don't have a product gender
+  hasGender: Boolean!
+}
+
+enum ProductGender {
+  Men
+  Women
+  UnisexAdult
+  UnisexChild
+  UnisexBaby
+  TeenGirl
+  TeenBoy
+  Girl
+  Boy
+}
+
+enum BoxState {
+  InStock
+  Lost
+  Ordered
+  Picked
+  Donated
+  Scrap
+}
+
+type SizeRange {
+  id: ID!
+  label: String!
+  sizes: [String!]!
+  productCategory: [ProductCategory!]
+}
+
+type Location {
+  id: ID!
+  base: Base!
+  name: String
+  isShop: Boolean!
+  isDeleted: Boolean!
+  # List of all the boxes in the location
+  boxes: [Box!]
+  boxState: BoxState
+  createdOn: Datetime!
+  # The user who generated QR code
+  createdBy: User!
+  lastModifiedBy: User!
+  lastModifiedOn: Datetime!
+}
+
+type Base {
+  id: ID!
+  name: String!
+  organisation: Organisation!
+  locations: [Location!]
+  currencyName: String
+}
+
+type Organisation {
+  id: ID!
+  name: String!
+  bases: [Base!]
+}
+
+type User {
+  id: ID!
+  organisation: Organisation
+  name: String
+  email: String!
+  validFirstDay: Date
+  validLastDay: Date
+  bases: [Base]
+  lastLogin: Datetime
+  lastAction: Datetime
+}
+
+input CreateBoxInput {
+  productId: Int!
+  sizeId: Int
+  items: Int!
+  locationId: Int!
+  comment: String!
+  qrCode: String
+  createdBy: String!
+}
+
+
+input UpdateBoxInput {
+  boxLabelIdentifier: String!
+  productId: Int
+  sizeId: Int
+  items: Int
+  locationId: Int
+  comment: String
+  lastModifiedBy: String!
+}
+
+scalar Datetime
+scalar Date
+
+# all below is speculative #
+type Order {
+  id: ID!
+  fromLocation: String!
+  toLocation: String!
+  # If null means internal transfer
+  fromOrg: Int
+  # If null means internal transfer
+  toOrg: Int
+  boxes: Box!
+  # If box state of all ordered boxes have not yet been changed, then it is active
+  isActive: Boolean!
+  createdBy: User!
+  createdOn: Datetime!
+  lastModifiedBy: User
+  # Need to change int to custom scalar for datetime
+  lastModifiedOn: Int
+}

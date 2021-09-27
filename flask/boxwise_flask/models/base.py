@@ -31,7 +31,7 @@ class Base(db.Model):
         constraints=[SQL("UNSIGNED")],
     )
     cycle_start = DateTimeField(
-        column_name="cyclestart", default=datetime.now(), null=True
+        column_name="cyclestart", default=datetime.utcnow(), null=True
     )
     days_to_keep_deleted_persons = IntegerField(
         column_name="daystokeepdeletedpersons",
@@ -109,15 +109,11 @@ class Base(db.Model):
         table_name = "camps"
 
     def __str__(self):
-        return f"{self.id} {self.organisation_id} {self.name} {self.currency_name}"
+        return f"{self.id} {self.organisation} {self.name} {self.currency_name}"
 
     @staticmethod
     def get_all_bases():
-        return list(Base.select().order_by(Base.name))
-
-    @staticmethod
-    def get_for_organisation(org_id):
-        return list(Base.select().where(Base.organisation_id == org_id))
+        return Base.select().order_by(Base.name)
 
     @staticmethod
     def get_from_id(base_id):

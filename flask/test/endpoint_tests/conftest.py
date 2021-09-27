@@ -63,12 +63,14 @@ def client(app):
 @pytest.fixture()
 def mysql_app_client():
     """Follow the setup-proceduce of the main module. Note that the fixture
-    requires a MySQL database server running locally on port 3306.
+    requires a MySQL database server running on port 3306 (32000 if you test
+    locally with docker-compose services).
     """
     app = create_app()
     app.testing = True
     # cf. main.py but inserting values from docker-compose.yml
-    app.config["DATABASE"] = "mysql://root:dropapp_root@127.0.0.1:3306/dropapp_dev"
+    port = os.getenv("MYSQL_PORT", 3306)
+    app.config["DATABASE"] = f"mysql://root:dropapp_root@127.0.0.1:{port}/dropapp_dev"
 
     db.init_app(app)
     yield app.test_client()

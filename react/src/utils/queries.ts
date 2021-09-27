@@ -39,7 +39,7 @@ export const USER = gql`
 
 export const ALL_BASES = gql`
   {
-    allBases {
+    bases {
       id
       organisationId
       name
@@ -60,19 +60,20 @@ export const BASE = gql`
 
 export const ORG_BASES = gql`
   query OrgBases($orgId: Int!) {
-    orgBases(org_id: $orgId) {
-      id
-      organisationId
-      name
-      currencyName
+    organisation(id: $orgId) {
+      bases {
+        id
+        organisationId
+        name
+        currencyName
+      }
     }
   }
 `;
 
 export const QR_EXISTS = gql`
   query QrExists($qrCode: String!) {
-    qrExists(qr_code: $qrCode)
-    boxIdByQrCode(qr_code: $qrCode)
+    qrExists(qrCode: $qrCode)
   }
 `;
 

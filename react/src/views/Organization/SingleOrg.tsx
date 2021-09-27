@@ -30,7 +30,7 @@ export default function SingleOrg() {
     <div className="p-6">
       <h3 className="text-lg font-bold underline mb-4">List of All Bases belonging to this org:</h3>
       <ul className="mb-4">
-        {data.orgBases.map(({ id, name }) => (
+        {data.organisation.bases.map(({ id, name }) => (
           <div key={id}>
             <li>
               {id}: {name}

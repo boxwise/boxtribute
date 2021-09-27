@@ -14,14 +14,20 @@ from boxwise_flask.graph_ql.mutation_defs import mutation_defs
 from boxwise_flask.graph_ql.query_defs import query_defs
 from boxwise_flask.graph_ql.type_defs import type_defs
 from boxwise_flask.models.base import Base
-from boxwise_flask.models.box import Box
+from boxwise_flask.models.box import Box, create_box, update_box
+from boxwise_flask.models.location import Location
+from boxwise_flask.models.organisation import Organisation
 from boxwise_flask.models.product import Product
-from boxwise_flask.models.product_gender import ProductGender
+from boxwise_flask.models.product_category import ProductCategory
 from boxwise_flask.models.qr_code import QRCode
+from boxwise_flask.models.size import Size
 from boxwise_flask.models.user import User, get_user_from_email_with_base_ids
+from boxwise_flask.models.usergroup import Usergroup
 
 query = ObjectType("Query")
 box = ObjectType("Box")
+product = ObjectType("Product")
+user = ObjectType("User")
 mutation = MutationType()
 
 datetime_scalar = ScalarType("Datetime")
@@ -38,22 +44,9 @@ def serialize_date(value):
     return value.isoformat()
 
 
-# registers this fn as a resolver for the "allBases" field, can use it as the
-# resolver for more than one thing by just adding more decorators
-@query.field("allBases")
-def resolve_all_bases(_, info):
-    # discard the first input because it belongs to a root type (Query, Mutation,
-    # Subscription). Otherwise it would be a value returned by a parent resolver.
+@query.field("bases")
+def resolve_bases(_, info):
     return Base.get_all_bases()
-
-
-# not everyone can see all the bases
-# see the comment in https://github.com/boxwise/boxwise-flask/pull/19
-@query.field("orgBases")
-@convert_kwargs_to_snake_case
-def resolve_org_bases(_, info, org_id):
-    response = Base.get_for_organisation(org_id)
-    return response
 
 
 @query.field("base")
@@ -63,16 +56,21 @@ def resolve_base(_, info, id):
     return response
 
 
-@query.field("allUsers")
-def resolve_all_users(_, info):
-    response = User.get_all_users()
-    return response
+@query.field("users")
+def resolve_users(_, info):
+    return User.select()
 
 
-# TODO get currrent user based on email in token
 @query.field("user")
 def resolve_user(_, info, email):
-    return get_user_from_email_with_base_ids(email)
+    data = get_user_from_email_with_base_ids(email)
+    data["organisation"] = (
+        Organisation.select()
+        .join(Usergroup)
+        .where(Usergroup.id == data["usergroup"]["id"])
+        .get()
+    )
+    return data
 
 
 @query.field("qrExists")
@@ -85,45 +83,64 @@ def resolve_qr_exists(_, info, qr_code):
     return True
 
 
-@query.field("qrBoxExists")
+@query.field("qrCode")
 @convert_kwargs_to_snake_case
-def resolve_qr_box_exists(_, info, qr_code):
-    try:
-        qr_id = QRCode.get_id_from_code(qr_code)
-        Box.get(Box.qr_code == qr_id)
-    except Box.DoesNotExist:
-        return False
-    return True
+def resolve_qr_code(_, info, qr_code):
+    data = QRCode.select().where(QRCode.code == qr_code).dicts().get()
+    data["box"] = Box.get(Box.qr_code == data["id"])
+    return data
 
 
-@query.field("getBoxDetails")
+@query.field("product")
+def resolve_product(_, info, id):
+    return Product.get_product(id)
+
+
+@query.field("box")
 @convert_kwargs_to_snake_case
-def resolve_get_box_details_by_id(_, info, box_id=None, qr_code=None):
-    if bool(box_id) == bool(qr_code):
-        # Either both or none of the arguments are given
-        return None
-
-    elif box_id is not None:
-        return Box.get(Box.box_label_identifier == box_id)
-
-    return Box.select().join(QRCode).where(QRCode.code == qr_code).get()
+def resolve_box(_, info, box_id):
+    return Box.get(Box.box_label_identifier == box_id)
 
 
-@query.field("getBoxesByLocation")
-@convert_kwargs_to_snake_case
-def resolve_get_boxes_by_location(_, info, location_id):
-    return Box.select().where(Box.location == location_id)
+@query.field("location")
+def resolve_location(_, info, id):
+    data = Location.select().where(Location.id == id).dicts().get()
+    data["boxes"] = Box.select().where(Box.location == id)
+    return data
 
 
-@query.field("getBoxesByGender")
-@convert_kwargs_to_snake_case
-def resolve_get_boxes_by_gender(_, info, gender_id):
-    return (
-        Box.select()
-        .join(Product)
-        .join(ProductGender)
-        .where(ProductGender.id == gender_id)
-    )
+@query.field("organisation")
+def resolve_organisation(_, info, id):
+    data = Organisation.select().where(Organisation.id == id).dicts().get()
+    data["bases"] = Base.select().where(Base.organisation_id == id)
+    return data
+
+
+@query.field("productCategory")
+def resolve_product_category(_, info, id):
+    data = ProductCategory.select().where(ProductCategory.id == id).dicts().get()
+    data["products"] = Product.select().where(Product.category == id)
+    return data
+
+
+@query.field("productCategories")
+def resolve_product_categories(_, info):
+    return ProductCategory.select()
+
+
+@query.field("organisations")
+def resolve_organisations(_, info):
+    return Organisation.select()
+
+
+@query.field("locations")
+def resolve_locations(_, info):
+    return Location.select()
+
+
+@query.field("products")
+def resolve_products(_, info):
+    return Product.select()
 
 
 @box.field("state")
@@ -133,15 +150,39 @@ def resolve_box_state(obj, info):
 
 
 @mutation.field("createBox")
-def create_box(_, info, box_creation_input):
-    response = Box.create_box(box_creation_input)
-    return response
+@convert_kwargs_to_snake_case
+def resolve_create_box(_, info, box_creation_input):
+    return create_box(box_creation_input)
+
+
+@mutation.field("updateBox")
+@convert_kwargs_to_snake_case
+def resolve_update_box(_, info, box_update_input):
+    return update_box(box_update_input)
+
+
+@product.field("gender")
+def resolve_product_gender(obj, info):
+    return obj.id
+
+
+@product.field("sizes")
+def resolve_sizes(product_id, info):
+    product = Product.get_product(product_id)
+    sizes = Size.select(Size.label).where(Size.seq == product.size_range.seq)
+    return [size.label for size in sizes]
+
+
+@user.field("bases")
+def resolve_user_bases(obj, info):
+    return [{"id": i} for i in obj["base_ids"]]
 
 
 # Translate GraphQL enum into id field of database table
 product_gender_type_def = EnumType(
     "ProductGender",
     {
+        "Women": 1,
         "UnisexAdult": 3,
     },
 )
@@ -151,8 +192,20 @@ box_state_type_def = EnumType(
         "InStock": 1,
     },
 )
+
+
 schema = make_executable_schema(
     gql(type_defs + query_defs + mutation_defs),
-    [query, mutation, box, product_gender_type_def, box_state_type_def],
+    [
+        query,
+        mutation,
+        date_scalar,
+        datetime_scalar,
+        box,
+        product,
+        user,
+        product_gender_type_def,
+        box_state_type_def,
+    ],
     snake_case_fallback_resolvers,
 )

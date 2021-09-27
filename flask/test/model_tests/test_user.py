@@ -14,7 +14,7 @@ def test_user_from_email(
     default_usergroup_access_level,
 ):
 
-    queried_user = User.get_from_email(default_user["email"])
+    queried_user = User.get(User.email == default_user["email"])
 
     assert queried_user.id == default_user["id"]
     assert queried_user.name == default_user["name"]
@@ -39,7 +39,7 @@ def test_get_all_users(
     default_usergroup_access_level,
 ):
 
-    queried_users = User.get_all_users()
+    queried_users = User.select()
     for user in queried_users:
         user_dict = model_to_dict(user)
         assert user.id == default_users[user.id]["id"]

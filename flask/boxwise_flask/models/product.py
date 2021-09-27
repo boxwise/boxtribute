@@ -16,7 +16,7 @@ class Product(db.Model):
         on_update="CASCADE",
         constraints=[SQL("UNSIGNED")],
     )
-    product_category = ForeignKeyField(
+    category = ForeignKeyField(
         column_name="category_id",
         field="id",
         model=ProductCategory,
@@ -24,7 +24,7 @@ class Product(db.Model):
         constraints=[SQL("UNSIGNED")],
     )
     comments = CharField(null=True)
-    created = DateTimeField(null=True)
+    created_on = DateTimeField(column_name="created", null=True)
     created_by = ForeignKeyField(
         column_name="created_by",
         field="id",
@@ -35,14 +35,14 @@ class Product(db.Model):
         constraints=[SQL("UNSIGNED")],
     )
     deleted = DateTimeField(null=True, default=None)
-    product_gender = ForeignKeyField(
+    gender = ForeignKeyField(
         column_name="gender_id",
         field="id",
         model=ProductGender,
         on_update="CASCADE",
     )
-    modified = DateTimeField(null=True)
-    modified_by = ForeignKeyField(
+    last_modified_on = DateTimeField(column_name="modified", null=True)
+    last_modified_by = ForeignKeyField(
         column_name="modified_by",
         field="id",
         model=User,
@@ -63,7 +63,11 @@ class Product(db.Model):
     in_shop = IntegerField(
         column_name="stockincontainer", constraints=[SQL("DEFAULT 0")]
     )
-    value = IntegerField(constraints=[SQL("DEFAULT 0")])
+    price = IntegerField(column_name="value", constraints=[SQL("DEFAULT 0")])
 
     class Meta:
         table_name = "products"
+
+    @staticmethod
+    def get_product(product_id):
+        return Product.get(Product.id == product_id)
