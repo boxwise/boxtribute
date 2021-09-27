@@ -4,16 +4,13 @@ import os
 import urllib
 from functools import wraps
 
-from boxwise_flask.models.user import get_user_from_email_with_base_ids
 from jose import jwt
 
-from flask import _request_ctx_stack, request
+from flask import g, request
 
 AUTH0_DOMAIN = os.getenv("AUTH0_DOMAIN")
 API_AUDIENCE = os.getenv("AUTH0_AUDIENCE")
 ALGORITHMS = ["RS256"]
-SUCCESS = True
-FAILURE = False
 
 
 # Error handler
@@ -115,10 +112,6 @@ def decode_jwt(token, rsa_key):
     return payload
 
 
-def add_user_to_request_context(payload):
-    _request_ctx_stack.top.current_user = payload
-
-
 def requires_auth(f):
     """Determines if the Access Token is valid"""
 
@@ -128,7 +121,15 @@ def requires_auth(f):
         rsa_key = get_rsa_key(token)
         if rsa_key:
             payload = decode_jwt(token, rsa_key)
-            add_user_to_request_context(payload)
+
+            # The user's base IDs are listed in the JWT under the custom claim (added by
+            # a rule in Auth0):
+            #     'https://www.boxtribute.com/base_ids'
+            # Note: this isn't a real website, and doesn't have to be, but it DOES have
+            # to be in this form to work with the Auth0 rule providing it.
+            g.user = {}
+            g.user["base_ids"] = payload["https://www.boxtribute.com/base_ids"]
+
             return f(*args, **kwargs)
         raise AuthError(
             {"code": "invalid_header", "description": "Unable to find appropriate key"},
@@ -139,54 +140,32 @@ def requires_auth(f):
 
 
 def authorization_test(test_for, **kwargs):
-    # to make this applicable to different cases,
-    # include an argument of what you would like to test for,
-    # and dict of the necessary params to check
-    # ex) authorization_test("bases", {"base_id":123})
+    """To make this applicable to different cases, include an argument of what
+    you would like to test for, and the necessary parameters to check.
+    E.g. authorization_test("bases", base_id=123)
+    """
+    if test_for == "bases":
+        authorized = user_can_access_base(g.user, kwargs["base_id"])
+    else:
+        raise AuthError(
+            {
+                "code": "unknown resource",
+                "description": "This resource is not known",
+            },
+            401,
+        )
 
-    token = get_token_from_auth_header(get_auth_string_from_header())
-    rsa_key = get_rsa_key(token)
-    if rsa_key:
-        # the user's email is in the auth token under the custom claim:
-        # 'https://www.boxtribute.com/email'
-        # note: this isn't a real website, and doesn't have to be,
-        # but it DOES have to be in this form to work with the Auth0 rule providing it.
-        # this part of the jwt is added by a rule in auth0
-        payload = decode_jwt(token, rsa_key)
-        email = payload["https://www.boxtribute.com/email"]
-        requesting_user = get_user_from_email_with_base_ids(email)
-
-        if test_for == "bases":
-            allowed_access = user_can_access_base(requesting_user, kwargs["base_id"])
-        # add more test cases here
-        else:
-            raise AuthError(
-                {
-                    "code": "unknown resource",
-                    "description": "This resource is not known",
-                },
-                401,
-            )
-
-        if allowed_access:
-            return allowed_access
-        else:
-            raise AuthError(
-                {
-                    "code": "unauthorized_user",
-                    "description": "Your user does not have access to this resource",
-                },
-                401,
-            )
+    if authorized:
+        return authorized
+    else:
+        raise AuthError(
+            {
+                "code": "unauthorized_user",
+                "description": "Your user does not have access to this resource",
+            },
+            401,
+        )
 
 
 def user_can_access_base(requesting_user, base_id):
-    if "base_ids" in requesting_user:
-        users_bases = requesting_user["base_ids"]
-        if int(base_id) in users_bases:
-            return SUCCESS
-    else:
-        # Log error - user doesnt have base ids
-        print("user doesnt have base ids cannot validate base_id " + str(base_id))
-
-    return FAILURE
+    return base_id in requesting_user.get("base_ids", [])
