@@ -128,7 +128,9 @@ def requires_auth(f):
             # Note: this isn't a real website, and doesn't have to be, but it DOES have
             # to be in this form to work with the Auth0 rule providing it.
             g.user = {}
-            g.user["base_ids"] = payload["https://www.boxtribute.com/base_ids"]
+            prefix = "https://www.boxtribute.com"
+            g.user["base_ids"] = payload[f"{prefix}/base_ids"]
+            g.user["organisation_id"] = payload[f"{prefix}/organisation_id"]
 
             return f(*args, **kwargs)
         raise AuthError(

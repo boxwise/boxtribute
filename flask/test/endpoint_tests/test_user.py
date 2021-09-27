@@ -21,6 +21,7 @@ def test_user_query_from_email(client, default_users, default_organisation):
                     validLastDay
                     bases {{
                         id
+                        name
                     }}
                     organisation {{
                         id
@@ -37,7 +38,8 @@ def test_user_query_from_email(client, default_users, default_organisation):
     assert int(queried_user["id"]) == test_id
     assert queried_user["validFirstDay"] == expected_user["valid_first_day"].isoformat()
     assert queried_user["lastLogin"] == expected_user["last_login"].isoformat()
-    assert [int(b["id"]) for b in queried_user["bases"]] == [1, 2, 3]
+    assert [int(b["id"]) for b in queried_user["bases"]] == [1]
+    assert queried_user["bases"][0]["name"] == "the best name"
     assert int(queried_user["organisation"]["id"]) == default_organisation["id"]
 
 

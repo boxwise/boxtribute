@@ -1,5 +1,5 @@
 import pytest
-from boxwise_flask.models.user import User, get_user_from_email_with_base_ids
+from boxwise_flask.models.user import User
 from playhouse.shortcuts import model_to_dict
 
 
@@ -51,31 +51,3 @@ def test_get_all_users(
                 user_dict["usergroup"]["usergroup_access_level"]
                 == default_usergroup_access_level
             )
-
-
-@pytest.mark.usefixtures("default_user")
-@pytest.mark.usefixtures("default_usergroup")
-@pytest.mark.usefixtures("default_organisation")
-@pytest.mark.usefixtures("default_usergroup_access_level")
-@pytest.mark.usefixtures("default_usergroup_access_level")
-@pytest.mark.usefixtures("default_bases")
-def test_get_user_from_email_with_base_ids(
-    default_user,
-    default_usergroup,
-    default_organisation,
-    default_usergroup_access_level,
-    default_bases,
-):
-    user_with_base_ids = get_user_from_email_with_base_ids(default_user["email"])
-
-    assert user_with_base_ids["id"] == default_user["id"]
-    assert user_with_base_ids["name"] == default_user["name"]
-    assert user_with_base_ids["email"] == default_user["email"]
-    assert user_with_base_ids["usergroup"]["organisation"] == default_organisation
-    assert (
-        user_with_base_ids["usergroup"]["usergroup_access_level"]
-        == default_usergroup_access_level
-    )
-    # the data is created such that the default usergroup is used for all base_ids
-    # therefore all the default base ids should be returned
-    assert user_with_base_ids["base_ids"] == [base for base in default_bases]

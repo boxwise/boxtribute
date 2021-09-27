@@ -21,8 +21,9 @@ from boxwise_flask.models.product import Product
 from boxwise_flask.models.product_category import ProductCategory
 from boxwise_flask.models.qr_code import QRCode
 from boxwise_flask.models.size import Size
-from boxwise_flask.models.user import User, get_user_from_email_with_base_ids
-from boxwise_flask.models.usergroup import Usergroup
+from boxwise_flask.models.user import User
+
+from flask import g
 
 query = ObjectType("Query")
 box = ObjectType("Box")
@@ -63,13 +64,9 @@ def resolve_users(_, info):
 
 @query.field("user")
 def resolve_user(_, info, email):
-    data = get_user_from_email_with_base_ids(email)
-    data["organisation"] = (
-        Organisation.select()
-        .join(Usergroup)
-        .where(Usergroup.id == data["usergroup"]["id"])
-        .get()
-    )
+    data = User.select().where(User.email == email).dicts().get()
+    data["organisation"] = Organisation.get_by_id(g.user["organisation_id"])
+    data["bases"] = Base.select().where(Base.id.in_(g.user["base_ids"]))
     return data
 
 
@@ -171,11 +168,6 @@ def resolve_sizes(product_id, info):
     product = Product.get_product(product_id)
     sizes = Size.select(Size.label).where(Size.seq == product.size_range.seq)
     return [size.label for size in sizes]
-
-
-@user.field("bases")
-def resolve_user_bases(obj, info):
-    return [{"id": i} for i in obj["base_ids"]]
 
 
 # Translate GraphQL enum into id field of database table

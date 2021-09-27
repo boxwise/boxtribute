@@ -1,5 +1,5 @@
 import pytest
-from boxwise_flask.models.user import UsergroupBaseAccess
+from boxwise_flask.models.usergroup_base_access import UsergroupBaseAccess
 
 
 @pytest.mark.usefixtures("default_usergroup_base_access_list")
