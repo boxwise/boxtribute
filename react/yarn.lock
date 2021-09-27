@@ -6582,10 +6582,10 @@ flatten@^1.0.2:
   version "1.0.3"
   resolved "https://registry.yarnpkg.com/flatten/-/flatten-1.0.3.tgz#c1283ac9f27b368abc1e36d1ff7b04501a30356b"
 
-flow-bin@^0.124.0:
-  version "0.124.0"
-  resolved "https://registry.yarnpkg.com/flow-bin/-/flow-bin-0.124.0.tgz#24b2e55874e1e2041f9247f42473b3db2ef32758"
-  integrity sha512-KEtDJ7CFUjcuhw6N52FTZshDd1krf1fxpp4APSIrwhVm+IrlcKJ+EMXpeXKM1kKNSZ347dYGh8wEvXQl4pHZEA==
+flow-bin@^0.160.2:
+  version "0.160.2"
+  resolved "https://registry.yarnpkg.com/flow-bin/-/flow-bin-0.160.2.tgz#4d579f6bbd48ca975e13237b66e503e0c519c8b9"
+  integrity sha512-vrsiPwcqdaBsuQmPZXjF0tdKqgoVc2wH+nHamvqFzvgnQLJMLN+N0seqaOMH8t/3YKnAEbY/uZ440mALE/+WLw==
 
 flow-typed@^3.3.1:
   version "3.3.1"
