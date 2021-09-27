@@ -1,25 +1,10 @@
 import pytest
 from auth import get_user_token_string
-from patches import (
-    add_user_to_request_context_patch,
-    authorization_test_patch,
-    get_auth_string_patch,
-)
-
-# avoid the request context to test auth functions
-add_user_to_request_context_patch.start()
-# Patch the function to get auth token from request header
-get_auth_string_patch.start()
-# as we are testing the auth functions here stop the patches that effect this
-authorization_test_patch.stop()
-
-from boxwise_flask.auth_helper import (  # ,; decode_jwt,; requires_auth,;
+from boxwise_flask.auth_helper import (
     AuthError,
-    authorization_test,
     decode_jwt,
     get_rsa_key,
     get_token_from_auth_header,
-    requires_auth,
     user_can_access_base,
 )
 
@@ -63,34 +48,6 @@ def test_user_can_access_base_no_base_ids():
 def test_user_can_access_base_invalid_base_ids():
     user = {"base_ids": [2]}
     assert not user_can_access_base(user, 1)
-
-
-def test_authorization_test_bases_valid():
-    assert authorization_test("bases", base_id=1)
-
-
-def test_authorization_test_bases_invalid():
-    with pytest.raises(AuthError):
-        authorization_test("bases", base_id=10)
-
-
-def test_requires_auth_valid():
-    @requires_auth
-    def function_that_needs_auth():
-        return True
-
-    assert function_that_needs_auth()
-
-
-def test_requires_auth_invalid_key(mocker):
-    mocker.patch("boxwise_flask.auth_helper.get_rsa_key", return_value=None)
-
-    @requires_auth
-    def function_that_needs_auth():
-        return True
-
-    with pytest.raises(AuthError):
-        function_that_needs_auth()
 
 
 def test_decode_valid_jwt():

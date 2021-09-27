@@ -55,10 +55,5 @@ def get_user_token():
 
 
 @memoize
-def get_user_token_header():
-    return {"authorization": "Bearer " + get_user_token()}
-
-
-@memoize
 def get_user_token_string():
     return "Bearer " + get_user_token()
