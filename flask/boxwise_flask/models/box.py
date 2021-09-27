@@ -130,6 +130,8 @@ def create_box(box_creation_input):
         box_label_identifier=str(uuid.uuid4())[: Box.box_label_identifier.max_length],
         qr_id=qr_id,
         created_on=now,
+        last_modified_on=now,
+        last_modified_by=box_creation_input["created_by"],
         box_state=1,
         **box_creation_input,
     )

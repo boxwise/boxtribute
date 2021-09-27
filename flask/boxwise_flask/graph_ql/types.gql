@@ -128,7 +128,7 @@ input CreateBoxInput {
   locationId: Int!
   comment: String!
   qrCode: String
-  createdBy: String
+  createdBy: String!
 }
 
 

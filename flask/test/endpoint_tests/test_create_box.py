@@ -30,6 +30,14 @@ def test_create_box(client, qr_code_without_box):
                     id
                 }}
                 state
+                createdOn
+                createdBy {{
+                    id
+                }}
+                lastModifiedOn
+                lastModifiedBy {{
+                    id
+                }}
             }}
         }}"""
 
@@ -43,6 +51,8 @@ def test_create_box(client, qr_code_without_box):
     assert created_box["location"]["id"] == "1"
     assert created_box["product"]["id"] == "1"
     assert created_box["qrCode"]["id"] == str(qr_code_without_box["id"])
+    assert created_box["createdOn"] == created_box["lastModifiedOn"]
+    assert created_box["createdBy"] == created_box["lastModifiedBy"]
 
     mutation = f"""mutation {{
             updateBox(
