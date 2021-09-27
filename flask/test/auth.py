@@ -1,6 +1,6 @@
+import json
 import os
-
-import requests
+import urllib
 
 
 def memoize(function):
@@ -45,13 +45,14 @@ def get_user_token():
     for _, v in auth_parameters.items():
         assert v is not None
 
-    response = requests.post(url, json=auth_parameters).json()
+    headers = {"Content-Type": "application/json"}
+    data = json.dumps(auth_parameters).encode("utf-8")
+    request = urllib.request.Request(url, data, headers)
+    with urllib.request.urlopen(request) as f:
+        response = json.loads(f.read().decode())
 
-    if "error" not in response:
-        return response["access_token"]
-
-    print(response)
-    assert "error" not in response
+    assert "error" not in response, response
+    return response["access_token"]
 
 
 @memoize

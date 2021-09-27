@@ -1,11 +1,11 @@
 """Utilities for handling authentication"""
 import json
 import os
+import urllib
 from functools import wraps
 
 from boxwise_flask.models.user import get_user_from_email_with_base_ids
 from jose import jwt
-from six.moves.urllib.request import urlopen
 
 from flask import _request_ctx_stack, request
 
@@ -66,8 +66,8 @@ def get_token_from_auth_header(header_string):
 
 
 def get_rsa_key(token):
-    jsonurl = urlopen("https://" + AUTH0_DOMAIN + "/.well-known/jwks.json")
-    jwks = json.loads(jsonurl.read())
+    url = urllib.request.urlopen("https://" + AUTH0_DOMAIN + "/.well-known/jwks.json")
+    jwks = json.loads(url.read())
     unverified_header = jwt.get_unverified_header(token)
     rsa_key = {}
     for key in jwks["keys"]:
