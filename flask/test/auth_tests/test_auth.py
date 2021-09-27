@@ -4,7 +4,6 @@ from patches import (
     add_user_to_request_context_patch,
     authorization_test_patch,
     get_auth_string_patch,
-    requires_auth_patch,
 )
 
 # avoid the request context to test auth functions
@@ -13,7 +12,6 @@ add_user_to_request_context_patch.start()
 get_auth_string_patch.start()
 # as we are testing the auth functions here stop the patches that effect this
 authorization_test_patch.stop()
-requires_auth_patch.stop()
 
 from boxwise_flask.auth_helper import (  # ,; decode_jwt,; requires_auth,;
     AuthError,

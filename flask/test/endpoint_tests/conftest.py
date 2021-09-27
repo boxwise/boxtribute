@@ -20,9 +20,8 @@ from boxwise_flask.models import MODELS
 # Imports fixtures into tests
 from data import *  # noqa: F401,F403
 from data.setup_tables import setup_tables
-from patches import authorization_test_patch, requires_auth_patch
+from patches import authorization_test_patch
 
-requires_auth_patch.start()
 authorization_test_patch.start()
 
 
