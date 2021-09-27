@@ -110,11 +110,3 @@ class Base(db.Model):
 
     def __str__(self):
         return f"{self.id} {self.organisation} {self.name} {self.currency_name}"
-
-    @staticmethod
-    def get_all_bases():
-        return Base.select().order_by(Base.name)
-
-    @staticmethod
-    def get_from_id(base_id):
-        return Base.get(Base.id == base_id)

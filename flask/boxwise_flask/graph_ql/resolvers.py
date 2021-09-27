@@ -47,14 +47,13 @@ def serialize_date(value):
 
 @query.field("bases")
 def resolve_bases(_, info):
-    return Base.get_all_bases()
+    return Base.select()
 
 
 @query.field("base")
 def resolve_base(_, info, id):
     authorization_test("bases", base_id=id)
-    response = Base.get_from_id(id)
-    return response
+    return Base.get_by_id(id)
 
 
 @query.field("users")
@@ -90,7 +89,7 @@ def resolve_qr_code(_, info, qr_code):
 
 @query.field("product")
 def resolve_product(_, info, id):
-    return Product.get_product(id)
+    return Product.get_by_id(id)
 
 
 @query.field("box")
@@ -165,7 +164,7 @@ def resolve_product_gender(obj, info):
 
 @product.field("sizes")
 def resolve_sizes(product_id, info):
-    product = Product.get_product(product_id)
+    product = Product.get_by_id(product_id)
     sizes = Size.select(Size.label).where(Size.seq == product.size_range.seq)
     return [size.label for size in sizes]
 

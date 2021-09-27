@@ -67,7 +67,3 @@ class Product(db.Model):
 
     class Meta:
         table_name = "products"
-
-    @staticmethod
-    def get_product(product_id):
-        return Product.get(Product.id == product_id)
