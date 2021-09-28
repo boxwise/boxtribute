@@ -61,7 +61,17 @@ export default function CreateBox() {
           qrBarcode: qr,
         },
       });
-      setNewBox(mutationData.createBox);
+      const box = mutationData.createBox;
+      setNewBox({
+        box_id: box.boxLabelIdentifier,
+        product_id: box.product.id,
+        size_id: box.size,
+        items: box.items,
+        location_id: box.location.id,
+        comments: box.comment,
+        qr_id: box.qrCode.id,
+        box_state_id: box.state,
+      });
     } catch (e) {
       // TODO error handling
       console.log("fail", e);

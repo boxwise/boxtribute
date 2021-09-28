@@ -10,19 +10,29 @@ export const CREATE_BOX = gql`
     $qrBarcode: String!
   ) {
     createBox(
-      box_creation_input: {
-        product_id: $productId
-        size_id: $sizeId
+      boxCreationInput: {
+        productId: $productId
+        sizeId: $sizeId
         items: $items
-        location_id: $locationId
-        comments: $comments
-        qr_barcode: $qrBarcode
+        locationId: $locationId
+        comment: $comments
+        qrCode: $qrBarcode
       }
     ) {
-      id
-      box_id
-      product_id
+      boxLabelIdentifier
+      product {
+        id
+      }
+      size
       items
+      location {
+        id
+      }
+      comment
+      qrCode {
+        id
+      }
+      state
     }
   }
 `;
@@ -30,9 +40,10 @@ export const CREATE_BOX = gql`
 export const USER = gql`
   query User($email: String!) {
     user(email: $email) {
-      base_id
+      bases {
+        id
+      }
       name
-      usergroup_id
     }
   }
 `;
@@ -41,7 +52,9 @@ export const ALL_BASES = gql`
   {
     bases {
       id
-      organisationId
+      organisation {
+        id
+      }
       name
     }
   }
@@ -51,7 +64,9 @@ export const BASE = gql`
   query Base($baseId: Int!) {
     base(id: $baseId) {
       id
-      organisationId
+      organisation {
+        id
+      }
       name
       currencyName
     }
@@ -63,7 +78,9 @@ export const ORG_BASES = gql`
     organisation(id: $orgId) {
       bases {
         id
-        organisationId
+        organisation {
+          id
+        }
         name
         currencyName
       }
@@ -78,24 +95,25 @@ export const QR_EXISTS = gql`
 `;
 
 export const BOX_BY_QR = gql`
-  query Box($id: String!) {
-    box(id: $id) {
-      box_id
-      product {
-        name
-        gender
+  query Box($qrCode: String!) {
+    qrCode(qrCode: $qrCode) {
+      box {
+        boxLabelIdentifier
+        product {
+          name
+          gender
+        }
+        size
+        items
+        location {
+          id
+        }
+        comment
+        qrCode {
+          id
+        }
+        state
       }
-      size_id
-      items
-      location {
-        name
-      }
-      comments
-      qrCode {
-        id
-        code
-      }
-      box_state_id
     }
   }
 `;

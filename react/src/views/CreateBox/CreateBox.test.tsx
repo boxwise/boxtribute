@@ -66,8 +66,10 @@ const mocks = [
       data: {
         createBox: {
           id: 555,
-          box_id: 456,
-          product_id: 123,
+          boxLabelIdentifier: 456,
+          product: {
+            id: 123,
+          },
           items: 50,
         },
       },

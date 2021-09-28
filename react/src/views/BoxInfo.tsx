@@ -14,9 +14,9 @@ function BoxInfo(props) {
 
   const [getBoxQuery] = useLazyQuery(BOX_BY_QR, {
     onCompleted: (data) => {
-      const box = data.box;
+      const box = data.qrCode.box;
       setBox({
-        box_id: box.box_id,
+        box_id: box.boxLabelIdentifier,
         product_name: box.product.name,
         product_gender: box.product.gender,
         qr_code: box.qrCode.code,
