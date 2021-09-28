@@ -51,8 +51,8 @@ def test_code_not_associated_with_box(client, qr_code_without_box):
         "<Model: Box> instance matching query does not exist"
         in response_data.json["errors"][0]["message"]
     )
-    queried_code = response_data.json["data"]["qrCode"]
-    assert queried_code is None
+    queried_box = response_data.json["data"]["qrCode"]["box"]
+    assert queried_box is None
 
 
 def test_code_does_not_exist(client):
