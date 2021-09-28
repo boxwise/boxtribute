@@ -11,3 +11,4 @@ env/
 flask/test-results
 
 yarn-error.log
+react/core
