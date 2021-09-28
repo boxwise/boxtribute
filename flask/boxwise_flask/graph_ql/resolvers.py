@@ -47,7 +47,7 @@ def serialize_date(value):
 
 @query.field("bases")
 def resolve_bases(_, info):
-    return Base.select()
+    return Base.select().where(Base.id.in_(g.user["base_ids"]))
 
 
 @query.field("base")

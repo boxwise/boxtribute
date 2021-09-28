@@ -20,11 +20,15 @@ def test_all_bases(client, default_bases):
 
     assert response_data.status_code == 200
     all_bases = response_data.json["data"]["bases"]
-    for _, expected_base in default_bases.items():
-        created_base = get_base_from_graphql(expected_base["id"], all_bases)
-        assert int(created_base["id"]) == expected_base["id"]
-        assert created_base["name"] == expected_base["name"]
-        assert created_base["currencyName"] == expected_base["currency_name"]
+    assert len(all_bases) == 1
+
+    queried_base = all_bases[0]
+    queried_base_id = int(queried_base["id"])
+    expected_base = default_bases[queried_base_id]
+
+    assert queried_base_id == expected_base["id"]
+    assert queried_base["name"] == expected_base["name"]
+    assert queried_base["currencyName"] == expected_base["currency_name"]
 
 
 @pytest.mark.usefixtures("default_bases")
