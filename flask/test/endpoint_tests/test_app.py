@@ -78,7 +78,7 @@ def test_get_box_details(mysql_app_client):
 def test_get_boxes(mysql_app_client):
     data = {
         "query": """query CommentsOfLostBoxes {
-                location(id: "14") {
+                location(id: "1") {
                     boxes {
                         comment
                     }
@@ -88,7 +88,7 @@ def test_get_boxes(mysql_app_client):
     response = mysql_app_client.post("/graphql", json=data)
     queried_boxes = response.json["data"]["location"]["boxes"]
     assert response.status_code == 200
-    assert len(queried_boxes) == 78
+    assert len(queried_boxes) == 27
     # There are no comments currently. Verify by creating a set
     assert {box["comment"] for box in queried_boxes} == {""}
 
