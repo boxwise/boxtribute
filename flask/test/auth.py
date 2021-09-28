@@ -24,6 +24,9 @@ def get_user_token():
     """Grabs a user token for Auth0
     Data structure as described here
     https://manage.auth0.com/dashboard/eu/boxtribute-dev/apis/5ef3760527b0da00215e6209/test"""  # line too long # noqa: E501
+    token = os.getenv("AUTH0_TEST_JWT")
+    if token is not None:
+        return token
 
     auth0_domain = os.getenv("AUTH0_DOMAIN")
     auth0_client_id = os.getenv("AUTH0_CLIENT_TEST_ID")
