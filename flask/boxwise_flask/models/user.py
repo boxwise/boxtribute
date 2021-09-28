@@ -59,6 +59,3 @@ class User(db.Model):
 
     class Meta:
         table_name = "cms_users"
-
-    def __str__(self):
-        return self.name

@@ -131,6 +131,7 @@ def requires_auth(f):
             prefix = "https://www.boxtribute.com"
             g.user["base_ids"] = payload[f"{prefix}/base_ids"]
             g.user["organisation_id"] = payload[f"{prefix}/organisation_id"]
+            g.user["email"] = payload[f"{prefix}/email"]
 
             return f(*args, **kwargs)
         raise AuthError(

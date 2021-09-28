@@ -152,12 +152,16 @@ def resolve_box_state(obj, info):
 @mutation.field("createBox")
 @convert_kwargs_to_snake_case
 def resolve_create_box(_, info, box_creation_input):
+    user_id = User.get(User.email == g.user["email"]).id
+    box_creation_input["created_by"] = user_id
     return create_box(box_creation_input)
 
 
 @mutation.field("updateBox")
 @convert_kwargs_to_snake_case
 def resolve_update_box(_, info, box_update_input):
+    user_id = User.get(User.email == g.user["email"]).id
+    box_update_input["last_modified_by"] = user_id
     return update_box(box_update_input)
 
 

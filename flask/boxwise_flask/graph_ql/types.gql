@@ -128,7 +128,6 @@ input CreateBoxInput {
   locationId: Int!
   comment: String!
   qrCode: String
-  createdBy: String!
 }
 
 
@@ -139,7 +138,6 @@ input UpdateBoxInput {
   items: Int
   locationId: Int
   comment: String
-  lastModifiedBy: String!
 }
 
 scalar Datetime
