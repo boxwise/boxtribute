@@ -97,7 +97,16 @@ def resolve_product(_, info, id):
 @query.field("box")
 @convert_kwargs_to_snake_case
 def resolve_box(_, info, box_id):
-    return Box.get(Box.box_label_identifier == box_id)
+    box = (
+        Box.select(Box, Base.id)
+        .join(Location)
+        .join(Base)
+        .where(Box.box_label_identifier == box_id)
+        .objects()
+        .get()
+    )
+    authorization_test("bases", base_id=str(box.location.base.id))
+    return box
 
 
 @query.field("location")
@@ -130,12 +139,12 @@ def resolve_organisations(_, info):
 
 @query.field("locations")
 def resolve_locations(_, info):
-    return Location.select()
+    return Location.select().join(Base).where(Base.id.in_(g.user["base_ids"]))
 
 
 @query.field("products")
 def resolve_products(_, info):
-    return Product.select()
+    return Product.select().join(Base).where(Base.id.in_(g.user["base_ids"]))
 
 
 @box.field("state")
