@@ -1,3 +1,5 @@
+from datetime import datetime
+
 from boxwise_flask.db import db
 from boxwise_flask.models.base import Base
 from boxwise_flask.models.user import User
@@ -99,3 +101,24 @@ class Beneficiary(db.Model):
 
     class Meta:
         table_name = "people"
+
+
+def create_beneficiary(data):
+    now = datetime.utcnow()
+
+    new_beneficiary = Beneficiary.create(
+        base=data.pop("base_id"),
+        family_head=data.pop("family_head_id", None),
+        not_registered=not data.pop("is_registered"),
+        created_on=now,
+        last_modified_on=now,
+        last_modified_by=data["created_by"],
+        # These fields are required acc. to model definition
+        deleted="0000-00-00 00:00:00",
+        family_id=0,
+        seq=0,
+        bicycle_ban_comment="",
+        workshop_ban_comment="",
+        **data
+    )
+    return new_beneficiary

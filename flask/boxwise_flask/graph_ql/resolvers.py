@@ -1,4 +1,6 @@
 """GraphQL resolver functionality"""
+from datetime import datetime
+
 from ariadne import (
     EnumType,
     MutationType,
@@ -14,6 +16,7 @@ from boxwise_flask.graph_ql.mutation_defs import mutation_defs
 from boxwise_flask.graph_ql.query_defs import query_defs
 from boxwise_flask.graph_ql.type_defs import type_defs
 from boxwise_flask.models.base import Base
+from boxwise_flask.models.beneficiary import create_beneficiary
 from boxwise_flask.models.box import Box, create_box, update_box
 from boxwise_flask.models.location import Location
 from boxwise_flask.models.organisation import Organisation
@@ -26,6 +29,7 @@ from boxwise_flask.models.user import User
 from flask import g
 
 query = ObjectType("Query")
+beneficiary = ObjectType("Beneficiary")
 box = ObjectType("Box")
 location = ObjectType("Location")
 organisation = ObjectType("Organisation")
@@ -47,6 +51,11 @@ def serialize_datetime(value):
 @date_scalar.serializer
 def serialize_date(value):
     return value.isoformat()
+
+
+@date_scalar.value_parser
+def parse_date(value):
+    return datetime.strptime(value, "%Y-%m-%d").date()
 
 
 @user.field("bases")
@@ -148,6 +157,11 @@ def resolve_products(_, info):
     return Product.select().join(Base).where(Base.id.in_(g.user["base_ids"]))
 
 
+@beneficiary.field("isRegistered")
+def resolve_beneficiary_is_registered(beneficiary_obj, info):
+    return not beneficiary_obj.not_registered
+
+
 @box.field("state")
 @location.field("boxState")
 def resolve_box_state(obj, info):
@@ -167,6 +181,13 @@ def resolve_create_box(_, info, box_creation_input):
 def resolve_update_box(_, info, box_update_input):
     box_update_input["last_modified_by"] = g.user["id"]
     return update_box(box_update_input)
+
+
+@mutation.field("createBeneficiary")
+@convert_kwargs_to_snake_case
+def resolve_create_beneficiary(_, info, beneficiary_creation_input):
+    beneficiary_creation_input["created_by"] = g.user["id"]
+    return create_beneficiary(beneficiary_creation_input)
 
 
 @location.field("boxes")
@@ -229,6 +250,7 @@ schema = make_executable_schema(
         mutation,
         date_scalar,
         datetime_scalar,
+        beneficiary,
         box,
         location,
         organisation,
