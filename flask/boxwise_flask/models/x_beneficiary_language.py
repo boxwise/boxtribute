@@ -23,5 +23,5 @@ class XBeneficiaryLanguage(db.Model):
 
     class Meta:
         table_name = "x_people_languages"
-        indexes = ((("people", "language"), True),)
+        indexes = ((("beneficiary", "language"), True),)
         primary_key = False

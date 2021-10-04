@@ -25,6 +25,7 @@ from boxwise_flask.models.product_category import ProductCategory
 from boxwise_flask.models.qr_code import QRCode
 from boxwise_flask.models.size import Size
 from boxwise_flask.models.user import User
+from boxwise_flask.models.x_beneficiary_language import XBeneficiaryLanguage
 
 from flask import g
 
@@ -162,6 +163,16 @@ def resolve_beneficiary_is_registered(beneficiary_obj, info):
     return not beneficiary_obj.not_registered
 
 
+@beneficiary.field("languages")
+def resolve_beneficiary_languages(beneficiary_obj, info):
+    return [
+        x.language.id
+        for x in XBeneficiaryLanguage.select().where(
+            XBeneficiaryLanguage.beneficiary == beneficiary_obj.id
+        )
+    ]
+
+
 @box.field("state")
 @location.field("boxState")
 def resolve_box_state(obj, info):
@@ -241,6 +252,17 @@ box_state_type_def = EnumType(
         "InStock": 1,
     },
 )
+language_type_def = EnumType(
+    "Language",
+    {
+        "nl": 1,
+        "en": 2,
+        "fr": 3,
+        "de": 4,
+        "ar": 5,
+        "ckb": 6,
+    },
+)
 
 
 schema = make_executable_schema(
@@ -260,6 +282,7 @@ schema = make_executable_schema(
         user,
         product_gender_type_def,
         box_state_type_def,
+        language_type_def,
     ],
     snake_case_fallback_resolvers,
 )

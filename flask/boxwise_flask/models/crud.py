@@ -5,6 +5,7 @@ from datetime import datetime
 from .beneficiary import Beneficiary
 from .box import Box
 from .qr_code import QRCode
+from .x_beneficiary_language import XBeneficiaryLanguage
 
 
 def create_box(data):
@@ -43,14 +44,16 @@ def update_box(data):
 
 
 def create_beneficiary(data):
-    """Insert information for a new Beneficiary in the database."""
+    """Insert information for a new Beneficiary in the database. Update the
+    languages in the corresponding cross-reference table.
+    """
     now = datetime.utcnow()
+    language_ids = data.pop("languages")
 
     new_beneficiary = Beneficiary.create(
         base=data.pop("base_id"),
         family_head=data.pop("family_head_id", None),
         not_registered=not data.pop("is_registered"),
-        language=data.pop("languages")[0],
         created_on=now,
         last_modified_on=now,
         last_modified_by=data["created_by"],
@@ -62,4 +65,8 @@ def create_beneficiary(data):
         workshop_ban_comment="",
         **data,
     )
+    for language_id in language_ids:
+        XBeneficiaryLanguage.create(
+            language=language_id, beneficiary=new_beneficiary.id
+        )
     return new_beneficiary

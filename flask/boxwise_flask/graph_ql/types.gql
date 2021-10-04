@@ -130,7 +130,7 @@ type Beneficiary {
   base: Base!
   groupIdentifier: String!
   gender: HumanGender!
-  languages: [Language!]!
+  languages: [Language!]
   familyHead: Beneficiary
   isVolunteer: Boolean!
   isSigned: Boolean!

@@ -6,7 +6,7 @@ def test_beneficiary(client):
     base_id = 1
     group_id = "1234"
     gender = "Diverse"
-    language = "en"
+    languages = ["en", "ar"]
 
     beneficiary_creation_input_string = f"""{{
                     firstName: "{first_name}",
@@ -15,7 +15,7 @@ def test_beneficiary(client):
                     baseId: {base_id},
                     groupIdentifier: "{group_id}",
                     gender: {gender},
-                    languages: [{language}],
+                    languages: [{','.join(languages)}],
                     isVolunteer: true,
                     isSigned: true,
                     isRegistered: true,
@@ -67,7 +67,7 @@ def test_beneficiary(client):
     assert int(created_beneficiary["base"]["id"]) == base_id
     assert created_beneficiary["groupIdentifier"] == group_id
     assert created_beneficiary["gender"] == gender
-    assert created_beneficiary["languages"][0] == language
+    assert created_beneficiary["languages"] == languages
     assert created_beneficiary["familyHead"] is None
     assert created_beneficiary["isVolunteer"]
     assert created_beneficiary["isSigned"]
