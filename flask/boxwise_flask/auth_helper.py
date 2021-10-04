@@ -62,28 +62,17 @@ def get_token_from_auth_header(header_string):
     return token
 
 
-def get_rsa_key(token):
+def get_public_key():
     url = urllib.request.urlopen("https://" + AUTH0_DOMAIN + "/.well-known/jwks.json")
     jwks = json.loads(url.read())
-    unverified_header = jwt.get_unverified_header(token)
-    rsa_key = {}
-    for key in jwks["keys"]:
-        if key["kid"] == unverified_header["kid"]:
-            rsa_key = {
-                "kty": key["kty"],
-                "kid": key["kid"],
-                "use": key["use"],
-                "n": key["n"],
-                "e": key["e"],
-            }
-            return rsa_key
+    return jwks["keys"][0]
 
 
-def decode_jwt(token, rsa_key):
+def decode_jwt(token, public_key):
     try:
         payload = jwt.decode(
             token,
-            rsa_key,
+            public_key,
             algorithms=ALGORITHMS,
             audience=API_AUDIENCE,
             issuer="https://" + AUTH0_DOMAIN + "/",
@@ -118,9 +107,9 @@ def requires_auth(f):
     @wraps(f)
     def decorated(*args, **kwargs):
         token = get_token_from_auth_header(get_auth_string_from_header())
-        rsa_key = get_rsa_key(token)
-        if rsa_key:
-            payload = decode_jwt(token, rsa_key)
+        public_key = get_public_key()
+        if public_key:
+            payload = decode_jwt(token, public_key)
 
             # The user's base IDs are listed in the JWT under the custom claim (added by
             # a rule in Auth0):

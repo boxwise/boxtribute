@@ -3,15 +3,14 @@ from auth import get_user_token_string
 from boxwise_flask.auth_helper import (
     AuthError,
     decode_jwt,
-    get_rsa_key,
+    get_public_key,
     get_token_from_auth_header,
     user_can_access_base,
 )
 
 
 def test_get_valid_jwt():
-    token = get_token_from_auth_header(get_user_token_string())
-    key = get_rsa_key(token)
+    key = get_public_key()
     assert key is not None
 
 
@@ -52,5 +51,5 @@ def test_user_can_access_base_invalid_base_ids():
 
 def test_decode_valid_jwt():
     token = get_token_from_auth_header(get_user_token_string())
-    key = get_rsa_key(token)
+    key = get_public_key()
     assert decode_jwt(token, key) is not None
