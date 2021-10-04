@@ -148,7 +148,7 @@ def authorization_test(test_for, **kwargs):
     E.g. authorization_test("bases", base_id=123)
     """
     if test_for == "bases":
-        authorized = user_can_access_base(g.user, kwargs["base_id"])
+        authorized = user_can_access_base(g.user, str(kwargs["base_id"]))
     elif test_for == "organisation":
         authorized = kwargs["organisation_id"] == g.user["organisation_id"]
     else:

@@ -90,7 +90,7 @@ def resolve_qr_code(_, info, qr_code):
 @query.field("product")
 def resolve_product(_, info, id):
     product = Product.get_by_id(id)
-    authorization_test("bases", base_id=str(product.base.id))
+    authorization_test("bases", base_id=product.base.id)
     return product
 
 
@@ -105,14 +105,14 @@ def resolve_box(_, info, box_id):
         .objects()
         .get()
     )
-    authorization_test("bases", base_id=str(box.location.base.id))
+    authorization_test("bases", base_id=box.location.base.id)
     return box
 
 
 @query.field("location")
 def resolve_location(_, info, id):
     location = Location.get_by_id(id)
-    authorization_test("bases", base_id=str(location.base.id))
+    authorization_test("bases", base_id=location.base.id)
     return location
 
 
