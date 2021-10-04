@@ -8,12 +8,11 @@ def get_user_from_list_of_dicts(id, list_of_dicts):
 @pytest.mark.usefixtures("default_users")
 @pytest.mark.usefixtures("default_organisation")
 def test_user_query_from_email(client, default_users, default_organisation):
-    test_id = list(default_users.keys())[0]
+    test_id = 8
     expected_user = default_users[test_id]
-    user_email = expected_user["email"]
 
     graph_ql_query_string = f"""query User {{
-                user(email: "{user_email}") {{
+                user(id: {test_id}) {{
                     id
                     name
                     email

@@ -67,8 +67,9 @@ def resolve_users(_, info):
 
 
 @query.field("user")
-def resolve_user(_, info, email):
-    return User.get(User.email == email)
+def resolve_user(_, info, id):
+    authorization_test("user", user_id=id)
+    return User.get_by_id(id)
 
 
 @query.field("qrExists")
@@ -157,16 +158,14 @@ def resolve_box_state(obj, info):
 @mutation.field("createBox")
 @convert_kwargs_to_snake_case
 def resolve_create_box(_, info, box_creation_input):
-    user_id = User.get(User.email == g.user["email"]).id
-    box_creation_input["created_by"] = user_id
+    box_creation_input["created_by"] = g.user["id"]
     return create_box(box_creation_input)
 
 
 @mutation.field("updateBox")
 @convert_kwargs_to_snake_case
 def resolve_update_box(_, info, box_update_input):
-    user_id = User.get(User.email == g.user["email"]).id
-    box_update_input["last_modified_by"] = user_id
+    box_update_input["last_modified_by"] = g.user["id"]
     return update_box(box_update_input)
 
 

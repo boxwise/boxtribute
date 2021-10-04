@@ -120,7 +120,7 @@ def requires_auth(f):
             prefix = "https://www.boxtribute.com"
             g.user["base_ids"] = payload[f"{prefix}/base_ids"]
             g.user["organisation_id"] = payload[f"{prefix}/organisation_id"]
-            g.user["email"] = payload[f"{prefix}/email"]
+            g.user["id"] = int(payload["sub"].replace("auth0|", ""))
 
             return f(*args, **kwargs)
         raise AuthError(
@@ -140,6 +140,8 @@ def authorization_test(test_for, **kwargs):
         authorized = user_can_access_base(g.user, str(kwargs["base_id"]))
     elif test_for == "organisation":
         authorized = kwargs["organisation_id"] == g.user["organisation_id"]
+    elif test_for == "user":
+        authorized = int(kwargs["user_id"]) == g.user["id"]
     else:
         raise AuthError(
             {
