@@ -13,7 +13,7 @@
     "@progress/kendo-drawing": "^1.14.0",
     "@progress/kendo-react-pdf": "^3.14.0",
     "autoprefixer": "^9.7.5",
-    "axios": "^0.21.1",
+    "axios": "^0.22.0",
     "boxwise-components": "^1.0.4",
     "graphql": "^15.0.0",
     "homepage": "^1.0.0",
