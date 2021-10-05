@@ -252,6 +252,14 @@ box_state_type_def = EnumType(
         "InStock": 1,
     },
 )
+gender_type_def = EnumType(
+    "HumanGender",
+    {
+        "Male": "M",
+        "Female": "F",
+        "Diverse": "D",
+    },
+)
 language_type_def = EnumType(
     "Language",
     {
@@ -282,6 +290,7 @@ schema = make_executable_schema(
         user,
         product_gender_type_def,
         box_state_type_def,
+        gender_type_def,
         language_type_def,
     ],
     snake_case_fallback_resolvers,
