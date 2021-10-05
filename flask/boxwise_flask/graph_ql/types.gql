@@ -178,6 +178,24 @@ input CreateBeneficiaryInput {
   dateOfSignature: Date!
 }
 
+input UpdateBeneficiaryInput {
+  id: ID!
+  firstName: String
+  lastName: String
+  baseId: Int
+  groupIdentifier: String
+  dateOfBirth: Date
+  comment: String
+  gender: HumanGender
+  languages: [Language!]
+  familyHeadId: Int
+  isVolunteer: Boolean
+  isSigned: Boolean
+  isRegistered: Boolean
+  signature: String
+  dateOfSignature: Date
+}
+
 enum HumanGender {
   Male
   Female

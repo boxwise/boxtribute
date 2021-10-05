@@ -70,3 +70,31 @@ def create_beneficiary(data):
             language=language_id, beneficiary=new_beneficiary.id
         )
     return new_beneficiary
+
+
+def update_beneficiary(data):
+    """Look up an existing Beneficiary given an ID, and update all requested fields.
+    Insert timestamp for modification and return the beneficiary.
+    """
+    beneficiary_id = data.pop("id")
+    beneficiary = Beneficiary.get_by_id(beneficiary_id)
+
+    # Handle any items with keys not matching the Model fields by popping off
+    base_id = data.pop("base_id", None)
+    if base_id is not None:
+        beneficiary.base = base_id
+
+    family_head_id = data.pop("family_head_id", None)
+    if family_head_id is not None:
+        beneficiary.family_head = family_head_id
+
+    registered = data.pop("is_registered", None)
+    if registered is not None:
+        beneficiary.not_registered = not registered
+
+    for field, value in data.items():
+        setattr(beneficiary, field, value)
+
+    beneficiary.last_modified_on = datetime.utcnow()
+    beneficiary.save()
+    return beneficiary

@@ -17,7 +17,12 @@ from boxwise_flask.graph_ql.query_defs import query_defs
 from boxwise_flask.graph_ql.type_defs import type_defs
 from boxwise_flask.models.base import Base
 from boxwise_flask.models.box import Box
-from boxwise_flask.models.crud import create_beneficiary, create_box, update_box
+from boxwise_flask.models.crud import (
+    create_beneficiary,
+    create_box,
+    update_beneficiary,
+    update_box,
+)
 from boxwise_flask.models.location import Location
 from boxwise_flask.models.organisation import Organisation
 from boxwise_flask.models.product import Product
@@ -199,6 +204,13 @@ def resolve_update_box(_, info, box_update_input):
 def resolve_create_beneficiary(_, info, beneficiary_creation_input):
     beneficiary_creation_input["created_by"] = g.user["id"]
     return create_beneficiary(beneficiary_creation_input)
+
+
+@mutation.field("updateBeneficiary")
+@convert_kwargs_to_snake_case
+def resolve_update_beneficiary(_, info, beneficiary_update_input):
+    beneficiary_update_input["last_modified_by"] = g.user["id"]
+    return update_beneficiary(beneficiary_update_input)
 
 
 @location.field("boxes")

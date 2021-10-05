@@ -18,7 +18,7 @@ def test_beneficiary(client):
                     languages: [{','.join(languages)}],
                     isVolunteer: true,
                     isSigned: true,
-                    isRegistered: true,
+                    isRegistered: false,
                     signature: "{first_name}",
                     dateOfSignature: "{dos}"
                 }}"""
@@ -59,6 +59,7 @@ def test_beneficiary(client):
     data = {"query": gql_mutation_string}
     response = client.post("/graphql", json=data)
     created_beneficiary = response.json["data"]["createBeneficiary"]
+    beneficiary_id = created_beneficiary["id"]
 
     assert response.status_code == 200
     assert created_beneficiary["firstName"] == first_name
@@ -71,8 +72,43 @@ def test_beneficiary(client):
     assert created_beneficiary["familyHead"] is None
     assert created_beneficiary["isVolunteer"]
     assert created_beneficiary["isSigned"]
-    assert created_beneficiary["isRegistered"]
+    assert not created_beneficiary["isRegistered"]
     assert created_beneficiary["signature"] == first_name
     assert created_beneficiary["dateOfSignature"] == dos
     assert created_beneficiary["createdOn"] == created_beneficiary["lastModifiedOn"]
     assert created_beneficiary["createdBy"] == created_beneficiary["lastModifiedBy"]
+
+    last_name = "Body"
+    base_id = 2
+    mutation = f"""mutation {{
+            updateBeneficiary(
+                beneficiaryUpdateInput : {{
+                    id: {beneficiary_id},
+                    lastName: "{last_name}",
+                    baseId: {base_id},
+                    isVolunteer: false,
+                    isRegistered: true
+                }} ) {{
+                id
+                lastName
+                base {{
+                    id
+                }}
+                isVolunteer
+                isRegistered
+                createdOn
+                lastModifiedOn
+            }}
+        }}"""
+    data = {"query": mutation}
+    response = client.post("/graphql", json=data)
+    updated_beneficiary = response.json["data"]["updateBeneficiary"]
+
+    assert response.status_code == 200
+    assert updated_beneficiary["id"] == beneficiary_id
+    assert updated_beneficiary["lastName"] == last_name
+    assert int(updated_beneficiary["base"]["id"]) == base_id
+    assert not updated_beneficiary["isVolunteer"]
+    assert updated_beneficiary["isRegistered"]
+    assert updated_beneficiary["createdOn"] == created_beneficiary["createdOn"]
+    assert updated_beneficiary["lastModifiedOn"] != updated_beneficiary["createdOn"]
