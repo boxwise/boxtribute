@@ -79,13 +79,11 @@ def test_beneficiary(client):
     assert created_beneficiary["createdBy"] == created_beneficiary["lastModifiedBy"]
 
     last_name = "Body"
-    base_id = 2
     mutation = f"""mutation {{
             updateBeneficiary(
                 beneficiaryUpdateInput : {{
                     id: {beneficiary_id},
                     lastName: "{last_name}",
-                    baseId: {base_id},
                     isVolunteer: false,
                     isRegistered: true
                 }} ) {{
@@ -112,3 +110,28 @@ def test_beneficiary(client):
     assert updated_beneficiary["isRegistered"]
     assert updated_beneficiary["createdOn"] == created_beneficiary["createdOn"]
     assert updated_beneficiary["lastModifiedOn"] != updated_beneficiary["createdOn"]
+
+    query = f"""query {{
+        beneficiary(id: {beneficiary_id}) {{
+            lastName
+            lastModifiedOn
+        }}
+    }}"""
+    data = {"query": query}
+    response = client.post("/graphql", json=data)
+    queried_beneficiary = response.json["data"]["beneficiary"]
+
+    assert response.status_code == 200
+    assert queried_beneficiary["lastName"] == last_name
+    assert (
+        queried_beneficiary["lastModifiedOn"] == updated_beneficiary["lastModifiedOn"]
+    )
+
+
+def test_query_beneficiaries(client):
+    query = "query { beneficiaries { id } }"
+    data = {"query": query}
+    response = client.post("/graphql", json=data)
+    queried_beneficiaries = response.json["data"]["beneficiaries"]
+    assert response.status_code == 200
+    assert len(queried_beneficiaries) == 1

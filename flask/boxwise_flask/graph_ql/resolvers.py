@@ -16,6 +16,7 @@ from boxwise_flask.graph_ql.mutation_defs import mutation_defs
 from boxwise_flask.graph_ql.query_defs import query_defs
 from boxwise_flask.graph_ql.type_defs import type_defs
 from boxwise_flask.models.base import Base
+from boxwise_flask.models.beneficiary import Beneficiary
 from boxwise_flask.models.box import Box
 from boxwise_flask.models.crud import (
     create_beneficiary,
@@ -74,6 +75,13 @@ def resolve_bases(_, info):
 def resolve_base(_, info, id):
     authorization_test("bases", base_id=id)
     return Base.get_by_id(id)
+
+
+@query.field("beneficiary")
+def resolve_beneficiary(_, info, id):
+    beneficiary = Beneficiary.get_by_id(id)
+    authorization_test("bases", base_id=beneficiary.base.id)
+    return beneficiary
 
 
 @query.field("users")
@@ -161,6 +169,11 @@ def resolve_locations(_, info):
 @query.field("products")
 def resolve_products(_, info):
     return Product.select().join(Base).where(Base.id.in_(g.user["base_ids"]))
+
+
+@query.field("beneficiaries")
+def resolve_beneficiaries(_, info):
+    return Beneficiary.select().join(Base).where(Base.id.in_(g.user["base_ids"]))
 
 
 @beneficiary.field("isRegistered")
