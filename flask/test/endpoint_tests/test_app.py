@@ -146,3 +146,20 @@ def test_invalid_jwt_claims(client, monkeypatch):
     response = client.post("/graphql")
     assert response.status_code == 401
     assert response.json["code"] == "invalid_claims"
+
+
+@pytest.mark.skipif("CIRCLECI" not in os.environ, reason="only functional in CircleCI")
+def test_get_beneficiaries(mysql_app_client):
+    data = {
+        "query": """query getBeneficiariesOfLesvos {
+                base(id: 1) {
+                    beneficiaries {
+                        id
+                    }
+                }
+            }"""
+    }
+    response = mysql_app_client.post("/graphql", json=data)
+    queried_beneficiaries = response.json["data"]["base"]["beneficiaries"]
+    assert response.status_code == 200
+    assert len(queried_beneficiaries) == 1006

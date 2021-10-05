@@ -37,6 +37,7 @@ from flask import g
 
 query = ObjectType("Query")
 beneficiary = ObjectType("Beneficiary")
+base = ObjectType("Base")
 box = ObjectType("Box")
 location = ObjectType("Location")
 organisation = ObjectType("Organisation")
@@ -226,6 +227,11 @@ def resolve_update_beneficiary(_, info, beneficiary_update_input):
     return update_beneficiary(beneficiary_update_input)
 
 
+@base.field("beneficiaries")
+def resolve_base_beneficiaries(base_obj, info):
+    return Beneficiary.select().where(Beneficiary.base == base_obj.id)
+
+
 @location.field("boxes")
 def resolve_location_boxes(location_obj, info):
     return Box.select().where(Box.location == location_obj.id)
@@ -306,6 +312,7 @@ schema = make_executable_schema(
         date_scalar,
         datetime_scalar,
         beneficiary,
+        base,
         box,
         location,
         organisation,
