@@ -16,8 +16,8 @@ from boxwise_flask.graph_ql.mutation_defs import mutation_defs
 from boxwise_flask.graph_ql.query_defs import query_defs
 from boxwise_flask.graph_ql.type_defs import type_defs
 from boxwise_flask.models.base import Base
-from boxwise_flask.models.beneficiary import create_beneficiary
-from boxwise_flask.models.box import Box, create_box, update_box
+from boxwise_flask.models.box import Box
+from boxwise_flask.models.crud import create_beneficiary, create_box, update_box
 from boxwise_flask.models.location import Location
 from boxwise_flask.models.organisation import Organisation
 from boxwise_flask.models.product import Product

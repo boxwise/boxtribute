@@ -1,6 +1,3 @@
-import uuid
-from datetime import datetime
-
 from boxwise_flask.db import db
 from boxwise_flask.models.box_state import BoxState
 from boxwise_flask.models.location import Location
@@ -116,38 +113,3 @@ class Box(db.Model):
     @staticmethod
     def get_box(box_id):
         return Box.get(Box.box_label_identifier == box_id)
-
-
-def create_box(box_creation_input):
-    """Insert information for a new Box in the database. Use current datetime
-    and box state "InStock" by default. Generate a UUID to identify the box.
-    """
-    now = datetime.utcnow()
-    qr_code = box_creation_input.pop("qr_code", None)
-    qr_id = QRCode.get_id_from_code(qr_code) if qr_code is not None else None
-
-    new_box = Box.create(
-        box_label_identifier=str(uuid.uuid4())[: Box.box_label_identifier.max_length],
-        qr_id=qr_id,
-        created_on=now,
-        last_modified_on=now,
-        last_modified_by=box_creation_input["created_by"],
-        box_state=1,
-        **box_creation_input,
-    )
-    return new_box
-
-
-def update_box(box_update_input):
-    """Look up an existing Box given a UUID, and update all requested fields.
-    Insert timestamp for modification and return the box.
-    """
-    box_id = box_update_input.pop("box_label_identifier")
-    box = Box.get_box(box_id)
-
-    for field, value in box_update_input.items():
-        setattr(box, field, value)
-
-    box.last_modified_on = datetime.utcnow()
-    box.save()
-    return box
