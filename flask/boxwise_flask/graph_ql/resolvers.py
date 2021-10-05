@@ -30,8 +30,10 @@ from boxwise_flask.models.product import Product
 from boxwise_flask.models.product_category import ProductCategory
 from boxwise_flask.models.qr_code import QRCode
 from boxwise_flask.models.size import Size
+from boxwise_flask.models.transaction import Transaction
 from boxwise_flask.models.user import User
 from boxwise_flask.models.x_beneficiary_language import XBeneficiaryLanguage
+from peewee import fn
 
 from flask import g
 
@@ -175,6 +177,17 @@ def resolve_products(_, info):
 @query.field("beneficiaries")
 def resolve_beneficiaries(_, info):
     return Beneficiary.select().join(Base).where(Base.id.in_(g.user["base_ids"]))
+
+
+@beneficiary.field("tokens")
+def resolve_beneficiary_tokens(beneficiary_obj, info):
+    # If the beneficiary has no transactions yet, the select query returns None
+    return (
+        Transaction.select(fn.sum(Transaction.count))
+        .where(Transaction.beneficiary == beneficiary_obj.id)
+        .scalar()
+        or 0
+    )
 
 
 @beneficiary.field("isRegistered")

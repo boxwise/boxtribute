@@ -155,6 +155,7 @@ def test_get_beneficiaries(mysql_app_client):
                 base(id: 1) {
                     beneficiaries {
                         id
+                        tokens
                     }
                 }
             }"""
@@ -163,3 +164,4 @@ def test_get_beneficiaries(mysql_app_client):
     queried_beneficiaries = response.json["data"]["base"]["beneficiaries"]
     assert response.status_code == 200
     assert len(queried_beneficiaries) == 1006
+    assert queried_beneficiaries[0]["tokens"] == 13

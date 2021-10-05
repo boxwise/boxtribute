@@ -138,6 +138,7 @@ type Beneficiary {
   isRegistered: Boolean!
   signature: String
   dateOfSignature: Date!
+  tokens: Int
   createdBy: User!
   createdOn: Datetime!
   lastModifiedBy: User!

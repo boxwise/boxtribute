@@ -115,6 +115,7 @@ def test_beneficiary(client):
         beneficiary(id: {beneficiary_id}) {{
             lastName
             lastModifiedOn
+            tokens
         }}
     }}"""
     data = {"query": query}
@@ -123,6 +124,7 @@ def test_beneficiary(client):
 
     assert response.status_code == 200
     assert queried_beneficiary["lastName"] == last_name
+    assert queried_beneficiary["tokens"] == 0
     assert (
         queried_beneficiary["lastModifiedOn"] == updated_beneficiary["lastModifiedOn"]
     )
