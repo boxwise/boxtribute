@@ -50,6 +50,9 @@ def create_beneficiary(data):
     now = datetime.utcnow()
     language_ids = data.pop("languages")
 
+    # Set is_signed field depending on signature
+    data["is_signed"] = data.get("signature") is not None
+
     new_beneficiary = Beneficiary.create(
         base=data.pop("base_id"),
         family_head=data.pop("family_head_id", None),
@@ -91,6 +94,9 @@ def update_beneficiary(data):
     registered = data.pop("is_registered", None)
     if registered is not None:
         beneficiary.not_registered = not registered
+
+    if data.get("signature") is not None:
+        beneficiary.is_signed = True
 
     for field, value in data.items():
         setattr(beneficiary, field, value)

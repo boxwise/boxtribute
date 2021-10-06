@@ -137,7 +137,7 @@ type Beneficiary {
   isSigned: Boolean!
   isRegistered: Boolean!
   signature: String
-  dateOfSignature: Date!
+  dateOfSignature: Date
   tokens: Int
   createdBy: User!
   createdOn: Datetime!
@@ -174,10 +174,9 @@ input CreateBeneficiaryInput {
   languages: [Language!]
   familyHeadId: Int
   isVolunteer: Boolean!
-  isSigned: Boolean!
   isRegistered: Boolean!
   signature: String
-  dateOfSignature: Date!
+  dateOfSignature: Date
 }
 
 input UpdateBeneficiaryInput {
@@ -192,7 +191,6 @@ input UpdateBeneficiaryInput {
   languages: [Language!]
   familyHeadId: Int
   isVolunteer: Boolean
-  isSigned: Boolean
   isRegistered: Boolean
   signature: String
   dateOfSignature: Date

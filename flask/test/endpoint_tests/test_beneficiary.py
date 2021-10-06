@@ -2,7 +2,6 @@ def test_beneficiary(client):
     first_name = "Some"
     last_name = "One"
     dob = "2000-01-01"
-    dos = "2021-09-09"
     base_id = 1
     group_id = "1234"
     gender = "Diverse"
@@ -17,10 +16,7 @@ def test_beneficiary(client):
                     gender: {gender},
                     languages: [{','.join(languages)}],
                     isVolunteer: true,
-                    isSigned: true,
-                    isRegistered: false,
-                    signature: "{first_name}",
-                    dateOfSignature: "{dos}"
+                    isRegistered: false
                 }}"""
 
     gql_mutation_string = f"""mutation {{
@@ -71,19 +67,22 @@ def test_beneficiary(client):
     assert created_beneficiary["languages"] == languages
     assert created_beneficiary["familyHead"] is None
     assert created_beneficiary["isVolunteer"]
-    assert created_beneficiary["isSigned"]
+    assert not created_beneficiary["isSigned"]
     assert not created_beneficiary["isRegistered"]
-    assert created_beneficiary["signature"] == first_name
-    assert created_beneficiary["dateOfSignature"] == dos
+    assert created_beneficiary["signature"] is None
+    assert created_beneficiary["dateOfSignature"] is None
     assert created_beneficiary["createdOn"] == created_beneficiary["lastModifiedOn"]
     assert created_beneficiary["createdBy"] == created_beneficiary["lastModifiedBy"]
 
     last_name = "Body"
+    dos = "2021-09-09"
     mutation = f"""mutation {{
             updateBeneficiary(
                 beneficiaryUpdateInput : {{
                     id: {beneficiary_id},
                     lastName: "{last_name}",
+                    signature: "{first_name}",
+                    dateOfSignature: "{dos}"
                     isVolunteer: false,
                     isRegistered: true
                 }} ) {{
@@ -93,7 +92,10 @@ def test_beneficiary(client):
                     id
                 }}
                 isVolunteer
+                isSigned
                 isRegistered
+                signature
+                dateOfSignature
                 createdOn
                 lastModifiedOn
             }}
@@ -107,7 +109,10 @@ def test_beneficiary(client):
     assert updated_beneficiary["lastName"] == last_name
     assert int(updated_beneficiary["base"]["id"]) == base_id
     assert not updated_beneficiary["isVolunteer"]
+    assert updated_beneficiary["isSigned"]
     assert updated_beneficiary["isRegistered"]
+    assert updated_beneficiary["signature"] == first_name
+    assert updated_beneficiary["dateOfSignature"] == dos
     assert updated_beneficiary["createdOn"] == created_beneficiary["createdOn"]
     assert updated_beneficiary["lastModifiedOn"] != updated_beneficiary["createdOn"]
 
