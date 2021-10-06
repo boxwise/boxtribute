@@ -12,9 +12,6 @@ class UsergroupBaseAccess(db.Model):
         primary_key = CompositeKey("base_id", "usergroup_id")
         table_name = "cms_usergroups_camps"
 
-    def __str__(self):
-        return self.name
-
     @staticmethod
     def get_all_base_id_for_usergroup_id(usergroup_id):
         query = UsergroupBaseAccess.select(UsergroupBaseAccess.base_id).where(

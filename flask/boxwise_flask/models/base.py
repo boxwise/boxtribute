@@ -107,6 +107,3 @@ class Base(db.Model):
 
     class Meta:
         table_name = "camps"
-
-    def __str__(self):
-        return f"{self.id} {self.organisation} {self.name} {self.currency_name}"

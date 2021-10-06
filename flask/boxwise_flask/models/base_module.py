@@ -47,6 +47,3 @@ class BaseModule(db.Model):
 
     class Meta:
         table_name = "cms_functions"
-
-    def __str__(self):
-        return self.id
