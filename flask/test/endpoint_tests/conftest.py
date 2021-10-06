@@ -13,6 +13,7 @@ import os
 import tempfile
 
 import pytest
+from auth import get_user_token_string
 from boxwise_flask.app import create_app
 from boxwise_flask.db import db
 from boxwise_flask.models import MODELS
@@ -20,10 +21,6 @@ from boxwise_flask.models import MODELS
 # Imports fixtures into tests
 from data import *  # noqa: F401,F403
 from data.setup_tables import setup_tables
-from patches import authorization_test_patch, requires_auth_patch
-
-requires_auth_patch.start()
-authorization_test_patch.start()
 
 
 @pytest.fixture()
@@ -57,6 +54,7 @@ def app():
 def client(app):
     """The fixture simulates a client sending requests to the app."""
     client = app.test_client()
+    client.environ_base["HTTP_AUTHORIZATION"] = get_user_token_string()
     return client
 
 
@@ -73,5 +71,7 @@ def mysql_app_client():
     app.config["DATABASE"] = f"mysql://root:dropapp_root@127.0.0.1:{port}/dropapp_dev"
 
     db.init_app(app)
-    yield app.test_client()
+    client = app.test_client()
+    client.environ_base["HTTP_AUTHORIZATION"] = get_user_token_string()
+    yield client
     db.close_db(None)

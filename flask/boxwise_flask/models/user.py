@@ -1,7 +1,6 @@
 from boxwise_flask.db import db
 from boxwise_flask.models.language import Language
 from boxwise_flask.models.usergroup import Usergroup
-from boxwise_flask.models.usergroup_base_access import UsergroupBaseAccess
 from peewee import (
     SQL,
     CharField,
@@ -10,7 +9,6 @@ from peewee import (
     ForeignKeyField,
     IntegerField,
 )
-from playhouse.shortcuts import model_to_dict
 
 
 class User(db.Model):
@@ -61,19 +59,3 @@ class User(db.Model):
 
     class Meta:
         table_name = "cms_users"
-
-    def __str__(self):
-        return self.name
-
-
-def get_user_from_email_with_base_ids(email):
-    user = User.get(User.email == email)
-    user_dict = model_to_dict(user)
-    base_ids = []
-    if user.usergroup:
-        base_ids = UsergroupBaseAccess.get_all_base_id_for_usergroup_id(
-            user.usergroup.id
-        )
-
-    user_dict["base_ids"] = base_ids
-    return user_dict

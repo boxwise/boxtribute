@@ -58,7 +58,7 @@ def default_users_data():
     users[mock_user["id"]] = mock_user
 
     mock_user = {
-        "id": 3,
+        "id": 8,
         "name": "coord",
         "email": "dev_coordinator@boxaid.org",
         "valid_first_day": TODAY,

@@ -1,6 +1,6 @@
+import json
 import os
-
-import requests
+import urllib
 
 
 def memoize(function):
@@ -24,6 +24,9 @@ def get_user_token():
     """Grabs a user token for Auth0
     Data structure as described here
     https://manage.auth0.com/dashboard/eu/boxtribute-dev/apis/5ef3760527b0da00215e6209/test"""  # line too long # noqa: E501
+    token = os.getenv("AUTH0_TEST_JWT")
+    if token is not None:
+        return token
 
     auth0_domain = os.getenv("AUTH0_DOMAIN")
     auth0_client_id = os.getenv("AUTH0_CLIENT_TEST_ID")
@@ -45,18 +48,14 @@ def get_user_token():
     for _, v in auth_parameters.items():
         assert v is not None
 
-    response = requests.post(url, json=auth_parameters).json()
+    headers = {"Content-Type": "application/json"}
+    data = json.dumps(auth_parameters).encode("utf-8")
+    request = urllib.request.Request(url, data, headers)
+    with urllib.request.urlopen(request) as f:
+        response = json.loads(f.read().decode())
 
-    if "error" not in response:
-        return response["access_token"]
-
-    print(response)
-    assert "error" not in response
-
-
-@memoize
-def get_user_token_header():
-    return {"authorization": "Bearer " + get_user_token()}
+    assert "error" not in response, response
+    return response["access_token"]
 
 
 @memoize

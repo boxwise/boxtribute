@@ -21,12 +21,17 @@ from boxwise_flask.models.product import Product
 from boxwise_flask.models.product_category import ProductCategory
 from boxwise_flask.models.qr_code import QRCode
 from boxwise_flask.models.size import Size
-from boxwise_flask.models.user import User, get_user_from_email_with_base_ids
-from boxwise_flask.models.usergroup import Usergroup
+from boxwise_flask.models.user import User
+
+from flask import g
 
 query = ObjectType("Query")
 box = ObjectType("Box")
+location = ObjectType("Location")
+organisation = ObjectType("Organisation")
 product = ObjectType("Product")
+product_category = ObjectType("ProductCategory")
+qr_code = ObjectType("QrCode")
 user = ObjectType("User")
 mutation = MutationType()
 
@@ -44,16 +49,16 @@ def serialize_date(value):
     return value.isoformat()
 
 
+@user.field("bases")
 @query.field("bases")
 def resolve_bases(_, info):
-    return Base.get_all_bases()
+    return Base.select().where(Base.id.in_(g.user["base_ids"]))
 
 
 @query.field("base")
 def resolve_base(_, info, id):
     authorization_test("bases", base_id=id)
-    response = Base.get_from_id(id)
-    return response
+    return Base.get_by_id(id)
 
 
 @query.field("users")
@@ -62,15 +67,9 @@ def resolve_users(_, info):
 
 
 @query.field("user")
-def resolve_user(_, info, email):
-    data = get_user_from_email_with_base_ids(email)
-    data["organisation"] = (
-        Organisation.select()
-        .join(Usergroup)
-        .where(Usergroup.id == data["usergroup"]["id"])
-        .get()
-    )
-    return data
+def resolve_user(_, info, id):
+    authorization_test("user", user_id=id)
+    return User.get_by_id(id)
 
 
 @query.field("qrExists")
@@ -86,41 +85,47 @@ def resolve_qr_exists(_, info, qr_code):
 @query.field("qrCode")
 @convert_kwargs_to_snake_case
 def resolve_qr_code(_, info, qr_code):
-    data = QRCode.select().where(QRCode.code == qr_code).dicts().get()
-    data["box"] = Box.get(Box.qr_code == data["id"])
-    return data
+    return QRCode.get(QRCode.code == qr_code)
 
 
 @query.field("product")
 def resolve_product(_, info, id):
-    return Product.get_product(id)
+    product = Product.get_by_id(id)
+    authorization_test("bases", base_id=product.base.id)
+    return product
 
 
 @query.field("box")
 @convert_kwargs_to_snake_case
 def resolve_box(_, info, box_id):
-    return Box.get(Box.box_label_identifier == box_id)
+    box = (
+        Box.select(Box, Base.id)
+        .join(Location)
+        .join(Base)
+        .where(Box.box_label_identifier == box_id)
+        .objects()
+        .get()
+    )
+    authorization_test("bases", base_id=box.location.base.id)
+    return box
 
 
 @query.field("location")
 def resolve_location(_, info, id):
-    data = Location.select().where(Location.id == id).dicts().get()
-    data["boxes"] = Box.select().where(Box.location == id)
-    return data
+    location = Location.get_by_id(id)
+    authorization_test("bases", base_id=location.base.id)
+    return location
 
 
 @query.field("organisation")
 def resolve_organisation(_, info, id):
-    data = Organisation.select().where(Organisation.id == id).dicts().get()
-    data["bases"] = Base.select().where(Base.organisation_id == id)
-    return data
+    authorization_test("organisation", organisation_id=id)
+    return Organisation.get_by_id(id)
 
 
 @query.field("productCategory")
 def resolve_product_category(_, info, id):
-    data = ProductCategory.select().where(ProductCategory.id == id).dicts().get()
-    data["products"] = Product.select().where(Product.category == id)
-    return data
+    return ProductCategory.get_by_id(id)
 
 
 @query.field("productCategories")
@@ -135,15 +140,16 @@ def resolve_organisations(_, info):
 
 @query.field("locations")
 def resolve_locations(_, info):
-    return Location.select()
+    return Location.select().join(Base).where(Base.id.in_(g.user["base_ids"]))
 
 
 @query.field("products")
 def resolve_products(_, info):
-    return Product.select()
+    return Product.select().join(Base).where(Base.id.in_(g.user["base_ids"]))
 
 
 @box.field("state")
+@location.field("boxState")
 def resolve_box_state(obj, info):
     # Instead of a BoxState instance return an integer for EnumType conversion
     return obj.box_state.id
@@ -152,13 +158,25 @@ def resolve_box_state(obj, info):
 @mutation.field("createBox")
 @convert_kwargs_to_snake_case
 def resolve_create_box(_, info, box_creation_input):
+    box_creation_input["created_by"] = g.user["id"]
     return create_box(box_creation_input)
 
 
 @mutation.field("updateBox")
 @convert_kwargs_to_snake_case
 def resolve_update_box(_, info, box_update_input):
+    box_update_input["last_modified_by"] = g.user["id"]
     return update_box(box_update_input)
+
+
+@location.field("boxes")
+def resolve_location_boxes(location_obj, info):
+    return Box.select().where(Box.location == location_obj.id)
+
+
+@organisation.field("bases")
+def resolve_organisation_bases(organisation_obj, info):
+    return Base.select().where(Base.organisation_id == organisation_obj.id)
 
 
 @product.field("gender")
@@ -167,15 +185,25 @@ def resolve_product_gender(obj, info):
 
 
 @product.field("sizes")
-def resolve_sizes(product_id, info):
-    product = Product.get_product(product_id)
+def resolve_product_sizes(product_id, info):
+    product = Product.get_by_id(product_id)
     sizes = Size.select(Size.label).where(Size.seq == product.size_range.seq)
     return [size.label for size in sizes]
 
 
-@user.field("bases")
-def resolve_user_bases(obj, info):
-    return [{"id": i} for i in obj["base_ids"]]
+@product_category.field("products")
+def resolve_product_category_products(product_category_obj, info):
+    return Product.select().where(Product.category == product_category_obj.id)
+
+
+@qr_code.field("box")
+def resolve_qr_code_box(qr_code_obj, info):
+    return Box.get(Box.qr_code == qr_code_obj.id)
+
+
+@user.field("organisation")
+def resolve_user_organisation(obj, info):
+    return Organisation.get_by_id(g.user["organisation_id"])
 
 
 # Translate GraphQL enum into id field of database table
@@ -202,7 +230,11 @@ schema = make_executable_schema(
         date_scalar,
         datetime_scalar,
         box,
+        location,
+        organisation,
         product,
+        product_category,
+        qr_code,
         user,
         product_gender_type_def,
         box_state_type_def,

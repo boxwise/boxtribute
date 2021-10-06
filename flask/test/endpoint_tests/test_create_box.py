@@ -10,7 +10,6 @@ def test_create_box(client, qr_code_without_box):
                     comment: "",
                     sizeId: 1,
                     qrCode: "{qr_code_without_box["code"]}",
-                    createdBy: "1"
                 }}"""
 
     gql_mutation_string = f"""mutation {{
@@ -58,7 +57,6 @@ def test_create_box(client, qr_code_without_box):
             updateBox(
                 boxUpdateInput : {{
                     items: 7777,
-                    lastModifiedBy: "2",
                     boxLabelIdentifier: "{created_box["boxLabelIdentifier"]}"
                 }} ) {{
                 items

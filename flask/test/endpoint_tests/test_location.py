@@ -27,3 +27,16 @@ def test_locations(client, default_location):
     response_data = client.post("/graphql", json=data)
     queried_location = response_data.json["data"]["locations"][0]
     assert queried_location["name"] == default_location["name"]
+
+
+def test_unauthorized_location(client):
+    graph_ql_query_string = """query {
+                location(id: "0") {
+                    name
+                }
+            }"""
+
+    data = {"query": graph_ql_query_string}
+    response = client.post("/graphql", json=data)
+    assert response.status_code == 200
+    assert len(response.json["errors"]) == 1
