@@ -2,6 +2,7 @@
 import uuid
 from datetime import datetime
 
+from ..db import db
 from .beneficiary import Beneficiary
 from .box import Box
 from .qr_code import QRCode
@@ -76,7 +77,8 @@ def create_beneficiary(data):
 
 
 def update_beneficiary(data):
-    """Look up an existing Beneficiary given an ID, and update all requested fields.
+    """Look up an existing Beneficiary given an ID, and update all requested fields,
+    including the language cross-reference.
     Insert timestamp for modification and return the beneficiary.
     """
     beneficiary_id = data.pop("id")
@@ -97,6 +99,20 @@ def update_beneficiary(data):
 
     if data.get("signature") is not None:
         beneficiary.is_signed = True
+
+    language_ids = data.pop("languages", [])
+    if language_ids:
+        # Since the XBeneficiaryLanguage model has no primary key, using the delete()
+        # method yields 'DELETE FROM "x_people_languages" WHERE ("t1"."id" = ?)'
+        # which results in the error 'no such column: t1.id'
+        # As a work-around a raw SQL query is used
+        db.database.execute_sql(
+            'DELETE FROM "x_people_languages" WHERE (people_id = ?);', [beneficiary_id]
+        )
+        for language_id in language_ids:
+            XBeneficiaryLanguage.create(
+                language=language_id, beneficiary=beneficiary_id
+            )
 
     for field, value in data.items():
         setattr(beneficiary, field, value)

@@ -76,6 +76,7 @@ def test_beneficiary(client):
 
     last_name = "Body"
     dos = "2021-09-09"
+    language = "nl"
     mutation = f"""mutation {{
             updateBeneficiary(
                 beneficiaryUpdateInput : {{
@@ -83,6 +84,7 @@ def test_beneficiary(client):
                     lastName: "{last_name}",
                     signature: "{first_name}",
                     dateOfSignature: "{dos}"
+                    languages: [{language}],
                     isVolunteer: false,
                     isRegistered: true
                 }} ) {{
@@ -91,6 +93,7 @@ def test_beneficiary(client):
                 base {{
                     id
                 }}
+                languages
                 isVolunteer
                 isSigned
                 isRegistered
@@ -108,6 +111,7 @@ def test_beneficiary(client):
     assert updated_beneficiary["id"] == beneficiary_id
     assert updated_beneficiary["lastName"] == last_name
     assert int(updated_beneficiary["base"]["id"]) == base_id
+    assert updated_beneficiary["languages"] == [language]
     assert not updated_beneficiary["isVolunteer"]
     assert updated_beneficiary["isSigned"]
     assert updated_beneficiary["isRegistered"]
