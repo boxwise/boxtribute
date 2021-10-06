@@ -9,7 +9,6 @@ from jose import jwt
 from flask import g, request
 
 AUTH0_DOMAIN = os.getenv("AUTH0_DOMAIN")
-API_AUDIENCE = os.getenv("AUTH0_AUDIENCE")
 ALGORITHMS = ["RS256"]
 
 
@@ -74,7 +73,7 @@ def decode_jwt(token, public_key):
             token,
             public_key,
             algorithms=ALGORITHMS,
-            audience=API_AUDIENCE,
+            audience=os.getenv("AUTH0_AUDIENCE"),
             issuer="https://" + AUTH0_DOMAIN + "/",
         )
     except jwt.ExpiredSignatureError:
@@ -85,7 +84,7 @@ def decode_jwt(token, public_key):
         raise AuthError(
             {
                 "code": "invalid_claims",
-                "description": "incorrect claims,"
+                "description": "incorrect claims, "
                 "please check the audience and issuer",
             },
             401,
@@ -94,7 +93,7 @@ def decode_jwt(token, public_key):
         raise AuthError(
             {
                 "code": "invalid_header",
-                "description": "Unable to parse authentication" " token.",
+                "description": "Unable to parse authentication token.",
             },
             401,
         )
@@ -108,25 +107,20 @@ def requires_auth(f):
     def decorated(*args, **kwargs):
         token = get_token_from_auth_header(get_auth_string_from_header())
         public_key = get_public_key()
-        if public_key:
-            payload = decode_jwt(token, public_key)
+        payload = decode_jwt(token, public_key)
 
-            # The user's base IDs are listed in the JWT under the custom claim (added by
-            # a rule in Auth0):
-            #     'https://www.boxtribute.com/base_ids'
-            # Note: this isn't a real website, and doesn't have to be, but it DOES have
-            # to be in this form to work with the Auth0 rule providing it.
-            g.user = {}
-            prefix = "https://www.boxtribute.com"
-            g.user["base_ids"] = payload[f"{prefix}/base_ids"]
-            g.user["organisation_id"] = payload[f"{prefix}/organisation_id"]
-            g.user["id"] = int(payload["sub"].replace("auth0|", ""))
+        # The user's base IDs are listed in the JWT under the custom claim (added by
+        # a rule in Auth0):
+        #     'https://www.boxtribute.com/base_ids'
+        # Note: this isn't a real website, and doesn't have to be, but it DOES have
+        # to be in this form to work with the Auth0 rule providing it.
+        g.user = {}
+        prefix = "https://www.boxtribute.com"
+        g.user["base_ids"] = payload[f"{prefix}/base_ids"]
+        g.user["organisation_id"] = payload[f"{prefix}/organisation_id"]
+        g.user["id"] = int(payload["sub"].replace("auth0|", ""))
 
-            return f(*args, **kwargs)
-        raise AuthError(
-            {"code": "invalid_header", "description": "Unable to find appropriate key"},
-            401,
-        )
+        return f(*args, **kwargs)
 
     return decorated
 
