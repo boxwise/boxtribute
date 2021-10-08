@@ -100,6 +100,7 @@ type Base {
   name: String!
   organisation: Organisation!
   locations: [Location!]
+  beneficiaries: [Beneficiary!]
   currencyName: String
 }
 
@@ -121,6 +122,29 @@ type User {
   lastAction: Datetime
 }
 
+type Beneficiary {
+  id: ID!
+  firstName: String!
+  lastName: String!
+  dateOfBirth: Date!
+  comment: String
+  base: Base!
+  groupIdentifier: String!
+  gender: HumanGender!
+  languages: [Language!]
+  familyHead: Beneficiary
+  isVolunteer: Boolean!
+  isSigned: Boolean!
+  isRegistered: Boolean!
+  signature: String
+  dateOfSignature: Date
+  tokens: Int
+  createdBy: User!
+  createdOn: Datetime!
+  lastModifiedBy: User!
+  lastModifiedOn: Datetime!
+}
+
 input CreateBoxInput {
   productId: Int!
   sizeId: Int
@@ -130,7 +154,6 @@ input CreateBoxInput {
   qrCode: String
 }
 
-
 input UpdateBoxInput {
   boxLabelIdentifier: String!
   productId: Int
@@ -138,6 +161,54 @@ input UpdateBoxInput {
   items: Int
   locationId: Int
   comment: String
+}
+
+input CreateBeneficiaryInput {
+  firstName: String!
+  lastName: String!
+  baseId: Int
+  groupIdentifier: String!
+  dateOfBirth: Date!
+  comment: String
+  gender: HumanGender!
+  languages: [Language!]
+  familyHeadId: Int
+  isVolunteer: Boolean!
+  isRegistered: Boolean!
+  signature: String
+  dateOfSignature: Date
+}
+
+input UpdateBeneficiaryInput {
+  id: ID!
+  firstName: String
+  lastName: String
+  baseId: Int
+  groupIdentifier: String
+  dateOfBirth: Date
+  comment: String
+  gender: HumanGender
+  languages: [Language!]
+  familyHeadId: Int
+  isVolunteer: Boolean
+  isRegistered: Boolean
+  signature: String
+  dateOfSignature: Date
+}
+
+enum HumanGender {
+  Male
+  Female
+  Diverse
+}
+
+enum Language {
+  nl
+  en
+  fr
+  de
+  ar
+  ckb
 }
 
 scalar Datetime

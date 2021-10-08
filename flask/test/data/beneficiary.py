@@ -12,7 +12,7 @@ def default_beneficiary_data():
         "id": 3,
         "base": default_base_data()["id"],
         "comments": "",
-        "created": TIME,
+        "created_on": TIME,
         "created_by": None,
         "deleted": TIME,
         "family_id": 10,

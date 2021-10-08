@@ -20,6 +20,8 @@ query_defs = gql(
         products: [Product!]!
         productCategory(id: ID!): ProductCategory
         productCategories: [ProductCategory!]!
+        beneficiary(id: ID!): Beneficiary
+        beneficiaries: [Beneficiary!]!
     }
     """
 )

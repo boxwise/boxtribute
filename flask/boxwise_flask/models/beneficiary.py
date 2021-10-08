@@ -13,7 +13,7 @@ from peewee import (
 
 
 class Beneficiary(db.Model):
-    approval_signed = IntegerField(
+    is_signed = IntegerField(
         column_name="approvalsigned", constraints=[SQL("DEFAULT 0")]
     )
     bicycle_ban = DateField(column_name="bicycleban", null=True)
@@ -30,8 +30,10 @@ class Beneficiary(db.Model):
         on_update="CASCADE",
     )
     comments = TextField(null=True)
-    container = CharField(constraints=[SQL("DEFAULT ''")], index=True)
-    created = DateTimeField(null=True)
+    group_identifier = CharField(
+        column_name="container", constraints=[SQL("DEFAULT ''")], index=True
+    )
+    created_on = DateTimeField(column_name="created", null=True)
     created_by = ForeignKeyField(
         column_name="created_by",
         field="id",
@@ -57,8 +59,8 @@ class Beneficiary(db.Model):
         column_name="laundryblock", constraints=[SQL("DEFAULT 0")]
     )
     laundry_comment = CharField(column_name="laundrycomment", null=True)
-    modified = DateTimeField(null=True)
-    modified_by = ForeignKeyField(
+    last_modified_on = DateTimeField(column_name="modified", null=True)
+    last_modified_by = ForeignKeyField(
         column_name="modified_by",
         field="id",
         model=User,
@@ -68,7 +70,7 @@ class Beneficiary(db.Model):
     not_registered = IntegerField(
         column_name="notregistered", constraints=[SQL("DEFAULT 0")]
     )
-    parent = ForeignKeyField(
+    family_head = ForeignKeyField(
         column_name="parent_id",
         field="id",
         model="self",
@@ -79,11 +81,11 @@ class Beneficiary(db.Model):
     phone = CharField(null=True)
     reset_password = CharField(column_name="resetpassword", null=True)
     seq = IntegerField()
-    signature_field = TextField(column_name="signaturefield", null=True)
+    signature = TextField(column_name="signaturefield", null=True)
     tent = CharField(constraints=[SQL("DEFAULT ''")])
     url = IntegerField(null=True)
     visible = IntegerField(constraints=[SQL("DEFAULT 1")])
-    volunteer = IntegerField(constraints=[SQL("DEFAULT 0")])
+    is_volunteer = IntegerField(column_name="volunteer", constraints=[SQL("DEFAULT 0")])
     workshop_ban = DateField(column_name="workshopban", null=True)
     workshop_ban_comment = TextField(
         column_name="workshopbancomment",

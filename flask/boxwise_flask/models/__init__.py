@@ -20,6 +20,7 @@ from .user import User
 from .usergroup import Usergroup
 from .usergroup_access_level import UsergroupAccessLevel
 from .usergroup_base_access import UsergroupBaseAccess
+from .x_beneficiary_language import XBeneficiaryLanguage
 
 MODELS = (
     Base,
@@ -44,4 +45,5 @@ MODELS = (
     Usergroup,
     UsergroupAccessLevel,
     UsergroupBaseAccess,
+    XBeneficiaryLanguage,
 )

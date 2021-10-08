@@ -11,9 +11,6 @@ class QRCode(db.Model):
         table_name = "qr"
         indexes = ((("code", "legacy"), True),)
 
-    def __str__(self):
-        return self.id
-
     @staticmethod
     def get_id_from_code(code):
         return QRCode.get(QRCode.code == code).id

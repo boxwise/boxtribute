@@ -3,6 +3,7 @@ from data.beneficiary import create_default_beneficiary
 from data.box import create_default_box
 from data.box_state import create_default_box_state
 from data.history import create_default_history
+from data.language import create_default_language
 from data.location import create_default_location
 from data.log import create_default_log
 from data.organisation import create_default_organisation
@@ -25,6 +26,7 @@ def setup_tables():
     create_default_box()
     create_default_box_state()
     create_default_history()
+    create_default_language()
     create_default_location()
     create_default_log()
     create_default_organisation()

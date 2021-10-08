@@ -42,6 +42,3 @@ class Usergroup(db.Model):
 
     class Meta:
         table_name = "cms_usergroups"
-
-    def __str__(self):
-        return self.id

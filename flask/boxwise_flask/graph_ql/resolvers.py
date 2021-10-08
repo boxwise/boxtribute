@@ -1,4 +1,6 @@
 """GraphQL resolver functionality"""
+from datetime import datetime
+
 from ariadne import (
     EnumType,
     MutationType,
@@ -14,18 +16,30 @@ from boxwise_flask.graph_ql.mutation_defs import mutation_defs
 from boxwise_flask.graph_ql.query_defs import query_defs
 from boxwise_flask.graph_ql.type_defs import type_defs
 from boxwise_flask.models.base import Base
-from boxwise_flask.models.box import Box, create_box, update_box
+from boxwise_flask.models.beneficiary import Beneficiary
+from boxwise_flask.models.box import Box
+from boxwise_flask.models.crud import (
+    create_beneficiary,
+    create_box,
+    update_beneficiary,
+    update_box,
+)
 from boxwise_flask.models.location import Location
 from boxwise_flask.models.organisation import Organisation
 from boxwise_flask.models.product import Product
 from boxwise_flask.models.product_category import ProductCategory
 from boxwise_flask.models.qr_code import QRCode
 from boxwise_flask.models.size import Size
+from boxwise_flask.models.transaction import Transaction
 from boxwise_flask.models.user import User
+from boxwise_flask.models.x_beneficiary_language import XBeneficiaryLanguage
+from peewee import fn
 
 from flask import g
 
 query = ObjectType("Query")
+beneficiary = ObjectType("Beneficiary")
+base = ObjectType("Base")
 box = ObjectType("Box")
 location = ObjectType("Location")
 organisation = ObjectType("Organisation")
@@ -49,6 +63,11 @@ def serialize_date(value):
     return value.isoformat()
 
 
+@date_scalar.value_parser
+def parse_date(value):
+    return datetime.strptime(value, "%Y-%m-%d").date()
+
+
 @user.field("bases")
 @query.field("bases")
 def resolve_bases(_, info):
@@ -59,6 +78,13 @@ def resolve_bases(_, info):
 def resolve_base(_, info, id):
     authorization_test("bases", base_id=id)
     return Base.get_by_id(id)
+
+
+@query.field("beneficiary")
+def resolve_beneficiary(_, info, id):
+    beneficiary = Beneficiary.get_by_id(id)
+    authorization_test("bases", base_id=beneficiary.base.id)
+    return beneficiary
 
 
 @query.field("users")
@@ -148,6 +174,37 @@ def resolve_products(_, info):
     return Product.select().join(Base).where(Base.id.in_(g.user["base_ids"]))
 
 
+@query.field("beneficiaries")
+def resolve_beneficiaries(_, info):
+    return Beneficiary.select().join(Base).where(Base.id.in_(g.user["base_ids"]))
+
+
+@beneficiary.field("tokens")
+def resolve_beneficiary_tokens(beneficiary_obj, info):
+    # If the beneficiary has no transactions yet, the select query returns None
+    return (
+        Transaction.select(fn.sum(Transaction.count))
+        .where(Transaction.beneficiary == beneficiary_obj.id)
+        .scalar()
+        or 0
+    )
+
+
+@beneficiary.field("isRegistered")
+def resolve_beneficiary_is_registered(beneficiary_obj, info):
+    return not beneficiary_obj.not_registered
+
+
+@beneficiary.field("languages")
+def resolve_beneficiary_languages(beneficiary_obj, info):
+    return [
+        x.language.id
+        for x in XBeneficiaryLanguage.select().where(
+            XBeneficiaryLanguage.beneficiary == beneficiary_obj.id
+        )
+    ]
+
+
 @box.field("state")
 @location.field("boxState")
 def resolve_box_state(obj, info):
@@ -167,6 +224,25 @@ def resolve_create_box(_, info, box_creation_input):
 def resolve_update_box(_, info, box_update_input):
     box_update_input["last_modified_by"] = g.user["id"]
     return update_box(box_update_input)
+
+
+@mutation.field("createBeneficiary")
+@convert_kwargs_to_snake_case
+def resolve_create_beneficiary(_, info, beneficiary_creation_input):
+    beneficiary_creation_input["created_by"] = g.user["id"]
+    return create_beneficiary(beneficiary_creation_input)
+
+
+@mutation.field("updateBeneficiary")
+@convert_kwargs_to_snake_case
+def resolve_update_beneficiary(_, info, beneficiary_update_input):
+    beneficiary_update_input["last_modified_by"] = g.user["id"]
+    return update_beneficiary(beneficiary_update_input)
+
+
+@base.field("beneficiaries")
+def resolve_base_beneficiaries(base_obj, info):
+    return Beneficiary.select().where(Beneficiary.base == base_obj.id)
 
 
 @location.field("boxes")
@@ -220,6 +296,25 @@ box_state_type_def = EnumType(
         "InStock": 1,
     },
 )
+gender_type_def = EnumType(
+    "HumanGender",
+    {
+        "Male": "M",
+        "Female": "F",
+        "Diverse": "D",
+    },
+)
+language_type_def = EnumType(
+    "Language",
+    {
+        "nl": 1,
+        "en": 2,
+        "fr": 3,
+        "de": 4,
+        "ar": 5,
+        "ckb": 6,
+    },
+)
 
 
 schema = make_executable_schema(
@@ -229,6 +324,8 @@ schema = make_executable_schema(
         mutation,
         date_scalar,
         datetime_scalar,
+        beneficiary,
+        base,
         box,
         location,
         organisation,
@@ -238,6 +335,8 @@ schema = make_executable_schema(
         user,
         product_gender_type_def,
         box_state_type_def,
+        gender_type_def,
+        language_type_def,
     ],
     snake_case_fallback_resolvers,
 )
