@@ -50,21 +50,23 @@ def create_beneficiary(data):
     """
     now = datetime.utcnow()
     language_ids = data.pop("languages")
+    family_head_id = data.pop("family_head_id", None)
 
     # Set is_signed field depending on signature
     data["is_signed"] = data.get("signature") is not None
 
     new_beneficiary = Beneficiary.create(
         base=data.pop("base_id"),
-        family_head=data.pop("family_head_id", None),
+        family_head=family_head_id,
         not_registered=not data.pop("is_registered"),
         created_on=now,
         last_modified_on=now,
         last_modified_by=data["created_by"],
+        # This is only required for compatibility with legacy DB
+        seq=1 if family_head_id is None else 2,
         # These fields are required acc. to model definition
         deleted="0000-00-00 00:00:00",
         family_id=0,
-        seq=0,
         bicycle_ban_comment="",
         workshop_ban_comment="",
         **data,
@@ -92,6 +94,7 @@ def update_beneficiary(data):
     family_head_id = data.pop("family_head_id", None)
     if family_head_id is not None:
         beneficiary.family_head = family_head_id
+    beneficiary.seq = 1 if family_head_id is None else 2
 
     registered = data.pop("is_registered", None)
     if registered is not None:
