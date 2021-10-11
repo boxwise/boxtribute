@@ -1,0 +1,13 @@
+#!/usr/bin/env bash
+
+# Fetch a JWT from the Auth0 service acc. to the variables of the .env file
+
+SCRIPT_DIR="$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )"
+source "$SCRIPT_DIR"/.env
+
+# Embedding env variables into a bash single-quote string is tricky: https://superuser.com/a/835589/603785
+curl \
+    --request POST \
+    --url https://"$AUTH0_DOMAIN"/oauth/token \
+    --header 'content-type: application/json' \
+    --data '{"client_id":"'"$AUTH0_CLIENT_TEST_ID"'","client_secret":"'"$AUTH0_CLIENT_SECRET_TEST"'","audience":"'"$AUTH0_AUDIENCE"'","grant_type":"password", "username":"'"$AUTH0_USERNAME"'", "password":"'"$AUTH0_PASSWORD"'"}'

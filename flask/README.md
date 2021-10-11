@@ -206,11 +206,8 @@ The back-end exposes the GraphQL API at the `/graphql` endpoint. You can experim
 
 1. Start the required services by `docker-compose up flask mysql`
 1. Open `localhost:5000/graphql`.
-1. Simulate being a valid, logged-in user (here: `admin@admin.co`) by fetching an authorization token (use client ID and secret from the boxtribute-dev-api test application from the Auth0 website)
-    curl --request POST \
-         --url https://boxtribute-dev.eu.auth0.com/oauth/token \
-         --header 'content-type: application/json' \
-         --data '{"client_id":"***","client_secret":"***","audience":"boxtribute-dev-api","grant_type":"password","username":"admin@admin.co","password":"Browser_tests"}'
+1. Simulate being a valid, logged-in user by fetching an authorization token (internally the variables of the `.env` file are used)
+    ./fetch_token
 1. Copy the content of the `access_token` field (alternatively, you can pipe the above command ` | jq -r .access_token | xclip -i -selection c` to copy it to the system clipboard)
 1.  Insert the access token in the following format on the playground in the section on the bottom left of the playground called HTTP Headers.
 
