@@ -27,7 +27,7 @@ For almost all features of our development set-up you should [install Python >=3
 These recommendations are mainly meant for people developing on the back-end. If you are just a front-end person, but would like use pre-commit and the linters and formatters defined there, you can skip these steps.
 
 - [Use a version control for python like pyenv.](https://github.com/pyenv/pyenv) It provides you with much more clarity which version you are running and makes it easy to switch versions of python.
-- [Have a look at direnv >= v2.21.0](https://github.com/direnv/direnv). Virtual environments must be activated and deactivated. If you are moving through folders in the terminal it can easily happen that you either miss activating or deactivating the venv resulting in errors and time wasted for development. With direnv you can automate the activation and deactivation of venv depending on which folder you are in. There is already a `.envrc` file in the root of this repo. If you install `direnv` and allow to run it for your local repo, it will activate the python virtual environment `venv` every time you enter the folder via a command line.
+- [Have a look at direnv >= v2.21.0](https://github.com/direnv/direnv). Virtual environments must be activated and deactivated. If you are moving through folders in the terminal it can easily happen that you either miss activating or deactivating the venv resulting in errors and time wasted for development. With direnv you can automate the activation and deactivation of venv depending on which folder you are in. There is already a `example.envrc` file in the root of this repo. If you install `direnv`, copy the `example.envrc` file into `.envrc` and allow to run it for your local repo, it will activate the python virtual environment `venv` every time you enter the folder via a command line.
 
 ### Set-up pre-commit
 
@@ -146,6 +146,8 @@ Some tests require a running MySQL server and are disabled unless during a Circl
 
     docker-compose up -d mysql
     CIRCLECI=1 MYSQL_PORT=32000 pytest
+
+If you persistently want these variables to be set for your environment, export them via the `.envrc` file.
 
 ### Writing tests
 
