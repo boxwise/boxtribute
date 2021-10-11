@@ -1,13 +1,13 @@
 import pytest
 from auth import get_user_token_string
 from boxwise_flask.auth_helper import (
-    AuthError,
     authorize,
     decode_jwt,
     get_public_key,
     get_token_from_auth_header,
     user_can_access_base,
 )
+from boxwise_flask.exceptions import AuthenticationFailed, UnknownResource
 
 
 def test_get_valid_jwt():
@@ -16,22 +16,22 @@ def test_get_valid_jwt():
 
 
 def test_get_invalid_jwt_no_auth_header():
-    with pytest.raises(AuthError):
+    with pytest.raises(AuthenticationFailed):
         get_token_from_auth_header(None)
 
 
 def test_get_invalid_jwt_no_bearer():
-    with pytest.raises(AuthError):
+    with pytest.raises(AuthenticationFailed):
         get_token_from_auth_header("no bearer")
 
 
 def test_get_invalid_jwt_bearer_no_token():
-    with pytest.raises(AuthError):
+    with pytest.raises(AuthenticationFailed):
         get_token_from_auth_header("bearer")
 
 
 def test_get_invalid_jwt_bearer_with_additonal_data():
-    with pytest.raises(AuthError):
+    with pytest.raises(AuthenticationFailed):
         get_token_from_auth_header("bearer token additional")
 
 
@@ -57,5 +57,5 @@ def test_decode_valid_jwt():
 
 
 def test_invalid_authorization_resource():
-    with pytest.raises(AuthError):
+    with pytest.raises(UnknownResource):
         authorize()

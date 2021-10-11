@@ -3,11 +3,13 @@ import os
 
 from ariadne import graphql_sync
 from ariadne.constants import PLAYGROUND_HTML
-from boxwise_flask.auth_helper import AuthError, requires_auth
+from boxwise_flask.auth_helper import requires_auth
 from boxwise_flask.graph_ql.resolvers import schema
 from flask_cors import cross_origin
 
 from flask import Blueprint, jsonify, request
+
+from .exceptions import AuthenticationFailed
 
 # Blueprint for API
 api_bp = Blueprint(
@@ -17,7 +19,7 @@ api_bp = Blueprint(
 )
 
 
-@api_bp.errorhandler(AuthError)
+@api_bp.errorhandler(AuthenticationFailed)
 def handle_auth_error(ex):
     response = jsonify(ex.error)
     response.status_code = ex.status_code
