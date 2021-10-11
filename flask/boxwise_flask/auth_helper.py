@@ -150,10 +150,18 @@ def authorize(*, user_id=None, organisation_id=None, base_id=None, permission=No
     if authorized:
         return authorized
     else:
+        for value, resource in zip(
+            [user_id, organisation_id, base_id, permission],
+            ["user", "organisation", "base", "permission"],
+        ):
+            if value is not None:
+                break
         raise AuthError(
             {
                 "code": "unauthorized_user",
-                "description": "Your user does not have access to this resource",
+                "description": "You don't have access to the resource "
+                f"{resource}={value}",
+                "user": g.user,
             },
             401,
         )
