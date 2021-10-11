@@ -76,7 +76,7 @@ def resolve_bases(_, info):
 
 @query.field("base")
 def resolve_base(_, info, id):
-    authorize(base_id=id)
+    authorize(base_id=int(id))
     return Base.get_by_id(id)
 
 
@@ -94,7 +94,7 @@ def resolve_users(_, info):
 
 @query.field("user")
 def resolve_user(_, info, id):
-    authorize(user_id=id)
+    authorize(user_id=int(id))
     return User.get_by_id(id)
 
 
@@ -145,7 +145,7 @@ def resolve_location(_, info, id):
 
 @query.field("organisation")
 def resolve_organisation(_, info, id):
-    authorize(organisation_id=id)
+    authorize(organisation_id=int(id))
     return Organisation.get_by_id(id)
 
 

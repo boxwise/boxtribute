@@ -131,11 +131,11 @@ def authorize(*, user_id=None, organisation_id=None, base_id=None, permission=No
     resource.
     """
     if base_id is not None:
-        authorized = user_can_access_base(g.user, str(base_id))
+        authorized = user_can_access_base(g.user, base_id)
     elif organisation_id is not None:
         authorized = organisation_id == g.user["organisation_id"]
     elif user_id is not None:
-        authorized = int(user_id) == g.user["id"]
+        authorized = user_id == g.user["id"]
     elif permission is not None:
         authorized = permission in g.user["permissions"]
     else:
