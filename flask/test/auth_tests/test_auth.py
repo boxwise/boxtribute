@@ -2,7 +2,7 @@ import pytest
 from auth import get_user_token_string
 from boxwise_flask.auth_helper import (
     AuthError,
-    authorization_test,
+    authorize,
     decode_jwt,
     get_public_key,
     get_token_from_auth_header,
@@ -58,4 +58,4 @@ def test_decode_valid_jwt():
 
 def test_invalid_authorization_resource():
     with pytest.raises(AuthError):
-        authorization_test("unknown_resource")
+        authorize()

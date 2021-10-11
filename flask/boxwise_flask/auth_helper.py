@@ -126,19 +126,18 @@ def requires_auth(f):
     return decorated
 
 
-def authorization_test(test_for, **kwargs):
-    """To make this applicable to different cases, include an argument of what
-    you would like to test for, and the necessary parameters to check.
-    E.g. authorization_test("bases", base_id=123)
+def authorize(*, user_id=None, organisation_id=None, base_id=None, permission=None):
+    """Check whether the current user is authorized to access the specified
+    resource.
     """
-    if test_for == "bases":
-        authorized = user_can_access_base(g.user, str(kwargs["base_id"]))
-    elif test_for == "organisation":
-        authorized = kwargs["organisation_id"] == g.user["organisation_id"]
-    elif test_for == "user":
-        authorized = int(kwargs["user_id"]) == g.user["id"]
-    elif ":" in test_for:
-        authorized = test_for in g.user["permissions"]
+    if base_id is not None:
+        authorized = user_can_access_base(g.user, str(base_id))
+    elif organisation_id is not None:
+        authorized = organisation_id == g.user["organisation_id"]
+    elif user_id is not None:
+        authorized = int(user_id) == g.user["id"]
+    elif permission is not None:
+        authorized = permission in g.user["permissions"]
     else:
         raise AuthError(
             {
