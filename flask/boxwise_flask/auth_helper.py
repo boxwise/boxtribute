@@ -119,6 +119,7 @@ def requires_auth(f):
         g.user["base_ids"] = payload[f"{prefix}/base_ids"]
         g.user["organisation_id"] = payload[f"{prefix}/organisation_id"]
         g.user["id"] = int(payload["sub"].replace("auth0|", ""))
+        g.user["permissions"] = payload["permissions"]
 
         return f(*args, **kwargs)
 
@@ -136,6 +137,8 @@ def authorization_test(test_for, **kwargs):
         authorized = kwargs["organisation_id"] == g.user["organisation_id"]
     elif test_for == "user":
         authorized = int(kwargs["user_id"]) == g.user["id"]
+    elif ":" in test_for:
+        authorized = test_for in g.user["permissions"]
     else:
         raise AuthError(
             {

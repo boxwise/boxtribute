@@ -215,6 +215,7 @@ def resolve_box_state(obj, info):
 @mutation.field("createBox")
 @convert_kwargs_to_snake_case
 def resolve_create_box(_, info, box_creation_input):
+    authorization_test("stock:write")
     box_creation_input["created_by"] = g.user["id"]
     return create_box(box_creation_input)
 
@@ -229,6 +230,7 @@ def resolve_update_box(_, info, box_update_input):
 @mutation.field("createBeneficiary")
 @convert_kwargs_to_snake_case
 def resolve_create_beneficiary(_, info, beneficiary_creation_input):
+    authorization_test("beneficiaries:write")
     beneficiary_creation_input["created_by"] = g.user["id"]
     return create_beneficiary(beneficiary_creation_input)
 
