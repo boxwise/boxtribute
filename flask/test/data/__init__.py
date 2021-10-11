@@ -3,7 +3,7 @@ from .beneficiary import default_beneficiary
 from .box import default_box
 from .box_state import default_box_state
 from .history import default_history
-from .location import default_location
+from .location import another_location, default_location
 from .log import default_log
 from .organisation import default_organisation
 from .product import default_product
@@ -19,6 +19,7 @@ from .usergroup_access_level import default_usergroup_access_level
 from .usergroup_base_access import default_usergroup_base_access_list
 
 __all__ = [
+    "another_location",
     "default_beneficiary",
     "default_base",
     "default_bases",
