@@ -20,7 +20,7 @@ def create_box(data):
 
     new_box = Box.create(
         box_label_identifier=str(uuid.uuid4())[: Box.box_label_identifier.max_length],
-        qr_id=qr_id,
+        qr_code=qr_id,
         created_on=now,
         last_modified_on=now,
         last_modified_by=data["created_by"],

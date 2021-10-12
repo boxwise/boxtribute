@@ -23,7 +23,7 @@ def default_box_data():
         "deleted": TIME,
         "items": "None",
         "location": default_location_data()["id"],
-        "qr_id": default_qr_code_data()["id"],
+        "qr_code": default_qr_code_data()["id"],
     }
 
     return mock_box
