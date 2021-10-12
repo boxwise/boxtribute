@@ -69,3 +69,10 @@ def test_code_does_not_exist(client):
         in response_data.json["errors"][0]["message"]
     )
     assert queried_code is None
+
+
+def test_create_qr_code(client):
+    data = {"query": "mutation { createQrCode { id } }"}
+    response = client.post("/graphql", json=data)
+    assert response.status_code == 200
+    assert int(response.json["data"]["createQrCode"]["id"]) > 2

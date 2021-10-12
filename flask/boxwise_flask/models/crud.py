@@ -1,4 +1,5 @@
 """Create-Retrieve-Update-Delete operations on database models."""
+import hashlib
 import uuid
 from datetime import datetime
 
@@ -123,3 +124,13 @@ def update_beneficiary(data):
     beneficiary.last_modified_on = datetime.utcnow()
     beneficiary.save()
     return beneficiary
+
+
+def create_qr_code(data):
+    """Insert a new QR code in the database. Generate an MD5 hash based on its primary
+    key. Return the newly created QR code.
+    """
+    new_qr_code = QRCode.create(created_on=datetime.utcnow(), **data)
+    new_qr_code.code = hashlib.md5(str(new_qr_code.id).encode()).hexdigest()
+    new_qr_code.save()
+    return new_qr_code

@@ -21,6 +21,7 @@ from boxwise_flask.models.box import Box
 from boxwise_flask.models.crud import (
     create_beneficiary,
     create_box,
+    create_qr_code,
     update_beneficiary,
     update_box,
 )
@@ -210,6 +211,12 @@ def resolve_beneficiary_languages(beneficiary_obj, info):
 def resolve_box_state(obj, info):
     # Instead of a BoxState instance return an integer for EnumType conversion
     return obj.box_state.id
+
+
+@mutation.field("createQrCode")
+def resolve_create_qr_code(_, info):
+    authorize(permission="qr:create")
+    return create_qr_code(dict(created_by=g.user["id"]))
 
 
 @mutation.field("createBox")
