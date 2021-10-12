@@ -4,7 +4,7 @@ from ariadne import gql
 mutation_defs = gql(
     """
     type Mutation {
-        createQrCode: QrCode
+        createQrCode(boxLabelIdentifier: String): QrCode
         createBox(boxCreationInput: CreateBoxInput): Box
         updateBox(boxUpdateInput: UpdateBoxInput): Box
         createBeneficiary(beneficiaryCreationInput: CreateBeneficiaryInput): Beneficiary

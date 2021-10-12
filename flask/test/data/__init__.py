@@ -1,6 +1,6 @@
 from .base import default_base, default_bases
 from .beneficiary import default_beneficiary
-from .box import default_box
+from .box import box_without_qr_code, default_box
 from .box_state import default_box_state
 from .history import default_history
 from .location import another_location, default_location
@@ -20,6 +20,7 @@ from .usergroup_base_access import default_usergroup_base_access_list
 
 __all__ = [
     "another_location",
+    "box_without_qr_code",
     "default_beneficiary",
     "default_base",
     "default_bases",

@@ -213,4 +213,3 @@ def test_user_permissions(client, mocker):
     assert response.json["data"]["createBeneficiary"] is None
     assert len(response.json["errors"]) == 1
     assert response.json["errors"][0]["extensions"]["code"] == "FORBIDDEN"
-    assert response.json["data"]["createBox"]["id"] == "3"

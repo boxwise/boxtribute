@@ -214,9 +214,12 @@ def resolve_box_state(obj, info):
 
 
 @mutation.field("createQrCode")
-def resolve_create_qr_code(_, info):
+@convert_kwargs_to_snake_case
+def resolve_create_qr_code(_, info, box_label_identifier=None):
     authorize(permission="qr:create")
-    return create_qr_code(dict(created_by=g.user["id"]))
+    return create_qr_code(
+        dict(created_by=g.user["id"], box_label_identifier=box_label_identifier)
+    )
 
 
 @mutation.field("createBox")

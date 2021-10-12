@@ -128,9 +128,19 @@ def update_beneficiary(data):
 
 def create_qr_code(data):
     """Insert a new QR code in the database. Generate an MD5 hash based on its primary
-    key. Return the newly created QR code.
+    key. If a `box_label_identifier` is passed, look up the corresponding box (it is
+    expected to exist) and associate the QR code with it.
+    Return the newly created QR code.
     """
+    box_label_identifier = data.pop("box_label_identifier", None)
+
     new_qr_code = QRCode.create(created_on=datetime.utcnow(), **data)
     new_qr_code.code = hashlib.md5(str(new_qr_code.id).encode()).hexdigest()
     new_qr_code.save()
+
+    if box_label_identifier is not None:
+        box = Box.get(Box.box_label_identifier == box_label_identifier)
+        box.qr_code = new_qr_code.id
+        box.save()
+
     return new_qr_code
