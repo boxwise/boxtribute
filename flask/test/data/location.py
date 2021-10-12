@@ -28,5 +28,18 @@ def default_location():
     return default_location_data()
 
 
+def another_location_data():
+    data = default_location_data().copy()
+    data["id"] = 2
+    data["base"] = 3
+    return data
+
+
+@pytest.fixture()
+def another_location():
+    return another_location_data()
+
+
 def create_default_location():
     Location.create(**default_location_data())
+    Location.create(**another_location_data())

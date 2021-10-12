@@ -11,7 +11,7 @@ from ariadne import (
     make_executable_schema,
     snake_case_fallback_resolvers,
 )
-from boxwise_flask.auth_helper import authorization_test
+from boxwise_flask.auth_helper import authorize
 from boxwise_flask.graph_ql.mutation_defs import mutation_defs
 from boxwise_flask.graph_ql.query_defs import query_defs
 from boxwise_flask.graph_ql.type_defs import type_defs
@@ -76,14 +76,14 @@ def resolve_bases(_, info):
 
 @query.field("base")
 def resolve_base(_, info, id):
-    authorization_test("bases", base_id=id)
+    authorize(base_id=int(id))
     return Base.get_by_id(id)
 
 
 @query.field("beneficiary")
 def resolve_beneficiary(_, info, id):
     beneficiary = Beneficiary.get_by_id(id)
-    authorization_test("bases", base_id=beneficiary.base.id)
+    authorize(base_id=beneficiary.base.id)
     return beneficiary
 
 
@@ -94,7 +94,7 @@ def resolve_users(_, info):
 
 @query.field("user")
 def resolve_user(_, info, id):
-    authorization_test("user", user_id=id)
+    authorize(user_id=int(id))
     return User.get_by_id(id)
 
 
@@ -117,7 +117,7 @@ def resolve_qr_code(_, info, qr_code):
 @query.field("product")
 def resolve_product(_, info, id):
     product = Product.get_by_id(id)
-    authorization_test("bases", base_id=product.base.id)
+    authorize(base_id=product.base.id)
     return product
 
 
@@ -132,20 +132,20 @@ def resolve_box(_, info, box_id):
         .objects()
         .get()
     )
-    authorization_test("bases", base_id=box.location.base.id)
+    authorize(base_id=box.location.base.id)
     return box
 
 
 @query.field("location")
 def resolve_location(_, info, id):
     location = Location.get_by_id(id)
-    authorization_test("bases", base_id=location.base.id)
+    authorize(base_id=location.base.id)
     return location
 
 
 @query.field("organisation")
 def resolve_organisation(_, info, id):
-    authorization_test("organisation", organisation_id=id)
+    authorize(organisation_id=int(id))
     return Organisation.get_by_id(id)
 
 
@@ -215,6 +215,7 @@ def resolve_box_state(obj, info):
 @mutation.field("createBox")
 @convert_kwargs_to_snake_case
 def resolve_create_box(_, info, box_creation_input):
+    authorize(permission="stock:write")
     box_creation_input["created_by"] = g.user["id"]
     return create_box(box_creation_input)
 
@@ -229,6 +230,7 @@ def resolve_update_box(_, info, box_update_input):
 @mutation.field("createBeneficiary")
 @convert_kwargs_to_snake_case
 def resolve_create_beneficiary(_, info, beneficiary_creation_input):
+    authorize(permission="beneficiaries:write")
     beneficiary_creation_input["created_by"] = g.user["id"]
     return create_beneficiary(beneficiary_creation_input)
 

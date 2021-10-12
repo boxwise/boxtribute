@@ -38,3 +38,4 @@ def test_unauthorized_organisation(client):
     response = client.post("/graphql", json=data)
     assert response.status_code == 200
     assert len(response.json["errors"]) == 1
+    assert response.json["errors"][0]["extensions"]["code"] == "FORBIDDEN"

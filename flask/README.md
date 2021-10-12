@@ -27,7 +27,7 @@ For almost all features of our development set-up you should [install Python >=3
 These recommendations are mainly meant for people developing on the back-end. If you are just a front-end person, but would like use pre-commit and the linters and formatters defined there, you can skip these steps.
 
 - [Use a version control for python like pyenv.](https://github.com/pyenv/pyenv) It provides you with much more clarity which version you are running and makes it easy to switch versions of python.
-- [Have a look at direnv >= v2.21.0](https://github.com/direnv/direnv). Virtual environments must be activated and deactivated. If you are moving through folders in the terminal it can easily happen that you either miss activating or deactivating the venv resulting in errors and time wasted for development. With direnv you can automate the activation and deactivation of venv depending on which folder you are in. There is already a `.envrc` file in the root of this repo. If you install `direnv` and allow to run it for your local repo, it will activate the python virtual environment `venv` every time you enter the folder via a command line.
+- [Have a look at direnv >= v2.21.0](https://github.com/direnv/direnv). Virtual environments must be activated and deactivated. If you are moving through folders in the terminal it can easily happen that you either miss activating or deactivating the venv resulting in errors and time wasted for development. With direnv you can automate the activation and deactivation of venv depending on which folder you are in. There is already a `example.envrc` file in the root of this repo. If you install `direnv`, copy the `example.envrc` file into `.envrc` and allow to run it for your local repo, it will activate the python virtual environment `venv` every time you enter the folder via a command line.
 
 ### Set-up pre-commit
 
@@ -147,6 +147,8 @@ Some tests require a running MySQL server and are disabled unless during a Circl
     docker-compose up -d mysql
     CIRCLECI=1 MYSQL_PORT=32000 pytest
 
+If you persistently want these variables to be set for your environment, export them via the `.envrc` file.
+
 ### Writing tests
 
 Two types of tests can be setup. Model (unit) tests and endpoint (integration) tests.
@@ -206,11 +208,8 @@ The back-end exposes the GraphQL API at the `/graphql` endpoint. You can experim
 
 1. Start the required services by `docker-compose up flask mysql`
 1. Open `localhost:5000/graphql`.
-1. Simulate being a valid, logged-in user (here: `admin@admin.co`) by fetching an authorization token (use client ID and secret from the boxtribute-dev-api test application from the Auth0 website)
-    curl --request POST \
-         --url https://boxtribute-dev.eu.auth0.com/oauth/token \
-         --header 'content-type: application/json' \
-         --data '{"client_id":"***","client_secret":"***","audience":"boxtribute-dev-api","grant_type":"password","username":"admin@admin.co","password":"Browser_tests"}'
+1. Simulate being a valid, logged-in user by fetching an authorization token (internally the variables of the `.env` file are used)
+    ./fetch_token
 1. Copy the content of the `access_token` field (alternatively, you can pipe the above command ` | jq -r .access_token | xclip -i -selection c` to copy it to the system clipboard)
 1.  Insert the access token in the following format on the playground in the section on the bottom left of the playground called HTTP Headers.
 

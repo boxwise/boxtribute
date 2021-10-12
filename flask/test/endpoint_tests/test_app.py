@@ -165,3 +165,52 @@ def test_get_beneficiaries(mysql_app_client):
     assert response.status_code == 200
     assert len(queried_beneficiaries) == 1006
     assert queried_beneficiaries[0]["tokens"] == 13
+
+
+def test_user_permissions(client, mocker):
+    """Verify that creating a beneficiary is not possible if user has
+    insufficient permissions.
+    """
+    mocked_decode = mocker.patch("jose.jwt.decode")
+    mocked_decode.return_value = {
+        "https://www.boxtribute.com/email": "dev_volunteer@boxcare.org",
+        "https://www.boxtribute.com/base_ids": ["2", "3"],
+        "https://www.boxtribute.com/organisation_id": "2",
+        "https://www.boxtribute.com/roles": ["Warehouse Volunteer"],
+        "sub": "auth0|16",
+        "permissions": ["qr:create", "stock:write"],
+    }
+
+    data = {
+        "query": """mutation {
+            createBeneficiary(
+                beneficiaryCreationInput : {
+                    firstName: "First",
+                    lastName: "Last",
+                    dateOfBirth: "1990-09-01",
+                    baseId: 2,
+                    groupIdentifier: "1312",
+                    gender: Male,
+                    languages: [de],
+                    isVolunteer: true,
+                    isRegistered: false
+                }) {
+                id
+            }
+            createBox(
+                boxCreationInput : {
+                    productId: 1,
+                    items: 99,
+                    locationId: 1,
+                    comment: ""
+                }) {
+                id
+            }
+        }"""
+    }
+    response = client.post("/graphql", json=data)
+    assert response.status_code == 200
+    assert response.json["data"]["createBeneficiary"] is None
+    assert len(response.json["errors"]) == 1
+    assert response.json["errors"][0]["extensions"]["code"] == "FORBIDDEN"
+    assert response.json["data"]["createBox"]["id"] == "3"
