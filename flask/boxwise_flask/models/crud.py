@@ -3,7 +3,10 @@ import hashlib
 import uuid
 from datetime import datetime
 
+import peewee
+
 from ..db import db
+from ..exceptions import RequestedResourceNotFound
 from .beneficiary import Beneficiary
 from .box import Box
 from .qr_code import QRCode
@@ -131,16 +134,25 @@ def create_qr_code(data):
     key. If a `box_label_identifier` is passed, look up the corresponding box (it is
     expected to exist) and associate the QR code with it.
     Return the newly created QR code.
+
+    All operations are run inside an atomic transaction. If e.g. the box look-up fails,
+    the operations are rolled back (i.e. no new QR code is inserted), and an exception
+    is raised.
     """
     box_label_identifier = data.pop("box_label_identifier", None)
 
-    new_qr_code = QRCode.create(created_on=datetime.utcnow(), **data)
-    new_qr_code.code = hashlib.md5(str(new_qr_code.id).encode()).hexdigest()
-    new_qr_code.save()
+    try:
+        with db.database.atomic():
+            new_qr_code = QRCode.create(created_on=datetime.utcnow(), **data)
+            new_qr_code.code = hashlib.md5(str(new_qr_code.id).encode()).hexdigest()
+            new_qr_code.save()
 
-    if box_label_identifier is not None:
-        box = Box.get(Box.box_label_identifier == box_label_identifier)
-        box.qr_code = new_qr_code.id
-        box.save()
+            if box_label_identifier is not None:
+                box = Box.get(Box.box_label_identifier == box_label_identifier)
+                box.qr_code = new_qr_code.id
+                box.save()
 
-    return new_qr_code
+        return new_qr_code
+
+    except peewee.DoesNotExist:
+        raise RequestedResourceNotFound()

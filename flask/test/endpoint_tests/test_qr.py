@@ -97,3 +97,10 @@ def test_create_qr_code(client, box_without_qr_code):
     assert int(created_qr_code["id"]) == qr_code_id + 1
     assert created_qr_code["box"]["items"] == box_without_qr_code["items"]
     assert int(created_qr_code["box"]["id"]) == box_without_qr_code["id"]
+
+    data = {"query": """mutation { createQrCode(boxLabelIdentifier: "xxx") { id } }"""}
+    response = client.post("/graphql", json=data)
+    assert response.status_code == 200
+    assert response.json["data"]["createQrCode"] is None
+    assert len(response.json["errors"]) == 1
+    assert response.json["errors"][0]["extensions"]["code"] == "BAD_USER_INPUT"
