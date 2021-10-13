@@ -10,52 +10,53 @@ https://docs.pytest.org/en/stable/fixture.html#pytest-fixtures-explicit-modular-
 """
 
 import os
-import tempfile
 
 import pytest
-from auth import get_user_token_string
 from boxwise_flask.app import create_app
 from boxwise_flask.db import db
-from boxwise_flask.models import MODELS
 
 # Imports fixtures into tests
 from data import *  # noqa: F401,F403
-from data.setup_tables import setup_tables
 
 
-@pytest.fixture()
-def app():
-    """Fixture providing a baseline for unit tests that rely on database operations via
-    the Flask app. Adapted from
-    https://flask.palletsprojects.com/en/1.1.x/testing/#the-testing-skeleton."""
-    app = create_app()
+@pytest.fixture(scope="module", autouse=True)
+def auth_service(module_mocker):
+    """Patch any interaction with the Auth0 service for the scope of the
+    `endpoint_tests` test module.
+    Mimick the requesting user in an appropriate way.
 
-    db_fd, db_filepath = tempfile.mkstemp(suffix=".sqlite3")
-    app.config["DATABASE"] = {
-        "name": db_filepath,
-        "engine": "peewee.SqliteDatabase",
+    This helps to run the module's tests offline, i.e. without the requirement to
+    establish an actual connection to the Auth0 web service. Also the tests are
+    decoupled from any changes of user attributes in Auth0.
+    """
+    module_mocker.patch(
+        "boxwise_flask.auth_helper.get_auth_string_from_header"
+    ).return_value = "Bearer Some.Token"
+    module_mocker.patch("boxwise_flask.auth_helper.get_public_key").return_value = None
+    # Skip irrelevant fields (issues, audience, issue time, expiration time,
+    # client ID, grant type)
+    module_mocker.patch("jose.jwt.decode").return_value = {
+        "https://www.boxtribute.com/email": "dev_coordinator@boxaid.org",
+        "https://www.boxtribute.com/base_ids": [1],
+        "https://www.boxtribute.com/organisation_id": 1,
+        "https://www.boxtribute.com/roles": ["Coordinator"],
+        "sub": "auth0|8",
+        "permissions": [
+            "beneficiaries:write",
+            "qr:create",
+            "stock:write",
+            "transactions:write",
+        ],
     }
-
-    db.init_app(app)
-
-    with db.database.bind_ctx(MODELS):
-        db.database.create_tables(MODELS)
-        setup_tables()
-        db.close_db(None)
-        with app.app_context():
-            yield app
-
-    db.close_db(None)
-    os.close(db_fd)
-    os.remove(db_filepath)
 
 
 @pytest.fixture()
 def client(app):
-    """The fixture simulates a client sending requests to the app."""
-    client = app.test_client()
-    client.environ_base["HTTP_AUTHORIZATION"] = get_user_token_string()
-    return client
+    """The fixture simulates a client sending requests to the app. The client's
+    authentication and authorization is defined by the patching in the `auth_service`
+    fixture.
+    """
+    return app.test_client()
 
 
 @pytest.fixture()
@@ -72,6 +73,5 @@ def mysql_app_client():
 
     db.init_app(app)
     client = app.test_client()
-    client.environ_base["HTTP_AUTHORIZATION"] = get_user_token_string()
     yield client
     db.close_db(None)
