@@ -28,3 +28,10 @@ class Forbidden(Exception):
             "user": user,
         }
         super().__init__(*args, **kwargs)
+
+
+class RequestedResourceNotFound(Exception):
+    extensions = {
+        "code": "BAD_USER_INPUT",
+        "description": "The requested resource does not exist in the database.",
+    }

@@ -23,10 +23,19 @@ def default_box_data():
         "deleted": TIME,
         "items": "None",
         "location": default_location_data()["id"],
-        "qr_id": default_qr_code_data()["id"],
+        "qr_code": default_qr_code_data()["id"],
     }
 
     return mock_box
+
+
+def box_without_qr_code_data():
+    data = default_box_data().copy()
+    data["id"] = 3
+    data["box_label_identifier"] = "fff"
+    data["items"] = 10
+    data["qr_code"] = None
+    return data
 
 
 @pytest.fixture()
@@ -34,5 +43,11 @@ def default_box():
     return default_box_data()
 
 
+@pytest.fixture()
+def box_without_qr_code():
+    return box_without_qr_code_data()
+
+
 def create_default_box():
     Box.create(**default_box_data())
+    Box.create(**box_without_qr_code_data())

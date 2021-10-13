@@ -69,3 +69,38 @@ def test_code_does_not_exist(client):
         in response_data.json["errors"][0]["message"]
     )
     assert queried_code is None
+
+
+@pytest.mark.usefixtures("box_without_qr_code")
+def test_create_qr_code(client, box_without_qr_code):
+    data = {"query": "mutation { createQrCode { id } }"}
+    response = client.post("/graphql", json=data)
+    qr_code_id = int(response.json["data"]["createQrCode"]["id"])
+    assert response.status_code == 200
+    assert qr_code_id > 2
+
+    data = {
+        "query": f"""mutation {{
+        createQrCode(boxLabelIdentifier: "{box_without_qr_code['box_label_identifier']}")  # noqa
+        {{
+            id
+            box {{
+                id
+                items
+            }}
+        }}
+    }}"""
+    }
+    response = client.post("/graphql", json=data)
+    created_qr_code = response.json["data"]["createQrCode"]
+    assert response.status_code == 200
+    assert int(created_qr_code["id"]) == qr_code_id + 1
+    assert created_qr_code["box"]["items"] == box_without_qr_code["items"]
+    assert int(created_qr_code["box"]["id"]) == box_without_qr_code["id"]
+
+    data = {"query": """mutation { createQrCode(boxLabelIdentifier: "xxx") { id } }"""}
+    response = client.post("/graphql", json=data)
+    assert response.status_code == 200
+    assert response.json["data"]["createQrCode"] is None
+    assert len(response.json["errors"]) == 1
+    assert response.json["errors"][0]["extensions"]["code"] == "BAD_USER_INPUT"
