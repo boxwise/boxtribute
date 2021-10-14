@@ -200,7 +200,8 @@ def test_user_permissions(client, mocker):
 
 def test_base_specific_permissions(client, mocker):
     """Verify that a user can only create beneficiary if base-specific permission
-    available.
+    available. QR codes can be created regardless of any base but for the front-end the
+    base-specific distinction is relevant.
     """
     mocker.patch("jose.jwt.decode").return_value = create_jwt_payload(
         email="dev_coordinator@boxcare.org",
@@ -209,6 +210,7 @@ def test_base_specific_permissions(client, mocker):
         roles=["base_2_coordinator", "base_3_coordinator"],
         user_id=17,
         permissions=[
+            "base_2:qr:create",
             "base_3:beneficiaries:write",
         ],
     )
@@ -244,3 +246,15 @@ def test_base_specific_permissions(client, mocker):
     assert len(response.json["errors"]) == 1
     assert response.json["errors"][0]["extensions"]["code"] == "FORBIDDEN"
     assert response.json["errors"][0]["path"] == ["bene2"]
+
+    data = {
+        "query": """mutation {
+            qr2: createQrCode { code }
+            qr3: createQrCode { code }
+        }"""
+    }
+    response = client.post("/graphql", json=data)
+    assert response.status_code == 200
+    assert response.json["data"]["qr2"] is not None
+    assert response.json["data"]["qr3"] is not None
+    assert "errors" not in response.json

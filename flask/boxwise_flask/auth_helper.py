@@ -139,7 +139,13 @@ def authorize(*, user_id=None, organisation_id=None, base_id=None, permission=No
     There are no HTTP 4xx status codes associated with the error since a GraphQL
     response is returned as 200 acc. to specification.
     """
-    if permission is not None:
+    if permission == "qr:create":
+        # For the front-end, base-specific distinction when creating QR codes is
+        # relevant but not for the back-end (there is no data relationship between
+        # QR code and base). The permission is of form 'base_x:qr:create'.
+        authorized = any("qr:create" in p for p in g.user["permissions"])
+
+    elif permission is not None:
         authorized = permission in g.user["permissions"]
 
         if not authorized and base_id is not None:
