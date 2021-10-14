@@ -1,9 +1,5 @@
-import os
-
 import pytest
 from auth import create_jwt_payload
-from boxwise_flask.app import create_app
-from boxwise_flask.db import db
 
 # Imports fixtures into tests
 from data import *  # noqa: F401,F403
@@ -24,29 +20,3 @@ def auth_service(module_mocker):
     ).return_value = "Bearer Some.Token"
     module_mocker.patch("boxwise_flask.auth_helper.get_public_key").return_value = None
     module_mocker.patch("jose.jwt.decode").return_value = create_jwt_payload()
-
-
-@pytest.fixture()
-def client(app):
-    """Simulate a client sending requests to the app. The client's authentication and
-    authorization is defined by the patching in the `auth_service` fixture.
-    """
-    return app.test_client()
-
-
-@pytest.fixture()
-def mysql_app_client():
-    """Similarly to the `client` above. The app however is configured to connect to the
-    `dropapp_dev` MySQL database running on port 3306 (32000 if you test locally with
-    docker-compose services).
-    The fixture follows the setup-proceduce of the `main` module.
-    """
-    app = create_app()
-    app.testing = True
-    port = os.getenv("MYSQL_PORT", 3306)
-    app.config["DATABASE"] = f"mysql://root:dropapp_root@127.0.0.1:{port}/dropapp_dev"
-
-    db.init_app(app)
-    client = app.test_client()
-    yield client
-    db.close_db(None)
