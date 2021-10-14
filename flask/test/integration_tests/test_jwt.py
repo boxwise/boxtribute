@@ -21,9 +21,10 @@ def test_expired_jwt(app):
 
 
 def test_invalid_jwt_claims(app, monkeypatch):
-    monkeypatch.setenv("AUTH0_AUDIENCE", "invalid-audience")
     client = app.test_client()
     client.environ_base["HTTP_AUTHORIZATION"] = get_user_token_string()
+    # Apply patch *after* fetching the JWT because that still requires a valid audience
+    monkeypatch.setenv("AUTH0_AUDIENCE", "invalid-audience")
     response = client.post("/graphql")
     assert response.status_code == 401
     assert response.json["code"] == "invalid_claims"
