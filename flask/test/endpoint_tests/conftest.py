@@ -1,6 +1,7 @@
 import os
 
 import pytest
+from auth import create_jwt_payload
 from boxwise_flask.app import create_app
 from boxwise_flask.db import db
 
@@ -22,21 +23,7 @@ def auth_service(module_mocker):
         "boxwise_flask.auth_helper.get_auth_string_from_header"
     ).return_value = "Bearer Some.Token"
     module_mocker.patch("boxwise_flask.auth_helper.get_public_key").return_value = None
-    # Skip irrelevant fields (issues, audience, issue time, expiration time,
-    # client ID, grant type)
-    module_mocker.patch("jose.jwt.decode").return_value = {
-        "https://www.boxtribute.com/email": "dev_coordinator@boxaid.org",
-        "https://www.boxtribute.com/base_ids": [1],
-        "https://www.boxtribute.com/organisation_id": 1,
-        "https://www.boxtribute.com/roles": ["Coordinator"],
-        "sub": "auth0|8",
-        "permissions": [
-            "beneficiaries:write",
-            "qr:create",
-            "stock:write",
-            "transactions:write",
-        ],
-    }
+    module_mocker.patch("jose.jwt.decode").return_value = create_jwt_payload()
 
 
 @pytest.fixture()

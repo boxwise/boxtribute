@@ -1,6 +1,7 @@
 import os
 
 import pytest
+from auth import create_jwt_payload
 
 
 @pytest.mark.skipif("CIRCLECI" not in os.environ, reason="only functional in CircleCI")
@@ -154,15 +155,14 @@ def test_user_permissions(client, mocker):
     """Verify that creating a beneficiary is not possible if user has
     insufficient permissions.
     """
-    mocked_decode = mocker.patch("jose.jwt.decode")
-    mocked_decode.return_value = {
-        "https://www.boxtribute.com/email": "dev_volunteer@boxcare.org",
-        "https://www.boxtribute.com/base_ids": ["2", "3"],
-        "https://www.boxtribute.com/organisation_id": "2",
-        "https://www.boxtribute.com/roles": ["Warehouse Volunteer"],
-        "sub": "auth0|16",
-        "permissions": ["qr:create", "stock:write"],
-    }
+    mocker.patch("jose.jwt.decode").return_value = create_jwt_payload(
+        email="dev_volunteer@boxcare.org",
+        base_ids=[2, 3],
+        organisation_id=2,
+        roles=["Warehouse Volunteer"],
+        user_id=16,
+        permissions=["qr:create", "stock:write"],
+    )
 
     data = {
         "query": """mutation {
