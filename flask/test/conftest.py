@@ -1,3 +1,14 @@
+"""Functionality for common test setups.
+See https://docs.pytest.org/en/stable/fixture.html#conftest-py-sharing-fixture-functions
+
+In general, pass fixtures as arguments to a pytest test function in order to base the
+test function on those fixtures. No additional import in the test module is required if
+the fixture is defined in the 'conftest' module.
+
+More details about the mechanism behind fixtures, and predefined fixtures at
+https://docs.pytest.org/en/stable/fixture.html#pytest-fixtures-explicit-modular-scalable
+"""
+
 import os
 import tempfile
 
@@ -15,7 +26,12 @@ from data.setup_tables import setup_tables
 def app():
     """Fixture providing a baseline for tests that rely on database operations via
     the Flask app. Adapted from
-    https://flask.palletsprojects.com/en/1.1.x/testing/#the-testing-skeleton."""
+    https://flask.palletsprojects.com/en/1.1.x/testing/#the-testing-skeleton.
+
+    On each invocation, create the Flask app and a temporary Sqlite database file. Set
+    up database automatically before each test by creating all tables, and drop all
+    tables at tear-down.
+    """
     app = create_app()
 
     db_fd, db_filepath = tempfile.mkstemp(suffix=".sqlite3")

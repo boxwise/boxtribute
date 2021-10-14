@@ -1,14 +1,3 @@
-"""Functionality for common test setups.
-See https://docs.pytest.org/en/stable/fixture.html#conftest-py-sharing-fixture-functions
-
-In general, pass fixtures as arguments to a pytest test function in order to base the
-test function on those fixtures. No additional import in the test module is required if
-the fixture is defined in the 'conftest' module.
-
-More details about the mechanism behind fixtures, and predefined fixtures at
-https://docs.pytest.org/en/stable/fixture.html#pytest-fixtures-explicit-modular-scalable
-"""
-
 import os
 
 import pytest
@@ -52,22 +41,21 @@ def auth_service(module_mocker):
 
 @pytest.fixture()
 def client(app):
-    """The fixture simulates a client sending requests to the app. The client's
-    authentication and authorization is defined by the patching in the `auth_service`
-    fixture.
+    """Simulate a client sending requests to the app. The client's authentication and
+    authorization is defined by the patching in the `auth_service` fixture.
     """
     return app.test_client()
 
 
 @pytest.fixture()
 def mysql_app_client():
-    """Follow the setup-proceduce of the main module. Note that the fixture
-    requires a MySQL database server running on port 3306 (32000 if you test
-    locally with docker-compose services).
+    """Similarly to the `client` above. The app however is configured to connect to the
+    `dropapp_dev` MySQL database running on port 3306 (32000 if you test locally with
+    docker-compose services).
+    The fixture follows the setup-proceduce of the `main` module.
     """
     app = create_app()
     app.testing = True
-    # cf. main.py but inserting values from docker-compose.yml
     port = os.getenv("MYSQL_PORT", 3306)
     app.config["DATABASE"] = f"mysql://root:dropapp_root@127.0.0.1:{port}/dropapp_dev"
 
