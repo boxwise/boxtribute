@@ -139,14 +139,19 @@ def authorize(*, user_id=None, organisation_id=None, base_id=None, permission=No
     There are no HTTP 4xx status codes associated with the error since a GraphQL
     response is returned as 200 acc. to specification.
     """
-    if base_id is not None:
+    if permission is not None:
+        authorized = permission in g.user["permissions"]
+
+        if not authorized and base_id is not None:
+            # Handle base-specific permission of form 'base_x:...'
+            permission = f"base_{base_id}:{permission}"
+            authorized = permission in g.user["permissions"]
+    elif base_id is not None:
         authorized = user_can_access_base(g.user, base_id)
     elif organisation_id is not None:
         authorized = organisation_id == g.user["organisation_id"]
     elif user_id is not None:
         authorized = user_id == g.user["id"]
-    elif permission is not None:
-        authorized = permission in g.user["permissions"]
     else:
         raise UnknownResource()
 

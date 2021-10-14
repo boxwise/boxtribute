@@ -196,3 +196,51 @@ def test_user_permissions(client, mocker):
     assert response.json["data"]["createBeneficiary"] is None
     assert len(response.json["errors"]) == 1
     assert response.json["errors"][0]["extensions"]["code"] == "FORBIDDEN"
+
+
+def test_base_specific_permissions(client, mocker):
+    """Verify that a user can only create beneficiary if base-specific permission
+    available.
+    """
+    mocker.patch("jose.jwt.decode").return_value = create_jwt_payload(
+        email="dev_coordinator@boxcare.org",
+        base_ids=[2, 3],
+        organisation_id=2,
+        roles=["base_2_coordinator", "base_3_coordinator"],
+        user_id=17,
+        permissions=[
+            "base_3:beneficiaries:write",
+        ],
+    )
+
+    create_beneficiary_for_base2_mutation = """createBeneficiary(
+                beneficiaryCreationInput : {
+                    firstName: "First",
+                    lastName: "Last",
+                    dateOfBirth: "1990-09-01",
+                    baseId: 2,
+                    groupIdentifier: "1312",
+                    gender: Male,
+                    languages: [de],
+                    isVolunteer: true,
+                    isRegistered: false
+                }) {
+                id
+            }"""
+    create_beneficiary_for_base3_mutation = (
+        create_beneficiary_for_base2_mutation.replace("baseId: 2", "baseId: 3")
+    )
+    data = {
+        "query": f"""mutation {{
+            bene2: {create_beneficiary_for_base2_mutation}
+            bene3: {create_beneficiary_for_base3_mutation}
+        }}"""
+    }
+
+    response = client.post("/graphql", json=data)
+    assert response.status_code == 200
+    assert response.json["data"]["bene2"] is None
+    assert response.json["data"]["bene3"] is not None
+    assert len(response.json["errors"]) == 1
+    assert response.json["errors"][0]["extensions"]["code"] == "FORBIDDEN"
+    assert response.json["errors"][0]["path"] == ["bene2"]

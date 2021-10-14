@@ -240,7 +240,9 @@ def resolve_update_box(_, info, box_update_input):
 @mutation.field("createBeneficiary")
 @convert_kwargs_to_snake_case
 def resolve_create_beneficiary(_, info, beneficiary_creation_input):
-    authorize(permission="beneficiaries:write")
+    authorize(
+        permission="beneficiaries:write", base_id=beneficiary_creation_input["base_id"]
+    )
     beneficiary_creation_input["created_by"] = g.user["id"]
     return create_beneficiary(beneficiary_creation_input)
 
