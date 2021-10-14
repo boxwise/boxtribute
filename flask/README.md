@@ -136,6 +136,13 @@ and log with:
 
 ## Testing
 
+Our tests verify the production code on different levels:
+
+1. **Unit tests**: testing isolated functionality, e.g. `auth_tests/`
+1. **Data model tests**: testing data models, requiring a test database being set up. See `model_tests/`
+1. **App tests**: testing behavior of Flask app, mostly the handling of GraphQL requests. Requires a test database being set up, or a MySQL database server running in the background. Any data for user authentication and authorization is mocked. See `endpoint_tests/`
+1. **Integration tests**: testing integration of Auth0 web service for user auth(z). Requires a working internet connection. Parameters for the test user are read from the `.env` file. See `integration_tests/`
+
 ### Executing tests
 
 Run the test suite on your machine by executing
@@ -144,55 +151,59 @@ Run the test suite on your machine by executing
 
 Some tests require a running MySQL server and are disabled unless during a CircleCI pipeline. Local testing is possible by
 
-    docker-compose up -d mysql
+    docker-compose up -d mysql  # only the first time
     CIRCLECI=1 MYSQL_PORT=32000 pytest
 
 If you persistently want these variables to be set for your environment, export them via the `.envrc` file.
 
 ### Writing tests
 
-Two types of tests can be setup. Model (unit) tests and endpoint (integration) tests.
+We use the pytest framework to build tests. Please refer to their excellent [documentation](https://docs.pytest.org/en/stable/contents.html).
 
-New test files should begin with the word test so the they are discovered when running pytest.
-for example:
+New test files must begin with the word `test_` such that they are discovered when running pytest, for example: `test_module.py`
 
-    test_<test_file_name>.py
+and similarly the test functions must have the format
 
-and similarly the test functions should have the format
+    def test_functionality():
 
-    def test_<test_name>():
+In the pytest framework, **fixtures** serve as common base setups for individual test functions. To use a fixture, pass it as argument into the test function.
+Fixtures are configured in the `conftest.py` files which are automatically loaded before test execution.
 
-For endpoint testing, the test functions usually take one fixture along with the required data fixtures.
+#### Data model tests
 
-    @pytest.mark.usefixtures("<data_fixture_name>")
-    def test_<test_name>(client, <data_fixture_name>):
+For test execution, it is required to create test data, and then verify the results of database operations against it.
 
-to allow for databases to be preconfigured with data and requests to be made to the app.
+For each data model, one separate test module exists (e.g. `test_box.py` for the `Box` data model).
 
-Fixtures are configured in the `conftest.py` files which execute automatically before a test.
+Test data is set up in the `test/data/` folder. Three definitions are required:
 
-### Setting up test data
+1. The default data function is a dictionary which has all of the data for that database table
 
-Test data is setup in the `test/data` folder and each piece of data is split up into 3 separate parts
+        def default_<model>_data():
 
-1.  The default data function is a dictionary which has all of the data for that database table
-
-        def default_<data_name>_data():
-
-2.  The fixture passes this data into the required tests
+2. The fixture passes this data into the required tests
 
         @pytest.fixture()
-        def default_<data_name>():
+        def default_<model>():
 
-3.  the creation function is called on the setup of a test so that all of the data is in the database when the test is ran
+3. The creation function is called on the setup of a test so that all of the data is in the database when the test is ran
 
-        def create_default_<data_name>():
-            <data_model>.create(**default_<data_name>_data())
+        def create_default_<model>():
+            <data_model>.create(**default_<model>_data())
 
-#### Please be aware that
+**Please be aware that**
 
-- for new data the fixtures need to be imported in `test/data/__init__.py` and
-- the call to create needs to be added to `test/data/setup_tables.py`
+- for new data the fixtures must be imported in `test/data/__init__.py` and added to the `__all__` list
+- the creation function needs must be added to `test/data/setup_tables.py`
+- the new model must be added to the list in `boxwise_flask/models/__init__.py`
+
+#### App tests
+
+The test functions usually take an app client fixture along with the required data fixtures.
+
+    def test_<test_name>(client, <data_fixture_name>):
+
+to allow for making requests to the app, and verify the response with previously set-up data.
 
 ### Coverage analysis
 
@@ -224,6 +235,10 @@ The back-end exposes the GraphQL API at the `/graphql` endpoint. You can experim
     }
 
 ## Authentication and Authorization
+
+We use the [Auth0](https://auth0.com) web service to provide the app client with user authentication and authorization data (for short, auth and authz, resp.).
+
+The user has to authenticate using their password, and is then issued a JSON Web Token (JWT) carrying authz information (e.g. permissions to access certain resources). Every request that the client sends to a private endpoint must hold the JWT as `bearer` in the authorization header. When handling the request, the server decodes the JWT, extracts the authz information, and keeps it available for the duration of the request (the implementation is in `boxwise_flask.auth_helper.require_auth`).
 
 ## Database Schema Migrations
 
