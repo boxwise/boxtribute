@@ -1,6 +1,8 @@
 import React from "react";
 import { Switch, Route } from "react-router-dom";
 import { useAuth0, withAuthenticationRequired } from "@auth0/auth0-react";
+import Home from "views/Home";
+import Boxes from "views/boxes/Boxes";
 
 const PrivateRoute = ({ component, ...args }) => (
   <Route
@@ -18,5 +20,10 @@ export default function App() {
     return <p>Loading...</p>;
   }
 
-  return <>Test</>;
+  return (
+    <Switch>
+      <PrivateRoute path="/boxes" component={Boxes} />
+      <Route path="/" component={Home} />
+    </Switch>
+  );
 }
