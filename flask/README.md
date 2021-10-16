@@ -3,50 +3,56 @@
 ## Table of Contents
 
 1. [Contribution Guidelines](../CONTRIBUTING.md)
-2. [Development Set-up](#development-set-up)
+1. [Minimal development set-up](#development-set-up)
    1. [Install python](#install-python)
    2. [Set-up pre-commit](#set-up-pre-commit)
-   3. [Linting and Formatting in VSCode](#linting-and-formatting-in-vscode)
-   4. [Working with MySQL](#working-with-mysql)
-   5. [Debugging](#debugging)
-3. [Testing](#testing)
-4. [GraphQL Playground](#graphql-playground)
-5. [Authentication and Authorization on the back-end](#authentication-and-authorization)
-6. [Database Migrations](#database-migrations)
+1. [Back-end development set-up](#be-development-set-up)
+   1. [Linting and Formatting in VSCode](#linting-and-formatting-in-vscode)
+   1. [Working with MySQL](#working-with-mysql)
+   1. [Debugging](#debugging)
+1. [Testing](#testing)
+1. [GraphQL Playground](#graphql-playground)
+1. [Authentication and Authorization on the back-end](#authentication-and-authorization)
+1. [Database Migrations](#database-migrations)
 
-## Development Set-up
+## Minimal development set-up
+
+The following steps build on top of each other and have to be performed in correct order. Installing Python incl. a virtual environment and pre-commit is mandatory for all developers.
 
 ### Install python
 
-For almost all features of our development set-up you should [install Python >=3.6](https://www.python.org/downloads/) on your computer. You will need it to run tests on the back-end and the formatters and linters on both back-end and front-end.
+Install [Python >=3.6](https://www.python.org/downloads/) on your computer. You will need it to run tests on the back-end and the formatters and linters on both back-end and front-end.
 
-**Additional must-haves for back-end people**
-[Make use of virtual environments like venv.](https://docs.python.org/3/library/venv.html) You should not install all packages you need for this project globally, but focused on Boxtribute.
+### Create a Python virtual environment
 
-**Further recommendations**
-These recommendations are mainly meant for people developing on the back-end. If you are just a front-end person, but would like use pre-commit and the linters and formatters defined there, you can skip these steps.
-
-- [Use a version control for python like pyenv.](https://github.com/pyenv/pyenv) It provides you with much more clarity which version you are running and makes it easy to switch versions of python.
-- [Have a look at direnv >= v2.21.0](https://github.com/direnv/direnv). Virtual environments must be activated and deactivated. If you are moving through folders in the terminal it can easily happen that you either miss activating or deactivating the venv resulting in errors and time wasted for development. With direnv you can automate the activation and deactivation of venv depending on which folder you are in. There is already a `example.envrc` file in the root of this repo. If you install `direnv`, copy the `example.envrc` file into `.envrc` and allow to run it for your local repo, it will activate the python virtual environment `venv` every time you enter the folder via a command line.
-
-### Set-up pre-commit
-
-[Pre-commit](https://pre-commit.com/) enables us to run code quality checks, such as missing semicolons, trailing whitespace, and debug statements, before you are committing your code. We chose pre-commit since it enables us to run these checks for both front-end and back-end in just one place.
-Please follow these steps to set-up pre-commit:
-
-(optional) 0.1 If you have not already done it, create a venv in which you are running pre-commit. If you are using pyenv you might want to check which python version you are using with `pyenv version` or `which python`.
+A [Python virtual environments](https://docs.python.org/3/library/venv.html) helps to isolate the project's Python environment (i.e. installed packages) from the global one. Internally this works by injecting a project-specific path into Python's import path look-up. Execute the following command in the repo root to create a `.venv` folder that will hold project-specific dependencies
 
     python3 -m venv .venv
 
-(optional) 0.2 Activate the virtual environment. If you are not using direnv, be aware that you should do this step each time before working with python in the Boxtribute repo.
+You should notice a `(.venv)` element in your shell prompt which means that the virtual environment is activated. **Please note** that you have to manually activate the virtual environment every time you launch a new shell by
 
     source .venv/bin/activate
 
+On Windows run instead
+
+    .\.venv\Scripts\activate
+
+<details>
+  <summary>You can automate the activation of the virtual environment. Click to read more.</summary>
+
+  Virtual environments (venvs for short) must be activated and deactivated. If you are moving through folders in the terminal it can easily happen that you either miss activating or deactivating the venv resulting in errors and time wasted for development. With the [direnv](https://github.com/direnv/direnv) tool you can automate the activation and deactivation of venv depending on which folder you are in. There is already a `example.envrc` file in the root of this repo. If you install `direnv`, copy the `example.envrc` file into `.envrc` and allow to run it for your local repo, it will activate the Python virtual environment `venv` every time you enter the folder via a command line.
+
+</details>
+
+### Set-up pre-commit
+
+[Pre-commit](https://pre-commit.com/) enables us to run code quality checks, such as missing semicolons, trailing whitespace, and debug statements, as well as consistent code formatting, before you commit your code. We chose pre-commit since it enables us to run these checks for both front-end and back-end in just one place.
+
 1.  Install pre-commit and the linters/formatters (all declared in `/flask/requirements-dev.txt`). Run the command from the root folder of the repo
 
-        pip install -e flask -r flask/requirements-dev.txt
+        pip install -U -e flask -r flask/requirements-dev.txt
 
-2.  Install the hooks to run pre-commit before you commit.
+2.  Install the git hooks
 
         pre-commit install --overwrite
 
@@ -54,13 +60,29 @@ Now you're all set up using Python code quality tools! `pre-commit` automaticall
 
 To figure out what else you can do with pre-commit, check out this [link](https://pre-commit.com/#usage).
 
+## Back-end development set-up
+
+The following are a couple of recommendations for IDE integration, database interaction, debugging, working with Docker, etc.
+
+### Test environment set-up
+
+**Crucial for running tests!**
+
+Install the dependencies of the app in the activated virtual environment
+
+    pip install -U -r flask/requirements.txt
+
+For the integration tests authentication information is fetched from the [Auth0](https://auth0.com) website. Log in and select `Applications` -> `Applications` from the side bar menu. Select `boxtribute-dev-api`. Copy the `Client ID` and `Client Secret` into the `.env` file as the `AUTH0_CLIENT_TEST_ID` and `AUTH0_CLIENT_SECRET_TEST` variables, resp.
+
 ### Linting and Formatting in VSCode
 
-Most of our developers are using VSCode. Instead of running our linter (flake8) and our formatter (black) for python just when you are committing your code, we added a few settings in `.vscode/settings.json` so that your files are formatted and linted when you save a python file. You might want to check out this settings file.
+Most of our developers are using VSCode. Instead of running our linter (flake8) and our formatter (black) for Python just when you are committing your code, we added a few settings in `.vscode/settings.json` so that your files are formatted and linted when you save a Python file.
 
 ### Working with MySQL
 
 Since we are working with docker you do not have to install a local MySQL server on your computer. Instead, you can just connect to the MySQL server in one of the Docker containers.
+
+The development database is called `dropapp_dev` and the password is `dropapp_root`.
 
 #### General notes on Docker network
 
@@ -78,8 +100,6 @@ To figure out the gateway of the docker network `backend` run
 #### MySQL workbench or other editors
 
 Most of our developers use [MySQL workbench](https://dev.mysql.com/doc/workbench/en/wb-installing.html) to interact with the database directly. If you want to connect to the database, choose one of the possibilities in the former to define the connection, e.g. Hostname is 172.18.0.1 and Port is 3306.
-
-The development database is called `dropapp_dev` and the password is `dropapp_root`.
 
 #### ORM
 
