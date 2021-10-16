@@ -33,19 +33,17 @@ Please check out [**Contribution Guidelines**](CONTRIBUTING.md) before you get s
 
 ## How do I get set up?
 
-These are the most basic steps to get front-end and back-end up and running. At the end of this section, there are links to further instructions to set-up additional tools for your front-end and back-end environment.
+These are the most basic steps to get the full-stack app up and running. At the end of this section, there are links to further instructions to set-up additional tools for your front-end and back-end environment.
 
-1.  Create a .env-file with the environment variables. Therefore, copy/paste `example.env` and rename it `.env`
+1. Environment variables are managed in a single file. Therefore copy `example.env` into `.env`
 
-2.  Enter the credentials from Auth0 into the `.env`-file. The following three variables need to be added. In the brackets there is a description of the location in the Auth0 dashboard. Let us know if you run into problems.
+2. Enter the credentials from Auth0 into the `.env`-file. From the Applications sidebar menu select Applications. Copy the Client ID for `boxtribute-react` and paste it as value for `AUTH0_CLIENT_ID` into the `.env` file. Let us know if you run into problems.
 
-        AUTH0_CLIENT_ID (Applications --> <your application> --> Settings --> Basic Information --> Client ID)
-        AUTH0_DOMAIN (Applications --> <your application> --> Settings --> Basic Information --> Domain)
-        AUTH0_AUDIENCE (Applications --> APIs --> API Audience)
+3. To build and start the involved Docker services, execute
 
-3.  To run the application, we assume you have Docker installed. You can then run:
+        docker-compose up
 
-    docker-compose up
+4. Open your web browser on `http://localhost:3000`
 
 **NB: In case you get out-of-memory related errors, make sure your max memory is at least 4GB in your Docker settings (via *Docker Settings UI -> Resources -> Memory*) and try again.**
 
