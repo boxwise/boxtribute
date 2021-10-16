@@ -22,7 +22,7 @@
     "prop-types": "^15.7.2",
     "qrcode.react": "^1.0.1",
     "react": "^16.12.0",
-    "react-dom": "^16.12.0",
+    "react-dom": "^16.13.0",
     "react-hook-form": "^6.3.0",
     "react-number-picker": "^1.0.5",
     "react-qr-reader": "^2.2.1",
