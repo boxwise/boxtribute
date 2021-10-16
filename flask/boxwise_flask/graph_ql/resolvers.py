@@ -11,32 +11,33 @@ from ariadne import (
     make_executable_schema,
     snake_case_fallback_resolvers,
 )
-from boxwise_flask.auth_helper import authorize
-from boxwise_flask.graph_ql.mutation_defs import mutation_defs
-from boxwise_flask.graph_ql.query_defs import query_defs
-from boxwise_flask.graph_ql.type_defs import type_defs
-from boxwise_flask.models.base import Base
-from boxwise_flask.models.beneficiary import Beneficiary
-from boxwise_flask.models.box import Box
-from boxwise_flask.models.crud import (
+from peewee import fn
+
+from flask import g
+
+from ..auth_helper import authorize
+from ..models.base import Base
+from ..models.beneficiary import Beneficiary
+from ..models.box import Box
+from ..models.crud import (
     create_beneficiary,
     create_box,
     create_qr_code,
     update_beneficiary,
     update_box,
 )
-from boxwise_flask.models.location import Location
-from boxwise_flask.models.organisation import Organisation
-from boxwise_flask.models.product import Product
-from boxwise_flask.models.product_category import ProductCategory
-from boxwise_flask.models.qr_code import QRCode
-from boxwise_flask.models.size import Size
-from boxwise_flask.models.transaction import Transaction
-from boxwise_flask.models.user import User
-from boxwise_flask.models.x_beneficiary_language import XBeneficiaryLanguage
-from peewee import fn
-
-from flask import g
+from ..models.location import Location
+from ..models.organisation import Organisation
+from ..models.product import Product
+from ..models.product_category import ProductCategory
+from ..models.qr_code import QRCode
+from ..models.size import Size
+from ..models.transaction import Transaction
+from ..models.user import User
+from ..models.x_beneficiary_language import XBeneficiaryLanguage
+from .mutation_defs import mutation_defs
+from .query_defs import query_defs
+from .type_defs import type_defs
 
 query = ObjectType("Query")
 beneficiary = ObjectType("Beneficiary")

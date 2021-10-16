@@ -1,8 +1,9 @@
 """Configuration and instantiation of flask app and peewee-managed database"""
-from boxwise_flask.routes import api_bp
 from flask_cors import CORS
 
 from flask import Flask
+
+from .routes import api_bp
 
 
 def create_app():

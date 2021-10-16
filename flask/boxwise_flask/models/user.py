@@ -1,6 +1,3 @@
-from boxwise_flask.db import db
-from boxwise_flask.models.language import Language
-from boxwise_flask.models.usergroup import Usergroup
 from peewee import (
     SQL,
     CharField,
@@ -9,6 +6,10 @@ from peewee import (
     ForeignKeyField,
     IntegerField,
 )
+
+from ..db import db
+from .language import Language
+from .usergroup import Usergroup
 
 
 class User(db.Model):

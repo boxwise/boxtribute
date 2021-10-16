@@ -1,7 +1,8 @@
-from boxwise_flask.db import db
-from boxwise_flask.models.beneficiary import Beneficiary
-from boxwise_flask.models.language import Language
 from peewee import ForeignKeyField
+
+from ..db import db
+from .beneficiary import Beneficiary
+from .language import Language
 
 
 class XBeneficiaryLanguage(db.Model):

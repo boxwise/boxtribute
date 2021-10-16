@@ -1,6 +1,3 @@
-from boxwise_flask.db import db
-from boxwise_flask.models.base import Base
-from boxwise_flask.models.user import User
 from peewee import (
     SQL,
     CharField,
@@ -10,6 +7,10 @@ from peewee import (
     IntegerField,
     TextField,
 )
+
+from ..db import db
+from .base import Base
+from .user import User
 
 
 class Beneficiary(db.Model):

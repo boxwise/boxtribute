@@ -1,7 +1,8 @@
-from boxwise_flask.db import db
-from boxwise_flask.models.size_range import SizeRange
-from boxwise_flask.models.user import User
 from peewee import SQL, CharField, DateTimeField, ForeignKeyField, IntegerField
+
+from ..db import db
+from .size_range import SizeRange
+from .user import User
 
 
 class Size(db.Model):

@@ -1,8 +1,5 @@
 from datetime import datetime
 
-from boxwise_flask.db import db
-from boxwise_flask.models.organisation import Organisation
-from boxwise_flask.models.user import User
 from peewee import (
     SQL,
     CharField,
@@ -11,6 +8,10 @@ from peewee import (
     IntegerField,
     SmallIntegerField,
 )
+
+from ..db import db
+from .organisation import Organisation
+from .user import User
 
 
 class Base(db.Model):

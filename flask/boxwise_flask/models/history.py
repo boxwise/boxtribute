@@ -1,5 +1,3 @@
-from boxwise_flask.db import db
-from boxwise_flask.models.user import User
 from peewee import (
     CharField,
     DateTimeField,
@@ -8,6 +6,9 @@ from peewee import (
     IntegerField,
     TextField,
 )
+
+from ..db import db
+from .user import User
 
 
 class DbChangeHistory(db.Model):
