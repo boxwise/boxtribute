@@ -74,6 +74,13 @@ Install the dependencies of the app in the activated virtual environment
 
 For the integration tests authentication information is fetched from the [Auth0](https://auth0.com) website. Log in and select `Applications` -> `Applications` from the side bar menu. Select `boxtribute-dev-api`. Copy the `Client ID` and `Client Secret` into the `.env` file as the `AUTH0_CLIENT_TEST_ID` and `AUTH0_CLIENT_SECRET_TEST` variables, resp.
 
+We're subject to a rate limit for tokens from Auth0. In order to avoid fetching tokens over and over again for every test run, do the following once before you start your development session:
+
+1. Run the `./fetch_token` script
+1. Paste the value of the `access_token` field as `AUTH0_TEST_JWT=` into the `.env` file
+
+After 24h the token expires, so you have to repeat the procedure.
+
 ### Linting and Formatting in VSCode
 
 Most of our developers are using VSCode. Instead of running our linter (flake8) and our formatter (black) for Python just when you are committing your code, we added a few settings in `.vscode/settings.json` so that your files are formatted and linted when you save a Python file.
