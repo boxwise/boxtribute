@@ -1,12 +1,19 @@
 import React from "react";
 import { gql, useQuery } from "@apollo/client";
 import { useParams } from "react-router-dom";
+import { Box, Heading, ListItem, UnorderedList } from "@chakra-ui/react";
 
 const LOCATION_QUERY = gql`
   query Location($locationId: ID!) {
     location(id: $locationId) {
       id
       name
+      boxes {
+        id
+        product {
+          name
+        }
+      }
     }
   }
 `;
@@ -21,12 +28,24 @@ const BTLocation = () => {
 
   if (loading) return <div>Loading...</div>;
   if (error) return <div>Error: {JSON.stringify(error)}</div>;
+  if (data.location == null) return <Box>No location found</Box>;
 
   return (
-    <div>
-      <h2>Location</h2>
-      {data?.location && <>Location name: {data.location.name}</>}
-    </div>
+    <Box>
+      <Heading>
+        Location '{data.location.name}' ({data.location.id})
+      </Heading>
+      <Box>
+        <Heading as="h3">{data?.location?.boxes.length} Boxes in this location</Heading>
+        <UnorderedList>
+          {data?.location?.boxes.map((box) => (
+            <ListItem>
+              {box.id} - {box.product.name}
+            </ListItem>
+          ))}
+        </UnorderedList>
+      </Box>
+    </Box>
   );
 };
 
