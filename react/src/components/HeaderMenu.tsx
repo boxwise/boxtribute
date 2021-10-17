@@ -33,8 +33,8 @@ const HeaderMenu = () => {
         {!isAuthenticated && <Button onClick={() => loginWithRedirect()}>Login</Button>}
       </ListItem>
       <MenuItem to="/" text="Home" />
-      <MenuItem to="/boxes" text="Boxes" />
       <MenuItem to="/locations" text="Locations" />
+      <MenuItem to="/boxes" text="Boxes" />
       <MenuItem to="/query-playground" text="Query Playground" />
     </UnorderedList>
   );
