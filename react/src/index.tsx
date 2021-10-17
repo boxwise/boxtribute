@@ -5,7 +5,6 @@ import Auth0ProviderWithHistory from "./Auth0ProviderWithHistory";
 import ApolloWrapper from "./ApolloWrapper";
 import App from "./App";
 import * as serviceWorker from "./serviceWorker";
-import "semantic-ui-less/semantic.less";
 
 ReactDOM.render(
   <Router>
