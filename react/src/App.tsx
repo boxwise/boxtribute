@@ -3,6 +3,10 @@ import { Switch, Route } from "react-router-dom";
 import { useAuth0, withAuthenticationRequired } from "@auth0/auth0-react";
 import Home from "views/Home";
 import Boxes from "views/boxes/Boxes";
+import HeaderMenu from "components/HeaderMenu";
+import Locations from "views/locations/Locations";
+import TMPQueryPlayground from "views/TMP-query-playground/TMP-query-playground";
+import BTLocation from "views/locations/BTLocation";
 
 const PrivateRoute = ({ component, ...args }) => (
   <Route
@@ -21,9 +25,17 @@ export default function App() {
   }
 
   return (
-    <Switch>
-      <PrivateRoute path="/boxes" component={Boxes} />
-      <Route path="/" component={Home} />
-    </Switch>
+    <>
+      <HeaderMenu />
+      <div>
+        <Switch>
+          <PrivateRoute path="/boxes" component={Boxes} />
+          <PrivateRoute path="/locations/:locationId" component={BTLocation} />
+          <PrivateRoute path="/locations" component={Locations} />
+          <PrivateRoute path="/query-playground" component={TMPQueryPlayground} />
+          <Route path="/" component={Home} />
+        </Switch>
+      </div>
+    </>
   );
 }
