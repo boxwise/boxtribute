@@ -14,7 +14,7 @@ const PrivateRoute = ({ component, ...args }) => (
 );
 
 export default function App() {
-  const { isLoading: auth0Loading, isAuthenticated, loginWithRedirect, logout } = useAuth0();
+  const { isLoading: auth0Loading } = useAuth0();
 
   if (auth0Loading) {
     return <p>Loading...</p>;
