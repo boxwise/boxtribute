@@ -125,12 +125,12 @@ def resolve_product(_, info, id):
 
 @query.field("box")
 @convert_kwargs_to_snake_case
-def resolve_box(_, info, box_id):
+def resolve_box(_, info, box_label_identifier):
     box = (
         Box.select(Box, Base.id)
         .join(Location)
         .join(Base)
-        .where(Box.box_label_identifier == box_id)
+        .where(Box.box_label_identifier == box_label_identifier)
         .objects()
         .get()
     )

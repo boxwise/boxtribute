@@ -5,7 +5,7 @@ import pytest
 @pytest.mark.usefixtures("default_user")
 def test_get_box_from_box_label_identifier(client, default_box, default_user):
     graph_ql_query_string = f"""query {{
-                box(boxId: "{default_box['box_label_identifier']}") {{
+                box(boxLabelIdentifier: "{default_box['box_label_identifier']}") {{
                     boxLabelIdentifier
                     createdBy {{
                         name

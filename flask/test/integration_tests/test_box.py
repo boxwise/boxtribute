@@ -43,7 +43,7 @@ def test_get_box_details(auth0_client):
 
     data = {
         "query": """query SomeBoxDetails {
-                box(boxId: "996559") {
+                box(boxLabelIdentifier: "996559") {
                     qrCode {
                         id
                         code

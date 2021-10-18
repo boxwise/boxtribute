@@ -106,7 +106,3 @@ class Box(db.Model):
 
     class Meta:
         table_name = "stock"
-
-    @staticmethod
-    def get_box(box_id):
-        return Box.get(Box.box_label_identifier == box_id)
