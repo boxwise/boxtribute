@@ -33,17 +33,28 @@ Please check out [**Contribution Guidelines**](CONTRIBUTING.md) before you get s
 
 ## How do I get set up?
 
-These are the most basic steps to get the full-stack app up and running. At the end of this section, there are links to further instructions to set-up additional tools for your front-end and back-end environment.
+:star2: *Only TWO commands required to get the full-stack app up and running* :star2:
+
+At the end of this section, there are links to further instructions to set up additional tools for your front-end and back-end environment.
 
 1. Environment variables are managed in a single file. Therefore copy `example.env` into `.env`
 
-2. To build and start the involved Docker services, execute
+1. To build and start the involved Docker services, execute
 
         docker-compose up
 
-3. Open your web browser on `http://localhost:3000`
+1. Open your web browser on `http://localhost:3000`
 
-**NB: In case you get out-of-memory related errors, make sure your max memory is at least 4GB in your Docker settings (via *Docker Settings UI -> Resources -> Memory*) and try again.**
+**NB: In case you get out-of-memory related errors, make sure your max memory is at least 4GB in your Docker settings (via _Docker Settings UI -> Resources -> Memory_) and try again.**
+In (Linux) Docker there is no UI to set the memory limits globally. In that case, please specify the following in `docker-compose.yml`:
+
+```
+version: "2.4"
+services:
+    [...]
+    react:
+        mem_limit: 4G
+```
 
 ### [Further Steps]
 
