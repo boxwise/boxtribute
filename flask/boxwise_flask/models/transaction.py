@@ -1,9 +1,10 @@
-from boxwise_flask.db import db
-from boxwise_flask.models.beneficiary import Beneficiary
-from boxwise_flask.models.product import Product
-from boxwise_flask.models.size import Size
-from boxwise_flask.models.user import User
 from peewee import SQL, CharField, DateTimeField, ForeignKeyField, IntegerField
+
+from ..db import db
+from .beneficiary import Beneficiary
+from .product import Product
+from .size import Size
+from .user import User
 
 
 class Transaction(db.Model):

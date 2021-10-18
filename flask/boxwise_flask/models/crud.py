@@ -37,8 +37,8 @@ def update_box(data):
     """Look up an existing Box given a UUID, and update all requested fields.
     Insert timestamp for modification and return the box.
     """
-    box_id = data.pop("box_label_identifier")
-    box = Box.get_box(box_id)
+    box_label_identifier = data.pop("box_label_identifier")
+    box = Box.get(Box.box_label_identifier == box_label_identifier)
 
     for field, value in data.items():
         setattr(box, field, value)

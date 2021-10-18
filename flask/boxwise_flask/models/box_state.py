@@ -1,5 +1,6 @@
-from boxwise_flask.db import db
 from peewee import CharField
+
+from ..db import db
 
 
 class BoxState(db.Model):

@@ -18,7 +18,9 @@ def test_box_model(
     default_user,
 ):
 
-    queried_box = Box.get_box(default_box["box_label_identifier"])
+    queried_box = Box.get(
+        Box.box_label_identifier == default_box["box_label_identifier"]
+    )
     queried_box_dict = model_to_dict(queried_box)
 
     assert queried_box_dict["id"] == default_box["id"]

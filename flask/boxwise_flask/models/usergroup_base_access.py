@@ -1,5 +1,6 @@
-from boxwise_flask.db import db
 from peewee import CompositeKey, IntegerField
+
+from ..db import db
 
 
 class UsergroupBaseAccess(db.Model):

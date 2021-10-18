@@ -3,13 +3,13 @@ import os
 
 from ariadne import graphql_sync
 from ariadne.constants import PLAYGROUND_HTML
-from boxwise_flask.auth_helper import requires_auth
-from boxwise_flask.graph_ql.resolvers import schema
 from flask_cors import cross_origin
 
 from flask import Blueprint, jsonify, request
 
+from .auth_helper import requires_auth
 from .exceptions import AuthenticationFailed
+from .graph_ql.resolvers import schema
 
 # Blueprint for API
 api_bp = Blueprint(

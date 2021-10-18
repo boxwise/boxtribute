@@ -1,8 +1,9 @@
-from boxwise_flask.db import db
-from boxwise_flask.models.base import Base
-from boxwise_flask.models.box_state import BoxState
-from boxwise_flask.models.user import User
 from peewee import SQL, CharField, DateTimeField, ForeignKeyField, IntegerField
+
+from ..db import db
+from .base import Base
+from .box_state import BoxState
+from .user import User
 
 
 class Location(db.Model):

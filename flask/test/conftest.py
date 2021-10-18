@@ -13,7 +13,7 @@ import os
 import tempfile
 
 import pytest
-from boxwise_flask.app import create_app
+from boxwise_flask.app import configure_app, create_app
 from boxwise_flask.db import db
 from boxwise_flask.models import MODELS
 
@@ -67,12 +67,18 @@ def client(sqlite_app):
 def mysql_app():
     """Set up Flask app, configured to connect to the `dropapp_dev` MySQL database
     running on port 3306 (32000 if you test locally with docker-compose services).
-    The fixture follows the setup-proceduce of the `main` module.
     """
     app = create_app()
     app.testing = True
     port = os.getenv("MYSQL_PORT", 3306)
-    app.config["DATABASE"] = f"mysql://root:dropapp_root@127.0.0.1:{port}/dropapp_dev"
+    configure_app(
+        app,
+        mysql_host="127.0.0.1",
+        mysql_port=port,
+        mysql_user="root",
+        mysql_password="dropapp_root",
+        mysql_db="dropapp_dev",
+    )
 
     db.init_app(app)
     yield app

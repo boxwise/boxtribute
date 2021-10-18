@@ -1,5 +1,6 @@
-from boxwise_flask.db import db
 from peewee import CharField, DateTimeField, TextField
+
+from ..db import db
 
 
 class Log(db.Model):

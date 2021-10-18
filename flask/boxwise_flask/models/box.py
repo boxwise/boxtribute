@@ -1,9 +1,3 @@
-from boxwise_flask.db import db
-from boxwise_flask.models.box_state import BoxState
-from boxwise_flask.models.location import Location
-from boxwise_flask.models.product import Product
-from boxwise_flask.models.size import Size
-from boxwise_flask.models.user import User
 from peewee import (
     SQL,
     CharField,
@@ -13,7 +7,13 @@ from peewee import (
     TextField,
 )
 
+from ..db import db
+from .box_state import BoxState
+from .location import Location
+from .product import Product
 from .qr_code import QRCode
+from .size import Size
+from .user import User
 
 
 class Box(db.Model):
@@ -106,7 +106,3 @@ class Box(db.Model):
 
     class Meta:
         table_name = "stock"
-
-    @staticmethod
-    def get_box(box_id):
-        return Box.get(Box.box_label_identifier == box_id)

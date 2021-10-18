@@ -1,5 +1,6 @@
-from boxwise_flask.db import db
 from peewee import SQL, CharField, DateTimeField, DeferredForeignKey
+
+from ..db import db
 
 
 class Organisation(db.Model):

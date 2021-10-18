@@ -1,10 +1,11 @@
-from boxwise_flask.db import db
-from boxwise_flask.models.base import Base
-from boxwise_flask.models.product_category import ProductCategory
-from boxwise_flask.models.product_gender import ProductGender
-from boxwise_flask.models.size_range import SizeRange
-from boxwise_flask.models.user import User
 from peewee import SQL, CharField, DateTimeField, ForeignKeyField, IntegerField
+
+from ..db import db
+from .base import Base
+from .product_category import ProductCategory
+from .product_gender import ProductGender
+from .size_range import SizeRange
+from .user import User
 
 
 class Product(db.Model):

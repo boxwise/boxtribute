@@ -1,7 +1,8 @@
-from boxwise_flask.db import db
-from boxwise_flask.models.organisation import Organisation
-from boxwise_flask.models.usergroup_access_level import UsergroupAccessLevel
 from peewee import SQL, CharField, DateTimeField, DeferredForeignKey, ForeignKeyField
+
+from ..db import db
+from .organisation import Organisation
+from .usergroup_access_level import UsergroupAccessLevel
 
 
 class Usergroup(db.Model):
