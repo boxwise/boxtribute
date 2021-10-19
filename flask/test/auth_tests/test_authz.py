@@ -2,6 +2,13 @@ import pytest
 from boxwise_flask.authz import authorize
 from boxwise_flask.exceptions import Forbidden, UnknownResource
 
+ALL_PERMISSIONS = [
+    "base:read",
+    "qr:write",
+    "beneficiary:write",
+    "stock:write",
+]
+
 
 def test_authorized_user():
     user = {"base_ids": [1], "organisation_id": 2, "id": 3}
@@ -9,9 +16,7 @@ def test_authorized_user():
     assert authorize(user, organisation_id=2)
     assert authorize(user, user_id=3)
 
-    user = {
-        "permissions": ["base:read", "qr:write", "beneficiary:write", "stock:write"]
-    }
+    user = {"permissions": ALL_PERMISSIONS}
     assert authorize(user, permission="base:read")
     assert authorize(user, permission="qr:write")
     assert authorize(user, permission="beneficiary:write")
@@ -24,7 +29,7 @@ def test_authorized_user():
 
 def test_user_with_insufficient_permissions():
     user = {"permissions": []}
-    for permission in ["base:read", "qr:write", "beneficiary:write", "stock:write"]:
+    for permission in ALL_PERMISSIONS:
         with pytest.raises(Forbidden):
             authorize(user, permission=permission)
 
