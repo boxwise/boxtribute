@@ -15,7 +15,7 @@ from peewee import fn
 
 from flask import g
 
-from ..auth_helper import authorize
+from ..authz import authorize
 from ..models.base import Base
 from ..models.beneficiary import Beneficiary
 from ..models.box import Box
