@@ -73,11 +73,13 @@ def parse_date(value):
 @user.field("bases")
 @query.field("bases")
 def resolve_bases(_, info):
+    authorize(permission="base:read")
     return Base.select().where(Base.id.in_(g.user["base_ids"]))
 
 
 @query.field("base")
 def resolve_base(_, info, id):
+    authorize(permission="base:read")
     authorize(base_id=int(id))
     return Base.get_by_id(id)
 
@@ -267,6 +269,7 @@ def resolve_location_boxes(location_obj, info):
 
 @organisation.field("bases")
 def resolve_organisation_bases(organisation_obj, info):
+    authorize(permission="base:read")
     return Base.select().where(Base.organisation_id == organisation_obj.id)
 
 
