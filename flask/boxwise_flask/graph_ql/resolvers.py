@@ -120,6 +120,7 @@ def resolve_qr_code(_, info, qr_code):
 
 @query.field("product")
 def resolve_product(_, info, id):
+    authorize(permission="product:read")
     product = Product.get_by_id(id)
     authorize(base_id=product.base.id)
     return product
@@ -175,6 +176,7 @@ def resolve_locations(_, info):
 
 @query.field("products")
 def resolve_products(_, info):
+    authorize(permission="product:read")
     return Product.select().join(Base).where(Base.id.in_(g.user["base_ids"]))
 
 
@@ -287,6 +289,7 @@ def resolve_product_sizes(product_id, info):
 
 @product_category.field("products")
 def resolve_product_category_products(product_category_obj, info):
+    authorize(permission="product:read")
     return Product.select().where(Product.category == product_category_obj.id)
 
 

@@ -1,4 +1,5 @@
 import pytest
+from auth import create_jwt_payload
 
 
 @pytest.mark.usefixtures("default_product")
@@ -31,3 +32,20 @@ def test_products(client, default_product):
     response_data = client.post("/graphql", json=data)
     queried_product = response_data.json["data"]["products"][0]
     assert queried_product["name"] == default_product["name"]
+
+
+def test_invalid_permission(client, mocker):
+    mocker.patch("jose.jwt.decode").return_value = create_jwt_payload(permissions=[])
+    data = {"query": "query { products { id } }"}
+    response = client.post("/graphql", json=data)
+    assert response.status_code == 200
+    assert response.json["data"] is None
+    assert len(response.json["errors"]) == 1
+    assert response.json["errors"][0]["extensions"]["code"] == "FORBIDDEN"
+
+    data = {"query": "query { product(id: 3) { name } }"}
+    response = client.post("/graphql", json=data)
+    assert response.status_code == 200
+    assert response.json["data"]["product"] is None
+    assert len(response.json["errors"]) == 1
+    assert response.json["errors"][0]["extensions"]["code"] == "FORBIDDEN"

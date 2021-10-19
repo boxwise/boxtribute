@@ -88,6 +88,7 @@ def create_jwt_payload(
         "sub": "auth0|8",
         "permissions": [
             "base:read",
+            "product:read",
             "beneficiary:write",
             "qr:write",
             "stock:write",
