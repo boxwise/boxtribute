@@ -90,7 +90,7 @@ def test_user_permissions(client, mocker):
         organisation_id=2,
         roles=["Warehouse Volunteer"],
         user_id=16,
-        permissions=["qr:create", "stock:write"],
+        permissions=["qr:write", "stock:write"],
     )
 
     data = {
@@ -139,8 +139,8 @@ def test_base_specific_permissions(client, mocker):
         roles=["base_2_coordinator", "base_3_coordinator"],
         user_id=17,
         permissions=[
-            "base_2:qr:create",
-            "base_3:beneficiaries:write",
+            "base_2:qr:write",
+            "base_3:beneficiary:write",
         ],
     )
 

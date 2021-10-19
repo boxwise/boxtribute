@@ -23,11 +23,11 @@ def authorize(
     if current_user is None:
         current_user = g.user
 
-    if permission == "qr:create":
+    if permission == "qr:write":
         # For the front-end, base-specific distinction when creating QR codes is
         # relevant but not for the back-end (there is no data relationship between
-        # QR code and base). The permission is of form 'base_x:qr:create'.
-        authorized = any("qr:create" in p for p in current_user["permissions"])
+        # QR code and base). The permission is of form 'base_x:qr:write'.
+        authorized = any("qr:write" in p for p in current_user["permissions"])
 
     elif permission is not None:
         authorized = permission in current_user["permissions"]

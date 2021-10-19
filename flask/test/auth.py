@@ -87,10 +87,10 @@ def create_jwt_payload(
         "https://www.boxtribute.com/roles": ["Coordinator"],
         "sub": "auth0|8",
         "permissions": [
-            "beneficiaries:write",
-            "qr:create",
+            "beneficiary:write",
+            "qr:write",
             "stock:write",
-            "transactions:write",
+            "transaction:write",
         ],
     }
 
