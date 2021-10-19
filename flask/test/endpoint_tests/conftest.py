@@ -20,3 +20,10 @@ def auth_service(module_mocker):
     ).return_value = "Bearer Some.Token"
     module_mocker.patch("boxwise_flask.auth.get_public_key").return_value = None
     module_mocker.patch("jose.jwt.decode").return_value = create_jwt_payload()
+
+
+@pytest.fixture
+def unauthorized_client(client, mocker):
+    """Provide client who does not have any permissions."""
+    mocker.patch("jose.jwt.decode").return_value = create_jwt_payload(permissions=[])
+    return client

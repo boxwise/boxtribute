@@ -1,5 +1,4 @@
 import pytest
-from auth import create_jwt_payload
 
 
 def get_base_from_graphql(id, base_query):
@@ -67,18 +66,17 @@ def test_unauthorized_base(client):
     assert response.json["errors"][0]["extensions"]["code"] == "FORBIDDEN"
 
 
-def test_invalid_permission(client, mocker):
+def test_invalid_permission(unauthorized_client):
     # verify missing base:read permission
-    mocker.patch("jose.jwt.decode").return_value = create_jwt_payload(permissions=[])
     data = {"query": "query { bases { id } }"}
-    response = client.post("/graphql", json=data)
+    response = unauthorized_client.post("/graphql", json=data)
     assert response.status_code == 200
     assert response.json["data"] is None
     assert len(response.json["errors"]) == 1
     assert response.json["errors"][0]["extensions"]["code"] == "FORBIDDEN"
 
     data = {"query": "query { base(id: 1) { id } }"}
-    response = client.post("/graphql", json=data)
+    response = unauthorized_client.post("/graphql", json=data)
     assert response.status_code == 200
     assert response.json["data"]["base"] is None
     assert len(response.json["errors"]) == 1
@@ -86,15 +84,14 @@ def test_invalid_permission(client, mocker):
 
 
 def test_invalid_permission_for_organisation_bases(
-    client, mocker, default_organisation
+    unauthorized_client, default_organisation
 ):
-    mocker.patch("jose.jwt.decode").return_value = create_jwt_payload(permissions=[])
     # verify missing base:read permission
     org_id = default_organisation["id"]
     data = {
         "query": f"""query {{ organisation(id: "{org_id}") {{ bases {{ id }} }} }}"""
     }
-    response = client.post("/graphql", json=data)
+    response = unauthorized_client.post("/graphql", json=data)
     assert response.status_code == 200
     assert response.json["data"]["organisation"] == {"bases": None}
     assert len(response.json["errors"]) == 1
