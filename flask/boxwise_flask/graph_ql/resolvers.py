@@ -260,6 +260,11 @@ def resolve_create_beneficiary(_, info, beneficiary_creation_input):
 @mutation.field("updateBeneficiary")
 @convert_kwargs_to_snake_case
 def resolve_update_beneficiary(_, info, beneficiary_update_input):
+    # Use target base ID if specified, otherwise fall back to user's default base
+    authorize(
+        permission="beneficiary:write",
+        base_id=beneficiary_update_input.get("base_id", g.user["base_ids"][0]),
+    )
     beneficiary_update_input["last_modified_by"] = g.user["id"]
     return update_beneficiary(beneficiary_update_input)
 

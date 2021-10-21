@@ -163,3 +163,45 @@ def test_invalid_permission(unauthorized_client):
     assert response.json["data"]["beneficiary"] is None
     assert len(response.json["errors"]) == 1
     assert response.json["errors"][0]["extensions"]["code"] == "FORBIDDEN"
+
+    # verify missing beneficiary:write permission
+    data = {
+        "query": """mutation {
+            createBeneficiary(
+                beneficiaryCreationInput : {
+                    firstName: "First",
+                    lastName: "Last",
+                    dateOfBirth: "1990-09-01",
+                    baseId: 2,
+                    groupIdentifier: "1312",
+                    gender: Male,
+                    languages: [de],
+                    isVolunteer: true,
+                    isRegistered: false
+                }) {
+                id
+            }
+        }"""
+    }
+    response = unauthorized_client.post("/graphql", json=data)
+    assert response.status_code == 200
+    assert response.json["data"]["createBeneficiary"] is None
+    assert len(response.json["errors"]) == 1
+    assert response.json["errors"][0]["extensions"]["code"] == "FORBIDDEN"
+
+    data = {
+        "query": """mutation {
+            updateBeneficiary(
+                beneficiaryUpdateInput : {
+                    id: 3,
+                    firstName: "First"
+                }) {
+                id
+            }
+        }"""
+    }
+    response = unauthorized_client.post("/graphql", json=data)
+    assert response.status_code == 200
+    assert response.json["data"]["updateBeneficiary"] is None
+    assert len(response.json["errors"]) == 1
+    assert response.json["errors"][0]["extensions"]["code"] == "FORBIDDEN"
