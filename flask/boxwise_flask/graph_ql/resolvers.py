@@ -86,6 +86,7 @@ def resolve_base(_, info, id):
 
 @query.field("beneficiary")
 def resolve_beneficiary(_, info, id):
+    authorize(permission="beneficiary:read")
     beneficiary = Beneficiary.get_by_id(id)
     authorize(base_id=beneficiary.base.id)
     return beneficiary
@@ -184,6 +185,7 @@ def resolve_products(_, info):
 
 @query.field("beneficiaries")
 def resolve_beneficiaries(_, info):
+    authorize(permission="beneficiary:read")
     return Beneficiary.select().join(Base).where(Base.id.in_(g.user["base_ids"]))
 
 
@@ -264,6 +266,7 @@ def resolve_update_beneficiary(_, info, beneficiary_update_input):
 
 @base.field("beneficiaries")
 def resolve_base_beneficiaries(base_obj, info):
+    authorize(permission="beneficiary:read")
     return Beneficiary.select().where(Beneficiary.base == base_obj.id)
 
 

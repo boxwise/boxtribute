@@ -146,3 +146,20 @@ def test_query_beneficiaries(client):
     queried_beneficiaries = response.json["data"]["beneficiaries"]
     assert response.status_code == 200
     assert len(queried_beneficiaries) == 1
+
+
+def test_invalid_permission(unauthorized_client):
+    # verify missing beneficiary:read permission
+    data = {"query": "query { beneficiaries { id } }"}
+    response = unauthorized_client.post("/graphql", json=data)
+    assert response.status_code == 200
+    assert response.json["data"] is None
+    assert len(response.json["errors"]) == 1
+    assert response.json["errors"][0]["extensions"]["code"] == "FORBIDDEN"
+
+    data = {"query": "query { beneficiary(id: 3) { id } }"}
+    response = unauthorized_client.post("/graphql", json=data)
+    assert response.status_code == 200
+    assert response.json["data"]["beneficiary"] is None
+    assert len(response.json["errors"]) == 1
+    assert response.json["errors"][0]["extensions"]["code"] == "FORBIDDEN"

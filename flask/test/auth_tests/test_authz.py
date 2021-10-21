@@ -4,6 +4,7 @@ from boxwise_flask.exceptions import Forbidden, UnknownResource
 
 ALL_PERMISSIONS = [
     "base:read",
+    "beneficiary:read",
     "category:read",
     "product:read",
     "transaction:read",
@@ -21,6 +22,7 @@ def test_authorized_user():
 
     user = {"permissions": ALL_PERMISSIONS}
     assert authorize(user, permission="base:read")
+    assert authorize(user, permission="beneficiary:read")
     assert authorize(user, permission="category:read")
     assert authorize(user, permission="product:read")
     assert authorize(user, permission="transaction:read")
