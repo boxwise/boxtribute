@@ -156,11 +156,13 @@ def resolve_organisation(_, info, id):
 
 @query.field("productCategory")
 def resolve_product_category(_, info, id):
+    authorize(permission="category:read")
     return ProductCategory.get_by_id(id)
 
 
 @query.field("productCategories")
 def resolve_product_categories(_, info):
+    authorize(permission="category:read")
     return ProductCategory.select()
 
 
