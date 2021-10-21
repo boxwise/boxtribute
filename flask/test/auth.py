@@ -89,6 +89,7 @@ def create_jwt_payload(
         "permissions": [
             "base:read",
             "category:read",
+            "location:read",
             "product:read",
             "transaction:read",
             "beneficiary:write",

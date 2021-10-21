@@ -144,6 +144,7 @@ def resolve_box(_, info, box_label_identifier):
 
 @query.field("location")
 def resolve_location(_, info, id):
+    authorize(permission="location:read")
     location = Location.get_by_id(id)
     authorize(base_id=location.base.id)
     return location
@@ -174,6 +175,7 @@ def resolve_organisations(_, info):
 
 @query.field("locations")
 def resolve_locations(_, info):
+    authorize(permission="location:read")
     return Location.select().join(Base).where(Base.id.in_(g.user["base_ids"]))
 
 
