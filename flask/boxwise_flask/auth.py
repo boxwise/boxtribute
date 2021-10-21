@@ -125,6 +125,11 @@ def requires_auth(f):
         g.user["id"] = int(payload["sub"].replace("auth0|", ""))
         g.user["permissions"] = payload["permissions"]
 
+        # Any write permission implies read permission on the same resource
+        for permission in g.user["permissions"]:
+            if permission.endswith(":write"):
+                g.user["permissions"].append(permission.replace(":write", ":read"))
+
         return f(*args, **kwargs)
 
     return decorated
