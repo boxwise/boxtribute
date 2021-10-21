@@ -130,6 +130,7 @@ def resolve_product(_, info, id):
 @query.field("box")
 @convert_kwargs_to_snake_case
 def resolve_box(_, info, box_label_identifier):
+    authorize(permission="stock:read")
     box = (
         Box.select(Box, Base.id)
         .join(Location)
@@ -229,6 +230,7 @@ def resolve_box_state(obj, info):
 @convert_kwargs_to_snake_case
 def resolve_create_qr_code(_, info, box_label_identifier=None):
     authorize(permission="qr:write")
+    authorize(permission="stock:write")
     return create_qr_code(
         dict(created_by=g.user["id"], box_label_identifier=box_label_identifier)
     )
@@ -245,6 +247,7 @@ def resolve_create_box(_, info, box_creation_input):
 @mutation.field("updateBox")
 @convert_kwargs_to_snake_case
 def resolve_update_box(_, info, box_update_input):
+    authorize(permission="stock:write")
     box_update_input["last_modified_by"] = g.user["id"]
     return update_box(box_update_input)
 
@@ -279,6 +282,7 @@ def resolve_base_beneficiaries(base_obj, info):
 
 @location.field("boxes")
 def resolve_location_boxes(location_obj, info):
+    authorize(permission="stock:read")
     return Box.select().where(Box.location == location_obj.id)
 
 
@@ -308,6 +312,7 @@ def resolve_product_category_products(product_category_obj, info):
 
 @qr_code.field("box")
 def resolve_qr_code_box(qr_code_obj, info):
+    authorize(permission="stock:read")
     return Box.get(Box.qr_code == qr_code_obj.id)
 
 

@@ -93,6 +93,7 @@ def test_base_specific_permissions(client, mocker):
         user_id=17,
         permissions=[
             "base_2:qr:write",
+            "stock:write",
             "base_3:beneficiary:write",
         ],
     )

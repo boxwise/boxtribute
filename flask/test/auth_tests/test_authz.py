@@ -8,6 +8,7 @@ ALL_PERMISSIONS = [
     "category:read",
     "location:read",
     "product:read",
+    "stock:read",
     "transaction:read",
     "qr:write",
     "beneficiary:write",
@@ -27,6 +28,7 @@ def test_authorized_user():
     assert authorize(user, permission="category:read")
     assert authorize(user, permission="location:read")
     assert authorize(user, permission="product:read")
+    assert authorize(user, permission="stock:read")
     assert authorize(user, permission="transaction:read")
     assert authorize(user, permission="qr:write")
     assert authorize(user, permission="beneficiary:write")
