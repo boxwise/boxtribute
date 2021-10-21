@@ -90,6 +90,7 @@ def create_jwt_payload(
             "base:read",
             "category:read",
             "product:read",
+            "transaction:read",
             "beneficiary:write",
             "qr:write",
             "stock:write",
