@@ -59,3 +59,20 @@ def test_users(client, default_users):
 
     first_id = int(queried_user["id"])
     assert queried_user["name"] == default_users[first_id]["name"]
+
+
+def test_invalid_permission(unauthorized_client):
+    # verify missing user:read permission
+    data = {"query": "query { users { id } }"}
+    response = unauthorized_client.post("/graphql", json=data)
+    assert response.status_code == 200
+    assert response.json["data"] is None
+    assert len(response.json["errors"]) == 1
+    assert response.json["errors"][0]["extensions"]["code"] == "FORBIDDEN"
+
+    data = {"query": "query { user(id: 3) { id } }"}
+    response = unauthorized_client.post("/graphql", json=data)
+    assert response.status_code == 200
+    assert response.json["data"]["user"] is None
+    assert len(response.json["errors"]) == 1
+    assert response.json["errors"][0]["extensions"]["code"] == "FORBIDDEN"

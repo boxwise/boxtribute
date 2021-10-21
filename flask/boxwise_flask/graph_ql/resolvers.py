@@ -94,11 +94,13 @@ def resolve_beneficiary(_, info, id):
 
 @query.field("users")
 def resolve_users(_, info):
+    authorize(permission="user:read")
     return User.select()
 
 
 @query.field("user")
 def resolve_user(_, info, id):
+    authorize(permission="user:read")
     authorize(user_id=int(id))
     return User.get_by_id(id)
 
