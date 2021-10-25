@@ -1,5 +1,4 @@
 import pytest
-from auth import create_jwt_payload
 
 
 @pytest.mark.usefixtures("default_box")
@@ -36,30 +35,3 @@ def test_get_box_from_code(client, default_box, default_qr_code):
     queried_box = response_data.json["data"]["qrCode"]["box"]
     assert response_data.status_code == 200
     assert queried_box["boxLabelIdentifier"] == default_box["box_label_identifier"]
-
-
-def test_invalid_permission_for_location_boxes(client, mocker):
-    # verify missing stock:read permission
-    mocker.patch("jose.jwt.decode").return_value = create_jwt_payload(
-        permissions=["location:read"]
-    )
-    data = {"query": "query { location(id: 1) { boxes { id } } }"}
-    response = client.post("/graphql", json=data)
-    assert response.status_code == 200
-    assert response.json["data"]["location"] == {"boxes": None}
-    assert len(response.json["errors"]) == 1
-    assert response.json["errors"][0]["extensions"]["code"] == "FORBIDDEN"
-
-
-def test_invalid_permission_for_qr_code_box(client, mocker, default_qr_code):
-    # verify missing stock:read permission
-    mocker.patch("jose.jwt.decode").return_value = create_jwt_payload(
-        permissions=["qr:read"]
-    )
-    code = default_qr_code["code"]
-    data = {"query": f"""query {{ qrCode(qrCode: "{code}") {{ box {{ id }} }} }}"""}
-    response = client.post("/graphql", json=data)
-    assert response.status_code == 200
-    assert response.json["data"]["qrCode"] == {"box": None}
-    assert len(response.json["errors"]) == 1
-    assert response.json["errors"][0]["extensions"]["code"] == "FORBIDDEN"
