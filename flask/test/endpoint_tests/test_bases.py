@@ -1,10 +1,6 @@
 import pytest
 
 
-def get_base_from_graphql(id, base_query):
-    return [x for x in base_query if int(x["id"]) == id][0]
-
-
 @pytest.mark.usefixtures("default_bases")
 def test_all_bases(client, default_bases):
     graph_ql_query_string = """query {
