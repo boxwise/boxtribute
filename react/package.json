@@ -30,7 +30,7 @@
     "eslint-plugin-prettier": "^4.0.0",
     "eslint-plugin-react-hooks": "^4.2.0",
     "flow-bin": "^0.162.0",
-    "flow-typed": "^3.3.1",
+    "flow-typed": "^3.4.0",
     "mutationobserver-shim": "^0.3.7",
     "node-sass": "^6.0.1",
     "postcss-cli": "^9.0.1",
