@@ -108,6 +108,7 @@ def resolve_user(_, info, id):
 @query.field("qrExists")
 @convert_kwargs_to_snake_case
 def resolve_qr_exists(_, info, qr_code):
+    authorize(permission="qr:read")
     try:
         QRCode.get_id_from_code(qr_code)
     except QRCode.DoesNotExist:
@@ -118,6 +119,7 @@ def resolve_qr_exists(_, info, qr_code):
 @query.field("qrCode")
 @convert_kwargs_to_snake_case
 def resolve_qr_code(_, info, qr_code):
+    authorize(permission="qr:read")
     return QRCode.get(QRCode.code == qr_code)
 
 

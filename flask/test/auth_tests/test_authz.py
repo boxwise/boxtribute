@@ -11,9 +11,10 @@ ALL_PERMISSIONS = [
     "stock:read",
     "transaction:read",
     "user:read",
-    "qr:write",
+    "qr:read",
     "beneficiary:write",
     "stock:write",
+    "qr:write",
 ]
 
 
@@ -32,9 +33,10 @@ def test_authorized_user():
     assert authorize(user, permission="stock:read")
     assert authorize(user, permission="transaction:read")
     assert authorize(user, permission="user:read")
-    assert authorize(user, permission="qr:write")
+    assert authorize(user, permission="qr:read")
     assert authorize(user, permission="beneficiary:write")
     assert authorize(user, permission="stock:write")
+    assert authorize(user, permission="qr:write")
 
     user = {"permissions": ["base_1:qr:write", "base_2:stock:write"]}
     assert authorize(user, permission="qr:write")

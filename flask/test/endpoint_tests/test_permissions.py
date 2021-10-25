@@ -39,6 +39,8 @@ def operation_name(operation):
     "query",
     [
         """box( boxLabelIdentifier: "c0ffee") { id }""",
+        """qrCode( qrCode: "1337beef" ) { id }""",
+        """qrExists( qrCode: "1337beef" )""",
     ],
     ids=operation_name,
 )
