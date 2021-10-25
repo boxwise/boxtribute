@@ -6,11 +6,7 @@ import os
 
 import pytest
 from auth import get_user_token_string
-from boxwise_flask.auth_helper import (
-    decode_jwt,
-    get_public_key,
-    get_token_from_auth_header,
-)
+from boxwise_flask.auth import decode_jwt, get_public_key, get_token_from_auth_header
 
 
 def test_expired_jwt(client):

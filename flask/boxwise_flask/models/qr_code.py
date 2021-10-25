@@ -3,7 +3,7 @@ from peewee import SQL, CharField, DateTimeField, IntegerField
 from ..db import db
 
 
-class QRCode(db.Model):
+class QrCode(db.Model):
     code = CharField(null=True)
     created_on = DateTimeField(column_name="created", null=True)
     legacy = IntegerField(constraints=[SQL("DEFAULT 0")])
@@ -14,4 +14,4 @@ class QRCode(db.Model):
 
     @staticmethod
     def get_id_from_code(code):
-        return QRCode.get(QRCode.code == code).id
+        return QrCode.get(QrCode.code == code).id

@@ -11,7 +11,7 @@ from ..db import db
 from .box_state import BoxState
 from .location import Location
 from .product import Product
-from .qr_code import QRCode
+from .qr_code import QrCode
 from .size import Size
 from .user import User
 
@@ -89,7 +89,7 @@ class Box(db.Model):
     qr_code = ForeignKeyField(
         column_name="qr_id",
         field="id",
-        model=QRCode,
+        model=QrCode,
         null=True,
         on_update="CASCADE",
         unique=True,

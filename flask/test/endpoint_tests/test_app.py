@@ -80,53 +80,6 @@ def test_get_beneficiaries(mysql_app_client):
     assert queried_beneficiaries[0]["tokens"] == 13
 
 
-def test_user_permissions(client, mocker):
-    """Verify that creating a beneficiary is not possible if user has
-    insufficient permissions.
-    """
-    mocker.patch("jose.jwt.decode").return_value = create_jwt_payload(
-        email="dev_volunteer@boxcare.org",
-        base_ids=[2, 3],
-        organisation_id=2,
-        roles=["Warehouse Volunteer"],
-        user_id=16,
-        permissions=["qr:create", "stock:write"],
-    )
-
-    data = {
-        "query": """mutation {
-            createBeneficiary(
-                beneficiaryCreationInput : {
-                    firstName: "First",
-                    lastName: "Last",
-                    dateOfBirth: "1990-09-01",
-                    baseId: 2,
-                    groupIdentifier: "1312",
-                    gender: Male,
-                    languages: [de],
-                    isVolunteer: true,
-                    isRegistered: false
-                }) {
-                id
-            }
-            createBox(
-                boxCreationInput : {
-                    productId: 1,
-                    items: 99,
-                    locationId: 1,
-                    comment: ""
-                }) {
-                id
-            }
-        }"""
-    }
-    response = client.post("/graphql", json=data)
-    assert response.status_code == 200
-    assert response.json["data"]["createBeneficiary"] is None
-    assert len(response.json["errors"]) == 1
-    assert response.json["errors"][0]["extensions"]["code"] == "FORBIDDEN"
-
-
 def test_base_specific_permissions(client, mocker):
     """Verify that a user can only create beneficiary if base-specific permission
     available. QR codes can be created regardless of any base but for the front-end the
@@ -139,8 +92,9 @@ def test_base_specific_permissions(client, mocker):
         roles=["base_2_coordinator", "base_3_coordinator"],
         user_id=17,
         permissions=[
-            "base_2:qr:create",
-            "base_3:beneficiaries:write",
+            "base_2:qr:write",
+            "stock:write",
+            "base_3:beneficiary:write",
         ],
     )
 

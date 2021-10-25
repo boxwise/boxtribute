@@ -1,5 +1,5 @@
 import pytest
-from boxwise_flask.models.qr_code import QRCode
+from boxwise_flask.models.qr_code import QrCode
 
 
 def default_qr_code_data():
@@ -23,8 +23,8 @@ def qr_code_without_box():
 
 
 def create_default_qr_code():
-    QRCode.create(**default_qr_code_data())
+    QrCode.create(**default_qr_code_data())
 
 
 def create_qr_code_without_box():
-    QRCode.create(**qr_code_without_box_data())
+    QrCode.create(**qr_code_without_box_data())

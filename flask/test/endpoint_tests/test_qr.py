@@ -1,5 +1,4 @@
 import pytest
-from auth import create_jwt_payload
 
 
 @pytest.mark.usefixtures("default_qr_code")
@@ -66,7 +65,7 @@ def test_code_does_not_exist(client):
     response_data = client.post("/graphql", json=data)
     queried_code = response_data.json["data"]["qrCode"]
     assert (
-        "<Model: QRCode> instance matching query does not exist"
+        "<Model: QrCode> instance matching query does not exist"
         in response_data.json["errors"][0]["message"]
     )
     assert queried_code is None
@@ -105,13 +104,3 @@ def test_create_qr_code(client, box_without_qr_code):
     assert response.json["data"]["createQrCode"] is None
     assert len(response.json["errors"]) == 1
     assert response.json["errors"][0]["extensions"]["code"] == "BAD_USER_INPUT"
-
-
-def test_invalid_permission(client, mocker):
-    mocker.patch("jose.jwt.decode").return_value = create_jwt_payload(permissions=[])
-    data = {"query": "mutation { createQrCode { id } }"}
-    response = client.post("/graphql", json=data)
-    assert response.status_code == 200
-    assert response.json["data"]["createQrCode"] is None
-    assert len(response.json["errors"]) == 1
-    assert response.json["errors"][0]["extensions"]["code"] == "FORBIDDEN"

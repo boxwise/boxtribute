@@ -11,7 +11,7 @@ from .organisation import Organisation
 from .product import Product
 from .product_category import ProductCategory
 from .product_gender import ProductGender
-from .qr_code import QRCode
+from .qr_code import QrCode
 from .settings import Settings
 from .size import Size
 from .size_range import SizeRange
@@ -36,7 +36,7 @@ MODELS = (
     Product,
     ProductCategory,
     ProductGender,
-    QRCode,
+    QrCode,
     Settings,
     Size,
     SizeRange,

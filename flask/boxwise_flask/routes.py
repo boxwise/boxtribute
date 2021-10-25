@@ -7,7 +7,7 @@ from flask_cors import cross_origin
 
 from flask import Blueprint, jsonify, request
 
-from .auth_helper import requires_auth
+from .auth import requires_auth
 from .exceptions import AuthenticationFailed
 from .graph_ql.resolvers import schema
 

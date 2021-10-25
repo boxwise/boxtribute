@@ -15,7 +15,7 @@ from peewee import fn
 
 from flask import g
 
-from ..auth_helper import authorize
+from ..authz import authorize
 from ..models.base import Base
 from ..models.beneficiary import Beneficiary
 from ..models.box import Box
@@ -30,7 +30,7 @@ from ..models.location import Location
 from ..models.organisation import Organisation
 from ..models.product import Product
 from ..models.product_category import ProductCategory
-from ..models.qr_code import QRCode
+from ..models.qr_code import QrCode
 from ..models.size import Size
 from ..models.transaction import Transaction
 from ..models.user import User
@@ -73,17 +73,20 @@ def parse_date(value):
 @user.field("bases")
 @query.field("bases")
 def resolve_bases(_, info):
+    authorize(permission="base:read")
     return Base.select().where(Base.id.in_(g.user["base_ids"]))
 
 
 @query.field("base")
 def resolve_base(_, info, id):
+    authorize(permission="base:read")
     authorize(base_id=int(id))
     return Base.get_by_id(id)
 
 
 @query.field("beneficiary")
 def resolve_beneficiary(_, info, id):
+    authorize(permission="beneficiary:read")
     beneficiary = Beneficiary.get_by_id(id)
     authorize(base_id=beneficiary.base.id)
     return beneficiary
@@ -91,11 +94,13 @@ def resolve_beneficiary(_, info, id):
 
 @query.field("users")
 def resolve_users(_, info):
+    authorize(permission="user:read")
     return User.select()
 
 
 @query.field("user")
 def resolve_user(_, info, id):
+    authorize(permission="user:read")
     authorize(user_id=int(id))
     return User.get_by_id(id)
 
@@ -103,9 +108,10 @@ def resolve_user(_, info, id):
 @query.field("qrExists")
 @convert_kwargs_to_snake_case
 def resolve_qr_exists(_, info, qr_code):
+    authorize(permission="qr:read")
     try:
-        QRCode.get_id_from_code(qr_code)
-    except QRCode.DoesNotExist:
+        QrCode.get_id_from_code(qr_code)
+    except QrCode.DoesNotExist:
         return False
     return True
 
@@ -113,11 +119,13 @@ def resolve_qr_exists(_, info, qr_code):
 @query.field("qrCode")
 @convert_kwargs_to_snake_case
 def resolve_qr_code(_, info, qr_code):
-    return QRCode.get(QRCode.code == qr_code)
+    authorize(permission="qr:read")
+    return QrCode.get(QrCode.code == qr_code)
 
 
 @query.field("product")
 def resolve_product(_, info, id):
+    authorize(permission="product:read")
     product = Product.get_by_id(id)
     authorize(base_id=product.base.id)
     return product
@@ -126,6 +134,7 @@ def resolve_product(_, info, id):
 @query.field("box")
 @convert_kwargs_to_snake_case
 def resolve_box(_, info, box_label_identifier):
+    authorize(permission="stock:read")
     box = (
         Box.select(Box, Base.id)
         .join(Location)
@@ -140,6 +149,7 @@ def resolve_box(_, info, box_label_identifier):
 
 @query.field("location")
 def resolve_location(_, info, id):
+    authorize(permission="location:read")
     location = Location.get_by_id(id)
     authorize(base_id=location.base.id)
     return location
@@ -153,11 +163,13 @@ def resolve_organisation(_, info, id):
 
 @query.field("productCategory")
 def resolve_product_category(_, info, id):
+    authorize(permission="category:read")
     return ProductCategory.get_by_id(id)
 
 
 @query.field("productCategories")
 def resolve_product_categories(_, info):
+    authorize(permission="category:read")
     return ProductCategory.select()
 
 
@@ -168,21 +180,25 @@ def resolve_organisations(_, info):
 
 @query.field("locations")
 def resolve_locations(_, info):
+    authorize(permission="location:read")
     return Location.select().join(Base).where(Base.id.in_(g.user["base_ids"]))
 
 
 @query.field("products")
 def resolve_products(_, info):
+    authorize(permission="product:read")
     return Product.select().join(Base).where(Base.id.in_(g.user["base_ids"]))
 
 
 @query.field("beneficiaries")
 def resolve_beneficiaries(_, info):
+    authorize(permission="beneficiary:read")
     return Beneficiary.select().join(Base).where(Base.id.in_(g.user["base_ids"]))
 
 
 @beneficiary.field("tokens")
 def resolve_beneficiary_tokens(beneficiary_obj, info):
+    authorize(permission="transaction:read")
     # If the beneficiary has no transactions yet, the select query returns None
     return (
         Transaction.select(fn.sum(Transaction.count))
@@ -217,7 +233,8 @@ def resolve_box_state(obj, info):
 @mutation.field("createQrCode")
 @convert_kwargs_to_snake_case
 def resolve_create_qr_code(_, info, box_label_identifier=None):
-    authorize(permission="qr:create")
+    authorize(permission="qr:write")
+    authorize(permission="stock:write")
     return create_qr_code(
         dict(created_by=g.user["id"], box_label_identifier=box_label_identifier)
     )
@@ -234,6 +251,7 @@ def resolve_create_box(_, info, box_creation_input):
 @mutation.field("updateBox")
 @convert_kwargs_to_snake_case
 def resolve_update_box(_, info, box_update_input):
+    authorize(permission="stock:write")
     box_update_input["last_modified_by"] = g.user["id"]
     return update_box(box_update_input)
 
@@ -242,7 +260,7 @@ def resolve_update_box(_, info, box_update_input):
 @convert_kwargs_to_snake_case
 def resolve_create_beneficiary(_, info, beneficiary_creation_input):
     authorize(
-        permission="beneficiaries:write", base_id=beneficiary_creation_input["base_id"]
+        permission="beneficiary:write", base_id=beneficiary_creation_input["base_id"]
     )
     beneficiary_creation_input["created_by"] = g.user["id"]
     return create_beneficiary(beneficiary_creation_input)
@@ -251,22 +269,30 @@ def resolve_create_beneficiary(_, info, beneficiary_creation_input):
 @mutation.field("updateBeneficiary")
 @convert_kwargs_to_snake_case
 def resolve_update_beneficiary(_, info, beneficiary_update_input):
+    # Use target base ID if specified, otherwise fall back to user's default base
+    authorize(
+        permission="beneficiary:write",
+        base_id=beneficiary_update_input.get("base_id", g.user["base_ids"][0]),
+    )
     beneficiary_update_input["last_modified_by"] = g.user["id"]
     return update_beneficiary(beneficiary_update_input)
 
 
 @base.field("beneficiaries")
 def resolve_base_beneficiaries(base_obj, info):
+    authorize(permission="beneficiary:read")
     return Beneficiary.select().where(Beneficiary.base == base_obj.id)
 
 
 @location.field("boxes")
 def resolve_location_boxes(location_obj, info):
+    authorize(permission="stock:read")
     return Box.select().where(Box.location == location_obj.id)
 
 
 @organisation.field("bases")
 def resolve_organisation_bases(organisation_obj, info):
+    authorize(permission="base:read")
     return Base.select().where(Base.organisation_id == organisation_obj.id)
 
 
@@ -284,11 +310,13 @@ def resolve_product_sizes(product_id, info):
 
 @product_category.field("products")
 def resolve_product_category_products(product_category_obj, info):
+    authorize(permission="product:read")
     return Product.select().where(Product.category == product_category_obj.id)
 
 
 @qr_code.field("box")
 def resolve_qr_code_box(qr_code_obj, info):
+    authorize(permission="stock:read")
     return Box.get(Box.qr_code == qr_code_obj.id)
 
 

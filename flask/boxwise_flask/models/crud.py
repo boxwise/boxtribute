@@ -9,7 +9,7 @@ from ..db import db
 from ..exceptions import RequestedResourceNotFound
 from .beneficiary import Beneficiary
 from .box import Box
-from .qr_code import QRCode
+from .qr_code import QrCode
 from .x_beneficiary_language import XBeneficiaryLanguage
 
 
@@ -19,7 +19,7 @@ def create_box(data):
     """
     now = datetime.utcnow()
     qr_code = data.pop("qr_code", None)
-    qr_id = QRCode.get_id_from_code(qr_code) if qr_code is not None else None
+    qr_id = QrCode.get_id_from_code(qr_code) if qr_code is not None else None
 
     new_box = Box.create(
         box_label_identifier=str(uuid.uuid4())[: Box.box_label_identifier.max_length],
@@ -143,7 +143,7 @@ def create_qr_code(data):
 
     try:
         with db.database.atomic():
-            new_qr_code = QRCode.create(created_on=datetime.utcnow(), **data)
+            new_qr_code = QrCode.create(created_on=datetime.utcnow(), **data)
             new_qr_code.code = hashlib.md5(str(new_qr_code.id).encode()).hexdigest()
             new_qr_code.save()
 

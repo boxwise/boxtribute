@@ -1,10 +1,6 @@
 import pytest
 
 
-def get_base_from_graphql(id, base_query):
-    return [x for x in base_query if int(x["id"]) == id][0]
-
-
 @pytest.mark.usefixtures("default_bases")
 def test_all_bases(client, default_bases):
     graph_ql_query_string = """query {
@@ -51,16 +47,3 @@ def test_base(client, default_bases):
     assert int(created_base["id"]) == expected_base["id"]
     assert created_base["name"] == expected_base["name"]
     assert created_base["currencyName"] == expected_base["currency_name"]
-
-
-def test_unauthorized_base(client):
-    graph_ql_query_string = """query Base {
-                base(id: 0) {
-                    id
-                }
-            }"""
-    data = {"query": graph_ql_query_string}
-    response = client.post("/graphql", json=data)
-    assert response.status_code == 200
-    assert len(response.json["errors"]) == 1
-    assert response.json["errors"][0]["extensions"]["code"] == "FORBIDDEN"
