@@ -65,7 +65,7 @@ def test_code_does_not_exist(client):
     response_data = client.post("/graphql", json=data)
     queried_code = response_data.json["data"]["qrCode"]
     assert (
-        "<Model: QRCode> instance matching query does not exist"
+        "<Model: QrCode> instance matching query does not exist"
         in response_data.json["errors"][0]["message"]
     )
     assert queried_code is None

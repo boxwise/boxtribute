@@ -30,7 +30,7 @@ from ..models.location import Location
 from ..models.organisation import Organisation
 from ..models.product import Product
 from ..models.product_category import ProductCategory
-from ..models.qr_code import QRCode
+from ..models.qr_code import QrCode
 from ..models.size import Size
 from ..models.transaction import Transaction
 from ..models.user import User
@@ -110,8 +110,8 @@ def resolve_user(_, info, id):
 def resolve_qr_exists(_, info, qr_code):
     authorize(permission="qr:read")
     try:
-        QRCode.get_id_from_code(qr_code)
-    except QRCode.DoesNotExist:
+        QrCode.get_id_from_code(qr_code)
+    except QrCode.DoesNotExist:
         return False
     return True
 
@@ -120,7 +120,7 @@ def resolve_qr_exists(_, info, qr_code):
 @convert_kwargs_to_snake_case
 def resolve_qr_code(_, info, qr_code):
     authorize(permission="qr:read")
-    return QRCode.get(QRCode.code == qr_code)
+    return QrCode.get(QrCode.code == qr_code)
 
 
 @query.field("product")
