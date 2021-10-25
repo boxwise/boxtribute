@@ -53,36 +53,6 @@ def test_base(client, default_bases):
     assert created_base["currencyName"] == expected_base["currency_name"]
 
 
-def test_unauthorized_base(client):
-    graph_ql_query_string = """query Base {
-                base(id: 0) {
-                    id
-                }
-            }"""
-    data = {"query": graph_ql_query_string}
-    response = client.post("/graphql", json=data)
-    assert response.status_code == 200
-    assert len(response.json["errors"]) == 1
-    assert response.json["errors"][0]["extensions"]["code"] == "FORBIDDEN"
-
-
-def test_invalid_permission(unauthorized_client):
-    # verify missing base:read permission
-    data = {"query": "query { bases { id } }"}
-    response = unauthorized_client.post("/graphql", json=data)
-    assert response.status_code == 200
-    assert response.json["data"] is None
-    assert len(response.json["errors"]) == 1
-    assert response.json["errors"][0]["extensions"]["code"] == "FORBIDDEN"
-
-    data = {"query": "query { base(id: 1) { id } }"}
-    response = unauthorized_client.post("/graphql", json=data)
-    assert response.status_code == 200
-    assert response.json["data"]["base"] is None
-    assert len(response.json["errors"]) == 1
-    assert response.json["errors"][0]["extensions"]["code"] == "FORBIDDEN"
-
-
 def test_invalid_permission_for_organisation_bases(
     unauthorized_client, default_organisation
 ):

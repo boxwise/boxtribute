@@ -38,53 +38,6 @@ def test_get_box_from_code(client, default_box, default_qr_code):
     assert queried_box["boxLabelIdentifier"] == default_box["box_label_identifier"]
 
 
-def test_invalid_permission(unauthorized_client):
-    # verify missing stock:read permission
-    data = {"query": """query { box(boxLabelIdentifier: "c0ffee") { id } }"""}
-    response = unauthorized_client.post("/graphql", json=data)
-    assert response.status_code == 200
-    assert response.json["data"]["box"] is None
-    assert len(response.json["errors"]) == 1
-    assert response.json["errors"][0]["extensions"]["code"] == "FORBIDDEN"
-
-    # verify missing stock:write permission
-    data = {
-        "query": """mutation {
-            createBox(
-                boxCreationInput : {
-                    productId: 1,
-                    items: 9999,
-                    locationId: 1,
-                    comment: ""
-                }) {
-                id
-            }
-        }"""
-    }
-    response = unauthorized_client.post("/graphql", json=data)
-    assert response.status_code == 200
-    assert response.json["data"]["createBox"] is None
-    assert len(response.json["errors"]) == 1
-    assert response.json["errors"][0]["extensions"]["code"] == "FORBIDDEN"
-
-    data = {
-        "query": """mutation {
-            updateBox(
-                boxUpdateInput : {
-                    boxLabelIdentifier: "f00b45",
-                    comment: "let's try"
-                }) {
-                id
-            }
-        }"""
-    }
-    response = unauthorized_client.post("/graphql", json=data)
-    assert response.status_code == 200
-    assert response.json["data"]["updateBox"] is None
-    assert len(response.json["errors"]) == 1
-    assert response.json["errors"][0]["extensions"]["code"] == "FORBIDDEN"
-
-
 def test_invalid_permission_for_location_boxes(client, mocker):
     # verify missing stock:read permission
     mocker.patch("jose.jwt.decode").return_value = create_jwt_payload(

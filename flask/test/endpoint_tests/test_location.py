@@ -42,20 +42,3 @@ def test_accessing_location_of_unauthorized_base(client, another_location):
     assert response.status_code == 200
     assert len(response.json["errors"]) == 1
     assert response.json["errors"][0]["extensions"]["code"] == "FORBIDDEN"
-
-
-def test_invalid_permission(unauthorized_client):
-    # verify missing location:read permission
-    data = {"query": "query { locations { id } }"}
-    response = unauthorized_client.post("/graphql", json=data)
-    assert response.status_code == 200
-    assert response.json["data"] is None
-    assert len(response.json["errors"]) == 1
-    assert response.json["errors"][0]["extensions"]["code"] == "FORBIDDEN"
-
-    data = {"query": "query { location(id: 3) { id } }"}
-    response = unauthorized_client.post("/graphql", json=data)
-    assert response.status_code == 200
-    assert response.json["data"]["location"] is None
-    assert len(response.json["errors"]) == 1
-    assert response.json["errors"][0]["extensions"]["code"] == "FORBIDDEN"
