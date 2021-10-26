@@ -1,36 +1,46 @@
 """Create-Retrieve-Update-Delete operations on database models."""
 import hashlib
-import uuid
+import random
 from datetime import datetime
 
 import peewee
 
 from ..db import db
-from ..exceptions import RequestedResourceNotFound
+from ..exceptions import BoxCreationFailed, RequestedResourceNotFound
 from .beneficiary import Beneficiary
 from .box import Box
 from .qr_code import QrCode
 from .x_beneficiary_language import XBeneficiaryLanguage
 
+BOX_LABEL_IDENTIFIER_GENERATION_ATTEMPTS = 10
+
 
 def create_box(data):
     """Insert information for a new Box in the database. Use current datetime
-    and box state "InStock" by default. Generate a UUID to identify the box.
+    and box state "InStock" by default. Generate an 8-digit sequence to identify the
+    box. If the sequence is not unique, repeat the generation several times. If
+    generation still fails, raise a BoxCreationFailed exception.
     """
     now = datetime.utcnow()
     qr_code = data.pop("qr_code", None)
     qr_id = QrCode.get_id_from_code(qr_code) if qr_code is not None else None
 
-    new_box = Box.create(
-        box_label_identifier=str(uuid.uuid4())[: Box.box_label_identifier.max_length],
-        qr_code=qr_id,
-        created_on=now,
-        last_modified_on=now,
-        last_modified_by=data["created_by"],
-        box_state=1,
-        **data,
-    )
-    return new_box
+    for i in range(BOX_LABEL_IDENTIFIER_GENERATION_ATTEMPTS):
+        try:
+            new_box = Box.create(
+                box_label_identifier="".join(random.choices("0123456789", k=8)),
+                qr_code=qr_id,
+                created_on=now,
+                last_modified_on=now,
+                last_modified_by=data["created_by"],
+                box_state=1,
+                **data,
+            )
+            return new_box
+        except peewee.IntegrityError as e:
+            if "UNIQUE constraint failed" not in str(e):
+                raise
+    raise BoxCreationFailed()
 
 
 def update_box(data):

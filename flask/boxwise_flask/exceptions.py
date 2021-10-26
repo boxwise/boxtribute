@@ -19,6 +19,13 @@ class UnknownResource(Exception):
     }
 
 
+class BoxCreationFailed(Exception):
+    extensions = {
+        "code": "INTERNAL_SERVER_ERROR",
+        "description": "The box could not be added to the database.",
+    }
+
+
 class Forbidden(Exception):
     def __init__(self, resource, value, user, *args, **kwargs):
         self.extensions = {
