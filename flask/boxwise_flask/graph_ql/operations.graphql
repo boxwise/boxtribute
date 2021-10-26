@@ -1,0 +1,27 @@
+type Query {
+  bases: [Base!]!
+  base(id: ID!): Base
+  organisation(id: ID!): Organisation
+  organisations: [Organisation!]!
+  user(id: ID): User
+  users: [User!]!
+  box(boxLabelIdentifier: String!): Box
+  qrCode(qrCode: String!): QrCode
+  qrExists(qrCode: String): Boolean
+  location(id: ID!): Location
+  locations: [Location!]!
+  product(id: ID!): Product
+  products: [Product!]!
+  productCategory(id: ID!): ProductCategory
+  productCategories: [ProductCategory!]!
+  beneficiary(id: ID!): Beneficiary
+  beneficiaries: [Beneficiary!]!
+}
+
+type Mutation {
+  createQrCode(boxLabelIdentifier: String): QrCode
+  createBox(boxCreationInput: CreateBoxInput): Box
+  updateBox(boxUpdateInput: UpdateBoxInput): Box
+  createBeneficiary(beneficiaryCreationInput: CreateBeneficiaryInput): Beneficiary
+  updateBeneficiary(beneficiaryUpdateInput: UpdateBeneficiaryInput): Beneficiary
+}
