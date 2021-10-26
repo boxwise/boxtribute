@@ -9,7 +9,7 @@ from flask import Blueprint, jsonify, request
 
 from .auth import requires_auth
 from .exceptions import AuthenticationFailed
-from .graph_ql.resolvers import schema
+from .graph_ql.schema import schema
 
 # Blueprint for API
 api_bp = Blueprint(

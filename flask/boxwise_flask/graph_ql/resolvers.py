@@ -1,16 +1,5 @@
 """GraphQL resolver functionality"""
-from datetime import datetime
-
-from ariadne import (
-    EnumType,
-    MutationType,
-    ObjectType,
-    ScalarType,
-    convert_kwargs_to_snake_case,
-    gql,
-    make_executable_schema,
-    snake_case_fallback_resolvers,
-)
+from ariadne import MutationType, ObjectType, QueryType, convert_kwargs_to_snake_case
 from peewee import fn
 
 from flask import g
@@ -35,13 +24,11 @@ from ..models.size import Size
 from ..models.transaction import Transaction
 from ..models.user import User
 from ..models.x_beneficiary_language import XBeneficiaryLanguage
-from .mutation_defs import mutation_defs
-from .query_defs import query_defs
-from .type_defs import type_defs
 
-query = ObjectType("Query")
-beneficiary = ObjectType("Beneficiary")
+query = QueryType()
+mutation = MutationType()
 base = ObjectType("Base")
+beneficiary = ObjectType("Beneficiary")
 box = ObjectType("Box")
 location = ObjectType("Location")
 organisation = ObjectType("Organisation")
@@ -49,25 +36,6 @@ product = ObjectType("Product")
 product_category = ObjectType("ProductCategory")
 qr_code = ObjectType("QrCode")
 user = ObjectType("User")
-mutation = MutationType()
-
-datetime_scalar = ScalarType("Datetime")
-date_scalar = ScalarType("Date")
-
-
-@datetime_scalar.serializer
-def serialize_datetime(value):
-    return value.isoformat()
-
-
-@date_scalar.serializer
-def serialize_date(value):
-    return value.isoformat()
-
-
-@date_scalar.value_parser
-def parse_date(value):
-    return datetime.strptime(value, "%Y-%m-%d").date()
 
 
 @user.field("bases")
@@ -323,63 +291,3 @@ def resolve_qr_code_box(qr_code_obj, info):
 @user.field("organisation")
 def resolve_user_organisation(obj, info):
     return Organisation.get_by_id(g.user["organisation_id"])
-
-
-# Translate GraphQL enum into id field of database table
-product_gender_type_def = EnumType(
-    "ProductGender",
-    {
-        "Women": 1,
-        "UnisexAdult": 3,
-    },
-)
-box_state_type_def = EnumType(
-    "BoxState",
-    {
-        "InStock": 1,
-    },
-)
-gender_type_def = EnumType(
-    "HumanGender",
-    {
-        "Male": "M",
-        "Female": "F",
-        "Diverse": "D",
-    },
-)
-language_type_def = EnumType(
-    "Language",
-    {
-        "nl": 1,
-        "en": 2,
-        "fr": 3,
-        "de": 4,
-        "ar": 5,
-        "ckb": 6,
-    },
-)
-
-
-schema = make_executable_schema(
-    gql(type_defs + query_defs + mutation_defs),
-    [
-        query,
-        mutation,
-        date_scalar,
-        datetime_scalar,
-        beneficiary,
-        base,
-        box,
-        location,
-        organisation,
-        product,
-        product_category,
-        qr_code,
-        user,
-        product_gender_type_def,
-        box_state_type_def,
-        gender_type_def,
-        language_type_def,
-    ],
-    snake_case_fallback_resolvers,
-)
