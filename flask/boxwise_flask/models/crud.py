@@ -38,6 +38,8 @@ def create_box(data):
             )
             return new_box
         except peewee.IntegrityError as e:
+            # peewee throws the same exception for different constraint violations.
+            # E.g. failing "NOT NULL" constraint shall be directly reported
             if "UNIQUE constraint failed" not in str(e):
                 raise
     raise BoxCreationFailed()

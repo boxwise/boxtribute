@@ -1,3 +1,4 @@
+import peewee
 import pytest
 from boxwise_flask.exceptions import BoxCreationFailed, RequestedResourceNotFound
 from boxwise_flask.models.crud import (
@@ -16,6 +17,11 @@ def test_create_qr_code_for_nonexisting_box():
 
     # The nr of rows in the QrCode table should be unchanged
     assert nr_qr_codes == len(QrCode.select())
+
+
+def test_create_box_with_insufficient_data():
+    with pytest.raises(peewee.IntegrityError, match="NOT NULL constraint failed"):
+        create_box({"created_by": 1})
 
 
 def test_box_label_identifier_generation(
