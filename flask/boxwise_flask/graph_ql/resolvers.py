@@ -176,7 +176,7 @@ def resolve_products(_, info):
 
 
 @query.field("beneficiaries")
-def resolve_beneficiaries(_, info, cursor=None):
+def resolve_beneficiaries(_, info, cursor=None, limit=50):
     authorize(permission="beneficiary:read")
     condition = decode_cursor(Beneficiary, cursor)
     return (
@@ -184,6 +184,7 @@ def resolve_beneficiaries(_, info, cursor=None):
         .join(Base)
         .where((Base.id.in_(g.user["base_ids"])) & (condition))
         .order_by(Beneficiary.id)
+        .limit(limit)
     )
 
 
@@ -270,13 +271,14 @@ def resolve_update_beneficiary(_, info, beneficiary_update_input):
 
 
 @base.field("beneficiaries")
-def resolve_base_beneficiaries(base_obj, info, cursor=None):
+def resolve_base_beneficiaries(base_obj, info, cursor=None, limit=50):
     authorize(permission="beneficiary:read")
     condition = decode_cursor(Beneficiary, cursor)
     return (
         Beneficiary.select()
         .where((Beneficiary.base == base_obj.id) & (condition))
         .order_by(Beneficiary.id)
+        .limit(limit)
     )
 
 

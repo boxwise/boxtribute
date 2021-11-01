@@ -23,6 +23,12 @@ def default_beneficiary_data():
     }
 
 
+def another_beneficiary_data():
+    data = default_beneficiary_data().copy()
+    data["id"] = 4
+    return data
+
+
 @pytest.fixture()
 def default_beneficiary():
     return default_beneficiary_data()
@@ -30,3 +36,4 @@ def default_beneficiary():
 
 def create_default_beneficiary():
     Beneficiary.create(**default_beneficiary_data())
+    Beneficiary.create(**another_beneficiary_data())

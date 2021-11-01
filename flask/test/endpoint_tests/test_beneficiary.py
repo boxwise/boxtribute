@@ -150,4 +150,4 @@ def test_query_beneficiaries(client):
         response = client.post("/graphql", json=data)
         queried_beneficiaries = response.json["data"]["beneficiaries"]
         assert response.status_code == 200
-        assert len(queried_beneficiaries) == 1
+        assert len(queried_beneficiaries) == 2
