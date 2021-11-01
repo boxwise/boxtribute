@@ -140,9 +140,13 @@ def test_beneficiary(client):
 
 
 def test_query_beneficiaries(client):
-    query = "query { beneficiaries { id } }"
-    data = {"query": query}
-    response = client.post("/graphql", json=data)
-    queried_beneficiaries = response.json["data"]["beneficiaries"]
-    assert response.status_code == 200
-    assert len(queried_beneficiaries) == 1
+    queries = [
+        "query { beneficiaries { id } }",
+        """query { beneficiaries(cursor: "family_id") { id } }""",
+    ]
+    for query in queries:
+        data = {"query": query}
+        response = client.post("/graphql", json=data)
+        queried_beneficiaries = response.json["data"]["beneficiaries"]
+        assert response.status_code == 200
+        assert len(queried_beneficiaries) == 1

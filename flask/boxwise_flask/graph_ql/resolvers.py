@@ -38,6 +38,16 @@ qr_code = ObjectType("QrCode")
 user = ObjectType("User")
 
 
+def decode_cursor(model, cursor):
+    """Decode given cursor string into a condition that can be plugged into a
+    ModelSelect.where() clause for the given model.
+    For now, this expects the name of an existing model field (default: 'id') as cursor.
+    """
+    offset = 0
+    field = cursor or "id"
+    return getattr(model, field) > offset
+
+
 @user.field("bases")
 @query.field("bases")
 def resolve_bases(_, info):
@@ -159,9 +169,15 @@ def resolve_products(_, info):
 
 
 @query.field("beneficiaries")
-def resolve_beneficiaries(_, info):
+def resolve_beneficiaries(_, info, cursor=None):
     authorize(permission="beneficiary:read")
-    return Beneficiary.select().join(Base).where(Base.id.in_(g.user["base_ids"]))
+    condition = decode_cursor(Beneficiary, cursor)
+    return (
+        Beneficiary.select()
+        .join(Base)
+        .where((Base.id.in_(g.user["base_ids"])) & (condition))
+        .order_by(Beneficiary.id)
+    )
 
 
 @beneficiary.field("tokens")
@@ -247,9 +263,14 @@ def resolve_update_beneficiary(_, info, beneficiary_update_input):
 
 
 @base.field("beneficiaries")
-def resolve_base_beneficiaries(base_obj, info):
+def resolve_base_beneficiaries(base_obj, info, cursor=None):
     authorize(permission="beneficiary:read")
-    return Beneficiary.select().where(Beneficiary.base == base_obj.id)
+    condition = decode_cursor(Beneficiary, cursor)
+    return (
+        Beneficiary.select()
+        .where((Beneficiary.base == base_obj.id) & (condition))
+        .order_by(Beneficiary.id)
+    )
 
 
 @location.field("boxes")
