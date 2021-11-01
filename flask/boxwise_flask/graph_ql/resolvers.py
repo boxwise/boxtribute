@@ -42,9 +42,16 @@ def decode_cursor(model, cursor):
     """Decode given cursor string into a condition that can be plugged into a
     ModelSelect.where() clause for the given model.
     For now, this expects the name of an existing model field (default: 'id') as cursor.
+    Optionally, an integer offset can be specified after a colon.
     """
     offset = 0
-    field = cursor or "id"
+    if cursor is None:
+        field = "id"
+    else:
+        try:
+            field, offset = cursor.split(":")
+        except ValueError:
+            field = cursor
     return getattr(model, field) > offset
 
 
