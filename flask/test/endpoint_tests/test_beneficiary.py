@@ -142,8 +142,7 @@ def test_beneficiary(client):
 def test_query_beneficiaries(client):
     queries = [
         "query { beneficiaries { id } }",
-        """query { beneficiaries(cursor: "family_id") { id } }""",
-        """query { beneficiaries(cursor: "id:2") { id } }""",
+        """query { beneficiaries(cursor: "2") { id } }""",
     ]
     for query in queries:
         data = {"query": query}

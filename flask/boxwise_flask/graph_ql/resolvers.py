@@ -41,18 +41,10 @@ user = ObjectType("User")
 def decode_cursor(model, cursor):
     """Decode given cursor string into a condition that can be plugged into a
     ModelSelect.where() clause for the given model.
-    For now, this expects the name of an existing model field (default: 'id') as cursor.
-    Optionally, an integer offset can be specified after a colon.
+    The cursor serves as a start value for the query (default: 1).
     """
-    offset = 0
-    if cursor is None:
-        field = "id"
-    else:
-        try:
-            field, offset = cursor.split(":")
-        except ValueError:
-            field = cursor
-    return getattr(model, field) > offset
+    start_value = cursor or 1
+    return model.id >= start_value
 
 
 @user.field("bases")
