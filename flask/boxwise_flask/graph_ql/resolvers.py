@@ -40,6 +40,16 @@ qr_code = ObjectType("QrCode")
 user = ObjectType("User")
 
 
+def pagination_parameters(pagination_input):
+    """Retrieve cursor and limit (default: None and 50, resp.) from the given pagination
+    input dictionary.
+    """
+    limit = 50
+    if pagination_input is None:
+        return None, limit
+    return pagination_input.get("cursor"), pagination_input.get("limit", limit)
+
+
 def decode_cursor(model, cursor):
     """Decode given cursor (a base64-encoded string) into a condition that can be
     plugged into a ModelSelect.where() clause for the given model.
@@ -170,8 +180,10 @@ def resolve_products(_, info):
 
 
 @query.field("beneficiaries")
-def resolve_beneficiaries(_, info, cursor=None, limit=50):
+@convert_kwargs_to_snake_case
+def resolve_beneficiaries(_, info, pagination_input=None):
     authorize(permission="beneficiary:read")
+    cursor, limit = pagination_parameters(pagination_input)
     condition = decode_cursor(Beneficiary, cursor)
     return (
         Beneficiary.select()
@@ -265,8 +277,10 @@ def resolve_update_beneficiary(_, info, beneficiary_update_input):
 
 
 @base.field("beneficiaries")
-def resolve_base_beneficiaries(base_obj, info, cursor=None, limit=50):
+@convert_kwargs_to_snake_case
+def resolve_base_beneficiaries(base_obj, info, pagination_input=None):
     authorize(permission="beneficiary:read")
+    cursor, limit = pagination_parameters(pagination_input)
     condition = decode_cursor(Beneficiary, cursor)
     return (
         Beneficiary.select()

@@ -100,7 +100,7 @@ type Base {
   name: String!
   organisation: Organisation!
   locations: [Location!]
-  beneficiaries(cursor: String): [Beneficiary!]
+  beneficiaries(paginationInput: PaginationInput): [Beneficiary!]
   currencyName: String
 }
 
@@ -194,6 +194,11 @@ input UpdateBeneficiaryInput {
   isRegistered: Boolean
   signature: String
   dateOfSignature: Date
+}
+
+input PaginationInput {
+  cursor: String
+  limit: Int
 }
 
 enum HumanGender {
