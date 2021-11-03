@@ -261,6 +261,14 @@ The back-end exposes the GraphQL API at the `/graphql` endpoint. You can experim
         }
     }
 
+## Production environment
+
+In production, the web app is run by the WSGI server `gunicorn` which serves as a glue between the web app and the web server (e.g. Apache). `gunicorn` allows for more flexible configuration of request handling (see `flask/gunicorn.conf.py` file).
+
+Launch the production server by
+
+    FLASK_ENV=production docker-compose up --build flask
+
 ## Authentication and Authorization
 
 We use the [Auth0](https://auth0.com) web service to provide the app client with user authentication and authorization data (for short, auth and authz, resp.).

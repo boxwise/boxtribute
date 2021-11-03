@@ -1,11 +1,28 @@
+ARG flask_env
+
 # using alpine for smallest docker image
-FROM python:3.8-alpine
+FROM python:3.8-alpine AS base
+
 WORKDIR /app/flask
 # install packages seperately to use docker build-caching
 # so we don't need to re-fetch these if code has changed
 # but our package.json hasn't
 COPY requirements.txt /app/flask
 RUN pip install -r requirements.txt && rm requirements.txt
+
+# Build two stages for the conditions production/development
+# cf. https://stackoverflow.com/a/60820156/3865876
+FROM base AS production
+# Launch WSGI server, configured by gunicorn.conf.py
+ENV FLASK_ENV production
+CMD gunicorn
+
+FROM base AS development
 # Path of module containing flask app, relative to WORKDIR
 ENV FLASK_APP boxwise_flask/main
+ENV FLASK_ENV development
 CMD flask run -h 0.0.0 -p 5000
+
+# Select final stage depending on flask_env argument
+FROM ${flask_env} AS final
+RUN echo Using $FLASK_ENV
