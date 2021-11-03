@@ -72,7 +72,7 @@ Install the dependencies of the app in the activated virtual environment
 
     pip install -U -r flask/requirements.txt
 
-For the integration tests authentication information is fetched from the [Auth0](https://auth0.com) website. Log in and select `Applications` -> `Applications` from the side bar menu. Select `boxtribute-dev-api`. Copy the `Client ID` and `Client Secret` into the `.env` file as the `AUTH0_CLIENT_TEST_ID` and `AUTH0_CLIENT_SECRET_TEST` variables, resp.
+For the integration tests authentication information is fetched from the [Auth0](https://auth0.com) website. Log in and select `Applications` -> `Applications` from the side bar menu. Select `boxtribute-dev-api`. Copy the `Client Secret` into the `.env` file as the `AUTH0_CLIENT_SECRET_TEST` variables.
 
 We're subject to a rate limit for tokens from Auth0. In order to avoid fetching tokens over and over again for every test run, do the following once before you start your development session:
 
@@ -102,7 +102,7 @@ To access the mysql database, there are now three possibilities:
 
 To figure out the gateway of the docker network `backend` run
 
-        docker network inspect -f '{{range .IPAM.Config}}{{.Gateway}}{{end}}' boxtribute_backend
+    docker network inspect -f '{{range .IPAM.Config}}{{.Gateway}}{{end}}' boxtribute_backend
 
 #### MySQL workbench or other editors
 
@@ -152,14 +152,12 @@ If you want to break on any other code lines (not endpoints), then you can only 
 
 #### Usage of Logger
 
-To log to the console from inside the docker container, create an instance of app using:
+To log to the console while running the `flask` service, do
 
-    from flask import Flask
-    app = Flask(__name__)
+    from flask import current_app
+    current_app.logger.warn(<whatever you want to log>)
 
-and log with:
-
-    app.logger.warn(<whatever you want to log>)
+Note that in production mode, logging is also subject to the configuration of the WSGI server.
 
 ## Testing
 
@@ -246,8 +244,7 @@ The back-end exposes the GraphQL API at the `/graphql` endpoint. You can experim
 
 1. Start the required services by `docker-compose up flask mysql`
 1. Open `localhost:5000/graphql`.
-1. Simulate being a valid, logged-in user by fetching an authorization token (internally the variables of the `.env` file are used)
-    ./fetch_token
+1. Simulate being a valid, logged-in user by fetching an authorization token (internally the variables of the `.env` file are used): `./fetch_token`
 1. Copy the content of the `access_token` field (alternatively, you can pipe the above command ` | jq -r .access_token | xclip -i -selection c` to copy it to the system clipboard)
 1.  Insert the access token in the following format on the playground in the section on the bottom left of the playground called HTTP Headers.
 
@@ -255,11 +252,11 @@ The back-end exposes the GraphQL API at the `/graphql` endpoint. You can experim
 
 1. A sample query you can try if it works is:
 
-    query {
-        bases {
-            name
+        query {
+            organisations {
+                name
+            }
         }
-    }
 
 ## Production environment
 
