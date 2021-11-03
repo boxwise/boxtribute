@@ -1,4 +1,6 @@
 """GraphQL resolver functionality"""
+import base64
+
 from ariadne import MutationType, ObjectType, QueryType, convert_kwargs_to_snake_case
 from peewee import fn
 
@@ -39,11 +41,11 @@ user = ObjectType("User")
 
 
 def decode_cursor(model, cursor):
-    """Decode given cursor string into a condition that can be plugged into a
-    ModelSelect.where() clause for the given model.
+    """Decode given cursor (a base64-encoded string) into a condition that can be
+    plugged into a ModelSelect.where() clause for the given model.
     The cursor serves as a start value for the query (default: 1).
     """
-    start_value = cursor or 1
+    start_value = 1 if cursor is None else int(base64.b64decode(cursor))
     return model.id >= start_value
 
 
