@@ -15,7 +15,7 @@ type Query {
   productCategory(id: ID!): ProductCategory
   productCategories: [ProductCategory!]!
   beneficiary(id: ID!): Beneficiary
-  beneficiaries(paginationInput: PaginationInput): [Beneficiary!]!
+  beneficiaries(paginationInput: PaginationInput): BeneficiaryPage!
 }
 
 type Mutation {

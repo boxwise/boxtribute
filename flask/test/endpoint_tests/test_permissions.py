@@ -33,6 +33,8 @@ def test_invalid_read_permissions(unauthorized_client, resource):
         resources = f"{resource[:-1]}ies"
 
     data = {"query": f"""query {{ {resources} {{ id }} }}"""}
+    if resources == "beneficiaries":
+        data = {"query": "query { beneficiaries { elements { id } } }"}
     assert_forbidden_request(data, unauthorized_client)
 
     data = {"query": f"""query {{ {resource}(id: 3) {{ id }} }}"""}

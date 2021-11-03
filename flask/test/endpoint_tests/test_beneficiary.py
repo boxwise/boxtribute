@@ -1,3 +1,6 @@
+import pytest
+
+
 def test_beneficiary(client):
     first_name = "Some"
     last_name = "One"
@@ -139,20 +142,27 @@ def test_beneficiary(client):
     )
 
 
-def test_query_beneficiaries(client):
-    queries = [
-        "query { beneficiaries { id } }",
-        """query {
-            beneficiaries(paginationInput: {cursor: "MDAwMDAwMDI="}) { id }
-        }""",
-        """query { beneficiaries(paginationInput: {limit: 1}) { id } }""",
-        """query {
-            beneficiaries(paginationInput: {cursor: "MDAwMDAwMDQ=", limit: 1}) { id }
-        }""",
-    ]
-    for query, expected_size in zip(queries, [2, 2, 1, 1]):
-        data = {"query": query}
-        response = client.post("/graphql", json=data)
-        queried_beneficiaries = response.json["data"]["beneficiaries"]
-        assert response.status_code == 200
-        assert len(queried_beneficiaries) == expected_size
+@pytest.mark.parametrize(
+    "input,size,has_next_page",
+    (
+        ["", 2, False],
+        ["""(paginationInput: {cursor: "MDAwMDAwMDI="})""", 2, False],
+        ["""(paginationInput: {limit: 1})""", 1, True],
+        ["""(paginationInput: {cursor: "MDAwMDAwMDQ=", limit: 1})""", 1, False],
+    ),
+    ids=["no input", "cursor", "limit", "cursor-limit"],
+)
+def test_query_beneficiaries(client, input, size, has_next_page):
+    query = f"""query {{ beneficiaries{input} {{
+        elements {{ id }}
+        pageInfo {{ hasNextPage }}
+    }} }}"""
+    data = {"query": query}
+    response = client.post("/graphql", json=data)
+    queried_beneficiaries = response.json["data"]["beneficiaries"]["elements"]
+    assert response.status_code == 200
+    assert len(queried_beneficiaries) == size
+    assert (
+        response.json["data"]["beneficiaries"]["pageInfo"]["hasNextPage"]
+        == has_next_page
+    )
