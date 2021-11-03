@@ -145,10 +145,14 @@ def test_query_beneficiaries(client):
         """query {
             beneficiaries(paginationInput: {cursor: "MDAwMDAwMDI="}) { id }
         }""",
+        """query { beneficiaries(paginationInput: {limit: 1}) { id } }""",
+        """query {
+            beneficiaries(paginationInput: {cursor: "MDAwMDAwMDQ=", limit: 1}) { id }
+        }""",
     ]
-    for query in queries:
+    for query, expected_size in zip(queries, [2, 2, 1, 1]):
         data = {"query": query}
         response = client.post("/graphql", json=data)
         queried_beneficiaries = response.json["data"]["beneficiaries"]
         assert response.status_code == 200
-        assert len(queried_beneficiaries) == 2
+        assert len(queried_beneficiaries) == expected_size
