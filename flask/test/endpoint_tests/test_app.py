@@ -88,13 +88,13 @@ def test_get_beneficiaries(mysql_app_client):
     page_info = response.json["data"]["base"]["beneficiaries"]["pageInfo"]
     cursor = page_info["startCursor"]
     assert page_info["hasNextPage"]
-    assert cursor == "MDAwMDAwNTE="  # corresponding to ID 51
+    assert cursor == "MDAwMDAwNTA="  # corresponding to ID 50
 
     data = {
         "query": f"""query getBeneficiariesOfLesvos {{
                 base(id: 1) {{
                     beneficiaries(
-                        paginationInput: {{ cursor: "{cursor}" }}
+                        paginationInput: {{ after: "{cursor}" }}
                     ) {{
                         elements {{
                             id

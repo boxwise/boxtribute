@@ -17,29 +17,29 @@ def pagination_parameters(pagination_input):
     limit = 50
     if pagination_input is None:
         return None, limit
-    return pagination_input.get("cursor"), pagination_input.get("limit", limit)
+    return pagination_input.get("after"), pagination_input.get("first", limit)
 
 
 def decode_cursor(model, cursor):
     """Decode given cursor (a base64-encoded string) into a condition that can be
     plugged into a ModelSelect.where() clause for the given model.
-    The cursor serves as a start value for the query (default: 1).
+    The cursor serves as point to start the query after (default: 0).
     """
-    start_value = 1 if cursor is None else int(base64.b64decode(cursor))
-    return model.id >= start_value
+    start_value = 0 if cursor is None else int(base64.b64decode(cursor))
+    return model.id > start_value
 
 
 def _generate_page_info(*, elements, limit):
     """Generate pagination information from given elements and page limit. The elements
     comprise the current page and possibly the first element of the next page.
-    If the size of the elements exceeds the limits, a next page exists.
-    The cursor for the next page is derived from the ID of the last element: the ID is
-    zero-padded to a byte-string of length 8, and then base64-encoded.
+    If the number of elements exceeds the limit, a next page exists.
+    The cursor for the next page is derived from the ID of the page's last element: the
+    ID is zero-padded to a byte-string of length 8, and then base64-encoded.
     """
     info = PageInfo()
     if len(elements) > limit:
         info.has_next_page = True
-        info.start_cursor = base64.b64encode(f"{elements[-1].id:08}".encode()).decode()
+        info.start_cursor = base64.b64encode(f"{elements[-2].id:08}".encode()).decode()
     return info
 
 

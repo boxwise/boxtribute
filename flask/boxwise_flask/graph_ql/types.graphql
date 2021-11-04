@@ -207,8 +207,10 @@ input UpdateBeneficiaryInput {
 }
 
 input PaginationInput {
-  cursor: String
-  limit: Int
+  # Indicate requesting paginating of the first X elements after cursor
+  # cf. https://relay.dev/graphql/connections.htm#sec-Forward-pagination-arguments
+  after: String
+  first: Int
 }
 
 enum HumanGender {

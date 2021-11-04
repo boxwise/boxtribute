@@ -146,11 +146,11 @@ def test_beneficiary(client):
     "input,size,has_next_page",
     (
         ["", 2, False],
-        ["""(paginationInput: {cursor: "MDAwMDAwMDI="})""", 2, False],
-        ["""(paginationInput: {limit: 1})""", 1, True],
-        ["""(paginationInput: {cursor: "MDAwMDAwMDQ=", limit: 1})""", 1, False],
+        ["""(paginationInput: {after: "MDAwMDAwMDI="})""", 2, False],  # after ID=2
+        ["""(paginationInput: {first: 1})""", 1, True],
+        ["""(paginationInput: {after: "MDAwMDAwMDM=", first: 1})""", 1, False],  # ID=3
     ),
-    ids=["no input", "cursor", "limit", "cursor-limit"],
+    ids=["no input", "after", "first", "after-first"],
 )
 def test_query_beneficiaries(client, input, size, has_next_page):
     query = f"""query {{ beneficiaries{input} {{
