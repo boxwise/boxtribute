@@ -11,22 +11,29 @@ class PageInfo:
 
 
 def pagination_parameters(pagination_input):
-    """Retrieve cursor and limit (default: None and 50, resp.) from the given pagination
-    input dictionary.
+    """Retrieve cursor and limit (default: Cursor() and 50, resp.) from the given
+    pagination input dictionary.
     """
     limit = 50
     if pagination_input is None:
-        return None, limit
-    return pagination_input.get("after"), pagination_input.get("first", limit)
+        return Cursor(), limit
+    return Cursor(pagination_input.get("after")), pagination_input.get("first", limit)
 
 
-def decode_cursor(model, cursor):
-    """Decode given cursor (a base64-encoded string) into a condition that can be
-    plugged into a ModelSelect.where() clause for the given model.
-    The cursor serves as point to start the query after (default: 0).
-    """
-    start_value = 0 if cursor is None else int(base64.b64decode(cursor))
-    return model.id > start_value
+class Cursor:
+    """Representation of pagination cursor, translating from GraphQL to data layer."""
+
+    def __init__(self, value=None):
+        """Decode and store value (a base64-encoded string).
+        The value serves as point to start a select query after (default: 0).
+        """
+        self.value = 0 if value is None else int(base64.b64decode(value))
+
+    def pagination_condition(self, model):
+        """Convert internal value into a condition that can be plugged into a
+        ModelSelect.where() clause for the given model.
+        """
+        return model.id > self.value
 
 
 def _generate_page_info(*, elements, limit):

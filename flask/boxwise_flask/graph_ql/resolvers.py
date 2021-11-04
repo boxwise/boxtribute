@@ -24,7 +24,7 @@ from ..models.size import Size
 from ..models.transaction import Transaction
 from ..models.user import User
 from ..models.x_beneficiary_language import XBeneficiaryLanguage
-from .pagination import decode_cursor, generate_page, pagination_parameters
+from .pagination import generate_page, pagination_parameters
 
 query = QueryType()
 mutation = MutationType()
@@ -164,7 +164,7 @@ def resolve_products(_, info):
 def resolve_beneficiaries(_, info, pagination_input=None):
     authorize(permission="beneficiary:read")
     cursor, limit = pagination_parameters(pagination_input)
-    pagination_condition = decode_cursor(Beneficiary, cursor)
+    pagination_condition = cursor.pagination_condition(Beneficiary)
     beneficiaries = (
         Beneficiary.select()
         .join(Base)
@@ -262,7 +262,7 @@ def resolve_update_beneficiary(_, info, beneficiary_update_input):
 def resolve_base_beneficiaries(base_obj, info, pagination_input=None):
     authorize(permission="beneficiary:read")
     cursor, limit = pagination_parameters(pagination_input)
-    pagination_condition = decode_cursor(Beneficiary, cursor)
+    pagination_condition = cursor.pagination_condition(Beneficiary)
     beneficiaries = (
         Beneficiary.select()
         .where((Beneficiary.base == base_obj.id) & (pagination_condition))
