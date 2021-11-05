@@ -28,13 +28,16 @@ def test_all_bases(client, default_bases):
 
 
 @pytest.mark.usefixtures("default_bases")
-def test_base(client, default_bases):
+def test_base(client, default_bases, default_location):
     test_id = 1
     graph_ql_query_string = f"""query Base {{
                 base(id: {test_id}) {{
                     id
                     name
                     currencyName
+                    locations {{
+                        id
+                    }}
                 }}
             }}"""
 
@@ -47,3 +50,7 @@ def test_base(client, default_bases):
     assert int(created_base["id"]) == expected_base["id"]
     assert created_base["name"] == expected_base["name"]
     assert created_base["currencyName"] == expected_base["currency_name"]
+
+    locations = created_base["locations"]
+    assert len(locations) == 1
+    assert int(locations[0]["id"]) == default_location["id"]

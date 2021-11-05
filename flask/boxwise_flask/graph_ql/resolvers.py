@@ -257,6 +257,12 @@ def resolve_update_beneficiary(_, info, beneficiary_update_input):
     return update_beneficiary(beneficiary_update_input)
 
 
+@base.field("locations")
+def resolve_base_locations(base_obj, info):
+    authorize(permission="location:read")
+    return Location.select().where(Location.base == base_obj.id)
+
+
 @base.field("beneficiaries")
 @convert_kwargs_to_snake_case
 def resolve_base_beneficiaries(base_obj, info, pagination_input=None):
