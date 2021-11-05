@@ -24,6 +24,7 @@ from ..models.size import Size
 from ..models.transaction import Transaction
 from ..models.user import User
 from ..models.x_beneficiary_language import XBeneficiaryLanguage
+from .pagination import generate_page, pagination_parameters
 
 query = QueryType()
 mutation = MutationType()
@@ -159,9 +160,19 @@ def resolve_products(_, info):
 
 
 @query.field("beneficiaries")
-def resolve_beneficiaries(_, info):
+@convert_kwargs_to_snake_case
+def resolve_beneficiaries(_, info, pagination_input=None):
     authorize(permission="beneficiary:read")
-    return Beneficiary.select().join(Base).where(Base.id.in_(g.user["base_ids"]))
+    cursor, limit = pagination_parameters(pagination_input)
+    pagination_condition = cursor.pagination_condition(Beneficiary)
+    beneficiaries = (
+        Beneficiary.select()
+        .join(Base)
+        .where((Base.id.in_(g.user["base_ids"])) & (pagination_condition))
+        .order_by(Beneficiary.id)
+        .limit(limit + 1)
+    )
+    return generate_page(elements=beneficiaries, limit=limit)
 
 
 @beneficiary.field("tokens")
@@ -247,9 +258,18 @@ def resolve_update_beneficiary(_, info, beneficiary_update_input):
 
 
 @base.field("beneficiaries")
-def resolve_base_beneficiaries(base_obj, info):
+@convert_kwargs_to_snake_case
+def resolve_base_beneficiaries(base_obj, info, pagination_input=None):
     authorize(permission="beneficiary:read")
-    return Beneficiary.select().where(Beneficiary.base == base_obj.id)
+    cursor, limit = pagination_parameters(pagination_input)
+    pagination_condition = cursor.pagination_condition(Beneficiary)
+    beneficiaries = (
+        Beneficiary.select()
+        .where((Beneficiary.base == base_obj.id) & (pagination_condition))
+        .order_by(Beneficiary.id)
+        .limit(limit + 1)
+    )
+    return generate_page(elements=beneficiaries, limit=limit)
 
 
 @location.field("boxes")

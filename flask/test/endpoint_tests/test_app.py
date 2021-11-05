@@ -67,17 +67,53 @@ def test_get_beneficiaries(mysql_app_client):
         "query": """query getBeneficiariesOfLesvos {
                 base(id: 1) {
                     beneficiaries {
-                        id
-                        tokens
+                        elements {
+                            id
+                            tokens
+                        }
+                        pageInfo {
+                            hasNextPage
+                            startCursor
+                        }
                     }
                 }
             }"""
     }
     response = mysql_app_client.post("/graphql", json=data)
-    queried_beneficiaries = response.json["data"]["base"]["beneficiaries"]
+    queried_beneficiaries = response.json["data"]["base"]["beneficiaries"]["elements"]
     assert response.status_code == 200
-    assert len(queried_beneficiaries) == 1006
+    assert len(queried_beneficiaries) == 50
     assert queried_beneficiaries[0]["tokens"] == 13
+
+    page_info = response.json["data"]["base"]["beneficiaries"]["pageInfo"]
+    cursor = page_info["startCursor"]
+    assert page_info["hasNextPage"]
+    assert cursor == "MDAwMDAwNTA="  # corresponding to ID 50
+
+    data = {
+        "query": f"""query getBeneficiariesOfLesvos {{
+                base(id: 1) {{
+                    beneficiaries(
+                        paginationInput: {{ after: "{cursor}" }}
+                    ) {{
+                        elements {{
+                            id
+                        }}
+                        pageInfo {{
+                            hasNextPage
+                            startCursor
+                        }}
+                    }}
+                }}
+                }}"""
+    }
+    response = mysql_app_client.post("/graphql", json=data)
+    queried_beneficiaries = response.json["data"]["base"]["beneficiaries"]["elements"]
+    assert response.status_code == 200
+    assert len(queried_beneficiaries) == 50
+    page_info = response.json["data"]["base"]["beneficiaries"]["pageInfo"]
+    assert page_info["hasNextPage"]
+    assert page_info["startCursor"] != cursor
 
 
 def test_base_specific_permissions(client, mocker):
