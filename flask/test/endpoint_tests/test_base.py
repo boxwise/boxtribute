@@ -3,7 +3,7 @@ import pytest
 
 @pytest.mark.usefixtures("default_bases")
 def test_all_bases(client, default_bases):
-    graph_ql_query_string = """query {
+    query = """query {
                 bases {
                     id
                     name
@@ -11,7 +11,7 @@ def test_all_bases(client, default_bases):
                 }
             }"""
 
-    data = {"query": graph_ql_query_string}
+    data = {"query": query}
     response_data = client.post("/graphql", json=data)
 
     assert response_data.status_code == 200
@@ -30,7 +30,7 @@ def test_all_bases(client, default_bases):
 @pytest.mark.usefixtures("default_bases")
 def test_base(client, default_bases, default_location):
     test_id = 1
-    graph_ql_query_string = f"""query Base {{
+    query = f"""query Base {{
                 base(id: {test_id}) {{
                     id
                     name
@@ -41,16 +41,16 @@ def test_base(client, default_bases, default_location):
                 }}
             }}"""
 
-    data = {"query": graph_ql_query_string}
+    data = {"query": query}
     response_data = client.post("/graphql", json=data)
     assert response_data.status_code == 200
 
     expected_base = default_bases[test_id]
-    created_base = response_data.json["data"]["base"]
-    assert int(created_base["id"]) == expected_base["id"]
-    assert created_base["name"] == expected_base["name"]
-    assert created_base["currencyName"] == expected_base["currency_name"]
+    base = response_data.json["data"]["base"]
+    assert int(base["id"]) == expected_base["id"]
+    assert base["name"] == expected_base["name"]
+    assert base["currencyName"] == expected_base["currency_name"]
 
-    locations = created_base["locations"]
+    locations = base["locations"]
     assert len(locations) == 1
     assert int(locations[0]["id"]) == default_location["id"]
