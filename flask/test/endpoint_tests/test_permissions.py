@@ -172,3 +172,12 @@ def test_invalid_permission_for_beneficiary_tokens(client, mocker):
     )
     data = {"query": "query { beneficiary(id: 3) { tokens } }"}
     assert_forbidden_request(data, client, field="beneficiary", value={"tokens": None})
+
+
+def test_invalid_permission_for_base_locations(client, mocker):
+    # verify missing location:read permission
+    mocker.patch("jose.jwt.decode").return_value = create_jwt_payload(
+        permissions=["base:read"]
+    )
+    data = {"query": "query { base(id: 1) { locations { id } } }"}
+    assert_forbidden_request(data, client, field="base", value={"locations": None})

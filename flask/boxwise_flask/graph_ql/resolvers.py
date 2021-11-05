@@ -105,11 +105,10 @@ def resolve_product(_, info, id):
 def resolve_box(_, info, box_label_identifier):
     authorize(permission="stock:read")
     box = (
-        Box.select(Box, Base.id)
+        Box.select(Box, Location.base)
         .join(Location)
         .join(Base)
         .where(Box.box_label_identifier == box_label_identifier)
-        .objects()
         .get()
     )
     authorize(base_id=box.location.base.id)
@@ -255,6 +254,12 @@ def resolve_update_beneficiary(_, info, beneficiary_update_input):
     )
     beneficiary_update_input["last_modified_by"] = g.user["id"]
     return update_beneficiary(beneficiary_update_input)
+
+
+@base.field("locations")
+def resolve_base_locations(base_obj, info):
+    authorize(permission="location:read")
+    return Location.select().where(Location.base == base_obj.id)
 
 
 @base.field("beneficiaries")
