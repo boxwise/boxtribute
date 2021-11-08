@@ -5,9 +5,9 @@ import base64
 class PageInfo:
     """Container for pagination information."""
 
-    def __init__(self, *, has_next_page=False, start_cursor=None):
+    def __init__(self, *, has_next_page=False, end_cursor=None):
         self.has_next_page = has_next_page
-        self.start_cursor = start_cursor
+        self.end_cursor = end_cursor
 
 
 def pagination_parameters(pagination_input):
@@ -46,7 +46,7 @@ def _generate_page_info(*, elements, limit):
     info = PageInfo()
     if len(elements) > limit:
         info.has_next_page = True
-        info.start_cursor = base64.b64encode(f"{elements[-2].id:08}".encode()).decode()
+        info.end_cursor = base64.b64encode(f"{elements[-2].id:08}".encode()).decode()
     return info
 
 

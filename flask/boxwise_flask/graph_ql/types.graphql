@@ -152,7 +152,7 @@ type Beneficiary {
 
 type PageInfo {
   hasNextPage: Boolean!
-  startCursor: String
+  endCursor: String
 }
 
 input CreateBoxInput {

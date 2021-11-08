@@ -73,7 +73,7 @@ def test_get_beneficiaries(mysql_app_client):
                         }
                         pageInfo {
                             hasNextPage
-                            startCursor
+                            endCursor
                         }
                     }
                 }
@@ -86,7 +86,7 @@ def test_get_beneficiaries(mysql_app_client):
     assert queried_beneficiaries[0]["tokens"] == 13
 
     page_info = response.json["data"]["base"]["beneficiaries"]["pageInfo"]
-    cursor = page_info["startCursor"]
+    cursor = page_info["endCursor"]
     assert page_info["hasNextPage"]
     assert cursor == "MDAwMDAwNTA="  # corresponding to ID 50
 
@@ -101,7 +101,7 @@ def test_get_beneficiaries(mysql_app_client):
                         }}
                         pageInfo {{
                             hasNextPage
-                            startCursor
+                            endCursor
                         }}
                     }}
                 }}
@@ -113,7 +113,7 @@ def test_get_beneficiaries(mysql_app_client):
     assert len(queried_beneficiaries) == 50
     page_info = response.json["data"]["base"]["beneficiaries"]["pageInfo"]
     assert page_info["hasNextPage"]
-    assert page_info["startCursor"] != cursor
+    assert page_info["endCursor"] != cursor
 
 
 def test_base_specific_permissions(client, mocker):
