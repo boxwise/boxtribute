@@ -171,7 +171,7 @@ def resolve_beneficiaries(_, info, pagination_input=None):
         .order_by(Beneficiary.id)
         .limit(limit + 1)
     )
-    return generate_page(elements=beneficiaries, limit=limit)
+    return generate_page(elements=beneficiaries, cursor=cursor, limit=limit)
 
 
 @beneficiary.field("tokens")
@@ -274,7 +274,7 @@ def resolve_base_beneficiaries(base_obj, info, pagination_input=None):
         .order_by(Beneficiary.id)
         .limit(limit + 1)
     )
-    return generate_page(elements=beneficiaries, limit=limit)
+    return generate_page(elements=beneficiaries, cursor=cursor, limit=limit)
 
 
 @location.field("boxes")

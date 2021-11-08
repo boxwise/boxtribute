@@ -82,12 +82,13 @@ def test_get_beneficiaries(mysql_app_client):
             }"""
     }
     response = mysql_app_client.post("/graphql", json=data)
-    queried_beneficiaries = response.json["data"]["base"]["beneficiaries"]["elements"]
+    base = response.json["data"]["base"]
+    queried_beneficiaries = base["beneficiaries"]["elements"]
     assert response.status_code == 200
     assert len(queried_beneficiaries) == 50
     assert queried_beneficiaries[0]["tokens"] == 13
 
-    page_info = response.json["data"]["base"]["beneficiaries"]["pageInfo"]
+    page_info = base["beneficiaries"]["pageInfo"]
     cursor = page_info["endCursor"]
     assert not page_info["hasPreviousPage"]
     assert page_info["hasNextPage"]
@@ -122,6 +123,33 @@ def test_get_beneficiaries(mysql_app_client):
     assert page_info["hasNextPage"]
     assert page_info["startCursor"] == "MDAwMDAwNTE="  # ID 51
     assert page_info["endCursor"] != cursor
+
+    cursor = page_info["startCursor"]
+    data = {
+        "query": f"""query getBeneficiariesOfLesvos {{
+                base(id: 1) {{
+                    beneficiaries(
+                        paginationInput: {{ before: "{cursor}" }}
+                    ) {{
+                        elements {{
+                            id
+                            tokens
+                        }}
+                        pageInfo {{
+                            hasPreviousPage
+                            hasNextPage
+                            startCursor
+                            endCursor
+                        }}
+                    }}
+                }}
+                }}"""
+    }
+    response = mysql_app_client.post("/graphql", json=data)
+    assert response.status_code == 200
+    # Expect identical page compared the first one above; except for startCursor field
+    base["beneficiaries"]["pageInfo"]["startCursor"] = None
+    assert response.json["data"]["base"] == base
 
 
 def test_base_specific_permissions(client, mocker):

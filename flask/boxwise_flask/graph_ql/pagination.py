@@ -22,27 +22,40 @@ class PageInfo:
 def pagination_parameters(pagination_input):
     """Retrieve cursor and limit (default: Cursor() and 50, resp.) from the given
     pagination input dictionary.
+    The values of `after`/`first` take precedence over `before`/`last`.
     """
     limit = 50
     if pagination_input is None:
         return Cursor(), limit
-    return Cursor(pagination_input.get("after")), pagination_input.get("first", limit)
+
+    after_value = pagination_input.get("after")
+    first = pagination_input.get("first")
+    if after_value is not None or first is not None:
+        return Cursor(after_value), first or limit
+
+    return Cursor(pagination_input.get("before"), forwards=False), pagination_input.get(
+        "last", limit
+    )
 
 
 class Cursor:
     """Representation of pagination cursor, translating from GraphQL to data layer."""
 
-    def __init__(self, value=None):
+    def __init__(self, value=None, forwards=True):
         """Decode and store value (a base64-encoded string).
         The value serves as point to start a select query after (default: 0).
+        Assume forward pagination by default.
         """
         self.value = 0 if value is None else int(base64.b64decode(value))
+        self.forwards = forwards
 
     def pagination_condition(self, model):
         """Convert internal value into a condition that can be plugged into a
         ModelSelect.where() clause for the given model.
         """
-        return model.id > self.value
+        if self.forwards:
+            return model.id > self.value
+        return model.id < self.value
 
 
 def _encode_id(element):
@@ -52,33 +65,49 @@ def _encode_id(element):
     return base64.b64encode(f"{element.id:08}".encode()).decode()
 
 
-def _generate_page_info(*, elements, limit):
+def _generate_page_info(*, elements, cursor, limit):
     """Generate pagination information from given elements and page limit. The elements
-    comprise the current page and possibly the first element of the next page.
+    comprise the current page and possibly the first element of the next/previous page.
+    During forward pagination, the following applies (for backward pagination, swap
+    next/previous, first/last, and before/after)
     If the number of elements exceeds the limit, a next page exists.
     If the elements' model contains any rows before the first element, a previous page
     exists.
-    The cursor for the next/previous page is derived from the ID of the page's
-    last/first element.
+    Derive cursors from the page's last/first elements.
     """
-    info = PageInfo(start_cursor=_encode_id(elements[0]))
-    if len(elements) > limit:
-        info.has_next_page = True
-        info.end_cursor = _encode_id(elements[-2])
-
+    info = PageInfo()
     model = type(elements[0])
-    if model.select().where(model.id < elements[0].id).get_or_none() is not None:
-        info.has_previous_page = True
+    if cursor.forwards:
+        info.start_cursor = _encode_id(elements[0])
+        if len(elements) > limit:
+            info.has_next_page = True
+            info.end_cursor = _encode_id(elements[-2])
+
+        if model.select().where(model.id < elements[0].id).get_or_none() is not None:
+            info.has_previous_page = True
+
+    else:
+        info.end_cursor = _encode_id(elements[-1])
+        if len(elements) > limit:
+            info.has_previous_page = True
+            info.start_cursor = _encode_id(elements[1])
+
+        if model.select().where(model.id > elements[-1].id).get_or_none() is not None:
+            info.has_next_page = True
 
     return info
 
 
-def generate_page(*, elements, limit):
+def generate_page(*, elements, cursor, limit):
     """Return a GraphQL Page type wrapping the given elements, and including appropriate
     page info.
     """
-    page_info = _generate_page_info(elements=elements, limit=limit)
-    return {
-        "elements": elements[:-1] if page_info.has_next_page else elements,
-        "page_info": page_info,
-    }
+    page_info = _generate_page_info(elements=elements, cursor=cursor, limit=limit)
+    page = {"page_info": page_info}
+
+    if cursor.forwards:
+        page["elements"] = elements[:-1] if page_info.has_next_page else elements
+    else:
+        page["elements"] = elements[1:] if page_info.has_previous_page else elements
+
+    return page

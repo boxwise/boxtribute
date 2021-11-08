@@ -213,6 +213,8 @@ input PaginationInput {
   # cf. https://relay.dev/graphql/connections.htm#sec-Forward-pagination-arguments
   after: String
   first: Int
+  # ... or the last X elements before cursor
+  before: String
 }
 
 enum HumanGender {
