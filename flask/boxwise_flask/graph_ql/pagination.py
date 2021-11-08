@@ -36,17 +36,23 @@ class Cursor:
         return model.id > self.value
 
 
+def _encode_id(element):
+    """Zero-pad the element's ID to a byte-string of length 8, and base64-encode it.
+    Return encoded result as unicode string.
+    """
+    return base64.b64encode(f"{element.id:08}".encode()).decode()
+
+
 def _generate_page_info(*, elements, limit):
     """Generate pagination information from given elements and page limit. The elements
     comprise the current page and possibly the first element of the next page.
     If the number of elements exceeds the limit, a next page exists.
-    The cursor for the next page is derived from the ID of the page's last element: the
-    ID is zero-padded to a byte-string of length 8, and then base64-encoded.
+    The cursor for the next page is derived from the ID of the page's last element.
     """
     info = PageInfo()
     if len(elements) > limit:
         info.has_next_page = True
-        info.end_cursor = base64.b64encode(f"{elements[-2].id:08}".encode()).decode()
+        info.end_cursor = _encode_id(elements[-2])
     return info
 
 
