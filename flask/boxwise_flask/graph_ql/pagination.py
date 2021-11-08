@@ -5,8 +5,17 @@ import base64
 class PageInfo:
     """Container for pagination information."""
 
-    def __init__(self, *, has_next_page=False, end_cursor=None):
+    def __init__(
+        self,
+        *,
+        has_previous_page=False,
+        has_next_page=False,
+        start_cursor=None,
+        end_cursor=None,
+    ):
+        self.has_previous_page = has_previous_page
         self.has_next_page = has_next_page
+        self.start_cursor = start_cursor
         self.end_cursor = end_cursor
 
 
@@ -47,12 +56,20 @@ def _generate_page_info(*, elements, limit):
     """Generate pagination information from given elements and page limit. The elements
     comprise the current page and possibly the first element of the next page.
     If the number of elements exceeds the limit, a next page exists.
-    The cursor for the next page is derived from the ID of the page's last element.
+    If the elements' model contains any rows before the first element, a previous page
+    exists.
+    The cursor for the next/previous page is derived from the ID of the page's
+    last/first element.
     """
-    info = PageInfo()
+    info = PageInfo(start_cursor=_encode_id(elements[0]))
     if len(elements) > limit:
         info.has_next_page = True
         info.end_cursor = _encode_id(elements[-2])
+
+    model = type(elements[0])
+    if model.select().where(model.id < elements[0].id).get_or_none() is not None:
+        info.has_previous_page = True
+
     return info
 
 

@@ -72,7 +72,9 @@ def test_get_beneficiaries(mysql_app_client):
                             tokens
                         }
                         pageInfo {
+                            hasPreviousPage
                             hasNextPage
+                            startCursor
                             endCursor
                         }
                     }
@@ -87,7 +89,9 @@ def test_get_beneficiaries(mysql_app_client):
 
     page_info = response.json["data"]["base"]["beneficiaries"]["pageInfo"]
     cursor = page_info["endCursor"]
+    assert not page_info["hasPreviousPage"]
     assert page_info["hasNextPage"]
+    assert page_info["startCursor"] == "MDAwMDAwMDE="  # ID 1
     assert cursor == "MDAwMDAwNTA="  # corresponding to ID 50
 
     data = {
@@ -100,7 +104,9 @@ def test_get_beneficiaries(mysql_app_client):
                             id
                         }}
                         pageInfo {{
+                            hasPreviousPage
                             hasNextPage
+                            startCursor
                             endCursor
                         }}
                     }}
@@ -112,7 +118,9 @@ def test_get_beneficiaries(mysql_app_client):
     assert response.status_code == 200
     assert len(queried_beneficiaries) == 50
     page_info = response.json["data"]["base"]["beneficiaries"]["pageInfo"]
+    assert page_info["hasPreviousPage"]
     assert page_info["hasNextPage"]
+    assert page_info["startCursor"] == "MDAwMDAwNTE="  # ID 51
     assert page_info["endCursor"] != cursor
 
 
