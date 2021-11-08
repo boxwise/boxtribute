@@ -12,6 +12,8 @@
    1. [Debugging](#debugging)
 1. [Testing](#testing)
 1. [GraphQL Playground](#graphql-playground)
+1. [Production environment](#production-environment)
+1. [Performance evaluation](#performance-evaluation)
 1. [Authentication and Authorization on the back-end](#authentication-and-authorization)
 1. [Database Migrations](#database-migrations)
 
@@ -265,6 +267,37 @@ In production, the web app is run by the WSGI server `gunicorn` which serves as 
 Launch the production server by
 
     FLASK_ENV=production docker-compose up --build flask
+
+## Performance evaluation
+
+### Load testing
+
+Used in combination with [k6](https://k6.io/docs/). See the example [script](./scripts/load-test.js) for instructions.
+
+### Profiling
+
+1. Add profiling middleware by extending `main.py`
+
+        import pathlib
+        from werkzeug.middleware.profiler import ProfilerMiddleware
+        # ...
+        # setting up app
+        # ...
+        BASE_DIR = pathlib.Path(__file__).resolve().parent.parent
+        app = ProfilerMiddleware(app, profile_dir=str(BASE_DIR / "stats"))
+
+1. Create output directory for profile files
+
+        mkdir -p flask/stats
+
+1. Launch the production server as mentioned above, and the database service
+1. Run a request, e.g. `dotenv run k6 run flask/scripts/load-test.js`
+1. `pip install` a profile visualization tool, e.g. [tuna](https://github.com/nschloe/tuna) or [snakeviz](https://github.com/jiffyclub/snakeviz) and load the profile
+
+        tuna flask/stats/some.profile
+        snakeviz flask/stats/some.profile
+
+1. Inspect the stack visualization in your web browser.
 
 ## Authentication and Authorization
 
