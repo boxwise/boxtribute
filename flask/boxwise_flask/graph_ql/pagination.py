@@ -1,6 +1,8 @@
 """Utility functions for pagination."""
 import base64
 
+import peewee
+
 
 class PageInfo:
     """Container for pagination information."""
@@ -43,10 +45,12 @@ class Cursor:
 
     def __init__(self, value=None, forwards=True):
         """Decode and store value (a base64-encoded string).
-        The value serves as point to start a select query after (default: 0).
+        The value serves as point to start a select query after/before (default: 0 for
+        forward pagination, +infinity otherwise).
         Assume forward pagination by default.
         """
-        self.value = 0 if value is None else int(base64.b64decode(value))
+        default_value = 0 if forwards else peewee.Value("infinity")
+        self.value = default_value if value is None else int(base64.b64decode(value))
         self.forwards = forwards
 
     def pagination_condition(self, model):
@@ -74,8 +78,14 @@ def _generate_page_info(*, elements, cursor, limit):
     If the elements' model contains any rows before the first element, a previous page
     exists.
     Derive cursors from the page's last/first elements.
+    Return default PageInfo if no elements given (next/previous page cannot be
+    determined efficiently even if existing). This is an edge case because it implies
+    that the user e.g. ignored hasNextPage=False and requested the next page anyways.
     """
     info = PageInfo()
+    if not elements:
+        return info
+
     model = type(elements[0])
     if cursor.forwards:
         info.start_cursor = _encode_id(elements[0])

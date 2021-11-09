@@ -215,6 +215,7 @@ input PaginationInput {
   first: Int
   # ... or the last X elements before cursor
   before: String
+  last: Int
 }
 
 enum HumanGender {
