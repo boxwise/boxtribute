@@ -7,18 +7,11 @@ import peewee
 class PageInfo:
     """Container for pagination information."""
 
-    def __init__(
-        self,
-        *,
-        has_previous_page=False,
-        has_next_page=False,
-        start_cursor=None,
-        end_cursor=None,
-    ):
-        self.has_previous_page = has_previous_page
-        self.has_next_page = has_next_page
-        self.start_cursor = start_cursor
-        self.end_cursor = end_cursor
+    def __init__(self):
+        self.has_previous_page = False
+        self.has_next_page = False
+        self.start_cursor = ""
+        self.end_cursor = ""
 
 
 def pagination_parameters(pagination_input):
@@ -112,6 +105,8 @@ def _generate_page_info(*conditions, elements, cursor, limit, **kwargs):
         if len(elements) > limit:
             info.has_next_page = True
             info.end_cursor = _encode_id(elements[-2])
+        else:
+            info.end_cursor = _encode_id(elements[-1])
 
     else:
         info.has_next_page = has_next_previous_page
@@ -119,6 +114,8 @@ def _generate_page_info(*conditions, elements, cursor, limit, **kwargs):
         if len(elements) > limit:
             info.has_previous_page = True
             info.start_cursor = _encode_id(elements[1])
+        else:
+            info.start_cursor = _encode_id(elements[0])
 
     return info
 

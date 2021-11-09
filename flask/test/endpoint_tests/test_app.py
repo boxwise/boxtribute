@@ -172,8 +172,6 @@ def test_get_beneficiaries(mysql_app_client):
     }
     response = mysql_app_client.post("/graphql", json=data)
     assert response.status_code == 200
-    # Expect identical page compared the first one above; except for startCursor field
-    base["beneficiaries"]["pageInfo"]["startCursor"] = None
     assert response.json["data"]["base"] == base
 
 
