@@ -54,6 +54,7 @@ type ProductCategory {
 type ProductPage {
   elements: [Product!]!
   pageInfo: PageInfo!
+  totalCount: Int!
 }
 
 enum ProductGender {
@@ -103,6 +104,7 @@ type Location {
 type BoxPage {
   elements: [Box!]!
   pageInfo: PageInfo!
+  totalCount: Int!
 }
 
 type Base {
@@ -135,6 +137,7 @@ type User {
 type BeneficiaryPage {
   elements: [Beneficiary!]
   pageInfo: PageInfo!
+  totalCount: Int!
 }
 
 type Beneficiary {

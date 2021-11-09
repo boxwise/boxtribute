@@ -123,6 +123,19 @@ def _generate_page_info(*conditions, elements, cursor, limit, **kwargs):
     return info
 
 
+def _compute_total_count(*conditions, elements, selection=None):
+    """Compute total count, taking given conditions and model selection into account."""
+    if not elements:
+        return 0
+    model = type(elements[0])
+    selection = selection or model.select()
+
+    base_condition = True
+    for condition in conditions:
+        base_condition = (base_condition) & (condition)
+    return selection.where(base_condition).count()
+
+
 def generate_page(*conditions, elements, cursor, **page_info_kwargs):
     """Return a GraphQL Page type wrapping the given elements, and including appropriate
     page info.
@@ -130,7 +143,12 @@ def generate_page(*conditions, elements, cursor, **page_info_kwargs):
     page_info = _generate_page_info(
         *conditions, elements=elements, cursor=cursor, **page_info_kwargs
     )
-    page = {"page_info": page_info}
+    page = {
+        "page_info": page_info,
+        "total_count": _compute_total_count(
+            *conditions, elements=elements, selection=page_info_kwargs.get("selection")
+        ),
+    }
 
     if cursor.forwards:
         page["elements"] = elements[:-1] if page_info.has_next_page else elements

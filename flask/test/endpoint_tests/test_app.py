@@ -17,6 +17,7 @@ def test_get_boxes(mysql_app_client):
                             hasPreviousPage
                             hasNextPage
                         }
+                        totalCount
                     }
                 }
             }"""
@@ -30,6 +31,7 @@ def test_get_boxes(mysql_app_client):
     page_info = response.json["data"]["location"]["boxes"]["pageInfo"]
     assert not page_info["hasPreviousPage"]
     assert page_info["hasNextPage"]
+    assert response.json["data"]["location"]["boxes"]["totalCount"] == 27
 
 
 @pytest.mark.skipif("CIRCLECI" not in os.environ, reason="only functional in CircleCI")
@@ -66,6 +68,7 @@ def test_get_products(mysql_app_client):
                             hasPreviousPage
                             hasNextPage
                         }
+                        totalCount
                     }
                 }
             }"""
@@ -77,6 +80,7 @@ def test_get_products(mysql_app_client):
     page_info = response.json["data"]["productCategory"]["products"]["pageInfo"]
     assert not page_info["hasPreviousPage"]
     assert not page_info["hasNextPage"]
+    assert response.json["data"]["productCategory"]["products"]["totalCount"] == 13
 
 
 @pytest.mark.skipif("CIRCLECI" not in os.environ, reason="only functional in CircleCI")
@@ -95,6 +99,7 @@ def test_get_beneficiaries(mysql_app_client):
                             startCursor
                             endCursor
                         }
+                        totalCount
                     }
                 }
             }"""
@@ -112,6 +117,7 @@ def test_get_beneficiaries(mysql_app_client):
     assert page_info["hasNextPage"]
     assert page_info["startCursor"] == "MDAwMDAwMDE="  # ID 1
     assert cursor == "MDAwMDAwNTA="  # corresponding to ID 50
+    assert base["beneficiaries"]["totalCount"] == 1006
 
     data = {
         "query": f"""query getBeneficiariesOfLesvos {{
@@ -159,6 +165,7 @@ def test_get_beneficiaries(mysql_app_client):
                             startCursor
                             endCursor
                         }}
+                        totalCount
                     }}
                 }}
                 }}"""
