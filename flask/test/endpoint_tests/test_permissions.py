@@ -138,7 +138,7 @@ def test_invalid_permission_for_location_boxes(client, mocker):
     mocker.patch("jose.jwt.decode").return_value = create_jwt_payload(
         permissions=["location:read"]
     )
-    data = {"query": "query { location(id: 1) { boxes { id } } }"}
+    data = {"query": "query { location(id: 1) { boxes { elements { id } } } }"}
     assert_forbidden_request(data, client, field="location", value={"boxes": None})
 
 

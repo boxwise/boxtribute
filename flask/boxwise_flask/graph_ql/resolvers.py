@@ -287,9 +287,24 @@ def resolve_base_beneficiaries(base_obj, info, pagination_input=None):
 
 
 @location.field("boxes")
-def resolve_location_boxes(location_obj, info):
+@convert_kwargs_to_snake_case
+def resolve_location_boxes(location_obj, info, pagination_input=None):
     authorize(permission="stock:read")
-    return Box.select().where(Box.location == location_obj.id)
+    cursor, limit = pagination_parameters(pagination_input)
+    location_filter_condition = Box.location == location_obj.id
+    pagination_condition = cursor.pagination_condition(Box)
+    boxes = (
+        Box.select()
+        .where((location_filter_condition) & (pagination_condition))
+        .order_by(Box.id)
+        .limit(limit + 1)
+    )
+    return generate_page(
+        location_filter_condition,
+        elements=boxes,
+        cursor=cursor,
+        limit=limit,
+    )
 
 
 @organisation.field("bases")

@@ -9,18 +9,27 @@ def test_get_boxes(mysql_app_client):
     data = {
         "query": """query CommentsOfLostBoxes {
                 location(id: "1") {
-                    boxes {
-                        comment
+                    boxes(paginationInput: { first: 20 }) {
+                        elements {
+                            comment
+                        }
+                        pageInfo {
+                            hasPreviousPage
+                            hasNextPage
+                        }
                     }
                 }
             }"""
     }
     response = mysql_app_client.post("/graphql", json=data)
-    queried_boxes = response.json["data"]["location"]["boxes"]
+    queried_boxes = response.json["data"]["location"]["boxes"]["elements"]
     assert response.status_code == 200
-    assert len(queried_boxes) == 27
+    assert len(queried_boxes) == 20
     # There are no comments currently. Verify by creating a set
     assert {box["comment"] for box in queried_boxes} == {""}
+    page_info = response.json["data"]["location"]["boxes"]["pageInfo"]
+    assert not page_info["hasPreviousPage"]
+    assert page_info["hasNextPage"]
 
 
 @pytest.mark.skipif("CIRCLECI" not in os.environ, reason="only functional in CircleCI")

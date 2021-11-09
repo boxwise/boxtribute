@@ -86,13 +86,18 @@ type Location {
   isShop: Boolean!
   isDeleted: Boolean!
   # List of all the boxes in the location
-  boxes: [Box!]
+  boxes(paginationInput: PaginationInput): BoxPage
   boxState: BoxState
   createdOn: Datetime!
   # The user who generated QR code
   createdBy: User!
   lastModifiedBy: User!
   lastModifiedOn: Datetime!
+}
+
+type BoxPage {
+  elements: [Box!]!
+  pageInfo: PageInfo!
 }
 
 type Base {
