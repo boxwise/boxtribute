@@ -61,6 +61,24 @@ class Cursor:
             return model.id > self.value
         return model.id < self.value
 
+    def has_next_previous_page(self, *conditions, model, elements, selection=None):
+        """For forward/backward pagination, determine whether a previous/next page
+        exists (i.e. if the model holds elements before the first / after the last one).
+        To this end, the given selection is used (might contain joins required by
+        conditions; default: `model.select()`).
+        Additional conditions, e.g. for filtering, are taken into account.
+        """
+        if self.forwards:
+            base_condition = model.id < elements[0].id
+        else:
+            base_condition = model.id > elements[-1].id
+
+        for condition in conditions:
+            base_condition = (base_condition) & (condition)
+
+        selection = selection or model.select()
+        return selection.where(base_condition).get_or_none() is not None
+
 
 def _encode_id(element):
     """Zero-pad the element's ID to a byte-string of length 8, and base64-encode it.
@@ -69,14 +87,12 @@ def _encode_id(element):
     return base64.b64encode(f"{element.id:08}".encode()).decode()
 
 
-def _generate_page_info(*, elements, cursor, limit):
+def _generate_page_info(*conditions, elements, cursor, limit, **kwargs):
     """Generate pagination information from given elements and page limit. The elements
     comprise the current page and possibly the first element of the next/previous page.
-    During forward pagination, the following applies (for backward pagination, swap
-    next/previous, first/last, and before/after)
-    If the number of elements exceeds the limit, a next page exists.
-    If the elements' model contains any rows before the first element, a previous page
-    exists.
+    During forward/backward pagination, the following applies: If the number of elements
+    exceeds the limit, a next/previous page exists. Determining whether a previous/next
+    page exists is delegated to `Cursor.has_next_previous_page()`, passing `kwargs`.
     Derive cursors from the page's last/first elements.
     Return default PageInfo if no elements given (next/previous page cannot be
     determined efficiently even if existing). This is an edge case because it implies
@@ -87,32 +103,33 @@ def _generate_page_info(*, elements, cursor, limit):
         return info
 
     model = type(elements[0])
+    has_next_previous_page = cursor.has_next_previous_page(
+        *conditions, model=model, elements=elements, **kwargs
+    )
     if cursor.forwards:
+        info.has_previous_page = has_next_previous_page
         info.start_cursor = _encode_id(elements[0])
         if len(elements) > limit:
             info.has_next_page = True
             info.end_cursor = _encode_id(elements[-2])
 
-        if model.select().where(model.id < elements[0].id).get_or_none() is not None:
-            info.has_previous_page = True
-
     else:
+        info.has_next_page = has_next_previous_page
         info.end_cursor = _encode_id(elements[-1])
         if len(elements) > limit:
             info.has_previous_page = True
             info.start_cursor = _encode_id(elements[1])
 
-        if model.select().where(model.id > elements[-1].id).get_or_none() is not None:
-            info.has_next_page = True
-
     return info
 
 
-def generate_page(*, elements, cursor, limit):
+def generate_page(*conditions, elements, cursor, **page_info_kwargs):
     """Return a GraphQL Page type wrapping the given elements, and including appropriate
     page info.
     """
-    page_info = _generate_page_info(elements=elements, cursor=cursor, limit=limit)
+    page_info = _generate_page_info(
+        *conditions, elements=elements, cursor=cursor, **page_info_kwargs
+    )
     page = {"page_info": page_info}
 
     if cursor.forwards:

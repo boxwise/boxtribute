@@ -163,15 +163,21 @@ def resolve_products(_, info):
 def resolve_beneficiaries(_, info, pagination_input=None):
     authorize(permission="beneficiary:read")
     cursor, limit = pagination_parameters(pagination_input)
+    base_filter_condition = Base.id.in_(g.user["base_ids"])
     pagination_condition = cursor.pagination_condition(Beneficiary)
+    selection = Beneficiary.select().join(Base)
     beneficiaries = (
-        Beneficiary.select()
-        .join(Base)
-        .where((Base.id.in_(g.user["base_ids"])) & (pagination_condition))
+        selection.where((base_filter_condition) & (pagination_condition))
         .order_by(Beneficiary.id)
         .limit(limit + 1)
     )
-    return generate_page(elements=beneficiaries, cursor=cursor, limit=limit)
+    return generate_page(
+        base_filter_condition,
+        elements=beneficiaries,
+        cursor=cursor,
+        limit=limit,
+        selection=selection,
+    )
 
 
 @beneficiary.field("tokens")
@@ -267,14 +273,17 @@ def resolve_base_locations(base_obj, info):
 def resolve_base_beneficiaries(base_obj, info, pagination_input=None):
     authorize(permission="beneficiary:read")
     cursor, limit = pagination_parameters(pagination_input)
+    base_filter_condition = Beneficiary.base == base_obj.id
     pagination_condition = cursor.pagination_condition(Beneficiary)
     beneficiaries = (
         Beneficiary.select()
-        .where((Beneficiary.base == base_obj.id) & (pagination_condition))
+        .where((base_filter_condition) & (pagination_condition))
         .order_by(Beneficiary.id)
         .limit(limit + 1)
     )
-    return generate_page(elements=beneficiaries, cursor=cursor, limit=limit)
+    return generate_page(
+        base_filter_condition, elements=beneficiaries, cursor=cursor, limit=limit
+    )
 
 
 @location.field("boxes")
