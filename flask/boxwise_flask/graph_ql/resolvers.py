@@ -153,9 +153,25 @@ def resolve_locations(_, info):
 
 
 @query.field("products")
-def resolve_products(_, info):
+@convert_kwargs_to_snake_case
+def resolve_products(_, info, pagination_input=None):
     authorize(permission="product:read")
-    return Product.select().join(Base).where(Base.id.in_(g.user["base_ids"]))
+    cursor, limit = pagination_parameters(pagination_input)
+    base_filter_condition = Base.id.in_(g.user["base_ids"])
+    pagination_condition = cursor.pagination_condition(Product)
+    selection = Product.select().join(Base)
+    products = (
+        selection.where((base_filter_condition) & (pagination_condition))
+        .order_by(Product.id)
+        .limit(limit + 1)
+    )
+    return generate_page(
+        base_filter_condition,
+        elements=products,
+        cursor=cursor,
+        limit=limit,
+        selection=selection,
+    )
 
 
 @query.field("beneficiaries")
@@ -326,9 +342,26 @@ def resolve_product_sizes(product_id, info):
 
 
 @product_category.field("products")
-def resolve_product_category_products(product_category_obj, info):
+@convert_kwargs_to_snake_case
+def resolve_product_category_products(
+    product_category_obj, info, pagination_input=None
+):
     authorize(permission="product:read")
-    return Product.select().where(Product.category == product_category_obj.id)
+    cursor, limit = pagination_parameters(pagination_input)
+    category_filter_condition = Product.category == product_category_obj.id
+    pagination_condition = cursor.pagination_condition(Product)
+    products = (
+        Product.select()
+        .where((category_filter_condition) & (pagination_condition))
+        .order_by(Product.id)
+        .limit(limit + 1)
+    )
+    return generate_page(
+        category_filter_condition,
+        elements=products,
+        cursor=cursor,
+        limit=limit,
+    )
 
 
 @qr_code.field("box")

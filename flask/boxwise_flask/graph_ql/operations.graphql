@@ -11,7 +11,7 @@ type Query {
   location(id: ID!): Location
   locations: [Location!]!
   product(id: ID!): Product
-  products: [Product!]!
+  products(paginationInput: PaginationInput): ProductPage!
   productCategory(id: ID!): ProductCategory
   productCategories: [ProductCategory!]!
   beneficiary(id: ID!): Beneficiary

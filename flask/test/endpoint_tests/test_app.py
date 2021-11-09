@@ -59,15 +59,24 @@ def test_get_products(mysql_app_client):
         "query": """query getShoes {
                 productCategory(id: "5") {
                     products {
-                        id
+                        elements {
+                            id
+                        }
+                        pageInfo {
+                            hasPreviousPage
+                            hasNextPage
+                        }
                     }
                 }
             }"""
     }
     response = mysql_app_client.post("/graphql", json=data)
-    queried_products = response.json["data"]["productCategory"]["products"]
+    queried_products = response.json["data"]["productCategory"]["products"]["elements"]
     assert response.status_code == 200
     assert len(queried_products) == 13
+    page_info = response.json["data"]["productCategory"]["products"]["pageInfo"]
+    assert not page_info["hasPreviousPage"]
+    assert not page_info["hasNextPage"]
 
 
 @pytest.mark.skipif("CIRCLECI" not in os.environ, reason="only functional in CircleCI")

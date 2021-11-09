@@ -45,10 +45,15 @@ type Product {
 type ProductCategory {
   id: ID!
   name: String!
-  products: [Product]
+  products(paginationInput: PaginationInput): ProductPage
   sizeRanges: [SizeRange]
   # Non-clothing categories don't have a product gender
   hasGender: Boolean!
+}
+
+type ProductPage {
+  elements: [Product!]!
+  pageInfo: PageInfo!
 }
 
 enum ProductGender {
