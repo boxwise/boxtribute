@@ -334,8 +334,14 @@ def resolve_organisation_bases(organisation_obj, info):
 
 
 @product.field("gender")
-def resolve_product_gender(obj, info):
-    return obj.id
+def resolve_product_gender(product_obj, info):
+    # Instead of a ProductGender instance return an integer for EnumType conversion
+    gender_id = product_obj.gender.id
+    if gender_id == 11:  # pragma: no cover
+        # In dropapp, UnisexChild (6) and UnisexKid (11) are merged.
+        # This shall be removed when a recent database dump is added.
+        gender_id = 6
+    return gender_id
 
 
 @product.field("sizes")
