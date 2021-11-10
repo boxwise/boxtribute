@@ -1,4 +1,41 @@
-"""Utility functions for pagination."""
+"""Utility functions for pagination.
+
+The program uses cursor style pagination, consisting of two steps: fetching the actual
+content of the page, and determining page meta data.
+
+The following explains forward pagination. Assume a model holding 9 elements
+(represented by their IDs)
+    Model 1 2 3 4 5 6 7 8 9
+The client now requests a page of the first 3 elements at the beginning of the model
+    query { models(first: 3) { elements { id } } }
+The start cursor to select a slice of elements after defaults to 0. For later
+computation of the existence of a next page, the given limit (3) must be increased by 1
+    model.select().limit(limit + 1)
+This way the first 4 elements are obtained.
+         |-------|
+    Model 1 2 3 4 5 6 7 8 9
+For determining the page meta data, the algorithm (`_generate_page_info()` function)
+- notices that the size of the slice (4) extends the requested limit (3), hence a next
+  page exists
+- queries the model for any elements before the first one of the slice (ID 1). Since
+there aren't any, no previous page exists
+- assigns the first element (ID 1) as the start cursor
+- assigns the second-to-last element (ID 3) as the end cursor
+Eventually, the page meta data, and first 3 elements (IDs 1, 2, 3) are returned.
+
+A request like
+    query { models(after: 6, first: 3) { elements { id } } }
+selects
+                     |-----|
+    Model 1 2 3 4 5 6 7 8 9
+The algorithm
+- notices that the slice size (3) is not larger than the requested limit (3), hence no
+  next page exists
+- finds an element before ID 7, hence a previous page exists
+- assigns ID 7 as start and ID 9 as end cursor
+
+For backward pagination, the procedure works in reverse.
+"""
 import base64
 
 import peewee
