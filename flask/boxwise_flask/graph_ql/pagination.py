@@ -54,13 +54,14 @@ class Cursor:
             return model.id > self.value
         return model.id < self.value
 
-    def has_next_previous_page(self, *conditions, model, elements, selection=None):
+    def has_next_previous_page(self, *conditions, elements, selection):
         """For forward/backward pagination, determine whether a previous/next page
         exists (i.e. if the model holds elements before the first / after the last one).
-        To this end, the given selection is used (might contain joins required by
-        conditions; default: `model.select()`).
+        To this end, the given model selection is used (might contain joins required by
+        conditions).
         Additional conditions, e.g. for filtering, are taken into account.
         """
+        model = selection.model
         if self.forwards:
             base_condition = model.id < elements[0].id
         else:
@@ -68,8 +69,6 @@ class Cursor:
 
         for condition in conditions:
             base_condition = (base_condition) & (condition)
-
-        selection = selection or model.select()
         return selection.where(base_condition).get_or_none() is not None
 
 
@@ -95,9 +94,8 @@ def _generate_page_info(*conditions, elements, cursor, limit, **kwargs):
     if not elements:
         return info
 
-    model = type(elements[0])
     has_next_previous_page = cursor.has_next_previous_page(
-        *conditions, model=model, elements=elements, **kwargs
+        *conditions, elements=elements, **kwargs
     )
     if cursor.forwards:
         info.has_previous_page = has_next_previous_page
@@ -120,31 +118,28 @@ def _generate_page_info(*conditions, elements, cursor, limit, **kwargs):
     return info
 
 
-def _compute_total_count(*conditions, elements, selection=None):
+def _compute_total_count(*conditions, selection):
     """Compute total count, taking given conditions and model selection into account."""
-    if not elements:
-        return 0
-    model = type(elements[0])
-    selection = selection or model.select()
-
     base_condition = True
     for condition in conditions:
         base_condition = (base_condition) & (condition)
     return selection.where(base_condition).count()
 
 
-def generate_page(*conditions, elements, cursor, **page_info_kwargs):
+def generate_page(*conditions, elements, cursor, selection, **page_info_kwargs):
     """Return a GraphQL Page type wrapping the given elements, and including appropriate
     page info.
     """
     page_info = _generate_page_info(
-        *conditions, elements=elements, cursor=cursor, **page_info_kwargs
+        *conditions,
+        elements=elements,
+        cursor=cursor,
+        selection=selection,
+        **page_info_kwargs,
     )
     page = {
         "page_info": page_info,
-        "total_count": _compute_total_count(
-            *conditions, elements=elements, selection=page_info_kwargs.get("selection")
-        ),
+        "total_count": _compute_total_count(*conditions, selection=selection),
     }
 
     if cursor.forwards:

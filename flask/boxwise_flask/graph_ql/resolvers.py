@@ -291,14 +291,18 @@ def resolve_base_beneficiaries(base_obj, info, pagination_input=None):
     cursor, limit = pagination_parameters(pagination_input)
     base_filter_condition = Beneficiary.base == base_obj.id
     pagination_condition = cursor.pagination_condition(Beneficiary)
+    selection = Beneficiary.select()
     beneficiaries = (
-        Beneficiary.select()
-        .where((base_filter_condition) & (pagination_condition))
+        selection.where((base_filter_condition) & (pagination_condition))
         .order_by(Beneficiary.id)
         .limit(limit + 1)
     )
     return generate_page(
-        base_filter_condition, elements=beneficiaries, cursor=cursor, limit=limit
+        base_filter_condition,
+        elements=beneficiaries,
+        cursor=cursor,
+        limit=limit,
+        selection=selection,
     )
 
 
@@ -309,9 +313,9 @@ def resolve_location_boxes(location_obj, info, pagination_input=None):
     cursor, limit = pagination_parameters(pagination_input)
     location_filter_condition = Box.location == location_obj.id
     pagination_condition = cursor.pagination_condition(Box)
+    selection = Box.select()
     boxes = (
-        Box.select()
-        .where((location_filter_condition) & (pagination_condition))
+        selection.where((location_filter_condition) & (pagination_condition))
         .order_by(Box.id)
         .limit(limit + 1)
     )
@@ -320,6 +324,7 @@ def resolve_location_boxes(location_obj, info, pagination_input=None):
         elements=boxes,
         cursor=cursor,
         limit=limit,
+        selection=selection,
     )
 
 
@@ -350,9 +355,9 @@ def resolve_product_category_products(
     cursor, limit = pagination_parameters(pagination_input)
     category_filter_condition = Product.category == product_category_obj.id
     pagination_condition = cursor.pagination_condition(Product)
+    selection = Product.select()
     products = (
-        Product.select()
-        .where((category_filter_condition) & (pagination_condition))
+        selection.where((category_filter_condition) & (pagination_condition))
         .order_by(Product.id)
         .limit(limit + 1)
     )
@@ -361,6 +366,7 @@ def resolve_product_category_products(
         elements=products,
         cursor=cursor,
         limit=limit,
+        selection=selection,
     )
 
 
