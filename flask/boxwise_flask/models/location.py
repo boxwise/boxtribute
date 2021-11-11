@@ -15,7 +15,12 @@ class Location(db.Model):
         null=True,
         on_update="CASCADE",
     )
-    base = ForeignKeyField(column_name="camp_id", field="id", model=Base)
+    base = ForeignKeyField(
+        column_name="camp_id",
+        field="id",
+        model=Base,
+        object_id_name="base_id",
+    )
     is_stockroom = IntegerField(
         column_name="container_stock", constraints=[SQL("DEFAULT 0")]
     )
