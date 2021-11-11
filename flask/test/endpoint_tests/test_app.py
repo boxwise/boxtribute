@@ -9,18 +9,29 @@ def test_get_boxes(mysql_app_client):
     data = {
         "query": """query CommentsOfLostBoxes {
                 location(id: "1") {
-                    boxes {
-                        comment
+                    boxes(paginationInput: { first: 20 }) {
+                        elements {
+                            comment
+                        }
+                        pageInfo {
+                            hasPreviousPage
+                            hasNextPage
+                        }
+                        totalCount
                     }
                 }
             }"""
     }
     response = mysql_app_client.post("/graphql", json=data)
-    queried_boxes = response.json["data"]["location"]["boxes"]
+    queried_boxes = response.json["data"]["location"]["boxes"]["elements"]
     assert response.status_code == 200
-    assert len(queried_boxes) == 27
+    assert len(queried_boxes) == 20
     # There are no comments currently. Verify by creating a set
     assert {box["comment"] for box in queried_boxes} == {""}
+    page_info = response.json["data"]["location"]["boxes"]["pageInfo"]
+    assert not page_info["hasPreviousPage"]
+    assert page_info["hasNextPage"]
+    assert response.json["data"]["location"]["boxes"]["totalCount"] == 27
 
 
 @pytest.mark.skipif("CIRCLECI" not in os.environ, reason="only functional in CircleCI")
@@ -50,15 +61,26 @@ def test_get_products(mysql_app_client):
         "query": """query getShoes {
                 productCategory(id: "5") {
                     products {
-                        id
+                        elements {
+                            id
+                        }
+                        pageInfo {
+                            hasPreviousPage
+                            hasNextPage
+                        }
+                        totalCount
                     }
                 }
             }"""
     }
     response = mysql_app_client.post("/graphql", json=data)
-    queried_products = response.json["data"]["productCategory"]["products"]
+    queried_products = response.json["data"]["productCategory"]["products"]["elements"]
     assert response.status_code == 200
     assert len(queried_products) == 13
+    page_info = response.json["data"]["productCategory"]["products"]["pageInfo"]
+    assert not page_info["hasPreviousPage"]
+    assert not page_info["hasNextPage"]
+    assert response.json["data"]["productCategory"]["products"]["totalCount"] == 13
 
 
 @pytest.mark.skipif("CIRCLECI" not in os.environ, reason="only functional in CircleCI")
@@ -72,23 +94,30 @@ def test_get_beneficiaries(mysql_app_client):
                             tokens
                         }
                         pageInfo {
+                            hasPreviousPage
                             hasNextPage
                             startCursor
+                            endCursor
                         }
+                        totalCount
                     }
                 }
             }"""
     }
     response = mysql_app_client.post("/graphql", json=data)
-    queried_beneficiaries = response.json["data"]["base"]["beneficiaries"]["elements"]
+    base = response.json["data"]["base"]
+    queried_beneficiaries = base["beneficiaries"]["elements"]
     assert response.status_code == 200
     assert len(queried_beneficiaries) == 50
     assert queried_beneficiaries[0]["tokens"] == 13
 
-    page_info = response.json["data"]["base"]["beneficiaries"]["pageInfo"]
-    cursor = page_info["startCursor"]
+    page_info = base["beneficiaries"]["pageInfo"]
+    cursor = page_info["endCursor"]
+    assert not page_info["hasPreviousPage"]
     assert page_info["hasNextPage"]
+    assert page_info["startCursor"] == "MDAwMDAwMDE="  # ID 1
     assert cursor == "MDAwMDAwNTA="  # corresponding to ID 50
+    assert base["beneficiaries"]["totalCount"] == 1006
 
     data = {
         "query": f"""query getBeneficiariesOfLesvos {{
@@ -100,8 +129,10 @@ def test_get_beneficiaries(mysql_app_client):
                             id
                         }}
                         pageInfo {{
+                            hasPreviousPage
                             hasNextPage
                             startCursor
+                            endCursor
                         }}
                     }}
                 }}
@@ -112,8 +143,36 @@ def test_get_beneficiaries(mysql_app_client):
     assert response.status_code == 200
     assert len(queried_beneficiaries) == 50
     page_info = response.json["data"]["base"]["beneficiaries"]["pageInfo"]
+    assert page_info["hasPreviousPage"]
     assert page_info["hasNextPage"]
-    assert page_info["startCursor"] != cursor
+    assert page_info["startCursor"] == "MDAwMDAwNTE="  # ID 51
+    assert page_info["endCursor"] != cursor
+
+    cursor = page_info["startCursor"]
+    data = {
+        "query": f"""query getBeneficiariesOfLesvos {{
+                base(id: 1) {{
+                    beneficiaries(
+                        paginationInput: {{ before: "{cursor}" }}
+                    ) {{
+                        elements {{
+                            id
+                            tokens
+                        }}
+                        pageInfo {{
+                            hasPreviousPage
+                            hasNextPage
+                            startCursor
+                            endCursor
+                        }}
+                        totalCount
+                    }}
+                }}
+                }}"""
+    }
+    response = mysql_app_client.post("/graphql", json=data)
+    assert response.status_code == 200
+    assert response.json["data"]["base"] == base
 
 
 def test_base_specific_permissions(client, mocker):

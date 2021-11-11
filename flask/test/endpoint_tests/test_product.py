@@ -24,10 +24,12 @@ def test_product(client, default_product):
 def test_products(client, default_product):
     graph_ql_query_string = """query {
                 products {
-                    name
+                    elements {
+                        name
+                    }
                 }
             }"""
     data = {"query": graph_ql_query_string}
     response_data = client.post("/graphql", json=data)
-    queried_product = response_data.json["data"]["products"][0]
+    queried_product = response_data.json["data"]["products"]["elements"][0]
     assert queried_product["name"] == default_product["name"]

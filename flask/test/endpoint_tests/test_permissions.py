@@ -35,6 +35,8 @@ def test_invalid_read_permissions(unauthorized_client, resource):
     data = {"query": f"""query {{ {resources} {{ id }} }}"""}
     if resources == "beneficiaries":
         data = {"query": "query { beneficiaries { elements { id } } }"}
+    elif resources == "products":
+        data = {"query": "query { products { elements { id } } }"}
     assert_forbidden_request(data, unauthorized_client)
 
     data = {"query": f"""query {{ {resource}(id: 3) {{ id }} }}"""}
@@ -138,7 +140,7 @@ def test_invalid_permission_for_location_boxes(client, mocker):
     mocker.patch("jose.jwt.decode").return_value = create_jwt_payload(
         permissions=["location:read"]
     )
-    data = {"query": "query { location(id: 1) { boxes { id } } }"}
+    data = {"query": "query { location(id: 1) { boxes { elements { id } } } }"}
     assert_forbidden_request(data, client, field="location", value={"boxes": None})
 
 

@@ -45,10 +45,16 @@ type Product {
 type ProductCategory {
   id: ID!
   name: String!
-  products: [Product]
+  products(paginationInput: PaginationInput): ProductPage
   sizeRanges: [SizeRange]
   # Non-clothing categories don't have a product gender
   hasGender: Boolean!
+}
+
+type ProductPage {
+  elements: [Product!]!
+  pageInfo: PageInfo!
+  totalCount: Int!
 }
 
 enum ProductGender {
@@ -86,13 +92,19 @@ type Location {
   isShop: Boolean!
   isDeleted: Boolean!
   # List of all the boxes in the location
-  boxes: [Box!]
+  boxes(paginationInput: PaginationInput): BoxPage
   boxState: BoxState
   createdOn: Datetime!
   # The user who generated QR code
   createdBy: User!
   lastModifiedBy: User!
   lastModifiedOn: Datetime!
+}
+
+type BoxPage {
+  elements: [Box!]!
+  pageInfo: PageInfo!
+  totalCount: Int!
 }
 
 type Base {
@@ -125,6 +137,7 @@ type User {
 type BeneficiaryPage {
   elements: [Beneficiary!]
   pageInfo: PageInfo!
+  totalCount: Int!
 }
 
 type Beneficiary {
@@ -151,8 +164,10 @@ type Beneficiary {
 }
 
 type PageInfo {
+  hasPreviousPage: Boolean!
   hasNextPage: Boolean!
-  startCursor: String
+  startCursor: String!
+  endCursor: String!
 }
 
 input CreateBoxInput {
@@ -211,6 +226,9 @@ input PaginationInput {
   # cf. https://relay.dev/graphql/connections.htm#sec-Forward-pagination-arguments
   after: String
   first: Int
+  # ... or the last X elements before cursor
+  before: String
+  last: Int
 }
 
 enum HumanGender {

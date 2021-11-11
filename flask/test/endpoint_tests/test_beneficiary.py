@@ -143,19 +143,37 @@ def test_beneficiary(client):
 
 
 @pytest.mark.parametrize(
-    "input,size,has_next_page",
+    "input,size,has_next_page,has_previous_page",
     (
-        ["", 2, False],
-        ["""(paginationInput: {after: "MDAwMDAwMDI="})""", 2, False],  # after ID=2
-        ["""(paginationInput: {first: 1})""", 1, True],
-        ["""(paginationInput: {after: "MDAwMDAwMDM=", first: 1})""", 1, False],  # ID=3
+        ["", 2, False, False],
+        #                             ID=2
+        ["""(paginationInput: {after: "MDAwMDAwMDI="})""", 2, False, False],
+        ["""(paginationInput: {first: 1})""", 1, True, False],
+        #                             ID=4; previous page exists but can't be determined
+        ["""(paginationInput: {after: "MDAwMDAwMDQ="})""", 0, False, False],
+        #                             ID=3
+        ["""(paginationInput: {after: "MDAwMDAwMDM=", first: 1})""", 1, False, True],
+        # next page exists but can't be determined
+        ["""(paginationInput: {before: "MDAwMDAwMDM="})""", 0, False, False],
+        #                              ID=5
+        ["""(paginationInput: {before: "MDAwMDAwMDU=", last: 1})""", 1, False, True],
+        ["""(paginationInput: {last: 2})""", 2, False, False],
     ),
-    ids=["no input", "after", "first", "after-first"],
+    ids=[
+        "no input",
+        "after",
+        "first",
+        "after-final",
+        "after-first",
+        "before",
+        "before-last",
+        "last",
+    ],
 )
-def test_query_beneficiaries(client, input, size, has_next_page):
+def test_query_beneficiaries(client, input, size, has_next_page, has_previous_page):
     query = f"""query {{ beneficiaries{input} {{
         elements {{ id }}
-        pageInfo {{ hasNextPage }}
+        pageInfo {{ hasNextPage hasPreviousPage }}
     }} }}"""
     data = {"query": query}
     response = client.post("/graphql", json=data)
@@ -165,4 +183,8 @@ def test_query_beneficiaries(client, input, size, has_next_page):
     assert (
         response.json["data"]["beneficiaries"]["pageInfo"]["hasNextPage"]
         == has_next_page
+    )
+    assert (
+        response.json["data"]["beneficiaries"]["pageInfo"]["hasPreviousPage"]
+        == has_previous_page
     )
