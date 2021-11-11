@@ -28,8 +28,8 @@ class BoxState(enum.IntEnum):
 
     InStock = 1
     Lost = enum.auto()
-    Ordered = enum.auto()
-    Picked = enum.auto()
+    MarkedForShipment = enum.auto()
+    Received = enum.auto()
     Donated = enum.auto()
     Scrap = enum.auto()
 

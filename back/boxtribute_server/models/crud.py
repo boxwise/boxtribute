@@ -261,7 +261,7 @@ def update_shipment(data):
         for box in Box.select().where(
             Box.label_identifier.in_(prepared_box_label_identifiers)
         ):
-            box.state = BoxState.Ordered.value  # MarkedForShipment
+            box.state = BoxState.MarkedForShipment.value
             boxes.append(box)
             details.append(
                 {

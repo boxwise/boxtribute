@@ -217,7 +217,7 @@ def test_create_shipment(
     assert detail["created_on"] is not None
 
     box = Box.get_by_id(detail["box"])
-    assert box.state_id == BoxState.Ordered.value
+    assert box.state_id == BoxState.MarkedForShipment.value
 
 
 def test_create_shipment_from_expired_agreement(

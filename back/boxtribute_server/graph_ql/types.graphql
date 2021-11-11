@@ -70,8 +70,8 @@ enum ProductGender {
 enum BoxState {
   InStock
   Lost
-  Ordered
-  Picked
+  MarkedForShipment
+  Received
   Donated
   Scrap
 }
@@ -264,4 +264,108 @@ type Order {
   lastModifiedBy: User
   # Need to change int to custom scalar for datetime
   lastModifiedOn: Int
+}
+
+type TransferAgreement {
+  id: ID!
+  sourceOrganisation: Organisation!
+  targetOrganisation: Organisation!
+  state: TransferAgreementState
+  requestedBy: User!
+  requestedOn: Datetime!
+  acceptedBy: User
+  acceptedOn: Datetime
+  rejectedBy: User
+  rejectedOn: Datetime
+  canceledBy: User
+  canceledOn: Datetime
+  validFrom: Datetime!
+  validUntil: Datetime
+  sourceBases: [Base!]!
+  targetBases: [Base!]
+  shipments: [Shipment!]!
+}
+
+type Shipment {
+  id: ID!
+  sourceBase: Base
+  targetBase: Base
+  state: ShipmentState
+  createdBy: User!
+  createdOn: Datetime!
+  sentBy: User
+  sentOn: Datetime
+  receivedBy: User
+  receivedOn: User
+  transferAgreement: TransferAgreement!
+  details: [ShipmentDetail!]!
+  lastModifiedBy: User!
+  lastModifiedOn: Datetime!
+}
+
+type ShipmentDetail {
+  id: ID!
+  sourceProduct: Product!
+  targetProduct: Product
+  sourceLocation: Location!
+  targetLocation: Location
+  box: Box!
+  shipment: Shipment!
+  lastModifiedBy: User!
+  lastModifiedOn: Datetime!
+}
+
+input TransferAgreementCreationInput {
+  targetOrganisationId: Int!
+  validFrom: Datetime
+  validUntil: Datetime
+  sourceBaseIds: [Int!]
+}
+
+input TransferAgreementUpdateInput {
+  id: ID!
+  validFrom: Datetime
+  validUntil: Datetime
+  sourceBaseIds: [Int!]
+  targetBaseIds: [Int!]
+}
+
+input ShipmentCreationInput {
+  sourceBaseId: Int!
+  targetBaseId: Int!
+  transferAgreementId: Int!
+}
+
+input ShipmentUpdateInput {
+  id: ID!
+  sourceBaseId: Int!
+  targetBaseId: Int!
+  # IDs of boxes prepared for shipment
+  preparedBoxIds: [Int!]!
+  # IDs of prepared boxes to be moved back to stock
+  removedBoxIds: [Int!]!
+  # IDs of boxes that went lost during shipment
+  lostBoxIds: [Int!]!
+}
+
+input ShipmentDetailUpdateInput {
+  id: ID!
+  targetProductId: Int!
+  targetLocationId: Int!
+}
+
+enum TransferAgreementState {
+  UnderReview
+  Accepted
+  Rejected
+  Canceled
+  Expired
+}
+
+enum ShipmentState {
+  Preparing
+  Sent
+  Completed
+  Lost
+  Canceled
 }

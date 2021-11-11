@@ -16,6 +16,10 @@ type Query {
   productCategories: [ProductCategory!]!
   beneficiary(id: ID!): Beneficiary
   beneficiaries(paginationInput: PaginationInput): BeneficiaryPage!
+  transferAgreement(id: ID!): TransferAgreement
+  transferAgreements: [TransferAgreement!]!
+  shipment(id: ID!): Shipment
+  shipments: [Shipment!]!
 }
 
 type Mutation {
@@ -24,4 +28,16 @@ type Mutation {
   updateBox(boxUpdateInput: UpdateBoxInput): Box
   createBeneficiary(beneficiaryCreationInput: CreateBeneficiaryInput): Beneficiary
   updateBeneficiary(beneficiaryUpdateInput: UpdateBeneficiaryInput): Beneficiary
+
+  createTransferAgreement(creationInput: TransferAgreementCreationInput): TransferAgreement
+  updateTransferAgreement(updateInput: TransferAgreementUpdateInput): TransferAgreement
+  acceptTransferAgreement(id: ID!): TransferAgreement
+  rejectTransferAgreement(id: ID!): TransferAgreement
+
+  createShipment(creationInput: ShipmentCreationInput): Shipment
+  updateShipment(updateInput: ShipmentUpdateInput): Shipment
+  sendShipment(id: ID!): Shipment
+  completeShipment(id: ID!, lost: Boolean): Shipment
+
+  updateShipmentDetail(updateInput: ShipmentDetailUpdateInput): ShipmentDetail
 }
