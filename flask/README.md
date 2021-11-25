@@ -95,7 +95,7 @@ The development database is called `dropapp_dev` and the password is `dropapp_ro
 
 #### General notes on Docker network
 
-In the docker-compose file we define a separate docker network called `backend` to which the back-end containers are joined. Each container can now look up the host name `flask` or `mysql` and get back the appropriate container’s IP address.
+In the docker-compose file we define a separate docker network called `backend` to which the back-end containers are joined. Each container can now look up the host name `webapp` or `mysql` and get back the appropriate container’s IP address.
 To access the mysql database, there are now three possibilities:
 
 1. You reach the mysql db at `MYSQL_HOST=mysql` and `MYSQL_PORT=3306` or
@@ -139,8 +139,8 @@ To use the debugger:
 
 1. install the extensions to [access Docker container](https://marketplace.visualstudio.com/items?itemName=ms-vscode-remote.remote-containers) and to [debug python](https://marketplace.visualstudio.com/items?itemName=ms-python.python).
 2. Start the docker containers.
-3. [Attach to the running Docker container for the `flask` service.](https://code.visualstudio.com/docs/remote/containers#_attaching-to-running-containers)
-4. A new VSCode window pops up which is run from within the docker container `boxtribute_flask` Docker container.
+3. [Attach to the running Docker container for the `webapp` service.](https://code.visualstudio.com/docs/remote/containers#_attaching-to-running-containers)
+4. A new VSCode window pops up which is run from within the docker container `boxtribute_webapp` Docker container.
 5. Open the `/codedir` in the new VSCode which popped up. The `codedir` folder is the equivalent of the repo folder in the Docker container.
 
 The following step are only required the first time or after you deleted a Docker container: 6. Install the [python extension](https://marketplace.visualstudio.com/items?itemName=ms-python.python) inside the Docker container.
@@ -154,7 +154,7 @@ If you want to break on any other code lines (not endpoints), then you can only 
 
 #### Usage of Logger
 
-To log to the console while running the `flask` service, do
+To log to the console while running the `webapp` service, do
 
     from flask import current_app
     current_app.logger.warn(<whatever you want to log>)
@@ -244,7 +244,7 @@ and inspect the reported output. Open the HTML report via `flask/htmlcov/index.h
 
 The back-end exposes the GraphQL API at the `/graphql` endpoint. You can experiment with the API in the GraphQL playground.
 
-1. Start the required services by `docker-compose up flask mysql`
+1. Start the required services by `docker-compose up webapp mysql`
 1. Open `localhost:5000/graphql`.
 1. Simulate being a valid, logged-in user by fetching an authorization token (internally the variables of the `.env` file are used): `./fetch_token`
 1. Copy the content of the `access_token` field (alternatively, you can pipe the above command ` | jq -r .access_token | xclip -i -selection c` to copy it to the system clipboard)
@@ -266,7 +266,7 @@ In production, the web app is run by the WSGI server `gunicorn` which serves as 
 
 Launch the production server by
 
-    FLASK_ENV=production docker-compose up --build flask
+    FLASK_ENV=production docker-compose up --build webapp
 
 ## Performance evaluation
 
@@ -310,7 +310,7 @@ The user has to authenticate using their password, and is then issued a JSON Web
 Occasionally it might be required to update the database schema. To this end we use the [peewee-moves](https://github.com/timster/peewee-moves) tool.
 `peewee-moves` runs migrations defined in Python scripts, and stores a migration history in the database. Migration management is performed by the `flask db` command. In the development environment you can
 1. run `docker-compose up` to start all services
-1. run `docker-compose exec flask sh` to open a shell in the `flask` container. Run `flask db --help` from there
+1. run `docker-compose exec webapp sh` to open a shell in the `webapp` container. Run `flask db --help` from there
 1. You can create an empty migration script via `flask db revision <migration-name>`. The file name receives an auto-incremented index. The creation date-time is stored in the top script docstring.
 1. Implement `upgrade()` and `downgrade()` functions in the script for defining the rollforward/rollback behavior.
 1. Apply all pending migrations by `flask db upgrade`, and rollback the latest migration by `flask db downgrade`.

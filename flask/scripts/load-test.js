@@ -3,7 +3,7 @@
 // Instructions:
 // 1. Install k6
 // 2. Launch the Docker service:
-//    FLASK_ENV=production docker-compose up --build flask
+//    FLASK_ENV=production docker-compose up --build webapp
 // 3. Fetch a JWT for authorization
 //    ./fetch_token
 // 4. Store the value of `access_token` as `AUTH0_TEST_JWT` in the .env file
