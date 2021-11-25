@@ -57,7 +57,7 @@ def resolve_base(_, info, id):
 def resolve_beneficiary(_, info, id):
     authorize(permission="beneficiary:read")
     beneficiary = Beneficiary.get_by_id(id)
-    authorize(base_id=beneficiary.base.id)
+    authorize(base_id=beneficiary.base_id)
     return beneficiary
 
 
@@ -96,7 +96,7 @@ def resolve_qr_code(_, info, qr_code):
 def resolve_product(_, info, id):
     authorize(permission="product:read")
     product = Product.get_by_id(id)
-    authorize(base_id=product.base.id)
+    authorize(base_id=product.base_id)
     return product
 
 
@@ -105,13 +105,12 @@ def resolve_product(_, info, id):
 def resolve_box(_, info, box_label_identifier):
     authorize(permission="stock:read")
     box = (
-        Box.select(Box, Location.base)
+        Box.select(Box, Location.base_id)
         .join(Location)
-        .join(Base)
         .where(Box.box_label_identifier == box_label_identifier)
         .get()
     )
-    authorize(base_id=box.location.base.id)
+    authorize(base_id=box.location.base_id)
     return box
 
 
@@ -119,7 +118,7 @@ def resolve_box(_, info, box_label_identifier):
 def resolve_location(_, info, id):
     authorize(permission="location:read")
     location = Location.get_by_id(id)
-    authorize(base_id=location.base.id)
+    authorize(base_id=location.base_id)
     return location
 
 

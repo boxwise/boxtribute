@@ -12,6 +12,8 @@
    1. [Debugging](#debugging)
 1. [Testing](#testing)
 1. [GraphQL Playground](#graphql-playground)
+1. [Production environment](#production-environment)
+1. [Performance evaluation](#performance-evaluation)
 1. [Authentication and Authorization on the back-end](#authentication-and-authorization)
 1. [Database Migrations](#database-migrations)
 
@@ -72,7 +74,7 @@ Install the dependencies of the app in the activated virtual environment
 
     pip install -U -r flask/requirements.txt
 
-For the integration tests authentication information is fetched from the [Auth0](https://auth0.com) website. Log in and select `Applications` -> `Applications` from the side bar menu. Select `boxtribute-dev-api`. Copy the `Client ID` and `Client Secret` into the `.env` file as the `AUTH0_CLIENT_TEST_ID` and `AUTH0_CLIENT_SECRET_TEST` variables, resp.
+For the integration tests authentication information is fetched from the [Auth0](https://auth0.com) website. Log in and select `Applications` -> `Applications` from the side bar menu. Select `boxtribute-dev-api`. Copy the `Client Secret` into the `.env` file as the `AUTH0_CLIENT_SECRET_TEST` variables.
 
 We're subject to a rate limit for tokens from Auth0. In order to avoid fetching tokens over and over again for every test run, do the following once before you start your development session:
 
@@ -102,7 +104,7 @@ To access the mysql database, there are now three possibilities:
 
 To figure out the gateway of the docker network `backend` run
 
-        docker network inspect -f '{{range .IPAM.Config}}{{.Gateway}}{{end}}' boxtribute_backend
+    docker network inspect -f '{{range .IPAM.Config}}{{.Gateway}}{{end}}' boxtribute_backend
 
 #### MySQL workbench or other editors
 
@@ -152,14 +154,12 @@ If you want to break on any other code lines (not endpoints), then you can only 
 
 #### Usage of Logger
 
-To log to the console from inside the docker container, create an instance of app using:
+To log to the console while running the `flask` service, do
 
-    from flask import Flask
-    app = Flask(__name__)
+    from flask import current_app
+    current_app.logger.warn(<whatever you want to log>)
 
-and log with:
-
-    app.logger.warn(<whatever you want to log>)
+Note that in production mode, logging is also subject to the configuration of the WSGI server.
 
 ## Testing
 
@@ -246,8 +246,7 @@ The back-end exposes the GraphQL API at the `/graphql` endpoint. You can experim
 
 1. Start the required services by `docker-compose up flask mysql`
 1. Open `localhost:5000/graphql`.
-1. Simulate being a valid, logged-in user by fetching an authorization token (internally the variables of the `.env` file are used)
-    ./fetch_token
+1. Simulate being a valid, logged-in user by fetching an authorization token (internally the variables of the `.env` file are used): `./fetch_token`
 1. Copy the content of the `access_token` field (alternatively, you can pipe the above command ` | jq -r .access_token | xclip -i -selection c` to copy it to the system clipboard)
 1.  Insert the access token in the following format on the playground in the section on the bottom left of the playground called HTTP Headers.
 
@@ -255,11 +254,50 @@ The back-end exposes the GraphQL API at the `/graphql` endpoint. You can experim
 
 1. A sample query you can try if it works is:
 
-    query {
-        bases {
-            name
+        query {
+            organisations {
+                name
+            }
         }
-    }
+
+## Production environment
+
+In production, the web app is run by the WSGI server `gunicorn` which serves as a glue between the web app and the web server (e.g. Apache). `gunicorn` allows for more flexible configuration of request handling (see `flask/gunicorn.conf.py` file).
+
+Launch the production server by
+
+    FLASK_ENV=production docker-compose up --build flask
+
+## Performance evaluation
+
+### Load testing
+
+Used in combination with [k6](https://k6.io/docs/). See the example [script](./scripts/load-test.js) for instructions.
+
+### Profiling
+
+1. Add profiling middleware by extending `main.py`
+
+        import pathlib
+        from werkzeug.middleware.profiler import ProfilerMiddleware
+        # ...
+        # setting up app
+        # ...
+        BASE_DIR = pathlib.Path(__file__).resolve().parent.parent
+        app = ProfilerMiddleware(app, profile_dir=str(BASE_DIR / "stats"))
+
+1. Create output directory for profile files
+
+        mkdir -p flask/stats
+
+1. Launch the production server as mentioned above, and the database service
+1. Run a request, e.g. `dotenv run k6 run flask/scripts/load-test.js`
+1. `pip install` a profile visualization tool, e.g. [tuna](https://github.com/nschloe/tuna) or [snakeviz](https://github.com/jiffyclub/snakeviz) and load the profile
+
+        tuna flask/stats/some.profile
+        snakeviz flask/stats/some.profile
+
+1. Inspect the stack visualization in your web browser.
 
 ## Authentication and Authorization
 
