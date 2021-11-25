@@ -10,5 +10,6 @@
 htmlcov/
 env/
 back/test-results
+*.prof
 
 yarn-error.log
