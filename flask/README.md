@@ -89,20 +89,20 @@ Most of our developers are using VSCode. Instead of running our linter (flake8) 
 
 ### Working with MySQL
 
-Since we are working with docker you do not have to install a local MySQL server on your computer. Instead, you can just connect to the MySQL server in one of the Docker containers.
+Since we are working with Docker you do not have to install a local MySQL server on your computer. Instead, you can just connect to the MySQL server in one of the Docker containers.
 
 The development database is called `dropapp_dev` and the password is `dropapp_root`.
 
 #### General notes on Docker network
 
-In the docker-compose file we define a separate docker network called `backend` to which the back-end containers are joined. Each container can now look up the host name `webapp` or `db` and get back the appropriate container’s IP address.
-To access the mysql database, there are now three possibilities:
+In the docker-compose file we define a separate Docker network called `backend` to which the back-end containers are joined. Each container can now look up the host name `webapp` or `db` and get back the appropriate container’s IP address.
+To access the MySQL database, there are now three possibilities:
 
-1. You reach the mysql db at `MYSQL_HOST=db` and `MYSQL_PORT=3306` or
-1. You execute the mysql command line client in the running container by `docker-compose exec db mysql -u root -p` or
+1. You reach the MySQL db at `MYSQL_HOST=db` and `MYSQL_PORT=3306` or
+1. You execute the MySQL command line client in the running container by `docker-compose exec db mysql -u root -p` or
 1. by specifying the IP-address of the gateway for `MYSQL_HOST` and `MYSQL_PORT=32000`.
 
-To figure out the gateway of the docker network `backend` run
+To figure out the gateway of the Docker network `backend` run
 
     docker network inspect -f '{{range .IPAM.Config}}{{.Gateway}}{{end}}' boxtribute_backend
 
@@ -125,11 +125,11 @@ The `pwiz` utility helps to generate peewee model definitions by inspecting a ru
 
 ### Debugging
 
-By default the flask app runs in `development` mode in the Docker container which means that hot-reloading and debugging is enabled.
+By default the Flask app runs in `development` mode in the Docker container which means that hot-reloading and debugging is enabled.
 
-#### Built-in flask debugger
+#### Built-in Flask debugger
 
-For debugging an exception in an endpoint, direct your web browser to that endpoint. The built-in flask debugger is shown. You can attach a console by clicking the icons on the right of the traceback lines. For more information, refer to the [documentation](https://flask.palletsprojects.com/en/1.1.x/quickstart/#debug-mode).
+For debugging an exception in an endpoint, direct your web browser to that endpoint. The built-in Flask debugger is shown. You can attach a console by clicking the icons on the right of the traceback lines. For more information, refer to the [documentation](https://flask.palletsprojects.com/en/1.1.x/quickstart/#debug-mode).
 
 #### Debugging Back-end in VSCode
 
@@ -138,14 +138,14 @@ VSCode has [a very easy-to-use debugger](https://code.visualstudio.com/docs/edit
 To use the debugger:
 
 1. install the extensions to [access Docker container](https://marketplace.visualstudio.com/items?itemName=ms-vscode-remote.remote-containers) and to [debug python](https://marketplace.visualstudio.com/items?itemName=ms-python.python).
-2. Start the docker containers.
+2. Start the Docker containers.
 3. [Attach to the running Docker container for the `webapp` service.](https://code.visualstudio.com/docs/remote/containers#_attaching-to-running-containers)
-4. A new VSCode window pops up which is run from within the docker container `boxtribute_webapp` Docker container.
+4. A new VSCode window pops up which is run from within the `boxtribute_webapp` Docker container.
 5. Open the `/codedir` in the new VSCode which popped up. The `codedir` folder is the equivalent of the repo folder in the Docker container.
 
 The following step are only required the first time or after you deleted a Docker container: 6. Install the [python extension](https://marketplace.visualstudio.com/items?itemName=ms-python.python) inside the Docker container.
 
-Final steps: 7. [Launch the debug configuration called 'Python: Run Flask in docker container to debug'.](https://code.visualstudio.com/docs/editor/debugging#_launch-configurations)
+Final steps: 7. [Launch the debug configuration called 'Python: Run Flask in Docker container to debug'.](https://code.visualstudio.com/docs/editor/debugging#_launch-configurations)
 
 You can now set break-points in your code.
 If you want to debug a certain endpoint, set a break-point in the endpoint and call this endpoint at the port 5001, e.g.

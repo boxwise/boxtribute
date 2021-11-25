@@ -1,4 +1,4 @@
-"""Construction of routes for flask app"""
+"""Construction of routes for web app"""
 import os
 
 from ariadne import graphql_sync

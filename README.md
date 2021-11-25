@@ -9,7 +9,7 @@ Build: [![CircleCI](https://circleci.com/gh/boxwise/boxtribute.svg?style=svg)](h
 
 # Readme
 
-This is the repo for the new mobile web app of [Boxtribute](www.boxtribute.org), consisting of a [React front-end](/react) bootstrapped with [Create React App](https://github.com/facebook/create-react-app), and a [Python flask back-end](/flask).
+This is the repo for the new mobile web app of [Boxtribute](www.boxtribute.org), consisting of a [React front-end](/react) bootstrapped with [Create React App](https://github.com/facebook/create-react-app), and a [Python Flask back-end](/flask).
 
 Please check out [**Contribution Guidelines**](CONTRIBUTING.md) before you get started!
 
@@ -63,7 +63,7 @@ services:
 
 ## About Docker
 
-We are using Docker containers to make it easy for everyone to spin up an development environment which is the same everywhere. In `docker-compose.yaml` three docker containers are specified - one for the MySQL database called `db`, one for the Flask back-end called `webapp` and one for the react front-end called `react`.
+We are using Docker containers to make it easy for everyone to spin up an development environment which is the same everywhere. In `docker-compose.yaml` three Docker containers are specified - one for the MySQL database called `db`, one for the Flask back-end called `webapp` and one for the react front-end called `react`.
 
 ## Development Database Seed
 

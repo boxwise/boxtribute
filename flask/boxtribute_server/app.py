@@ -1,4 +1,4 @@
-"""Configuration and instantiation of flask app and peewee-managed database"""
+"""Configuration and instantiation of web app and peewee-managed database"""
 from flask_cors import CORS
 
 from flask import Flask

@@ -1,4 +1,4 @@
-"""Verify JWT handling when sending a request to the Flask app.
+"""Verify JWT handling when sending a request to the web app.
 These tests fetch actual authentication data from the Auth0 web service and hence
 require a working internet connection.
 """

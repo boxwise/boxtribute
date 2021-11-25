@@ -18,7 +18,7 @@ ENV FLASK_ENV production
 CMD gunicorn
 
 FROM base AS development
-# Path of module containing flask app, relative to WORKDIR
+# Path of module containing Flask app, relative to WORKDIR
 ENV FLASK_APP boxtribute_server/main
 ENV FLASK_ENV development
 CMD flask run -h 0.0.0 -p 5000
