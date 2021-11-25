@@ -17,7 +17,7 @@ services:
             PYTHONUNBUFFERED: 1
             AUTH0_DOMAIN: ${AUTH0_DOMAIN:?auth0 config not set in .env file}
             AUTH0_AUDIENCE: ${AUTH0_AUDIENCE:?auth0 config not set in .env file}
-            MYSQL_HOST: mysql
+            MYSQL_HOST: db
             MYSQL_USER: root
             MYSQL_PASSWORD: dropapp_root
             MYSQL_DB: dropapp_dev
@@ -49,7 +49,7 @@ services:
             # this is a workaround to prevent host node_modules from accidently getting mounted in container
             # in case you want to use node/npm both outside container for test/lint etc.
             - /app/react/node_modules
-    mysql:
+    db:
         image: mysql/mysql-server:5.7 # We run MySQL 5.7 on the production environment atm
         command: --default-authentication-plugin=mysql_native_password --lower_case_table_names=1
         environment:

@@ -95,11 +95,11 @@ The development database is called `dropapp_dev` and the password is `dropapp_ro
 
 #### General notes on Docker network
 
-In the docker-compose file we define a separate docker network called `backend` to which the back-end containers are joined. Each container can now look up the host name `webapp` or `mysql` and get back the appropriate container’s IP address.
+In the docker-compose file we define a separate docker network called `backend` to which the back-end containers are joined. Each container can now look up the host name `webapp` or `db` and get back the appropriate container’s IP address.
 To access the mysql database, there are now three possibilities:
 
-1. You reach the mysql db at `MYSQL_HOST=mysql` and `MYSQL_PORT=3306` or
-1. You execute the mysql command line client in the running container by `docker-compose exec mysql mysql -u root -p` or
+1. You reach the mysql db at `MYSQL_HOST=db` and `MYSQL_PORT=3306` or
+1. You execute the mysql command line client in the running container by `docker-compose exec db mysql -u root -p` or
 1. by specifying the IP-address of the gateway for `MYSQL_HOST` and `MYSQL_PORT=32000`.
 
 To figure out the gateway of the docker network `backend` run
@@ -119,7 +119,7 @@ It was [decided](../docs/adr/Python-ORM.md) to settle with [peewee](https://docs
 
 The `pwiz` utility helps to generate peewee model definitions by inspecting a running database. It is already installed with the `peewee` package.
 
-1. Start the database by `docker-compose up mysql`
+1. Start the database by `docker-compose up db`
 1. Obtain the gateway IP of the Docker network `boxtribute_backend` as described above.
 1. Run `python -m pwiz -H XXX.XX.X.X -p 32000 -u root -e mysql -t camps -P dropapp_dev > base.py` to generate the model definitions of the `camps` table, and write them into the file `base.py`.
 
@@ -178,7 +178,7 @@ Run the test suite on your machine by executing
 
 Some tests require a running MySQL server and are disabled unless during a CircleCI pipeline. Local testing is possible by
 
-    docker-compose up -d mysql  # only the first time
+    docker-compose up -d db  # only the first time
     CIRCLECI=1 MYSQL_PORT=32000 pytest
 
 If you persistently want these variables to be set for your environment, export them via the `.envrc` file.
@@ -244,7 +244,7 @@ and inspect the reported output. Open the HTML report via `flask/htmlcov/index.h
 
 The back-end exposes the GraphQL API at the `/graphql` endpoint. You can experiment with the API in the GraphQL playground.
 
-1. Start the required services by `docker-compose up webapp mysql`
+1. Start the required services by `docker-compose up webapp db`
 1. Open `localhost:5000/graphql`.
 1. Simulate being a valid, logged-in user by fetching an authorization token (internally the variables of the `.env` file are used): `./fetch_token`
 1. Copy the content of the `access_token` field (alternatively, you can pipe the above command ` | jq -r .access_token | xclip -i -selection c` to copy it to the system clipboard)
