@@ -9,7 +9,7 @@ Build: [![CircleCI](https://circleci.com/gh/boxwise/boxtribute.svg?style=svg)](h
 
 # Readme
 
-This is the repo for the new mobile web app of [Boxtribute](www.boxtribute.org), consisting of a [React front-end](/react) bootstrapped with [Create React App](https://github.com/facebook/create-react-app), and a [Python Flask back-end](/flask).
+This is the repo for the new mobile web app of [Boxtribute](www.boxtribute.org), consisting of a [React front-end](/react) bootstrapped with [Create React App](https://github.com/facebook/create-react-app), and a [Python Flask back-end](/back).
 
 Please check out [**Contribution Guidelines**](CONTRIBUTING.md) before you get started!
 
@@ -19,7 +19,7 @@ Please check out [**Contribution Guidelines**](CONTRIBUTING.md) before you get s
 1. [Installation](#preparation-for-installation)
    1. [Basic steps](#preparation-for-installation)
    2. [Front-end](/react/README.md)
-   3. [Back-end](/flask/README.md)
+   3. [Back-end](/back/README.md)
 1. [About Docker](#about-docker)
 1. [Development Database Seed](#development-database-seed)
 1. [CircleCI](#circleci)
@@ -59,7 +59,7 @@ services:
 ### [Further Steps]
 
 - [for front-end including react-testing-library, eslint, prettier](/react/README.md)
-- [for back-end including pytest, venv, formatting and debugging](/flask/README.md)
+- [for back-end including pytest, venv, formatting and debugging](/back/README.md)
 
 ## About Docker
 

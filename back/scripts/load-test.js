@@ -8,7 +8,7 @@
 //    ./fetch_token
 // 4. Store the value of `access_token` as `AUTH0_TEST_JWT` in the .env file
 // 5. Run the script with effective loading of variables from the .env file
-//    dotenv run k6 run flask/scripts/load-test.js
+//    dotenv run k6 run back/scripts/load-test.js
 // 6. Consider k6 options (e.g. number of virtual users via -u)
 // 7. Experiment with GraphQL queries of varying complexity
 // 8. Experiment with different WSGI server settings (gunicorn.conf.py file)

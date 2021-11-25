@@ -20,7 +20,7 @@ Following the [general set-up steps](../README.md), here a few steps that make y
 
 [Pre-commit](https://pre-commit.com/) enables us to run code quality checks, such as missing semicolons, trailing whitespace, and debug statements, before you are committing your code. We chose pre-commit since it enables us to run these checks for both front-end and back-end in just one place.
 The downside is that you need python to be installed on your computer.
-Please check the [back-end README](../flask/README.md#set-up-pre-commit) to set it up.
+Please check the [back-end README](../back/README.md#set-up-pre-commit) to set it up.
 
 ### Install node and yarn
 

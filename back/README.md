@@ -50,9 +50,9 @@ On Windows run instead
 
 [Pre-commit](https://pre-commit.com/) enables us to run code quality checks, such as missing semicolons, trailing whitespace, and debug statements, as well as consistent code formatting, before you commit your code. We chose pre-commit since it enables us to run these checks for both front-end and back-end in just one place.
 
-1.  Install pre-commit and the linters/formatters (all declared in `/flask/requirements-dev.txt`). Run the command from the root folder of the repo
+1.  Install pre-commit and the linters/formatters (all declared in `/back/requirements-dev.txt`). Run the command from the root folder of the repo
 
-        pip install -U -e flask -r flask/requirements-dev.txt
+        pip install -U -e back -r back/requirements-dev.txt
 
 2.  Install the git hooks
 
@@ -72,7 +72,7 @@ The following are a couple of recommendations for IDE integration, database inte
 
 Install the dependencies of the app in the activated virtual environment
 
-    pip install -U -r flask/requirements.txt
+    pip install -U -r back/requirements.txt
 
 For the integration tests authentication information is fetched from the [Auth0](https://auth0.com) website. Log in and select `Applications` -> `Applications` from the side bar menu. Select `boxtribute-dev-api`. Copy the `Client Secret` into the `.env` file as the `AUTH0_CLIENT_SECRET_TEST` variables.
 
@@ -113,7 +113,7 @@ Most of our developers use [MySQL workbench](https://dev.mysql.com/doc/workbench
 #### ORM
 
 From the Python side of the application we use an Object Relational Mapper (ORM) to interact with the database. An ORM provides a convenient abstraction interface since it leverages Python's language features and is more secure compared to using raw SQL queries.
-It was [decided](../docs/adr/Python-ORM.md) to settle with [peewee](https://docs.peewee-orm.com/en/latest/index.html) as ORM solution. It builds on models (see `flask/boxtribute_server/models/` as abstraction of the MySQL database tables.
+It was [decided](../docs/adr/Python-ORM.md) to settle with [peewee](https://docs.peewee-orm.com/en/latest/index.html) as ORM solution. It builds on models (see `back/boxtribute_server/models/` as abstraction of the MySQL database tables.
 
 #### Auto-generating peewee model definitions
 
@@ -236,9 +236,9 @@ to allow for making requests to the app, and verify the response with previously
 
 From the repository root, run
 
-    pytest --cov=flask/boxtribute_server --cov-report=term --cov-report=html flask
+    pytest --cov=back/boxtribute_server --cov-report=term --cov-report=html back
 
-and inspect the reported output. Open the HTML report via `flask/htmlcov/index.html` to browse coverage for individual source code files.
+and inspect the reported output. Open the HTML report via `back/htmlcov/index.html` to browse coverage for individual source code files.
 
 ## GraphQL Playground
 
@@ -262,7 +262,7 @@ The back-end exposes the GraphQL API at the `/graphql` endpoint. You can experim
 
 ## Production environment
 
-In production, the web app is run by the WSGI server `gunicorn` which serves as a glue between the web app and the web server (e.g. Apache). `gunicorn` allows for more flexible configuration of request handling (see `flask/gunicorn.conf.py` file).
+In production, the web app is run by the WSGI server `gunicorn` which serves as a glue between the web app and the web server (e.g. Apache). `gunicorn` allows for more flexible configuration of request handling (see `back/gunicorn.conf.py` file).
 
 Launch the production server by
 
@@ -288,14 +288,14 @@ Used in combination with [k6](https://k6.io/docs/). See the example [script](./s
 
 1. Create output directory for profile files
 
-        mkdir -p flask/stats
+        mkdir -p back/stats
 
 1. Launch the production server as mentioned above, and the database service
-1. Run a request, e.g. `dotenv run k6 run flask/scripts/load-test.js`
+1. Run a request, e.g. `dotenv run k6 run back/scripts/load-test.js`
 1. `pip install` a profile visualization tool, e.g. [tuna](https://github.com/nschloe/tuna) or [snakeviz](https://github.com/jiffyclub/snakeviz) and load the profile
 
-        tuna flask/stats/some.profile
-        snakeviz flask/stats/some.profile
+        tuna back/stats/some.profile
+        snakeviz back/stats/some.profile
 
 1. Inspect the stack visualization in your web browser.
 
@@ -316,6 +316,6 @@ Occasionally it might be required to update the database schema. To this end we 
 1. Apply all pending migrations by `flask db upgrade`, and rollback the latest migration by `flask db downgrade`.
 1. Query the current migration status of the database via `flask db status`.
 
-Migration scripts must be stored in `flask/boxtribute_server/migrations`, and are put under version-control.
+Migration scripts must be stored in `back/boxtribute_server/migrations`, and are put under version-control.
 
 For an example migration, see `docs/peewee-moves/`.

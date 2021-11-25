@@ -1,7 +1,7 @@
 version: 2
 updates:
   - package-ecosystem: "pip"
-    directory: "/flask/"
+    directory: "/back/"
     schedule:
       interval: "weekly"
     assignees:

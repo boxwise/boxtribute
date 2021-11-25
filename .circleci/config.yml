@@ -16,7 +16,7 @@ jobs:
   build-flask:
     docker:
       - image: circleci/python:3.8-buster
-    working_directory: ~/flask
+    working_directory: ~/back
     steps:
       - attach_workspace:
           at: ~/
@@ -38,7 +38,7 @@ jobs:
       - persist_to_workspace:
           root: ~/
           paths:
-            - flask/*
+            - back/*
 
   build-and-test-react:
     docker:
@@ -108,7 +108,7 @@ jobs:
           MYSQL_DATABASE: dropapp_dev
           MYSQL_ROOT_HOST: "%"
         command: --default-authentication-plugin=mysql_native_password --lower_case_table_names=1
-    working_directory: ~/flask
+    working_directory: ~/back
     steps:
       # Attach workspace from build
       - attach_workspace:
@@ -174,7 +174,7 @@ jobs:
         type: string
     docker:
       - image: circleci/python:3.8-buster
-    working_directory: ~/flask
+    working_directory: ~/back
     steps:
       # Attach workspace from build
       - attach_workspace:
@@ -208,7 +208,7 @@ jobs:
             sed 's/service: v2-staging/service: << parameters.serviceName >>/g' app.yaml > app-<< parameters.serviceName >>.yaml
       - run:
           name: Compress deployment artificats
-          command: tar -cvzf ~/deploy.tar.gz ~/flask
+          command: tar -cvzf ~/deploy.tar.gz ~/back
       - store_artifacts:
           name: Store copy of deployment artifacts
           path: ~/deploy.tar.gz

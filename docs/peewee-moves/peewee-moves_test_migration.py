@@ -2,7 +2,7 @@
 table_genders_add_foreign_key_camps
 date created: 2020-11-27 21:19:34.821372
 
-This migration must be moved into flask/boxtribute_server/migrations to work
+This migration must be moved into back/boxtribute_server/migrations to work
 """
 import logging
 
