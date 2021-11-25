@@ -1,4 +1,4 @@
-from boxwise_flask.models.language import Language
+from boxtribute_server.models.language import Language
 
 
 def default_language_data():

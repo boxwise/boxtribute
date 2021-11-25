@@ -1,5 +1,5 @@
 import pytest
-from boxwise_flask.models.usergroup_base_access import UsergroupBaseAccess
+from boxtribute_server.models.usergroup_base_access import UsergroupBaseAccess
 from data.base import default_bases_data
 from data.usergroup import default_usergroup_data
 

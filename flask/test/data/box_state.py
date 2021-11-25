@@ -1,5 +1,5 @@
 import pytest
-from boxwise_flask.models.box_state import BoxState
+from boxtribute_server.models.box_state import BoxState
 
 
 def default_box_state_data():

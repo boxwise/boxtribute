@@ -1,7 +1,7 @@
 from datetime import datetime
 
 import pytest
-from boxwise_flask.models.transaction import Transaction
+from boxtribute_server.models.transaction import Transaction
 from data.beneficiary import default_beneficiary_data
 from data.product import default_product_data
 from data.user import default_user_data

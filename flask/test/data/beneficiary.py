@@ -1,7 +1,7 @@
 from datetime import datetime
 
 import pytest
-from boxwise_flask.models.beneficiary import Beneficiary
+from boxtribute_server.models.beneficiary import Beneficiary
 from data.base import default_base_data
 
 TIME = datetime.now()

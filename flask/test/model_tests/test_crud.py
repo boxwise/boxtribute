@@ -1,12 +1,12 @@
 import peewee
 import pytest
-from boxwise_flask.exceptions import BoxCreationFailed, RequestedResourceNotFound
-from boxwise_flask.models.crud import (
+from boxtribute_server.exceptions import BoxCreationFailed, RequestedResourceNotFound
+from boxtribute_server.models.crud import (
     BOX_LABEL_IDENTIFIER_GENERATION_ATTEMPTS,
     create_box,
     create_qr_code,
 )
-from boxwise_flask.models.qr_code import QrCode
+from boxtribute_server.models.qr_code import QrCode
 
 
 def test_create_qr_code_for_nonexisting_box():

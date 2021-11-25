@@ -13,9 +13,9 @@ import os
 import tempfile
 
 import pytest
-from boxwise_flask.app import configure_app, create_app
-from boxwise_flask.db import db
-from boxwise_flask.models import MODELS
+from boxtribute_server.app import configure_app, create_app
+from boxtribute_server.db import db
+from boxtribute_server.models import MODELS
 
 # Imports fixtures into tests
 from data import *  # noqa: F401,F403

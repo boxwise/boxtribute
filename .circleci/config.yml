@@ -157,7 +157,7 @@ jobs:
           name: Run pytest
           command: |
             source env/bin/activate
-            pytest --cov-report xml:test-results/coverage.xml --cov=boxwise_flask
+            pytest --cov-report xml:test-results/coverage.xml --cov=boxtribute_server
       - store_test_results:
           path: test-results
       - store_artifacts:

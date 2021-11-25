@@ -1,5 +1,5 @@
 import pytest
-from boxwise_flask.models.size_range import SizeRange
+from boxtribute_server.models.size_range import SizeRange
 
 
 def default_size_range_data():

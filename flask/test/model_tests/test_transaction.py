@@ -1,5 +1,5 @@
 import pytest
-from boxwise_flask.models.transaction import Transaction
+from boxtribute_server.models.transaction import Transaction
 from playhouse.shortcuts import model_to_dict
 
 

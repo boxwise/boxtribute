@@ -1,5 +1,5 @@
 import pytest
-from boxwise_flask.models.settings import Settings
+from boxtribute_server.models.settings import Settings
 
 
 def default_settings_data():

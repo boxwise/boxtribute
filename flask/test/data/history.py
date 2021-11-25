@@ -1,5 +1,5 @@
 import pytest
-from boxwise_flask.models.history import DbChangeHistory
+from boxtribute_server.models.history import DbChangeHistory
 
 
 def default_history_data():

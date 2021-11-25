@@ -1,5 +1,5 @@
 import pytest
-from boxwise_flask.models.user import User
+from boxtribute_server.models.user import User
 from playhouse.shortcuts import model_to_dict
 
 

@@ -1,5 +1,5 @@
 import pytest
-from boxwise_flask.models.usergroup_access_level import UsergroupAccessLevel
+from boxtribute_server.models.usergroup_access_level import UsergroupAccessLevel
 
 
 def default_usergroup_access_level_data():

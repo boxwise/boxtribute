@@ -1,7 +1,7 @@
 from datetime import datetime
 
 import pytest
-from boxwise_flask.models.usergroup import Usergroup
+from boxtribute_server.models.usergroup import Usergroup
 from data.organisation import default_organisation_data
 from data.usergroup_access_level import default_usergroup_access_level_data
 

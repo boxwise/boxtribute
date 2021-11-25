@@ -1,7 +1,7 @@
 from datetime import datetime
 
 import pytest
-from boxwise_flask.models.box import Box
+from boxtribute_server.models.box import Box
 from data.box_state import default_box_state_data
 from data.location import default_location_data
 from data.product import default_product_data

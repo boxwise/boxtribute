@@ -1,7 +1,7 @@
 from datetime import date, datetime
 
 import pytest
-from boxwise_flask.models.user import User
+from boxtribute_server.models.user import User
 from data.usergroup import default_usergroup_data
 
 TIME = datetime.now()

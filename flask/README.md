@@ -113,7 +113,7 @@ Most of our developers use [MySQL workbench](https://dev.mysql.com/doc/workbench
 #### ORM
 
 From the Python side of the application we use an Object Relational Mapper (ORM) to interact with the database. An ORM provides a convenient abstraction interface since it leverages Python's language features and is more secure compared to using raw SQL queries.
-It was [decided](../docs/adr/Python-ORM.md) to settle with [peewee](https://docs.peewee-orm.com/en/latest/index.html) as ORM solution. It builds on models (see `flask/boxwise_flask/models/` as abstraction of the MySQL database tables.
+It was [decided](../docs/adr/Python-ORM.md) to settle with [peewee](https://docs.peewee-orm.com/en/latest/index.html) as ORM solution. It builds on models (see `flask/boxtribute_server/models/` as abstraction of the MySQL database tables.
 
 #### Auto-generating peewee model definitions
 
@@ -222,7 +222,7 @@ Test data is set up in the `test/data/` folder. Three definitions are required:
 
 - for new data the fixtures must be imported in `test/data/__init__.py` and added to the `__all__` list
 - the creation function needs must be added to `test/data/setup_tables.py`
-- the new model must be added to the list in `boxwise_flask/models/__init__.py`
+- the new model must be added to the list in `boxtribute_server/models/__init__.py`
 
 #### App tests
 
@@ -236,7 +236,7 @@ to allow for making requests to the app, and verify the response with previously
 
 From the repository root, run
 
-    pytest --cov=flask/boxwise_flask --cov-report=term --cov-report=html flask
+    pytest --cov=flask/boxtribute_server --cov-report=term --cov-report=html flask
 
 and inspect the reported output. Open the HTML report via `flask/htmlcov/index.html` to browse coverage for individual source code files.
 
@@ -303,7 +303,7 @@ Used in combination with [k6](https://k6.io/docs/). See the example [script](./s
 
 We use the [Auth0](https://auth0.com) web service to provide the app client with user authentication and authorization data (for short, auth and authz, resp.).
 
-The user has to authenticate using their password, and is then issued a JSON Web Token (JWT) carrying authz information (e.g. permissions to access certain resources). Every request that the client sends to a private endpoint must hold the JWT as `bearer` in the authorization header. When handling the request, the server decodes the JWT, extracts the authz information, and keeps it available for the duration of the request (the implementation is in `boxwise_flask.auth.require_auth`).
+The user has to authenticate using their password, and is then issued a JSON Web Token (JWT) carrying authz information (e.g. permissions to access certain resources). Every request that the client sends to a private endpoint must hold the JWT as `bearer` in the authorization header. When handling the request, the server decodes the JWT, extracts the authz information, and keeps it available for the duration of the request (the implementation is in `boxtribute_server.auth.require_auth`).
 
 ## Database Schema Migrations
 
@@ -316,6 +316,6 @@ Occasionally it might be required to update the database schema. To this end we 
 1. Apply all pending migrations by `flask db upgrade`, and rollback the latest migration by `flask db downgrade`.
 1. Query the current migration status of the database via `flask db status`.
 
-Migration scripts must be stored in `flask/boxwise_flask/migrations`, and are put under version-control.
+Migration scripts must be stored in `flask/boxtribute_server/migrations`, and are put under version-control.
 
 For an example migration, see `docs/peewee-moves/`.

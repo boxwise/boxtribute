@@ -1,5 +1,5 @@
 import pytest
-from boxwise_flask.models.location import Location
+from boxtribute_server.models.location import Location
 from data.base import default_base_data
 from data.box_state import default_box_state_data
 

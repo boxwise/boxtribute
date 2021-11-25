@@ -1,5 +1,5 @@
 import pytest
-from boxwise_flask.models.organisation import Organisation
+from boxtribute_server.models.organisation import Organisation
 
 
 def default_organisation_data():

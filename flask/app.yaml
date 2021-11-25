@@ -1,6 +1,6 @@
 runtime: python38
 service: v2-staging
-entrypoint: gunicorn -b :$PORT boxwise_flask.main:app
+entrypoint: gunicorn -b :$PORT
 handlers:
 - url: /v2/api/.*
   script: auto

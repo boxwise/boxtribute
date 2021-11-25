@@ -1,5 +1,5 @@
 import pytest
-from boxwise_flask.models.log import Log
+from boxtribute_server.models.log import Log
 
 
 @pytest.mark.usefixtures("default_log")

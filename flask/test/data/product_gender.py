@@ -1,5 +1,5 @@
 import pytest
-from boxwise_flask.models.product_gender import ProductGender
+from boxtribute_server.models.product_gender import ProductGender
 
 
 def default_product_gender_data():

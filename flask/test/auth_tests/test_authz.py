@@ -1,6 +1,6 @@
 import pytest
-from boxwise_flask.authz import authorize
-from boxwise_flask.exceptions import Forbidden, UnknownResource
+from boxtribute_server.authz import authorize
+from boxtribute_server.exceptions import Forbidden, UnknownResource
 
 ALL_PERMISSIONS = [
     "base:read",

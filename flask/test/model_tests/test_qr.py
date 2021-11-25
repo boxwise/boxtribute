@@ -1,4 +1,4 @@
-from boxwise_flask.models.qr_code import QrCode
+from boxtribute_server.models.qr_code import QrCode
 
 
 def test_qr_model(default_qr_code):

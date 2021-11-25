@@ -1,6 +1,6 @@
 import pytest
-from boxwise_flask.db import db
-from boxwise_flask.models import MODELS
+from boxtribute_server.db import db
+from boxtribute_server.models import MODELS
 
 # Imports fixtures into tests
 from data import *  # noqa: F401,F403

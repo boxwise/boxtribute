@@ -16,9 +16,9 @@ def auth_service(module_mocker):
     decoupled from any changes of user attributes in Auth0.
     """
     module_mocker.patch(
-        "boxwise_flask.auth.get_auth_string_from_header"
+        "boxtribute_server.auth.get_auth_string_from_header"
     ).return_value = "Bearer Some.Token"
-    module_mocker.patch("boxwise_flask.auth.get_public_key").return_value = None
+    module_mocker.patch("boxtribute_server.auth.get_public_key").return_value = None
     module_mocker.patch("jose.jwt.decode").return_value = create_jwt_payload()
 
 

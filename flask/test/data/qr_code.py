@@ -1,5 +1,5 @@
 import pytest
-from boxwise_flask.models.qr_code import QrCode
+from boxtribute_server.models.qr_code import QrCode
 
 
 def default_qr_code_data():

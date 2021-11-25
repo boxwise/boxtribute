@@ -1,6 +1,6 @@
 import pytest
-from boxwise_flask.auth import get_token_from_auth_header
-from boxwise_flask.exceptions import AuthenticationFailed
+from boxtribute_server.auth import get_token_from_auth_header
+from boxtribute_server.exceptions import AuthenticationFailed
 
 
 def test_get_invalid_jwt_no_auth_header():

@@ -4,11 +4,11 @@ with open("requirements.txt") as f:
     REQUIREMENTS = f.readlines()
 
 setup(
-    name="boxwise-flask",
+    name="boxtribute-server",
     description="""Boxwise is a web application that makes it easy for
     organisations to source, store and distribute donated goods to people in
     need in a fair and dignified way.""",
-    url="https://github.com/boxwise/boxwise-flask",
+    url="https://github.com/boxwise/boxtribute",
     author="boxwise.co",
     author_email="hello@boxwise.co",
     license="Apache 2.0",

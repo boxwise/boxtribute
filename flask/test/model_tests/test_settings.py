@@ -1,5 +1,5 @@
 import pytest
-from boxwise_flask.models.settings import Settings
+from boxtribute_server.models.settings import Settings
 
 
 @pytest.mark.usefixtures("default_settings")
