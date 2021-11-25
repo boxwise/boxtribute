@@ -4,9 +4,8 @@ import os
 import urllib
 from functools import wraps
 
-from jose import jwt
-
 from flask import g, request
+from jose import jwt
 
 from .exceptions import AuthenticationFailed
 

@@ -3,9 +3,8 @@ import os
 
 from ariadne import graphql_sync
 from ariadne.constants import PLAYGROUND_HTML
-from flask_cors import cross_origin
-
 from flask import Blueprint, jsonify, request
+from flask_cors import cross_origin
 
 from .auth import requires_auth
 from .exceptions import AuthenticationFailed
