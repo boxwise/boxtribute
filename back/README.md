@@ -72,7 +72,7 @@ The following are a couple of recommendations for IDE integration, database inte
 
 Install the dependencies of the app in the activated virtual environment
 
-    pip install -U -r back/requirements.txt
+    pip install -U -e back -r back/requirements-dev.txt
 
 For the integration tests authentication information is fetched from the [Auth0](https://auth0.com) website. Log in and select `Applications` -> `Applications` from the side bar menu. Select `boxtribute-dev-api`. Copy the `Client Secret` into the `.env` file as the `AUTH0_CLIENT_SECRET_TEST` variables.
 

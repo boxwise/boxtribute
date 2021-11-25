@@ -4,9 +4,8 @@ ARG flask_env
 FROM python:3.8-alpine AS base
 
 WORKDIR /app/back
-# install packages seperately to use docker build-caching
-# so we don't need to re-fetch these if code has changed
-# but our package.json hasn't
+# install packages separately to use docker build-caching so we don't need to
+# re-fetch these if code has changed but our requirements.txt hasn't
 COPY requirements.txt /app/back
 RUN pip install -r requirements.txt && rm requirements.txt
 
