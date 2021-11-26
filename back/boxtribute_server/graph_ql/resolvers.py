@@ -24,7 +24,7 @@ from ..models.size import Size
 from ..models.transaction import Transaction
 from ..models.user import User
 from ..models.x_beneficiary_language import XBeneficiaryLanguage
-from .pagination import generate_page, pagination_parameters
+from .pagination import load_into_page
 
 query = QueryType()
 mutation = MutationType()
@@ -155,21 +155,12 @@ def resolve_locations(_, info):
 @convert_kwargs_to_snake_case
 def resolve_products(_, info, pagination_input=None):
     authorize(permission="product:read")
-    cursor, limit = pagination_parameters(pagination_input)
     base_filter_condition = Base.id.in_(g.user["base_ids"])
-    pagination_condition = cursor.pagination_condition(Product)
-    selection = Product.select().join(Base)
-    products = (
-        selection.where((base_filter_condition) & (pagination_condition))
-        .order_by(Product.id)
-        .limit(limit + 1)
-    )
-    return generate_page(
+    return load_into_page(
+        Product,
         base_filter_condition,
-        elements=products,
-        cursor=cursor,
-        limit=limit,
-        selection=selection,
+        selection=Product.select().join(Base),
+        pagination_input=pagination_input,
     )
 
 
@@ -177,21 +168,12 @@ def resolve_products(_, info, pagination_input=None):
 @convert_kwargs_to_snake_case
 def resolve_beneficiaries(_, info, pagination_input=None):
     authorize(permission="beneficiary:read")
-    cursor, limit = pagination_parameters(pagination_input)
     base_filter_condition = Base.id.in_(g.user["base_ids"])
-    pagination_condition = cursor.pagination_condition(Beneficiary)
-    selection = Beneficiary.select().join(Base)
-    beneficiaries = (
-        selection.where((base_filter_condition) & (pagination_condition))
-        .order_by(Beneficiary.id)
-        .limit(limit + 1)
-    )
-    return generate_page(
+    return load_into_page(
+        Beneficiary,
         base_filter_condition,
-        elements=beneficiaries,
-        cursor=cursor,
-        limit=limit,
-        selection=selection,
+        selection=Beneficiary.select().join(Base),
+        pagination_input=pagination_input,
     )
 
 
@@ -287,21 +269,9 @@ def resolve_base_locations(base_obj, info):
 @convert_kwargs_to_snake_case
 def resolve_base_beneficiaries(base_obj, info, pagination_input=None):
     authorize(permission="beneficiary:read")
-    cursor, limit = pagination_parameters(pagination_input)
     base_filter_condition = Beneficiary.base == base_obj.id
-    pagination_condition = cursor.pagination_condition(Beneficiary)
-    selection = Beneficiary.select()
-    beneficiaries = (
-        selection.where((base_filter_condition) & (pagination_condition))
-        .order_by(Beneficiary.id)
-        .limit(limit + 1)
-    )
-    return generate_page(
-        base_filter_condition,
-        elements=beneficiaries,
-        cursor=cursor,
-        limit=limit,
-        selection=selection,
+    return load_into_page(
+        Beneficiary, base_filter_condition, pagination_input=pagination_input
     )
 
 
@@ -309,21 +279,9 @@ def resolve_base_beneficiaries(base_obj, info, pagination_input=None):
 @convert_kwargs_to_snake_case
 def resolve_location_boxes(location_obj, info, pagination_input=None):
     authorize(permission="stock:read")
-    cursor, limit = pagination_parameters(pagination_input)
     location_filter_condition = Box.location == location_obj.id
-    pagination_condition = cursor.pagination_condition(Box)
-    selection = Box.select()
-    boxes = (
-        selection.where((location_filter_condition) & (pagination_condition))
-        .order_by(Box.id)
-        .limit(limit + 1)
-    )
-    return generate_page(
-        location_filter_condition,
-        elements=boxes,
-        cursor=cursor,
-        limit=limit,
-        selection=selection,
+    return load_into_page(
+        Box, location_filter_condition, pagination_input=pagination_input
     )
 
 
@@ -357,21 +315,9 @@ def resolve_product_category_products(
     product_category_obj, info, pagination_input=None
 ):
     authorize(permission="product:read")
-    cursor, limit = pagination_parameters(pagination_input)
     category_filter_condition = Product.category == product_category_obj.id
-    pagination_condition = cursor.pagination_condition(Product)
-    selection = Product.select()
-    products = (
-        selection.where((category_filter_condition) & (pagination_condition))
-        .order_by(Product.id)
-        .limit(limit + 1)
-    )
-    return generate_page(
-        category_filter_condition,
-        elements=products,
-        cursor=cursor,
-        limit=limit,
-        selection=selection,
+    return load_into_page(
+        Product, category_filter_condition, pagination_input=pagination_input
     )
 
 
