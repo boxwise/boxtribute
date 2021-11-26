@@ -9,7 +9,7 @@ Build: [![CircleCI](https://circleci.com/gh/boxwise/boxtribute.svg?style=svg)](h
 
 # Readme
 
-This is the repo for the new mobile web app of [Boxtribute](www.boxtribute.org), consisting of a [React front-end](/react) bootstrapped with [Create React App](https://github.com/facebook/create-react-app), and a [Python flask back-end](/flask).
+This is the repo for the new mobile web app of [Boxtribute](www.boxtribute.org), consisting of a [React front-end](/react) bootstrapped with [Create React App](https://github.com/facebook/create-react-app), and a [Python Flask back-end](/back).
 
 Please check out [**Contribution Guidelines**](CONTRIBUTING.md) before you get started!
 
@@ -19,7 +19,7 @@ Please check out [**Contribution Guidelines**](CONTRIBUTING.md) before you get s
 1. [Installation](#preparation-for-installation)
    1. [Basic steps](#preparation-for-installation)
    2. [Front-end](/react/README.md)
-   3. [Back-end](/flask/README.md)
+   3. [Back-end](/back/README.md)
 1. [About Docker](#about-docker)
 1. [Development Database Seed](#development-database-seed)
 1. [CircleCI](#circleci)
@@ -59,11 +59,11 @@ services:
 ### [Further Steps]
 
 - [for front-end including react-testing-library, eslint, prettier](/react/README.md)
-- [for back-end including pytest, venv, formatting and debugging](/flask/README.md)
+- [for back-end including pytest, venv, formatting and debugging](/back/README.md)
 
 ## About Docker
 
-We are using Docker containers to make it easy for everyone to spin up an development environment which is the same everywhere. In `docker-compose.yaml` three docker containers are specified - one for the mysql database called `mysql`, one for the flask back-end called `flask` and one for the react front-end called `react`.
+We are using Docker containers to make it easy for everyone to spin up an development environment which is the same everywhere. In `docker-compose.yaml` three Docker containers are specified - one for the MySQL database called `db`, one for the Flask back-end called `webapp` and one for the react front-end called `react`.
 
 ## Development Database Seed
 

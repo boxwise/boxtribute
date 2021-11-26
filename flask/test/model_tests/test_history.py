@@ -1,9 +1,0 @@
-import pytest
-from boxwise_flask.models.history import DbChangeHistory
-
-
-@pytest.mark.usefixtures("default_history")
-def test_history_model(default_history):
-    query = DbChangeHistory.get_by_id(default_history["id"])
-
-    assert query.changes == default_history["changes"]

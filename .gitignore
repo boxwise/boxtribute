@@ -9,6 +9,7 @@
 .coverage
 htmlcov/
 env/
-flask/test-results
+back/test-results
+*.prof
 
 yarn-error.log
