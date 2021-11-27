@@ -271,6 +271,7 @@ type TransferAgreement {
   sourceOrganisation: Organisation!
   targetOrganisation: Organisation!
   state: TransferAgreementState
+  type: TransferAgreementType!
   requestedBy: User!
   requestedOn: Datetime!
   acceptedBy: User
@@ -359,6 +360,11 @@ enum TransferAgreementState {
   Rejected
   Canceled
   Expired
+}
+
+enum TransferAgreementType {
+  unidirectional
+  bidirectional
 }
 
 enum ShipmentState {
