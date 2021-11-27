@@ -275,12 +275,11 @@ type TransferAgreement {
   requestedOn: Datetime!
   acceptedBy: User
   acceptedOn: Datetime
-  rejectedBy: User
-  rejectedOn: Datetime
-  canceledBy: User
-  canceledOn: Datetime
+  terminatedBy: User
+  terminatedOn: Datetime
   validFrom: Datetime!
   validUntil: Datetime
+  comment: String
   sourceBases: [Base!]!
   targetBases: [Base!]
   shipments: [Shipment!]!
@@ -291,16 +290,16 @@ type Shipment {
   sourceBase: Base
   targetBase: Base
   state: ShipmentState
-  createdBy: User!
-  createdOn: Datetime!
+  startedBy: User!
+  startedOn: Datetime!
   sentBy: User
   sentOn: Datetime
-  receivedBy: User
-  receivedOn: User
+  completedBy: User
+  completedOn: Datetime
+  canceledBy: User
+  canceledOn: Datetime
   transferAgreement: TransferAgreement!
   details: [ShipmentDetail!]!
-  lastModifiedBy: User!
-  lastModifiedOn: Datetime!
 }
 
 type ShipmentDetail {
@@ -311,19 +310,14 @@ type ShipmentDetail {
   targetLocation: Location
   box: Box!
   shipment: Shipment!
-  lastModifiedBy: User!
-  lastModifiedOn: Datetime!
+  createdBy: User!
+  createdOn: Datetime!
+  deletedBy: User
+  deletedOn: Datetime
 }
 
 input TransferAgreementCreationInput {
   targetOrganisationId: Int!
-  validFrom: Datetime
-  validUntil: Datetime
-  sourceBaseIds: [Int!]
-}
-
-input TransferAgreementUpdateInput {
-  id: ID!
   validFrom: Datetime
   validUntil: Datetime
   sourceBaseIds: [Int!]
@@ -352,6 +346,11 @@ input ShipmentDetailUpdateInput {
   id: ID!
   targetProductId: Int!
   targetLocationId: Int!
+}
+
+input ShipmentFilterInput {
+  sourceOrganisationId: Int
+  targetOrganisationId: Int
 }
 
 enum TransferAgreementState {
