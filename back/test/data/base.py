@@ -50,6 +50,6 @@ def default_bases():
     return default_bases_data()
 
 
-def create_default_bases():
+def create():
     for _, base in default_bases_data().items():
         Base.create(**base)

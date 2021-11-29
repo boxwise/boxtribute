@@ -40,6 +40,6 @@ def another_location():
     return another_location_data()
 
 
-def create_default_location():
+def create():
     Location.create(**default_location_data())
     Location.create(**another_location_data())

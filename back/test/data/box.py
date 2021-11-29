@@ -48,6 +48,6 @@ def box_without_qr_code():
     return box_without_qr_code_data()
 
 
-def create_default_box():
+def create():
     Box.create(**default_box_data())
     Box.create(**box_without_qr_code_data())

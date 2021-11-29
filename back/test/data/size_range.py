@@ -12,5 +12,5 @@ def default_size_range():
     return default_size_range_data()
 
 
-def create_default_size_range():
+def create():
     SizeRange.create(**default_size_range_data())

@@ -22,9 +22,6 @@ def qr_code_without_box():
     return qr_code_without_box_data()
 
 
-def create_default_qr_code():
+def create():
     QrCode.create(**default_qr_code_data())
-
-
-def create_qr_code_without_box():
     QrCode.create(**qr_code_without_box_data())

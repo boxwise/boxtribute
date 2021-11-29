@@ -19,5 +19,5 @@ def default_usergroup_access_level():
     return default_usergroup_access_level_data()
 
 
-def create_default_usergroup_access_level():
+def create():
     UsergroupAccessLevel.create(**default_usergroup_access_level_data())

@@ -4,7 +4,7 @@ from boxtribute_server.models import MODELS
 
 # Imports fixtures into tests
 from data import *  # noqa: F401,F403
-from data.setup_tables import setup_tables
+from data import setup_models
 from peewee import SqliteDatabase
 
 
@@ -19,6 +19,6 @@ def setup_db_before_test(mocker):
 
     with _db.bind_ctx(MODELS):
         _db.create_tables(MODELS)
-        setup_tables()
+        setup_models()
         yield _db
         _db.drop_tables(MODELS)

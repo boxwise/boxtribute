@@ -34,6 +34,6 @@ def default_beneficiary():
     return default_beneficiary_data()
 
 
-def create_default_beneficiary():
+def create():
     Beneficiary.create(**default_beneficiary_data())
     Beneficiary.create(**another_beneficiary_data())

@@ -12,5 +12,5 @@ def default_box_state():
     return default_box_state_data()
 
 
-def create_default_box_state():
+def create():
     BoxState.create(**default_box_state_data())

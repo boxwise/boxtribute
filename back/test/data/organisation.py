@@ -21,5 +21,5 @@ def default_organisation():
     return default_organisation_data()
 
 
-def create_default_organisation():
+def create():
     Organisation.create(**default_organisation_data())

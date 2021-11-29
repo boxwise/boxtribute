@@ -29,5 +29,5 @@ def default_usergroup():
     return default_usergroup_data()
 
 
-def create_default_usergroup():
+def create():
     Usergroup.create(**default_usergroup_data())

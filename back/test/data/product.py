@@ -29,5 +29,5 @@ def default_product():
     return default_product_data()
 
 
-def create_default_product():
+def create():
     Product.create(**default_product_data())

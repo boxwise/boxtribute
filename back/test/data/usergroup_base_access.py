@@ -22,7 +22,7 @@ def default_usergroup_base_access_list():
     return default_usergroup_base_access_list_data()
 
 
-def create_default_usergroup_base_access_list():
+def create():
     UsergroupBaseAccess.insert_many(
         default_usergroup_base_access_list_data().values()
     ).execute()

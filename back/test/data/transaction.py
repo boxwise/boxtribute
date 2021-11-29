@@ -26,5 +26,5 @@ def default_transaction():
     return default_transaction_data()
 
 
-def create_default_transaction():
+def create():
     Transaction.create(**default_transaction_data())

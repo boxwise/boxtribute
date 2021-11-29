@@ -1,3 +1,7 @@
+import importlib
+import os
+import pathlib
+
 from .base import default_base, default_bases
 from .beneficiary import default_beneficiary
 from .box import box_without_qr_code, default_box
@@ -44,3 +48,21 @@ __all__ = [
     "default_users",
     "qr_code_without_box",
 ]
+
+MODULE_DIRECTORY = pathlib.Path(__file__).resolve().parent
+
+
+def setup_models():
+    """Import all submodules of the `data` module and execute their `create()` functions
+    to create test data.
+    """
+    # List all files (exclude directories)
+    file_names = [
+        f for f in os.listdir(MODULE_DIRECTORY) if os.path.isfile(MODULE_DIRECTORY / f)
+    ]
+    file_names.remove("__init__.py")
+    module_names = [f.replace(".py", "") for f in file_names]
+
+    for module_name in module_names:
+        module = importlib.import_module(f"data.{module_name}")
+        module.create()
