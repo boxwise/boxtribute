@@ -10,6 +10,7 @@ from ..exceptions import BoxCreationFailed, RequestedResourceNotFound
 from .beneficiary import Beneficiary
 from .box import Box
 from .qr_code import QrCode
+from .transfer_agreement import TransferAgreement
 from .x_beneficiary_language import XBeneficiaryLanguage
 
 BOX_LABEL_IDENTIFIER_GENERATION_ATTEMPTS = 10
@@ -168,3 +169,16 @@ def create_qr_code(data):
 
     except peewee.DoesNotExist:
         raise RequestedResourceNotFound()
+
+
+def create_transfer_agreement(data):
+    """Insert information for a new TransferAgreement in the database."""
+    if data["valid_from"] is None:
+        # GraphQL input had 'validFrom: null', use default defined in model instead
+        del data["valid_from"]
+
+    return TransferAgreement.create(
+        source_organisation=data.pop("source_organisation_id"),
+        target_organisation=data.pop("target_organisation_id"),
+        **data,
+    )
