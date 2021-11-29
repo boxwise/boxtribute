@@ -19,6 +19,7 @@ from .qr_code import default_qr_code, qr_code_without_box
 from .settings import default_settings
 from .size_range import default_size_range
 from .transaction import default_transaction
+from .transfer_agreement import default_transfer_agreement
 from .user import default_user, default_users
 from .usergroup import default_usergroup
 from .usergroup_access_level import default_usergroup_access_level
@@ -44,6 +45,7 @@ __all__ = [
     "default_settings",
     "default_size_range",
     "default_transaction",
+    "default_transfer_agreement",
     "default_user",
     "default_usergroup",
     "default_usergroup_access_level",
