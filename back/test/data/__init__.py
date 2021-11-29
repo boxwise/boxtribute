@@ -2,6 +2,8 @@ import importlib
 import os
 import pathlib
 
+from boxtribute_server.db import db
+
 from .base import default_base, default_bases
 from .beneficiary import default_beneficiary
 from .box import box_without_qr_code, default_box
@@ -66,3 +68,7 @@ def setup_models():
     for module_name in module_names:
         module = importlib.import_module(f"data.{module_name}")
         module.create()
+
+
+# List of all Models in the database, cf. https://stackoverflow.com/a/43820902/3865876
+MODELS = db.Model.__subclasses__()

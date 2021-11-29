@@ -15,11 +15,10 @@ import tempfile
 import pytest
 from boxtribute_server.app import configure_app, create_app
 from boxtribute_server.db import db
-from boxtribute_server.models import MODELS
 
 # Imports fixtures into tests
 from data import *  # noqa: F401,F403
-from data import setup_models
+from data import MODELS, setup_models
 
 
 @pytest.fixture()

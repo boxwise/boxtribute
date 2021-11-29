@@ -222,7 +222,6 @@ Test data is set up in the `test/data/` folder. Three definitions are required:
 **Please be aware that**
 
 - for new data the fixtures must be imported in `test/data/__init__.py` and added to the `__all__` list
-- the new model must be added to the list in `boxtribute_server/models/__init__.py`
 
 #### App tests
 

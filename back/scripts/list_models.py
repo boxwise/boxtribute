@@ -2,11 +2,13 @@
 corresponding MySQL table names and columns to file.
 """
 import subprocess
+import sys
 from pathlib import Path
 
-from boxtribute_server.models import MODELS
-
 SCRIPT_DIRPATH = Path(__file__).resolve().parent
+TEST_DATA_DIRPATH = SCRIPT_DIRPATH.parent / "test"
+sys.path.insert(0, str(TEST_DATA_DIRPATH))
+from data import MODELS
 
 
 def main():
