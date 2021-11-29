@@ -1,3 +1,4 @@
+from boxtribute_server.models.enums import TransferAgreementState, TransferAgreementType
 from boxtribute_server.models.transfer_agreement import TransferAgreement
 
 
@@ -9,3 +10,5 @@ def test_transfer_agreement(
     assert agreement.source_organisation.id == default_organisation["id"]
     assert agreement.source_organisation_id == default_organisation["id"]
     assert agreement.target_organisation.id == another_organisation["id"]
+    assert agreement.state == TransferAgreementState.ACCEPTED.value
+    assert agreement.type == TransferAgreementType.BIDIRECTIONAL.value

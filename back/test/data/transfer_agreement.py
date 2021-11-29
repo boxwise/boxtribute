@@ -1,4 +1,5 @@
 import pytest
+from boxtribute_server.models.enums import TransferAgreementState, TransferAgreementType
 from boxtribute_server.models.transfer_agreement import TransferAgreement
 
 from .organisation import data as organisation_data
@@ -9,6 +10,8 @@ def data():
         "id": 1,
         "source_organisation": organisation_data()[0]["id"],
         "target_organisation": organisation_data()[1]["id"],
+        "state": TransferAgreementState.ACCEPTED.value,
+        "type": TransferAgreementType.BIDIRECTIONAL.value,
     }
 
 
