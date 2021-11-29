@@ -11,7 +11,7 @@ from .box_state import default_box_state
 from .history import default_history
 from .location import another_location, default_location
 from .log import default_log
-from .organisation import default_organisation
+from .organisation import another_organisation, default_organisation
 from .product import default_product
 from .product_category import default_product_category
 from .product_gender import default_product_gender
@@ -26,6 +26,7 @@ from .usergroup_base_access import default_usergroup_base_access_list
 
 __all__ = [
     "another_location",
+    "another_organisation",
     "box_without_qr_code",
     "default_beneficiary",
     "default_base",

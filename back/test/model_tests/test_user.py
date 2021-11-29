@@ -19,9 +19,7 @@ def test_user_from_email(
     assert queried_user.id == default_user["id"]
     assert queried_user.name == default_user["name"]
     assert queried_user.email == default_user["email"]
-    assert (
-        model_to_dict(queried_user)["usergroup"]["organisation"] == default_organisation
-    )
+    assert queried_user.usergroup.organisation.id == default_organisation["id"]
     assert (
         model_to_dict(queried_user)["usergroup"]["usergroup_access_level"]
         == default_usergroup_access_level
@@ -46,7 +44,10 @@ def test_get_all_users(
         assert user.name == default_users[user.id]["name"]
         assert user.email == default_users[user.id]["email"]
         if user_dict["usergroup"] is not None:
-            assert user_dict["usergroup"]["organisation"] == default_organisation
+            assert (
+                user_dict["usergroup"]["organisation"]["id"]
+                == default_organisation["id"]
+            )
             assert (
                 user_dict["usergroup"]["usergroup_access_level"]
                 == default_usergroup_access_level

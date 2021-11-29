@@ -1,6 +1,6 @@
 import pytest
 from boxtribute_server.models.base import Base
-from data.organisation import default_organisation_data
+from data.organisation import data as organisation_data
 
 
 def default_base_data():
@@ -9,7 +9,7 @@ def default_base_data():
         "name": "the best name",
         "currency_name": "dingo dollars",
         "seq": 1,
-        "organisation_id": default_organisation_data()["id"],
+        "organisation_id": organisation_data()[0]["id"],
     }
     return mock_base
 
@@ -24,7 +24,7 @@ def default_bases_data():
         "name": "the second best name",
         "currency_name": "monster munch",
         "seq": 1,
-        "organisation_id": default_organisation_data()["id"],
+        "organisation_id": organisation_data()[0]["id"],
     }
     bases_dict[mock_base["id"]] = mock_base
 
@@ -33,7 +33,7 @@ def default_bases_data():
         "name": "harold",
         "currency_name": "mustard",
         "seq": 1,
-        "organisation_id": default_organisation_data()["id"],
+        "organisation_id": organisation_data()[0]["id"],
     }
     bases_dict[mock_base["id"]] = mock_base
 
