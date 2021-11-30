@@ -11,6 +11,7 @@ from .beneficiary import Beneficiary
 from .box import Box
 from .qr_code import QrCode
 from .shipment import Shipment
+from .shipment_detail import ShipmentDetail
 from .transfer_agreement import TransferAgreement
 from .transfer_agreement_detail import TransferAgreementDetail
 from .x_beneficiary_language import XBeneficiaryLanguage
@@ -217,3 +218,31 @@ def create_shipment(data):
         transfer_agreement=data.pop("transfer_agreement_id"),
         **data,
     )
+
+
+def update_shipment(data):
+    """Update shipment detail information, such as prepared boxes."""
+    prepared_box_label_identifiers = data.pop("prepared_box_label_identifiers", [])
+    shipment_id = data.pop("id")
+    details = []
+
+    with db.database.atomic():
+        boxes = []
+        for box in Box.select().where(
+            Box.box_label_identifier.in_(prepared_box_label_identifiers)
+        ):
+            box.box_state = 3  # MarkedForShipment
+            boxes.append(box)
+            details.append(
+                {
+                    "shipment": shipment_id,
+                    "box": box.id,
+                    "source_product": box.product_id,
+                    "source_location": box.location_id,
+                    **data,
+                }
+            )
+
+        Box.bulk_update(boxes, fields=[Box.box_state])
+        ShipmentDetail.insert_many(details).execute()
+    return Shipment.get_by_id(shipment_id)

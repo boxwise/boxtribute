@@ -3,12 +3,14 @@ from datetime import datetime
 import peewee
 import pytest
 from boxtribute_server.exceptions import BoxCreationFailed, RequestedResourceNotFound
+from boxtribute_server.models.box import Box
 from boxtribute_server.models.crud import (
     BOX_LABEL_IDENTIFIER_GENERATION_ATTEMPTS,
     create_box,
     create_qr_code,
     create_shipment,
     create_transfer_agreement,
+    update_shipment,
 )
 from boxtribute_server.models.enums import (
     ShipmentState,
@@ -17,6 +19,7 @@ from boxtribute_server.models.enums import (
 )
 from boxtribute_server.models.qr_code import QrCode
 from boxtribute_server.models.shipment import Shipment
+from boxtribute_server.models.shipment_detail import ShipmentDetail
 from boxtribute_server.models.transfer_agreement import TransferAgreement
 from boxtribute_server.models.transfer_agreement_detail import TransferAgreementDetail
 
@@ -150,7 +153,9 @@ def test_create_transfer_agreement(
     )
 
 
-def test_create_shipment(default_user, default_bases, default_transfer_agreement):
+def test_create_shipment(
+    default_user, default_bases, default_transfer_agreement, default_box
+):
     data = {
         "source_base_id": default_bases[1]["id"],
         "target_base_id": default_bases[3]["id"],
@@ -175,3 +180,33 @@ def test_create_shipment(default_user, default_bases, default_transfer_agreement
         }.items()
     )
     assert shipment["started_on"] is not None
+
+    data = {
+        "prepared_box_label_identifiers": [default_box["box_label_identifier"]],
+        "id": shipment["id"],
+        "created_by": default_user["id"],
+    }
+    shipment = update_shipment(data)
+    details = list(
+        ShipmentDetail.select().where(ShipmentDetail.shipment == shipment.id).dicts()
+    )
+    assert len(details) == 1
+    detail = details[0]
+    assert (
+        detail.items()
+        >= {
+            "shipment": shipment.id,
+            "box": default_box["id"],
+            "source_product": default_box["product"],
+            "target_product": None,
+            "source_location": default_box["location"],
+            "target_location": None,
+            "created_by": default_user["id"],
+            "deleted_by": None,
+            "deleted_on": None,
+        }.items()
+    )
+    assert detail["created_on"] is not None
+
+    box = Box.get_by_id(detail["box"])
+    assert box.box_state_id == 3
