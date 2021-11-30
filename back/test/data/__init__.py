@@ -17,6 +17,7 @@ from .product_category import default_product_category
 from .product_gender import default_product_gender
 from .qr_code import default_qr_code, qr_code_without_box
 from .settings import default_settings
+from .shipment import default_shipment
 from .size_range import default_size_range
 from .transaction import default_transaction
 from .transfer_agreement import default_transfer_agreement
@@ -43,6 +44,7 @@ __all__ = [
     "default_product_gender",
     "default_qr_code",
     "default_settings",
+    "default_shipment",
     "default_size_range",
     "default_transaction",
     "default_transfer_agreement",

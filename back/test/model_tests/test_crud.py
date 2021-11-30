@@ -7,10 +7,16 @@ from boxtribute_server.models.crud import (
     BOX_LABEL_IDENTIFIER_GENERATION_ATTEMPTS,
     create_box,
     create_qr_code,
+    create_shipment,
     create_transfer_agreement,
 )
-from boxtribute_server.models.enums import TransferAgreementState, TransferAgreementType
+from boxtribute_server.models.enums import (
+    ShipmentState,
+    TransferAgreementState,
+    TransferAgreementType,
+)
 from boxtribute_server.models.qr_code import QrCode
+from boxtribute_server.models.shipment import Shipment
 from boxtribute_server.models.transfer_agreement import TransferAgreement
 from boxtribute_server.models.transfer_agreement_detail import TransferAgreementDetail
 
@@ -142,3 +148,30 @@ def test_create_transfer_agreement(
             "target_base": 3,
         }.items()
     )
+
+
+def test_create_shipment(default_user, default_bases, default_transfer_agreement):
+    data = {
+        "source_base_id": default_bases[1]["id"],
+        "target_base_id": default_bases[3]["id"],
+        "transfer_agreement_id": default_transfer_agreement["id"],
+        "started_by": default_user["id"],
+    }
+    shipment = create_shipment(data)
+    shipment = Shipment.select().where(Shipment.id == shipment.id).dicts().get()
+    assert (
+        shipment.items()
+        >= {
+            "source_base": default_bases[1]["id"],
+            "target_base": default_bases[3]["id"],
+            "transfer_agreement": default_transfer_agreement["id"],
+            "state": ShipmentState.PREPARING.value,
+            "canceled_on": None,
+            "canceled_by": None,
+            "sent_on": None,
+            "sent_by": None,
+            "completed_on": None,
+            "completed_by": None,
+        }.items()
+    )
+    assert shipment["started_on"] is not None

@@ -10,6 +10,7 @@ from ..exceptions import BoxCreationFailed, RequestedResourceNotFound
 from .beneficiary import Beneficiary
 from .box import Box
 from .qr_code import QrCode
+from .shipment import Shipment
 from .transfer_agreement import TransferAgreement
 from .transfer_agreement_detail import TransferAgreementDetail
 from .x_beneficiary_language import XBeneficiaryLanguage
@@ -206,3 +207,13 @@ def create_transfer_agreement(data):
         ]
         TransferAgreementDetail.insert_many(details_data).execute()
         return transfer_agreement
+
+
+def create_shipment(data):
+    """Insert information for a new Shipment in the database."""
+    return Shipment.create(
+        source_base=data.pop("source_base_id"),
+        target_base=data.pop("target_base_id"),
+        transfer_agreement=data.pop("transfer_agreement_id"),
+        **data,
+    )
