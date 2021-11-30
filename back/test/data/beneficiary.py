@@ -2,7 +2,7 @@ from datetime import datetime
 
 import pytest
 from boxtribute_server.models.beneficiary import Beneficiary
-from data.base import default_base_data
+from data.base import data as base_data
 
 TIME = datetime.now()
 
@@ -10,7 +10,7 @@ TIME = datetime.now()
 def default_beneficiary_data():
     return {
         "id": 3,
-        "base": default_base_data()["id"],
+        "base": base_data()[0]["id"],
         "comments": "",
         "created_on": TIME,
         "created_by": None,
