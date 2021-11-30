@@ -11,6 +11,7 @@ from .beneficiary import Beneficiary
 from .box import Box
 from .qr_code import QrCode
 from .transfer_agreement import TransferAgreement
+from .transfer_agreement_detail import TransferAgreementDetail
 from .x_beneficiary_language import XBeneficiaryLanguage
 
 BOX_LABEL_IDENTIFIER_GENERATION_ATTEMPTS = 10
@@ -172,13 +173,36 @@ def create_qr_code(data):
 
 
 def create_transfer_agreement(data):
-    """Insert information for a new TransferAgreement in the database."""
+    """Insert information for a new TransferAgreement in the database. Update
+    TransferAgreementDetail model with given source/target base information. By default,
+    the agreement is established between all bases of both organisations (indicated by
+    NULL for the Detail.source/target_base field).
+    """
     if data["valid_from"] is None:
         # GraphQL input had 'validFrom: null', use default defined in model instead
         del data["valid_from"]
 
-    return TransferAgreement.create(
-        source_organisation=data.pop("source_organisation_id"),
-        target_organisation=data.pop("target_organisation_id"),
-        **data,
-    )
+    with db.database.atomic():
+        # In GraphQL input, base IDs can be omitted, or explicitly be null.
+        # Avoid duplicate base IDs by creating sets
+        source_base_ids = set(data.pop("source_base_ids", None) or [None])
+        target_base_ids = set(data.pop("target_base_ids", None) or [None])
+
+        transfer_agreement = TransferAgreement.create(
+            source_organisation=data.pop("source_organisation_id"),
+            target_organisation=data.pop("target_organisation_id"),
+            **data,
+        )
+
+        # Build all combinations of source and target bases under current agreement
+        details_data = [
+            {
+                "source_base": s,
+                "target_base": t,
+                "transfer_agreement": transfer_agreement.id,
+            }
+            for s in source_base_ids
+            for t in target_base_ids
+        ]
+        TransferAgreementDetail.insert_many(details_data).execute()
+        return transfer_agreement

@@ -12,6 +12,7 @@ from boxtribute_server.models.crud import (
 from boxtribute_server.models.enums import TransferAgreementState, TransferAgreementType
 from boxtribute_server.models.qr_code import QrCode
 from boxtribute_server.models.transfer_agreement import TransferAgreement
+from boxtribute_server.models.transfer_agreement_detail import TransferAgreementDetail
 
 
 def test_create_qr_code_for_nonexisting_box():
@@ -69,6 +70,7 @@ def test_create_transfer_agreement(
         "valid_until": None,
         "requested_by": default_user["id"],
         "type": TransferAgreementType.UNIDIRECTIONAL.value,
+        "source_base_ids": None,
     }
     agreement = create_transfer_agreement(data.copy())
 
@@ -78,6 +80,15 @@ def test_create_transfer_agreement(
         )
 
     agreement = fetch_agreement(agreement.id)  # fetch for effective timestamp fields
+
+    def fetch_details(agreement):
+        return list(
+            TransferAgreementDetail.select()
+            .where(TransferAgreementDetail.transfer_agreement == agreement["id"])
+            .dicts()
+        )
+
+    details = fetch_details(agreement)
 
     assert (
         agreement.items()
@@ -96,15 +107,38 @@ def test_create_transfer_agreement(
         }.items()
     )
     assert agreement["requested_on"] == agreement["valid_from"]
+    assert len(details) == 1
+    detail = details[0]
+    assert (
+        detail.items()
+        >= {
+            "transfer_agreement": agreement["id"],
+            "source_base": None,
+            "target_base": None,
+        }.items()
+    )
 
     valid_from = datetime(2021, 11, 1)
     comment = "important"
     data["valid_from"] = valid_from
     data["valid_until"] = datetime(2021, 12, 31)
     data["comment"] = comment
+    data["source_base_ids"] = [1, 2]
+    data["target_base_ids"] = [3]
     agreement = create_transfer_agreement(data)
     agreement = fetch_agreement(agreement.id)
+    details = fetch_details(agreement)
 
     assert agreement["valid_from"] == valid_from
     assert agreement["valid_until"] is not None
     assert agreement["comment"] == comment
+    assert len(details) == 2
+    detail = details[-1]
+    assert (
+        detail.items()
+        >= {
+            "transfer_agreement": agreement["id"],
+            "source_base": 2,
+            "target_base": 3,
+        }.items()
+    )
