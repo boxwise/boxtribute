@@ -33,7 +33,7 @@ class ProductGender(db.Model):
         constraints=[SQL("UNSIGNED")],
     )
     seq = IntegerField(null=True)
-    short_label = CharField(null=True)
+    short_label = CharField(null=True, column_name="shortlabel")
 
     class Meta:
         table_name = "genders"

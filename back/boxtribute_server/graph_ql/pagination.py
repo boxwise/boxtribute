@@ -185,3 +185,27 @@ def generate_page(*conditions, elements, cursor, selection, **page_info_kwargs):
         page["elements"] = elements[1:] if page_info.has_previous_page else elements
 
     return page
+
+
+def load_into_page(model, *conditions, selection=None, pagination_input):
+    """High-level convenience function to load result query of given model into a
+    GraphQL page type.
+    The query is constructed from the given selection (default: `model.select()`), and
+    optional conditions. The query results are ordered by model ID.
+    """
+    cursor, limit = pagination_parameters(pagination_input)
+    pagination_condition = cursor.pagination_condition(model)
+    for condition in conditions:
+        pagination_condition = (condition) & (pagination_condition)
+
+    selection = selection or model.select()
+    query_result = (
+        selection.where(pagination_condition).order_by(model.id).limit(limit + 1)
+    )
+    return generate_page(
+        *conditions,
+        elements=query_result,
+        cursor=cursor,
+        limit=limit,
+        selection=selection,
+    )

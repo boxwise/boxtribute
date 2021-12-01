@@ -61,12 +61,13 @@ enum ProductGender {
   Men
   Women
   UnisexAdult
-  UnisexChild
+  UnisexKid
   UnisexBaby
   TeenGirl
   TeenBoy
   Girl
   Boy
+  None
 }
 
 enum BoxState {
