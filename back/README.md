@@ -235,7 +235,7 @@ to allow for making requests to the app, and verify the response with previously
 
 From the repository root, run
 
-    pytest --cov=back/boxtribute_server --cov-report=term --cov-report=html back
+    pytest --cov --cov-report=term --cov-report=html back
 
 and inspect the reported output. Open the HTML report via `back/htmlcov/index.html` to browse coverage for individual source code files.
 
