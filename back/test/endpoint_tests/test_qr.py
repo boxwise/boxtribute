@@ -81,7 +81,7 @@ def test_create_qr_code(client, box_without_qr_code):
 
     data = {
         "query": f"""mutation {{
-        createQrCode(boxLabelIdentifier: "{box_without_qr_code['box_label_identifier']}")  # noqa
+        createQrCode(boxLabelIdentifier: "{box_without_qr_code['label_identifier']}")
         {{
             id
             box {{

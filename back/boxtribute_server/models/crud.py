@@ -32,12 +32,12 @@ def create_box(data):
     for i in range(BOX_LABEL_IDENTIFIER_GENERATION_ATTEMPTS):
         try:
             new_box = Box.create(
-                box_label_identifier="".join(random.choices("0123456789", k=8)),
+                label_identifier="".join(random.choices("0123456789", k=8)),
                 qr_code=qr_id,
                 created_on=now,
                 last_modified_on=now,
                 last_modified_by=data["created_by"],
-                box_state=1,
+                state=1,
                 **data,
             )
             return new_box
@@ -53,8 +53,8 @@ def update_box(data):
     """Look up an existing Box given a UUID, and update all requested fields.
     Insert timestamp for modification and return the box.
     """
-    box_label_identifier = data.pop("box_label_identifier")
-    box = Box.get(Box.box_label_identifier == box_label_identifier)
+    label_identifier = data.pop("label_identifier")
+    box = Box.get(Box.label_identifier == label_identifier)
 
     for field, value in data.items():
         setattr(box, field, value)
@@ -164,7 +164,7 @@ def create_qr_code(data):
             new_qr_code.save()
 
             if box_label_identifier is not None:
-                box = Box.get(Box.box_label_identifier == box_label_identifier)
+                box = Box.get(Box.label_identifier == box_label_identifier)
                 box.qr_code = new_qr_code.id
                 box.save()
 
@@ -229,9 +229,9 @@ def update_shipment(data):
     with db.database.atomic():
         boxes = []
         for box in Box.select().where(
-            Box.box_label_identifier.in_(prepared_box_label_identifiers)
+            Box.label_identifier.in_(prepared_box_label_identifiers)
         ):
-            box.box_state = 3  # MarkedForShipment
+            box.state = 3  # MarkedForShipment
             boxes.append(box)
             details.append(
                 {
@@ -243,6 +243,6 @@ def update_shipment(data):
                 }
             )
 
-        Box.bulk_update(boxes, fields=[Box.box_state])
+        Box.bulk_update(boxes, fields=[Box.state])
         ShipmentDetail.insert_many(details).execute()
     return Shipment.get_by_id(shipment_id)

@@ -53,7 +53,7 @@ def test_box_label_identifier_generation(
 
     # Verify that create_box() fails after several attempts if newly generated
     # identifier is never unique
-    rng_function.return_value = default_box["box_label_identifier"]
+    rng_function.return_value = default_box["label_identifier"]
     with pytest.raises(BoxCreationFailed):
         create_box(data)
     assert rng_function.call_count == BOX_LABEL_IDENTIFIER_GENERATION_ATTEMPTS
@@ -61,12 +61,12 @@ def test_box_label_identifier_generation(
     # Verify that create_box() succeeds even if an existing identifier happens to be
     # generated once
     new_identifier = "11112222"
-    side_effect = [default_box["box_label_identifier"], new_identifier]
+    side_effect = [default_box["label_identifier"], new_identifier]
     rng_function.reset_mock(return_value=True)
     rng_function.side_effect = side_effect
     new_box = create_box(data)
     assert rng_function.call_count == len(side_effect)
-    assert new_box.box_label_identifier == new_identifier
+    assert new_box.label_identifier == new_identifier
 
 
 def test_create_transfer_agreement(
@@ -182,7 +182,7 @@ def test_create_shipment(
     assert shipment["started_on"] is not None
 
     data = {
-        "prepared_box_label_identifiers": [default_box["box_label_identifier"]],
+        "prepared_box_label_identifiers": [default_box["label_identifier"]],
         "id": shipment["id"],
         "created_by": default_user["id"],
     }
