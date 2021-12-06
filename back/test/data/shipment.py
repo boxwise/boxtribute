@@ -1,6 +1,5 @@
-from datetime import datetime
-
 import pytest
+from boxtribute_server.models import utcnow
 from boxtribute_server.models.enums import ShipmentState
 from boxtribute_server.models.shipment import Shipment
 
@@ -16,7 +15,7 @@ def data():
         "target_base": base_data()[2]["id"],
         "transfer_agreement": transfer_agreement_data()["id"],
         "state": ShipmentState.PREPARING.value,
-        "started_on": datetime.utcnow(),
+        "started_on": utcnow(),
         "started_by": default_user_data()["id"],
     }
 

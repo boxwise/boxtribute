@@ -8,6 +8,8 @@ date_scalar = ScalarType("Date")
 
 @datetime_scalar.serializer
 def serialize_datetime(value):
+    if isinstance(value, str):
+        value = datetime.fromisoformat(value)
     return value.isoformat()
 
 

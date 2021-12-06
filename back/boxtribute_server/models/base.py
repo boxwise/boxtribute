@@ -1,5 +1,3 @@
-from datetime import datetime
-
 from peewee import (
     SQL,
     CharField,
@@ -10,6 +8,7 @@ from peewee import (
 )
 
 from ..db import db
+from . import utcnow
 from .organisation import Organisation
 from .user import User
 
@@ -31,9 +30,7 @@ class Base(db.Model):
         on_update="CASCADE",
         constraints=[SQL("UNSIGNED")],
     )
-    cycle_start = DateTimeField(
-        column_name="cyclestart", default=datetime.utcnow(), null=True
-    )
+    cycle_start = DateTimeField(column_name="cyclestart", default=utcnow, null=True)
     days_to_keep_deleted_persons = IntegerField(
         column_name="daystokeepdeletedpersons",
         constraints=[SQL("DEFAULT 9999")],

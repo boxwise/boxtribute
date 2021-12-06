@@ -8,6 +8,7 @@ from dateutil import tz
 
 from ..db import db
 from ..exceptions import BoxCreationFailed, RequestedResourceNotFound
+from . import utcnow
 from .beneficiary import Beneficiary
 from .box import Box
 from .qr_code import QrCode
@@ -26,7 +27,7 @@ def create_box(data):
     box. If the sequence is not unique, repeat the generation several times. If
     generation still fails, raise a BoxCreationFailed exception.
     """
-    now = datetime.utcnow()
+    now = utcnow()
     qr_code = data.pop("qr_code", None)
     qr_id = QrCode.get_id_from_code(qr_code) if qr_code is not None else None
 
@@ -60,7 +61,7 @@ def update_box(data):
     for field, value in data.items():
         setattr(box, field, value)
 
-    box.last_modified_on = datetime.utcnow()
+    box.last_modified_on = utcnow()
     box.save()
     return box
 
@@ -69,7 +70,7 @@ def create_beneficiary(data):
     """Insert information for a new Beneficiary in the database. Update the
     languages in the corresponding cross-reference table.
     """
-    now = datetime.utcnow()
+    now = utcnow()
     language_ids = data.pop("languages")
     family_head_id = data.pop("family_head_id", None)
 
@@ -141,7 +142,7 @@ def update_beneficiary(data):
     for field, value in data.items():
         setattr(beneficiary, field, value)
 
-    beneficiary.last_modified_on = datetime.utcnow()
+    beneficiary.last_modified_on = utcnow()
     beneficiary.save()
     return beneficiary
 
@@ -160,7 +161,7 @@ def create_qr_code(data):
 
     try:
         with db.database.atomic():
-            new_qr_code = QrCode.create(created_on=datetime.utcnow(), **data)
+            new_qr_code = QrCode.create(created_on=utcnow(), **data)
             new_qr_code.code = hashlib.md5(str(new_qr_code.id).encode()).hexdigest()
             new_qr_code.save()
 

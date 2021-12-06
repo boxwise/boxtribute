@@ -1,6 +1,5 @@
-from datetime import datetime
-
 import pytest
+from boxtribute_server.models import utcnow
 from boxtribute_server.models.enums import TransferAgreementState, TransferAgreementType
 from boxtribute_server.models.transfer_agreement import TransferAgreement
 
@@ -15,7 +14,7 @@ def data():
         "target_organisation": organisation_data()[1]["id"],
         "state": TransferAgreementState.ACCEPTED.value,
         "type": TransferAgreementType.BIDIRECTIONAL.value,
-        "requested_on": datetime.utcnow(),
+        "requested_on": utcnow(),
         "requested_by": default_user_data()["id"],
     }
 
