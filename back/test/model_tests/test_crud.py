@@ -1,4 +1,4 @@
-from datetime import datetime
+from datetime import date
 
 import peewee
 import pytest
@@ -127,10 +127,10 @@ def test_create_transfer_agreement(
         }.items()
     )
 
-    valid_from = datetime(2021, 11, 1)
     comment = "important"
-    data["valid_from"] = valid_from
-    data["valid_until"] = datetime(2021, 12, 31)
+    data["valid_from"] = date(2021, 11, 1)
+    data["valid_until"] = date(2021, 12, 31)
+    data["timezone"] = "America/New_York"
     data["comment"] = comment
     data["source_base_ids"] = [1, 2]
     data["target_base_ids"] = [3]
@@ -138,8 +138,8 @@ def test_create_transfer_agreement(
     agreement = fetch_agreement(agreement.id)
     details = fetch_details(agreement)
 
-    assert agreement["valid_from"] == valid_from
-    assert agreement["valid_until"] is not None
+    assert agreement["valid_from"] == "2021-11-01 04:00:00+00:00"
+    assert agreement["valid_until"] == "2022-01-01 04:59:59+00:00"
     assert agreement["comment"] == comment
     assert len(details) == 2
     detail = details[-1]

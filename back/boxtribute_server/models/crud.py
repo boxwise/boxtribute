@@ -1,9 +1,10 @@
 """Create-Retrieve-Update-Delete operations on database models."""
 import hashlib
 import random
-from datetime import datetime
+from datetime import datetime, time, timezone
 
 import peewee
+from dateutil import tz
 
 from ..db import db
 from ..exceptions import BoxCreationFailed, RequestedResourceNotFound
@@ -179,6 +180,7 @@ def create_transfer_agreement(data):
     TransferAgreementDetail model with given source/target base information. By default,
     the agreement is established between all bases of both organisations (indicated by
     NULL for the Detail.source/target_base field).
+    Convert optional local dates into UTC datetimes using timezone information.
     """
     if data["valid_from"] is None:
         # GraphQL input had 'validFrom: null', use default defined in model instead
@@ -189,6 +191,20 @@ def create_transfer_agreement(data):
         # Avoid duplicate base IDs by creating sets
         source_base_ids = set(data.pop("source_base_ids", None) or [None])
         target_base_ids = set(data.pop("target_base_ids", None) or [None])
+
+        valid_from = data.get("valid_from")
+        valid_until = data.get("valid_until")
+        if valid_from is not None or valid_until is not None:
+            tzinfo = tz.gettz(data.pop("timezone"))
+            # Insert time information such that start/end is at midnight
+            if valid_from is not None:
+                data["valid_from"] = datetime.combine(
+                    valid_from, time(), tzinfo=tzinfo
+                ).astimezone(timezone.utc)
+            if valid_until is not None:
+                data["valid_until"] = datetime.combine(
+                    valid_until, time(23, 59, 59), tzinfo=tzinfo
+                ).astimezone(timezone.utc)
 
         transfer_agreement = TransferAgreement.create(
             source_organisation=data.pop("source_organisation_id"),

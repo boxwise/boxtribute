@@ -14,7 +14,7 @@ class TransferAgreement(db.Model):
         constraints=[SQL(f"DEFAULT {TransferAgreementState.UNDER_REVIEW.name}")],
     )
     type = EnumCharField(choices=TransferAgreementType)
-    requested_on = DateTimeField(constraints=[SQL("DEFAULT CURRENT_TIMESTAMP")])
+    requested_on = DateTimeField(constraints=[SQL("DEFAULT UTC_TIMESTAMP")])
     requested_by = ForeignKeyField(
         model=User, on_update="CASCADE", on_delete="SET NULL"
     )
@@ -26,6 +26,6 @@ class TransferAgreement(db.Model):
     terminated_by = ForeignKeyField(
         model=User, on_update="CASCADE", on_delete="SET NULL", null=True
     )
-    valid_from = DateTimeField(constraints=[SQL("DEFAULT CURRENT_TIMESTAMP")])
+    valid_from = DateTimeField(constraints=[SQL("DEFAULT UTC_TIMESTAMP")])
     valid_until = DateTimeField(null=True)
     comment = TextField(constraints=[SQL("DEFAULT ''")])

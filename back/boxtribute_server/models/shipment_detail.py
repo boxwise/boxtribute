@@ -15,7 +15,7 @@ class ShipmentDetail(db.Model):
     target_product = ForeignKeyField(model=Product, on_update="CASCADE", null=True)
     source_location = ForeignKeyField(model=Location, on_update="CASCADE")
     target_location = ForeignKeyField(model=Location, on_update="CASCADE", null=True)
-    created_on = DateTimeField(constraints=[SQL("DEFAULT CURRENT_TIMESTAMP")])
+    created_on = DateTimeField(constraints=[SQL("DEFAULT UTC_TIMESTAMP")])
     created_by = ForeignKeyField(model=User, on_update="CASCADE", on_delete="SET NULL")
     deleted_on = DateTimeField(null=True)
     deleted_by = ForeignKeyField(

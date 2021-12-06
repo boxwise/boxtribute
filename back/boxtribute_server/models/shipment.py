@@ -15,7 +15,7 @@ class Shipment(db.Model):
         constraints=[SQL(f"DEFAULT {ShipmentState.PREPARING.name}")],
         choices=ShipmentState,
     )
-    started_on = DateTimeField(constraints=[SQL("DEFAULT CURRENT_TIMESTAMP")])
+    started_on = DateTimeField(constraints=[SQL("DEFAULT UTC_TIMESTAMP")])
     started_by = ForeignKeyField(model=User, on_update="CASCADE", on_delete="SET NULL")
     canceled_on = DateTimeField(null=True)
     canceled_by = ForeignKeyField(
