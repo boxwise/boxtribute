@@ -1,7 +1,7 @@
-from peewee import SQL, DateTimeField, ForeignKeyField, IntegerField, TextField
+from peewee import SQL, DateTimeField, ForeignKeyField, TextField
 
 from ..db import db
-from .enums import TransferAgreementState
+from .enums import EnumCharField, TransferAgreementState, TransferAgreementType
 from .organisation import Organisation
 from .user import User
 
@@ -9,10 +9,11 @@ from .user import User
 class TransferAgreement(db.Model):
     source_organisation = ForeignKeyField(model=Organisation, on_update="CASCADE")
     target_organisation = ForeignKeyField(model=Organisation, on_update="CASCADE")
-    state = IntegerField(
-        constraints=[SQL(f"DEFAULT {TransferAgreementState.UNDER_REVIEW.value}")]
+    state = EnumCharField(
+        choices=TransferAgreementState,
+        constraints=[SQL(f"DEFAULT {TransferAgreementState.UNDER_REVIEW.name}")],
     )
-    type = IntegerField()
+    type = EnumCharField(choices=TransferAgreementType)
     requested_on = DateTimeField(constraints=[SQL("DEFAULT CURRENT_TIMESTAMP")])
     requested_by = ForeignKeyField(
         model=User, on_update="CASCADE", on_delete="SET NULL"
