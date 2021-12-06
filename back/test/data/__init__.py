@@ -83,6 +83,11 @@ def setup_models():
         "size_range",
         "product",
         "qr_code",
+        "transfer_agreement",
+        "usergroup_access_level",
+        "usergroup",
+        "language",
+        "user",
     ]:
         module_names.remove(module_name)
         module = importlib.import_module(f"data.{module_name}")
