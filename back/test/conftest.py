@@ -69,14 +69,14 @@ def mysql_app():
     """
     app = create_app()
     app.testing = True
-    port = os.getenv("MYSQL_PORT", 3306)
+    port = int(os.getenv("MYSQL_PORT", 3306))
     configure_app(
         app,
-        mysql_host="127.0.0.1",
-        mysql_port=port,
-        mysql_user="root",
-        mysql_password="dropapp_root",
-        mysql_db="dropapp_dev",
+        host="127.0.0.1",
+        port=port,
+        user="root",
+        password="dropapp_root",
+        database="dropapp_dev",
     )
 
     db.init_app(app)
