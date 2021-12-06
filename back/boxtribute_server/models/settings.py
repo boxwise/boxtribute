@@ -1,34 +1,27 @@
-from peewee import (
-    SQL,
-    CharField,
-    DateTimeField,
-    ForeignKeyField,
-    IntegerField,
-    TextField,
-)
+from peewee import SQL, CharField, DateTimeField, IntegerField, TextField
 
 from ..db import db
-from .user import User
+from . import UIntDeferredForeignKey
 
 
 class Settings(db.Model):
     category_id = IntegerField()
     code = CharField(unique=True)
     created = DateTimeField(null=True)
-    created_by = ForeignKeyField(
+    created_by = UIntDeferredForeignKey(
+        "User",
         column_name="created_by",
         field="id",
-        model=User,
         null=True,
         on_update="CASCADE",
     )
     description = CharField(null=True)
     hidden = IntegerField(constraints=[SQL("DEFAULT 0")])
     modified = DateTimeField(null=True)
-    modified_by = ForeignKeyField(
+    modified_by = UIntDeferredForeignKey(
+        "User",
         column_name="modified_by",
         field="id",
-        model=User,
         null=True,
         on_update="CASCADE",
     )

@@ -1,28 +1,27 @@
-from peewee import SQL, CharField, DateTimeField, DeferredForeignKey
+from peewee import CharField, DateTimeField
 
 from ..db import db
+from . import UIntDeferredForeignKey
 
 
 class Organisation(db.Model):
     created = DateTimeField(null=True)
-    created_by = DeferredForeignKey(
+    created_by = UIntDeferredForeignKey(
         "User",
         column_name="created_by",
         null=True,
         on_delete="SET NULL",
         on_update="CASCADE",
-        constraints=[SQL("UNSIGNED")],
     )
     deleted = DateTimeField(null=True, default=None)
     name = CharField(column_name="label", null=True)
     modified = DateTimeField(null=True)
-    modified_by = DeferredForeignKey(
+    modified_by = UIntDeferredForeignKey(
         "User",
         column_name="modified_by",
         null=True,
         on_delete="SET NULL",
         on_update="CASCADE",
-        constraints=[SQL("UNSIGNED")],
     )
 
     class Meta:

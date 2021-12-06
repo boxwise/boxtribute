@@ -1,15 +1,12 @@
-from peewee import SQL, ForeignKeyField
-
 from ..db import db
+from . import UIntForeignKeyField
 from .base import Base
 from .transfer_agreement import TransferAgreement
 
 
 class TransferAgreementDetail(db.Model):
-    transfer_agreement = ForeignKeyField(model=TransferAgreement, on_update="CASCADE")
-    source_base = ForeignKeyField(
-        model=Base, null=True, on_update="CASCADE", constraints=[SQL("UNSIGNED")]
+    transfer_agreement = UIntForeignKeyField(
+        model=TransferAgreement, on_update="CASCADE"
     )
-    target_base = ForeignKeyField(
-        model=Base, null=True, on_update="CASCADE", constraints=[SQL("UNSIGNED")]
-    )
+    source_base = UIntForeignKeyField(model=Base, null=True, on_update="CASCADE")
+    target_base = UIntForeignKeyField(model=Base, null=True, on_update="CASCADE")

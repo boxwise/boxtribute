@@ -71,6 +71,24 @@ def setup_models():
     file_names.remove("__init__.py")
     module_names = [f.replace(".py", "") for f in file_names]
 
+    # Populate models such that independent ones are set up first; then the ones with
+    # FKs referring to the independent ones
+    for module_name in [
+        "organisation",
+        "base",
+        "box_state",
+        "location",
+        "product_category",
+        "product_gender",
+        "size_range",
+        "product",
+        "qr_code",
+    ]:
+        module_names.remove(module_name)
+        module = importlib.import_module(f"data.{module_name}")
+        module.create()
+
+    # Set up remaining models; order is now irrelevant
     for module_name in module_names:
         module = importlib.import_module(f"data.{module_name}")
         module.create()

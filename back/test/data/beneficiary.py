@@ -4,7 +4,7 @@ import pytest
 from boxtribute_server.models.beneficiary import Beneficiary
 from data.base import data as base_data
 
-TIME = datetime.now()
+TIME = datetime.now().replace(microsecond=0)
 
 
 def default_beneficiary_data():

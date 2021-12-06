@@ -1,13 +1,13 @@
-from peewee import SQL, CharField, DateTimeField, ForeignKeyField, IntegerField
+from peewee import SQL, CharField, DateTimeField, IntegerField
 
 from ..db import db
+from . import UIntDeferredForeignKey, UIntForeignKeyField
 from .base import Base
 from .box_state import BoxState
-from .user import User
 
 
 class Location(db.Model):
-    box_state = ForeignKeyField(
+    box_state = UIntForeignKeyField(
         column_name="box_state_id",
         constraints=[SQL("DEFAULT 1")],
         field="id",
@@ -15,7 +15,7 @@ class Location(db.Model):
         null=True,
         on_update="CASCADE",
     )
-    base = ForeignKeyField(
+    base = UIntForeignKeyField(
         column_name="camp_id",
         field="id",
         model=Base,
@@ -25,14 +25,13 @@ class Location(db.Model):
         column_name="container_stock", constraints=[SQL("DEFAULT 0")]
     )
     created_on = DateTimeField(column_name="created", null=True)
-    created_by = ForeignKeyField(
+    created_by = UIntDeferredForeignKey(
+        "User",
         column_name="created_by",
         field="id",
-        model=User,
         null=True,
         on_delete="SET NULL",
         on_update="CASCADE",
-        constraints=[SQL("UNSIGNED")],
     )
     deleted = DateTimeField(null=True, default=None)
     is_donated = IntegerField(constraints=[SQL("DEFAULT 0")])
@@ -41,14 +40,13 @@ class Location(db.Model):
     is_scrap = IntegerField(constraints=[SQL("DEFAULT 0")])
     name = CharField(column_name="label")
     last_modified_on = DateTimeField(column_name="modified", null=True)
-    last_modified_by = ForeignKeyField(
+    last_modified_by = UIntDeferredForeignKey(
+        "User",
         column_name="modified_by",
         field="id",
-        model=User,
         null=True,
         on_delete="SET NULL",
         on_update="CASCADE",
-        constraints=[SQL("UNSIGNED")],
     )
     seq = IntegerField(null=True)
     visible = IntegerField(constraints=[SQL("DEFAULT 1")])

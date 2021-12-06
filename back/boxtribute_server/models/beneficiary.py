@@ -1,16 +1,8 @@
-from peewee import (
-    SQL,
-    CharField,
-    DateField,
-    DateTimeField,
-    ForeignKeyField,
-    IntegerField,
-    TextField,
-)
+from peewee import SQL, CharField, DateField, DateTimeField, IntegerField, TextField
 
 from ..db import db
+from . import UIntDeferredForeignKey, UIntForeignKeyField
 from .base import Base
-from .user import User
 
 
 class Beneficiary(db.Model):
@@ -24,7 +16,7 @@ class Beneficiary(db.Model):
     bicycle_training = IntegerField(
         column_name="bicycletraining", constraints=[SQL("DEFAULT 0")]
     )
-    base = ForeignKeyField(
+    base = UIntForeignKeyField(
         column_name="camp_id",
         field="id",
         model=Base,
@@ -36,10 +28,10 @@ class Beneficiary(db.Model):
         column_name="container", constraints=[SQL("DEFAULT ''")], index=True
     )
     created_on = DateTimeField(column_name="created", null=True)
-    created_by = ForeignKeyField(
+    created_by = UIntDeferredForeignKey(
+        "User",
         column_name="created_by",
         field="id",
-        model=User,
         null=True,
         on_update="CASCADE",
     )
@@ -62,17 +54,17 @@ class Beneficiary(db.Model):
     )
     laundry_comment = CharField(column_name="laundrycomment", null=True)
     last_modified_on = DateTimeField(column_name="modified", null=True)
-    last_modified_by = ForeignKeyField(
+    last_modified_by = UIntDeferredForeignKey(
+        "User",
         column_name="modified_by",
         field="id",
-        model=User,
         null=True,
         on_update="CASCADE",
     )
     not_registered = IntegerField(
         column_name="notregistered", constraints=[SQL("DEFAULT 0")]
     )
-    family_head = ForeignKeyField(
+    family_head = UIntForeignKeyField(
         column_name="parent_id",
         field="id",
         model="self",

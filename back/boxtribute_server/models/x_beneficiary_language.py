@@ -1,19 +1,18 @@
-from peewee import ForeignKeyField
-
 from ..db import db
+from . import UIntForeignKeyField
 from .beneficiary import Beneficiary
 from .language import Language
 
 
 class XBeneficiaryLanguage(db.Model):
-    language = ForeignKeyField(
+    language = UIntForeignKeyField(
         column_name="language_id",
         field="id",
         model=Language,
         on_update="CASCADE",
         on_delete="CASCADE",
     )
-    beneficiary = ForeignKeyField(
+    beneficiary = UIntForeignKeyField(
         column_name="people_id",
         field="id",
         model=Beneficiary,

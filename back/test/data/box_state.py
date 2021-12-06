@@ -2,9 +2,19 @@ import pytest
 from boxtribute_server.models.box_state import BoxState
 
 
+def data():
+    return [
+        {"id": 1, "label": "Instock"},
+        {"id": 2, "label": "Lost"},
+        {"id": 3, "label": "Ordered"},
+        {"id": 4, "label": "Picked"},
+        {"id": 5, "label": "Donated"},
+        {"id": 6, "label": "Scrap"},
+    ]
+
+
 def default_box_state_data():
-    mock_box_state = {"id": 1, "label": "1"}
-    return mock_box_state
+    return data()[0]
 
 
 @pytest.fixture()
@@ -13,4 +23,4 @@ def default_box_state():
 
 
 def create():
-    BoxState.create(**default_box_state_data())
+    BoxState.insert_many(data()).execute()

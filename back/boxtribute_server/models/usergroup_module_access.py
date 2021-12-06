@@ -1,26 +1,23 @@
-from peewee import SQL, ForeignKeyField
-
 from ..db import db
+from . import UIntForeignKeyField
 from .base_module import BaseModule
 from .usergroup import Usergroup
 
 
 class UsergroupModuleAccess(db.Model):
-    base_module = ForeignKeyField(
+    base_module = UIntForeignKeyField(
         column_name="cms_functions_id",
         field="id",
         model=BaseModule,
         on_delete="CASCADE",
         on_update="CASCADE",
-        constraints=[SQL("UNSIGNED")],
     )
-    usergroup = ForeignKeyField(
+    usergroup = UIntForeignKeyField(
         column_name="cms_usergroups_id",
         field="id",
         model=Usergroup,
         on_delete="CASCADE",
         on_update="CASCADE",
-        constraints=[SQL("UNSIGNED")],
     )
 
     class Meta:

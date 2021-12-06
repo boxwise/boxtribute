@@ -172,13 +172,12 @@ Our tests verify the production code on different levels:
 
 ### Executing tests
 
+Most tests require a running MySQL server. Before executing tests for the first time, do
+
+    docker-compose up -d db
+
 Run the test suite on your machine by executing
 
-    pytest
-
-Some tests require a running MySQL server and are disabled unless during a CircleCI pipeline. Local testing is possible by
-
-    docker-compose up -d db  # only the first time
     CIRCLECI=1 MYSQL_PORT=32000 pytest
 
 If you persistently want these variables to be set for your environment, export them via the `.envrc` file.

@@ -8,7 +8,7 @@ from data.product import default_product_data
 from data.qr_code import default_qr_code_data
 from data.user import default_user_data
 
-TIME = datetime.now()
+TIME = datetime.now().replace(microsecond=0)
 
 
 def default_box_data():
@@ -21,7 +21,7 @@ def default_box_data():
         "created_on": TIME,
         "created_by": default_user_data()["id"],
         "deleted": TIME,
-        "items": "None",
+        "items": 0,
         "location": default_location_data()["id"],
         "qr_code": default_qr_code_data()["id"],
     }

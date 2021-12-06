@@ -15,10 +15,12 @@ import tempfile
 import pytest
 from boxtribute_server.app import configure_app, create_app
 from boxtribute_server.db import db
+from boxtribute_server.models.user import User
 
 # Imports fixtures into tests
 from data import *  # noqa: F401,F403
 from data import MODELS, setup_models
+from peewee import DeferredForeignKey
 
 
 @pytest.fixture()
@@ -43,6 +45,7 @@ def sqlite_app():
 
     with db.database.bind_ctx(MODELS):
         db.database.create_tables(MODELS)
+        DeferredForeignKey.resolve(User)
         setup_models()
         db.close_db(None)
         with app.app_context():
@@ -62,20 +65,26 @@ def client(sqlite_app):
     return sqlite_app.test_client()
 
 
-@pytest.fixture()
-def mysql_app():
+@pytest.fixture(scope="session")
+def mysql_connection_parameters():
+    return dict(
+        host="127.0.0.1",
+        port=int(os.getenv("MYSQL_PORT", 3306)),
+        user="root",
+        password="dropapp_root",
+    )
+
+
+@pytest.fixture
+def mysql_app(mysql_connection_parameters):
     """Set up Flask app, configured to connect to the `dropapp_dev` MySQL database
     running on port 3306 (32000 if you test locally with docker-compose services).
     """
     app = create_app()
     app.testing = True
-    port = int(os.getenv("MYSQL_PORT", 3306))
     configure_app(
         app,
-        host="127.0.0.1",
-        port=port,
-        user="root",
-        password="dropapp_root",
+        **mysql_connection_parameters,
         database="dropapp_dev",
     )
 

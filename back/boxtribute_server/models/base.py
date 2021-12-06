@@ -1,14 +1,7 @@
-from peewee import (
-    SQL,
-    CharField,
-    DateTimeField,
-    ForeignKeyField,
-    IntegerField,
-    SmallIntegerField,
-)
+from peewee import SQL, CharField, DateTimeField, IntegerField, SmallIntegerField
 
 from ..db import db
-from . import utcnow
+from . import UIntForeignKeyField, utcnow
 from .organisation import Organisation
 from .user import User
 
@@ -21,14 +14,13 @@ class Base(db.Model):
 
     adult_age = IntegerField(constraints=[SQL("DEFAULT 15")])
     created = DateTimeField(null=True)
-    created_by = ForeignKeyField(
+    created_by = UIntForeignKeyField(
         column_name="created_by",
         field="id",
         model=User,
         null=True,
         on_delete="SET NULL",
         on_update="CASCADE",
-        constraints=[SQL("UNSIGNED")],
     )
     cycle_start = DateTimeField(column_name="cyclestart", default=utcnow, null=True)
     days_to_keep_deleted_persons = IntegerField(
@@ -59,16 +51,15 @@ class Base(db.Model):
     idcard = IntegerField(column_name="idcard", constraints=[SQL("DEFAULT 0")])
     market = IntegerField(constraints=[SQL("DEFAULT 1")])
     modified = DateTimeField(null=True)
-    modified_by = ForeignKeyField(
+    modified_by = UIntForeignKeyField(
         column_name="modified_by",
         field="id",
         model=User,
         null=True,
         on_delete="SET NULL",
         on_update="CASCADE",
-        constraints=[SQL("UNSIGNED")],
     )
-    organisation = ForeignKeyField(
+    organisation = UIntForeignKeyField(
         column_name="organisation_id", field="id", model=Organisation
     )
     reset_tokens = IntegerField(

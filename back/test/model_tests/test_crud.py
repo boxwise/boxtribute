@@ -1,4 +1,4 @@
-from datetime import date
+from datetime import date, datetime
 
 import peewee
 import pytest
@@ -39,7 +39,7 @@ def test_create_qr_code_for_nonexisting_box():
 
 
 def test_create_box_with_insufficient_data():
-    with pytest.raises(peewee.IntegrityError, match="NOT NULL constraint failed"):
+    with pytest.raises(peewee.IntegrityError, match="foreign key constraint fails"):
         create_box({"created_by": 1})
 
 
@@ -142,8 +142,8 @@ def test_create_transfer_agreement(
     agreement = fetch_agreement(agreement.id)
     details = fetch_details(agreement)
 
-    assert agreement["valid_from"] == "2021-11-01 04:00:00+00:00"
-    assert agreement["valid_until"] == "2022-01-01 04:59:59+00:00"
+    assert agreement["valid_from"] == datetime(2021, 11, 1, 4)
+    assert agreement["valid_until"] == datetime(2022, 1, 1, 4, 59, 59)
     assert agreement["comment"] == comment
     assert len(details) == 2
     detail = details[-1]
