@@ -319,8 +319,10 @@ type ShipmentDetail {
 
 input TransferAgreementCreationInput {
   targetOrganisationId: Int!
-  validFrom: Datetime
-  validUntil: Datetime
+  # pass local date and timezone information (e.g. 'Europe/Berlin')
+  validFrom: Date
+  validUntil: Date
+  timezone: String
   sourceBaseIds: [Int!]
   targetBaseIds: [Int!]
 }
