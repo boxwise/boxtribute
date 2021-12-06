@@ -19,10 +19,23 @@ def data():
     }
 
 
+def expired_transfer_agreement_data():
+    agreement = data()
+    agreement["id"] = 2
+    agreement["state"] = TransferAgreementState.EXPIRED.value
+    return agreement
+
+
 @pytest.fixture
 def default_transfer_agreement():
     return data()
 
 
+@pytest.fixture
+def expired_transfer_agreement():
+    return expired_transfer_agreement_data()
+
+
 def create():
     TransferAgreement.create(**data())
+    TransferAgreement.create(**expired_transfer_agreement_data())

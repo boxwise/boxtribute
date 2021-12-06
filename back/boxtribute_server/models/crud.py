@@ -7,10 +7,15 @@ import peewee
 from dateutil import tz
 
 from ..db import db
-from ..exceptions import BoxCreationFailed, RequestedResourceNotFound
+from ..exceptions import (
+    BoxCreationFailed,
+    InvalidTransferAgreement,
+    RequestedResourceNotFound,
+)
 from . import utcnow
 from .beneficiary import Beneficiary
 from .box import Box
+from .enums import TransferAgreementState
 from .qr_code import QrCode
 from .shipment import Shipment
 from .shipment_detail import ShipmentDetail
@@ -228,11 +233,19 @@ def create_transfer_agreement(data):
 
 
 def create_shipment(data):
-    """Insert information for a new Shipment in the database."""
+    """Insert information for a new Shipment in the database. Raise a
+    InvalidTransferAgreement exception if specified agreement has a state different from
+    'ACCEPTED'.
+    """
+    transfer_agreement_id = data.pop("transfer_agreement_id")
+    agreement = TransferAgreement.get_by_id(transfer_agreement_id)
+    if agreement.state != TransferAgreementState.ACCEPTED.value:
+        raise InvalidTransferAgreement()
+
     return Shipment.create(
         source_base=data.pop("source_base_id"),
         target_base=data.pop("target_base_id"),
-        transfer_agreement=data.pop("transfer_agreement_id"),
+        transfer_agreement=transfer_agreement_id,
         **data,
     )
 
