@@ -132,13 +132,9 @@ def update_beneficiary(data):
 
     language_ids = data.pop("languages", [])
     if language_ids:
-        # Since the XBeneficiaryLanguage model has no primary key, using the delete()
-        # method yields 'DELETE FROM "x_people_languages" WHERE ("t1"."id" = ?)'
-        # which results in the error 'no such column: t1.id'
-        # As a work-around a raw SQL query is used
-        db.database.execute_sql(
-            'DELETE FROM "x_people_languages" WHERE (people_id = ?);', [beneficiary_id]
-        )
+        XBeneficiaryLanguage.delete().where(
+            XBeneficiaryLanguage.beneficiary == beneficiary_id
+        ).execute()
         for language_id in language_ids:
             XBeneficiaryLanguage.create(
                 language=language_id, beneficiary=beneficiary_id

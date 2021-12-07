@@ -1,10 +1,11 @@
-from datetime import date, datetime
+from datetime import date
 
 import pytest
+from boxtribute_server.models import utcnow
 from boxtribute_server.models.user import User
 from data.usergroup import default_usergroup_data
 
-TIME = datetime.now()
+TIME = utcnow()
 TODAY = date.today()
 
 

@@ -73,5 +73,4 @@ def test_create_box(client, qr_code_without_box):
 
     assert response.status_code == 200
     assert updated_box["items"] == 7777
-    assert updated_box["lastModifiedOn"] != updated_box["createdOn"]
     assert updated_box["qrCode"] == created_box["qrCode"]

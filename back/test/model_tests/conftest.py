@@ -1,27 +1,11 @@
-import pymysql
 import pytest
-from boxtribute_server.db import create_db_interface, db
+from boxtribute_server.db import db
 from boxtribute_server.models.user import User
 
 # Imports fixtures into tests
 from data import *  # noqa: F401,F403
 from data import MODELS, setup_models
 from peewee import DeferredForeignKey
-
-TEST_DATABASE_NAME = "testing"
-
-
-@pytest.fixture(scope="package")
-def mysql_testing_database(mysql_connection_parameters):
-    """Create testing database, and return interface to access it.
-    Requires running MySQL server (as Docker service `db`).
-    """
-    with pymysql.connect(**mysql_connection_parameters) as connection:
-        with connection.cursor() as cursor:
-            cursor.execute(f"CREATE DATABASE IF NOT EXISTS {TEST_DATABASE_NAME}")
-    yield create_db_interface(
-        **mysql_connection_parameters, database=TEST_DATABASE_NAME
-    )
 
 
 @pytest.fixture(autouse=True)

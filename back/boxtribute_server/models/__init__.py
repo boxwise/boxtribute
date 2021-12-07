@@ -4,8 +4,10 @@ from peewee import DeferredForeignKey, ForeignKeyField
 
 
 def utcnow():
-    """Return current datetime in UTC."""
-    return datetime.now(tz=timezone.utc)
+    """Return current datetime in UTC, in second precision (the MySQL database is
+    configured to not store any fractional seconds).
+    """
+    return datetime.now(tz=timezone.utc).replace(microsecond=0)
 
 
 class UIntForeignKeyField(ForeignKeyField):
