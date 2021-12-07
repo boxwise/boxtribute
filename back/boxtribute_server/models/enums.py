@@ -55,3 +55,18 @@ class BoxState(enum.IntEnum):
     Picked = enum.auto()
     Donated = enum.auto()
     Scrap = enum.auto()
+
+
+class ProductGender(enum.IntEnum):
+    """Representation of values of the `ProductGender` data model."""
+
+    Women = 1
+    Men = enum.auto()
+    UnisexAdult = enum.auto()
+    Girl = enum.auto()
+    Boy = enum.auto()
+    UnisexKid = enum.auto()
+    UnisexBaby = 9
+    none = enum.auto()
+    TeenGirl = 12
+    TeenBoy = enum.auto()

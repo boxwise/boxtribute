@@ -67,7 +67,7 @@ enum ProductGender {
   TeenBoy
   Girl
   Boy
-  None
+  none
 }
 
 enum BoxState {

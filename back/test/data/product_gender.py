@@ -1,26 +1,14 @@
 import pytest
+from boxtribute_server.models.enums import ProductGender as ProductGenderEnum
 from boxtribute_server.models.product_gender import ProductGender
 
 
-def default_product_gender_data():
-    mock_product_gender = {
-        "id": 1,
-        "adult": 1,
-        "baby": 2,
-        "child": 3,
-        "color": "red",
-        "female": 1,
-        "label": "1",
-        "male": 1,
-        "created": None,
-        "created_by": None,
-        "modified": None,
-        "modified_by": None,
-        "seq": None,
-        "short_label": None,
-    }
+def data():
+    return [{"id": p.value, "label": p.name, "color": "red"} for p in ProductGenderEnum]
 
-    return mock_product_gender
+
+def default_product_gender_data():
+    return data()[0]
 
 
 @pytest.fixture()
@@ -29,4 +17,4 @@ def default_product_gender():
 
 
 def create():
-    ProductGender.create(**default_product_gender_data())
+    ProductGender.insert_many(data()).execute()
