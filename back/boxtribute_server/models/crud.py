@@ -15,7 +15,7 @@ from ..exceptions import (
 from . import utcnow
 from .beneficiary import Beneficiary
 from .box import Box
-from .enums import TransferAgreementState
+from .enums import BoxState, TransferAgreementState
 from .qr_code import QrCode
 from .shipment import Shipment
 from .shipment_detail import ShipmentDetail
@@ -44,7 +44,7 @@ def create_box(data):
                 created_on=now,
                 last_modified_on=now,
                 last_modified_by=data["created_by"],
-                state=1,
+                state=BoxState.InStock.value,
                 **data,
             )
             return new_box
@@ -257,7 +257,7 @@ def update_shipment(data):
         for box in Box.select().where(
             Box.label_identifier.in_(prepared_box_label_identifiers)
         ):
-            box.state = 3  # MarkedForShipment
+            box.state = BoxState.Ordered.value  # MarkedForShipment
             boxes.append(box)
             details.append(
                 {

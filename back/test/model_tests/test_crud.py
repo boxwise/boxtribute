@@ -17,6 +17,7 @@ from boxtribute_server.models.crud import (
     update_shipment,
 )
 from boxtribute_server.models.enums import (
+    BoxState,
     ShipmentState,
     TransferAgreementState,
     TransferAgreementType,
@@ -213,7 +214,7 @@ def test_create_shipment(
     assert detail["created_on"] is not None
 
     box = Box.get_by_id(detail["box"])
-    assert box.box_state_id == 3
+    assert box.state_id == BoxState.Ordered.value
 
 
 def test_create_shipment_from_expired_agreement(

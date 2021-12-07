@@ -3,6 +3,7 @@ from peewee import SQL, CharField, DateTimeField, IntegerField, TextField
 from ..db import db
 from . import UIntDeferredForeignKey, UIntForeignKeyField
 from .box_state import BoxState
+from .enums import BoxState as BoxStateEnum
 from .location import Location
 from .product import Product
 from .qr_code import QrCode
@@ -19,10 +20,11 @@ class Box(db.Model):
     )
     state = UIntForeignKeyField(
         column_name="box_state_id",
-        constraints=[SQL("DEFAULT 1")],
+        constraints=[SQL(f"DEFAULT {BoxStateEnum.InStock.value}")],
         field="id",
         model=BoxState,
         on_update="CASCADE",
+        object_id_name="state_id",
     )
     comment = TextField(column_name="comments")
     created_on = DateTimeField(column_name="created", null=True)

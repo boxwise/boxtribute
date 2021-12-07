@@ -44,3 +44,14 @@ class ShipmentState(enum.IntEnum):
     RECEIVED = enum.auto()
     CANCELED = enum.auto()
     LOST = enum.auto()
+
+
+class BoxState(enum.IntEnum):
+    """Representation of values of the `BoxState` data model."""
+
+    InStock = 1
+    Lost = enum.auto()
+    Ordered = enum.auto()
+    Picked = enum.auto()
+    Donated = enum.auto()
+    Scrap = enum.auto()

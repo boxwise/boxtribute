@@ -207,7 +207,7 @@ def resolve_beneficiary_languages(beneficiary_obj, info):
 @box.field("state")
 def resolve_box_state(box_obj, info):
     # Instead of a BoxState instance return an integer for EnumType conversion
-    return box_obj.state.id
+    return box_obj.state_id
 
 
 @location.field("boxState")

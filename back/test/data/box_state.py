@@ -1,16 +1,10 @@
 import pytest
 from boxtribute_server.models.box_state import BoxState
+from boxtribute_server.models.enums import BoxState as BoxStateEnum
 
 
 def data():
-    return [
-        {"id": 1, "label": "Instock"},
-        {"id": 2, "label": "Lost"},
-        {"id": 3, "label": "Ordered"},
-        {"id": 4, "label": "Picked"},
-        {"id": 5, "label": "Donated"},
-        {"id": 6, "label": "Scrap"},
-    ]
+    return [{"id": s.value, "label": s.name} for s in BoxStateEnum]
 
 
 def default_box_state_data():
