@@ -1,7 +1,8 @@
 from peewee import SQL, CharField, DateTimeField, IntegerField, SmallIntegerField
 
-from ..db import db
-from . import UIntForeignKeyField, utcnow
+from ...db import db
+from ..fields import UIntForeignKeyField
+from ..utils import utcnow
 from .organisation import Organisation
 from .user import User
 

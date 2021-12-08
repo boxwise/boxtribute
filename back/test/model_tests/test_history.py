@@ -1,5 +1,5 @@
 import pytest
-from boxtribute_server.models.history import DbChangeHistory
+from boxtribute_server.models.definitions.history import DbChangeHistory
 
 
 @pytest.mark.usefixtures("default_history")

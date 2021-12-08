@@ -1,5 +1,5 @@
 import pytest
-from boxtribute_server.models.settings import Settings
+from boxtribute_server.models.definitions.settings import Settings
 
 
 def default_settings_data():

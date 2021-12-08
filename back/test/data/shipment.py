@@ -1,7 +1,7 @@
 import pytest
-from boxtribute_server.models import utcnow
-from boxtribute_server.models.enums import ShipmentState
-from boxtribute_server.models.shipment import Shipment
+from boxtribute_server.enums import ShipmentState
+from boxtribute_server.models.definitions.shipment import Shipment
+from boxtribute_server.models.utils import utcnow
 
 from .base import data as base_data
 from .transfer_agreement import data as transfer_agreement_data

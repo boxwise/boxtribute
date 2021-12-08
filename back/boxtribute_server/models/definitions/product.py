@@ -1,7 +1,7 @@
 from peewee import SQL, CharField, DateTimeField, IntegerField
 
-from ..db import db
-from . import UIntDeferredForeignKey, UIntForeignKeyField
+from ...db import db
+from ..fields import UIntDeferredForeignKey, UIntForeignKeyField
 from .base import Base
 from .product_category import ProductCategory
 from .product_gender import ProductGender

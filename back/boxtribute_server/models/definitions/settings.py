@@ -1,7 +1,7 @@
 from peewee import SQL, CharField, DateTimeField, IntegerField, TextField
 
-from ..db import db
-from . import UIntDeferredForeignKey
+from ...db import db
+from ..fields import UIntDeferredForeignKey
 
 
 class Settings(db.Model):

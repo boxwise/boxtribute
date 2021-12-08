@@ -1,5 +1,5 @@
-from boxtribute_server.models.enums import ShipmentState
-from boxtribute_server.models.shipment import Shipment
+from boxtribute_server.enums import ShipmentState
+from boxtribute_server.models.definitions.shipment import Shipment
 
 
 def test_shipment(

@@ -1,5 +1,5 @@
-from boxtribute_server.models.enums import TransferAgreementState, TransferAgreementType
-from boxtribute_server.models.transfer_agreement import TransferAgreement
+from boxtribute_server.enums import TransferAgreementState, TransferAgreementType
+from boxtribute_server.models.definitions.transfer_agreement import TransferAgreement
 
 
 def test_transfer_agreement(

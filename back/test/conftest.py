@@ -15,7 +15,7 @@ import pymysql
 import pytest
 from boxtribute_server.app import configure_app, create_app
 from boxtribute_server.db import create_db_interface, db
-from boxtribute_server.models.user import User
+from boxtribute_server.models.definitions.user import User
 
 # Imports fixtures into tests
 from data import *  # noqa: F401,F403

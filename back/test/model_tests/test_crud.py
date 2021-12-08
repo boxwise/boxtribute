@@ -2,12 +2,17 @@ from datetime import date, datetime
 
 import peewee
 import pytest
+from boxtribute_server.enums import (
+    BoxState,
+    ShipmentState,
+    TransferAgreementState,
+    TransferAgreementType,
+)
 from boxtribute_server.exceptions import (
     BoxCreationFailed,
     InvalidTransferAgreement,
     RequestedResourceNotFound,
 )
-from boxtribute_server.models.box import Box
 from boxtribute_server.models.crud import (
     BOX_LABEL_IDENTIFIER_GENERATION_ATTEMPTS,
     create_box,
@@ -16,17 +21,14 @@ from boxtribute_server.models.crud import (
     create_transfer_agreement,
     update_shipment,
 )
-from boxtribute_server.models.enums import (
-    BoxState,
-    ShipmentState,
-    TransferAgreementState,
-    TransferAgreementType,
+from boxtribute_server.models.definitions.box import Box
+from boxtribute_server.models.definitions.qr_code import QrCode
+from boxtribute_server.models.definitions.shipment import Shipment
+from boxtribute_server.models.definitions.shipment_detail import ShipmentDetail
+from boxtribute_server.models.definitions.transfer_agreement import TransferAgreement
+from boxtribute_server.models.definitions.transfer_agreement_detail import (
+    TransferAgreementDetail,
 )
-from boxtribute_server.models.qr_code import QrCode
-from boxtribute_server.models.shipment import Shipment
-from boxtribute_server.models.shipment_detail import ShipmentDetail
-from boxtribute_server.models.transfer_agreement import TransferAgreement
-from boxtribute_server.models.transfer_agreement_detail import TransferAgreementDetail
 
 
 def test_create_qr_code_for_nonexisting_box():

@@ -1,7 +1,7 @@
 from peewee import CharField, DateTimeField, FloatField, IntegerField, TextField
 
-from ..db import db
-from . import UIntDeferredForeignKey
+from ...db import db
+from ..fields import UIntDeferredForeignKey
 
 
 class DbChangeHistory(db.Model):

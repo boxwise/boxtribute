@@ -1,6 +1,6 @@
 import pytest
-from boxtribute_server.models import utcnow
-from boxtribute_server.models.usergroup import Usergroup
+from boxtribute_server.models.definitions.usergroup import Usergroup
+from boxtribute_server.models.utils import utcnow
 from data.organisation import data as organisation_data
 from data.usergroup_access_level import default_usergroup_access_level_data
 

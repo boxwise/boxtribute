@@ -1,6 +1,6 @@
 from peewee import SQL, CharField, DateTimeField, IntegerField
 
-from ..db import db
+from ...db import db
 
 
 class QrCode(db.Model):

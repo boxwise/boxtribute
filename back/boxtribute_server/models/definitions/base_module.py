@@ -1,7 +1,7 @@
 from peewee import CharField, DateTimeField, IntegerField, SmallIntegerField
 
-from ..db import db
-from . import UIntForeignKeyField
+from ...db import db
+from ..fields import UIntForeignKeyField
 from .user import User
 
 

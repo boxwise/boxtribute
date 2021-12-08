@@ -5,9 +5,6 @@ from peewee import fn
 from flask import g
 
 from ..authz import authorize
-from ..models.base import Base
-from ..models.beneficiary import Beneficiary
-from ..models.box import Box
 from ..models.crud import (
     create_beneficiary,
     create_box,
@@ -15,15 +12,18 @@ from ..models.crud import (
     update_beneficiary,
     update_box,
 )
-from ..models.location import Location
-from ..models.organisation import Organisation
-from ..models.product import Product
-from ..models.product_category import ProductCategory
-from ..models.qr_code import QrCode
-from ..models.size import Size
-from ..models.transaction import Transaction
-from ..models.user import User
-from ..models.x_beneficiary_language import XBeneficiaryLanguage
+from ..models.definitions.base import Base
+from ..models.definitions.beneficiary import Beneficiary
+from ..models.definitions.box import Box
+from ..models.definitions.location import Location
+from ..models.definitions.organisation import Organisation
+from ..models.definitions.product import Product
+from ..models.definitions.product_category import ProductCategory
+from ..models.definitions.qr_code import QrCode
+from ..models.definitions.size import Size
+from ..models.definitions.transaction import Transaction
+from ..models.definitions.user import User
+from ..models.definitions.x_beneficiary_language import XBeneficiaryLanguage
 from .pagination import load_into_page
 
 query = QueryType()

@@ -1,7 +1,8 @@
 from peewee import DateTimeField
 
-from ..db import db
-from . import UIntDeferredForeignKey, UIntForeignKeyField, utcnow
+from ...db import db
+from ..fields import UIntDeferredForeignKey, UIntForeignKeyField
+from ..utils import utcnow
 from .box import Box
 from .location import Location
 from .product import Product

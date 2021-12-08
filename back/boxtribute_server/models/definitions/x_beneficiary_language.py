@@ -1,5 +1,5 @@
-from ..db import db
-from . import UIntForeignKeyField
+from ...db import db
+from ..fields import UIntForeignKeyField
 from .beneficiary import Beneficiary
 from .language import Language
 

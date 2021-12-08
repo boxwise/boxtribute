@@ -1,5 +1,5 @@
 import pytest
-from boxtribute_server.models.box import Box
+from boxtribute_server.models.definitions.box import Box
 from playhouse.shortcuts import model_to_dict
 
 

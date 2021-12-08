@@ -1,9 +1,10 @@
 from peewee import SQL, DateTimeField
 
-from ..db import db
-from . import UIntDeferredForeignKey, UIntForeignKeyField, utcnow
+from ...db import db
+from ...enums import ShipmentState
+from ..fields import EnumCharField, UIntDeferredForeignKey, UIntForeignKeyField
+from ..utils import utcnow
 from .base import Base
-from .enums import EnumCharField, ShipmentState
 from .transfer_agreement import TransferAgreement
 
 

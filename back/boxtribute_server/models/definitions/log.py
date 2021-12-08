@@ -1,6 +1,6 @@
 from peewee import CharField, DateTimeField, TextField
 
-from ..db import db
+from ...db import db
 
 
 class Log(db.Model):

@@ -1,7 +1,7 @@
 from peewee import SQL, CharField, DateField, DateTimeField, IntegerField
 
-from ..db import db
-from . import UIntForeignKeyField
+from ...db import db
+from ..fields import UIntForeignKeyField
 from .language import Language
 from .usergroup import Usergroup
 

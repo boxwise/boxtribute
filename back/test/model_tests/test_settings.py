@@ -1,5 +1,5 @@
 import pytest
-from boxtribute_server.models.settings import Settings
+from boxtribute_server.models.definitions.settings import Settings
 
 
 @pytest.mark.usefixtures("default_settings")

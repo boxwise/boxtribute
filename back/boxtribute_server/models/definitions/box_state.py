@@ -1,6 +1,6 @@
 from peewee import CharField
 
-from ..db import db
+from ...db import db
 
 
 class BoxState(db.Model):

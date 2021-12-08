@@ -1,6 +1,6 @@
 import pytest
-from boxtribute_server.models.box_state import BoxState
-from boxtribute_server.models.enums import BoxState as BoxStateEnum
+from boxtribute_server.enums import BoxState as BoxStateEnum
+from boxtribute_server.models.definitions.box_state import BoxState
 
 
 def data():

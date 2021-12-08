@@ -1,9 +1,9 @@
 from peewee import SQL, CharField, DateTimeField, IntegerField, TextField
 
-from ..db import db
-from . import UIntDeferredForeignKey, UIntForeignKeyField
+from ...db import db
+from ...enums import BoxState as BoxStateEnum
+from ..fields import UIntDeferredForeignKey, UIntForeignKeyField
 from .box_state import BoxState
-from .enums import BoxState as BoxStateEnum
 from .location import Location
 from .product import Product
 from .qr_code import QrCode

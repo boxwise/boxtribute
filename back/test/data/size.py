@@ -1,4 +1,4 @@
-from boxtribute_server.models.size import Size
+from boxtribute_server.models.definitions.size import Size
 
 
 def data():

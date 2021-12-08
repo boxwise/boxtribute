@@ -1,7 +1,7 @@
 from peewee import CharField, DateTimeField
 
-from ..db import db
-from . import UIntDeferredForeignKey, UIntForeignKeyField
+from ...db import db
+from ..fields import UIntDeferredForeignKey, UIntForeignKeyField
 from .organisation import Organisation
 from .usergroup_access_level import UsergroupAccessLevel
 

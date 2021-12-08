@@ -1,7 +1,7 @@
 from peewee import CharField, DateTimeField
 
-from ..db import db
-from . import UIntDeferredForeignKey
+from ...db import db
+from ..fields import UIntDeferredForeignKey
 
 
 class Organisation(db.Model):

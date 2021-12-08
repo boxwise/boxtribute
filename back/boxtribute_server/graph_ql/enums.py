@@ -1,6 +1,6 @@
 from ariadne import EnumType
 
-from ..models.enums import BoxState, HumanGender, Language, ProductGender
+from ..enums import BoxState, HumanGender, Language, ProductGender
 
 enum_types = [
     EnumType("ProductGender", ProductGender),

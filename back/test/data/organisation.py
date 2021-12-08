@@ -1,5 +1,5 @@
 import pytest
-from boxtribute_server.models.organisation import Organisation
+from boxtribute_server.models.definitions.organisation import Organisation
 
 
 def data():

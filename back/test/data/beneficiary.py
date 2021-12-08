@@ -1,6 +1,6 @@
 import pytest
-from boxtribute_server.models import utcnow
-from boxtribute_server.models.beneficiary import Beneficiary
+from boxtribute_server.models.definitions.beneficiary import Beneficiary
+from boxtribute_server.models.utils import utcnow
 from data.base import data as base_data
 
 TIME = utcnow()

@@ -1,6 +1,6 @@
 import pytest
-from boxtribute_server.models import utcnow
-from boxtribute_server.models.product import Product
+from boxtribute_server.models.definitions.product import Product
+from boxtribute_server.models.utils import utcnow
 from data.base import data as base_data
 from data.product_category import default_product_category_data
 from data.product_gender import default_product_gender_data

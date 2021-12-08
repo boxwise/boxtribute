@@ -1,7 +1,7 @@
 from peewee import CharField, DateTimeField, IntegerField
 
-from ..db import db
-from . import UIntForeignKeyField
+from ...db import db
+from ..fields import UIntForeignKeyField
 from .size_range import SizeRange
 from .user import User
 

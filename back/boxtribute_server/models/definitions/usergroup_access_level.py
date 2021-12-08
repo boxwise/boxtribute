@@ -1,6 +1,6 @@
 from peewee import CharField, IntegerField
 
-from ..db import db
+from ...db import db
 
 
 class UsergroupAccessLevel(db.Model):

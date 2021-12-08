@@ -1,6 +1,6 @@
 from peewee import CompositeKey, IntegerField
 
-from ..db import db
+from ...db import db
 
 
 class UsergroupBaseAccess(db.Model):

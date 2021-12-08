@@ -1,7 +1,7 @@
 import pytest
-from boxtribute_server.models import utcnow
-from boxtribute_server.models.enums import TransferAgreementState, TransferAgreementType
-from boxtribute_server.models.transfer_agreement import TransferAgreement
+from boxtribute_server.enums import TransferAgreementState, TransferAgreementType
+from boxtribute_server.models.definitions.transfer_agreement import TransferAgreement
+from boxtribute_server.models.utils import utcnow
 
 from .organisation import data as organisation_data
 from .user import default_user_data

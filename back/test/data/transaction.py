@@ -1,6 +1,6 @@
 import pytest
-from boxtribute_server.models import utcnow
-from boxtribute_server.models.transaction import Transaction
+from boxtribute_server.models.definitions.transaction import Transaction
+from boxtribute_server.models.utils import utcnow
 from data.beneficiary import default_beneficiary_data
 from data.product import default_product_data
 from data.user import default_user_data

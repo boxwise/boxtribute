@@ -1,5 +1,5 @@
 import pytest
-from boxtribute_server.models.log import Log
+from boxtribute_server.models.definitions.log import Log
 
 
 @pytest.mark.usefixtures("default_log")

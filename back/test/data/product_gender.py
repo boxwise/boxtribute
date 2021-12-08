@@ -1,6 +1,6 @@
 import pytest
-from boxtribute_server.models.enums import ProductGender as ProductGenderEnum
-from boxtribute_server.models.product_gender import ProductGender
+from boxtribute_server.enums import ProductGender as ProductGenderEnum
+from boxtribute_server.models.definitions.product_gender import ProductGender
 
 
 def data():

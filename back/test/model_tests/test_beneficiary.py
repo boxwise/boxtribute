@@ -1,5 +1,5 @@
 import pytest
-from boxtribute_server.models.beneficiary import Beneficiary
+from boxtribute_server.models.definitions.beneficiary import Beneficiary
 from playhouse.shortcuts import model_to_dict
 
 

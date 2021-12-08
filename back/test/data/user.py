@@ -1,8 +1,8 @@
 from datetime import date
 
 import pytest
-from boxtribute_server.models import utcnow
-from boxtribute_server.models.user import User
+from boxtribute_server.models.definitions.user import User
+from boxtribute_server.models.utils import utcnow
 from data.usergroup import default_usergroup_data
 
 TIME = utcnow()

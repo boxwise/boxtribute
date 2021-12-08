@@ -1,5 +1,7 @@
 import pytest
-from boxtribute_server.models.usergroup_base_access import UsergroupBaseAccess
+from boxtribute_server.models.definitions.usergroup_base_access import (
+    UsergroupBaseAccess,
+)
 from data.base import data as base_data
 from data.usergroup import default_usergroup_data
 

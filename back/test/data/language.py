@@ -1,5 +1,5 @@
-from boxtribute_server.models.enums import Language as LanguageEnum
-from boxtribute_server.models.language import Language
+from boxtribute_server.enums import Language as LanguageEnum
+from boxtribute_server.models.definitions.language import Language
 
 
 def data():

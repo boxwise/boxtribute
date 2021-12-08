@@ -1,8 +1,9 @@
 from peewee import SQL, DateTimeField, TextField
 
-from ..db import db
-from . import UIntDeferredForeignKey, UIntForeignKeyField, utcnow
-from .enums import EnumCharField, TransferAgreementState, TransferAgreementType
+from ...db import db
+from ...enums import TransferAgreementState, TransferAgreementType
+from ..fields import EnumCharField, UIntDeferredForeignKey, UIntForeignKeyField
+from ..utils import utcnow
 from .organisation import Organisation
 
 

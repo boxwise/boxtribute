@@ -1,6 +1,6 @@
 import pytest
-from boxtribute_server.models import utcnow
-from boxtribute_server.models.box import Box
+from boxtribute_server.models.definitions.box import Box
+from boxtribute_server.models.utils import utcnow
 from data.box_state import default_box_state_data
 from data.location import default_location_data
 from data.product import default_product_data

@@ -7,21 +7,21 @@ import peewee
 from dateutil import tz
 
 from ..db import db
+from ..enums import BoxState, TransferAgreementState
 from ..exceptions import (
     BoxCreationFailed,
     InvalidTransferAgreement,
     RequestedResourceNotFound,
 )
-from . import utcnow
-from .beneficiary import Beneficiary
-from .box import Box
-from .enums import BoxState, TransferAgreementState
-from .qr_code import QrCode
-from .shipment import Shipment
-from .shipment_detail import ShipmentDetail
-from .transfer_agreement import TransferAgreement
-from .transfer_agreement_detail import TransferAgreementDetail
-from .x_beneficiary_language import XBeneficiaryLanguage
+from .definitions.beneficiary import Beneficiary
+from .definitions.box import Box
+from .definitions.qr_code import QrCode
+from .definitions.shipment import Shipment
+from .definitions.shipment_detail import ShipmentDetail
+from .definitions.transfer_agreement import TransferAgreement
+from .definitions.transfer_agreement_detail import TransferAgreementDetail
+from .definitions.x_beneficiary_language import XBeneficiaryLanguage
+from .utils import utcnow
 
 BOX_LABEL_IDENTIFIER_GENERATION_ATTEMPTS = 10
 

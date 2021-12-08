@@ -1,5 +1,7 @@
 import pytest
-from boxtribute_server.models.usergroup_base_access import UsergroupBaseAccess
+from boxtribute_server.models.definitions.usergroup_base_access import (
+    UsergroupBaseAccess,
+)
 
 
 @pytest.mark.usefixtures("default_usergroup_base_access_list")
