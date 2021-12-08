@@ -21,7 +21,6 @@ class TransferAgreement(db.Model):
         column_name="requested_by",
         field="id",
         on_update="CASCADE",
-        on_delete="SET NULL",
     )
     accepted_on = DateTimeField(null=True)
     accepted_by = UIntDeferredForeignKey(

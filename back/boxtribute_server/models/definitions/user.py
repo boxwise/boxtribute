@@ -3,17 +3,9 @@ from peewee import SQL, CharField, DateField, DateTimeField, IntegerField
 from ...db import db
 from ..fields import UIntForeignKeyField
 from .language import Language
-from .usergroup import Usergroup
 
 
 class User(db.Model):
-    usergroup = UIntForeignKeyField(
-        column_name="cms_usergroups_id",
-        field="id",
-        model=Usergroup,
-        null=True,
-        on_update="CASCADE",
-    )
     created = DateTimeField(null=True)
     created_by = UIntForeignKeyField(
         column_name="created_by",

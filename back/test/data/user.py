@@ -3,7 +3,6 @@ from datetime import date
 import pytest
 from boxtribute_server.models.definitions.user import User
 from boxtribute_server.models.utils import utcnow
-from data.usergroup import default_usergroup_data
 
 TIME = utcnow()
 TODAY = date.today()
@@ -25,7 +24,6 @@ def default_user_data():
         "modified_by": None,
         "language": None,
         "deleted": None,
-        "usergroup": default_usergroup_data()["id"],
     }
 
     return mock_user
@@ -53,7 +51,6 @@ def default_users_data():
         "modified_by": None,
         "language": None,
         "deleted": None,
-        "usergroup": None,
     }
 
     users[mock_user["id"]] = mock_user
@@ -73,7 +70,6 @@ def default_users_data():
         "modified_by": None,
         "language": None,
         "deleted": None,
-        "usergroup": default_usergroup_data()["id"],
     }
 
     users[mock_user["id"]] = mock_user
