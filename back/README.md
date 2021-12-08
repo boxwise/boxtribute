@@ -178,7 +178,7 @@ Most tests require a running MySQL server. Before executing tests for the first 
 
 Run the test suite on your machine by executing
 
-    CIRCLECI=1 MYSQL_PORT=32000 pytest
+    MYSQL_PORT=32000 pytest
 
 If you persistently want these variables to be set for your environment, export them via the `.envrc` file.
 

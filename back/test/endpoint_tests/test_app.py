@@ -1,10 +1,6 @@
-import os
-
-import pytest
 from auth import create_jwt_payload
 
 
-@pytest.mark.skipif("CIRCLECI" not in os.environ, reason="only functional in CircleCI")
 def test_get_boxes(mysql_app_client):
     data = {
         "query": """query CommentsOfLostBoxes {
@@ -34,7 +30,6 @@ def test_get_boxes(mysql_app_client):
     assert response.json["data"]["location"]["boxes"]["totalCount"] == 27
 
 
-@pytest.mark.skipif("CIRCLECI" not in os.environ, reason="only functional in CircleCI")
 def test_get_bases(mysql_app_client):
     data = {
         "query": """query basesOfBoxAid {
@@ -55,7 +50,6 @@ def test_get_bases(mysql_app_client):
     assert queried_locations[0]["name"] == "Lesvos"
 
 
-@pytest.mark.skipif("CIRCLECI" not in os.environ, reason="only functional in CircleCI")
 def test_get_products(mysql_app_client):
     data = {
         "query": """query getShoes {
@@ -83,7 +77,6 @@ def test_get_products(mysql_app_client):
     assert response.json["data"]["productCategory"]["products"]["totalCount"] == 13
 
 
-@pytest.mark.skipif("CIRCLECI" not in os.environ, reason="only functional in CircleCI")
 def test_get_beneficiaries(mysql_app_client):
     data = {
         "query": """query getBeneficiariesOfLesvos {
