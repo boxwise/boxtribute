@@ -49,3 +49,10 @@ class InvalidTransferAgreement(Exception):
         "code": "BAD_USER_INPUT",
         "description": "The transfer agreement is invalid.",
     }
+
+
+class InvalidPaginationInput(Exception):
+    extensions = {
+        "code": "BAD_USER_INPUT",
+        "description": "Invalid pagination input: missing 'before' field.",
+    }

@@ -236,3 +236,15 @@ def test_base_specific_permissions(client, mocker):
     assert response.json["data"]["qr2"] is not None
     assert response.json["data"]["qr3"] is not None
     assert "errors" not in response.json
+
+
+def test_invalid_pagination_input(client):
+    query = """query { beneficiaries(paginationInput: {last: 2}) {
+        elements { id }
+    } }"""
+    data = {"query": query}
+    response = client.post("/graphql", json=data)
+    assert response.status_code == 200
+    assert len(response.json["errors"]) == 1
+    assert response.json["errors"][0]["extensions"]["code"] == "BAD_USER_INPUT"
+    assert response.json["data"] is None
