@@ -1,14 +1,10 @@
+from boxtribute_server.models.enums import Language as LanguageEnum
 from boxtribute_server.models.language import Language
 
 
-def default_language_data():
-    # Should match the actual MySQL data
-    return [
-        {"code": c, "id": i, "rtl": 0}
-        for i, c in enumerate(["nl", "en", "fr", "de", "ar", "ckb"], start=1)
-    ]
+def data():
+    return [{"code": lg.name, "id": lg.value, "rtl": 0} for lg in LanguageEnum]
 
 
 def create():
-    for entry in default_language_data():
-        Language.create(**entry)
+    Language.insert_many(data()).execute()

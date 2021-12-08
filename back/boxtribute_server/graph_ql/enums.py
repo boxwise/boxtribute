@@ -1,6 +1,6 @@
 from ariadne import EnumType
 
-from ..models.enums import BoxState, ProductGender
+from ..models.enums import BoxState, Language, ProductGender
 
 # Translate GraphQL enum into id field of database table
 product_gender_enum = EnumType("ProductGender", ProductGender)
@@ -18,14 +18,4 @@ gender_enum = EnumType(
     },
 )
 
-language_enum = EnumType(
-    "Language",
-    {
-        "nl": 1,
-        "en": 2,
-        "fr": 3,
-        "de": 4,
-        "ar": 5,
-        "ckb": 6,
-    },
-)
+language_enum = EnumType("Language", Language)

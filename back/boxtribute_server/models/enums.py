@@ -70,3 +70,14 @@ class ProductGender(enum.IntEnum):
     none = enum.auto()
     TeenGirl = 12
     TeenBoy = enum.auto()
+
+
+class Language(enum.IntEnum):
+    """Representation of values of the `Language` data model."""
+
+    nl = 1
+    en = enum.auto()
+    fr = enum.auto()
+    de = enum.auto()
+    ar = enum.auto()
+    ckb = enum.auto()
