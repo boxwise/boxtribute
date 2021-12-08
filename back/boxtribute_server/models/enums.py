@@ -81,3 +81,9 @@ class Language(enum.IntEnum):
     de = enum.auto()
     ar = enum.auto()
     ckb = enum.auto()
+
+
+class HumanGender(enum.Enum):
+    Male = "M"
+    Female = "F"
+    Diverse = "D"
