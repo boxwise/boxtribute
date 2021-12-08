@@ -1,12 +1,11 @@
-from datetime import datetime
-
 import pytest
+from boxtribute_server.models import utcnow
 from boxtribute_server.models.transaction import Transaction
 from data.beneficiary import default_beneficiary_data
 from data.product import default_product_data
 from data.user import default_user_data
 
-TIME = datetime.now()
+TIME = utcnow()
 
 
 def default_transaction_data():

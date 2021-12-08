@@ -12,9 +12,13 @@ def test_beneficiary_model(default_base, default_beneficiary):
 
     assert queried_beneficiary_dict["id"] == default_beneficiary["id"]
     assert queried_beneficiary_dict["comments"] == default_beneficiary["comments"]
-    assert queried_beneficiary_dict["created_on"] == default_beneficiary["created_on"]
+    assert queried_beneficiary_dict["created_on"] == default_beneficiary[
+        "created_on"
+    ].replace(tzinfo=None)
     assert queried_beneficiary_dict["created_by"] == default_beneficiary["created_by"]
-    assert queried_beneficiary_dict["deleted"] == default_beneficiary["deleted"]
+    assert queried_beneficiary_dict["deleted"] == default_beneficiary[
+        "deleted"
+    ].replace(tzinfo=None)
     assert queried_beneficiary_dict["family_id"] == default_beneficiary["family_id"]
     assert queried_beneficiary_dict["seq"] == default_beneficiary["seq"]
     assert queried_beneficiary_dict["base"]["id"] == default_base["id"]

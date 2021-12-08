@@ -1,10 +1,9 @@
-from datetime import datetime
-
 import pytest
+from boxtribute_server.models import utcnow
 from boxtribute_server.models.beneficiary import Beneficiary
 from data.base import data as base_data
 
-TIME = datetime.now().replace(microsecond=0)
+TIME = utcnow()
 
 
 def default_beneficiary_data():

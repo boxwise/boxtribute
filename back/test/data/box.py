@@ -1,6 +1,5 @@
-from datetime import datetime
-
 import pytest
+from boxtribute_server.models import utcnow
 from boxtribute_server.models.box import Box
 from data.box_state import default_box_state_data
 from data.location import default_location_data
@@ -8,7 +7,7 @@ from data.product import default_product_data
 from data.qr_code import default_qr_code_data
 from data.user import default_user_data
 
-TIME = datetime.now().replace(microsecond=0)
+TIME = utcnow()
 
 
 def default_box_data():

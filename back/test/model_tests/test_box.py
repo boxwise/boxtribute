@@ -25,9 +25,11 @@ def test_box_model(
     assert queried_box_dict["label_identifier"] == default_box["label_identifier"]
     assert queried_box_dict["state"]["id"] == default_box["state"]
     assert queried_box_dict["comment"] == default_box["comment"]
-    assert queried_box_dict["created_on"] == default_box["created_on"]
+    assert queried_box_dict["created_on"] == default_box["created_on"].replace(
+        tzinfo=None
+    )
     assert queried_box_dict["created_by"]["id"] == default_user["id"]
-    assert queried_box_dict["deleted"] == default_box["deleted"]
+    assert queried_box_dict["deleted"] == default_box["deleted"].replace(tzinfo=None)
     assert queried_box_dict["items"] == default_box["items"]
     assert queried_box_dict["location"]["id"] == default_box["location"]
     assert queried_box_dict["product"]["id"] == default_product["id"]
