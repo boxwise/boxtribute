@@ -19,6 +19,7 @@ from boxtribute_server.models.crud import (
     create_qr_code,
     create_shipment,
     create_transfer_agreement,
+    update_beneficiary,
     update_shipment,
 )
 from boxtribute_server.models.definitions.box import Box
@@ -230,3 +231,16 @@ def test_create_shipment_from_expired_agreement(
     }
     with pytest.raises(InvalidTransferAgreement):
         create_shipment(data)
+
+
+def test_update_beneficiary(default_beneficiary, default_bases):
+    """Complement anything not yet covered by endpoint tests."""
+    base_id = default_bases[2]["id"]
+    data = {
+        "id": default_beneficiary["id"],
+        "base_id": base_id,
+        "family_head_id": default_beneficiary["id"],
+    }
+    beneficiary = update_beneficiary(data)
+    assert beneficiary.id == beneficiary.family_head_id
+    assert beneficiary.base_id == base_id

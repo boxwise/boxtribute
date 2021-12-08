@@ -37,6 +37,3 @@ class Size(db.Model):
 
     class Meta:
         table_name = "sizes"
-
-    def __str__(self):
-        return f"{self.id} {self.label}"

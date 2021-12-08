@@ -70,6 +70,7 @@ class Beneficiary(db.Model):
         model="self",
         null=True,
         on_update="CASCADE",
+        object_id_name="family_head_id",
     )
     pass_ = CharField(column_name="pass", constraints=[SQL("DEFAULT ''")])
     phone = CharField(null=True)
