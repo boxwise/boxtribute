@@ -2,24 +2,28 @@ import pytest
 from boxtribute_server.models.organisation import Organisation
 
 
-def default_organisation_data():
-    mock_organisation = {
-        "id": 1,
-        "name": "CoolOrganisation",
-        "created_by": None,
-        "modified_by": None,
-        "created": None,
-        "deleted": None,
-        "modified": None,
-    }
+def data():
+    return [
+        {
+            "id": 1,
+            "name": "CoolOrganisation",
+        },
+        {
+            "id": 2,
+            "name": "Helpers",
+        },
+    ]
 
-    return mock_organisation
 
-
-@pytest.fixture()
+@pytest.fixture
 def default_organisation():
-    return default_organisation_data()
+    return data()[0]
 
 
-def create_default_organisation():
-    Organisation.create(**default_organisation_data())
+@pytest.fixture
+def another_organisation():
+    return data()[1]
+
+
+def create():
+    Organisation.insert_many(data()).execute()

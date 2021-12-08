@@ -16,5 +16,5 @@ def default_settings():
     return default_settings_data()
 
 
-def create_default_settings():
+def create():
     Settings.create(**default_settings_data())

@@ -17,14 +17,14 @@ from .user import User
 
 
 class Box(db.Model):
-    box_label_identifier = CharField(
+    label_identifier = CharField(
         column_name="box_id",
         constraints=[SQL("DEFAULT ''")],
         index=True,
         unique=True,
         max_length=11,
     )
-    box_state = ForeignKeyField(
+    state = ForeignKeyField(
         column_name="box_state_id",
         constraints=[SQL("DEFAULT 1")],
         field="id",

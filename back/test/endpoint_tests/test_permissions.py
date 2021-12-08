@@ -53,7 +53,7 @@ def operation_name(operation):
 @pytest.mark.parametrize(
     "query",
     [
-        """box( boxLabelIdentifier: "c0ffee") { id }""",
+        """box( labelIdentifier: "c0ffee") { id }""",
         """qrCode( qrCode: "1337beef" ) { id }""",
         """qrExists( qrCode: "1337beef" )""",
     ],
@@ -120,7 +120,7 @@ def test_invalid_permission_for_given_resource_id(client, mocker, query):
         }""",
         """updateBox(
             boxUpdateInput : {
-                boxLabelIdentifier: "f00b45",
+                labelIdentifier: "f00b45",
                 comment: "let's try"
             }) {
             id

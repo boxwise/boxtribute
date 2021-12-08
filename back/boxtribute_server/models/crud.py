@@ -1,15 +1,26 @@
 """Create-Retrieve-Update-Delete operations on database models."""
 import hashlib
 import random
-from datetime import datetime
+from datetime import datetime, time, timezone
 
 import peewee
+from dateutil import tz
 
 from ..db import db
-from ..exceptions import BoxCreationFailed, RequestedResourceNotFound
+from ..exceptions import (
+    BoxCreationFailed,
+    InvalidTransferAgreement,
+    RequestedResourceNotFound,
+)
+from . import utcnow
 from .beneficiary import Beneficiary
 from .box import Box
+from .enums import TransferAgreementState
 from .qr_code import QrCode
+from .shipment import Shipment
+from .shipment_detail import ShipmentDetail
+from .transfer_agreement import TransferAgreement
+from .transfer_agreement_detail import TransferAgreementDetail
 from .x_beneficiary_language import XBeneficiaryLanguage
 
 BOX_LABEL_IDENTIFIER_GENERATION_ATTEMPTS = 10
@@ -21,19 +32,19 @@ def create_box(data):
     box. If the sequence is not unique, repeat the generation several times. If
     generation still fails, raise a BoxCreationFailed exception.
     """
-    now = datetime.utcnow()
+    now = utcnow()
     qr_code = data.pop("qr_code", None)
     qr_id = QrCode.get_id_from_code(qr_code) if qr_code is not None else None
 
     for i in range(BOX_LABEL_IDENTIFIER_GENERATION_ATTEMPTS):
         try:
             new_box = Box.create(
-                box_label_identifier="".join(random.choices("0123456789", k=8)),
+                label_identifier="".join(random.choices("0123456789", k=8)),
                 qr_code=qr_id,
                 created_on=now,
                 last_modified_on=now,
                 last_modified_by=data["created_by"],
-                box_state=1,
+                state=1,
                 **data,
             )
             return new_box
@@ -49,13 +60,13 @@ def update_box(data):
     """Look up an existing Box given a UUID, and update all requested fields.
     Insert timestamp for modification and return the box.
     """
-    box_label_identifier = data.pop("box_label_identifier")
-    box = Box.get(Box.box_label_identifier == box_label_identifier)
+    label_identifier = data.pop("label_identifier")
+    box = Box.get(Box.label_identifier == label_identifier)
 
     for field, value in data.items():
         setattr(box, field, value)
 
-    box.last_modified_on = datetime.utcnow()
+    box.last_modified_on = utcnow()
     box.save()
     return box
 
@@ -64,7 +75,7 @@ def create_beneficiary(data):
     """Insert information for a new Beneficiary in the database. Update the
     languages in the corresponding cross-reference table.
     """
-    now = datetime.utcnow()
+    now = utcnow()
     language_ids = data.pop("languages")
     family_head_id = data.pop("family_head_id", None)
 
@@ -136,7 +147,7 @@ def update_beneficiary(data):
     for field, value in data.items():
         setattr(beneficiary, field, value)
 
-    beneficiary.last_modified_on = datetime.utcnow()
+    beneficiary.last_modified_on = utcnow()
     beneficiary.save()
     return beneficiary
 
@@ -155,12 +166,12 @@ def create_qr_code(data):
 
     try:
         with db.database.atomic():
-            new_qr_code = QrCode.create(created_on=datetime.utcnow(), **data)
+            new_qr_code = QrCode.create(created_on=utcnow(), **data)
             new_qr_code.code = hashlib.md5(str(new_qr_code.id).encode()).hexdigest()
             new_qr_code.save()
 
             if box_label_identifier is not None:
-                box = Box.get(Box.box_label_identifier == box_label_identifier)
+                box = Box.get(Box.label_identifier == box_label_identifier)
                 box.qr_code = new_qr_code.id
                 box.save()
 
@@ -168,3 +179,100 @@ def create_qr_code(data):
 
     except peewee.DoesNotExist:
         raise RequestedResourceNotFound()
+
+
+def create_transfer_agreement(data):
+    """Insert information for a new TransferAgreement in the database. Update
+    TransferAgreementDetail model with given source/target base information. By default,
+    the agreement is established between all bases of both organisations (indicated by
+    NULL for the Detail.source/target_base field).
+    Convert optional local dates into UTC datetimes using timezone information.
+    """
+    if data["valid_from"] is None:
+        # GraphQL input had 'validFrom: null', use default defined in model instead
+        del data["valid_from"]
+
+    with db.database.atomic():
+        # In GraphQL input, base IDs can be omitted, or explicitly be null.
+        # Avoid duplicate base IDs by creating sets
+        source_base_ids = set(data.pop("source_base_ids", None) or [None])
+        target_base_ids = set(data.pop("target_base_ids", None) or [None])
+
+        valid_from = data.get("valid_from")
+        valid_until = data.get("valid_until")
+        if valid_from is not None or valid_until is not None:
+            tzinfo = tz.gettz(data.pop("timezone"))
+            # Insert time information such that start/end is at midnight
+            if valid_from is not None:
+                data["valid_from"] = datetime.combine(
+                    valid_from, time(), tzinfo=tzinfo
+                ).astimezone(timezone.utc)
+            if valid_until is not None:
+                data["valid_until"] = datetime.combine(
+                    valid_until, time(23, 59, 59), tzinfo=tzinfo
+                ).astimezone(timezone.utc)
+
+        transfer_agreement = TransferAgreement.create(
+            source_organisation=data.pop("source_organisation_id"),
+            target_organisation=data.pop("target_organisation_id"),
+            **data,
+        )
+
+        # Build all combinations of source and target bases under current agreement
+        details_data = [
+            {
+                "source_base": s,
+                "target_base": t,
+                "transfer_agreement": transfer_agreement.id,
+            }
+            for s in source_base_ids
+            for t in target_base_ids
+        ]
+        TransferAgreementDetail.insert_many(details_data).execute()
+        return transfer_agreement
+
+
+def create_shipment(data):
+    """Insert information for a new Shipment in the database. Raise a
+    InvalidTransferAgreement exception if specified agreement has a state different from
+    'ACCEPTED'.
+    """
+    transfer_agreement_id = data.pop("transfer_agreement_id")
+    agreement = TransferAgreement.get_by_id(transfer_agreement_id)
+    if agreement.state != TransferAgreementState.ACCEPTED.value:
+        raise InvalidTransferAgreement()
+
+    return Shipment.create(
+        source_base=data.pop("source_base_id"),
+        target_base=data.pop("target_base_id"),
+        transfer_agreement=transfer_agreement_id,
+        **data,
+    )
+
+
+def update_shipment(data):
+    """Update shipment detail information, such as prepared boxes."""
+    prepared_box_label_identifiers = data.pop("prepared_box_label_identifiers", [])
+    shipment_id = data.pop("id")
+    details = []
+
+    with db.database.atomic():
+        boxes = []
+        for box in Box.select().where(
+            Box.label_identifier.in_(prepared_box_label_identifiers)
+        ):
+            box.state = 3  # MarkedForShipment
+            boxes.append(box)
+            details.append(
+                {
+                    "shipment": shipment_id,
+                    "box": box.id,
+                    "source_product": box.product_id,
+                    "source_location": box.location_id,
+                    **data,
+                }
+            )
+
+        Box.bulk_update(boxes, fields=[Box.state])
+        ShipmentDetail.insert_many(details).execute()
+    return Shipment.get_by_id(shipment_id)

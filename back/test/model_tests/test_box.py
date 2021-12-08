@@ -18,16 +18,12 @@ def test_box_model(
     default_user,
 ):
 
-    queried_box = Box.get(
-        Box.box_label_identifier == default_box["box_label_identifier"]
-    )
+    queried_box = Box.get(Box.label_identifier == default_box["label_identifier"])
     queried_box_dict = model_to_dict(queried_box)
 
     assert queried_box_dict["id"] == default_box["id"]
-    assert (
-        queried_box_dict["box_label_identifier"] == default_box["box_label_identifier"]
-    )
-    assert queried_box_dict["box_state"]["id"] == default_box["box_state"]
+    assert queried_box_dict["label_identifier"] == default_box["label_identifier"]
+    assert queried_box_dict["state"]["id"] == default_box["state"]
     assert queried_box_dict["comment"] == default_box["comment"]
     assert queried_box_dict["created_on"] == default_box["created_on"]
     assert queried_box_dict["created_by"]["id"] == default_user["id"]

@@ -13,5 +13,5 @@ def default_product_category():
     return default_product_category_data()
 
 
-def create_default_product_category():
+def create():
     ProductCategory.create(**default_product_category_data())

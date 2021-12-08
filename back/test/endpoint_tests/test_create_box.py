@@ -17,7 +17,7 @@ def test_create_box(client, qr_code_without_box):
                 boxCreationInput : {box_creation_input_string}
             ) {{
                 id
-                boxLabelIdentifier
+                labelIdentifier
                 items
                 location {{
                     id
@@ -57,7 +57,7 @@ def test_create_box(client, qr_code_without_box):
             updateBox(
                 boxUpdateInput : {{
                     items: 7777,
-                    boxLabelIdentifier: "{created_box["boxLabelIdentifier"]}"
+                    labelIdentifier: "{created_box["labelIdentifier"]}"
                 }} ) {{
                 items
                 lastModifiedOn

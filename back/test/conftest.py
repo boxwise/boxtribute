@@ -15,11 +15,10 @@ import tempfile
 import pytest
 from boxtribute_server.app import configure_app, create_app
 from boxtribute_server.db import db
-from boxtribute_server.models import MODELS
 
 # Imports fixtures into tests
 from data import *  # noqa: F401,F403
-from data.setup_tables import setup_tables
+from data import MODELS, setup_models
 
 
 @pytest.fixture()
@@ -44,7 +43,7 @@ def sqlite_app():
 
     with db.database.bind_ctx(MODELS):
         db.database.create_tables(MODELS)
-        setup_tables()
+        setup_models()
         db.close_db(None)
         with app.app_context():
             yield app

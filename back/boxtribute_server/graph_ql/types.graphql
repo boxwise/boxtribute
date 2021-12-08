@@ -1,6 +1,6 @@
 type Box {
   id: ID!
-  boxLabelIdentifier: String!
+  labelIdentifier: String!
   location: Location!
   items: Int!
   product: Product!
@@ -181,7 +181,7 @@ input CreateBoxInput {
 }
 
 input UpdateBoxInput {
-  boxLabelIdentifier: String!
+  labelIdentifier: String!
   productId: Int
   sizeId: Int
   items: Int

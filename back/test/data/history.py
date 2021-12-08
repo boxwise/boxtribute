@@ -12,5 +12,5 @@ def default_history():
     return default_history_data()
 
 
-def create_default_history():
+def create():
     DbChangeHistory.create(**default_history_data())

@@ -90,5 +90,5 @@ def default_users():
     return default_users_data()
 
 
-def create_default_users():
+def create():
     User.insert_many(default_users_data().values()).execute()

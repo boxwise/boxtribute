@@ -102,12 +102,12 @@ def resolve_product(_, info, id):
 
 @query.field("box")
 @convert_kwargs_to_snake_case
-def resolve_box(_, info, box_label_identifier):
+def resolve_box(_, info, label_identifier):
     authorize(permission="stock:read")
     box = (
         Box.select(Box, Location.base_id)
         .join(Location)
-        .where(Box.box_label_identifier == box_label_identifier)
+        .where(Box.label_identifier == label_identifier)
         .get()
     )
     authorize(base_id=box.location.base_id)
@@ -205,10 +205,15 @@ def resolve_beneficiary_languages(beneficiary_obj, info):
 
 
 @box.field("state")
-@location.field("boxState")
-def resolve_box_state(obj, info):
+def resolve_box_state(box_obj, info):
     # Instead of a BoxState instance return an integer for EnumType conversion
-    return obj.box_state.id
+    return box_obj.state.id
+
+
+@location.field("boxState")
+def resolve_location_box_state(location_obj, info):
+    # Instead of a BoxState instance return an integer for EnumType conversion
+    return location_obj.box_state.id
 
 
 @mutation.field("createQrCode")

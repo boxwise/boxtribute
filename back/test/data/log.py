@@ -12,5 +12,5 @@ def default_log():
     return default_log_data()
 
 
-def create_default_log():
+def create():
     Log.create(**default_log_data())

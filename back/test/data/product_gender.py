@@ -28,5 +28,5 @@ def default_product_gender():
     return default_product_gender_data()
 
 
-def create_default_product_gender():
+def create():
     ProductGender.create(**default_product_gender_data())

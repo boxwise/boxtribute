@@ -204,25 +204,24 @@ For each data model, one separate test module exists (e.g. `test_box.py` for the
 
 Test data is set up in the `test/data/` folder. Three definitions are required:
 
-1. The default data function is a dictionary which has all of the data for that database table
+1. The default data function returns a dictionary which holds a row of data for that database table (or an iterable containing data for multiple rows)
 
-        def default_<model>_data():
+        def data():
 
 2. The fixture passes this data into the required tests
 
-        @pytest.fixture()
+        @pytest.fixture
         def default_<model>():
+            return data()
 
 3. The creation function is called on the setup of a test so that all of the data is in the database when the test is ran
 
-        def create_default_<model>():
-            <data_model>.create(**default_<model>_data())
+        def create():
+            <data_model>.create(**data())
 
 **Please be aware that**
 
 - for new data the fixtures must be imported in `test/data/__init__.py` and added to the `__all__` list
-- the creation function needs must be added to `test/data/setup_tables.py`
-- the new model must be added to the list in `boxtribute_server/models/__init__.py`
 
 #### App tests
 
@@ -236,7 +235,7 @@ to allow for making requests to the app, and verify the response with previously
 
 From the repository root, run
 
-    pytest --cov=back/boxtribute_server --cov-report=term --cov-report=html back
+    pytest --cov --cov-report=term --cov-report=html back
 
 and inspect the reported output. Open the HTML report via `back/htmlcov/index.html` to browse coverage for individual source code files.
 

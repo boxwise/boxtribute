@@ -15,8 +15,8 @@ def default_box_data():
     mock_box = {
         "id": 2,
         "product": default_product_data()["id"],
-        "box_label_identifier": "12345678",
-        "box_state": default_box_state_data()["id"],
+        "label_identifier": "12345678",
+        "state": default_box_state_data()["id"],
         "comment": "",
         "created_on": TIME,
         "created_by": default_user_data()["id"],
@@ -32,7 +32,7 @@ def default_box_data():
 def box_without_qr_code_data():
     data = default_box_data().copy()
     data["id"] = 3
-    data["box_label_identifier"] = "23456789"
+    data["label_identifier"] = "23456789"
     data["items"] = 10
     data["qr_code"] = None
     return data
@@ -48,6 +48,6 @@ def box_without_qr_code():
     return box_without_qr_code_data()
 
 
-def create_default_box():
+def create():
     Box.create(**default_box_data())
     Box.create(**box_without_qr_code_data())

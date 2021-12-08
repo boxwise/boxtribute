@@ -9,6 +9,6 @@ def default_language_data():
     ]
 
 
-def create_default_language():
+def create():
     for entry in default_language_data():
         Language.create(**entry)

@@ -42,3 +42,10 @@ class RequestedResourceNotFound(Exception):
         "code": "BAD_USER_INPUT",
         "description": "The requested resource does not exist in the database.",
     }
+
+
+class InvalidTransferAgreement(Exception):
+    extensions = {
+        "code": "BAD_USER_INPUT",
+        "description": "The transfer agreement is invalid.",
+    }

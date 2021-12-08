@@ -10,7 +10,7 @@ def test_get_box_details(auth0_client):
                 qrCode(qrCode: "ffdd7f7243d74a663b417562df0ebeb") {
                     box {
                         id
-                        boxLabelIdentifier
+                        labelIdentifier
                         location {
                             id
                             base {
@@ -30,7 +30,7 @@ def test_get_box_details(auth0_client):
     assert response.status_code == 200
     assert queried_box == {
         "id": "642",
-        "boxLabelIdentifier": "436898",
+        "labelIdentifier": "436898",
         "items": 87,
         "location": {
             "id": "18",
@@ -43,7 +43,7 @@ def test_get_box_details(auth0_client):
 
     data = {
         "query": """query SomeBoxDetails {
-                box(boxLabelIdentifier: "996559") {
+                box(labelIdentifier: "996559") {
                     qrCode {
                         id
                         code
