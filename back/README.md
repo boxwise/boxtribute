@@ -199,7 +199,7 @@ Fixtures are configured in the `conftest.py` files which are automatically loade
 
 For test execution, it is required to create test data, and then verify the results of database operations against it.
 
-For each data model, one separate test module exists (e.g. `test_box.py` for the `Box` data model).
+For each data model, retrieve the default data, and verify the result in `model_tests/test_all.py`.
 
 Test data is set up in the `test/data/` folder. Three definitions are required:
 

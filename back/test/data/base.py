@@ -10,21 +10,21 @@ def data():
             "name": "the best name",
             "currency_name": "dingo dollars",
             "seq": 1,
-            "organisation_id": organisation_data()[0]["id"],
+            "organisation": organisation_data()[0]["id"],
         },
         {
             "id": 2,
             "name": "the second best name",
             "currency_name": "monster munch",
             "seq": 1,
-            "organisation_id": organisation_data()[0]["id"],
+            "organisation": organisation_data()[0]["id"],
         },
         {
             "id": 3,
             "name": "harold",
             "currency_name": "mustard",
             "seq": 1,
-            "organisation_id": organisation_data()[1]["id"],
+            "organisation": organisation_data()[1]["id"],
         },
     ]
 

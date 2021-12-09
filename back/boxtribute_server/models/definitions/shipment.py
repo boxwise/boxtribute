@@ -2,10 +2,11 @@ from peewee import SQL, DateTimeField
 
 from ...db import db
 from ...enums import ShipmentState
-from ..fields import EnumCharField, UIntDeferredForeignKey, UIntForeignKeyField
+from ..fields import EnumCharField, UIntForeignKeyField
 from ..utils import utcnow
 from .base import Base
 from .transfer_agreement import TransferAgreement
+from .user import User
 
 
 class Shipment(db.Model):
@@ -19,22 +20,19 @@ class Shipment(db.Model):
         choices=ShipmentState,
     )
     started_on = DateTimeField(default=utcnow)
-    started_by = UIntDeferredForeignKey(
-        "User",
-        column_name="started_by",
-        field="id",
+    started_by = UIntForeignKeyField(
+        model=User,
         on_update="CASCADE",
-        on_delete="SET NULL",
     )
     canceled_on = DateTimeField(null=True)
-    canceled_by = UIntDeferredForeignKey(
-        "User", on_update="CASCADE", on_delete="SET NULL", null=True
+    canceled_by = UIntForeignKeyField(
+        model=User, on_update="CASCADE", on_delete="SET NULL", null=True
     )
     sent_on = DateTimeField(null=True)
-    sent_by = UIntDeferredForeignKey(
-        "User", on_update="CASCADE", on_delete="SET NULL", null=True
+    sent_by = UIntForeignKeyField(
+        model=User, on_update="CASCADE", on_delete="SET NULL", null=True
     )
     completed_on = DateTimeField(null=True)
-    completed_by = UIntDeferredForeignKey(
-        "User", on_update="CASCADE", on_delete="SET NULL", null=True
+    completed_by = UIntForeignKeyField(
+        model=User, on_update="CASCADE", on_delete="SET NULL", null=True
     )

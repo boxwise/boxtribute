@@ -1,11 +1,8 @@
 import pytest
 from boxtribute_server.models.definitions.transaction import Transaction
-from boxtribute_server.models.utils import utcnow
 from data.beneficiary import default_beneficiary_data
 from data.product import default_product_data
 from data.user import default_user_data
-
-TIME = utcnow()
 
 
 def default_transaction_data():
@@ -15,7 +12,6 @@ def default_transaction_data():
         "count": 99,
         "description": "a transaction",
         "product": default_product_data()["id"],
-        "transaction_date": TIME,
         "user": default_user_data()["id"],
     }
 

@@ -25,6 +25,8 @@ class TransferAgreement(db.Model):
     accepted_on = DateTimeField(null=True)
     accepted_by = UIntDeferredForeignKey(
         "User",
+        column_name="accepted_by",
+        field="id",
         on_update="CASCADE",
         on_delete="SET NULL",
         null=True,
@@ -32,6 +34,8 @@ class TransferAgreement(db.Model):
     terminated_on = DateTimeField(null=True)
     terminated_by = UIntDeferredForeignKey(
         "User",
+        column_name="terminated_by",
+        field="id",
         on_update="CASCADE",
         on_delete="SET NULL",
         null=True,
