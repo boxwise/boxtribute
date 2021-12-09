@@ -14,12 +14,18 @@ class Transaction(db.Model):
         field="id",
         model=Beneficiary,
         null=True,
+        on_delete="SET NULL",
         on_update="CASCADE",
     )
     count = IntegerField()
     created = DateTimeField(null=True)
     created_by = UIntForeignKeyField(
-        model=User, column_name="created_by", field="id", null=True, on_update="CASCADE"
+        model=User,
+        column_name="created_by",
+        field="id",
+        null=True,
+        on_delete="SET NULL",
+        on_update="CASCADE",
     )
     description = CharField()
     drops = IntegerField(constraints=[SQL("DEFAULT 0")])
@@ -29,6 +35,7 @@ class Transaction(db.Model):
         column_name="modified_by",
         field="id",
         null=True,
+        on_delete="SET NULL",
         on_update="CASCADE",
     )
     product = UIntForeignKeyField(
@@ -43,7 +50,12 @@ class Transaction(db.Model):
     )
     transaction_date = DateTimeField(index=True)
     user = UIntForeignKeyField(
-        model=User, column_name="user_id", field="id", null=True, on_update="CASCADE"
+        model=User,
+        column_name="user_id",
+        field="id",
+        null=True,
+        on_update="CASCADE",
+        on_delete="SET NULL",
     )
 
     class Meta:

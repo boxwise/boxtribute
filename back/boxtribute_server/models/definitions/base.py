@@ -61,7 +61,10 @@ class Base(db.Model):
         on_update="CASCADE",
     )
     organisation = UIntForeignKeyField(
-        column_name="organisation_id", field="id", model=Organisation
+        column_name="organisation_id",
+        field="id",
+        model=Organisation,
+        on_update="CASCADE",
     )
     reset_tokens = IntegerField(
         column_name="resettokens", constraints=[SQL("DEFAULT 0")], null=True
