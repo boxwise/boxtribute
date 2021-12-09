@@ -9,7 +9,7 @@ Build: [![CircleCI](https://circleci.com/gh/boxwise/boxtribute.svg?style=svg)](h
 
 # Readme
 
-This is the repo for the new mobile web app of [Boxtribute](www.boxtribute.org), consisting of a [React front-end](/react) bootstrapped with [Create React App](https://github.com/facebook/create-react-app), and a [Python Flask back-end](/back).
+This is the repo for the new mobile web app of [Boxtribute](https://www.boxtribute.org), consisting of a [React front-end](/react) bootstrapped with [Create React App](https://github.com/facebook/create-react-app), and a [Python Flask back-end](/back).
 
 Please check out [**Contribution Guidelines**](CONTRIBUTING.md) before you get started!
 
