@@ -1,12 +1,13 @@
 from peewee import DateTimeField
 
 from ...db import db
-from ..fields import UIntDeferredForeignKey, UIntForeignKeyField
+from ..fields import UIntForeignKeyField
 from ..utils import utcnow
 from .box import Box
 from .location import Location
 from .product import Product
 from .shipment import Shipment
+from .user import User
 
 
 class ShipmentDetail(db.Model):
@@ -19,10 +20,8 @@ class ShipmentDetail(db.Model):
         model=Location, on_update="CASCADE", null=True
     )
     created_on = DateTimeField(default=utcnow)
-    created_by = UIntDeferredForeignKey(
-        "User", on_update="CASCADE", on_delete="SET NULL"
-    )
+    created_by = UIntForeignKeyField(model=User, on_update="CASCADE")
     deleted_on = DateTimeField(null=True)
-    deleted_by = UIntDeferredForeignKey(
-        "User", on_update="CASCADE", on_delete="SET NULL", null=True
+    deleted_by = UIntForeignKeyField(
+        model=User, on_update="CASCADE", on_delete="SET NULL", null=True
     )

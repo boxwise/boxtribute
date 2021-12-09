@@ -1,10 +1,11 @@
 from peewee import SQL, CharField, DateTimeField, IntegerField
 
 from ...db import db
-from ..fields import UIntDeferredForeignKey, UIntForeignKeyField
+from ..fields import UIntForeignKeyField
 from .beneficiary import Beneficiary
 from .product import Product
 from .size import Size
+from .user import User
 
 
 class Transaction(db.Model):
@@ -17,14 +18,14 @@ class Transaction(db.Model):
     )
     count = IntegerField()
     created = DateTimeField(null=True)
-    created_by = UIntDeferredForeignKey(
-        "User", column_name="created_by", field="id", null=True, on_update="CASCADE"
+    created_by = UIntForeignKeyField(
+        model=User, column_name="created_by", field="id", null=True, on_update="CASCADE"
     )
     description = CharField()
     drops = IntegerField(constraints=[SQL("DEFAULT 0")])
     modified = DateTimeField(null=True)
-    modified_by = UIntDeferredForeignKey(
-        "User",
+    modified_by = UIntForeignKeyField(
+        model=User,
         column_name="modified_by",
         field="id",
         null=True,
@@ -41,8 +42,8 @@ class Transaction(db.Model):
         column_name="size_id", field="id", model=Size, null=True, on_update="CASCADE"
     )
     transaction_date = DateTimeField(index=True)
-    user = UIntDeferredForeignKey(
-        "User", column_name="user_id", field="id", null=True, on_update="CASCADE"
+    user = UIntForeignKeyField(
+        model=User, column_name="user_id", field="id", null=True, on_update="CASCADE"
     )
 
     class Meta:

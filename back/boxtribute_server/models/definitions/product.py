@@ -1,11 +1,12 @@
 from peewee import SQL, CharField, DateTimeField, IntegerField
 
 from ...db import db
-from ..fields import UIntDeferredForeignKey, UIntForeignKeyField
+from ..fields import UIntForeignKeyField
 from .base import Base
 from .product_category import ProductCategory
 from .product_gender import ProductGender
 from .size_range import SizeRange
+from .user import User
 
 
 class Product(db.Model):
@@ -25,8 +26,8 @@ class Product(db.Model):
     )
     comments = CharField(null=True)
     created_on = DateTimeField(column_name="created", null=True)
-    created_by = UIntDeferredForeignKey(
-        "User",
+    created_by = UIntForeignKeyField(
+        model=User,
         column_name="created_by",
         field="id",
         null=True,
@@ -41,8 +42,8 @@ class Product(db.Model):
         on_update="CASCADE",
     )
     last_modified_on = DateTimeField(column_name="modified", null=True)
-    last_modified_by = UIntDeferredForeignKey(
-        "User",
+    last_modified_by = UIntForeignKeyField(
+        model=User,
         column_name="modified_by",
         field="id",
         null=True,

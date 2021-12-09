@@ -1,8 +1,9 @@
 from peewee import SQL, CharField, DateField, DateTimeField, IntegerField, TextField
 
 from ...db import db
-from ..fields import UIntDeferredForeignKey, UIntForeignKeyField
+from ..fields import UIntForeignKeyField
 from .base import Base
+from .user import User
 
 
 class Beneficiary(db.Model):
@@ -28,11 +29,12 @@ class Beneficiary(db.Model):
         column_name="container", constraints=[SQL("DEFAULT ''")], index=True
     )
     created_on = DateTimeField(column_name="created", null=True)
-    created_by = UIntDeferredForeignKey(
-        "User",
+    created_by = UIntForeignKeyField(
+        model=User,
         column_name="created_by",
         field="id",
         null=True,
+        on_delete="SET NULL",
         on_update="CASCADE",
     )
     date_of_birth = DateField(null=True)
@@ -54,11 +56,12 @@ class Beneficiary(db.Model):
     )
     laundry_comment = CharField(column_name="laundrycomment", null=True)
     last_modified_on = DateTimeField(column_name="modified", null=True)
-    last_modified_by = UIntDeferredForeignKey(
-        "User",
+    last_modified_by = UIntForeignKeyField(
+        model=User,
         column_name="modified_by",
         field="id",
         null=True,
+        on_delete="SET NULL",
         on_update="CASCADE",
     )
     not_registered = IntegerField(
@@ -69,6 +72,7 @@ class Beneficiary(db.Model):
         field="id",
         model="self",
         null=True,
+        on_delete="SET NULL",
         on_update="CASCADE",
         object_id_name="family_head_id",
     )

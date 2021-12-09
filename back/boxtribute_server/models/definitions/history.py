@@ -1,7 +1,8 @@
 from peewee import CharField, DateTimeField, FloatField, IntegerField, TextField
 
 from ...db import db
-from ..fields import UIntDeferredForeignKey
+from ..fields import UIntForeignKeyField
+from .user import User
 
 
 class DbChangeHistory(db.Model):
@@ -14,8 +15,8 @@ class DbChangeHistory(db.Model):
     table_name = CharField(column_name="tablename", null=True)
     to_float = FloatField(null=True)
     to_int = IntegerField(null=True)
-    user = UIntDeferredForeignKey(
-        "User",
+    user = UIntForeignKeyField(
+        model=User,
         column_name="user_id",
         field="id",
         null=True,

@@ -50,6 +50,27 @@ __all__ = [
 ]
 
 MODULE_DIRECTORY = pathlib.Path(__file__).resolve().parent
+# List of models that others depend on
+_NAMES = [
+    # Models that don't have any dependencies
+    "box_state",
+    "product_category",
+    "product_gender",
+    "size_range",
+    "language",
+    "qr_code",
+    # Models that have dependencies, and are dependency of others
+    "user",
+    "organisation",
+    "base",
+    "location",
+    "product",
+    "size",
+    "box",
+    "beneficiary",
+    "transfer_agreement",
+    "shipment",
+]
 
 
 def setup_models():
@@ -65,20 +86,7 @@ def setup_models():
 
     # Populate models such that independent ones are set up first; then the ones with
     # FKs referring to the independent ones
-    for module_name in [
-        "organisation",
-        "base",
-        "box_state",
-        "location",
-        "product_category",
-        "product_gender",
-        "size_range",
-        "product",
-        "qr_code",
-        "transfer_agreement",
-        "language",
-        "user",
-    ]:
+    for module_name in _NAMES:
         module_names.remove(module_name)
         module = importlib.import_module(f"data.{module_name}")
         module.create()

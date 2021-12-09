@@ -1,13 +1,14 @@
 from peewee import CharField, DateTimeField
 
 from ...db import db
-from ..fields import UIntDeferredForeignKey
+from ..fields import UIntForeignKeyField
+from .user import User
 
 
 class Organisation(db.Model):
     created = DateTimeField(null=True)
-    created_by = UIntDeferredForeignKey(
-        "User",
+    created_by = UIntForeignKeyField(
+        model=User,
         column_name="created_by",
         null=True,
         on_delete="SET NULL",
@@ -16,8 +17,8 @@ class Organisation(db.Model):
     deleted = DateTimeField(null=True, default=None)
     name = CharField(column_name="label", null=True)
     modified = DateTimeField(null=True)
-    modified_by = UIntDeferredForeignKey(
-        "User",
+    modified_by = UIntForeignKeyField(
+        model=User,
         column_name="modified_by",
         null=True,
         on_delete="SET NULL",

@@ -2,12 +2,13 @@ from peewee import SQL, CharField, DateTimeField, IntegerField, TextField
 
 from ...db import db
 from ...enums import BoxState as BoxStateEnum
-from ..fields import UIntDeferredForeignKey, UIntForeignKeyField
+from ..fields import UIntForeignKeyField
 from .box_state import BoxState
 from .location import Location
 from .product import Product
 from .qr_code import QrCode
 from .size import Size
+from .user import User
 
 
 class Box(db.Model):
@@ -28,8 +29,8 @@ class Box(db.Model):
     )
     comment = TextField(column_name="comments")
     created_on = DateTimeField(column_name="created", null=True)
-    created_by = UIntDeferredForeignKey(
-        "User",
+    created_by = UIntForeignKeyField(
+        model=User,
         column_name="created_by",
         field="id",
         null=True,
@@ -45,8 +46,8 @@ class Box(db.Model):
         on_update="CASCADE",
     )
     last_modified_on = DateTimeField(column_name="modified", null=True)
-    last_modified_by = UIntDeferredForeignKey(
-        "User",
+    last_modified_by = UIntForeignKeyField(
+        model=User,
         column_name="modified_by",
         field="id",
         null=True,
@@ -54,8 +55,8 @@ class Box(db.Model):
         on_update="CASCADE",
     )
     ordered = DateTimeField(null=True)
-    ordered_by = UIntDeferredForeignKey(
-        "User",
+    ordered_by = UIntForeignKeyField(
+        model=User,
         column_name="ordered_by",
         field="id",
         null=True,
@@ -63,8 +64,8 @@ class Box(db.Model):
         on_update="CASCADE",
     )
     picked = IntegerField(null=True)
-    picked_by = UIntDeferredForeignKey(
-        "User",
+    picked_by = UIntForeignKeyField(
+        model=User,
         column_name="picked_by",
         field="id",
         null=True,

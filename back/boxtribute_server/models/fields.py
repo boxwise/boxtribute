@@ -1,5 +1,5 @@
 """Custom peewee field types for data model definitions."""
-from peewee import CharField, DeferredForeignKey, ForeignKeyField
+from peewee import CharField, ForeignKeyField
 
 
 class EnumCharField(CharField):
@@ -37,14 +37,6 @@ class UIntForeignKeyField(ForeignKeyField):
         ... INTEGER NOT NULL UNSIGNED
     3. `UIntForeignKeyField()` yields the valid SQL
         ... INTEGER UNSIGNED NOT NULL
-    """
-
-    field_type = "INTEGER UNSIGNED"
-
-
-class UIntDeferredForeignKey(DeferredForeignKey):
-    """Work-around field type, since using constraints results in a syntax error.
-    Cf. `UIntForeignKeyField`.
     """
 
     field_type = "INTEGER UNSIGNED"
