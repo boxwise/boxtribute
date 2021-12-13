@@ -9,6 +9,9 @@ def test_product(client, default_product):
                     price
                     gender
                     sizes
+                    category {{
+                        hasGender
+                    }}
                 }}
             }}"""
     data = {"query": graph_ql_query_string}
@@ -18,6 +21,7 @@ def test_product(client, default_product):
     assert queried_product["price"] == default_product["price"]
     assert queried_product["gender"] == "Women"
     assert queried_product["sizes"] == []
+    assert queried_product["category"]["hasGender"]
 
 
 @pytest.mark.usefixtures("default_product")

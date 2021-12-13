@@ -320,6 +320,12 @@ def resolve_product_sizes(product_id, info):
     return [size.label for size in sizes]
 
 
+@product_category.field("hasGender")
+def resolve_product_category_has_gender(product_category_obj, info):
+    # Only categories derived from 'Clothing' (ID 12) have gender information
+    return product_category_obj.parent_id == 12
+
+
 @product_category.field("products")
 @convert_kwargs_to_snake_case
 def resolve_product_category_products(
