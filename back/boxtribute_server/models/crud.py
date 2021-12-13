@@ -82,10 +82,14 @@ def create_beneficiary(data):
     # Set is_signed field depending on signature
     data["is_signed"] = data.get("signature") is not None
 
+    # Convert to gender abbreviation
+    gender = data.pop("gender").value
+
     new_beneficiary = Beneficiary.create(
         base=data.pop("base_id"),
         family_head=family_head_id,
         not_registered=not data.pop("is_registered"),
+        gender=gender,
         created_on=now,
         last_modified_on=now,
         last_modified_by=data["created_by"],

@@ -5,6 +5,7 @@ from peewee import fn
 from flask import g
 
 from ..authz import authorize
+from ..enums import HumanGender
 from ..models.crud import (
     create_beneficiary,
     create_box,
@@ -202,6 +203,11 @@ def resolve_beneficiary_languages(beneficiary_obj, info):
             XBeneficiaryLanguage.beneficiary == beneficiary_obj.id
         )
     ]
+
+
+@beneficiary.field("gender")
+def resolve_beneficiary_gender(beneficiary_obj, info):
+    return HumanGender(beneficiary_obj.gender)
 
 
 @box.field("state")

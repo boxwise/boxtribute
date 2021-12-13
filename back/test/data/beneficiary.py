@@ -11,6 +11,7 @@ def default_beneficiary_data():
         "created_by": None,
         "family_id": 10,
         "seq": 3,
+        "gender": "M",
         # must not be empty acc. to Model definition
         "bicycle_ban_comment": "",
         "workshop_ban_comment": "",
