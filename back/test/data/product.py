@@ -1,13 +1,9 @@
-from datetime import datetime
-
 import pytest
-from boxtribute_server.models.product import Product
+from boxtribute_server.models.definitions.product import Product
 from data.base import data as base_data
 from data.product_category import default_product_category_data
 from data.product_gender import default_product_gender_data
 from data.size_range import default_size_range_data
-
-TIME = datetime.now()
 
 
 def default_product_data():

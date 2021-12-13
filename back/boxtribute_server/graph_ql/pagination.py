@@ -38,7 +38,7 @@ For backward pagination, the procedure works in reverse.
 """
 import base64
 
-import peewee
+from ..exceptions import InvalidPaginationInput
 
 
 class PageInfo:
@@ -76,11 +76,12 @@ class Cursor:
     def __init__(self, value=None, forwards=True):
         """Decode and store value (a base64-encoded string).
         The value serves as point to start a select query after/before (default: 0 for
-        forward pagination, +infinity otherwise).
+        forward pagination; not supported for backward pagination).
         Assume forward pagination by default.
         """
-        default_value = 0 if forwards else peewee.Value("infinity")
-        self.value = default_value if value is None else int(base64.b64decode(value))
+        if value is None and not forwards:
+            raise InvalidPaginationInput()
+        self.value = 0 if value is None else int(base64.b64decode(value))
         self.forwards = forwards
 
     def pagination_condition(self, model):

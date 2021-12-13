@@ -1,9 +1,3 @@
-import os
-
-import pytest
-
-
-@pytest.mark.skipif("CIRCLECI" not in os.environ, reason="only functional in CircleCI")
 def test_get_box_details(auth0_client):
     data = {
         "query": """query BoxIdAndItems {
@@ -37,7 +31,7 @@ def test_get_box_details(auth0_client):
             "base": {"id": "2"},
             "name": "WH2",
         },
-        "size": "52 Mixed",
+        "size": "52",
         "state": "InStock",
     }
 
@@ -70,5 +64,5 @@ def test_get_box_details(auth0_client):
         "product": {
             "id": "156",
         },
-        "size": "53 S",
+        "size": "53",
     }

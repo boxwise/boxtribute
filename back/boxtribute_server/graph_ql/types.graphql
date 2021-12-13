@@ -67,7 +67,7 @@ enum ProductGender {
   TeenBoy
   Girl
   Boy
-  None
+  none
 }
 
 enum BoxState {
@@ -223,6 +223,7 @@ input UpdateBeneficiaryInput {
 }
 
 input PaginationInput {
+  # PaginationInput must be either (first) OR (after, first) OR (before, last).
   # Indicate requesting paginating of the first X elements after cursor
   # cf. https://relay.dev/graphql/connections.htm#sec-Forward-pagination-arguments
   after: String

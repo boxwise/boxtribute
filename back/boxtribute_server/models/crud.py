@@ -7,21 +7,21 @@ import peewee
 from dateutil import tz
 
 from ..db import db
+from ..enums import BoxState, TransferAgreementState
 from ..exceptions import (
     BoxCreationFailed,
     InvalidTransferAgreement,
     RequestedResourceNotFound,
 )
-from . import utcnow
-from .beneficiary import Beneficiary
-from .box import Box
-from .enums import TransferAgreementState
-from .qr_code import QrCode
-from .shipment import Shipment
-from .shipment_detail import ShipmentDetail
-from .transfer_agreement import TransferAgreement
-from .transfer_agreement_detail import TransferAgreementDetail
-from .x_beneficiary_language import XBeneficiaryLanguage
+from .definitions.beneficiary import Beneficiary
+from .definitions.box import Box
+from .definitions.qr_code import QrCode
+from .definitions.shipment import Shipment
+from .definitions.shipment_detail import ShipmentDetail
+from .definitions.transfer_agreement import TransferAgreement
+from .definitions.transfer_agreement_detail import TransferAgreementDetail
+from .definitions.x_beneficiary_language import XBeneficiaryLanguage
+from .utils import utcnow
 
 BOX_LABEL_IDENTIFIER_GENERATION_ATTEMPTS = 10
 
@@ -44,14 +44,14 @@ def create_box(data):
                 created_on=now,
                 last_modified_on=now,
                 last_modified_by=data["created_by"],
-                state=1,
+                state=BoxState.InStock.value,
                 **data,
             )
             return new_box
         except peewee.IntegrityError as e:
             # peewee throws the same exception for different constraint violations.
             # E.g. failing "NOT NULL" constraint shall be directly reported
-            if "UNIQUE constraint failed" not in str(e):
+            if "Duplicate entry" not in str(e):
                 raise
     raise BoxCreationFailed()
 
@@ -132,13 +132,9 @@ def update_beneficiary(data):
 
     language_ids = data.pop("languages", [])
     if language_ids:
-        # Since the XBeneficiaryLanguage model has no primary key, using the delete()
-        # method yields 'DELETE FROM "x_people_languages" WHERE ("t1"."id" = ?)'
-        # which results in the error 'no such column: t1.id'
-        # As a work-around a raw SQL query is used
-        db.database.execute_sql(
-            'DELETE FROM "x_people_languages" WHERE (people_id = ?);', [beneficiary_id]
-        )
+        XBeneficiaryLanguage.delete().where(
+            XBeneficiaryLanguage.beneficiary == beneficiary_id
+        ).execute()
         for language_id in language_ids:
             XBeneficiaryLanguage.create(
                 language=language_id, beneficiary=beneficiary_id
@@ -261,7 +257,7 @@ def update_shipment(data):
         for box in Box.select().where(
             Box.label_identifier.in_(prepared_box_label_identifiers)
         ):
-            box.state = 3  # MarkedForShipment
+            box.state = BoxState.Ordered.value  # MarkedForShipment
             boxes.append(box)
             details.append(
                 {

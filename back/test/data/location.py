@@ -1,5 +1,5 @@
 import pytest
-from boxtribute_server.models.location import Location
+from boxtribute_server.models.definitions.location import Location
 from data.base import data as base_data
 from data.box_state import default_box_state_data
 

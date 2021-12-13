@@ -1,5 +1,5 @@
 import pytest
-from boxtribute_server.models.product_category import ProductCategory
+from boxtribute_server.models.definitions.product_category import ProductCategory
 
 
 def default_product_category_data():

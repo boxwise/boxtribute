@@ -10,38 +10,48 @@ https://docs.pytest.org/en/stable/fixture.html#pytest-fixtures-explicit-modular-
 """
 
 import os
-import tempfile
 
+import pymysql
 import pytest
 from boxtribute_server.app import configure_app, create_app
-from boxtribute_server.db import db
+from boxtribute_server.db import create_db_interface, db
 
 # Imports fixtures into tests
 from data import *  # noqa: F401,F403
 from data import MODELS, setup_models
 
+TEST_DATABASE_NAME = "testing"
 
-@pytest.fixture()
-def sqlite_app():
+
+@pytest.fixture(scope="package")
+def mysql_testing_database(mysql_connection_parameters):
+    """Create testing database, and return interface to access it.
+    Requires running MySQL server (as Docker service `db`).
+    """
+    with pymysql.connect(**mysql_connection_parameters) as connection:
+        with connection.cursor() as cursor:
+            cursor.execute(f"CREATE DATABASE IF NOT EXISTS {TEST_DATABASE_NAME}")
+    yield create_db_interface(
+        **mysql_connection_parameters, database=TEST_DATABASE_NAME
+    )
+
+
+@pytest.fixture
+def mysql_testing_database_app(mysql_testing_database):
     """Fixture providing a baseline for tests that rely on database operations via
     the Flask app. Adapted from
     https://flask.palletsprojects.com/en/1.1.x/testing/#the-testing-skeleton.
 
-    On each invocation, create the Flask app and a temporary Sqlite database file. Set
-    up database automatically before each test by creating all tables, and drop all
-    tables at tear-down.
+    On each invocation, create the Flask app and configure it to access the
+    `mysql_testing_database`.
+    Create all tables before each test and populate them.
     """
     app = create_app()
-
-    db_fd, db_filepath = tempfile.mkstemp(suffix=".sqlite3")
-    app.config["DATABASE"] = {
-        "name": db_filepath,
-        "engine": "peewee.SqliteDatabase",
-    }
-
+    app.config["DATABASE"] = mysql_testing_database
     db.init_app(app)
 
     with db.database.bind_ctx(MODELS):
+        db.database.drop_tables(MODELS)
         db.database.create_tables(MODELS)
         setup_models()
         db.close_db(None)
@@ -49,34 +59,37 @@ def sqlite_app():
             yield app
 
     db.close_db(None)
-    os.close(db_fd)
-    os.remove(db_filepath)
 
 
-@pytest.fixture()
-def client(sqlite_app):
-    """Simulate a client sending requests to the app returned by the `sqlite_app`
-    fixture. The client's authentication and authorization may be separately defined or
-    patched.
+@pytest.fixture
+def client(mysql_testing_database_app):
+    """Simulate a client sending requests to the `mysql_testing_database_app`.
+    The client's authentication and authorization may be separately defined or patched.
     """
-    return sqlite_app.test_client()
+    return mysql_testing_database_app.test_client()
 
 
-@pytest.fixture()
-def mysql_app():
+@pytest.fixture(scope="session")
+def mysql_connection_parameters():
+    return dict(
+        host="127.0.0.1",
+        port=int(os.getenv("MYSQL_PORT", 3306)),
+        user="root",
+        password="dropapp_root",
+    )
+
+
+@pytest.fixture
+def mysql_app(mysql_connection_parameters):
     """Set up Flask app, configured to connect to the `dropapp_dev` MySQL database
     running on port 3306 (32000 if you test locally with docker-compose services).
     """
     app = create_app()
     app.testing = True
-    port = os.getenv("MYSQL_PORT", 3306)
     configure_app(
         app,
-        mysql_host="127.0.0.1",
-        mysql_port=port,
-        mysql_user="root",
-        mysql_password="dropapp_root",
-        mysql_db="dropapp_dev",
+        **mysql_connection_parameters,
+        database="dropapp_dev",
     )
 
     db.init_app(app)
@@ -84,7 +97,7 @@ def mysql_app():
     db.close_db(None)
 
 
-@pytest.fixture()
+@pytest.fixture
 def mysql_app_client(mysql_app):
     """Client interacting with app returned by the `mysql_app` fixture."""
     return mysql_app.test_client()

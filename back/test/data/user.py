@@ -1,15 +1,15 @@
-from datetime import date, datetime
+from datetime import date
 
 import pytest
-from boxtribute_server.models.user import User
-from data.usergroup import default_usergroup_data
+from boxtribute_server.models.definitions.user import User
+from boxtribute_server.models.utils import utcnow
 
-TIME = datetime.now()
+TIME = utcnow().replace(tzinfo=None)
 TODAY = date.today()
 
 
 def default_user_data():
-    mock_user = {
+    return {
         "id": 1,
         "name": "a",
         "email": "a@b.com",
@@ -24,10 +24,7 @@ def default_user_data():
         "modified_by": None,
         "language": None,
         "deleted": None,
-        "usergroup": default_usergroup_data()["id"],
     }
-
-    return mock_user
 
 
 def default_users_data():
@@ -52,7 +49,6 @@ def default_users_data():
         "modified_by": None,
         "language": None,
         "deleted": None,
-        "usergroup": None,
     }
 
     users[mock_user["id"]] = mock_user
@@ -72,7 +68,6 @@ def default_users_data():
         "modified_by": None,
         "language": None,
         "deleted": None,
-        "usergroup": default_usergroup_data()["id"],
     }
 
     users[mock_user["id"]] = mock_user

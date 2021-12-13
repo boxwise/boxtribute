@@ -7,11 +7,11 @@ from .db import db
 app = create_app()
 configure_app(
     app,
-    mysql_host=os.environ["MYSQL_HOST"],
-    mysql_port=os.getenv("MYSQL_PORT", ""),
-    mysql_user=os.environ["MYSQL_USER"],
-    mysql_password=os.environ["MYSQL_PASSWORD"],
-    mysql_db=os.environ["MYSQL_DB"],
-    mysql_socket=os.getenv("MYSQL_SOCKET"),
+    host=os.environ["MYSQL_HOST"],
+    port=int(os.environ["MYSQL_PORT"]),
+    user=os.environ["MYSQL_USER"],
+    password=os.environ["MYSQL_PASSWORD"],
+    database=os.environ["MYSQL_DB"],
+    unix_socket=os.getenv("MYSQL_SOCKET"),
 )
 db.init_app(app)

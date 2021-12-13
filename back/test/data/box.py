@@ -1,32 +1,24 @@
-from datetime import datetime
-
 import pytest
-from boxtribute_server.models.box import Box
+from boxtribute_server.models.definitions.box import Box
 from data.box_state import default_box_state_data
 from data.location import default_location_data
 from data.product import default_product_data
 from data.qr_code import default_qr_code_data
 from data.user import default_user_data
 
-TIME = datetime.now()
-
 
 def default_box_data():
-    mock_box = {
+    return {
         "id": 2,
         "product": default_product_data()["id"],
         "label_identifier": "12345678",
         "state": default_box_state_data()["id"],
         "comment": "",
-        "created_on": TIME,
         "created_by": default_user_data()["id"],
-        "deleted": TIME,
-        "items": "None",
+        "items": 0,
         "location": default_location_data()["id"],
         "qr_code": default_qr_code_data()["id"],
     }
-
-    return mock_box
 
 
 def box_without_qr_code_data():

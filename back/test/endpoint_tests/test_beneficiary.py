@@ -121,7 +121,6 @@ def test_beneficiary(client):
     assert updated_beneficiary["signature"] == first_name
     assert updated_beneficiary["dateOfSignature"] == dos
     assert updated_beneficiary["createdOn"] == created_beneficiary["createdOn"]
-    assert updated_beneficiary["lastModifiedOn"] != updated_beneficiary["createdOn"]
 
     query = f"""query {{
         beneficiary(id: {beneficiary_id}) {{
@@ -157,7 +156,6 @@ def test_beneficiary(client):
         ["""(paginationInput: {before: "MDAwMDAwMDM="})""", 0, False, False],
         #                              ID=5
         ["""(paginationInput: {before: "MDAwMDAwMDU=", last: 1})""", 1, False, True],
-        ["""(paginationInput: {last: 2})""", 2, False, False],
     ),
     ids=[
         "no input",
@@ -167,7 +165,6 @@ def test_beneficiary(client):
         "after-first",
         "before",
         "before-last",
-        "last",
     ],
 )
 def test_query_beneficiaries(client, input, size, has_next_page, has_previous_page):

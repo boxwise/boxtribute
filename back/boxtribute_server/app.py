@@ -2,6 +2,7 @@
 from flask import Flask
 from flask_cors import CORS
 
+from .db import create_db_interface
 from .routes import api_bp
 
 
@@ -15,21 +16,6 @@ def create_app():
     return app
 
 
-def configure_app(
-    app,
-    *,
-    mysql_host,
-    mysql_port,
-    mysql_user,
-    mysql_password,
-    mysql_db,
-    mysql_socket=None,
-):
-    """Configure database connection."""
-    app.config["DATABASE"] = "mysql://{}:{}@{}/{}{}".format(
-        mysql_user,
-        mysql_password,
-        f"{mysql_host}:{mysql_port}",
-        mysql_db,
-        mysql_socket or "",
-    )
+def configure_app(app, **mysql_kwargs):
+    """Configure the app's database interface. `mysql_kwargs` are forwarded."""
+    app.config["DATABASE"] = create_db_interface(**mysql_kwargs)

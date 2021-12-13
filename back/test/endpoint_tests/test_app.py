@@ -1,10 +1,6 @@
-import os
-
-import pytest
 from auth import create_jwt_payload
 
 
-@pytest.mark.skipif("CIRCLECI" not in os.environ, reason="only functional in CircleCI")
 def test_get_boxes(mysql_app_client):
     data = {
         "query": """query CommentsOfLostBoxes {
@@ -34,7 +30,6 @@ def test_get_boxes(mysql_app_client):
     assert response.json["data"]["location"]["boxes"]["totalCount"] == 27
 
 
-@pytest.mark.skipif("CIRCLECI" not in os.environ, reason="only functional in CircleCI")
 def test_get_bases(mysql_app_client):
     data = {
         "query": """query basesOfBoxAid {
@@ -55,7 +50,6 @@ def test_get_bases(mysql_app_client):
     assert queried_locations[0]["name"] == "Lesvos"
 
 
-@pytest.mark.skipif("CIRCLECI" not in os.environ, reason="only functional in CircleCI")
 def test_get_products(mysql_app_client):
     data = {
         "query": """query getShoes {
@@ -83,7 +77,6 @@ def test_get_products(mysql_app_client):
     assert response.json["data"]["productCategory"]["products"]["totalCount"] == 13
 
 
-@pytest.mark.skipif("CIRCLECI" not in os.environ, reason="only functional in CircleCI")
 def test_get_beneficiaries(mysql_app_client):
     data = {
         "query": """query getBeneficiariesOfLesvos {
@@ -185,7 +178,7 @@ def test_base_specific_permissions(client, mocker):
         base_ids=[2, 3],
         organisation_id=2,
         roles=["base_2_coordinator", "base_3_coordinator"],
-        user_id=17,
+        user_id=1,
         permissions=[
             "base_2:qr:write",
             "stock:write",
@@ -236,3 +229,15 @@ def test_base_specific_permissions(client, mocker):
     assert response.json["data"]["qr2"] is not None
     assert response.json["data"]["qr3"] is not None
     assert "errors" not in response.json
+
+
+def test_invalid_pagination_input(client):
+    query = """query { beneficiaries(paginationInput: {last: 2}) {
+        elements { id }
+    } }"""
+    data = {"query": query}
+    response = client.post("/graphql", json=data)
+    assert response.status_code == 200
+    assert len(response.json["errors"]) == 1
+    assert response.json["errors"][0]["extensions"]["code"] == "BAD_USER_INPUT"
+    assert response.json["data"] is None

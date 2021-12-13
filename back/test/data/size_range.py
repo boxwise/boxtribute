@@ -1,5 +1,5 @@
 import pytest
-from boxtribute_server.models.size_range import SizeRange
+from boxtribute_server.models.definitions.size_range import SizeRange
 
 
 def default_size_range_data():

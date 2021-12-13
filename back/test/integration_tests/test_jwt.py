@@ -2,9 +2,6 @@
 These tests fetch actual authentication data from the Auth0 web service and hence
 require a working internet connection.
 """
-import os
-
-import pytest
 from auth import get_user_token_string
 from boxtribute_server.auth import (
     decode_jwt,
@@ -22,7 +19,6 @@ def test_expired_jwt(client):
     assert response.json["code"] == "token_expired"
 
 
-@pytest.mark.skipif("CIRCLECI" not in os.environ, reason="only functional in CircleCI")
 def test_invalid_jwt_claims(auth0_client, monkeypatch):
     monkeypatch.setenv("AUTH0_AUDIENCE", "invalid-audience")
     response = auth0_client.post("/graphql")

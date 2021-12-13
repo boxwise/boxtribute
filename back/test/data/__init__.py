@@ -16,15 +16,11 @@ from .product import default_product
 from .product_category import default_product_category
 from .product_gender import default_product_gender
 from .qr_code import default_qr_code, qr_code_without_box
-from .settings import default_settings
 from .shipment import default_shipment
 from .size_range import default_size_range
 from .transaction import default_transaction
 from .transfer_agreement import default_transfer_agreement, expired_transfer_agreement
 from .user import default_user, default_users
-from .usergroup import default_usergroup
-from .usergroup_access_level import default_usergroup_access_level
-from .usergroup_base_access import default_usergroup_base_access_list
 
 __all__ = [
     "another_location",
@@ -43,21 +39,38 @@ __all__ = [
     "default_product_category",
     "default_product_gender",
     "default_qr_code",
-    "default_settings",
     "default_shipment",
     "default_size_range",
     "default_transaction",
     "default_transfer_agreement",
     "default_user",
-    "default_usergroup",
-    "default_usergroup_access_level",
-    "default_usergroup_base_access_list",
     "default_users",
     "expired_transfer_agreement",
     "qr_code_without_box",
 ]
 
 MODULE_DIRECTORY = pathlib.Path(__file__).resolve().parent
+# List of models that others depend on
+_NAMES = [
+    # Models that don't have any dependencies
+    "box_state",
+    "product_category",
+    "product_gender",
+    "size_range",
+    "language",
+    "qr_code",
+    # Models that have dependencies, and are dependency of others
+    "user",
+    "organisation",
+    "base",
+    "location",
+    "product",
+    "size",
+    "box",
+    "beneficiary",
+    "transfer_agreement",
+    "shipment",
+]
 
 
 def setup_models():
@@ -71,6 +84,14 @@ def setup_models():
     file_names.remove("__init__.py")
     module_names = [f.replace(".py", "") for f in file_names]
 
+    # Populate models such that independent ones are set up first; then the ones with
+    # FKs referring to the independent ones
+    for module_name in _NAMES:
+        module_names.remove(module_name)
+        module = importlib.import_module(f"data.{module_name}")
+        module.create()
+
+    # Set up remaining models; order is now irrelevant
     for module_name in module_names:
         module = importlib.import_module(f"data.{module_name}")
         module.create()

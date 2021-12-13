@@ -1,5 +1,5 @@
 import pytest
-from boxtribute_server.models.log import Log
+from boxtribute_server.models.definitions.log import Log
 
 
 def default_log_data():

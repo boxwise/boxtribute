@@ -1,31 +1,35 @@
-from datetime import date
+from datetime import date, datetime
 
 import peewee
 import pytest
+from boxtribute_server.enums import (
+    BoxState,
+    ShipmentState,
+    TransferAgreementState,
+    TransferAgreementType,
+)
 from boxtribute_server.exceptions import (
     BoxCreationFailed,
     InvalidTransferAgreement,
     RequestedResourceNotFound,
 )
-from boxtribute_server.models.box import Box
 from boxtribute_server.models.crud import (
     BOX_LABEL_IDENTIFIER_GENERATION_ATTEMPTS,
     create_box,
     create_qr_code,
     create_shipment,
     create_transfer_agreement,
+    update_beneficiary,
     update_shipment,
 )
-from boxtribute_server.models.enums import (
-    ShipmentState,
-    TransferAgreementState,
-    TransferAgreementType,
+from boxtribute_server.models.definitions.box import Box
+from boxtribute_server.models.definitions.qr_code import QrCode
+from boxtribute_server.models.definitions.shipment import Shipment
+from boxtribute_server.models.definitions.shipment_detail import ShipmentDetail
+from boxtribute_server.models.definitions.transfer_agreement import TransferAgreement
+from boxtribute_server.models.definitions.transfer_agreement_detail import (
+    TransferAgreementDetail,
 )
-from boxtribute_server.models.qr_code import QrCode
-from boxtribute_server.models.shipment import Shipment
-from boxtribute_server.models.shipment_detail import ShipmentDetail
-from boxtribute_server.models.transfer_agreement import TransferAgreement
-from boxtribute_server.models.transfer_agreement_detail import TransferAgreementDetail
 
 
 def test_create_qr_code_for_nonexisting_box():
@@ -39,7 +43,7 @@ def test_create_qr_code_for_nonexisting_box():
 
 
 def test_create_box_with_insufficient_data():
-    with pytest.raises(peewee.IntegrityError, match="NOT NULL constraint failed"):
+    with pytest.raises(peewee.IntegrityError, match="foreign key constraint fails"):
         create_box({"created_by": 1})
 
 
@@ -142,8 +146,8 @@ def test_create_transfer_agreement(
     agreement = fetch_agreement(agreement.id)
     details = fetch_details(agreement)
 
-    assert agreement["valid_from"] == "2021-11-01 04:00:00+00:00"
-    assert agreement["valid_until"] == "2022-01-01 04:59:59+00:00"
+    assert agreement["valid_from"] == datetime(2021, 11, 1, 4)
+    assert agreement["valid_until"] == datetime(2022, 1, 1, 4, 59, 59)
     assert agreement["comment"] == comment
     assert len(details) == 2
     detail = details[-1]
@@ -213,7 +217,7 @@ def test_create_shipment(
     assert detail["created_on"] is not None
 
     box = Box.get_by_id(detail["box"])
-    assert box.box_state_id == 3
+    assert box.state_id == BoxState.Ordered.value
 
 
 def test_create_shipment_from_expired_agreement(
@@ -227,3 +231,16 @@ def test_create_shipment_from_expired_agreement(
     }
     with pytest.raises(InvalidTransferAgreement):
         create_shipment(data)
+
+
+def test_update_beneficiary(default_beneficiary, default_bases):
+    """Complement anything not yet covered by endpoint tests."""
+    base_id = default_bases[2]["id"]
+    data = {
+        "id": default_beneficiary["id"],
+        "base_id": base_id,
+        "family_head_id": default_beneficiary["id"],
+    }
+    beneficiary = update_beneficiary(data)
+    assert beneficiary.id == beneficiary.family_head_id
+    assert beneficiary.base_id == base_id

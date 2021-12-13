@@ -1,10 +1,6 @@
-from datetime import datetime
-
 import pytest
-from boxtribute_server.models.beneficiary import Beneficiary
+from boxtribute_server.models.definitions.beneficiary import Beneficiary
 from data.base import data as base_data
-
-TIME = datetime.now()
 
 
 def default_beneficiary_data():
@@ -12,9 +8,7 @@ def default_beneficiary_data():
         "id": 3,
         "base": base_data()[0]["id"],
         "comments": "",
-        "created_on": TIME,
         "created_by": None,
-        "deleted": TIME,
         "family_id": 10,
         "seq": 3,
         # must not be empty acc. to Model definition
