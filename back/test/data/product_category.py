@@ -2,10 +2,17 @@ import pytest
 from boxtribute_server.models.definitions.product_category import ProductCategory
 
 
-def default_product_category_data():
-    mock_product_category = {"id": 1, "name": "1", "seq": 1, "parent": None}
+def data():
+    return [
+        {"id": 12, "name": "Clothing", "parent": None},
+        {"id": 13, "name": "Equipment", "parent": None},
+        {"id": 1, "name": "Underwear / Nightwear", "parent": 12},
+        {"id": 14, "name": "Toys & Games", "parent": 13},
+    ]
 
-    return mock_product_category
+
+def default_product_category_data():
+    return data()[2]
 
 
 @pytest.fixture()
@@ -14,4 +21,4 @@ def default_product_category():
 
 
 def create():
-    ProductCategory.create(**default_product_category_data())
+    ProductCategory.insert_many(data()).execute()
