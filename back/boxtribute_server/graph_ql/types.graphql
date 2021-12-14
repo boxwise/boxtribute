@@ -88,11 +88,10 @@ type Location {
   base: Base!
   name: String
   isShop: Boolean!
-  isDeleted: Boolean!
   # List of all the boxes in the location
   boxes(paginationInput: PaginationInput): BoxPage
   boxState: BoxState
-  createdOn: Datetime!
+  createdOn: Datetime
   # The user who generated QR code
   createdBy: User!
   lastModifiedBy: User!

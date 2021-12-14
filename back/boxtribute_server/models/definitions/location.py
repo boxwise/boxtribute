@@ -37,7 +37,7 @@ class Location(db.Model):
     deleted = DateTimeField(null=True, default=None)
     is_donated = IntegerField(constraints=[SQL("DEFAULT 0")])
     is_lost = IntegerField(constraints=[SQL("DEFAULT 0")])
-    is_market = IntegerField(constraints=[SQL("DEFAULT 0")])
+    is_shop = IntegerField(column_name="is_market", constraints=[SQL("DEFAULT 0")])
     is_scrap = IntegerField(constraints=[SQL("DEFAULT 0")])
     name = CharField(column_name="label")
     last_modified_on = DateTimeField(column_name="modified", null=True)
