@@ -9,11 +9,13 @@ def test_beneficiary(client):
     group_id = "1234"
     gender = "Diverse"
     languages = ["en", "ar"]
+    comment = "today is a good day"
 
     beneficiary_creation_input_string = f"""{{
                     firstName: "{first_name}",
                     lastName: "{last_name}",
                     dateOfBirth: "{dob}",
+                    comment: "{comment}",
                     baseId: {base_id},
                     groupIdentifier: "{group_id}",
                     gender: {gender},
@@ -30,6 +32,7 @@ def test_beneficiary(client):
                 firstName
                 lastName
                 dateOfBirth
+                comment
                 base {{
                     id
                 }}
@@ -64,6 +67,7 @@ def test_beneficiary(client):
     assert created_beneficiary["firstName"] == first_name
     assert created_beneficiary["lastName"] == last_name
     assert created_beneficiary["dateOfBirth"] == dob
+    assert created_beneficiary["comment"] == comment
     assert int(created_beneficiary["base"]["id"]) == base_id
     assert created_beneficiary["groupIdentifier"] == group_id
     assert created_beneficiary["gender"] == gender
@@ -124,6 +128,7 @@ def test_beneficiary(client):
 
     query = f"""query {{
         beneficiary(id: {beneficiary_id}) {{
+            comment
             lastName
             lastModifiedOn
             tokens
@@ -134,6 +139,7 @@ def test_beneficiary(client):
     queried_beneficiary = response.json["data"]["beneficiary"]
 
     assert response.status_code == 200
+    assert queried_beneficiary["comment"] == comment
     assert queried_beneficiary["lastName"] == last_name
     assert queried_beneficiary["tokens"] == 0
     assert (

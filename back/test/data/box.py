@@ -30,6 +30,15 @@ def box_without_qr_code_data():
     return data
 
 
+def data():
+    return [default_box_data(), box_without_qr_code_data()]
+
+
+@pytest.fixture()
+def default_boxes():
+    return data()
+
+
 @pytest.fixture()
 def default_box():
     return default_box_data()

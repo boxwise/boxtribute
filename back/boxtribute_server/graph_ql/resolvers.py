@@ -5,6 +5,7 @@ from peewee import fn
 from flask import g
 
 from ..authz import authorize
+from ..enums import HumanGender
 from ..models.crud import (
     create_beneficiary,
     create_box,
@@ -105,7 +106,7 @@ def resolve_product(_, info, id):
 def resolve_box(_, info, label_identifier):
     authorize(permission="stock:read")
     box = (
-        Box.select(Box, Location.base_id)
+        Box.select(Box, Location)
         .join(Location)
         .where(Box.label_identifier == label_identifier)
         .get()
@@ -115,9 +116,10 @@ def resolve_box(_, info, label_identifier):
 
 
 @query.field("location")
-def resolve_location(_, info, id):
+@box.field("location")
+def resolve_location(obj, info, id=None):
     authorize(permission="location:read")
-    location = Location.get_by_id(id)
+    location = obj.location if id is None else Location.get_by_id(id)
     authorize(base_id=location.base_id)
     return location
 
@@ -202,6 +204,11 @@ def resolve_beneficiary_languages(beneficiary_obj, info):
             XBeneficiaryLanguage.beneficiary == beneficiary_obj.id
         )
     ]
+
+
+@beneficiary.field("gender")
+def resolve_beneficiary_gender(beneficiary_obj, info):
+    return HumanGender(beneficiary_obj.gender)
 
 
 @box.field("state")
@@ -312,6 +319,12 @@ def resolve_product_sizes(product_id, info):
     product = Product.get_by_id(product_id)
     sizes = Size.select(Size.label).where(Size.seq == product.size_range.seq)
     return [size.label for size in sizes]
+
+
+@product_category.field("hasGender")
+def resolve_product_category_has_gender(product_category_obj, info):
+    # Only categories derived from 'Clothing' (ID 12) have gender information
+    return product_category_obj.parent_id == 12
 
 
 @product_category.field("products")

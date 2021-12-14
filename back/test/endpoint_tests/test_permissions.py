@@ -183,3 +183,15 @@ def test_invalid_permission_for_base_locations(client, mocker):
     )
     data = {"query": "query { base(id: 1) { locations { id } } }"}
     assert_forbidden_request(data, client, field="base", value={"locations": None})
+
+
+def test_invalid_permission_for_box_location(client, mocker, default_box):
+    # verify missing location:read permission
+    mocker.patch("jose.jwt.decode").return_value = create_jwt_payload(
+        permissions=["stock:read"]
+    )
+    data = {
+        "query": f"""query {{ box(labelIdentifier: "{default_box["label_identifier"]}")
+            {{ location {{ id }} }} }}"""
+    }
+    assert_forbidden_request(data, client, field="box", value={"location": None})

@@ -1,8 +1,4 @@
-import pytest
-
-
-@pytest.mark.usefixtures("default_bases")
-def test_all_bases(client, default_bases):
+def test_all_bases(client, default_location, default_bases):
     query = """query {
                 bases {
                     id
@@ -26,14 +22,14 @@ def test_all_bases(client, default_bases):
     assert queried_base["name"] == expected_base["name"]
     assert queried_base["currencyName"] == expected_base["currency_name"]
 
-
-@pytest.mark.usefixtures("default_bases")
-def test_base(client, default_bases, default_location):
     test_id = 1
     query = f"""query Base {{
                 base(id: {test_id}) {{
                     id
                     name
+                    organisation {{
+                        id
+                    }}
                     currencyName
                     locations {{
                         id
@@ -50,6 +46,7 @@ def test_base(client, default_bases, default_location):
     assert int(base["id"]) == expected_base["id"]
     assert base["name"] == expected_base["name"]
     assert base["currencyName"] == expected_base["currency_name"]
+    assert int(base["organisation"]["id"]) == expected_base["organisation"]
 
     locations = base["locations"]
     assert len(locations) == 1

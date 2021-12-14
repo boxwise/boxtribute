@@ -6,7 +6,7 @@ from boxtribute_server.db import db
 
 from .base import default_base, default_bases
 from .beneficiary import default_beneficiary
-from .box import box_without_qr_code, default_box
+from .box import box_without_qr_code, default_box, default_boxes
 from .box_state import default_box_state
 from .history import default_history
 from .location import another_location, default_location
@@ -30,6 +30,7 @@ __all__ = [
     "default_base",
     "default_bases",
     "default_box",
+    "default_boxes",
     "default_box_state",
     "default_history",
     "default_location",

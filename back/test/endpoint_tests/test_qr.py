@@ -22,17 +22,28 @@ def test_qr_exists(client, default_qr_code):
 
 
 @pytest.mark.usefixtures("default_qr_code")
-def test_qr_code(client, default_qr_code):
-    graph_ql_query_string = f"""query {{
-                qrCode(qrCode: "{default_qr_code['code']}") {{
+def test_qr_code(client, default_box, default_qr_code):
+    code = default_qr_code["code"]
+    query = f"""query {{
+                qrCode(qrCode: "{code}") {{
+                    id
                     code
+                    box {{
+                        id
+                    }}
+                    createdOn
                 }}
             }}"""
-    data = {"query": graph_ql_query_string}
+    data = {"query": query}
     response = client.post("/graphql", json=data)
     queried_code = response.json["data"]["qrCode"]
     assert response.status_code == 200
-    assert queried_code["code"] == default_qr_code["code"]
+    assert queried_code == {
+        "id": str(default_qr_code["id"]),
+        "code": code,
+        "box": {"id": str(default_box["id"])},
+        "createdOn": None,
+    }
 
 
 @pytest.mark.usefixtures("qr_code_without_box")

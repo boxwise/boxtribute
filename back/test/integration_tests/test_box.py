@@ -5,13 +5,6 @@ def test_get_box_details(auth0_client):
                     box {
                         id
                         labelIdentifier
-                        location {
-                            id
-                            base {
-                                id
-                            }
-                            name
-                        }
                         items
                         size
                         state
@@ -26,11 +19,6 @@ def test_get_box_details(auth0_client):
         "id": "642",
         "labelIdentifier": "436898",
         "items": 87,
-        "location": {
-            "id": "18",
-            "base": {"id": "2"},
-            "name": "WH2",
-        },
         "size": "52",
         "state": "InStock",
     }

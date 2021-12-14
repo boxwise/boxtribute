@@ -2,10 +2,11 @@ import pytest
 from boxtribute_server.models.definitions.location import Location
 from data.base import data as base_data
 from data.box_state import default_box_state_data
+from data.user import default_user_data
 
 
 def default_location_data():
-    mock_location = {
+    return {
         "id": 1,
         "box_state": default_box_state_data()["id"],
         "base": base_data()[0]["id"],
@@ -13,14 +14,13 @@ def default_location_data():
         "deleted": None,
         "is_donated": 0,
         "is_lost": 0,
-        "is_market": 0,
+        "is_shop": True,
         "is_scrap": 0,
         "name": "Location",
         "seq": 1,
         "visible": 1,
+        "created_by": default_user_data()["id"],
     }
-
-    return mock_location
 
 
 @pytest.fixture()
