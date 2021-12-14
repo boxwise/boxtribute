@@ -116,9 +116,10 @@ def resolve_box(_, info, label_identifier):
 
 
 @query.field("location")
-def resolve_location(_, info, id):
+@box.field("location")
+def resolve_location(obj, info, id=None):
     authorize(permission="location:read")
-    location = Location.get_by_id(id)
+    location = obj.location if id is None else Location.get_by_id(id)
     authorize(base_id=location.base_id)
     return location
 

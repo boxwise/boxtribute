@@ -1,7 +1,7 @@
 type Box {
   id: ID!
   labelIdentifier: String!
-  location: Location!
+  location: Location
   items: Int!
   product: Product!
   # A size from a size range, consider making this enum
