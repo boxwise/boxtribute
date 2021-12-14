@@ -7,7 +7,7 @@ def default_beneficiary_data():
     return {
         "id": 3,
         "base": base_data()[0]["id"],
-        "comments": "",
+        "comment": "",
         "created_by": None,
         "family_id": 10,
         "seq": 3,

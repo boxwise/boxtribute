@@ -24,7 +24,7 @@ class Beneficiary(db.Model):
         on_update="CASCADE",
         object_id_name="base_id",
     )
-    comments = TextField(null=True)
+    comment = TextField(column_name="comments", null=True)
     group_identifier = CharField(
         column_name="container", constraints=[SQL("DEFAULT ''")], index=True
     )
