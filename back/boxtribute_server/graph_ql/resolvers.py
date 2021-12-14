@@ -106,7 +106,7 @@ def resolve_product(_, info, id):
 def resolve_box(_, info, label_identifier):
     authorize(permission="stock:read")
     box = (
-        Box.select(Box, Location.base_id)
+        Box.select(Box, Location)
         .join(Location)
         .where(Box.label_identifier == label_identifier)
         .get()
