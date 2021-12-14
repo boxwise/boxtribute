@@ -1,27 +1,28 @@
-import pytest
-
-
-@pytest.mark.usefixtures("default_organisation")
-def test_organisation(client, default_organisation):
-    graph_ql_query_string = f"""query {{
+def test_organisation(client, default_bases, default_organisation):
+    query = f"""query {{
                 organisation(id: "{default_organisation['id']}") {{
+                    id
                     name
+                    bases {{
+                        id
+                    }}
                 }}
             }}"""
-    data = {"query": graph_ql_query_string}
+    data = {"query": query}
     response_data = client.post("/graphql", json=data)
     queried_organisation = response_data.json["data"]["organisation"]
-    assert queried_organisation["name"] == default_organisation["name"]
+    assert queried_organisation == {
+        "id": str(default_organisation["id"]),
+        "name": default_organisation["name"],
+        "bases": [{"id": str(b["id"])} for b in list(default_bases.values())[:2]],
+    }
 
-
-@pytest.mark.usefixtures("default_organisation")
-def test_organisations(client, default_organisation):
-    graph_ql_query_string = """query {
+    query = """query {
                 organisations {
                     name
                 }
             }"""
-    data = {"query": graph_ql_query_string}
+    data = {"query": query}
     response_data = client.post("/graphql", json=data)
     queried_organisation = response_data.json["data"]["organisations"][0]
     assert queried_organisation["name"] == default_organisation["name"]
