@@ -21,8 +21,6 @@ type QrCode {
   code: String!
   box: Box
   createdOn: Datetime
-  # The user who generated QR code
-  createdBy: User!
 }
 
 type Product {
