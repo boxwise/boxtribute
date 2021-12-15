@@ -346,8 +346,8 @@ enum TransferAgreementState {
 }
 
 enum TransferAgreementType {
-  unidirectional
-  bidirectional
+  Unidirectional
+  Bidirectional
 }
 
 enum ShipmentState {

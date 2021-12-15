@@ -3,24 +3,24 @@ import enum
 
 
 class TransferAgreementState(enum.IntEnum):
-    UNDER_REVIEW = 1
-    ACCEPTED = enum.auto()
-    REJECTED = enum.auto()
-    CANCELED = enum.auto()
-    EXPIRED = enum.auto()
+    UnderReview = 1
+    Accepted = enum.auto()
+    Rejected = enum.auto()
+    Canceled = enum.auto()
+    Expired = enum.auto()
 
 
 class TransferAgreementType(enum.IntEnum):
-    UNIDIRECTIONAL = 1
-    BIDIRECTIONAL = enum.auto()
+    Unidirectional = 1
+    Bidirectional = enum.auto()
 
 
 class ShipmentState(enum.IntEnum):
-    PREPARING = 1
-    SENT = enum.auto()
-    RECEIVED = enum.auto()
-    CANCELED = enum.auto()
-    LOST = enum.auto()
+    Preparing = 1
+    Sent = enum.auto()
+    Received = enum.auto()
+    Canceled = enum.auto()
+    Lost = enum.auto()
 
 
 class BoxState(enum.IntEnum):

@@ -16,7 +16,7 @@ class Shipment(db.Model):
         model=TransferAgreement, on_update="CASCADE"
     )
     state = EnumCharField(
-        constraints=[SQL(f"DEFAULT '{ShipmentState.PREPARING.name}'")],
+        constraints=[SQL(f"DEFAULT '{ShipmentState.Preparing.name}'")],
         choices=ShipmentState,
     )
     started_on = DateTimeField(default=utcnow)

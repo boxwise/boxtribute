@@ -13,7 +13,7 @@ class TransferAgreement(db.Model):
     target_organisation = UIntForeignKeyField(model=Organisation, on_update="CASCADE")
     state = EnumCharField(
         choices=TransferAgreementState,
-        constraints=[SQL(f"DEFAULT '{TransferAgreementState.UNDER_REVIEW.name}'")],
+        constraints=[SQL(f"DEFAULT '{TransferAgreementState.UnderReview.name}'")],
     )
     type = EnumCharField(choices=TransferAgreementType)
     requested_on = DateTimeField(default=utcnow)

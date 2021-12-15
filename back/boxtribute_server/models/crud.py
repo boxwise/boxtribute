@@ -239,7 +239,7 @@ def create_shipment(data):
     """
     transfer_agreement_id = data.pop("transfer_agreement_id")
     agreement = TransferAgreement.get_by_id(transfer_agreement_id)
-    if agreement.state != TransferAgreementState.ACCEPTED.value:
+    if agreement.state != TransferAgreementState.Accepted.value:
         raise InvalidTransferAgreement()
 
     return Shipment.create(

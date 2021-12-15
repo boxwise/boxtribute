@@ -13,7 +13,7 @@ def data():
         "source_base": base_data()[0]["id"],
         "target_base": base_data()[2]["id"],
         "transfer_agreement": transfer_agreement_data()["id"],
-        "state": ShipmentState.PREPARING.value,
+        "state": ShipmentState.Preparing.value,
         "started_by": default_user_data()["id"],
     }
 
