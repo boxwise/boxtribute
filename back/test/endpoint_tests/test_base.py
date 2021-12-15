@@ -1,4 +1,4 @@
-def test_all_bases(client, default_location, default_bases):
+def test_all_bases(read_only_client, default_location, default_bases):
     query = """query {
                 bases {
                     id
@@ -8,7 +8,7 @@ def test_all_bases(client, default_location, default_bases):
             }"""
 
     data = {"query": query}
-    response_data = client.post("/graphql", json=data)
+    response_data = read_only_client.post("/graphql", json=data)
 
     assert response_data.status_code == 200
     all_bases = response_data.json["data"]["bases"]
@@ -38,7 +38,7 @@ def test_all_bases(client, default_location, default_bases):
             }}"""
 
     data = {"query": query}
-    response_data = client.post("/graphql", json=data)
+    response_data = read_only_client.post("/graphql", json=data)
     assert response_data.status_code == 200
 
     expected_base = default_bases[test_id]

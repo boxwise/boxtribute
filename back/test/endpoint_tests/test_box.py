@@ -2,7 +2,7 @@ from boxtribute_server.enums import BoxState
 
 
 def test_box_query(
-    client,
+    read_only_client,
     default_box,
     default_box_state,
     default_location,
@@ -35,7 +35,7 @@ def test_box_query(
                 }}
             }}"""
     data = {"query": query}
-    response_data = client.post("/graphql", json=data)
+    response_data = read_only_client.post("/graphql", json=data)
     queried_box = response_data.json["data"]["box"]
     assert response_data.status_code == 200
     assert queried_box == {
@@ -60,7 +60,7 @@ def test_box_query(
                 }}
             }}"""
     data = {"query": query}
-    response_data = client.post("/graphql", json=data)
+    response_data = read_only_client.post("/graphql", json=data)
     queried_box = response_data.json["data"]["qrCode"]["box"]
     assert response_data.status_code == 200
     assert queried_box["labelIdentifier"] == default_box["label_identifier"]

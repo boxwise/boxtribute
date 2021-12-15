@@ -25,7 +25,7 @@ def assert_forbidden_request(data, client_fixture=None, field=None, value=None):
     "resource",
     ["base", "beneficiary", "location", "product", "productCategory", "user"],
 )
-def test_invalid_read_permissions(unauthorized_client, resource):
+def test_invalid_read_permissions(unauthorized, read_only_client, resource):
     """Verify missing resource:read permission when executing query."""
     # Build plural form
     resources = f"{resource}s"
@@ -37,10 +37,10 @@ def test_invalid_read_permissions(unauthorized_client, resource):
         data = {"query": "query { beneficiaries { elements { id } } }"}
     elif resources == "products":
         data = {"query": "query { products { elements { id } } }"}
-    assert_forbidden_request(data, unauthorized_client)
+    assert_forbidden_request(data, read_only_client)
 
     data = {"query": f"""query {{ {resource}(id: 3) {{ id }} }}"""}
-    assert_forbidden_request(data, unauthorized_client, field=resource)
+    assert_forbidden_request(data, read_only_client, field=resource)
 
 
 def operation_name(operation):
@@ -59,10 +59,10 @@ def operation_name(operation):
     ],
     ids=operation_name,
 )
-def test_invalid_permission(unauthorized_client, query):
+def test_invalid_permission(unauthorized, read_only_client, query):
     """Verify missing resource:read permission."""
     data = {"query": f"query {{ {query} }}"}
-    assert_forbidden_request(data, unauthorized_client, field=operation_name(query))
+    assert_forbidden_request(data, read_only_client, field=operation_name(query))
 
 
 @pytest.mark.parametrize(
@@ -74,7 +74,7 @@ def test_invalid_permission(unauthorized_client, query):
     ],
     ids=operation_name,
 )
-def test_invalid_permission_for_given_resource_id(client, mocker, query):
+def test_invalid_permission_for_given_resource_id(read_only_client, mocker, query):
     """Verify missing resource:read permission, or missing permission to access
     specified resource (base or organisation).
     """
@@ -82,7 +82,7 @@ def test_invalid_permission_for_given_resource_id(client, mocker, query):
         permissions=["base:read"], base_ids=[1], organisation_id=1
     )
     data = {"query": f"query {{ {query} }}"}
-    assert_forbidden_request(data, client, field=operation_name(query))
+    assert_forbidden_request(data, read_only_client, field=operation_name(query))
 
 
 @pytest.mark.parametrize(
@@ -129,33 +129,37 @@ def test_invalid_permission_for_given_resource_id(client, mocker, query):
     ],
     ids=operation_name,
 )
-def test_invalid_write_permission(unauthorized_client, mutation):
+def test_invalid_write_permission(unauthorized, read_only_client, mutation):
     """Verify missing resource:write permission when executing mutation."""
     data = {"query": f"mutation {{ {mutation} }}"}
-    assert_forbidden_request(data, unauthorized_client, field=operation_name(mutation))
+    assert_forbidden_request(data, read_only_client, field=operation_name(mutation))
 
 
-def test_invalid_permission_for_location_boxes(client, mocker):
+def test_invalid_permission_for_location_boxes(read_only_client, mocker):
     # verify missing stock:read permission
     mocker.patch("jose.jwt.decode").return_value = create_jwt_payload(
         permissions=["location:read"]
     )
     data = {"query": "query { location(id: 1) { boxes { elements { id } } } }"}
-    assert_forbidden_request(data, client, field="location", value={"boxes": None})
+    assert_forbidden_request(
+        data, read_only_client, field="location", value={"boxes": None}
+    )
 
 
-def test_invalid_permission_for_qr_code_box(client, mocker, default_qr_code):
+def test_invalid_permission_for_qr_code_box(read_only_client, mocker, default_qr_code):
     # verify missing stock:read permission
     mocker.patch("jose.jwt.decode").return_value = create_jwt_payload(
         permissions=["qr:read"]
     )
     code = default_qr_code["code"]
     data = {"query": f"""query {{ qrCode(qrCode: "{code}") {{ box {{ id }} }} }}"""}
-    assert_forbidden_request(data, client, field="qrCode", value={"box": None})
+    assert_forbidden_request(
+        data, read_only_client, field="qrCode", value={"box": None}
+    )
 
 
 def test_invalid_permission_for_organisation_bases(
-    unauthorized_client, default_organisation
+    unauthorized, read_only_client, default_organisation
 ):
     # verify missing base:read permission
     org_id = default_organisation["id"]
@@ -163,29 +167,33 @@ def test_invalid_permission_for_organisation_bases(
         "query": f"""query {{ organisation(id: "{org_id}") {{ bases {{ id }} }} }}"""
     }
     assert_forbidden_request(
-        data, unauthorized_client, field="organisation", value={"bases": None}
+        data, read_only_client, field="organisation", value={"bases": None}
     )
 
 
-def test_invalid_permission_for_beneficiary_tokens(client, mocker):
+def test_invalid_permission_for_beneficiary_tokens(read_only_client, mocker):
     # verify missing transaction:read permission
     mocker.patch("jose.jwt.decode").return_value = create_jwt_payload(
         permissions=["beneficiary:read"]
     )
     data = {"query": "query { beneficiary(id: 3) { tokens } }"}
-    assert_forbidden_request(data, client, field="beneficiary", value={"tokens": None})
+    assert_forbidden_request(
+        data, read_only_client, field="beneficiary", value={"tokens": None}
+    )
 
 
-def test_invalid_permission_for_base_locations(client, mocker):
+def test_invalid_permission_for_base_locations(read_only_client, mocker):
     # verify missing location:read permission
     mocker.patch("jose.jwt.decode").return_value = create_jwt_payload(
         permissions=["base:read"]
     )
     data = {"query": "query { base(id: 1) { locations { id } } }"}
-    assert_forbidden_request(data, client, field="base", value={"locations": None})
+    assert_forbidden_request(
+        data, read_only_client, field="base", value={"locations": None}
+    )
 
 
-def test_invalid_permission_for_box_location(client, mocker, default_box):
+def test_invalid_permission_for_box_location(read_only_client, mocker, default_box):
     # verify missing location:read permission
     mocker.patch("jose.jwt.decode").return_value = create_jwt_payload(
         permissions=["stock:read"]
@@ -194,4 +202,6 @@ def test_invalid_permission_for_box_location(client, mocker, default_box):
         "query": f"""query {{ box(labelIdentifier: "{default_box["label_identifier"]}")
             {{ location {{ id }} }} }}"""
     }
-    assert_forbidden_request(data, client, field="box", value={"location": None})
+    assert_forbidden_request(
+        data, read_only_client, field="box", value={"location": None}
+    )
