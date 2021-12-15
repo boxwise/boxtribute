@@ -1,4 +1,4 @@
-def test_product(read_only_client, default_product):
+def test_product_query(read_only_client, default_product):
     query = f"""query {{
                 product(id: {default_product['id']}) {{
                     id
@@ -35,6 +35,8 @@ def test_product(read_only_client, default_product):
         "createdBy": {"id": str(default_product["created_by"])},
     }
 
+
+def test_products_query(read_only_client, default_product):
     query = """query {
                 products {
                     elements {

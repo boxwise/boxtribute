@@ -1,4 +1,4 @@
-def test_product_categories(read_only_client):
+def test_product_categories_query(read_only_client):
     query = """query {
                 productCategories {
                     name

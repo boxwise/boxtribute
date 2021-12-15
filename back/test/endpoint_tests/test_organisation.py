@@ -1,4 +1,4 @@
-def test_organisation(read_only_client, default_bases, default_organisation):
+def test_organisation_query(read_only_client, default_bases, default_organisation):
     query = f"""query {{
                 organisation(id: "{default_organisation['id']}") {{
                     id
@@ -17,6 +17,8 @@ def test_organisation(read_only_client, default_bases, default_organisation):
         "bases": [{"id": str(b["id"])} for b in list(default_bases.values())[:2]],
     }
 
+
+def test_organisations_query(read_only_client, default_organisation):
     query = """query {
                 organisations {
                     name

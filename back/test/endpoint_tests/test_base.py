@@ -1,4 +1,4 @@
-def test_all_bases(read_only_client, default_location, default_bases):
+def test_bases_query(read_only_client, default_bases):
     query = """query {
                 bases {
                     id
@@ -22,6 +22,8 @@ def test_all_bases(read_only_client, default_location, default_bases):
     assert queried_base["name"] == expected_base["name"]
     assert queried_base["currencyName"] == expected_base["currency_name"]
 
+
+def test_base_query(read_only_client, default_location, default_bases):
     test_id = 1
     query = f"""query Base {{
                 base(id: {test_id}) {{

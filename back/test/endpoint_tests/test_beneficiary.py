@@ -1,7 +1,7 @@
 import pytest
 
 
-def test_beneficiary(client):
+def test_beneficiary_mutations(client):
     first_name = "Some"
     last_name = "One"
     dob = "2000-01-01"
@@ -173,7 +173,7 @@ def test_beneficiary(client):
         "before-last",
     ],
 )
-def test_query_beneficiaries(
+def test_beneficiaries_paginated_query(
     read_only_client, input, size, has_next_page, has_previous_page
 ):
     query = f"""query {{ beneficiaries{input} {{

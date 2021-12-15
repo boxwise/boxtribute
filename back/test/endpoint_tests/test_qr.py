@@ -1,8 +1,4 @@
-import pytest
-
-
-@pytest.mark.usefixtures("default_qr_code")
-def test_qr_exists(read_only_client, default_qr_code):
+def test_qr_exists_query(read_only_client, default_qr_code):
     code = default_qr_code["code"]
     graph_ql_query_string = f"""query CheckQrExistence {{
                 qrExists(qrCode: "{code}")
@@ -21,8 +17,7 @@ def test_qr_exists(read_only_client, default_qr_code):
     assert not response.json["data"]["qrExists"]
 
 
-@pytest.mark.usefixtures("default_qr_code")
-def test_qr_code(read_only_client, default_box, default_qr_code):
+def test_qr_code_query(read_only_client, default_box, default_qr_code):
     code = default_qr_code["code"]
     query = f"""query {{
                 qrCode(qrCode: "{code}") {{
@@ -46,7 +41,6 @@ def test_qr_code(read_only_client, default_box, default_qr_code):
     }
 
 
-@pytest.mark.usefixtures("qr_code_without_box")
 def test_code_not_associated_with_box(read_only_client, qr_code_without_box):
     code = qr_code_without_box["code"]
     graph_ql_query_string = f"""query {{
@@ -67,7 +61,7 @@ def test_code_not_associated_with_box(read_only_client, qr_code_without_box):
 
 
 def test_code_does_not_exist(read_only_client):
-    graph_ql_query_string = """query Box {
+    graph_ql_query_string = """query {
                 qrCode(qrCode: "-1") {
                     id
                 }
@@ -82,8 +76,7 @@ def test_code_does_not_exist(read_only_client):
     assert queried_code is None
 
 
-@pytest.mark.usefixtures("box_without_qr_code")
-def test_create_qr_code(client, box_without_qr_code):
+def test_qr_code_mutation(client, box_without_qr_code):
     data = {"query": "mutation { createQrCode { id } }"}
     response = client.post("/graphql", json=data)
     qr_code_id = int(response.json["data"]["createQrCode"]["id"])

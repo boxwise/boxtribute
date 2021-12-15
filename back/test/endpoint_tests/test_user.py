@@ -1,4 +1,4 @@
-def test_user(read_only_client, default_users, default_organisation):
+def test_user_query(read_only_client, default_users, default_organisation):
     test_id = 8
     expected_user = default_users[test_id]
 
@@ -32,6 +32,8 @@ def test_user(read_only_client, default_users, default_organisation):
     assert [int(b["id"]) for b in queried_user["bases"]] == [1]
     assert int(queried_user["organisation"]["id"]) == default_organisation["id"]
 
+
+def test_users_query(read_only_client, default_users):
     query = """query {
                 users {
                     id
