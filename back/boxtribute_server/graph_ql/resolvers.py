@@ -21,8 +21,11 @@ from ..models.definitions.organisation import Organisation
 from ..models.definitions.product import Product
 from ..models.definitions.product_category import ProductCategory
 from ..models.definitions.qr_code import QrCode
+from ..models.definitions.shipment import Shipment
 from ..models.definitions.size import Size
 from ..models.definitions.transaction import Transaction
+from ..models.definitions.transfer_agreement import TransferAgreement
+from ..models.definitions.transfer_agreement_detail import TransferAgreementDetail
 from ..models.definitions.user import User
 from ..models.definitions.x_beneficiary_language import XBeneficiaryLanguage
 from .pagination import load_into_page
@@ -37,6 +40,7 @@ organisation = ObjectType("Organisation")
 product = ObjectType("Product")
 product_category = ObjectType("ProductCategory")
 qr_code = ObjectType("QrCode")
+transfer_agreement = ObjectType("TransferAgreement")
 user = ObjectType("User")
 
 
@@ -134,6 +138,11 @@ def resolve_organisation(_, info, id):
 def resolve_product_category(_, info, id):
     authorize(permission="category:read")
     return ProductCategory.get_by_id(id)
+
+
+@query.field("transferAgreement")
+def resolve_transfer_agreement(_, info, id):
+    return TransferAgreement.get_by_id(id)
 
 
 @query.field("productCategories")
@@ -343,6 +352,37 @@ def resolve_product_category_products(
 def resolve_qr_code_box(qr_code_obj, info):
     authorize(permission="stock:read")
     return Box.get(Box.qr_code == qr_code_obj.id)
+
+
+@transfer_agreement.field("sourceBases")
+def resolve_transfer_agreement_source_bases(transfer_agreement_obj, info):
+    # If source base for transfer agreement is None, return all bases for the agreement
+    # source organisation
+    return Base.select().join(
+        TransferAgreementDetail, on=TransferAgreementDetail.source_base
+    ).where(
+        TransferAgreementDetail.transfer_agreement == transfer_agreement_obj.id
+    ) or Base.select().where(
+        Base.organisation == transfer_agreement_obj.source_organisation
+    )
+
+
+@transfer_agreement.field("targetBases")
+def resolve_transfer_agreement_target_bases(transfer_agreement_obj, info):
+    return Base.select().join(
+        TransferAgreementDetail, on=TransferAgreementDetail.target_base
+    ).where(
+        TransferAgreementDetail.transfer_agreement == transfer_agreement_obj.id
+    ) or Base.select().where(
+        Base.organisation == transfer_agreement_obj.target_organisation
+    )
+
+
+@transfer_agreement.field("shipments")
+def resolve_transfer_agreement_shipments(transfer_agreement_obj, info):
+    return Shipment.select().where(
+        Shipment.transfer_agreement == transfer_agreement_obj.id
+    )
 
 
 @user.field("organisation")

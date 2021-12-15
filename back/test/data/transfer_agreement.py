@@ -1,9 +1,12 @@
 import pytest
 from boxtribute_server.enums import TransferAgreementState, TransferAgreementType
 from boxtribute_server.models.definitions.transfer_agreement import TransferAgreement
+from boxtribute_server.models.utils import utcnow
 
 from .organisation import data as organisation_data
 from .user import default_user_data
+
+TIME = utcnow().replace(tzinfo=None)
 
 
 def data():
@@ -14,6 +17,8 @@ def data():
         "state": TransferAgreementState.Accepted.value,
         "type": TransferAgreementType.Bidirectional.value,
         "requested_by": default_user_data()["id"],
+        "requested_on": TIME,
+        "valid_from": TIME,
         "comment": "looks good to me",
     }
 

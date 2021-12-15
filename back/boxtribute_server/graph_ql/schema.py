@@ -13,6 +13,7 @@ from .resolvers import (
     product_category,
     qr_code,
     query,
+    transfer_agreement,
     user,
 )
 from .scalars import date_scalar, datetime_scalar
@@ -32,6 +33,7 @@ schema = make_executable_schema(
         product,
         product_category,
         qr_code,
+        transfer_agreement,
         user,
         *enum_types,
     ],
