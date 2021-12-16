@@ -11,7 +11,7 @@ def data():
     return [
         {
             "id": 1,
-            "transfer_agreement": transfer_agreement_data()["id"],
+            "transfer_agreement": transfer_agreement_data()[0]["id"],
             "source_base": None,
             "target_base": base_data()[2]["id"],
         }
