@@ -217,6 +217,19 @@ def resolve_transfer_agreements(_, info, states=None):
     )
 
 
+@query.field("shipments")
+def resolve_shipments(_, info):
+    user_organisation_id = g.user["organisation_id"]
+    return (
+        Shipment.select()
+        .join(TransferAgreement)
+        .where(
+            (TransferAgreement.source_organisation == user_organisation_id)
+            | (TransferAgreement.target_organisation == user_organisation_id)
+        )
+    )
+
+
 @beneficiary.field("tokens")
 def resolve_beneficiary_tokens(beneficiary_obj, info):
     authorize(permission="transaction:read")

@@ -57,3 +57,11 @@ def test_shipment_query(read_only_client, default_shipment):
         "transferAgreement": {"id": str(default_shipment["transfer_agreement"])},
         "details": [],
     }
+
+
+def test_shipments_query(read_only_client, default_shipment):
+    query = "query { shipments { id } }"
+    data = {"query": query}
+    response = read_only_client.post("/graphql", json=data)
+    shipments = response.json["data"]["shipments"]
+    assert shipments == [{"id": str(default_shipment["id"])}]
