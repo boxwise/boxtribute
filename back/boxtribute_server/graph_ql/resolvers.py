@@ -197,6 +197,15 @@ def resolve_beneficiaries(_, info, pagination_input=None):
     )
 
 
+@query.field("transferAgreements")
+def resolve_transfer_agreements(_, info):
+    user_organisation_id = g.user["organisation_id"]
+    return TransferAgreement.select().where(
+        (TransferAgreement.source_organisation == user_organisation_id)
+        | (TransferAgreement.target_organisation == user_organisation_id)
+    )
+
+
 @beneficiary.field("tokens")
 def resolve_beneficiary_tokens(beneficiary_obj, info):
     authorize(permission="transaction:read")

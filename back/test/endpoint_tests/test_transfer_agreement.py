@@ -70,3 +70,11 @@ def test_transfer_agreement_query(
         "targetBases": [{"id": "3"}],
         "shipments": [{"id": str(default_shipment["id"])}],
     }
+
+
+def test_transfer_agreements_query(read_only_client, transfer_agreements):
+    query = """query { transferAgreements { id } }"""
+    data = {"query": query}
+    response = read_only_client.post("/graphql", json=data)
+    agreements = response.json["data"]["transferAgreements"]
+    assert agreements == [{"id": str(t["id"])} for t in transfer_agreements]
