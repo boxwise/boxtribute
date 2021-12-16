@@ -70,8 +70,8 @@ enum ProductGender {
 enum BoxState {
   InStock
   Lost
-  Ordered
-  Picked
+  MarkedForShipment
+  Received
   Donated
   Scrap
 }
@@ -247,21 +247,113 @@ enum Language {
 scalar Datetime
 scalar Date
 
-# all below is speculative #
-type Order {
+type TransferAgreement {
   id: ID!
-  fromLocation: String!
-  toLocation: String!
-  # If null means internal transfer
-  fromOrg: Int
-  # If null means internal transfer
-  toOrg: Int
-  boxes: Box!
-  # If box state of all ordered boxes have not yet been changed, then it is active
-  isActive: Boolean!
+  sourceOrganisation: Organisation!
+  targetOrganisation: Organisation!
+  state: TransferAgreementState
+  type: TransferAgreementType!
+  requestedBy: User!
+  requestedOn: Datetime!
+  acceptedBy: User
+  acceptedOn: Datetime
+  terminatedBy: User
+  terminatedOn: Datetime
+  validFrom: Datetime!
+  validUntil: Datetime
+  comment: String
+  sourceBases: [Base!]!
+  targetBases: [Base!]
+  shipments: [Shipment!]!
+}
+
+type Shipment {
+  id: ID!
+  sourceBase: Base
+  targetBase: Base
+  state: ShipmentState
+  startedBy: User!
+  startedOn: Datetime!
+  sentBy: User
+  sentOn: Datetime
+  completedBy: User
+  completedOn: Datetime
+  canceledBy: User
+  canceledOn: Datetime
+  transferAgreement: TransferAgreement!
+  details: [ShipmentDetail!]!
+}
+
+type ShipmentDetail {
+  id: ID!
+  sourceProduct: Product!
+  targetProduct: Product
+  sourceLocation: Location!
+  targetLocation: Location
+  box: Box!
+  shipment: Shipment!
   createdBy: User!
   createdOn: Datetime!
-  lastModifiedBy: User
-  # Need to change int to custom scalar for datetime
-  lastModifiedOn: Int
+  deletedBy: User
+  deletedOn: Datetime
+}
+
+input TransferAgreementCreationInput {
+  targetOrganisationId: Int!
+  # pass local date and timezone information (e.g. 'Europe/Berlin')
+  validFrom: Date
+  validUntil: Date
+  timezone: String
+  sourceBaseIds: [Int!]
+  targetBaseIds: [Int!]
+}
+
+input ShipmentCreationInput {
+  sourceBaseId: Int!
+  targetBaseId: Int!
+  transferAgreementId: Int!
+}
+
+input ShipmentUpdateInput {
+  id: ID!
+  sourceBaseId: Int!
+  targetBaseId: Int!
+  # IDs of boxes prepared for shipment
+  preparedBoxIds: [Int!]!
+  # IDs of prepared boxes to be moved back to stock
+  removedBoxIds: [Int!]!
+  # IDs of boxes that went lost during shipment
+  lostBoxIds: [Int!]!
+}
+
+input ShipmentDetailUpdateInput {
+  id: ID!
+  targetProductId: Int!
+  targetLocationId: Int!
+}
+
+input ShipmentFilterInput {
+  sourceOrganisationId: Int
+  targetOrganisationId: Int
+}
+
+enum TransferAgreementState {
+  UnderReview
+  Accepted
+  Rejected
+  Canceled
+  Expired
+}
+
+enum TransferAgreementType {
+  Unidirectional
+  Bidirectional
+}
+
+enum ShipmentState {
+  Preparing
+  Sent
+  Completed
+  Lost
+  Canceled
 }

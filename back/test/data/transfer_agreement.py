@@ -11,8 +11,8 @@ def data():
         "id": 1,
         "source_organisation": organisation_data()[0]["id"],
         "target_organisation": organisation_data()[1]["id"],
-        "state": TransferAgreementState.ACCEPTED.value,
-        "type": TransferAgreementType.BIDIRECTIONAL.value,
+        "state": TransferAgreementState.Accepted.value,
+        "type": TransferAgreementType.Bidirectional.value,
         "requested_by": default_user_data()["id"],
         "comment": "looks good to me",
     }
@@ -21,7 +21,7 @@ def data():
 def expired_transfer_agreement_data():
     agreement = data()
     agreement["id"] = 2
-    agreement["state"] = TransferAgreementState.EXPIRED.value
+    agreement["state"] = TransferAgreementState.Expired.value
     return agreement
 
 

@@ -239,7 +239,7 @@ def create_shipment(data):
     """
     transfer_agreement_id = data.pop("transfer_agreement_id")
     agreement = TransferAgreement.get_by_id(transfer_agreement_id)
-    if agreement.state != TransferAgreementState.ACCEPTED.value:
+    if agreement.state != TransferAgreementState.Accepted.value:
         raise InvalidTransferAgreement()
 
     return Shipment.create(
@@ -261,7 +261,7 @@ def update_shipment(data):
         for box in Box.select().where(
             Box.label_identifier.in_(prepared_box_label_identifiers)
         ):
-            box.state = BoxState.Ordered.value  # MarkedForShipment
+            box.state = BoxState.MarkedForShipment.value
             boxes.append(box)
             details.append(
                 {

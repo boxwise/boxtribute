@@ -86,7 +86,7 @@ def test_create_transfer_agreement(
         "valid_from": None,
         "valid_until": None,
         "requested_by": default_user["id"],
-        "type": TransferAgreementType.UNIDIRECTIONAL.value,
+        "type": TransferAgreementType.Unidirectional.value,
         "source_base_ids": None,
     }
     agreement = create_transfer_agreement(data.copy())
@@ -112,8 +112,8 @@ def test_create_transfer_agreement(
         >= {
             "source_organisation": default_organisation["id"],
             "target_organisation": another_organisation["id"],
-            "state": TransferAgreementState.UNDER_REVIEW.value,
-            "type": TransferAgreementType.UNIDIRECTIONAL.value,
+            "state": TransferAgreementState.UnderReview.value,
+            "type": TransferAgreementType.Unidirectional.value,
             "requested_by": default_user["id"],
             "accepted_by": None,
             "accepted_on": None,
@@ -178,7 +178,7 @@ def test_create_shipment(
             "source_base": default_bases[1]["id"],
             "target_base": default_bases[3]["id"],
             "transfer_agreement": default_transfer_agreement["id"],
-            "state": ShipmentState.PREPARING.value,
+            "state": ShipmentState.Preparing.value,
             "canceled_on": None,
             "canceled_by": None,
             "sent_on": None,
@@ -217,7 +217,7 @@ def test_create_shipment(
     assert detail["created_on"] is not None
 
     box = Box.get_by_id(detail["box"])
-    assert box.state_id == BoxState.Ordered.value
+    assert box.state_id == BoxState.MarkedForShipment.value
 
 
 def test_create_shipment_from_expired_agreement(
