@@ -1,4 +1,4 @@
-def test_product_categories(client):
+def test_product_categories_query(read_only_client):
     query = """query {
                 productCategories {
                     name
@@ -14,7 +14,7 @@ def test_product_categories(client):
                 }
             }"""
     data = {"query": query}
-    response_data = client.post("/graphql", json=data)
+    response_data = read_only_client.post("/graphql", json=data)
     queried_categories = response_data.json["data"]["productCategories"]
     assert len(queried_categories) == 4
     assert len([c for c in queried_categories if c["hasGender"]]) == 1

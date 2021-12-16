@@ -1,7 +1,7 @@
 from auth import create_jwt_payload
 
 
-def test_get_boxes(mysql_app_client):
+def test_get_boxes(dropapp_dev_client):
     data = {
         "query": """query CommentsOfLostBoxes {
                 location(id: "1") {
@@ -18,7 +18,7 @@ def test_get_boxes(mysql_app_client):
                 }
             }"""
     }
-    response = mysql_app_client.post("/graphql", json=data)
+    response = dropapp_dev_client.post("/graphql", json=data)
     queried_boxes = response.json["data"]["location"]["boxes"]["elements"]
     assert response.status_code == 200
     assert len(queried_boxes) == 20
@@ -30,7 +30,7 @@ def test_get_boxes(mysql_app_client):
     assert response.json["data"]["location"]["boxes"]["totalCount"] == 27
 
 
-def test_get_bases(mysql_app_client):
+def test_get_bases(dropapp_dev_client):
     data = {
         "query": """query basesOfBoxAid {
                 organisation(id: "1") {
@@ -43,14 +43,14 @@ def test_get_bases(mysql_app_client):
                 }
             }"""
     }
-    response = mysql_app_client.post("/graphql", json=data)
+    response = dropapp_dev_client.post("/graphql", json=data)
     queried_locations = response.json["data"]["organisation"]["bases"]
     assert response.status_code == 200
     assert len(queried_locations) == 1
     assert queried_locations[0]["name"] == "Lesvos"
 
 
-def test_get_products(mysql_app_client):
+def test_get_products(dropapp_dev_client):
     data = {
         "query": """query getShoes {
                 productCategory(id: "5") {
@@ -67,7 +67,7 @@ def test_get_products(mysql_app_client):
                 }
             }"""
     }
-    response = mysql_app_client.post("/graphql", json=data)
+    response = dropapp_dev_client.post("/graphql", json=data)
     queried_products = response.json["data"]["productCategory"]["products"]["elements"]
     assert response.status_code == 200
     assert len(queried_products) == 13
@@ -77,7 +77,7 @@ def test_get_products(mysql_app_client):
     assert response.json["data"]["productCategory"]["products"]["totalCount"] == 13
 
 
-def test_get_beneficiaries(mysql_app_client):
+def test_get_beneficiaries(dropapp_dev_client):
     data = {
         "query": """query getBeneficiariesOfLesvos {
                 base(id: 1) {
@@ -97,7 +97,7 @@ def test_get_beneficiaries(mysql_app_client):
                 }
             }"""
     }
-    response = mysql_app_client.post("/graphql", json=data)
+    response = dropapp_dev_client.post("/graphql", json=data)
     base = response.json["data"]["base"]
     queried_beneficiaries = base["beneficiaries"]["elements"]
     assert response.status_code == 200
@@ -131,7 +131,7 @@ def test_get_beneficiaries(mysql_app_client):
                 }}
                 }}"""
     }
-    response = mysql_app_client.post("/graphql", json=data)
+    response = dropapp_dev_client.post("/graphql", json=data)
     queried_beneficiaries = response.json["data"]["base"]["beneficiaries"]["elements"]
     assert response.status_code == 200
     assert len(queried_beneficiaries) == 50
@@ -163,7 +163,7 @@ def test_get_beneficiaries(mysql_app_client):
                 }}
                 }}"""
     }
-    response = mysql_app_client.post("/graphql", json=data)
+    response = dropapp_dev_client.post("/graphql", json=data)
     assert response.status_code == 200
     assert response.json["data"]["base"] == base
 
@@ -231,12 +231,12 @@ def test_base_specific_permissions(client, mocker):
     assert "errors" not in response.json
 
 
-def test_invalid_pagination_input(client):
+def test_invalid_pagination_input(read_only_client):
     query = """query { beneficiaries(paginationInput: {last: 2}) {
         elements { id }
     } }"""
     data = {"query": query}
-    response = client.post("/graphql", json=data)
+    response = read_only_client.post("/graphql", json=data)
     assert response.status_code == 200
     assert len(response.json["errors"]) == 1
     assert response.json["errors"][0]["extensions"]["code"] == "BAD_USER_INPUT"

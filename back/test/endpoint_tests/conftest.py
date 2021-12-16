@@ -23,7 +23,6 @@ def auth_service(module_mocker):
 
 
 @pytest.fixture
-def unauthorized_client(client, mocker):
-    """Provide client who does not have any permissions."""
+def unauthorized(mocker):
+    """Effectively remove any permissions from current client."""
     mocker.patch("jose.jwt.decode").return_value = create_jwt_payload(permissions=[])
-    return client

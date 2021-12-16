@@ -1,7 +1,7 @@
 import pytest
 
 
-def test_beneficiary(client):
+def test_beneficiary_mutations(client):
     first_name = "Some"
     last_name = "One"
     dob = "2000-01-01"
@@ -173,13 +173,15 @@ def test_beneficiary(client):
         "before-last",
     ],
 )
-def test_query_beneficiaries(client, input, size, has_next_page, has_previous_page):
+def test_beneficiaries_paginated_query(
+    read_only_client, input, size, has_next_page, has_previous_page
+):
     query = f"""query {{ beneficiaries{input} {{
         elements {{ id }}
         pageInfo {{ hasNextPage hasPreviousPage }}
     }} }}"""
     data = {"query": query}
-    response = client.post("/graphql", json=data)
+    response = read_only_client.post("/graphql", json=data)
     queried_beneficiaries = response.json["data"]["beneficiaries"]["elements"]
     assert response.status_code == 200
     assert len(queried_beneficiaries) == size

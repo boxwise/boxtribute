@@ -1,7 +1,7 @@
 from boxtribute_server.enums import BoxState
 
 
-def test_location(client, default_boxes, default_location):
+def test_location_query(read_only_client, default_boxes, default_location):
     query = f"""query {{
                 location(id: "{default_location['id']}") {{
                     id
@@ -23,7 +23,7 @@ def test_location(client, default_boxes, default_location):
                 }}
             }}"""
     data = {"query": query}
-    response_data = client.post("/graphql", json=data)
+    response_data = read_only_client.post("/graphql", json=data)
     queried_location = response_data.json["data"]["location"]
     assert queried_location == {
         "id": str(default_location["id"]),
@@ -36,12 +36,14 @@ def test_location(client, default_boxes, default_location):
         "createdBy": {"id": str(default_location["created_by"])},
     }
 
+
+def test_locations_query(read_only_client, default_location):
     query = """query {
                 locations {
                     name
                 }
             }"""
     data = {"query": query}
-    response_data = client.post("/graphql", json=data)
+    response_data = read_only_client.post("/graphql", json=data)
     queried_location = response_data.json["data"]["locations"][0]
     assert queried_location["name"] == default_location["name"]

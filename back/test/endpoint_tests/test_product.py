@@ -1,4 +1,4 @@
-def test_product(client, default_product):
+def test_product_query(read_only_client, default_product):
     query = f"""query {{
                 product(id: {default_product['id']}) {{
                     id
@@ -21,7 +21,7 @@ def test_product(client, default_product):
                 }}
             }}"""
     data = {"query": query}
-    response_data = client.post("/graphql", json=data)
+    response_data = read_only_client.post("/graphql", json=data)
     queried_product = response_data.json["data"]["product"]
     assert queried_product == {
         "id": str(default_product["id"]),
@@ -35,6 +35,8 @@ def test_product(client, default_product):
         "createdBy": {"id": str(default_product["created_by"])},
     }
 
+
+def test_products_query(read_only_client, default_product):
     query = """query {
                 products {
                     elements {
@@ -43,6 +45,6 @@ def test_product(client, default_product):
                 }
             }"""
     data = {"query": query}
-    response_data = client.post("/graphql", json=data)
+    response_data = read_only_client.post("/graphql", json=data)
     queried_product = response_data.json["data"]["products"]["elements"][0]
     assert queried_product["name"] == default_product["name"]
