@@ -1,3 +1,4 @@
+import pytest
 from boxtribute_server.enums import TransferAgreementState, TransferAgreementType
 
 
@@ -72,9 +73,29 @@ def test_transfer_agreement_query(
     }
 
 
-def test_transfer_agreements_query(read_only_client, transfer_agreements):
-    query = """query { transferAgreements { id } }"""
+def state_names(value):
+    if isinstance(value, str):
+        if value == "":
+            return "all"
+        return value[10:-2]
+
+
+@pytest.mark.parametrize(
+    "filter_input,transfer_agreement_ids",
+    (
+        ["", ["1", "2"]],
+        ["(states: [UnderReview])", []],
+        ["(states: [Accepted])", ["1"]],
+        ["(states: [Expired])", ["2"]],
+        ["(states: [Rejected, Canceled, Expired])", ["2"]],
+    ),
+    ids=state_names,
+)
+def test_transfer_agreements_query(
+    read_only_client, filter_input, transfer_agreement_ids
+):
+    query = f"""query {{ transferAgreements{filter_input} {{ id }} }}"""
     data = {"query": query}
     response = read_only_client.post("/graphql", json=data)
     agreements = response.json["data"]["transferAgreements"]
-    assert agreements == [{"id": str(t["id"])} for t in transfer_agreements]
+    assert agreements == [{"id": i} for i in transfer_agreement_ids]

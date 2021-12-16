@@ -5,7 +5,7 @@ from peewee import fn
 from flask import g
 
 from ..authz import authorize
-from ..enums import HumanGender
+from ..enums import HumanGender, TransferAgreementState
 from ..models.crud import (
     create_beneficiary,
     create_box,
@@ -198,11 +198,15 @@ def resolve_beneficiaries(_, info, pagination_input=None):
 
 
 @query.field("transferAgreements")
-def resolve_transfer_agreements(_, info):
+def resolve_transfer_agreements(_, info, states=None):
     user_organisation_id = g.user["organisation_id"]
+    states = states or list(TransferAgreementState)
     return TransferAgreement.select().where(
-        (TransferAgreement.source_organisation == user_organisation_id)
-        | (TransferAgreement.target_organisation == user_organisation_id)
+        (
+            (TransferAgreement.source_organisation == user_organisation_id)
+            | (TransferAgreement.target_organisation == user_organisation_id)
+        )
+        & (TransferAgreement.state << states)
     )
 
 
