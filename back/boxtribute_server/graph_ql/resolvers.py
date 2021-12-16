@@ -32,16 +32,25 @@ from .pagination import load_into_page
 
 query = QueryType()
 mutation = MutationType()
-base = ObjectType("Base")
-beneficiary = ObjectType("Beneficiary")
-box = ObjectType("Box")
-location = ObjectType("Location")
-organisation = ObjectType("Organisation")
-product = ObjectType("Product")
-product_category = ObjectType("ProductCategory")
-qr_code = ObjectType("QrCode")
-transfer_agreement = ObjectType("TransferAgreement")
-user = ObjectType("User")
+object_types = []
+
+
+def _register_object_type(name):
+    object_type = ObjectType(name)
+    object_types.append(object_type)
+    return object_type
+
+
+base = _register_object_type("Base")
+beneficiary = _register_object_type("Beneficiary")
+box = _register_object_type("Box")
+location = _register_object_type("Location")
+organisation = _register_object_type("Organisation")
+product = _register_object_type("Product")
+product_category = _register_object_type("ProductCategory")
+qr_code = _register_object_type("QrCode")
+transfer_agreement = _register_object_type("TransferAgreement")
+user = _register_object_type("User")
 
 
 @user.field("bases")
