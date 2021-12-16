@@ -1,10 +1,13 @@
 import pytest
 from boxtribute_server.enums import ShipmentState
 from boxtribute_server.models.definitions.shipment import Shipment
+from boxtribute_server.models.utils import utcnow
 
 from .base import data as base_data
 from .transfer_agreement import data as transfer_agreement_data
 from .user import default_user_data
+
+TIME = utcnow().replace(tzinfo=None)
 
 
 def data():
@@ -15,6 +18,7 @@ def data():
         "transfer_agreement": transfer_agreement_data()[0]["id"],
         "state": ShipmentState.Preparing.value,
         "started_by": default_user_data()["id"],
+        "started_on": TIME,
     }
 
 

@@ -354,6 +354,6 @@ enum ShipmentState {
   Preparing
   Sent
   Completed
-  Lost
   Canceled
+  Lost
 }

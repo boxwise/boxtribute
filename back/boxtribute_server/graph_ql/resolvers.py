@@ -22,6 +22,7 @@ from ..models.definitions.product import Product
 from ..models.definitions.product_category import ProductCategory
 from ..models.definitions.qr_code import QrCode
 from ..models.definitions.shipment import Shipment
+from ..models.definitions.shipment_detail import ShipmentDetail
 from ..models.definitions.size import Size
 from ..models.definitions.transaction import Transaction
 from ..models.definitions.transfer_agreement import TransferAgreement
@@ -49,6 +50,7 @@ organisation = _register_object_type("Organisation")
 product = _register_object_type("Product")
 product_category = _register_object_type("ProductCategory")
 qr_code = _register_object_type("QrCode")
+shipment = _register_object_type("Shipment")
 transfer_agreement = _register_object_type("TransferAgreement")
 user = _register_object_type("User")
 
@@ -152,6 +154,11 @@ def resolve_product_category(_, info, id):
 @query.field("transferAgreement")
 def resolve_transfer_agreement(_, info, id):
     return TransferAgreement.get_by_id(id)
+
+
+@query.field("shipment")
+def resolve_shipment(_, info, id):
+    return Shipment.get_by_id(id)
 
 
 @query.field("productCategories")
@@ -374,6 +381,11 @@ def resolve_product_category_products(
 def resolve_qr_code_box(qr_code_obj, info):
     authorize(permission="stock:read")
     return Box.get(Box.qr_code == qr_code_obj.id)
+
+
+@shipment.field("details")
+def resolve_shipment_details(shipment_obj, info):
+    return ShipmentDetail.select().where(ShipmentDetail.shipment == shipment_obj.id)
 
 
 @transfer_agreement.field("sourceBases")
