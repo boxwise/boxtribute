@@ -23,7 +23,7 @@ type Query {
   """
   transferAgreements(states: [TransferAgreementState!]): [TransferAgreement!]!
   shipment(id: ID!): Shipment
-  shipments(filterInput: ShipmentFilterInput): [Shipment!]!
+  shipments: [Shipment!]!
 }
 
 type Mutation {
