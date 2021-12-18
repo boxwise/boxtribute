@@ -7,6 +7,7 @@ from flask import g
 from ..authz import authorize
 from ..enums import HumanGender, TransferAgreementState
 from ..models.crud import (
+    accept_transfer_agreement,
     create_beneficiary,
     create_box,
     create_qr_code,
@@ -329,6 +330,11 @@ def resolve_create_transfer_agreement(_, info, creation_input):
     creation_input["source_organisation_id"] = g.user["organisation_id"]
     creation_input["requested_by"] = g.user["id"]
     return create_transfer_agreement(creation_input)
+
+
+@mutation.field("acceptTransferAgreement")
+def resolve_accept_transfer_agreement(_, info, id):
+    return accept_transfer_agreement(id=id, accepted_by=g.user["id"])
 
 
 @base.field("locations")

@@ -1,6 +1,7 @@
 from datetime import date
 
 import pytest
+from auth import create_jwt_payload
 from boxtribute_server.enums import TransferAgreementState, TransferAgreementType
 
 
@@ -107,11 +108,13 @@ def test_transfer_agreement_mutations(
     client,
     default_organisation,
     another_organisation,
+    mocker,
 ):
     def _create_mutation(creation_input):
         return f"""mutation {{ createTransferAgreement(
                     creationInput: {{ {creation_input} }}
                     ) {{
+                        id
                         sourceOrganisation {{
                             id
                         }}
@@ -144,6 +147,7 @@ def test_transfer_agreement_mutations(
     response = client.post("/graphql", json=data)
     assert response.status_code == 200
     agreement = response.json["data"]["createTransferAgreement"]
+    first_agreement_id = agreement.pop("id")
 
     assert agreement.pop("validFrom").startswith(date.today().isoformat())
     assert agreement == {
@@ -172,6 +176,7 @@ def test_transfer_agreement_mutations(
     response = client.post("/graphql", json=data)
     assert response.status_code == 200
     agreement = response.json["data"]["createTransferAgreement"]
+    agreement.pop("id")
 
     assert agreement.pop("validFrom").startswith(valid_from)
     assert agreement.pop("validUntil").startswith(valid_until)
@@ -184,4 +189,26 @@ def test_transfer_agreement_mutations(
         "sourceBases": [{"id": "1"}],
         "targetBases": [{"id": "3"}],
         "shipments": [],
+    }
+
+    mocker.patch("jose.jwt.decode").return_value = create_jwt_payload(
+        base_ids=[3], organisation_id=2, user_id=2
+    )
+    mutation = f"""mutation {{ acceptTransferAgreement(id: {first_agreement_id}) {{
+                    state
+                    acceptedBy {{
+                        id
+                    }}
+                    acceptedOn
+                }}
+            }}"""
+    data = {"query": mutation}
+    response = client.post("/graphql", json=data)
+    assert response.status_code == 200
+    agreement = response.json["data"]["acceptTransferAgreement"]
+
+    assert agreement.pop("acceptedOn").startswith(date.today().isoformat())
+    assert agreement == {
+        "state": TransferAgreementState.Accepted.name,
+        "acceptedBy": {"id": "2"},
     }

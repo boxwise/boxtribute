@@ -232,6 +232,16 @@ def create_transfer_agreement(data):
         return transfer_agreement
 
 
+def accept_transfer_agreement(*, id, accepted_by):
+    """Transition state of specified transfer agreement to 'Accepted'."""
+    agreement = TransferAgreement.get_by_id(id)
+    agreement.state = TransferAgreementState.Accepted.value
+    agreement.accepted_by = accepted_by
+    agreement.accepted_on = utcnow()
+    agreement.save()
+    return agreement
+
+
 def create_shipment(data):
     """Insert information for a new Shipment in the database. Raise a
     InvalidTransferAgreement exception if specified agreement has a state different from
