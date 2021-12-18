@@ -10,6 +10,7 @@ from ..models.crud import (
     create_beneficiary,
     create_box,
     create_qr_code,
+    create_transfer_agreement,
     update_beneficiary,
     update_box,
 )
@@ -320,6 +321,14 @@ def resolve_update_beneficiary(_, info, beneficiary_update_input):
     )
     beneficiary_update_input["last_modified_by"] = g.user["id"]
     return update_beneficiary(beneficiary_update_input)
+
+
+@mutation.field("createTransferAgreement")
+@convert_kwargs_to_snake_case
+def resolve_create_transfer_agreement(_, info, creation_input):
+    creation_input["source_organisation_id"] = g.user["organisation_id"]
+    creation_input["requested_by"] = g.user["id"]
+    return create_transfer_agreement(creation_input)
 
 
 @base.field("locations")

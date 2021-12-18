@@ -14,6 +14,7 @@ class TransferAgreement(db.Model):
     state = EnumCharField(
         choices=TransferAgreementState,
         constraints=[SQL(f"DEFAULT '{TransferAgreementState.UnderReview.name}'")],
+        default=TransferAgreementState.UnderReview,
     )
     type = EnumCharField(choices=TransferAgreementType)
     requested_on = DateTimeField(default=utcnow)

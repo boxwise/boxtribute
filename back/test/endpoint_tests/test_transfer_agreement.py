@@ -1,3 +1,5 @@
+from datetime import date
+
 import pytest
 from boxtribute_server.enums import TransferAgreementState, TransferAgreementType
 
@@ -99,3 +101,87 @@ def test_transfer_agreements_query(
     response = read_only_client.post("/graphql", json=data)
     agreements = response.json["data"]["transferAgreements"]
     assert agreements == [{"id": i} for i in transfer_agreement_ids]
+
+
+def test_transfer_agreement_mutations(
+    client,
+    default_organisation,
+    another_organisation,
+):
+    def _create_mutation(creation_input):
+        return f"""mutation {{ createTransferAgreement(
+                    creationInput: {{ {creation_input} }}
+                    ) {{
+                        sourceOrganisation {{
+                            id
+                        }}
+                        targetOrganisation {{
+                            id
+                        }}
+                        state
+                        type
+                        requestedBy {{
+                            id
+                        }}
+                        validFrom
+                        validUntil
+                        sourceBases {{
+                            id
+                        }}
+                        targetBases {{
+                            id
+                        }}
+                        shipments {{
+                            id
+                        }}
+                    }}
+                }}"""
+
+    # Leave all optional fields empty in input
+    creation_input = f"""targetOrganisationId: {another_organisation['id']},
+        type: {TransferAgreementType.Bidirectional.name}"""
+    data = {"query": _create_mutation(creation_input)}
+    response = client.post("/graphql", json=data)
+    assert response.status_code == 200
+    agreement = response.json["data"]["createTransferAgreement"]
+
+    assert agreement.pop("validFrom").startswith(date.today().isoformat())
+    assert agreement == {
+        "sourceOrganisation": {"id": str(default_organisation["id"])},
+        "targetOrganisation": {"id": str(another_organisation["id"])},
+        "state": TransferAgreementState.UnderReview.name,
+        "type": TransferAgreementType.Bidirectional.name,
+        "requestedBy": {"id": "8"},
+        "validUntil": None,
+        "sourceBases": [{"id": "1"}, {"id": "2"}],
+        "targetBases": [{"id": "3"}],
+        "shipments": [],
+    }
+
+    # Provide all available fields in input
+    valid_from = "2021-12-15"
+    valid_until = "2022-06-30"
+    creation_input = f"""targetOrganisationId: {another_organisation['id']},
+        type: {TransferAgreementType.Bidirectional.name},
+        validFrom: "{valid_from}",
+        validUntil: "{valid_until}",
+        timezone: "Europe/London",
+        sourceBaseIds: [1],
+        targetBaseIds: [3]"""
+    data = {"query": _create_mutation(creation_input)}
+    response = client.post("/graphql", json=data)
+    assert response.status_code == 200
+    agreement = response.json["data"]["createTransferAgreement"]
+
+    assert agreement.pop("validFrom").startswith(valid_from)
+    assert agreement.pop("validUntil").startswith(valid_until)
+    assert agreement == {
+        "sourceOrganisation": {"id": str(default_organisation["id"])},
+        "targetOrganisation": {"id": str(another_organisation["id"])},
+        "state": TransferAgreementState.UnderReview.name,
+        "type": TransferAgreementType.Bidirectional.name,
+        "requestedBy": {"id": "8"},
+        "sourceBases": [{"id": "1"}],
+        "targetBases": [{"id": "3"}],
+        "shipments": [],
+    }
