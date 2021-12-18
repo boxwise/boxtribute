@@ -3,6 +3,6 @@ https://docs.gunicorn.org/en/stable/settings.html#
 """
 workers = 1
 threads = 1
-bind = "0.0.0.0:5000"
+bind = "0.0.0.0:5005"
 wsgi_app = "boxtribute_server.main:app"
 # loglevel = "debug"
