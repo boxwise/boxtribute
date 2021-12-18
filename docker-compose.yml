@@ -6,7 +6,7 @@ services:
             args:
                 flask_env: ${FLASK_ENV:-development}
         ports:
-            - 5000:5000
+            - 5005:5005
             # request localhost:5001 to run debugger in vscode (cf. README)
             - 5001:5001
         networks:
@@ -33,7 +33,7 @@ services:
             REACT_APP_AUTH0_AUDIENCE:  ${AUTH0_AUDIENCE:?auth0 config not set in .env file}
             REACT_APP_REDIRECT: http://localhost:3000
             REACT_APP_LOGOUT_URL: http://localhost:3000
-            REACT_APP_GRAPHQL_SERVER: http://localhost:5000/graphql
+            REACT_APP_GRAPHQL_SERVER: http://localhost:5005/graphql
         ports:
             - "3000:3000"
         stdin_open: true
