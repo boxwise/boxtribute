@@ -332,11 +332,6 @@ input ShipmentDetailUpdateInput {
   targetLocationId: Int!
 }
 
-input ShipmentFilterInput {
-  sourceOrganisationId: Int
-  targetOrganisationId: Int
-}
-
 enum TransferAgreementState {
   UnderReview
   Accepted
@@ -354,6 +349,6 @@ enum ShipmentState {
   Preparing
   Sent
   Completed
-  Lost
   Canceled
+  Lost
 }

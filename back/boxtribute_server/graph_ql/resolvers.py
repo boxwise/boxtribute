@@ -5,7 +5,7 @@ from peewee import fn
 from flask import g
 
 from ..authz import authorize
-from ..enums import HumanGender
+from ..enums import HumanGender, TransferAgreementState
 from ..models.crud import (
     create_beneficiary,
     create_box,
@@ -21,23 +21,38 @@ from ..models.definitions.organisation import Organisation
 from ..models.definitions.product import Product
 from ..models.definitions.product_category import ProductCategory
 from ..models.definitions.qr_code import QrCode
+from ..models.definitions.shipment import Shipment
+from ..models.definitions.shipment_detail import ShipmentDetail
 from ..models.definitions.size import Size
 from ..models.definitions.transaction import Transaction
+from ..models.definitions.transfer_agreement import TransferAgreement
+from ..models.definitions.transfer_agreement_detail import TransferAgreementDetail
 from ..models.definitions.user import User
 from ..models.definitions.x_beneficiary_language import XBeneficiaryLanguage
 from .pagination import load_into_page
 
 query = QueryType()
 mutation = MutationType()
-base = ObjectType("Base")
-beneficiary = ObjectType("Beneficiary")
-box = ObjectType("Box")
-location = ObjectType("Location")
-organisation = ObjectType("Organisation")
-product = ObjectType("Product")
-product_category = ObjectType("ProductCategory")
-qr_code = ObjectType("QrCode")
-user = ObjectType("User")
+object_types = []
+
+
+def _register_object_type(name):
+    object_type = ObjectType(name)
+    object_types.append(object_type)
+    return object_type
+
+
+base = _register_object_type("Base")
+beneficiary = _register_object_type("Beneficiary")
+box = _register_object_type("Box")
+location = _register_object_type("Location")
+organisation = _register_object_type("Organisation")
+product = _register_object_type("Product")
+product_category = _register_object_type("ProductCategory")
+qr_code = _register_object_type("QrCode")
+shipment = _register_object_type("Shipment")
+transfer_agreement = _register_object_type("TransferAgreement")
+user = _register_object_type("User")
 
 
 @user.field("bases")
@@ -136,6 +151,16 @@ def resolve_product_category(_, info, id):
     return ProductCategory.get_by_id(id)
 
 
+@query.field("transferAgreement")
+def resolve_transfer_agreement(_, info, id):
+    return TransferAgreement.get_by_id(id)
+
+
+@query.field("shipment")
+def resolve_shipment(_, info, id):
+    return Shipment.get_by_id(id)
+
+
 @query.field("productCategories")
 def resolve_product_categories(_, info):
     authorize(permission="category:read")
@@ -176,6 +201,32 @@ def resolve_beneficiaries(_, info, pagination_input=None):
         base_filter_condition,
         selection=Beneficiary.select().join(Base),
         pagination_input=pagination_input,
+    )
+
+
+@query.field("transferAgreements")
+def resolve_transfer_agreements(_, info, states=None):
+    user_organisation_id = g.user["organisation_id"]
+    states = states or list(TransferAgreementState)
+    return TransferAgreement.select().where(
+        (
+            (TransferAgreement.source_organisation == user_organisation_id)
+            | (TransferAgreement.target_organisation == user_organisation_id)
+        )
+        & (TransferAgreement.state << states)
+    )
+
+
+@query.field("shipments")
+def resolve_shipments(_, info):
+    user_organisation_id = g.user["organisation_id"]
+    return (
+        Shipment.select()
+        .join(TransferAgreement)
+        .where(
+            (TransferAgreement.source_organisation == user_organisation_id)
+            | (TransferAgreement.target_organisation == user_organisation_id)
+        )
     )
 
 
@@ -343,6 +394,42 @@ def resolve_product_category_products(
 def resolve_qr_code_box(qr_code_obj, info):
     authorize(permission="stock:read")
     return Box.get(Box.qr_code == qr_code_obj.id)
+
+
+@shipment.field("details")
+def resolve_shipment_details(shipment_obj, info):
+    return ShipmentDetail.select().where(ShipmentDetail.shipment == shipment_obj.id)
+
+
+@transfer_agreement.field("sourceBases")
+def resolve_transfer_agreement_source_bases(transfer_agreement_obj, info):
+    # If source base for transfer agreement is None, return all bases for the agreement
+    # source organisation
+    return Base.select().join(
+        TransferAgreementDetail, on=TransferAgreementDetail.source_base
+    ).where(
+        TransferAgreementDetail.transfer_agreement == transfer_agreement_obj.id
+    ) or Base.select().where(
+        Base.organisation == transfer_agreement_obj.source_organisation
+    )
+
+
+@transfer_agreement.field("targetBases")
+def resolve_transfer_agreement_target_bases(transfer_agreement_obj, info):
+    return Base.select().join(
+        TransferAgreementDetail, on=TransferAgreementDetail.target_base
+    ).where(
+        TransferAgreementDetail.transfer_agreement == transfer_agreement_obj.id
+    ) or Base.select().where(
+        Base.organisation == transfer_agreement_obj.target_organisation
+    )
+
+
+@transfer_agreement.field("shipments")
+def resolve_transfer_agreement_shipments(transfer_agreement_obj, info):
+    return Shipment.select().where(
+        Shipment.transfer_agreement == transfer_agreement_obj.id
+    )
 
 
 @user.field("organisation")

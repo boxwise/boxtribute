@@ -17,9 +17,13 @@ type Query {
   beneficiary(id: ID!): Beneficiary
   beneficiaries(paginationInput: PaginationInput): BeneficiaryPage!
   transferAgreement(id: ID!): TransferAgreement
+  """
+  Without any arguments, return transfer agreements that involve client's organisation,
+  regardless of agreement state. Optionally filter for agreements of certain state(s).
+  """
   transferAgreements(states: [TransferAgreementState!]): [TransferAgreement!]!
   shipment(id: ID!): Shipment
-  shipments(filterInput: ShipmentFilterInput): [Shipment!]!
+  shipments: [Shipment!]!
 }
 
 type Mutation {
