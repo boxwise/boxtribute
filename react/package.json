@@ -13,7 +13,6 @@
     "@fortawesome/free-solid-svg-icons": "^5.15.4",
     "@fortawesome/react-fontawesome": "^0.1.15",
     "axios": "^0.23.0",
-    "boxwise-components": "^1.0.4",
     "framer-motion": "^4",
     "graphql": "^15.6.1",
     "react": "^17.0.2",

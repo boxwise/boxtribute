@@ -1,6 +1,5 @@
 import React from "react";
 import { Link } from "react-router-dom";
-import { PrimaryButton } from "boxwise-components";
 import { useAuth0 } from "@auth0/auth0-react";
 import { Button, ListItem, UnorderedList } from "@chakra-ui/react";
 
@@ -11,7 +10,7 @@ const MenuItem = ({ to, text }: { to: string; text: string }) => (
     }}
   >
     <Link to={to}>
-      <PrimaryButton>{text}</PrimaryButton>
+      <Button>{text}</Button>
     </Link>
   </ListItem>
 );
