@@ -16,7 +16,7 @@
 import http from "k6/http";
 import { check } from "k6";
 
-const url = "http://0.0.0.0:5005/graphql";
+const url = "http://0.0.0.0:5000/graphql";
 const params = {
   headers: {
     "Content-Type": "application/json",
