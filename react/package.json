@@ -22,7 +22,6 @@
   },
   "devDependencies": {
     "@craco/craco": "^6.3.0",
-    "@semantic-ui-react/craco-less": "^1.2.3",
     "@testing-library/jest-dom": "^5.14.1",
     "@testing-library/react": "^12.1.2",
     "@testing-library/user-event": "^13.4.1",
