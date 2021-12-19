@@ -243,7 +243,7 @@ and inspect the reported output. Open the HTML report via `back/htmlcov/index.ht
 The back-end exposes the GraphQL API at the `/graphql` endpoint. You can experiment with the API in the GraphQL playground.
 
 1. Start the required services by `docker-compose up webapp db`
-1. Open `localhost:5005/graphql`.
+1. Open `localhost:5000/graphql`.
 1. Simulate being a valid, logged-in user by fetching an authorization token (internally the variables of the `.env` file are used): `./fetch_token`
 1. Copy the content of the `access_token` field (alternatively, you can pipe the above command ` | jq -r .access_token | xclip -i -selection c` to copy it to the system clipboard)
 1.  Insert the access token in the following format on the playground in the section on the bottom left of the playground called HTTP Headers.
