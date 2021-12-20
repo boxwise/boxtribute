@@ -176,7 +176,7 @@ def test_transfer_agreement_mutations(
     response = client.post("/graphql", json=data)
     assert response.status_code == 200
     agreement = response.json["data"]["createTransferAgreement"]
-    agreement.pop("id")
+    second_agreement_id = agreement.pop("id")
 
     assert agreement.pop("validFrom").startswith(valid_from)
     assert agreement.pop("validUntil").startswith(valid_until)
@@ -206,9 +206,44 @@ def test_transfer_agreement_mutations(
     response = client.post("/graphql", json=data)
     assert response.status_code == 200
     agreement = response.json["data"]["acceptTransferAgreement"]
-
     assert agreement.pop("acceptedOn").startswith(date.today().isoformat())
     assert agreement == {
         "state": TransferAgreementState.Accepted.name,
         "acceptedBy": {"id": "2"},
+    }
+
+    mutation = f"""mutation {{ cancelTransferAgreement(id: {first_agreement_id}) {{
+                    state
+                    terminatedBy {{
+                        id
+                    }}
+                    terminatedOn
+                }}
+            }}"""
+    data = {"query": mutation}
+    response = client.post("/graphql", json=data)
+    assert response.status_code == 200
+    agreement = response.json["data"]["cancelTransferAgreement"]
+    assert agreement.pop("terminatedOn").startswith(date.today().isoformat())
+    assert agreement == {
+        "state": TransferAgreementState.Canceled.name,
+        "terminatedBy": {"id": "2"},
+    }
+
+    mutation = f"""mutation {{ rejectTransferAgreement(id: {second_agreement_id}) {{
+                    state
+                    terminatedBy {{
+                        id
+                    }}
+                    terminatedOn
+                }}
+            }}"""
+    data = {"query": mutation}
+    response = client.post("/graphql", json=data)
+    assert response.status_code == 200
+    agreement = response.json["data"]["rejectTransferAgreement"]
+    assert agreement.pop("terminatedOn").startswith(date.today().isoformat())
+    assert agreement == {
+        "state": TransferAgreementState.Rejected.name,
+        "terminatedBy": {"id": "2"},
     }

@@ -242,6 +242,18 @@ def accept_transfer_agreement(*, id, accepted_by):
     return agreement
 
 
+def terminate_transfer_agreement(*, id, terminated_by, reason):
+    """Transition state of specified transfer agreement to state matching the given
+    reason (a TransferAgreementState enum value: Rejected or Canceled).
+    """
+    agreement = TransferAgreement.get_by_id(id)
+    agreement.state = reason.value
+    agreement.terminated_by = terminated_by
+    agreement.terminated_on = utcnow()
+    agreement.save()
+    return agreement
+
+
 def create_shipment(data):
     """Insert information for a new Shipment in the database. Raise a
     InvalidTransferAgreement exception if specified agreement has a state different from
