@@ -1,13 +1,6 @@
-from datetime import date, datetime
-
 import peewee
 import pytest
-from boxtribute_server.enums import (
-    BoxState,
-    ShipmentState,
-    TransferAgreementState,
-    TransferAgreementType,
-)
+from boxtribute_server.enums import BoxState, ShipmentState
 from boxtribute_server.exceptions import (
     BoxCreationFailed,
     InvalidTransferAgreement,
@@ -18,7 +11,6 @@ from boxtribute_server.models.crud import (
     create_box,
     create_qr_code,
     create_shipment,
-    create_transfer_agreement,
     update_beneficiary,
     update_shipment,
 )
@@ -26,10 +18,6 @@ from boxtribute_server.models.definitions.box import Box
 from boxtribute_server.models.definitions.qr_code import QrCode
 from boxtribute_server.models.definitions.shipment import Shipment
 from boxtribute_server.models.definitions.shipment_detail import ShipmentDetail
-from boxtribute_server.models.definitions.transfer_agreement import TransferAgreement
-from boxtribute_server.models.definitions.transfer_agreement_detail import (
-    TransferAgreementDetail,
-)
 
 
 def test_create_qr_code_for_nonexisting_box():
@@ -75,90 +63,6 @@ def test_box_label_identifier_generation(
     new_box = create_box(data)
     assert rng_function.call_count == len(side_effect)
     assert new_box.label_identifier == new_identifier
-
-
-def test_create_transfer_agreement(
-    default_user, default_organisation, another_organisation
-):
-    data = {
-        "source_organisation_id": default_organisation["id"],
-        "target_organisation_id": another_organisation["id"],
-        "valid_from": None,
-        "valid_until": None,
-        "requested_by": default_user["id"],
-        "type": TransferAgreementType.Unidirectional.value,
-        "source_base_ids": None,
-    }
-    agreement = create_transfer_agreement(data.copy())
-
-    def fetch_agreement(id):
-        return (
-            TransferAgreement.select().where(TransferAgreement.id == id).dicts().get()
-        )
-
-    agreement = fetch_agreement(agreement.id)  # fetch for effective timestamp fields
-
-    def fetch_details(agreement):
-        return list(
-            TransferAgreementDetail.select()
-            .where(TransferAgreementDetail.transfer_agreement == agreement["id"])
-            .dicts()
-        )
-
-    details = fetch_details(agreement)
-
-    assert (
-        agreement.items()
-        >= {
-            "source_organisation": default_organisation["id"],
-            "target_organisation": another_organisation["id"],
-            "state": TransferAgreementState.UnderReview.value,
-            "type": TransferAgreementType.Unidirectional.value,
-            "requested_by": default_user["id"],
-            "accepted_by": None,
-            "accepted_on": None,
-            "terminated_by": None,
-            "terminated_on": None,
-            "valid_until": None,
-            "comment": "",
-        }.items()
-    )
-    assert agreement["requested_on"] == agreement["valid_from"]
-    assert len(details) == 1
-    detail = details[0]
-    assert (
-        detail.items()
-        >= {
-            "transfer_agreement": agreement["id"],
-            "source_base": None,
-            "target_base": None,
-        }.items()
-    )
-
-    comment = "important"
-    data["valid_from"] = date(2021, 11, 1)
-    data["valid_until"] = date(2021, 12, 31)
-    data["timezone"] = "America/New_York"
-    data["comment"] = comment
-    data["source_base_ids"] = [1, 2]
-    data["target_base_ids"] = [3]
-    agreement = create_transfer_agreement(data)
-    agreement = fetch_agreement(agreement.id)
-    details = fetch_details(agreement)
-
-    assert agreement["valid_from"] == datetime(2021, 11, 1, 4)
-    assert agreement["valid_until"] == datetime(2022, 1, 1, 4, 59, 59)
-    assert agreement["comment"] == comment
-    assert len(details) == 2
-    detail = details[-1]
-    assert (
-        detail.items()
-        >= {
-            "transfer_agreement": agreement["id"],
-            "source_base": 2,
-            "target_base": 3,
-        }.items()
-    )
 
 
 def test_create_shipment(

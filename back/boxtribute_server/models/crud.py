@@ -188,10 +188,6 @@ def create_transfer_agreement(data):
     NULL for the Detail.source/target_base field).
     Convert optional local dates into UTC datetimes using timezone information.
     """
-    if "valid_from" in data and data["valid_from"] is None:
-        # GraphQL input had 'validFrom: null', use default defined in model instead
-        del data["valid_from"]
-
     with db.database.atomic():
         # In GraphQL input, base IDs can be omitted, or explicitly be null.
         # Avoid duplicate base IDs by creating sets
