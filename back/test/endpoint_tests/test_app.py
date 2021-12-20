@@ -102,7 +102,7 @@ def test_get_beneficiaries(dropapp_dev_client):
     queried_beneficiaries = base["beneficiaries"]["elements"]
     assert response.status_code == 200
     assert len(queried_beneficiaries) == 50
-    assert queried_beneficiaries[0]["tokens"] == 13
+    assert queried_beneficiaries[0]["tokens"] == 0
 
     page_info = base["beneficiaries"]["pageInfo"]
     cursor = page_info["endCursor"]
@@ -110,7 +110,7 @@ def test_get_beneficiaries(dropapp_dev_client):
     assert page_info["hasNextPage"]
     assert page_info["startCursor"] == "MDAwMDAwMDE="  # ID 1
     assert cursor == "MDAwMDAwNTA="  # corresponding to ID 50
-    assert base["beneficiaries"]["totalCount"] == 1006
+    assert base["beneficiaries"]["totalCount"] == 1004
 
     data = {
         "query": f"""query getBeneficiariesOfLesvos {{
