@@ -110,6 +110,13 @@ To figure out the gateway of the Docker network `backend` run
 
 Most of our developers use [MySQL workbench](https://dev.mysql.com/doc/workbench/en/wb-installing.html) to interact with the database directly. If you want to connect to the database, choose one of the possibilities in the former to define the connection, e.g. Hostname is 172.18.0.1 and Port is 3306.
 
+#### Database dump
+
+The `db` docker-compose service runs on a dump (`back/init.sql`) generated from the database of dropapp's staging environment. If it has been updated, run the following for the changes to take effect
+
+    docker-compose rm db
+    docker-compose up -d --build db
+
 #### ORM
 
 From the Python side of the application we use an Object Relational Mapper (ORM) to interact with the database. An ORM provides a convenient abstraction interface since it leverages Python's language features and is more secure compared to using raw SQL queries.
@@ -135,7 +142,8 @@ For debugging an exception in an endpoint, direct your web browser to that endpo
 
 VSCode has [a very easy-to-use debugger](https://code.visualstudio.com/docs/editor/debugging) built-in.
 
-To use the debugger:
+<details>
+  <summary>For info on how to use the debugger click here.</summary>
 
 1. install the extensions to [access Docker container](https://marketplace.visualstudio.com/items?itemName=ms-vscode-remote.remote-containers) and to [debug python](https://marketplace.visualstudio.com/items?itemName=ms-python.python).
 2. Start the Docker containers.
@@ -151,6 +159,7 @@ You can now set break-points in your code.
 If you want to debug a certain endpoint, set a break-point in the endpoint and call this endpoint at the port 5001, e.g.
 `localhost:5001/api/public`
 If you want to break on any other code lines (not endpoints), then you can only catch them during the server start-up.
+</details>
 
 #### Usage of Logger
 
