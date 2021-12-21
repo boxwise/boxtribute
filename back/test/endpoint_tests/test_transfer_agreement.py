@@ -86,9 +86,10 @@ def state_names(value):
 @pytest.mark.parametrize(
     "filter_input,transfer_agreement_ids",
     (
-        ["", ["1", "2"]],
-        ["(states: [UnderReview])", []],
+        ["", ["1", "2", "3"]],
+        ["(states: [UnderReview])", ["3"]],
         ["(states: [Accepted])", ["1"]],
+        ["(states: [Rejected])", []],
         ["(states: [Expired])", ["2"]],
         ["(states: [Rejected, Canceled, Expired])", ["2"]],
     ),
@@ -247,3 +248,29 @@ def test_transfer_agreement_mutations(
         "state": TransferAgreementState.Rejected.name,
         "terminatedBy": {"id": "2"},
     }
+
+
+@pytest.mark.parametrize("action", ["accept", "reject", "cancel"])
+def test_transfer_agreement_mutations_invalid_state(
+    read_only_client, expired_transfer_agreement, action
+):
+    agreement_id = expired_transfer_agreement["id"]
+    mutation = f"mutation {{ {action}TransferAgreement(id: {agreement_id}) {{ id }} }}"
+    data = {"query": mutation}
+    response = read_only_client.post("/graphql", json=data)
+    assert response.status_code == 200
+    assert len(response.json["errors"]) == 1
+    assert response.json["errors"][0]["extensions"]["code"] == "BAD_USER_INPUT"
+
+
+@pytest.mark.parametrize("action", ["accept", "reject"])
+def test_transfer_agreement_mutations_invalid_source_org(
+    read_only_client, reviewed_transfer_agreement, action
+):
+    agreement_id = reviewed_transfer_agreement["id"]
+    mutation = f"mutation {{ {action}TransferAgreement(id: {agreement_id}) {{ id }} }}"
+    data = {"query": mutation}
+    response = read_only_client.post("/graphql", json=data)
+    assert response.status_code == 200
+    assert len(response.json["errors"]) == 1
+    assert response.json["errors"][0]["extensions"]["code"] == "BAD_USER_INPUT"

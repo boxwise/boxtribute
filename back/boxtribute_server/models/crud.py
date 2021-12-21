@@ -11,6 +11,8 @@ from ..enums import BoxState, TransferAgreementState
 from ..exceptions import (
     BoxCreationFailed,
     InvalidTransferAgreement,
+    InvalidTransferAgreementOrganisation,
+    InvalidTransferAgreementState,
     RequestedResourceNotFound,
 )
 from .definitions.beneficiary import Beneficiary
@@ -229,22 +231,51 @@ def create_transfer_agreement(data):
 
 
 def accept_transfer_agreement(*, id, accepted_by):
-    """Transition state of specified transfer agreement to 'Accepted'."""
+    """Transition state of specified transfer agreement to 'Accepted'.
+    Raise error if agreement state different from 'UnderReview', or if requesting user
+    not a member of the agreement's target_organisation.
+    """
     agreement = TransferAgreement.get_by_id(id)
+    if agreement.state != TransferAgreementState.UnderReview.value:
+        raise InvalidTransferAgreementState()
+    if agreement.target_organisation_id != accepted_by["organisation_id"]:
+        raise InvalidTransferAgreementOrganisation()
     agreement.state = TransferAgreementState.Accepted.value
-    agreement.accepted_by = accepted_by
+    agreement.accepted_by = accepted_by["id"]
     agreement.accepted_on = utcnow()
     agreement.save()
     return agreement
 
 
-def terminate_transfer_agreement(*, id, terminated_by, reason):
-    """Transition state of specified transfer agreement to state matching the given
-    reason (a TransferAgreementState enum value: Rejected or Canceled).
+def reject_transfer_agreement(*, id, rejected_by):
+    """Transition state of specified transfer agreement to 'Rejected'.
+    Raise error if agreement state different from 'UnderReview', or if requesting user
+    not a member of the agreement's target_organisation.
     """
     agreement = TransferAgreement.get_by_id(id)
-    agreement.state = reason.value
-    agreement.terminated_by = terminated_by
+    if agreement.state != TransferAgreementState.UnderReview.value:
+        raise InvalidTransferAgreementState()
+    if agreement.target_organisation_id != rejected_by["organisation_id"]:
+        raise InvalidTransferAgreementOrganisation()
+    agreement.state = TransferAgreementState.Rejected.value
+    agreement.terminated_by = rejected_by["id"]
+    agreement.terminated_on = utcnow()
+    agreement.save()
+    return agreement
+
+
+def cancel_transfer_agreement(*, id, canceled_by):
+    """Transition state of specified transfer agreement to 'Canceled'.
+    Raise error if agreement state different from 'UnderReview'/'Accepted'.
+    """
+    agreement = TransferAgreement.get_by_id(id)
+    if agreement.state not in [
+        TransferAgreementState.UnderReview.value,
+        TransferAgreementState.Accepted.value,
+    ]:
+        raise InvalidTransferAgreementState()
+    agreement.state = TransferAgreementState.Canceled.value
+    agreement.terminated_by = canceled_by
     agreement.terminated_on = utcnow()
     agreement.save()
     return agreement

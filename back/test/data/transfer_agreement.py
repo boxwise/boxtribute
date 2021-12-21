@@ -30,6 +30,14 @@ def data():
             "type": TransferAgreementType.Bidirectional.value,
             "requested_by": default_user_data()["id"],
         },
+        {
+            "id": 3,
+            "source_organisation": organisation_data()[0]["id"],
+            "target_organisation": organisation_data()[1]["id"],
+            "state": TransferAgreementState.UnderReview.value,
+            "type": TransferAgreementType.Bidirectional.value,
+            "requested_by": default_user_data()["id"],
+        },
     ]
 
 
@@ -41,6 +49,11 @@ def default_transfer_agreement():
 @pytest.fixture
 def expired_transfer_agreement():
     return data()[1]
+
+
+@pytest.fixture
+def reviewed_transfer_agreement():
+    return data()[2]
 
 
 @pytest.fixture

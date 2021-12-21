@@ -51,6 +51,22 @@ class InvalidTransferAgreement(Exception):
     }
 
 
+class InvalidTransferAgreementState(Exception):
+    extensions = {
+        "code": "BAD_USER_INPUT",
+        "description": "The state of the transfer agreement does not allow the "
+        "requested action.",
+    }
+
+
+class InvalidTransferAgreementOrganisation(Exception):
+    extensions = {
+        "code": "BAD_USER_INPUT",
+        "description": "The user's organisation is not permitted to execute the "
+        "requested action.",
+    }
+
+
 class InvalidPaginationInput(Exception):
     extensions = {
         "code": "BAD_USER_INPUT",
