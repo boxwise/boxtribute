@@ -58,8 +58,8 @@ def test_transfer_agreement_query(
         "targetOrganisation": {
             "id": str(default_transfer_agreement["target_organisation"])
         },
-        "state": TransferAgreementState(default_transfer_agreement["state"]).name,
-        "type": TransferAgreementType(default_transfer_agreement["type"]).name,
+        "state": default_transfer_agreement["state"].name,
+        "type": default_transfer_agreement["type"].name,
         "requestedBy": {"id": str(default_transfer_agreement["requested_by"])},
         "requestedOn": default_transfer_agreement["requested_on"].isoformat()
         + "+00:00",

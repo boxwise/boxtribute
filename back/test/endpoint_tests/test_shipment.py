@@ -1,6 +1,3 @@
-from boxtribute_server.enums import ShipmentState
-
-
 def test_shipment_query(read_only_client, default_shipment):
     shipment_id = str(default_shipment["id"])
     query = f"""query {{
@@ -45,7 +42,7 @@ def test_shipment_query(read_only_client, default_shipment):
         "id": shipment_id,
         "sourceBase": {"id": str(default_shipment["source_base"])},
         "targetBase": {"id": str(default_shipment["target_base"])},
-        "state": ShipmentState(default_shipment["state"]).name,
+        "state": default_shipment["state"].name,
         "startedBy": {"id": str(default_shipment["started_by"])},
         "startedOn": default_shipment["started_on"].isoformat() + "+00:00",
         "sentBy": None,

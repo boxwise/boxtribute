@@ -16,7 +16,7 @@ def data():
         "source_base": base_data()[0]["id"],
         "target_base": base_data()[2]["id"],
         "transfer_agreement": transfer_agreement_data()[0]["id"],
-        "state": ShipmentState.Preparing.value,
+        "state": ShipmentState.Preparing,
         "started_by": default_user_data()["id"],
         "started_on": TIME,
     }

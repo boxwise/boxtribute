@@ -82,7 +82,7 @@ def test_create_shipment(
             "source_base": default_bases[1]["id"],
             "target_base": default_bases[3]["id"],
             "transfer_agreement": default_transfer_agreement["id"],
-            "state": ShipmentState.Preparing.value,
+            "state": ShipmentState.Preparing,
             "canceled_on": None,
             "canceled_by": None,
             "sent_on": None,

@@ -46,7 +46,7 @@ def create_box(data):
                 created_on=now,
                 last_modified_on=now,
                 last_modified_by=data["created_by"],
-                state=BoxState.InStock.value,
+                state=BoxState.InStock,
                 **data,
             )
             return new_box
@@ -236,11 +236,11 @@ def accept_transfer_agreement(*, id, accepted_by):
     not a member of the agreement's target_organisation.
     """
     agreement = TransferAgreement.get_by_id(id)
-    if agreement.state != TransferAgreementState.UnderReview.value:
+    if agreement.state != TransferAgreementState.UnderReview:
         raise InvalidTransferAgreementState()
     if agreement.target_organisation_id != accepted_by["organisation_id"]:
         raise InvalidTransferAgreementOrganisation()
-    agreement.state = TransferAgreementState.Accepted.value
+    agreement.state = TransferAgreementState.Accepted
     agreement.accepted_by = accepted_by["id"]
     agreement.accepted_on = utcnow()
     agreement.save()
@@ -253,11 +253,11 @@ def reject_transfer_agreement(*, id, rejected_by):
     not a member of the agreement's target_organisation.
     """
     agreement = TransferAgreement.get_by_id(id)
-    if agreement.state != TransferAgreementState.UnderReview.value:
+    if agreement.state != TransferAgreementState.UnderReview:
         raise InvalidTransferAgreementState()
     if agreement.target_organisation_id != rejected_by["organisation_id"]:
         raise InvalidTransferAgreementOrganisation()
-    agreement.state = TransferAgreementState.Rejected.value
+    agreement.state = TransferAgreementState.Rejected
     agreement.terminated_by = rejected_by["id"]
     agreement.terminated_on = utcnow()
     agreement.save()
@@ -270,11 +270,11 @@ def cancel_transfer_agreement(*, id, canceled_by):
     """
     agreement = TransferAgreement.get_by_id(id)
     if agreement.state not in [
-        TransferAgreementState.UnderReview.value,
-        TransferAgreementState.Accepted.value,
+        TransferAgreementState.UnderReview,
+        TransferAgreementState.Accepted,
     ]:
         raise InvalidTransferAgreementState()
-    agreement.state = TransferAgreementState.Canceled.value
+    agreement.state = TransferAgreementState.Canceled
     agreement.terminated_by = canceled_by
     agreement.terminated_on = utcnow()
     agreement.save()
@@ -288,7 +288,7 @@ def create_shipment(data):
     """
     transfer_agreement_id = data.pop("transfer_agreement_id")
     agreement = TransferAgreement.get_by_id(transfer_agreement_id)
-    if agreement.state != TransferAgreementState.Accepted.value:
+    if agreement.state != TransferAgreementState.Accepted:
         raise InvalidTransferAgreement()
 
     return Shipment.create(
@@ -310,7 +310,7 @@ def update_shipment(data):
         for box in Box.select().where(
             Box.label_identifier.in_(prepared_box_label_identifiers)
         ):
-            box.state = BoxState.MarkedForShipment.value
+            box.state = BoxState.MarkedForShipment
             boxes.append(box)
             details.append(
                 {
