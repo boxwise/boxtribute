@@ -190,6 +190,9 @@ def create_transfer_agreement(data):
     NULL for the Detail.source/target_base field).
     Convert optional local dates into UTC datetimes using timezone information.
     """
+    if data["source_organisation_id"] == data["target_organisation_id"]:
+        raise InvalidTransferAgreementOrganisation()
+
     with db.database.atomic():
         # In GraphQL input, base IDs can be omitted, or explicitly be null.
         # Avoid duplicate base IDs by creating sets

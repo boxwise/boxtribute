@@ -274,3 +274,17 @@ def test_transfer_agreement_mutations_invalid_source_org(
     assert response.status_code == 200
     assert len(response.json["errors"]) == 1
     assert response.json["errors"][0]["extensions"]["code"] == "BAD_USER_INPUT"
+
+
+def test_transfer_agreement_mutations_identical_source_org_for_creation(
+    read_only_client,
+):
+    mutation = """mutation { createTransferAgreement( creationInput: {
+                    targetOrganisationId: 1,
+                    type: Unidirectional
+                } ) { id } }"""
+    data = {"query": mutation}
+    response = read_only_client.post("/graphql", json=data)
+    assert response.status_code == 200
+    assert len(response.json["errors"]) == 1
+    assert response.json["errors"][0]["extensions"]["code"] == "BAD_USER_INPUT"
