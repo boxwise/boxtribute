@@ -10,7 +10,6 @@ from ..db import db
 from ..enums import BoxState, TransferAgreementState
 from ..exceptions import (
     BoxCreationFailed,
-    InvalidTransferAgreement,
     InvalidTransferAgreementOrganisation,
     InvalidTransferAgreementState,
     RequestedResourceNotFound,
@@ -240,7 +239,10 @@ def accept_transfer_agreement(*, id, accepted_by):
     """
     agreement = TransferAgreement.get_by_id(id)
     if agreement.state != TransferAgreementState.UnderReview:
-        raise InvalidTransferAgreementState()
+        raise InvalidTransferAgreementState(
+            expected_states=[TransferAgreementState.UnderReview],
+            actual_state=agreement.state,
+        )
     if agreement.target_organisation_id != accepted_by["organisation_id"]:
         raise InvalidTransferAgreementOrganisation()
     agreement.state = TransferAgreementState.Accepted
@@ -257,7 +259,10 @@ def reject_transfer_agreement(*, id, rejected_by):
     """
     agreement = TransferAgreement.get_by_id(id)
     if agreement.state != TransferAgreementState.UnderReview:
-        raise InvalidTransferAgreementState()
+        raise InvalidTransferAgreementState(
+            expected_states=[TransferAgreementState.UnderReview],
+            actual_state=agreement.state,
+        )
     if agreement.target_organisation_id != rejected_by["organisation_id"]:
         raise InvalidTransferAgreementOrganisation()
     agreement.state = TransferAgreementState.Rejected
@@ -276,7 +281,13 @@ def cancel_transfer_agreement(*, id, canceled_by):
         TransferAgreementState.UnderReview,
         TransferAgreementState.Accepted,
     ]:
-        raise InvalidTransferAgreementState()
+        raise InvalidTransferAgreementState(
+            expected_states=[
+                TransferAgreementState.UnderReview,
+                TransferAgreementState.Accepted,
+            ],
+            actual_state=agreement.state,
+        )
     agreement.state = TransferAgreementState.Canceled
     agreement.terminated_by = canceled_by
     agreement.terminated_on = utcnow()
@@ -285,14 +296,17 @@ def cancel_transfer_agreement(*, id, canceled_by):
 
 
 def create_shipment(data):
-    """Insert information for a new Shipment in the database. Raise a
-    InvalidTransferAgreement exception if specified agreement has a state different from
-    'ACCEPTED'.
+    """Insert information for a new Shipment in the database. Raise an
+    InvalidTransferAgreementState exception if specified agreement has a state different
+    from 'ACCEPTED'.
     """
     transfer_agreement_id = data.pop("transfer_agreement_id")
     agreement = TransferAgreement.get_by_id(transfer_agreement_id)
     if agreement.state != TransferAgreementState.Accepted:
-        raise InvalidTransferAgreement()
+        raise InvalidTransferAgreementState(
+            expected_states=[TransferAgreementState.Accepted],
+            actual_state=agreement.state,
+        )
 
     return Shipment.create(
         source_base=data.pop("source_base_id"),

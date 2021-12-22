@@ -3,7 +3,7 @@ import pytest
 from boxtribute_server.enums import BoxState, ShipmentState
 from boxtribute_server.exceptions import (
     BoxCreationFailed,
-    InvalidTransferAgreement,
+    InvalidTransferAgreementState,
     RequestedResourceNotFound,
 )
 from boxtribute_server.models.crud import (
@@ -133,7 +133,7 @@ def test_create_shipment_from_expired_agreement(
         "transfer_agreement_id": expired_transfer_agreement["id"],
         "started_by": default_user["id"],
     }
-    with pytest.raises(InvalidTransferAgreement):
+    with pytest.raises(InvalidTransferAgreementState):
         create_shipment(data)
 
 
