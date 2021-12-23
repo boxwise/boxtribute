@@ -353,8 +353,7 @@ def resolve_cancel_transfer_agreement(_, info, id):
 @mutation.field("createShipment")
 @convert_kwargs_to_snake_case
 def resolve_create_shipment(_, info, creation_input):
-    creation_input["started_by"] = g.user["id"]
-    return create_shipment(creation_input)
+    return create_shipment(creation_input, started_by=g.user)
 
 
 @base.field("locations")

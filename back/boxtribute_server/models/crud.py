@@ -7,7 +7,7 @@ import peewee
 from dateutil import tz
 
 from ..db import db
-from ..enums import BoxState, TransferAgreementState
+from ..enums import BoxState, TransferAgreementState, TransferAgreementType
 from ..exceptions import (
     BoxCreationFailed,
     InvalidTransferAgreementBase,
@@ -311,12 +311,14 @@ def retrieve_transfer_agreement_bases(*, transfer_agreement, kind):
     )
 
 
-def create_shipment(data):
+def create_shipment(data, *, started_by):
     """Insert information for a new Shipment in the database.
     Raise an InvalidTransferAgreementState exception if specified agreement has a state
     different from 'ACCEPTED'.
     Raise an InvalidTransferAgreementBase exception if specified source or target base
     are not included in given agreement.
+    Raise an InvalidTransferAgreementOrganisation exception if the current user is not
+    member of the agreement source organisation in a unidirectional agreement.
     """
     transfer_agreement_id = data.pop("transfer_agreement_id")
     agreement = TransferAgreement.get_by_id(transfer_agreement_id)
@@ -339,10 +341,16 @@ def create_shipment(data):
                 base_id=base_id, expected_base_ids=base_ids
             )
 
+    if (agreement.type == TransferAgreementType.Unidirectional) and (
+        started_by["organisation_id"] != agreement.source_organisation_id
+    ):
+        raise InvalidTransferAgreementOrganisation()
+
     return Shipment.create(
         source_base=data.pop("source_base_id"),
         target_base=data.pop("target_base_id"),
         transfer_agreement=transfer_agreement_id,
+        started_by=started_by["id"],
         **data,
     )
 

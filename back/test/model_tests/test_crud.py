@@ -68,9 +68,14 @@ def test_create_shipment(
         "source_base_id": default_bases[1]["id"],
         "target_base_id": default_bases[3]["id"],
         "transfer_agreement_id": default_transfer_agreement["id"],
-        "started_by": default_user["id"],
     }
-    shipment = create_shipment(data)
+    shipment = create_shipment(
+        data,
+        started_by={
+            "id": default_user["id"],
+            "organisation_id": default_transfer_agreement["source_organisation"],
+        },
+    )
     shipment = Shipment.select().where(Shipment.id == shipment.id).dicts().get()
     assert (
         shipment.items()
