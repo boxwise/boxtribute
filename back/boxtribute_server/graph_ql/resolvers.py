@@ -8,6 +8,7 @@ from ..authz import authorize
 from ..enums import HumanGender, TransferAgreementState
 from ..models.crud import (
     accept_transfer_agreement,
+    cancel_shipment,
     cancel_transfer_agreement,
     create_beneficiary,
     create_box,
@@ -354,6 +355,11 @@ def resolve_cancel_transfer_agreement(_, info, id):
 @convert_kwargs_to_snake_case
 def resolve_create_shipment(_, info, creation_input):
     return create_shipment(creation_input, started_by=g.user)
+
+
+@mutation.field("cancelShipment")
+def resolve_cancel_shipment(_, info, id):
+    return cancel_shipment(id=id, user_id=g.user["id"])
 
 
 @base.field("locations")

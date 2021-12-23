@@ -7,7 +7,12 @@ import peewee
 from dateutil import tz
 
 from ..db import db
-from ..enums import BoxState, TransferAgreementState, TransferAgreementType
+from ..enums import (
+    BoxState,
+    ShipmentState,
+    TransferAgreementState,
+    TransferAgreementType,
+)
 from ..exceptions import (
     BoxCreationFailed,
     InvalidTransferAgreementBase,
@@ -353,6 +358,16 @@ def create_shipment(data, *, started_by):
         started_by=started_by["id"],
         **data,
     )
+
+
+def cancel_shipment(*, id, user_id):
+    """Transition state of specified shipment to 'Canceled'."""
+    shipment = Shipment.get_by_id(id)
+    shipment.state = ShipmentState.Canceled
+    shipment.canceled_by = user_id
+    shipment.canceled_on = utcnow()
+    shipment.save()
+    return shipment
 
 
 def update_shipment(data):

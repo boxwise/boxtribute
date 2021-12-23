@@ -112,7 +112,7 @@ def test_shipment_mutations(client, default_bases, default_transfer_agreement):
     response = client.post("/graphql", json=data)
     assert response.status_code == 200
     shipment = response.json["data"]["createShipment"]
-    shipment.pop("id")
+    shipment_id = str(shipment.pop("id"))
 
     assert shipment.pop("startedOn").startswith(date.today().isoformat())
     assert shipment == {
@@ -128,6 +128,26 @@ def test_shipment_mutations(client, default_bases, default_transfer_agreement):
         "canceledOn": None,
         "transferAgreement": {"id": str(agreement_id)},
         "details": [],
+    }
+
+    mutation = f"""mutation {{ cancelShipment(id: {shipment_id}) {{
+                    id
+                    state
+                    canceledBy {{
+                        id
+                    }}
+                    canceledOn
+                }} }}"""
+    data = {"query": mutation}
+    response = client.post("/graphql", json=data)
+    assert response.status_code == 200
+    shipment = response.json["data"]["cancelShipment"]
+
+    assert shipment.pop("canceledOn").startswith(date.today().isoformat())
+    assert shipment == {
+        "id": shipment_id,
+        "state": ShipmentState.Canceled.name,
+        "canceledBy": {"id": "8"},
     }
 
 
