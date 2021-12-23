@@ -12,6 +12,7 @@ from ..models.crud import (
     create_beneficiary,
     create_box,
     create_qr_code,
+    create_shipment,
     create_transfer_agreement,
     reject_transfer_agreement,
     update_beneficiary,
@@ -347,6 +348,13 @@ def resolve_reject_transfer_agreement(_, info, id):
 @mutation.field("cancelTransferAgreement")
 def resolve_cancel_transfer_agreement(_, info, id):
     return cancel_transfer_agreement(id=id, canceled_by=g.user["id"])
+
+
+@mutation.field("createShipment")
+@convert_kwargs_to_snake_case
+def resolve_create_shipment(_, info, creation_input):
+    creation_input["started_by"] = g.user["id"]
+    return create_shipment(creation_input)
 
 
 @base.field("locations")
