@@ -206,3 +206,10 @@ def test_shipment_mutations_create_as_target_org_member_in_unidirectional_agreem
         target_base_id=default_bases[2]["id"],
         agreement_id=unidirectional_transfer_agreement["id"],
     )
+
+
+def test_shipment_mutations_cancel_in_non_preparing_state(
+    read_only_client, canceled_shipment
+):
+    mutation = f"mutation {{ cancelShipment(id: {canceled_shipment['id']}) {{ id }} }}"
+    assert_bad_user_input(read_only_client, mutation)

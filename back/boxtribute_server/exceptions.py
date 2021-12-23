@@ -85,6 +85,17 @@ class InvalidTransferAgreementBase(Exception):
         super().__init__(*args, **kwargs)
 
 
+class InvalidShipmentState(_InvalidResourceState):
+    def __init__(self, *args, expected_states, actual_state, **kwargs):
+        super().__init__(
+            "shipment",
+            expected_states=expected_states,
+            actual_state=actual_state,
+            *args,
+            **kwargs,
+        )
+
+
 class InvalidPaginationInput(Exception):
     extensions = {
         "code": "BAD_USER_INPUT",

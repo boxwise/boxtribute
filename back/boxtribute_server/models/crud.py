@@ -15,6 +15,7 @@ from ..enums import (
 )
 from ..exceptions import (
     BoxCreationFailed,
+    InvalidShipmentState,
     InvalidTransferAgreementBase,
     InvalidTransferAgreementOrganisation,
     InvalidTransferAgreementState,
@@ -361,8 +362,15 @@ def create_shipment(data, *, started_by):
 
 
 def cancel_shipment(*, id, user_id):
-    """Transition state of specified shipment to 'Canceled'."""
+    """Transition state of specified shipment to 'Canceled'.
+    Raise InvalidShipmentState exception if shipment state is different from
+    'Preparing'.
+    """
     shipment = Shipment.get_by_id(id)
+    if shipment.state != ShipmentState.Preparing:
+        raise InvalidShipmentState(
+            expected_states=[ShipmentState.Preparing], actual_state=shipment.state
+        )
     shipment.state = ShipmentState.Canceled
     shipment.canceled_by = user_id
     shipment.canceled_on = utcnow()
