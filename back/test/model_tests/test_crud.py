@@ -1,11 +1,7 @@
 import peewee
 import pytest
 from boxtribute_server.enums import BoxState, ShipmentState
-from boxtribute_server.exceptions import (
-    BoxCreationFailed,
-    InvalidTransferAgreementState,
-    RequestedResourceNotFound,
-)
+from boxtribute_server.exceptions import BoxCreationFailed, RequestedResourceNotFound
 from boxtribute_server.models.crud import (
     BOX_LABEL_IDENTIFIER_GENERATION_ATTEMPTS,
     create_box,
@@ -122,19 +118,6 @@ def test_create_shipment(
 
     box = Box.get_by_id(detail["box"])
     assert box.state_id == BoxState.MarkedForShipment.value
-
-
-def test_create_shipment_from_expired_agreement(
-    default_user, default_bases, expired_transfer_agreement
-):
-    data = {
-        "source_base_id": default_bases[1]["id"],
-        "target_base_id": default_bases[3]["id"],
-        "transfer_agreement_id": expired_transfer_agreement["id"],
-        "started_by": default_user["id"],
-    }
-    with pytest.raises(InvalidTransferAgreementState):
-        create_shipment(data)
 
 
 def test_update_beneficiary(default_beneficiary, default_bases):
