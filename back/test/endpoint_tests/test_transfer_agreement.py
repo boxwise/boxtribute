@@ -159,7 +159,7 @@ def test_transfer_agreement_mutations(
         "requestedBy": {"id": "8"},
         "validUntil": None,
         "sourceBases": [{"id": "1"}, {"id": "2"}],
-        "targetBases": [{"id": "3"}],
+        "targetBases": [{"id": "3"}, {"id": "4"}],
         "shipments": [],
     }
 
