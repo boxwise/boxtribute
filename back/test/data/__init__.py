@@ -24,6 +24,7 @@ from .transfer_agreement import (
     expired_transfer_agreement,
     reviewed_transfer_agreement,
     transfer_agreements,
+    unidirectional_transfer_agreement,
 )
 from .user import default_user, default_users
 
@@ -55,6 +56,7 @@ __all__ = [
     "qr_code_without_box",
     "reviewed_transfer_agreement",
     "transfer_agreements",
+    "unidirectional_transfer_agreement",
 ]
 
 MODULE_DIRECTORY = pathlib.Path(__file__).resolve().parent
