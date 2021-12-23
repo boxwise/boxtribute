@@ -22,6 +22,7 @@ from .transaction import default_transaction
 from .transfer_agreement import (
     default_transfer_agreement,
     expired_transfer_agreement,
+    reviewed_transfer_agreement,
     transfer_agreements,
 )
 from .user import default_user, default_users
@@ -52,6 +53,7 @@ __all__ = [
     "default_users",
     "expired_transfer_agreement",
     "qr_code_without_box",
+    "reviewed_transfer_agreement",
     "transfer_agreements",
 ]
 

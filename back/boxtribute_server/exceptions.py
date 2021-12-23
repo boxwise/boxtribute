@@ -44,10 +44,22 @@ class RequestedResourceNotFound(Exception):
     }
 
 
-class InvalidTransferAgreement(Exception):
+class InvalidTransferAgreementState(Exception):
+    def __init__(self, expected_states, actual_state, *args, **kwargs):
+        self.extensions = {
+            "code": "BAD_USER_INPUT",
+            "description": f"The state of the transfer agreement ({actual_state.name}) "
+            "does not allow the requested action. Expecting state: "
+            f"{' or '.join(s.name for s in expected_states)}",
+        }
+        super().__init__(*args, **kwargs)
+
+
+class InvalidTransferAgreementOrganisation(Exception):
     extensions = {
         "code": "BAD_USER_INPUT",
-        "description": "The transfer agreement is invalid.",
+        "description": "The user's organisation is not permitted to execute the "
+        "requested action.",
     }
 
 

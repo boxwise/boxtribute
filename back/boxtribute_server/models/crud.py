@@ -10,7 +10,8 @@ from ..db import db
 from ..enums import BoxState, TransferAgreementState
 from ..exceptions import (
     BoxCreationFailed,
-    InvalidTransferAgreement,
+    InvalidTransferAgreementOrganisation,
+    InvalidTransferAgreementState,
     RequestedResourceNotFound,
 )
 from .definitions.beneficiary import Beneficiary
@@ -44,7 +45,7 @@ def create_box(data):
                 created_on=now,
                 last_modified_on=now,
                 last_modified_by=data["created_by"],
-                state=BoxState.InStock.value,
+                state=BoxState.InStock,
                 **data,
             )
             return new_box
@@ -188,9 +189,8 @@ def create_transfer_agreement(data):
     NULL for the Detail.source/target_base field).
     Convert optional local dates into UTC datetimes using timezone information.
     """
-    if data["valid_from"] is None:
-        # GraphQL input had 'validFrom: null', use default defined in model instead
-        del data["valid_from"]
+    if data["source_organisation_id"] == data["target_organisation_id"]:
+        raise InvalidTransferAgreementOrganisation()
 
     with db.database.atomic():
         # In GraphQL input, base IDs can be omitted, or explicitly be null.
@@ -232,15 +232,81 @@ def create_transfer_agreement(data):
         return transfer_agreement
 
 
+def accept_transfer_agreement(*, id, accepted_by):
+    """Transition state of specified transfer agreement to 'Accepted'.
+    Raise error if agreement state different from 'UnderReview', or if requesting user
+    not a member of the agreement's target_organisation.
+    """
+    agreement = TransferAgreement.get_by_id(id)
+    if agreement.state != TransferAgreementState.UnderReview:
+        raise InvalidTransferAgreementState(
+            expected_states=[TransferAgreementState.UnderReview],
+            actual_state=agreement.state,
+        )
+    if agreement.target_organisation_id != accepted_by["organisation_id"]:
+        raise InvalidTransferAgreementOrganisation()
+    agreement.state = TransferAgreementState.Accepted
+    agreement.accepted_by = accepted_by["id"]
+    agreement.accepted_on = utcnow()
+    agreement.save()
+    return agreement
+
+
+def reject_transfer_agreement(*, id, rejected_by):
+    """Transition state of specified transfer agreement to 'Rejected'.
+    Raise error if agreement state different from 'UnderReview', or if requesting user
+    not a member of the agreement's target_organisation.
+    """
+    agreement = TransferAgreement.get_by_id(id)
+    if agreement.state != TransferAgreementState.UnderReview:
+        raise InvalidTransferAgreementState(
+            expected_states=[TransferAgreementState.UnderReview],
+            actual_state=agreement.state,
+        )
+    if agreement.target_organisation_id != rejected_by["organisation_id"]:
+        raise InvalidTransferAgreementOrganisation()
+    agreement.state = TransferAgreementState.Rejected
+    agreement.terminated_by = rejected_by["id"]
+    agreement.terminated_on = utcnow()
+    agreement.save()
+    return agreement
+
+
+def cancel_transfer_agreement(*, id, canceled_by):
+    """Transition state of specified transfer agreement to 'Canceled'.
+    Raise error if agreement state different from 'UnderReview'/'Accepted'.
+    """
+    agreement = TransferAgreement.get_by_id(id)
+    if agreement.state not in [
+        TransferAgreementState.UnderReview,
+        TransferAgreementState.Accepted,
+    ]:
+        raise InvalidTransferAgreementState(
+            expected_states=[
+                TransferAgreementState.UnderReview,
+                TransferAgreementState.Accepted,
+            ],
+            actual_state=agreement.state,
+        )
+    agreement.state = TransferAgreementState.Canceled
+    agreement.terminated_by = canceled_by
+    agreement.terminated_on = utcnow()
+    agreement.save()
+    return agreement
+
+
 def create_shipment(data):
-    """Insert information for a new Shipment in the database. Raise a
-    InvalidTransferAgreement exception if specified agreement has a state different from
-    'ACCEPTED'.
+    """Insert information for a new Shipment in the database. Raise an
+    InvalidTransferAgreementState exception if specified agreement has a state different
+    from 'ACCEPTED'.
     """
     transfer_agreement_id = data.pop("transfer_agreement_id")
     agreement = TransferAgreement.get_by_id(transfer_agreement_id)
-    if agreement.state != TransferAgreementState.Accepted.value:
-        raise InvalidTransferAgreement()
+    if agreement.state != TransferAgreementState.Accepted:
+        raise InvalidTransferAgreementState(
+            expected_states=[TransferAgreementState.Accepted],
+            actual_state=agreement.state,
+        )
 
     return Shipment.create(
         source_base=data.pop("source_base_id"),
@@ -261,7 +327,7 @@ def update_shipment(data):
         for box in Box.select().where(
             Box.label_identifier.in_(prepared_box_label_identifiers)
         ):
-            box.state = BoxState.MarkedForShipment.value
+            box.state = BoxState.MarkedForShipment
             boxes.append(box)
             details.append(
                 {
