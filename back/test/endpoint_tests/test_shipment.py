@@ -131,53 +131,56 @@ def test_shipment_mutations(client, default_bases, default_transfer_agreement):
     }
 
 
-def test_shipment_mutations_create_with_non_accepted_agreement(
-    read_only_client, expired_transfer_agreement
+def assert_bad_user_input_when_creating_shipment(
+    client, *, source_base_id, target_base_id, agreement_id
 ):
-    agreement_id = expired_transfer_agreement["id"]
-    creation_input = f"""sourceBaseId: 4,
-                         targetBaseId: 5,
+    creation_input = f"""sourceBaseId: {source_base_id},
+                         targetBaseId: {target_base_id},
                          transferAgreementId: {agreement_id}"""
     mutation = f"""mutation {{ createShipment(creationInput: {{ {creation_input} }} ) {{
                     id }} }}"""
+    assert_bad_user_input(client, mutation)
+
+
+def assert_bad_user_input(client, mutation):
     data = {"query": mutation}
-    response = read_only_client.post("/graphql", json=data)
+    response = client.post("/graphql", json=data)
     assert response.status_code == 200
     assert len(response.json["errors"]) == 1
     assert response.json["errors"][0]["extensions"]["code"] == "BAD_USER_INPUT"
+
+
+def test_shipment_mutations_create_with_non_accepted_agreement(
+    read_only_client, default_bases, expired_transfer_agreement
+):
+    assert_bad_user_input_when_creating_shipment(
+        read_only_client,
+        # base IDs don't matter because validation for agreement state comes first
+        source_base_id=default_bases[1]["id"],
+        target_base_id=default_bases[3]["id"],
+        agreement_id=expired_transfer_agreement["id"],
+    )
 
 
 def test_shipment_mutations_create_with_invalid_base(
     read_only_client, default_bases, default_transfer_agreement
 ):
-    source_base_id = default_bases[2]["id"]
-    target_base_id = default_bases[4]["id"]  # not part of agreement
-    agreement_id = default_transfer_agreement["id"]
-    creation_input = f"""sourceBaseId: {source_base_id},
-                         targetBaseId: {target_base_id},
-                         transferAgreementId: {agreement_id}"""
-    mutation = f"""mutation {{ createShipment(creationInput: {{ {creation_input} }} ) {{
-                    id }} }}"""
-    data = {"query": mutation}
-    response = read_only_client.post("/graphql", json=data)
-    assert response.status_code == 200
-    assert len(response.json["errors"]) == 1
-    assert response.json["errors"][0]["extensions"]["code"] == "BAD_USER_INPUT"
+    assert_bad_user_input_when_creating_shipment(
+        read_only_client,
+        source_base_id=default_bases[2]["id"],
+        target_base_id=default_bases[4]["id"],  # not part of agreement
+        agreement_id=default_transfer_agreement["id"],
+    )
 
 
 def test_shipment_mutations_create_as_target_org_member_in_unidirectional_agreement(
     read_only_client, default_bases, unidirectional_transfer_agreement
 ):
-    source_base_id = default_bases[3]["id"]
-    target_base_id = default_bases[2]["id"]
-    agreement_id = unidirectional_transfer_agreement["id"]
-    creation_input = f"""sourceBaseId: {source_base_id},
-                         targetBaseId: {target_base_id},
-                         transferAgreementId: {agreement_id}"""
-    mutation = f"""mutation {{ createShipment(creationInput: {{ {creation_input} }} ) {{
-                    id }} }}"""
-    data = {"query": mutation}
-    response = read_only_client.post("/graphql", json=data)
-    assert response.status_code == 200
-    assert len(response.json["errors"]) == 1
-    assert response.json["errors"][0]["extensions"]["code"] == "BAD_USER_INPUT"
+    # The default user (see auth_service fixture) is member of organisation 1 which is
+    # the target organisation in the unidirectional_transfer_agreement fixture
+    assert_bad_user_input_when_creating_shipment(
+        read_only_client,
+        source_base_id=default_bases[3]["id"],
+        target_base_id=default_bases[2]["id"],
+        agreement_id=unidirectional_transfer_agreement["id"],
+    )
