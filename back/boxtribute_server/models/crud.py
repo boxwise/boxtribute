@@ -14,6 +14,7 @@ from ..exceptions import (
     InvalidTransferAgreementState,
     RequestedResourceNotFound,
 )
+from .definitions.base import Base
 from .definitions.beneficiary import Beneficiary
 from .definitions.box import Box
 from .definitions.qr_code import QrCode
@@ -293,6 +294,20 @@ def cancel_transfer_agreement(*, id, canceled_by):
     agreement.terminated_on = utcnow()
     agreement.save()
     return agreement
+
+
+def retrieve_transfer_agreement_bases(*, transfer_agreement, kind):
+    """Return all bases (kind: source or target) involved in the given transfer
+    agreement. If the selection is None, it indicates that all bases of the respective
+    organisation are included.
+    """
+    return Base.select().join(
+        TransferAgreementDetail, on=getattr(TransferAgreementDetail, f"{kind}_base")
+    ).where(
+        TransferAgreementDetail.transfer_agreement == transfer_agreement.id
+    ) or Base.select().where(
+        Base.organisation == getattr(transfer_agreement, f"{kind}_organisation")
+    )
 
 
 def create_shipment(data):

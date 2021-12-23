@@ -15,6 +15,7 @@ from ..models.crud import (
     create_shipment,
     create_transfer_agreement,
     reject_transfer_agreement,
+    retrieve_transfer_agreement_bases,
     update_beneficiary,
     update_box,
 )
@@ -31,7 +32,6 @@ from ..models.definitions.shipment_detail import ShipmentDetail
 from ..models.definitions.size import Size
 from ..models.definitions.transaction import Transaction
 from ..models.definitions.transfer_agreement import TransferAgreement
-from ..models.definitions.transfer_agreement_detail import TransferAgreementDetail
 from ..models.definitions.user import User
 from ..models.definitions.x_beneficiary_language import XBeneficiaryLanguage
 from .pagination import load_into_page
@@ -433,25 +433,15 @@ def resolve_shipment_details(shipment_obj, info):
 
 @transfer_agreement.field("sourceBases")
 def resolve_transfer_agreement_source_bases(transfer_agreement_obj, info):
-    # If source base for transfer agreement is None, return all bases for the agreement
-    # source organisation
-    return Base.select().join(
-        TransferAgreementDetail, on=TransferAgreementDetail.source_base
-    ).where(
-        TransferAgreementDetail.transfer_agreement == transfer_agreement_obj.id
-    ) or Base.select().where(
-        Base.organisation == transfer_agreement_obj.source_organisation
+    return retrieve_transfer_agreement_bases(
+        transfer_agreement=transfer_agreement_obj, kind="source"
     )
 
 
 @transfer_agreement.field("targetBases")
 def resolve_transfer_agreement_target_bases(transfer_agreement_obj, info):
-    return Base.select().join(
-        TransferAgreementDetail, on=TransferAgreementDetail.target_base
-    ).where(
-        TransferAgreementDetail.transfer_agreement == transfer_agreement_obj.id
-    ) or Base.select().where(
-        Base.organisation == transfer_agreement_obj.target_organisation
+    return retrieve_transfer_agreement_bases(
+        transfer_agreement=transfer_agreement_obj, kind="target"
     )
 
 
