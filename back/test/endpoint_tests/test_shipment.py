@@ -145,3 +145,21 @@ def test_shipment_mutations_create_with_non_accepted_agreement(
     assert response.status_code == 200
     assert len(response.json["errors"]) == 1
     assert response.json["errors"][0]["extensions"]["code"] == "BAD_USER_INPUT"
+
+
+def test_shipment_mutations_create_with_invalid_base(
+    read_only_client, default_bases, default_transfer_agreement
+):
+    source_base_id = default_bases[2]["id"]
+    target_base_id = default_bases[4]["id"]  # not part of agreement
+    agreement_id = default_transfer_agreement["id"]
+    creation_input = f"""sourceBaseId: {source_base_id},
+                         targetBaseId: {target_base_id},
+                         transferAgreementId: {agreement_id}"""
+    mutation = f"""mutation {{ createShipment(creationInput: {{ {creation_input} }} ) {{
+                    id }} }}"""
+    data = {"query": mutation}
+    response = read_only_client.post("/graphql", json=data)
+    assert response.status_code == 200
+    assert len(response.json["errors"]) == 1
+    assert response.json["errors"][0]["extensions"]["code"] == "BAD_USER_INPUT"

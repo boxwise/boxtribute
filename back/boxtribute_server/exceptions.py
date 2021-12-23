@@ -63,6 +63,17 @@ class InvalidTransferAgreementOrganisation(Exception):
     }
 
 
+class InvalidTransferAgreementBase(Exception):
+    def __init__(self, *args, base_id, expected_base_ids, **kwargs):
+        self.extensions = {
+            "code": "BAD_USER_INPUT",
+            "description": f"The specified base (ID: {base_id}) is not part of the "
+            "current transfer agreement (included base IDs: "
+            f"{', '.join(str(i) for i in expected_base_ids)}).",
+        }
+        super().__init__(*args, **kwargs)
+
+
 class InvalidPaginationInput(Exception):
     extensions = {
         "code": "BAD_USER_INPUT",

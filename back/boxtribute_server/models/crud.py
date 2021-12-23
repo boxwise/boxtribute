@@ -10,6 +10,7 @@ from ..db import db
 from ..enums import BoxState, TransferAgreementState
 from ..exceptions import (
     BoxCreationFailed,
+    InvalidTransferAgreementBase,
     InvalidTransferAgreementOrganisation,
     InvalidTransferAgreementState,
     RequestedResourceNotFound,
@@ -311,9 +312,11 @@ def retrieve_transfer_agreement_bases(*, transfer_agreement, kind):
 
 
 def create_shipment(data):
-    """Insert information for a new Shipment in the database. Raise an
-    InvalidTransferAgreementState exception if specified agreement has a state different
-    from 'ACCEPTED'.
+    """Insert information for a new Shipment in the database.
+    Raise an InvalidTransferAgreementState exception if specified agreement has a state
+    different from 'ACCEPTED'.
+    Raise an InvalidTransferAgreementBase exception if specified source or target base
+    are not included in given agreement.
     """
     transfer_agreement_id = data.pop("transfer_agreement_id")
     agreement = TransferAgreement.get_by_id(transfer_agreement_id)
@@ -322,6 +325,19 @@ def create_shipment(data):
             expected_states=[TransferAgreementState.Accepted],
             actual_state=agreement.state,
         )
+
+    for kind in ["source", "target"]:
+        base_id = data[f"{kind}_base_id"]
+        base_ids = [
+            b.id
+            for b in retrieve_transfer_agreement_bases(
+                transfer_agreement=agreement, kind=kind
+            )
+        ]
+        if base_id not in base_ids:
+            raise InvalidTransferAgreementBase(
+                base_id=base_id, expected_base_ids=base_ids
+            )
 
     return Shipment.create(
         source_base=data.pop("source_base_id"),
