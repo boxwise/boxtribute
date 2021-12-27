@@ -1,5 +1,6 @@
 from datetime import date
 
+import pytest
 from boxtribute_server.enums import ShipmentState
 
 
@@ -71,7 +72,9 @@ def test_shipments_query(read_only_client, default_shipment, canceled_shipment):
     ]
 
 
-def test_shipment_mutations(client, default_bases, default_transfer_agreement):
+def test_shipment_mutations(
+    client, default_bases, default_transfer_agreement, default_shipment
+):
     source_base_id = default_bases[2]["id"]
     target_base_id = default_bases[3]["id"]
     agreement_id = default_transfer_agreement["id"]
@@ -152,6 +155,27 @@ def test_shipment_mutations(client, default_bases, default_transfer_agreement):
         "canceledBy": {"id": "8"},
     }
 
+    shipment_id = str(default_shipment["id"])
+    mutation = f"""mutation {{ sendShipment(id: {shipment_id}) {{
+                    id
+                    state
+                    sentBy {{
+                        id
+                    }}
+                    sentOn
+                }} }}"""
+    data = {"query": mutation}
+    response = client.post("/graphql", json=data)
+    assert response.status_code == 200
+    shipment = response.json["data"]["sendShipment"]
+
+    assert shipment.pop("sentOn").startswith(date.today().isoformat())
+    assert shipment == {
+        "id": shipment_id,
+        "state": ShipmentState.Sent.name,
+        "sentBy": {"id": "8"},
+    }
+
 
 def assert_bad_user_input_when_creating_shipment(
     client, *, source_base_id, target_base_id, agreement_id
@@ -208,8 +232,9 @@ def test_shipment_mutations_create_as_target_org_member_in_unidirectional_agreem
     )
 
 
-def test_shipment_mutations_cancel_in_non_preparing_state(
-    read_only_client, canceled_shipment
+@pytest.mark.parametrize("act", ["cancel", "send"])
+def test_shipment_mutations_in_non_preparing_state(
+    read_only_client, canceled_shipment, act
 ):
-    mutation = f"mutation {{ cancelShipment(id: {canceled_shipment['id']}) {{ id }} }}"
+    mutation = f"mutation {{ {act}Shipment(id: {canceled_shipment['id']}) {{ id }} }}"
     assert_bad_user_input(read_only_client, mutation)

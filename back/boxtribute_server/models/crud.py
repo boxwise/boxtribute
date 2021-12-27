@@ -378,6 +378,23 @@ def cancel_shipment(*, id, user_id):
     return shipment
 
 
+def send_shipment(*, id, user_id):
+    """Transition state of specified shipment to 'Sent'.
+    Raise InvalidShipmentState exception if shipment state is different from
+    'Preparing'.
+    """
+    shipment = Shipment.get_by_id(id)
+    if shipment.state != ShipmentState.Preparing:
+        raise InvalidShipmentState(
+            expected_states=[ShipmentState.Preparing], actual_state=shipment.state
+        )
+    shipment.state = ShipmentState.Sent
+    shipment.sent_by = user_id
+    shipment.sent_on = utcnow()
+    shipment.save()
+    return shipment
+
+
 def update_shipment(data):
     """Update shipment detail information, such as prepared boxes."""
     prepared_box_label_identifiers = data.pop("prepared_box_label_identifiers", [])

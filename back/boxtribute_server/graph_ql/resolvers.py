@@ -17,6 +17,7 @@ from ..models.crud import (
     create_transfer_agreement,
     reject_transfer_agreement,
     retrieve_transfer_agreement_bases,
+    send_shipment,
     update_beneficiary,
     update_box,
 )
@@ -360,6 +361,11 @@ def resolve_create_shipment(_, info, creation_input):
 @mutation.field("cancelShipment")
 def resolve_cancel_shipment(_, info, id):
     return cancel_shipment(id=id, user_id=g.user["id"])
+
+
+@mutation.field("sendShipment")
+def resolve_send_shipment(_, info, id):
+    return send_shipment(id=id, user_id=g.user["id"])
 
 
 @base.field("locations")
