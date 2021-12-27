@@ -156,6 +156,29 @@ def test_shipment_mutations(
     }
 
     shipment_id = str(default_shipment["id"])
+    source_base_id = default_bases[1]["id"]
+    for base_id, kind in zip(
+        [default_bases[1]["id"], target_base_id], ["source", "target"]
+    ):
+        update_input = f"""{{ id: {shipment_id},
+                    {kind}BaseId: {base_id} }}"""
+        mutation = f"""mutation {{ updateShipment(updateInput: {update_input}) {{
+                        id
+                        state
+                        {kind}Base {{
+                            id
+                        }}
+                    }} }}"""
+        data = {"query": mutation}
+        response = client.post("/graphql", json=data)
+        assert response.status_code == 200
+        shipment = response.json["data"]["updateShipment"]
+        assert shipment == {
+            "id": shipment_id,
+            "state": ShipmentState.Preparing.name,
+            f"{kind}Base": {"id": str(base_id)},
+        }
+
     mutation = f"""mutation {{ sendShipment(id: {shipment_id}) {{
                     id
                     state

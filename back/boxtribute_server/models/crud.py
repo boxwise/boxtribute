@@ -395,9 +395,20 @@ def send_shipment(*, id, user_id):
     return shipment
 
 
-def update_shipment(*, id, user_id, prepared_box_label_identifiers):
-    """Update shipment detail information, such as prepared boxes."""
+def update_shipment(
+    *,
+    id,
+    user_id,
+    prepared_box_label_identifiers=None,
+    source_base_id=None,
+    target_base_id=None,
+):
+    """Update shipment detail information, such as prepared boxes, or source/target
+    base.
+    """
     details = []
+    prepared_box_label_identifiers = prepared_box_label_identifiers or []
+    shipment = Shipment.get_by_id(id)
 
     with db.database.atomic():
         boxes = []
@@ -416,6 +427,15 @@ def update_shipment(*, id, user_id, prepared_box_label_identifiers):
                 }
             )
 
-        Box.bulk_update(boxes, fields=[Box.state])
+        if boxes:
+            Box.bulk_update(boxes, fields=[Box.state])
         ShipmentDetail.insert_many(details).execute()
-    return Shipment.get_by_id(id)
+
+        if source_base_id is not None:
+            shipment.source_base = source_base_id
+        if target_base_id is not None:
+            shipment.target_base = target_base_id
+        if shipment.is_dirty():
+            shipment.save()
+
+    return shipment

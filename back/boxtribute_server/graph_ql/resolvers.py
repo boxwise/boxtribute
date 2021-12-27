@@ -20,6 +20,7 @@ from ..models.crud import (
     send_shipment,
     update_beneficiary,
     update_box,
+    update_shipment,
 )
 from ..models.definitions.base import Base
 from ..models.definitions.beneficiary import Beneficiary
@@ -356,6 +357,12 @@ def resolve_cancel_transfer_agreement(_, info, id):
 @convert_kwargs_to_snake_case
 def resolve_create_shipment(_, info, creation_input):
     return create_shipment(creation_input, started_by=g.user)
+
+
+@mutation.field("updateShipment")
+@convert_kwargs_to_snake_case
+def resolve_update_shipment(_, info, update_input):
+    return update_shipment(**update_input, user_id=g.user["id"])
 
 
 @mutation.field("cancelShipment")
