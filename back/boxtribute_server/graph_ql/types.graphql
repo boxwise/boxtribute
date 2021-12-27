@@ -317,14 +317,14 @@ input ShipmentCreationInput {
 
 input ShipmentUpdateInput {
   id: ID!
-  sourceBaseId: Int!
-  targetBaseId: Int!
+  sourceBaseId: Int
+  targetBaseId: Int
   # IDs of boxes prepared for shipment
-  preparedBoxIds: [Int!]!
+  preparedBoxIds: [Int!]
   # IDs of prepared boxes to be moved back to stock
-  removedBoxIds: [Int!]!
+  removedBoxIds: [Int!]
   # IDs of boxes that went lost during shipment
-  lostBoxIds: [Int!]!
+  lostBoxIds: [Int!]
 }
 
 input ShipmentDetailUpdateInput {
