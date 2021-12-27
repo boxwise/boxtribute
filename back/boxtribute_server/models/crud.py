@@ -395,10 +395,8 @@ def send_shipment(*, id, user_id):
     return shipment
 
 
-def update_shipment(data):
+def update_shipment(*, id, user_id, prepared_box_label_identifiers):
     """Update shipment detail information, such as prepared boxes."""
-    prepared_box_label_identifiers = data.pop("prepared_box_label_identifiers", [])
-    shipment_id = data.pop("id")
     details = []
 
     with db.database.atomic():
@@ -410,14 +408,14 @@ def update_shipment(data):
             boxes.append(box)
             details.append(
                 {
-                    "shipment": shipment_id,
+                    "shipment": id,
                     "box": box.id,
                     "source_product": box.product_id,
                     "source_location": box.location_id,
-                    **data,
+                    "created_by": user_id,
                 }
             )
 
         Box.bulk_update(boxes, fields=[Box.state])
         ShipmentDetail.insert_many(details).execute()
-    return Shipment.get_by_id(shipment_id)
+    return Shipment.get_by_id(id)

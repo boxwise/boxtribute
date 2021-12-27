@@ -97,9 +97,9 @@ def test_create_shipment(
     data = {
         "prepared_box_label_identifiers": [default_box["label_identifier"]],
         "id": shipment["id"],
-        "created_by": default_user["id"],
+        "user_id": default_user["id"],
     }
-    shipment = update_shipment(data)
+    shipment = update_shipment(**data)
     details = list(
         ShipmentDetail.select().where(ShipmentDetail.shipment == shipment.id).dicts()
     )
