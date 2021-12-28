@@ -372,7 +372,7 @@ def resolve_cancel_shipment(_, info, id):
 
 @mutation.field("sendShipment")
 def resolve_send_shipment(_, info, id):
-    return send_shipment(id=id, user_id=g.user["id"])
+    return send_shipment(id=id, user=g.user)
 
 
 @base.field("locations")

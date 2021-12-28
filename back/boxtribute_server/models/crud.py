@@ -395,18 +395,22 @@ def cancel_shipment(*, id, user_id):
     return shipment
 
 
-def send_shipment(*, id, user_id):
+def send_shipment(*, id, user):
     """Transition state of specified shipment to 'Sent'.
+    Raise an InvalidTransferAgreementOrganisation exception if the current user is not
+    member of the organisation that originally created the shipment.
     Raise InvalidShipmentState exception if shipment state is different from
     'Preparing'.
     """
     shipment = Shipment.get_by_id(id)
+    if shipment.source_base.organisation_id != user["organisation_id"]:
+        raise InvalidTransferAgreementOrganisation()
     if shipment.state != ShipmentState.Preparing:
         raise InvalidShipmentState(
             expected_states=[ShipmentState.Preparing], actual_state=shipment.state
         )
     shipment.state = ShipmentState.Sent
-    shipment.sent_by = user_id
+    shipment.sent_by = user["id"]
     shipment.sent_on = utcnow()
     shipment.save()
     return shipment

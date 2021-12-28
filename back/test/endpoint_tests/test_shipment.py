@@ -353,6 +353,13 @@ def test_shipment_mutations_create_as_target_org_member_in_unidirectional_agreem
     )
 
 
+def test_shipment_mutations_send_as_member_of_non_creating_org(
+    read_only_client, another_shipment
+):
+    mutation = f"mutation {{ sendShipment(id: {another_shipment['id']}) {{ id }} }}"
+    assert_bad_user_input(read_only_client, mutation)
+
+
 @pytest.mark.parametrize("act", ["cancel", "send"])
 def test_shipment_mutations_in_non_preparing_state(
     read_only_client, canceled_shipment, act
