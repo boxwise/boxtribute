@@ -1,19 +1,13 @@
 import peewee
 import pytest
-from boxtribute_server.enums import BoxState, ShipmentState
 from boxtribute_server.exceptions import BoxCreationFailed, RequestedResourceNotFound
 from boxtribute_server.models.crud import (
     BOX_LABEL_IDENTIFIER_GENERATION_ATTEMPTS,
     create_box,
     create_qr_code,
-    create_shipment,
     update_beneficiary,
-    update_shipment,
 )
-from boxtribute_server.models.definitions.box import Box
 from boxtribute_server.models.definitions.qr_code import QrCode
-from boxtribute_server.models.definitions.shipment import Shipment
-from boxtribute_server.models.definitions.shipment_detail import ShipmentDetail
 
 
 def test_create_qr_code_for_nonexisting_box():
@@ -59,70 +53,6 @@ def test_box_label_identifier_generation(
     new_box = create_box(data)
     assert rng_function.call_count == len(side_effect)
     assert new_box.label_identifier == new_identifier
-
-
-def test_create_shipment(
-    default_user, default_bases, default_transfer_agreement, default_box
-):
-    data = {
-        "source_base_id": default_bases[1]["id"],
-        "target_base_id": default_bases[3]["id"],
-        "transfer_agreement_id": default_transfer_agreement["id"],
-    }
-    shipment = create_shipment(
-        data,
-        started_by={
-            "id": default_user["id"],
-            "organisation_id": default_transfer_agreement["source_organisation"],
-        },
-    )
-    shipment = Shipment.select().where(Shipment.id == shipment.id).dicts().get()
-    assert (
-        shipment.items()
-        >= {
-            "source_base": default_bases[1]["id"],
-            "target_base": default_bases[3]["id"],
-            "transfer_agreement": default_transfer_agreement["id"],
-            "state": ShipmentState.Preparing,
-            "canceled_on": None,
-            "canceled_by": None,
-            "sent_on": None,
-            "sent_by": None,
-            "completed_on": None,
-            "completed_by": None,
-        }.items()
-    )
-    assert shipment["started_on"] is not None
-
-    data = {
-        "prepared_box_label_identifiers": [default_box["label_identifier"]],
-        "id": shipment["id"],
-        "user_id": default_user["id"],
-    }
-    shipment = update_shipment(**data)
-    details = list(
-        ShipmentDetail.select().where(ShipmentDetail.shipment == shipment.id).dicts()
-    )
-    assert len(details) == 1
-    detail = details[0]
-    assert (
-        detail.items()
-        >= {
-            "shipment": shipment.id,
-            "box": default_box["id"],
-            "source_product": default_box["product"],
-            "target_product": None,
-            "source_location": default_box["location"],
-            "target_location": None,
-            "created_by": default_user["id"],
-            "deleted_by": None,
-            "deleted_on": None,
-        }.items()
-    )
-    assert detail["created_on"] is not None
-
-    box = Box.get_by_id(detail["box"])
-    assert box.state_id == BoxState.MarkedForShipment.value
 
 
 def test_update_beneficiary(default_beneficiary, default_bases):
