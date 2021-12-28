@@ -1,7 +1,9 @@
 from boxtribute_server.enums import BoxState
 
 
-def test_location_query(read_only_client, default_boxes, default_location):
+def test_location_query(
+    read_only_client, default_box, box_without_qr_code, default_location
+):
     query = f"""query {{
                 location(id: "{default_location['id']}") {{
                     id
@@ -30,7 +32,11 @@ def test_location_query(read_only_client, default_boxes, default_location):
         "base": {"id": str(default_location["base"])},
         "name": default_location["name"],
         "isShop": default_location["is_shop"],
-        "boxes": {"elements": [{"id": str(b["id"])} for b in default_boxes]},
+        "boxes": {
+            "elements": [
+                {"id": str(b["id"])} for b in [default_box, box_without_qr_code]
+            ]
+        },
         "boxState": BoxState(default_location["box_state"]).name,
         "createdOn": None,
         "createdBy": {"id": str(default_location["created_by"])},
