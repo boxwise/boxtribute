@@ -422,14 +422,21 @@ def update_shipment(
 ):
     """Update shipment detail information, such as prepared boxes, or source/target
     base.
+    Raise InvalidShipmentState exception if shipment state is different from
+    'Preparing'.
     Raise an InvalidTransferAgreementBase exception if specified source or target base
     are not included in given agreement.
     If boxes are requested to be updated that are not located in the shipment's source
     base, they are silently discarded (i.e. not added to the ShipmentDetail model).
     """
+    shipment = Shipment.get_by_id(id)
+    if shipment.state != ShipmentState.Preparing:
+        raise InvalidShipmentState(
+            expected_states=[ShipmentState.Preparing], actual_state=shipment.state
+        )
+
     details = []
     prepared_box_label_identifiers = prepared_box_label_identifiers or []
-    shipment = Shipment.get_by_id(id)
 
     _validate_bases_as_part_of_transfer_agreement(
         transfer_agreement=TransferAgreement.get_by_id(shipment.transfer_agreement_id),

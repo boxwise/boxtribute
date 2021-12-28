@@ -366,3 +366,11 @@ def test_shipment_mutations_update_with_invalid_base(
         target_base_id=default_bases[4]["id"],  # not part of agreement
         shipment_id=default_shipment["id"],
     )
+
+
+def test_shipment_mutations_update_in_non_preparing_state(
+    read_only_client, canceled_shipment
+):
+    assert_bad_user_input_when_updating_shipment(
+        read_only_client, shipment_id=canceled_shipment["id"]
+    )
