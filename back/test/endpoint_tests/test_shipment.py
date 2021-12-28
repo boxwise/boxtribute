@@ -1,7 +1,7 @@
 from datetime import date
 
 import pytest
-from boxtribute_server.enums import ShipmentState
+from boxtribute_server.enums import BoxState, ShipmentState
 
 
 def test_shipment_query(read_only_client, default_shipment):
@@ -73,7 +73,7 @@ def test_shipments_query(read_only_client, default_shipment, canceled_shipment):
 
 
 def test_shipment_mutations(
-    client, default_bases, default_transfer_agreement, default_shipment
+    client, default_bases, default_transfer_agreement, default_shipment, default_box
 ):
     source_base_id = default_bases[2]["id"]
     target_base_id = default_bases[3]["id"]
@@ -178,6 +178,68 @@ def test_shipment_mutations(
             "state": ShipmentState.Preparing.name,
             f"{kind}Base": {"id": str(base_id)},
         }
+
+    box_label_identifier = default_box["label_identifier"]
+    update_input = f"""{{ id: {shipment_id},
+                preparedBoxLabelIdentifiers: [{box_label_identifier}] }}"""
+    mutation = f"""mutation {{ updateShipment(updateInput: {update_input}) {{
+                    id
+                    state
+                    details {{
+                        shipment {{
+                            id
+                        }}
+                        box {{
+                            id
+                            state
+                        }}
+                        sourceProduct {{
+                            id
+                        }}
+                        targetProduct {{
+                            id
+                        }}
+                        sourceLocation {{
+                            id
+                        }}
+                        targetLocation {{
+                            id
+                        }}
+                        createdBy {{
+                            id
+                        }}
+                        createdOn
+                        deletedBy {{
+                            id
+                        }}
+                        deletedOn
+                    }}
+                }} }}"""
+    data = {"query": mutation}
+    response = client.post("/graphql", json=data)
+    assert response.status_code == 200
+    shipment = response.json["data"]["updateShipment"]
+    assert shipment["details"][0].pop("createdOn").startswith(date.today().isoformat())
+    assert shipment == {
+        "id": shipment_id,
+        "state": ShipmentState.Preparing.name,
+        "details": [
+            {
+                "shipment": {"id": shipment_id},
+                "box": {
+                    "id": str(default_box["id"]),
+                    "state": BoxState.MarkedForShipment.name,
+                },
+                "sourceProduct": {"id": str(default_box["product"])},
+                "targetProduct": None,
+                "sourceLocation": {"id": str(default_box["location"])},
+                "targetLocation": None,
+                "createdBy": {"id": "8"},
+                "deletedBy": None,
+                "deletedOn": None,
+            }
+        ],
+    }
 
     mutation = f"""mutation {{ sendShipment(id: {shipment_id}) {{
                     id
