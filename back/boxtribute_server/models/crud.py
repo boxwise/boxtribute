@@ -317,6 +317,29 @@ def retrieve_transfer_agreement_bases(*, transfer_agreement, kind):
     )
 
 
+def _validate_bases_as_part_of_transfer_agreement(
+    *, transfer_agreement, source_base_id=None, target_base_id=None
+):
+    """Validate that given bases are part of the given transfer agreement. Raise
+    InvalidTransferAgreementBase exception otherwise.
+    """
+    for kind in ["source", "target"]:
+        base_id = locals()[f"{kind}_base_id"]
+        if base_id is None:
+            continue
+
+        base_ids = [
+            b.id
+            for b in retrieve_transfer_agreement_bases(
+                transfer_agreement=transfer_agreement, kind=kind
+            )
+        ]
+        if base_id not in base_ids:
+            raise InvalidTransferAgreementBase(
+                base_id=base_id, expected_base_ids=base_ids
+            )
+
+
 def create_shipment(data, *, started_by):
     """Insert information for a new Shipment in the database.
     Raise an InvalidTransferAgreementState exception if specified agreement has a state
@@ -334,18 +357,11 @@ def create_shipment(data, *, started_by):
             actual_state=agreement.state,
         )
 
-    for kind in ["source", "target"]:
-        base_id = data[f"{kind}_base_id"]
-        base_ids = [
-            b.id
-            for b in retrieve_transfer_agreement_bases(
-                transfer_agreement=agreement, kind=kind
-            )
-        ]
-        if base_id not in base_ids:
-            raise InvalidTransferAgreementBase(
-                base_id=base_id, expected_base_ids=base_ids
-            )
+    _validate_bases_as_part_of_transfer_agreement(
+        transfer_agreement=agreement,
+        source_base_id=data["source_base_id"],
+        target_base_id=data["target_base_id"],
+    )
 
     if (agreement.type == TransferAgreementType.Unidirectional) and (
         started_by["organisation_id"] != agreement.source_organisation_id
