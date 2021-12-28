@@ -7,13 +7,21 @@ import peewee
 from dateutil import tz
 
 from ..db import db
-from ..enums import BoxState, TransferAgreementState
+from ..enums import (
+    BoxState,
+    ShipmentState,
+    TransferAgreementState,
+    TransferAgreementType,
+)
 from ..exceptions import (
     BoxCreationFailed,
+    InvalidShipmentState,
+    InvalidTransferAgreementBase,
     InvalidTransferAgreementOrganisation,
     InvalidTransferAgreementState,
     RequestedResourceNotFound,
 )
+from .definitions.base import Base
 from .definitions.beneficiary import Beneficiary
 from .definitions.box import Box
 from .definitions.qr_code import QrCode
@@ -295,10 +303,28 @@ def cancel_transfer_agreement(*, id, canceled_by):
     return agreement
 
 
-def create_shipment(data):
-    """Insert information for a new Shipment in the database. Raise an
-    InvalidTransferAgreementState exception if specified agreement has a state different
-    from 'ACCEPTED'.
+def retrieve_transfer_agreement_bases(*, transfer_agreement, kind):
+    """Return all bases (kind: source or target) involved in the given transfer
+    agreement. If the selection is None, it indicates that all bases of the respective
+    organisation are included.
+    """
+    return Base.select().join(
+        TransferAgreementDetail, on=getattr(TransferAgreementDetail, f"{kind}_base")
+    ).where(
+        TransferAgreementDetail.transfer_agreement == transfer_agreement.id
+    ) or Base.select().where(
+        Base.organisation == getattr(transfer_agreement, f"{kind}_organisation")
+    )
+
+
+def create_shipment(data, *, started_by):
+    """Insert information for a new Shipment in the database.
+    Raise an InvalidTransferAgreementState exception if specified agreement has a state
+    different from 'ACCEPTED'.
+    Raise an InvalidTransferAgreementBase exception if specified source or target base
+    are not included in given agreement.
+    Raise an InvalidTransferAgreementOrganisation exception if the current user is not
+    member of the agreement source organisation in a unidirectional agreement.
     """
     transfer_agreement_id = data.pop("transfer_agreement_id")
     agreement = TransferAgreement.get_by_id(transfer_agreement_id)
@@ -308,12 +334,65 @@ def create_shipment(data):
             actual_state=agreement.state,
         )
 
+    for kind in ["source", "target"]:
+        base_id = data[f"{kind}_base_id"]
+        base_ids = [
+            b.id
+            for b in retrieve_transfer_agreement_bases(
+                transfer_agreement=agreement, kind=kind
+            )
+        ]
+        if base_id not in base_ids:
+            raise InvalidTransferAgreementBase(
+                base_id=base_id, expected_base_ids=base_ids
+            )
+
+    if (agreement.type == TransferAgreementType.Unidirectional) and (
+        started_by["organisation_id"] != agreement.source_organisation_id
+    ):
+        raise InvalidTransferAgreementOrganisation()
+
     return Shipment.create(
         source_base=data.pop("source_base_id"),
         target_base=data.pop("target_base_id"),
         transfer_agreement=transfer_agreement_id,
+        started_by=started_by["id"],
         **data,
     )
+
+
+def cancel_shipment(*, id, user_id):
+    """Transition state of specified shipment to 'Canceled'.
+    Raise InvalidShipmentState exception if shipment state is different from
+    'Preparing'.
+    """
+    shipment = Shipment.get_by_id(id)
+    if shipment.state != ShipmentState.Preparing:
+        raise InvalidShipmentState(
+            expected_states=[ShipmentState.Preparing], actual_state=shipment.state
+        )
+    shipment.state = ShipmentState.Canceled
+    shipment.canceled_by = user_id
+    shipment.canceled_on = utcnow()
+    shipment.save()
+    return shipment
+
+
+def send_shipment(*, id, user_id):
+    """Transition state of specified shipment to 'Sent'.
+    Raise InvalidShipmentState exception if shipment state is different from
+    'Preparing'.
+    """
+    shipment = Shipment.get_by_id(id)
+    if shipment.state != ShipmentState.Preparing:
+        raise InvalidShipmentState(
+            expected_states=[ShipmentState.Preparing], actual_state=shipment.state
+        )
+    shipment.state = ShipmentState.Sent
+    shipment.sent_by = user_id
+    shipment.sent_on = utcnow()
+    shipment.save()
+    return shipment
 
 
 def update_shipment(data):

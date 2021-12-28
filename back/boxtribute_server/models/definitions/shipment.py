@@ -18,6 +18,7 @@ class Shipment(db.Model):
     state = EnumCharField(
         constraints=[SQL(f"DEFAULT '{ShipmentState.Preparing.name}'")],
         choices=ShipmentState,
+        default=ShipmentState.Preparing,
     )
     started_on = DateTimeField(default=utcnow)
     started_by = UIntForeignKeyField(

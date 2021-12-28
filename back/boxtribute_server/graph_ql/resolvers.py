@@ -8,12 +8,16 @@ from ..authz import authorize
 from ..enums import HumanGender, TransferAgreementState
 from ..models.crud import (
     accept_transfer_agreement,
+    cancel_shipment,
     cancel_transfer_agreement,
     create_beneficiary,
     create_box,
     create_qr_code,
+    create_shipment,
     create_transfer_agreement,
     reject_transfer_agreement,
+    retrieve_transfer_agreement_bases,
+    send_shipment,
     update_beneficiary,
     update_box,
 )
@@ -30,7 +34,6 @@ from ..models.definitions.shipment_detail import ShipmentDetail
 from ..models.definitions.size import Size
 from ..models.definitions.transaction import Transaction
 from ..models.definitions.transfer_agreement import TransferAgreement
-from ..models.definitions.transfer_agreement_detail import TransferAgreementDetail
 from ..models.definitions.user import User
 from ..models.definitions.x_beneficiary_language import XBeneficiaryLanguage
 from .pagination import load_into_page
@@ -349,6 +352,22 @@ def resolve_cancel_transfer_agreement(_, info, id):
     return cancel_transfer_agreement(id=id, canceled_by=g.user["id"])
 
 
+@mutation.field("createShipment")
+@convert_kwargs_to_snake_case
+def resolve_create_shipment(_, info, creation_input):
+    return create_shipment(creation_input, started_by=g.user)
+
+
+@mutation.field("cancelShipment")
+def resolve_cancel_shipment(_, info, id):
+    return cancel_shipment(id=id, user_id=g.user["id"])
+
+
+@mutation.field("sendShipment")
+def resolve_send_shipment(_, info, id):
+    return send_shipment(id=id, user_id=g.user["id"])
+
+
 @base.field("locations")
 def resolve_base_locations(base_obj, info):
     authorize(permission="location:read")
@@ -425,25 +444,15 @@ def resolve_shipment_details(shipment_obj, info):
 
 @transfer_agreement.field("sourceBases")
 def resolve_transfer_agreement_source_bases(transfer_agreement_obj, info):
-    # If source base for transfer agreement is None, return all bases for the agreement
-    # source organisation
-    return Base.select().join(
-        TransferAgreementDetail, on=TransferAgreementDetail.source_base
-    ).where(
-        TransferAgreementDetail.transfer_agreement == transfer_agreement_obj.id
-    ) or Base.select().where(
-        Base.organisation == transfer_agreement_obj.source_organisation
+    return retrieve_transfer_agreement_bases(
+        transfer_agreement=transfer_agreement_obj, kind="source"
     )
 
 
 @transfer_agreement.field("targetBases")
 def resolve_transfer_agreement_target_bases(transfer_agreement_obj, info):
-    return Base.select().join(
-        TransferAgreementDetail, on=TransferAgreementDetail.target_base
-    ).where(
-        TransferAgreementDetail.transfer_agreement == transfer_agreement_obj.id
-    ) or Base.select().where(
-        Base.organisation == transfer_agreement_obj.target_organisation
+    return retrieve_transfer_agreement_bases(
+        transfer_agreement=transfer_agreement_obj, kind="target"
     )
 
 

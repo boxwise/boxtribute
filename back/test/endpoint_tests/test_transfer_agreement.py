@@ -86,9 +86,9 @@ def state_names(value):
 @pytest.mark.parametrize(
     "filter_input,transfer_agreement_ids",
     (
-        ["", ["1", "2", "3"]],
+        ["", ["1", "2", "3", "4"]],
         ["(states: [UnderReview])", ["3"]],
-        ["(states: [Accepted])", ["1"]],
+        ["(states: [Accepted])", ["1", "4"]],
         ["(states: [Rejected])", []],
         ["(states: [Expired])", ["2"]],
         ["(states: [Rejected, Canceled, Expired])", ["2"]],
@@ -159,7 +159,7 @@ def test_transfer_agreement_mutations(
         "requestedBy": {"id": "8"},
         "validUntil": None,
         "sourceBases": [{"id": "1"}, {"id": "2"}],
-        "targetBases": [{"id": "3"}],
+        "targetBases": [{"id": "3"}, {"id": "4"}],
         "shipments": [],
     }
 

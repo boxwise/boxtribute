@@ -26,6 +26,13 @@ def data():
             "seq": 1,
             "organisation": organisation_data()[1]["id"],
         },
+        {
+            "id": 4,
+            "name": "second base",
+            "currency_name": "pounds",
+            "seq": 1,
+            "organisation": organisation_data()[1]["id"],
+        },
     ]
 
 
