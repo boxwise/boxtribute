@@ -34,7 +34,6 @@ const HeaderMenu = () => {
       <MenuItem to="/" text="Home" />
       <MenuItem to="/locations" text="Locations" />
       <MenuItem to="/boxes" text="Boxes" />
-      <MenuItem to="/query-playground" text="Query Playground" />
     </UnorderedList>
   );
 };
