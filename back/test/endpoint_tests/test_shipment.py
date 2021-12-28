@@ -73,7 +73,12 @@ def test_shipments_query(read_only_client, default_shipment, canceled_shipment):
 
 
 def test_shipment_mutations(
-    client, default_bases, default_transfer_agreement, default_shipment, default_box
+    client,
+    default_bases,
+    default_transfer_agreement,
+    default_shipment,
+    default_box,
+    another_box,
 ):
     source_base_id = default_bases[2]["id"]
     target_base_id = default_bases[3]["id"]
@@ -240,6 +245,23 @@ def test_shipment_mutations(
             }
         ],
     }
+
+    # Verify that another_box is not added to shipment (not located in source base)
+    box_label_identifier = another_box["label_identifier"]
+    update_input = f"""{{ id: {shipment_id},
+                preparedBoxLabelIdentifiers: [{box_label_identifier}] }}"""
+    mutation = f"""mutation {{ updateShipment(updateInput: {update_input}) {{
+                    details {{
+                        box {{
+                            id
+                        }}
+                    }}
+                }} }}"""
+    data = {"query": mutation}
+    response = client.post("/graphql", json=data)
+    assert response.status_code == 200
+    shipment = response.json["data"]["updateShipment"]
+    assert shipment == {"details": [{"box": {"id": str(default_box["id"])}}]}
 
     mutation = f"""mutation {{ sendShipment(id: {shipment_id}) {{
                     id

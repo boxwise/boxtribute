@@ -24,6 +24,7 @@ from ..exceptions import (
 from .definitions.base import Base
 from .definitions.beneficiary import Beneficiary
 from .definitions.box import Box
+from .definitions.location import Location
 from .definitions.qr_code import QrCode
 from .definitions.shipment import Shipment
 from .definitions.shipment_detail import ShipmentDetail
@@ -423,6 +424,8 @@ def update_shipment(
     base.
     Raise an InvalidTransferAgreementBase exception if specified source or target base
     are not included in given agreement.
+    If boxes are requested to be updated that are not located in the shipment's source
+    base, they are silently discarded (i.e. not added to the ShipmentDetail model).
     """
     details = []
     prepared_box_label_identifiers = prepared_box_label_identifiers or []
@@ -436,9 +439,14 @@ def update_shipment(
 
     with db.database.atomic():
         boxes = []
-        for box in Box.select().where(
-            Box.label_identifier.in_(prepared_box_label_identifiers)
+        for box in (
+            Box.select(Box, Location)
+            .join(Location)
+            .where(Box.label_identifier.in_(prepared_box_label_identifiers))
         ):
+            if box.location.base_id != shipment.source_base_id:
+                continue
+
             box.state = BoxState.MarkedForShipment
             boxes.append(box)
             details.append(
