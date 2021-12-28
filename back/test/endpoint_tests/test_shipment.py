@@ -261,3 +261,14 @@ def test_shipment_mutations_in_non_preparing_state(
 ):
     mutation = f"mutation {{ {act}Shipment(id: {canceled_shipment['id']}) {{ id }} }}"
     assert_bad_user_input(read_only_client, mutation)
+
+
+def test_shipment_mutations_update_with_invalid_base(
+    read_only_client, default_bases, default_shipment
+):
+    # Base 4 not part of agreement
+    update_input = f"""targetBaseId: {default_bases[4]['id']},
+                       id: {default_shipment['id']}"""
+    mutation = f"""mutation {{ updateShipment(updateInput: {{ {update_input} }} ) {{
+                    id }} }}"""
+    assert_bad_user_input(read_only_client, mutation)

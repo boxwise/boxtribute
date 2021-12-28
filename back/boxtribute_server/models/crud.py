@@ -421,10 +421,18 @@ def update_shipment(
 ):
     """Update shipment detail information, such as prepared boxes, or source/target
     base.
+    Raise an InvalidTransferAgreementBase exception if specified source or target base
+    are not included in given agreement.
     """
     details = []
     prepared_box_label_identifiers = prepared_box_label_identifiers or []
     shipment = Shipment.get_by_id(id)
+
+    _validate_bases_as_part_of_transfer_agreement(
+        transfer_agreement=TransferAgreement.get_by_id(shipment.transfer_agreement_id),
+        source_base_id=source_base_id,
+        target_base_id=target_base_id,
+    )
 
     with db.database.atomic():
         boxes = []
