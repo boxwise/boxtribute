@@ -1,21 +1,16 @@
 import React from "react";
-import { Switch, Route } from "react-router-dom";
+import { Route, Routes } from "react-router-dom";
 import { useAuth0, withAuthenticationRequired } from "@auth0/auth0-react";
 import Home from "views/Home";
 import Boxes from "views/boxes/Boxes";
-import HeaderMenu from "components/HeaderMenu";
 import Locations from "views/locations/Locations";
-import TMPQueryPlayground from "views/TMP-query-playground/TMP-query-playground";
 import BTLocation from "views/locations/BTLocation";
+import Layout from "Layout";
 
-const PrivateRoute = ({ component, ...args }) => (
-  <Route
-    component={withAuthenticationRequired(component, {
-      onRedirecting: () => <p>Loading ...</p>,
-    })}
-    {...args}
-  />
-);
+const AuthenticationProtected = ({ element, ...props }) => 
+      withAuthenticationRequired(element, {
+    onRedirecting: () => <p>Loading ...</p>,
+  })(props);
 
 export default function App() {
   const { isLoading: auth0Loading } = useAuth0();
@@ -26,16 +21,16 @@ export default function App() {
 
   return (
     <>
-      <HeaderMenu />
-      <div>
-        <Switch>
-          <PrivateRoute path="/boxes" component={Boxes} />
-          <PrivateRoute path="/locations/:locationId" component={BTLocation} />
-          <PrivateRoute path="/locations" component={Locations} />
-          <PrivateRoute path="/query-playground" component={TMPQueryPlayground} />
-          <Route path="/" component={Home} />
-        </Switch>
-      </div>
+      <Routes>
+        <Route path="/" element={<Layout />}>
+          <Route index element={<Home />}></Route>
+          <Route path="boxes" element={<AuthenticationProtected element={Boxes} />} />
+          <Route path="locations">
+            <Route index element={<AuthenticationProtected element={Locations} />} />
+            <Route path=":locationId" element={<AuthenticationProtected element={BTLocation} />} />
+          </Route>
+        </Route>
+      </Routes>
     </>
   );
 }

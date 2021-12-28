@@ -1,6 +1,6 @@
 import React from "react";
 import ReactDOM from "react-dom";
-import { BrowserRouter as Router } from "react-router-dom";
+import { BrowserRouter } from "react-router-dom";
 import Auth0ProviderWithHistory from "./Auth0ProviderWithHistory";
 import ApolloWrapper from "./ApolloWrapper";
 import App from "./App";
@@ -20,13 +20,13 @@ const theme = extendTheme({ colors });
 
 ReactDOM.render(
   <ChakraProvider theme={theme}>
-    <Router>
+    <BrowserRouter>
       <Auth0ProviderWithHistory>
         <ApolloWrapper>
           <App />
         </ApolloWrapper>
       </Auth0ProviderWithHistory>
-    </Router>
+    </BrowserRouter>
   </ChakraProvider>,
   document.getElementById("root"),
 );
