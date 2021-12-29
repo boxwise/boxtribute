@@ -31,22 +31,28 @@ const MenuItem = ({ to, text }: { to: string; text: string }) => (
   </ListItem>
 );
 
-const HeaderMenu = () => {
+const LoginLogoutButton = () => {
   const { isAuthenticated, logout, loginWithRedirect } = useAuth0();
+  return (
+    <ListItem
+      style={{
+        display: "inline",
+      }}
+    >
+      {isAuthenticated && logout != null && <Button onClick={() => logout()}>Logout</Button>}
+      {!isAuthenticated && <Button onClick={() => loginWithRedirect()}>Login</Button>}
+    </ListItem>
+  );
+};
+
+const Menu = ({ isOpen }) => {
   return (
     <UnorderedList
       style={{
         listStyleType: "none",
       }}
     >
-      <ListItem
-        style={{
-          display: "inline",
-        }}
-      >
-        {isAuthenticated && logout != null && <Button onClick={() => logout()}>Logout</Button>}
-        {!isAuthenticated && <Button onClick={() => loginWithRedirect()}>Login</Button>}
-      </ListItem>
+      <LoginLogoutButton />
       <MenuItem to="/" text="Home" />
       <MenuItem to="/locations" text="Locations" />
       <MenuItem to="/boxes" text="Boxes" />
@@ -60,8 +66,9 @@ const Header = () => {
 
   return (
     <Box>
+      <Logo />
       <MenuToggle toggle={toggle} isOpen={isMenuOpen} />
-      <HeaderMenu />
+      <Menu isOpen={isMenuOpen} />
     </Box>
   );
 };
