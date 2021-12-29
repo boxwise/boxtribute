@@ -1,7 +1,7 @@
 import React, { useState } from "react";
-import { Link } from "react-router-dom";
+import { Link as RouterLink } from "react-router-dom";
 import { useAuth0 } from "@auth0/auth0-react";
-import { Box, Button, ListItem, UnorderedList, Text } from "@chakra-ui/react";
+import { Box, Button, ListItem, UnorderedList, Text, Link, Stack } from "@chakra-ui/react";
 
 const OpenIcon = () => <Box>Open</Box>;
 const CloseIcon = () => <Box>Close</Box>;
@@ -20,43 +20,35 @@ const Logo = () => (
   </Box>
 );
 const MenuItem = ({ to, text }: { to: string; text: string }) => (
-  <ListItem
-    style={{
-      display: "inline",
-    }}
-  >
-    <Link to={to}>
-      <Button>{text}</Button>
-    </Link>
-  </ListItem>
+  <Link as={RouterLink} to={to}>
+    <Text display="block">{text}</Text>
+  </Link>
 );
 
 const LoginLogoutButton = () => {
   const { isAuthenticated, logout, loginWithRedirect } = useAuth0();
   return (
-    <ListItem
-      style={{
-        display: "inline",
-      }}
-    >
-      {isAuthenticated && logout != null && <Button onClick={() => logout()}>Logout</Button>}
-      {!isAuthenticated && <Button onClick={() => loginWithRedirect()}>Login</Button>}
-    </ListItem>
+    <Link>
+      {isAuthenticated && logout != null && <Text display="block" onClick={() => logout()}>Logout</Text>}
+      {!isAuthenticated && <Text display="block" onClick={() => loginWithRedirect()}>Login</Text>}
+    </Link>
   );
 };
 
-const Menu = ({ isOpen }) => {
+const MenuLinks = ({ isOpen }) => {
   return (
-    <UnorderedList
-      style={{
-        listStyleType: "none",
-      }}
+    <Stack
+      spacing={8}
+      align="center"
+      justify={["center", "space-between", "flex-end", "flex-end"]}
+      direction={["column", "row", "row", "row"]}
+      pt={[4, 4, 0, 0]}
     >
       <LoginLogoutButton />
       <MenuItem to="/" text="Home" />
       <MenuItem to="/locations" text="Locations" />
       <MenuItem to="/boxes" text="Boxes" />
-    </UnorderedList>
+    </Stack>
   );
 };
 
@@ -68,7 +60,7 @@ const Header = () => {
     <Box>
       <Logo />
       <MenuToggle toggle={toggle} isOpen={isMenuOpen} />
-      <Menu isOpen={isMenuOpen} />
+      <MenuLinks isOpen={isMenuOpen} />
     </Box>
   );
 };
