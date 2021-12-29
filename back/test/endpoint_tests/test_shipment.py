@@ -62,13 +62,16 @@ def test_shipment_query(read_only_client, default_shipment):
     }
 
 
-def test_shipments_query(read_only_client, default_shipment, canceled_shipment):
+def test_shipments_query(
+    read_only_client, default_shipment, canceled_shipment, another_shipment
+):
     query = "query { shipments { id } }"
     data = {"query": query}
     response = read_only_client.post("/graphql", json=data)
     shipments = response.json["data"]["shipments"]
     assert shipments == [
-        {"id": str(s["id"])} for s in [default_shipment, canceled_shipment]
+        {"id": str(s["id"])}
+        for s in [default_shipment, canceled_shipment, another_shipment]
     ]
 
 
