@@ -1,8 +1,24 @@
-import React from "react";
+import React, { useState } from "react";
 import { Link } from "react-router-dom";
 import { useAuth0 } from "@auth0/auth0-react";
-import { Button, ListItem, UnorderedList } from "@chakra-ui/react";
+import { Box, Button, ListItem, UnorderedList, Text } from "@chakra-ui/react";
 
+const OpenIcon = () => <Box>Open</Box>;
+const CloseIcon = () => <Box>Close</Box>;
+
+const MenuToggle = ({ toggle, isOpen }) => (
+  <Box display={{ base: "block", md: "none" }} onClick={toggle}>
+    {isOpen ? <CloseIcon /> : <OpenIcon />}
+  </Box>
+);
+
+const Logo = () => (
+  <Box>
+    <Text fontSize="lg" fontWeight="bold">
+      Logo
+    </Text>
+  </Box>
+);
 const MenuItem = ({ to, text }: { to: string; text: string }) => (
   <ListItem
     style={{
@@ -38,4 +54,16 @@ const HeaderMenu = () => {
   );
 };
 
-export default HeaderMenu;
+const Header = () => {
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const toggle = () => setIsMenuOpen(!isMenuOpen);
+
+  return (
+    <Box>
+      <MenuToggle toggle={toggle} isOpen={isMenuOpen} />
+      <HeaderMenu />
+    </Box>
+  );
+};
+
+export default Header;
