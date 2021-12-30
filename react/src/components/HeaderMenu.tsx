@@ -5,19 +5,15 @@ import { Box, Text, Link, Stack, Flex, Image, IconButton } from "@chakra-ui/reac
 import { AiFillCloseCircle, AiOutlineMenu } from "react-icons/ai"
 import BoxtributeLogo from "../Assets/images/boxtribute-logo.png"
 
-const MenuToggle = ({ toggle, isOpen }) => (
-  <IconButton onClick={toggle} icon={isOpen ? <AiFillCloseCircle/> : <AiOutlineMenu/>} aria-label={isOpen ? "close menu" : "open menu"} />
+const MenuToggle = ({ toggle, isOpen, ...props }) => (
+  <IconButton onClick={toggle} icon={isOpen ? <AiFillCloseCircle/> : <AiOutlineMenu/>} aria-label={isOpen ? "close menu" : "open menu"} {...props} />
 
   // <Box display={{ base: "block", md: "none" }} cursor={"pointer"} onClick={toggle}>
   //   {isOpen ? <AiFillCloseCircle/> : <AiOutlineMenu/>}
   // </Box>
 );
 
-const Logo = (props) => (
-  <Box {...props}>
-    <Image src={BoxtributeLogo} maxH={"5em"}/>
-  </Box>
-);
+const Logo = (props) => <Image src={BoxtributeLogo} maxH={"5em"} />;
 const MenuItem = ({ to, text }: { to: string; text: string }) => (
   <Link as={RouterLink} to={to}>
     <Text display="block">{text}</Text>
@@ -45,8 +41,6 @@ const LoginLogoutButton = () => {
 const MenuLinks = ({ isOpen, ...props }) => {
   return (
     <Box
-      // display={{ base: isOpen ? "block" : "none", md: "block" }}
-      visibility={{ base: isOpen ? "visible" : "hidden", md: "visible" }}
       flexBasis={{ base: "100%", md: "auto" }}
       {...props}
     >
@@ -75,7 +69,8 @@ const NavBarContainer = ({ children, ...props }) => (
     wrap="wrap"
     w="100%"
     mb={8}
-    p={8}
+    pt={4}
+    pb={4}
     color={"black"}
   >
     {children}
@@ -89,8 +84,8 @@ const Header = () => {
   return (
     <NavBarContainer>
       <Logo maxHeight="10px" visibility={isMenuOpen ? "hidden" : "visible"}/>
-      <MenuToggle toggle={toggle} isOpen={isMenuOpen} />
-      <MenuLinks isOpen={isMenuOpen} bg={"white"} />
+      <MenuToggle toggle={toggle} isOpen={isMenuOpen} visibility={{base: "visible", md: "hidden" }} />
+      <MenuLinks isOpen={isMenuOpen} bg={"white"} display={{ base: isMenuOpen ? "block" : "none", md: "block" }} />
     </NavBarContainer>
   );
 };
