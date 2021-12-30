@@ -1,7 +1,7 @@
 import React from "react";
 import { gql, useQuery } from "@apollo/client";
 import { Link } from "react-router-dom";
-import { Heading, ListItem, UnorderedList } from "@chakra-ui/react";
+import { Box, Heading, ListItem, UnorderedList } from "@chakra-ui/react";
 
 interface Location {
   name: string;
@@ -42,7 +42,7 @@ const Locations = () => {
   if (error) return <div>Error: {error.message}</div>;
 
   return (
-    <div>
+    <Box>
       <Heading>Locations</Heading>
       <UnorderedList>
         {data?.locations?.map((location, i) => (
@@ -51,7 +51,7 @@ const Locations = () => {
           </ListItem>
         ))}
       </UnorderedList>
-    </div>
+    </Box>
   );
 };
 

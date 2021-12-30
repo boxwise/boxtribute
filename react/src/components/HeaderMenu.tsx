@@ -1,14 +1,16 @@
 import { useState } from "react";
 import { Link as RouterLink } from "react-router-dom";
 import { useAuth0 } from "@auth0/auth0-react";
-import { Box, Text, Link, Stack, Flex, Image } from "@chakra-ui/react";
+import { Box, Text, Link, Stack, Flex, Image, IconButton } from "@chakra-ui/react";
 import { AiFillCloseCircle, AiOutlineMenu } from "react-icons/ai"
 import BoxtributeLogo from "../Assets/images/boxtribute-logo.png"
 
 const MenuToggle = ({ toggle, isOpen }) => (
-  <Box display={{ base: "block", md: "none" }} cursor={"pointer"} onClick={toggle}>
-    {isOpen ? <AiFillCloseCircle/> : <AiOutlineMenu/>}
-  </Box>
+  <IconButton onClick={toggle} icon={isOpen ? <AiFillCloseCircle/> : <AiOutlineMenu/>} aria-label={isOpen ? "close menu" : "open menu"} />
+
+  // <Box display={{ base: "block", md: "none" }} cursor={"pointer"} onClick={toggle}>
+  //   {isOpen ? <AiFillCloseCircle/> : <AiOutlineMenu/>}
+  // </Box>
 );
 
 const Logo = (props) => (
@@ -64,8 +66,9 @@ const MenuLinks = ({ isOpen, ...props }) => {
   );
 };
 
-const NavBarContainer = ({ children }) => (
+const NavBarContainer = ({ children, ...props }) => (
   <Flex
+    {...props}
     as="nav"
     align="center"
     justify="space-between"
