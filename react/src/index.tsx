@@ -14,6 +14,10 @@ const colors = {
     800: "#153e75",
     700: "#2a69ac",
   },
+  primary: {
+    700: "light-blue", 
+    500: "blue"
+  }
 };
 
 const theme = extendTheme({ colors });

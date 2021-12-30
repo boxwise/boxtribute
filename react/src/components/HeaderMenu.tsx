@@ -1,22 +1,19 @@
-import React, { useState } from "react";
+import { useState } from "react";
 import { Link as RouterLink } from "react-router-dom";
 import { useAuth0 } from "@auth0/auth0-react";
-import { Box, Button, ListItem, UnorderedList, Text, Link, Stack, Flex } from "@chakra-ui/react";
-
-const OpenIcon = () => <Box>Open</Box>;
-const CloseIcon = () => <Box>Close</Box>;
+import { Box, Text, Link, Stack, Flex, Image } from "@chakra-ui/react";
+import { AiFillCloseCircle, AiOutlineMenu } from "react-icons/ai"
+import BoxtributeLogo from "../Assets/images/boxtribute-logo.png"
 
 const MenuToggle = ({ toggle, isOpen }) => (
-  <Box display={{ base: "block", md: "none" }} onClick={toggle}>
-    {isOpen ? <CloseIcon /> : <OpenIcon />}
+  <Box display={{ base: "block", md: "none" }} cursor={"pointer"} onClick={toggle}>
+    {isOpen ? <AiFillCloseCircle/> : <AiOutlineMenu/>}
   </Box>
 );
 
 const Logo = (props) => (
   <Box {...props}>
-    <Text fontSize="lg" fontWeight="bold">
-      Logo
-    </Text>
+    <Image src={BoxtributeLogo} maxH={"5em"}/>
   </Box>
 );
 const MenuItem = ({ to, text }: { to: string; text: string }) => (
@@ -43,11 +40,13 @@ const LoginLogoutButton = () => {
   );
 };
 
-const MenuLinks = ({ isOpen }) => {
+const MenuLinks = ({ isOpen, ...props }) => {
   return (
     <Box
-      display={{ base: isOpen ? "block" : "none", md: "block" }}
+      // display={{ base: isOpen ? "block" : "none", md: "block" }}
+      visibility={{ base: isOpen ? "visible" : "hidden", md: "visible" }}
       flexBasis={{ base: "100%", md: "auto" }}
+      {...props}
     >
       <Stack
         spacing={8}
@@ -74,8 +73,7 @@ const NavBarContainer = ({ children }) => (
     w="100%"
     mb={8}
     p={8}
-    bg={["primary.500", "primary.500", "transparent", "transparent"]}
-    color={["white", "white", "primary.700", "primary.700"]}
+    color={"black"}
   >
     {children}
   </Flex>
@@ -87,9 +85,9 @@ const Header = () => {
 
   return (
     <NavBarContainer>
-      <Logo w="100px" color={["white", "white", "primary.500", "primary.500"]} />
+      <Logo maxHeight="10px" visibility={isMenuOpen ? "hidden" : "visible"}/>
       <MenuToggle toggle={toggle} isOpen={isMenuOpen} />
-      <MenuLinks isOpen={isMenuOpen} />
+      <MenuLinks isOpen={isMenuOpen} bg={"white"} />
     </NavBarContainer>
   );
 };
