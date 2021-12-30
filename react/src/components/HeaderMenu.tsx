@@ -1,12 +1,17 @@
 import { useState } from "react";
-import { Link as RouterLink } from "react-router-dom";
+import { NavLink } from "react-router-dom";
 import { useAuth0 } from "@auth0/auth0-react";
-import { Box, Text, Link, Stack, Flex, Image, IconButton } from "@chakra-ui/react";
-import { AiFillCloseCircle, AiOutlineMenu } from "react-icons/ai"
-import BoxtributeLogo from "../Assets/images/boxtribute-logo.png"
+import { Box, Text, Button, Stack, Flex, Image, IconButton } from "@chakra-ui/react";
+import { AiFillCloseCircle, AiOutlineMenu } from "react-icons/ai";
+import BoxtributeLogo from "../Assets/images/boxtribute-logo.png";
 
 const MenuToggle = ({ toggle, isOpen, ...props }) => (
-  <IconButton onClick={toggle} icon={isOpen ? <AiFillCloseCircle/> : <AiOutlineMenu/>} aria-label={isOpen ? "close menu" : "open menu"} {...props} />
+  <IconButton
+    onClick={toggle}
+    icon={isOpen ? <AiFillCloseCircle /> : <AiOutlineMenu />}
+    aria-label={isOpen ? "close menu" : "open menu"}
+    {...props}
+  />
 
   // <Box display={{ base: "block", md: "none" }} cursor={"pointer"} onClick={toggle}>
   //   {isOpen ? <AiFillCloseCircle/> : <AiOutlineMenu/>}
@@ -14,36 +19,23 @@ const MenuToggle = ({ toggle, isOpen, ...props }) => (
 );
 
 const Logo = (props) => <Image src={BoxtributeLogo} maxH={"5em"} />;
-const MenuItem = ({ to, text }: { to: string; text: string }) => (
-  <Link as={RouterLink} to={to}>
+const MenuItem = ({ to, text }: { to: string; text: string }) => (<NavLink to={to} style={({isActive}) => (isActive ? {fontWeight: "bold"} : {})}>
     <Text display="block">{text}</Text>
-  </Link>
+  </NavLink>
 );
 
 const LoginLogoutButton = () => {
   const { isAuthenticated, logout, loginWithRedirect } = useAuth0();
   return (
-    <Link>
-      {isAuthenticated && logout != null && (
-        <Text display="block" onClick={() => logout()}>
-          Logout
-        </Text>
-      )}
-      {!isAuthenticated && (
-        <Text display="block" onClick={() => loginWithRedirect()}>
-          Login
-        </Text>
-      )}
-    </Link>
+    <Button onClick={() => isAuthenticated ? logout() : loginWithRedirect()}>
+      {isAuthenticated ? "Logout" : "Login"}
+    </Button>
   );
 };
 
 const MenuLinks = ({ isOpen, ...props }) => {
   return (
-    <Box
-      flexBasis={{ base: "100%", md: "auto" }}
-      {...props}
-    >
+    <Box flexBasis={{ base: "100%", md: "auto" }} {...props}>
       <Stack
         spacing={8}
         align="center"
@@ -83,9 +75,17 @@ const Header = () => {
 
   return (
     <NavBarContainer>
-      <Logo maxHeight="10px" visibility={isMenuOpen ? "hidden" : "visible"}/>
-      <MenuToggle toggle={toggle} isOpen={isMenuOpen} visibility={{base: "visible", md: "hidden" }} />
-      <MenuLinks isOpen={isMenuOpen} bg={"white"} display={{ base: isMenuOpen ? "block" : "none", md: "block" }} />
+      <Logo maxHeight="10px" visibility={isMenuOpen ? "hidden" : "visible"} />
+      <MenuToggle
+        toggle={toggle}
+        isOpen={isMenuOpen}
+        visibility={{ base: "visible", md: "hidden" }}
+      />
+      <MenuLinks
+        isOpen={isMenuOpen}
+        bg={"white"}
+        display={{ base: isMenuOpen ? "block" : "none", md: "block" }}
+      />
     </NavBarContainer>
   );
 };
