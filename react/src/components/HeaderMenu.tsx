@@ -12,17 +12,9 @@ const MenuToggle = ({ toggle, isOpen, ...props }) => (
     aria-label={isOpen ? "close menu" : "open menu"}
     {...props}
   />
-
-  // <Box display={{ base: "block", md: "none" }} cursor={"pointer"} onClick={toggle}>
-  //   {isOpen ? <AiFillCloseCircle/> : <AiOutlineMenu/>}
-  // </Box>
 );
 
-const Logo = (props) => <Image src={BoxtributeLogo} maxH={"5em"} />;
-const MenuItem = ({ to, text }: { to: string; text: string }) => (<NavLink to={to} style={({isActive}) => (isActive ? {fontWeight: "bold"} : {})}>
-    <Text display="block">{text}</Text>
-  </NavLink>
-);
+const Logo = (props) => <NavLink to="/" ><Image src={BoxtributeLogo} maxH={"4em"} /></NavLink>;
 
 const LoginLogoutButton = () => {
   const { isAuthenticated, logout, loginWithRedirect } = useAuth0();
@@ -33,7 +25,16 @@ const LoginLogoutButton = () => {
   );
 };
 
-const MenuLinks = ({ isOpen, ...props }) => {
+const MenuItem = ({ to, text, ...props }) => (
+  <NavLink to={to} style={({ isActive }) => (isActive ? { fontWeight: "bold" } : {})} {...props} >
+    <Text display="block">{text}</Text>
+  </NavLink>
+);
+
+const MenuLinks = ({ isOpen, onLinkClick, ...props }) => {
+
+  const MenuItemWithLinkClickHandler = (props) => <MenuItem onClick={onLinkClick} {...props} />
+  
   return (
     <Box flexBasis={{ base: "100%", md: "auto" }} {...props}>
       <Stack
@@ -44,9 +45,9 @@ const MenuLinks = ({ isOpen, ...props }) => {
         pt={[4, 4, 0, 0]}
       >
         <LoginLogoutButton />
-        <MenuItem to="/" text="Home" />
-        <MenuItem to="/locations" text="Locations" />
-        <MenuItem to="/boxes" text="Boxes" />
+        <MenuItemWithLinkClickHandler to="/" text="Home" />
+        <MenuItemWithLinkClickHandler to="/locations" text="Locations" />
+        <MenuItemWithLinkClickHandler to="/boxes" text="Boxes" />
       </Stack>
     </Box>
   );
@@ -85,6 +86,7 @@ const Header = () => {
         isOpen={isMenuOpen}
         bg={"white"}
         display={{ base: isMenuOpen ? "block" : "none", md: "block" }}
+        onLinkClick={() => setIsMenuOpen(false)}
       />
     </NavBarContainer>
   );
