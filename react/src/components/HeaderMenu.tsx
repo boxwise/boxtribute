@@ -25,15 +25,14 @@ const LoginLogoutButton = () => {
   );
 };
 
-const MenuItem = ({ to, text, ...props }) => (
-  <NavLink to={to} style={({ isActive }) => (isActive ? { fontWeight: "bold" } : {})} {...props} >
-    <Text display="block">{text}</Text>
-  </NavLink>
-);
 
 const MenuLinks = ({ isOpen, onLinkClick, ...props }) => {
 
-  const MenuItemWithLinkClickHandler = (props) => <MenuItem onClick={onLinkClick} {...props} />
+const MenuItem = ({ to, text, ...props }) => (
+  <NavLink onClick={onLinkClick} to={to} style={({ isActive }) => (isActive ? { fontWeight: "bold" } : {})} {...props}>
+    <Text display="block">{text}</Text>
+  </NavLink>
+);
   
   return (
     <Box flexBasis={{ base: "100%", md: "auto" }} {...props}>
@@ -45,9 +44,9 @@ const MenuLinks = ({ isOpen, onLinkClick, ...props }) => {
         pt={[4, 4, 0, 0]}
       >
         <LoginLogoutButton />
-        <MenuItemWithLinkClickHandler to="/" text="Home" />
-        <MenuItemWithLinkClickHandler to="/locations" text="Locations" />
-        <MenuItemWithLinkClickHandler to="/boxes" text="Boxes" />
+        <MenuItem to="/" text="Home" />
+        <MenuItem to="/locations" text="Locations" />
+        <MenuItem to="/boxes" text="Boxes" />
       </Stack>
     </Box>
   );
