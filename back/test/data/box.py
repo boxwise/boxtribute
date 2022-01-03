@@ -1,4 +1,5 @@
 import pytest
+from boxtribute_server.enums import BoxState
 from boxtribute_server.models.definitions.box import Box
 from data.box_state import default_box_state_data
 from data.location import another_location_data, default_location_data
@@ -38,8 +39,21 @@ def another_box_data():
     return data
 
 
+def lost_box_data():
+    data = box_without_qr_code_data()
+    data["id"] = 5
+    data["label_identifier"] = "45678901"
+    data["state"] = BoxState.Lost
+    return data
+
+
 def data():
-    return [default_box_data(), box_without_qr_code_data(), another_box_data()]
+    return [
+        default_box_data(),
+        box_without_qr_code_data(),
+        another_box_data(),
+        lost_box_data(),
+    ]
 
 
 @pytest.fixture
@@ -60,6 +74,11 @@ def box_without_qr_code():
 @pytest.fixture
 def another_box():
     return another_box_data()
+
+
+@pytest.fixture
+def lost_box():
+    return lost_box_data()
 
 
 def create():
