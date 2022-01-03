@@ -416,6 +416,43 @@ def send_shipment(*, id, user):
     return shipment
 
 
+def _update_shipment_with_prepared_boxes(*, shipment, box_label_identifiers, user_id):
+    """Update given shipment with prepared boxes.
+    If boxes are requested to be updated that are not located in the shipment's source
+    base, or have a state different from InStock, they are silently discarded (i.e. not
+    added to the ShipmentDetail model).
+    """
+    boxes = []
+    details = []
+    box_label_identifiers = box_label_identifiers or []
+
+    for box in (
+        Box.select(Box, Location)
+        .join(Location)
+        .where(Box.label_identifier << box_label_identifiers)
+    ):
+        if box.location.base_id != shipment.source_base_id:
+            continue
+        if box.state_id != BoxState.InStock.value:
+            continue
+
+        box.state = BoxState.MarkedForShipment
+        boxes.append(box)
+        details.append(
+            {
+                "shipment": shipment.id,
+                "box": box.id,
+                "source_product": box.product_id,
+                "source_location": box.location_id,
+                "created_by": user_id,
+            }
+        )
+
+    if boxes:
+        Box.bulk_update(boxes, fields=[Box.state])
+    ShipmentDetail.insert_many(details).execute()
+
+
 def update_shipment(
     *,
     id,
@@ -430,18 +467,12 @@ def update_shipment(
     'Preparing'.
     Raise an InvalidTransferAgreementBase exception if specified source or target base
     are not included in given agreement.
-    If boxes are requested to be updated that are not located in the shipment's source
-    base, or have a state different from InStock, they are silently discarded (i.e. not
-    added to the ShipmentDetail model).
     """
     shipment = Shipment.get_by_id(id)
     if shipment.state != ShipmentState.Preparing:
         raise InvalidShipmentState(
             expected_states=[ShipmentState.Preparing], actual_state=shipment.state
         )
-
-    details = []
-    prepared_box_label_identifiers = prepared_box_label_identifiers or []
 
     _validate_bases_as_part_of_transfer_agreement(
         transfer_agreement=TransferAgreement.get_by_id(shipment.transfer_agreement_id),
@@ -450,32 +481,11 @@ def update_shipment(
     )
 
     with db.database.atomic():
-        boxes = []
-        for box in (
-            Box.select(Box, Location)
-            .join(Location)
-            .where(Box.label_identifier.in_(prepared_box_label_identifiers))
-        ):
-            if box.location.base_id != shipment.source_base_id:
-                continue
-            if box.state_id != BoxState.InStock.value:
-                continue
-
-            box.state = BoxState.MarkedForShipment
-            boxes.append(box)
-            details.append(
-                {
-                    "shipment": id,
-                    "box": box.id,
-                    "source_product": box.product_id,
-                    "source_location": box.location_id,
-                    "created_by": user_id,
-                }
-            )
-
-        if boxes:
-            Box.bulk_update(boxes, fields=[Box.state])
-        ShipmentDetail.insert_many(details).execute()
+        _update_shipment_with_prepared_boxes(
+            shipment=shipment,
+            user_id=user_id,
+            box_label_identifiers=prepared_box_label_identifiers,
+        )
 
         if source_base_id is not None:
             shipment.source_base = source_base_id
