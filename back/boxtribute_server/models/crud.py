@@ -454,10 +454,15 @@ def _update_shipment_with_prepared_boxes(*, shipment, box_label_identifiers, use
 
 
 def _update_shipment_with_removed_boxes(*, user_id, box_label_identifiers):
-    """Return boxes to stock, and mark corresponding shipment details as deleted."""
+    """Return boxes to stock, and mark corresponding shipment details as deleted.
+    If boxes are requested to be removed that have a state different from
+    MarkedForShipment, they are silently discarded.
+    """
     boxes = []
     box_label_identifiers = box_label_identifiers or []
     for box in Box.select().where(Box.label_identifier << box_label_identifiers):
+        if box.state_id != BoxState.MarkedForShipment.value:
+            continue
         box.state = BoxState.InStock
         boxes.append(box)
     if boxes:

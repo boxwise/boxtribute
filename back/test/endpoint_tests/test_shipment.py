@@ -290,6 +290,20 @@ def test_shipment_mutations(
     response = client.post("/graphql", json=data)
     assert response.json["data"]["box"] == {"state": BoxState.InStock.name}
 
+    # Verify that lost_box is not removed from shipment (box state different from
+    # MarkedForShipment)
+    box_label_identifier = lost_box["label_identifier"]
+    update_input = f"""{{ id: {shipment_id},
+                removedBoxLabelIdentifiers: [{box_label_identifier}] }}"""
+    mutation = f"""mutation {{ updateShipment(updateInput: {update_input}) {{
+                    details {{ box {{ id }} }}
+                }} }}"""
+    data = {"query": mutation}
+    response = client.post("/graphql", json=data)
+    assert response.status_code == 200
+    shipment = response.json["data"]["updateShipment"]
+    assert shipment == {"details": []}
+
     mutation = f"""mutation {{ sendShipment(id: {shipment_id}) {{
                     id
                     state
