@@ -431,7 +431,8 @@ def update_shipment(
     Raise an InvalidTransferAgreementBase exception if specified source or target base
     are not included in given agreement.
     If boxes are requested to be updated that are not located in the shipment's source
-    base, they are silently discarded (i.e. not added to the ShipmentDetail model).
+    base, or have a state different from InStock, they are silently discarded (i.e. not
+    added to the ShipmentDetail model).
     """
     shipment = Shipment.get_by_id(id)
     if shipment.state != ShipmentState.Preparing:
@@ -456,6 +457,8 @@ def update_shipment(
             .where(Box.label_identifier.in_(prepared_box_label_identifiers))
         ):
             if box.location.base_id != shipment.source_base_id:
+                continue
+            if box.state_id != BoxState.InStock.value:
                 continue
 
             box.state = BoxState.MarkedForShipment

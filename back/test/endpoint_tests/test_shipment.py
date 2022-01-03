@@ -82,6 +82,7 @@ def test_shipment_mutations(
     default_shipment,
     default_box,
     another_box,
+    lost_box,
 ):
     source_base_id = default_bases[2]["id"]
     target_base_id = default_bases[3]["id"]
@@ -249,22 +250,20 @@ def test_shipment_mutations(
         ],
     }
 
-    # Verify that another_box is not added to shipment (not located in source base)
-    box_label_identifier = another_box["label_identifier"]
-    update_input = f"""{{ id: {shipment_id},
-                preparedBoxLabelIdentifiers: [{box_label_identifier}] }}"""
-    mutation = f"""mutation {{ updateShipment(updateInput: {update_input}) {{
-                    details {{
-                        box {{
-                            id
-                        }}
-                    }}
-                }} }}"""
-    data = {"query": mutation}
-    response = client.post("/graphql", json=data)
-    assert response.status_code == 200
-    shipment = response.json["data"]["updateShipment"]
-    assert shipment == {"details": [{"box": {"id": str(default_box["id"])}}]}
+    # Verify that another_box is not added to shipment (not located in source base).
+    # Same for lost_box (box state different from InStock)
+    for box in [another_box, lost_box]:
+        box_label_identifier = box["label_identifier"]
+        update_input = f"""{{ id: {shipment_id},
+                    preparedBoxLabelIdentifiers: [{box_label_identifier}] }}"""
+        mutation = f"""mutation {{ updateShipment(updateInput: {update_input}) {{
+                        details {{ box {{ id }} }}
+                    }} }}"""
+        data = {"query": mutation}
+        response = client.post("/graphql", json=data)
+        assert response.status_code == 200
+        shipment = response.json["data"]["updateShipment"]
+        assert shipment == {"details": [{"box": {"id": str(default_box["id"])}}]}
 
     mutation = f"""mutation {{ sendShipment(id: {shipment_id}) {{
                     id
