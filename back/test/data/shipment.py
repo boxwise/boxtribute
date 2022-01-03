@@ -39,6 +39,15 @@ def data():
             "started_by": default_user_data()["id"],
             "started_on": TIME,
         },
+        {
+            "id": 4,
+            "source_base": base_data()[0]["id"],
+            "target_base": base_data()[2]["id"],
+            "transfer_agreement": transfer_agreement_data()[0]["id"],
+            "state": ShipmentState.Sent,
+            "started_by": default_user_data()["id"],
+            "started_on": TIME,
+        },
     ]
 
 
@@ -55,6 +64,11 @@ def canceled_shipment():
 @pytest.fixture
 def another_shipment():
     return data()[2]
+
+
+@pytest.fixture
+def sent_shipment():
+    return data()[3]
 
 
 def create():

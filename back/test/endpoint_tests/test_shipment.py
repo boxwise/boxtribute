@@ -63,7 +63,11 @@ def test_shipment_query(read_only_client, default_shipment):
 
 
 def test_shipments_query(
-    read_only_client, default_shipment, canceled_shipment, another_shipment
+    read_only_client,
+    default_shipment,
+    canceled_shipment,
+    another_shipment,
+    sent_shipment,
 ):
     query = "query { shipments { id } }"
     data = {"query": query}
@@ -71,7 +75,7 @@ def test_shipments_query(
     shipments = response.json["data"]["shipments"]
     assert shipments == [
         {"id": str(s["id"])}
-        for s in [default_shipment, canceled_shipment, another_shipment]
+        for s in [default_shipment, canceled_shipment, another_shipment, sent_shipment]
     ]
 
 

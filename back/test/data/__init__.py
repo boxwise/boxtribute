@@ -12,11 +12,17 @@ from .history import default_history
 from .location import another_location, default_location
 from .log import default_log
 from .organisation import another_organisation, default_organisation
-from .product import default_product
+from .product import another_product, default_product
 from .product_category import default_product_category
 from .product_gender import default_product_gender
 from .qr_code import default_qr_code, qr_code_without_box
-from .shipment import another_shipment, canceled_shipment, default_shipment
+from .shipment import (
+    another_shipment,
+    canceled_shipment,
+    default_shipment,
+    sent_shipment,
+)
+from .shipment_detail import default_shipment_detail
 from .size_range import default_size_range
 from .transaction import default_transaction
 from .transfer_agreement import (
@@ -32,6 +38,7 @@ __all__ = [
     "another_box",
     "another_location",
     "another_organisation",
+    "another_product",
     "another_shipment",
     "box_without_qr_code",
     "canceled_shipment",
@@ -50,6 +57,7 @@ __all__ = [
     "default_product_gender",
     "default_qr_code",
     "default_shipment",
+    "default_shipment_detail",
     "default_size_range",
     "default_transaction",
     "default_transfer_agreement",
@@ -59,6 +67,7 @@ __all__ = [
     "lost_box",
     "qr_code_without_box",
     "reviewed_transfer_agreement",
+    "sent_shipment",
     "transfer_agreements",
     "unidirectional_transfer_agreement",
 ]
