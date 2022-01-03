@@ -21,6 +21,7 @@ from ..models.crud import (
     update_beneficiary,
     update_box,
     update_shipment,
+    update_shipment_detail,
 )
 from ..models.definitions.base import Base
 from ..models.definitions.beneficiary import Beneficiary
@@ -377,6 +378,12 @@ def resolve_cancel_shipment(_, info, id):
 @mutation.field("sendShipment")
 def resolve_send_shipment(_, info, id):
     return send_shipment(id=id, user=g.user)
+
+
+@mutation.field("updateShipmentDetail")
+@convert_kwargs_to_snake_case
+def resolve_update_shipment_detail(_, info, update_input):
+    return update_shipment_detail(**update_input)
 
 
 @base.field("locations")

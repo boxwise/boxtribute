@@ -519,3 +519,17 @@ def update_shipment(
             shipment.save()
 
     return shipment
+
+
+def update_shipment_detail(*, id, target_product_id=None, target_location_id=None):
+    """Update shipment details (target product and/or location). Transition the
+    corresponding box's state to Received.
+    """
+    detail = ShipmentDetail.get_by_id(id)
+    detail.target_product = target_product_id
+    detail.target_location = target_location_id
+    detail.box.state_id = BoxState.Received
+    with db.database.atomic():
+        detail.save()
+        detail.box.save()
+    return detail
