@@ -446,7 +446,10 @@ def resolve_qr_code_box(qr_code_obj, info):
 
 @shipment.field("details")
 def resolve_shipment_details(shipment_obj, info):
-    return ShipmentDetail.select().where(ShipmentDetail.shipment == shipment_obj.id)
+    return ShipmentDetail.select().where(
+        (ShipmentDetail.shipment == shipment_obj.id)
+        & (ShipmentDetail.deleted_on.is_null())
+    )
 
 
 @transfer_agreement.field("sourceBases")

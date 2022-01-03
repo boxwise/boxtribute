@@ -453,16 +453,31 @@ def _update_shipment_with_prepared_boxes(*, shipment, box_label_identifiers, use
     ShipmentDetail.insert_many(details).execute()
 
 
+def _update_shipment_with_removed_boxes(*, user_id, box_label_identifiers):
+    """Return boxes to stock, and mark corresponding shipment details as deleted."""
+    boxes = []
+    box_label_identifiers = box_label_identifiers or []
+    for box in Box.select().where(Box.label_identifier << box_label_identifiers):
+        box.state = BoxState.InStock
+        boxes.append(box)
+    if boxes:
+        Box.bulk_update(boxes, fields=[Box.state])
+        ShipmentDetail.update(deleted_by=user_id, deleted_on=utcnow()).where(
+            ShipmentDetail.box << boxes
+        ).execute()
+
+
 def update_shipment(
     *,
     id,
     user_id,
     prepared_box_label_identifiers=None,
+    removed_box_label_identifiers=None,
     source_base_id=None,
     target_base_id=None,
 ):
-    """Update shipment detail information, such as prepared boxes, or source/target
-    base.
+    """Update shipment detail information, such as prepared or removed boxes, or
+    source/target base.
     Raise InvalidShipmentState exception if shipment state is different from
     'Preparing'.
     Raise an InvalidTransferAgreementBase exception if specified source or target base
@@ -485,6 +500,10 @@ def update_shipment(
             shipment=shipment,
             user_id=user_id,
             box_label_identifiers=prepared_box_label_identifiers,
+        )
+        _update_shipment_with_removed_boxes(
+            user_id=user_id,
+            box_label_identifiers=removed_box_label_identifiers,
         )
 
         if source_base_id is not None:

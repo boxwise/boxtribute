@@ -265,6 +265,31 @@ def test_shipment_mutations(
         shipment = response.json["data"]["updateShipment"]
         assert shipment == {"details": [{"box": {"id": str(default_box["id"])}}]}
 
+    box_label_identifier = default_box["label_identifier"]
+    update_input = f"""{{ id: {shipment_id},
+                removedBoxLabelIdentifiers: [{box_label_identifier}] }}"""
+    mutation = f"""mutation {{ updateShipment(updateInput: {update_input}) {{
+                    id
+                    state
+                    details {{
+                        id
+                    }}
+                }} }}"""
+    data = {"query": mutation}
+    response = client.post("/graphql", json=data)
+    assert response.status_code == 200
+    shipment = response.json["data"]["updateShipment"]
+    assert shipment == {
+        "id": shipment_id,
+        "state": ShipmentState.Preparing.name,
+        "details": [],
+    }
+    query = f"""query {{ box(labelIdentifier: "{box_label_identifier}") {{
+                    state }} }}"""
+    data = {"query": query}
+    response = client.post("/graphql", json=data)
+    assert response.json["data"]["box"] == {"state": BoxState.InStock.name}
+
     mutation = f"""mutation {{ sendShipment(id: {shipment_id}) {{
                     id
                     state
