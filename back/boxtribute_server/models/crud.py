@@ -528,6 +528,7 @@ def update_shipment_detail(
     corresponding box's state to Received.
     Raise an InvalidTransferAgreementOrganisation exception if the current user is not
     member of the organisation that is supposed to receive the shipment.
+    Raise InvalidShipmentState exception if shipment state is different from 'Sent'.
     """
     detail = (
         ShipmentDetail.select(ShipmentDetail, Shipment, Base)
@@ -538,6 +539,10 @@ def update_shipment_detail(
     )
     if detail.shipment.target_base.organisation_id != user["organisation_id"]:
         raise InvalidTransferAgreementOrganisation()
+    if detail.shipment.state != ShipmentState.Sent:
+        raise InvalidShipmentState(
+            expected_states=[ShipmentState.Sent], actual_state=detail.shipment.state
+        )
 
     detail.target_product = target_product_id
     detail.target_location = target_location_id

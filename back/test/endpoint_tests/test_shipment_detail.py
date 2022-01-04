@@ -53,3 +53,15 @@ def test_shipment_detail_mutations_update_checked_in_boxes_as_member_of_creating
     mutation = f"""mutation {{ updateShipmentDetail(updateInput: {{ id: {detail_id} }})
                 {{ id }} }}"""
     assert_bad_user_input(read_only_client, mutation)
+
+
+def test_shipment_detail_mutations_update_shipment_in_non_sent_state(
+    read_only_client, mocker, prepared_shipment_detail
+):
+    mocker.patch("jose.jwt.decode").return_value = create_jwt_payload(
+        base_ids=[3], organisation_id=2, user_id=2
+    )
+    detail_id = str(prepared_shipment_detail["id"])
+    mutation = f"""mutation {{ updateShipmentDetail(updateInput: {{ id: {detail_id} }})
+                {{ id }} }}"""
+    assert_bad_user_input(read_only_client, mutation)
