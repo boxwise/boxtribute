@@ -317,7 +317,6 @@ input ShipmentCreationInput {
 
 input ShipmentUpdateInput {
   id: ID!
-  sourceBaseId: Int
   targetBaseId: Int
   # label identifiers of boxes prepared for shipment
   preparedBoxLabelIdentifiers: [Int!]

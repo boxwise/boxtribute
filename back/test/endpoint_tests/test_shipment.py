@@ -172,26 +172,24 @@ def test_shipment_mutations(
     }
 
     shipment_id = str(default_shipment["id"])
-    source_base_id = default_bases[1]["id"]
-    for base_id, kind in zip([source_base_id, target_base_id], ["source", "target"]):
-        update_input = f"""{{ id: {shipment_id},
-                    {kind}BaseId: {base_id} }}"""
-        mutation = f"""mutation {{ updateShipment(updateInput: {update_input}) {{
+    update_input = f"""{{ id: {shipment_id},
+                targetBaseId: {target_base_id} }}"""
+    mutation = f"""mutation {{ updateShipment(updateInput: {update_input}) {{
+                    id
+                    state
+                    targetBase {{
                         id
-                        state
-                        {kind}Base {{
-                            id
-                        }}
-                    }} }}"""
-        data = {"query": mutation}
-        response = client.post("/graphql", json=data)
-        assert response.status_code == 200
-        shipment = response.json["data"]["updateShipment"]
-        assert shipment == {
-            "id": shipment_id,
-            "state": ShipmentState.Preparing.name,
-            f"{kind}Base": {"id": str(base_id)},
-        }
+                    }}
+                }} }}"""
+    data = {"query": mutation}
+    response = client.post("/graphql", json=data)
+    assert response.status_code == 200
+    shipment = response.json["data"]["updateShipment"]
+    assert shipment == {
+        "id": shipment_id,
+        "state": ShipmentState.Preparing.name,
+        "targetBase": {"id": str(target_base_id)},
+    }
 
     box_label_identifier = default_box["label_identifier"]
     update_input = f"""{{ id: {shipment_id},

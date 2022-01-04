@@ -478,15 +478,14 @@ def update_shipment(
     user_id,
     prepared_box_label_identifiers=None,
     removed_box_label_identifiers=None,
-    source_base_id=None,
     target_base_id=None,
 ):
     """Update shipment detail information, such as prepared or removed boxes, or
-    source/target base.
+    target base.
     Raise InvalidShipmentState exception if shipment state is different from
     'Preparing'.
-    Raise an InvalidTransferAgreementBase exception if specified source or target base
-    are not included in given agreement.
+    Raise an InvalidTransferAgreementBase exception if specified target base is not
+    included in given agreement.
     """
     shipment = Shipment.get_by_id(id)
     if shipment.state != ShipmentState.Preparing:
@@ -496,7 +495,6 @@ def update_shipment(
 
     _validate_bases_as_part_of_transfer_agreement(
         transfer_agreement=TransferAgreement.get_by_id(shipment.transfer_agreement_id),
-        source_base_id=source_base_id,
         target_base_id=target_base_id,
     )
 
@@ -511,11 +509,8 @@ def update_shipment(
             box_label_identifiers=removed_box_label_identifiers,
         )
 
-        if source_base_id is not None:
-            shipment.source_base = source_base_id
         if target_base_id is not None:
             shipment.target_base = target_base_id
-        if shipment.is_dirty():
             shipment.save()
 
     return shipment
