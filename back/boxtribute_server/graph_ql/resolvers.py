@@ -383,7 +383,7 @@ def resolve_send_shipment(_, info, id):
 @mutation.field("updateShipmentDetail")
 @convert_kwargs_to_snake_case
 def resolve_update_shipment_detail(_, info, update_input):
-    return update_shipment_detail(**update_input)
+    return update_shipment_detail(**update_input, user=g.user)
 
 
 @base.field("locations")

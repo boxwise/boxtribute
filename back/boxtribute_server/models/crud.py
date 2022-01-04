@@ -521,11 +521,24 @@ def update_shipment(
     return shipment
 
 
-def update_shipment_detail(*, id, target_product_id=None, target_location_id=None):
+def update_shipment_detail(
+    *, id, user, target_product_id=None, target_location_id=None
+):
     """Update shipment details (target product and/or location). Transition the
     corresponding box's state to Received.
+    Raise an InvalidTransferAgreementOrganisation exception if the current user is not
+    member of the organisation that is supposed to receive the shipment.
     """
-    detail = ShipmentDetail.get_by_id(id)
+    detail = (
+        ShipmentDetail.select(ShipmentDetail, Shipment, Base)
+        .join(Shipment)
+        .join(Base, on=Shipment.target_base)
+        .where(ShipmentDetail.id == id)
+        .get()
+    )
+    if detail.shipment.target_base.organisation_id != user["organisation_id"]:
+        raise InvalidTransferAgreementOrganisation()
+
     detail.target_product = target_product_id
     detail.target_location = target_location_id
     detail.box.state_id = BoxState.Received
