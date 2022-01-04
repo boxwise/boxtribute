@@ -2,6 +2,7 @@ from datetime import date
 
 import pytest
 from boxtribute_server.enums import BoxState, ShipmentState
+from utils import assert_bad_user_input
 
 
 def test_shipment_query(read_only_client, default_shipment):
@@ -349,14 +350,6 @@ def assert_bad_user_input_when_updating_shipment(
     mutation = f"""mutation {{ updateShipment(updateInput: {{ {update_input} }} ) {{
                     id }} }}"""
     assert_bad_user_input(client, mutation)
-
-
-def assert_bad_user_input(client, mutation):
-    data = {"query": mutation}
-    response = client.post("/graphql", json=data)
-    assert response.status_code == 200
-    assert len(response.json["errors"]) == 1
-    assert response.json["errors"][0]["extensions"]["code"] == "BAD_USER_INPUT"
 
 
 def test_shipment_mutations_create_with_non_accepted_agreement(
