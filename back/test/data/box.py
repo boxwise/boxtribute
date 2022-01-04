@@ -28,6 +28,7 @@ def box_without_qr_code_data():
     data["label_identifier"] = "23456789"
     data["items"] = 10
     data["qr_code"] = None
+    data["state"] = BoxState.MarkedForShipment
     return data
 
 

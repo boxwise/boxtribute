@@ -5,7 +5,7 @@ from boxtribute_server.enums import BoxState, ShipmentState
 from utils import assert_bad_user_input
 
 
-def test_shipment_query(read_only_client, default_shipment):
+def test_shipment_query(read_only_client, default_shipment, prepared_shipment_detail):
     shipment_id = str(default_shipment["id"])
     query = f"""query {{
                 shipment(id: {shipment_id}) {{
@@ -59,7 +59,7 @@ def test_shipment_query(read_only_client, default_shipment):
         "canceledBy": None,
         "canceledOn": None,
         "transferAgreement": {"id": str(default_shipment["transfer_agreement"])},
-        "details": [],
+        "details": [{"id": str(prepared_shipment_detail["id"])}],
     }
 
 
@@ -87,7 +87,9 @@ def test_shipment_mutations(
     default_shipment,
     default_box,
     another_box,
+    box_without_qr_code,
     lost_box,
+    prepared_shipment_detail,
 ):
     source_base_id = default_bases[2]["id"]
     target_base_id = default_bases[3]["id"]
@@ -171,9 +173,7 @@ def test_shipment_mutations(
 
     shipment_id = str(default_shipment["id"])
     source_base_id = default_bases[1]["id"]
-    for base_id, kind in zip(
-        [default_bases[1]["id"], target_base_id], ["source", "target"]
-    ):
+    for base_id, kind in zip([source_base_id, target_base_id], ["source", "target"]):
         update_input = f"""{{ id: {shipment_id},
                     {kind}BaseId: {base_id} }}"""
         mutation = f"""mutation {{ updateShipment(updateInput: {update_input}) {{
@@ -200,6 +200,7 @@ def test_shipment_mutations(
                     id
                     state
                     details {{
+                        id
                         shipment {{
                             id
                         }}
@@ -234,10 +235,28 @@ def test_shipment_mutations(
     assert response.status_code == 200
     shipment = response.json["data"]["updateShipment"]
     assert shipment["details"][0].pop("createdOn").startswith(date.today().isoformat())
+    assert shipment["details"][1].pop("createdOn").startswith(date.today().isoformat())
+    shipment_detail_id = shipment["details"][1].pop("id")
+    prepared_shipment_detail_id = str(prepared_shipment_detail["id"])
     assert shipment == {
         "id": shipment_id,
         "state": ShipmentState.Preparing.name,
         "details": [
+            {
+                "id": prepared_shipment_detail_id,
+                "shipment": {"id": shipment_id},
+                "box": {
+                    "id": str(box_without_qr_code["id"]),
+                    "state": BoxState.MarkedForShipment.name,
+                },
+                "sourceProduct": {"id": str(box_without_qr_code["product"])},
+                "targetProduct": None,
+                "sourceLocation": {"id": str(box_without_qr_code["location"])},
+                "targetLocation": None,
+                "createdBy": {"id": "1"},
+                "deletedBy": None,
+                "deletedOn": None,
+            },
             {
                 "shipment": {"id": shipment_id},
                 "box": {
@@ -251,7 +270,7 @@ def test_shipment_mutations(
                 "createdBy": {"id": "8"},
                 "deletedBy": None,
                 "deletedOn": None,
-            }
+            },
         ],
     }
 
@@ -262,13 +281,17 @@ def test_shipment_mutations(
         update_input = f"""{{ id: {shipment_id},
                     preparedBoxLabelIdentifiers: [{box_label_identifier}] }}"""
         mutation = f"""mutation {{ updateShipment(updateInput: {update_input}) {{
-                        details {{ box {{ id }} }}
+                        details {{ id }}
                     }} }}"""
         data = {"query": mutation}
         response = client.post("/graphql", json=data)
         assert response.status_code == 200
         shipment = response.json["data"]["updateShipment"]
-        assert shipment == {"details": [{"box": {"id": str(default_box["id"])}}]}
+        assert shipment == {
+            "details": [
+                {"id": i} for i in [prepared_shipment_detail_id, shipment_detail_id]
+            ]
+        }
 
     box_label_identifier = default_box["label_identifier"]
     update_input = f"""{{ id: {shipment_id},
@@ -287,7 +310,7 @@ def test_shipment_mutations(
     assert shipment == {
         "id": shipment_id,
         "state": ShipmentState.Preparing.name,
-        "details": [],
+        "details": [{"id": prepared_shipment_detail_id}],
     }
     query = f"""query {{ box(labelIdentifier: "{box_label_identifier}") {{
                     state }} }}"""
@@ -301,13 +324,13 @@ def test_shipment_mutations(
     update_input = f"""{{ id: {shipment_id},
                 removedBoxLabelIdentifiers: [{box_label_identifier}] }}"""
     mutation = f"""mutation {{ updateShipment(updateInput: {update_input}) {{
-                    details {{ box {{ id }} }}
+                    details {{ id }}
                 }} }}"""
     data = {"query": mutation}
     response = client.post("/graphql", json=data)
     assert response.status_code == 200
     shipment = response.json["data"]["updateShipment"]
-    assert shipment == {"details": []}
+    assert shipment == {"details": [{"id": prepared_shipment_detail_id}]}
 
     mutation = f"""mutation {{ sendShipment(id: {shipment_id}) {{
                     id

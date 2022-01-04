@@ -22,7 +22,7 @@ from .shipment import (
     default_shipment,
     sent_shipment,
 )
-from .shipment_detail import default_shipment_detail
+from .shipment_detail import default_shipment_detail, prepared_shipment_detail
 from .size_range import default_size_range
 from .transaction import default_transaction
 from .transfer_agreement import (
@@ -65,6 +65,7 @@ __all__ = [
     "default_users",
     "expired_transfer_agreement",
     "lost_box",
+    "prepared_shipment_detail",
     "qr_code_without_box",
     "reviewed_transfer_agreement",
     "sent_shipment",
