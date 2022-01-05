@@ -6,7 +6,14 @@ from boxtribute_server.db import db
 
 from .base import default_base, default_bases
 from .beneficiary import default_beneficiary
-from .box import another_box, box_without_qr_code, default_box, default_boxes, lost_box
+from .box import (
+    another_box,
+    box_without_qr_code,
+    default_box,
+    default_boxes,
+    lost_box,
+    marked_for_shipment_box,
+)
 from .box_state import default_box_state
 from .history import default_history
 from .location import another_location, default_location
@@ -65,6 +72,7 @@ __all__ = [
     "default_users",
     "expired_transfer_agreement",
     "lost_box",
+    "marked_for_shipment_box",
     "prepared_shipment_detail",
     "qr_code_without_box",
     "reviewed_transfer_agreement",
