@@ -24,6 +24,7 @@ from ..exceptions import (
 from .definitions.base import Base
 from .definitions.beneficiary import Beneficiary
 from .definitions.box import Box
+from .definitions.location import Location
 from .definitions.qr_code import QrCode
 from .definitions.shipment import Shipment
 from .definitions.shipment_detail import ShipmentDetail
@@ -317,6 +318,29 @@ def retrieve_transfer_agreement_bases(*, transfer_agreement, kind):
     )
 
 
+def _validate_bases_as_part_of_transfer_agreement(
+    *, transfer_agreement, source_base_id=None, target_base_id=None
+):
+    """Validate that given bases are part of the given transfer agreement. Raise
+    InvalidTransferAgreementBase exception otherwise.
+    """
+    for kind in ["source", "target"]:
+        base_id = locals()[f"{kind}_base_id"]
+        if base_id is None:
+            continue
+
+        base_ids = [
+            b.id
+            for b in retrieve_transfer_agreement_bases(
+                transfer_agreement=transfer_agreement, kind=kind
+            )
+        ]
+        if base_id not in base_ids:
+            raise InvalidTransferAgreementBase(
+                base_id=base_id, expected_base_ids=base_ids
+            )
+
+
 def create_shipment(data, *, started_by):
     """Insert information for a new Shipment in the database.
     Raise an InvalidTransferAgreementState exception if specified agreement has a state
@@ -334,18 +358,11 @@ def create_shipment(data, *, started_by):
             actual_state=agreement.state,
         )
 
-    for kind in ["source", "target"]:
-        base_id = data[f"{kind}_base_id"]
-        base_ids = [
-            b.id
-            for b in retrieve_transfer_agreement_bases(
-                transfer_agreement=agreement, kind=kind
-            )
-        ]
-        if base_id not in base_ids:
-            raise InvalidTransferAgreementBase(
-                base_id=base_id, expected_base_ids=base_ids
-            )
+    _validate_bases_as_part_of_transfer_agreement(
+        transfer_agreement=agreement,
+        source_base_id=data["source_base_id"],
+        target_base_id=data["target_base_id"],
+    )
 
     if (agreement.type == TransferAgreementType.Unidirectional) and (
         started_by["organisation_id"] != agreement.source_organisation_id
@@ -378,46 +395,127 @@ def cancel_shipment(*, id, user_id):
     return shipment
 
 
-def send_shipment(*, id, user_id):
+def send_shipment(*, id, user):
     """Transition state of specified shipment to 'Sent'.
+    Raise an InvalidTransferAgreementOrganisation exception if the current user is not
+    member of the organisation that originally created the shipment.
     Raise InvalidShipmentState exception if shipment state is different from
     'Preparing'.
+    """
+    shipment = Shipment.get_by_id(id)
+    if shipment.source_base.organisation_id != user["organisation_id"]:
+        raise InvalidTransferAgreementOrganisation()
+    if shipment.state != ShipmentState.Preparing:
+        raise InvalidShipmentState(
+            expected_states=[ShipmentState.Preparing], actual_state=shipment.state
+        )
+    shipment.state = ShipmentState.Sent
+    shipment.sent_by = user["id"]
+    shipment.sent_on = utcnow()
+    shipment.save()
+    return shipment
+
+
+def _update_shipment_with_prepared_boxes(*, shipment, box_label_identifiers, user_id):
+    """Update given shipment with prepared boxes.
+    If boxes are requested to be updated that are not located in the shipment's source
+    base, or have a state different from InStock, they are silently discarded (i.e. not
+    added to the ShipmentDetail model).
+    """
+    boxes = []
+    details = []
+    box_label_identifiers = box_label_identifiers or []
+
+    for box in (
+        Box.select(Box, Location)
+        .join(Location)
+        .where(Box.label_identifier << box_label_identifiers)
+    ):
+        if box.location.base_id != shipment.source_base_id:
+            continue
+        if box.state_id != BoxState.InStock.value:
+            continue
+
+        box.state = BoxState.MarkedForShipment
+        boxes.append(box)
+        details.append(
+            {
+                "shipment": shipment.id,
+                "box": box.id,
+                "source_product": box.product_id,
+                "source_location": box.location_id,
+                "created_by": user_id,
+            }
+        )
+
+    if boxes:
+        Box.bulk_update(boxes, fields=[Box.state])
+    ShipmentDetail.insert_many(details).execute()
+
+
+def _update_shipment_with_removed_boxes(*, user_id, box_label_identifiers):
+    """Return boxes to stock, and mark corresponding shipment details as deleted.
+    If boxes are requested to be removed that have a state different from
+    MarkedForShipment, they are silently discarded.
+    """
+    boxes = []
+    box_label_identifiers = box_label_identifiers or []
+    for box in Box.select().where(Box.label_identifier << box_label_identifiers):
+        if box.state_id != BoxState.MarkedForShipment.value:
+            continue
+        box.state = BoxState.InStock
+        boxes.append(box)
+    if boxes:
+        Box.bulk_update(boxes, fields=[Box.state])
+        ShipmentDetail.update(deleted_by=user_id, deleted_on=utcnow()).where(
+            ShipmentDetail.box << boxes
+        ).execute()
+
+
+def update_shipment(
+    *,
+    id,
+    user_id,
+    prepared_box_label_identifiers=None,
+    removed_box_label_identifiers=None,
+    source_base_id=None,
+    target_base_id=None,
+):
+    """Update shipment detail information, such as prepared or removed boxes, or
+    source/target base.
+    Raise InvalidShipmentState exception if shipment state is different from
+    'Preparing'.
+    Raise an InvalidTransferAgreementBase exception if specified source or target base
+    are not included in given agreement.
     """
     shipment = Shipment.get_by_id(id)
     if shipment.state != ShipmentState.Preparing:
         raise InvalidShipmentState(
             expected_states=[ShipmentState.Preparing], actual_state=shipment.state
         )
-    shipment.state = ShipmentState.Sent
-    shipment.sent_by = user_id
-    shipment.sent_on = utcnow()
-    shipment.save()
-    return shipment
 
-
-def update_shipment(data):
-    """Update shipment detail information, such as prepared boxes."""
-    prepared_box_label_identifiers = data.pop("prepared_box_label_identifiers", [])
-    shipment_id = data.pop("id")
-    details = []
+    _validate_bases_as_part_of_transfer_agreement(
+        transfer_agreement=TransferAgreement.get_by_id(shipment.transfer_agreement_id),
+        source_base_id=source_base_id,
+        target_base_id=target_base_id,
+    )
 
     with db.database.atomic():
-        boxes = []
-        for box in Box.select().where(
-            Box.label_identifier.in_(prepared_box_label_identifiers)
-        ):
-            box.state = BoxState.MarkedForShipment
-            boxes.append(box)
-            details.append(
-                {
-                    "shipment": shipment_id,
-                    "box": box.id,
-                    "source_product": box.product_id,
-                    "source_location": box.location_id,
-                    **data,
-                }
-            )
+        _update_shipment_with_prepared_boxes(
+            shipment=shipment,
+            user_id=user_id,
+            box_label_identifiers=prepared_box_label_identifiers,
+        )
+        _update_shipment_with_removed_boxes(
+            user_id=user_id,
+            box_label_identifiers=removed_box_label_identifiers,
+        )
 
-        Box.bulk_update(boxes, fields=[Box.state])
-        ShipmentDetail.insert_many(details).execute()
-    return Shipment.get_by_id(shipment_id)
+        if source_base_id is not None:
+            shipment.source_base = source_base_id
+        if target_base_id is not None:
+            shipment.target_base = target_base_id
+        if shipment.is_dirty():
+            shipment.save()
+
+    return shipment

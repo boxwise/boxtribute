@@ -6,7 +6,7 @@ from boxtribute_server.db import db
 
 from .base import default_base, default_bases
 from .beneficiary import default_beneficiary
-from .box import box_without_qr_code, default_box, default_boxes
+from .box import another_box, box_without_qr_code, default_box, default_boxes, lost_box
 from .box_state import default_box_state
 from .history import default_history
 from .location import another_location, default_location
@@ -16,7 +16,7 @@ from .product import default_product
 from .product_category import default_product_category
 from .product_gender import default_product_gender
 from .qr_code import default_qr_code, qr_code_without_box
-from .shipment import canceled_shipment, default_shipment
+from .shipment import another_shipment, canceled_shipment, default_shipment
 from .size_range import default_size_range
 from .transaction import default_transaction
 from .transfer_agreement import (
@@ -29,8 +29,10 @@ from .transfer_agreement import (
 from .user import default_user, default_users
 
 __all__ = [
+    "another_box",
     "another_location",
     "another_organisation",
+    "another_shipment",
     "box_without_qr_code",
     "canceled_shipment",
     "default_beneficiary",
@@ -54,6 +56,7 @@ __all__ = [
     "default_user",
     "default_users",
     "expired_transfer_agreement",
+    "lost_box",
     "qr_code_without_box",
     "reviewed_transfer_agreement",
     "transfer_agreements",

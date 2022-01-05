@@ -1,7 +1,8 @@
 import pytest
+from boxtribute_server.enums import BoxState
 from boxtribute_server.models.definitions.box import Box
 from data.box_state import default_box_state_data
-from data.location import default_location_data
+from data.location import another_location_data, default_location_data
 from data.product import default_product_data
 from data.qr_code import default_qr_code_data
 from data.user import default_user_data
@@ -22,7 +23,7 @@ def default_box_data():
 
 
 def box_without_qr_code_data():
-    data = default_box_data().copy()
+    data = default_box_data()
     data["id"] = 3
     data["label_identifier"] = "23456789"
     data["items"] = 10
@@ -30,25 +31,55 @@ def box_without_qr_code_data():
     return data
 
 
+def another_box_data():
+    data = box_without_qr_code_data()
+    data["id"] = 4
+    data["label_identifier"] = "34567890"
+    data["location"] = another_location_data()["id"]
+    return data
+
+
+def lost_box_data():
+    data = box_without_qr_code_data()
+    data["id"] = 5
+    data["label_identifier"] = "45678901"
+    data["state"] = BoxState.Lost
+    return data
+
+
 def data():
-    return [default_box_data(), box_without_qr_code_data()]
+    return [
+        default_box_data(),
+        box_without_qr_code_data(),
+        another_box_data(),
+        lost_box_data(),
+    ]
 
 
-@pytest.fixture()
+@pytest.fixture
 def default_boxes():
     return data()
 
 
-@pytest.fixture()
+@pytest.fixture
 def default_box():
     return default_box_data()
 
 
-@pytest.fixture()
+@pytest.fixture
 def box_without_qr_code():
     return box_without_qr_code_data()
 
 
+@pytest.fixture
+def another_box():
+    return another_box_data()
+
+
+@pytest.fixture
+def lost_box():
+    return lost_box_data()
+
+
 def create():
-    Box.create(**default_box_data())
-    Box.create(**box_without_qr_code_data())
+    Box.insert_many(data()).execute()

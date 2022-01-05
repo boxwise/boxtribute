@@ -20,6 +20,7 @@ from ..models.crud import (
     send_shipment,
     update_beneficiary,
     update_box,
+    update_shipment,
 )
 from ..models.definitions.base import Base
 from ..models.definitions.beneficiary import Beneficiary
@@ -358,6 +359,12 @@ def resolve_create_shipment(_, info, creation_input):
     return create_shipment(creation_input, started_by=g.user)
 
 
+@mutation.field("updateShipment")
+@convert_kwargs_to_snake_case
+def resolve_update_shipment(_, info, update_input):
+    return update_shipment(**update_input, user_id=g.user["id"])
+
+
 @mutation.field("cancelShipment")
 def resolve_cancel_shipment(_, info, id):
     return cancel_shipment(id=id, user_id=g.user["id"])
@@ -365,7 +372,7 @@ def resolve_cancel_shipment(_, info, id):
 
 @mutation.field("sendShipment")
 def resolve_send_shipment(_, info, id):
-    return send_shipment(id=id, user_id=g.user["id"])
+    return send_shipment(id=id, user=g.user)
 
 
 @base.field("locations")
@@ -439,7 +446,10 @@ def resolve_qr_code_box(qr_code_obj, info):
 
 @shipment.field("details")
 def resolve_shipment_details(shipment_obj, info):
-    return ShipmentDetail.select().where(ShipmentDetail.shipment == shipment_obj.id)
+    return ShipmentDetail.select().where(
+        (ShipmentDetail.shipment == shipment_obj.id)
+        & (ShipmentDetail.deleted_on.is_null())
+    )
 
 
 @transfer_agreement.field("sourceBases")

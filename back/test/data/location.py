@@ -29,9 +29,9 @@ def default_location():
 
 
 def another_location_data():
-    data = default_location_data().copy()
+    data = default_location_data()
     data["id"] = 2
-    data["base"] = 3
+    data["base"] = base_data()[2]["id"]
     return data
 
 
