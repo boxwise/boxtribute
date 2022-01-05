@@ -291,9 +291,10 @@ def test_shipment_mutations(
             ]
         }
 
-    box_label_identifier = default_box["label_identifier"]
+    boxes = [default_box, box_without_qr_code]
+    box_label_identifiers = ",".join(b["label_identifier"] for b in boxes)
     update_input = f"""{{ id: {shipment_id},
-                removedBoxLabelIdentifiers: [{box_label_identifier}] }}"""
+                removedBoxLabelIdentifiers: [{box_label_identifiers}] }}"""
     mutation = f"""mutation {{ updateShipment(updateInput: {update_input}) {{
                     id
                     state
@@ -308,13 +309,15 @@ def test_shipment_mutations(
     assert shipment == {
         "id": shipment_id,
         "state": ShipmentState.Preparing.name,
-        "details": [{"id": prepared_shipment_detail_id}],
+        "details": [],
     }
-    query = f"""query {{ box(labelIdentifier: "{box_label_identifier}") {{
-                    state }} }}"""
-    data = {"query": query}
-    response = client.post("/graphql", json=data)
-    assert response.json["data"]["box"] == {"state": BoxState.InStock.name}
+    for box in boxes:
+        box_label_identifier = box["label_identifier"]
+        query = f"""query {{ box(labelIdentifier: "{box_label_identifier}") {{
+                        state }} }}"""
+        data = {"query": query}
+        response = client.post("/graphql", json=data)
+        assert response.json["data"]["box"] == {"state": BoxState.InStock.name}
 
     # Verify that lost_box is not removed from shipment (box state different from
     # MarkedForShipment)
@@ -328,7 +331,7 @@ def test_shipment_mutations(
     response = client.post("/graphql", json=data)
     assert response.status_code == 200
     shipment = response.json["data"]["updateShipment"]
-    assert shipment == {"details": [{"id": prepared_shipment_detail_id}]}
+    assert shipment == {"details": []}
 
     mutation = f"""mutation {{ sendShipment(id: {shipment_id}) {{
                     id
