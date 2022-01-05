@@ -475,7 +475,7 @@ def _update_shipment_with_removed_boxes(*, user_id, box_label_identifiers):
 def update_shipment(
     *,
     id,
-    user_id,
+    user,
     prepared_box_label_identifiers=None,
     removed_box_label_identifiers=None,
     target_base_id=None,
@@ -484,6 +484,8 @@ def update_shipment(
     target base.
     Raise InvalidShipmentState exception if shipment state is different from
     'Preparing'.
+    Raise an InvalidTransferAgreementOrganisation exception if the current user is not
+    member of the organisation that originally created the shipment.
     Raise an InvalidTransferAgreementBase exception if specified target base is not
     included in given agreement.
     """
@@ -492,6 +494,8 @@ def update_shipment(
         raise InvalidShipmentState(
             expected_states=[ShipmentState.Preparing], actual_state=shipment.state
         )
+    if shipment.source_base.organisation_id != user["organisation_id"]:
+        raise InvalidTransferAgreementOrganisation()
 
     _validate_bases_as_part_of_transfer_agreement(
         transfer_agreement=TransferAgreement.get_by_id(shipment.transfer_agreement_id),
@@ -501,11 +505,11 @@ def update_shipment(
     with db.database.atomic():
         _update_shipment_with_prepared_boxes(
             shipment=shipment,
-            user_id=user_id,
+            user_id=user["id"],
             box_label_identifiers=prepared_box_label_identifiers,
         )
         _update_shipment_with_removed_boxes(
-            user_id=user_id,
+            user_id=user["id"],
             box_label_identifiers=removed_box_label_identifiers,
         )
 

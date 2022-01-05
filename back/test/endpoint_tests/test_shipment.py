@@ -440,3 +440,15 @@ def test_shipment_mutations_update_in_non_preparing_state(
     assert_bad_user_input_when_updating_shipment(
         read_only_client, shipment_id=canceled_shipment["id"]
     )
+
+
+def test_shipment_mutations_update_as_member_of_non_creating_org(
+    read_only_client, another_shipment, default_bases
+):
+    # The default user (see auth_service fixture) is member of organisation 1 but
+    # organisation 2 is the one that created another_shipment
+    assert_bad_user_input_when_updating_shipment(
+        read_only_client,
+        shipment_id=another_shipment["id"],
+        target_base_id=default_bases[2]["id"],
+    )
