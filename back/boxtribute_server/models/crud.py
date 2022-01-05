@@ -528,6 +528,20 @@ def update_shipment(
     return shipment
 
 
+def _validate_base_as_part_of_shipment(resource_id, *, detail, model):
+    """Validate that the base of the given resource (location or product) is identical
+    to the target base of the detail's shipment. Raise InvalidTransferAgreementBase
+    exception otherwise.
+    """
+    if resource_id is not None:
+        target_resource = model.get_by_id(resource_id)
+        if target_resource.base_id != detail.shipment.target_base_id:
+            raise InvalidTransferAgreementBase(
+                expected_base_ids=[detail.shipment.target_base_id],
+                base_id=target_resource.base_id,
+            )
+
+
 def update_shipment_detail(
     *, id, user, target_product_id=None, target_location_id=None
 ):
@@ -536,6 +550,8 @@ def update_shipment_detail(
     Raise an InvalidTransferAgreementOrganisation exception if the current user is not
     member of the organisation that is supposed to receive the shipment.
     Raise InvalidShipmentState exception if shipment state is different from 'Sent'.
+    Raise InvalidTransferAgreementBase exception if target location is not in shipment
+    target base.
     """
     detail = (
         ShipmentDetail.select(ShipmentDetail, Shipment, Base)
@@ -551,6 +567,9 @@ def update_shipment_detail(
             expected_states=[ShipmentState.Sent], actual_state=detail.shipment.state
         )
 
+    _validate_base_as_part_of_shipment(
+        target_location_id, detail=detail, model=Location
+    )
     detail.target_product = target_product_id
     detail.target_location = target_location_id
     detail.box.state_id = BoxState.Received
