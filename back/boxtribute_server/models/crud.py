@@ -25,6 +25,7 @@ from .definitions.base import Base
 from .definitions.beneficiary import Beneficiary
 from .definitions.box import Box
 from .definitions.location import Location
+from .definitions.product import Product
 from .definitions.qr_code import QrCode
 from .definitions.shipment import Shipment
 from .definitions.shipment_detail import ShipmentDetail
@@ -570,6 +571,7 @@ def update_shipment_detail(
     _validate_base_as_part_of_shipment(
         target_location_id, detail=detail, model=Location
     )
+    _validate_base_as_part_of_shipment(target_product_id, detail=detail, model=Product)
     detail.target_product = target_product_id
     detail.target_location = target_location_id
     detail.box.state_id = BoxState.Received
