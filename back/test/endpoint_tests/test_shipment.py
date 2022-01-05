@@ -89,6 +89,7 @@ def test_shipment_mutations(
     another_box,
     box_without_qr_code,
     lost_box,
+    marked_for_shipment_box,
     prepared_shipment_detail,
 ):
     source_base_id = default_bases[2]["id"]
@@ -320,18 +321,28 @@ def test_shipment_mutations(
         assert response.json["data"]["box"] == {"state": BoxState.InStock.name}
 
     # Verify that lost_box is not removed from shipment (box state different from
-    # MarkedForShipment)
-    box_label_identifier = lost_box["label_identifier"]
-    update_input = f"""{{ id: {shipment_id},
-                removedBoxLabelIdentifiers: [{box_label_identifier}] }}"""
-    mutation = f"""mutation {{ updateShipment(updateInput: {update_input}) {{
-                    details {{ id }}
-                }} }}"""
-    data = {"query": mutation}
-    response = client.post("/graphql", json=data)
-    assert response.status_code == 200
-    shipment = response.json["data"]["updateShipment"]
-    assert shipment == {"details": []}
+    # MarkedForShipment).
+    # Same for marked_for_shipment_box (not part of shipment)
+    boxes = [lost_box, marked_for_shipment_box]
+    for box in boxes:
+        box_label_identifier = box["label_identifier"]
+        update_input = f"""{{ id: {shipment_id},
+                    removedBoxLabelIdentifiers: [{box_label_identifier}] }}"""
+        mutation = f"""mutation {{ updateShipment(updateInput: {update_input}) {{
+                        details {{ id }}
+                    }} }}"""
+        data = {"query": mutation}
+        response = client.post("/graphql", json=data)
+        assert response.status_code == 200
+        shipment = response.json["data"]["updateShipment"]
+        assert shipment == {"details": []}
+    for box in boxes:
+        box_label_identifier = box["label_identifier"]
+        query = f"""query {{ box(labelIdentifier: "{box_label_identifier}") {{
+                        state }} }}"""
+        data = {"query": query}
+        response = client.post("/graphql", json=data)
+        assert response.json["data"]["box"] == {"state": BoxState(box["state"]).name}
 
     mutation = f"""mutation {{ sendShipment(id: {shipment_id}) {{
                     id
