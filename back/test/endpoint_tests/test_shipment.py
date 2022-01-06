@@ -378,6 +378,8 @@ def test_shipment_mutations_on_target_side(
     another_shipment_detail,
     another_location,
     another_product,
+    default_product,
+    default_location,
 ):
     mocker.patch("jose.jwt.decode").return_value = create_jwt_payload(
         base_ids=[3], organisation_id=2, user_id=2
@@ -428,7 +430,7 @@ def test_shipment_mutations_on_target_side(
     assert response.status_code == 200
     shipment = response.json["data"]["updateShipment"]
 
-    assert shipment == {
+    expected_shipment = {
         "id": shipment_id,
         "state": ShipmentState.Sent.name,
         "completedBy": None,
@@ -448,6 +450,33 @@ def test_shipment_mutations_on_target_side(
             },
         ],
     }
+    assert shipment == expected_shipment
+
+    # Verify that another_detail_id is not updated (invalid product)
+    data = {
+        "query": _create_mutation(
+            detail_id=another_detail_id,
+            target_product_id=default_product["id"],
+            target_location_id=target_location_id,
+        )
+    }
+    response = client.post("/graphql", json=data)
+    assert response.status_code == 200
+    shipment = response.json["data"]["updateShipment"]
+    assert shipment == expected_shipment
+
+    # Verify that another_detail_id is not updated (invalid location)
+    data = {
+        "query": _create_mutation(
+            detail_id=another_detail_id,
+            target_product_id=target_product_id,
+            target_location_id=default_location["id"],
+        )
+    }
+    response = client.post("/graphql", json=data)
+    assert response.status_code == 200
+    shipment = response.json["data"]["updateShipment"]
+    assert shipment == expected_shipment
 
     data = {
         "query": _create_mutation(

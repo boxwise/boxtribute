@@ -486,10 +486,15 @@ def _update_shipment_with_received_boxes(
     """Check in all given boxes.
     If all boxes of the shipment are marked as Received, transition the shipment state
     to 'Completed'.
+    If boxes are requested to be checked-in with a location or a product that is not
+    registered in the target base, they are silently discarded.
     """
     shipment_detail_update_inputs = shipment_detail_update_inputs or []
     for update_input in shipment_detail_update_inputs:
-        update_shipment_detail(**update_input)
+        try:
+            update_shipment_detail(**update_input)
+        except InvalidTransferAgreementBase:
+            continue
     if all(
         detail.box.state_id == BoxState.Received
         for detail in ShipmentDetail.select(Box)
