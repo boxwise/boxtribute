@@ -1,6 +1,7 @@
 from datetime import date
 
 import pytest
+from auth import create_jwt_payload
 from boxtribute_server.enums import BoxState, ShipmentState
 from utils import assert_bad_user_input
 
@@ -80,7 +81,7 @@ def test_shipments_query(
     ]
 
 
-def test_shipment_mutations(
+def test_shipment_mutations_on_source_side(
     client,
     default_bases,
     default_transfer_agreement,
@@ -369,6 +370,80 @@ def test_shipment_mutations(
     }
 
 
+def test_shipment_mutations_on_target_side(
+    client,
+    mocker,
+    sent_shipment,
+    default_shipment_detail,
+    another_shipment_detail,
+    another_location,
+    another_product,
+):
+    mocker.patch("jose.jwt.decode").return_value = create_jwt_payload(
+        base_ids=[3], organisation_id=2, user_id=2
+    )
+
+    target_product_id = str(another_product["id"])
+    target_location_id = str(another_location["id"])
+    shipment_id = str(sent_shipment["id"])
+    detail_id = str(default_shipment_detail["id"])
+    another_detail_id = str(another_shipment_detail["id"])
+
+    def _create_mutation(detail_id):
+        update_input = f"""id: {shipment_id},
+                receivedShipmentDetailUpdateInputs: {{
+                        id: {detail_id},
+                        targetProductId: {target_product_id},
+                        targetLocationId: {target_location_id}
+                    }}"""
+        return f"""mutation {{ updateShipment(updateInput: {{ {update_input} }}) {{
+                        id
+                        state
+                        completedBy {{
+                            id
+                        }}
+                        completedOn
+                        details {{
+                            id
+                            targetProduct {{
+                                id
+                            }}
+                            targetLocation {{
+                                id
+                            }}
+                            box {{
+                                state
+                            }}
+                        }}
+                    }} }}"""
+
+    data = {"query": _create_mutation(detail_id)}
+    response = client.post("/graphql", json=data)
+    assert response.status_code == 200
+    shipment = response.json["data"]["updateShipment"]
+
+    assert shipment == {
+        "id": shipment_id,
+        "state": ShipmentState.Sent.name,
+        "completedBy": None,
+        "completedOn": None,
+        "details": [
+            {
+                "id": detail_id,
+                "box": {"state": BoxState.Received.name},
+                "targetProduct": {"id": target_product_id},
+                "targetLocation": {"id": target_location_id},
+            },
+            {
+                "id": another_detail_id,
+                "box": {"state": BoxState.MarkedForShipment.name},
+                "targetProduct": None,
+                "targetLocation": None,
+            },
+        ],
+    }
+
+
 def assert_bad_user_input_when_creating_shipment(
     client, *, source_base_id, target_base_id, agreement_id
 ):
@@ -453,10 +528,12 @@ def test_shipment_mutations_update_with_invalid_base(
 
 
 def test_shipment_mutations_update_in_non_preparing_state(
-    read_only_client, canceled_shipment
+    read_only_client, canceled_shipment, default_bases
 ):
     assert_bad_user_input_when_updating_shipment(
-        read_only_client, shipment_id=canceled_shipment["id"]
+        read_only_client,
+        shipment_id=canceled_shipment["id"],
+        target_base_id=default_bases[2]["id"],
     )
 
 

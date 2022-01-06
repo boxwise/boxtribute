@@ -480,30 +480,43 @@ def _update_shipment_with_removed_boxes(*, shipment_id, user_id, box_label_ident
         ).execute()
 
 
+def _update_shipment_with_received_boxes(*, user, shipment_detail_update_inputs):
+    shipment_detail_update_inputs = shipment_detail_update_inputs or []
+    for update_input in shipment_detail_update_inputs:
+        update_shipment_detail(user=user, **update_input)
+
+
 def update_shipment(
     *,
     id,
     user,
     prepared_box_label_identifiers=None,
     removed_box_label_identifiers=None,
+    received_shipment_detail_update_inputs=None,
     target_base_id=None,
 ):
-    """Update shipment detail information, such as prepared or removed boxes, or
-    target base.
-    Raise InvalidShipmentState exception if shipment state is different from
-    'Preparing'.
-    Raise an InvalidTransferAgreementOrganisation exception if the current user is not
-    member of the organisation that originally created the shipment.
-    Raise an InvalidTransferAgreementBase exception if specified target base is not
-    included in given agreement.
+    """Update shipment detail information.
+    On the shipment source side:
+    - update prepared or removed boxes, or target base
+    - raise InvalidShipmentState exception if shipment state is different from
+      'Preparing'
+    - raise an InvalidTransferAgreementOrganisation exception if the current user is not
+      member of the organisation that originally created the shipment
+    - raise an InvalidTransferAgreementBase exception if specified target base is not
+      included in given agreement
+    On the shipment target side:
+    - update checked-in boxes
     """
     shipment = Shipment.get_by_id(id)
-    if shipment.state != ShipmentState.Preparing:
-        raise InvalidShipmentState(
-            expected_states=[ShipmentState.Preparing], actual_state=shipment.state
-        )
-    if shipment.source_base.organisation_id != user["organisation_id"]:
-        raise InvalidTransferAgreementOrganisation()
+    if any(
+        [prepared_box_label_identifiers, removed_box_label_identifiers, target_base_id]
+    ):
+        if shipment.state != ShipmentState.Preparing:
+            raise InvalidShipmentState(
+                expected_states=[ShipmentState.Preparing], actual_state=shipment.state
+            )
+        if shipment.source_base.organisation_id != user["organisation_id"]:
+            raise InvalidTransferAgreementOrganisation()
 
     _validate_bases_as_part_of_transfer_agreement(
         transfer_agreement=TransferAgreement.get_by_id(shipment.transfer_agreement_id),
@@ -520,6 +533,10 @@ def update_shipment(
             shipment_id=shipment.id,
             user_id=user["id"],
             box_label_identifiers=removed_box_label_identifiers,
+        )
+        _update_shipment_with_received_boxes(
+            shipment_detail_update_inputs=received_shipment_detail_update_inputs,
+            user=user,
         )
 
         if target_base_id is not None:

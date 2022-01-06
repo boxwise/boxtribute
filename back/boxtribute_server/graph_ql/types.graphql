@@ -322,6 +322,8 @@ input ShipmentUpdateInput {
   preparedBoxLabelIdentifiers: [Int!]
   # label identifiers of prepared boxes to be moved back to stock
   removedBoxLabelIdentifiers: [Int!]
+  # label identifiers of received boxes to be moved into target stock
+  receivedShipmentDetailUpdateInputs: [ShipmentDetailUpdateInput!]
   # label identifiers of boxes that went lost during shipment
   lostBoxLabelIdentifiers: [Int!]
 }
