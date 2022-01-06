@@ -492,7 +492,7 @@ def _update_shipment_with_received_boxes(
     shipment_detail_update_inputs = shipment_detail_update_inputs or []
     for update_input in shipment_detail_update_inputs:
         try:
-            update_shipment_detail(**update_input)
+            _update_shipment_detail(**update_input)
         except InvalidTransferAgreementBase:
             continue
     if all(
@@ -592,7 +592,7 @@ def _validate_base_as_part_of_shipment(resource_id, *, detail, model):
         )
 
 
-def update_shipment_detail(*, id, target_product_id=None, target_location_id=None):
+def _update_shipment_detail(*, id, target_product_id=None, target_location_id=None):
     """Update shipment details (target product and/or location). Transition the
     corresponding box's state to Received.
     Raise InvalidTransferAgreementBase exception if target location is not in shipment
