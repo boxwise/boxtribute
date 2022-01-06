@@ -481,7 +481,7 @@ def _update_shipment_with_removed_boxes(*, shipment_id, user_id, box_label_ident
 
 
 def _update_shipment_with_received_boxes(
-    *, shipment, user, shipment_detail_update_inputs
+    *, shipment, user_id, shipment_detail_update_inputs
 ):
     """Check in all given boxes.
     If all boxes of the shipment are marked as Received, transition the shipment state
@@ -489,7 +489,7 @@ def _update_shipment_with_received_boxes(
     """
     shipment_detail_update_inputs = shipment_detail_update_inputs or []
     for update_input in shipment_detail_update_inputs:
-        update_shipment_detail(user=user, **update_input)
+        update_shipment_detail(**update_input)
     if all(
         detail.box.state_id == BoxState.Received
         for detail in ShipmentDetail.select(Box)
@@ -497,7 +497,7 @@ def _update_shipment_with_received_boxes(
         .where(ShipmentDetail.shipment == shipment.id)
     ):
         shipment.state = ShipmentState.Completed
-        shipment.completed_by = user["id"]
+        shipment.completed_by = user_id
         shipment.completed_on = utcnow()
         shipment.save()
 
@@ -522,6 +522,9 @@ def update_shipment(
       included in given agreement
     On the shipment target side:
     - update checked-in boxes
+    - raise InvalidShipmentState exception if shipment state is different from 'Sent'
+    - raise an InvalidTransferAgreementOrganisation exception if the current user is not
+      member of the organisation that is supposed to receive the shipment
     """
     shipment = Shipment.get_by_id(id)
     if any(
@@ -532,6 +535,14 @@ def update_shipment(
                 expected_states=[ShipmentState.Preparing], actual_state=shipment.state
             )
         if shipment.source_base.organisation_id != user["organisation_id"]:
+            raise InvalidTransferAgreementOrganisation()
+
+    if received_shipment_detail_update_inputs is not None:
+        if shipment.state != ShipmentState.Sent:
+            raise InvalidShipmentState(
+                expected_states=[ShipmentState.Sent], actual_state=shipment.state
+            )
+        if shipment.target_base.organisation_id != user["organisation_id"]:
             raise InvalidTransferAgreementOrganisation()
 
     _validate_bases_as_part_of_transfer_agreement(
@@ -553,7 +564,7 @@ def update_shipment(
         _update_shipment_with_received_boxes(
             shipment=shipment,
             shipment_detail_update_inputs=received_shipment_detail_update_inputs,
-            user=user,
+            user_id=user["id"],
         )
 
         if target_base_id is not None:
@@ -577,14 +588,9 @@ def _validate_base_as_part_of_shipment(resource_id, *, detail, model):
             )
 
 
-def update_shipment_detail(
-    *, id, user, target_product_id=None, target_location_id=None
-):
+def update_shipment_detail(*, id, target_product_id=None, target_location_id=None):
     """Update shipment details (target product and/or location). Transition the
     corresponding box's state to Received.
-    Raise an InvalidTransferAgreementOrganisation exception if the current user is not
-    member of the organisation that is supposed to receive the shipment.
-    Raise InvalidShipmentState exception if shipment state is different from 'Sent'.
     Raise InvalidTransferAgreementBase exception if target location is not in shipment
     target base.
     """
@@ -595,12 +601,6 @@ def update_shipment_detail(
         .where(ShipmentDetail.id == id)
         .get()
     )
-    if detail.shipment.target_base.organisation_id != user["organisation_id"]:
-        raise InvalidTransferAgreementOrganisation()
-    if detail.shipment.state != ShipmentState.Sent:
-        raise InvalidShipmentState(
-            expected_states=[ShipmentState.Sent], actual_state=detail.shipment.state
-        )
 
     _validate_base_as_part_of_shipment(
         target_location_id, detail=detail, model=Location

@@ -482,11 +482,14 @@ def assert_bad_user_input_when_creating_shipment(
 
 
 def assert_bad_user_input_when_updating_shipment(
-    client, *, target_base_id=None, shipment_id
+    client, *, target_base_id=None, received_detail_ids=None, shipment_id
 ):
     update_input = f"id: {shipment_id}"
     if target_base_id is not None:
         update_input += f", targetBaseId: {target_base_id}"
+    if received_detail_ids is not None:
+        inputs = ", ".join(f"{{ id: {i} }}" for i in received_detail_ids)
+        update_input += f", receivedShipmentDetailUpdateInputs: [{inputs}]"
     mutation = f"""mutation {{ updateShipment(updateInput: {{ {update_input} }} ) {{
                     id }} }}"""
     assert_bad_user_input(client, mutation)
@@ -572,4 +575,27 @@ def test_shipment_mutations_update_as_member_of_non_creating_org(
         read_only_client,
         shipment_id=another_shipment["id"],
         target_base_id=default_bases[2]["id"],
+    )
+
+
+def test_shipment_mutations_update_checked_in_boxes_as_member_of_creating_org(
+    read_only_client, sent_shipment, default_shipment_detail
+):
+    assert_bad_user_input_when_updating_shipment(
+        read_only_client,
+        shipment_id=sent_shipment["id"],
+        received_detail_ids=[default_shipment_detail["id"]],
+    )
+
+
+def test_shipment_mutations_update_checked_in_boxes_when_shipment_in_non_sent_state(
+    read_only_client, mocker, default_shipment, prepared_shipment_detail
+):
+    mocker.patch("jose.jwt.decode").return_value = create_jwt_payload(
+        base_ids=[3], organisation_id=2, user_id=2
+    )
+    assert_bad_user_input_when_updating_shipment(
+        read_only_client,
+        shipment_id=default_shipment["id"],
+        received_detail_ids=[prepared_shipment_detail["id"]],
     )
