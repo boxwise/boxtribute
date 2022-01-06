@@ -443,6 +443,32 @@ def test_shipment_mutations_on_target_side(
         ],
     }
 
+    data = {"query": _create_mutation(another_detail_id)}
+    response = client.post("/graphql", json=data)
+    assert response.status_code == 200
+    shipment = response.json["data"]["updateShipment"]
+
+    assert shipment.pop("completedOn").startswith(date.today().isoformat())
+    assert shipment == {
+        "id": shipment_id,
+        "state": ShipmentState.Completed.name,
+        "completedBy": {"id": "2"},
+        "details": [
+            {
+                "id": detail_id,
+                "box": {"state": BoxState.Received.name},
+                "targetProduct": {"id": target_product_id},
+                "targetLocation": {"id": target_location_id},
+            },
+            {
+                "id": another_detail_id,
+                "box": {"state": BoxState.Received.name},
+                "targetProduct": {"id": target_product_id},
+                "targetLocation": {"id": target_location_id},
+            },
+        ],
+    }
+
 
 def assert_bad_user_input_when_creating_shipment(
     client, *, source_base_id, target_base_id, agreement_id

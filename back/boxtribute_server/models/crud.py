@@ -480,10 +480,26 @@ def _update_shipment_with_removed_boxes(*, shipment_id, user_id, box_label_ident
         ).execute()
 
 
-def _update_shipment_with_received_boxes(*, user, shipment_detail_update_inputs):
+def _update_shipment_with_received_boxes(
+    *, shipment, user, shipment_detail_update_inputs
+):
+    """Check in all given boxes.
+    If all boxes of the shipment are marked as Received, transition the shipment state
+    to 'Completed'.
+    """
     shipment_detail_update_inputs = shipment_detail_update_inputs or []
     for update_input in shipment_detail_update_inputs:
         update_shipment_detail(user=user, **update_input)
+    if all(
+        detail.box.state_id == BoxState.Received
+        for detail in ShipmentDetail.select(Box)
+        .join(Box)
+        .where(ShipmentDetail.shipment == shipment.id)
+    ):
+        shipment.state = ShipmentState.Completed
+        shipment.completed_by = user["id"]
+        shipment.completed_on = utcnow()
+        shipment.save()
 
 
 def update_shipment(
@@ -535,6 +551,7 @@ def update_shipment(
             box_label_identifiers=removed_box_label_identifiers,
         )
         _update_shipment_with_received_boxes(
+            shipment=shipment,
             shipment_detail_update_inputs=received_shipment_detail_update_inputs,
             user=user,
         )
