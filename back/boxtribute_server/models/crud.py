@@ -483,18 +483,53 @@ def _update_shipment_with_removed_boxes(*, shipment_id, user_id, box_label_ident
 def _update_shipment_with_received_boxes(
     *, shipment, user_id, shipment_detail_update_inputs
 ):
-    """Check in all given boxes.
+    """Check in all given boxes by updating shipment details (target product and
+    location). Transition the corresponding box's state to 'Received'.
     If all boxes of the shipment are marked as Received, transition the shipment state
     to 'Completed'.
     If boxes are requested to be checked-in with a location or a product that is not
     registered in the target base, they are silently discarded.
     """
-    shipment_detail_update_inputs = shipment_detail_update_inputs or []
-    for update_input in shipment_detail_update_inputs:
-        try:
-            _update_shipment_detail(**update_input)
-        except InvalidTransferAgreementBase:
+    # Transform input list into dict for easy look-up
+    update_inputs = {
+        int(i["id"]): {
+            "target_product_id": i["target_product_id"],
+            "target_location_id": i["target_location_id"],
+        }
+        for i in shipment_detail_update_inputs or []
+    }
+
+    details = []
+    detail_ids = tuple(update_inputs)
+    for detail in (
+        ShipmentDetail.select(ShipmentDetail, Shipment)
+        .join(Shipment)
+        .where(
+            (ShipmentDetail.shipment == shipment.id) & (ShipmentDetail.id << detail_ids)
+        )
+    ):
+        update_input = update_inputs[detail.id]
+        target_product_id = update_input["target_product_id"]
+        target_location_id = update_input["target_location_id"]
+
+        if not _validate_base_as_part_of_shipment(
+            target_location_id, detail=detail, model=Location
+        ) or not _validate_base_as_part_of_shipment(
+            target_product_id, detail=detail, model=Product
+        ):
             continue
+
+        detail.target_product = target_product_id
+        detail.target_location = target_location_id
+        detail.box.state_id = BoxState.Received
+        details.append(detail)
+
+    if details:
+        Box.bulk_update([d.box for d in details], [Box.state])
+        ShipmentDetail.bulk_update(
+            details, [ShipmentDetail.target_product, ShipmentDetail.target_location]
+        )
+
     if all(
         detail.box.state_id == BoxState.Received
         for detail in ShipmentDetail.select(Box)
@@ -581,39 +616,7 @@ def update_shipment(
 
 def _validate_base_as_part_of_shipment(resource_id, *, detail, model):
     """Validate that the base of the given resource (location or product) is identical
-    to the target base of the detail's shipment. Raise InvalidTransferAgreementBase
-    exception otherwise.
+    to the target base of the detail's shipment.
     """
     target_resource = model.get_by_id(resource_id)
-    if target_resource.base_id != detail.shipment.target_base_id:
-        raise InvalidTransferAgreementBase(
-            expected_base_ids=[detail.shipment.target_base_id],
-            base_id=target_resource.base_id,
-        )
-
-
-def _update_shipment_detail(*, id, target_product_id=None, target_location_id=None):
-    """Update shipment details (target product and/or location). Transition the
-    corresponding box's state to Received.
-    Raise InvalidTransferAgreementBase exception if target location is not in shipment
-    target base.
-    """
-    detail = (
-        ShipmentDetail.select(ShipmentDetail, Shipment, Base)
-        .join(Shipment)
-        .join(Base, on=Shipment.target_base)
-        .where(ShipmentDetail.id == id)
-        .get()
-    )
-
-    _validate_base_as_part_of_shipment(
-        target_location_id, detail=detail, model=Location
-    )
-    _validate_base_as_part_of_shipment(target_product_id, detail=detail, model=Product)
-    detail.target_product = target_product_id
-    detail.target_location = target_location_id
-    detail.box.state_id = BoxState.Received
-    with db.database.atomic():
-        detail.save()
-        detail.box.save()
-    return detail
+    return target_resource.base_id == detail.shipment.target_base_id
