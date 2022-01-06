@@ -330,8 +330,8 @@ input ShipmentUpdateInput {
 
 input ShipmentDetailUpdateInput {
   id: ID!
-  targetProductId: Int
-  targetLocationId: Int
+  targetProductId: Int!
+  targetLocationId: Int!
 }
 
 enum TransferAgreementState {

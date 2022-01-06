@@ -579,13 +579,12 @@ def _validate_base_as_part_of_shipment(resource_id, *, detail, model):
     to the target base of the detail's shipment. Raise InvalidTransferAgreementBase
     exception otherwise.
     """
-    if resource_id is not None:
-        target_resource = model.get_by_id(resource_id)
-        if target_resource.base_id != detail.shipment.target_base_id:
-            raise InvalidTransferAgreementBase(
-                expected_base_ids=[detail.shipment.target_base_id],
-                base_id=target_resource.base_id,
-            )
+    target_resource = model.get_by_id(resource_id)
+    if target_resource.base_id != detail.shipment.target_base_id:
+        raise InvalidTransferAgreementBase(
+            expected_base_ids=[detail.shipment.target_base_id],
+            base_id=target_resource.base_id,
+        )
 
 
 def update_shipment_detail(*, id, target_product_id=None, target_location_id=None):

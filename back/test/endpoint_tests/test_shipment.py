@@ -389,7 +389,7 @@ def test_shipment_mutations_on_target_side(
     detail_id = str(default_shipment_detail["id"])
     another_detail_id = str(another_shipment_detail["id"])
 
-    def _create_mutation(detail_id):
+    def _create_mutation(*, detail_id, target_product_id, target_location_id):
         update_input = f"""id: {shipment_id},
                 receivedShipmentDetailUpdateInputs: {{
                         id: {detail_id},
@@ -417,7 +417,13 @@ def test_shipment_mutations_on_target_side(
                         }}
                     }} }}"""
 
-    data = {"query": _create_mutation(detail_id)}
+    data = {
+        "query": _create_mutation(
+            detail_id=detail_id,
+            target_product_id=target_product_id,
+            target_location_id=target_location_id,
+        )
+    }
     response = client.post("/graphql", json=data)
     assert response.status_code == 200
     shipment = response.json["data"]["updateShipment"]
@@ -443,7 +449,13 @@ def test_shipment_mutations_on_target_side(
         ],
     }
 
-    data = {"query": _create_mutation(another_detail_id)}
+    data = {
+        "query": _create_mutation(
+            detail_id=another_detail_id,
+            target_product_id=target_product_id,
+            target_location_id=target_location_id,
+        )
+    }
     response = client.post("/graphql", json=data)
     assert response.status_code == 200
     shipment = response.json["data"]["updateShipment"]
@@ -482,13 +494,24 @@ def assert_bad_user_input_when_creating_shipment(
 
 
 def assert_bad_user_input_when_updating_shipment(
-    client, *, target_base_id=None, received_detail_ids=None, shipment_id
+    client,
+    *,
+    shipment_id,
+    target_base_id=None,
+    received_detail_ids=None,
+    target_location_id=None,
+    target_product_id=None,
 ):
     update_input = f"id: {shipment_id}"
     if target_base_id is not None:
         update_input += f", targetBaseId: {target_base_id}"
     if received_detail_ids is not None:
-        inputs = ", ".join(f"{{ id: {i} }}" for i in received_detail_ids)
+        inputs = ", ".join(
+            f"""{{ id: {i},
+                targetLocationId: {target_location_id},
+                targetProductId: {target_product_id} }}"""
+            for i in received_detail_ids
+        )
         update_input += f", receivedShipmentDetailUpdateInputs: [{inputs}]"
     mutation = f"""mutation {{ updateShipment(updateInput: {{ {update_input} }} ) {{
                     id }} }}"""
@@ -579,17 +602,28 @@ def test_shipment_mutations_update_as_member_of_non_creating_org(
 
 
 def test_shipment_mutations_update_checked_in_boxes_as_member_of_creating_org(
-    read_only_client, sent_shipment, default_shipment_detail
+    read_only_client,
+    sent_shipment,
+    default_shipment_detail,
+    another_location,
+    another_product,
 ):
     assert_bad_user_input_when_updating_shipment(
         read_only_client,
         shipment_id=sent_shipment["id"],
         received_detail_ids=[default_shipment_detail["id"]],
+        target_location_id=another_location["id"],
+        target_product_id=another_product["id"],
     )
 
 
 def test_shipment_mutations_update_checked_in_boxes_when_shipment_in_non_sent_state(
-    read_only_client, mocker, default_shipment, prepared_shipment_detail
+    read_only_client,
+    mocker,
+    default_shipment,
+    prepared_shipment_detail,
+    another_location,
+    another_product,
 ):
     mocker.patch("jose.jwt.decode").return_value = create_jwt_payload(
         base_ids=[3], organisation_id=2, user_id=2
@@ -598,4 +632,6 @@ def test_shipment_mutations_update_checked_in_boxes_when_shipment_in_non_sent_st
         read_only_client,
         shipment_id=default_shipment["id"],
         received_detail_ids=[prepared_shipment_detail["id"]],
+        target_location_id=another_location["id"],
+        target_product_id=another_product["id"],
     )
