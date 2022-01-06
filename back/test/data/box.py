@@ -55,13 +55,21 @@ def marked_for_shipment_box_data():
     return data
 
 
+def another_marked_for_shipment_box_data():
+    data = marked_for_shipment_box_data()
+    data["id"] = 7
+    data["label_identifier"] = "67890123"
+    return data
+
+
 def data():
     return [
+        another_box_data(),
         default_box_data(),
         box_without_qr_code_data(),
-        another_box_data(),
         lost_box_data(),
         marked_for_shipment_box_data(),
+        another_marked_for_shipment_box_data(),
     ]
 
 
@@ -93,6 +101,11 @@ def lost_box():
 @pytest.fixture
 def marked_for_shipment_box():
     return marked_for_shipment_box_data()
+
+
+@pytest.fixture
+def another_marked_for_shipment_box():
+    return another_marked_for_shipment_box_data()
 
 
 def create():

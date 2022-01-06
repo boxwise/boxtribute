@@ -8,6 +8,7 @@ from .base import default_base, default_bases
 from .beneficiary import default_beneficiary
 from .box import (
     another_box,
+    another_marked_for_shipment_box,
     box_without_qr_code,
     default_box,
     default_boxes,
@@ -29,7 +30,11 @@ from .shipment import (
     default_shipment,
     sent_shipment,
 )
-from .shipment_detail import default_shipment_detail, prepared_shipment_detail
+from .shipment_detail import (
+    another_shipment_detail,
+    default_shipment_detail,
+    prepared_shipment_detail,
+)
 from .size_range import default_size_range
 from .transaction import default_transaction
 from .transfer_agreement import (
@@ -44,9 +49,11 @@ from .user import default_user, default_users
 __all__ = [
     "another_box",
     "another_location",
+    "another_marked_for_shipment_box",
     "another_organisation",
     "another_product",
     "another_shipment",
+    "another_shipment_detail",
     "box_without_qr_code",
     "canceled_shipment",
     "default_beneficiary",

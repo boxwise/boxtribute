@@ -87,7 +87,7 @@ def test_shipment_mutations(
     default_shipment,
     default_box,
     another_box,
-    box_without_qr_code,
+    another_marked_for_shipment_box,
     lost_box,
     marked_for_shipment_box,
     prepared_shipment_detail,
@@ -245,12 +245,16 @@ def test_shipment_mutations(
                 "id": prepared_shipment_detail_id,
                 "shipment": {"id": shipment_id},
                 "box": {
-                    "id": str(box_without_qr_code["id"]),
+                    "id": str(another_marked_for_shipment_box["id"]),
                     "state": BoxState.MarkedForShipment.name,
                 },
-                "sourceProduct": {"id": str(box_without_qr_code["product"])},
+                "sourceProduct": {
+                    "id": str(another_marked_for_shipment_box["product"])
+                },
                 "targetProduct": None,
-                "sourceLocation": {"id": str(box_without_qr_code["location"])},
+                "sourceLocation": {
+                    "id": str(another_marked_for_shipment_box["location"])
+                },
                 "targetLocation": None,
                 "createdBy": {"id": "1"},
                 "deletedBy": None,
@@ -292,7 +296,7 @@ def test_shipment_mutations(
             ]
         }
 
-    boxes = [default_box, box_without_qr_code]
+    boxes = [default_box, another_marked_for_shipment_box]
     box_label_identifiers = ",".join(b["label_identifier"] for b in boxes)
     update_input = f"""{{ id: {shipment_id},
                 removedBoxLabelIdentifiers: [{box_label_identifiers}] }}"""
