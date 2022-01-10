@@ -454,13 +454,18 @@ def _update_shipment_with_prepared_boxes(*, shipment, box_label_identifiers, use
     ShipmentDetail.insert_many(details).execute()
 
 
-def _update_shipment_with_removed_boxes(*, shipment_id, user_id, box_label_identifiers):
-    """Return boxes to stock, and mark corresponding shipment details as deleted.
+def _remove_boxes_from_shipment(
+    *, shipment_id, user_id, box_label_identifiers, box_state
+):
+    """With `box_state=InStock`, return boxes to stock; with `box_state=Lost`, mark
+    boxes as lost. Soft-delete corresponding shipment details.
     If boxes are requested to be removed that are not contained in the given shipment,
     or have a state different from MarkedForShipment, they are silently discarded.
     """
-    boxes = []
     box_label_identifiers = box_label_identifiers or []
+    if not box_label_identifiers:
+        return
+    boxes = []
 
     for detail in (
         ShipmentDetail.select(Box)
@@ -471,7 +476,7 @@ def _update_shipment_with_removed_boxes(*, shipment_id, user_id, box_label_ident
         )
     ):
         # Logically the box is in state MarkedForShipment since part of a shipment
-        detail.box.state = BoxState.InStock
+        detail.box.state = box_state
         boxes.append(detail.box)
     if boxes:
         Box.bulk_update(boxes, fields=[Box.state])
@@ -612,10 +617,11 @@ def update_shipment(
             user_id=user["id"],
             box_label_identifiers=prepared_box_label_identifiers,
         )
-        _update_shipment_with_removed_boxes(
+        _remove_boxes_from_shipment(
             shipment_id=shipment.id,
             user_id=user["id"],
             box_label_identifiers=removed_box_label_identifiers,
+            box_state=BoxState.InStock,
         )
         _update_shipment_with_received_boxes(
             shipment=shipment,
