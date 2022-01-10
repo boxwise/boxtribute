@@ -535,16 +535,17 @@ def _update_shipment_with_received_boxes(
 
 
 def _complete_shipment_if_applicable(*, shipment, user_id):
-    """If all boxes of the shipment are marked as Received, transition the
+    """If all boxes of the shipment are marked as Received or Lost, transition the
     shipment state to 'Completed', soft-delete the corresponding shipment details,
-    assign target product and location to boxes, and transition them to 'InStock'.
+    assign target product and location to boxes, and transition received boxes to
+    'InStock'.
     """
     details = (
         ShipmentDetail.select(ShipmentDetail, Box)
         .join(Box)
         .where(ShipmentDetail.shipment == shipment.id)
     )
-    if all(detail.box.state_id == BoxState.Received for detail in details):
+    if all(d.box.state_id in [BoxState.Received, BoxState.Lost] for d in details):
         now = utcnow()
         shipment.state = ShipmentState.Completed
         shipment.completed_by = user_id
@@ -557,8 +558,9 @@ def _complete_shipment_if_applicable(*, shipment, user_id):
             detail.deleted_on = now
             detail.box.product = detail.target_product
             detail.box.location = detail.target_location
-            detail.box.state = BoxState.InStock
-            received_boxes.append(detail.box)
+            if detail.box.state_id == BoxState.Received:
+                detail.box.state = BoxState.InStock
+                received_boxes.append(detail.box)
 
         Box.bulk_update(received_boxes, [Box.product, Box.location, Box.state])
         ShipmentDetail.bulk_update(
@@ -573,6 +575,7 @@ def update_shipment(
     prepared_box_label_identifiers=None,
     removed_box_label_identifiers=None,
     received_shipment_detail_update_inputs=None,
+    lost_box_label_identifiers=None,
     target_base_id=None,
 ):
     """Update shipment detail information.
@@ -585,7 +588,7 @@ def update_shipment(
     - raise an InvalidTransferAgreementBase exception if specified target base is not
       included in given agreement
     On the shipment target side:
-    - update checked-in boxes
+    - update checked-in or lost boxes
     - raise InvalidShipmentState exception if shipment state is different from 'Sent'
     - raise an InvalidTransferAgreementOrganisation exception if the current user is not
       member of the organisation that is supposed to receive the shipment
@@ -630,6 +633,12 @@ def update_shipment(
             shipment=shipment,
             shipment_detail_update_inputs=received_shipment_detail_update_inputs,
             user_id=user["id"],
+        )
+        _remove_boxes_from_shipment(
+            shipment_id=shipment.id,
+            user_id=user["id"],
+            box_label_identifiers=lost_box_label_identifiers,
+            box_state=BoxState.Lost,
         )
         _complete_shipment_if_applicable(shipment=shipment, user_id=user["id"])
 

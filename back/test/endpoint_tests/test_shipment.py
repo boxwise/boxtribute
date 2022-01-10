@@ -481,11 +481,16 @@ def test_shipment_mutations_on_target_side(
     assert shipment == expected_shipment
 
     data = {
-        "query": _create_mutation(
-            detail_id=another_detail_id,
-            target_product_id=target_product_id,
-            target_location_id=target_location_id,
-        )
+        "query": f"""mutation {{ updateShipment( updateInput: {{
+                id: {shipment_id},
+                lostBoxLabelIdentifiers: [{marked_for_shipment_box['label_identifier']}]
+            }} ) {{
+                id
+                state
+                completedBy {{ id }}
+                completedOn
+                details {{ id }}
+            }} }}"""
     }
     response = client.post("/graphql", json=data)
     assert response.status_code == 200
@@ -498,21 +503,29 @@ def test_shipment_mutations_on_target_side(
         "completedBy": {"id": "2"},
         "details": [],
     }
-    boxes = [box_without_qr_code, marked_for_shipment_box]
-    for box in boxes:
-        box_label_identifier = box["label_identifier"]
-        query = f"""query {{ box(labelIdentifier: "{box_label_identifier}") {{
-                        state
-                        product {{ id }}
-                        location {{ id }}
-        }} }}"""
-        data = {"query": query}
-        response = client.post("/graphql", json=data)
-        assert response.json["data"]["box"] == {
-            "state": BoxState.InStock.name,
-            "product": {"id": target_product_id},
-            "location": {"id": target_location_id},
-        }
+    box_label_identifier = box_without_qr_code["label_identifier"]
+    query = f"""query {{ box(labelIdentifier: "{box_label_identifier}") {{
+                    state
+                    product {{ id }}
+                    location {{ id }}
+    }} }}"""
+    data = {"query": query}
+    response = client.post("/graphql", json=data)
+    assert response.json["data"]["box"] == {
+        "state": BoxState.InStock.name,
+        "product": {"id": target_product_id},
+        "location": {"id": target_location_id},
+    }
+
+    # The box is still registered in the source base, hence any user from the target
+    # organisation can't access it
+    mocker.patch("jose.jwt.decode").return_value = create_jwt_payload()
+    box_label_identifier = marked_for_shipment_box["label_identifier"]
+    query = f"""query {{ box(labelIdentifier: "{box_label_identifier}") {{
+                    state }} }}"""
+    data = {"query": query}
+    response = client.post("/graphql", json=data)
+    assert response.json["data"]["box"] == {"state": BoxState.Lost.name}
 
 
 def assert_bad_user_input_when_creating_shipment(
