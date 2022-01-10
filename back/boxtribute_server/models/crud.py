@@ -490,9 +490,6 @@ def _update_shipment_with_received_boxes(
 ):
     """Check in all given boxes by updating shipment details (target product and
     location). Transition the corresponding box's state to 'Received'.
-    If all boxes of the shipment are marked as Received, transition the shipment state
-    to 'Completed', soft-delete the corresponding shipment details, assign target
-    product and location to boxes, and transition them to 'InStock'.
     If boxes are requested to be checked-in with a location or a product that is not
     registered in the target base, they are silently discarded.
     """
@@ -536,6 +533,12 @@ def _update_shipment_with_received_boxes(
             details, [ShipmentDetail.target_product, ShipmentDetail.target_location]
         )
 
+
+def _complete_shipment_if_applicable(*, shipment, user_id):
+    """If all boxes of the shipment are marked as Received, transition the
+    shipment state to 'Completed', soft-delete the corresponding shipment details,
+    assign target product and location to boxes, and transition them to 'InStock'.
+    """
     details = (
         ShipmentDetail.select(ShipmentDetail, Box)
         .join(Box)
@@ -548,16 +551,16 @@ def _update_shipment_with_received_boxes(
         shipment.completed_on = now
         shipment.save()
 
+        received_boxes = []
         for detail in details:
             detail.deleted_by = user_id
             detail.deleted_on = now
             detail.box.product = detail.target_product
             detail.box.location = detail.target_location
             detail.box.state = BoxState.InStock
+            received_boxes.append(detail.box)
 
-        Box.bulk_update(
-            [d.box for d in details], [Box.product, Box.location, Box.state]
-        )
+        Box.bulk_update(received_boxes, [Box.product, Box.location, Box.state])
         ShipmentDetail.bulk_update(
             details, [ShipmentDetail.deleted_on, ShipmentDetail.deleted_by]
         )
@@ -628,6 +631,7 @@ def update_shipment(
             shipment_detail_update_inputs=received_shipment_detail_update_inputs,
             user_id=user["id"],
         )
+        _complete_shipment_if_applicable(shipment=shipment, user_id=user["id"])
 
         if target_base_id is not None:
             shipment.target_base = target_base_id
