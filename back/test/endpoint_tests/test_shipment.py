@@ -544,6 +544,7 @@ def assert_bad_user_input_when_updating_shipment(
     *,
     shipment_id,
     target_base_id=None,
+    lost_box_label_identifiers=None,
     received_detail_ids=None,
     target_location_id=None,
     target_product_id=None,
@@ -551,6 +552,9 @@ def assert_bad_user_input_when_updating_shipment(
     update_input = f"id: {shipment_id}"
     if target_base_id is not None:
         update_input += f", targetBaseId: {target_base_id}"
+    if lost_box_label_identifiers is not None:
+        identifiers = ",".join(lost_box_label_identifiers)
+        update_input += f", lostBoxLabelIdentifiers: [{identifiers}]"
     if received_detail_ids is not None:
         inputs = ", ".join(
             f"""{{ id: {i},
@@ -660,6 +664,18 @@ def test_shipment_mutations_update_checked_in_boxes_as_member_of_creating_org(
         received_detail_ids=[default_shipment_detail["id"]],
         target_location_id=another_location["id"],
         target_product_id=another_product["id"],
+    )
+
+
+def test_shipment_mutations_update_mark_lost_boxes_as_member_of_creating_org(
+    read_only_client,
+    sent_shipment,
+    marked_for_shipment_box,
+):
+    assert_bad_user_input_when_updating_shipment(
+        read_only_client,
+        shipment_id=sent_shipment["id"],
+        lost_box_label_identifiers=[marked_for_shipment_box["label_identifier"]],
     )
 
 

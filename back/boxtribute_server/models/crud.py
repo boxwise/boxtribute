@@ -604,7 +604,7 @@ def update_shipment(
         if shipment.source_base.organisation_id != user["organisation_id"]:
             raise InvalidTransferAgreementOrganisation()
 
-    if received_shipment_detail_update_inputs is not None:
+    if any([received_shipment_detail_update_inputs, lost_box_label_identifiers]):
         if shipment.state != ShipmentState.Sent:
             raise InvalidShipmentState(
                 expected_states=[ShipmentState.Sent], actual_state=shipment.state
