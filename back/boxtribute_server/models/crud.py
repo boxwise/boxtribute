@@ -486,7 +486,8 @@ def _update_shipment_with_received_boxes(
     """Check in all given boxes by updating shipment details (target product and
     location). Transition the corresponding box's state to 'Received'.
     If all boxes of the shipment are marked as Received, transition the shipment state
-    to 'Completed'.
+    to 'Completed', soft-delete the corresponding shipment details, assign target
+    product and location to boxes, and transition them to 'InStock'.
     If boxes are requested to be checked-in with a location or a product that is not
     registered in the target base, they are silently discarded.
     """
@@ -530,16 +531,31 @@ def _update_shipment_with_received_boxes(
             details, [ShipmentDetail.target_product, ShipmentDetail.target_location]
         )
 
-    if all(
-        detail.box.state_id == BoxState.Received
-        for detail in ShipmentDetail.select(Box)
+    details = (
+        ShipmentDetail.select(ShipmentDetail, Box)
         .join(Box)
         .where(ShipmentDetail.shipment == shipment.id)
-    ):
+    )
+    if all(detail.box.state_id == BoxState.Received for detail in details):
+        now = utcnow()
         shipment.state = ShipmentState.Completed
         shipment.completed_by = user_id
-        shipment.completed_on = utcnow()
+        shipment.completed_on = now
         shipment.save()
+
+        for detail in details:
+            detail.deleted_by = user_id
+            detail.deleted_on = now
+            detail.box.product = detail.target_product
+            detail.box.location = detail.target_location
+            detail.box.state = BoxState.InStock
+
+        Box.bulk_update(
+            [d.box for d in details], [Box.product, Box.location, Box.state]
+        )
+        ShipmentDetail.bulk_update(
+            details, [ShipmentDetail.deleted_on, ShipmentDetail.deleted_by]
+        )
 
 
 def update_shipment(

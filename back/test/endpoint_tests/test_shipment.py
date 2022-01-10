@@ -380,6 +380,8 @@ def test_shipment_mutations_on_target_side(
     another_product,
     default_product,
     default_location,
+    box_without_qr_code,
+    marked_for_shipment_box,
 ):
     mocker.patch("jose.jwt.decode").return_value = create_jwt_payload(
         base_ids=[3], organisation_id=2, user_id=2
@@ -494,21 +496,23 @@ def test_shipment_mutations_on_target_side(
         "id": shipment_id,
         "state": ShipmentState.Completed.name,
         "completedBy": {"id": "2"},
-        "details": [
-            {
-                "id": detail_id,
-                "box": {"state": BoxState.Received.name},
-                "targetProduct": {"id": target_product_id},
-                "targetLocation": {"id": target_location_id},
-            },
-            {
-                "id": another_detail_id,
-                "box": {"state": BoxState.Received.name},
-                "targetProduct": {"id": target_product_id},
-                "targetLocation": {"id": target_location_id},
-            },
-        ],
+        "details": [],
     }
+    boxes = [box_without_qr_code, marked_for_shipment_box]
+    for box in boxes:
+        box_label_identifier = box["label_identifier"]
+        query = f"""query {{ box(labelIdentifier: "{box_label_identifier}") {{
+                        state
+                        product {{ id }}
+                        location {{ id }}
+        }} }}"""
+        data = {"query": query}
+        response = client.post("/graphql", json=data)
+        assert response.json["data"]["box"] == {
+            "state": BoxState.InStock.name,
+            "product": {"id": target_product_id},
+            "location": {"id": target_location_id},
+        }
 
 
 def assert_bad_user_input_when_creating_shipment(
