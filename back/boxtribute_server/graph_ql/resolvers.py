@@ -63,25 +63,34 @@ transfer_agreement = _register_object_type("TransferAgreement")
 user = _register_object_type("User")
 
 
+def _base_filter_condition(permission):
+    """Derive filter condition for given permission depending the current user's
+    base-specific permissions. See also `auth.requires_auth()`.
+    """
+    base_ids = g.user["permissions"][permission]
+    if base_ids is None:
+        # Permission granted for all bases
+        return True
+    return Base.id << base_ids
+
+
 @user.field("bases")
 @query.field("bases")
 def resolve_bases(_, info):
     authorize(permission="base:read")
-    return Base.select().where(Base.id.in_(g.user["base_ids"]))
+    return Base.select().where(_base_filter_condition("base:read"))
 
 
 @query.field("base")
 def resolve_base(_, info, id):
-    authorize(permission="base:read")
-    authorize(base_id=int(id))
+    authorize(permission="base:read", base_id=int(id))
     return Base.get_by_id(id)
 
 
 @query.field("beneficiary")
 def resolve_beneficiary(_, info, id):
-    authorize(permission="beneficiary:read")
     beneficiary = Beneficiary.get_by_id(id)
-    authorize(base_id=beneficiary.base_id)
+    authorize(permission="beneficiary:read", base_id=beneficiary.base_id)
     return beneficiary
 
 
@@ -118,32 +127,29 @@ def resolve_qr_code(_, info, qr_code):
 
 @query.field("product")
 def resolve_product(_, info, id):
-    authorize(permission="product:read")
     product = Product.get_by_id(id)
-    authorize(base_id=product.base_id)
+    authorize(permission="product:read", base_id=product.base_id)
     return product
 
 
 @query.field("box")
 @convert_kwargs_to_snake_case
 def resolve_box(_, info, label_identifier):
-    authorize(permission="stock:read")
     box = (
         Box.select(Box, Location)
         .join(Location)
         .where(Box.label_identifier == label_identifier)
         .get()
     )
-    authorize(base_id=box.location.base_id)
+    authorize(permission="stock:read", base_id=box.location.base_id)
     return box
 
 
 @query.field("location")
 @box.field("location")
 def resolve_location(obj, info, id=None):
-    authorize(permission="location:read")
     location = obj.location if id is None else Location.get_by_id(id)
-    authorize(base_id=location.base_id)
+    authorize(permission="location:read", base_id=location.base_id)
     return location
 
 
@@ -183,17 +189,16 @@ def resolve_organisations(_, info):
 @query.field("locations")
 def resolve_locations(_, info):
     authorize(permission="location:read")
-    return Location.select().join(Base).where(Base.id.in_(g.user["base_ids"]))
+    return Location.select().join(Base).where(_base_filter_condition("location:read"))
 
 
 @query.field("products")
 @convert_kwargs_to_snake_case
 def resolve_products(_, info, pagination_input=None):
     authorize(permission="product:read")
-    base_filter_condition = Base.id.in_(g.user["base_ids"])
     return load_into_page(
         Product,
-        base_filter_condition,
+        _base_filter_condition("product:read"),
         selection=Product.select().join(Base),
         pagination_input=pagination_input,
     )
@@ -203,10 +208,9 @@ def resolve_products(_, info, pagination_input=None):
 @convert_kwargs_to_snake_case
 def resolve_beneficiaries(_, info, pagination_input=None):
     authorize(permission="beneficiary:read")
-    base_filter_condition = Base.id.in_(g.user["base_ids"])
     return load_into_page(
         Beneficiary,
-        base_filter_condition,
+        _base_filter_condition("beneficiary:read"),
         selection=Beneficiary.select().join(Base),
         pagination_input=pagination_input,
     )
@@ -321,10 +325,10 @@ def resolve_create_beneficiary(_, info, beneficiary_creation_input):
 @mutation.field("updateBeneficiary")
 @convert_kwargs_to_snake_case
 def resolve_update_beneficiary(_, info, beneficiary_update_input):
-    # Use target base ID if specified, otherwise fall back to user's default base
+    # Use target base ID if specified, otherwise skip enforcing base-specific authz
     authorize(
         permission="beneficiary:write",
-        base_id=beneficiary_update_input.get("base_id", g.user["base_ids"][0]),
+        base_id=beneficiary_update_input.get("base_id"),
     )
     beneficiary_update_input["last_modified_by"] = g.user["id"]
     return update_beneficiary(beneficiary_update_input)

@@ -19,8 +19,7 @@ ALL_PERMISSIONS = [
 
 
 def test_authorized_user():
-    user = {"base_ids": [1], "organisation_id": 2, "id": 3}
-    assert authorize(user, base_id=1)
+    user = {"organisation_id": 2, "id": 3}
     assert authorize(user, organisation_id=2)
     assert authorize(user, user_id=3)
 
@@ -38,9 +37,18 @@ def test_authorized_user():
     assert authorize(user, permission="stock:write")
     assert authorize(user, permission="qr:write")
 
-    user = {"permissions": ["base_1:qr:write", "base_2:stock:write"]}
+    user = {
+        "permissions": {
+            "qr:write": [1, 3],
+            "stock:write": [2],
+            "location:write": None,
+        }
+    }
     assert authorize(user, permission="qr:write")
+    assert authorize(user, permission="qr:write", base_id=3)
     assert authorize(user, permission="stock:write", base_id=2)
+    assert authorize(user, permission="location:write")
+    assert authorize(user, permission="location:write", base_id=4)
 
 
 def test_user_with_insufficient_permissions():
@@ -49,19 +57,9 @@ def test_user_with_insufficient_permissions():
         with pytest.raises(Forbidden):
             authorize(user, permission=permission)
 
-    user = {"permissions": ["base_2:beneficiary:write"]}
+    user = {"permissions": {"beneficiary:write": [2]}}
     with pytest.raises(Forbidden):
         authorize(user, permission="beneficiary:write", base_id=1)
-
-
-def test_user_unauthorized_for_base():
-    user = {"base_ids": []}
-    with pytest.raises(Forbidden):
-        authorize(user, base_id=1)
-
-    user = {"base_ids": [2]}
-    with pytest.raises(Forbidden):
-        authorize(user, base_id=1)
 
 
 def test_user_unauthorized_for_organisation():

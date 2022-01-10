@@ -79,7 +79,7 @@ def test_invalid_permission_for_given_resource_id(read_only_client, mocker, quer
     specified resource (base or organisation).
     """
     mocker.patch("jose.jwt.decode").return_value = create_jwt_payload(
-        permissions=["base:read"], base_ids=[1], organisation_id=1
+        permissions=["base_1/base:read"], organisation_id=1
     )
     data = {"query": f"query {{ {query} }}"}
     assert_forbidden_request(data, read_only_client, field=operation_name(query))
@@ -208,3 +208,15 @@ def test_invalid_permission_for_box_location(read_only_client, mocker, default_b
     assert_forbidden_request(
         data, read_only_client, field="box", value={"location": None}
     )
+
+
+def test_permission_for_all_bases(read_only_client, mocker, default_bases):
+    mocker.patch("jose.jwt.decode").return_value = create_jwt_payload(
+        permissions=["base:read"]
+    )
+    data = {"query": """query { bases { id } }"""}
+    response = read_only_client.post("/graphql", json=data)
+
+    assert response.status_code == 200
+    bases = response.json["data"]["bases"]
+    assert len(bases) == len(default_bases)

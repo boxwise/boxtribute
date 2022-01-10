@@ -74,40 +74,41 @@ def create_jwt_payload(
 ):
     """Create payload containing authorization information of the user requesting from
     the app in the context of testing. The payload field names are identical to the
-    actual ones in the JWT returned by Auth0. Irrelevant fields (issues, audience, issue
-    time, expiration time, client ID, grant type) are skipped.
+    actual ones in the JWT returned by Auth0 (taking the prefix for custom claims into
+    account). Irrelevant fields (issues, audience, issue time, expiration time, client
+    ID, grant type) are skipped.
 
     If no arguments are passed, the payload for the default user is returned. Any
     argument specified overrides the corresponding field of the default payload.
     """
+    prefix = "https://www.boxtribute.com"
     payload = {
-        "https://www.boxtribute.com/email": "dev_coordinator@boxaid.org",
-        "https://www.boxtribute.com/base_ids": [1],
-        "https://www.boxtribute.com/organisation_id": 1,
-        "https://www.boxtribute.com/roles": ["Coordinator"],
+        f"{prefix}/email": "dev_coordinator@boxaid.org",
+        f"{prefix}/organisation_id": 1,
+        f"{prefix}/roles": ["Coordinator"],
         "sub": "auth0|8",
-        "permissions": [
-            "base:read",
-            "category:read",
-            "location:read",
-            "product:read",
-            "transaction:read",
-            "user:read",
-            "beneficiary:write",
-            "qr:write",
-            "stock:write",
-            "transaction:write",
+        f"{prefix}/permissions": [
+            "base_1/base:read",
+            "base_1/beneficiary:read",
+            "base_1/category:read",
+            "base_1/location:read",
+            "base_1/product:read",
+            "base_1/qr:read",
+            "base_1/stock:read",
+            "base_1/transaction:read",
+            "base_1/user:read",
+            "base_1/beneficiary:write",
+            "base_1/qr:write",
+            "base_1/stock:write",
+            "base_1/transaction:write",
         ],
     }
 
-    prefix = "https://www.boxtribute.com"
-    for name in ["email", "base_ids", "organisation_id", "roles"]:
+    for name in ["email", "base_ids", "organisation_id", "roles", "permissions"]:
         value = locals()[name]
         if value is not None:
             payload[f"{prefix}/{name}"] = value
     if user_id is not None:
         payload["sub"] = f"auth0|{user_id}"
-    if permissions is not None:
-        payload["permissions"] = permissions
 
     return payload
