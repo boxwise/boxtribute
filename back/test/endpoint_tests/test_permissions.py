@@ -39,7 +39,7 @@ def test_invalid_read_permissions(unauthorized, read_only_client, resource):
         data = {"query": "query { products { elements { id } } }"}
     assert_forbidden_request(data, read_only_client)
 
-    data = {"query": f"""query {{ {resource}(id: 3) {{ id }} }}"""}
+    data = {"query": f"""query {{ {resource}(id: 2) {{ id }} }}"""}
     assert_forbidden_request(data, read_only_client, field=resource)
 
 
@@ -53,7 +53,7 @@ def operation_name(operation):
 @pytest.mark.parametrize(
     "query",
     [
-        """box( labelIdentifier: "c0ffee") { id }""",
+        """box( labelIdentifier: "12345678") { id }""",
         """qrCode( qrCode: "1337beef" ) { id }""",
         """qrExists( qrCode: "1337beef" )""",
     ],
@@ -70,7 +70,7 @@ def test_invalid_permission(unauthorized, read_only_client, query):
     [
         """base( id: 0 ) { id }""",
         """organisation( id: 0 ) { id }""",
-        """location( id: 3 ) { id }""",  # ID of another_location fixture
+        """location( id: 2 ) { id }""",  # ID of another_location fixture
     ],
     ids=operation_name,
 )
@@ -171,12 +171,15 @@ def test_invalid_permission_for_organisation_bases(
     )
 
 
-def test_invalid_permission_for_beneficiary_tokens(read_only_client, mocker):
+def test_invalid_permission_for_beneficiary_tokens(
+    read_only_client, mocker, default_beneficiary
+):
     # verify missing transaction:read permission
     mocker.patch("jose.jwt.decode").return_value = create_jwt_payload(
         permissions=["beneficiary:read"]
     )
-    data = {"query": "query { beneficiary(id: 3) { tokens } }"}
+    id = default_beneficiary["id"]
+    data = {"query": f"query {{ beneficiary(id: {id}) {{ tokens }} }}"}
     assert_forbidden_request(
         data, read_only_client, field="beneficiary", value={"tokens": None}
     )

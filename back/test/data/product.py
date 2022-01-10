@@ -21,6 +21,13 @@ def default_product_data():
     }
 
 
+def another_product_data():
+    data = default_product_data()
+    data["id"] = 2
+    data["name"] = "another product"
+    return data
+
+
 @pytest.fixture()
 def default_product():
     return default_product_data()
@@ -28,3 +35,4 @@ def default_product():
 
 def create():
     Product.create(**default_product_data())
+    Product.create(**another_product_data())

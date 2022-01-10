@@ -5,7 +5,7 @@ from data.base import data as base_data
 
 def default_beneficiary_data():
     return {
-        "id": 3,
+        "id": 1,
         "base": base_data()[0]["id"],
         "comment": "",
         "created_by": None,
@@ -20,7 +20,7 @@ def default_beneficiary_data():
 
 def another_beneficiary_data():
     data = default_beneficiary_data().copy()
-    data["id"] = 4
+    data["id"] = 2
     return data
 
 
