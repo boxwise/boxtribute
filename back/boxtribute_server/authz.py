@@ -14,6 +14,7 @@ def authorize(
 ):
     """Check whether the current user (default: `g.user`) is authorized to access the
     specified resource.
+    The god user is authorized to access anything.
     This function is supposed to be used in resolver functions. It may raise an
     UnknownResource or Forbidden exception which ariadne handles by extending the
     'errors' field of the response.
@@ -22,6 +23,8 @@ def authorize(
     """
     if current_user is None:
         current_user = g.user
+    if current_user["is_god"]:
+        return True
 
     if permission is not None:
         authorized = permission in current_user["permissions"]

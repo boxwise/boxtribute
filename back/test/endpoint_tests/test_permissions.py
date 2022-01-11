@@ -220,3 +220,11 @@ def test_permission_for_all_bases(read_only_client, mocker, default_bases):
     assert response.status_code == 200
     bases = response.json["data"]["bases"]
     assert len(bases) == len(default_bases)
+
+
+def test_permission_for_god_user(read_only_client, mocker, default_users):
+    mocker.patch("jose.jwt.decode").return_value = create_jwt_payload(permissions=["*"])
+    data = {"query": """query { users { id } }"""}
+    response = read_only_client.post("/graphql", json=data)
+    assert response.status_code == 200
+    assert len(response.json["data"]["users"]) == len(default_users)

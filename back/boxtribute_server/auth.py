@@ -126,17 +126,19 @@ def requires_auth(f):
         prefix = "https://www.boxtribute.com"
         g.user["organisation_id"] = payload[f"{prefix}/organisation_id"]
         g.user["id"] = int(payload["sub"].replace("auth0|", ""))
+        g.user["is_god"] = payload[f"{prefix}/permissions"] == ["*"]
 
         g.user["permissions"] = {}
-        for raw_permission in payload[f"{prefix}/permissions"]:
-            try:
-                base_prefix, permission = raw_permission.split("/")
-                base_ids = [int(b) for b in base_prefix[5:].split("-")]
-            except ValueError:
-                # No base_ prefix, permission granted for all bases
-                permission = raw_permission
-                base_ids = None
-            g.user["permissions"][permission] = base_ids
+        if not g.user["is_god"]:
+            for raw_permission in payload[f"{prefix}/permissions"]:
+                try:
+                    base_prefix, permission = raw_permission.split("/")
+                    base_ids = [int(b) for b in base_prefix[5:].split("-")]
+                except ValueError:
+                    # No base_ prefix, permission granted for all bases
+                    permission = raw_permission
+                    base_ids = None
+                g.user["permissions"][permission] = base_ids
 
         return f(*args, **kwargs)
 
