@@ -14,6 +14,7 @@ def authorize(
 ):
     """Check whether the current user (default: `g.user`) is authorized to access the
     specified resource.
+    The god user is authorized to access anything.
     This function is supposed to be used in resolver functions. It may raise an
     UnknownResource or Forbidden exception which ariadne handles by extending the
     'errors' field of the response.
@@ -22,22 +23,16 @@ def authorize(
     """
     if current_user is None:
         current_user = g.user
+    if current_user["is_god"]:
+        return True
 
-    if permission == "qr:write":
-        # For the front-end, base-specific distinction when creating QR codes is
-        # relevant but not for the back-end (there is no data relationship between
-        # QR code and base). The permission is of form 'base_x:qr:write'.
-        authorized = any("qr:write" in p for p in current_user["permissions"])
-
-    elif permission is not None:
+    if permission is not None:
         authorized = permission in current_user["permissions"]
 
-        if not authorized and base_id is not None:
-            # Handle base-specific permission of form 'base_x:...'
-            permission = f"base_{base_id}:{permission}"
-            authorized = permission in current_user["permissions"]
-    elif base_id is not None:
-        authorized = base_id in current_user["base_ids"]
+        if authorized and base_id is not None:
+            # Enforce base-specific permission
+            base_ids = current_user["permissions"][permission]
+            authorized = True if base_ids is None else base_id in base_ids
     elif organisation_id is not None:
         authorized = organisation_id == current_user["organisation_id"]
     elif user_id is not None:

@@ -11,6 +11,7 @@ from .exceptions import AuthenticationFailed
 
 AUTH0_DOMAIN = os.getenv("AUTH0_DOMAIN")
 ALGORITHMS = ["RS256"]
+JWT_CLAIM_PREFIX = "https://www.boxtribute.com"
 
 
 def get_auth_string_from_header():
@@ -104,6 +105,14 @@ def requires_auth(f):
     If authentication succeeds, user information is extracted from the JWT payload into
     the `user` attribute of the Flask g object. It is then available for the duration of
     the request.
+    The `permissions` field of `g.user` is a mapping of a permission name to a list of
+    base IDs that the permission is granted for, or to None if the permission is granted
+    for all bases. It is parsed from the `permissions` custom claim which contains
+    entries of form '[base_X[-Y...]/]resource:method'. Any write/edit permission implies
+    read permission on the same resource. E.g.
+    - base_1/product:read    -> {"product:read": [1]}
+    - base_2-3/stock:write   -> {"stock:write": [2, 3], "stock:read": [2, 3]}
+    - beneficiary:edit       -> {"beneficiary:edit": None, "beneficiary:read": None}
     """
 
     @wraps(f)
@@ -112,22 +121,29 @@ def requires_auth(f):
         public_key = get_public_key()
         payload = decode_jwt(token, public_key)
 
-        # The user's base IDs are listed in the JWT under the custom claim (added by
-        # a rule in Auth0):
-        #     'https://www.boxtribute.com/base_ids'
-        # Note: this isn't a real website, and doesn't have to be, but it DOES have
-        # to be in this form to work with the Auth0 rule providing it.
+        # The user's organisation ID is listed in the JWT under the custom claim (added
+        # by a rule in Auth0):
+        #     'https://www.boxtribute.com/organisation_id'
         g.user = {}
-        prefix = "https://www.boxtribute.com"
-        g.user["base_ids"] = payload[f"{prefix}/base_ids"]
-        g.user["organisation_id"] = payload[f"{prefix}/organisation_id"]
+        g.user["organisation_id"] = payload[f"{JWT_CLAIM_PREFIX}/organisation_id"]
         g.user["id"] = int(payload["sub"].replace("auth0|", ""))
-        g.user["permissions"] = payload["permissions"]
+        g.user["is_god"] = payload[f"{JWT_CLAIM_PREFIX}/permissions"] == ["*"]
 
-        # Any write permission implies read permission on the same resource
-        for permission in g.user["permissions"]:
-            if permission.endswith(":write"):
-                g.user["permissions"].append(permission.replace(":write", ":read"))
+        g.user["permissions"] = {}
+        if not g.user["is_god"]:
+            for raw_permission in payload[f"{JWT_CLAIM_PREFIX}/permissions"]:
+                try:
+                    base_prefix, permission = raw_permission.split("/")
+                    base_ids = [int(b) for b in base_prefix[5:].split("-")]
+                except ValueError:
+                    # No base_ prefix, permission granted for all bases
+                    permission = raw_permission
+                    base_ids = None
+                g.user["permissions"][permission] = base_ids
+
+                resource, method = permission.split(":")
+                if method in ["write", "edit"]:
+                    g.user["permissions"][f"{resource}:read"] = base_ids
 
         return f(*args, **kwargs)
 

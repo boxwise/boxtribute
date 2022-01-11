@@ -151,17 +151,17 @@ def test_beneficiary_mutations(client):
     "input,size,has_next_page,has_previous_page",
     (
         ["", 2, False, False],
-        #                             ID=2
-        ["""(paginationInput: {after: "MDAwMDAwMDI="})""", 2, False, False],
+        #                             ID=0
+        ["""(paginationInput: {after: "MDAwMDAwMDA="})""", 2, False, False],
         ["""(paginationInput: {first: 1})""", 1, True, False],
-        #                             ID=4; previous page exists but can't be determined
-        ["""(paginationInput: {after: "MDAwMDAwMDQ="})""", 0, False, False],
-        #                             ID=3
-        ["""(paginationInput: {after: "MDAwMDAwMDM=", first: 1})""", 1, False, True],
+        #                             ID=2; previous page exists but can't be determined
+        ["""(paginationInput: {after: "MDAwMDAwMDI="})""", 0, False, False],
+        #                             ID=1
+        ["""(paginationInput: {after: "MDAwMDAwMDE=", first: 1})""", 1, False, True],
         # next page exists but can't be determined
-        ["""(paginationInput: {before: "MDAwMDAwMDM="})""", 0, False, False],
-        #                              ID=5
-        ["""(paginationInput: {before: "MDAwMDAwMDU=", last: 1})""", 1, False, True],
+        ["""(paginationInput: {before: "MDAwMDAwMDE="})""", 0, False, False],
+        #                              ID=3
+        ["""(paginationInput: {before: "MDAwMDAwMDM=", last: 1})""", 1, False, True],
     ),
     ids=[
         "no input",
