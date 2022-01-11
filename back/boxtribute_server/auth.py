@@ -107,10 +107,11 @@ def requires_auth(f):
     The `permissions` field of `g.user` is a mapping of a permission name to a list of
     base IDs that the permission is granted for, or to None if the permission is granted
     for all bases. It is parsed from the `permissions` custom claim which contains
-    entries of form '[base_X[-Y...]/]resource:method', e.g.
+    entries of form '[base_X[-Y...]/]resource:method'. Any write/edit permission implies
+    read permission on the same resource. E.g.
     - base_1/product:read    -> {"product:read": [1]}
-    - base_2-3/stock:write   -> {"stock:write": [2, 3]}
-    - beneficiary:write      -> {"beneficiary:write": None}
+    - base_2-3/stock:write   -> {"stock:write": [2, 3], "stock:read": [2, 3]}
+    - beneficiary:edit       -> {"beneficiary:edit": None, "beneficiary:read": None}
     """
 
     @wraps(f)
@@ -139,6 +140,10 @@ def requires_auth(f):
                     permission = raw_permission
                     base_ids = None
                 g.user["permissions"][permission] = base_ids
+
+                resource, method = permission.split(":")
+                if method in ["write", "edit"]:
+                    g.user["permissions"][f"{resource}:read"] = base_ids
 
         return f(*args, **kwargs)
 

@@ -210,9 +210,14 @@ def test_invalid_permission_for_box_location(read_only_client, mocker, default_b
     )
 
 
-def test_permission_for_all_bases(read_only_client, mocker, default_bases):
+@pytest.mark.parametrize(
+    "method",
+    ["read", "write", "edit"],
+    ids=["all-bases", "write-implies-read", "edit-implies-read"],
+)
+def test_permission_scope(read_only_client, mocker, default_bases, method):
     mocker.patch("jose.jwt.decode").return_value = create_jwt_payload(
-        permissions=["base:read"]
+        permissions=[f"base:{method}"]
     )
     data = {"query": """query { bases { id } }"""}
     response = read_only_client.post("/graphql", json=data)
