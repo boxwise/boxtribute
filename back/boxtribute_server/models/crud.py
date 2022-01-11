@@ -381,6 +381,8 @@ def create_shipment(data, *, started_by):
 
 def cancel_shipment(*, id, user_id):
     """Transition state of specified shipment to 'Canceled'.
+    Move any boxes marked for shipment back into stock, and soft-delete the
+    corresponding shipment details.
     Raise InvalidShipmentState exception if shipment state is different from
     'Preparing'.
     """
@@ -389,10 +391,29 @@ def cancel_shipment(*, id, user_id):
         raise InvalidShipmentState(
             expected_states=[ShipmentState.Preparing], actual_state=shipment.state
         )
+    now = utcnow()
     shipment.state = ShipmentState.Canceled
     shipment.canceled_by = user_id
-    shipment.canceled_on = utcnow()
-    shipment.save()
+    shipment.canceled_on = now
+
+    details = []
+    for detail in (
+        ShipmentDetail.select(ShipmentDetail, Box)
+        .join(Box)
+        .where(ShipmentDetail.shipment == id)
+    ):
+        detail.deleted_by = user_id
+        detail.deleted_on = now
+        detail.box.state = BoxState.InStock
+        details.append(detail)
+
+    with db.database.atomic():
+        if details:
+            Box.bulk_update([d.box for d in details], [Box.state])
+            ShipmentDetail.bulk_update(
+                details, [ShipmentDetail.deleted_on, ShipmentDetail.deleted_by]
+            )
+        shipment.save()
     return shipment
 
 

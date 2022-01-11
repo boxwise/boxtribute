@@ -370,6 +370,28 @@ def test_shipment_mutations_on_source_side(
     }
 
 
+def test_shipment_mutations_cancel(
+    client, default_shipment, another_marked_for_shipment_box
+):
+    shipment_id = str(default_shipment["id"])
+    mutation = f"""mutation {{ cancelShipment(id: {shipment_id}) {{
+                    state
+                    details {{ id }}
+                }} }}"""
+    data = {"query": mutation}
+    response = client.post("/graphql", json=data)
+    assert response.status_code == 200
+    shipment = response.json["data"]["cancelShipment"]
+    assert shipment == {"state": ShipmentState.Canceled.name, "details": []}
+
+    identifier = another_marked_for_shipment_box["label_identifier"]
+    query = f"""query {{ box(labelIdentifier: "{identifier}") {{ state }} }}"""
+    data = {"query": query}
+    response = client.post("/graphql", json=data)
+    assert response.status_code == 200
+    assert response.json["data"]["box"] == {"state": BoxState.InStock.name}
+
+
 def test_shipment_mutations_on_target_side(
     client,
     mocker,
