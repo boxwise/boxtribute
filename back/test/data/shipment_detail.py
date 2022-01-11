@@ -14,21 +14,28 @@ TIME = utcnow().replace(tzinfo=None)
 
 def data():
     shipments = shipment_data()
+    box_without_qr_code = box_without_qr_code_data()
+    marked_for_shipment_box = marked_for_shipment_box_data()
     shippable_box = another_marked_for_shipment_box_data()
     return [
         {
-            "id": i + 1,
+            "id": 1,
             "shipment": shipments[3]["id"],  # sent shipment
-            "box": box["id"],
-            "source_product": box["product"],
-            "source_location": box["location"],
+            "box": box_without_qr_code["id"],
+            "source_product": box_without_qr_code["product"],
+            "source_location": box_without_qr_code["location"],
             "created_on": TIME,
             "created_by": default_user_data()["id"],
-        }
-        for i, box in enumerate(
-            [box_without_qr_code_data(), marked_for_shipment_box_data()]
-        )
-    ] + [
+        },
+        {
+            "id": 2,
+            "shipment": shipments[3]["id"],  # sent shipment
+            "box": marked_for_shipment_box["id"],
+            "source_product": marked_for_shipment_box["product"],
+            "source_location": marked_for_shipment_box["location"],
+            "created_on": TIME,
+            "created_by": default_user_data()["id"],
+        },
         {
             "id": 3,
             "shipment": shipments[0]["id"],  # preparing shipment
