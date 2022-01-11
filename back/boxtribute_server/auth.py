@@ -11,6 +11,7 @@ from .exceptions import AuthenticationFailed
 
 AUTH0_DOMAIN = os.getenv("AUTH0_DOMAIN")
 ALGORITHMS = ["RS256"]
+JWT_CLAIM_PREFIX = "https://www.boxtribute.com"
 
 
 def get_auth_string_from_header():
@@ -124,14 +125,13 @@ def requires_auth(f):
         # by a rule in Auth0):
         #     'https://www.boxtribute.com/organisation_id'
         g.user = {}
-        prefix = "https://www.boxtribute.com"
-        g.user["organisation_id"] = payload[f"{prefix}/organisation_id"]
+        g.user["organisation_id"] = payload[f"{JWT_CLAIM_PREFIX}/organisation_id"]
         g.user["id"] = int(payload["sub"].replace("auth0|", ""))
-        g.user["is_god"] = payload[f"{prefix}/permissions"] == ["*"]
+        g.user["is_god"] = payload[f"{JWT_CLAIM_PREFIX}/permissions"] == ["*"]
 
         g.user["permissions"] = {}
         if not g.user["is_god"]:
-            for raw_permission in payload[f"{prefix}/permissions"]:
+            for raw_permission in payload[f"{JWT_CLAIM_PREFIX}/permissions"]:
                 try:
                     base_prefix, permission = raw_permission.split("/")
                     base_ids = [int(b) for b in base_prefix[5:].split("-")]

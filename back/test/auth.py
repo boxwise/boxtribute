@@ -2,6 +2,8 @@ import json
 import os
 import urllib
 
+from boxtribute_server.auth import JWT_CLAIM_PREFIX
+
 
 def memoize(function):
     """Wraps a function so the data is cached.
@@ -81,13 +83,12 @@ def create_jwt_payload(
     If no arguments are passed, the payload for the default user is returned. Any
     argument specified overrides the corresponding field of the default payload.
     """
-    prefix = "https://www.boxtribute.com"
     payload = {
-        f"{prefix}/email": "dev_coordinator@boxaid.org",
-        f"{prefix}/organisation_id": 1,
-        f"{prefix}/roles": ["Coordinator"],
+        f"{JWT_CLAIM_PREFIX}/email": "dev_coordinator@boxaid.org",
+        f"{JWT_CLAIM_PREFIX}/organisation_id": 1,
+        f"{JWT_CLAIM_PREFIX}/roles": ["Coordinator"],
         "sub": "auth0|8",
-        f"{prefix}/permissions": [
+        f"{JWT_CLAIM_PREFIX}/permissions": [
             "base_1/base:read",
             "base_1/beneficiary:read",
             "base_1/category:read",
@@ -107,7 +108,7 @@ def create_jwt_payload(
     for name in ["email", "base_ids", "organisation_id", "roles", "permissions"]:
         value = locals()[name]
         if value is not None:
-            payload[f"{prefix}/{name}"] = value
+            payload[f"{JWT_CLAIM_PREFIX}/{name}"] = value
     if user_id is not None:
         payload["sub"] = f"auth0|{user_id}"
 
