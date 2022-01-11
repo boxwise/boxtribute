@@ -195,7 +195,7 @@ def test_shipment_mutations_on_source_side(
 
     box_label_identifier = default_box["label_identifier"]
     update_input = f"""{{ id: {shipment_id},
-                preparedBoxLabelIdentifiers: [{box_label_identifier}] }}"""
+                preparedBoxLabelIdentifiers: ["{box_label_identifier}"] }}"""
     mutation = f"""mutation {{ updateShipment(updateInput: {update_input}) {{
                     id
                     state
@@ -283,7 +283,7 @@ def test_shipment_mutations_on_source_side(
     for box in [another_box, lost_box]:
         box_label_identifier = box["label_identifier"]
         update_input = f"""{{ id: {shipment_id},
-                    preparedBoxLabelIdentifiers: [{box_label_identifier}] }}"""
+                    preparedBoxLabelIdentifiers: ["{box_label_identifier}"] }}"""
         mutation = f"""mutation {{ updateShipment(updateInput: {update_input}) {{
                         details {{ id }}
                     }} }}"""
@@ -298,7 +298,7 @@ def test_shipment_mutations_on_source_side(
         }
 
     boxes = [default_box, another_marked_for_shipment_box]
-    box_label_identifiers = ",".join(b["label_identifier"] for b in boxes)
+    box_label_identifiers = ",".join(f'"{b["label_identifier"]}"' for b in boxes)
     update_input = f"""{{ id: {shipment_id},
                 removedBoxLabelIdentifiers: [{box_label_identifiers}] }}"""
     mutation = f"""mutation {{ updateShipment(updateInput: {update_input}) {{
@@ -332,7 +332,7 @@ def test_shipment_mutations_on_source_side(
     for box in boxes:
         box_label_identifier = box["label_identifier"]
         update_input = f"""{{ id: {shipment_id},
-                    removedBoxLabelIdentifiers: [{box_label_identifier}] }}"""
+                    removedBoxLabelIdentifiers: ["{box_label_identifier}"] }}"""
         mutation = f"""mutation {{ updateShipment(updateInput: {update_input}) {{
                         details {{ id }}
                     }} }}"""
@@ -502,10 +502,11 @@ def test_shipment_mutations_on_target_side(
     shipment = response.json["data"]["updateShipment"]
     assert shipment == expected_shipment
 
+    box_label_identifier = marked_for_shipment_box["label_identifier"]
     data = {
         "query": f"""mutation {{ updateShipment( updateInput: {{
                 id: {shipment_id},
-                lostBoxLabelIdentifiers: [{marked_for_shipment_box['label_identifier']}]
+                lostBoxLabelIdentifiers: ["{box_label_identifier}"]
             }} ) {{
                 id
                 state
@@ -575,7 +576,7 @@ def assert_bad_user_input_when_updating_shipment(
     if target_base_id is not None:
         update_input += f", targetBaseId: {target_base_id}"
     if lost_box_label_identifiers is not None:
-        identifiers = ",".join(lost_box_label_identifiers)
+        identifiers = ",".join(f'"{i}"' for i in lost_box_label_identifiers)
         update_input += f", lostBoxLabelIdentifiers: [{identifiers}]"
     if received_detail_ids is not None:
         inputs = ", ".join(
