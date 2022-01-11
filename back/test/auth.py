@@ -82,30 +82,35 @@ def create_jwt_payload(
 
     If no arguments are passed, the payload for the default user is returned. Any
     argument specified overrides the corresponding field of the default payload.
+    If `base_ids` is specified, it is used to construct a prefix of form `base_X[-Y...]`
+    for the default permissions. If `permissions` is specified too, it overwrites any
+    previously set permissions.
     """
     payload = {
         f"{JWT_CLAIM_PREFIX}/email": "dev_coordinator@boxaid.org",
         f"{JWT_CLAIM_PREFIX}/organisation_id": 1,
         f"{JWT_CLAIM_PREFIX}/roles": ["Coordinator"],
         "sub": "auth0|8",
-        f"{JWT_CLAIM_PREFIX}/permissions": [
-            "base_1/base:read",
-            "base_1/beneficiary:read",
-            "base_1/category:read",
-            "base_1/location:read",
-            "base_1/product:read",
-            "base_1/qr:read",
-            "base_1/stock:read",
-            "base_1/transaction:read",
-            "base_1/user:read",
-            "base_1/beneficiary:write",
-            "base_1/qr:write",
-            "base_1/stock:write",
-            "base_1/transaction:write",
-        ],
     }
+    base_ids = base_ids or [1]
+    base_prefix = f"base_{'-'.join(str(b) for b in base_ids)}"
+    payload[f"{JWT_CLAIM_PREFIX}/permissions"] = [
+        f"{base_prefix}/base:read",
+        f"{base_prefix}/beneficiary:read",
+        f"{base_prefix}/category:read",
+        f"{base_prefix}/location:read",
+        f"{base_prefix}/product:read",
+        f"{base_prefix}/qr:read",
+        f"{base_prefix}/stock:read",
+        f"{base_prefix}/transaction:read",
+        f"{base_prefix}/user:read",
+        f"{base_prefix}/beneficiary:write",
+        f"{base_prefix}/qr:write",
+        f"{base_prefix}/stock:write",
+        f"{base_prefix}/transaction:write",
+    ]
 
-    for name in ["email", "base_ids", "organisation_id", "roles", "permissions"]:
+    for name in ["email", "organisation_id", "roles", "permissions"]:
         value = locals()[name]
         if value is not None:
             payload[f"{JWT_CLAIM_PREFIX}/{name}"] = value
