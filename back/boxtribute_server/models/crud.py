@@ -455,7 +455,7 @@ def _update_shipment_with_prepared_boxes(*, shipment, box_label_identifiers, use
     ):
         if box.location.base_id != shipment.source_base_id:
             continue
-        if box.state_id != BoxState.InStock.value:
+        if box.state_id != BoxState.InStock:
             continue
 
         box.state = BoxState.MarkedForShipment
@@ -545,7 +545,7 @@ def _update_shipment_with_received_boxes(
 
         detail.target_product = target_product_id
         detail.target_location = target_location_id
-        detail.box.state_id = BoxState.Received
+        detail.box.state = BoxState.Received
         details.append(detail)
 
     if details:

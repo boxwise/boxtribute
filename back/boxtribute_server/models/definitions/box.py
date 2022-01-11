@@ -19,6 +19,12 @@ class Box(db.Model):
         unique=True,
         max_length=11,
     )
+    # On application level, the BoxState IntEnum is used. Its members behave like
+    # integers in comparisons, and when put into int(). Since peewee does an
+    # int-coversion when assigning a value to a FK field, it's possible to do
+    #   box.state = BoxState.InStock     (without .value)
+    # When comparing the value, use the ID of the FK field directly, as in
+    #   box.state_id == Box.state.Lost   (without .value)
     state = UIntForeignKeyField(
         column_name="box_state_id",
         constraints=[SQL(f"DEFAULT {BoxStateEnum.InStock.value}")],
