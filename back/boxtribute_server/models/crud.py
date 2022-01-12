@@ -486,8 +486,8 @@ def _remove_boxes_from_shipment(
     box_label_identifiers = box_label_identifiers or []
     if not box_label_identifiers:
         return
-    boxes = []
 
+    details = []
     for detail in (
         ShipmentDetail.select(Box)
         .join(Box)
@@ -496,14 +496,17 @@ def _remove_boxes_from_shipment(
             & (ShipmentDetail.shipment == shipment_id)
         )
     ):
+        detail.deleted_by = user_id
+        detail.deleted_on = utcnow()
         # Logically the box is in state MarkedForShipment since part of a shipment
         detail.box.state = box_state
-        boxes.append(detail.box)
-    if boxes:
-        Box.bulk_update(boxes, fields=[Box.state])
-        ShipmentDetail.update(deleted_by=user_id, deleted_on=utcnow()).where(
-            ShipmentDetail.box << boxes
-        ).execute()
+        details.append(detail)
+
+    if details:
+        Box.bulk_update([d.box for d in details], fields=[Box.state])
+        ShipmentDetail.bulk_update(
+            details, [ShipmentDetail.deleted_on, ShipmentDetail.deleted_by]
+        )
 
 
 def _update_shipment_with_received_boxes(
