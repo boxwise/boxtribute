@@ -379,6 +379,16 @@ def create_shipment(data, *, started_by):
     )
 
 
+def _retrieve_shipment_details(shipment_id, *conditions, model=Box):
+    """Retrieve details of shipment with given ID, taking optional conditions for
+    selecting, and an additional model to select and join with into account.
+    """
+    condition = ShipmentDetail.shipment == shipment_id
+    for cond in conditions:
+        condition &= cond
+    return ShipmentDetail.select(ShipmentDetail, model).join(model).where(condition)
+
+
 def cancel_shipment(*, id, user_id):
     """Transition state of specified shipment to 'Canceled'.
     Move any boxes marked for shipment back into stock, and soft-delete the
@@ -397,11 +407,7 @@ def cancel_shipment(*, id, user_id):
     shipment.canceled_on = now
 
     details = []
-    for detail in (
-        ShipmentDetail.select(ShipmentDetail, Box)
-        .join(Box)
-        .where(ShipmentDetail.shipment == id)
-    ):
+    for detail in _retrieve_shipment_details(id):
         detail.deleted_by = user_id
         detail.deleted_on = now
         detail.box.state = BoxState.InStock
@@ -488,13 +494,8 @@ def _remove_boxes_from_shipment(
         return
 
     details = []
-    for detail in (
-        ShipmentDetail.select(Box)
-        .join(Box)
-        .where(
-            (Box.label_identifier << box_label_identifiers)
-            & (ShipmentDetail.shipment == shipment_id)
-        )
+    for detail in _retrieve_shipment_details(
+        shipment_id, (Box.label_identifier << box_label_identifiers)
     ):
         detail.deleted_by = user_id
         detail.deleted_on = utcnow()
@@ -528,12 +529,8 @@ def _update_shipment_with_received_boxes(
 
     details = []
     detail_ids = tuple(update_inputs)
-    for detail in (
-        ShipmentDetail.select(ShipmentDetail, Shipment)
-        .join(Shipment)
-        .where(
-            (ShipmentDetail.shipment == shipment.id) & (ShipmentDetail.id << detail_ids)
-        )
+    for detail in _retrieve_shipment_details(
+        shipment.id, (ShipmentDetail.id << detail_ids), model=Shipment
     ):
         update_input = update_inputs[detail.id]
         target_product_id = update_input["target_product_id"]
@@ -564,11 +561,7 @@ def _complete_shipment_if_applicable(*, shipment, user_id):
     assign target product and location to boxes, and transition received boxes to
     'InStock'.
     """
-    details = (
-        ShipmentDetail.select(ShipmentDetail, Box)
-        .join(Box)
-        .where(ShipmentDetail.shipment == shipment.id)
-    )
+    details = _retrieve_shipment_details(shipment.id)
     if all(d.box.state_id in [BoxState.Received, BoxState.Lost] for d in details):
         now = utcnow()
         shipment.state = ShipmentState.Completed
