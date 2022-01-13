@@ -1,7 +1,8 @@
 """Create-Retrieve-Update-Delete operations on database models."""
 import hashlib
 import random
-from datetime import datetime, time, timezone
+from datetime import datetime, time
+from datetime import timezone as dtimezone
 
 import peewee
 from dateutil import tz
@@ -163,7 +164,7 @@ def update_beneficiary(data):
     return beneficiary
 
 
-def create_qr_code(data):
+def create_qr_code(box_label_identifier=None):
     """Insert a new QR code in the database. Generate an MD5 hash based on its primary
     key. If a `box_label_identifier` is passed, look up the corresponding box (it is
     expected to exist) and associate the QR code with it.
@@ -173,11 +174,9 @@ def create_qr_code(data):
     the operations are rolled back (i.e. no new QR code is inserted), and an exception
     is raised.
     """
-    box_label_identifier = data.pop("box_label_identifier", None)
-
     try:
         with db.database.atomic():
-            new_qr_code = QrCode.create(created_on=utcnow(), **data)
+            new_qr_code = QrCode.create(created_on=utcnow())
             new_qr_code.code = hashlib.md5(str(new_qr_code.id).encode()).hexdigest()
             new_qr_code.save()
 
@@ -192,41 +191,53 @@ def create_qr_code(data):
         raise RequestedResourceNotFound()
 
 
-def create_transfer_agreement(data):
+def create_transfer_agreement(
+    *,
+    target_organisation_id,
+    type,
+    source_base_ids=None,
+    target_base_ids=None,
+    valid_from=None,
+    valid_until=None,
+    timezone=None,
+    user,
+):
     """Insert information for a new TransferAgreement in the database. Update
     TransferAgreementDetail model with given source/target base information. By default,
     the agreement is established between all bases of both organisations (indicated by
     NULL for the Detail.source/target_base field).
     Convert optional local dates into UTC datetimes using timezone information.
     """
-    if data["source_organisation_id"] == data["target_organisation_id"]:
+    source_organisation_id = user["organisation_id"]
+    if source_organisation_id == target_organisation_id:
         raise InvalidTransferAgreementOrganisation()
 
     with db.database.atomic():
-        # In GraphQL input, base IDs can be omitted, or explicitly be null.
-        # Avoid duplicate base IDs by creating sets
-        source_base_ids = set(data.pop("source_base_ids", None) or [None])
-        target_base_ids = set(data.pop("target_base_ids", None) or [None])
-
-        valid_from = data.get("valid_from")
-        valid_until = data.get("valid_until")
         if valid_from is not None or valid_until is not None:
-            tzinfo = tz.gettz(data.pop("timezone"))
+            tzinfo = tz.gettz(timezone)
             # Insert time information such that start/end is at midnight
             if valid_from is not None:
-                data["valid_from"] = datetime.combine(
+                valid_from = datetime.combine(
                     valid_from, time(), tzinfo=tzinfo
-                ).astimezone(timezone.utc)
+                ).astimezone(dtimezone.utc)
             if valid_until is not None:
-                data["valid_until"] = datetime.combine(
+                valid_until = datetime.combine(
                     valid_until, time(23, 59, 59), tzinfo=tzinfo
-                ).astimezone(timezone.utc)
+                ).astimezone(dtimezone.utc)
 
         transfer_agreement = TransferAgreement.create(
-            source_organisation=data.pop("source_organisation_id"),
-            target_organisation=data.pop("target_organisation_id"),
-            **data,
+            source_organisation=source_organisation_id,
+            target_organisation=target_organisation_id,
+            type=type,
+            valid_from=valid_from or utcnow(),
+            valid_until=valid_until,
+            requested_by=user["id"],
         )
+
+        # In GraphQL input, base IDs can be omitted, or explicitly be null.
+        # Avoid duplicate base IDs by creating sets
+        source_base_ids = set(source_base_ids or [None])
+        target_base_ids = set(target_base_ids or [None])
 
         # Build all combinations of source and target bases under current agreement
         details_data = [
@@ -342,7 +353,7 @@ def _validate_bases_as_part_of_transfer_agreement(
             )
 
 
-def create_shipment(data, *, started_by):
+def create_shipment(*, source_base_id, target_base_id, transfer_agreement_id, user):
     """Insert information for a new Shipment in the database.
     Raise an InvalidTransferAgreementState exception if specified agreement has a state
     different from 'ACCEPTED'.
@@ -351,7 +362,6 @@ def create_shipment(data, *, started_by):
     Raise an InvalidTransferAgreementOrganisation exception if the current user is not
     member of the agreement source organisation in a unidirectional agreement.
     """
-    transfer_agreement_id = data.pop("transfer_agreement_id")
     agreement = TransferAgreement.get_by_id(transfer_agreement_id)
     if agreement.state != TransferAgreementState.Accepted:
         raise InvalidTransferAgreementState(
@@ -361,21 +371,20 @@ def create_shipment(data, *, started_by):
 
     _validate_bases_as_part_of_transfer_agreement(
         transfer_agreement=agreement,
-        source_base_id=data["source_base_id"],
-        target_base_id=data["target_base_id"],
+        source_base_id=source_base_id,
+        target_base_id=target_base_id,
     )
 
     if (agreement.type == TransferAgreementType.Unidirectional) and (
-        started_by["organisation_id"] != agreement.source_organisation_id
+        user["organisation_id"] != agreement.source_organisation_id
     ):
         raise InvalidTransferAgreementOrganisation()
 
     return Shipment.create(
-        source_base=data.pop("source_base_id"),
-        target_base=data.pop("target_base_id"),
+        source_base=source_base_id,
+        target_base=target_base_id,
         transfer_agreement=transfer_agreement_id,
-        started_by=started_by["id"],
-        **data,
+        started_by=user["id"],
     )
 
 

@@ -291,9 +291,7 @@ def resolve_location_box_state(location_obj, info):
 def resolve_create_qr_code(_, info, box_label_identifier=None):
     authorize(permission="qr:write")
     authorize(permission="stock:write")
-    return create_qr_code(
-        dict(created_by=g.user["id"], box_label_identifier=box_label_identifier)
-    )
+    return create_qr_code(box_label_identifier=box_label_identifier)
 
 
 @mutation.field("createBox")
@@ -337,9 +335,7 @@ def resolve_update_beneficiary(_, info, beneficiary_update_input):
 @mutation.field("createTransferAgreement")
 @convert_kwargs_to_snake_case
 def resolve_create_transfer_agreement(_, info, creation_input):
-    creation_input["source_organisation_id"] = g.user["organisation_id"]
-    creation_input["requested_by"] = g.user["id"]
-    return create_transfer_agreement(creation_input)
+    return create_transfer_agreement(**creation_input, user=g.user)
 
 
 @mutation.field("acceptTransferAgreement")
@@ -360,7 +356,7 @@ def resolve_cancel_transfer_agreement(_, info, id):
 @mutation.field("createShipment")
 @convert_kwargs_to_snake_case
 def resolve_create_shipment(_, info, creation_input):
-    return create_shipment(creation_input, started_by=g.user)
+    return create_shipment(**creation_input, user=g.user)
 
 
 @mutation.field("updateShipment")
