@@ -67,11 +67,11 @@ def get_user_token_string():
 
 def create_jwt_payload(
     *,
-    email=None,
-    base_ids=None,
-    organisation_id=None,
-    roles=None,
-    user_id=None,
+    email="dev_coordinator@boxaid.org",
+    base_ids=(1,),
+    organisation_id=1,
+    roles=("Coordinator",),
+    user_id=8,
     permissions=None,
 ):
     """Create payload containing authorization information of the user requesting from
@@ -87,34 +87,30 @@ def create_jwt_payload(
     previously set permissions.
     """
     payload = {
-        f"{JWT_CLAIM_PREFIX}/email": "dev_coordinator@boxaid.org",
-        f"{JWT_CLAIM_PREFIX}/organisation_id": 1,
-        f"{JWT_CLAIM_PREFIX}/roles": ["Coordinator"],
-        "sub": "auth0|8",
+        f"{JWT_CLAIM_PREFIX}/email": email,
+        f"{JWT_CLAIM_PREFIX}/organisation_id": organisation_id,
+        f"{JWT_CLAIM_PREFIX}/roles": roles,
+        "sub": f"auth0|{user_id}",
     }
-    base_ids = base_ids or [1]
-    base_prefix = f"base_{'-'.join(str(b) for b in base_ids)}"
-    payload[f"{JWT_CLAIM_PREFIX}/permissions"] = [
-        f"{base_prefix}/base:read",
-        f"{base_prefix}/beneficiary:read",
-        f"{base_prefix}/category:read",
-        f"{base_prefix}/location:read",
-        f"{base_prefix}/product:read",
-        f"{base_prefix}/qr:read",
-        f"{base_prefix}/stock:read",
-        f"{base_prefix}/transaction:read",
-        f"{base_prefix}/user:read",
-        f"{base_prefix}/beneficiary:write",
-        f"{base_prefix}/qr:write",
-        f"{base_prefix}/stock:write",
-        f"{base_prefix}/transaction:write",
-    ]
 
-    for name in ["email", "organisation_id", "roles", "permissions"]:
-        value = locals()[name]
-        if value is not None:
-            payload[f"{JWT_CLAIM_PREFIX}/{name}"] = value
-    if user_id is not None:
-        payload["sub"] = f"auth0|{user_id}"
+    if permissions is None:
+        base_prefix = f"base_{'-'.join(str(b) for b in base_ids)}"
+        payload[f"{JWT_CLAIM_PREFIX}/permissions"] = [
+            f"{base_prefix}/base:read",
+            f"{base_prefix}/beneficiary:read",
+            f"{base_prefix}/category:read",
+            f"{base_prefix}/location:read",
+            f"{base_prefix}/product:read",
+            f"{base_prefix}/qr:read",
+            f"{base_prefix}/stock:read",
+            f"{base_prefix}/transaction:read",
+            f"{base_prefix}/user:read",
+            f"{base_prefix}/beneficiary:write",
+            f"{base_prefix}/qr:write",
+            f"{base_prefix}/stock:write",
+            f"{base_prefix}/transaction:write",
+        ]
+    else:
+        payload[f"{JWT_CLAIM_PREFIX}/permissions"] = permissions
 
     return payload
