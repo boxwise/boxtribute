@@ -279,8 +279,9 @@ def test_shipment_mutations_on_source_side(
     }
 
     # Verify that another_box is not added to shipment (not located in source base).
-    # Same for lost_box (box state different from InStock)
-    for box in [another_box, lost_box]:
+    # Same for lost_box (box state different from InStock) and default_box (already
+    # added to shipment, hence box state MarkedForShipment different from InStock)
+    for box in [another_box, lost_box, default_box]:
         box_label_identifier = box["label_identifier"]
         update_input = f"""{{ id: {shipment_id},
                     preparedBoxLabelIdentifiers: ["{box_label_identifier}"] }}"""
