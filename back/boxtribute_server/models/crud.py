@@ -191,6 +191,23 @@ def create_qr_code(box_label_identifier=None):
         raise RequestedResourceNotFound()
 
 
+def _validate_bases_as_part_of_organisation(*, base_ids, organisation_id):
+    """Raise InvalidTransferAgreementBase exception if any of the given bases is not run
+    by the given organisation.
+    """
+    if base_ids != {None}:
+        organisation_base_ids = [
+            b.id
+            for b in Base.select(Base.id).where(Base.organisation_id == organisation_id)
+        ]
+        invalid_base_ids = [i for i in base_ids if i not in organisation_base_ids]
+        if invalid_base_ids:
+            raise InvalidTransferAgreementBase(
+                expected_base_ids=organisation_base_ids,
+                base_id=invalid_base_ids[0],
+            )
+
+
 def create_transfer_agreement(
     *,
     target_organisation_id,
@@ -207,6 +224,10 @@ def create_transfer_agreement(
     the agreement is established between all bases of both organisations (indicated by
     NULL for the Detail.source/target_base field).
     Convert optional local dates into UTC datetimes using timezone information.
+    Raise an InvalidTransferAgreementOrganisation exception if the current user's
+    organisation is identical to the target organisation.
+    Raise an InvalidTransferAgreementBase expection if any specified source/target base
+    is not part of the source/target organisation.
     """
     source_organisation_id = user["organisation_id"]
     if source_organisation_id == target_organisation_id:
@@ -238,6 +259,13 @@ def create_transfer_agreement(
         # Avoid duplicate base IDs by creating sets
         source_base_ids = set(source_base_ids or [None])
         target_base_ids = set(target_base_ids or [None])
+
+        _validate_bases_as_part_of_organisation(
+            base_ids=source_base_ids, organisation_id=source_organisation_id
+        )
+        _validate_bases_as_part_of_organisation(
+            base_ids=target_base_ids, organisation_id=target_organisation_id
+        )
 
         # Build all combinations of source and target bases under current agreement
         details_data = [

@@ -231,3 +231,16 @@ def test_transfer_agreement_mutations_identical_source_org_for_creation(
                     type: Unidirectional
                 } ) { id } }"""
     assert_bad_user_input(read_only_client, mutation)
+
+
+@pytest.mark.parametrize("kind,base_id", [["source", 3], ["target", 1]])
+def test_transfer_agreement_mutations_create_invalid_source_base(
+    read_only_client, kind, base_id
+):
+    # Test cases 2.2.18, 2.2.19
+    mutation = f"""mutation {{ createTransferAgreement( creationInput: {{
+                    targetOrganisationId: 2,
+                    {kind}BaseIds: [{base_id}],
+                    type: Bidirectional
+                }} ) {{ id }} }}"""
+    assert_bad_user_input(read_only_client, mutation)
