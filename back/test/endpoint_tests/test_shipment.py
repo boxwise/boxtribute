@@ -12,35 +12,19 @@ def test_shipment_query(read_only_client, default_shipment, prepared_shipment_de
     query = f"""query {{
                 shipment(id: {shipment_id}) {{
                     id
-                    sourceBase {{
-                        id
-                    }}
-                    targetBase {{
-                        id
-                    }}
+                    sourceBase {{ id }}
+                    targetBase {{ id }}
                     state
-                    startedBy {{
-                        id
-                    }}
+                    startedBy {{ id }}
                     startedOn
-                    sentBy {{
-                        id
-                    }}
+                    sentBy {{ id }}
                     sentOn
-                    completedBy {{
-                        id
-                    }}
+                    completedBy {{ id }}
                     completedOn
-                    canceledBy {{
-                        id
-                    }}
+                    canceledBy {{ id }}
                     canceledOn
-                    transferAgreement {{
-                        id
-                    }}
-                    details {{
-                        id
-                    }}
+                    transferAgreement {{ id }}
+                    details {{ id }}
                 }}
             }}"""
     shipment = assert_successful_request(read_only_client, query)
@@ -99,35 +83,19 @@ def test_shipment_mutations_on_source_side(
                          transferAgreementId: {agreement_id}"""
     mutation = f"""mutation {{ createShipment(creationInput: {{ {creation_input} }} ) {{
                     id
-                    sourceBase {{
-                        id
-                    }}
-                    targetBase {{
-                        id
-                    }}
+                    sourceBase {{ id }}
+                    targetBase {{ id }}
                     state
-                    startedBy {{
-                        id
-                    }}
+                    startedBy {{ id }}
                     startedOn
-                    sentBy {{
-                        id
-                    }}
+                    sentBy {{ id }}
                     sentOn
-                    completedBy {{
-                        id
-                    }}
+                    completedBy {{ id }}
                     completedOn
-                    canceledBy {{
-                        id
-                    }}
+                    canceledBy {{ id }}
                     canceledOn
-                    transferAgreement {{
-                        id
-                    }}
-                    details {{
-                        id
-                    }}
+                    transferAgreement {{ id }}
+                    details {{ id }}
                 }} }}"""
     shipment = assert_successful_request(client, mutation)
     shipment_id = str(shipment.pop("id"))
@@ -154,9 +122,7 @@ def test_shipment_mutations_on_source_side(
     mutation = f"""mutation {{ updateShipment(updateInput: {update_input}) {{
                     id
                     state
-                    targetBase {{
-                        id
-                    }}
+                    targetBase {{ id }}
                 }} }}"""
     shipment = assert_successful_request(client, mutation)
     assert shipment == {
@@ -174,32 +140,18 @@ def test_shipment_mutations_on_source_side(
                     state
                     details {{
                         id
-                        shipment {{
-                            id
-                        }}
+                        shipment {{ id }}
                         box {{
                             id
                             state
                         }}
-                        sourceProduct {{
-                            id
-                        }}
-                        targetProduct {{
-                            id
-                        }}
-                        sourceLocation {{
-                            id
-                        }}
-                        targetLocation {{
-                            id
-                        }}
-                        createdBy {{
-                            id
-                        }}
+                        sourceProduct {{ id }}
+                        targetProduct {{ id }}
+                        sourceLocation {{ id }}
+                        targetLocation {{ id }}
+                        createdBy {{ id }}
                         createdOn
-                        deletedBy {{
-                            id
-                        }}
+                        deletedBy {{ id }}
                         deletedOn
                     }}
                 }} }}"""
@@ -274,9 +226,7 @@ def test_shipment_mutations_on_source_side(
     mutation = f"""mutation {{ updateShipment(updateInput: {update_input}) {{
                     id
                     state
-                    details {{
-                        id
-                    }}
+                    details {{ id }}
                 }} }}"""
     shipment = assert_successful_request(client, mutation)
     assert shipment == {
@@ -316,9 +266,7 @@ def test_shipment_mutations_on_source_side(
     mutation = f"""mutation {{ sendShipment(id: {shipment_id}) {{
                     id
                     state
-                    sentBy {{
-                        id
-                    }}
+                    sentBy {{ id }}
                     sentOn
                 }} }}"""
     shipment = assert_successful_request(client, mutation)
@@ -390,18 +338,12 @@ def test_shipment_mutations_on_target_side(
         return f"""mutation {{ updateShipment(updateInput: {{ {update_input} }}) {{
                         id
                         state
-                        completedBy {{
-                            id
-                        }}
+                        completedBy {{ id }}
                         completedOn
                         details {{
                             id
-                            targetProduct {{
-                                id
-                            }}
-                            targetLocation {{
-                                id
-                            }}
+                            targetProduct {{ id }}
+                            targetLocation {{ id }}
                             box {{
                                 state
                             }}

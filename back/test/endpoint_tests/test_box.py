@@ -11,21 +11,13 @@ def test_box_query_by_label_identifier(
                 box(labelIdentifier: "{label_identifier}") {{
                     id
                     labelIdentifier
-                    location {{
-                        id
-                    }}
+                    location {{ id }}
                     items
-                    product {{
-                        id
-                    }}
+                    product {{ id }}
                     size
                     state
-                    qrCode {{
-                        id
-                    }}
-                    createdBy {{
-                        id
-                    }}
+                    qrCode {{ id }}
+                    createdBy {{ id }}
                     comment
                 }}
             }}"""
@@ -72,24 +64,14 @@ def test_box_mutations(client, qr_code_without_box):
                 id
                 labelIdentifier
                 items
-                location {{
-                    id
-                }}
-                product {{
-                    id
-                }}
-                qrCode {{
-                    id
-                }}
+                location {{ id }}
+                product {{ id }}
+                qrCode {{ id }}
                 state
                 createdOn
-                createdBy {{
-                    id
-                }}
+                createdBy {{ id }}
                 lastModifiedOn
-                lastModifiedBy {{
-                    id
-                }}
+                lastModifiedBy {{ id }}
             }}
         }}"""
     created_box = assert_successful_request(client, mutation)
@@ -110,9 +92,7 @@ def test_box_mutations(client, qr_code_without_box):
                 items
                 lastModifiedOn
                 createdOn
-                qrCode {{
-                    id
-                }}
+                qrCode {{ id }}
             }}
         }}"""
     updated_box = assert_successful_request(client, mutation)

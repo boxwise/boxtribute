@@ -9,18 +9,12 @@ def test_product_query(read_only_client, default_product):
                     category {{
                         hasGender
                     }}
-                    sizeRange {{
-                        id
-                    }}
+                    sizeRange {{ id }}
                     sizes
-                    base {{
-                        id
-                    }}
+                    base {{ id }}
                     price
                     gender
-                    createdBy {{
-                        id
-                    }}
+                    createdBy {{ id }}
                 }}
             }}"""
     queried_product = assert_successful_request(read_only_client, query)
@@ -38,12 +32,6 @@ def test_product_query(read_only_client, default_product):
 
 
 def test_products_query(read_only_client, default_product):
-    query = """query {
-                products {
-                    elements {
-                        name
-                    }
-                }
-            }"""
+    query = """query { products { elements { name } } }"""
     queried_product = assert_successful_request(read_only_client, query)["elements"][0]
     assert queried_product["name"] == default_product["name"]

@@ -6,13 +6,9 @@ def test_product_categories_query(read_only_client):
                 productCategories {
                     name
                     products {
-                        elements {
-                            id
-                        }
+                        elements { id }
                     }
-                    sizeRanges {
-                        id
-                    }
+                    sizeRanges { id }
                     hasGender
                 }
             }"""

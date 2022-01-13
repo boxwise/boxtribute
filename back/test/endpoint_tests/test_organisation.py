@@ -6,9 +6,7 @@ def test_organisation_query(read_only_client, default_bases, default_organisatio
                 organisation(id: "{default_organisation['id']}") {{
                     id
                     name
-                    bases {{
-                        id
-                    }}
+                    bases {{ id }}
                 }}
             }}"""
     queried_organisation = assert_successful_request(read_only_client, query)
@@ -20,10 +18,6 @@ def test_organisation_query(read_only_client, default_bases, default_organisatio
 
 
 def test_organisations_query(read_only_client, default_organisation):
-    query = """query {
-                organisations {
-                    name
-                }
-            }"""
+    query = """query { organisations { name } }"""
     queried_organisation = assert_successful_request(read_only_client, query)[0]
     assert queried_organisation["name"] == default_organisation["name"]

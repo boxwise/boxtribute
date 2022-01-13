@@ -14,38 +14,22 @@ def test_transfer_agreement_query(
     query = f"""query {{
                 transferAgreement(id: {agreement_id}) {{
                     id
-                    sourceOrganisation {{
-                        id
-                    }}
-                    targetOrganisation {{
-                        id
-                    }}
+                    sourceOrganisation {{ id }}
+                    targetOrganisation {{ id }}
                     state
                     type
-                    requestedBy {{
-                        id
-                    }}
+                    requestedBy {{ id }}
                     requestedOn
-                    acceptedBy {{
-                        id
-                    }}
+                    acceptedBy {{ id }}
                     acceptedOn
-                    terminatedBy {{
-                        id
-                    }}
+                    terminatedBy {{ id }}
                     terminatedOn
                     validFrom
                     validUntil
                     comment
-                    sourceBases {{
-                        id
-                    }}
-                    targetBases {{
-                        id
-                    }}
-                    shipments {{
-                        id
-                    }}
+                    sourceBases {{ id }}
+                    targetBases {{ id }}
+                    shipments {{ id }}
                 }}
             }}"""
     agreement = assert_successful_request(read_only_client, query)
@@ -114,28 +98,16 @@ def test_transfer_agreement_mutations(
                     creationInput: {{ {creation_input} }}
                     ) {{
                         id
-                        sourceOrganisation {{
-                            id
-                        }}
-                        targetOrganisation {{
-                            id
-                        }}
+                        sourceOrganisation {{ id }}
+                        targetOrganisation {{ id }}
                         state
                         type
-                        requestedBy {{
-                            id
-                        }}
+                        requestedBy {{ id }}
                         validFrom
                         validUntil
-                        sourceBases {{
-                            id
-                        }}
-                        targetBases {{
-                            id
-                        }}
-                        shipments {{
-                            id
-                        }}
+                        sourceBases {{ id }}
+                        targetBases {{ id }}
+                        shipments {{ id }}
                     }}
                 }}"""
 
@@ -190,9 +162,7 @@ def test_transfer_agreement_mutations(
     # Test case 2.2.3
     mutation = f"""mutation {{ acceptTransferAgreement(id: {first_agreement_id}) {{
                     state
-                    acceptedBy {{
-                        id
-                    }}
+                    acceptedBy {{ id }}
                     acceptedOn
                 }}
             }}"""
@@ -206,9 +176,7 @@ def test_transfer_agreement_mutations(
     # Test case 2.2.7
     mutation = f"""mutation {{ cancelTransferAgreement(id: {first_agreement_id}) {{
                     state
-                    terminatedBy {{
-                        id
-                    }}
+                    terminatedBy {{ id }}
                     terminatedOn
                 }}
             }}"""
@@ -222,9 +190,7 @@ def test_transfer_agreement_mutations(
     # Test case 2.2.5
     mutation = f"""mutation {{ rejectTransferAgreement(id: {second_agreement_id}) {{
                     state
-                    terminatedBy {{
-                        id
-                    }}
+                    terminatedBy {{ id }}
                     terminatedOn
                 }}
             }}"""

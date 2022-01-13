@@ -33,28 +33,20 @@ def test_beneficiary_mutations(client):
                 lastName
                 dateOfBirth
                 comment
-                base {{
-                    id
-                }}
+                base {{ id }}
                 groupIdentifier
                 gender
                 languages
-                familyHead {{
-                    id
-                }}
+                familyHead {{ id }}
                 isVolunteer
                 isSigned
                 isRegistered
                 signature
                 dateOfSignature
                 createdOn
-                createdBy {{
-                    id
-                }}
+                createdBy {{ id }}
                 lastModifiedOn
-                lastModifiedBy {{
-                    id
-                }}
+                lastModifiedBy {{ id }}
             }}
         }}"""
 
@@ -93,9 +85,7 @@ def test_beneficiary_mutations(client):
                 }} ) {{
                 id
                 lastName
-                base {{
-                    id
-                }}
+                base {{ id }}
                 languages
                 isVolunteer
                 isSigned

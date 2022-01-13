@@ -28,13 +28,9 @@ def test_base_query(read_only_client, default_location, default_bases):
                 base(id: {test_id}) {{
                     id
                     name
-                    organisation {{
-                        id
-                    }}
+                    organisation {{ id }}
                     currencyName
-                    locations {{
-                        id
-                    }}
+                    locations {{ id }}
                 }}
             }}"""
 

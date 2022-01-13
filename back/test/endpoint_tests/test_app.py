@@ -119,9 +119,7 @@ def test_get_beneficiaries(dropapp_dev_client):
                     beneficiaries(
                         paginationInput: {{ after: "{cursor}" }}
                     ) {{
-                        elements {{
-                            id
-                        }}
+                        elements {{ id }}
                         pageInfo {{
                             hasPreviousPage
                             hasNextPage

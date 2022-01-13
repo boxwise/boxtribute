@@ -22,9 +22,7 @@ def test_qr_code_query(read_only_client, default_box, default_qr_code):
                 qrCode(qrCode: "{code}") {{
                     id
                     code
-                    box {{
-                        id
-                    }}
+                    box {{ id }}
                     createdOn
                 }}
             }}"""
@@ -39,13 +37,7 @@ def test_qr_code_query(read_only_client, default_box, default_qr_code):
 
 def test_code_not_associated_with_box(read_only_client, qr_code_without_box):
     code = qr_code_without_box["code"]
-    query = f"""query {{
-                qrCode(qrCode: "{code}") {{
-                    box {{
-                        id
-                    }}
-                }}
-            }}"""
+    query = f"""query {{ qrCode(qrCode: "{code}") {{ box {{ id }} }} }}"""
     data = {"query": query}
     response = read_only_client.post("/graphql", json=data)
     assert (
@@ -57,11 +49,7 @@ def test_code_not_associated_with_box(read_only_client, qr_code_without_box):
 
 
 def test_code_does_not_exist(read_only_client):
-    query = """query {
-                qrCode(qrCode: "-1") {
-                    id
-                }
-            }"""
+    query = """query { qrCode(qrCode: "-1") { id } }"""
     data = {"query": query}
     response = read_only_client.post("/graphql", json=data)
     queried_code = response.json["data"]["qrCode"]

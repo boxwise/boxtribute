@@ -6,21 +6,15 @@ def test_location_query(read_only_client, default_boxes, default_location):
     query = f"""query {{
                 location(id: "{default_location['id']}") {{
                     id
-                    base {{
-                        id
-                    }}
+                    base {{ id }}
                     name
                     isShop
                     boxes {{
-                        elements {{
-                            id
-                        }}
+                        elements {{ id }}
                     }}
                     boxState
                     createdOn
-                    createdBy {{
-                        id
-                    }}
+                    createdBy {{ id }}
                 }}
             }}"""
     queried_location = assert_successful_request(read_only_client, query)
