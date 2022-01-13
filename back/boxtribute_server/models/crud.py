@@ -389,26 +389,34 @@ def _retrieve_shipment_details(shipment_id, *conditions, model=Box):
     return ShipmentDetail.select(ShipmentDetail, model).join(model).where(condition)
 
 
-def cancel_shipment(*, id, user_id):
+def cancel_shipment(*, id, user):
     """Transition state of specified shipment to 'Canceled'.
     Move any boxes marked for shipment back into stock, and soft-delete the
     corresponding shipment details.
     Raise InvalidShipmentState exception if shipment state is different from
     'Preparing'.
+    Raise an InvalidTransferAgreementOrganisation exception if the current user is not
+    member of either organisation that is part of the underlying transfer agreement.
     """
     shipment = Shipment.get_by_id(id)
     if shipment.state != ShipmentState.Preparing:
         raise InvalidShipmentState(
             expected_states=[ShipmentState.Preparing], actual_state=shipment.state
         )
+    if user["organisation_id"] not in [
+        shipment.transfer_agreement.source_organisation_id,
+        shipment.transfer_agreement.target_organisation_id,
+    ]:
+        raise InvalidTransferAgreementOrganisation()
+
     now = utcnow()
     shipment.state = ShipmentState.Canceled
-    shipment.canceled_by = user_id
+    shipment.canceled_by = user["id"]
     shipment.canceled_on = now
 
     details = []
     for detail in _retrieve_shipment_details(id):
-        detail.deleted_by = user_id
+        detail.deleted_by = user["id"]
         detail.deleted_on = now
         detail.box.state = BoxState.InStock
         details.append(detail)

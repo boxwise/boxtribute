@@ -371,7 +371,7 @@ def resolve_update_shipment(_, info, update_input):
 
 @mutation.field("cancelShipment")
 def resolve_cancel_shipment(_, info, id):
-    return cancel_shipment(id=id, user_id=g.user["id"])
+    return cancel_shipment(id=id, user=g.user)
 
 
 @mutation.field("sendShipment")

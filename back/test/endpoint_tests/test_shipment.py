@@ -545,6 +545,17 @@ def test_shipment_mutations_in_non_preparing_state(
     assert_bad_user_input(read_only_client, mutation)
 
 
+def test_shipment_mutations_cancel_as_member_of_neither_org(
+    read_only_client, mocker, default_shipment
+):
+    # Test case 3.2.10
+    mocker.patch("jose.jwt.decode").return_value = create_jwt_payload(
+        organisation_id=3, user_id=2
+    )
+    mutation = f"mutation {{ cancelShipment(id: {default_shipment['id']}) {{ id }} }}"
+    assert_bad_user_input(read_only_client, mutation)
+
+
 def test_shipment_mutations_update_with_invalid_target_base(
     read_only_client, default_bases, default_shipment
 ):
