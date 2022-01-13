@@ -1,3 +1,6 @@
+from utils import assert_bad_user_input
+
+
 def test_qr_exists_query(read_only_client, default_qr_code):
     code = default_qr_code["code"]
     graph_ql_query_string = f"""query CheckQrExistence {{
@@ -102,9 +105,6 @@ def test_qr_code_mutation(client, box_without_qr_code):
     assert created_qr_code["box"]["items"] == box_without_qr_code["items"]
     assert int(created_qr_code["box"]["id"]) == box_without_qr_code["id"]
 
-    data = {"query": """mutation { createQrCode(boxLabelIdentifier: "xxx") { id } }"""}
-    response = client.post("/graphql", json=data)
-    assert response.status_code == 200
-    assert response.json["data"]["createQrCode"] is None
-    assert len(response.json["errors"]) == 1
-    assert response.json["errors"][0]["extensions"]["code"] == "BAD_USER_INPUT"
+    assert_bad_user_input(
+        client, """mutation { createQrCode(boxLabelIdentifier: "xxx") { id } }"""
+    )

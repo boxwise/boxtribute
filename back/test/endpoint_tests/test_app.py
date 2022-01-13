@@ -1,4 +1,5 @@
 from auth import create_jwt_payload
+from utils import assert_bad_user_input
 
 
 def test_get_boxes(dropapp_dev_client):
@@ -235,9 +236,4 @@ def test_invalid_pagination_input(read_only_client):
     query = """query { beneficiaries(paginationInput: {last: 2}) {
         elements { id }
     } }"""
-    data = {"query": query}
-    response = read_only_client.post("/graphql", json=data)
-    assert response.status_code == 200
-    assert len(response.json["errors"]) == 1
-    assert response.json["errors"][0]["extensions"]["code"] == "BAD_USER_INPUT"
-    assert response.json["data"] is None
+    assert_bad_user_input(read_only_client, query)

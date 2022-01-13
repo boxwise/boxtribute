@@ -3,6 +3,7 @@ from datetime import date
 import pytest
 from auth import create_jwt_payload
 from boxtribute_server.enums import TransferAgreementState, TransferAgreementType
+from utils import assert_bad_user_input
 
 
 def test_transfer_agreement_query(
@@ -261,11 +262,7 @@ def test_transfer_agreement_mutations_invalid_state(
     # Test cases 2.2.11, 2.2.12, 2.2.13
     agreement_id = expired_transfer_agreement["id"]
     mutation = f"mutation {{ {action}TransferAgreement(id: {agreement_id}) {{ id }} }}"
-    data = {"query": mutation}
-    response = read_only_client.post("/graphql", json=data)
-    assert response.status_code == 200
-    assert len(response.json["errors"]) == 1
-    assert response.json["errors"][0]["extensions"]["code"] == "BAD_USER_INPUT"
+    assert_bad_user_input(read_only_client, mutation)
 
 
 @pytest.mark.parametrize("action", ["accept", "reject"])
@@ -275,11 +272,7 @@ def test_transfer_agreement_mutations_as_member_of_source_org(
     # Test cases 2.2.9, 2.2.10
     agreement_id = reviewed_transfer_agreement["id"]
     mutation = f"mutation {{ {action}TransferAgreement(id: {agreement_id}) {{ id }} }}"
-    data = {"query": mutation}
-    response = read_only_client.post("/graphql", json=data)
-    assert response.status_code == 200
-    assert len(response.json["errors"]) == 1
-    assert response.json["errors"][0]["extensions"]["code"] == "BAD_USER_INPUT"
+    assert_bad_user_input(read_only_client, mutation)
 
 
 def test_transfer_agreement_mutations_identical_source_org_for_creation(
@@ -290,8 +283,4 @@ def test_transfer_agreement_mutations_identical_source_org_for_creation(
                     targetOrganisationId: 1,
                     type: Unidirectional
                 } ) { id } }"""
-    data = {"query": mutation}
-    response = read_only_client.post("/graphql", json=data)
-    assert response.status_code == 200
-    assert len(response.json["errors"]) == 1
-    assert response.json["errors"][0]["extensions"]["code"] == "BAD_USER_INPUT"
+    assert_bad_user_input(read_only_client, mutation)
