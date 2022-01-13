@@ -5,22 +5,26 @@ from peewee import fn
 from flask import g
 
 from ..authz import authorize
-from ..enums import HumanGender, TransferAgreementState
-from ..models.crud import (
+from ..box_transfer.agreement import (
     accept_transfer_agreement,
-    cancel_shipment,
     cancel_transfer_agreement,
-    create_beneficiary,
-    create_box,
-    create_qr_code,
-    create_shipment,
     create_transfer_agreement,
     reject_transfer_agreement,
     retrieve_transfer_agreement_bases,
+)
+from ..box_transfer.shipment import (
+    cancel_shipment,
+    create_shipment,
     send_shipment,
+    update_shipment,
+)
+from ..enums import HumanGender, TransferAgreementState
+from ..models.crud import (
+    create_beneficiary,
+    create_box,
+    create_qr_code,
     update_beneficiary,
     update_box,
-    update_shipment,
 )
 from ..models.definitions.base import Base
 from ..models.definitions.beneficiary import Beneficiary
