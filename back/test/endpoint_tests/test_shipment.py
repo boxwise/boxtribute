@@ -279,7 +279,7 @@ def test_shipment_mutations_on_source_side(
 
 
 def test_shipment_mutations_cancel(
-    client, default_shipment, another_marked_for_shipment_box
+    client, mocker, default_shipment, another_marked_for_shipment_box, another_shipment
 ):
     # Test case 3.2.7
     shipment_id = str(default_shipment["id"])
@@ -303,6 +303,15 @@ def test_shipment_mutations_cancel(
     query = f"""query {{ box(labelIdentifier: "{identifier}") {{ state }} }}"""
     box = assert_successful_request(client, query)
     assert box == {"state": BoxState.InStock.name}
+
+    # Shipment does not have any details assigned
+    mocker.patch("jose.jwt.decode").return_value = create_jwt_payload(
+        base_ids=[3], organisation_id=2, user_id=2
+    )
+    shipment_id = str(another_shipment["id"])
+    mutation = f"""mutation {{ cancelShipment(id: {shipment_id}) {{ state }} }}"""
+    shipment = assert_successful_request(client, mutation)
+    assert shipment == {"state": ShipmentState.Canceled.name}
 
 
 def test_shipment_mutations_on_target_side(
