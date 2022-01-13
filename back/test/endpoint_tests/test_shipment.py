@@ -7,6 +7,7 @@ from utils import assert_bad_user_input
 
 
 def test_shipment_query(read_only_client, default_shipment, prepared_shipment_detail):
+    # Test case 3.1.2
     shipment_id = str(default_shipment["id"])
     query = f"""query {{
                 shipment(id: {shipment_id}) {{
@@ -45,7 +46,6 @@ def test_shipment_query(read_only_client, default_shipment, prepared_shipment_de
     data = {"query": query}
     response = read_only_client.post("/graphql", json=data)
     shipment = response.json["data"]["shipment"]
-
     assert shipment == {
         "id": shipment_id,
         "sourceBase": {"id": str(default_shipment["source_base"])},
@@ -71,6 +71,7 @@ def test_shipments_query(
     another_shipment,
     sent_shipment,
 ):
+    # Test case 3.1.1
     query = "query { shipments { id } }"
     data = {"query": query}
     response = read_only_client.post("/graphql", json=data)
@@ -93,6 +94,7 @@ def test_shipment_mutations_on_source_side(
     marked_for_shipment_box,
     prepared_shipment_detail,
 ):
+    # Test case 3.2.1
     source_base_id = default_bases[2]["id"]
     target_base_id = default_bases[3]["id"]
     agreement_id = default_transfer_agreement["id"]
@@ -136,7 +138,6 @@ def test_shipment_mutations_on_source_side(
     assert response.status_code == 200
     shipment = response.json["data"]["createShipment"]
     shipment_id = str(shipment.pop("id"))
-
     assert shipment.pop("startedOn").startswith(date.today().isoformat())
     assert shipment == {
         "sourceBase": {"id": str(source_base_id)},
@@ -153,26 +154,7 @@ def test_shipment_mutations_on_source_side(
         "details": [],
     }
 
-    mutation = f"""mutation {{ cancelShipment(id: {shipment_id}) {{
-                    id
-                    state
-                    canceledBy {{
-                        id
-                    }}
-                    canceledOn
-                }} }}"""
-    data = {"query": mutation}
-    response = client.post("/graphql", json=data)
-    assert response.status_code == 200
-    shipment = response.json["data"]["cancelShipment"]
-
-    assert shipment.pop("canceledOn").startswith(date.today().isoformat())
-    assert shipment == {
-        "id": shipment_id,
-        "state": ShipmentState.Canceled.name,
-        "canceledBy": {"id": "8"},
-    }
-
+    # Test case 3.2.20
     shipment_id = str(default_shipment["id"])
     update_input = f"""{{ id: {shipment_id},
                 targetBaseId: {target_base_id} }}"""
@@ -193,6 +175,7 @@ def test_shipment_mutations_on_source_side(
         "targetBase": {"id": str(target_base_id)},
     }
 
+    # Test case 3.2.26
     box_label_identifier = default_box["label_identifier"]
     update_input = f"""{{ id: {shipment_id},
                 preparedBoxLabelIdentifiers: ["{box_label_identifier}"] }}"""
@@ -281,6 +264,7 @@ def test_shipment_mutations_on_source_side(
     # Verify that another_box is not added to shipment (not located in source base).
     # Same for lost_box (box state different from InStock) and default_box (already
     # added to shipment, hence box state MarkedForShipment different from InStock)
+    # Test cases 3.2.27, 3.2.28
     for box in [another_box, lost_box, default_box]:
         box_label_identifier = box["label_identifier"]
         update_input = f"""{{ id: {shipment_id},
@@ -298,6 +282,7 @@ def test_shipment_mutations_on_source_side(
             ]
         }
 
+    # Test case 3.2.30
     boxes = [default_box, another_marked_for_shipment_box]
     box_label_identifiers = ",".join(f'"{b["label_identifier"]}"' for b in boxes)
     update_input = f"""{{ id: {shipment_id},
@@ -329,6 +314,7 @@ def test_shipment_mutations_on_source_side(
     # Verify that lost_box is not removed from shipment (box state different from
     # MarkedForShipment).
     # Same for marked_for_shipment_box (not part of shipment)
+    # Test cases 3.2.31, 3.2.32
     boxes = [lost_box, marked_for_shipment_box]
     for box in boxes:
         box_label_identifier = box["label_identifier"]
@@ -350,6 +336,7 @@ def test_shipment_mutations_on_source_side(
         response = client.post("/graphql", json=data)
         assert response.json["data"]["box"] == {"state": BoxState(box["state"]).name}
 
+    # Test case 3.2.11
     mutation = f"""mutation {{ sendShipment(id: {shipment_id}) {{
                     id
                     state
@@ -362,7 +349,6 @@ def test_shipment_mutations_on_source_side(
     response = client.post("/graphql", json=data)
     assert response.status_code == 200
     shipment = response.json["data"]["sendShipment"]
-
     assert shipment.pop("sentOn").startswith(date.today().isoformat())
     assert shipment == {
         "id": shipment_id,
@@ -374,16 +360,26 @@ def test_shipment_mutations_on_source_side(
 def test_shipment_mutations_cancel(
     client, default_shipment, another_marked_for_shipment_box
 ):
+    # Test case 3.2.7
     shipment_id = str(default_shipment["id"])
     mutation = f"""mutation {{ cancelShipment(id: {shipment_id}) {{
+                    id
                     state
+                    canceledBy {{ id }}
+                    canceledOn
                     details {{ id }}
                 }} }}"""
     data = {"query": mutation}
     response = client.post("/graphql", json=data)
     assert response.status_code == 200
     shipment = response.json["data"]["cancelShipment"]
-    assert shipment == {"state": ShipmentState.Canceled.name, "details": []}
+    assert shipment.pop("canceledOn").startswith(date.today().isoformat())
+    assert shipment == {
+        "id": shipment_id,
+        "state": ShipmentState.Canceled.name,
+        "canceledBy": {"id": "8"},
+        "details": [],
+    }
 
     identifier = another_marked_for_shipment_box["label_identifier"]
     query = f"""query {{ box(labelIdentifier: "{identifier}") {{ state }} }}"""
@@ -444,6 +440,7 @@ def test_shipment_mutations_on_target_side(
                         }}
                     }} }}"""
 
+    # Test case 3.2.34a
     data = {
         "query": _create_mutation(
             detail_id=detail_id,
@@ -454,7 +451,6 @@ def test_shipment_mutations_on_target_side(
     response = client.post("/graphql", json=data)
     assert response.status_code == 200
     shipment = response.json["data"]["updateShipment"]
-
     expected_shipment = {
         "id": shipment_id,
         "state": ShipmentState.Sent.name,
@@ -478,6 +474,7 @@ def test_shipment_mutations_on_target_side(
     assert shipment == expected_shipment
 
     # Verify that another_detail_id is not updated (invalid product)
+    # Test case 3.2.39
     data = {
         "query": _create_mutation(
             detail_id=another_detail_id,
@@ -491,6 +488,7 @@ def test_shipment_mutations_on_target_side(
     assert shipment == expected_shipment
 
     # Verify that another_detail_id is not updated (invalid location)
+    # Test case 3.2.38
     data = {
         "query": _create_mutation(
             detail_id=another_detail_id,
@@ -503,6 +501,7 @@ def test_shipment_mutations_on_target_side(
     shipment = response.json["data"]["updateShipment"]
     assert shipment == expected_shipment
 
+    # Test case 3.2.40, 3.2.34b
     box_label_identifier = marked_for_shipment_box["label_identifier"]
     data = {
         "query": f"""mutation {{ updateShipment( updateInput: {{
@@ -519,7 +518,6 @@ def test_shipment_mutations_on_target_side(
     response = client.post("/graphql", json=data)
     assert response.status_code == 200
     shipment = response.json["data"]["updateShipment"]
-
     assert shipment.pop("completedOn").startswith(date.today().isoformat())
     assert shipment == {
         "id": shipment_id,
@@ -595,6 +593,7 @@ def assert_bad_user_input_when_updating_shipment(
 def test_shipment_mutations_create_with_non_accepted_agreement(
     read_only_client, default_bases, expired_transfer_agreement
 ):
+    # Test case 3.2.2
     assert_bad_user_input_when_creating_shipment(
         read_only_client,
         # base IDs don't matter because validation for agreement state comes first
@@ -607,6 +606,7 @@ def test_shipment_mutations_create_with_non_accepted_agreement(
 def test_shipment_mutations_create_with_invalid_base(
     read_only_client, default_bases, default_transfer_agreement
 ):
+    # Test case 3.2.3
     assert_bad_user_input_when_creating_shipment(
         read_only_client,
         source_base=default_bases[2],
@@ -618,6 +618,7 @@ def test_shipment_mutations_create_with_invalid_base(
 def test_shipment_mutations_create_as_target_org_member_in_unidirectional_agreement(
     read_only_client, default_bases, unidirectional_transfer_agreement
 ):
+    # Test case 3.2.4
     # The default user (see auth_service fixture) is member of organisation 1 which is
     # the target organisation in the unidirectional_transfer_agreement fixture
     assert_bad_user_input_when_creating_shipment(
@@ -631,6 +632,7 @@ def test_shipment_mutations_create_as_target_org_member_in_unidirectional_agreem
 def test_shipment_mutations_send_as_member_of_non_creating_org(
     read_only_client, another_shipment
 ):
+    # Test case 3.2.14
     mutation = f"mutation {{ sendShipment(id: {another_shipment['id']}) {{ id }} }}"
     assert_bad_user_input(read_only_client, mutation)
 
@@ -639,13 +641,15 @@ def test_shipment_mutations_send_as_member_of_non_creating_org(
 def test_shipment_mutations_in_non_preparing_state(
     read_only_client, canceled_shipment, act
 ):
+    # Test cases 3.2.9, 3.2.13
     mutation = f"mutation {{ {act}Shipment(id: {canceled_shipment['id']}) {{ id }} }}"
     assert_bad_user_input(read_only_client, mutation)
 
 
-def test_shipment_mutations_update_with_invalid_base(
+def test_shipment_mutations_update_with_invalid_target_base(
     read_only_client, default_bases, default_shipment
 ):
+    # Test case 3.2.24
     assert_bad_user_input_when_updating_shipment(
         read_only_client,
         target_base=default_bases[4],  # not part of agreement
@@ -656,6 +660,7 @@ def test_shipment_mutations_update_with_invalid_base(
 def test_shipment_mutations_update_in_non_preparing_state(
     read_only_client, canceled_shipment, default_bases
 ):
+    # Test case 3.2.23
     assert_bad_user_input_when_updating_shipment(
         read_only_client,
         shipment=canceled_shipment,
@@ -666,6 +671,7 @@ def test_shipment_mutations_update_in_non_preparing_state(
 def test_shipment_mutations_update_as_member_of_non_creating_org(
     read_only_client, another_shipment, default_bases
 ):
+    # Test case 3.2.25
     # The default user (see auth_service fixture) is member of organisation 1 but
     # organisation 2 is the one that created another_shipment
     assert_bad_user_input_when_updating_shipment(
@@ -682,6 +688,7 @@ def test_shipment_mutations_update_checked_in_boxes_as_member_of_creating_org(
     another_location,
     another_product,
 ):
+    # Test case 3.2.35
     assert_bad_user_input_when_updating_shipment(
         read_only_client,
         shipment=sent_shipment,
@@ -696,6 +703,7 @@ def test_shipment_mutations_update_mark_lost_boxes_as_member_of_creating_org(
     sent_shipment,
     marked_for_shipment_box,
 ):
+    # Test case 3.2.41
     assert_bad_user_input_when_updating_shipment(
         read_only_client,
         shipment=sent_shipment,
@@ -711,6 +719,7 @@ def test_shipment_mutations_update_checked_in_boxes_when_shipment_in_non_sent_st
     another_location,
     another_product,
 ):
+    # Test case 3.2.36
     mocker.patch("jose.jwt.decode").return_value = create_jwt_payload(
         base_ids=[3], organisation_id=2, user_id=2
     )

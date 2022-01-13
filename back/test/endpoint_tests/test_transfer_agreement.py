@@ -8,6 +8,7 @@ from boxtribute_server.enums import TransferAgreementState, TransferAgreementTyp
 def test_transfer_agreement_query(
     read_only_client, default_transfer_agreement, default_shipment, sent_shipment
 ):
+    # Test case 2.1.3
     agreement_id = str(default_transfer_agreement["id"])
     query = f"""query {{
                 transferAgreement(id: {agreement_id}) {{
@@ -49,7 +50,6 @@ def test_transfer_agreement_query(
     data = {"query": query}
     response = read_only_client.post("/graphql", json=data)
     agreement = response.json["data"]["transferAgreement"]
-
     assert agreement == {
         "id": agreement_id,
         "sourceOrganisation": {
@@ -98,6 +98,7 @@ def state_names(value):
 def test_transfer_agreements_query(
     read_only_client, filter_input, transfer_agreement_ids
 ):
+    # Test cases 2.1.1, 2.1.2
     query = f"""query {{ transferAgreements{filter_input} {{ id }} }}"""
     data = {"query": query}
     response = read_only_client.post("/graphql", json=data)
@@ -142,6 +143,7 @@ def test_transfer_agreement_mutations(
                 }}"""
 
     # Leave all optional fields empty in input
+    # Test case 2.2.1
     creation_input = f"""targetOrganisationId: {another_organisation['id']},
         type: {TransferAgreementType.Bidirectional.name}"""
     data = {"query": _create_mutation(creation_input)}
@@ -149,7 +151,6 @@ def test_transfer_agreement_mutations(
     assert response.status_code == 200
     agreement = response.json["data"]["createTransferAgreement"]
     first_agreement_id = agreement.pop("id")
-
     assert agreement.pop("validFrom").startswith(date.today().isoformat())
     assert agreement == {
         "sourceOrganisation": {"id": str(default_organisation["id"])},
@@ -164,6 +165,7 @@ def test_transfer_agreement_mutations(
     }
 
     # Provide all available fields in input
+    # Test case 2.2.2
     valid_from = "2021-12-15"
     valid_until = "2022-06-30"
     creation_input = f"""targetOrganisationId: {another_organisation['id']},
@@ -178,7 +180,6 @@ def test_transfer_agreement_mutations(
     assert response.status_code == 200
     agreement = response.json["data"]["createTransferAgreement"]
     second_agreement_id = agreement.pop("id")
-
     assert agreement.pop("validFrom").startswith(valid_from)
     assert agreement.pop("validUntil").startswith(valid_until)
     assert agreement == {
@@ -195,6 +196,7 @@ def test_transfer_agreement_mutations(
     mocker.patch("jose.jwt.decode").return_value = create_jwt_payload(
         base_ids=[3], organisation_id=2, user_id=2
     )
+    # Test case 2.2.3
     mutation = f"""mutation {{ acceptTransferAgreement(id: {first_agreement_id}) {{
                     state
                     acceptedBy {{
@@ -213,6 +215,7 @@ def test_transfer_agreement_mutations(
         "acceptedBy": {"id": "2"},
     }
 
+    # Test case 2.2.7
     mutation = f"""mutation {{ cancelTransferAgreement(id: {first_agreement_id}) {{
                     state
                     terminatedBy {{
@@ -231,6 +234,7 @@ def test_transfer_agreement_mutations(
         "terminatedBy": {"id": "2"},
     }
 
+    # Test case 2.2.5
     mutation = f"""mutation {{ rejectTransferAgreement(id: {second_agreement_id}) {{
                     state
                     terminatedBy {{
@@ -254,6 +258,7 @@ def test_transfer_agreement_mutations(
 def test_transfer_agreement_mutations_invalid_state(
     read_only_client, expired_transfer_agreement, action
 ):
+    # Test cases 2.2.11, 2.2.12, 2.2.13
     agreement_id = expired_transfer_agreement["id"]
     mutation = f"mutation {{ {action}TransferAgreement(id: {agreement_id}) {{ id }} }}"
     data = {"query": mutation}
@@ -264,9 +269,10 @@ def test_transfer_agreement_mutations_invalid_state(
 
 
 @pytest.mark.parametrize("action", ["accept", "reject"])
-def test_transfer_agreement_mutations_invalid_source_org(
+def test_transfer_agreement_mutations_as_member_of_source_org(
     read_only_client, reviewed_transfer_agreement, action
 ):
+    # Test cases 2.2.9, 2.2.10
     agreement_id = reviewed_transfer_agreement["id"]
     mutation = f"mutation {{ {action}TransferAgreement(id: {agreement_id}) {{ id }} }}"
     data = {"query": mutation}
@@ -279,6 +285,7 @@ def test_transfer_agreement_mutations_invalid_source_org(
 def test_transfer_agreement_mutations_identical_source_org_for_creation(
     read_only_client,
 ):
+    # Test case 2.2.14
     mutation = """mutation { createTransferAgreement( creationInput: {
                     targetOrganisationId: 1,
                     type: Unidirectional
