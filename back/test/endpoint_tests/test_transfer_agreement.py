@@ -3,7 +3,7 @@ from datetime import date
 import pytest
 from auth import create_jwt_payload
 from boxtribute_server.enums import TransferAgreementState, TransferAgreementType
-from utils import assert_bad_user_input
+from utils import assert_bad_user_input, assert_successful_request
 
 
 def test_transfer_agreement_query(
@@ -48,9 +48,7 @@ def test_transfer_agreement_query(
                     }}
                 }}
             }}"""
-    data = {"query": query}
-    response = read_only_client.post("/graphql", json=data)
-    agreement = response.json["data"]["transferAgreement"]
+    agreement = assert_successful_request(read_only_client, query)
     assert agreement == {
         "id": agreement_id,
         "sourceOrganisation": {
@@ -101,9 +99,7 @@ def test_transfer_agreements_query(
 ):
     # Test cases 2.1.1, 2.1.2
     query = f"""query {{ transferAgreements{filter_input} {{ id }} }}"""
-    data = {"query": query}
-    response = read_only_client.post("/graphql", json=data)
-    agreements = response.json["data"]["transferAgreements"]
+    agreements = assert_successful_request(read_only_client, query)
     assert agreements == [{"id": i} for i in transfer_agreement_ids]
 
 
@@ -147,10 +143,7 @@ def test_transfer_agreement_mutations(
     # Test case 2.2.1
     creation_input = f"""targetOrganisationId: {another_organisation['id']},
         type: {TransferAgreementType.Bidirectional.name}"""
-    data = {"query": _create_mutation(creation_input)}
-    response = client.post("/graphql", json=data)
-    assert response.status_code == 200
-    agreement = response.json["data"]["createTransferAgreement"]
+    agreement = assert_successful_request(client, _create_mutation(creation_input))
     first_agreement_id = agreement.pop("id")
     assert agreement.pop("validFrom").startswith(date.today().isoformat())
     assert agreement == {
@@ -176,10 +169,7 @@ def test_transfer_agreement_mutations(
         timezone: "Europe/London",
         sourceBaseIds: [1],
         targetBaseIds: [3]"""
-    data = {"query": _create_mutation(creation_input)}
-    response = client.post("/graphql", json=data)
-    assert response.status_code == 200
-    agreement = response.json["data"]["createTransferAgreement"]
+    agreement = assert_successful_request(client, _create_mutation(creation_input))
     second_agreement_id = agreement.pop("id")
     assert agreement.pop("validFrom").startswith(valid_from)
     assert agreement.pop("validUntil").startswith(valid_until)
@@ -206,10 +196,7 @@ def test_transfer_agreement_mutations(
                     acceptedOn
                 }}
             }}"""
-    data = {"query": mutation}
-    response = client.post("/graphql", json=data)
-    assert response.status_code == 200
-    agreement = response.json["data"]["acceptTransferAgreement"]
+    agreement = assert_successful_request(client, mutation)
     assert agreement.pop("acceptedOn").startswith(date.today().isoformat())
     assert agreement == {
         "state": TransferAgreementState.Accepted.name,
@@ -225,10 +212,7 @@ def test_transfer_agreement_mutations(
                     terminatedOn
                 }}
             }}"""
-    data = {"query": mutation}
-    response = client.post("/graphql", json=data)
-    assert response.status_code == 200
-    agreement = response.json["data"]["cancelTransferAgreement"]
+    agreement = assert_successful_request(client, mutation)
     assert agreement.pop("terminatedOn").startswith(date.today().isoformat())
     assert agreement == {
         "state": TransferAgreementState.Canceled.name,
@@ -244,10 +228,7 @@ def test_transfer_agreement_mutations(
                     terminatedOn
                 }}
             }}"""
-    data = {"query": mutation}
-    response = client.post("/graphql", json=data)
-    assert response.status_code == 200
-    agreement = response.json["data"]["rejectTransferAgreement"]
+    agreement = assert_successful_request(client, mutation)
     assert agreement.pop("terminatedOn").startswith(date.today().isoformat())
     assert agreement == {
         "state": TransferAgreementState.Rejected.name,

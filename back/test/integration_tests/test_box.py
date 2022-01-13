@@ -1,6 +1,8 @@
+from utils import assert_successful_request
+
+
 def test_get_box_details(auth0_client):
-    data = {
-        "query": """query BoxIdAndItems {
+    query = """query BoxIdAndItems {
                 qrCode(qrCode: "03a6ad3e5a8677fe350f9849a208552") {
                     box {
                         id
@@ -11,10 +13,7 @@ def test_get_box_details(auth0_client):
                     }
                 }
             }"""
-    }
-    response = auth0_client.post("/graphql", json=data)
-    queried_box = response.json["data"]["qrCode"]["box"]
-    assert response.status_code == 200
+    queried_box = assert_successful_request(auth0_client, query)["box"]
     assert queried_box == {
         "id": "67",
         "labelIdentifier": "728544",

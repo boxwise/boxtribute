@@ -3,7 +3,7 @@ from datetime import date
 import pytest
 from auth import create_jwt_payload
 from boxtribute_server.enums import BoxState, ShipmentState
-from utils import assert_bad_user_input
+from utils import assert_bad_user_input, assert_successful_request
 
 
 def test_shipment_query(read_only_client, default_shipment, prepared_shipment_detail):
@@ -43,9 +43,7 @@ def test_shipment_query(read_only_client, default_shipment, prepared_shipment_de
                     }}
                 }}
             }}"""
-    data = {"query": query}
-    response = read_only_client.post("/graphql", json=data)
-    shipment = response.json["data"]["shipment"]
+    shipment = assert_successful_request(read_only_client, query)
     assert shipment == {
         "id": shipment_id,
         "sourceBase": {"id": str(default_shipment["source_base"])},
@@ -73,9 +71,7 @@ def test_shipments_query(
 ):
     # Test case 3.1.1
     query = "query { shipments { id } }"
-    data = {"query": query}
-    response = read_only_client.post("/graphql", json=data)
-    shipments = response.json["data"]["shipments"]
+    shipments = assert_successful_request(read_only_client, query)
     assert shipments == [
         {"id": str(s["id"])}
         for s in [default_shipment, canceled_shipment, another_shipment, sent_shipment]
@@ -133,10 +129,7 @@ def test_shipment_mutations_on_source_side(
                         id
                     }}
                 }} }}"""
-    data = {"query": mutation}
-    response = client.post("/graphql", json=data)
-    assert response.status_code == 200
-    shipment = response.json["data"]["createShipment"]
+    shipment = assert_successful_request(client, mutation)
     shipment_id = str(shipment.pop("id"))
     assert shipment.pop("startedOn").startswith(date.today().isoformat())
     assert shipment == {
@@ -165,10 +158,7 @@ def test_shipment_mutations_on_source_side(
                         id
                     }}
                 }} }}"""
-    data = {"query": mutation}
-    response = client.post("/graphql", json=data)
-    assert response.status_code == 200
-    shipment = response.json["data"]["updateShipment"]
+    shipment = assert_successful_request(client, mutation)
     assert shipment == {
         "id": shipment_id,
         "state": ShipmentState.Preparing.name,
@@ -213,10 +203,7 @@ def test_shipment_mutations_on_source_side(
                         deletedOn
                     }}
                 }} }}"""
-    data = {"query": mutation}
-    response = client.post("/graphql", json=data)
-    assert response.status_code == 200
-    shipment = response.json["data"]["updateShipment"]
+    shipment = assert_successful_request(client, mutation)
     assert shipment["details"][0].pop("createdOn").startswith(date.today().isoformat())
     assert shipment["details"][1].pop("createdOn").startswith(date.today().isoformat())
     shipment_detail_id = shipment["details"][1].pop("id")
@@ -272,10 +259,7 @@ def test_shipment_mutations_on_source_side(
         mutation = f"""mutation {{ updateShipment(updateInput: {update_input}) {{
                         details {{ id }}
                     }} }}"""
-        data = {"query": mutation}
-        response = client.post("/graphql", json=data)
-        assert response.status_code == 200
-        shipment = response.json["data"]["updateShipment"]
+        shipment = assert_successful_request(client, mutation)
         assert shipment == {
             "details": [
                 {"id": i} for i in [prepared_shipment_detail_id, shipment_detail_id]
@@ -294,10 +278,7 @@ def test_shipment_mutations_on_source_side(
                         id
                     }}
                 }} }}"""
-    data = {"query": mutation}
-    response = client.post("/graphql", json=data)
-    assert response.status_code == 200
-    shipment = response.json["data"]["updateShipment"]
+    shipment = assert_successful_request(client, mutation)
     assert shipment == {
         "id": shipment_id,
         "state": ShipmentState.Preparing.name,
@@ -307,9 +288,8 @@ def test_shipment_mutations_on_source_side(
         box_label_identifier = box["label_identifier"]
         query = f"""query {{ box(labelIdentifier: "{box_label_identifier}") {{
                         state }} }}"""
-        data = {"query": query}
-        response = client.post("/graphql", json=data)
-        assert response.json["data"]["box"] == {"state": BoxState.InStock.name}
+        box_response = assert_successful_request(client, query)
+        assert box_response == {"state": BoxState.InStock.name}
 
     # Verify that lost_box is not removed from shipment (box state different from
     # MarkedForShipment).
@@ -323,18 +303,14 @@ def test_shipment_mutations_on_source_side(
         mutation = f"""mutation {{ updateShipment(updateInput: {update_input}) {{
                         details {{ id }}
                     }} }}"""
-        data = {"query": mutation}
-        response = client.post("/graphql", json=data)
-        assert response.status_code == 200
-        shipment = response.json["data"]["updateShipment"]
+        shipment = assert_successful_request(client, mutation)
         assert shipment == {"details": []}
     for box in boxes:
         box_label_identifier = box["label_identifier"]
         query = f"""query {{ box(labelIdentifier: "{box_label_identifier}") {{
                         state }} }}"""
-        data = {"query": query}
-        response = client.post("/graphql", json=data)
-        assert response.json["data"]["box"] == {"state": BoxState(box["state"]).name}
+        box_response = assert_successful_request(client, query)
+        assert box_response == {"state": BoxState(box["state"]).name}
 
     # Test case 3.2.11
     mutation = f"""mutation {{ sendShipment(id: {shipment_id}) {{
@@ -345,10 +321,7 @@ def test_shipment_mutations_on_source_side(
                     }}
                     sentOn
                 }} }}"""
-    data = {"query": mutation}
-    response = client.post("/graphql", json=data)
-    assert response.status_code == 200
-    shipment = response.json["data"]["sendShipment"]
+    shipment = assert_successful_request(client, mutation)
     assert shipment.pop("sentOn").startswith(date.today().isoformat())
     assert shipment == {
         "id": shipment_id,
@@ -369,10 +342,7 @@ def test_shipment_mutations_cancel(
                     canceledOn
                     details {{ id }}
                 }} }}"""
-    data = {"query": mutation}
-    response = client.post("/graphql", json=data)
-    assert response.status_code == 200
-    shipment = response.json["data"]["cancelShipment"]
+    shipment = assert_successful_request(client, mutation)
     assert shipment.pop("canceledOn").startswith(date.today().isoformat())
     assert shipment == {
         "id": shipment_id,
@@ -383,10 +353,8 @@ def test_shipment_mutations_cancel(
 
     identifier = another_marked_for_shipment_box["label_identifier"]
     query = f"""query {{ box(labelIdentifier: "{identifier}") {{ state }} }}"""
-    data = {"query": query}
-    response = client.post("/graphql", json=data)
-    assert response.status_code == 200
-    assert response.json["data"]["box"] == {"state": BoxState.InStock.name}
+    box = assert_successful_request(client, query)
+    assert box == {"state": BoxState.InStock.name}
 
 
 def test_shipment_mutations_on_target_side(
@@ -441,16 +409,14 @@ def test_shipment_mutations_on_target_side(
                     }} }}"""
 
     # Test case 3.2.34a
-    data = {
-        "query": _create_mutation(
+    shipment = assert_successful_request(
+        client,
+        _create_mutation(
             detail_id=detail_id,
             target_product_id=target_product_id,
             target_location_id=target_location_id,
-        )
-    }
-    response = client.post("/graphql", json=data)
-    assert response.status_code == 200
-    shipment = response.json["data"]["updateShipment"]
+        ),
+    )
     expected_shipment = {
         "id": shipment_id,
         "state": ShipmentState.Sent.name,
@@ -475,36 +441,32 @@ def test_shipment_mutations_on_target_side(
 
     # Verify that another_detail_id is not updated (invalid product)
     # Test case 3.2.39
-    data = {
-        "query": _create_mutation(
+
+    shipment = assert_successful_request(
+        client,
+        _create_mutation(
             detail_id=another_detail_id,
             target_product_id=default_product["id"],
             target_location_id=target_location_id,
-        )
-    }
-    response = client.post("/graphql", json=data)
-    assert response.status_code == 200
-    shipment = response.json["data"]["updateShipment"]
+        ),
+    )
     assert shipment == expected_shipment
 
     # Verify that another_detail_id is not updated (invalid location)
     # Test case 3.2.38
-    data = {
-        "query": _create_mutation(
+    shipment = assert_successful_request(
+        client,
+        _create_mutation(
             detail_id=another_detail_id,
             target_product_id=target_product_id,
             target_location_id=default_location["id"],
-        )
-    }
-    response = client.post("/graphql", json=data)
-    assert response.status_code == 200
-    shipment = response.json["data"]["updateShipment"]
+        ),
+    )
     assert shipment == expected_shipment
 
     # Test case 3.2.40, 3.2.34b
     box_label_identifier = marked_for_shipment_box["label_identifier"]
-    data = {
-        "query": f"""mutation {{ updateShipment( updateInput: {{
+    mutation = f"""mutation {{ updateShipment( updateInput: {{
                 id: {shipment_id},
                 lostBoxLabelIdentifiers: ["{box_label_identifier}"]
             }} ) {{
@@ -514,10 +476,7 @@ def test_shipment_mutations_on_target_side(
                 completedOn
                 details {{ id }}
             }} }}"""
-    }
-    response = client.post("/graphql", json=data)
-    assert response.status_code == 200
-    shipment = response.json["data"]["updateShipment"]
+    shipment = assert_successful_request(client, mutation)
     assert shipment.pop("completedOn").startswith(date.today().isoformat())
     assert shipment == {
         "id": shipment_id,
@@ -531,9 +490,8 @@ def test_shipment_mutations_on_target_side(
                     product {{ id }}
                     location {{ id }}
     }} }}"""
-    data = {"query": query}
-    response = client.post("/graphql", json=data)
-    assert response.json["data"]["box"] == {
+    box = assert_successful_request(client, query)
+    assert box == {
         "state": BoxState.InStock.name,
         "product": {"id": target_product_id},
         "location": {"id": target_location_id},
@@ -545,9 +503,8 @@ def test_shipment_mutations_on_target_side(
     box_label_identifier = marked_for_shipment_box["label_identifier"]
     query = f"""query {{ box(labelIdentifier: "{box_label_identifier}") {{
                     state }} }}"""
-    data = {"query": query}
-    response = client.post("/graphql", json=data)
-    assert response.json["data"]["box"] == {"state": BoxState.Lost.name}
+    box = assert_successful_request(client, query)
+    assert box == {"state": BoxState.Lost.name}
 
 
 def assert_bad_user_input_when_creating_shipment(

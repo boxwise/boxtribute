@@ -1,3 +1,6 @@
+from utils import assert_successful_request
+
+
 def test_organisation_query(read_only_client, default_bases, default_organisation):
     query = f"""query {{
                 organisation(id: "{default_organisation['id']}") {{
@@ -8,9 +11,7 @@ def test_organisation_query(read_only_client, default_bases, default_organisatio
                     }}
                 }}
             }}"""
-    data = {"query": query}
-    response_data = read_only_client.post("/graphql", json=data)
-    queried_organisation = response_data.json["data"]["organisation"]
+    queried_organisation = assert_successful_request(read_only_client, query)
     assert queried_organisation == {
         "id": str(default_organisation["id"]),
         "name": default_organisation["name"],
@@ -24,7 +25,5 @@ def test_organisations_query(read_only_client, default_organisation):
                     name
                 }
             }"""
-    data = {"query": query}
-    response_data = read_only_client.post("/graphql", json=data)
-    queried_organisation = response_data.json["data"]["organisations"][0]
+    queried_organisation = assert_successful_request(read_only_client, query)[0]
     assert queried_organisation["name"] == default_organisation["name"]
