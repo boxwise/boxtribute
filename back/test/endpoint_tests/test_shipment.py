@@ -552,11 +552,11 @@ def test_shipment_mutations_on_target_side(
 
 
 def assert_bad_user_input_when_creating_shipment(
-    client, *, source_base_id, target_base_id, agreement_id
+    client, *, source_base, target_base, agreement
 ):
-    creation_input = f"""sourceBaseId: {source_base_id},
-                         targetBaseId: {target_base_id},
-                         transferAgreementId: {agreement_id}"""
+    creation_input = f"""sourceBaseId: {source_base["id"]},
+                         targetBaseId: {target_base["id"]},
+                         transferAgreementId: {agreement["id"]}"""
     mutation = f"""mutation {{ createShipment(creationInput: {{ {creation_input} }} ) {{
                     id }} }}"""
     assert_bad_user_input(client, mutation)
@@ -565,25 +565,25 @@ def assert_bad_user_input_when_creating_shipment(
 def assert_bad_user_input_when_updating_shipment(
     client,
     *,
-    shipment_id,
-    target_base_id=None,
-    lost_box_label_identifiers=None,
-    received_detail_ids=None,
-    target_location_id=None,
-    target_product_id=None,
+    shipment,
+    target_base=None,
+    lost_boxes=None,
+    received_details=None,
+    target_location=None,
+    target_product=None,
 ):
-    update_input = f"id: {shipment_id}"
-    if target_base_id is not None:
-        update_input += f", targetBaseId: {target_base_id}"
-    if lost_box_label_identifiers is not None:
-        identifiers = ",".join(f'"{i}"' for i in lost_box_label_identifiers)
+    update_input = f"id: {shipment['id']}"
+    if target_base is not None:
+        update_input += f", targetBaseId: {target_base['id']}"
+    if lost_boxes is not None:
+        identifiers = ",".join(f'"{b["label_identifier"]}"' for b in lost_boxes)
         update_input += f", lostBoxLabelIdentifiers: [{identifiers}]"
-    if received_detail_ids is not None:
+    if received_details is not None:
         inputs = ", ".join(
-            f"""{{ id: {i},
-                targetLocationId: {target_location_id},
-                targetProductId: {target_product_id} }}"""
-            for i in received_detail_ids
+            f"""{{ id: {detail["id"]},
+                targetLocationId: {target_location["id"]},
+                targetProductId: {target_product["id"]} }}"""
+            for detail in received_details
         )
         update_input += f", receivedShipmentDetailUpdateInputs: [{inputs}]"
     mutation = f"""mutation {{ updateShipment(updateInput: {{ {update_input} }} ) {{
@@ -597,9 +597,9 @@ def test_shipment_mutations_create_with_non_accepted_agreement(
     assert_bad_user_input_when_creating_shipment(
         read_only_client,
         # base IDs don't matter because validation for agreement state comes first
-        source_base_id=default_bases[1]["id"],
-        target_base_id=default_bases[3]["id"],
-        agreement_id=expired_transfer_agreement["id"],
+        source_base=default_bases[1],
+        target_base=default_bases[3],
+        agreement=expired_transfer_agreement,
     )
 
 
@@ -608,9 +608,9 @@ def test_shipment_mutations_create_with_invalid_base(
 ):
     assert_bad_user_input_when_creating_shipment(
         read_only_client,
-        source_base_id=default_bases[2]["id"],
-        target_base_id=default_bases[4]["id"],  # not part of agreement
-        agreement_id=default_transfer_agreement["id"],
+        source_base=default_bases[2],
+        target_base=default_bases[4],  # not part of agreement
+        agreement=default_transfer_agreement,
     )
 
 
@@ -621,9 +621,9 @@ def test_shipment_mutations_create_as_target_org_member_in_unidirectional_agreem
     # the target organisation in the unidirectional_transfer_agreement fixture
     assert_bad_user_input_when_creating_shipment(
         read_only_client,
-        source_base_id=default_bases[3]["id"],
-        target_base_id=default_bases[2]["id"],
-        agreement_id=unidirectional_transfer_agreement["id"],
+        source_base=default_bases[3],
+        target_base=default_bases[2],
+        agreement=unidirectional_transfer_agreement,
     )
 
 
@@ -647,8 +647,8 @@ def test_shipment_mutations_update_with_invalid_base(
 ):
     assert_bad_user_input_when_updating_shipment(
         read_only_client,
-        target_base_id=default_bases[4]["id"],  # not part of agreement
-        shipment_id=default_shipment["id"],
+        target_base=default_bases[4],  # not part of agreement
+        shipment=default_shipment,
     )
 
 
@@ -657,8 +657,8 @@ def test_shipment_mutations_update_in_non_preparing_state(
 ):
     assert_bad_user_input_when_updating_shipment(
         read_only_client,
-        shipment_id=canceled_shipment["id"],
-        target_base_id=default_bases[2]["id"],
+        shipment=canceled_shipment,
+        target_base=default_bases[2],
     )
 
 
@@ -669,8 +669,8 @@ def test_shipment_mutations_update_as_member_of_non_creating_org(
     # organisation 2 is the one that created another_shipment
     assert_bad_user_input_when_updating_shipment(
         read_only_client,
-        shipment_id=another_shipment["id"],
-        target_base_id=default_bases[2]["id"],
+        shipment=another_shipment,
+        target_base=default_bases[2],
     )
 
 
@@ -683,10 +683,10 @@ def test_shipment_mutations_update_checked_in_boxes_as_member_of_creating_org(
 ):
     assert_bad_user_input_when_updating_shipment(
         read_only_client,
-        shipment_id=sent_shipment["id"],
-        received_detail_ids=[default_shipment_detail["id"]],
-        target_location_id=another_location["id"],
-        target_product_id=another_product["id"],
+        shipment=sent_shipment,
+        received_details=[default_shipment_detail],
+        target_location=another_location,
+        target_product=another_product,
     )
 
 
@@ -697,8 +697,8 @@ def test_shipment_mutations_update_mark_lost_boxes_as_member_of_creating_org(
 ):
     assert_bad_user_input_when_updating_shipment(
         read_only_client,
-        shipment_id=sent_shipment["id"],
-        lost_box_label_identifiers=[marked_for_shipment_box["label_identifier"]],
+        shipment=sent_shipment,
+        lost_boxes=[marked_for_shipment_box],
     )
 
 
@@ -715,8 +715,8 @@ def test_shipment_mutations_update_checked_in_boxes_when_shipment_in_non_sent_st
     )
     assert_bad_user_input_when_updating_shipment(
         read_only_client,
-        shipment_id=default_shipment["id"],
-        received_detail_ids=[prepared_shipment_detail["id"]],
-        target_location_id=another_location["id"],
-        target_product_id=another_product["id"],
+        shipment=default_shipment,
+        received_details=[prepared_shipment_detail],
+        target_location=another_location,
+        target_product=another_product,
     )
