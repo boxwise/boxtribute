@@ -317,14 +317,15 @@ input ShipmentCreationInput {
 
 input ShipmentUpdateInput {
   id: ID!
-  sourceBaseId: Int
   targetBaseId: Int
   # label identifiers of boxes prepared for shipment
-  preparedBoxLabelIdentifiers: [Int!]
+  preparedBoxLabelIdentifiers: [String!]
   # label identifiers of prepared boxes to be moved back to stock
-  removedBoxLabelIdentifiers: [Int!]
+  removedBoxLabelIdentifiers: [String!]
+  # label identifiers of received boxes to be moved into target stock
+  receivedShipmentDetailUpdateInputs: [ShipmentDetailUpdateInput!]
   # label identifiers of boxes that went lost during shipment
-  lostBoxLabelIdentifiers: [Int!]
+  lostBoxLabelIdentifiers: [String!]
 }
 
 input ShipmentDetailUpdateInput {

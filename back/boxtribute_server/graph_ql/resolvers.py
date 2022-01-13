@@ -366,7 +366,7 @@ def resolve_create_shipment(_, info, creation_input):
 @mutation.field("updateShipment")
 @convert_kwargs_to_snake_case
 def resolve_update_shipment(_, info, update_input):
-    return update_shipment(**update_input, user_id=g.user["id"])
+    return update_shipment(**update_input, user=g.user)
 
 
 @mutation.field("cancelShipment")

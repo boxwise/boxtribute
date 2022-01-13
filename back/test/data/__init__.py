@@ -6,17 +6,35 @@ from boxtribute_server.db import db
 
 from .base import default_base, default_bases
 from .beneficiary import default_beneficiary
-from .box import another_box, box_without_qr_code, default_box, default_boxes, lost_box
+from .box import (
+    another_box,
+    another_marked_for_shipment_box,
+    box_without_qr_code,
+    default_box,
+    default_boxes,
+    lost_box,
+    marked_for_shipment_box,
+)
 from .box_state import default_box_state
 from .history import default_history
 from .location import another_location, default_location
 from .log import default_log
 from .organisation import another_organisation, default_organisation
-from .product import default_product
+from .product import another_product, default_product
 from .product_category import default_product_category
 from .product_gender import default_product_gender
 from .qr_code import default_qr_code, qr_code_without_box
-from .shipment import another_shipment, canceled_shipment, default_shipment
+from .shipment import (
+    another_shipment,
+    canceled_shipment,
+    default_shipment,
+    sent_shipment,
+)
+from .shipment_detail import (
+    another_shipment_detail,
+    default_shipment_detail,
+    prepared_shipment_detail,
+)
 from .size_range import default_size_range
 from .transaction import default_transaction
 from .transfer_agreement import (
@@ -31,8 +49,11 @@ from .user import default_user, default_users
 __all__ = [
     "another_box",
     "another_location",
+    "another_marked_for_shipment_box",
     "another_organisation",
+    "another_product",
     "another_shipment",
+    "another_shipment_detail",
     "box_without_qr_code",
     "canceled_shipment",
     "default_beneficiary",
@@ -50,6 +71,7 @@ __all__ = [
     "default_product_gender",
     "default_qr_code",
     "default_shipment",
+    "default_shipment_detail",
     "default_size_range",
     "default_transaction",
     "default_transfer_agreement",
@@ -57,8 +79,11 @@ __all__ = [
     "default_users",
     "expired_transfer_agreement",
     "lost_box",
+    "marked_for_shipment_box",
+    "prepared_shipment_detail",
     "qr_code_without_box",
     "reviewed_transfer_agreement",
+    "sent_shipment",
     "transfer_agreements",
     "unidirectional_transfer_agreement",
 ]

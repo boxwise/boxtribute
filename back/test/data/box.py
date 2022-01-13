@@ -28,6 +28,7 @@ def box_without_qr_code_data():
     data["label_identifier"] = "23456789"
     data["items"] = 10
     data["qr_code"] = None
+    data["state"] = BoxState.MarkedForShipment
     return data
 
 
@@ -47,12 +48,28 @@ def lost_box_data():
     return data
 
 
+def marked_for_shipment_box_data():
+    data = box_without_qr_code_data()
+    data["id"] = 6
+    data["label_identifier"] = "56789012"
+    return data
+
+
+def another_marked_for_shipment_box_data():
+    data = marked_for_shipment_box_data()
+    data["id"] = 7
+    data["label_identifier"] = "67890123"
+    return data
+
+
 def data():
     return [
+        another_box_data(),
         default_box_data(),
         box_without_qr_code_data(),
-        another_box_data(),
         lost_box_data(),
+        marked_for_shipment_box_data(),
+        another_marked_for_shipment_box_data(),
     ]
 
 
@@ -79,6 +96,16 @@ def another_box():
 @pytest.fixture
 def lost_box():
     return lost_box_data()
+
+
+@pytest.fixture
+def marked_for_shipment_box():
+    return marked_for_shipment_box_data()
+
+
+@pytest.fixture
+def another_marked_for_shipment_box():
+    return another_marked_for_shipment_box_data()
 
 
 def create():
