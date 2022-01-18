@@ -675,6 +675,15 @@ def test_shipment_mutations_update_mark_lost_boxes_as_member_of_creating_org(
     assert_forbidden_request(read_only_client, mutation)
 
 
+def test_shipment_mutations_update_without_arguments(
+    read_only_client, default_shipment
+):
+    # Test case 3.2.33
+    mutation = _generate_update_shipment_mutation(shipment=default_shipment)
+    shipment = assert_successful_request(read_only_client, mutation)
+    assert shipment == {"id": str(default_shipment["id"])}
+
+
 def test_shipment_mutations_update_checked_in_boxes_when_shipment_in_non_sent_state(
     read_only_client,
     mocker,

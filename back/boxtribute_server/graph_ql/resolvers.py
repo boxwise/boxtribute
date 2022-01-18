@@ -401,12 +401,16 @@ def resolve_update_shipment(_, info, update_input):
         "received_shipment_detail_update_inputs",
         "lost_box_label_identifiers",
     ]
+    organisation_id = None
     if any([update_input.get(f) for f in source_update_fields]):
         # User must be member of organisation that created the shipment
         organisation_id = shipment.source_base.organisation_id
     elif any([update_input.get(f) for f in target_update_fields]):
         # User must be member of organisation that is supposed to receive the shipment
         organisation_id = shipment.target_base.organisation_id
+
+    if organisation_id is None:
+        return shipment  # no update arguments provided
     authorize(organisation_id=organisation_id)
 
     return update_shipment(**update_input, user=g.user)
