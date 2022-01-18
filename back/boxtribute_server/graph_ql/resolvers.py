@@ -171,11 +171,13 @@ def resolve_product_category(_, info, id):
 
 @query.field("transferAgreement")
 def resolve_transfer_agreement(_, info, id):
+    authorize(permission="transfer_agreement:read")
     return TransferAgreement.get_by_id(id)
 
 
 @query.field("shipment")
 def resolve_shipment(_, info, id):
+    authorize(permission="shipment:read")
     return Shipment.get_by_id(id)
 
 
@@ -222,6 +224,7 @@ def resolve_beneficiaries(_, info, pagination_input=None):
 
 @query.field("transferAgreements")
 def resolve_transfer_agreements(_, info, states=None):
+    authorize(permission="transfer_agreement:read")
     user_organisation_id = g.user["organisation_id"]
     states = states or list(TransferAgreementState)
     return TransferAgreement.select().where(
@@ -235,6 +238,7 @@ def resolve_transfer_agreements(_, info, states=None):
 
 @query.field("shipments")
 def resolve_shipments(_, info):
+    authorize(permission="shipment:read")
     user_organisation_id = g.user["organisation_id"]
     return (
         Shipment.select()
@@ -339,43 +343,51 @@ def resolve_update_beneficiary(_, info, beneficiary_update_input):
 @mutation.field("createTransferAgreement")
 @convert_kwargs_to_snake_case
 def resolve_create_transfer_agreement(_, info, creation_input):
+    authorize(permission="transfer_agreement:write")
     return create_transfer_agreement(**creation_input, user=g.user)
 
 
 @mutation.field("acceptTransferAgreement")
 def resolve_accept_transfer_agreement(_, info, id):
+    authorize(permission="transfer_agreement:write")
     return accept_transfer_agreement(id=id, accepted_by=g.user)
 
 
 @mutation.field("rejectTransferAgreement")
 def resolve_reject_transfer_agreement(_, info, id):
+    authorize(permission="transfer_agreement:write")
     return reject_transfer_agreement(id=id, rejected_by=g.user)
 
 
 @mutation.field("cancelTransferAgreement")
 def resolve_cancel_transfer_agreement(_, info, id):
+    authorize(permission="transfer_agreement:write")
     return cancel_transfer_agreement(id=id, canceled_by=g.user["id"])
 
 
 @mutation.field("createShipment")
 @convert_kwargs_to_snake_case
 def resolve_create_shipment(_, info, creation_input):
+    authorize(permission="shipment:write")
     return create_shipment(**creation_input, user=g.user)
 
 
 @mutation.field("updateShipment")
 @convert_kwargs_to_snake_case
 def resolve_update_shipment(_, info, update_input):
+    authorize(permission="shipment:write")
     return update_shipment(**update_input, user=g.user)
 
 
 @mutation.field("cancelShipment")
 def resolve_cancel_shipment(_, info, id):
+    authorize(permission="shipment:write")
     return cancel_shipment(id=id, user=g.user)
 
 
 @mutation.field("sendShipment")
 def resolve_send_shipment(_, info, id):
+    authorize(permission="shipment:write")
     return send_shipment(id=id, user=g.user)
 
 
@@ -472,6 +484,7 @@ def resolve_transfer_agreement_target_bases(transfer_agreement_obj, info):
 
 @transfer_agreement.field("shipments")
 def resolve_transfer_agreement_shipments(transfer_agreement_obj, info):
+    authorize(permission="shipment:read")
     return Shipment.select().where(
         Shipment.transfer_agreement == transfer_agreement_obj.id
     )

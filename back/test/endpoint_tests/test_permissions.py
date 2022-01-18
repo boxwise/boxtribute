@@ -24,7 +24,16 @@ def assert_forbidden_request(data, client_fixture=None, field=None, value=None):
 
 @pytest.mark.parametrize(
     "resource",
-    ["base", "beneficiary", "location", "product", "productCategory", "user"],
+    [
+        "base",
+        "beneficiary",
+        "location",
+        "product",
+        "productCategory",
+        "shipment",
+        "transferAgreement",
+        "user",
+    ],
 )
 def test_invalid_read_permissions(unauthorized, read_only_client, resource):
     """Verify missing resource:read permission when executing query."""
@@ -127,6 +136,23 @@ def test_invalid_permission_for_given_resource_id(read_only_client, mocker, quer
             id
         }""",
         "createQrCode { id }",
+        """createTransferAgreement(
+            creationInput : {
+                targetOrganisationId: 2,
+                type: Bidirectional
+            }) { id }""",
+        "acceptTransferAgreement( id: 1 ) { id }",
+        "rejectTransferAgreement( id: 1 ) { id }",
+        "cancelTransferAgreement( id: 1 ) { id }",
+        """createShipment(
+            creationInput : {
+                sourceBaseId: 1,
+                targetBaseId: 3,
+                transferAgreementId: 1
+            }) { id }""",
+        "updateShipment( updateInput : { id: 1 }) { id }",
+        "cancelShipment( id : 1 ) { id }",
+        "sendShipment( id : 1 ) { id }",
     ],
     ids=operation_name,
 )
