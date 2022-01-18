@@ -47,7 +47,8 @@ def create_transfer_agreement(
     """Insert information for a new TransferAgreement in the database. Update
     TransferAgreementDetail model with given source/target base information. By default,
     the agreement is established between all bases of both organisations (indicated by
-    NULL for the Detail.source/target_base field).
+    NULL for the Detail.source/target_base field). As a result, any base that added to
+    an organisation in the future would be part of such an agreement.
     Convert optional local dates into UTC datetimes using timezone information.
     Raise an InvalidTransferAgreementOrganisation exception if the current user's
     organisation is identical to the target organisation.

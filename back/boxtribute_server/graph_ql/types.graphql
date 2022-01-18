@@ -262,7 +262,13 @@ type TransferAgreement {
   validFrom: Datetime!
   validUntil: Datetime
   comment: String
+  """
+  List of all bases of the source organisation included in the agreement
+  """
   sourceBases: [Base!]!
+  """
+  List of all bases of the target organisation included in the agreement
+  """
   targetBases: [Base!]
   shipments: [Shipment!]!
 }
