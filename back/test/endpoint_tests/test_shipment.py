@@ -496,8 +496,7 @@ def assert_bad_user_input_when_creating_shipment(client, **kwargs):
     assert_bad_user_input(client, mutation)
 
 
-def assert_bad_user_input_when_updating_shipment(
-    client,
+def _generate_update_shipment_mutation(
     *,
     shipment,
     target_base=None,
@@ -520,8 +519,12 @@ def assert_bad_user_input_when_updating_shipment(
             for detail in received_details
         )
         update_input += f", receivedShipmentDetailUpdateInputs: [{inputs}]"
-    mutation = f"""mutation {{ updateShipment(updateInput: {{ {update_input} }} ) {{
+    return f"""mutation {{ updateShipment(updateInput: {{ {update_input} }} ) {{
                     id }} }}"""
+
+
+def assert_bad_user_input_when_updating_shipment(client, **kwargs):
+    mutation = _generate_update_shipment_mutation(**kwargs)
     assert_bad_user_input(client, mutation)
 
 
