@@ -322,6 +322,7 @@ def test_shipment_mutations_on_target_side(
     client,
     mocker,
     default_transfer_agreement,
+    unidirectional_transfer_agreement,
     default_bases,
     sent_shipment,
     default_shipment_detail,
@@ -337,24 +338,26 @@ def test_shipment_mutations_on_target_side(
         base_ids=[3], organisation_id=2, user_id=2
     )
 
-    # Test case 3.2.1b
-    source_base_id = str(default_bases[3]["id"])
-    target_base_id = str(default_bases[2]["id"])
-    agreement_id = default_transfer_agreement["id"]
-    creation_input = f"""sourceBaseId: {source_base_id},
-                         targetBaseId: {target_base_id},
-                         transferAgreementId: {agreement_id}"""
-    mutation = f"""mutation {{ createShipment(creationInput: {{ {creation_input} }} ) {{
-                    sourceBase {{ id }}
-                    targetBase {{ id }}
-                    state
-                }} }}"""
-    shipment = assert_successful_request(client, mutation)
-    assert shipment == {
-        "sourceBase": {"id": source_base_id},
-        "targetBase": {"id": target_base_id},
-        "state": ShipmentState.Preparing.name,
-    }
+    # Test cases 3.2.1b, 3.2.1c
+    for agreement in [default_transfer_agreement, unidirectional_transfer_agreement]:
+        source_base_id = str(default_bases[3]["id"])
+        target_base_id = str(default_bases[2]["id"])
+        agreement_id = agreement["id"]
+        creation_input = f"""sourceBaseId: {source_base_id},
+                             targetBaseId: {target_base_id},
+                             transferAgreementId: {agreement_id}"""
+        mutation = f"""mutation {{ createShipment(creationInput: {{ {creation_input} }})
+                    {{
+                        sourceBase {{ id }}
+                        targetBase {{ id }}
+                        state
+                    }} }}"""
+        shipment = assert_successful_request(client, mutation)
+        assert shipment == {
+            "sourceBase": {"id": source_base_id},
+            "targetBase": {"id": target_base_id},
+            "state": ShipmentState.Preparing.name,
+        }
 
     target_product_id = str(another_product["id"])
     target_location_id = str(another_location["id"])
