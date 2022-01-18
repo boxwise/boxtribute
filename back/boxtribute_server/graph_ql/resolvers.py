@@ -381,8 +381,10 @@ def resolve_cancel_transfer_agreement(_, info, id):
 def resolve_create_shipment(_, info, creation_input):
     authorize(permission="shipment:write")
     agreement = TransferAgreement.get_by_id(creation_input["transfer_agreement_id"])
-    if agreement.type == TransferAgreementType.Unidirectional:
-        authorize(organisation_id=agreement.source_organisation_id)
+    organisation_ids = [agreement.source_organisation_id]
+    if agreement.type == TransferAgreementType.Bidirectional:
+        organisation_ids.append(agreement.target_organisation_id)
+    authorize(organisation_ids=organisation_ids)
     return create_shipment(**creation_input, user=g.user)
 
 

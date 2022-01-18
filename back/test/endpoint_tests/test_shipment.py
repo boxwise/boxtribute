@@ -553,13 +553,28 @@ def test_shipment_mutations_create_with_invalid_base(
 def test_shipment_mutations_create_as_target_org_member_in_unidirectional_agreement(
     read_only_client, default_bases, unidirectional_transfer_agreement
 ):
-    # Test case 3.2.4
+    # Test case 3.2.4a
     # The default user (see auth_service fixture) is member of organisation 1 which is
     # the target organisation in the unidirectional_transfer_agreement fixture
     mutation = _generate_create_shipment_mutation(
         source_base=default_bases[3],
         target_base=default_bases[2],
         agreement=unidirectional_transfer_agreement,
+    )
+    assert_forbidden_request(read_only_client, mutation)
+
+
+def test_shipment_mutations_create_as_member_of_neither_org(
+    read_only_client, mocker, default_transfer_agreement
+):
+    # Test case 3.2.4b
+    mocker.patch("jose.jwt.decode").return_value = create_jwt_payload(
+        organisation_id=3, user_id=2
+    )
+    mutation = _generate_create_shipment_mutation(
+        source_base={"id": 0},
+        target_base={"id": 0},
+        agreement=default_transfer_agreement,
     )
     assert_forbidden_request(read_only_client, mutation)
 
