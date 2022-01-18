@@ -3,7 +3,11 @@ from datetime import date
 import pytest
 from auth import create_jwt_payload
 from boxtribute_server.enums import BoxState, ShipmentState
-from utils import assert_bad_user_input, assert_successful_request
+from utils import (
+    assert_bad_user_input,
+    assert_forbidden_request,
+    assert_successful_request,
+)
 
 
 def test_shipment_query(read_only_client, default_shipment, prepared_shipment_detail):
@@ -552,12 +556,12 @@ def test_shipment_mutations_create_as_target_org_member_in_unidirectional_agreem
     # Test case 3.2.4
     # The default user (see auth_service fixture) is member of organisation 1 which is
     # the target organisation in the unidirectional_transfer_agreement fixture
-    assert_bad_user_input_when_creating_shipment(
-        read_only_client,
+    mutation = _generate_create_shipment_mutation(
         source_base=default_bases[3],
         target_base=default_bases[2],
         agreement=unidirectional_transfer_agreement,
     )
+    assert_forbidden_request(read_only_client, mutation)
 
 
 def test_shipment_mutations_send_as_member_of_non_creating_org(

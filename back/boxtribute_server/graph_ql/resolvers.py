@@ -18,7 +18,7 @@ from ..box_transfer.shipment import (
     send_shipment,
     update_shipment,
 )
-from ..enums import HumanGender, TransferAgreementState
+from ..enums import HumanGender, TransferAgreementState, TransferAgreementType
 from ..models.crud import (
     create_beneficiary,
     create_box,
@@ -380,6 +380,9 @@ def resolve_cancel_transfer_agreement(_, info, id):
 @convert_kwargs_to_snake_case
 def resolve_create_shipment(_, info, creation_input):
     authorize(permission="shipment:write")
+    agreement = TransferAgreement.get_by_id(creation_input["transfer_agreement_id"])
+    if agreement.type == TransferAgreementType.Unidirectional:
+        authorize(organisation_id=agreement.source_organisation_id)
     return create_shipment(**creation_input, user=g.user)
 
 

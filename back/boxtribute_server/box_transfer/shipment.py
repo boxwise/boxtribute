@@ -57,11 +57,9 @@ def _validate_bases_as_part_of_transfer_agreement(
 def create_shipment(*, source_base_id, target_base_id, transfer_agreement_id, user):
     """Insert information for a new Shipment in the database.
     Raise an InvalidTransferAgreementState exception if specified agreement has a state
-    different from 'ACCEPTED'.
+    different from 'Accepted'.
     Raise an InvalidTransferAgreementBase exception if specified source or target base
     are not included in given agreement.
-    Raise an InvalidTransferAgreementOrganisation exception if the current user is not
-    member of the agreement source organisation in a unidirectional agreement.
     """
     agreement = TransferAgreement.get_by_id(transfer_agreement_id)
     if agreement.state != TransferAgreementState.Accepted:
@@ -75,11 +73,6 @@ def create_shipment(*, source_base_id, target_base_id, transfer_agreement_id, us
         source_base_id=source_base_id,
         target_base_id=target_base_id,
     )
-
-    if (agreement.type == TransferAgreementType.Unidirectional) and (
-        user["organisation_id"] != agreement.source_organisation_id
-    ):
-        raise InvalidTransferAgreementOrganisation()
 
     return Shipment.create(
         source_base=source_base_id,
