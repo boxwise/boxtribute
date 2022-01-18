@@ -8,7 +8,6 @@ from ..enums import (
 from ..exceptions import (
     InvalidShipmentState,
     InvalidTransferAgreementBase,
-    InvalidTransferAgreementOrganisation,
     InvalidTransferAgreementState,
 )
 from ..models.definitions.box import Box
@@ -300,15 +299,11 @@ def update_shipment(
     - update prepared or removed boxes, or target base
     - raise InvalidShipmentState exception if shipment state is different from
       'Preparing'
-    - raise an InvalidTransferAgreementOrganisation exception if the current user is not
-      member of the organisation that originally created the shipment
     - raise an InvalidTransferAgreementBase exception if specified target base is not
       included in given agreement
     On the shipment target side:
     - update checked-in or lost boxes
     - raise InvalidShipmentState exception if shipment state is different from 'Sent'
-    - raise an InvalidTransferAgreementOrganisation exception if the current user is not
-      member of the organisation that is supposed to receive the shipment
     """
     shipment = Shipment.get_by_id(id)
     if any(
@@ -318,16 +313,12 @@ def update_shipment(
             raise InvalidShipmentState(
                 expected_states=[ShipmentState.Preparing], actual_state=shipment.state
             )
-        if shipment.source_base.organisation_id != user["organisation_id"]:
-            raise InvalidTransferAgreementOrganisation()
 
     if any([received_shipment_detail_update_inputs, lost_box_label_identifiers]):
         if shipment.state != ShipmentState.Sent:
             raise InvalidShipmentState(
                 expected_states=[ShipmentState.Sent], actual_state=shipment.state
             )
-        if shipment.target_base.organisation_id != user["organisation_id"]:
-            raise InvalidTransferAgreementOrganisation()
 
     _validate_bases_as_part_of_transfer_agreement(
         transfer_agreement=TransferAgreement.get_by_id(shipment.transfer_agreement_id),

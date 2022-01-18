@@ -392,6 +392,25 @@ def resolve_create_shipment(_, info, creation_input):
 @convert_kwargs_to_snake_case
 def resolve_update_shipment(_, info, update_input):
     authorize(permission="shipment:write")
+
+    shipment = Shipment.get_by_id(update_input["id"])
+    source_update_fields = [
+        "prepared_box_label_identifiers",
+        "removed_box_label_identifiers",
+        "target_base_id",
+    ]
+    target_update_fields = [
+        "received_shipment_detail_update_inputs",
+        "lost_box_label_identifiers",
+    ]
+    if any([update_input.get(f) for f in source_update_fields]):
+        # User must be member of organisation that created the shipment
+        organisation_id = shipment.source_base.organisation_id
+    elif any([update_input.get(f) for f in target_update_fields]):
+        # User must be member of organisation that is supposed to receive the shipment
+        organisation_id = shipment.target_base.organisation_id
+    authorize(organisation_id=organisation_id)
+
     return update_shipment(**update_input, user=g.user)
 
 

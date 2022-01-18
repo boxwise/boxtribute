@@ -638,11 +638,11 @@ def test_shipment_mutations_update_as_member_of_non_creating_org(
     # Test case 3.2.25
     # The default user (see auth_service fixture) is member of organisation 1 but
     # organisation 2 is the one that created another_shipment
-    assert_bad_user_input_when_updating_shipment(
-        read_only_client,
+    mutation = _generate_update_shipment_mutation(
         shipment=another_shipment,
         target_base=default_bases[2],
     )
+    assert_forbidden_request(read_only_client, mutation)
 
 
 def test_shipment_mutations_update_checked_in_boxes_as_member_of_creating_org(
@@ -653,13 +653,13 @@ def test_shipment_mutations_update_checked_in_boxes_as_member_of_creating_org(
     another_product,
 ):
     # Test case 3.2.35
-    assert_bad_user_input_when_updating_shipment(
-        read_only_client,
+    mutation = _generate_update_shipment_mutation(
         shipment=sent_shipment,
         received_details=[default_shipment_detail],
         target_location=another_location,
         target_product=another_product,
     )
+    assert_forbidden_request(read_only_client, mutation)
 
 
 def test_shipment_mutations_update_mark_lost_boxes_as_member_of_creating_org(
@@ -668,11 +668,11 @@ def test_shipment_mutations_update_mark_lost_boxes_as_member_of_creating_org(
     marked_for_shipment_box,
 ):
     # Test case 3.2.41
-    assert_bad_user_input_when_updating_shipment(
-        read_only_client,
+    mutation = _generate_update_shipment_mutation(
         shipment=sent_shipment,
         lost_boxes=[marked_for_shipment_box],
     )
+    assert_forbidden_request(read_only_client, mutation)
 
 
 def test_shipment_mutations_update_checked_in_boxes_when_shipment_in_non_sent_state(
