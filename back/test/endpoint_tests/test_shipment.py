@@ -584,7 +584,7 @@ def test_shipment_mutations_send_as_member_of_non_creating_org(
 ):
     # Test case 3.2.14
     mutation = f"mutation {{ sendShipment(id: {another_shipment['id']}) {{ id }} }}"
-    assert_bad_user_input(read_only_client, mutation)
+    assert_forbidden_request(read_only_client, mutation)
 
 
 @pytest.mark.parametrize("act", ["cancel", "send"])
@@ -604,7 +604,7 @@ def test_shipment_mutations_cancel_as_member_of_neither_org(
         organisation_id=3, user_id=2
     )
     mutation = f"mutation {{ cancelShipment(id: {default_shipment['id']}) {{ id }} }}"
-    assert_bad_user_input(read_only_client, mutation)
+    assert_forbidden_request(read_only_client, mutation)
 
 
 def test_shipment_mutations_update_with_invalid_target_base(

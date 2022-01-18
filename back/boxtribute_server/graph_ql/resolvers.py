@@ -398,12 +398,21 @@ def resolve_update_shipment(_, info, update_input):
 @mutation.field("cancelShipment")
 def resolve_cancel_shipment(_, info, id):
     authorize(permission="shipment:write")
+    shipment = Shipment.get_by_id(id)
+    authorize(
+        organisation_ids=[
+            shipment.transfer_agreement.source_organisation_id,
+            shipment.transfer_agreement.target_organisation_id,
+        ]
+    )
     return cancel_shipment(id=id, user=g.user)
 
 
 @mutation.field("sendShipment")
 def resolve_send_shipment(_, info, id):
     authorize(permission="shipment:write")
+    shipment = Shipment.get_by_id(id)
+    authorize(organisation_id=shipment.source_base.organisation_id)
     return send_shipment(id=id, user=g.user)
 
 
