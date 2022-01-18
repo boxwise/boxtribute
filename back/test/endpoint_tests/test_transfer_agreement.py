@@ -230,6 +230,18 @@ def test_transfer_agreement_mutations_as_member_of_source_org(
     assert_forbidden_request(read_only_client, mutation)
 
 
+def test_transfer_agreement_mutations_cancel_as_member_of_neither_org(
+    read_only_client, mocker, default_transfer_agreement
+):
+    mocker.patch("jose.jwt.decode").return_value = create_jwt_payload(
+        organisation_id=3, user_id=2
+    )
+    # Test case 2.2.20
+    agreement_id = default_transfer_agreement["id"]
+    mutation = f"mutation {{ cancelTransferAgreement(id: {agreement_id}) {{ id }} }}"
+    assert_forbidden_request(read_only_client, mutation)
+
+
 def test_transfer_agreement_mutations_identical_source_org_for_creation(
     read_only_client,
 ):

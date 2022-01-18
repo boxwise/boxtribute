@@ -366,6 +366,13 @@ def resolve_reject_transfer_agreement(_, info, id):
 @mutation.field("cancelTransferAgreement")
 def resolve_cancel_transfer_agreement(_, info, id):
     authorize(permission="transfer_agreement:write")
+    agreement = TransferAgreement.get_by_id(id)
+    authorize(
+        organisation_ids=[
+            agreement.source_organisation_id,
+            agreement.target_organisation_id,
+        ]
+    )
     return cancel_transfer_agreement(id=id, user_id=g.user["id"])
 
 
