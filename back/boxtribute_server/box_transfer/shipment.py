@@ -27,18 +27,28 @@ def _validate_bases_as_part_of_transfer_agreement(
     """Validate that given bases are part of the given transfer agreement. Raise
     InvalidTransferAgreementBase exception otherwise.
     """
-    for kind in ["source", "target"]:
-        base_id = locals()[f"{kind}_base_id"]
-        if base_id is None:
-            continue
-
-        base_ids = [
+    base_ids = {}
+    kinds = ["source", "target"]
+    for kind in kinds:
+        base_ids[kind] = [
             b.id
             for b in retrieve_transfer_agreement_bases(
                 transfer_agreement=transfer_agreement, kind=kind
             )
         ]
-        if base_id not in base_ids:
+
+    all_base_ids = base_ids["source"] + base_ids["target"]
+    for kind in kinds:
+        base_id = locals()[f"{kind}_base_id"]
+        if base_id is None:
+            continue
+
+        if transfer_agreement.type == TransferAgreementType.Bidirectional:
+            # Any base included in the agreement can be source or target of a shipment
+            relevant_base_ids = all_base_ids
+        else:
+            relevant_base_ids = base_ids[kind]
+        if base_id not in relevant_base_ids:
             raise InvalidTransferAgreementBase(
                 base_id=base_id, expected_base_ids=base_ids
             )

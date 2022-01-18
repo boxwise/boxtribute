@@ -92,7 +92,9 @@ def create_transfer_agreement(
             base_ids=target_base_ids, organisation_id=target_organisation_id
         )
 
-        # Build all combinations of source and target bases under current agreement
+        # Build all combinations of source and target organisation bases under current
+        # agreement. The type of agreement is not taken into account (see
+        # shipment._validate_bases_as_part_of_transfer_agreement)
         details_data = [
             {
                 "source_base": s,
