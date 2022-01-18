@@ -5,22 +5,26 @@ from peewee import fn
 from flask import g
 
 from ..authz import authorize
-from ..enums import HumanGender, TransferAgreementState
-from ..models.crud import (
+from ..box_transfer.agreement import (
     accept_transfer_agreement,
-    cancel_shipment,
     cancel_transfer_agreement,
-    create_beneficiary,
-    create_box,
-    create_qr_code,
-    create_shipment,
     create_transfer_agreement,
     reject_transfer_agreement,
     retrieve_transfer_agreement_bases,
+)
+from ..box_transfer.shipment import (
+    cancel_shipment,
+    create_shipment,
     send_shipment,
+    update_shipment,
+)
+from ..enums import HumanGender, TransferAgreementState
+from ..models.crud import (
+    create_beneficiary,
+    create_box,
+    create_qr_code,
     update_beneficiary,
     update_box,
-    update_shipment,
 )
 from ..models.definitions.base import Base
 from ..models.definitions.beneficiary import Beneficiary
@@ -291,9 +295,7 @@ def resolve_location_box_state(location_obj, info):
 def resolve_create_qr_code(_, info, box_label_identifier=None):
     authorize(permission="qr:write")
     authorize(permission="stock:write")
-    return create_qr_code(
-        dict(created_by=g.user["id"], box_label_identifier=box_label_identifier)
-    )
+    return create_qr_code(box_label_identifier=box_label_identifier)
 
 
 @mutation.field("createBox")
@@ -337,9 +339,7 @@ def resolve_update_beneficiary(_, info, beneficiary_update_input):
 @mutation.field("createTransferAgreement")
 @convert_kwargs_to_snake_case
 def resolve_create_transfer_agreement(_, info, creation_input):
-    creation_input["source_organisation_id"] = g.user["organisation_id"]
-    creation_input["requested_by"] = g.user["id"]
-    return create_transfer_agreement(creation_input)
+    return create_transfer_agreement(**creation_input, user=g.user)
 
 
 @mutation.field("acceptTransferAgreement")
@@ -360,7 +360,7 @@ def resolve_cancel_transfer_agreement(_, info, id):
 @mutation.field("createShipment")
 @convert_kwargs_to_snake_case
 def resolve_create_shipment(_, info, creation_input):
-    return create_shipment(creation_input, started_by=g.user)
+    return create_shipment(**creation_input, user=g.user)
 
 
 @mutation.field("updateShipment")
@@ -371,7 +371,7 @@ def resolve_update_shipment(_, info, update_input):
 
 @mutation.field("cancelShipment")
 def resolve_cancel_shipment(_, info, id):
-    return cancel_shipment(id=id, user_id=g.user["id"])
+    return cancel_shipment(id=id, user=g.user)
 
 
 @mutation.field("sendShipment")

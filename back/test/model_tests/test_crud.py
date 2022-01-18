@@ -14,7 +14,7 @@ def test_create_qr_code_for_nonexisting_box():
     nr_qr_codes = len(QrCode.select())
 
     with pytest.raises(RequestedResourceNotFound):
-        create_qr_code({"box_label_identifier": "zzz"})
+        create_qr_code(box_label_identifier="zzz")
 
     # The nr of rows in the QrCode table should be unchanged
     assert nr_qr_codes == len(QrCode.select())

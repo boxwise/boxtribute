@@ -1,3 +1,6 @@
+from utils import assert_successful_request
+
+
 def test_user_query(read_only_client, default_users, default_organisation):
     test_id = 8
     expected_user = default_users[test_id]
@@ -9,21 +12,14 @@ def test_user_query(read_only_client, default_users, default_organisation):
                     email
                     validFirstDay
                     validLastDay
-                    bases {{
-                        id
-                    }}
-                    organisation {{
-                        id
-                    }}
+                    bases {{ id }}
+                    organisation {{ id }}
                     lastLogin
                     lastAction
                 }}
             }}"""
 
-    data = {"query": query}
-    response_data = read_only_client.post("/graphql", json=data)
-    queried_user = response_data.json["data"]["user"]
-    assert response_data.status_code == 200
+    queried_user = assert_successful_request(read_only_client, query)
     assert int(queried_user["id"]) == test_id
     assert queried_user["name"] == expected_user["name"]
     assert queried_user["email"] == expected_user["email"]
@@ -34,18 +30,7 @@ def test_user_query(read_only_client, default_users, default_organisation):
 
 
 def test_users_query(read_only_client, default_users):
-    query = """query {
-                users {
-                    id
-                    name
-                }
-        }"""
-
-    data = {"query": query}
-    response_data = read_only_client.post("/graphql", json=data)
-
-    assert response_data.status_code == 200
-    queried_user = response_data.json["data"]["users"][0]
-
+    query = """query { users { id name } }"""
+    queried_user = assert_successful_request(read_only_client, query)[0]
     first_id = int(queried_user["id"])
     assert queried_user["name"] == default_users[first_id]["name"]

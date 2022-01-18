@@ -1,4 +1,5 @@
 from boxtribute_server.enums import BoxState
+from utils import assert_successful_request
 
 
 def test_box_query_by_label_identifier(
@@ -10,28 +11,17 @@ def test_box_query_by_label_identifier(
                 box(labelIdentifier: "{label_identifier}") {{
                     id
                     labelIdentifier
-                    location {{
-                        id
-                    }}
+                    location {{ id }}
                     items
-                    product {{
-                        id
-                    }}
+                    product {{ id }}
                     size
                     state
-                    qrCode {{
-                        id
-                    }}
-                    createdBy {{
-                        id
-                    }}
+                    qrCode {{ id }}
+                    createdBy {{ id }}
                     comment
                 }}
             }}"""
-    data = {"query": query}
-    response_data = read_only_client.post("/graphql", json=data)
-    queried_box = response_data.json["data"]["box"]
-    assert response_data.status_code == 200
+    queried_box = assert_successful_request(read_only_client, query)
     assert queried_box == {
         "id": str(default_box["id"]),
         "labelIdentifier": label_identifier,
@@ -54,10 +44,7 @@ def test_box_query_by_qr_code(read_only_client, default_box, default_qr_code):
                     }}
                 }}
             }}"""
-    data = {"query": query}
-    response_data = read_only_client.post("/graphql", json=data)
-    queried_box = response_data.json["data"]["qrCode"]["box"]
-    assert response_data.status_code == 200
+    queried_box = assert_successful_request(read_only_client, query)["box"]
     assert queried_box["labelIdentifier"] == default_box["label_identifier"]
 
 
@@ -70,40 +57,24 @@ def test_box_mutations(client, qr_code_without_box):
                     sizeId: 1,
                     qrCode: "{qr_code_without_box["code"]}",
                 }}"""
-
-    gql_mutation_string = f"""mutation {{
+    mutation = f"""mutation {{
             createBox(
                 boxCreationInput : {box_creation_input_string}
             ) {{
                 id
                 labelIdentifier
                 items
-                location {{
-                    id
-                }}
-                product {{
-                    id
-                }}
-                qrCode {{
-                    id
-                }}
+                location {{ id }}
+                product {{ id }}
+                qrCode {{ id }}
                 state
                 createdOn
-                createdBy {{
-                    id
-                }}
+                createdBy {{ id }}
                 lastModifiedOn
-                lastModifiedBy {{
-                    id
-                }}
+                lastModifiedBy {{ id }}
             }}
         }}"""
-
-    data = {"query": gql_mutation_string}
-    response = client.post("/graphql", json=data)
-    created_box = response.json["data"]["createBox"]
-
-    assert response.status_code == 200
+    created_box = assert_successful_request(client, mutation)
     assert created_box["items"] == 9999
     assert created_box["state"] == "InStock"
     assert created_box["location"]["id"] == "1"
@@ -121,15 +92,9 @@ def test_box_mutations(client, qr_code_without_box):
                 items
                 lastModifiedOn
                 createdOn
-                qrCode {{
-                    id
-                }}
+                qrCode {{ id }}
             }}
         }}"""
-    data = {"query": mutation}
-    response = client.post("/graphql", json=data)
-    updated_box = response.json["data"]["updateBox"]
-
-    assert response.status_code == 200
+    updated_box = assert_successful_request(client, mutation)
     assert updated_box["items"] == 7777
     assert updated_box["qrCode"] == created_box["qrCode"]

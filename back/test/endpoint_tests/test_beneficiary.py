@@ -1,4 +1,5 @@
 import pytest
+from utils import assert_successful_request
 
 
 def test_beneficiary_mutations(client):
@@ -23,8 +24,7 @@ def test_beneficiary_mutations(client):
                     isVolunteer: true,
                     isRegistered: false
                 }}"""
-
-    gql_mutation_string = f"""mutation {{
+    mutation = f"""mutation {{
             createBeneficiary(
                 beneficiaryCreationInput : {beneficiary_creation_input_string}
             ) {{
@@ -33,37 +33,25 @@ def test_beneficiary_mutations(client):
                 lastName
                 dateOfBirth
                 comment
-                base {{
-                    id
-                }}
+                base {{ id }}
                 groupIdentifier
                 gender
                 languages
-                familyHead {{
-                    id
-                }}
+                familyHead {{ id }}
                 isVolunteer
                 isSigned
                 isRegistered
                 signature
                 dateOfSignature
                 createdOn
-                createdBy {{
-                    id
-                }}
+                createdBy {{ id }}
                 lastModifiedOn
-                lastModifiedBy {{
-                    id
-                }}
+                lastModifiedBy {{ id }}
             }}
         }}"""
 
-    data = {"query": gql_mutation_string}
-    response = client.post("/graphql", json=data)
-    created_beneficiary = response.json["data"]["createBeneficiary"]
+    created_beneficiary = assert_successful_request(client, mutation)
     beneficiary_id = created_beneficiary["id"]
-
-    assert response.status_code == 200
     assert created_beneficiary["firstName"] == first_name
     assert created_beneficiary["lastName"] == last_name
     assert created_beneficiary["dateOfBirth"] == dob
@@ -97,9 +85,7 @@ def test_beneficiary_mutations(client):
                 }} ) {{
                 id
                 lastName
-                base {{
-                    id
-                }}
+                base {{ id }}
                 languages
                 isVolunteer
                 isSigned
@@ -110,11 +96,7 @@ def test_beneficiary_mutations(client):
                 lastModifiedOn
             }}
         }}"""
-    data = {"query": mutation}
-    response = client.post("/graphql", json=data)
-    updated_beneficiary = response.json["data"]["updateBeneficiary"]
-
-    assert response.status_code == 200
+    updated_beneficiary = assert_successful_request(client, mutation)
     assert updated_beneficiary["id"] == beneficiary_id
     assert updated_beneficiary["lastName"] == last_name
     assert int(updated_beneficiary["base"]["id"]) == base_id
@@ -134,11 +116,7 @@ def test_beneficiary_mutations(client):
             tokens
         }}
     }}"""
-    data = {"query": query}
-    response = client.post("/graphql", json=data)
-    queried_beneficiary = response.json["data"]["beneficiary"]
-
-    assert response.status_code == 200
+    queried_beneficiary = assert_successful_request(client, query)
     assert queried_beneficiary["comment"] == comment
     assert queried_beneficiary["lastName"] == last_name
     assert queried_beneficiary["tokens"] == 0
@@ -180,16 +158,7 @@ def test_beneficiaries_paginated_query(
         elements {{ id }}
         pageInfo {{ hasNextPage hasPreviousPage }}
     }} }}"""
-    data = {"query": query}
-    response = read_only_client.post("/graphql", json=data)
-    queried_beneficiaries = response.json["data"]["beneficiaries"]["elements"]
-    assert response.status_code == 200
-    assert len(queried_beneficiaries) == size
-    assert (
-        response.json["data"]["beneficiaries"]["pageInfo"]["hasNextPage"]
-        == has_next_page
-    )
-    assert (
-        response.json["data"]["beneficiaries"]["pageInfo"]["hasPreviousPage"]
-        == has_previous_page
-    )
+    pages = assert_successful_request(read_only_client, query)
+    assert len(pages["elements"]) == size
+    assert pages["pageInfo"]["hasNextPage"] == has_next_page
+    assert pages["pageInfo"]["hasPreviousPage"] == has_previous_page
