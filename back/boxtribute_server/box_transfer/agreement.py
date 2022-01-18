@@ -111,8 +111,8 @@ def create_transfer_agreement(
 
 def accept_transfer_agreement(*, id, user):
     """Transition state of specified transfer agreement to 'Accepted'.
-    Raise error if agreement state different from 'UnderReview', or if requesting user
-    not a member of the agreement's target_organisation.
+    Raise an InvalidTransferAgreementState exception if agreement state different from
+    'UnderReview'.
     """
     agreement = TransferAgreement.get_by_id(id)
     if agreement.state != TransferAgreementState.UnderReview:
@@ -120,8 +120,6 @@ def accept_transfer_agreement(*, id, user):
             expected_states=[TransferAgreementState.UnderReview],
             actual_state=agreement.state,
         )
-    if agreement.target_organisation_id != user["organisation_id"]:
-        raise InvalidTransferAgreementOrganisation()
     agreement.state = TransferAgreementState.Accepted
     agreement.accepted_by = user["id"]
     agreement.accepted_on = utcnow()
@@ -131,8 +129,8 @@ def accept_transfer_agreement(*, id, user):
 
 def reject_transfer_agreement(*, id, user):
     """Transition state of specified transfer agreement to 'Rejected'.
-    Raise error if agreement state different from 'UnderReview', or if requesting user
-    not a member of the agreement's target_organisation.
+    Raise an InvalidTransferAgreementState exception if agreement state different from
+    'UnderReview'.
     """
     agreement = TransferAgreement.get_by_id(id)
     if agreement.state != TransferAgreementState.UnderReview:
@@ -140,8 +138,6 @@ def reject_transfer_agreement(*, id, user):
             expected_states=[TransferAgreementState.UnderReview],
             actual_state=agreement.state,
         )
-    if agreement.target_organisation_id != user["organisation_id"]:
-        raise InvalidTransferAgreementOrganisation()
     agreement.state = TransferAgreementState.Rejected
     agreement.terminated_by = user["id"]
     agreement.terminated_on = utcnow()

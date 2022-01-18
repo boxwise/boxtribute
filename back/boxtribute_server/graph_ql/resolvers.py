@@ -350,12 +350,16 @@ def resolve_create_transfer_agreement(_, info, creation_input):
 @mutation.field("acceptTransferAgreement")
 def resolve_accept_transfer_agreement(_, info, id):
     authorize(permission="transfer_agreement:write")
+    agreement = TransferAgreement.get_by_id(id)
+    authorize(organisation_id=agreement.target_organisation_id)
     return accept_transfer_agreement(id=id, user=g.user)
 
 
 @mutation.field("rejectTransferAgreement")
 def resolve_reject_transfer_agreement(_, info, id):
     authorize(permission="transfer_agreement:write")
+    agreement = TransferAgreement.get_by_id(id)
+    authorize(organisation_id=agreement.target_organisation_id)
     return reject_transfer_agreement(id=id, user=g.user)
 
 
