@@ -109,7 +109,7 @@ def create_transfer_agreement(
         return transfer_agreement
 
 
-def accept_transfer_agreement(*, id, accepted_by):
+def accept_transfer_agreement(*, id, user):
     """Transition state of specified transfer agreement to 'Accepted'.
     Raise error if agreement state different from 'UnderReview', or if requesting user
     not a member of the agreement's target_organisation.
@@ -120,16 +120,16 @@ def accept_transfer_agreement(*, id, accepted_by):
             expected_states=[TransferAgreementState.UnderReview],
             actual_state=agreement.state,
         )
-    if agreement.target_organisation_id != accepted_by["organisation_id"]:
+    if agreement.target_organisation_id != user["organisation_id"]:
         raise InvalidTransferAgreementOrganisation()
     agreement.state = TransferAgreementState.Accepted
-    agreement.accepted_by = accepted_by["id"]
+    agreement.accepted_by = user["id"]
     agreement.accepted_on = utcnow()
     agreement.save()
     return agreement
 
 
-def reject_transfer_agreement(*, id, rejected_by):
+def reject_transfer_agreement(*, id, user):
     """Transition state of specified transfer agreement to 'Rejected'.
     Raise error if agreement state different from 'UnderReview', or if requesting user
     not a member of the agreement's target_organisation.
@@ -140,16 +140,16 @@ def reject_transfer_agreement(*, id, rejected_by):
             expected_states=[TransferAgreementState.UnderReview],
             actual_state=agreement.state,
         )
-    if agreement.target_organisation_id != rejected_by["organisation_id"]:
+    if agreement.target_organisation_id != user["organisation_id"]:
         raise InvalidTransferAgreementOrganisation()
     agreement.state = TransferAgreementState.Rejected
-    agreement.terminated_by = rejected_by["id"]
+    agreement.terminated_by = user["id"]
     agreement.terminated_on = utcnow()
     agreement.save()
     return agreement
 
 
-def cancel_transfer_agreement(*, id, canceled_by):
+def cancel_transfer_agreement(*, id, user_id):
     """Transition state of specified transfer agreement to 'Canceled'.
     Raise error if agreement state different from 'UnderReview'/'Accepted'.
     """
@@ -166,7 +166,7 @@ def cancel_transfer_agreement(*, id, canceled_by):
             actual_state=agreement.state,
         )
     agreement.state = TransferAgreementState.Canceled
-    agreement.terminated_by = canceled_by
+    agreement.terminated_by = user_id
     agreement.terminated_on = utcnow()
     agreement.save()
     return agreement
