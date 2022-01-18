@@ -479,14 +479,16 @@ def test_shipment_mutations_on_target_side(
     assert box == {"state": BoxState.Lost.name}
 
 
-def assert_bad_user_input_when_creating_shipment(
-    client, *, source_base, target_base, agreement
-):
+def _generate_create_shipment_mutation(*, source_base, target_base, agreement):
     creation_input = f"""sourceBaseId: {source_base["id"]},
                          targetBaseId: {target_base["id"]},
                          transferAgreementId: {agreement["id"]}"""
-    mutation = f"""mutation {{ createShipment(creationInput: {{ {creation_input} }} ) {{
+    return f"""mutation {{ createShipment(creationInput: {{ {creation_input} }} ) {{
                     id }} }}"""
+
+
+def assert_bad_user_input_when_creating_shipment(client, **kwargs):
+    mutation = _generate_create_shipment_mutation(**kwargs)
     assert_bad_user_input(client, mutation)
 
 
