@@ -26,7 +26,7 @@ def test_beneficiary_mutations(client):
                 }}"""
     mutation = f"""mutation {{
             createBeneficiary(
-                beneficiaryCreationInput : {beneficiary_creation_input_string}
+                creationInput : {beneficiary_creation_input_string}
             ) {{
                 id
                 firstName
@@ -74,7 +74,7 @@ def test_beneficiary_mutations(client):
     language = "nl"
     mutation = f"""mutation {{
             updateBeneficiary(
-                beneficiaryUpdateInput : {{
+                updateInput : {{
                     id: {beneficiary_id},
                     lastName: "{last_name}",
                     signature: "{first_name}",

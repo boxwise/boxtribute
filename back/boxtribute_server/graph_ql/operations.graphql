@@ -30,8 +30,8 @@ type Mutation {
   createQrCode(boxLabelIdentifier: String): QrCode
   createBox(boxCreationInput: CreateBoxInput): Box
   updateBox(boxUpdateInput: UpdateBoxInput): Box
-  createBeneficiary(beneficiaryCreationInput: CreateBeneficiaryInput): Beneficiary
-  updateBeneficiary(beneficiaryUpdateInput: UpdateBeneficiaryInput): Beneficiary
+  createBeneficiary(creationInput: CreateBeneficiaryInput): Beneficiary
+  updateBeneficiary(updateInput: UpdateBeneficiaryInput): Beneficiary
 
   createTransferAgreement(creationInput: TransferAgreementCreationInput): TransferAgreement
   acceptTransferAgreement(id: ID!): TransferAgreement

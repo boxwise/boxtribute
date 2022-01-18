@@ -186,7 +186,7 @@ def test_base_specific_permissions(client, mocker):
     )
 
     create_beneficiary_for_base2_mutation = """createBeneficiary(
-                beneficiaryCreationInput : {
+                creationInput : {
                     firstName: "First",
                     lastName: "Last",
                     dateOfBirth: "1990-09-01",

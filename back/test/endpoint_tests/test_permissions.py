@@ -78,7 +78,7 @@ def test_invalid_permission_for_given_resource_id(read_only_client, mocker, quer
     "mutation",
     [
         """createBeneficiary(
-            beneficiaryCreationInput : {
+            creationInput : {
                 firstName: "First",
                 lastName: "Last",
                 dateOfBirth: "1990-09-01",
@@ -92,7 +92,7 @@ def test_invalid_permission_for_given_resource_id(read_only_client, mocker, quer
             id
         }""",
         """updateBeneficiary(
-            beneficiaryUpdateInput : {
+            updateInput : {
                 id: 3,
                 firstName: "First"
             }) {
