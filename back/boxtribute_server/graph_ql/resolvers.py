@@ -18,7 +18,7 @@ from ..box_transfer.shipment import (
     send_shipment,
     update_shipment,
 )
-from ..enums import HumanGender, TransferAgreementState
+from ..enums import HumanGender, TransferAgreementState, TransferAgreementType
 from ..models.crud import (
     create_beneficiary,
     create_box,
@@ -171,11 +171,13 @@ def resolve_product_category(_, info, id):
 
 @query.field("transferAgreement")
 def resolve_transfer_agreement(_, info, id):
+    authorize(permission="transfer_agreement:read")
     return TransferAgreement.get_by_id(id)
 
 
 @query.field("shipment")
 def resolve_shipment(_, info, id):
+    authorize(permission="shipment:read")
     return Shipment.get_by_id(id)
 
 
@@ -222,6 +224,7 @@ def resolve_beneficiaries(_, info, pagination_input=None):
 
 @query.field("transferAgreements")
 def resolve_transfer_agreements(_, info, states=None):
+    authorize(permission="transfer_agreement:read")
     user_organisation_id = g.user["organisation_id"]
     states = states or list(TransferAgreementState)
     return TransferAgreement.select().where(
@@ -235,6 +238,7 @@ def resolve_transfer_agreements(_, info, states=None):
 
 @query.field("shipments")
 def resolve_shipments(_, info):
+    authorize(permission="shipment:read")
     user_organisation_id = g.user["organisation_id"]
     return (
         Shipment.select()
@@ -316,66 +320,120 @@ def resolve_update_box(_, info, box_update_input):
 
 @mutation.field("createBeneficiary")
 @convert_kwargs_to_snake_case
-def resolve_create_beneficiary(_, info, beneficiary_creation_input):
-    authorize(
-        permission="beneficiary:write", base_id=beneficiary_creation_input["base_id"]
-    )
-    beneficiary_creation_input["created_by"] = g.user["id"]
-    return create_beneficiary(beneficiary_creation_input)
+def resolve_create_beneficiary(_, info, creation_input):
+    authorize(permission="beneficiary:write", base_id=creation_input["base_id"])
+    creation_input["created_by"] = g.user["id"]
+    return create_beneficiary(creation_input)
 
 
 @mutation.field("updateBeneficiary")
 @convert_kwargs_to_snake_case
-def resolve_update_beneficiary(_, info, beneficiary_update_input):
+def resolve_update_beneficiary(_, info, update_input):
     # Use target base ID if specified, otherwise skip enforcing base-specific authz
     authorize(
         permission="beneficiary:write",
-        base_id=beneficiary_update_input.get("base_id"),
+        base_id=update_input.get("base_id"),
     )
-    beneficiary_update_input["last_modified_by"] = g.user["id"]
-    return update_beneficiary(beneficiary_update_input)
+    update_input["last_modified_by"] = g.user["id"]
+    return update_beneficiary(update_input)
 
 
 @mutation.field("createTransferAgreement")
 @convert_kwargs_to_snake_case
 def resolve_create_transfer_agreement(_, info, creation_input):
+    authorize(permission="transfer_agreement:write")
     return create_transfer_agreement(**creation_input, user=g.user)
 
 
 @mutation.field("acceptTransferAgreement")
 def resolve_accept_transfer_agreement(_, info, id):
-    return accept_transfer_agreement(id=id, accepted_by=g.user)
+    authorize(permission="transfer_agreement:write")
+    agreement = TransferAgreement.get_by_id(id)
+    authorize(organisation_id=agreement.target_organisation_id)
+    return accept_transfer_agreement(id=id, user=g.user)
 
 
 @mutation.field("rejectTransferAgreement")
 def resolve_reject_transfer_agreement(_, info, id):
-    return reject_transfer_agreement(id=id, rejected_by=g.user)
+    authorize(permission="transfer_agreement:write")
+    agreement = TransferAgreement.get_by_id(id)
+    authorize(organisation_id=agreement.target_organisation_id)
+    return reject_transfer_agreement(id=id, user=g.user)
 
 
 @mutation.field("cancelTransferAgreement")
 def resolve_cancel_transfer_agreement(_, info, id):
-    return cancel_transfer_agreement(id=id, canceled_by=g.user["id"])
+    authorize(permission="transfer_agreement:write")
+    agreement = TransferAgreement.get_by_id(id)
+    authorize(
+        organisation_ids=[
+            agreement.source_organisation_id,
+            agreement.target_organisation_id,
+        ]
+    )
+    return cancel_transfer_agreement(id=id, user_id=g.user["id"])
 
 
 @mutation.field("createShipment")
 @convert_kwargs_to_snake_case
 def resolve_create_shipment(_, info, creation_input):
+    authorize(permission="shipment:write")
+    agreement = TransferAgreement.get_by_id(creation_input["transfer_agreement_id"])
+    organisation_ids = [agreement.source_organisation_id]
+    if agreement.type == TransferAgreementType.Bidirectional:
+        organisation_ids.append(agreement.target_organisation_id)
+    authorize(organisation_ids=organisation_ids)
     return create_shipment(**creation_input, user=g.user)
 
 
 @mutation.field("updateShipment")
 @convert_kwargs_to_snake_case
 def resolve_update_shipment(_, info, update_input):
+    authorize(permission="shipment:write")
+
+    shipment = Shipment.get_by_id(update_input["id"])
+    source_update_fields = [
+        "prepared_box_label_identifiers",
+        "removed_box_label_identifiers",
+        "target_base_id",
+    ]
+    target_update_fields = [
+        "received_shipment_detail_update_inputs",
+        "lost_box_label_identifiers",
+    ]
+    organisation_id = None
+    if any([update_input.get(f) for f in source_update_fields]):
+        # User must be member of organisation that created the shipment
+        organisation_id = shipment.source_base.organisation_id
+    elif any([update_input.get(f) for f in target_update_fields]):
+        # User must be member of organisation that is supposed to receive the shipment
+        organisation_id = shipment.target_base.organisation_id
+
+    if organisation_id is None:
+        return shipment  # no update arguments provided
+    authorize(organisation_id=organisation_id)
+
     return update_shipment(**update_input, user=g.user)
 
 
 @mutation.field("cancelShipment")
 def resolve_cancel_shipment(_, info, id):
+    authorize(permission="shipment:write")
+    shipment = Shipment.get_by_id(id)
+    authorize(
+        organisation_ids=[
+            shipment.transfer_agreement.source_organisation_id,
+            shipment.transfer_agreement.target_organisation_id,
+        ]
+    )
     return cancel_shipment(id=id, user=g.user)
 
 
 @mutation.field("sendShipment")
 def resolve_send_shipment(_, info, id):
+    authorize(permission="shipment:write")
+    shipment = Shipment.get_by_id(id)
+    authorize(organisation_id=shipment.source_base.organisation_id)
     return send_shipment(id=id, user=g.user)
 
 
@@ -472,6 +530,7 @@ def resolve_transfer_agreement_target_bases(transfer_agreement_obj, info):
 
 @transfer_agreement.field("shipments")
 def resolve_transfer_agreement_shipments(transfer_agreement_obj, info):
+    authorize(permission="shipment:read")
     return Shipment.select().where(
         Shipment.transfer_agreement == transfer_agreement_obj.id
     )

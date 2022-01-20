@@ -9,6 +9,7 @@ def authorize(
     *,
     user_id=None,
     organisation_id=None,
+    organisation_ids=None,
     base_id=None,
     permission=None,
 ):
@@ -35,6 +36,8 @@ def authorize(
             authorized = True if base_ids is None else base_id in base_ids
     elif organisation_id is not None:
         authorized = organisation_id == current_user["organisation_id"]
+    elif organisation_ids is not None:
+        authorized = current_user["organisation_id"] in organisation_ids
     elif user_id is not None:
         authorized = user_id == current_user["id"]
     else:

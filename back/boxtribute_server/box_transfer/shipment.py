@@ -8,7 +8,6 @@ from ..enums import (
 from ..exceptions import (
     InvalidShipmentState,
     InvalidTransferAgreementBase,
-    InvalidTransferAgreementOrganisation,
     InvalidTransferAgreementState,
 )
 from ..models.definitions.box import Box
@@ -57,11 +56,9 @@ def _validate_bases_as_part_of_transfer_agreement(
 def create_shipment(*, source_base_id, target_base_id, transfer_agreement_id, user):
     """Insert information for a new Shipment in the database.
     Raise an InvalidTransferAgreementState exception if specified agreement has a state
-    different from 'ACCEPTED'.
+    different from 'Accepted'.
     Raise an InvalidTransferAgreementBase exception if specified source or target base
     are not included in given agreement.
-    Raise an InvalidTransferAgreementOrganisation exception if the current user is not
-    member of the agreement source organisation in a unidirectional agreement.
     """
     agreement = TransferAgreement.get_by_id(transfer_agreement_id)
     if agreement.state != TransferAgreementState.Accepted:
@@ -75,11 +72,6 @@ def create_shipment(*, source_base_id, target_base_id, transfer_agreement_id, us
         source_base_id=source_base_id,
         target_base_id=target_base_id,
     )
-
-    if (agreement.type == TransferAgreementType.Unidirectional) and (
-        user["organisation_id"] != agreement.source_organisation_id
-    ):
-        raise InvalidTransferAgreementOrganisation()
 
     return Shipment.create(
         source_base=source_base_id,
@@ -105,19 +97,12 @@ def cancel_shipment(*, id, user):
     corresponding shipment details.
     Raise InvalidShipmentState exception if shipment state is different from
     'Preparing'.
-    Raise an InvalidTransferAgreementOrganisation exception if the current user is not
-    member of either organisation that is part of the underlying transfer agreement.
     """
     shipment = Shipment.get_by_id(id)
     if shipment.state != ShipmentState.Preparing:
         raise InvalidShipmentState(
             expected_states=[ShipmentState.Preparing], actual_state=shipment.state
         )
-    if user["organisation_id"] not in [
-        shipment.transfer_agreement.source_organisation_id,
-        shipment.transfer_agreement.target_organisation_id,
-    ]:
-        raise InvalidTransferAgreementOrganisation()
 
     now = utcnow()
     shipment.state = ShipmentState.Canceled
@@ -143,14 +128,10 @@ def cancel_shipment(*, id, user):
 
 def send_shipment(*, id, user):
     """Transition state of specified shipment to 'Sent'.
-    Raise an InvalidTransferAgreementOrganisation exception if the current user is not
-    member of the organisation that originally created the shipment.
     Raise InvalidShipmentState exception if shipment state is different from
     'Preparing'.
     """
     shipment = Shipment.get_by_id(id)
-    if shipment.source_base.organisation_id != user["organisation_id"]:
-        raise InvalidTransferAgreementOrganisation()
     if shipment.state != ShipmentState.Preparing:
         raise InvalidShipmentState(
             expected_states=[ShipmentState.Preparing], actual_state=shipment.state
@@ -318,15 +299,11 @@ def update_shipment(
     - update prepared or removed boxes, or target base
     - raise InvalidShipmentState exception if shipment state is different from
       'Preparing'
-    - raise an InvalidTransferAgreementOrganisation exception if the current user is not
-      member of the organisation that originally created the shipment
     - raise an InvalidTransferAgreementBase exception if specified target base is not
       included in given agreement
     On the shipment target side:
     - update checked-in or lost boxes
     - raise InvalidShipmentState exception if shipment state is different from 'Sent'
-    - raise an InvalidTransferAgreementOrganisation exception if the current user is not
-      member of the organisation that is supposed to receive the shipment
     """
     shipment = Shipment.get_by_id(id)
     if any(
@@ -336,16 +313,12 @@ def update_shipment(
             raise InvalidShipmentState(
                 expected_states=[ShipmentState.Preparing], actual_state=shipment.state
             )
-        if shipment.source_base.organisation_id != user["organisation_id"]:
-            raise InvalidTransferAgreementOrganisation()
 
     if any([received_shipment_detail_update_inputs, lost_box_label_identifiers]):
         if shipment.state != ShipmentState.Sent:
             raise InvalidShipmentState(
                 expected_states=[ShipmentState.Sent], actual_state=shipment.state
             )
-        if shipment.target_base.organisation_id != user["organisation_id"]:
-            raise InvalidTransferAgreementOrganisation()
 
     _validate_bases_as_part_of_transfer_agreement(
         transfer_agreement=TransferAgreement.get_by_id(shipment.transfer_agreement_id),
