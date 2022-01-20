@@ -1,3 +1,23 @@
+import ariadne
+import peewee
+
+
+def format_database_errors(error, debug=False):
+    """Custom formatting of peewee errors (indicating a missing resource) to avoid SQL
+    queries from being exposed to the client.
+    In the resulting response, the corresponding field for `data` will be None, and the
+    `errors` list will have a single entry.
+    """
+    if debug:  # pragma: no cover
+        return ariadne.format_error(error, debug)
+
+    if isinstance(error.original_error, peewee.DoesNotExist):
+        # setting `error.formatted["message"] = ""` has no effect
+        error.message = ""
+        error.extensions = RequestedResourceNotFound.extensions
+    return error.formatted
+
+
 class AuthenticationFailed(Exception):
     """Custom exception for authentication errors on web API level (i.e. when
     hitting a Flask server endpoint).

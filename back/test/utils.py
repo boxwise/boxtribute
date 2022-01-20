@@ -29,6 +29,7 @@ def assert_bad_user_input(client, query, **kwargs):
     response = _assert_erroneous_request(client, query)
     assert response.json["errors"][0]["extensions"]["code"] == "BAD_USER_INPUT"
     _verify_response_data(query=query, response=response, **kwargs)
+    return response
 
 
 def _extract_field(query):

@@ -38,26 +38,14 @@ def test_qr_code_query(read_only_client, default_box, default_qr_code):
 def test_code_not_associated_with_box(read_only_client, qr_code_without_box):
     code = qr_code_without_box["code"]
     query = f"""query {{ qrCode(qrCode: "{code}") {{ box {{ id }} }} }}"""
-    data = {"query": query}
-    response = read_only_client.post("/graphql", json=data)
-    assert (
-        "<Model: Box> instance matching query does not exist"
-        in response.json["errors"][0]["message"]
-    )
-    queried_box = response.json["data"]["qrCode"]["box"]
-    assert queried_box is None
+    response = assert_bad_user_input(read_only_client, query, value={"box": None})
+    assert "SQL" not in response.json["errors"][0]["message"]
 
 
 def test_code_does_not_exist(read_only_client):
     query = """query { qrCode(qrCode: "-1") { id } }"""
-    data = {"query": query}
-    response = read_only_client.post("/graphql", json=data)
-    queried_code = response.json["data"]["qrCode"]
-    assert (
-        "<Model: QrCode> instance matching query does not exist"
-        in response.json["errors"][0]["message"]
-    )
-    assert queried_code is None
+    response = assert_bad_user_input(read_only_client, query)
+    assert "SQL" not in response.json["errors"][0]["message"]
 
 
 def test_qr_code_mutation(client, box_without_qr_code):
