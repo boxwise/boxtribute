@@ -360,6 +360,10 @@ def update_shipment(
 def _validate_base_as_part_of_shipment(resource_id, *, detail, model):
     """Validate that the base of the given resource (location or product) is identical
     to the target base of the detail's shipment.
+    Return false if resource does not exist.
     """
-    target_resource = model.get_by_id(resource_id)
-    return target_resource.base_id == detail.shipment.target_base_id
+    try:
+        target_resource = model.get_by_id(resource_id)
+        return target_resource.base_id == detail.shipment.target_base_id
+    except model.DoesNotExist:
+        return False

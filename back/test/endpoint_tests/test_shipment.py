@@ -421,28 +421,30 @@ def test_shipment_mutations_on_target_side(
     assert shipment == expected_shipment
 
     # Verify that another_detail_id is not updated (invalid product)
-    # Test case 3.2.39
-    shipment = assert_successful_request(
-        client,
-        _create_mutation(
-            detail_id=another_detail_id,
-            target_product_id=default_product["id"],
-            target_location_id=target_location_id,
-        ),
-    )
-    assert shipment == expected_shipment
+    # Test cases 3.2.39ab
+    for product in [default_product, {"id": 0}]:
+        shipment = assert_successful_request(
+            client,
+            _create_mutation(
+                detail_id=another_detail_id,
+                target_product_id=product["id"],
+                target_location_id=target_location_id,
+            ),
+        )
+        assert shipment == expected_shipment
 
     # Verify that another_detail_id is not updated (invalid location)
-    # Test case 3.2.38
-    shipment = assert_successful_request(
-        client,
-        _create_mutation(
-            detail_id=another_detail_id,
-            target_product_id=target_product_id,
-            target_location_id=default_location["id"],
-        ),
-    )
-    assert shipment == expected_shipment
+    # Test cases 3.2.38ab
+    for location in [default_location, {"id": 0}]:
+        shipment = assert_successful_request(
+            client,
+            _create_mutation(
+                detail_id=another_detail_id,
+                target_product_id=target_product_id,
+                target_location_id=location["id"],
+            ),
+        )
+        assert shipment == expected_shipment
 
     # Test case 3.2.40, 3.2.34b
     box_label_identifier = marked_for_shipment_box["label_identifier"]
