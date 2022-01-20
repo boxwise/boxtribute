@@ -1,3 +1,4 @@
+import pytest
 from auth import create_jwt_payload
 from utils import assert_bad_user_input
 
@@ -67,3 +68,66 @@ def test_invalid_pagination_input(read_only_client):
         elements { id }
     } }"""
     assert_bad_user_input(read_only_client, query, none_data=True)
+
+
+@pytest.mark.parametrize(
+    "resource",
+    [
+        "beneficiary",
+        "location",
+        "product",
+        "productCategory",
+        "shipment",
+        "transferAgreement",
+    ],
+)
+def test_query_non_existent_resource(read_only_client, resource):
+    # Test cases 2.1.4, 3.1.3
+    query = f"query {{ {resource}(id: 0) {{ id }} }}"
+    response = assert_bad_user_input(read_only_client, query, field=resource)
+    assert "SQL" not in response.json["errors"][0]["message"]
+
+
+@pytest.mark.parametrize("resource", ["base", "organisation", "user"])
+def test_query_non_existent_resource_for_god_user(read_only_client, mocker, resource):
+    # Non-god users would not be authorized to access resource ID 0
+    mocker.patch("jose.jwt.decode").return_value = create_jwt_payload(permissions=["*"])
+    query = f"query {{ {resource}(id: 0) {{ id }} }}"
+    response = assert_bad_user_input(read_only_client, query, field=resource)
+    assert "SQL" not in response.json["errors"][0]["message"]
+
+
+@pytest.mark.parametrize(
+    "operation",
+    [
+        "acceptTransferAgreement",
+        "rejectTransferAgreement",
+        "cancelTransferAgreement",
+        "cancelShipment",
+        "sendShipment",
+    ],
+)
+def test_mutation_non_existent_resource(read_only_client, operation):
+    # Test cases 2.2.4, 2.2.6, 2.2.8, 3.2.8, 3.2.12
+    mutation = f"mutation {{ {operation}(id: 0) {{ id }} }}"
+    response = assert_bad_user_input(read_only_client, mutation, field=operation)
+    assert "SQL" not in response.json["errors"][0]["message"]
+
+
+@pytest.mark.parametrize(
+    "operation",
+    [
+        "updateBox",
+        "updateBeneficiary",
+        "updateShipment",
+    ],
+)
+def test_mutation_update_non_existent_resource(read_only_client, operation):
+    # Test cases 3.2.21
+    if operation == "updateBox":
+        update_input = """boxUpdateInput: { labelIdentifier: "xxx" }"""
+    else:
+        update_input = "updateInput: { id: 0 }"
+    mutation = f"mutation {{ {operation}({update_input}) {{ id }} }}"
+    response = assert_bad_user_input(read_only_client, mutation, field=operation)
+    assert "SQL" not in response.json["errors"][0]["message"]
