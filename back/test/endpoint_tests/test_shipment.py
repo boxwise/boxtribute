@@ -706,3 +706,15 @@ def test_shipment_mutations_update_checked_in_boxes_when_shipment_in_non_sent_st
         target_location=another_location,
         target_product=another_product,
     )
+
+
+def test_shipment_mutations_create_non_existent_resource(
+    read_only_client, default_bases
+):
+    # Test case 3.2.5
+    mutation = _generate_create_shipment_mutation(
+        source_base=default_bases[1],
+        target_base=default_bases[3],
+        agreement={"id": 0},
+    )
+    assert_bad_user_input(read_only_client, mutation)

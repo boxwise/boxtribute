@@ -11,9 +11,9 @@ def format_database_errors(error, debug=False):
     if debug:  # pragma: no cover
         return ariadne.format_error(error, debug)
 
-    if isinstance(error.original_error, peewee.DoesNotExist):
-        # setting `error.formatted["message"] = ""` has no effect
-        error.message = ""
+    if isinstance(error.original_error, (peewee.DoesNotExist, peewee.IntegrityError)):
+        # IntegrityError is raised when foreign key ID does not exist.
+        error.message = ""  # setting `error.formatted["message"] = ""` has no effect
         error.extensions = RequestedResourceNotFound.extensions
     return error.formatted
 
