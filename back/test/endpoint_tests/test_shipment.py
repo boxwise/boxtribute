@@ -206,9 +206,11 @@ def test_shipment_mutations_on_source_side(
 
     # Verify that another_box is not added to shipment (not located in source base).
     # Same for lost_box (box state different from InStock) and default_box (already
-    # added to shipment, hence box state MarkedForShipment different from InStock)
-    # Test cases 3.2.27, 3.2.28
-    for box in [another_box, lost_box, default_box]:
+    # added to shipment, hence box state MarkedForShipment different from InStock).
+    # A box with unknown label identifier is not added either
+    # Test cases 3.2.27, 3.2.28, 3.2.29
+    non_existent_box = {"label_identifier": "xxx"}
+    for box in [another_box, lost_box, default_box, non_existent_box]:
         box_label_identifier = box["label_identifier"]
         update_input = f"""{{ id: {shipment_id},
                     preparedBoxLabelIdentifiers: ["{box_label_identifier}"] }}"""
@@ -247,10 +249,10 @@ def test_shipment_mutations_on_source_side(
 
     # Verify that lost_box is not removed from shipment (box state different from
     # MarkedForShipment).
-    # Same for marked_for_shipment_box (not part of shipment)
+    # Same for marked_for_shipment_box (not part of shipment), and non-existent box
     # Test cases 3.2.31, 3.2.32
     boxes = [lost_box, marked_for_shipment_box]
-    for box in boxes:
+    for box in boxes + [non_existent_box]:
         box_label_identifier = box["label_identifier"]
         update_input = f"""{{ id: {shipment_id},
                     removedBoxLabelIdentifiers: ["{box_label_identifier}"] }}"""
@@ -420,7 +422,6 @@ def test_shipment_mutations_on_target_side(
 
     # Verify that another_detail_id is not updated (invalid product)
     # Test case 3.2.39
-
     shipment = assert_successful_request(
         client,
         _create_mutation(
