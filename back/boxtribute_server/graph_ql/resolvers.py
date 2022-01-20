@@ -402,10 +402,10 @@ def resolve_update_shipment(_, info, update_input):
         "lost_box_label_identifiers",
     ]
     organisation_id = None
-    if any([update_input.get(f) for f in source_update_fields]):
+    if any([update_input.get(f) is not None for f in source_update_fields]):
         # User must be member of organisation that created the shipment
         organisation_id = shipment.source_base.organisation_id
-    elif any([update_input.get(f) for f in target_update_fields]):
+    elif any([update_input.get(f) is not None for f in target_update_fields]):
         # User must be member of organisation that is supposed to receive the shipment
         organisation_id = shipment.target_base.organisation_id
 
