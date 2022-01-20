@@ -66,4 +66,4 @@ def test_invalid_pagination_input(read_only_client):
     query = """query { beneficiaries(paginationInput: {last: 2}) {
         elements { id }
     } }"""
-    assert_bad_user_input(read_only_client, query)
+    assert_bad_user_input(read_only_client, query, none_data=True)

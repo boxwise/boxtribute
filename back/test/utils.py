@@ -6,12 +6,29 @@ def _assert_erroneous_request(client, query):
     return response
 
 
-def assert_bad_user_input(client, query):
+def _verify_response_data(*, query, response, field=None, none_data=False, value=None):
+    """If `none_data` is given, verify that the `data` field of the response JSON is None.
+    Otherwise extract field as query operation name, and verify that it is identical to
+    given `value` (default: None).
+    """
+    if none_data:
+        assert response.json["data"] is None
+    else:
+        field = field or _extract_field(query)
+        if value is None:
+            assert response.json["data"][field] is None
+        else:
+            assert response.json["data"][field] == value
+
+
+def assert_bad_user_input(client, query, **kwargs):
     """Send GraphQL request with query using given client.
     Assert that single BAD_USER_INPUT error is returned in response.
+    `kwargs` are forwarded to `_verify_response_data()`.
     """
     response = _assert_erroneous_request(client, query)
     assert response.json["errors"][0]["extensions"]["code"] == "BAD_USER_INPUT"
+    _verify_response_data(query=query, response=response, **kwargs)
 
 
 def _extract_field(query):
@@ -23,22 +40,14 @@ def _extract_field(query):
     return query.split("{")[1].split("(")[0].strip()
 
 
-def assert_forbidden_request(client, query, *, field=None, none_data=False, value=None):
+def assert_forbidden_request(client, query, **kwargs):
     """Assertion utility that posts the given data via a client fixture.
-    Afterwards verifies response field containing error information. If specified, the
-    response data field named `field` is verified against an expected `value` (default
-    None). By default, `field` is extracted as given query's operation name.
+    Assert that single FORBIDDEN error is returned in response.
+    `kwargs` are forwarded to `_verify_response_data()`.
     """
     response = _assert_erroneous_request(client, query)
     assert response.json["errors"][0]["extensions"]["code"] == "FORBIDDEN"
-    if none_data:
-        assert response.json["data"] is None
-    else:
-        field = field or _extract_field(query)
-        if value is None:
-            assert response.json["data"][field] is None
-        else:
-            assert response.json["data"][field] == value
+    _verify_response_data(query=query, response=response, **kwargs)
 
 
 def assert_successful_request(client, query, field=None):
