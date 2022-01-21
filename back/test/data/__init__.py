@@ -35,6 +35,7 @@ from .shipment_detail import (
     default_shipment_detail,
     prepared_shipment_detail,
 )
+from .size import default_size
 from .size_range import default_size_range
 from .transaction import default_transaction
 from .transfer_agreement import (
@@ -72,6 +73,7 @@ __all__ = [
     "default_qr_code",
     "default_shipment",
     "default_shipment_detail",
+    "default_size",
     "default_size_range",
     "default_transaction",
     "default_transfer_agreement",
