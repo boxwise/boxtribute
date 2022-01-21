@@ -8,10 +8,7 @@ def test_base_specific_permissions(client, mocker):
     base-specific distinction is relevant.
     """
     mocker.patch("jose.jwt.decode").return_value = create_jwt_payload(
-        email="dev_coordinator@boxcare.org",
-        base_ids=[2, 3],
         organisation_id=2,
-        roles=["base_2_coordinator", "base_3_coordinator"],
         user_id=1,
         permissions=[
             "base_2/qr:create",
