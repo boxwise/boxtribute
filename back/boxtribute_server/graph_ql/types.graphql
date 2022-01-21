@@ -169,7 +169,7 @@ type PageInfo {
 
 input CreateBoxInput {
   productId: Int!
-  sizeId: Int
+  sizeId: Int!
   items: Int!
   locationId: Int!
   comment: String!

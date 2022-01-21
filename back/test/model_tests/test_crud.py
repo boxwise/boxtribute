@@ -26,13 +26,14 @@ def test_create_box_with_insufficient_data():
 
 
 def test_box_label_identifier_generation(
-    mocker, default_box, default_location, default_product, default_user
+    mocker, default_box, default_location, default_product, default_user, default_size
 ):
     rng_function = mocker.patch("random.choices")
     data = {
         "items": 10,
         "location": default_location["id"],
         "product": default_product["id"],
+        "size": default_size["id"],
         "created_by": default_user["id"],
         "comment": "",
     }
