@@ -14,11 +14,12 @@ ALL_PERMISSIONS = [
     "transfer_agreement:read",
     "user:read",
     "qr:read",
-    "beneficiary:write",
+    "beneficiary:create",
+    "beneficiary:edit",
     "shipment:write",
     "stock:write",
     "transfer_agreement:write",
-    "qr:write",
+    "qr:create",
 ]
 
 
@@ -39,22 +40,23 @@ def test_authorized_user():
     assert authorize(user, permission="transfer_agreement:read")
     assert authorize(user, permission="user:read")
     assert authorize(user, permission="qr:read")
-    assert authorize(user, permission="beneficiary:write")
+    assert authorize(user, permission="beneficiary:create")
+    assert authorize(user, permission="beneficiary:edit")
     assert authorize(user, permission="shipment:write")
     assert authorize(user, permission="stock:write")
     assert authorize(user, permission="transfer_agreement:write")
-    assert authorize(user, permission="qr:write")
+    assert authorize(user, permission="qr:create")
 
     user = {
         "permissions": {
-            "qr:write": [1, 3],
+            "qr:create": [1, 3],
             "stock:write": [2],
             "location:write": None,
         },
         "is_god": False,
     }
-    assert authorize(user, permission="qr:write")
-    assert authorize(user, permission="qr:write", base_id=3)
+    assert authorize(user, permission="qr:create")
+    assert authorize(user, permission="qr:create", base_id=3)
     assert authorize(user, permission="stock:write", base_id=2)
     assert authorize(user, permission="location:write")
     assert authorize(user, permission="location:write", base_id=4)
@@ -66,9 +68,9 @@ def test_user_with_insufficient_permissions():
         with pytest.raises(Forbidden):
             authorize(user, permission=permission)
 
-    user = {"permissions": {"beneficiary:write": [2]}, "is_god": False}
+    user = {"permissions": {"beneficiary:create": [2]}, "is_god": False}
     with pytest.raises(Forbidden):
-        authorize(user, permission="beneficiary:write", base_id=1)
+        authorize(user, permission="beneficiary:create", base_id=1)
 
 
 def test_user_unauthorized_for_organisation():

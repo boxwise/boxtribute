@@ -14,9 +14,9 @@ def test_base_specific_permissions(client, mocker):
         roles=["base_2_coordinator", "base_3_coordinator"],
         user_id=1,
         permissions=[
-            "base_2/qr:write",
+            "base_2/qr:create",
             "stock:write",
-            "base_3/beneficiary:write",
+            "base_3/beneficiary:create",
         ],
     )
 

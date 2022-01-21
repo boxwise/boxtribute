@@ -142,7 +142,7 @@ def requires_auth(f):
                 g.user["permissions"][permission] = base_ids
 
                 resource, method = permission.split(":")
-                if method in ["write", "edit"]:
+                if method in ["write", "create", "edit"]:
                     g.user["permissions"][f"{resource}:read"] = base_ids
 
         return f(*args, **kwargs)

@@ -41,7 +41,7 @@ def assert_forbidden_request(client, query, *, field=None, none_data=False, valu
             assert response.json["data"][field] == value
 
 
-def assert_successful_request(client, query):
+def assert_successful_request(client, query, field=None):
     """Send GraphQL request with query using given client.
     Assert response HTTP code 200, and return main response JSON data field.
     """
@@ -49,5 +49,5 @@ def assert_successful_request(client, query):
     response = client.post("/graphql", json=data)
     assert response.status_code == 200
 
-    field = _extract_field(query)
+    field = field or _extract_field(query)
     return response.json["data"][field]
