@@ -297,7 +297,7 @@ def resolve_location_box_state(location_obj, info):
 @mutation.field("createQrCode")
 @convert_kwargs_to_snake_case
 def resolve_create_qr_code(_, info, box_label_identifier=None):
-    authorize(permission="qr:write")
+    authorize(permission="qr:create")
     authorize(permission="stock:write")
     return create_qr_code(box_label_identifier=box_label_identifier)
 
@@ -321,7 +321,7 @@ def resolve_update_box(_, info, box_update_input):
 @mutation.field("createBeneficiary")
 @convert_kwargs_to_snake_case
 def resolve_create_beneficiary(_, info, creation_input):
-    authorize(permission="beneficiary:write", base_id=creation_input["base_id"])
+    authorize(permission="beneficiary:create", base_id=creation_input["base_id"])
     creation_input["created_by"] = g.user["id"]
     return create_beneficiary(creation_input)
 
@@ -331,7 +331,7 @@ def resolve_create_beneficiary(_, info, creation_input):
 def resolve_update_beneficiary(_, info, update_input):
     # Use target base ID if specified, otherwise skip enforcing base-specific authz
     authorize(
-        permission="beneficiary:write",
+        permission="beneficiary:edit",
         base_id=update_input.get("base_id"),
     )
     update_input["last_modified_by"] = g.user["id"]

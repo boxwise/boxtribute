@@ -66,7 +66,7 @@ def create_beneficiary(data):
     languages in the corresponding cross-reference table.
     """
     now = utcnow()
-    language_ids = data.pop("languages")
+    language_ids = data.pop("languages", [])
     family_head_id = data.pop("family_head_id", None)
 
     # Set is_signed field depending on signature

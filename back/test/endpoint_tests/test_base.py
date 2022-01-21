@@ -7,6 +7,7 @@ def test_bases_query(read_only_client, default_bases):
                     id
                     name
                     currencyName
+                    beneficiaries { elements { id } }
                 }
             }"""
 
@@ -20,6 +21,7 @@ def test_bases_query(read_only_client, default_bases):
     assert queried_base_id == expected_base["id"]
     assert queried_base["name"] == expected_base["name"]
     assert queried_base["currencyName"] == expected_base["currency_name"]
+    assert len(queried_base["beneficiaries"]["elements"]) == 2
 
 
 def test_base_query(read_only_client, default_location, default_bases):

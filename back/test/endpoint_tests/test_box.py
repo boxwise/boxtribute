@@ -28,7 +28,7 @@ def test_box_query_by_label_identifier(
         "location": {"id": str(default_box["location"])},
         "items": default_box["items"],
         "product": {"id": str(default_box["product"])},
-        "size": None,
+        "size": str(default_box["size"]),
         "state": BoxState.InStock.name,
         "qrCode": {"id": str(default_box["qr_code"])},
         "createdBy": {"id": str(default_box["created_by"])},
@@ -66,6 +66,7 @@ def test_box_mutations(client, qr_code_without_box):
                 items
                 location {{ id }}
                 product {{ id }}
+                size
                 qrCode {{ id }}
                 state
                 createdOn
@@ -79,6 +80,7 @@ def test_box_mutations(client, qr_code_without_box):
     assert created_box["state"] == "InStock"
     assert created_box["location"]["id"] == "1"
     assert created_box["product"]["id"] == "1"
+    assert created_box["size"] == "1"
     assert created_box["qrCode"]["id"] == str(qr_code_without_box["id"])
     assert created_box["createdOn"] == created_box["lastModifiedOn"]
     assert created_box["createdBy"] == created_box["lastModifiedBy"]

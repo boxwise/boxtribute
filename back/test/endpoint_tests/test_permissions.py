@@ -103,6 +103,7 @@ def test_invalid_permission_for_given_resource_id(read_only_client, mocker, quer
                 productId: 1,
                 items: 9999,
                 locationId: 1,
+                sizeId: 1,
                 comment: ""
             }) {
             id
@@ -203,8 +204,8 @@ def test_invalid_permission_for_box_location(read_only_client, mocker, default_b
 
 @pytest.mark.parametrize(
     "method",
-    ["read", "write", "edit"],
-    ids=["all-bases", "write-implies-read", "edit-implies-read"],
+    ["read", "write", "create", "edit"],
+    ids=["all-bases", "write-implies-read", "create-implies-read", "edit-implies-read"],
 )
 def test_permission_scope(read_only_client, mocker, default_bases, method):
     mocker.patch("jose.jwt.decode").return_value = create_jwt_payload(

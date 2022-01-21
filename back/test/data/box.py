@@ -5,6 +5,7 @@ from data.box_state import default_box_state_data
 from data.location import another_location_data, default_location_data
 from data.product import default_product_data
 from data.qr_code import default_qr_code_data
+from data.size import data as size_data
 from data.user import default_user_data
 
 
@@ -17,6 +18,7 @@ def default_box_data():
         "comment": "",
         "created_by": default_user_data()["id"],
         "items": 0,
+        "size": size_data()["id"],
         "location": default_location_data()["id"],
         "qr_code": default_qr_code_data()["id"],
     }

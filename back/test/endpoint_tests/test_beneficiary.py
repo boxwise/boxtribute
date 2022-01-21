@@ -140,6 +140,7 @@ def test_beneficiary_mutations(client):
         ["""(paginationInput: {before: "MDAwMDAwMDE="})""", 0, False, False],
         #                              ID=3
         ["""(paginationInput: {before: "MDAwMDAwMDM=", last: 1})""", 1, False, True],
+        ["""(paginationInput: {before: "MDAwMDAwMDM=", last: 2})""", 2, False, False],
     ),
     ids=[
         "no input",
@@ -149,6 +150,7 @@ def test_beneficiary_mutations(client):
         "after-first",
         "before",
         "before-last",
+        "before-last2",
     ],
 )
 def test_beneficiaries_paginated_query(

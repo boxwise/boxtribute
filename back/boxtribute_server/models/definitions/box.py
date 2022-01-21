@@ -96,7 +96,6 @@ class Box(db.Model):
         column_name="size_id",
         field="id",
         model=Size,
-        null=True,
         on_update="CASCADE",
     )
 

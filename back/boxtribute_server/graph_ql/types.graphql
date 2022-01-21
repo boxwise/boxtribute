@@ -169,7 +169,7 @@ type PageInfo {
 
 input CreateBoxInput {
   productId: Int!
-  sizeId: Int
+  sizeId: Int!
   items: Int!
   locationId: Int!
   comment: String!
@@ -188,7 +188,7 @@ input UpdateBoxInput {
 input CreateBeneficiaryInput {
   firstName: String!
   lastName: String!
-  baseId: Int
+  baseId: Int!
   groupIdentifier: String!
   dateOfBirth: Date!
   comment: String
