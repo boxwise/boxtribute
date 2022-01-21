@@ -71,6 +71,7 @@ def graphql_server():
         data,
         context_value=request,
         debug=debug_graphql,
+        introspection=os.getenv("FLASK_ENV") == "development",
         error_formatter=format_database_errors,
     )
 
