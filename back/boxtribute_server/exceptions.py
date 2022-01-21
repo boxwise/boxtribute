@@ -15,6 +15,12 @@ def format_database_errors(error, debug=False):
         # IntegrityError is raised when foreign key ID does not exist.
         error.message = ""  # setting `error.formatted["message"] = ""` has no effect
         error.extensions = RequestedResourceNotFound.extensions
+    elif isinstance(error.original_error, peewee.PeeweeException):
+        error.message = ""
+        error.extensions = {
+            "code": "INTERNAL_SERVER_ERROR",
+            "description": "The database failed to perform the requested action.",
+        }
     return error.formatted
 
 

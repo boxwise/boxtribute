@@ -1,6 +1,7 @@
+import peewee
 import pytest
 from auth import create_jwt_payload
-from utils import assert_bad_user_input
+from utils import assert_bad_user_input, assert_internal_server_error
 
 
 def test_base_specific_permissions(client, mocker):
@@ -131,3 +132,11 @@ def test_mutation_update_non_existent_resource(read_only_client, operation):
     mutation = f"mutation {{ {operation}({update_input}) {{ id }} }}"
     response = assert_bad_user_input(read_only_client, mutation, field=operation)
     assert "SQL" not in response.json["errors"][0]["message"]
+
+
+def test_mutation_arbitrary_database_error(read_only_client, mocker):
+    mocker.patch(
+        "boxtribute_server.graph_ql.resolvers.create_qr_code"
+    ).side_effect = peewee.PeeweeException
+    mutation = "mutation { createQrCode { id } }"
+    assert_internal_server_error(read_only_client, mutation, field="createQrCode")

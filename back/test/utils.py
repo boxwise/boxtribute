@@ -50,6 +50,15 @@ def assert_forbidden_request(client, query, **kwargs):
     return _assert_erroneous_request(client, query, code="FORBIDDEN", **kwargs)
 
 
+def assert_internal_server_error(client, query, **kwargs):
+    """Send GraphQL request with query using given client.
+    Assert that single INTERNAL_SERVER_ERROR error is returned in response.
+    """
+    return _assert_erroneous_request(
+        client, query, code="INTERNAL_SERVER_ERROR", **kwargs
+    )
+
+
 def assert_successful_request(client, query, field=None):
     """Send GraphQL request with query using given client.
     Assert response HTTP code 200, and return main response JSON data field.
