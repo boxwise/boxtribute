@@ -188,7 +188,7 @@ input UpdateBoxInput {
 input CreateBeneficiaryInput {
   firstName: String!
   lastName: String!
-  baseId: Int
+  baseId: Int!
   groupIdentifier: String!
   dateOfBirth: Date!
   comment: String
