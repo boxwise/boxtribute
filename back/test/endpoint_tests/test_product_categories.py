@@ -1,6 +1,23 @@
 from utils import assert_successful_request
 
 
+def test_product_category_query(read_only_client, default_product_category):
+    category_id = str(default_product_category["id"])
+    query = f"""query {{ productCategory(id: {category_id}) {{
+                id
+                name
+                sizeRanges {{ id }}
+                hasGender
+            }} }}"""
+    category = assert_successful_request(read_only_client, query)
+    assert category == {
+        "id": category_id,
+        "name": default_product_category["name"],
+        "sizeRanges": None,
+        "hasGender": True,
+    }
+
+
 def test_product_categories_query(read_only_client):
     query = """query {
                 productCategories {
