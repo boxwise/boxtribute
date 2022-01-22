@@ -264,3 +264,13 @@ def test_transfer_agreement_mutations_create_invalid_source_base(
                     type: Bidirectional
                 }} ) {{ id }} }}"""
     assert_bad_user_input(read_only_client, mutation)
+
+
+def test_transfer_agreement_mutations_create_non_existent_target_org(read_only_client):
+    # Test case 2.2.15
+    creation_input = "targetOrganisationId: 0"
+    mutation = f"""mutation {{ createTransferAgreement( creationInput: {{
+                    {creation_input},
+                    type: Bidirectional
+                }} ) {{ id }} }}"""
+    assert_bad_user_input(read_only_client, mutation)

@@ -5,7 +5,6 @@ from boxtribute_server.models.crud import (
     BOX_LABEL_IDENTIFIER_GENERATION_ATTEMPTS,
     create_box,
     create_qr_code,
-    update_beneficiary,
 )
 from boxtribute_server.models.definitions.qr_code import QrCode
 
@@ -54,16 +53,3 @@ def test_box_label_identifier_generation(
     new_box = create_box(data)
     assert rng_function.call_count == len(side_effect)
     assert new_box.label_identifier == new_identifier
-
-
-def test_update_beneficiary(default_beneficiary, default_bases):
-    """Complement anything not yet covered by endpoint tests."""
-    base_id = default_bases[2]["id"]
-    data = {
-        "id": default_beneficiary["id"],
-        "base_id": base_id,
-        "family_head_id": default_beneficiary["id"],
-    }
-    beneficiary = update_beneficiary(data)
-    assert beneficiary.id == beneficiary.family_head_id
-    assert beneficiary.base_id == base_id

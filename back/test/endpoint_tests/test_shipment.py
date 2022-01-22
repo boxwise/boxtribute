@@ -206,9 +206,11 @@ def test_shipment_mutations_on_source_side(
 
     # Verify that another_box is not added to shipment (not located in source base).
     # Same for lost_box (box state different from InStock) and default_box (already
-    # added to shipment, hence box state MarkedForShipment different from InStock)
-    # Test cases 3.2.27, 3.2.28
-    for box in [another_box, lost_box, default_box]:
+    # added to shipment, hence box state MarkedForShipment different from InStock).
+    # A box with unknown label identifier is not added either
+    # Test cases 3.2.27, 3.2.28, 3.2.29
+    non_existent_box = {"label_identifier": "xxx"}
+    for box in [another_box, lost_box, default_box, non_existent_box]:
         box_label_identifier = box["label_identifier"]
         update_input = f"""{{ id: {shipment_id},
                     preparedBoxLabelIdentifiers: ["{box_label_identifier}"] }}"""
@@ -247,10 +249,10 @@ def test_shipment_mutations_on_source_side(
 
     # Verify that lost_box is not removed from shipment (box state different from
     # MarkedForShipment).
-    # Same for marked_for_shipment_box (not part of shipment)
+    # Same for marked_for_shipment_box (not part of shipment), and non-existent box
     # Test cases 3.2.31, 3.2.32
     boxes = [lost_box, marked_for_shipment_box]
-    for box in boxes:
+    for box in boxes + [non_existent_box]:
         box_label_identifier = box["label_identifier"]
         update_input = f"""{{ id: {shipment_id},
                     removedBoxLabelIdentifiers: ["{box_label_identifier}"] }}"""
@@ -419,29 +421,30 @@ def test_shipment_mutations_on_target_side(
     assert shipment == expected_shipment
 
     # Verify that another_detail_id is not updated (invalid product)
-    # Test case 3.2.39
-
-    shipment = assert_successful_request(
-        client,
-        _create_mutation(
-            detail_id=another_detail_id,
-            target_product_id=default_product["id"],
-            target_location_id=target_location_id,
-        ),
-    )
-    assert shipment == expected_shipment
+    # Test cases 3.2.39ab
+    for product in [default_product, {"id": 0}]:
+        shipment = assert_successful_request(
+            client,
+            _create_mutation(
+                detail_id=another_detail_id,
+                target_product_id=product["id"],
+                target_location_id=target_location_id,
+            ),
+        )
+        assert shipment == expected_shipment
 
     # Verify that another_detail_id is not updated (invalid location)
-    # Test case 3.2.38
-    shipment = assert_successful_request(
-        client,
-        _create_mutation(
-            detail_id=another_detail_id,
-            target_product_id=target_product_id,
-            target_location_id=default_location["id"],
-        ),
-    )
-    assert shipment == expected_shipment
+    # Test cases 3.2.38ab
+    for location in [default_location, {"id": 0}]:
+        shipment = assert_successful_request(
+            client,
+            _create_mutation(
+                detail_id=another_detail_id,
+                target_product_id=target_product_id,
+                target_location_id=location["id"],
+            ),
+        )
+        assert shipment == expected_shipment
 
     # Test case 3.2.40, 3.2.34b
     box_label_identifier = marked_for_shipment_box["label_identifier"]
@@ -706,3 +709,15 @@ def test_shipment_mutations_update_checked_in_boxes_when_shipment_in_non_sent_st
         target_location=another_location,
         target_product=another_product,
     )
+
+
+def test_shipment_mutations_create_non_existent_resource(
+    read_only_client, default_bases
+):
+    # Test case 3.2.5
+    mutation = _generate_create_shipment_mutation(
+        source_base=default_bases[1],
+        target_base=default_bases[3],
+        agreement={"id": 0},
+    )
+    assert_bad_user_input(read_only_client, mutation)

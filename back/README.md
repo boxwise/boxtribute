@@ -251,6 +251,7 @@ and inspect the reported output. Open the HTML report via `back/htmlcov/index.ht
 
 The back-end exposes the GraphQL API at the `/graphql` endpoint. You can experiment with the API in the GraphQL playground.
 
+1. Set `export FLASK_ENV=development`
 1. Start the required services by `docker-compose up webapp db`
 1. Open `localhost:5005/graphql`.
 1. Simulate being a valid, logged-in user by fetching an authorization token (internally the variables of the `.env` file are used): `./fetch_token`
@@ -274,6 +275,8 @@ In production, the web app is run by the WSGI server `gunicorn` which serves as 
 Launch the production server by
 
     FLASK_ENV=production docker-compose up --build webapp
+
+In production mode, inspection of the GraphQL server is disabled, i.e. it's not possible to run the GraphQL playground.
 
 ## Performance evaluation
 

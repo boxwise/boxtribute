@@ -7,7 +7,7 @@ from flask import Blueprint, jsonify, request
 from flask_cors import cross_origin
 
 from .auth import requires_auth
-from .exceptions import AuthenticationFailed
+from .exceptions import AuthenticationFailed, format_database_errors
 from .graph_ql.schema import schema
 
 # Blueprint for API
@@ -67,7 +67,12 @@ def graphql_server():
 
     debug_graphql = bool(os.getenv("DEBUG_GRAPHQL", False))
     success, result = graphql_sync(
-        schema, data, context_value=request, debug=debug_graphql
+        schema,
+        data,
+        context_value=request,
+        debug=debug_graphql,
+        introspection=os.getenv("FLASK_ENV") == "development",
+        error_formatter=format_database_errors,
     )
 
     status_code = 200 if success else 400

@@ -1,3 +1,29 @@
+import ariadne
+import peewee
+
+
+def format_database_errors(error, debug=False):
+    """Custom formatting of peewee errors (indicating a missing resource) to avoid SQL
+    queries from being exposed to the client.
+    In the resulting response, the corresponding field for `data` will be None, and the
+    `errors` list will have a single entry.
+    """
+    if debug:  # pragma: no cover
+        return ariadne.format_error(error, debug)
+
+    if isinstance(error.original_error, (peewee.DoesNotExist, peewee.IntegrityError)):
+        # IntegrityError is raised when foreign key ID does not exist.
+        error.message = ""  # setting `error.formatted["message"] = ""` has no effect
+        error.extensions = RequestedResourceNotFound.extensions
+    elif isinstance(error.original_error, peewee.PeeweeException):
+        error.message = ""
+        error.extensions = {
+            "code": "INTERNAL_SERVER_ERROR",
+            "description": "The database failed to perform the requested action.",
+        }
+    return error.formatted
+
+
 class AuthenticationFailed(Exception):
     """Custom exception for authentication errors on web API level (i.e. when
     hitting a Flask server endpoint).
