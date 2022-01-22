@@ -3,7 +3,13 @@
 // https://www.youtube.com/watch?v=FROhOGcnQxs
 
 import React, { useState, useEffect, ReactNode } from "react";
-import { ApolloClient, InMemoryCache, HttpLink, ApolloProvider } from "@apollo/client";
+import {
+  ApolloClient,
+  InMemoryCache,
+  HttpLink,
+  ApolloProvider,
+  DefaultOptions,
+} from "@apollo/client";
 import { setContext } from "@apollo/client/link/context";
 import { useAuth0 } from "@auth0/auth0-react";
 
@@ -35,9 +41,19 @@ function ApolloWrapper({ children }: { children: ReactNode }) {
     };
   });
 
+  const defaultOptions: DefaultOptions = {
+    query: {
+      errorPolicy: "all",
+    },
+    mutate: {
+      errorPolicy: "all",
+    },
+  };
+
   const client = new ApolloClient({
     cache: new InMemoryCache(),
     link: auth0Link.concat(httpLink),
+    defaultOptions,
   });
 
   return <ApolloProvider client={client}>{children}</ApolloProvider>;
