@@ -322,20 +322,15 @@ def resolve_update_box(_, info, box_update_input):
 @convert_kwargs_to_snake_case
 def resolve_create_beneficiary(_, info, creation_input):
     authorize(permission="beneficiary:create", base_id=creation_input["base_id"])
-    creation_input["created_by"] = g.user["id"]
-    return create_beneficiary(creation_input)
+    return create_beneficiary(**creation_input, user=g.user)
 
 
 @mutation.field("updateBeneficiary")
 @convert_kwargs_to_snake_case
 def resolve_update_beneficiary(_, info, update_input):
     # Use target base ID if specified, otherwise skip enforcing base-specific authz
-    authorize(
-        permission="beneficiary:edit",
-        base_id=update_input.get("base_id"),
-    )
-    update_input["last_modified_by"] = g.user["id"]
-    return update_beneficiary(update_input)
+    authorize(permission="beneficiary:edit", base_id=update_input.get("base_id"))
+    return update_beneficiary(**update_input, user=g.user)
 
 
 @mutation.field("createTransferAgreement")

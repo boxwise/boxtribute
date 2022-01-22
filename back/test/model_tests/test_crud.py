@@ -56,7 +56,7 @@ def test_box_label_identifier_generation(
     assert new_box.label_identifier == new_identifier
 
 
-def test_update_beneficiary(default_beneficiary, default_bases):
+def test_update_beneficiary(default_beneficiary, default_bases, default_user):
     """Complement anything not yet covered by endpoint tests."""
     base_id = default_bases[2]["id"]
     data = {
@@ -64,6 +64,6 @@ def test_update_beneficiary(default_beneficiary, default_bases):
         "base_id": base_id,
         "family_head_id": default_beneficiary["id"],
     }
-    beneficiary = update_beneficiary(data)
+    beneficiary = update_beneficiary(**data, user=default_user)
     assert beneficiary.id == beneficiary.family_head_id
     assert beneficiary.base_id == base_id

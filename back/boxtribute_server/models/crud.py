@@ -61,28 +61,43 @@ def update_box(data):
     return box
 
 
-def create_beneficiary(data):
+def create_beneficiary(
+    *,
+    user,
+    first_name,
+    last_name,
+    base_id,
+    group_identifier,
+    date_of_birth,
+    gender,
+    is_volunteer,
+    is_registered,
+    comment="",
+    languages=None,
+    family_head_id=None,
+    signature=None,
+    date_of_signature=None,
+):
     """Insert information for a new Beneficiary in the database. Update the
     languages in the corresponding cross-reference table.
     """
     now = utcnow()
-    language_ids = data.pop("languages", [])
-    family_head_id = data.pop("family_head_id", None)
-
-    # Set is_signed field depending on signature
-    data["is_signed"] = data.get("signature") is not None
-
-    # Convert to gender abbreviation
-    gender = data.pop("gender").value
-
     new_beneficiary = Beneficiary.create(
-        base=data.pop("base_id"),
+        first_name=first_name,
+        last_name=last_name,
+        base=base_id,
+        group_identifier=group_identifier,
+        date_of_birth=date_of_birth,
+        gender=gender.value,  # convert to gender abbreviation
+        is_volunteer=is_volunteer,
+        not_registered=not is_registered,
+        is_signed=signature is not None,  # set depending on signature
+        comment=comment,
         family_head=family_head_id,
-        not_registered=not data.pop("is_registered"),
-        gender=gender,
         created_on=now,
+        created_by=user["id"],
         last_modified_on=now,
-        last_modified_by=data["created_by"],
+        last_modified_by=user["id"],
         # This is only required for compatibility with legacy DB
         seq=1 if family_head_id is None else 2,
         # These fields are required acc. to model definition
@@ -90,54 +105,61 @@ def create_beneficiary(data):
         family_id=0,
         bicycle_ban_comment="",
         workshop_ban_comment="",
-        **data,
     )
-    for language_id in language_ids:
+    for language_id in languages or []:
         XBeneficiaryLanguage.create(
             language=language_id, beneficiary=new_beneficiary.id
         )
     return new_beneficiary
 
 
-def update_beneficiary(data):
+def update_beneficiary(
+    *,
+    user,
+    id,
+    base_id=None,
+    languages=None,
+    family_head_id=None,
+    is_registered=None,
+    signature=None,
+    **data,
+):
     """Look up an existing Beneficiary given an ID, and update all requested fields,
     including the language cross-reference.
     Insert timestamp for modification and return the beneficiary.
     """
-    beneficiary_id = data.pop("id")
-    beneficiary = Beneficiary.get_by_id(beneficiary_id)
+    beneficiary = Beneficiary.get_by_id(id)
 
-    # Handle any items with keys not matching the Model fields by popping off
-    base_id = data.pop("base_id", None)
+    # Handle any items with keys not matching the Model fields
     if base_id is not None:
         beneficiary.base = base_id
 
-    family_head_id = data.pop("family_head_id", None)
     if family_head_id is not None:
         beneficiary.family_head = family_head_id
     beneficiary.seq = 1 if family_head_id is None else 2
 
-    registered = data.pop("is_registered", None)
-    if registered is not None:
-        beneficiary.not_registered = not registered
+    if is_registered is not None:
+        beneficiary.not_registered = not is_registered
 
-    if data.get("signature") is not None:
+    if signature is not None:
         beneficiary.is_signed = True
+        beneficiary.signature = signature
 
-    language_ids = data.pop("languages", [])
+    language_ids = languages or []
     if language_ids:
         XBeneficiaryLanguage.delete().where(
-            XBeneficiaryLanguage.beneficiary == beneficiary_id
+            XBeneficiaryLanguage.beneficiary == id
         ).execute()
         for language_id in language_ids:
-            XBeneficiaryLanguage.create(
-                language=language_id, beneficiary=beneficiary_id
-            )
+            XBeneficiaryLanguage.create(language=language_id, beneficiary=id)
 
+    # Set first_name, last_name, group_identifier, date_of_birth, comment, is_volunteer,
+    # date_of_signature if specified via GraphQL input
     for field, value in data.items():
         setattr(beneficiary, field, value)
 
     beneficiary.last_modified_on = utcnow()
+    beneficiary.last_modified_by = user["id"]
     beneficiary.save()
     return beneficiary
 
