@@ -1,8 +1,14 @@
-def _assert_erroneous_request(client, query):
+def _assert_erroneous_request(client, query, *, code, **kwargs):
+    """Assertion utility that posts the given query via a client fixture.
+    Assert presence of error code in response.
+    `kwargs` are forwarded to `_verify_response_data()`.
+    """
     data = {"query": query}
     response = client.post("/graphql", json=data)
     assert response.status_code == 200
     assert len(response.json["errors"]) == 1
+    assert response.json["errors"][0]["extensions"]["code"] == code
+    _verify_response_data(query=query, response=response, **kwargs)
     return response
 
 
@@ -21,17 +27,6 @@ def _verify_response_data(*, query, response, field=None, none_data=False, value
             assert response.json["data"][field] == value
 
 
-def assert_bad_user_input(client, query, **kwargs):
-    """Send GraphQL request with query using given client.
-    Assert that single BAD_USER_INPUT error is returned in response.
-    `kwargs` are forwarded to `_verify_response_data()`.
-    """
-    response = _assert_erroneous_request(client, query)
-    assert response.json["errors"][0]["extensions"]["code"] == "BAD_USER_INPUT"
-    _verify_response_data(query=query, response=response, **kwargs)
-    return response
-
-
 def _extract_field(query):
     """Extract field name, e.g. 'updateShipment' from a query like
        mutation { updateShipment(id: 1) { state } }
@@ -41,14 +36,18 @@ def _extract_field(query):
     return query.split("{")[1].split("(")[0].strip()
 
 
-def assert_forbidden_request(client, query, **kwargs):
-    """Assertion utility that posts the given data via a client fixture.
-    Assert that single FORBIDDEN error is returned in response.
-    `kwargs` are forwarded to `_verify_response_data()`.
+def assert_bad_user_input(client, query, **kwargs):
+    """Send GraphQL request with query using given client.
+    Assert that single BAD_USER_INPUT error is returned in response.
     """
-    response = _assert_erroneous_request(client, query)
-    assert response.json["errors"][0]["extensions"]["code"] == "FORBIDDEN"
-    _verify_response_data(query=query, response=response, **kwargs)
+    return _assert_erroneous_request(client, query, code="BAD_USER_INPUT", **kwargs)
+
+
+def assert_forbidden_request(client, query, **kwargs):
+    """Send GraphQL request with query using given client.
+    Assert that single FORBIDDEN error is returned in response.
+    """
+    return _assert_erroneous_request(client, query, code="FORBIDDEN", **kwargs)
 
 
 def assert_successful_request(client, query, field=None):
