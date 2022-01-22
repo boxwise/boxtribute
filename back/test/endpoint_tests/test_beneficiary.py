@@ -72,57 +72,86 @@ def test_beneficiary_mutations(client):
     last_name = "Body"
     dos = "2021-09-09"
     language = "nl"
+    signature = first_name
     mutation = f"""mutation {{
             updateBeneficiary(
                 updateInput : {{
                     id: {beneficiary_id},
                     lastName: "{last_name}",
-                    signature: "{first_name}",
+                    signature: "{signature}",
                     dateOfSignature: "{dos}"
                     languages: [{language}],
                     isVolunteer: false,
                     isRegistered: true
                 }} ) {{
                 id
-                lastName
-                base {{ id }}
-                languages
-                isVolunteer
-                isSigned
-                isRegistered
-                signature
-                dateOfSignature
-                createdOn
-                lastModifiedOn
             }}
         }}"""
     updated_beneficiary = assert_successful_request(client, mutation)
-    assert updated_beneficiary["id"] == beneficiary_id
-    assert updated_beneficiary["lastName"] == last_name
-    assert int(updated_beneficiary["base"]["id"]) == base_id
-    assert updated_beneficiary["languages"] == [language]
-    assert not updated_beneficiary["isVolunteer"]
-    assert updated_beneficiary["isSigned"]
-    assert updated_beneficiary["isRegistered"]
-    assert updated_beneficiary["signature"] == first_name
-    assert updated_beneficiary["dateOfSignature"] == dos
-    assert updated_beneficiary["createdOn"] == created_beneficiary["createdOn"]
+    assert updated_beneficiary == {"id": beneficiary_id}
+
+    first_name = "Foo"
+    dob = "2001-01-01"
+    base_id = 1
+    group_id = "1235"
+    gender = "Male"
+    comment = "cool dude"
+    mutation = f"""mutation {{
+            updateBeneficiary(
+                updateInput : {{
+                    id: {beneficiary_id},
+                    firstName: "{first_name}",
+                    baseId: {base_id},
+                    groupIdentifier: "{group_id}",
+                    dateOfBirth: "{dob}",
+                    comment: "{comment}",
+                    gender: {gender},
+                    familyHeadId: {beneficiary_id}
+                }}) {{
+                id
+            }} }}"""
+    updated_beneficiary = assert_successful_request(client, mutation)
+    assert updated_beneficiary == {"id": beneficiary_id}
 
     query = f"""query {{
         beneficiary(id: {beneficiary_id}) {{
-            comment
+            firstName
             lastName
-            lastModifiedOn
+            dateOfBirth
+            comment
+            base {{ id }}
+            groupIdentifier
+            gender
+            languages
+            familyHead {{ id }}
+            isVolunteer
+            isSigned
+            isRegistered
+            signature
+            dateOfSignature
             tokens
+            createdOn
         }}
     }}"""
     queried_beneficiary = assert_successful_request(client, query)
-    assert queried_beneficiary["comment"] == comment
-    assert queried_beneficiary["lastName"] == last_name
-    assert queried_beneficiary["tokens"] == 0
-    assert (
-        queried_beneficiary["lastModifiedOn"] == updated_beneficiary["lastModifiedOn"]
-    )
+    assert queried_beneficiary == {
+        "firstName": first_name,
+        "lastName": last_name,
+        "dateOfBirth": dob,
+        "comment": comment,
+        "base": {"id": str(base_id)},
+        "groupIdentifier": group_id,
+        "gender": gender,
+        "languages": [language],
+        "familyHead": {"id": beneficiary_id},
+        "isVolunteer": False,
+        "isSigned": True,
+        "isRegistered": True,
+        "signature": signature,
+        "dateOfSignature": f"{dos}T00:00:00",
+        "tokens": 0,
+        "createdOn": created_beneficiary["createdOn"],
+    }
 
 
 @pytest.mark.parametrize(
