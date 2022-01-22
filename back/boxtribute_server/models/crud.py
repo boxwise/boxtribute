@@ -106,10 +106,12 @@ def create_beneficiary(
         bicycle_ban_comment="",
         workshop_ban_comment="",
     )
-    for language_id in languages or []:
-        XBeneficiaryLanguage.create(
-            language=language_id, beneficiary=new_beneficiary.id
-        )
+
+    language_ids = languages or []
+    XBeneficiaryLanguage.insert_many(
+        [{"language": lid, "beneficiary": new_beneficiary.id} for lid in language_ids]
+    ).execute()
+
     return new_beneficiary
 
 
@@ -150,8 +152,9 @@ def update_beneficiary(
         XBeneficiaryLanguage.delete().where(
             XBeneficiaryLanguage.beneficiary == id
         ).execute()
-        for language_id in language_ids:
-            XBeneficiaryLanguage.create(language=language_id, beneficiary=id)
+        XBeneficiaryLanguage.insert_many(
+            [{"language": lid, "beneficiary": id} for lid in language_ids]
+        ).execute()
 
     # Set first_name, last_name, group_identifier, date_of_birth, comment, is_volunteer,
     # date_of_signature if specified via GraphQL input
