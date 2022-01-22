@@ -151,15 +151,6 @@ def update_beneficiary(
         beneficiary.is_signed = True
         beneficiary.signature = signature
 
-    language_ids = languages or []
-    if language_ids:
-        XBeneficiaryLanguage.delete().where(
-            XBeneficiaryLanguage.beneficiary == id
-        ).execute()
-        XBeneficiaryLanguage.insert_many(
-            [{"language": lid, "beneficiary": id} for lid in language_ids]
-        ).execute()
-
     # Set first_name, last_name, group_identifier, date_of_birth, comment, is_volunteer,
     # date_of_signature if specified via GraphQL input
     for field, value in data.items():
@@ -167,7 +158,18 @@ def update_beneficiary(
 
     beneficiary.last_modified_on = utcnow()
     beneficiary.last_modified_by = user["id"]
-    beneficiary.save()
+
+    with db.database.atomic():
+        language_ids = languages or []
+        if language_ids:
+            XBeneficiaryLanguage.delete().where(
+                XBeneficiaryLanguage.beneficiary == id
+            ).execute()
+            XBeneficiaryLanguage.insert_many(
+                [{"language": lid, "beneficiary": id} for lid in language_ids]
+            ).execute()
+        beneficiary.save()
+
     return beneficiary
 
 
