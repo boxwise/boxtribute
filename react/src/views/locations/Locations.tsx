@@ -26,7 +26,7 @@ interface LocationsData {
   locations: Location[];
 }
 
-const LOCATIONS_QUERY = gql`
+export const LOCATIONS_QUERY = gql`
   query {
     locations {
       id
@@ -44,7 +44,7 @@ const Locations = () => {
   return (
     <Box>
       <Heading>Locations</Heading>
-      <UnorderedList>
+      <UnorderedList data-testid="locations-list">
         {data?.locations?.map((location, i) => (
           <ListItem key={i}>
             <Link to={`/locations/${location.id}`}>{location.name}</Link>
