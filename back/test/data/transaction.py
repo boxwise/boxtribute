@@ -9,7 +9,8 @@ def default_transaction_data():
     return {
         "id": 4,
         "beneficiary": default_beneficiary_data()["id"],
-        "count": 99,
+        "count": 2,
+        "tokens": 99,
         "description": "a transaction",
         "product": default_product_data()["id"],
         "user": default_user_data()["id"],

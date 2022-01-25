@@ -27,7 +27,7 @@ class Transaction(db.Model):
         on_update="CASCADE",
     )
     description = CharField()
-    drops = IntegerField(constraints=[SQL("DEFAULT 0")])
+    tokens = IntegerField(column_name="drops", constraints=[SQL("DEFAULT 0")])
     modified = DateTimeField(null=True)
     modified_by = UIntForeignKeyField(
         model=User,

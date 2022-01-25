@@ -257,7 +257,7 @@ def resolve_beneficiary_tokens(beneficiary_obj, info):
     authorize(permission="transaction:read")
     # If the beneficiary has no transactions yet, the select query returns None
     return (
-        Transaction.select(fn.sum(Transaction.count))
+        Transaction.select(fn.sum(Transaction.tokens))
         .where(Transaction.beneficiary == beneficiary_obj.id)
         .scalar()
         or 0
