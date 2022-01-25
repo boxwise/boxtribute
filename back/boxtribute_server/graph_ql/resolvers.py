@@ -293,6 +293,11 @@ def resolve_beneficiary_age(beneficiary_obj, info):
     return today.year - dob.year - ((today.month, today.day) < (dob.month, dob.day))
 
 
+@beneficiary.field("active")
+def resolve_beneficiary_active(beneficiary_obj, info):
+    return beneficiary_obj.deleted == "0000-00-00 00:00:00"
+
+
 @box.field("state")
 def resolve_box_state(box_obj, info):
     # Instead of a BoxState instance return an integer for EnumType conversion

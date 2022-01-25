@@ -65,7 +65,7 @@ class Beneficiary(db.Model):
         on_update="CASCADE",
     )
     not_registered = IntegerField(
-        column_name="notregistered", constraints=[SQL("DEFAULT 0")]
+        column_name="notregistered", constraints=[SQL("DEFAULT 0")], default=False
     )
     family_head = UIntForeignKeyField(
         column_name="parent_id",
@@ -83,8 +83,10 @@ class Beneficiary(db.Model):
     signature = TextField(column_name="signaturefield", null=True)
     tent = CharField(constraints=[SQL("DEFAULT ''")])
     url = IntegerField(null=True)
-    visible = IntegerField(constraints=[SQL("DEFAULT 1")])
-    is_volunteer = IntegerField(column_name="volunteer", constraints=[SQL("DEFAULT 0")])
+    visible = IntegerField(constraints=[SQL("DEFAULT 1")], default=True)
+    is_volunteer = IntegerField(
+        column_name="volunteer", constraints=[SQL("DEFAULT 0")], default=False
+    )
     workshop_ban = DateField(column_name="workshopban", null=True)
     workshop_ban_comment = TextField(
         column_name="workshopbancomment",

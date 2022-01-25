@@ -149,6 +149,7 @@ type Beneficiary {
   gender: HumanGender!
   languages: [Language!]
   familyHead: Beneficiary
+  active: Boolean!
   isVolunteer: Boolean!
   isSigned: Boolean!
   isRegistered: Boolean!
