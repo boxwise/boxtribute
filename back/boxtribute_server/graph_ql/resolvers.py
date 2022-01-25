@@ -43,6 +43,7 @@ from ..models.definitions.transaction import Transaction
 from ..models.definitions.transfer_agreement import TransferAgreement
 from ..models.definitions.user import User
 from ..models.definitions.x_beneficiary_language import XBeneficiaryLanguage
+from .filtering import derive_beneficiary_filter
 from .pagination import load_into_page
 
 query = QueryType()
@@ -214,11 +215,12 @@ def resolve_products(_, info, pagination_input=None):
 
 @query.field("beneficiaries")
 @convert_kwargs_to_snake_case
-def resolve_beneficiaries(_, info, pagination_input=None):
+def resolve_beneficiaries(_, info, pagination_input=None, filter_input=None):
     authorize(permission="beneficiary:read")
+    filter_condition = derive_beneficiary_filter(filter_input)
     return load_into_page(
         Beneficiary,
-        _base_filter_condition("beneficiary:read"),
+        _base_filter_condition("beneficiary:read") & filter_condition,
         selection=Beneficiary.select().join(Base),
         pagination_input=pagination_input,
     )
@@ -456,11 +458,14 @@ def resolve_base_locations(base_obj, info):
 
 @base.field("beneficiaries")
 @convert_kwargs_to_snake_case
-def resolve_base_beneficiaries(base_obj, info, pagination_input=None):
+def resolve_base_beneficiaries(
+    base_obj, info, pagination_input=None, filter_input=None
+):
     authorize(permission="beneficiary:read")
     base_filter_condition = Beneficiary.base == base_obj.id
+    filter_condition = base_filter_condition & derive_beneficiary_filter(filter_input)
     return load_into_page(
-        Beneficiary, base_filter_condition, pagination_input=pagination_input
+        Beneficiary, filter_condition, pagination_input=pagination_input
     )
 
 

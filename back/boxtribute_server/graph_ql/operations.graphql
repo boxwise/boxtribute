@@ -15,7 +15,7 @@ type Query {
   productCategory(id: ID!): ProductCategory
   productCategories: [ProductCategory!]!
   beneficiary(id: ID!): Beneficiary
-  beneficiaries(paginationInput: PaginationInput): BeneficiaryPage!
+  beneficiaries(paginationInput: PaginationInput, filterInput: FilterBeneficiaryInput): BeneficiaryPage!
   transferAgreement(id: ID!): TransferAgreement
   """
   Without any arguments, return transfer agreements that involve client's organisation,

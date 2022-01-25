@@ -109,7 +109,7 @@ type Base {
   name: String!
   organisation: Organisation!
   locations: [Location!]
-  beneficiaries(paginationInput: PaginationInput): BeneficiaryPage!
+  beneficiaries(paginationInput: PaginationInput, filterInput: FilterBeneficiaryInput): BeneficiaryPage!
   currencyName: String
 }
 
@@ -218,6 +218,19 @@ input UpdateBeneficiaryInput {
   isRegistered: Boolean
   signature: String
   dateOfSignature: Date
+}
+
+input FilterBeneficiaryInput {
+  createdFrom: Date
+  createdUntil: Date
+  active: Boolean
+  isVolunteer: Boolean
+  isRegistered: Boolean
+  """
+  Return beneficiaries where pattern is (case-insensitive) part of first name,
+  last name, or comment, or where pattern matches the group identifier
+  """
+  pattern: String
 }
 
 input PaginationInput {
