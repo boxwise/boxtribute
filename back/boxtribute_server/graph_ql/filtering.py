@@ -1,4 +1,5 @@
 from ..models.definitions.beneficiary import Beneficiary
+from ..models.definitions.box import Box
 
 
 def derive_beneficiary_filter(filter_input):
@@ -46,4 +47,35 @@ def derive_beneficiary_filter(filter_input):
             | (Beneficiary.comment.contains(pattern))
             | (Beneficiary.group_identifier == pattern)
         )
+    return condition
+
+
+def derive_box_filter(filter_input):
+    """Derive filter condition for select-query from given filter parameters. If no
+    parameters given, return True (i.e. no filtering applied).
+    """
+    if not filter_input:
+        return True
+
+    condition = True
+    states = filter_input.get("states")
+    if states:
+        condition &= Box.state << states
+
+    last_modified_from = filter_input.get("last_modified_from")
+    if last_modified_from is not None:
+        condition &= Box.last_modified_on >= last_modified_from
+
+    last_modified_until = filter_input.get("last_modified_until")
+    if last_modified_until is not None:
+        condition &= Box.last_modified_on <= last_modified_until
+
+    product_gender = filter_input.get("product_gender")
+    if product_gender is not None:
+        condition &= Box.product.gender == product_gender
+
+    product_category_id = filter_input.get("product_category_id")
+    if product_category_id is not None:
+        condition &= Box.product.category == product_category_id
+
     return condition

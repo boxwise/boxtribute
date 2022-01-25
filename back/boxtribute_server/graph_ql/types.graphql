@@ -89,7 +89,7 @@ type Location {
   name: String
   isShop: Boolean!
   # List of all the boxes in the location
-  boxes(paginationInput: PaginationInput): BoxPage
+  boxes(paginationInput: PaginationInput, filterInput: FilterBoxInput): BoxPage
   boxState: BoxState
   createdOn: Datetime
   # The user who generated QR code
@@ -231,6 +231,14 @@ input FilterBeneficiaryInput {
   last name, or comment, or where pattern matches the group identifier
   """
   pattern: String
+}
+
+input FilterBoxInput {
+  states: [BoxState!]
+  lastModifiedFrom: Date
+  lastModifiedUntil: Date
+  productGender: ProductGender
+  productCategoryId: Int
 }
 
 input PaginationInput {

@@ -43,7 +43,7 @@ from ..models.definitions.transaction import Transaction
 from ..models.definitions.transfer_agreement import TransferAgreement
 from ..models.definitions.user import User
 from ..models.definitions.x_beneficiary_language import XBeneficiaryLanguage
-from .filtering import derive_beneficiary_filter
+from .filtering import derive_beneficiary_filter, derive_box_filter
 from .pagination import load_into_page
 
 query = QueryType()
@@ -471,11 +471,19 @@ def resolve_base_beneficiaries(
 
 @location.field("boxes")
 @convert_kwargs_to_snake_case
-def resolve_location_boxes(location_obj, info, pagination_input=None):
+def resolve_location_boxes(
+    location_obj, info, pagination_input=None, filter_input=None
+):
     authorize(permission="stock:read")
     location_filter_condition = Box.location == location_obj.id
+    filter_condition = location_filter_condition & derive_box_filter(filter_input)
+    selection = Box.select()
+    if filter_input is not None and any(
+        [f in filter_input for f in ["product_gender", "product_category_id"]]
+    ):
+        selection = Box.select().join(Product)
     return load_into_page(
-        Box, location_filter_condition, pagination_input=pagination_input
+        Box, filter_condition, selection=selection, pagination_input=pagination_input
     )
 
 
