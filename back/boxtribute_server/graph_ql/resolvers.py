@@ -1,4 +1,6 @@
 """GraphQL resolver functionality"""
+from datetime import date
+
 from ariadne import MutationType, ObjectType, QueryType, convert_kwargs_to_snake_case
 from peewee import fn
 
@@ -280,6 +282,14 @@ def resolve_beneficiary_languages(beneficiary_obj, info):
 @beneficiary.field("gender")
 def resolve_beneficiary_gender(beneficiary_obj, info):
     return HumanGender(beneficiary_obj.gender)
+
+
+@beneficiary.field("age")
+def resolve_beneficiary_age(beneficiary_obj, info):
+    today = date.today()
+    dob = beneficiary_obj.date_of_birth
+    # Subtract 1 if current day is before birthday in current year
+    return today.year - dob.year - ((today.month, today.day) < (dob.month, dob.day))
 
 
 @box.field("state")

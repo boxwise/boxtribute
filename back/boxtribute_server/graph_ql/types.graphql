@@ -142,6 +142,7 @@ type Beneficiary {
   firstName: String!
   lastName: String!
   dateOfBirth: Date!
+  age: Int!
   comment: String
   base: Base!
   groupIdentifier: String!

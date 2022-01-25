@@ -1,3 +1,5 @@
+from datetime import date
+
 import pytest
 from utils import assert_successful_request
 
@@ -5,7 +7,8 @@ from utils import assert_successful_request
 def test_beneficiary_mutations(client):
     first_name = "Some"
     last_name = "One"
-    dob = "2000-01-01"
+    dob_year = 2000
+    dob = f"{dob_year}-01-01"
     base_id = 1
     group_id = "1234"
     gender = "Diverse"
@@ -32,6 +35,7 @@ def test_beneficiary_mutations(client):
                 firstName
                 lastName
                 dateOfBirth
+                age
                 comment
                 base {{ id }}
                 groupIdentifier
@@ -55,6 +59,7 @@ def test_beneficiary_mutations(client):
     assert created_beneficiary["firstName"] == first_name
     assert created_beneficiary["lastName"] == last_name
     assert created_beneficiary["dateOfBirth"] == dob
+    assert created_beneficiary["age"] == date.today().year - dob_year
     assert created_beneficiary["comment"] == comment
     assert int(created_beneficiary["base"]["id"]) == base_id
     assert created_beneficiary["groupIdentifier"] == group_id
