@@ -4,7 +4,6 @@ from ...db import db
 from ..fields import UIntForeignKeyField
 from .beneficiary import Beneficiary
 from .product import Product
-from .size import Size
 from .user import User
 
 
@@ -44,9 +43,6 @@ class Transaction(db.Model):
         model=Product,
         null=True,
         on_update="CASCADE",
-    )
-    size = UIntForeignKeyField(
-        column_name="size_id", field="id", model=Size, null=True, on_update="CASCADE"
     )
     transaction_date = DateTimeField(index=True)
     user = UIntForeignKeyField(
