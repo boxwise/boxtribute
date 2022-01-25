@@ -20,7 +20,7 @@ from ..box_transfer.shipment import (
     send_shipment,
     update_shipment,
 )
-from ..enums import HumanGender, TransferAgreementState, TransferAgreementType
+from ..enums import HumanGender, TransferAgreementType
 from ..models.crud import (
     create_beneficiary,
     create_box,
@@ -228,13 +228,14 @@ def resolve_beneficiaries(_, info, pagination_input=None):
 def resolve_transfer_agreements(_, info, states=None):
     authorize(permission="transfer_agreement:read")
     user_organisation_id = g.user["organisation_id"]
-    states = states or list(TransferAgreementState)
+    # No state filter by default
+    state_filter = TransferAgreement.state << states if states else True
     return TransferAgreement.select().where(
         (
             (TransferAgreement.source_organisation == user_organisation_id)
             | (TransferAgreement.target_organisation == user_organisation_id)
         )
-        & (TransferAgreement.state << states)
+        & (state_filter)
     )
 
 
