@@ -14,6 +14,10 @@ def serialize_datetime(value):
 
 @date_scalar.serializer
 def serialize_date(value):
+    if value == "0000-00-00 00:00:00":
+        # A NULL value in a DateTimeField is represented by the zero-date string which
+        # cannot be converted to a reasonable Python datetime
+        return
     return value.isoformat()
 
 
