@@ -1,7 +1,54 @@
 from datetime import date
 
 import pytest
+from boxtribute_server.enums import HumanGender
 from utils import assert_successful_request
+
+
+def _generate_beneficiary_query(id):
+    return f"""query {{
+        beneficiary(id: {id}) {{
+            firstName
+            lastName
+            dateOfBirth
+            comment
+            base {{ id }}
+            groupIdentifier
+            gender
+            languages
+            familyHead {{ id }}
+            isVolunteer
+            isSigned
+            isRegistered
+            signature
+            dateOfSignature
+            tokens
+            createdOn
+        }}
+    }}"""
+
+
+def test_beneficiary_query(read_only_client, default_beneficiary, default_transaction):
+    query = _generate_beneficiary_query(default_beneficiary["id"])
+    beneficiary = assert_successful_request(read_only_client, query)
+    assert beneficiary == {
+        "firstName": default_beneficiary["first_name"],
+        "lastName": default_beneficiary["last_name"],
+        "dateOfBirth": default_beneficiary["date_of_birth"].isoformat(),
+        "comment": default_beneficiary["comment"],
+        "base": {"id": str(default_beneficiary["base"])},
+        "groupIdentifier": default_beneficiary["group_identifier"],
+        "gender": HumanGender(default_beneficiary["gender"]).name,
+        "languages": [],
+        "familyHead": None,
+        "isVolunteer": False,
+        "isSigned": False,
+        "isRegistered": True,
+        "signature": None,
+        "dateOfSignature": None,
+        "tokens": default_transaction["tokens"],
+        "createdOn": default_beneficiary["created_on"].isoformat() + "+00:00",
+    }
 
 
 def test_beneficiary_mutations(client):
@@ -118,26 +165,7 @@ def test_beneficiary_mutations(client):
     updated_beneficiary = assert_successful_request(client, mutation)
     assert updated_beneficiary == {"id": beneficiary_id}
 
-    query = f"""query {{
-        beneficiary(id: {beneficiary_id}) {{
-            firstName
-            lastName
-            dateOfBirth
-            comment
-            base {{ id }}
-            groupIdentifier
-            gender
-            languages
-            familyHead {{ id }}
-            isVolunteer
-            isSigned
-            isRegistered
-            signature
-            dateOfSignature
-            tokens
-            createdOn
-        }}
-    }}"""
+    query = _generate_beneficiary_query(beneficiary_id)
     queried_beneficiary = assert_successful_request(client, query)
     assert queried_beneficiary == {
         "firstName": first_name,
