@@ -24,6 +24,16 @@ def _generate_beneficiary_query(id):
             dateOfSignature
             tokens
             createdOn
+            transactions {{
+                id
+                beneficiary {{ id }}
+                product {{ id }}
+                count
+                description
+                tokens
+                createdBy {{ id }}
+                createdOn
+            }}
         }}
     }}"""
 
@@ -48,6 +58,18 @@ def test_beneficiary_query(read_only_client, default_beneficiary, default_transa
         "dateOfSignature": None,
         "tokens": default_transaction["tokens"],
         "createdOn": default_beneficiary["created_on"].isoformat() + "+00:00",
+        "transactions": [
+            {
+                "id": str(default_transaction["id"]),
+                "beneficiary": {"id": str(default_beneficiary["id"])},
+                "product": {"id": str(default_transaction["product"])},
+                "count": default_transaction["count"],
+                "description": default_transaction["description"],
+                "tokens": default_transaction["tokens"],
+                "createdBy": {"id": str(default_transaction["created_by"])},
+                "createdOn": default_transaction["created_on"].isoformat() + "+00:00",
+            }
+        ],
     }
 
 
@@ -184,6 +206,7 @@ def test_beneficiary_mutations(client):
         "dateOfSignature": f"{dos}T00:00:00",
         "tokens": 0,
         "createdOn": created_beneficiary["createdOn"],
+        "transactions": [],
     }
 
 

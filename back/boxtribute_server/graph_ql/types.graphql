@@ -156,10 +156,22 @@ type Beneficiary {
   signature: String
   dateOfSignature: Date
   tokens: Int
+  transactions: [Transaction!]
   createdBy: User!
   createdOn: Datetime!
   lastModifiedBy: User!
   lastModifiedOn: Datetime!
+}
+
+type Transaction {
+  id: ID!
+  beneficiary: Beneficiary!
+  product: Product
+  count: Int
+  tokens: Int
+  description: String
+  createdOn: Datetime!
+  createdBy: User!
 }
 
 type PageInfo {
