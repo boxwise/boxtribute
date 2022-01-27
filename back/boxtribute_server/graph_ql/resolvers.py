@@ -273,8 +273,8 @@ def resolve_beneficiary_transactions(beneficiary_obj, info):
     return Transaction.select().where(Transaction.beneficiary == beneficiary_obj.id)
 
 
-@beneficiary.field("isRegistered")
-def resolve_beneficiary_is_registered(beneficiary_obj, info):
+@beneficiary.field("registered")
+def resolve_beneficiary_registered(beneficiary_obj, info):
     return not beneficiary_obj.not_registered
 
 

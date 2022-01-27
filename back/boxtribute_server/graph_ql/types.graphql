@@ -151,8 +151,8 @@ type Beneficiary {
   familyHead: Beneficiary
   active: Boolean!
   isVolunteer: Boolean!
-  isSigned: Boolean!
-  isRegistered: Boolean!
+  signed: Boolean!
+  registered: Boolean!
   signature: String
   dateOfSignature: Date
   tokens: Int
@@ -210,7 +210,7 @@ input CreateBeneficiaryInput {
   languages: [Language!]
   familyHeadId: Int
   isVolunteer: Boolean!
-  isRegistered: Boolean!
+  registered: Boolean!
   signature: String
   dateOfSignature: Date
 }
@@ -227,7 +227,7 @@ input UpdateBeneficiaryInput {
   languages: [Language!]
   familyHeadId: Int
   isVolunteer: Boolean
-  isRegistered: Boolean
+  registered: Boolean
   signature: String
   dateOfSignature: Date
 }
@@ -237,7 +237,7 @@ input FilterBeneficiaryInput {
   createdUntil: Date
   active: Boolean
   isVolunteer: Boolean
-  isRegistered: Boolean
+  registered: Boolean
   """
   Return beneficiaries where pattern is (case-insensitive) part of first name,
   last name, or comment, or where pattern matches the group identifier

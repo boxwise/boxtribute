@@ -7,9 +7,7 @@ from .user import User
 
 
 class Beneficiary(db.Model):
-    is_signed = IntegerField(
-        column_name="approvalsigned", constraints=[SQL("DEFAULT 0")]
-    )
+    signed = IntegerField(column_name="approvalsigned", constraints=[SQL("DEFAULT 0")])
     bicycle_ban = DateField(column_name="bicycleban", null=True)
     bicycle_ban_comment = TextField(
         column_name="bicyclebancomment",

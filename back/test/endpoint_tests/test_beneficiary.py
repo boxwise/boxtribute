@@ -18,8 +18,8 @@ def _generate_beneficiary_query(id):
             languages
             familyHead {{ id }}
             isVolunteer
-            isSigned
-            isRegistered
+            signed
+            registered
             signature
             dateOfSignature
             tokens
@@ -52,8 +52,8 @@ def test_beneficiary_query(read_only_client, default_beneficiary, default_transa
         "languages": [],
         "familyHead": None,
         "isVolunteer": False,
-        "isSigned": False,
-        "isRegistered": True,
+        "signed": False,
+        "registered": True,
         "signature": None,
         "dateOfSignature": None,
         "tokens": default_transaction["tokens"],
@@ -94,7 +94,7 @@ def test_beneficiary_mutations(client):
                     gender: {gender},
                     languages: [{','.join(languages)}],
                     isVolunteer: true,
-                    isRegistered: false
+                    registered: false
                 }}"""
     mutation = f"""mutation {{
             createBeneficiary(
@@ -112,8 +112,8 @@ def test_beneficiary_mutations(client):
                 languages
                 familyHead {{ id }}
                 isVolunteer
-                isSigned
-                isRegistered
+                signed
+                registered
                 signature
                 dateOfSignature
                 createdOn
@@ -136,8 +136,8 @@ def test_beneficiary_mutations(client):
     assert created_beneficiary["languages"] == languages
     assert created_beneficiary["familyHead"] is None
     assert created_beneficiary["isVolunteer"]
-    assert not created_beneficiary["isSigned"]
-    assert not created_beneficiary["isRegistered"]
+    assert not created_beneficiary["signed"]
+    assert not created_beneficiary["registered"]
     assert created_beneficiary["signature"] is None
     assert created_beneficiary["dateOfSignature"] is None
     assert created_beneficiary["createdOn"] == created_beneficiary["lastModifiedOn"]
@@ -156,7 +156,7 @@ def test_beneficiary_mutations(client):
                     dateOfSignature: "{dos}"
                     languages: [{language}],
                     isVolunteer: false,
-                    isRegistered: true
+                    registered: true
                 }} ) {{
                 id
             }}
@@ -200,8 +200,8 @@ def test_beneficiary_mutations(client):
         "languages": [language],
         "familyHead": {"id": beneficiary_id},
         "isVolunteer": False,
-        "isSigned": True,
-        "isRegistered": True,
+        "signed": True,
+        "registered": True,
         "signature": signature,
         "dateOfSignature": f"{dos}T00:00:00",
         "tokens": 0,
@@ -269,17 +269,17 @@ def _format(parameter):
         [[{"active": "false"}], 1],
         [[{"isVolunteer": "true"}], 1],
         [[{"isVolunteer": "false"}], 1],
-        [[{"isRegistered": "true"}], 1],
-        [[{"isRegistered": "false"}], 1],
+        [[{"registered": "true"}], 1],
+        [[{"registered": "false"}], 1],
         [[{"pattern": '"Body"'}], 2],
         [[{"pattern": '"fun"'}], 1],
         [[{"pattern": '"Z"'}], 0],
         [[{"pattern": '"1234"'}], 2],
         [[{"pattern": '"123"'}], 0],
         [[{"createdFrom": '"2020-01-01"'}, {"active": "true"}], 1],
-        [[{"active": "true"}, {"isRegistered": "false"}], 0],
+        [[{"active": "true"}, {"registered": "false"}], 0],
         [[{"active": "false"}, {"pattern": '"no"'}], 1],
-        [[{"isVolunteer": "true"}, {"isRegistered": "true"}], 0],
+        [[{"isVolunteer": "true"}, {"registered": "true"}], 0],
     ],
     ids=_format,
 )
@@ -290,13 +290,13 @@ def test_beneficiaries_filtered_query(read_only_client, filters, number):
                     id
                     active
                     isVolunteer
-                    isRegistered
+                    registered
                 }} }} }}"""
     beneficiaries = assert_successful_request(read_only_client, query)["elements"]
     assert len(beneficiaries) == number
 
     for f in filters:
-        for name in ["active", "isVolunteer", "isRegistered"]:
+        for name in ["active", "isVolunteer", "registered"]:
             if name in f:
                 value = f[name] == "true"
                 assert [b[name] for b in beneficiaries] == number * [value]

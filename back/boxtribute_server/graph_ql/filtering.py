@@ -33,10 +33,10 @@ def derive_beneficiary_filter(filter_input):
             Beneficiary.is_volunteer if is_volunteer else ~Beneficiary.is_volunteer
         )
 
-    is_registered = filter_input.get("is_registered")
-    if is_registered is not None:
+    registered = filter_input.get("registered")
+    if registered is not None:
         condition &= (
-            ~Beneficiary.not_registered if is_registered else Beneficiary.not_registered
+            ~Beneficiary.not_registered if registered else Beneficiary.not_registered
         )
 
     pattern = filter_input.get("pattern")
