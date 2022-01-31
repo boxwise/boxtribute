@@ -1,7 +1,7 @@
 from peewee import SQL, CharField, DateField, DateTimeField, IntegerField, TextField
 
 from ...db import db
-from ..fields import UIntForeignKeyField
+from ..fields import UIntForeignKeyField, ZeroDateTimeField
 from .base import Base
 from .user import User
 
@@ -36,10 +36,8 @@ class Beneficiary(db.Model):
         on_update="CASCADE",
     )
     date_of_birth = DateField(null=True)
-    date_of_signature = DateTimeField(
-        constraints=[SQL("DEFAULT '0000-00-00 00:00:00'")]
-    )
-    deleted = DateTimeField()
+    date_of_signature = ZeroDateTimeField()
+    deleted = ZeroDateTimeField()
     email = CharField(constraints=[SQL("DEFAULT ''")])
     extra_portion = IntegerField(
         column_name="extraportion", constraints=[SQL("DEFAULT 0")]

@@ -101,7 +101,6 @@ def create_beneficiary(
         # This is only required for compatibility with legacy DB
         seq=1 if family_head_id is None else 2,
         # These fields are required acc. to model definition
-        deleted="0000-00-00 00:00:00",
         family_id=0,
         bicycle_ban_comment="",
         workshop_ban_comment="",

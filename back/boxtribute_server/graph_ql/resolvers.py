@@ -303,7 +303,7 @@ def resolve_beneficiary_age(beneficiary_obj, info):
 
 @beneficiary.field("active")
 def resolve_beneficiary_active(beneficiary_obj, info):
-    return beneficiary_obj.deleted == "0000-00-00 00:00:00"
+    return beneficiary_obj.deleted is None  # ZeroDateTimeField
 
 
 @box.field("state")
