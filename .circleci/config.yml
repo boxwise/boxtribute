@@ -31,6 +31,8 @@ jobs:
             python --version
             pyenv version
             pyenv virtualenv env
+            pyenv virtualenvs
+            exec "$SHELL"
             pyenv activate env
             python -m site
             pip install -e . -r requirements.txt
