@@ -6,7 +6,7 @@ orbs:
 jobs:
   checkout-to-workspace:
     docker:
-      - image: cimg/python:3.8-node
+      - image: cimg/python:3.8.12-node
     steps:
       - checkout
       - persist_to_workspace:
@@ -15,7 +15,7 @@ jobs:
             - .
   build-flask:
     docker:
-      - image: cimg/python:3.8
+      - image: cimg/python:3.8.12
     working_directory: ~/back
     steps:
       - attach_workspace:
@@ -26,7 +26,6 @@ jobs:
       - run:
           name: create the python virtual environment and install non-cached dependencies
           command: |
-            pyenv versions
             pyenv root
             python --version
             pyenv virtualenv env
@@ -47,7 +46,7 @@ jobs:
 
   build-and-test-react:
     docker:
-      - image: cimg/python:3.8-node
+      - image: cimg/python:3.8.12-node
     working_directory: ~/react
     steps:
       - attach_workspace:
@@ -106,7 +105,7 @@ jobs:
   # following https://circleci.com/docs/2.0/project-walkthrough/
   test-flask:
     docker:
-      - image: cimg/python:3.8
+      - image: cimg/python:3.8.12
       - image: cimg/mysql:8.0.27
         environment:
           MYSQL_ROOT_PASSWORD: dropapp_root
@@ -178,7 +177,7 @@ jobs:
       serviceName:
         type: string
     docker:
-      - image: cimg/python:3.8
+      - image: cimg/python:3.8.12
     working_directory: ~/back
     steps:
       # Attach workspace from build
