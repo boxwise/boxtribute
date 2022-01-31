@@ -32,8 +32,8 @@ jobs:
             pyenv version
             pyenv virtualenv env
             pyenv virtualenvs
-            exec "$SHELL"
-            pyenv activate env
+            ls $(pyenv root)/versions/3.8.12/envs/env/bin
+            source $(pyenv root)/versions/3.8.12/envs/env/bin/activate
             python -m site
             pip install -e . -r requirements.txt
             pip list
