@@ -29,6 +29,7 @@ jobs:
             pyenv versions
             python --version
             pip install -e . -r requirements.txt
+            pip list
       # Cache the installed packages
       - save_cache:
           key: flask-deps-{{ checksum "requirements.txt" }}
@@ -119,6 +120,7 @@ jobs:
           name: install dev dependencies for linting and testing
           command: |
             pip install -r requirements-dev.txt
+            pip list
       # - save_cache:
       #     key: flask-dev-deps-{{ checksum "requirements-dev.txt" }}
       #     paths:
