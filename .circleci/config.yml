@@ -28,8 +28,6 @@ jobs:
           command: |
             pyenv versions
             pyenv root
-            git clone https://github.com/pyenv/pyenv-virtualenv.git $(pyenv root)/plugins/pyenv-virtualenv
-            exec "$SHELL"
             python --version
             pyenv version
             pyenv virtualenv env
