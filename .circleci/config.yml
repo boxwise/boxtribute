@@ -28,6 +28,8 @@ jobs:
           command: |
             pyenv versions
             python --version
+            python -m site
+            ls -R $(pyenv root)/versions/3.8.12
             pip install -e . -r requirements.txt
             pip list
       # Cache the installed packages
