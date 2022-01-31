@@ -102,7 +102,7 @@ jobs:
   test-flask:
     docker:
       - image: cimg/python:3.8
-      - image: cimg/mysql:5.7.32
+      - image: cimg/mysql:8.0.27
         environment:
           MYSQL_ROOT_PASSWORD: dropapp_root
           MYSQL_DATABASE: dropapp_dev
