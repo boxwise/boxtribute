@@ -30,9 +30,10 @@ jobs:
             pyenv root
             python --version
             pyenv version
+            pyenv virtualenvs
             pyenv virtualenv env
             pyenv virtualenvs
-            ls $(pyenv root)/versions/3.8.12/envs/env/bin
+            ls env/bin
             source $(pyenv root)/versions/3.8.12/envs/env/bin/activate
             python -m site
             pip install -e . -r requirements.txt
