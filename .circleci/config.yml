@@ -148,7 +148,7 @@ jobs:
       - run:
           name: Install MySQL CLI; Import test data
           command: |
-            sudo apt-get install default-mysql-client
+            sudo apt-get update && sudo apt-get install -y default-mysql-client
             mysql -h 127.0.0.1 -u root -pdropapp_root dropapp_dev < init.sql
       # run tests https://circleci.com/docs/2.0/collect-test-data/#pytest
       - run:
