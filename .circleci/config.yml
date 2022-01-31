@@ -28,10 +28,13 @@ jobs:
           command: |
             pyenv versions
             pyenv root
+            git clone https://github.com/pyenv/pyenv-virtualenv.git $(pyenv root)/plugins/pyenv-virtualenv
+            exec "$SHELL"
             python --version
+            pyenv version
+            pyenv virtualenv env
+            pyenv activate env
             python -m site
-            python -m venv env
-            source env/bin/activate
             pip install -e . -r requirements.txt
             pip list
       # Cache the installed packages
@@ -123,7 +126,7 @@ jobs:
       - run:
           name: install dev dependencies for linting and testing
           command: |
-            source env/bin/activate
+            pyenv activate env
             pip install -r requirements-dev.txt
             pip list
       # - save_cache:
@@ -135,7 +138,7 @@ jobs:
       - run:
           name: run style checks on Python files
           command: |
-            source env/bin/activate
+            pyenv activate env
             pre-commit run --files **/*.py
       - save_cache:
           key: precommit-deps-{{ checksum "../.pre-commit-config.yaml" }}
@@ -162,7 +165,7 @@ jobs:
       - run:
           name: Run pytest
           command: |
-            source env/bin/activate
+            pyenv activate env
             pytest --cov-report xml:test-results/coverage.xml --cov=boxtribute_server
       - store_test_results:
           path: test-results
