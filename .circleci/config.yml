@@ -29,14 +29,10 @@ jobs:
             pyenv versions
             pyenv root
             python --version
-            pyenv version
-            pyenv virtualenvs
             pyenv virtualenv env
             pyenv virtualenvs
             source $(pyenv root)/versions/3.8.12/envs/env/bin/activate
-            python -m site
             pip install -e . -r requirements.txt
-            pip list
       # Cache the installed packages
       - save_cache:
           key: flask-deps-{{ checksum "requirements.txt" }}
@@ -129,7 +125,6 @@ jobs:
           command: |
             source $(pyenv root)/versions/3.8.12/envs/env/bin/activate
             pip install -r requirements-dev.txt
-            pip list
       # - save_cache:
       #     key: flask-dev-deps-{{ checksum "requirements-dev.txt" }}
       #     paths:
