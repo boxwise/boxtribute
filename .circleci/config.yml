@@ -6,7 +6,7 @@ orbs:
 jobs:
   checkout-to-workspace:
     docker:
-      - image: cimg/python:3.8-buster-node
+      - image: cimg/python:3.8-node
     steps:
       - checkout
       - persist_to_workspace:
@@ -15,7 +15,7 @@ jobs:
             - .
   build-flask:
     docker:
-      - image: cimg/python:3.8-buster
+      - image: cimg/python:3.8
     working_directory: ~/back
     steps:
       - attach_workspace:
@@ -42,7 +42,7 @@ jobs:
 
   build-and-test-react:
     docker:
-      - image: cimg/python:3.8-buster-node
+      - image: cimg/python:3.8-node
     working_directory: ~/react
     steps:
       - attach_workspace:
@@ -101,7 +101,7 @@ jobs:
   # following https://circleci.com/docs/2.0/project-walkthrough/
   test-flask:
     docker:
-      - image: cimg/python:3.8-buster
+      - image: cimg/python:3.8
       - image: cimg/mysql:5.7.32
         environment:
           MYSQL_ROOT_PASSWORD: dropapp_root
@@ -173,7 +173,7 @@ jobs:
       serviceName:
         type: string
     docker:
-      - image: cimg/python:3.8-buster
+      - image: cimg/python:3.8
     working_directory: ~/back
     steps:
       # Attach workspace from build
