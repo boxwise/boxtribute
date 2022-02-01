@@ -295,8 +295,10 @@ def resolve_beneficiary_gender(beneficiary_obj, info):
 
 @beneficiary.field("age")
 def resolve_beneficiary_age(beneficiary_obj, info):
-    today = date.today()
     dob = beneficiary_obj.date_of_birth
+    if dob is None:
+        return
+    today = date.today()
     # Subtract 1 if current day is before birthday in current year
     return today.year - dob.year - ((today.month, today.day) < (dob.month, dob.day))
 

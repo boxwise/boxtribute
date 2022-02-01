@@ -28,7 +28,6 @@ def another_beneficiary_data():
         "first_name": "No",
         "last_name": "Body",
         "base": base_data()[0]["id"],
-        "date_of_birth": date(2000, 1, 1),
         "created_on": datetime(2021, 6, 30),
         "created_by": None,
         "family_id": 10,

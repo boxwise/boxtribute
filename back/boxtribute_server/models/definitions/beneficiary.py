@@ -35,7 +35,7 @@ class Beneficiary(db.Model):
         on_delete="SET NULL",
         on_update="CASCADE",
     )
-    date_of_birth = DateField(null=True)
+    date_of_birth = DateField(null=True, constraints=[SQL("DEFAULT NULL")])
     date_of_signature = ZeroDateTimeField()
     deleted = ZeroDateTimeField()
     email = CharField(constraints=[SQL("DEFAULT ''")])

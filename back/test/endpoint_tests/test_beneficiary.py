@@ -38,7 +38,9 @@ def _generate_beneficiary_query(id):
     }}"""
 
 
-def test_beneficiary_query(read_only_client, default_beneficiary, default_transaction):
+def test_beneficiary_query(
+    read_only_client, default_beneficiary, another_beneficiary, default_transaction
+):
     query = _generate_beneficiary_query(default_beneficiary["id"])
     beneficiary = assert_successful_request(read_only_client, query)
     assert beneficiary == {
@@ -71,6 +73,13 @@ def test_beneficiary_query(read_only_client, default_beneficiary, default_transa
             }
         ],
     }
+
+    beneficiary_id = another_beneficiary["id"]
+    query = f"""query {{ beneficiary(id: {beneficiary_id}) {{
+                age
+                dateOfBirth }} }}"""
+    beneficiary = assert_successful_request(read_only_client, query)
+    assert beneficiary == {"age": None, "dateOfBirth": None}
 
 
 def test_beneficiary_mutations(client):
