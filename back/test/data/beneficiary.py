@@ -42,9 +42,14 @@ def another_beneficiary_data():
     }
 
 
-@pytest.fixture()
+@pytest.fixture
 def default_beneficiary():
     return default_beneficiary_data()
+
+
+@pytest.fixture
+def another_beneficiary():
+    return another_beneficiary_data()
 
 
 def create():
