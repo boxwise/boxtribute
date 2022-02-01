@@ -1,3 +1,4 @@
+import pytest
 from boxtribute_server.enums import BoxState
 from utils import assert_successful_request
 
@@ -100,3 +101,50 @@ def test_box_mutations(client, qr_code_without_box):
     updated_box = assert_successful_request(client, mutation)
     assert updated_box["items"] == 7777
     assert updated_box["qrCode"] == created_box["qrCode"]
+
+
+def _format(parameter):
+    try:
+        return ",".join(f"{k}={v}" for f in parameter for k, v in f.items())
+    except TypeError:
+        return parameter  # integer number
+
+
+@pytest.mark.parametrize(
+    "filters,number",
+    [
+        [[{"states": "[InStock]"}], 1],
+        [[{"states": "[Lost]"}], 1],
+        [[{"states": "[MarkedForShipment]"}], 3],
+        [[{"states": "[Received]"}], 0],
+        [[{"states": "[InStock,Lost]"}], 2],
+        [[{"states": "[Lost,MarkedForShipment]"}], 4],
+        [[{"lastModifiedFrom": '"2020-01-01"'}], 5],
+        [[{"lastModifiedFrom": '"2021-02-02"'}], 2],
+        [[{"lastModifiedFrom": '"2022-01-01"'}], 0],
+        [[{"lastModifiedUntil": '"2022-01-01"'}], 5],
+        [[{"lastModifiedUntil": '"2020-11-27"'}], 3],
+        [[{"lastModifiedUntil": '"2020-01-01"'}], 0],
+        [[{"productGender": "Women"}], 5],
+        [[{"productGender": "Men"}], 0],
+        [[{"productCategoryId": "1"}], 5],
+        [[{"productCategoryId": "2"}], 0],
+        [[{"states": "[MarkedForShipment]"}, {"lastModifiedFrom": '"2021-02-01"'}], 2],
+        [[{"states": "[InStock,Lost]"}, {"productGender": "Boy"}], 0],
+    ],
+    ids=_format,
+)
+def test_boxes_query_filter(read_only_client, default_location, filters, number):
+    filter_input = ", ".join(f"{k}: {v}" for f in filters for k, v in f.items())
+    query = f"""query {{ location(id: {default_location['id']}) {{
+                boxes(filterInput: {{ {filter_input} }}) {{
+                    elements {{ id state }}
+                }} }} }}"""
+    location = assert_successful_request(read_only_client, query)
+    boxes = location["boxes"]["elements"]
+    assert len(boxes) == number
+
+    for f in filters:
+        if "states" in f and number > 0:
+            states = f["states"].strip("[]").split(",")
+            assert {b["state"] for b in boxes} == set(states)

@@ -1,15 +1,13 @@
 from peewee import SQL, CharField, DateField, DateTimeField, IntegerField, TextField
 
 from ...db import db
-from ..fields import UIntForeignKeyField
+from ..fields import UIntForeignKeyField, ZeroDateTimeField
 from .base import Base
 from .user import User
 
 
 class Beneficiary(db.Model):
-    is_signed = IntegerField(
-        column_name="approvalsigned", constraints=[SQL("DEFAULT 0")]
-    )
+    signed = IntegerField(column_name="approvalsigned", constraints=[SQL("DEFAULT 0")])
     bicycle_ban = DateField(column_name="bicycleban", null=True)
     bicycle_ban_comment = TextField(
         column_name="bicyclebancomment",
@@ -37,11 +35,9 @@ class Beneficiary(db.Model):
         on_delete="SET NULL",
         on_update="CASCADE",
     )
-    date_of_birth = DateField(null=True)
-    date_of_signature = DateTimeField(
-        constraints=[SQL("DEFAULT '0000-00-00 00:00:00'")]
-    )
-    deleted = DateTimeField()
+    date_of_birth = DateField(null=True, constraints=[SQL("DEFAULT NULL")])
+    date_of_signature = ZeroDateTimeField()
+    deleted = ZeroDateTimeField()
     email = CharField(constraints=[SQL("DEFAULT ''")])
     extra_portion = IntegerField(
         column_name="extraportion", constraints=[SQL("DEFAULT 0")]
@@ -65,7 +61,7 @@ class Beneficiary(db.Model):
         on_update="CASCADE",
     )
     not_registered = IntegerField(
-        column_name="notregistered", constraints=[SQL("DEFAULT 0")]
+        column_name="notregistered", constraints=[SQL("DEFAULT 0")], default=False
     )
     family_head = UIntForeignKeyField(
         column_name="parent_id",
@@ -83,8 +79,10 @@ class Beneficiary(db.Model):
     signature = TextField(column_name="signaturefield", null=True)
     tent = CharField(constraints=[SQL("DEFAULT ''")])
     url = IntegerField(null=True)
-    visible = IntegerField(constraints=[SQL("DEFAULT 1")])
-    is_volunteer = IntegerField(column_name="volunteer", constraints=[SQL("DEFAULT 0")])
+    visible = IntegerField(constraints=[SQL("DEFAULT 1")], default=True)
+    is_volunteer = IntegerField(
+        column_name="volunteer", constraints=[SQL("DEFAULT 0")], default=False
+    )
     workshop_ban = DateField(column_name="workshopban", null=True)
     workshop_ban_comment = TextField(
         column_name="workshopbancomment",

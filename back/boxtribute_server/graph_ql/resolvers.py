@@ -1,4 +1,6 @@
 """GraphQL resolver functionality"""
+from datetime import date
+
 from ariadne import MutationType, ObjectType, QueryType, convert_kwargs_to_snake_case
 from peewee import fn
 
@@ -18,7 +20,7 @@ from ..box_transfer.shipment import (
     send_shipment,
     update_shipment,
 )
-from ..enums import HumanGender, TransferAgreementState, TransferAgreementType
+from ..enums import HumanGender, TransferAgreementType
 from ..models.crud import (
     create_beneficiary,
     create_box,
@@ -41,6 +43,7 @@ from ..models.definitions.transaction import Transaction
 from ..models.definitions.transfer_agreement import TransferAgreement
 from ..models.definitions.user import User
 from ..models.definitions.x_beneficiary_language import XBeneficiaryLanguage
+from .filtering import derive_beneficiary_filter, derive_box_filter
 from .pagination import load_into_page
 
 query = QueryType()
@@ -212,11 +215,12 @@ def resolve_products(_, info, pagination_input=None):
 
 @query.field("beneficiaries")
 @convert_kwargs_to_snake_case
-def resolve_beneficiaries(_, info, pagination_input=None):
+def resolve_beneficiaries(_, info, pagination_input=None, filter_input=None):
     authorize(permission="beneficiary:read")
+    filter_condition = derive_beneficiary_filter(filter_input)
     return load_into_page(
         Beneficiary,
-        _base_filter_condition("beneficiary:read"),
+        _base_filter_condition("beneficiary:read") & filter_condition,
         selection=Beneficiary.select().join(Base),
         pagination_input=pagination_input,
     )
@@ -226,13 +230,14 @@ def resolve_beneficiaries(_, info, pagination_input=None):
 def resolve_transfer_agreements(_, info, states=None):
     authorize(permission="transfer_agreement:read")
     user_organisation_id = g.user["organisation_id"]
-    states = states or list(TransferAgreementState)
+    # No state filter by default
+    state_filter = TransferAgreement.state << states if states else True
     return TransferAgreement.select().where(
         (
             (TransferAgreement.source_organisation == user_organisation_id)
             | (TransferAgreement.target_organisation == user_organisation_id)
         )
-        & (TransferAgreement.state << states)
+        & (state_filter)
     )
 
 
@@ -255,15 +260,21 @@ def resolve_beneficiary_tokens(beneficiary_obj, info):
     authorize(permission="transaction:read")
     # If the beneficiary has no transactions yet, the select query returns None
     return (
-        Transaction.select(fn.sum(Transaction.count))
+        Transaction.select(fn.sum(Transaction.tokens))
         .where(Transaction.beneficiary == beneficiary_obj.id)
         .scalar()
         or 0
     )
 
 
-@beneficiary.field("isRegistered")
-def resolve_beneficiary_is_registered(beneficiary_obj, info):
+@beneficiary.field("transactions")
+def resolve_beneficiary_transactions(beneficiary_obj, info):
+    authorize(permission="transaction:read")
+    return Transaction.select().where(Transaction.beneficiary == beneficiary_obj.id)
+
+
+@beneficiary.field("registered")
+def resolve_beneficiary_registered(beneficiary_obj, info):
     return not beneficiary_obj.not_registered
 
 
@@ -280,6 +291,21 @@ def resolve_beneficiary_languages(beneficiary_obj, info):
 @beneficiary.field("gender")
 def resolve_beneficiary_gender(beneficiary_obj, info):
     return HumanGender(beneficiary_obj.gender)
+
+
+@beneficiary.field("age")
+def resolve_beneficiary_age(beneficiary_obj, info):
+    dob = beneficiary_obj.date_of_birth
+    if dob is None:
+        return
+    today = date.today()
+    # Subtract 1 if current day is before birthday in current year
+    return today.year - dob.year - ((today.month, today.day) < (dob.month, dob.day))
+
+
+@beneficiary.field("active")
+def resolve_beneficiary_active(beneficiary_obj, info):
+    return beneficiary_obj.deleted is None  # ZeroDateTimeField
 
 
 @box.field("state")
@@ -440,21 +466,32 @@ def resolve_base_locations(base_obj, info):
 
 @base.field("beneficiaries")
 @convert_kwargs_to_snake_case
-def resolve_base_beneficiaries(base_obj, info, pagination_input=None):
+def resolve_base_beneficiaries(
+    base_obj, info, pagination_input=None, filter_input=None
+):
     authorize(permission="beneficiary:read")
     base_filter_condition = Beneficiary.base == base_obj.id
+    filter_condition = base_filter_condition & derive_beneficiary_filter(filter_input)
     return load_into_page(
-        Beneficiary, base_filter_condition, pagination_input=pagination_input
+        Beneficiary, filter_condition, pagination_input=pagination_input
     )
 
 
 @location.field("boxes")
 @convert_kwargs_to_snake_case
-def resolve_location_boxes(location_obj, info, pagination_input=None):
+def resolve_location_boxes(
+    location_obj, info, pagination_input=None, filter_input=None
+):
     authorize(permission="stock:read")
     location_filter_condition = Box.location == location_obj.id
+    filter_condition = location_filter_condition & derive_box_filter(filter_input)
+    selection = Box.select()
+    if filter_input is not None and any(
+        [f in filter_input for f in ["product_gender", "product_category_id"]]
+    ):
+        selection = Box.select().join(Product)
     return load_into_page(
-        Box, location_filter_condition, pagination_input=pagination_input
+        Box, filter_condition, selection=selection, pagination_input=pagination_input
     )
 
 

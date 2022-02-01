@@ -89,7 +89,7 @@ type Location {
   name: String
   isShop: Boolean!
   # List of all the boxes in the location
-  boxes(paginationInput: PaginationInput): BoxPage
+  boxes(paginationInput: PaginationInput, filterInput: FilterBoxInput): BoxPage
   boxState: BoxState
   createdOn: Datetime
   # The user who generated QR code
@@ -109,7 +109,7 @@ type Base {
   name: String!
   organisation: Organisation!
   locations: [Location!]
-  beneficiaries(paginationInput: PaginationInput): BeneficiaryPage!
+  beneficiaries(paginationInput: PaginationInput, filterInput: FilterBeneficiaryInput): BeneficiaryPage!
   currencyName: String
 }
 
@@ -141,23 +141,40 @@ type Beneficiary {
   id: ID!
   firstName: String!
   lastName: String!
-  dateOfBirth: Date!
+  dateOfBirth: Date
+  """
+  If dateOfBirth is not set, age will be null.
+  """
+  age: Int
   comment: String
   base: Base!
   groupIdentifier: String!
   gender: HumanGender!
   languages: [Language!]
   familyHead: Beneficiary
+  active: Boolean!
   isVolunteer: Boolean!
-  isSigned: Boolean!
-  isRegistered: Boolean!
+  signed: Boolean!
+  registered: Boolean!
   signature: String
   dateOfSignature: Date
   tokens: Int
+  transactions: [Transaction!]
   createdBy: User!
   createdOn: Datetime!
   lastModifiedBy: User!
   lastModifiedOn: Datetime!
+}
+
+type Transaction {
+  id: ID!
+  beneficiary: Beneficiary!
+  product: Product
+  count: Int
+  tokens: Int
+  description: String
+  createdOn: Datetime!
+  createdBy: User!
 }
 
 type PageInfo {
@@ -196,7 +213,7 @@ input CreateBeneficiaryInput {
   languages: [Language!]
   familyHeadId: Int
   isVolunteer: Boolean!
-  isRegistered: Boolean!
+  registered: Boolean!
   signature: String
   dateOfSignature: Date
 }
@@ -213,9 +230,30 @@ input UpdateBeneficiaryInput {
   languages: [Language!]
   familyHeadId: Int
   isVolunteer: Boolean
-  isRegistered: Boolean
+  registered: Boolean
   signature: String
   dateOfSignature: Date
+}
+
+input FilterBeneficiaryInput {
+  createdFrom: Date
+  createdUntil: Date
+  active: Boolean
+  isVolunteer: Boolean
+  registered: Boolean
+  """
+  Return beneficiaries where pattern is (case-insensitive) part of first name,
+  last name, or comment, or where pattern matches the group identifier
+  """
+  pattern: String
+}
+
+input FilterBoxInput {
+  states: [BoxState!]
+  lastModifiedFrom: Date
+  lastModifiedUntil: Date
+  productGender: ProductGender
+  productCategoryId: Int
 }
 
 input PaginationInput {

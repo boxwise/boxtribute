@@ -87,7 +87,7 @@ def test_invalid_permission_for_given_resource_id(read_only_client, mocker, quer
                 gender: Male,
                 languages: [de],
                 isVolunteer: true,
-                isRegistered: false
+                registered: false
             }) {
             id
         }""",

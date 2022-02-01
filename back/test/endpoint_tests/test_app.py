@@ -29,7 +29,7 @@ def test_base_specific_permissions(client, mocker):
                     gender: Male,
                     languages: [de],
                     isVolunteer: true,
-                    isRegistered: false
+                    registered: false
                 }) {
                 id
             }"""

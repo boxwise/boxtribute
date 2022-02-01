@@ -1,3 +1,5 @@
+from datetime import datetime
+
 import pytest
 from boxtribute_server.enums import BoxState
 from boxtribute_server.models.definitions.box import Box
@@ -16,6 +18,9 @@ def default_box_data():
         "label_identifier": "12345678",
         "state": default_box_state_data()["id"],
         "comment": "",
+        "last_modified_on": datetime(2020, 11, 27),
+        "last_modified_by": default_user_data()["id"],
+        "created_on": datetime(2020, 11, 27),
         "created_by": default_user_data()["id"],
         "items": 0,
         "size": size_data()["id"],
@@ -54,6 +59,7 @@ def marked_for_shipment_box_data():
     data = box_without_qr_code_data()
     data["id"] = 6
     data["label_identifier"] = "56789012"
+    data["last_modified_on"] = datetime(2021, 2, 2)
     return data
 
 
@@ -61,6 +67,7 @@ def another_marked_for_shipment_box_data():
     data = marked_for_shipment_box_data()
     data["id"] = 7
     data["label_identifier"] = "67890123"
+    data["last_modified_on"] = datetime(2021, 2, 2)
     return data
 
 

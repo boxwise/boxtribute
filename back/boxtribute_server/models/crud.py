@@ -71,7 +71,7 @@ def create_beneficiary(
     date_of_birth,
     gender,
     is_volunteer,
-    is_registered,
+    registered,
     comment="",
     languages=None,
     family_head_id=None,
@@ -90,8 +90,8 @@ def create_beneficiary(
         date_of_birth=date_of_birth,
         gender=gender.value,  # convert to gender abbreviation
         is_volunteer=is_volunteer,
-        not_registered=not is_registered,
-        is_signed=signature is not None,  # set depending on signature
+        not_registered=not registered,
+        signed=signature is not None,  # set depending on signature
         comment=comment,
         family_head=family_head_id,
         created_on=now,
@@ -101,7 +101,6 @@ def create_beneficiary(
         # This is only required for compatibility with legacy DB
         seq=1 if family_head_id is None else 2,
         # These fields are required acc. to model definition
-        deleted="0000-00-00 00:00:00",
         family_id=0,
         bicycle_ban_comment="",
         workshop_ban_comment="",
@@ -123,7 +122,7 @@ def update_beneficiary(
     gender=None,
     languages=None,
     family_head_id=None,
-    is_registered=None,
+    registered=None,
     signature=None,
     **data,
 ):
@@ -144,11 +143,11 @@ def update_beneficiary(
         beneficiary.family_head = family_head_id
     beneficiary.seq = 1 if family_head_id is None else 2
 
-    if is_registered is not None:
-        beneficiary.not_registered = not is_registered
+    if registered is not None:
+        beneficiary.not_registered = not registered
 
     if signature is not None:
-        beneficiary.is_signed = True
+        beneficiary.signed = True
         beneficiary.signature = signature
 
     # Set first_name, last_name, group_identifier, date_of_birth, comment, is_volunteer,

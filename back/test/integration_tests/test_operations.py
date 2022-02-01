@@ -58,7 +58,7 @@ def test_mutations(auth0_client):
                     dateOfBirth: "2000-01-30",
                     gender: Female,
                     isVolunteer: false,
-                    isRegistered: false
+                    registered: false
                 }) { id firstName } }"""
     response = assert_successful_request(auth0_client, mutation)
     beneficiary_id = response.pop("id")

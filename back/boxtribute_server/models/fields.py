@@ -1,5 +1,5 @@
 """Custom peewee field types for data model definitions."""
-from peewee import CharField, ForeignKeyField
+from peewee import CharField, DateTimeField, ForeignKeyField
 
 
 class EnumCharField(CharField):
@@ -49,3 +49,12 @@ class UIntForeignKeyField(ForeignKeyField):
     """
 
     field_type = "INTEGER UNSIGNED"
+
+
+class ZeroDateTimeField(DateTimeField):
+    """Custom class to convert MySQL zero DATETIME field value into None."""
+
+    def adapt(self, value):
+        if value == "0000-00-00 00:00:00":
+            return
+        return super().adapt(value)
