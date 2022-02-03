@@ -1,27 +1,52 @@
 type Query {
+  """
+  Return all [`Bases`]({{Types.Base}}) that the client is authorized to view.
+  """
   bases: [Base!]!
   base(id: ID!): Base
   organisation(id: ID!): Organisation
+  """
+  Return all [`Organisations`]({{Types.Organisation}}) that the client is authorized to view.
+  """
   organisations: [Organisation!]!
   user(id: ID): User
+  """
+  Return all [`Users`]({{Types.User}}) that the client is authorized to view.
+  """
   users: [User!]!
   box(labelIdentifier: String!): Box
   qrCode(qrCode: String!): QrCode
   qrExists(qrCode: String): Boolean
   location(id: ID!): Location
+  """
+  Return all [`Locations`]({{Types.Location}}) that the client is authorized to view.
+  """
   locations: [Location!]!
   product(id: ID!): Product
+  """
+  Return all [`Products`]({{Types.Product}}) that the client is authorized to view.
+  """
   products(paginationInput: PaginationInput): ProductPage!
   productCategory(id: ID!): ProductCategory
+  """
+  Return all [`ProductCategories`]({{Types.ProductCategory}}) that the client is authorized to view.
+  """
   productCategories: [ProductCategory!]!
   beneficiary(id: ID!): Beneficiary
+  """
+  Return all [`Beneficiaries`]({{Types.Beneficiary}}) that the client is authorized to view.
+  """
   beneficiaries(paginationInput: PaginationInput, filterInput: FilterBeneficiaryInput): BeneficiaryPage!
   transferAgreement(id: ID!): TransferAgreement
   """
+  Return all [`TransferAgreements`]({{Types.TransferAgreement}}) that the client is authorized to view.
   Without any arguments, return transfer agreements that involve client's organisation,
   regardless of agreement state. Optionally filter for agreements of certain state(s).
   """
   transferAgreements(states: [TransferAgreementState!]): [TransferAgreement!]!
   shipment(id: ID!): Shipment
+  """
+  Return all [`Shipments`]({{Types.Shipment}}) that the client is authorized to view.
+  """
   shipments: [Shipment!]!
 }
