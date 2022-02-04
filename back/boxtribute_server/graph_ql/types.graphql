@@ -5,11 +5,10 @@ Representation of a box storing items of a [`Product`]({{Types.Product}}) in a [
 """
 type Box {
   id: ID!
+  " Sequence of numbers for identifying the box, usually written on box label "
   labelIdentifier: String!
   location: Location
-  """
-  The number of items the box contains.
-  """
+  " The number of items the box contains. "
   items: Int!
   product: Product!
   # A size from a size range, consider making this enum
@@ -42,9 +41,7 @@ type Product {
   name: String!
   category: ProductCategory!
   sizeRange: SizeRange!
-  """
-  List of sizes for the product.
-  """
+  " List of sizes for the product. "
   sizes: [String!]!
   base: Base!
   price: Float
@@ -61,14 +58,10 @@ Representation of a product category.
 type ProductCategory {
   id: ID!
   name: String!
-  """
-  List of all products registered in bases the client is authorized to view.
-  """
+  " List of all products registered in bases the client is authorized to view. "
   products(paginationInput: PaginationInput): ProductPage
   sizeRanges: [SizeRange]
-  """
-  Non-clothing categories don't have a product gender.
-  """
+  " Non-clothing categories don't have a product gender. "
   hasGender: Boolean!
 }
 
@@ -128,13 +121,9 @@ type Location {
   base: Base!
   name: String
   isShop: Boolean!
-  """
-  List of all the [`Boxes`]({{Types.Box}}) in this location
-  """
+  " List of all the [`Boxes`]({{Types.Box}}) in this location "
   boxes(paginationInput: PaginationInput, filterInput: FilterBoxInput): BoxPage
-  """
-  Default state for boxes in this location
-  """
+  " Default state for boxes in this location "
   boxState: BoxState
   createdBy: User
   createdOn: Datetime
@@ -159,13 +148,9 @@ type Base {
   id: ID!
   name: String!
   organisation: Organisation!
-  """
-  List of all [`Locations`]({{Types.Location}}) present in this base
-  """
+  " List of all [`Locations`]({{Types.Location}}) present in this base "
   locations: [Location!]
-  """
-  List of all [`Beneficiaries`]({{Types.Beneficiary}}) registered in this base
-  """
+  " List of all [`Beneficiaries`]({{Types.Beneficiary}}) registered in this base "
   beneficiaries(paginationInput: PaginationInput, filterInput: FilterBeneficiaryInput): BeneficiaryPage!
   currencyName: String
 }
@@ -176,9 +161,7 @@ Representation of an organisation.
 type Organisation {
   id: ID!
   name: String!
-  """
-  List of all [`Bases`]({{Types.Base}}) managed by this organisation
-  """
+  " List of all [`Bases`]({{Types.Base}}) managed by this organisation "
   bases: [Base!]
 }
 
@@ -193,9 +176,7 @@ type User {
   email: String!
   validFirstDay: Date
   validLastDay: Date
-  """
-  List of all [`Bases`]({{Types.Base}}) this user can access
-  """
+  " List of all [`Bases`]({{Types.Base}}) this user can access "
   bases: [Base]
   lastLogin: Datetime
   lastAction: Datetime
@@ -219,21 +200,15 @@ type Beneficiary {
   firstName: String!
   lastName: String!
   dateOfBirth: Date
-  """
-  If dateOfBirth is not set, age will be null.
-  """
+  " If dateOfBirth is not set, age will be null. "
   age: Int
   comment: String
   base: Base!
-  """
-  All members of a family have the same group identifier
-  """
+  " All members of a family have the same group identifier "
   groupIdentifier: String!
   gender: HumanGender
   languages: [Language!]
-  """
-  Null if this beneficiary is the family head
-  """
+  " Null if this beneficiary is the family head "
   familyHead: Beneficiary
   active: Boolean!
   isVolunteer: Boolean!
@@ -241,13 +216,9 @@ type Beneficiary {
   registered: Boolean!
   signature: String
   dateOfSignature: Date
-  """
-  Number of tokens the beneficiary holds (sum of all transaction values)
-  """
+  " Number of tokens the beneficiary holds (sum of all transaction values) "
   tokens: Int
-  """
-  List of all [`Transactions`]({{Types.Transaction}}) that this beneficiary executed
-  """
+  " List of all [`Transactions`]({{Types.Transaction}}) that this beneficiary executed "
   transactions: [Transaction!]
   createdBy: User
   createdOn: Datetime
@@ -262,13 +233,9 @@ type Transaction {
   id: ID!
   beneficiary: Beneficiary!
   product: Product
-  """
-  Number of transferred products
-  """
+  " Number of transferred products "
   count: Int
-  """
-  Value of the transaction
-  """
+  " Value of the transaction "
   tokens: Int
   description: String
   createdBy: User
@@ -280,13 +247,9 @@ Additional information passed along in `*Page` types.
 The client shall use the `has*Page` fields to determine whether to fetch more data.
 """
 type PageInfo {
-  """
-  If true, a previous page is available.
-  """
+  " If true, a previous page is available. "
   hasPreviousPage: Boolean!
-  """
-  If true, a next page is available.
-  """
+  " If true, a next page is available. "
   hasNextPage: Boolean!
   """
   An identifier for the first element on the page. The client shall use it for the [`PaginationInput.before`]({{Types.PaginationInput}}) field
@@ -303,13 +266,9 @@ Optional filter values when retrieving [`Beneficiaries`]({{Types.Beneficiary}}).
 If several fields are defined (not null), they are combined into a filter expression using logical AND (i.e. the filter returns only elements for which *all* fields are true).
 """
 input FilterBeneficiaryInput {
-  """
-  Filter for all beneficiaries who were created on this date (incl.), or later.
-  """
+  " Filter for all beneficiaries who were created on this date (incl.), or later. "
   createdFrom: Date
-  """
-  Filter for all beneficiaries who were created on this date (incl.), or earlier.
-  """
+  " Filter for all beneficiaries who were created on this date (incl.), or earlier. "
   createdUntil: Date
   active: Boolean
   isVolunteer: Boolean
@@ -325,17 +284,11 @@ Optional filter values when retrieving [`Boxes`]({{Types.Box}}).
 If several fields are defined (not null), they are combined into a filter expression using logical AND (i.e. the filter returns only elements for which *all* fields are true).
 """
 input FilterBoxInput {
-  """
-  Filter for all boxes that have *one* of the specified states.
-  """
+  " Filter for all boxes that have *one* of the specified states. "
   states: [BoxState!]
-  """
-  Filter for all boxes that who were last modified on this date (incl.), or later.
-  """
+  " Filter for all boxes that who were last modified on this date (incl.), or later. "
   lastModifiedFrom: Date
-  """
-  Filter for all boxes that who were last modified on this date (incl.), or earlier.
-  """
+  " Filter for all boxes that who were last modified on this date (incl.), or earlier. "
   lastModifiedUntil: Date
   productGender: ProductGender
   productCategoryId: Int
@@ -396,13 +349,9 @@ type TransferAgreement {
   validFrom: Datetime!
   validUntil: Datetime
   comment: String
-  """
-  List of all bases of the source organisation included in the agreement
-  """
+  " List of all bases of the source organisation included in the agreement "
   sourceBases: [Base!]!
-  """
-  List of all bases of the target organisation included in the agreement
-  """
+  " List of all bases of the target organisation included in the agreement "
   targetBases: [Base!]
   shipments: [Shipment!]!
 }
