@@ -229,7 +229,7 @@ type Beneficiary {
   All members of a family have the same group identifier
   """
   groupIdentifier: String!
-  gender: HumanGender!
+  gender: HumanGender
   languages: [Language!]
   """
   Null if this beneficiary is the family head

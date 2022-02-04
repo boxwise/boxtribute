@@ -34,7 +34,6 @@ def another_beneficiary_data():
         "family_head": 1,
         "seq": 2,
         "group_identifier": "1234",
-        "gender": "F",
         "is_volunteer": True,
         "not_registered": True,
         "deleted": datetime(2021, 12, 31),  # == not active

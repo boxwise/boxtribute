@@ -76,10 +76,11 @@ def test_beneficiary_query(
 
     beneficiary_id = another_beneficiary["id"]
     query = f"""query {{ beneficiary(id: {beneficiary_id}) {{
+                gender
                 age
                 dateOfBirth }} }}"""
     beneficiary = assert_successful_request(read_only_client, query)
-    assert beneficiary == {"age": None, "dateOfBirth": None}
+    assert beneficiary == {"gender": None, "age": None, "dateOfBirth": None}
 
 
 def test_beneficiary_mutations(client):
