@@ -15,11 +15,11 @@ type Box {
   # A size from a size range, consider making this enum
   size: String
   state: BoxState!
-  qrCode: QrCode!
-  createdBy: User!
-  createdOn: Datetime!
-  lastModifiedBy: User!
-  lastModifiedOn: Datetime!
+  qrCode: QrCode
+  createdBy: User
+  createdOn: Datetime
+  lastModifiedBy: User
+  lastModifiedOn: Datetime
   comment: String
 }
 
@@ -49,10 +49,10 @@ type Product {
   base: Base!
   price: Float
   gender: ProductGender
-  createdBy: User!
-  createdOn: Datetime!
-  lastModifiedBy: User!
-  lastModifiedOn: Datetime!
+  createdBy: User
+  createdOn: Datetime
+  lastModifiedBy: User
+  lastModifiedOn: Datetime
 }
 
 """
@@ -136,10 +136,10 @@ type Location {
   Default state for boxes in this location
   """
   boxState: BoxState
+  createdBy: User
   createdOn: Datetime
-  createdBy: User!
-  lastModifiedBy: User!
-  lastModifiedOn: Datetime!
+  lastModifiedBy: User
+  lastModifiedOn: Datetime
 }
 
 """
@@ -249,9 +249,9 @@ type Beneficiary {
   List of all [`Transactions`]({{Types.Transaction}}) that this beneficiary executed
   """
   transactions: [Transaction!]
-  createdBy: User!
-  createdOn: Datetime!
-  lastModifiedBy: User!
+  createdBy: User
+  createdOn: Datetime
+  lastModifiedBy: User
   lastModifiedOn: Datetime
 }
 
@@ -271,8 +271,8 @@ type Transaction {
   """
   tokens: Int
   description: String
+  createdBy: User
   createdOn: Datetime!
-  createdBy: User!
 }
 
 """
