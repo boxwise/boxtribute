@@ -11,7 +11,7 @@
    1. [Working with MySQL](#working-with-mysql)
    1. [Debugging](#debugging)
 1. [Testing](#testing)
-1. [GraphQL Playground](#graphql-playground)
+1. [GraphQL API](#graphql-api)
 1. [Production environment](#production-environment)
 1. [Performance evaluation](#performance-evaluation)
 1. [Authentication and Authorization on the back-end](#authentication-and-authorization)
@@ -247,9 +247,18 @@ From the repository root, run
 
 and inspect the reported output. Open the HTML report via `back/htmlcov/index.html` to browse coverage for individual source code files.
 
-## GraphQL Playground
+## GraphQL API
 
-The back-end exposes the GraphQL API at the `/graphql` endpoint. You can experiment with the API in the GraphQL playground.
+The back-end exposes the GraphQL API at the `/graphql` endpoint.
+It is consumed by our front-end, and by partners (for data retrieval).
+
+### Schema documentation
+
+For building a static web documentation of the schema, see [this directory](../docs/graphql-api).
+
+### Playground
+
+You can experiment with the API in the GraphQL playground.
 
 1. Set `export FLASK_ENV=development`
 1. Start the required services by `docker-compose up webapp db`

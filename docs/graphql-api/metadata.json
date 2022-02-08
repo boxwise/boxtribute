@@ -1,0 +1,118 @@
+{
+  "OBJECT": {
+    "SecretType": {
+      "documentation": { "undocumented": true }
+    },
+    "Base": {
+      "fields": {
+        "name": {
+          "documentation": { "example": "Lesvos" }
+        },
+        "currencyName": {
+          "documentation": { "example": "drops" }
+        }
+      }
+    },
+    "Beneficiary": {
+      "fields": {
+        "firstName": {
+          "documentation": { "example": "Some" }
+        },
+        "lastName": {
+          "documentation": { "example": "One" }
+        },
+        "age": {
+          "documentation": { "example": 25 }
+        },
+        "comment": {
+          "documentation": { "example": "very nice" }
+        }
+      }
+    },
+    "Box": {
+      "fields": {
+        "size": {
+          "documentation": { "example": "XL" }
+        },
+        "comment": {
+          "documentation": { "example": "very new" }
+        }
+      }
+    },
+    "Location": {
+      "fields": {
+        "name": {
+          "documentation": { "example": "Warehouse Kids" }
+        }
+      }
+    },
+    "Organisation": {
+      "fields": {
+        "name": {
+          "documentation": { "example": "Helpful Helpers" }
+        }
+      }
+    },
+    "Product": {
+      "fields": {
+        "name": {
+          "documentation": { "example": "gloves" }
+        },
+        "sizes": {
+          "documentation": { "example": "Kids 6-10, Kids 10-13" }
+        }
+      }
+    },
+    "ProductCategory": {
+      "fields": {
+        "name": {
+          "documentation": { "example": "Clothing" }
+        }
+      }
+    },
+    "Query": {
+      "fields": {
+        "myQuery": {
+          "args": {
+            "nonReqQueryArg": {
+              "documentation": { "example": "Metadata example of `nonReqQueryArg`" }
+            }
+          }
+        }
+      }
+    }
+  },
+  "SCALAR": {
+    "Datetime": {
+      "documentation": { "example": "\"2016-10-17T01:08:03\"" }
+    },
+    "Date": {
+      "documentation": { "example": "\"2020-11-20\"" }
+    }
+  },
+  "INPUT_OBJECT": {
+    "PaginationInput": {
+      "inputFields": {
+        "first": {
+          "documentation": { "example": 50 }
+        },
+        "after": {
+          "documentation": { "example": "c00ffeeb33f" }
+        },
+        "before": {
+          "documentation": { "example": null }
+        },
+        "last": {
+          "documentation": { "example": null }
+        }
+      }
+    },
+    "FilterBoxInput": {
+      "inputFields": {
+        "states": {
+          "documentation": { "example": "[InStock]" }
+        }
+      }
+    }
+  }
+}
