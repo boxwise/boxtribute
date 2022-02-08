@@ -10,7 +10,7 @@ type Box {
   location: Location
   " The number of items the box contains. "
   items: Int!
-  product: Product!
+  product: Product
   # A size from a size range, consider making this enum
   size: String
   state: BoxState!

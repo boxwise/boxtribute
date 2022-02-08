@@ -126,15 +126,17 @@ def resolve_qr_exists(_, info, qr_code):
 
 
 @query.field("qrCode")
+@box.field("qrCode")
 @convert_kwargs_to_snake_case
-def resolve_qr_code(_, info, qr_code):
+def resolve_qr_code(obj, info, qr_code=None):
     authorize(permission="qr:read")
-    return QrCode.get(QrCode.code == qr_code)
+    return obj.qr_code if qr_code is None else QrCode.get(QrCode.code == qr_code)
 
 
 @query.field("product")
-def resolve_product(_, info, id):
-    product = Product.get_by_id(id)
+@box.field("product")
+def resolve_product(obj, info, id=None):
+    product = obj.product if id is None else Product.get_by_id(id)
     authorize(permission="product:read", base_id=product.base_id)
     return product
 

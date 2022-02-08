@@ -192,14 +192,15 @@ def test_invalid_permission_for_base_locations(read_only_client, mocker):
     assert_forbidden_request(read_only_client, query, value={"locations": None})
 
 
-def test_invalid_permission_for_box_location(read_only_client, mocker, default_box):
-    # verify missing location:read permission
+@pytest.mark.parametrize("field", ["location", "product", "qrCode"])
+def test_invalid_permission_for_box_field(read_only_client, mocker, default_box, field):
+    # verify missing field:read permission
     mocker.patch("jose.jwt.decode").return_value = create_jwt_payload(
         permissions=["stock:read"]
     )
     query = f"""query {{ box(labelIdentifier: "{default_box["label_identifier"]}")
-                {{ location {{ id }} }} }}"""
-    assert_forbidden_request(read_only_client, query, value={"location": None})
+                {{ {field} {{ id }} }} }}"""
+    assert_forbidden_request(read_only_client, query, value={field: None})
 
 
 @pytest.mark.parametrize(
