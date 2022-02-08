@@ -203,6 +203,19 @@ def test_invalid_permission_for_box_field(read_only_client, mocker, default_box,
     assert_forbidden_request(read_only_client, query, value={field: None})
 
 
+@pytest.mark.parametrize("resource", ["location", "product", "beneficiary"])
+def test_invalid_permission_for_resource_base(
+    read_only_client, mocker, default_product, resource
+):
+    # verify missing base:read permission
+    mocker.patch("jose.jwt.decode").return_value = create_jwt_payload(
+        permissions=[f"{resource}:read"]
+    )
+    query = f"""query {{ {resource}(id: 1)
+                {{ base {{ id }} }} }}"""
+    assert_forbidden_request(read_only_client, query, value={"base": None})
+
+
 @pytest.mark.parametrize(
     "method",
     ["read", "write", "create", "edit"],

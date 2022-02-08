@@ -43,7 +43,7 @@ type Product {
   sizeRange: SizeRange!
   " List of sizes for the product. "
   sizes: [String!]!
-  base: Base!
+  base: Base
   price: Float
   gender: ProductGender
   createdBy: User
@@ -118,7 +118,7 @@ The location is part of a specific [`Base`]({{Types.Base}}).
 """
 type Location {
   id: ID!
-  base: Base!
+  base: Base
   name: String
   isShop: Boolean!
   " List of all the [`Boxes`]({{Types.Box}}) in this location "
@@ -203,7 +203,7 @@ type Beneficiary {
   " If dateOfBirth is not set, age will be null. "
   age: Int
   comment: String
-  base: Base!
+  base: Base
   " All members of a family have the same group identifier "
   groupIdentifier: String!
   gender: HumanGender

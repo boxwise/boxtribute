@@ -505,6 +505,14 @@ def resolve_organisation_bases(organisation_obj, info):
     return Base.select().where(Base.organisation_id == organisation_obj.id)
 
 
+@beneficiary.field("base")
+@location.field("base")
+@product.field("base")
+def resolve_resource_base(obj, info):
+    authorize(permission="base:read")
+    return obj.base
+
+
 @product.field("gender")
 def resolve_product_gender(product_obj, info):
     # Instead of a ProductGender instance return an integer for EnumType conversion
