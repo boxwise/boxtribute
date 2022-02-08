@@ -375,9 +375,9 @@ type Shipment {
 
 type ShipmentDetail {
   id: ID!
-  sourceProduct: Product!
+  sourceProduct: Product
   targetProduct: Product
-  sourceLocation: Location!
+  sourceLocation: Location
   targetLocation: Location
   box: Box!
   shipment: Shipment!

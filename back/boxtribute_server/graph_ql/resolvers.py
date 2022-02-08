@@ -66,6 +66,7 @@ product = _register_object_type("Product")
 product_category = _register_object_type("ProductCategory")
 qr_code = _register_object_type("QrCode")
 shipment = _register_object_type("Shipment")
+shipment_detail = _register_object_type("ShipmentDetail")
 transfer_agreement = _register_object_type("TransferAgreement")
 user = _register_object_type("User")
 
@@ -568,6 +569,30 @@ def resolve_shipment_source_base(shipment_obj, info):
 def resolve_shipment_target_base(shipment_obj, info):
     authorize(permission="base:read")
     return shipment_obj.target_base
+
+
+@shipment_detail.field("sourceProduct")
+def resolve_shipment_detail_source_product(detail_obj, info):
+    authorize(permission="product:read")
+    return detail_obj.source_product
+
+
+@shipment_detail.field("targetProduct")
+def resolve_shipment_detail_target_product(detail_obj, info):
+    authorize(permission="product:read")
+    return detail_obj.target_product
+
+
+@shipment_detail.field("sourceLocation")
+def resolve_shipment_detail_source_location(detail_obj, info):
+    authorize(permission="location:read")
+    return detail_obj.source_location
+
+
+@shipment_detail.field("targetLocation")
+def resolve_shipment_detail_target_location(detail_obj, info):
+    authorize(permission="location:read")
+    return detail_obj.target_location
 
 
 @transfer_agreement.field("sourceBases")
