@@ -192,6 +192,26 @@ def test_invalid_permission_for_base_locations(read_only_client, mocker):
     assert_forbidden_request(read_only_client, query, value={"locations": None})
 
 
+@pytest.mark.parametrize("field", ["sourceBases", "targetBases"])
+def test_invalid_permission_for_agreement_bases(read_only_client, mocker, field):
+    # verify missing base:read permission
+    mocker.patch("jose.jwt.decode").return_value = create_jwt_payload(
+        permissions=["transfer_agreement:read"]
+    )
+    query = f"query {{ transferAgreement(id: 1) {{ {field} {{ id }} }} }}"
+    assert_forbidden_request(read_only_client, query, value={field: None})
+
+
+@pytest.mark.parametrize("field", ["sourceBase", "targetBase"])
+def test_invalid_permission_for_shipment_base(read_only_client, mocker, field):
+    # verify missing base:read permission
+    mocker.patch("jose.jwt.decode").return_value = create_jwt_payload(
+        permissions=["shipment:read"]
+    )
+    query = f"query {{ shipment(id: 1) {{ {field} {{ id }} }} }}"
+    assert_forbidden_request(read_only_client, query, value={field: None})
+
+
 @pytest.mark.parametrize("field", ["location", "product", "qrCode"])
 def test_invalid_permission_for_box_field(read_only_client, mocker, default_box, field):
     # verify missing field:read permission

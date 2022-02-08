@@ -558,8 +558,21 @@ def resolve_shipment_details(shipment_obj, info):
     )
 
 
+@shipment.field("sourceBase")
+def resolve_shipment_source_base(shipment_obj, info):
+    authorize(permission="base:read")
+    return shipment_obj.source_base
+
+
+@shipment.field("targetBase")
+def resolve_shipment_target_base(shipment_obj, info):
+    authorize(permission="base:read")
+    return shipment_obj.target_base
+
+
 @transfer_agreement.field("sourceBases")
 def resolve_transfer_agreement_source_bases(transfer_agreement_obj, info):
+    authorize(permission="base:read")
     return retrieve_transfer_agreement_bases(
         transfer_agreement=transfer_agreement_obj, kind="source"
     )
@@ -567,6 +580,7 @@ def resolve_transfer_agreement_source_bases(transfer_agreement_obj, info):
 
 @transfer_agreement.field("targetBases")
 def resolve_transfer_agreement_target_bases(transfer_agreement_obj, info):
+    authorize(permission="base:read")
     return retrieve_transfer_agreement_bases(
         transfer_agreement=transfer_agreement_obj, kind="target"
     )
