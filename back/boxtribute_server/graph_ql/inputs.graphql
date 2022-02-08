@@ -1,0 +1,90 @@
+"""
+GraphQL input types for mutations **only**.
+"""
+
+input CreateBoxInput {
+  productId: Int!
+  sizeId: Int!
+  items: Int!
+  locationId: Int!
+  comment: String!
+  qrCode: String
+}
+
+input UpdateBoxInput {
+  labelIdentifier: String!
+  productId: Int
+  sizeId: Int
+  items: Int
+  locationId: Int
+  comment: String
+}
+
+input CreateBeneficiaryInput {
+  firstName: String!
+  lastName: String!
+  baseId: Int!
+  groupIdentifier: String!
+  dateOfBirth: Date!
+  comment: String
+  gender: HumanGender!
+  languages: [Language!]
+  familyHeadId: Int
+  isVolunteer: Boolean!
+  registered: Boolean!
+  signature: String
+  dateOfSignature: Date
+}
+
+input UpdateBeneficiaryInput {
+  id: ID!
+  firstName: String
+  lastName: String
+  baseId: Int
+  groupIdentifier: String
+  dateOfBirth: Date
+  comment: String
+  gender: HumanGender
+  languages: [Language!]
+  familyHeadId: Int
+  isVolunteer: Boolean
+  registered: Boolean
+  signature: String
+  dateOfSignature: Date
+}
+
+input TransferAgreementCreationInput {
+  targetOrganisationId: Int!
+  type: TransferAgreementType!
+  # pass local date and timezone information (e.g. 'Europe/Berlin')
+  validFrom: Date
+  validUntil: Date
+  timezone: String
+  sourceBaseIds: [Int!]
+  targetBaseIds: [Int!]
+}
+
+input ShipmentCreationInput {
+  sourceBaseId: Int!
+  targetBaseId: Int!
+  transferAgreementId: Int!
+}
+
+input ShipmentUpdateInput {
+  id: ID!
+  targetBaseId: Int
+  # label identifiers of boxes prepared for shipment
+  preparedBoxLabelIdentifiers: [String!]
+  # label identifiers of prepared boxes to be moved back to stock
+  removedBoxLabelIdentifiers: [String!]
+  # label identifiers of received boxes to be moved into target stock
+  receivedShipmentDetailUpdateInputs: [ShipmentDetailUpdateInput!]
+  # label identifiers of boxes that went lost during shipment
+  lostBoxLabelIdentifiers: [String!]
+}
+
+input ShipmentDetailUpdateInput {
+  id: ID!
+  targetProductId: Int!
+  targetLocationId: Int!
+}

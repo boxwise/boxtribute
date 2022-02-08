@@ -290,6 +290,8 @@ def resolve_beneficiary_languages(beneficiary_obj, info):
 
 @beneficiary.field("gender")
 def resolve_beneficiary_gender(beneficiary_obj, info):
+    if beneficiary_obj.gender == "":
+        return
     return HumanGender(beneficiary_obj.gender)
 
 

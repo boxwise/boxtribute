@@ -1,0 +1,14 @@
+#!/usr/bin/env bash
+
+SCRIPT_DIR="$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )"
+
+# Mount root of repository into container /repo and execute spectaql in sub-directory
+# of docs/
+docker run \
+    -it --rm \
+    -v "$SCRIPT_DIR"/../../:/repo \
+    -w /repo/docs/graphql-api \
+    -p 4400:4400 \
+    -p 4401:4401 \
+    spectaql:latest \
+    "$@"

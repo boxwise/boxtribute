@@ -13,3 +13,6 @@ back/test-results
 *.prof
 
 yarn-error.log
+
+public/
+*.zip
