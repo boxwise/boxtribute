@@ -21,9 +21,9 @@ def create_box(
     product_id,
     location_id,
     created_by_id,
+    size_id,
     comment="",
     items=0,
-    size_id=None,
     qr_code_code=None,
 ):
     """Insert information for a new Box in the database. Use current datetime

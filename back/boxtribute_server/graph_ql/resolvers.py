@@ -339,7 +339,7 @@ def resolve_create_box(*_, box_creation_input):
         comment=box_creation_input["comment"],
         items=box_creation_input["items"],
         size_id=box_creation_input["size_id"],
-        qr_code_code=box_creation_input["qr_code"],
+        qr_code_code=box_creation_input.get("qr_code"),
         created_by_id=g.user["id"],
     )
 

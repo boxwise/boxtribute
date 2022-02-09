@@ -28,7 +28,7 @@ def test_box_label_identifier_generation(
         "items": 10,
         "location_id": default_location["id"],
         "product_id": default_product["id"],
-        "size": default_size["id"],
+        "size_id": default_size["id"],
         "created_by_id": default_user["id"],
     }
 
@@ -55,11 +55,13 @@ def test_boxstate_update(
     default_product,
     null_box_state_location,
     non_default_box_state_location,
+    default_size,
 ):
     box = create_box(
         product_id=default_product["id"],
         created_by_id=default_user["id"],
         location_id=null_box_state_location["id"],
+        size_id=default_size["id"],
     )
 
     assert box.state.id == BoxState.InStock
@@ -85,6 +87,7 @@ def test_boxstate_update(
         product_id=default_product["id"],
         created_by_id=default_user["id"],
         location_id=non_default_box_state_location["id"],
+        size_id=default_size["id"],
     )
 
     assert box2.state.id == non_default_box_state_location["box_state"]
