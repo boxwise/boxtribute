@@ -18,6 +18,8 @@ def test_queries(auth0_client):
         "users",
         "locations",
         "productCategories",
+        "transferAgreements",
+        "shipments",
     ]:
         query = f"query {{ {resource} {{ id }} }}"
         response = assert_successful_request(auth0_client, query, field=resource)
@@ -69,3 +71,41 @@ def test_mutations(auth0_client):
                     }}) {{ firstName }} }}"""
     response = assert_successful_request(auth0_client, mutation)
     assert response == {"firstName": "Some"}
+
+    mutation = """mutation { createTransferAgreement(creationInput: {
+                    targetOrganisationId: 2,
+                    type: Bidirectional
+                }) { id type } }"""
+    response = assert_successful_request(auth0_client, mutation)
+    agreement_id = response.pop("id")
+    assert response == {"type": "Bidirectional"}
+
+    mutation = f"mutation {{ cancelTransferAgreement(id: {agreement_id}) {{ id }} }}"
+    response = assert_successful_request(auth0_client, mutation)
+    assert response == {"id": str(agreement_id)}
+
+    def create_shipment():
+        mutation = """mutation { createShipment(creationInput: {
+                        transferAgreementId: 1,
+                        sourceBaseId: 1,
+                        targetBaseId: 3
+                    }) { id state } }"""
+        response = assert_successful_request(auth0_client, mutation)
+        shipment_id = response.pop("id")
+        assert response == {"state": "Preparing"}
+        return shipment_id
+
+    shipment_id = create_shipment()
+    mutation = f"""mutation {{ updateShipment(updateInput: {{
+                    id: {shipment_id} }}) {{ id }} }}"""
+    response = assert_successful_request(auth0_client, mutation)
+    assert response == {"id": str(shipment_id)}
+
+    mutation = f"""mutation {{ sendShipment(id: {shipment_id}) {{ state }} }}"""
+    response = assert_successful_request(auth0_client, mutation)
+    assert response == {"state": "Sent"}
+
+    shipment_id = create_shipment()
+    mutation = f"""mutation {{ cancelShipment(id: {shipment_id}) {{ state }} }}"""
+    response = assert_successful_request(auth0_client, mutation)
+    assert response == {"state": "Canceled"}
