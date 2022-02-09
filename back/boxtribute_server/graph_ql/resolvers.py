@@ -346,10 +346,17 @@ def resolve_create_box(*_, box_creation_input):
 
 @mutation.field("updateBox")
 @convert_kwargs_to_snake_case
-def resolve_update_box(_, info, box_update_input):
+def resolve_update_box(*_, box_update_input):
     authorize(permission="stock:write")
-    box_update_input["last_modified_by"] = g.user["id"]
-    return update_box(box_update_input)
+    return update_box(
+        label_identifier=box_update_input["label_identifier"],
+        updated_by_id=g.user["id"],
+        comment=box_update_input.get("comment"),
+        items=box_update_input.get("items"),
+        location_id=box_update_input.get("location_id"),
+        product_id=box_update_input.get("product_id"),
+        size_id=box_update_input.get("size_id"),
+    )
 
 
 @mutation.field("createBeneficiary")

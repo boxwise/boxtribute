@@ -70,20 +70,18 @@ def test_boxstate_update(
     # updating to a location with box_state!+NULL should set the box state on the box
     # too
     box = update_box(
-        {
-            "location_id": non_default_box_state_location["id"],
-            "label_identifier": box.label_identifier,
-        }
+        location_id=non_default_box_state_location["id"],
+        label_identifier=box.label_identifier,
+        updated_by_id=default_user["id"],
     )
     assert box.state.id == non_default_box_state_location["box_state"]
 
     # setting it back to a location with a box_state=NULL should NOT change the box's
     # box_state
     box = update_box(
-        {
-            "location_id": null_box_state_location["id"],
-            "label_identifier": box.label_identifier,
-        }
+        location_id=null_box_state_location["id"],
+        label_identifier=box.label_identifier,
+        updated_by_id=default_user["id"],
     )
     assert box.state.id != BoxState.InStock
     assert box.state.id == non_default_box_state_location["box_state"]

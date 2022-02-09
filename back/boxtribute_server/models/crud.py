@@ -35,7 +35,8 @@ def create_box(
     now = utcnow()
     qr_id = QrCode.get_id_from_code(qr_code_code) if qr_code_code is not None else None
 
-    box_state = Location.get(Location.id == location_id).box_state or BoxState.InStock
+    location_box_state = Location.get(Location.id == location_id).box_state
+    box_state = BoxState.InStock if location_box_state is None else location_box_state
     for i in range(BOX_LABEL_IDENTIFIER_GENERATION_ATTEMPTS):
         try:
             new_box = Box.create(
@@ -61,20 +62,34 @@ def create_box(
     raise BoxCreationFailed()
 
 
-def update_box(data):
+def update_box(
+    label_identifier,
+    updated_by_id,
+    comment=None,
+    items=None,
+    location_id=None,
+    product_id=None,
+    size_id=None,
+):
     """Look up an existing Box given a UUID, and update all requested fields.
     Insert timestamp for modification and return the box.
     """
-    label_identifier = data.pop("label_identifier")
     box = Box.get(Box.label_identifier == label_identifier)
 
-    if "location_id" in data:
-        location_id = data.pop("location_id")
-        box.state = Location.get(Location.id == location_id).box_state or box.state
+    if comment is not None:
+        box.comment = comment
+    if items is not None:
+        box.items = items
+    if location_id is not None:
+        box.location = location_id
+        location_box_state = Location.get(Location.id == location_id).box_state
+        box.state = location_box_state if location_box_state is not None else box.state
+    if product_id is not None:
+        box.product = product_id
+    if size_id is not None:
+        box.size = size_id
 
-    for field, value in data.items():
-        setattr(box, field, value)
-
+    box.last_modified_by = updated_by_id
     box.last_modified_on = utcnow()
     box.save()
     return box
