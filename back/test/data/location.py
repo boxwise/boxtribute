@@ -1,4 +1,5 @@
 import pytest
+from boxtribute_server.enums import BoxState
 from boxtribute_server.models.definitions.location import Location
 from data.base import data as base_data
 from data.box_state import default_box_state_data
@@ -35,11 +36,37 @@ def another_location_data():
     return data
 
 
+def null_box_state_location_data():
+    data = default_location_data().copy()
+    data["id"] = 3
+    data["box_state"] = None
+    return data
+
+
+def non_default_box_state_location_data():
+    data = default_location_data().copy()
+    data["id"] = 4
+    data["box_state"] = BoxState.Donated
+    return data
+
+
 @pytest.fixture()
 def another_location():
     return another_location_data()
 
 
+@pytest.fixture()
+def null_box_state_location():
+    return null_box_state_location_data()
+
+
+@pytest.fixture()
+def non_default_box_state_location():
+    return non_default_box_state_location_data()
+
+
 def create():
     Location.create(**default_location_data())
     Location.create(**another_location_data())
+    Location.create(**null_box_state_location_data())
+    Location.create(**non_default_box_state_location_data())

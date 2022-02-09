@@ -15,6 +15,7 @@ from ..exceptions import (
 )
 from .definitions.beneficiary import Beneficiary
 from .definitions.box import Box
+from .definitions.location import Location
 from .definitions.qr_code import QrCode
 from .definitions.shipment import Shipment
 from .definitions.shipment_detail import ShipmentDetail
@@ -26,26 +27,40 @@ from .utils import utcnow
 BOX_LABEL_IDENTIFIER_GENERATION_ATTEMPTS = 10
 
 
-def create_box(data):
+def create_box(
+    product_id,
+    location_id,
+    created_by_id,
+    comment="",
+    items=0,
+    size_id=None,
+    qr_code_code=None,
+):
     """Insert information for a new Box in the database. Use current datetime
     and box state "InStock" by default. Generate an 8-digit sequence to identify the
     box. If the sequence is not unique, repeat the generation several times. If
     generation still fails, raise a BoxCreationFailed exception.
     """
-    now = utcnow()
-    qr_code = data.pop("qr_code", None)
-    qr_id = QrCode.get_id_from_code(qr_code) if qr_code is not None else None
 
+    now = utcnow()
+    qr_id = QrCode.get_id_from_code(qr_code_code) if qr_code_code is not None else None
+
+    box_state = Location.get(Location.id == location_id).box_state or BoxState.InStock
     for i in range(BOX_LABEL_IDENTIFIER_GENERATION_ATTEMPTS):
         try:
             new_box = Box.create(
-                label_identifier="".join(random.choices("0123456789", k=8)),
-                qr_code=qr_id,
+                comment=comment,
                 created_on=now,
+                created_by=created_by_id,
+                items=items,
+                label_identifier="".join(random.choices("0123456789", k=8)),
                 last_modified_on=now,
-                last_modified_by=data["created_by"],
-                state=BoxState.InStock.value,
-                **data,
+                last_modified_by=created_by_id,
+                location=location_id,
+                product=product_id,
+                size=size_id,
+                state=box_state,
+                qr_code=qr_id,
             )
             return new_box
         except peewee.IntegrityError as e:
@@ -62,6 +77,10 @@ def update_box(data):
     """
     label_identifier = data.pop("label_identifier")
     box = Box.get(Box.label_identifier == label_identifier)
+
+    if "location_id" in data:
+        location_id = data.pop("location_id")
+        box.state = Location.get(Location.id == location_id).box_state or box.state
 
     for field, value in data.items():
         setattr(box, field, value)

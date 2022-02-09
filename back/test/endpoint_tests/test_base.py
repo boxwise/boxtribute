@@ -51,5 +51,4 @@ def test_base_query(read_only_client, default_location, default_bases):
     assert int(base["organisation"]["id"]) == expected_base["organisation"]
 
     locations = base["locations"]
-    assert len(locations) == 1
-    assert int(locations[0]["id"]) == default_location["id"]
+    assert {"id": str(default_location["id"])} in locations

@@ -1,8 +1,7 @@
 """GraphQL resolver functionality"""
 from ariadne import MutationType, ObjectType, QueryType, convert_kwargs_to_snake_case
-from peewee import fn
-
 from flask import g
+from peewee import fn
 
 from ..authz import authorize
 from ..enums import HumanGender
@@ -235,10 +234,17 @@ def resolve_create_qr_code(_, info, box_label_identifier=None):
 
 @mutation.field("createBox")
 @convert_kwargs_to_snake_case
-def resolve_create_box(_, info, box_creation_input):
+def resolve_create_box(*_, box_creation_input):
     authorize(permission="stock:write")
-    box_creation_input["created_by"] = g.user["id"]
-    return create_box(box_creation_input)
+    return create_box(
+        product_id=box_creation_input["product_id"],
+        location_id=box_creation_input["location_id"],
+        comment=box_creation_input["comment"],
+        items=box_creation_input["items"],
+        size_id=box_creation_input["size_id"],
+        qr_code_code=box_creation_input["qr_code"],
+        created_by_id=g.user["id"],
+    )
 
 
 @mutation.field("updateBox")

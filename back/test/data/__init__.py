@@ -9,7 +9,12 @@ from .beneficiary import default_beneficiary
 from .box import box_without_qr_code, default_box, default_boxes
 from .box_state import default_box_state
 from .history import default_history
-from .location import another_location, default_location
+from .location import (
+    another_location,
+    default_location,
+    non_default_box_state_location,
+    null_box_state_location,
+)
 from .log import default_log
 from .organisation import another_organisation, default_organisation
 from .product import default_product
@@ -47,6 +52,8 @@ __all__ = [
     "default_user",
     "default_users",
     "expired_transfer_agreement",
+    "non_default_box_state_location",
+    "null_box_state_location",
     "qr_code_without_box",
 ]
 
