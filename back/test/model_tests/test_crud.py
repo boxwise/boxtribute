@@ -57,15 +57,18 @@ def test_boxstate_update(
     non_default_box_state_location,
     default_size,
 ):
+    # creating a box in a location with box_state=NULL should set the box's location to
+    # InStock
     box = create_box(
         product_id=default_product["id"],
         created_by_id=default_user["id"],
         location_id=null_box_state_location["id"],
         size_id=default_size["id"],
     )
-
     assert box.state.id == BoxState.InStock
 
+    # updating to a location with box_state!+NULL should set the box state on the box
+    # too
     box = update_box(
         {
             "location_id": non_default_box_state_location["id"],
@@ -74,6 +77,8 @@ def test_boxstate_update(
     )
     assert box.state.id == non_default_box_state_location["box_state"]
 
+    # setting it back to a location with a box_state=NULL should NOT change the box's
+    # box_state
     box = update_box(
         {
             "location_id": null_box_state_location["id"],
@@ -83,6 +88,8 @@ def test_boxstate_update(
     assert box.state.id != BoxState.InStock
     assert box.state.id == non_default_box_state_location["box_state"]
 
+    # creating a box with an explicit box_state in a location with box_state=NULL should
+    # set the box_state to that explicit box_state
     box2 = create_box(
         product_id=default_product["id"],
         created_by_id=default_user["id"],
