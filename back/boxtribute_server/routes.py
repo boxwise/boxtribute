@@ -8,7 +8,7 @@ from flask_cors import cross_origin
 
 from .auth import requires_auth
 from .exceptions import AuthenticationFailed, format_database_errors
-from .graph_ql.schema import schema
+from .graph_ql.schema import full_api_schema, query_api_schema
 
 # Blueprint for API
 api_bp = Blueprint(
@@ -25,8 +25,7 @@ def handle_auth_error(ex):
     return response
 
 
-# This doesn't need authentication
-@api_bp.route("/api/public", methods=["GET"])
+@api_bp.route("/public", methods=["GET"])
 @cross_origin(origin="localhost", headers=["Content-Type", "Authorization"])
 def public():
     response = (
@@ -35,15 +34,25 @@ def public():
     return jsonify(message=response)
 
 
-# This needs authentication
-@api_bp.route("/api/private", methods=["GET"])
+@api_bp.route("/api", methods=["GET"])
+def query_api_playground():
+    return PLAYGROUND_HTML, 200
+
+
+@api_bp.route("/api", methods=["POST"])
 @cross_origin(origin="localhost", headers=["Content-Type", "Authorization"])
 @requires_auth
-def private():
-    response = (
-        "Hello from a private endpoint! You need to be authenticated to see this."
+def query_api_server():
+    success, result = graphql_sync(
+        query_api_schema,
+        data=request.get_json(),
+        context_value=request,
+        introspection=os.getenv("FLASK_ENV") == "development",
+        error_formatter=format_database_errors,
     )
-    return jsonify(message=response)
+
+    status_code = 200 if success else 400
+    return jsonify(result), status_code
 
 
 @api_bp.route("/graphql", methods=["GET"])
@@ -59,16 +68,13 @@ def graphql_playgroud():
 @cross_origin(origin="localhost", headers=["Content-Type", "Authorization"])
 @requires_auth
 def graphql_server():
-    # GraphQL queries are always sent as POST
-    data = request.get_json()
-
     # Note: Passing the request to the context is optional.
     # In Flask, the current request is always accessible as flask.request
 
     debug_graphql = bool(os.getenv("DEBUG_GRAPHQL", False))
     success, result = graphql_sync(
-        schema,
-        data,
+        full_api_schema,
+        data=request.get_json(),
         context_value=request,
         debug=debug_graphql,
         introspection=os.getenv("FLASK_ENV") == "development",

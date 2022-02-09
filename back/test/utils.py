@@ -59,12 +59,12 @@ def assert_internal_server_error(client, query, **kwargs):
     )
 
 
-def assert_successful_request(client, query, field=None):
+def assert_successful_request(client, query, field=None, endpoint="graphql"):
     """Send GraphQL request with query using given client.
     Assert response HTTP code 200, and return main response JSON data field.
     """
     data = {"query": query}
-    response = client.post("/graphql", json=data)
+    response = client.post(f"/{endpoint}", json=data)
     assert response.status_code == 200
 
     field = field or _extract_field(query)

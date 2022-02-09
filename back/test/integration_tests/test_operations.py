@@ -1,15 +1,20 @@
+import pytest
 from utils import assert_successful_request
 
 
-def test_queries(auth0_client):
+@pytest.mark.parametrize("endpoint", ["api", "graphql"])
+def test_queries(auth0_client, endpoint):
+    def _assert_successful_request(*args, **kwargs):
+        return assert_successful_request(*args, **kwargs, endpoint=endpoint)
+
     query = """query BoxIdAndItems {
                 qrCode(qrCode: "03a6ad3e5a8677fe350f9849a208552") { box { id } }
             }"""
-    queried_box = assert_successful_request(auth0_client, query)["box"]
+    queried_box = _assert_successful_request(auth0_client, query)["box"]
     assert queried_box == {"id": "67"}
 
     query = """query { box(labelIdentifier: "728544") { state } }"""
-    queried_box = assert_successful_request(auth0_client, query)
+    queried_box = _assert_successful_request(auth0_client, query)
     assert queried_box == {"state": "Donated"}
 
     for resource in [
@@ -22,12 +27,12 @@ def test_queries(auth0_client):
         "shipments",
     ]:
         query = f"query {{ {resource} {{ id }} }}"
-        response = assert_successful_request(auth0_client, query, field=resource)
+        response = _assert_successful_request(auth0_client, query, field=resource)
         assert len(response) > 0
 
     for resource in ["beneficiaries", "products"]:
         query = f"query {{ {resource} {{ elements {{ id }} }} }}"
-        response = assert_successful_request(auth0_client, query, field=resource)
+        response = _assert_successful_request(auth0_client, query, field=resource)
         assert len(response) > 0
 
 
