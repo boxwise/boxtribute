@@ -1,3 +1,6 @@
+from utils import assert_successful_request
+
+
 def test_product_query(read_only_client, default_product):
     query = f"""query {{
                 product(id: {default_product['id']}) {{
@@ -6,23 +9,15 @@ def test_product_query(read_only_client, default_product):
                     category {{
                         hasGender
                     }}
-                    sizeRange {{
-                        id
-                    }}
+                    sizeRange {{ id }}
                     sizes
-                    base {{
-                        id
-                    }}
+                    base {{ id }}
                     price
                     gender
-                    createdBy {{
-                        id
-                    }}
+                    createdBy {{ id }}
                 }}
             }}"""
-    data = {"query": query}
-    response_data = read_only_client.post("/graphql", json=data)
-    queried_product = response_data.json["data"]["product"]
+    queried_product = assert_successful_request(read_only_client, query)
     assert queried_product == {
         "id": str(default_product["id"]),
         "name": default_product["name"],
@@ -37,14 +32,6 @@ def test_product_query(read_only_client, default_product):
 
 
 def test_products_query(read_only_client, default_product):
-    query = """query {
-                products {
-                    elements {
-                        name
-                    }
-                }
-            }"""
-    data = {"query": query}
-    response_data = read_only_client.post("/graphql", json=data)
-    queried_product = response_data.json["data"]["products"]["elements"][0]
+    query = """query { products { elements { name } } }"""
+    queried_product = assert_successful_request(read_only_client, query)["elements"][0]
     assert queried_product["name"] == default_product["name"]

@@ -4,7 +4,6 @@ from ...db import db
 from ..fields import UIntForeignKeyField
 from .beneficiary import Beneficiary
 from .product import Product
-from .size import Size
 from .user import User
 
 
@@ -18,26 +17,8 @@ class Transaction(db.Model):
         on_update="CASCADE",
     )
     count = IntegerField()
-    created = DateTimeField(null=True)
-    created_by = UIntForeignKeyField(
-        model=User,
-        column_name="created_by",
-        field="id",
-        null=True,
-        on_delete="SET NULL",
-        on_update="CASCADE",
-    )
     description = CharField()
-    drops = IntegerField(constraints=[SQL("DEFAULT 0")])
-    modified = DateTimeField(null=True)
-    modified_by = UIntForeignKeyField(
-        model=User,
-        column_name="modified_by",
-        field="id",
-        null=True,
-        on_delete="SET NULL",
-        on_update="CASCADE",
-    )
+    tokens = IntegerField(column_name="drops", constraints=[SQL("DEFAULT 0")])
     product = UIntForeignKeyField(
         column_name="product_id",
         field="id",
@@ -45,11 +26,11 @@ class Transaction(db.Model):
         null=True,
         on_update="CASCADE",
     )
-    size = UIntForeignKeyField(
-        column_name="size_id", field="id", model=Size, null=True, on_update="CASCADE"
-    )
-    transaction_date = DateTimeField(index=True)
-    user = UIntForeignKeyField(
+    created_on = DateTimeField(column_name="transaction_date", index=True)
+    # Albeit the underlying MySQL table has a 'created_by' column defined it is never
+    # used in dropapp. For consistency with other FK fields to the User model the
+    # 'user_id' column is aliased as 'created_by' and exposed
+    created_by = UIntForeignKeyField(
         model=User,
         column_name="user_id",
         field="id",

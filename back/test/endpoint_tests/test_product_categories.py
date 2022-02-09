@@ -1,20 +1,34 @@
+from utils import assert_successful_request
+
+
+def test_product_category_query(read_only_client, default_product_category):
+    category_id = str(default_product_category["id"])
+    query = f"""query {{ productCategory(id: {category_id}) {{
+                id
+                name
+                sizeRanges {{ id }}
+                hasGender
+            }} }}"""
+    category = assert_successful_request(read_only_client, query)
+    assert category == {
+        "id": category_id,
+        "name": default_product_category["name"],
+        "sizeRanges": None,
+        "hasGender": True,
+    }
+
+
 def test_product_categories_query(read_only_client):
     query = """query {
                 productCategories {
                     name
                     products {
-                        elements {
-                            id
-                        }
+                        elements { id }
                     }
-                    sizeRanges {
-                        id
-                    }
+                    sizeRanges { id }
                     hasGender
                 }
             }"""
-    data = {"query": query}
-    response_data = read_only_client.post("/graphql", json=data)
-    queried_categories = response_data.json["data"]["productCategories"]
+    queried_categories = assert_successful_request(read_only_client, query)
     assert len(queried_categories) == 4
     assert len([c for c in queried_categories if c["hasGender"]]) == 1

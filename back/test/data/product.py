@@ -21,10 +21,27 @@ def default_product_data():
     }
 
 
-@pytest.fixture()
+def another_product_data():
+    data = default_product_data()
+    data["id"] = 2
+    data["base"] = base_data()[2]["id"]
+    data["name"] = "new product"
+    return data
+
+
+def data():
+    return [default_product_data(), another_product_data()]
+
+
+@pytest.fixture
 def default_product():
     return default_product_data()
 
 
+@pytest.fixture
+def another_product():
+    return another_product_data()
+
+
 def create():
-    Product.create(**default_product_data())
+    Product.insert_many(data()).execute()

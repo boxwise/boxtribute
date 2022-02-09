@@ -1,0 +1,271 @@
+# This config will not run "as-is" and will need to be modified. You can see a minimal working
+# config in /examples/config.yml
+
+spectaql:
+  # Optional path to an image to use as the logo in the top-left of the output
+  logoFile: ../../react/src/Assets/images/Boxtribute Main Logo-03@2x.png
+  # Optional path to an image to use as a favicon for the site when it's not embedded
+  # faviconFile: path/to/favicon.png
+  # Optional path to a JS file that will be bundled into the spectaql.min.js with all the other
+  # required JS. Can be useful for setting some values, such as for the Traverse.defaults object
+  # additionalJsFile: path/to/additional.js
+
+  # Optional string specifying how to build and include CSS for the output:
+  #   full: will include a very opinionated set of CSS to make the output look good
+  #   basic: will include a very minimal set of CSS mostly used for layout purposes.
+  #     You can then season to taste with your own additional CSS
+  #
+  # Default: full
+  cssBuildMode: full # or basic
+
+
+introspection:
+  ##############################################
+  # These options specify where/how to get the information requried to generate your
+  # documentation.
+  #
+  # Each of these have corresponding CLI options where they can be expressed instead of here.
+  # The CLI options will take precedence over what is in your config file
+  #
+  # 1 and only 1 of the following options must be provided:
+  #
+
+  # URL of the GraphQL endpoint to hit if you want to generate the documentation based on live Introspection Query results
+  # NOTE: If not using introspection.url OR servers[], you need to provide x-swaggerUrl
+  # to satisfy the URL Swagger requirement.
+  # url: https://yoursite.com/graphql
+
+  # If using the "url" option above, any headers (such as Authorization) can be added here. This
+  # can also be added via the CLI options
+  # headers:
+  #   Authorization: Bearer s3cretT0k2n
+
+  # File containing a GraphQL Schema Definition written in SDL.
+  # Can also pass an array of paths (or glob supported by @graphql-tools/load-files)
+  # like so:
+  # schemaFile:
+  #   - path/to/schema/part1.gql
+  #   - path/to/schema/part2.gql
+  schemaFile:
+      - ../../back/boxtribute_server/graph_ql/types.graphql
+      - ../../back/boxtribute_server/graph_ql/queries.graphql
+      - ../../back/boxtribute_server/graph_ql/mutations.graphql
+      - ../../back/boxtribute_server/graph_ql/inputs.graphql
+
+  # File containing Introspection Query response in JS module export, or JSON format
+  # introspectionFile: path/to/introspection.js[on]
+
+  #
+  #
+  ##############################################
+
+  ##############################################
+  # These options are for random display or augmentation related things that didn't
+  # really fit anywhere else.
+  #
+
+  # Whether you would like to strip any trailing commas from the descriptions to keep
+  # things fresh and clean.
+  #
+  # Default: false
+  removeTrailingPeriodFromDescriptions: false
+
+  #
+  #
+  ##############################################
+
+
+  ##############################################
+  # These options specify how, where and if any "metadata" information is to be added to your Introspection
+  # Query results IF it is not already present. If you are not dealing with metadata, or you have already
+  # baked it into your Introspection Query results somehow (on the server-side, for example) then you
+  # can ignore these options completely.
+  #
+
+  # File that contains your metadata data in JS module export, or JSON format
+  metadataFile: metadata.json
+
+  # The path to a key from which to read the documentation-related metadata at each level of your metadata file.
+  # Defaults to 'documentation', but in case you use a different name, or have a complex/nested metadata structure, you can
+  # specify it here.
+  #
+  # Default: documentation
+  # metadatasReadPath: documentation
+
+  # The metadata that was just read from the above key path will be woven into your Introspection Query results.
+  # This option specifies the key path where that data will be written at each level.
+  #
+  #   ***
+  #   In order to ensure that the metadata you've written can be found later on down the line, this value
+  #   should be set the same as the "metadatasPath" option below
+  #   ***
+  #
+  # Defaults to 'documentation', but in case you have a complex/nested metadata structure, you can
+  # specify it here.
+  #
+  # Default: documentation
+  # metadatasWritePath: documentation
+
+  #
+  #
+  ##############################################
+
+  ##############################################
+  # These options specify how, where and if any "metadata" information is to be found, or
+  # used/ignored when processing your documentation.
+  #
+
+  # The key path in your Introspection Query results where metadata supported by this library can
+  # be found.
+  # Defaults to 'documentation', but in case you have a complex/nested metadata structure, you can
+  # specify it here.
+  #
+  # Default: documentation
+  # metadatasPath: documentation
+
+  # Whether or not to look for and use metadata in your data. If turned off, metadata will be ignored
+  # even if it's there
+  #
+  # Default: true
+  metadatas: false
+
+  #
+  #
+  ##############################################
+
+
+  # This allows you to specify a custom path to a JS moddule to handle the generation of
+  # example values for your schema. The default is "./customizations/examples" which starts
+  # out doing nothing
+  #
+  # Default: ./customizations/examples
+  # dynamicExamplesProcessingModule: path/to/examples.js
+
+  ##############################################
+  # These options specify what the default behavior should be
+  # (regarding documented vs non-documented) in the absence of
+  # metadata directives on a given item
+
+  # Whether to document any Queries at all, in the absence of a metadata directive
+  # Default: true
+  queriesDocumentedDefault: true
+  # Whether to document an individual Query, in the absence of a metadata directive
+  # Default: true
+  queryDocumentedDefault: true
+  # Whether to document a Query Argument, in the absence of a metadata directive
+  # Default: true
+  queryArgDocumentedDefault: true
+  # Hide any Queries with undocumented return types so as not to reference something
+  # that seemingly does not exist.
+  # Default: true
+  hideQueriesWithUndocumentedReturnType: true
+
+  # Whether to document any Mutations at all, in the absence of a metadata directive
+  # Default: true
+  mutationsDocumentedDefault: true
+  # Whether to document an individual Mutation, in the absence of a metadata directive
+  # Default: true
+  mutationDocumentedDefault: true
+  # Whether to document a Mutation Argument, in the absence of a metadata directive
+  # Default: true
+  mutationArgDocumentedDefault: true
+  # Hide any Mutations with undocumented return types so as not to reference something
+  # that seemingly does not exist.
+  # Default: true
+  hideMutationsWithUndocumentedReturnType: true
+
+  # Whether to document any Types at all
+  # Default: true
+  typesDocumented: true
+  # Whether to document an individual Type, in the absence of a metadata directive
+  # Default: true
+  typeDocumentedDefault: true
+  # Whether to document an individual Field, in the absence of a metadata directive
+  # Default: true
+  fieldDocumentedDefault: true
+  # Whether to document an individual Argument, in the absence of a metadata directive
+  # Default: true
+  argDocumentedDefault: true
+  # Hide any fields with undocumented return types so as not to reference something
+  # that seemingly does not exist.
+  # Default: true
+  hideFieldsWithUndocumentedReturnType: true
+
+  #
+  #
+  ##############################################
+
+servers:
+  # NOTE: If not using introspection.url OR servers[], you need to provide x-swaggerUrl
+  # to satisfy the URL Swagger requirement.
+
+  # same format as for OpenAPI Specification https://swagger.io/specification/#server-object
+
+  - url: https://www.boxtribute.org/graphql
+    description: Production Server
+    # Indicates to use this server's URL as the typical GraphQL request base in the documentation
+    # If no server entries have this indicator, the first server's URL will be used.
+    # If no server entries are defined at all, the Introspection URL will be used.
+    production: true
+
+info:
+  # Tries to adhere to OpenAPI Specification https://swagger.io/specification/#info-object
+  # Will be used to populate the Welcome section of the output
+
+  ##############################################
+  # Introduction area flags
+  #
+
+  # Set to true to do no Introduction area rendering at all. Supersedes the below options
+  # Default: false
+  x-hideIntroduction: false
+  # Set to true to not render a friendly Welcome section based on the description in this area
+  # Default: false
+  x-hideWelcome: false
+  # Set to true to not render your intro items
+  # Default: false
+  x-hideIntroItems: false
+
+  # Set to true to not render the deprecated label
+  # Default: false
+  x-hideIsDeprecated: false
+  # Set to true to not render the deprecation reason
+  # Default: false
+  x-hideDeprecationReason: false
+
+  #
+  ##############################################
+
+  description: These pages contain the documentation for the boxtribute GraphQL API. Have fun exploring!
+  version: 0.0.1
+  title: Welcome!
+  # This is non-standard and optional. If omitted, will use "title". Also only relevant
+  # when building non-embedded.
+  x-htmlTitle: boxtribute GraphQL API documentation
+  termsOfService: 'https://www.boxtribute.org'
+  contact:
+    name: boxtribute Support
+    email: help@boxtribute.org
+    url: https://www.boxtribute.org
+  license:
+    name: Apache 2.0
+    url: 'http://www.apache.org/licenses/LICENSE-2.0.html'
+
+  # A non-standard array of items to display in your Introduction Area
+  x-introItems:
+    # Can be a Title (for the Nav panel) + URL to simply add a link to somewhere
+    - title: boxtribute website
+      url: https://www.boxtribute.org
+    # Can be a Title (for the Nav panel) + description (for the Content panel)
+    - title: Login to boxtribute web app
+      url: https://www.app.boxtribute.org
+    - title: Authentication and Authorization
+      description: Lorem ipsum explain how to authenticate, and what clients are authorized for
+
+  # If you really want to hide the "Documentation by" at the bottom of your output, you can do so here
+  # Default: false
+  x-hidePoweredBy: false
+
+  # If not using introspection.url OR servers[], you need to provide x-swaggerUrl
+  # to satisfy the URL Swagger requirement. This allows for that.
+  x-swaggerUrl: https://www.boxtribute.org/graphql

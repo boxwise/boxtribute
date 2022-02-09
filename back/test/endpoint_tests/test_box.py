@@ -1,4 +1,6 @@
+import pytest
 from boxtribute_server.enums import BoxState
+from utils import assert_successful_request
 
 
 def test_box_query_by_label_identifier(
@@ -10,35 +12,24 @@ def test_box_query_by_label_identifier(
                 box(labelIdentifier: "{label_identifier}") {{
                     id
                     labelIdentifier
-                    location {{
-                        id
-                    }}
+                    location {{ id }}
                     items
-                    product {{
-                        id
-                    }}
+                    product {{ id }}
                     size
                     state
-                    qrCode {{
-                        id
-                    }}
-                    createdBy {{
-                        id
-                    }}
+                    qrCode {{ id }}
+                    createdBy {{ id }}
                     comment
                 }}
             }}"""
-    data = {"query": query}
-    response_data = read_only_client.post("/graphql", json=data)
-    queried_box = response_data.json["data"]["box"]
-    assert response_data.status_code == 200
+    queried_box = assert_successful_request(read_only_client, query)
     assert queried_box == {
         "id": str(default_box["id"]),
         "labelIdentifier": label_identifier,
         "location": {"id": str(default_box["location"])},
         "items": default_box["items"],
         "product": {"id": str(default_box["product"])},
-        "size": None,
+        "size": str(default_box["size"]),
         "state": BoxState.InStock.name,
         "qrCode": {"id": str(default_box["qr_code"])},
         "createdBy": {"id": str(default_box["created_by"])},
@@ -54,10 +45,7 @@ def test_box_query_by_qr_code(read_only_client, default_box, default_qr_code):
                     }}
                 }}
             }}"""
-    data = {"query": query}
-    response_data = read_only_client.post("/graphql", json=data)
-    queried_box = response_data.json["data"]["qrCode"]["box"]
-    assert response_data.status_code == 200
+    queried_box = assert_successful_request(read_only_client, query)["box"]
     assert queried_box["labelIdentifier"] == default_box["label_identifier"]
 
 
@@ -70,44 +58,30 @@ def test_box_mutations(client, qr_code_without_box):
                     sizeId: 1,
                     qrCode: "{qr_code_without_box["code"]}",
                 }}"""
-
-    gql_mutation_string = f"""mutation {{
+    mutation = f"""mutation {{
             createBox(
                 boxCreationInput : {box_creation_input_string}
             ) {{
                 id
                 labelIdentifier
                 items
-                location {{
-                    id
-                }}
-                product {{
-                    id
-                }}
-                qrCode {{
-                    id
-                }}
+                location {{ id }}
+                product {{ id }}
+                size
+                qrCode {{ id }}
                 state
                 createdOn
-                createdBy {{
-                    id
-                }}
+                createdBy {{ id }}
                 lastModifiedOn
-                lastModifiedBy {{
-                    id
-                }}
+                lastModifiedBy {{ id }}
             }}
         }}"""
-
-    data = {"query": gql_mutation_string}
-    response = client.post("/graphql", json=data)
-    created_box = response.json["data"]["createBox"]
-
-    assert response.status_code == 200
+    created_box = assert_successful_request(client, mutation)
     assert created_box["items"] == 9999
     assert created_box["state"] == "InStock"
     assert created_box["location"]["id"] == "1"
     assert created_box["product"]["id"] == "1"
+    assert created_box["size"] == "1"
     assert created_box["qrCode"]["id"] == str(qr_code_without_box["id"])
     assert created_box["createdOn"] == created_box["lastModifiedOn"]
     assert created_box["createdBy"] == created_box["lastModifiedBy"]
@@ -121,15 +95,56 @@ def test_box_mutations(client, qr_code_without_box):
                 items
                 lastModifiedOn
                 createdOn
-                qrCode {{
-                    id
-                }}
+                qrCode {{ id }}
             }}
         }}"""
-    data = {"query": mutation}
-    response = client.post("/graphql", json=data)
-    updated_box = response.json["data"]["updateBox"]
-
-    assert response.status_code == 200
+    updated_box = assert_successful_request(client, mutation)
     assert updated_box["items"] == 7777
     assert updated_box["qrCode"] == created_box["qrCode"]
+
+
+def _format(parameter):
+    try:
+        return ",".join(f"{k}={v}" for f in parameter for k, v in f.items())
+    except TypeError:
+        return parameter  # integer number
+
+
+@pytest.mark.parametrize(
+    "filters,number",
+    [
+        [[{"states": "[InStock]"}], 1],
+        [[{"states": "[Lost]"}], 1],
+        [[{"states": "[MarkedForShipment]"}], 3],
+        [[{"states": "[Received]"}], 0],
+        [[{"states": "[InStock,Lost]"}], 2],
+        [[{"states": "[Lost,MarkedForShipment]"}], 4],
+        [[{"lastModifiedFrom": '"2020-01-01"'}], 5],
+        [[{"lastModifiedFrom": '"2021-02-02"'}], 2],
+        [[{"lastModifiedFrom": '"2022-01-01"'}], 0],
+        [[{"lastModifiedUntil": '"2022-01-01"'}], 5],
+        [[{"lastModifiedUntil": '"2020-11-27"'}], 3],
+        [[{"lastModifiedUntil": '"2020-01-01"'}], 0],
+        [[{"productGender": "Women"}], 5],
+        [[{"productGender": "Men"}], 0],
+        [[{"productCategoryId": "1"}], 5],
+        [[{"productCategoryId": "2"}], 0],
+        [[{"states": "[MarkedForShipment]"}, {"lastModifiedFrom": '"2021-02-01"'}], 2],
+        [[{"states": "[InStock,Lost]"}, {"productGender": "Boy"}], 0],
+    ],
+    ids=_format,
+)
+def test_boxes_query_filter(read_only_client, default_location, filters, number):
+    filter_input = ", ".join(f"{k}: {v}" for f in filters for k, v in f.items())
+    query = f"""query {{ location(id: {default_location['id']}) {{
+                boxes(filterInput: {{ {filter_input} }}) {{
+                    elements {{ id state }}
+                }} }} }}"""
+    location = assert_successful_request(read_only_client, query)
+    boxes = location["boxes"]["elements"]
+    assert len(boxes) == number
+
+    for f in filters:
+        if "states" in f and number > 0:
+            states = f["states"].strip("[]").split(",")
+            assert {b["state"] for b in boxes} == set(states)

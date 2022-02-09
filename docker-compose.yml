@@ -6,7 +6,7 @@ services:
             args:
                 flask_env: ${FLASK_ENV:-development}
         ports:
-            - 5000:5000
+            - 5005:5000
             # request localhost:5001 to run debugger in vscode (cf. README)
             - 5001:5001
         networks:
@@ -33,7 +33,7 @@ services:
             REACT_APP_AUTH0_AUDIENCE:  ${AUTH0_AUDIENCE:?auth0 config not set in .env file}
             REACT_APP_REDIRECT: http://localhost:3000
             REACT_APP_LOGOUT_URL: http://localhost:3000
-            REACT_APP_GRAPHQL_SERVER: http://localhost:5000/graphql
+            REACT_APP_GRAPHQL_SERVER: http://localhost:5005/graphql
         ports:
             - "3000:3000"
         stdin_open: true
@@ -50,7 +50,7 @@ services:
             # in case you want to use node/npm both outside container for test/lint etc.
             - /app/react/node_modules
     db:
-        image: mysql/mysql-server:5.7 # We run MySQL 5.7 on the production environment atm
+        image: mysql/mysql-server:8.0 # We run MySQL 8.0 on the production environment atm
         command: --default-authentication-plugin=mysql_native_password --lower_case_table_names=1
         environment:
             MYSQL_ROOT_PASSWORD: dropapp_root

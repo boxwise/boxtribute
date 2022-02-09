@@ -2,6 +2,8 @@ import json
 import os
 import urllib
 
+from boxtribute_server.auth import JWT_CLAIM_PREFIX
+
 
 def memoize(function):
     """Wraps a function so the data is cached.
@@ -65,49 +67,53 @@ def get_user_token_string():
 
 def create_jwt_payload(
     *,
-    email=None,
-    base_ids=None,
-    organisation_id=None,
-    roles=None,
-    user_id=None,
+    email="dev_coordinator@boxaid.org",
+    base_ids=(1,),
+    organisation_id=1,
+    roles=("Coordinator",),
+    user_id=8,
     permissions=None,
 ):
     """Create payload containing authorization information of the user requesting from
     the app in the context of testing. The payload field names are identical to the
-    actual ones in the JWT returned by Auth0. Irrelevant fields (issues, audience, issue
-    time, expiration time, client ID, grant type) are skipped.
+    actual ones in the JWT returned by Auth0 (taking the prefix for custom claims into
+    account). Irrelevant fields (issues, audience, issue time, expiration time, client
+    ID, grant type) are skipped.
 
     If no arguments are passed, the payload for the default user is returned. Any
     argument specified overrides the corresponding field of the default payload.
+    If `base_ids` is specified, it is used to construct a prefix of form `base_X[-Y...]`
+    for the default permissions. If `permissions` is specified too, it overwrites any
+    previously set permissions.
     """
     payload = {
-        "https://www.boxtribute.com/email": "dev_coordinator@boxaid.org",
-        "https://www.boxtribute.com/base_ids": [1],
-        "https://www.boxtribute.com/organisation_id": 1,
-        "https://www.boxtribute.com/roles": ["Coordinator"],
-        "sub": "auth0|8",
-        "permissions": [
-            "base:read",
-            "category:read",
-            "location:read",
-            "product:read",
-            "transaction:read",
-            "user:read",
-            "beneficiary:write",
-            "qr:write",
-            "stock:write",
-            "transaction:write",
-        ],
+        f"{JWT_CLAIM_PREFIX}/email": email,
+        f"{JWT_CLAIM_PREFIX}/organisation_id": organisation_id,
+        f"{JWT_CLAIM_PREFIX}/roles": roles,
+        "sub": f"auth0|{user_id}",
     }
 
-    prefix = "https://www.boxtribute.com"
-    for name in ["email", "base_ids", "organisation_id", "roles"]:
-        value = locals()[name]
-        if value is not None:
-            payload[f"{prefix}/{name}"] = value
-    if user_id is not None:
-        payload["sub"] = f"auth0|{user_id}"
-    if permissions is not None:
-        payload["permissions"] = permissions
+    if permissions is None:
+        base_prefix = f"base_{'-'.join(str(b) for b in base_ids)}"
+        payload[f"{JWT_CLAIM_PREFIX}/permissions"] = [
+            f"{base_prefix}/base:read",
+            f"{base_prefix}/beneficiary:read",
+            f"{base_prefix}/category:read",
+            f"{base_prefix}/location:read",
+            f"{base_prefix}/product:read",
+            f"{base_prefix}/qr:read",
+            f"{base_prefix}/stock:read",
+            f"{base_prefix}/transaction:read",
+            f"{base_prefix}/user:read",
+            f"{base_prefix}/beneficiary:create",
+            f"{base_prefix}/beneficiary:edit",
+            f"{base_prefix}/qr:create",
+            f"{base_prefix}/stock:write",
+            f"{base_prefix}/transaction:write",
+            "shipment:write",
+            "transfer_agreement:write",
+        ]
+    else:
+        payload[f"{JWT_CLAIM_PREFIX}/permissions"] = permissions
 
     return payload

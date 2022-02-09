@@ -1,21 +1,30 @@
+# GraphQL basic types as returned by queries and mutations, and input types for queries.
+
+"""
+Representation of a box storing items of a [`Product`]({{Types.Product}}) in a [`Location`]({{Types.Location}})
+"""
 type Box {
   id: ID!
+  " Sequence of numbers for identifying the box, usually written on box label "
   labelIdentifier: String!
   location: Location
+  " The number of items the box contains. "
   items: Int!
   product: Product!
   # A size from a size range, consider making this enum
   size: String
   state: BoxState!
-  qrCode: QrCode!
-  createdBy: User!
-  createdOn: Datetime!
-  # The user who last changed something about the box
-  lastModifiedBy: User!
-  lastModifiedOn: Datetime!
+  qrCode: QrCode
+  createdBy: User
+  createdOn: Datetime
+  lastModifiedBy: User
+  lastModifiedOn: Datetime
   comment: String
 }
 
+"""
+Representation of a QR code, possibly associated with a [`Box`]({{Types.Box}}).
+"""
 type QrCode {
   id: ID!
   code: String!
@@ -23,37 +32,51 @@ type QrCode {
   createdOn: Datetime
 }
 
+"""
+Representation of a product, containing information about [`ProductCategory`]({{Types.ProductCategory}}), size, and [`ProductGender`]({{Types.ProductGender}}).
+The product is registered in a specific [`Base`]({{Types.Base}}).
+"""
 type Product {
   id: ID!
   name: String!
   category: ProductCategory!
   sizeRange: SizeRange!
+  " List of sizes for the product. "
   sizes: [String!]!
   base: Base!
   price: Float
   gender: ProductGender
-  createdBy: User!
-  createdOn: Datetime!
-  # The user who last changed something about the box
-  lastModifiedBy: User!
-  lastModifiedOn: Datetime!
+  createdBy: User
+  createdOn: Datetime
+  lastModifiedBy: User
+  lastModifiedOn: Datetime
 }
 
+"""
+Representation of a product category.
+"""
 type ProductCategory {
   id: ID!
   name: String!
+  " List of all products registered in bases the client is authorized to view. "
   products(paginationInput: PaginationInput): ProductPage
   sizeRanges: [SizeRange]
-  # Non-clothing categories don't have a product gender
+  " Non-clothing categories don't have a product gender. "
   hasGender: Boolean!
 }
 
+"""
+Utility type holding a page of [`Products`]({{Types.Product}}).
+"""
 type ProductPage {
   elements: [Product!]!
   pageInfo: PageInfo!
   totalCount: Int!
 }
 
+"""
+Classificators for [`Product`]({{Types.Product}}) gender.
+"""
 enum ProductGender {
   Men
   Women
@@ -67,6 +90,9 @@ enum ProductGender {
   none
 }
 
+"""
+Classificators for [`Box`]({{Types.Box}}) state.
+"""
 enum BoxState {
   InStock
   Lost
@@ -76,6 +102,9 @@ enum BoxState {
   Scrap
 }
 
+"""
+Representation of group of sizes.
+"""
 type SizeRange {
   id: ID!
   label: String!
@@ -83,42 +112,63 @@ type SizeRange {
   productCategory: [ProductCategory!]
 }
 
+"""
+Representation of a physical location used to store [`Boxes`]({{Types.Box}}).
+The location is part of a specific [`Base`]({{Types.Base}}).
+"""
 type Location {
   id: ID!
   base: Base!
   name: String
   isShop: Boolean!
-  # List of all the boxes in the location
-  boxes(paginationInput: PaginationInput): BoxPage
+  " List of all the [`Boxes`]({{Types.Box}}) in this location "
+  boxes(paginationInput: PaginationInput, filterInput: FilterBoxInput): BoxPage
+  " Default state for boxes in this location "
   boxState: BoxState
+  createdBy: User
   createdOn: Datetime
-  # The user who generated QR code
-  createdBy: User!
-  lastModifiedBy: User!
-  lastModifiedOn: Datetime!
+  lastModifiedBy: User
+  lastModifiedOn: Datetime
 }
 
+"""
+Utility type holding a page of [`Boxes`]({{Types.Box}}).
+"""
 type BoxPage {
   elements: [Box!]!
   pageInfo: PageInfo!
   totalCount: Int!
 }
 
+"""
+Representation of a base.
+The base is managed by a specific [`Organisation`]({{Types.Organisation}}).
+"""
 type Base {
   id: ID!
   name: String!
   organisation: Organisation!
+  " List of all [`Locations`]({{Types.Location}}) present in this base "
   locations: [Location!]
-  beneficiaries(paginationInput: PaginationInput): BeneficiaryPage!
+  " List of all [`Beneficiaries`]({{Types.Beneficiary}}) registered in this base "
+  beneficiaries(paginationInput: PaginationInput, filterInput: FilterBeneficiaryInput): BeneficiaryPage!
   currencyName: String
 }
 
+"""
+Representation of an organisation.
+"""
 type Organisation {
   id: ID!
   name: String!
+  " List of all [`Bases`]({{Types.Base}}) managed by this organisation "
   bases: [Base!]
 }
 
+"""
+Representation of a user signed up for the web application.
+The user is a member of a specific [`Organisation`]({{Types.Organisation}}).
+"""
 type User {
   id: ID!
   organisation: Organisation
@@ -126,105 +176,139 @@ type User {
   email: String!
   validFirstDay: Date
   validLastDay: Date
+  " List of all [`Bases`]({{Types.Base}}) this user can access "
   bases: [Base]
   lastLogin: Datetime
   lastAction: Datetime
 }
 
+"""
+Utility type holding a page of [`Beneficiaries`]({{Types.Beneficiary}}).
+"""
 type BeneficiaryPage {
   elements: [Beneficiary!]
   pageInfo: PageInfo!
   totalCount: Int!
 }
 
+"""
+Representation of a beneficiary.
+The beneficiary is registered in a specific [`Base`]({{Types.Base}}).
+"""
 type Beneficiary {
   id: ID!
   firstName: String!
   lastName: String!
-  dateOfBirth: Date!
+  dateOfBirth: Date
+  " If dateOfBirth is not set, age will be null. "
+  age: Int
   comment: String
   base: Base!
+  " All members of a family have the same group identifier "
   groupIdentifier: String!
-  gender: HumanGender!
+  gender: HumanGender
   languages: [Language!]
+  " Null if this beneficiary is the family head "
   familyHead: Beneficiary
+  active: Boolean!
   isVolunteer: Boolean!
-  isSigned: Boolean!
-  isRegistered: Boolean!
+  signed: Boolean!
+  registered: Boolean!
   signature: String
   dateOfSignature: Date
+  " Number of tokens the beneficiary holds (sum of all transaction values) "
   tokens: Int
-  createdBy: User!
-  createdOn: Datetime!
-  lastModifiedBy: User!
-  lastModifiedOn: Datetime!
+  " List of all [`Transactions`]({{Types.Transaction}}) that this beneficiary executed "
+  transactions: [Transaction!]
+  createdBy: User
+  createdOn: Datetime
+  lastModifiedBy: User
+  lastModifiedOn: Datetime
 }
 
+"""
+Representation of a transaction executed by a beneficiary (spending or receiving tokens).
+"""
+type Transaction {
+  id: ID!
+  beneficiary: Beneficiary!
+  product: Product
+  " Number of transferred products "
+  count: Int
+  " Value of the transaction "
+  tokens: Int
+  description: String
+  createdBy: User
+  createdOn: Datetime!
+}
+
+"""
+Additional information passed along in `*Page` types.
+The client shall use the `has*Page` fields to determine whether to fetch more data.
+"""
 type PageInfo {
+  " If true, a previous page is available. "
   hasPreviousPage: Boolean!
+  " If true, a next page is available. "
   hasNextPage: Boolean!
+  """
+  An identifier for the first element on the page. The client shall use it for the [`PaginationInput.before`]({{Types.PaginationInput}}) field
+  """
   startCursor: String!
+  """
+  An identifier for the last element on the page. The client shall use it for the [`PaginationInput.after`]({{Types.PaginationInput}}) field
+  """
   endCursor: String!
 }
 
-input CreateBoxInput {
-  productId: Int!
-  sizeId: Int
-  items: Int!
-  locationId: Int!
-  comment: String!
-  qrCode: String
-}
-
-input UpdateBoxInput {
-  labelIdentifier: String!
-  productId: Int
-  sizeId: Int
-  items: Int
-  locationId: Int
-  comment: String
-}
-
-input CreateBeneficiaryInput {
-  firstName: String!
-  lastName: String!
-  baseId: Int
-  groupIdentifier: String!
-  dateOfBirth: Date!
-  comment: String
-  gender: HumanGender!
-  languages: [Language!]
-  familyHeadId: Int
-  isVolunteer: Boolean!
-  isRegistered: Boolean!
-  signature: String
-  dateOfSignature: Date
-}
-
-input UpdateBeneficiaryInput {
-  id: ID!
-  firstName: String
-  lastName: String
-  baseId: Int
-  groupIdentifier: String
-  dateOfBirth: Date
-  comment: String
-  gender: HumanGender
-  languages: [Language!]
-  familyHeadId: Int
+"""
+Optional filter values when retrieving [`Beneficiaries`]({{Types.Beneficiary}}).
+If several fields are defined (not null), they are combined into a filter expression using logical AND (i.e. the filter returns only elements for which *all* fields are true).
+"""
+input FilterBeneficiaryInput {
+  " Filter for all beneficiaries who were created on this date (incl.), or later. "
+  createdFrom: Date
+  " Filter for all beneficiaries who were created on this date (incl.), or earlier. "
+  createdUntil: Date
+  active: Boolean
   isVolunteer: Boolean
-  isRegistered: Boolean
-  signature: String
-  dateOfSignature: Date
+  registered: Boolean
+  """
+  Filter for all beneficiaries where pattern is (case-insensitive) part of first name, last name, or comment, or where pattern matches the group identifier
+  """
+  pattern: String
 }
 
+"""
+Optional filter values when retrieving [`Boxes`]({{Types.Box}}).
+If several fields are defined (not null), they are combined into a filter expression using logical AND (i.e. the filter returns only elements for which *all* fields are true).
+"""
+input FilterBoxInput {
+  " Filter for all boxes that have *one* of the specified states. "
+  states: [BoxState!]
+  " Filter for all boxes that who were last modified on this date (incl.), or later. "
+  lastModifiedFrom: Date
+  " Filter for all boxes that who were last modified on this date (incl.), or earlier. "
+  lastModifiedUntil: Date
+  productGender: ProductGender
+  productCategoryId: Int
+}
+
+"""
+Optional input for queries/fields that return a page of elements.
+The specified fields must be either none OR `first` OR `after, first` OR `before, last`. Other combinations result in unexpected behavior and/or errors.
+The default page size (`first` and `last`, resp.) is 50.
+This format is inspired by https://relay.dev/graphql/connections.htm#sec-Forward-pagination-arguments
+"""
 input PaginationInput {
-  # PaginationInput must be either (first) OR (after, first) OR (before, last).
-  # Indicate requesting paginating of the first X elements after cursor
-  # cf. https://relay.dev/graphql/connections.htm#sec-Forward-pagination-arguments
+  """
+  Indicate requesting paginating of the first X elements after this cursor. By default, the first relevant element of the database. See also [`PageInfo.endCursor`]({{Types.PageInfo}})
+  """
   after: String
   first: Int
-  # ... or the last X elements before cursor
+  """
+  Indicate requesting paginating of the last X elements before this cursor. See also [`PageInfo.startCursor`]({{Types.PageInfo}})
+  """
   before: String
   last: Int
 }
@@ -235,6 +319,9 @@ enum HumanGender {
   Diverse
 }
 
+"""
+Language codes.
+"""
 enum Language {
   nl
   en
@@ -262,7 +349,9 @@ type TransferAgreement {
   validFrom: Datetime!
   validUntil: Datetime
   comment: String
+  " List of all bases of the source organisation included in the agreement "
   sourceBases: [Base!]!
+  " List of all bases of the target organisation included in the agreement "
   targetBases: [Base!]
   shipments: [Shipment!]!
 }
@@ -298,45 +387,6 @@ type ShipmentDetail {
   deletedOn: Datetime
 }
 
-input TransferAgreementCreationInput {
-  targetOrganisationId: Int!
-  # pass local date and timezone information (e.g. 'Europe/Berlin')
-  validFrom: Date
-  validUntil: Date
-  timezone: String
-  sourceBaseIds: [Int!]
-  targetBaseIds: [Int!]
-}
-
-input ShipmentCreationInput {
-  sourceBaseId: Int!
-  targetBaseId: Int!
-  transferAgreementId: Int!
-}
-
-input ShipmentUpdateInput {
-  id: ID!
-  sourceBaseId: Int!
-  targetBaseId: Int!
-  # IDs of boxes prepared for shipment
-  preparedBoxIds: [Int!]!
-  # IDs of prepared boxes to be moved back to stock
-  removedBoxIds: [Int!]!
-  # IDs of boxes that went lost during shipment
-  lostBoxIds: [Int!]!
-}
-
-input ShipmentDetailUpdateInput {
-  id: ID!
-  targetProductId: Int!
-  targetLocationId: Int!
-}
-
-input ShipmentFilterInput {
-  sourceOrganisationId: Int
-  targetOrganisationId: Int
-}
-
 enum TransferAgreementState {
   UnderReview
   Accepted
@@ -354,6 +404,6 @@ enum ShipmentState {
   Preparing
   Sent
   Completed
-  Lost
   Canceled
+  Lost
 }

@@ -6,7 +6,7 @@ orbs:
 jobs:
   checkout-to-workspace:
     docker:
-      - image: circleci/python:3.8-buster-node
+      - image: cimg/python:3.8.12-node
     steps:
       - checkout
       - persist_to_workspace:
@@ -15,7 +15,7 @@ jobs:
             - .
   build-flask:
     docker:
-      - image: circleci/python:3.8-buster
+      - image: cimg/python:3.8.12
     working_directory: ~/back
     steps:
       - attach_workspace:
@@ -26,8 +26,11 @@ jobs:
       - run:
           name: create the python virtual environment and install non-cached dependencies
           command: |
-            python3 -m venv env
-            source env/bin/activate
+            pyenv root
+            python --version
+            pyenv virtualenv env
+            pyenv virtualenvs
+            source $(pyenv root)/versions/3.8.12/envs/env/bin/activate
             pip install -e . -r requirements.txt
       # Cache the installed packages
       - save_cache:
@@ -39,10 +42,11 @@ jobs:
           root: ~/
           paths:
             - back/*
+            - .pyenv/versions/3.8.12/envs
 
   build-and-test-react:
     docker:
-      - image: circleci/python:3.8-buster-node
+      - image: cimg/python:3.8.12-node
     working_directory: ~/react
     steps:
       - attach_workspace:
@@ -101,8 +105,8 @@ jobs:
   # following https://circleci.com/docs/2.0/project-walkthrough/
   test-flask:
     docker:
-      - image: circleci/python:3.8-buster
-      - image: circleci/mysql:5.7.32
+      - image: cimg/python:3.8.12
+      - image: cimg/mysql:8.0.27
         environment:
           MYSQL_ROOT_PASSWORD: dropapp_root
           MYSQL_DATABASE: dropapp_dev
@@ -118,7 +122,7 @@ jobs:
       - run:
           name: install dev dependencies for linting and testing
           command: |
-            source env/bin/activate
+            source $(pyenv root)/versions/3.8.12/envs/env/bin/activate
             pip install -r requirements-dev.txt
       # - save_cache:
       #     key: flask-dev-deps-{{ checksum "requirements-dev.txt" }}
@@ -129,7 +133,7 @@ jobs:
       - run:
           name: run style checks on Python files
           command: |
-            source env/bin/activate
+            source $(pyenv root)/versions/3.8.12/envs/env/bin/activate
             pre-commit run --files **/*.py
       - save_cache:
           key: precommit-deps-{{ checksum "../.pre-commit-config.yaml" }}
@@ -150,13 +154,13 @@ jobs:
       - run:
           name: Install MySQL CLI; Import test data
           command: |
-            sudo apt-get install default-mysql-client
+            sudo apt-get update && sudo apt-get install -y default-mysql-client
             mysql -h 127.0.0.1 -u root -pdropapp_root dropapp_dev < init.sql
       # run tests https://circleci.com/docs/2.0/collect-test-data/#pytest
       - run:
           name: Run pytest
           command: |
-            source env/bin/activate
+            source $(pyenv root)/versions/3.8.12/envs/env/bin/activate
             pytest --cov-report xml:test-results/coverage.xml --cov=boxtribute_server
       - store_test_results:
           path: test-results
@@ -173,7 +177,7 @@ jobs:
       serviceName:
         type: string
     docker:
-      - image: circleci/python:3.8-buster
+      - image: cimg/python:3.8.12
     working_directory: ~/back
     steps:
       # Attach workspace from build

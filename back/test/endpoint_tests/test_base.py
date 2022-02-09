@@ -1,17 +1,17 @@
+from utils import assert_successful_request
+
+
 def test_bases_query(read_only_client, default_bases):
     query = """query {
                 bases {
                     id
                     name
                     currencyName
+                    beneficiaries { elements { id } }
                 }
             }"""
 
-    data = {"query": query}
-    response_data = read_only_client.post("/graphql", json=data)
-
-    assert response_data.status_code == 200
-    all_bases = response_data.json["data"]["bases"]
+    all_bases = assert_successful_request(read_only_client, query)
     assert len(all_bases) == 1
 
     queried_base = all_bases[0]
@@ -21,6 +21,7 @@ def test_bases_query(read_only_client, default_bases):
     assert queried_base_id == expected_base["id"]
     assert queried_base["name"] == expected_base["name"]
     assert queried_base["currencyName"] == expected_base["currency_name"]
+    assert len(queried_base["beneficiaries"]["elements"]) == 2
 
 
 def test_base_query(read_only_client, default_location, default_bases):
@@ -29,22 +30,14 @@ def test_base_query(read_only_client, default_location, default_bases):
                 base(id: {test_id}) {{
                     id
                     name
-                    organisation {{
-                        id
-                    }}
+                    organisation {{ id }}
                     currencyName
-                    locations {{
-                        id
-                    }}
+                    locations {{ id }}
                 }}
             }}"""
 
-    data = {"query": query}
-    response_data = read_only_client.post("/graphql", json=data)
-    assert response_data.status_code == 200
-
+    base = assert_successful_request(read_only_client, query)
     expected_base = default_bases[test_id]
-    base = response_data.json["data"]["base"]
     assert int(base["id"]) == expected_base["id"]
     assert base["name"] == expected_base["name"]
     assert base["currencyName"] == expected_base["currency_name"]

@@ -14,6 +14,7 @@ class TransferAgreement(db.Model):
     state = EnumCharField(
         choices=TransferAgreementState,
         constraints=[SQL(f"DEFAULT '{TransferAgreementState.UnderReview.name}'")],
+        default=TransferAgreementState.UnderReview,
     )
     type = EnumCharField(choices=TransferAgreementType)
     requested_on = DateTimeField(default=utcnow)
@@ -43,4 +44,4 @@ class TransferAgreement(db.Model):
     )
     valid_from = DateTimeField(default=utcnow)
     valid_until = DateTimeField(null=True)
-    comment = TextField(constraints=[SQL("DEFAULT ''")])
+    comment = TextField(constraints=[SQL("DEFAULT ''")], default="")

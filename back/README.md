@@ -11,7 +11,7 @@
    1. [Working with MySQL](#working-with-mysql)
    1. [Debugging](#debugging)
 1. [Testing](#testing)
-1. [GraphQL Playground](#graphql-playground)
+1. [GraphQL API](#graphql-api)
 1. [Production environment](#production-environment)
 1. [Performance evaluation](#performance-evaluation)
 1. [Authentication and Authorization on the back-end](#authentication-and-authorization)
@@ -110,6 +110,13 @@ To figure out the gateway of the Docker network `backend` run
 
 Most of our developers use [MySQL workbench](https://dev.mysql.com/doc/workbench/en/wb-installing.html) to interact with the database directly. If you want to connect to the database, choose one of the possibilities in the former to define the connection, e.g. Hostname is 172.18.0.1 and Port is 3306.
 
+#### Database dump
+
+The `db` docker-compose service runs on a dump (`back/init.sql`) generated from the database of dropapp's staging environment. If it has been updated, run the following for the changes to take effect
+
+    docker-compose rm db
+    docker-compose up -d --build db
+
 #### ORM
 
 From the Python side of the application we use an Object Relational Mapper (ORM) to interact with the database. An ORM provides a convenient abstraction interface since it leverages Python's language features and is more secure compared to using raw SQL queries.
@@ -135,7 +142,8 @@ For debugging an exception in an endpoint, direct your web browser to that endpo
 
 VSCode has [a very easy-to-use debugger](https://code.visualstudio.com/docs/editor/debugging) built-in.
 
-To use the debugger:
+<details>
+  <summary>For info on how to use the debugger click here.</summary>
 
 1. install the extensions to [access Docker container](https://marketplace.visualstudio.com/items?itemName=ms-vscode-remote.remote-containers) and to [debug python](https://marketplace.visualstudio.com/items?itemName=ms-python.python).
 2. Start the Docker containers.
@@ -151,6 +159,7 @@ You can now set break-points in your code.
 If you want to debug a certain endpoint, set a break-point in the endpoint and call this endpoint at the port 5001, e.g.
 `localhost:5001/api/public`
 If you want to break on any other code lines (not endpoints), then you can only catch them during the server start-up.
+</details>
 
 #### Usage of Logger
 
@@ -238,12 +247,22 @@ From the repository root, run
 
 and inspect the reported output. Open the HTML report via `back/htmlcov/index.html` to browse coverage for individual source code files.
 
-## GraphQL Playground
+## GraphQL API
 
-The back-end exposes the GraphQL API at the `/graphql` endpoint. You can experiment with the API in the GraphQL playground.
+The back-end exposes the GraphQL API at the `/graphql` endpoint.
+It is consumed by our front-end, and by partners (for data retrieval).
 
+### Schema documentation
+
+For building a static web documentation of the schema, see [this directory](../docs/graphql-api).
+
+### Playground
+
+You can experiment with the API in the GraphQL playground.
+
+1. Set `export FLASK_ENV=development`
 1. Start the required services by `docker-compose up webapp db`
-1. Open `localhost:5000/graphql`.
+1. Open `localhost:5005/graphql`.
 1. Simulate being a valid, logged-in user by fetching an authorization token (internally the variables of the `.env` file are used): `./fetch_token`
 1. Copy the content of the `access_token` field (alternatively, you can pipe the above command ` | jq -r .access_token | xclip -i -selection c` to copy it to the system clipboard)
 1.  Insert the access token in the following format on the playground in the section on the bottom left of the playground called HTTP Headers.
@@ -265,6 +284,8 @@ In production, the web app is run by the WSGI server `gunicorn` which serves as 
 Launch the production server by
 
     FLASK_ENV=production docker-compose up --build webapp
+
+In production mode, inspection of the GraphQL server is disabled, i.e. it's not possible to run the GraphQL playground.
 
 ## Performance evaluation
 

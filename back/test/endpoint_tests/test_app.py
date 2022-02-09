@@ -1,171 +1,7 @@
+import peewee
+import pytest
 from auth import create_jwt_payload
-
-
-def test_get_boxes(dropapp_dev_client):
-    data = {
-        "query": """query CommentsOfLostBoxes {
-                location(id: "1") {
-                    boxes(paginationInput: { first: 20 }) {
-                        elements {
-                            comment
-                        }
-                        pageInfo {
-                            hasPreviousPage
-                            hasNextPage
-                        }
-                        totalCount
-                    }
-                }
-            }"""
-    }
-    response = dropapp_dev_client.post("/graphql", json=data)
-    queried_boxes = response.json["data"]["location"]["boxes"]["elements"]
-    assert response.status_code == 200
-    assert len(queried_boxes) == 20
-    # There are no comments currently. Verify by creating a set
-    assert {box["comment"] for box in queried_boxes} == {""}
-    page_info = response.json["data"]["location"]["boxes"]["pageInfo"]
-    assert not page_info["hasPreviousPage"]
-    assert page_info["hasNextPage"]
-    assert response.json["data"]["location"]["boxes"]["totalCount"] == 27
-
-
-def test_get_bases(dropapp_dev_client):
-    data = {
-        "query": """query basesOfBoxAid {
-                organisation(id: "1") {
-                    bases {
-                        name
-                        organisation {
-                            id
-                        }
-                    }
-                }
-            }"""
-    }
-    response = dropapp_dev_client.post("/graphql", json=data)
-    queried_locations = response.json["data"]["organisation"]["bases"]
-    assert response.status_code == 200
-    assert len(queried_locations) == 1
-    assert queried_locations[0]["name"] == "Lesvos"
-
-
-def test_get_products(dropapp_dev_client):
-    data = {
-        "query": """query getShoes {
-                productCategory(id: "5") {
-                    products {
-                        elements {
-                            id
-                        }
-                        pageInfo {
-                            hasPreviousPage
-                            hasNextPage
-                        }
-                        totalCount
-                    }
-                }
-            }"""
-    }
-    response = dropapp_dev_client.post("/graphql", json=data)
-    queried_products = response.json["data"]["productCategory"]["products"]["elements"]
-    assert response.status_code == 200
-    assert len(queried_products) == 13
-    page_info = response.json["data"]["productCategory"]["products"]["pageInfo"]
-    assert not page_info["hasPreviousPage"]
-    assert not page_info["hasNextPage"]
-    assert response.json["data"]["productCategory"]["products"]["totalCount"] == 13
-
-
-def test_get_beneficiaries(dropapp_dev_client):
-    data = {
-        "query": """query getBeneficiariesOfLesvos {
-                base(id: 1) {
-                    beneficiaries {
-                        elements {
-                            id
-                            tokens
-                        }
-                        pageInfo {
-                            hasPreviousPage
-                            hasNextPage
-                            startCursor
-                            endCursor
-                        }
-                        totalCount
-                    }
-                }
-            }"""
-    }
-    response = dropapp_dev_client.post("/graphql", json=data)
-    base = response.json["data"]["base"]
-    queried_beneficiaries = base["beneficiaries"]["elements"]
-    assert response.status_code == 200
-    assert len(queried_beneficiaries) == 50
-    assert queried_beneficiaries[0]["tokens"] == 13
-
-    page_info = base["beneficiaries"]["pageInfo"]
-    cursor = page_info["endCursor"]
-    assert not page_info["hasPreviousPage"]
-    assert page_info["hasNextPage"]
-    assert page_info["startCursor"] == "MDAwMDAwMDE="  # ID 1
-    assert cursor == "MDAwMDAwNTA="  # corresponding to ID 50
-    assert base["beneficiaries"]["totalCount"] == 1006
-
-    data = {
-        "query": f"""query getBeneficiariesOfLesvos {{
-                base(id: 1) {{
-                    beneficiaries(
-                        paginationInput: {{ after: "{cursor}" }}
-                    ) {{
-                        elements {{
-                            id
-                        }}
-                        pageInfo {{
-                            hasPreviousPage
-                            hasNextPage
-                            startCursor
-                            endCursor
-                        }}
-                    }}
-                }}
-                }}"""
-    }
-    response = dropapp_dev_client.post("/graphql", json=data)
-    queried_beneficiaries = response.json["data"]["base"]["beneficiaries"]["elements"]
-    assert response.status_code == 200
-    assert len(queried_beneficiaries) == 50
-    page_info = response.json["data"]["base"]["beneficiaries"]["pageInfo"]
-    assert page_info["hasPreviousPage"]
-    assert page_info["hasNextPage"]
-    assert page_info["startCursor"] == "MDAwMDAwNTE="  # ID 51
-    assert page_info["endCursor"] != cursor
-
-    cursor = page_info["startCursor"]
-    data = {
-        "query": f"""query getBeneficiariesOfLesvos {{
-                base(id: 1) {{
-                    beneficiaries(
-                        paginationInput: {{ before: "{cursor}" }}
-                    ) {{
-                        elements {{
-                            id
-                            tokens
-                        }}
-                        pageInfo {{
-                            hasPreviousPage
-                            hasNextPage
-                            startCursor
-                            endCursor
-                        }}
-                        totalCount
-                    }}
-                }}
-                }}"""
-    }
-    response = dropapp_dev_client.post("/graphql", json=data)
-    assert response.status_code == 200
-    assert response.json["data"]["base"] == base
+from utils import assert_bad_user_input, assert_internal_server_error
 
 
 def test_base_specific_permissions(client, mocker):
@@ -174,20 +10,17 @@ def test_base_specific_permissions(client, mocker):
     base-specific distinction is relevant.
     """
     mocker.patch("jose.jwt.decode").return_value = create_jwt_payload(
-        email="dev_coordinator@boxcare.org",
-        base_ids=[2, 3],
         organisation_id=2,
-        roles=["base_2_coordinator", "base_3_coordinator"],
         user_id=1,
         permissions=[
-            "base_2:qr:write",
+            "base_2/qr:create",
             "stock:write",
-            "base_3:beneficiary:write",
+            "base_3/beneficiary:create",
         ],
     )
 
     create_beneficiary_for_base2_mutation = """createBeneficiary(
-                beneficiaryCreationInput : {
+                creationInput : {
                     firstName: "First",
                     lastName: "Last",
                     dateOfBirth: "1990-09-01",
@@ -196,7 +29,7 @@ def test_base_specific_permissions(client, mocker):
                     gender: Male,
                     languages: [de],
                     isVolunteer: true,
-                    isRegistered: false
+                    registered: false
                 }) {
                 id
             }"""
@@ -235,9 +68,75 @@ def test_invalid_pagination_input(read_only_client):
     query = """query { beneficiaries(paginationInput: {last: 2}) {
         elements { id }
     } }"""
-    data = {"query": query}
-    response = read_only_client.post("/graphql", json=data)
-    assert response.status_code == 200
-    assert len(response.json["errors"]) == 1
-    assert response.json["errors"][0]["extensions"]["code"] == "BAD_USER_INPUT"
-    assert response.json["data"] is None
+    assert_bad_user_input(read_only_client, query, none_data=True)
+
+
+@pytest.mark.parametrize(
+    "resource",
+    [
+        "beneficiary",
+        "location",
+        "product",
+        "productCategory",
+        "shipment",
+        "transferAgreement",
+    ],
+)
+def test_query_non_existent_resource(read_only_client, resource):
+    # Test cases 2.1.4, 3.1.3
+    query = f"query {{ {resource}(id: 0) {{ id }} }}"
+    response = assert_bad_user_input(read_only_client, query, field=resource)
+    assert "SQL" not in response.json["errors"][0]["message"]
+
+
+@pytest.mark.parametrize("resource", ["base", "organisation", "user"])
+def test_query_non_existent_resource_for_god_user(read_only_client, mocker, resource):
+    # Non-god users would not be authorized to access resource ID 0
+    mocker.patch("jose.jwt.decode").return_value = create_jwt_payload(permissions=["*"])
+    query = f"query {{ {resource}(id: 0) {{ id }} }}"
+    response = assert_bad_user_input(read_only_client, query, field=resource)
+    assert "SQL" not in response.json["errors"][0]["message"]
+
+
+@pytest.mark.parametrize(
+    "operation",
+    [
+        "acceptTransferAgreement",
+        "rejectTransferAgreement",
+        "cancelTransferAgreement",
+        "cancelShipment",
+        "sendShipment",
+    ],
+)
+def test_mutation_non_existent_resource(read_only_client, operation):
+    # Test cases 2.2.4, 2.2.6, 2.2.8, 3.2.8, 3.2.12
+    mutation = f"mutation {{ {operation}(id: 0) {{ id }} }}"
+    response = assert_bad_user_input(read_only_client, mutation, field=operation)
+    assert "SQL" not in response.json["errors"][0]["message"]
+
+
+@pytest.mark.parametrize(
+    "operation",
+    [
+        "updateBox",
+        "updateBeneficiary",
+        "updateShipment",
+    ],
+)
+def test_mutation_update_non_existent_resource(read_only_client, operation):
+    # Test cases 3.2.21
+    if operation == "updateBox":
+        update_input = """boxUpdateInput: { labelIdentifier: "xxx" }"""
+    else:
+        update_input = "updateInput: { id: 0 }"
+    mutation = f"mutation {{ {operation}({update_input}) {{ id }} }}"
+    response = assert_bad_user_input(read_only_client, mutation, field=operation)
+    assert "SQL" not in response.json["errors"][0]["message"]
+
+
+def test_mutation_arbitrary_database_error(read_only_client, mocker):
+    mocker.patch(
+        "boxtribute_server.graph_ql.resolvers.create_qr_code"
+    ).side_effect = peewee.PeeweeException
+    mutation = "mutation { createQrCode { id } }"
+    assert_internal_server_error(read_only_client, mutation, field="createQrCode")

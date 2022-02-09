@@ -1,19 +1,38 @@
 import React from "react";
 import ReactDOM from "react-dom";
-import { BrowserRouter as Router } from "react-router-dom";
+import { BrowserRouter } from "react-router-dom";
 import Auth0ProviderWithHistory from "./Auth0ProviderWithHistory";
 import ApolloWrapper from "./ApolloWrapper";
 import App from "./App";
 import * as serviceWorker from "./serviceWorker";
+import { ChakraProvider, CSSReset, extendTheme } from "@chakra-ui/react";
+
+// 2. Extend the theme to include custom colors, fonts, etc
+const colors = {
+  brand: {
+    900: "#1a365d",
+    800: "#153e75",
+    700: "#2a69ac",
+  },
+  primary: {
+    700: "light-blue",
+    500: "blue",
+  },
+};
+
+const theme = extendTheme({ colors });
 
 ReactDOM.render(
-  <Router>
-    <Auth0ProviderWithHistory>
-      <ApolloWrapper>
-        <App />
-      </ApolloWrapper>
-    </Auth0ProviderWithHistory>
-  </Router>,
+  <ChakraProvider theme={theme}>
+    <CSSReset />
+    <BrowserRouter>
+      <Auth0ProviderWithHistory>
+        <ApolloWrapper>
+          <App />
+        </ApolloWrapper>
+      </Auth0ProviderWithHistory>
+    </BrowserRouter>
+  </ChakraProvider>,
   document.getElementById("root"),
 );
 

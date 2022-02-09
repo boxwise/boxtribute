@@ -1,12 +1,12 @@
 """Custom peewee field types for data model definitions."""
-from peewee import CharField, ForeignKeyField
+from peewee import CharField, DateTimeField, ForeignKeyField
 
 
 class EnumCharField(CharField):
     """Custom class to store name of Python enum item (enum class passed as the
     `choices` argument during initialization) in a `varchar` field.
-    Internally it converts between an integer in the application layer, and a string in
-    the database layer. The conversion is defined by the `choices` attribute.
+    Two methods are provided to convert between application and database layer.
+    The conversion is defined by the `choices` attribute.
     Cf. suggestions in https://github.com/coleifer/peewee/issues/630
 
     Note that this class does not represent the MySQL ENUM type.
@@ -17,10 +17,19 @@ class EnumCharField(CharField):
         super().__init__(*args, **kwargs)
 
     def db_value(self, value):
-        return self.enum_class(value).name
+        """Convert from application to database layer. Accept Python enum member as
+        value, and return the corresponding enum member name. This way, two scenarios
+        are supported:
+        1. storing the value of a GraphQL Enum input field
+        2. assigning a Python enum member to a peewee model field
+        """
+        return value.name
 
     def python_value(self, name):
-        return getattr(self.enum_class, name).value
+        """Convert from database to application layer. Return Python enum member (which
+        in the GraphQL layer is converted to an Enum field).
+        """
+        return getattr(self.enum_class, name)
 
 
 class UIntForeignKeyField(ForeignKeyField):
@@ -40,3 +49,12 @@ class UIntForeignKeyField(ForeignKeyField):
     """
 
     field_type = "INTEGER UNSIGNED"
+
+
+class ZeroDateTimeField(DateTimeField):
+    """Custom class to convert MySQL zero DATETIME field value into None."""
+
+    def adapt(self, value):
+        if value == "0000-00-00 00:00:00":
+            return
+        return super().adapt(value)
