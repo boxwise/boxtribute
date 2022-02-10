@@ -34,3 +34,17 @@ def test_metrics_query(read_only_client, default_transaction, default_boxes):
             "numberOfItems": sum(b["items"] for b in boxes),
         }
     }
+
+    query = """query { metrics { movedStockOverview {
+                productCategoryName numberOfBoxes numberOfItems } } }"""
+    response = assert_successful_request(read_only_client, query, field="metrics")
+    boxes = default_boxes[1:]  # only boxes managed by client's organisation
+    assert response == {
+        "movedStockOverview": [
+            {
+                "productCategoryName": "Underwear / Nightwear",
+                "numberOfBoxes": len(boxes),
+                "numberOfItems": sum(b["items"] for b in boxes),
+            }
+        ]
+    }

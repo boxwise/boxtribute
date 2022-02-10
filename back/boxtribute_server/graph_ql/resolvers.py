@@ -44,6 +44,7 @@ from ..models.definitions.transfer_agreement import TransferAgreement
 from ..models.definitions.user import User
 from ..models.definitions.x_beneficiary_language import XBeneficiaryLanguage
 from ..models.metrics import (
+    compute_moved_stock_overview,
     compute_number_of_families_served,
     compute_number_of_sales,
     compute_stock_overview,
@@ -528,6 +529,11 @@ def resolve_metrics_number_of_sales(*_, after=None):
 @metrics.field("stockOverview")
 def resolve_metrics_stock_overview(*_):
     return compute_stock_overview(organisation_id=g.user["organisation_id"])
+
+
+@metrics.field("movedStockOverview")
+def resolve_metrics_moved_stock_overview(*_):
+    return compute_moved_stock_overview(organisation_id=g.user["organisation_id"])
 
 
 @organisation.field("bases")

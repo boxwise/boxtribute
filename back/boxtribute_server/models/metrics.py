@@ -7,6 +7,8 @@ from .definitions.base import Base
 from .definitions.beneficiary import Beneficiary
 from .definitions.box import Box
 from .definitions.location import Location
+from .definitions.product import Product
+from .definitions.product_category import ProductCategory
 from .definitions.transaction import Transaction
 
 
@@ -62,3 +64,36 @@ def compute_stock_overview(*, organisation_id):
         .get()
     )
     return {n: getattr(overview, n) for n in ["number_of_boxes", "number_of_items"]}
+
+
+def compute_moved_stock_overview(*, organisation_id):
+    boxes = (
+        Box.select(
+            ProductCategory.name,
+            fn.sum(Box.items).alias("number_of_items"),
+            fn.Count(Box.id).alias("number_of_boxes"),
+        )
+        .join(Location)
+        .join(Base)
+        .switch(Box)
+        .join(Product)
+        .join(ProductCategory)
+        .where(
+            (Base.organisation == organisation_id)
+            & (Location.visible == 1)
+            & (Location.is_lost != 1)
+            & (Location.is_scrap != 1)
+        )
+        .group_by(ProductCategory.name)
+    )
+
+    overview = []
+    for box in boxes:
+        overview.append(
+            {
+                "product_category_name": box.product.category.name,
+                "number_of_boxes": box.number_of_boxes,
+                "number_of_items": box.number_of_items,
+            }
+        )
+    return overview
