@@ -43,7 +43,7 @@ from ..models.definitions.transaction import Transaction
 from ..models.definitions.transfer_agreement import TransferAgreement
 from ..models.definitions.user import User
 from ..models.definitions.x_beneficiary_language import XBeneficiaryLanguage
-from ..models.metrics import compute_number_of_families_served
+from ..models.metrics import compute_number_of_families_served, compute_number_of_sales
 from .filtering import derive_beneficiary_filter, derive_box_filter
 from .pagination import load_into_page
 
@@ -510,6 +510,13 @@ def resolve_location_boxes(
 @metrics.field("numberOfFamiliesServed")
 def resolve_metrics_number_of_families_served(*_, after=None):
     return compute_number_of_families_served(
+        organisation_id=g.user["organisation_id"], after=after
+    )
+
+
+@metrics.field("numberOfSales")
+def resolve_metrics_number_of_sales(*_, after=None):
+    return compute_number_of_sales(
         organisation_id=g.user["organisation_id"], after=after
     )
 

@@ -410,4 +410,5 @@ enum ShipmentState {
 
 type Metrics {
   numberOfFamiliesServed(after: Date): Int
+  numberOfSales(after: Date): Int
 }
