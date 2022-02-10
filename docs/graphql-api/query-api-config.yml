@@ -256,7 +256,9 @@ info:
       url: https://www.boxtribute.org
     # Can be a Title (for the Nav panel) + description (for the Content panel)
     - title: Login to boxtribute web app
-      url: https://www.api.boxtribute.org
+      url: https://www.app.boxtribute.org
+    - title: Query API URL
+      url: https://www.boxtribute.org/api
     - title: Authentication and Authorization
       description: Lorem ipsum explain how to authenticate, and what clients are authorized for
 
