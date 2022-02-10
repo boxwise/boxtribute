@@ -412,9 +412,11 @@ type Metrics {
   numberOfFamiliesServed(after: Date): Int
   numberOfSales(after: Date): Int
   stockOverview: StockOverview
+  movedStockOverview: [StockOverview]
 }
 
 type StockOverview {
+  productCategoryName: String
   numberOfBoxes: Int
   numberOfItems: Int
 }
