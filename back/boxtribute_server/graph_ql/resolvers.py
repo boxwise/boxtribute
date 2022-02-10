@@ -43,6 +43,7 @@ from ..models.definitions.transaction import Transaction
 from ..models.definitions.transfer_agreement import TransferAgreement
 from ..models.definitions.user import User
 from ..models.definitions.x_beneficiary_language import XBeneficiaryLanguage
+from ..models.metrics import compute_number_of_families_served
 from .filtering import derive_beneficiary_filter, derive_box_filter
 from .pagination import load_into_page
 
@@ -61,6 +62,7 @@ base = _register_object_type("Base")
 beneficiary = _register_object_type("Beneficiary")
 box = _register_object_type("Box")
 location = _register_object_type("Location")
+metrics = _register_object_type("Metrics")
 organisation = _register_object_type("Organisation")
 product = _register_object_type("Product")
 product_category = _register_object_type("ProductCategory")
@@ -256,6 +258,11 @@ def resolve_shipments(_, info):
             | (TransferAgreement.target_organisation == user_organisation_id)
         )
     )
+
+
+@query.field("metrics")
+def resolve_metrics(*_):
+    return {}
 
 
 @beneficiary.field("tokens")
@@ -498,6 +505,11 @@ def resolve_location_boxes(
     return load_into_page(
         Box, filter_condition, selection=selection, pagination_input=pagination_input
     )
+
+
+@metrics.field("numberOfFamiliesServed")
+def resolve_metrics_number_of_families_served(*_):
+    return compute_number_of_families_served()
 
 
 @organisation.field("bases")

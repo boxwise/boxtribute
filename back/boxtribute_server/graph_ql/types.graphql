@@ -407,3 +407,7 @@ enum ShipmentState {
   Canceled
   Lost
 }
+
+type Metrics {
+  numberOfFamiliesServed: Int
+}
