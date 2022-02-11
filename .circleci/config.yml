@@ -20,9 +20,6 @@ jobs:
     steps:
       - attach_workspace:
           at: ~/
-      # Restore cached dependencies
-      - restore_cache:
-          key: flask-deps-{{ checksum "requirements.txt" }}
       - run:
           name: create the python virtual environment and install non-cached dependencies
           command: |
@@ -36,7 +33,7 @@ jobs:
       - save_cache:
           key: flask-deps-{{ checksum "requirements.txt" }}
           paths:
-            - env
+            - $(pyenv root)/versions/3.8.12/envs/env
       # save build to a CircleCI workspace
       - persist_to_workspace:
           root: ~/
@@ -259,7 +256,7 @@ workflows:
             - build-and-test-react
           filters:
             branches:
-              only: master
+              only: /^.*-gcloud-deploy/
 
       # deploy to demo
       - deploy:
