@@ -31,7 +31,7 @@ jobs:
             pip install -e . -r requirements.txt
       # Cache the installed packages
       - save_cache:
-          key: flask-deps-{{ checksum "requirements.txt" }}
+          key: webapp-deps-{{ checksum "requirements.txt" }}
           paths:
             - /home/circleci/.pyenv/versions/3.8.12/envs/env
       # save build to a CircleCI workspace
