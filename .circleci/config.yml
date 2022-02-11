@@ -20,6 +20,9 @@ jobs:
     steps:
       - attach_workspace:
           at: ~/
+      # Restore cached dependencies
+      - restore_cache:
+          key: webapp-deps-{{ checksum "requirements.txt" }}
       - run:
           name: create the python virtual environment and install non-cached dependencies
           command: |
@@ -256,7 +259,7 @@ workflows:
             - build-and-test-react
           filters:
             branches:
-              only: /^.*-gcloud-deploy/
+              only: master
 
       # deploy to demo
       - deploy:
