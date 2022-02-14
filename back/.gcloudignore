@@ -30,3 +30,5 @@ init.sql
 .DS_Store
 venv/
 requirements-dev.txt
+test/
+scripts/
