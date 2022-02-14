@@ -180,9 +180,13 @@ jobs:
           at: ~/
       # install gcloud orb
       - gcp-cli/install
-      - run:
-          name: Copy react build into flask app for deployment
-          command: mv ../react/build react-build
+      - unless:
+          condition:
+            equal: [ api-staging, << parameters.serviceName >> ]
+          steps:
+            - run:
+                name: Copy react build into flask app for deployment
+                command: mv ../react/build react-build
       - run:
           name: Create version.txt
           command: |
@@ -205,13 +209,13 @@ jobs:
           name: Generate GAE app.yaml file
           command: |
             sed 's/service: v2-staging/service: << parameters.serviceName >>/g' app.yaml > app-<< parameters.serviceName >>.yaml
+            [ "<< parameters.serviceName >>" = "api-staging" ] && sed -i -n 1,7p app-<< parameters.serviceName >>.yaml
       - run:
           name: Compress deployment artificats
           command: tar -cvzf ~/deploy.tar.gz ~/back
       - store_artifacts:
           name: Store copy of deployment artifacts
           path: ~/deploy.tar.gz
-
       - run:
           name: Authenticate the gcloud orb
           command: |
@@ -255,6 +259,15 @@ workflows:
           filters:
             branches:
               only: master
+      - deploy:
+          name: deploy-api-staging
+          context: STAGING
+          serviceName: api-staging
+          requires:
+            - test-flask
+          filters:
+            branches:
+              only: 814-deploy-api
 
       # deploy to demo
       - deploy:
