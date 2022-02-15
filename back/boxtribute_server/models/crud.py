@@ -36,8 +36,10 @@ def create_box(
     now = utcnow()
     qr_id = QrCode.get_id_from_code(qr_code) if qr_code is not None else None
 
-    location_box_state = Location.get_by_id(location_id).box_state
-    box_state = BoxState.InStock if location_box_state is None else location_box_state
+    location_box_state_id = Location.get_by_id(location_id).box_state_id
+    box_state = (
+        BoxState.InStock if location_box_state_id is None else location_box_state_id
+    )
     for i in range(BOX_LABEL_IDENTIFIER_GENERATION_ATTEMPTS):
         try:
             new_box = Box.create(
@@ -83,8 +85,10 @@ def update_box(
         box.items = items
     if location_id is not None:
         box.location = location_id
-        location_box_state = Location.get(Location.id == location_id).box_state
-        box.state = location_box_state if location_box_state is not None else box.state
+        location_box_state_id = Location.get_by_id(location_id).box_state_id
+        box.state = (
+            location_box_state_id if location_box_state_id is not None else box.state_id
+        )
     if product_id is not None:
         box.product = product_id
     if size_id is not None:
