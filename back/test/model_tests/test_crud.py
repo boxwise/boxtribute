@@ -1,3 +1,4 @@
+import peewee
 import pytest
 from boxtribute_server.enums import BoxState
 from boxtribute_server.exceptions import BoxCreationFailed, RequestedResourceNotFound
@@ -8,6 +9,19 @@ from boxtribute_server.models.crud import (
     update_box,
 )
 from boxtribute_server.models.definitions.qr_code import QrCode
+
+
+def test_create_box_with_incorrect_data(
+    default_location, default_size, default_product
+):
+    non_existent_user_id = 99999
+    with pytest.raises(peewee.IntegrityError, match="foreign key constraint fails"):
+        create_box(
+            user_id=non_existent_user_id,
+            location_id=default_location["id"],
+            product_id=default_product["id"],
+            size_id=default_size["id"],
+        )
 
 
 def test_create_qr_code_for_nonexisting_box():
