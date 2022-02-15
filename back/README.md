@@ -249,8 +249,8 @@ and inspect the reported output. Open the HTML report via `back/htmlcov/index.ht
 
 ## GraphQL API
 
-The back-end exposes the GraphQL API at the `/graphql` endpoint.
-It is consumed by our front-end, and by partners (for data retrieval).
+The back-end exposes the GraphQL API in two variants.
+The full API is consumed by our front-end at the `/graphql` endpoint. The 'query' API is used by our partners at `/api` (for data retrieval).
 
 ### Schema documentation
 
@@ -262,7 +262,7 @@ You can experiment with the API in the GraphQL playground.
 
 1. Set `export FLASK_ENV=development`
 1. Start the required services by `docker-compose up webapp db`
-1. Open `localhost:5005/graphql`.
+1. Open `localhost:5005/graphql` (or `/api`)
 1. Simulate being a valid, logged-in user by fetching an authorization token (internally the variables of the `.env` file are used): `./fetch_token`
 1. Copy the content of the `access_token` field (alternatively, you can pipe the above command ` | jq -r .access_token | xclip -i -selection c` to copy it to the system clipboard)
 1.  Insert the access token in the following format on the playground in the section on the bottom left of the playground called HTTP Headers.

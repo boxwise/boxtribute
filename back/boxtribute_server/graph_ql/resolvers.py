@@ -65,6 +65,7 @@ product = _register_object_type("Product")
 product_category = _register_object_type("ProductCategory")
 qr_code = _register_object_type("QrCode")
 shipment = _register_object_type("Shipment")
+shipment_detail = _register_object_type("ShipmentDetail")
 transfer_agreement = _register_object_type("TransferAgreement")
 user = _register_object_type("User")
 
@@ -125,15 +126,17 @@ def resolve_qr_exists(_, info, qr_code):
 
 
 @query.field("qrCode")
+@box.field("qrCode")
 @convert_kwargs_to_snake_case
-def resolve_qr_code(_, info, qr_code):
+def resolve_qr_code(obj, info, qr_code=None):
     authorize(permission="qr:read")
-    return QrCode.get(QrCode.code == qr_code)
+    return obj.qr_code if qr_code is None else QrCode.get(QrCode.code == qr_code)
 
 
 @query.field("product")
-def resolve_product(_, info, id):
-    product = Product.get_by_id(id)
+@box.field("product")
+def resolve_product(obj, info, id=None):
+    product = obj.product if id is None else Product.get_by_id(id)
     authorize(permission="product:read", base_id=product.base_id)
     return product
 
@@ -361,13 +364,13 @@ def resolve_update_beneficiary(_, info, update_input):
 @mutation.field("createTransferAgreement")
 @convert_kwargs_to_snake_case
 def resolve_create_transfer_agreement(_, info, creation_input):
-    authorize(permission="transfer_agreement:write")
+    authorize(permission="transfer_agreement:create")
     return create_transfer_agreement(**creation_input, user=g.user)
 
 
 @mutation.field("acceptTransferAgreement")
 def resolve_accept_transfer_agreement(_, info, id):
-    authorize(permission="transfer_agreement:write")
+    authorize(permission="transfer_agreement:edit")
     agreement = TransferAgreement.get_by_id(id)
     authorize(organisation_id=agreement.target_organisation_id)
     return accept_transfer_agreement(id=id, user=g.user)
@@ -375,7 +378,7 @@ def resolve_accept_transfer_agreement(_, info, id):
 
 @mutation.field("rejectTransferAgreement")
 def resolve_reject_transfer_agreement(_, info, id):
-    authorize(permission="transfer_agreement:write")
+    authorize(permission="transfer_agreement:edit")
     agreement = TransferAgreement.get_by_id(id)
     authorize(organisation_id=agreement.target_organisation_id)
     return reject_transfer_agreement(id=id, user=g.user)
@@ -383,7 +386,7 @@ def resolve_reject_transfer_agreement(_, info, id):
 
 @mutation.field("cancelTransferAgreement")
 def resolve_cancel_transfer_agreement(_, info, id):
-    authorize(permission="transfer_agreement:write")
+    authorize(permission="transfer_agreement:edit")
     agreement = TransferAgreement.get_by_id(id)
     authorize(
         organisation_ids=[
@@ -397,7 +400,7 @@ def resolve_cancel_transfer_agreement(_, info, id):
 @mutation.field("createShipment")
 @convert_kwargs_to_snake_case
 def resolve_create_shipment(_, info, creation_input):
-    authorize(permission="shipment:write")
+    authorize(permission="shipment:create")
     agreement = TransferAgreement.get_by_id(creation_input["transfer_agreement_id"])
     organisation_ids = [agreement.source_organisation_id]
     if agreement.type == TransferAgreementType.Bidirectional:
@@ -409,7 +412,7 @@ def resolve_create_shipment(_, info, creation_input):
 @mutation.field("updateShipment")
 @convert_kwargs_to_snake_case
 def resolve_update_shipment(_, info, update_input):
-    authorize(permission="shipment:write")
+    authorize(permission="shipment:edit")
 
     shipment = Shipment.get_by_id(update_input["id"])
     source_update_fields = [
@@ -438,7 +441,7 @@ def resolve_update_shipment(_, info, update_input):
 
 @mutation.field("cancelShipment")
 def resolve_cancel_shipment(_, info, id):
-    authorize(permission="shipment:write")
+    authorize(permission="shipment:edit")
     shipment = Shipment.get_by_id(id)
     authorize(
         organisation_ids=[
@@ -451,7 +454,7 @@ def resolve_cancel_shipment(_, info, id):
 
 @mutation.field("sendShipment")
 def resolve_send_shipment(_, info, id):
-    authorize(permission="shipment:write")
+    authorize(permission="shipment:edit")
     shipment = Shipment.get_by_id(id)
     authorize(organisation_id=shipment.source_base.organisation_id)
     return send_shipment(id=id, user=g.user)
@@ -500,6 +503,14 @@ def resolve_organisation_bases(organisation_obj, info):
     return Base.select().where(Base.organisation_id == organisation_obj.id)
 
 
+@beneficiary.field("base")
+@location.field("base")
+@product.field("base")
+def resolve_resource_base(obj, info):
+    authorize(permission="base:read")
+    return obj.base
+
+
 @product.field("gender")
 def resolve_product_gender(product_obj, info):
     # Instead of a ProductGender instance return an integer for EnumType conversion
@@ -545,8 +556,45 @@ def resolve_shipment_details(shipment_obj, info):
     )
 
 
+@shipment.field("sourceBase")
+def resolve_shipment_source_base(shipment_obj, info):
+    authorize(permission="base:read")
+    return shipment_obj.source_base
+
+
+@shipment.field("targetBase")
+def resolve_shipment_target_base(shipment_obj, info):
+    authorize(permission="base:read")
+    return shipment_obj.target_base
+
+
+@shipment_detail.field("sourceProduct")
+def resolve_shipment_detail_source_product(detail_obj, info):
+    authorize(permission="product:read")
+    return detail_obj.source_product
+
+
+@shipment_detail.field("targetProduct")
+def resolve_shipment_detail_target_product(detail_obj, info):
+    authorize(permission="product:read")
+    return detail_obj.target_product
+
+
+@shipment_detail.field("sourceLocation")
+def resolve_shipment_detail_source_location(detail_obj, info):
+    authorize(permission="location:read")
+    return detail_obj.source_location
+
+
+@shipment_detail.field("targetLocation")
+def resolve_shipment_detail_target_location(detail_obj, info):
+    authorize(permission="location:read")
+    return detail_obj.target_location
+
+
 @transfer_agreement.field("sourceBases")
 def resolve_transfer_agreement_source_bases(transfer_agreement_obj, info):
+    authorize(permission="base:read")
     return retrieve_transfer_agreement_bases(
         transfer_agreement=transfer_agreement_obj, kind="source"
     )
@@ -554,6 +602,7 @@ def resolve_transfer_agreement_source_bases(transfer_agreement_obj, info):
 
 @transfer_agreement.field("targetBases")
 def resolve_transfer_agreement_target_bases(transfer_agreement_obj, info):
+    authorize(permission="base:read")
     return retrieve_transfer_agreement_bases(
         transfer_agreement=transfer_agreement_obj, kind="target"
     )
