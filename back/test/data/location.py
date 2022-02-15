@@ -37,14 +37,14 @@ def another_location_data():
 
 
 def null_box_state_location_data():
-    data = default_location_data().copy()
+    data = default_location_data()
     data["id"] = 3
     data["box_state"] = None
     return data
 
 
 def non_default_box_state_location_data():
-    data = default_location_data().copy()
+    data = default_location_data()
     data["id"] = 4
     data["box_state"] = BoxState.Donated
     return data
