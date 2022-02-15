@@ -2,9 +2,8 @@
 from datetime import date
 
 from ariadne import MutationType, ObjectType, QueryType, convert_kwargs_to_snake_case
-from peewee import fn
-
 from flask import g
+from peewee import fn
 
 from ..authz import authorize
 from ..box_transfer.agreement import (
@@ -335,18 +334,16 @@ def resolve_create_qr_code(_, info, box_label_identifier=None):
 
 @mutation.field("createBox")
 @convert_kwargs_to_snake_case
-def resolve_create_box(_, info, box_creation_input):
+def resolve_create_box(*_, box_creation_input):
     authorize(permission="stock:write")
-    box_creation_input["created_by"] = g.user["id"]
-    return create_box(box_creation_input)
+    return create_box(user_id=g.user["id"], **box_creation_input)
 
 
 @mutation.field("updateBox")
 @convert_kwargs_to_snake_case
-def resolve_update_box(_, info, box_update_input):
+def resolve_update_box(*_, box_update_input):
     authorize(permission="stock:write")
-    box_update_input["last_modified_by"] = g.user["id"]
-    return update_box(box_update_input)
+    return update_box(user_id=g.user["id"], **box_update_input)
 
 
 @mutation.field("createBeneficiary")

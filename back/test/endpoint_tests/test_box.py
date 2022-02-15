@@ -49,13 +49,13 @@ def test_box_query_by_qr_code(read_only_client, default_box, default_qr_code):
     assert queried_box["labelIdentifier"] == default_box["label_identifier"]
 
 
-def test_box_mutations(client, qr_code_without_box):
+def test_box_mutations(client, qr_code_without_box, default_size, another_size):
     box_creation_input_string = f"""{{
                     productId: 1,
                     items: 9999,
                     locationId: 1,
                     comment: "",
-                    sizeId: 1,
+                    sizeId: {default_size["id"]},
                     qrCode: "{qr_code_without_box["code"]}",
                 }}"""
     mutation = f"""mutation {{
@@ -81,7 +81,7 @@ def test_box_mutations(client, qr_code_without_box):
     assert created_box["state"] == "InStock"
     assert created_box["location"]["id"] == "1"
     assert created_box["product"]["id"] == "1"
-    assert created_box["size"] == "1"
+    assert created_box["size"] == str(default_size["id"])
     assert created_box["qrCode"]["id"] == str(qr_code_without_box["id"])
     assert created_box["createdOn"] == created_box["lastModifiedOn"]
     assert created_box["createdBy"] == created_box["lastModifiedBy"]
@@ -91,16 +91,22 @@ def test_box_mutations(client, qr_code_without_box):
                 boxUpdateInput : {{
                     items: 7777,
                     labelIdentifier: "{created_box["labelIdentifier"]}"
+                    comment: "updatedComment"
+                    sizeId: {another_size["id"]},
                 }} ) {{
                 items
                 lastModifiedOn
                 createdOn
                 qrCode {{ id }}
+                comment
+                size
             }}
         }}"""
     updated_box = assert_successful_request(client, mutation)
+    assert updated_box["comment"] == "updatedComment"
     assert updated_box["items"] == 7777
     assert updated_box["qrCode"] == created_box["qrCode"]
+    assert updated_box["size"] == str(another_size["id"])
 
 
 def _format(parameter):

@@ -17,7 +17,12 @@ from .box import (
 )
 from .box_state import default_box_state
 from .history import default_history
-from .location import another_location, default_location
+from .location import (
+    another_location,
+    default_location,
+    non_default_box_state_location,
+    null_box_state_location,
+)
 from .log import default_log
 from .organisation import another_organisation, default_organisation
 from .product import another_product, default_product
@@ -35,7 +40,7 @@ from .shipment_detail import (
     default_shipment_detail,
     prepared_shipment_detail,
 )
-from .size import default_size
+from .size import another_size, default_size
 from .size_range import default_size_range
 from .transaction import default_transaction
 from .transfer_agreement import (
@@ -56,6 +61,7 @@ __all__ = [
     "another_product",
     "another_shipment",
     "another_shipment_detail",
+    "another_size",
     "box_without_qr_code",
     "canceled_shipment",
     "default_beneficiary",
@@ -83,6 +89,8 @@ __all__ = [
     "expired_transfer_agreement",
     "lost_box",
     "marked_for_shipment_box",
+    "non_default_box_state_location",
+    "null_box_state_location",
     "prepared_shipment_detail",
     "qr_code_without_box",
     "reviewed_transfer_agreement",
