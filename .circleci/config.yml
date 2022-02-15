@@ -199,9 +199,11 @@ jobs:
             echo "
               AUTH0_DOMAIN=${AUTH0_DOMAIN}
               AUTH0_AUDIENCE=${AUTH0_AUDIENCE}
+              MYSQL_HOST=127.0.0.1
               MYSQL_USER=${DB_NAME}
               MYSQL_PASSWORD=${DB_PASS}
               MYSQL_DB=${DB_NAME}
+              MYSQL_PORT=3306
               MYSQL_SOCKET=${DB_SOCKET}
               FLASK_URL_PREFIX=/v2
               " > .env
