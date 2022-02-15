@@ -29,7 +29,7 @@ def test_box_label_identifier_generation(
         "location_id": default_location["id"],
         "product_id": default_product["id"],
         "size_id": default_size["id"],
-        "created_by_id": default_user["id"],
+        "user_id": default_user["id"],
     }
 
     # Verify that create_box() fails after several attempts if newly generated
@@ -61,18 +61,18 @@ def test_boxstate_update(
     # InStock
     box = create_box(
         product_id=default_product["id"],
-        created_by_id=default_user["id"],
+        user_id=default_user["id"],
         location_id=null_box_state_location["id"],
         size_id=default_size["id"],
     )
     assert box.state.id == BoxState.InStock
 
-    # updating to a location with box_state!+NULL should set the box state on the box
+    # updating to a location with box_state!=NULL should set the box state on the box
     # too
     box = update_box(
         location_id=non_default_box_state_location["id"],
         label_identifier=box.label_identifier,
-        updated_by_id=default_user["id"],
+        user_id=default_user["id"],
     )
     assert box.state.id == non_default_box_state_location["box_state"]
 
@@ -81,7 +81,7 @@ def test_boxstate_update(
     box = update_box(
         location_id=null_box_state_location["id"],
         label_identifier=box.label_identifier,
-        updated_by_id=default_user["id"],
+        user_id=default_user["id"],
     )
     assert box.state.id != BoxState.InStock
     assert box.state.id == non_default_box_state_location["box_state"]
@@ -90,7 +90,7 @@ def test_boxstate_update(
     # set the box_state to that explicit box_state
     box2 = create_box(
         product_id=default_product["id"],
-        created_by_id=default_user["id"],
+        user_id=default_user["id"],
         location_id=non_default_box_state_location["id"],
         size_id=default_size["id"],
     )

@@ -20,33 +20,34 @@ BOX_LABEL_IDENTIFIER_GENERATION_ATTEMPTS = 10
 def create_box(
     product_id,
     location_id,
-    created_by_id,
+    user_id,
     size_id,
     comment="",
     items=0,
-    qr_code_code=None,
+    qr_code=None,
 ):
     """Insert information for a new Box in the database. Use current datetime
-    and box state "InStock" by default. Generate an 8-digit sequence to identify the
+    and box state "InStock" by default. If a location with a box state is passed
+    use its box state for the new box. Generate an 8-digit sequence to identify the
     box. If the sequence is not unique, repeat the generation several times. If
     generation still fails, raise a BoxCreationFailed exception.
     """
 
     now = utcnow()
-    qr_id = QrCode.get_id_from_code(qr_code_code) if qr_code_code is not None else None
+    qr_id = QrCode.get_id_from_code(qr_code) if qr_code is not None else None
 
-    location_box_state = Location.get(Location.id == location_id).box_state
+    location_box_state = Location.get_by_id(location_id).box_state
     box_state = BoxState.InStock if location_box_state is None else location_box_state
     for i in range(BOX_LABEL_IDENTIFIER_GENERATION_ATTEMPTS):
         try:
             new_box = Box.create(
                 comment=comment,
                 created_on=now,
-                created_by=created_by_id,
+                created_by=user_id,
                 items=items,
                 label_identifier="".join(random.choices("0123456789", k=8)),
                 last_modified_on=now,
-                last_modified_by=created_by_id,
+                last_modified_by=user_id,
                 location=location_id,
                 product=product_id,
                 size=size_id,
@@ -64,7 +65,7 @@ def create_box(
 
 def update_box(
     label_identifier,
-    updated_by_id,
+    user_id,
     comment=None,
     items=None,
     location_id=None,
@@ -89,7 +90,7 @@ def update_box(
     if size_id is not None:
         box.size = size_id
 
-    box.last_modified_by = updated_by_id
+    box.last_modified_by = user_id
     box.last_modified_on = utcnow()
     box.save()
     return box
