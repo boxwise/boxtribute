@@ -40,7 +40,7 @@ from .shipment_detail import (
     default_shipment_detail,
     prepared_shipment_detail,
 )
-from .size import default_size
+from .size import another_size, default_size
 from .size_range import default_size_range
 from .transaction import default_transaction
 from .transfer_agreement import (
@@ -61,6 +61,7 @@ __all__ = [
     "another_product",
     "another_shipment",
     "another_shipment_detail",
+    "another_size",
     "box_without_qr_code",
     "canceled_shipment",
     "default_beneficiary",
