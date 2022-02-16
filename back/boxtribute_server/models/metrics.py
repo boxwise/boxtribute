@@ -84,7 +84,19 @@ def compute_stock_overview(*, organisation_id):
     return {n: getattr(overview, n) for n in ["number_of_boxes", "number_of_items"]}
 
 
-def compute_moved_stock_overview(*, organisation_id):
+def compute_moved_stock_overview(*, organisation_id, after, before):
+    """Construct filter for date range, if at least one of `after` or `before` is given.
+    Compute number of boxes, and contained items, moved by `organisation_id` that were
+    served in that date range (default to all time). Group by ProductCategory.
+    """
+    date_filter = True
+    if after and before:
+        date_filter = Box.last_modified_on.between(after, before)
+    elif after:
+        date_filter = Box.last_modified_on > after
+    elif before:
+        date_filter = Box.last_modified_on < before
+
     boxes = (
         Box.select(
             ProductCategory.name,
@@ -98,6 +110,7 @@ def compute_moved_stock_overview(*, organisation_id):
         .join(ProductCategory)
         .where(
             (Base.organisation == organisation_id)
+            & (date_filter)
             & (Location.visible == 1)
             & (Location.is_lost != 1)
             & (Location.is_scrap != 1)

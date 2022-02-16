@@ -532,8 +532,10 @@ def resolve_metrics_stock_overview(*_):
 
 
 @metrics.field("movedStockOverview")
-def resolve_metrics_moved_stock_overview(*_):
-    return compute_moved_stock_overview(organisation_id=g.user["organisation_id"])
+def resolve_metrics_moved_stock_overview(*_, after=None, before=None):
+    return compute_moved_stock_overview(
+        organisation_id=g.user["organisation_id"], after=after, before=before
+    )
 
 
 @organisation.field("bases")
