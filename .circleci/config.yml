@@ -210,7 +210,11 @@ jobs:
       - run:
           name: Generate GAE app.yaml file
           command: |
-            if [ "<< parameters.serviceName >>" != "api-staging" ]; then sed 's/service: v2-staging/service: << parameters.serviceName >>/g' app.yaml > app-<< parameters.serviceName >>.yaml; fi
+            if [[ "<< parameters.serviceName >>" = "api-"* ]]; then
+                sed 's/service: api-staging/service: << parameters.serviceName >>/g' app-api.yaml > app-<< parameters.serviceName >>.yaml
+            else
+                sed 's/service: v2-staging/service: << parameters.serviceName >>/g' app.yaml > app-<< parameters.serviceName >>.yaml
+            fi
       - run:
           name: Compress deployment artificats
           command: tar -cvzf ~/deploy.tar.gz ~/back
@@ -281,6 +285,15 @@ workflows:
           filters:
             branches:
               only: production
+      - deploy:
+          name: deploy-api-demo
+          context: DEMO
+          serviceName: api-demo
+          requires:
+            - test-flask
+          filters:
+            branches:
+              only: 814-deploy-api
 
       # deploy to production
       - deploy:
@@ -293,3 +306,12 @@ workflows:
           filters:
             branches:
               only: production
+      - deploy:
+          name: deploy-api-production
+          context: PRODUCTION
+          serviceName: api-production
+          requires:
+            - test-flask
+          filters:
+            branches:
+              only: 814-deploy-api
