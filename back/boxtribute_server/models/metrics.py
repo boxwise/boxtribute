@@ -65,6 +65,9 @@ def compute_number_of_sales(*, organisation_id, after, before):
 
 
 def compute_stock_overview(*, organisation_id):
+    """Compute number of boxes, and number of contained items, managed by
+    `organisation_id`.
+    """
     overview = (
         Box.select(
             fn.sum(Box.items).alias("number_of_items"),
