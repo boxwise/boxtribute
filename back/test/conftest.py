@@ -69,8 +69,7 @@ def _create_app(database_interface):
     scopes (cf. https://github.com/pytest-dev/pytest/issues/3425#issuecomment-383835876)
     """
     app = create_app()
-    app.config["DATABASE"] = database_interface
-    db.init_app(app)
+    configure_app(app, database_interface=database_interface)
 
     with db.database.bind_ctx(MODELS):
         db.database.drop_tables(MODELS)
@@ -123,7 +122,6 @@ def dropapp_dev_client():
         database="dropapp_dev",
     )
 
-    db.init_app(app)
     with db.database.bind_ctx(MODELS):
         db.database.create_tables(MODELS)
         models = setup_box_transfer_models()

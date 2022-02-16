@@ -2,21 +2,22 @@
 from flask import Flask
 from flask_cors import CORS
 
-from .db import create_db_interface
+from .db import create_db_interface, db
 from .routes import api_bp, app_bp
 
 
 def create_app():
-    # Not able to change the static folder variables after app is initialized
-    app = Flask(__name__)
+    return Flask(__name__)
 
+
+def configure_app(app, database_interface=None, **mysql_kwargs):
+    """Initialize CORS handling in app, and register blueprints.
+    Configure the app's database interface. `mysql_kwargs` are forwarded.
+    """
     CORS(app)
 
     app.register_blueprint(api_bp)
     app.register_blueprint(app_bp)
-    return app
 
-
-def configure_app(app, **mysql_kwargs):
-    """Configure the app's database interface. `mysql_kwargs` are forwarded."""
-    app.config["DATABASE"] = create_db_interface(**mysql_kwargs)
+    app.config["DATABASE"] = database_interface or create_db_interface(**mysql_kwargs)
+    db.init_app(app)

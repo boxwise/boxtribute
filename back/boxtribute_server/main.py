@@ -2,7 +2,6 @@
 import os
 
 from .app import configure_app, create_app
-from .db import db
 
 app = create_app()
 configure_app(
@@ -14,4 +13,3 @@ configure_app(
     database=os.environ["MYSQL_DB"],
     unix_socket=os.getenv("MYSQL_SOCKET"),
 )
-db.init_app(app)
