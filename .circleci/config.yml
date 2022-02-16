@@ -182,7 +182,9 @@ jobs:
       - gcp-cli/install
       - unless:
           condition:
-            equal: [ api-staging, << parameters.serviceName >> ]
+            matches:
+              pattern: "^api-.+"
+              value: << parameters.serviceName >>
           steps:
             - run:
                 name: Copy react build into flask app for deployment
