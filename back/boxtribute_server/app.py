@@ -3,7 +3,7 @@ from flask import Flask
 from flask_cors import CORS
 
 from .db import create_db_interface
-from .routes import api_bp
+from .routes import api_bp, app_bp
 
 
 def create_app():
@@ -13,6 +13,7 @@ def create_app():
     CORS(app)
 
     app.register_blueprint(api_bp)
+    app.register_blueprint(app_bp)
     return app
 
 

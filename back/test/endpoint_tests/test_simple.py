@@ -1,7 +1,7 @@
 import pytest
 
 
-@pytest.mark.parametrize("endpoint", ["api", "graphql"])
+@pytest.mark.parametrize("endpoint", ["", "graphql"])
 def test_private_endpoint(read_only_client, endpoint):
     response = read_only_client.get(f"/{endpoint}")
     assert response.status_code == 200

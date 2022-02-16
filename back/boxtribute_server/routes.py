@@ -10,22 +10,22 @@ from .auth import requires_auth
 from .exceptions import AuthenticationFailed, format_database_errors
 from .graph_ql.schema import full_api_schema, query_api_schema
 
-# Blueprint for API
-api_bp = Blueprint(
-    "api_bp",
-    __name__,
-    url_prefix=os.getenv("FLASK_URL_PREFIX", ""),
-)
+# Blueprint for query-only API. Deployed on the 'api*' subdomains
+api_bp = Blueprint("api_bp", __name__)
+
+# Blueprint for app GraphQL server. Deployed with v2/ URL prefix
+app_bp = Blueprint("app_bp", __name__, url_prefix=os.getenv("FLASK_URL_PREFIX"))
 
 
 @api_bp.errorhandler(AuthenticationFailed)
+@app_bp.errorhandler(AuthenticationFailed)
 def handle_auth_error(ex):
     response = jsonify(ex.error)
     response.status_code = ex.status_code
     return response
 
 
-@api_bp.route("/public", methods=["GET"])
+@app_bp.route("/public", methods=["GET"])
 @cross_origin(origin="localhost", headers=["Content-Type", "Authorization"])
 def public():
     response = (
@@ -34,12 +34,12 @@ def public():
     return jsonify(message=response)
 
 
-@api_bp.route("/api", methods=["GET"])
+@api_bp.route("/", methods=["GET"])
 def query_api_playground():
     return PLAYGROUND_HTML, 200
 
 
-@api_bp.route("/api", methods=["POST"])
+@api_bp.route("/", methods=["POST"])
 @cross_origin(origin="localhost", headers=["Content-Type", "Authorization"])
 @requires_auth
 def query_api_server():
@@ -55,7 +55,7 @@ def query_api_server():
     return jsonify(result), status_code
 
 
-@api_bp.route("/graphql", methods=["GET"])
+@app_bp.route("/graphql", methods=["GET"])
 def graphql_playgroud():
     # On GET request serve GraphQL Playground
     # You don't need to provide Playground if you don't want to
@@ -64,7 +64,7 @@ def graphql_playgroud():
     return PLAYGROUND_HTML, 200
 
 
-@api_bp.route("/graphql", methods=["POST"])
+@app_bp.route("/graphql", methods=["POST"])
 @cross_origin(origin="localhost", headers=["Content-Type", "Authorization"])
 @requires_auth
 def graphql_server():

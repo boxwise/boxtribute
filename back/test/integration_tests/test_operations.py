@@ -2,7 +2,7 @@ import pytest
 from utils import assert_successful_request
 
 
-@pytest.mark.parametrize("endpoint", ["api", "graphql"])
+@pytest.mark.parametrize("endpoint", ["", "graphql"])
 def test_queries(auth0_client, endpoint):
     def _assert_successful_request(*args, **kwargs):
         return assert_successful_request(*args, **kwargs, endpoint=endpoint)
