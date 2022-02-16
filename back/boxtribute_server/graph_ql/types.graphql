@@ -416,7 +416,11 @@ type Metrics {
   If none is specified, the result is an all-time number.
   """
   numberOfFamiliesServed(after: Date, before: Date): Int
-  numberOfSales(after: Date): Int
+  """
+  Return number of sales performed by client's organisation in optional date range.
+  See `numberOfFamiliesServed` about using the `after` and `before` parameters.
+  """
+  numberOfSales(after: Date, before: Date): Int
   stockOverview: StockOverview
   movedStockOverview: [StockOverview]
 }

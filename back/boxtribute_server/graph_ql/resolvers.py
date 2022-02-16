@@ -520,9 +520,9 @@ def resolve_metrics_number_of_families_served(*_, after=None, before=None):
 
 
 @metrics.field("numberOfSales")
-def resolve_metrics_number_of_sales(*_, after=None):
+def resolve_metrics_number_of_sales(*_, after=None, before=None):
     return compute_number_of_sales(
-        organisation_id=g.user["organisation_id"], after=after
+        organisation_id=g.user["organisation_id"], after=after, before=before
     )
 
 

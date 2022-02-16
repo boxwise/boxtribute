@@ -1,6 +1,4 @@
 """Computation of various metrics"""
-from datetime import date
-
 from peewee import JOIN, fn
 
 from .definitions.base import Base
@@ -43,15 +41,24 @@ def compute_number_of_families_served(*, organisation_id, after, before):
     )
 
 
-def compute_number_of_sales(*, organisation_id, after):
-    after = after or date.today()
+def compute_number_of_sales(*, organisation_id, after, before):
+    """Construct filter for date range, if at least one of `after` or `before` is given.
+    Compute number of sales performed by `organisation_id` in that date range (default
+    to all time).
+    """
+    date_filter = True
+    if after and before:
+        date_filter = Transaction.created_on.between(after, before)
+    elif after:
+        date_filter = Transaction.created_on > after
+    elif before:
+        date_filter = Transaction.created_on < before
+
     return (
         Transaction.select(fn.sum(Transaction.count))
         .join(Beneficiary)
         .join(Base)
-        .where(
-            (Transaction.created_on > after) & (Base.organisation == organisation_id)
-        )
+        .where((date_filter) & (Base.organisation == organisation_id))
         .scalar()  # returns None if no Transactions selected
         or 0
     )
