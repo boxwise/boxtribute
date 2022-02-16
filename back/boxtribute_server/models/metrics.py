@@ -12,8 +12,19 @@ from .definitions.product_category import ProductCategory
 from .definitions.transaction import Transaction
 
 
-def compute_number_of_families_served(*, organisation_id, after):
-    after = after or date.today()
+def compute_number_of_families_served(*, organisation_id, after, before):
+    """Construct filter for date range, if at least one of `after` or `before` is given.
+    Compute number of families managed by `organisation_id` that were served in that
+    date range (default to all time).
+    """
+    date_filter = True
+    if after and before:
+        date_filter = Transaction.created_on.between(after, before)
+    elif after:
+        date_filter = Transaction.created_on > after
+    elif before:
+        date_filter = Transaction.created_on < before
+
     return (
         Beneficiary.select()
         .join(Base)
@@ -24,7 +35,7 @@ def compute_number_of_families_served(*, organisation_id, after):
                 << (
                     Beneficiary.select()
                     .join(Transaction, JOIN.LEFT_OUTER)
-                    .where((Transaction.created_on > after) & (Transaction.count > 0))
+                    .where((date_filter) & (Transaction.count > 0))
                 ).distinct()
             )
         )

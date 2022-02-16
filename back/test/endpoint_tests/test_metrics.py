@@ -1,20 +1,29 @@
 from datetime import date
 
+import pytest
 from utils import assert_successful_request
 
 
-def test_metrics_query(read_only_client, default_transaction, default_boxes):
-    query = "query { metrics { numberOfFamiliesServed } }"
+@pytest.mark.parametrize(
+    "filters,number",
+    [
+        ["", 2],
+        ["""(after: "2021-01-01")""", 1],
+        ["""(after: "2022-01-01")""", 0],
+        ["""(before: "2022-01-01")""", 2],
+        ["""(before: "2021-01-01")""", 1],
+        ["""(before: "2019-01-01")""", 0],
+        ["""(after: "2020-01-01", before: "2021-01-01")""", 1],
+        ["""(after: "2022-01-01", before: "2023-01-01")""", 0],
+    ],
+)
+def test_metrics_query_number_of_families_served(read_only_client, filters, number):
+    query = f"query {{ metrics {{ numberOfFamiliesServed{filters} }} }}"
     response = assert_successful_request(read_only_client, query, field="metrics")
-    assert response == {"numberOfFamiliesServed": 1}
+    assert response == {"numberOfFamiliesServed": number}
 
-    # Expect no transactions to have been performed in the future
-    after = f"{date.today().year + 1}-01-01"
-    query = f"""query {{ metrics {{
-                numberOfFamiliesServed(after: "{after}") }} }}"""
-    response = assert_successful_request(read_only_client, query, field="metrics")
-    assert response == {"numberOfFamiliesServed": 0}
 
+def _test_metrics_query(read_only_client, default_transaction, default_boxes):
     query = "query { metrics { numberOfSales } }"
     response = assert_successful_request(read_only_client, query, field="metrics")
     assert response == {"numberOfSales": default_transaction["count"]}

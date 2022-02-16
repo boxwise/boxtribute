@@ -409,7 +409,13 @@ enum ShipmentState {
 }
 
 type Metrics {
-  numberOfFamiliesServed(after: Date): Int
+  """
+  Return number of families served by client's organisation in optional date range.
+  If `after` *and* `before` are specified, construct date range for filtering.
+  If one of `after` or `before` is specified, construct half-open date range.
+  If none is specified, the result is an all-time number.
+  """
+  numberOfFamiliesServed(after: Date, before: Date): Int
   numberOfSales(after: Date): Int
   stockOverview: StockOverview
   movedStockOverview: [StockOverview]

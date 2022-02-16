@@ -513,9 +513,9 @@ def resolve_location_boxes(
 
 
 @metrics.field("numberOfFamiliesServed")
-def resolve_metrics_number_of_families_served(*_, after=None):
+def resolve_metrics_number_of_families_served(*_, after=None, before=None):
     return compute_number_of_families_served(
-        organisation_id=g.user["organisation_id"], after=after
+        organisation_id=g.user["organisation_id"], after=after, before=before
     )
 
 
