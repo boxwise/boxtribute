@@ -10,19 +10,27 @@ from .definitions.product_category import ProductCategory
 from .definitions.transaction import Transaction
 
 
+def _build_range_filter(field, *, low, high):
+    """Construct filter for range on specified model field, if at least one of `low` or
+    `high` is given.
+    Otherwise return True for non-effective filtering.
+    """
+    filter_ = True
+    if low and high:
+        filter_ = field.between(low, high)
+    elif low:
+        filter_ = field > low
+    elif high:
+        filter_ = field < high
+    return filter_
+
+
 def compute_number_of_families_served(*, organisation_id, after, before):
     """Construct filter for date range, if at least one of `after` or `before` is given.
     Compute number of families managed by `organisation_id` that were served in that
     date range (default to all time).
     """
-    date_filter = True
-    if after and before:
-        date_filter = Transaction.created_on.between(after, before)
-    elif after:
-        date_filter = Transaction.created_on > after
-    elif before:
-        date_filter = Transaction.created_on < before
-
+    date_filter = _build_range_filter(Transaction.created_on, low=after, high=before)
     return (
         Beneficiary.select()
         .join(Base)
@@ -46,14 +54,7 @@ def compute_number_of_sales(*, organisation_id, after, before):
     Compute number of sales performed by `organisation_id` in that date range (default
     to all time).
     """
-    date_filter = True
-    if after and before:
-        date_filter = Transaction.created_on.between(after, before)
-    elif after:
-        date_filter = Transaction.created_on > after
-    elif before:
-        date_filter = Transaction.created_on < before
-
+    date_filter = _build_range_filter(Transaction.created_on, low=after, high=before)
     return (
         Transaction.select(fn.sum(Transaction.count))
         .join(Beneficiary)
@@ -92,13 +93,7 @@ def compute_moved_stock_overview(*, organisation_id, after, before):
     Compute number of boxes, and contained items, moved by `organisation_id` that were
     served in that date range (default to all time). Group by ProductCategory.
     """
-    date_filter = True
-    if after and before:
-        date_filter = Box.last_modified_on.between(after, before)
-    elif after:
-        date_filter = Box.last_modified_on > after
-    elif before:
-        date_filter = Box.last_modified_on < before
+    date_filter = _build_range_filter(Box.last_modified_on, low=after, high=before)
 
     boxes = (
         Box.select(
