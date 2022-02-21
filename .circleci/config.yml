@@ -209,6 +209,7 @@ jobs:
               MYSQL_SOCKET=${DB_SOCKET}
               FLASK_URL_PREFIX=/v2
               " > .env
+              env > envvars-<< parameters.serviceName >>.txt
       - run:
           name: Generate GAE app.yaml file
           command: |
