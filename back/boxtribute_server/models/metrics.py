@@ -41,7 +41,11 @@ def compute_number_of_families_served(*, organisation_id, after, before):
                 << (
                     Beneficiary.select()
                     .join(Transaction, JOIN.LEFT_OUTER)
-                    .where((date_filter) & (Transaction.count > 0))
+                    .where(
+                        (date_filter)
+                        & (Transaction.count > 0)
+                        & (Transaction.tokens >= 0)
+                    )
                 ).distinct()
             )
         )
@@ -59,7 +63,11 @@ def compute_number_of_sales(*, organisation_id, after, before):
         Transaction.select(fn.sum(Transaction.count))
         .join(Beneficiary)
         .join(Base)
-        .where((date_filter) & (Base.organisation == organisation_id))
+        .where(
+            (date_filter)
+            & (Base.organisation == organisation_id)
+            & (Transaction.tokens >= 0)
+        )
         .scalar()  # returns None if no Transactions selected
         or 0
     )
