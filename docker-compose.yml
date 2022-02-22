@@ -22,6 +22,7 @@ services:
             MYSQL_PASSWORD: dropapp_root
             MYSQL_DB: dropapp_dev
             MYSQL_PORT: 3306
+            EXPOSE_FULL_GRAPHQL: 1
             DEBUG_GRAPHQL:
     react:
         build:

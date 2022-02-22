@@ -2,12 +2,13 @@
 import os
 
 from .app import configure_app, create_app
-from .routes import app_bp
+from .routes import api_bp, app_bp
 
 app = create_app()
+blueprints = [api_bp] if os.getenv("EXPOSE_FULL_GRAPHQL") is None else [api_bp, app_bp]
 configure_app(
     app,
-    app_bp,
+    *blueprints,
     host=os.environ["MYSQL_HOST"],
     port=int(os.environ["MYSQL_PORT"]),
     user=os.environ["MYSQL_USER"],
