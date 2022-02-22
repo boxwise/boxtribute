@@ -59,7 +59,7 @@ def get_token_from_auth_header(header_string):
 
 
 def get_public_key():
-    url = urllib.request.urlopen("https://" + AUTH0_DOMAIN + "/.well-known/jwks.json")
+    url = urllib.request.urlopen(f"https://{AUTH0_DOMAIN}/.well-known/jwks.json")
     jwks = json.loads(url.read())
     return jwks["keys"][0]
 
@@ -71,7 +71,7 @@ def decode_jwt(token, public_key):
             public_key,
             algorithms=ALGORITHMS,
             audience=os.getenv("AUTH0_AUDIENCE"),
-            issuer="https://" + AUTH0_DOMAIN + "/",
+            issuer=f"https://{AUTH0_DOMAIN}/",
         )
     except jwt.ExpiredSignatureError:
         raise AuthenticationFailed(
