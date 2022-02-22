@@ -1,7 +1,7 @@
 from utils import assert_successful_request
 
 
-def test_bases_query(read_only_client, default_bases):
+def test_bases_query(read_only_client, default_bases, default_beneficiaries):
     query = """query {
                 bases {
                     id
@@ -21,7 +21,7 @@ def test_bases_query(read_only_client, default_bases):
     assert queried_base_id == expected_base["id"]
     assert queried_base["name"] == expected_base["name"]
     assert queried_base["currencyName"] == expected_base["currency_name"]
-    assert len(queried_base["beneficiaries"]["elements"]) == 2
+    assert len(queried_base["beneficiaries"]["elements"]) == len(default_beneficiaries)
 
 
 def test_base_query(read_only_client, default_location, default_bases):

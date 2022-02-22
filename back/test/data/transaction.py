@@ -10,7 +10,7 @@ TIME = utcnow().replace(year=2021, tzinfo=None)
 
 def default_transaction_data():
     return {
-        "id": 4,
+        "id": 1,
         "beneficiary": default_beneficiary_data()["id"],
         "count": 2,
         "tokens": 99,
@@ -21,6 +21,14 @@ def default_transaction_data():
     }
 
 
+def relative_transaction_data():
+    # Transaction performed by arbitrary family member but tracked by family head
+    data = default_transaction_data()
+    data["id"] = 2
+    data["created_on"] = TIME.replace(year=2020)
+    return data
+
+
 def another_transaction_data():
     data = default_transaction_data()
     data["id"] = 3
@@ -29,11 +37,17 @@ def another_transaction_data():
     return data
 
 
-@pytest.fixture()
+@pytest.fixture
 def default_transaction():
     return default_transaction_data()
 
 
+@pytest.fixture
+def relative_transaction():
+    return relative_transaction_data()
+
+
 def create():
     Transaction.create(**default_transaction_data())
+    Transaction.create(**relative_transaction_data())
     Transaction.create(**another_transaction_data())
