@@ -25,41 +25,31 @@ def _build_range_filter(field, *, low, high):
     return filter_
 
 
+def _served_beneficiaries(date_filter):
+    """Return IDs of beneficiaries that participated in a sale acc. to given
+    `date_filter`.
+    """
+    return (
+        Beneficiary.select(Beneficiary.id)
+        .join(Transaction, JOIN.LEFT_OUTER)
+        .where((date_filter) & (Transaction.count > 0) & (Transaction.tokens >= 0))
+    ).distinct()
+
+
 def compute_number_of_beneficiaries_served(*, organisation_id, after, before):
     """Like `compute_number_of_families_served` but add up all members of served
     families.
     """
     date_filter = _build_range_filter(Transaction.created_on, low=after, high=before)
+    served_beneficiaries = _served_beneficiaries(date_filter)
     return (
         Beneficiary.select()
         .join(Base)
         .where(
             (Base.organisation == organisation_id)
             & (
-                (
-                    Beneficiary.family_head
-                    << (
-                        Beneficiary.select(Beneficiary.id)
-                        .join(Transaction, JOIN.LEFT_OUTER)
-                        .where(
-                            (date_filter)
-                            & (Transaction.count > 0)
-                            & (Transaction.tokens >= 0)
-                        )
-                    ).distinct()
-                )
-                | (
-                    Beneficiary.id
-                    << (
-                        Beneficiary.select(Beneficiary.id)
-                        .join(Transaction, JOIN.LEFT_OUTER)
-                        .where(
-                            (date_filter)
-                            & (Transaction.count > 0)
-                            & (Transaction.tokens >= 0)
-                        )
-                    ).distinct()
-                )
+                (Beneficiary.family_head << served_beneficiaries)
+                | (Beneficiary.id << served_beneficiaries)
             )
         )
         .count()
@@ -77,18 +67,7 @@ def compute_number_of_families_served(*, organisation_id, after, before):
         .join(Base)
         .where(
             (Base.organisation == organisation_id)
-            & (
-                Beneficiary.id
-                << (
-                    Beneficiary.select()
-                    .join(Transaction, JOIN.LEFT_OUTER)
-                    .where(
-                        (date_filter)
-                        & (Transaction.count > 0)
-                        & (Transaction.tokens >= 0)
-                    )
-                ).distinct()
-            )
+            & (Beneficiary.id << (_served_beneficiaries(date_filter)))
         )
         .count()
     )
