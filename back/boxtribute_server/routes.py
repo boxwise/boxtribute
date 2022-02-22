@@ -1,4 +1,4 @@
-"""Construction of routes for web app"""
+"""Construction of routes for web app and API"""
 import os
 
 from ariadne import graphql_sync
