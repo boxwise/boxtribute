@@ -25,6 +25,27 @@ def test_metrics_query_number_of_families_served(read_only_client, filters, numb
     "filters,number",
     [
         ["", 3],
+        ["""(after: "2021-01-01")""", 2],
+        ["""(after: "2022-01-01")""", 0],
+        ["""(before: "2022-01-01")""", 3],
+        ["""(before: "2021-01-01")""", 3],
+        ["""(before: "2019-01-01")""", 0],
+        ["""(after: "2020-01-01", before: "2021-01-01")""", 3],
+        ["""(after: "2022-01-01", before: "2023-01-01")""", 0],
+    ],
+)
+def test_metrics_query_number_of_beneficiaries_served(
+    read_only_client, filters, number
+):
+    query = f"query {{ metrics {{ numberOfBeneficiariesServed{filters} }} }}"
+    response = assert_successful_request(read_only_client, query, field="metrics")
+    assert response == {"numberOfBeneficiariesServed": number}
+
+
+@pytest.mark.parametrize(
+    "filters,number",
+    [
+        ["", 3],
         ["""(after: "2021-01-01")""", 1],
         ["""(after: "2022-01-01")""", 0],
         ["""(before: "2022-01-01")""", 3],

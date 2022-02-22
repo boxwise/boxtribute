@@ -45,6 +45,7 @@ from ..models.definitions.user import User
 from ..models.definitions.x_beneficiary_language import XBeneficiaryLanguage
 from ..models.metrics import (
     compute_moved_stock_overview,
+    compute_number_of_beneficiaries_served,
     compute_number_of_families_served,
     compute_number_of_sales,
     compute_stock_overview,
@@ -515,6 +516,13 @@ def resolve_location_boxes(
 @metrics.field("numberOfFamiliesServed")
 def resolve_metrics_number_of_families_served(*_, after=None, before=None):
     return compute_number_of_families_served(
+        organisation_id=g.user["organisation_id"], after=after, before=before
+    )
+
+
+@metrics.field("numberOfBeneficiariesServed")
+def resolve_metrics_number_of_beneficiaries_served(*_, after=None, before=None):
+    return compute_number_of_beneficiaries_served(
         organisation_id=g.user["organisation_id"], after=after, before=before
     )
 

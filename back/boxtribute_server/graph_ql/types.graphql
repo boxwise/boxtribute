@@ -416,6 +416,8 @@ type Metrics {
   If none is specified, the result is an all-time number.
   """
   numberOfFamiliesServed(after: Date, before: Date): Int
+  " Like `numberOfFamiliesServed` but add up all members of served families "
+  numberOfBeneficiariesServed(after: Date, before: Date): Int
   """
   Return number of sales performed by client's organisation in optional date range.
   See `numberOfFamiliesServed` about using the `after` and `before` parameters.
