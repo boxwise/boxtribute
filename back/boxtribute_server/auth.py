@@ -148,3 +148,26 @@ def requires_auth(f):
         return f(*args, **kwargs)
 
     return decorated
+
+
+def request_jwt(*, client_id, client_secret, audience, domain, username, password):
+    """Request JWT from Auth0 service on given domain, passing any additional
+    parameters. Return whether request was successful, and the full response.
+    """
+    parameters = {
+        "client_id": client_id,
+        "client_secret": client_secret,
+        "audience": audience,
+        "grant_type": "password",
+        "username": username,
+        "password": password,
+    }
+    headers = {"Content-Type": "application/json"}
+    data = json.dumps(parameters).encode("utf-8")
+    url = f"https://{domain}/oauth/token"
+    request = urllib.request.Request(url, data, headers)
+    with urllib.request.urlopen(request) as f:
+        response = json.loads(f.read().decode())
+
+    success = "error" not in response
+    return success, response
