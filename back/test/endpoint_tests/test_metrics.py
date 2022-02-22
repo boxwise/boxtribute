@@ -1,4 +1,5 @@
 import pytest
+from auth import create_jwt_payload
 from utils import assert_successful_request
 
 
@@ -114,3 +115,25 @@ def test_metrics_query_moved_stock_overview(
                 }
             ]
         }
+
+
+@pytest.mark.parametrize(
+    "organisation_id,number_of_families_served,number_of_sales", [[1, 2, 6], [2, 0, 0]]
+)
+def test_metrics_query_for_god_user(
+    read_only_client,
+    mocker,
+    organisation_id,
+    number_of_families_served,
+    number_of_sales,
+):
+    mocker.patch("jose.jwt.decode").return_value = create_jwt_payload(
+        permissions=["*"], organisation_id=None
+    )
+    query = f"""query {{ metrics(organisationId: {organisation_id}) {{
+                numberOfFamiliesServed numberOfSales }} }}"""
+    response = assert_successful_request(read_only_client, query, field="metrics")
+    assert response == {
+        "numberOfFamiliesServed": number_of_families_served,
+        "numberOfSales": number_of_sales,
+    }

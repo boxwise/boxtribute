@@ -267,8 +267,16 @@ def resolve_shipments(_, info):
 
 
 @query.field("metrics")
-def resolve_metrics(*_):
-    return {}
+@convert_kwargs_to_snake_case
+def resolve_metrics(*_, organisation_id=None):
+    # Default to current user's organisation ID
+    organisation_id = organisation_id or g.user["organisation_id"]
+    # Non-god users are only permitted to fetch their organisation's metrics, the god
+    # user however can access any organisation's metrics
+    authorize(organisation_id=organisation_id)
+
+    # Pass organisation ID to child resolvers
+    return {"organisation_id": organisation_id}
 
 
 @beneficiary.field("tokens")
@@ -514,35 +522,37 @@ def resolve_location_boxes(
 
 
 @metrics.field("numberOfFamiliesServed")
-def resolve_metrics_number_of_families_served(*_, after=None, before=None):
+def resolve_metrics_number_of_families_served(metrics_obj, _, after=None, before=None):
     return compute_number_of_families_served(
-        organisation_id=g.user["organisation_id"], after=after, before=before
+        organisation_id=metrics_obj["organisation_id"], after=after, before=before
     )
 
 
 @metrics.field("numberOfBeneficiariesServed")
-def resolve_metrics_number_of_beneficiaries_served(*_, after=None, before=None):
+def resolve_metrics_number_of_beneficiaries_served(
+    metrics_obj, _, after=None, before=None
+):
     return compute_number_of_beneficiaries_served(
-        organisation_id=g.user["organisation_id"], after=after, before=before
+        organisation_id=metrics_obj["organisation_id"], after=after, before=before
     )
 
 
 @metrics.field("numberOfSales")
-def resolve_metrics_number_of_sales(*_, after=None, before=None):
+def resolve_metrics_number_of_sales(metrics_obj, _, after=None, before=None):
     return compute_number_of_sales(
-        organisation_id=g.user["organisation_id"], after=after, before=before
+        organisation_id=metrics_obj["organisation_id"], after=after, before=before
     )
 
 
 @metrics.field("stockOverview")
-def resolve_metrics_stock_overview(*_):
-    return compute_stock_overview(organisation_id=g.user["organisation_id"])
+def resolve_metrics_stock_overview(metrics_obj, _):
+    return compute_stock_overview(organisation_id=metrics_obj["organisation_id"])
 
 
 @metrics.field("movedStockOverview")
-def resolve_metrics_moved_stock_overview(*_, after=None, before=None):
+def resolve_metrics_moved_stock_overview(metrics_obj, _, after=None, before=None):
     return compute_moved_stock_overview(
-        organisation_id=g.user["organisation_id"], after=after, before=before
+        organisation_id=metrics_obj["organisation_id"], after=after, before=before
     )
 
 

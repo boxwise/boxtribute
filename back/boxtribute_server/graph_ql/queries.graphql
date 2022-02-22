@@ -34,5 +34,5 @@ type Query {
   " Return all [`Shipments`]({{Types.Shipment}}) that the client is authorized to view. "
   shipments: [Shipment!]!
   " Return various metrics about stock and beneficiaries for client's organisation. "
-  metrics: Metrics
+  metrics(organisationId: ID): Metrics
 }
