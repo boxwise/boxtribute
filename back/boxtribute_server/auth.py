@@ -9,7 +9,6 @@ from jose import jwt
 
 from .exceptions import AuthenticationFailed
 
-AUTH0_DOMAIN = os.getenv("AUTH0_DOMAIN")
 ALGORITHMS = ["RS256"]
 JWT_CLAIM_PREFIX = "https://www.boxtribute.com"
 
@@ -59,7 +58,8 @@ def get_token_from_auth_header(header_string):
 
 
 def get_public_key():
-    url = urllib.request.urlopen(f"https://{AUTH0_DOMAIN}/.well-known/jwks.json")
+    domain = os.environ["AUTH0_DOMAIN"]
+    url = urllib.request.urlopen(f"https://{domain}/.well-known/jwks.json")
     jwks = json.loads(url.read())
     return jwks["keys"][0]
 
@@ -71,7 +71,7 @@ def decode_jwt(token, public_key):
             public_key,
             algorithms=ALGORITHMS,
             audience=os.getenv("AUTH0_AUDIENCE"),
-            issuer=f"https://{AUTH0_DOMAIN}/",
+            issuer=f"https://{os.environ['AUTH0_DOMAIN']}/",
         )
     except jwt.ExpiredSignatureError:
         raise AuthenticationFailed(
