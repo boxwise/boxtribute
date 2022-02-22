@@ -6,7 +6,7 @@ from ariadne.constants import PLAYGROUND_HTML
 from flask import Blueprint, jsonify, request
 from flask_cors import cross_origin
 
-from .auth import requires_auth
+from .auth import request_jwt, requires_auth
 from .exceptions import AuthenticationFailed, format_database_errors
 from .graph_ql.schema import full_api_schema, query_api_schema
 
@@ -51,6 +51,20 @@ def query_api_server():
         error_formatter=format_database_errors,
     )
 
+    status_code = 200 if success else 400
+    return jsonify(result), status_code
+
+
+@api_bp.route("/token", methods=["POST"])
+@cross_origin(origin="localhost", headers=["Content-Type", "Authorization"])
+def api_token():
+    success, result = request_jwt(
+        **request.get_json(),  # must contain username and password
+        client_id=os.environ["AUTH0_CLIENT_ID"],
+        client_secret=os.environ["AUTH0_CLIENT_SECRET"],
+        audience=os.environ["AUTH0_AUDIENCE"],
+        domain=os.environ["AUTH0_DOMAIN"],
+    )
     status_code = 200 if success else 400
     return jsonify(result), status_code
 
