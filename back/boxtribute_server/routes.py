@@ -62,7 +62,7 @@ def api_token():
         **request.get_json(),  # must contain username and password
         client_id=os.environ["AUTH0_CLIENT_ID"],
         client_secret=os.environ["AUTH0_CLIENT_SECRET"],
-        audience=os.environ["AUTH0_AUDIENCE"],
+        audience=os.getenv("AUTH0_AUDIENCE"),
         domain=os.environ["AUTH0_DOMAIN"],
     )
     status_code = 200 if success else 400

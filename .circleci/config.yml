@@ -200,7 +200,6 @@ jobs:
           command: |
             echo "
               AUTH0_DOMAIN=${AUTH0_DOMAIN}
-              AUTH0_AUDIENCE=${AUTH0_AUDIENCE}
               AUTH0_CLIENT_ID=${AUTH0_CLIENT_ID}
               AUTH0_CLIENT_SECRET=${AUTH0_CLIENT_SECRET}
               MYSQL_HOST=127.0.0.1
@@ -211,7 +210,8 @@ jobs:
               MYSQL_SOCKET=${DB_SOCKET}
               FLASK_URL_PREFIX=/v2
               " > .env
-              env > envvars-<< parameters.serviceName >>.txt
+            if [ ! -z ${AUTH0_AUDIENCE+x} ]; then echo "AUTH0_AUDIENCE=${AUTH0_AUDIENCE}" >> .env; fi
+            env > envvars-<< parameters.serviceName >>.txt
       - run:
           name: Generate GAE app.yaml file
           command: |

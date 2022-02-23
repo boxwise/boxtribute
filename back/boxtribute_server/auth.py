@@ -70,7 +70,7 @@ def decode_jwt(token, public_key):
             token,
             public_key,
             algorithms=ALGORITHMS,
-            audience=os.getenv("AUTH0_AUDIENCE"),
+            audience=os.getenv("AUTH0_AUDIENCE") or os.environ["AUTH0_CLIENT_ID"],
             issuer=f"https://{os.environ['AUTH0_DOMAIN']}/",
         )
     except jwt.ExpiredSignatureError:
@@ -157,11 +157,14 @@ def request_jwt(*, client_id, client_secret, audience, domain, username, passwor
     parameters = {
         "client_id": client_id,
         "client_secret": client_secret,
-        "audience": audience,
         "grant_type": "password",
         "username": username,
         "password": password,
     }
+    if audience is not None:  # pragma: no cover
+        # Only staging and dev tenants have an audience set
+        parameters["audience"] = audience
+
     headers = {"Content-Type": "application/json"}
     data = json.dumps(parameters).encode("utf-8")
     url = f"https://{domain}/oauth/token"
