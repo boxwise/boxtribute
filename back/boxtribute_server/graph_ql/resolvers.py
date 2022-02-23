@@ -2,9 +2,8 @@
 from datetime import date
 
 from ariadne import MutationType, ObjectType, QueryType, convert_kwargs_to_snake_case
-from peewee import fn
-
 from flask import g
+from peewee import fn
 
 from ..authz import authorize
 from ..box_transfer.agreement import (
