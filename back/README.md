@@ -78,8 +78,9 @@ For the integration tests authentication information is fetched from the [Auth0]
 
 We're subject to a rate limit for tokens from Auth0. In order to avoid fetching tokens over and over again for every test run, do the following once before you start your development session:
 
-1. Run the `./fetch_token` script
-1. Paste the value of the `access_token` field as `AUTH0_TEST_JWT=` into the `.env` file
+1. Activate the virtual environment
+1. Run `./fetch_token --test`
+1. Paste the displayed token as `AUTH0_TEST_JWT=` into the `.env` file
 
 After 24h the token expires, so you have to repeat the procedure.
 
@@ -250,7 +251,8 @@ and inspect the reported output. Open the HTML report via `back/htmlcov/index.ht
 ## GraphQL API
 
 The back-end exposes the GraphQL API in two variants.
-The full API is consumed by our front-end at the `/graphql` endpoint. The 'query' API is used by our partners at `/api` (for data retrieval).
+1. The full API is consumed by our front-end at the `/graphql` endpoint (when deployed, it receives the `v2/` prefix since the same base URL as dropapp is used).
+1. The 'query-only' API is used by our partners at `/` (for data retrieval; it is deployed on the `api*` subdomains).
 
 ### Schema documentation
 
@@ -260,12 +262,13 @@ For building a static web documentation of the schema, see [this directory](../d
 
 You can experiment with the API in the GraphQL playground.
 
+1. Activate the virtual environment
 1. Set `export FLASK_ENV=development`
 1. Start the required services by `docker-compose up webapp db`
-1. Open `localhost:5005/graphql` (or `/api`)
-1. Simulate being a valid, logged-in user by fetching an authorization token (internally the variables of the `.env` file are used): `./fetch_token`
-1. Copy the content of the `access_token` field (alternatively, you can pipe the above command ` | jq -r .access_token | xclip -i -selection c` to copy it to the system clipboard)
-1.  Insert the access token in the following format on the playground in the section on the bottom left of the playground called HTTP Headers.
+1. Open `localhost:5005/graphql` (or `/` for the query-only API)
+1. Simulate being a valid, logged-in user by fetching an authorization token (internally the variables of the `.env` file are used, use `--help` for more info): `./fetch_token --test`
+1. Copy the displayed token
+1. Insert the access token in the following format on the playground in the section on the bottom left of the playground called HTTP Headers.
 
         { "authorization": "Bearer <the token you retrieved from Auth0>"}
 

@@ -1,13 +1,67 @@
-#!/usr/bin/env bash
+#!/usr/bin/env python
+"""Fetch a JWT from the Auth0 service acc. to the variables of the .env file.
 
-# Fetch a JWT from the Auth0 service acc. to the variables of the .env file
+Overwrite single variables using the respective command line options, or by specifying
+another .env file to load.
+"""
 
-SCRIPT_DIR="$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )"
-source "$SCRIPT_DIR"/.env
+import argparse
+import logging
+import os
 
-# Embedding env variables into a bash single-quote string is tricky: https://superuser.com/a/835589/603785
-curl \
-    --request POST \
-    --url https://"$AUTH0_DOMAIN"/oauth/token \
-    --header 'content-type: application/json' \
-    --data '{"client_id":"'"$AUTH0_CLIENT_TEST_ID"'","client_secret":"'"$AUTH0_CLIENT_SECRET_TEST"'","audience":"'"$AUTH0_AUDIENCE"'","grant_type":"password", "username":"'"$AUTH0_USERNAME"'", "password":"'"$AUTH0_PASSWORD"'"}'
+from boxtribute_server.auth import request_jwt
+from dotenv import load_dotenv
+
+logger = logging.getLogger(__name__)
+logger.addHandler(logging.StreamHandler())
+
+
+def _parse_cli():
+    parser = argparse.ArgumentParser(description=globals()["__doc__"])
+    parser.add_argument("-u", "--username")
+    parser.add_argument("-p", "--password")
+    parser.add_argument("-d", "--dotenv-filepath")
+    parser.add_argument(
+        "-v", "--verbose", action="store_true", help="show env variables"
+    )
+    parser.add_argument(
+        "-t", "--test", action="store_true", help="fetch JWT for test user"
+    )
+    return parser.parse_args()
+
+
+def main():
+    options = _parse_cli()
+
+    if options.verbose:
+        logger.setLevel(logging.DEBUG)
+
+    if options.dotenv_filepath is not None:
+        load_dotenv(options.dotenv_filepath, override=True)
+
+    for k, v in sorted(os.environ.items()):
+        if k.startswith("AUTH0"):
+            logger.debug(f"{k}={v}")
+
+    parameters = dict(
+        username=options.username or os.environ["AUTH0_USERNAME"],
+        password=options.password or os.environ["AUTH0_PASSWORD"],
+        audience=os.environ["AUTH0_AUDIENCE"],
+        domain=os.environ["AUTH0_DOMAIN"],
+    )
+    if options.test:
+        parameters["client_id"] = os.environ["AUTH0_CLIENT_TEST_ID"]
+        parameters["client_secret"] = os.environ["AUTH0_CLIENT_SECRET_TEST"]
+    else:
+        parameters["client_id"] = os.environ["AUTH0_CLIENT_ID"]
+        parameters["client_secret"] = os.environ["AUTH0_CLIENT_SECRET"]
+
+    success, result = request_jwt(**parameters)
+
+    if not success:
+        raise SystemExit(result)
+    return result["access_token"]
+
+
+if __name__ == "__main__":
+    print(main())

@@ -5,12 +5,10 @@ import urllib
 from functools import wraps
 
 from flask import g, request
-from jose import jwt
+from jose import JOSEError, jwt
 
 from .exceptions import AuthenticationFailed
 
-AUTH0_DOMAIN = os.getenv("AUTH0_DOMAIN")
-ALGORITHMS = ["RS256"]
 JWT_CLAIM_PREFIX = "https://www.boxtribute.com"
 
 
@@ -58,20 +56,20 @@ def get_token_from_auth_header(header_string):
     return token
 
 
-def get_public_key():
-    url = urllib.request.urlopen("https://" + AUTH0_DOMAIN + "/.well-known/jwks.json")
+def get_public_key(domain):
+    url = urllib.request.urlopen(f"https://{domain}/.well-known/jwks.json")
     jwks = json.loads(url.read())
     return jwks["keys"][0]
 
 
-def decode_jwt(token, public_key):
+def decode_jwt(*, token, public_key, domain, audience):
     try:
         payload = jwt.decode(
             token,
             public_key,
-            algorithms=ALGORITHMS,
-            audience=os.getenv("AUTH0_AUDIENCE"),
-            issuer="https://" + AUTH0_DOMAIN + "/",
+            algorithms=["RS256"],
+            audience=audience,
+            issuer=f"https://{domain}/",
         )
     except jwt.ExpiredSignatureError:
         raise AuthenticationFailed(
@@ -86,13 +84,22 @@ def decode_jwt(token, public_key):
             },
             401,
         )
-    except Exception:
+    except JOSEError as e:
         raise AuthenticationFailed(
             {
                 "code": "invalid_header",
                 "description": "Unable to parse authentication token.",
+                "message": str(e),
             },
             401,
+        )
+    except Exception:
+        raise AuthenticationFailed(
+            {
+                "code": "internal_server_error",
+                "description": "The server could not process the request.",
+            },
+            500,
         )
     return payload
 
@@ -118,8 +125,13 @@ def requires_auth(f):
     @wraps(f)
     def decorated(*args, **kwargs):
         token = get_token_from_auth_header(get_auth_string_from_header())
-        public_key = get_public_key()
-        payload = decode_jwt(token, public_key)
+        domain = os.environ["AUTH0_DOMAIN"]
+        # Auth0 demo and production tenants have no audience, fall back to client ID
+        audience = os.getenv("AUTH0_AUDIENCE") or os.environ["AUTH0_CLIENT_ID"]
+        public_key = get_public_key(domain)
+        payload = decode_jwt(
+            token=token, public_key=public_key, domain=domain, audience=audience
+        )
 
         # The user's organisation ID is listed in the JWT under the custom claim (added
         # by a rule in Auth0):
@@ -148,3 +160,33 @@ def requires_auth(f):
         return f(*args, **kwargs)
 
     return decorated
+
+
+def request_jwt(*, client_id, client_secret, audience, domain, username, password):
+    """Request JWT from Auth0 service on given domain, passing any additional
+    parameters. Return whether request was successful, and the full response.
+    """
+    parameters = {
+        "client_id": client_id,
+        "client_secret": client_secret,
+        "grant_type": "password",
+        "username": username,
+        "password": password,
+    }
+    if audience is not None:  # pragma: no cover
+        # Only staging and dev tenants have an audience set
+        parameters["audience"] = audience
+
+    headers = {"Content-Type": "application/json"}
+    data = json.dumps(parameters).encode("utf-8")
+    url = f"https://{domain}/oauth/token"
+    request = urllib.request.Request(url, data, headers)
+    try:
+        with urllib.request.urlopen(request) as f:
+            response = json.loads(f.read().decode())
+    except urllib.error.URLError as e:
+        # Auth0 returns HTTP error if misconfigured
+        response = {"error": e.reason}
+
+    success = "error" not in response
+    return success, response

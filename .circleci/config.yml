@@ -180,9 +180,15 @@ jobs:
           at: ~/
       # install gcloud orb
       - gcp-cli/install
-      - run:
-          name: Copy react build into flask app for deployment
-          command: mv ../react/build react-build
+      - unless:
+          condition:
+            matches:
+              pattern: "^api-.+"
+              value: << parameters.serviceName >>
+          steps:
+            - run:
+                name: Copy react build into flask app for deployment
+                command: mv ../react/build react-build
       - run:
           name: Create version.txt
           command: |
@@ -194,24 +200,31 @@ jobs:
           command: |
             echo "
               AUTH0_DOMAIN=${AUTH0_DOMAIN}
-              AUTH0_AUDIENCE=${AUTH0_AUDIENCE}
+              AUTH0_CLIENT_ID=${AUTH0_CLIENT_ID}
+              AUTH0_CLIENT_SECRET=${AUTH0_CLIENT_SECRET}
+              MYSQL_HOST=127.0.0.1
               MYSQL_USER=${DB_NAME}
               MYSQL_PASSWORD=${DB_PASS}
               MYSQL_DB=${DB_NAME}
+              MYSQL_PORT=3306
               MYSQL_SOCKET=${DB_SOCKET}
               FLASK_URL_PREFIX=/v2
               " > .env
+            if [ ! -z ${AUTH0_AUDIENCE+x} ]; then echo "AUTH0_AUDIENCE=${AUTH0_AUDIENCE}" >> .env; fi
       - run:
           name: Generate GAE app.yaml file
           command: |
-            sed 's/service: v2-staging/service: << parameters.serviceName >>/g' app.yaml > app-<< parameters.serviceName >>.yaml
+            if [[ "<< parameters.serviceName >>" = "api-"* ]]; then
+                sed 's/service: api-staging/service: << parameters.serviceName >>/g' app-api.yaml > app-<< parameters.serviceName >>.yaml
+            else
+                sed 's/service: v2-staging/service: << parameters.serviceName >>/g' app.yaml > app-<< parameters.serviceName >>.yaml
+            fi
       - run:
           name: Compress deployment artificats
           command: tar -cvzf ~/deploy.tar.gz ~/back
       - store_artifacts:
           name: Store copy of deployment artifacts
           path: ~/deploy.tar.gz
-
       - run:
           name: Authenticate the gcloud orb
           command: |
@@ -255,6 +268,15 @@ workflows:
           filters:
             branches:
               only: master
+      - deploy:
+          name: deploy-api-staging
+          context: STAGING
+          serviceName: api-staging
+          requires:
+            - test-flask
+          filters:
+            branches:
+              only: master
 
       # deploy to demo
       - deploy:
@@ -267,6 +289,15 @@ workflows:
           filters:
             branches:
               only: production
+      - deploy:
+          name: deploy-api-demo
+          context: DEMO
+          serviceName: api-demo
+          requires:
+            - test-flask
+          filters:
+            branches:
+              only: production
 
       # deploy to production
       - deploy:
@@ -276,6 +307,15 @@ workflows:
           requires:
             - test-flask
             - build-and-test-react
+          filters:
+            branches:
+              only: production
+      - deploy:
+          name: deploy-api-production
+          context: PRODUCTION
+          serviceName: api-production
+          requires:
+            - test-flask
           filters:
             branches:
               only: production

@@ -2,12 +2,17 @@
 These tests fetch actual authentication data from the Auth0 web service and hence
 require a working internet connection.
 """
-from auth import get_user_token_string
+import os
+import urllib
+
+import pytest
+from auth import TEST_AUTH0_AUDIENCE, TEST_AUTH0_DOMAIN, get_user_token_string
 from boxtribute_server.auth import (
     decode_jwt,
     get_public_key,
     get_token_from_auth_header,
 )
+from boxtribute_server.exceptions import AuthenticationFailed
 
 
 def test_expired_jwt(client):
@@ -28,6 +33,35 @@ def test_invalid_jwt_claims(auth0_client, monkeypatch):
 
 def test_decode_valid_jwt():
     token = get_token_from_auth_header(get_user_token_string())
-    key = get_public_key()
+    key = get_public_key(TEST_AUTH0_DOMAIN)
     assert key is not None
-    assert decode_jwt(token, key) is not None
+    params = dict(
+        public_key=key, domain=TEST_AUTH0_DOMAIN, audience=TEST_AUTH0_AUDIENCE
+    )
+    assert decode_jwt(token=token, **params) is not None
+
+    # invalid header
+    with pytest.raises(AuthenticationFailed):
+        decode_jwt(token="invalid_token_in_header", **params)
+
+
+def test_request_jwt(dropapp_dev_client, monkeypatch, mocker):
+    monkeypatch.setenv("AUTH0_CLIENT_ID", os.environ["AUTH0_CLIENT_TEST_ID"])
+    monkeypatch.setenv("AUTH0_CLIENT_SECRET", os.environ["AUTH0_CLIENT_SECRET_TEST"])
+    response = dropapp_dev_client.post(
+        "/token",
+        json={
+            "username": os.environ["AUTH0_USERNAME"],
+            "password": os.environ["AUTH0_PASSWORD"],
+        },
+    )
+    assert response.status_code == 200
+    assert "access_token" in response.json
+
+    reason = "internal_server_error"
+    mocker.patch("urllib.request.urlopen").side_effect = urllib.error.URLError(
+        reason=reason
+    )
+    response = dropapp_dev_client.post("/token", json={"username": "u", "password": ""})
+    assert response.status_code == 400
+    assert response.json["error"] == reason

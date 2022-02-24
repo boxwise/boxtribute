@@ -1,8 +1,9 @@
-import json
 import os
-import urllib
 
-from boxtribute_server.auth import JWT_CLAIM_PREFIX
+from boxtribute_server.auth import JWT_CLAIM_PREFIX, request_jwt
+
+TEST_AUTH0_DOMAIN = "boxtribute-dev.eu.auth0.com"
+TEST_AUTH0_AUDIENCE = "boxtribute-dev-api"
 
 
 def memoize(function):
@@ -30,33 +31,14 @@ def get_user_token():
     if token is not None:
         return token
 
-    auth0_domain = os.getenv("AUTH0_DOMAIN")
-    auth0_client_id = os.getenv("AUTH0_CLIENT_TEST_ID")
-    auth0_audience = os.getenv("AUTH0_AUDIENCE")
-    auth0_secret = os.getenv("AUTH0_CLIENT_SECRET_TEST")
-    auth0_username = os.getenv("AUTH0_USERNAME")
-    auth0_password = os.getenv("AUTH0_PASSWORD")
-
-    url = "https://" + auth0_domain + "/oauth/token"
-    auth_parameters = {
-        "client_id": auth0_client_id,
-        "audience": auth0_audience,
-        "client_secret": auth0_secret,
-        "grant_type": "password",
-        "username": auth0_username,
-        "password": auth0_password,
-    }
-
-    for _, v in auth_parameters.items():
-        assert v is not None
-
-    headers = {"Content-Type": "application/json"}
-    data = json.dumps(auth_parameters).encode("utf-8")
-    request = urllib.request.Request(url, data, headers)
-    with urllib.request.urlopen(request) as f:
-        response = json.loads(f.read().decode())
-
-    assert "error" not in response, response
+    success, response = request_jwt(
+        client_id=os.getenv("AUTH0_CLIENT_TEST_ID"),
+        client_secret=os.getenv("AUTH0_CLIENT_SECRET_TEST"),
+        audience=TEST_AUTH0_AUDIENCE,
+        domain=TEST_AUTH0_DOMAIN,
+        username=os.getenv("AUTH0_USERNAME"),
+        password=os.getenv("AUTH0_PASSWORD"),
+    )
     return response["access_token"]
 
 

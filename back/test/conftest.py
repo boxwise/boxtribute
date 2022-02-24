@@ -16,6 +16,7 @@ import pymysql
 import pytest
 from boxtribute_server.app import configure_app, create_app
 from boxtribute_server.db import create_db_interface, db
+from boxtribute_server.routes import api_bp, app_bp
 
 # Imports fixtures into tests
 from data import *  # noqa: F401,F403
@@ -57,7 +58,7 @@ def mysql_testing_database():
 
 
 @contextmanager
-def _create_app(database_interface):
+def _create_app(database_interface, *blueprints):
     """On each invocation, create the Flask app and configure it to access the
     `database_interface`.
     Create all tables and populate them.
@@ -69,8 +70,7 @@ def _create_app(database_interface):
     scopes (cf. https://github.com/pytest-dev/pytest/issues/3425#issuecomment-383835876)
     """
     app = create_app()
-    app.config["DATABASE"] = database_interface
-    db.init_app(app)
+    configure_app(app, *blueprints, database_interface=database_interface)
 
     with db.database.bind_ctx(MODELS):
         db.database.drop_tables(MODELS)
@@ -91,7 +91,7 @@ def read_only_client(mysql_testing_database_read_only):
     app client that simulates sending requests to the app.
     The client's authentication and authorization may be separately defined or patched.
     """
-    with _create_app(mysql_testing_database_read_only) as app:
+    with _create_app(mysql_testing_database_read_only, api_bp, app_bp) as app:
         yield app.test_client()
 
 
@@ -103,7 +103,7 @@ def client(mysql_testing_database):
     app client that simulates sending requests to the app.
     The client's authentication and authorization may be separately defined or patched.
     """
-    with _create_app(mysql_testing_database) as app:
+    with _create_app(mysql_testing_database, api_bp, app_bp) as app:
         yield app.test_client()
 
 
@@ -112,18 +112,20 @@ def dropapp_dev_client():
     """Function fixture for any tests that include read-only operations on the
     `dropapp_dev` database. Use for testing the integration of the webapp (and the
     underlying ORM) with the format of the dropapp production database.
-    The fixture creates a web app, configured to connect to the `dropapp_dev` MySQL
-    database, and returns a client that simulates sending requests to the app.
+    The fixture creates a web app (exposing both the query and the full API), configured
+    to connect to the `dropapp_dev` MySQL database, and returns a client that simulates
+    sending requests to the app.
     """
     app = create_app()
     app.testing = True
     configure_app(
         app,
+        api_bp,
+        app_bp,
         **MYSQL_CONNECTION_PARAMETERS,
         database="dropapp_dev",
     )
 
-    db.init_app(app)
     with db.database.bind_ctx(MODELS):
         db.database.create_tables(MODELS)
         models = setup_box_transfer_models()
