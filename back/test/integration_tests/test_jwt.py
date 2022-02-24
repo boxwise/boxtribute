@@ -6,7 +6,7 @@ import os
 import urllib
 
 import pytest
-from auth import get_user_token_string
+from auth import TEST_AUTH0_AUDIENCE, TEST_AUTH0_DOMAIN, get_user_token_string
 from boxtribute_server.auth import (
     decode_jwt,
     get_public_key,
@@ -33,13 +33,16 @@ def test_invalid_jwt_claims(auth0_client, monkeypatch):
 
 def test_decode_valid_jwt():
     token = get_token_from_auth_header(get_user_token_string())
-    key = get_public_key()
+    key = get_public_key(TEST_AUTH0_DOMAIN)
     assert key is not None
-    assert decode_jwt(token, key) is not None
+    params = dict(
+        public_key=key, domain=TEST_AUTH0_DOMAIN, audience=TEST_AUTH0_AUDIENCE
+    )
+    assert decode_jwt(token=token, **params) is not None
 
     # invalid header
     with pytest.raises(AuthenticationFailed):
-        decode_jwt("invalid_token_in_header", key)
+        decode_jwt(token="invalid_token_in_header", **params)
 
 
 def test_request_jwt(dropapp_dev_client, monkeypatch, mocker):

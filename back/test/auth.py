@@ -2,6 +2,9 @@ import os
 
 from boxtribute_server.auth import JWT_CLAIM_PREFIX, request_jwt
 
+TEST_AUTH0_DOMAIN = "boxtribute-dev.eu.auth0.com"
+TEST_AUTH0_AUDIENCE = "boxtribute-dev-api"
+
 
 def memoize(function):
     """Wraps a function so the data is cached.
@@ -31,8 +34,8 @@ def get_user_token():
     success, response = request_jwt(
         client_id=os.getenv("AUTH0_CLIENT_TEST_ID"),
         client_secret=os.getenv("AUTH0_CLIENT_SECRET_TEST"),
-        audience="boxtribute-dev-api",
-        domain="boxtribute-dev.eu.auth0.com",
+        audience=TEST_AUTH0_AUDIENCE,
+        domain=TEST_AUTH0_DOMAIN,
         username=os.getenv("AUTH0_USERNAME"),
         password=os.getenv("AUTH0_PASSWORD"),
     )
