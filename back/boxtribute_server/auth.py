@@ -5,7 +5,7 @@ import urllib
 from functools import wraps
 
 from flask import g, request
-from jose import jwt
+from jose import JOSEError, jwt
 
 from .exceptions import AuthenticationFailed
 
@@ -86,13 +86,22 @@ def decode_jwt(token, public_key):
             },
             401,
         )
-    except Exception:
+    except JOSEError as e:
         raise AuthenticationFailed(
             {
                 "code": "invalid_header",
                 "description": "Unable to parse authentication token.",
+                "message": str(e),
             },
             401,
+        )
+    except Exception:
+        raise AuthenticationFailed(
+            {
+                "code": "internal_server_error",
+                "description": "The server could not process the request.",
+            },
+            500,
         )
     return payload
 

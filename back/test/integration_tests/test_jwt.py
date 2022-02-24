@@ -4,12 +4,14 @@ require a working internet connection.
 """
 import os
 
+import pytest
 from auth import get_user_token_string
 from boxtribute_server.auth import (
     decode_jwt,
     get_public_key,
     get_token_from_auth_header,
 )
+from boxtribute_server.exceptions import AuthenticationFailed
 
 
 def test_expired_jwt(client):
@@ -33,6 +35,10 @@ def test_decode_valid_jwt():
     key = get_public_key()
     assert key is not None
     assert decode_jwt(token, key) is not None
+
+    # invalid header
+    with pytest.raises(AuthenticationFailed):
+        decode_jwt("invalid_token_in_header", key)
 
 
 def test_request_jwt(dropapp_dev_client, monkeypatch):
