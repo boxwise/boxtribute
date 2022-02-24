@@ -3,6 +3,7 @@ These tests fetch actual authentication data from the Auth0 web service and henc
 require a working internet connection.
 """
 import os
+import urllib
 
 import pytest
 from auth import get_user_token_string
@@ -41,7 +42,7 @@ def test_decode_valid_jwt():
         decode_jwt("invalid_token_in_header", key)
 
 
-def test_request_jwt(dropapp_dev_client, monkeypatch):
+def test_request_jwt(dropapp_dev_client, monkeypatch, mocker):
     monkeypatch.setenv("AUTH0_CLIENT_ID", os.environ["AUTH0_CLIENT_TEST_ID"])
     monkeypatch.setenv("AUTH0_CLIENT_SECRET", os.environ["AUTH0_CLIENT_SECRET_TEST"])
     response = dropapp_dev_client.post(
@@ -53,3 +54,11 @@ def test_request_jwt(dropapp_dev_client, monkeypatch):
     )
     assert response.status_code == 200
     assert "access_token" in response.json
+
+    reason = "internal_server_error"
+    mocker.patch("urllib.request.urlopen").side_effect = urllib.error.URLError(
+        reason=reason
+    )
+    response = dropapp_dev_client.post("/token", json={"username": "u", "password": ""})
+    assert response.status_code == 400
+    assert response.json["error"] == reason

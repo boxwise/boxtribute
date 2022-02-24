@@ -178,8 +178,12 @@ def request_jwt(*, client_id, client_secret, audience, domain, username, passwor
     data = json.dumps(parameters).encode("utf-8")
     url = f"https://{domain}/oauth/token"
     request = urllib.request.Request(url, data, headers)
-    with urllib.request.urlopen(request) as f:
-        response = json.loads(f.read().decode())
+    try:
+        with urllib.request.urlopen(request) as f:
+            response = json.loads(f.read().decode())
+    except urllib.error.URLError as e:
+        # Auth0 returns HTTP error if misconfigured
+        response = {"error": e.reason}
 
     success = "error" not in response
     return success, response
