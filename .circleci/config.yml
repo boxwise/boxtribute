@@ -211,7 +211,6 @@ jobs:
               FLASK_URL_PREFIX=/v2
               " > .env
             if [ ! -z ${AUTH0_AUDIENCE+x} ]; then echo "AUTH0_AUDIENCE=${AUTH0_AUDIENCE}" >> .env; fi
-            env > envvars-<< parameters.serviceName >>.txt
       - run:
           name: Generate GAE app.yaml file
           command: |
@@ -277,7 +276,7 @@ workflows:
             - test-flask
           filters:
             branches:
-              only: 814-deploy-api
+              only: master
 
       # deploy to demo
       - deploy:
@@ -298,7 +297,7 @@ workflows:
             - test-flask
           filters:
             branches:
-              only: 814-deploy-api
+              only: production
 
       # deploy to production
       - deploy:
@@ -319,4 +318,4 @@ workflows:
             - test-flask
           filters:
             branches:
-              only: 814-deploy-api
+              only: production
