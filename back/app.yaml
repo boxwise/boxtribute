@@ -2,9 +2,6 @@ runtime: python38
 service: v2-staging
 entrypoint: gunicorn -b :$PORT
 handlers:
-- url: /v2/api/.*
-  script: auto
-  secure: always
 - url: /v2/graphql
   script: auto
   secure: always
