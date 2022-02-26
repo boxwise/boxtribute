@@ -25,7 +25,7 @@ const theme = extendTheme({ colors });
 ReactDOM.render(
   <ChakraProvider theme={theme}>
     <CSSReset />
-    <BrowserRouter>
+    <BrowserRouter basename="/v2">
       <Auth0ProviderWithHistory>
         <ApolloWrapper>
           <App />
