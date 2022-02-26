@@ -126,11 +126,11 @@ def requires_auth(f):
     def decorated(*args, **kwargs):
         token = get_token_from_auth_header(get_auth_string_from_header())
         domain = os.environ["AUTH0_DOMAIN"]
-        # Auth0 demo and production tenants have no audience, fall back to client ID
-        audience = os.getenv("AUTH0_AUDIENCE") or os.environ["AUTH0_CLIENT_ID"]
-        public_key = get_public_key(domain)
         payload = decode_jwt(
-            token=token, public_key=public_key, domain=domain, audience=audience
+            token=token,
+            public_key=get_public_key(domain),
+            domain=domain,
+            audience=os.environ["AUTH0_AUDIENCE"],
         )
 
         # The user's organisation ID is listed in the JWT under the custom claim (added
@@ -170,13 +170,10 @@ def request_jwt(*, client_id, client_secret, audience, domain, username, passwor
         "client_id": client_id,
         "client_secret": client_secret,
         "grant_type": "password",
+        "audience": audience,
         "username": username,
         "password": password,
     }
-    if audience is not None:  # pragma: no cover
-        # Only staging and dev tenants have an audience set
-        parameters["audience"] = audience
-
     headers = {"Content-Type": "application/json"}
     data = json.dumps(parameters).encode("utf-8")
     url = f"https://{domain}/oauth/token"
