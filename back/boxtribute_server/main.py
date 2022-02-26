@@ -5,7 +5,7 @@ from .app import configure_app, create_app
 from .routes import api_bp, app_bp
 
 app = create_app()
-blueprints = [api_bp] if os.getenv("EXPOSE_FULL_GRAPHQL") is None else [api_bp, app_bp]
+blueprints = [api_bp] if os.getenv("EXPOSE_FULL_GRAPHQL") is None else [app_bp]
 configure_app(
     app,
     *blueprints,

@@ -211,6 +211,7 @@ jobs:
               MYSQL_SOCKET=${DB_SOCKET}
               FLASK_URL_PREFIX=/v2
               " > .env
+            if [[ "<< parameters.serviceName >>" != "api-"* ]]; then echo "EXPOSE_FULL_GRAPHQL=1" >> .env; fi
       - run:
           name: Generate GAE app.yaml file
           command: |
@@ -304,7 +305,7 @@ workflows:
             - build-and-test-react
           filters:
             branches:
-              only: master
+              only: fix/frontent-deploy
       - deploy:
           name: deploy-api-staging
           context: STAGING
