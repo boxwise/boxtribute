@@ -22,7 +22,8 @@ def default_beneficiary_data():
     }
 
 
-def another_beneficiary_data():
+def relative_beneficiary_data():
+    # Beneficiary in the same family as #1
     return {
         "id": 2,
         "first_name": "No",
@@ -40,16 +41,42 @@ def another_beneficiary_data():
     }
 
 
+def another_beneficiary_data():
+    return {
+        "id": 3,
+        "first_name": "No",
+        "last_name": "One",
+        "base": base_data()[0]["id"],
+        "created_on": datetime(2022, 1, 30),
+        "created_by": None,
+        "family_id": 11,
+        "seq": 1,
+        "group_identifier": "5678",
+        "gender": "F",
+    }
+
+
+@pytest.fixture
+def default_beneficiaries():
+    return [
+        default_beneficiary_data(),
+        relative_beneficiary_data(),
+        another_beneficiary_data(),
+    ]
+
+
 @pytest.fixture
 def default_beneficiary():
     return default_beneficiary_data()
 
 
 @pytest.fixture
-def another_beneficiary():
-    return another_beneficiary_data()
+def relative_beneficiary():
+    return relative_beneficiary_data()
 
 
 def create():
+    # not using insert_many() because relative_beneficiary's gender not defined
     Beneficiary.create(**default_beneficiary_data())
+    Beneficiary.create(**relative_beneficiary_data())
     Beneficiary.create(**another_beneficiary_data())

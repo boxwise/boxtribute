@@ -253,6 +253,11 @@ def test_invalid_permission_for_resource_base(
     assert_forbidden_request(read_only_client, query, value={"base": None})
 
 
+def test_invalid_permission_for_metrics(read_only_client, mocker):
+    query = "query { metrics(organisationId: 2) { numberOfSales } }"
+    assert_forbidden_request(read_only_client, query)
+
+
 @pytest.mark.parametrize(
     "method",
     ["read", "write", "create", "edit"],

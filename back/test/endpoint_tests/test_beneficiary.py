@@ -39,7 +39,11 @@ def _generate_beneficiary_query(id):
 
 
 def test_beneficiary_query(
-    read_only_client, default_beneficiary, another_beneficiary, default_transaction
+    read_only_client,
+    default_beneficiary,
+    relative_beneficiary,
+    default_transaction,
+    relative_transaction,
 ):
     query = _generate_beneficiary_query(default_beneficiary["id"])
     beneficiary = assert_successful_request(read_only_client, query)
@@ -58,23 +62,24 @@ def test_beneficiary_query(
         "registered": True,
         "signature": None,
         "dateOfSignature": None,
-        "tokens": default_transaction["tokens"],
+        "tokens": default_transaction["tokens"] + relative_transaction["tokens"],
         "createdOn": default_beneficiary["created_on"].isoformat() + "+00:00",
         "transactions": [
             {
-                "id": str(default_transaction["id"]),
+                "id": str(tr["id"]),
                 "beneficiary": {"id": str(default_beneficiary["id"])},
-                "product": {"id": str(default_transaction["product"])},
-                "count": default_transaction["count"],
-                "description": default_transaction["description"],
-                "tokens": default_transaction["tokens"],
-                "createdBy": {"id": str(default_transaction["created_by"])},
-                "createdOn": default_transaction["created_on"].isoformat() + "+00:00",
+                "product": {"id": str(tr["product"])},
+                "count": tr["count"],
+                "description": tr["description"],
+                "tokens": tr["tokens"],
+                "createdBy": {"id": str(tr["created_by"])},
+                "createdOn": tr["created_on"].isoformat() + "+00:00",
             }
+            for tr in [default_transaction, relative_transaction]
         ],
     }
 
-    beneficiary_id = another_beneficiary["id"]
+    beneficiary_id = relative_beneficiary["id"]
     query = f"""query {{ beneficiary(id: {beneficiary_id}) {{
                 gender
                 age
@@ -223,19 +228,19 @@ def test_beneficiary_mutations(client):
 @pytest.mark.parametrize(
     "input,size,has_next_page,has_previous_page",
     (
-        ["", 2, False, False],
+        ["", 3, False, False],
         #                             ID=0
-        ["""(paginationInput: {after: "MDAwMDAwMDA="})""", 2, False, False],
+        ["""(paginationInput: {after: "MDAwMDAwMDA="})""", 3, False, False],
         ["""(paginationInput: {first: 1})""", 1, True, False],
-        #                             ID=2; previous page exists but can't be determined
-        ["""(paginationInput: {after: "MDAwMDAwMDI="})""", 0, False, False],
-        #                             ID=1
-        ["""(paginationInput: {after: "MDAwMDAwMDE=", first: 1})""", 1, False, True],
+        #                             ID=3; previous page exists but can't be determined
+        ["""(paginationInput: {after: "MDAwMDAwMDM="})""", 0, False, False],
+        #                             ID=2
+        ["""(paginationInput: {after: "MDAwMDAwMDI=", first: 1})""", 1, False, True],
         # next page exists but can't be determined
         ["""(paginationInput: {before: "MDAwMDAwMDE="})""", 0, False, False],
-        #                              ID=3
-        ["""(paginationInput: {before: "MDAwMDAwMDM=", last: 1})""", 1, False, True],
-        ["""(paginationInput: {before: "MDAwMDAwMDM=", last: 2})""", 2, False, False],
+        #                              ID=4
+        ["""(paginationInput: {before: "MDAwMDAwMDQ=", last: 2})""", 2, False, True],
+        ["""(paginationInput: {before: "MDAwMDAwMDQ=", last: 3})""", 3, False, False],
     ),
     ids=[
         "no input",
@@ -271,22 +276,22 @@ def _format(parameter):
 @pytest.mark.parametrize(
     "filters,number",
     [
-        [[{"createdFrom": '"2020-01-01"'}], 2],
-        [[{"createdFrom": '"2021-01-01"'}], 1],
+        [[{"createdFrom": '"2020-01-01"'}], 3],
+        [[{"createdFrom": '"2021-01-01"'}], 2],
         [[{"createdUntil": '"2019-12-31"'}], 0],
         [[{"createdUntil": '"2021-01-01"'}], 1],
-        [[{"active": "true"}], 1],
+        [[{"active": "true"}], 2],
         [[{"active": "false"}], 1],
         [[{"isVolunteer": "true"}], 1],
-        [[{"isVolunteer": "false"}], 1],
-        [[{"registered": "true"}], 1],
+        [[{"isVolunteer": "false"}], 2],
+        [[{"registered": "true"}], 2],
         [[{"registered": "false"}], 1],
         [[{"pattern": '"Body"'}], 2],
         [[{"pattern": '"fun"'}], 1],
         [[{"pattern": '"Z"'}], 0],
         [[{"pattern": '"1234"'}], 2],
         [[{"pattern": '"123"'}], 0],
-        [[{"createdFrom": '"2020-01-01"'}, {"active": "true"}], 1],
+        [[{"createdFrom": '"2022-01-01"'}, {"active": "true"}], 1],
         [[{"active": "true"}, {"registered": "false"}], 0],
         [[{"active": "false"}, {"pattern": '"no"'}], 1],
         [[{"isVolunteer": "true"}, {"registered": "true"}], 0],

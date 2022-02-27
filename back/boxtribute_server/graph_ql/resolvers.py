@@ -42,6 +42,13 @@ from ..models.definitions.transaction import Transaction
 from ..models.definitions.transfer_agreement import TransferAgreement
 from ..models.definitions.user import User
 from ..models.definitions.x_beneficiary_language import XBeneficiaryLanguage
+from ..models.metrics import (
+    compute_moved_stock_overview,
+    compute_number_of_beneficiaries_served,
+    compute_number_of_families_served,
+    compute_number_of_sales,
+    compute_stock_overview,
+)
 from .filtering import derive_beneficiary_filter, derive_box_filter
 from .pagination import load_into_page
 
@@ -60,6 +67,7 @@ base = _register_object_type("Base")
 beneficiary = _register_object_type("Beneficiary")
 box = _register_object_type("Box")
 location = _register_object_type("Location")
+metrics = _register_object_type("Metrics")
 organisation = _register_object_type("Organisation")
 product = _register_object_type("Product")
 product_category = _register_object_type("ProductCategory")
@@ -255,6 +263,19 @@ def resolve_shipments(_, info):
             | (TransferAgreement.target_organisation == user_organisation_id)
         )
     )
+
+
+@query.field("metrics")
+@convert_kwargs_to_snake_case
+def resolve_metrics(*_, organisation_id=None):
+    # Default to current user's organisation ID
+    organisation_id = organisation_id or g.user["organisation_id"]
+    # Non-god users are only permitted to fetch their organisation's metrics, the god
+    # user however can access any organisation's metrics
+    authorize(organisation_id=organisation_id)
+
+    # Pass organisation ID to child resolvers
+    return {"organisation_id": organisation_id}
 
 
 @beneficiary.field("tokens")
@@ -494,6 +515,41 @@ def resolve_location_boxes(
         selection = Box.select().join(Product)
     return load_into_page(
         Box, filter_condition, selection=selection, pagination_input=pagination_input
+    )
+
+
+@metrics.field("numberOfFamiliesServed")
+def resolve_metrics_number_of_families_served(metrics_obj, _, after=None, before=None):
+    return compute_number_of_families_served(
+        organisation_id=metrics_obj["organisation_id"], after=after, before=before
+    )
+
+
+@metrics.field("numberOfBeneficiariesServed")
+def resolve_metrics_number_of_beneficiaries_served(
+    metrics_obj, _, after=None, before=None
+):
+    return compute_number_of_beneficiaries_served(
+        organisation_id=metrics_obj["organisation_id"], after=after, before=before
+    )
+
+
+@metrics.field("numberOfSales")
+def resolve_metrics_number_of_sales(metrics_obj, _, after=None, before=None):
+    return compute_number_of_sales(
+        organisation_id=metrics_obj["organisation_id"], after=after, before=before
+    )
+
+
+@metrics.field("stockOverview")
+def resolve_metrics_stock_overview(metrics_obj, _):
+    return compute_stock_overview(organisation_id=metrics_obj["organisation_id"])
+
+
+@metrics.field("movedStockOverview")
+def resolve_metrics_moved_stock_overview(metrics_obj, _, after=None, before=None):
+    return compute_moved_stock_overview(
+        organisation_id=metrics_obj["organisation_id"], after=after, before=before
     )
 
 

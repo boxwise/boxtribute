@@ -5,7 +5,11 @@ import pathlib
 from boxtribute_server.db import db
 
 from .base import default_base, default_bases
-from .beneficiary import another_beneficiary, default_beneficiary
+from .beneficiary import (
+    default_beneficiaries,
+    default_beneficiary,
+    relative_beneficiary,
+)
 from .box import (
     another_box,
     another_marked_for_shipment_box,
@@ -42,7 +46,7 @@ from .shipment_detail import (
 )
 from .size import another_size, default_size
 from .size_range import default_size_range
-from .transaction import default_transaction
+from .transaction import default_transaction, relative_transaction
 from .transfer_agreement import (
     default_transfer_agreement,
     expired_transfer_agreement,
@@ -53,7 +57,6 @@ from .transfer_agreement import (
 from .user import default_user, default_users
 
 __all__ = [
-    "another_beneficiary",
     "another_box",
     "another_location",
     "another_marked_for_shipment_box",
@@ -65,6 +68,7 @@ __all__ = [
     "box_without_qr_code",
     "canceled_shipment",
     "default_beneficiary",
+    "default_beneficiaries",
     "default_base",
     "default_bases",
     "default_box",
@@ -93,6 +97,8 @@ __all__ = [
     "null_box_state_location",
     "prepared_shipment_detail",
     "qr_code_without_box",
+    "relative_beneficiary",
+    "relative_transaction",
     "reviewed_transfer_agreement",
     "sent_shipment",
     "transfer_agreements",

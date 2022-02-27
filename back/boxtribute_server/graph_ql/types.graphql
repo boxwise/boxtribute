@@ -407,3 +407,35 @@ enum ShipmentState {
   Canceled
   Lost
 }
+
+type Metrics {
+  """
+  Return number of families served by client's organisation in optional date range.
+  If `after` *and* `before` are specified, construct date range for filtering.
+  If one of `after` or `before` is specified, construct half-open date range.
+  If none is specified, the result is an all-time number.
+  """
+  numberOfFamiliesServed(after: Date, before: Date): Int
+  " Like `numberOfFamiliesServed` but add up all members of served families "
+  numberOfBeneficiariesServed(after: Date, before: Date): Int
+  """
+  Return number of sales performed by client's organisation in optional date range.
+  See `numberOfFamiliesServed` about using the `after` and `before` parameters.
+  """
+  numberOfSales(after: Date, before: Date): Int
+  """
+  Return number of boxes, and number of contained items, managed by client's organisation.
+  """
+  stockOverview: StockOverview
+  """
+  Return number of boxes, and contained items, moved by client's organisation in optional date range. Sorted by product category.
+  See `numberOfFamiliesServed` about using the `after` and `before` parameters.
+  """
+  movedStockOverview(after: Date, before: Date): [StockOverview]
+}
+
+type StockOverview {
+  productCategoryName: String
+  numberOfBoxes: Int
+  numberOfItems: Int
+}
