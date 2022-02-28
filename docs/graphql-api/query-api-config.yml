@@ -199,7 +199,7 @@ servers:
 
   # same format as for OpenAPI Specification https://swagger.io/specification/#server-object
 
-  - url: https://www.boxtribute.org/graphql
+  - url: https://api.boxtribute.org
     description: Production Server
     # Indicates to use this server's URL as the typical GraphQL request base in the documentation
     # If no server entries have this indicator, the first server's URL will be used.
@@ -234,13 +234,18 @@ info:
   #
   ##############################################
 
-  description: These pages contain the documentation for the boxtribute GraphQL API (queries only). Have fun exploring!
+  description: |
+      These pages contain the documentation for the boxtribute GraphQL API (queries only). Have fun exploring!
+
+      You can interact with the API the following ways:
+      1. Open the endpoint address in your browser. This launches GraphQL Playground
+      1. Send POST requests to the endpoint from a script or the command line, passing your GraphQL query in the `query` field of the request JSON
   version: 0.0.1
   title: Welcome!
   # This is non-standard and optional. If omitted, will use "title". Also only relevant
   # when building non-embedded.
   x-htmlTitle: boxtribute GraphQL API documentation
-  termsOfService: 'https://www.boxtribute.org'
+  termsOfService: In line with the Service Agreement, and other related documents as signed with Boxtribute (Stichting Boxwise)
   contact:
     name: boxtribute Support
     email: help@boxtribute.org
@@ -257,10 +262,15 @@ info:
     # Can be a Title (for the Nav panel) + description (for the Content panel)
     - title: Login to boxtribute web app
       url: https://www.app.boxtribute.org
-    - title: Query API URL
-      url: https://www.boxtribute.org/api
+    - title: Query API
+      url: https://api.boxtribute.org
     - title: Authentication and Authorization
-      description: Lorem ipsum explain how to authenticate, and what clients are authorized for
+      description: |
+          For using the API, you have to authenticate, and then are given a unique token holding your user information and permissions. You have to pass the token along when requesting data from the API.
+          1. You need your username and password that you log in to `app.boxtribute.org` with. Pass it in the JSON part of a POST response to `api.boxtribute.org/token`, like `{"username": "my-email-address", "password": "PASSWORD"}`
+          1. Copy the content of the `access_token` field of the response JSON
+          1. Paste the token into the HTTP headers when sending a request to the API, like `{"Authorization": "Bearer TOKEN"}`
+          1. When using the GraphQL Playground, paste the header into the respective field in the bottom left.
 
   # If you really want to hide the "Documentation by" at the bottom of your output, you can do so here
   # Default: false
@@ -268,4 +278,4 @@ info:
 
   # If not using introspection.url OR servers[], you need to provide x-swaggerUrl
   # to satisfy the URL Swagger requirement. This allows for that.
-  x-swaggerUrl: https://www.boxtribute.org/graphql
+  x-swaggerUrl: https://api.boxtribute.org
