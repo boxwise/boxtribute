@@ -1,0 +1,13 @@
+{
+  "name": "boxtribute-query-api-docs",
+  "version": "0.0.1",
+  "license": "Apache-2.0",
+  "homepage": "api.boxtribute.org/docs",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/boxwise/boxtribute.git"
+  },
+  "dependencies": {
+    "spectaql": "0.11.0"
+  }
+}

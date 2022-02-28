@@ -228,12 +228,12 @@ jobs:
             - restore_cache:
                 name: Restore npm Package Cache
                 keys:
-                  - docs-npm-spectaql-0.11.0
+                  - docs-npm-spectaql-{{ checksum "../docs/graphql-api/package.json" }}
             - run:
                 name: Generate GraphQL documentation
                 command: |
                   cd ../docs/graphql-api
-                  npm install spectaql@0.11.0
+                  npm install
                   npx spectaql query-api-config.yml
                   sed -i 's|stylesheets|docs/stylesheets|g' public/index.html
                   sed -i 's|javascripts|docs/javascripts|g' public/index.html
@@ -241,7 +241,7 @@ jobs:
                   mv public ../../back/graphql-docs
             - save_cache:
                 name: Save npm Package Cache
-                key: docs-npm-spectaql-0.11.0
+                key: docs-npm-spectaql-{{ checksum "../docs/graphql-api/package.json" }}
                 paths:
                   - ~/docs/graphql-api/node_modules
       - run:

@@ -1,7 +1,5 @@
 Generate static documentation for boxtribute GraphQL API using [spectaql](https://github.com/anvilco/spectaql).
 
-Tested with spectaql v0.11.0.
-
 ### Configuration files
 
 1. `query-api-config.yml`: Generate documentation only for GraphQL queries and relevant types. Mutations and input types are excluded. Intended for partner organisations who want to retrieve data
@@ -15,7 +13,7 @@ You can run `spectacle` in your local environment, or via a provided Docker imag
 
 #### Local installation
 
-1. Run `npm install -g spectaql`
+1. Run `npm install`
 1. Execute `npx spectaqle some-config.yml`
 
 #### Dockerized installation
