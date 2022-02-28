@@ -5,3 +5,7 @@ handlers:
 - url: /
   script: auto
   secure: always
+- url: /docs
+  secure: always
+  static_files: graphql-docs/index.html
+  upload: graphql-docs/index.html

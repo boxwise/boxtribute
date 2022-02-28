@@ -172,7 +172,7 @@ jobs:
       serviceName:
         type: string
     docker:
-      - image: cimg/python:3.8.12
+      - image: cimg/python:3.8.12-node
     working_directory: ~/back
     steps:
       # Attach workspace from build
@@ -219,6 +219,19 @@ jobs:
             else
                 sed 's/service: v2-staging/service: << parameters.serviceName >>/g' app.yaml > app-<< parameters.serviceName >>.yaml
             fi
+      - when:
+          condition:
+            matches:
+              pattern: "^api-.+"
+              value: << parameters.serviceName >>
+          steps:
+            - run:
+                name: Generate GraphQL documentation
+                command: |
+                  cd ../docs/graphql-api
+                  npm install -g spectaql@0.11.0
+                  npx spectaql query-api-config.yml
+                  mv public ../../back/graphql-docs
       - run:
           name: Compress deployment artificats
           command: tar -cvzf ~/deploy.tar.gz ~/back
@@ -276,7 +289,7 @@ workflows:
             - test-flask
           filters:
             branches:
-              only: master
+              only: docs/833-deploy-graphql-documentation
 
       # deploy to demo
       - deploy:
