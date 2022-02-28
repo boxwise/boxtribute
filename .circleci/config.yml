@@ -209,7 +209,6 @@ jobs:
               MYSQL_DB=${DB_NAME}
               MYSQL_PORT=3306
               MYSQL_SOCKET=${DB_SOCKET}
-              FLASK_URL_PREFIX=/v2
               " > .env
             if [[ "<< parameters.serviceName >>" != "api-"* ]]; then echo "EXPOSE_FULL_GRAPHQL=1" >> .env; fi
       - run:
