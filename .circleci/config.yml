@@ -172,7 +172,7 @@ jobs:
       serviceName:
         type: string
     docker:
-      - image: cimg/python:3.8.12
+      - image: cimg/python:3.8.12-node
     working_directory: ~/back
     steps:
       # Attach workspace from build
@@ -219,6 +219,31 @@ jobs:
             else
                 sed 's/service: v2-staging/service: << parameters.serviceName >>/g' app.yaml > app-<< parameters.serviceName >>.yaml
             fi
+      - when:
+          condition:
+            matches:
+              pattern: "^api-.+"
+              value: << parameters.serviceName >>
+          steps:
+            - restore_cache:
+                name: Restore npm Package Cache
+                keys:
+                  - docs-npm-spectaql-{{ checksum "../docs/graphql-api/package.json" }}
+            - run:
+                name: Generate GraphQL documentation
+                command: |
+                  cd ../docs/graphql-api
+                  npm install
+                  npx spectaql query-api-config.yml
+                  sed -i 's|stylesheets|docs/stylesheets|g' public/index.html
+                  sed -i 's|javascripts|docs/javascripts|g' public/index.html
+                  sed -i 's|images|docs/images|g' public/index.html
+                  mv public ../../back/graphql-docs
+            - save_cache:
+                name: Save npm Package Cache
+                key: docs-npm-spectaql-{{ checksum "../docs/graphql-api/package.json" }}
+                paths:
+                  - ~/docs/graphql-api/node_modules
       - run:
           name: Compress deployment artificats
           command: tar -cvzf ~/deploy.tar.gz ~/back
