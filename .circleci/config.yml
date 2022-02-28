@@ -235,6 +235,9 @@ jobs:
                   cd ../docs/graphql-api
                   npm install spectaql@0.11.0
                   npx spectaql query-api-config.yml
+                  sed -i 's|stylesheets|docs/stylesheets|g' public/index.html
+                  sed -i 's|javascripts|docs/javascripts|g' public/index.html
+                  sed -i 's|images|docs/images|g' public/index.html
                   mv public ../../back/graphql-docs
             - save_cache:
                 name: Save npm Package Cache
