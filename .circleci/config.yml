@@ -301,7 +301,7 @@ workflows:
             - test-flask
           filters:
             branches:
-              only: docs/833-deploy-graphql-documentation
+              only: master
 
       # deploy to demo
       - deploy:
@@ -322,7 +322,7 @@ workflows:
             - test-flask
           filters:
             branches:
-              only: docs/833-deploy-graphql-documentation
+              only: production
 
       # deploy to production
       - deploy:
@@ -343,4 +343,4 @@ workflows:
             - test-flask
           filters:
             branches:
-              only: docs/833-deploy-graphql-documentation
+              only: production
