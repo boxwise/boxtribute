@@ -229,7 +229,7 @@ jobs:
                 name: Generate GraphQL documentation
                 command: |
                   cd ../docs/graphql-api
-                  npm install -g spectaql@0.11.0
+                  npm install spectaql@0.11.0
                   npx spectaql query-api-config.yml
                   mv public ../../back/graphql-docs
       - run:
