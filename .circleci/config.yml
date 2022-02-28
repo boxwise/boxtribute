@@ -225,6 +225,10 @@ jobs:
               pattern: "^api-.+"
               value: << parameters.serviceName >>
           steps:
+            - restore_cache:
+                name: Restore npm Package Cache
+                keys:
+                  - docs-npm-spectaql-0.11.0
             - run:
                 name: Generate GraphQL documentation
                 command: |
@@ -232,6 +236,11 @@ jobs:
                   npm install spectaql@0.11.0
                   npx spectaql query-api-config.yml
                   mv public ../../back/graphql-docs
+            - save_cache:
+                name: Save npm Package Cache
+                key: docs-npm-spectaql-0.11.0
+                paths:
+                  - ~/docs/graphql-api/node_modules
       - run:
           name: Compress deployment artificats
           command: tar -cvzf ~/deploy.tar.gz ~/back
