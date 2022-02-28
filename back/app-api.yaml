@@ -9,3 +9,7 @@ handlers:
   secure: always
   static_files: graphql-docs/index.html
   upload: graphql-docs/index.html
+- url: /docs/(.*)
+  secure: always
+  static_files: graphql-docs/\1
+  upload: graphql-docs/(.*)
