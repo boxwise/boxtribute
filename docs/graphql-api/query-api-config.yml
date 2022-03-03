@@ -245,7 +245,7 @@ info:
   # This is non-standard and optional. If omitted, will use "title". Also only relevant
   # when building non-embedded.
   x-htmlTitle: boxtribute GraphQL API documentation
-  termsOfService: In line with the Service Agreement, and other related documents as signed with Boxtribute (Stichting Boxwise)
+  termsOfService: https://www.boxtribute.org
   contact:
     name: boxtribute Support
     email: help@boxtribute.org

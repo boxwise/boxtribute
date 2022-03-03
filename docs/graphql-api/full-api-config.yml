@@ -242,7 +242,7 @@ info:
   # This is non-standard and optional. If omitted, will use "title". Also only relevant
   # when building non-embedded.
   x-htmlTitle: boxtribute GraphQL API documentation
-  termsOfService: 'https://www.boxtribute.org'
+  termsOfService: https://www.boxtribute.org
   contact:
     name: boxtribute Support
     email: help@boxtribute.org
