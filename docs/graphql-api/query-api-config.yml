@@ -252,7 +252,7 @@ info:
     url: https://www.boxtribute.org
   license:
     name: Apache 2.0
-    url: 'https://github.com/boxwise/boxtribute/blob/master/LICENSE'
+    url: 'https://github.com/boxwise/boxtribute/blob/master/LICENSE.md'
 
   # A non-standard array of items to display in your Introduction Area
   x-introItems:
