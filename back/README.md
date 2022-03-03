@@ -266,7 +266,7 @@ You can experiment with the API in the GraphQL playground.
 1. Set `export FLASK_ENV=development`
 1. Start the required services by `docker-compose up webapp db`
 1. Open `localhost:5005/graphql` (or `/` for the query-only API)
-1. Simulate being a valid, logged-in user by fetching an authorization token (internally the variables of the `.env` file are used, use `--help` for more info): `./fetch_token --test`
+1. Simulate being a valid, logged-in user by fetching an authorization token: `./fetch_token --test`
 1. Copy the displayed token
 1. Insert the access token in the following format on the playground in the section on the bottom left of the playground called HTTP Headers.
 

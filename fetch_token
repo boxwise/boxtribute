@@ -8,7 +8,13 @@ another .env file to load.
 import argparse
 import logging
 import os
+import sys
+from pathlib import Path
 
+SCRIPT_DIRPATH = Path(__file__).resolve().parent
+TEST_DATA_DIRPATH = SCRIPT_DIRPATH / "back" / "test"
+sys.path.insert(0, str(TEST_DATA_DIRPATH))
+from auth import TEST_AUTH0_PASSWORD, TEST_AUTH0_USERNAME
 from boxtribute_server.auth import request_jwt
 from dotenv import load_dotenv
 
@@ -25,7 +31,10 @@ def _parse_cli():
         "-v", "--verbose", action="store_true", help="show env variables"
     )
     parser.add_argument(
-        "-t", "--test", action="store_true", help="fetch JWT for test user"
+        "-t",
+        "--test",
+        action="store_true",
+        help="fetch JWT for test user, ignoring -u and -p options",
     )
     return parser.parse_args()
 
@@ -40,21 +49,28 @@ def main():
         load_dotenv(options.dotenv_filepath, override=True)
 
     for k, v in sorted(os.environ.items()):
-        if k.startswith("AUTH0"):
+        if "AUTH0" in k:
             logger.debug(f"{k}={v}")
 
     parameters = dict(
-        username=options.username or os.environ["AUTH0_USERNAME"],
-        password=options.password or os.environ["AUTH0_PASSWORD"],
         audience=os.environ["AUTH0_AUDIENCE"],
         domain=os.environ["AUTH0_DOMAIN"],
     )
     if options.test:
-        parameters["client_id"] = os.environ["TEST_AUTH0_CLIENT_ID"]
-        parameters["client_secret"] = os.environ["TEST_AUTH0_CLIENT_SECRET"]
+        extras = dict(
+            client_id=os.environ["TEST_AUTH0_CLIENT_ID"],
+            client_secret=os.environ["TEST_AUTH0_CLIENT_SECRET"],
+            username=TEST_AUTH0_USERNAME,
+            password=TEST_AUTH0_PASSWORD,
+        )
     else:
-        parameters["client_id"] = os.environ["AUTH0_CLIENT_ID"]
-        parameters["client_secret"] = os.environ["AUTH0_CLIENT_SECRET"]
+        extras = dict(
+            client_id=os.environ["AUTH0_CLIENT_ID"],
+            client_secret=os.environ["AUTH0_CLIENT_SECRET"],
+            username=options.username or os.environ["AUTH0_USERNAME"],
+            password=options.password or os.environ["AUTH0_PASSWORD"],
+        )
+    parameters.update(extras)
 
     success, result = request_jwt(**parameters)
 

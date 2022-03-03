@@ -4,6 +4,8 @@ from boxtribute_server.auth import JWT_CLAIM_PREFIX, request_jwt
 
 TEST_AUTH0_DOMAIN = "boxtribute-dev.eu.auth0.com"
 TEST_AUTH0_AUDIENCE = "boxtribute-dev-api"
+TEST_AUTH0_USERNAME = "dev_coordinator@boxaid.org"
+TEST_AUTH0_PASSWORD = "Browser_tests"
 
 
 def memoize(function):
@@ -24,9 +26,7 @@ def memoize(function):
 
 
 def get_user_token():
-    """Grabs a user token for Auth0
-    Data structure as described here
-    https://manage.auth0.com/dashboard/eu/boxtribute-dev/apis/5ef3760527b0da00215e6209/test"""  # line too long # noqa: E501
+    """Grabs a test user access token for Auth0."""
     token = os.getenv("TEST_AUTH0_JWT")
     if token is not None:
         return token
@@ -36,8 +36,8 @@ def get_user_token():
         client_secret=os.getenv("TEST_AUTH0_CLIENT_SECRET"),
         audience=TEST_AUTH0_AUDIENCE,
         domain=TEST_AUTH0_DOMAIN,
-        username=os.getenv("AUTH0_USERNAME"),
-        password=os.getenv("AUTH0_PASSWORD"),
+        username=TEST_AUTH0_USERNAME,
+        password=TEST_AUTH0_PASSWORD,
     )
     return response["access_token"]
 
