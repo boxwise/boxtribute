@@ -6,7 +6,7 @@
 //    FLASK_ENV=production docker-compose up --build webapp
 // 3. Fetch a JWT for authorization
 //    ./fetch_token
-// 4. Store the value of `access_token` as `AUTH0_TEST_JWT` in the .env file
+// 4. Store the value of `access_token` as `TEST_AUTH0_JWT` in the .env file
 // 5. Run the script with effective loading of variables from the .env file
 //    dotenv run k6 run back/scripts/load-test.js
 // 6. Consider k6 options (e.g. number of virtual users via -u)
@@ -20,7 +20,7 @@ const url = "http://0.0.0.0:5000/graphql";
 const params = {
   headers: {
     "Content-Type": "application/json",
-    Authorization: `Bearer ${__ENV.AUTH0_TEST_JWT}`,
+    Authorization: `Bearer ${__ENV.TEST_AUTH0_JWT}`,
   },
 };
 const payload = JSON.stringify({

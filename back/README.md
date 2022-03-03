@@ -74,13 +74,13 @@ Install the dependencies of the app in the activated virtual environment
 
     pip install -U -e back -r back/requirements-dev.txt
 
-For the integration tests authentication information is fetched from the [Auth0](https://auth0.com) website. Log in and select `Applications` -> `Applications` from the side bar menu. Select `boxtribute-dev-api`. Copy the `Client Secret` into the `.env` file as the `AUTH0_CLIENT_SECRET_TEST` variables.
+For the integration tests authentication information is fetched from the [Auth0](https://auth0.com) website. Log in and select `Applications` -> `Applications` from the side bar menu. Select `boxtribute-dev-api`. Copy the `Client Secret` into the `.env` file as the `TEST_AUTH0_CLIENT_SECRET` variables.
 
 We're subject to a rate limit for tokens from Auth0. In order to avoid fetching tokens over and over again for every test run, do the following once before you start your development session:
 
 1. Activate the virtual environment
 1. Run `./fetch_token --test`
-1. Paste the displayed token as `AUTH0_TEST_JWT=` into the `.env` file
+1. Paste the displayed token as `TEST_AUTH0_JWT=` into the `.env` file
 
 After 24h the token expires, so you have to repeat the procedure.
 

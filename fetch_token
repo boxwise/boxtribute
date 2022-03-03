@@ -50,8 +50,8 @@ def main():
         domain=os.environ["AUTH0_DOMAIN"],
     )
     if options.test:
-        parameters["client_id"] = os.environ["AUTH0_CLIENT_TEST_ID"]
-        parameters["client_secret"] = os.environ["AUTH0_CLIENT_SECRET_TEST"]
+        parameters["client_id"] = os.environ["TEST_AUTH0_CLIENT_ID"]
+        parameters["client_secret"] = os.environ["TEST_AUTH0_CLIENT_SECRET"]
     else:
         parameters["client_id"] = os.environ["AUTH0_CLIENT_ID"]
         parameters["client_secret"] = os.environ["AUTH0_CLIENT_SECRET"]

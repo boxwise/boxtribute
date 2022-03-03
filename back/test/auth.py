@@ -27,13 +27,13 @@ def get_user_token():
     """Grabs a user token for Auth0
     Data structure as described here
     https://manage.auth0.com/dashboard/eu/boxtribute-dev/apis/5ef3760527b0da00215e6209/test"""  # line too long # noqa: E501
-    token = os.getenv("AUTH0_TEST_JWT")
+    token = os.getenv("TEST_AUTH0_JWT")
     if token is not None:
         return token
 
     success, response = request_jwt(
-        client_id=os.getenv("AUTH0_CLIENT_TEST_ID"),
-        client_secret=os.getenv("AUTH0_CLIENT_SECRET_TEST"),
+        client_id=os.getenv("TEST_AUTH0_CLIENT_ID"),
+        client_secret=os.getenv("TEST_AUTH0_CLIENT_SECRET"),
         audience=TEST_AUTH0_AUDIENCE,
         domain=TEST_AUTH0_DOMAIN,
         username=os.getenv("AUTH0_USERNAME"),
