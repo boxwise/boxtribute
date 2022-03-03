@@ -6,7 +6,13 @@ import os
 import urllib
 
 import pytest
-from auth import TEST_AUTH0_AUDIENCE, TEST_AUTH0_DOMAIN, get_user_token_string
+from auth import (
+    TEST_AUTH0_AUDIENCE,
+    TEST_AUTH0_DOMAIN,
+    TEST_AUTH0_PASSWORD,
+    TEST_AUTH0_USERNAME,
+    get_user_token_string,
+)
 from boxtribute_server.auth import (
     decode_jwt,
     get_public_key,
@@ -46,13 +52,13 @@ def test_decode_valid_jwt():
 
 
 def test_request_jwt(dropapp_dev_client, monkeypatch, mocker):
-    monkeypatch.setenv("AUTH0_CLIENT_ID", os.environ["AUTH0_CLIENT_TEST_ID"])
-    monkeypatch.setenv("AUTH0_CLIENT_SECRET", os.environ["AUTH0_CLIENT_SECRET_TEST"])
+    monkeypatch.setenv("AUTH0_CLIENT_ID", os.environ["TEST_AUTH0_CLIENT_ID"])
+    monkeypatch.setenv("AUTH0_CLIENT_SECRET", os.environ["TEST_AUTH0_CLIENT_SECRET"])
     response = dropapp_dev_client.post(
         "/token",
         json={
-            "username": os.environ["AUTH0_USERNAME"],
-            "password": os.environ["AUTH0_PASSWORD"],
+            "username": TEST_AUTH0_USERNAME,
+            "password": TEST_AUTH0_PASSWORD,
         },
     )
     assert response.status_code == 200
