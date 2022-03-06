@@ -282,6 +282,18 @@ workflows:
           requires:
             - checkout-to-workspace
 
+      # deploy to tmp (temporary, for exploring better staging setup)
+      - deploy:
+          name: deploy-tmp
+          context: STAGING
+          serviceName: v2-tmp
+          requires:
+            - test-flask
+            - build-and-test-react
+          filters:
+            branches:
+              only: master
+
       # deploy to staging
       - deploy:
           name: deploy-staging
