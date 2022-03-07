@@ -2,18 +2,14 @@ runtime: python38
 service: v2-staging
 entrypoint: gunicorn -b :$PORT
 handlers:
-- url: /v2/graphql
+- url: /graphql
   script: auto
   secure: always
-- url: /v2/
+- url: /
   secure: always
   static_files: react-build/index.html
   upload: react-build/index.html
-- url: /v2
-  secure: always
-  static_files: react-build/index.html
-  upload: react-build/index.html
-- url: /v2/(.*)
+- url: /(.*)
   secure: always
   static_files: react-build/\1
   upload: react-build/(.*)
