@@ -9,6 +9,8 @@ import pytest
 from auth import (
     TEST_AUTH0_AUDIENCE,
     TEST_AUTH0_DOMAIN,
+    TEST_AUTH0_JWKS_KID,
+    TEST_AUTH0_JWKS_N,
     TEST_AUTH0_PASSWORD,
     TEST_AUTH0_USERNAME,
     get_user_token_string,
@@ -37,7 +39,12 @@ def test_invalid_jwt_claims(auth0_client, monkeypatch):
     assert response.json["code"] == "invalid_claims"
 
 
-def test_decode_valid_jwt():
+def test_decode_valid_jwt(monkeypatch):
+    # Simulate AUTH0_JWKS_* variable being set. This skips reaching out to the Auth0
+    # service in get_public_key()
+    monkeypatch.setenv("AUTH0_JWKS_KID", TEST_AUTH0_JWKS_KID)
+    monkeypatch.setenv("AUTH0_JWKS_N", TEST_AUTH0_JWKS_N)
+
     token = get_token_from_auth_header(get_user_token_string())
     key = get_public_key(TEST_AUTH0_DOMAIN)
     assert key is not None

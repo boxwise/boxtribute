@@ -84,6 +84,11 @@ We're subject to a rate limit for tokens from Auth0. In order to avoid fetching 
 
 After 24h the token expires, so you have to repeat the procedure.
 
+Furthermore Auth0 public key information can be stored locally to avoid the overhead when the server fetches it every time it receives a request and decodes the JWT. For the boxtribute-dev tenant run
+
+    echo "AUTH0_JWKS_KID=$(curl https://boxtribute-dev.eu.auth0.com/.well-known/jwks.json | jq -r .keys[0].kid)" >> .env
+    echo "AUTH0_JWKS_N=$(curl https://boxtribute-dev.eu.auth0.com/.well-known/jwks.json | jq -r .keys[0].n)" >> .env
+
 ### Linting and Formatting in VSCode
 
 Most of our developers are using VSCode. Instead of running our linter (flake8) and our formatter (black) for Python just when you are committing your code, we added a few settings in `.vscode/settings.json` so that your files are formatted and linted when you save a Python file.
