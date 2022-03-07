@@ -1,6 +1,10 @@
 """Main entry point for web application"""
 import os
 
+from gevent import monkey
+
+monkey.patch_all()
+
 from .app import configure_app, create_app
 from .routes import api_bp, app_bp
 
