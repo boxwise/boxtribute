@@ -6,4 +6,3 @@ threads = 1
 bind = "0.0.0.0:5000"
 wsgi_app = "boxtribute_server.main:app"
 # loglevel = "debug"
-worker_class = "gevent"

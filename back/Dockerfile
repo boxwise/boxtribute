@@ -3,10 +3,6 @@ ARG flask_env
 # using alpine for smallest docker image
 FROM python:3.8-alpine AS base
 
-RUN apk add --update gcc libffi-dev
-RUN apk add --update musl-dev
-RUN apk add --update build-base
-
 WORKDIR /app/back
 # install packages separately to use docker build-caching so we don't need to
 # re-fetch these if code has changed but our requirements.txt hasn't
