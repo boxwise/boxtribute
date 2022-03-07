@@ -13,10 +13,13 @@
 // 7. Experiment with GraphQL queries of varying complexity
 // 8. Experiment with different WSGI server settings (gunicorn.conf.py file)
 //    Remember to re-launch the Docker service for changes to take effect
+//
+// Explanation of metrics: https://k6.io/docs/using-k6/metrics/#http-specific-built-in-metrics
 import http from "k6/http";
 import { check } from "k6";
 
 const url = "http://0.0.0.0:5000/graphql";
+// const url = "https://api-staging.boxtribute.org";
 const params = {
   headers: {
     "Content-Type": "application/json",
@@ -30,6 +33,35 @@ const payload = JSON.stringify({
   // B) Request single field of multiple resources
   query: "query { beneficiaries { elements { firstName } } }",
 });
+
+export const options = {
+  scenarios: {
+    /*
+    shared: {
+      executor: 'shared-iterations',
+
+      // common scenario configuration
+      // startTime: '10s',
+      gracefulStop: '5s',
+
+      // executor-specific configuration
+      vus: 10,
+      iterations: 100,
+      // maxDuration: '10s',
+    },
+    */
+    ramping: {
+      executor: "ramping-vus",
+      startVUs: 0,
+      stages: [
+        { duration: "10s", target: 10 },
+        { duration: "20s", target: 10 },
+        { duration: "5s", target: 0 },
+      ],
+      gracefulRampDown: "0s",
+    },
+  },
+};
 
 export default function () {
   const res = http.post(url, payload, params);
