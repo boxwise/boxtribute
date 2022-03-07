@@ -18,7 +18,7 @@
 import http from "k6/http";
 import { check } from "k6";
 
-const url = "http://0.0.0.0:5000/graphql";
+const url = "http://0.0.0.0:5005/graphql";
 // const url = "https://api-staging.boxtribute.org";
 const params = {
   headers: {
