@@ -75,3 +75,15 @@ export default function () {
   // Use in combination with B
   // check(res, { 'contains 50 elements': (r) => r.json().data.beneficiaries.elements.length === 50, });
 }
+
+// These are still very much WIP and untested, but you can use them as is or write your own!
+import { textSummary } from "https://jslib.k6.io/k6-summary/0.0.1/index.js";
+
+export function handleSummary(data) {
+  // https://k6.io/docs/results-visualization/end-of-test-summary/#handlesummary-callback
+  const timestamp = Math.floor(Date.now() / 1000).toString();
+  return {
+    stdout: textSummary(data, { indent: " ", enableColors: true }),
+    "summary.json": JSON.stringify(data),
+  };
+}
