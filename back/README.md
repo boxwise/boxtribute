@@ -264,12 +264,14 @@ and inspect the reported output. Open the HTML report via `back/htmlcov/index.ht
 ## GraphQL API
 
 The back-end exposes the GraphQL API in two variants.
-1. The full API is consumed by our front-end at the `/graphql` endpoint (when deployed, it receives the `v2/` prefix since the same base URL as dropapp is used).
+1. The full API is consumed by our front-end at the `/graphql` endpoint (deployed to e.g. `v2-staging` subdomain).
 1. The 'query-only' API is used by our partners at `/` (for data retrieval; it is deployed on the `api*` subdomains).
 
 ### Schema documentation
 
 For building a static web documentation of the schema, see [this directory](../docs/graphql-api).
+
+For the production schema, documentation can be found online at `api.boxtribute.org/docs`.
 
 ### Playground
 
