@@ -29,7 +29,7 @@ Please check out [**Contribution Guidelines**](CONTRIBUTING.md) before you get s
 ## Preparation for Installation
 
 - Install [Docker](https://www.docker.com/products/docker-desktop)
-- Get in touch with the [Boxwise team](mailto:hello@boxwise.co) to get access to the [Auth0](https://auth0.com/) development tenant.
+- Get in touch with the [Boxtribute team](mailto:hello@boxtribute.org) to get access to the [Auth0](https://auth0.com/) development tenant.
 
 ## How do I get set up?
 
