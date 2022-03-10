@@ -1,0 +1,11 @@
+overwrite: true
+schema: "../back/boxtribute_server/graph_ql/*"
+documents: './src/**/*.tsx'
+
+generates:
+  ./src/generated/graphql.tsx:
+    plugins:
+      - "typescript"
+      - "typescript-operations"
+    config:
+      fetcher: fetch

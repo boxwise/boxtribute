@@ -12,8 +12,10 @@
     "@fortawesome/fontawesome-svg-core": "^1.2.36",
     "@fortawesome/free-solid-svg-icons": "^5.15.4",
     "@fortawesome/react-fontawesome": "^0.1.15",
+    "@graphql-codegen/cli": "^2.6.2",
+    "@graphql-codegen/typescript-react-query": "^3.5.7",
     "framer-motion": "^6.2.1",
-    "graphql": "^16.2.0",
+    "graphql": "^16.3.0",
     "react": "^17.0.2",
     "react-dom": "^17.0.2",
     "react-hook-form": "^7.22.5",
@@ -23,6 +25,9 @@
   },
   "devDependencies": {
     "@craco/craco": "^6.3.0",
+    "@graphql-codegen/cli": "2.6.2",
+    "@graphql-codegen/typescript": "^2.4.7",
+    "@graphql-codegen/typescript-operations": "^2.3.4",
     "@testing-library/jest-dom": "^5.14.1",
     "@testing-library/react": "^12.1.2",
     "@testing-library/user-event": "^13.4.1",
@@ -39,8 +44,9 @@
     "typescript": "^4.4.4"
   },
   "scripts": {
-    "start": "npm run build && craco start",
-    "build": "react-scripts build",
+    "generate-graphql-ts-types": "graphql-codegen --config codegen.yml",
+    "build": "yarn generate-graphql-ts-types && react-scripts build",
+    "start": "yarn build && yarn generate-graphql-ts-types --watch & craco start",
     "test": "react-scripts test",
     "test:coverage": "yarn test --env=jsdom --coverage",
     "upload:test-report": "./node_modules/.bin/codecov",
