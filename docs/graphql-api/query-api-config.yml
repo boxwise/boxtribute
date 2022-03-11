@@ -245,14 +245,13 @@ info:
   # This is non-standard and optional. If omitted, will use "title". Also only relevant
   # when building non-embedded.
   x-htmlTitle: boxtribute GraphQL API documentation
-  termsOfService: In line with the Service Agreement, and other related documents as signed with Boxtribute (Stichting Boxwise)
   contact:
     name: boxtribute Support
     email: help@boxtribute.org
     url: https://www.boxtribute.org
   license:
     name: Apache 2.0
-    url: 'https://github.com/boxwise/boxtribute/blob/master/LICENSE'
+    url: 'https://github.com/boxwise/boxtribute/blob/master/LICENSE.md'
 
   # A non-standard array of items to display in your Introduction Area
   x-introItems:
@@ -264,6 +263,9 @@ info:
       url: https://www.app.boxtribute.org
     - title: Query API
       url: https://api.boxtribute.org
+    - title: Terms of Service
+      description: |
+          In line with the Service Agreement and other related documents as signed with [Boxtribute](https://boxtribute.org) (Stichting Boxwise)
     - title: Authentication and Authorization
       description: |
           For using the API, you have to authenticate, and then are given a unique token holding your user information and permissions. You have to pass the token along when requesting data from the API.

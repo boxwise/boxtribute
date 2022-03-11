@@ -154,7 +154,7 @@ Here, is a list of intro tutorials for each technologies / frameworks / language
 
 ## License
 
-See the LICENSE file for license rights and limitations (Apache 2.0).
+See the [LICENSE file](./LICENSE.md) for license rights and limitations (Apache 2.0).
 
 ## Sponsors
 
