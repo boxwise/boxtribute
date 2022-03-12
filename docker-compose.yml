@@ -42,6 +42,7 @@ services:
         stdin_open: true
         volumes:
             - ./react:/app/react
+            - ./back:/app/back
             # bind-mounting these two files in will let you add packages during development without rebuilding
             # for example, to add XYZ to your app while developing, just install it inside the container
             # and then nodemon will restart. Your changes will last until you "docker-compose down" and will
