@@ -9,7 +9,7 @@ query Location($locationId: ID!) {
   location(id: $locationId) {
     id
     name
-    boxState
+    defaultBoxState
     boxes {
       totalCount
       elements {

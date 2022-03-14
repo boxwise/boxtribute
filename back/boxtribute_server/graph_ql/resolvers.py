@@ -339,7 +339,7 @@ def resolve_box_state(box_obj, info):
     return box_obj.state_id
 
 
-@location.field("boxState")
+@location.field("defaultBoxState")
 def resolve_location_box_state(location_obj, info):
     # Instead of a BoxState instance return an integer for EnumType conversion
     return location_obj.box_state.id

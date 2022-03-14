@@ -124,7 +124,7 @@ type Location {
   " List of all the [`Boxes`]({{Types.Box}}) in this location "
   boxes(paginationInput: PaginationInput, filterInput: FilterBoxInput): BoxPage
   " Default state for boxes in this location "
-  boxState: BoxState
+  defaultBoxState: BoxState
   createdBy: User
   createdOn: Datetime
   lastModifiedBy: User
