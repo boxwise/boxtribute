@@ -1,6 +1,6 @@
 import React from "react";
 import { UseFiltersColumnProps } from "react-table";
-import { ProductRow } from "./Table";
+import { ProductRow } from "./Boxes";
 
 export function SelectColumnFilter({
   column: { filterValue, setFilter, preFilteredRows, id },
