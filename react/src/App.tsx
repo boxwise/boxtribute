@@ -4,6 +4,7 @@ import { useAuth0, withAuthenticationRequired } from "@auth0/auth0-react";
 import Home from "views/Home";
 import Boxes from "views/boxes/Boxes";
 import Locations from "views/locations/Locations";
+import DataTable from "views/table/Table"
 import BTLocation from "views/locations/BTLocation";
 import Layout from "Layout";
 
@@ -25,6 +26,7 @@ export default function App() {
         <Route path="/" element={<Layout />}>
           <Route index element={<Home />}></Route>
           <Route path="boxes" element={<AuthenticationProtected element={Boxes} />} />
+          <Route path="table" element={<AuthenticationProtected element={DataTable} />} />
           <Route path="locations">
             <Route index element={<AuthenticationProtected element={Locations} />} />
             <Route path=":locationId" element={<AuthenticationProtected element={BTLocation} />} />

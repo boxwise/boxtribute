@@ -47,6 +47,7 @@ const MenuItem = ({ to, text, ...props }) => (
         <MenuItem to="/" text="Home" />
         <MenuItem to="/locations" text="Locations" />
         <MenuItem to="/boxes" text="Boxes" />
+        <MenuItem to="/table" text="Table" />
       </Stack>
     </Box>
   );
