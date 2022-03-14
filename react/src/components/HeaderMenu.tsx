@@ -14,26 +14,33 @@ const MenuToggle = ({ toggle, isOpen, ...props }) => (
   />
 );
 
-const Logo = (props) => <NavLink to="/" ><Image src={BoxtributeLogo} maxH={"4em"} /></NavLink>;
+const Logo = (props) => (
+  <NavLink to="/">
+    <Image src={BoxtributeLogo} maxH={"4em"} />
+  </NavLink>
+);
 
 const LoginLogoutButton = () => {
   const { isAuthenticated, logout, loginWithRedirect } = useAuth0();
   return (
-    <Button onClick={() => isAuthenticated ? logout() : loginWithRedirect()}>
+    <Button onClick={() => (isAuthenticated ? logout() : loginWithRedirect())}>
       {isAuthenticated ? "Logout" : "Login"}
     </Button>
   );
 };
 
-
 const MenuLinks = ({ isOpen, onLinkClick, ...props }) => {
+  const MenuItem = ({ to, text, ...props }) => (
+    <NavLink
+      onClick={onLinkClick}
+      to={to}
+      style={({ isActive }) => (isActive ? { fontWeight: "bold" } : {})}
+      {...props}
+    >
+      <Text display="block">{text}</Text>
+    </NavLink>
+  );
 
-const MenuItem = ({ to, text, ...props }) => (
-  <NavLink onClick={onLinkClick} to={to} style={({ isActive }) => (isActive ? { fontWeight: "bold" } : {})} {...props}>
-    <Text display="block">{text}</Text>
-  </NavLink>
-);
-  
   return (
     <Box flexBasis={{ base: "100%", md: "auto" }} {...props}>
       <Stack

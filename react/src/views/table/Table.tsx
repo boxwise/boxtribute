@@ -6,7 +6,6 @@ import { TriangleDownIcon, TriangleUpIcon } from "@chakra-ui/icons";
 import { GlobalFilter } from "./GlobalFilter";
 import { SelectColumnFilter } from "./SelectColumnFilter";
 
-
 const BASE_QUERY = gql`
   query Base($baseId: ID!) {
     base(id: $baseId) {
@@ -115,7 +114,7 @@ const UnterTable = (props: UnterTableProps) => {
       <Thead>
         <Tr>
           <Th>
-            <GlobalFilter 
+            <GlobalFilter
               preGlobalFilteredRows={preGlobalFilteredRows}
               globalFilter={globalFilter}
               setGlobalFilter={setGlobalFilter}

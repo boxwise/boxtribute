@@ -4,12 +4,12 @@ import { useAuth0, withAuthenticationRequired } from "@auth0/auth0-react";
 import Home from "views/Home";
 import Boxes from "views/boxes/Boxes";
 import Locations from "views/locations/Locations";
-import DataTable from "views/table/Table"
+import DataTable from "views/table/Table";
 import BTLocation from "views/locations/BTLocation";
 import Layout from "Layout";
 
-const AuthenticationProtected = ({ element, ...props }) => 
-      withAuthenticationRequired(element, {
+const AuthenticationProtected = ({ element, ...props }) =>
+  withAuthenticationRequired(element, {
     onRedirecting: () => <p>Loading ...</p>,
   })(props);
 
