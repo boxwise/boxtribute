@@ -2,7 +2,7 @@ ariadne==0.14.1
 Flask==2.0.3
 Flask-Cors==3.0.10
 PyMySQL==1.0.2
-peewee==3.14.9
+peewee==3.14.10
 peewee-moves==2.1.0
 python-dateutil==2.8.2
 python-dotenv==0.19.2

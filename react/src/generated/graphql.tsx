@@ -203,7 +203,7 @@ export type Location = {
   __typename?: 'Location';
   base?: Maybe<Base>;
   /**  Default state for boxes in this location  */
-  boxState?: Maybe<BoxState>;
+  defaultBoxState?: Maybe<BoxState>;
   /**  List of all the [`Boxes`]({{Types.Box}}) in this location  */
   boxes?: Maybe<BoxPage>;
   createdBy?: Maybe<User>;
@@ -782,7 +782,7 @@ export type LocationQueryVariables = Exact<{
 }>;
 
 
-export type LocationQuery = { __typename?: 'Query', location?: { __typename?: 'Location', id: string, name?: string | null, boxState?: BoxState | null, boxes?: { __typename?: 'BoxPage', totalCount: number, elements: Array<{ __typename?: 'Box', id: string, items: number, product?: { __typename?: 'Product', name: string, price?: number | null, category: { __typename?: 'ProductCategory', name: string } } | null }> } | null } | null };
+export type LocationQuery = { __typename?: 'Query', location?: { __typename?: 'Location', id: string, name?: string | null, defaultBoxState?: BoxState | null, boxes?: { __typename?: 'BoxPage', totalCount: number, elements: Array<{ __typename?: 'Box', id: string, items: number, product?: { __typename?: 'Product', name: string, price?: number | null, category: { __typename?: 'ProductCategory', name: string } } | null }> } | null } | null };
 
 export type Unnamed_1_QueryVariables = Exact<{ [key: string]: never; }>;
 
