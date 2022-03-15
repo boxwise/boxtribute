@@ -134,9 +134,9 @@ def create_beneficiary(
         comment=comment,
         family_head=family_head_id,
         created_on=now,
-        created_by=user["id"],
+        created_by=user.id,
         last_modified_on=now,
-        last_modified_by=user["id"],
+        last_modified_by=user.id,
         # This is only required for compatibility with legacy DB
         seq=1 if family_head_id is None else 2,
         # These fields are required acc. to model definition
@@ -195,7 +195,7 @@ def update_beneficiary(
         setattr(beneficiary, field, value)
 
     beneficiary.last_modified_on = utcnow()
-    beneficiary.last_modified_by = user["id"]
+    beneficiary.last_modified_by = user.id
 
     with db.database.atomic():
         language_ids = languages or []

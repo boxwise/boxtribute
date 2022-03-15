@@ -24,22 +24,22 @@ def authorize(
     """
     if current_user is None:
         current_user = g.user
-    if current_user["is_god"]:
+    if current_user.is_god:
         return True
 
     if permission is not None:
-        authorized = permission in current_user["permissions"]
+        authorized = current_user.has_permission(permission)
 
         if authorized and base_id is not None:
             # Enforce base-specific permission
-            base_ids = current_user["permissions"][permission]
+            base_ids = current_user.authorized_base_ids(permission)
             authorized = True if base_ids is None else base_id in base_ids
     elif organisation_id is not None:
-        authorized = organisation_id == current_user["organisation_id"]
+        authorized = organisation_id == current_user.organisation_id
     elif organisation_ids is not None:
-        authorized = current_user["organisation_id"] in organisation_ids
+        authorized = current_user.organisation_id in organisation_ids
     elif user_id is not None:
-        authorized = user_id == current_user["id"]
+        authorized = user_id == current_user.id
     else:
         raise UnknownResource()
 
@@ -52,4 +52,4 @@ def authorize(
         ):
             if value is not None:
                 break
-        raise Forbidden(resource, value, current_user)
+        raise Forbidden(resource, value, current_user.__dict__)

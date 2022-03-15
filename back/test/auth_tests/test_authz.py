@@ -1,4 +1,5 @@
 import pytest
+from boxtribute_server.auth import CurrentUser
 from boxtribute_server.authz import authorize
 from boxtribute_server.exceptions import Forbidden, UnknownResource
 
@@ -24,11 +25,11 @@ ALL_PERMISSIONS = [
 
 
 def test_authorized_user():
-    user = {"organisation_id": 2, "id": 3, "is_god": False}
+    user = CurrentUser(id=3, organisation_id=2)
     assert authorize(user, organisation_id=2)
     assert authorize(user, user_id=3)
 
-    user = {"permissions": ALL_PERMISSIONS, "is_god": False}
+    user = CurrentUser(id=3, organisation_id=2, base_ids=ALL_PERMISSIONS)
     assert authorize(user, permission="base:read")
     assert authorize(user, permission="beneficiary:read")
     assert authorize(user, permission="category:read")
@@ -47,14 +48,15 @@ def test_authorized_user():
     assert authorize(user, permission="transfer_agreement:write")
     assert authorize(user, permission="qr:create")
 
-    user = {
-        "permissions": {
+    user = CurrentUser(
+        id=3,
+        organisation_id=2,
+        base_ids={
             "qr:create": [1, 3],
             "stock:write": [2],
             "location:write": None,
         },
-        "is_god": False,
-    }
+    )
     assert authorize(user, permission="qr:create")
     assert authorize(user, permission="qr:create", base_id=3)
     assert authorize(user, permission="stock:write", base_id=2)
@@ -63,34 +65,34 @@ def test_authorized_user():
 
 
 def test_user_with_insufficient_permissions():
-    user = {"permissions": [], "is_god": False}
+    user = CurrentUser(id=3, organisation_id=2, base_ids={})
     for permission in ALL_PERMISSIONS:
         with pytest.raises(Forbidden):
             authorize(user, permission=permission)
 
-    user = {"permissions": {"beneficiary:create": [2]}, "is_god": False}
+    user = CurrentUser(id=3, organisation_id=2, base_ids={"beneficiary:create": [2]})
     with pytest.raises(Forbidden):
         authorize(user, permission="beneficiary:create", base_id=1)
 
 
 def test_user_unauthorized_for_organisation():
-    user = {"organisation_id": 1, "is_god": False}
+    user = CurrentUser(id=1, organisation_id=1)
     with pytest.raises(Forbidden):
         authorize(user, organisation_id=2)
 
 
 def test_user_unauthorized_for_user():
-    user = {"id": 1, "is_god": False}
+    user = CurrentUser(id=1, organisation_id=1)
     with pytest.raises(Forbidden):
         authorize(user, user_id=2)
 
 
 def test_invalid_authorization_resource():
     with pytest.raises(UnknownResource):
-        authorize(current_user={"is_god": False})
+        authorize(current_user=CurrentUser(id=1, organisation_id=1))
 
 
 def test_god_user():
-    user = {"is_god": True}
+    user = CurrentUser(id=0, organisation_id=0, is_god=True)
     for permission in ALL_PERMISSIONS:
         assert authorize(user, permission=permission)

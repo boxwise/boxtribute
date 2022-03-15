@@ -55,7 +55,7 @@ def create_transfer_agreement(
     Raise an InvalidTransferAgreementBase expection if any specified source/target base
     is not part of the source/target organisation.
     """
-    source_organisation_id = user["organisation_id"]
+    source_organisation_id = user.organisation_id
     if source_organisation_id == target_organisation_id:
         raise InvalidTransferAgreementOrganisation()
 
@@ -78,7 +78,7 @@ def create_transfer_agreement(
             type=type,
             valid_from=valid_from or utcnow(),
             valid_until=valid_until,
-            requested_by=user["id"],
+            requested_by=user.id,
         )
 
         # In GraphQL input, base IDs can be omitted, or explicitly be null.
@@ -121,7 +121,7 @@ def accept_transfer_agreement(*, id, user):
             actual_state=agreement.state,
         )
     agreement.state = TransferAgreementState.Accepted
-    agreement.accepted_by = user["id"]
+    agreement.accepted_by = user.id
     agreement.accepted_on = utcnow()
     agreement.save()
     return agreement
@@ -139,7 +139,7 @@ def reject_transfer_agreement(*, id, user):
             actual_state=agreement.state,
         )
     agreement.state = TransferAgreementState.Rejected
-    agreement.terminated_by = user["id"]
+    agreement.terminated_by = user.id
     agreement.terminated_on = utcnow()
     agreement.save()
     return agreement

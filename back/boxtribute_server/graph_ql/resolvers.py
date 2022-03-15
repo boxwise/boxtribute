@@ -82,7 +82,7 @@ def _base_filter_condition(permission):
     """Derive filter condition for given permission depending the current user's
     base-specific permissions. See also `auth.requires_auth()`.
     """
-    base_ids = g.user["permissions"][permission]
+    base_ids = g.user.authorized_base_ids(permission)
     if base_ids is None:
         # Permission granted for all bases
         return True
@@ -239,7 +239,7 @@ def resolve_beneficiaries(*_, pagination_input=None, filter_input=None):
 @query.field("transferAgreements")
 def resolve_transfer_agreements(*_, states=None):
     authorize(permission="transfer_agreement:read")
-    user_organisation_id = g.user["organisation_id"]
+    user_organisation_id = g.user.organisation_id
     # No state filter by default
     state_filter = TransferAgreement.state << states if states else True
     return TransferAgreement.select().where(
@@ -254,7 +254,7 @@ def resolve_transfer_agreements(*_, states=None):
 @query.field("shipments")
 def resolve_shipments(*_):
     authorize(permission="shipment:read")
-    user_organisation_id = g.user["organisation_id"]
+    user_organisation_id = g.user.organisation_id
     return (
         Shipment.select()
         .join(TransferAgreement)
@@ -269,7 +269,7 @@ def resolve_shipments(*_):
 @convert_kwargs_to_snake_case
 def resolve_metrics(*_, organisation_id=None):
     # Default to current user's organisation ID
-    organisation_id = organisation_id or g.user["organisation_id"]
+    organisation_id = organisation_id or g.user.organisation_id
     # Non-god users are only permitted to fetch their organisation's metrics, the god
     # user however can access any organisation's metrics
     authorize(organisation_id=organisation_id)
@@ -357,14 +357,14 @@ def resolve_create_qr_code(*_, box_label_identifier=None):
 @convert_kwargs_to_snake_case
 def resolve_create_box(*_, creation_input):
     authorize(permission="stock:write")
-    return create_box(user_id=g.user["id"], **creation_input)
+    return create_box(user_id=g.user.id, **creation_input)
 
 
 @mutation.field("updateBox")
 @convert_kwargs_to_snake_case
 def resolve_update_box(*_, update_input):
     authorize(permission="stock:write")
-    return update_box(user_id=g.user["id"], **update_input)
+    return update_box(user_id=g.user.id, **update_input)
 
 
 @mutation.field("createBeneficiary")
@@ -415,7 +415,7 @@ def resolve_cancel_transfer_agreement(*_, id):
             agreement.target_organisation_id,
         ]
     )
-    return cancel_transfer_agreement(id=id, user_id=g.user["id"])
+    return cancel_transfer_agreement(id=id, user_id=g.user.id)
 
 
 @mutation.field("createShipment")
@@ -668,4 +668,4 @@ def resolve_transfer_agreement_shipments(transfer_agreement_obj, _):
 
 @user.field("organisation")
 def resolve_user_organisation(*_):
-    return Organisation.get_by_id(g.user["organisation_id"])
+    return Organisation.get_by_id(g.user.organisation_id)

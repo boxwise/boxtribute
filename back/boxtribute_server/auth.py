@@ -104,6 +104,76 @@ def decode_jwt(*, token, public_key, domain, audience):
     return payload
 
 
+class CurrentUser:
+    """Container of information about the user making the current request.
+    For secure access, property and utility methods are provided.
+    """
+
+    def __init__(self, *, organisation_id, id, is_god=False, base_ids=None):
+        """The `base_ids` field is a mapping of a permission name to a list of base IDs
+        that the permission is granted for, or to None if the permission is granted for
+        all bases. However it is never exposed directly to avoid accidental
+        manipulation.
+        """
+        self._id = id
+        self._organisation_id = organisation_id
+        self._is_god = is_god
+        self._base_ids = base_ids or {}
+
+    @classmethod
+    def from_jwt(cls, payload):
+        """Extract user information from custom claims in JWT payload. The prefix and
+        the claim names are set by an Action script in Auth0.
+        The `permissions` custom claim contains entries of form
+        '[base_X[-Y...]/]resource:method'. Any write/edit permission implies read
+        permission on the same resource. E.g.
+        - base_1/product:read    -> {"product:read": [1]}
+        - base_2-3/stock:write   -> {"stock:write": [2, 3], "stock:read": [2, 3]}
+        - beneficiary:edit       -> {"beneficiary:edit": None, "beneficiary:read": None}
+        """
+        is_god = payload[f"{JWT_CLAIM_PREFIX}/permissions"] == ["*"]
+        base_ids = {}
+        if not is_god:
+            for raw_permission in payload[f"{JWT_CLAIM_PREFIX}/permissions"]:
+                try:
+                    base_prefix, permission = raw_permission.split("/")
+                    ids = [int(b) for b in base_prefix[5:].split("-")]
+                except ValueError:
+                    # No base_ prefix, permission granted for all bases
+                    permission = raw_permission
+                    ids = None
+                base_ids[permission] = ids
+
+                resource, method = permission.split(":")
+                if method in ["write", "create", "edit"]:
+                    base_ids[f"{resource}:read"] = ids
+
+        return cls(
+            organisation_id=payload[f"{JWT_CLAIM_PREFIX}/organisation_id"],
+            id=int(payload["sub"].replace("auth0|", "")),
+            is_god=is_god,
+            base_ids=base_ids,
+        )
+
+    def has_permission(self, name):
+        return name in self._base_ids
+
+    def authorized_base_ids(self, permission):
+        return self._base_ids[permission]
+
+    @property
+    def id(self):
+        return self._id
+
+    @property
+    def organisation_id(self):
+        return self._organisation_id
+
+    @property
+    def is_god(self):
+        return self._is_god
+
+
 def requires_auth(f):
     """Decorator for an endpoint that requires user authentication. In case of failure,
     an exception incl. HTTP status code is raised. Flask handles it and returns an error
@@ -112,14 +182,6 @@ def requires_auth(f):
     If authentication succeeds, user information is extracted from the JWT payload into
     the `user` attribute of the Flask g object. It is then available for the duration of
     the request.
-    The `permissions` field of `g.user` is a mapping of a permission name to a list of
-    base IDs that the permission is granted for, or to None if the permission is granted
-    for all bases. It is parsed from the `permissions` custom claim which contains
-    entries of form '[base_X[-Y...]/]resource:method'. Any write/edit permission implies
-    read permission on the same resource. E.g.
-    - base_1/product:read    -> {"product:read": [1]}
-    - base_2-3/stock:write   -> {"stock:write": [2, 3], "stock:read": [2, 3]}
-    - beneficiary:edit       -> {"beneficiary:edit": None, "beneficiary:read": None}
     """
 
     @wraps(f)
@@ -132,30 +194,7 @@ def requires_auth(f):
             domain=domain,
             audience=os.environ["AUTH0_AUDIENCE"],
         )
-
-        # The user's organisation ID is listed in the JWT under the custom claim (added
-        # by a rule in Auth0):
-        #     'https://www.boxtribute.com/organisation_id'
-        g.user = {}
-        g.user["organisation_id"] = payload[f"{JWT_CLAIM_PREFIX}/organisation_id"]
-        g.user["id"] = int(payload["sub"].replace("auth0|", ""))
-        g.user["is_god"] = payload[f"{JWT_CLAIM_PREFIX}/permissions"] == ["*"]
-
-        g.user["permissions"] = {}
-        if not g.user["is_god"]:
-            for raw_permission in payload[f"{JWT_CLAIM_PREFIX}/permissions"]:
-                try:
-                    base_prefix, permission = raw_permission.split("/")
-                    base_ids = [int(b) for b in base_prefix[5:].split("-")]
-                except ValueError:
-                    # No base_ prefix, permission granted for all bases
-                    permission = raw_permission
-                    base_ids = None
-                g.user["permissions"][permission] = base_ids
-
-                resource, method = permission.split(":")
-                if method in ["write", "create", "edit"]:
-                    g.user["permissions"][f"{resource}:read"] = base_ids
+        g.user = CurrentUser.from_jwt(payload)
 
         return f(*args, **kwargs)
 
