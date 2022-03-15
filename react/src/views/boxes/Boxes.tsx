@@ -82,7 +82,6 @@ const BoxesTable = ({ tableData }: BoxesTableProps) => {
     rows,
     prepareRow,
     state: { globalFilter },
-    preGlobalFilteredRows,
     setGlobalFilter,
   } = useTable(
     {
