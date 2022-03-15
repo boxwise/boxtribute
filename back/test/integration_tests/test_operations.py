@@ -41,7 +41,7 @@ def test_mutations(auth0_client):
     response = assert_successful_request(auth0_client, mutation, field="createQrCode")
     assert response is not None
 
-    mutation = """mutation { createBox(boxCreationInput: {
+    mutation = """mutation { createBox(creationInput: {
                    productId: 1,
                    items: 10,
                    locationId: 1,
@@ -51,7 +51,7 @@ def test_mutations(auth0_client):
     response = assert_successful_request(auth0_client, mutation)
     assert response == {"location": {"id": "1"}}
 
-    mutation = """mutation { updateBox(boxUpdateInput: {
+    mutation = """mutation { updateBox(updateInput: {
                     labelIdentifier: "728544", productId: 2
                 }) { product { id } } }"""
     response = assert_successful_request(auth0_client, mutation)

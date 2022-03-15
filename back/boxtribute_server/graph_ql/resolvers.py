@@ -355,16 +355,16 @@ def resolve_create_qr_code(_, info, box_label_identifier=None):
 
 @mutation.field("createBox")
 @convert_kwargs_to_snake_case
-def resolve_create_box(*_, box_creation_input):
+def resolve_create_box(*_, creation_input):
     authorize(permission="stock:write")
-    return create_box(user_id=g.user["id"], **box_creation_input)
+    return create_box(user_id=g.user["id"], **creation_input)
 
 
 @mutation.field("updateBox")
 @convert_kwargs_to_snake_case
-def resolve_update_box(*_, box_update_input):
+def resolve_update_box(*_, update_input):
     authorize(permission="stock:write")
-    return update_box(user_id=g.user["id"], **box_update_input)
+    return update_box(user_id=g.user["id"], **update_input)
 
 
 @mutation.field("createBeneficiary")

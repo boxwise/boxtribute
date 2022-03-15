@@ -122,7 +122,7 @@ export enum BoxState {
   Scrap = 'Scrap'
 }
 
-export type CreateBeneficiaryInput = {
+export type BeneficiaryCreationInput = {
   baseId: Scalars['Int'];
   comment?: InputMaybe<Scalars['String']>;
   dateOfBirth: Scalars['Date'];
@@ -139,7 +139,7 @@ export type CreateBeneficiaryInput = {
 };
 
 /** GraphQL input types for mutations **only**. */
-export type CreateBoxInput = {
+export type BoxCreationInput = {
   comment: Scalars['String'];
   items: Scalars['Int'];
   locationId: Scalars['Int'];
@@ -308,12 +308,12 @@ export type MutationCancelTransferAgreementArgs = {
 
 
 export type MutationCreateBeneficiaryArgs = {
-  creationInput?: InputMaybe<CreateBeneficiaryInput>;
+  creationInput?: InputMaybe<BeneficiaryCreationInput>;
 };
 
 
 export type MutationCreateBoxArgs = {
-  boxCreationInput?: InputMaybe<CreateBoxInput>;
+  creationInput?: InputMaybe<BoxCreationInput>;
 };
 
 
@@ -343,12 +343,12 @@ export type MutationSendShipmentArgs = {
 
 
 export type MutationUpdateBeneficiaryArgs = {
-  updateInput?: InputMaybe<UpdateBeneficiaryInput>;
+  updateInput?: InputMaybe<BeneficiaryUpdateInput>;
 };
 
 
 export type MutationUpdateBoxArgs = {
-  boxUpdateInput?: InputMaybe<UpdateBoxInput>;
+  updateInput?: InputMaybe<BoxUpdateInput>;
 };
 
 
@@ -726,7 +726,7 @@ export enum TransferAgreementType {
   Unidirectional = 'Unidirectional'
 }
 
-export type UpdateBeneficiaryInput = {
+export type BeneficiaryUpdateInput = {
   baseId?: InputMaybe<Scalars['Int']>;
   comment?: InputMaybe<Scalars['String']>;
   dateOfBirth?: InputMaybe<Scalars['Date']>;
@@ -743,7 +743,7 @@ export type UpdateBeneficiaryInput = {
   signature?: InputMaybe<Scalars['String']>;
 };
 
-export type UpdateBoxInput = {
+export type BoxUpdateInput = {
   comment?: InputMaybe<Scalars['String']>;
   items?: InputMaybe<Scalars['Int']>;
   labelIdentifier: Scalars['String'];

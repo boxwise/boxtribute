@@ -2,7 +2,7 @@
 GraphQL input types for mutations **only**.
 """
 
-input CreateBoxInput {
+input BoxCreationInput {
   productId: Int!
   sizeId: Int!
   items: Int!
@@ -11,7 +11,7 @@ input CreateBoxInput {
   qrCode: String
 }
 
-input UpdateBoxInput {
+input BoxUpdateInput {
   labelIdentifier: String!
   productId: Int
   sizeId: Int
@@ -20,7 +20,7 @@ input UpdateBoxInput {
   comment: String
 }
 
-input CreateBeneficiaryInput {
+input BeneficiaryCreationInput {
   firstName: String!
   lastName: String!
   baseId: Int!
@@ -36,7 +36,7 @@ input CreateBeneficiaryInput {
   dateOfSignature: Date
 }
 
-input UpdateBeneficiaryInput {
+input BeneficiaryUpdateInput {
   id: ID!
   firstName: String
   lastName: String

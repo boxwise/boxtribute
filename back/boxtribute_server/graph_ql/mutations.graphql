@@ -1,9 +1,14 @@
+"""
+Naming convention:
+- input argument: creationInput/updateInput
+- input type: <Resource>CreationInput/UpdateInput
+"""
 type Mutation {
   createQrCode(boxLabelIdentifier: String): QrCode
-  createBox(boxCreationInput: CreateBoxInput): Box
-  updateBox(boxUpdateInput: UpdateBoxInput): Box
-  createBeneficiary(creationInput: CreateBeneficiaryInput): Beneficiary
-  updateBeneficiary(updateInput: UpdateBeneficiaryInput): Beneficiary
+  createBox(creationInput: BoxCreationInput): Box
+  updateBox(updateInput: BoxUpdateInput): Box
+  createBeneficiary(creationInput: BeneficiaryCreationInput): Beneficiary
+  updateBeneficiary(updateInput: BeneficiaryUpdateInput): Beneficiary
 
   createTransferAgreement(creationInput: TransferAgreementCreationInput): TransferAgreement
   acceptTransferAgreement(id: ID!): TransferAgreement
