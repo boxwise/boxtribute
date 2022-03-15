@@ -14,7 +14,10 @@ def format_database_errors(error, debug=False):
     if isinstance(error.original_error, (peewee.DoesNotExist, peewee.IntegrityError)):
         # IntegrityError is raised when foreign key ID does not exist.
         error.message = ""  # setting `error.formatted["message"] = ""` has no effect
-        error.extensions = RequestedResourceNotFound.extensions
+        error.extensions = {
+            "code": "BAD_USER_INPUT",
+            "description": "The requested resource does not exist in the database.",
+        }
     elif isinstance(error.original_error, peewee.PeeweeException):
         error.message = ""
         error.extensions = {
@@ -61,13 +64,6 @@ class Forbidden(Exception):
             "user": user,
         }
         super().__init__(*args, **kwargs)
-
-
-class RequestedResourceNotFound(Exception):
-    extensions = {
-        "code": "BAD_USER_INPUT",
-        "description": "The requested resource does not exist in the database.",
-    }
 
 
 class _InvalidResourceState(Exception):

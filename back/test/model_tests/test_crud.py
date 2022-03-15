@@ -1,7 +1,7 @@
 import peewee
 import pytest
 from boxtribute_server.enums import BoxState
-from boxtribute_server.exceptions import BoxCreationFailed, RequestedResourceNotFound
+from boxtribute_server.exceptions import BoxCreationFailed
 from boxtribute_server.models.crud import (
     BOX_LABEL_IDENTIFIER_GENERATION_ATTEMPTS,
     create_box,
@@ -27,7 +27,9 @@ def test_create_box_with_incorrect_data(
 def test_create_qr_code_for_nonexisting_box():
     nr_qr_codes = len(QrCode.select())
 
-    with pytest.raises(RequestedResourceNotFound):
+    with pytest.raises(
+        peewee.DoesNotExist, match="<Model: Box> instance matching query does not exist"
+    ):
         create_qr_code(box_label_identifier="zzz")
 
     # The nr of rows in the QrCode table should be unchanged
