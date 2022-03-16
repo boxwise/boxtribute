@@ -126,7 +126,7 @@ def test_mutation_non_existent_resource(read_only_client, operation):
 def test_mutation_update_non_existent_resource(read_only_client, operation):
     # Test cases 3.2.21
     if operation == "updateBox":
-        update_input = """boxUpdateInput: { labelIdentifier: "xxx" }"""
+        update_input = """updateInput: { labelIdentifier: "xxx" }"""
     else:
         update_input = "updateInput: { id: 0 }"
     mutation = f"mutation {{ {operation}({update_input}) {{ id }} }}"

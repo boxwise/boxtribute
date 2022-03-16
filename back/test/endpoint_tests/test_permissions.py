@@ -99,7 +99,7 @@ def test_invalid_permission_for_given_resource_id(read_only_client, mocker, quer
             id
         }""",
         """createBox(
-            boxCreationInput : {
+            creationInput : {
                 productId: 1,
                 items: 9999,
                 locationId: 1,
@@ -109,7 +109,7 @@ def test_invalid_permission_for_given_resource_id(read_only_client, mocker, quer
             id
         }""",
         """updateBox(
-            boxUpdateInput : {
+            updateInput : {
                 labelIdentifier: "f00b45",
                 comment: "let's try"
             }) {

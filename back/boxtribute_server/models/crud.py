@@ -6,7 +6,7 @@ import peewee
 
 from ..db import db
 from ..enums import BoxState
-from ..exceptions import BoxCreationFailed, RequestedResourceNotFound
+from ..exceptions import BoxCreationFailed
 from .definitions.beneficiary import Beneficiary
 from .definitions.box import Box
 from .definitions.location import Location
@@ -134,9 +134,9 @@ def create_beneficiary(
         comment=comment,
         family_head=family_head_id,
         created_on=now,
-        created_by=user["id"],
+        created_by=user.id,
         last_modified_on=now,
-        last_modified_by=user["id"],
+        last_modified_by=user.id,
         # This is only required for compatibility with legacy DB
         seq=1 if family_head_id is None else 2,
         # These fields are required acc. to model definition
@@ -195,7 +195,7 @@ def update_beneficiary(
         setattr(beneficiary, field, value)
 
     beneficiary.last_modified_on = utcnow()
-    beneficiary.last_modified_by = user["id"]
+    beneficiary.last_modified_by = user.id
 
     with db.database.atomic():
         language_ids = languages or []
@@ -218,21 +218,16 @@ def create_qr_code(box_label_identifier=None):
     Return the newly created QR code.
 
     All operations are run inside an atomic transaction. If e.g. the box look-up fails,
-    the operations are rolled back (i.e. no new QR code is inserted), and an exception
-    is raised.
+    the operations are rolled back (i.e. no new QR code is inserted).
     """
-    try:
-        with db.database.atomic():
-            new_qr_code = QrCode.create(created_on=utcnow())
-            new_qr_code.code = hashlib.md5(str(new_qr_code.id).encode()).hexdigest()
-            new_qr_code.save()
+    with db.database.atomic():
+        new_qr_code = QrCode.create(created_on=utcnow())
+        new_qr_code.code = hashlib.md5(str(new_qr_code.id).encode()).hexdigest()
+        new_qr_code.save()
 
-            if box_label_identifier is not None:
-                box = Box.get(Box.label_identifier == box_label_identifier)
-                box.qr_code = new_qr_code.id
-                box.save()
+        if box_label_identifier is not None:
+            box = Box.get(Box.label_identifier == box_label_identifier)
+            box.qr_code = new_qr_code.id
+            box.save()
 
-        return new_qr_code
-
-    except peewee.DoesNotExist:
-        raise RequestedResourceNotFound()
+    return new_qr_code

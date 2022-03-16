@@ -60,7 +60,7 @@ def test_box_mutations(client, qr_code_without_box, default_size, another_size):
                 }}"""
     mutation = f"""mutation {{
             createBox(
-                boxCreationInput : {box_creation_input_string}
+                creationInput : {box_creation_input_string}
             ) {{
                 id
                 labelIdentifier
@@ -88,7 +88,7 @@ def test_box_mutations(client, qr_code_without_box, default_size, another_size):
 
     mutation = f"""mutation {{
             updateBox(
-                boxUpdateInput : {{
+                updateInput : {{
                     items: 7777,
                     labelIdentifier: "{created_box["labelIdentifier"]}"
                     comment: "updatedComment"

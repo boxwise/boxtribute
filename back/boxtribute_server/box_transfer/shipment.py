@@ -77,7 +77,7 @@ def create_shipment(*, source_base_id, target_base_id, transfer_agreement_id, us
         source_base=source_base_id,
         target_base=target_base_id,
         transfer_agreement=transfer_agreement_id,
-        started_by=user["id"],
+        started_by=user.id,
     )
 
 
@@ -106,12 +106,12 @@ def cancel_shipment(*, id, user):
 
     now = utcnow()
     shipment.state = ShipmentState.Canceled
-    shipment.canceled_by = user["id"]
+    shipment.canceled_by = user.id
     shipment.canceled_on = now
 
     details = []
     for detail in _retrieve_shipment_details(id):
-        detail.deleted_by = user["id"]
+        detail.deleted_by = user.id
         detail.deleted_on = now
         detail.box.state = BoxState.InStock
         details.append(detail)
@@ -137,7 +137,7 @@ def send_shipment(*, id, user):
             expected_states=[ShipmentState.Preparing], actual_state=shipment.state
         )
     shipment.state = ShipmentState.Sent
-    shipment.sent_by = user["id"]
+    shipment.sent_by = user.id
     shipment.sent_on = utcnow()
     shipment.save()
     return shipment
@@ -328,27 +328,27 @@ def update_shipment(
     with db.database.atomic():
         _update_shipment_with_prepared_boxes(
             shipment=shipment,
-            user_id=user["id"],
+            user_id=user.id,
             box_label_identifiers=prepared_box_label_identifiers,
         )
         _remove_boxes_from_shipment(
             shipment_id=shipment.id,
-            user_id=user["id"],
+            user_id=user.id,
             box_label_identifiers=removed_box_label_identifiers,
             box_state=BoxState.InStock,
         )
         _update_shipment_with_received_boxes(
             shipment=shipment,
             shipment_detail_update_inputs=received_shipment_detail_update_inputs,
-            user_id=user["id"],
+            user_id=user.id,
         )
         _remove_boxes_from_shipment(
             shipment_id=shipment.id,
-            user_id=user["id"],
+            user_id=user.id,
             box_label_identifiers=lost_box_label_identifiers,
             box_state=BoxState.Lost,
         )
-        _complete_shipment_if_applicable(shipment=shipment, user_id=user["id"])
+        _complete_shipment_if_applicable(shipment=shipment, user_id=user.id)
 
         if target_base_id is not None:
             shipment.target_base = target_base_id

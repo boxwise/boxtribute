@@ -82,7 +82,7 @@ def _base_filter_condition(permission):
     """Derive filter condition for given permission depending the current user's
     base-specific permissions. See also `auth.requires_auth()`.
     """
-    base_ids = g.user["permissions"][permission]
+    base_ids = g.user.authorized_base_ids(permission)
     if base_ids is None:
         # Permission granted for all bases
         return True
@@ -91,32 +91,32 @@ def _base_filter_condition(permission):
 
 @user.field("bases")
 @query.field("bases")
-def resolve_bases(_, info):
+def resolve_bases(*_):
     authorize(permission="base:read")
     return Base.select().where(_base_filter_condition("base:read"))
 
 
 @query.field("base")
-def resolve_base(_, info, id):
+def resolve_base(*_, id):
     authorize(permission="base:read", base_id=int(id))
     return Base.get_by_id(id)
 
 
 @query.field("beneficiary")
-def resolve_beneficiary(_, info, id):
+def resolve_beneficiary(*_, id):
     beneficiary = Beneficiary.get_by_id(id)
     authorize(permission="beneficiary:read", base_id=beneficiary.base_id)
     return beneficiary
 
 
 @query.field("users")
-def resolve_users(_, info):
+def resolve_users(*_):
     authorize(permission="user:read")
     return User.select()
 
 
 @query.field("user")
-def resolve_user(_, info, id):
+def resolve_user(*_, id):
     authorize(permission="user:read")
     authorize(user_id=int(id))
     return User.get_by_id(id)
@@ -124,7 +124,7 @@ def resolve_user(_, info, id):
 
 @query.field("qrExists")
 @convert_kwargs_to_snake_case
-def resolve_qr_exists(_, info, qr_code):
+def resolve_qr_exists(*_, qr_code):
     authorize(permission="qr:read")
     try:
         QrCode.get_id_from_code(qr_code)
@@ -136,14 +136,14 @@ def resolve_qr_exists(_, info, qr_code):
 @query.field("qrCode")
 @box.field("qrCode")
 @convert_kwargs_to_snake_case
-def resolve_qr_code(obj, info, qr_code=None):
+def resolve_qr_code(obj, _, qr_code=None):
     authorize(permission="qr:read")
     return obj.qr_code if qr_code is None else QrCode.get(QrCode.code == qr_code)
 
 
 @query.field("product")
 @box.field("product")
-def resolve_product(obj, info, id=None):
+def resolve_product(obj, _, id=None):
     product = obj.product if id is None else Product.get_by_id(id)
     authorize(permission="product:read", base_id=product.base_id)
     return product
@@ -151,7 +151,7 @@ def resolve_product(obj, info, id=None):
 
 @query.field("box")
 @convert_kwargs_to_snake_case
-def resolve_box(_, info, label_identifier):
+def resolve_box(*_, label_identifier):
     box = (
         Box.select(Box, Location)
         .join(Location)
@@ -164,56 +164,56 @@ def resolve_box(_, info, label_identifier):
 
 @query.field("location")
 @box.field("location")
-def resolve_location(obj, info, id=None):
+def resolve_location(obj, _, id=None):
     location = obj.location if id is None else Location.get_by_id(id)
     authorize(permission="location:read", base_id=location.base_id)
     return location
 
 
 @query.field("organisation")
-def resolve_organisation(_, info, id):
+def resolve_organisation(*_, id):
     authorize(organisation_id=int(id))
     return Organisation.get_by_id(id)
 
 
 @query.field("productCategory")
-def resolve_product_category(_, info, id):
+def resolve_product_category(*_, id):
     authorize(permission="category:read")
     return ProductCategory.get_by_id(id)
 
 
 @query.field("transferAgreement")
-def resolve_transfer_agreement(_, info, id):
+def resolve_transfer_agreement(*_, id):
     authorize(permission="transfer_agreement:read")
     return TransferAgreement.get_by_id(id)
 
 
 @query.field("shipment")
-def resolve_shipment(_, info, id):
+def resolve_shipment(*_, id):
     authorize(permission="shipment:read")
     return Shipment.get_by_id(id)
 
 
 @query.field("productCategories")
-def resolve_product_categories(_, info):
+def resolve_product_categories(*_):
     authorize(permission="category:read")
     return ProductCategory.select()
 
 
 @query.field("organisations")
-def resolve_organisations(_, info):
+def resolve_organisations(*_):
     return Organisation.select()
 
 
 @query.field("locations")
-def resolve_locations(_, info):
+def resolve_locations(*_):
     authorize(permission="location:read")
     return Location.select().join(Base).where(_base_filter_condition("location:read"))
 
 
 @query.field("products")
 @convert_kwargs_to_snake_case
-def resolve_products(_, info, pagination_input=None):
+def resolve_products(*_, pagination_input=None):
     authorize(permission="product:read")
     return load_into_page(
         Product,
@@ -225,7 +225,7 @@ def resolve_products(_, info, pagination_input=None):
 
 @query.field("beneficiaries")
 @convert_kwargs_to_snake_case
-def resolve_beneficiaries(_, info, pagination_input=None, filter_input=None):
+def resolve_beneficiaries(*_, pagination_input=None, filter_input=None):
     authorize(permission="beneficiary:read")
     filter_condition = derive_beneficiary_filter(filter_input)
     return load_into_page(
@@ -237,9 +237,9 @@ def resolve_beneficiaries(_, info, pagination_input=None, filter_input=None):
 
 
 @query.field("transferAgreements")
-def resolve_transfer_agreements(_, info, states=None):
+def resolve_transfer_agreements(*_, states=None):
     authorize(permission="transfer_agreement:read")
-    user_organisation_id = g.user["organisation_id"]
+    user_organisation_id = g.user.organisation_id
     # No state filter by default
     state_filter = TransferAgreement.state << states if states else True
     return TransferAgreement.select().where(
@@ -252,9 +252,9 @@ def resolve_transfer_agreements(_, info, states=None):
 
 
 @query.field("shipments")
-def resolve_shipments(_, info):
+def resolve_shipments(*_):
     authorize(permission="shipment:read")
-    user_organisation_id = g.user["organisation_id"]
+    user_organisation_id = g.user.organisation_id
     return (
         Shipment.select()
         .join(TransferAgreement)
@@ -269,7 +269,7 @@ def resolve_shipments(_, info):
 @convert_kwargs_to_snake_case
 def resolve_metrics(*_, organisation_id=None):
     # Default to current user's organisation ID
-    organisation_id = organisation_id or g.user["organisation_id"]
+    organisation_id = organisation_id or g.user.organisation_id
     # Non-god users are only permitted to fetch their organisation's metrics, the god
     # user however can access any organisation's metrics
     authorize(organisation_id=organisation_id)
@@ -279,7 +279,7 @@ def resolve_metrics(*_, organisation_id=None):
 
 
 @beneficiary.field("tokens")
-def resolve_beneficiary_tokens(beneficiary_obj, info):
+def resolve_beneficiary_tokens(beneficiary_obj, _):
     authorize(permission="transaction:read")
     # If the beneficiary has no transactions yet, the select query returns None
     return (
@@ -291,18 +291,18 @@ def resolve_beneficiary_tokens(beneficiary_obj, info):
 
 
 @beneficiary.field("transactions")
-def resolve_beneficiary_transactions(beneficiary_obj, info):
+def resolve_beneficiary_transactions(beneficiary_obj, _):
     authorize(permission="transaction:read")
     return Transaction.select().where(Transaction.beneficiary == beneficiary_obj.id)
 
 
 @beneficiary.field("registered")
-def resolve_beneficiary_registered(beneficiary_obj, info):
+def resolve_beneficiary_registered(beneficiary_obj, _):
     return not beneficiary_obj.not_registered
 
 
 @beneficiary.field("languages")
-def resolve_beneficiary_languages(beneficiary_obj, info):
+def resolve_beneficiary_languages(beneficiary_obj, _):
     return [
         x.language.id
         for x in XBeneficiaryLanguage.select().where(
@@ -312,14 +312,14 @@ def resolve_beneficiary_languages(beneficiary_obj, info):
 
 
 @beneficiary.field("gender")
-def resolve_beneficiary_gender(beneficiary_obj, info):
+def resolve_beneficiary_gender(beneficiary_obj, _):
     if beneficiary_obj.gender == "":
         return
     return HumanGender(beneficiary_obj.gender)
 
 
 @beneficiary.field("age")
-def resolve_beneficiary_age(beneficiary_obj, info):
+def resolve_beneficiary_age(beneficiary_obj, _):
     dob = beneficiary_obj.date_of_birth
     if dob is None:
         return
@@ -329,25 +329,25 @@ def resolve_beneficiary_age(beneficiary_obj, info):
 
 
 @beneficiary.field("active")
-def resolve_beneficiary_active(beneficiary_obj, info):
+def resolve_beneficiary_active(beneficiary_obj, _):
     return beneficiary_obj.deleted is None  # ZeroDateTimeField
 
 
 @box.field("state")
-def resolve_box_state(box_obj, info):
+def resolve_box_state(box_obj, _):
     # Instead of a BoxState instance return an integer for EnumType conversion
     return box_obj.state_id
 
 
 @location.field("defaultBoxState")
-def resolve_location_box_state(location_obj, info):
+def resolve_location_default_box_state(location_obj, _):
     # Instead of a BoxState instance return an integer for EnumType conversion
     return location_obj.box_state.id
 
 
 @mutation.field("createQrCode")
 @convert_kwargs_to_snake_case
-def resolve_create_qr_code(_, info, box_label_identifier=None):
+def resolve_create_qr_code(*_, box_label_identifier=None):
     authorize(permission="qr:create")
     authorize(permission="stock:write")
     return create_qr_code(box_label_identifier=box_label_identifier)
@@ -355,28 +355,28 @@ def resolve_create_qr_code(_, info, box_label_identifier=None):
 
 @mutation.field("createBox")
 @convert_kwargs_to_snake_case
-def resolve_create_box(*_, box_creation_input):
+def resolve_create_box(*_, creation_input):
     authorize(permission="stock:write")
-    return create_box(user_id=g.user["id"], **box_creation_input)
+    return create_box(user_id=g.user.id, **creation_input)
 
 
 @mutation.field("updateBox")
 @convert_kwargs_to_snake_case
-def resolve_update_box(*_, box_update_input):
+def resolve_update_box(*_, update_input):
     authorize(permission="stock:write")
-    return update_box(user_id=g.user["id"], **box_update_input)
+    return update_box(user_id=g.user.id, **update_input)
 
 
 @mutation.field("createBeneficiary")
 @convert_kwargs_to_snake_case
-def resolve_create_beneficiary(_, info, creation_input):
+def resolve_create_beneficiary(*_, creation_input):
     authorize(permission="beneficiary:create", base_id=creation_input["base_id"])
     return create_beneficiary(**creation_input, user=g.user)
 
 
 @mutation.field("updateBeneficiary")
 @convert_kwargs_to_snake_case
-def resolve_update_beneficiary(_, info, update_input):
+def resolve_update_beneficiary(*_, update_input):
     # Use target base ID if specified, otherwise skip enforcing base-specific authz
     authorize(permission="beneficiary:edit", base_id=update_input.get("base_id"))
     return update_beneficiary(**update_input, user=g.user)
@@ -384,13 +384,13 @@ def resolve_update_beneficiary(_, info, update_input):
 
 @mutation.field("createTransferAgreement")
 @convert_kwargs_to_snake_case
-def resolve_create_transfer_agreement(_, info, creation_input):
+def resolve_create_transfer_agreement(*_, creation_input):
     authorize(permission="transfer_agreement:create")
     return create_transfer_agreement(**creation_input, user=g.user)
 
 
 @mutation.field("acceptTransferAgreement")
-def resolve_accept_transfer_agreement(_, info, id):
+def resolve_accept_transfer_agreement(*_, id):
     authorize(permission="transfer_agreement:edit")
     agreement = TransferAgreement.get_by_id(id)
     authorize(organisation_id=agreement.target_organisation_id)
@@ -398,7 +398,7 @@ def resolve_accept_transfer_agreement(_, info, id):
 
 
 @mutation.field("rejectTransferAgreement")
-def resolve_reject_transfer_agreement(_, info, id):
+def resolve_reject_transfer_agreement(*_, id):
     authorize(permission="transfer_agreement:edit")
     agreement = TransferAgreement.get_by_id(id)
     authorize(organisation_id=agreement.target_organisation_id)
@@ -406,7 +406,7 @@ def resolve_reject_transfer_agreement(_, info, id):
 
 
 @mutation.field("cancelTransferAgreement")
-def resolve_cancel_transfer_agreement(_, info, id):
+def resolve_cancel_transfer_agreement(*_, id):
     authorize(permission="transfer_agreement:edit")
     agreement = TransferAgreement.get_by_id(id)
     authorize(
@@ -415,12 +415,12 @@ def resolve_cancel_transfer_agreement(_, info, id):
             agreement.target_organisation_id,
         ]
     )
-    return cancel_transfer_agreement(id=id, user_id=g.user["id"])
+    return cancel_transfer_agreement(id=id, user_id=g.user.id)
 
 
 @mutation.field("createShipment")
 @convert_kwargs_to_snake_case
-def resolve_create_shipment(_, info, creation_input):
+def resolve_create_shipment(*_, creation_input):
     authorize(permission="shipment:create")
     agreement = TransferAgreement.get_by_id(creation_input["transfer_agreement_id"])
     organisation_ids = [agreement.source_organisation_id]
@@ -432,7 +432,7 @@ def resolve_create_shipment(_, info, creation_input):
 
 @mutation.field("updateShipment")
 @convert_kwargs_to_snake_case
-def resolve_update_shipment(_, info, update_input):
+def resolve_update_shipment(*_, update_input):
     authorize(permission="shipment:edit")
 
     shipment = Shipment.get_by_id(update_input["id"])
@@ -461,7 +461,7 @@ def resolve_update_shipment(_, info, update_input):
 
 
 @mutation.field("cancelShipment")
-def resolve_cancel_shipment(_, info, id):
+def resolve_cancel_shipment(*_, id):
     authorize(permission="shipment:edit")
     shipment = Shipment.get_by_id(id)
     authorize(
@@ -474,7 +474,7 @@ def resolve_cancel_shipment(_, info, id):
 
 
 @mutation.field("sendShipment")
-def resolve_send_shipment(_, info, id):
+def resolve_send_shipment(*_, id):
     authorize(permission="shipment:edit")
     shipment = Shipment.get_by_id(id)
     authorize(organisation_id=shipment.source_base.organisation_id)
@@ -482,16 +482,14 @@ def resolve_send_shipment(_, info, id):
 
 
 @base.field("locations")
-def resolve_base_locations(base_obj, info):
+def resolve_base_locations(base_obj, _):
     authorize(permission="location:read")
     return Location.select().where(Location.base == base_obj.id)
 
 
 @base.field("beneficiaries")
 @convert_kwargs_to_snake_case
-def resolve_base_beneficiaries(
-    base_obj, info, pagination_input=None, filter_input=None
-):
+def resolve_base_beneficiaries(base_obj, _, pagination_input=None, filter_input=None):
     authorize(permission="beneficiary:read")
     base_filter_condition = Beneficiary.base == base_obj.id
     filter_condition = base_filter_condition & derive_beneficiary_filter(filter_input)
@@ -502,9 +500,7 @@ def resolve_base_beneficiaries(
 
 @location.field("boxes")
 @convert_kwargs_to_snake_case
-def resolve_location_boxes(
-    location_obj, info, pagination_input=None, filter_input=None
-):
+def resolve_location_boxes(location_obj, _, pagination_input=None, filter_input=None):
     authorize(permission="stock:read")
     location_filter_condition = Box.location == location_obj.id
     filter_condition = location_filter_condition & derive_box_filter(filter_input)
@@ -554,7 +550,7 @@ def resolve_metrics_moved_stock_overview(metrics_obj, _, after=None, before=None
 
 
 @organisation.field("bases")
-def resolve_organisation_bases(organisation_obj, info):
+def resolve_organisation_bases(organisation_obj, _):
     authorize(permission="base:read")
     return Base.select().where(Base.organisation_id == organisation_obj.id)
 
@@ -562,35 +558,33 @@ def resolve_organisation_bases(organisation_obj, info):
 @beneficiary.field("base")
 @location.field("base")
 @product.field("base")
-def resolve_resource_base(obj, info):
+def resolve_resource_base(obj, _):
     authorize(permission="base:read")
     return obj.base
 
 
 @product.field("gender")
-def resolve_product_gender(product_obj, info):
+def resolve_product_gender(product_obj, _):
     # Instead of a ProductGender instance return an integer for EnumType conversion
     return product_obj.gender.id
 
 
 @product.field("sizes")
-def resolve_product_sizes(product_id, info):
+def resolve_product_sizes(product_id, _):
     product = Product.get_by_id(product_id)
     sizes = Size.select(Size.label).where(Size.seq == product.size_range.seq)
     return [size.label for size in sizes]
 
 
 @product_category.field("hasGender")
-def resolve_product_category_has_gender(product_category_obj, info):
+def resolve_product_category_has_gender(product_category_obj, _):
     # Only categories derived from 'Clothing' (ID 12) have gender information
     return product_category_obj.parent_id == 12
 
 
 @product_category.field("products")
 @convert_kwargs_to_snake_case
-def resolve_product_category_products(
-    product_category_obj, info, pagination_input=None
-):
+def resolve_product_category_products(product_category_obj, _, pagination_input=None):
     authorize(permission="product:read")
     category_filter_condition = Product.category == product_category_obj.id
     return load_into_page(
@@ -599,13 +593,13 @@ def resolve_product_category_products(
 
 
 @qr_code.field("box")
-def resolve_qr_code_box(qr_code_obj, info):
+def resolve_qr_code_box(qr_code_obj, _):
     authorize(permission="stock:read")
     return Box.get(Box.qr_code == qr_code_obj.id)
 
 
 @shipment.field("details")
-def resolve_shipment_details(shipment_obj, info):
+def resolve_shipment_details(shipment_obj, _):
     return ShipmentDetail.select().where(
         (ShipmentDetail.shipment == shipment_obj.id)
         & (ShipmentDetail.deleted_on.is_null())
@@ -613,43 +607,43 @@ def resolve_shipment_details(shipment_obj, info):
 
 
 @shipment.field("sourceBase")
-def resolve_shipment_source_base(shipment_obj, info):
+def resolve_shipment_source_base(shipment_obj, _):
     authorize(permission="base:read")
     return shipment_obj.source_base
 
 
 @shipment.field("targetBase")
-def resolve_shipment_target_base(shipment_obj, info):
+def resolve_shipment_target_base(shipment_obj, _):
     authorize(permission="base:read")
     return shipment_obj.target_base
 
 
 @shipment_detail.field("sourceProduct")
-def resolve_shipment_detail_source_product(detail_obj, info):
+def resolve_shipment_detail_source_product(detail_obj, _):
     authorize(permission="product:read")
     return detail_obj.source_product
 
 
 @shipment_detail.field("targetProduct")
-def resolve_shipment_detail_target_product(detail_obj, info):
+def resolve_shipment_detail_target_product(detail_obj, _):
     authorize(permission="product:read")
     return detail_obj.target_product
 
 
 @shipment_detail.field("sourceLocation")
-def resolve_shipment_detail_source_location(detail_obj, info):
+def resolve_shipment_detail_source_location(detail_obj, _):
     authorize(permission="location:read")
     return detail_obj.source_location
 
 
 @shipment_detail.field("targetLocation")
-def resolve_shipment_detail_target_location(detail_obj, info):
+def resolve_shipment_detail_target_location(detail_obj, _):
     authorize(permission="location:read")
     return detail_obj.target_location
 
 
 @transfer_agreement.field("sourceBases")
-def resolve_transfer_agreement_source_bases(transfer_agreement_obj, info):
+def resolve_transfer_agreement_source_bases(transfer_agreement_obj, _):
     authorize(permission="base:read")
     return retrieve_transfer_agreement_bases(
         transfer_agreement=transfer_agreement_obj, kind="source"
@@ -657,7 +651,7 @@ def resolve_transfer_agreement_source_bases(transfer_agreement_obj, info):
 
 
 @transfer_agreement.field("targetBases")
-def resolve_transfer_agreement_target_bases(transfer_agreement_obj, info):
+def resolve_transfer_agreement_target_bases(transfer_agreement_obj, _):
     authorize(permission="base:read")
     return retrieve_transfer_agreement_bases(
         transfer_agreement=transfer_agreement_obj, kind="target"
@@ -665,7 +659,7 @@ def resolve_transfer_agreement_target_bases(transfer_agreement_obj, info):
 
 
 @transfer_agreement.field("shipments")
-def resolve_transfer_agreement_shipments(transfer_agreement_obj, info):
+def resolve_transfer_agreement_shipments(transfer_agreement_obj, _):
     authorize(permission="shipment:read")
     return Shipment.select().where(
         Shipment.transfer_agreement == transfer_agreement_obj.id
@@ -673,5 +667,5 @@ def resolve_transfer_agreement_shipments(transfer_agreement_obj, info):
 
 
 @user.field("organisation")
-def resolve_user_organisation(obj, info):
-    return Organisation.get_by_id(g.user["organisation_id"])
+def resolve_user_organisation(*_):
+    return Organisation.get_by_id(g.user.organisation_id)
