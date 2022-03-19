@@ -13,8 +13,8 @@ from .graph_ql.schema import full_api_schema, query_api_schema
 # Blueprint for query-only API. Deployed on the 'api*' subdomains
 api_bp = Blueprint("api_bp", __name__)
 
-# Blueprint for app GraphQL server. Deployed with v2/ URL prefix
-app_bp = Blueprint("app_bp", __name__, url_prefix=os.getenv("FLASK_URL_PREFIX"))
+# Blueprint for app GraphQL server. Deployed on v2-* subdomains
+app_bp = Blueprint("app_bp", __name__)
 
 
 @api_bp.errorhandler(AuthenticationFailed)

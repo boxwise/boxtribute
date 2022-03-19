@@ -62,10 +62,6 @@ jobs:
               REACT_APP_LOGOUT_URL=${REACT_APP_LOGOUT_URL}
               REACT_APP_GRAPHQL_SERVER=${REACT_APP_GRAPHQL_SERVER}
             " > .env
-      - run:
-          name: Set homepage in package.json
-          command: |
-            sed -i 's|"homepage": ""|"homepage": "/v2"|' package.json
       # following https://circleci.com/docs/2.0/yarn/
       - restore_cache:
           name: Restore Yarn Package Cache
@@ -209,8 +205,8 @@ jobs:
               MYSQL_DB=${DB_NAME}
               MYSQL_PORT=3306
               MYSQL_SOCKET=${DB_SOCKET}
-              FLASK_URL_PREFIX=/v2
               " > .env
+            if [[ "<< parameters.serviceName >>" != "api-"* ]]; then echo "EXPOSE_FULL_GRAPHQL=1" >> .env; fi
       - run:
           name: Generate GAE app.yaml file
           command: |
