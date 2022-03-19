@@ -1,3 +1,5 @@
+// This file was needed when introducing react-table because of some TS type issues
+// see also https://stackoverflow.com/questions/62758670/something-went-wrong-with-react-table-using-typescript
 import {
     UseColumnOrderInstanceProps,
     UseColumnOrderState,
