@@ -9,6 +9,10 @@ handlers:
   secure: always
   static_files: react-build/index.html
   upload: react-build/index.html
+- url: /static/(.*)
+  secure: always
+  static_files: react-build/static/\1
+  upload: react-build/static/(.*)
 - url: /(.*)
   secure: always
   static_files: react-build/index.html
