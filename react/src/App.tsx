@@ -7,8 +7,8 @@ import Locations from "views/locations/Locations";
 import BTLocation from "views/locations/BTLocation";
 import Layout from "Layout";
 
-const AuthenticationProtected = ({ element, ...props }) => 
-      withAuthenticationRequired(element, {
+const AuthenticationProtected = ({ element, ...props }) =>
+  withAuthenticationRequired(element, {
     onRedirecting: () => <p>Loading ...</p>,
   })(props);
 
