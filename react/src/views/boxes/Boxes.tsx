@@ -7,7 +7,7 @@ import { GlobalFilter } from "./GlobalFilter";
 import { SelectColumnFilter } from "./SelectColumnFilter";
 import { BoxesForBaseQuery } from "../../generated/graphql";
 
-const BOXES_FOR_BASE_QUERY = gql`
+export const BOXES_FOR_BASE_QUERY = gql`
   query BoxesForBase($baseId: ID!) {
     base(id: $baseId) {
       locations {
@@ -115,8 +115,8 @@ const BoxesTable = ({ tableData }: BoxesTableProps) => {
             )}
           </Th>
         </Tr>
-        {headerGroups.map((headerGroup) => (
-          <Tr {...headerGroup.getHeaderGroupProps()}>
+        {headerGroups.map((headerGroup, i) => (
+          <Tr {...headerGroup.getHeaderGroupProps()} key={i}>
             {headerGroup.headers.map((column) => (
               <Th {...column.getHeaderProps(column.getSortByToggleProps())}>
                 {column.render("Header")}
@@ -135,12 +135,12 @@ const BoxesTable = ({ tableData }: BoxesTableProps) => {
         ))}
       </Thead>
       <Tbody>
-        {rows.map((row) => {
+        {rows.map((row, i) => {
           prepareRow(row);
           return (
-            <Tr>
-              {row.cells.map((cell) => {
-                return <Td>{cell.render("Cell")}</Td>;
+            <Tr key={i}>
+              {row.cells.map((cell, i) => {
+                return <Td key={i}>{cell.render("Cell")}</Td>;
               })}
             </Tr>
           );

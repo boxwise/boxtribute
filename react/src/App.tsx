@@ -1,3 +1,4 @@
+import 'regenerator-runtime/runtime';
 import React from "react";
 import { Route, Routes } from "react-router-dom";
 import { useAuth0, withAuthenticationRequired } from "@auth0/auth0-react";
