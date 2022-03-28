@@ -6,6 +6,9 @@ TEST_AUTH0_DOMAIN = "boxtribute-dev.eu.auth0.com"
 TEST_AUTH0_AUDIENCE = "boxtribute-dev-api"
 TEST_AUTH0_USERNAME = "dev_coordinator@boxaid.org"
 TEST_AUTH0_PASSWORD = "Browser_tests"
+# Retrieve from JSON via https://$TEST_AUTH0_DOMAIN/.well-known/jwks.json (1st key)
+TEST_AUTH0_JWKS_KID = "BXdT34YoNUAu4eloWwPve"
+TEST_AUTH0_JWKS_N = "0wGv6p-S8i_1IZjIercpzXl_lhzNG0OM0Ov4TRrQucDzKMPrvw4wYbwx6NYrD0Wqzov5Qmxza1QBKGC3IV5wdi-41ljuiAGqvs3lkG-yXjVxmDMJNijTYuFwXPvDqTKX6VQwMDWIRYTdNuDrvs45xcSJluzhg4iqSQ7smG0C5bFJF-ZweakHoZD91WyfxuykaK1dDBHSbawRezZfhRCy8gvSBVYGp9TcDMxLx0VqpXgBc1s0rnQSH920NXS1Q86etGdCI35Kf5yweLb67RtTr14pK9A1QP9atynhdv9mPQTFcanVbXH0Mw5ypp_kTK5kqSi4K3xVLCzCsW4-r6Af8w"  # noqa
 
 
 def memoize(function):
