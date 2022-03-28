@@ -76,12 +76,45 @@ export type Beneficiary = {
   transactions?: Maybe<Array<Transaction>>;
 };
 
+export type BeneficiaryCreationInput = {
+  baseId: Scalars['Int'];
+  comment?: InputMaybe<Scalars['String']>;
+  dateOfBirth: Scalars['Date'];
+  dateOfSignature?: InputMaybe<Scalars['Date']>;
+  familyHeadId?: InputMaybe<Scalars['Int']>;
+  firstName: Scalars['String'];
+  gender: HumanGender;
+  groupIdentifier: Scalars['String'];
+  isVolunteer: Scalars['Boolean'];
+  languages?: InputMaybe<Array<Language>>;
+  lastName: Scalars['String'];
+  registered: Scalars['Boolean'];
+  signature?: InputMaybe<Scalars['String']>;
+};
+
 /** Utility type holding a page of [`Beneficiaries`]({{Types.Beneficiary}}). */
 export type BeneficiaryPage = {
   __typename?: 'BeneficiaryPage';
   elements?: Maybe<Array<Beneficiary>>;
   pageInfo: PageInfo;
   totalCount: Scalars['Int'];
+};
+
+export type BeneficiaryUpdateInput = {
+  baseId?: InputMaybe<Scalars['Int']>;
+  comment?: InputMaybe<Scalars['String']>;
+  dateOfBirth?: InputMaybe<Scalars['Date']>;
+  dateOfSignature?: InputMaybe<Scalars['Date']>;
+  familyHeadId?: InputMaybe<Scalars['Int']>;
+  firstName?: InputMaybe<Scalars['String']>;
+  gender?: InputMaybe<HumanGender>;
+  groupIdentifier?: InputMaybe<Scalars['String']>;
+  id: Scalars['ID'];
+  isVolunteer?: InputMaybe<Scalars['Boolean']>;
+  languages?: InputMaybe<Array<Language>>;
+  lastName?: InputMaybe<Scalars['String']>;
+  registered?: InputMaybe<Scalars['Boolean']>;
+  signature?: InputMaybe<Scalars['String']>;
 };
 
 /** Representation of a box storing items of a [`Product`]({{Types.Product}}) in a [`Location`]({{Types.Location}}) */
@@ -104,6 +137,16 @@ export type Box = {
   state: BoxState;
 };
 
+/** GraphQL input types for mutations **only**. */
+export type BoxCreationInput = {
+  comment: Scalars['String'];
+  items: Scalars['Int'];
+  locationId: Scalars['Int'];
+  productId: Scalars['Int'];
+  qrCode?: InputMaybe<Scalars['String']>;
+  sizeId: Scalars['Int'];
+};
+
 /** Utility type holding a page of [`Boxes`]({{Types.Box}}). */
 export type BoxPage = {
   __typename?: 'BoxPage';
@@ -122,30 +165,13 @@ export enum BoxState {
   Scrap = 'Scrap'
 }
 
-export type BeneficiaryCreationInput = {
-  baseId: Scalars['Int'];
+export type BoxUpdateInput = {
   comment?: InputMaybe<Scalars['String']>;
-  dateOfBirth: Scalars['Date'];
-  dateOfSignature?: InputMaybe<Scalars['Date']>;
-  familyHeadId?: InputMaybe<Scalars['Int']>;
-  firstName: Scalars['String'];
-  gender: HumanGender;
-  groupIdentifier: Scalars['String'];
-  isVolunteer: Scalars['Boolean'];
-  languages?: InputMaybe<Array<Language>>;
-  lastName: Scalars['String'];
-  registered: Scalars['Boolean'];
-  signature?: InputMaybe<Scalars['String']>;
-};
-
-/** GraphQL input types for mutations **only**. */
-export type BoxCreationInput = {
-  comment: Scalars['String'];
-  items: Scalars['Int'];
-  locationId: Scalars['Int'];
-  productId: Scalars['Int'];
-  qrCode?: InputMaybe<Scalars['String']>;
-  sizeId: Scalars['Int'];
+  items?: InputMaybe<Scalars['Int']>;
+  labelIdentifier: Scalars['String'];
+  locationId?: InputMaybe<Scalars['Int']>;
+  productId?: InputMaybe<Scalars['Int']>;
+  sizeId?: InputMaybe<Scalars['Int']>;
 };
 
 /**
@@ -202,12 +228,12 @@ export enum Language {
 export type Location = {
   __typename?: 'Location';
   base?: Maybe<Base>;
-  /**  Default state for boxes in this location  */
-  defaultBoxState?: Maybe<BoxState>;
   /**  List of all the [`Boxes`]({{Types.Box}}) in this location  */
   boxes?: Maybe<BoxPage>;
   createdBy?: Maybe<User>;
   createdOn?: Maybe<Scalars['Datetime']>;
+  /**  Default state for boxes in this location  */
+  defaultBoxState?: Maybe<BoxState>;
   id: Scalars['ID'];
   isShop: Scalars['Boolean'];
   lastModifiedBy?: Maybe<User>;
@@ -274,6 +300,11 @@ export type MetricsNumberOfSalesArgs = {
   before?: InputMaybe<Scalars['Date']>;
 };
 
+/**
+ * Naming convention:
+ * - input argument: creationInput/updateInput
+ * - input type: <Resource>CreationInput/UpdateInput
+ */
 export type Mutation = {
   __typename?: 'Mutation';
   acceptTransferAgreement?: Maybe<TransferAgreement>;
@@ -292,66 +323,131 @@ export type Mutation = {
 };
 
 
+/**
+ * Naming convention:
+ * - input argument: creationInput/updateInput
+ * - input type: <Resource>CreationInput/UpdateInput
+ */
 export type MutationAcceptTransferAgreementArgs = {
   id: Scalars['ID'];
 };
 
 
+/**
+ * Naming convention:
+ * - input argument: creationInput/updateInput
+ * - input type: <Resource>CreationInput/UpdateInput
+ */
 export type MutationCancelShipmentArgs = {
   id: Scalars['ID'];
 };
 
 
+/**
+ * Naming convention:
+ * - input argument: creationInput/updateInput
+ * - input type: <Resource>CreationInput/UpdateInput
+ */
 export type MutationCancelTransferAgreementArgs = {
   id: Scalars['ID'];
 };
 
 
+/**
+ * Naming convention:
+ * - input argument: creationInput/updateInput
+ * - input type: <Resource>CreationInput/UpdateInput
+ */
 export type MutationCreateBeneficiaryArgs = {
   creationInput?: InputMaybe<BeneficiaryCreationInput>;
 };
 
 
+/**
+ * Naming convention:
+ * - input argument: creationInput/updateInput
+ * - input type: <Resource>CreationInput/UpdateInput
+ */
 export type MutationCreateBoxArgs = {
   creationInput?: InputMaybe<BoxCreationInput>;
 };
 
 
+/**
+ * Naming convention:
+ * - input argument: creationInput/updateInput
+ * - input type: <Resource>CreationInput/UpdateInput
+ */
 export type MutationCreateQrCodeArgs = {
   boxLabelIdentifier?: InputMaybe<Scalars['String']>;
 };
 
 
+/**
+ * Naming convention:
+ * - input argument: creationInput/updateInput
+ * - input type: <Resource>CreationInput/UpdateInput
+ */
 export type MutationCreateShipmentArgs = {
   creationInput?: InputMaybe<ShipmentCreationInput>;
 };
 
 
+/**
+ * Naming convention:
+ * - input argument: creationInput/updateInput
+ * - input type: <Resource>CreationInput/UpdateInput
+ */
 export type MutationCreateTransferAgreementArgs = {
   creationInput?: InputMaybe<TransferAgreementCreationInput>;
 };
 
 
+/**
+ * Naming convention:
+ * - input argument: creationInput/updateInput
+ * - input type: <Resource>CreationInput/UpdateInput
+ */
 export type MutationRejectTransferAgreementArgs = {
   id: Scalars['ID'];
 };
 
 
+/**
+ * Naming convention:
+ * - input argument: creationInput/updateInput
+ * - input type: <Resource>CreationInput/UpdateInput
+ */
 export type MutationSendShipmentArgs = {
   id: Scalars['ID'];
 };
 
 
+/**
+ * Naming convention:
+ * - input argument: creationInput/updateInput
+ * - input type: <Resource>CreationInput/UpdateInput
+ */
 export type MutationUpdateBeneficiaryArgs = {
   updateInput?: InputMaybe<BeneficiaryUpdateInput>;
 };
 
 
+/**
+ * Naming convention:
+ * - input argument: creationInput/updateInput
+ * - input type: <Resource>CreationInput/UpdateInput
+ */
 export type MutationUpdateBoxArgs = {
   updateInput?: InputMaybe<BoxUpdateInput>;
 };
 
 
+/**
+ * Naming convention:
+ * - input argument: creationInput/updateInput
+ * - input type: <Resource>CreationInput/UpdateInput
+ */
 export type MutationUpdateShipmentArgs = {
   updateInput?: InputMaybe<ShipmentUpdateInput>;
 };
@@ -726,32 +822,6 @@ export enum TransferAgreementType {
   Unidirectional = 'Unidirectional'
 }
 
-export type BeneficiaryUpdateInput = {
-  baseId?: InputMaybe<Scalars['Int']>;
-  comment?: InputMaybe<Scalars['String']>;
-  dateOfBirth?: InputMaybe<Scalars['Date']>;
-  dateOfSignature?: InputMaybe<Scalars['Date']>;
-  familyHeadId?: InputMaybe<Scalars['Int']>;
-  firstName?: InputMaybe<Scalars['String']>;
-  gender?: InputMaybe<HumanGender>;
-  groupIdentifier?: InputMaybe<Scalars['String']>;
-  id: Scalars['ID'];
-  isVolunteer?: InputMaybe<Scalars['Boolean']>;
-  languages?: InputMaybe<Array<Language>>;
-  lastName?: InputMaybe<Scalars['String']>;
-  registered?: InputMaybe<Scalars['Boolean']>;
-  signature?: InputMaybe<Scalars['String']>;
-};
-
-export type BoxUpdateInput = {
-  comment?: InputMaybe<Scalars['String']>;
-  items?: InputMaybe<Scalars['Int']>;
-  labelIdentifier: Scalars['String'];
-  locationId?: InputMaybe<Scalars['Int']>;
-  productId?: InputMaybe<Scalars['Int']>;
-  sizeId?: InputMaybe<Scalars['Int']>;
-};
-
 /**
  * Representation of a user signed up for the web application.
  * The user is a member of a specific [`Organisation`]({{Types.Organisation}}).
@@ -770,6 +840,11 @@ export type User = {
   validLastDay?: Maybe<Scalars['Date']>;
 };
 
+export type BasesQueryVariables = Exact<{ [key: string]: never; }>;
+
+
+export type BasesQuery = { __typename?: 'Query', bases: Array<{ __typename?: 'Base', id: string, name: string }> };
+
 export type BoxesForBaseQueryVariables = Exact<{
   baseId: Scalars['ID'];
 }>;
@@ -784,7 +859,9 @@ export type LocationQueryVariables = Exact<{
 
 export type LocationQuery = { __typename?: 'Query', location?: { __typename?: 'Location', id: string, name?: string | null, defaultBoxState?: BoxState | null, boxes?: { __typename?: 'BoxPage', totalCount: number, elements: Array<{ __typename?: 'Box', id: string, items: number, product?: { __typename?: 'Product', name: string, price?: number | null, category: { __typename?: 'ProductCategory', name: string } } | null }> } | null } | null };
 
-export type Unnamed_1_QueryVariables = Exact<{ [key: string]: never; }>;
+export type LocationsForBaseQueryVariables = Exact<{
+  baseId: Scalars['ID'];
+}>;
 
 
-export type Unnamed_1_Query = { __typename?: 'Query', locations: Array<{ __typename?: 'Location', id: string, name?: string | null }> };
+export type LocationsForBaseQuery = { __typename?: 'Query', base?: { __typename?: 'Base', locations?: Array<{ __typename?: 'Location', id: string, name?: string | null }> | null } | null };

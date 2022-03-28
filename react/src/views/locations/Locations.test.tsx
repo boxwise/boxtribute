@@ -2,36 +2,45 @@ import { screen, waitFor} from "@testing-library/react";
 import "@testing-library/jest-dom";
 import Locations, { LOCATIONS_QUERY } from "./Locations";
 import { render } from "utils/test-utils";
+import { Route } from "react-router-dom";
 
 describe("Locations view", () => {
   const mocks = [
     {
       request: {
         query: LOCATIONS_QUERY,
+        variables: {
+          baseId: "123"
+        },
       },
       result: {
         data: {
-          locations: [
-            {
-              __typename: "Location",
-              id: 1,
-              name: "Shop",
-              boxes: [],
-            },
-            {
-              __typename: "Location",
-              id: 2,
-              name: "LOST",
-              boxes: [],
-            }
-          ]
-        }
-      }
-    }
+          base: {
+            locations: [
+              {
+                __typename: "Location",
+                id: 1,
+                name: "Shop",
+                boxes: [],
+              },
+              {
+                __typename: "Location",
+                id: 2,
+                name: "LOST",
+                boxes: [],
+              },
+            ],
+          },
+        },
+      },
+    },
   ];
   beforeEach(() => {
-    render(<Locations />, { mocks });
-  })
+    render(<Route path="/bases/:baseId/locations" element={<Locations />}></Route>, {
+      mocks,
+      initialUrl: "/bases/123/locations",
+    });
+  });
   it("renders with an initial 'Loading...'", async () => {
     const loadingInfo = screen.getByText("Loading...");
     expect(loadingInfo).toBeInTheDocument();

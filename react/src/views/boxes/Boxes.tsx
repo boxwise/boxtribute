@@ -6,6 +6,7 @@ import { TriangleDownIcon, TriangleUpIcon } from "@chakra-ui/icons";
 import { GlobalFilter } from "./GlobalFilter";
 import { SelectColumnFilter } from "./SelectColumnFilter";
 import { BoxesForBaseQuery } from "../../generated/graphql";
+import { useParams } from "react-router-dom";
 
 const BOXES_FOR_BASE_QUERY = gql`
   query BoxesForBase($baseId: ID!) {
@@ -166,7 +167,7 @@ const graphqlToTableTransformer = (boxesQueryResult: BoxesForBaseQuery | undefin
   ) || [];
 
 const Boxes = () => {
-  const baseId = 1;
+  const baseId = useParams<{ baseId: string }>().baseId;
 
   const { loading, error, data } = useQuery<BoxesForBaseQuery>(BOXES_FOR_BASE_QUERY, {
     variables: {
