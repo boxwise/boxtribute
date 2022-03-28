@@ -132,7 +132,7 @@ describe("Boxes view", () => {
       const loadingInfo = screen.queryByText("Loading...");
       expect(loadingInfo).toBeNull();
     });
-    const heading = await screen.findByRole("th", { name: "PRODUCT" });
+    const heading = await screen.getByText("Product");
     expect(heading).toBeInTheDocument();
   });
 
