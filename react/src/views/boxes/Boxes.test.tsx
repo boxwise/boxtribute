@@ -1,4 +1,4 @@
-import { screen, waitFor } from "@testing-library/react";
+import { fireEvent, screen, waitFor } from "@testing-library/react";
 import "@testing-library/jest-dom";
 import Boxes, { BOXES_FOR_BASE_QUERY } from "./Boxes";
 import { render } from "utils/test-utils";
@@ -122,6 +122,7 @@ describe("Boxes view", () => {
   beforeEach(() => {
     render(<Boxes />, { mocks });
   });
+
   it("renders with an initial 'Loading...'", () => {
     const loadingInfo = screen.getByText("Loading...");
     expect(loadingInfo).toBeInTheDocument();
@@ -135,6 +136,27 @@ describe("Boxes view", () => {
     const heading = await screen.getByText("Product");
     expect(heading).toBeInTheDocument();
   });
+
+  it("WIP gobal filter", async () => {
+    await waitFor(() => {
+        const loadingInfo = screen.queryByText("Loading...");
+        expect(loadingInfo).toBeNull();
+      }); 
+
+    const nonBlanketProduct = screen.queryByText("Top 2-6 Months");
+    expect(nonBlanketProduct).toBeInTheDocument();
+    // screen.debug();
+    const searchField = screen.getByPlaceholderText('Search')
+    fireEvent.change(searchField, { target: { value: 'Blanket' } })
+    await waitFor(() => {
+        const nonBlanketProduct = screen.queryByText("Top 2-6 Months");
+        expect(nonBlanketProduct).toBeNull();
+      }); 
+    screen.debug();
+    
+
+    //   expect(3).toBe(3)
+  })
 
 //   describe("after done with data loading", () => {
 //     beforeEach(async () => {
