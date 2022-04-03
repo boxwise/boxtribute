@@ -143,16 +143,21 @@ describe("Boxes view", () => {
         expect(loadingInfo).toBeNull();
       }); 
 
-    const nonBlanketProduct = screen.queryByText("Top 2-6 Months");
+    const nonBlanketProduct = screen.queryByRole("gridcell", {
+        name: "Top 2-6 Months"});
     expect(nonBlanketProduct).toBeInTheDocument();
     // screen.debug();
     const searchField = screen.getByPlaceholderText('Search')
     fireEvent.change(searchField, { target: { value: 'Blanket' } })
     await waitFor(() => {
-        const nonBlanketProduct = screen.queryByText("Top 2-6 Months");
+        const nonBlanketProduct = screen.queryByRole("gridcell", {
+            name: "Top 2-6 Months"});
         expect(nonBlanketProduct).toBeNull();
       }); 
-    screen.debug();
+      const blanketProduct = screen.queryByRole("gridcell", {
+          name: "Blanket"});
+      expect(blanketProduct).toBeInTheDocument();
+  
     
 
     //   expect(3).toBe(3)
