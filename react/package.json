@@ -15,7 +15,7 @@
     "@fortawesome/react-fontawesome": "^0.1.15",
     "@graphql-codegen/cli": "^2.6.2",
     "@graphql-codegen/typescript-react-query": "^3.5.7",
-    "framer-motion": "^6.2.1",
+    "framer-motion": "^6.2.8",
     "graphql": "^16.3.0",
     "react": "^17.0.2",
     "react-dom": "^17.0.2",
@@ -26,7 +26,7 @@
     "react-table": "^7.7.0"
   },
   "devDependencies": {
-    "@craco/craco": "^6.3.0",
+    "@craco/craco": "^6.4.3",
     "@graphql-codegen/cli": "2.6.2",
     "@graphql-codegen/typescript": "^2.4.7",
     "@graphql-codegen/typescript-operations": "^2.3.4",
