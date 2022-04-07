@@ -200,7 +200,7 @@ servers:
   # same format as for OpenAPI Specification https://swagger.io/specification/#server-object
 
   - url: https://api.boxtribute.org
-    description: Production Server
+    description: Query API
     # Indicates to use this server's URL as the typical GraphQL request base in the documentation
     # If no server entries have this indicator, the first server's URL will be used.
     # If no server entries are defined at all, the Introspection URL will be used.
