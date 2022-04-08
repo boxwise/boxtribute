@@ -231,6 +231,9 @@ jobs:
                 name: Generate GraphQL documentation
                 command: |
                   cd ../docs/graphql-api
+                  if [[ "<< parameters.serviceName >>" != api-production ]]; then
+                      sed -i 's/api.boxtribute/<< parameters.serviceName >>.boxtribute/g' query-api-config.yml
+                  fi
                   npm install
                   npx spectaql query-api-config.yml
                   sed -i 's|stylesheets|docs/stylesheets|g' public/index.html
