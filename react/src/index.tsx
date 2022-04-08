@@ -6,8 +6,9 @@ import ApolloWrapper from "./ApolloWrapper";
 import App from "./App";
 import * as serviceWorker from "./serviceWorker";
 import { ChakraProvider, CSSReset, extendTheme } from "@chakra-ui/react";
+import { withAuthenticationRequired } from "@auth0/auth0-react";
+import { GlobalPreferencesProvider } from "GlobalPreferencesProvider";
 
-// 2. Extend the theme to include custom colors, fonts, etc
 const colors = {
   brand: {
     900: "#1a365d",
@@ -22,13 +23,17 @@ const colors = {
 
 const theme = extendTheme({ colors });
 
+const AuthenticationProtectedApp = withAuthenticationRequired(App);
+
 ReactDOM.render(
   <ChakraProvider theme={theme}>
     <CSSReset />
     <BrowserRouter>
       <Auth0ProviderWithHistory>
         <ApolloWrapper>
-          <App />
+          <GlobalPreferencesProvider>
+            <AuthenticationProtectedApp />
+          </GlobalPreferencesProvider>
         </ApolloWrapper>
       </Auth0ProviderWithHistory>
     </BrowserRouter>
