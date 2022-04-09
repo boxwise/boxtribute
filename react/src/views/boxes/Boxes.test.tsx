@@ -9,8 +9,8 @@ describe("Boxes view", () => {
       request: {
         query: BOXES_FOR_BASE_QUERY,
         variables: {
-            "baseId": 1
-        }
+          baseId: 1,
+        },
       },
       result: {
         data: {
@@ -137,42 +137,44 @@ describe("Boxes view", () => {
     expect(heading).toBeInTheDocument();
   });
 
-  it("WIP gobal filter", async () => {
+  it("tests if global filter is working", async () => {
     await waitFor(() => {
-        const loadingInfo = screen.queryByText("Loading...");
-        expect(loadingInfo).toBeNull();
-      }); 
+      const loadingInfo = screen.queryByText("Loading...");
+      expect(loadingInfo).toBeNull();
+    });
 
     const nonBlanketProduct = screen.queryByRole("gridcell", {
-        name: "Top 2-6 Months"});
+      name: "Top 2-6 Months",
+    });
     expect(nonBlanketProduct).toBeInTheDocument();
     // screen.debug();
-    const searchField = screen.getByPlaceholderText('Search')
-    fireEvent.change(searchField, { target: { value: 'Blanket' } })
+    const searchField = screen.getByPlaceholderText("Search");
+    fireEvent.change(searchField, { target: { value: "Blanket" } });
     await waitFor(() => {
-        const nonBlanketProduct = screen.queryByRole("gridcell", {
-            name: "Top 2-6 Months"});
-        expect(nonBlanketProduct).toBeNull();
-      }); 
-      const blanketProduct = screen.queryByRole("gridcell", {
-          name: "Blanket"});
-      expect(blanketProduct).toBeInTheDocument();
-  
-    
+      const nonBlanketProduct = screen.queryByRole("gridcell", {
+        name: "Top 2-6 Months",
+      });
+      expect(nonBlanketProduct).toBeNull();
+    });
+    const blanketProduct = screen.queryByRole("gridcell", {
+      name: "Blanket",
+    });
+    expect(blanketProduct).toBeInTheDocument();
 
     //   expect(3).toBe(3)
-  })
-
-//   describe("after done with data loading", () => {
-//     beforeEach(async () => {
-//       await waitFor(() => {
-//         const loadingInfo = screen.queryByText("Loading...");
-//         expect(loadingInfo).toBeNull();
-//       });
-//     });
-//     it("shows the boxes table", async () => {
-//       const dataInRows = screen.findByRole("td", {name: "Hijab"});
-//       expect(dataInRows).toBeInTheDocument();
-//     });
-//   });
+  });
+  it("tests sorting in column headers", async () => {
+    await waitFor(() => {
+      const loadingInfo = screen.queryByText("Loading...");
+      expect(loadingInfo).toBeNull();
+    });
+    const productheader = screen.getByText("Product");
+    // const productheader = screen.queryByRole("columnheader", { name: "Product" });
+    console.log("productheader", productheader)
+    fireEvent.click(productheader);
+    screen.debug();
+    const row = screen.getAllByRole("row");
+    expect(row[0]).toHaveTextContent("Blanket");
+    // expect(row[1]).toHaveTextContent("Top 2-6 Months");
+  });
 });
