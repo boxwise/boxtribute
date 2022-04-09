@@ -17,6 +17,7 @@ export function SelectColumnFilter({
 
   return (
     <select
+      id={id}
       value={filterValue}
       onChange={(e) => {
         setFilter(e.target.value || undefined);

@@ -95,59 +95,54 @@ const BoxesTable = ({ tableData }: BoxesTableProps) => {
   );
 
   return (
-    <Table>
-      <Thead>
-        <Tr>
-          <Th>
-            <GlobalFilter
-              globalFilter={globalFilter}
-              setGlobalFilter={setGlobalFilter}
-            />
+    <>
+      <GlobalFilter globalFilter={globalFilter} setGlobalFilter={setGlobalFilter} />
 
-            {headerGroups.map((headerGroup) =>
-              headerGroup.headers.map((column) =>
-                column.Filter ? (
-                  <Button m={2} key={column.id}>
-                    <label htmlFor={column.id}>{column.render("Header")}: </label>
-                    {column.render("Filter")}
-                  </Button>
-                ) : null,
-              ),
-            )}
-          </Th>
-        </Tr>
-        {headerGroups.map((headerGroup, i) => (
-          <Tr {...headerGroup.getHeaderGroupProps()} key={i}>
-            {headerGroup.headers.map((column) => (
-              <Th {...column.getHeaderProps(column.getSortByToggleProps())}>
-                {column.render("Header")}
-                <chakra.span pl="4">
-                  {column.isSorted ? (
-                    column.isSortedDesc ? (
-                      <TriangleDownIcon aria-label="sorted descending" />
-                    ) : (
-                      <TriangleUpIcon aria-label="sorted ascending" />
-                    )
-                  ) : null}
-                </chakra.span>
-              </Th>
-            ))}
-          </Tr>
-        ))}
-      </Thead>
-      <Tbody>
-        {rows.map((row, i) => {
-          prepareRow(row);
-          return (
-            <Tr key={i}>
-              {row.cells.map((cell, i) => {
-                return <Td key={i}>{cell.render("Cell")}</Td>;
-              })}
+      {headerGroups.map((headerGroup) =>
+        headerGroup.headers.map((column) =>
+          column.Filter ? (
+            <Button m={2} key={column.id}>
+              <label htmlFor={column.id}>{column.render("Header")}: </label>
+              {column.render("Filter")}
+            </Button>
+          ) : null,
+        ),
+      )}
+      <Table>
+        <Thead>
+          {headerGroups.map((headerGroup, i) => (
+            <Tr {...headerGroup.getHeaderGroupProps()} key={i}>
+              {headerGroup.headers.map((column) => (
+                <Th {...column.getHeaderProps(column.getSortByToggleProps())}>
+                  {column.render("Header")}
+                  <chakra.span pl="4">
+                    {column.isSorted ? (
+                      column.isSortedDesc ? (
+                        <TriangleDownIcon aria-label="sorted descending" />
+                      ) : (
+                        <TriangleUpIcon aria-label="sorted ascending" />
+                      )
+                    ) : null}
+                  </chakra.span>
+                </Th>
+              ))}
             </Tr>
-          );
-        })}
-      </Tbody>
-    </Table>
+          ))}
+        </Thead>
+        <Tbody>
+          {rows.map((row, i) => {
+            prepareRow(row);
+            return (
+              <Tr key={i}>
+                {row.cells.map((cell, i) => {
+                  return <Td key={i}>{cell.render("Cell")}</Td>;
+                })}
+              </Tr>
+            );
+          })}
+        </Tbody>
+      </Table>
+    </>
   );
 };
 
