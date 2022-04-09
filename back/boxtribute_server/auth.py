@@ -57,6 +57,16 @@ def get_token_from_auth_header(header_string):
 
 
 def get_public_key(domain):
+    kid = os.getenv("AUTH0_JWKS_KID")
+    n = os.getenv("AUTH0_JWKS_N")
+    if kid and n:  # pragma: no cover
+        return {
+            "kty": "RSA",
+            "e": "AQAB",
+            "use": "sig",
+            "kid": kid,
+            "n": n,
+        }
     url = urllib.request.urlopen(f"https://{domain}/.well-known/jwks.json")
     jwks = json.loads(url.read())
     return jwks["keys"][0]

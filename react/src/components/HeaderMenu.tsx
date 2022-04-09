@@ -1,9 +1,25 @@
-import { useState } from "react";
-import { NavLink } from "react-router-dom";
+import { useContext, useState } from "react";
+import { Link, NavLink, useParams } from "react-router-dom";
 import { useAuth0 } from "@auth0/auth0-react";
-import { Box, Text, Button, Stack, Flex, Image, IconButton } from "@chakra-ui/react";
+import {
+  Box,
+  Text,
+  Button,
+  Stack,
+  Flex,
+  Image,
+  IconButton,
+  Img,
+  Menu,
+  MenuButton,
+  MenuDivider,
+  MenuGroup,
+  MenuItem,
+  MenuList,
+} from "@chakra-ui/react";
 import { AiFillCloseCircle, AiOutlineMenu } from "react-icons/ai";
 import BoxtributeLogo from "../Assets/images/boxtribute-logo.png";
+import { GlobalPreferencesContext } from "GlobalPreferencesProvider";
 
 const MenuToggle = ({ toggle, isOpen, ...props }) => (
   <IconButton
@@ -14,22 +30,67 @@ const MenuToggle = ({ toggle, isOpen, ...props }) => (
   />
 );
 
-const Logo = (props) => (
+const Logo = () => (
   <NavLink to="/">
     <Image src={BoxtributeLogo} maxH={"4em"} />
   </NavLink>
 );
 
-const LoginLogoutButton = () => {
-  const { isAuthenticated, logout, loginWithRedirect } = useAuth0();
+const BaseSwitcher = () => {
+  const { globalPreferences } = useContext(GlobalPreferencesContext);
+  const baseId = useParams<{ baseId: string }>().baseId;
   return (
-    <Button onClick={() => (isAuthenticated ? logout() : loginWithRedirect())}>
-      {isAuthenticated ? "Logout" : "Login"}
-    </Button>
+    <MenuGroup title="Bases">
+      {globalPreferences.availableBases?.map((base, i) => (
+        <MenuItem key={base.id}>
+          <Link
+            style={baseId === base.id ? { fontWeight: "bold" } : {}}
+            to={`/bases/${base.id}/locations`}
+          >
+            {base.name}
+          </Link>
+        </MenuItem>
+      ))}
+    </MenuGroup>
+  );
+};
+
+const UserMenu = () => {
+  const { logout, user } = useAuth0();
+
+  return (
+    <Menu>
+      <MenuButton
+        as={IconButton}
+        icon={<Img src={user?.picture} variant="outline" width={"10"} height={"10"} />}
+      />
+      <MenuList>
+        <BaseSwitcher />
+        <MenuDivider />
+        <MenuGroup>
+          <MenuItem>Profile</MenuItem>
+          <MenuItem>Change Organisation</MenuItem>
+        </MenuGroup>
+        <MenuDivider />
+        <MenuGroup>
+          <MenuItem onClick={() => logout()}>Logout</MenuItem>
+        </MenuGroup>
+      </MenuList>
+    </Menu>
+  );
+};
+
+const LoginOrUserMenuButton = () => {
+  const { isAuthenticated, logout, loginWithRedirect } = useAuth0();
+  return isAuthenticated ? (
+    <UserMenu />
+  ) : (
+    <Button onClick={() => (isAuthenticated ? logout() : loginWithRedirect())}>Login</Button>
   );
 };
 
 const MenuLinks = ({ isOpen, onLinkClick, ...props }) => {
+  const baseId = useParams<{ baseId: string }>().baseId;
   const MenuItem = ({ to, text, ...props }) => (
     <NavLink
       onClick={onLinkClick}
@@ -50,10 +111,9 @@ const MenuLinks = ({ isOpen, onLinkClick, ...props }) => {
         direction={["column", "row", "row", "row"]}
         pt={[4, 4, 0, 0]}
       >
-        <LoginLogoutButton />
-        <MenuItem to="/" text="Home" />
-        <MenuItem to="/locations" text="Locations" />
-        <MenuItem to="/boxes" text="Boxes" />
+        <LoginOrUserMenuButton />
+        <MenuItem to={`/bases/${baseId}/locations`} text="Locations" />
+        <MenuItem to={`/bases/${baseId}/boxes`} text="Boxes" />
       </Stack>
     </Box>
   );
@@ -82,7 +142,7 @@ const Header = () => {
 
   return (
     <NavBarContainer>
-      <Logo maxHeight="10px" visibility={isMenuOpen ? "hidden" : "visible"} />
+      <Logo/>
       <MenuToggle
         toggle={toggle}
         isOpen={isMenuOpen}

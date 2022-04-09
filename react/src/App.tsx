@@ -1,37 +1,64 @@
 import 'regenerator-runtime/runtime';
-import React from "react";
+import React, { useContext, useEffect } from "react";
 import { Route, Routes } from "react-router-dom";
-import { useAuth0, withAuthenticationRequired } from "@auth0/auth0-react";
-import Home from "views/Home";
 import Boxes from "views/boxes/Boxes";
 import Locations from "views/locations/Locations";
 import BTLocation from "views/locations/BTLocation";
 import Layout from "Layout";
+import AutomaticBaseSwitcher from "views/automatic-base-switcher/AutomaticBaseSwitcher";
+import { gql, useLazyQuery } from "@apollo/client";
+import { BasesQuery } from "generated/graphql";
+import { GlobalPreferencesContext } from "GlobalPreferencesProvider";
 
-const AuthenticationProtected = ({ element, ...props }) =>
-  withAuthenticationRequired(element, {
-    onRedirecting: () => <p>Loading ...</p>,
-  })(props);
+const useLoadAndSetAvailableBases = () => {
+  const BASES_QUERY = gql`
+    query Bases {
+      bases {
+        id
+        name
+      }
+    }
+  `;
 
-export default function App() {
-  const { isLoading: auth0Loading } = useAuth0();
+  const [runBaseQuery, { loading, data }] = useLazyQuery<BasesQuery>(BASES_QUERY);
+  const { globalPreferences, dispatch } = useContext(GlobalPreferencesContext);
 
-  if (auth0Loading) {
-    return <p>Loading...</p>;
-  }
+  useEffect(() => {
+    if (globalPreferences.availableBases == null) {
+      runBaseQuery();
+    }
+  }, [runBaseQuery, globalPreferences.availableBases]);
 
+  useEffect(() => {
+    if (!loading && data != null) {
+      const bases = data.bases;
+      dispatch({
+        type: "setAvailableBases",
+        payload: bases,
+      });
+    }
+  }, [data, loading, dispatch]);
+};
+
+const App = () => {
+  useLoadAndSetAvailableBases();
   return (
-    <>
-      <Routes>
-        <Route path="/" element={<Layout />}>
-          <Route index element={<Home />}></Route>
-          <Route path="boxes" element={<AuthenticationProtected element={Boxes} />} />
-          <Route path="locations">
-            <Route index element={<AuthenticationProtected element={Locations} />} />
-            <Route path=":locationId" element={<AuthenticationProtected element={BTLocation} />} />
+    <Routes>
+      <Route path="/">
+        <Route index element={<AutomaticBaseSwitcher />}></Route>
+        <Route path="bases" element={<Layout />}>
+          <Route index element={<AutomaticBaseSwitcher />}></Route>
+          <Route path=":baseId">
+            <Route path="locations">
+              <Route index element={<Locations />} />
+              <Route path=":locationId" element={<BTLocation />} />
+            </Route>
+            <Route path="boxes" element={<Boxes />} />
           </Route>
         </Route>
-      </Routes>
-    </>
+      </Route>
+    </Routes>
   );
-}
+};
+
+export default App;
