@@ -11,6 +11,8 @@ Substitute one of these file paths for `some-config.yml` in the command examples
 
 You can run `spectaql` in your local environment, or via a provided Docker image. Select one of the following acc. to your taste.
 
+First of all change the current directory to `docs/graphql-api/`.
+
 #### Local installation
 
 1. Run `npm install`

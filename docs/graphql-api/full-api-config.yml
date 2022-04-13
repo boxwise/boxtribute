@@ -190,8 +190,8 @@ servers:
 
   # same format as for OpenAPI Specification https://swagger.io/specification/#server-object
 
-  - url: https://www.boxtribute.org/graphql
-    description: Production Server
+  - url: localhost:5005/graphql
+    description: GraphQL Server
     # Indicates to use this server's URL as the typical GraphQL request base in the documentation
     # If no server entries have this indicator, the first server's URL will be used.
     # If no server entries are defined at all, the Introspection URL will be used.
@@ -247,11 +247,18 @@ info:
     # Can be a Title (for the Nav panel) + description (for the Content panel)
     - title: Login to boxtribute web app
       url: https://www.app.boxtribute.org
+    - title: GraphQL API
+      url: localhost:5005/graphql
     - title: Terms of Service
       description: |
           In line with the Service Agreement and other related documents as signed with [Boxtribute](https://boxtribute.org) (Stichting Boxwise)
     - title: Authentication and Authorization
-      description: Lorem ipsum explain how to authenticate, and what clients are authorized for
+      description: |
+          For using the API, you have to authenticate, and then are given a unique token holding your user information and permissions. You have to pass the token along when requesting data from the API.
+          1. Use the `fetch_token` script to obtain a test user JWT. See the back-end README for details.
+          1. Copy the content of the `access_token` field of the response JSON
+          1. Paste the token into the HTTP headers when sending a request to the API, like `{"Authorization": "Bearer TOKEN"}`
+          1. When using the GraphQL Playground, paste the header into the respective field in the bottom left.
 
   # If you really want to hide the "Documentation by" at the bottom of your output, you can do so here
   # Default: false
@@ -259,4 +266,4 @@ info:
 
   # If not using introspection.url OR servers[], you need to provide x-url
   # to satisfy the URL Swagger requirement. This allows for that.
-  x-url: https://www.boxtribute.org/graphql
+  x-url: localhost:5005/graphql
