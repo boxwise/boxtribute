@@ -84,10 +84,10 @@
   },
   "SCALAR": {
     "Datetime": {
-      "documentation": { "example": "\"2016-10-17T01:08:03\"" }
+      "documentation": { "example": "2016-10-17T01:08:03" }
     },
     "Date": {
-      "documentation": { "example": "\"2020-11-20\"" }
+      "documentation": { "example": "2020-11-20" }
     }
   },
   "INPUT_OBJECT": {
@@ -110,7 +110,7 @@
     "FilterBoxInput": {
       "inputFields": {
         "states": {
-          "documentation": { "example": "[InStock]" }
+          "documentation": { "example": "InStock" }
         }
       }
     }
