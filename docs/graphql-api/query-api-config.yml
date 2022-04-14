@@ -6,17 +6,6 @@ spectaql:
   logoFile: ../../react/src/Assets/images/Boxtribute Main Logo-03@2x.png
   # Optional path to an image to use as a favicon for the site when it's not embedded
   # faviconFile: path/to/favicon.png
-  # Optional path to a JS file that will be bundled into the spectaql.min.js with all the other
-  # required JS. Can be useful for setting some values, such as for the Traverse.defaults object
-  # additionalJsFile: path/to/additional.js
-
-  # Optional string specifying how to build and include CSS for the output:
-  #   full: will include a very opinionated set of CSS to make the output look good
-  #   basic: will include a very minimal set of CSS mostly used for layout purposes.
-  #     You can then season to taste with your own additional CSS
-  #
-  # Default: full
-  cssBuildMode: full # or basic
 
 
 introspection:
@@ -31,7 +20,7 @@ introspection:
   #
 
   # URL of the GraphQL endpoint to hit if you want to generate the documentation based on live Introspection Query results
-  # NOTE: If not using introspection.url OR servers[], you need to provide x-swaggerUrl
+  # NOTE: If not using introspection.url OR servers[], you need to provide x-url
   # to satisfy the URL Swagger requirement.
   # url: https://yoursite.com/graphql
 
@@ -174,10 +163,10 @@ introspection:
 
   # Whether to document any Types at all
   # Default: true
-  typesDocumented: true
+  objectsDocumentedDefault: true
   # Whether to document an individual Type, in the absence of a metadata directive
   # Default: true
-  typeDocumentedDefault: true
+  objectDocumentedDefault: true
   # Whether to document an individual Field, in the absence of a metadata directive
   # Default: true
   fieldDocumentedDefault: true
@@ -187,14 +176,14 @@ introspection:
   # Hide any fields with undocumented return types so as not to reference something
   # that seemingly does not exist.
   # Default: true
-  hideFieldsWithUndocumentedReturnType: true
+  hideFieldsOfUndocumentedType: true
 
   #
   #
   ##############################################
 
 servers:
-  # NOTE: If not using introspection.url OR servers[], you need to provide x-swaggerUrl
+  # NOTE: If not using introspection.url OR servers[], you need to provide x-url
   # to satisfy the URL Swagger requirement.
 
   # same format as for OpenAPI Specification https://swagger.io/specification/#server-object
@@ -280,4 +269,4 @@ info:
 
   # If not using introspection.url OR servers[], you need to provide x-swaggerUrl
   # to satisfy the URL Swagger requirement. This allows for that.
-  x-swaggerUrl: https://api.boxtribute.org
+  x-url: https://api.boxtribute.org
