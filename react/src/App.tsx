@@ -1,3 +1,4 @@
+import 'regenerator-runtime/runtime';
 import React, { useContext, useEffect } from "react";
 import { Route, Routes } from "react-router-dom";
 import Boxes from "views/boxes/Boxes";

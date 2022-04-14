@@ -36,9 +36,10 @@ describe("Locations view", () => {
     },
   ];
   beforeEach(() => {
-    render(<Route path="/bases/:baseId/locations" element={<Locations />}></Route>, {
-      mocks,
+    render(<Locations />, {
+      routePath: "/bases/:baseId/locations",
       initialUrl: "/bases/123/locations",
+      mocks
     });
   });
   it("renders with an initial 'Loading...'", async () => {
