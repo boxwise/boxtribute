@@ -7,6 +7,7 @@ def data():
         {"id": 12, "name": "Clothing", "parent": None},
         {"id": 13, "name": "Equipment", "parent": None},
         {"id": 1, "name": "Underwear / Nightwear", "parent": 12},
+        {"id": 6, "name": "Jackets / Outerwear", "parent": 12},
         {"id": 14, "name": "Toys & Games", "parent": 13},
     ]
 

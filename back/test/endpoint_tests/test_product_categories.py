@@ -30,5 +30,5 @@ def test_product_categories_query(read_only_client):
                 }
             }"""
     queried_categories = assert_successful_request(read_only_client, query)
-    assert len(queried_categories) == 4
-    assert len([c for c in queried_categories if c["hasGender"]]) == 1
+    assert len(queried_categories) == 5
+    assert len([c for c in queried_categories if c["hasGender"]]) == 2
