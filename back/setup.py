@@ -14,4 +14,9 @@ setup(
     license="Apache 2.0",
     packages=find_packages(exclude=["test"]),
     install_requires=REQUIREMENTS,
+    entry_points={
+        "console_scripts": [
+            "bwiz = boxtribute_server.setup_wizard:main",
+        ],
+    },
 )

@@ -75,7 +75,3 @@ def main(args=None):
     command = options.pop("command")
     if command == "import-products":
         _import_products(**options)
-
-
-if __name__ == "__main__":
-    main()
