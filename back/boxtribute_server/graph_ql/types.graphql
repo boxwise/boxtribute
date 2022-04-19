@@ -131,6 +131,13 @@ type Location {
   lastModifiedOn: Datetime
 }
 
+type DistributionSpot {
+  id: ID!
+  name: String
+  Lat: Float
+  Long: Float
+}
+
 """
 Utility type holding a page of [`Boxes`]({{Types.Box}}).
 """
