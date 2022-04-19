@@ -3,7 +3,7 @@
 """
 Representation of a box storing items of a [`Product`]({{Types.Product}}) in a [`Location`]({{Types.Location}})
 """
-type Box {
+type PhysicalBox {
   id: ID!
   " Sequence of numbers for identifying the box, usually written on box label "
   labelIdentifier: String!
@@ -21,6 +21,13 @@ type Box {
   lastModifiedOn: Datetime
   comment: String
 }
+
+union Box = PhysicalBox | VirtualBox # | PackedOrder 
+# (PackedOrder could contain different product types, genders, sizes etc - probably too)
+# thats probably too much of a semantic/functional difference? 
+# Probably better to have PackedOrders (or maybe just Orders? with a kind field for `onsite`, `pre-order` etc?) as a dedicated type?
+
+
 
 """
 Representation of a QR code, possibly associated with a [`Box`]({{Types.Box}}).
@@ -116,7 +123,7 @@ type SizeRange {
 Representation of a physical location used to store [`Boxes`]({{Types.Box}}).
 The location is part of a specific [`Base`]({{Types.Base}}).
 """
-type Location {
+type PhysicalLocation {
   id: ID!
   base: Base
   name: String
@@ -131,12 +138,31 @@ type Location {
   lastModifiedOn: Datetime
 }
 
+
+
+union Location = PhysicalLocation | MobileDistributionEvent
+
+type MobileDistributionEvent {
+  id: ID!
+  distributionSpot: DistributionSpot!
+  date: Date
+}
+
 type DistributionSpot {
   id: ID!
   name: String
   Lat: Float
   Long: Float
 }
+
+type IncomingStockEvent {
+
+}
+
+type OutgoingStockEvent {
+  
+}
+
 
 """
 Utility type holding a page of [`Boxes`]({{Types.Box}}).
