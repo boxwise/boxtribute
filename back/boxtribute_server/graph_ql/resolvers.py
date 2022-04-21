@@ -104,13 +104,39 @@ def resolve_bases(*_):
 
 
 @stockAvailability.field("product")
-def resolve_stock_availabilities(*_): 
+def resolve_stock_availability_product(*_): 
     product = Product.get()
     return product
 
+
+
+# @location.field("boxes")
+# @convert_kwargs_to_snake_case
+# def resolve_location_boxes(location_obj, _, pagination_input=None, filter_input=None):
+#     authorize(permission="stock:read")
+#     location_filter_condition = Box.location == location_obj.id
+#     filter_condition = location_filter_condition & derive_box_filter(filter_input)
+#     selection = Box.select()
+#     if filter_input is not None and any(
+#         [f in filter_input for f in ["product_gender", "product_category_id"]]
+#     ):
+#         selection = Box.select().join(Product)
+#     return load_into_page(
+#         Box, filter_condition, selection=selection, pagination_input=pagination_input
+#     )
+
+
+
+@base.field("stockAvailabilities")
 @convert_kwargs_to_snake_case
-@query.field("stockAvailabilities")
-def resolve_stock_availabilities(*_): 
+def resolve_base_stock_availabilities(base_obj, _): 
+    
+    print("convert_kwargs_to_snake_case - base_obj.id")
+    print(base_obj.id)
+    # print("FOO - obj")
+    # print(obj)
+    # print("FOO - id")
+    # print(id)
     return [
         {
             "stock_number": 123, 
@@ -174,6 +200,8 @@ def resolve_qr_code(obj, _, qr_code=None):
 @query.field("product")
 @box.field("product")
 def resolve_product(obj, _, id=None):
+    # print("resolve_product#obj")
+    # print(obj)
     product = obj.product if id is None else Product.get_by_id(id)
     authorize(permission="product:read", base_id=product.base_id)
     return product
@@ -513,6 +541,8 @@ def resolve_send_shipment(*_, id):
 
 @base.field("locations")
 def resolve_base_locations(base_obj, _):
+    print("resolve_base_locations - base_obj.id")
+    print(base_obj.id)
     authorize(permission="location:read")
     return Location.select().where(Location.base == base_obj.id)
 

@@ -186,6 +186,7 @@ type Base {
   " List of all [`Beneficiaries`]({{Types.Beneficiary}}) registered in this base "
   beneficiaries(paginationInput: PaginationInput, filterInput: FilterBeneficiaryInput): BeneficiaryPage!
   currencyName: String
+  stockAvailabilities: [StockAvailability!]!
 }
 
 """
