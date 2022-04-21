@@ -100,22 +100,25 @@ def resolve_bases(*_):
 
 
 
-# @stockAvailability.field("size")
-# def resolve_stock_availability_size_(*_): 
-#     return "xl"
+
+
 
 @stockAvailability.field("product")
 def resolve_stock_availabilities(*_): 
     product = Product.get()
     return product
 
+@convert_kwargs_to_snake_case
 @query.field("stockAvailabilities")
 def resolve_stock_availabilities(*_): 
-    # product = Product.get()
-    # return product
     return [
         {
-            "size": "xl"
+            "stock_number": 123, 
+            "size": "S"
+        },
+        {
+            "stock_number": 975293939, 
+            "size": "XL"
         }
     ]
 
