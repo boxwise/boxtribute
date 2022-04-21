@@ -472,3 +472,42 @@ type StockOverview {
   numberOfBoxes: Int
   numberOfItems: Int
 }
+
+
+
+# query stockTest {
+#   stockAvailability {
+#     elements {
+#       product {
+#         id
+#         name
+#         #       # localisedAttributes {
+#         #       #   name
+#         #       # }
+#         category {
+#           name
+#           # localisedAttributes {
+#           #   name
+#           # }
+#         }
+#         gender
+#         # ...
+#       }
+#       size
+#       currentStockSize
+#     }
+#   }
+# }
+
+
+# type ProductStockAvailabilityPage {
+#   elements: [Product!]!
+#   pageInfo: PageInfo!
+#   totalCount: Int!
+# }
+
+type StockAvailability {
+  product: Product!
+  size: String!
+  currentAvailableStock: Int!
+}

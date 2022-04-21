@@ -76,6 +76,7 @@ shipment = _register_object_type("Shipment")
 shipment_detail = _register_object_type("ShipmentDetail")
 transfer_agreement = _register_object_type("TransferAgreement")
 user = _register_object_type("User")
+stockAvailability = _register_object_type("StockAvailability")
 
 
 def _base_filter_condition(permission):
@@ -94,6 +95,32 @@ def _base_filter_condition(permission):
 def resolve_bases(*_):
     authorize(permission="base:read")
     return Base.select().where(_base_filter_condition("base:read"))
+
+
+
+
+
+# @stockAvailability.field("size")
+# def resolve_stock_availability_size_(*_): 
+#     return "xl"
+
+@stockAvailability.field("product")
+def resolve_stock_availabilities(*_): 
+    product = Product.get()
+    return product
+
+@query.field("stockAvailabilities")
+def resolve_stock_availabilities(*_): 
+    # product = Product.get()
+    # return product
+    return [
+        {
+            "size": "xl"
+        }
+    ]
+
+
+
 
 
 @query.field("base")
