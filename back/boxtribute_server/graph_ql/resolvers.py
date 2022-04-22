@@ -140,6 +140,8 @@ def resolve_base_stock_availabilities(base_obj, _):
     print(base_obj.name)
 
     boxes_for_base = Location.select().where(Location.base == base_obj.id).join(Box).join(Size, Product).select(Size.label).group_by(Product.id, Box.size)
+    print("FOO - boxes_for_base")
+    print(boxes_for_base)
 
 
     # select p.id as product_id, SUM(stck.items), si.label as size,  p.*
@@ -151,16 +153,13 @@ def resolve_base_stock_availabilities(base_obj, _):
     # group by p.id, stck.size_id
     # order by p.name
 
-
-    print("FOO - boxes_for_base")
-    print(boxes_for_base)
     # print("FOO - obj")
     # print(obj)
     # print("FOO - id")
     # print(id)
 
     FOO_stats = (
-        Location.select(Product, fn.SUM(Box.items).alias("stock_number"), Size.label.alias("size"))
+        Location.select(Product, fn.SUM(Box.items).alias("available_items"), Size.label.alias("size"))
                         .where(Location.base == base_obj.id) 
                         .join(Box, on=(Box.location == Location.id))
                         .join(Product, on=(Product.id == Box.product))
@@ -188,10 +187,10 @@ def resolve_base_stock_availabilities(base_obj, _):
     # ]
 
 
-@stockAvailability.field("product")
-def resolve_stock_availability_product(*_): 
-    product = Product.get()
-    return product
+# @stockAvailability.field("product")
+# def resolve_stock_availability_product(*_): 
+#     product = Product.get()
+#     return product
 
 
 

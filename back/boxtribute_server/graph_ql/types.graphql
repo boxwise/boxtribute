@@ -510,7 +510,7 @@ type StockOverview {
 type StockAvailability {
   numberOfAvailableItems: Int!
   product: Product!
-  size: String!
-  stockNumber: Int!
+  size: String
+  availableItems: Int!
   # locations: [Location!]!
 }
