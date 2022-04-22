@@ -512,4 +512,5 @@ type StockAvailability {
   product: Product!
   size: String!
   stockNumber: Int!
+  # locations: [Location!]!
 }

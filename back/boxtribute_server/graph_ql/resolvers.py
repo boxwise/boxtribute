@@ -103,12 +103,6 @@ def resolve_bases(*_):
 
 
 
-@stockAvailability.field("product")
-def resolve_stock_availability_product(*_): 
-    product = Product.get()
-    return product
-
-
 
 # @location.field("boxes")
 # @convert_kwargs_to_snake_case
@@ -127,12 +121,26 @@ def resolve_stock_availability_product(*_):
 
 
 
+
+# @stockAvailability.field("locations")
+# @convert_kwargs_to_snake_case
+# def resolve_stock_availability_locations(stock_availability, _): 
+#     print("FOO: stock_availability")
+#     print(stock_availability)
+#     locations_for_base = Location.select().where(Location.base == stock_availability["base_id"])
+#     return locations_for_base
+
+
 @base.field("stockAvailabilities")
 @convert_kwargs_to_snake_case
 def resolve_base_stock_availabilities(base_obj, _): 
     
     print("convert_kwargs_to_snake_case - base_obj.id")
     print(base_obj.id)
+    print(base_obj.name)
+    boxes_for_base = Location.select().where(Location.base == base_obj.id).join(Box).join(Product).join(Size).select(Size.label).group_by(Product.id, Box.size)
+    print("FOO - boxes_for_base")
+    print(boxes_for_base)
     # print("FOO - obj")
     # print(obj)
     # print("FOO - id")
@@ -140,13 +148,22 @@ def resolve_base_stock_availabilities(base_obj, _):
     return [
         {
             "stock_number": 123, 
-            "size": "S"
+            "size": "S", 
+            "base_id": base_obj.id
         },
         {
             "stock_number": 975293939, 
-            "size": "XL"
+            "size": "XL",
+            "base_id": base_obj.id
         }
     ]
+
+
+@stockAvailability.field("product")
+def resolve_stock_availability_product(*_): 
+    product = Product.get()
+    return product
+
 
 
 
