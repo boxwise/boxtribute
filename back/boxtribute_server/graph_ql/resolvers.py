@@ -141,19 +141,6 @@ def resolve_base_stock_availabilities(base_obj, _):
 
     boxes_for_base = Location.select().where(Location.base == base_obj.id).join(Box).join(Size, Product).select(Size.label).group_by(Product.id, Box.size)
 
-    FOO_stats = (
-        Location.select(Product, fn.SUM(Box.items), Size.label)
-                        .where(Location.base == base_obj.id) 
-                        .join(Box, on=(Box.location == Location.id))
-                        .join(Product, on=(Product.id == Box.product))
-                        .join(Size, on=(Size.id == Box.size))
-                        .group_by(Product, Size)                
-    )
-
-
-    print("FOO_stats")
-    print(FOO_stats)
-
 
     # select p.id as product_id, SUM(stck.items), si.label as size,  p.*
     # from locations l 
@@ -171,18 +158,34 @@ def resolve_base_stock_availabilities(base_obj, _):
     # print(obj)
     # print("FOO - id")
     # print(id)
-    return [
-        {
-            "stock_number": 123, 
-            "size": "S", 
-            # "base_id": base_obj.id
-        },
-        {
-            "stock_number": 975293939, 
-            "size": "XL",
-            # "base_id": base_obj.id
-        }
-    ]
+
+    FOO_stats = (
+        Location.select(Product, fn.SUM(Box.items).alias("stock_number"), Size.label.alias("size"))
+                        .where(Location.base == base_obj.id) 
+                        .join(Box, on=(Box.location == Location.id))
+                        .join(Product, on=(Product.id == Box.product))
+                        .join(Size, on=(Size.id == Box.size))
+                        .group_by(Product, Size)                
+    )
+
+
+    print("FOO_stats")
+    print(FOO_stats)
+
+    return FOO_stats
+
+    # return [
+    #     {
+    #         "stock_number": 123, 
+    #         "size": "S", 
+    #         # "base_id": base_obj.id
+    #     },
+    #     {
+    #         "stock_number": 975293939, 
+    #         "size": "XL",
+    #         # "base_id": base_obj.id
+    #     }
+    # ]
 
 
 @stockAvailability.field("product")
