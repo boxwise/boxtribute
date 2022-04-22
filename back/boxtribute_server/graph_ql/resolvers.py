@@ -138,7 +138,21 @@ def resolve_base_stock_availabilities(base_obj, _):
     print("convert_kwargs_to_snake_case - base_obj.id")
     print(base_obj.id)
     print(base_obj.name)
+
     boxes_for_base = Location.select().where(Location.base == base_obj.id).join(Box).join(Size, Product).select(Size.label).group_by(Product.id, Box.size)
+
+    FOO_stats = (
+        Location.select(Product, fn.SUM(Box.items), Size.label)
+                        .where(Location.base == base_obj.id) 
+                        .join(Box, on=(Box.location == Location.id))
+                        .join(Product, on=(Product.id == Box.product))
+                        .join(Size, on=(Size.id == Box.size))
+                        .group_by(Product, Size)                
+    )
+
+
+    print("FOO_stats")
+    print(FOO_stats)
 
 
     # select p.id as product_id, SUM(stck.items), si.label as size,  p.*
