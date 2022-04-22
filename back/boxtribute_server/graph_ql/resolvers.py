@@ -138,7 +138,19 @@ def resolve_base_stock_availabilities(base_obj, _):
     print("convert_kwargs_to_snake_case - base_obj.id")
     print(base_obj.id)
     print(base_obj.name)
-    boxes_for_base = Location.select().where(Location.base == base_obj.id).join(Box).join(Product).join(Size).select(Size.label).group_by(Product.id, Box.size)
+    boxes_for_base = Location.select().where(Location.base == base_obj.id).join(Box).join(Size, Product).select(Size.label).group_by(Product.id, Box.size)
+
+
+    # select p.id as product_id, SUM(stck.items), si.label as size,  p.*
+    # from locations l 
+    # inner join stock stck ON stck.location_id = l.id
+    # inner join products p on p.id = stck.product_id
+    # inner join sizes si on si.id = stck.size_id 
+    # where l.camp_id = 1
+    # group by p.id, stck.size_id
+    # order by p.name
+
+
     print("FOO - boxes_for_base")
     print(boxes_for_base)
     # print("FOO - obj")
@@ -149,12 +161,12 @@ def resolve_base_stock_availabilities(base_obj, _):
         {
             "stock_number": 123, 
             "size": "S", 
-            "base_id": base_obj.id
+            # "base_id": base_obj.id
         },
         {
             "stock_number": 975293939, 
             "size": "XL",
-            "base_id": base_obj.id
+            # "base_id": base_obj.id
         }
     ]
 
