@@ -523,6 +523,9 @@ union PreOrderFormModule = PreOrderMedicalHelpFormModule | PreOrderShopFormModul
 
 type PreOrderFormSubmission {
   id: ID!
+  # preOrderForm: PreOrderForm!
+  preOrderFormId: ID!
+  date: Datetime!
   formModuleData: [PreOrderFormModuleData!]!
 }
 
