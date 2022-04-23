@@ -153,12 +153,7 @@ def resolve_base_stock_availabilities(base_obj, _):
     # group by p.id, stck.size_id
     # order by p.name
 
-    # print("FOO - obj")
-    # print(obj)
-    # print("FOO - id")
-    # print(id)
-
-    FOO_stats = (
+    stats = (
         Location.select(Product, fn.SUM(Box.items).alias("available_items"), Size.label.alias("size"))
                         .where(Location.base == base_obj.id) 
                         .join(Box, on=(Box.location == Location.id))
@@ -168,10 +163,10 @@ def resolve_base_stock_availabilities(base_obj, _):
     )
 
 
-    print("FOO_stats")
-    print(FOO_stats)
+    print("stats")
+    print(stats)
 
-    return FOO_stats
+    return stats
 
     # return [
     #     {

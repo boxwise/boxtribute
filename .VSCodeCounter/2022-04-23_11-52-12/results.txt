@@ -1,0 +1,159 @@
+Date : 2022-04-23 11:52:12
+Directory : /Users/danielspaude/code/boxtribute/boxtribute/back
+Total : 115 files,  7658 codes, 1749 comments, 1760 blanks, all 11167 lines
+
+Languages
++------------------+------------+------------+------------+------------+------------+
+| language         | files      | code       | comment    | blank      | total      |
++------------------+------------+------------+------------+------------+------------+
+| Python           |        103 |      5,651 |      1,255 |      1,317 |      8,223 |
+| SQL              |          1 |      1,180 |        282 |        188 |      1,650 |
+| GraphQL          |          4 |        486 |        161 |         87 |        734 |
+| Markdown         |          1 |        221 |          0 |        143 |        364 |
+| JavaScript       |          1 |         37 |         43 |         10 |         90 |
+| YAML             |          2 |         34 |          0 |          2 |         36 |
+| Properties       |          1 |         25 |          0 |          6 |         31 |
+| Docker           |          1 |         14 |          8 |          6 |         28 |
+| pip requirements |          1 |         10 |          0 |          1 |         11 |
++------------------+------------+------------+------------+------------+------------+
+
+Directories
++-----------------------------------------------------------------------------------------------------------------------+------------+------------+------------+------------+------------+
+| path                                                                                                                  | files      | code       | comment    | blank      | total      |
++-----------------------------------------------------------------------------------------------------------------------+------------+------------+------------+------------+------------+
+| .                                                                                                                     |        115 |      7,658 |      1,749 |      1,760 |     11,167 |
+| boxtribute_server                                                                                                     |         52 |      3,168 |        601 |        704 |      4,473 |
+| boxtribute_server/box_transfer                                                                                        |          3 |        392 |         95 |         67 |        554 |
+| boxtribute_server/graph_ql                                                                                            |         12 |      1,235 |        322 |        342 |      1,899 |
+| boxtribute_server/models                                                                                              |         28 |      1,095 |        104 |        172 |      1,371 |
+| boxtribute_server/models/definitions                                                                                  |         23 |        792 |          9 |        107 |        908 |
+| scripts                                                                                                               |          2 |         64 |         51 |         20 |        135 |
+| test                                                                                                                  |         52 |      2,924 |        802 |        686 |      4,412 |
+| test/auth_tests                                                                                                       |          3 |         97 |          0 |         27 |        124 |
+| test/data                                                                                                             |         22 |        875 |         17 |        273 |      1,165 |
+| test/endpoint_tests                                                                                                   |         17 |      1,491 |        633 |        261 |      2,385 |
+| test/integration_tests                                                                                                |          4 |        142 |         41 |         38 |        221 |
+| test/model_tests                                                                                                      |          3 |        144 |         22 |         35 |        201 |
++-----------------------------------------------------------------------------------------------------------------------+------------+------------+------------+------------+------------+
+
+Files
++-----------------------------------------------------------------------------------------------------------------------+------------------+------------+------------+------------+------------+
+| filename                                                                                                              | language         | code       | comment    | blank      | total      |
++-----------------------------------------------------------------------------------------------------------------------+------------------+------------+------------+------------+------------+
+| /Users/danielspaude/code/boxtribute/boxtribute/back/Dockerfile                                                        | Docker           |         14 |          8 |          6 |         28 |
+| /Users/danielspaude/code/boxtribute/boxtribute/back/README.md                                                         | Markdown         |        221 |          0 |        143 |        364 |
+| /Users/danielspaude/code/boxtribute/boxtribute/back/app-api.yaml                                                      | YAML             |         15 |          0 |          1 |         16 |
+| /Users/danielspaude/code/boxtribute/boxtribute/back/app.yaml                                                          | YAML             |         19 |          0 |          1 |         20 |
+| /Users/danielspaude/code/boxtribute/boxtribute/back/boxtribute_server/__init__.py                                     | Python           |          2 |          0 |          2 |          4 |
+| /Users/danielspaude/code/boxtribute/boxtribute/back/boxtribute_server/app.py                                          | Python           |         11 |          4 |          8 |         23 |
+| /Users/danielspaude/code/boxtribute/boxtribute/back/boxtribute_server/auth.py                                         | Python           |        171 |         34 |         34 |        239 |
+| /Users/danielspaude/code/boxtribute/boxtribute/back/boxtribute_server/authz.py                                        | Python           |         38 |         11 |          7 |         56 |
+| /Users/danielspaude/code/boxtribute/boxtribute/back/boxtribute_server/box_transfer/__init__.py                        | Python           |          0 |          0 |          1 |          1 |
+| /Users/danielspaude/code/boxtribute/boxtribute/back/boxtribute_server/box_transfer/agreement.py                       | Python           |        128 |         35 |         20 |        183 |
+| /Users/danielspaude/code/boxtribute/boxtribute/back/boxtribute_server/box_transfer/shipment.py                        | Python           |        264 |         60 |         46 |        370 |
+| /Users/danielspaude/code/boxtribute/boxtribute/back/boxtribute_server/db.py                                           | Python           |          7 |          4 |          4 |         15 |
+| /Users/danielspaude/code/boxtribute/boxtribute/back/boxtribute_server/enums.py                                        | Python           |         45 |          4 |         18 |         67 |
+| /Users/danielspaude/code/boxtribute/boxtribute/back/boxtribute_server/exceptions.py                                   | Python           |         88 |         13 |         25 |        126 |
+| /Users/danielspaude/code/boxtribute/boxtribute/back/boxtribute_server/graph_ql/__init__.py                            | Python           |          0 |          0 |          1 |          1 |
+| /Users/danielspaude/code/boxtribute/boxtribute/back/boxtribute_server/graph_ql/definitions.py                         | Python           |          8 |          2 |          5 |         15 |
+| /Users/danielspaude/code/boxtribute/boxtribute/back/boxtribute_server/graph_ql/enums.py                               | Python           |         19 |          0 |          3 |         22 |
+| /Users/danielspaude/code/boxtribute/boxtribute/back/boxtribute_server/graph_ql/filtering.py                           | Python           |         56 |          9 |         17 |         82 |
+| /Users/danielspaude/code/boxtribute/boxtribute/back/boxtribute_server/graph_ql/inputs.graphql                         | GraphQL          |         74 |          8 |          9 |         91 |
+| /Users/danielspaude/code/boxtribute/boxtribute/back/boxtribute_server/graph_ql/mutations.graphql                      | GraphQL          |         15 |          5 |          3 |         23 |
+| /Users/danielspaude/code/boxtribute/boxtribute/back/boxtribute_server/graph_ql/pagination.py                          | Python           |        102 |         80 |         31 |        213 |
+| /Users/danielspaude/code/boxtribute/boxtribute/back/boxtribute_server/graph_ql/queries.graphql                        | GraphQL          |         33 |          6 |          1 |         40 |
+| /Users/danielspaude/code/boxtribute/boxtribute/back/boxtribute_server/graph_ql/resolvers.py                           | Python           |        522 |         70 |        185 |        777 |
+| /Users/danielspaude/code/boxtribute/boxtribute/back/boxtribute_server/graph_ql/scalars.py                             | Python           |         14 |          0 |          9 |         23 |
+| /Users/danielspaude/code/boxtribute/boxtribute/back/boxtribute_server/graph_ql/schema.py                              | Python           |         28 |          0 |          4 |         32 |
+| /Users/danielspaude/code/boxtribute/boxtribute/back/boxtribute_server/graph_ql/types.graphql                          | GraphQL          |        364 |        142 |         74 |        580 |
+| /Users/danielspaude/code/boxtribute/boxtribute/back/boxtribute_server/main.py                                         | Python           |         15 |          1 |          3 |         19 |
+| /Users/danielspaude/code/boxtribute/boxtribute/back/boxtribute_server/models/__init__.py                              | Python           |          0 |          0 |          1 |          1 |
+| /Users/danielspaude/code/boxtribute/boxtribute/back/boxtribute_server/models/crud.py                                  | Python           |        171 |         32 |         31 |        234 |
+| /Users/danielspaude/code/boxtribute/boxtribute/back/boxtribute_server/models/definitions/__init__.py                  | Python           |          0 |          0 |          1 |          1 |
+| /Users/danielspaude/code/boxtribute/boxtribute/back/boxtribute_server/models/definitions/base.py                      | Python           |         97 |          0 |          6 |        103 |
+| /Users/danielspaude/code/boxtribute/boxtribute/back/boxtribute_server/models/definitions/beneficiary.py               | Python           |         94 |          0 |          5 |         99 |
+| /Users/danielspaude/code/boxtribute/boxtribute/back/boxtribute_server/models/definitions/box.py                       | Python           |         93 |          6 |          5 |        104 |
+| /Users/danielspaude/code/boxtribute/boxtribute/back/boxtribute_server/models/definitions/box_state.py                 | Python           |          6 |          0 |          5 |         11 |
+| /Users/danielspaude/code/boxtribute/boxtribute/back/boxtribute_server/models/definitions/history.py                   | Python           |         23 |          0 |          5 |         28 |
+| /Users/danielspaude/code/boxtribute/boxtribute/back/boxtribute_server/models/definitions/language.py                  | Python           |         13 |          0 |          5 |         18 |
+| /Users/danielspaude/code/boxtribute/boxtribute/back/boxtribute_server/models/definitions/location.py                  | Python           |         52 |          0 |          5 |         57 |
+| /Users/danielspaude/code/boxtribute/boxtribute/back/boxtribute_server/models/definitions/log.py                       | Python           |          9 |          0 |          5 |         14 |
+| /Users/danielspaude/code/boxtribute/boxtribute/back/boxtribute_server/models/definitions/organisation.py              | Python           |         25 |          0 |          5 |         30 |
+| /Users/danielspaude/code/boxtribute/boxtribute/back/boxtribute_server/models/definitions/product.py                   | Python           |         63 |          0 |          5 |         68 |
+| /Users/danielspaude/code/boxtribute/boxtribute/back/boxtribute_server/models/definitions/product_category.py          | Python           |         15 |          0 |          5 |         20 |
+| /Users/danielspaude/code/boxtribute/boxtribute/back/boxtribute_server/models/definitions/product_gender.py            | Python           |         34 |          0 |          5 |         39 |
+| /Users/danielspaude/code/boxtribute/boxtribute/back/boxtribute_server/models/definitions/qr_code.py                   | Python           |         12 |          0 |          6 |         18 |
+| /Users/danielspaude/code/boxtribute/boxtribute/back/boxtribute_server/models/definitions/shipment.py                  | Python           |         36 |          0 |          4 |         40 |
+| /Users/danielspaude/code/boxtribute/boxtribute/back/boxtribute_server/models/definitions/shipment_detail.py           | Python           |         24 |          0 |          4 |         28 |
+| /Users/danielspaude/code/boxtribute/boxtribute/back/boxtribute_server/models/definitions/size.py                      | Python           |         35 |          0 |          5 |         40 |
+| /Users/danielspaude/code/boxtribute/boxtribute/back/boxtribute_server/models/definitions/size_range.py                | Python           |          7 |          0 |          5 |         12 |
+| /Users/danielspaude/code/boxtribute/boxtribute/back/boxtribute_server/models/definitions/transaction.py               | Python           |         36 |          3 |          5 |         44 |
+| /Users/danielspaude/code/boxtribute/boxtribute/back/boxtribute_server/models/definitions/transfer_agreement.py        | Python           |         44 |          0 |          4 |         48 |
+| /Users/danielspaude/code/boxtribute/boxtribute/back/boxtribute_server/models/definitions/transfer_agreement_detail.py | Python           |         10 |          0 |          3 |         13 |
+| /Users/danielspaude/code/boxtribute/boxtribute/back/boxtribute_server/models/definitions/user.py                      | Python           |         40 |          0 |          5 |         45 |
+| /Users/danielspaude/code/boxtribute/boxtribute/back/boxtribute_server/models/definitions/x_beneficiary_language.py    | Python           |         24 |          0 |          4 |         28 |
+| /Users/danielspaude/code/boxtribute/boxtribute/back/boxtribute_server/models/fields.py                                | Python           |         16 |         33 |         12 |         61 |
+| /Users/danielspaude/code/boxtribute/boxtribute/back/boxtribute_server/models/metrics.py                               | Python           |        113 |         26 |         18 |        157 |
+| /Users/danielspaude/code/boxtribute/boxtribute/back/boxtribute_server/models/utils.py                                 | Python           |          3 |          4 |          3 |         10 |
+| /Users/danielspaude/code/boxtribute/boxtribute/back/boxtribute_server/routes.py                                       | Python           |         69 |          9 |         22 |        100 |
+| /Users/danielspaude/code/boxtribute/boxtribute/back/gunicorn.conf.py                                                  | Python           |          4 |          4 |          1 |          9 |
+| /Users/danielspaude/code/boxtribute/boxtribute/back/init.sql                                                          | SQL              |      1,180 |        282 |        188 |      1,650 |
+| /Users/danielspaude/code/boxtribute/boxtribute/back/requirements.txt                                                  | pip requirements |         10 |          0 |          1 |         11 |
+| /Users/danielspaude/code/boxtribute/boxtribute/back/scripts/list_models.py                                            | Python           |         27 |          8 |         10 |         45 |
+| /Users/danielspaude/code/boxtribute/boxtribute/back/scripts/load-test.js                                              | JavaScript       |         37 |         43 |         10 |         90 |
+| /Users/danielspaude/code/boxtribute/boxtribute/back/setup.cfg                                                         | Properties       |         25 |          0 |          6 |         31 |
+| /Users/danielspaude/code/boxtribute/boxtribute/back/setup.py                                                          | Python           |         14 |          1 |          3 |         18 |
+| /Users/danielspaude/code/boxtribute/boxtribute/back/test/auth.py                                                      | Python           |         74 |         17 |         16 |        107 |
+| /Users/danielspaude/code/boxtribute/boxtribute/back/test/auth_tests/__init__.py                                       | Python           |          0 |          0 |          1 |          1 |
+| /Users/danielspaude/code/boxtribute/boxtribute/back/test/auth_tests/test_auth.py                                      | Python           |         15 |          0 |          9 |         24 |
+| /Users/danielspaude/code/boxtribute/boxtribute/back/test/auth_tests/test_authz.py                                     | Python           |         82 |          0 |         17 |         99 |
+| /Users/danielspaude/code/boxtribute/boxtribute/back/test/conftest.py                                                  | Python           |         68 |         47 |         22 |        137 |
+| /Users/danielspaude/code/boxtribute/boxtribute/back/test/data/__init__.py                                             | Python           |        152 |         14 |         14 |        180 |
+| /Users/danielspaude/code/boxtribute/boxtribute/back/test/data/base.py                                                 | Python           |         42 |          0 |          9 |         51 |
+| /Users/danielspaude/code/boxtribute/boxtribute/back/test/data/beneficiary.py                                          | Python           |         65 |          2 |         16 |         83 |
+| /Users/danielspaude/code/boxtribute/boxtribute/back/test/data/box.py                                                  | Python           |         90 |          0 |         32 |        122 |
+| /Users/danielspaude/code/boxtribute/boxtribute/back/test/data/box_state.py                                            | Python           |         12 |          0 |          9 |         21 |
+| /Users/danielspaude/code/boxtribute/boxtribute/back/test/data/history.py                                              | Python           |         10 |          0 |          7 |         17 |
+| /Users/danielspaude/code/boxtribute/boxtribute/back/test/data/language.py                                             | Python           |          6 |          0 |          5 |         11 |
+| /Users/danielspaude/code/boxtribute/boxtribute/back/test/data/location.py                                             | Python           |         54 |          0 |         19 |         73 |
+| /Users/danielspaude/code/boxtribute/boxtribute/back/test/data/log.py                                                  | Python           |         10 |          0 |          7 |         17 |
+| /Users/danielspaude/code/boxtribute/boxtribute/back/test/data/organisation.py                                         | Python           |         21 |          0 |          9 |         30 |
+| /Users/danielspaude/code/boxtribute/boxtribute/back/test/data/product.py                                              | Python           |         35 |          0 |         13 |         48 |
+| /Users/danielspaude/code/boxtribute/boxtribute/back/test/data/product_category.py                                     | Python           |         16 |          0 |          9 |         25 |
+| /Users/danielspaude/code/boxtribute/boxtribute/back/test/data/product_gender.py                                       | Python           |         12 |          0 |          9 |         21 |
+| /Users/danielspaude/code/boxtribute/boxtribute/back/test/data/qr_code.py                                              | Python           |         17 |          0 |         11 |         28 |
+| /Users/danielspaude/code/boxtribute/boxtribute/back/test/data/shipment.py                                             | Python           |         61 |          0 |         15 |         76 |
+| /Users/danielspaude/code/boxtribute/boxtribute/back/test/data/shipment_detail.py                                      | Python           |         56 |          0 |         12 |         68 |
+| /Users/danielspaude/code/boxtribute/boxtribute/back/test/data/size.py                                                 | Python           |         15 |          0 |         11 |         26 |
+| /Users/danielspaude/code/boxtribute/boxtribute/back/test/data/size_range.py                                           | Python           |         10 |          0 |          7 |         17 |
+| /Users/danielspaude/code/boxtribute/boxtribute/back/test/data/transaction.py                                          | Python           |         39 |          1 |         14 |         54 |
+| /Users/danielspaude/code/boxtribute/boxtribute/back/test/data/transfer_agreement.py                                   | Python           |         62 |          0 |         17 |         79 |
+| /Users/danielspaude/code/boxtribute/boxtribute/back/test/data/transfer_agreement_detail.py                            | Python           |         20 |          0 |          8 |         28 |
+| /Users/danielspaude/code/boxtribute/boxtribute/back/test/data/user.py                                                 | Python           |         70 |          0 |         20 |         90 |
+| /Users/danielspaude/code/boxtribute/boxtribute/back/test/endpoint_tests/__init__.py                                   | Python           |          0 |          0 |          1 |          1 |
+| /Users/danielspaude/code/boxtribute/boxtribute/back/test/endpoint_tests/conftest.py                                   | Python           |         13 |         10 |          6 |         29 |
+| /Users/danielspaude/code/boxtribute/boxtribute/back/test/endpoint_tests/test_app.py                                   | Python           |         96 |         29 |         18 |        143 |
+| /Users/danielspaude/code/boxtribute/boxtribute/back/test/endpoint_tests/test_base.py                                  | Python           |         23 |         15 |         10 |         48 |
+| /Users/danielspaude/code/boxtribute/boxtribute/back/test/endpoint_tests/test_beneficiary.py                           | Python           |        189 |        108 |         21 |        318 |
+| /Users/danielspaude/code/boxtribute/boxtribute/back/test/endpoint_tests/test_box.py                                   | Python           |         83 |         61 |         13 |        157 |
+| /Users/danielspaude/code/boxtribute/boxtribute/back/test/endpoint_tests/test_location.py                              | Python           |         19 |         17 |          5 |         41 |
+| /Users/danielspaude/code/boxtribute/boxtribute/back/test/endpoint_tests/test_metrics.py                               | Python           |        123 |          3 |         14 |        140 |
+| /Users/danielspaude/code/boxtribute/boxtribute/back/test/endpoint_tests/test_organisation.py                          | Python           |         13 |          6 |          5 |         24 |
+| /Users/danielspaude/code/boxtribute/boxtribute/back/test/endpoint_tests/test_permissions.py                           | Python           |        175 |         66 |         39 |        280 |
+| /Users/danielspaude/code/boxtribute/boxtribute/back/test/endpoint_tests/test_product.py                               | Python           |         19 |         14 |          5 |         38 |
+| /Users/danielspaude/code/boxtribute/boxtribute/back/test/endpoint_tests/test_product_categories.py                    | Python           |         16 |         14 |          5 |         35 |
+| /Users/danielspaude/code/boxtribute/boxtribute/back/test/endpoint_tests/test_qr.py                                    | Python           |         41 |         20 |         14 |         75 |
+| /Users/danielspaude/code/boxtribute/boxtribute/back/test/endpoint_tests/test_shipment.py                              | Python           |        483 |        175 |         66 |        724 |
+| /Users/danielspaude/code/boxtribute/boxtribute/back/test/endpoint_tests/test_simple.py                                | Python           |         13 |          0 |          5 |         18 |
+| /Users/danielspaude/code/boxtribute/boxtribute/back/test/endpoint_tests/test_transfer_agreement.py                    | Python           |        167 |         83 |         27 |        277 |
+| /Users/danielspaude/code/boxtribute/boxtribute/back/test/endpoint_tests/test_user.py                                  | Python           |         18 |         12 |          7 |         37 |
+| /Users/danielspaude/code/boxtribute/boxtribute/back/test/integration_tests/__init__.py                                | Python           |          0 |          0 |          1 |          1 |
+| /Users/danielspaude/code/boxtribute/boxtribute/back/test/integration_tests/conftest.py                                | Python           |         12 |          5 |          5 |         22 |
+| /Users/danielspaude/code/boxtribute/boxtribute/back/test/integration_tests/test_jwt.py                                | Python           |         61 |          7 |         13 |         81 |
+| /Users/danielspaude/code/boxtribute/boxtribute/back/test/integration_tests/test_operations.py                         | Python           |         69 |         29 |         19 |        117 |
+| /Users/danielspaude/code/boxtribute/boxtribute/back/test/model_tests/conftest.py                                      | Python           |         13 |          5 |          4 |         22 |
+| /Users/danielspaude/code/boxtribute/boxtribute/back/test/model_tests/test_all.py                                      | Python           |         46 |          4 |         14 |         64 |
+| /Users/danielspaude/code/boxtribute/boxtribute/back/test/model_tests/test_crud.py                                     | Python           |         85 |         13 |         17 |        115 |
+| /Users/danielspaude/code/boxtribute/boxtribute/back/test/utils.py                                                     | Python           |         33 |         25 |         14 |         72 |
+| Total                                                                                                                 |                  |      7,658 |      1,749 |      1,760 |     11,167 |
++-----------------------------------------------------------------------------------------------------------------------+------------------+------------+------------+------------+------------+
