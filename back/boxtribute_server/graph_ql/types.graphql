@@ -475,6 +475,24 @@ type StockOverview {
 }
 
 
+
+
+
+
+
+
+
+
+
+type StockAvailability {
+  numberOfAvailableItems: Int!
+  product: Product!
+  size: String
+  availableItems: Int!
+  # locations: [Location!]!
+}
+
+
 type PreOrderForm {
   id: ID!
   createdBy: User!
@@ -498,7 +516,7 @@ type PreOrderShopFormModule {
   updatedBy: User
   updatedOn: Datetime
 
-  stockOverview: StockOverview!
+  stockAvailability: StockAvailability!
 }
 
 union PreOrderFormModule = PreOrderMedicalHelpFormModule | PreOrderShopFormModule | PreOrderLocationFormModule | PreOrderContactDataFormModule
@@ -509,6 +527,18 @@ type PreOrderFormSubmission {
 }
 
 union PreOrderFormModuleData = PreOrderMedicalHelpFormModuleData | PreOrderShopFormModuleData | PreOrderLocationFormModuleData | PreOrderContactDataFormModuleData
+
+type PreOrderShopFormModuleData {
+  id: ID!
+  orderItems: [PreOrderOrderItem!]!
+}
+
+type PreOrderOrderItem {
+  id: ID!
+  product: Product!
+  size: string
+  quantity: Int!
+}
 
 
 
@@ -544,11 +574,3 @@ union PreOrderFormModuleData = PreOrderMedicalHelpFormModuleData | PreOrderShopF
 #   pageInfo: PageInfo!
 #   totalCount: Int!
 # }
-
-type StockAvailability {
-  numberOfAvailableItems: Int!
-  product: Product!
-  size: String
-  availableItems: Int!
-  # locations: [Location!]!
-}
