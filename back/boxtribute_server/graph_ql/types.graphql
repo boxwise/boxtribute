@@ -475,6 +475,44 @@ type StockOverview {
 }
 
 
+type PreOrderForm {
+  id: ID!
+  createdBy: User!
+  createdOn: Datetime!
+  updatedBy: User
+  updatedOn: Datetime
+
+  state: PreOrderFormState
+
+  submissions: [PreOrderFormSubmission!]!
+
+  formModules: [PreOrderFormModule!]!
+  # distributionSpots: [DistributionSpot!]!
+  base: Base!
+}
+
+type PreOrderShopFormModule {
+  id: ID!
+  createdBy: User!
+  createdOn: Datetime!
+  updatedBy: User
+  updatedOn: Datetime
+
+  stockOverview: StockOverview!
+}
+
+union PreOrderFormModule = PreOrderMedicalHelpFormModule | PreOrderShopFormModule | PreOrderLocationFormModule | PreOrderContactDataFormModule
+
+type PreOrderFormSubmission {
+  id: ID!
+  formModuleData: [PreOrderFormModuleData!]!
+}
+
+union PreOrderFormModuleData = PreOrderMedicalHelpFormModuleData | PreOrderShopFormModuleData | PreOrderLocationFormModuleData | PreOrderContactDataFormModuleData
+
+
+
+
 
 # query stockTest {
 #   stockAvailability {
