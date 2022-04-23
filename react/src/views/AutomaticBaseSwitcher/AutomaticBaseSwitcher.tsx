@@ -1,5 +1,5 @@
+import { GlobalPreferencesContext } from "providers/GlobalPreferencesProvider";
 import React, { useContext, useEffect, useState } from "react";
-import { GlobalPreferencesContext } from "GlobalPreferencesProvider";
 import { useNavigate } from "react-router-dom";
 
 const AutomaticBaseSwitcher = () => {

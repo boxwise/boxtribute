@@ -11,6 +11,7 @@ This front-end project of Boxtribute was bootstrapped with [Create React App](ht
    3. [Linting and Formatting in VSCode](#linting-and-formatting-in-vscode)
 3. [Note about yarn and Docker](#note-about-yarn-and-docker)
 4. [Testing](#testing)
+4. [Conventions for file and folder organisation](#conventions-for-file-and-folder-organisation)
 
 ## Development Set-Up
 
@@ -60,3 +61,15 @@ Test files are located in the same directory as the files they are testing. For 
 For integration tests, we mock the Apollo client with a `MockedProvider` component instead of the `ApolloProvider` component that is used to handle real data. More information on mocking the Apollo client can be found [here](https://www.apollographql.com/docs/react/development-testing/testing/).
 
 To eliminate repetitive code, a custom renderer was built in `react/src/utils/test-utils.js`. It allows developers to pass in three arguments (ui, mocks, and history) to render a component in a test environment. The utility also exports the entire react testing library, so you should import from this utility instead of `@testing-library/react`. See `CreateBox.test.js` for examples of the custom renderer's use.
+
+
+## Conventions for file and folder organisation
+
+* Views of react-router paths go into the views folder
+* Each view can have it's own folder - which in return can have a local components folder
+* Following an "As local as possible, as global as needed" approach: components get only moved into a more global/outer folder if they are used on that level
+* No index.ts files, besides the entry file for the app
+* Ideally only one component per file
+* Files and folders which export a component/view are written UpperCamelCase, with the same name as the actual exported component/view
+* Other files (like types.ts, helpers.ts etc) and folders (like providers, utils etc) are written in lowerCamelCase
+

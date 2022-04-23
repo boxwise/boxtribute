@@ -3,7 +3,7 @@ schema: "../back/boxtribute_server/graph_ql/*"
 documents: './src/**/*.tsx'
 
 generates:
-  ./src/generated/graphql.tsx:
+  ./src/types/generated/graphql.ts:
     plugins:
       - "typescript"
       - "typescript-operations"

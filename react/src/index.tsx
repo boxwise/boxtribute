@@ -1,13 +1,13 @@
 import React from "react";
 import ReactDOM from "react-dom";
 import { BrowserRouter } from "react-router-dom";
-import Auth0ProviderWithHistory from "./Auth0ProviderWithHistory";
-import ApolloWrapper from "./ApolloWrapper";
+import ApolloAuth0Provider from "./providers/ApolloAuth0Provider";
 import App from "./App";
 import * as serviceWorker from "./serviceWorker";
 import { ChakraProvider, CSSReset, extendTheme } from "@chakra-ui/react";
 import { withAuthenticationRequired } from "@auth0/auth0-react";
-import { GlobalPreferencesProvider } from "GlobalPreferencesProvider";
+import { GlobalPreferencesProvider } from "providers/GlobalPreferencesProvider";
+import Auth0ProviderWithHistory from "providers/Auth0ProviderWithHistory";
 
 const colors = {
   brand: {
@@ -30,11 +30,11 @@ ReactDOM.render(
     <CSSReset />
     <BrowserRouter>
       <Auth0ProviderWithHistory>
-        <ApolloWrapper>
+        <ApolloAuth0Provider>
           <GlobalPreferencesProvider>
             <AuthenticationProtectedApp />
           </GlobalPreferencesProvider>
-        </ApolloWrapper>
+        </ApolloAuth0Provider>
       </Auth0ProviderWithHistory>
     </BrowserRouter>
   </ChakraProvider>,

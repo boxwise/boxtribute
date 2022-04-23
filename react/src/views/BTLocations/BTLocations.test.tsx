@@ -1,6 +1,6 @@
 import { screen, waitFor} from "@testing-library/react";
 import "@testing-library/jest-dom";
-import Locations, { LOCATIONS_QUERY } from "./Locations";
+import BTLocations, { LOCATIONS_QUERY } from "./BTLocations";
 import { render } from "utils/test-utils";
 import { Route } from "react-router-dom";
 
@@ -36,7 +36,7 @@ describe("Locations view", () => {
     },
   ];
   beforeEach(() => {
-    render(<Locations />, {
+    render(<BTLocations />, {
       routePath: "/bases/:baseId/locations",
       initialUrl: "/bases/123/locations",
       mocks

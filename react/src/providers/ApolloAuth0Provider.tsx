@@ -13,7 +13,7 @@ import {
 import { setContext } from "@apollo/client/link/context";
 import { useAuth0 } from "@auth0/auth0-react";
 
-function ApolloWrapper({ children }: { children: ReactNode }) {
+function ApolloAuth0Provider({ children }: { children: ReactNode }) {
   const { isAuthenticated, getAccessTokenSilently } = useAuth0();
   const [auth0Token, setAuth0Token] = useState<String>("");
   const httpLink = new HttpLink({
@@ -59,4 +59,4 @@ function ApolloWrapper({ children }: { children: ReactNode }) {
   return <ApolloProvider client={client}>{children}</ApolloProvider>;
 }
 
-export default ApolloWrapper;
+export default ApolloAuth0Provider;
