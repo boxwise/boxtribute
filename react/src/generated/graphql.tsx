@@ -28,6 +28,7 @@ export type Base = {
   locations?: Maybe<Array<Location>>;
   name: Scalars['String'];
   organisation: Organisation;
+  stockAvailabilities: Array<StockAvailability>;
 };
 
 
@@ -752,6 +753,14 @@ export type SizeRange = {
   label: Scalars['String'];
   productCategory?: Maybe<Array<ProductCategory>>;
   sizes: Array<Scalars['String']>;
+};
+
+export type StockAvailability = {
+  __typename?: 'StockAvailability';
+  availableItems: Scalars['Int'];
+  numberOfAvailableItems: Scalars['Int'];
+  product: Product;
+  size?: Maybe<Scalars['String']>;
 };
 
 export type StockOverview = {
