@@ -21,8 +21,13 @@ price, in_shop, comments. The order is not relevant
 import argparse
 import csv
 import getpass
+import logging
 
 from boxtribute_server.db import create_db_interface, db
+
+LOGGER = logging.getLogger(__name__)
+LOGGER.addHandler(logging.StreamHandler())
+LOGGER.setLevel(logging.INFO)
 
 PRODUCT_COLUMN_NAMES = {
     "name",
@@ -59,6 +64,9 @@ def _parse_options(args=None):
     parser.add_argument("-u", "--user", help="MySQL user")
     parser.add_argument("-p", "--password", help="MySQL password")
     parser.add_argument("-d", "--database", help="MySQL database name")
+    parser.add_argument(
+        "-v", "--verbose", action="store_true", help="show SQL queries run by peewee"
+    )
 
     subparsers = parser.add_subparsers(dest="command", metavar="command")
     subparsers.required = True
@@ -144,6 +152,9 @@ def _import_products(*, data_filepath):
 
 def main(args=None):
     options = _parse_options(args=args)
+
+    if options.pop("verbose"):  # pragma: no cover
+        LOGGER.setLevel(logging.DEBUG)
 
     db.database = _create_db_interface(
         **{n: options.pop(n) for n in ["host", "port", "password", "database", "user"]}

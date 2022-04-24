@@ -111,6 +111,7 @@ def test_parse_options():
         "user": None,
         "host": "127.0.0.1",
         "port": 3386,
+        "verbose": False,
     }
 
 
