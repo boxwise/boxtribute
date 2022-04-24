@@ -2,10 +2,12 @@ import csv
 import pathlib
 import tempfile
 
+import peewee
 import pytest
 from boxtribute_server.models.definitions.product import Product
 from boxtribute_server.setup_wizard import (
     PRODUCT_COLUMN_NAMES,
+    _create_db_interface,
     _import_products,
     _parse_options,
 )
@@ -113,6 +115,17 @@ def test_parse_options():
         "port": 3386,
         "verbose": False,
     }
+
+    assert isinstance(
+        _create_db_interface(
+            password="dropapp_root",
+            host="127.0.0.1",
+            port=32000,
+            user="root",
+            database="dropapp_dev",
+        ),
+        peewee.MySQLDatabase,
+    )
 
 
 def test_import_products(
