@@ -23,7 +23,6 @@ import csv
 import getpass
 
 from boxtribute_server.db import create_db_interface, db
-from boxtribute_server.models.definitions.product import Product
 
 PRODUCT_COLUMN_NAMES = {
     "name",
@@ -56,7 +55,7 @@ def _parse_options(args=None):
         formatter_class=argparse.RawDescriptionHelpFormatter,
     )
     parser.add_argument("-H", "--host", default="127.0.0.1", help="MySQL server host")
-    parser.add_argument("-P", "--port", default=3386, help="MySQL port")
+    parser.add_argument("-P", "--port", default=3386, type=int, help="MySQL port")
     parser.add_argument("-u", "--user", help="MySQL user")
     parser.add_argument("-p", "--password", help="MySQL password")
     parser.add_argument("-d", "--database", help="MySQL database name")
@@ -135,6 +134,9 @@ def _import_products(*, data_filepath):
             f"Row {r:3d}: {', '.join(f)}" for r, f in invalid_rows.items()
         )
         raise ValueError(f"Invalid fields:\n{message}")
+
+    # Import here such that patching of db.database in main() takes effect
+    from boxtribute_server.models.definitions.product import Product
 
     with db.database.atomic():
         Product.insert_many(rows).execute()
