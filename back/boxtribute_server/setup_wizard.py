@@ -109,7 +109,8 @@ def _read_file(data_filepath):
 
 def _import_products(*, data_filepath):
     rows = _read_file(data_filepath)
-    Product.insert_many(rows).execute()
+    with db.database.atomic():
+        Product.insert_many(rows).execute()
 
 
 def main(args=None):
