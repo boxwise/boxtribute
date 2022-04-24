@@ -86,12 +86,23 @@ def _validate_input(*, rows, types):
 
 
 def _read_file(data_filepath):
+    """Open CSV file from given path and return contained rows as list of dicts.
+    Raise RuntimeError if file is empty.
+    """
     with open(data_filepath, newline="") as data_file:
         reader = csv.DictReader(data_file)
         rows = [row for row in reader]
-
     if not rows:
         raise RuntimeError(f"Empty file: {data_filepath}")
+    return rows
+
+
+def _import_products(*, data_filepath):
+    """Read in CSV file. Validate column names and field types. If validation
+    successful, add rows to the database in a single, atomic operation. Otherwise raise
+    ValueError.
+    """
+    rows = _read_file(data_filepath)
 
     input_column_names = set(rows[0].keys())
     if input_column_names != PRODUCT_COLUMN_NAMES:
@@ -104,11 +115,6 @@ def _read_file(data_filepath):
         )
         raise ValueError(f"Invalid fields:\n{message}")
 
-    return rows
-
-
-def _import_products(*, data_filepath):
-    rows = _read_file(data_filepath)
     with db.database.atomic():
         Product.insert_many(rows).execute()
 
