@@ -1,4 +1,22 @@
 #!/usr/bin/env python
+"""Wizard for setting up a new organisation in the database.
+
+This utility reads in a given CSV file, validates its contents, and inserts new entries
+to the according database table.
+
+For establishing a connection to the database, all connection parameters must be given
+as command line options: host, port, user, database. If the password is not specified,
+you will be prompted for it. The options must be specified *before* the command:
+
+    bwiz --user admin --database test-db import-products
+
+The CSV file is to be formatted according to the 'csv.excel' dialect, i.e. comma as
+delimiter and double-quote as quote char.
+
+Command: import-products
+- the input CSV file must have the columns name, category, gender, size_range, base,
+price, in_shop, comments. The order is not relevant
+"""
 
 import argparse
 import csv
@@ -34,7 +52,8 @@ PRODUCT_COLUMN_TYPES = {
 
 def _parse_options(args=None):
     parser = argparse.ArgumentParser(
-        description="Wizard for setting up a new organisation in the database"
+        description=globals()["__doc__"],
+        formatter_class=argparse.RawDescriptionHelpFormatter,
     )
     parser.add_argument("-H", "--host", default="127.0.0.1", help="MySQL server host")
     parser.add_argument("-P", "--port", default=3386, help="MySQL port")
@@ -45,7 +64,9 @@ def _parse_options(args=None):
     subparsers = parser.add_subparsers(dest="command", metavar="command")
     subparsers.required = True
 
-    import_products_parser = subparsers.add_parser("import-products")
+    import_products_parser = subparsers.add_parser(
+        "import-products", help="Import new products from CSV file"
+    )
     import_products_parser.add_argument("-f", "--data-filepath")
 
     return vars(parser.parse_args(args=args))
