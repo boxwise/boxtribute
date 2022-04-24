@@ -147,13 +147,17 @@ def _import_products(*, data_filepath):
     from boxtribute_server.models.definitions.product import Product
 
     with db.database.atomic():
-        Product.insert_many(rows).execute()
+        nr_rows = Product.insert_many(rows).execute()
+        LOGGER.info(f"Imported {nr_rows} new product(s).")
 
 
 def main(args=None):
     options = _parse_options(args=args)
 
     if options.pop("verbose"):  # pragma: no cover
+        peewee_logger = logging.getLogger("peewee")
+        peewee_logger.setLevel(logging.DEBUG)
+        peewee_logger.parent = LOGGER  # propagate messages to module logger
         LOGGER.setLevel(logging.DEBUG)
 
     db.database = _create_db_interface(
