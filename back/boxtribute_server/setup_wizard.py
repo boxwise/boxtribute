@@ -154,7 +154,8 @@ def _import_products(*, data_filepath):
 def main(args=None):
     options = _parse_options(args=args)
 
-    if options.pop("verbose"):  # pragma: no cover
+    verbose = options.pop("verbose")
+    if verbose:  # pragma: no cover
         peewee_logger = logging.getLogger("peewee")
         peewee_logger.setLevel(logging.DEBUG)
         peewee_logger.parent = LOGGER  # propagate messages to module logger
@@ -165,5 +166,9 @@ def main(args=None):
     )
 
     command = options.pop("command")
-    if command == "import-products":
-        _import_products(**options)
+    try:
+        if command == "import-products":
+            _import_products(**options)
+    except Exception as e:
+        LOGGER.exception(e) if verbose else LOGGER.error(e)
+        raise SystemExit("Exiting due to above error.")
