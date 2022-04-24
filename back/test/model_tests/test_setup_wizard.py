@@ -79,6 +79,29 @@ def invalid_data_filepath():
         yield filepath
 
 
+@pytest.fixture
+def invalid_typed_data_filepath():
+    with tempfile.TemporaryDirectory() as tmpdir:
+        filepath = pathlib.Path(tmpdir) / "invalid_data.csv"
+        write_to_csv(
+            filepath=filepath,
+            data=[
+                {
+                    "name": "coats",
+                    "category": "Clothing",  # should be valid int
+                    "gender": 1,
+                    "size_range": 1,
+                    "base": 1,
+                    "price": 20,
+                    "in_shop": 0,
+                    "comments": "",
+                }
+            ],
+            fieldnames=PRODUCT_COLUMN_NAMES,
+        )
+        yield filepath
+
+
 def test_parse_options():
     assert _parse_options("import-products -f data.csv".split()) == {
         "command": "import-products",
@@ -97,6 +120,7 @@ def test_import_products(
     empty_filepath,
     only_header_filepath,
     invalid_data_filepath,
+    invalid_typed_data_filepath,
 ):
     _import_products(data_filepath=valid_data_filepath)
     products = list(Product.select().dicts())
@@ -113,3 +137,7 @@ def test_import_products(
 
     with pytest.raises(ValueError):
         _import_products(data_filepath=invalid_data_filepath)
+
+    with pytest.raises(ValueError) as exc_info:
+        _import_products(data_filepath=invalid_typed_data_filepath)
+    assert exc_info.value.args[0] == "Invalid fields:\nRow   1: category"

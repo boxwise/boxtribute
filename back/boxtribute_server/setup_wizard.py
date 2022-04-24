@@ -19,6 +19,19 @@ PRODUCT_COLUMN_NAMES = {
 }
 
 
+# Expected column types for basic input validation
+PRODUCT_COLUMN_TYPES = {
+    "name": str,
+    "category": int,
+    "gender": int,
+    "size_range": int,
+    "base": int,
+    "price": int,
+    "in_shop": int,
+    "comments": str,
+}
+
+
 def _parse_options(args=None):
     parser = argparse.ArgumentParser(
         description="Wizard for setting up a new organisation in the database"
@@ -45,6 +58,33 @@ def _create_db_interface(**connection_parameters):
     return create_db_interface(password=password, **connection_parameters)
 
 
+def _validate_row(*, row, types):
+    """Validate field values of given row against types by attempting naive Python type
+    casting. Collect invalid field names in a list and return it. An empty list
+    indicates that the entire row has valid types.
+    """
+    invalid_fields = []
+    for name, value in row.items():
+        try:
+            types[name](value)
+        except ValueError:
+            invalid_fields.append(name)
+    return invalid_fields
+
+
+def _validate_input(*, rows, types):
+    """Validate several rows against given types. Collect indices of invalid rows
+    (starting at 1), and the invalid fields therein, in a dict and return it. An empty
+    dict indicates that all rows have valid types.
+    """
+    invalid_rows = {}
+    for i, row in enumerate(rows):
+        invalid_fields = _validate_row(row=row, types=types)
+        if invalid_fields:
+            invalid_rows[i + 1] = invalid_fields
+    return invalid_rows
+
+
 def _read_file(data_filepath):
     with open(data_filepath, newline="") as data_file:
         reader = csv.DictReader(data_file)
@@ -56,6 +96,13 @@ def _read_file(data_filepath):
     input_column_names = set(rows[0].keys())
     if input_column_names != PRODUCT_COLUMN_NAMES:
         raise ValueError(f"Invalid CSV column names: {input_column_names}")
+
+    invalid_rows = _validate_input(rows=rows, types=PRODUCT_COLUMN_TYPES)
+    if invalid_rows:
+        message = "\n".join(
+            f"Row {r:3d}: {', '.join(f)}" for r, f in invalid_rows.items()
+        )
+        raise ValueError(f"Invalid fields:\n{message}")
 
     return rows
 
