@@ -2,7 +2,7 @@ import React from "react";
 import { gql, useQuery } from "@apollo/client";
 import { Link, useParams } from "react-router-dom";
 import { Box, Heading, ListItem, UnorderedList } from "@chakra-ui/react";
-import { LocationsForBaseQuery, LocationsForBaseQueryVariables } from "generated/graphql";
+import { LocationsForBaseQuery, LocationsForBaseQueryVariables } from "types/generated/graphql";
 
 
 export const LOCATIONS_QUERY = gql`
@@ -40,7 +40,7 @@ const LocationsListComponent = ({ baseId}: { baseId: string }) => {
   );
 };
 
-const Locations = () => {
+const BTLocations = () => {
   const baseId = useParams<{ baseId: string }>().baseId;
 
   if(baseId == null) {
@@ -55,4 +55,4 @@ const Locations = () => {
   );
 };
 
-export default Locations;
+export default BTLocations;

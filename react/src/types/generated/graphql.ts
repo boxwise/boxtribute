@@ -845,13 +845,6 @@ export type BasesQueryVariables = Exact<{ [key: string]: never; }>;
 
 export type BasesQuery = { __typename?: 'Query', bases: Array<{ __typename?: 'Base', id: string, name: string }> };
 
-export type BoxesForBaseQueryVariables = Exact<{
-  baseId: Scalars['ID'];
-}>;
-
-
-export type BoxesForBaseQuery = { __typename?: 'Query', base?: { __typename?: 'Base', locations?: Array<{ __typename?: 'Location', boxes?: { __typename?: 'BoxPage', totalCount: number, elements: Array<{ __typename?: 'Box', id: string, state: BoxState, size?: string | null, items: number, product?: { __typename?: 'Product', gender?: ProductGender | null, name: string } | null }> } | null }> | null } | null };
-
 export type LocationQueryVariables = Exact<{
   locationId: Scalars['ID'];
 }>;
@@ -865,3 +858,10 @@ export type LocationsForBaseQueryVariables = Exact<{
 
 
 export type LocationsForBaseQuery = { __typename?: 'Query', base?: { __typename?: 'Base', locations?: Array<{ __typename?: 'Location', id: string, name?: string | null }> | null } | null };
+
+export type BoxesForBaseQueryVariables = Exact<{
+  baseId: Scalars['ID'];
+}>;
+
+
+export type BoxesForBaseQuery = { __typename?: 'Query', base?: { __typename?: 'Base', locations?: Array<{ __typename?: 'Location', boxes?: { __typename?: 'BoxPage', totalCount: number, elements: Array<{ __typename?: 'Box', id: string, state: BoxState, size?: string | null, items: number, product?: { __typename?: 'Product', gender?: ProductGender | null, name: string } | null }> } | null }> | null } | null };

@@ -2,7 +2,7 @@ import React from "react";
 import { gql, useQuery } from "@apollo/client";
 import { useParams } from "react-router-dom";
 import { Box, Heading, ListItem, UnorderedList } from "@chakra-ui/react";
-import { LocationQuery } from "../../generated/graphql"
+import { LocationQuery } from "../../types/generated/graphql"
 
 const LOCATION_QUERY = gql`
 query Location($locationId: ID!) {

@@ -3,7 +3,7 @@
 
 spectaql:
   # Optional path to an image to use as the logo in the top-left of the output
-  logoFile: ../../react/src/Assets/images/Boxtribute Main Logo-03@2x.png
+  logoFile: ../../react/src/assets/images/Boxtribute Main Logo-03@2x.png
   # Optional path to an image to use as a favicon for the site when it's not embedded
   # faviconFile: path/to/favicon.png
 

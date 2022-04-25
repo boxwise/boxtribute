@@ -18,8 +18,8 @@ import {
   MenuList,
 } from "@chakra-ui/react";
 import { AiFillCloseCircle, AiOutlineMenu } from "react-icons/ai";
-import BoxtributeLogo from "../Assets/images/boxtribute-logo.png";
-import { GlobalPreferencesContext } from "GlobalPreferencesProvider";
+import BoxtributeLogo from "../assets/images/boxtribute-logo.png";
+import { GlobalPreferencesContext } from "providers/GlobalPreferencesProvider";
 
 const MenuToggle = ({ toggle, isOpen, ...props }) => (
   <IconButton
