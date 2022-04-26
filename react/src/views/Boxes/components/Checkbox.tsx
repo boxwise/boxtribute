@@ -8,7 +8,7 @@ interface Props {
 const useCombinedRefs = (...refs): React.MutableRefObject<any> => {
   const targetRef = React.useRef();
 
-  React.useEffect(() => {
+  useEffect(() => {
     refs.forEach(ref => {
       if (!ref) return;
 
@@ -35,9 +35,9 @@ const IndeterminateCheckbox = forwardRef<HTMLInputElement, Props>(
     }, [combinedRef, indeterminate]);
 
     return (
-      <React.Fragment>
+      <>
         <input type="checkbox" ref={combinedRef} onClick={(e) => e.stopPropagation()} {...rest} />
-      </React.Fragment>
+      </>
     );
   }
 );
