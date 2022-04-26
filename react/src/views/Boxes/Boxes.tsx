@@ -10,6 +10,7 @@ export const BOXES_FOR_BASE_QUERY = gql`
         boxes {
           totalCount
           elements {
+            labelIdentifier
             id
             state
             size
@@ -25,30 +26,33 @@ export const BOXES_FOR_BASE_QUERY = gql`
   }
 `;
 
-
-const graphqlToTableTransformer = (boxesQueryResult: BoxesForBaseQuery | undefined) =>
+const graphqlToTableTransformer = (
+  boxesQueryResult: BoxesForBaseQuery | undefined
+) =>
   boxesQueryResult?.base?.locations?.flatMap(
     (location) =>
-      location?.boxes?.elements.map((element) => (
-        {
-          name: element.product?.name,
-          id: element.id,
-          gender: element.product?.gender,
-          items: element.items,
-          size: element.size,
-          state: element.state,
-        }
-      )) || [],
+      location?.boxes?.elements.map((element) => ({
+        name: element.product?.name,
+        id: element.id,
+        labelIdentifier: element.labelIdentifier,
+        gender: element.product?.gender,
+        items: element.items,
+        size: element.size,
+        state: element.state,
+      })) || []
   ) || [];
 
 const Boxes = () => {
   const baseId = useParams<{ baseId: string }>().baseId;
 
-  const { loading, error, data } = useQuery<BoxesForBaseQuery>(BOXES_FOR_BASE_QUERY, {
-    variables: {
-      baseId,
-    },
-  });
+  const { loading, error, data } = useQuery<BoxesForBaseQuery>(
+    BOXES_FOR_BASE_QUERY,
+    {
+      variables: {
+        baseId,
+      },
+    }
+  );
   if (loading) {
     return <div>Loading...</div>;
   }
