@@ -1,7 +1,6 @@
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 import { QrReader } from "react-qr-reader";
-import { Textarea } from "@chakra-ui/react";
-import { Button, Container } from "@chakra-ui/react";
+import {Container } from "@chakra-ui/react";
 import { gql, useLazyQuery } from "@apollo/client";
 import {
   GetBoxLabelIdentifierForQrCodeQuery,
@@ -26,10 +25,8 @@ const GET_BOX_LABEL_IDENTIFIER_BY_QR_CODE = gql`
   }
 `;
 
-const QrScanner = (props) => {
-  const [qrCode, setQrCode] = useState<string | undefined>("No result");
-  const [qrOpen, setQrOpen] = useState(true);
-  const [getBoxLabelIdentifierByQrCode, { loading, error, data }] = useLazyQuery<
+const QrScanner = () => {
+  const [getBoxLabelIdentifierByQrCode, { data }] = useLazyQuery<
   GetBoxLabelIdentifierForQrCodeQuery,
     GetBoxLabelIdentifierForQrCodeQueryVariables
   >(GET_BOX_LABEL_IDENTIFIER_BY_QR_CODE);
@@ -41,20 +38,6 @@ const QrScanner = (props) => {
   }, [baseId, data, navigate]);
 
   return (
-    <>
-      {/* <div>
-        <div>Loading: {JSON.stringify(loading)}</div>
-        <div>Error: {JSON.stringify(error)}</div>
-        <div>Data: {JSON.stringify(data)}</div>
-      </div>
-      <Button
-        onClick={() => setQrOpen(!qrOpen)}
-        colorScheme="teal"
-        variant="outline"
-      >
-        Scan QR Code
-      </Button> */}
-      {qrOpen ? (
         <Container maxW="md">
           <QrReader
             constraints={{
@@ -67,7 +50,6 @@ const QrScanner = (props) => {
                 if (qrCode != null) {
                   getBoxLabelIdentifierByQrCode({ variables: { qrCode } });
                 }
-                setQrCode(qrCode);
               }
 
               if (!!error) {
@@ -76,13 +58,6 @@ const QrScanner = (props) => {
             }}
           />
         </Container>
-      ) : null}
-      {/* <Textarea
-        style={{ fontSize: 18, width: 320, height: 100, marginTop: 100 }}
-        value={qrCode}
-        readOnly
-      /> */}
-    </>
   );
 };
 
