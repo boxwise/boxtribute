@@ -114,6 +114,7 @@ const MenuLinks = ({ isOpen, onLinkClick, ...props }) => {
         <LoginOrUserMenuButton />
         <MenuItem to={`/bases/${baseId}/locations`} text="Locations" />
         <MenuItem to={`/bases/${baseId}/boxes`} text="Boxes" />
+        <MenuItem to={`/bases/${baseId}/scan-qrcode`} text="Scan QR" />
       </Stack>
     </Box>
   );

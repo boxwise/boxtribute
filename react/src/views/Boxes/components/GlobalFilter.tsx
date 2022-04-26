@@ -10,9 +10,10 @@ export function GlobalFilter({ globalFilter, setGlobalFilter }) {
   }, 200);
 
   return (
-    <InputGroup>
+    <InputGroup width='auto'>
       <InputRightElement pointerEvents="none" children={<SearchIcon color="gray.300" />} />
       <Input
+      
         value={value || ""}
         onChange={(e) => {
           setValue(e.target.value);
