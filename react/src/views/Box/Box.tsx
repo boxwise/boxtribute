@@ -3,18 +3,7 @@ import {
   Box,
   List,
   ListItem,
-  Stack,
-  Table,
-  TableCaption,
-  TableContainer,
-  Tbody,
-  Td,
-  Tfoot,
-  Th,
-  Thead,
-  Tr,
   Text,
-  useColorModeValue,
 } from "@chakra-ui/react";
 import { useParams } from "react-router-dom";
 import {
