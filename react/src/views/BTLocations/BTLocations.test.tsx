@@ -2,7 +2,6 @@ import { screen, waitFor} from "@testing-library/react";
 import "@testing-library/jest-dom";
 import BTLocations, { LOCATIONS_QUERY } from "./BTLocations";
 import { render } from "utils/test-utils";
-import { Route } from "react-router-dom";
 
 describe("Locations view", () => {
   const mocks = [
