@@ -1,5 +1,10 @@
 import React from "react";
-import { TriangleDownIcon, TriangleUpIcon } from "@chakra-ui/icons";
+import {
+  TriangleDownIcon,
+  TriangleUpIcon,
+  ChevronRightIcon,
+  ChevronLeftIcon,
+} from "@chakra-ui/icons";
 import {
   Button,
   Table,
@@ -10,6 +15,8 @@ import {
   Tbody,
   Td,
   Flex,
+  Text,
+  IconButton,
 } from "@chakra-ui/react";
 import {
   Column,
@@ -18,6 +25,7 @@ import {
   useGlobalFilter,
   useSortBy,
   useRowSelect,
+  usePagination,
 } from "react-table";
 import { ProductRow } from "./types";
 import { GlobalFilter } from "./GlobalFilter";
@@ -70,18 +78,28 @@ const BoxesTable = ({ tableData }: BoxesTableProps) => {
 
   const {
     headerGroups,
-    rows,
+
     prepareRow,
-    state: { globalFilter },
+    state: { globalFilter, pageIndex, pageSize },
     setGlobalFilter,
+    page,
+    canPreviousPage,
+    canNextPage,
+    pageOptions,
+    pageCount,
+
+    nextPage,
+    previousPage,
   } = useTable(
     {
       columns,
       data: tableData,
+      initialState: { pageIndex: 0, pageSize: 20 },
     },
     useFilters,
     useGlobalFilter,
     useSortBy,
+    usePagination,
     useRowSelect,
     (hooks) => {
       hooks.visibleColumns.push((columns) => [
@@ -146,7 +164,7 @@ const BoxesTable = ({ tableData }: BoxesTableProps) => {
           ))}
         </Thead>
         <Tbody>
-          {rows.map((row, i) => {
+          {page.map((row, i) => {
             prepareRow(row);
             return (
               <Tr
@@ -167,6 +185,38 @@ const BoxesTable = ({ tableData }: BoxesTableProps) => {
           })}
         </Tbody>
       </Table>
+      <Flex justifyContent="center" m={4} alignItems="center">
+        <Flex>
+          <IconButton
+            aria-label="Previous Page"
+            onClick={previousPage}
+            isDisabled={!canPreviousPage}
+            icon={<ChevronLeftIcon h={6} w={6} />}
+          />
+        </Flex>
+
+        <Flex justifyContent="center" alignItems="center">
+          <Text mr={8}>
+            Page{" "}
+            <Text fontWeight="bold" as="span">
+              {pageIndex + 1}
+            </Text>{" "}
+            of{" "}
+            <Text fontWeight="bold" as="span">
+              {pageOptions.length}
+            </Text>
+          </Text>
+        </Flex>
+
+        <Flex>
+          <IconButton
+            aria-label="Next Page"
+            onClick={nextPage}
+            isDisabled={!canNextPage}
+            icon={<ChevronRightIcon h={6} w={6} />}
+          />
+        </Flex>
+      </Flex>
     </>
   );
 };
