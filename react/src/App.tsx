@@ -11,6 +11,7 @@ import QrScanner from "components/QrScanner";
 import { BasesQuery } from "types/generated/graphql";
 import { GlobalPreferencesContext } from "providers/GlobalPreferencesProvider";
 import BTBox from "views/Box/Box";
+import Transfers from "views/Transfers/Transfers";
 
 const useLoadAndSetAvailableBases = () => {
   const BASES_QUERY = gql`
@@ -53,14 +54,14 @@ const App = () => {
           <Route index element={<AutomaticBaseSwitcher />}></Route>
           <Route path=":baseId">
             <Route path="scan-qrcode" element={<QrScanner />} />
+            <Route path="transfers" element={<Transfers />} />
             <Route path="boxes">
-                <Route index element={<Boxes />} />
+              <Route index element={<Boxes />} />
               <Route path=":labelIdentifier" element={<BTBox />} />
             </Route>
             <Route path="locations">
               <Route index element={<BTLocations />} />
-              <Route path=":locationId" element={<BTLocation />}>
-              </Route>
+              <Route path=":locationId" element={<BTLocation />}></Route>
             </Route>
           </Route>
         </Route>

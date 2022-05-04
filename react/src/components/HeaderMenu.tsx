@@ -62,7 +62,14 @@ const UserMenu = () => {
     <Menu>
       <MenuButton
         as={IconButton}
-        icon={<Img src={user?.picture} variant="outline" width={"10"} height={"10"} />}
+        icon={
+          <Img
+            src={user?.picture}
+            variant="outline"
+            width={"10"}
+            height={"10"}
+          />
+        }
       />
       <MenuList>
         <BaseSwitcher />
@@ -85,7 +92,9 @@ const LoginOrUserMenuButton = () => {
   return isAuthenticated ? (
     <UserMenu />
   ) : (
-    <Button onClick={() => (isAuthenticated ? logout() : loginWithRedirect())}>Login</Button>
+    <Button onClick={() => (isAuthenticated ? logout() : loginWithRedirect())}>
+      Login
+    </Button>
   );
 };
 
@@ -115,6 +124,7 @@ const MenuLinks = ({ isOpen, onLinkClick, ...props }) => {
         <MenuItem to={`/bases/${baseId}/locations`} text="Locations" />
         <MenuItem to={`/bases/${baseId}/boxes`} text="Boxes" />
         <MenuItem to={`/bases/${baseId}/scan-qrcode`} text="Scan QR" />
+        <MenuItem to={`/bases/${baseId}/transfers`} text="Transfers" />
       </Stack>
     </Box>
   );
@@ -143,7 +153,7 @@ const Header = () => {
 
   return (
     <NavBarContainer>
-      <Logo/>
+      <Logo />
       <MenuToggle
         toggle={toggle}
         isOpen={isMenuOpen}
