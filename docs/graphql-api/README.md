@@ -9,12 +9,14 @@ Substitute one of these file paths for `some-config.yml` in the command examples
 
 ### Usage
 
-You can run `spectacle` in your local environment, or via a provided Docker image. Select one of the following acc. to your taste.
+You can run `spectaql` in your local environment, or via a provided Docker image. Select one of the following acc. to your taste.
+
+First of all change the current directory to `docs/graphql-api/`.
 
 #### Local installation
 
 1. Run `npm install`
-1. Execute `npx spectaqle some-config.yml`
+1. Execute `npx spectaql some-config.yml`
 
 #### Dockerized installation
 
