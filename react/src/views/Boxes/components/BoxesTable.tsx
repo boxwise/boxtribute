@@ -130,7 +130,6 @@ const BoxesTable = ({ tableData }: BoxesTableProps) => {
         />
 
         {headerGroups.map((headerGroup) => {
-          console.log(headerGroup);
           return headerGroup.headers.map((column) =>
             column.Filter ? (
               <Button m={2} key={column.id}>

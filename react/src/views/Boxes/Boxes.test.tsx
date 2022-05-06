@@ -25,7 +25,7 @@ describe("Boxes view", () => {
                   elements: [
                     {
                       __typename: "Box",
-                      id: "11",
+                      labelIdentifier: "1234",
                       state: "Donated",
                       size: "4",
                       product: {
@@ -37,7 +37,7 @@ describe("Boxes view", () => {
                     },
                     {
                       __typename: "Box",
-                      id: "995",
+                      labelIdentifier: "1235",
                       state: "Donated",
                       size: "52",
                       product: {
@@ -58,7 +58,7 @@ describe("Boxes view", () => {
                   elements: [
                     {
                       __typename: "Box",
-                      id: "157",
+                      labelIdentifier: "1236",
                       state: "Lost",
                       size: "54",
                       product: {
@@ -70,7 +70,7 @@ describe("Boxes view", () => {
                     },
                     {
                       __typename: "Box",
-                      id: "174",
+                      labelIdentifier: "1237",
                       state: "MarkedForShipment",
                       size: "68",
                       product: {
@@ -82,7 +82,7 @@ describe("Boxes view", () => {
                     },
                     {
                       __typename: "Box",
-                      id: "291",
+                      labelIdentifier: "1238",
                       state: "Lost",
                       size: "118",
                       product: {
@@ -103,7 +103,7 @@ describe("Boxes view", () => {
                   elements: [
                     {
                       __typename: "Box",
-                      id: "43",
+                      labelIdentifier: "1239",
                       state: "InStock",
                       size: "68",
                       product: {
@@ -115,7 +115,7 @@ describe("Boxes view", () => {
                     },
                     {
                       __typename: "Box",
-                      id: "137",
+                      labelIdentifier: "1230",
                       state: "InStock",
                       size: "68",
                       product: {
@@ -195,7 +195,7 @@ describe("Boxes view", () => {
     beforeEach(waitTillLoadingIsDone);
     it("initially it shows also entries in the table that don't match the later used filter value", async () => {
       const nonWomenEntryInOriginalRowSet = screen.queryByRole("gridcell", {
-        name: "174",
+        name: "1237",
       });
       expect(nonWomenEntryInOriginalRowSet).toBeInTheDocument();
     });
@@ -210,13 +210,13 @@ describe("Boxes view", () => {
       it("only shows entries in the table that match the selected filter dropdown value", async () => {
         await waitFor(() => {
           const nonWomenEntryInOriginalRowSet = screen.queryByRole("gridcell", {
-            name: "174",
+            name: "1237",
           });
           expect(nonWomenEntryInOriginalRowSet).toBeNull();
         });
 
         const womenEntryInFilteredRowSet = screen.queryByRole("gridcell", {
-          name: "995",
+          name: "1235",
         });
         expect(womenEntryInFilteredRowSet).toBeInTheDocument();
       });
