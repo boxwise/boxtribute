@@ -17,6 +17,8 @@ import {
   Flex,
   Text,
   IconButton,
+  Center,
+  Spacer,
 } from "@chakra-ui/react";
 import {
   Column,
@@ -80,13 +82,12 @@ const BoxesTable = ({ tableData }: BoxesTableProps) => {
     headerGroups,
 
     prepareRow,
-    state: { globalFilter, pageIndex, pageSize },
+    state: { globalFilter, pageIndex },
     setGlobalFilter,
     page,
     canPreviousPage,
     canNextPage,
     pageOptions,
-    pageCount,
 
     nextPage,
     previousPage,
@@ -184,7 +185,7 @@ const BoxesTable = ({ tableData }: BoxesTableProps) => {
           })}
         </Tbody>
       </Table>
-      <Flex justifyContent="center" m={4} alignItems="center">
+      <Flex justifyContent="center" alignItems="center">
         <Flex>
           <IconButton
             aria-label="Previous Page"
@@ -194,8 +195,8 @@ const BoxesTable = ({ tableData }: BoxesTableProps) => {
           />
         </Flex>
 
-        <Flex justifyContent="center" alignItems="center">
-          <Text mr={8}>
+        <Flex justifyContent="center" mx={4}>
+          <Text>
             Page{" "}
             <Text fontWeight="bold" as="span">
               {pageIndex + 1}
