@@ -195,7 +195,7 @@ const BoxesTable = ({ tableData }: BoxesTableProps) => {
           />
         </Flex>
 
-        <Flex justifyContent="center" mx={4}>
+        <Flex justifyContent="center" m={4}>
           <Text>
             Page{" "}
             <Text fontWeight="bold" as="span">
