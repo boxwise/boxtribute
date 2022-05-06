@@ -3,10 +3,17 @@ import { useParams } from "react-router-dom";
 import BoxesTable from "views/Boxes/components/BoxesTable";
 import { BoxesForBaseQuery } from "../../types/generated/graphql";
 
-export const BOXES_FOR_BASE_QUERY = gql`
-  query BoxesForBase($baseId: ID!) {
-    base(id: $baseId) {
-      locations {
+export const BASES_FOR_ORGANISATION_QUERY = gql`
+  query BasesForOrganisation() {
+      organisations {
+          name
+          bases {
+              id
+      }
+    organisation(id: $organisationId) {
+      name
+      bases {
+
         boxes {
           totalCount
           elements {
