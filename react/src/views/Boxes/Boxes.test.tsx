@@ -25,6 +25,7 @@ describe("Boxes view", () => {
                   elements: [
                     {
                       __typename: "Box",
+                      labelIdentifier: "1234",
                       id: "11",
                       state: "Donated",
                       size: "4",
@@ -37,6 +38,7 @@ describe("Boxes view", () => {
                     },
                     {
                       __typename: "Box",
+                      labelIdentifier: "1235",
                       id: "995",
                       state: "Donated",
                       size: "52",
@@ -58,6 +60,7 @@ describe("Boxes view", () => {
                   elements: [
                     {
                       __typename: "Box",
+                      labelIdentifier: "1236",
                       id: "157",
                       state: "Lost",
                       size: "54",
@@ -70,6 +73,7 @@ describe("Boxes view", () => {
                     },
                     {
                       __typename: "Box",
+                      labelIdentifier: "1237",
                       id: "174",
                       state: "MarkedForShipment",
                       size: "68",
@@ -82,6 +86,7 @@ describe("Boxes view", () => {
                     },
                     {
                       __typename: "Box",
+                      labelIdentifier: "1238",
                       id: "291",
                       state: "Lost",
                       size: "118",
@@ -103,6 +108,7 @@ describe("Boxes view", () => {
                   elements: [
                     {
                       __typename: "Box",
+                      labelIdentifier: "1239",
                       id: "43",
                       state: "InStock",
                       size: "68",
@@ -115,6 +121,7 @@ describe("Boxes view", () => {
                     },
                     {
                       __typename: "Box",
+                      labelIdentifier: "1230",
                       id: "137",
                       state: "InStock",
                       size: "68",
@@ -195,7 +202,7 @@ describe("Boxes view", () => {
     beforeEach(waitTillLoadingIsDone);
     it("initially it shows also entries in the table that don't match the later used filter value", async () => {
       const nonWomenEntryInOriginalRowSet = screen.queryByRole("gridcell", {
-        name: "174",
+        name: "1237",
       });
       expect(nonWomenEntryInOriginalRowSet).toBeInTheDocument();
     });
@@ -210,13 +217,13 @@ describe("Boxes view", () => {
       it("only shows entries in the table that match the selected filter dropdown value", async () => {
         await waitFor(() => {
           const nonWomenEntryInOriginalRowSet = screen.queryByRole("gridcell", {
-            name: "174",
+            name: "1237",
           });
           expect(nonWomenEntryInOriginalRowSet).toBeNull();
         });
 
         const womenEntryInFilteredRowSet = screen.queryByRole("gridcell", {
-          name: "995",
+          name: "1235",
         });
         expect(womenEntryInFilteredRowSet).toBeInTheDocument();
       });
