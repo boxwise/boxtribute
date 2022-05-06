@@ -26,7 +26,6 @@ describe("Boxes view", () => {
                     {
                       __typename: "Box",
                       labelIdentifier: "1234",
-                      id: "11",
                       state: "Donated",
                       size: "4",
                       product: {
@@ -39,7 +38,6 @@ describe("Boxes view", () => {
                     {
                       __typename: "Box",
                       labelIdentifier: "1235",
-                      id: "995",
                       state: "Donated",
                       size: "52",
                       product: {
@@ -61,7 +59,6 @@ describe("Boxes view", () => {
                     {
                       __typename: "Box",
                       labelIdentifier: "1236",
-                      id: "157",
                       state: "Lost",
                       size: "54",
                       product: {
@@ -74,7 +71,6 @@ describe("Boxes view", () => {
                     {
                       __typename: "Box",
                       labelIdentifier: "1237",
-                      id: "174",
                       state: "MarkedForShipment",
                       size: "68",
                       product: {
@@ -87,7 +83,6 @@ describe("Boxes view", () => {
                     {
                       __typename: "Box",
                       labelIdentifier: "1238",
-                      id: "291",
                       state: "Lost",
                       size: "118",
                       product: {
@@ -109,7 +104,6 @@ describe("Boxes view", () => {
                     {
                       __typename: "Box",
                       labelIdentifier: "1239",
-                      id: "43",
                       state: "InStock",
                       size: "68",
                       product: {
@@ -122,7 +116,6 @@ describe("Boxes view", () => {
                     {
                       __typename: "Box",
                       labelIdentifier: "1230",
-                      id: "137",
                       state: "InStock",
                       size: "68",
                       product: {
