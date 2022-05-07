@@ -1,5 +1,5 @@
 import { gql, useQuery } from "@apollo/client";
-import { Box, Heading, List, ListItem, Text } from "@chakra-ui/react";
+import { Box, Button, Heading, List, ListItem, Text } from "@chakra-ui/react";
 import { useParams } from "react-router-dom";
 import {
   BoxByLabelIdentifierQuery,
@@ -47,6 +47,10 @@ const BTBox = () => {
     console.error(error);
     return <div>Error!</div>;
   }
+
+  const moveToLocationClick = (locationId: string) => {
+    alert(`Moving box with label ${data?.box?.labelIdentifier} to ${locationId}`);
+  };
 
   return (
     <Box>
@@ -102,7 +106,11 @@ const BTBox = () => {
         <Heading as={"h3"}>Move this box to location...</Heading>
         <List>
           {data?.box?.location?.base?.locations?.map((location, i) => (
-            <ListItem key={location.id}>{location.name}</ListItem>
+            <ListItem key={location.id}>
+              <Button onClick={() => moveToLocationClick(location.id)}>
+                {location.name}
+              </Button>
+            </ListItem>
           ))}
         </List>
       </Box>
