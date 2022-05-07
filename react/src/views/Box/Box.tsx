@@ -1,10 +1,5 @@
 import { gql, useQuery } from "@apollo/client";
-import {
-  Box,
-  List,
-  ListItem,
-  Text,
-} from "@chakra-ui/react";
+import { Box, List, ListItem, Text } from "@chakra-ui/react";
 import { useParams } from "react-router-dom";
 import {
   BoxByLabelIdentifierQuery,
@@ -23,6 +18,12 @@ export const BOX_BY_LABEL_IDENTIFIER_QUERY = gql`
       }
       location {
         name
+        base {
+          locations {
+            id
+            name
+          }
+        }
       }
     }
   }
