@@ -17,6 +17,7 @@ export const BOX_BY_LABEL_IDENTIFIER_QUERY = gql`
         gender
       }
       location {
+        id
         name
         base {
           locations {
@@ -107,7 +108,7 @@ const BTBox = () => {
         <List>
           {data?.box?.location?.base?.locations?.map((location, i) => (
             <ListItem key={location.id}>
-              <Button onClick={() => moveToLocationClick(location.id)}>
+              <Button onClick={() => moveToLocationClick(location.id)} disabled={data.box?.location?.id === location.id}>
                 {location.name}
               </Button>
             </ListItem>
