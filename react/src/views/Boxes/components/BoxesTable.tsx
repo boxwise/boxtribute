@@ -17,8 +17,6 @@ import {
   Flex,
   Text,
   IconButton,
-  Center,
-  Spacer,
 } from "@chakra-ui/react";
 import {
   Column,
