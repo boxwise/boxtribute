@@ -41,7 +41,7 @@ const QrScanner = () => {
         <Container maxW="md">
           <QrReader
             constraints={{
-              facingMode: "user",
+              facingMode: "environment",
             }}
             scanDelay={1000}
             onResult={(result, error) => {
