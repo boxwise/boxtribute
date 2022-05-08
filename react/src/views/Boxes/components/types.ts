@@ -5,6 +5,7 @@ export type ProductRow = {
     gender?: string | null;
     items: number;
     size?: string | null;
+    location?: string | null;
     state: string;
   };
 

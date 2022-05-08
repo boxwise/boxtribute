@@ -27,20 +27,20 @@ import {
   useRowSelect,
   usePagination,
 } from "react-table";
-import { ProductRow } from "./types";
+import { ProductRow as BoxRow } from "./types";
 import { GlobalFilter } from "./GlobalFilter";
 import { SelectColumnFilter } from "./SelectColumnFilter";
 import { useNavigate, useParams } from "react-router-dom";
 import IndeterminateCheckbox from "./Checkbox";
 
 type BoxesTableProps = {
-  tableData: ProductRow[];
+  tableData: BoxRow[];
 };
 
 const BoxesTable = ({ tableData }: BoxesTableProps) => {
   const navigate = useNavigate();
   const baseId = useParams<{ baseId: string }>().baseId!;
-  const columns: Column<ProductRow>[] = React.useMemo(
+  const columns: Column<BoxRow>[] = React.useMemo(
     () => [
       {
         Header: "Product",
@@ -69,6 +69,12 @@ const BoxesTable = ({ tableData }: BoxesTableProps) => {
       {
         Header: "State",
         accessor: "state",
+        Filter: SelectColumnFilter,
+        filter: "equals",
+      },
+      {
+        Header: "Location",
+        accessor: "location",
         Filter: SelectColumnFilter,
         filter: "equals",
       },
