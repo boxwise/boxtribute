@@ -85,16 +85,17 @@ const BTBox = () => {
   if (loading) {
     return <div>Loading...</div>;
   }
-  if (error) {
-    console.error(error);
+  if (mutationStatus.loading) {
+    return <div>Updating box...</div>;
+  }
+  if (error || mutationStatus.error) {
+    console.error(error || mutationStatus.error);
     return <div>Error!</div>;
   }
 
-  const onMoveBoxToLocationClick = (locationId: string) => {
-    alert(
-      `Moving box with label ${data?.box?.labelIdentifier} to ${locationId}`
-    );
+  const boxData = mutationStatus.data?.updateBox || data?.box;
 
+  const onMoveBoxToLocationClick = (locationId: string) => {
     updateBoxLocation({
       variables: {
         boxLabelIdentifier: labelIdentifier,
@@ -103,7 +104,7 @@ const BTBox = () => {
     });
   };
 
-  return <BoxDetails boxData={data?.box} />;
+  return <BoxDetails boxData={boxData} onMoveToLocationClick={onMoveBoxToLocationClick} />;
 };
 
 export default BTBox;
