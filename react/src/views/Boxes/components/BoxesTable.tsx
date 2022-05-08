@@ -59,7 +59,6 @@ const BoxesTable = ({ tableData }: BoxesTableProps) => {
       },
       {
         Header: "Size",
-        Filter: SelectColumnFilter,
         accessor: "size",
       },
       {
