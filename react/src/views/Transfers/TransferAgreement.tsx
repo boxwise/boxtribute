@@ -1,10 +1,5 @@
 // import { Controller, useForm } from "react-hook-form";
-import {
-  gql,
-  useQuery,
-  useLazyQuery,
-  OperationVariables,
-} from "@apollo/client";
+import { gql, useQuery, useLazyQuery } from "@apollo/client";
 import {
   BasesForOrganisationsQuery,
   BasesForOrganisationsQueryVariables,
@@ -105,10 +100,13 @@ const TransferAgreement = () => {
         ))}
       </Select>
       <Select placeholder="Select bases">
-        {/* {console.log(basesdata)} */}
         {basesdata?.organisation?.bases?.map((option) => (
           <option value={option.id}>{option.name}</option>
         ))}
+      </Select>
+      <Select placeholder="Transfer type direction">
+        <option>Unidirectional</option>
+        <option>Bidirectional</option>
       </Select>
 
       <Input type="submit" />
