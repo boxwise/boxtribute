@@ -57,12 +57,12 @@ const TransferAgreement = () => {
   //   formState: { errors, isSubmitting },
   // } = useForm();
 
-  const [selectOrg, setSelectOrg] = useState<string>();
+  const [selectOrgId, setSelectedOrgId] = useState<string>();
 
   useEffect(() => {
-    if (selectOrg != null)
-      basesForOrganisations({ variables: { organisationId: selectOrg } });
-  }, [basesForOrganisations, selectOrg]);
+    if (selectOrgId != null)
+      basesForOrganisations({ variables: { organisationId: selectOrgId } });
+  }, [basesForOrganisations, selectOrgId]);
 
   const { loading, error, data } =
     useQuery<OrganisationsQuery>(ORGANISATIONS_QUERY);
@@ -92,20 +92,20 @@ const TransferAgreement = () => {
   //   selectOptions = [];
   // }
 
-  const handleSelectionOrg = (e: React.FormEvent<HTMLInputElement>): void => {
-    setSelectOrg((e.target as HTMLInputElement).value);
+  const onOrgDropdownChange = (e: React.FormEvent<HTMLSelectElement>): void => {
+    const newSelectedOrgId = (e.target as HTMLInputElement).value;
+    setSelectedOrgId(newSelectedOrgId);
+    console.log("newSelectedOrgId", newSelectedOrgId);
   };
   return (
     <form>
-      <Select
-        placeholder="Select organisation"
-        onChange={(e) => setSelectOrg(e.target.value)}
-      >
-        {data?.organisations.map((option) => (
+      <Select placeholder="Select organisation" onChange={onOrgDropdownChange}>
+        {data?.organisations?.map((option) => (
           <option value={option.id}>{option.name}</option>
         ))}
       </Select>
       <Select placeholder="Select bases">
+        {/* {console.log(basesdata)} */}
         {basesdata?.organisation?.bases?.map((option) => (
           <option value={option.id}>{option.name}</option>
         ))}
