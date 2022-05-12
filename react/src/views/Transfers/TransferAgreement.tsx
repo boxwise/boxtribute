@@ -15,6 +15,7 @@ import {
   Select,
 } from "@chakra-ui/react";
 import { useEffect, useState } from "react";
+import DatePicker from "views/Boxes/components/DatePicker";
 
 export const ORGANISATIONS_QUERY = gql`
   query Organisations {
@@ -108,7 +109,8 @@ const TransferAgreement = () => {
         <option>Unidirectional</option>
         <option>Bidirectional</option>
       </Select>
-
+      <DatePicker />
+      <DatePicker />
       <Input type="submit" />
     </form>
   );
