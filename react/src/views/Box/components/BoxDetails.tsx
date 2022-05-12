@@ -1,5 +1,6 @@
 import { Box, List, ListItem, Heading, Button, Text } from "@chakra-ui/react";
 import React from "react";
+import { NavLink } from "react-router-dom";
 import {
   BoxByLabelIdentifierQuery,
   UpdateLocationOfBoxMutation,
@@ -68,6 +69,11 @@ const BoxDetails = ({ boxData, onMoveToLocationClick: moveToLocationClick }: Box
           {boxData.location?.name}
         </ListItem>
       </List>
+
+      <NavLink to="edit">
+        <Button>Edit Box</Button>
+      </NavLink>
+
       <Box>
         <Heading as={"h3"}>Move this box to location...</Heading>
         <List>

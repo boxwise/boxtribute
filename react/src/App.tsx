@@ -1,7 +1,7 @@
 import "regenerator-runtime/runtime";
 import React, { useContext, useEffect } from "react";
 import { Route, Routes } from "react-router-dom";
-import Boxes from "views/Boxes/Boxes";
+import Boxes from "views/Boxes/BoxesView";
 import BTLocations from "views/BTLocations/BTLocations";
 import BTLocation from "views/BTLocations/BTLocation";
 import Layout from "components/Layout";
@@ -10,7 +10,8 @@ import { gql, useLazyQuery } from "@apollo/client";
 import QrScanner from "components/QrScanner";
 import { BasesQuery } from "types/generated/graphql";
 import { GlobalPreferencesContext } from "providers/GlobalPreferencesProvider";
-import BTBox from "views/Box/Box";
+import BTBox from "views/Box/BoxView";
+import BoxEditView from "views/BoxEdit/BoxEditView";
 
 const useLoadAndSetAvailableBases = () => {
   const BASES_QUERY = gql`
@@ -56,6 +57,7 @@ const App = () => {
             <Route path="boxes">
                 <Route index element={<Boxes />} />
               <Route path=":labelIdentifier" element={<BTBox />} />
+              <Route path=":labelIdentifier/edit" element={<BoxEditView />} />
             </Route>
             <Route path="locations">
               <Route index element={<BTLocations />} />
