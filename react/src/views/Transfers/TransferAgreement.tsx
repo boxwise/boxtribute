@@ -1,4 +1,4 @@
-// import { Controller, useForm } from "react-hook-form";
+import { Controller, useForm } from "react-hook-form";
 import { gql, useQuery, useLazyQuery } from "@apollo/client";
 import {
   BasesForOrganisationsQuery,
@@ -45,13 +45,15 @@ const TransferAgreement = () => {
     BasesForOrganisationsQueryVariables
   >(BASES_ORGANISATIONS_QUERY);
 
-  // const {
-  //   handleSubmit,
-  //   control,
-  //   register,
-  //   watch,
-  //   formState: { errors, isSubmitting },
-  // } = useForm();
+  // const { register, handleSubmit } = useForm({
+  //   defaultValues: {
+  //     targetOrganisationId: "",
+  //     type: "",
+  //     checkbox: [],
+  //     radio: "",
+  //     message: ""
+  //   }
+  // });
 
   const [selectOrgId, setSelectedOrgId] = useState<string>();
 
@@ -68,25 +70,6 @@ const TransferAgreement = () => {
   if (error) {
     return <div>Error: {JSON.stringify(error)}</div>;
   }
-
-  // function onSubmit(values) {
-  //   return new Promise<void>((resolve) => {
-  //     setTimeout(() => {
-  //       alert(JSON.stringify(values, null, 2));
-  //       resolve();
-  //     }, 3000);
-  //   });
-  // }
-
-  // const organisation = watch("organisation");
-
-  // if (test === "United States") {
-  //   selectOptions = ["test", "test1"];
-  // } else if (test === "Canada") {
-  //   selectOptions = ["test2", "test13"];
-  // } else {
-  //   selectOptions = [];
-  // }
 
   const onOrgDropdownChange = (e: React.FormEvent<HTMLSelectElement>): void => {
     const newSelectedOrgId = (e.target as HTMLInputElement).value;
