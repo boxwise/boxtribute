@@ -883,4 +883,11 @@ export type BoxesForBaseQuery = { __typename?: 'Query', base?: { __typename?: 'B
 export type OrganisationsQueryVariables = Exact<{ [key: string]: never; }>;
 
 
-export type OrganisationsQuery = { __typename?: 'Query', organisations: Array<{ __typename?: 'Organisation', id: string, name: string, bases?: Array<{ __typename?: 'Base', id: string, name: string }> | null }> };
+export type OrganisationsQuery = { __typename?: 'Query', organisations: Array<{ __typename?: 'Organisation', id: string, name: string }> };
+
+export type BasesForOrganisationsQueryVariables = Exact<{
+  organisationId: Scalars['ID'];
+}>;
+
+
+export type BasesForOrganisationsQuery = { __typename?: 'Query', organisation?: { __typename?: 'Organisation', id: string, name: string, bases?: Array<{ __typename?: 'Base', id: string, name: string }> | null } | null };
