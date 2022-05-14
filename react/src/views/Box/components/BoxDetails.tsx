@@ -13,10 +13,13 @@ interface BoxDetailsProps {
   onMoveToLocationClick: (locationId: string) => void;
 }
 
-const BoxDetails = ({ boxData, onMoveToLocationClick: moveToLocationClick }: BoxDetailsProps) => {
+const BoxDetails = ({
+  boxData,
+  onMoveToLocationClick: moveToLocationClick,
+}: BoxDetailsProps) => {
   if (boxData == null) {
     console.error("BoxDetails Component: boxData is null");
-    return null;
+    return <Box>No data found for a box with this id</Box>;
   }
 
   return (

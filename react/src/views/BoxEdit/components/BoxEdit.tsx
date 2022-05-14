@@ -28,21 +28,25 @@ interface BoxEditProps {
 
 const BoxEdit = ({
   boxData,
-  // onMoveToLocationClick: moveToLocationClick,
-}: BoxEditProps) => {
+}: // onMoveToLocationClick: moveToLocationClick,
+BoxEditProps) => {
   const {
     handleSubmit,
     register,
     formState: { errors, isSubmitting },
-  } = useForm();
+  } = useForm({
+    defaultValues: {
+      size: boxData?.size
+    }
+  });
 
-  const [editFormModeActive, toggleEditFormModeActive] = useToggle(false);
-
-  function onSubmitEditForm(values) {}
+  const onSubmitEditForm = (values) => {
+    alert(JSON.stringify(values));
+  };
 
   if (boxData == null) {
     console.error("BoxDetails Component: boxData is null");
-    return null;
+    return <Box>No data found for a box with this id</Box>;
   }
 
   return (
@@ -58,18 +62,33 @@ const BoxEdit = ({
       </Text>
 
       <form onSubmit={handleSubmit(onSubmitEditForm)}>
-        <FormControl isInvalid={errors.name}>
-          <List spacing={2}>
-            <ListItem>
+        <List spacing={2}>
+          <ListItem>
             <Text as={"span"} fontWeight={"bold"}>
-                Box Label:
-              </Text>{" "}
-              {boxData.labelIdentifier}
-            {/* <Flex> */}
+              Box Label:
+            </Text>{" "}
+            {boxData.labelIdentifier}
+          </ListItem>
+          <ListItem>
+            <FormLabel htmlFor="product" fontWeight={"bold"}>Product:</FormLabel>
+            <Input
+              id="product"
+              {...register("product", {
+                required: "This is required",
+                minLength: {
+                  value: 4,
+                  message: "Minimum length should be 4",
+                },
+              })}
+              disabled
+            />
+          </ListItem>
+          <ListItem>
+            {/* <FormControl isInvalid={errors.name}>
+              {/* <Flex> */}
               <FormLabel htmlFor="box-label">Box Label:</FormLabel>
               <Input
-                id="product"
-                placeholder="Product"
+                id="box-label"
                 {...register("product", {
                   required: "This is required",
                   minLength: {
@@ -77,74 +96,56 @@ const BoxEdit = ({
                     message: "Minimum length should be 4",
                   },
                 })}
-                disabled={!editFormModeActive}
               />
-            </ListItem>
-            <ListItem>
-              <FormLabel htmlFor="name">Box Label:</FormLabel>
-              <Input
-                id="name"
-                placeholder="name"
-                {...register("name", {
-                  required: "This is required",
-                  minLength: {
-                    value: 4,
-                    message: "Minimum length should be 4",
-                  },
-                })}
-                disabled={!editFormModeActive}
-              />
-              <Text as={"span"} fontWeight={"bold"}>
-                Product:
-              </Text>{" "}
-              {}
-            </ListItem>
-            <ListItem>
-              <Text as={"span"} fontWeight={"bold"}>
-                Gender:
-              </Text>{" "}
-              {boxData.product?.gender}
-            </ListItem>
-            <ListItem>
-              <Text as={"span"} fontWeight={"bold"}>
-                Size:
-              </Text>{" "}
-              {boxData.size}
-            </ListItem>
-            <ListItem>
-              <Text as={"span"} fontWeight={"bold"}>
-                Items:
-              </Text>{" "}
-              {boxData.items}
-            </ListItem>
-            <ListItem>
-              <Text as={"span"} fontWeight={"bold"}>
-                Location:
-              </Text>{" "}
-              {boxData.location?.name}
-            </ListItem>
-          </List>
+            </FormControl> */}
+          </ListItem>
+          <ListItem>
+            <Text as={"span"} fontWeight={"bold"}>
+              Gender:
+            </Text>{" "}
+            {boxData.product?.gender}
+          </ListItem>
+          <ListItem>
+          <FormLabel htmlFor="size" fontWeight={"bold"}>Size:</FormLabel>
+            <Input
+              id="size"
+              {...register("size", {
+                required: "This is required",
+                minLength: {
+                  value: 4,
+                  message: "Minimum length should be 4",
+                },
+              })}
+              disabled
+            />
+          </ListItem>
+          <ListItem>
+            <Text as={"span"} fontWeight={"bold"}>
+              Items:
+            </Text>{" "}
+            {boxData.items}
+          </ListItem>
+          <ListItem>
+            <Text as={"span"} fontWeight={"bold"}>
+              Location:
+            </Text>{" "}
+            {boxData.location?.name}
+          </ListItem>
+        </List>
 
-          <FormErrorMessage>
-            {errors.name && errors.name.message}
-          </FormErrorMessage>
-          {/* </Flex> */}
-        </FormControl>
+        <FormErrorMessage>
+          {errors.name && errors.name.message}
+        </FormErrorMessage>
+        {/* </Flex> */}
         <Button
           mt={4}
           colorScheme="teal"
           isLoading={isSubmitting}
           type="submit"
-          disabled={!editFormModeActive}
         >
           Update Box
         </Button>
       </form>
-
-      <Button onClick={toggleEditFormModeActive}>
-        {editFormModeActive ? "Cancel" : "Edit Box"}
-      </Button>
-
     </Box>
   );
 };
