@@ -36,8 +36,8 @@ BoxEditProps) => {
     formState: { errors, isSubmitting },
   } = useForm({
     defaultValues: {
-      size: boxData?.size
-    }
+      size: boxData?.size,
+    },
   });
 
   const onSubmitEditForm = (values) => {
@@ -69,36 +69,7 @@ BoxEditProps) => {
             </Text>{" "}
             {boxData.labelIdentifier}
           </ListItem>
-          <ListItem>
-            <FormLabel htmlFor="product" fontWeight={"bold"}>Product:</FormLabel>
-            <Input
-              id="product"
-              {...register("product", {
-                required: "This is required",
-                minLength: {
-                  value: 4,
-                  message: "Minimum length should be 4",
-                },
-              })}
-              disabled
-            />
-          </ListItem>
-          <ListItem>
-            {/* <FormControl isInvalid={errors.name}>
-              {/* <Flex> */}
-              <FormLabel htmlFor="box-label">Box Label:</FormLabel>
-              <Input
-                id="box-label"
-                {...register("product", {
-                  required: "This is required",
-                  minLength: {
-                    value: 4,
-                    message: "Minimum length should be 4",
-                  },
-                })}
-              />
-            </FormControl> */}
-          </ListItem>
+          <ListItem></ListItem>
           <ListItem>
             <Text as={"span"} fontWeight={"bold"}>
               Gender:
@@ -106,18 +77,25 @@ BoxEditProps) => {
             {boxData.product?.gender}
           </ListItem>
           <ListItem>
-          <FormLabel htmlFor="size" fontWeight={"bold"}>Size:</FormLabel>
-            <Input
-              id="size"
-              {...register("size", {
-                required: "This is required",
-                minLength: {
-                  value: 4,
-                  message: "Minimum length should be 4",
-                },
-              })}
-              disabled
-            />
+            <FormControl isInvalid={!!errors?.size}>
+              <FormLabel htmlFor="size" fontWeight={"bold"}>
+                Size:
+              </FormLabel>
+              <Input
+                id="size"
+                // ref={register}
+                {...register("size", {
+                  required: "This is required",
+                  minLength: {
+                    value: 4,
+                    message: "Minimum length should be 4",
+                  },
+                })}
+              />
+              <FormErrorMessage>
+                {errors.size && errors.size.message}
+              </FormErrorMessage>
+            </FormControl>
           </ListItem>
           <ListItem>
             <Text as={"span"} fontWeight={"bold"}>
@@ -132,10 +110,6 @@ BoxEditProps) => {
             {boxData.location?.name}
           </ListItem>
         </List>
-
-        <FormErrorMessage>
-          {errors.name && errors.name.message}
-        </FormErrorMessage>
         {/* </Flex> */}
         <Button
           mt={4}
