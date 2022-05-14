@@ -69,13 +69,6 @@ BoxEditProps) => {
             </Text>{" "}
             {boxData.labelIdentifier}
           </ListItem>
-          <ListItem></ListItem>
-          <ListItem>
-            <Text as={"span"} fontWeight={"bold"}>
-              Gender:
-            </Text>{" "}
-            {boxData.product?.gender}
-          </ListItem>
           <ListItem>
             <FormControl isInvalid={!!errors?.size}>
               <FormLabel htmlFor="size" fontWeight={"bold"}>
@@ -96,6 +89,10 @@ BoxEditProps) => {
                 {errors.size && errors.size.message}
               </FormErrorMessage>
             </FormControl>
+            <Text as={"span"} fontWeight={"bold"}>
+              Gender:
+            </Text>{" "}
+            {boxData.product?.gender}
           </ListItem>
           <ListItem>
             <Text as={"span"} fontWeight={"bold"}>
