@@ -2,15 +2,13 @@ import { gql, useMutation, useQuery } from "@apollo/client";
 import { Box, Button, Heading, List, ListItem, Text } from "@chakra-ui/react";
 import { useParams } from "react-router-dom";
 import {
-  BoxByLabelIdentifierQuery,
-  BoxByLabelIdentifierQueryVariables,
-  UpdateLocationOfBoxMutation,
-  UpdateLocationOfBoxMutationVariables,
+  BoxByLabelIdentifierAndAllProductsQuery,
+  BoxByLabelIdentifierAndAllProductsQueryVariables
 } from "types/generated/graphql";
 import BoxEdit from "./components/BoxEdit";
 
-export const BOX_BY_LABEL_IDENTIFIER_QUERY = gql`
-  query BoxByLabelIdentifier($labelIdentifier: String!) {
+export const BOX_BY_LABEL_IDENTIFIER_AND_ALL_PRODUCTS_QUERY = gql`
+  query BoxByLabelIdentifierAndAllProducts($labelIdentifier: String!) {
     box(labelIdentifier: $labelIdentifier) {
       labelIdentifier
       size
@@ -28,6 +26,14 @@ export const BOX_BY_LABEL_IDENTIFIER_QUERY = gql`
             name
           }
         }
+      }
+    }
+
+    products(paginationInput: { first: 0, last: 100000 }) {
+      elements {
+        id
+        name
+        gender
       }
     }
   }
@@ -69,9 +75,9 @@ const BoxEditView = () => {
   const labelIdentifier =
     useParams<{ labelIdentifier: string }>().labelIdentifier!;
   const { loading, error, data } = useQuery<
-    BoxByLabelIdentifierQuery,
-    BoxByLabelIdentifierQueryVariables
-  >(BOX_BY_LABEL_IDENTIFIER_QUERY, {
+    BoxByLabelIdentifierAndAllProductsQuery,
+    BoxByLabelIdentifierAndAllProductsQueryVariables
+  >(BOX_BY_LABEL_IDENTIFIER_AND_ALL_PRODUCTS_QUERY, {
     variables: {
       labelIdentifier,
     },
@@ -95,9 +101,9 @@ const BoxEditView = () => {
 
   // const boxData = mutationStatus.data?.updateBox || data?.box;
   const boxData = data?.box;
+  const allProducts = data?.products;
 
-  return <BoxEdit boxData={boxData} />;
-  return <>JO</>
+  return <BoxEdit boxData={boxData} allProducts={allProducts} />;
 };
 
 export default BoxEditView;

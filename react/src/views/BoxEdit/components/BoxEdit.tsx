@@ -13,7 +13,7 @@ import {
 } from "@chakra-ui/react";
 import React, { useState } from "react";
 import {
-  BoxByLabelIdentifierQuery,
+  BoxByLabelIdentifierAndAllProductsQuery,
   UpdateLocationOfBoxMutation,
 } from "types/generated/graphql";
 import { useForm } from "react-hook-form";
@@ -21,13 +21,19 @@ import useToggle from "utils/helper-hooks";
 
 interface BoxEditProps {
   boxData:
-    | BoxByLabelIdentifierQuery["box"]
+    | BoxByLabelIdentifierAndAllProductsQuery["box"]
     | UpdateLocationOfBoxMutation["updateBox"];
-  // onMoveToLocationClick: (locationId: string) => void;
+  allProducts: BoxByLabelIdentifierAndAllProductsQuery["products"] | undefined;
 }
+
+const ProductsDropdown = ({products}: {products: BoxByLabelIdentifierAndAllProductsQuery["products"]}) => {
+  return <Box>The Products Dropdown for {JSON.stringify(products)}</Box>
+}
+
 
 const BoxEdit = ({
   boxData,
+  allProducts
 }: // onMoveToLocationClick: moveToLocationClick,
 BoxEditProps) => {
   const {
@@ -49,6 +55,11 @@ BoxEditProps) => {
     return <Box>No data found for a box with this id</Box>;
   }
 
+  if (allProducts == null) {
+    console.error("BoxDetails Component: allProducts is null");
+    return <Box>There was an error: the available products to choose from couldn't be loaded!</Box>;
+  }
+
   return (
     <Box>
       <Text
@@ -68,6 +79,9 @@ BoxEditProps) => {
               Box Label:
             </Text>{" "}
             {boxData.labelIdentifier}
+          </ListItem>
+          <ListItem>
+            <ProductsDropdown products={allProducts} />
           </ListItem>
           <ListItem>
             <FormControl isInvalid={!!errors?.size}>
