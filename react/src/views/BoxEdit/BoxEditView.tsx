@@ -4,6 +4,8 @@ import { useParams } from "react-router-dom";
 import {
   BoxByLabelIdentifierAndAllProductsQuery,
   BoxByLabelIdentifierAndAllProductsQueryVariables,
+  UpdateContentOfBoxMutation,
+  UpdateContentOfBoxMutationVariables,
 } from "types/generated/graphql";
 import BoxEdit, { BoxFormValues } from "./components/BoxEdit";
 
@@ -45,6 +47,23 @@ export const BOX_BY_LABEL_IDENTIFIER_AND_ALL_PRODUCTS_QUERY = gql`
     }
   }
 `;
+
+export const UPDATE_CONTENT_OF_BOX_MUTATION = gql`
+  mutation UpdateContentOfBox(
+    $boxLabelIdentifier: String!
+    $productId: Int!
+  ) {
+    updateBox(
+      updateInput: {
+        labelIdentifier: $boxLabelIdentifier
+        productId: $productId
+      }
+    ) {
+      labelIdentifier
+    }
+  }
+`;
+
 
 // export const UPDATE_LOCATION_OF_BOX_MUTATION = gql`
 //   mutation UpdateLocationOfBox(
@@ -90,7 +109,16 @@ const BoxEditView = () => {
     },
   });
 
+  const [updateContentOfBoxMutation, updateContentOfBoxMutationStatus] = useMutation<UpdateContentOfBoxMutation, UpdateContentOfBoxMutationVariables>(UPDATE_CONTENT_OF_BOX_MUTATION);
+
   const onSubmitBoxEditForm = (boxFormValues: BoxFormValues) => {
+    updateContentOfBoxMutation({
+      variables: 
+      {
+        boxLabelIdentifier: labelIdentifier,
+        productId: parseInt(boxFormValues.productForDropdown.value),
+      }
+    })
     alert(JSON.stringify(boxFormValues))
   }
 

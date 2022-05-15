@@ -888,6 +888,14 @@ export type BoxByLabelIdentifierAndAllProductsQueryVariables = Exact<{
 
 export type BoxByLabelIdentifierAndAllProductsQuery = { __typename?: 'Query', box?: { __typename?: 'Box', labelIdentifier: string, size?: string | null, items: number, product?: { __typename?: 'Product', id: string, name: string, gender?: ProductGender | null } | null, location?: { __typename?: 'Location', id: string, name?: string | null, base?: { __typename?: 'Base', locations?: Array<{ __typename?: 'Location', id: string, name?: string | null }> | null } | null } | null } | null, products: { __typename?: 'ProductPage', elements: Array<{ __typename?: 'Product', id: string, name: string, gender?: ProductGender | null, category: { __typename?: 'ProductCategory', name: string }, sizeRange: { __typename?: 'SizeRange', label: string } }> } };
 
+export type UpdateContentOfBoxMutationVariables = Exact<{
+  boxLabelIdentifier: Scalars['String'];
+  productId: Scalars['Int'];
+}>;
+
+
+export type UpdateContentOfBoxMutation = { __typename?: 'Mutation', updateBox?: { __typename?: 'Box', labelIdentifier: string } | null };
+
 export type BoxesForBaseQueryVariables = Exact<{
   baseId: Scalars['ID'];
 }>;
