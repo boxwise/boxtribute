@@ -2,66 +2,27 @@ import {
   Box,
   List,
   ListItem,
-  Heading,
   Button,
   Text,
   FormControl,
   FormErrorMessage,
   FormLabel,
   Input,
-  Flex,
 } from "@chakra-ui/react";
-import { Select, OptionBase, GroupBase } from "chakra-react-select";
+import { Select, OptionBase } from "chakra-react-select";
 
-import React, { useState } from "react";
 import {
   BoxByLabelIdentifierAndAllProductsQuery,
   UpdateLocationOfBoxMutation,
 } from "types/generated/graphql";
-import { Control, Controller, useForm } from "react-hook-form";
-import useToggle from "utils/helper-hooks";
+import { Controller, useForm } from "react-hook-form";
 
 interface BoxEditProps {
   boxData:
     | BoxByLabelIdentifierAndAllProductsQuery["box"]
     | UpdateLocationOfBoxMutation["updateBox"];
-  allProducts:
-    | BoxByLabelIdentifierAndAllProductsQuery["products"]["elements"];
+  allProducts: BoxByLabelIdentifierAndAllProductsQuery["products"]["elements"];
 }
-
-// const ProductsDropdown = ({products, control}: {products: BoxByLabelIdentifierAndAllProductsQuery["products"]["elements"], control: Control<{ products: BoxByLabelIdentifierAndAllProductsQuery["products"]["elements"]; }, any>}) => {
-
-//   return (
-//     <Controller
-//     control={control}
-//     name="products"
-//     rules={{ required: "Please enter at least one food group." }}
-//     render={({
-//       field: { onChange, onBlur, value, name, ref },
-//       fieldState: { invalid, error }
-//     }) => (
-//       <FormControl py={4} isInvalid={invalid} id="products">
-//         <FormLabel>Products</FormLabel>
-
-//         <Select
-//           isMulti
-//           name={name}
-//           ref={ref}
-//           onChange={onChange}
-//           onBlur={onBlur}
-//           value={value}
-//           options={products}
-//           placeholder="Food Groups"
-//           closeMenuOnSelect={false}
-//         />
-
-//         <FormErrorMessage>{error && error.message}</FormErrorMessage>
-//       </FormControl>
-//     )}
-//   />
-//   )
-// }
-
 
 const groupBy = <T, K extends keyof any>(list: T[], getKey: (item: T) => K) =>
   list.reduce((previous, currentItem) => {
@@ -71,12 +32,7 @@ const groupBy = <T, K extends keyof any>(list: T[], getKey: (item: T) => K) =>
     return previous;
   }, {} as Record<K, T[]>);
 
-
-const BoxEdit = ({
-  boxData,
-  allProducts,
-}: // onMoveToLocationClick: moveToLocationClick,
-BoxEditProps) => {
+const BoxEdit = ({ boxData, allProducts }: BoxEditProps) => {
   interface ProductOptionsGroup extends OptionBase {
     value: string;
     label: string;
@@ -87,31 +43,25 @@ BoxEditProps) => {
     productsForDropdown: ProductOptionsGroup;
   }
 
-  const productsGroupedByCategory = groupBy(allProducts, (product) => product.category.name);
+  const productsGroupedByCategory = groupBy(
+    allProducts,
+    (product) => product.category.name
+  );
 
-  const productsForDropdownGroups = Object.keys(productsGroupedByCategory).map((key) => {
-     const productsForCurrentGroup = productsGroupedByCategory[key];
-    return {
-      label: key,
-      options: productsForCurrentGroup.map((product) => ({
-        value: product.id,
-        // label: `${product.category.name}: ${product.name}`,
-        label: `${product.name}`,
-      })).sort((a, b) => a.label.localeCompare(b.label)),
-    };
-  }).sort((a, b) => a.label.localeCompare(b.label));
-
-  
-  // .map((group, key) => ({
-  //   value: key,
-  //   label: group.,
-  // })
-    
-  //   .map((p) => ({
-  //   value: p.id,
-  //   label: p.gender != null ? `${p.name} (${p.gender})` : p.name,
-  // }));
-
+  const productsForDropdownGroups = Object.keys(productsGroupedByCategory)
+    .map((key) => {
+      const productsForCurrentGroup = productsGroupedByCategory[key];
+      return {
+        label: key,
+        options: productsForCurrentGroup
+          .map((product) => ({
+            value: product.id,
+            label: `${product.name}`,
+          }))
+          .sort((a, b) => a.label.localeCompare(b.label)),
+      };
+    })
+    .sort((a, b) => a.label.localeCompare(b.label));
 
   const {
     handleSubmit,
@@ -121,10 +71,9 @@ BoxEditProps) => {
   } = useForm<FormValues>({
     defaultValues: {
       size: boxData?.size,
-      productsForDropdown: productsForDropdownGroups?.flatMap(i => i.options)
-      .find(
-        (p) => p.value === boxData?.product?.id
-      ),
+      productsForDropdown: productsForDropdownGroups
+        ?.flatMap((i) => i.options)
+        .find((p) => p.value === boxData?.product?.id),
     },
   });
 
@@ -186,8 +135,7 @@ BoxEditProps) => {
                     value={value}
                     options={productsForDropdownGroups}
                     placeholder="Product"
-                    // searchable={true}
-                    // closeMenuOnSelect={false}
+                    isSearchable
                   />
 
                   <FormErrorMessage>{error && error.message}</FormErrorMessage>
@@ -197,12 +145,11 @@ BoxEditProps) => {
           </ListItem>
           <ListItem>
             <FormControl isInvalid={!!errors?.size}>
-              <FormLabel htmlFor="size" fontWeight={"bold"}>
+              <FormLabel htmlFor="size">
                 Size:
               </FormLabel>
               <Input
                 id="size"
-                // ref={register}
                 {...register("size", {
                   required: "This is required",
                 })}
@@ -225,7 +172,6 @@ BoxEditProps) => {
             {boxData.location?.name}
           </ListItem>
         </List>
-        {/* </Flex> */}
         <Button
           mt={4}
           colorScheme="teal"
