@@ -115,7 +115,7 @@ const BoxEditView = () => {
     return <div>Error: no products available to choose from for this Box</div>;
   }
 
-  return <BoxEdit boxData={boxData} allProducts={allProducts?.elements} />;
+  return <BoxEdit boxData={boxData} allProducts={allProducts?.elements} onSubmitBoxEditForm={onSubmitBoxEditForm} />;
 };
 
 export default BoxEditView;

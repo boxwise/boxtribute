@@ -16,33 +16,29 @@ import {
   UpdateLocationOfBoxMutation,
 } from "types/generated/graphql";
 import { Controller, useForm } from "react-hook-form";
+import { groupBy } from "utils/helpers";
+
+interface ProductOptionsGroup extends OptionBase {
+  value: string;
+  label: string;
+}
+
+interface BoxFormValues {
+  size?: string | null;
+  productForDropdown: ProductOptionsGroup;
+}
 
 interface BoxEditProps {
   boxData:
     | BoxByLabelIdentifierAndAllProductsQuery["box"]
     | UpdateLocationOfBoxMutation["updateBox"];
   allProducts: BoxByLabelIdentifierAndAllProductsQuery["products"]["elements"];
+  onSubmitBoxEditForm: (boxFormValues: BoxFormValues) => void;
 }
 
-const groupBy = <T, K extends keyof any>(list: T[], getKey: (item: T) => K) =>
-  list.reduce((previous, currentItem) => {
-    const group = getKey(currentItem);
-    if (!previous[group]) previous[group] = [];
-    previous[group].push(currentItem);
-    return previous;
-  }, {} as Record<K, T[]>);
 
-const BoxEdit = ({ boxData, allProducts }: BoxEditProps) => {
-  interface ProductOptionsGroup extends OptionBase {
-    value: string;
-    label: string;
-  }
 
-  interface FormValues {
-    size?: string | null;
-    productsForDropdown: ProductOptionsGroup;
-  }
-
+const BoxEdit = ({ boxData, allProducts, onSubmitBoxEditForm }: BoxEditProps) => {
   const productsGroupedByCategory = groupBy(
     allProducts,
     (product) => product.category.name
@@ -68,18 +64,14 @@ const BoxEdit = ({ boxData, allProducts }: BoxEditProps) => {
     register,
     control,
     formState: { errors, isSubmitting },
-  } = useForm<FormValues>({
+  } = useForm<BoxFormValues>({
     defaultValues: {
       size: boxData?.size,
-      productsForDropdown: productsForDropdownGroups
+      productForDropdown: productsForDropdownGroups
         ?.flatMap((i) => i.options)
         .find((p) => p.value === boxData?.product?.id),
     },
   });
-
-  const onSubmitEditForm = (values) => {
-    alert(JSON.stringify(values));
-  };
 
   if (boxData == null) {
     console.error("BoxDetails Component: boxData is null");
@@ -107,7 +99,7 @@ const BoxEdit = ({ boxData, allProducts }: BoxEditProps) => {
         Box Details
       </Text>
 
-      <form onSubmit={handleSubmit(onSubmitEditForm)}>
+      <form onSubmit={handleSubmit(onSubmitBoxEditForm)}>
         <List spacing={2}>
           <ListItem>
             <Text as={"span"} fontWeight={"bold"}>
@@ -118,7 +110,7 @@ const BoxEdit = ({ boxData, allProducts }: BoxEditProps) => {
           <ListItem>
             <Controller
               control={control}
-              name="productsForDropdown"
+              name="productForDropdown"
               rules={{ required: "Please enter at least one food group." }}
               render={({
                 field: { onChange, onBlur, value, name, ref },
@@ -145,9 +137,7 @@ const BoxEdit = ({ boxData, allProducts }: BoxEditProps) => {
           </ListItem>
           <ListItem>
             <FormControl isInvalid={!!errors?.size}>
-              <FormLabel htmlFor="size">
-                Size:
-              </FormLabel>
+              <FormLabel htmlFor="size">Size:</FormLabel>
               <Input
                 id="size"
                 {...register("size", {
