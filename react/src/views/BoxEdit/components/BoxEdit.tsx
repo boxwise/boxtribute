@@ -10,24 +10,54 @@ import {
   FormLabel,
   Input,
   Flex,
+  Select,
 } from "@chakra-ui/react";
 import React, { useState } from "react";
 import {
   BoxByLabelIdentifierAndAllProductsQuery,
   UpdateLocationOfBoxMutation,
 } from "types/generated/graphql";
-import { useForm } from "react-hook-form";
+import { Control, Controller, useForm } from "react-hook-form";
 import useToggle from "utils/helper-hooks";
 
 interface BoxEditProps {
   boxData:
     | BoxByLabelIdentifierAndAllProductsQuery["box"]
     | UpdateLocationOfBoxMutation["updateBox"];
-  allProducts: BoxByLabelIdentifierAndAllProductsQuery["products"] | undefined;
+  allProducts: BoxByLabelIdentifierAndAllProductsQuery["products"]["elements"] | undefined;
 }
 
-const ProductsDropdown = ({products}: {products: BoxByLabelIdentifierAndAllProductsQuery["products"]}) => {
-  return <Box>The Products Dropdown for {JSON.stringify(products)}</Box>
+const ProductsDropdown = ({products, control}: {products: BoxByLabelIdentifierAndAllProductsQuery["products"], control: Control<{ products: BoxByLabelIdentifierAndAllProductsQuery["products"]["elements"]; }, any>}) => {
+  
+  return (
+    <Controller
+    control={control}
+    name="products"
+    rules={{ required: "Please enter at least one food group." }}
+    render={({
+      field: { onChange, onBlur, value, name, ref },
+      fieldState: { invalid, error }
+    }) => (
+      <FormControl py={4} isInvalid={invalid} id="products">
+        <FormLabel>Products</FormLabel>
+
+        <Select
+          isMulti
+          name={name}
+          ref={ref}
+          onChange={onChange}
+          onBlur={onBlur}
+          value={value}
+          options={products}
+          placeholder="Food Groups"
+          closeMenuOnSelect={false}
+        />
+
+        <FormErrorMessage>{error && error.message}</FormErrorMessage>
+      </FormControl>
+    )}
+  />
+  )
 }
 
 
@@ -39,10 +69,12 @@ BoxEditProps) => {
   const {
     handleSubmit,
     register,
+    control,
     formState: { errors, isSubmitting },
   } = useForm({
     defaultValues: {
       size: boxData?.size,
+      products: allProducts,
     },
   });
 
@@ -81,7 +113,7 @@ BoxEditProps) => {
             {boxData.labelIdentifier}
           </ListItem>
           <ListItem>
-            <ProductsDropdown products={allProducts} />
+            <ProductsDropdown control={control} products={allProducts} />
           </ListItem>
           <ListItem>
             <FormControl isInvalid={!!errors?.size}>
