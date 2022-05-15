@@ -73,6 +73,8 @@ BoxEditProps) => {
     label: string;
   }
 
+  alert(allProducts?.length)
+
   interface FormValues {
     size?: string | null;
     productsForDropdown: ProductOptionsGroup;
@@ -80,7 +82,7 @@ BoxEditProps) => {
 
   const productsForDropdown = allProducts?.map((p) => ({
     value: p.id,
-    label: `${p.name} (${p.gender}) ${p.id}`,
+    label: p.gender != null ? `${p.name} (${p.gender})` : p.name,
   }));
 
   const {

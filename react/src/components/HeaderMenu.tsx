@@ -62,12 +62,19 @@ const UserMenu = () => {
     <Menu>
       <MenuButton
         as={IconButton}
-        icon={<Img src={user?.picture} variant="outline" width={"10"} height={"10"} />}
+        icon={
+          <Img
+            src={user?.picture}
+            variant="outline"
+            width={"10"}
+            height={"10"}
+          />
+        }
       />
       <MenuList>
         <BaseSwitcher />
         <MenuDivider />
-        <MenuGroup>
+        <MenuGroup title={`User (${user?.email})`}>
           <MenuItem>Profile</MenuItem>
           <MenuItem>Change Organisation</MenuItem>
         </MenuGroup>
@@ -85,7 +92,9 @@ const LoginOrUserMenuButton = () => {
   return isAuthenticated ? (
     <UserMenu />
   ) : (
-    <Button onClick={() => (isAuthenticated ? logout() : loginWithRedirect())}>Login</Button>
+    <Button onClick={() => (isAuthenticated ? logout() : loginWithRedirect())}>
+      Login
+    </Button>
   );
 };
 
@@ -143,7 +152,7 @@ const Header = () => {
 
   return (
     <NavBarContainer>
-      <Logo/>
+      <Logo />
       <MenuToggle
         toggle={toggle}
         isOpen={isMenuOpen}
