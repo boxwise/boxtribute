@@ -56,7 +56,7 @@ const BoxEdit = ({ boxData, allProducts }: BoxEditProps) => {
         options: productsForCurrentGroup
           .map((product) => ({
             value: product.id,
-            label: `${product.name}`,
+            label: `${product.name} (${product.gender} - ${product.sizeRange.label})`,
           }))
           .sort((a, b) => a.label.localeCompare(b.label)),
       };

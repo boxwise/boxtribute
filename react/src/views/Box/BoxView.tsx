@@ -105,7 +105,12 @@ const BTBox = () => {
     });
   };
 
-  return <BoxDetails boxData={boxData} onMoveToLocationClick={onMoveBoxToLocationClick} />;
+  return (
+    <BoxDetails
+      boxData={boxData}
+      onMoveToLocationClick={onMoveBoxToLocationClick}
+    />
+  );
 };
 
 export default BTBox;
