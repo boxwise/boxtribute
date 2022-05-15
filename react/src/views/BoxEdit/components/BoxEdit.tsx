@@ -23,7 +23,7 @@ interface ProductOptionsGroup extends OptionBase {
   label: string;
 }
 
-interface BoxFormValues {
+export interface BoxFormValues {
   size?: string | null;
   productForDropdown: ProductOptionsGroup;
 }
@@ -35,8 +35,6 @@ interface BoxEditProps {
   allProducts: BoxByLabelIdentifierAndAllProductsQuery["products"]["elements"];
   onSubmitBoxEditForm: (boxFormValues: BoxFormValues) => void;
 }
-
-
 
 const BoxEdit = ({ boxData, allProducts, onSubmitBoxEditForm }: BoxEditProps) => {
   const productsGroupedByCategory = groupBy(
@@ -108,10 +106,15 @@ const BoxEdit = ({ boxData, allProducts, onSubmitBoxEditForm }: BoxEditProps) =>
             {boxData.labelIdentifier}
           </ListItem>
           <ListItem>
+            <Text as={"span"} fontWeight={"bold"}>
+              Location:
+            </Text>{" "}
+            {boxData.location?.name}
+          </ListItem>
+          <ListItem>
             <Controller
               control={control}
               name="productForDropdown"
-              rules={{ required: "Please enter at least one food group." }}
               render={({
                 field: { onChange, onBlur, value, name, ref },
                 fieldState: { invalid, error },
@@ -154,12 +157,6 @@ const BoxEdit = ({ boxData, allProducts, onSubmitBoxEditForm }: BoxEditProps) =>
               Items:
             </Text>{" "}
             {boxData.items}
-          </ListItem>
-          <ListItem>
-            <Text as={"span"} fontWeight={"bold"}>
-              Location:
-            </Text>{" "}
-            {boxData.location?.name}
           </ListItem>
         </List>
         <Button

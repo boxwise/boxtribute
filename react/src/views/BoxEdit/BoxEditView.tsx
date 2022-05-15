@@ -5,7 +5,7 @@ import {
   BoxByLabelIdentifierAndAllProductsQuery,
   BoxByLabelIdentifierAndAllProductsQueryVariables,
 } from "types/generated/graphql";
-import BoxEdit from "./components/BoxEdit";
+import BoxEdit, { BoxFormValues } from "./components/BoxEdit";
 
 export const BOX_BY_LABEL_IDENTIFIER_AND_ALL_PRODUCTS_QUERY = gql`
   query BoxByLabelIdentifierAndAllProducts($labelIdentifier: String!) {
@@ -89,6 +89,10 @@ const BoxEditView = () => {
       labelIdentifier,
     },
   });
+
+  const onSubmitBoxEditForm = (boxFormValues: BoxFormValues) => {
+    alert(JSON.stringify(boxFormValues))
+  }
 
   // const [updateBoxLocation, mutationStatus] = useMutation<
   //   UpdateLocationOfBoxMutation,
