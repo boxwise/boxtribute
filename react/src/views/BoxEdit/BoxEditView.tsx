@@ -14,6 +14,7 @@ export const BOX_BY_LABEL_IDENTIFIER_AND_ALL_PRODUCTS_QUERY = gql`
       size
       items
       product {
+        id
         name
         gender
       }
@@ -29,7 +30,7 @@ export const BOX_BY_LABEL_IDENTIFIER_AND_ALL_PRODUCTS_QUERY = gql`
       }
     }
 
-    products(paginationInput: { first: 0, last: 100000 }) {
+    products(paginationInput: { first: 300 }) {
       elements {
         id
         name
@@ -103,7 +104,7 @@ const BoxEditView = () => {
   const boxData = data?.box;
   const allProducts = data?.products;
 
-  return <BoxEdit boxData={boxData} allProducts={allProducts} />;
+  return <BoxEdit boxData={boxData} allProducts={allProducts?.elements} />;
 };
 
 export default BoxEditView;

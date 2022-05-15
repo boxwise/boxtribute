@@ -10,8 +10,9 @@ import {
   FormLabel,
   Input,
   Flex,
-  Select,
 } from "@chakra-ui/react";
+import { Select, OptionBase, GroupBase } from "chakra-react-select";
+
 import React, { useState } from "react";
 import {
   BoxByLabelIdentifierAndAllProductsQuery,
@@ -24,57 +25,75 @@ interface BoxEditProps {
   boxData:
     | BoxByLabelIdentifierAndAllProductsQuery["box"]
     | UpdateLocationOfBoxMutation["updateBox"];
-  allProducts: BoxByLabelIdentifierAndAllProductsQuery["products"]["elements"] | undefined;
+  allProducts:
+    | BoxByLabelIdentifierAndAllProductsQuery["products"]["elements"]
+    | undefined;
 }
 
-const ProductsDropdown = ({products, control}: {products: BoxByLabelIdentifierAndAllProductsQuery["products"], control: Control<{ products: BoxByLabelIdentifierAndAllProductsQuery["products"]["elements"]; }, any>}) => {
-  
-  return (
-    <Controller
-    control={control}
-    name="products"
-    rules={{ required: "Please enter at least one food group." }}
-    render={({
-      field: { onChange, onBlur, value, name, ref },
-      fieldState: { invalid, error }
-    }) => (
-      <FormControl py={4} isInvalid={invalid} id="products">
-        <FormLabel>Products</FormLabel>
+// const ProductsDropdown = ({products, control}: {products: BoxByLabelIdentifierAndAllProductsQuery["products"]["elements"], control: Control<{ products: BoxByLabelIdentifierAndAllProductsQuery["products"]["elements"]; }, any>}) => {
 
-        <Select
-          isMulti
-          name={name}
-          ref={ref}
-          onChange={onChange}
-          onBlur={onBlur}
-          value={value}
-          options={products}
-          placeholder="Food Groups"
-          closeMenuOnSelect={false}
-        />
+//   return (
+//     <Controller
+//     control={control}
+//     name="products"
+//     rules={{ required: "Please enter at least one food group." }}
+//     render={({
+//       field: { onChange, onBlur, value, name, ref },
+//       fieldState: { invalid, error }
+//     }) => (
+//       <FormControl py={4} isInvalid={invalid} id="products">
+//         <FormLabel>Products</FormLabel>
 
-        <FormErrorMessage>{error && error.message}</FormErrorMessage>
-      </FormControl>
-    )}
-  />
-  )
-}
+//         <Select
+//           isMulti
+//           name={name}
+//           ref={ref}
+//           onChange={onChange}
+//           onBlur={onBlur}
+//           value={value}
+//           options={products}
+//           placeholder="Food Groups"
+//           closeMenuOnSelect={false}
+//         />
 
+//         <FormErrorMessage>{error && error.message}</FormErrorMessage>
+//       </FormControl>
+//     )}
+//   />
+//   )
+// }
 
 const BoxEdit = ({
   boxData,
-  allProducts
+  allProducts,
 }: // onMoveToLocationClick: moveToLocationClick,
 BoxEditProps) => {
+  interface ProductOptionsGroup extends OptionBase {
+    value: string;
+    label: string;
+  }
+
+  interface FormValues {
+    size?: string | null;
+    productsForDropdown: ProductOptionsGroup;
+  }
+
+  const productsForDropdown = allProducts?.map((p) => ({
+    value: p.id,
+    label: `${p.name} (${p.gender}) ${p.id}`,
+  }));
+
   const {
     handleSubmit,
     register,
     control,
     formState: { errors, isSubmitting },
-  } = useForm({
+  } = useForm<FormValues>({
     defaultValues: {
       size: boxData?.size,
-      products: allProducts,
+      productsForDropdown: productsForDropdown?.find(
+        (p) => p.value === boxData?.product?.id
+      ),
     },
   });
 
@@ -87,9 +106,14 @@ BoxEditProps) => {
     return <Box>No data found for a box with this id</Box>;
   }
 
-  if (allProducts == null) {
+  if (productsForDropdown == null) {
     console.error("BoxDetails Component: allProducts is null");
-    return <Box>There was an error: the available products to choose from couldn't be loaded!</Box>;
+    return (
+      <Box>
+        There was an error: the available products to choose from couldn't be
+        loaded!
+      </Box>
+    );
   }
 
   return (
@@ -113,7 +137,33 @@ BoxEditProps) => {
             {boxData.labelIdentifier}
           </ListItem>
           <ListItem>
-            <ProductsDropdown control={control} products={allProducts} />
+            <Controller
+              control={control}
+              name="productsForDropdown"
+              rules={{ required: "Please enter at least one food group." }}
+              render={({
+                field: { onChange, onBlur, value, name, ref },
+                fieldState: { invalid, error },
+              }) => (
+                <FormControl py={4} isInvalid={invalid} id="products">
+                  <FormLabel>Products</FormLabel>
+
+                  <Select
+                    name={name}
+                    ref={ref}
+                    onChange={onChange}
+                    onBlur={onBlur}
+                    value={value}
+                    options={productsForDropdown}
+                    placeholder="Product"
+                    // searchable={true}
+                    // closeMenuOnSelect={false}
+                  />
+
+                  <FormErrorMessage>{error && error.message}</FormErrorMessage>
+                </FormControl>
+              )}
+            />
           </ListItem>
           <ListItem>
             <FormControl isInvalid={!!errors?.size}>

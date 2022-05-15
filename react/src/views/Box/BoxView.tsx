@@ -50,6 +50,7 @@ export const UPDATE_LOCATION_OF_BOX_MUTATION = gql`
       product {
         name
         gender
+        id
       }
       location {
         id
