@@ -16,7 +16,7 @@ export const BOX_BY_LABEL_IDENTIFIER_AND_ALL_PRODUCTS_QUERY = gql`
       product {
         id
         name
-        gender
+        gender 
       }
       location {
         id
@@ -35,6 +35,9 @@ export const BOX_BY_LABEL_IDENTIFIER_AND_ALL_PRODUCTS_QUERY = gql`
         id
         name
         gender
+        category {
+          name
+        }
       }
     }
   }
@@ -103,6 +106,12 @@ const BoxEditView = () => {
   // const boxData = mutationStatus.data?.updateBox || data?.box;
   const boxData = data?.box;
   const allProducts = data?.products;
+
+  if(allProducts?.elements == null) {
+        console.error("allProducts.elements is null");
+        return <div>Error: no products available to choose from for this Box</div>;
+  }
+
 
   return <BoxEdit boxData={boxData} allProducts={allProducts?.elements} />;
 };

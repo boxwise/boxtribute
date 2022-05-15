@@ -26,8 +26,7 @@ interface BoxEditProps {
     | BoxByLabelIdentifierAndAllProductsQuery["box"]
     | UpdateLocationOfBoxMutation["updateBox"];
   allProducts:
-    | BoxByLabelIdentifierAndAllProductsQuery["products"]["elements"]
-    | undefined;
+    | BoxByLabelIdentifierAndAllProductsQuery["products"]["elements"];
 }
 
 // const ProductsDropdown = ({products, control}: {products: BoxByLabelIdentifierAndAllProductsQuery["products"]["elements"], control: Control<{ products: BoxByLabelIdentifierAndAllProductsQuery["products"]["elements"]; }, any>}) => {
@@ -63,6 +62,16 @@ interface BoxEditProps {
 //   )
 // }
 
+
+const groupBy = <T, K extends keyof any>(list: T[], getKey: (item: T) => K) =>
+  list.reduce((previous, currentItem) => {
+    const group = getKey(currentItem);
+    if (!previous[group]) previous[group] = [];
+    previous[group].push(currentItem);
+    return previous;
+  }, {} as Record<K, T[]>);
+
+
 const BoxEdit = ({
   boxData,
   allProducts,
@@ -73,17 +82,36 @@ BoxEditProps) => {
     label: string;
   }
 
-  alert(allProducts?.length)
-
   interface FormValues {
     size?: string | null;
     productsForDropdown: ProductOptionsGroup;
   }
 
-  const productsForDropdown = allProducts?.map((p) => ({
-    value: p.id,
-    label: p.gender != null ? `${p.name} (${p.gender})` : p.name,
-  }));
+  const productsGroupedByCategory = groupBy(allProducts, (product) => product.category.name);
+
+  const productsForDropdownGroups = Object.keys(productsGroupedByCategory).map((key) => {
+     const productsForCurrentGroup = productsGroupedByCategory[key];
+    return {
+      label: key,
+      options: productsForCurrentGroup.map((product) => ({
+        value: product.id,
+        // label: `${product.category.name}: ${product.name}`,
+        label: `${product.name}`,
+      })).sort((a, b) => a.label.localeCompare(b.label)),
+    };
+  }).sort((a, b) => a.label.localeCompare(b.label));
+
+  
+  // .map((group, key) => ({
+  //   value: key,
+  //   label: group.,
+  // })
+    
+  //   .map((p) => ({
+  //   value: p.id,
+  //   label: p.gender != null ? `${p.name} (${p.gender})` : p.name,
+  // }));
+
 
   const {
     handleSubmit,
@@ -93,7 +121,8 @@ BoxEditProps) => {
   } = useForm<FormValues>({
     defaultValues: {
       size: boxData?.size,
-      productsForDropdown: productsForDropdown?.find(
+      productsForDropdown: productsForDropdownGroups?.flatMap(i => i.options)
+      .find(
         (p) => p.value === boxData?.product?.id
       ),
     },
@@ -108,7 +137,7 @@ BoxEditProps) => {
     return <Box>No data found for a box with this id</Box>;
   }
 
-  if (productsForDropdown == null) {
+  if (productsForDropdownGroups == null) {
     console.error("BoxDetails Component: allProducts is null");
     return (
       <Box>
@@ -122,7 +151,6 @@ BoxEditProps) => {
     <Box>
       <Text
         fontSize={{ base: "16px", lg: "18px" }}
-        // color={useColorModeValue('yellow.500', 'yellow.300')}
         fontWeight={"500"}
         textTransform={"uppercase"}
         mb={"4"}
@@ -156,7 +184,7 @@ BoxEditProps) => {
                     onChange={onChange}
                     onBlur={onBlur}
                     value={value}
-                    options={productsForDropdown}
+                    options={productsForDropdownGroups}
                     placeholder="Product"
                     // searchable={true}
                     // closeMenuOnSelect={false}
@@ -187,10 +215,6 @@ BoxEditProps) => {
                 {errors.size && errors.size.message}
               </FormErrorMessage>
             </FormControl>
-            <Text as={"span"} fontWeight={"bold"}>
-              Gender:
-            </Text>{" "}
-            {boxData.product?.gender}
           </ListItem>
           <ListItem>
             <Text as={"span"} fontWeight={"bold"}>
