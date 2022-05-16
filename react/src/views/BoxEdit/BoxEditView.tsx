@@ -1,6 +1,6 @@
 import { gql, useMutation, useQuery } from "@apollo/client";
 import { Box, Button, Heading, List, ListItem, Text } from "@chakra-ui/react";
-import { useParams } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import {
   BoxByLabelIdentifierAndAllProductsQuery,
   BoxByLabelIdentifierAndAllProductsQueryVariables,
@@ -108,6 +108,8 @@ const BoxEditView = () => {
       labelIdentifier,
     },
   });
+  const baseId = useParams<{ baseId: string }>().baseId;
+  const navigate = useNavigate();
 
   const [updateContentOfBoxMutation, updateContentOfBoxMutationStatus] = useMutation<UpdateContentOfBoxMutation, UpdateContentOfBoxMutationVariables>(UPDATE_CONTENT_OF_BOX_MUTATION);
 
@@ -118,8 +120,12 @@ const BoxEditView = () => {
         boxLabelIdentifier: labelIdentifier,
         productId: parseInt(boxFormValues.productForDropdown.value),
       }
-    })
-    alert(JSON.stringify(boxFormValues))
+    }).then(mutationResult => {
+      navigate(`/bases/${baseId}/boxes/${mutationResult.data?.updateBox?.labelIdentifier}`);
+    }
+    ).catch(error => {
+      console.log("Error while trying to update Box", error);
+    });
   }
 
   // const [updateBoxLocation, mutationStatus] = useMutation<
