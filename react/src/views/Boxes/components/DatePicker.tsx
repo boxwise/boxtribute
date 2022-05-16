@@ -27,8 +27,8 @@ const options: UseInputOptions = {
   // Select today as default
   defaultSelected: new Date(),
   // Limit the valid dates
-  fromYear: 2020,
-  toYear: 2022,
+  fromYear: 2022,
+  toYear: 2035,
   format: "PP",
   // Make the selection mandatory.
   required: true,
@@ -64,16 +64,16 @@ const DatePickerExample = () => {
 
   return (
     <Container
-      p={16}
+      // p={16}
       css={css`
-        --rdp-cell-size: 2rem;
+        /* --rdp-cell-size: 2rem; */
         --rdp-accent-color: var(--chakra-colors-blue-500);
         --rdp-background-color: var(--chakra-colors-blue-200);
       `}
     >
       <Form />
 
-      <FormControl mt={16} display="flex" alignItems="center">
+      <FormControl display="flex" alignItems="center">
         {/* <FormLabel mb="0" mr={4}>
             Dark mode?
             <Switch onChange={() => toggleColorMode()} />

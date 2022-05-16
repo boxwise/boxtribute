@@ -143,7 +143,7 @@ const NavBarContainer = ({ children, ...props }) => (
     pb={4}
     color={"black"}
   >
-    {children}a{" "}
+    {children}{" "}
   </Flex>
 );
 

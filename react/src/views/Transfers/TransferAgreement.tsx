@@ -13,6 +13,9 @@ import {
   Input,
   Button,
   Select,
+  Flex,
+  Wrap,
+  WrapItem,
 } from "@chakra-ui/react";
 import { useEffect, useState } from "react";
 import DatePicker from "views/Boxes/components/DatePicker";
@@ -45,17 +48,21 @@ const TransferAgreement = () => {
     BasesForOrganisationsQueryVariables
   >(BASES_ORGANISATIONS_QUERY);
 
-  // const { register, handleSubmit } = useForm({
-  //   defaultValues: {
-  //     targetOrganisationId: "",
-  //     type: "",
-  //     checkbox: [],
-  //     radio: "",
-  //     message: ""
-  //   }
-  // });
+  const {
+    register,
+    handleSubmit,
+    control,
+    formState: { errors },
+  } = useForm({
+    defaultValues: {
+      targetOrganisationId: "",
+      targetBasesIds: "",
+      transferType: "",
+    },
+  });
 
   const [selectOrgId, setSelectedOrgId] = useState<string>();
+  const [submittedVal, setSubmittedVal] = useState();
 
   useEffect(() => {
     if (selectOrgId != null)
@@ -76,25 +83,65 @@ const TransferAgreement = () => {
     setSelectedOrgId(newSelectedOrgId);
     console.log("newSelectedOrgId", newSelectedOrgId);
   };
+
+  const onSubmit = (data) => {
+    setSubmittedVal(data);
+    console.log(data);
+  };
+
   return (
     <form>
-      <Select placeholder="Select organisation" onChange={onOrgDropdownChange}>
-        {data?.organisations?.map((option) => (
-          <option value={option.id}>{option.name}</option>
-        ))}
-      </Select>
-      <Select placeholder="Select bases">
-        {basesdata?.organisation?.bases?.map((option) => (
-          <option value={option.id}>{option.name}</option>
-        ))}
-      </Select>
-      <Select placeholder="Transfer type direction">
-        <option>Unidirectional</option>
-        <option>Bidirectional</option>
-      </Select>
-      <DatePicker />
-      <DatePicker />
-      <Input type="submit" />
+      <Wrap spacing="30px">
+        <WrapItem>
+          <FormControl
+            id="targetOrganisationId"
+            // isInvalid={errors.targetOrganisationId}
+          >
+            <Select
+              {...register("targetOrganisationId")}
+              placeholder="Select Organisation"
+              onChange={onOrgDropdownChange}
+            >
+              {data?.organisations?.map((org) => (
+                <option value={org.id}>{org.name}</option>
+              ))}
+            </Select>
+          </FormControl>
+        </WrapItem>
+        <WrapItem>
+          <FormControl id="targetBasesIds">
+            <Select
+              {...register("targetBasesIds")}
+              isMulti
+              placeholder="Select bases"
+            >
+              {basesdata?.organisation?.bases?.map((option) => (
+                <option value={option.id}>{option.name}</option>
+              ))}
+            </Select>
+          </FormControl>
+        </WrapItem>
+        <WrapItem>
+          <FormControl id="transferType">
+            <Select
+              {...register("transferType")}
+              placeholder="Select transfer type"
+            >
+              <option>Unidirectional</option>
+              <option>Bidirectional</option>
+            </Select>
+          </FormControl>
+        </WrapItem>
+        <WrapItem>
+          <DatePicker />
+        </WrapItem>
+        <WrapItem>
+          <DatePicker />
+        </WrapItem>
+        <WrapItem>
+          <Input type="submit" />
+        </WrapItem>
+      </Wrap>
     </form>
   );
 };
