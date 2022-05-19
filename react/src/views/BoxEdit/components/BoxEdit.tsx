@@ -25,14 +25,15 @@ import {
   SizesForProductQuery
 } from "types/generated/graphql";
 
-interface ProductOptionsGroup extends OptionBase {
+interface OptionsGroup extends OptionBase {
   value: string;
   label: string;
 }
 
 export interface BoxFormValues {
   size?: string | null;
-  productForDropdown: ProductOptionsGroup;
+  productForDropdown: OptionsGroup;
+  sizeForDropdown?: OptionsGroup;
 }
 
 interface BoxEditProps {
@@ -75,13 +76,14 @@ const BoxEdit = ({ boxData, allProducts, onSubmitBoxEditForm }: BoxEditProps) =>
     register,
     control,
     watch,
+    resetField,
     formState: { errors, isSubmitting },
   } = useForm<BoxFormValues>({
     defaultValues: {
       size: boxData?.size,
       productForDropdown: productsForDropdownGroups
         ?.flatMap((i) => i.options)
-        .find((p) => p.value === boxData?.product?.id),
+        .find((p) => p.value === boxData?.product?.id)
     },
   });
 
@@ -95,9 +97,34 @@ const BoxEdit = ({ boxData, allProducts, onSubmitBoxEditForm }: BoxEditProps) =>
   const [getSizesForProduct, sizesForProductQueryState] = useLazyQuery<SizesForProductQuery, SizesForProductQueryVariables>(SIZES_FOR_PRODUCT);
 
   useEffect((): void => {
-    // console.log("watchProductForDropdown.label", watchProductForDropdown.label);
-    getSizesForProduct({ variables: { productId: watchProductForDropdown.value } });
-  }, [getSizesForProduct, watchProductForDropdown])
+    if (watchProductForDropdown?.value != null) {
+      // console.log(
+      //   "watchProductForDropdown.label",
+      //   watchProductForDropdown.label
+      // );
+      getSizesForProduct({
+        variables: { productId: watchProductForDropdown.value },
+      });
+    }
+  }, [getSizesForProduct, watchProductForDropdown?.value]);
+
+  useEffect(() => {
+    console.log("sizesForProductQueryState.data", sizesForProductQueryState.data);
+    // if (sizesForProductQueryState.data?.product?.sizes) {
+      const sizesForProduct = sizesForProductQueryState.data?.product?.sizes;
+      const sizeForDropdown = sizesForProduct?.map((size) => ({
+          value: size,
+          label: size,
+        }))
+        // .sort((a, b) => a.label.localeCompare(b.label));
+
+      console.log("sizeForDropdown", sizeForDropdown);
+      // sizeForDropdown.length > 0 && 
+      resetField("sizeForDropdown", {
+        defaultValue: sizeForDropdown?.[0]
+      });
+    // }
+  }, [resetField, sizesForProductQueryState.data, sizesForProductQueryState.data?.product?.sizes]);
 
 
   if (boxData == null) {
@@ -145,9 +172,37 @@ const BoxEdit = ({ boxData, allProducts, onSubmitBoxEditForm }: BoxEditProps) =>
 
 
           <ListItem>
-            {JSON.stringify(sizesForProductQueryState.data)} <br />
+            {/* {JSON.stringify(sizesForProductQueryState.data)} <br />
             PLACEHOLDER FOR SIZE <br />
-            {watchProductForDropdown.value} - {watchProductForDropdown.label}
+            {watchProductForDropdown.value} - {watchProductForDropdown.label} */}
+            <Controller
+              control={control}
+              name="sizeForDropdown"
+              render={({
+                field: { onChange, onBlur, value, name, ref },
+                fieldState: { invalid, error },
+              }) => (
+                <FormControl py={4} isInvalid={invalid} id="sizes">
+                  <FormLabel>Size</FormLabel>
+
+                  <Select
+                    name={name}
+                    ref={ref}
+                    onChange={onChange}
+                    onBlur={onBlur}
+                    value={value}
+                    options={sizesForProductQueryState?.data?.product?.sizes?.map((size) => ({
+                      value: size,
+                      label: size,
+                    }))}
+                    placeholder="Size"
+                    isSearchable={false}
+                  />
+
+                  <FormErrorMessage>{error && error.message}</FormErrorMessage>
+                </FormControl>
+              )}
+            />
           </ListItem>
 
 
@@ -161,7 +216,7 @@ const BoxEdit = ({ boxData, allProducts, onSubmitBoxEditForm }: BoxEditProps) =>
                 fieldState: { invalid, error },
               }) => (
                 <FormControl py={4} isInvalid={invalid} id="products">
-                  <FormLabel>Products</FormLabel>
+                  <FormLabel>Product</FormLabel>
 
                   <Select
                     name={name}
