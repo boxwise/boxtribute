@@ -13,10 +13,17 @@ import { Select, OptionBase } from "chakra-react-select";
 
 import {
   BoxByLabelIdentifierAndAllProductsQuery,
+  SizesForProductQueryVariables,
   UpdateLocationOfBoxMutation,
 } from "types/generated/graphql";
 import { Controller, useForm } from "react-hook-form";
 import { groupBy } from "utils/helpers";
+import { useEffect } from "react";
+import { gql, useLazyQuery } from "@apollo/client";
+
+import {
+  SizesForProductQuery
+} from "types/generated/graphql";
 
 interface ProductOptionsGroup extends OptionBase {
   value: string;
@@ -35,6 +42,12 @@ interface BoxEditProps {
   allProducts: BoxByLabelIdentifierAndAllProductsQuery["products"]["elements"];
   onSubmitBoxEditForm: (boxFormValues: BoxFormValues) => void;
 }
+
+const SIZES_FOR_PRODUCT = gql`query SizesForProduct($productId: ID!) {
+  product(id: $productId) {
+    sizes
+  }
+}`
 
 const BoxEdit = ({ boxData, allProducts, onSubmitBoxEditForm }: BoxEditProps) => {
   const productsGroupedByCategory = groupBy(
@@ -61,6 +74,7 @@ const BoxEdit = ({ boxData, allProducts, onSubmitBoxEditForm }: BoxEditProps) =>
     handleSubmit,
     register,
     control,
+    watch,
     formState: { errors, isSubmitting },
   } = useForm<BoxFormValues>({
     defaultValues: {
@@ -70,6 +84,21 @@ const BoxEdit = ({ boxData, allProducts, onSubmitBoxEditForm }: BoxEditProps) =>
         .find((p) => p.value === boxData?.product?.id),
     },
   });
+
+  const watchProductForDropdown = watch("productForDropdown");
+
+  // useEffect(() => {
+  //   const subscription = watch((value, { name, type }) => console.log(value, name, type));
+  //   return () => subscription.unsubscribe();
+  // }, [watch]);
+
+  const [getSizesForProduct, sizesForProductQueryState] = useLazyQuery<SizesForProductQuery, SizesForProductQueryVariables>(SIZES_FOR_PRODUCT);
+
+  useEffect((): void => {
+    // console.log("watchProductForDropdown.label", watchProductForDropdown.label);
+    getSizesForProduct({ variables: { productId: watchProductForDropdown.value } });
+  }, [getSizesForProduct, watchProductForDropdown])
+
 
   if (boxData == null) {
     console.error("BoxDetails Component: boxData is null");
@@ -111,6 +140,18 @@ const BoxEdit = ({ boxData, allProducts, onSubmitBoxEditForm }: BoxEditProps) =>
             </Text>{" "}
             {boxData.location?.name}
           </ListItem>
+
+
+
+
+          <ListItem>
+            {JSON.stringify(sizesForProductQueryState.data)} <br />
+            PLACEHOLDER FOR SIZE <br />
+            {watchProductForDropdown.value} - {watchProductForDropdown.label}
+          </ListItem>
+
+
+
           <ListItem>
             <Controller
               control={control}

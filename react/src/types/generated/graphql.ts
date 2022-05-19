@@ -896,6 +896,13 @@ export type UpdateContentOfBoxMutationVariables = Exact<{
 
 export type UpdateContentOfBoxMutation = { __typename?: 'Mutation', updateBox?: { __typename?: 'Box', labelIdentifier: string } | null };
 
+export type SizesForProductQueryVariables = Exact<{
+  productId: Scalars['ID'];
+}>;
+
+
+export type SizesForProductQuery = { __typename?: 'Query', product?: { __typename?: 'Product', sizes: Array<string> } | null };
+
 export type BoxesForBaseQueryVariables = Exact<{
   baseId: Scalars['ID'];
 }>;
