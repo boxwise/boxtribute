@@ -8,15 +8,19 @@ import {
   FormErrorMessage,
   FormLabel,
 } from "@chakra-ui/react";
-import { Select, OptionBase } from "chakra-react-select";
+import { Select, OptionBase, CreatableSelect } from "chakra-react-select";
 
 import {
   BoxByLabelIdentifierAndAllProductsQuery,
+  SizesForProductQueryVariables,
   UpdateLocationOfBoxMutation,
 } from "types/generated/graphql";
 import { Controller, useForm } from "react-hook-form";
 import { groupBy } from "utils/helpers";
+import { useEffect } from "react";
+import { gql, useLazyQuery } from "@apollo/client";
 
+import { SizesForProductQuery } from "types/generated/graphql";
 
 interface OptionsGroup extends OptionBase {
   value: string;
@@ -36,6 +40,16 @@ interface BoxEditProps {
   allProducts: BoxByLabelIdentifierAndAllProductsQuery["products"]["elements"];
   onSubmitBoxEditForm: (boxFormValues: BoxFormValues) => void;
 }
+
+const SIZES_FOR_PRODUCT = gql`
+  query SizesForProduct($productId: ID!) {
+    product(id: $productId) {
+      id
+      name
+      sizes
+    }
+  }
+`;
 
 const BoxEdit = ({
   boxData,
@@ -65,6 +79,8 @@ const BoxEdit = ({
   const {
     handleSubmit,
     control,
+    watch,
+    resetField,
     formState: { isSubmitting },
   } = useForm<BoxFormValues>({
     defaultValues: {
@@ -74,6 +90,39 @@ const BoxEdit = ({
         .find((p) => p.value === boxData?.product?.id),
     },
   });
+
+  const watchProductForDropdown = watch("productForDropdown");
+
+  const [getSizesForProduct, sizesForProductQueryState] = useLazyQuery<
+    SizesForProductQuery,
+    SizesForProductQueryVariables
+  >(SIZES_FOR_PRODUCT);
+
+  useEffect((): void => {
+    if (watchProductForDropdown?.value != null) {
+      getSizesForProduct({
+        variables: { productId: watchProductForDropdown.value },
+      });
+    }
+  }, [getSizesForProduct, watchProductForDropdown?.value]);
+
+  useEffect(() => {
+    // console.log("sizesForProductQueryState.data", sizesForProductQueryState.data);
+    const sizesForProduct = sizesForProductQueryState.data?.product?.sizes;
+    const sizeForDropdown = sizesForProduct?.map((size) => ({
+      value: size,
+      label: size,
+    }));
+
+    // console.log("sizeForDropdown", sizeForDropdown);
+    resetField("sizeForDropdown", {
+      defaultValue: sizeForDropdown?.[0] || { value: "", label: "" },
+    });
+  }, [
+    resetField,
+    sizesForProductQueryState.data,
+    sizesForProductQueryState.data?.product?.sizes,
+  ]);
 
   if (boxData == null) {
     console.error("BoxDetails Component: boxData is null");
@@ -136,6 +185,39 @@ const BoxEdit = ({
                     options={productsForDropdownGroups}
                     placeholder="Product"
                     isSearchable
+                  />
+
+                  <FormErrorMessage>{error && error.message}</FormErrorMessage>
+                </FormControl>
+              )}
+            />
+          </ListItem>
+
+          <ListItem>
+            <Controller
+              control={control}
+              name="sizeForDropdown"
+              render={({
+                field: { onChange, onBlur, value, name, ref },
+                fieldState: { invalid, error },
+              }) => (
+                <FormControl py={4} isInvalid={invalid} id="sizes">
+                  <FormLabel>Size</FormLabel>
+
+                  <CreatableSelect
+                    name={name}
+                    ref={ref}
+                    onChange={onChange}
+                    onBlur={onBlur}
+                    value={value}
+                    options={sizesForProductQueryState?.data?.product?.sizes?.map(
+                      (size) => ({
+                        value: size,
+                        label: size,
+                      })
+                    )}
+                    placeholder="Size"
+                    isSearchable={false}
                   />
 
                   <FormErrorMessage>{error && error.message}</FormErrorMessage>
