@@ -7,9 +7,8 @@ import {
   FormControl,
   FormErrorMessage,
   FormLabel,
-  Input,
 } from "@chakra-ui/react";
-import { Select, OptionBase } from "chakra-react-select";
+import { Select, OptionBase, CreatableSelect } from "chakra-react-select";
 
 import {
   BoxByLabelIdentifierAndAllProductsQuery,
@@ -21,9 +20,7 @@ import { groupBy } from "utils/helpers";
 import { useEffect } from "react";
 import { gql, useLazyQuery } from "@apollo/client";
 
-import {
-  SizesForProductQuery
-} from "types/generated/graphql";
+import { SizesForProductQuery } from "types/generated/graphql";
 
 interface OptionsGroup extends OptionBase {
   value: string;
@@ -44,13 +41,21 @@ interface BoxEditProps {
   onSubmitBoxEditForm: (boxFormValues: BoxFormValues) => void;
 }
 
-const SIZES_FOR_PRODUCT = gql`query SizesForProduct($productId: ID!) {
-  product(id: $productId) {
-    sizes
+const SIZES_FOR_PRODUCT = gql`
+  query SizesForProduct($productId: ID!) {
+    product(id: $productId) {
+      id
+      name
+      sizes
+    }
   }
-}`
+`;
 
-const BoxEdit = ({ boxData, allProducts, onSubmitBoxEditForm }: BoxEditProps) => {
+const BoxEdit = ({
+  boxData,
+  allProducts,
+  onSubmitBoxEditForm,
+}: BoxEditProps) => {
   const productsGroupedByCategory = groupBy(
     allProducts,
     (product) => product.category.name
@@ -73,35 +78,28 @@ const BoxEdit = ({ boxData, allProducts, onSubmitBoxEditForm }: BoxEditProps) =>
 
   const {
     handleSubmit,
-    register,
     control,
     watch,
     resetField,
-    formState: { errors, isSubmitting },
+    formState: { isSubmitting },
   } = useForm<BoxFormValues>({
     defaultValues: {
       size: boxData?.size,
       productForDropdown: productsForDropdownGroups
         ?.flatMap((i) => i.options)
-        .find((p) => p.value === boxData?.product?.id)
+        .find((p) => p.value === boxData?.product?.id),
     },
   });
 
   const watchProductForDropdown = watch("productForDropdown");
 
-  // useEffect(() => {
-  //   const subscription = watch((value, { name, type }) => console.log(value, name, type));
-  //   return () => subscription.unsubscribe();
-  // }, [watch]);
-
-  const [getSizesForProduct, sizesForProductQueryState] = useLazyQuery<SizesForProductQuery, SizesForProductQueryVariables>(SIZES_FOR_PRODUCT);
+  const [getSizesForProduct, sizesForProductQueryState] = useLazyQuery<
+    SizesForProductQuery,
+    SizesForProductQueryVariables
+  >(SIZES_FOR_PRODUCT);
 
   useEffect((): void => {
     if (watchProductForDropdown?.value != null) {
-      // console.log(
-      //   "watchProductForDropdown.label",
-      //   watchProductForDropdown.label
-      // );
       getSizesForProduct({
         variables: { productId: watchProductForDropdown.value },
       });
@@ -109,23 +107,22 @@ const BoxEdit = ({ boxData, allProducts, onSubmitBoxEditForm }: BoxEditProps) =>
   }, [getSizesForProduct, watchProductForDropdown?.value]);
 
   useEffect(() => {
-    console.log("sizesForProductQueryState.data", sizesForProductQueryState.data);
-    // if (sizesForProductQueryState.data?.product?.sizes) {
-      const sizesForProduct = sizesForProductQueryState.data?.product?.sizes;
-      const sizeForDropdown = sizesForProduct?.map((size) => ({
-          value: size,
-          label: size,
-        }))
-        // .sort((a, b) => a.label.localeCompare(b.label));
+    // console.log("sizesForProductQueryState.data", sizesForProductQueryState.data);
+    const sizesForProduct = sizesForProductQueryState.data?.product?.sizes;
+    const sizeForDropdown = sizesForProduct?.map((size) => ({
+      value: size,
+      label: size,
+    }));
 
-      console.log("sizeForDropdown", sizeForDropdown);
-      // sizeForDropdown.length > 0 && 
-      resetField("sizeForDropdown", {
-        defaultValue: sizeForDropdown?.[0]
-      });
-    // }
-  }, [resetField, sizesForProductQueryState.data, sizesForProductQueryState.data?.product?.sizes]);
-
+    // console.log("sizeForDropdown", sizeForDropdown);
+    resetField("sizeForDropdown", {
+      defaultValue: sizeForDropdown?.[0] || { value: "", label: "" },
+    });
+  }, [
+    resetField,
+    sizesForProductQueryState.data,
+    sizesForProductQueryState.data?.product?.sizes,
+  ]);
 
   if (boxData == null) {
     console.error("BoxDetails Component: boxData is null");
@@ -168,45 +165,6 @@ const BoxEdit = ({ boxData, allProducts, onSubmitBoxEditForm }: BoxEditProps) =>
             {boxData.location?.name}
           </ListItem>
 
-
-
-
-          <ListItem>
-            {/* {JSON.stringify(sizesForProductQueryState.data)} <br />
-            PLACEHOLDER FOR SIZE <br />
-            {watchProductForDropdown.value} - {watchProductForDropdown.label} */}
-            <Controller
-              control={control}
-              name="sizeForDropdown"
-              render={({
-                field: { onChange, onBlur, value, name, ref },
-                fieldState: { invalid, error },
-              }) => (
-                <FormControl py={4} isInvalid={invalid} id="sizes">
-                  <FormLabel>Size</FormLabel>
-
-                  <Select
-                    name={name}
-                    ref={ref}
-                    onChange={onChange}
-                    onBlur={onBlur}
-                    value={value}
-                    options={sizesForProductQueryState?.data?.product?.sizes?.map((size) => ({
-                      value: size,
-                      label: size,
-                    }))}
-                    placeholder="Size"
-                    isSearchable={false}
-                  />
-
-                  <FormErrorMessage>{error && error.message}</FormErrorMessage>
-                </FormControl>
-              )}
-            />
-          </ListItem>
-
-
-
           <ListItem>
             <Controller
               control={control}
@@ -234,20 +192,40 @@ const BoxEdit = ({ boxData, allProducts, onSubmitBoxEditForm }: BoxEditProps) =>
               )}
             />
           </ListItem>
+
           <ListItem>
-            <FormControl isInvalid={!!errors?.size}>
-              <FormLabel htmlFor="size">Size:</FormLabel>
-              <Input
-                id="size"
-                {...register("size", {
-                  required: "This is required",
-                })}
-              />
-              <FormErrorMessage>
-                {errors.size && errors.size.message}
-              </FormErrorMessage>
-            </FormControl>
+            <Controller
+              control={control}
+              name="sizeForDropdown"
+              render={({
+                field: { onChange, onBlur, value, name, ref },
+                fieldState: { invalid, error },
+              }) => (
+                <FormControl py={4} isInvalid={invalid} id="sizes">
+                  <FormLabel>Size</FormLabel>
+
+                  <CreatableSelect
+                    name={name}
+                    ref={ref}
+                    onChange={onChange}
+                    onBlur={onBlur}
+                    value={value}
+                    options={sizesForProductQueryState?.data?.product?.sizes?.map(
+                      (size) => ({
+                        value: size,
+                        label: size,
+                      })
+                    )}
+                    placeholder="Size"
+                    isSearchable={false}
+                  />
+
+                  <FormErrorMessage>{error && error.message}</FormErrorMessage>
+                </FormControl>
+              )}
+            />
           </ListItem>
+
           <ListItem>
             <Text as={"span"} fontWeight={"bold"}>
               Items:

@@ -901,7 +901,7 @@ export type SizesForProductQueryVariables = Exact<{
 }>;
 
 
-export type SizesForProductQuery = { __typename?: 'Query', product?: { __typename?: 'Product', sizes: Array<string> } | null };
+export type SizesForProductQuery = { __typename?: 'Query', product?: { __typename?: 'Product', id: string, name: string, sizes: Array<string> } | null };
 
 export type BoxesForBaseQueryVariables = Exact<{
   baseId: Scalars['ID'];

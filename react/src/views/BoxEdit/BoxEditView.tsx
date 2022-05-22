@@ -1,5 +1,4 @@
 import { gql, useMutation, useQuery } from "@apollo/client";
-import { Box, Button, Heading, List, ListItem, Text } from "@chakra-ui/react";
 import { useNavigate, useParams } from "react-router-dom";
 import {
   BoxByLabelIdentifierAndAllProductsQuery,
@@ -49,10 +48,7 @@ export const BOX_BY_LABEL_IDENTIFIER_AND_ALL_PRODUCTS_QUERY = gql`
 `;
 
 export const UPDATE_CONTENT_OF_BOX_MUTATION = gql`
-  mutation UpdateContentOfBox(
-    $boxLabelIdentifier: String!
-    $productId: Int!
-  ) {
+  mutation UpdateContentOfBox($boxLabelIdentifier: String!, $productId: Int!) {
     updateBox(
       updateInput: {
         labelIdentifier: $boxLabelIdentifier
@@ -64,43 +60,10 @@ export const UPDATE_CONTENT_OF_BOX_MUTATION = gql`
   }
 `;
 
-
-// export const UPDATE_LOCATION_OF_BOX_MUTATION = gql`
-//   mutation UpdateLocationOfBox(
-//     $boxLabelIdentifier: String!
-//     $newLocationId: Int!
-//   ) {
-//     updateBox(
-//       updateInput: {
-//         labelIdentifier: $boxLabelIdentifier
-//         locationId: $newLocationId
-//       }
-//     ) {
-//       labelIdentifier
-//       size
-//       items
-//       product {
-//         name
-//         gender
-//       }
-//       location {
-//         id
-//         name
-//         base {
-//           locations {
-//             id
-//             name
-//           }
-//         }
-//       }
-//     }
-//   }
-// `;
-
 const BoxEditView = () => {
   const labelIdentifier =
     useParams<{ labelIdentifier: string }>().labelIdentifier!;
-  const { loading, error, data } = useQuery<
+  const { loading, data } = useQuery<
     BoxByLabelIdentifierAndAllProductsQuery,
     BoxByLabelIdentifierAndAllProductsQueryVariables
   >(BOX_BY_LABEL_IDENTIFIER_AND_ALL_PRODUCTS_QUERY, {
@@ -111,40 +74,31 @@ const BoxEditView = () => {
   const baseId = useParams<{ baseId: string }>().baseId;
   const navigate = useNavigate();
 
-  const [updateContentOfBoxMutation, updateContentOfBoxMutationStatus] = useMutation<UpdateContentOfBoxMutation, UpdateContentOfBoxMutationVariables>(UPDATE_CONTENT_OF_BOX_MUTATION);
+  const [updateContentOfBoxMutation] = useMutation<
+    UpdateContentOfBoxMutation,
+    UpdateContentOfBoxMutationVariables
+  >(UPDATE_CONTENT_OF_BOX_MUTATION);
 
   const onSubmitBoxEditForm = (boxFormValues: BoxFormValues) => {
     updateContentOfBoxMutation({
-      variables: 
-      {
+      variables: {
         boxLabelIdentifier: labelIdentifier,
         productId: parseInt(boxFormValues.productForDropdown.value),
-      }
-    }).then(mutationResult => {
-      navigate(`/bases/${baseId}/boxes/${mutationResult.data?.updateBox?.labelIdentifier}`);
-    }
-    ).catch(error => {
-      console.log("Error while trying to update Box", error);
-    });
-  }
-
-  // const [updateBoxLocation, mutationStatus] = useMutation<
-  //   UpdateLocationOfBoxMutation,
-  //   UpdateLocationOfBoxMutationVariables
-  // >(UPDATE_LOCATION_OF_BOX_MUTATION);
+      },
+    })
+      .then((mutationResult) => {
+        navigate(
+          `/bases/${baseId}/boxes/${mutationResult.data?.updateBox?.labelIdentifier}`
+        );
+      })
+      .catch((error) => {
+        console.log("Error while trying to update Box", error);
+      });
+  };
 
   if (loading) {
     return <div>Loading...</div>;
   }
-  // if (mutationStatus.loading) {
-  //   return <div>Updating box...</div>;
-  // }
-  // if (error || mutationStatus.error) {
-  //   console.error(error || mutationStatus.error);
-  //   return <div>Error!</div>;
-  // }
-
-  // const boxData = mutationStatus.data?.updateBox || data?.box;
   const boxData = data?.box;
   const allProducts = data?.products;
 
@@ -153,10 +107,13 @@ const BoxEditView = () => {
     return <div>Error: no products available to choose from for this Box</div>;
   }
 
-  return <>
-  {JSON.stringify(boxData)}
-  <BoxEdit boxData={boxData} allProducts={allProducts?.elements} onSubmitBoxEditForm={onSubmitBoxEditForm} />
-  </>;
+  return (
+    <BoxEdit
+      boxData={boxData}
+      allProducts={allProducts?.elements}
+      onSubmitBoxEditForm={onSubmitBoxEditForm}
+    />
+  );
 };
 
 export default BoxEditView;
