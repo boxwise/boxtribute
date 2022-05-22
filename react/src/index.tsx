@@ -21,7 +21,16 @@ const colors = {
   },
 };
 
-const theme = extendTheme({ colors });
+const theme = extendTheme({
+  colors,
+  components: {
+    FormLabel: {
+      baseStyle: {
+        fontWeight: "bold",
+      },
+    },
+  },
+});
 
 const AuthenticationProtectedApp = withAuthenticationRequired(App);
 
@@ -38,7 +47,7 @@ ReactDOM.render(
       </Auth0ProviderWithHistory>
     </BrowserRouter>
   </ChakraProvider>,
-  document.getElementById("root"),
+  document.getElementById("root")
 );
 
 // If you want your app to work offline and load faster, you can change

@@ -871,11 +871,34 @@ export type BoxByLabelIdentifierQueryVariables = Exact<{
 }>;
 
 
-export type BoxByLabelIdentifierQuery = { __typename?: 'Query', box?: { __typename?: 'Box', labelIdentifier: string, size?: string | null, items: number, product?: { __typename?: 'Product', name: string, gender?: ProductGender | null } | null, location?: { __typename?: 'Location', name?: string | null } | null } | null };
+export type BoxByLabelIdentifierQuery = { __typename?: 'Query', box?: { __typename?: 'Box', labelIdentifier: string, size?: string | null, items: number, product?: { __typename?: 'Product', name: string, gender?: ProductGender | null } | null, location?: { __typename?: 'Location', id: string, name?: string | null, base?: { __typename?: 'Base', locations?: Array<{ __typename?: 'Location', id: string, name?: string | null }> | null } | null } | null } | null };
+
+export type UpdateLocationOfBoxMutationVariables = Exact<{
+  boxLabelIdentifier: Scalars['String'];
+  newLocationId: Scalars['Int'];
+}>;
+
+
+export type UpdateLocationOfBoxMutation = { __typename?: 'Mutation', updateBox?: { __typename?: 'Box', labelIdentifier: string, size?: string | null, items: number, product?: { __typename?: 'Product', name: string, gender?: ProductGender | null, id: string } | null, location?: { __typename?: 'Location', id: string, name?: string | null, base?: { __typename?: 'Base', locations?: Array<{ __typename?: 'Location', id: string, name?: string | null }> | null } | null } | null } | null };
+
+export type BoxByLabelIdentifierAndAllProductsQueryVariables = Exact<{
+  labelIdentifier: Scalars['String'];
+}>;
+
+
+export type BoxByLabelIdentifierAndAllProductsQuery = { __typename?: 'Query', box?: { __typename?: 'Box', labelIdentifier: string, size?: string | null, items: number, product?: { __typename?: 'Product', id: string, name: string, gender?: ProductGender | null } | null, location?: { __typename?: 'Location', id: string, name?: string | null, base?: { __typename?: 'Base', locations?: Array<{ __typename?: 'Location', id: string, name?: string | null }> | null } | null } | null } | null, products: { __typename?: 'ProductPage', elements: Array<{ __typename?: 'Product', id: string, name: string, gender?: ProductGender | null, category: { __typename?: 'ProductCategory', name: string }, sizeRange: { __typename?: 'SizeRange', label: string } }> } };
+
+export type UpdateContentOfBoxMutationVariables = Exact<{
+  boxLabelIdentifier: Scalars['String'];
+  productId: Scalars['Int'];
+}>;
+
+
+export type UpdateContentOfBoxMutation = { __typename?: 'Mutation', updateBox?: { __typename?: 'Box', labelIdentifier: string } | null };
 
 export type BoxesForBaseQueryVariables = Exact<{
   baseId: Scalars['ID'];
 }>;
 
 
-export type BoxesForBaseQuery = { __typename?: 'Query', base?: { __typename?: 'Base', locations?: Array<{ __typename?: 'Location', boxes?: { __typename?: 'BoxPage', totalCount: number, elements: Array<{ __typename?: 'Box', labelIdentifier: string, id: string, state: BoxState, size?: string | null, items: number, product?: { __typename?: 'Product', gender?: ProductGender | null, name: string } | null }> } | null }> | null } | null };
+export type BoxesForBaseQuery = { __typename?: 'Query', base?: { __typename?: 'Base', locations?: Array<{ __typename?: 'Location', boxes?: { __typename?: 'BoxPage', totalCount: number, elements: Array<{ __typename?: 'Box', labelIdentifier: string, id: string, state: BoxState, size?: string | null, items: number, product?: { __typename?: 'Product', gender?: ProductGender | null, name: string } | null, location?: { __typename?: 'Location', name?: string | null } | null }> } | null }> | null } | null };
