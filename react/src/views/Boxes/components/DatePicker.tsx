@@ -43,7 +43,10 @@ function Form() {
       {selectedDate && <p>You picked {format(selectedDate, "PP")}.</p>}
       <Popover>
         <PopoverTrigger>
-          <Input value={selectedDate?.toDateString() || ""} />
+          <Input
+            placeholderText={selectedDate}
+            value={selectedDate?.toDateString() || ""}
+          />
           {/* <Input
               {...input.inputProps}
               // placeholder={format(field.value, options.format)}

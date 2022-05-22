@@ -1,9 +1,13 @@
 import { Controller, useForm } from "react-hook-form";
-import { gql, useQuery, useLazyQuery } from "@apollo/client";
+import { gql, useQuery, useLazyQuery, useMutation } from "@apollo/client";
 import {
   BasesForOrganisationsQuery,
   BasesForOrganisationsQueryVariables,
+  CreateTransferAgreementMutation,
+  CreateTransferAgreementMutationVariables,
   OrganisationsQuery,
+  TransferAgreementCreationInput,
+  TransferAgreementType,
 } from "types/generated/graphql";
 
 import {
@@ -42,11 +46,44 @@ export const BASES_ORGANISATIONS_QUERY = gql`
   }
 `;
 
+export const CREATE_TRANSFER_AGREEMENT_MUTATION = gql`
+  mutation CreateTransferAgreement(
+    $creationInput: TransferAgreementCreationInput!
+  ) {
+    createTransferAgreement(creationInput: $creationInput) {
+      id
+    }
+  }
+`;
+
+// const [updateBoxLocation, mutationStatus] = useMutation<
+// UpdateLocationOfBoxMutation,
+// UpdateLocationOfBoxMutationVariables
+// >(UPDATE_LOCATION_OF_BOX_MUTATION);
+
+// if (loading) {
+// return <div>Loading...</div>;
+// }
+// if (mutationStatus.loading) {
+// return <div>Updating box...</div>;
+// }
+// if (error || mutationStatus.error) {
+// console.error(error || mutationStatus.error);
+// return <div>Error!</div>;
+// }
+
+// const boxData = mutationStatus.data?.updateBox || data?.box;
+
 const TransferAgreement = () => {
   const [basesForOrganisations, { data: basesdata }] = useLazyQuery<
     BasesForOrganisationsQuery,
     BasesForOrganisationsQueryVariables
   >(BASES_ORGANISATIONS_QUERY);
+
+  const [createTransferAgreement, mutationStatus] = useMutation<
+    CreateTransferAgreementMutation,
+    CreateTransferAgreementMutationVariables
+  >(CREATE_TRANSFER_AGREEMENT_MUTATION);
 
   const {
     register,
@@ -78,15 +115,27 @@ const TransferAgreement = () => {
     return <div>Error: {JSON.stringify(error)}</div>;
   }
 
+  if (mutationStatus.loading) {
+    return <div>Creating transfer agreement...</div>;
+  }
+  if (mutationStatus.error) {
+    return <div>Error: {JSON.stringify(mutationStatus.error)}</div>;
+  }
+
   const onOrgDropdownChange = (e: React.FormEvent<HTMLSelectElement>): void => {
     const newSelectedOrgId = (e.target as HTMLInputElement).value;
     setSelectedOrgId(newSelectedOrgId);
     console.log("newSelectedOrgId", newSelectedOrgId);
   };
 
-  const onSubmit = (data) => {
-    setSubmittedVal(data);
-    console.log(data);
+  // const onSubmit = (data) => {
+  //   setSubmittedVal(data);
+  //   console.log(data);
+  // };
+
+  const creationInput: TransferAgreementCreationInput = {
+    targetOrganisationId: 2,
+    type: TransferAgreementType.Unidirectional,
   };
 
   return (
@@ -141,6 +190,12 @@ const TransferAgreement = () => {
         <WrapItem>
           <Input type="submit" />
         </WrapItem>
+        <Button
+          onClick={() =>
+            createTransferAgreement({ variables: { creationInput } })
+          }
+        ></Button>
+        {JSON.stringify(mutationStatus.data)}
       </Wrap>
     </form>
   );

@@ -74,7 +74,7 @@ const UserMenu = () => {
       <MenuList>
         <BaseSwitcher />
         <MenuDivider />
-        <MenuGroup>
+        <MenuGroup title={`User (${user?.email})`}>
           <MenuItem>Profile</MenuItem>
           <MenuItem>Change Organisation</MenuItem>
         </MenuGroup>
