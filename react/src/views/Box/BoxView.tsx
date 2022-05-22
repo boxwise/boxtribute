@@ -1,5 +1,4 @@
 import { gql, useMutation, useQuery } from "@apollo/client";
-import { Box, Button, Heading, List, ListItem, Text } from "@chakra-ui/react";
 import { useParams } from "react-router-dom";
 import {
   BoxByLabelIdentifierQuery,
