@@ -10,9 +10,11 @@ import { gql, useLazyQuery } from "@apollo/client";
 import QrScanner from "components/QrScanner";
 import { BasesQuery } from "types/generated/graphql";
 import { GlobalPreferencesContext } from "providers/GlobalPreferencesProvider";
-import Transfers from "views/Transfers/Transfers";
+import CreateTransferAgreementView from "views/Transfers/CreateTransferAgreementView";
 import BTBox from "views/Box/BoxView";
 import BoxEditView from "views/BoxEdit/BoxEditView";
+import TransferAgreement from "views/Transfers/CreateTransferAgreementForm";
+import TransferAgreementView from "views/Transfers/TransferAgreementView";
 
 const useLoadAndSetAvailableBases = () => {
   const BASES_QUERY = gql`
@@ -55,7 +57,16 @@ const App = () => {
           <Route index element={<AutomaticBaseSwitcher />}></Route>
           <Route path=":baseId">
             <Route path="scan-qrcode" element={<QrScanner />} />
-            <Route path="transfers" element={<Transfers />} />
+            <Route
+              path="transfers/new"
+              element={<CreateTransferAgreementView />}
+            />
+            <Route
+              path="transfers/:transferId"
+              element={<TransferAgreementView />}
+            />
+
+            <Route path="boxes" element={<Boxes />} />
             <Route path="boxes">
               <Route index element={<Boxes />} />
               <Route path=":labelIdentifier" element={<BTBox />} />

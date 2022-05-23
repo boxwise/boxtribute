@@ -23,7 +23,7 @@ import {
 } from "@chakra-ui/react";
 import { useEffect, useState } from "react";
 import DatePicker from "views/Boxes/components/DatePicker";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 
 export const ORGANISATIONS_QUERY = gql`
   query Organisations {
@@ -76,6 +76,7 @@ const TransferAgreement = () => {
   >(BASES_ORGANISATIONS_QUERY);
 
   const navigate = useNavigate();
+  const baseId = useParams<{ baseId: string }>().baseId!;
 
   const [createTransferAgreement, mutationStatus] = useMutation<
     CreateTransferAgreementMutation,
@@ -106,9 +107,9 @@ const TransferAgreement = () => {
   useEffect(() => {
     mutationStatus?.data?.createTransferAgreement?.id &&
       navigate(
-        `/transfers/${mutationStatus?.data?.createTransferAgreement?.id}`
+        `/bases/${baseId}/transfers/${mutationStatus?.data?.createTransferAgreement?.id}`
       );
-  }, [mutationStatus, navigate]);
+  }, [mutationStatus, navigate, baseId]);
 
   const { loading, error, data } =
     useQuery<OrganisationsQuery>(ORGANISATIONS_QUERY);
