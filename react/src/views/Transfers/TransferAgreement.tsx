@@ -93,7 +93,7 @@ const TransferAgreement = () => {
   });
 
   const [selectOrgId, setSelectedOrgId] = useState<string>();
-  const [submittedVal, setSubmittedVal] = useState();
+  // const [submittedVal, setSubmittedVal] = useState();
 
   useEffect(() => {
     if (selectOrgId != null)
@@ -122,22 +122,27 @@ const TransferAgreement = () => {
     console.log("newSelectedOrgId", newSelectedOrgId);
   };
 
-  const onSubmit = (data) => {
-    setSubmittedVal(data);
+  const onSubmit = (data: TransferAgreementFormValues) => {
+    // setSubmittedVal(data);
+    const creationInput: TransferAgreementCreationInput = {
+      targetOrganisationId: parseInt(data.targetOrganisationId),
+      type: TransferAgreementType[data.transferType],
+    };
+    createTransferAgreement({ variables: { creationInput } });
     console.log(data);
   };
 
-  const onCreationTransferAgreementClick = (
-    selectOrgId: string,
-    typeTrans: string
-  ) => {
-    const creationInput: TransferAgreementCreationInput = {
-      targetOrganisationId: parseInt(selectOrgId),
-      type: TransferAgreementType[typeTrans],
-    };
+  // const onCreationTransferAgreementClick = (
+  //   selectOrgId: string,
+  //   typeTrans: string
+  // ) => {
+  //   const creationInput: TransferAgreementCreationInput = {
+  //     targetOrganisationId: parseInt(),
+  //     type: TransferAgreementType[typeTrans],
+  //   };
 
-    createTransferAgreement({ variables: { creationInput } });
-  };
+  //   createTransferAgreement({ variables: { creationInput } });
+  // };
 
   return (
     <form onSubmit={handleSubmit(onSubmit)}>
