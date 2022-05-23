@@ -56,23 +56,17 @@ export const CREATE_TRANSFER_AGREEMENT_MUTATION = gql`
   }
 `;
 
-// const [updateBoxLocation, mutationStatus] = useMutation<
-// UpdateLocationOfBoxMutation,
-// UpdateLocationOfBoxMutationVariables
-// >(UPDATE_LOCATION_OF_BOX_MUTATION);
-
-// if (loading) {
-// return <div>Loading...</div>;
-// }
-// if (mutationStatus.loading) {
-// return <div>Updating box...</div>;
-// }
-// if (error || mutationStatus.error) {
-// console.error(error || mutationStatus.error);
-// return <div>Error!</div>;
+// export interface BoxFormValues {
+//   size?: string | null;
+//   productForDropdown: OptionsGroup;
+//   sizeForDropdown?: OptionsGroup;
 // }
 
-// const boxData = mutationStatus.data?.updateBox || data?.box;
+export interface TransferAgreementFormValues {
+  targetOrganisationId: string;
+  targetBasesIds: string[];
+  transferType: string;
+}
 
 const TransferAgreement = () => {
   const [basesForOrganisations, { data: basesdata }] = useLazyQuery<
@@ -90,10 +84,10 @@ const TransferAgreement = () => {
     handleSubmit,
     control,
     formState: { errors },
-  } = useForm({
+  } = useForm<TransferAgreementFormValues>({
     defaultValues: {
       targetOrganisationId: "",
-      targetBasesIds: "",
+      targetBasesIds: [],
       transferType: "",
     },
   });
@@ -128,18 +122,25 @@ const TransferAgreement = () => {
     console.log("newSelectedOrgId", newSelectedOrgId);
   };
 
-  // const onSubmit = (data) => {
-  //   setSubmittedVal(data);
-  //   console.log(data);
-  // };
+  const onSubmit = (data) => {
+    setSubmittedVal(data);
+    console.log(data);
+  };
 
-  const creationInput: TransferAgreementCreationInput = {
-    targetOrganisationId: 2,
-    type: TransferAgreementType.Unidirectional,
+  const onCreationTransferAgreementClick = (
+    selectOrgId: string,
+    typeTrans: string
+  ) => {
+    const creationInput: TransferAgreementCreationInput = {
+      targetOrganisationId: parseInt(selectOrgId),
+      type: TransferAgreementType[typeTrans],
+    };
+
+    createTransferAgreement({ variables: { creationInput } });
   };
 
   return (
-    <form>
+    <form onSubmit={handleSubmit(onSubmit)}>
       <Wrap spacing="30px">
         <WrapItem>
           <FormControl
@@ -161,7 +162,7 @@ const TransferAgreement = () => {
           <FormControl id="targetBasesIds">
             <Select
               {...register("targetBasesIds")}
-              isMulti
+              ismulti
               placeholder="Select bases"
             >
               {basesdata?.organisation?.bases?.map((option) => (
@@ -188,13 +189,20 @@ const TransferAgreement = () => {
           <DatePicker />
         </WrapItem>
         <WrapItem>
-          <Input type="submit" />
+          <Button type="submit">Submit</Button>
         </WrapItem>
-        <Button
-          onClick={() =>
-            createTransferAgreement({ variables: { creationInput } })
-          }
-        ></Button>
+
+        {/* <Button
+            onClick={() =>
+              onCreationTransferAgreementClick(
+                selectOrgId,
+                submittedVal?.transferType
+              )
+            }
+          >
+            Create Transfer Agreement
+          </Button> */}
+
         {JSON.stringify(mutationStatus.data)}
       </Wrap>
     </form>
