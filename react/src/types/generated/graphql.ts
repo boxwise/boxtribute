@@ -921,3 +921,10 @@ export type CreateTransferAgreementMutationVariables = Exact<{
 
 
 export type CreateTransferAgreementMutation = { __typename?: 'Mutation', createTransferAgreement?: { __typename?: 'TransferAgreement', id: string } | null };
+
+export type TransferAgreementByIdQueryVariables = Exact<{
+  id: Scalars['ID'];
+}>;
+
+
+export type TransferAgreementByIdQuery = { __typename?: 'Query', transferAgreement?: { __typename?: 'TransferAgreement', id: string, state?: TransferAgreementState | null, type: TransferAgreementType, targetOrganisation: { __typename?: 'Organisation', name: string, id: string } } | null };
