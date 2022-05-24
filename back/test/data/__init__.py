@@ -29,7 +29,7 @@ from .location import (
 )
 from .log import default_log
 from .organisation import another_organisation, default_organisation
-from .product import another_product, default_product
+from .product import another_product, default_product, products
 from .product_category import default_product_category
 from .product_gender import default_product_gender
 from .qr_code import default_qr_code, qr_code_without_box
@@ -38,6 +38,7 @@ from .shipment import (
     canceled_shipment,
     default_shipment,
     sent_shipment,
+    shipments,
 )
 from .shipment_detail import (
     another_shipment_detail,
@@ -96,11 +97,13 @@ __all__ = [
     "non_default_box_state_location",
     "null_box_state_location",
     "prepared_shipment_detail",
+    "products",
     "qr_code_without_box",
     "relative_beneficiary",
     "relative_transaction",
     "reviewed_transfer_agreement",
     "sent_shipment",
+    "shipments",
     "transfer_agreements",
     "unidirectional_transfer_agreement",
 ]

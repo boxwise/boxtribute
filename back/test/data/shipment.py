@@ -71,5 +71,10 @@ def sent_shipment():
     return data()[3]
 
 
+@pytest.fixture
+def shipments():
+    return data()
+
+
 def create():
     Shipment.insert_many(data()).execute()

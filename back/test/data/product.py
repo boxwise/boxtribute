@@ -43,5 +43,10 @@ def another_product():
     return another_product_data()
 
 
+@pytest.fixture
+def products():
+    return data()
+
+
 def create():
     Product.insert_many(data()).execute()
