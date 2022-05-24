@@ -5,7 +5,11 @@ from ariadne import MutationType, ObjectType, QueryType, convert_kwargs_to_snake
 from flask import g
 from peewee import fn
 
-from ..authz import authorize
+from ..authz import (
+    agreement_organisation_filter_condition,
+    authorize,
+    base_filter_condition,
+)
 from ..box_transfer.agreement import (
     accept_transfer_agreement,
     cancel_transfer_agreement,
@@ -78,33 +82,11 @@ transfer_agreement = _register_object_type("TransferAgreement")
 user = _register_object_type("User")
 
 
-def _base_filter_condition(permission):
-    """Derive filter condition for given permission depending the current user's
-    base-specific permissions. See also `auth.requires_auth()`.
-    """
-    base_ids = g.user.authorized_base_ids(permission)
-    if base_ids is None:
-        # Permission granted for all bases
-        return True
-    return Base.id << base_ids
-
-
-def _agreement_organisation_filter_condition():
-    """Derive filter condition for accessing transfer agreements depending on the user's
-    organisation. The god user may access any agreement.
-    """
-    if g.user.is_god:
-        return True
-    return (TransferAgreement.source_organisation == g.user.organisation_id) | (
-        TransferAgreement.target_organisation == g.user.organisation_id
-    )
-
-
 @user.field("bases")
 @query.field("bases")
 def resolve_bases(*_):
     authorize(permission="base:read")
-    return Base.select().where(_base_filter_condition("base:read"))
+    return Base.select().where(base_filter_condition("base:read"))
 
 
 @query.field("base")
@@ -219,7 +201,7 @@ def resolve_organisations(*_):
 @query.field("locations")
 def resolve_locations(*_):
     authorize(permission="location:read")
-    return Location.select().join(Base).where(_base_filter_condition("location:read"))
+    return Location.select().join(Base).where(base_filter_condition("location:read"))
 
 
 @query.field("products")
@@ -228,7 +210,7 @@ def resolve_products(*_, pagination_input=None):
     authorize(permission="product:read")
     return load_into_page(
         Product,
-        _base_filter_condition("product:read"),
+        base_filter_condition("product:read"),
         selection=Product.select().join(Base),
         pagination_input=pagination_input,
     )
@@ -241,7 +223,7 @@ def resolve_beneficiaries(*_, pagination_input=None, filter_input=None):
     filter_condition = derive_beneficiary_filter(filter_input)
     return load_into_page(
         Beneficiary,
-        _base_filter_condition("beneficiary:read") & filter_condition,
+        base_filter_condition("beneficiary:read") & filter_condition,
         selection=Beneficiary.select().join(Base),
         pagination_input=pagination_input,
     )
@@ -253,7 +235,7 @@ def resolve_transfer_agreements(*_, states=None):
     # No state filter by default
     state_filter = TransferAgreement.state << states if states else True
     return TransferAgreement.select().where(
-        _agreement_organisation_filter_condition() & (state_filter)
+        agreement_organisation_filter_condition() & (state_filter)
     )
 
 
@@ -263,7 +245,7 @@ def resolve_shipments(*_):
     return (
         Shipment.select()
         .join(TransferAgreement)
-        .where(_agreement_organisation_filter_condition())
+        .where(agreement_organisation_filter_condition())
     )
 
 
