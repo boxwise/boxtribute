@@ -272,8 +272,12 @@ def test_permission_scope(read_only_client, mocker, default_bases, method):
     assert len(bases) == len(default_bases)
 
 
-def test_permission_for_god_user(read_only_client, mocker, default_users):
+def test_permission_for_god_user(read_only_client, mocker, default_users, products):
     mocker.patch("jose.jwt.decode").return_value = create_jwt_payload(permissions=["*"])
     query = "query { users { id } }"
     users = assert_successful_request(read_only_client, query)
     assert len(users) == len(default_users)
+
+    query = "query { products { totalCount } }"
+    nr_products = assert_successful_request(read_only_client, query)["totalCount"]
+    assert nr_products == len(products)
