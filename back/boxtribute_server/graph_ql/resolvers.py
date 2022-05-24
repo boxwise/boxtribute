@@ -89,6 +89,17 @@ def _base_filter_condition(permission):
     return Base.id << base_ids
 
 
+def _agreement_organisation_filter_condition():
+    """Derive filter condition for accessing transfer agreements depending on the user's
+    organisation. The god user may access any agreement.
+    """
+    if g.user.is_god:
+        return True
+    return (TransferAgreement.source_organisation == g.user.organisation_id) | (
+        TransferAgreement.target_organisation == g.user.organisation_id
+    )
+
+
 @user.field("bases")
 @query.field("bases")
 def resolve_bases(*_):
@@ -239,29 +250,20 @@ def resolve_beneficiaries(*_, pagination_input=None, filter_input=None):
 @query.field("transferAgreements")
 def resolve_transfer_agreements(*_, states=None):
     authorize(permission="transfer_agreement:read")
-    user_organisation_id = g.user.organisation_id
     # No state filter by default
     state_filter = TransferAgreement.state << states if states else True
     return TransferAgreement.select().where(
-        (
-            (TransferAgreement.source_organisation == user_organisation_id)
-            | (TransferAgreement.target_organisation == user_organisation_id)
-        )
-        & (state_filter)
+        _agreement_organisation_filter_condition() & (state_filter)
     )
 
 
 @query.field("shipments")
 def resolve_shipments(*_):
     authorize(permission="shipment:read")
-    user_organisation_id = g.user.organisation_id
     return (
         Shipment.select()
         .join(TransferAgreement)
-        .where(
-            (TransferAgreement.source_organisation == user_organisation_id)
-            | (TransferAgreement.target_organisation == user_organisation_id)
-        )
+        .where(_agreement_organisation_filter_condition())
     )
 
 
