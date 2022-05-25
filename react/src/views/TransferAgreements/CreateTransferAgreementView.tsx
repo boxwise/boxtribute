@@ -1,5 +1,5 @@
 import { Box, Heading, ListItem, UnorderedList } from "@chakra-ui/react";
-import CreateTransferAgreementForm from "./CreateTransferAgreementForm";
+import CreateTransferAgreementForm from "./components/CreateTransferAgreementForm";
 
 const CreateTransferAgreementView = () => {
   return <CreateTransferAgreementForm />;

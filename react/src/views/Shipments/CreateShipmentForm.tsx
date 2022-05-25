@@ -1,4 +1,4 @@
-import { Controller, useForm } from "react-hook-form";
+import { useForm } from "react-hook-form";
 import { gql, useQuery, useLazyQuery, useMutation } from "@apollo/client";
 import {
   BasesForOrganisationsQuery,
@@ -10,17 +10,7 @@ import {
   TransferAgreementType,
 } from "types/generated/graphql";
 
-import {
-  FormErrorMessage,
-  FormLabel,
-  FormControl,
-  Input,
-  Button,
-  Select,
-  Flex,
-  Wrap,
-  WrapItem,
-} from "@chakra-ui/react";
+import { FormControl, Button, Select, Wrap, WrapItem } from "@chakra-ui/react";
 import { useEffect, useState } from "react";
 import DatePicker from "views/Boxes/components/DatePicker";
 import { useNavigate, useParams } from "react-router-dom";
@@ -126,6 +116,7 @@ const TransferAgreement = () => {
   if (mutationStatus.error) {
     return <div>Error: {JSON.stringify(mutationStatus.error)}</div>;
   }
+  //the dropdowns don't work properly
 
   const onOrgDropdownChange = (e: React.FormEvent<HTMLSelectElement>): void => {
     const newSelectedOrgId = (e.target as HTMLInputElement).value;
@@ -142,18 +133,6 @@ const TransferAgreement = () => {
     createTransferAgreement({ variables: { creationInput } });
     console.log(data);
   };
-
-  // const onCreationTransferAgreementClick = (
-  //   selectOrgId: string,
-  //   typeTrans: string
-  // ) => {
-  //   const creationInput: TransferAgreementCreationInput = {
-  //     targetOrganisationId: parseInt(),
-  //     type: TransferAgreementType[typeTrans],
-  //   };
-
-  //   createTransferAgreement({ variables: { creationInput } });
-  // };
 
   return (
     <form onSubmit={handleSubmit(onSubmit)}>
@@ -207,19 +186,6 @@ const TransferAgreement = () => {
         <WrapItem>
           <Button type="submit">Submit</Button>
         </WrapItem>
-
-        {/* <Button
-            onClick={() =>
-              onCreationTransferAgreementClick(
-                selectOrgId,
-                submittedVal?.transferType
-              )
-            }
-          >
-            Create Transfer Agreement
-          </Button> */}
-
-        {JSON.stringify(mutationStatus.data)}
       </Wrap>
     </form>
   );
