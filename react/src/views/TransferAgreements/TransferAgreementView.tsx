@@ -16,9 +16,6 @@ export const ACCEPT_TRANSFER_AGREEMENT_MUTATION = gql`
     acceptTransferAgreement(id: $id) {
       id
       state
-      sourceOrganisation
-      targetOrganisation
-      validUntil
     }
   }
 `;

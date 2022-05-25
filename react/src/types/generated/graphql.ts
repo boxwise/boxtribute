@@ -903,6 +903,39 @@ export type BoxesForBaseQueryVariables = Exact<{
 
 export type BoxesForBaseQuery = { __typename?: 'Query', base?: { __typename?: 'Base', locations?: Array<{ __typename?: 'Location', boxes?: { __typename?: 'BoxPage', totalCount: number, elements: Array<{ __typename?: 'Box', labelIdentifier: string, id: string, state: BoxState, size?: string | null, items: number, product?: { __typename?: 'Product', gender?: ProductGender | null, name: string } | null, location?: { __typename?: 'Location', name?: string | null } | null }> } | null }> | null } | null };
 
+export type AcceptTransferAgreementMutationVariables = Exact<{
+  id: Scalars['ID'];
+}>;
+
+
+export type AcceptTransferAgreementMutation = { __typename?: 'Mutation', acceptTransferAgreement?: { __typename?: 'TransferAgreement', id: string, state?: TransferAgreementState | null } | null };
+
+export type RejectTransferAgreementMutationVariables = Exact<{
+  id: Scalars['ID'];
+}>;
+
+
+export type RejectTransferAgreementMutation = { __typename?: 'Mutation', rejectTransferAgreement?: { __typename?: 'TransferAgreement', id: string, state?: TransferAgreementState | null } | null };
+
+export type CancelTransferAgreementMutationVariables = Exact<{
+  id: Scalars['ID'];
+}>;
+
+
+export type CancelTransferAgreementMutation = { __typename?: 'Mutation', cancelTransferAgreement?: { __typename?: 'TransferAgreement', id: string, state?: TransferAgreementState | null } | null };
+
+export type TransferAgreementByIdQueryVariables = Exact<{
+  id: Scalars['ID'];
+}>;
+
+
+export type TransferAgreementByIdQuery = { __typename?: 'Query', transferAgreement?: { __typename?: 'TransferAgreement', id: string, state?: TransferAgreementState | null, type: TransferAgreementType, targetOrganisation: { __typename?: 'Organisation', name: string, id: string } } | null };
+
+export type TransferAgreementsQueryVariables = Exact<{ [key: string]: never; }>;
+
+
+export type TransferAgreementsQuery = { __typename?: 'Query', transferAgreements: Array<{ __typename?: 'TransferAgreement', id: string, state?: TransferAgreementState | null }> };
+
 export type OrganisationsQueryVariables = Exact<{ [key: string]: never; }>;
 
 
@@ -921,10 +954,3 @@ export type CreateTransferAgreementMutationVariables = Exact<{
 
 
 export type CreateTransferAgreementMutation = { __typename?: 'Mutation', createTransferAgreement?: { __typename?: 'TransferAgreement', id: string } | null };
-
-export type TransferAgreementByIdQueryVariables = Exact<{
-  id: Scalars['ID'];
-}>;
-
-
-export type TransferAgreementByIdQuery = { __typename?: 'Query', transferAgreement?: { __typename?: 'TransferAgreement', id: string, state?: TransferAgreementState | null, type: TransferAgreementType, targetOrganisation: { __typename?: 'Organisation', name: string, id: string } } | null };

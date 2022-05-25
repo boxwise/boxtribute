@@ -15,6 +15,7 @@ import BTBox from "views/Box/BoxView";
 import BoxEditView from "views/BoxEdit/BoxEditView";
 import TransferAgreement from "views/TransferAgreements/components/CreateTransferAgreementForm";
 import TransferAgreementView from "views/TransferAgreements/TransferAgreementView";
+import TransferAgreementsView from "views/TransferAgreements/TransferAgreementsView";
 // import CreateShipmentForm from "views/Shipments/CreateShipmentForm";
 
 const useLoadAndSetAvailableBases = () => {
@@ -62,9 +63,10 @@ const App = () => {
               path="transfers/new"
               element={<CreateTransferAgreementView />}
             />
-            <Route path="transfers/:id" element={<TransferAgreementView />} />
-            {/* <Route path="shipments/new" element={<CreateShipmentForm />} /> */}
-            <Route path="boxes" element={<Boxes />} />
+            <Route path="transfers">
+              <Route index element={<TransferAgreementsView />} />
+              <Route path=":id" element={<TransferAgreementView />} />
+            </Route>
             <Route path="boxes">
               <Route index element={<Boxes />} />
               <Route path=":labelIdentifier" element={<BTBox />} />
