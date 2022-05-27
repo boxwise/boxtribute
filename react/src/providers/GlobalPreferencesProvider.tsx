@@ -4,6 +4,7 @@ interface BaseIdAndNameTuple { id: string, name: string }
 
 interface GlobalPreferences {
   availableBases?: BaseIdAndNameTuple[];
+  selectedOrganisationId?: string;
 }
 
 interface IGlobalPreferencesContext {
@@ -25,7 +26,12 @@ interface SetSelectedBaseIdAction {
   payload: string;
 }
 
-type SetGlobalPreferencesAction = SetAvailableBasesAction | SetSelectedBaseIdAction;
+interface SetOrganisationId {
+  type: "setOrganisationId";
+  payload: string;
+}
+
+type SetGlobalPreferencesAction = SetAvailableBasesAction | SetSelectedBaseIdAction | SetOrganisationId;
 
 const globalPreferencesReduer = (state: GlobalPreferences, action: SetGlobalPreferencesAction) => {
   switch (action.type) {
@@ -33,6 +39,8 @@ const globalPreferencesReduer = (state: GlobalPreferences, action: SetGlobalPref
       return { ...state, availableBases: action.payload };
     case "setSelectedBaseId":
       return { ...state, selectedBaseId: action.payload };
+    case "setOrganisationId": 
+      return { ...state, selectedOrganisationId: action.payload };
     default:
       return state;
   }
