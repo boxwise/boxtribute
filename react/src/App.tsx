@@ -51,6 +51,7 @@ const useLoadAndSetAvailableBases = () => {
 
 const App = () => {
   useLoadAndSetAvailableBases();
+
   return (
     <Routes>
       <Route path="/">
