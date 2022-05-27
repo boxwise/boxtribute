@@ -151,13 +151,23 @@ const BoxEdit = ({
             {boxData.items}
           </ListItem>
         </List>
+
         <Button
           mt={4}
           colorScheme="teal"
           isLoading={isSubmitting}
           type="submit"
         >
-          Update Box
+          Save and close
+        </Button>
+        <Button
+          mt={4}
+          colorScheme="teal"
+          isLoading={isSubmitting}
+          type="submit"
+          disabled
+        >
+          Save and new box
         </Button>
       </form>
     </Box>
