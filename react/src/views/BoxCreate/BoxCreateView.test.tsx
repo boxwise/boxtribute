@@ -62,5 +62,21 @@ describe("Box Create View", () => {
       expect(createNewBoxHeader).toHaveTextContent("Create new Box");
     });
   });
-  describe("with a qr code in the url", () => {});
+  describe("with a qr code in the url", () => {
+    const mocks = [allProductsQueryMock];
+
+    beforeEach(() => {
+      render(<BoxCreateView />, {
+        routePath: "/bases/:baseId/boxes/new",
+        initialUrl: "/bases/1/boxes/new?qrCode=1234",
+        mocks,
+      });
+    });
+
+    it("shows the qr code given by the url search paramt", async () => {
+      await waitFor(waitTillLoadingIsDone);
+      const createNewBoxHeader = await screen.getByText("QR Code: 1234")
+      expect(createNewBoxHeader).toBeInTheDocument();
+    });
+  });
 });

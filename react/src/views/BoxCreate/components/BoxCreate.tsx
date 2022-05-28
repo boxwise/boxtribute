@@ -95,6 +95,7 @@ const BoxCreate = ({
       >
         Create new Box
       </Heading>
+      <Box>QR Code: {qrCode}</Box>
 
       <form onSubmit={handleSubmit(onSubmitBoxCreateForm)}>
         <List spacing={2}>
