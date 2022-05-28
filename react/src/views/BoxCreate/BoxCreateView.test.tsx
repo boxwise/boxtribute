@@ -3,6 +3,32 @@ import "@testing-library/jest-dom";
 import { screen, waitFor } from "@testing-library/react";
 import { render } from "utils/test-utils";
 
+const allProductsQueryMock = {
+  request: {
+    query: ALL_PRODUCTS_QUERY,
+  },
+  result: {
+    data: {
+      products: {
+        elements: [
+          {
+            __typename: "Product",
+            id: 1,
+            name: "Thick Blanket",
+            gender: "FEMALE",
+            category: {
+              name: "Blankets",
+            },
+            sizeRange: {
+              label: "One Size",
+            },
+          },
+        ],
+      },
+    },
+  },
+};
+
 const waitTillLoadingIsDone = async () => {
   await waitFor(() => {
     const loadingInfo = screen.queryByText("Loading...");
@@ -12,33 +38,7 @@ const waitTillLoadingIsDone = async () => {
 
 describe("Box Create View", () => {
   describe("without a qr code in the url", () => {
-    const mocks = [
-      {
-        request: {
-          query: ALL_PRODUCTS_QUERY,
-        },
-        result: {
-          data: {
-            products: {
-              elements: [
-                  {
-                      __typename: "Product", 
-                      id: 1, 
-                      name: "Thick Blanket", 
-                      gender: "FEMALE", 
-                      category: {
-                          name: "Blankets"
-                      },
-                      sizeRange: {
-                          label: "One Size"
-                      }
-                  }
-              ],
-            },
-          },
-        },
-      },
-    ];
+    const mocks = [allProductsQueryMock];
 
     beforeEach(() => {
       render(<BoxCreateView />, {
@@ -53,7 +53,7 @@ describe("Box Create View", () => {
       expect(loadingInfo).toBeInTheDocument();
     });
 
-    it("the view should render", async () => {
+    it("eventually renders the main view with the heading", async () => {
       await waitFor(waitTillLoadingIsDone);
       const createNewBoxHeader = await screen.getByRole("heading", {
         level: 2,
@@ -62,7 +62,5 @@ describe("Box Create View", () => {
       expect(createNewBoxHeader).toHaveTextContent("Create new Box");
     });
   });
-  describe("with a qr code in the url", () => {
-      
-  });
+  describe("with a qr code in the url", () => {});
 });
