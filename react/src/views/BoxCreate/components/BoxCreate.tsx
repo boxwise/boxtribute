@@ -30,19 +30,19 @@ export interface BoxFormValues {
   sizeForDropdown?: OptionsGroup;
 }
 
-interface BoxEditProps {
+interface BoxCreateProps {
   boxData:
     | BoxByLabelIdentifierAndAllProductsQuery["box"]
     | UpdateLocationOfBoxMutation["updateBox"];
   allProducts: BoxByLabelIdentifierAndAllProductsQuery["products"]["elements"];
-  onSubmitBoxEditForm: (boxFormValues: BoxFormValues) => void;
+  onSubmitBoxCreateForm: (boxFormValues: BoxFormValues) => void;
 }
 
-const BoxEdit = ({
+const BoxCreate = ({
   boxData,
   allProducts,
-  onSubmitBoxEditForm,
-}: BoxEditProps) => {
+  onSubmitBoxCreateForm,
+}: BoxCreateProps) => {
   const productsGroupedByCategory = groupBy(
     allProducts,
     (product) => product.category.name
@@ -102,7 +102,7 @@ const BoxEdit = ({
         Box Details
       </Text>
 
-      <form onSubmit={handleSubmit(onSubmitBoxEditForm)}>
+      <form onSubmit={handleSubmit(onSubmitBoxCreateForm)}>
         <List spacing={2}>
           <ListItem>
             <Text as={"span"} fontWeight={"bold"}>
@@ -159,11 +159,20 @@ const BoxEdit = ({
           isLoading={isSubmitting}
           type="submit"
         >
-          Save
+          Save and close
+        </Button>
+        <Button
+          mt={4}
+          colorScheme="teal"
+          isLoading={isSubmitting}
+          type="submit"
+          disabled
+        >
+          Save and new box
         </Button>
       </form>
     </Box>
   );
 };
 
-export default BoxEdit;
+export default BoxCreate;

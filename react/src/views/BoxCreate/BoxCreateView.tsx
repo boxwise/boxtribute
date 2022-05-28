@@ -8,7 +8,7 @@ import {
   UpdateContentOfBoxMutation,
   UpdateContentOfBoxMutationVariables,
 } from "types/generated/graphql";
-import BoxEdit, { BoxFormValues } from "./components/BoxEdit";
+import BoxCreate, { BoxFormValues } from "./components/BoxCreate";
 
 export const ALL_PRODUCTS_QUERY = gql`
   query AllProducts {
@@ -57,7 +57,7 @@ const BoxCreateView = () => {
   //   UpdateContentOfBoxMutationVariables
   // >(UPDATE_CONTENT_OF_BOX_MUTATION);
 
-  const onSubmitBoxEditForm = (boxFormValues: BoxFormValues) => {
+  const onSubmitBoxCreateForm = (boxFormValues: BoxFormValues) => {
     // updateContentOfBoxMutation({
     //   variables: {
     //     // boxLabelIdentifier: labelIdentifier,
@@ -85,10 +85,10 @@ const BoxCreateView = () => {
   }
 
   return (
-    <BoxEdit
+    <BoxCreate
       boxData={null}
       allProducts={allProducts?.elements}
-      onSubmitBoxEditForm={onSubmitBoxEditForm}
+      onSubmitBoxCreateForm={onSubmitBoxCreateForm}
     />
   );
 };

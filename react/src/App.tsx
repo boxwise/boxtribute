@@ -14,7 +14,7 @@ import BTBox from "views/Box/BoxView";
 import BoxEditView from "views/BoxEdit/BoxEditView";
 import { useAuth0 } from "@auth0/auth0-react";
 import jwt from 'jwt-decode'
-import BoxCreateView from "views/BoxEdit/BoxCreateView";
+import BoxCreateView from "views/BoxCreate/BoxCreateView";
 
 const useLoadAndSetAvailableBases = () => {
   const BASES_QUERY = gql`
