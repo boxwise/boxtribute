@@ -1,5 +1,5 @@
 import { gql, useMutation, useQuery } from "@apollo/client";
-import { useNavigate, useParams } from "react-router-dom";
+import { useNavigate, useParams, useSearchParams } from "react-router-dom";
 import {
   BoxByLabelIdentifierAndAllProductsQuery,
   BoxByLabelIdentifierAndAllProductsQueryVariables,
@@ -8,29 +8,8 @@ import {
 } from "types/generated/graphql";
 import BoxEdit, { BoxFormValues } from "./components/BoxEdit";
 
-export const BOX_BY_LABEL_IDENTIFIER_AND_ALL_PRODUCTS_QUERY = gql`
-  query BoxByLabelIdentifierAndAllProducts($labelIdentifier: String!) {
-    box(labelIdentifier: $labelIdentifier) {
-      labelIdentifier
-      size
-      items
-      product {
-        id
-        name
-        gender
-      }
-      location {
-        id
-        name
-        base {
-          locations {
-            id
-            name
-          }
-        }
-      }
-    }
-
+export const ALL_PRODUCTS_QUERY = gql`
+  query AllProducts($labelIdentifier: String!) {
     products(paginationInput: { first: 500 }) {
       elements {
         id
@@ -61,58 +40,59 @@ export const UPDATE_CONTENT_OF_BOX_MUTATION = gql`
 `;
 
 const BoxCreateView = () => {
-  const labelIdentifier =
-    useParams<{ labelIdentifier: string }>().labelIdentifier!;
-  const { loading, data } = useQuery<
-    BoxByLabelIdentifierAndAllProductsQuery,
-    BoxByLabelIdentifierAndAllProductsQueryVariables
-  >(BOX_BY_LABEL_IDENTIFIER_AND_ALL_PRODUCTS_QUERY, {
-    variables: {
-      labelIdentifier,
-    },
-  });
-  const baseId = useParams<{ baseId: string }>().baseId;
+  const [qrCode] = useSearchParams();
+  alert(qrCode.get("qrCode"));
+
+  // const { loading, data } = useQuery<
+  //   AllProductsQuery,
+  //   AllProductsQueryVariables
+  // >(ALL_PRODUCTS_QUERY, {
+  //   variables: {
+  //     labelIdentifier,
+  //   },
+  // });
+  // const baseId = useParams<{ baseId: string }>().baseId;
   const navigate = useNavigate();
 
-  const [updateContentOfBoxMutation] = useMutation<
-    UpdateContentOfBoxMutation,
-    UpdateContentOfBoxMutationVariables
-  >(UPDATE_CONTENT_OF_BOX_MUTATION);
+  // const [updateContentOfBoxMutation] = useMutation<
+  //   UpdateContentOfBoxMutation,
+  //   UpdateContentOfBoxMutationVariables
+  // >(UPDATE_CONTENT_OF_BOX_MUTATION);
 
   const onSubmitBoxEditForm = (boxFormValues: BoxFormValues) => {
-    updateContentOfBoxMutation({
-      variables: {
-        boxLabelIdentifier: labelIdentifier,
-        productId: parseInt(boxFormValues.productForDropdown.value),
-      },
-    })
-      .then((mutationResult) => {
-        navigate(
-          `/bases/${baseId}/boxes/${mutationResult.data?.updateBox?.labelIdentifier}`
-        );
-      })
-      .catch((error) => {
-        console.log("Error while trying to update Box", error);
-      });
+    // updateContentOfBoxMutation({
+    //   variables: {
+    //     // boxLabelIdentifier: labelIdentifier,
+    //     productId: parseInt(boxFormValues.productForDropdown.value),
+    //   },
+    // })
+    //   .then((mutationResult) => {
+    //     navigate(
+    //       `/bases/${baseId}/boxes/${mutationResult.data?.updateBox?.labelIdentifier}`
+    //     );
+    //   })
+    //   .catch((error) => {
+    //     console.log("Error while trying to update Box", error);
+    //   });
   };
 
-  if (loading) {
-    return <div>Loading...</div>;
-  }
-  const boxData = data?.box;
-  const allProducts = data?.products;
+  // if (loading) {
+  //   return <div>Loading...</div>;
+  // }
+  // const allProducts = data?.products;
 
-  if (allProducts?.elements == null) {
-    console.error("allProducts.elements is null");
-    return <div>Error: no products available to choose from for this Box</div>;
-  }
+  // if (allProducts?.elements == null) {
+  //   console.error("allProducts.elements is null");
+  //   return <div>Error: no products available to choose from for this Box</div>;
+  // }
 
   return (
-    <BoxEdit
-      boxData={boxData}
-      allProducts={allProducts?.elements}
-      onSubmitBoxEditForm={onSubmitBoxEditForm}
-    />
+    <>Test</>
+    // <BoxEdit
+    //   boxData={null}
+    //   allProducts={allProducts?.elements}
+    //   onSubmitBoxEditForm={onSubmitBoxEditForm}
+    // />
   );
 };
 

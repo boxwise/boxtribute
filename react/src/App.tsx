@@ -14,6 +14,7 @@ import BTBox from "views/Box/BoxView";
 import BoxEditView from "views/BoxEdit/BoxEditView";
 import { useAuth0 } from "@auth0/auth0-react";
 import jwt from 'jwt-decode'
+import BoxCreateView from "views/BoxEdit/BoxCreateView";
 
 const useLoadAndSetAvailableBases = () => {
   const BASES_QUERY = gql`
@@ -75,6 +76,7 @@ const App = () => {
             <Route path="scan-qrcode" element={<QrScanner />} />
             <Route path="boxes">
               <Route index element={<Boxes />} />
+              <Route path="new" element={<BoxCreateView />} />
               <Route path=":labelIdentifier" element={<BTBox />} />
               <Route path=":labelIdentifier/edit" element={<BoxEditView />} />
             </Route>
