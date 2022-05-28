@@ -1,7 +1,8 @@
 import { gql, useQuery } from "@apollo/client";
 import { BoxesForBaseQuery } from "../../types/generated/graphql";
-import { useParams } from "react-router-dom";
+import { NavLink, useParams } from "react-router-dom";
 import BoxesTable from "./components/BoxesTable";
+import { Button, VStack } from "@chakra-ui/react";
 
 export const BOXES_FOR_BASE_QUERY = gql`
   query BoxesForBase($baseId: ID!) {
@@ -42,7 +43,7 @@ const graphqlToTableTransformer = (
         items: element.items,
         size: element.size,
         state: element.state,
-        location: element.location?.name
+        location: element.location?.name,
       })) || []
   ) || [];
 
@@ -67,7 +68,15 @@ const Boxes = () => {
 
   const tableData = graphqlToTableTransformer(data);
 
-  return <BoxesTable tableData={tableData} />;
+  return (
+    <VStack>
+      <NavLink to="new">
+        <Button>Create new Box</Button>
+      </NavLink>
+
+      <BoxesTable tableData={tableData} />
+    </VStack>
+  );
 };
 
 export default Boxes;
