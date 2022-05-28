@@ -11,6 +11,7 @@ import {
 import { Select, OptionBase } from "chakra-react-select";
 
 import {
+  AllProductsQuery,
   BoxByLabelIdentifierAndAllProductsQuery,
   UpdateLocationOfBoxMutation,
 } from "types/generated/graphql";

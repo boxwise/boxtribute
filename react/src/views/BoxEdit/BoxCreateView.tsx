@@ -1,6 +1,8 @@
 import { gql, useMutation, useQuery } from "@apollo/client";
 import { useNavigate, useParams, useSearchParams } from "react-router-dom";
 import {
+  AllProductsQuery,
+  AllProductsQueryVariables,
   BoxByLabelIdentifierAndAllProductsQuery,
   BoxByLabelIdentifierAndAllProductsQueryVariables,
   UpdateContentOfBoxMutation,
@@ -9,7 +11,7 @@ import {
 import BoxEdit, { BoxFormValues } from "./components/BoxEdit";
 
 export const ALL_PRODUCTS_QUERY = gql`
-  query AllProducts($labelIdentifier: String!) {
+  query AllProducts {
     products(paginationInput: { first: 500 }) {
       elements {
         id
@@ -41,16 +43,12 @@ export const UPDATE_CONTENT_OF_BOX_MUTATION = gql`
 
 const BoxCreateView = () => {
   const [qrCode] = useSearchParams();
-  alert(qrCode.get("qrCode"));
+  // alert(qrCode.get("qrCode"));
 
-  // const { loading, data } = useQuery<
-  //   AllProductsQuery,
-  //   AllProductsQueryVariables
-  // >(ALL_PRODUCTS_QUERY, {
-  //   variables: {
-  //     labelIdentifier,
-  //   },
-  // });
+  const { loading, data } = useQuery<
+    AllProductsQuery,
+    AllProductsQueryVariables
+  >(ALL_PRODUCTS_QUERY);
   // const baseId = useParams<{ baseId: string }>().baseId;
   const navigate = useNavigate();
 
@@ -79,20 +77,19 @@ const BoxCreateView = () => {
   // if (loading) {
   //   return <div>Loading...</div>;
   // }
-  // const allProducts = data?.products;
+  const allProducts = data?.products;
 
-  // if (allProducts?.elements == null) {
-  //   console.error("allProducts.elements is null");
-  //   return <div>Error: no products available to choose from for this Box</div>;
-  // }
+  if (allProducts?.elements == null) {
+    console.error("allProducts.elements is null");
+    return <div>Error: no products available to choose from for this Box</div>;
+  }
 
   return (
-    <>Test</>
-    // <BoxEdit
-    //   boxData={null}
-    //   allProducts={allProducts?.elements}
-    //   onSubmitBoxEditForm={onSubmitBoxEditForm}
-    // />
+    <BoxEdit
+      boxData={null}
+      allProducts={allProducts?.elements}
+      onSubmitBoxEditForm={onSubmitBoxEditForm}
+    />
   );
 };
 

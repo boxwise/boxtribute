@@ -881,9 +881,7 @@ export type UpdateLocationOfBoxMutationVariables = Exact<{
 
 export type UpdateLocationOfBoxMutation = { __typename?: 'Mutation', updateBox?: { __typename?: 'Box', labelIdentifier: string, size?: string | null, items: number, product?: { __typename?: 'Product', name: string, gender?: ProductGender | null, id: string } | null, location?: { __typename?: 'Location', id: string, name?: string | null, base?: { __typename?: 'Base', locations?: Array<{ __typename?: 'Location', id: string, name?: string | null }> | null } | null } | null } | null };
 
-export type AllProductsQueryVariables = Exact<{
-  labelIdentifier: Scalars['String'];
-}>;
+export type AllProductsQueryVariables = Exact<{ [key: string]: never; }>;
 
 
 export type AllProductsQuery = { __typename?: 'Query', products: { __typename?: 'ProductPage', elements: Array<{ __typename?: 'Product', id: string, name: string, gender?: ProductGender | null, category: { __typename?: 'ProductCategory', name: string }, sizeRange: { __typename?: 'SizeRange', label: string } }> } };
