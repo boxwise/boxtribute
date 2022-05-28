@@ -7,6 +7,7 @@ import {
   FormControl,
   FormErrorMessage,
   FormLabel,
+  Heading,
 } from "@chakra-ui/react";
 import { Select, OptionBase } from "chakra-react-select";
 
@@ -85,14 +86,15 @@ const BoxCreate = ({
 
   return (
     <Box>
-      <Text
+      <Heading
         fontSize={{ base: "16px", lg: "18px" }}
         fontWeight={"500"}
         textTransform={"uppercase"}
         mb={"4"}
+        as="h2"
       >
-        Box Details
-      </Text>
+        Create new Box
+      </Heading>
 
       <form onSubmit={handleSubmit(onSubmitBoxCreateForm)}>
         <List spacing={2}>
