@@ -31,16 +31,14 @@ export interface BoxFormValues {
 }
 
 interface BoxCreateProps {
-  boxData:
-    | BoxByLabelIdentifierAndAllProductsQuery["box"]
-    | UpdateLocationOfBoxMutation["updateBox"];
   allProducts: BoxByLabelIdentifierAndAllProductsQuery["products"]["elements"];
+  qrCode: string | null;
   onSubmitBoxCreateForm: (boxFormValues: BoxFormValues) => void;
 }
 
 const BoxCreate = ({
-  boxData,
   allProducts,
+  qrCode,
   onSubmitBoxCreateForm,
 }: BoxCreateProps) => {
   const productsGroupedByCategory = groupBy(
@@ -69,17 +67,11 @@ const BoxCreate = ({
     formState: { isSubmitting },
   } = useForm<BoxFormValues>({
     defaultValues: {
-      size: boxData?.size,
       productForDropdown: productsForDropdownGroups
-        ?.flatMap((i) => i.options)
-        .find((p) => p.value === boxData?.product?.id),
+        ?.flatMap((i) => i.options)[0]
+    ,
     },
   });
-
-  if (boxData == null) {
-    console.error("BoxDetails Component: boxData is null");
-    return <Box>No data found for a box with this id</Box>;
-  }
 
   if (productsForDropdownGroups == null) {
     console.error("BoxDetails Component: allProducts is null");
@@ -104,19 +96,6 @@ const BoxCreate = ({
 
       <form onSubmit={handleSubmit(onSubmitBoxCreateForm)}>
         <List spacing={2}>
-          <ListItem>
-            <Text as={"span"} fontWeight={"bold"}>
-              Box Label:
-            </Text>{" "}
-            {boxData.labelIdentifier}
-          </ListItem>
-          <ListItem>
-            <Text as={"span"} fontWeight={"bold"}>
-              Location:
-            </Text>{" "}
-            {boxData.location?.name}
-          </ListItem>
-
           <ListItem>
             <Controller
               control={control}
@@ -143,13 +122,6 @@ const BoxCreate = ({
                 </FormControl>
               )}
             />
-          </ListItem>
-
-          <ListItem>
-            <Text as={"span"} fontWeight={"bold"}>
-              Items:
-            </Text>{" "}
-            {boxData.items}
           </ListItem>
         </List>
 

@@ -42,7 +42,8 @@ export const UPDATE_CONTENT_OF_BOX_MUTATION = gql`
 `;
 
 const BoxCreateView = () => {
-  const [qrCode] = useSearchParams();
+  const [searchParams] = useSearchParams();
+  const qrCode = searchParams.get("qrCode");
   // alert(qrCode.get("qrCode"));
 
   const { loading, data } = useQuery<
@@ -86,8 +87,8 @@ const BoxCreateView = () => {
 
   return (
     <BoxCreate
-      boxData={null}
       allProducts={allProducts?.elements}
+      qrCode={qrCode}
       onSubmitBoxCreateForm={onSubmitBoxCreateForm}
     />
   );
