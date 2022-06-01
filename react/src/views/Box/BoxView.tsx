@@ -14,6 +14,9 @@ export const BOX_BY_LABEL_IDENTIFIER_QUERY = gql`
       labelIdentifier
       size
       items
+      qrCode {
+        code
+      }
       product {
         name
         gender
@@ -46,6 +49,9 @@ export const UPDATE_LOCATION_OF_BOX_MUTATION = gql`
       labelIdentifier
       size
       items
+      qrCode {
+        code
+      }
       product {
         name
         gender

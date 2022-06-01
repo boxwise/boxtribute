@@ -6,10 +6,6 @@ import {
   AllProductsQueryVariables,
   CreateBoxMutation,
   CreateBoxMutationVariables,
-  BoxByLabelIdentifierAndAllProductsQuery,
-  BoxByLabelIdentifierAndAllProductsQueryVariables,
-  UpdateContentOfBoxMutation,
-  UpdateContentOfBoxMutationVariables,
 } from "types/generated/graphql";
 import BoxCreate, { BoxFormValues } from "./components/BoxCreate";
 
@@ -90,7 +86,8 @@ const BoxCreateView = () => {
         // sizeId: parseInt(boxFormValues.sizeForDropdown?.value),
         sizeId: 1,
         items: 99,
-        comment: ""
+        comment: "", 
+        qrCode: qrCode
         // items: parseInt(boxFormValues.items),
     };
     createBoxMutation({

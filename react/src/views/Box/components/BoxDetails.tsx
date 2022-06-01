@@ -43,6 +43,12 @@ const BoxDetails = ({
         </ListItem>
         <ListItem>
           <Text as={"span"} fontWeight={"bold"}>
+            QRCode:
+          </Text>{" "}
+          {boxData.qrCode?.code}
+        </ListItem>
+        <ListItem>
+          <Text as={"span"} fontWeight={"bold"}>
             Product:
           </Text>{" "}
           {boxData.product?.name}
