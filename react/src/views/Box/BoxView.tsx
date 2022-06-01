@@ -77,7 +77,7 @@ const BTBox = () => {
     },
   });
 
-  const [updateBoxLocation, mutationStatus] = useMutation<
+  const [updateBoxLocation, updateBoxMutationStatus] = useMutation<
     UpdateLocationOfBoxMutation,
     UpdateLocationOfBoxMutationVariables
   >(UPDATE_LOCATION_OF_BOX_MUTATION);
@@ -85,15 +85,15 @@ const BTBox = () => {
   if (loading) {
     return <div>Loading...</div>;
   }
-  if (mutationStatus.loading) {
+  if (updateBoxMutationStatus.loading) {
     return <div>Updating box...</div>;
   }
-  if (error || mutationStatus.error) {
-    console.error(error || mutationStatus.error);
+  if (error || updateBoxMutationStatus.error) {
+    console.error(error || updateBoxMutationStatus.error);
     return <div>Error!</div>;
   }
 
-  const boxData = mutationStatus.data?.updateBox || data?.box;
+  const boxData = updateBoxMutationStatus.data?.updateBox || data?.box;
 
   const onMoveBoxToLocationClick = (locationId: string) => {
     updateBoxLocation({
