@@ -4,10 +4,10 @@ import { useNavigate, useParams, useSearchParams } from "react-router-dom";
 import {
   AllProductsQuery,
   AllProductsQueryVariables,
-  BoxByLabelIdentifierAndAllProductsQuery,
-  BoxByLabelIdentifierAndAllProductsQueryVariables,
   CreateBoxMutation,
   CreateBoxMutationVariables,
+  BoxByLabelIdentifierAndAllProductsQuery,
+  BoxByLabelIdentifierAndAllProductsQueryVariables,
   UpdateContentOfBoxMutation,
   UpdateContentOfBoxMutationVariables,
 } from "types/generated/graphql";
@@ -38,6 +38,7 @@ export const CREATE_BOX_MUTATION = gql`
     $locationId: Int!
     $items: Int!
     $comment: String!
+    $qrCode: String
   ) {
     createBox(
       creationInput: {
@@ -46,6 +47,7 @@ export const CREATE_BOX_MUTATION = gql`
         locationId: $locationId
         items: $items
         comment: $comment
+        qrCode: $qrCode
       }
     ) {
       labelIdentifier
@@ -128,6 +130,7 @@ const BoxCreateView = () => {
       onSubmitBoxCreateForm={onSubmitBoxCreateForm}
     />
   );
+  // return <></>
 };
 
 export default BoxCreateView;

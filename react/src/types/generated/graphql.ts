@@ -892,6 +892,7 @@ export type CreateBoxMutationVariables = Exact<{
   locationId: Scalars['Int'];
   items: Scalars['Int'];
   comment: Scalars['String'];
+  qrCode?: InputMaybe<Scalars['String']>;
 }>;
 
 
