@@ -1,4 +1,5 @@
 import { gql, useMutation, useQuery } from "@apollo/client";
+import { useToast } from "@chakra-ui/react";
 import { useEffect } from "react";
 import { useNavigate, useParams, useSearchParams } from "react-router-dom";
 import {
@@ -54,6 +55,7 @@ export const CREATE_BOX_MUTATION = gql`
 const BoxCreateView = () => {
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
+  const toast = useToast()
   const baseId = useParams<{ baseId: string }>().baseId!;
 
 
@@ -71,12 +73,25 @@ const BoxCreateView = () => {
   const qrCode = searchParams.get("qrCode");
 
   useEffect(() => {
-    if(createBoxMutationResult.data?.createBox?.labelIdentifier) {
+    if(createBoxMutationResult.data?.createBox?.labelIdentifier != null) {
               navigate(
           `/bases/${baseId}/boxes/${createBoxMutationResult.data?.createBox?.labelIdentifier}`
         );
     }
   }, [baseId, createBoxMutationResult.data?.createBox?.labelIdentifier, navigate]);
+
+  useEffect(() => {
+    if(createBoxMutationResult.error != null) {
+      // alert(JSON.stringify(createBoxMutationResult.error))
+      // console.log(JSON.stringify(createBoxMutationResult.error))
+      console.table(createBoxMutationResult.error)
+      toast({
+        title: `Error while trying to create the Box`,
+        status: "error",
+        isClosable: true,
+      })
+    }
+  }, [createBoxMutationResult.error]);
 
   const onSubmitBoxCreateForm = (boxFormValues: BoxFormValues) => {
     const createBoxMutationVariables: CreateBoxMutationVariables = {

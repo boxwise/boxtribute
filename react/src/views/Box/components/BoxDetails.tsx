@@ -5,6 +5,8 @@ import {
   BoxByLabelIdentifierQuery,
   UpdateLocationOfBoxMutation,
 } from "types/generated/graphql";
+import { QRCodeSVG } from "qrcode.react";
+import { boxtributeQRCodeFormatter } from "utils/helpers";
 
 interface BoxDetailsProps {
   boxData:
@@ -41,12 +43,18 @@ const BoxDetails = ({
           </Text>{" "}
           {boxData.labelIdentifier}
         </ListItem>
-        <ListItem>
-          <Text as={"span"} fontWeight={"bold"}>
-            QRCode:
-          </Text>{" "}
-          {boxData.qrCode?.code}
-        </ListItem>
+        {boxData.qrCode?.code && (
+          <ListItem>
+            <QRCodeSVG
+              value={boxtributeQRCodeFormatter(boxData.qrCode?.code)}
+              size={128}
+              bgColor={"#ffffff"}
+              fgColor={"#000000"}
+              level={"L"}
+              includeMargin={false}
+            />
+          </ListItem>
+        )}
         <ListItem>
           <Text as={"span"} fontWeight={"bold"}>
             Product:
