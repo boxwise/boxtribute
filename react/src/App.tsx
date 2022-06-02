@@ -60,19 +60,17 @@ const App = () => {
           <Route index element={<AutomaticBaseSwitcher />}></Route>
           <Route path=":baseId">
             <Route path="scan-qrcode" element={<QrScanner />} />
-            <Route
-              path="transfers/new"
-              element={<CreateTransferAgreementView />}
-            />
             <Route path="transfers">
               <Route index element={<TransferAgreementsView />} />
-              <Route path=":id" element={<TransferAgreementView />}>
-                {/* <Route path="shipments" element={<ShipmentsView />}> */}
-                <Route path="shipments/new" element={<ShipmentsView />} />
+              <Route path="new" element={<CreateTransferAgreementView />} />
+              <Route path=":id">
+                <Route index element={<TransferAgreementView />} />
+                <Route path="shipments">
+                  <Route index element={<ShipmentsView />} />
+                  <Route path="new" element={<CreateShipmentView />} />
+                </Route>
               </Route>
             </Route>
-            <Route path="shipments/new" element={<CreateShipmentView />} />
-            <Route path="shipments" element={<ShipmentsView />} />
 
             <Route path="boxes">
               <Route index element={<Boxes />} />
