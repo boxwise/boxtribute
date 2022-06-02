@@ -3650,7 +3650,7 @@
     prop-types "^15.7.2"
     tslib "^2.1.0"
 
-"@reach/auto-id@^0.16.0":
+"@reach/auto-id@0.16.0", "@reach/auto-id@^0.16.0":
   version "0.16.0"
   resolved "https://registry.yarnpkg.com/@reach/auto-id/-/auto-id-0.16.0.tgz#dfabc3227844e8c04f8e6e45203a8e14a8edbaed"
   integrity sha512-5ssbeP5bCkM39uVsfQCwBBL+KT8YColdnMN5/Eto6Rj7929ql95R3HZUOkKIvj7mgPtEb60BLQxd1P3o6cjbmg==
@@ -4209,6 +4209,13 @@
   version "1.2.4"
   resolved "https://registry.yarnpkg.com/@types/range-parser/-/range-parser-1.2.4.tgz#cd667bcfdd025213aafb7ca5915a932590acdcdc"
   integrity sha512-EEhsLsD6UsDM1yFhAvy0Cjr6VwmpMWqFBCb9w07wVugF7w9nfajxLuVmngTIpgS6svCnm6Vaw+MZhoDCKnOfsw==
+
+"@types/react-day-picker@^5.3.0":
+  version "5.3.0"
+  resolved "https://registry.yarnpkg.com/@types/react-day-picker/-/react-day-picker-5.3.0.tgz#10e931f8f1d8585f62ee47d210f708750789cbfe"
+  integrity sha512-iMMXQjwTH8uxPTW3WYP6ZufZBSMFFEScGIztENtKfvukefrojmX/WCUNPrimC9ys1ll5nnM0VGaHolYLAbcEtw==
+  dependencies:
+    react-day-picker "*"
 
 "@types/react-router-dom@^5.3.1":
   version "5.3.1"
@@ -11048,6 +11055,13 @@ react-clientside-effect@^1.2.2:
   integrity sha512-2bL8qFW1TGBHozGGbVeyvnggRpMjibeZM2536AKNENLECutp2yfs44IL8Hmpn8qjFQ2K7A9PnYf3vc7aQq/cPA==
   dependencies:
     "@babel/runtime" "^7.12.13"
+
+react-day-picker@*:
+  version "8.0.5"
+  resolved "https://registry.yarnpkg.com/react-day-picker/-/react-day-picker-8.0.5.tgz#079f21ebdc353b66a97ef4258062f27c10b55145"
+  integrity sha512-qw5t2zJB1ob7p0yhbuVY0kzu08qePrpYW1kldrhTJ0nHN/z5Jb90MeCAi2889z8h2NJ/Flh5gLR9XcJIsr4ijQ==
+  dependencies:
+    "@reach/auto-id" "0.16.0"
 
 react-day-picker@^8.0.4:
   version "8.0.4"
