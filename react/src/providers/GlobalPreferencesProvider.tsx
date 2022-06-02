@@ -4,7 +4,7 @@ interface BaseIdAndNameTuple { id: string, name: string }
 
 interface GlobalPreferences {
   availableBases?: BaseIdAndNameTuple[];
-  selectedOrganisationId?: string;
+  selectedOrganisationId: string;
 }
 
 interface IGlobalPreferencesContext {
@@ -48,7 +48,9 @@ const globalPreferencesReduer = (state: GlobalPreferences, action: SetGlobalPref
 
 const GlobalPreferencesProvider = ({ children }) => {
  
-  const [globalPreferences, dispatch] = useReducer(globalPreferencesReduer, {});
+  const [globalPreferences, dispatch] = useReducer(globalPreferencesReduer, {
+    selectedOrganisationId: "-1",
+  });
 
   return (
     <GlobalPreferencesContext.Provider value={{ globalPreferences, dispatch }}>

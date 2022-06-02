@@ -1,4 +1,6 @@
 import { gql, useMutation, useQuery } from "@apollo/client";
+import { GlobalPreferencesContext } from "providers/GlobalPreferencesProvider";
+import { useContext } from "react";
 import { useParams } from "react-router-dom";
 import {
   MutationAcceptTransferAgreementArgs,
@@ -54,6 +56,8 @@ export const TRANSFER_AGREEMENT_BY_ID_QUERY = gql`
 
 const TransferAgreementView = () => {
   const id = useParams<{ id: string }>().id!;
+  const { globalPreferences } = useContext(GlobalPreferencesContext);
+
 
   const { loading, error, data } = useQuery<
     TransferAgreementByIdQuery,
@@ -96,11 +100,23 @@ const TransferAgreementView = () => {
     return <div>Error!</div>;
   }
 
-  const transferAgreementData = data?.transferAgreement;
+  if (data?.transferAgreement == null) {
+    return <div>No data</div>;
+  }
+
+  const transferAgreementData = data.transferAgreement;
   console.log(transferAgreementData);
+  console.log(globalPreferences);
+  const isIncoming = parseInt(globalPreferences.selectedOrganisationId) === parseInt(transferAgreementData.targetOrganisation.id);
   return (
     <>
+    globalPreferences.selectedOrganisationId: {globalPreferences.selectedOrganisationId}
+    <br />
+    transferAgreementData?.targetOrganisation?.id: {transferAgreementData?.targetOrganisation?.id}
+    <br />
+    isIncoming: {JSON.stringify(isIncoming)} <br />
       <ActionsTransferAgreement
+        isIncoming={isIncoming}
         onAcceptTransferAgreementClick={onAcceptTransferAgreementClick}
         onRejectTransferAgreementClick={onRejectTransferAgreementClick}
         onCancelTransferAgreementClick={onCancelTransferAgreementClick}
