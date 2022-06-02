@@ -17,6 +17,8 @@ import TransferAgreementView from "views/TransferAgreements/TransferAgreementVie
 import TransferAgreementsView from "views/TransferAgreements/TransferAgreementsView";
 import CreateShipmentView from "views/Shipments/CreateShipmentView";
 import ShipmentsView from "views/Shipments/ShipmentsView";
+import { useAuth0 } from "@auth0/auth0-react";
+import jwt from 'jwt-decode'
 
 const useLoadAndSetAvailableBases = () => {
   const BASES_QUERY = gql`
@@ -27,6 +29,8 @@ const useLoadAndSetAvailableBases = () => {
       }
     }
   `;
+
+  const { getAccessTokenSilently } = useAuth0();
 
   const [runBaseQuery, { loading, data }] =
     useLazyQuery<BasesQuery>(BASES_QUERY);
@@ -47,6 +51,21 @@ const useLoadAndSetAvailableBases = () => {
       });
     }
   }, [data, loading, dispatch]);
+
+  
+useEffect(() => {
+  const getToken = async () => {
+    const token = await getAccessTokenSilently();
+    const decodedToken = jwt<{"https://www.boxtribute.com/organisation_id": string}>(token);
+    const organisationId = decodedToken["https://www.boxtribute.com/organisation_id"];
+    dispatch({
+      type: "setOrganisationId",
+      payload: organisationId,
+    });
+  }
+  getToken();
+}, [dispatch, getAccessTokenSilently]);
+
 };
 
 const App = () => {
