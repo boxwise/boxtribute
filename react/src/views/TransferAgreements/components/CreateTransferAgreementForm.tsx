@@ -66,7 +66,7 @@ export interface TransferAgreementFormValues {
   transferType: string;
 }
 
-const TransferAgreement = () => {
+const TransferAgreementForm = () => {
   const [basesForOrganisations, { data: basesdata }] = useLazyQuery<
     BasesForOrganisationsQuery,
     BasesForOrganisationsQueryVariables
@@ -93,15 +93,15 @@ const TransferAgreement = () => {
     },
   });
 
-  const [selectOrgId, setSelectedOrgId] = useState<string>();
+  const [selectedOrgId, setSelectedOrgId] = useState<string>();
   // const [submittedVal, setSubmittedVal] = useState();
 
   // const toast = useToast();
 
   useEffect(() => {
-    if (selectOrgId != null)
-      basesForOrganisations({ variables: { organisationId: selectOrgId } });
-  }, [basesForOrganisations, selectOrgId]);
+    if (selectedOrgId != null)
+      basesForOrganisations({ variables: { organisationId: selectedOrgId } });
+  }, [basesForOrganisations, selectedOrgId]);
 
   useEffect(() => {
     mutationStatus?.data?.createTransferAgreement?.id &&
@@ -206,4 +206,4 @@ const TransferAgreement = () => {
   );
 };
 
-export default TransferAgreement;
+export default TransferAgreementForm;

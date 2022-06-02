@@ -21,7 +21,7 @@ import {
 // import { ProductRow as BoxRow } from "./types";
 import { GlobalFilter } from "../../Boxes/components/GlobalFilter";
 // import { SelectColumnFilter } from "./SelectColumnFilter";
-import { useNavigate, useParams } from "react-router-dom";
+import { NavLink, useNavigate, useParams } from "react-router-dom";
 import { TransferAgreementState } from "types/generated/graphql";
 
 export type BoxRow = {
@@ -104,6 +104,9 @@ const TransferAgreementsTable = ({
           globalFilter={globalFilter}
           setGlobalFilter={setGlobalFilter}
         />
+        <NavLink to="new">
+          <Button m={2}>Create new transfer</Button>
+        </NavLink>
 
         {headerGroups.map((headerGroup) => {
           return headerGroup.headers.map((column) =>

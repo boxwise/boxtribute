@@ -1,4 +1,5 @@
-import { Box, List, ListItem, Text } from "@chakra-ui/react";
+import { Box, Button, List, ListItem, Text } from "@chakra-ui/react";
+import { NavLink } from "react-router-dom";
 import {
   TransferAgreementByIdQuery,
   // TransferAgreementByIdQueryVariables,
@@ -11,12 +12,14 @@ interface TransferAgreementDetailProps {
 const TransferAgreementDetail = ({
   transferAgreementData,
 }: TransferAgreementDetailProps) => {
+  // const transferAgreementId = useParams<{ transferAgreementId: string }>().transferAgreementId!;
   if (transferAgreementData == null) {
     console.error(
       "TransferAgreementDetail Component: transferAgreementData is null"
     );
     return <Box>No data found for a transfer agreement with this id</Box>;
   }
+
   return (
     <Box>
       <Text
@@ -54,6 +57,9 @@ const TransferAgreementDetail = ({
           {transferAgreementData.type}
         </ListItem>
       </List>
+      <NavLink to="shipments/new">
+        <Button m={2}>Create new shipment</Button>
+      </NavLink>
     </Box>
   );
 };

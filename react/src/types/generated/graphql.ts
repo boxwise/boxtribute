@@ -903,6 +903,20 @@ export type BoxesForBaseQueryVariables = Exact<{
 
 export type BoxesForBaseQuery = { __typename?: 'Query', base?: { __typename?: 'Base', locations?: Array<{ __typename?: 'Location', boxes?: { __typename?: 'BoxPage', totalCount: number, elements: Array<{ __typename?: 'Box', labelIdentifier: string, id: string, state: BoxState, size?: string | null, items: number, product?: { __typename?: 'Product', gender?: ProductGender | null, name: string } | null, location?: { __typename?: 'Location', name?: string | null } | null }> } | null }> | null } | null };
 
+export type TransferAgreementForShipmentsByIdQueryVariables = Exact<{
+  id: Scalars['ID'];
+}>;
+
+
+export type TransferAgreementForShipmentsByIdQuery = { __typename?: 'Query', transferAgreement?: { __typename?: 'TransferAgreement', sourceBases?: Array<{ __typename?: 'Base', id: string, name: string }> | null, targetBases?: Array<{ __typename?: 'Base', id: string, name: string }> | null } | null };
+
+export type CreateShipmentMutationVariables = Exact<{
+  creationInput: ShipmentCreationInput;
+}>;
+
+
+export type CreateShipmentMutation = { __typename?: 'Mutation', createShipment?: { __typename?: 'Shipment', id: string } | null };
+
 export type AcceptTransferAgreementMutationVariables = Exact<{
   id: Scalars['ID'];
 }>;

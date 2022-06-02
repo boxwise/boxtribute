@@ -13,10 +13,10 @@ import { GlobalPreferencesContext } from "providers/GlobalPreferencesProvider";
 import CreateTransferAgreementView from "views/TransferAgreements/CreateTransferAgreementView";
 import BTBox from "views/Box/BoxView";
 import BoxEditView from "views/BoxEdit/BoxEditView";
-import TransferAgreement from "views/TransferAgreements/components/CreateTransferAgreementForm";
 import TransferAgreementView from "views/TransferAgreements/TransferAgreementView";
 import TransferAgreementsView from "views/TransferAgreements/TransferAgreementsView";
-// import CreateShipmentForm from "views/Shipments/CreateShipmentForm";
+import CreateShipmentView from "views/Shipments/CreateShipmentView";
+import ShipmentsView from "views/Shipments/ShipmentsView";
 
 const useLoadAndSetAvailableBases = () => {
   const BASES_QUERY = gql`
@@ -66,8 +66,14 @@ const App = () => {
             />
             <Route path="transfers">
               <Route index element={<TransferAgreementsView />} />
-              <Route path=":id" element={<TransferAgreementView />} />
+              <Route path=":id" element={<TransferAgreementView />}>
+                {/* <Route path="shipments" element={<ShipmentsView />}> */}
+                <Route path="shipments/new" element={<ShipmentsView />} />
+              </Route>
             </Route>
+            <Route path="shipments/new" element={<CreateShipmentView />} />
+            <Route path="shipments" element={<ShipmentsView />} />
+
             <Route path="boxes">
               <Route index element={<Boxes />} />
               <Route path=":labelIdentifier" element={<BTBox />} />
