@@ -15,10 +15,16 @@
     "@fortawesome/react-fontawesome": "^0.1.18",
     "@graphql-codegen/cli": "^2.6.2",
     "@graphql-codegen/typescript-react-query": "^3.5.7",
+    "@react-pdf/renderer": "^2.1.2",
+    "assert": "^2.0.0",
+    "browserify-zlib": "^0.2.0",
+    "buffer": "^6.0.3",
     "chakra-react-select": "^3.3.6",
     "framer-motion": "^6.2.1",
     "graphql": "^16.3.0",
     "jwt-decode": "^3.1.2",
+    "process": "^0.11.10",
+    "qrcode.react": "^3.0.2",
     "react": "^17.0.2",
     "react-dom": "^17.0.2",
     "react-hook-form": "^7.30.0",
@@ -27,7 +33,9 @@
     "react-router-dom": "6",
     "react-scripts": "5.0.0",
     "react-table": "^7.7.0",
-    "regenerator-runtime": "^0.13.9"
+    "regenerator-runtime": "^0.13.9",
+    "stream-browserify": "^3.0.0",
+    "util": "^0.12.4"
   },
   "devDependencies": {
     "@craco/craco": "^6.4.3",

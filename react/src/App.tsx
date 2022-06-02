@@ -10,10 +10,11 @@ import { gql, useLazyQuery } from "@apollo/client";
 import QrScanner from "components/QrScanner";
 import { BasesQuery } from "types/generated/graphql";
 import { GlobalPreferencesContext } from "providers/GlobalPreferencesProvider";
-import BTBox from "views/Box/BoxView";
 import BoxEditView from "views/BoxEdit/BoxEditView";
 import { useAuth0 } from "@auth0/auth0-react";
 import jwt from 'jwt-decode'
+import QRGeneratorView from "views/QRGenerator/QRGeneratorView";
+import BTBox from "views/Box/BoxView";
 
 const useLoadAndSetAvailableBases = () => {
   const BASES_QUERY = gql`
@@ -69,6 +70,7 @@ const App = () => {
     <Routes>
       <Route path="/">
         <Route index element={<AutomaticBaseSwitcher />}></Route>
+        <Route path="qr-generator" element={<QRGeneratorView />}></Route>
         <Route path="bases" element={<Layout />}>
           <Route index element={<AutomaticBaseSwitcher />}></Route>
           <Route path=":baseId">
