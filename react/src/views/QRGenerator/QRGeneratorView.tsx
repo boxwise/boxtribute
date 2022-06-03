@@ -42,21 +42,36 @@ const RenderedQRCodes = ({ qrCodes }: QRCodeGeneratorProps) => {
     )[0] as HTMLCanvasElement;
 
     const qrCodeDataUri = qrCodeCanvas.toDataURL("image/png");
+    alert(qrCodeDataUri);
     setQrCodeDataUris([qrCodeDataUri]);
   }, []);
+  
 
   return (
     <>
+    {/* {JSON.stringify(qrCodeDataUris)} */}
+    {qrCodeDataUris != null && <PdfGenerator qrCodeDataUris={qrCodeDataUris} /> }
       <Box>qrCodeDataUris: {JSON.stringify(qrCodeDataUris)}</Box>
       <QRCode data-qr-code="1" value="https://www.google.com" size={300} />
     </>
   );
 };
 
-const PdfGenerator = () => {
+const PdfGenerator = ({qrCodeDataUris}: {qrCodeDataUris: string[]}) => {
   const MyDoc = () => {
-    const base64Image =
-      "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABkAAAAZCAYAAADE6YVjAAAAJUlEQVR42u3NQQEAAAQEsJNcdFLw2gqsMukcK4lEIpFIJBLJS7KG6yVo40DbTgAAAABJRU5ErkJggg==";
+    // const [qrCodeDataUris, setQrCodeDataUris] = useState<string[]>([]);
+
+    // useEffect(() => {
+    //   const qrCodeCanvas = document.querySelectorAll(
+    //     "[data-qr-code='1']"
+    //   )[0] as HTMLCanvasElement;
+
+    //   const qrCodeDataUri = qrCodeCanvas.toDataURL("image/png");
+    //   setQrCodeDataUris([qrCodeDataUri]);
+    // }, []);
+
+    // const base64Image =
+    //   "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABkAAAAZCAYAAADE6YVjAAAAJUlEQVR42u3NQQEAAAQEsJNcdFLw2gqsMukcK4lEIpFIJBLJS7KG6yVo40DbTgAAAABJRU5ErkJggg==";
     return (
       <Document>
         <Page size="A4" style={styles.page}>
@@ -65,7 +80,7 @@ const PdfGenerator = () => {
           </View>
           <View style={styles.section}>
             <PdfText>Section #2</PdfText>
-            <Image src={base64Image} style={styles.logoImage} />
+            <Image src={qrCodeDataUris[0]} style={styles.logoImage} />
             {/* <QRCodeSVG
           value={boxtributeQRCodeFormatter("adsdasdsd")}
           size={128}
@@ -79,6 +94,7 @@ const PdfGenerator = () => {
       </Document>
     );
   };
+
   const [instance, updateInstance] = usePDF({ document: MyDoc() });
 
   // updateInstance();
@@ -109,6 +125,8 @@ const PdfGenerator = () => {
 const QRGeneratorView = () => {
   const qrCodes = ["1", "2", "3", "4"];
 
+
+
   return (
     <Box>
       <Text
@@ -121,7 +139,6 @@ const QRGeneratorView = () => {
         QR Generator
       </Text>
       <RenderedQRCodes qrCodes={qrCodes} />
-      <PdfGenerator />
       {/* <QRGenerator /> */}
       {/* <PDFViewer>
           <MyDocument />
