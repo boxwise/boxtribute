@@ -9,6 +9,7 @@ import {
 } from "@react-pdf/renderer";
 import { PDFViewer, PDFDownloadLink, usePDF } from "@react-pdf/renderer";
 import QRCode, { QRCodeSVG } from "qrcode.react";
+import { useEffect, useState } from "react";
 import { boxtributeQRCodeFormatter } from "utils/helpers";
 
 // Create styles
@@ -28,37 +29,44 @@ const styles = StyleSheet.create({
   },
 });
 
-const MyDocument = () => {
+interface QRCodeGeneratorProps {
+  qrCodes: string[];
+}
+
+const RenderedQRCodes = ({ qrCodes }: QRCodeGeneratorProps) => {
+  const [qrCodeDataUris, setQrCodeDataUris] = useState<string[]>([]);
+
+  useEffect(() => {
     const qrCodeCanvas = document.querySelectorAll(
-      "[qr-code-1]"
+      "[data-qr-code='1']"
     )[0] as HTMLCanvasElement;
+
     const qrCodeDataUri = qrCodeCanvas.toDataURL("image/png");
+    setQrCodeDataUris([qrCodeDataUri]);
+  }, []);
 
   return (
-    <Document>
-      <Page size="A4" style={styles.page}>
-        <View style={styles.section}>
-          <PdfText>Section #1</PdfText>
-        </View>
-        <View style={styles.section}>
-          <PdfText>Section #2</PdfText>
-          <Image src={qrCodeDataUri} style={styles.logoImage} />
-        </View>
-      </Page>
-    </Document>
+    <>
+      <Box>qrCodeDataUris: {JSON.stringify(qrCodeDataUris)}</Box>
+      <QRCode data-qr-code="1" value="https://www.google.com" size={300} />
+    </>
   );
 };
 
-const MyDoc = (
-  <Document>
-    <Page size="A4" style={styles.page}>
-      <View style={styles.section}>
-        <PdfText>Section #1</PdfText>
-      </View>
-      <View style={styles.section}>
-        <PdfText>Section #2</PdfText>
-        <Image src={"dasd"} style={styles.logoImage} />
-        {/* <QRCodeSVG
+const PdfGenerator = () => {
+  const MyDoc = () => {
+    const base64Image =
+      "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABkAAAAZCAYAAADE6YVjAAAAJUlEQVR42u3NQQEAAAQEsJNcdFLw2gqsMukcK4lEIpFIJBLJS7KG6yVo40DbTgAAAABJRU5ErkJggg==";
+    return (
+      <Document>
+        <Page size="A4" style={styles.page}>
+          <View style={styles.section}>
+            <PdfText>Section #1</PdfText>
+          </View>
+          <View style={styles.section}>
+            <PdfText>Section #2</PdfText>
+            <Image src={base64Image} style={styles.logoImage} />
+            {/* <QRCodeSVG
           value={boxtributeQRCodeFormatter("adsdasdsd")}
           size={128}
           bgColor={"#ffffff"}
@@ -66,96 +74,60 @@ const MyDoc = (
           level={"L"}
           includeMargin={false}
         /> */}
-      </View>
-    </Page>
-  </Document>
-);
+          </View>
+        </Page>
+      </Document>
+    );
+  };
+  const [instance, updateInstance] = usePDF({ document: MyDoc() });
+
+  // updateInstance();
+
+  if (instance.loading) return <div>Loading ...</div>;
+
+  if (instance.error) return <div>Something went wrong: {instance.error}</div>;
+
+  if (instance.url != null) {
+    return (
+      <>
+        {instance.url != null && (
+          <>
+            {instance.url}
+            <br />
+            <a href={instance.url} download="test.pdf">
+              Download
+            </a>
+          </>
+        )}
+      </>
+    );
+  }
+
+  return <>Error with generating PDF (instance.url == null)</>;
+};
 
 const QRGeneratorView = () => {
-  //   const FOO = (
-  //     <QRCodeSVG
-  //       value={boxtributeQRCodeFormatter("adsdasdsd")}
-  //       size={128}
-  //       bgColor={"#ffffff"}
-  //       fgColor={"#000000"}
-  //       level={"L"}
-  //       includeMargin={false}
-  //     />
-  //   );
+  const qrCodes = ["1", "2", "3", "4"];
 
-//   const [instance, updateInstance] = usePDF({ document: MyDoc });
-
-  //   if (instance.loading) return <div>Loading ...</div>;
-
-  //   if (instance.error) return <div>Something went wrong: {instance.error}</div>;
-
-  //   if (instance.url != null) {
-  //     return (
-  //       <>
-  //         {instance.url != null && (<QRCodeSVG
-  //           value={boxtributeQRCodeFormatter("adsdasdsd")}
-  //           size={128}
-  //           bgColor={"#ffffff"}
-  //           fgColor={"#000000"}
-  //           level={"L"}
-  //           includeMargin={false}
-  //           data-qr="qr-code-1"
-  //         />
-  //   )}
-  //         {instance.url}
-  //         <br />
-  //         <a href={instance.url} download="test.pdf">
-  //           Download
-  //         </a>
   return (
-    <>
-      <QRCodeSVG
-        value={boxtributeQRCodeFormatter("adsdasdsd")}
-        size={128}
-        bgColor={"#ffffff"}
-        fgColor={"#000000"}
-        level={"L"}
-        includeMargin={false}
-        data-qr="qr-code-1"
-      />
-      <PDFDownloadLink
-        document={<MyDocument />}
-        fileName="movielist.pdf"
-        style={{
-          textDecoration: "none",
-          padding: "10px",
-          color: "#4a4a4a",
-          backgroundColor: "#f2f2f2",
-          border: "1px solid #4a4a4a",
-        }}
-      />
-    </>
+    <Box>
+      <Text
+        fontSize={{ base: "16px", lg: "18px" }}
+        // color={useColorModeValue('yellow.500', 'yellow.300')}
+        fontWeight={"500"}
+        textTransform={"uppercase"}
+        mb={"4"}
+      >
+        QR Generator
+      </Text>
+      <RenderedQRCodes qrCodes={qrCodes} />
+      <PdfGenerator />
+      {/* <QRGenerator /> */}
+      {/* <PDFViewer>
+          <MyDocument />
+        </PDFViewer> */}
+    </Box>
   );
-
-  // );
-  //   }
-
-  return <>PDF Generator Error</>;
-
-  //   return (
-  //     <Box>
-  //       <Text
-  //         fontSize={{ base: "16px", lg: "18px" }}
-  //         // color={useColorModeValue('yellow.500', 'yellow.300')}
-  //         fontWeight={"500"}
-  //         textTransform={"uppercase"}
-  //         mb={"4"}
-  //       >
-  //         QR Generator
-  //       </Text>
-  //       {/* <QRGenerator /> */}
-  //       {/* <PDFViewer>
-  //         <MyDocument />
-  //       </PDFViewer> */}
-
-
-  //     </Box>
-  //   );
 };
 
 export default QRGeneratorView;
