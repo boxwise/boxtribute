@@ -103,8 +103,22 @@ const QRGenerator = ({ qrCodes }: QRCodeGeneratorProps) => {
   );
 };
 
-// const AutomaticDownloadLink = ({url}: {url: string}) => {
+const AutomaticDownloadLink = ({ url }: { url: string }) => {
+  const linkRef = useRef<HTMLAnchorElement>(null);
 
+  useEffect(() => {
+    console.log("FOO-url", url);
+    if (linkRef.current) {
+      linkRef.current.click();
+    }
+  }, [url]);
+
+  return (
+    <a href={url} download="test.pdf" ref={linkRef}>
+      Download
+    </a>
+  );
+};
 
 const PdfGenerator = ({ qrCodeDataUris }: { qrCodeDataUris: string[] }) => {
   console.log("PdfGenerator#qrCodeDataUris", qrCodeDataUris);
@@ -121,7 +135,6 @@ const PdfGenerator = ({ qrCodeDataUris }: { qrCodeDataUris: string[] }) => {
   }, [qrCodeDataUris, updateInstance]);
 
   // const navigate = useNavigate();
-  const linkRef = useRef<HTMLAnchorElement>(null);
 
   if (instance.loading) return <div>Loading ...</div>;
 
@@ -129,17 +142,7 @@ const PdfGenerator = ({ qrCodeDataUris }: { qrCodeDataUris: string[] }) => {
 
   if (instance.url != null) {
     // navigate(instance.url);
-    linkRef.current?.click()
-    return (
-      <>
-        {/* {instance.url} */}
-        {/* <AutomaticDownloadLink url={instance.url} /> */}
-        <br />
-        <a href={instance.url} download="test.pdf" ref={linkRef}>
-          Download
-        </a>
-      </>
-    );
+    return <AutomaticDownloadLink url={instance.url} />;
   }
 
   return <>Loading...</>;
