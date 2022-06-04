@@ -59,14 +59,13 @@ def test_invalid_permission(unauthorized, read_only_client, query):
     "query",
     [
         """base( id: 0 ) { id }""",
-        """organisation( id: 0 ) { id }""",
         """location( id: 2 ) { id }""",  # ID of another_location fixture
     ],
     ids=operation_name,
 )
 def test_invalid_permission_for_given_resource_id(read_only_client, mocker, query):
     """Verify missing resource:read permission, or missing permission to access
-    specified resource (base or organisation).
+    specified resource (i.e. base).
     """
     mocker.patch("jose.jwt.decode").return_value = create_jwt_payload(
         permissions=["base_1/base:read"], organisation_id=1
