@@ -94,7 +94,7 @@ const QRGenerator = ({ qrCodes }: QRCodeGeneratorProps) => {
 
   return (
     <>
-      {qrCodeDataUris != null && (
+      {qrCodeDataUris?.length > 0 && (
         <PdfGenerator qrCodeDataUris={qrCodeDataUris} />
       )}
       <RenderedQRCodes qrCodes={qrCodes} />
