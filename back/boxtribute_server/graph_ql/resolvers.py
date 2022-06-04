@@ -162,6 +162,11 @@ def resolve_base_stock_availabilities(base_obj, _):
                         .group_by(Product, Size)                
     )
 
+    for row in stats: 
+        print("row: {}".format(row))
+
+    #Philips Genius spontaeous code!!
+    
 
     print("stats")
     print(stats)
@@ -239,6 +244,7 @@ def resolve_qr_code(obj, _, qr_code=None):
 
 @query.field("product")
 @box.field("product")
+@stockAvailability.field("product")
 def resolve_product(obj, _, id=None):
     # print("resolve_product#obj")
     # print(obj)

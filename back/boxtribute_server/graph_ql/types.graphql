@@ -3,7 +3,7 @@
 """
 Representation of a box storing items of a [`Product`]({{Types.Product}}) in a [`Location`]({{Types.Location}})
 """
-type PhysicalBox {
+type Box {
   id: ID!
   " Sequence of numbers for identifying the box, usually written on box label "
   labelIdentifier: String!
@@ -21,13 +21,6 @@ type PhysicalBox {
   lastModifiedOn: Datetime
   comment: String
 }
-
-union Box = PhysicalBox | VirtualBox # | PackedOrder 
-# (PackedOrder could contain different product types, genders, sizes etc - probably too)
-# thats probably too much of a semantic/functional difference? 
-# Probably better to have PackedOrders (or maybe just Orders? with a kind field for `onsite`, `pre-order` etc?) as a dedicated type?
-
-
 
 """
 Representation of a QR code, possibly associated with a [`Box`]({{Types.Box}}).
@@ -123,7 +116,7 @@ type SizeRange {
 Representation of a physical location used to store [`Boxes`]({{Types.Box}}).
 The location is part of a specific [`Base`]({{Types.Base}}).
 """
-type PhysicalLocation {
+type Location {
   id: ID!
   base: Base
   name: String
@@ -137,33 +130,6 @@ type PhysicalLocation {
   lastModifiedBy: User
   lastModifiedOn: Datetime
 }
-
-
-
-union Location = PhysicalLocation | MobileDistributionEvent
-
-type MobileDistributionEvent {
-  id: ID!
-  distributionSpot: DistributionSpot!
-  packedBoxes: [Box!]!
-  date: Date
-}
-
-type DistributionSpot {
-  id: ID!
-  name: String
-  Lat: Float
-  Long: Float
-}
-
-type IncomingStockEvent {
-
-}
-
-type OutgoingStockEvent {
-  
-}
-
 
 """
 Utility type holding a page of [`Boxes`]({{Types.Box}}).
@@ -188,6 +154,15 @@ type Base {
   beneficiaries(paginationInput: PaginationInput, filterInput: FilterBeneficiaryInput): BeneficiaryPage!
   currencyName: String
   stockAvailabilities: [StockAvailability!]!
+
+}
+
+type StockAvailability {
+  # numberOfAvailableItems: Int!
+  availableItems: Int!
+  product: Product!
+  size: String
+  # locations: [Location!]!
 }
 
 """
@@ -474,107 +449,3 @@ type StockOverview {
   numberOfBoxes: Int
   numberOfItems: Int
 }
-
-
-
-
-
-
-
-
-
-
-
-type StockAvailability {
-  numberOfAvailableItems: Int!
-  product: Product!
-  size: String
-  availableItems: Int!
-  # locations: [Location!]!
-}
-
-
-type PreOrderForm {
-  id: ID!
-  createdBy: User!
-  createdOn: Datetime!
-  updatedBy: User
-  updatedOn: Datetime
-
-  state: PreOrderFormState
-
-  submissions: [PreOrderFormSubmission!]!
-
-  formModules: [PreOrderFormModule!]!
-  # distributionSpots: [DistributionSpot!]!
-  base: Base!
-}
-
-type PreOrderShopFormModule {
-  id: ID!
-  createdBy: User!
-  createdOn: Datetime!
-  updatedBy: User
-  updatedOn: Datetime
-
-  stockAvailability: StockAvailability!
-}
-
-union PreOrderFormModule = PreOrderMedicalHelpFormModule | PreOrderShopFormModule | PreOrderLocationFormModule | PreOrderContactDataFormModule
-
-type PreOrderFormSubmission {
-  id: ID!
-  # preOrderForm: PreOrderForm!
-  preOrderFormId: ID!
-  date: Datetime!
-  formModuleData: [PreOrderFormModuleData!]!
-}
-
-union PreOrderFormModuleData = PreOrderMedicalHelpFormModuleData | PreOrderShopFormModuleData | PreOrderLocationFormModuleData | PreOrderContactDataFormModuleData
-
-type PreOrderShopFormModuleData {
-  id: ID!
-  orderItems: [PreOrderOrderItem!]!
-}
-
-type PreOrderOrderItem {
-  id: ID!
-  product: Product!
-  size: string
-  quantity: Int!
-}
-
-
-
-
-
-# query stockTest {
-#   stockAvailability {
-#     elements {
-#       product {
-#         id
-#         name
-#         #       # localisedAttributes {
-#         #       #   name
-#         #       # }
-#         category {
-#           name
-#           # localisedAttributes {
-#           #   name
-#           # }
-#         }
-#         gender
-#         # ...
-#       }
-#       size
-#       currentStockSize
-#     }
-#   }
-# }
-
-
-# type ProductStockAvailabilityPage {
-#   elements: [Product!]!
-#   pageInfo: PageInfo!
-#   totalCount: Int!
-# }

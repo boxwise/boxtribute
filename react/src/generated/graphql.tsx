@@ -758,7 +758,6 @@ export type SizeRange = {
 export type StockAvailability = {
   __typename?: 'StockAvailability';
   availableItems: Scalars['Int'];
-  numberOfAvailableItems: Scalars['Int'];
   product: Product;
   size?: Maybe<Scalars['String']>;
 };
