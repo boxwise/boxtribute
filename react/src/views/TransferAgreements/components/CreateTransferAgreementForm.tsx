@@ -18,9 +18,11 @@ import {
   WrapItem,
   useToast,
 } from "@chakra-ui/react";
-import { useEffect, useState } from "react";
+import { useContext, useEffect, useState } from "react";
 import DatePicker from "views/Boxes/components/DatePicker";
 import { useNavigate, useParams } from "react-router-dom";
+import { GlobalPreferencesContext } from "providers/GlobalPreferencesProvider";
+import { DevTool } from "@hookform/devtools";
 
 export const ORGANISATIONS_QUERY = gql`
   query Organisations {
@@ -74,6 +76,7 @@ const TransferAgreementForm = () => {
 
   const navigate = useNavigate();
   const baseId = useParams<{ baseId: string }>().baseId!;
+  const { globalPreferences } = useContext(GlobalPreferencesContext);
 
   const [createTransferAgreement, mutationStatus] = useMutation<
     CreateTransferAgreementMutation,
@@ -83,8 +86,8 @@ const TransferAgreementForm = () => {
   const {
     register,
     handleSubmit,
-    control,
-    formState: { errors },
+    control
+    // formState: { errors },
   } = useForm<TransferAgreementFormValues>({
     defaultValues: {
       targetOrganisationId: "",
@@ -95,7 +98,6 @@ const TransferAgreementForm = () => {
 
   const [selectedOrgId, setSelectedOrgId] = useState<string>();
   // const [submittedVal, setSubmittedVal] = useState();
-
   // const toast = useToast();
 
   useEffect(() => {
@@ -117,8 +119,9 @@ const TransferAgreementForm = () => {
     // });
   }, [mutationStatus, navigate, baseId]);
 
-  const { loading, error, data } =
-    useQuery<OrganisationsQuery>(ORGANISATIONS_QUERY);
+  const { loading, error, data } = useQuery<OrganisationsQuery>(
+    ORGANISATIONS_QUERY
+  );
   if (loading) {
     return <div>Loading...</div>;
   }
@@ -162,9 +165,15 @@ const TransferAgreementForm = () => {
               placeholder="Select Organisation"
               onChange={onOrgDropdownChange}
             >
-              {data?.organisations?.map((org) => (
-                <option value={org.id}>{org.name}</option>
-              ))}
+              {data?.organisations
+                ?.filter(
+                  (org) =>
+                    parseInt(org.id) !==
+                    parseInt(globalPreferences.selectedOrganisationId)
+                )
+                .map((org) => (
+                  <option value={org.id}>{org.name}</option>
+                ))}
             </Select>
           </FormControl>
         </WrapItem>
@@ -202,6 +211,7 @@ const TransferAgreementForm = () => {
           <Button type="submit">Submit</Button>
         </WrapItem>
       </Wrap>
+      <DevTool control={control} />
     </form>
   );
 };

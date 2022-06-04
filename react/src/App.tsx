@@ -82,7 +82,7 @@ const App = () => {
             <Route path="transfers">
               <Route index element={<TransferAgreementsView />} />
               <Route path="new" element={<CreateTransferAgreementView />} />
-              <Route path=":id">
+              <Route path=":transferAgreementId">
                 <Route index element={<TransferAgreementView />} />
                 <Route path="shipments">
                   <Route index element={<ShipmentsView />} />

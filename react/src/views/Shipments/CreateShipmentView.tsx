@@ -1,5 +1,5 @@
 import { gql, useMutation, useQuery } from "@apollo/client";
-import { CreateShipmentFormValues } from "./components/CreateShipmentForm";
+import CreateShipmentForm, { CreateShipmentFormValues } from "./components/CreateShipmentForm";
 import { useParams } from "react-router-dom";
 import {
   CreateShipmentMutation,
@@ -25,6 +25,7 @@ export const TRANSFER_AGREEMENT_FOR_SHIPMENTS_BY_ID_QUERY = gql`
   }
 `;
 
+
 // const onSubmit = (data: TransferAgreementFormValues) => {
 //   // setSubmittedVal(data);
 //   const creationInput: TransferAgreementCreationInput = {
@@ -45,21 +46,26 @@ export const CREATE_SHIPMENT_MUTATION = gql`
 
 const CreateShipmentView = () => {
   ////////////////////////////////////////////////
-  // const id = useParams<{ id: string }>().id!;
+  const id = useParams<{ transferAgreementId: string }>().transferAgreementId!;
   const [createShipment, mutationStatus] = useMutation<
     CreateShipmentMutation,
     CreateShipmentMutationVariables
   >(CREATE_SHIPMENT_MUTATION);
 
-  const onSubmitCreateShipment = (data: CreateShipmentFormValues) => {
+  const onSubmitCreateShipment = (formValues: CreateShipmentFormValues) => {
+    console.log("formValues for shipment", formValues);
     const creationInput: ShipmentCreationInput = {
-      transferAgreementId: parseInt(data.transferAgreementId),
-      sourceBaseId: parseInt(data.sourceBaseId),
-      targetBaseId: parseInt(data.targetBaseId),
+      transferAgreementId: parseInt(id),
+      sourceBaseId: parseInt(formValues.sourceBaseId),
+      targetBaseId: parseInt(formValues.targetBaseId),
     };
+    console.log("creationInput for shipment", creationInput);
+
     createShipment({ variables: { creationInput } });
+    
+    // console.log("create shimpent", createShipmentViewData)
   };
-  const id = "4";
+ 
 
   const { loading, error, data } = useQuery<
     TransferAgreementForShipmentsByIdQuery,
@@ -78,13 +84,20 @@ const CreateShipmentView = () => {
     console.log(id);
     return <div>Error!</div>;
   }
+  if (mutationStatus.loading) {
+    return <div>Creating shipment...</div>;
+  }
+  if (mutationStatus.error) {
+    return <div>Error: {JSON.stringify(mutationStatus.error)}</div>;
+  }
 
   const createShipmentViewData = data?.transferAgreement;
   console.log(createShipmentViewData);
   return (
-    <div>
-      <h1>Create Shipment</h1>
-    </div>
+    <CreateShipmentForm
+    createShipmentViewData={createShipmentViewData}
+    onSubmitCreateShipment={onSubmitCreateShipment}
+    />
   );
 };
 export default CreateShipmentView;

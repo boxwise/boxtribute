@@ -55,7 +55,7 @@ export const TRANSFER_AGREEMENT_BY_ID_QUERY = gql`
 `;
 
 const TransferAgreementView = () => {
-  const id = useParams<{ id: string }>().id!;
+  const id = useParams<{ transferAgreementId: string }>().transferAgreementId!;
   const { globalPreferences } = useContext(GlobalPreferencesContext);
 
 
