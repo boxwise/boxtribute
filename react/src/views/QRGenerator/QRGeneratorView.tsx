@@ -29,7 +29,7 @@ const styles = StyleSheet.create({
   },
 });
 
-const FOO = ({qrCodes}: {qrCodes: string[]}) => {
+const RenderedQRCodes = ({qrCodes}: {qrCodes: string[]}) => {
   return <>{qrCodes.map((qrCode, index) => (
     <QRCode key={index} data-qr-code={index} value={qrCode} size={300} />
   ))}</>
@@ -64,7 +64,7 @@ const QRGenerator = ({ qrCodes }: QRCodeGeneratorProps) => {
       {qrCodeDataUris != null && (
         <PdfGenerator qrCodeDataUris={qrCodeDataUris} />
       )}
-      <FOO qrCodes={qrCodes} />
+      <RenderedQRCodes qrCodes={qrCodes} />
       <Box>qrCodeDataUris: {JSON.stringify(qrCodeDataUris)}</Box>
     </>
   );
