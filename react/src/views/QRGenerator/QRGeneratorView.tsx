@@ -1,4 +1,5 @@
-import { Box, Text } from "@chakra-ui/react";
+import { gql, useMutation } from "@apollo/client";
+import { Box, Button, Input, NumberDecrementStepper, NumberIncrementStepper, NumberInput, NumberInputField, NumberInputStepper, Text } from "@chakra-ui/react";
 import {
   Document,
   Page,
@@ -11,6 +12,10 @@ import { PDFViewer, PDFDownloadLink, usePDF } from "@react-pdf/renderer";
 import QRCode, { QRCodeSVG } from "qrcode.react";
 import { useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
+import {
+  CreateQrCodeMutation,
+  CreateQrCodeMutationVariables,
+} from "types/generated/graphql";
 import { boxtributeQRCodeFormatter } from "utils/helpers";
 import qrLabelBtLogo from "./qr-label-bt-logo.png";
 
@@ -60,7 +65,7 @@ const MyDoc = (qrCodeDataUris: string[]) => {
 
 const RenderedQRCodes = ({ qrCodes }: { qrCodes: string[] }) => {
   return (
-    <div style={{ visibility: "hidden" }}>
+    <div style={{ display: "none" }}>
       {qrCodes.map((qrCode, index) => (
         <QRCode key={index} data-qr-code={index} value={qrCode} size={300} />
       ))}
@@ -98,7 +103,7 @@ const QRGenerator = ({ qrCodes }: QRCodeGeneratorProps) => {
         <PdfGenerator qrCodeDataUris={qrCodeDataUris} />
       )}
       <RenderedQRCodes qrCodes={qrCodes} />
-      <Box>qrCodeDataUris: {JSON.stringify(qrCodeDataUris)}</Box>
+      {/* <Box>qrCodeDataUris: {JSON.stringify(qrCodeDataUris)}</Box> */}
     </>
   );
 };
@@ -114,7 +119,7 @@ const AutomaticDownloadLink = ({ url }: { url: string }) => {
   }, [url]);
 
   return (
-    <a href={url} download="test.pdf" ref={linkRef}>
+    <a href={url} download="test.pdf" ref={linkRef} style={{display: "none"}}>
       Download
     </a>
   );
@@ -145,11 +150,24 @@ const PdfGenerator = ({ qrCodeDataUris }: { qrCodeDataUris: string[] }) => {
     return <AutomaticDownloadLink url={instance.url} />;
   }
 
-  return <>Loading...</>;
+  return <div>Loading...</div>;
 };
 
+export const CREATE_QR_CODE_MUTATION = gql`
+  mutation CreateQrCode {
+    createQrCode {
+      code
+    }
+  }
+`;
+
 const QRLabelGeneratorView = () => {
-  const qrCodes = ["1", "2", "3", "4"].map(boxtributeQRCodeFormatter);
+  // const qrCodes = ["1", "2", "3", "4"].map(boxtributeQRCodeFormatter);
+
+  const [createQrCodeMutation, createQrCodeMutationStatus] = useMutation<
+    CreateQrCodeMutation,
+    CreateQrCodeMutationVariables
+  >(CREATE_QR_CODE_MUTATION);
 
   return (
     <Box>
@@ -162,7 +180,15 @@ const QRLabelGeneratorView = () => {
       >
         QR Generator
       </Text>
-      <QRGenerator qrCodes={qrCodes} />
+      <NumberInput defaultValue={2} min={1} max={20}>
+        <NumberInputField />
+        <NumberInputStepper>
+          <NumberIncrementStepper />
+          <NumberDecrementStepper />
+        </NumberInputStepper>
+      </NumberInput>
+      <Button onClick={() => createQrCodeMutation()}>Generate QR Code PDFs</Button>
+      {createQrCodeMutationStatus.data?.createQrCode?.code && <QRGenerator qrCodes={[boxtributeQRCodeFormatter(createQrCodeMutationStatus.data?.createQrCode.code)]} /> }
       {/* <QRGenerator /> */}
       {/* <PDFViewer>
           <MyDocument />
