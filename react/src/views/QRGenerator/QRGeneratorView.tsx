@@ -33,7 +33,7 @@ interface QRCodeGeneratorProps {
   qrCodes: string[];
 }
 
-const RenderedQRCodes = ({ qrCodes }: QRCodeGeneratorProps) => {
+const QRGenerator = ({ qrCodes }: QRCodeGeneratorProps) => {
   const [qrCodeDataUris, setQrCodeDataUris] = useState<string[]>([]);
 
   useEffect(() => {
@@ -151,7 +151,7 @@ const QRGeneratorView = () => {
       >
         QR Generator
       </Text>
-      <RenderedQRCodes qrCodes={qrCodes} />
+      <QRGenerator qrCodes={qrCodes} />
       {/* <QRGenerator /> */}
       {/* <PDFViewer>
           <MyDocument />
