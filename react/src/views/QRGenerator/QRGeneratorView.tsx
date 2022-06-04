@@ -9,9 +9,10 @@ import {
 } from "@react-pdf/renderer";
 import { PDFViewer, PDFDownloadLink, usePDF } from "@react-pdf/renderer";
 import QRCode, { QRCodeSVG } from "qrcode.react";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { boxtributeQRCodeFormatter } from "utils/helpers";
-import qrLabelBtLogo from "./qr-label-bt-logo.png"
+import qrLabelBtLogo from "./qr-label-bt-logo.png";
 
 // Create styles
 const styles = StyleSheet.create({
@@ -102,6 +103,9 @@ const QRGenerator = ({ qrCodes }: QRCodeGeneratorProps) => {
   );
 };
 
+// const AutomaticDownloadLink = ({url}: {url: string}) => {
+
+
 const PdfGenerator = ({ qrCodeDataUris }: { qrCodeDataUris: string[] }) => {
   console.log("PdfGenerator#qrCodeDataUris", qrCodeDataUris);
 
@@ -116,22 +120,24 @@ const PdfGenerator = ({ qrCodeDataUris }: { qrCodeDataUris: string[] }) => {
     updateInstance();
   }, [qrCodeDataUris, updateInstance]);
 
+  // const navigate = useNavigate();
+  const linkRef = useRef<HTMLAnchorElement>(null);
+
   if (instance.loading) return <div>Loading ...</div>;
 
   if (instance.error) return <div>Something went wrong: {instance.error}</div>;
 
   if (instance.url != null) {
+    // navigate(instance.url);
+    linkRef.current?.click()
     return (
       <>
-        {instance.url != null && (
-          <>
-            {/* {instance.url} */}
-            <br />
-            <a href={instance.url} download="test.pdf">
-              Download
-            </a>
-          </>
-        )}
+        {/* {instance.url} */}
+        {/* <AutomaticDownloadLink url={instance.url} /> */}
+        <br />
+        <a href={instance.url} download="test.pdf" ref={linkRef}>
+          Download
+        </a>
       </>
     );
   }
@@ -139,8 +145,8 @@ const PdfGenerator = ({ qrCodeDataUris }: { qrCodeDataUris: string[] }) => {
   return <>Loading...</>;
 };
 
-const QRGeneratorView = () => {
-  const qrCodes = ["1", "2", "3", "4"];
+const QRLabelGeneratorView = () => {
+  const qrCodes = ["1", "2", "3", "4"].map(boxtributeQRCodeFormatter);
 
   return (
     <Box>
@@ -162,4 +168,4 @@ const QRGeneratorView = () => {
   );
 };
 
-export default QRGeneratorView;
+export default QRLabelGeneratorView;
