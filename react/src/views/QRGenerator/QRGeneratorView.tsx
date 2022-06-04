@@ -11,12 +11,13 @@ import { PDFViewer, PDFDownloadLink, usePDF } from "@react-pdf/renderer";
 import QRCode, { QRCodeSVG } from "qrcode.react";
 import { useEffect, useState } from "react";
 import { boxtributeQRCodeFormatter } from "utils/helpers";
+import qrLabelBtLogo from "./qr-label-bt-logo.png"
 
 // Create styles
 const styles = StyleSheet.create({
   page: {
     flexDirection: "column",
-    backgroundColor: "#E4E4E4",
+    backgroundColor: "white",
   },
   section: {
     margin: 10,
@@ -30,23 +31,28 @@ const styles = StyleSheet.create({
 });
 
 const QrLabelSection = ({ qrCodeDataUri }: { qrCodeDataUri: string }) => (
-  <View style={styles.section}>
-    <PdfText>Number of items</PdfText>
-    <Image src={qrCodeDataUri} style={styles.logoImage} />
-  </View>
+  <Page size="A4" style={styles.page}>
+    <View style={styles.section}>
+      <View>
+        <PdfText>Number of items</PdfText>
+        <Image src={qrCodeDataUri} style={styles.logoImage} />
+        <PdfText>Box Number</PdfText>
+      </View>
+      <PdfText>Contents</PdfText>
+      <View>
+        <PdfText>Gender</PdfText>
+        <Image src={qrLabelBtLogo} style={styles.logoImage} />
+        <PdfText>Size</PdfText>
+      </View>
+    </View>
+  </Page>
 );
 const MyDoc = (qrCodeDataUris: string[]) => {
   return (
     <Document>
-      <Page size="A4" style={styles.page}>
-        <View style={styles.section}>
-          {/* <PdfText>{JSON.stringify(qrCodeDataUris)}</PdfText> */}
-          {/* <PdfText>qrCodeDataUris.length: {qrCodeDataUris.length}</PdfText> */}
-        </View>
-        {qrCodeDataUris.map((qrCodeDataUri, index) => (
-          <QrLabelSection key={index} qrCodeDataUri={qrCodeDataUri} />
-        ))}
-      </Page>
+      {qrCodeDataUris.map((qrCodeDataUri, index) => (
+        <QrLabelSection key={index} qrCodeDataUri={qrCodeDataUri} />
+      ))}
     </Document>
   );
 };
