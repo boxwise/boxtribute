@@ -30,9 +30,9 @@ const styles = StyleSheet.create({
 });
 
 const RenderedQRCodes = ({qrCodes}: {qrCodes: string[]}) => {
-  return <>{qrCodes.map((qrCode, index) => (
+  return <div style={{visibility: "hidden"}}>{qrCodes.map((qrCode, index) => (
     <QRCode key={index} data-qr-code={index} value={qrCode} size={300} />
-  ))}</>
+  ))}</div>
 }
 
 interface QRCodeGeneratorProps {
@@ -127,7 +127,7 @@ const PdfGenerator = ({ qrCodeDataUris }: { qrCodeDataUris: string[] }) => {
       <>
         {instance.url != null && (
           <>
-            {instance.url}
+            {/* {instance.url} */}
             <br />
             <a href={instance.url} download="test.pdf">
               Download
