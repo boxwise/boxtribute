@@ -36,51 +36,55 @@ interface QRCodeGeneratorProps {
 const RenderedQRCodes = ({ qrCodes }: QRCodeGeneratorProps) => {
   const [qrCodeDataUris, setQrCodeDataUris] = useState<string[]>([]);
 
-  useEffect(() => {
-    const qrCodeCanvas = document.querySelectorAll(
-      "[data-qr-code='1']"
-    )[0] as HTMLCanvasElement;
-
-    const qrCodeDataUri = qrCodeCanvas.toDataURL("image/png");
-    alert(qrCodeDataUri);
-    setQrCodeDataUris([qrCodeDataUri]);
-  }, []);
-  
-
   return (
     <>
-    {/* {JSON.stringify(qrCodeDataUris)} */}
-    {qrCodeDataUris != null && <PdfGenerator qrCodeDataUris={qrCodeDataUris} /> }
+      {qrCodeDataUris != null && <PdfGenerator />}
+      {qrCodes.map((qrCode, index) => (
+        <QRCode key={index} data-qr-code={index} value={qrCode} size={300} />
+      ))}
       <Box>qrCodeDataUris: {JSON.stringify(qrCodeDataUris)}</Box>
-      <QRCode data-qr-code="1" value="https://www.google.com" size={300} />
     </>
   );
 };
 
-const PdfGenerator = ({qrCodeDataUris}: {qrCodeDataUris: string[]}) => {
+const PdfGenerator = () => {
+  useEffect(() => {
+    const qrCodeCanvasList: string[] = [];
+    (
+      document.querySelectorAll(
+        "[data-qr-code]"
+      ) as NodeListOf<HTMLCanvasElement>
+    ).forEach((qrCodeCanvas: HTMLCanvasElement) => {
+      const qrCodeDataUri = qrCodeCanvas.toDataURL("image/png");
+      qrCodeCanvasList.push(qrCodeDataUri);
+    });
+
+    // alert(qrCodeDataUri);
+    setQrCodeDataUris(qrCodeCanvasList);
+  }, []);
+
+  const QrLabelSection = ({ qrCodeDataUri }: { qrCodeDataUri: string }) => (
+    <View style={styles.section}>
+      <PdfText>Number of items</PdfText>
+      <Image src={qrCodeDataUri} style={styles.logoImage} />
+    </View>
+  );
   const MyDoc = () => {
-    // const [qrCodeDataUris, setQrCodeDataUris] = useState<string[]>([]);
-
-    // useEffect(() => {
-    //   const qrCodeCanvas = document.querySelectorAll(
-    //     "[data-qr-code='1']"
-    //   )[0] as HTMLCanvasElement;
-
-    //   const qrCodeDataUri = qrCodeCanvas.toDataURL("image/png");
-    //   setQrCodeDataUris([qrCodeDataUri]);
-    // }, []);
-
-    // const base64Image =
-    //   "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABkAAAAZCAYAAADE6YVjAAAAJUlEQVR42u3NQQEAAAQEsJNcdFLw2gqsMukcK4lEIpFIJBLJS7KG6yVo40DbTgAAAABJRU5ErkJggg==";
     return (
       <Document>
         <Page size="A4" style={styles.page}>
           <View style={styles.section}>
-            <PdfText>Section #1</PdfText>
+            <PdfText>{JSON.stringify(qrCodeDataUris)}</PdfText>
+            <PdfText>Still here!!</PdfText>
           </View>
+          {qrCodeDataUris.map((qrCodeDataUri, index) => (
+            <QrLabelSection key={index} qrCodeDataUri={qrCodeDataUri} />
+          ))}
+
           <View style={styles.section}>
+            <PdfText>{JSON.stringify(qrCodeDataUris)}</PdfText>
             <PdfText>Section #2</PdfText>
-            <Image src={qrCodeDataUris[0]} style={styles.logoImage} />
+            {/* <Image src={qrCodeDataUris[0]} style={styles.logoImage} /> */}
             {/* <QRCodeSVG
           value={boxtributeQRCodeFormatter("adsdasdsd")}
           size={128}
@@ -124,8 +128,6 @@ const PdfGenerator = ({qrCodeDataUris}: {qrCodeDataUris: string[]}) => {
 
 const QRGeneratorView = () => {
   const qrCodes = ["1", "2", "3", "4"];
-
-
 
   return (
     <Box>
