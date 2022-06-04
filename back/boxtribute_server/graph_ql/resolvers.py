@@ -172,7 +172,6 @@ def resolve_location(obj, _, id=None):
 
 @query.field("organisation")
 def resolve_organisation(*_, id):
-    authorize(organisation_id=int(id))
     return Organisation.get_by_id(id)
 
 
