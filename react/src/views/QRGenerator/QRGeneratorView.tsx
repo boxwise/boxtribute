@@ -22,7 +22,7 @@ import qrLabelBtLogo from "./qr-label-bt-logo.png";
 // Create styles
 const styles = StyleSheet.create({
   page: {
-    flexDirection: "column",
+    // flexDirection: "column",
     backgroundColor: "white",
   },
   section: {
@@ -37,7 +37,7 @@ const styles = StyleSheet.create({
 });
 
 const QrLabelSection = ({ qrCodeDataUri }: { qrCodeDataUri: string }) => (
-  <Page size="A4" style={styles.page}>
+  <Page size="A4" style={styles.page} orientation="landscape">
     <View style={styles.section}>
       <View>
         <PdfText>Number of items</PdfText>
