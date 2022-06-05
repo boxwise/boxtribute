@@ -170,6 +170,7 @@ const QRLabelGeneratorView = () => {
   CreateMultipleQrCodesMutationVariables
   >(CREATE_MULTIPLE_QR_CODES_MUTATION);
 
+  const [amountOfQrCodes, setAmountOfQrCodes] = useState<string>("1");
   
 
   return (
@@ -183,15 +184,38 @@ const QRLabelGeneratorView = () => {
       >
         QR Generator
       </Text>
-      <NumberInput defaultValue={2} min={1} max={20}>
+      <NumberInput
+        value={amountOfQrCodes}
+        min={1}
+        max={20}
+        onChange={(e) => {
+          setAmountOfQrCodes(e);
+        }}
+      >
         <NumberInputField />
         <NumberInputStepper>
           <NumberIncrementStepper />
           <NumberDecrementStepper />
         </NumberInputStepper>
       </NumberInput>
-      <Button onClick={() => createMultipleQrCodesMutation()}>Generate QR Code PDFs</Button>
-      {createMultipleQrCodesMutationStatus.data?.createMultipleQrCodes && <QRGenerator qrCodes={createMultipleQrCodesMutationStatus.data?.createMultipleQrCodes.map(qrCode => boxtributeQRCodeFormatter(qrCode.code))} /> }
+      <Button
+        onClick={() =>
+          createMultipleQrCodesMutation({
+            variables: {
+              amount: parseInt(amountOfQrCodes),
+            },
+          })
+        }
+      >
+        Generate QR Code PDFs
+      </Button>
+      {createMultipleQrCodesMutationStatus.data?.createMultipleQrCodes && (
+        <QRGenerator
+          qrCodes={createMultipleQrCodesMutationStatus.data?.createMultipleQrCodes.map(
+            (qrCode) => boxtributeQRCodeFormatter(qrCode.code)
+          )}
+        />
+      )}
       {/* <QRGenerator /> */}
       {/* <PDFViewer>
           <MyDocument />
