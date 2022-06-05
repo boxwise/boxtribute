@@ -13,8 +13,8 @@ import QRCode, { QRCodeSVG } from "qrcode.react";
 import { useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import {
-  CreateQrCodeMutation,
-  CreateQrCodeMutationVariables,
+  CreateMultipleQrCodesMutation,
+  CreateMultipleQrCodesMutationVariables,
 } from "types/generated/graphql";
 import { boxtributeQRCodeFormatter } from "utils/helpers";
 import qrLabelBtLogo from "./qr-label-bt-logo.png";
@@ -153,21 +153,24 @@ const PdfGenerator = ({ qrCodeDataUris }: { qrCodeDataUris: string[] }) => {
   return <div>Loading...</div>;
 };
 
-export const CREATE_QR_CODE_MUTATION = gql`
-  mutation CreateQrCode {
-    createQrCode {
-      code
-    }
+export const CREATE_MULTIPLE_QR_CODES_MUTATION = gql`
+  mutation CreateMultipleQrCodes($amount: Int!) {
+  createMultipleQrCodes(amount: $amount) {
+    id
+    code    
   }
+}
 `;
 
 const QRLabelGeneratorView = () => {
   // const qrCodes = ["1", "2", "3", "4"].map(boxtributeQRCodeFormatter);
 
-  const [createQrCodeMutation, createQrCodeMutationStatus] = useMutation<
-    CreateQrCodeMutation,
-    CreateQrCodeMutationVariables
-  >(CREATE_QR_CODE_MUTATION);
+  const [createMultipleQrCodesMutation, createMultipleQrCodesMutationStatus] = useMutation<
+  CreateMultipleQrCodesMutation,
+  CreateMultipleQrCodesMutationVariables
+  >(CREATE_MULTIPLE_QR_CODES_MUTATION);
+
+  
 
   return (
     <Box>
@@ -187,8 +190,8 @@ const QRLabelGeneratorView = () => {
           <NumberDecrementStepper />
         </NumberInputStepper>
       </NumberInput>
-      <Button onClick={() => createQrCodeMutation()}>Generate QR Code PDFs</Button>
-      {createQrCodeMutationStatus.data?.createQrCode?.code && <QRGenerator qrCodes={[boxtributeQRCodeFormatter(createQrCodeMutationStatus.data?.createQrCode.code)]} /> }
+      <Button onClick={() => createMultipleQrCodesMutation()}>Generate QR Code PDFs</Button>
+      {createMultipleQrCodesMutationStatus.data?.createMultipleQrCodes && <QRGenerator qrCodes={createMultipleQrCodesMutationStatus.data?.createMultipleQrCodes.map(qrCode => boxtributeQRCodeFormatter(qrCode.code))} /> }
       {/* <QRGenerator /> */}
       {/* <PDFViewer>
           <MyDocument />

@@ -10,5 +10,7 @@ export const groupBy = <T, K extends keyof any>(
   }, {} as Record<K, T[]>);
 
 // TODO: make this environment sensitive (different url for staging/develop and production)
-export const boxtributeQRCodeFormatter = (data: string) =>
-  `https://staging.boxwise.co/mobile.php?barcode=${data}`;
+export const boxtributeQRCodeFormatter = (data: string) => {
+  console.log("FOOBAR", data)
+  return `https://staging.boxwise.co/mobile.php?barcode=${data}`;
+}

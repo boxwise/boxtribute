@@ -312,6 +312,7 @@ export type Mutation = {
   cancelTransferAgreement?: Maybe<TransferAgreement>;
   createBeneficiary?: Maybe<Beneficiary>;
   createBox?: Maybe<Box>;
+  createMultipleQrCodes?: Maybe<Array<QrCode>>;
   createQrCode?: Maybe<QrCode>;
   createShipment?: Maybe<Shipment>;
   createTransferAgreement?: Maybe<TransferAgreement>;
@@ -370,6 +371,16 @@ export type MutationCreateBeneficiaryArgs = {
  */
 export type MutationCreateBoxArgs = {
   creationInput?: InputMaybe<BoxCreationInput>;
+};
+
+
+/**
+ * Naming convention:
+ * - input argument: creationInput/updateInput
+ * - input type: <Resource>CreationInput/UpdateInput
+ */
+export type MutationCreateMultipleQrCodesArgs = {
+  amount: Scalars['Int'];
 };
 
 
@@ -903,7 +914,9 @@ export type BoxesForBaseQueryVariables = Exact<{
 
 export type BoxesForBaseQuery = { __typename?: 'Query', base?: { __typename?: 'Base', locations?: Array<{ __typename?: 'Location', boxes?: { __typename?: 'BoxPage', totalCount: number, elements: Array<{ __typename?: 'Box', labelIdentifier: string, id: string, state: BoxState, size?: string | null, items: number, product?: { __typename?: 'Product', gender?: ProductGender | null, name: string } | null, location?: { __typename?: 'Location', name?: string | null } | null }> } | null }> | null } | null };
 
-export type CreateQrCodeMutationVariables = Exact<{ [key: string]: never; }>;
+export type CreateMultipleQrCodesMutationVariables = Exact<{
+  amount: Scalars['Int'];
+}>;
 
 
-export type CreateQrCodeMutation = { __typename?: 'Mutation', createQrCode?: { __typename?: 'QrCode', code: string } | null };
+export type CreateMultipleQrCodesMutation = { __typename?: 'Mutation', createMultipleQrCodes?: Array<{ __typename?: 'QrCode', id: string, code: string }> | null };
