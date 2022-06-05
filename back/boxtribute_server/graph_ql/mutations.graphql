@@ -5,6 +5,7 @@ Naming convention:
 """
 type Mutation {
   createQrCode(boxLabelIdentifier: String): QrCode
+  createMultipleQrCodes(amount: Int!): [QrCode!]
   createBox(creationInput: BoxCreationInput): Box
   updateBox(updateInput: BoxUpdateInput): Box
   createBeneficiary(creationInput: BeneficiaryCreationInput): Beneficiary

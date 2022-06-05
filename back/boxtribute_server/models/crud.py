@@ -211,6 +211,24 @@ def update_beneficiary(
     return beneficiary
 
 
+def create_single_qr_code():
+    new_qr_code = QrCode.create(created_on=utcnow())
+    new_qr_code.code = hashlib.md5(str(new_qr_code.id).encode()).hexdigest()
+    new_qr_code.save()
+    return new_qr_code
+
+
+def create_multiple_qr_codes(amount=1):
+    """TODO: Move over and modify description from create_qr_code
+    """
+
+    
+    with db.database.atomic():
+        new_qr_codes = [create_single_qr_code() for x in range(amount)]
+
+    return new_qr_codes
+
+
 def create_qr_code(box_label_identifier=None):
     """Insert a new QR code in the database. Generate an MD5 hash based on its primary
     key. If a `box_label_identifier` is passed, look up the corresponding box (it is
@@ -221,9 +239,7 @@ def create_qr_code(box_label_identifier=None):
     the operations are rolled back (i.e. no new QR code is inserted).
     """
     with db.database.atomic():
-        new_qr_code = QrCode.create(created_on=utcnow())
-        new_qr_code.code = hashlib.md5(str(new_qr_code.id).encode()).hexdigest()
-        new_qr_code.save()
+        new_qr_code = create_single_qr_code()
 
         if box_label_identifier is not None:
             box = Box.get(Box.label_identifier == box_label_identifier)

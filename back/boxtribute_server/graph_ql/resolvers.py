@@ -23,6 +23,7 @@ from ..enums import HumanGender, TransferAgreementType
 from ..models.crud import (
     create_beneficiary,
     create_box,
+    create_multiple_qr_codes,
     create_qr_code,
     update_beneficiary,
     update_box,
@@ -351,6 +352,14 @@ def resolve_create_qr_code(*_, box_label_identifier=None):
     authorize(permission="qr:create")
     authorize(permission="stock:write")
     return create_qr_code(box_label_identifier=box_label_identifier)
+
+
+@mutation.field("createMultipleQrCodes")
+@convert_kwargs_to_snake_case
+def resolve_create_multiple_qr_codes(*_, amount=1):
+    authorize(permission="qr:create")
+    authorize(permission="stock:write") # QUESTION: is this necessary if we don't associate the qr labels with any boxes (which is the case for creating multiple new qr codes)?
+    return create_multiple_qr_codes(amount)
 
 
 @mutation.field("createBox")
