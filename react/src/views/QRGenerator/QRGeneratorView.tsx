@@ -134,10 +134,10 @@ const PdfGenerator = ({ qrCodeDataUris }: { qrCodeDataUris: string[] }) => {
 
   // updateInstance();
 
-  useEffect(() => {
-    console.log("PdfGenerator#useEffect");
-    updateInstance();
-  }, [qrCodeDataUris, updateInstance]);
+  // useEffect(() => {
+    // console.log("PdfGenerator#useEffect");
+    // updateInstance();
+  // }, [qrCodeDataUris, updateInstance]);
 
   // const navigate = useNavigate();
 
