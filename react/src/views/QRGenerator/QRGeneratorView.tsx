@@ -1,7 +1,9 @@
 import { gql, useMutation } from "@apollo/client";
 import {
+  background,
   Box,
   Button,
+  color,
   Input,
   NumberDecrementStepper,
   NumberIncrementStepper,
@@ -36,7 +38,11 @@ const styles = StyleSheet.create({
   page: {
     flexDirection: "row",
     backgroundColor: "white",
-    wrap: "overflow",
+    flexWrap: "wrap",
+    display: "flex",
+    margin: "0 auto",
+    justifyContent: "space-around",
+
   },
   // sectionOfTwoLabels: {
   //   flexDirection: "column",
@@ -45,30 +51,56 @@ const styles = StyleSheet.create({
   //   // flexGrow: 1,
   // },
   qrLabelSection: {
-    flex: "1",
-    minHeight: "250px", 
-    minWidth: "250px"
+    display : "flex",
+    minHeight: "420px", 
+    minWidth: "290px",
+    maxHeight: "420px",
+    // backgroundColor: "red",
+    // margin: "10px",
+    padding: "10px",
+
   },
   logoImage: {
     width: "60px",
     height: "60px",
+    // backgroundColor: "blue",
   },
+  boxNumber: {  
+    marginBottom: "70px",
+    
+  },
+  contents: {  
+    marginBottom: "30px",
+    marginTop: "10px",
+    
+  },
+  stripe: {
+    alignSelf: "center",
+  },
+  qrImage: {
+    width: "130px",
+    height: "130px",
+    marginTop: "20px",
+    marginLeft: "10px",
+  }
 });
 
 const QrLabelSection = ({ qrCodeDataUri }: { qrCodeDataUri: string }) => (
   <View style={styles.qrLabelSection} debug={true}>
-    <PdfText>Box Number</PdfText>
-    <PdfText>Contents</PdfText>
-    <View style={{ flexDirection: "row" }}>
-      <PdfText>Gender</PdfText>
+    <PdfText style={styles.boxNumber}>Box Number</PdfText>
+    <PdfText style={styles.stripe}>___________________________</PdfText>
+    <PdfText style={styles.contents}>Contents</PdfText>
+    <PdfText style={styles.stripe}>___________________________</PdfText>
+    <View style={{ flexDirection: "row", marginBottom: "30px", marginTop: "10px" }}>
+      <PdfText style={{width: "135px" }}>Gender</PdfText>
       <PdfText>Size</PdfText>
     </View>
     <View style={{ flexDirection: "row" }}>
-      <View style={{ flexDirection: "column" }}>
+      <View style={{ flexDirection: "column", justifyContent: "space-between", marginTop: "15px" }}>
         <PdfText>Number of items</PdfText>
         <Image src={qrLabelBtLogo} style={styles.logoImage} />
       </View>
-      <Image src={qrCodeDataUri} style={styles.logoImage} />
+      <Image src={qrCodeDataUri} style={styles.qrImage} />
     </View>
   </View>
 );
@@ -101,6 +133,13 @@ const MyDoc = (qrCodeDataUris: string[]) => {
     </Document>
   );
 };
+
+
+
+
+
+
+
 
 const RenderedQRCodes = ({ qrCodes }: { qrCodes: string[] }) => {
   return (
