@@ -54,7 +54,7 @@ const ShipmentDetail = ({
           {shipmentData.targetBase?.name}
         </ListItem>
       </List>
-      <NavLink to="edit">
+      <NavLink to="scan">
         <Button m={2}>Scan boxes for shipment</Button>
       </NavLink>
     </Box>

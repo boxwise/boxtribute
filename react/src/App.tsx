@@ -20,6 +20,7 @@ import ShipmentsView from "views/Shipments/ShipmentsView";
 import { useAuth0 } from "@auth0/auth0-react";
 import jwt from 'jwt-decode'
 import ShipmentView from "views/Shipments/ShipmentView";
+import ShipmentScanView from "views/ShipmentEdit/ShipmentScanView";
 import ShipmentEditView from "views/ShipmentEdit/ShipmentEditView";
 
 const useLoadAndSetAvailableBases = () => {
@@ -90,7 +91,8 @@ const App = () => {
                   <Route index element={<ShipmentsView />} />
                   <Route path=":shipmentId">
                     <Route index element={<ShipmentView />} />  
-                    <Route path="edit" element={<ShipmentEditView />} />  
+                    <Route path="scan" element={<ShipmentScanView />} />  
+                    <Route path="edit" element={<ShipmentEditView />} /> 
                   </Route>
                   <Route path="new" element={<CreateShipmentView />} />
                 </Route>
