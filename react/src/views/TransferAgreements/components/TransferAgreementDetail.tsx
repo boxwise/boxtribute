@@ -57,9 +57,13 @@ const TransferAgreementDetail = ({
           {transferAgreementData.type}
         </ListItem>
       </List>
+      <NavLink to="shipments">
+        <Button m={2}>Shipments</Button>
+      </NavLink>
       <NavLink to="shipments/new">
         <Button m={2}>Create new shipment</Button>
       </NavLink>
+      
     </Box>
   );
 };

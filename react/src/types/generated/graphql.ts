@@ -917,6 +917,18 @@ export type CreateShipmentMutationVariables = Exact<{
 
 export type CreateShipmentMutation = { __typename?: 'Mutation', createShipment?: { __typename?: 'Shipment', id: string } | null };
 
+export type ShipmentByIdQueryVariables = Exact<{
+  id: Scalars['ID'];
+}>;
+
+
+export type ShipmentByIdQuery = { __typename?: 'Query', shipment?: { __typename?: 'Shipment', id: string, state?: ShipmentState | null, startedOn: any, sourceBase?: { __typename?: 'Base', id: string, name: string } | null, targetBase?: { __typename?: 'Base', id: string, name: string } | null } | null };
+
+export type ShipmentsQueryVariables = Exact<{ [key: string]: never; }>;
+
+
+export type ShipmentsQuery = { __typename?: 'Query', shipments: Array<{ __typename?: 'Shipment', id: string, state?: ShipmentState | null, transferAgreement: { __typename?: 'TransferAgreement', targetOrganisation: { __typename?: 'Organisation', name: string } }, targetBase?: { __typename?: 'Base', name: string } | null, details: Array<{ __typename?: 'ShipmentDetail', box: { __typename?: 'Box', labelIdentifier: string, items: number } }> }> };
+
 export type AcceptTransferAgreementMutationVariables = Exact<{
   id: Scalars['ID'];
 }>;

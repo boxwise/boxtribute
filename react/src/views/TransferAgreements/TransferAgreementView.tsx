@@ -110,11 +110,6 @@ const TransferAgreementView = () => {
   const isIncoming = parseInt(globalPreferences.selectedOrganisationId) === parseInt(transferAgreementData.targetOrganisation.id);
   return (
     <>
-    globalPreferences.selectedOrganisationId: {globalPreferences.selectedOrganisationId}
-    <br />
-    transferAgreementData?.targetOrganisation?.id: {transferAgreementData?.targetOrganisation?.id}
-    <br />
-    isIncoming: {JSON.stringify(isIncoming)} <br />
       <ActionsTransferAgreement
         isIncoming={isIncoming}
         onAcceptTransferAgreementClick={onAcceptTransferAgreementClick}

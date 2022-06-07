@@ -1,14 +1,14 @@
 import { gql, useMutation, useQuery } from "@apollo/client";
 import CreateShipmentForm, { CreateShipmentFormValues } from "./components/CreateShipmentForm";
-import { useParams } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import {
   CreateShipmentMutation,
   CreateShipmentMutationVariables,
-  TransferAgreementByIdQuery,
   TransferAgreementForShipmentsByIdQuery,
   TransferAgreementForShipmentsByIdQueryVariables,
   ShipmentCreationInput,
 } from "types/generated/graphql";
+import { useEffect } from "react";
 
 export const TRANSFER_AGREEMENT_FOR_SHIPMENTS_BY_ID_QUERY = gql`
   query TransferAgreementForShipmentsById($id: ID!) {
@@ -25,17 +25,6 @@ export const TRANSFER_AGREEMENT_FOR_SHIPMENTS_BY_ID_QUERY = gql`
   }
 `;
 
-
-// const onSubmit = (data: TransferAgreementFormValues) => {
-//   // setSubmittedVal(data);
-//   const creationInput: TransferAgreementCreationInput = {
-//     targetOrganisationId: parseInt(data.targetOrganisationId),
-//     type: TransferAgreementType[data.transferType],
-//   };
-//   createTransferAgreement({ variables: { creationInput } });
-//   console.log(data);
-// };
-
 export const CREATE_SHIPMENT_MUTATION = gql`
   mutation createShipment($creationInput: ShipmentCreationInput!) {
     createShipment(creationInput: $creationInput) {
@@ -45,7 +34,8 @@ export const CREATE_SHIPMENT_MUTATION = gql`
 `;
 
 const CreateShipmentView = () => {
-  ////////////////////////////////////////////////
+  const navigate = useNavigate();
+  const baseId = useParams<{ baseId: string }>().baseId!;
   const id = useParams<{ transferAgreementId: string }>().transferAgreementId!;
   const [createShipment, mutationStatus] = useMutation<
     CreateShipmentMutation,
@@ -62,8 +52,6 @@ const CreateShipmentView = () => {
     console.log("creationInput for shipment", creationInput);
 
     createShipment({ variables: { creationInput } });
-    
-    // console.log("create shimpent", createShipmentViewData)
   };
  
 
@@ -75,6 +63,14 @@ const CreateShipmentView = () => {
       id,
     },
   });
+  useEffect(() => {
+    mutationStatus?.data?.createShipment?.id
+    &&
+      navigate(
+        `/bases/${baseId}/transfers/${id}/shipments/${mutationStatus.data.createShipment.id}`
+      );
+  }, [mutationStatus, navigate, baseId, id]);
+
 
   if (loading) {
     return <div>Loading...</div>;
@@ -91,8 +87,10 @@ const CreateShipmentView = () => {
     return <div>Error: {JSON.stringify(mutationStatus.error)}</div>;
   }
 
+
   const createShipmentViewData = data?.transferAgreement;
   console.log(createShipmentViewData);
+  
   return (
     <CreateShipmentForm
     createShipmentViewData={createShipmentViewData}
