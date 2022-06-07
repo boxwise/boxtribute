@@ -1,5 +1,15 @@
 import { gql, useMutation } from "@apollo/client";
-import { Box, Button, Input, NumberDecrementStepper, NumberIncrementStepper, NumberInput, NumberInputField, NumberInputStepper, Text } from "@chakra-ui/react";
+import {
+  Box,
+  Button,
+  Input,
+  NumberDecrementStepper,
+  NumberIncrementStepper,
+  NumberInput,
+  NumberInputField,
+  NumberInputStepper,
+  Text,
+} from "@chakra-ui/react";
 import {
   Document,
   Page,
@@ -19,6 +29,8 @@ import {
 import { boxtributeQRCodeFormatter } from "utils/helpers";
 import qrLabelBtLogo from "./qr-label-bt-logo.png";
 
+import { chunk } from "lodash";
+
 // Create styles
 const styles = StyleSheet.create({
   page: {
@@ -37,30 +49,40 @@ const styles = StyleSheet.create({
 });
 
 const QrLabelSection = ({ qrCodeDataUri }: { qrCodeDataUri: string }) => (
-  <Page size="A4" style={styles.page} orientation="landscape">
-    <View style={styles.section}>
-      <View>
-        <PdfText>Number of items</PdfText>
-        <Image src={qrCodeDataUri} style={styles.logoImage} />
-        <PdfText>Box Number</PdfText>
-      </View>
-      <PdfText>Contents</PdfText>
-      <View>
-        <PdfText>Gender</PdfText>
-        <Image src={qrLabelBtLogo} style={styles.logoImage} />
-        <PdfText>Size</PdfText>
-      </View>
+  <View style={styles.section}>
+    <View>
+      <PdfText>Number of items</PdfText>
+      <Image src={qrCodeDataUri} style={styles.logoImage} />
+      <PdfText>Box Number</PdfText>
     </View>
-  </Page>
+    <PdfText>Contents</PdfText>
+    <View>
+      <PdfText>Gender</PdfText>
+      <Image src={qrLabelBtLogo} style={styles.logoImage} />
+      <PdfText>Size</PdfText>
+    </View>
+  </View>
 );
-const MyDoc = (qrCodeDataUris: string[]) => {
+
+const PdfPageWithFourQrCodes = ({
+  groupOfFourQrCodeUris,
+}: {
+  groupOfFourQrCodeUris: string[];
+}) => {
   return (
-    <Document>
-      {qrCodeDataUris.map((qrCodeDataUri, index) => (
+    <Page size="A4" style={styles.page} orientation="landscape">
+      {groupOfFourQrCodeUris.map((qrCodeDataUri, index) => (
         <QrLabelSection key={index} qrCodeDataUri={qrCodeDataUri} />
       ))}
-    </Document>
+    </Page>
   );
+};
+
+const MyDoc = (qrCodeDataUris: string[]) => {
+  const groupOfFourQrCodeUris = chunk(qrCodeDataUris, 4);
+  return <Document>
+    {groupOfFourQrCodeUris.map((groupOfFourQrCodeUris, index) => (<PdfPageWithFourQrCodes groupOfFourQrCodeUris={groupOfFourQrCodeUris} key={index} />))}
+  </Document>;
 };
 
 const RenderedQRCodes = ({ qrCodes }: { qrCodes: string[] }) => {
@@ -89,11 +111,9 @@ const QRGenerator = ({ qrCodes }: QRCodeGeneratorProps) => {
       ) as NodeListOf<HTMLCanvasElement>
     ).forEach((qrCodeCanvas: HTMLCanvasElement) => {
       const qrCodeDataUri = qrCodeCanvas.toDataURL("image/png");
-      // console.log("FOO", qrCodeDataUri);
       qrCodeCanvasList.push(qrCodeDataUri);
     });
 
-    // alert(qrCodeDataUri);
     setQrCodeDataUris(qrCodeCanvasList);
   }, []);
 
@@ -103,7 +123,6 @@ const QRGenerator = ({ qrCodes }: QRCodeGeneratorProps) => {
         <PdfGenerator qrCodeDataUris={qrCodeDataUris} />
       )}
       <RenderedQRCodes qrCodes={qrCodes} />
-      {/* <Box>qrCodeDataUris: {JSON.stringify(qrCodeDataUris)}</Box> */}
     </>
   );
 };
@@ -112,41 +131,37 @@ const AutomaticDownloadLink = ({ url }: { url: string }) => {
   const linkRef = useRef<HTMLAnchorElement>(null);
 
   useEffect(() => {
-    console.log("FOO-url", url);
-    if (linkRef.current) {
+    if (linkRef.current && url != null) {
       linkRef.current.click();
     }
   }, [url]);
 
+  var d = new Date();
+
+  var dateTimeString = `${d.getFullYear()}_${d.getMonth()}_${d.getDate()}__${d.getHours()}_${d.getMinutes()}_${d.getSeconds()}`;
+
   return (
-    <a href={url} download="test.pdf" ref={linkRef} style={{display: "none"}}>
+    <a
+      href={url}
+      download={`bt-qr-codes-${dateTimeString}.pdf`}
+      ref={linkRef}
+      style={{ display: "none" }}
+    >
       Download
     </a>
   );
 };
 
 const PdfGenerator = ({ qrCodeDataUris }: { qrCodeDataUris: string[] }) => {
-  console.log("PdfGenerator#qrCodeDataUris", qrCodeDataUris);
-
-  const [instance, updateInstance] = usePDF({
+  const [instance] = usePDF({
     document: MyDoc(qrCodeDataUris),
   });
-
-  // updateInstance();
-
-  // useEffect(() => {
-    // console.log("PdfGenerator#useEffect");
-    // updateInstance();
-  // }, [qrCodeDataUris, updateInstance]);
-
-  // const navigate = useNavigate();
 
   if (instance.loading) return <div>Loading ...</div>;
 
   if (instance.error) return <div>Something went wrong: {instance.error}</div>;
 
   if (instance.url != null) {
-    // navigate(instance.url);
     return <AutomaticDownloadLink url={instance.url} />;
   }
 
@@ -155,23 +170,21 @@ const PdfGenerator = ({ qrCodeDataUris }: { qrCodeDataUris: string[] }) => {
 
 export const CREATE_MULTIPLE_QR_CODES_MUTATION = gql`
   mutation CreateMultipleQrCodes($amount: Int!) {
-  createMultipleQrCodes(amount: $amount) {
-    id
-    code    
+    createMultipleQrCodes(amount: $amount) {
+      id
+      code
+    }
   }
-}
 `;
 
 const QRLabelGeneratorView = () => {
-  // const qrCodes = ["1", "2", "3", "4"].map(boxtributeQRCodeFormatter);
-
-  const [createMultipleQrCodesMutation, createMultipleQrCodesMutationStatus] = useMutation<
-  CreateMultipleQrCodesMutation,
-  CreateMultipleQrCodesMutationVariables
-  >(CREATE_MULTIPLE_QR_CODES_MUTATION);
+  const [createMultipleQrCodesMutation, createMultipleQrCodesMutationStatus] =
+    useMutation<
+      CreateMultipleQrCodesMutation,
+      CreateMultipleQrCodesMutationVariables
+    >(CREATE_MULTIPLE_QR_CODES_MUTATION);
 
   const [amountOfQrCodes, setAmountOfQrCodes] = useState<string>("1");
-  
 
   return (
     <Box>
@@ -216,10 +229,6 @@ const QRLabelGeneratorView = () => {
           )}
         />
       )}
-      {/* <QRGenerator /> */}
-      {/* <PDFViewer>
-          <MyDocument />
-        </PDFViewer> */}
     </Box>
   );
 };
