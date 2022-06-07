@@ -34,32 +34,37 @@ import { chunk } from "lodash";
 // Create styles
 const styles = StyleSheet.create({
   page: {
-    // flexDirection: "column",
+    flexDirection: "row",
     backgroundColor: "white",
   },
-  section: {
+  sectionOfTwoLabels: {
+    flexDirection: "column",
     margin: 10,
     padding: 10,
-    flexGrow: 1,
+    // flexGrow: 1,
   },
   logoImage: {
-    width: "250px",
-    height: "250px",
+    width: "60px",
+    height: "60px",
   },
 });
 
 const QrLabelSection = ({ qrCodeDataUri }: { qrCodeDataUri: string }) => (
-  <View style={styles.section}>
+  <View style={{ flexDirection: "column" }}>
     <View>
-      <PdfText>Number of items</PdfText>
-      <Image src={qrCodeDataUri} style={styles.logoImage} />
       <PdfText>Box Number</PdfText>
-    </View>
-    <PdfText>Contents</PdfText>
-    <View>
-      <PdfText>Gender</PdfText>
-      <Image src={qrLabelBtLogo} style={styles.logoImage} />
-      <PdfText>Size</PdfText>
+      <PdfText>Contents</PdfText>
+      <View style={{ flexDirection: "row" }}>
+        <PdfText>Gender</PdfText>
+        <PdfText>Size</PdfText>
+      </View>
+      <View style={{ flexDirection: "row" }} debug={true}>
+        <View style={{ flexDirection: "column" }}>
+          <PdfText>Number of items</PdfText>
+          <Image src={qrLabelBtLogo} style={styles.logoImage} />
+        </View>
+        <Image src={qrCodeDataUri} style={styles.logoImage} />
+      </View>
     </View>
   </View>
 );
@@ -69,20 +74,34 @@ const PdfPageWithFourQrCodes = ({
 }: {
   groupOfFourQrCodeUris: string[];
 }) => {
+  const groupsOfTwoQrCodeUris = chunk(groupOfFourQrCodeUris, 2);
   return (
-    <Page size="A4" style={styles.page} orientation="landscape">
-      {groupOfFourQrCodeUris.map((qrCodeDataUri, index) => (
-        <QrLabelSection key={index} qrCodeDataUri={qrCodeDataUri} />
-      ))}
+    <Page wrap={false} size="A4" style={styles.page} orientation="portrait">
+      {groupsOfTwoQrCodeUris.map((groupOfTwoQrCodeUris, index) => {
+        return (
+          <View style={styles.sectionOfTwoLabels}>
+            {groupOfTwoQrCodeUris.map((qrCodeDataUri, index) => (
+              <QrLabelSection key={index} qrCodeDataUri={qrCodeDataUri} />
+            ))}
+          </View>
+        );
+      })}
     </Page>
   );
 };
 
 const MyDoc = (qrCodeDataUris: string[]) => {
-  const groupOfFourQrCodeUris = chunk(qrCodeDataUris, 4);
-  return <Document>
-    {groupOfFourQrCodeUris.map((groupOfFourQrCodeUris, index) => (<PdfPageWithFourQrCodes groupOfFourQrCodeUris={groupOfFourQrCodeUris} key={index} />))}
-  </Document>;
+  const groupsOfFourQrCodeUris = chunk(qrCodeDataUris, 4);
+  return (
+    <Document>
+      {groupsOfFourQrCodeUris.map((groupOfFourQrCodeUris, index) => (
+        <PdfPageWithFourQrCodes
+          groupOfFourQrCodeUris={groupOfFourQrCodeUris}
+          key={index}
+        />
+      ))}
+    </Document>
+  );
 };
 
 const RenderedQRCodes = ({ qrCodes }: { qrCodes: string[] }) => {
