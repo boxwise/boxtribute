@@ -40,8 +40,8 @@ const styles = StyleSheet.create({
     backgroundColor: "white",
     flexWrap: "wrap",
     display: "flex",
-    margin: "0 auto",
-    justifyContent: "space-around",
+    margin: "0 5px",
+    alignContent: "flex-start",
 
   },
   // sectionOfTwoLabels: {
@@ -54,16 +54,15 @@ const styles = StyleSheet.create({
     display : "flex",
     minHeight: "420px", 
     minWidth: "290px",
-    maxHeight: "420px",
-    // backgroundColor: "red",
-    // margin: "10px",
+    // maxHeight: "420px",
     padding: "10px",
 
   },
   logoImage: {
-    width: "60px",
-    height: "60px",
-    // backgroundColor: "blue",
+    width: "40px",
+    height: "40px",
+    // backgroundColor: "red",
+    // border: "3px solid black",
   },
   boxNumber: {  
     marginBottom: "70px",
@@ -85,9 +84,15 @@ const styles = StyleSheet.create({
   }
 });
 
-const QrLabelSection = ({ qrCodeDataUri }: { qrCodeDataUri: string }) => (
-  <View style={styles.qrLabelSection} debug={true}>
-    <PdfText style={styles.boxNumber}>Box Number</PdfText>
+const QrLabelSection = ({ qrCodeDataUri, date }: { qrCodeDataUri: string, date: Date }) => {
+
+  const dateTimeString = date.toLocaleString("en-US")
+
+  return (<View style={styles.qrLabelSection}>
+    <View style={{ flexDirection: "row", justifyContent: "space-between"}}>
+      <PdfText style={styles.boxNumber}>Box Number</PdfText>
+      <PdfText style={{fontSize: "10px"}}>{dateTimeString}</PdfText>
+      </View>
     <PdfText style={styles.stripe}>___________________________</PdfText>
     <PdfText style={styles.contents}>Contents</PdfText>
     <PdfText style={styles.stripe}>___________________________</PdfText>
@@ -103,24 +108,26 @@ const QrLabelSection = ({ qrCodeDataUri }: { qrCodeDataUri: string }) => (
       <Image src={qrCodeDataUri} style={styles.qrImage} />
     </View>
   </View>
-);
+)};
 
 const PdfPageWithFourQrCodes = ({
   groupOfFourQrCodeUris,
+  date
 }: {
   groupOfFourQrCodeUris: string[];
+  date: Date;
 }) => {
   // const groupsOfTwoQrCodeUris = chunk(groupOfFourQrCodeUris, 2);
   return (
     <Page wrap={false} size="A4" style={styles.page} orientation="portrait">
       {groupOfFourQrCodeUris.map((qrCodeDataUri, index) => {
-        return <QrLabelSection key={index} qrCodeDataUri={qrCodeDataUri} />;
+        return <QrLabelSection key={index} qrCodeDataUri={qrCodeDataUri} date={date} />;
       })}
     </Page>
   );
 };
 
-const MyDoc = (qrCodeDataUris: string[]) => {
+const MyDoc = (qrCodeDataUris: string[], date: Date) => {
   const groupsOfFourQrCodeUris = chunk(qrCodeDataUris, 4);
   return (
     <Document>
@@ -128,6 +135,7 @@ const MyDoc = (qrCodeDataUris: string[]) => {
         <PdfPageWithFourQrCodes
           groupOfFourQrCodeUris={groupOfFourQrCodeUris}
           key={index}
+          date={date}
         />
       ))}
     </Document>
@@ -183,7 +191,7 @@ const QRGenerator = ({ qrCodes }: QRCodeGeneratorProps) => {
   );
 };
 
-const AutomaticDownloadLink = ({ url }: { url: string }) => {
+const AutomaticDownloadLink = ({ url, date }: { url: string, date: Date }) => {
   const linkRef = useRef<HTMLAnchorElement>(null);
 
   useEffect(() => {
@@ -192,9 +200,7 @@ const AutomaticDownloadLink = ({ url }: { url: string }) => {
     }
   }, [url]);
 
-  var d = new Date();
-
-  var dateTimeString = `${d.getFullYear()}_${d.getMonth()}_${d.getDate()}__${d.getHours()}_${d.getMinutes()}_${d.getSeconds()}`;
+  const dateTimeString = `${date.getFullYear()}_${date.getMonth()}_${date.getDate()}__${date.getHours()}_${date.getMinutes()}_${date.getSeconds()}`;
 
   return (
     <a
@@ -209,8 +215,11 @@ const AutomaticDownloadLink = ({ url }: { url: string }) => {
 };
 
 const PdfGenerator = ({ qrCodeDataUris }: { qrCodeDataUris: string[] }) => {
+  
+  const date = new Date(); 
+  
   const [instance] = usePDF({
-    document: MyDoc(qrCodeDataUris),
+    document: MyDoc(qrCodeDataUris, date),
   });
 
   if (instance.loading) return <div>Loading ...</div>;
@@ -218,7 +227,7 @@ const PdfGenerator = ({ qrCodeDataUris }: { qrCodeDataUris: string[] }) => {
   if (instance.error) return <div>Something went wrong: {instance.error}</div>;
 
   if (instance.url != null) {
-    return <AutomaticDownloadLink url={instance.url} />;
+    return <AutomaticDownloadLink url={instance.url} date={date} />;
   }
 
   return <div>Loading...</div>;
