@@ -36,16 +36,19 @@ const styles = StyleSheet.create({
   page: {
     flexDirection: "row",
     backgroundColor: "white",
+    wrap: "overflow",
   },
-  sectionOfTwoLabels: {
-    flexDirection: "column",
-    margin: 10,
-    padding: 10,
-    // flexGrow: 1,
-  },
+  // sectionOfTwoLabels: {
+  //   flexDirection: "column",
+  //   margin: 10,
+  //   padding: 10,
+  //   // flexGrow: 1,
+  // },
   qrLabelSection: {
-    flex: "1", 
-  }, 
+    flex: "1",
+    minHeight: "250px", 
+    minWidth: "250px"
+  },
   logoImage: {
     width: "60px",
     height: "60px",
@@ -53,21 +56,19 @@ const styles = StyleSheet.create({
 });
 
 const QrLabelSection = ({ qrCodeDataUri }: { qrCodeDataUri: string }) => (
-  <View style={styles.sectionOfTwoLabels} debug={true}>
-    <View>
-      <PdfText>Box Number</PdfText>
-      <PdfText>Contents</PdfText>
-      <View style={{ flexDirection: "row" }}>
-        <PdfText>Gender</PdfText>
-        <PdfText>Size</PdfText>
+  <View style={styles.qrLabelSection} debug={true}>
+    <PdfText>Box Number</PdfText>
+    <PdfText>Contents</PdfText>
+    <View style={{ flexDirection: "row" }}>
+      <PdfText>Gender</PdfText>
+      <PdfText>Size</PdfText>
+    </View>
+    <View style={{ flexDirection: "row" }}>
+      <View style={{ flexDirection: "column" }}>
+        <PdfText>Number of items</PdfText>
+        <Image src={qrLabelBtLogo} style={styles.logoImage} />
       </View>
-      <View style={{ flexDirection: "row" }}>
-        <View style={{ flexDirection: "column" }}>
-          <PdfText>Number of items</PdfText>
-          <Image src={qrLabelBtLogo} style={styles.logoImage} />
-        </View>
-        <Image src={qrCodeDataUri} style={styles.logoImage} />
-      </View>
+      <Image src={qrCodeDataUri} style={styles.logoImage} />
     </View>
   </View>
 );
@@ -77,17 +78,11 @@ const PdfPageWithFourQrCodes = ({
 }: {
   groupOfFourQrCodeUris: string[];
 }) => {
-  const groupsOfTwoQrCodeUris = chunk(groupOfFourQrCodeUris, 2);
+  // const groupsOfTwoQrCodeUris = chunk(groupOfFourQrCodeUris, 2);
   return (
     <Page wrap={false} size="A4" style={styles.page} orientation="portrait">
-      {groupsOfTwoQrCodeUris.map((groupOfTwoQrCodeUris, index) => {
-        return (
-          <View style={styles.sectionOfTwoLabels}>
-            {groupOfTwoQrCodeUris.map((qrCodeDataUri, index) => (
-              <QrLabelSection key={index} qrCodeDataUri={qrCodeDataUri} />
-            ))}
-          </View>
-        );
+      {groupOfFourQrCodeUris.map((qrCodeDataUri, index) => {
+        return <QrLabelSection key={index} qrCodeDataUri={qrCodeDataUri} />;
       })}
     </Page>
   );
