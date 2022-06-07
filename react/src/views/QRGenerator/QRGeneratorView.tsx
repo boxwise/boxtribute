@@ -43,6 +43,9 @@ const styles = StyleSheet.create({
     padding: 10,
     // flexGrow: 1,
   },
+  qrLabelSection: {
+    flex: "1", 
+  }, 
   logoImage: {
     width: "60px",
     height: "60px",
@@ -50,7 +53,7 @@ const styles = StyleSheet.create({
 });
 
 const QrLabelSection = ({ qrCodeDataUri }: { qrCodeDataUri: string }) => (
-  <View style={{ flexDirection: "column" }}>
+  <View style={styles.sectionOfTwoLabels} debug={true}>
     <View>
       <PdfText>Box Number</PdfText>
       <PdfText>Contents</PdfText>
@@ -58,7 +61,7 @@ const QrLabelSection = ({ qrCodeDataUri }: { qrCodeDataUri: string }) => (
         <PdfText>Gender</PdfText>
         <PdfText>Size</PdfText>
       </View>
-      <View style={{ flexDirection: "row" }} debug={true}>
+      <View style={{ flexDirection: "row" }}>
         <View style={{ flexDirection: "column" }}>
           <PdfText>Number of items</PdfText>
           <Image src={qrLabelBtLogo} style={styles.logoImage} />
