@@ -1,56 +1,26 @@
 # GraphQL basic types as returned by queries and mutations, and input types for queries.
 
-# """
-# TODO: Give proper Description here
-# """
-# interface GenericTag {
-#   id: ID!
-#   name: String!
-#   description: String
-#   color: String!
-# }
-
 """
 TODO: Give proper Description here
 """
-# type BoxTag implements Tag {
-type BoxTag {
-  id: ID!
-  name: String!
-  description: String
-  color: String!
-  taggedResources: [Box!]!
+enum TagType {
+  ALL,
+  BOXES, 
+  BENEFICARIES
 }
 
 """
 TODO: Give proper Description here
 """
 # type BeneficiaryTag implements Tag {
-type BoxAndBeneficaryTag {
+type Tag {
   id: ID!
   name: String!
   description: String
   color: String!
+  tagType: TagType!
   taggedResources: [TaggableResource!]!
 }
-
-"""
-TODO: Give proper Description here
-"""
-# type BeneficiaryTag implements Tag {
-type BeneficaryTag {
-  id: ID!
-  name: String!
-  description: String
-  color: String!
-  taggedResources: [Beneficiary!]!
-}
-
-"""
-TODO: Give proper Description here
-"""
-union Tag = BoxTag | BeneficaryTag | BoxAndBeneficaryTag
-
 
 
 """
@@ -60,7 +30,6 @@ interface TaggableResource {
   id: ID!
   tags: [Tag!]!
 }
-
 
 """
 Representation of a box storing items of a [`Product`]({{Types.Product}}) in a [`Location`]({{Types.Location}})
