@@ -1,4 +1,18 @@
 type Query {
+
+  """
+  TODO: Give proper Description here
+  """
+  tags: [Tag!]!
+  """
+  TODO: Give proper Description here
+  """
+  beneficiaryTags: [BeneficiaryTag!]!
+  """
+  TODO: Give proper Description here
+  """
+  boxTags: [BoxTag!]!
+
   " Return all [`Bases`]({{Types.Base}}) that the client is authorized to view. "
   bases: [Base!]!
   base(id: ID!): Base
