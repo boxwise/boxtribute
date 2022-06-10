@@ -1,6 +1,6 @@
 import { gql, useQuery } from "@apollo/client";
 import { BoxesForBaseQuery } from "../../types/generated/graphql";
-import { useParams } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import BoxesTable from "./components/BoxesTable";
 
 export const BOXES_FOR_BASE_QUERY = gql`
@@ -42,12 +42,16 @@ const graphqlToTableTransformer = (
         items: element.items,
         size: element.size,
         state: element.state,
-        location: element.location?.name
+        location: element.location?.name,
       })) || []
   ) || [];
 
 const Boxes = () => {
-  const baseId = useParams<{ baseId: string }>().baseId;
+  const navigate = useNavigate();
+  const baseId = useParams<{ baseId: string }>().baseId!;
+
+  const onBoxesRowClick = (labelIdentifier: string) =>
+    navigate(`/bases/${baseId}/boxes/${labelIdentifier}`);
 
   const { loading, error, data } = useQuery<BoxesForBaseQuery>(
     BOXES_FOR_BASE_QUERY,
@@ -67,7 +71,7 @@ const Boxes = () => {
 
   const tableData = graphqlToTableTransformer(data);
 
-  return <BoxesTable tableData={tableData} />;
+  return <BoxesTable tableData={tableData} onBoxRowClick={onBoxesRowClick} />;
 };
 
 export default Boxes;
