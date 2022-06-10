@@ -1,6 +1,38 @@
 # GraphQL basic types as returned by queries and mutations, and input types for queries.
 
 """
+TODO: Give proper Description here
+"""
+interface Tag {
+  id: ID!
+  name: String!
+  description: String
+  color: String!
+}
+
+type BoxTag implements Tag {
+  id: ID!
+  name: String!
+  description: String
+  color: String!
+  boxes: [Box!]!
+}
+
+type BeneficiaryTag implements Tag {
+  id: ID!
+  name: String!
+  description: String
+  color: String!
+  beneficiaries: [Beneficiary!]!
+}
+
+"""
+TODO: Give proper Description here
+"""
+union Tag = BoxTag | BeneficaryTag
+
+
+"""
 Representation of a box storing items of a [`Product`]({{Types.Product}}) in a [`Location`]({{Types.Location}})
 """
 type Box {
@@ -20,6 +52,7 @@ type Box {
   lastModifiedBy: User
   lastModifiedOn: Datetime
   comment: String
+  tags: [BoxTag!]!
 }
 
 """
@@ -224,6 +257,7 @@ type Beneficiary {
   createdOn: Datetime
   lastModifiedBy: User
   lastModifiedOn: Datetime
+  tags: [BeneficaryTag!]!
 }
 
 """
