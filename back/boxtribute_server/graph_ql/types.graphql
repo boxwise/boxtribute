@@ -149,14 +149,24 @@ type DistributionSpot implements HasGeoLocation {
   latitude: Float!
   longitude: Float!
 
+  distributionEvents: [DistributionEvent!]!
+
   # To sketch out / for later
   statistics: DistributionSpotStatistics!
 }
 
-type DistributionEvent implements HasBoxes {
+type DistributionEvent implements HasBoxes, UnboxedItemsCollection {
   id: ID!
   base: Base
   name: String
+
+  # TODO: Think about copying entries from last distro events
+  # TODO: extend schema so it supports also planning/packing lists
+
+  # Consider: supporting cohortes here (so group of beneficiaries, which are not all individually tracked)
+
+  # To sketch out / for later (e.g. making the Coordinator in charge explicit)
+  involvedVolunteers: [User!]!
   dateTime: DateTime!
   distributionSpot: DistributionSpot
   " List of all the [`Boxes`]({{Types.Box}}) in this location "
