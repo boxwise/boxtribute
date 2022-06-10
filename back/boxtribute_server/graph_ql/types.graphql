@@ -183,6 +183,15 @@ type DistributionEvent implements BoxPlace, UnboxedItemsCollectionPlace {
   lastModifiedOn: Datetime
 }
 
+
+union KnownExternalStockOrigin = CommercialStockOrigin | Donor
+
+union ExternalStockOrigin = KnownExternalStockOrigin | UnknownExternalStockOrigin
+
+
+
+
+
 # union StockXXXX = Box | UnboxedItemsCollection
 # union StockStore = Location | MobileDistribution
 
