@@ -30,6 +30,7 @@
     "regenerator-runtime": "^0.13.9"
   },
   "devDependencies": {
+    "@chakra-ui/storybook-addon": "^4.0.1",
     "@craco/craco": "^6.4.3",
     "@graphql-codegen/cli": "2.6.2",
     "@graphql-codegen/typescript": "^2.4.7",
