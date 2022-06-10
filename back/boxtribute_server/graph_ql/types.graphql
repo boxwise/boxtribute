@@ -3,7 +3,7 @@
 """
 Representation of a box storing items of a [`Product`]({{Types.Product}}) in a [`Location`]({{Types.Location}})
 """
-type Box {
+type Box implements HasItems {
   id: ID!
   " Sequence of numbers for identifying the box, usually written on box label "
   labelIdentifier: String!
@@ -100,6 +100,9 @@ enum BoxState {
   Received
   Donated
   Scrap
+  PreparedForDistribution
+  OnDistribution
+  ReturnedFromDistribution
 }
 
 """
@@ -112,11 +115,66 @@ type SizeRange {
   productCategory: [ProductCategory!]
 }
 
+
+interface HasItems {
+  items: Int!
+  product: Product
+  # Size field needs to be reconsidered - related to the parallel size discussion
+  size: String
+}
+
+interface HasBoxes {
+  boxes(paginationInput: PaginationInput, filterInput: FilterBoxInput): BoxPage
+}
+
+type UnboxedItemsCollection implements HasItems {
+  id: ID!
+  name: String
+  items: Int!
+  product: Product
+  # Size field needs to be reconsidered - related to the parallel size discussion
+  size: String
+}
+
+
+interface HasGeoLocation {
+  latitude: Float!
+  longitude: Float!
+}
+
+type DistributionSpot implements HasGeoLocation {
+  id: ID!
+  name: String!
+  description: String!
+  latitude: Float!
+  longitude: Float!
+
+  # To sketch out / for later
+  statistics: DistributionSpotStatistics!
+}
+
+type DistributionEvent implements HasBoxes {
+  id: ID!
+  base: Base
+  name: String
+  dateTime: DateTime!
+  distributionSpot: DistributionSpot
+  " List of all the [`Boxes`]({{Types.Box}}) in this location "
+  boxes(paginationInput: PaginationInput, filterInput: FilterBoxInput): BoxPage
+  " Default state for boxes in this location "
+  unboxedItemsCollections: [UnboxedItemsCollection!]!
+  # defaultBoxState: BoxState
+  createdBy: User
+  createdOn: Datetime
+  lastModifiedBy: User
+  lastModifiedOn: Datetime
+}
+
 """
 Representation of a physical location used to store [`Boxes`]({{Types.Box}}).
 The location is part of a specific [`Base`]({{Types.Base}}).
 """
-type Location {
+type Location implements HasBoxes {
   id: ID!
   base: Base
   name: String
