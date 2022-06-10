@@ -12,7 +12,7 @@ type Box implements HasItems {
   product: Product
   # A size from a size range, consider making this enum
   size: String
-  items: Int!
+  numberOfItems: Int!
   state: BoxState!
   qrCode: QrCode
   createdBy: User
@@ -116,26 +116,29 @@ type SizeRange {
 }
 
 
-interface HasItems {
+interface ItemsCollection {
   product: Product
   # Size field needs to be reconsidered - related to the parallel size discussion
   size: String
-  items: Int!
+  numberOfItems: Int!
+}
+
+type UnboxedItemsCollection implements ItemsCollection {
+  id: ID!
+  product: Product
+  # Size field needs to be reconsidered - related to the parallel size discussion
+  size: String
+  numberOfItems: Int!
+  label: String
+}
+
+interface UnboxedItemsPlace {
+  unboxedItemsCollections: [UnboxedItemsCollection!]!
 }
 
 interface BoxPlace {
   boxes(paginationInput: PaginationInput, filterInput: FilterBoxInput): BoxPage
 }
-
-type UnboxedItemsCollection implements HasItems {
-  id: ID!
-  product: Product
-  # Size field needs to be reconsidered - related to the parallel size discussion
-  size: String
-  items: Int!
-  label: String
-}
-
 
 interface HasGeoLocation {
   latitude: Float!
@@ -155,7 +158,7 @@ type DistributionSpot implements HasGeoLocation {
   statistics: DistributionSpotStatistics!
 }
 
-type DistributionEvent implements BoxPlace, UnboxedItemsCollection {
+type DistributionEvent implements BoxPlace, UnboxedItemsPlace {
   id: ID!
   base: Base
   name: String
@@ -187,7 +190,7 @@ type DistributionEvent implements BoxPlace, UnboxedItemsCollection {
 Representation of a physical location used to store [`Boxes`]({{Types.Box}}).
 The location is part of a specific [`Base`]({{Types.Base}}).
 """
-type Location implements HasPlace {
+type Location implements BoxPlace {
   id: ID!
   base: Base
   name: String
