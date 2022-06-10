@@ -34,6 +34,16 @@
     "@graphql-codegen/cli": "2.6.2",
     "@graphql-codegen/typescript": "^2.4.7",
     "@graphql-codegen/typescript-operations": "^2.3.4",
+    "@storybook/addon-actions": "^6.5.8",
+    "@storybook/addon-essentials": "^6.5.8",
+    "@storybook/addon-interactions": "^6.5.8",
+    "@storybook/addon-links": "^6.5.8",
+    "@storybook/builder-webpack5": "^6.5.8",
+    "@storybook/manager-webpack5": "^6.5.8",
+    "@storybook/node-logger": "^6.5.8",
+    "@storybook/preset-create-react-app": "^4.1.2",
+    "@storybook/react": "^6.5.8",
+    "@storybook/testing-library": "^0.0.12",
     "@testing-library/jest-dom": "^5.14.1",
     "@testing-library/react": "^12.1.2",
     "@testing-library/user-event": "^14.0.4",
@@ -42,6 +52,7 @@
     "@types/react-router-dom": "^5.3.1",
     "@types/react-table": "^7.7.9",
     "autoprefixer": "^10.3.7",
+    "babel-plugin-named-exports-order": "^0.0.2",
     "eslint-config-airbnb": "^19.0.4",
     "eslint-config-prettier": "^8.3.0",
     "eslint-plugin-jsx-a11y": "^6.4.1",
@@ -49,7 +60,9 @@
     "eslint-plugin-react-hooks": "^4.5.0",
     "mutationobserver-shim": "^0.3.7",
     "prettier": "^2.4.1",
-    "typescript": "^4.4.4"
+    "prop-types": "^15.8.1",
+    "typescript": "^4.4.4",
+    "webpack": "^5.73.0"
   },
   "scripts": {
     "generate-graphql-ts-types": "graphql-codegen --config codegen.yml",
@@ -61,10 +74,22 @@
     "eject": "react-scripts eject",
     "lint": "eslint . --fix",
     "format:check": "prettier --check \"src/**/*.{js,jsx,json,scss,md,ts,tsx}\"",
-    "format:write": "prettier --write \"src/**/*.{js,jsx,json,scss,md,ts,tsx}\""
+    "format:write": "prettier --write \"src/**/*.{js,jsx,json,scss,md,ts,tsx}\"",
+    "storybook": "start-storybook -p 6006 -s public",
+    "build-storybook": "build-storybook -s public"
   },
   "eslintConfig": {
-    "extends": "react-app"
+    "extends": "react-app",
+    "overrides": [
+      {
+        "files": [
+          "**/*.stories.*"
+        ],
+        "rules": {
+          "import/no-anonymous-default-export": "off"
+        }
+      }
+    ]
   },
   "browserslist": {
     "production": [
