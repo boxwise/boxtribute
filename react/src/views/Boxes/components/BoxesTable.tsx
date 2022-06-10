@@ -27,19 +27,17 @@ import {
   useRowSelect,
   usePagination,
 } from "react-table";
-import { ProductRow as BoxRow } from "./types";
+import { BoxRow } from "./types";
 import { GlobalFilter } from "./GlobalFilter";
 import { SelectColumnFilter } from "./SelectColumnFilter";
-import { useNavigate, useParams } from "react-router-dom";
 import IndeterminateCheckbox from "./Checkbox";
 
 type BoxesTableProps = {
   tableData: BoxRow[];
+  onBoxRowClick: (labelIdentified: string) => void;
 };
 
-const BoxesTable = ({ tableData }: BoxesTableProps) => {
-  const navigate = useNavigate();
-  const baseId = useParams<{ baseId: string }>().baseId!;
+const BoxesTable = ({ tableData, onBoxRowClick }: BoxesTableProps) => {
   const columns: Column<BoxRow>[] = React.useMemo(
     () => [
       {
@@ -173,11 +171,7 @@ const BoxesTable = ({ tableData }: BoxesTableProps) => {
               <Tr
                 cursor="pointer"
                 {...row.getRowProps()}
-                onClick={() =>
-                  navigate(
-                    `/bases/${baseId}/boxes/${row.original.labelIdentifier}`
-                  )
-                }
+                onClick={() => onBoxRowClick(row.original.labelIdentifier)}
                 key={i}
               >
                 {row.cells.map((cell, i) => {

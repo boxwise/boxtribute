@@ -1,4 +1,4 @@
-export type ProductRow = {
+export type BoxRow = {
     id: string;
     labelIdentifier: string;
     name?: string;
@@ -8,6 +8,3 @@ export type ProductRow = {
     location?: string | null;
     state: string;
   };
-
-  
-  
