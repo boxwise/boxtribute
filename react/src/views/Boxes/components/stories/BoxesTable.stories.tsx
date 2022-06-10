@@ -33,3 +33,9 @@ Default.args = {
   tableData: boxesTableDataMock,
   onBoxRowClick: action(`boxRowClick for Box`),
 }
+
+export const NoData = Template.bind({});
+NoData.args = {
+  tableData: [],
+  onBoxRowClick: action(`boxRowClick for Box`),
+}
