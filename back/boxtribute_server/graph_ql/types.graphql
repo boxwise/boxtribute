@@ -132,7 +132,7 @@ type UnboxedItemsCollection implements ItemsCollection {
   label: String
 }
 
-interface UnboxedItemsPlace {
+interface UnboxedItemsCollectionPlace {
   unboxedItemsCollections: [UnboxedItemsCollection!]!
 }
 
@@ -158,7 +158,7 @@ type DistributionSpot implements HasGeoLocation {
   statistics: DistributionSpotStatistics!
 }
 
-type DistributionEvent implements BoxPlace, UnboxedItemsPlace {
+type DistributionEvent implements BoxPlace, UnboxedItemsCollectionPlace {
   id: ID!
   base: Base
   name: String
