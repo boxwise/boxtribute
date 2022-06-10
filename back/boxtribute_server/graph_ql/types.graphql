@@ -185,9 +185,9 @@ type DistributionEvent implements BoxPlace, UnboxedItemsCollectionPlace {
 
 
 
+interface 
 
-union KnownExternalStockOrigin = CommercialStockOrigin | Donor
-union ExternalStockOrigin = KnownExternalStockOrigin | UnknownExternalStockOrigin
+union ExternalStockOrigin = Donor | CommercialStockOrigin | UnknownExternalStockOrigin
 
 union ExternalStockTarget = Beneficiary | DistributionSpot
 
