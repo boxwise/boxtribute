@@ -124,7 +124,7 @@ const BoxesTable = ({ tableData, onBoxRowClick }: BoxesTableProps) => {
 
     // const hiddenColumns = ["labelIdentifier","gender","items","state","location"];
 
-    const finalSelectedColumns = columns.filter(column => column.Header != null && selectedColumns.map(col => col.value).includes(column.accessor));
+    const finalSelectedColumns = columns.filter(column => column.accessor != null && selectedColumns.map(col => col.value).includes(column.accessor.toString()));
 
   return (
     <>
@@ -139,7 +139,7 @@ const BoxesTable = ({ tableData, onBoxRowClick }: BoxesTableProps) => {
           placeholder="Select some colors..."
           closeMenuOnSelect={false}
           onChange={(selected) => {
-            setSelectedColumns(selected);
+            setSelectedColumns(prev => selected.length > 0 ? selected : prev);
           }}
           value={selectedColumns}
           size="sm"
@@ -150,6 +150,7 @@ const BoxesTable = ({ tableData, onBoxRowClick }: BoxesTableProps) => {
       <Box>selectedColumns: {JSON.stringify(selectedColumns)}</Box>
       <Box>Final Selected Columns: {JSON.stringify(finalSelectedColumns)}</Box>
       <ActualTable
+        // show={selectedColumns.length > 0}
         columns={finalSelectedColumns}
         tableData={tableData}
         onBoxRowClick={onBoxRowClick}
@@ -162,14 +163,14 @@ const BoxesTable = ({ tableData, onBoxRowClick }: BoxesTableProps) => {
 
 interface ActualTableProps {
   columns: Column<BoxRow>[];
+  show?: boolean;
   tableData: BoxRow[];
   onBoxRowClick: (labelIdentified: string) => void;
   hiddenColumns: string[];
 }
-const ActualTable = ({ columns, tableData, onBoxRowClick, hiddenColumns }: ActualTableProps) => {
+const ActualTable = ({ show = true, columns, tableData, onBoxRowClick, hiddenColumns }: ActualTableProps) => {
   const {
     headerGroups,
-
     prepareRow,
     state: { globalFilter, pageIndex },
     setGlobalFilter,
@@ -228,6 +229,10 @@ const ActualTable = ({ columns, tableData, onBoxRowClick, hiddenColumns }: Actua
   //       .filter((value) => value !== undefined),
   //   },
   // ];
+  if(!show) {
+    return (<></>)
+  }
+
   return (
     <>
       <Flex alignItems="center" flexWrap="wrap">
