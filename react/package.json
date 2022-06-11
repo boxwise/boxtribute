@@ -54,6 +54,7 @@
     "@types/react-table": "^7.7.9",
     "autoprefixer": "^10.3.7",
     "babel-plugin-named-exports-order": "^0.0.2",
+    "chromatic": "^6.5.6",
     "eslint-config-airbnb": "^19.0.4",
     "eslint-config-prettier": "^8.3.0",
     "eslint-plugin-jsx-a11y": "^6.4.1",
@@ -66,6 +67,7 @@
     "webpack": "^5.73.0"
   },
   "scripts": {
+    "chromatic": "npx chromatic --project-token=2763da0ce36c",
     "generate-graphql-ts-types": "graphql-codegen --config codegen.yml",
     "build": "yarn generate-graphql-ts-types && react-scripts build",
     "start": "yarn build && yarn generate-graphql-ts-types --watch & craco start",
