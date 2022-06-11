@@ -2,6 +2,7 @@ import { gql, useQuery } from "@apollo/client";
 import { BoxesForBaseQuery } from "../../types/generated/graphql";
 import { useNavigate, useParams } from "react-router-dom";
 import BoxesTable from "./components/BoxesTable";
+import { BoxRow } from "./components/types";
 
 export const BOXES_FOR_BASE_QUERY = gql`
   query BoxesForBase($baseId: ID!) {
@@ -35,7 +36,7 @@ const graphqlToTableTransformer = (
   boxesQueryResult?.base?.locations?.flatMap(
     (location) =>
       location?.boxes?.elements.map((element) => ({
-        name: element.product?.name,
+        productName: element.product?.name,
         id: element.id,
         labelIdentifier: element.labelIdentifier,
         gender: element.product?.gender,
@@ -43,7 +44,7 @@ const graphqlToTableTransformer = (
         size: element.size,
         state: element.state,
         location: element.location?.name,
-      })) || []
+      } as BoxRow)) || []
   ) || [];
 
 const Boxes = () => {

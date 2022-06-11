@@ -1,6 +1,6 @@
 export const boxesTableDataMock = [
   {
-    name: "Leggings",
+    productName: "Leggings",
     id: "95",
     labelIdentifier: "930956",
     gender: "Boy",
@@ -10,7 +10,7 @@ export const boxesTableDataMock = [
     location: "LOST",
   },
   {
-    name: "baby towels",
+    productName: "baby towels",
     id: "105",
     labelIdentifier: "264393",
     gender: "UnisexBaby",
@@ -20,7 +20,7 @@ export const boxesTableDataMock = [
     location: "LOST",
   },
   {
-    name: "Duvet",
+    productName: "Duvet",
     id: "132",
     labelIdentifier: "322526",
     gender: "none",
@@ -30,7 +30,7 @@ export const boxesTableDataMock = [
     location: "LOST",
   },
   {
-    name: "Shampoo",
+    productName: "Shampoo",
     id: "143",
     labelIdentifier: "695326",
     gender: "none",
@@ -40,7 +40,7 @@ export const boxesTableDataMock = [
     location: "LOST",
   },
   {
-    name: "Onesie thick",
+    productName: "Onesie thick",
     id: "145",
     labelIdentifier: "824368",
     gender: "UnisexBaby",
@@ -50,7 +50,7 @@ export const boxesTableDataMock = [
     location: "LOST",
   },
   {
-    name: "WD BLANKETS",
+    productName: "WD BLANKETS",
     id: "151",
     labelIdentifier: "619255",
     gender: "none",
@@ -60,7 +60,7 @@ export const boxesTableDataMock = [
     location: "LOST",
   },
   {
-    name: "Shoes",
+    productName: "Shoes",
     id: "164",
     labelIdentifier: "749073",
     gender: "UnisexKid",
@@ -70,7 +70,7 @@ export const boxesTableDataMock = [
     location: "LOST",
   },
   {
-    name: "Socks",
+    productName: "Socks",
     id: "166",
     labelIdentifier: "161451",
     gender: "UnisexKid",
@@ -80,7 +80,7 @@ export const boxesTableDataMock = [
     location: "LOST",
   },
   {
-    name: "Shortsleeve",
+    productName: "Shortsleeve",
     id: "196",
     labelIdentifier: "146657",
     gender: "Women",
@@ -90,7 +90,7 @@ export const boxesTableDataMock = [
     location: "LOST",
   },
   {
-    name: "Summer hats",
+    productName: "Summer hats",
     id: "206",
     labelIdentifier: "511544",
     gender: "UnisexBaby",
@@ -100,7 +100,7 @@ export const boxesTableDataMock = [
     location: "LOST",
   },
   {
-    name: "Soap",
+    productName: "Soap",
     id: "213",
     labelIdentifier: "281699",
     gender: "none",
@@ -110,7 +110,7 @@ export const boxesTableDataMock = [
     location: "LOST",
   },
   {
-    name: "Trousers ",
+    productName: "Trousers ",
     id: "215",
     labelIdentifier: "512516",
     gender: "UnisexKid",
@@ -120,7 +120,7 @@ export const boxesTableDataMock = [
     location: "LOST",
   },
   {
-    name: "Summer hats",
+    productName: "Summer hats",
     id: "218",
     labelIdentifier: "119373",
     gender: "Boy",
@@ -130,7 +130,7 @@ export const boxesTableDataMock = [
     location: "LOST",
   },
   {
-    name: "Flour (1kg)",
+    productName: "Flour (1kg)",
     id: "242",
     labelIdentifier: "848787",
     gender: "none",
@@ -140,7 +140,7 @@ export const boxesTableDataMock = [
     location: "LOST",
   },
   {
-    name: "Soap",
+    productName: "Soap",
     id: "268",
     labelIdentifier: "792558",
     gender: "none",
@@ -150,7 +150,7 @@ export const boxesTableDataMock = [
     location: "LOST",
   },
   {
-    name: "Underwear",
+    productName: "Underwear",
     id: "288",
     labelIdentifier: "810354",
     gender: "Men",
@@ -160,7 +160,7 @@ export const boxesTableDataMock = [
     location: "LOST",
   },
   {
-    name: "Winter hats",
+    productName: "Winter hats",
     id: "298",
     labelIdentifier: "173094",
     gender: "Men",
@@ -170,7 +170,7 @@ export const boxesTableDataMock = [
     location: "LOST",
   },
   {
-    name: "Tights",
+    productName: "Tights",
     id: "309",
     labelIdentifier: "189496",
     gender: "UnisexKid",
@@ -180,7 +180,7 @@ export const boxesTableDataMock = [
     location: "LOST",
   },
   {
-    name: "Washing powder",
+    productName: "Washing powder",
     id: "316",
     labelIdentifier: "178058",
     gender: "none",
@@ -190,7 +190,7 @@ export const boxesTableDataMock = [
     location: "LOST",
   },
   {
-    name: "baby scarves",
+    productName: "baby scarves",
     id: "318",
     labelIdentifier: "850888",
     gender: "UnisexBaby",
@@ -200,7 +200,7 @@ export const boxesTableDataMock = [
     location: "LOST",
   },
   {
-    name: "Sanitary pads",
+    productName: "Sanitary pads",
     id: "319",
     labelIdentifier: "562650",
     gender: "none",
@@ -210,7 +210,7 @@ export const boxesTableDataMock = [
     location: "LOST",
   },
   {
-    name: "Jumper",
+    productName: "Jumper",
     id: "324",
     labelIdentifier: "624148",
     gender: "Women",
@@ -220,7 +220,7 @@ export const boxesTableDataMock = [
     location: "LOST",
   },
   {
-    name: "Beans (400g)",
+    productName: "Beans (400g)",
     id: "343",
     labelIdentifier: "497877",
     gender: "none",
@@ -230,7 +230,7 @@ export const boxesTableDataMock = [
     location: "LOST",
   },
   {
-    name: "baby gloves",
+    productName: "baby gloves",
     id: "371",
     labelIdentifier: "942820",
     gender: "UnisexBaby",
@@ -240,7 +240,7 @@ export const boxesTableDataMock = [
     location: "LOST",
   },
   {
-    name: "Razors",
+    productName: "Razors",
     id: "380",
     labelIdentifier: "790817",
     gender: "none",
@@ -250,7 +250,7 @@ export const boxesTableDataMock = [
     location: "LOST",
   },
   {
-    name: "Duvet",
+    productName: "Duvet",
     id: "381",
     labelIdentifier: "362446",
     gender: "none",
@@ -260,7 +260,7 @@ export const boxesTableDataMock = [
     location: "LOST",
   },
   {
-    name: "baby socks",
+    productName: "baby socks",
     id: "386",
     labelIdentifier: "530171",
     gender: "UnisexBaby",
@@ -270,7 +270,7 @@ export const boxesTableDataMock = [
     location: "LOST",
   },
   {
-    name: "Adult diapers",
+    productName: "Adult diapers",
     id: "387",
     labelIdentifier: "553355",
     gender: "UnisexAdult",
@@ -280,7 +280,7 @@ export const boxesTableDataMock = [
     location: "LOST",
   },
   {
-    name: "Longsleeve",
+    productName: "Longsleeve",
     id: "395",
     labelIdentifier: "210015",
     gender: "Boy",
@@ -290,7 +290,7 @@ export const boxesTableDataMock = [
     location: "LOST",
   },
   {
-    name: "Onesie thin",
+    productName: "Onesie thin",
     id: "406",
     labelIdentifier: "494945",
     gender: "UnisexBaby",
@@ -300,7 +300,7 @@ export const boxesTableDataMock = [
     location: "LOST",
   },
   {
-    name: "Jacket Thick",
+    productName: "Jacket Thick",
     id: "419",
     labelIdentifier: "762258",
     gender: "Men",
@@ -310,7 +310,7 @@ export const boxesTableDataMock = [
     location: "LOST",
   },
   {
-    name: "Jumper Thin",
+    productName: "Jumper Thin",
     id: "455",
     labelIdentifier: "223807",
     gender: "Girl",
@@ -320,7 +320,7 @@ export const boxesTableDataMock = [
     location: "LOST",
   },
   {
-    name: "WD BABY CLOTHES",
+    productName: "WD BABY CLOTHES",
     id: "457",
     labelIdentifier: "998797",
     gender: "none",
@@ -330,7 +330,7 @@ export const boxesTableDataMock = [
     location: "LOST",
   },
   {
-    name: "Jumper Thick",
+    productName: "Jumper Thick",
     id: "470",
     labelIdentifier: "980742",
     gender: "Girl",
@@ -340,7 +340,7 @@ export const boxesTableDataMock = [
     location: "LOST",
   },
   {
-    name: "Leggings",
+    productName: "Leggings",
     id: "471",
     labelIdentifier: "151120",
     gender: "Boy",
@@ -350,7 +350,7 @@ export const boxesTableDataMock = [
     location: "LOST",
   },
   {
-    name: "Diapers Size 5",
+    productName: "Diapers Size 5",
     id: "474",
     labelIdentifier: "142618",
     gender: "none",
@@ -360,7 +360,7 @@ export const boxesTableDataMock = [
     location: "LOST",
   },
   {
-    name: "Socks",
+    productName: "Socks",
     id: "476",
     labelIdentifier: "553928",
     gender: "Women",
@@ -370,7 +370,7 @@ export const boxesTableDataMock = [
     location: "LOST",
   },
   {
-    name: "Washing powder",
+    productName: "Washing powder",
     id: "488",
     labelIdentifier: "454330",
     gender: "none",
@@ -380,7 +380,7 @@ export const boxesTableDataMock = [
     location: "LOST",
   },
   {
-    name: "Flour (1kg)",
+    productName: "Flour (1kg)",
     id: "489",
     labelIdentifier: "763294",
     gender: "none",
@@ -390,7 +390,7 @@ export const boxesTableDataMock = [
     location: "LOST",
   },
   {
-    name: "Baby Onesie ",
+    productName: "Baby Onesie ",
     id: "494",
     labelIdentifier: "744347",
     gender: "UnisexBaby",
@@ -400,7 +400,7 @@ export const boxesTableDataMock = [
     location: "LOST",
   },
   {
-    name: "Diapers Size 5",
+    productName: "Diapers Size 5",
     id: "497",
     labelIdentifier: "291758",
     gender: "none",
@@ -410,7 +410,7 @@ export const boxesTableDataMock = [
     location: "LOST",
   },
   {
-    name: "Blanket",
+    productName: "Blanket",
     id: "523",
     labelIdentifier: "218908",
     gender: "none",
@@ -420,7 +420,7 @@ export const boxesTableDataMock = [
     location: "LOST",
   },
   {
-    name: "Bags",
+    productName: "Bags",
     id: "539",
     labelIdentifier: "700825",
     gender: "none",
@@ -430,7 +430,7 @@ export const boxesTableDataMock = [
     location: "LOST",
   },
   {
-    name: "WD GLOVES",
+    productName: "WD GLOVES",
     id: "575",
     labelIdentifier: "790388",
     gender: "none",
@@ -440,7 +440,7 @@ export const boxesTableDataMock = [
     location: "LOST",
   },
   {
-    name: "WD JACKET",
+    productName: "WD JACKET",
     id: "581",
     labelIdentifier: "747257",
     gender: "none",
@@ -450,7 +450,7 @@ export const boxesTableDataMock = [
     location: "LOST",
   },
   {
-    name: "baby towels",
+    productName: "baby towels",
     id: "599",
     labelIdentifier: "814449",
     gender: "UnisexBaby",
@@ -460,7 +460,7 @@ export const boxesTableDataMock = [
     location: "LOST",
   },
   {
-    name: "Socks",
+    productName: "Socks",
     id: "604",
     labelIdentifier: "908444",
     gender: "Girl",
@@ -470,7 +470,7 @@ export const boxesTableDataMock = [
     location: "LOST",
   },
   {
-    name: "Jacket Thin",
+    productName: "Jacket Thin",
     id: "649",
     labelIdentifier: "924582",
     gender: "Boy",
@@ -480,7 +480,7 @@ export const boxesTableDataMock = [
     location: "LOST",
   },
   {
-    name: "Bottom",
+    productName: "Bottom",
     id: "668",
     labelIdentifier: "186654",
     gender: "UnisexBaby",
@@ -490,7 +490,7 @@ export const boxesTableDataMock = [
     location: "LOST",
   },
   {
-    name: "Summer hats",
+    productName: "Summer hats",
     id: "701",
     labelIdentifier: "444866",
     gender: "UnisexBaby",
@@ -500,7 +500,7 @@ export const boxesTableDataMock = [
     location: "LOST",
   },
   {
-    name: "Socks",
+    productName: "Socks",
     id: "2",
     labelIdentifier: "703346",
     gender: "Women",
@@ -510,7 +510,7 @@ export const boxesTableDataMock = [
     location: "SCRAP",
   },
   {
-    name: "Sweatpants",
+    productName: "Sweatpants",
     id: "6",
     labelIdentifier: "908238",
     gender: "Boy",
@@ -520,7 +520,7 @@ export const boxesTableDataMock = [
     location: "SCRAP",
   },
   {
-    name: "Pasta (500g)",
+    productName: "Pasta (500g)",
     id: "23",
     labelIdentifier: "304023",
     gender: "none",
@@ -530,7 +530,7 @@ export const boxesTableDataMock = [
     location: "SCRAP",
   },
   {
-    name: "Baby carrier",
+    productName: "Baby carrier",
     id: "25",
     labelIdentifier: "137560",
     gender: "UnisexBaby",
@@ -540,7 +540,7 @@ export const boxesTableDataMock = [
     location: "SCRAP",
   },
   {
-    name: "Snowsuit",
+    productName: "Snowsuit",
     id: "26",
     labelIdentifier: "841518",
     gender: "Boy",
@@ -550,7 +550,7 @@ export const boxesTableDataMock = [
     location: "SCRAP",
   },
   {
-    name: "Shampoo",
+    productName: "Shampoo",
     id: "45",
     labelIdentifier: "414391",
     gender: "none",
@@ -560,7 +560,7 @@ export const boxesTableDataMock = [
     location: "SCRAP",
   },
   {
-    name: "Diapers Size 3",
+    productName: "Diapers Size 3",
     id: "56",
     labelIdentifier: "661120",
     gender: "none",
@@ -570,7 +570,7 @@ export const boxesTableDataMock = [
     location: "SCRAP",
   },
   {
-    name: "Tarps",
+    productName: "Tarps",
     id: "78",
     labelIdentifier: "762791",
     gender: "none",
@@ -580,7 +580,7 @@ export const boxesTableDataMock = [
     location: "SCRAP",
   },
   {
-    name: "Folding Beds",
+    productName: "Folding Beds",
     id: "82",
     labelIdentifier: "604360",
     gender: "none",
@@ -590,7 +590,7 @@ export const boxesTableDataMock = [
     location: "SCRAP",
   },
   {
-    name: "Jumper Thick",
+    productName: "Jumper Thick",
     id: "88",
     labelIdentifier: "494670",
     gender: "Girl",
@@ -600,7 +600,7 @@ export const boxesTableDataMock = [
     location: "SCRAP",
   },
   {
-    name: "Pasta (500g)",
+    productName: "Pasta (500g)",
     id: "92",
     labelIdentifier: "413142",
     gender: "none",
@@ -610,7 +610,7 @@ export const boxesTableDataMock = [
     location: "SCRAP",
   },
   {
-    name: "WD JACKET",
+    productName: "WD JACKET",
     id: "103",
     labelIdentifier: "886780",
     gender: "none",
@@ -620,7 +620,7 @@ export const boxesTableDataMock = [
     location: "SCRAP",
   },
   {
-    name: "Trousers",
+    productName: "Trousers",
     id: "139",
     labelIdentifier: "998332",
     gender: "Women",
@@ -630,7 +630,7 @@ export const boxesTableDataMock = [
     location: "SCRAP",
   },
   {
-    name: "Toothpaste",
+    productName: "Toothpaste",
     id: "221",
     labelIdentifier: "679276",
     gender: "none",
@@ -640,7 +640,7 @@ export const boxesTableDataMock = [
     location: "SCRAP",
   },
   {
-    name: "Sleeping Mats (UNHCR)",
+    productName: "Sleeping Mats (UNHCR)",
     id: "228",
     labelIdentifier: "525446",
     gender: "none",
@@ -650,7 +650,7 @@ export const boxesTableDataMock = [
     location: "SCRAP",
   },
   {
-    name: "Blanket",
+    productName: "Blanket",
     id: "246",
     labelIdentifier: "934710",
     gender: "none",
@@ -660,7 +660,7 @@ export const boxesTableDataMock = [
     location: "SCRAP",
   },
   {
-    name: "Snow trousers",
+    productName: "Snow trousers",
     id: "261",
     labelIdentifier: "848089",
     gender: "Women",
@@ -670,7 +670,7 @@ export const boxesTableDataMock = [
     location: "SCRAP",
   },
   {
-    name: "Rice (1kg)",
+    productName: "Rice (1kg)",
     id: "270",
     labelIdentifier: "206858",
     gender: "none",
@@ -680,7 +680,7 @@ export const boxesTableDataMock = [
     location: "SCRAP",
   },
   {
-    name: "Pyjamas",
+    productName: "Pyjamas",
     id: "282",
     labelIdentifier: "226946",
     gender: "Boy",
@@ -690,7 +690,7 @@ export const boxesTableDataMock = [
     location: "SCRAP",
   },
   {
-    name: "Top",
+    productName: "Top",
     id: "287",
     labelIdentifier: "993787",
     gender: "UnisexBaby",
