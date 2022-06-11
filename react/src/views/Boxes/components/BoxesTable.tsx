@@ -17,6 +17,10 @@ import {
   Flex,
   Text,
   IconButton,
+  FormControl,
+  FormLabel,
+  Code,
+  Box,
 } from "@chakra-ui/react";
 import {
   Column,
@@ -31,6 +35,7 @@ import { BoxRow } from "./types";
 import { GlobalFilter } from "./GlobalFilter";
 import { SelectColumnFilter } from "./SelectColumnFilter";
 import IndeterminateCheckbox from "./Checkbox";
+import { MultiValue, Select } from "chakra-react-select";
 
 type BoxesTableProps = {
   tableData: BoxRow[];
@@ -43,36 +48,43 @@ const BoxesTable = ({ tableData, onBoxRowClick }: BoxesTableProps) => {
       {
         Header: "Product",
         accessor: "productName",
+        id: "productName",
         Filter: SelectColumnFilter,
-        show: false
+        show: false,
       },
       {
         Header: "Box Number",
         accessor: "labelIdentifier",
+        id: "labelIdentifier",
       },
       {
         Header: "Gender",
         accessor: "gender",
+        id: "gender",
         Filter: SelectColumnFilter,
         filter: "equals",
       },
       {
         Header: "Size",
         accessor: "size",
+        id: "size",
       },
       {
         Header: "Items",
         accessor: "items",
+        id: "items",
       },
       {
         Header: "State",
         accessor: "state",
+        id: "state",
         Filter: SelectColumnFilter,
         filter: "equals",
       },
       {
         Header: "Location",
         accessor: "location",
+        id: "location",
         Filter: SelectColumnFilter,
         filter: "equals",
       },
@@ -80,21 +92,81 @@ const BoxesTable = ({ tableData, onBoxRowClick }: BoxesTableProps) => {
     []
   );
 
-  
-  const [selectedColumns, setSelectedColumns] = React.useState<string[]>([]);
+  const [selectedColumns, setSelectedColumns] = React.useState<
+    MultiValue<{
+      label: string;
+      value: string;
+    }>
+  >([]);
 
-  const hiddenColumns = React.useMemo(
-    () =>
-      columns
-        .filter(
-          (column) =>
-            column.accessor == null ||
-            !selectedColumns.includes(column.accessor.toString())
-        )
-        .map((column) => column.accessor?.toString() || ""),
-    [columns, selectedColumns]
+  const selectableColumnOptions = columns
+    .map((column) => ({
+      label: column.Header?.toString() || "",
+      value: column.accessor?.toString() || "",
+    }))
+    .filter((value) => value !== undefined);
+
+  // const hiddenColumns =
+  //   React.useMemo(
+  //     () =>
+  //   columns
+  //     .filter(
+  //       (column) =>
+  //         column.Header == null ||
+  //         selectedColumns
+  //           .map((selectedColumn) => selectedColumn.label)
+  //           .includes(column.Header.toString())
+  //     )
+  //     .map((column) => column.id)
+  //     .filter((id) => id != null) as string[],
+  //     [columns, selectedColumns]
+  //   );// || [];
+
+    // const hiddenColumns = ["labelIdentifier","gender","items","state","location"];
+
+    const finalSelectedColumns = columns.filter(column => column.Header != null && selectedColumns.map(col => col.value).includes(column.accessor));
+
+  return (
+    <>
+      <FormControl p={4}>
+        <FormLabel>
+          Select Colors and Flavours <Code>size="sm"</Code>
+        </FormLabel>
+        <Select
+          isMulti
+          name="colors"
+          options={selectableColumnOptions}
+          placeholder="Select some colors..."
+          closeMenuOnSelect={false}
+          onChange={(selected) => {
+            setSelectedColumns(selected);
+          }}
+          value={selectedColumns}
+          size="sm"
+        />
+      </FormControl>
+      {/* <Box>HIDDEN COLUMNS: {JSON.stringify(hiddenColumns)}</Box> */}
+      <Box>columns: {JSON.stringify(columns)}</Box>
+      <Box>selectedColumns: {JSON.stringify(selectedColumns)}</Box>
+      <Box>Final Selected Columns: {JSON.stringify(finalSelectedColumns)}</Box>
+      <ActualTable
+        columns={finalSelectedColumns}
+        tableData={tableData}
+        onBoxRowClick={onBoxRowClick}
+        hiddenColumns={[]}
+      />
+      ;
+    </>
   );
-  
+};
+
+interface ActualTableProps {
+  columns: Column<BoxRow>[];
+  tableData: BoxRow[];
+  onBoxRowClick: (labelIdentified: string) => void;
+  hiddenColumns: string[];
+}
+const ActualTable = ({ columns, tableData, onBoxRowClick, hiddenColumns }: ActualTableProps) => {
   const {
     headerGroups,
 
@@ -116,7 +188,8 @@ const BoxesTable = ({ tableData, onBoxRowClick }: BoxesTableProps) => {
       initialState: {
         pageIndex: 0,
         pageSize: 20,
-        // hiddenColumns: hiddenColumns,
+        // hiddenColumns: ["productName", "size"],
+        hiddenColumns: hiddenColumns,
       },
     },
     useFilters,
@@ -144,9 +217,31 @@ const BoxesTable = ({ tableData, onBoxRowClick }: BoxesTableProps) => {
     }
   );
 
+  // const groupedOptions = [
+  //   {
+  //     label: "Columns",
+  //     options: columns
+  //       .map((column) => ({
+  //         label: column.Header,
+  //         value: column.accessor,
+  //       }))
+  //       .filter((value) => value !== undefined),
+  //   },
+  // ];
   return (
     <>
       <Flex alignItems="center" flexWrap="wrap">
+        {/* <Select
+          // name={name}
+          // ref={ref}
+          // onChange={onChange}
+          // onBlur={onBlur}
+          value={value}
+          options={productsForDropdownGroups}
+          placeholder="Product"
+          isSearchable
+        /> */}
+
         <GlobalFilter
           globalFilter={globalFilter}
           setGlobalFilter={setGlobalFilter}
