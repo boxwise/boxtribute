@@ -70,12 +70,7 @@ const Boxes = () => {
     return <div>Error!</div>;
   }
 
-  console.table(data);
-  console.log(data);
   const tableData = graphqlToTableTransformer(data);
-  console.table(tableData);
-  console.log(JSON.stringify(tableData));
-
   return <BoxesTable tableData={tableData} onBoxRowClick={onBoxesRowClick} />;
 };
 
