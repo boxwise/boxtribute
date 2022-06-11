@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useMemo } from "react";
 import {
   TriangleDownIcon,
   TriangleUpIcon,
@@ -19,8 +19,6 @@ import {
   IconButton,
   FormControl,
   FormLabel,
-  Code,
-  Box,
 } from "@chakra-ui/react";
 import {
   Column,
@@ -42,8 +40,80 @@ type BoxesTableProps = {
   onBoxRowClick: (labelIdentified: string) => void;
 };
 
+interface ColumnSelectorProps {
+  availableColumns: Column<BoxRow>[];
+  setSelectedColumns: (columns: Column<BoxRow>[]) => void;
+  selectedColumns: Column<BoxRow>[];
+}
+
+type ColumnOptionCollection = MultiValue<{
+  label: string;
+  value: string;
+}>;
+
+const mapColumnsToColumnOptionCollection = (columns: Column<BoxRow>[]) =>
+  columns
+    .map((column) => ({
+      label: column.Header?.toString() || "",
+      value: column.accessor?.toString() || "",
+    }))
+    .filter((value) => value !== undefined);
+
+const ColumnSelector = ({
+  availableColumns,
+  setSelectedColumns,
+  selectedColumns,
+}: ColumnSelectorProps) => {
+  const allAvailableColumnOptions = useMemo(
+    () => mapColumnsToColumnOptionCollection(availableColumns),
+    [availableColumns]
+  );
+
+  //   MultiValue<{
+  //     label: string;
+  //     value: string;
+  //   }>
+  // >(allSelectableColumnOptions);
+
+  const onChangeSelectedColumnOpions = (
+    selectedColumnOptions: ColumnOptionCollection
+  ) => {
+    if (selectedColumnOptions.length > 0) {
+      setSelectedColumns(
+        availableColumns.filter(
+          (column) =>
+            column.accessor != null &&
+            selectedColumnOptions
+              .map((col) => col.value)
+              .includes(column.accessor.toString())
+        )
+      );
+    }
+  };
+
+  const selectedColumnOptions =
+    mapColumnsToColumnOptionCollection(selectedColumns);
+
+  return (
+    <FormControl p={4}>
+      <FormLabel>Select columns</FormLabel>
+      <Select
+        isMulti
+        name="columns"
+        options={allAvailableColumnOptions}
+        placeholder="Select columns"
+        closeMenuOnSelect={false}
+        onChange={onChangeSelectedColumnOpions}
+        value={selectedColumnOptions}
+        size="sm"
+        isClearable={false}
+      />
+    </FormControl>
+  );
+};
+
 const BoxesTable = ({ tableData, onBoxRowClick }: BoxesTableProps) => {
-  const columns: Column<BoxRow>[] = React.useMemo(
+  const availableColumns: Column<BoxRow>[] = React.useMemo(
     () => [
       {
         Header: "Product",
@@ -92,69 +162,38 @@ const BoxesTable = ({ tableData, onBoxRowClick }: BoxesTableProps) => {
     []
   );
 
-  const [selectedColumns, setSelectedColumns] = React.useState<
-    MultiValue<{
-      label: string;
-      value: string;
-    }>
-  >([]);
-
-  const selectableColumnOptions = columns
-    .map((column) => ({
-      label: column.Header?.toString() || "",
-      value: column.accessor?.toString() || "",
-    }))
-    .filter((value) => value !== undefined);
-
-  // const hiddenColumns =
-  //   React.useMemo(
-  //     () =>
-  //   columns
-  //     .filter(
-  //       (column) =>
-  //         column.Header == null ||
-  //         selectedColumns
-  //           .map((selectedColumn) => selectedColumn.label)
-  //           .includes(column.Header.toString())
-  //     )
-  //     .map((column) => column.id)
-  //     .filter((id) => id != null) as string[],
-  //     [columns, selectedColumns]
-  //   );// || [];
-
-    // const hiddenColumns = ["labelIdentifier","gender","items","state","location"];
-
-    const finalSelectedColumns = columns.filter(column => column.accessor != null && selectedColumns.map(col => col.value).includes(column.accessor.toString()));
+  const [selectedColumns, setSelectedColumns] =
+    React.useState<Column<BoxRow>[]>(availableColumns);
 
   return (
     <>
-      <FormControl p={4}>
-        <FormLabel>
-          Select Colors and Flavours <Code>size="sm"</Code>
-        </FormLabel>
+      <ColumnSelector
+        availableColumns={availableColumns}
+        selectedColumns={selectedColumns}
+        setSelectedColumns={setSelectedColumns}
+      />
+      {/* <FormControl p={4}>
+        <FormLabel>Select columns</FormLabel>
         <Select
           isMulti
-          name="colors"
-          options={selectableColumnOptions}
-          placeholder="Select some colors..."
+          name="columns"
+          options={allSelectableColumnOptions}
+          placeholder="Select columns"
           closeMenuOnSelect={false}
           onChange={(selected) => {
-            setSelectedColumns(prev => selected.length > 0 ? selected : prev);
+            setSelectedColumnOptions((prev) =>
+              selected.length > 0 ? selected : prev
+            );
           }}
-          value={selectedColumns}
+          value={selectedColumnOptions}
           size="sm"
+          isClearable={false}
         />
-      </FormControl>
-      {/* <Box>HIDDEN COLUMNS: {JSON.stringify(hiddenColumns)}</Box> */}
-      <Box>columns: {JSON.stringify(columns)}</Box>
-      <Box>selectedColumns: {JSON.stringify(selectedColumns)}</Box>
-      <Box>Final Selected Columns: {JSON.stringify(finalSelectedColumns)}</Box>
+      </FormControl> */}
       <ActualTable
-        // show={selectedColumns.length > 0}
-        columns={finalSelectedColumns}
+        columns={selectedColumns}
         tableData={tableData}
         onBoxRowClick={onBoxRowClick}
-        hiddenColumns={[]}
       />
       ;
     </>
@@ -166,9 +205,13 @@ interface ActualTableProps {
   show?: boolean;
   tableData: BoxRow[];
   onBoxRowClick: (labelIdentified: string) => void;
-  hiddenColumns: string[];
 }
-const ActualTable = ({ show = true, columns, tableData, onBoxRowClick, hiddenColumns }: ActualTableProps) => {
+const ActualTable = ({
+  show = true,
+  columns,
+  tableData,
+  onBoxRowClick,
+}: ActualTableProps) => {
   const {
     headerGroups,
     prepareRow,
@@ -184,13 +227,10 @@ const ActualTable = ({ show = true, columns, tableData, onBoxRowClick, hiddenCol
   } = useTable(
     {
       columns,
-      // hiddenColumns: columns.filter(column => !column.show).map(column => column.id),
       data: tableData,
       initialState: {
         pageIndex: 0,
         pageSize: 20,
-        // hiddenColumns: ["productName", "size"],
-        hiddenColumns: hiddenColumns,
       },
     },
     useFilters,
@@ -229,8 +269,8 @@ const ActualTable = ({ show = true, columns, tableData, onBoxRowClick, hiddenCol
   //       .filter((value) => value !== undefined),
   //   },
   // ];
-  if(!show) {
-    return (<></>)
+  if (!show) {
+    return <></>;
   }
 
   return (
