@@ -24,3 +24,5 @@ yarn-debug.log*
 yarn-error.log*
 
 /NOTES
+storybook-static/
+build-storybook.log
