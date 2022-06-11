@@ -1,7 +1,7 @@
 export type BoxRow = {
     id: string;
     labelIdentifier: string;
-    name?: string;
+    productName: string;
     gender?: string | null;
     items: number;
     size?: string | null;

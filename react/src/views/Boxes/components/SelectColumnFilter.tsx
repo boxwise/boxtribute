@@ -1,3 +1,4 @@
+import { Select } from "@chakra-ui/react";
 import React from "react";
 import { UseFiltersColumnProps } from "react-table";
 import { BoxRow } from "./types";
@@ -16,7 +17,7 @@ export function SelectColumnFilter({
   }, [id, preFilteredRows]);
 
   return (
-    <select
+    <Select
       id={id}
       value={filterValue}
       onChange={(e) => {
@@ -29,6 +30,6 @@ export function SelectColumnFilter({
           {option}
         </option>
       ))}
-    </select>
+    </Select>
   );
 }

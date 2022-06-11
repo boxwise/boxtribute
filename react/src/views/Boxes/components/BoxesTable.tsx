@@ -42,8 +42,9 @@ const BoxesTable = ({ tableData, onBoxRowClick }: BoxesTableProps) => {
     () => [
       {
         Header: "Product",
-        accessor: "name",
+        accessor: "productName",
         Filter: SelectColumnFilter,
+        show: false
       },
       {
         Header: "Box Number",
@@ -79,6 +80,21 @@ const BoxesTable = ({ tableData, onBoxRowClick }: BoxesTableProps) => {
     []
   );
 
+  
+  const [selectedColumns, setSelectedColumns] = React.useState<string[]>([]);
+
+  const hiddenColumns = React.useMemo(
+    () =>
+      columns
+        .filter(
+          (column) =>
+            column.accessor == null ||
+            !selectedColumns.includes(column.accessor.toString())
+        )
+        .map((column) => column.accessor?.toString() || ""),
+    [columns, selectedColumns]
+  );
+  
   const {
     headerGroups,
 
@@ -95,8 +111,13 @@ const BoxesTable = ({ tableData, onBoxRowClick }: BoxesTableProps) => {
   } = useTable(
     {
       columns,
+      // hiddenColumns: columns.filter(column => !column.show).map(column => column.id),
       data: tableData,
-      initialState: { pageIndex: 0, pageSize: 20 },
+      initialState: {
+        pageIndex: 0,
+        pageSize: 20,
+        // hiddenColumns: hiddenColumns,
+      },
     },
     useFilters,
     useGlobalFilter,
