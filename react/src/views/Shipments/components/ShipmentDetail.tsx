@@ -57,6 +57,9 @@ const ShipmentDetail = ({
       <NavLink to="scan">
         <Button m={2}>Scan boxes for shipment</Button>
       </NavLink>
+      <NavLink to="edit">
+        <Button m={2}>Edit shipment</Button>
+      </NavLink>
     </Box>
   );
 };

@@ -22,48 +22,62 @@ import {
 import { GlobalFilter } from "../../Boxes/components/GlobalFilter";
 // import { SelectColumnFilter } from "./SelectColumnFilter";
 import { NavLink, useNavigate, useParams } from "react-router-dom";
-import { ShipmentState} from "types/generated/graphql";
+import { ProductGender, ShipmentState} from "types/generated/graphql";
 
-export type ShipmentsTableRow = {
-  id: string;
-  state: ShipmentState | null | undefined;
-  targetOrganisation?: string;
-  targetBase?: string | undefined[];
-  numberOfBoxes: number;
+
+// details {
+//     box {
+//       labelIdentifier
+//       items 
+//       product {
+//         name
+//         gender
+//         sizes 
+//       }
+//     }
+//   }
+
+export type ShipmentRow = {
+  labelIdentifier: string;
+  items?: number;
+  name?: string;
+  gender?: ProductGender | null | undefined
+  sizes?: string[] | undefined[];
 };
 
-type ShipmentsTableProps = {
-  tableData: ShipmentsTableRow[];
+type ShipmentTableProps = {
+    tableData: ShipmentRow[];
 };
 
-const ShipmentsTable = ({
+const ShipmentTable = ({
   tableData,
-}: ShipmentsTableProps) => {
-  const navigate = useNavigate();
-  const baseId = useParams<{ baseId: string }>().baseId!;
-  const transferAgreementid = useParams<{ transferAgreementId: string }>().transferAgreementId!;
+}: ShipmentTableProps) => {
+//   const navigate = useNavigate();
+//   const baseId = useParams<{ baseId: string }>().baseId!;
+//   const transferAgreementid = useParams<{ transferAgreementId: string }>().transferAgreementId!;
 
-  const columns: Column<ShipmentsTableRow>[] = React.useMemo(
+  const columns: Column<ShipmentRow>[] = React.useMemo(
     () => [
       {
         Header: "Id",
-        accessor: "id",
+        accessor: "labelIdentifier",
       },
       {
-        Header: "Target Organisation",
-        accessor: "targetOrganisation",
+        Header: "Product",
+        accessor: "name",
       },
       {
-        Header: "Target Base",
-        accessor: "targetBase",
+        Header: "Gender",
+        accessor: "gender",
+      },
+      
+      {
+        Header: "Sizes",
+        accessor: "sizes",
       },
       {
-        Header: "State",
-        accessor: "state",
-      },
-      {
-        Header: "Number of Boxes",
-        accessor: "numberOfBoxes",
+        Header: "Number of Items",
+        accessor: "items",
       },
     ],
     []
@@ -110,9 +124,6 @@ const ShipmentsTable = ({
           globalFilter={globalFilter}
           setGlobalFilter={setGlobalFilter}
         />
-        <NavLink to="new">
-          <Button m={2}>Create new shipment</Button>
-        </NavLink>
 
         {headerGroups.map((headerGroup) => {
           return headerGroup.headers.map((column) =>
@@ -154,9 +165,9 @@ const ShipmentsTable = ({
               <Tr
                 cursor="pointer"
                 {...row.getRowProps()}
-                onClick={() =>
-                  navigate(`/bases/${baseId}/transfers/${transferAgreementid}/shipments/${row.original.id}`)
-                }
+                // onClick={() =>
+                //   navigate(`/bases/${baseId}/transfers/${transferAgreementid}/shipments/${row.original.id}`)
+                // }
                 key={i}
               >
                 {row.cells.map((cell, i) => {
@@ -171,4 +182,4 @@ const ShipmentsTable = ({
   );
 };
 
-export default ShipmentsTable;
+export default ShipmentTable;
