@@ -19,6 +19,15 @@ import {
   IconButton,
   FormControl,
   FormLabel,
+  Accordion,
+  AccordionButton,
+  AccordionIcon,
+  AccordionItem,
+  AccordionPanel,
+  Box,
+  Checkbox,
+  VStack,
+  HStack,
 } from "@chakra-ui/react";
 import {
   Column,
@@ -75,40 +84,65 @@ const ColumnSelector = ({
   //   }>
   // >(allSelectableColumnOptions);
 
-  const onChangeSelectedColumnOpions = (
-    selectedColumnOptions: ColumnOptionCollection
-  ) => {
-    if (selectedColumnOptions.length > 0) {
-      setSelectedColumns(
-        availableColumns.filter(
-          (column) =>
-            column.accessor != null &&
-            selectedColumnOptions
-              .map((col) => col.value)
-              .includes(column.accessor.toString())
-        )
-      );
+  // const onChangeSelectedColumnOpions = (
+  //   selectedColumnOptions: ColumnOptionCollection
+  // ) => {
+  //   if (selectedColumnOptions.length > 0) {
+  //     setSelectedColumns(
+  //       availableColumns.filter(
+  //         (column) =>
+  //           column.accessor != null &&
+  //           selectedColumnOptions
+  //             .map((col) => col.value)
+  //             .includes(column.accessor.toString())
+  //       )
+  //     );
+  //   }
+  // };
+
+  const onCheckboxChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    
+    const checked = e.target.checked;
+    const columnId = e.target.value;
+    const column = availableColumns.find((column) => column.id === columnId);
+    if (column != null) {
+      if (checked) {
+        setSelectedColumns(!selectedColumns.includes(column) ? selectedColumns : [...selectedColumns, column]);
+      }
+      else {
+        setSelectedColumns(selectedColumns.filter((c) => c !== column));
+      }
     }
+  };
+
+  const onApplySelectedOptions = () => {
+
   };
 
   const selectedColumnOptions =
     mapColumnsToColumnOptionCollection(selectedColumns);
 
   return (
-    <FormControl p={4}>
-      <FormLabel>Select columns</FormLabel>
-      <Select
-        isMulti
-        name="columns"
-        options={allAvailableColumnOptions}
-        placeholder="Select columns"
-        closeMenuOnSelect={false}
-        onChange={onChangeSelectedColumnOpions}
-        value={selectedColumnOptions}
-        size="sm"
-        isClearable={false}
-      />
-    </FormControl>
+    <Accordion allowToggle>
+      <AccordionItem>
+        <h2>
+          <AccordionButton>
+            <Box flex="1" textAlign="left">
+              Columns
+            </Box>
+            <AccordionIcon />
+          </AccordionButton>
+        </h2>
+        <AccordionPanel pb={4}>
+          <VStack>
+            {allAvailableColumnOptions.map((columnOption) => (
+              <Checkbox onChange={onCheckboxChange} key={columnOption.value} defaultChecked={selectedColumnOptions.map(c => c.value).includes(columnOption.value)} value={columnOption.value}>{columnOption.label}</Checkbox>
+            ))}
+          {/* <Button onClick={onApplySelectedOptions}>Apply</Button> */}
+          </VStack>
+        </AccordionPanel>
+      </AccordionItem>
+    </Accordion>
   );
 };
 
