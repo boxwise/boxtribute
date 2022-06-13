@@ -7,7 +7,7 @@ import {
   GetBoxLabelIdentifierForQrCodeQueryVariables,
 } from "types/generated/graphql";
 import { useNavigate, useParams } from "react-router-dom";
-import QrScanner from "components/QrScanner";
+import QrScanner from "components/QrScanner/QrScanner";
 
 const extractQrCodeFromUrl = (url) => {
   const rx = /.*barcode=(.*)/g;
