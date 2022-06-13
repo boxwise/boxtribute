@@ -1,4 +1,4 @@
-import React, { useMemo } from "react";
+import React, { useCallback, useMemo } from "react";
 import {
   TriangleDownIcon,
   TriangleUpIcon,
@@ -17,8 +17,6 @@ import {
   Flex,
   Text,
   IconButton,
-  FormControl,
-  FormLabel,
   Accordion,
   AccordionButton,
   AccordionIcon,
@@ -26,10 +24,6 @@ import {
   AccordionPanel,
   Box,
   Checkbox,
-  VStack,
-  HStack,
-  Wrap,
-  WrapItem,
 } from "@chakra-ui/react";
 import {
   Column,
@@ -44,7 +38,6 @@ import { BoxRow } from "./types";
 import { GlobalFilter } from "./GlobalFilter";
 import { SelectColumnFilter } from "./SelectColumnFilter";
 import IndeterminateCheckbox from "./Checkbox";
-import { MultiValue, Select } from "chakra-react-select";
 
 type BoxesTableProps = {
   tableData: BoxRow[];
@@ -75,7 +68,7 @@ const ColumnSelector = ({
     [availableColumns]
   );
 
-  const onCheckboxChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const onCheckboxChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
     const checked = e.target.checked;
     const columnId = e.target.value;
     debugger;
@@ -91,7 +84,7 @@ const ColumnSelector = ({
         setSelectedColumns(selectedColumns.filter((c) => c !== column));
       }
     }
-  };
+  }, [availableColumns, selectedColumns, setSelectedColumns]);
 
   const selectedColumnOptions =
     mapColumnsToColumnOptionCollection(selectedColumns);
