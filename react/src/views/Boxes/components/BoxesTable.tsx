@@ -126,12 +126,12 @@ const ColumnSelector = ({
     mapColumnsToColumnOptionCollection(selectedColumns);
   
   return (
-    <Wrap m={2} p={2} w={10}>
+    <Box maxW="400px" minW="250px">
     <Accordion allowToggle>
       <AccordionItem>
         <h2>
           <AccordionButton>
-            <Box flex="1" textAlign="left">
+            <Box flex="1" textAlign="left" >
               Columns
             </Box>
             <AccordionIcon />
@@ -140,14 +140,14 @@ const ColumnSelector = ({
         <AccordionPanel pb={4}>
           <Flex flexWrap="wrap">
             {allAvailableColumnOptions.map((columnOption) => (
-              <Checkbox onChange={onCheckboxChange} key={columnOption.value} defaultChecked={selectedColumnOptions.map(c => c.value).includes(columnOption.value)} value={columnOption.value}>{columnOption.label}</Checkbox>
+              <Checkbox m={1} py={1} px={2} border='1px' colorScheme='gray' borderColor='gray.200' onChange={onCheckboxChange} key={columnOption.value} defaultChecked={selectedColumnOptions.map(c => c.value).includes(columnOption.value)} value={columnOption.value}>{columnOption.label}</Checkbox>
             ))}
           {/* <Button onClick={onApplySelectedOptions}>Apply</Button> */}
           </Flex>
         </AccordionPanel>
       </AccordionItem>
     </Accordion>
-    </Wrap>
+    </Box>
   );
 };
 
