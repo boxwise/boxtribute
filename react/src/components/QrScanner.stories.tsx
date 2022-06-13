@@ -14,13 +14,13 @@ export default {
   },
 } as ComponentMeta<typeof QrScanner>;
 
-const Template: ComponentStory<typeof QrScanner> = (args) => <QrScanner />;
+const Template: ComponentStory<typeof QrScanner> = (args) => <QrScanner {...args} />;
 
 export const Default = Template.bind({});
 Default.args = {
-  scannedQrValues={scannedQrValues}
-  onBulkScanningDone={onBulkScanningDone}
-  bulkModeActive={isBulkModeActive}
-  onToggleBulkMode={() => setIsBulkModeActive(prev => !prev)}
-  onResult={onResult}
+  scannedQrValues: [], 
+  onBulkScanningDone: action(`bulk scanning done`),
+  bulkModeActive: false,
+  onToggleBulkMode: action(`bulk mode toggled`),
+  onResult: action(`received result`)
 }
