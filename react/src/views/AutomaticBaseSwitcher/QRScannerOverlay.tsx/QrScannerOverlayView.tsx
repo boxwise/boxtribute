@@ -38,7 +38,7 @@ const QrScannerOverlayView = () => {
       data?.qrCode?.box?.labelIdentifier && navigate(`/bases/${baseId}/boxes/${data.qrCode.box.labelIdentifier}`);
   }, [baseId, data, navigate]);
 
-  const [isBulkModeActive, setIsBulkModeActive] = useState(false);
+  // const [isBulkModeActive, setIsBulkModeActive] = useState(false);
   const [scannedQrValues, setScannedQrValues] = useState<string[]>([]);
 
   const onResult = useCallback((result: string) => {
@@ -57,10 +57,10 @@ const QrScannerOverlayView = () => {
   return (
         <QrScanner
             scannedQrValues={scannedQrValues}
-            onBulkScanningDone={onBulkScanningDone}
-            bulkModeActive={isBulkModeActive}
-            onToggleBulkMode={() => setIsBulkModeActive(prev => !prev)}
             onResult={onResult}
+            onBulkScanningDone={onBulkScanningDone}
+            // bulkModeActive={isBulkModeActive}
+            // onToggleBulkMode={() => setIsBulkModeActive(prev => !prev)}
           />
   );
 };
