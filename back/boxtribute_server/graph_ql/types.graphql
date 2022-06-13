@@ -3,7 +3,7 @@
 """
 Representation of a box storing items of a [`Product`]({{Types.Product}}) in a [`Location`]({{Types.Location}})
 """
-type Box implements HasItems {
+type Box implements ItemsCollection {
   id: ID!
   " Sequence of numbers for identifying the box, usually written on box label "
   labelIdentifier: String!
@@ -183,17 +183,8 @@ type DistributionEvent implements BoxPlace, UnboxedItemsCollectionPlace {
   lastModifiedOn: Datetime
 }
 
-
-
-interface 
-
 union ExternalStockOrigin = Donor | CommercialStockOrigin | UnknownExternalStockOrigin
-
 union ExternalStockTarget = Beneficiary | DistributionSpot
-
-
-# union StockXXXX = Box | UnboxedItemsCollection
-# union StockStore = Location | MobileDistribution
 
 """
 Representation of a physical location used to store [`Boxes`]({{Types.Box}}).
