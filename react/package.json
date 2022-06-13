@@ -49,7 +49,7 @@
     "eslint-plugin-react-hooks": "^4.5.0",
     "mutationobserver-shim": "^0.3.7",
     "prettier": "^2.4.1",
-    "typescript": "^4.4.4"
+    "typescript": "^4.7.3"
   },
   "scripts": {
     "generate-graphql-ts-types": "graphql-codegen --config codegen.yml",
