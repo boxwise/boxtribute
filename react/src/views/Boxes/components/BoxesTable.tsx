@@ -28,6 +28,8 @@ import {
   Checkbox,
   VStack,
   HStack,
+  Wrap,
+  WrapItem,
 } from "@chakra-ui/react";
 import {
   Column,
@@ -104,10 +106,11 @@ const ColumnSelector = ({
     
     const checked = e.target.checked;
     const columnId = e.target.value;
+    debugger;
     const column = availableColumns.find((column) => column.id === columnId);
     if (column != null) {
       if (checked) {
-        setSelectedColumns(!selectedColumns.includes(column) ? selectedColumns : [...selectedColumns, column]);
+        setSelectedColumns(selectedColumns.includes(column) ? selectedColumns : [...selectedColumns, column]);
       }
       else {
         setSelectedColumns(selectedColumns.filter((c) => c !== column));
@@ -121,8 +124,9 @@ const ColumnSelector = ({
 
   const selectedColumnOptions =
     mapColumnsToColumnOptionCollection(selectedColumns);
-
+  
   return (
+    <Wrap m={2} p={2} w={10}>
     <Accordion allowToggle>
       <AccordionItem>
         <h2>
@@ -134,15 +138,16 @@ const ColumnSelector = ({
           </AccordionButton>
         </h2>
         <AccordionPanel pb={4}>
-          <VStack>
+          <Flex flexWrap="wrap">
             {allAvailableColumnOptions.map((columnOption) => (
               <Checkbox onChange={onCheckboxChange} key={columnOption.value} defaultChecked={selectedColumnOptions.map(c => c.value).includes(columnOption.value)} value={columnOption.value}>{columnOption.label}</Checkbox>
             ))}
           {/* <Button onClick={onApplySelectedOptions}>Apply</Button> */}
-          </VStack>
+          </Flex>
         </AccordionPanel>
       </AccordionItem>
     </Accordion>
+    </Wrap>
   );
 };
 
@@ -198,9 +203,13 @@ const BoxesTable = ({ tableData, onBoxRowClick }: BoxesTableProps) => {
 
   const [selectedColumns, setSelectedColumns] =
     React.useState<Column<BoxRow>[]>(availableColumns);
+    const orderedSelectedColumns = useMemo(
+      () => selectedColumns.sort((a,b)=> availableColumns.indexOf(a) - availableColumns.indexOf(b))
+    , [selectedColumns, availableColumns]);
 
   return (
     <>
+    {/* <Box>{JSON.stringify(selectedColumns)}</Box> */}
       <ColumnSelector
         availableColumns={availableColumns}
         selectedColumns={selectedColumns}
@@ -225,7 +234,7 @@ const BoxesTable = ({ tableData, onBoxRowClick }: BoxesTableProps) => {
         />
       </FormControl> */}
       <ActualTable
-        columns={selectedColumns}
+        columns={orderedSelectedColumns}
         tableData={tableData}
         onBoxRowClick={onBoxRowClick}
       />
@@ -246,6 +255,7 @@ const ActualTable = ({
   tableData,
   onBoxRowClick,
 }: ActualTableProps) => {
+  
   const {
     headerGroups,
     prepareRow,
@@ -355,6 +365,7 @@ const ActualTable = ({
                     ) : null}
                   </chakra.span>
                 </Th>
+              
               ))}
             </Tr>
           ))}
