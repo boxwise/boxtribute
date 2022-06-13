@@ -57,11 +57,6 @@ interface ColumnSelectorProps {
   selectedColumns: Column<BoxRow>[];
 }
 
-type ColumnOptionCollection = MultiValue<{
-  label: string;
-  value: string;
-}>;
-
 const mapColumnsToColumnOptionCollection = (columns: Column<BoxRow>[]) =>
   columns
     .map((column) => ({
@@ -80,73 +75,63 @@ const ColumnSelector = ({
     [availableColumns]
   );
 
-  //   MultiValue<{
-  //     label: string;
-  //     value: string;
-  //   }>
-  // >(allSelectableColumnOptions);
-
-  // const onChangeSelectedColumnOpions = (
-  //   selectedColumnOptions: ColumnOptionCollection
-  // ) => {
-  //   if (selectedColumnOptions.length > 0) {
-  //     setSelectedColumns(
-  //       availableColumns.filter(
-  //         (column) =>
-  //           column.accessor != null &&
-  //           selectedColumnOptions
-  //             .map((col) => col.value)
-  //             .includes(column.accessor.toString())
-  //       )
-  //     );
-  //   }
-  // };
-
   const onCheckboxChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    
     const checked = e.target.checked;
     const columnId = e.target.value;
     debugger;
     const column = availableColumns.find((column) => column.id === columnId);
     if (column != null) {
       if (checked) {
-        setSelectedColumns(selectedColumns.includes(column) ? selectedColumns : [...selectedColumns, column]);
-      }
-      else {
+        setSelectedColumns(
+          selectedColumns.includes(column)
+            ? selectedColumns
+            : [...selectedColumns, column]
+        );
+      } else {
         setSelectedColumns(selectedColumns.filter((c) => c !== column));
       }
     }
   };
 
-  const onApplySelectedOptions = () => {
-
-  };
-
   const selectedColumnOptions =
     mapColumnsToColumnOptionCollection(selectedColumns);
-  
+
   return (
     <Box maxW="400px" minW="250px">
-    <Accordion allowToggle>
-      <AccordionItem>
-        <h2>
-          <AccordionButton>
-            <Box flex="1" textAlign="left" >
-              Columns
-            </Box>
-            <AccordionIcon />
-          </AccordionButton>
-        </h2>
-        <AccordionPanel pb={4}>
-          <Flex flexWrap="wrap">
-            {allAvailableColumnOptions.map((columnOption) => (
-              <Checkbox m={1} py={1} px={2} border='1px' colorScheme='gray' borderColor='gray.200' onChange={onCheckboxChange} key={columnOption.value} defaultChecked={selectedColumnOptions.map(c => c.value).includes(columnOption.value)} value={columnOption.value}>{columnOption.label}</Checkbox>
-            ))}
-          {/* <Button onClick={onApplySelectedOptions}>Apply</Button> */}
-          </Flex>
-        </AccordionPanel>
-      </AccordionItem>
-    </Accordion>
+      <Accordion allowToggle>
+        <AccordionItem>
+          <h2>
+            <AccordionButton>
+              <Box flex="1" textAlign="left">
+                Columns
+              </Box>
+              <AccordionIcon />
+            </AccordionButton>
+          </h2>
+          <AccordionPanel pb={4}>
+            <Flex flexWrap="wrap">
+              {allAvailableColumnOptions.map((columnOption) => (
+                <Checkbox
+                  m={1}
+                  py={1}
+                  px={2}
+                  border="1px"
+                  colorScheme="gray"
+                  borderColor="gray.200"
+                  onChange={onCheckboxChange}
+                  key={columnOption.value}
+                  defaultChecked={selectedColumnOptions
+                    .map((c) => c.value)
+                    .includes(columnOption.value)}
+                  value={columnOption.value}
+                >
+                  {columnOption.label}
+                </Checkbox>
+              ))}
+            </Flex>
+          </AccordionPanel>
+        </AccordionItem>
+      </Accordion>
     </Box>
   );
 };
@@ -203,42 +188,26 @@ const BoxesTable = ({ tableData, onBoxRowClick }: BoxesTableProps) => {
 
   const [selectedColumns, setSelectedColumns] =
     React.useState<Column<BoxRow>[]>(availableColumns);
-    const orderedSelectedColumns = useMemo(
-      () => selectedColumns.sort((a,b)=> availableColumns.indexOf(a) - availableColumns.indexOf(b))
-    , [selectedColumns, availableColumns]);
+  const orderedSelectedColumns = useMemo(
+    () =>
+      selectedColumns.sort(
+        (a, b) => availableColumns.indexOf(a) - availableColumns.indexOf(b)
+      ),
+    [selectedColumns, availableColumns]
+  );
 
   return (
     <>
-    {/* <Box>{JSON.stringify(selectedColumns)}</Box> */}
       <ColumnSelector
         availableColumns={availableColumns}
         selectedColumns={selectedColumns}
         setSelectedColumns={setSelectedColumns}
       />
-      {/* <FormControl p={4}>
-        <FormLabel>Select columns</FormLabel>
-        <Select
-          isMulti
-          name="columns"
-          options={allSelectableColumnOptions}
-          placeholder="Select columns"
-          closeMenuOnSelect={false}
-          onChange={(selected) => {
-            setSelectedColumnOptions((prev) =>
-              selected.length > 0 ? selected : prev
-            );
-          }}
-          value={selectedColumnOptions}
-          size="sm"
-          isClearable={false}
-        />
-      </FormControl> */}
       <ActualTable
         columns={orderedSelectedColumns}
         tableData={tableData}
         onBoxRowClick={onBoxRowClick}
       />
-      ;
     </>
   );
 };
@@ -255,7 +224,6 @@ const ActualTable = ({
   tableData,
   onBoxRowClick,
 }: ActualTableProps) => {
-  
   const {
     headerGroups,
     prepareRow,
@@ -268,7 +236,7 @@ const ActualTable = ({
 
     nextPage,
     previousPage,
-  } = useTable(
+  } = useTable<BoxRow>(
     {
       columns,
       data: tableData,
@@ -302,17 +270,6 @@ const ActualTable = ({
     }
   );
 
-  // const groupedOptions = [
-  //   {
-  //     label: "Columns",
-  //     options: columns
-  //       .map((column) => ({
-  //         label: column.Header,
-  //         value: column.accessor,
-  //       }))
-  //       .filter((value) => value !== undefined),
-  //   },
-  // ];
   if (!show) {
     return <></>;
   }
@@ -320,17 +277,6 @@ const ActualTable = ({
   return (
     <>
       <Flex alignItems="center" flexWrap="wrap">
-        {/* <Select
-          // name={name}
-          // ref={ref}
-          // onChange={onChange}
-          // onBlur={onBlur}
-          value={value}
-          options={productsForDropdownGroups}
-          placeholder="Product"
-          isSearchable
-        /> */}
-
         <GlobalFilter
           globalFilter={globalFilter}
           setGlobalFilter={setGlobalFilter}
@@ -365,7 +311,6 @@ const ActualTable = ({
                     ) : null}
                   </chakra.span>
                 </Th>
-              
               ))}
             </Tr>
           ))}
