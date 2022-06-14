@@ -14,52 +14,78 @@
 TODO: Give proper Description here
 """
 # type BoxTag implements Tag {
-type BoxTag {
-  id: ID!
-  name: String!
-  description: String
-  color: String!
-  taggedResources: [Box!]!
+# type BoxTag {
+#   id: ID!
+#   name: String!
+#   description: String
+#   color: String!
+#   taggedResources: [Box!]!
+# }
+
+enum TagType {
+  BOX
+  BENEFICIARY
+  ALL
 }
+
+# type Tag {
+#   ...
+#   applicableRessourceTypes: [TaggableType!]!
+#   resources: [Taggable!]!
+# }
+
 
 """
 TODO: Give proper Description here
 """
 # type BeneficiaryTag implements Tag {
-type BoxAndBeneficaryTag {
+# type BoxAndBeneficaryTag {
+#   id: ID!
+#   name: String!
+#   description: String
+#   color: String!
+#   taggedResources: [TaggableResource!]!
+# }
+
+"""
+TODO: Give proper Description here
+"""
+# type BeneficiaryTag implements Tag {
+# type BeneficaryTag {
+#   id: ID!
+#   name: String!
+#   description: String
+#   color: String!
+#   taggedResources: [Beneficiary!]!
+# }
+
+"""
+TODO: Give proper Description here
+"""
+# union Tag = BoxTag | BeneficaryTag | BoxAndBeneficaryTag
+
+union TaggableResource = Box | Beneficiary
+
+
+type Tag {
   id: ID!
   name: String!
   description: String
-  color: String!
+  color: String
+  tagType: TagType!
   taggedResources: [TaggableResource!]!
 }
 
-"""
-TODO: Give proper Description here
-"""
-# type BeneficiaryTag implements Tag {
-type BeneficaryTag {
-  id: ID!
-  name: String!
-  description: String
-  color: String!
-  taggedResources: [Beneficiary!]!
-}
-
-"""
-TODO: Give proper Description here
-"""
-union Tag = BoxTag | BeneficaryTag | BoxAndBeneficaryTag
 
 
+# """
+# TODO: Give proper Description here
+# """
+# interface TaggableResource {
+#   id: ID!
+#   tags: [Tag!]!
+# }
 
-"""
-TODO: Give proper Description here
-"""
-interface TaggableResource {
-  id: ID!
-  tags: [Tag!]!
-}
 
 
 """
