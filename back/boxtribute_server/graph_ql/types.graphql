@@ -1,9 +1,9 @@
 # GraphQL basic types as returned by queries and mutations, and input types for queries.
 
 enum TagType {
-  BOX
-  BENEFICIARY
-  ALL
+  Box
+  Beneficiary
+  All
 }
 
 union TaggableResource = Box | Beneficiary
@@ -20,7 +20,7 @@ type Tag {
 """
 Representation of a box storing items of a [`Product`]({{Types.Product}}) in a [`Location`]({{Types.Location}})
 """
-type Box implements TaggableResource{
+type Box {
   id: ID!
   " Sequence of numbers for identifying the box, usually written on box label "
   labelIdentifier: String!
@@ -213,7 +213,7 @@ type BeneficiaryPage {
 Representation of a beneficiary.
 The beneficiary is registered in a specific [`Base`]({{Types.Base}}).
 """
-type Beneficiary implements TaggableResource {
+type Beneficiary {
   id: ID!
   firstName: String!
   lastName: String!

@@ -59,6 +59,7 @@ from .pagination import load_into_page
 query = QueryType()
 mutation = MutationType()
 object_types = []
+union_types = []
 
 
 def _register_object_type(name):
@@ -81,7 +82,6 @@ shipment_detail = _register_object_type("ShipmentDetail")
 tag = _register_object_type("Tag")
 transfer_agreement = _register_object_type("TransferAgreement")
 user = _register_object_type("User")
-tag_type = UnionType("TaggableResource", resolve_taggable_resource_type)
 
 
 
@@ -296,26 +296,15 @@ def resolve_metrics(*_, organisation_id=None):
     return {"organisation_id": organisation_id}
 
 
-
-
-@tag.field("taggableResources")
+@tag.field("taggedResources")
 def resolve_tag_taggable_resources(tag_obj, _): 
-    # TODO Add correct permissions herer
-    # authorize(permission="tag:read")
-    return (
-        QUERY FOR GETTING TAGGABLE RESOURCES
-    )
-
-
-def resolve_taggable_resource_type(obj, *_):
-    if isinstance(obj, Box):
-        return "Box"
-    if isinstance(obj, Beneficiary):
-        return "Beneficiary"
-    else:
-        return None
-
-
+    # # TODO Add correct permissions herer
+    # # authorize(permission="tag:read")
+    # return (
+    #     QUERY FOR GETTING TAGGABLE RESOURCES
+    # )
+    # return [Box.get_by_id(1)]
+    return []
 
 
 
@@ -710,3 +699,15 @@ def resolve_transfer_agreement_shipments(transfer_agreement_obj, _):
 @user.field("organisation")
 def resolve_user_organisation(*_):
     return Organisation.get_by_id(g.user.organisation_id)
+
+
+def resolve_taggable_resource_type(obj, *_):
+    if isinstance(obj, Box):
+        return "Box"
+    if isinstance(obj, Beneficiary):
+        return "Beneficiary"
+    else:
+        return None
+
+
+union_types.append(UnionType("TaggableResource", resolve_taggable_resource_type))
