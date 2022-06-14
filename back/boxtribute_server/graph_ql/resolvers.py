@@ -1,7 +1,7 @@
 """GraphQL resolver functionality"""
 from datetime import date
 
-from ariadne import MutationType, ObjectType, QueryType, convert_kwargs_to_snake_case
+from ariadne import MutationType, ObjectType, QueryType, UnionType, convert_kwargs_to_snake_case
 from flask import g
 from peewee import fn
 
@@ -78,8 +78,43 @@ product_category = _register_object_type("ProductCategory")
 qr_code = _register_object_type("QrCode")
 shipment = _register_object_type("Shipment")
 shipment_detail = _register_object_type("ShipmentDetail")
+tag = _register_object_type("Tag")
 transfer_agreement = _register_object_type("TransferAgreement")
 user = _register_object_type("User")
+tag_type = UnionType("TaggableResource", resolve_taggable_resource_type)
+
+
+
+
+# query {
+#     taggableResources {
+#         id
+#         __typename
+#         ... on Box {
+#             labelIdentifier
+#             product {
+#                 ...
+#             }
+#         }
+#         ... on Beneficiary {
+#             name
+#             ...
+#         }
+
+
+#     }
+# }
+
+
+
+
+
+
+@query.field("tags")
+def resolve_tags(*_): 
+    # TODO: Add correct permissions here
+    # authorize(permission="tags:read")
+    return Tag.select()
 
 
 @user.field("bases")
@@ -259,6 +294,29 @@ def resolve_metrics(*_, organisation_id=None):
 
     # Pass organisation ID to child resolvers
     return {"organisation_id": organisation_id}
+
+
+
+
+@tag.field("taggableResources")
+def resolve_tag_taggable_resources(tag_obj, _): 
+    # TODO Add correct permissions herer
+    # authorize(permission="tag:read")
+    return (
+        QUERY FOR GETTING TAGGABLE RESOURCES
+    )
+
+
+def resolve_taggable_resource_type(obj, *_):
+    if isinstance(obj, Box):
+        return "Box"
+    if isinstance(obj, Beneficiary):
+        return "Beneficiary"
+    else:
+        return None
+
+
+
 
 
 @beneficiary.field("tokens")
