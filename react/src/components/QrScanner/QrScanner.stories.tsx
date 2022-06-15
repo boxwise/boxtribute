@@ -4,7 +4,6 @@ import { within, userEvent } from '@storybook/testing-library';
 import { action } from '@storybook/addon-actions';
 import QrScanner from './QrScanner';
 
-
 export default {
   title: 'QR Scanner',
   component: QrScanner,
@@ -18,6 +17,7 @@ const Template: ComponentStory<typeof QrScanner> = (args) => <QrScanner {...args
 
 export const Default = Template.bind({});
 Default.args = {
+  bulkModeSupported: true,
   scannedQrValues: ["Box 204214", "Box 048810", "Box 983255"], 
   onBulkScanningDone: action(`bulk scanning done`),
   // bulkModeActive: false,

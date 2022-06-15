@@ -10,7 +10,6 @@ import {
 import { QrReader } from "components/QrReader/QrReader";
 import { useState } from "react";
 
-
 export const ViewFinder = () => (
   <>
     <svg
@@ -20,11 +19,11 @@ export const ViewFinder = () => (
         top: 0,
         left: 0,
         zIndex: 1,
-        boxSizing: 'border-box',
-        border: '50px solid rgba(0, 0, 0, 0.3)',
-        position: 'absolute',
-        width: '100%',
-        height: '100%',
+        boxSizing: "border-box",
+        border: "50px solid rgba(0, 0, 0, 0.3)",
+        position: "absolute",
+        width: "100%",
+        height: "100%",
       }}
     >
       <path
@@ -56,6 +55,7 @@ export const ViewFinder = () => (
 );
 
 export interface QrScannerProps {
+  bulkModeSupported: boolean;
   scannedQrValues: string[];
   onBulkScanningDone: () => void;
   // bulkModeActive: boolean;
@@ -63,6 +63,7 @@ export interface QrScannerProps {
   onResult: (qrValue: string) => void;
 }
 const QrScanner = ({
+  bulkModeSupported,
   scannedQrValues,
   onBulkScanningDone,
   // bulkModeActive,
@@ -71,7 +72,7 @@ const QrScanner = ({
 }: QrScannerProps) => {
   const [isBulkModeActive, setIsBulkModeActive] = useState(false);
 
-  const onToggleBulkMode = () => setIsBulkModeActive(prev => !prev)
+  const onToggleBulkMode = () => setIsBulkModeActive((prev) => !prev);
 
   return (
     <Container maxW="md">
@@ -91,14 +92,16 @@ const QrScanner = ({
           }
         }}
       />
-      <HStack>
-        <Button onClick={onToggleBulkMode}>Bulk Mode</Button>
+      {bulkModeSupported && (
         <HStack>
-          <Button>-</Button>
-          <Button>+</Button>
+          <Button onClick={onToggleBulkMode}>Bulk Mode</Button>
+          <HStack>
+            <Button>-</Button>
+            <Button>+</Button>
+          </HStack>
         </HStack>
-      </HStack>
-      {isBulkModeActive && (
+      )}
+      {bulkModeSupported && isBulkModeActive && (
         <VStack>
           <VStack spacing={5} direction="row">
             {scannedQrValues.map((qrCode, i) => (
@@ -107,7 +110,7 @@ const QrScanner = ({
               </Checkbox>
             ))}
           </VStack>
-          <Button>Scanning done</Button>
+          <Button onClick={onBulkScanningDone}>Scanning done</Button>
         </VStack>
       )}
     </Container>

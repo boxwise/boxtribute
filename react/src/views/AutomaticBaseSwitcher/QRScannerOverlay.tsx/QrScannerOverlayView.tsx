@@ -55,13 +55,14 @@ const QrScannerOverlayView = () => {
   }
 
   return (
-        <QrScanner
-            scannedQrValues={scannedQrValues}
-            onResult={onResult}
-            onBulkScanningDone={onBulkScanningDone}
-            // bulkModeActive={isBulkModeActive}
-            // onToggleBulkMode={() => setIsBulkModeActive(prev => !prev)}
-          />
+    <QrScanner
+      bulkModeSupported={true}
+      scannedQrValues={scannedQrValues}
+      onResult={onResult}
+      onBulkScanningDone={onBulkScanningDone}
+      // bulkModeActive={isBulkModeActive}
+      // onToggleBulkMode={() => setIsBulkModeActive(prev => !prev)}
+    />
   );
 };
 
