@@ -93,7 +93,7 @@ const QrScanner = ({
     >
       <ModalOverlay />
       <ModalContent>
-        <ModalHeader>Modal Title</ModalHeader>
+        <ModalHeader>QR Scanner</ModalHeader>
         {/* <ModalCloseButton /> */}
         <ModalBody>
           <Container maxW="md">
@@ -115,11 +115,11 @@ const QrScanner = ({
             />
             {bulkModeSupported && (
               <HStack>
-                <Button onClick={onToggleBulkMode}>Bulk Mode</Button>
                 <HStack>
                   <Button>-</Button>
                   <Button>+</Button>
                 </HStack>
+                <Button onClick={onToggleBulkMode}>Bulk Mode</Button>
               </HStack>
             )}
             {bulkModeSupported && isBulkModeActive && (
@@ -131,17 +131,16 @@ const QrScanner = ({
                     </Checkbox>
                   ))}
                 </VStack>
-                <Button onClick={onBulkScanningDone}>Scanning done</Button>
+                <Button onClick={onBulkScanningDone} colorScheme="blue">Scanning done</Button>
               </VStack>
             )}
           </Container>
         </ModalBody>
 
         <ModalFooter>
-          <Button colorScheme="blue" mr={3} onClick={onClose}>
-            Close
+          <Button mr={3} onClick={onClose}>
+            Cancel
           </Button>
-          <Button variant="ghost">Secondary Action</Button>
         </ModalFooter>
       </ModalContent>
     </Modal>
