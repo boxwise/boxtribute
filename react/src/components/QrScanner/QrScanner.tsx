@@ -5,6 +5,14 @@ import {
   HStack,
   List,
   ListItem,
+  Modal,
+  ModalBody,
+  ModalCloseButton,
+  ModalContent,
+  ModalFooter,
+  ModalHeader,
+  ModalOverlay,
+  useDisclosure,
   VStack,
 } from "@chakra-ui/react";
 import { QrReader } from "components/QrReader/QrReader";
@@ -74,46 +82,69 @@ const QrScanner = ({
 
   const onToggleBulkMode = () => setIsBulkModeActive((prev) => !prev);
 
+  const { isOpen, onOpen, onClose } = useDisclosure({ defaultIsOpen: true });
+
   return (
-    <Container maxW="md">
-      <QrReader
-        videoId="video"
-        ViewFinder={ViewFinder}
-        constraints={{
-          facingMode: "environment",
-        }}
-        scanDelay={1000}
-        onResult={(result, error) => {
-          if (!!result) {
-            onResult(result["text"]);
-          }
-          if (!!error) {
-            console.info(error);
-          }
-        }}
-      />
-      {bulkModeSupported && (
-        <HStack>
-          <Button onClick={onToggleBulkMode}>Bulk Mode</Button>
-          <HStack>
-            <Button>-</Button>
-            <Button>+</Button>
-          </HStack>
-        </HStack>
-      )}
-      {bulkModeSupported && isBulkModeActive && (
-        <VStack>
-          <VStack spacing={5} direction="row">
-            {scannedQrValues.map((qrCode, i) => (
-              <Checkbox key={i} colorScheme="green" defaultChecked>
-                {qrCode}
-              </Checkbox>
-            ))}
-          </VStack>
-          <Button onClick={onBulkScanningDone}>Scanning done</Button>
-        </VStack>
-      )}
-    </Container>
+    <Modal
+      isOpen={isOpen}
+      closeOnOverlayClick={false}
+      closeOnEsc={false}
+      onClose={() => {}}
+    >
+      <ModalOverlay />
+      <ModalContent>
+        <ModalHeader>Modal Title</ModalHeader>
+        {/* <ModalCloseButton /> */}
+        <ModalBody>
+          <Container maxW="md">
+            <QrReader
+              videoId="video"
+              ViewFinder={ViewFinder}
+              constraints={{
+                facingMode: "environment",
+              }}
+              scanDelay={1000}
+              onResult={(result, error) => {
+                if (!!result) {
+                  onResult(result["text"]);
+                }
+                if (!!error) {
+                  console.info(error);
+                }
+              }}
+            />
+            {bulkModeSupported && (
+              <HStack>
+                <Button onClick={onToggleBulkMode}>Bulk Mode</Button>
+                <HStack>
+                  <Button>-</Button>
+                  <Button>+</Button>
+                </HStack>
+              </HStack>
+            )}
+            {bulkModeSupported && isBulkModeActive && (
+              <VStack>
+                <VStack spacing={5} direction="row">
+                  {scannedQrValues.map((qrCode, i) => (
+                    <Checkbox key={i} colorScheme="green" defaultChecked>
+                      {qrCode}
+                    </Checkbox>
+                  ))}
+                </VStack>
+                <Button onClick={onBulkScanningDone}>Scanning done</Button>
+              </VStack>
+            )}
+          </Container>
+        </ModalBody>
+
+        <ModalFooter>
+          <Button colorScheme="blue" mr={3} onClick={onClose}>
+            Close
+          </Button>
+          <Button variant="ghost">Secondary Action</Button>
+        </ModalFooter>
+      </ModalContent>
+    </Modal>
   );
 };
 
