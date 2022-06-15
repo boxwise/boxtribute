@@ -69,6 +69,9 @@ export interface QrScannerProps {
   // bulkModeActive: boolean;
   // onToggleBulkMode: () => void;
   onResult: (qrValue: string) => void;
+  // onOpen: () => void;
+  onClose: () => void;
+  isOpen: boolean;
 }
 const QrScanner = ({
   bulkModeSupported,
@@ -77,19 +80,22 @@ const QrScanner = ({
   // bulkModeActive,
   // onToggleBulkMode,
   onResult,
+  // onOpen, 
+  onClose, 
+  isOpen
 }: QrScannerProps) => {
   const [isBulkModeActive, setIsBulkModeActive] = useState(false);
 
   const onToggleBulkMode = () => setIsBulkModeActive((prev) => !prev);
 
-  const { isOpen, onOpen, onClose } = useDisclosure({ defaultIsOpen: true });
+  // const { isOpen, onOpen, onClose } = useDisclosure({ defaultIsOpen: true });
 
   return (
     <Modal
       isOpen={isOpen}
       closeOnOverlayClick={false}
       closeOnEsc={false}
-      onClose={() => {}}
+      onClose={onClose}
     >
       <ModalOverlay />
       <ModalContent>

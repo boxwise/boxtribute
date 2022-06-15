@@ -17,10 +17,14 @@ const Template: ComponentStory<typeof QrScanner> = (args) => <QrScanner {...args
 
 export const Default = Template.bind({});
 Default.args = {
+  // name: "QR Scanner",
+  isOpen: true,
   bulkModeSupported: true,
   scannedQrValues: ["Box 204214", "Box 048810", "Box 983255"], 
   onBulkScanningDone: action(`bulk scanning done`),
   // bulkModeActive: false,
   // onToggleBulkMode: action(`bulk mode toggled`),
-  onResult: action(`received result`)
+  onResult: action(`received result`),
+  // onOpen: action(`open`),
+  onClose: action(`close`),
 }

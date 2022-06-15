@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useState } from "react";
 import { QrReader } from "react-qr-reader";
-import {Container } from "@chakra-ui/react";
+import { Container, useDisclosure } from "@chakra-ui/react";
 import { gql, useLazyQuery } from "@apollo/client";
 import {
   GetBoxLabelIdentifierForQrCodeQuery,
@@ -28,31 +28,37 @@ const GET_BOX_LABEL_IDENTIFIER_BY_QR_CODE = gql`
 
 const QrScannerOverlayView = () => {
   const [getBoxLabelIdentifierByQrCode, { data }] = useLazyQuery<
-  GetBoxLabelIdentifierForQrCodeQuery,
+    GetBoxLabelIdentifierForQrCodeQuery,
     GetBoxLabelIdentifierForQrCodeQueryVariables
   >(GET_BOX_LABEL_IDENTIFIER_BY_QR_CODE);
   const navigate = useNavigate();
   const baseId = useParams<{ baseId: string }>().baseId!;
 
+  const { isOpen, onClose } = useDisclosure({ defaultIsOpen: true });
+
   useEffect(() => {
-      data?.qrCode?.box?.labelIdentifier && navigate(`/bases/${baseId}/boxes/${data.qrCode.box.labelIdentifier}`);
+    data?.qrCode?.box?.labelIdentifier &&
+      navigate(`/bases/${baseId}/boxes/${data.qrCode.box.labelIdentifier}`);
   }, [baseId, data, navigate]);
 
   // const [isBulkModeActive, setIsBulkModeActive] = useState(false);
   const [scannedQrValues, setScannedQrValues] = useState<string[]>([]);
 
-  const onResult = useCallback((result: string) => {
-    if (!!result) {
-      const qrCode = extractQrCodeFromUrl(result);
-      if (qrCode != null) {
-        getBoxLabelIdentifierByQrCode({ variables: { qrCode } });
+  const onResult = useCallback(
+    (result: string) => {
+      if (!!result) {
+        const qrCode = extractQrCodeFromUrl(result);
+        if (qrCode != null) {
+          getBoxLabelIdentifierByQrCode({ variables: { qrCode } });
+        }
       }
-    }
-  }, [getBoxLabelIdentifierByQrCode]);
+    },
+    [getBoxLabelIdentifierByQrCode]
+  );
 
   const onBulkScanningDone = () => {
     console.debug("Bulk Scanning Done");
-  }
+  };
 
   return (
     <QrScanner
@@ -60,6 +66,9 @@ const QrScannerOverlayView = () => {
       scannedQrValues={scannedQrValues}
       onResult={onResult}
       onBulkScanningDone={onBulkScanningDone}
+      isOpen={isOpen}
+      // onOpen={onOpen}
+      onClose={onClose}
       // bulkModeActive={isBulkModeActive}
       // onToggleBulkMode={() => setIsBulkModeActive(prev => !prev)}
     />
