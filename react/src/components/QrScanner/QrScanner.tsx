@@ -80,12 +80,12 @@ const QrScanner = ({
   // bulkModeActive,
   // onToggleBulkMode,
   onResult,
-  // onOpen, 
-  onClose, 
-  isOpen
+  // onOpen,
+  onClose,
+  isOpen,
 }: QrScannerProps) => {
   const [isBulkModeActive, setIsBulkModeActive] = useState(false);
-
+  const [zoomLevel, setZoomLevel] = useState(1);
   const onToggleBulkMode = () => setIsBulkModeActive((prev) => !prev);
 
   // const { isOpen, onOpen, onClose } = useDisclosure({ defaultIsOpen: true });
@@ -108,6 +108,7 @@ const QrScanner = ({
               ViewFinder={ViewFinder}
               constraints={{
                 facingMode: "environment",
+                zoom: zoomLevel,
               }}
               scanDelay={1000}
               onResult={(result, error) => {
@@ -122,8 +123,22 @@ const QrScanner = ({
             {bulkModeSupported && (
               <HStack>
                 <HStack>
-                  <Button>-</Button>
-                  <Button>+</Button>
+                  <Button
+                    disabled={zoomLevel <= 1}
+                    onClick={() =>
+                      setZoomLevel((curr) => (curr > 1 ? curr - 1 : curr))
+                    }
+                  >
+                    -
+                  </Button>
+                  <Button
+                    disabled={zoomLevel >= 8}
+                    onClick={() =>
+                      setZoomLevel((curr) => (curr < 8 ? curr + 1 : curr))
+                    }
+                  >
+                    +
+                  </Button>
                 </HStack>
                 <Button onClick={onToggleBulkMode}>Bulk Mode</Button>
               </HStack>
@@ -137,7 +152,9 @@ const QrScanner = ({
                     </Checkbox>
                   ))}
                 </VStack>
-                <Button onClick={onBulkScanningDone} colorScheme="blue">Scanning done</Button>
+                <Button onClick={onBulkScanningDone} colorScheme="blue">
+                  Scanning done
+                </Button>
               </VStack>
             )}
           </Container>

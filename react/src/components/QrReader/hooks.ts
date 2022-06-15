@@ -15,7 +15,7 @@ export const useQrReader: UseQrReaderHook = ({
   const controlsRef: MutableRefObject<IScannerControls | null> = useRef<IScannerControls>(null);
 
   useEffect(() => {
-    controlsRef?.current?.stop();
+    // controlsRef?.current?.stop();
     const codeReader = new BrowserQRCodeReader(undefined, {
       delayBetweenScanAttempts,
     });
