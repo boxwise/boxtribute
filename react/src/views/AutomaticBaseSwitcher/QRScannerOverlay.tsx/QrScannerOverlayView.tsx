@@ -62,8 +62,9 @@ const QrScannerOverlayView = () => {
 
   return (
     <QrScanner
-      bulkModeSupported={true}
+      isBulkModeSupported={true}
       scannedQrValues={scannedQrValues}
+      setScannedQrValues={setScannedQrValues}
       onResult={onResult}
       onBulkScanningDone={onBulkScanningDone}
       isOpen={isOpen}

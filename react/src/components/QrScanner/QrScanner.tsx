@@ -63,8 +63,9 @@ export const ViewFinder = () => (
 );
 
 export interface QrScannerProps {
-  bulkModeSupported: boolean;
+  isBulkModeSupported: boolean;
   scannedQrValues: string[];
+  setScannedQrValues: (scannedQrValues: string[]) => void
   onBulkScanningDone: () => void;
   // bulkModeActive: boolean;
   // onToggleBulkMode: () => void;
@@ -74,7 +75,8 @@ export interface QrScannerProps {
   isOpen: boolean;
 }
 const QrScanner = ({
-  bulkModeSupported,
+  isBulkModeSupported,
+  isOpen,
   scannedQrValues,
   onBulkScanningDone,
   // bulkModeActive,
@@ -82,13 +84,16 @@ const QrScanner = ({
   onResult,
   // onOpen,
   onClose,
-  isOpen,
 }: QrScannerProps) => {
   const [isBulkModeActive, setIsBulkModeActive] = useState(false);
   const [zoomLevel, setZoomLevel] = useState(1);
   const onToggleBulkMode = () => setIsBulkModeActive((prev) => !prev);
 
   // const { isOpen, onOpen, onClose } = useDisclosure({ defaultIsOpen: true });
+
+  const addQrValueToBulkList = (qrValue: string) => {
+
+  }
 
   return (
     <Modal
@@ -113,14 +118,19 @@ const QrScanner = ({
               scanDelay={1000}
               onResult={(result, error) => {
                 if (!!result) {
-                  onResult(result["text"]);
+                  if (!isBulkModeSupported || !isBulkModeActive) {
+                    onResult(result["text"]);
+                  }
+                  else {
+                    addQrValueToBulkList(result["text"])
+                  }
                 }
                 if (!!error) {
                   console.info(error);
                 }
               }}
             />
-            {bulkModeSupported && (
+            {isBulkModeSupported && (
               <HStack>
                 <HStack>
                   <Button
@@ -143,7 +153,7 @@ const QrScanner = ({
                 <Button onClick={onToggleBulkMode}>Bulk Mode</Button>
               </HStack>
             )}
-            {bulkModeSupported && isBulkModeActive && (
+            {isBulkModeSupported && isBulkModeActive && (
               <VStack>
                 <VStack spacing={5} direction="row">
                   {scannedQrValues.map((qrCode, i) => (
