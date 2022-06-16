@@ -43,7 +43,7 @@ const QrScannerOverlayView = () => {
 
   // const [isBulkModeActive, setIsBulkModeActive] = useState(false);
   
-  const qrValueResolver = (qrValueWrapper: QrValueWrapper): Promise<QrValueWrapper> => {
+  const qrValueResolver = (qrValueWrapper: QrValueWrapper): QrValueWrapper => {
     // qrValueWrapper.isLoading = false;
     // qrValueWrapper.finalValue = extractQrCodeFromUrl(qrValueWrapper.key) || "Error";
     const resolvedQrValueWrapper = {
@@ -52,7 +52,8 @@ const QrScannerOverlayView = () => {
       finalValue: extractQrCodeFromUrl(qrValueWrapper.key) || "Error"
     } as QrValueWrapper
 
-    return Promise.resolve(resolvedQrValueWrapper);
+    // return Promise.resolve(resolvedQrValueWrapper);
+    return resolvedQrValueWrapper;
 
   };
   

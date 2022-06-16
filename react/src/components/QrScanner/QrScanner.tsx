@@ -79,7 +79,7 @@ export interface QrScannerProps {
   // bulkModeActive: boolean;
   // onToggleBulkMode: () => void;
   onResult: (qrValue: string) => void;
-  qrValueResolver: (qrValueWrapper: QrValueWrapper) => Promise<QrValueWrapper>;
+  qrValueResolver: (qrValueWrapper: QrValueWrapper) => Promise<QrValueWrapper> | QrValueWrapper;
   // updateQrValueWrapper: (qrValueWrapper)
   // onOpen: () => void;
   onClose: () => void;
