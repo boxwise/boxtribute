@@ -19,7 +19,7 @@ export const Default = Template.bind({});
 Default.args = {
   isOpen: true,
   isBulkModeSupported: true,
-  scannedQrValues: ["Box 204214", "Box 048810", "Box 983255"], 
+  scannedQrValues: [{key: "1", isLoading: true, interimValue: "Box #1 (loading...)"}, {key: "1", isLoading: true, interimValue: "Box #2 (loading...)"}, {key: "3", isLoading: false, finalValue: "Box 204214"}], 
   onBulkScanningDone: action(`bulk scanning done`),
   // bulkModeActive: false,
   // onToggleBulkMode: action(`bulk mode toggled`),

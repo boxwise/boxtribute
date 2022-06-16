@@ -16,7 +16,7 @@ import {
   VStack,
 } from "@chakra-ui/react";
 import { QrReader } from "components/QrReader/QrReader";
-import { useState } from "react";
+import { Dispatch, SetStateAction, useState } from "react";
 
 export const ViewFinder = () => (
   <>
@@ -62,10 +62,19 @@ export const ViewFinder = () => (
   </>
 );
 
+export interface QrValueWrapper {
+  key: string;
+  isLoading: boolean;
+  interimValue?: string;
+  finalValue?: string;
+};
+
 export interface QrScannerProps {
   isBulkModeSupported: boolean;
-  scannedQrValues: string[];
-  setScannedQrValues: (scannedQrValues: string[]) => void
+  scannedQrValues: QrValueWrapper[];
+  // setScannedQrValues: ((scannedQrValues: string[]) => void) | ((setter: ((prev: string[]) => string[])) => void)
+  setScannedQrValues: Dispatch<SetStateAction<QrValueWrapper[]>>;
+  // setScannedQrValues: ((setter: ((prev: string[]) => string[])) => void)
   onBulkScanningDone: () => void;
   // bulkModeActive: boolean;
   // onToggleBulkMode: () => void;
@@ -78,6 +87,7 @@ const QrScanner = ({
   isBulkModeSupported,
   isOpen,
   scannedQrValues,
+  setScannedQrValues,
   onBulkScanningDone,
   // bulkModeActive,
   // onToggleBulkMode,
@@ -89,10 +99,8 @@ const QrScanner = ({
   const [zoomLevel, setZoomLevel] = useState(1);
   const onToggleBulkMode = () => setIsBulkModeActive((prev) => !prev);
 
-  // const { isOpen, onOpen, onClose } = useDisclosure({ defaultIsOpen: true });
-
   const addQrValueToBulkList = (qrValue: string) => {
-
+    setScannedQrValues(prev => [...prev, {key: qrValue, isLoading: true, interimValue: "loading..."}]);
   }
 
   return (
@@ -118,11 +126,11 @@ const QrScanner = ({
               scanDelay={1000}
               onResult={(result, error) => {
                 if (!!result) {
-                  if (!isBulkModeSupported || !isBulkModeActive) {
-                    onResult(result["text"]);
+                  if(isBulkModeSupported && isBulkModeActive) {
+                    addQrValueToBulkList(result["text"])
                   }
                   else {
-                    addQrValueToBulkList(result["text"])
+                    onResult(result["text"]);
                   }
                 }
                 if (!!error) {
@@ -156,9 +164,9 @@ const QrScanner = ({
             {isBulkModeSupported && isBulkModeActive && (
               <VStack>
                 <VStack spacing={5} direction="row">
-                  {scannedQrValues.map((qrCode, i) => (
+                  {scannedQrValues.map((qrCodeValueWrapper, i) => (
                     <Checkbox key={i} colorScheme="green" defaultChecked>
-                      {qrCode}
+                      {qrCodeValueWrapper.isLoading ? qrCodeValueWrapper.interimValue : qrCodeValueWrapper.finalValue}
                     </Checkbox>
                   ))}
                 </VStack>

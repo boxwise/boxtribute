@@ -7,7 +7,7 @@ import {
   GetBoxLabelIdentifierForQrCodeQueryVariables,
 } from "types/generated/graphql";
 import { useNavigate, useParams } from "react-router-dom";
-import QrScanner from "components/QrScanner/QrScanner";
+import QrScanner, { QrValueWrapper } from "components/QrScanner/QrScanner";
 
 const extractQrCodeFromUrl = (url) => {
   const rx = /.*barcode=(.*)/g;
@@ -42,7 +42,7 @@ const QrScannerOverlayView = () => {
   }, [baseId, data, navigate]);
 
   // const [isBulkModeActive, setIsBulkModeActive] = useState(false);
-  const [scannedQrValues, setScannedQrValues] = useState<string[]>([]);
+  const [scannedQrValues, setScannedQrValues] = useState<QrValueWrapper[]>([]);
 
   const onResult = useCallback(
     (result: string) => {
