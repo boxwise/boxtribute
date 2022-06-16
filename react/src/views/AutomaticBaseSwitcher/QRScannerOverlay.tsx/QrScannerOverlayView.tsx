@@ -42,7 +42,18 @@ const QrScannerOverlayView = () => {
   }, [baseId, data, navigate]);
 
   // const [isBulkModeActive, setIsBulkModeActive] = useState(false);
-  const [scannedQrValues, setScannedQrValues] = useState<QrValueWrapper[]>([]);
+  
+  const qrValueResolver = (qrValueWrapper: QrValueWrapper) => {
+    qrValueWrapper.isLoading = false;
+    qrValueWrapper.finalValue = extractQrCodeFromUrl(qrValueWrapper.key) || "Error";
+
+    // {
+    //   ...qrValueWrapper, 
+    //   isLoading: false, 
+    //   finalValue: extractQrCodeFromUrl(qrValueWrapper.key) || "Error"
+    // } as QrValueWrapper
+  };
+  
 
   const onResult = useCallback(
     (result: string) => {
@@ -63,9 +74,8 @@ const QrScannerOverlayView = () => {
   return (
     <QrScanner
       isBulkModeSupported={true}
-      scannedQrValues={scannedQrValues}
-      setScannedQrValues={setScannedQrValues}
       onResult={onResult}
+      qrValueResoler={qrValueResolver}
       onBulkScanningDone={onBulkScanningDone}
       isOpen={isOpen}
       // onOpen={onOpen}

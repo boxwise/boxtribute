@@ -71,14 +71,15 @@ export interface QrValueWrapper {
 
 export interface QrScannerProps {
   isBulkModeSupported: boolean;
-  scannedQrValues: QrValueWrapper[];
+  // scannedQrValues: QrValueWrapper[];
   // setScannedQrValues: ((scannedQrValues: string[]) => void) | ((setter: ((prev: string[]) => string[])) => void)
-  setScannedQrValues: Dispatch<SetStateAction<QrValueWrapper[]>>;
+  // setScannedQrValues: Dispatch<SetStateAction<QrValueWrapper[]>>;
   // setScannedQrValues: ((setter: ((prev: string[]) => string[])) => void)
   onBulkScanningDone: () => void;
   // bulkModeActive: boolean;
   // onToggleBulkMode: () => void;
   onResult: (qrValue: string) => void;
+  qrValueResoler: (qrValueWrapper: QrValueWrapper) => void;
   // onOpen: () => void;
   onClose: () => void;
   isOpen: boolean;
@@ -86,9 +87,8 @@ export interface QrScannerProps {
 const QrScanner = ({
   isBulkModeSupported,
   isOpen,
-  scannedQrValues,
-  setScannedQrValues,
   onBulkScanningDone,
+  qrValueResoler,
   // bulkModeActive,
   // onToggleBulkMode,
   onResult,
@@ -98,9 +98,16 @@ const QrScanner = ({
   const [isBulkModeActive, setIsBulkModeActive] = useState(false);
   const [zoomLevel, setZoomLevel] = useState(1);
   const onToggleBulkMode = () => setIsBulkModeActive((prev) => !prev);
+  const [scannedQrValues, setScannedQrValues] = useState<QrValueWrapper[]>([]);
 
   const addQrValueToBulkList = (qrValue: string) => {
-    setScannedQrValues(prev => [...prev, {key: qrValue, isLoading: true, interimValue: "loading..."}]);
+    if(scannedQrValues.some(curr => curr.key === qrValue)) {
+      return;
+    }
+
+    const newQrValueWrapper = {key: qrValue, isLoading: true, interimValue: "loading..."};
+    qrValueResoler(newQrValueWrapper);
+    setScannedQrValues(prev => [...prev, newQrValueWrapper]);
   }
 
   return (
