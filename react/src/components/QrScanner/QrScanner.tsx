@@ -105,10 +105,10 @@ const QrScanner = ({
   const [scannedQrValues, setScannedQrValues] = useState<QrValueWrapper[]>([]);
 
   const addQrValueToBulkList = async (qrValue: string) => {
+    console.debug("scannedQrValues", scannedQrValues);
+    console.debug("qrValue", qrValue);
     if (scannedQrValues.some((curr) => curr.key === qrValue)) {
-      // alert("DUPLICATE!");
-      console.debug("scannedQrValues", scannedQrValues);
-      console.debug("qrValue", qrValue);
+      alert("DUPLICATE!");
       return;
     } else {
       const newQrValueWrapper = {
