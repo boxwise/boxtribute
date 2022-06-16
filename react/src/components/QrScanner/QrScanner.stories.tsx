@@ -17,11 +17,25 @@ const Template: ComponentStory<typeof QrScanner> = (args) => <QrScanner {...args
 
 
 
-const qrValueResolver = (qrValueWrapper: QrValueWrapper) => {
-  setTimeout(() => {
-    qrValueWrapper.isLoading = false;
-    qrValueWrapper.finalValue = qrValueWrapper.key;
-  }, 2000);
+// const qrValueResolver = (qrValueWrapper: QrValueWrapper) => {
+
+// };
+
+const qrValueResolver = (
+  qrValueWrapper: QrValueWrapper
+): Promise<QrValueWrapper> => {
+  return new Promise<QrValueWrapper>((resolve, reject) => {
+    setTimeout(() => {
+      qrValueWrapper.isLoading = false;
+      qrValueWrapper.finalValue = qrValueWrapper.key;
+      const resolvedQrValueWrapper = {
+        ...qrValueWrapper,
+        isLoading: false,
+        finalValue: qrValueWrapper.key,
+      } as QrValueWrapper;
+      resolve(resolvedQrValueWrapper);
+    }, 2000);
+  });
 };
 
 export const Default = Template.bind({});
@@ -30,7 +44,7 @@ Default.args = {
   isBulkModeSupported: true,
   // scannedQrValues: [{key: "1", isLoading: true, interimValue: "Box #1 (loading...)"}, {key: "1", isLoading: true, interimValue: "Box #2 (loading...)"}, {key: "3", isLoading: false, finalValue: "Box 204214"}], 
   onBulkScanningDone: action(`bulk scanning done`),
-  qrValueResoler: qrValueResolver,
+  qrValueResolver: qrValueResolver,
   // setScannedQrValues: ,
   // bulkModeActive: false,
   // onToggleBulkMode: action(`bulk mode toggled`),

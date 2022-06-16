@@ -43,15 +43,17 @@ const QrScannerOverlayView = () => {
 
   // const [isBulkModeActive, setIsBulkModeActive] = useState(false);
   
-  const qrValueResolver = (qrValueWrapper: QrValueWrapper) => {
-    qrValueWrapper.isLoading = false;
-    qrValueWrapper.finalValue = extractQrCodeFromUrl(qrValueWrapper.key) || "Error";
+  const qrValueResolver = (qrValueWrapper: QrValueWrapper): Promise<QrValueWrapper> => {
+    // qrValueWrapper.isLoading = false;
+    // qrValueWrapper.finalValue = extractQrCodeFromUrl(qrValueWrapper.key) || "Error";
+    const resolvedQrValueWrapper = {
+      ...qrValueWrapper, 
+      isLoading: false, 
+      finalValue: extractQrCodeFromUrl(qrValueWrapper.key) || "Error"
+    } as QrValueWrapper
 
-    // {
-    //   ...qrValueWrapper, 
-    //   isLoading: false, 
-    //   finalValue: extractQrCodeFromUrl(qrValueWrapper.key) || "Error"
-    // } as QrValueWrapper
+    return Promise.resolve(resolvedQrValueWrapper);
+
   };
   
 
@@ -75,7 +77,7 @@ const QrScannerOverlayView = () => {
     <QrScanner
       isBulkModeSupported={true}
       onResult={onResult}
-      qrValueResoler={qrValueResolver}
+      qrValueResolver={qrValueResolver}
       onBulkScanningDone={onBulkScanningDone}
       isOpen={isOpen}
       // onOpen={onOpen}
