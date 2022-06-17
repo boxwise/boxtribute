@@ -16,7 +16,7 @@ import {
   VStack,
 } from "@chakra-ui/react";
 import { QrReader } from "components/QrReader/QrReader";
-import { Dispatch, SetStateAction, useState } from "react";
+import { Dispatch, SetStateAction, useCallback, useRef, useState } from "react";
 
 export const ViewFinder = () => (
   <>
@@ -75,7 +75,7 @@ export interface QrScannerProps {
   // setScannedQrValues: ((scannedQrValues: string[]) => void) | ((setter: ((prev: string[]) => string[])) => void)
   // setScannedQrValues: Dispatch<SetStateAction<QrValueWrapper[]>>;
   // setScannedQrValues: ((setter: ((prev: string[]) => string[])) => void)
-  onBulkScanningDone: () => void;
+  onBulkScanningDone: (qrValues: QrValueWrapper[]) => void;
   // bulkModeActive: boolean;
   // onToggleBulkMode: () => void;
   onResult: (qrValue: string) => void;
@@ -104,11 +104,20 @@ const QrScanner = ({
   const onToggleBulkMode = () => setIsBulkModeActive((prev) => !prev);
   const [scannedQrValues, setScannedQrValues] = useState<Map<string, QrValueWrapper>>(new Map());
 
-  const addQrValueToBulkList = async (qrValue: string) => {
+  const onBulkScanningDoneButtonClick = useCallback(() => {
+    onBulkScanningDone(
+      Array.from(scannedQrValues.values()).map(c => c)
+    )
+  }, [onBulkScanningDone, scannedQrValues]);
+
+  const scannerBlockedSignal = useRef(false);
+
+  const addQrValueToBulkList = useCallback(async (qrValue: string) => {
     console.debug("scannedQrValues", scannedQrValues);
     console.debug("qrValue", qrValue);
     // if (scannedQrValues.some((curr) => curr.key === qrValue)) {
     if (!scannedQrValues.has(qrValue)) {
+      // alert("Not yet there")
       const newQrValueWrapper = {
         key: qrValue,
         isLoading: true,
@@ -129,7 +138,9 @@ const QrScanner = ({
         return new Map(prev.set(qrValue, resolvedQrValueWrapper));
       });
     }
-  };
+    scannerBlockedSignal.current = false;
+    // alert("leaving addQrValueToBulkList");
+  }, [qrValueResolver, scannedQrValues]);
 
   return (
     <Modal
@@ -153,8 +164,14 @@ const QrScanner = ({
               }}
               scanDelay={1000}
               onResult={(result, error) => {
+                if(scannerBlockedSignal.current) {
+                  // alert("onResult - scannerBlockedSignal.current === true");
+                  return;
+                }
+
                 if (!!result) {
                   if (isBulkModeSupported && isBulkModeActive) {
+                    scannerBlockedSignal.current = true;
                     addQrValueToBulkList(result["text"]);
                   } else {
                     onResult(result["text"]);
@@ -202,7 +219,7 @@ const QrScanner = ({
                     )
                   })}
                 </VStack>
-                <Button onClick={onBulkScanningDone} colorScheme="blue">
+                <Button onClick={onBulkScanningDoneButtonClick} colorScheme="blue">
                   Scanning done
                 </Button>
               </VStack>
