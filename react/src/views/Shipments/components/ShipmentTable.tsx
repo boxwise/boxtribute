@@ -10,6 +10,7 @@ import {
   Tbody,
   Td,
   Flex,
+  Box,
 } from "@chakra-ui/react";
 import {
   Column,
@@ -46,11 +47,17 @@ export type ShipmentRow = {
 };
 
 type ShipmentTableProps = {
-    tableData: ShipmentRow[];
+  isIncoming: boolean;
+  onCancelShipmentClick: () => void;
+  onSendShipmentClick: () => void;
+  tableData: ShipmentRow[];
 };
 
 const ShipmentTable = ({
+  onCancelShipmentClick,
+  onSendShipmentClick,
   tableData,
+  isIncoming,
 }: ShipmentTableProps) => {
 //   const navigate = useNavigate();
 //   const baseId = useParams<{ baseId: string }>().baseId!;
@@ -124,7 +131,19 @@ const ShipmentTable = ({
           globalFilter={globalFilter}
           setGlobalFilter={setGlobalFilter}
         />
-
+        <Box>
+        {isIncoming ? (
+          <>
+          {/* <Button mx={2} onClick={onCompleteShipmentClick}>Complete the Shipment</Button> */}
+          <Button mx={2} onClick={onCancelShipmentClick}>Cancel the Shipment</Button>
+           </>
+        ) : (
+          <>
+          <Button mx={2} onClick={onSendShipmentClick}>Receive the Shipment</Button>
+          <Button mx={2} onClick={onCancelShipmentClick}>Cancel the Shipment</Button>
+          </>
+        )}
+        </Box>
         {headerGroups.map((headerGroup) => {
           return headerGroup.headers.map((column) =>
             column.Filter ? (

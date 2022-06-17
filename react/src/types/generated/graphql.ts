@@ -931,6 +931,20 @@ export type ShipmentByIdQueryVariables = Exact<{
 
 export type ShipmentByIdQuery = { __typename?: 'Query', shipment?: { __typename?: 'Shipment', id: string, state?: ShipmentState | null, startedOn: any, sourceBase?: { __typename?: 'Base', id: string, name: string } | null, targetBase?: { __typename?: 'Base', id: string, name: string } | null, details: Array<{ __typename?: 'ShipmentDetail', box: { __typename?: 'Box', labelIdentifier: string, items: number, product?: { __typename?: 'Product', name: string, gender?: ProductGender | null, sizes: Array<string> } | null } }> } | null };
 
+export type SendShipmentMutationVariables = Exact<{
+  id: Scalars['ID'];
+}>;
+
+
+export type SendShipmentMutation = { __typename?: 'Mutation', sendShipment?: { __typename?: 'Shipment', id: string } | null };
+
+export type CancelShipmentMutationVariables = Exact<{
+  id: Scalars['ID'];
+}>;
+
+
+export type CancelShipmentMutation = { __typename?: 'Mutation', cancelShipment?: { __typename?: 'Shipment', id: string } | null };
+
 export type ShipmentsQueryVariables = Exact<{ [key: string]: never; }>;
 
 
