@@ -33,7 +33,7 @@ const qrValueResolver = (
         isLoading: false,
         finalValue: qrValueWrapper.key,
       } as QrValueWrapper;
-      alert(JSON.stringify(resolvedQrValueWrapper))
+      // alert(JSON.stringify(resolvedQrValueWrapper))
       resolve(resolvedQrValueWrapper);
     }, 2000);
   });

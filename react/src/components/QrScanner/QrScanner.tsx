@@ -102,33 +102,31 @@ const QrScanner = ({
   const [isBulkModeActive, setIsBulkModeActive] = useState(false);
   const [zoomLevel, setZoomLevel] = useState(1);
   const onToggleBulkMode = () => setIsBulkModeActive((prev) => !prev);
-  const [scannedQrValues, setScannedQrValues] = useState<QrValueWrapper[]>([]);
+  const [scannedQrValues, setScannedQrValues] = useState<Map<string, QrValueWrapper>>(new Map());
 
   const addQrValueToBulkList = async (qrValue: string) => {
     console.debug("scannedQrValues", scannedQrValues);
     console.debug("qrValue", qrValue);
-    if (scannedQrValues.some((curr) => curr.key === qrValue)) {
-      alert("DUPLICATE!");
-      return;
-    } else {
+    // if (scannedQrValues.some((curr) => curr.key === qrValue)) {
+    if (!scannedQrValues.has(qrValue)) {
       const newQrValueWrapper = {
         key: qrValue,
         isLoading: true,
         interimValue: "loading...",
       };
-      setScannedQrValues((prev) => [...prev, newQrValueWrapper]);
+      setScannedQrValues((prev) => new Map(prev.set(qrValue, newQrValueWrapper)));
 
       const resolvedQrValueWrapper = await qrValueResolver(newQrValueWrapper);
       setScannedQrValues((prev) => {
-        const index = prev.findIndex(
-          (curr) => curr.key === resolvedQrValueWrapper.key
-        );
-        const scannedQrValues = [
-          ...prev.slice(0, index),
-          resolvedQrValueWrapper,
-          ...prev.slice(index + 1),
-        ];
-        return scannedQrValues;
+        // const index = prev.findIndex(
+        //   (curr) => curr.key === resolvedQrValueWrapper.key
+        // );
+        // const scannedQrValues = [
+        //   ...prev.slice(0, index),
+        //   resolvedQrValueWrapper,
+        //   ...prev.slice(index + 1),
+        // ];
+        return new Map(prev.set(qrValue, resolvedQrValueWrapper));
       });
     }
   };
@@ -163,7 +161,7 @@ const QrScanner = ({
                   }
                 }
                 if (!!error) {
-                  console.info(error);
+                  // console.info(error);
                 }
               }}
             />
@@ -193,13 +191,16 @@ const QrScanner = ({
             {isBulkModeSupported && isBulkModeActive && (
               <VStack>
                 <VStack spacing={5} direction="row">
-                  {scannedQrValues.map((qrCodeValueWrapper, i) => (
-                    <Checkbox key={i} colorScheme="green" defaultChecked>
+                  {Array.from(scannedQrValues.keys()).map((key) => {
+                    const qrCodeValueWrapper = scannedQrValues.get(key)!;
+                    return (
+                    <Checkbox key={key} colorScheme="green" defaultChecked>
                       {qrCodeValueWrapper.isLoading
                         ? qrCodeValueWrapper.interimValue
                         : qrCodeValueWrapper.finalValue}
                     </Checkbox>
-                  ))}
+                    )
+                  })}
                 </VStack>
                 <Button onClick={onBulkScanningDone} colorScheme="blue">
                   Scanning done
