@@ -47,6 +47,7 @@ from .shipment_detail import (
 )
 from .size import another_size, default_size
 from .size_range import default_size_range
+from .tag import tags
 from .transaction import default_transaction, relative_transaction
 from .transfer_agreement import (
     default_transfer_agreement,
@@ -104,6 +105,7 @@ __all__ = [
     "reviewed_transfer_agreement",
     "sent_shipment",
     "shipments",
+    "tags",
     "transfer_agreements",
     "unidirectional_transfer_agreement",
 ]
