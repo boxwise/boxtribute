@@ -26,7 +26,7 @@ const GET_BOX_LABEL_IDENTIFIER_BY_QR_CODE = gql`
   }
 `;
 
-const QrScannerOverlayView = () => {
+const QrScannerOverlay = () => {
   const [getBoxLabelIdentifierByQrCode, { data }] = useLazyQuery<
     GetBoxLabelIdentifierForQrCodeQuery,
     GetBoxLabelIdentifierForQrCodeQueryVariables
@@ -89,4 +89,4 @@ const QrScannerOverlayView = () => {
   );
 };
 
-export default QrScannerOverlayView;
+export default QrScannerOverlay;
