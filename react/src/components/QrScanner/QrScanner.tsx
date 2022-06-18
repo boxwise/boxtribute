@@ -1,4 +1,5 @@
 import {
+  Box,
   Button,
   Checkbox,
   Container,
@@ -112,12 +113,14 @@ const QrScanner = ({
 
   const scannerBlockedSignal = useRef(false);
 
-  const addQrValueToBulkList = useCallback(async (qrValue: string) => {
-    console.debug("scannedQrValues", scannedQrValues);
+  const addQrValueToBulkList = //useCallback(
+    async (qrValue: string) => {
+    alert(`scannedQrValues: ${JSON.stringify(Array.from(scannedQrValues.entries()))}`);
+    console.debug("scannedQrValues", Array.from(scannedQrValues.entries()));
     console.debug("qrValue", qrValue);
     // if (scannedQrValues.some((curr) => curr.key === qrValue)) {
     if (!scannedQrValues.has(qrValue)) {
-      // alert("Not yet there")
+      alert(`Not yet there; qrValue: ${qrValue}; scannedQrValues: ${JSON.stringify(Array.from(scannedQrValues.entries()))}`)
       const newQrValueWrapper = {
         key: qrValue,
         isLoading: true,
@@ -140,7 +143,7 @@ const QrScanner = ({
     }
     scannerBlockedSignal.current = false;
     // alert("leaving addQrValueToBulkList");
-  }, [qrValueResolver, scannedQrValues]);
+  }//, [qrValueResolver, scannedQrValues]);
 
   return (
     <Modal
@@ -164,7 +167,7 @@ const QrScanner = ({
               }}
               scanDelay={1000}
               onResult={(result, error) => {
-                if(scannerBlockedSignal.current) {
+                if (scannerBlockedSignal.current) {
                   // alert("onResult - scannerBlockedSignal.current === true");
                   return;
                 }
@@ -207,19 +210,31 @@ const QrScanner = ({
             )}
             {isBulkModeSupported && isBulkModeActive && (
               <VStack>
+                <Box>
+                  scannedQrValues:{" "}
+                  {JSON.stringify(Array.from(scannedQrValues.entries()))} <br />
+                </Box>
                 <VStack spacing={5} direction="row">
                   {Array.from(scannedQrValues.keys()).map((key) => {
                     const qrCodeValueWrapper = scannedQrValues.get(key)!;
                     return (
-                    <Checkbox key={key} colorScheme="green" defaultChecked>
-                      {qrCodeValueWrapper.isLoading
-                        ? qrCodeValueWrapper.interimValue
-                        : qrCodeValueWrapper.finalValue}
-                    </Checkbox>
-                    )
+                      <Checkbox
+                        key={key}
+                        colorScheme="green"
+                        defaultChecked={qrCodeValueWrapper.isLoading}
+                        disabled={qrCodeValueWrapper.isLoading}
+                      >
+                        {qrCodeValueWrapper.isLoading
+                          ? qrCodeValueWrapper.interimValue
+                          : qrCodeValueWrapper.finalValue}
+                      </Checkbox>
+                    );
                   })}
                 </VStack>
-                <Button onClick={onBulkScanningDoneButtonClick} colorScheme="blue">
+                <Button
+                  onClick={onBulkScanningDoneButtonClick}
+                  colorScheme="blue"
+                >
                   Scanning done
                 </Button>
               </VStack>
