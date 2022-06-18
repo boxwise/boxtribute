@@ -7,13 +7,13 @@ import BTLocation from "views/BTLocations/BTLocation";
 import Layout from "components/Layout";
 import AutomaticBaseSwitcher from "views/AutomaticBaseSwitcher/AutomaticBaseSwitcher";
 import { gql, useLazyQuery } from "@apollo/client";
-import QrScanner from "components/QrScanner";
 import { BasesQuery } from "types/generated/graphql";
 import { GlobalPreferencesContext } from "providers/GlobalPreferencesProvider";
 import BTBox from "views/Box/BoxView";
 import BoxEditView from "views/BoxEdit/BoxEditView";
 import { useAuth0 } from "@auth0/auth0-react";
 import jwt from 'jwt-decode'
+import QrScannerView from "views/QrScanner/QrScannerView";
 
 const useLoadAndSetAvailableBases = () => {
   const BASES_QUERY = gql`
@@ -72,7 +72,7 @@ const App = () => {
         <Route path="bases" element={<Layout />}>
           <Route index element={<AutomaticBaseSwitcher />}></Route>
           <Route path=":baseId">
-            <Route path="scan-qrcode" element={<QrScanner />} />
+            <Route path="scan-qrcode" element={<QrScannerView />} />
             <Route path="boxes">
               <Route index element={<Boxes />} />
               <Route path=":labelIdentifier" element={<BTBox />} />
