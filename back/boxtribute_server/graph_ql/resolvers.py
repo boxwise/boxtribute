@@ -29,7 +29,7 @@ from ..box_transfer.shipment import (
     send_shipment,
     update_shipment,
 )
-from ..enums import HumanGender, TransferAgreementType
+from ..enums import HumanGender, TagType, TransferAgreementType
 from ..models.crud import (
     create_beneficiary,
     create_box,
@@ -295,6 +295,11 @@ def resolve_metrics(*_, organisation_id=None):
 
     # Pass organisation ID to child resolvers
     return {"organisation_id": organisation_id}
+
+
+@tag.field("type")
+def resolve_tag_type(tag_obj, _):
+    return TagType(tag_obj.type)
 
 
 @tag.field("taggedResources")

@@ -13,7 +13,7 @@ type Tag {
   name: String!
   description: String
   color: String
-  tagType: TagType!
+  type: TagType!
   taggedResources: [TaggableResource!]!
 }
 
