@@ -845,13 +845,6 @@ export type BasesQueryVariables = Exact<{ [key: string]: never; }>;
 
 export type BasesQuery = { __typename?: 'Query', bases: Array<{ __typename?: 'Base', id: string, name: string }> };
 
-export type GetBoxLabelIdentifierForQrCodeQueryVariables = Exact<{
-  qrCode: Scalars['String'];
-}>;
-
-
-export type GetBoxLabelIdentifierForQrCodeQuery = { __typename?: 'Query', qrCode?: { __typename?: 'QrCode', box?: { __typename?: 'Box', id: string, labelIdentifier: string } | null } | null };
-
 export type LocationQueryVariables = Exact<{
   locationId: Scalars['ID'];
 }>;
@@ -902,3 +895,10 @@ export type BoxesForBaseQueryVariables = Exact<{
 
 
 export type BoxesForBaseQuery = { __typename?: 'Query', base?: { __typename?: 'Base', locations?: Array<{ __typename?: 'Location', boxes?: { __typename?: 'BoxPage', totalCount: number, elements: Array<{ __typename?: 'Box', labelIdentifier: string, id: string, state: BoxState, size?: string | null, items: number, product?: { __typename?: 'Product', gender?: ProductGender | null, name: string } | null, location?: { __typename?: 'Location', name?: string | null } | null }> } | null }> | null } | null };
+
+export type GetBoxLabelIdentifierForQrCodeQueryVariables = Exact<{
+  qrCode: Scalars['String'];
+}>;
+
+
+export type GetBoxLabelIdentifierForQrCodeQuery = { __typename?: 'Query', qrCode?: { __typename?: 'QrCode', box?: { __typename?: 'Box', id: string, labelIdentifier: string } | null } | null };
