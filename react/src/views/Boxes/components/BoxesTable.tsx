@@ -80,28 +80,6 @@ const ColumnSelector = ({
     [availableColumns]
   );
 
-  //   MultiValue<{
-  //     label: string;
-  //     value: string;
-  //   }>
-  // >(allSelectableColumnOptions);
-
-  // const onChangeSelectedColumnOpions = (
-  //   selectedColumnOptions: ColumnOptionCollection
-  // ) => {
-  //   if (selectedColumnOptions.length > 0) {
-  //     setSelectedColumns(
-  //       availableColumns.filter(
-  //         (column) =>
-  //           column.accessor != null &&
-  //           selectedColumnOptions
-  //             .map((col) => col.value)
-  //             .includes(column.accessor.toString())
-  //       )
-  //     );
-  //   }
-  // };
-
   const onCheckboxChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     
     const checked = e.target.checked;
@@ -215,24 +193,6 @@ const BoxesTable = ({ tableData, onBoxRowClick }: BoxesTableProps) => {
         selectedColumns={selectedColumns}
         setSelectedColumns={setSelectedColumns}
       />
-      {/* <FormControl p={4}>
-        <FormLabel>Select columns</FormLabel>
-        <Select
-          isMulti
-          name="columns"
-          options={allSelectableColumnOptions}
-          placeholder="Select columns"
-          closeMenuOnSelect={false}
-          onChange={(selected) => {
-            setSelectedColumnOptions((prev) =>
-              selected.length > 0 ? selected : prev
-            );
-          }}
-          value={selectedColumnOptions}
-          size="sm"
-          isClearable={false}
-        />
-      </FormControl> */}
       <ActualTable
         columns={orderedSelectedColumns}
         tableData={tableData}
@@ -302,17 +262,6 @@ const ActualTable = ({
     }
   );
 
-  // const groupedOptions = [
-  //   {
-  //     label: "Columns",
-  //     options: columns
-  //       .map((column) => ({
-  //         label: column.Header,
-  //         value: column.accessor,
-  //       }))
-  //       .filter((value) => value !== undefined),
-  //   },
-  // ];
   if (!show) {
     return <></>;
   }
@@ -320,17 +269,6 @@ const ActualTable = ({
   return (
     <>
       <Flex alignItems="center" flexWrap="wrap">
-        {/* <Select
-          // name={name}
-          // ref={ref}
-          // onChange={onChange}
-          // onBlur={onBlur}
-          value={value}
-          options={productsForDropdownGroups}
-          placeholder="Product"
-          isSearchable
-        /> */}
-
         <GlobalFilter
           globalFilter={globalFilter}
           setGlobalFilter={setGlobalFilter}
