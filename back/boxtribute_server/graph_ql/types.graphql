@@ -165,6 +165,14 @@ type DistributionEvent implements BoxPlace, UnboxedItemsCollectionPlace {
 
   # TODO: Think about copying entries from last distro events
   # TODO: extend schema so it supports also planning/packing lists
+  # TODO: make the reasoning clearer why it makes sense to introduce UnboxedItemCollection (instead of reusing Boxes) 
+  # => probably best to do this in the Tech Design Doc
+
+  # NOTES DURING HACKATHON REFINEMENT SESSION
+  # * Philipp: "Might be too chaotic (from Operational/Organizations POV) and maybe not really needed to introduce UnboxedItemCollection"
+  #   => This is how organization(s) work though in reality - they put both whole boxes but also often just unboxed items into the van
+  # * Vahid: "Worried about abuse of UnboxedItemCollection could be abused (e.g. 'lazzy' volunteers could use them while Box would be the right thing to use)"
+  #   => Would in this schema draft not be supported, since UnboxedItemCollection can only be in DistroEvents, not in classic Locations
 
   # Consider: supporting cohortes here (so group of beneficiaries, which are not all individually tracked)
 
