@@ -1,7 +1,13 @@
 """GraphQL resolver functionality"""
 from datetime import date
 
-from ariadne import MutationType, ObjectType, QueryType, UnionType, convert_kwargs_to_snake_case
+from ariadne import (
+    MutationType,
+    ObjectType,
+    QueryType,
+    UnionType,
+    convert_kwargs_to_snake_case,
+)
 from flask import g
 from peewee import fn
 
@@ -84,8 +90,6 @@ transfer_agreement = _register_object_type("TransferAgreement")
 user = _register_object_type("User")
 
 
-
-
 # query {
 #     taggableResources {
 #         id
@@ -106,12 +110,8 @@ user = _register_object_type("User")
 # }
 
 
-
-
-
-
 @query.field("tags")
-def resolve_tags(*_): 
+def resolve_tags(*_):
     # TODO: Add correct permissions here
     # authorize(permission="tags:read")
     return Tag.select()
@@ -297,7 +297,7 @@ def resolve_metrics(*_, organisation_id=None):
 
 
 @tag.field("taggedResources")
-def resolve_tag_taggable_resources(tag_obj, _): 
+def resolve_tag_taggable_resources(tag_obj, _):
     # # TODO Add correct permissions herer
     # # authorize(permission="tag:read")
     # return (
@@ -305,7 +305,6 @@ def resolve_tag_taggable_resources(tag_obj, _):
     # )
     # return [Box.get_by_id(1)]
     return []
-
 
 
 @beneficiary.field("tokens")
