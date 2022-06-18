@@ -46,11 +46,25 @@ const QrScannerOverlay = () => {
   const qrValueResolver = (qrValueWrapper: QrValueWrapper): QrValueWrapper => {
     // qrValueWrapper.isLoading = false;
     // qrValueWrapper.finalValue = extractQrCodeFromUrl(qrValueWrapper.key) || "Error";
+    
+    const extractedQrCodeFromUrl = extractQrCodeFromUrl(qrValueWrapper.key);
     const resolvedQrValueWrapper = {
       ...qrValueWrapper, 
       isLoading: false, 
-      finalValue: extractQrCodeFromUrl(qrValueWrapper.key) || "Error"
+      finalValue: extractedQrCodeFromUrl
     } as QrValueWrapper
+
+    if(extractedQrCodeFromUrl == null) {
+      // TODO: ADD PROPER ERROR MESSAGE HANDLING HERE
+      console.error("No Boxtribute QR Found")
+      throw new Error("No Boxtribute QR Found");
+    }
+
+    getBoxLabelIdentifierByQrCode({
+      variables: {
+        qrCode: extractedQrCodeFromUrl
+      }
+    })
 
     // return Promise.resolve(resolvedQrValueWrapper);
     return resolvedQrValueWrapper;
