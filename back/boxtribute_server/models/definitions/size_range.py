@@ -4,7 +4,7 @@ from ...db import db
 
 
 class SizeRange(db.Model):
-    label = CharField(null=True)
+    label = CharField()
     seq = IntegerField(null=True)
 
     class Meta:
