@@ -92,26 +92,6 @@ transfer_agreement = _register_object_type("TransferAgreement")
 user = _register_object_type("User")
 
 
-# query {
-#     taggableResources {
-#         id
-#         __typename
-#         ... on Box {
-#             labelIdentifier
-#             product {
-#                 ...
-#             }
-#         }
-#         ... on Beneficiary {
-#             name
-#             ...
-#         }
-
-
-#     }
-# }
-
-
 @query.field("tags")
 def resolve_tags(*_):
     # TODO: Add correct permissions here
