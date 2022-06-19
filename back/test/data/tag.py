@@ -22,6 +22,14 @@ def data():
             "name": "pallet1",
             "type": TagType.Box.value,
         },
+        {
+            "id": 3,
+            "base": base_data()[0]["id"],
+            "color": "green",
+            "description": "for everything",
+            "name": "tag-name",
+            "type": TagType.All.value,
+        },
     ]
 
 

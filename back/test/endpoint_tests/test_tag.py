@@ -2,7 +2,9 @@ from boxtribute_server.enums import TagType
 from utils import assert_successful_request
 
 
-def test_tags_query(read_only_client, tags, default_beneficiary, default_box):
+def test_tags_query(
+    read_only_client, tags, default_beneficiary, default_box, box_without_qr_code
+):
     query = """query { tags {
                 id
                 name
@@ -33,6 +35,21 @@ def test_tags_query(read_only_client, tags, default_beneficiary, default_box):
                 {
                     "__typename": "Box",
                     "id": str(default_box["id"]),
+                },
+            ],
+        },
+        {
+            "id": str(tags[2]["id"]),
+            "name": tags[2]["name"],
+            "type": TagType(tags[2]["type"]).name,
+            "taggedResources": [
+                {
+                    "__typename": "Beneficiary",
+                    "id": str(default_beneficiary["id"]),
+                },
+                {
+                    "__typename": "Box",
+                    "id": str(box_without_qr_code["id"]),
                 },
             ],
         },
