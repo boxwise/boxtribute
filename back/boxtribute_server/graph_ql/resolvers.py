@@ -49,6 +49,7 @@ from ..models.definitions.shipment import Shipment
 from ..models.definitions.shipment_detail import ShipmentDetail
 from ..models.definitions.size import Size
 from ..models.definitions.tag import Tag
+from ..models.definitions.tags_relation import TagsRelation
 from ..models.definitions.transaction import Transaction
 from ..models.definitions.transfer_agreement import TransferAgreement
 from ..models.definitions.user import User
@@ -303,14 +304,16 @@ def resolve_tag_type(tag_obj, _):
 
 
 @tag.field("taggedResources")
-def resolve_tag_taggable_resources(tag_obj, _):
+def resolve_tag_tagged_resources(tag_obj, _):
     # # TODO Add correct permissions herer
     # # authorize(permission="tag:read")
-    # return (
-    #     QUERY FOR GETTING TAGGABLE RESOURCES
-    # )
-    # return [Box.get_by_id(1)]
-    return []
+    beneficiary_relations = TagsRelation.select(TagsRelation.object_id).where(
+        (TagsRelation.tag == tag_obj.id)
+        & (TagsRelation.object_type == TagType.Beneficiary.value)
+    )
+    return Beneficiary.select().where(
+        Beneficiary.id << [r.object_id for r in beneficiary_relations]
+    )
 
 
 @beneficiary.field("tokens")
