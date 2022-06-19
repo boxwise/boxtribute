@@ -278,11 +278,6 @@ def resolve_metrics(*_, organisation_id=None):
     return {"organisation_id": organisation_id}
 
 
-@tag.field("type")
-def resolve_tag_type(tag_obj, _):
-    return TagType(tag_obj.type)
-
-
 @tag.field("taggedResources")
 def resolve_tag_tagged_resources(tag_obj, _):
     # # TODO Add correct permissions herer

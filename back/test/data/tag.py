@@ -12,7 +12,7 @@ def data():
             "color": "red",
             "description": "important",
             "name": "group1",
-            "type": TagType.Beneficiary.value,
+            "type": TagType.Beneficiary,
         },
         {
             "id": 2,
@@ -20,7 +20,7 @@ def data():
             "color": "blue",
             "description": "the description",
             "name": "pallet1",
-            "type": TagType.Box.value,
+            "type": TagType.Box,
         },
         {
             "id": 3,
@@ -28,7 +28,7 @@ def data():
             "color": "green",
             "description": "for everything",
             "name": "tag-name",
-            "type": TagType.All.value,
+            "type": TagType.All,
         },
     ]
 

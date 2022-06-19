@@ -1,7 +1,8 @@
 from peewee import SQL, CharField, DateTimeField, IntegerField, TextField
 
 from ...db import db
-from ..fields import UIntForeignKeyField
+from ...enums import TagType
+from ..fields import EnumCharField, UIntForeignKeyField
 from .base import Base
 from .user import User
 
@@ -21,7 +22,9 @@ class Tag(db.Model):
         column_name="modified_by", field="id", model=User, null=True
     )
     seq = IntegerField(null=True)
-    type = CharField(constraints=[SQL("DEFAULT 'People'")], index=True, null=True)
+    type = EnumCharField(
+        choices=TagType, constraints=[SQL("DEFAULT 'People'")], index=True, null=True
+    )
 
     class Meta:
         table_name = "tags"
