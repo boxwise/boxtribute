@@ -23,7 +23,11 @@ class Tag(db.Model):
     )
     seq = IntegerField(null=True)
     type = EnumCharField(
-        choices=TagType, constraints=[SQL("DEFAULT 'People'")], index=True, null=True
+        choices=TagType,
+        default=TagType.Beneficiary,
+        constraints=[SQL(f"DEFAULT '{TagType.Beneficiary.value}'")],
+        index=True,
+        null=True,
     )
 
     class Meta:
