@@ -311,9 +311,15 @@ def resolve_tag_tagged_resources(tag_obj, _):
         (TagsRelation.tag == tag_obj.id)
         & (TagsRelation.object_type == TagType.Beneficiary.value)
     )
-    return Beneficiary.select().where(
-        Beneficiary.id << [r.object_id for r in beneficiary_relations]
+    box_relations = TagsRelation.select(TagsRelation.object_id).where(
+        (TagsRelation.tag == tag_obj.id)
+        & (TagsRelation.object_type == TagType.Box.value)
     )
+    return list(
+        Beneficiary.select().where(
+            Beneficiary.id << [r.object_id for r in beneficiary_relations]
+        )
+    ) + list(Box.select().where(Box.id << [r.object_id for r in box_relations]))
 
 
 @beneficiary.field("tokens")
