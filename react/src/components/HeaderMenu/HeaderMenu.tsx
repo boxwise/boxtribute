@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useContext, useState } from "react";
 import { Link, NavLink } from "react-router-dom";
 import {
   Box,
@@ -15,9 +15,11 @@ import {
   MenuGroup,
   MenuItem,
   MenuList,
+  LayoutProps,
 } from "@chakra-ui/react";
 import { AiFillCloseCircle, AiOutlineMenu } from "react-icons/ai";
-import BoxtributeLogo from "../assets/images/boxtribute-logo.png";
+import BoxtributeLogo from "../../assets/images/boxtribute-logo.png";
+import { GlobalPreferencesContext } from "providers/GlobalPreferencesProvider";
 
 const MenuToggle = ({ toggle, isOpen, ...props }) => (
   <IconButton
@@ -34,9 +36,12 @@ const Logo = () => (
   </NavLink>
 );
 
-const BaseSwitcher = () => {
+interface BaseSwitcherProps {
+  baseId: string
+}
+const BaseSwitcher = ({baseId}: BaseSwitcherProps) => {
   const { globalPreferences } = useContext(GlobalPreferencesContext);
-  const baseId = useParams<{ baseId: string }>().baseId;
+  // const baseId = useParams<{ baseId: string }>().baseId;
   return (
     <MenuGroup title="Bases">
       {globalPreferences.availableBases?.map((base, i) => (
@@ -53,8 +58,14 @@ const BaseSwitcher = () => {
   );
 };
 
-const UserMenu = () => {
-  const { logout, user } = useAuth0();
+interface UserMenuProps extends BaseSwitcherProps {
+  logout: () => void;
+  user?: {
+    picture?: string;
+    email?: string;
+  }
+}
+const UserMenu = ({ logout, user, baseId }: UserMenuProps) => {
 
   return (
     <Menu>
@@ -70,7 +81,7 @@ const UserMenu = () => {
         }
       />
       <MenuList>
-        <BaseSwitcher />
+        <BaseSwitcher baseId={baseId} />
         <MenuDivider />
         <MenuGroup title={`User (${user?.email})`}>
           <MenuItem>Profile</MenuItem>
@@ -85,14 +96,14 @@ const UserMenu = () => {
   );
 };
 
-export interface LoginOrUserMenuButton {
+export interface LoginOrUserMenuButtonProps extends UserMenuProps, BaseSwitcherProps {
   isAuthenticated: boolean; 
   logout: () => void;
   loginWithRedirect: () => void;
 }
-const LoginOrUserMenuButton = ({ isAuthenticated, logout, loginWithRedirect }: LoginOrUserMenuButton) => {
+const LoginOrUserMenuButton = ({ isAuthenticated, logout, loginWithRedirect, user, baseId }: LoginOrUserMenuButtonProps) => {
   return isAuthenticated ? (
-    <UserMenu />
+    <UserMenu user={user} logout={logout} baseId={baseId} />
   ) : (
     <Button onClick={() => (isAuthenticated ? logout() : loginWithRedirect())}>
       Login
@@ -100,7 +111,13 @@ const LoginOrUserMenuButton = ({ isAuthenticated, logout, loginWithRedirect }: L
   );
 };
 
-const MenuLinks = ({ isOpen, onLinkClick, baseId, ...props }) => {
+interface MenuLinksProps extends LoginOrUserMenuButtonProps, LayoutProps {
+  isOpen: boolean;
+  onLinkClick: () => void;
+  bg: string;
+}
+
+const MenuLinks = ({ isOpen, onLinkClick, baseId, ...props }: MenuLinksProps) => {
   const MenuItem = ({ to, text, ...props }) => (
     <NavLink
       onClick={onLinkClick}
@@ -121,7 +138,7 @@ const MenuLinks = ({ isOpen, onLinkClick, baseId, ...props }) => {
         direction={["column", "row", "row", "row"]}
         pt={[4, 4, 0, 0]}
       >
-        <LoginOrUserMenuButton />
+        <LoginOrUserMenuButton baseId={baseId} {...props} />
         <MenuItem to={`/bases/${baseId}/locations`} text="Locations" />
         <MenuItem to={`/bases/${baseId}/boxes`} text="Boxes" />
         <MenuItem to={`/bases/${baseId}/scan-qrcode`} text="Scan QR" />
@@ -147,7 +164,8 @@ const NavBarContainer = ({ children, ...props }) => (
   </Flex>
 );
 
-const HeaderMenu = () => {
+type HeaderMenuProps = LoginOrUserMenuButtonProps;
+const HeaderMenu = (props: HeaderMenuProps) => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const toggle = () => setIsMenuOpen(!isMenuOpen);
 
@@ -160,10 +178,10 @@ const HeaderMenu = () => {
         visibility={{ base: "visible", md: "hidden" }}
       />
       <MenuLinks
-        isOpen={isMenuOpen}
-        bg={"white"}
-        display={{ base: isMenuOpen ? "block" : "none", md: "block" }}
+        bg="white"
         onLinkClick={() => setIsMenuOpen(false)}
+        isOpen={isMenuOpen}
+        {...props}
       />
     </NavBarContainer>
   );
