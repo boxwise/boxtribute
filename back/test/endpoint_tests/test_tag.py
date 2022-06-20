@@ -1,4 +1,3 @@
-from boxtribute_server.enums import TagType
 from utils import assert_successful_request
 
 
@@ -19,7 +18,7 @@ def test_tags_query(
         {
             "id": str(tags[0]["id"]),
             "name": tags[0]["name"],
-            "type": TagType(tags[0]["type"]).name,
+            "type": tags[0]["type"].name,
             "taggedResources": [
                 {
                     "__typename": "Beneficiary",
@@ -30,7 +29,7 @@ def test_tags_query(
         {
             "id": str(tags[1]["id"]),
             "name": tags[1]["name"],
-            "type": TagType(tags[1]["type"]).name,
+            "type": tags[1]["type"].name,
             "taggedResources": [
                 {
                     "__typename": "Box",
@@ -41,7 +40,7 @@ def test_tags_query(
         {
             "id": str(tags[2]["id"]),
             "name": tags[2]["name"],
-            "type": TagType(tags[2]["type"]).name,
+            "type": tags[2]["type"].name,
             "taggedResources": [
                 {
                     "__typename": "Beneficiary",
