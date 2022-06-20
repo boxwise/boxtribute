@@ -29,7 +29,7 @@ from ..box_transfer.shipment import (
     send_shipment,
     update_shipment,
 )
-from ..enums import HumanGender, TagType, TransferAgreementType
+from ..enums import HumanGender, TaggableObjectType, TransferAgreementType
 from ..models.crud import (
     create_beneficiary,
     create_box,
@@ -284,11 +284,11 @@ def resolve_tag_tagged_resources(tag_obj, _):
     # # authorize(permission="tag:read")
     beneficiary_relations = TagsRelation.select(TagsRelation.object_id).where(
         (TagsRelation.tag == tag_obj.id)
-        & (TagsRelation.object_type == TagType.Beneficiary.value)
+        & (TagsRelation.object_type == TaggableObjectType.Beneficiary)
     )
     box_relations = TagsRelation.select(TagsRelation.object_id).where(
         (TagsRelation.tag == tag_obj.id)
-        & (TagsRelation.object_type == TagType.Box.value)
+        & (TagsRelation.object_type == TaggableObjectType.Box)
     )
     return list(
         Beneficiary.select().where(

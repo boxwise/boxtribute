@@ -10,12 +10,6 @@ class TransferAgreementState(enum.IntEnum):
     Expired = enum.auto()
 
 
-class TagType(enum.Enum):
-    Box = "Stock"
-    Beneficiary = "People"
-    All = "All"
-
-
 class TransferAgreementType(enum.IntEnum):
     Unidirectional = 1
     Bidirectional = enum.auto()
@@ -70,3 +64,14 @@ class HumanGender(enum.Enum):
     Male = "M"
     Female = "F"
     Diverse = "D"
+
+
+class TagType(enum.Enum):
+    Box = "Stock"
+    Beneficiary = "People"
+    All = "All"
+
+
+class TaggableObjectType(enum.Enum):
+    Box = "Stock"
+    Beneficiary = "People"

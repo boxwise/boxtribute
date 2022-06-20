@@ -1,13 +1,18 @@
-from peewee import SQL, CharField, CompositeKey, IntegerField
+from peewee import SQL, CompositeKey, IntegerField
 
 from ...db import db
-from ..fields import UIntForeignKeyField
+from ...enums import TaggableObjectType
+from ..fields import EnumCharField, UIntForeignKeyField
 from .tag import Tag
 
 
 class TagsRelation(db.Model):
     object_id = IntegerField()
-    object_type = CharField(constraints=[SQL("DEFAULT 'People'")], null=True)
+    object_type = EnumCharField(
+        choices=TaggableObjectType,
+        constraints=[SQL("DEFAULT 'People'")],
+        null=True,
+    )
     tag = UIntForeignKeyField(column_name="tag_id", field="id", model=Tag)
 
     class Meta:
