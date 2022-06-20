@@ -1,4 +1,3 @@
-import pytest
 from boxtribute_server.enums import TaggableObjectType
 from boxtribute_server.models.definitions.tags_relation import TagsRelation
 from data.beneficiary import default_beneficiary_data
@@ -29,11 +28,6 @@ def data():
             "tag": tag_data()[2]["id"],
         },
     ]
-
-
-@pytest.fixture
-def tags_relations():
-    return data()
 
 
 def create():
