@@ -6,14 +6,18 @@ import AutomaticBaseSwitcher from "views/AutomaticBaseSwitcher/AutomaticBaseSwit
 import { GlobalPreferencesContext } from "providers/GlobalPreferencesProvider";
 
 const HeaderMenuContainer = () => {
-  // const { globalPreferences } = useContext(GlobalPreferencesContext);
   const { globalPreferences } = useContext(GlobalPreferencesContext);
   const auth0 = useAuth0();
   const baseId = useParams<{ baseId: string }>().baseId;
-  if(baseId == null) {
-    return <AutomaticBaseSwitcher />
+  if (baseId == null) {
+    return <AutomaticBaseSwitcher />;
   }
-  return <HeaderMenu currentActiveBaseId={baseId} {...auth0} availableBases={globalPreferences.availableBases} />
+  return (
+    <HeaderMenu
+      currentActiveBaseId={baseId}
+      {...auth0}
+      availableBases={globalPreferences.availableBases}
+    />
+  );
 };
-
 export default HeaderMenuContainer;
