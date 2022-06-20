@@ -693,10 +693,7 @@ def resolve_user_organisation(*_):
 def resolve_taggable_resource_type(obj, *_):
     if isinstance(obj, Box):
         return "Box"
-    if isinstance(obj, Beneficiary):
-        return "Beneficiary"
-    else:
-        return None
+    return "Beneficiary"
 
 
 union_types.append(UnionType("TaggableResource", resolve_taggable_resource_type))
