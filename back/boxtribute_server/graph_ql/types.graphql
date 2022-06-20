@@ -163,8 +163,9 @@ type DistributionEvent implements BoxPlace, UnboxedItemsCollectionPlace {
   base: Base
   name: String
 
+  packingList: PackingList!
+
   # TODO: Think about copying entries from last distro events
-  # TODO: extend schema so it supports also planning/packing lists
   # TODO: make the reasoning clearer why it makes sense to introduce UnboxedItemCollection (instead of reusing Boxes) 
   # => probably best to do this in the Tech Design Doc
 
@@ -211,6 +212,25 @@ type Location implements BoxPlace {
   createdOn: Datetime
   lastModifiedBy: User
   lastModifiedOn: Datetime
+}
+
+enum PackingListEntryState {
+  NotStarted
+  PackingInProgress
+  Packed
+}
+type PackingListEntry implements ItemsCollection {
+  product: Product
+  # Size field needs to be reconsidered - related to the parallel size discussion
+  size: String
+  numberOfItems: Int!
+  matchingPackedItemsCollections: [ItemsCollection!]!
+  state: PackingListEntryState!
+}
+
+type PackingList {
+  entries: [PackingListEntry!]!
+  distributionEvent: DistributionEvent!
 }
 
 """
