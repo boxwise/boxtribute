@@ -1,7 +1,7 @@
 """Custom peewee field types for data model definitions."""
 import enum
 
-from peewee import CharField, DateTimeField, ForeignKeyField
+from peewee import SQL, CharField, DateTimeField, ForeignKeyField
 
 
 class EnumCharField(CharField):
@@ -19,11 +19,21 @@ class EnumCharField(CharField):
         -> Python  TagType.Box
         -> MySQL   "Stock"
     Otherwise (for `IntEnum` classes) the enum value is irrelevant.
+
+    If the `default` kwarg is specified, a corresponding SQL constraint is derived.
     """
 
     def __init__(self, *args, **kwargs):
         self.enum_class = kwargs.pop("choices")
         self.is_int_enum_class = issubclass(self.enum_class, enum.IntEnum)
+
+        default = kwargs.get("default")
+        if default is not None:
+            constraints = kwargs.get("constraints", [])
+            default = default.name if self.is_int_enum_class else default.value
+            constraints.append(SQL(f"DEFAULT '{default}'"))
+            kwargs["constraints"] = constraints
+
         super().__init__(*args, **kwargs)
 
     def db_value(self, value):

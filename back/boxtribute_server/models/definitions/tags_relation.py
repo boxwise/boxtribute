@@ -1,4 +1,4 @@
-from peewee import SQL, CompositeKey, IntegerField
+from peewee import CompositeKey, IntegerField
 
 from ...db import db
 from ...enums import TaggableObjectType
@@ -10,7 +10,7 @@ class TagsRelation(db.Model):
     object_id = IntegerField()
     object_type = EnumCharField(
         choices=TaggableObjectType,
-        constraints=[SQL("DEFAULT 'People'")],
+        default=TaggableObjectType.Beneficiary,
         null=True,
     )
     tag = UIntForeignKeyField(column_name="tag_id", field="id", model=Tag)

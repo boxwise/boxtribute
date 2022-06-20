@@ -1,4 +1,4 @@
-from peewee import SQL, DateTimeField
+from peewee import DateTimeField
 
 from ...db import db
 from ...enums import ShipmentState
@@ -16,7 +16,6 @@ class Shipment(db.Model):
         model=TransferAgreement, on_update="CASCADE"
     )
     state = EnumCharField(
-        constraints=[SQL(f"DEFAULT '{ShipmentState.Preparing.name}'")],
         choices=ShipmentState,
         default=ShipmentState.Preparing,
     )

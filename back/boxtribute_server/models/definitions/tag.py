@@ -1,4 +1,4 @@
-from peewee import SQL, CharField, DateTimeField, IntegerField, TextField
+from peewee import CharField, DateTimeField, IntegerField, TextField
 
 from ...db import db
 from ...enums import TagType
@@ -25,7 +25,6 @@ class Tag(db.Model):
     type = EnumCharField(
         choices=TagType,
         default=TagType.Beneficiary,
-        constraints=[SQL(f"DEFAULT '{TagType.Beneficiary.value}'")],
         index=True,
         null=True,
     )
