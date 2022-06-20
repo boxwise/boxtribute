@@ -23,6 +23,7 @@ class EnumCharField(CharField):
 
     def __init__(self, *args, **kwargs):
         self.enum_class = kwargs.pop("choices")
+        self.is_int_enum_class = issubclass(self.enum_class, enum.IntEnum)
         super().__init__(*args, **kwargs)
 
     def db_value(self, value):
@@ -32,7 +33,7 @@ class EnumCharField(CharField):
         1. storing the value of a GraphQL Enum input field
         2. assigning a Python enum member to a peewee model field
         """
-        return value.name if issubclass(self.enum_class, enum.IntEnum) else value.value
+        return value.name if self.is_int_enum_class else value.value
 
     def python_value(self, name):
         """Convert from database to application layer. Return Python enum member (which
@@ -40,7 +41,7 @@ class EnumCharField(CharField):
         """
         return (
             getattr(self.enum_class, name)  # e.g. "Lost" -> BoxState.Lost
-            if issubclass(self.enum_class, enum.IntEnum)
+            if self.is_int_enum_class
             else self.enum_class(name)  # e.g. "Stock" -> TagType.Box
         )
 
