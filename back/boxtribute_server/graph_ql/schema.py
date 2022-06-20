@@ -21,6 +21,13 @@ full_api_schema = make_executable_schema(
 
 query_api_schema = make_executable_schema(
     query_api_definitions,
-    [query, date_scalar, datetime_scalar, *object_types, *enum_types, *union_types],
+    [
+        query,
+        date_scalar,
+        datetime_scalar,
+        *object_types,
+        *enum_types,
+        *union_types,
+    ],
     snake_case_fallback_resolvers,
 )
