@@ -37,17 +37,17 @@ const Logo = () => (
 );
 
 interface BaseSwitcherProps {
-  baseId: string
+  currentActiveBaseId: string; 
+  availableBases?: {id: string, name: string}[]
 }
-const BaseSwitcher = ({baseId}: BaseSwitcherProps) => {
-  const { globalPreferences } = useContext(GlobalPreferencesContext);
+const BaseSwitcher = ({currentActiveBaseId, availableBases}: BaseSwitcherProps) => {
   // const baseId = useParams<{ baseId: string }>().baseId;
   return (
     <MenuGroup title="Bases">
-      {globalPreferences.availableBases?.map((base, i) => (
+      {availableBases?.map((base, i) => (
         <MenuItem key={base.id}>
           <Link
-            style={baseId === base.id ? { fontWeight: "bold" } : {}}
+            style={currentActiveBaseId === base.id ? { fontWeight: "bold" } : {}}
             to={`/bases/${base.id}/locations`}
           >
             {base.name}
@@ -65,7 +65,7 @@ interface UserMenuProps extends BaseSwitcherProps {
     email?: string;
   }
 }
-const UserMenu = ({ logout, user, baseId }: UserMenuProps) => {
+const UserMenu = ({ logout, user, currentActiveBaseId, availableBases }: UserMenuProps) => {
 
   return (
     <Menu>
@@ -81,7 +81,7 @@ const UserMenu = ({ logout, user, baseId }: UserMenuProps) => {
         }
       />
       <MenuList>
-        <BaseSwitcher baseId={baseId} />
+        <BaseSwitcher currentActiveBaseId={currentActiveBaseId} availableBases={availableBases}/>
         <MenuDivider />
         <MenuGroup title={`User (${user?.email})`}>
           <MenuItem>Profile</MenuItem>
@@ -101,9 +101,9 @@ export interface LoginOrUserMenuButtonProps extends UserMenuProps, BaseSwitcherP
   logout: () => void;
   loginWithRedirect: () => void;
 }
-const LoginOrUserMenuButton = ({ isAuthenticated, logout, loginWithRedirect, user, baseId }: LoginOrUserMenuButtonProps) => {
+const LoginOrUserMenuButton = ({ isAuthenticated, logout, loginWithRedirect, user, currentActiveBaseId, availableBases }: LoginOrUserMenuButtonProps) => {
   return isAuthenticated ? (
-    <UserMenu user={user} logout={logout} baseId={baseId} />
+    <UserMenu user={user} logout={logout} currentActiveBaseId={currentActiveBaseId} availableBases={availableBases} />
   ) : (
     <Button onClick={() => (isAuthenticated ? logout() : loginWithRedirect())}>
       Login
@@ -117,7 +117,7 @@ interface MenuLinksProps extends LoginOrUserMenuButtonProps, LayoutProps {
   bg: string;
 }
 
-const MenuLinks = ({ isOpen, onLinkClick, baseId, ...props }: MenuLinksProps) => {
+const MenuLinks = ({ isOpen, onLinkClick, currentActiveBaseId, ...props }: MenuLinksProps) => {
   const MenuItem = ({ to, text, ...props }) => (
     <NavLink
       onClick={onLinkClick}
@@ -138,10 +138,10 @@ const MenuLinks = ({ isOpen, onLinkClick, baseId, ...props }: MenuLinksProps) =>
         direction={["column", "row", "row", "row"]}
         pt={[4, 4, 0, 0]}
       >
-        <LoginOrUserMenuButton baseId={baseId} {...props} />
-        <MenuItem to={`/bases/${baseId}/locations`} text="Locations" />
-        <MenuItem to={`/bases/${baseId}/boxes`} text="Boxes" />
-        <MenuItem to={`/bases/${baseId}/scan-qrcode`} text="Scan QR" />
+        <LoginOrUserMenuButton currentActiveBaseId={currentActiveBaseId} {...props} />
+        <MenuItem to={`/bases/${currentActiveBaseId}/locations`} text="Locations" />
+        <MenuItem to={`/bases/${currentActiveBaseId}/boxes`} text="Boxes" />
+        <MenuItem to={`/bases/${currentActiveBaseId}/scan-qrcode`} text="Scan QR" />
       </Stack>
     </Box>
   );
@@ -167,7 +167,10 @@ const NavBarContainer = ({ children, ...props }) => (
 type HeaderMenuProps = LoginOrUserMenuButtonProps;
 const HeaderMenu = (props: HeaderMenuProps) => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
-  const toggle = () => setIsMenuOpen(!isMenuOpen);
+  const toggle = () => {
+    // alert("Toggle")
+    setIsMenuOpen(!isMenuOpen);
+  }
 
   return (
     <NavBarContainer>
@@ -179,7 +182,8 @@ const HeaderMenu = (props: HeaderMenuProps) => {
       />
       <MenuLinks
         bg="white"
-        onLinkClick={() => setIsMenuOpen(false)}
+        display={{ base: isMenuOpen ? "block" : "none", md: "block" }}
+        onLinkClick={() => {alert("Menu Link Clicked"); setIsMenuOpen(false)}}
         isOpen={isMenuOpen}
         {...props}
       />
