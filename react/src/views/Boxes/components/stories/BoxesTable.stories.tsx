@@ -2,7 +2,7 @@ import React from 'react';
 import { ComponentStory, ComponentMeta } from '@storybook/react';
 import { within, userEvent } from '@storybook/testing-library';
 import { boxesTableDataMock } from './boxesTableDataMocks';
-import BoxesTable from '../BoxesTable';
+import BoxesTable, { BoxesTableProps } from '../BoxesTable';
 import { action } from '@storybook/addon-actions';
 
 
@@ -22,6 +22,7 @@ Default.args = {
   tableData: boxesTableDataMock,
   onBoxRowClick: action(`boxRowClick for Box`),
 }
+// } as BoxesTableProps
 
 export const NoData = Template.bind({});
 NoData.args = {
