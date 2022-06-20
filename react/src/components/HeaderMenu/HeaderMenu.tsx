@@ -37,17 +37,22 @@ const Logo = () => (
 );
 
 interface BaseSwitcherProps {
-  currentActiveBaseId: string; 
-  availableBases?: {id: string, name: string}[]
+  currentActiveBaseId: string;
+  availableBases?: { id: string; name: string }[];
 }
-const BaseSwitcher = ({currentActiveBaseId, availableBases}: BaseSwitcherProps) => {
+const BaseSwitcher = ({
+  currentActiveBaseId,
+  availableBases,
+}: BaseSwitcherProps) => {
   // const baseId = useParams<{ baseId: string }>().baseId;
   return (
     <MenuGroup title="Bases">
       {availableBases?.map((base, i) => (
         <MenuItem key={base.id}>
           <Link
-            style={currentActiveBaseId === base.id ? { fontWeight: "bold" } : {}}
+            style={
+              currentActiveBaseId === base.id ? { fontWeight: "bold" } : {}
+            }
             to={`/bases/${base.id}/locations`}
           >
             {base.name}
@@ -63,10 +68,14 @@ interface UserMenuProps extends BaseSwitcherProps {
   user?: {
     picture?: string;
     email?: string;
-  }
+  };
 }
-const UserMenu = ({ logout, user, currentActiveBaseId, availableBases }: UserMenuProps) => {
-
+const UserMenu = ({
+  logout,
+  user,
+  currentActiveBaseId,
+  availableBases,
+}: UserMenuProps) => {
   return (
     <Menu>
       <MenuButton
@@ -81,7 +90,10 @@ const UserMenu = ({ logout, user, currentActiveBaseId, availableBases }: UserMen
         }
       />
       <MenuList>
-        <BaseSwitcher currentActiveBaseId={currentActiveBaseId} availableBases={availableBases}/>
+        <BaseSwitcher
+          currentActiveBaseId={currentActiveBaseId}
+          availableBases={availableBases}
+        />
         <MenuDivider />
         <MenuGroup title={`User (${user?.email})`}>
           <MenuItem>Profile</MenuItem>
@@ -96,14 +108,28 @@ const UserMenu = ({ logout, user, currentActiveBaseId, availableBases }: UserMen
   );
 };
 
-export interface LoginOrUserMenuButtonProps extends UserMenuProps, BaseSwitcherProps {
-  isAuthenticated: boolean; 
+export interface LoginOrUserMenuButtonProps
+  extends UserMenuProps,
+    BaseSwitcherProps {
+  isAuthenticated: boolean;
   logout: () => void;
   loginWithRedirect: () => void;
 }
-const LoginOrUserMenuButton = ({ isAuthenticated, logout, loginWithRedirect, user, currentActiveBaseId, availableBases }: LoginOrUserMenuButtonProps) => {
+const LoginOrUserMenuButton = ({
+  isAuthenticated,
+  logout,
+  loginWithRedirect,
+  user,
+  currentActiveBaseId,
+  availableBases,
+}: LoginOrUserMenuButtonProps) => {
   return isAuthenticated ? (
-    <UserMenu user={user} logout={logout} currentActiveBaseId={currentActiveBaseId} availableBases={availableBases} />
+    <UserMenu
+      user={user}
+      logout={logout}
+      currentActiveBaseId={currentActiveBaseId}
+      availableBases={availableBases}
+    />
   ) : (
     <Button onClick={() => (isAuthenticated ? logout() : loginWithRedirect())}>
       Login
@@ -117,7 +143,12 @@ interface MenuLinksProps extends LoginOrUserMenuButtonProps, LayoutProps {
   bg: string;
 }
 
-const MenuLinks = ({ isOpen, onLinkClick, currentActiveBaseId, ...props }: MenuLinksProps) => {
+const MenuLinks = ({
+  isOpen,
+  onLinkClick,
+  currentActiveBaseId,
+  ...props
+}: MenuLinksProps) => {
   const MenuItem = ({ to, text, ...props }) => (
     <NavLink
       onClick={onLinkClick}
@@ -138,10 +169,19 @@ const MenuLinks = ({ isOpen, onLinkClick, currentActiveBaseId, ...props }: MenuL
         direction={["column", "row", "row", "row"]}
         pt={[4, 4, 0, 0]}
       >
-        <LoginOrUserMenuButton currentActiveBaseId={currentActiveBaseId} {...props} />
-        <MenuItem to={`/bases/${currentActiveBaseId}/locations`} text="Locations" />
+        <LoginOrUserMenuButton
+          currentActiveBaseId={currentActiveBaseId}
+          {...props}
+        />
+        <MenuItem
+          to={`/bases/${currentActiveBaseId}/locations`}
+          text="Locations"
+        />
         <MenuItem to={`/bases/${currentActiveBaseId}/boxes`} text="Boxes" />
-        <MenuItem to={`/bases/${currentActiveBaseId}/scan-qrcode`} text="Scan QR" />
+        <MenuItem
+          to={`/bases/${currentActiveBaseId}/scan-qrcode`}
+          text="Scan QR"
+        />
       </Stack>
     </Box>
   );
@@ -170,7 +210,7 @@ const HeaderMenu = (props: HeaderMenuProps) => {
   const toggle = () => {
     // alert("Toggle")
     setIsMenuOpen(!isMenuOpen);
-  }
+  };
 
   return (
     <NavBarContainer>
@@ -183,7 +223,7 @@ const HeaderMenu = (props: HeaderMenuProps) => {
       <MenuLinks
         bg="white"
         display={{ base: isMenuOpen ? "block" : "none", md: "block" }}
-        onLinkClick={() => {alert("Menu Link Clicked"); setIsMenuOpen(false)}}
+        onLinkClick={() => setIsMenuOpen(false)}
         isOpen={isMenuOpen}
         {...props}
       />
