@@ -3,6 +3,7 @@ import React from "react";
 import { ComponentMeta, ComponentStory } from "@storybook/react";
 import HeaderMenu from "./HeaderMenu";
 import { action } from "@storybook/addon-actions";
+import { Container } from "@chakra-ui/react";
 
 export default {
   title: "General/Header Menu",
@@ -10,6 +11,9 @@ export default {
   parameters: {
     layout: "fullscreen",
   },
+  decorators: [
+      (Story) => <Container maxWidth="container.xl"><Story /></Container>
+  ]
 } as ComponentMeta<typeof HeaderMenu>;
 
 const Template: ComponentStory<typeof HeaderMenu> = (args) => (

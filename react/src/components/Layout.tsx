@@ -1,7 +1,7 @@
 import React from "react";
 import { Container } from "@chakra-ui/react";
-import HeaderMenuContainer from "components/HeaderMenu/HeaderMenuContainer";
 import { Outlet } from "react-router-dom";
+import HeaderMenuContainer from "./HeaderMenu/HeaderMenuContainer";
 
 const Layout = () => {
   return (
