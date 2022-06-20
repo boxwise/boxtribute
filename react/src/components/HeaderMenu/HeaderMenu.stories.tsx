@@ -13,9 +13,9 @@ export default {
 
 const Template: ComponentStory<typeof HeaderMenu> = (args) => <HeaderMenu {...args} />
 
-export const Default = (args) => Template.bind({});
+export const Default = Template.bind({});
 Default.args = {
     
 }
 
-const { globalPreferences } = useContext(GlobalPreferencesContext);
+// const { globalPreferences } = useContext(GlobalPreferencesContext);
