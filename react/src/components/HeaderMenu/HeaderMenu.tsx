@@ -1,6 +1,5 @@
-import { useContext, useState } from "react";
-import { Link, NavLink, useParams } from "react-router-dom";
-import { useAuth0 } from "@auth0/auth0-react";
+import { useState } from "react";
+import { Link, NavLink } from "react-router-dom";
 import {
   Box,
   Text,
@@ -19,7 +18,6 @@ import {
 } from "@chakra-ui/react";
 import { AiFillCloseCircle, AiOutlineMenu } from "react-icons/ai";
 import BoxtributeLogo from "../assets/images/boxtribute-logo.png";
-import { GlobalPreferencesContext } from "providers/GlobalPreferencesProvider";
 
 const MenuToggle = ({ toggle, isOpen, ...props }) => (
   <IconButton
@@ -87,8 +85,12 @@ const UserMenu = () => {
   );
 };
 
-const LoginOrUserMenuButton = () => {
-  const { isAuthenticated, logout, loginWithRedirect } = useAuth0();
+export interface LoginOrUserMenuButton {
+  isAuthenticated: boolean; 
+  logout: () => void;
+  loginWithRedirect: () => void;
+}
+const LoginOrUserMenuButton = ({ isAuthenticated, logout, loginWithRedirect }: LoginOrUserMenuButton) => {
   return isAuthenticated ? (
     <UserMenu />
   ) : (
@@ -98,8 +100,7 @@ const LoginOrUserMenuButton = () => {
   );
 };
 
-const MenuLinks = ({ isOpen, onLinkClick, ...props }) => {
-  const baseId = useParams<{ baseId: string }>().baseId;
+const MenuLinks = ({ isOpen, onLinkClick, baseId, ...props }) => {
   const MenuItem = ({ to, text, ...props }) => (
     <NavLink
       onClick={onLinkClick}
@@ -146,7 +147,7 @@ const NavBarContainer = ({ children, ...props }) => (
   </Flex>
 );
 
-const Header = () => {
+const HeaderMenu = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const toggle = () => setIsMenuOpen(!isMenuOpen);
 
@@ -168,4 +169,4 @@ const Header = () => {
   );
 };
 
-export default Header;
+export default HeaderMenu;

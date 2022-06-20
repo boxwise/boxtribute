@@ -46,7 +46,7 @@ import { SelectColumnFilter } from "./SelectColumnFilter";
 import IndeterminateCheckbox from "./Checkbox";
 import { MultiValue, Select } from "chakra-react-select";
 
-type BoxesTableProps = {
+export type BoxesTableProps = {
   tableData: BoxRow[];
   onBoxRowClick: (labelIdentified: string) => void;
 };
