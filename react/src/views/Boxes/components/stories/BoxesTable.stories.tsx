@@ -22,7 +22,6 @@ Default.args = {
   tableData: boxesTableDataMock,
   onBoxRowClick: action(`boxRowClick for Box`),
 }
-// } as BoxesTableProps
 
 export const NoData = Template.bind({});
 NoData.args = {
