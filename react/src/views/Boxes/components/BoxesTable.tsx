@@ -1,4 +1,4 @@
-import React, { useCallback, useMemo } from "react";
+import React, { useMemo } from "react";
 import {
   TriangleDownIcon,
   TriangleUpIcon,
@@ -39,7 +39,7 @@ import { GlobalFilter } from "./GlobalFilter";
 import { SelectColumnFilter } from "./SelectColumnFilter";
 import IndeterminateCheckbox from "./Checkbox";
 
-type BoxesTableProps = {
+export type BoxesTableProps = {
   tableData: BoxRow[];
   onBoxRowClick: (labelIdentified: string) => void;
 };
@@ -68,7 +68,7 @@ const ColumnSelector = ({
     [availableColumns]
   );
 
-  const onCheckboxChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
+  const onCheckboxChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const checked = e.target.checked;
     const columnId = e.target.value;
     debugger;
@@ -84,10 +84,11 @@ const ColumnSelector = ({
         setSelectedColumns(selectedColumns.filter((c) => c !== column));
       }
     }
-  }, [availableColumns, selectedColumns, setSelectedColumns]);
+  };
 
-  const selectedColumnOptions =
-    mapColumnsToColumnOptionCollection(selectedColumns);
+  const selectedColumnOptions = mapColumnsToColumnOptionCollection(
+    selectedColumns
+  );
 
   return (
     <Box maxW="400px" minW="250px">
@@ -179,8 +180,9 @@ const BoxesTable = ({ tableData, onBoxRowClick }: BoxesTableProps) => {
     []
   );
 
-  const [selectedColumns, setSelectedColumns] =
-    React.useState<Column<BoxRow>[]>(availableColumns);
+  const [selectedColumns, setSelectedColumns] = React.useState<
+    Column<BoxRow>[]
+  >(availableColumns);
   const orderedSelectedColumns = useMemo(
     () =>
       selectedColumns.sort(
@@ -201,6 +203,7 @@ const BoxesTable = ({ tableData, onBoxRowClick }: BoxesTableProps) => {
         tableData={tableData}
         onBoxRowClick={onBoxRowClick}
       />
+      ;
     </>
   );
 };
@@ -229,7 +232,7 @@ const ActualTable = ({
 
     nextPage,
     previousPage,
-  } = useTable<BoxRow>(
+  } = useTable(
     {
       columns,
       data: tableData,
@@ -292,7 +295,10 @@ const ActualTable = ({
           {headerGroups.map((headerGroup, i) => (
             <Tr {...headerGroup.getHeaderGroupProps()} key={i}>
               {headerGroup.headers.map((column) => (
-                <Th {...column.getHeaderProps(column.getSortByToggleProps())}>
+                <Th
+                  {...column.getHeaderProps(column.getSortByToggleProps())}
+                  title={`Toggle SortBy for '${column.render("Header")}'`}
+                >
                   {column.render("Header")}
                   <chakra.span pl="4">
                     {column.isSorted ? (
