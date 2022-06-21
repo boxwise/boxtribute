@@ -152,8 +152,15 @@ def resolve_qr_code(obj, _, qr_code=None):
 
 
 @box.field("tags")
-def resolve_box_tags(obj, _):
-    return Tag.select().join(TagsRelation).where((TagsRelation.object_id == obj.id) & (TagsRelation.object_type == TaggableObjectType.Box))
+def resolve_box_tags(box_obj, _):
+    return (
+        Tag.select()
+        .join(TagsRelation)
+        .where(
+            (TagsRelation.object_id == box_obj.id)
+            & (TagsRelation.object_type == TaggableObjectType.Box)
+        )
+    )
 
 
 @query.field("product")
@@ -303,8 +310,15 @@ def resolve_tag_tagged_resources(tag_obj, _):
 
 
 @beneficiary.field("tags")
-def resolve_beneficiary_tags(obj, _):
-    return Tag.select().join(TagsRelation).where((TagsRelation.object_id == obj.id) & (TagsRelation.object_type == TaggableObjectType.Beneficiary))
+def resolve_beneficiary_tags(beneficiary_obj, _):
+    return (
+        Tag.select()
+        .join(TagsRelation)
+        .where(
+            (TagsRelation.object_id == beneficiary_obj.id)
+            & (TagsRelation.object_type == TaggableObjectType.Beneficiary)
+        )
+    )
 
 
 @beneficiary.field("tokens")

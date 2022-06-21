@@ -49,7 +49,7 @@ def test_beneficiary_query(
     relative_beneficiary,
     default_transaction,
     relative_transaction,
-    tags
+    tags,
 ):
     query = _generate_beneficiary_query(default_beneficiary["id"])
     beneficiary = assert_successful_request(read_only_client, query)
@@ -85,16 +85,12 @@ def test_beneficiary_query(
         ],
         "tags": [
             {
-                "id": str(tags[0]['id']), 
-                "name": tags[0]['name'], 
-                "color": tags[0]['color']
-            },
-            {
-                "id": str(tags[2]['id']), 
-                "name": tags[2]['name'], 
-                "color": tags[2]['color']
+                "id": str(tags[i]["id"]),
+                "name": tags[i]["name"],
+                "color": tags[i]["color"],
             }
-        ]
+            for i in [0, 2]
+        ],
     }
 
     beneficiary_id = relative_beneficiary["id"]
@@ -240,7 +236,7 @@ def test_beneficiary_mutations(client):
         "tokens": 0,
         "createdOn": created_beneficiary["createdOn"],
         "transactions": [],
-        "tags": []
+        "tags": [],
     }
 
 

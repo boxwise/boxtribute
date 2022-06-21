@@ -131,7 +131,7 @@ _NAMES = [
     "beneficiary",
     "transfer_agreement",
     "shipment",
-    "tag"
+    "tag",
 ]
 
 

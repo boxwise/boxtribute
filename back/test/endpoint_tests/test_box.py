@@ -3,11 +3,7 @@ from boxtribute_server.enums import BoxState
 from utils import assert_successful_request
 
 
-def test_box_query_by_label_identifier(
-    read_only_client,
-    default_box,
-    tags
-):
+def test_box_query_by_label_identifier(read_only_client, default_box, tags):
     label_identifier = default_box["label_identifier"]
     query = f"""query {{
                 box(labelIdentifier: "{label_identifier}") {{
@@ -42,11 +38,11 @@ def test_box_query_by_label_identifier(
         "comment": default_box["comment"],
         "tags": [
             {
-                "id": str(tags[1]['id']), 
-                "name": tags[1]['name'], 
-                "color": tags[1]['color']
+                "id": str(tags[1]["id"]),
+                "name": tags[1]["name"],
+                "color": tags[1]["color"],
             }
-        ]
+        ],
     }
 
 
