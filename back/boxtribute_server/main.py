@@ -1,7 +1,6 @@
 """Main entry point for web application"""
 import os
 
-
 from .app import configure_app, create_app
 from .routes import api_bp, app_bp
 
@@ -19,9 +18,11 @@ configure_app(
 )
 
 from .db import db
-from .models.definitions.transfer_agreement import TransferAgreement
-from .models.definitions.transfer_agreement_detail import TransferAgreementDetail
 from .models.definitions.shipment import Shipment
 from .models.definitions.shipment_detail import ShipmentDetail
+from .models.definitions.transfer_agreement import TransferAgreement
+from .models.definitions.transfer_agreement_detail import TransferAgreementDetail
+
 db.database.create_tables(
-    [TransferAgreement, TransferAgreementDetail, Shipment, ShipmentDetail])
+    [TransferAgreement, TransferAgreementDetail, Shipment, ShipmentDetail]
+)
