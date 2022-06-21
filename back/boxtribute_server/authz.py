@@ -2,6 +2,8 @@
 from flask import g
 
 from .exceptions import Forbidden, UnknownResource
+from .models.definitions.base import Base
+from .models.definitions.transfer_agreement import TransferAgreement
 
 
 def authorize(
@@ -53,3 +55,25 @@ def authorize(
             if value is not None:
                 break
         raise Forbidden(resource, value, current_user.__dict__)
+
+
+def base_filter_condition(permission):
+    """Derive filter condition for given permission depending the current user's
+    base-specific permissions. See also `auth.requires_auth()`.
+    """
+    base_ids = g.user.authorized_base_ids(permission)
+    if base_ids is None:
+        # Permission granted for all bases
+        return True
+    return Base.id << base_ids
+
+
+def agreement_organisation_filter_condition():
+    """Derive filter condition for accessing transfer agreements depending on the user's
+    organisation. The god user may access any agreement.
+    """
+    if g.user.is_god:
+        return True
+    return (TransferAgreement.source_organisation == g.user.organisation_id) | (
+        TransferAgreement.target_organisation == g.user.organisation_id
+    )

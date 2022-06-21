@@ -124,9 +124,10 @@ class CurrentUser:
         that the permission is granted for, or to None if the permission is granted for
         all bases. However it is never exposed directly to avoid accidental
         manipulation.
+        The `organisation_id` field is set to None for god users.
         """
         self._id = id
-        self._organisation_id = organisation_id
+        self._organisation_id = None if is_god else organisation_id
         self._is_god = is_god
         self._base_ids = base_ids or {}
 
@@ -140,6 +141,9 @@ class CurrentUser:
         - base_1/product:read    -> {"product:read": [1]}
         - base_2-3/stock:write   -> {"stock:write": [2, 3], "stock:read": [2, 3]}
         - beneficiary:edit       -> {"beneficiary:edit": None, "beneficiary:read": None}
+
+        If the permissions custom claim is a list with a single entry "*", it indicates
+        that the current user is a god user.
         """
         is_god = payload[f"{JWT_CLAIM_PREFIX}/permissions"] == ["*"]
         base_ids = {}
@@ -169,6 +173,8 @@ class CurrentUser:
         return name in self._base_ids
 
     def authorized_base_ids(self, permission):
+        if self.is_god:
+            return None
         return self._base_ids[permission]
 
     @property

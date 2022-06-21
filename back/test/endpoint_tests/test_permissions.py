@@ -59,14 +59,13 @@ def test_invalid_permission(unauthorized, read_only_client, query):
     "query",
     [
         """base( id: 0 ) { id }""",
-        """organisation( id: 0 ) { id }""",
         """location( id: 2 ) { id }""",  # ID of another_location fixture
     ],
     ids=operation_name,
 )
 def test_invalid_permission_for_given_resource_id(read_only_client, mocker, query):
     """Verify missing resource:read permission, or missing permission to access
-    specified resource (base or organisation).
+    specified resource (i.e. base).
     """
     mocker.patch("jose.jwt.decode").return_value = create_jwt_payload(
         permissions=["base_1/base:read"], organisation_id=1
@@ -272,8 +271,29 @@ def test_permission_scope(read_only_client, mocker, default_bases, method):
     assert len(bases) == len(default_bases)
 
 
-def test_permission_for_god_user(read_only_client, mocker, default_users):
-    mocker.patch("jose.jwt.decode").return_value = create_jwt_payload(permissions=["*"])
+def test_permission_for_god_user(
+    read_only_client,
+    mocker,
+    default_users,
+    products,
+    shipments,
+    transfer_agreements,
+):
+    mocker.patch("jose.jwt.decode").return_value = create_jwt_payload(
+        permissions=["*"], organisation_id=None
+    )
     query = "query { users { id } }"
     users = assert_successful_request(read_only_client, query)
     assert len(users) == len(default_users)
+
+    query = "query { products { totalCount } }"
+    nr_products = assert_successful_request(read_only_client, query)["totalCount"]
+    assert nr_products == len(products)
+
+    query = "query { shipments { id } }"
+    nr_shipments = len(assert_successful_request(read_only_client, query))
+    assert nr_shipments == len(shipments)
+
+    query = "query { transferAgreements { id } }"
+    agreements = assert_successful_request(read_only_client, query)
+    assert len(agreements) == len(transfer_agreements)

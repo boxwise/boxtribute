@@ -33,6 +33,7 @@ class Box(db.Model):
         on_update="CASCADE",
         object_id_name="state_id",
     )
+    # TODO: This should probably be a nullable field (also in the GraphQL Input type for the createBoxMutation)
     comment = TextField(column_name="comments")
     created_on = DateTimeField(column_name="created", null=True)
     created_by = UIntForeignKeyField(
