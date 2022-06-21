@@ -1,22 +1,14 @@
 import {
   Box,
-  List,
-  ListItem,
   Button,
-  Text,
   FormControl,
-  FormErrorMessage,
-  FormLabel,
   Wrap,
   WrapItem,
-  Input,
 } from "@chakra-ui/react";
-import { Select, OptionBase } from "chakra-react-select";
 import {
   ShipmentByIdQuery,
-  UpdateShipmentMutation,
 } from "types/generated/graphql";
-import { Controller, useForm } from "react-hook-form";
+import { useForm } from "react-hook-form";
 // import { DevTool } from "@hookform/devtools";
 
 export interface ShipmentUpdateValues {
@@ -39,7 +31,6 @@ const ShipmentEdit = ({
 }: ShipmentUpdateProps) => {
   const {
     handleSubmit,
-    control,
     formState: { isSubmitting },
     register
   } = useForm<ShipmentUpdateValues>({

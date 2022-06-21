@@ -16,13 +16,13 @@ import {
   Select,
   Wrap,
   WrapItem,
-  useToast,
+  // useToast,
 } from "@chakra-ui/react";
 import { useContext, useEffect, useState } from "react";
 import DatePicker from "views/Boxes/components/DatePicker";
 import { useNavigate, useParams } from "react-router-dom";
 import { GlobalPreferencesContext } from "providers/GlobalPreferencesProvider";
-import { DevTool } from "@hookform/devtools";
+// import { DevTool } from "@hookform/devtools";
 
 export const ORGANISATIONS_QUERY = gql`
   query Organisations {
@@ -86,7 +86,6 @@ const TransferAgreementForm = () => {
   const {
     register,
     handleSubmit,
-    control
     // formState: { errors },
   } = useForm<TransferAgreementFormValues>({
     defaultValues: {
@@ -211,7 +210,7 @@ const TransferAgreementForm = () => {
           <Button type="submit">Submit</Button>
         </WrapItem>
       </Wrap>
-      <DevTool control={control} />
+      {/* <DevTool control={control} /> */}
     </form>
   );
 };

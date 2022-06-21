@@ -1,7 +1,7 @@
 import { gql, useMutation, useQuery } from "@apollo/client";
 import { GlobalPreferencesContext } from "providers/GlobalPreferencesProvider";
 import { useContext } from "react";
-import { useNavigate, useParams } from "react-router-dom";
+import {useParams } from "react-router-dom";
 import {  
   TransferAgreementByIdQuery,
   TransferAgreementByIdQueryVariables,
@@ -103,6 +103,7 @@ const TransferAgreementView = () => {
   const transferAgreementData = data.transferAgreement;
   console.log(transferAgreementData);
   console.log(globalPreferences);
+  const isBidirectional = transferAgreementData.type === "Bidirectional"
   const isIncoming =
     parseInt(globalPreferences.selectedOrganisationId) ===
     parseInt(transferAgreementData.targetOrganisation.id);
@@ -114,6 +115,7 @@ const TransferAgreementView = () => {
         isUnderReview={isUnderReview}
         isIncoming={isIncoming}
         isCanceled={isCanceled}
+        isBidirectional={isBidirectional}
         onAcceptTransferAgreementClick={onAcceptTransferAgreementClick}
         onRejectTransferAgreementClick={onRejectTransferAgreementClick}
         onCancelTransferAgreementClick={onCancelTransferAgreementClick}

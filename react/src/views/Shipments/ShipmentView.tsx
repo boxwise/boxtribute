@@ -3,9 +3,6 @@ import { useNavigate, useParams } from "react-router-dom";
 import { ShipmentByIdQuery, ShipmentByIdQueryVariables } from "types/generated/graphql";
 import ShipmentDetail from "./components/ShipmentDetail";
 import ShipmentTable from "./components/ShipmentTable";
-import { GlobalPreferencesContext } from "providers/GlobalPreferencesProvider";
-import { useContext } from "react";
-
 
 export const SHIPMENT_BY_ID_QUERY = gql`
   query ShipmentById($id: ID!) {

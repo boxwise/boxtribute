@@ -1,5 +1,4 @@
-import { Box, Button, List, ListItem, Text } from "@chakra-ui/react";
-import { NavLink } from "react-router-dom";
+import { Box, List, ListItem, Text } from "@chakra-ui/react";
 import {
   TransferAgreementByIdQuery,
   // TransferAgreementByIdQueryVariables,

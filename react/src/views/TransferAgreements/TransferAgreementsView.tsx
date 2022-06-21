@@ -1,7 +1,7 @@
 import { gql, useQuery } from "@apollo/client";
 import { TransferAgreementsQuery } from "types/generated/graphql";
 import TransferAgreementsTable from "./components/TransferAgreementsTable";
-import { Box, Text } from "@chakra-ui/react";
+import {Text } from "@chakra-ui/react";
 
 export const TRANSFER_AGREEMENTS_QUERY = gql`
   query transferAgreements {

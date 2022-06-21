@@ -1,7 +1,5 @@
 // import { gql, useMutation } from "@apollo/client";
 import { Box, Button } from "@chakra-ui/react";
-import { GlobalPreferencesContext } from "providers/GlobalPreferencesProvider";
-import { useContext } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 // import { id } from "date-fns/locale";
 // import { useParams } from "react-router-dom";
@@ -14,6 +12,7 @@ interface ActionsTransferAgreementProps {
   isIncoming: boolean;
   isUnderReview: boolean;
   isCanceled: boolean;
+  isBidirectional: boolean;
 }
 
 const ActionsTransferAgreementView = ({
@@ -23,6 +22,7 @@ const ActionsTransferAgreementView = ({
   isIncoming,
   isUnderReview,
   isCanceled,
+  isBidirectional,
 }: ActionsTransferAgreementProps) => {
   const navigate = useNavigate();
   const id = useParams<{ transferAgreementId: string }>().transferAgreementId!;
@@ -37,7 +37,7 @@ const ActionsTransferAgreementView = ({
         </>
       ) : !isCanceled ? (
           <Button onClick={onCancelTransferAgreementClick} m={2}>Cancel</Button>
-      ) : !isUnderReview ? (
+      ) : !isUnderReview && (!isIncoming || isBidirectional) && !isCanceled? (
         <>
           <Button onClick={()=>navigate(`/bases/${baseId}/transfers/${id}/shipments`)} m={2}>Shipments</Button>
           <Button onClick={()=>navigate(`/bases/${baseId}/transfers/${id}/shipments/new`)} m={2}>Create new shipment</Button>

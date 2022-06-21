@@ -1,10 +1,10 @@
-import { fireEvent, screen, waitFor } from "@testing-library/react";
+// import { fireEvent, screen, waitFor } from "@testing-library/react";
 import "@testing-library/jest-dom";
-import TransferAgreementForm, {
+import {
   ORGANISATIONS_QUERY,
   BASES_ORGANISATIONS_QUERY,
 } from "./CreateTransferAgreementForm";
-import { render } from "utils/test-utils";
+// import { render } from "utils/test-utils";
 
 describe("Create Transfer Agreement form", () => {
   const mocks = [

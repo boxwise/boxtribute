@@ -1,5 +1,5 @@
 import { gql, useQuery } from "@apollo/client";
-import { Shipment, ShipmentsQuery, ShipmentsQueryVariables } from "types/generated/graphql";
+import {ShipmentsQuery, ShipmentsQueryVariables } from "types/generated/graphql";
 import ShipmentsTable from "./components/ShipmentsTable";
 
 export const SHIPMENTS_QUERY = gql`

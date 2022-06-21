@@ -22,8 +22,7 @@ import {
 // import { ProductRow as BoxRow } from "./types";
 import { GlobalFilter } from "../../Boxes/components/GlobalFilter";
 // import { SelectColumnFilter } from "./SelectColumnFilter";
-import { NavLink, useNavigate, useParams } from "react-router-dom";
-import { ProductGender, ShipmentState} from "types/generated/graphql";
+import { ProductGender} from "types/generated/graphql";
 
 
 // details {

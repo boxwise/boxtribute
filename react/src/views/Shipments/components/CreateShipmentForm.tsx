@@ -11,7 +11,7 @@ import {
   TransferAgreementForShipmentsByIdQuery,
   
 } from "types/generated/graphql";
-import { DevTool } from "@hookform/devtools";
+// import { DevTool } from "@hookform/devtools";
 
 export interface CreateShipmentFormValues {
   sourceBaseId: string;
@@ -98,7 +98,7 @@ const CreateShipmentForm = ({
           </Button>
         </WrapItem>
 
-        <DevTool control={control} />
+        {/* <DevTool control={control} /> */}
       </form>
     </Wrap>
   );
