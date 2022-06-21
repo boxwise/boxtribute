@@ -43,7 +43,6 @@ const BaseSwitcher = ({
   currentActiveBaseId,
   availableBases,
 }: BaseSwitcherProps) => {
-  // const baseId = useParams<{ baseId: string }>().baseId;
   return (
     <MenuGroup title="Bases">
       {availableBases?.map((base, i) => (
@@ -206,10 +205,7 @@ const NavBarContainer = ({ children, ...props }) => (
 type HeaderMenuProps = LoginOrUserMenuButtonProps;
 const HeaderMenu = (props: HeaderMenuProps) => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
-  const toggle = () => {
-    // alert("Toggle")
-    setIsMenuOpen(!isMenuOpen);
-  };
+  const toggle = () => setIsMenuOpen(!isMenuOpen);
 
   return (
     <NavBarContainer>
