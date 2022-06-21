@@ -18,7 +18,7 @@ const BoxDetails = ({
   onMoveToLocationClick: moveToLocationClick,
 }: BoxDetailsProps) => {
   if (boxData == null) {
-    console.error("BoxDetails Component: boxData is null");
+    console.error("BoxDetails Component: boxData is null.");
     return <Box>No data found for a box with this id</Box>;
   }
 
