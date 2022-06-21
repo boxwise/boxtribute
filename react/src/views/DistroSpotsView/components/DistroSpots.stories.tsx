@@ -18,11 +18,13 @@ const mockedDistroSpots: DistroSpot[] = [
     distroEvents: [
       {
         eventDate: new Date("2022/08/22"),
-        status: DistroEventState.PLANNING_DONE
+        status: DistroEventState.PLANNING_DONE,
+        id: "1"
       },
       {
         eventDate: new Date("2022/02/13"),
-        status: DistroEventState.COMPLETED
+        status: DistroEventState.COMPLETED,
+        id: "2"
       },
     ]
   },
@@ -34,7 +36,8 @@ const mockedDistroSpots: DistroSpot[] = [
     distroEvents: [
       {
         eventDate: new Date("2022/09/15"),
-        status: DistroEventState.PLANNING
+        status: DistroEventState.PLANNING,
+        id: "3"
       }
     ]
   }

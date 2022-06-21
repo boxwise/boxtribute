@@ -8,6 +8,8 @@ import {
   VStack,
   List,
   ListItem,
+  Text,
+  Button,
 } from "@chakra-ui/react";
 import React from "react";
 
@@ -25,25 +27,25 @@ export enum DistroEventState {
   ON_DISTRO = 5,
   RETURNED = 6,
   RETURNS_TRACKED = 7,
-  COMPLETED = 8
+  COMPLETED = 8,
 }
 
 export const DistroEventStateLabel = new Map<number, string>([
-  [DistroEventState.NEW, 'New'],
-  [DistroEventState.PLANNING, 'Planning'],
-  [DistroEventState.PLANNING_DONE, 'Planning Done'],
-  [DistroEventState.PACKING, 'Packing'],
-  [DistroEventState.PACKING_DONE, 'Packing Done'],
-  [DistroEventState.ON_DISTRO, 'On Distribution'],
-  [DistroEventState.RETURNED, 'Distribution Done'],
-  [DistroEventState.RETURNS_TRACKED, 'Returned Items Tracked'],
-  [DistroEventState.COMPLETED, 'Completed']
+  [DistroEventState.NEW, "New"],
+  [DistroEventState.PLANNING, "Planning"],
+  [DistroEventState.PLANNING_DONE, "Planning Done"],
+  [DistroEventState.PACKING, "Packing"],
+  [DistroEventState.PACKING_DONE, "Packing Done"],
+  [DistroEventState.ON_DISTRO, "On Distribution"],
+  [DistroEventState.RETURNED, "Distribution Done"],
+  [DistroEventState.RETURNS_TRACKED, "Returned Items Tracked"],
+  [DistroEventState.COMPLETED, "Completed"],
 ]);
-
 
 export interface DistroEvents {
   eventDate?: Date;
   status: DistroEventState;
+  id: string;
 }
 
 export interface DistroSpot {
@@ -57,9 +59,11 @@ export interface DistroSpot {
 
 interface DistroSpotsProps {
   distroSpots: DistroSpot[];
+  onDistroEventClick: (distroEventId: string) => void;
 }
 
-const DistroSpots = ({ distroSpots }: DistroSpotsProps) => {
+
+const DistroSpots = ({ distroSpots, onDistroEventClick }: DistroSpotsProps) => {
   return (
     <Accordion allowToggle>
       {distroSpots.map((distroSpot) => {
@@ -81,16 +85,30 @@ const DistroSpots = ({ distroSpots }: DistroSpotsProps) => {
               </AccordionButton>
             </h2>
             <AccordionPanel pb={4}>
+              {distroSpot.comment ? (
+                <Box my={2}>
+                  <strong>Comment:</strong> {distroSpot.comment}
+                </Box>
+              ) : null}
+              <Text>
+                <strong>Distibution Events: </strong>
+              </Text>
               <List>
                 {distroSpot.distroEvents.map((distroEvent, i) => {
                   return (
                     <>
-                      {distroSpot.comment ? (
-                        <Box><strong>Comment:</strong> {distroSpot.comment}</Box>
-                      ) : null}
-                      <ListItem key={i}>
-                        <Box>Date: {distroEvent.eventDate?.toDateString()}</Box>
-                        <Box>Status: {DistroEventStateLabel.get(distroEvent.status)}</Box>
+                      <ListItem border="1px" p={2} my={2} key={i} cursor='pointer' _hover={{
+    color: "teal.500",
+  }}
+                      onClick={() => onDistroEventClick(distroEvent.id)}
+                      >
+                          <Box>
+                            Date: {distroEvent.eventDate?.toDateString()}
+                          </Box>
+                          <Box>
+                            Status:{" "}
+                            {DistroEventStateLabel.get(distroEvent.status)}
+                          </Box>
                       </ListItem>
                     </>
                   );
