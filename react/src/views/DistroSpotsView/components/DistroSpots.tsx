@@ -72,7 +72,6 @@ const DistroSpots = ({ distroSpots, onDistroEventClick }: DistroSpotsProps) => {
           <AccordionItem>
             <h2>
               <AccordionButton>
-                {/* <Box flex="1" textAlign="left"> */}
                 <VStack flex="1" textAlign="left">
                   <Box fontWeight="bold">{distroSpot.name}</Box>
                   {distroSpot.nextDistroEventDate ? (
