@@ -25,7 +25,7 @@ export enum DistroEventState {
   OnDistro,
   Returned,
   ReturnsTracked,
-  Completed
+  Completed,
 }
 
 export interface DistroEvents {
@@ -56,12 +56,13 @@ const DistroSpots = ({ distroSpots }: DistroSpotsProps) => {
               <AccordionButton>
                 {/* <Box flex="1" textAlign="left"> */}
                 <VStack flex="1" textAlign="left">
-                  <Box fontWeight="bold">
-                    {distroSpot.name}
-                  </Box>
-                  <Box>
-                    {distroSpot.nextDistroEventDate?.toDateString()}
-                  </Box>
+                  <Box fontWeight="bold">{distroSpot.name}</Box>
+                  {distroSpot.nextDistroEventDate ? (
+                    <Box>
+                      Next distribution on:{" "}
+                      {distroSpot.nextDistroEventDate?.toDateString()}{" "}
+                    </Box>
+                  ) : null}
                 </VStack>
                 <AccordionIcon />
               </AccordionButton>
@@ -69,10 +70,17 @@ const DistroSpots = ({ distroSpots }: DistroSpotsProps) => {
             <AccordionPanel pb={4}>
               <List>
                 {distroSpot.distroEvents.map((distroEvent, i) => {
-                  return <ListItem key={i}>
-                    <Box>Date: {distroEvent.eventDate?.toDateString()}</Box>
-                    <Box>Status: {distroEvent.status}</Box>
-                    </ListItem>
+                  return (
+                    <>
+                      {distroSpot.comment ? (
+                        <Box><strong>Comment:</strong> {distroSpot.comment}</Box>
+                      ) : null}
+                      <ListItem key={i}>
+                        <Box>Date: {distroEvent.eventDate?.toDateString()}</Box>
+                        <Box>Status: {distroEvent.status}</Box>
+                      </ListItem>
+                    </>
+                  );
                 })}
               </List>
             </AccordionPanel>
