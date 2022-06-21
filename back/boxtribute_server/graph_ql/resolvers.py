@@ -302,6 +302,11 @@ def resolve_tag_tagged_resources(tag_obj, _):
     ) + list(Box.select().where(Box.id << [r.object_id for r in box_relations]))
 
 
+@beneficiary.field("tags")
+def resolve_beneficiary_tags(obj, _):
+    return Tag.select().join(TagsRelation).where((TagsRelation.object_id == obj.id) & (TagsRelation.object_type == TaggableObjectType.Beneficiary))
+
+
 @beneficiary.field("tokens")
 def resolve_beneficiary_tokens(beneficiary_obj, _):
     authorize(permission="transaction:read")
