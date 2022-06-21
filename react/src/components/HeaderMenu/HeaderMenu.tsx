@@ -1,4 +1,4 @@
-import { useContext, useState } from "react";
+import { useState } from "react";
 import { Link, NavLink } from "react-router-dom";
 import {
   Box,
@@ -19,7 +19,6 @@ import {
 } from "@chakra-ui/react";
 import { AiFillCloseCircle, AiOutlineMenu } from "react-icons/ai";
 import BoxtributeLogo from "../../assets/images/boxtribute-logo.png";
-import { GlobalPreferencesContext } from "providers/GlobalPreferencesProvider";
 
 const MenuToggle = ({ toggle, isOpen, ...props }) => (
   <IconButton
