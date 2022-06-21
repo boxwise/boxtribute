@@ -26,8 +26,8 @@ import {
   useSortBy,
   useRowSelect,
   usePagination,
-  useBlockLayout,
-  useResizeColumns,
+  // useBlockLayout,
+  // useResizeColumns,
 } from "react-table";
 import { ProductRow as BoxRow } from "./types";
 import { GlobalFilter } from "./GlobalFilter";
@@ -42,14 +42,14 @@ type BoxesTableProps = {
 const BoxesTable = ({ tableData }: BoxesTableProps) => {
   const navigate = useNavigate();
   const baseId = useParams<{ baseId: string }>().baseId!;
-  const defaultColumn = React.useMemo(
-    () => ({
-      minWidth: 30,
-      width: 150,
-      maxWidth: 400
-    }),
-    []
-  );
+  // const defaultColumn = React.useMemo(
+  //   () => ({
+  //     minWidth: 30,
+  //     width: 150,
+  //     maxWidth: 400
+  //   }),
+  //   []
+  // );
   const columns: Column<BoxRow>[] = React.useMemo(
     () => [
       {

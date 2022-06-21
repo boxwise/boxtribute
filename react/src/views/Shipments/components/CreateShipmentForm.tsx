@@ -32,7 +32,6 @@ const CreateShipmentForm = ({
 }: CreateShipmentFormProps) => {
   const {
     handleSubmit,
-    control,
     formState: { isSubmitting },
     register
   } = useForm<CreateShipmentFormValues>({

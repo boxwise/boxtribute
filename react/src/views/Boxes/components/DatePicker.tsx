@@ -2,37 +2,29 @@ import {
   Popover,
   PopoverContent,
   PopoverTrigger,
-  ChakraProvider,
-  ColorModeScript,
   Container,
   FormControl,
   FormErrorMessage,
-  FormLabel,
   Input,
-  Switch,
-  useColorMode,
-  extendTheme,
 } from "@chakra-ui/react";
-
 import * as React from "react";
-import { render } from "react-dom";
 
-import { DayPicker, useInput, UseInputOptions } from "react-day-picker";
+import { DayPicker } from "react-day-picker";
 import "react-day-picker/dist/style.css";
 // import { Field, FieldProps, Formik } from "formik";
 import { css } from "@emotion/react";
 import { format } from "date-fns";
 
-const options: UseInputOptions = {
+// const options: UseInputOptions = {
   // Select today as default
-  defaultSelected: new Date(),
+  // defaultSelected: new Date(),
   // Limit the valid dates
-  fromYear: 2022,
-  toYear: 2035,
-  format: "PP",
+  // fromYear: 2022,
+  // toYear: 2035,
+  // format: "PP",
   // Make the selection mandatory.
-  required: true,
-};
+  // required: true,
+// };
 
 function Form() {
   // const input = useInput(options);
@@ -63,7 +55,7 @@ function Form() {
 }
 
 const DatePickerExample = () => {
-  const { toggleColorMode } = useColorMode();
+  // const { toggleColorMode } = useColorMode();
 
   return (
     <Container
