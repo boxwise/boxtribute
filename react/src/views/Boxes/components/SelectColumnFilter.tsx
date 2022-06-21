@@ -1,11 +1,12 @@
+import { Select } from "@chakra-ui/react";
 import React from "react";
 import { UseFiltersColumnProps } from "react-table";
-import { ProductRow } from "./types";
+import { BoxRow } from "./types";
 
 export function SelectColumnFilter({
   column: { filterValue, setFilter, preFilteredRows, id },
 }: {
-  column: UseFiltersColumnProps<ProductRow> & { id: string };
+  column: UseFiltersColumnProps<BoxRow> & { id: string };
 }) {
   const options = React.useMemo(() => {
     const options = new Set<string>();
@@ -16,7 +17,7 @@ export function SelectColumnFilter({
   }, [id, preFilteredRows]);
 
   return (
-    <select
+    <Select
       id={id}
       value={filterValue}
       onChange={(e) => {
@@ -29,6 +30,6 @@ export function SelectColumnFilter({
           {option}
         </option>
       ))}
-    </select>
+    </Select>
   );
 }

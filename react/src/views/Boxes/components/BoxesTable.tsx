@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useMemo } from "react";
 import {
   TriangleDownIcon,
   TriangleUpIcon,
@@ -17,6 +17,13 @@ import {
   Flex,
   Text,
   IconButton,
+  Accordion,
+  AccordionButton,
+  AccordionIcon,
+  AccordionItem,
+  AccordionPanel,
+  Box,
+  Checkbox,
 } from "@chakra-ui/react";
 import {
   Column,
@@ -26,67 +33,145 @@ import {
   useSortBy,
   useRowSelect,
   usePagination,
-  // useBlockLayout,
-  // useResizeColumns,
 } from "react-table";
-import { ProductRow as BoxRow } from "./types";
+import { BoxRow } from "./types";
 import { GlobalFilter } from "./GlobalFilter";
 import { SelectColumnFilter } from "./SelectColumnFilter";
-import { useNavigate, useParams } from "react-router-dom";
 import IndeterminateCheckbox from "./Checkbox";
 
-type BoxesTableProps = {
+export type BoxesTableProps = {
   tableData: BoxRow[];
+  onBoxRowClick: (labelIdentified: string) => void;
 };
 
-const BoxesTable = ({ tableData }: BoxesTableProps) => {
-  const navigate = useNavigate();
-  const baseId = useParams<{ baseId: string }>().baseId!;
-  // const defaultColumn = React.useMemo(
-  //   () => ({
-  //     minWidth: 30,
-  //     width: 150,
-  //     maxWidth: 400
-  //   }),
-  //   []
-  // );
-  const columns: Column<BoxRow>[] = React.useMemo(
+interface ColumnSelectorProps {
+  availableColumns: Column<BoxRow>[];
+  setSelectedColumns: (columns: Column<BoxRow>[]) => void;
+  selectedColumns: Column<BoxRow>[];
+}
+
+const mapColumnsToColumnOptionCollection = (columns: Column<BoxRow>[]) =>
+  columns
+    .map((column) => ({
+      label: column.Header?.toString() || "",
+      value: column.accessor?.toString() || "",
+    }))
+    .filter((value) => value !== undefined);
+
+const ColumnSelector = ({
+  availableColumns,
+  setSelectedColumns,
+  selectedColumns,
+}: ColumnSelectorProps) => {
+  const allAvailableColumnOptions = useMemo(
+    () => mapColumnsToColumnOptionCollection(availableColumns),
+    [availableColumns]
+  );
+
+  const onCheckboxChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const checked = e.target.checked;
+    const columnId = e.target.value;
+    debugger;
+    const column = availableColumns.find((column) => column.id === columnId);
+    if (column != null) {
+      if (checked) {
+        setSelectedColumns(
+          selectedColumns.includes(column)
+            ? selectedColumns
+            : [...selectedColumns, column]
+        );
+      } else {
+        setSelectedColumns(selectedColumns.filter((c) => c !== column));
+      }
+    }
+  };
+
+  const selectedColumnOptions =
+    mapColumnsToColumnOptionCollection(selectedColumns);
+
+  return (
+    <Box maxW="400px" minW="250px">
+      <Accordion allowToggle>
+        <AccordionItem>
+          <h2>
+            <AccordionButton>
+              <Box flex="1" textAlign="left">
+                Columns
+              </Box>
+              <AccordionIcon />
+            </AccordionButton>
+          </h2>
+          <AccordionPanel pb={4}>
+            <Flex flexWrap="wrap">
+              {allAvailableColumnOptions.map((columnOption) => (
+                <Checkbox
+                  m={1}
+                  py={1}
+                  px={2}
+                  border="1px"
+                  colorScheme="gray"
+                  borderColor="gray.200"
+                  onChange={onCheckboxChange}
+                  key={columnOption.value}
+                  defaultChecked={selectedColumnOptions
+                    .map((c) => c.value)
+                    .includes(columnOption.value)}
+                  value={columnOption.value}
+                >
+                  {columnOption.label}
+                </Checkbox>
+              ))}
+            </Flex>
+          </AccordionPanel>
+        </AccordionItem>
+      </Accordion>
+    </Box>
+  );
+};
+
+const BoxesTable = ({ tableData, onBoxRowClick }: BoxesTableProps) => {
+  const availableColumns: Column<BoxRow>[] = React.useMemo(
     () => [
       {
         Header: "Product",
-        accessor: "name",
+        accessor: "productName",
+        id: "productName",
         Filter: SelectColumnFilter,
+        show: false,
       },
       {
         Header: "Box Number",
         accessor: "labelIdentifier",
-        // maxWidth: 50,
-        // minWidth: 30,
-        // width: 40,
+        id: "labelIdentifier",
       },
       {
         Header: "Gender",
         accessor: "gender",
+        id: "gender",
         Filter: SelectColumnFilter,
         filter: "equals",
       },
       {
         Header: "Size",
         accessor: "size",
+        id: "size",
       },
       {
         Header: "Items",
         accessor: "items",
+        id: "items",
       },
       {
         Header: "State",
         accessor: "state",
+        id: "state",
         Filter: SelectColumnFilter,
         filter: "equals",
       },
       {
         Header: "Location",
         accessor: "location",
+        id: "location",
         Filter: SelectColumnFilter,
         filter: "equals",
       },
@@ -94,9 +179,47 @@ const BoxesTable = ({ tableData }: BoxesTableProps) => {
     []
   );
 
+  const [selectedColumns, setSelectedColumns] =
+    React.useState<Column<BoxRow>[]>(availableColumns);
+  const orderedSelectedColumns = useMemo(
+    () =>
+      selectedColumns.sort(
+        (a, b) => availableColumns.indexOf(a) - availableColumns.indexOf(b)
+      ),
+    [selectedColumns, availableColumns]
+  );
+
+  return (
+    <>
+      <ColumnSelector
+        availableColumns={availableColumns}
+        selectedColumns={selectedColumns}
+        setSelectedColumns={setSelectedColumns}
+      />
+      <ActualTable
+        columns={orderedSelectedColumns}
+        tableData={tableData}
+        onBoxRowClick={onBoxRowClick}
+      />
+      ;
+    </>
+  );
+};
+
+interface ActualTableProps {
+  columns: Column<BoxRow>[];
+  show?: boolean;
+  tableData: BoxRow[];
+  onBoxRowClick: (labelIdentified: string) => void;
+}
+const ActualTable = ({
+  show = true,
+  columns,
+  tableData,
+  onBoxRowClick,
+}: ActualTableProps) => {
   const {
     headerGroups,
-
     prepareRow,
     state: { globalFilter, pageIndex },
     setGlobalFilter,
@@ -111,16 +234,16 @@ const BoxesTable = ({ tableData }: BoxesTableProps) => {
     {
       columns,
       data: tableData,
-      initialState: { pageIndex: 0, pageSize: 20 },
-      // defaultColumn,
+      initialState: {
+        pageIndex: 0,
+        pageSize: 20,
+      },
     },
     useFilters,
     useGlobalFilter,
     useSortBy,
     usePagination,
     useRowSelect,
-    // useBlockLayout,
-    // useResizeColumns,
     (hooks) => {
       hooks.visibleColumns.push((columns) => [
         {
@@ -140,6 +263,10 @@ const BoxesTable = ({ tableData }: BoxesTableProps) => {
       ]);
     }
   );
+
+  if (!show) {
+    return <></>;
+  }
 
   return (
     <>
@@ -166,14 +293,8 @@ const BoxesTable = ({ tableData }: BoxesTableProps) => {
           {headerGroups.map((headerGroup, i) => (
             <Tr {...headerGroup.getHeaderGroupProps()} key={i}>
               {headerGroup.headers.map((column) => (
-                <Th {...column.getHeaderProps(column.getSortByToggleProps())}>
+                <Th {...column.getHeaderProps(column.getSortByToggleProps())} title={`Toggle SortBy for '${column.render("Header")}'`}>
                   {column.render("Header")}
-                  {/* <div
-                    {...column.getResizerProps()}
-                    className={`resizer ${
-                      column.isResizing ? "isResizing" : ""
-                    }`}
-                  /> */}
                   <chakra.span pl="4">
                     {column.isSorted ? (
                       column.isSortedDesc ? (
@@ -195,11 +316,7 @@ const BoxesTable = ({ tableData }: BoxesTableProps) => {
               <Tr
                 cursor="pointer"
                 {...row.getRowProps()}
-                onClick={() =>
-                  navigate(
-                    `/bases/${baseId}/boxes/${row.original.labelIdentifier}`
-                  )
-                }
+                onClick={() => onBoxRowClick(row.original.labelIdentifier)}
                 key={i}
               >
                 {row.cells.map((cell, i) => {
