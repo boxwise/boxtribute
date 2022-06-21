@@ -981,7 +981,7 @@ export type TransferAgreementByIdQuery = { __typename?: 'Query', transferAgreeme
 export type TransferAgreementsQueryVariables = Exact<{ [key: string]: never; }>;
 
 
-export type TransferAgreementsQuery = { __typename?: 'Query', transferAgreements: Array<{ __typename?: 'TransferAgreement', id: string, state?: TransferAgreementState | null, targetOrganisation: { __typename?: 'Organisation', name: string }, targetBases?: Array<{ __typename?: 'Base', name: string }> | null }> };
+export type TransferAgreementsQuery = { __typename?: 'Query', transferAgreements: Array<{ __typename?: 'TransferAgreement', id: string, state?: TransferAgreementState | null, type: TransferAgreementType, targetOrganisation: { __typename?: 'Organisation', name: string }, targetBases?: Array<{ __typename?: 'Base', name: string }> | null, sourceOrganisation: { __typename?: 'Organisation', name: string }, sourceBases?: Array<{ __typename?: 'Base', name: string }> | null }> };
 
 export type OrganisationsQueryVariables = Exact<{ [key: string]: never; }>;
 

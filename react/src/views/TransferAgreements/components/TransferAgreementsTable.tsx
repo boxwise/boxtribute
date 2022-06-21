@@ -22,13 +22,16 @@ import {
 import { GlobalFilter } from "../../Boxes/components/GlobalFilter";
 // import { SelectColumnFilter } from "./SelectColumnFilter";
 import { NavLink, useNavigate, useParams } from "react-router-dom";
-import { TransferAgreementState } from "types/generated/graphql";
+import { TransferAgreementState, TransferAgreementType } from "types/generated/graphql";
 
 export type BoxRow = {
   id: string;
   state: TransferAgreementState | null | undefined;
+  sourceOrganisation?: string;
+  sourceBases?: string | undefined[];
   targetOrganisation?: string;
   targetBases?: string | undefined[];
+  type: TransferAgreementType | null | undefined;
 };
 
 type TransferAgreementTableProps = {
@@ -45,14 +48,27 @@ const TransferAgreementsTable = ({
       {
         Header: "Id",
         accessor: "id",
+        // width: "30",
       },
       {
-        Header: "Target Organisation",
+        Header: "Source Org",
+        accessor: "sourceOrganisation",
+      },
+      {
+        Header: "Source Base",
+        accessor: "sourceBases",
+      },
+      {
+        Header: "Target Org",
         accessor: "targetOrganisation",
       },
       {
-        Header: "Bases",
+        Header: "Target Base",
         accessor: "targetBases",
+      },
+      {
+        Header: "Type",
+        accessor: "type",
       },
       {
         Header: "State",

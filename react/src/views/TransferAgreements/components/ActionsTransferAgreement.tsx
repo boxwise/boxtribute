@@ -2,19 +2,18 @@
 import { Box, Button } from "@chakra-ui/react";
 import { GlobalPreferencesContext } from "providers/GlobalPreferencesProvider";
 import { useContext } from "react";
+import { useNavigate, useParams } from "react-router-dom";
 // import { id } from "date-fns/locale";
 // import { useParams } from "react-router-dom";
-import {
-  MutationAcceptTransferAgreementArgs,
-  MutationCancelTransferAgreementArgs,
-  MutationRejectTransferAgreementArgs,
-} from "types/generated/graphql";
+
 
 interface ActionsTransferAgreementProps {
   onAcceptTransferAgreementClick: () => void;
   onRejectTransferAgreementClick: () => void;
   onCancelTransferAgreementClick: () => void;
   isIncoming: boolean;
+  isUnderReview: boolean;
+  isCanceled: boolean;
 }
 
 const ActionsTransferAgreementView = ({
@@ -22,17 +21,28 @@ const ActionsTransferAgreementView = ({
   onRejectTransferAgreementClick,
   onCancelTransferAgreementClick,
   isIncoming,
+  isUnderReview,
+  isCanceled,
 }: ActionsTransferAgreementProps) => {
+  const navigate = useNavigate();
+  const id = useParams<{ transferAgreementId: string }>().transferAgreementId!;
+  const baseId = useParams<{ baseId: string }>().baseId!;
+  // const onShipmentsClick = navigate(`/bases/${baseId}/transfers/${id}/shipments`)
   return (
     <Box>
-      {isIncoming ? (
+      {isIncoming && isUnderReview ? (
         <>
           <Button onClick={onAcceptTransferAgreementClick}>Accept</Button>
           <Button onClick={onRejectTransferAgreementClick}>Reject</Button>
         </>
-      ) : (
-        <Button onClick={onCancelTransferAgreementClick}>Cancel</Button>
-      )}
+      ) : !isCanceled ? (
+          <Button onClick={onCancelTransferAgreementClick} m={2}>Cancel</Button>
+      ) : !isUnderReview ? (
+        <>
+          <Button onClick={()=>navigate(`/bases/${baseId}/transfers/${id}/shipments`)} m={2}>Shipments</Button>
+          <Button onClick={()=>navigate(`/bases/${baseId}/transfers/${id}/shipments/new`)} m={2}>Create new shipment</Button>
+          </>
+      ) : null }
     </Box>
   );
 };

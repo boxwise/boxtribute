@@ -47,7 +47,7 @@ export type ShipmentRow = {
 };
 
 type ShipmentTableProps = {
-  isIncoming: boolean;
+  isIncoming?: boolean;
   onCancelShipmentClick: () => void;
   onSendShipmentClick: () => void;
   tableData: ShipmentRow[];

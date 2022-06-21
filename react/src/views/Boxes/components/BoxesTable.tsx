@@ -26,6 +26,8 @@ import {
   useSortBy,
   useRowSelect,
   usePagination,
+  useBlockLayout,
+  useResizeColumns,
 } from "react-table";
 import { ProductRow as BoxRow } from "./types";
 import { GlobalFilter } from "./GlobalFilter";
@@ -40,6 +42,14 @@ type BoxesTableProps = {
 const BoxesTable = ({ tableData }: BoxesTableProps) => {
   const navigate = useNavigate();
   const baseId = useParams<{ baseId: string }>().baseId!;
+  const defaultColumn = React.useMemo(
+    () => ({
+      minWidth: 30,
+      width: 150,
+      maxWidth: 400
+    }),
+    []
+  );
   const columns: Column<BoxRow>[] = React.useMemo(
     () => [
       {
@@ -50,6 +60,9 @@ const BoxesTable = ({ tableData }: BoxesTableProps) => {
       {
         Header: "Box Number",
         accessor: "labelIdentifier",
+        // maxWidth: 50,
+        // minWidth: 30,
+        // width: 40,
       },
       {
         Header: "Gender",
@@ -99,12 +112,15 @@ const BoxesTable = ({ tableData }: BoxesTableProps) => {
       columns,
       data: tableData,
       initialState: { pageIndex: 0, pageSize: 20 },
+      // defaultColumn,
     },
     useFilters,
     useGlobalFilter,
     useSortBy,
     usePagination,
     useRowSelect,
+    // useBlockLayout,
+    // useResizeColumns,
     (hooks) => {
       hooks.visibleColumns.push((columns) => [
         {
@@ -152,6 +168,12 @@ const BoxesTable = ({ tableData }: BoxesTableProps) => {
               {headerGroup.headers.map((column) => (
                 <Th {...column.getHeaderProps(column.getSortByToggleProps())}>
                   {column.render("Header")}
+                  {/* <div
+                    {...column.getResizerProps()}
+                    className={`resizer ${
+                      column.isResizing ? "isResizing" : ""
+                    }`}
+                  /> */}
                   <chakra.span pl="4">
                     {column.isSorted ? (
                       column.isSortedDesc ? (

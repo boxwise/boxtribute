@@ -1,11 +1,8 @@
 import { gql, useMutation, useQuery } from "@apollo/client";
 import { GlobalPreferencesContext } from "providers/GlobalPreferencesProvider";
 import { useContext } from "react";
-import { useParams } from "react-router-dom";
-import {
-  MutationAcceptTransferAgreementArgs,
-  MutationCancelTransferAgreementArgs,
-  MutationRejectTransferAgreementArgs,
+import { useNavigate, useParams } from "react-router-dom";
+import {  
   TransferAgreementByIdQuery,
   TransferAgreementByIdQueryVariables,
 } from "types/generated/graphql";
@@ -58,7 +55,6 @@ const TransferAgreementView = () => {
   const id = useParams<{ transferAgreementId: string }>().transferAgreementId!;
   const { globalPreferences } = useContext(GlobalPreferencesContext);
 
-
   const { loading, error, data } = useQuery<
     TransferAgreementByIdQuery,
     TransferAgreementByIdQueryVariables
@@ -107,11 +103,17 @@ const TransferAgreementView = () => {
   const transferAgreementData = data.transferAgreement;
   console.log(transferAgreementData);
   console.log(globalPreferences);
-  const isIncoming = parseInt(globalPreferences.selectedOrganisationId) === parseInt(transferAgreementData.targetOrganisation.id);
+  const isIncoming =
+    parseInt(globalPreferences.selectedOrganisationId) ===
+    parseInt(transferAgreementData.targetOrganisation.id);
+  const isUnderReview = transferAgreementData.state === "UnderReview";
+  const isCanceled = transferAgreementData.state === "Canceled";
   return (
     <>
       <ActionsTransferAgreement
+        isUnderReview={isUnderReview}
         isIncoming={isIncoming}
+        isCanceled={isCanceled}
         onAcceptTransferAgreementClick={onAcceptTransferAgreementClick}
         onRejectTransferAgreementClick={onRejectTransferAgreementClick}
         onCancelTransferAgreementClick={onCancelTransferAgreementClick}

@@ -17,7 +17,7 @@ import {
   UpdateShipmentMutation,
 } from "types/generated/graphql";
 import { Controller, useForm } from "react-hook-form";
-import { DevTool } from "@hookform/devtools";
+// import { DevTool } from "@hookform/devtools";
 
 export interface ShipmentUpdateValues {
   id: string;
@@ -95,7 +95,7 @@ const ShipmentEdit = ({
           </Button>
         </WrapItem>
 
-        <DevTool control={control} />
+        {/* <DevTool control={control} /> */}
       </form>
     </Wrap>
   );

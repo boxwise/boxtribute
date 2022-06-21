@@ -121,7 +121,7 @@ const onCancelShipmentClick = () => {
 
   return <>
   <ShipmentDetail shipmentData={shipmentData} />
-  <ShipmentTable tableData={tableData} onSendShipmentClick={onSendShipmentClick} onCancelShipmentClick={onCancelShipmentClick}/>
+  <ShipmentTable tableData={tableData} onSendShipmentClick={onSendShipmentClick} onCancelShipmentClick={onCancelShipmentClick} isIncoming={isIncoming}/>
   </>;
 };
 
