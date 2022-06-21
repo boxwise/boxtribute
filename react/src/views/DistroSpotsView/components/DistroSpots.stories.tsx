@@ -1,25 +1,42 @@
 import React from 'react';
 import { ComponentStory, ComponentMeta } from '@storybook/react';
 import { action } from '@storybook/addon-actions';
-import DistroSpots, { DistroSpot } from './DistroSpots';
+import DistroSpots, { DistroEventState, DistroSpot } from './DistroSpots';
 
 
 
 const mockedDistroSpots: DistroSpot[] = [
   {
     id: "1",
-    name: "Horgosz"
+    name: "Horgosz",
+    distroEvents: []
   },
   {
     id: "2",
     name: "Subotica",
-    nextDistroEventDate: new Date("2022/08/22")
+    nextDistroEventDate: new Date("2022/08/22"),
+    distroEvents: [
+      {
+        eventDate: new Date("2022/08/22"),
+        status: DistroEventState.PlanningDone
+      },
+      {
+        eventDate: new Date("2022/02/13"),
+        status: DistroEventState.Completed
+      },
+    ]
   },
   {
     id: "3",
     name: "Bihac",
-    nextDistroEventDate: new Date("2022/09/15"), 
-    comment: "This distro spot is currently having issues regarding accessibility for our 2nd vehicle."
+    nextDistroEventDate: new Date("2022/09/15"),
+    comment: "This distro spot is currently having issues regarding accessibility for our 2nd vehicle.",
+    distroEvents: [
+      {
+        eventDate: new Date("2022/09/15"),
+        status: DistroEventState.Planning
+      }
+    ]
   }
 ];
 

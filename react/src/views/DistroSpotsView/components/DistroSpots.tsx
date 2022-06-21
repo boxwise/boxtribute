@@ -6,6 +6,8 @@ import {
   AccordionIcon,
   AccordionPanel,
   VStack,
+  List,
+  ListItem,
 } from "@chakra-ui/react";
 import React from "react";
 
@@ -14,12 +16,30 @@ interface GeoData {
   long: number;
 }
 
+export enum DistroEventState {
+  New,
+  Planning,
+  PlanningDone,
+  Packing,
+  PackingDone,
+  OnDistro,
+  Returned,
+  ReturnsTracked,
+  Completed
+}
+
+export interface DistroEvents {
+  eventDate?: Date;
+  status: DistroEventState;
+}
+
 export interface DistroSpot {
   id: string;
   name: string;
   geoData?: GeoData;
   nextDistroEventDate?: Date;
-  comment?: string
+  comment?: string;
+  distroEvents: DistroEvents[];
 }
 
 interface DistroSpotsProps {
@@ -47,10 +67,14 @@ const DistroSpots = ({ distroSpots }: DistroSpotsProps) => {
               </AccordionButton>
             </h2>
             <AccordionPanel pb={4}>
-              Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do
-              eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut
-              enim ad minim veniam, quis nostrud exercitation ullamco laboris
-              nisi ut aliquip ex ea commodo consequat.
+              <List>
+                {distroSpot.distroEvents.map((distroEvent, i) => {
+                  return <ListItem key={i}>
+                    <Box>Date: {distroEvent.eventDate?.toDateString()}</Box>
+                    <Box>Status: {distroEvent.status}</Box>
+                    </ListItem>
+                })}
+              </List>
             </AccordionPanel>
           </AccordionItem>
         );
