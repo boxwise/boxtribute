@@ -17,8 +17,6 @@ import {
   Flex,
   Text,
   IconButton,
-  FormControl,
-  FormLabel,
   Accordion,
   AccordionButton,
   AccordionIcon,
@@ -26,10 +24,6 @@ import {
   AccordionPanel,
   Box,
   Checkbox,
-  VStack,
-  HStack,
-  Wrap,
-  WrapItem,
 } from "@chakra-ui/react";
 import {
   Column,
@@ -44,9 +38,8 @@ import { BoxRow } from "./types";
 import { GlobalFilter } from "./GlobalFilter";
 import { SelectColumnFilter } from "./SelectColumnFilter";
 import IndeterminateCheckbox from "./Checkbox";
-import { MultiValue, Select } from "chakra-react-select";
 
-type BoxesTableProps = {
+export type BoxesTableProps = {
   tableData: BoxRow[];
   onBoxRowClick: (labelIdentified: string) => void;
 };
@@ -56,11 +49,6 @@ interface ColumnSelectorProps {
   setSelectedColumns: (columns: Column<BoxRow>[]) => void;
   selectedColumns: Column<BoxRow>[];
 }
-
-type ColumnOptionCollection = MultiValue<{
-  label: string;
-  value: string;
-}>;
 
 const mapColumnsToColumnOptionCollection = (columns: Column<BoxRow>[]) =>
   columns
@@ -81,50 +69,62 @@ const ColumnSelector = ({
   );
 
   const onCheckboxChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    
     const checked = e.target.checked;
     const columnId = e.target.value;
     debugger;
     const column = availableColumns.find((column) => column.id === columnId);
     if (column != null) {
       if (checked) {
-        setSelectedColumns(selectedColumns.includes(column) ? selectedColumns : [...selectedColumns, column]);
-      }
-      else {
+        setSelectedColumns(
+          selectedColumns.includes(column)
+            ? selectedColumns
+            : [...selectedColumns, column]
+        );
+      } else {
         setSelectedColumns(selectedColumns.filter((c) => c !== column));
       }
     }
   };
 
-  const onApplySelectedOptions = () => {
-
-  };
-
   const selectedColumnOptions =
     mapColumnsToColumnOptionCollection(selectedColumns);
-  
+
   return (
     <Box maxW="400px" minW="250px">
-    <Accordion allowToggle>
-      <AccordionItem>
-        <h2>
-          <AccordionButton>
-            <Box flex="1" textAlign="left" >
-              Columns
-            </Box>
-            <AccordionIcon />
-          </AccordionButton>
-        </h2>
-        <AccordionPanel pb={4}>
-          <Flex flexWrap="wrap">
-            {allAvailableColumnOptions.map((columnOption) => (
-              <Checkbox m={1} py={1} px={2} border='1px' colorScheme='gray' borderColor='gray.200' onChange={onCheckboxChange} key={columnOption.value} defaultChecked={selectedColumnOptions.map(c => c.value).includes(columnOption.value)} value={columnOption.value}>{columnOption.label}</Checkbox>
-            ))}
-          {/* <Button onClick={onApplySelectedOptions}>Apply</Button> */}
-          </Flex>
-        </AccordionPanel>
-      </AccordionItem>
-    </Accordion>
+      <Accordion allowToggle>
+        <AccordionItem>
+          <h2>
+            <AccordionButton>
+              <Box flex="1" textAlign="left">
+                Columns
+              </Box>
+              <AccordionIcon />
+            </AccordionButton>
+          </h2>
+          <AccordionPanel pb={4}>
+            <Flex flexWrap="wrap">
+              {allAvailableColumnOptions.map((columnOption) => (
+                <Checkbox
+                  m={1}
+                  py={1}
+                  px={2}
+                  border="1px"
+                  colorScheme="gray"
+                  borderColor="gray.200"
+                  onChange={onCheckboxChange}
+                  key={columnOption.value}
+                  defaultChecked={selectedColumnOptions
+                    .map((c) => c.value)
+                    .includes(columnOption.value)}
+                  value={columnOption.value}
+                >
+                  {columnOption.label}
+                </Checkbox>
+              ))}
+            </Flex>
+          </AccordionPanel>
+        </AccordionItem>
+      </Accordion>
     </Box>
   );
 };
@@ -181,13 +181,16 @@ const BoxesTable = ({ tableData, onBoxRowClick }: BoxesTableProps) => {
 
   const [selectedColumns, setSelectedColumns] =
     React.useState<Column<BoxRow>[]>(availableColumns);
-    const orderedSelectedColumns = useMemo(
-      () => selectedColumns.sort((a,b)=> availableColumns.indexOf(a) - availableColumns.indexOf(b))
-    , [selectedColumns, availableColumns]);
+  const orderedSelectedColumns = useMemo(
+    () =>
+      selectedColumns.sort(
+        (a, b) => availableColumns.indexOf(a) - availableColumns.indexOf(b)
+      ),
+    [selectedColumns, availableColumns]
+  );
 
   return (
     <>
-    {/* <Box>{JSON.stringify(selectedColumns)}</Box> */}
       <ColumnSelector
         availableColumns={availableColumns}
         selectedColumns={selectedColumns}
@@ -215,7 +218,6 @@ const ActualTable = ({
   tableData,
   onBoxRowClick,
 }: ActualTableProps) => {
-  
   const {
     headerGroups,
     prepareRow,
@@ -291,7 +293,7 @@ const ActualTable = ({
           {headerGroups.map((headerGroup, i) => (
             <Tr {...headerGroup.getHeaderGroupProps()} key={i}>
               {headerGroup.headers.map((column) => (
-                <Th {...column.getHeaderProps(column.getSortByToggleProps())}>
+                <Th {...column.getHeaderProps(column.getSortByToggleProps())} title={`Toggle SortBy for '${column.render("Header")}'`}>
                   {column.render("Header")}
                   <chakra.span pl="4">
                     {column.isSorted ? (
@@ -303,7 +305,6 @@ const ActualTable = ({
                     ) : null}
                   </chakra.span>
                 </Th>
-              
               ))}
             </Tr>
           ))}

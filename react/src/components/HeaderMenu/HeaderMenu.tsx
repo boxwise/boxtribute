@@ -1,6 +1,5 @@
-import { useContext, useState } from "react";
-import { Link, NavLink, useParams } from "react-router-dom";
-import { useAuth0 } from "@auth0/auth0-react";
+import { useState } from "react";
+import { Link, NavLink } from "react-router-dom";
 import {
   Box,
   Text,
@@ -16,10 +15,10 @@ import {
   MenuGroup,
   MenuItem,
   MenuList,
+  LayoutProps,
 } from "@chakra-ui/react";
 import { AiFillCloseCircle, AiOutlineMenu } from "react-icons/ai";
-import BoxtributeLogo from "../assets/images/boxtribute-logo.png";
-import { GlobalPreferencesContext } from "providers/GlobalPreferencesProvider";
+import BoxtributeLogo from "../../assets/images/boxtribute-logo.png";
 
 const MenuToggle = ({ toggle, isOpen, ...props }) => (
   <IconButton
@@ -36,15 +35,22 @@ const Logo = () => (
   </NavLink>
 );
 
-const BaseSwitcher = () => {
-  const { globalPreferences } = useContext(GlobalPreferencesContext);
-  const baseId = useParams<{ baseId: string }>().baseId;
+interface BaseSwitcherProps {
+  currentActiveBaseId: string;
+  availableBases?: { id: string; name: string }[];
+}
+const BaseSwitcher = ({
+  currentActiveBaseId,
+  availableBases,
+}: BaseSwitcherProps) => {
   return (
     <MenuGroup title="Bases">
-      {globalPreferences.availableBases?.map((base, i) => (
+      {availableBases?.map((base, i) => (
         <MenuItem key={base.id}>
           <Link
-            style={baseId === base.id ? { fontWeight: "bold" } : {}}
+            style={
+              currentActiveBaseId === base.id ? { fontWeight: "bold" } : {}
+            }
             to={`/bases/${base.id}/locations`}
           >
             {base.name}
@@ -55,9 +61,19 @@ const BaseSwitcher = () => {
   );
 };
 
-const UserMenu = () => {
-  const { logout, user } = useAuth0();
-
+interface UserMenuProps extends BaseSwitcherProps {
+  logout: () => void;
+  user?: {
+    picture?: string;
+    email?: string;
+  };
+}
+const UserMenu = ({
+  logout,
+  user,
+  currentActiveBaseId,
+  availableBases,
+}: UserMenuProps) => {
   return (
     <Menu>
       <MenuButton
@@ -72,7 +88,10 @@ const UserMenu = () => {
         }
       />
       <MenuList>
-        <BaseSwitcher />
+        <BaseSwitcher
+          currentActiveBaseId={currentActiveBaseId}
+          availableBases={availableBases}
+        />
         <MenuDivider />
         <MenuGroup title={`User (${user?.email})`}>
           <MenuItem>Profile</MenuItem>
@@ -87,10 +106,28 @@ const UserMenu = () => {
   );
 };
 
-const LoginOrUserMenuButton = () => {
-  const { isAuthenticated, logout, loginWithRedirect } = useAuth0();
+export interface LoginOrUserMenuButtonProps
+  extends UserMenuProps,
+    BaseSwitcherProps {
+  isAuthenticated: boolean;
+  logout: () => void;
+  loginWithRedirect: () => void;
+}
+const LoginOrUserMenuButton = ({
+  isAuthenticated,
+  logout,
+  loginWithRedirect,
+  user,
+  currentActiveBaseId,
+  availableBases,
+}: LoginOrUserMenuButtonProps) => {
   return isAuthenticated ? (
-    <UserMenu />
+    <UserMenu
+      user={user}
+      logout={logout}
+      currentActiveBaseId={currentActiveBaseId}
+      availableBases={availableBases}
+    />
   ) : (
     <Button onClick={() => (isAuthenticated ? logout() : loginWithRedirect())}>
       Login
@@ -98,8 +135,18 @@ const LoginOrUserMenuButton = () => {
   );
 };
 
-const MenuLinks = ({ isOpen, onLinkClick, ...props }) => {
-  const baseId = useParams<{ baseId: string }>().baseId;
+interface MenuLinksProps extends LoginOrUserMenuButtonProps, LayoutProps {
+  isOpen: boolean;
+  onLinkClick: () => void;
+  bg: string;
+}
+
+const MenuLinks = ({
+  isOpen,
+  onLinkClick,
+  currentActiveBaseId,
+  ...props
+}: MenuLinksProps) => {
   const MenuItem = ({ to, text, ...props }) => (
     <NavLink
       onClick={onLinkClick}
@@ -120,10 +167,19 @@ const MenuLinks = ({ isOpen, onLinkClick, ...props }) => {
         direction={["column", "row", "row", "row"]}
         pt={[4, 4, 0, 0]}
       >
-        <LoginOrUserMenuButton />
-        <MenuItem to={`/bases/${baseId}/locations`} text="Locations" />
-        <MenuItem to={`/bases/${baseId}/boxes`} text="Boxes" />
-        <MenuItem to={`/bases/${baseId}/scan-qrcode`} text="Scan QR" />
+        <LoginOrUserMenuButton
+          currentActiveBaseId={currentActiveBaseId}
+          {...props}
+        />
+        <MenuItem
+          to={`/bases/${currentActiveBaseId}/locations`}
+          text="Locations"
+        />
+        <MenuItem to={`/bases/${currentActiveBaseId}/boxes`} text="Boxes" />
+        <MenuItem
+          to={`/bases/${currentActiveBaseId}/scan-qrcode`}
+          text="Scan QR"
+        />
       </Stack>
     </Box>
   );
@@ -146,7 +202,8 @@ const NavBarContainer = ({ children, ...props }) => (
   </Flex>
 );
 
-const Header = () => {
+type HeaderMenuProps = LoginOrUserMenuButtonProps;
+const HeaderMenu = (props: HeaderMenuProps) => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const toggle = () => setIsMenuOpen(!isMenuOpen);
 
@@ -159,13 +216,14 @@ const Header = () => {
         visibility={{ base: "visible", md: "hidden" }}
       />
       <MenuLinks
-        isOpen={isMenuOpen}
-        bg={"white"}
+        bg="white"
         display={{ base: isMenuOpen ? "block" : "none", md: "block" }}
         onLinkClick={() => setIsMenuOpen(false)}
+        isOpen={isMenuOpen}
+        {...props}
       />
     </NavBarContainer>
   );
 };
 
-export default Header;
+export default HeaderMenu;
