@@ -157,8 +157,8 @@ describe("Boxes view", () => {
 
   it("eventually removes the 'Loading...' and shows the table head", async () => {
     await waitFor(waitTillLoadingIsDone);
-    const heading = await screen.getByText("Product");
-    expect(heading).toBeInTheDocument();
+    const productColumnHeader = screen.getByTitle("Toggle SortBy for 'Product'");
+    expect(productColumnHeader).toBeInTheDocument();
   });
 
   describe("search filter", () => {
@@ -226,7 +226,7 @@ describe("Boxes view", () => {
   describe("sorting by fields/column headers", () => {
     beforeEach(waitTillLoadingIsDone);
     it("sorts the table data correctly when the user clicks on the column headers", async () => {
-      const productColumnHeader = screen.getByText("Product");
+      const productColumnHeader = screen.getByTitle("Toggle SortBy for 'Product'");
       fireEvent.click(productColumnHeader);
       const rowsAfterFirstSortingClick = screen.getAllByRole("row");
 
