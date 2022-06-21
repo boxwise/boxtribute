@@ -151,6 +151,11 @@ def resolve_qr_code(obj, _, qr_code=None):
     return obj.qr_code if qr_code is None else QrCode.get(QrCode.code == qr_code)
 
 
+@box.field("tags")
+def resolve_box_tags(obj, _):
+    return Tag.select().join(TagsRelation).where((TagsRelation.object_id == obj.id) & (TagsRelation.object_type == TaggableObjectType.Box))
+
+
 @query.field("product")
 @box.field("product")
 def resolve_product(obj, _, id=None):
