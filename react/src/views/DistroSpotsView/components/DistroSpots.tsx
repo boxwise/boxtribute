@@ -10,6 +10,7 @@ import {
   ListItem,
   Text,
   Button,
+  Flex,
 } from "@chakra-ui/react";
 import React from "react";
 
@@ -42,7 +43,7 @@ export const DistroEventStateLabel = new Map<number, string>([
   [DistroEventState.COMPLETED, "Completed"],
 ]);
 
-export interface DistroEvents {
+export interface DistroEvent {
   eventDate?: Date;
   status: DistroEventState;
   id: string;
@@ -54,7 +55,7 @@ export interface DistroSpot {
   geoData?: GeoData;
   nextDistroEventDate?: Date;
   comment?: string;
-  distroEvents: DistroEvents[];
+  distroEvents: DistroEvent[];
 }
 
 interface DistroSpotsProps {
@@ -65,7 +66,7 @@ interface DistroSpotsProps {
 
 const DistroSpots = ({ distroSpots, onDistroEventClick }: DistroSpotsProps) => {
   return (
-    <Accordion allowToggle>
+    <Accordion w={[300, 420, 500]} allowToggle>
       {distroSpots.map((distroSpot) => {
         return (
           <AccordionItem>
@@ -90,9 +91,13 @@ const DistroSpots = ({ distroSpots, onDistroEventClick }: DistroSpotsProps) => {
                   <strong>Comment:</strong> {distroSpot.comment}
                 </Box>
               ) : null}
-              <Text>
+              {distroSpot.distroEvents?.length > 0 ? (
+                <Text>
                 <strong>Distibution Events: </strong>
               </Text>
+              ) : 
+              <Text>No Distribution Events</Text>}
+              
               <List>
                 {distroSpot.distroEvents.map((distroEvent, i) => {
                   return (
@@ -119,6 +124,7 @@ const DistroSpots = ({ distroSpots, onDistroEventClick }: DistroSpotsProps) => {
         );
       })}
     </Accordion>
+    
   );
 };
 
