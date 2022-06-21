@@ -17,16 +17,29 @@ interface GeoData {
 }
 
 export enum DistroEventState {
-  New,
-  Planning,
-  PlanningDone,
-  Packing,
-  PackingDone,
-  OnDistro,
-  Returned,
-  ReturnsTracked,
-  Completed,
+  NEW = 0,
+  PLANNING = 1,
+  PLANNING_DONE = 2,
+  PACKING = 3,
+  PACKING_DONE = 4,
+  ON_DISTRO = 5,
+  RETURNED = 6,
+  RETURNS_TRACKED = 7,
+  COMPLETED = 8
 }
+
+export const DistroEventStateLabel = new Map<number, string>([
+  [DistroEventState.NEW, 'New'],
+  [DistroEventState.PLANNING, 'Planning'],
+  [DistroEventState.PLANNING_DONE, 'Planning Done'],
+  [DistroEventState.PACKING, 'Packing'],
+  [DistroEventState.PACKING_DONE, 'Packing Done'],
+  [DistroEventState.ON_DISTRO, 'On Distribution'],
+  [DistroEventState.RETURNED, 'Distribution Done'],
+  [DistroEventState.RETURNS_TRACKED, 'Returned Items Tracked'],
+  [DistroEventState.COMPLETED, 'Completed']
+]);
+
 
 export interface DistroEvents {
   eventDate?: Date;
@@ -77,7 +90,7 @@ const DistroSpots = ({ distroSpots }: DistroSpotsProps) => {
                       ) : null}
                       <ListItem key={i}>
                         <Box>Date: {distroEvent.eventDate?.toDateString()}</Box>
-                        <Box>Status: {distroEvent.status}</Box>
+                        <Box>Status: {DistroEventStateLabel.get(distroEvent.status)}</Box>
                       </ListItem>
                     </>
                   );
