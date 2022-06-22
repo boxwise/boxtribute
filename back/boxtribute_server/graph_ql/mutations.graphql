@@ -26,5 +26,24 @@ type Mutation {
   createDistributionEvent(creationInput: DistributionEventCreationInput): DistributionEvent
   # updateDistributionEvent(updateInput)
 
+  createPackingListEntry(creationInput: PackingListEntryCreationInput): PackingListEntry
+  updatePackingListEntry(updateInput: PackingListEntryUpdateInput): PackingListEntry
+
+
+  # TODO: Consider to return a status wrapper object with more info, instead of just the Box etc?
+
+  moveBoxIntoDistributionEvent(boxId: ID!, distributionEventId: ID!): Box!
+  moveUnboxedItemCollectionIntoDistributionEvent(unboxedItemCollectionId: ID!, distributionEventId: ID!): UnboxedItemCollection!
+  # moveBox(boxId: ID!, BoxPlace: ID!): Box!
+
+  moveUnboxedItemCollectionIntoBox(unboxedItemCollectionId: ID!, boxId: ID!): Box!
+
+  extractUnboxedItemCollectionFromBox(boxId: ID!, numberOfItems: Int!)
+
+
+
+
+
+
 
 }
