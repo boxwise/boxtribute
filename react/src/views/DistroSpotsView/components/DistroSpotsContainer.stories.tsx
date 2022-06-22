@@ -7,6 +7,7 @@ import { StorybookApolloProvider } from 'utils/test-utils';
 import { graphql } from 'msw'
 import { worker } from '../../../mocks/browser'
 import { gql } from '@apollo/client';
+import { DistroSpotsForBaseIdQuery, DistroSpotsForBaseIdQueryVariables } from 'types/generated/graphql';
 
 
 const DISTRO_SPOTS_FOR_BASE_ID = gql`
@@ -29,12 +30,14 @@ export default {
   parameters: {},
   decorators: [
     (Story) => {
-        worker.use(
-          graphql.query('https://api.github.com/users/:username', (req, res, ctx) => {
-            // Mock an infinite loading state.
-            return res(ctx.delay('infinite'))
-          })
-        )
+        // worker.use(
+        //   graphql.query<DistroSpotsForBaseIdQuery, DistroSpotsForBaseIdQueryVariables>(
+        //     "DistroSpotsForBaseId", (req, res, ctx) => {
+        //     // Mock an infinite loading state.
+        //     // return res(ctx.delay('infinite'))
+        //     return ctx.data()
+        //   })
+        // )
       return (
         <StorybookApolloProvider>
           <Story />

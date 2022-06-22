@@ -2,8 +2,12 @@ import { gql, useQuery } from "@apollo/client";
 import { GlobalPreferencesContext } from "providers/GlobalPreferencesProvider";
 import { useCallback, useContext } from "react";
 import { useNavigate, useParams } from "react-router-dom";
+import {
+  DistroSpotsForBaseIdQuery,
+  DistroSpotsForBaseIdQueryVariables,
+} from "types/generated/graphql";
 import { useGlobalSiteState } from "utils/hooks";
-import DistroSpots from "./DistroSpots";
+import DistroSpots, { DistroSpot } from "./DistroSpots";
 
 export interface DistroSpotsContainerProps {
   onGoToDistroEventView: (distroEventId: string) => void;
@@ -29,17 +33,46 @@ const DistroSpotsContainer = ({
     }
   `;
 
-  const { loading, error, data } = useQuery(DISTRO_SPOTS_FOR_BASE_ID, {
+  const { loading, error, data } = useQuery<
+    DistroSpotsForBaseIdQuery,
+    DistroSpotsForBaseIdQueryVariables
+  >(DISTRO_SPOTS_FOR_BASE_ID, {
     variables: {
       baseId: currentBaseId,
     },
   });
 
+  if (loading) {
+    return <>Loading</>;
+  }
+
+  if (error) {
+    return <>Error!</>;
+  }
+
+  if (data?.base?.distributions?.distributionSpots == null) {
+    return <>No distro spot data</>;
+  }
+
+  const transformedDistroSpotData =
+    data.base.distributions.distributionSpots.map((distroSpot) => {
+      return {
+        // nextDistroEventDate?: Date;
+        // comment?: distroSpot.comment,
+        // distroEvents: DistroEvent[];
+
+        id: distroSpot.id,
+        name: distroSpot.name,
+        geoData: {
+          latitude: distroSpot.latitude,
+          longitude: distroSpot.longitude,
+        },
+        distroEvents: []
+      };
+    }) as DistroSpot[];
+
   return (
-    <DistroSpots
-      distroSpots={data}
-      onDistroEventClick={onGoToDistroEventView}
-    />
+    <DistroSpots distroSpots={transformedDistroSpotData} onDistroEventClick={onGoToDistroEventView} />
   );
 };
 

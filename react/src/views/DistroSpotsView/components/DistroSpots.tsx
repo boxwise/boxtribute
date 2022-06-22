@@ -13,8 +13,8 @@ import {
 import React from "react";
 
 interface GeoData {
-  lat: number;
-  long: number;
+  latitude: number;
+  longitude: number;
 }
 
 export enum DistroEventState {
