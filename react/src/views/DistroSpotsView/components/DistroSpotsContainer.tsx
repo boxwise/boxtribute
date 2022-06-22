@@ -9,17 +9,31 @@ export interface DistroSpotsContainerProps {
   onGoToDistroEventView: (distroEventId: string) => void;
 }
 
-const DistroSpotsContainer = ({onGoToDistroEventView}: DistroSpotsContainerProps) => {
+const DistroSpotsContainer = ({
+  onGoToDistroEventView,
+}: DistroSpotsContainerProps) => {
+  const { currentBaseId } = useGlobalSiteState();
 
-  const {currentBaseId} = useGlobalSiteState();
-
-  const DISTRO_SPOTS_FOR_BASE_ID = gql``;
+  const DISTRO_SPOTS_FOR_BASE_ID = gql`
+    query DistroSpotsForBaseId($baseId: ID!) {
+      base(id: $baseId) {
+        distributions {
+          distributionSpots {
+            id
+            name
+            latitude
+            longitude
+          }
+        }
+      }
+    }
+  `;
 
   const { loading, error, data } = useQuery(DISTRO_SPOTS_FOR_BASE_ID, {
-  variables: {
-    baseId: currentBaseId,
-  },
-});
+    variables: {
+      baseId: currentBaseId,
+    },
+  });
 
   return (
     <DistroSpots

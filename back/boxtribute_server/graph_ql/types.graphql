@@ -148,7 +148,7 @@ interface HasGeoLocation {
 type DistributionSpot implements HasGeoLocation {
   id: ID!
   name: String!
-  description: String!
+  comment: String!
   latitude: Float!
   longitude: Float!
 
@@ -162,7 +162,6 @@ type DistributionEvent implements BoxPlace & UnboxedItemsCollectionPlace {
   id: ID!
   base: Base
   name: String
-
   packingList: PackingList!
 
   # TODO: Think about copying entries from last distro events
