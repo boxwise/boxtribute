@@ -1,8 +1,7 @@
 import React from 'react';
 import { ComponentStory, ComponentMeta } from '@storybook/react';
-import { within, userEvent } from '@storybook/testing-library';
 import { boxesTableDataMock } from './boxesTableDataMocks';
-import BoxesTable, { BoxesTableProps } from '../BoxesTable';
+import BoxesTable  from '../BoxesTable';
 import { action } from '@storybook/addon-actions';
 
 
