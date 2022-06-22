@@ -1,6 +1,17 @@
-import { Flex, Box, HStack, Text, VStack as Flex } from "@chakra-ui/react";
+import {
+  Flex,
+  Box,
+  HStack,
+  Text,
+  Grid,
+  GridItem,
+  SimpleGrid,
+} from "@chakra-ui/react";
 import { ProductGender } from "types/generated/graphql";
-import { DistroEventState, DistroEventStateLabel } from "views/DistroSpotsView/components/DistroSpots";
+import {
+  DistroEventState,
+  DistroEventStateLabel,
+} from "views/DistroSpotsView/components/DistroSpots";
 
 export interface BTBox {
   id: string;
@@ -23,47 +34,58 @@ interface DistroEventProps {
   distroEventData: DistroEventData;
 }
 
-const DistroEvent = ({ distroEventData: distroEventProps }: DistroEventProps) => {
+const DistroEvent = ({ distroEventData }: DistroEventProps) => {
   return (
-      <>
-      <Flex mb={2}>
-          <Box>Distro Event</Box>
-    
-      <Box><strong>{distroEventProps.eventDate?.toDateString()}</strong></Box>
-      <Box><strong>{DistroEventStateLabel.get(distroEventProps.status)}</strong></Box>
-      
+    <Box w={[null, 420, 500]}>
+      <Flex direction="column" mb={2}>
+        <Text fontSize="xl" mb={2}>
+          Distro Event
+        </Text>
+
+        <Box>
+          <strong>{distroEventData.eventDate?.toDateString()}</strong>
+        </Box>
+        <Box>
+          <strong>{DistroEventStateLabel.get(distroEventData.status)}</strong>
+        </Box>
       </Flex>
-      {distroEventProps.outflows?.map((box) => {
+      {(distroEventData?.outflows?.length || 0) > 0 ? (
+        <Text>Outflows:</Text>
+      ) : null}
+      {distroEventData.outflows?.map((box) => {
         return (
-            <>
-            <Text>Outflows:</Text>
-          <Flex gap='2'>
-            <Box>{box.labelIdentifier}</Box>
-            <Box>{box.name}</Box>
-            <Box>{box.items}</Box>
-            
-            <Box>{box.size}</Box>
-            <Box>{box.gender}</Box>
-          </Flex>
+          <>
+
+          {/* probably must be change to a react table */}
+            <SimpleGrid minChildWidth="10px" columns={5} borderBottom="1px" my={2}>
+              <Box>{box.labelIdentifier}</Box>
+              <Box>{box.name}</Box>
+              <Box>{box.items}</Box>
+
+              <Box>{box.size}</Box>
+              <Box>{box.gender}</Box>
+            </SimpleGrid>
           </>
         );
       })}
-      {distroEventProps.returns?.map((box) => {
+      {(distroEventData?.returns?.length || 0) > 0 ? (
+        <Text>Returns:</Text>
+      ) : null}
+      {distroEventData.returns?.map((box) => {
         return (
-            <>
-            <Text>Returns</Text>
-          <Flex>
-            <Box>{box.labelIdentifier}</Box>
-            <Box>{box.items}</Box>
-            <Box>{box.name}</Box>
-            <Box>{box.size}</Box>
-            <Box>{box.gender}</Box>
-          </Flex>
+          <>
+            <Flex>
+              <Box>{box.labelIdentifier}</Box>
+              <Box>{box.items}</Box>
+              <Box>{box.name}</Box>
+              <Box>{box.size}</Box>
+              <Box>{box.gender}</Box>
+            </Flex>
           </>
         );
       })}
-    </>
+    </Box>
   );
 };
 
-export default DistroEvent
+export default DistroEvent;

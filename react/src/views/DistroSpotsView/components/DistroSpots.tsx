@@ -9,6 +9,7 @@ import {
   List,
   ListItem,
   Text,
+  Center,
 } from "@chakra-ui/react";
 import React from "react";
 
@@ -63,6 +64,7 @@ interface DistroSpotsProps {
 
 const DistroSpots = ({ distroSpots, onDistroEventClick }: DistroSpotsProps) => {
   return (
+    <Center>
     <Accordion w={[300, 420, 500]} allowToggle>
       {distroSpots.map((distroSpot) => {
         return (
@@ -125,6 +127,7 @@ const DistroSpots = ({ distroSpots, onDistroEventClick }: DistroSpotsProps) => {
         );
       })}
     </Accordion>
+    </Center>
   );
 };
 
