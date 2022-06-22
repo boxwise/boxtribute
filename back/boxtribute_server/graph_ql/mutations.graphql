@@ -24,4 +24,7 @@ type Mutation {
   updateDistributionSpot(updateInput: DistributionSpotCreationInput): DistributionSpot
 
   createDistributionEvent(creationInput: DistributionEventCreationInput): DistributionEvent
+  # updateDistributionEvent(updateInput)
+
+
 }
