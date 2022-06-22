@@ -3,16 +3,16 @@
 """
 Representation of a box storing items of a [`Product`]({{Types.Product}}) in a [`Location`]({{Types.Location}})
 """
-type Box implements ItemsCollection {
+type Box {
   id: ID!
   " Sequence of numbers for identifying the box, usually written on box label "
   labelIdentifier: String!
-  boxPlace: BoxPlace
+  location: Location
   " The number of items the box contains. "
+  items: Int!
   product: Product
   # A size from a size range, consider making this enum
   size: String
-  numberOfItems: Int!
   state: BoxState!
   qrCode: QrCode
   createdBy: User
@@ -100,9 +100,6 @@ enum BoxState {
   Received
   Donated
   Scrap
-  PreparedForDistribution
-  OnDistribution
-  ReturnedFromDistribution
 }
 
 """
@@ -115,106 +112,11 @@ type SizeRange {
   productCategory: [ProductCategory!]
 }
 
-
-interface ItemsCollection {
-  product: Product
-  # Size field needs to be reconsidered - related to the parallel size discussion
-  size: String
-  numberOfItems: Int!
-}
-
-type UnboxedItemsCollection implements ItemsCollection {
-  id: ID!
-  product: Product
-  # Size field needs to be reconsidered - related to the parallel size discussion
-  size: String
-  numberOfItems: Int!
-  label: String
-}
-
-interface UnboxedItemsCollectionPlace {
-  unboxedItemsCollections: [UnboxedItemsCollection!]!
-}
-
-interface BoxPlace {
-  boxes(paginationInput: PaginationInput, filterInput: FilterBoxInput): BoxPage
-}
-
-interface HasGeoLocation {
-  latitude: Float!
-  longitude: Float!
-}
-
-type DistributionSpot implements HasGeoLocation {
-  id: ID!
-  name: String!
-  comment: String!
-  latitude: Float!
-  longitude: Float!
-
-  distributionEvents: [DistributionEvent!]!
-
-  # To sketch out / for later
-  # statistics: DistributionSpotStatistics!
-}
-
-type DistributionEvent implements BoxPlace & UnboxedItemsCollectionPlace {
-  id: ID!
-  base: Base
-  name: String
-  packingList: PackingList!
-
-  # TODO: Think about copying entries from last distro events
-  # TODO: make the reasoning clearer why it makes sense to introduce UnboxedItemCollection (instead of reusing Boxes)
-  # => probably best to do this in the Tech Design Doc
-
-  # NOTES DURING HACKATHON REFINEMENT SESSION
-  # * Philipp: "Might be too chaotic (from Operational/Organizations POV) and maybe not really needed to introduce UnboxedItemCollection"
-  #   => This is how organization(s) work though in reality - they put both whole boxes but also often just unboxed items into the van
-  # * Vahid: "Worried about abuse of UnboxedItemCollection could be abused (e.g. 'lazzy' volunteers could use them while Box would be the right thing to use)"
-  #   => Would in this schema draft not be supported, since UnboxedItemCollection can only be in DistroEvents, not in classic Locations
-
-  # Consider: supporting cohortes here (so group of beneficiaries, which are not all individually tracked)
-
-  # To sketch out / for later (e.g. making the Coordinator in charge explicit)
-  involvedVolunteers: [User!]!
-  dateTime: Datetime!
-  distributionSpot: DistributionSpot
-  " List of all the [`Boxes`]({{Types.Box}}) in this location "
-  boxes(paginationInput: PaginationInput, filterInput: FilterBoxInput): BoxPage
-  " Default state for boxes in this location "
-  unboxedItemsCollections: [UnboxedItemsCollection!]!
-  # defaultBoxState: BoxState
-  createdBy: User
-  createdOn: Datetime
-  lastModifiedBy: User
-  lastModifiedOn: Datetime
-}
-
-type Donor {
-  id: ID!
-  name: String!
-  isKnown: Boolean!
-}
-
-type CommercialStockOrigin {
-  id: ID!
-  name: String!
-  isKnown: Boolean!
-}
-
-type UnknownExternalStockOrigin {
-  isKnown: Boolean!
-}
-
-union ExternalStockOrigin = Donor | CommercialStockOrigin | UnknownExternalStockOrigin
-union ExternalStockTarget = Beneficiary | DistributionSpot
-
 """
 Representation of a physical location used to store [`Boxes`]({{Types.Box}}).
 The location is part of a specific [`Base`]({{Types.Base}}).
 """
-type Location implements BoxPlace {
+type Location {
   id: ID!
   base: Base
   name: String
@@ -229,25 +131,6 @@ type Location implements BoxPlace {
   lastModifiedOn: Datetime
 }
 
-enum PackingListEntryState {
-  NotStarted
-  PackingInProgress
-  Packed
-}
-type PackingListEntry implements ItemsCollection {
-  product: Product
-  # Size field needs to be reconsidered - related to the parallel size discussion
-  size: String
-  numberOfItems: Int!
-  matchingPackedItemsCollections: [ItemsCollection!]!
-  state: PackingListEntryState!
-}
-
-type PackingList {
-  entries: [PackingListEntry!]!
-  distributionEvent: DistributionEvent!
-}
-
 """
 Utility type holding a page of [`Boxes`]({{Types.Box}}).
 """
@@ -255,10 +138,6 @@ type BoxPage {
   elements: [Box!]!
   pageInfo: PageInfo!
   totalCount: Int!
-}
-
-type Distributions {
-  distributionSpots: [DistributionSpot!]!
 }
 
 """
@@ -285,6 +164,56 @@ type Organisation {
   name: String!
   " List of all [`Bases`]({{Types.Base}}) managed by this organisation "
   bases: [Base!]
+}
+
+type DistributionEvent { #implements BoxPlace & UnboxedItemsCollectionPlace {
+  id: ID!
+  base: Base
+  name: String
+  # packingList: PackingList!
+
+  # # TODO: Think about copying entries from last distro events
+  # # TODO: make the reasoning clearer why it makes sense to introduce UnboxedItemCollection (instead of reusing Boxes)
+  # # => probably best to do this in the Tech Design Doc
+
+  # # NOTES DURING HACKATHON REFINEMENT SESSION
+  # # * Philipp: "Might be too chaotic (from Operational/Organizations POV) and maybe not really needed to introduce UnboxedItemCollection"
+  # #   => This is how organization(s) work though in reality - they put both whole boxes but also often just unboxed items into the van
+  # # * Vahid: "Worried about abuse of UnboxedItemCollection could be abused (e.g. 'lazzy' volunteers could use them while Box would be the right thing to use)"
+  # #   => Would in this schema draft not be supported, since UnboxedItemCollection can only be in DistroEvents, not in classic Locations
+
+  # # Consider: supporting cohortes here (so group of beneficiaries, which are not all individually tracked)
+
+  # # To sketch out / for later (e.g. making the Coordinator in charge explicit)
+  # involvedVolunteers: [User!]!
+  # dateTime: Datetime!
+  # distributionSpot: DistributionSpot
+  # " List of all the [`Boxes`]({{Types.Box}}) in this location "
+  # boxes(paginationInput: PaginationInput, filterInput: FilterBoxInput): BoxPage
+  # " Default state for boxes in this location "
+  # unboxedItemsCollections: [UnboxedItemsCollection!]!
+  # # defaultBoxState: BoxState
+  # createdBy: User
+  # createdOn: Datetime
+  # lastModifiedBy: User
+  # lastModifiedOn: Datetime
+}
+
+type Distributions {
+  distributionSpots: [DistributionSpot!]!
+}
+
+type DistributionSpot { #implements HasGeoLocation {
+  id: ID!
+  name: String!
+  comment: String!
+  latitude: Float!
+  longitude: Float!
+
+  distributionEvents: [DistributionEvent!]!
+
+  # To sketch out / for later
+  # statistics: DistributionSpotStatistics!
 }
 
 """

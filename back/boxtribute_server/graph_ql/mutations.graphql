@@ -19,26 +19,4 @@ type Mutation {
   updateShipment(updateInput: ShipmentUpdateInput): Shipment
   cancelShipment(id: ID!): Shipment
   sendShipment(id: ID!): Shipment
-
-  # createDistributionSpot(creationInput: DistributionSpotCreationInput): DistributionSpot
-  # updateDistributionSpot(updateInput: DistributionSpotCreationInput): DistributionSpot
-
-  # createDistributionEvent(creationInput: DistributionEventCreationInput): DistributionEvent
-  # # updateDistributionEvent(updateInput)
-
-  # createPackingListEntry(creationInput: PackingListEntryCreationInput): PackingListEntry
-  # updatePackingListEntry(updateInput: PackingListEntryUpdateInput): PackingListEntry
-
-
-  # # TODO: Consider to return a status wrapper object with more info, instead of just the Box etc?
-
-  # moveBoxIntoDistributionEvent(boxId: ID!, distributionEventId: ID!): Box!
-  # moveItemsFromBoxIntoNewUnsortedItemsCollectionInDistributionEvent(boxId: ID!, distributionEventId: ID!, numberOfItems: Int!): Box!
-  # moveUnboxedItemCollectionIntoDistributionEvent(unboxedItemCollectionId: ID!, distributionEventId: ID!): UnboxedItemCollection!
-  # # moveBox(boxId: ID!, BoxPlace: ID!): Box!
-
-  # moveWholeUnboxedItemCollectionIntoBox(unboxedItemCollectionId: ID!, boxId: ID!): Box!
-  # moveItemsFromUnboxedItemCollectionInto(unboxedItemCollectionId: ID!, boxId: ID!, numberOfItems: Int!): Box!
-
-  # extractUnboxedItemCollectionFromBox(boxId: ID!, numberOfItems: Int!)
 }

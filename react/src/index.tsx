@@ -9,6 +9,11 @@ import { withAuthenticationRequired } from "@auth0/auth0-react";
 import { GlobalPreferencesProvider } from "providers/GlobalPreferencesProvider";
 import Auth0ProviderWithHistory from "providers/Auth0ProviderWithHistory";
 
+if (process.env.NODE_ENV === 'development') {
+  const { worker } = require('./mocks/browser')
+  worker.start()
+}
+
 const colors = {
   brand: {
     900: "#1a365d",
@@ -53,4 +58,4 @@ ReactDOM.render(
 // If you want your app to work offline and load faster, you can change
 // unregister() to register() below. Note this comes with some pitfalls.
 // Learn more about service workers: https://bit.ly/CRA-PWA
-serviceWorker.unregister();
+// serviceWorker.unregister();
