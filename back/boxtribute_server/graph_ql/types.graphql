@@ -155,10 +155,10 @@ type DistributionSpot implements HasGeoLocation {
   distributionEvents: [DistributionEvent!]!
 
   # To sketch out / for later
-  statistics: DistributionSpotStatistics!
+  # statistics: DistributionSpotStatistics!
 }
 
-type DistributionEvent implements BoxPlace, UnboxedItemsCollectionPlace {
+type DistributionEvent implements BoxPlace & UnboxedItemsCollectionPlace {
   id: ID!
   base: Base
   name: String
@@ -166,7 +166,7 @@ type DistributionEvent implements BoxPlace, UnboxedItemsCollectionPlace {
   packingList: PackingList!
 
   # TODO: Think about copying entries from last distro events
-  # TODO: make the reasoning clearer why it makes sense to introduce UnboxedItemCollection (instead of reusing Boxes) 
+  # TODO: make the reasoning clearer why it makes sense to introduce UnboxedItemCollection (instead of reusing Boxes)
   # => probably best to do this in the Tech Design Doc
 
   # NOTES DURING HACKATHON REFINEMENT SESSION
@@ -179,7 +179,7 @@ type DistributionEvent implements BoxPlace, UnboxedItemsCollectionPlace {
 
   # To sketch out / for later (e.g. making the Coordinator in charge explicit)
   involvedVolunteers: [User!]!
-  dateTime: DateTime!
+  dateTime: Datetime!
   distributionSpot: DistributionSpot
   " List of all the [`Boxes`]({{Types.Box}}) in this location "
   boxes(paginationInput: PaginationInput, filterInput: FilterBoxInput): BoxPage
@@ -190,6 +190,22 @@ type DistributionEvent implements BoxPlace, UnboxedItemsCollectionPlace {
   createdOn: Datetime
   lastModifiedBy: User
   lastModifiedOn: Datetime
+}
+
+type Donor {
+  id: ID!
+  name: String!
+  isKnown: Boolean!
+}
+
+type CommercialStockOrigin {
+  id: ID!
+  name: String!
+  isKnown: Boolean!
+}
+
+type UnknownExternalStockOrigin {
+  isKnown: Boolean!
 }
 
 union ExternalStockOrigin = Donor | CommercialStockOrigin | UnknownExternalStockOrigin
@@ -242,6 +258,10 @@ type BoxPage {
   totalCount: Int!
 }
 
+type Distributions {
+  distributionSpots: [DistributionSpot!]!
+}
+
 """
 Representation of a base.
 The base is managed by a specific [`Organisation`]({{Types.Organisation}}).
@@ -255,6 +275,7 @@ type Base {
   " List of all [`Beneficiaries`]({{Types.Beneficiary}}) registered in this base "
   beneficiaries(paginationInput: PaginationInput, filterInput: FilterBeneficiaryInput): BeneficiaryPage!
   currencyName: String
+  distributions: Distributions!
 }
 
 """
