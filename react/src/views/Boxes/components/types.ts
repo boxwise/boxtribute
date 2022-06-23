@@ -1,5 +1,4 @@
 export type BoxRow = {
-    id: string;
     labelIdentifier: string;
     productName: string;
     gender?: string | null;

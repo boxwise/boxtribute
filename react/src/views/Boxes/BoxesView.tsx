@@ -12,7 +12,6 @@ export const BOXES_FOR_BASE_QUERY = gql`
           totalCount
           elements {
             labelIdentifier
-            id
             state
             size
             product {
@@ -37,7 +36,6 @@ const graphqlToTableTransformer = (
     (location) =>
       location?.boxes?.elements.map((element) => ({
         productName: element.product?.name,
-        id: element.id,
         labelIdentifier: element.labelIdentifier,
         gender: element.product?.gender,
         items: element.items,
