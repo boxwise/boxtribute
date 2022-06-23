@@ -6,23 +6,23 @@ repos:
     hooks:
       - id: trailing-whitespace
       - id: end-of-file-fixer
-  # - repo: https://github.com/pre-commit/mirrors-eslint
-  #   rev: v7.15.0
-  #   hooks:
-  #     - id: eslint
-  #       additional_dependencies: # taken from react/package.json
-  #         - eslint-config-airbnb@latest
-  #         - eslint-config-prettier@latest
-  #         - eslint-config-react-app@latest
-  #         - eslint-plugin-import@latest
-  #         - eslint-plugin-prettier@3.1.3
-  #       files: \.[jt]sx?$
-  #       types: [file]
-  # - repo: https://github.com/pre-commit/mirrors-prettier
-  #   rev: v2.2.1 # local node version must be higher than 10
-  #   hooks:
-  #     - id: prettier
-  #       types_or: [javascript, jsx, json, ts, tsx, css, scss]
+  - repo: https://github.com/pre-commit/mirrors-eslint
+    rev: v7.15.0
+    hooks:
+      - id: eslint
+        additional_dependencies: # taken from react/package.json
+          - eslint-config-airbnb@latest
+          - eslint-config-prettier@latest
+          - eslint-config-react-app@latest
+          - eslint-plugin-import@latest
+          - eslint-plugin-prettier@3.1.3
+        files: \.[jt]sx?$
+        types: [file]
+  - repo: https://github.com/pre-commit/mirrors-prettier
+    rev: v2.2.1 # local node version must be higher than 10
+    hooks:
+      - id: prettier
+        types_or: [javascript, jsx, json, ts, tsx, css, scss]
   - repo: local
     hooks:
       - id: black
