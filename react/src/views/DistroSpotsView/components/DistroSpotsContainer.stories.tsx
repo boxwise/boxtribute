@@ -1,7 +1,7 @@
 import React from "react";
 import { ComponentStory, ComponentMeta } from "@storybook/react";
 import { action } from "@storybook/addon-actions";
-import DistroSpots, { DistroEventState, DistroSpot } from "./DistroSpots";
+import DistroSpots, { DistributionEventState, DistroSpot } from "./DistroSpots";
 import DistroSpotsContainer from "./DistroSpotsContainer";
 import { StorybookApolloProvider } from "utils/test-utils";
 // import { graphql } from 'msw'
@@ -63,6 +63,8 @@ export default {
                         __typename: "DistributionEvent",
                         id: "1",
                         name: "Warm Clothes and Tea",
+                        dateTime: "2022-06-01T14:48:25+00:00",
+                        state: DistributionEventState.Planning,
                       }
                     ],
                   },

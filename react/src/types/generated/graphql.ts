@@ -181,7 +181,20 @@ export type DistributionEvent = {
   dateTime: Scalars['Datetime'];
   id: Scalars['ID'];
   name?: Maybe<Scalars['String']>;
+  state: DistributionEventState;
 };
+
+export enum DistributionEventState {
+  Completed = 'COMPLETED',
+  New = 'NEW',
+  OnDistro = 'ON_DISTRO',
+  Packing = 'PACKING',
+  PackingDone = 'PACKING_DONE',
+  Planning = 'PLANNING',
+  PlanningDone = 'PLANNING_DONE',
+  Returned = 'RETURNED',
+  ReturnsTracked = 'RETURNS_TRACKED'
+}
 
 export type DistributionSpot = {
   __typename?: 'DistributionSpot';
@@ -932,4 +945,4 @@ export type DistroSpotsForBaseIdQueryVariables = Exact<{
 }>;
 
 
-export type DistroSpotsForBaseIdQuery = { __typename?: 'Query', base?: { __typename?: 'Base', distributions: { __typename?: 'Distributions', distributionSpots: Array<{ __typename?: 'DistributionSpot', id: string, name: string, latitude: number, longitude: number, distributionEvents: Array<{ __typename?: 'DistributionEvent', id: string, name?: string | null }> }> } } | null };
+export type DistroSpotsForBaseIdQuery = { __typename?: 'Query', base?: { __typename?: 'Base', distributions: { __typename?: 'Distributions', distributionSpots: Array<{ __typename?: 'DistributionSpot', id: string, name: string, latitude: number, longitude: number, distributionEvents: Array<{ __typename?: 'DistributionEvent', id: string, name?: string | null, state: DistributionEventState, dateTime: any }> }> } } | null };

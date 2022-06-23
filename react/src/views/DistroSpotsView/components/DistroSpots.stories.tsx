@@ -1,7 +1,7 @@
 import React from 'react';
 import { ComponentStory, ComponentMeta } from '@storybook/react';
 import { action } from '@storybook/addon-actions';
-import DistroSpots, { DistroEventState, DistroSpot } from './DistroSpots';
+import DistroSpots, { DistributionEventState, DistroSpot } from './DistroSpots';
 
 
 const mockedDistroSpots: DistroSpot[] = [
@@ -17,12 +17,12 @@ const mockedDistroSpots: DistroSpot[] = [
     distroEvents: [
       {
         eventDate: new Date("2022/08/22"),
-        status: DistroEventState.PLANNING_DONE,
+        state: DistributionEventState.PlanningDone,
         id: "1"
       },
       {
         eventDate: new Date("2022/02/13"),
-        status: DistroEventState.COMPLETED,
+        state: DistributionEventState.Completed,
         id: "2"
       },
     ]
@@ -35,7 +35,7 @@ const mockedDistroSpots: DistroSpot[] = [
     distroEvents: [
       {
         eventDate: new Date("2022/09/15"),
-        status: DistroEventState.PLANNING,
+        state: DistributionEventState.Planning,
         id: "3"
       }
     ]
