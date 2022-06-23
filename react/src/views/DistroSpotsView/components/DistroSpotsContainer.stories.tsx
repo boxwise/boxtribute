@@ -55,7 +55,7 @@ export default {
                   {
                     __typename: "DistributionSpot",
                     id: "1",
-                    name: "Horgos River",
+                    name: "Horgos (River)",
                     latitude: 132.142,
                     longitude: 132.142,
                     distributionEvents: [

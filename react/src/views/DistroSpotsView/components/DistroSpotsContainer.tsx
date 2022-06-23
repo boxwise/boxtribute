@@ -30,6 +30,7 @@ const DistroSpotsContainer = ({
             distributionEvents {
               id
               name
+              status
               # dateTime
             }
           }
@@ -73,6 +74,14 @@ const DistroSpotsContainer = ({
           longitude: distroSpot.longitude,
         },
         distroEvents: []
+        // distroSpot.distributionEvents.map((distroEvent) => (
+        //   {
+        //     id: distroEvent.id,
+        //     name: distroEvent.name,
+        //     // dateTime: distroEvent.dateTime,
+        //     status
+        //   }
+        // )
       };
     }) as DistroSpot[];
 

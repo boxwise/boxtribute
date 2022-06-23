@@ -166,10 +166,24 @@ type Organisation {
   bases: [Base!]
 }
 
+enum DistributionEventState {
+  NEW
+  PLANNING
+  PLANNING_DONE
+  PACKING
+  PACKING_DONE
+  ON_DISTRO
+  RETURNED
+  RETURNS_TRACKED
+  COMPLETED
+}
+
 type DistributionEvent { #implements BoxPlace & UnboxedItemsCollectionPlace {
   id: ID!
   base: Base
   name: String
+  state: DistributionEventState!
+  dateTime: Datetime!
   # packingList: PackingList!
 
   # # TODO: Think about copying entries from last distro events
@@ -186,7 +200,6 @@ type DistributionEvent { #implements BoxPlace & UnboxedItemsCollectionPlace {
 
   # # To sketch out / for later (e.g. making the Coordinator in charge explicit)
   # involvedVolunteers: [User!]!
-  dateTime: Datetime!
   # distributionSpot: DistributionSpot
   # " List of all the [`Boxes`]({{Types.Box}}) in this location "
   # boxes(paginationInput: PaginationInput, filterInput: FilterBoxInput): BoxPage
