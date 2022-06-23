@@ -1,6 +1,6 @@
 import { useCallback } from "react";
 import { useGlobalSiteState } from "utils/hooks";
-import DistroSpotsContainer from "./DistroSpotsContainer";
+import DistroSpotsContainer from "./components/DistroSpotsContainer";
 
 const DistroSpotsView = () => {
 
