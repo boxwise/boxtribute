@@ -41,9 +41,9 @@ function render(
 }
 
 function StorybookApolloProvider({ children }: { children: ReactNode }) {
-  // const httpLink = new HttpLink({
-  //   uri: "http://mocked-api"
-  // });
+  const httpLink = new HttpLink({
+    uri: "http://localhost:6006/MOCKED-graphql"
+  });
 
   const defaultOptions: DefaultOptions = {
     query: {
@@ -57,6 +57,7 @@ function StorybookApolloProvider({ children }: { children: ReactNode }) {
   const client = new ApolloClient({
     cache: new InMemoryCache(),
     defaultOptions,
+    link: httpLink
   });
 
   return <ApolloProvider client={client}>{children}</ApolloProvider>;
