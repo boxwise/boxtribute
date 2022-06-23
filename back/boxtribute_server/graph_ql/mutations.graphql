@@ -41,11 +41,4 @@ type Mutation {
   moveItemsFromUnboxedItemCollectionInto(unboxedItemCollectionId: ID!, boxId: ID!, numberOfItems: Int!): Box!
 
   extractUnboxedItemCollectionFromBox(boxId: ID!, numberOfItems: Int!)
-
-
-
-
-
-
-
 }
