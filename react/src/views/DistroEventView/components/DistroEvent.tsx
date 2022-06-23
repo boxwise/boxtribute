@@ -15,7 +15,7 @@ import {
 
 export interface BTBox {
   id: string;
-  labelIdentifier: string;
+  labelIdentifier?: string;
   items: number;
   size?: string;
   name: string;
