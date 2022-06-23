@@ -37,7 +37,7 @@ interface DistroEventProps {
 const DistroEvent = ({ distroEventData }: DistroEventProps) => {
   return (
     <Box w={[null, 420, 500]}>
-      <Flex direction="column" mb={2}>
+      <Flex direction="column" >
         <Text fontSize="xl" mb={2}>
           Distro Event
         </Text>
@@ -50,14 +50,14 @@ const DistroEvent = ({ distroEventData }: DistroEventProps) => {
         </Box>
       </Flex>
       {(distroEventData?.outflows?.length || 0) > 0 ? (
-        <Text>Outflows:</Text>
+        <Text mt={8}><strong>Outflows:</strong></Text>
       ) : null}
       {distroEventData.outflows?.map((box) => {
         return (
           <>
 
           {/* probably must be change to a react table */}
-            <SimpleGrid minChildWidth="10px" columns={5} borderBottom="1px" my={2}>
+            <SimpleGrid minChildWidth="10px" py={2} columns={5} borderBottom="1px" borderColor="gray.300" my={2}>
               <Box>{box.labelIdentifier}</Box>
               <Box>{box.name}</Box>
               <Box>{box.items}</Box>
@@ -69,18 +69,18 @@ const DistroEvent = ({ distroEventData }: DistroEventProps) => {
         );
       })}
       {(distroEventData?.returns?.length || 0) > 0 ? (
-        <Text>Returns:</Text>
+        <Text mt={8}><strong>Returns:</strong></Text>
       ) : null}
       {distroEventData.returns?.map((box) => {
         return (
           <>
-            <Flex>
+            <SimpleGrid py={2} minChildWidth="10px" columns={5} borderBottom="1px" borderColor="gray.300" my={2}>
               <Box>{box.labelIdentifier}</Box>
-              <Box>{box.items}</Box>
               <Box>{box.name}</Box>
+              <Box>{box.items}</Box>
               <Box>{box.size}</Box>
               <Box>{box.gender}</Box>
-            </Flex>
+            </SimpleGrid>
           </>
         );
       })}
