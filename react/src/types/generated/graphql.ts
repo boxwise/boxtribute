@@ -178,6 +178,7 @@ export type BoxUpdateInput = {
 export type DistributionEvent = {
   __typename?: 'DistributionEvent';
   base?: Maybe<Base>;
+  dateTime: Scalars['Datetime'];
   id: Scalars['ID'];
   name?: Maybe<Scalars['String']>;
 };
@@ -931,4 +932,4 @@ export type DistroSpotsForBaseIdQueryVariables = Exact<{
 }>;
 
 
-export type DistroSpotsForBaseIdQuery = { __typename?: 'Query', base?: { __typename?: 'Base', distributions: { __typename?: 'Distributions', distributionSpots: Array<{ __typename?: 'DistributionSpot', id: string, name: string, latitude: number, longitude: number }> } } | null };
+export type DistroSpotsForBaseIdQuery = { __typename?: 'Query', base?: { __typename?: 'Base', distributions: { __typename?: 'Distributions', distributionSpots: Array<{ __typename?: 'DistributionSpot', id: string, name: string, latitude: number, longitude: number, distributionEvents: Array<{ __typename?: 'DistributionEvent', id: string, name?: string | null }> }> } } | null };

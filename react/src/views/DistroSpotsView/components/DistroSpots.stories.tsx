@@ -4,7 +4,6 @@ import { action } from '@storybook/addon-actions';
 import DistroSpots, { DistroEventState, DistroSpot } from './DistroSpots';
 
 
-
 const mockedDistroSpots: DistroSpot[] = [
   {
     id: "1",

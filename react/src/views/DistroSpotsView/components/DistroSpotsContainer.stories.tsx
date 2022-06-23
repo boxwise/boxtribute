@@ -46,25 +46,32 @@ export default {
           DistroSpotsForBaseIdQuery,
           DistroSpotsForBaseIdQueryVariables
         >("DistroSpotsForBaseId", (req, res, ctx) => {
-          console.log("FOO");
-          return res(
-            ctx.data({
-              base: {
-                __typename: "Base",
-                distributions: {
-                  __typename: "Distributions",
-                  distributionSpots: [
-                    {
-                      __typename: "DistributionSpot",
-                      id: "1",
-                      name: "Horgos River",
-                      latitude: 132.142,
-                      longitude: 132.142,
-                    },
-                  ],
-                },
+          const mockedDistroSpotsForBaseIdData = {
+            base: {
+              __typename: "Base",
+              distributions: {
+                __typename: "Distributions",
+                distributionSpots: [
+                  {
+                    __typename: "DistributionSpot",
+                    id: "1",
+                    name: "Horgos River",
+                    latitude: 132.142,
+                    longitude: 132.142,
+                    distributionEvents: [
+                      {
+                        __typename: "DistributionEvent",
+                        id: "1",
+                        name: "Warm Clothes and Tea",
+                      }
+                    ],
+                  },
+                ],
               },
-            })
+            },
+          } as DistroSpotsForBaseIdQuery;
+          return res(
+            ctx.data(mockedDistroSpotsForBaseIdData)
           );
         })
       );

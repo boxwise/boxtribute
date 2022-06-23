@@ -27,6 +27,11 @@ const DistroSpotsContainer = ({
             name
             latitude
             longitude
+            distributionEvents {
+              id
+              name
+              # dateTime
+            }
           }
         }
       }

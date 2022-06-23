@@ -186,7 +186,7 @@ type DistributionEvent { #implements BoxPlace & UnboxedItemsCollectionPlace {
 
   # # To sketch out / for later (e.g. making the Coordinator in charge explicit)
   # involvedVolunteers: [User!]!
-  # dateTime: Datetime!
+  dateTime: Datetime!
   # distributionSpot: DistributionSpot
   # " List of all the [`Boxes`]({{Types.Box}}) in this location "
   # boxes(paginationInput: PaginationInput, filterInput: FilterBoxInput): BoxPage
