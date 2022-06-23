@@ -28,7 +28,25 @@ const mockedDistroEvent: DistroEventData = {
             name: "T-shirt",
             gender: ProductGender.Men
         },
-    ]
+    ],
+    returns: [
+        {
+            id: "3",
+            labelIdentifier: "348293",
+            items: 32,
+            size: "M",
+            name: "T-shirt",
+            gender: ProductGender.Men
+        },
+        {
+            id: "4",
+            labelIdentifier: "348323",
+            items: 10,
+            size: "S",
+            name: "T-shirt",
+            gender: ProductGender.Men
+        },
+    ],
 }
 
 export default {

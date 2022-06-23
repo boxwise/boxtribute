@@ -9,11 +9,11 @@ import {
   List,
   ListItem,
   Text,
-  Center,
+  Button,
 } from "@chakra-ui/react";
 import React from "react";
 
-interface GeoData {
+export interface GeoData {
   lat: number;
   long: number;
 }
@@ -42,7 +42,7 @@ export const DistroEventStateLabel = new Map<number, string>([
   [DistroEventState.COMPLETED, "Completed"],
 ]);
 
-export interface DistroEvent {
+export interface DistroEventForSpot {
   eventDate?: Date;
   status: DistroEventState;
   id: string;
@@ -54,18 +54,20 @@ export interface DistroSpot {
   geoData?: GeoData;
   nextDistroEventDate?: Date;
   comment?: string;
-  distroEvents: DistroEvent[];
+  distroEvents: DistroEventForSpot[];
 }
 
 interface DistroSpotsProps {
   distroSpots: DistroSpot[];
   onDistroEventClick: (distroEventId: string) => void;
+  onCreateNewDistroSpotClick: () => void;
+  onCreateNewDistroEventClick: () => void;
 }
 
-const DistroSpots = ({ distroSpots, onDistroEventClick }: DistroSpotsProps) => {
+const DistroSpots = ({ distroSpots, onDistroEventClick, onCreateNewDistroSpotClick, onCreateNewDistroEventClick }: DistroSpotsProps) => {
   return (
-    <Center>
-    <Accordion w={[300, 420, 500]} allowToggle>
+    <VStack>
+    <Accordion w={[300, 420, 500]} allowToggle mb={4}>
       {distroSpots.map((distroSpot) => {
         return (
           <AccordionItem>
@@ -119,15 +121,17 @@ const DistroSpots = ({ distroSpots, onDistroEventClick }: DistroSpotsProps) => {
                         </Box>
                       </ListItem>
                     </>
-                  );
+                  );  
                 })}
               </List>
+              <Button onClick={() => onCreateNewDistroEventClick()}>Create New Event</Button>
             </AccordionPanel>
           </AccordionItem>
         );
       })}
     </Accordion>
-    </Center>
+    <Button onClick={() => onCreateNewDistroSpotClick()}>Create New</Button>
+    </VStack>
   );
 };
 
