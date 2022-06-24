@@ -12,7 +12,7 @@ import { graphql } from "msw";
 import { worker } from "mocks/browser";
 
 export default {
-  title: "Mobile Distro Events/Distro Spots/Container",
+  title: "Mobile Distro Events/Distro Spots/List View/Container",
   component: DistroSpots,
   parameters: {},
   decorators: [

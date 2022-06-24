@@ -42,7 +42,7 @@ const mockedDistroSpots: DistroSpot[] = [
 ];
 
 export default {
-  title: "Mobile Distro Events/Distro Spots/Component",
+  title: "Mobile Distro Events/Distro Spots/List View/Component",
   component: DistroSpots,
   parameters: {},
 } as ComponentMeta<typeof DistroSpots>;
