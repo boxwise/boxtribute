@@ -17,8 +17,9 @@ import {
   MenuList,
   LayoutProps,
 } from "@chakra-ui/react";
-import { AiFillCloseCircle, AiOutlineMenu } from "react-icons/ai";
+import { AiFillCloseCircle, AiOutlineMenu, AiOutlineQrcode } from "react-icons/ai";
 import BoxtributeLogo from "../../assets/images/boxtribute-logo.png";
+import QrIcon from "../../assets/images/qr-icon.png";
 
 const MenuToggle = ({ toggle, isOpen, ...props }) => (
   <IconButton
@@ -172,14 +173,11 @@ const MenuLinks = ({
           {...props}
         />
         <MenuItem
-          to={`/bases/${currentActiveBaseId}/locations`}
-          text="Locations"
+          to={`/bases/${currentActiveBaseId}/stock-overview`}
+          text="Stock Overview"
         />
         <MenuItem to={`/bases/${currentActiveBaseId}/boxes`} text="Boxes" />
-        <MenuItem
-          to={`/bases/${currentActiveBaseId}/scan-qrcode`}
-          text="Scan QR"
-        />
+        <MenuItem to={`/bases/${currentActiveBaseId}/insights`} text="Insights" />
       </Stack>
     </Box>
   );
@@ -202,6 +200,16 @@ const NavBarContainer = ({ children, ...props }) => (
   </Flex>
 );
 
+const QrScannerButton = ({ onClick }: { onClick: () => void }) => (
+  <IconButton
+  size="lg"
+  fontSize="40px"
+  colorScheme='green'
+  aria-label='Scan QR Code'
+  icon={<AiOutlineQrcode />}
+/>
+);
+
 type HeaderMenuProps = LoginOrUserMenuButtonProps;
 const HeaderMenu = (props: HeaderMenuProps) => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -210,6 +218,7 @@ const HeaderMenu = (props: HeaderMenuProps) => {
   return (
     <NavBarContainer>
       <Logo />
+      <QrScannerButton onClick={() => alert("JO")}/>
       <MenuToggle
         toggle={toggle}
         isOpen={isMenuOpen}
