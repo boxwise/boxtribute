@@ -1,18 +1,54 @@
-import React from "react";
-import { Calendar, momentLocalizer } from "react-big-calendar";
+import { Calendar, dateFnsLocalizer } from 'react-big-calendar'
 import "react-big-calendar/lib/css/react-big-calendar.css";
-import moment from "moment";
+import format from 'date-fns/format'
+import parse from 'date-fns/parse'
+import startOfWeek from 'date-fns/startOfWeek'
+import getDay from 'date-fns/getDay'
+import enUS from 'date-fns/locale/en-US'
+import { DistributionEventState } from "types/generated/graphql";
 
-const localizer = momentLocalizer(moment);
+export interface DistroEventForCalendar {
+  id: string;
+  startDateTime: Date;
+  endDateTime: Date;
+  state: DistributionEventState;
+  distroSpotName: string;
+}
 
-const DistroEventsCalendar = () => {
-  const events = [
-    {
-      start: moment().toDate(),
-      end: moment().add(0, "days").toDate(),
-      title: "Horgos (River) - Tea and Winter Clothes",
-    },
-  ];
+export interface DistroEventsCalendarProps {
+    distroEvents: DistroEventForCalendar[];
+    onClickOnDistroEvent: (distroEventId: string) => void;
+}
+
+const locales = {
+  "en-US": enUS,
+};
+
+const localizer = dateFnsLocalizer({
+  format,
+  parse,
+  startOfWeek,
+  getDay,
+  locales,
+});
+
+const DistroEventsCalendar = ({distroEvents, onClickOnDistroEvent}: DistroEventsCalendarProps) => {
+  const events = distroEvents.map(distroEvent => {
+    return {
+        id: distroEvent.id,
+        title: distroEvent.distroSpotName,
+        start: distroEvent.startDateTime,
+        end: distroEvent.endDateTime,
+        state: distroEvent.state,
+    }
+    });
+//   [
+//     {
+//       start: moment().toDate(),
+//       end: moment().add(0, "days").toDate(),
+//       title: "Horgos (River) - Tea and Winter Clothes",
+//     },
+//   ];
 
   return (
     <Calendar
@@ -21,7 +57,7 @@ const DistroEventsCalendar = () => {
       defaultView="month"
       events={events}
       style={{ height: "100vh" }}
-      onSelectEvent={() => alert("Clicked Event")}
+      onSelectEvent={({id: eventId}) => onClickOnDistroEvent(eventId)}
     />
   );
 };
