@@ -83,10 +83,10 @@ jobs:
           name: Test React App
           command: |
             yarn test
-      - run:
-          name: Test React App Codecover
-          command: |
-            yarn run test:coverage
+      # - run:
+      #     name: Test React App Codecover
+      #     command: |
+      #       yarn run test:coverage
       - store_test_results:
           path: coverage
       - codecov/upload:
