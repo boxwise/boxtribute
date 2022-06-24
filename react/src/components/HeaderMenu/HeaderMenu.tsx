@@ -202,15 +202,18 @@ const NavBarContainer = ({ children, ...props }) => (
 
 const QrScannerButton = ({ onClick }: { onClick: () => void }) => (
   <IconButton
-  size="lg"
-  fontSize="40px"
-  colorScheme='green'
-  aria-label='Scan QR Code'
-  icon={<AiOutlineQrcode />}
-/>
+    h={20}
+    w={20}
+    fontSize="50px"
+    colorScheme="gray"
+    backgroundColor={"transparent"}
+    aria-label="Scan QR Code"
+    icon={<AiOutlineQrcode />}
+    onClick={onClick}
+  />
 );
 
-type HeaderMenuProps = LoginOrUserMenuButtonProps;
+type HeaderMenuProps = LoginOrUserMenuButtonProps & {onClickScanQrCode: () => void};
 const HeaderMenu = (props: HeaderMenuProps) => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const toggle = () => setIsMenuOpen(!isMenuOpen);
@@ -218,7 +221,7 @@ const HeaderMenu = (props: HeaderMenuProps) => {
   return (
     <NavBarContainer>
       <Logo />
-      <QrScannerButton onClick={() => alert("JO")}/>
+      <QrScannerButton onClick={props.onClickScanQrCode}/>
       <MenuToggle
         toggle={toggle}
         isOpen={isMenuOpen}
