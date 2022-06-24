@@ -73,7 +73,7 @@
     "build": "yarn generate-graphql-ts-types && react-scripts build",
     "start": "yarn build && yarn generate-graphql-ts-types --watch & craco start",
     "test": "react-scripts test",
-    "test:coverage": "yarn test --env=jsdom --coverage",
+    "test:coverage": "yarn test --env=jsdom --coverage --watchAll=false",
     "upload:test-report": "./node_modules/.bin/codecov",
     "eject": "react-scripts eject",
     "lint": "eslint . --fix",
