@@ -42,13 +42,6 @@ const DistroEventsCalendar = ({distroEvents, onClickOnDistroEvent}: DistroEvents
         state: distroEvent.state,
     }
     });
-//   [
-//     {
-//       start: moment().toDate(),
-//       end: moment().add(0, "days").toDate(),
-//       title: "Horgos (River) - Tea and Winter Clothes",
-//     },
-//   ];
 
   return (
     <Calendar
