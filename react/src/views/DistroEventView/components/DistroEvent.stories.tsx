@@ -1,15 +1,11 @@
 import React from 'react';
 import { ComponentStory, ComponentMeta } from '@storybook/react';
 import DistroEvent, { DistroEventData } from './DistroEvent';
-import { DistroEventState } from 'views/DistroSpotsView/components/DistroSpots';
-import { ProductGender } from 'types/generated/graphql';
-// import DistroEvent { DistroEventData } from './DitroEvent';
-
-
+import { DistributionEventState, ProductGender } from 'types/generated/graphql';
 
 const mockedDistroEvent: DistroEventData = {
     eventDate: new Date("2022/08/22"),
-    status: DistroEventState.COMPLETED,
+    status: DistributionEventState.Completed,
     id: "2",
     outflows: [
         {

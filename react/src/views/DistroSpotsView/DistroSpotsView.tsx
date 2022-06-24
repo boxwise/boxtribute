@@ -3,8 +3,7 @@ import { useGlobalSiteState } from "utils/hooks";
 import DistroSpotsContainer from "./components/DistroSpotsContainer";
 
 const DistroSpotsView = () => {
-
-  const {currentBaseId, navigate} = useGlobalSiteState();
+  const { currentBaseId, navigate } = useGlobalSiteState();
 
   const onGoToDistroEventViewHandler = useCallback(
     (distroEventId: string) =>
@@ -15,6 +14,8 @@ const DistroSpotsView = () => {
   return (
     <DistroSpotsContainer
       onGoToDistroEventView={onGoToDistroEventViewHandler}
+      onGoToCreateNewDistroEventView={() => {}}
+      onGoToCreateNewDistroSpotView={() => {}}
     />
   );
 };

@@ -7,9 +7,8 @@ import {
   GridItem,
   SimpleGrid,
 } from "@chakra-ui/react";
-import { ProductGender } from "types/generated/graphql";
+import { DistributionEventState, ProductGender } from "types/generated/graphql";
 import {
-  DistroEventState,
   DistroEventStateLabel,
 } from "views/DistroSpotsView/components/DistroSpots";
 
@@ -24,7 +23,7 @@ export interface BTBox {
 
 export interface DistroEventData {
   eventDate?: Date;
-  status: DistroEventState;
+  status: DistributionEventState;
   id: string;
   outflows?: BTBox[];
   returns?: BTBox[];
