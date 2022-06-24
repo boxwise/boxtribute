@@ -18,21 +18,21 @@ import { ProductGender } from "types/generated/graphql";
 import { useEffect, useState } from "react";
 // import { DevTool } from "@hookform/devtools";
 
-interface SizeAndNumberSet {
+interface sizeAndNumberTuplesSet {
   sizeId: string;
   numItems: number;
 }
 
 interface AddItemFormValues {
   // name: string;
-  sizeAndNumber: SizeAndNumberSet[];
+  sizeAndNumberTuples: sizeAndNumberTuplesSet[];
   productId: string;
 }
 
 // interface AddItemFormData {
 //   gender: ProductGender;
 //   name: string;
-//   sizeAndNumber: SizeAndNumberSet[];
+//   sizeAndNumberTuples: sizeAndNumberTuplesSet[];
 //   productId: string;
 // }
 
@@ -55,34 +55,36 @@ interface AddItemToPackingProps {
 
 const AddItemToPacking = ({
   addItemFormValues,
-  onAddItemClick,
+  // onAddItemClick,
   productsData,
 }: AddItemToPackingProps) => {
-  // const [selectedProduct, setSelectedProduct] = useState<ProductData>();
+  const [selectedProduct, setSelectedProduct] = useState<ProductData>();
 
   // useEffect(() => {
   //     if (selectedCategory != null)
   //       gender({ variables: { category: selectedCategory } });
   //   }, [gender, selectedCategory]);
 
+  const onAddItemClick = (foo) => console.log("foo: ", foo);
+
   const {
     register,
     handleSubmit,
     control,
-    watch
+    watch,
     // formState: { errors },
   } = useForm<AddItemFormValues>({
     defaultValues: {
       productId: "",
-      sizeAndNumber: [],
+      sizeAndNumberTuples: [],
     },
   });
-  const { fields, append, prepend, remove, swap, move, insert } = useFieldArray(
-    {
-      control, // control props comes from useForm (optional: if you are using FormContext)
-      name: "sizeAndNumber", // unique name for your Field Array
-    }
-  );
+  // const { fields, append, prepend, remove, swap, move, insert } = useFieldArray(
+  //   {
+  //     control, // control props comes from useForm (optional: if you are using FormContext)
+  //     name: "sizeAndNumberTuples", // unique name for your Field Array
+  //   }
+  // );
 
   // const FOO = useWatch("productId", (productId) => {
   //   return productId;
@@ -90,20 +92,18 @@ const AddItemToPacking = ({
 
   // const FOO = watch("productId");
 
-  const onAddSizeAndNumberSet = () => {
+  const onAddsizeAndNumberTuplesSet = () => {
     console.log("add size and number");
   };
-  // const onProductDropdownChange = (
-  //   e: React.FormEvent<HTMLSelectElement>
-  // ): void => {
-  //   const newSelectedProduct = (e.target as HTMLInputElement).value;
-  //   const filteredProduct = productsData.find(
-  //     (product) => product.id === newSelectedProduct
-  //   );
-  //   setSelectedProduct(filteredProduct);
-  // };
-
-
+  const onProductDropdownChange = (
+    e: React.FormEvent<HTMLSelectElement>
+  ): void => {
+    const newSelectedProduct = (e.target as HTMLInputElement).value;
+    const filteredProduct = productsData.find(
+      (product) => product.id === newSelectedProduct
+    );
+    setSelectedProduct(filteredProduct);
+  };
 
   return (
     <Box>
@@ -126,10 +126,12 @@ const AddItemToPacking = ({
               <Select
                 {...register("productId")}
                 placeholder="Select Product"
-                // onChange={onProductDropdownChange}
+                onChange={onProductDropdownChange}
               >
-                {productsData?.map((product) => (
-                  <option value={product.id}>{product.name}</option>
+                {productsData?.map((product, i) => (
+                  <option value={product.id} key={i}>
+                    {product.name}
+                  </option>
                 ))}
               </Select>
             </FormControl>
@@ -138,36 +140,51 @@ const AddItemToPacking = ({
             <Text my={2} fontSize="sm">
               Size and Quantity
             </Text>
-            <Controller 
-              name="sizeAndNumber"
+            <>
+              {selectedProduct?.sizes.map((size, index) => (
+                <Flex
+                  mx={4}
+                  my={2}
+                  direction="row"
+                  justify="flex-start"
+                  alignItems="center"
+                >
+                  <Box mr={4} w={6}>
+                    {size.name}
+                  </Box>
+                  <Input
+                    hidden
+                    w={16}
+                    value={size.id}
+                    type="number"
+                    {...register(
+                      `sizeAndNumberTuples.${index}.sizeId` as const
+                    )}
+                  />
+                  <Input
+                    w={16}
+                    type="number"
+                    {...register(
+                      `sizeAndNumberTuples.${index}.numItems` as const
+                    )}
+                  />
+                </Flex>
+              ))}
+            </>
+
+            {/* <Controller
+              name="sizeAndNumberTuples"
               control={control}
               render={(props) => {
-                return <div>Test</div>
-              }}
-              />
+                return (
 
-            {/* {selectedProduct?.sizes.map((size, index) => (
-              <Flex
-                mx={4}
-                my={2}
-                direction="row"
-                justify="flex-start"
-                alignItems="center"
-              >
-                <Box mr={4} w={6}>
-                  {size.name}
-                </Box>
-                <Input
-                  w={16}
-                  type="number"
-                  // {...register(`sizeAndNumber.${index}.numItems`)}
-                  {...register(`sizeAndNumber.${index}.numItems` as const)}
-                />
-              </Flex>
-            ))} */}
+                );
+              }}
+            /> */}
+
             {/* <FormControl id="">
               <Select
-                {...register("sizeAndNumber")}
+                {...register("sizeAndNumberTuples")}
                 placeholder="Select size and number"
               >
                 <option>Unidirectional</option>
