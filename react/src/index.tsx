@@ -3,7 +3,6 @@ import ReactDOM from "react-dom";
 import { BrowserRouter } from "react-router-dom";
 import ApolloAuth0Provider from "./providers/ApolloAuth0Provider";
 import App from "./App";
-import * as serviceWorker from "./serviceWorker";
 import { ChakraProvider, CSSReset, extendTheme } from "@chakra-ui/react";
 import { withAuthenticationRequired } from "@auth0/auth0-react";
 import { GlobalPreferencesProvider } from "providers/GlobalPreferencesProvider";

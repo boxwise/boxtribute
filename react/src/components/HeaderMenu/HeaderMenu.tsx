@@ -19,7 +19,6 @@ import {
 } from "@chakra-ui/react";
 import { AiFillCloseCircle, AiOutlineMenu, AiOutlineQrcode } from "react-icons/ai";
 import BoxtributeLogo from "../../assets/images/boxtribute-logo.png";
-import QrIcon from "../../assets/images/qr-icon.png";
 
 const MenuToggle = ({ toggle, isOpen, ...props }) => (
   <IconButton
@@ -142,22 +141,22 @@ interface MenuLinksProps extends LoginOrUserMenuButtonProps, LayoutProps {
   bg: string;
 }
 
+
+const MainMenuItem = ({ to, text, ...props }) => (
+  <NavLink
+    to={to}
+    style={({ isActive }) => (isActive ? { fontWeight: "bold" } : {})}
+    {...props}
+  >
+    <Text display="block">{text}</Text>
+  </NavLink>
+)
+
 const MenuLinks = ({
   isOpen,
-  onLinkClick,
   currentActiveBaseId,
   ...props
 }: MenuLinksProps) => {
-  const MenuItem = ({ to, text, ...props }) => (
-    <NavLink
-      onClick={onLinkClick}
-      to={to}
-      style={({ isActive }) => (isActive ? { fontWeight: "bold" } : {})}
-      {...props}
-    >
-      <Text display="block">{text}</Text>
-    </NavLink>
-  );
 
   return (
     <Box flexBasis={{ base: "100%", md: "auto" }} {...props}>
@@ -168,16 +167,31 @@ const MenuLinks = ({
         direction={["column", "row", "row", "row"]}
         pt={[4, 4, 0, 0]}
       >
+        <MainMenuItem
+          to={`/bases/${currentActiveBaseId}/stock-overview`}
+          text="Stock Overview"
+        />
+        <MainMenuItem to={`/bases/${currentActiveBaseId}/boxes`} text="Boxes" />
+        <MainMenuItem
+          to={`/bases/${currentActiveBaseId}/distributions`}
+          text="Distributions"
+        />
+        <MainMenuItem
+          to={`/bases/${currentActiveBaseId}/freeshop-checkout`}
+          text="Freeshop Checkout"
+        />
+        <MainMenuItem
+          to={`/bases/${currentActiveBaseId}/beneficiaries`}
+          text="Beneficiaries"
+        />
+        <MainMenuItem
+          to={`/bases/${currentActiveBaseId}/insights`}
+          text="Insights"
+        />
         <LoginOrUserMenuButton
           currentActiveBaseId={currentActiveBaseId}
           {...props}
         />
-        <MenuItem
-          to={`/bases/${currentActiveBaseId}/stock-overview`}
-          text="Stock Overview"
-        />
-        <MenuItem to={`/bases/${currentActiveBaseId}/boxes`} text="Boxes" />
-        <MenuItem to={`/bases/${currentActiveBaseId}/insights`} text="Insights" />
       </Stack>
     </Box>
   );
@@ -225,7 +239,7 @@ const HeaderMenu = (props: HeaderMenuProps) => {
       <MenuToggle
         toggle={toggle}
         isOpen={isMenuOpen}
-        visibility={{ base: "visible", md: "hidden" }}
+        display={{ base: "inline flex", md: "none" }}
       />
       <MenuLinks
         bg="white"
