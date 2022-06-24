@@ -9,6 +9,7 @@ import {
   List,
   ListItem,
   Text,
+  Button,
 } from "@chakra-ui/react";
 import React from "react";
 
@@ -29,18 +30,6 @@ export enum DistributionEventState {
   ReturnsTracked = 'RETURNS_TRACKED'
 }
 
-// export enum DistributionEventState {
-//   NEW = 0,
-//   PLANNING = 1,
-//   PLANNING_DONE = 2,
-//   PACKING = 3,
-//   PACKING_DONE = 4,
-//   ON_DISTRO = 5,
-//   RETURNED = 6,
-//   RETURNS_TRACKED = 7,
-//   COMPLETED = 8,
-// }
-
 export const DistroEventStateLabel = new Map<string, string>([
   [DistributionEventState.New, "New"],
   [DistributionEventState.Planning, "Planning"],
@@ -53,7 +42,7 @@ export const DistroEventStateLabel = new Map<string, string>([
   [DistributionEventState.Completed, "Completed"],
 ]);
 
-export interface DistroEvent {
+export interface DistroEventForSpot {
   date?: Date;
   state: DistributionEventState;
   id: string;
@@ -65,17 +54,20 @@ export interface DistroSpot {
   geoData?: GeoData;
   nextDistroEventDate?: Date;
   comment?: string;
-  distroEvents: DistroEvent[];
+  distroEvents: DistroEventForSpot[];
 }
 
 interface DistroSpotsProps {
   distroSpots: DistroSpot[];
   onDistroEventClick: (distroEventId: string) => void;
+  onCreateNewDistroSpotClick: () => void;
+  onCreateNewDistroEventClick: () => void;
 }
 
-const DistroSpots = ({ distroSpots, onDistroEventClick }: DistroSpotsProps) => {
+const DistroSpots = ({ distroSpots, onDistroEventClick, onCreateNewDistroSpotClick, onCreateNewDistroEventClick }: DistroSpotsProps) => {
   return (
-    <Accordion w={[300, 420, 500]} allowToggle>
+    <VStack>
+    <Accordion w={[300, 420, 500]} allowToggle mb={4}>
       {distroSpots.map((distroSpot) => {
         return (
           <AccordionItem>
@@ -132,11 +124,14 @@ const DistroSpots = ({ distroSpots, onDistroEventClick }: DistroSpotsProps) => {
                   );
                 })}
               </List>
+              <Button onClick={() => onCreateNewDistroEventClick()}>Create New Event</Button>
             </AccordionPanel>
           </AccordionItem>
         );
       })}
     </Accordion>
+    <Button onClick={() => onCreateNewDistroSpotClick()}>Create New</Button>
+    </VStack>
   );
 };
 

@@ -8,10 +8,14 @@ import DistroSpots, { DistroSpot } from "./DistroSpots";
 
 export interface DistroSpotsContainerProps {
   onGoToDistroEventView: (distroEventId: string) => void;
+  onGoToCreateNewDistroEventView: () => void,
+  onGoToCreateNewDistroSpotView: () => void
 }
 
 const DistroSpotsContainer = ({
   onGoToDistroEventView,
+  onGoToCreateNewDistroEventView,
+  onGoToCreateNewDistroSpotView
 }: DistroSpotsContainerProps) => {
   const { currentBaseId } = useGlobalSiteState();
 
@@ -79,6 +83,8 @@ const DistroSpotsContainer = ({
     <DistroSpots
       distroSpots={transformedDistroSpotData}
       onDistroEventClick={onGoToDistroEventView}
+      onCreateNewDistroEventClick={onGoToCreateNewDistroEventView}
+      onCreateNewDistroSpotClick={onGoToCreateNewDistroSpotView}
     />
   );
 };
