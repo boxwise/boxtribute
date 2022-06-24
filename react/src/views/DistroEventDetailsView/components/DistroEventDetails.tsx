@@ -51,8 +51,8 @@ const DistroEventDetails = ({
             <Box>{item.size}</Box>
             <Box>{item.gender}</Box>
             <Box>
-            <EditIcon onClick={() => onEditClick()} mx={2} color="teal"/>
-            <CloseIcon onClick={() => onCloseClick()} color="teal"/></Box>
+            <EditIcon h={4} onClick={() => onEditClick()} mx={2} color="teal"/>
+            <CloseIcon h={3} onClick={() => onCloseClick()} color="teal"/></Box>
             
           </SimpleGrid>
         );
