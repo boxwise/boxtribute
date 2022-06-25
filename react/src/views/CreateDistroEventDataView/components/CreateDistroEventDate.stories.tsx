@@ -1,6 +1,5 @@
 import React from 'react';
 import { ComponentStory, ComponentMeta } from '@storybook/react';
-import { action } from '@storybook/addon-actions';
 import CreateDistroEventDate, {DistroEvent} from './CreateDistroEventDate'
 
 
@@ -10,7 +9,7 @@ const mockedCreateDistroEvent: DistroEvent = {
 }
 
 export default {
-  title: 'Mobile Distro Events/Create Distro Event Date',
+  title: 'Mobile Distro Events/Distro Events/Create Distro Event Date/Component',
   component: CreateDistroEventDate,
   parameters: {
   },

@@ -23,6 +23,7 @@ export type Base = {
   /**  List of all [`Beneficiaries`]({{Types.Beneficiary}}) registered in this base  */
   beneficiaries: BeneficiaryPage;
   currencyName?: Maybe<Scalars['String']>;
+  distributions: Distributions;
   id: Scalars['ID'];
   /**  List of all [`Locations`]({{Types.Location}}) present in this base  */
   locations?: Maybe<Array<Location>>;
@@ -172,6 +173,42 @@ export type BoxUpdateInput = {
   locationId?: InputMaybe<Scalars['Int']>;
   productId?: InputMaybe<Scalars['Int']>;
   sizeId?: InputMaybe<Scalars['Int']>;
+};
+
+export type DistributionEvent = {
+  __typename?: 'DistributionEvent';
+  base?: Maybe<Base>;
+  dateTime: Scalars['Datetime'];
+  id: Scalars['ID'];
+  name?: Maybe<Scalars['String']>;
+  state: DistributionEventState;
+};
+
+export enum DistributionEventState {
+  Completed = 'COMPLETED',
+  New = 'NEW',
+  OnDistro = 'ON_DISTRO',
+  Packing = 'PACKING',
+  PackingDone = 'PACKING_DONE',
+  Planning = 'PLANNING',
+  PlanningDone = 'PLANNING_DONE',
+  Returned = 'RETURNED',
+  ReturnsTracked = 'RETURNS_TRACKED'
+}
+
+export type DistributionSpot = {
+  __typename?: 'DistributionSpot';
+  comment: Scalars['String'];
+  distributionEvents: Array<DistributionEvent>;
+  id: Scalars['ID'];
+  latitude: Scalars['Float'];
+  longitude: Scalars['Float'];
+  name: Scalars['String'];
+};
+
+export type Distributions = {
+  __typename?: 'Distributions';
+  distributionSpots: Array<DistributionSpot>;
 };
 
 /**
@@ -902,3 +939,10 @@ export type BoxesForBaseQueryVariables = Exact<{
 
 
 export type BoxesForBaseQuery = { __typename?: 'Query', base?: { __typename?: 'Base', locations?: Array<{ __typename?: 'Location', boxes?: { __typename?: 'BoxPage', totalCount: number, elements: Array<{ __typename?: 'Box', labelIdentifier: string, state: BoxState, size?: string | null, items: number, product?: { __typename?: 'Product', gender?: ProductGender | null, name: string } | null, location?: { __typename?: 'Location', name?: string | null } | null }> } | null }> | null } | null };
+
+export type DistroSpotsForBaseIdQueryVariables = Exact<{
+  baseId: Scalars['ID'];
+}>;
+
+
+export type DistroSpotsForBaseIdQuery = { __typename?: 'Query', base?: { __typename?: 'Base', distributions: { __typename?: 'Distributions', distributionSpots: Array<{ __typename?: 'DistributionSpot', id: string, name: string, latitude: number, longitude: number, distributionEvents: Array<{ __typename?: 'DistributionEvent', id: string, name?: string | null, state: DistributionEventState, dateTime: any }> }> } } | null };

@@ -57,7 +57,7 @@ const mockedAddItemToPacking: ProductData[] = [
 ];
 
 export default {
-  title: "Mobile Distro Events/Add Items to Packing List",
+  title: "Mobile Distro Events/Distro Events/Add Items to Packing List/Component",
   component: AddItemsToPackingList,
   parameters: {},
 } as ComponentMeta<typeof AddItemsToPackingList>;

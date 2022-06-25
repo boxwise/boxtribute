@@ -11,5 +11,5 @@ back/test-results
 
 yarn-error.log
 
-public/
+./public/
 *.zip

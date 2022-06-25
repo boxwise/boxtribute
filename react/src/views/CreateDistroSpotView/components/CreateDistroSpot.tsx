@@ -30,19 +30,19 @@ const CreateDistroSpot = ({onSubmitNewDitroSpot}: CreateDistroSpotProps) => {
       />
       <FormLabel fontSize='sm' htmlFor='latitude'>Geo Location:</FormLabel>
       <Flex>
-      
+
       <Input  mb={4} mr={2}
-        {...register("geoData.lat")}
+        {...register("geoData.latitude")}
         placeholder="latitude"
       />
       <Spacer />
       <Input  mb={4}
-        {...register("geoData.long")}
+        {...register("geoData.longitude")}
         placeholder="longitude"
       />
       </Flex>
-      
-      <Button 
+
+      <Button
           mt={4}
           colorScheme="teal"
           isLoading={isSubmitting}
