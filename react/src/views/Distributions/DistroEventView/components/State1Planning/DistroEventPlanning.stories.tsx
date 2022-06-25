@@ -4,27 +4,25 @@ import { ProductGender } from 'types/generated/graphql';
 import DistroEventDetails, { DistroEventDetailsData } from './DistroEventPlanning';
 
 const mockedDistroEventPackingList: DistroEventDetailsData = {
-   distroEventDateAndLoc: {
+   distroEventData: {
        eventDate: new Date("2022/09/22"),
-       distroSpot: "Horgosz River"
-   },
-   itemsForPacking: [
-       {
+       distroSpot: "Horgosz River",
+       itemsForPacking: [{
         id: "3",
         items: 32,
         size: "M",
-        name: "T-shirt",
+        productName: "T-shirt",
         gender: ProductGender.Men
        },
        {
         id: "4",
-        labelIdentifier: "348323",
         items: 10,
         size: "S",
-        name: "T-shirt",
+        productName: "T-shirt",
         gender: ProductGender.Women
        }
    ]
+   },
 }
 
 export default {
