@@ -17,7 +17,11 @@ import {
   MenuList,
   LayoutProps,
 } from "@chakra-ui/react";
-import { AiFillCloseCircle, AiOutlineMenu, AiOutlineQrcode } from "react-icons/ai";
+import {
+  AiFillCloseCircle,
+  AiOutlineMenu,
+  AiOutlineQrcode,
+} from "react-icons/ai";
 import BoxtributeLogo from "../../assets/images/boxtribute-logo.png";
 
 const MenuToggle = ({ toggle, isOpen, ...props }) => (
@@ -31,7 +35,7 @@ const MenuToggle = ({ toggle, isOpen, ...props }) => (
 
 const Logo = () => (
   <NavLink to="/">
-    <Image src={BoxtributeLogo} maxH={"4em"} />
+    <Image src={BoxtributeLogo} maxH={"3.5em"} />
   </NavLink>
 );
 
@@ -141,7 +145,6 @@ interface MenuLinksProps extends LoginOrUserMenuButtonProps, LayoutProps {
   bg: string;
 }
 
-
 const MainMenuItem = ({ to, text, ...props }) => (
   <NavLink
     to={to}
@@ -150,14 +153,13 @@ const MainMenuItem = ({ to, text, ...props }) => (
   >
     <Text display="block">{text}</Text>
   </NavLink>
-)
+);
 
 const MenuLinks = ({
   isOpen,
   currentActiveBaseId,
   ...props
 }: MenuLinksProps) => {
-
   return (
     <Box flexBasis={{ base: "100%", md: "auto" }} {...props}>
       <Stack
@@ -183,6 +185,14 @@ const MenuLinks = ({
         <MainMenuItem
           to={`/bases/${currentActiveBaseId}/beneficiaries`}
           text="Beneficiaries"
+        />
+        <MainMenuItem
+          to={`/bases/${currentActiveBaseId}/generate-qr-codes`}
+          text="Generate QR Codes"
+        />
+        <MainMenuItem
+          to={`/bases/${currentActiveBaseId}/box-transfers`}
+          text="Box Transfers"
         />
         <MainMenuItem
           to={`/bases/${currentActiveBaseId}/insights`}
@@ -227,7 +237,9 @@ const QrScannerButton = ({ onClick }: { onClick: () => void }) => (
   />
 );
 
-type HeaderMenuProps = LoginOrUserMenuButtonProps & {onClickScanQrCode: () => void};
+type HeaderMenuProps = LoginOrUserMenuButtonProps & {
+  onClickScanQrCode: () => void;
+};
 const HeaderMenu = (props: HeaderMenuProps) => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const toggle = () => setIsMenuOpen(!isMenuOpen);
@@ -235,7 +247,7 @@ const HeaderMenu = (props: HeaderMenuProps) => {
   return (
     <NavBarContainer>
       <Logo />
-      <QrScannerButton onClick={props.onClickScanQrCode}/>
+      <QrScannerButton onClick={props.onClickScanQrCode} />
       <MenuToggle
         toggle={toggle}
         isOpen={isMenuOpen}
