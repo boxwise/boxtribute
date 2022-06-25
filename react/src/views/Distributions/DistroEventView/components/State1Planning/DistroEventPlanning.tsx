@@ -24,16 +24,16 @@ interface DistroEventDetailsProps {
   distroEventDetailsData: DistroEventDetailsData
   onAddItemsClick: () => void;
   onCopyPackingListFromPreviousEventsClick: () => void;
-  onEditClick: () => void;
-  onCloseClick: () => void;
+  onEditItemOnPackingListClick: (packlistItemId: string) => void;
+  onRemoveItemFromPackingListClick: (packlistItemId: string) => void;
 }
 
 const DistroEventDetails = ({
   distroEventDetailsData,
   onAddItemsClick,
   onCopyPackingListFromPreviousEventsClick,
-  onCloseClick,
-  onEditClick,
+  onRemoveItemFromPackingListClick,
+  onEditItemOnPackingListClick,
 }: DistroEventDetailsProps ) => {
   return (
     <>
@@ -63,8 +63,8 @@ const DistroEventDetails = ({
             <Box>{item.size}</Box>
             <Box>{item.gender}</Box>
             <Box>
-            <EditIcon onClick={() => onEditClick()} mx={2} color="teal"/>
-            <CloseIcon onClick={() => onCloseClick()} color="teal"/></Box>
+            <EditIcon onClick={() => onEditItemOnPackingListClick(item.id)} mx={2} color="teal"/>
+            <CloseIcon onClick={() => onRemoveItemFromPackingListClick(item.id)} color="teal"/></Box>
 
           </SimpleGrid>
         );
