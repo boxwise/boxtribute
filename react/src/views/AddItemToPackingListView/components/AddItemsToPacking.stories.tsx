@@ -1,7 +1,7 @@
 import React from "react";
 import { ComponentStory, ComponentMeta } from "@storybook/react";
-import { ProductData } from "./../../AddItemToPackingView/components/AddItemToPacking";
-import AddItemToPacking from "./AddItemToPacking";
+import { ProductData } from "./AddItemsToPackingList";
+import AddItemsToPackingList from "./AddItemsToPackingList";
 
 const mockedAddItemToPacking: ProductData[] = [
   {
@@ -57,13 +57,13 @@ const mockedAddItemToPacking: ProductData[] = [
 ];
 
 export default {
-  title: "Mobile Distro Events/Add Items to Packing",
-  component: AddItemToPacking,
+  title: "Mobile Distro Events/Add Items to Packing List",
+  component: AddItemsToPackingList,
   parameters: {},
-} as ComponentMeta<typeof AddItemToPacking>;
+} as ComponentMeta<typeof AddItemsToPackingList>;
 
-const Template: ComponentStory<typeof AddItemToPacking> = (args) => (
-  <AddItemToPacking {...args} />
+const Template: ComponentStory<typeof AddItemsToPackingList> = (args) => (
+  <AddItemsToPackingList {...args} />
 );
 
 export const Default = Template.bind({});
