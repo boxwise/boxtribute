@@ -1,9 +1,7 @@
 import React from 'react';
 import { ComponentStory, ComponentMeta } from '@storybook/react';
-import DistroEventDetails, {DistroEventDetailsData} from './../../DistroEventDetailsView/components/DistroEventDetails'
 import { ProductGender } from 'types/generated/graphql';
-
-
+import DistroEventDetails, { DistroEventDetailsData } from './DistroEventPlanning';
 
 const mockedDistroEventPackingList: DistroEventDetailsData = {
    distroEventDateAndLoc: {
@@ -30,7 +28,7 @@ const mockedDistroEventPackingList: DistroEventDetailsData = {
 }
 
 export default {
-  title: 'Mobile Distro Events/Distro Event Details',
+  title: 'Mobile Distro Events/Distro Events/Detail View/State: 1 - Planning/Component',
   component: DistroEventDetails,
   parameters: {
   },
@@ -42,4 +40,3 @@ export const Default = Template.bind({});
 Default.args = {
     distroEventDetailsData: mockedDistroEventPackingList
 }
-

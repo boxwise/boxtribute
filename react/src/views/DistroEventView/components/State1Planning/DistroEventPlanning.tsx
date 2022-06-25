@@ -1,11 +1,20 @@
 import { Box, Button, Flex, SimpleGrid, Text } from "@chakra-ui/react";
-import { DistroEvent } from "./../../CreateDistroEventDataView/components/CreateDistroEventDate";
-import { BTBox } from "./../../DistroEventView/components/DistroEvent";
 import { CloseIcon, EditIcon } from '@chakra-ui/icons'
+import { DistroEvent } from "views/CreateDistroEventDataView/components/CreateDistroEventDate";
+import { ProductGender } from "types/generated/graphql";
+
+export interface BTBox {
+  id: string;
+  labelIdentifier?: string;
+  items: number;
+  size?: string;
+  name: string;
+  gender?: ProductGender;
+}
 
 export interface DistroEventDetailsData {
     itemsForPacking: BTBox[];
-    distroEventDateAndLoc: DistroEvent; 
+    distroEventDateAndLoc: DistroEvent;
 }
 
 interface DistroEventDetailsProps {
@@ -53,7 +62,7 @@ const DistroEventDetails = ({
             <Box>
             <EditIcon onClick={() => onEditClick()} mx={2} color="teal"/>
             <CloseIcon onClick={() => onCloseClick()} color="teal"/></Box>
-            
+
           </SimpleGrid>
         );
       })}

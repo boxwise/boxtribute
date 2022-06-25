@@ -13,38 +13,38 @@ import {
 } from "@chakra-ui/react";
 import React from "react";
 
-export interface GeoData {
-  lat: number;
-  long: number;
+interface GeoData {
+  latitude: number;
+  longitude: number;
 }
 
-export enum DistroEventState {
-  NEW = 0,
-  PLANNING = 1,
-  PLANNING_DONE = 2,
-  PACKING = 3,
-  PACKING_DONE = 4,
-  ON_DISTRO = 5,
-  RETURNED = 6,
-  RETURNS_TRACKED = 7,
-  COMPLETED = 8,
+export enum DistributionEventState {
+  Completed = 'COMPLETED',
+  New = 'NEW',
+  OnDistro = 'ON_DISTRO',
+  Packing = 'PACKING',
+  PackingDone = 'PACKING_DONE',
+  Planning = 'PLANNING',
+  PlanningDone = 'PLANNING_DONE',
+  Returned = 'RETURNED',
+  ReturnsTracked = 'RETURNS_TRACKED'
 }
 
-export const DistroEventStateLabel = new Map<number, string>([
-  [DistroEventState.NEW, "New"],
-  [DistroEventState.PLANNING, "Planning"],
-  [DistroEventState.PLANNING_DONE, "Planning Done"],
-  [DistroEventState.PACKING, "Packing"],
-  [DistroEventState.PACKING_DONE, "Packing Done"],
-  [DistroEventState.ON_DISTRO, "On Distribution"],
-  [DistroEventState.RETURNED, "Distribution Done"],
-  [DistroEventState.RETURNS_TRACKED, "Returned Items Tracked"],
-  [DistroEventState.COMPLETED, "Completed"],
+export const DistroEventStateLabel = new Map<string, string>([
+  [DistributionEventState.New, "New"],
+  [DistributionEventState.Planning, "Planning"],
+  [DistributionEventState.PlanningDone, "Planning Done"],
+  [DistributionEventState.Packing, "Packing"],
+  [DistributionEventState.PackingDone, "Packing Done"],
+  [DistributionEventState.OnDistro, "On Distribution"],
+  [DistributionEventState.Returned, "Distribution Done"],
+  [DistributionEventState.ReturnsTracked, "Returned Items Tracked"],
+  [DistributionEventState.Completed, "Completed"],
 ]);
 
 export interface DistroEventForSpot {
-  eventDate?: Date;
-  status: DistroEventState;
+  date?: Date;
+  state: DistributionEventState;
   id: string;
 }
 
@@ -114,14 +114,14 @@ const DistroSpots = ({ distroSpots, onDistroEventClick, onCreateNewDistroSpotCli
                         }}
                         onClick={() => onDistroEventClick(distroEvent.id)}
                       >
-                        <Box>Date: {distroEvent.eventDate?.toDateString()}</Box>
+                        <Box>Date: {distroEvent.date?.toDateString()}</Box>
                         <Box>
                           Status:{" "}
-                          {DistroEventStateLabel.get(distroEvent.status)}
+                          {DistroEventStateLabel.get(distroEvent.state)}
                         </Box>
                       </ListItem>
                     </>
-                  );  
+                  );
                 })}
               </List>
               <Button onClick={() => onCreateNewDistroEventClick()}>Create New Event</Button>
