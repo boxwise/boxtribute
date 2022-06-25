@@ -4,7 +4,7 @@ import CreateDistroSpot from './CreateDistroSpot';
 
 
 export default {
-  title: 'Mobile Distro Events/Create Distro Spot',
+  title: 'Mobile Distro Events/Distro Spots/Create Distro Spot',
   component: CreateDistroSpot,
   parameters: {
   },
@@ -13,5 +13,3 @@ export default {
 const Template: ComponentStory<typeof CreateDistroSpot> = (args) => <CreateDistroSpot {...args}/>;
 
 export const Default = Template.bind({});
-
-

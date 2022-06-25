@@ -13,7 +13,7 @@ const AutomaticBaseSwitcher = () => {
     if (bases != null) {
       if (bases.length > 0) {
         const newBaseId = bases[0].id;
-        navigate(`/bases/${newBaseId}/locations`);
+        navigate(`/bases/${newBaseId}/boxes`);
       } else {
         setErrorMessage("This user doesn't have access to any bases");
       }

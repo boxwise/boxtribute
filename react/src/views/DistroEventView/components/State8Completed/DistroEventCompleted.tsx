@@ -19,7 +19,7 @@ export interface BTBox {
 }
 
 export interface DistroEventData {
-  eventDate?: Date;
+  eventDate: Date;
   status: DistributionEventState;
   id: string;
   outflows?: BTBox[];
@@ -30,7 +30,7 @@ interface DistroEventProps {
   distroEventData: DistroEventData;
 }
 
-const DistroEvent = ({ distroEventData }: DistroEventProps) => {
+const DistroEventCompleted = ({ distroEventData }: DistroEventProps) => {
   return (
     <Box w={[null, 420, 500]}>
       <Flex direction="column" >
@@ -84,4 +84,4 @@ const DistroEvent = ({ distroEventData }: DistroEventProps) => {
   );
 };
 
-export default DistroEvent;
+export default DistroEventCompleted;

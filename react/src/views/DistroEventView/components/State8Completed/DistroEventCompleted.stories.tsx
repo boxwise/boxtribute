@@ -1,6 +1,6 @@
 import React from 'react';
 import { ComponentStory, ComponentMeta } from '@storybook/react';
-import DistroEvent, { DistroEventData } from './DistroEvent';
+import DistroEventCompleted, { DistroEventData } from './DistroEventCompleted';
 import { DistributionEventState, ProductGender } from 'types/generated/graphql';
 
 const mockedDistroEvent: DistroEventData = {
@@ -46,20 +46,15 @@ const mockedDistroEvent: DistroEventData = {
 }
 
 export default {
-  title: 'Mobile Distro Events/Distro Event',
-  component: DistroEvent,
+  title: 'Mobile Distro Events/Distro Events/Detail View/State: 8 - Completed/Component',
+  component: DistroEventCompleted,
   parameters: {
   },
-} as ComponentMeta<typeof DistroEvent>;
+} as ComponentMeta<typeof DistroEventCompleted>;
 
-const Template: ComponentStory<typeof DistroEvent> = (args) => <DistroEvent {...args} />;
+const Template: ComponentStory<typeof DistroEventCompleted> = (args) => <DistroEventCompleted {...args} />;
 
 export const Default = Template.bind({});
 Default.args = {
     distroEventData: mockedDistroEvent
-}
-
-export const NoData = Template.bind({});
-NoData.args = {
-    distroEventData: undefined,
 }

@@ -17,7 +17,11 @@ import {
   MenuList,
   LayoutProps,
 } from "@chakra-ui/react";
-import { AiFillCloseCircle, AiOutlineMenu } from "react-icons/ai";
+import {
+  AiFillCloseCircle,
+  AiOutlineMenu,
+  AiOutlineQrcode,
+} from "react-icons/ai";
 import BoxtributeLogo from "../../assets/images/boxtribute-logo.png";
 
 const MenuToggle = ({ toggle, isOpen, ...props }) => (
@@ -31,7 +35,7 @@ const MenuToggle = ({ toggle, isOpen, ...props }) => (
 
 const Logo = () => (
   <NavLink to="/">
-    <Image src={BoxtributeLogo} maxH={"4em"} />
+    <Image src={BoxtributeLogo} maxH={"3.5em"} />
   </NavLink>
 );
 
@@ -141,23 +145,21 @@ interface MenuLinksProps extends LoginOrUserMenuButtonProps, LayoutProps {
   bg: string;
 }
 
+const MainMenuItem = ({ to, text, ...props }) => (
+  <NavLink
+    to={to}
+    style={({ isActive }) => (isActive ? { fontWeight: "bold" } : {})}
+    {...props}
+  >
+    <Text display="block">{text}</Text>
+  </NavLink>
+);
+
 const MenuLinks = ({
   isOpen,
-  onLinkClick,
   currentActiveBaseId,
   ...props
 }: MenuLinksProps) => {
-  const MenuItem = ({ to, text, ...props }) => (
-    <NavLink
-      onClick={onLinkClick}
-      to={to}
-      style={({ isActive }) => (isActive ? { fontWeight: "bold" } : {})}
-      {...props}
-    >
-      <Text display="block">{text}</Text>
-    </NavLink>
-  );
-
   return (
     <Box flexBasis={{ base: "100%", md: "auto" }} {...props}>
       <Stack
@@ -167,18 +169,38 @@ const MenuLinks = ({
         direction={["column", "row", "row", "row"]}
         pt={[4, 4, 0, 0]}
       >
+        <MainMenuItem
+          to={`/bases/${currentActiveBaseId}/stock-overview`}
+          text="Stock Overview"
+        />
+        <MainMenuItem to={`/bases/${currentActiveBaseId}/boxes`} text="Boxes" />
+        <MainMenuItem
+          to={`/bases/${currentActiveBaseId}/distributions`}
+          text="Distributions"
+        />
+        <MainMenuItem
+          to={`/bases/${currentActiveBaseId}/freeshop-checkout`}
+          text="Freeshop Checkout"
+        />
+        <MainMenuItem
+          to={`/bases/${currentActiveBaseId}/beneficiaries`}
+          text="Beneficiaries"
+        />
+        <MainMenuItem
+          to={`/bases/${currentActiveBaseId}/generate-qr-codes`}
+          text="Generate QR Codes"
+        />
+        <MainMenuItem
+          to={`/bases/${currentActiveBaseId}/box-transfers`}
+          text="Box Transfers"
+        />
+        <MainMenuItem
+          to={`/bases/${currentActiveBaseId}/insights`}
+          text="Insights"
+        />
         <LoginOrUserMenuButton
           currentActiveBaseId={currentActiveBaseId}
           {...props}
-        />
-        <MenuItem
-          to={`/bases/${currentActiveBaseId}/locations`}
-          text="Locations"
-        />
-        <MenuItem to={`/bases/${currentActiveBaseId}/boxes`} text="Boxes" />
-        <MenuItem
-          to={`/bases/${currentActiveBaseId}/scan-qrcode`}
-          text="Scan QR"
         />
       </Stack>
     </Box>
@@ -202,7 +224,22 @@ const NavBarContainer = ({ children, ...props }) => (
   </Flex>
 );
 
-type HeaderMenuProps = LoginOrUserMenuButtonProps;
+const QrScannerButton = ({ onClick }: { onClick: () => void }) => (
+  <IconButton
+    h={20}
+    w={20}
+    fontSize="50px"
+    colorScheme="gray"
+    backgroundColor={"transparent"}
+    aria-label="Scan QR Code"
+    icon={<AiOutlineQrcode />}
+    onClick={onClick}
+  />
+);
+
+type HeaderMenuProps = LoginOrUserMenuButtonProps & {
+  onClickScanQrCode: () => void;
+};
 const HeaderMenu = (props: HeaderMenuProps) => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const toggle = () => setIsMenuOpen(!isMenuOpen);
@@ -210,10 +247,11 @@ const HeaderMenu = (props: HeaderMenuProps) => {
   return (
     <NavBarContainer>
       <Logo />
+      <QrScannerButton onClick={props.onClickScanQrCode} />
       <MenuToggle
         toggle={toggle}
         isOpen={isMenuOpen}
-        visibility={{ base: "visible", md: "hidden" }}
+        display={{ base: "inline flex", md: "none" }}
       />
       <MenuLinks
         bg="white"
