@@ -19,7 +19,8 @@ import { useEffect, useState } from "react";
 // import { DevTool } from "@hookform/devtools";
 
 interface sizeAndNumberTuplesSet {
-  sizeId: string;
+  // sizeId: string;
+  size: Size;
   numItems: number;
 }
 
@@ -58,7 +59,7 @@ const AddItemToPacking = ({
   // onAddItemClick,
   productsData,
 }: AddItemToPackingProps) => {
-  const [selectedProduct, setSelectedProduct] = useState<ProductData>();
+  // const [selectedProduct, setSelectedProduct] = useState<ProductData>();
 
   // useEffect(() => {
   //     if (selectedCategory != null)
@@ -72,6 +73,7 @@ const AddItemToPacking = ({
     handleSubmit,
     control,
     watch,
+    ...rest
     // formState: { errors },
   } = useForm<AddItemFormValues>({
     defaultValues: {
@@ -79,31 +81,46 @@ const AddItemToPacking = ({
       sizeAndNumberTuples: [],
     },
   });
-  // const { fields, append, prepend, remove, swap, move, insert } = useFieldArray(
-  //   {
-  //     control, // control props comes from useForm (optional: if you are using FormContext)
-  //     name: "sizeAndNumberTuples", // unique name for your Field Array
-  //   }
-  // );
-
+  const { fields, append, prepend, remove, swap, move, insert, replace } = useFieldArray(
+    {
+      control, // control props comes from useForm (optional: if you are using FormContext)
+      name: "sizeAndNumberTuples", // unique name for your Field Array
+    }
+  );
+  // replace({});
   // const FOO = useWatch("productId", (productId) => {
   //   return productId;
   // });
 
-  // const FOO = watch("productId");
+  const productId = watch("productId");
 
-  const onAddsizeAndNumberTuplesSet = () => {
-    console.log("add size and number");
-  };
-  const onProductDropdownChange = (
-    e: React.FormEvent<HTMLSelectElement>
-  ): void => {
-    const newSelectedProduct = (e.target as HTMLInputElement).value;
-    const filteredProduct = productsData.find(
-      (product) => product.id === newSelectedProduct
-    );
-    setSelectedProduct(filteredProduct);
-  };
+  useEffect(() => {
+    if (productId != null) {
+      const product = productsData.find((p) => p.id === productId);
+      const newSizeAndNumTuples = product?.sizes.map(s => ({
+        size: s,
+        numOfItems: 0
+      }))
+      replace(newSizeAndNumTuples || []);
+      // setSelectedProduct(product);
+    }
+  }, [productId, productsData, replace]);
+
+  // const onAddsizeAndNumberTuplesSet = () => {
+  //   console.log("add size and number");
+  // };
+  // const onProductDropdownChange = (
+  //   e: React.FormEvent<HTMLSelectElement>
+  // ): void => {
+  //   // rest.resetField("sizeAndNumberTuples");
+  //   // rest.setValue("sizeAndNumberTuples", []);
+
+  //   const newSelectedProduct = (e.target as HTMLInputElement).value;
+  //   const filteredProduct = productsData.find(
+  //     (product) => product.id === newSelectedProduct
+  //   );
+  //   setSelectedProduct(filteredProduct);
+  // };
 
   return (
     <Box>
@@ -126,7 +143,7 @@ const AddItemToPacking = ({
               <Select
                 {...register("productId")}
                 placeholder="Select Product"
-                onChange={onProductDropdownChange}
+                // onChange={onProductDropdownChange}
               >
                 {productsData?.map((product, i) => (
                   <option value={product.id} key={i}>
@@ -141,29 +158,38 @@ const AddItemToPacking = ({
               Size and Quantity
             </Text>
             <>
-              {selectedProduct?.sizes.map((size, index) => (
+            {JSON.stringify(fields)}
+            {/* {fields.map((field, index) => (
+              <>{field.}
+            )} */}
+              {/* {fields.map((size, index) => ( */}
+              {/* {selectedProduct?.sizes.map((size, index) => ( */}
+              {fields?.map((size, index) => (
                 <Flex
                   mx={4}
                   my={2}
                   direction="row"
                   justify="flex-start"
                   alignItems="center"
+                  key={index}
                 >
                   <Box mr={4} w={6}>
-                    {size.name}
+                    {size.size.name}
                   </Box>
                   <Input
                     hidden
+                    // name={`sizeAndNumberTuples.${index}.size.id`}
                     w={16}
                     value={size.id}
                     type="number"
                     {...register(
-                      `sizeAndNumberTuples.${index}.sizeId` as const
+                      `sizeAndNumberTuples.${index}.size.id` as const
                     )}
                   />
                   <Input
                     w={16}
                     type="number"
+                    value={size.numItems}
                     {...register(
                       `sizeAndNumberTuples.${index}.numItems` as const
                     )}
