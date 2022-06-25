@@ -2,8 +2,6 @@ import "regenerator-runtime/runtime";
 import React, { useContext, useEffect } from "react";
 import { Route, Routes } from "react-router-dom";
 import Boxes from "views/Boxes/BoxesView";
-import BTLocations from "views/BTLocations/BTLocations";
-import BTLocation from "views/BTLocations/BTLocation";
 import Layout from "components/Layout";
 import AutomaticBaseSwitcher from "views/AutomaticBaseSwitcher/AutomaticBaseSwitcher";
 import { gql, useLazyQuery } from "@apollo/client";
@@ -47,7 +45,7 @@ const useLoadAndSetAvailableBases = () => {
     }
   }, [data, loading, dispatch]);
 
-  
+
 useEffect(() => {
   const getToken = async () => {
     const token = await getAccessTokenSilently();
@@ -77,10 +75,6 @@ const App = () => {
               <Route index element={<Boxes />} />
               <Route path=":labelIdentifier" element={<BTBox />} />
               <Route path=":labelIdentifier/edit" element={<BoxEditView />} />
-            </Route>
-            <Route path="locations">
-              <Route index element={<BTLocations />} />
-              <Route path=":locationId" element={<BTLocation />}></Route>
             </Route>
           </Route>
         </Route>
