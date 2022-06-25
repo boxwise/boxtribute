@@ -15,14 +15,14 @@ interface SizeIdAndNameTuple {
   id: string;
   name: string;
 }
-interface SizeAndNumberOfItemsTuple {
+interface SizeAndNumberOfItemsFormTuple {
   size: SizeIdAndNameTuple;
-  numItems: number;
+  numberOfItemsAsString: string;
 }
 
 interface ItemToAddFormValues {
   productId: string;
-  sizeAndNumberOfItemsTuples: SizeAndNumberOfItemsTuple[];
+  sizeAndNumberOfItemsTuples: SizeAndNumberOfItemsFormTuple[];
 }
 
 export type ProductData = {
@@ -59,19 +59,26 @@ const AddItemsToPackingList = ({
     });
   const { fields, replace } = useFieldArray({
     control,
-    name: "sizeAndNumberOfItemsTuples"
+    name: "sizeAndNumberOfItemsTuples",
   });
   const productId = watch("productId");
   const onAddItemClick = useCallback(
     (itemToAddFormValues: ItemToAddFormValues) => {
-      onAddEntiresToPackingListForProduct({
+      const newEntriesForPackingList: PackingListEntriesForProductToAdd = {
         productId: itemToAddFormValues.productId,
         sizeIdAndNumberOfItemTuples:
-          itemToAddFormValues.sizeAndNumberOfItemsTuples.map((tuple) => ({
+          itemToAddFormValues.sizeAndNumberOfItemsTuples
+          .map(tuple => ({
+            size: tuple.size,
+            numberOfItemsAsString: parseInt(tuple.numberOfItemsAsString),
+          }))
+          .filter(tuple => tuple.numberOfItemsAsString > 0)
+          .map((tuple) => ({
             sizeId: tuple.size.id,
-            numberOfItems: tuple.numItems,
+            numberOfItems: tuple.numberOfItemsAsString,
           })),
-      });
+      };
+      onAddEntiresToPackingListForProduct(newEntriesForPackingList);
     },
     [onAddEntiresToPackingListForProduct]
   );
@@ -80,7 +87,7 @@ const AddItemsToPackingList = ({
     if (productId != null) {
       const product = productsData.find((p) => p.id === productId);
       const newSizeAndNumTuples = product?.sizes.map((s) => ({
-        size: s
+        size: s,
       }));
       replace(newSizeAndNumTuples || []);
     }
@@ -139,9 +146,9 @@ const AddItemsToPackingList = ({
                   <Input
                     w={16}
                     type="number"
-                    value={size.numItems}
+                    value={size.numberOfItemsAsString}
                     {...register(
-                      `sizeAndNumberOfItemsTuples.${index}.numItems` as const
+                      `sizeAndNumberOfItemsTuples.${index}.numberOfItemsAsString` as const
                     )}
                   />
                 </Flex>
