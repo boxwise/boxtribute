@@ -2,6 +2,7 @@ import React from 'react';
 import { ComponentStory, ComponentMeta } from '@storybook/react';
 import { ProductGender } from 'types/generated/graphql';
 import DistroEventDetails, { DistroEventDetailsData } from './DistroEventPlanning';
+import { action } from '@storybook/addon-actions';
 
 const mockedDistroEventPackingList: DistroEventDetailsData = {
    distroEventDateAndLoc: {
@@ -38,5 +39,9 @@ const Template: ComponentStory<typeof DistroEventDetails> = (args) => <DistroEve
 
 export const Default = Template.bind({});
 Default.args = {
-    distroEventDetailsData: mockedDistroEventPackingList
+    distroEventDetailsData: mockedDistroEventPackingList,
+    onAddItemsClick: action('onAddItemsClick'),
+    onCopyPackingListFromPreviousEventsClick: action('onCopyPackingListFromPreviousEventsClick'),
+    onEditItemOnPackingListClick: action('onEditItemOnPackingListClick'),
+    onRemoveItemFromPackingListClick: action('onRemoveItemFromPackingListClick')
 }
