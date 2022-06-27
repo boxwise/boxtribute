@@ -1,6 +1,5 @@
 import { Tabs, TabList, Tab, TabPanels, TabPanel } from "@chakra-ui/react";
-import { useCallback } from "react";
-import { useGlobalSiteState } from "utils/hooks";
+import DistroEventsStatistics from "./components/DistroEventsStatistics";
 import DistrosDashboardContainer from "./components/DistrosDashboardContainer";
 
 const DistrosDashboardView = () => {
@@ -22,7 +21,7 @@ const DistrosDashboardView = () => {
         <DistrosDashboardContainer />
         </TabPanel>
         <TabPanel>
-          <p>three!</p>
+        <DistroEventsStatistics />
         </TabPanel>
       </TabPanels>
     </Tabs>
