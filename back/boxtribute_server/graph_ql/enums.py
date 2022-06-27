@@ -6,6 +6,7 @@ from ..enums import (
     Language,
     ProductGender,
     ShipmentState,
+    TagType,
     TransferAgreementState,
     TransferAgreementType,
 )
@@ -16,6 +17,7 @@ enum_types = [
     EnumType("HumanGender", HumanGender),
     EnumType("Language", Language),
     EnumType("ShipmentState", ShipmentState),
+    EnumType("TagType", TagType),
     EnumType("TransferAgreementState", TransferAgreementState),
     EnumType("TransferAgreementType", TransferAgreementType),
 ]

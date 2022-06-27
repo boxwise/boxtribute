@@ -20,6 +20,7 @@ type Box {
   lastModifiedBy: User
   lastModifiedOn: Datetime
   comment: String
+  tags: [Tag!]!
 }
 
 """
@@ -74,6 +75,21 @@ type ProductPage {
   totalCount: Int!
 }
 
+" Union for resources that tags can be applied to. "
+union TaggableResource = Box | Beneficiary
+
+"""
+Representation of a tag.
+"""
+type Tag {
+  id: ID!
+  name: String!
+  description: String
+  color: String
+  type: TagType!
+  taggedResources: [TaggableResource!]!
+}
+
 """
 Classificators for [`Product`]({{Types.Product}}) gender.
 """
@@ -100,6 +116,15 @@ enum BoxState {
   Received
   Donated
   Scrap
+}
+
+"""
+Classificators for [`Tag`]({{Types.Tag}}) type.
+"""
+enum TagType {
+  Box
+  Beneficiary
+  All
 }
 
 """
@@ -258,6 +283,7 @@ type Beneficiary {
   createdOn: Datetime
   lastModifiedBy: User
   lastModifiedOn: Datetime
+  tags: [Tag!]!
 }
 
 """

@@ -13,7 +13,6 @@ class TransferAgreement(db.Model):
     target_organisation = UIntForeignKeyField(model=Organisation, on_update="CASCADE")
     state = EnumCharField(
         choices=TransferAgreementState,
-        constraints=[SQL(f"DEFAULT '{TransferAgreementState.UnderReview.name}'")],
         default=TransferAgreementState.UnderReview,
     )
     type = EnumCharField(choices=TransferAgreementType)

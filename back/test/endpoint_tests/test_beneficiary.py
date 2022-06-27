@@ -34,6 +34,11 @@ def _generate_beneficiary_query(id):
                 createdBy {{ id }}
                 createdOn
             }}
+            tags {{
+                id
+                name
+                color
+            }}
         }}
     }}"""
 
@@ -44,6 +49,7 @@ def test_beneficiary_query(
     relative_beneficiary,
     default_transaction,
     relative_transaction,
+    tags,
 ):
     query = _generate_beneficiary_query(default_beneficiary["id"])
     beneficiary = assert_successful_request(read_only_client, query)
@@ -76,6 +82,14 @@ def test_beneficiary_query(
                 "createdOn": tr["created_on"].isoformat() + "+00:00",
             }
             for tr in [default_transaction, relative_transaction]
+        ],
+        "tags": [
+            {
+                "id": str(tags[i]["id"]),
+                "name": tags[i]["name"],
+                "color": tags[i]["color"],
+            }
+            for i in [0, 2]
         ],
     }
 
@@ -222,6 +236,7 @@ def test_beneficiary_mutations(client):
         "tokens": 0,
         "createdOn": created_beneficiary["createdOn"],
         "transactions": [],
+        "tags": [],
     }
 
 
