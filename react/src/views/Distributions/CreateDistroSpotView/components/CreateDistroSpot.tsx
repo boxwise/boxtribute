@@ -1,6 +1,6 @@
 import { Button, Flex, FormLabel, Input, Spacer, Text } from "@chakra-ui/react";
 import { useForm } from "react-hook-form";
-import { DistroSpot } from "views/DistroSpotsView/components/DistroSpots";
+import { DistroSpot } from "views/Distributions/DistroSpotsView/components/DistroSpots";
 
 interface CreateDistroSpotProps {
     onSubmitNewDitroSpot: () => void;

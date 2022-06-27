@@ -25,7 +25,7 @@ const CreateDistroEventDate = ({
       distroSpot: "",
     },
   });
- 
+
   return (
     <Flex>
       <form onSubmit={handleSubmit(onSubmitNewDitroEvent)}>

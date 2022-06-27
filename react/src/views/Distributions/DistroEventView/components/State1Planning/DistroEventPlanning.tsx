@@ -1,20 +1,25 @@
 import { Box, Button, Flex, SimpleGrid, Text } from "@chakra-ui/react";
 import { CloseIcon, EditIcon } from '@chakra-ui/icons'
-import { DistroEvent } from "views/CreateDistroEventDataView/components/CreateDistroEventDate";
-import { ProductGender } from "types/generated/graphql";
+import { DistributionEventState, ProductGender } from "types/generated/graphql";
+import { DistroEventStateLabel } from "views/Distributions/DistroSpotsView/components/DistroSpots";
 
-export interface BTBox {
+export interface DistroEvent {
+  eventDate?: Date;
+  distroSpot: string;
+  status: DistributionEventState;
+  itemsForPacking: PackingListEntry[];
+}
+
+export interface PackingListEntry {
   id: string;
-  labelIdentifier?: string;
-  items: number;
+  productName: string;
   size?: string;
-  name: string;
   gender?: ProductGender;
+  items: number;
 }
 
 export interface DistroEventDetailsData {
-    itemsForPacking: BTBox[];
-    distroEventDateAndLoc: DistroEvent;
+    distroEventData: DistroEvent;
 }
 
 interface DistroEventDetailsProps {
@@ -35,8 +40,11 @@ const DistroEventDetails = ({
   return (
     <>
       <Box>
-        <Text fontSize="xl">{distroEventDetailsData.distroEventDateAndLoc.distroSpot}</Text>
-        <Text fontSize="xl" mb={2} borderBottom="1px" borderColor="gray.300">{distroEventDetailsData.distroEventDateAndLoc.eventDate?.toDateString()}</Text>
+        <Text fontSize="xl">{distroEventDetailsData.distroEventData.distroSpot}</Text>
+        <Text fontSize="xl" mb={2} borderBottom="1px" borderColor="gray.300">{distroEventDetailsData.distroEventData.eventDate?.toDateString()}</Text>
+        <Text>
+          <strong>{DistroEventStateLabel.get(distroEventDetailsData.distroEventData.status)}</strong>
+        </Text>
       </Box>
       <Flex w={[300, 400, 600]} direction="column" mb={4}>
       <Button my={2} onClick={() => onAddItemsClick()}>Add New Items</Button>
@@ -45,7 +53,7 @@ const DistroEventDetails = ({
       </Button>
       </Flex>
       <Text fontSize="md"><strong>Packing List:</strong></Text>
-      {distroEventDetailsData.itemsForPacking.map((item) => {
+      {distroEventDetailsData.distroEventData.itemsForPacking.map((item) => {
         return (
           <SimpleGrid
             minChildWidth="10px"
@@ -56,7 +64,7 @@ const DistroEventDetails = ({
             my={2}
           >
             <Box>{item.items}</Box>
-            <Box>{item.name}</Box>
+            <Box>{item.productName}</Box>
             <Box>{item.size}</Box>
             <Box>{item.gender}</Box>
             <Box>

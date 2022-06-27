@@ -1,31 +1,30 @@
 import React from 'react';
 import { ComponentStory, ComponentMeta } from '@storybook/react';
-import { ProductGender } from 'types/generated/graphql';
+import { DistributionEventState, ProductGender } from 'types/generated/graphql';
 import DistroEventDetails, { DistroEventDetailsData } from './DistroEventPlanning';
 import { action } from '@storybook/addon-actions';
 
 const mockedDistroEventPackingList: DistroEventDetailsData = {
-   distroEventDateAndLoc: {
+   distroEventData: {
        eventDate: new Date("2022/09/22"),
-       distroSpot: "Horgosz River"
-   },
-   itemsForPacking: [
-       {
+       distroSpot: "Horgosz River",
+       status: DistributionEventState.Planning,
+       itemsForPacking: [{
         id: "3",
         items: 32,
         size: "M",
-        name: "T-shirt",
+        productName: "T-shirt",
         gender: ProductGender.Men
        },
        {
         id: "4",
-        labelIdentifier: "348323",
         items: 10,
         size: "S",
-        name: "T-shirt",
+        productName: "T-shirt",
         gender: ProductGender.Women
        }
    ]
+   },
 }
 
 export default {

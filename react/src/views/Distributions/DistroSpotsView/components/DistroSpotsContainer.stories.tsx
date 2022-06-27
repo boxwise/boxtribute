@@ -1,7 +1,7 @@
 import React from "react";
 import { ComponentStory, ComponentMeta } from "@storybook/react";
 import { action } from "@storybook/addon-actions";
-import DistroSpots, { DistributionEventState, DistroSpot } from "./DistroSpots";
+import { DistributionEventState } from "./DistroSpots";
 import DistroSpotsContainer from "./DistroSpotsContainer";
 import { StorybookApolloProvider } from "utils/test-utils";
 import {
@@ -13,7 +13,7 @@ import { worker } from "mocks/browser";
 
 export default {
   title: "Mobile Distro Events/Distro Spots/List View/Container",
-  component: DistroSpots,
+  component: DistroSpotsContainer,
   parameters: {},
   decorators: [
     (Story) => {
