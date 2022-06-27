@@ -36,24 +36,24 @@
     tslib "^2.3.0"
     zen-observable-ts "~1.1.0"
 
-"@auth0/auth0-react@^1.8.0":
-  version "1.8.0"
-  resolved "https://registry.yarnpkg.com/@auth0/auth0-react/-/auth0-react-1.8.0.tgz#6fc34c0dabc72944467e50f9b8244d22e6f52f01"
-  integrity sha512-tlrabVy4mB07Jbw41S2Ze2a7eGLyL32xs5OURGHXrCCxPXOYpBMeV9FdPssIK6vbAVRiUgwoeiemFAGhLRLZ0w==
+"@auth0/auth0-react@^1.10.2":
+  version "1.10.2"
+  resolved "https://registry.yarnpkg.com/@auth0/auth0-react/-/auth0-react-1.10.2.tgz#036d2d73ea65a8f7096a30087b6bc44e34b66de3"
+  integrity sha512-s622ac/gLZ9pUX7d5dOhRggF4VI3MaLLCPVBFR5CKOGcPtPG80/4w2jMoBQtRRn6uKS6IVMWAUAFKWB7yATAoQ==
   dependencies:
-    "@auth0/auth0-spa-js" "^1.18.0"
+    "@auth0/auth0-spa-js" "^1.22.0"
 
-"@auth0/auth0-spa-js@^1.18.0":
-  version "1.19.1"
-  resolved "https://registry.yarnpkg.com/@auth0/auth0-spa-js/-/auth0-spa-js-1.19.1.tgz#4da2f5e4fb727bdb7c1302135c8a8661d7c72747"
-  integrity sha512-uDnU6VxXanu3RNWL8ATnZ2zbnEujEGDz00f7+FoksjKC9241U9cFlCJGH71GRWzNYE0+GoYBoz5QLlTBQ7J2gQ==
+"@auth0/auth0-spa-js@^1.22.0":
+  version "1.22.1"
+  resolved "https://registry.yarnpkg.com/@auth0/auth0-spa-js/-/auth0-spa-js-1.22.1.tgz#ae463b9820aa323525918e2f49cededb042f84e3"
+  integrity sha512-l0FCmiN3XubpgCtB3U0ds4h+5WQNTnIF4eLT/fudHEtcyrT65QF/03LybGVdLyuvqdIF/D6OQsfjwYw0Ms605Q==
   dependencies:
     abortcontroller-polyfill "^1.7.3"
     browser-tabs-lock "^1.2.15"
-    core-js "^3.18.2"
+    core-js "^3.22.6"
     es-cookie "^1.3.2"
     fast-text-encoding "^1.0.3"
-    promise-polyfill "^8.2.0"
+    promise-polyfill "^8.2.3"
     unfetch "^4.2.0"
 
 "@babel/code-frame@^7.0.0", "@babel/code-frame@^7.10.4", "@babel/code-frame@^7.14.5", "@babel/code-frame@^7.15.8":
@@ -9323,15 +9323,15 @@ core-js@^3.0.4, core-js@^3.6.5, core-js@^3.8.2:
   resolved "https://registry.yarnpkg.com/core-js/-/core-js-3.22.8.tgz#23f860b1fe60797cc4f704d76c93fea8a2f60631"
   integrity sha512-UoGQ/cfzGYIuiq6Z7vWL1HfkE9U9IZ4Ub+0XSiJTCzvbZzgPA69oDF2f+lgJ6dFFLEdjW5O6svvoKzXX23xFkA==
 
-core-js@^3.18.2:
-  version "3.18.3"
-  resolved "https://registry.yarnpkg.com/core-js/-/core-js-3.18.3.tgz#86a0bba2d8ec3df860fefcc07a8d119779f01509"
-  integrity sha512-tReEhtMReZaPFVw7dajMx0vlsz3oOb8ajgPoHVYGxr8ErnZ6PcYEvvmjGmXlfpnxpkYSdOQttjB+MvVbCGfvLw==
-
 core-js@^3.19.2:
   version "3.20.3"
   resolved "https://registry.yarnpkg.com/core-js/-/core-js-3.20.3.tgz#c710d0a676e684522f3db4ee84e5e18a9d11d69a"
   integrity sha512-vVl8j8ph6tRS3B8qir40H7yw7voy17xL0piAjlbBUsH7WIfzoedL/ZOr1OV9FyZQLWXsayOJyV4tnRyXR85/ag==
+
+core-js@^3.22.6:
+  version "3.23.3"
+  resolved "https://registry.yarnpkg.com/core-js/-/core-js-3.23.3.tgz#3b977612b15da6da0c9cc4aec487e8d24f371112"
+  integrity sha512-oAKwkj9xcWNBAvGbT//WiCdOMpb9XQG92/Fe3ABFM/R16BsHgePG00mFOgKf7IsCtfj8tA1kHtf/VwErhriz5Q==
 
 core-util-is@~1.0.0:
   version "1.0.3"
@@ -16741,10 +16741,10 @@ promise-inflight@^1.0.1:
   resolved "https://registry.yarnpkg.com/promise-inflight/-/promise-inflight-1.0.1.tgz#98472870bf228132fcbdd868129bad12c3c029e3"
   integrity sha512-6zWPyEOFaQBJYcGMHBKTKJ3u6TBsnMFOIZSa6ce1e/ZrrsOlnHRHbabMjLiBYKp+n44X9eUI6VUPaukCXHuG4g==
 
-promise-polyfill@^8.2.0:
-  version "8.2.0"
-  resolved "https://registry.yarnpkg.com/promise-polyfill/-/promise-polyfill-8.2.0.tgz#367394726da7561457aba2133c9ceefbd6267da0"
-  integrity sha512-k/TC0mIcPVF6yHhUvwAp7cvL6I2fFV7TzF1DuGPI8mBh4QQazf36xCKEHKTZKRysEoTQoQdKyP25J8MPJp7j5g==
+promise-polyfill@^8.2.3:
+  version "8.2.3"
+  resolved "https://registry.yarnpkg.com/promise-polyfill/-/promise-polyfill-8.2.3.tgz#2edc7e4b81aff781c88a0d577e5fe9da822107c6"
+  integrity sha512-Og0+jCRQetV84U8wVjMNccfGCnMQ9mGs9Hv78QFe+pSDD3gWTpz0y+1QCuxy5d/vBFuZ3iwP2eycAkvqIMPmWg==
 
 promise.allsettled@^1.0.0:
   version "1.0.5"
