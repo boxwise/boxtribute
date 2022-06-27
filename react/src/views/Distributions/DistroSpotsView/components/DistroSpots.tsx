@@ -61,14 +61,14 @@ interface DistroSpotsProps {
   distroSpots: DistroSpot[];
   onDistroEventClick: (distroEventId: string) => void;
   onCreateNewDistroSpotClick: () => void;
-  onCreateNewDistroEventClick: () => void;
+  onCreateNewDistroEventForDistroSpotClick: (distroSpotId: string) => void;
 }
 
 const DistroSpots = ({
   distroSpots,
   onDistroEventClick,
   onCreateNewDistroSpotClick,
-  onCreateNewDistroEventClick,
+  onCreateNewDistroEventForDistroSpotClick: onCreateNewDistroEventClick,
 }: DistroSpotsProps) => {
   return (
     <VStack>
@@ -126,7 +126,7 @@ const DistroSpots = ({
                     );
                   })}
                 </List>
-                <Button onClick={() => onCreateNewDistroEventClick()}>
+                <Button onClick={() => onCreateNewDistroEventClick(distroSpot.id)}>
                   Create New Event
                 </Button>
               </AccordionPanel>
