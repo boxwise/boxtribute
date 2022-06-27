@@ -41,7 +41,4 @@ export const Default = Template.bind({});
 Default.args = {
     distroEventDetailsData: mockedDistroEventPackingList,
     onCheckboxClick: action('onCheckboxClick'), 
-    // onCopyPackingListFromPreviousEventsClick: action('onCopyPackingListFromPreviousEventsClick'),
-    // onEditItemOnPackingListClick: action('onEditItemOnPackingListClick'),
-    // onRemoveItemFromPackingListClick: action('onRemoveItemFromPackingListClick')
 }
