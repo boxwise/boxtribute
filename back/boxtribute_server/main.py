@@ -1,8 +1,13 @@
 """Main entry point for web application"""
+import logging
 import os
 
 from .app import configure_app, create_app
 from .routes import api_bp, app_bp
+
+logger = logging.Logger("peewee")
+logger.addHandler(logging.StreamHandler())
+logger.setLevel(logging.DEBUG)
 
 app = create_app()
 blueprints = [api_bp] if os.getenv("EXPOSE_FULL_GRAPHQL") is None else [app_bp]
@@ -17,5 +22,7 @@ configure_app(
     unix_socket=os.getenv("MYSQL_SOCKET"),
 )
 
-# from .db import db
-# from .models.definitions.distribution_event import DistributionEvent
+from .db import db
+from .models.definitions.distribution_event import DistributionEvent
+
+db.database.create_tables([DistributionEvent])

@@ -1651,3 +1651,18 @@ UNLOCK TABLES;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
 -- Dump completed on 2021-12-19 13:25:18
+
+
+
+
+
+-- Other test/seed data, for Mobile Distributions
+
+
+INSERT INTO dropapp_dev.locations
+(id, label, camp_id, seq, created, created_by, modified, modified_by, visible, container_stock, is_market, is_donated, is_lost, deleted, is_scrap, box_state_id, `type`, latitude, longitude, description)
+VALUES(100, 'Horgos River', 1, 100, '2022-06-28 00:00:00', NULL, NULL, NULL, 1, 0, 0, 0, 0, NULL, 0, 1, 'DistributionSpot', NULL, NULL, NULL);
+
+INSERT INTO dropapp_dev.locations
+(id, label, camp_id, seq, created, created_by, modified, modified_by, visible, container_stock, is_market, is_donated, is_lost, deleted, is_scrap, box_state_id, `type`, latitude, longitude, description)
+VALUES(101, 'Subotica LIDL', 1, 101, '2022-06-28 00:00:00', NULL, NULL, NULL, 1, 0, 0, 0, 0, NULL, 0, 1, 'DistributionSpot', NULL, NULL, NULL);

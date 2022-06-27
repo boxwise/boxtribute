@@ -1,17 +1,12 @@
 # from boxtribute_server.models.definitions.distribution_spot import DistributionSpot
-from peewee import SQL, CharField, DateTimeField, IntegerField
+from peewee import CharField, DateTimeField
 
 from ...db import db
 from ..fields import UIntForeignKeyField
+from .location import Location
 from .user import User
 
 
-#   id: ID!
-#   distributionSpot: DistributionSpot
-#   name: String
-#   state: DistributionEventState!
-#   startDateTime: Datetime!
-#   endDateTime: Datetime!
 class DistributionEvent(db.Model):
     # base = UIntForeignKeyField(
     #     column_name="camp_id",
@@ -22,12 +17,12 @@ class DistributionEvent(db.Model):
     name = CharField(null=True)
     start_date_time = DateTimeField()
     end_date_time = DateTimeField(null=True)
-    # distribution_spot = UIntForeignKeyField(
-    #     column_name="distribution_spot_id",
-    #     field="id",
-    #     model=DistributionSpot,
-    #     object_id_name="distribution_spot_id",
-    # )
+    distribution_spot = UIntForeignKeyField(
+        column_name="location_id",
+        object_id_name="distribution_spot_id",
+        # field="id",
+        model=Location,
+    )
 
     created_on = DateTimeField(column_name="created", null=True)
     created_by = UIntForeignKeyField(
@@ -48,8 +43,6 @@ class DistributionEvent(db.Model):
         on_delete="SET NULL",
         on_update="CASCADE",
     )
-    seq = IntegerField(null=True)
-    visible = IntegerField(constraints=[SQL("DEFAULT 1")])
 
     class Meta:
         table_name = "distribution_events"

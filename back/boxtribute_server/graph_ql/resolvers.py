@@ -40,6 +40,7 @@ from ..models.crud import (
 from ..models.definitions.base import Base
 from ..models.definitions.beneficiary import Beneficiary
 from ..models.definitions.box import Box
+from ..models.definitions.distribution_event import DistributionEvent
 from ..models.definitions.location import Location
 from ..models.definitions.organisation import Organisation
 from ..models.definitions.product import Product
@@ -80,6 +81,7 @@ base = _register_object_type("Base")
 beneficiary = _register_object_type("Beneficiary")
 box = _register_object_type("Box")
 location = _register_object_type("Location")
+distribution_spot = _register_object_type("DistributionSpot")
 metrics = _register_object_type("Metrics")
 organisation = _register_object_type("Organisation")
 product = _register_object_type("Product")
@@ -117,6 +119,13 @@ def resolve_beneficiary(*_, id):
     beneficiary = Beneficiary.get_by_id(id)
     authorize(permission="beneficiary:read", base_id=beneficiary.base_id)
     return beneficiary
+
+
+@distribution_spot.field("distributionEvents")
+def resolve_distribution_spot_distribution_events(obj, *_):
+    return DistributionEvent.select().where(
+        DistributionEvent.distribution_spot == obj.id
+    )
 
 
 @query.field("distributionSpots")
