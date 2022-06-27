@@ -13,6 +13,7 @@ import BoxEditView from "views/BoxEdit/BoxEditView";
 import { useAuth0 } from "@auth0/auth0-react";
 import jwt from "jwt-decode";
 import DistroSpotsView from "views/Distributions/DistroSpotsView/DistroSpotsView";
+import DistrosDashboardView from "views/Distributions/DistrosDashboardView/DistrosDashboardView";
 
 const useLoadAndSetAvailableBases = () => {
   const BASES_QUERY = gql`
@@ -78,6 +79,7 @@ const App = () => {
               <Route path=":labelIdentifier/edit" element={<BoxEditView />} />
             </Route>
             <Route path="distributions">
+              <Route index element={<DistrosDashboardView />} />
               <Route path="spots">
                 <Route index element={<DistroSpotsView />} />
               </Route>

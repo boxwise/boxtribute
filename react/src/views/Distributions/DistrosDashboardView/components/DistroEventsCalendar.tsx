@@ -32,7 +32,7 @@ const localizer = dateFnsLocalizer({
   locales,
 });
 
-const DistroEventsCalendar = ({distroEvents, onClickOnDistroEvent}: DistroEventsCalendarProps) => {
+const DistroEventsCalendarContainer = ({distroEvents, onClickOnDistroEvent}: DistroEventsCalendarProps) => {
   const events = distroEvents.map(distroEvent => {
     return {
         id: distroEvent.id,
@@ -54,4 +54,4 @@ const DistroEventsCalendar = ({distroEvents, onClickOnDistroEvent}: DistroEvents
     />
   );
 };
-export default DistroEventsCalendar;
+export default DistroEventsCalendarContainer;

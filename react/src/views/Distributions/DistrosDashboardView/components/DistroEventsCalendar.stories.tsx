@@ -1,19 +1,19 @@
 import React from "react";
 import { ComponentStory, ComponentMeta } from "@storybook/react";
 import { action } from "@storybook/addon-actions";
-import DistroEventsCalendar, { DistroEventForCalendar } from "./DistroEventsCalendar";
+import DistroEventsCalendarContainer, { DistroEventForCalendar } from "./DistroEventsCalendar";
 import { DistributionEventState } from "types/generated/graphql";
 import { addDays, addHours } from 'date-fns'
 
 export default {
   title: "Mobile Distro Events/Distro Events/Calendar/Component",
-  component: DistroEventsCalendar,
+  component: DistroEventsCalendarContainer,
   parameters: {},
   decorators: [],
-} as ComponentMeta<typeof DistroEventsCalendar>;
+} as ComponentMeta<typeof DistroEventsCalendarContainer>;
 
-const Template: ComponentStory<typeof DistroEventsCalendar> = (args) => (
-  <DistroEventsCalendar {...args} />
+const Template: ComponentStory<typeof DistroEventsCalendarContainer> = (args) => (
+  <DistroEventsCalendarContainer {...args} />
 );
 
 
