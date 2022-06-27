@@ -1,10 +1,12 @@
 import { Box, Button, Flex, SimpleGrid, Text } from "@chakra-ui/react";
 import { CloseIcon, EditIcon } from '@chakra-ui/icons'
-import { ProductGender } from "types/generated/graphql";
+import { DistributionEventState, ProductGender } from "types/generated/graphql";
+import { DistroEventStateLabel } from "views/Distributions/DistroSpotsView/components/DistroSpots";
 
 export interface DistroEvent {
   eventDate?: Date;
   distroSpot: string;
+  status: DistributionEventState;
   itemsForPacking: PackingListEntry[];
 }
 
@@ -40,6 +42,9 @@ const DistroEventDetails = ({
       <Box>
         <Text fontSize="xl">{distroEventDetailsData.distroEventData.distroSpot}</Text>
         <Text fontSize="xl" mb={2} borderBottom="1px" borderColor="gray.300">{distroEventDetailsData.distroEventData.eventDate?.toDateString()}</Text>
+        <Text>
+          <strong>{DistroEventStateLabel.get(distroEventDetailsData.distroEventData.status)}</strong>
+        </Text>
       </Box>
       <Flex w={[300, 400, 600]} direction="column" mb={4}>
       <Button my={2} onClick={() => onAddItemsClick()}>Add New Items</Button>

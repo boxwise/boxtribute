@@ -1,6 +1,6 @@
 import React from 'react';
 import { ComponentStory, ComponentMeta } from '@storybook/react';
-import { ProductGender } from 'types/generated/graphql';
+import { DistributionEventState, ProductGender } from 'types/generated/graphql';
 import DistroEventDetails, { DistroEventDetailsData } from './DistroEventPlanning';
 import { action } from '@storybook/addon-actions';
 
@@ -8,6 +8,7 @@ const mockedDistroEventPackingList: DistroEventDetailsData = {
    distroEventData: {
        eventDate: new Date("2022/09/22"),
        distroSpot: "Horgosz River",
+       status: DistributionEventState.Planning,
        itemsForPacking: [{
         id: "3",
         items: 32,
