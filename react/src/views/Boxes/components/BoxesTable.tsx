@@ -169,9 +169,9 @@ const BoxesTable = ({ tableData, onBoxRowClick }: BoxesTableProps) => {
         filter: "equals",
       },
       {
-        Header: "Location",
-        accessor: "location",
-        id: "location",
+        Header: "Place",
+        accessor: "place",
+        id: "place",
         Filter: SelectColumnFilter,
         filter: "equals",
       },

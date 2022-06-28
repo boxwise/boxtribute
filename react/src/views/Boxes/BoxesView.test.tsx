@@ -26,7 +26,7 @@ describe("Boxes view", () => {
                     {
                       __typename: "Box",
                       labelIdentifier: "1234",
-                      location: {
+                      place: {
                         name: "Warehouse 1"
                       },
                       state: "Donated",
@@ -41,7 +41,7 @@ describe("Boxes view", () => {
                     {
                       __typename: "Box",
                       labelIdentifier: "1235",
-                      location: {
+                      place: {
                         name: "Warehouse 1"
                       },
                       state: "Donated",
@@ -65,7 +65,7 @@ describe("Boxes view", () => {
                     {
                       __typename: "Box",
                       labelIdentifier: "1236",
-                      location: {
+                      place: {
                         name: "Warehouse 2"
                       },
                       state: "Lost",
@@ -80,7 +80,7 @@ describe("Boxes view", () => {
                     {
                       __typename: "Box",
                       labelIdentifier: "1237",
-                      location: {
+                      place: {
                         name: "Warehouse 2"
                       },
                       state: "MarkedForShipment",
@@ -95,7 +95,7 @@ describe("Boxes view", () => {
                     {
                       __typename: "Box",
                       labelIdentifier: "1238",
-                      location: {
+                      place: {
                         name: "Warehouse 2"
                       },
                       state: "Lost",
@@ -119,7 +119,7 @@ describe("Boxes view", () => {
                     {
                       __typename: "Box",
                       labelIdentifier: "1239",
-                      location: {
+                      place: {
                         name: "Warehouse 3"
                       },
                       state: "InStock",
@@ -134,7 +134,7 @@ describe("Boxes view", () => {
                     {
                       __typename: "Box",
                       labelIdentifier: "1230",
-                      location: {
+                      place: {
                         name: "Warehouse 3"
                       },
                       state: "InStock",

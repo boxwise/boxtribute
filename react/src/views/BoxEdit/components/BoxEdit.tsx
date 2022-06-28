@@ -111,7 +111,7 @@ const BoxEdit = ({
           </ListItem>
           <ListItem>
             <Text as={"span"} fontWeight={"bold"}>
-              Location:
+              Place:
             </Text>{" "}
             {boxData.place?.name}
           </ListItem>

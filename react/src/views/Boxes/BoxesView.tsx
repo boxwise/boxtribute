@@ -41,7 +41,7 @@ const graphqlToTableTransformer = (
         items: element.items,
         size: element.size,
         state: element.state,
-        location: element.place?.name,
+        place: element.place?.name,
       } as BoxRow)) || []
   ) || [];
 
