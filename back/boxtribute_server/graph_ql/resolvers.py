@@ -2,6 +2,7 @@
 from datetime import date
 
 from ariadne import (
+    InterfaceType,
     MutationType,
     ObjectType,
     QueryType,
@@ -69,6 +70,7 @@ query = QueryType()
 mutation = MutationType()
 object_types = []
 union_types = []
+interface_types = []
 
 
 def _register_object_type(name):
@@ -762,4 +764,4 @@ def resolve_box_place_type(obj, *_):
 
 
 union_types.append(UnionType("TaggableResource", resolve_taggable_resource_type))
-union_types.append(UnionType("BoxPlace", resolve_box_place_type))
+interface_types.append(InterfaceType("BoxPlace", resolve_box_place_type))

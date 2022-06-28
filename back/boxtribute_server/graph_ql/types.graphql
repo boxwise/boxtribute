@@ -23,7 +23,9 @@ type Box {
   tags: [Tag!]!
 }
 
-union BoxPlace = Location | DistributionSpot
+interface BoxPlace {
+  name: String
+}
 
 """
 Representation of a QR code, possibly associated with a [`Box`]({{Types.Box}}).
@@ -143,7 +145,7 @@ type SizeRange {
 Representation of a physical location used to store [`Boxes`]({{Types.Box}}).
 The location is part of a specific [`Base`]({{Types.Base}}).
 """
-type Location {
+type Location implements BoxPlace {
   id: ID!
   base: Base
   name: String
@@ -215,9 +217,9 @@ type DistributionEvent {
   endDateTime: Datetime!
 }
 
-type DistributionSpot {
+type DistributionSpot implements BoxPlace {
   id: ID!
-  name: String!
+  name: String
   comment: String!
   latitude: Float
   longitude: Float
