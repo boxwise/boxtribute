@@ -113,7 +113,7 @@ const BoxEdit = ({
             <Text as={"span"} fontWeight={"bold"}>
               Location:
             </Text>{" "}
-            {boxData.location?.name}
+            {boxData.place?.name}
           </ListItem>
 
           <ListItem>

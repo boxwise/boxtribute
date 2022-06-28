@@ -22,8 +22,6 @@ if (process.env.NODE_ENV === 'development') {
       const mockedDistroSpotsForBaseIdData = {
         base: {
           __typename: "Base",
-          distributions: {
-            __typename: "Distributions",
             distributionSpots: [
               {
                 __typename: "DistributionSpot",
@@ -36,13 +34,12 @@ if (process.env.NODE_ENV === 'development') {
                     __typename: "DistributionEvent",
                     id: "3",
                     name: "Warm Clothes and Tea",
-                    dateTime: "2022-06-01T14:48:25+00:00",
+                    startDateTime: "2022-06-01T14:48:25+00:00",
                     state: DistributionEventState.Planning,
                   }
                 ],
               },
             ],
-          },
         },
       } as DistroSpotsForBaseIdQuery;
       return res(

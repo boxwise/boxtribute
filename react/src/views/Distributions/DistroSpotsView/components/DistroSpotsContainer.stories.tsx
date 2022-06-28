@@ -25,32 +25,27 @@ export default {
           const mockedDistroSpotsForBaseIdData = {
             base: {
               __typename: "Base",
-              distributions: {
-                __typename: "Distributions",
-                distributionSpots: [
-                  {
-                    __typename: "DistributionSpot",
-                    id: "1",
-                    name: "Horgos (River)",
-                    latitude: 132.142,
-                    longitude: 132.142,
-                    distributionEvents: [
-                      {
-                        __typename: "DistributionEvent",
-                        id: "3",
-                        name: "Warm Clothes and Tea",
-                        dateTime: "2022-06-01T14:48:25+00:00",
-                        state: DistributionEventState.Planning,
-                      }
-                    ],
-                  },
-                ],
-              },
+              distributionSpots: [
+                {
+                  __typename: "DistributionSpot",
+                  id: "1",
+                  name: "Horgos (River)",
+                  latitude: 132.142,
+                  longitude: 132.142,
+                  distributionEvents: [
+                    {
+                      __typename: "DistributionEvent",
+                      id: "3",
+                      name: "Warm Clothes and Tea",
+                      startDateTime: "2022-06-01T14:48:25+00:00",
+                      state: DistributionEventState.Planning,
+                    },
+                  ],
+                },
+              ],
             },
           } as DistroSpotsForBaseIdQuery;
-          return res(
-            ctx.data(mockedDistroSpotsForBaseIdData)
-          );
+          return res(ctx.data(mockedDistroSpotsForBaseIdData));
         })
       );
       return (

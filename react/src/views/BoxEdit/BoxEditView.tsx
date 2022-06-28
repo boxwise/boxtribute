@@ -19,7 +19,7 @@ export const BOX_BY_LABEL_IDENTIFIER_AND_ALL_PRODUCTS_QUERY = gql`
         name
         gender
       }
-      location {
+      place {
         id
         name
         base {

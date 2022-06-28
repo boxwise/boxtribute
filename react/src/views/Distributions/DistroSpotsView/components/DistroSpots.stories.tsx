@@ -14,12 +14,12 @@ const mockedDistroSpots: DistroSpot[] = [
     nextDistroEventDate: new Date("2022/08/22"),
     distroEvents: [
       {
-        date: new Date("2022/08/22"),
+        startDateTime: new Date("2022/08/22"),
         state: DistributionEventState.PlanningDone,
         id: "1",
       },
       {
-        date: new Date("2022/02/13"),
+        startDateTime: new Date("2022/02/13"),
         state: DistributionEventState.Completed,
         id: "2",
       },
@@ -33,7 +33,7 @@ const mockedDistroSpots: DistroSpot[] = [
       "This distro spot is currently having issues regarding accessibility for our 2nd vehicle.",
     distroEvents: [
       {
-        date: new Date("2022/09/15"),
+        startDateTime: new Date("2022/09/15"),
         state: DistributionEventState.Planning,
         id: "3",
       },

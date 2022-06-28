@@ -19,7 +19,7 @@ export const BOXES_FOR_BASE_QUERY = gql`
               name
             }
             items
-            location {
+            place {
               name
             }
           }
@@ -41,7 +41,7 @@ const graphqlToTableTransformer = (
         items: element.items,
         size: element.size,
         state: element.state,
-        location: element.location?.name,
+        location: element.place?.name,
       } as BoxRow)) || []
   ) || [];
 

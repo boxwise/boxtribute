@@ -24,7 +24,10 @@ type Box {
 }
 
 interface BoxPlace {
+  id: ID!
+  base: Base
   name: String
+  boxes(paginationInput: PaginationInput, filterInput: FilterBoxInput): BoxPage
 }
 
 """
@@ -177,11 +180,12 @@ type Base {
   id: ID!
   name: String!
   organisation: Organisation!
-  " List of all [`Locations`]({{Types.Location}}) present in this base "
-  locations: [Location!]
   " List of all [`Beneficiaries`]({{Types.Beneficiary}}) registered in this base "
   beneficiaries(paginationInput: PaginationInput, filterInput: FilterBeneficiaryInput): BeneficiaryPage!
   currencyName: String
+  boxPlaces: [BoxPlace!]!
+  " List of all [`Locations`]({{Types.Location}}) present in this base "
+  locations: [Location!]!
   distributionSpots: [DistributionSpot!]!
   distributionEvents: [DistributionEvent!]!
 }
@@ -220,6 +224,8 @@ type DistributionEvent {
 type DistributionSpot implements BoxPlace {
   id: ID!
   name: String
+  base: Base
+  boxes(paginationInput: PaginationInput, filterInput: FilterBoxInput): BoxPage
   comment: String!
   latitude: Float
   longitude: Float

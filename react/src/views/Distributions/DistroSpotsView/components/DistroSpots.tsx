@@ -43,7 +43,7 @@ export const DistroEventStateLabel = new Map<string, string>([
 ]);
 
 export interface DistroEventForSpot {
-  date?: Date;
+  startDateTime?: Date;
   state: DistributionEventState;
   id: string;
 }
@@ -118,7 +118,7 @@ const DistroSpots = ({
                         }}
                         onClick={() => onDistroEventClick(distroEvent.id)}
                       >
-                        <Box>Date: {distroEvent.date?.toDateString()}</Box>
+                        <Box>Date: {distroEvent.startDateTime?.toDateString()}</Box>
                         <Box>
                           Status: {DistroEventStateLabel.get(distroEvent.state)}
                         </Box>

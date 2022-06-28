@@ -8,32 +8,31 @@ import DistroSpots, { DistroSpot } from "./DistroSpots";
 
 export interface DistroSpotsContainerProps {
   onGoToDistroEventView: (distroEventId: string) => void;
-  onGoToCreateNewDistroEventForDistroSpot: (distroSpotId: string) => void,
-  onGoToCreateNewDistroSpotView: () => void
+  onGoToCreateNewDistroEventForDistroSpot: (distroSpotId: string) => void;
+  onGoToCreateNewDistroSpotView: () => void;
 }
 
 const DistroSpotsContainer = ({
   onGoToDistroEventView,
   onGoToCreateNewDistroEventForDistroSpot,
-  onGoToCreateNewDistroSpotView
+  onGoToCreateNewDistroSpotView,
 }: DistroSpotsContainerProps) => {
   const { currentBaseId } = useGlobalSiteState();
 
   const DISTRO_SPOTS_FOR_BASE_ID = gql`
     query DistroSpotsForBaseId($baseId: ID!) {
       base(id: $baseId) {
-        distributions {
-          distributionSpots {
+        distributionSpots {
+          id
+          name
+          latitude
+          longitude
+          distributionEvents {
             id
             name
-            latitude
-            longitude
-            distributionEvents {
-              id
-              name
-              state
-              dateTime
-            }
+            state
+            startDateTime
+            endDateTime
           }
         }
       }
@@ -57,12 +56,12 @@ const DistroSpotsContainer = ({
     return <>Error!</>;
   }
 
-  if (data?.base?.distributions?.distributionSpots == null) {
+  if (data?.base?.distributionSpots == null) {
     return <>No distro spot data</>;
   }
 
   const transformedDistroSpotData =
-    data.base.distributions.distributionSpots.map((distroSpot) => {
+    data.base.distributionSpots.map((distroSpot) => {
       return {
         id: distroSpot.id,
         name: distroSpot.name,
@@ -72,9 +71,8 @@ const DistroSpotsContainer = ({
         },
         distroEvents: distroSpot.distributionEvents.map((distroEvent) => ({
           id: distroEvent.id,
-          eventDate: distroEvent.dateTime,
           state: distroEvent.state,
-          date: new Date(distroEvent.dateTime),
+          startDateTime: new Date(distroEvent.startDateTime),
         })),
       };
     }) as DistroSpot[];
@@ -83,7 +81,9 @@ const DistroSpotsContainer = ({
     <DistroSpots
       distroSpots={transformedDistroSpotData}
       onDistroEventClick={onGoToDistroEventView}
-      onCreateNewDistroEventForDistroSpotClick={onGoToCreateNewDistroEventForDistroSpot}
+      onCreateNewDistroEventForDistroSpotClick={
+        onGoToCreateNewDistroEventForDistroSpot
+      }
       onCreateNewDistroSpotClick={onGoToCreateNewDistroSpotView}
     />
   );
