@@ -70,6 +70,14 @@ input ShipmentCreationInput {
   transferAgreementId: Int!
 }
 
+input DistributionSpotCreationInput {
+  baseId: Int!
+  name: String
+  comment: String!
+  latitude: Float
+  longitude: Float
+}
+
 input ShipmentUpdateInput {
   id: ID!
   targetBaseId: Int

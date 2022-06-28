@@ -5,7 +5,7 @@ import random
 import peewee
 
 from ..db import db
-from ..enums import BoxState
+from ..enums import BoxState, LocationType
 from ..exceptions import BoxCreationFailed
 from .definitions.beneficiary import Beneficiary
 from .definitions.box import Box
@@ -209,6 +209,20 @@ def update_beneficiary(
         beneficiary.save()
 
     return beneficiary
+
+
+def create_distribution_spot(distribution_spot_input=None):
+    """Insert information for a new DistributionSpot in the database."""
+    now = utcnow()
+    new_distribution_spot = Location.create(
+        created_on=now,
+        created_by=1,
+        last_modified_on=now,
+        last_modified_by=1,
+        type=LocationType.DistributionSpot,
+        **distribution_spot_input,
+    )
+    return new_distribution_spot
 
 
 def create_qr_code(box_label_identifier=None):

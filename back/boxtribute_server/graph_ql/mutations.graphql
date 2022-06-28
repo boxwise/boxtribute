@@ -19,4 +19,6 @@ type Mutation {
   updateShipment(updateInput: ShipmentUpdateInput): Shipment
   cancelShipment(id: ID!): Shipment
   sendShipment(id: ID!): Shipment
+
+  createDistributionSpot(creationInput: DistributionSpotCreationInput): DistributionSpot
 }

@@ -34,6 +34,7 @@ from ..enums import HumanGender, LocationType, TaggableObjectType, TransferAgree
 from ..models.crud import (
     create_beneficiary,
     create_box,
+    create_distribution_spot,
     create_qr_code,
     update_beneficiary,
     update_box,
@@ -433,6 +434,13 @@ def resolve_create_qr_code(*_, box_label_identifier=None):
     authorize(permission="qr:create")
     authorize(permission="stock:write")
     return create_qr_code(box_label_identifier=box_label_identifier)
+
+
+@mutation.field("createDistributionSpot")
+@convert_kwargs_to_snake_case
+def resolve_create_distribution_spot(*_, creation_input=None):
+    # authorize(permission="distribution_spot:create")
+    return create_distribution_spot(distribution_spot_input=creation_input)
 
 
 @mutation.field("createBox")
