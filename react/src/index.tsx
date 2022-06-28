@@ -7,7 +7,6 @@ import { ChakraProvider, CSSReset, extendTheme } from "@chakra-ui/react";
 import { withAuthenticationRequired } from "@auth0/auth0-react";
 import { GlobalPreferencesProvider } from "providers/GlobalPreferencesProvider";
 import Auth0ProviderWithHistory from "providers/Auth0ProviderWithHistory";
-import { graphql } from "graphql";
 import { DistroSpotsForBaseIdQuery, DistroSpotsForBaseIdQueryVariables, DistributionEventState } from "types/generated/graphql";
 
 import { graphql as mockedGraphql } from "msw";
