@@ -179,6 +179,10 @@ const MenuLinks = ({
           text="Distributions"
         />
         <MainMenuItem
+          to={`/bases/${currentActiveBaseId}/distributions/spots`}
+          text="Distribution Spots"
+        />
+        <MainMenuItem
           to={`/bases/${currentActiveBaseId}/freeshop-checkout`}
           text="Freeshop Checkout"
         />

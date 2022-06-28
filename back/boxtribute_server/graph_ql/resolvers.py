@@ -131,6 +131,7 @@ def resolve_distribution_spot_distribution_events(obj, *_):
     )
 
 
+@base.field("distributionSpots")
 @query.field("distributionSpots")
 def resolve_distributions_spots(base_obj, _):
     # TODO: add permissions here

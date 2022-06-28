@@ -1,8 +1,9 @@
 # from boxtribute_server.models.definitions.distribution_spot import DistributionSpot
+from boxtribute_server.enums import DistributionEventState
 from peewee import CharField, DateTimeField
 
 from ...db import db
-from ..fields import UIntForeignKeyField
+from ..fields import EnumCharField, UIntForeignKeyField
 from .location import Location
 from .user import User
 
@@ -22,6 +23,10 @@ class DistributionEvent(db.Model):
         object_id_name="distribution_spot_id",
         # field="id",
         model=Location,
+    )
+    state = EnumCharField(
+        choices=DistributionEventState,
+        default=DistributionEventState.New,
     )
 
     created_on = DateTimeField(null=True)

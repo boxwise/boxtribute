@@ -19,15 +19,15 @@ interface GeoData {
 }
 
 export enum DistributionEventState {
-  Completed = "COMPLETED",
-  New = "NEW",
-  OnDistro = "ON_DISTRO",
-  Packing = "PACKING",
-  PackingDone = "PACKING_DONE",
-  Planning = "PLANNING",
-  PlanningDone = "PLANNING_DONE",
-  Returned = "RETURNED",
-  ReturnsTracked = "RETURNS_TRACKED",
+  Completed = "Completed",
+  New = "New",
+  OnDistro = "OnDistro",
+  Packing = "Packing",
+  PackingDone = "PackingDone",
+  Planning = "Planning",
+  PlanningDone = "PlanningDone",
+  Returned = "Returned",
+  ReturnsTracked = "ReturnsTracked",
 }
 
 export const DistroEventStateLabel = new Map<string, string>([

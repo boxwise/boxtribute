@@ -10,6 +10,18 @@ class TransferAgreementState(enum.IntEnum):
     Expired = enum.auto()
 
 
+class DistributionEventState(enum.IntEnum):
+    New = 1
+    Planning = enum.auto()
+    PlanningDone = enum.auto()
+    Packing = enum.auto()
+    PackingDone = enum.auto()
+    OnDistro = enum.auto()
+    Returned = enum.auto()
+    ReturnsTracked = enum.auto()
+    Completed = enum.auto()
+
+
 class TransferAgreementType(enum.IntEnum):
     Unidirectional = 1
     Bidirectional = enum.auto()

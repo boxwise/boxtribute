@@ -201,15 +201,15 @@ type Organisation {
 }
 
 enum DistributionEventState {
-  NEW
-  PLANNING
-  PLANNING_DONE
-  PACKING
-  PACKING_DONE
-  ON_DISTRO
-  RETURNED
-  RETURNS_TRACKED
-  COMPLETED
+  New
+  Planning
+  PlanningDone
+  Packing
+  PackingDone
+  OnDistro
+  Returned
+  ReturnsTracked
+  Completed
 }
 
 type DistributionEvent {
