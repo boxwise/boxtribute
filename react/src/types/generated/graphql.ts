@@ -71,6 +71,7 @@ export type Beneficiary = {
   registered: Scalars['Boolean'];
   signature?: Maybe<Scalars['String']>;
   signed: Scalars['Boolean'];
+  tags: Array<Tag>;
   /**  Number of tokens the beneficiary holds (sum of all transaction values)  */
   tokens?: Maybe<Scalars['Int']>;
   /**  List of all [`Transactions`]({{Types.Transaction}}) that this beneficiary executed  */
@@ -136,6 +137,7 @@ export type Box = {
   qrCode?: Maybe<QrCode>;
   size?: Maybe<Scalars['String']>;
   state: BoxState;
+  tags: Array<Tag>;
 };
 
 /** GraphQL input types for mutations **only**. */
@@ -627,6 +629,8 @@ export type Query = {
   shipment?: Maybe<Shipment>;
   /**  Return all [`Shipments`]({{Types.Shipment}}) that the client is authorized to view.  */
   shipments: Array<Shipment>;
+  /** Return all [`Tags`]({{Types.Tag}}) that the client is authorized to view. Optionally filter for tags of certain type. */
+  tags: Array<Tag>;
   transferAgreement?: Maybe<TransferAgreement>;
   /**
    * Return all [`TransferAgreements`]({{Types.TransferAgreement}}) that the client is authorized to view.
@@ -703,6 +707,11 @@ export type QueryQrExistsArgs = {
 
 export type QueryShipmentArgs = {
   id: Scalars['ID'];
+};
+
+
+export type QueryTagsArgs = {
+  tagType?: InputMaybe<TagType>;
 };
 
 
@@ -798,6 +807,27 @@ export type StockOverview = {
   productCategoryName?: Maybe<Scalars['String']>;
 };
 
+/** Representation of a tag. */
+export type Tag = {
+  __typename?: 'Tag';
+  color?: Maybe<Scalars['String']>;
+  description?: Maybe<Scalars['String']>;
+  id: Scalars['ID'];
+  name: Scalars['String'];
+  taggedResources: Array<TaggableResource>;
+  type: TagType;
+};
+
+/** Classificators for [`Tag`]({{Types.Tag}}) type. */
+export enum TagType {
+  All = 'All',
+  Beneficiary = 'Beneficiary',
+  Box = 'Box'
+}
+
+/**  Union for resources that tags can be applied to.  */
+export type TaggableResource = Beneficiary | Box;
+
 /** Representation of a transaction executed by a beneficiary (spending or receiving tokens). */
 export type Transaction = {
   __typename?: 'Transaction';
@@ -888,20 +918,6 @@ export type GetBoxLabelIdentifierForQrCodeQueryVariables = Exact<{
 
 
 export type GetBoxLabelIdentifierForQrCodeQuery = { __typename?: 'Query', qrCode?: { __typename?: 'QrCode', box?: { __typename?: 'Box', id: string, labelIdentifier: string } | null } | null };
-
-export type LocationQueryVariables = Exact<{
-  locationId: Scalars['ID'];
-}>;
-
-
-export type LocationQuery = { __typename?: 'Query', location?: { __typename?: 'Location', id: string, name?: string | null, defaultBoxState?: BoxState | null, boxes?: { __typename?: 'BoxPage', totalCount: number, elements: Array<{ __typename?: 'Box', id: string, items: number, product?: { __typename?: 'Product', name: string, price?: number | null, category: { __typename?: 'ProductCategory', name: string } } | null }> } | null } | null };
-
-export type LocationsForBaseQueryVariables = Exact<{
-  baseId: Scalars['ID'];
-}>;
-
-
-export type LocationsForBaseQuery = { __typename?: 'Query', base?: { __typename?: 'Base', locations?: Array<{ __typename?: 'Location', id: string, name?: string | null }> | null } | null };
 
 export type BoxByLabelIdentifierQueryVariables = Exact<{
   labelIdentifier: Scalars['String'];

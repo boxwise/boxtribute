@@ -11,7 +11,9 @@ import { GlobalPreferencesContext } from "providers/GlobalPreferencesProvider";
 import BTBox from "views/Box/BoxView";
 import BoxEditView from "views/BoxEdit/BoxEditView";
 import { useAuth0 } from "@auth0/auth0-react";
-import jwt from 'jwt-decode'
+import jwt from "jwt-decode";
+import DistroSpotsView from "views/Distributions/DistroSpotsView/DistroSpotsView";
+import DistrosDashboardView from "views/Distributions/DistrosDashboardView/DistrosDashboardView";
 
 const useLoadAndSetAvailableBases = () => {
   const BASES_QUERY = gql`
@@ -45,20 +47,20 @@ const useLoadAndSetAvailableBases = () => {
     }
   }, [data, loading, dispatch]);
 
-
-useEffect(() => {
-  const getToken = async () => {
-    const token = await getAccessTokenSilently();
-    const decodedToken = jwt<{"https://www.boxtribute.com/organisation_id": string}>(token);
-    const organisationId = decodedToken["https://www.boxtribute.com/organisation_id"];
-    dispatch({
-      type: "setOrganisationId",
-      payload: organisationId,
-    });
-  }
-  getToken();
-}, [dispatch, getAccessTokenSilently]);
-
+  useEffect(() => {
+    const getToken = async () => {
+      const token = await getAccessTokenSilently();
+      const decodedToken =
+        jwt<{ "https://www.boxtribute.com/organisation_id": string }>(token);
+      const organisationId =
+        decodedToken["https://www.boxtribute.com/organisation_id"];
+      dispatch({
+        type: "setOrganisationId",
+        payload: organisationId,
+      });
+    };
+    getToken();
+  }, [dispatch, getAccessTokenSilently]);
 };
 
 const App = () => {
@@ -75,6 +77,12 @@ const App = () => {
               <Route index element={<Boxes />} />
               <Route path=":labelIdentifier" element={<BTBox />} />
               <Route path=":labelIdentifier/edit" element={<BoxEditView />} />
+            </Route>
+            <Route path="distributions">
+              <Route index element={<DistrosDashboardView />} />
+              <Route path="spots">
+                <Route index element={<DistroSpotsView />} />
+              </Route>
             </Route>
           </Route>
         </Route>
