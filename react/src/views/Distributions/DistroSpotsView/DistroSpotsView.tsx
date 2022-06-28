@@ -11,10 +11,16 @@ const DistroSpotsView = () => {
     [currentBaseId, navigate]
   );
 
+  const onGoToCreateNewDistroEventForDistroSpot = useCallback(
+    (distroSpotId: string) =>
+      navigate(`/bases/${currentBaseId}/distributions/spots/${distroSpotId}/events/create`),
+    [currentBaseId, navigate]
+  );
+
   return (
     <DistroSpotsContainer
       onGoToDistroEventView={onGoToDistroEventViewHandler}
-      onGoToCreateNewDistroEventView={() => {}}
+      onGoToCreateNewDistroEventForDistroSpot={onGoToCreateNewDistroEventForDistroSpot}
       onGoToCreateNewDistroSpotView={() => {}}
     />
   );
