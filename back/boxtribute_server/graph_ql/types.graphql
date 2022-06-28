@@ -176,11 +176,9 @@ type Base {
   " List of all [`Locations`]({{Types.Location}}) present in this base "
   locations: [Location!]
   " List of all [`Beneficiaries`]({{Types.Beneficiary}}) registered in this base "
-  beneficiaries(
-    paginationInput: PaginationInput
-    filterInput: FilterBeneficiaryInput
-  ): BeneficiaryPage!
+  beneficiaries(paginationInput: PaginationInput, filterInput: FilterBeneficiaryInput): BeneficiaryPage!
   currencyName: String
+  distributions: Distributions!
 }
 
 """
@@ -191,6 +189,39 @@ type Organisation {
   name: String!
   " List of all [`Bases`]({{Types.Base}}) managed by this organisation "
   bases: [Base!]
+}
+
+enum DistributionEventState {
+  NEW
+  PLANNING
+  PLANNING_DONE
+  PACKING
+  PACKING_DONE
+  ON_DISTRO
+  RETURNED
+  RETURNS_TRACKED
+  COMPLETED
+}
+
+type DistributionEvent {
+  id: ID!
+  base: Base
+  name: String
+  state: DistributionEventState!
+  dateTime: Datetime!
+}
+
+type Distributions {
+  distributionSpots: [DistributionSpot!]!
+}
+
+type DistributionSpot {
+  id: ID!
+  name: String!
+  comment: String!
+  latitude: Float!
+  longitude: Float!
+  distributionEvents: [DistributionEvent!]!
 }
 
 """
