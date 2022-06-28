@@ -201,12 +201,25 @@ def resolve_box(*_, label_identifier):
     return box
 
 
-@query.field("location")
-@box.field("location")
-def resolve_location(obj, _, id=None):
+@box.field("place")
+def resolve_box_place(obj, _, id=None):
     location = obj.location if id is None else Location.get_by_id(id)
     authorize(permission="location:read", base_id=location.base_id)
     return location
+
+
+@query.field("location")
+def resolve_location(obj, _, id=None):
+    location = (
+        obj.location
+        if id is None
+        else Location.get_by_id(id)  # .where(Location.type == LocationType.Location)
+    )
+    if location.type == LocationType.Location:
+        authorize(permission="location:read", base_id=location.base_id)
+        return location
+    else:
+        None
 
 
 @query.field("organisation")
@@ -565,13 +578,6 @@ def resolve_base_beneficiaries(base_obj, _, pagination_input=None, filter_input=
     )
 
 
-# @base.field("distributions")
-# def resolve_base_distributions(base_obj, _):
-#     # TODO: add permissions here
-#     # authorize(permission="distribution_spot:read")
-#     # return Location.select().where(Location.base == base_obj.id)
-
-
 @location.field("boxes")
 @convert_kwargs_to_snake_case
 def resolve_location_boxes(location_obj, _, pagination_input=None, filter_input=None):
@@ -751,4 +757,9 @@ def resolve_taggable_resource_type(obj, *_):
     return "Beneficiary"
 
 
+def resolve_box_place_type(obj, *_):
+    return obj.type.name
+
+
 union_types.append(UnionType("TaggableResource", resolve_taggable_resource_type))
+union_types.append(UnionType("BoxPlace", resolve_box_place_type))

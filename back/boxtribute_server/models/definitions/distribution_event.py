@@ -24,7 +24,7 @@ class DistributionEvent(db.Model):
         model=Location,
     )
 
-    created_on = DateTimeField(column_name="created", null=True)
+    created_on = DateTimeField(null=True)
     created_by = UIntForeignKeyField(
         model=User,
         column_name="created_by",
@@ -33,11 +33,11 @@ class DistributionEvent(db.Model):
         on_delete="SET NULL",
         on_update="CASCADE",
     )
-    deleted = DateTimeField(null=True, default=None)
-    last_modified_on = DateTimeField(column_name="modified", null=True)
+    deleted_on = DateTimeField(null=True, default=None)
+    last_modified_on = DateTimeField(null=True)
     last_modified_by = UIntForeignKeyField(
         model=User,
-        column_name="modified_by",
+        column_name="last_modified_by",
         field="id",
         null=True,
         on_delete="SET NULL",

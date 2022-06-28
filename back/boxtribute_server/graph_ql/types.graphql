@@ -7,7 +7,7 @@ type Box {
   id: ID!
   " Sequence of numbers for identifying the box, usually written on box label "
   labelIdentifier: String!
-  location: Location
+  place: BoxPlace
   " The number of items the box contains. "
   items: Int!
   product: Product
@@ -22,6 +22,8 @@ type Box {
   comment: String
   tags: [Tag!]!
 }
+
+union BoxPlace = Location | DistributionSpot
 
 """
 Representation of a QR code, possibly associated with a [`Box`]({{Types.Box}}).
@@ -217,8 +219,8 @@ type DistributionSpot {
   id: ID!
   name: String!
   comment: String!
-  latitude: Float!
-  longitude: Float!
+  latitude: Float
+  longitude: Float
   distributionEvents: [DistributionEvent!]!
 }
 
