@@ -608,6 +608,7 @@ export type Query = {
   beneficiaries: BeneficiaryPage;
   beneficiary?: Maybe<Beneficiary>;
   box?: Maybe<Box>;
+  distributionSpots: Array<DistributionSpot>;
   location?: Maybe<Location>;
   /**  Return all [`Locations`]({{Types.Location}}) that the client is authorized to view.  */
   locations: Array<Location>;

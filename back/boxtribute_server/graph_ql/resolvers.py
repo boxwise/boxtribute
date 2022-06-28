@@ -29,7 +29,7 @@ from ..box_transfer.shipment import (
     send_shipment,
     update_shipment,
 )
-from ..enums import HumanGender, TaggableObjectType, TransferAgreementType
+from ..enums import HumanGender, LocationType, TaggableObjectType, TransferAgreementType
 from ..models.crud import (
     create_beneficiary,
     create_box,
@@ -117,6 +117,14 @@ def resolve_beneficiary(*_, id):
     beneficiary = Beneficiary.get_by_id(id)
     authorize(permission="beneficiary:read", base_id=beneficiary.base_id)
     return beneficiary
+
+
+@query.field("distributionSpots")
+def resolve_distributions_spots(base_obj, _):
+    # TODO: add permissions here
+    # authorize(permission="distribution_spot:read")
+    return Location.select().where(Location.type == LocationType.DistributionSpot)
+    # .where(base_filter_condition("distribution_spot:read"))
 
 
 @query.field("users")
@@ -229,7 +237,14 @@ def resolve_organisations(*_):
 @query.field("locations")
 def resolve_locations(*_):
     authorize(permission="location:read")
-    return Location.select().join(Base).where(base_filter_condition("location:read"))
+    return (
+        Location.select()
+        .join(Base)
+        .where(
+            Location.type
+            == LocationType.Location & base_filter_condition("location:read")
+        )
+    )
 
 
 @query.field("products")
@@ -539,6 +554,13 @@ def resolve_base_beneficiaries(base_obj, _, pagination_input=None, filter_input=
     return load_into_page(
         Beneficiary, filter_condition, pagination_input=pagination_input
     )
+
+
+# @base.field("distributions")
+# def resolve_base_distributions(base_obj, _):
+#     # TODO: add permissions here
+#     # authorize(permission="distribution_spot:read")
+#     # return Location.select().where(Location.base == base_obj.id)
 
 
 @location.field("boxes")

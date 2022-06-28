@@ -34,6 +34,14 @@ class BoxState(enum.IntEnum):
     Scrap = enum.auto()
 
 
+class LocationType(enum.IntEnum):
+    """Indiciates which concrete type (classic Location, Distribution Spot, etc)
+    a Location is."""
+
+    Location = 1
+    DistributionSpot = enum.auto()
+
+
 class ProductGender(enum.IntEnum):
     """Representation of values of the `ProductGender` data model."""
 

@@ -178,7 +178,8 @@ type Base {
   " List of all [`Beneficiaries`]({{Types.Beneficiary}}) registered in this base "
   beneficiaries(paginationInput: PaginationInput, filterInput: FilterBeneficiaryInput): BeneficiaryPage!
   currencyName: String
-  distributions: Distributions!
+  distributionSpots: [DistributionSpot!]!
+  distributionEvents: [DistributionEvent!]!
 }
 
 """
@@ -205,14 +206,11 @@ enum DistributionEventState {
 
 type DistributionEvent {
   id: ID!
-  base: Base
+  distributionSpot: DistributionSpot
   name: String
   state: DistributionEventState!
-  dateTime: Datetime!
-}
-
-type Distributions {
-  distributionSpots: [DistributionSpot!]!
+  startDateTime: Datetime!
+  endDateTime: Datetime!
 }
 
 type DistributionSpot {

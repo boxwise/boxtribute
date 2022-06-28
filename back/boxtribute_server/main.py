@@ -16,3 +16,6 @@ configure_app(
     database=os.environ["MYSQL_DB"],
     unix_socket=os.getenv("MYSQL_SOCKET"),
 )
+
+# from .db import db
+# from .models.definitions.distribution_event import DistributionEvent
