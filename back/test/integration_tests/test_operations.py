@@ -49,7 +49,7 @@ def test_mutations(auth0_client):
                    comment: "new things"
                 }) { place { id } } }"""
     response = assert_successful_request(auth0_client, mutation)
-    assert response == {"location": {"id": "1"}}
+    assert response == {"place": {"id": "1"}}
 
     mutation = """mutation { updateBox(updateInput: {
                     labelIdentifier: "728544", productId: 2
