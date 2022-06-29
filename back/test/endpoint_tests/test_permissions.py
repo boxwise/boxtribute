@@ -188,7 +188,7 @@ def test_invalid_permission_for_base_locations(read_only_client, mocker):
         permissions=["base:read"]
     )
     query = "query { base(id: 1) { locations { id } } }"
-    assert_forbidden_request(read_only_client, query, value={"locations": None})
+    assert_forbidden_request(read_only_client, query, value=None)
 
 
 @pytest.mark.parametrize("field", ["sourceBases", "targetBases"])
