@@ -13,7 +13,10 @@ export const BOXES_FOR_BASE_QUERY = gql`
           elements {
             labelIdentifier
             state
-            size
+            size {
+              id
+              label
+            }
             product {
               gender
               name
@@ -39,7 +42,7 @@ const graphqlToTableTransformer = (
         labelIdentifier: element.labelIdentifier,
         gender: element.product?.gender,
         items: element.items,
-        size: element.size,
+        size: element.size.label,
         state: element.state,
         location: element.location?.name,
       } as BoxRow)) || []
