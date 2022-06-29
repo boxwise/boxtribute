@@ -1,4 +1,4 @@
-runtime: python38
+runtime: python310
 service: v2-staging
 entrypoint: gunicorn -b :$PORT
 handlers:

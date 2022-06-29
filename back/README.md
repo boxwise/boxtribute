@@ -23,7 +23,7 @@ The following steps build on top of each other and have to be performed in corre
 
 ### Install python
 
-Install [Python >=3.6](https://www.python.org/downloads/) on your computer. You will need it to run tests on the back-end and the formatters and linters on both back-end and front-end.
+Install [Python >=3.10](https://www.python.org/downloads/) on your computer. You will need it to run tests on the back-end and the formatters and linters on both back-end and front-end.
 
 ### Create a Python virtual environment
 

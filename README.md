@@ -136,7 +136,7 @@ Here, is a list of intro tutorials for each technologies / frameworks / language
 
 - [GraphQL](https://graphql.org/learn/)
 - [Ariadne](https://ariadnegraphql.org/docs/flask-integration.html)
-- [Python 3.X](https://devguide.python.org/)
+- [Python 3.10](https://devguide.python.org/)
 - [Flask](https://flask.palletsprojects.com/en/1.1.x/tutorial/layout/)
 - [PeeWee](http://docs.peewee-orm.com/en/latest/peewee/quickstart.html)
 - MySQL
