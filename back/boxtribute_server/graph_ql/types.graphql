@@ -41,8 +41,6 @@ type Product {
   name: String!
   category: ProductCategory!
   sizeRange: SizeRange!
-  " List of sizes for the product. "
-  sizes: [String!]!
   base: Base
   price: Float
   gender: ProductGender
@@ -131,7 +129,7 @@ Representation of product size.
 """
 type Size {
   id: ID!
-  value: Int!
+  label: String!
 }
 
 """
