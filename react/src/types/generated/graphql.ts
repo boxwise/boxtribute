@@ -754,13 +754,20 @@ export type ShipmentUpdateInput = {
   targetBaseId?: InputMaybe<Scalars['Int']>;
 };
 
+/** Representation of product size. */
+export type Size = {
+  __typename?: 'Size';
+  id: Scalars['ID'];
+  value: Scalars['Int'];
+};
+
 /** Representation of group of sizes. */
 export type SizeRange = {
   __typename?: 'SizeRange';
   id: Scalars['ID'];
   label: Scalars['String'];
   productCategory?: Maybe<Array<ProductCategory>>;
-  sizes: Array<Scalars['String']>;
+  sizes: Array<Size>;
 };
 
 export type StockOverview = {
