@@ -74,7 +74,7 @@ def test_box_mutations(client, qr_code_without_box, default_size, another_size):
                 id
                 labelIdentifier
                 items
-                location {{ id }}
+                place {{ id }}
                 product {{ id }}
                 size
                 qrCode {{ id }}
@@ -88,7 +88,7 @@ def test_box_mutations(client, qr_code_without_box, default_size, another_size):
     created_box = assert_successful_request(client, mutation)
     assert created_box["items"] == 9999
     assert created_box["state"] == "InStock"
-    assert created_box["location"]["id"] == "1"
+    assert created_box["place"]["id"] == "1"
     assert created_box["product"]["id"] == "1"
     assert created_box["size"] == str(default_size["id"])
     assert created_box["qrCode"]["id"] == str(qr_code_without_box["id"])
