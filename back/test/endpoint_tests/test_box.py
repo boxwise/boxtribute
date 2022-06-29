@@ -28,7 +28,7 @@ def test_box_query_by_label_identifier(read_only_client, default_box, tags):
     assert queried_box == {
         "id": str(default_box["id"]),
         "labelIdentifier": label_identifier,
-        "place": {"id": str(default_box["place"])},
+        "place": {"id": str(default_box["location"])},
         "items": default_box["items"],
         "product": {"id": str(default_box["product"])},
         "size": str(default_box["size"]),

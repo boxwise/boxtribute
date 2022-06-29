@@ -24,7 +24,7 @@ def default_box_data():
         "created_by": default_user_data()["id"],
         "items": 0,
         "size": size_data()["id"],
-        "place": default_location_data()["id"],
+        "location": default_location_data()["id"],
         "qr_code": default_qr_code_data()["id"],
     }
 
