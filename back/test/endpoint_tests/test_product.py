@@ -10,7 +10,6 @@ def test_product_query(read_only_client, default_product):
                         hasGender
                     }}
                     sizeRange {{ id }}
-                    sizes
                     base {{ id }}
                     price
                     gender
@@ -23,7 +22,6 @@ def test_product_query(read_only_client, default_product):
         "name": default_product["name"],
         "category": {"hasGender": True},
         "sizeRange": {"id": str(default_product["size_range"])},
-        "sizes": [],
         "base": {"id": str(default_product["base"])},
         "price": default_product["price"],
         "gender": "Women",
