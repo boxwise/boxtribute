@@ -6,7 +6,7 @@ orbs:
 jobs:
   checkout-to-workspace:
     docker:
-      - image: cimg/python:3.8.12-node
+      - image: cimg/python:3.10.4-node
     steps:
       - checkout
       - persist_to_workspace:
@@ -15,7 +15,7 @@ jobs:
             - .
   build-flask:
     docker:
-      - image: cimg/python:3.8.12
+      - image: cimg/python:3.10.4
     working_directory: ~/back
     steps:
       - attach_workspace:
@@ -30,23 +30,23 @@ jobs:
             python --version
             pyenv virtualenvs
             pyenv virtualenv --force env
-            source $(pyenv root)/versions/3.8.12/envs/env/bin/activate
+            source $(pyenv root)/versions/3.10.4/envs/env/bin/activate
             pip install -e . -r requirements.txt
       # Cache the installed packages
       - save_cache:
           key: webapp-deps-{{ checksum "requirements.txt" }}
           paths:
-            - /home/circleci/.pyenv/versions/3.8.12/envs/env
+            - /home/circleci/.pyenv/versions/3.10.4/envs/env
       # save build to a CircleCI workspace
       - persist_to_workspace:
           root: ~/
           paths:
             - back/*
-            - .pyenv/versions/3.8.12/envs
+            - .pyenv/versions/3.10.4/envs
 
   build-and-test-react:
     docker:
-      - image: cimg/python:3.8.12-node
+      - image: cimg/python:3.10.4-node
     working_directory: ~/react
     steps:
       - attach_workspace:
@@ -101,7 +101,7 @@ jobs:
   # following https://circleci.com/docs/2.0/project-walkthrough/
   test-flask:
     docker:
-      - image: cimg/python:3.8.12
+      - image: cimg/python:3.10.4
       - image: cimg/mysql:8.0.27
         environment:
           MYSQL_ROOT_PASSWORD: dropapp_root
@@ -118,17 +118,17 @@ jobs:
       - run:
           name: install dev dependencies for linting and testing
           command: |
-            source $(pyenv root)/versions/3.8.12/envs/env/bin/activate
+            source $(pyenv root)/versions/3.10.4/envs/env/bin/activate
             pip install -r requirements-dev.txt
       - run:
           name: run style checks on Python files
           command: |
-            source $(pyenv root)/versions/3.8.12/envs/env/bin/activate
+            source $(pyenv root)/versions/3.10.4/envs/env/bin/activate
             pre-commit run --files **/*.py
       - save_cache:
           key: webapp-dev-deps-{{ checksum "requirements-dev.txt" }}-{{ checksum "../.pre-commit-config.yaml" }}
           paths:
-            - /home/circleci/.pyenv/versions/3.8.12/envs/env
+            - /home/circleci/.pyenv/versions/3.10.4/envs/env
             - ~/.cache/pre-commit
       # https://circleci.com/docs/2.0/postgres-config/#example-mysql-project
       - run:
@@ -151,7 +151,7 @@ jobs:
       - run:
           name: Run pytest
           command: |
-            source $(pyenv root)/versions/3.8.12/envs/env/bin/activate
+            source $(pyenv root)/versions/3.10.4/envs/env/bin/activate
             pytest --cov-report xml:test-results/coverage.xml --cov=boxtribute_server
       - store_test_results:
           path: test-results
@@ -168,7 +168,7 @@ jobs:
       serviceName:
         type: string
     docker:
-      - image: cimg/python:3.8.12-node
+      - image: cimg/python:3.10.4-node
     working_directory: ~/back
     steps:
       # Attach workspace from build
