@@ -1,3 +1,6 @@
+#Discussion Participants
+@jamescrowley, @mcgnly, @aerinsol, @DurkoMatko, @pylipp, @cohenlea, @soheimam, @jdcsgh, @matt-rose6, @HaGuesto
+
 # Merge boxwise-flask and boxwise-react repo to a monorepo
 
 The reasoning for this ADR is mainly based on the following two medium articles regarding monorepos:
@@ -8,7 +11,7 @@ Decision Deadline: 10th of July 20
 
 ## Status
 
-In progress (September 27, 2020)
+Completed (January 21, 2021)
 
 ## Context or Problem Statement
 
