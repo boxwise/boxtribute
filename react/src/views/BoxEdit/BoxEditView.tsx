@@ -12,7 +12,10 @@ export const BOX_BY_LABEL_IDENTIFIER_AND_ALL_PRODUCTS_QUERY = gql`
   query BoxByLabelIdentifierAndAllProducts($labelIdentifier: String!) {
     box(labelIdentifier: $labelIdentifier) {
       labelIdentifier
-      size
+      size {
+        id
+        label
+      }
       items
       product {
         id

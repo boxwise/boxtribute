@@ -14,6 +14,7 @@ import { useAuth0 } from "@auth0/auth0-react";
 import jwt from "jwt-decode";
 import DistroSpotsView from "views/Distributions/DistroSpotsView/DistroSpotsView";
 import DistrosDashboardView from "views/Distributions/DistrosDashboardView/DistrosDashboardView";
+import CreateDistributionEventView from "views/Distributions/CreateDistroEventView/CreateDistributionEventView";
 
 const useLoadAndSetAvailableBases = () => {
   const BASES_QUERY = gql`
@@ -82,6 +83,14 @@ const App = () => {
               <Route index element={<DistrosDashboardView />} />
               <Route path="spots">
                 <Route index element={<DistroSpotsView />} />
+                <Route path=":spotId">
+                  <Route path="events">
+                    <Route
+                      path="create"
+                      element={<CreateDistributionEventView />}
+                    />
+                  </Route>
+                </Route>
               </Route>
             </Route>
           </Route>

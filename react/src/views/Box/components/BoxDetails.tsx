@@ -57,7 +57,7 @@ const BoxDetails = ({
           <Text as={"span"} fontWeight={"bold"}>
             Size:
           </Text>{" "}
-          {boxData.size}
+          {boxData.size.label}
         </ListItem>
         <ListItem>
           <Text as={"span"} fontWeight={"bold"}>

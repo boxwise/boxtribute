@@ -6,14 +6,18 @@ export interface DistroEvent {
   distroSpot: string;
 }
 
-interface CreateDistroEventProps {
-  onSubmitNewDitroEvent: () => void;
-  distroEvent: DistroEvent;
+export interface DistroSpot {
+  name: string;
 }
 
-const CreateDistroEventDate = ({
-  onSubmitNewDitroEvent,
-  distroEvent,
+interface CreateDistroEventProps {
+  onSubmitNewDistroEvent: () => void;
+  distroSpot: DistroSpot;
+}
+
+const CreateDistroEvent = ({
+  onSubmitNewDistroEvent,
+  distroSpot,
 }: CreateDistroEventProps) => {
   const {
     register,
@@ -28,17 +32,17 @@ const CreateDistroEventDate = ({
 
   return (
     <Flex>
-      <form onSubmit={handleSubmit(onSubmitNewDitroEvent)}>
+      <form onSubmit={handleSubmit(onSubmitNewDistroEvent)}>
         <Text fontSize="md" >
           New Distro Event
         </Text>
-        <Text fontSize="xl" mb={4}>{distroEvent.distroSpot} </Text>
+        <Text fontSize="xl" mb={4}>{distroSpot.name} </Text>
         <FormLabel fontSize="sm" htmlFor="date">
           Date of the event:
         </FormLabel>
         {/* it's still has to be limited to dates from today onward */}
         <Input
-        placeholder={distroEvent.eventDate?.toDateString()}
+        // placeholder={distroEvent.eventDate?.toDateString()}
           type="date"
           mb={4}
           {...register("eventDate", { required: true })}
@@ -56,4 +60,4 @@ const CreateDistroEventDate = ({
   );
 };
 
-export default CreateDistroEventDate;
+export default CreateDistroEvent;

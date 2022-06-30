@@ -11,8 +11,7 @@ type Box {
   " The number of items the box contains. "
   items: Int!
   product: Product
-  # A size from a size range, consider making this enum
-  size: String
+  size: Size!
   state: BoxState!
   qrCode: QrCode
   createdBy: User
@@ -49,8 +48,6 @@ type Product {
   name: String!
   category: ProductCategory!
   sizeRange: SizeRange!
-  " List of sizes for the product. "
-  sizes: [String!]!
   base: Base
   price: Float
   gender: ProductGender
@@ -135,12 +132,20 @@ enum TagType {
 }
 
 """
+Representation of product size.
+"""
+type Size {
+  id: ID!
+  label: String!
+}
+
+"""
 Representation of group of sizes.
 """
 type SizeRange {
   id: ID!
   label: String!
-  sizes: [String!]!
+  sizes: [Size!]!
   productCategory: [ProductCategory!]
 }
 
