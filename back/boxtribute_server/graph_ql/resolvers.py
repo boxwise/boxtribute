@@ -87,6 +87,8 @@ product_category = _register_object_type("ProductCategory")
 qr_code = _register_object_type("QrCode")
 shipment = _register_object_type("Shipment")
 shipment_detail = _register_object_type("ShipmentDetail")
+size = _register_object_type("Size")
+size_range = _register_object_type("SizeRange")
 tag = _register_object_type("Tag")
 transfer_agreement = _register_object_type("TransferAgreement")
 user = _register_object_type("User")
@@ -612,13 +614,6 @@ def resolve_product_gender(product_obj, _):
     return product_obj.gender.id
 
 
-@product.field("sizes")
-def resolve_product_sizes(product_id, _):
-    product = Product.get_by_id(product_id)
-    sizes = Size.select(Size.label).where(Size.seq == product.size_range.seq)
-    return [size.label for size in sizes]
-
-
 @product_category.field("hasGender")
 def resolve_product_category_has_gender(product_category_obj, _):
     # Only categories derived from 'Clothing' (ID 12) have gender information
@@ -683,6 +678,11 @@ def resolve_shipment_detail_source_location(detail_obj, _):
 def resolve_shipment_detail_target_location(detail_obj, _):
     authorize(permission="location:read")
     return detail_obj.target_location
+
+
+@size_range.field("sizes")
+def resolve_size_range_sizes(size_range_obj, _):
+    return Size.select().where((Size.size_range == size_range_obj.id))
 
 
 @transfer_agreement.field("sourceBases")
