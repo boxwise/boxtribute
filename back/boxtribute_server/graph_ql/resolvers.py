@@ -142,6 +142,16 @@ def resolve_distributions_spots(base_obj, _):
     # .where(base_filter_condition("distribution_spot:read"))
 
 
+@query.field("distributionSpot")
+def resolve_distributions_spot(obj, _, id):
+    distribution_spot = obj.location if id is None else Location.get_by_id(id)
+    if distribution_spot.type == LocationType.DistributionSpot:
+        # authorize(permission="location:read", base_id=distribution_spot.base_id)
+        return distribution_spot
+    else:
+        None
+
+
 @query.field("users")
 def resolve_users(*_):
     authorize(permission="user:read")

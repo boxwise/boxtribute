@@ -3,6 +3,7 @@ type Query {
   bases: [Base!]!
   base(id: ID!): Base
   distributionSpots: [DistributionSpot!]!
+  distributionSpot(id: ID!): DistributionSpot
   organisation(id: ID!): Organisation
   " Return all [`Organisations`]({{Types.Organisation}}) that the client is authorized to view. "
   organisations: [Organisation!]!
