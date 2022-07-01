@@ -151,6 +151,7 @@ type Location {
   base: Base
   name: String
   isShop: Boolean!
+  isStockroom: Boolean!
   " List of all the [`Boxes`]({{Types.Box}}) in this location "
   boxes(paginationInput: PaginationInput, filterInput: FilterBoxInput): BoxPage
   " Default state for boxes in this location "
