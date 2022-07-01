@@ -5,6 +5,8 @@ import HeaderMenu from "./HeaderMenu";
 import AutomaticBaseSwitcher from "views/AutomaticBaseSwitcher/AutomaticBaseSwitcher";
 import { GlobalPreferencesContext } from "providers/GlobalPreferencesProvider";
 
+
+
 const HeaderMenuContainer = () => {
   const { globalPreferences } = useContext(GlobalPreferencesContext);
   const auth0 = useAuth0();
@@ -19,7 +21,6 @@ const HeaderMenuContainer = () => {
       {...auth0}
       availableBases={globalPreferences.availableBases}
       onClickScanQrCode={() => navigate(`/bases/${baseId}/scan-qrcode`)}
-
     />
   );
 };

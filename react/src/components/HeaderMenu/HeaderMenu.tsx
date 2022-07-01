@@ -16,12 +16,10 @@ import {
   MenuItem,
   MenuList,
   LayoutProps,
-  Wrap,
   Accordion,
   AccordionItem,
   AccordionButton,
   AccordionPanel,
-  Center,
   VStack,
 } from "@chakra-ui/react";
 import { useMediaQuery } from "@chakra-ui/media-query";
@@ -98,7 +96,7 @@ const UserMenu = ({
           currentActiveBaseId={currentActiveBaseId}
           availableBases={availableBases}
         />
-        <MenuDivider backgroundColor="red.100" my={0} />
+        <MenuDivider my={0} />
         <MenuGroup>
           <MenuItem>Profile ({user?.email})</MenuItem>
           <MenuItem onClick={() => logout()}>Logout</MenuItem>
@@ -132,6 +130,84 @@ const LoginOrUserMenuButton = ({
     />
   ) : (
     <Button onClick={() => (isAuthenticated ? logout() : loginWithRedirect())}>
+      Login
+    </Button>
+  );
+};
+
+const LoginOrUserMenuButtonMobile = ({
+  isAuthenticated,
+  logout,
+  loginWithRedirect,
+  user,
+  currentActiveBaseId,
+  availableBases,
+}: LoginOrUserMenuButtonProps) => {
+  return isAuthenticated ? (
+    <Accordion allowToggle>
+      <AccordionItem mb={2}>
+        <h2>
+          <AccordionButton flex="1" border="1px" w="250px">
+            <Text textAlign="center" display="block">
+              Base Switcher
+            </Text>
+          </AccordionButton>
+        </h2>
+        <AccordionPanel border="1px" p={0}>
+          {availableBases?.map((base, i) => (
+            <Box
+              py={2}
+              px={4}
+              borderBottom="1px"
+              borderColor="gray.300"
+              key={base.id}
+            >
+              <Link
+                style={
+                  currentActiveBaseId === base.id ? { color: "orange" } : {}
+                }
+                to={`/bases/${base.id}/locations`}
+              >
+                {base.name}
+              </Link>
+            </Box>
+          ))}
+        </AccordionPanel>
+      </AccordionItem>
+      <AccordionItem>
+        <AccordionButton flex="1" border="1px" w="250px">
+          {user?.picture ? (
+            <Img
+              src={user?.picture}
+              variant="outline"
+              width={8}
+              height={8}
+              mr={2}
+            />
+          ) : null}
+          <Text>{user?.email}</Text>
+        </AccordionButton>
+
+        <AccordionPanel border="1px" p={0}>
+          <Box py={2} px={4} borderBottom="1px" borderColor="gray.300">
+            Profile
+          </Box>
+          <Box py={2} px={4} onClick={() => logout()}>
+            Logout
+          </Box>
+        </AccordionPanel>
+      </AccordionItem>
+    </Accordion>
+  ) : (
+    <Button
+      py={2}
+      colorScheme="gray"
+      borderRadius="0px"
+      flex="1"
+      border="1px"
+      w="250px"
+      onClick={() => (isAuthenticated ? logout() : loginWithRedirect())}
+    >
       Login
     </Button>
   );
@@ -214,8 +290,6 @@ const MainMenuItemMobile = ({ to, text, links, ...props }: MenuItemProps) => (
   </Accordion>
 );
 
-
-
 const MenuLinks = ({
   isOpen,
   currentActiveBaseId,
@@ -230,145 +304,144 @@ const MenuLinks = ({
       {...props}
     >
       {isSmallScreen ? (
-      <VStack
-        alignItems="flex-end"
-        // justify='center'
-        direction="column"
-       
-      >
-        <MainMenuItemMobile
-          to={`/bases/${currentActiveBaseId}/boxes`}
-          text="Boxes"
-          links={[
-            { link: "link", name: "Print Labels" },
-            { link: "link1", name: "Manage Boxes" },
-            { link: "link", name: "Stock Overview" },
-          ]}
-        />
-        <MainMenuItemMobile
-          to={`/bases/${currentActiveBaseId}/freeshop`}
-          text="Freeshop"
-          links={[
-            { link: "link", name: "Manage Beneficiaries" },
-            { link: "link1", name: "Checkout" },
-            { link: "link2", name: "Generate Market Schedule" },
-          ]}
-        />
+        <VStack
+          alignItems="flex-end"
+          // justify='center'
+          direction="column"
+        >
+          <MainMenuItemMobile
+            to={`/bases/${currentActiveBaseId}/boxes`}
+            text="Boxes"
+            links={[
+              { link: "link", name: "Print Labels" },
+              { link: "link1", name: "Manage Boxes" },
+              { link: "link", name: "Stock Overview" },
+            ]}
+          />
+          <MainMenuItemMobile
+            to={`/bases/${currentActiveBaseId}/freeshop`}
+            text="Freeshop"
+            links={[
+              { link: "link", name: "Manage Beneficiaries" },
+              { link: "link1", name: "Checkout" },
+              { link: "link2", name: "Generate Market Schedule" },
+            ]}
+          />
 
-        <MainMenuItemMobile
-          to={`/bases/${currentActiveBaseId}/distributions`}
-          text="Mobile Distributions"
-          links={[
-            { link: "link", name: "Calendar" },
-            { link: "link1", name: "Distribution Events" },
-            { link: "link2", name: "Distribution Spots" },
-          ]}
-        />
+          <MainMenuItemMobile
+            to={`/bases/${currentActiveBaseId}/distributions`}
+            text="Mobile Distributions"
+            links={[
+              { link: "link", name: "Calendar" },
+              { link: "link1", name: "Distribution Events" },
+              { link: "link2", name: "Distribution Spots" },
+            ]}
+          />
 
-        <MainMenuItemMobile
-          to={`/bases/${currentActiveBaseId}/box-transfers`}
-          text="Box Transfers"
-          links={[
-            { link: "link", name: "Transfer Agreements" },
-            { link: "link1", name: "Shipments" },
-          ]}
-        />
+          <MainMenuItemMobile
+            to={`/bases/${currentActiveBaseId}/box-transfers`}
+            text="Box Transfers"
+            links={[
+              { link: "link", name: "Transfer Agreements" },
+              { link: "link1", name: "Shipments" },
+            ]}
+          />
 
-        <MainMenuItemMobile
-          to={`/bases/${currentActiveBaseId}/insights`}
-          text="Data Insights"
-          links={[
-            { link: "link", name: "Charts" },
-            { link: "link1", name: "Export" },
-          ]}
-        />
+          <MainMenuItemMobile
+            to={`/bases/${currentActiveBaseId}/insights`}
+            text="Data Insights"
+            links={[
+              { link: "link", name: "Charts" },
+              { link: "link1", name: "Export" },
+            ]}
+          />
 
-        <MainMenuItemMobile
-          to={`/bases/${currentActiveBaseId}/admin`}
-          text="Admin"
-          links={[
-            { link: "link", name: "Manage Tags" },
-            { link: "link1", name: "Manage Products" },
-            { link: "link1", name: "Edit Warehouses" },
-            { link: "link1", name: "Manage Users" },
-          ]}
-        />
-        <LoginOrUserMenuButton
-          currentActiveBaseId={currentActiveBaseId}
-          {...props}
-        />
-      </VStack>
+          <MainMenuItemMobile
+            to={`/bases/${currentActiveBaseId}/admin`}
+            text="Admin"
+            links={[
+              { link: "link", name: "Manage Tags" },
+              { link: "link1", name: "Manage Products" },
+              { link: "link1", name: "Edit Warehouses" },
+              { link: "link1", name: "Manage Users" },
+            ]}
+          />
+          <LoginOrUserMenuButtonMobile
+            currentActiveBaseId={currentActiveBaseId}
+            {...props}
+          />
+        </VStack>
       ) : (
-       <Stack
-         align="flex-start"
-         // justify={["center", "space-between", "flex-end", "flex-end"]}
-         direction={["column", "row", "row", "row"]}
-         pt={[4, 4, 0, 0]}
-         justifyItems={["center", "space-between", "flex-end", "flex-end"]}
-       >
-         <MainMenuItemDeskop
-           to={`/bases/${currentActiveBaseId}/boxes`}
-           text="Boxes"
-           links={[
-             { link: "link", name: "Print Labels" },
-             { link: "link1", name: "Manage Boxes" },
-             { link: "link", name: "Stock Overview" },
-           ]}
-         />
-         <MainMenuItemDeskop
-           to={`/bases/${currentActiveBaseId}/freeshop`}
-           text="Freeshop"
-           links={[
-             { link: "link", name: "Manage Beneficiaries" },
-             { link: "link1", name: "Checkout" },
-             { link: "link2", name: "Generate Market Schedule" },
-           ]}
-         />
- 
-         <MainMenuItemDeskop
-           to={`/bases/${currentActiveBaseId}/distributions`}
-           text="Mobile Distributions"
-           links={[
-             { link: "link", name: "Calendar" },
-             { link: "link1", name: "Distribution Events" },
-             { link: "link2", name: "Distribution Spots" },
-           ]}
-         />
- 
-         <MainMenuItemDeskop
-           to={`/bases/${currentActiveBaseId}/box-transfers`}
-           text="Box Transfers"
-           links={[
-             { link: "link", name: "Transfer Agreements" },
-             { link: "link1", name: "Shipments" },
-           ]}
-         />
- 
-         <MainMenuItemDeskop
-           to={`/bases/${currentActiveBaseId}/insights`}
-           text="Data Insights"
-           links={[
-             { link: "link", name: "Charts" },
-             { link: "link1", name: "Export" },
-           ]}
-         />
- 
-         <MainMenuItemDeskop
-           to={`/bases/${currentActiveBaseId}/admin`}
-           text="Admin"
-           links={[
-             { link: "link", name: "Manage Tags" },
-             { link: "link1", name: "Manage Products" },
-             { link: "link1", name: "Edit Warehouses" },
-             { link: "link1", name: "Manage Users" },
-           ]}
-         />
-         <LoginOrUserMenuButton
-           currentActiveBaseId={currentActiveBaseId}
-           {...props}
-         />
-       </Stack>
-     )}
+        <Stack
+          align="flex-start"
+          // justify={["center", "space-between", "flex-end", "flex-end"]}
+          direction={["column", "row", "row", "row"]}
+          pt={[4, 4, 0, 0]}
+          justifyItems={["center", "space-between", "flex-end", "flex-end"]}
+        >
+          <MainMenuItemDeskop
+            to={`/bases/${currentActiveBaseId}/boxes`}
+            text="Boxes"
+            links={[
+              { link: "link", name: "Print Labels" },
+              { link: "link1", name: "Manage Boxes" },
+              { link: "link", name: "Stock Overview" },
+            ]}
+          />
+          <MainMenuItemDeskop
+            to={`/bases/${currentActiveBaseId}/freeshop`}
+            text="Freeshop"
+            links={[
+              { link: "link", name: "Manage Beneficiaries" },
+              { link: "link1", name: "Checkout" },
+              { link: "link2", name: "Generate Market Schedule" },
+            ]}
+          />
+
+          <MainMenuItemDeskop
+            to={`/bases/${currentActiveBaseId}/distributions`}
+            text="Mobile Distributions"
+            links={[
+              { link: "link", name: "Calendar" },
+              { link: "link1", name: "Distribution Events" },
+              { link: "link2", name: "Distribution Spots" },
+            ]}
+          />
+
+          <MainMenuItemDeskop
+            to={`/bases/${currentActiveBaseId}/box-transfers`}
+            text="Box Transfers"
+            links={[
+              { link: "link", name: "Transfer Agreements" },
+              { link: "link1", name: "Shipments" },
+            ]}
+          />
+
+          <MainMenuItemDeskop
+            to={`/bases/${currentActiveBaseId}/insights`}
+            text="Data Insights"
+            links={[
+              { link: "link", name: "Charts" },
+              { link: "link1", name: "Export" },
+            ]}
+          />
+
+          <MainMenuItemDeskop
+            to={`/bases/${currentActiveBaseId}/admin`}
+            text="Admin"
+            links={[
+              { link: "link", name: "Manage Tags" },
+              { link: "link1", name: "Manage Products" },
+              { link: "link1", name: "Edit Warehouses" },
+              { link: "link1", name: "Manage Users" },
+            ]}
+          />
+          <LoginOrUserMenuButton
+            currentActiveBaseId={currentActiveBaseId}
+            {...props}
+          />
+        </Stack>
+      )}
     </Flex>
   );
 };
