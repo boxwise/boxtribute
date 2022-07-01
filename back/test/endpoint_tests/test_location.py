@@ -9,6 +9,7 @@ def test_location_query(read_only_client, default_boxes, default_location):
                     base {{ id }}
                     name
                     isShop
+                    isStockroom
                     boxes {{
                         elements {{ id }}
                     }}
@@ -23,6 +24,7 @@ def test_location_query(read_only_client, default_boxes, default_location):
         "base": {"id": str(default_location["base"])},
         "name": default_location["name"],
         "isShop": default_location["is_shop"],
+        "isStockroom": default_location["is_stockroom"],
         "boxes": {"elements": [{"id": str(b["id"])} for b in default_boxes[1:]]},
         "defaultBoxState": BoxState(default_location["box_state"]).name,
         "createdOn": None,
