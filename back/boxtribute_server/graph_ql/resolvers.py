@@ -34,6 +34,7 @@ from ..enums import HumanGender, LocationType, TaggableObjectType, TransferAgree
 from ..models.crud import (
     create_beneficiary,
     create_box,
+    create_distribution_event,
     create_distribution_spot,
     create_qr_code,
     update_beneficiary,
@@ -453,7 +454,9 @@ def resolve_create_qr_code(*_, box_label_identifier=None):
 @convert_kwargs_to_snake_case
 def resolve_create_distribution_spot(*_, creation_input=None):
     # authorize(permission="distribution_spot:create")
-    return create_distribution_spot(distribution_spot_input=creation_input)
+    return create_distribution_spot(
+        user_id=g.user.id, distribution_spot_input=creation_input
+    )
 
 
 @mutation.field("createBox")
@@ -461,6 +464,13 @@ def resolve_create_distribution_spot(*_, creation_input=None):
 def resolve_create_box(*_, creation_input):
     authorize(permission="stock:write")
     return create_box(user_id=g.user.id, **creation_input)
+
+
+@mutation.field("createDistributionEvent")
+@convert_kwargs_to_snake_case
+def resolve_create_distribution_event(*_, creation_input):
+    # authorize(permission="stock:write")
+    return create_distribution_event(user_id=g.user.id, **creation_input)
 
 
 @mutation.field("updateBox")

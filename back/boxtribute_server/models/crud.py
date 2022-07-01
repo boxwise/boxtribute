@@ -3,6 +3,7 @@ import hashlib
 import random
 
 import peewee
+from boxtribute_server.models.definitions.distribution_event import DistributionEvent
 
 from ..db import db
 from ..enums import BoxState, LocationType
@@ -63,6 +64,44 @@ def create_box(
             if "Duplicate entry" not in str(e):
                 raise
     raise BoxCreationFailed()
+
+
+def create_distribution_event(
+    # distribution_event_input=None
+    user_id,
+    distribution_spot_id,
+    # user_id,
+    name,
+    start_date_time,
+    end_date_time=None,
+):
+    """
+    TODO: Add description here
+    """
+
+    if end_date_time is None:
+        # TODO: consider to change endDateTime to startDateTime + 2 or 3 hours
+        end_date_time = start_date_time
+
+    """
+    TODO: ensure that distribution_spot_id is realy from a Distribution Spot
+    and not from a Location
+    """
+
+    now = utcnow()
+    new_distribution_event = DistributionEvent.create(
+        name=name,
+        start_date_time=start_date_time,
+        end_date_time=end_date_time,
+        distribution_spot_id=distribution_spot_id,
+        created_on=now,
+        created_by=user_id,
+        last_modified_on=now,
+        last_modified_by=1,
+        # type=LocationType.DistributionSpot,
+        # **distribution_spot_input,
+    )
+    return new_distribution_event
 
 
 def update_box(
@@ -211,14 +250,14 @@ def update_beneficiary(
     return beneficiary
 
 
-def create_distribution_spot(distribution_spot_input=None):
+def create_distribution_spot(user_id, distribution_spot_input=None):
     """Insert information for a new DistributionSpot in the database."""
     now = utcnow()
     new_distribution_spot = Location.create(
         created_on=now,
-        created_by=1,
+        created_by=user_id,
         last_modified_on=now,
-        last_modified_by=1,
+        last_modified_by=user_id,
         type=LocationType.DistributionSpot,
         **distribution_spot_input,
     )

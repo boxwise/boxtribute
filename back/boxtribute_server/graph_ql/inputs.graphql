@@ -78,6 +78,12 @@ input DistributionSpotCreationInput {
   longitude: Float
 }
 
+input DistributionEventCreationInput {
+  distributionSpotId: Int!
+  name: String
+  startDateTime: Datetime
+}
+
 input ShipmentUpdateInput {
   id: ID!
   targetBaseId: Int

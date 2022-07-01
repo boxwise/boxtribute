@@ -1,5 +1,5 @@
 import { gql, useQuery } from "@apollo/client";
-import React from "react";
+import React, { useCallback } from "react";
 import { useParams } from "react-router-dom";
 import { DistributionSpotQuery } from "types/generated/graphql";
 import CreateDistroEvent from "./components/CreateDistroEvent";
@@ -14,6 +14,24 @@ const CreateDistributionEventView = () => {
     }
   `;
 
+  const onSubmitNewDistroEvent = useCallback(() => {
+    console.log("onSubmitNewDistroEvent");
+  }, []);
+
+
+// export const CREATE_DISTRIBUTION_EVENT_MUTATION = gql`
+// mutation CreateDistributionEvent($distributionSpotId: ID!, $distributionDate: Date!) {
+//   CreateDistributionEvent(
+//     updateInput: {
+//       labelIdentifier: $boxLabelIdentifier
+//       productId: $productId
+//     }
+//   ) {
+//     labelIdentifier
+//   }
+// }
+// `;
+
   const distributionSpotId =
     useParams<{ distributionSpotId: string }>().distributionSpotId!;
 
@@ -27,6 +45,10 @@ const CreateDistributionEventView = () => {
   if (loading) {
     return <div>Loading...</div>;
   }
+  if (error) {
+    console.error("Error in CreateDistributionEventView: ", error);
+    return <div>Error!</div>;
+  }
   if (data?.distributionSpot?.name == null) {
     console.error(
       "Error - Incomplete data in the database for this Distriubtion Spot"
@@ -38,14 +60,10 @@ const CreateDistributionEventView = () => {
       </div>
     );
   }
-  if (error) {
-    console.error("Error in CreateDistributionEventView: ", error);
-    return <div>Error!</div>;
-  }
   return (
     <CreateDistroEvent
-      distroSpot={data.distributionSpot}
-      onSubmitNewDistroEvent={() => alert("JO")}
+      distroSpot={{name: data.distributionSpot.name || ""}}
+      onSubmitNewDistroEvent={onSubmitNewDistroEvent}
     />
   );
 };

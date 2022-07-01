@@ -21,4 +21,5 @@ type Mutation {
   sendShipment(id: ID!): Shipment
 
   createDistributionSpot(creationInput: DistributionSpotCreationInput): DistributionSpot
+  createDistributionEvent(creationInput: DistributionEventCreationInput): DistributionEvent
 }
