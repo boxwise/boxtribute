@@ -8,12 +8,12 @@ def test_queries(auth0_client, endpoint):
         return assert_successful_request(*args, **kwargs, endpoint=endpoint)
 
     query = """query BoxIdAndItems {
-                qrCode(qrCode: "03a6ad3e5a8677fe350f9849a208552") { box { id } }
+                qrCode(qrCode: "9627242265f5a7f3a1db910eb18410f") { box { id } }
             }"""
     queried_box = _assert_successful_request(auth0_client, query)["box"]
-    assert queried_box == {"id": "67"}
+    assert queried_box == {"id": "735"}
 
-    query = """query { box(labelIdentifier: "728544") { state } }"""
+    query = """query { box(labelIdentifier: "177892") { state } }"""
     queried_box = _assert_successful_request(auth0_client, query)
     assert queried_box == {"state": "Donated"}
 
@@ -52,7 +52,7 @@ def test_mutations(auth0_client):
     assert response == {"location": {"id": "1"}}
 
     mutation = """mutation { updateBox(updateInput: {
-                    labelIdentifier: "728544", productId: 2
+                    labelIdentifier: "177892", productId: 2
                 }) { product { id } } }"""
     response = assert_successful_request(auth0_client, mutation)
     assert response == {"product": {"id": "2"}}
