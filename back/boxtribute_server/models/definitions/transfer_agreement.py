@@ -44,3 +44,6 @@ class TransferAgreement(db.Model):
     valid_from = DateTimeField(default=utcnow)
     valid_until = DateTimeField(null=True)
     comment = TextField(constraints=[SQL("DEFAULT ''")], default="")
+
+    class Meta:
+        legacy_table_names = False
