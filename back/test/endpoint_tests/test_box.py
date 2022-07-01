@@ -35,7 +35,7 @@ def test_box_query_by_label_identifier(read_only_client, default_box, tags):
         "state": BoxState.InStock.name,
         "qrCode": {"id": str(default_box["qr_code"])},
         "createdBy": {"id": str(default_box["created_by"])},
-        "comment": default_box["comment"],
+        "comment": None,
         "tags": [
             {
                 "id": str(tags[1]["id"]),
@@ -63,7 +63,6 @@ def test_box_mutations(client, qr_code_without_box, default_size, another_size):
                     productId: 1,
                     items: 9999,
                     locationId: 1,
-                    comment: "",
                     sizeId: {default_size["id"]},
                     qrCode: "{qr_code_without_box["code"]}",
                 }}"""

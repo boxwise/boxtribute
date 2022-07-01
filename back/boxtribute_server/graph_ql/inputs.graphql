@@ -7,7 +7,7 @@ input BoxCreationInput {
   sizeId: Int!
   items: Int!
   locationId: Int!
-  comment: String!
+  comment: String
   qrCode: String
 }
 
