@@ -83,7 +83,7 @@ const App = () => {
               <Route index element={<DistrosDashboardView />} />
               <Route path="spots">
                 <Route index element={<DistroSpotsView />} />
-                <Route path=":spotId">
+                <Route path=":distributionSpotId">
                   <Route path="events">
                     <Route
                       path="create"
