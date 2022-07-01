@@ -16,6 +16,7 @@ def default_location_data():
         "is_donated": 0,
         "is_lost": 0,
         "is_shop": True,
+        "is_stockroom": False,
         "is_scrap": 0,
         "name": "Location",
         "seq": 1,
