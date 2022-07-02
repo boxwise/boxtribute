@@ -31,8 +31,8 @@ const DistroSpotsContainer = ({
             id
             name
             state
-            startDateTime
-            endDateTime
+            startDate
+            # endDateTime
           }
         }
       }
@@ -72,7 +72,7 @@ const DistroSpotsContainer = ({
         distroEvents: distroSpot.distributionEvents.map((distroEvent) => ({
           id: distroEvent.id,
           state: distroEvent.state,
-          startDateTime: new Date(distroEvent.startDateTime),
+          startDateTime: new Date(distroEvent.startDate),
         })),
       };
     }) as DistroSpot[];

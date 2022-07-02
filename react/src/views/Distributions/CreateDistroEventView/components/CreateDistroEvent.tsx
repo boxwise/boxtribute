@@ -1,9 +1,9 @@
 import { Button, Flex, FormLabel, Input, Text } from "@chakra-ui/react";
 import { useForm } from "react-hook-form";
 
-export interface DistroEvent {
+export interface CreateDistroEventFormData {
   eventDate?: Date;
-  distroSpot: string;
+  // distroSpot: string;
 }
 
 export interface DistroSpot {
@@ -11,7 +11,7 @@ export interface DistroSpot {
 }
 
 interface CreateDistroEventProps {
-  onSubmitNewDistroEvent: () => void;
+  onSubmitNewDistroEvent: (distroEvent: CreateDistroEventFormData) => void;
   distroSpot: DistroSpot;
 }
 
@@ -23,10 +23,9 @@ const CreateDistroEvent = ({
     register,
     handleSubmit,
     formState: { isSubmitting },
-  } = useForm<DistroEvent>({
+  } = useForm<CreateDistroEventFormData>({
     defaultValues: {
-      eventDate: new Date(),
-      distroSpot: "",
+      eventDate: new Date()
     },
   });
 

@@ -1,8 +1,14 @@
-import { gql, useLazyQuery, useQuery } from "@apollo/client";
+import { gql, useLazyQuery, useMutation, useQuery } from "@apollo/client";
 import React, { useCallback } from "react";
-import { useParams } from "react-router-dom";
-import { DistributionSpotQuery } from "types/generated/graphql";
-import CreateDistroEvent from "./components/CreateDistroEvent";
+import { useNavigate, useParams } from "react-router-dom";
+import {
+  CreateDistributionEventMutation,
+  CreateDistributionEventMutationVariables,
+  DistributionSpotQuery,
+} from "types/generated/graphql";
+import CreateDistroEvent, {
+  CreateDistroEventFormData,
+} from "./components/CreateDistroEvent";
 
 const CreateDistributionEventView = () => {
   const DISTRIBUTION_SPOT_QUERY = gql`
@@ -14,29 +20,76 @@ const CreateDistributionEventView = () => {
     }
   `;
 
-  const lazyMutation = useLazyQuery()
+  const CREATE_DISTRIBUTION_EVENT_MUTATION = gql`
+    mutation CreateDistributionEvent(
+      $distributionSpotId: Int!
+      $name: String!
+      $startDate: Date!
+    ) {
+      createDistributionEvent(
+        creationInput: {
+          distributionSpotId: $distributionSpotId
+          name: $name
+          startDate: $startDate
+        }
+      ) {
+        id
+        name
+        startDate
+      }
+    }
+  `;
 
-  const onSubmitNewDistroEvent = useCallback(() => {
+  const { baseId, distributionSpotId } = useParams<{ baseId: string, distributionSpotId: string }>();
+  const navigate = useNavigate();
 
-    console.log("onSubmitNewDistroEvent");
-  }, []);
+  // const [updateBoxLocation, mutationStatus] = useMutation<
+  const [
+    createDistributionEventMutation,
+    createDistributionEventMutationStatus,
+  ] = useMutation<
+    CreateDistributionEventMutation,
+    CreateDistributionEventMutationVariables
+  >(CREATE_DISTRIBUTION_EVENT_MUTATION);
 
+  const onSubmitNewDistroEvent = useCallback(
+    (createDistroEventFormData: CreateDistroEventFormData) => {
+      createDistributionEventMutation({
+        variables: {
+          distributionSpotId: parseInt(distributionSpotId!),
+          name: "FOO",
+          startDate: createDistroEventFormData.eventDate,
+        },
+      })
+        .then((mutationResult) => {
+          if((mutationResult.errors?.length || 0) > 0) {
+            // TODO: Improve Error handling
+            throw new Error(JSON.stringify(mutationResult.errors));
 
-// export const CREATE_DISTRIBUTION_EVENT_MUTATION = gql`
-// mutation CreateDistributionEvent($distributionSpotId: ID!, $distributionDate: Date!) {
-//   CreateDistributionEvent(
-//     updateInput: {
-//       labelIdentifier: $boxLabelIdentifier
-//       productId: $productId
-//     }
-//   ) {
-//     labelIdentifier
-//   }
-// }
-// `;
+          }
+          navigate(
+            `/bases/${baseId}/distributions/spots/${distributionSpotId}/events/${mutationResult.data?.createDistributionEvent?.id}`
+          );
+        })
+        .catch((error) => {
+          console.log("Error while trying to create Distribution Event", error);
+        });
+    },
+    [baseId, createDistributionEventMutation, distributionSpotId, navigate]
+  );
 
-  const distributionSpotId =
-    useParams<{ distributionSpotId: string }>().distributionSpotId!;
+  // export const CREATE_DISTRIBUTION_EVENT_MUTATION = gql`
+  // mutation CreateDistributionEvent($distributionSpotId: ID!, $distributionDate: Date!) {
+  //   CreateDistributionEvent(
+  //     updateInput: {
+  //       labelIdentifier: $boxLabelIdentifier
+  //       productId: $productId
+  //     }
+  //   ) {
+  //     labelIdentifier
+  //   }
+  // }
+  // `;
 
   const { data, loading, error } = useQuery<DistributionSpotQuery>(
     DISTRIBUTION_SPOT_QUERY,
@@ -54,9 +107,9 @@ const CreateDistributionEventView = () => {
   }
   if (data?.distributionSpot?.name == null) {
     console.error(
-      "Error - Incomplete data in the database for this Distriubtion Spot"
+      "Error - Incomplete data in the database for this Distriubtion Spot",
+      data
     );
-    console.log(data);
     return (
       <div>
         Error - Incomplete data in the database for this Distriubtion Spot
@@ -65,7 +118,7 @@ const CreateDistributionEventView = () => {
   }
   return (
     <CreateDistroEvent
-      distroSpot={{name: data.distributionSpot.name || ""}}
+      distroSpot={{ name: data.distributionSpot.name || "" }}
       onSubmitNewDistroEvent={onSubmitNewDistroEvent}
     />
   );

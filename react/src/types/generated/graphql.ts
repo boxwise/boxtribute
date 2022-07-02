@@ -195,10 +195,9 @@ export type BoxUpdateInput = {
 export type DistributionEvent = {
   __typename?: 'DistributionEvent';
   distributionSpot?: Maybe<DistributionSpot>;
-  endDateTime: Scalars['Datetime'];
   id: Scalars['ID'];
   name?: Maybe<Scalars['String']>;
-  startDateTime: Scalars['Datetime'];
+  startDate: Scalars['Date'];
   state: DistributionEventState;
 };
 
@@ -1031,9 +1030,18 @@ export type DistributionSpotQueryVariables = Exact<{
 
 export type DistributionSpotQuery = { __typename?: 'Query', distributionSpot?: { __typename?: 'DistributionSpot', id: string, name?: string | null } | null };
 
+export type CreateDistributionEventMutationVariables = Exact<{
+  distributionSpotId: Scalars['Int'];
+  name: Scalars['String'];
+  startDate: Scalars['Date'];
+}>;
+
+
+export type CreateDistributionEventMutation = { __typename?: 'Mutation', createDistributionEvent?: { __typename?: 'DistributionEvent', id: string, name?: string | null, startDate: any } | null };
+
 export type DistroSpotsForBaseIdQueryVariables = Exact<{
   baseId: Scalars['ID'];
 }>;
 
 
-export type DistroSpotsForBaseIdQuery = { __typename?: 'Query', base?: { __typename?: 'Base', distributionSpots: Array<{ __typename?: 'DistributionSpot', id: string, name?: string | null, latitude?: number | null, longitude?: number | null, distributionEvents: Array<{ __typename?: 'DistributionEvent', id: string, name?: string | null, state: DistributionEventState, startDateTime: any, endDateTime: any }> }> } | null };
+export type DistroSpotsForBaseIdQuery = { __typename?: 'Query', base?: { __typename?: 'Base', distributionSpots: Array<{ __typename?: 'DistributionSpot', id: string, name?: string | null, latitude?: number | null, longitude?: number | null, distributionEvents: Array<{ __typename?: 'DistributionEvent', id: string, name?: string | null, state: DistributionEventState, startDate: any }> }> } | null };

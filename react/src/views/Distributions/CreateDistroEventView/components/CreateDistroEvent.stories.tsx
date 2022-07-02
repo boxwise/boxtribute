@@ -1,6 +1,6 @@
 import React from 'react';
 import { ComponentStory, ComponentMeta } from '@storybook/react';
-import CreateDistroEvent, {DistroEvent} from './CreateDistroEvent'
+import CreateDistroEvent, {CreateDistroEventFormData} from './CreateDistroEvent'
 import { action } from '@storybook/addon-actions';
 
 const mockedDistroSpot = {
