@@ -129,7 +129,11 @@ const LoginOrUserMenuButton = ({
       availableBases={availableBases}
     />
   ) : (
-    <Button onClick={() => (isAuthenticated ? logout() : loginWithRedirect())}>
+    <Button
+      border="1px"
+      borderRadius="0px"
+      onClick={() => (isAuthenticated ? logout() : loginWithRedirect())}
+    >
       Login
     </Button>
   );
@@ -373,10 +377,7 @@ const MenuLinks = ({
         </VStack>
       ) : (
         <Stack
-          align="flex-start"
-          // justify={["center", "space-between", "flex-end", "flex-end"]}
           direction={["column", "row", "row", "row"]}
-          pt={[4, 4, 0, 0]}
           justifyItems={["center", "space-between", "flex-end", "flex-end"]}
         >
           <MainMenuItemDeskop
@@ -446,22 +447,40 @@ const MenuLinks = ({
   );
 };
 
-const NavBarContainer = ({ children, ...props }) => (
-  <Flex
-    {...props}
-    as="nav"
-    align="center"
-    justify="space-between"
-    wrap="wrap"
-    w="100%"
-    mb={8}
-    pt={4}
-    pb={4}
-    color={"black"}
-  >
-    {children}
-  </Flex>
-);
+const NavBarContainerDeskop = ({ children, ...props }) => {
+  return (
+    <Flex
+      {...props}
+      as="nav"
+      alignItems="flex-start"
+      justify="space-between"
+      w="100%"
+      mb={8}
+      pt={4}
+      pb={4}
+      color={"black"}
+      minHeight="100vh"
+    >
+      {children}
+    </Flex>
+  );
+};
+const NavBarContainerMobile = ({ children, ...props }) => {
+  return (
+    <Flex
+      {...props}
+      as="nav"
+      wrap="wrap"
+      w="100%"
+      mb={8}
+      pt={4}
+      pb={4}
+      color={"black"}
+    >
+      {children}
+    </Flex>
+  );
+};
 
 const QrScannerButton = ({ onClick }: { onClick: () => void }) => (
   <IconButton
@@ -482,24 +501,54 @@ type HeaderMenuProps = LoginOrUserMenuButtonProps & {
 const HeaderMenu = (props: HeaderMenuProps) => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const toggle = () => setIsMenuOpen(!isMenuOpen);
+  const [isSmallScreen] = useMediaQuery("(max-width: 768px)");
 
   return (
-    <NavBarContainer>
-      <Logo />
-      <QrScannerButton onClick={props.onClickScanQrCode} />
-      <MenuToggle
-        toggle={toggle}
-        isOpen={isMenuOpen}
-        display={{ base: "inline flex", md: "none" }}
-      />
-      <MenuLinks
-        bg="white"
-        display={{ base: isMenuOpen ? "block" : "none", md: "block" }}
-        onLinkClick={() => setIsMenuOpen(false)}
-        isOpen={isMenuOpen}
-        {...props}
-      />
-    </NavBarContainer>
+    <>
+      {isSmallScreen ? 
+      <NavBarContainerMobile>
+        <Flex justifyContent="space-between" w="100%" alignItems='center'>
+        <Logo/>
+        <QrScannerButton onClick={props.onClickScanQrCode} />
+        
+        <MenuToggle
+          toggle={toggle}
+          isOpen={isMenuOpen}
+          display={{ base: "inline flex", md: "none" }}
+        />
+        </Flex>
+        <MenuLinks
+            bg="white"
+            display={{ base: isMenuOpen ? "block" : "none", md: "block" }}
+            onLinkClick={() => setIsMenuOpen(false)}
+            isOpen={isMenuOpen}
+            {...props}
+        />
+      </NavBarContainerMobile> 
+      : 
+      <NavBarContainerDeskop>
+        
+        <Flex w='100%' justifyContent="space-between" alignItems="center">
+        <Logo />
+        <Flex justifyItems="flex-end" alignItems="center" >
+          <MenuLinks
+            bg="white"
+            display={{ base: isMenuOpen ? "block" : "none", md: "block" }}
+            onLinkClick={() => setIsMenuOpen(false)}
+            isOpen={isMenuOpen}
+            {...props}
+          />
+          <QrScannerButton onClick={props.onClickScanQrCode} />
+          </Flex>
+        </Flex>
+        <MenuToggle
+          toggle={toggle}
+          isOpen={isMenuOpen}
+          display={{ base: "inline flex", md: "none" }}
+        />
+      </NavBarContainerDeskop>}
+      
+    </>
   );
 };
 

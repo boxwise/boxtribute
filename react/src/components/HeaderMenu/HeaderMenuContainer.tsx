@@ -21,6 +21,7 @@ const HeaderMenuContainer = () => {
       {...auth0}
       availableBases={globalPreferences.availableBases}
       onClickScanQrCode={() => navigate(`/bases/${baseId}/scan-qrcode`)}
+      minHeight="100vh"
     />
   );
 };
