@@ -1,7 +1,6 @@
 """
 GraphQL input types for mutations **only**.
 """
-
 input BoxCreationInput {
   productId: Int!
   sizeId: Int!
@@ -81,7 +80,10 @@ input DistributionSpotCreationInput {
 input DistributionEventCreationInput {
   distributionSpotId: Int!
   name: String
-  startDateTime: Datetime
+  startDate: Date
+  # TODO: Change startDate to startDateTime at a later point
+  # (currently issues with datetime transformation in python).
+  # startDateTime: Datetime
 }
 
 input ShipmentUpdateInput {

@@ -16,7 +16,8 @@ class DistributionEvent(db.Model):
     #     object_id_name="base_id",
     # )
     name = CharField(null=True)
-    start_date_time = DateTimeField()
+    # start_date_time = DateTimeField()
+    start_date = DateTimeField(column_name="start_date_time")
     end_date_time = DateTimeField(null=True)
     distribution_spot = UIntForeignKeyField(
         column_name="location_id",

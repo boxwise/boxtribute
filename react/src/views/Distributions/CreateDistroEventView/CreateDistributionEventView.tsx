@@ -1,4 +1,4 @@
-import { gql, useQuery } from "@apollo/client";
+import { gql, useLazyQuery, useQuery } from "@apollo/client";
 import React, { useCallback } from "react";
 import { useParams } from "react-router-dom";
 import { DistributionSpotQuery } from "types/generated/graphql";
@@ -14,7 +14,10 @@ const CreateDistributionEventView = () => {
     }
   `;
 
+  const lazyMutation = useLazyQuery()
+
   const onSubmitNewDistroEvent = useCallback(() => {
+
     console.log("onSubmitNewDistroEvent");
   }, []);
 

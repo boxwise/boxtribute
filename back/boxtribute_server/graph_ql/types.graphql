@@ -223,8 +223,13 @@ type DistributionEvent {
   distributionSpot: DistributionSpot
   name: String
   state: DistributionEventState!
-  startDateTime: Datetime!
-  endDateTime: Datetime!
+
+  startDate: Date!
+  # TODO: Change this again to Datetime later
+  # startDateTime: Datetime!
+
+  # endDateTime: Datetime!
+  # endDate: Date!
 }
 
 type DistributionSpot implements BoxPlace {

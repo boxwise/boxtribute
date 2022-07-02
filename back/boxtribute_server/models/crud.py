@@ -72,7 +72,7 @@ def create_distribution_event(
     distribution_spot_id,
     # user_id,
     name,
-    start_date_time,
+    start_date,
     end_date_time=None,
 ):
     """
@@ -81,7 +81,7 @@ def create_distribution_event(
 
     if end_date_time is None:
         # TODO: consider to change endDateTime to startDateTime + 2 or 3 hours
-        end_date_time = start_date_time
+        end_date_time = start_date
 
     """
     TODO: ensure that distribution_spot_id is realy from a Distribution Spot
@@ -89,9 +89,13 @@ def create_distribution_event(
     """
 
     now = utcnow()
+    print("UTCNOW FOO")
+    print(now)
+    print("start_date_time FOO")
+    print(start_date)
     new_distribution_event = DistributionEvent.create(
         name=name,
-        start_date_time=start_date_time,
+        start_date=start_date,
         end_date_time=end_date_time,
         distribution_spot_id=distribution_spot_id,
         created_on=now,

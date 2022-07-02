@@ -205,7 +205,7 @@ export type DistributionEvent = {
 export type DistributionEventCreationInput = {
   distributionSpotId: Scalars['Int'];
   name?: InputMaybe<Scalars['String']>;
-  startDateTime?: InputMaybe<Scalars['Datetime']>;
+  startDate?: InputMaybe<Scalars['Date']>;
 };
 
 export enum DistributionEventState {
