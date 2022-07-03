@@ -28,9 +28,7 @@ export interface LoginOrUserMenuButtonProps
 export interface MenuLinksProps
   extends LoginOrUserMenuButtonProps,
     LayoutProps {
-  isOpen: boolean;
-  onLinkClick: () => void;
-  bg: string;
+//   bg: string;
   menuItems: MenuItemProps[]
 }
 

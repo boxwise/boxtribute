@@ -25,7 +25,6 @@ import BoxtributeLogo from "../../assets/images/boxtribute-logo.png";
 import {
   HeaderMenuProps,
   LoginOrUserMenuButtonProps,
-  MenuItemProps,
   MenuLinksProps,
 } from "./HeaderMenu";
 
@@ -34,7 +33,6 @@ const MenuToggle = ({ toggle, isOpen, ...props }) => (
     onClick={toggle}
     icon={isOpen ? <AiFillCloseCircle /> : <AiOutlineMenu />}
     aria-label={isOpen ? "close menu" : "open menu"}
-    {...props}
   />
 );
 
@@ -122,7 +120,14 @@ const LoginOrUserMenuButtonMobile = ({
   );
 };
 
-const MainMenuItemMobile = ({ to, text, links, ...props }: MenuItemProps) => (
+type MenuItemMobileProps = MenuItemProps & { isOpen: boolean; onLinkClick: () => void };
+
+const MainMenuItemMobile = ({
+  to,
+  text,
+  links,
+  ...props
+}: MenuItemMobileProps) => (
   <Accordion allowToggle>
     <AccordionItem>
       <h2>
@@ -130,7 +135,6 @@ const MainMenuItemMobile = ({ to, text, links, ...props }: MenuItemProps) => (
           <NavLink
             to={to}
             style={({ isActive }) => (isActive ? { color: "navy" } : {})}
-            {...props}
           >
             <Text textAlign="center" display="block">
               {text}
@@ -156,12 +160,7 @@ const MenuLinks = ({
   ...props
 }: MenuLinksProps) => {
   return (
-    <Flex
-      w="100%"
-      spacing={2}
-      flexBasis={{ base: "100%", md: "auto" }}
-      {...props}
-    >
+    <Flex w="100%" spacing={2} flexBasis={{ base: "100%", md: "auto" }}>
       <VStack
         alignItems="flex-end"
         // justify='center'
@@ -172,7 +171,11 @@ const MenuLinks = ({
         ))}
         <LoginOrUserMenuButtonMobile
           currentActiveBaseId={currentActiveBaseId}
-          {...props}
+          isAuthenticated={props.isAuthenticated}
+          logout={props.logout}
+          loginWithRedirect={props.loginWithRedirect}
+          user={props.user}
+          availableBases={props.availableBases}
         />
       </VStack>
     </Flex>
@@ -181,16 +184,7 @@ const MenuLinks = ({
 
 const NavBarContainerMobile = ({ children, ...props }) => {
   return (
-    <Flex
-      {...props}
-      as="nav"
-      wrap="wrap"
-      w="100%"
-      mb={8}
-      pt={4}
-      pb={4}
-      color={"black"}
-    >
+    <Flex as="nav" wrap="wrap" w="100%" mb={8} pt={4} pb={4} color={"black"}>
       {children}
     </Flex>
   );
@@ -226,11 +220,17 @@ const HeaderMenuMobile = (props: HeaderMenuProps) => {
         />
       </Flex>
       <MenuLinks
-        bg="white"
+        // bg="white"
         display={{ base: isMenuOpen ? "block" : "none", md: "block" }}
         onLinkClick={() => setIsMenuOpen(false)}
         isOpen={isMenuOpen}
-        {...props}
+        currentActiveBaseId={props.currentActiveBaseId}
+        availableBases={props.availableBases}
+        logout={props.logout}
+        loginWithRedirect={props.loginWithRedirect}
+        user={props.user}
+        isAuthenticated={props.isAuthenticated}
+        menuItems={props.menuItems}
       />
     </NavBarContainerMobile>
   );

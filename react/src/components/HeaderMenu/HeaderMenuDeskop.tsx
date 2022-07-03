@@ -14,7 +14,6 @@ import {
   MenuGroup,
   MenuItem,
   MenuList,
-  LayoutProps,
 } from "@chakra-ui/react";
 
 import {
@@ -23,23 +22,28 @@ import {
   AiOutlineQrcode,
 } from "react-icons/ai";
 import BoxtributeLogo from "../../assets/images/boxtribute-logo.png";
-import { BaseSwitcherProps, HeaderMenuProps, LoginOrUserMenuButtonProps, MenuItemProps, MenuLinksProps, UserMenuProps } from "./HeaderMenu";
+import {
+  BaseSwitcherProps,
+  HeaderMenuProps,
+  LoginOrUserMenuButtonProps,
+  MenuItemProps,
+  MenuLinksProps,
+  UserMenuProps,
+} from "./HeaderMenu";
 
-const MenuToggle = ({ toggle, isOpen, ...props }) => (
-  <IconButton
-    onClick={toggle}
-    icon={isOpen ? <AiFillCloseCircle /> : <AiOutlineMenu />}
-    aria-label={isOpen ? "close menu" : "open menu"}
-    {...props}
-  />
-);
+// const MenuToggle = ({ toggle, isOpen, ...props }) => (
+//   <IconButton
+//     onClick={toggle}
+//     icon={isOpen ? <AiFillCloseCircle /> : <AiOutlineMenu />}
+//     aria-label={isOpen ? "close menu" : "open menu"}
+//   />
+// );
 
 const Logo = () => (
   <NavLink to="/">
     <Image src={BoxtributeLogo} maxH={"3.5em"} />
   </NavLink>
 );
-
 
 const BaseSwitcher = ({
   currentActiveBaseId,
@@ -60,7 +64,6 @@ const BaseSwitcher = ({
     </MenuGroup>
   );
 };
-
 
 const UserMenu = ({
   logout,
@@ -90,7 +93,6 @@ const UserMenu = ({
     </Menu>
   );
 };
-
 
 const LoginOrUserMenuButton = ({
   isAuthenticated,
@@ -130,7 +132,6 @@ const MainMenuItemDeskop = ({ to, text, links, ...props }: MenuItemProps) => (
       <NavLink
         to={to}
         style={({ isActive }) => (isActive ? { color: "navy" } : {})}
-        {...props}
       >
         <Text display="block">{text}</Text>
       </NavLink>
@@ -151,85 +152,29 @@ const MainMenuItemDeskop = ({ to, text, links, ...props }: MenuItemProps) => (
   </Menu>
 );
 
-
 const MenuLinks = ({
-  isOpen,
   currentActiveBaseId,
   ...props
 }: MenuLinksProps) => {
   return (
-    <Flex
-      w="100%"
-      spacing={2}
-      flexBasis={{ base: "100%", md: "auto" }}
-      {...props}
-    >
-       <Stack
-          direction={["column", "row", "row", "row"]}
-          justifyItems={["center", "space-between", "flex-end", "flex-end"]}
-        >
-          <MainMenuItemDeskop
-            to={`/bases/${currentActiveBaseId}/boxes`}
-            text="Boxes"
-            links={[
-              { link: "link", name: "Print Labels" },
-              { link: "link1", name: "Manage Boxes" },
-              { link: "link", name: "Stock Overview" },
-            ]}
-          />
-          <MainMenuItemDeskop
-            to={`/bases/${currentActiveBaseId}/freeshop`}
-            text="Freeshop"
-            links={[
-              { link: "link", name: "Manage Beneficiaries" },
-              { link: "link1", name: "Checkout" },
-              { link: "link2", name: "Generate Market Schedule" },
-            ]}
-          />
+    <Flex w="100%" spacing={2} flexBasis={{ base: "100%", md: "auto" }}>
+      <Stack
+        direction={["column", "row", "row", "row"]}
+        justifyItems={["center", "space-between", "flex-end", "flex-end"]}
+      >
+        {props.menuItems.map((item, i) => (
+          <MainMenuItemDeskop key={i} {...item} />
+        ))}
 
-          <MainMenuItemDeskop
-            to={`/bases/${currentActiveBaseId}/distributions`}
-            text="Mobile Distributions"
-            links={[
-              { link: "link", name: "Calendar" },
-              { link: "link1", name: "Distribution Events" },
-              { link: "link2", name: "Distribution Spots" },
-            ]}
-          />
-
-          <MainMenuItemDeskop
-            to={`/bases/${currentActiveBaseId}/box-transfers`}
-            text="Box Transfers"
-            links={[
-              { link: "link", name: "Transfer Agreements" },
-              { link: "link1", name: "Shipments" },
-            ]}
-          />
-
-          <MainMenuItemDeskop
-            to={`/bases/${currentActiveBaseId}/insights`}
-            text="Data Insights"
-            links={[
-              { link: "link", name: "Charts" },
-              { link: "link1", name: "Export" },
-            ]}
-          />
-
-          <MainMenuItemDeskop
-            to={`/bases/${currentActiveBaseId}/admin`}
-            text="Admin"
-            links={[
-              { link: "link", name: "Manage Tags" },
-              { link: "link1", name: "Manage Products" },
-              { link: "link1", name: "Edit Warehouses" },
-              { link: "link1", name: "Manage Users" },
-            ]}
-          />
-          <LoginOrUserMenuButton
-            currentActiveBaseId={currentActiveBaseId}
-            {...props}
-          />
-        </Stack>
+        <LoginOrUserMenuButton
+          currentActiveBaseId={currentActiveBaseId}
+          isAuthenticated={props.isAuthenticated}
+          logout={props.logout}
+          loginWithRedirect={props.loginWithRedirect}
+          user={props.user}
+          availableBases={props.availableBases}
+        />
+      </Stack>
     </Flex>
   );
 };
@@ -237,7 +182,6 @@ const MenuLinks = ({
 const NavBarContainerDeskop = ({ children, ...props }) => {
   return (
     <Flex
-      {...props}
       as="nav"
       alignItems="flex-start"
       justify="space-between"
@@ -266,33 +210,32 @@ const QrScannerButton = ({ onClick }: { onClick: () => void }) => (
   />
 );
 
-
 const HeaderMenuDeskop = (props: HeaderMenuProps) => {
-  const [isMenuOpen, setIsMenuOpen] = useState(false);
-  const toggle = () => setIsMenuOpen(!isMenuOpen);
+  // const [isMenuOpen, setIsMenuOpen] = useState(false);
+  // const toggle = () => setIsMenuOpen(!isMenuOpen);
 
   return (
-      <NavBarContainerDeskop>
-        
-        <Flex w='100%' justifyContent="space-between" alignItems="center">
+    <NavBarContainerDeskop>
+      <Flex w="100%" justifyContent="space-between" alignItems="center">
         <Logo />
-        <Flex justifyItems="flex-end" alignItems="center" >
+        <Flex justifyItems="flex-end" alignItems="center">
           <MenuLinks
-            bg="white"
-            display={{ base: isMenuOpen ? "block" : "none", md: "block" }}
-            onLinkClick={() => setIsMenuOpen(false)}
-            isOpen={isMenuOpen}
-            {...props}
+            // bg="white"
+            currentActiveBaseId={props.currentActiveBaseId}
+            menuItems={props.menuItems}
+            isAuthenticated={props.isAuthenticated}
+            logout={props.logout}
+            loginWithRedirect={props.loginWithRedirect}
           />
           <QrScannerButton onClick={props.onClickScanQrCode} />
-          </Flex>
         </Flex>
-        <MenuToggle
-          toggle={toggle}
-          isOpen={isMenuOpen}
-          display={{ base: "inline flex", md: "none" }}
-        />
-      </NavBarContainerDeskop>
+      </Flex>
+      {/* <MenuToggle
+        toggle={toggle}
+        isOpen={isMenuOpen}
+        display={{ base: "inline flex", md: "none" }}
+      /> */}
+    </NavBarContainerDeskop>
   );
 };
 
