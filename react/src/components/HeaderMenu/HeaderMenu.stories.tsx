@@ -32,7 +32,7 @@ LoggedIn.args = {
   user: {
     picture:
       "https://s.gravatar.com/avatar/076a89d48754136a0a1ac3afa082f9d8?s=480&r=pg&d=https%3A%2F%2Fcdn.auth0.com%2Favatars%2Fdc.png",
-    email: "emil@ngo.org",
+    email: "emil@ngo-with-many-characters.org",
   },
   currentActiveBaseId: "10",
   availableBases: [

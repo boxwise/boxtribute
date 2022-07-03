@@ -91,7 +91,14 @@ const LoginOrUserMenuButtonMobile = ({
               mr={2}
             />
           ) : null}
-          <Text>{user?.email}</Text>
+          <Text
+            width="150px"
+            whiteSpace="nowrap"
+            overflow="hidden"
+            textOverflow="ellipsis"
+          >
+            {user?.email}
+          </Text>
         </AccordionButton>
 
         <AccordionPanel border="1px" p={0}>
@@ -156,7 +163,7 @@ const MenuItemsMobile = ({
         // justify='center'
         direction="column"
       >
-        <Accordion allowToggle >
+        <Accordion allowToggle>
           {props.menuItems.map((item, i) => (
             <MenuItemMobile key={i} {...item} />
           ))}

@@ -29,14 +29,6 @@ import {
   UserMenuProps,
 } from "./HeaderMenu";
 
-// const MenuToggle = ({ toggle, isOpen, ...props }) => (
-//   <IconButton
-//     onClick={toggle}
-//     icon={isOpen ? <AiFillCloseCircle /> : <AiOutlineMenu />}
-//     aria-label={isOpen ? "close menu" : "open menu"}
-//   />
-// );
-
 const Logo = () => (
   <NavLink to="/">
     <Image src={BoxtributeLogo} maxH={"3.5em"} />
@@ -204,9 +196,6 @@ const QrScannerButton = ({ onClick }: { onClick: () => void }) => (
 );
 
 const HeaderMenuDeskop = (props: HeaderMenuProps) => {
-  // const [isMenuOpen, setIsMenuOpen] = useState(false);
-  // const toggle = () => setIsMenuOpen(!isMenuOpen);
-
   return (
     <HeaderMenuDesktopContainer>
       <Flex w="100%" justifyContent="space-between" alignItems="center">
