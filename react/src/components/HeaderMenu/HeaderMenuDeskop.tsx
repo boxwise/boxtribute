@@ -17,8 +17,6 @@ import {
 } from "@chakra-ui/react";
 
 import {
-  AiFillCloseCircle,
-  AiOutlineMenu,
   AiOutlineQrcode,
 } from "react-icons/ai";
 import BoxtributeLogo from "../../assets/images/boxtribute-logo.png";

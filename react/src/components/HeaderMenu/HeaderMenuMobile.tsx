@@ -52,9 +52,9 @@ const LoginOrUserMenuButtonMobile = ({
   availableBases,
 }: LoginOrUserMenuButtonProps) => {
   return isAuthenticated ? (
-    <Accordion allowToggle>
-      <AccordionItem mb={2}>
-        <AccordionButton flex="1" border="1px" w="250px">
+    <>
+      <AccordionItem border="0px">
+        <AccordionButton flex="1" border="1px" w="250px" my={1}>
           <Text textAlign="center" display="block">
             Base Switcher
           </Text>
@@ -80,8 +80,8 @@ const LoginOrUserMenuButtonMobile = ({
           ))}
         </AccordionPanel>
       </AccordionItem>
-      <AccordionItem>
-        <AccordionButton flex="1" border="1px" w="250px">
+      <AccordionItem border="0px">
+        <AccordionButton flex="1" border="1px" w="250px" my={1}>
           {user?.picture ? (
             <Img
               src={user?.picture}
@@ -103,7 +103,7 @@ const LoginOrUserMenuButtonMobile = ({
           </Box>
         </AccordionPanel>
       </AccordionItem>
-    </Accordion>
+    </>
   ) : (
     <Button
       py={2}
@@ -119,17 +119,13 @@ const LoginOrUserMenuButtonMobile = ({
   );
 };
 
-// type MenuItemMobileProps = MenuItemProps & { isOpen: boolean; onLinkClick: () => void };
-
 const MenuItemMobile = ({ text, links }: MenuItemProps) => (
-  <AccordionItem>
-    <h2>
-      <AccordionButton flex="1" border="1px" w="250px">
-        <Text textAlign="center" display="block">
-          {text}
-        </Text>
-      </AccordionButton>
-    </h2>
+  <AccordionItem border="0px">
+    <AccordionButton flex="1" border="1px" w="250px" my={1}>
+      <Text textAlign="center" display="block">
+        {text}
+      </Text>
+    </AccordionButton>
 
     <AccordionPanel border="1px" p={0}>
       {links.map((link, i) => (
@@ -160,19 +156,19 @@ const MenuItemsMobile = ({
         // justify='center'
         direction="column"
       >
-        <Accordion allowToggle>
+        <Accordion allowToggle >
           {props.menuItems.map((item, i) => (
             <MenuItemMobile key={i} {...item} />
           ))}
+          <LoginOrUserMenuButtonMobile
+            currentActiveBaseId={currentActiveBaseId}
+            isAuthenticated={props.isAuthenticated}
+            logout={props.logout}
+            loginWithRedirect={props.loginWithRedirect}
+            user={props.user}
+            availableBases={props.availableBases}
+          />
         </Accordion>
-        <LoginOrUserMenuButtonMobile
-          currentActiveBaseId={currentActiveBaseId}
-          isAuthenticated={props.isAuthenticated}
-          logout={props.logout}
-          loginWithRedirect={props.loginWithRedirect}
-          user={props.user}
-          availableBases={props.availableBases}
-        />
       </VStack>
     </Flex>
   );

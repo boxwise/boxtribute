@@ -2,7 +2,6 @@ import HeaderMenuMobile from "./HeaderMenuMobile";
 import HeaderMenuDeskop from "./HeaderMenuDeskop";
 import AutomaticBaseSwitcher from "views/AutomaticBaseSwitcher/AutomaticBaseSwitcher";
 import { LayoutProps, useMediaQuery } from "@chakra-ui/react";
-import { useMemo } from "react";
 
 export interface BaseSwitcherProps {
   currentActiveBaseId: string;
@@ -28,7 +27,6 @@ export interface LoginOrUserMenuButtonProps
 export interface MenuLinksProps
   extends LoginOrUserMenuButtonProps,
     LayoutProps {
-//   bg: string;
   menuItems: MenuItemProps[]
 }
 
