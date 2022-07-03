@@ -47,7 +47,6 @@ LoggedIn.args = {
   ],
   menuItems: [
     {
-      to: `/bases/123/boxes`,
       text: "Boxes",
       links: [
         { link: "link", name: "Print Labels" },
@@ -56,7 +55,6 @@ LoggedIn.args = {
       ],
     },
     {
-      to: `/bases/123/freeshop`,
       text: "Freeshop",
       links: [
         { link: "link", name: "Manage Beneficiaries" },
@@ -65,7 +63,6 @@ LoggedIn.args = {
       ],
     },
     {
-      to: `/bases/123/distributions`,
       text: "Mobile Distributions",
       links: [
         { link: "link", name: "Calendar" },
@@ -74,7 +71,6 @@ LoggedIn.args = {
       ],
     },
     {
-      to: `/bases/123/box-transfers`,
       text: "Box Transfers",
       links: [
         { link: "link", name: "Transfer Agreements" },
@@ -82,7 +78,6 @@ LoggedIn.args = {
       ],
     },
     {
-      to: `/bases/123/insights`,
       text: "Data Insights",
       links: [
         { link: "link", name: "Charts" },
@@ -90,7 +85,6 @@ LoggedIn.args = {
       ],
     },
     {
-      to: `/bases/123/admin`,
       text: "Admin",
       links: [
         { link: "link", name: "Manage Tags" },

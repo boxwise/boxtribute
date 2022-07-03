@@ -122,25 +122,23 @@ const LoginOrUserMenuButtonMobile = ({
 // type MenuItemMobileProps = MenuItemProps & { isOpen: boolean; onLinkClick: () => void };
 
 const MenuItemMobile = ({ text, links }: MenuItemProps) => (
-  <Accordion allowToggle>
-    <AccordionItem>
-      <h2>
-        <AccordionButton flex="1" border="1px" w="250px">
-          <Text textAlign="center" display="block">
-            {text}
-          </Text>
-        </AccordionButton>
-      </h2>
+  <AccordionItem>
+    <h2>
+      <AccordionButton flex="1" border="1px" w="250px">
+        <Text textAlign="center" display="block">
+          {text}
+        </Text>
+      </AccordionButton>
+    </h2>
 
-      <AccordionPanel border="1px" p={0}>
-        {links.map((link, i) => (
-          <Box borderBottom="1px" borderColor="gray.300" py={2} px={3} key={i}>
-            <NavLink to={link.link}>{link.name}</NavLink>
-          </Box>
-        ))}
-      </AccordionPanel>
-    </AccordionItem>
-  </Accordion>
+    <AccordionPanel border="1px" p={0}>
+      {links.map((link, i) => (
+        <Box borderBottom="1px" borderColor="gray.300" py={2} px={3} key={i}>
+          <NavLink to={link.link}>{link.name}</NavLink>
+        </Box>
+      ))}
+    </AccordionPanel>
+  </AccordionItem>
 );
 
 type MenuItemsMobileProps = MenuItemsProps & { isOpen: boolean };
@@ -162,9 +160,11 @@ const MenuItemsMobile = ({
         // justify='center'
         direction="column"
       >
-        {props.menuItems.map((item, i) => (
-          <MenuItemMobile key={i} {...item} />
-        ))}
+        <Accordion allowToggle>
+          {props.menuItems.map((item, i) => (
+            <MenuItemMobile key={i} {...item} />
+          ))}
+        </Accordion>
         <LoginOrUserMenuButtonMobile
           currentActiveBaseId={currentActiveBaseId}
           isAuthenticated={props.isAuthenticated}
