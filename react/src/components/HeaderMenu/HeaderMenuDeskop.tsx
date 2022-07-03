@@ -27,7 +27,7 @@ import {
   HeaderMenuProps,
   LoginOrUserMenuButtonProps,
   MenuItemProps,
-  MenuLinksProps,
+  MenuLinksProps as MenuItemsProps,
   UserMenuProps,
 } from "./HeaderMenu";
 
@@ -120,7 +120,7 @@ const LoginOrUserMenuButton = ({
   );
 };
 
-const MainMenuItemDeskop = ({ to, text, links, ...props }: MenuItemProps) => (
+const MenuItemDesktop = ({ to, text, links, ...props }: MenuItemProps) => (
   <Menu>
     <MenuButton
       my={0}
@@ -152,10 +152,10 @@ const MainMenuItemDeskop = ({ to, text, links, ...props }: MenuItemProps) => (
   </Menu>
 );
 
-const MenuLinks = ({
+const MenuItemsDesktop = ({
   currentActiveBaseId,
   ...props
-}: MenuLinksProps) => {
+}: MenuItemsProps) => {
   return (
     <Flex w="100%" spacing={2} flexBasis={{ base: "100%", md: "auto" }}>
       <Stack
@@ -163,7 +163,7 @@ const MenuLinks = ({
         justifyItems={["center", "space-between", "flex-end", "flex-end"]}
       >
         {props.menuItems.map((item, i) => (
-          <MainMenuItemDeskop key={i} {...item} />
+          <MenuItemDesktop key={i} {...item} />
         ))}
 
         <LoginOrUserMenuButton
@@ -179,7 +179,7 @@ const MenuLinks = ({
   );
 };
 
-const NavBarContainerDeskop = ({ children, ...props }) => {
+const HeaderMenuDesktopContainer = ({ children, ...props }) => {
   return (
     <Flex
       as="nav"
@@ -215,11 +215,11 @@ const HeaderMenuDeskop = (props: HeaderMenuProps) => {
   // const toggle = () => setIsMenuOpen(!isMenuOpen);
 
   return (
-    <NavBarContainerDeskop>
+    <HeaderMenuDesktopContainer>
       <Flex w="100%" justifyContent="space-between" alignItems="center">
         <Logo />
         <Flex justifyItems="flex-end" alignItems="center">
-          <MenuLinks
+          <MenuItemsDesktop
             // bg="white"
             currentActiveBaseId={props.currentActiveBaseId}
             menuItems={props.menuItems}
@@ -235,7 +235,7 @@ const HeaderMenuDeskop = (props: HeaderMenuProps) => {
         isOpen={isMenuOpen}
         display={{ base: "inline flex", md: "none" }}
       /> */}
-    </NavBarContainerDeskop>
+    </HeaderMenuDesktopContainer>
   );
 };
 
