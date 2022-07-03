@@ -25,7 +25,8 @@ import BoxtributeLogo from "../../assets/images/boxtribute-logo.png";
 import {
   HeaderMenuProps,
   LoginOrUserMenuButtonProps,
-  MenuLinksProps,
+  MenuItemProps,
+  MenuLinksProps as MenuItemsProps,
 } from "./HeaderMenu";
 
 const MenuToggle = ({ toggle, isOpen, ...props }) => (
@@ -120,14 +121,9 @@ const LoginOrUserMenuButtonMobile = ({
   );
 };
 
-type MenuItemMobileProps = MenuItemProps & { isOpen: boolean; onLinkClick: () => void };
+// type MenuItemMobileProps = MenuItemProps & { isOpen: boolean; onLinkClick: () => void };
 
-const MainMenuItemMobile = ({
-  to,
-  text,
-  links,
-  ...props
-}: MenuItemMobileProps) => (
+const MenuItemMobile = ({ to, text, links }: MenuItemProps) => (
   <Accordion allowToggle>
     <AccordionItem>
       <h2>
@@ -154,20 +150,27 @@ const MainMenuItemMobile = ({
   </Accordion>
 );
 
-const MenuLinks = ({
+type MenuItemsMobileProps = MenuItemsProps & { isOpen: boolean };
+
+const MenuItemsMobile = ({
   isOpen,
   currentActiveBaseId,
   ...props
-}: MenuLinksProps) => {
+}: MenuItemsMobileProps) => {
   return (
-    <Flex w="100%" spacing={2} flexBasis={{ base: "100%", md: "auto" }}>
+    <Flex
+      w="100%"
+      spacing={2}
+      flexBasis={{ base: "100%", md: "auto" }}
+      display={{ base: isOpen ? "block" : "none", md: "block" }}
+    >
       <VStack
         alignItems="flex-end"
         // justify='center'
         direction="column"
       >
         {props.menuItems.map((item, i) => (
-          <MainMenuItemMobile key={i} {...item} />
+          <MenuItemMobile key={i} {...item} />
         ))}
         <LoginOrUserMenuButtonMobile
           currentActiveBaseId={currentActiveBaseId}
@@ -182,7 +185,7 @@ const MenuLinks = ({
   );
 };
 
-const NavBarContainerMobile = ({ children, ...props }) => {
+const HeaderMenuMobileContainer = ({ children, ...props }) => {
   return (
     <Flex as="nav" wrap="wrap" w="100%" mb={8} pt={4} pb={4} color={"black"}>
       {children}
@@ -206,9 +209,9 @@ const QrScannerButton = ({ onClick }: { onClick: () => void }) => (
 
 const HeaderMenuMobile = (props: HeaderMenuProps) => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
-  const toggle = () => setIsMenuOpen(!isMenuOpen);
+  const toggle = () => setIsMenuOpen((curr) => !curr);
   return (
-    <NavBarContainerMobile>
+    <HeaderMenuMobileContainer>
       <Flex justifyContent="space-between" w="100%" alignItems="center">
         <Logo />
         <QrScannerButton onClick={props.onClickScanQrCode} />
@@ -219,10 +222,9 @@ const HeaderMenuMobile = (props: HeaderMenuProps) => {
           display={{ base: "inline flex", md: "none" }}
         />
       </Flex>
-      <MenuLinks
+      <MenuItemsMobile
         // bg="white"
-        display={{ base: isMenuOpen ? "block" : "none", md: "block" }}
-        onLinkClick={() => setIsMenuOpen(false)}
+        // onLinkClick={() => setIsMenuOpen(false)}
         isOpen={isMenuOpen}
         currentActiveBaseId={props.currentActiveBaseId}
         availableBases={props.availableBases}
@@ -232,7 +234,7 @@ const HeaderMenuMobile = (props: HeaderMenuProps) => {
         isAuthenticated={props.isAuthenticated}
         menuItems={props.menuItems}
       />
-    </NavBarContainerMobile>
+    </HeaderMenuMobileContainer>
   );
 };
 
