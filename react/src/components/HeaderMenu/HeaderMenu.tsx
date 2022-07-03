@@ -37,7 +37,6 @@ export interface MenuItemLink {
   name: string;
 }
 export interface MenuItemProps {
-  to: string;
   text: string;
   links: MenuItemLink[];
 }

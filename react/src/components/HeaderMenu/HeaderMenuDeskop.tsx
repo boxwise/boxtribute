@@ -120,7 +120,7 @@ const LoginOrUserMenuButton = ({
   );
 };
 
-const MenuItemDesktop = ({ to, text, links, ...props }: MenuItemProps) => (
+const MenuItemDesktop = ({ text, links, ...props }: MenuItemProps) => (
   <Menu>
     <MenuButton
       my={0}
@@ -129,12 +129,7 @@ const MenuItemDesktop = ({ to, text, links, ...props }: MenuItemProps) => (
       borderRadius="0px"
       as={Button}
     >
-      <NavLink
-        to={to}
-        style={({ isActive }) => (isActive ? { color: "navy" } : {})}
-      >
-        <Text display="block">{text}</Text>
-      </NavLink>
+      <Text display="block">{text}</Text>
     </MenuButton>
     <MenuList border="1px" p={0} borderColor="black" borderRadius="0px" my={0}>
       {links.map((link, i) => (

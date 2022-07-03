@@ -54,11 +54,11 @@ const LoginOrUserMenuButtonMobile = ({
   return isAuthenticated ? (
     <Accordion allowToggle>
       <AccordionItem mb={2}>
-          <AccordionButton flex="1" border="1px" w="250px">
-            <Text textAlign="center" display="block">
-              Base Switcher
-            </Text>
-          </AccordionButton>
+        <AccordionButton flex="1" border="1px" w="250px">
+          <Text textAlign="center" display="block">
+            Base Switcher
+          </Text>
+        </AccordionButton>
         <AccordionPanel border="1px" p={0}>
           {availableBases?.map((base, i) => (
             <Box
@@ -121,19 +121,14 @@ const LoginOrUserMenuButtonMobile = ({
 
 // type MenuItemMobileProps = MenuItemProps & { isOpen: boolean; onLinkClick: () => void };
 
-const MenuItemMobile = ({ to, text, links }: MenuItemProps) => (
+const MenuItemMobile = ({ text, links }: MenuItemProps) => (
   <Accordion allowToggle>
     <AccordionItem>
       <h2>
         <AccordionButton flex="1" border="1px" w="250px">
-          <NavLink
-            to={to}
-            style={({ isActive }) => (isActive ? { color: "navy" } : {})}
-          >
-            <Text textAlign="center" display="block">
-              {text}
-            </Text>
-          </NavLink>
+          <Text textAlign="center" display="block">
+            {text}
+          </Text>
         </AccordionButton>
       </h2>
 
