@@ -20,14 +20,8 @@ const Template: ComponentStory<typeof HeaderMenu> = (args) => (
   <HeaderMenu {...args} />
 );
 
-export const LoggedOut = Template.bind({});
-LoggedOut.args = {
-  loginWithRedirect: action("loginWithRedirect was clicked"),
-};
-
 export const LoggedIn = Template.bind({});
 LoggedIn.args = {
-  ...LoggedOut.args,
   isAuthenticated: true,
   user: {
     picture:
