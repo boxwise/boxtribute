@@ -11,7 +11,7 @@ export interface BaseSwitcherProps {
 
 export interface UserMenuProps extends BaseSwitcherProps {
   logout: () => void;
-  user?: {
+  user: {
     picture?: string;
     email?: string;
   };

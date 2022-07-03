@@ -221,6 +221,7 @@ const HeaderMenuDeskop = (props: HeaderMenuProps) => {
         <Flex justifyItems="flex-end" alignItems="center">
           <MenuItemsDesktop
             // bg="white"
+            user={props.user}
             currentActiveBaseId={props.currentActiveBaseId}
             menuItems={props.menuItems}
             isAuthenticated={props.isAuthenticated}
