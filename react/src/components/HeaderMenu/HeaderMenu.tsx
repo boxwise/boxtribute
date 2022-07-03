@@ -1,6 +1,5 @@
 import HeaderMenuMobile from "./HeaderMenuMobile";
 import HeaderMenuDeskop from "./HeaderMenuDeskop";
-import AutomaticBaseSwitcher from "views/AutomaticBaseSwitcher/AutomaticBaseSwitcher";
 import { LayoutProps, useMediaQuery } from "@chakra-ui/react";
 
 export interface BaseSwitcherProps {
@@ -45,7 +44,7 @@ export type HeaderMenuProps = LoginOrUserMenuButtonProps & {
 };
 
 const HeaderMenu = (props: HeaderMenuProps) => {
-  const [isSmallScreen] = useMediaQuery("(max-width: 768px)");
+  const [isSmallScreen] = useMediaQuery("(max-width: 1070px)");
   if (isSmallScreen) {
     return (
       <HeaderMenuMobile

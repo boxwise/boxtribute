@@ -14,16 +14,14 @@ const HeaderMenuContainer = () => {
   const menuItems: MenuItemProps[] = useMemo(
     () => [
       {
-        to: `/bases/${baseId}/boxes`,
         text: "Boxes",
         links: [
           { link: "link", name: "Print Labels" },
-          { link: "link1", name: "Manage Boxes" },
+          { link: `/bases/${baseId}/boxes`, name: "Manage Boxes" },
           { link: "link", name: "Stock Overview" },
         ],
       },
       {
-        to: `/bases/${baseId}/freeshop`,
         text: "Freeshop",
         links: [
           { link: "link", name: "Manage Beneficiaries" },
@@ -32,7 +30,6 @@ const HeaderMenuContainer = () => {
         ],
       },
       {
-        to: `/bases/${baseId}/distributions`,
         text: "Mobile Distributions",
         links: [
           { link: "link", name: "Calendar" },
@@ -41,7 +38,6 @@ const HeaderMenuContainer = () => {
         ],
       },
       {
-        to: `/bases/${baseId}/box-transfers`,
         text: "Box Transfers",
         links: [
           { link: "link", name: "Transfer Agreements" },
@@ -49,7 +45,6 @@ const HeaderMenuContainer = () => {
         ],
       },
       {
-        to: `/bases/${baseId}/insights`,
         text: "Data Insights",
         links: [
           { link: "link", name: "Charts" },
@@ -57,7 +52,6 @@ const HeaderMenuContainer = () => {
         ],
       },
       {
-        to: `/bases/${baseId}/admin`,
         text: "Admin",
         links: [
           { link: "link", name: "Manage Tags" },
