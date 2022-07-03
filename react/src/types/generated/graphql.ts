@@ -275,6 +275,7 @@ export type Location = {
   defaultBoxState?: Maybe<BoxState>;
   id: Scalars['ID'];
   isShop: Scalars['Boolean'];
+  isStockroom: Scalars['Boolean'];
   lastModifiedBy?: Maybe<User>;
   lastModifiedOn?: Maybe<Scalars['Datetime']>;
   name?: Maybe<Scalars['String']>;

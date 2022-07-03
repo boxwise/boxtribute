@@ -74,6 +74,15 @@ const theme = extendTheme({
         fontWeight: "bold",
       },
     },
+    Input: {
+      sizes: {
+        lg: {
+          field: {
+            borderRadius: 'none',
+          },
+        },
+      },
+    },
   },
 });
 
