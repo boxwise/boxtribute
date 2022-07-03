@@ -1,23 +1,24 @@
 import React from "react";
 
 import { ComponentMeta, ComponentStory } from "@storybook/react";
-import HeaderMenu from "./HeaderMenu";
+import HeaderMenu from "./HeaderMenuMobile";
 import { action } from "@storybook/addon-actions";
 import { Container } from "@chakra-ui/react";
+import HeaderMenuContainer from "./HeaderMenuContainer";
 
 export default {
   title: "General/Header Menu",
-  component: HeaderMenu,
+  component: HeaderMenuContainer,
   parameters: {
     layout: "fullscreen",
   },
   decorators: [
       (Story) => <Container maxWidth="container.xl"><Story /></Container>
   ]
-} as ComponentMeta<typeof HeaderMenu>;
+} as ComponentMeta<typeof HeaderMenuContainer>;
 
-const Template: ComponentStory<typeof HeaderMenu> = (args) => (
-  <HeaderMenu {...args} />
+const Template: ComponentStory<typeof HeaderMenuContainer> = (args) => (
+  <HeaderMenuContainer />
 );
 
 export const LoggedOut = Template.bind({});

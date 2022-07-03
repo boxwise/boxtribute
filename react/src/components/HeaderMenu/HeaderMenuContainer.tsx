@@ -12,17 +12,17 @@ const HeaderMenuContainer = () => {
   const auth0 = useAuth0();
   const navigate = useNavigate();
   const baseId = useParams<{ baseId: string }>().baseId;
+ 
   if (baseId == null) {
     return <AutomaticBaseSwitcher />;
-  }
+  } 
   return (
     <HeaderMenu
       currentActiveBaseId={baseId}
       {...auth0}
       availableBases={globalPreferences.availableBases}
       onClickScanQrCode={() => navigate(`/bases/${baseId}/scan-qrcode`)}
-      minHeight="100vh"
     />
   );
-};
+} 
 export default HeaderMenuContainer;
