@@ -23,7 +23,7 @@ import {
   AiOutlineQrcode,
 } from "react-icons/ai";
 import BoxtributeLogo from "../../assets/images/boxtribute-logo.png";
-import { MenuLinksProps } from "./HeaderMenu";
+import { BaseSwitcherProps, HeaderMenuProps, LoginOrUserMenuButtonProps, MenuItemProps, MenuLinksProps, UserMenuProps } from "./HeaderMenu";
 
 const MenuToggle = ({ toggle, isOpen, ...props }) => (
   <IconButton
@@ -150,6 +150,7 @@ const MainMenuItemDeskop = ({ to, text, links, ...props }: MenuItemProps) => (
     </MenuList>
   </Menu>
 );
+
 
 const MenuLinks = ({
   isOpen,

@@ -22,7 +22,12 @@ import {
   AiOutlineQrcode,
 } from "react-icons/ai";
 import BoxtributeLogo from "../../assets/images/boxtribute-logo.png";
-import { HeaderMenuProps, LoginOrUserMenuButtonProps, MenuItemProps, MenuLinksProps } from "./HeaderMenu";
+import {
+  HeaderMenuProps,
+  LoginOrUserMenuButtonProps,
+  MenuItemProps,
+  MenuLinksProps,
+} from "./HeaderMenu";
 
 const MenuToggle = ({ toggle, isOpen, ...props }) => (
   <IconButton
@@ -38,8 +43,6 @@ const Logo = () => (
     <Image src={BoxtributeLogo} maxH={"3.5em"} />
   </NavLink>
 );
-
-
 
 const LoginOrUserMenuButtonMobile = ({
   isAuthenticated,
@@ -119,8 +122,6 @@ const LoginOrUserMenuButtonMobile = ({
   );
 };
 
-
-
 const MainMenuItemMobile = ({ to, text, links, ...props }: MenuItemProps) => (
   <Accordion allowToggle>
     <AccordionItem>
@@ -166,63 +167,9 @@ const MenuLinks = ({
         // justify='center'
         direction="column"
       >
-        <MainMenuItemMobile
-          to={`/bases/${currentActiveBaseId}/boxes`}
-          text="Boxes"
-          links={[
-            { link: "link", name: "Print Labels" },
-            { link: "link1", name: "Manage Boxes" },
-            { link: "link", name: "Stock Overview" },
-          ]}
-        />
-        <MainMenuItemMobile
-          to={`/bases/${currentActiveBaseId}/freeshop`}
-          text="Freeshop"
-          links={[
-            { link: "link", name: "Manage Beneficiaries" },
-            { link: "link1", name: "Checkout" },
-            { link: "link2", name: "Generate Market Schedule" },
-          ]}
-        />
-
-        <MainMenuItemMobile
-          to={`/bases/${currentActiveBaseId}/distributions`}
-          text="Mobile Distributions"
-          links={[
-            { link: "link", name: "Calendar" },
-            { link: "link1", name: "Distribution Events" },
-            { link: "link2", name: "Distribution Spots" },
-          ]}
-        />
-
-        <MainMenuItemMobile
-          to={`/bases/${currentActiveBaseId}/box-transfers`}
-          text="Box Transfers"
-          links={[
-            { link: "link", name: "Transfer Agreements" },
-            { link: "link1", name: "Shipments" },
-          ]}
-        />
-
-        <MainMenuItemMobile
-          to={`/bases/${currentActiveBaseId}/insights`}
-          text="Data Insights"
-          links={[
-            { link: "link", name: "Charts" },
-            { link: "link1", name: "Export" },
-          ]}
-        />
-
-        <MainMenuItemMobile
-          to={`/bases/${currentActiveBaseId}/admin`}
-          text="Admin"
-          links={[
-            { link: "link", name: "Manage Tags" },
-            { link: "link1", name: "Manage Products" },
-            { link: "link1", name: "Edit Warehouses" },
-            { link: "link1", name: "Manage Users" },
-          ]}
-        />
+        {props.menuItems.map((item, i) => (
+          <MainMenuItemMobile key={i} {...item} />
+        ))}
         <LoginOrUserMenuButtonMobile
           currentActiveBaseId={currentActiveBaseId}
           {...props}

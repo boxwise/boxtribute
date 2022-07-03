@@ -2,6 +2,7 @@ import HeaderMenuMobile from "./HeaderMenuMobile";
 import HeaderMenuDeskop from "./HeaderMenuDeskop";
 import AutomaticBaseSwitcher from "views/AutomaticBaseSwitcher/AutomaticBaseSwitcher";
 import { LayoutProps, useMediaQuery } from "@chakra-ui/react";
+import { useMemo } from "react";
 
 export interface BaseSwitcherProps {
   currentActiveBaseId: string;
@@ -30,6 +31,7 @@ export interface MenuLinksProps
   isOpen: boolean;
   onLinkClick: () => void;
   bg: string;
+  menuItems: MenuItemProps[]
 }
 
 export interface MenuItemLink {
@@ -44,34 +46,21 @@ export interface MenuItemProps {
 
 export type HeaderMenuProps = LoginOrUserMenuButtonProps & {
   onClickScanQrCode: () => void;
+  menuItems: MenuItemProps[];
 };
 
 const HeaderMenu = (props: HeaderMenuProps) => {
-  //   const { globalPreferences } = useContext(GlobalPreferencesContext);
-  //   const auth0 = useAuth0();
-  //   const navigate = useNavigate();
-  //   const baseId = useParams<{ baseId: string }>().baseId;
   const [isSmallScreen] = useMediaQuery("(max-width: 768px)");
-
   if (isSmallScreen) {
     return (
       <HeaderMenuMobile
-      {...props}
-
-      //   currentActiveBaseId={currentActiveBaseId}
-      //   {...auth0}
-      //   availableBases={globalPreferences.availableBases}
-      //   onClickScanQrCode={() => navigate(`/bases/${baseId}/scan-qrcode`)}
+        {...props}
       />
     );
   } else {
     return (
       <HeaderMenuDeskop
         {...props}
-        // currentActiveBaseId={baseId}
-        // {...auth0}
-        // availableBases={globalPreferences.availableBases}
-        // onClickScanQrCode={() => navigate(`/bases/${baseId}/scan-qrcode`)}
       />
     );
   }
