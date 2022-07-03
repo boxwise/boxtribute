@@ -54,13 +54,11 @@ const LoginOrUserMenuButtonMobile = ({
   return isAuthenticated ? (
     <Accordion allowToggle>
       <AccordionItem mb={2}>
-        <h2>
           <AccordionButton flex="1" border="1px" w="250px">
             <Text textAlign="center" display="block">
               Base Switcher
             </Text>
           </AccordionButton>
-        </h2>
         <AccordionPanel border="1px" p={0}>
           {availableBases?.map((base, i) => (
             <Box
