@@ -8,7 +8,6 @@ import {
   Image,
   IconButton,
   Img,
-  LayoutProps,
   Accordion,
   AccordionItem,
   AccordionButton,
