@@ -1,5 +1,7 @@
 # GraphQL implementation of `Sizes`
 
+Discussion participants: [Roanna](https://github.com/orgs/boxwise/people/aerinsol), [Philipp](https://github.com/orgs/boxwise/people/pylipp), [Vahid](https://github.com/orgs/boxwise/people/vahidbazzaz), [Daniel](https://github.com/orgs/boxwise/people/spaudanjo)
+
 ## Status
 
 accepted, implemented
