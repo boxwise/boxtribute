@@ -16,9 +16,7 @@ import {
   MenuList,
 } from "@chakra-ui/react";
 
-import {
-  AiOutlineQrcode,
-} from "react-icons/ai";
+import { AiOutlineQrcode } from "react-icons/ai";
 import BoxtributeLogo from "../../assets/images/boxtribute-logo.png";
 import {
   BaseSwitcherProps,
@@ -202,7 +200,6 @@ const HeaderMenuDeskop = (props: HeaderMenuProps) => {
         <Logo />
         <Flex justifyItems="flex-end" alignItems="center">
           <MenuItemsDesktop
-            // bg="white"
             user={props.user}
             currentActiveBaseId={props.currentActiveBaseId}
             menuItems={props.menuItems}
@@ -213,11 +210,6 @@ const HeaderMenuDeskop = (props: HeaderMenuProps) => {
           <QrScannerButton onClick={props.onClickScanQrCode} />
         </Flex>
       </Flex>
-      {/* <MenuToggle
-        toggle={toggle}
-        isOpen={isMenuOpen}
-        display={{ base: "inline flex", md: "none" }}
-      /> */}
     </HeaderMenuDesktopContainer>
   );
 };

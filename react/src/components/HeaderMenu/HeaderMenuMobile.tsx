@@ -219,8 +219,6 @@ const HeaderMenuMobile = (props: HeaderMenuProps) => {
         />
       </Flex>
       <MenuItemsMobile
-        // bg="white"
-        // onLinkClick={() => setIsMenuOpen(false)}
         isOpen={isMenuOpen}
         currentActiveBaseId={props.currentActiveBaseId}
         availableBases={props.availableBases}
