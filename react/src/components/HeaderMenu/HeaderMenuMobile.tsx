@@ -155,7 +155,7 @@ const MenuItemsMobile = ({
       w="100%"
       spacing={2}
       flexBasis={{ base: "100%", md: "auto" }}
-      display={{ base: isOpen ? "block" : "none", md: "block" }}
+      display={isOpen ? "block" : "none" }
     >
       <VStack
         alignItems="flex-end"
