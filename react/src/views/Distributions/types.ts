@@ -1,11 +1,19 @@
 export enum DistributionEventState {
-    Completed = 'Completed',
-    New = 'New',
-    OnDistro = 'OnDistro',
-    Packing = 'Packing',
-    PackingDone = 'PackingDone',
     Planning = 'Planning',
     PlanningDone = 'PlanningDone',
+    Packing = 'Packing',
+    PackingDone = 'PackingDone',
+    OnDistro = 'OnDistro',
     Returned = 'Returned',
-    ReturnsTracked = 'ReturnsTracked'
+    ReturnsTracked = 'ReturnsTracked',
+    Completed = 'Completed'
   }
+export type DistributionEventDetails = {
+    id: string;
+    distributionSpot: {
+      id: string;
+      name: string;
+    }
+    state: DistributionEventState;
+    startDate: Date;
+}

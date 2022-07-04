@@ -43,10 +43,8 @@ const CreateDistributionEventView = () => {
   const { baseId, distributionSpotId } = useParams<{ baseId: string, distributionSpotId: string }>();
   const navigate = useNavigate();
 
-  // const [updateBoxLocation, mutationStatus] = useMutation<
   const [
     createDistributionEventMutation,
-    createDistributionEventMutationStatus,
   ] = useMutation<
     CreateDistributionEventMutation,
     CreateDistributionEventMutationVariables

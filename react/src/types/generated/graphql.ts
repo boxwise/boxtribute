@@ -209,7 +209,6 @@ export type DistributionEventCreationInput = {
 
 export enum DistributionEventState {
   Completed = 'Completed',
-  New = 'New',
   OnDistro = 'OnDistro',
   Packing = 'Packing',
   PackingDone = 'PackingDone',

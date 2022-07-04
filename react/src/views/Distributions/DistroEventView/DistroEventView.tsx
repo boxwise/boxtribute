@@ -86,7 +86,12 @@ const DistroEventView = () => {
     return <div>Error!</div>;
   }
 
+  console.log("FOO startDate", data?.distributionEvent?.startDate)
+  console.log("FOO typeof(startDate)", typeof(data?.distributionEvent?.startDate))
+
   const transformedData = graphqlToContainerTransformer(data);
+
+  console.log("FOO transformedData", typeof(transformedData.startDate))
 
     return <DistroEventContainer distroEventDetails={transformedData} />;
   // return <Box>{JSON.stringify(data)}</Box>;

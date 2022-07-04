@@ -27,7 +27,7 @@ class DistributionEvent(db.Model):
     )
     state = EnumCharField(
         choices=DistributionEventState,
-        default=DistributionEventState.New,
+        default=DistributionEventState.Planning,
     )
 
     created_on = DateTimeField(null=True)

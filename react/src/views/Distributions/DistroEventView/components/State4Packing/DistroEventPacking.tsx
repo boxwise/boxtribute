@@ -1,4 +1,3 @@
-import { DistroEvent } from "../State1Planning/DistroEventPlanning";
 import {
   Accordion,
   AccordionItem,
@@ -13,7 +12,7 @@ import {
 import { DistroEventStateLabel } from "views/Distributions/DistroSpotsView/components/DistroSpots";
 
 export interface DistroEventPackingData {
-  distroEventData: DistroEvent;
+  distroEventData: any;
 }
 
 interface DistroEventPackingProps {
@@ -32,7 +31,7 @@ const DistroEventPacking = ({
         Distro Event
       </Text>
       <Text lineHeight="normal">
-        <strong>{distroEventDetailsData.distroEventData.distroSpot}</strong>
+        <strong>{distroEventDetailsData.distroEventData.distroSpotName}</strong>
       </Text>
       <Text lineHeight="normal">
         <strong>
@@ -78,4 +77,3 @@ const DistroEventPacking = ({
   );
 };
 export default DistroEventPacking;
-

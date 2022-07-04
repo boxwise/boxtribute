@@ -11,8 +11,9 @@ class TransferAgreementState(enum.IntEnum):
 
 
 class DistributionEventState(enum.IntEnum):
-    New = 1
-    Planning = enum.auto()
+    # New = 1
+    # Planning = enum.auto()
+    Planning = 1
     PlanningDone = enum.auto()
     Packing = enum.auto()
     PackingDone = enum.auto()

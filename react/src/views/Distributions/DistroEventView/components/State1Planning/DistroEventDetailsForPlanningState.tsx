@@ -1,14 +1,15 @@
 import { Box, Button, Flex, SimpleGrid, Text } from "@chakra-ui/react";
 import { CloseIcon, EditIcon } from '@chakra-ui/icons'
-import { DistributionEventState, ProductGender } from "types/generated/graphql";
+import { ProductGender } from "types/generated/graphql";
 import { DistroEventStateLabel } from "views/Distributions/DistroSpotsView/components/DistroSpots";
+import { DistributionEventDetails } from "views/Distributions/types";
 
-export interface DistroEvent {
-  eventDate?: Date;
-  distroSpot: string;
-  status: DistributionEventState;
-  itemsForPacking: PackingListEntry[];
-}
+// export interface DistroEventDetailsForPlanningState extends {
+//   eventDate?: Date;
+//   distroSpotName: string;
+//   status: DistributionEventState;
+//   itemsForPacking: PackingListEntry[];
+// }
 
 export interface PackingListEntry {
   id: string;
@@ -18,32 +19,35 @@ export interface PackingListEntry {
   items: number;
 }
 
-export interface DistroEventDetailsData {
-    distroEventData: DistroEvent;
+export interface DistroEventDetailsDataForPlanningState {
+    distroEventData: DistributionEventDetails;
+    itemsForPacking: PackingListEntry[];
+    // DistributionEventDetails
 }
 
-interface DistroEventDetailsProps {
-  distroEventDetailsData: DistroEventDetailsData
+interface DistroEventDetailsForPlanningStateProps {
+  distroEventDetailsData: DistroEventDetailsDataForPlanningState
   onAddItemsClick: () => void;
   onCopyPackingListFromPreviousEventsClick: () => void;
   onEditItemOnPackingListClick: (packlistItemId: string) => void;
   onRemoveItemFromPackingListClick: (packlistItemId: string) => void;
 }
 
-const DistroEventDetails = ({
+const DistroEventDetailsForPlanningState = ({
   distroEventDetailsData,
   onAddItemsClick,
   onCopyPackingListFromPreviousEventsClick,
   onRemoveItemFromPackingListClick,
   onEditItemOnPackingListClick,
-}: DistroEventDetailsProps ) => {
+}: DistroEventDetailsForPlanningStateProps ) => {
   return (
     <>
       <Box>
-        <Text fontSize="xl">{distroEventDetailsData.distroEventData.distroSpot}</Text>
-        <Text fontSize="xl" mb={2} borderBottom="1px" borderColor="gray.300">{distroEventDetailsData.distroEventData.eventDate?.toDateString()}</Text>
+        <Text fontSize="xl">{distroEventDetailsData.distroEventData.distributionSpot.name}</Text>
+        {/* TODO: Make sure that startDate here really is of type Date (and we propery format the date, e.g. via ?.toDateString()) */}
+        <Text fontSize="xl" mb={2} borderBottom="1px" borderColor="gray.300">{distroEventDetailsData.distroEventData.startDate}</Text>
         <Text>
-          <strong>{DistroEventStateLabel.get(distroEventDetailsData.distroEventData.status)}</strong>
+          <strong>{DistroEventStateLabel.get(distroEventDetailsData.distroEventData.state)}</strong>
         </Text>
       </Box>
       <Flex w={[300, 400, 600]} direction="column" mb={4}>
@@ -53,7 +57,7 @@ const DistroEventDetails = ({
       </Button>
       </Flex>
       <Text fontSize="md"><strong>Packing List:</strong></Text>
-      {distroEventDetailsData.distroEventData.itemsForPacking.map((item) => {
+      {distroEventDetailsData.itemsForPacking.map((item) => {
         return (
           <SimpleGrid
             minChildWidth="10px"
@@ -78,4 +82,4 @@ const DistroEventDetails = ({
   );
 };
 
-export default DistroEventDetails;
+export default DistroEventDetailsForPlanningState;
