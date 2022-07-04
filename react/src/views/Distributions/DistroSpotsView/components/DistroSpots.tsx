@@ -12,6 +12,7 @@ import {
   Button,
 } from "@chakra-ui/react";
 import React from "react";
+import { DistroEventStateLabel } from "views/Distributions/helpers";
 
 interface GeoData {
   latitude: number;
@@ -30,17 +31,6 @@ export enum DistributionEventState {
   ReturnsTracked = "ReturnsTracked",
 }
 
-export const DistroEventStateLabel = new Map<string, string>([
-  [DistributionEventState.New, "New"],
-  [DistributionEventState.Planning, "Planning"],
-  [DistributionEventState.PlanningDone, "Planning Done"],
-  [DistributionEventState.Packing, "Packing"],
-  [DistributionEventState.PackingDone, "Packing Done"],
-  [DistributionEventState.OnDistro, "On Distribution"],
-  [DistributionEventState.Returned, "Distribution Done"],
-  [DistributionEventState.ReturnsTracked, "Returned Items Tracked"],
-  [DistributionEventState.Completed, "Completed"],
-]);
 
 export interface DistroEventForSpot {
   startDateTime?: Date;

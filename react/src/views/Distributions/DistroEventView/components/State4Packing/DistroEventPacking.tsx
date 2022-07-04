@@ -9,7 +9,7 @@ import {
   Checkbox,
   Flex,
 } from "@chakra-ui/react";
-import { DistroEventStateLabel } from "views/Distributions/DistroSpotsView/components/DistroSpots";
+import { DistroEventStateLabel } from "views/Distributions/helpers";
 
 export interface DistroEventPackingData {
   distroEventData: any;

@@ -5,7 +5,7 @@ import {
   SimpleGrid,
 } from "@chakra-ui/react";
 import { DistributionEventState, ProductGender } from "types/generated/graphql";
-import { DistroEventStateLabel } from "views/Distributions/DistroSpotsView/components/DistroSpots";
+import { DistroEventStateLabel } from "views/Distributions/helpers";
 
 export interface BTBox {
   id: string;

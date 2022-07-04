@@ -84,6 +84,11 @@ const App = () => {
             </Route>
             <Route path="distributions">
               <Route index element={<DistrosDashboardView />} />
+              <Route path="events">
+                <Route path=":eventId">
+                  <Route index element={<DistroEventView />} />
+                </Route>
+              </Route>
               <Route path="spots">
                 <Route index element={<DistroSpotsView />} />
                 <Route path=":distributionSpotId">
