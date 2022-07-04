@@ -109,6 +109,7 @@ def test_transfer_agreement_mutations(
                         requestedBy {{ id }}
                         validFrom
                         validUntil
+                        comment
                         sourceBases {{ id }}
                         targetBases {{ id }}
                         shipments {{ id }}
@@ -129,6 +130,7 @@ def test_transfer_agreement_mutations(
         "type": TransferAgreementType.Bidirectional.name,
         "requestedBy": {"id": "8"},
         "validUntil": None,
+        "comment": None,
         "sourceBases": [{"id": "1"}, {"id": "2"}],
         "targetBases": [{"id": "3"}, {"id": "4"}],
         "shipments": [],
@@ -138,10 +140,12 @@ def test_transfer_agreement_mutations(
     # Test case 2.2.2
     valid_from = "2021-12-15"
     valid_until = "2022-06-30"
+    comment = "this is a comment"
     creation_input = f"""targetOrganisationId: {another_organisation['id']},
         type: {TransferAgreementType.Bidirectional.name},
         validFrom: "{valid_from}",
         validUntil: "{valid_until}",
+        comment: "{comment}",
         timezone: "Europe/London",
         sourceBaseIds: [1],
         targetBaseIds: [3]"""
@@ -155,6 +159,7 @@ def test_transfer_agreement_mutations(
         "state": TransferAgreementState.UnderReview.name,
         "type": TransferAgreementType.Bidirectional.name,
         "requestedBy": {"id": "8"},
+        "comment": comment,
         "sourceBases": [{"id": "1"}],
         "targetBases": [{"id": "3"}],
         "shipments": [],
