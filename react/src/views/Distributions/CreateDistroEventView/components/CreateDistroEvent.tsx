@@ -3,6 +3,7 @@ import { useForm } from "react-hook-form";
 
 export interface CreateDistroEventFormData {
   eventDate?: Date;
+  name?: string
   // distroSpot: string;
 }
 
@@ -45,6 +46,16 @@ const CreateDistroEvent = ({
           type="date"
           mb={4}
           {...register("eventDate", { required: true })}
+       />
+        <FormLabel fontSize="sm" htmlFor="name">
+          Name of the event:
+        </FormLabel>
+        {/* it's still has to be limited to dates from today onward */}
+        <Input
+        // placeholder={distroEvent.eventDate?.toDateString()}
+          type="text"
+          mb={4}
+          {...register("name", { required: false })}
        />
         <Button
           mt={4}

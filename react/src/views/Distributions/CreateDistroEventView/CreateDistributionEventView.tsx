@@ -55,7 +55,9 @@ const CreateDistributionEventView = () => {
       createDistributionEventMutation({
         variables: {
           distributionSpotId: parseInt(distributionSpotId!),
-          name: "FOO",
+          // TODO: probably better to make name optional/nullable also in the API
+          // After that, let's remove the ` || ""`
+          name: createDistroEventFormData.name || "",
           startDate: createDistroEventFormData.eventDate,
         },
       })
