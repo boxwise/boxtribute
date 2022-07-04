@@ -5,7 +5,50 @@ import { useParams } from "react-router-dom";
 import {
   DistributionEventQuery,
   DistributionEventQueryVariables,
+  DistributionEventState,
 } from "types/generated/graphql";
+import * as yup from "yup";
+import DistroEventContainer, {
+  DistributionEventDetails,
+  distributionEventDetailsSchema,
+} from "./components/DistroEventContainer";
+
+// const distributionSpotSchema = yup.object({
+//   id: yup.string().required(),
+//   name: yup.string().required(),
+// });
+// const distributionEventDetailsSchema = yup.object({
+//   id: yup.string().required(),
+//   name: yup.string().required(),
+//   startDate: yup.date().required(),
+//   state: yup
+//     .mixed<DistributionEventState>()
+//     .oneOf(Object.values(DistributionEventState))
+//     .required(),
+//   distributionSpot: distributionSpotSchema,
+// });
+
+const graphqlToContainerTransformer = (
+  distributionEventData: DistributionEventQuery | undefined
+): DistributionEventDetails => {
+  // distributionEventDetailsSchema.validateSync(distributionEventData?.distributionEvent);
+  // distributionEventDetailsSchema
+
+  if(distributionEventData?.distributionEvent?.distributionSpot == null) {
+    throw new Error("distributionEventData.distributionEvent.distributionSpot is null");
+  }
+
+  return {
+    id: distributionEventData?.distributionEvent?.id,
+    name: distributionEventData?.distributionEvent?.name || "",
+    startDate: distributionEventData?.distributionEvent?.startDate,
+    state: distributionEventData?.distributionEvent?.state,
+    distributionSpot: {
+      name: distributionEventData?.distributionEvent?.name || "",
+      id: distributionEventData?.distributionEvent?.distributionSpot?.id,
+    },
+  };
+};
 
 const DistroEventView = () => {
   const eventId = useParams<{ eventId: string }>().eventId;
@@ -13,6 +56,7 @@ const DistroEventView = () => {
   const DISTRIBUTION_EVENT_QUERY = gql`
     query DistributionEvent($eventId: ID!) {
       distributionEvent(id: $eventId) {
+        id
         name
         state
         startDate
@@ -42,7 +86,10 @@ const DistroEventView = () => {
     return <div>Error!</div>;
   }
 
-  return <Box>{JSON.stringify(data)}</Box>;
+  const transformedData = graphqlToContainerTransformer(data);
+
+    return <DistroEventContainer distroEventDetails={transformedData} />;
+  // return <Box>{JSON.stringify(data)}</Box>;
 };
 
 export default DistroEventView;
