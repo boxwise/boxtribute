@@ -15,7 +15,7 @@ export interface PackingListEntry {
   productName: string;
   size?: string;
   gender?: ProductGender;
-  items: number;
+  numberOfItems: number;
 }
 
 export interface DistroEventDetailsData {
@@ -63,7 +63,7 @@ const DistroEventDetails = ({
             borderColor="gray.300"
             my={2}
           >
-            <Box>{item.items}</Box>
+            <Box>{item.numberOfItems}</Box>
             <Box>{item.productName}</Box>
             <Box>{item.size}</Box>
             <Box>{item.gender}</Box>
