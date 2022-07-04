@@ -1,6 +1,6 @@
 import { DistributionEventState } from "./types";
 
-export const DistroEventStateLabel = new Map<string, string>([
+export const distroEventStateLabel = new Map<string, string>([
     [DistributionEventState.Planning, "Planning"],
     [DistributionEventState.PlanningDone, "Planning Done"],
     [DistributionEventState.Packing, "Packing"],

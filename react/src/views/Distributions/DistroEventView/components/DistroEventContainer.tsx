@@ -1,6 +1,7 @@
 import { Box, VStack, Text } from "@chakra-ui/react";
 import React from "react";
-import { DistroEventStateLabel } from "views/Distributions/helpers";
+import DistributionStateProgressBar from "views/Distributions/components/DistributionStateProgressBar";
+import { distroEventStateLabel } from "views/Distributions/helpers";
 import { DistributionEventState } from "views/Distributions/types";
 import * as yup from "yup";
 import DistroEventDetailsForPlanningStateContainer from "./State1Planning/DistroEventDetailsForPlanningStateContainer";
@@ -70,14 +71,7 @@ const DistroEventContainer = ({
         <Text fontSize="xl" mb={2} borderBottom="1px" borderColor="gray.300">
           {distroEventDetails.startDate?.toDateString()}
         </Text>
-        <Text>
-          <strong>
-          State:
-            {DistroEventStateLabel.get(
-              distroEventDetails.state
-            )}
-          </strong>
-        </Text>
+        <DistributionStateProgressBar />
       </Box>
       <Box>
         <StateSpecificComponent />
