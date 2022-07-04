@@ -3,7 +3,6 @@ import { BoxesForBaseQuery } from "../../types/generated/graphql";
 import { useNavigate, useParams } from "react-router-dom";
 import BoxesTable from "./components/BoxesTable";
 import { BoxRow } from "./components/types";
-import { Progress } from "@chakra-ui/react";
 import APILoadingIndicator from "components/APILoadingIndicator";
 
 export const BOXES_FOR_BASE_QUERY = gql`
@@ -39,15 +38,18 @@ const graphqlToTableTransformer = (
 ) =>
   boxesQueryResult?.base?.locations?.flatMap(
     (location) =>
-      location?.boxes?.elements.map((element) => ({
-        productName: element.product?.name,
-        labelIdentifier: element.labelIdentifier,
-        gender: element.product?.gender,
-        items: element.items,
-        size: element.size.label,
-        state: element.state,
-        place: element.place?.name,
-      } as BoxRow)) || []
+      location?.boxes?.elements.map(
+        (element) =>
+          ({
+            productName: element.product?.name,
+            labelIdentifier: element.labelIdentifier,
+            gender: element.product?.gender,
+            items: element.items,
+            size: element.size.label,
+            state: element.state,
+            place: element.place?.name,
+          } as BoxRow)
+      ) || []
   ) || [];
 
 const Boxes = () => {
@@ -74,7 +76,9 @@ const Boxes = () => {
   }
 
   const tableData = graphqlToTableTransformer(data);
-  return <BoxesTable tableData={tableData} onBoxRowClick={onBoxesRowClick} />;
+  return (
+      <BoxesTable tableData={tableData} onBoxRowClick={onBoxesRowClick} />
+  );
 };
 
 export default Boxes;

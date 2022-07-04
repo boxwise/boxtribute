@@ -12,7 +12,7 @@ import {
   Button,
 } from "@chakra-ui/react";
 import React from "react";
-import { distroEventStateLabel } from "views/Distributions/helpers";
+import { distroEventStateHumanReadableLabels } from "views/Distributions/baseData";
 
 interface GeoData {
   latitude: number;
@@ -110,7 +110,7 @@ const DistroSpots = ({
                       >
                         <Box>Date: {distroEvent.startDateTime?.toDateString()}</Box>
                         <Box>
-                          Status: {distroEventStateLabel.get(distroEvent.state)}
+                          Status: {distroEventStateHumanReadableLabels.get(distroEvent.state)}
                         </Box>
                       </ListItem>
                     );

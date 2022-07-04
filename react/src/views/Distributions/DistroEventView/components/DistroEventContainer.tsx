@@ -1,7 +1,6 @@
 import { Box, VStack, Text } from "@chakra-ui/react";
 import React from "react";
 import DistributionStateProgressBar from "views/Distributions/components/DistributionStateProgressBar";
-import { distroEventStateLabel } from "views/Distributions/helpers";
 import { DistributionEventState } from "views/Distributions/types";
 import * as yup from "yup";
 import DistroEventDetailsForPlanningStateContainer from "./State1Planning/DistroEventDetailsForPlanningStateContainer";

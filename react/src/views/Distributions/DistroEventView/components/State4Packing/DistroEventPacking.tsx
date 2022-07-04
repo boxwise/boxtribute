@@ -9,7 +9,7 @@ import {
   Checkbox,
   Flex,
 } from "@chakra-ui/react";
-import { DistroEventStateLabel } from "views/Distributions/helpers";
+import { distroEventStateHumanReadableLabels } from "views/Distributions/baseData";
 
 export interface DistroEventPackingData {
   distroEventData: any;
@@ -39,7 +39,7 @@ const DistroEventPacking = ({
         </strong>
       </Text>
       <Text>
-        {DistroEventStateLabel.get(
+        {distroEventStateHumanReadableLabels.get(
           distroEventDetailsData.distroEventData.status
         )}
       </Text>
