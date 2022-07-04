@@ -231,7 +231,12 @@ const ActualTable = ({
     nextPage,
     previousPage,
   } = useTable(
+  // TODO: remove this ts-ignore again and try to fix the type error properly
+  // was most likely caused by setting one of the following flags in .tsconfig:
+  // "strictNullChecks": true
+  // "strictFunctionTypes": false
     {
+  // @ts-ignore
       columns,
       data: tableData,
       initialState: {
@@ -316,7 +321,7 @@ const ActualTable = ({
               <Tr
                 cursor="pointer"
                 {...row.getRowProps()}
-                onClick={() => onBoxRowClick(row.original.labelIdentifier)}
+                onClick={() => onBoxRowClick(row.original['labelIdentifier'])}
                 key={i}
               >
                 {row.cells.map((cell, i) => {
