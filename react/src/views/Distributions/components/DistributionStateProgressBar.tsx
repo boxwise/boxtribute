@@ -12,16 +12,17 @@ const DistributionStateProgressBar = ({
   activeState: DistributionEventState;
 }) => {
   const joinedPlanningStates = distroEventStateOrder
-    .map<React.ReactNode>((state) => (
-      <Text {...(state === activeState ? { as: "u" } : {})}>
-        {distroEventStateHumanReadableLabels.get(state)}
+    .map<React.ReactNode>((state, i) => {
+      const isActiveState = state === activeState;
+      return <Text color={isActiveState ? "black" : "gray"} fontSize={isActiveState ? 'md' : 'sm'} {...(isActiveState ? { as: "u" } : {})}>
+        {i+1}. {distroEventStateHumanReadableLabels.get(state)}
       </Text>
-    ))
-    .reduce((prev, curr) => [prev, <Text> → </Text>, curr]);
+    })
+    .reduce((prev, curr) => [prev, <Text color="gray" fontSize='md'> → </Text>, curr]);
 
   return (
     <Box>
-      <strong>State:</strong>
+      {/* <strong>State:</strong> */}
       <HStack>{joinedPlanningStates}</HStack>
     </Box>
   );
