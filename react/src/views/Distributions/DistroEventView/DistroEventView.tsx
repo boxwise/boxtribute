@@ -41,7 +41,7 @@ const graphqlToContainerTransformer = (
   return {
     id: distributionEventData?.distributionEvent?.id,
     name: distributionEventData?.distributionEvent?.name || "",
-    startDate: distributionEventData?.distributionEvent?.startDate,
+    startDate: new Date(distributionEventData?.distributionEvent?.startDate),
     state: distributionEventData?.distributionEvent?.state,
     distributionSpot: {
       name: distributionEventData?.distributionEvent?.name || "",

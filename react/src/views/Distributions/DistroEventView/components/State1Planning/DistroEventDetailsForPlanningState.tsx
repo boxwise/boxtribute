@@ -44,8 +44,7 @@ const DistroEventDetailsForPlanningState = ({
     <>
       <Box>
         <Text fontSize="xl">{distroEventDetailsData.distroEventData.distributionSpot.name}</Text>
-        {/* TODO: Make sure that startDate here really is of type Date (and we propery format the date, e.g. via ?.toDateString()) */}
-        <Text fontSize="xl" mb={2} borderBottom="1px" borderColor="gray.300">{distroEventDetailsData.distroEventData.startDate}</Text>
+        <Text fontSize="xl" mb={2} borderBottom="1px" borderColor="gray.300">{distroEventDetailsData.distroEventData.startDate?.toDateString()}</Text>
         <Text>
           <strong>{DistroEventStateLabel.get(distroEventDetailsData.distroEventData.state)}</strong>
         </Text>
