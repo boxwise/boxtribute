@@ -1,4 +1,5 @@
 import { gql, useQuery } from "@apollo/client";
+import APILoadingIndicator from "components/APILoadingIndicator";
 import {
   DistroSpotsForBaseIdQuery,
   DistroSpotsForBaseIdQueryVariables,
@@ -49,7 +50,7 @@ const DistroSpotsContainer = ({
   });
 
   if (loading) {
-    return <>Loading</>;
+    return <APILoadingIndicator />;
   }
 
   if (error) {

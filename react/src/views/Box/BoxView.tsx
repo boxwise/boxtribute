@@ -1,4 +1,5 @@
 import { gql, useMutation, useQuery } from "@apollo/client";
+import APILoadingIndicator from "components/APILoadingIndicator";
 import { useParams } from "react-router-dom";
 import {
   BoxByLabelIdentifierQuery,
@@ -89,7 +90,7 @@ const BTBox = () => {
   >(UPDATE_LOCATION_OF_BOX_MUTATION);
 
   if (loading) {
-    return <div>Loading...</div>;
+    return <APILoadingIndicator />;
   }
   if (mutationStatus.loading) {
     return <div>Updating box...</div>;

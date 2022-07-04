@@ -12,6 +12,7 @@ import DistroEventContainer, {
   DistributionEventDetails,
   distributionEventDetailsSchema,
 } from "./components/DistroEventContainer";
+import APILoadingIndicator from "components/APILoadingIndicator";
 
 // const distributionSpotSchema = yup.object({
 //   id: yup.string().required(),
@@ -78,7 +79,7 @@ const DistroEventView = () => {
   });
 
   if (loading) {
-    return <div>Loading...</div>;
+    return <APILoadingIndicator />;
   }
 
   if (error) {

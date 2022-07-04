@@ -1,4 +1,5 @@
 import { gql, useLazyQuery, useMutation, useQuery } from "@apollo/client";
+import APILoadingIndicator from "components/APILoadingIndicator";
 import React, { useCallback } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import {
@@ -99,7 +100,7 @@ const CreateDistributionEventView = () => {
   );
 
   if (loading) {
-    return <div>Loading...</div>;
+    return <APILoadingIndicator />;
   }
   if (error) {
     console.error("Error in CreateDistributionEventView: ", error);

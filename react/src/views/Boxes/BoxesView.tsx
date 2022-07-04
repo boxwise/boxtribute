@@ -3,6 +3,8 @@ import { BoxesForBaseQuery } from "../../types/generated/graphql";
 import { useNavigate, useParams } from "react-router-dom";
 import BoxesTable from "./components/BoxesTable";
 import { BoxRow } from "./components/types";
+import { Progress } from "@chakra-ui/react";
+import APILoadingIndicator from "components/APILoadingIndicator";
 
 export const BOXES_FOR_BASE_QUERY = gql`
   query BoxesForBase($baseId: ID!) {
@@ -64,7 +66,7 @@ const Boxes = () => {
     }
   );
   if (loading) {
-    return <div>Loading...</div>;
+    return <APILoadingIndicator />;
   }
   if (error) {
     console.error(error);

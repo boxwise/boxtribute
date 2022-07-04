@@ -158,7 +158,7 @@ describe("Boxes view", () => {
 
   const waitTillLoadingIsDone = async () => {
     await waitFor(() => {
-      const loadingInfo = screen.queryByText("Loading...");
+      const loadingInfo = screen.queryByTestId("loading-indicator");
       expect(loadingInfo).toBeNull();
     });
   };
@@ -172,7 +172,7 @@ describe("Boxes view", () => {
   });
 
   it("renders with an initial 'Loading...'", () => {
-    const loadingInfo = screen.getByText("Loading...");
+    const loadingInfo = screen.queryByTestId("loading-indicator");
     expect(loadingInfo).toBeInTheDocument();
   });
 
