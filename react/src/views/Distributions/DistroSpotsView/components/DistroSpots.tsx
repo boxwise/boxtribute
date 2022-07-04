@@ -13,24 +13,12 @@ import {
 } from "@chakra-ui/react";
 import React from "react";
 import { distroEventStateHumanReadableLabels } from "views/Distributions/baseData";
+import { DistributionEventState } from "views/Distributions/types";
 
 interface GeoData {
   latitude: number;
   longitude: number;
 }
-
-export enum DistributionEventState {
-  Completed = "Completed",
-  New = "New",
-  OnDistro = "OnDistro",
-  Packing = "Packing",
-  PackingDone = "PackingDone",
-  Planning = "Planning",
-  PlanningDone = "PlanningDone",
-  Returned = "Returned",
-  ReturnsTracked = "ReturnsTracked",
-}
-
 
 export interface DistroEventForSpot {
   startDateTime?: Date;

@@ -1,7 +1,6 @@
 import React from "react";
 import { ComponentStory, ComponentMeta } from "@storybook/react";
 import { action } from "@storybook/addon-actions";
-import { DistributionEventState } from "./DistroSpots";
 import DistroSpotsContainer from "./DistroSpotsContainer";
 import { StorybookApolloProvider } from "utils/test-utils";
 import {
@@ -10,6 +9,7 @@ import {
 } from "types/generated/graphql";
 import { graphql } from "msw";
 import { worker } from "mocks/browser";
+import { DistributionEventState } from "views/Distributions/types";
 
 export default {
   title: "Mobile Distro Events/Distro Spots/List View/Container",

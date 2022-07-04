@@ -1,6 +1,7 @@
 import React from "react";
 import { ComponentStory, ComponentMeta } from "@storybook/react";
-import DistroSpots, { DistributionEventState, DistroSpot } from "./DistroSpots";
+import DistroSpots, { DistroSpot } from "./DistroSpots";
+import { DistributionEventState } from "views/Distributions/types";
 
 const mockedDistroSpots: DistroSpot[] = [
   {

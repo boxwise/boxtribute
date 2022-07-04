@@ -70,7 +70,7 @@ const DistroEventContainer = ({
         <Text fontSize="xl" mb={2} borderBottom="1px" borderColor="gray.300">
           {distroEventDetails.startDate?.toDateString()}
         </Text>
-        <DistributionStateProgressBar />
+        <DistributionStateProgressBar activeState={distroEventDetails.state} />
       </Box>
       <Box>
         <StateSpecificComponent />
