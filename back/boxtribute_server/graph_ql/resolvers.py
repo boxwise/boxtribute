@@ -86,6 +86,7 @@ beneficiary = _register_object_type("Beneficiary")
 box = _register_object_type("Box")
 location = _register_object_type("Location")
 distribution_spot = _register_object_type("DistributionSpot")
+distribution_event = _register_object_type("DistributionEvent")
 metrics = _register_object_type("Metrics")
 organisation = _register_object_type("Organisation")
 product = _register_object_type("Product")
@@ -134,6 +135,13 @@ def resolve_distribution_spot_distribution_events(obj, *_):
     )
 
 
+# @distribution_event.field("distributionSpot")
+# def resolve_distribution_event_distribution_spot(obj, *_):
+#     return Location.select().where(
+#         Location.id == obj.distribution_spot_id
+#     )
+
+
 @base.field("distributionSpots")
 @query.field("distributionSpots")
 def resolve_distributions_spots(base_obj, _):
@@ -151,6 +159,12 @@ def resolve_distributions_spot(obj, _, id):
         return distribution_spot
     else:
         None
+
+
+@query.field("distributionEvent")
+def resolve_distribution_event(obj, _, id):
+    distribution_event = DistributionEvent.get_by_id(id)
+    return distribution_event
 
 
 @query.field("users")

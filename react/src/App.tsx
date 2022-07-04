@@ -15,6 +15,7 @@ import jwt from "jwt-decode";
 import DistroSpotsView from "views/Distributions/DistroSpotsView/DistroSpotsView";
 import DistrosDashboardView from "views/Distributions/DistrosDashboardView/DistrosDashboardView";
 import CreateDistributionEventView from "views/Distributions/CreateDistroEventView/CreateDistributionEventView";
+import DistroEventView from "views/Distributions/DistroEventView/DistroEventView";
 
 const useLoadAndSetAvailableBases = () => {
   const BASES_QUERY = gql`
@@ -76,8 +77,10 @@ const App = () => {
             <Route path="scan-qrcode" element={<QrScanner />} />
             <Route path="boxes">
               <Route index element={<Boxes />} />
-              <Route path=":labelIdentifier" element={<BTBox />} />
-              <Route path=":labelIdentifier/edit" element={<BoxEditView />} />
+              <Route path=":labelIdentifier">
+                <Route index element={<BTBox />} />
+                <Route path="edit" element={<BoxEditView />} />
+              </Route>
             </Route>
             <Route path="distributions">
               <Route index element={<DistrosDashboardView />} />
@@ -85,6 +88,9 @@ const App = () => {
                 <Route index element={<DistroSpotsView />} />
                 <Route path=":distributionSpotId">
                   <Route path="events">
+                    <Route path=":eventId">
+                      <Route index element={<DistroEventView />} />
+                    </Route>
                     <Route
                       path="create"
                       element={<CreateDistributionEventView />}

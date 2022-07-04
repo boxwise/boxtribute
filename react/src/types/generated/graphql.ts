@@ -663,6 +663,7 @@ export type Query = {
   beneficiaries: BeneficiaryPage;
   beneficiary?: Maybe<Beneficiary>;
   box?: Maybe<Box>;
+  distributionEvent?: Maybe<DistributionEvent>;
   distributionSpot?: Maybe<DistributionSpot>;
   distributionSpots: Array<DistributionSpot>;
   location?: Maybe<Location>;
@@ -717,6 +718,11 @@ export type QueryBeneficiaryArgs = {
 
 export type QueryBoxArgs = {
   labelIdentifier: Scalars['String'];
+};
+
+
+export type QueryDistributionEventArgs = {
+  id: Scalars['ID'];
 };
 
 
@@ -1038,6 +1044,13 @@ export type CreateDistributionEventMutationVariables = Exact<{
 
 
 export type CreateDistributionEventMutation = { __typename?: 'Mutation', createDistributionEvent?: { __typename?: 'DistributionEvent', id: string, name?: string | null, startDate: any } | null };
+
+export type DistributionEventQueryVariables = Exact<{
+  eventId: Scalars['ID'];
+}>;
+
+
+export type DistributionEventQuery = { __typename?: 'Query', distributionEvent?: { __typename?: 'DistributionEvent', name?: string | null, state: DistributionEventState, startDate: any, distributionSpot?: { __typename?: 'DistributionSpot', id: string, name?: string | null } | null } | null };
 
 export type DistroSpotsForBaseIdQueryVariables = Exact<{
   baseId: Scalars['ID'];
