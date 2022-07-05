@@ -133,6 +133,14 @@ type Size {
 }
 
 """
+Classificator for resources that a [`Tag`]({{Types.Tag}}) can be applied to (according to [`TaggableResource`]({{Types.TaggableResource}})).
+"""
+enum TaggableResourceType {
+  Box
+  Beneficiary
+}
+
+"""
 Representation of group of sizes.
 """
 type SizeRange {

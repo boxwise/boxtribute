@@ -10,6 +10,12 @@ type Mutation {
   createBeneficiary(creationInput: BeneficiaryCreationInput): Beneficiary
   updateBeneficiary(updateInput: BeneficiaryUpdateInput): Beneficiary
 
+  createTag(creationInput: TagCreationInput): Tag
+  updateTag(updateInput: TagUpdateInput): Tag
+  deleteTag(id: ID!): Tag
+  assignTag(assignmentInput: TagOperationInput): TaggableResource
+  unassignTag(unassignmentInput: TagOperationInput): TaggableResource
+
   createTransferAgreement(creationInput: TransferAgreementCreationInput): TransferAgreement
   acceptTransferAgreement(id: ID!): TransferAgreement
   rejectTransferAgreement(id: ID!): TransferAgreement

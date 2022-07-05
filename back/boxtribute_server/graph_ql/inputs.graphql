@@ -89,3 +89,24 @@ input ShipmentDetailUpdateInput {
   targetProductId: Int!
   targetLocationId: Int!
 }
+
+input TagCreationInput {
+  name: String!
+  description: String
+  color: String!
+  type: TagType!
+}
+
+input TagUpdateInput {
+  id: ID!
+  name: String
+  description: String
+  color: String
+  type: TagType
+}
+
+input TagOperationInput {
+  id: ID!
+  resourceId: ID!
+  resourceType: TaggableResourceType!
+}
