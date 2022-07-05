@@ -15,3 +15,4 @@ yarn-error.log
 docs/graphql-api/public
 *.zip
 .VSCodeCounter
+.DS_Store
