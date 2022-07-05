@@ -1,6 +1,18 @@
 from utils import assert_successful_request
 
 
+def test_tag_query(read_only_client, tags):
+    tag = tags[0]
+    tag_id = str(tag["id"])
+    query = f"query {{ tag(id: {tag_id}) {{ id name type }} }}"
+    queried_tag = assert_successful_request(read_only_client, query)
+    assert queried_tag == {
+        "id": tag_id,
+        "name": tag["name"],
+        "type": tag["type"].name,
+    }
+
+
 def test_tags_query(
     read_only_client, tags, default_beneficiary, default_box, box_without_qr_code
 ):
