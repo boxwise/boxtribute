@@ -25,18 +25,18 @@ const CreateDistributionEventView = () => {
     mutation CreateDistributionEvent(
       $distributionSpotId: Int!
       $name: String!
-      $startDate: Date!
+      $plannedStartDateTime: Datetime!
     ) {
       createDistributionEvent(
         creationInput: {
           distributionSpotId: $distributionSpotId
           name: $name
-          startDate: $startDate
+          plannedStartDateTime: $plannedStartDateTime
         }
       ) {
         id
         name
-        startDate
+        plannedStartDateTime
       }
     }
   `;
@@ -59,7 +59,7 @@ const CreateDistributionEventView = () => {
           // TODO: probably better to make name optional/nullable also in the API
           // After that, let's remove the ` || ""`
           name: createDistroEventFormData.name || "",
-          startDate: createDistroEventFormData.eventDate,
+          plannedStartDateTime: createDistroEventFormData.eventDate,
         },
       })
         .then((mutationResult) => {

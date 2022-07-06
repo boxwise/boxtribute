@@ -200,14 +200,14 @@ export type DistributionEvent = {
   packingList: PackingList;
   plannedEndDateTime: Scalars['Datetime'];
   plannedStartDateTime: Scalars['Datetime'];
-  startDate: Scalars['Date'];
   state: DistributionEventState;
 };
 
 export type DistributionEventCreationInput = {
   distributionSpotId: Scalars['Int'];
   name?: InputMaybe<Scalars['String']>;
-  startDate?: InputMaybe<Scalars['Date']>;
+  plannedEndDateTime?: InputMaybe<Scalars['Datetime']>;
+  plannedStartDateTime?: InputMaybe<Scalars['Datetime']>;
 };
 
 export enum DistributionEventState {
@@ -1061,22 +1061,22 @@ export type DistributionSpotQuery = { __typename?: 'Query', distributionSpot?: {
 export type CreateDistributionEventMutationVariables = Exact<{
   distributionSpotId: Scalars['Int'];
   name: Scalars['String'];
-  startDate: Scalars['Date'];
+  plannedStartDateTime: Scalars['Datetime'];
 }>;
 
 
-export type CreateDistributionEventMutation = { __typename?: 'Mutation', createDistributionEvent?: { __typename?: 'DistributionEvent', id: string, name?: string | null, startDate: any } | null };
+export type CreateDistributionEventMutation = { __typename?: 'Mutation', createDistributionEvent?: { __typename?: 'DistributionEvent', id: string, name?: string | null, plannedStartDateTime: any } | null };
 
 export type DistributionEventQueryVariables = Exact<{
   eventId: Scalars['ID'];
 }>;
 
 
-export type DistributionEventQuery = { __typename?: 'Query', distributionEvent?: { __typename?: 'DistributionEvent', id: string, name?: string | null, state: DistributionEventState, startDate: any, distributionSpot?: { __typename?: 'DistributionSpot', id: string, name?: string | null } | null } | null };
+export type DistributionEventQuery = { __typename?: 'Query', distributionEvent?: { __typename?: 'DistributionEvent', id: string, name?: string | null, state: DistributionEventState, plannedStartDateTime: any, distributionSpot?: { __typename?: 'DistributionSpot', id: string, name?: string | null } | null } | null };
 
 export type DistroSpotsForBaseIdQueryVariables = Exact<{
   baseId: Scalars['ID'];
 }>;
 
 
-export type DistroSpotsForBaseIdQuery = { __typename?: 'Query', base?: { __typename?: 'Base', distributionSpots: Array<{ __typename?: 'DistributionSpot', id: string, name?: string | null, latitude?: number | null, longitude?: number | null, distributionEvents: Array<{ __typename?: 'DistributionEvent', id: string, name?: string | null, state: DistributionEventState, startDate: any }> }> } | null };
+export type DistroSpotsForBaseIdQuery = { __typename?: 'Query', base?: { __typename?: 'Base', distributionSpots: Array<{ __typename?: 'DistributionSpot', id: string, name?: string | null, latitude?: number | null, longitude?: number | null, distributionEvents: Array<{ __typename?: 'DistributionEvent', id: string, name?: string | null, state: DistributionEventState, plannedStartDateTime: any }> }> } | null };

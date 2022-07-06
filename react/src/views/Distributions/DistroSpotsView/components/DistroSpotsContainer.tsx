@@ -32,7 +32,7 @@ const DistroSpotsContainer = ({
             id
             name
             state
-            startDate
+            plannedStartDateTime
             # endDateTime
           }
         }
@@ -54,7 +54,7 @@ const DistroSpotsContainer = ({
   }
 
   if (error) {
-    return <>Error!</>;
+    return <>Error!!</>;
   }
 
   if (data?.base?.distributionSpots == null) {
@@ -73,7 +73,7 @@ const DistroSpotsContainer = ({
         distroEvents: distroSpot.distributionEvents.map((distroEvent) => ({
           id: distroEvent.id,
           state: distroEvent.state,
-          startDateTime: new Date(distroEvent.startDate),
+          startDateTime: new Date(distroEvent.plannedStartDateTime),
         })),
       };
     }) as DistroSpot[];

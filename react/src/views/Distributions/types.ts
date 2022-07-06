@@ -15,5 +15,5 @@ export type DistributionEventDetails = {
       name: string;
     }
     state: DistributionEventState;
-    startDate: Date;
+    plannedStartDateTime: Date;
 }

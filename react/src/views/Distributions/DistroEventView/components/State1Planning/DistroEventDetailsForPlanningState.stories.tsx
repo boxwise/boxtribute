@@ -9,7 +9,7 @@ import { action } from "@storybook/addon-actions";
 const mockedDistroEventPackingList: DistroEventDetailsDataForPlanningState = {
   distroEventData: {
     id: "1",
-    startDate: new Date("2022/09/22"),
+    plannedStartDateTime: new Date("2022/09/22"),
     distributionSpot: {
       id: "1",
       name: "Horgosz River",

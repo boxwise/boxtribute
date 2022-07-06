@@ -12,7 +12,7 @@ const distributionSpotSchema = yup.object({
 export const distributionEventDetailsSchema = yup.object({
   id: yup.string().required(),
   name: yup.string().required(),
-  startDate: yup.date().required(),
+  plannedStartDateTime: yup.date().required(),
   state: yup
     .mixed<DistributionEventState>()
     .oneOf(Object.values(DistributionEventState))
@@ -68,7 +68,7 @@ const DistroEventContainer = ({
           {distroEventDetails.distributionSpot.name}
         </Text>
         <Text fontSize="xl" mb={2} borderBottom="1px" borderColor="gray.300">
-          {distroEventDetails.startDate?.toDateString()}
+          {distroEventDetails.plannedStartDateTime?.toDateString()}
         </Text>
         <DistributionStateProgressBar activeState={distroEventDetails.state} />
       </Box>

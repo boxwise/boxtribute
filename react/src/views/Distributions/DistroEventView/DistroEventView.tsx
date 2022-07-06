@@ -42,7 +42,7 @@ const graphqlToContainerTransformer = (
   return {
     id: distributionEventData?.distributionEvent?.id,
     name: distributionEventData?.distributionEvent?.name || "",
-    startDate: new Date(distributionEventData?.distributionEvent?.startDate),
+    plannedStartDateTime: new Date(distributionEventData?.distributionEvent?.plannedStartDateTime),
     state: distributionEventData?.distributionEvent?.state,
     distributionSpot: {
       name: distributionEventData?.distributionEvent?.name || "",
@@ -60,7 +60,7 @@ const DistroEventView = () => {
         id
         name
         state
-        startDate
+        plannedStartDateTime
         distributionSpot {
           id
           name
@@ -87,12 +87,12 @@ const DistroEventView = () => {
     return <div>Error!</div>;
   }
 
-  console.log("FOO startDate", data?.distributionEvent?.startDate)
-  console.log("FOO typeof(startDate)", typeof(data?.distributionEvent?.startDate))
+  console.log("FOO plannedStartDateTime", data?.distributionEvent?.plannedStartDateTime)
+  console.log("FOO typeof(plannedStartDateTime)", typeof(data?.distributionEvent?.plannedStartDateTime))
 
   const transformedData = graphqlToContainerTransformer(data);
 
-  console.log("FOO transformedData", typeof(transformedData.startDate))
+  console.log("FOO transformedData", typeof(transformedData.plannedStartDateTime))
 
     return <DistroEventContainer distroEventDetails={transformedData} />;
   // return <Box>{JSON.stringify(data)}</Box>;

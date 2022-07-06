@@ -38,7 +38,7 @@ export default {
                       id: "3",
                       name: "Warm Clothes and Tea",
                       // startDateTime: "2022-06-01T14:48:25+00:00",
-                      startDate: "2022-06-01T14:48:25+00:00",
+                      plannedStartDateTime: "2022-06-01T14:48:25+00:00",
                       state: DistributionEventState.Planning,
                     },
                   ],
