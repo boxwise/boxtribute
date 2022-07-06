@@ -23,6 +23,12 @@ class DistributionEventState(enum.IntEnum):
     Completed = enum.auto()
 
 
+class PackingListEntryState(enum.IntEnum):
+    NotStarted = 1
+    PackingInProgress = enum.auto()
+    Packed = enum.auto()
+
+
 class TransferAgreementType(enum.IntEnum):
     Unidirectional = 1
     Bidirectional = enum.auto()

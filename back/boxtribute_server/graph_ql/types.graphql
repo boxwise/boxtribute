@@ -225,11 +225,30 @@ type DistributionEvent {
   state: DistributionEventState!
 
   startDate: Date!
+  packingList: PackingList!
   # TODO: Change this again to Datetime later
   # startDateTime: Datetime!
 
   # endDateTime: Datetime!
   # endDate: Date!
+}
+
+enum PackingListEntryState {
+  NotStarted
+  PackingInProgress
+  Packed
+}
+type PackingListEntry implements ItemsCollection {
+  product: Product
+  # Size field needs to be reconsidered - related to the parallel size discussion
+  size: String
+  numberOfItems: Int!
+  matchingPackedItemsCollections: [ItemsCollection!]!
+  state: PackingListEntryState!
+}
+type PackingList {
+  entries: [PackingListEntry!]!
+  distributionEvent: DistributionEvent!
 }
 
 type DistributionSpot implements BoxPlace {
