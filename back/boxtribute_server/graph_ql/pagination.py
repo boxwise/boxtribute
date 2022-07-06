@@ -199,7 +199,8 @@ def load_into_page(model, *conditions, selection=None, pagination_input):
     for condition in conditions:
         pagination_condition = (condition) & (pagination_condition)
 
-    selection = selection or model.select()
+    if selection is None:
+        selection = model.select()
     query_result = (
         selection.where(pagination_condition).order_by(model.id).limit(limit + 1)
     )
