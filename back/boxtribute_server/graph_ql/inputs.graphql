@@ -82,9 +82,6 @@ input DistributionEventCreationInput {
   name: String
   plannedStartDateTime: Datetime
   plannedEndDateTime: Datetime
-  # TODO: Change startDate to startDateTime at a later point
-  # (currently issues with datetime transformation in python).
-  # startDateTime: Datetime
 }
 
 input ShipmentUpdateInput {
