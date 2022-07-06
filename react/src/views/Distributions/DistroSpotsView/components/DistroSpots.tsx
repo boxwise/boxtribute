@@ -61,7 +61,7 @@ const DistroSpots = ({
                     {distroSpot.nextDistroEventDate ? (
                       <Box>
                         Next distribution on:{" "}
-                        {distroSpot.nextDistroEventDate?.toDateString()}{" "}
+                        {distroSpot.nextDistroEventDate.toLocaleTimeString()}{" "}
                       </Box>
                     ) : null}
                   </VStack>
@@ -96,7 +96,7 @@ const DistroSpots = ({
                         }}
                         onClick={() => onDistroEventClick(distroEvent.id)}
                       >
-                        <Box>Date: {distroEvent.startDateTime?.toDateString()}</Box>
+                        <Box>Date: {distroEvent.startDateTime?.toLocaleString()}</Box>
                         <Box>
                           Status: {distroEventStateHumanReadableLabels.get(distroEvent.state)}
                         </Box>
