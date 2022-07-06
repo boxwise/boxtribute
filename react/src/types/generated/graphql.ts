@@ -197,6 +197,7 @@ export type DistributionEvent = {
   distributionSpot?: Maybe<DistributionSpot>;
   id: Scalars['ID'];
   name?: Maybe<Scalars['String']>;
+  packingList: PackingList;
   startDate: Scalars['Date'];
   state: DistributionEventState;
 };
@@ -553,6 +554,26 @@ export type Organisation = {
   id: Scalars['ID'];
   name: Scalars['String'];
 };
+
+export type PackingList = {
+  __typename?: 'PackingList';
+  distributionEvent: DistributionEvent;
+  entries: Array<PackingListEntry>;
+};
+
+export type PackingListEntry = {
+  __typename?: 'PackingListEntry';
+  numberOfItems: Scalars['Int'];
+  product?: Maybe<Product>;
+  size?: Maybe<Scalars['String']>;
+  state: PackingListEntryState;
+};
+
+export enum PackingListEntryState {
+  NotStarted = 'NotStarted',
+  Packed = 'Packed',
+  PackingInProgress = 'PackingInProgress'
+}
 
 /**
  * Additional information passed along in `*Page` types.

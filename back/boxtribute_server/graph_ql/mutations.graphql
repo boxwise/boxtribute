@@ -22,4 +22,6 @@ type Mutation {
 
   createDistributionSpot(creationInput: DistributionSpotCreationInput): DistributionSpot
   createDistributionEvent(creationInput: DistributionEventCreationInput): DistributionEvent
+
+  addEntryToPacking
 }
