@@ -46,6 +46,8 @@ from ..models.definitions.box import Box
 from ..models.definitions.distribution_event import DistributionEvent
 from ..models.definitions.location import Location
 from ..models.definitions.organisation import Organisation
+from ..models.definitions.packing_list import PackingList
+from ..models.definitions.packing_list_entry import PackingListEntry
 from ..models.definitions.product import Product
 from ..models.definitions.product_category import ProductCategory
 from ..models.definitions.qr_code import QrCode
@@ -89,6 +91,7 @@ distribution_spot = _register_object_type("DistributionSpot")
 distribution_event = _register_object_type("DistributionEvent")
 metrics = _register_object_type("Metrics")
 organisation = _register_object_type("Organisation")
+packing_list = _register_object_type("PackingList")
 product = _register_object_type("Product")
 product_category = _register_object_type("ProductCategory")
 qr_code = _register_object_type("QrCode")
@@ -135,11 +138,9 @@ def resolve_distribution_spot_distribution_events(obj, *_):
     )
 
 
-# @distribution_event.field("distributionSpot")
-# def resolve_distribution_event_distribution_spot(obj, *_):
-#     return Location.select().where(
-#         Location.id == obj.distribution_spot_id
-#     )
+@distribution_event.field("packingList")
+def resolve_distribution_event_packing_list(obj, *_):
+    return PackingList.get(PackingList.distribution_event == obj.id)
 
 
 @base.field("distributionSpots")
@@ -606,6 +607,11 @@ def resolve_send_shipment(*_, id):
     shipment = Shipment.get_by_id(id)
     authorize(organisation_id=shipment.source_base.organisation_id)
     return send_shipment(id=id, user=g.user)
+
+
+@packing_list.field("entries")
+def resolve_packing_list_entries(obj, *_):
+    return PackingListEntry.select().where(PackingListEntry.packing_list_id == obj.id)
 
 
 @base.field("locations")

@@ -4,6 +4,7 @@ import random
 
 import peewee
 from boxtribute_server.models.definitions.distribution_event import DistributionEvent
+from boxtribute_server.models.definitions.packing_list import PackingList
 
 from ..db import db
 from ..enums import BoxState, LocationType
@@ -93,19 +94,40 @@ def create_distribution_event(
     print(now)
     print("start_date_time FOO")
     print(start_date)
-    new_distribution_event = DistributionEvent.create(
-        name=name,
-        start_date=start_date,
-        end_date_time=end_date_time,
-        distribution_spot_id=distribution_spot_id,
-        created_on=now,
-        created_by=user_id,
-        last_modified_on=now,
-        last_modified_by=1,
-        # type=LocationType.DistributionSpot,
-        # **distribution_spot_input,
-    )
-    return new_distribution_event
+
+    with db.database.atomic():
+        # language_ids = languages or []
+        # if language_ids:
+        #     XBeneficiaryLanguage.delete().where(
+        #         XBeneficiaryLanguage.beneficiary == id
+        #     ).execute()
+        #     XBeneficiaryLanguage.insert_many(
+        #         [{"language": lid, "beneficiary": id} for lid in language_ids]
+        #     ).execute()
+        # beneficiary.save()
+
+        new_distribution_event = DistributionEvent.create(
+            name=name,
+            start_date=start_date,
+            end_date_time=end_date_time,
+            distribution_spot_id=distribution_spot_id,
+            created_on=now,
+            created_by=user_id,
+            last_modified_on=now,
+            last_modified_by=1,
+            # type=LocationType.DistributionSpot,
+            # **distribution_spot_input,
+        )
+
+        PackingList.create(
+            distribution_event=new_distribution_event.id,
+            created_on=now,
+            created_by=user_id,
+            last_modified_on=now,
+            last_modified_by=1,
+        )
+
+        return new_distribution_event
 
 
 def update_box(

@@ -238,12 +238,12 @@ enum PackingListEntryState {
   PackingInProgress
   Packed
 }
-type PackingListEntry implements ItemsCollection {
+type PackingListEntry {
   product: Product
   # Size field needs to be reconsidered - related to the parallel size discussion
   size: String
   numberOfItems: Int!
-  matchingPackedItemsCollections: [ItemsCollection!]!
+  # matchingPackedItemsCollections: [ItemsCollection!]!
   state: PackingListEntryState!
 }
 type PackingList {
