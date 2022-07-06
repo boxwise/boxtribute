@@ -73,16 +73,22 @@ def create_distribution_event(
     distribution_spot_id,
     # user_id,
     name,
-    start_date,
-    end_date_time=None,
+    # start_date,
+    planned_start_date_time,
+    planned_end_date_time=None,
+    # end_date_time=None,
 ):
     """
     TODO: Add description here
     """
 
-    if end_date_time is None:
+    if planned_end_date_time is None:
         # TODO: consider to change endDateTime to startDateTime + 2 or 3 hours
-        end_date_time = start_date
+        planned_end_date_time = planned_start_date_time
+
+    # if end_date_time is None:
+    #     # TODO: consider to change endDateTime to startDateTime + 2 or 3 hours
+    #     end_date_time = start_date
 
     """
     TODO: ensure that distribution_spot_id is realy from a Distribution Spot
@@ -92,24 +98,16 @@ def create_distribution_event(
     now = utcnow()
     print("UTCNOW FOO")
     print(now)
-    print("start_date_time FOO")
-    print(start_date)
+    # print("start_date_time FOO")
+    # print(start_date)
 
     with db.database.atomic():
-        # language_ids = languages or []
-        # if language_ids:
-        #     XBeneficiaryLanguage.delete().where(
-        #         XBeneficiaryLanguage.beneficiary == id
-        #     ).execute()
-        #     XBeneficiaryLanguage.insert_many(
-        #         [{"language": lid, "beneficiary": id} for lid in language_ids]
-        #     ).execute()
-        # beneficiary.save()
-
         new_distribution_event = DistributionEvent.create(
             name=name,
-            start_date=start_date,
-            end_date_time=end_date_time,
+            # start_date=start_date,
+            # end_date_time=end_date_time,
+            planned_start_date_time=planned_start_date_time,
+            planned_end_date_time=planned_end_date_time,
             distribution_spot_id=distribution_spot_id,
             created_on=now,
             created_by=user_id,

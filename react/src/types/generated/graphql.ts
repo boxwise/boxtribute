@@ -198,6 +198,8 @@ export type DistributionEvent = {
   id: Scalars['ID'];
   name?: Maybe<Scalars['String']>;
   packingList: PackingList;
+  plannedEndDateTime: Scalars['Datetime'];
+  plannedStartDateTime: Scalars['Datetime'];
   startDate: Scalars['Date'];
   state: DistributionEventState;
 };

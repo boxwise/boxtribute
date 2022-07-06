@@ -224,7 +224,11 @@ type DistributionEvent {
   name: String
   state: DistributionEventState!
 
+  # TODO: remove startDate again (since we have startDateTime)
   startDate: Date!
+
+  plannedStartDateTime: Datetime!
+  plannedEndDateTime: Datetime!
   packingList: PackingList!
   # TODO: Change this again to Datetime later
   # startDateTime: Datetime!

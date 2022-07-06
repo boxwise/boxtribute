@@ -17,8 +17,10 @@ class DistributionEvent(db.Model):
     # )
     name = CharField(null=True)
     # start_date_time = DateTimeField()
-    start_date = DateTimeField(column_name="start_date_time")
-    end_date_time = DateTimeField(null=True)
+    # start_date = DateTimeField(column_name="start_date_time")
+    # end_date_time = DateTimeField(null=True)
+    planned_start_date_time = DateTimeField(column_name="planned_start_date_time")
+    planned_end_date_time = DateTimeField(column_name="planned_end_date_time")
     distribution_spot = UIntForeignKeyField(
         column_name="location_id",
         object_id_name="distribution_spot_id",
