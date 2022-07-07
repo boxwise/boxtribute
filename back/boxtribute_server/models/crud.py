@@ -4,7 +4,6 @@ import random
 
 import peewee
 from boxtribute_server.models.definitions.distribution_event import DistributionEvent
-from boxtribute_server.models.definitions.packing_list import PackingList
 
 from ..db import db
 from ..enums import BoxState, LocationType
@@ -67,6 +66,26 @@ def create_box(
     raise BoxCreationFailed()
 
 
+# def add_packing_list_entry_to_distribution_event(
+#     distribution_event_id,
+#     user_id,
+#     packing_list_entry_id,
+# ):
+#     """
+#     Add a packing list entry to a distribution event.
+#     """
+#     now = utcnow()
+#     with db.database.atomic():
+#         PackingList.create(
+#             distribution_event=distribution_event_id,
+#             packing_list_entry=packing_list_entry_id,
+#             created_on=now,
+#             created_by=user_id,
+#             last_modified_on=now,
+#             last_modified_by=user_id,
+#         )
+
+
 def create_distribution_event(
     # distribution_event_input=None
     user_id,
@@ -117,13 +136,13 @@ def create_distribution_event(
             # **distribution_spot_input,
         )
 
-        PackingList.create(
-            distribution_event=new_distribution_event.id,
-            created_on=now,
-            created_by=user_id,
-            last_modified_on=now,
-            last_modified_by=1,
-        )
+        # PackingList.create(
+        #     distribution_event=new_distribution_event.id,
+        #     created_on=now,
+        #     created_by=user_id,
+        #     last_modified_on=now,
+        #     last_modified_by=1,
+        # )
 
         return new_distribution_event
 

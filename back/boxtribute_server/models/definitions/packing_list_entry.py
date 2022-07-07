@@ -3,7 +3,7 @@ from peewee import DateTimeField, IntegerField
 from ...db import db
 from ...enums import PackingListEntryState
 from ..fields import EnumCharField, UIntForeignKeyField
-from .packing_list import PackingList
+from .distribution_event import DistributionEvent
 from .product import Product
 from .size import Size
 from .user import User
@@ -23,10 +23,10 @@ class PackingListEntry(db.Model):
         model=Size,
         on_update="CASCADE",
     )
-    packing_list = UIntForeignKeyField(
-        column_name="packing_list_id",
+    distribution_event = UIntForeignKeyField(
+        column_name="distribution_event_id",
         field="id",
-        model=PackingList,
+        model=DistributionEvent,
         on_update="CASCADE",
     )
     state = EnumCharField(choices=PackingListEntryState)

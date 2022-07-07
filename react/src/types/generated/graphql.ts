@@ -379,6 +379,7 @@ export type MetricsNumberOfSalesArgs = {
 export type Mutation = {
   __typename?: 'Mutation';
   acceptTransferAgreement?: Maybe<TransferAgreement>;
+  addPackingListEntryToDistributionEvent?: Maybe<PackingListEntry>;
   cancelShipment?: Maybe<Shipment>;
   cancelTransferAgreement?: Maybe<TransferAgreement>;
   createBeneficiary?: Maybe<Beneficiary>;
@@ -403,6 +404,17 @@ export type Mutation = {
  */
 export type MutationAcceptTransferAgreementArgs = {
   id: Scalars['ID'];
+};
+
+
+/**
+ * Naming convention:
+ * - input argument: creationInput/updateInput
+ * - input type: <Resource>CreationInput/UpdateInput
+ */
+export type MutationAddPackingListEntryToDistributionEventArgs = {
+  distributionId: Scalars['ID'];
+  entry: PacklistEntryInput;
 };
 
 
@@ -573,6 +585,12 @@ export enum PackingListEntryState {
   Packed = 'Packed',
   PackingInProgress = 'PackingInProgress'
 }
+
+export type PacklistEntryInput = {
+  items: Scalars['Int'];
+  productId: Scalars['Int'];
+  sizeId: Scalars['Int'];
+};
 
 /**
  * Additional information passed along in `*Page` types.

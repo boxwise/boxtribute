@@ -243,6 +243,7 @@ type PackingListEntry {
   # matchingPackedItemsCollections: [ItemsCollection!]!
   state: PackingListEntryState!
 }
+
 type PackingList {
   entries: [PackingListEntry!]!
   distributionEvent: DistributionEvent!

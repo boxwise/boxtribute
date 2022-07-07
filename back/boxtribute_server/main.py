@@ -24,7 +24,6 @@ configure_app(
 
 from .db import db
 from .models.definitions.distribution_event import DistributionEvent
-from .models.definitions.packing_list import PackingList
 from .models.definitions.packing_list_entry import PackingListEntry
 
-db.database.create_tables([DistributionEvent, PackingList, PackingListEntry])
+db.database.create_tables([DistributionEvent, PackingListEntry])

@@ -1,5 +1,6 @@
 """GraphQL resolver functionality"""
 from datetime import date
+from types import SimpleNamespace
 
 from ariadne import (
     InterfaceType,
@@ -46,7 +47,6 @@ from ..models.definitions.box import Box
 from ..models.definitions.distribution_event import DistributionEvent
 from ..models.definitions.location import Location
 from ..models.definitions.organisation import Organisation
-from ..models.definitions.packing_list import PackingList
 from ..models.definitions.packing_list_entry import PackingListEntry
 from ..models.definitions.product import Product
 from ..models.definitions.product_category import ProductCategory
@@ -140,7 +140,12 @@ def resolve_distribution_spot_distribution_events(obj, *_):
 
 @distribution_event.field("packingList")
 def resolve_distribution_event_packing_list(obj, *_):
-    return PackingList.get(PackingList.distribution_event == obj.id)
+    packing_list = SimpleNamespace()
+    packing_list.distribution_event_id = obj.id
+    return packing_list
+
+
+#     return PackingList.get(PackingList.distribution_event == obj.id)
 
 
 @base.field("distributionSpots")
@@ -165,6 +170,12 @@ def resolve_distributions_spot(obj, _, id):
 @query.field("distributionEvent")
 def resolve_distribution_event(obj, _, id):
     distribution_event = DistributionEvent.get_by_id(id)
+    return distribution_event
+
+
+@packing_list.field("distributionEvent")
+def resolve_packing_list_distribution_event(obj, *_):
+    distribution_event = DistributionEvent.get_by_id(obj.distribution_event_id)
     return distribution_event
 
 
@@ -488,6 +499,15 @@ def resolve_create_distribution_event(*_, creation_input):
     return create_distribution_event(user_id=g.user.id, **creation_input)
 
 
+# @mutation.field("addPackingListEntryToDistributionEvent")
+# def resolve_add_packing_list_entry_to_distribution_event
+# (*_, event_id, creation_input):
+#     # authorize(permission="stock:write")
+#     return add_packing_list_entry_to_distribution_event(
+#         user_id=g.user.id, event_id=event_id, **creation_input
+#     )
+
+
 @mutation.field("updateBox")
 @convert_kwargs_to_snake_case
 def resolve_update_box(*_, update_input):
@@ -609,9 +629,21 @@ def resolve_send_shipment(*_, id):
     return send_shipment(id=id, user=g.user)
 
 
+# @distribution_event.field("packingList")
+# def resolve_packing_list(obj, *_):
+#     packing_list = SimpleNamespace()
+#     packing_list.
+
+#     return {
+#         distributionEvent:
+#     }
+
+
 @packing_list.field("entries")
 def resolve_packing_list_entries(obj, *_):
-    return PackingListEntry.select().where(PackingListEntry.packing_list_id == obj.id)
+    return PackingListEntry.select().where(
+        PackingListEntry.distribution_event_id == obj.distribution_event_id
+    )
 
 
 @base.field("locations")
