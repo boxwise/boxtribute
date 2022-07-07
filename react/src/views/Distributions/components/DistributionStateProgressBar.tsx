@@ -18,7 +18,7 @@ const DistributionStateProgressBar = ({
         {i+1}. {distroEventStateHumanReadableLabels.get(state)}
       </Text>
     })
-    .reduce((prev, curr) => [prev, <Text color="gray" fontSize='md'> → </Text>, curr]);
+    // .reduce((prev, curr) => [prev, <Text color="gray" fontSize='xs'> → </Text>, curr]);
 
   return (
     <Box>
