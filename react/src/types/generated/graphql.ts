@@ -413,8 +413,7 @@ export type MutationAcceptTransferAgreementArgs = {
  * - input type: <Resource>CreationInput/UpdateInput
  */
 export type MutationAddPackingListEntryToDistributionEventArgs = {
-  distributionId: Scalars['ID'];
-  entry: PacklistEntryInput;
+  creationInput: PacklistEntryInput;
 };
 
 
@@ -574,6 +573,7 @@ export type PackingList = {
 
 export type PackingListEntry = {
   __typename?: 'PackingListEntry';
+  id: Scalars['ID'];
   numberOfItems: Scalars['Int'];
   product?: Maybe<Product>;
   size?: Maybe<Scalars['String']>;
@@ -587,7 +587,8 @@ export enum PackingListEntryState {
 }
 
 export type PacklistEntryInput = {
-  items: Scalars['Int'];
+  distributionEventId: Scalars['ID'];
+  numberOfItems: Scalars['Int'];
   productId: Scalars['Int'];
   sizeId: Scalars['Int'];
 };

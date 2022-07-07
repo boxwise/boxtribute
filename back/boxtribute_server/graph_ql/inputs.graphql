@@ -104,7 +104,8 @@ input ShipmentDetailUpdateInput {
 }
 
 input PacklistEntryInput {
+  distributionEventId: ID!
   productId: Int!
   sizeId: Int!
-  items: Int!
+  numberOfItems: Int!
 }

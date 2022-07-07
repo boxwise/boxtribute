@@ -236,6 +236,7 @@ enum PackingListEntryState {
   Packed
 }
 type PackingListEntry {
+  id: ID!
   product: Product
   # Size field needs to be reconsidered - related to the parallel size discussion
   size: String

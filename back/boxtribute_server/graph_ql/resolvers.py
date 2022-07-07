@@ -33,6 +33,7 @@ from ..box_transfer.shipment import (
 )
 from ..enums import HumanGender, LocationType, TaggableObjectType, TransferAgreementType
 from ..models.crud import (
+    add_packing_list_entry_to_distribution_event,
     create_beneficiary,
     create_box,
     create_distribution_event,
@@ -499,13 +500,13 @@ def resolve_create_distribution_event(*_, creation_input):
     return create_distribution_event(user_id=g.user.id, **creation_input)
 
 
-# @mutation.field("addPackingListEntryToDistributionEvent")
-# def resolve_add_packing_list_entry_to_distribution_event
-# (*_, event_id, creation_input):
-#     # authorize(permission="stock:write")
-#     return add_packing_list_entry_to_distribution_event(
-#         user_id=g.user.id, event_id=event_id, **creation_input
-#     )
+@mutation.field("addPackingListEntryToDistributionEvent")
+@convert_kwargs_to_snake_case
+def resolve_add_packing_list_entry_to_distribution_event(*_, creation_input):
+    # authorize(permission="stock:write")
+    return add_packing_list_entry_to_distribution_event(
+        user_id=g.user.id, **creation_input
+    )
 
 
 @mutation.field("updateBox")

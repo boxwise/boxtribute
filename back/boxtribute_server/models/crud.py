@@ -4,9 +4,10 @@ import random
 
 import peewee
 from boxtribute_server.models.definitions.distribution_event import DistributionEvent
+from boxtribute_server.models.definitions.packing_list_entry import PackingListEntry
 
 from ..db import db
-from ..enums import BoxState, LocationType
+from ..enums import BoxState, LocationType, PackingListEntryState
 from ..exceptions import BoxCreationFailed
 from .definitions.beneficiary import Beneficiary
 from .definitions.box import Box
@@ -66,24 +67,38 @@ def create_box(
     raise BoxCreationFailed()
 
 
-# def add_packing_list_entry_to_distribution_event(
-#     distribution_event_id,
-#     user_id,
-#     packing_list_entry_id,
-# ):
-#     """
-#     Add a packing list entry to a distribution event.
-#     """
-#     now = utcnow()
-#     with db.database.atomic():
-#         PackingList.create(
-#             distribution_event=distribution_event_id,
-#             packing_list_entry=packing_list_entry_id,
-#             created_on=now,
-#             created_by=user_id,
-#             last_modified_on=now,
-#             last_modified_by=user_id,
-#         )
+def add_packing_list_entry_to_distribution_event(
+    user_id,
+    distribution_event_id,
+    product_id,
+    size_id,
+    # TODO: Rename this to number_of_items (also numberOfItems in graphql schema)
+    number_of_items,
+):
+    """
+    Add a packing list entry to a distribution event.
+    """
+    now = utcnow()
+    with db.database.atomic():
+        return PackingListEntry.create(
+            distribution_event=distribution_event_id,
+            product=product_id,
+            number_of_items=number_of_items,
+            size=size_id,
+            state=PackingListEntryState.NotStarted,
+            created_on=now,
+            created_by=user_id,
+            last_modified_on=now,
+            last_modified_by=user_id,
+        )
+        # PackingList.create(
+        #     distribution_event=distribution_event_id,
+        #     packing_list_entry=packing_list_entry_id,
+        #     created_on=now,
+        #     created_by=user_id,
+        #     last_modified_on=now,
+        #     last_modified_by=user_id,
+        # )
 
 
 def create_distribution_event(
