@@ -228,10 +228,6 @@ type DistributionEvent {
   plannedEndDateTime: Datetime!
   packingList: PackingList!
   # TODO: Change this again to Datetime later
-  # startDateTime: Datetime!
-
-  # endDateTime: Datetime!
-  # endDate: Date!
 }
 
 enum PackingListEntryState {

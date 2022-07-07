@@ -7,9 +7,12 @@ import {
   CreateDistributionEventMutationVariables,
   DistributionSpotQuery,
 } from "types/generated/graphql";
+import { getISODateTimeFromDateAndTimeString as getDateTimeFromDateAndTimeString } from "utils/helpers";
 import CreateDistroEvent, {
   CreateDistroEventFormData,
 } from "./components/CreateDistroEvent";
+import { addHours } from 'date-fns'
+
 
 const CreateDistributionEventView = () => {
   const DISTRIBUTION_SPOT_QUERY = gql`
@@ -26,12 +29,14 @@ const CreateDistributionEventView = () => {
       $distributionSpotId: Int!
       $name: String!
       $plannedStartDateTime: Datetime!
+      $plannedEndDateTime: Datetime!
     ) {
       createDistributionEvent(
         creationInput: {
           distributionSpotId: $distributionSpotId
           name: $name
           plannedStartDateTime: $plannedStartDateTime
+          plannedEndDateTime: $plannedEndDateTime
         }
       ) {
         id
@@ -53,13 +58,17 @@ const CreateDistributionEventView = () => {
 
   const onSubmitNewDistroEvent = useCallback(
     (createDistroEventFormData: CreateDistroEventFormData) => {
+      const plannedStartDateTime = getDateTimeFromDateAndTimeString(createDistroEventFormData.eventDate, createDistroEventFormData.eventTime);
+      const plannedEndDateTime = addHours(plannedStartDateTime, createDistroEventFormData.duration);
+
       createDistributionEventMutation({
         variables: {
           distributionSpotId: parseInt(distributionSpotId!),
           // TODO: probably better to make name optional/nullable also in the API
           // After that, let's remove the ` || ""`
           name: createDistroEventFormData.name || "",
-          plannedStartDateTime: createDistroEventFormData.eventDate,
+          plannedStartDateTime: plannedStartDateTime.toISOString(),
+          plannedEndDateTime: plannedEndDateTime.toISOString(),
         },
       })
         .then((mutationResult) => {

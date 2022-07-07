@@ -2,7 +2,9 @@ import { Button, Flex, FormLabel, Input, Text } from "@chakra-ui/react";
 import { useForm } from "react-hook-form";
 
 export interface CreateDistroEventFormData {
-  eventDate?: Date;
+  eventDate: Date;
+  eventTime: string;
+  duration: number;
   name?: string
   // distroSpot: string;
 }
@@ -26,7 +28,7 @@ const CreateDistroEvent = ({
     formState: { isSubmitting },
   } = useForm<CreateDistroEventFormData>({
     defaultValues: {
-      eventDate: new Date()
+      duration: 2
     },
   });
 
@@ -40,12 +42,27 @@ const CreateDistroEvent = ({
         <FormLabel fontSize="sm" htmlFor="date">
           Date of the event:
         </FormLabel>
-        {/* it's still has to be limited to dates from today onward */}
         <Input
-        // placeholder={distroEvent.eventDate?.toDateString()}
           type="date"
           mb={4}
           {...register("eventDate", { required: true })}
+       />
+        <FormLabel fontSize="sm" htmlFor="time">
+          Time of the event:
+        </FormLabel>
+        <Input
+        // placeholder={distroEvent.eventDate?.toDateString()}
+          type="time"
+          mb={4}
+          {...register("eventTime", { required: true })}
+       />
+        <FormLabel fontSize="sm" htmlFor="date">
+          Expected duration (in hours):
+        </FormLabel>
+        <Input
+          type="number"
+          mb={4}
+          {...register("duration", { required: true })}
        />
         <FormLabel fontSize="sm" htmlFor="name">
           Name of the event:

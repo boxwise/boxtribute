@@ -1062,6 +1062,7 @@ export type CreateDistributionEventMutationVariables = Exact<{
   distributionSpotId: Scalars['Int'];
   name: Scalars['String'];
   plannedStartDateTime: Scalars['Datetime'];
+  plannedEndDateTime: Scalars['Datetime'];
 }>;
 
 
