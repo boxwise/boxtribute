@@ -1,9 +1,9 @@
 import React from "react";
 import { ComponentStory, ComponentMeta } from "@storybook/react";
-import { ProductData } from "./AddItemsToPackingList";
+import { ProductAndSizesData } from "./AddItemsToPackingList";
 import AddItemsToPackingList from "./AddItemsToPackingList";
 
-const mockedAddItemToPacking: ProductData[] = [
+const mockedAddItemToPacking: ProductAndSizesData[] = [
   {
     id: "1",
     name: "Jacket",
@@ -68,5 +68,5 @@ const Template: ComponentStory<typeof AddItemsToPackingList> = (args) => (
 
 export const Default = Template.bind({});
 Default.args = {
-  productsData: mockedAddItemToPacking,
+  productAndSizesData: mockedAddItemToPacking,
 };

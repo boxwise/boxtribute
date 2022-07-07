@@ -25,7 +25,7 @@ interface ItemToAddFormValues {
   sizeAndNumberOfItemsTuples: SizeAndNumberOfItemsFormTuple[];
 }
 
-export type ProductData = {
+export type ProductAndSizesData = {
   id: string;
   name: string;
   sizes: SizeIdAndNameTuple[];
@@ -43,12 +43,12 @@ interface AddItemToPackingProps {
   onAddEntiresToPackingListForProduct: (
     entriesToAdd: PackingListEntriesForProductToAdd
   ) => void;
-  productsData: ProductData[];
+  productAndSizesData: ProductAndSizesData[];
 }
 
 const AddItemsToPackingList = ({
   onAddEntiresToPackingListForProduct,
-  productsData,
+  productAndSizesData,
 }: AddItemToPackingProps) => {
   const { register, handleSubmit, control, watch } =
     useForm<ItemToAddFormValues>({
@@ -85,13 +85,13 @@ const AddItemsToPackingList = ({
 
   useEffect(() => {
     if (productId != null) {
-      const product = productsData.find((p) => p.id === productId);
+      const product = productAndSizesData.find((p) => p.id === productId);
       const newSizeAndNumTuples = product?.sizes.map((s) => ({
         size: s,
       }));
       replace(newSizeAndNumTuples || []);
     }
-  }, [productId, productsData, replace]);
+  }, [productId, productAndSizesData, replace]);
 
   return (
     <Box>
@@ -109,7 +109,7 @@ const AddItemsToPackingList = ({
           <WrapItem>
             <FormControl id="productId">
               <Select {...register("productId")} placeholder="Select Product">
-                {productsData?.map((product, i) => (
+                {productAndSizesData?.map((product, i) => (
                   <option value={product.id} key={i}>
                     {product.name}
                   </option>

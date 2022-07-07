@@ -1067,6 +1067,11 @@ export type BoxesForBaseQueryVariables = Exact<{
 
 export type BoxesForBaseQuery = { __typename?: 'Query', base?: { __typename?: 'Base', locations: Array<{ __typename?: 'Location', boxes?: { __typename?: 'BoxPage', totalCount: number, elements: Array<{ __typename?: 'Box', labelIdentifier: string, state: BoxState, items: number, size: { __typename?: 'Size', id: string, label: string }, product?: { __typename?: 'Product', gender?: ProductGender | null, name: string } | null, place?: { __typename?: 'DistributionSpot', name?: string | null } | { __typename?: 'Location', name?: string | null } | null }> } | null }> } | null };
 
+export type AllProductsAndSizesQueryVariables = Exact<{ [key: string]: never; }>;
+
+
+export type AllProductsAndSizesQuery = { __typename?: 'Query', products: { __typename?: 'ProductPage', elements: Array<{ __typename?: 'Product', id: string, name: string, gender?: ProductGender | null, sizeRange: { __typename?: 'SizeRange', sizes: Array<{ __typename?: 'Size', id: string, label: string }> } }> } };
+
 export type DistributionSpotQueryVariables = Exact<{
   id: Scalars['ID'];
 }>;
