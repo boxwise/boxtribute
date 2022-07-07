@@ -1,11 +1,11 @@
 export enum DistributionEventState {
     Planning = 'Planning',
-    PlanningDone = 'PlanningDone',
+    // PlanningDone = 'PlanningDone',
     Packing = 'Packing',
-    PackingDone = 'PackingDone',
+    // PackingDone = 'PackingDone',
     OnDistro = 'OnDistro',
     Returned = 'Returned',
-    ReturnsTracked = 'ReturnsTracked',
+    // ReturnsTracked = 'ReturnsTracked',
     Completed = 'Completed'
   }
 export type DistributionEventDetails = {

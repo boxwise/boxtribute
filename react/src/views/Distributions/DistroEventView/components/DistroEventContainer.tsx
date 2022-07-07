@@ -50,12 +50,12 @@ const DistroEventContainer = ({
         }}
       />
     ),
-    [DistributionEventState.PlanningDone]: () => <Box>PlanningDone</Box>,
+    // [DistributionEventState.PlanningDone]: () => <Box>PlanningDone</Box>,
     [DistributionEventState.Packing]: () => <Box>Packing</Box>,
-    [DistributionEventState.PackingDone]: () => <Box>PackingDone</Box>,
+    // [DistributionEventState.PackingDone]: () => <Box>PackingDone</Box>,
     [DistributionEventState.OnDistro]: () => <Box>OnDistro</Box>,
     [DistributionEventState.Returned]: () => <Box>Returned</Box>,
-    [DistributionEventState.ReturnsTracked]: () => <Box>ReturnsTracked</Box>,
+    // [DistributionEventState.ReturnsTracked]: () => <Box>ReturnsTracked</Box>,
     [DistributionEventState.Completed]: () => <Box>Completed</Box>,
   };
 

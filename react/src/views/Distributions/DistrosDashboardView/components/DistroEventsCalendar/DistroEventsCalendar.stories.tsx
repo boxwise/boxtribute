@@ -25,7 +25,7 @@ const distroEvents = [
     id: "1",
     startDateTime: addDays(todayAtTenThirty, 3),
     endDateTime: addHours(addDays(todayAtTenThirty, 3), 3),
-    state: DistributionEventState.PlanningDone,
+    state: DistributionEventState.Packing,
     distroSpotName: "Horgos (River)"
   },
   {

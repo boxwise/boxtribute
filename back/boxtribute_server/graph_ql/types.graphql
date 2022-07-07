@@ -209,12 +209,12 @@ type Organisation {
 enum DistributionEventState {
   # New
   Planning
-  PlanningDone
+  # PlanningDone
   Packing
-  PackingDone
+  # PackingDone
   OnDistro
   Returned
-  ReturnsTracked
+  # ReturnsTracked
   Completed
 }
 

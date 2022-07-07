@@ -16,7 +16,7 @@ const mockedDistroSpots: DistroSpot[] = [
     distroEvents: [
       {
         startDateTime: new Date("2022/08/22"),
-        state: DistributionEventState.PlanningDone,
+        state: DistributionEventState.Packing,
         id: "1",
       },
       {

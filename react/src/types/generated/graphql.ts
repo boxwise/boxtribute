@@ -214,11 +214,8 @@ export enum DistributionEventState {
   Completed = 'Completed',
   OnDistro = 'OnDistro',
   Packing = 'Packing',
-  PackingDone = 'PackingDone',
   Planning = 'Planning',
-  PlanningDone = 'PlanningDone',
-  Returned = 'Returned',
-  ReturnsTracked = 'ReturnsTracked'
+  Returned = 'Returned'
 }
 
 export type DistributionSpot = BoxPlace & {

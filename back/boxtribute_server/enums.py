@@ -14,12 +14,12 @@ class DistributionEventState(enum.IntEnum):
     # New = 1
     # Planning = enum.auto()
     Planning = 1
-    PlanningDone = enum.auto()
+    # PlanningDone = enum.auto()
     Packing = enum.auto()
-    PackingDone = enum.auto()
+    # PackingDone = enum.auto()
     OnDistro = enum.auto()
     Returned = enum.auto()
-    ReturnsTracked = enum.auto()
+    # ReturnsTracked = enum.auto()
     Completed = enum.auto()
 
 
