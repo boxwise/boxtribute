@@ -174,10 +174,10 @@ def resolve_distribution_event(obj, _, id):
     return distribution_event
 
 
-@packing_list.field("distributionEvent")
-def resolve_packing_list_distribution_event(obj, *_):
-    distribution_event = DistributionEvent.get_by_id(obj.distribution_event_id)
-    return distribution_event
+# @packing_list.field("distributionEvent")
+# def resolve_packing_list_distribution_event(obj, *_):
+#     distribution_event = DistributionEvent.get_by_id(obj.distribution_event_id)
+#     return distribution_event
 
 
 @query.field("users")

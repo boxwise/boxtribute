@@ -1,38 +1,32 @@
 import React from "react";
 import { ComponentStory, ComponentMeta } from "@storybook/react";
 import { DistributionEventState, ProductGender } from "types/generated/graphql";
-import DistroEventDetailsForPlanningState, {
-  DistroEventDetailsDataForPlanningState,
-} from "./DistroEventDetailsForPlanningState";
+import DistroEventDetailsForPlanningState, { PackingListEntry } from "./DistroEventDetailsForPlanningState";
 import { action } from "@storybook/addon-actions";
 
-const mockedDistroEventPackingList: DistroEventDetailsDataForPlanningState = {
-  distroEventData: {
-    id: "1",
-    plannedStartDateTime: new Date("2022/09/22"),
-    distributionSpot: {
-      id: "1",
-      name: "Horgosz River",
-    },
-    state: DistributionEventState.Planning,
-  },
-  itemsForPacking: [
+const mockedDistroEventPackingList: PackingListEntry[] =
+  [
     {
       id: "3",
-      items: 32,
-      size: "M",
+      numberOfItems: 32,
+      size: {
+        id: "123",
+        label: "M",
+      },
       productName: "T-shirt",
       gender: ProductGender.Men,
     },
     {
       id: "4",
-      items: 10,
-      size: "S",
+      numberOfItems: 10,
+      size: {
+        id: "234",
+        label: "S",
+      },
       productName: "T-shirt",
       gender: ProductGender.Women,
     },
-  ],
-};
+  ];
 
 export default {
   title:
@@ -47,7 +41,7 @@ const Template: ComponentStory<typeof DistroEventDetailsForPlanningState> = (arg
 
 export const Default = Template.bind({});
 Default.args = {
-  distroEventDetailsData: mockedDistroEventPackingList,
+  packingListEntries: mockedDistroEventPackingList,
   onAddItemsClick: action("onAddItemsClick"),
   onCopyPackingListFromPreviousEventsClick: action(
     "onCopyPackingListFromPreviousEventsClick"

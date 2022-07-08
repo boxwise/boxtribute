@@ -44,10 +44,7 @@ const DistroEventContainer = ({
   } = {
     [DistributionEventState.Planning]: () => (
       <DistroEventDetailsForPlanningStateContainer
-        distroEventDetailsDataForPlanningState={{
-          distroEventData: distroEventDetails,
-          itemsForPacking: [],
-        }}
+      distributionEventDetails={distroEventDetails}
       />
     ),
     // [DistributionEventState.PlanningDone]: () => <Box>PlanningDone</Box>,

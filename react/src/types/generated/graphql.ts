@@ -567,7 +567,6 @@ export type Organisation = {
 
 export type PackingList = {
   __typename?: 'PackingList';
-  distributionEvent: DistributionEvent;
   entries: Array<PackingListEntry>;
 };
 
@@ -576,7 +575,7 @@ export type PackingListEntry = {
   id: Scalars['ID'];
   numberOfItems: Scalars['Int'];
   product?: Maybe<Product>;
-  size?: Maybe<Scalars['String']>;
+  size?: Maybe<Size>;
   state: PackingListEntryState;
 };
 
@@ -1095,6 +1094,13 @@ export type DistributionEventQueryVariables = Exact<{
 
 
 export type DistributionEventQuery = { __typename?: 'Query', distributionEvent?: { __typename?: 'DistributionEvent', id: string, name?: string | null, state: DistributionEventState, plannedStartDateTime: any, distributionSpot?: { __typename?: 'DistributionSpot', id: string, name?: string | null } | null } | null };
+
+export type PackingListEntriesForDistributionEventQueryVariables = Exact<{
+  distributionEventId: Scalars['ID'];
+}>;
+
+
+export type PackingListEntriesForDistributionEventQuery = { __typename?: 'Query', distributionEvent?: { __typename?: 'DistributionEvent', id: string, packingList: { __typename?: 'PackingList', entries: Array<{ __typename?: 'PackingListEntry', id: string, numberOfItems: number, product?: { __typename?: 'Product', id: string, name: string, gender?: ProductGender | null } | null, size?: { __typename?: 'Size', id: string, label: string } | null }> } } | null };
 
 export type DistroSpotsForBaseIdQueryVariables = Exact<{
   baseId: Scalars['ID'];

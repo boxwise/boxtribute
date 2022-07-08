@@ -1,5 +1,5 @@
 import { Box, Button, Flex, SimpleGrid, Text } from "@chakra-ui/react";
-import { CloseIcon, EditIcon } from '@chakra-ui/icons'
+import { CloseIcon, EditIcon } from "@chakra-ui/icons";
 import { ProductGender } from "types/generated/graphql";
 import { DistributionEventDetails } from "views/Distributions/types";
 
@@ -13,19 +13,24 @@ import { DistributionEventDetails } from "views/Distributions/types";
 export interface PackingListEntry {
   id: string;
   productName: string;
-  size?: string;
+  size?: {
+    id: string;
+    label: string;
+  }
   gender?: ProductGender;
-  items: number;
+  numberOfItems: number;
 }
 
-export interface DistroEventDetailsDataForPlanningState {
-    distroEventData: DistributionEventDetails;
-    itemsForPacking: PackingListEntry[];
-    // DistributionEventDetails
-}
+// export interface DistroEventDetailsDataForPlanningState {
+//     distroEventDetails: DistributionEventDetails;
+//     itemsForPacking: PackingListEntry[];
+//     // DistributionEventDetails
+// }
 
 interface DistroEventDetailsForPlanningStateProps {
-  distroEventDetailsData: DistroEventDetailsDataForPlanningState
+  // distroEventDetailsData: DistroEventDetailsDataForPlanningState
+  // distroEventDetails: DistributionEventDetails;
+  packingListEntries: PackingListEntry[];
   onAddItemsClick: () => void;
   onCopyPackingListFromPreviousEventsClick: () => void;
   onEditItemOnPackingListClick: (packlistItemId: string) => void;
@@ -33,22 +38,27 @@ interface DistroEventDetailsForPlanningStateProps {
 }
 
 const DistroEventDetailsForPlanningState = ({
-  distroEventDetailsData,
+  // distroEventDetails,
+  packingListEntries,
   onAddItemsClick,
   onCopyPackingListFromPreviousEventsClick,
   onRemoveItemFromPackingListClick,
   onEditItemOnPackingListClick,
-}: DistroEventDetailsForPlanningStateProps ) => {
+}: DistroEventDetailsForPlanningStateProps) => {
   return (
     <>
       <Flex w={[300, 400, 600]} direction="column" mb={4}>
-      <Button my={2} onClick={() => onAddItemsClick()}>Add New Items</Button>
-      <Button onClick={() => onCopyPackingListFromPreviousEventsClick()}>
-        Copy Packing List from Previous Event
-      </Button>
+        <Button my={2} onClick={() => onAddItemsClick()}>
+          Add New Items
+        </Button>
+        <Button onClick={() => onCopyPackingListFromPreviousEventsClick()}>
+          Copy Packing List from Previous Event
+        </Button>
       </Flex>
-      <Text fontSize="md"><strong>Packing List:</strong></Text>
-      {distroEventDetailsData.itemsForPacking.map((item) => {
+      <Text fontSize="md">
+        <strong>Packing List:</strong>
+      </Text>
+      {packingListEntries.map((item) => {
         return (
           <SimpleGrid
             minChildWidth="10px"
@@ -58,14 +68,21 @@ const DistroEventDetailsForPlanningState = ({
             borderColor="gray.300"
             my={2}
           >
-            <Box>{item.items}</Box>
+            <Box>{item.numberOfItems}</Box>
             <Box>{item.productName}</Box>
-            <Box>{item.size}</Box>
+            <Box>{item.size?.label}</Box>
             <Box>{item.gender}</Box>
             <Box>
-            <EditIcon onClick={() => onEditItemOnPackingListClick(item.id)} mx={2} color="teal"/>
-            <CloseIcon onClick={() => onRemoveItemFromPackingListClick(item.id)} color="teal"/></Box>
-
+              <EditIcon
+                onClick={() => onEditItemOnPackingListClick(item.id)}
+                mx={2}
+                color="teal"
+              />
+              <CloseIcon
+                onClick={() => onRemoveItemFromPackingListClick(item.id)}
+                color="teal"
+              />
+            </Box>
           </SimpleGrid>
         );
       })}

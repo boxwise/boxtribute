@@ -11,7 +11,8 @@ import {
 import { useFieldArray, useForm } from "react-hook-form";
 import { useCallback, useEffect } from "react";
 import AddItemsToPackingList, {
-  PackingListEntriesForProductToAdd, ProductAndSizesData,
+  PackingListEntriesForProductToAdd,
+  ProductAndSizesData,
 } from "./AddItemsToPackingList";
 import {
   AllProductsAndSizesQuery,
@@ -74,9 +75,11 @@ export const ALL_PRODUCTS_AND_SIZES_QUERY = gql`
   }
 `;
 
-type Product = AllProductsAndSizesQuery['products']['elements'][0];
+type Product = AllProductsAndSizesQuery["products"]["elements"][0];
 
-const graphqlToContainerTransformer = (graphQLData: Product[]): ProductAndSizesData[] => {
+const graphqlToContainerTransformer = (
+  graphQLData: Product[]
+): ProductAndSizesData[] => {
   // const groupedByProductId = groupBy<Product, string>(graphQLData, product => product.id);
   // Object.keys(groupedByProductId).map(productId => {
   //   const  = groupedByProductId[productId];
@@ -85,23 +88,25 @@ const graphqlToContainerTransformer = (graphQLData: Product[]): ProductAndSizesD
   //     products
   // })
 
-  return graphQLData
-  // TODO (IMPORTANT): Remove this fitler call again - was just temporary for dev/demo purposes
-  // to show products which have at least two sizes
-  .filter(product => product.sizeRange.sizes.length > 1)
-  .map(product => {
-    return {
-      id: product.id,
-      name: product.name,
-      sizes: product.sizeRange.sizes.map(size => ({
-        id: size.id,
-        name: size.label
-      }))
-    }
-  });
+  return (
+    graphQLData
+      // TODO (IMPORTANT): Remove this fitler call again - was just temporary for dev/demo purposes
+      // to show products which have at least two sizes
+      .filter((product) => product.sizeRange.sizes.length > 1)
+      .map((product) => {
+        return {
+          id: product.id,
+          name: product.name,
+          sizes: product.sizeRange.sizes.map((size) => ({
+            id: size.id,
+            name: size.label,
+          })),
+        };
+      })
+  );
 
   // return [];
-}
+};
 
 const AddItemsToPackingListContainer = ({
   onAddEntiresToPackingListForProduct,
@@ -111,20 +116,19 @@ const AddItemsToPackingListContainer = ({
     AllProductsAndSizesQueryVariables
   >(ALL_PRODUCTS_AND_SIZES_QUERY);
 
-
-  if(loading) {
-    return <APILoadingIndicator />
+  if (loading) {
+    return <APILoadingIndicator />;
   }
 
-  const productAndSizesData = data?.products?.elements ? graphqlToContainerTransformer(data?.products?.elements) : [];
+  const productAndSizesData = data?.products?.elements
+    ? graphqlToContainerTransformer(data?.products?.elements)
+    : [];
 
   // TODO: also handle error case here
 
   return (
     <AddItemsToPackingList
-      onAddEntiresToPackingListForProduct={() =>
-        alert("onAddEntiresToPackingListForProduct")
-      }
+      onAddEntiresToPackingListForProduct={onAddEntiresToPackingListForProduct}
       productAndSizesData={productAndSizesData}
     />
   );

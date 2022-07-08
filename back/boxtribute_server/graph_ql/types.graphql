@@ -239,7 +239,7 @@ type PackingListEntry {
   id: ID!
   product: Product
   # Size field needs to be reconsidered - related to the parallel size discussion
-  size: String
+  size: Size
   numberOfItems: Int!
   # matchingPackedItemsCollections: [ItemsCollection!]!
   state: PackingListEntryState!
@@ -247,7 +247,7 @@ type PackingListEntry {
 
 type PackingList {
   entries: [PackingListEntry!]!
-  distributionEvent: DistributionEvent!
+  # distributionEvent: DistributionEvent!
 }
 
 type DistributionSpot implements BoxPlace {
