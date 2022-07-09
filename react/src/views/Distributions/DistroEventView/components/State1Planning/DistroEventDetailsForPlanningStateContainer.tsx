@@ -1,26 +1,23 @@
-import { gql, useLazyQuery, useMutation, useQuery } from "@apollo/client";
+import { gql, useMutation, useQuery } from "@apollo/client";
 import {
-  Button,
   Modal,
   ModalBody,
   ModalCloseButton,
   ModalContent,
-  ModalFooter,
   ModalHeader,
   ModalOverlay,
   useDisclosure,
+  useToast,
 } from "@chakra-ui/react";
 import APILoadingIndicator from "components/APILoadingIndicator";
-import { useCallback, useEffect, useState } from "react";
+import { useCallback } from "react";
 import {
   AddToPackingListMutation,
   AddToPackingListMutationVariables,
-  AllProductsAndSizesQuery,
-  AllProductsAndSizesQueryVariables,
   PackingListEntriesForDistributionEventQuery,
   PackingListEntriesForDistributionEventQueryVariables,
 } from "types/generated/graphql";
-import AddItemsToPackingList, {
+import {
   PackingListEntriesForProductToAdd,
 } from "views/Distributions/components/AddItemsToPackingList/AddItemsToPackingList";
 import AddItemsToPackingListContainer from "views/Distributions/components/AddItemsToPackingList/AddItemsToPackingListContainer";
@@ -111,12 +108,14 @@ const DistroEventDetailsForPlanningStateContainer = ({
 }: DistroEventDetailsForPlanningStateContainerProps) => {
   const { isOpen, onOpen, onClose } = useDisclosure();
 
-  const { data, loading, error, refetch } = useQuery<
+  const { data, loading, error } = useQuery<
     PackingListEntriesForDistributionEventQuery,
     PackingListEntriesForDistributionEventQueryVariables
   >(PACKING_LIST_ENTRIES_FOR_DISTRIBUTION_EVENT_QUERY, {
     variables: { distributionEventId: distributionEventDetails.id },
   });
+
+  const toast = useToast();
 
   // TODO: add proper error handling for the mutation
   // TODO: ensure to trigger the fetch of the packing list entries again when
@@ -133,6 +132,7 @@ const DistroEventDetailsForPlanningStateContainer = ({
             },
           },
         ],
+
         // update(cache, { data }) {
         //   const newPackingListEntry =
         //     data?.addPackingListEntryToDistributionEvent;
@@ -178,10 +178,12 @@ const DistroEventDetailsForPlanningStateContainer = ({
     (entriesToAdd: PackingListEntriesForProductToAdd) => {
       // TODO: consider to offer a mutation in the API which allows to add multiple packing list entries
       // at once (instead of calling the mutation for each entry)
+      const numberOfAddedEntries =
+        entriesToAdd.sizeIdAndNumberOfItemTuples.length;
       Promise.all(
         entriesToAdd.sizeIdAndNumberOfItemTuples.map(
           ({ sizeId, numberOfItems }) => {
-            addEntryToPackingListMutation({
+            return addEntryToPackingListMutation({
               variables: {
                 distributionEventId: distributionEventDetails.id,
                 productId: entriesToAdd.productId,
@@ -192,10 +194,17 @@ const DistroEventDetailsForPlanningStateContainer = ({
           }
         )
       ).then(() => {
+        toast({
+          title: `Successfully added ${numberOfAddedEntries} entries`,
+          status: "success",
+          isClosable: true,
+          duration: 2000,
+        });
         onClose();
       });
+      // TODO: add here also error catching and user notification
     },
-    [addEntryToPackingListMutation, distributionEventDetails.id, onClose]
+    [addEntryToPackingListMutation, distributionEventDetails.id, onClose, toast]
   );
 
   if (loading) {
@@ -211,7 +220,6 @@ const DistroEventDetailsForPlanningStateContainer = ({
   return (
     <>
       <DistroEventDetailsForPlanningState
-        // distroEventDetailsData={distroEventDetailsDataForPlanningState}
         packingListEntries={packingListEntries}
         onAddItemsClick={onOpen}
         onCopyPackingListFromPreviousEventsClick={() => {}}
@@ -233,13 +241,6 @@ const DistroEventDetailsForPlanningStateContainer = ({
               }
             />
           </ModalBody>
-
-          {/* <ModalFooter>
-        <Button colorScheme='blue' mr={3} onClick={onClose}>
-          Close
-        </Button>
-        <Button variant='ghost'>Secondary Action</Button>
-      </ModalFooter> */}
         </ModalContent>
       </Modal>
     </>
