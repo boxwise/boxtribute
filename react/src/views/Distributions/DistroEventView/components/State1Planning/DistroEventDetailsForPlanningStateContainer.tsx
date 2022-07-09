@@ -11,7 +11,7 @@ import {
   useDisclosure,
 } from "@chakra-ui/react";
 import APILoadingIndicator from "components/APILoadingIndicator";
-import { useCallback, useEffect } from "react";
+import { useCallback, useEffect, useState } from "react";
 import {
   AddToPackingListMutation,
   AddToPackingListMutationVariables,
@@ -81,8 +81,6 @@ export const ADD_ENTRY_TO_PACKING_LIST_MUTATION = gql`
   }
 `;
 
-// type FOO = PackingListEntriesForDistributionEventQuery["distributionEvent"]//;["packingList"];//["entries"];
-
 const graphqlToContainerTransformer = (
   queryResult: PackingListEntriesForDistributionEventQuery | undefined
 ): PackingListEntry[] => {
@@ -98,7 +96,6 @@ const graphqlToContainerTransformer = (
     gender: entry.product?.gender!,
     numberOfItems: entry.numberOfItems,
   }));
-  // return [];
 };
 
 const DistroEventDetailsForPlanningStateContainer = ({
@@ -107,19 +104,13 @@ const DistroEventDetailsForPlanningStateContainer = ({
 }: DistroEventDetailsForPlanningStateContainerProps) => {
   const { isOpen, onOpen, onClose } = useDisclosure();
 
-  const [
-    packingListEntriesForDistributionEventQuery,
-    { data, loading, error },
-  ] = useLazyQuery<
+  const
+    { data, loading, error, refetch } = useQuery<
     PackingListEntriesForDistributionEventQuery,
     PackingListEntriesForDistributionEventQueryVariables
   >(PACKING_LIST_ENTRIES_FOR_DISTRIBUTION_EVENT_QUERY, {
     variables: { distributionEventId: distributionEventDetails.id },
   });
-
-  useEffect(() => {
-    packingListEntriesForDistributionEventQuery();
-  }, [packingListEntriesForDistributionEventQuery]);
 
   // TODO: add proper error handling for the mutation
   // TODO: ensure to trigger the fetch of the packing list entries again when
@@ -131,35 +122,34 @@ const DistroEventDetailsForPlanningStateContainer = ({
 
   const onAddEntiresToPackingListForProduct = useCallback(
     (entriesToAdd: PackingListEntriesForProductToAdd) => {
-      // entriesToAdd.sizeIdAndNumberOfItemTuples.flatMap(({sizeId, numberOfItems}) => {
-      //     return {
-      //       productId: entriesToAdd.productId,
-      //       sizeId,
-      //       numberOfItems,
-      //     };
-      // });
-      entriesToAdd.sizeIdAndNumberOfItemTuples.forEach(
-        ({ sizeId, numberOfItems }) => {
-          addEntryToPackingListMutation({
-            variables: {
-              distributionEventId: distributionEventDetails.id,
-              productId: entriesToAdd.productId,
-              sizeId: parseInt(sizeId),
-              numberOfItems,
-            },
-          });
-          onClose();
-        }
-      );
+      // TODO: consider to offer a mutation in the API which allows to add multiple packing list entries
+      // at once (instead of calling the mutation for each entry)
+      Promise.all(
+        entriesToAdd.sizeIdAndNumberOfItemTuples.map(
+          ({ sizeId, numberOfItems }) => {
+            addEntryToPackingListMutation({
+              variables: {
+                distributionEventId: distributionEventDetails.id,
+                productId: entriesToAdd.productId,
+                sizeId: parseInt(sizeId),
+                numberOfItems,
+              },
+            });
+            onClose();
+          }
+        )
+      ).then(() => {
+        refetch?.();
+      });
     },
-    [addEntryToPackingListMutation, distributionEventDetails.id]
+    [addEntryToPackingListMutation, distributionEventDetails.id, onClose, refetch]
   );
 
   if (loading) {
     return <APILoadingIndicator />;
   }
 
-  if (error) {
+  if (error || (!loading && data == null)) {
     return <div>Error</div>;
   }
 
