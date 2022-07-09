@@ -14,7 +14,7 @@ const DistributionStateProgressBar = ({
   const joinedPlanningStates = distroEventStateOrder
     .map<React.ReactNode>((state, i) => {
       const isActiveState = state === activeState;
-      return <Text color={isActiveState ? "black" : "gray"} fontSize={isActiveState ? 'md' : 'sm'} {...(isActiveState ? { as: "u" } : {})}>
+      return <Text key={state} color={isActiveState ? "black" : "gray"} fontSize={isActiveState ? 'md' : 'sm'} {...(isActiveState ? { as: "u" } : {})}>
         {i+1}. {distroEventStateHumanReadableLabels.get(state)}
       </Text>
     })
