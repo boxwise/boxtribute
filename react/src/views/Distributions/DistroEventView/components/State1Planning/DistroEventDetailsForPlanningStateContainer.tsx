@@ -104,8 +104,7 @@ const DistroEventDetailsForPlanningStateContainer = ({
 }: DistroEventDetailsForPlanningStateContainerProps) => {
   const { isOpen, onOpen, onClose } = useDisclosure();
 
-  const
-    { data, loading, error, refetch } = useQuery<
+  const { data, loading, error, refetch } = useQuery<
     PackingListEntriesForDistributionEventQuery,
     PackingListEntriesForDistributionEventQueryVariables
   >(PACKING_LIST_ENTRIES_FOR_DISTRIBUTION_EVENT_QUERY, {
@@ -134,15 +133,26 @@ const DistroEventDetailsForPlanningStateContainer = ({
                 sizeId: parseInt(sizeId),
                 numberOfItems,
               },
+              refetchQueries: [
+                {
+                  query: PACKING_LIST_ENTRIES_FOR_DISTRIBUTION_EVENT_QUERY,
+                  variables: {
+                    distributionEventId: distributionEventDetails.id,
+                  },
+                },
+              ],
             });
-            onClose();
           }
         )
       ).then(() => {
-        refetch?.();
+        onClose();
       });
     },
-    [addEntryToPackingListMutation, distributionEventDetails.id, onClose, refetch]
+    [
+      addEntryToPackingListMutation,
+      distributionEventDetails.id,
+      onClose,
+    ]
   );
 
   if (loading) {

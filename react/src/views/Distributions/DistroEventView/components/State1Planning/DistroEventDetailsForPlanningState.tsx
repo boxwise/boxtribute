@@ -67,6 +67,7 @@ const DistroEventDetailsForPlanningState = ({
             borderBottom="1px"
             borderColor="gray.300"
             my={2}
+            key={item.id}
           >
             <Box>{item.numberOfItems}</Box>
             <Box>{item.productName}</Box>
