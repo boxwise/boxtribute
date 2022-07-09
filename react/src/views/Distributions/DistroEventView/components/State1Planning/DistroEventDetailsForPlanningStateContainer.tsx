@@ -20,8 +20,8 @@ import {
 } from "types/generated/graphql";
 import AddItemsToPackingList, {
   PackingListEntriesForProductToAdd,
-} from "views/Distributions/AddItemToPackingListView/components/AddItemsToPackingList";
-import AddItemsToPackingListContainer from "views/Distributions/AddItemToPackingListView/components/AddItemsToPackingListContainer";
+} from "views/Distributions/components/AddItemsToPackingList/AddItemsToPackingList";
+import AddItemsToPackingListContainer from "views/Distributions/components/AddItemsToPackingList/AddItemsToPackingListContainer";
 import { DistributionEventDetails } from "views/Distributions/types";
 import DistroEventDetailsForPlanningState, {
   PackingListEntry,
