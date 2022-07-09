@@ -1105,7 +1105,7 @@ export type AddToPackingListMutationVariables = Exact<{
 }>;
 
 
-export type AddToPackingListMutation = { __typename?: 'Mutation', addPackingListEntryToDistributionEvent?: { __typename?: 'PackingListEntry', id: string, product?: { __typename?: 'Product', name: string } | null } | null };
+export type AddToPackingListMutation = { __typename?: 'Mutation', addPackingListEntryToDistributionEvent?: { __typename?: 'PackingListEntry', id: string, numberOfItems: number, product?: { __typename?: 'Product', id: string, name: string, gender?: ProductGender | null } | null, size?: { __typename?: 'Size', id: string, label: string } | null } | null };
 
 export type DistroSpotsForBaseIdQueryVariables = Exact<{
   baseId: Scalars['ID'];
