@@ -4,6 +4,7 @@ import { DistributionEventState, ProductGender } from 'types/generated/graphql';
 import DistroEventPacking, { DistroEventPackingData } from './DistroEventPacking';
 // import { DistroEvent } from "../State1Planning/DistroEventPlanning";
 import { action } from '@storybook/addon-actions';
+import { BoxData, PackingActionProps } from './Overlays/SecondOverlay';
 
 const mockedDistroEventPackingList: DistroEventPackingData = {
    distroEventData: {
@@ -42,6 +43,18 @@ const mockedDistroEventPackingList: DistroEventPackingData = {
    },
 }
 
+const mockedBoxData: BoxData = {
+    labelIdentifier: "23982",
+    productName: "Jacket Male",
+    size: "M",
+    numberOfItems: 42,
+}
+
+const mockedPackingActionProps: PackingActionProps = {
+    onBoxToDistribution: action("onBoxToDistribution"),
+    onMoveItemsToDistribution: action("onMoveItemsToDistribution")
+}
+
 export default {
   title: 'Mobile Distro Events/Distro Events/Detail View/State: 4 - Packing/Component',
   component: DistroEventPacking,
@@ -54,5 +67,8 @@ const Template: ComponentStory<typeof DistroEventPacking> = (args) => <DistroEve
 export const Default = Template.bind({});
 Default.args = {
     distroEventDetailsData: mockedDistroEventPackingList,
+    boxData: mockedBoxData,
     onCheckboxClick: action('onCheckboxClick'), 
+    packingActionProps: mockedPackingActionProps
+
 }
