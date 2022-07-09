@@ -61,6 +61,7 @@ input TransferAgreementCreationInput {
   timezone: String
   sourceBaseIds: [Int!]
   targetBaseIds: [Int!]
+  comment: String
 }
 
 input ShipmentCreationInput {

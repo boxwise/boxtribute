@@ -1,4 +1,4 @@
-from peewee import SQL, DateTimeField, TextField
+from peewee import DateTimeField, TextField
 
 from ...db import db
 from ...enums import TransferAgreementState, TransferAgreementType
@@ -43,4 +43,7 @@ class TransferAgreement(db.Model):
     )
     valid_from = DateTimeField(default=utcnow)
     valid_until = DateTimeField(null=True)
-    comment = TextField(constraints=[SQL("DEFAULT ''")], default="")
+    comment = TextField(null=True)
+
+    class Meta:
+        legacy_table_names = False

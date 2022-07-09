@@ -57,7 +57,7 @@ services:
             - /app/react/node_modules
     db:
         image: mysql/mysql-server:8.0 # We run MySQL 8.0 on the production environment atm
-        command: --default-authentication-plugin=mysql_native_password --lower_case_table_names=1
+        command: --default-authentication-plugin=mysql_native_password --lower_case_table_names=1 --character-set-server=utf8mb4 --collation-server=utf8mb4_0900_ai_ci
         environment:
             MYSQL_ROOT_PASSWORD: dropapp_root
             MYSQL_ROOT_HOST: "%"

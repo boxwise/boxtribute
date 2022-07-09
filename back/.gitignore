@@ -1,10 +1,5 @@
-.env
-env
-.venv
 *.pyc
 __pycache__
 .eggs
 *.egg-info
-.DS_Store
-.venv
 .pytest_cache

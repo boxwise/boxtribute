@@ -9,6 +9,7 @@ export const BOXES_FOR_BASE_QUERY = gql`
   query BoxesForBase($baseId: ID!) {
     base(id: $baseId) {
       locations {
+        name
         boxes {
           totalCount
           elements {

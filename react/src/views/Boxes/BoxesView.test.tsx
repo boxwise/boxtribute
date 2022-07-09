@@ -19,6 +19,7 @@ describe("Boxes view", () => {
             locations: [
               {
                 __typename: "Location",
+                name: "Warehouse 1",
                 boxes: {
                   __typename: "BoxPage",
                   totalCount: 27,
@@ -58,6 +59,7 @@ describe("Boxes view", () => {
               },
               {
                 __typename: "Location",
+                name: "Warehouse 2",
                 boxes: {
                   __typename: "BoxPage",
                   totalCount: 31,
@@ -112,6 +114,7 @@ describe("Boxes view", () => {
               },
               {
                 __typename: "Location",
+                name: "Warehouse 3",
                 boxes: {
                   __typename: "BoxPage",
                   totalCount: 16,

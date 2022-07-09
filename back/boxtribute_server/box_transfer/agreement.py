@@ -42,6 +42,7 @@ def create_transfer_agreement(
     valid_from=None,
     valid_until=None,
     timezone=None,
+    comment=None,
     user,
 ):
     """Insert information for a new TransferAgreement in the database. Update
@@ -79,6 +80,7 @@ def create_transfer_agreement(
             valid_from=valid_from or utcnow(),
             valid_until=valid_until,
             requested_by=user.id,
+            comment=comment,
         )
 
         # In GraphQL input, base IDs can be omitted, or explicitly be null.

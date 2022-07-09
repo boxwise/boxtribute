@@ -10,3 +10,6 @@ class TransferAgreementDetail(db.Model):
     )
     source_base = UIntForeignKeyField(model=Base, null=True, on_update="CASCADE")
     target_base = UIntForeignKeyField(model=Base, null=True, on_update="CASCADE")
+
+    class Meta:
+        legacy_table_names = False
