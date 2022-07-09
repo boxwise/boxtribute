@@ -1,4 +1,4 @@
-import { gql, useMutation, useQuery } from "@apollo/client";
+import { gql, useLazyQuery, useMutation, useQuery } from "@apollo/client";
 import {
   Button,
   Modal,
@@ -11,7 +11,7 @@ import {
   useDisclosure,
 } from "@chakra-ui/react";
 import APILoadingIndicator from "components/APILoadingIndicator";
-import { useCallback } from "react";
+import { useCallback, useEffect } from "react";
 import {
   AddToPackingListMutation,
   AddToPackingListMutationVariables,
@@ -107,14 +107,27 @@ const DistroEventDetailsForPlanningStateContainer = ({
 }: DistroEventDetailsForPlanningStateContainerProps) => {
   const { isOpen, onOpen, onClose } = useDisclosure();
 
-  const { data, loading, error } = useQuery<
+  const [
+    packingListEntriesForDistributionEventQuery,
+    { data, loading, error },
+  ] = useLazyQuery<
     PackingListEntriesForDistributionEventQuery,
     PackingListEntriesForDistributionEventQueryVariables
   >(PACKING_LIST_ENTRIES_FOR_DISTRIBUTION_EVENT_QUERY, {
     variables: { distributionEventId: distributionEventDetails.id },
   });
 
-  const [addEntryToPackingListMutation, addEntryToPackingListMutationStatus] = useMutation<AddToPackingListMutation, AddToPackingListMutationVariables>(ADD_ENTRY_TO_PACKING_LIST_MUTATION);
+  useEffect(() => {
+    packingListEntriesForDistributionEventQuery();
+  }, [packingListEntriesForDistributionEventQuery]);
+
+  // TODO: add proper error handling for the mutation
+  // TODO: ensure to trigger the fetch of the packing list entries again when
+  // the mutation is successful for ALL new entries (all sizeId/productId combinations)
+  const [addEntryToPackingListMutation, addEntryToPackingListMutationStatus] =
+    useMutation<AddToPackingListMutation, AddToPackingListMutationVariables>(
+      ADD_ENTRY_TO_PACKING_LIST_MUTATION
+    );
 
   const onAddEntiresToPackingListForProduct = useCallback(
     (entriesToAdd: PackingListEntriesForProductToAdd) => {
@@ -125,17 +138,19 @@ const DistroEventDetailsForPlanningStateContainer = ({
       //       numberOfItems,
       //     };
       // });
-      entriesToAdd.sizeIdAndNumberOfItemTuples.forEach(({sizeId, numberOfItems}) => {
-        addEntryToPackingListMutation({
-          variables: {
-            distributionEventId: distributionEventDetails.id,
-            productId: entriesToAdd.productId,
-            sizeId: parseInt(sizeId),
-            numberOfItems,
-          },
-        });
-        onClose();
-      })
+      entriesToAdd.sizeIdAndNumberOfItemTuples.forEach(
+        ({ sizeId, numberOfItems }) => {
+          addEntryToPackingListMutation({
+            variables: {
+              distributionEventId: distributionEventDetails.id,
+              productId: entriesToAdd.productId,
+              sizeId: parseInt(sizeId),
+              numberOfItems,
+            },
+          });
+          onClose();
+        }
+      );
     },
     [addEntryToPackingListMutation, distributionEventDetails.id]
   );
