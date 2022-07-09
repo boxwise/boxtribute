@@ -60,8 +60,8 @@ const DistroSpots = ({
                     <Box fontWeight="bold">{distroSpot.name}</Box>
                     {distroSpot.nextDistroEventDate ? (
                       <Box>
-                        Next distribution on:{" "}
-                        {distroSpot.nextDistroEventDate.toLocaleTimeString()}{" "}
+                        Next distribution on:
+                        {distroSpot.nextDistroEventDate.toLocaleTimeString()}
                       </Box>
                     ) : null}
                   </VStack>
@@ -96,15 +96,24 @@ const DistroSpots = ({
                         }}
                         onClick={() => onDistroEventClick(distroEvent.id)}
                       >
-                        <Box>Date: {distroEvent.startDateTime?.toLocaleString()}</Box>
                         <Box>
-                          Status: {distroEventStateHumanReadableLabels.get(distroEvent.state)}
+                          Date: {distroEvent.startDateTime?.toLocaleString()}
+                        </Box>
+                        <Box>
+                          Status:
+                          {distroEventStateHumanReadableLabels.get(
+                            distroEvent.state
+                          )}
                         </Box>
                       </ListItem>
                     );
                   })}
                 </List>
-                <Button onClick={() => onCreateNewDistroEventForDistroSpotClick(distroSpot.id)}>
+                <Button
+                  onClick={() =>
+                    onCreateNewDistroEventForDistroSpotClick(distroSpot.id)
+                  }
+                >
                   Create New Event
                 </Button>
               </AccordionPanel>

@@ -21,8 +21,3 @@ Default.args = {
     distroSpot: mockedDistroSpot,
     onSubmitNewDistroEvent: action("onSubmitNewDistroEvent")
 }
-
-// export const NoData = Template.bind({});
-// NoData.args = {
-//     distroEvent: null,
-// }

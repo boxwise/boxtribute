@@ -227,7 +227,6 @@ type DistributionEvent {
   plannedStartDateTime: Datetime!
   plannedEndDateTime: Datetime!
   packingList: PackingList!
-  # TODO: Change this again to Datetime later
 }
 
 enum PackingListEntryState {
@@ -238,7 +237,6 @@ enum PackingListEntryState {
 type PackingListEntry {
   id: ID!
   product: Product
-  # Size field needs to be reconsidered - related to the parallel size discussion
   size: Size
   numberOfItems: Int!
   # matchingPackedItemsCollections: [ItemsCollection!]!

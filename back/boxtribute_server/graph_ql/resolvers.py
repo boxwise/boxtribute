@@ -146,9 +146,6 @@ def resolve_distribution_event_packing_list(obj, *_):
     return packing_list
 
 
-#     return PackingList.get(PackingList.distribution_event == obj.id)
-
-
 @base.field("distributionSpots")
 @query.field("distributionSpots")
 def resolve_distributions_spots(base_obj, _):
@@ -628,16 +625,6 @@ def resolve_send_shipment(*_, id):
     shipment = Shipment.get_by_id(id)
     authorize(organisation_id=shipment.source_base.organisation_id)
     return send_shipment(id=id, user=g.user)
-
-
-# @distribution_event.field("packingList")
-# def resolve_packing_list(obj, *_):
-#     packing_list = SimpleNamespace()
-#     packing_list.
-
-#     return {
-#         distributionEvent:
-#     }
 
 
 @packing_list.field("entries")

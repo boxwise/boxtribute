@@ -33,7 +33,6 @@ const DistroSpotsContainer = ({
             name
             state
             plannedStartDateTime
-            # endDateTime
           }
         }
       }

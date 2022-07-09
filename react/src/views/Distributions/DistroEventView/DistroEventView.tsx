@@ -1,16 +1,11 @@
-import React from "react";
 import { gql, useQuery } from "@apollo/client";
-import { Box } from "@chakra-ui/react";
 import { useParams } from "react-router-dom";
 import {
   DistributionEventQuery,
   DistributionEventQueryVariables,
-  DistributionEventState,
 } from "types/generated/graphql";
-import * as yup from "yup";
 import DistroEventContainer, {
   DistributionEventDetails,
-  distributionEventDetailsSchema,
 } from "./components/DistroEventContainer";
 import APILoadingIndicator from "components/APILoadingIndicator";
 
@@ -33,7 +28,6 @@ const graphqlToContainerTransformer = (
   distributionEventData: DistributionEventQuery | undefined
 ): DistributionEventDetails => {
   // distributionEventDetailsSchema.validateSync(distributionEventData?.distributionEvent);
-  // distributionEventDetailsSchema
 
   if(distributionEventData?.distributionEvent?.distributionSpot == null) {
     throw new Error("distributionEventData.distributionEvent.distributionSpot is null");

@@ -9,6 +9,19 @@ const distributionSpotSchema = yup.object({
   id: yup.string().required(),
   name: yup.string().required(),
 });
+
+// TODO: if we don't end up using yup at all: remove this and instead define a
+// equivalent type in pure TS
+// export interface DistributionEventDetails {
+//     id: string;
+//     name?: string;
+//     startDate: Date;
+//     state: DistributionEventState;
+//     distributionSpot: {
+//         id: string;
+//         name?: string;
+//     }
+// }
 export const distributionEventDetailsSchema = yup.object({
   id: yup.string().required(),
   name: yup.string().required(),
@@ -22,16 +35,6 @@ export const distributionEventDetailsSchema = yup.object({
 
 export interface DistributionEventDetails
   extends yup.InferType<typeof distributionEventDetailsSchema> {}
-// export interface DistributionEventDetails {
-//     id: string;
-//     name?: string;
-//     startDate: Date;
-//     state: DistributionEventState;
-//     distributionSpot: {
-//         id: string;
-//         name?: string;
-//     }
-// }
 
 export interface DistroEventContainerProps {
   distroEventDetails: DistributionEventDetails;

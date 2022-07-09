@@ -91,26 +91,14 @@ def add_packing_list_entry_to_distribution_event(
             last_modified_on=now,
             last_modified_by=user_id,
         )
-        # PackingList.create(
-        #     distribution_event=distribution_event_id,
-        #     packing_list_entry=packing_list_entry_id,
-        #     created_on=now,
-        #     created_by=user_id,
-        #     last_modified_on=now,
-        #     last_modified_by=user_id,
-        # )
 
 
 def create_distribution_event(
-    # distribution_event_input=None
     user_id,
     distribution_spot_id,
-    # user_id,
     name,
-    # start_date,
     planned_start_date_time,
     planned_end_date_time=None,
-    # end_date_time=None,
 ):
     """
     TODO: Add description here
@@ -130,16 +118,10 @@ def create_distribution_event(
     """
 
     now = utcnow()
-    print("UTCNOW FOO")
-    print(now)
-    # print("start_date_time FOO")
-    # print(start_date)
 
     with db.database.atomic():
         new_distribution_event = DistributionEvent.create(
             name=name,
-            # start_date=start_date,
-            # end_date_time=end_date_time,
             planned_start_date_time=planned_start_date_time,
             planned_end_date_time=planned_end_date_time,
             distribution_spot_id=distribution_spot_id,
@@ -147,17 +129,7 @@ def create_distribution_event(
             created_by=user_id,
             last_modified_on=now,
             last_modified_by=1,
-            # type=LocationType.DistributionSpot,
-            # **distribution_spot_input,
         )
-
-        # PackingList.create(
-        #     distribution_event=new_distribution_event.id,
-        #     created_on=now,
-        #     created_by=user_id,
-        #     last_modified_on=now,
-        #     last_modified_by=1,
-        # )
 
         return new_distribution_event
 

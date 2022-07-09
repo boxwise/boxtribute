@@ -1,4 +1,4 @@
-import { gql, useLazyQuery, useMutation, useQuery } from "@apollo/client";
+import { gql, useMutation, useQuery } from "@apollo/client";
 import APILoadingIndicator from "components/APILoadingIndicator";
 import React, { useCallback } from "react";
 import { useNavigate, useParams } from "react-router-dom";
@@ -87,19 +87,6 @@ const CreateDistributionEventView = () => {
     },
     [baseId, createDistributionEventMutation, distributionSpotId, navigate]
   );
-
-  // export const CREATE_DISTRIBUTION_EVENT_MUTATION = gql`
-  // mutation CreateDistributionEvent($distributionSpotId: ID!, $distributionDate: Date!) {
-  //   CreateDistributionEvent(
-  //     updateInput: {
-  //       labelIdentifier: $boxLabelIdentifier
-  //       productId: $productId
-  //     }
-  //   ) {
-  //     labelIdentifier
-  //   }
-  // }
-  // `;
 
   const { data, loading, error } = useQuery<DistributionSpotQuery>(
     DISTRIBUTION_SPOT_QUERY,

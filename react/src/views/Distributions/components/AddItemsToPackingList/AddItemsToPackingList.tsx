@@ -73,10 +73,6 @@ const AddItemsToPackingList = ({
             numberOfItems: parseInt(tuple.numberOfItemsAsString),
           }))
           .filter(tuple => tuple.numberOfItems > 0)
-          // .map((tuple) => ({
-          //   sizeId: tuple.size.id,
-          //   numberOfItems: tuple.numberOfItems,
-          // })),
       };
       onAddEntiresToPackingListForProduct(newEntriesForPackingList);
     },

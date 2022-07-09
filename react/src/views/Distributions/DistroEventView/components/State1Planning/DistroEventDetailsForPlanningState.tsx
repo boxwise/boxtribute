@@ -1,14 +1,6 @@
 import { Box, Button, Flex, SimpleGrid, Text } from "@chakra-ui/react";
 import { CloseIcon, EditIcon } from "@chakra-ui/icons";
 import { ProductGender } from "types/generated/graphql";
-import { DistributionEventDetails } from "views/Distributions/types";
-
-// export interface DistroEventDetailsForPlanningState extends {
-//   eventDate?: Date;
-//   distroSpotName: string;
-//   status: DistributionEventState;
-//   itemsForPacking: PackingListEntry[];
-// }
 
 export interface PackingListEntry {
   id: string;
@@ -21,15 +13,7 @@ export interface PackingListEntry {
   numberOfItems: number;
 }
 
-// export interface DistroEventDetailsDataForPlanningState {
-//     distroEventDetails: DistributionEventDetails;
-//     itemsForPacking: PackingListEntry[];
-//     // DistributionEventDetails
-// }
-
 interface DistroEventDetailsForPlanningStateProps {
-  // distroEventDetailsData: DistroEventDetailsDataForPlanningState
-  // distroEventDetails: DistributionEventDetails;
   packingListEntries: PackingListEntry[];
   onAddItemsClick: () => void;
   onCopyPackingListFromPreviousEventsClick: () => void;
@@ -38,7 +22,6 @@ interface DistroEventDetailsForPlanningStateProps {
 }
 
 const DistroEventDetailsForPlanningState = ({
-  // distroEventDetails,
   packingListEntries,
   onAddItemsClick,
   onCopyPackingListFromPreviousEventsClick,

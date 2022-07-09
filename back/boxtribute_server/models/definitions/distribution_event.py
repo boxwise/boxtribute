@@ -9,6 +9,9 @@ from .user import User
 
 
 class DistributionEvent(db.Model):
+    # TODO: consider to place DistributionEvents under bases/locations
+    # (but at least organizations)
+
     # base = UIntForeignKeyField(
     #     column_name="camp_id",
     #     field="id",
@@ -16,15 +19,11 @@ class DistributionEvent(db.Model):
     #     object_id_name="base_id",
     # )
     name = CharField(null=True)
-    # start_date_time = DateTimeField()
-    # start_date = DateTimeField(column_name="start_date_time")
-    # end_date_time = DateTimeField(null=True)
     planned_start_date_time = DateTimeField(column_name="planned_start_date_time")
     planned_end_date_time = DateTimeField(column_name="planned_end_date_time")
     distribution_spot = UIntForeignKeyField(
         column_name="location_id",
         object_id_name="distribution_spot_id",
-        # field="id",
         model=Location,
     )
     state = EnumCharField(

@@ -27,8 +27,6 @@ import DistroEventDetailsForPlanningState, {
 } from "./DistroEventDetailsForPlanningState";
 
 interface DistroEventDetailsForPlanningStateContainerProps {
-  // distroEventDetailsDataForPlanningState: DistroEventDetailsDataForPlanningState;
-  // distributionEventId: string;
   distributionEventDetails: DistributionEventDetails;
 }
 
@@ -120,7 +118,7 @@ const DistroEventDetailsForPlanningStateContainer = ({
   // TODO: add proper error handling for the mutation
   // TODO: ensure to trigger the fetch of the packing list entries again when
   // the mutation is successful for ALL new entries (all sizeId/productId combinations)
-  const [addEntryToPackingListMutation, addEntryToPackingListMutationStatus] =
+  const [addEntryToPackingListMutation] =
     useMutation<AddToPackingListMutation, AddToPackingListMutationVariables>(
       ADD_ENTRY_TO_PACKING_LIST_MUTATION,
       {
