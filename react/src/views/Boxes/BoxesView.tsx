@@ -8,6 +8,7 @@ export const BOXES_FOR_BASE_QUERY = gql`
   query BoxesForBase($baseId: ID!) {
     base(id: $baseId) {
       locations {
+        name
         boxes {
           totalCount
           elements {
@@ -22,9 +23,6 @@ export const BOXES_FOR_BASE_QUERY = gql`
               name
             }
             items
-            location {
-              name
-            }
           }
         }
       }
@@ -44,7 +42,7 @@ const graphqlToTableTransformer = (
         items: element.items,
         size: element.size.label,
         state: element.state,
-        location: element.location?.name,
+        location: location?.name,
       } as BoxRow)) || []
   ) || [];
 
