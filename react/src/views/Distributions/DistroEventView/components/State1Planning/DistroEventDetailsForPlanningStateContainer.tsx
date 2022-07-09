@@ -1,4 +1,4 @@
-import { gql, useQuery } from "@apollo/client";
+import { gql, useMutation, useQuery } from "@apollo/client";
 import {
   Button,
   Modal,
@@ -13,6 +13,8 @@ import {
 import APILoadingIndicator from "components/APILoadingIndicator";
 import { useCallback } from "react";
 import {
+  AddToPackingListMutation,
+  AddToPackingListMutationVariables,
   AllProductsAndSizesQuery,
   AllProductsAndSizesQueryVariables,
   PackingListEntriesForDistributionEventQuery,
@@ -56,6 +58,29 @@ export const PACKING_LIST_ENTRIES_FOR_DISTRIBUTION_EVENT_QUERY = gql`
   }
 `;
 
+export const ADD_ENTRY_TO_PACKING_LIST_MUTATION = gql`
+  mutation addToPackingList(
+    $distributionEventId: ID!
+    $productId: Int!
+    $sizeId: Int!
+    $numberOfItems: Int!
+  ) {
+    addPackingListEntryToDistributionEvent(
+      creationInput: {
+        distributionEventId: $distributionEventId
+        productId: $productId
+        sizeId: $sizeId
+        numberOfItems: $numberOfItems
+      }
+    ) {
+      id
+      product {
+        name
+      }
+    }
+  }
+`;
+
 // type FOO = PackingListEntriesForDistributionEventQuery["distributionEvent"]//;["packingList"];//["entries"];
 
 const graphqlToContainerTransformer = (
@@ -85,19 +110,41 @@ const DistroEventDetailsForPlanningStateContainer = ({
   const { data, loading, error } = useQuery<
     PackingListEntriesForDistributionEventQuery,
     PackingListEntriesForDistributionEventQueryVariables
-  >(PACKING_LIST_ENTRIES_FOR_DISTRIBUTION_EVENT_QUERY, {variables: {distributionEventId: distributionEventDetails.id}});
+  >(PACKING_LIST_ENTRIES_FOR_DISTRIBUTION_EVENT_QUERY, {
+    variables: { distributionEventId: distributionEventDetails.id },
+  });
 
+  const [addEntryToPackingListMutation, addEntryToPackingListMutationStatus] = useMutation<AddToPackingListMutation, AddToPackingListMutationVariables>(ADD_ENTRY_TO_PACKING_LIST_MUTATION);
 
   const onAddEntiresToPackingListForProduct = useCallback(
-    (entriesToAdd: PackingListEntriesForProductToAdd) => {},
-    []
+    (entriesToAdd: PackingListEntriesForProductToAdd) => {
+      // entriesToAdd.sizeIdAndNumberOfItemTuples.flatMap(({sizeId, numberOfItems}) => {
+      //     return {
+      //       productId: entriesToAdd.productId,
+      //       sizeId,
+      //       numberOfItems,
+      //     };
+      // });
+      entriesToAdd.sizeIdAndNumberOfItemTuples.forEach(({sizeId, numberOfItems}) => {
+        addEntryToPackingListMutation({
+          variables: {
+            distributionEventId: distributionEventDetails.id,
+            productId: entriesToAdd.productId,
+            sizeId: parseInt(sizeId),
+            numberOfItems,
+          },
+        });
+        onClose();
+      })
+    },
+    [addEntryToPackingListMutation, distributionEventDetails.id]
   );
 
-  if(loading) {
+  if (loading) {
     return <APILoadingIndicator />;
   }
 
-  if(error) {
+  if (error) {
     return <div>Error</div>;
   }
 

@@ -36,7 +36,7 @@ export interface SizeIdAndNumberOfItemTuple {
   numberOfItems: number;
 }
 export interface PackingListEntriesForProductToAdd {
-  productId: string;
+  productId: number;
   sizeIdAndNumberOfItemTuples: SizeIdAndNumberOfItemTuple[];
 }
 interface AddItemToPackingProps {
@@ -65,18 +65,18 @@ const AddItemsToPackingList = ({
   const onAddItemClick = useCallback(
     (itemToAddFormValues: ItemToAddFormValues) => {
       const newEntriesForPackingList: PackingListEntriesForProductToAdd = {
-        productId: itemToAddFormValues.productId,
+        productId: parseInt(itemToAddFormValues.productId),
         sizeIdAndNumberOfItemTuples:
           itemToAddFormValues.sizeAndNumberOfItemsTuples
           .map(tuple => ({
-            size: tuple.size,
-            numberOfItemsAsString: parseInt(tuple.numberOfItemsAsString),
-          }))
-          .filter(tuple => tuple.numberOfItemsAsString > 0)
-          .map((tuple) => ({
             sizeId: tuple.size.id,
-            numberOfItems: tuple.numberOfItemsAsString,
-          })),
+            numberOfItems: parseInt(tuple.numberOfItemsAsString),
+          }))
+          .filter(tuple => tuple.numberOfItems > 0)
+          // .map((tuple) => ({
+          //   sizeId: tuple.size.id,
+          //   numberOfItems: tuple.numberOfItems,
+          // })),
       };
       onAddEntiresToPackingListForProduct(newEntriesForPackingList);
     },
