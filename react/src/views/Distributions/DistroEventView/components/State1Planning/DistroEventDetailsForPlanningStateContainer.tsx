@@ -16,10 +16,10 @@ import {
   AddToPackingListMutationVariables,
   PackingListEntriesForDistributionEventQuery,
   PackingListEntriesForDistributionEventQueryVariables,
+  RemoveEntryFromPackingListMutation,
+  RemoveEntryFromPackingListMutationVariables,
 } from "types/generated/graphql";
-import {
-  PackingListEntriesForProductToAdd,
-} from "views/Distributions/components/AddItemsToPackingList/AddItemsToPackingList";
+import { PackingListEntriesForProductToAdd } from "views/Distributions/components/AddItemsToPackingList/AddItemsToPackingList";
 import AddItemsToPackingListContainer from "views/Distributions/components/AddItemsToPackingList/AddItemsToPackingListContainer";
 import { DistributionEventDetails } from "views/Distributions/types";
 import DistroEventDetailsForPlanningState, {
@@ -49,6 +49,16 @@ export const PACKING_LIST_ENTRIES_FOR_DISTRIBUTION_EVENT_QUERY = gql`
           }
         }
       }
+    }
+  }
+`;
+
+export const REMOVE_ENTRY_FROM_PACKING_LIST = gql`
+  mutation RemoveEntryFromPackingList($packingListEntryId: ID!) {
+    removePackingListEntryFromDistributionEvent(
+      packingListEntryId: $packingListEntryId
+    ) {
+      id
     }
   }
 `;
@@ -118,59 +128,72 @@ const DistroEventDetailsForPlanningStateContainer = ({
   // TODO: add proper error handling for the mutation
   // TODO: ensure to trigger the fetch of the packing list entries again when
   // the mutation is successful for ALL new entries (all sizeId/productId combinations)
-  const [addEntryToPackingListMutation] =
-    useMutation<AddToPackingListMutation, AddToPackingListMutationVariables>(
-      ADD_ENTRY_TO_PACKING_LIST_MUTATION,
+  const [addEntryToPackingListMutation] = useMutation<
+    AddToPackingListMutation,
+    AddToPackingListMutationVariables
+  >(ADD_ENTRY_TO_PACKING_LIST_MUTATION, {
+    refetchQueries: [
       {
-        refetchQueries: [
-          {
-            query: PACKING_LIST_ENTRIES_FOR_DISTRIBUTION_EVENT_QUERY,
-            variables: {
-              distributionEventId: distributionEventDetails.id,
-            },
-          },
-        ],
+        query: PACKING_LIST_ENTRIES_FOR_DISTRIBUTION_EVENT_QUERY,
+        variables: {
+          distributionEventId: distributionEventDetails.id,
+        },
+      },
+    ],
 
-        // update(cache, { data }) {
-        //   const newPackingListEntry =
-        //     data?.addPackingListEntryToDistributionEvent;
-        //   const existingPackingListEntries =
-        //     cache.readQuery<PackingListEntriesForDistributionEventQuery>({
-        //       query: PACKING_LIST_ENTRIES_FOR_DISTRIBUTION_EVENT_QUERY,
-        //       variables: {
-        //         distributionEventId: distributionEventDetails.id,
-        //       },
-        //     });
+    // update(cache, { data }) {
+    //   const newPackingListEntry =
+    //     data?.addPackingListEntryToDistributionEvent;
+    //   const existingPackingListEntries =
+    //     cache.readQuery<PackingListEntriesForDistributionEventQuery>({
+    //       query: PACKING_LIST_ENTRIES_FOR_DISTRIBUTION_EVENT_QUERY,
+    //       variables: {
+    //         distributionEventId: distributionEventDetails.id,
+    //       },
+    //     });
 
-        //   console.log("existingPackingListEntries", existingPackingListEntries);
-        //   console.log("newPackingListEntry", newPackingListEntry);
-        //   if (existingPackingListEntries && newPackingListEntry) {
-        //     console.log(
-        //       "in 'if (existingPackingListEntries && newPackingListEntry)'"
-        //     );
-        //     cache.writeQuery<PackingListEntriesForDistributionEventQuery>({
-        //       query: PACKING_LIST_ENTRIES_FOR_DISTRIBUTION_EVENT_QUERY,
-        //       variables: {
-        //         distributionEventId: distributionEventDetails.id,
-        //       },
-        //       data: {
-        //         distributionEvent: {
-        //           // TODO: reconsider using the bang here (e.g. yup based)
-        //           id: existingPackingListEntries?.distributionEvent?.id!,
-        //           packingList: {
-        //             entries: [
-        //               ...existingPackingListEntries?.distributionEvent
-        //                 ?.packingList?.entries!,
-        //               newPackingListEntry,
-        //             ],
-        //           },
-        //         },
-        //       },
-        //     });
-        //   }
-        // },
-      }
-    );
+    //   console.log("existingPackingListEntries", existingPackingListEntries);
+    //   console.log("newPackingListEntry", newPackingListEntry);
+    //   if (existingPackingListEntries && newPackingListEntry) {
+    //     console.log(
+    //       "in 'if (existingPackingListEntries && newPackingListEntry)'"
+    //     );
+    //     cache.writeQuery<PackingListEntriesForDistributionEventQuery>({
+    //       query: PACKING_LIST_ENTRIES_FOR_DISTRIBUTION_EVENT_QUERY,
+    //       variables: {
+    //         distributionEventId: distributionEventDetails.id,
+    //       },
+    //       data: {
+    //         distributionEvent: {
+    //           // TODO: reconsider using the bang here (e.g. yup based)
+    //           id: existingPackingListEntries?.distributionEvent?.id!,
+    //           packingList: {
+    //             entries: [
+    //               ...existingPackingListEntries?.distributionEvent
+    //                 ?.packingList?.entries!,
+    //               newPackingListEntry,
+    //             ],
+    //           },
+    //         },
+    //       },
+    //     });
+    //   }
+    // },
+  });
+
+  const [removeEntryFromPackingListMutation] = useMutation<
+    RemoveEntryFromPackingListMutation,
+    RemoveEntryFromPackingListMutationVariables
+  >(REMOVE_ENTRY_FROM_PACKING_LIST, {
+    refetchQueries: [
+      {
+        query: PACKING_LIST_ENTRIES_FOR_DISTRIBUTION_EVENT_QUERY,
+        variables: {
+          distributionEventId: distributionEventDetails.id,
+        },
+      },
+    ],
+  });
 
   const onAddEntiresToPackingListForProduct = useCallback(
     (entriesToAdd: PackingListEntriesForProductToAdd) => {
@@ -205,6 +228,24 @@ const DistroEventDetailsForPlanningStateContainer = ({
     [addEntryToPackingListMutation, distributionEventDetails.id, onClose, toast]
   );
 
+  const onRemoveItemFromPackingList = useCallback(
+    (packlistEntryId: string) => {
+      removeEntryFromPackingListMutation({
+        variables: {
+          packingListEntryId: packlistEntryId,
+        },
+      }).then(() =>
+        toast({
+          title: "Successfully removed entry",
+          status: "success",
+          isClosable: true,
+          duration: 2000,
+        })
+      );
+    },
+    [removeEntryFromPackingListMutation]
+  );
+
   if (loading) {
     return <APILoadingIndicator />;
   }
@@ -221,7 +262,7 @@ const DistroEventDetailsForPlanningStateContainer = ({
         packingListEntries={packingListEntries}
         onAddItemsClick={onOpen}
         onCopyPackingListFromPreviousEventsClick={() => {}}
-        onRemoveItemFromPackingListClick={() => {}}
+        onRemoveItemFromPackingListClick={onRemoveItemFromPackingList}
         onEditItemOnPackingListClick={() => {}}
       />
 

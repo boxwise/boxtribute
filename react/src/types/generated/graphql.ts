@@ -390,6 +390,7 @@ export type Mutation = {
   createShipment?: Maybe<Shipment>;
   createTransferAgreement?: Maybe<TransferAgreement>;
   rejectTransferAgreement?: Maybe<TransferAgreement>;
+  removePackingListEntryFromDistributionEvent?: Maybe<DistributionEvent>;
   sendShipment?: Maybe<Shipment>;
   updateBeneficiary?: Maybe<Beneficiary>;
   updateBox?: Maybe<Box>;
@@ -514,6 +515,16 @@ export type MutationCreateTransferAgreementArgs = {
  */
 export type MutationRejectTransferAgreementArgs = {
   id: Scalars['ID'];
+};
+
+
+/**
+ * Naming convention:
+ * - input argument: creationInput/updateInput
+ * - input type: <Resource>CreationInput/UpdateInput
+ */
+export type MutationRemovePackingListEntryFromDistributionEventArgs = {
+  packingListEntryId: Scalars['ID'];
 };
 
 
@@ -1097,6 +1108,13 @@ export type PackingListEntriesForDistributionEventQueryVariables = Exact<{
 
 
 export type PackingListEntriesForDistributionEventQuery = { __typename?: 'Query', distributionEvent?: { __typename?: 'DistributionEvent', id: string, packingList: { __typename?: 'PackingList', entries: Array<{ __typename?: 'PackingListEntry', id: string, numberOfItems: number, product?: { __typename?: 'Product', id: string, name: string, gender?: ProductGender | null } | null, size?: { __typename?: 'Size', id: string, label: string } | null }> } } | null };
+
+export type RemoveEntryFromPackingListMutationVariables = Exact<{
+  packingListEntryId: Scalars['ID'];
+}>;
+
+
+export type RemoveEntryFromPackingListMutation = { __typename?: 'Mutation', removePackingListEntryFromDistributionEvent?: { __typename?: 'DistributionEvent', id: string } | null };
 
 export type AddToPackingListMutationVariables = Exact<{
   distributionEventId: Scalars['ID'];
