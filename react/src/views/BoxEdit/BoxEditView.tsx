@@ -1,4 +1,5 @@
 import { gql, useMutation, useQuery } from "@apollo/client";
+import APILoadingIndicator from "components/APILoadingIndicator";
 import { useNavigate, useParams } from "react-router-dom";
 import {
   BoxByLabelIdentifierAndAllProductsQuery,
@@ -12,14 +13,17 @@ export const BOX_BY_LABEL_IDENTIFIER_AND_ALL_PRODUCTS_QUERY = gql`
   query BoxByLabelIdentifierAndAllProducts($labelIdentifier: String!) {
     box(labelIdentifier: $labelIdentifier) {
       labelIdentifier
-      size
+      size {
+        id
+        label
+      }
       items
       product {
         id
         name
         gender
       }
-      location {
+      place {
         id
         name
         base {
@@ -97,7 +101,7 @@ const BoxEditView = () => {
   };
 
   if (loading) {
-    return <div>Loading...</div>;
+    return <APILoadingIndicator />;
   }
   const boxData = data?.box;
   const allProducts = data?.products;

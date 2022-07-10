@@ -2,6 +2,9 @@ type Query {
   " Return all [`Bases`]({{Types.Base}}) that the client is authorized to view. "
   bases: [Base!]!
   base(id: ID!): Base
+  distributionSpots: [DistributionSpot!]!
+  distributionSpot(id: ID!): DistributionSpot
+  distributionEvent(id: ID!): DistributionEvent
   organisation(id: ID!): Organisation
   " Return all [`Organisations`]({{Types.Organisation}}) that the client is authorized to view. "
   organisations: [Organisation!]!
@@ -23,6 +26,10 @@ type Query {
   beneficiary(id: ID!): Beneficiary
   " Return all [`Beneficiaries`]({{Types.Beneficiary}}) that the client is authorized to view. "
   beneficiaries(paginationInput: PaginationInput, filterInput: FilterBeneficiaryInput): BeneficiaryPage!
+  """
+  Return all [`Tags`]({{Types.Tag}}) that the client is authorized to view. Optionally filter for tags of certain type.
+  """
+  tags(tagType: TagType): [Tag!]!
   transferAgreement(id: ID!): TransferAgreement
   """
   Return all [`TransferAgreements`]({{Types.TransferAgreement}}) that the client is authorized to view.

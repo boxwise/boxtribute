@@ -1,7 +1,8 @@
-from peewee import SQL, CharField, DateTimeField, IntegerField
+from peewee import SQL, CharField, DateTimeField, DoubleField, IntegerField
 
 from ...db import db
-from ..fields import UIntForeignKeyField
+from ...enums import LocationType
+from ..fields import EnumCharField, UIntForeignKeyField
 from .base import Base
 from .box_state import BoxState
 from .user import User
@@ -16,6 +17,10 @@ class Location(db.Model):
         null=True,
         on_update="CASCADE",
     )
+    latitude = DoubleField(null=True)
+    longitude = DoubleField(null=True)
+    description = CharField(null=True)
+    type = EnumCharField(choices=LocationType)
     base = UIntForeignKeyField(
         column_name="camp_id",
         field="id",

@@ -1,4 +1,5 @@
 import { gql, useMutation, useQuery } from "@apollo/client";
+import APILoadingIndicator from "components/APILoadingIndicator";
 import { useParams } from "react-router-dom";
 import {
   BoxByLabelIdentifierQuery,
@@ -12,13 +13,16 @@ export const BOX_BY_LABEL_IDENTIFIER_QUERY = gql`
   query BoxByLabelIdentifier($labelIdentifier: String!) {
     box(labelIdentifier: $labelIdentifier) {
       labelIdentifier
-      size
+      size {
+        id
+        label
+      }
       items
       product {
         name
         gender
       }
-      location {
+      place {
         id
         name
         base {
@@ -44,14 +48,17 @@ export const UPDATE_LOCATION_OF_BOX_MUTATION = gql`
       }
     ) {
       labelIdentifier
-      size
+      size {
+        id
+        label
+      }
       items
       product {
         name
         gender
         id
       }
-      location {
+      place {
         id
         name
         base {
@@ -83,13 +90,13 @@ const BTBox = () => {
   >(UPDATE_LOCATION_OF_BOX_MUTATION);
 
   if (loading) {
-    return <div>Loading...</div>;
+    return <APILoadingIndicator />;
   }
   if (mutationStatus.loading) {
     return <div>Updating box...</div>;
   }
   if (error || mutationStatus.error) {
-    console.error(error || mutationStatus.error);
+    console.error("Error in BoxView: ", error || mutationStatus.error);
     return <div>Error!</div>;
   }
 

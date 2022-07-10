@@ -1,9 +1,11 @@
 import pytest
 from boxtribute_server.models.definitions.size import Size
 
+from .size_range import data as size_range_data
+
 
 def default_data():
-    return {"id": 1, "label": "small"}
+    return {"id": 1, "label": "small", "size_range": size_range_data()["id"]}
 
 
 def another_data():

@@ -18,3 +18,8 @@ export const decorators = [
     </MemoryRouter>
   ),
 ];
+
+if (typeof global.process === 'undefined') {
+  const { worker } = require('../src/mocks/browser')
+  worker.start()
+}

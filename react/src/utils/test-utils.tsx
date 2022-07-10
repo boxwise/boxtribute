@@ -1,8 +1,16 @@
-import React from "react";
+import React, { ReactNode } from "react";
 import { render as rtlRender } from "@testing-library/react";
 import { MockedProvider, MockedResponse } from "@apollo/client/testing";
 import { MemoryRouter, Route, Routes } from "react-router-dom";
 import "mutationobserver-shim";
+
+import {
+  ApolloClient,
+  InMemoryCache,
+  HttpLink,
+  ApolloProvider,
+  DefaultOptions,
+} from "@apollo/client";
 
 function render(
   ui,
@@ -32,5 +40,28 @@ function render(
   });
 }
 
+function StorybookApolloProvider({ children }: { children: ReactNode }) {
+  const httpLink = new HttpLink({
+    uri: "http://localhost:6006/MOCKED-graphql"
+  });
+
+  const defaultOptions: DefaultOptions = {
+    query: {
+      errorPolicy: "all",
+    },
+    mutate: {
+      errorPolicy: "all",
+    },
+  };
+
+  const client = new ApolloClient({
+    cache: new InMemoryCache(),
+    defaultOptions,
+    link: httpLink
+  });
+
+  return <ApolloProvider client={client}>{children}</ApolloProvider>;
+}
+
 export * from "@testing-library/react";
-export { render };
+export { render, StorybookApolloProvider };

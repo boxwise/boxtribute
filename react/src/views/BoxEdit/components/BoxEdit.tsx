@@ -24,7 +24,7 @@ interface OptionsGroup extends OptionBase {
 }
 
 export interface BoxFormValues {
-  size?: string | null;
+  sizeId?: string | null;
   productForDropdown: OptionsGroup;
   sizeForDropdown?: OptionsGroup;
 }
@@ -68,7 +68,7 @@ const BoxEdit = ({
     formState: { isSubmitting },
   } = useForm<BoxFormValues>({
     defaultValues: {
-      size: boxData?.size,
+      sizeId: boxData?.size.id,
       productForDropdown: productsForDropdownGroups
         ?.flatMap((i) => i.options)
         .find((p) => p.value === boxData?.product?.id),
@@ -111,9 +111,9 @@ const BoxEdit = ({
           </ListItem>
           <ListItem>
             <Text as={"span"} fontWeight={"bold"}>
-              Location:
+              Place:
             </Text>{" "}
-            {boxData.location?.name}
+            {boxData.place?.name}
           </ListItem>
 
           <ListItem>

@@ -18,10 +18,12 @@
     "@zxing/browser": "0.0.7",
     "@zxing/library": "^0.18.3",
     "chakra-react-select": "^3.3.6",
+    "date-fns": "^2.28.0",
     "framer-motion": "^6.3.10",
     "graphql": "^16.3.0",
     "jwt-decode": "^3.1.2",
     "react": "^17.0.2",
+    "react-big-calendar": "^0.40.2",
     "react-dom": "^17.0.2",
     "react-hook-form": "^7.31.3",
     "react-icons": "^4.3.1",
@@ -29,7 +31,9 @@
     "react-router-dom": "6",
     "react-scripts": "5.0.0",
     "react-table": "^7.7.0",
-    "regenerator-runtime": "^0.13.9"
+    "regenerator-runtime": "^0.13.9",
+    "victory": "^36.5.2",
+    "yup": "^0.32.11"
   },
   "devDependencies": {
     "@chakra-ui/storybook-addon": "^4.0.1",
@@ -53,6 +57,7 @@
     "@testing-library/user-event": "^14.0.4",
     "@types/jest": "^28.1.1",
     "@types/jwt-decode": "^3.1.0",
+    "@types/react-big-calendar": "^0.38.0",
     "@types/react-router-dom": "^5.3.1",
     "@types/react-table": "^7.7.9",
     "autoprefixer": "^10.3.7",
@@ -63,6 +68,7 @@
     "eslint-plugin-jsx-a11y": "^6.4.1",
     "eslint-plugin-prettier": "^4.0.0",
     "eslint-plugin-react-hooks": "^4.5.0",
+    "msw": "^0.42.2",
     "mutationobserver-shim": "^0.3.7",
     "prettier": "^2.4.1",
     "prop-types": "^15.8.1",
@@ -75,7 +81,7 @@
     "build": "yarn generate-graphql-ts-types && react-scripts build",
     "start": "yarn build && yarn generate-graphql-ts-types --watch & craco start",
     "test": "react-scripts test",
-    "test:coverage": "yarn test --env=jsdom --coverage",
+    "test:coverage": "yarn test --env=jsdom --coverage --watchAll=false",
     "upload:test-report": "./node_modules/.bin/codecov",
     "eject": "react-scripts eject",
     "lint": "eslint . --fix",
@@ -108,5 +114,8 @@
       "last 1 firefox version",
       "last 1 safari version"
     ]
+  },
+  "msw": {
+    "workerDirectory": "public"
   }
 }

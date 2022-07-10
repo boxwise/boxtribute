@@ -10,6 +10,25 @@ class TransferAgreementState(enum.IntEnum):
     Expired = enum.auto()
 
 
+class DistributionEventState(enum.IntEnum):
+    # New = 1
+    # Planning = enum.auto()
+    Planning = 1
+    # PlanningDone = enum.auto()
+    Packing = enum.auto()
+    # PackingDone = enum.auto()
+    OnDistro = enum.auto()
+    Returned = enum.auto()
+    # ReturnsTracked = enum.auto()
+    Completed = enum.auto()
+
+
+class PackingListEntryState(enum.IntEnum):
+    NotStarted = 1
+    PackingInProgress = enum.auto()
+    Packed = enum.auto()
+
+
 class TransferAgreementType(enum.IntEnum):
     Unidirectional = 1
     Bidirectional = enum.auto()
@@ -32,6 +51,14 @@ class BoxState(enum.IntEnum):
     Received = enum.auto()
     Donated = enum.auto()
     Scrap = enum.auto()
+
+
+class LocationType(enum.IntEnum):
+    """Indiciates which concrete type (classic Location, Distribution Spot, etc)
+    a Location is."""
+
+    Location = 1
+    DistributionSpot = enum.auto()
 
 
 class ProductGender(enum.IntEnum):
@@ -64,3 +91,14 @@ class HumanGender(enum.Enum):
     Male = "M"
     Female = "F"
     Diverse = "D"
+
+
+class TagType(enum.Enum):
+    Box = "Stock"
+    Beneficiary = "People"
+    All = "All"
+
+
+class TaggableObjectType(enum.Enum):
+    Box = "Stock"
+    Beneficiary = "People"
