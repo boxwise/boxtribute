@@ -5,7 +5,7 @@ import {
   SimpleGrid,
 } from "@chakra-ui/react";
 import { DistributionEventState, ProductGender } from "types/generated/graphql";
-import { DistroEventStateLabel } from "views/Distributions/DistroSpotsView/components/DistroSpots";
+import { distroEventStateHumanReadableLabels } from "views/Distributions/baseData";
 
 export interface BTBox {
   id: string;
@@ -40,7 +40,7 @@ const DistroEventCompleted = ({ distroEventData }: DistroEventProps) => {
           <strong>{distroEventData.eventDate?.toDateString()}</strong>
         </Box>
         <Box>
-          <strong>{DistroEventStateLabel.get(distroEventData.status)}</strong>
+          <strong>{distroEventStateHumanReadableLabels.get(distroEventData.status)}</strong>
         </Box>
       </Flex>
       {(distroEventData?.outflows?.length || 0) > 0 ? (

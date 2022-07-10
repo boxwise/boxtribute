@@ -1,4 +1,3 @@
-import { DistroEvent } from "../State1Planning/DistroEventPlanning";
 import {
   Accordion,
   AccordionItem,
@@ -10,10 +9,10 @@ import {
   Checkbox,
   Flex,
 } from "@chakra-ui/react";
-import { DistroEventStateLabel } from "views/Distributions/DistroSpotsView/components/DistroSpots";
+import { distroEventStateHumanReadableLabels } from "views/Distributions/baseData";
 
 export interface DistroEventPackingData {
-  distroEventData: DistroEvent;
+  distroEventData: any;
 }
 
 interface DistroEventPackingProps {
@@ -32,7 +31,7 @@ const DistroEventPacking = ({
         Distro Event
       </Text>
       <Text lineHeight="normal">
-        <strong>{distroEventDetailsData.distroEventData.distroSpot}</strong>
+        <strong>{distroEventDetailsData.distroEventData.distroSpotName}</strong>
       </Text>
       <Text lineHeight="normal">
         <strong>
@@ -40,7 +39,7 @@ const DistroEventPacking = ({
         </strong>
       </Text>
       <Text>
-        {DistroEventStateLabel.get(
+        {distroEventStateHumanReadableLabels.get(
           distroEventDetailsData.distroEventData.status
         )}
       </Text>
@@ -78,4 +77,3 @@ const DistroEventPacking = ({
   );
 };
 export default DistroEventPacking;
-

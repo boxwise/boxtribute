@@ -12,38 +12,16 @@ import {
   Button,
 } from "@chakra-ui/react";
 import React from "react";
+import { distroEventStateHumanReadableLabels } from "views/Distributions/baseData";
+import { DistributionEventState } from "views/Distributions/types";
 
 interface GeoData {
   latitude: number;
   longitude: number;
 }
 
-export enum DistributionEventState {
-  Completed = "COMPLETED",
-  New = "NEW",
-  OnDistro = "ON_DISTRO",
-  Packing = "PACKING",
-  PackingDone = "PACKING_DONE",
-  Planning = "PLANNING",
-  PlanningDone = "PLANNING_DONE",
-  Returned = "RETURNED",
-  ReturnsTracked = "RETURNS_TRACKED",
-}
-
-export const DistroEventStateLabel = new Map<string, string>([
-  [DistributionEventState.New, "New"],
-  [DistributionEventState.Planning, "Planning"],
-  [DistributionEventState.PlanningDone, "Planning Done"],
-  [DistributionEventState.Packing, "Packing"],
-  [DistributionEventState.PackingDone, "Packing Done"],
-  [DistributionEventState.OnDistro, "On Distribution"],
-  [DistributionEventState.Returned, "Distribution Done"],
-  [DistributionEventState.ReturnsTracked, "Returned Items Tracked"],
-  [DistributionEventState.Completed, "Completed"],
-]);
-
 export interface DistroEventForSpot {
-  date?: Date;
+  startDateTime?: Date;
   state: DistributionEventState;
   id: string;
 }
@@ -68,7 +46,7 @@ const DistroSpots = ({
   distroSpots,
   onDistroEventClick,
   onCreateNewDistroSpotClick,
-  onCreateNewDistroEventForDistroSpotClick: onCreateNewDistroEventClick,
+  onCreateNewDistroEventForDistroSpotClick,
 }: DistroSpotsProps) => {
   return (
     <VStack>
@@ -82,8 +60,8 @@ const DistroSpots = ({
                     <Box fontWeight="bold">{distroSpot.name}</Box>
                     {distroSpot.nextDistroEventDate ? (
                       <Box>
-                        Next distribution on:{" "}
-                        {distroSpot.nextDistroEventDate?.toDateString()}{" "}
+                        Next distribution on:
+                        {distroSpot.nextDistroEventDate.toLocaleTimeString()}
                       </Box>
                     ) : null}
                   </VStack>
@@ -118,15 +96,24 @@ const DistroSpots = ({
                         }}
                         onClick={() => onDistroEventClick(distroEvent.id)}
                       >
-                        <Box>Date: {distroEvent.date?.toDateString()}</Box>
                         <Box>
-                          Status: {DistroEventStateLabel.get(distroEvent.state)}
+                          Date: {distroEvent.startDateTime?.toLocaleString()}
+                        </Box>
+                        <Box>
+                          Status:
+                          {distroEventStateHumanReadableLabels.get(
+                            distroEvent.state
+                          )}
                         </Box>
                       </ListItem>
                     );
                   })}
                 </List>
-                <Button onClick={() => onCreateNewDistroEventClick(distroSpot.id)}>
+                <Button
+                  onClick={() =>
+                    onCreateNewDistroEventForDistroSpotClick(distroSpot.id)
+                  }
+                >
                   Create New Event
                 </Button>
               </AccordionPanel>

@@ -4,6 +4,6 @@ export type BoxRow = {
     gender?: string | null;
     items: number;
     size?: string | null;
-    location?: string | null;
+    place?: string | null;
     state: string;
   };

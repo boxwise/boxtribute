@@ -8,7 +8,7 @@ import { action } from '@storybook/addon-actions';
 const mockedDistroEventPackingList: DistroEventPackingData = {
    distroEventData: {
        eventDate: new Date("2022/09/22"),
-       distroSpot: "Horgosz River",
+       distroSpotName: "Horgosz River",
        status: DistributionEventState.Planning,
        itemsForPacking: [{
         id: "3",
@@ -40,5 +40,5 @@ const Template: ComponentStory<typeof DistroEventPacking> = (args) => <DistroEve
 export const Default = Template.bind({});
 Default.args = {
     distroEventDetailsData: mockedDistroEventPackingList,
-    onCheckboxClick: action('onCheckboxClick'), 
+    onCheckboxClick: action('onCheckboxClick'),
 }
