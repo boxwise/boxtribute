@@ -8,6 +8,7 @@ import DistroEventContainer, {
   DistributionEventDetails,
 } from "./components/DistroEventContainer";
 import APILoadingIndicator from "components/APILoadingIndicator";
+import { DISTRIBUTION_EVENT_QUERY } from "../queries";
 
 // const distributionSpotSchema = yup.object({
 //   id: yup.string().required(),
@@ -48,21 +49,6 @@ const graphqlToContainerTransformer = (
 const DistroEventView = () => {
   const eventId = useParams<{ eventId: string }>().eventId;
 
-  const DISTRIBUTION_EVENT_QUERY = gql`
-    query DistributionEvent($eventId: ID!) {
-      distributionEvent(id: $eventId) {
-        id
-        name
-        state
-        plannedStartDateTime
-        distributionSpot {
-          id
-          name
-        }
-      }
-    }
-  `;
-
   const { data, error, loading } = useQuery<
     DistributionEventQuery,
     DistributionEventQueryVariables
@@ -83,7 +69,7 @@ const DistroEventView = () => {
 
   const transformedData = graphqlToContainerTransformer(data);
 
-    return <DistroEventContainer distroEventDetails={transformedData} />;
+    return <DistroEventContainer distributionEventDetails={transformedData} />;
 };
 
 export default DistroEventView;
