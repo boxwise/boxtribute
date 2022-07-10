@@ -12,14 +12,14 @@ const mockedDistroEventPackingList: DistroEventPackingData = {
        status: DistributionEventState.Planning,
        itemsForPacking: [{
         id: "3",
-        items: 32,
+        numberOfItems: 32,
         size: "M",
         productName: "T-shirt",
         gender: ProductGender.Men
        },
        {
         id: "4",
-        items: 10,
+        numberOfItems: 10,
         size: "S",
         productName: "Jacket",
         gender: ProductGender.Women
