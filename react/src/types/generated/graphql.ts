@@ -382,6 +382,7 @@ export type Mutation = {
   addPackingListEntryToDistributionEvent?: Maybe<PackingListEntry>;
   cancelShipment?: Maybe<Shipment>;
   cancelTransferAgreement?: Maybe<TransferAgreement>;
+  changeDistributionEventState?: Maybe<DistributionEvent>;
   createBeneficiary?: Maybe<Beneficiary>;
   createBox?: Maybe<Box>;
   createDistributionEvent?: Maybe<DistributionEvent>;
@@ -435,6 +436,17 @@ export type MutationCancelShipmentArgs = {
  */
 export type MutationCancelTransferAgreementArgs = {
   id: Scalars['ID'];
+};
+
+
+/**
+ * Naming convention:
+ * - input argument: creationInput/updateInput
+ * - input type: <Resource>CreationInput/UpdateInput
+ */
+export type MutationChangeDistributionEventStateArgs = {
+  distributionEventId: Scalars['ID'];
+  newState: DistributionEventState;
 };
 
 

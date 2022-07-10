@@ -32,7 +32,13 @@ from ..box_transfer.shipment import (
     send_shipment,
     update_shipment,
 )
-from ..enums import HumanGender, LocationType, TaggableObjectType, TransferAgreementType
+from ..enums import (
+    DistributionEventState,
+    HumanGender,
+    LocationType,
+    TaggableObjectType,
+    TransferAgreementType,
+)
 from ..models.crud import (
     add_packing_list_entry_to_distribution_event,
     create_beneficiary,
@@ -516,6 +522,21 @@ def resolve_create_qr_code(*_, box_label_identifier=None):
     authorize(permission="qr:create")
     authorize(permission="stock:write")
     return create_qr_code(box_label_identifier=box_label_identifier)
+
+
+@mutation.field("changeDistributionEventState")
+@convert_kwargs_to_snake_case
+def resolve_change_distribution_event_state(*_, distribution_event_id, new_state):
+    # TODO: Add authorization
+    # authorize(permission="distribution_event:write")
+    distribution_event = DistributionEvent.get_by_id(distribution_event_id)
+    if distribution_event is None:
+        raise GraphQLError("Distribution event not found")
+    if distribution_event.state == DistributionEventState.Completed:
+        raise GraphQLError("Distribution event is already closed")
+    distribution_event.state = new_state
+    distribution_event.save()
+    return distribution_event
 
 
 @mutation.field("createDistributionSpot")
