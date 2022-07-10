@@ -1,17 +1,6 @@
 import { Box, Button, Flex, SimpleGrid, Text } from "@chakra-ui/react";
 import { CloseIcon, EditIcon } from "@chakra-ui/icons";
-import { ProductGender } from "types/generated/graphql";
-
-export interface PackingListEntry {
-  id: string;
-  productName: string;
-  size?: {
-    id: string;
-    label: string;
-  }
-  gender?: ProductGender;
-  numberOfItems: number;
-}
+import { PackingListEntry } from "views/Distributions/types";
 
 interface DistroEventDetailsForPlanningStateProps {
   packingListEntries: PackingListEntry[];

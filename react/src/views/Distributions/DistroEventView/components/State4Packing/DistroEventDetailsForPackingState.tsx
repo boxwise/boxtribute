@@ -10,6 +10,7 @@ import {
   Flex,
 } from "@chakra-ui/react";
 import { distroEventStateHumanReadableLabels } from "views/Distributions/baseData";
+import { PackingListEntry } from "views/Distributions/types";
 
 export interface DistroEventPackingData {
   distroEventData: {
@@ -26,22 +27,22 @@ export interface DistroEventPackingData {
   };
 }
 
-interface DistroEventPackingProps {
-  distroEventDetailsData: DistroEventPackingData;
+interface DistroEventDetailsForPackingStateProps {
+  packingListEntries: PackingListEntry[];
   onCheckboxClick: () => void;
 }
 
-const DistroEventPacking = ({
-  distroEventDetailsData,
+const DistroEventDetailsForPackingState = ({
+  packingListEntries,
   onCheckboxClick,
-}: DistroEventPackingProps) => {
+}: DistroEventDetailsForPackingStateProps) => {
   return (
     <Box textAlign="left">
       <Flex direction="column" mb={4}>
         <Text fontSize="xl" mb={1}>
           Distro Event
         </Text>
-        <Text lineHeight="normal">
+        {/* <Text lineHeight="normal">
           <strong>
             {distroEventDetailsData.distroEventData.distroSpotName}
           </strong>
@@ -55,12 +56,12 @@ const DistroEventPacking = ({
           {distroEventStateHumanReadableLabels.get(
             distroEventDetailsData.distroEventData.status
           )}
-        </Text>
+        </Text> */}
       </Flex>
       <Accordion w={[300, 420, 500]} allowToggle>
-        {distroEventDetailsData.distroEventData.itemsForPacking.map((item) => {
+        {packingListEntries.map((item) => {
           return (
-            <AccordionItem w={[300, 420, 500]} justifyItems="center">
+            <AccordionItem w={[300, 420, 500]} justifyItems="center" key={item.id}>
               <Flex justifyItems="center">
                 <AccordionButton>
                   <Box flex="1" textAlign="center">
@@ -95,4 +96,4 @@ const DistroEventPacking = ({
     </Box>
   );
 };
-export default DistroEventPacking;
+export default DistroEventDetailsForPackingState;

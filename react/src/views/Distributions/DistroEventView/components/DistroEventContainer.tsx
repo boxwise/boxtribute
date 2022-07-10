@@ -4,6 +4,8 @@ import DistributionStateProgressBar from "views/Distributions/components/Distrib
 import { DistributionEventState } from "views/Distributions/types";
 import * as yup from "yup";
 import DistroEventDetailsForPlanningStateContainer from "./State1Planning/DistroEventDetailsForPlanningStateContainer";
+import DistroEventDetailsForPackingState from "./State4Packing/DistroEventDetailsForPackingState";
+import DistroEventDetailsForPackingStateContainer from "./State4Packing/DistroEventDetailsForPackingStateContainer";
 
 const distributionSpotSchema = yup.object({
   id: yup.string().required(),
@@ -51,7 +53,7 @@ const DistroEventContainer = ({
       />
     ),
     // [DistributionEventState.PlanningDone]: () => <Box>PlanningDone</Box>,
-    [DistributionEventState.Packing]: () => <Box>Packing</Box>,
+    [DistributionEventState.Packing]: () => <DistroEventDetailsForPackingStateContainer distributionEventDetails={distroEventDetails} />,
     // [DistributionEventState.PackingDone]: () => <Box>PackingDone</Box>,
     [DistributionEventState.OnDistro]: () => <Box>OnDistro</Box>,
     [DistributionEventState.Returned]: () => <Box>Returned</Box>,
