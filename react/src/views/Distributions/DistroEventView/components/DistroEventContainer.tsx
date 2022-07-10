@@ -1,5 +1,6 @@
-import { Box, VStack, Text } from "@chakra-ui/react";
-import React from "react";
+import { ArrowRightIcon } from "@chakra-ui/icons";
+import { Box, VStack, Text, IconButton, Button } from "@chakra-ui/react";
+import React, { useCallback } from "react";
 import DistributionStateProgressBar from "views/Distributions/components/DistributionStateProgressBar";
 import { DistributionEventState } from "views/Distributions/types";
 import * as yup from "yup";
@@ -44,16 +45,24 @@ export interface DistroEventContainerProps {
 const DistroEventContainer = ({
   distroEventDetails,
 }: DistroEventContainerProps) => {
+  const moveEventToNextStage = useCallback(() => {
+    alert("MOVE TO NEXT STAGE");
+  }, []);
+
   const eventStateToComponentMapping: {
     [key in DistributionEventState]: React.FC;
   } = {
     [DistributionEventState.Planning]: () => (
       <DistroEventDetailsForPlanningStateContainer
-      distributionEventDetails={distroEventDetails}
+        distributionEventDetails={distroEventDetails}
       />
     ),
     // [DistributionEventState.PlanningDone]: () => <Box>PlanningDone</Box>,
-    [DistributionEventState.Packing]: () => <DistroEventDetailsForPackingStateContainer distributionEventDetails={distroEventDetails} />,
+    [DistributionEventState.Packing]: () => (
+      <DistroEventDetailsForPackingStateContainer
+        distributionEventDetails={distroEventDetails}
+      />
+    ),
     // [DistributionEventState.PackingDone]: () => <Box>PackingDone</Box>,
     [DistributionEventState.OnDistro]: () => <Box>OnDistro</Box>,
     [DistributionEventState.Returned]: () => <Box>Returned</Box>,
@@ -66,14 +75,16 @@ const DistroEventContainer = ({
   return (
     <VStack>
       <Box>
-        <Text fontSize="xl">
-          {distroEventDetails.distributionSpot.name}
-        </Text>
+        <Text fontSize="xl">{distroEventDetails.distributionSpot.name}</Text>
         <Text fontSize="xl" mb={2} borderBottom="1px" borderColor="gray.300">
           {distroEventDetails.plannedStartDateTime?.toDateString()}
         </Text>
         <DistributionStateProgressBar activeState={distroEventDetails.state} />
       </Box>
+      <Button onClick={moveEventToNextStage}>
+        Move to next stage (XXXXX)
+        <ArrowRightIcon />
+      </Button>
       <Box>
         <StateSpecificComponent />
       </Box>
