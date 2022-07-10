@@ -11,7 +11,9 @@ import {
   Flex,
   useDisclosure,
   Button,
+  IconButton,
 } from "@chakra-ui/react";
+import { AddIcon, ExternalLinkIcon } from "@chakra-ui/icons";
 import { groupBy } from "utils/helpers";
 import { DistroEventStateLabel } from "views/Distributions/DistroSpotsView/components/DistroSpots";
 import FirstOverlay from "./Overlays/FirstOverlay";
@@ -27,14 +29,17 @@ export interface DistroEventPackingData {
 
 interface DistroEventPackingProps {
   distroEventDetailsData: DistroEventPackingData;
-  onCheckboxClick: () => void;
+  // onCheckboxClick: () => void;
+  onAddItemsClick: (itemId: string) => void;
+  onShowListClick: (itemId: string) => void;
   boxData: BoxData;
   packingActionProps: PackingActionProps;
 }
 
 const DistroEventPacking = ({
   distroEventDetailsData,
-  // onCheckboxClick,
+  onAddItemsClick,
+  onShowListClick,
   boxData,
   packingActionProps,
 }: DistroEventPackingProps) => {
@@ -54,7 +59,7 @@ const DistroEventPacking = ({
         size: item.size,
         gender: item.gender,
         id: item.id,
-        productName: item.productName
+        productName: item.productName,
       })),
     };
   });
@@ -69,15 +74,9 @@ const DistroEventPacking = ({
     onClose: onSecondClose,
     onOpen: onSecondOpen,
   } = useDisclosure();
-  const {
-    isOpen: isThirdOpen,
-    onClose: onThirdClose,
-    onOpen: onThirdOpen,
-  } = useDisclosure();
 
   const [chosenPackingNumberOfItems, setChosenPackingItemId] = useState(0);
   const [isMovingItems, setIsMovingItems] = useState(false);
-
 
   return (
     <>
@@ -116,44 +115,49 @@ const DistroEventPacking = ({
                   return (
                     <AccordionPanel py={0}>
                       <Flex
-                        alignContent="center"
+                        // alignContent="center"
+                        alignItems="center"
                         justifyItems="center"
                         // py={2}
                         borderTop="1px"
                         borderColor="gray.300"
-                        direction='column'
+                        direction="row"
                       >
                         <Box
-                          as={Button}
-                          _hover={{ backgroundColor: "gray.100" }}
                           backgroundColor="transparent"
                           borderRadius="0px"
-                          my={2}
-                          onClick={(e) => {
-                            onFirstOpen();
-                            setChosenPackingItemId(item.numberOfItems); 
-                          }}
                           flex="1"
                           textAlign="center"
                         >
                           {item.numberOfItems} x {item.size}
                         </Box>
-                        <Box fontSize='sm'>
-                          Box 293730: 20
+                        <Box>
+                          <IconButton
+                            _hover={{
+                              backgroundColor: "transparent",
+                              opacity: "0.5",
+                            }}
+                            backgroundColor="transparent"
+                            aria-label="Add items"
+                            icon={<AddIcon />}
+                            onClick={(e) => {
+                              onFirstOpen();
+                              setChosenPackingItemId(item.numberOfItems);
+                            }}
+                            color="teal"
+                          />
+                          <IconButton
+                            _hover={{
+                              backgroundColor: "transparent",
+                              opacity: "0.5",
+                            }}
+                            backgroundColor="transparent"
+                            aria-label="Show list of packed items"
+                            icon={<ExternalLinkIcon />}
+                            onClick={() => onShowListClick(item.id)}
+                            color="teal"
+                          />
                         </Box>
-                        <Box fontSize='sm'>
-                           Box 293720: 3
-                        </Box>
-                        <Box fontSize='sm'>
-                           Unboxed Items: 2
-                        </Box>
-                        {/* the checkbox fires 2 times on the onclick => to be corrected */}
-                        {/* <Flex
-                        alignItems="center"
-                        onClick={() => onCheckboxClick()}
-                      >
-                        <Checkbox />
-                      </Flex> */}
                       </Flex>
                     </AccordionPanel>
                   );
@@ -173,7 +177,7 @@ const DistroEventPacking = ({
         }}
       />
       <SecondOverlay
-        modalProps={{ isSecondOpen, onSecondClose, onThirdOpen }}
+        modalProps={{ isSecondOpen, onSecondClose }}
         boxData={boxData}
         packingActionProps={packingActionProps}
         itemsForPackingNumberOfItems={chosenPackingNumberOfItems}
@@ -181,7 +185,6 @@ const DistroEventPacking = ({
           isMovingItems,
           setIsMovingItems,
         }}
-
       />
     </>
   );

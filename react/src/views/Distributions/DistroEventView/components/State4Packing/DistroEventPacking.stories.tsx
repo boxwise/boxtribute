@@ -68,7 +68,8 @@ export const Default = Template.bind({});
 Default.args = {
     distroEventDetailsData: mockedDistroEventPackingList,
     boxData: mockedBoxData,
-    onCheckboxClick: action('onCheckboxClick'), 
+    onAddItemsClick: action('onAddItemsClick'), 
+    onShowListClick: action('onShowListClick'),
     packingActionProps: mockedPackingActionProps
 
 }

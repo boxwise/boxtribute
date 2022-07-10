@@ -18,7 +18,6 @@ import { useCallback, useState } from "react";
 interface ModalProps {
   isSecondOpen: boolean;
   onSecondClose: () => void;
-  onThirdOpen: () => void;
 }
 
 export interface BoxData {
@@ -61,12 +60,13 @@ const SecondOverlay = ({
   }, [modalProps, stateProps]);
 
   const toast = useToast({
-    // position: 'top',
-    // title: 'Container style is updated',
-    // containerStyle: {
-    //   width: '800px',
-    //   maxWidth: '100%',
-    // },
+    position: 'bottom',
+    title: 'Container style is updated',
+    containerStyle: {
+      width: '800px',
+      maxWidth: '90%',
+      borderRadius: "0px"
+    },
   })
 
   return (
@@ -103,7 +103,7 @@ const SecondOverlay = ({
                         title: 'Done!',
                         description: "Box moved to the distribution.",
                         status: 'success',
-                        duration: 3000,
+                        duration: 2000,
                         isClosable: true,
                       }) 
                     
@@ -159,7 +159,7 @@ const SecondOverlay = ({
                             title: 'Done!.',
                             description: "Items moved to the distribution.",
                             status: 'success',
-                            duration: 3000,
+                            duration: 2000,
                             isClosable: true,
                           }) 
                         
