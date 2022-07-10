@@ -1,18 +1,21 @@
 import { useQuery } from "@apollo/client";
 import APILoadingIndicator from "components/APILoadingIndicator";
+import { useMemo } from "react";
 import {
   PackingListEntriesForDistributionEventQuery,
   PackingListEntriesForDistributionEventQueryVariables,
 } from "types/generated/graphql";
 import { graphqlPackingListEntriesForDistributionEventTransformer } from "views/Distributions/dataTransformers";
 import { PACKING_LIST_ENTRIES_FOR_DISTRIBUTION_EVENT_QUERY } from "views/Distributions/queries";
-import { DistributionEventDetails, PackingListEntry } from "views/Distributions/types";
+import {
+  DistributionEventDetails,
+  PackingListEntry,
+} from "views/Distributions/types";
 import DistroEventDetailsForPackingState from "./DistroEventDetailsForPackingState";
 
 interface DistroEventDetailsForPackingStateProps {
   distributionEventDetails: DistributionEventDetails;
 }
-
 
 const DistroEventDetailsForPackingStateContainer = ({
   distributionEventDetails,
@@ -34,17 +37,17 @@ const DistroEventDetailsForPackingStateContainer = ({
     return <div>Error</div>;
   }
 
-  const packingListEntries = graphqlPackingListEntriesForDistributionEventTransformer(data);
+  // const packingListEntries = useMemo(() => graphqlPackingListEntriesForDistributionEventTransformer(data), [data]);
+  const packingListEntries =
+    graphqlPackingListEntriesForDistributionEventTransformer(data);
 
   return (
-    <>
-      <DistroEventDetailsForPackingState
-        packingListEntries={packingListEntries}
-        onCheckboxClick={function (): void {
-          alert("Function not implemented.");
-        }}
-      />
-    </>
+    <DistroEventDetailsForPackingState
+      packingListEntries={packingListEntries}
+      onCheckboxClick={function (): void {
+        alert("Function not implemented.");
+      }}
+    />
   );
 };
 

@@ -24,6 +24,7 @@ const DistroEventDetailsForPackingState = ({
   packingListEntries,
   onCheckboxClick,
 }: DistroEventDetailsForPackingStateProps) => {
+  // return <>Foo</>
   return (
     <Box textAlign="left">
       <Flex direction="column" mb={4}>
@@ -49,25 +50,35 @@ const DistroEventDetailsForPackingState = ({
       <Accordion w={[300, 420, 500]} allowToggle>
         {packingListEntries.map((item) => {
           return (
-            <AccordionItem w={[300, 420, 500]} justifyItems="center" key={item.id}>
+            <AccordionItem
+              w={[300, 420, 500]}
+              justifyItems="center"
+              key={item.id}
+            >
               <Flex justifyItems="center">
                 <AccordionButton>
                   <Box flex="1" textAlign="center">
-                      <strong>
-                    {item.productName} {item.gender}
+                    <strong>
+                      {item.productName} {item.gender}
                     </strong>
                   </Box>
                   <AccordionIcon />
                 </AccordionButton>
               </Flex>
               <AccordionPanel py={0}>
-                <Flex alignContent='center' justifyItems='center' py={2} borderTop="1px" borderColor="gray.300">
-                  <Text  flex="1" textAlign="center" >
-                    {item.numberOfItems} x {item.size}
+                <Flex
+                  alignContent="center"
+                  justifyItems="center"
+                  py={2}
+                  borderTop="1px"
+                  borderColor="gray.300"
+                >
+                  <Text flex="1" textAlign="center">
+                    {item.numberOfItems} x {item.size?.label}
                   </Text>
                   {/* the checkbox fires 2 times on the onclick => it must be corrected */}
-                    <Flex alignItems="center" onClick={() => onCheckboxClick()}>
-                     <Checkbox/>
+                  <Flex alignItems="center" onClick={() => onCheckboxClick()}>
+                    <Checkbox />
                   </Flex>
                 </Flex>
               </AccordionPanel>

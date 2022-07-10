@@ -79,7 +79,6 @@ const DistroEventContainer = ({
 
   const nextState = useMemo(() => getNextState(distributionEventDetails.state), [distributionEventDetails.state]);
   const moveEventToNextStage = useCallback(() => {
-    alert("NOW")
     moveEventToNextStageMutation({
       variables: {
         distributionEventId: distributionEventDetails.id,
