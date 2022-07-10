@@ -280,6 +280,13 @@ def update_beneficiary(
     return beneficiary
 
 
+def delete_packing_list_entry(packing_list_entry_id):
+    with db.database.atomic():
+        PackingListEntry.delete().where(
+            PackingListEntry.id == packing_list_entry_id
+        ).execute()
+
+
 def create_distribution_spot(user_id, distribution_spot_input=None):
     """Insert information for a new DistributionSpot in the database."""
     now = utcnow()

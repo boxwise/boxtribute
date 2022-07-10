@@ -16,6 +16,8 @@ import {
   AddToPackingListMutationVariables,
   PackingListEntriesForDistributionEventQuery,
   PackingListEntriesForDistributionEventQueryVariables,
+  RemoveEntryFromPackingListMutation,
+  RemoveEntryFromPackingListMutationVariables,
 } from "types/generated/graphql";
 import { PackingListEntriesForProductToAdd } from "views/Distributions/components/AddItemsToPackingList/AddItemsToPackingList";
 import AddItemsToPackingListContainer from "views/Distributions/components/AddItemsToPackingList/AddItemsToPackingListContainer";
@@ -27,6 +29,16 @@ import DistroEventDetailsForPlanningState from "./DistroEventDetailsForPlanningS
 interface DistroEventDetailsForPlanningStateContainerProps {
   distributionEventDetails: DistributionEventDetails;
 }
+
+export const REMOVE_ENTRY_FROM_PACKING_LIST = gql`
+  mutation RemoveEntryFromPackingList($packingListEntryId: ID!) {
+    removePackingListEntryFromDistributionEvent(
+      packingListEntryId: $packingListEntryId
+    ) {
+      id
+    }
+  }
+`;
 
 export const ADD_ENTRY_TO_PACKING_LIST_MUTATION = gql`
   mutation addToPackingList(
@@ -129,6 +141,20 @@ const DistroEventDetailsForPlanningStateContainer = ({
     // },
   });
 
+  const [removeEntryFromPackingListMutation] = useMutation<
+    RemoveEntryFromPackingListMutation,
+    RemoveEntryFromPackingListMutationVariables
+  >(REMOVE_ENTRY_FROM_PACKING_LIST, {
+    refetchQueries: [
+      {
+        query: PACKING_LIST_ENTRIES_FOR_DISTRIBUTION_EVENT_QUERY,
+        variables: {
+          distributionEventId: distributionEventDetails.id,
+        },
+      },
+    ],
+  });
+
   const onAddEntiresToPackingListForProduct = useCallback(
     (entriesToAdd: PackingListEntriesForProductToAdd) => {
       // TODO: consider to offer a mutation in the API which allows to add multiple packing list entries
@@ -162,6 +188,24 @@ const DistroEventDetailsForPlanningStateContainer = ({
     [addEntryToPackingListMutation, distributionEventDetails.id, onClose, toast]
   );
 
+  const onRemoveItemFromPackingList = useCallback(
+    (packlistEntryId: string) => {
+      removeEntryFromPackingListMutation({
+        variables: {
+          packingListEntryId: packlistEntryId,
+        },
+      }).then(() =>
+        toast({
+          title: "Successfully removed entry",
+          status: "success",
+          isClosable: true,
+          duration: 2000,
+        })
+      );
+    },
+    [removeEntryFromPackingListMutation, toast]
+  );
+
   if (loading) {
     return <APILoadingIndicator />;
   }
@@ -178,7 +222,7 @@ const DistroEventDetailsForPlanningStateContainer = ({
         packingListEntries={packingListEntries}
         onAddItemsClick={onOpen}
         onCopyPackingListFromPreviousEventsClick={() => {}}
-        onRemoveItemFromPackingListClick={() => {}}
+        onRemoveItemFromPackingListClick={onRemoveItemFromPackingList}
         onEditItemOnPackingListClick={() => {}}
       />
 

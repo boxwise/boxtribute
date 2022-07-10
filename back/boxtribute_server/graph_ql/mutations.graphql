@@ -26,4 +26,5 @@ type Mutation {
 
 
   addPackingListEntryToDistributionEvent(creationInput: PacklistEntryInput!): PackingListEntry
+  removePackingListEntryFromDistributionEvent(packingListEntryId: ID!): DistributionEvent
   }

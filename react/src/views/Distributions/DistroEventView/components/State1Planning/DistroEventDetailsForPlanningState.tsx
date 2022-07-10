@@ -1,4 +1,4 @@
-import { Box, Button, Flex, SimpleGrid, Text } from "@chakra-ui/react";
+import { Box, Button, Flex, IconButton, SimpleGrid, Text } from "@chakra-ui/react";
 import { CloseIcon, EditIcon } from "@chakra-ui/icons";
 import { PackingListEntry } from "views/Distributions/types";
 
@@ -46,15 +46,12 @@ const DistroEventDetailsForPlanningState = ({
             <Box>{item.size?.label}</Box>
             <Box>{item.gender}</Box>
             <Box>
-              <EditIcon
-                onClick={() => onEditItemOnPackingListClick(item.id)}
-                mx={2}
-                color="teal"
-              />
-              <CloseIcon
-                onClick={() => onRemoveItemFromPackingListClick(item.id)}
-                color="teal"
-              />
+              <IconButton background="transparent" onClick={() => onEditItemOnPackingListClick(item.id)} aria-label="Edit Packing List Item">
+                <EditIcon mx={2} color="teal" />
+              </IconButton>
+              <IconButton background="transparent" onClick={() => onRemoveItemFromPackingListClick(item.id)} aria-label="Remove Packing List Item">
+                <CloseIcon color="teal" />
+              </IconButton>
             </Box>
           </SimpleGrid>
         );
