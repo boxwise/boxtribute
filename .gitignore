@@ -12,5 +12,7 @@ back/test-results
 yarn-error.log
 
 ./public/
+docs/graphql-api/public
 *.zip
 .VSCodeCounter
+.DS_Store

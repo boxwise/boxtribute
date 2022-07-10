@@ -19,6 +19,7 @@ describe("Boxes view", () => {
             locations: [
               {
                 __typename: "Location",
+                name: "Warehouse 1",
                 boxes: {
                   __typename: "BoxPage",
                   totalCount: 27,
@@ -26,9 +27,6 @@ describe("Boxes view", () => {
                     {
                       __typename: "Box",
                       labelIdentifier: "1234",
-                      location: {
-                        name: "Warehouse 1"
-                      },
                       state: "Donated",
                       size: "4",
                       product: {
@@ -41,9 +39,6 @@ describe("Boxes view", () => {
                     {
                       __typename: "Box",
                       labelIdentifier: "1235",
-                      location: {
-                        name: "Warehouse 1"
-                      },
                       state: "Donated",
                       size: "52",
                       product: {
@@ -58,6 +53,7 @@ describe("Boxes view", () => {
               },
               {
                 __typename: "Location",
+                name: "Warehouse 2",
                 boxes: {
                   __typename: "BoxPage",
                   totalCount: 31,
@@ -65,9 +61,6 @@ describe("Boxes view", () => {
                     {
                       __typename: "Box",
                       labelIdentifier: "1236",
-                      location: {
-                        name: "Warehouse 2"
-                      },
                       state: "Lost",
                       size: "54",
                       product: {
@@ -80,9 +73,6 @@ describe("Boxes view", () => {
                     {
                       __typename: "Box",
                       labelIdentifier: "1237",
-                      location: {
-                        name: "Warehouse 2"
-                      },
                       state: "MarkedForShipment",
                       size: "68",
                       product: {
@@ -95,9 +85,6 @@ describe("Boxes view", () => {
                     {
                       __typename: "Box",
                       labelIdentifier: "1238",
-                      location: {
-                        name: "Warehouse 2"
-                      },
                       state: "Lost",
                       size: "118",
                       product: {
@@ -112,6 +99,7 @@ describe("Boxes view", () => {
               },
               {
                 __typename: "Location",
+                name: "Warehouse 3",
                 boxes: {
                   __typename: "BoxPage",
                   totalCount: 16,
@@ -119,9 +107,6 @@ describe("Boxes view", () => {
                     {
                       __typename: "Box",
                       labelIdentifier: "1239",
-                      location: {
-                        name: "Warehouse 3"
-                      },
                       state: "InStock",
                       size: "68",
                       product: {
@@ -134,9 +119,6 @@ describe("Boxes view", () => {
                     {
                       __typename: "Box",
                       labelIdentifier: "1230",
-                      location: {
-                        name: "Warehouse 3"
-                      },
                       state: "InStock",
                       size: "68",
                       product: {
