@@ -1,4 +1,3 @@
-import { DistroEvent } from "../State1Planning/DistroEventPlanning";
 import {
   Accordion,
   AccordionItem,
@@ -7,30 +6,42 @@ import {
   AccordionPanel,
   Text,
   Box,
-  // Checkbox,
   Flex,
   useDisclosure,
-  Button,
   IconButton,
 } from "@chakra-ui/react";
 import { AddIcon, ExternalLinkIcon } from "@chakra-ui/icons";
 import { groupBy } from "utils/helpers";
-import { DistroEventStateLabel } from "views/Distributions/DistroSpotsView/components/DistroSpots";
 import FirstOverlay from "./Overlays/FirstOverlay";
 import SecondOverlay, {
   BoxData,
   PackingActionProps,
 } from "./Overlays/SecondOverlay";
 import { useState } from "react";
+import { distroEventStateHumanReadableLabels } from "views/Distributions/baseData";
+import { DistributionEventState } from "types/generated/graphql";
+
+interface ItemsForPacking {
+  id: string;
+  numberOfItems: number;
+  size: string;
+  productName: string;
+}
+
+interface DistroEventData {
+  eventDate: Date;
+  distroSpotName: string;
+  status: DistributionEventState;
+  itemsForPacking: ItemsForPacking[]
+}
+
 
 export interface DistroEventPackingData {
-  distroEventData: DistroEvent;
+  distroEventData: DistroEventData;
 }
 
 interface DistroEventPackingProps {
   distroEventDetailsData: DistroEventPackingData;
-  // onCheckboxClick: () => void;
-  onAddItemsClick: (itemId: string) => void;
   onShowListClick: (itemId: string) => void;
   boxData: BoxData;
   packingActionProps: PackingActionProps;
@@ -38,11 +49,11 @@ interface DistroEventPackingProps {
 
 const DistroEventPacking = ({
   distroEventDetailsData,
-  onAddItemsClick,
   onShowListClick,
   boxData,
   packingActionProps,
 }: DistroEventPackingProps) => {
+
   const itemsForPackingGroupedByProductName = groupBy(
     distroEventDetailsData.distroEventData.itemsForPacking,
     (item) => item.productName
@@ -57,7 +68,6 @@ const DistroEventPacking = ({
       items: itemsForPackingGroupedByProductName[key].map((item) => ({
         numberOfItems: item.numberOfItems,
         size: item.size,
-        gender: item.gender,
         id: item.id,
         productName: item.productName,
       })),
@@ -86,7 +96,7 @@ const DistroEventPacking = ({
             Distro Event
           </Text>
           <Text lineHeight="normal">
-            <strong>{distroEventDetailsData.distroEventData.distroSpot}</strong>
+            <strong>{distroEventDetailsData.distroEventData.distroSpotName}</strong>
           </Text>
           <Text lineHeight="normal">
             <strong>
@@ -94,7 +104,7 @@ const DistroEventPacking = ({
             </strong>
           </Text>
           <Text>
-            {DistroEventStateLabel.get(
+            {distroEventStateHumanReadableLabels.get(
               distroEventDetailsData.distroEventData.status
             )}
           </Text>
@@ -173,7 +183,6 @@ const DistroEventPacking = ({
           onFirstClose,
           onSecondOpen,
           onFirstOpen,
-          // onOtherSource,
         }}
       />
       <SecondOverlay

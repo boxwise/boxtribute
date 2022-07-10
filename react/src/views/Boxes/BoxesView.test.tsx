@@ -27,6 +27,9 @@ describe("Boxes view", () => {
                     {
                       __typename: "Box",
                       labelIdentifier: "1234",
+                      place: {
+                        name: "Warehouse 1"
+                      },
                       state: "Donated",
                       size: "4",
                       product: {
@@ -39,6 +42,9 @@ describe("Boxes view", () => {
                     {
                       __typename: "Box",
                       labelIdentifier: "1235",
+                      place: {
+                        name: "Warehouse 1"
+                      },
                       state: "Donated",
                       size: "52",
                       product: {
@@ -61,6 +67,9 @@ describe("Boxes view", () => {
                     {
                       __typename: "Box",
                       labelIdentifier: "1236",
+                      place: {
+                        name: "Warehouse 2"
+                      },
                       state: "Lost",
                       size: "54",
                       product: {
@@ -73,6 +82,9 @@ describe("Boxes view", () => {
                     {
                       __typename: "Box",
                       labelIdentifier: "1237",
+                      place: {
+                        name: "Warehouse 2"
+                      },
                       state: "MarkedForShipment",
                       size: "68",
                       product: {
@@ -85,6 +97,9 @@ describe("Boxes view", () => {
                     {
                       __typename: "Box",
                       labelIdentifier: "1238",
+                      place: {
+                        name: "Warehouse 2"
+                      },
                       state: "Lost",
                       size: "118",
                       product: {
@@ -107,6 +122,9 @@ describe("Boxes view", () => {
                     {
                       __typename: "Box",
                       labelIdentifier: "1239",
+                      place: {
+                        name: "Warehouse 3"
+                      },
                       state: "InStock",
                       size: "68",
                       product: {
@@ -119,6 +137,9 @@ describe("Boxes view", () => {
                     {
                       __typename: "Box",
                       labelIdentifier: "1230",
+                      place: {
+                        name: "Warehouse 3"
+                      },
                       state: "InStock",
                       size: "68",
                       product: {
@@ -140,7 +161,7 @@ describe("Boxes view", () => {
 
   const waitTillLoadingIsDone = async () => {
     await waitFor(() => {
-      const loadingInfo = screen.queryByText("Loading...");
+      const loadingInfo = screen.queryByTestId("loading-indicator");
       expect(loadingInfo).toBeNull();
     });
   };
@@ -154,7 +175,7 @@ describe("Boxes view", () => {
   });
 
   it("renders with an initial 'Loading...'", () => {
-    const loadingInfo = screen.getByText("Loading...");
+    const loadingInfo = screen.queryByTestId("loading-indicator");
     expect(loadingInfo).toBeInTheDocument();
   });
 

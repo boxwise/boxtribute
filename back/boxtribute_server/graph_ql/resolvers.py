@@ -1,7 +1,9 @@
 """GraphQL resolver functionality"""
 from datetime import date
+from types import SimpleNamespace
 
 from ariadne import (
+    InterfaceType,
     MutationType,
     ObjectType,
     QueryType,
@@ -29,10 +31,13 @@ from ..box_transfer.shipment import (
     send_shipment,
     update_shipment,
 )
-from ..enums import HumanGender, TaggableObjectType, TransferAgreementType
+from ..enums import HumanGender, LocationType, TaggableObjectType, TransferAgreementType
 from ..models.crud import (
+    add_packing_list_entry_to_distribution_event,
     create_beneficiary,
     create_box,
+    create_distribution_event,
+    create_distribution_spot,
     create_qr_code,
     update_beneficiary,
     update_box,
@@ -40,8 +45,10 @@ from ..models.crud import (
 from ..models.definitions.base import Base
 from ..models.definitions.beneficiary import Beneficiary
 from ..models.definitions.box import Box
+from ..models.definitions.distribution_event import DistributionEvent
 from ..models.definitions.location import Location
 from ..models.definitions.organisation import Organisation
+from ..models.definitions.packing_list_entry import PackingListEntry
 from ..models.definitions.product import Product
 from ..models.definitions.product_category import ProductCategory
 from ..models.definitions.qr_code import QrCode
@@ -68,6 +75,7 @@ query = QueryType()
 mutation = MutationType()
 object_types = []
 union_types = []
+interface_types = []
 
 
 def _register_object_type(name):
@@ -80,8 +88,11 @@ base = _register_object_type("Base")
 beneficiary = _register_object_type("Beneficiary")
 box = _register_object_type("Box")
 location = _register_object_type("Location")
+distribution_spot = _register_object_type("DistributionSpot")
+distribution_event = _register_object_type("DistributionEvent")
 metrics = _register_object_type("Metrics")
 organisation = _register_object_type("Organisation")
+packing_list = _register_object_type("PackingList")
 product = _register_object_type("Product")
 product_category = _register_object_type("ProductCategory")
 qr_code = _register_object_type("QrCode")
@@ -119,6 +130,51 @@ def resolve_beneficiary(*_, id):
     beneficiary = Beneficiary.get_by_id(id)
     authorize(permission="beneficiary:read", base_id=beneficiary.base_id)
     return beneficiary
+
+
+@distribution_spot.field("distributionEvents")
+def resolve_distribution_spot_distribution_events(obj, *_):
+    return DistributionEvent.select().where(
+        DistributionEvent.distribution_spot == obj.id
+    )
+
+
+@distribution_event.field("packingList")
+def resolve_distribution_event_packing_list(obj, *_):
+    packing_list = SimpleNamespace()
+    packing_list.distribution_event_id = obj.id
+    return packing_list
+
+
+@base.field("distributionSpots")
+@query.field("distributionSpots")
+def resolve_distributions_spots(base_obj, _):
+    # TODO: add permissions here
+    # authorize(permission="distribution_spot:read")
+    return Location.select().where(Location.type == LocationType.DistributionSpot)
+    # .where(base_filter_condition("distribution_spot:read"))
+
+
+@query.field("distributionSpot")
+def resolve_distributions_spot(obj, _, id):
+    distribution_spot = obj.location if id is None else Location.get_by_id(id)
+    if distribution_spot.type == LocationType.DistributionSpot:
+        # authorize(permission="location:read", base_id=distribution_spot.base_id)
+        return distribution_spot
+    else:
+        None
+
+
+@query.field("distributionEvent")
+def resolve_distribution_event(obj, _, id):
+    distribution_event = DistributionEvent.get_by_id(id)
+    return distribution_event
+
+
+# @packing_list.field("distributionEvent")
+# def resolve_packing_list_distribution_event(obj, *_):
+#     distribution_event = DistributionEvent.get_by_id(obj.distribution_event_id)
+#     return distribution_event
 
 
 @query.field("users")
@@ -186,12 +242,25 @@ def resolve_box(*_, label_identifier):
     return box
 
 
-@query.field("location")
-@box.field("location")
-def resolve_location(obj, _, id=None):
+@box.field("place")
+def resolve_box_place(obj, _, id=None):
     location = obj.location if id is None else Location.get_by_id(id)
     authorize(permission="location:read", base_id=location.base_id)
     return location
+
+
+@query.field("location")
+def resolve_location(obj, _, id=None):
+    location = (
+        obj.location
+        if id is None
+        else Location.get_by_id(id)  # .where(Location.type == LocationType.Location)
+    )
+    if location.type == LocationType.Location:
+        authorize(permission="location:read", base_id=location.base_id)
+        return location
+    else:
+        None
 
 
 @query.field("organisation")
@@ -231,7 +300,14 @@ def resolve_organisations(*_):
 @query.field("locations")
 def resolve_locations(*_):
     authorize(permission="location:read")
-    return Location.select().join(Base).where(base_filter_condition("location:read"))
+    return (
+        Location.select()
+        .join(Base)
+        .where(
+            Location.type
+            == LocationType.Location & base_filter_condition("location:read")
+        )
+    )
 
 
 @query.field("products")
@@ -398,11 +474,36 @@ def resolve_create_qr_code(*_, box_label_identifier=None):
     return create_qr_code(box_label_identifier=box_label_identifier)
 
 
+@mutation.field("createDistributionSpot")
+@convert_kwargs_to_snake_case
+def resolve_create_distribution_spot(*_, creation_input=None):
+    # authorize(permission="distribution_spot:create")
+    return create_distribution_spot(
+        user_id=g.user.id, distribution_spot_input=creation_input
+    )
+
+
 @mutation.field("createBox")
 @convert_kwargs_to_snake_case
 def resolve_create_box(*_, creation_input):
     authorize(permission="stock:write")
     return create_box(user_id=g.user.id, **creation_input)
+
+
+@mutation.field("createDistributionEvent")
+@convert_kwargs_to_snake_case
+def resolve_create_distribution_event(*_, creation_input):
+    # authorize(permission="stock:write")
+    return create_distribution_event(user_id=g.user.id, **creation_input)
+
+
+@mutation.field("addPackingListEntryToDistributionEvent")
+@convert_kwargs_to_snake_case
+def resolve_add_packing_list_entry_to_distribution_event(*_, creation_input):
+    # authorize(permission="stock:write")
+    return add_packing_list_entry_to_distribution_event(
+        user_id=g.user.id, **creation_input
+    )
 
 
 @mutation.field("updateBox")
@@ -524,6 +625,13 @@ def resolve_send_shipment(*_, id):
     shipment = Shipment.get_by_id(id)
     authorize(organisation_id=shipment.source_base.organisation_id)
     return send_shipment(id=id, user=g.user)
+
+
+@packing_list.field("entries")
+def resolve_packing_list_entries(obj, *_):
+    return PackingListEntry.select().where(
+        PackingListEntry.distribution_event_id == obj.distribution_event_id
+    )
 
 
 @base.field("locations")
@@ -720,4 +828,9 @@ def resolve_taggable_resource_type(obj, *_):
     return "Beneficiary"
 
 
+def resolve_box_place_type(obj, *_):
+    return obj.type.name
+
+
 union_types.append(UnionType("TaggableResource", resolve_taggable_resource_type))
+interface_types.append(InterfaceType("BoxPlace", resolve_box_place_type))

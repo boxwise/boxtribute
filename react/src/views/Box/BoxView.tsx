@@ -1,4 +1,5 @@
 import { gql, useMutation, useQuery } from "@apollo/client";
+import APILoadingIndicator from "components/APILoadingIndicator";
 import { useParams } from "react-router-dom";
 import {
   BoxByLabelIdentifierQuery,
@@ -21,7 +22,7 @@ export const BOX_BY_LABEL_IDENTIFIER_QUERY = gql`
         name
         gender
       }
-      location {
+      place {
         id
         name
         base {
@@ -57,7 +58,7 @@ export const UPDATE_LOCATION_OF_BOX_MUTATION = gql`
         gender
         id
       }
-      location {
+      place {
         id
         name
         base {
@@ -89,7 +90,7 @@ const BTBox = () => {
   >(UPDATE_LOCATION_OF_BOX_MUTATION);
 
   if (loading) {
-    return <div>Loading...</div>;
+    return <APILoadingIndicator />;
   }
   if (mutationStatus.loading) {
     return <div>Updating box...</div>;

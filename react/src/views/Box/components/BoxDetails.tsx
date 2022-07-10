@@ -67,9 +67,9 @@ const BoxDetails = ({
         </ListItem>
         <ListItem>
           <Text as={"span"} fontWeight={"bold"}>
-            Location:
+            Place:
           </Text>{" "}
-          {boxData.location?.name}
+          {boxData.place?.name}
         </ListItem>
       </List>
 
@@ -80,11 +80,11 @@ const BoxDetails = ({
       <Box>
         <Heading as={"h3"}>Move this box to location...</Heading>
         <List>
-          {boxData.location?.base?.locations?.map((location, i) => (
+          {boxData.place?.base?.locations?.map((location, i) => (
             <ListItem key={location.id}>
               <Button
                 onClick={() => moveToLocationClick(location.id)}
-                disabled={boxData.location?.id === location.id}
+                disabled={boxData.place?.id === location.id}
               >
                 {location.name}
               </Button>

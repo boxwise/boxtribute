@@ -7,7 +7,7 @@ type Box {
   id: ID!
   " Sequence of numbers for identifying the box, usually written on box label "
   labelIdentifier: String!
-  location: Location
+  place: BoxPlace
   " The number of items the box contains. "
   items: Int!
   product: Product
@@ -20,6 +20,13 @@ type Box {
   lastModifiedOn: Datetime
   comment: String
   tags: [Tag!]!
+}
+
+interface BoxPlace {
+  id: ID!
+  base: Base
+  name: String
+  boxes(paginationInput: PaginationInput, filterInput: FilterBoxInput): BoxPage
 }
 
 """
@@ -146,7 +153,7 @@ type SizeRange {
 Representation of a physical location used to store [`Boxes`]({{Types.Box}}).
 The location is part of a specific [`Base`]({{Types.Base}}).
 """
-type Location {
+type Location implements BoxPlace {
   id: ID!
   base: Base
   name: String
@@ -179,12 +186,14 @@ type Base {
   id: ID!
   name: String!
   organisation: Organisation!
-  " List of all [`Locations`]({{Types.Location}}) present in this base "
-  locations: [Location!]
   " List of all [`Beneficiaries`]({{Types.Beneficiary}}) registered in this base "
   beneficiaries(paginationInput: PaginationInput, filterInput: FilterBeneficiaryInput): BeneficiaryPage!
   currencyName: String
-  distributions: Distributions!
+  boxPlaces: [BoxPlace!]!
+  " List of all [`Locations`]({{Types.Location}}) present in this base "
+  locations: [Location!]!
+  distributionSpots: [DistributionSpot!]!
+  distributionEvents: [DistributionEvent!]!
 }
 
 """
@@ -198,35 +207,55 @@ type Organisation {
 }
 
 enum DistributionEventState {
-  NEW
-  PLANNING
-  PLANNING_DONE
-  PACKING
-  PACKING_DONE
-  ON_DISTRO
-  RETURNED
-  RETURNS_TRACKED
-  COMPLETED
+  # New
+  Planning
+  # PlanningDone
+  Packing
+  # PackingDone
+  OnDistro
+  Returned
+  # ReturnsTracked
+  Completed
 }
 
 type DistributionEvent {
   id: ID!
-  base: Base
+  distributionSpot: DistributionSpot
   name: String
   state: DistributionEventState!
-  dateTime: Datetime!
+
+  plannedStartDateTime: Datetime!
+  plannedEndDateTime: Datetime!
+  packingList: PackingList!
 }
 
-type Distributions {
-  distributionSpots: [DistributionSpot!]!
+enum PackingListEntryState {
+  NotStarted
+  PackingInProgress
+  Packed
 }
-
-type DistributionSpot {
+type PackingListEntry {
   id: ID!
-  name: String!
+  product: Product
+  size: Size
+  numberOfItems: Int!
+  # matchingPackedItemsCollections: [ItemsCollection!]!
+  state: PackingListEntryState!
+}
+
+type PackingList {
+  entries: [PackingListEntry!]!
+  # distributionEvent: DistributionEvent!
+}
+
+type DistributionSpot implements BoxPlace {
+  id: ID!
+  name: String
+  base: Base
+  boxes(paginationInput: PaginationInput, filterInput: FilterBoxInput): BoxPage
   comment: String!
-  latitude: Float!
-  longitude: Float!
+  latitude: Float
+  longitude: Float
   distributionEvents: [DistributionEvent!]!
 }
 
