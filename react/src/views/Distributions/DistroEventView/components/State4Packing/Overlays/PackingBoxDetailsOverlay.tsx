@@ -69,8 +69,10 @@ const PackingBoxDetailsOverlay = ({
       borderRadius: "0px",
     },
   });
-const boxId = "1"
-const selectedBox:BoxData | undefined = boxData.find((box) => box.id === boxId);
+  const boxId = "1";
+  const selectedBox: BoxData | undefined = boxData.find(
+    (box) => box.id === boxId
+  );
   return (
     <>
       <Modal isOpen={modalProps.isSecondOpen} onClose={onClose}>
@@ -82,11 +84,11 @@ const selectedBox:BoxData | undefined = boxData.find((box) => box.id === boxId);
           <ModalCloseButton />
           <ModalBody mx={4}>
             <Flex direction="column">
-              <Flex justifyContent="space-between" direction="row">
+              <Flex direction="row" justifyContent="space-between">
                 {boxData
                   .filter((box) => box.id === boxId)
                   .map((box) => (
-                    <Flex key={box.id}>
+                    <Flex key={box.id} direction="column">
                       <Text fontSize="xl">{box.labelIdentifier}</Text>
                       <Text fontSize="xl">{box.productName}</Text>
                       <Text mb={4} fontSize="md">
