@@ -17,60 +17,43 @@ const Template: ComponentStory<typeof QrScanner> = (args) => (
   <QrScanner {...args} />
 );
 
-function qrCodeToResolverResult(qrValue) {
-  var qrResolverResults: QrResolvedValue[] = [
-    {
+const qrCodeToResolverResult = (qrValue: string): QrResolvedValue => {
+  var qrResolverResults: Map<string, QrResolvedValue> = new Map([
+    ["https://staging.boxwise.co/mobile.php?barcode=387b0f0f5e62cebcafd48383035a92a", {
       kind: "success",
       value: "9123394",
-    },
-    {
+    }],
+    ["https://staging.boxwise.co/mobile.php?barcode=cba56d486db6d39209dbbf9e45353c4",{
       kind: "noBoxtributeQr",
-    },
-    {
+    }],
+    ["https://staging.boxwise.co/mobile.php?barcode=149ff66629377f6404b5c8d32936855", {
       kind: "notAssignedToBox"
-    },
-    {
+    }],
+    ["https://staging.boxwise.co/mobile.php?barcode=91c1def0b674d4e7cb92b61dbe00846", {
       kind: "success",
       value: "9334817",
-    },
-    {
-      kind: "noBoxtributeQr",
-    },
-    {
-      kind: "notAssignedToBox"
-    },
-    {
-      kind: "success",
-      value: "9834911",
-    },
-    {
-      kind: "success",
-      value: "1443281",
-    },
-    {
-      kind: "noBoxtributeQr",
-    },
-    {
-      kind: "notAssignedToBox"
-    },
-    {
-      kind: "success",
-      value: "9834911",
-    },
-  ];
-  var hash = hashStr(qrValue);
-  var index = hash % qrResolverResults.length;
-  return qrResolverResults[index];
+    }]
+  ]);
+
+  const qrResolverResult = qrResolverResults.get(qrValue) || {
+    kind: "noBoxtributeQr",
+  };
+
+  return qrResolverResult;
+
+  // var hash = hashStr(qrValue);
+  // var index = hash % qrResolverResults.length;
+  // return qrResolverResults[index];
 }
 
-const hashStr = (str: string) => {
-  var hash = 0;
-  for (var i = 0; i < str.length; i++) {
-    var charCode = str.charCodeAt(i);
-    hash += charCode;
-  }
-  return hash;
-}
+// const hashStr = (str: string) => {
+//   var hash = 0;
+//   for (var i = 0; i < str.length; i++) {
+//     var charCode = str.charCodeAt(i);
+//     hash += charCode;
+//   }
+//   return hash;
+// }
 
 const qrValueResolver = (
   qrValueWrapper: QrValueWrapper

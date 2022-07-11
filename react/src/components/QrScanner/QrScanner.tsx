@@ -83,9 +83,10 @@ interface QrResolverResultNoBoxtributeQr {
   kind: "noBoxtributeQr";
 }
 
-export type QrResolvedValue = QrResolverResultSuccessValue
-| QrResolverResultNotAssignedToBox
-| QrResolverResultNoBoxtributeQr
+export type QrResolvedValue =
+  | QrResolverResultSuccessValue
+  | QrResolverResultNotAssignedToBox
+  | QrResolverResultNoBoxtributeQr;
 
 export interface QrValueWrapper {
   key: string;
@@ -204,11 +205,11 @@ const QrScanner = ({
         {/* <ModalCloseButton /> */}
         <ModalBody>
           <Container maxW="md">
-            LENGTH: {scannedQrValues.size}
+            {/* LENGTH: {scannedQrValues.size}
             <br />
             {JSON.stringify(
               Array.from(scannedQrValues.entries()).map((c) => c[0])
-            )}
+            )} */}
             <QrReader
               videoId="video"
               ViewFinder={ViewFinder}
@@ -279,31 +280,26 @@ const QrScanner = ({
                 <VStack spacing={5} direction="row">
                   {Array.from(scannedQrValues.keys()).map((key) => {
                     const qrCodeValueWrapper = scannedQrValues.get(key)!;
-                    return (
+                    return qrCodeValueWrapper.isLoading ? (
+                      qrCodeValueWrapper.interimValue
+                    ) : qrCodeValueWrapper.finalValue?.kind === "success" ? (
                       <Checkbox
                         key={key}
                         colorScheme="green"
-                        defaultChecked={qrCodeValueWrapper.isLoading}
-                        disabled={qrCodeValueWrapper.isLoading}
+                        defaultChecked={true}
+                        // isDisabled={qrCodeValueWrapper.isLoading || qrCodeValueWrapper.finalValue?.kind !== "success"}
                       >
-                        {qrCodeValueWrapper.isLoading ? (
-                          qrCodeValueWrapper.interimValue
-                        ) : qrCodeValueWrapper.finalValue?.kind ===
-                          "success" ? (
-                          <Badge colorScheme="green">
-                            {qrCodeValueWrapper.finalValue.value}
-                          </Badge>
-                        ) : qrCodeValueWrapper.finalValue?.kind ===
-                          "noBoxtributeQr" ? (
-                          <Badge colorScheme="red">
-                            Bot a Boxtribute QR Code
-                          </Badge>
-                        ) : (
-                          <Badge colorScheme="gray">
-                            Not yet assigned to Box
-                          </Badge>
-                        )}
+                        <Badge colorScheme="green">
+                          {qrCodeValueWrapper.finalValue.value}
+                        </Badge>
                       </Checkbox>
+                    ) : qrCodeValueWrapper.finalValue?.kind ===
+                      "noBoxtributeQr" ? (
+                      <Badge colorScheme="red">Not a Boxtribute QR Code</Badge>
+                    ) : (
+                      <Badge colorScheme="gray">
+                        Not yet assigned to any Box
+                      </Badge>
                     );
                   })}
                 </VStack>
