@@ -106,7 +106,7 @@ const QrScanner = ({
   // onOpen,
   onClose,
 }: QrScannerProps) => {
-  const [isBulkModeActive, setIsBulkModeActive] = useBoolean(false);
+  const [isBulkModeActive, setIsBulkModeActive] = useBoolean(true);
   const [zoomLevel, setZoomLevel] = useState(1);
   const [scannedQrValues, setScannedQrValues] = useState<
     Map<string, QrValueWrapper>
@@ -122,36 +122,57 @@ const QrScanner = ({
     async (qrValue: string) => {
       // alert(`scannedQrValues: ${JSON.stringify(Array.from(scannedQrValues.entries()))}`);
       console.log("FOO!!!!!");
-      console.log("scannedQrValues.size", scannedQrValues.size);
+      // console.log("scannedQrValues.size", scannedQrValues.size);
       // console.log("scannedQrValues", Array.from(scannedQrValues.entries()));
       // console.log("qrValue", qrValue);
       // if (scannedQrValues.some((curr) => curr.key === qrValue)) {
       // console.log("scannedQrValues.has(qrValue)", scannedQrValues.has(qrValue));
-      if (!scannedQrValues.has(qrValue)) {
-        // alert(`Not yet there; qrValue: ${qrValue}; scannedQrValues: ${JSON.stringify(Array.from(scannedQrValues.entries()))}`)
-        const newQrValueWrapper = {
-          key: qrValue,
-          isLoading: true,
-          interimValue: "loading...",
-        };
-        // console.log("qrValue", qrValue);
-        // console.log("scannedQrValues", scannedQrValues);
-        // console.log("newQrValueWrapper", newQrValueWrapper);
-        setScannedQrValues(
-          (prev) => new Map(prev.set(qrValue, newQrValueWrapper))
-        );
 
-        // alert("NEW QR SCANNED AND WAITING NOW TO RESOLVE");
-        const resolvedQrValueWrapper = await qrValueResolver(newQrValueWrapper);
-        setScannedQrValues(
-          (prev) => new Map(prev.set(qrValue, resolvedQrValueWrapper))
-        );
-      }
-      console.log("------------------------------------------------------");
+
+
+      setScannedQrValues(
+        (prev) => {
+          if(prev.has(qrValue)) {
+            return prev;
+          }
+          const newQrValueWrapper = {
+            key: qrValue,
+            isLoading: true,
+            interimValue: "loading...",
+          };
+
+          return new Map(prev.set(qrValue, newQrValueWrapper))}
+      );
+
       scannerBlockedSignal.current = false;
+
+
+
+      // if (!scannedQrValues.has(qrValue)) {
+      //   // alert(`Not yet there; qrValue: ${qrValue}; scannedQrValues: ${JSON.stringify(Array.from(scannedQrValues.entries()))}`)
+      //   const newQrValueWrapper = {
+      //     key: qrValue,
+      //     isLoading: true,
+      //     interimValue: "loading...",
+      //   };
+      //   // console.log("qrValue", qrValue);
+      //   // console.log("scannedQrValues", scannedQrValues);
+      //   // console.log("newQrValueWrapper", newQrValueWrapper);
+      //   setScannedQrValues(
+      //     (prev) => new Map(prev.set(qrValue, newQrValueWrapper))
+      //   );
+
+      //   // alert("NEW QR SCANNED AND WAITING NOW TO RESOLVE");
+      //   const resolvedQrValueWrapper = await qrValueResolver(newQrValueWrapper);
+      //   setScannedQrValues(
+      //     (prev) => new Map(prev.set(qrValue, resolvedQrValueWrapper))
+      //   );
+      // }
+      // console.log("------------------------------------------------------");
+      // scannerBlockedSignal.current = false;
       // alert("leaving addQrValueToBulkList");
     },
-    [qrValueResolver, scannedQrValues]
+    []
   );
 
   return (
@@ -225,7 +246,7 @@ const QrScanner = ({
                   <FormLabel htmlFor="Bulk Mode" mb="0">
                     Bulk Mode
                   </FormLabel>
-                  <Switch id="Bulk Mode" onChange={setIsBulkModeActive.toggle} />
+                  <Switch id="Bulk Mode" onChange={setIsBulkModeActive.toggle} isChecked={isBulkModeActive} />
                 </FormControl>
 
               </HStack>
