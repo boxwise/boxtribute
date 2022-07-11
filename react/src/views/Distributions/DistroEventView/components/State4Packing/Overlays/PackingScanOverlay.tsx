@@ -16,16 +16,14 @@ import { useState } from "react";
 interface ModalProps {
   isFirstOpen: boolean;
   onFirstClose: () => void;
-  onFirstOpen: () => void;
   onSecondOpen: () => void;
-  // onOtherSource: () => void;
 }
 
 interface FirstOverlayProps {
   modalProps: ModalProps;
 }
 
-const FirstOverlay = ({ modalProps }: FirstOverlayProps) => {
+const PackingScanOverlay = ({ modalProps }: FirstOverlayProps) => {
   const [manualBoxLabel, setManualBoxLabel] = useState(false);
   const [manualBoxLabelValue, setManualBoxLabelValue] = useState(0);
   return (
@@ -91,12 +89,10 @@ const FirstOverlay = ({ modalProps }: FirstOverlayProps) => {
             Other source
           </Button>
           <ModalFooter />
-          {/* <Button onClick={modalProps.onClose}>Cancel</Button>
-          </ModalFooter> */}
         </ModalContent>
       </Modal>
     </>
   );
 };
 
-export default FirstOverlay;
+export default PackingScanOverlay;

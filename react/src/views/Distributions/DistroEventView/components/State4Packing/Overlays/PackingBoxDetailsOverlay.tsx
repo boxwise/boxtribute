@@ -21,6 +21,7 @@ interface ModalProps {
 }
 
 export interface BoxData {
+  id: string;
   labelIdentifier: string;
   productName: string;
   size?: string;
@@ -28,8 +29,8 @@ export interface BoxData {
 }
 
 export interface PackingActionProps {
-  onBoxToDistribution: (boxData: BoxData) => void;
-  onMoveItemsToDistribution: (boxData: BoxData, inputNumber: number) => void;
+  onBoxToDistribution: (boxId: string) => void;
+  onMoveItemsToDistribution: (boxId: string, inputNumber: number) => void;
 }
 
 export interface StateProps {
@@ -39,13 +40,13 @@ export interface StateProps {
 
 interface SecondOverlayProps {
   modalProps: ModalProps;
-  boxData: BoxData;
+  boxData: BoxData[];
   packingActionProps: PackingActionProps;
   itemsForPackingNumberOfItems: number;
   stateProps: StateProps;
 }
 
-const SecondOverlay = ({
+const PackingBoxDetailsOverlay = ({
   modalProps,
   boxData,
   packingActionProps,
@@ -60,15 +61,16 @@ const SecondOverlay = ({
   }, [modalProps, stateProps]);
 
   const toast = useToast({
-    position: 'bottom',
-    title: 'Container style is updated',
+    position: "bottom",
+    title: "Container style is updated",
     containerStyle: {
-      width: '800px',
-      maxWidth: '90%',
-      borderRadius: "0px"
+      width: "800px",
+      maxWidth: "90%",
+      borderRadius: "0px",
     },
-  })
-
+  });
+const boxId = "1"
+const selectedBox:BoxData | undefined = boxData.find((box) => box.id === boxId);
   return (
     <>
       <Modal isOpen={modalProps.isSecondOpen} onClose={onClose}>
@@ -81,13 +83,18 @@ const SecondOverlay = ({
           <ModalBody mx={4}>
             <Flex direction="column">
               <Flex justifyContent="space-between" direction="row">
-                <Flex direction="column">
-                  <Text fontSize="xl">{boxData.labelIdentifier}</Text>
-                  <Text fontSize="xl">{boxData.productName}</Text>
-                  <Text mb={4} fontSize="md">
-                    {boxData.size} x {boxData.numberOfItems}
-                  </Text>
-                </Flex>
+                {boxData
+                  .filter((box) => box.id === boxId)
+                  .map((box) => (
+                    <Flex key={box.id}>
+                      <Text fontSize="xl">{box.labelIdentifier}</Text>
+                      <Text fontSize="xl">{box.productName}</Text>
+                      <Text mb={4} fontSize="md">
+                        {box.size} x {box.numberOfItems}
+                      </Text>
+                    </Flex>
+                  ))}
+
                 <Flex direction="column">
                   <Text fontSize="xl">To Pack:</Text>
                   <Text>{itemsForPackingNumberOfItems} items</Text>
@@ -97,16 +104,15 @@ const SecondOverlay = ({
                 <Button
                   my={2}
                   onClick={() => {
-                    packingActionProps.onBoxToDistribution(boxData)
+                    packingActionProps.onBoxToDistribution(boxId);
                     onClose();
                     toast({
-                        title: 'Done!',
-                        description: "Box moved to the distribution.",
-                        status: 'success',
-                        duration: 2000,
-                        isClosable: true,
-                      }) 
-                    
+                      title: "Done!",
+                      description: "Box moved to the distribution.",
+                      status: "success",
+                      duration: 2000,
+                      isClosable: true,
+                    });
                   }}
                   colorScheme="blue"
                 >
@@ -128,10 +134,9 @@ const SecondOverlay = ({
                   <FormControl
                     onSubmit={() => {
                       packingActionProps.onMoveItemsToDistribution(
-                        boxData,
+                        boxId,
                         inputNumber
-                      )
-                      
+                      );
                     }}
                   >
                     <Flex my={4} alignItems="center">
@@ -141,14 +146,14 @@ const SecondOverlay = ({
                         mr={2}
                         w="50%"
                         placeholder="Number of items"
-                        max={boxData.numberOfItems}
+                        max={selectedBox?.numberOfItems}
                         min="1"
                         name="inputdata"
                         onChange={(e) => {
                           setInputNumber(parseInt(e.target.value));
                         }}
                       />
-                      <Text mr={2}>out of {boxData.numberOfItems}</Text>
+                      <Text mr={2}>out of {selectedBox?.numberOfItems}</Text>
                     </Flex>
                     <Button
                       colorScheme="blue"
@@ -156,13 +161,12 @@ const SecondOverlay = ({
                       onClick={() => {
                         onClose();
                         toast({
-                            title: 'Done!.',
-                            description: "Items moved to the distribution.",
-                            status: 'success',
-                            duration: 2000,
-                            isClosable: true,
-                          }) 
-                        
+                          title: "Done!.",
+                          description: "Items moved to the distribution.",
+                          status: "success",
+                          duration: 2000,
+                          isClosable: true,
+                        });
                       }}
                     >
                       Move
@@ -179,4 +183,4 @@ const SecondOverlay = ({
   );
 };
 
-export default SecondOverlay;
+export default PackingBoxDetailsOverlay;

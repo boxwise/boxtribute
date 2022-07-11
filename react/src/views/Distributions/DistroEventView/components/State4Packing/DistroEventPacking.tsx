@@ -12,14 +12,15 @@ import {
 } from "@chakra-ui/react";
 import { AddIcon, ExternalLinkIcon } from "@chakra-ui/icons";
 import { groupBy } from "utils/helpers";
-import FirstOverlay from "./Overlays/FirstOverlay";
-import SecondOverlay, {
+import PackingScanOverlay from "./Overlays/PackingScanOverlay";
+import PackingBoxDetailsOverlay, {
   BoxData,
   PackingActionProps,
-} from "./Overlays/SecondOverlay";
+} from "./Overlays/PackingBoxDetailsOverlay";
 import { useState } from "react";
 import { distroEventStateHumanReadableLabels } from "views/Distributions/baseData";
 import { DistributionEventState } from "types/generated/graphql";
+import PackedListOverlay, { PackingActionListProps } from "./Overlays/PackedListOverlay";
 
 interface ItemsForPacking {
   id: string;
@@ -43,8 +44,9 @@ export interface DistroEventPackingData {
 interface DistroEventPackingProps {
   distroEventDetailsData: DistroEventPackingData;
   onShowListClick: (itemId: string) => void;
-  boxData: BoxData;
+  boxData: BoxData[];
   packingActionProps: PackingActionProps;
+  packingActionListProps: PackingActionListProps;
 }
 
 const DistroEventPacking = ({
@@ -52,6 +54,7 @@ const DistroEventPacking = ({
   onShowListClick,
   boxData,
   packingActionProps,
+  packingActionListProps,
 }: DistroEventPackingProps) => {
 
   const itemsForPackingGroupedByProductName = groupBy(
@@ -83,6 +86,11 @@ const DistroEventPacking = ({
     isOpen: isSecondOpen,
     onClose: onSecondClose,
     onOpen: onSecondOpen,
+  } = useDisclosure();
+  const {
+    isOpen: isListOpen,
+    onClose: onListClose,
+    onOpen: onListOpen,
   } = useDisclosure();
 
   const [chosenPackingNumberOfItems, setChosenPackingItemId] = useState(0);
@@ -164,7 +172,10 @@ const DistroEventPacking = ({
                             backgroundColor="transparent"
                             aria-label="Show list of packed items"
                             icon={<ExternalLinkIcon />}
-                            onClick={() => onShowListClick(item.id)}
+                            onClick={(e) => {
+                              onListOpen();
+                              onShowListClick(item.id);
+                            }}
                             color="teal"
                           />
                         </Box>
@@ -177,15 +188,14 @@ const DistroEventPacking = ({
           }, [])}
         </Accordion>
       </Box>
-      <FirstOverlay
+      <PackingScanOverlay
         modalProps={{
           isFirstOpen,
           onFirstClose,
           onSecondOpen,
-          onFirstOpen,
         }}
       />
-      <SecondOverlay
+      <PackingBoxDetailsOverlay
         modalProps={{ isSecondOpen, onSecondClose }}
         boxData={boxData}
         packingActionProps={packingActionProps}
@@ -194,6 +204,11 @@ const DistroEventPacking = ({
           isMovingItems,
           setIsMovingItems,
         }}
+      />
+      <PackedListOverlay
+        modalProps={{ isListOpen, onListClose }}
+        boxData={boxData}
+        packingActionProps={packingActionListProps}
       />
     </>
   );

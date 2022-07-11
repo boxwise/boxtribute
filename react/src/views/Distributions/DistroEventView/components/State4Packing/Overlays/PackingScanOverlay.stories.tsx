@@ -1,15 +1,16 @@
 import React from 'react';
 import { ComponentStory, ComponentMeta } from '@storybook/react';
-import FirstOverlay from './SecondOverlay';
+import PackingScanOverlay from './PackingBoxDetailsOverlay';
+
 
 
 export default {
   title: 'Mobile Distro Events/Distro Events/Detail View/State: 4 - Packing/First Overlay',
-  component: FirstOverlay,
+  component: PackingScanOverlay,
   parameters: {
   },
-} as ComponentMeta<typeof FirstOverlay>;
+} as ComponentMeta<typeof PackingScanOverlay>;
 
-const Template: ComponentStory<typeof FirstOverlay> = (args) => <FirstOverlay {...args} />;
+const Template: ComponentStory<typeof PackingScanOverlay> = (args) => <PackingScanOverlay {...args} />;
 
 export const Default = Template.bind({});

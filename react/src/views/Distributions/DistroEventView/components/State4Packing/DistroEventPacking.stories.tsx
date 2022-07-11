@@ -3,7 +3,8 @@ import { ComponentStory, ComponentMeta } from '@storybook/react';
 import { DistributionEventState} from 'types/generated/graphql';
 import DistroEventPacking, { DistroEventPackingData } from './DistroEventPacking';
 import { action } from '@storybook/addon-actions';
-import { BoxData, PackingActionProps } from './Overlays/SecondOverlay';
+import { BoxData, PackingActionProps } from './Overlays/PackingBoxDetailsOverlay';
+import { PackingActionListProps } from './Overlays/PackedListOverlay';
 
 const mockedDistroEventPackingList: DistroEventPackingData = {
    distroEventData: {
@@ -38,16 +39,21 @@ const mockedDistroEventPackingList: DistroEventPackingData = {
    },
 }
 
-const mockedBoxData: BoxData = {
+const mockedBoxData: BoxData[] = [{
+    id: "1",
     labelIdentifier: "23982",
     productName: "Jacket Male",
     size: "M",
     numberOfItems: 42,
-}
+}]
 
 const mockedPackingActionProps: PackingActionProps = {
     onBoxToDistribution: action("onBoxToDistribution"),
     onMoveItemsToDistribution: action("onMoveItemsToDistribution")
+}
+
+const mockedPackingActionListProps: PackingActionListProps = {
+    onDeleteBoxFromDistribution: action("onDeleteBoxFromDistribution"),
 }
 
 export default {
@@ -64,6 +70,7 @@ Default.args = {
     distroEventDetailsData: mockedDistroEventPackingList,
     boxData: mockedBoxData,
     onShowListClick: action('onShowListClick'),
-    packingActionProps: mockedPackingActionProps
+    packingActionProps: mockedPackingActionProps,
+    packingActionListProps: mockedPackingActionListProps,
 }
 
