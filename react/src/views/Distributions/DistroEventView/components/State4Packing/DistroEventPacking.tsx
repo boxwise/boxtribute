@@ -135,17 +135,17 @@ const DistroEventPacking = ({
                       <Flex
                         // alignContent="center"
                         alignItems="center"
-                        justifyItems="center"
+                        justifyItems="space-between"
                         // py={2}
                         borderTop="1px"
                         borderColor="gray.300"
                         direction="row"
-                      >
+                        >
                         <Box
                           backgroundColor="transparent"
                           borderRadius="0px"
                           flex="1"
-                          textAlign="center"
+                          textAlign="left"
                         >
                           {item.numberOfItems} x {item.size}
                         </Box>
