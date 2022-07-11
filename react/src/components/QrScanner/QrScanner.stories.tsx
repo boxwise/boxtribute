@@ -35,7 +35,7 @@ const qrValueResolver = (
       } as QrValueWrapper;
       // alert(JSON.stringify(resolvedQrValueWrapper))
       resolve(resolvedQrValueWrapper);
-    }, 3000);
+    }, 5000);
   });
 };
 

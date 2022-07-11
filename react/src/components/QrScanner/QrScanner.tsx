@@ -113,12 +113,15 @@ const QrScanner = ({
 
   const scannerBlockedSignal = useRef(false);
 
-  const addQrValueToBulkList = //useCallback(
+  const addQrValueToBulkList = useCallback(
     async (qrValue: string) => {
     // alert(`scannedQrValues: ${JSON.stringify(Array.from(scannedQrValues.entries()))}`);
-    console.debug("scannedQrValues", Array.from(scannedQrValues.entries()));
-    console.debug("qrValue", qrValue);
+    console.log("FOO!!!!!");
+    console.log("scannedQrValues.size", scannedQrValues.size);
+    // console.log("scannedQrValues", Array.from(scannedQrValues.entries()));
+    // console.log("qrValue", qrValue);
     // if (scannedQrValues.some((curr) => curr.key === qrValue)) {
+    // console.log("scannedQrValues.has(qrValue)", scannedQrValues.has(qrValue));
     if (!scannedQrValues.has(qrValue)) {
       // alert(`Not yet there; qrValue: ${qrValue}; scannedQrValues: ${JSON.stringify(Array.from(scannedQrValues.entries()))}`)
       const newQrValueWrapper = {
@@ -126,14 +129,19 @@ const QrScanner = ({
         isLoading: true,
         interimValue: "loading...",
       };
+      // console.log("qrValue", qrValue);
+      // console.log("scannedQrValues", scannedQrValues);
+      // console.log("newQrValueWrapper", newQrValueWrapper);
       setScannedQrValues((prev) => new Map(prev.set(qrValue, newQrValueWrapper)));
 
+      // alert("NEW QR SCANNED AND WAITING NOW TO RESOLVE");
       const resolvedQrValueWrapper = await qrValueResolver(newQrValueWrapper);
       setScannedQrValues((prev) => new Map(prev.set(qrValue, resolvedQrValueWrapper)));
     }
+    console.log("------------------------------------------------------");
     scannerBlockedSignal.current = false;
     // alert("leaving addQrValueToBulkList");
-  }//, [qrValueResolver, scannedQrValues]);
+  }, [qrValueResolver, scannedQrValues]);
 
   return (
     <Modal
@@ -148,6 +156,9 @@ const QrScanner = ({
         {/* <ModalCloseButton /> */}
         <ModalBody>
           <Container maxW="md">
+            LENGTH: {scannedQrValues.size}
+          <br />
+          {JSON.stringify(Array.from(scannedQrValues.entries()).map(c => c[0]))}
             <QrReader
               videoId="video"
               ViewFinder={ViewFinder}
