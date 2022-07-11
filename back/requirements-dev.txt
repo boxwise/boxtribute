@@ -1,7 +1,7 @@
 black==22.6.0
 flake8==4.0.1
 isort==5.10.1
-pre-commit==2.19.0
+pre-commit==2.20.0
 pytest>=5.4.3
 pytest-mock==3.8.2
 pytest-cov==3.0.0
