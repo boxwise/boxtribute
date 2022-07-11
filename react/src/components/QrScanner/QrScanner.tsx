@@ -88,7 +88,7 @@ export interface QrScannerProps {
   onResult: (qrValue: string) => void;
   qrValueResolver: (
     qrValueWrapper: QrValueWrapper
-  ) => Promise<QrValueWrapper> | QrValueWrapper;
+  ) => Promise<QrValueWrapper>;
   // updateQrValueWrapper: (qrValueWrapper)
   // onOpen: () => void;
   onClose: () => void;
@@ -116,12 +116,12 @@ const QrScanner = ({
     onBulkScanningDone(Array.from(scannedQrValues.values()).map((c) => c));
   }, [onBulkScanningDone, scannedQrValues]);
 
-  const scannerBlockedSignal = useRef(false);
+  // const scannerBlockedSignal = useRef(false);
 
   const addQrValueToBulkList = useCallback(
     async (qrValue: string) => {
       // alert(`scannedQrValues: ${JSON.stringify(Array.from(scannedQrValues.entries()))}`);
-      console.log("FOO!!!!!");
+      // console.log("FOO!!!!!");
       // console.log("scannedQrValues.size", scannedQrValues.size);
       // console.log("scannedQrValues", Array.from(scannedQrValues.entries()));
       // console.log("qrValue", qrValue);
@@ -141,10 +141,18 @@ const QrScanner = ({
             interimValue: "loading...",
           };
 
+          qrValueResolver(newQrValueWrapper).then((resolvedQrValueWrapper) => {
+            setScannedQrValues((prev) => {
+              return new Map(prev.set(qrValue, resolvedQrValueWrapper));
+            });
+          })
+          // TODO add error handling
+          // .catch((err) => {}).finally(() => {}))
+
           return new Map(prev.set(qrValue, newQrValueWrapper))}
       );
 
-      scannerBlockedSignal.current = false;
+      // scannerBlockedSignal.current = false;
 
 
 
@@ -188,11 +196,11 @@ const QrScanner = ({
         {/* <ModalCloseButton /> */}
         <ModalBody>
           <Container maxW="md">
-            LENGTH: {scannedQrValues.size}
+            {/* LENGTH: {scannedQrValues.size}
             <br />
             {JSON.stringify(
               Array.from(scannedQrValues.entries()).map((c) => c[0])
-            )}
+            )} */}
             <QrReader
               videoId="video"
               ViewFinder={ViewFinder}
@@ -202,14 +210,14 @@ const QrScanner = ({
               }}
               scanDelay={1000}
               onResult={(result, error) => {
-                if (scannerBlockedSignal.current === true) {
-                  // alert("onResult - scannerBlockedSignal.current === true");
-                  return;
-                }
+                // if (scannerBlockedSignal.current === true) {
+                //   // alert("onResult - scannerBlockedSignal.current === true");
+                //   return;
+                // }
 
                 if (!!result) {
                   if (isBulkModeSupported && isBulkModeActive) {
-                    scannerBlockedSignal.current = true;
+                    // scannerBlockedSignal.current = true;
                     addQrValueToBulkList(result["text"]);
                   } else {
                     onResult(result["text"]);
@@ -253,10 +261,10 @@ const QrScanner = ({
             )}
             {isBulkModeSupported && isBulkModeActive && (
               <VStack>
-                <Box>
+                {/* <Box>
                   scannedQrValues:{" "}
                   {JSON.stringify(Array.from(scannedQrValues.entries()))} <br />
-                </Box>
+                </Box> */}
                 <VStack spacing={5} direction="row">
                   {Array.from(scannedQrValues.keys()).map((key) => {
                     const qrCodeValueWrapper = scannedQrValues.get(key)!;
