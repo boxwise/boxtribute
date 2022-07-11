@@ -1,5 +1,6 @@
 import { AddIcon, MinusIcon } from "@chakra-ui/icons";
 import {
+  Badge,
   Box,
   Button,
   Checkbox,
@@ -69,11 +70,28 @@ export const ViewFinder = () => (
   </>
 );
 
+interface QrResolverResultSuccessValue {
+  kind: "success";
+  value: string;
+}
+
+interface QrResolverResultNotAssignedToBox {
+  kind: "notAssignedToBox";
+}
+
+interface QrResolverResultNoBoxtributeQr {
+  kind: "noBoxtributeQr";
+}
+
+export type QrResolvedValue = QrResolverResultSuccessValue
+| QrResolverResultNotAssignedToBox
+| QrResolverResultNoBoxtributeQr
+
 export interface QrValueWrapper {
   key: string;
   isLoading: boolean;
   interimValue?: string;
-  finalValue?: string;
+  finalValue?: QrResolvedValue;
 }
 
 export interface QrScannerProps {
@@ -86,9 +104,7 @@ export interface QrScannerProps {
   // bulkModeActive: boolean;
   // onToggleBulkMode: () => void;
   onResult: (qrValue: string) => void;
-  qrValueResolver: (
-    qrValueWrapper: QrValueWrapper
-  ) => Promise<QrValueWrapper>;
+  qrValueResolver: (qrValueWrapper: QrValueWrapper) => Promise<QrValueWrapper>;
   // updateQrValueWrapper: (qrValueWrapper)
   // onOpen: () => void;
   onClose: () => void;
@@ -118,70 +134,62 @@ const QrScanner = ({
 
   // const scannerBlockedSignal = useRef(false);
 
-  const addQrValueToBulkList = useCallback(
-    async (qrValue: string) => {
-      // alert(`scannedQrValues: ${JSON.stringify(Array.from(scannedQrValues.entries()))}`);
-      // console.log("FOO!!!!!");
-      // console.log("scannedQrValues.size", scannedQrValues.size);
-      // console.log("scannedQrValues", Array.from(scannedQrValues.entries()));
-      // console.log("qrValue", qrValue);
-      // if (scannedQrValues.some((curr) => curr.key === qrValue)) {
-      // console.log("scannedQrValues.has(qrValue)", scannedQrValues.has(qrValue));
+  const addQrValueToBulkList = useCallback(async (qrValue: string) => {
+    // alert(`scannedQrValues: ${JSON.stringify(Array.from(scannedQrValues.entries()))}`);
+    console.log("FOO!!!!!");
+    // console.log("scannedQrValues.size", scannedQrValues.size);
+    // console.log("scannedQrValues", Array.from(scannedQrValues.entries()));
+    // console.log("qrValue", qrValue);
+    // if (scannedQrValues.some((curr) => curr.key === qrValue)) {
+    // console.log("scannedQrValues.has(qrValue)", scannedQrValues.has(qrValue));
 
+    setScannedQrValues((prev) => {
+      if (prev.has(qrValue)) {
+        return prev;
+      }
+      const newQrValueWrapper = {
+        key: qrValue,
+        isLoading: true,
+        interimValue: "loading...",
+      };
 
+      qrValueResolver(newQrValueWrapper).then((resolvedQrValueWrapper) => {
+        setScannedQrValues((prev) => {
+          return new Map(prev.set(qrValue, resolvedQrValueWrapper));
+        });
+      });
+      // TODO add error handling
+      // .catch((err) => {}).finally(() => {}))
 
-      setScannedQrValues(
-        (prev) => {
-          if(prev.has(qrValue)) {
-            return prev;
-          }
-          const newQrValueWrapper = {
-            key: qrValue,
-            isLoading: true,
-            interimValue: "loading...",
-          };
+      return new Map(prev.set(qrValue, newQrValueWrapper));
+    });
 
-          qrValueResolver(newQrValueWrapper).then((resolvedQrValueWrapper) => {
-            setScannedQrValues((prev) => {
-              return new Map(prev.set(qrValue, resolvedQrValueWrapper));
-            });
-          })
-          // TODO add error handling
-          // .catch((err) => {}).finally(() => {}))
+    // scannerBlockedSignal.current = false;
 
-          return new Map(prev.set(qrValue, newQrValueWrapper))}
-      );
+    // if (!scannedQrValues.has(qrValue)) {
+    //   // alert(`Not yet there; qrValue: ${qrValue}; scannedQrValues: ${JSON.stringify(Array.from(scannedQrValues.entries()))}`)
+    //   const newQrValueWrapper = {
+    //     key: qrValue,
+    //     isLoading: true,
+    //     interimValue: "loading...",
+    //   };
+    //   // console.log("qrValue", qrValue);
+    //   // console.log("scannedQrValues", scannedQrValues);
+    //   // console.log("newQrValueWrapper", newQrValueWrapper);
+    //   setScannedQrValues(
+    //     (prev) => new Map(prev.set(qrValue, newQrValueWrapper))
+    //   );
 
-      // scannerBlockedSignal.current = false;
-
-
-
-      // if (!scannedQrValues.has(qrValue)) {
-      //   // alert(`Not yet there; qrValue: ${qrValue}; scannedQrValues: ${JSON.stringify(Array.from(scannedQrValues.entries()))}`)
-      //   const newQrValueWrapper = {
-      //     key: qrValue,
-      //     isLoading: true,
-      //     interimValue: "loading...",
-      //   };
-      //   // console.log("qrValue", qrValue);
-      //   // console.log("scannedQrValues", scannedQrValues);
-      //   // console.log("newQrValueWrapper", newQrValueWrapper);
-      //   setScannedQrValues(
-      //     (prev) => new Map(prev.set(qrValue, newQrValueWrapper))
-      //   );
-
-      //   // alert("NEW QR SCANNED AND WAITING NOW TO RESOLVE");
-      //   const resolvedQrValueWrapper = await qrValueResolver(newQrValueWrapper);
-      //   setScannedQrValues(
-      //     (prev) => new Map(prev.set(qrValue, resolvedQrValueWrapper))
-      //   );
-      // }
-      // console.log("------------------------------------------------------");
-      // scannerBlockedSignal.current = false;
-      // alert("leaving addQrValueToBulkList");
-    },
-    []
-  );
+    //   // alert("NEW QR SCANNED AND WAITING NOW TO RESOLVE");
+    //   const resolvedQrValueWrapper = await qrValueResolver(newQrValueWrapper);
+    //   setScannedQrValues(
+    //     (prev) => new Map(prev.set(qrValue, resolvedQrValueWrapper))
+    //   );
+    // }
+    // console.log("------------------------------------------------------");
+    // scannerBlockedSignal.current = false;
+    // alert("leaving addQrValueToBulkList");
+  }, []);
 
   return (
     <Modal
@@ -196,11 +204,11 @@ const QrScanner = ({
         {/* <ModalCloseButton /> */}
         <ModalBody>
           <Container maxW="md">
-            {/* LENGTH: {scannedQrValues.size}
+            LENGTH: {scannedQrValues.size}
             <br />
             {JSON.stringify(
               Array.from(scannedQrValues.entries()).map((c) => c[0])
-            )} */}
+            )}
             <QrReader
               videoId="video"
               ViewFinder={ViewFinder}
@@ -254,9 +262,12 @@ const QrScanner = ({
                   <FormLabel htmlFor="Bulk Mode" mb="0">
                     Bulk Mode
                   </FormLabel>
-                  <Switch id="Bulk Mode" onChange={setIsBulkModeActive.toggle} isChecked={isBulkModeActive} />
+                  <Switch
+                    id="Bulk Mode"
+                    onChange={setIsBulkModeActive.toggle}
+                    isChecked={isBulkModeActive}
+                  />
                 </FormControl>
-
               </HStack>
             )}
             {isBulkModeSupported && isBulkModeActive && (
@@ -275,9 +286,23 @@ const QrScanner = ({
                         defaultChecked={qrCodeValueWrapper.isLoading}
                         disabled={qrCodeValueWrapper.isLoading}
                       >
-                        {qrCodeValueWrapper.isLoading
-                          ? qrCodeValueWrapper.interimValue
-                          : qrCodeValueWrapper.finalValue}
+                        {qrCodeValueWrapper.isLoading ? (
+                          qrCodeValueWrapper.interimValue
+                        ) : qrCodeValueWrapper.finalValue?.kind ===
+                          "success" ? (
+                          <Badge colorScheme="green">
+                            {qrCodeValueWrapper.finalValue.value}
+                          </Badge>
+                        ) : qrCodeValueWrapper.finalValue?.kind ===
+                          "noBoxtributeQr" ? (
+                          <Badge colorScheme="red">
+                            Bot a Boxtribute QR Code
+                          </Badge>
+                        ) : (
+                          <Badge colorScheme="gray">
+                            Not yet assigned to Box
+                          </Badge>
+                        )}
                       </Checkbox>
                     );
                   })}
