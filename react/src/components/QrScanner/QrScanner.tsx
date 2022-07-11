@@ -1,9 +1,13 @@
+import { AddIcon, MinusIcon } from "@chakra-ui/icons";
 import {
   Box,
   Button,
   Checkbox,
   Container,
+  FormControl,
+  FormLabel,
   HStack,
+  IconButton,
   List,
   ListItem,
   Modal,
@@ -13,6 +17,8 @@ import {
   ModalFooter,
   ModalHeader,
   ModalOverlay,
+  Switch,
+  useBoolean,
   useDisclosure,
   VStack,
 } from "@chakra-ui/react";
@@ -100,48 +106,53 @@ const QrScanner = ({
   // onOpen,
   onClose,
 }: QrScannerProps) => {
-  const [isBulkModeActive, setIsBulkModeActive] = useState(false);
+  const [isBulkModeActive, setIsBulkModeActive] = useBoolean(false);
   const [zoomLevel, setZoomLevel] = useState(1);
-  const onToggleBulkMode = () => setIsBulkModeActive((prev) => !prev);
-  const [scannedQrValues, setScannedQrValues] = useState<Map<string, QrValueWrapper>>(new Map());
+  const [scannedQrValues, setScannedQrValues] = useState<
+    Map<string, QrValueWrapper>
+  >(new Map());
 
   const onBulkScanningDoneButtonClick = useCallback(() => {
-    onBulkScanningDone(
-      Array.from(scannedQrValues.values()).map(c => c)
-    )
+    onBulkScanningDone(Array.from(scannedQrValues.values()).map((c) => c));
   }, [onBulkScanningDone, scannedQrValues]);
 
   const scannerBlockedSignal = useRef(false);
 
   const addQrValueToBulkList = useCallback(
     async (qrValue: string) => {
-    // alert(`scannedQrValues: ${JSON.stringify(Array.from(scannedQrValues.entries()))}`);
-    console.log("FOO!!!!!");
-    console.log("scannedQrValues.size", scannedQrValues.size);
-    // console.log("scannedQrValues", Array.from(scannedQrValues.entries()));
-    // console.log("qrValue", qrValue);
-    // if (scannedQrValues.some((curr) => curr.key === qrValue)) {
-    // console.log("scannedQrValues.has(qrValue)", scannedQrValues.has(qrValue));
-    if (!scannedQrValues.has(qrValue)) {
-      // alert(`Not yet there; qrValue: ${qrValue}; scannedQrValues: ${JSON.stringify(Array.from(scannedQrValues.entries()))}`)
-      const newQrValueWrapper = {
-        key: qrValue,
-        isLoading: true,
-        interimValue: "loading...",
-      };
+      // alert(`scannedQrValues: ${JSON.stringify(Array.from(scannedQrValues.entries()))}`);
+      console.log("FOO!!!!!");
+      console.log("scannedQrValues.size", scannedQrValues.size);
+      // console.log("scannedQrValues", Array.from(scannedQrValues.entries()));
       // console.log("qrValue", qrValue);
-      // console.log("scannedQrValues", scannedQrValues);
-      // console.log("newQrValueWrapper", newQrValueWrapper);
-      setScannedQrValues((prev) => new Map(prev.set(qrValue, newQrValueWrapper)));
+      // if (scannedQrValues.some((curr) => curr.key === qrValue)) {
+      // console.log("scannedQrValues.has(qrValue)", scannedQrValues.has(qrValue));
+      if (!scannedQrValues.has(qrValue)) {
+        // alert(`Not yet there; qrValue: ${qrValue}; scannedQrValues: ${JSON.stringify(Array.from(scannedQrValues.entries()))}`)
+        const newQrValueWrapper = {
+          key: qrValue,
+          isLoading: true,
+          interimValue: "loading...",
+        };
+        // console.log("qrValue", qrValue);
+        // console.log("scannedQrValues", scannedQrValues);
+        // console.log("newQrValueWrapper", newQrValueWrapper);
+        setScannedQrValues(
+          (prev) => new Map(prev.set(qrValue, newQrValueWrapper))
+        );
 
-      // alert("NEW QR SCANNED AND WAITING NOW TO RESOLVE");
-      const resolvedQrValueWrapper = await qrValueResolver(newQrValueWrapper);
-      setScannedQrValues((prev) => new Map(prev.set(qrValue, resolvedQrValueWrapper)));
-    }
-    console.log("------------------------------------------------------");
-    scannerBlockedSignal.current = false;
-    // alert("leaving addQrValueToBulkList");
-  }, [qrValueResolver, scannedQrValues]);
+        // alert("NEW QR SCANNED AND WAITING NOW TO RESOLVE");
+        const resolvedQrValueWrapper = await qrValueResolver(newQrValueWrapper);
+        setScannedQrValues(
+          (prev) => new Map(prev.set(qrValue, resolvedQrValueWrapper))
+        );
+      }
+      console.log("------------------------------------------------------");
+      scannerBlockedSignal.current = false;
+      // alert("leaving addQrValueToBulkList");
+    },
+    [qrValueResolver, scannedQrValues]
+  );
 
   return (
     <Modal
@@ -157,8 +168,10 @@ const QrScanner = ({
         <ModalBody>
           <Container maxW="md">
             LENGTH: {scannedQrValues.size}
-          <br />
-          {JSON.stringify(Array.from(scannedQrValues.entries()).map(c => c[0]))}
+            <br />
+            {JSON.stringify(
+              Array.from(scannedQrValues.entries()).map((c) => c[0])
+            )}
             <QrReader
               videoId="video"
               ViewFinder={ViewFinder}
@@ -189,24 +202,32 @@ const QrScanner = ({
             {isBulkModeSupported && (
               <HStack>
                 <HStack>
-                  <Button
+                  <IconButton
                     disabled={zoomLevel <= 1}
                     onClick={() =>
                       setZoomLevel((curr) => (curr > 1 ? curr - 1 : curr))
                     }
+                    aria-label={"Decrease zoom level"}
                   >
-                    -
-                  </Button>
-                  <Button
+                    <MinusIcon />
+                  </IconButton>
+                  <IconButton
                     disabled={zoomLevel >= 8}
                     onClick={() =>
                       setZoomLevel((curr) => (curr < 8 ? curr + 1 : curr))
                     }
+                    aria-label={"Increase zoom level"}
                   >
-                    +
-                  </Button>
+                    <AddIcon />
+                  </IconButton>
                 </HStack>
-                <Button onClick={onToggleBulkMode}>Bulk Mode</Button>
+                <FormControl display="flex" alignItems="center">
+                  <FormLabel htmlFor="Bulk Mode" mb="0">
+                    Bulk Mode
+                  </FormLabel>
+                  <Switch id="Bulk Mode" onChange={setIsBulkModeActive.toggle} />
+                </FormControl>
+
               </HStack>
             )}
             {isBulkModeSupported && isBulkModeActive && (
