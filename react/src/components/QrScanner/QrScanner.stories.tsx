@@ -35,7 +35,7 @@ const qrValueResolver = (
       } as QrValueWrapper;
       // alert(JSON.stringify(resolvedQrValueWrapper))
       resolve(resolvedQrValueWrapper);
-    }, 2000);
+    }, 3000);
   });
 };
 
@@ -43,7 +43,7 @@ export const Default = Template.bind({});
 Default.args = {
   isOpen: true,
   isBulkModeSupported: true,
-  // scannedQrValues: [{key: "1", isLoading: true, interimValue: "Box #1 (loading...)"}, {key: "1", isLoading: true, interimValue: "Box #2 (loading...)"}, {key: "3", isLoading: false, finalValue: "Box 204214"}], 
+  // scannedQrValues: [{key: "1", isLoading: true, interimValue: "Box #1 (loading...)"}, {key: "1", isLoading: true, interimValue: "Box #2 (loading...)"}, {key: "3", isLoading: false, finalValue: "Box 204214"}],
   onBulkScanningDone: action(`bulk scanning done`),
   qrValueResolver: qrValueResolver,
   // setScannedQrValues: ,

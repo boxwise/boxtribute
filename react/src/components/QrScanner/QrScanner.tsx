@@ -115,12 +115,12 @@ const QrScanner = ({
 
   const addQrValueToBulkList = //useCallback(
     async (qrValue: string) => {
-    alert(`scannedQrValues: ${JSON.stringify(Array.from(scannedQrValues.entries()))}`);
+    // alert(`scannedQrValues: ${JSON.stringify(Array.from(scannedQrValues.entries()))}`);
     console.debug("scannedQrValues", Array.from(scannedQrValues.entries()));
     console.debug("qrValue", qrValue);
     // if (scannedQrValues.some((curr) => curr.key === qrValue)) {
     if (!scannedQrValues.has(qrValue)) {
-      alert(`Not yet there; qrValue: ${qrValue}; scannedQrValues: ${JSON.stringify(Array.from(scannedQrValues.entries()))}`)
+      // alert(`Not yet there; qrValue: ${qrValue}; scannedQrValues: ${JSON.stringify(Array.from(scannedQrValues.entries()))}`)
       const newQrValueWrapper = {
         key: qrValue,
         isLoading: true,
@@ -129,17 +129,7 @@ const QrScanner = ({
       setScannedQrValues((prev) => new Map(prev.set(qrValue, newQrValueWrapper)));
 
       const resolvedQrValueWrapper = await qrValueResolver(newQrValueWrapper);
-      setScannedQrValues((prev) => {
-        // const index = prev.findIndex(
-        //   (curr) => curr.key === resolvedQrValueWrapper.key
-        // );
-        // const scannedQrValues = [
-        //   ...prev.slice(0, index),
-        //   resolvedQrValueWrapper,
-        //   ...prev.slice(index + 1),
-        // ];
-        return new Map(prev.set(qrValue, resolvedQrValueWrapper));
-      });
+      setScannedQrValues((prev) => new Map(prev.set(qrValue, resolvedQrValueWrapper)));
     }
     scannerBlockedSignal.current = false;
     // alert("leaving addQrValueToBulkList");
@@ -167,7 +157,7 @@ const QrScanner = ({
               }}
               scanDelay={1000}
               onResult={(result, error) => {
-                if (scannerBlockedSignal.current) {
+                if (scannerBlockedSignal.current === true) {
                   // alert("onResult - scannerBlockedSignal.current === true");
                   return;
                 }
