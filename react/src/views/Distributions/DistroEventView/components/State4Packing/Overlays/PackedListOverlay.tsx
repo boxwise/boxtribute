@@ -1,6 +1,5 @@
 import { DeleteIcon } from "@chakra-ui/icons";
 import {
-  Button,
   Modal,
   ModalOverlay,
   ModalContent,
