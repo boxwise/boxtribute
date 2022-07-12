@@ -187,6 +187,14 @@ To log to the console while running the `webapp` service, do
     from flask import current_app
     current_app.logger.warn(<whatever you want to log>)
 
+You might want to inspect the SQL queries issued by peewee while running the app. For this you need to create a Logger instance (similar to above but without attaching a `StreamHandler`) and have its output propagated to the flask logger. In `routes.py` add the following lines at the beginning of the `graphql_server` function body:
+
+    from flask import current_app
+    import logging
+    peewee_logger = logging.getLogger("peewee")
+    peewee_logger.setLevel(logging.DEBUG)
+    peewee_logger.parent = current_app.logger
+
 Note that in production mode, logging is also subject to the configuration of the WSGI server.
 
 ## Testing
