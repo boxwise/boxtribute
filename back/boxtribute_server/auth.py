@@ -140,7 +140,17 @@ class CurrentUser:
         If the permissions custom claim is a list with a single entry "*", it indicates
         that the current user is a god user.
         """
-        is_god = payload[f"{JWT_CLAIM_PREFIX}/permissions"] == ["*"]
+        try:
+            is_god = payload[f"{JWT_CLAIM_PREFIX}/permissions"] == ["*"]
+        except KeyError:  # pragma: no cover
+            raise AuthenticationFailed(
+                {
+                    "code": "missing_claims",
+                    "description": f"Missing custom claim '{JWT_CLAIM_PREFIX}/"
+                    "permissions' in JWT. Please check the user's roles in Auth0.",
+                },
+            )
+
         base_ids = {}
         if not is_god:
             for raw_permission in payload[f"{JWT_CLAIM_PREFIX}/permissions"]:
