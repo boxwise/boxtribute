@@ -308,6 +308,13 @@ You can experiment with the API in the GraphQL playground.
             }
         }
 
+If you lack an internet connection to communicate with Auth0, it might be beneficial to circumvent the authentication logic. You have to hardcode your client identity then. In the `boxtribute_server/auth.py` module, replace the body of the `decorated` function by
+
+    g.user = CurrentUser(id=8, is_god=True)
+    return f(*args, **kwargs)
+
+to simulate a god user with ID 8 (for a regular user, set something like `id=1, organisation_id=1`).
+
 ## Production environment
 
 In production, the web app is run by the WSGI server `gunicorn` which serves as a glue between the web app and the web server (e.g. Apache). `gunicorn` allows for more flexible configuration of request handling (see `back/gunicorn.conf.py` file).

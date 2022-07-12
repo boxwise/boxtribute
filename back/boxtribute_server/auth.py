@@ -119,7 +119,7 @@ class CurrentUser:
     For secure access, property and utility methods are provided.
     """
 
-    def __init__(self, *, organisation_id, id, is_god=False, base_ids=None):
+    def __init__(self, *, id, organisation_id=None, is_god=False, base_ids=None):
         """The `base_ids` field is a mapping of a permission name to a list of base IDs
         that the permission is granted for, or to None if the permission is granted for
         all bases. However it is never exposed directly to avoid accidental
