@@ -39,13 +39,28 @@ const mockedDistroEventPackingList: DistroEventPackingData = {
    },
 }
 
-const mockedBoxData: BoxData[] = [{
+const mockedBoxesData: BoxData[] = [{
     id: "1",
     labelIdentifier: "23982",
     productName: "Jacket Male",
     size: "M",
     numberOfItems: 42,
+},
+{
+    id: "2",
+    labelIdentifier: "23942",
+    productName: "Jacket Male",
+    size: "S",
+    numberOfItems: 23,
 }]
+
+const mockedBoxData: BoxData ={
+    id: "3",
+    labelIdentifier: "23942",
+    productName: "Jacket Woman",
+    size: "M",
+    numberOfItems: 23,  
+}
 
 const mockedPackingActionProps: PackingActionProps = {
     onBoxToDistribution: action("onBoxToDistribution"),
@@ -69,6 +84,7 @@ export const Default = Template.bind({});
 Default.args = {
     distroEventDetailsData: mockedDistroEventPackingList,
     boxData: mockedBoxData,
+    boxesData: mockedBoxesData,
     onShowListClick: action('onShowListClick'),
     packingActionProps: mockedPackingActionProps,
     packingActionListProps: mockedPackingActionListProps,

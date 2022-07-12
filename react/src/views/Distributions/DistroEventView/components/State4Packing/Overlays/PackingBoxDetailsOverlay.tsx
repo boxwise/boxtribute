@@ -16,8 +16,8 @@ import {
 import { useCallback, useState } from "react";
 
 interface ModalProps {
-  isSecondOpen: boolean;
-  onSecondClose: () => void;
+  isBoxDetailOpen: boolean;
+  onBoxDetailClose: () => void;
 }
 
 export interface BoxData {
@@ -38,9 +38,9 @@ export interface StateProps {
   setIsMovingItems: (isMovingItems: boolean) => void;
 }
 
-interface SecondOverlayProps {
+interface PackingBoxDetailsProps {
   modalProps: ModalProps;
-  boxData: BoxData[];
+  boxData: BoxData;
   packingActionProps: PackingActionProps;
   itemsForPackingNumberOfItems: number;
   stateProps: StateProps;
@@ -52,12 +52,12 @@ const PackingBoxDetailsOverlay = ({
   packingActionProps,
   itemsForPackingNumberOfItems,
   stateProps,
-}: SecondOverlayProps) => {
+}: PackingBoxDetailsProps) => {
   const [inputNumber, setInputNumber] = useState(0);
 
   const onClose = useCallback(() => {
     stateProps.setIsMovingItems(false);
-    modalProps.onSecondClose();
+    modalProps.onBoxDetailClose();
   }, [modalProps, stateProps]);
 
   const toast = useToast({
@@ -69,13 +69,10 @@ const PackingBoxDetailsOverlay = ({
       borderRadius: "0px",
     },
   });
-  const boxId = "1";
-  const selectedBox: BoxData | undefined = boxData.find(
-    (box) => box.id === boxId
-  );
+
   return (
     <>
-      <Modal isOpen={modalProps.isSecondOpen} onClose={onClose}>
+      <Modal isOpen={modalProps.isBoxDetailOpen} onClose={onClose}>
         <ModalOverlay />
         <ModalContent>
           <ModalHeader mx={4} pb={0}>
@@ -85,19 +82,14 @@ const PackingBoxDetailsOverlay = ({
           <ModalBody mx={4}>
             <Flex direction="column">
               <Flex direction="row" justifyContent="space-between">
-                {boxData
-                  .filter((box) => box.id === boxId)
-                  .map((box) => (
-                    <Flex key={box.id} direction="column">
-                      <Text fontSize="xl">{box.labelIdentifier}</Text>
-                      <Text fontSize="xl">{box.productName}</Text>
-                      <Text mb={4} fontSize="md">
-                        {box.size} x {box.numberOfItems}
-                      </Text>
-                    </Flex>
-                  ))}
-
-                <Flex direction="column">
+                <Flex key={boxData.id} direction="column">
+                  <Text fontSize="xl">{boxData.labelIdentifier}</Text>
+                  <Text fontSize="xl">{boxData.productName}</Text>
+                  <Text mb={4} fontSize="md">
+                    {boxData.size} x {boxData.numberOfItems}
+                  </Text>
+                </Flex>
+               <Flex direction="column">
                   <Text fontSize="xl">To Pack:</Text>
                   <Text>{itemsForPackingNumberOfItems} items</Text>
                 </Flex>
@@ -106,7 +98,7 @@ const PackingBoxDetailsOverlay = ({
                 <Button
                   my={2}
                   onClick={() => {
-                    packingActionProps.onBoxToDistribution(boxId);
+                    packingActionProps.onBoxToDistribution(boxData.id);
                     onClose();
                     toast({
                       title: "Done!",
@@ -136,7 +128,7 @@ const PackingBoxDetailsOverlay = ({
                   <FormControl
                     onSubmit={() => {
                       packingActionProps.onMoveItemsToDistribution(
-                        boxId,
+                        boxData.id,
                         inputNumber
                       );
                     }}
@@ -148,14 +140,14 @@ const PackingBoxDetailsOverlay = ({
                         mr={2}
                         w="50%"
                         placeholder="Number of items"
-                        max={selectedBox?.numberOfItems}
+                        max={boxData.numberOfItems}
                         min="1"
                         name="inputdata"
                         onChange={(e) => {
                           setInputNumber(parseInt(e.target.value));
                         }}
                       />
-                      <Text mr={2}>out of {selectedBox?.numberOfItems}</Text>
+                      <Text mr={2}>out of {boxData.numberOfItems}</Text>
                     </Flex>
                     <Button
                       colorScheme="blue"

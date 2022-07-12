@@ -9,8 +9,10 @@ import {
   Flex,
   useDisclosure,
   IconButton,
+  Button,
+  Center,
 } from "@chakra-ui/react";
-import { AddIcon, ExternalLinkIcon } from "@chakra-ui/icons";
+import { AddIcon} from "@chakra-ui/icons";
 import { groupBy } from "utils/helpers";
 import PackingScanOverlay from "./Overlays/PackingScanOverlay";
 import PackingBoxDetailsOverlay, {
@@ -44,7 +46,8 @@ export interface DistroEventPackingData {
 interface DistroEventPackingProps {
   distroEventDetailsData: DistroEventPackingData;
   onShowListClick: (itemId: string) => void;
-  boxData: BoxData[];
+  boxesData: BoxData[];
+  boxData: BoxData;
   packingActionProps: PackingActionProps;
   packingActionListProps: PackingActionListProps;
 }
@@ -53,6 +56,7 @@ const DistroEventPacking = ({
   distroEventDetailsData,
   onShowListClick,
   boxData,
+  boxesData,
   packingActionProps,
   packingActionListProps,
 }: DistroEventPackingProps) => {
@@ -78,14 +82,14 @@ const DistroEventPacking = ({
   });
 
   const {
-    isOpen: isFirstOpen,
-    onClose: onFirstClose,
-    onOpen: onFirstOpen,
+    isOpen: isScanOpen,
+    onClose: onScanClose,
+    onOpen: onScanOpen,
   } = useDisclosure();
   const {
-    isOpen: isSecondOpen,
-    onClose: onSecondClose,
-    onOpen: onSecondOpen,
+    isOpen: isBoxDetailOpen,
+    onClose: onBoxDetailClose,
+    onOpen: onBoxDetailOpen,
   } = useDisclosure();
   const {
     isOpen: isListOpen,
@@ -93,7 +97,7 @@ const DistroEventPacking = ({
     onOpen: onListOpen,
   } = useDisclosure();
 
-  const [chosenPackingNumberOfItems, setChosenPackingItemId] = useState(0);
+  const [chosenPackingNumberOfItems, setChosenPackingNumberOfItems] = useState(0);
   const [isMovingItems, setIsMovingItems] = useState(false);
 
   return (
@@ -117,6 +121,7 @@ const DistroEventPacking = ({
             )}
           </Text>
         </Flex>
+        <Center>
         <Accordion w={[300, 420, 500]} allowToggle>
           {itemsForPackingSorted.map((item) => {
             return (
@@ -133,19 +138,26 @@ const DistroEventPacking = ({
                   return (
                     <AccordionPanel py={0}>
                       <Flex
-                        // alignContent="center"
                         alignItems="center"
-                        justifyItems="space-between"
-                        // py={2}
                         borderTop="1px"
                         borderColor="gray.300"
                         direction="row"
+                        pl={6}
+                        onClick={() => setChosenPackingNumberOfItems(item.numberOfItems)}
                         >
                         <Box
+                          as={Button}
                           backgroundColor="transparent"
                           borderRadius="0px"
                           flex="1"
-                          textAlign="left"
+                          onClick={() => {
+                            onListOpen();
+                            onShowListClick(item.id);
+                          }}
+                          _hover={{
+                            backgroundColor: "transparent",
+                            opacity: "0.5",
+                          }}
                         >
                           {item.numberOfItems} x {item.size}
                         </Box>
@@ -159,22 +171,7 @@ const DistroEventPacking = ({
                             aria-label="Add items"
                             icon={<AddIcon />}
                             onClick={(e) => {
-                              onFirstOpen();
-                              setChosenPackingItemId(item.numberOfItems);
-                            }}
-                            color="teal"
-                          />
-                          <IconButton
-                            _hover={{
-                              backgroundColor: "transparent",
-                              opacity: "0.5",
-                            }}
-                            backgroundColor="transparent"
-                            aria-label="Show list of packed items"
-                            icon={<ExternalLinkIcon />}
-                            onClick={(e) => {
-                              onListOpen();
-                              onShowListClick(item.id);
+                              onScanOpen();
                             }}
                             color="teal"
                           />
@@ -187,16 +184,17 @@ const DistroEventPacking = ({
             );
           }, [])}
         </Accordion>
+        </Center>
       </Box>
       <PackingScanOverlay
         modalProps={{
-          isFirstOpen,
-          onFirstClose,
-          onSecondOpen,
+          isScanOpen: isScanOpen,
+          onScanClose: onScanClose,
+          onBoxDetailOpen: onBoxDetailOpen,
         }}
       />
       <PackingBoxDetailsOverlay
-        modalProps={{ isSecondOpen, onSecondClose }}
+        modalProps={{ isBoxDetailOpen: isBoxDetailOpen, onBoxDetailClose: onBoxDetailClose }}
         boxData={boxData}
         packingActionProps={packingActionProps}
         itemsForPackingNumberOfItems={chosenPackingNumberOfItems}
@@ -207,7 +205,7 @@ const DistroEventPacking = ({
       />
       <PackedListOverlay
         modalProps={{ isListOpen, onListClose }}
-        boxData={boxData}
+        boxesData={boxesData}
         packingActionProps={packingActionListProps}
       />
     </>

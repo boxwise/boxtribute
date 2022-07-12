@@ -14,23 +14,29 @@ import QrScanner from "components/QrScanner";
 import { useState } from "react";
 
 interface ModalProps {
-  isFirstOpen: boolean;
-  onFirstClose: () => void;
-  onSecondOpen: () => void;
+  isScanOpen: boolean;
+  onScanClose: () => void;
+  onBoxDetailOpen: () => void;
 }
 
-interface FirstOverlayProps {
+interface ScanOverlayProps {
   modalProps: ModalProps;
 }
 
-const PackingScanOverlay = ({ modalProps }: FirstOverlayProps) => {
+const PackingScanOverlay = ({ modalProps }: ScanOverlayProps) => {
   const [manualBoxLabel, setManualBoxLabel] = useState(false);
   const [manualBoxLabelValue, setManualBoxLabelValue] = useState(0);
   return (
     <>
-      <Modal isOpen={modalProps.isFirstOpen} onClose={modalProps.onFirstClose}>
+      <Modal
+        isOpen={modalProps.isScanOpen}
+        onClose={() => {
+          modalProps.onScanClose();
+          setManualBoxLabel(false);
+        }}
+      >
         <ModalOverlay />
-        <ModalContent top='0'>
+        <ModalContent top="0">
           <ModalHeader pb={0}>Scan the box</ModalHeader>
           <ModalCloseButton />
           <ModalBody>
@@ -38,8 +44,9 @@ const PackingScanOverlay = ({ modalProps }: FirstOverlayProps) => {
           </ModalBody>
           <Button
             onClick={() => {
-              modalProps.onFirstClose();
-              modalProps.onSecondOpen();
+              modalProps.onScanClose();
+              modalProps.onBoxDetailOpen();
+              setManualBoxLabel(false);
             }}
             colorScheme="blue"
             mx={10}
@@ -50,7 +57,7 @@ const PackingScanOverlay = ({ modalProps }: FirstOverlayProps) => {
           <Button
             onClick={() => setManualBoxLabel(true)}
             colorScheme="blue"
-            variant='outline'
+            variant="outline"
             mx={10}
             mb={4}
           >
@@ -58,34 +65,29 @@ const PackingScanOverlay = ({ modalProps }: FirstOverlayProps) => {
           </Button>
           {manualBoxLabel ? (
             <Flex mx={10} mb={4} justifyContent="space-between">
-            <Input
-            type="number"
-            mr={2}
-            w="50%"
-            placeholder="Box Label"
-            name="inputData"
-            onChange={(e) => {
-              setManualBoxLabelValue(parseInt(e.target.value));
-            }}
-          />
-          <Button onClick={() => {  
-            modalProps.onFirstClose();
-            modalProps.onSecondOpen();
-            setManualBoxLabel(false);
-          }
-          }
-          colorScheme="blue"
-          >
-            Search
-          </Button>
-          </Flex>
+              <Input
+                type="number"
+                mr={2}
+                w="50%"
+                placeholder="Box Label"
+                name="inputData"
+                onChange={(e) => {
+                  setManualBoxLabelValue(parseInt(e.target.value));
+                }}
+              />
+              <Button
+                onClick={() => {
+                  modalProps.onScanClose();
+                  modalProps.onBoxDetailOpen();
+                  setManualBoxLabel(false);
+                }}
+                colorScheme="blue"
+              >
+                Search
+              </Button>
+            </Flex>
           ) : null}
-          <Button
-            // onClick={modalProps.onOtherSource}
-            colorScheme="blue"
-            variant='outline'
-            mx={10}
-          >
+          <Button colorScheme="blue" variant="outline" mx={10}>
             Other source
           </Button>
           <ModalFooter />

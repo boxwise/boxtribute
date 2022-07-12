@@ -12,7 +12,6 @@ import {
   IconButton,
   Box,
 } from "@chakra-ui/react";
-// import { useState } from "react";
 import { BoxData } from "./PackingBoxDetailsOverlay";
 
 interface ModalProps {
@@ -26,13 +25,13 @@ export interface PackingActionListProps {
 
 interface PackedListOverlayProps {
   modalProps: ModalProps;
-  boxData: BoxData[];
+  boxesData: BoxData[];
   packingActionProps: PackingActionListProps;
 }
 
 const PackedListOverlay = ({
   modalProps,
-  boxData,
+  boxesData,
   packingActionProps,
 }: PackedListOverlayProps) => {
   return (
@@ -46,7 +45,7 @@ const PackedListOverlay = ({
           <ModalCloseButton />
           <ModalBody mx={4}>
             <Flex direction="column" >
-              {boxData.map((box) => (
+              {boxesData.map((box) => (
                 <Flex alignItems='center' borderBottom='1px' borderColor='gray.300' my={2} key={box.id} justifyContent='space-between'>
                   <Flex direction="row">
                   <Text mr={4}>{box.labelIdentifier}</Text>
