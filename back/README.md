@@ -257,6 +257,7 @@ Test data is set up in the `test/data/` folder. Three definitions are required:
 **Please be aware that**
 
 - for new data the fixtures must be imported in `test/data/__init__.py` and added to the `__all__` list
+- the module names of data models that are dependencies of others have to be properly added to the `_NAMES` list in `test/data/__init__.py`. This way foreign-key references set-up in correct order when the test data tables are created
 
 #### App tests
 
