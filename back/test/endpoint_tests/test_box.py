@@ -35,7 +35,7 @@ def test_box_query_by_label_identifier(read_only_client, default_box, tags):
         "state": BoxState.InStock.name,
         "qrCode": {"id": str(default_box["qr_code"])},
         "createdBy": {"id": str(default_box["created_by"])},
-        "comment": default_box["comment"],
+        "comment": None,
         "tags": [
             {
                 "id": str(tags[1]["id"]),
@@ -61,9 +61,7 @@ def test_box_query_by_qr_code(read_only_client, default_box, default_qr_code):
 def test_box_mutations(client, qr_code_without_box, default_size, another_size):
     box_creation_input_string = f"""{{
                     productId: 1,
-                    items: 9999,
                     locationId: 1,
-                    comment: "",
                     sizeId: {default_size["id"]},
                     qrCode: "{qr_code_without_box["code"]}",
                 }}"""
@@ -86,7 +84,7 @@ def test_box_mutations(client, qr_code_without_box, default_size, another_size):
             }}
         }}"""
     created_box = assert_successful_request(client, mutation)
-    assert created_box["items"] == 9999
+    assert created_box["items"] is None
     assert created_box["state"] == "InStock"
     assert created_box["location"]["id"] == "1"
     assert created_box["product"]["id"] == "1"

@@ -9,7 +9,7 @@ type Box {
   labelIdentifier: String!
   location: Location
   " The number of items the box contains. "
-  items: Int!
+  items: Int
   product: Product
   size: Size!
   state: BoxState!

@@ -25,3 +25,7 @@ class DbChangeHistory(db.Model):
 
     class Meta:
         table_name = "history"
+        indexes = (
+            (("record_id", "change_date"), False),
+            (("table_name", "record_id", "change_date"), False),
+        )

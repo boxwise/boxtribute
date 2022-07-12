@@ -23,7 +23,7 @@ def create_box(
     user_id,
     size_id,
     comment="",
-    items=0,
+    items=None,
     qr_code=None,
 ):
     """Insert information for a new Box in the database. Use current datetime
