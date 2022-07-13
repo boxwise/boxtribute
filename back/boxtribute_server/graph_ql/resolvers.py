@@ -11,6 +11,7 @@ from ariadne import (
     convert_kwargs_to_snake_case,
 )
 from flask import g
+from graphql import GraphQLError
 from peewee import fn
 
 from ..authz import (
@@ -31,7 +32,13 @@ from ..box_transfer.shipment import (
     send_shipment,
     update_shipment,
 )
-from ..enums import HumanGender, LocationType, TaggableObjectType, TransferAgreementType
+from ..enums import (
+    DistributionEventState,
+    HumanGender,
+    LocationType,
+    TaggableObjectType,
+    TransferAgreementType,
+)
 from ..models.crud import (
     add_packing_list_entry_to_distribution_event,
     create_beneficiary,
@@ -39,6 +46,7 @@ from ..models.crud import (
     create_distribution_event,
     create_distribution_spot,
     create_qr_code,
+    delete_packing_list_entry,
     update_beneficiary,
     update_box,
 )
@@ -466,12 +474,69 @@ def resolve_location_default_box_state(location_obj, _):
     return location_obj.box_state.id
 
 
+@mutation.field("removePackingListEntryFromDistributionEvent")
+@convert_kwargs_to_snake_case
+def resolve_remove_packing_list_entry_from_distribution_event(
+    *_, packing_list_entry_id
+):
+    # TODO: add authorization here
+    # authorize(permission="distribution_event:write")
+
+    packing_list_entry = PackingListEntry.get(packing_list_entry_id)
+    if packing_list_entry is None:
+        raise GraphQLError("Packing list entry not found")
+    mobile_distribution_event = (
+        DistributionEvent.select()
+        .where(DistributionEvent.id == packing_list_entry.distribution_event_id)
+        .get()
+    )
+    # TODO: consider to throw an error in case the packing list entry for this id
+    # does not exist in the DB
+    delete_packing_list_entry(packing_list_entry_id)
+    return mobile_distribution_event
+
+    # packing_list_entry = (
+    #     PackingListEntry.select()
+    #     .where(
+    #         # PackingListEntry.distribution_event_id
+    #         # == distribution_event_id &
+    #         PackingListEntry.id
+    #         == packing_list_entry_id
+    #     )
+    #     .get()
+    # )
+    # # if distribution_event is None:
+    # #     raise GraphQLError("Distribution event not found")
+    # if packing_list_entry is None:
+    #     raise GraphQLError("Packing list entry not found")
+    # # if distribution_event.packing_list != packing_list_entry.packing_list:
+    # #     raise GraphQLError("Packing list entry does not belong to event")
+    # distribution_event.packing_list_entries.remove(packing_list_entry)
+    # distribution_event.save()
+    return distribution_event
+
+
 @mutation.field("createQrCode")
 @convert_kwargs_to_snake_case
 def resolve_create_qr_code(*_, box_label_identifier=None):
     authorize(permission="qr:create")
     authorize(permission="stock:write")
     return create_qr_code(box_label_identifier=box_label_identifier)
+
+
+@mutation.field("changeDistributionEventState")
+@convert_kwargs_to_snake_case
+def resolve_change_distribution_event_state(*_, distribution_event_id, new_state):
+    # TODO: Add authorization
+    # authorize(permission="distribution_event:write")
+    distribution_event = DistributionEvent.get_by_id(distribution_event_id)
+    if distribution_event is None:
+        raise GraphQLError("Distribution event not found")
+    if distribution_event.state == DistributionEventState.Completed:
+        raise GraphQLError("Distribution event is already closed")
+    distribution_event.state = new_state
+    distribution_event.save()
+    return distribution_event
 
 
 @mutation.field("createDistributionSpot")

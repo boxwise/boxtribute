@@ -382,6 +382,7 @@ export type Mutation = {
   addPackingListEntryToDistributionEvent?: Maybe<PackingListEntry>;
   cancelShipment?: Maybe<Shipment>;
   cancelTransferAgreement?: Maybe<TransferAgreement>;
+  changeDistributionEventState?: Maybe<DistributionEvent>;
   createBeneficiary?: Maybe<Beneficiary>;
   createBox?: Maybe<Box>;
   createDistributionEvent?: Maybe<DistributionEvent>;
@@ -390,6 +391,7 @@ export type Mutation = {
   createShipment?: Maybe<Shipment>;
   createTransferAgreement?: Maybe<TransferAgreement>;
   rejectTransferAgreement?: Maybe<TransferAgreement>;
+  removePackingListEntryFromDistributionEvent?: Maybe<DistributionEvent>;
   sendShipment?: Maybe<Shipment>;
   updateBeneficiary?: Maybe<Beneficiary>;
   updateBox?: Maybe<Box>;
@@ -434,6 +436,17 @@ export type MutationCancelShipmentArgs = {
  */
 export type MutationCancelTransferAgreementArgs = {
   id: Scalars['ID'];
+};
+
+
+/**
+ * Naming convention:
+ * - input argument: creationInput/updateInput
+ * - input type: <Resource>CreationInput/UpdateInput
+ */
+export type MutationChangeDistributionEventStateArgs = {
+  distributionEventId: Scalars['ID'];
+  newState: DistributionEventState;
 };
 
 
@@ -514,6 +527,16 @@ export type MutationCreateTransferAgreementArgs = {
  */
 export type MutationRejectTransferAgreementArgs = {
   id: Scalars['ID'];
+};
+
+
+/**
+ * Naming convention:
+ * - input argument: creationInput/updateInput
+ * - input type: <Resource>CreationInput/UpdateInput
+ */
+export type MutationRemovePackingListEntryFromDistributionEventArgs = {
+  packingListEntryId: Scalars['ID'];
 };
 
 
@@ -1084,19 +1107,12 @@ export type CreateDistributionEventMutationVariables = Exact<{
 
 export type CreateDistributionEventMutation = { __typename?: 'Mutation', createDistributionEvent?: { __typename?: 'DistributionEvent', id: string, name?: string | null, plannedStartDateTime: any } | null };
 
-export type DistributionEventQueryVariables = Exact<{
-  eventId: Scalars['ID'];
+export type RemoveEntryFromPackingListMutationVariables = Exact<{
+  packingListEntryId: Scalars['ID'];
 }>;
 
 
-export type DistributionEventQuery = { __typename?: 'Query', distributionEvent?: { __typename?: 'DistributionEvent', id: string, name?: string | null, state: DistributionEventState, plannedStartDateTime: any, distributionSpot?: { __typename?: 'DistributionSpot', id: string, name?: string | null } | null } | null };
-
-export type PackingListEntriesForDistributionEventQueryVariables = Exact<{
-  distributionEventId: Scalars['ID'];
-}>;
-
-
-export type PackingListEntriesForDistributionEventQuery = { __typename?: 'Query', distributionEvent?: { __typename?: 'DistributionEvent', id: string, packingList: { __typename?: 'PackingList', entries: Array<{ __typename?: 'PackingListEntry', id: string, numberOfItems: number, product?: { __typename?: 'Product', id: string, name: string, gender?: ProductGender | null } | null, size?: { __typename?: 'Size', id: string, label: string } | null }> } } | null };
+export type RemoveEntryFromPackingListMutation = { __typename?: 'Mutation', removePackingListEntryFromDistributionEvent?: { __typename?: 'DistributionEvent', id: string } | null };
 
 export type AddToPackingListMutationVariables = Exact<{
   distributionEventId: Scalars['ID'];
@@ -1119,3 +1135,25 @@ export type AllProductsAndSizesQueryVariables = Exact<{ [key: string]: never; }>
 
 
 export type AllProductsAndSizesQuery = { __typename?: 'Query', products: { __typename?: 'ProductPage', elements: Array<{ __typename?: 'Product', id: string, name: string, gender?: ProductGender | null, sizeRange: { __typename?: 'SizeRange', sizes: Array<{ __typename?: 'Size', id: string, label: string }> } }> } };
+
+export type PackingListEntriesForDistributionEventQueryVariables = Exact<{
+  distributionEventId: Scalars['ID'];
+}>;
+
+
+export type PackingListEntriesForDistributionEventQuery = { __typename?: 'Query', distributionEvent?: { __typename?: 'DistributionEvent', id: string, packingList: { __typename?: 'PackingList', entries: Array<{ __typename?: 'PackingListEntry', id: string, numberOfItems: number, product?: { __typename?: 'Product', id: string, name: string, gender?: ProductGender | null } | null, size?: { __typename?: 'Size', id: string, label: string } | null }> } } | null };
+
+export type ChangeDistributionEventStateMutationVariables = Exact<{
+  distributionEventId: Scalars['ID'];
+  newState: DistributionEventState;
+}>;
+
+
+export type ChangeDistributionEventStateMutation = { __typename?: 'Mutation', changeDistributionEventState?: { __typename: 'DistributionEvent', id: string, name?: string | null, state: DistributionEventState } | null };
+
+export type DistributionEventQueryVariables = Exact<{
+  eventId: Scalars['ID'];
+}>;
+
+
+export type DistributionEventQuery = { __typename?: 'Query', distributionEvent?: { __typename?: 'DistributionEvent', id: string, name?: string | null, state: DistributionEventState, plannedStartDateTime: any, distributionSpot?: { __typename?: 'DistributionSpot', id: string, name?: string | null } | null } | null };
