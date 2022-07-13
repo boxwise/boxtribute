@@ -5,6 +5,8 @@ import DistroEventDetailsForPackingState from './DistroEventDetailsForPackingSta
 // import { DistroEvent } from "../State1Planning/DistroEventPlanning";
 import { action } from '@storybook/addon-actions';
 import { PackingListEntry } from 'views/Distributions/types';
+import { PackingActionListProps } from './Overlays/PackedListOverlay';
+import { BoxData, PackingActionProps } from './Overlays/PackingBoxDetailsOverlay';
 
 
 const mockedDistroEventPackingList: PackingListEntry[] =
@@ -31,6 +33,40 @@ const mockedDistroEventPackingList: PackingListEntry[] =
     },
   ];
 
+
+
+const mockedBoxesData: BoxData[] = [{
+  id: "1",
+  labelIdentifier: "23982",
+  productName: "Jacket Male",
+  size: "M",
+  numberOfItems: 42,
+},
+{
+  id: "2",
+  labelIdentifier: "23942",
+  productName: "Jacket Male",
+  size: "S",
+  numberOfItems: 23,
+}]
+
+const mockedBoxData: BoxData ={
+  id: "3",
+  labelIdentifier: "23942",
+  productName: "Jacket Woman",
+  size: "M",
+  numberOfItems: 23,
+}
+
+const mockedPackingActionProps: PackingActionProps = {
+  onBoxToDistribution: action("onBoxToDistribution"),
+  onMoveItemsToDistribution: action("onMoveItemsToDistribution")
+}
+
+const mockedPackingActionListProps: PackingActionListProps = {
+  onDeleteBoxFromDistribution: action("onDeleteBoxFromDistribution"),
+}
+
 export default {
   title: 'Mobile Distro Events/Distro Events/Detail View/State: 4 - Packing/Component',
   component: DistroEventDetailsForPackingState,
@@ -43,5 +79,10 @@ const Template: ComponentStory<typeof DistroEventDetailsForPackingState> = (args
 export const Default = Template.bind({});
 Default.args = {
   packingListEntries: mockedDistroEventPackingList,
-    onCheckboxClick: action('onCheckboxClick'),
+  boxData: mockedBoxData,
+  boxesData: mockedBoxesData,
+  onShowListClick: action('onShowListClick'),
+  packingActionProps: mockedPackingActionProps,
+  packingActionListProps: mockedPackingActionListProps,
+  //   onCheckboxClick: action('onCheckboxClick'),
 }

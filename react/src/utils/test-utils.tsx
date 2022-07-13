@@ -21,7 +21,7 @@ function render(
     ...renderOptions
   }: { mocks: Array<MockedResponse>; routePath: string, initialUrl: string },
 ) {
-  const Wrapper: React.FC = ({ children }) => {
+  const Wrapper: React.FC = ({ children }: any) => {
     return (
       <>
         <MockedProvider mocks={mocks} addTypename={false}>

@@ -63,7 +63,7 @@ const UserMenu = ({
       <MenuButton
         as={IconButton}
         icon={
-          <Img src={user?.picture} variant="outline" width={10} height={10} />
+          <Img src={user?.picture} width={10} height={10} />
         }
       />
       <MenuList py={0} my={0} border="1px" borderRadius="0px">
@@ -139,7 +139,7 @@ const MenuItemsDesktop = ({
   ...props
 }: MenuItemsProps) => {
   return (
-    <Flex w="100%" spacing={2} flexBasis={{ base: "100%", md: "auto" }}>
+    <Flex w="100%" flexBasis={{ base: "100%", md: "auto" }}>
       <Stack
         direction={["column", "row", "row", "row"]}
         justifyItems={["center", "space-between", "flex-end", "flex-end"]}
