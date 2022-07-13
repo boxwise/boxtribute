@@ -84,7 +84,6 @@ const LoginOrUserMenuButtonMobile = ({
           {user?.picture ? (
             <Img
               src={user?.picture}
-              variant="outline"
               width={8}
               height={8}
               mr={2}
@@ -153,7 +152,6 @@ const MenuItemsMobile = ({
   return (
     <Flex
       w="100%"
-      spacing={2}
       flexBasis={{ base: "100%", md: "auto" }}
       display={isOpen ? "block" : "none" }
     >

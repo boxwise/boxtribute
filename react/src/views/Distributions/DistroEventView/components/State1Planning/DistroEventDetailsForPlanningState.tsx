@@ -8,7 +8,7 @@ export interface PackingListEntry {
   size?: {
     id: string;
     label: string;
-  };
+  }
   gender?: ProductGender;
   numberOfItems: number;
 }

@@ -101,7 +101,7 @@ const AddItemsToPackingList = ({
         Add to Packing List
       </Text>
       <form onSubmit={handleSubmit(onAddItemClick)}>
-        <Flex direction="column" spacing="30px">
+        <Flex direction="column">
           <WrapItem>
             <FormControl id="productId">
               <Select {...register("productId")} placeholder="Select Product">

@@ -1,9 +1,10 @@
 import React from 'react';
 import { ComponentStory, ComponentMeta } from '@storybook/react';
-import { DistributionEventState, ProductGender } from 'types/generated/graphql';
+import { DistributionEventState} from 'types/generated/graphql';
 import DistroEventPacking, { DistroEventPackingData } from './DistroEventPacking';
-// import { DistroEvent } from "../State1Planning/DistroEventPlanning";
 import { action } from '@storybook/addon-actions';
+import { BoxData, PackingActionProps } from './Overlays/PackingBoxDetailsOverlay';
+import { PackingActionListProps } from './Overlays/PackedListOverlay';
 
 const mockedDistroEventPackingList: DistroEventPackingData = {
    distroEventData: {
@@ -12,20 +13,62 @@ const mockedDistroEventPackingList: DistroEventPackingData = {
        status: DistributionEventState.Planning,
        itemsForPacking: [{
         id: "3",
-        items: 32,
+        numberOfItems: 32,
         size: "M",
         productName: "T-shirt",
-        gender: ProductGender.Men
+       },
+       {
+        id: "5",
+        numberOfItems: 14,
+        size: "L",
+        productName: "T-shirt",
+       },
+       {
+        id: "6",
+        numberOfItems: 5,
+        size: "S",
+        productName: "T-shirt",
        },
        {
         id: "4",
-        items: 10,
+        numberOfItems: 10,
         size: "S",
         productName: "Jacket",
-        gender: ProductGender.Women
        }
    ]
    },
+}
+
+const mockedBoxesData: BoxData[] = [{
+    id: "1",
+    labelIdentifier: "23982",
+    productName: "Jacket Male",
+    size: "M",
+    numberOfItems: 42,
+},
+{
+    id: "2",
+    labelIdentifier: "23942",
+    productName: "Jacket Male",
+    size: "S",
+    numberOfItems: 23,
+}]
+
+const mockedBoxData: BoxData ={
+    id: "3",
+    labelIdentifier: "23942",
+    productName: "Jacket Woman",
+    size: "M",
+    numberOfItems: 23,
+}
+
+const mockedPackingActionProps: PackingActionProps = {
+    onBoxToDistribution: action("onBoxToDistribution"),
+    onMoveItemsToDistribution: action("onMoveItemsToDistribution")
+}
+
+const mockedPackingActionListProps: PackingActionListProps = {
+    onDeleteBoxFromDistribution: action("onDeleteBoxFromDistribution"),
 }
 
 export default {
@@ -40,5 +83,9 @@ const Template: ComponentStory<typeof DistroEventPacking> = (args) => <DistroEve
 export const Default = Template.bind({});
 Default.args = {
     distroEventDetailsData: mockedDistroEventPackingList,
-    onCheckboxClick: action('onCheckboxClick'),
+    boxData: mockedBoxData,
+    boxesData: mockedBoxesData,
+    onShowListClick: action('onShowListClick'),
+    packingActionProps: mockedPackingActionProps,
+    packingActionListProps: mockedPackingActionListProps,
 }
