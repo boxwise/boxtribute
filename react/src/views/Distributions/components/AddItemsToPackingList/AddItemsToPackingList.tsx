@@ -121,13 +121,18 @@ const AddItemsToPackingList = ({
               {fields?.map((size, index) => (
                 <Flex
                   mx={4}
+                  px={2}
                   my={2}
                   direction="row"
                   justify="flex-start"
                   alignItems="center"
+                  w="auto"
                   key={size.id}
+                  _hover={{
+                    backgroundColor: "gray.100",
+                  }}
                 >
-                  <Box mr={4} w={6}>
+                  <Box mr={4} w='25%'>
                     {size.size.name}
                   </Box>
                   <Input
