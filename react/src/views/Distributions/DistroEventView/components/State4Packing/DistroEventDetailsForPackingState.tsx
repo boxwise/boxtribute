@@ -13,14 +13,11 @@ import {
 } from "@chakra-ui/react";
 import { AddIcon} from "@chakra-ui/icons";
 import { groupBy } from "utils/helpers";
-import PackingScanOverlay from "./Overlays/PackingScanOverlay";
-import PackingBoxDetailsOverlay, {
-  BoxData,
-  PackingActionProps,
-} from "./Overlays/PackingBoxDetailsOverlay";
 import { useState } from "react";
-import PackedListOverlay, { PackingActionListProps } from "./Overlays/PackedListOverlay";
 import { PackingListEntry } from "views/Distributions/types";
+import PackingBoxDetailsOverlay, { BoxData, PackingActionProps } from "../State2Packing/Overlays/PackingBoxDetailsOverlay";
+import PackedListOverlay, { PackingActionListProps } from "../State2Packing/Overlays/PackedListOverlay";
+import PackingScanOverlay from "../State2Packing/Overlays/PackingScanOverlay";
 
 interface DistroEventDetailsForPackingStateProps {
   packingListEntries: PackingListEntry[];
