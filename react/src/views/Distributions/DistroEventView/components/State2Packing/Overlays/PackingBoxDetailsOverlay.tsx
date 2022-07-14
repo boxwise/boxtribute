@@ -34,8 +34,8 @@ export interface StateProps {
 interface PackingBoxDetailsProps {
   // modalProps: ModalProps;
   boxData: BoxData;
-  isOpen: boolean;
-  onClose: () => void;
+  // isOpen: boolean;
+  // onClose: () => void;
   // packingActionProps: PackingActionProps;
   targetNumberOfItemsToPack: number;
   // stateProps: StateProps;
@@ -44,8 +44,8 @@ interface PackingBoxDetailsProps {
 const PackingBoxDetailsOverlay = ({
   // modalProps,
   boxData,
-  isOpen,
-  onClose,
+  // isOpen,
+  // onClose,
   // packingActionProps,
   targetNumberOfItemsToPack,
   // stateProps,
@@ -68,9 +68,6 @@ const PackingBoxDetailsOverlay = ({
   });
 
   return (
-    <>
-      <Modal isOpen={isOpen} onClose={onClose}>
-        <ModalOverlay />
         <ModalContent>
           <ModalHeader mx={4} pb={0}>
             Box Details
@@ -169,8 +166,6 @@ const PackingBoxDetailsOverlay = ({
           </ModalBody>
           <ModalFooter />
         </ModalContent>
-      </Modal>
-    </>
   );
 };
 
