@@ -33,3 +33,16 @@ export interface IPackingListEntry {
   gender?: ProductGender;
   numberOfItems: number;
 }
+
+export interface BoxData {
+  labelIdentifier: string;
+  product?: {
+    id: string;
+    name: string;
+  } | null
+  size?: {
+    id: string;
+    label: string;
+  }
+  numberOfItems: number;
+}

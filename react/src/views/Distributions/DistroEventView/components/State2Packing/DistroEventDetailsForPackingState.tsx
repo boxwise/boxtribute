@@ -44,10 +44,6 @@ const PackingListEntry = ({
     onOpen: onScanOpen,
   } = useDisclosure();
 
-  const onBoxSelect = useCallback((boxId: string) => {
-    onScanClose();
-    alert(`Selected box ${boxId}`);
-  }, [onScanClose]);
 
 
   console.log("FOO: packingListEntry", packingListEntry);
@@ -100,11 +96,15 @@ const PackingListEntry = ({
       </AccordionPanel>
 
       <PackingScanBoxOrFindByLabelOverlay
-        isScanOpen={isScanOpen}
-        onScanClose={onScanClose}
-        onBoxSelect={onBoxSelect}
+        isOpen={isScanOpen}
+        onClose={onScanClose}
         packingListEntry={packingListEntry}
-    />
+        onAddUnboxedItemsToDistributionEvent={function (): void {
+          throw new Error("Function not implemented.");
+        } }
+        onAddBoxToDistributionEvent={function (boxId: string): void {
+          throw new Error("Function not implemented.");
+        } }    />
     </>
   );
 };
@@ -163,16 +163,7 @@ DistroEventDetailsForPackingStateProps) => {
           }, [])}
         </Accordion>
       </Center>
-      {/* <PackingBoxDetailsOverlay
-        modalProps={{ isBoxDetailOpen: isBoxDetailOpen, onBoxDetailClose: onBoxDetailClose }}
-        boxData={boxData}
-        // packingActionProps={packingActionProps}
-        itemsForPackingNumberOfItems={chosenPackingNumberOfItems}
-        stateProps={{
-          isMovingItems,
-          setIsMovingItems,
-        }}
-      /> */}
+
       {/* <PackedListOverlay
         modalProps={{ isListOpen, onListClose }}
         boxesData={boxesData}

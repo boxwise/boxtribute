@@ -12,7 +12,7 @@ import {
   IconButton,
   Box,
 } from "@chakra-ui/react";
-import { BoxData } from "./PackingBoxDetailsOverlay";
+import { BoxData } from "views/Distributions/types";
 
 interface ModalProps {
   isListOpen: boolean;
@@ -51,7 +51,7 @@ PackedListOverlayProps) => {
                   borderBottom="1px"
                   borderColor="gray.300"
                   my={2}
-                  key={box.id}
+                  key={box.labelIdentifier}
                   justifyContent="space-between"
                 >
                   <Flex direction="row">

@@ -4,8 +4,8 @@ import { ProductGender } from 'types/generated/graphql';
 import DistroEventDetailsForPackingState from './DistroEventDetailsForPackingState';
 // import { DistroEvent } from "../State1Planning/DistroEventPlanning";
 import { action } from '@storybook/addon-actions';
-import { IPackingListEntry } from 'views/Distributions/types';
-import { BoxData, PackingActionProps } from './Overlays/PackingBoxDetailsOverlay';
+import { BoxData, IPackingListEntry } from 'views/Distributions/types';
+import { PackingActionProps } from './Overlays/PackingBoxDetailsOverlay';
 import { PackingActionListProps } from './Overlays/PackedListOverlay';
 
 
@@ -42,25 +42,40 @@ const mockedDistroEventPackingList: IPackingListEntry[] =
 
 
 const mockedBoxesData: BoxData[] = [{
-  id: "1",
   labelIdentifier: "23982",
-  productName: "Jacket Male",
-  size: "M",
+  product: {
+    id: "3",
+    name: "Jacket Woman",
+  },
+  size: {
+    id: "1",
+    label: "M"
+  },
   numberOfItems: 42,
 },
 {
-  id: "2",
   labelIdentifier: "23942",
-  productName: "Jacket Male",
-  size: "S",
+  product: {
+    id: "2",
+    name: "Jacket Male"
+  },
+  size: {
+    id: "2",
+    label: "S"
+  },
   numberOfItems: 23,
 }]
 
 const mockedBoxData: BoxData ={
-  id: "3",
   labelIdentifier: "23942",
-  productName: "Jacket Woman",
-  size: "M",
+  product: {
+    id: "3",
+    name: "Jacket Woman",
+  },
+  size: {
+    id: "1",
+    label: "M"
+  },
   numberOfItems: 23,
 }
 

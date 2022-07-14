@@ -14,18 +14,11 @@ import {
   useToast,
 } from "@chakra-ui/react";
 import { useCallback, useState } from "react";
+import { BoxData } from "views/Distributions/types";
 
 interface ModalProps {
   isBoxDetailOpen: boolean;
   onBoxDetailClose: () => void;
-}
-
-export interface BoxData {
-  id: string;
-  labelIdentifier: string;
-  productName: string;
-  size?: string;
-  numberOfItems: number;
 }
 
 export interface PackingActionProps {
@@ -39,26 +32,30 @@ export interface StateProps {
 }
 
 interface PackingBoxDetailsProps {
-  modalProps: ModalProps;
+  // modalProps: ModalProps;
   boxData: BoxData;
+  isOpen: boolean;
+  onClose: () => void;
   // packingActionProps: PackingActionProps;
-  itemsForPackingNumberOfItems: number;
-  stateProps: StateProps;
+  targetNumberOfItemsToPack: number;
+  // stateProps: StateProps;
 }
 
 const PackingBoxDetailsOverlay = ({
-  modalProps,
+  // modalProps,
   boxData,
+  isOpen,
+  onClose,
   // packingActionProps,
-  itemsForPackingNumberOfItems,
-  stateProps,
+  targetNumberOfItemsToPack,
+  // stateProps,
 }: PackingBoxDetailsProps) => {
   const [inputNumber, setInputNumber] = useState(0);
 
-  const onClose = useCallback(() => {
-    stateProps.setIsMovingItems(false);
-    modalProps.onBoxDetailClose();
-  }, [modalProps, stateProps]);
+  // const onClose = useCallback(() => {
+  //   // stateProps.setIsMovingItems(false);
+  //   // modalProps.onBoxDetailClose();
+  // }, []);
 
   const toast = useToast({
     position: "bottom",
@@ -72,7 +69,7 @@ const PackingBoxDetailsOverlay = ({
 
   return (
     <>
-      <Modal isOpen={modalProps.isBoxDetailOpen} onClose={onClose}>
+      <Modal isOpen={isOpen} onClose={onClose}>
         <ModalOverlay />
         <ModalContent>
           <ModalHeader mx={4} pb={0}>
@@ -82,19 +79,19 @@ const PackingBoxDetailsOverlay = ({
           <ModalBody mx={4}>
             <Flex direction="column">
               <Flex direction="row" justifyContent="space-between">
-                <Flex key={boxData.id} direction="column">
+                <Flex key={boxData.labelIdentifier} direction="column">
                   <Text fontSize="xl">{boxData.labelIdentifier}</Text>
-                  <Text fontSize="xl">{boxData.productName}</Text>
+                  <Text fontSize="xl">{boxData.product?.name}</Text>
                   <Text mb={4} fontSize="md">
-                    {boxData.size} x {boxData.numberOfItems}
+                    {boxData.size?.label} x {boxData.numberOfItems}
                   </Text>
                 </Flex>
                <Flex direction="column">
                   <Text fontSize="xl">To Pack:</Text>
-                  <Text>{itemsForPackingNumberOfItems} items</Text>
+                  <Text>{targetNumberOfItemsToPack} items</Text>
                 </Flex>
               </Flex>
-              {!stateProps.isMovingItems ? (
+              {/* {!stateProps.isMovingItems && (
                 <Button
                   my={2}
                   onClick={() => {
@@ -112,9 +109,9 @@ const PackingBoxDetailsOverlay = ({
                 >
                   Move box to the distribution
                 </Button>
-              ) : null}
+              )} */}
 
-              <Flex my={2} direction="column">
+              {/*<Flex my={2} direction="column">
                 <Button
                   variant="outline"
                   onClick={() => {
@@ -167,7 +164,7 @@ const PackingBoxDetailsOverlay = ({
                     </Button>
                   </FormControl>
                 ) : null}
-              </Flex>
+              </Flex> */}
             </Flex>
           </ModalBody>
           <ModalFooter />
