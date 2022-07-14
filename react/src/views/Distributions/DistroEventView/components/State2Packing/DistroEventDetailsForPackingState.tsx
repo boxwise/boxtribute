@@ -10,6 +10,8 @@ import {
   IconButton,
   Button,
   Center,
+  Modal,
+  ModalOverlay,
 } from "@chakra-ui/react";
 import { AddIcon } from "@chakra-ui/icons";
 import { groupBy } from "utils/helpers";
@@ -17,6 +19,7 @@ import { useCallback, useState } from "react";
 import { IPackingListEntry } from "views/Distributions/types";
 import PackingScanBoxOrFindByLabelOverlay from "./components/PackingAddBoxOrItemsForPackingListEntryOverlay/PackingScanBoxOrFindByLabelOverlayContent";
 import PackingAddBoxOrItemsForPackingListEntryOverlay from "./components/PackingAddBoxOrItemsForPackingListEntryOverlay/PackingAddBoxOrItemsForPackingListEntryOverlay";
+import PackedListOverlayContent from "./components/PackedListOverlayContent";
 
 interface DistroEventDetailsForPackingStateProps {
   packingListEntries: IPackingListEntry[];
@@ -35,8 +38,8 @@ const PackingListEntry = ({
   const [chosenPackingNumberOfItems, setChosenPackingNumberOfItems] =
     useState(0);
   const {
-    isOpen: isListOpen,
-    onClose: onListClose,
+    isOpen: isPackedListOverlayOpen,
+    onClose: onPackedListOverlayClose,
     onOpen: onListOpen,
   } = useDisclosure();
   const {
@@ -106,6 +109,18 @@ const PackingListEntry = ({
         onAddBoxToDistributionEvent={function (boxId: string): void {
           throw new Error("Function not implemented.");
         } }    />
+
+
+
+<Modal isOpen={isPackedListOverlayOpen} onClose={onPackedListOverlayClose}>
+        <ModalOverlay />
+        <PackedListOverlayContent boxesData={[]} />
+      </Modal>
+      {/* <PackedListOverlay
+        modalProps={{ isListOpen, onListClose }}
+        boxesData={boxesData}
+        // packingActionProps={packingActionListProps}
+      /> */}
     </>
   );
 };
@@ -165,11 +180,6 @@ DistroEventDetailsForPackingStateProps) => {
         </Accordion>
       </Center>
 
-      {/* <PackedListOverlay
-        modalProps={{ isListOpen, onListClose }}
-        boxesData={boxesData}
-        // packingActionProps={packingActionListProps}
-      /> */}
     </>
   );
 };

@@ -24,20 +24,16 @@ export interface PackingActionListProps {
 }
 
 interface PackedListOverlayProps {
-  modalProps: ModalProps;
   boxesData: BoxData[];
-  // packingActionProps: PackingActionListProps;
 }
 
-const PackedListOverlay = ({
-  modalProps,
+const PackedListOverlayContent = ({
   boxesData,
 }: // packingActionProps,
 PackedListOverlayProps) => {
   return (
     <>
-      <Modal isOpen={modalProps.isListOpen} onClose={modalProps.onListClose}>
-        <ModalOverlay />
+
         <ModalContent>
           <ModalHeader mx={4} pb={0}>
             Packed Boxes and Items
@@ -79,9 +75,8 @@ PackedListOverlayProps) => {
           </ModalBody>
           <ModalFooter />
         </ModalContent>
-      </Modal>
     </>
   );
 };
 
-export default PackedListOverlay;
+export default PackedListOverlayContent;
