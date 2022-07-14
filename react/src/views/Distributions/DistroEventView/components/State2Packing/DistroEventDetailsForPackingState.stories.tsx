@@ -5,8 +5,7 @@ import DistroEventDetailsForPackingState from './DistroEventDetailsForPackingSta
 // import { DistroEvent } from "../State1Planning/DistroEventPlanning";
 import { action } from '@storybook/addon-actions';
 import { BoxData, IPackingListEntry } from 'views/Distributions/types';
-import { PackingActionProps } from './Overlays/PackingBoxDetailsOverlay';
-import { PackingActionListProps } from './Overlays/PackedListOverlay';
+import { PackingActionListProps } from './components/PackedListOverlay';
 
 
 const mockedDistroEventPackingList: IPackingListEntry[] =
@@ -79,10 +78,10 @@ const mockedBoxData: BoxData ={
   numberOfItems: 23,
 }
 
-const mockedPackingActionProps: PackingActionProps = {
-  onBoxToDistribution: action("onBoxToDistribution"),
-  onMoveItemsToDistribution: action("onMoveItemsToDistribution")
-}
+// const mockedPackingActionProps: PackingActionProps = {
+//   onBoxToDistribution: action("onBoxToDistribution"),
+//   onMoveItemsToDistribution: action("onMoveItemsToDistribution")
+// }
 
 const mockedPackingActionListProps: PackingActionListProps = {
   onDeleteBoxFromDistribution: action("onDeleteBoxFromDistribution"),

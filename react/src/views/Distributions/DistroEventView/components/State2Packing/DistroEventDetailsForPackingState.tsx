@@ -15,7 +15,8 @@ import { AddIcon } from "@chakra-ui/icons";
 import { groupBy } from "utils/helpers";
 import { useCallback, useState } from "react";
 import { IPackingListEntry } from "views/Distributions/types";
-import PackingScanBoxOrFindByLabelOverlay from "./Overlays/PackingScanBoxOrFindByLabelOverlay";
+import PackingScanBoxOrFindByLabelOverlay from "./components/PackingAddBoxOrItemsForPackingListEntryOverlay/PackingScanBoxOrFindByLabelOverlayContent";
+import PackingAddBoxOrItemsForPackingListEntryOverlay from "./components/PackingAddBoxOrItemsForPackingListEntryOverlay/PackingAddBoxOrItemsForPackingListEntryOverlay";
 
 interface DistroEventDetailsForPackingStateProps {
   packingListEntries: IPackingListEntry[];
@@ -95,7 +96,7 @@ const PackingListEntry = ({
         </Flex>
       </AccordionPanel>
 
-      <PackingScanBoxOrFindByLabelOverlay
+      <PackingAddBoxOrItemsForPackingListEntryOverlay
         isOpen={isScanOpen}
         onClose={onScanClose}
         packingListEntry={packingListEntry}
