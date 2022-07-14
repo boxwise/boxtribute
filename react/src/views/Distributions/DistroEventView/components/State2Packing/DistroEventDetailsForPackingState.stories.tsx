@@ -79,10 +79,10 @@ const Template: ComponentStory<typeof DistroEventDetailsForPackingState> = (args
 export const Default = Template.bind({});
 Default.args = {
   packingListEntries: mockedDistroEventPackingList,
-  boxData: mockedBoxData,
-  boxesData: mockedBoxesData,
-  onShowListClick: action('onShowListClick'),
-  packingActionProps: mockedPackingActionProps,
-  packingActionListProps: mockedPackingActionListProps,
+  // boxData: mockedBoxData,
+  // boxesData: mockedBoxesData,
+  // onShowListClick: action('onShowListClick'),
+  // packingActionProps: mockedPackingActionProps,
+  // packingActionListProps: mockedPackingActionListProps,
   //   onCheckboxClick: action('onCheckboxClick'),
 }

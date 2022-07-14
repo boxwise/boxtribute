@@ -41,7 +41,7 @@ export interface StateProps {
 interface PackingBoxDetailsProps {
   modalProps: ModalProps;
   boxData: BoxData;
-  packingActionProps: PackingActionProps;
+  // packingActionProps: PackingActionProps;
   itemsForPackingNumberOfItems: number;
   stateProps: StateProps;
 }
@@ -49,7 +49,7 @@ interface PackingBoxDetailsProps {
 const PackingBoxDetailsOverlay = ({
   modalProps,
   boxData,
-  packingActionProps,
+  // packingActionProps,
   itemsForPackingNumberOfItems,
   stateProps,
 }: PackingBoxDetailsProps) => {
@@ -98,7 +98,7 @@ const PackingBoxDetailsOverlay = ({
                 <Button
                   my={2}
                   onClick={() => {
-                    packingActionProps.onBoxToDistribution(boxData.id);
+                    // packingActionProps.onBoxToDistribution(boxData.id);
                     onClose();
                     toast({
                       title: "Done!",
@@ -127,10 +127,10 @@ const PackingBoxDetailsOverlay = ({
                 {stateProps.isMovingItems ? (
                   <FormControl
                     onSubmit={() => {
-                      packingActionProps.onMoveItemsToDistribution(
-                        boxData.id,
-                        inputNumber
-                      );
+                      // packingActionProps.onMoveItemsToDistribution(
+                      //   boxData.id,
+                      //   inputNumber
+                      // );
                     }}
                   >
                     <Flex my={4} alignItems="center">

@@ -71,10 +71,9 @@ export const ADD_ENTRY_TO_PACKING_LIST_MUTATION = gql`
 `;
 
 const DistroEventDetailsForPlanningStateContainer = ({
-  // distroEventDetailsDataForPlanningState,
   distributionEventDetails,
 }: DistroEventDetailsForPlanningStateContainerProps) => {
-  const { isOpen, onOpen, onClose } = useDisclosure();
+  const addItemsToDistroEventsOverlayState = useDisclosure();
 
   const { data, loading, error } = useQuery<
     PackingListEntriesForDistributionEventQuery,
@@ -181,11 +180,11 @@ const DistroEventDetailsForPlanningStateContainer = ({
           isClosable: true,
           duration: 2000,
         });
-        onClose();
+        addItemsToDistroEventsOverlayState.onClose();
       });
       // TODO: add here also error catching and user notification
     },
-    [addEntryToPackingListMutation, distributionEventDetails.id, onClose, toast]
+    [addEntryToPackingListMutation, addItemsToDistroEventsOverlayState, distributionEventDetails.id, toast]
   );
 
   const onRemoveItemFromPackingList = useCallback(
@@ -220,13 +219,14 @@ const DistroEventDetailsForPlanningStateContainer = ({
     <>
       <DistroEventDetailsForPlanningState
         packingListEntries={packingListEntries}
-        onAddItemsClick={onOpen}
+        onAddItemsClick={addItemsToDistroEventsOverlayState.onOpen}
         onCopyPackingListFromPreviousEventsClick={() => {}}
         onRemoveItemFromPackingListClick={onRemoveItemFromPackingList}
         onEditItemOnPackingListClick={() => {}}
       />
 
-      <Modal isOpen={isOpen} onClose={onClose}>
+      {/* TODO: Consider to extract this into a seperate component */}
+      <Modal isOpen={addItemsToDistroEventsOverlayState.isOpen} onClose={addItemsToDistroEventsOverlayState.onClose}>
         <ModalOverlay />
         <ModalContent>
           <ModalHeader>

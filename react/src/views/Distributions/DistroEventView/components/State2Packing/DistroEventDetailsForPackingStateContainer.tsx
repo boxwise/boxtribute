@@ -44,22 +44,22 @@ const DistroEventDetailsForPackingStateContainer = ({
   return (
     <DistroEventDetailsForPackingState
       packingListEntries={packingListEntries}
-      onShowListClick={() => {}}
-      boxData={{
-        id: "1",
-        labelIdentifier: "12345",
-        productName: "Product Name",
-        size: "S",
-        numberOfItems: 3,
-      }}
-      boxesData={[]}
-      packingActionProps={{
-        onBoxToDistribution: () => {},
-        onMoveItemsToDistribution: () => {},
-      }}
-      packingActionListProps={{
-        onDeleteBoxFromDistribution: () => {}
-      }}
+      // onShowListClick={() => {}}
+      // boxData={{
+      //   id: "1",
+      //   labelIdentifier: "12345",
+      //   productName: "Product Name",
+      //   size: "S",
+      //   numberOfItems: 3,
+      // }}
+      // boxesData={[]}
+      // packingActionProps={{
+      //   onBoxToDistribution: () => {},
+      //   onMoveItemsToDistribution: () => {},
+      // }}
+      // packingActionListProps={{
+      //   onDeleteBoxFromDistribution: () => {}
+      // }}
     />
   );
 };

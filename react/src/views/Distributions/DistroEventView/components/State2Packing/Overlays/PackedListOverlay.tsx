@@ -26,14 +26,14 @@ export interface PackingActionListProps {
 interface PackedListOverlayProps {
   modalProps: ModalProps;
   boxesData: BoxData[];
-  packingActionProps: PackingActionListProps;
+  // packingActionProps: PackingActionListProps;
 }
 
 const PackedListOverlay = ({
   modalProps,
   boxesData,
-  packingActionProps,
-}: PackedListOverlayProps) => {
+}: // packingActionProps,
+PackedListOverlayProps) => {
   return (
     <>
       <Modal isOpen={modalProps.isListOpen} onClose={modalProps.onListClose}>
@@ -44,27 +44,34 @@ const PackedListOverlay = ({
           </ModalHeader>
           <ModalCloseButton />
           <ModalBody mx={4}>
-            <Flex direction="column" >
+            <Flex direction="column">
               {boxesData.map((box) => (
-                <Flex alignItems='center' borderBottom='1px' borderColor='gray.300' my={2} key={box.id} justifyContent='space-between'>
+                <Flex
+                  alignItems="center"
+                  borderBottom="1px"
+                  borderColor="gray.300"
+                  my={2}
+                  key={box.id}
+                  justifyContent="space-between"
+                >
                   <Flex direction="row">
-                  <Text mr={4}>{box.labelIdentifier}</Text>
-                  <Text> number of items: {box.numberOfItems}</Text>
+                    <Text mr={4}>{box.labelIdentifier}</Text>
+                    <Text> number of items: {box.numberOfItems}</Text>
                   </Flex>
                   <Box>
-                  <IconButton
-                    _hover={{
-                      backgroundColor: "transparent",
-                      opacity: "0.5",
-                    }}
-                    backgroundColor="transparent"
-                    aria-label="Delete"
-                    color="teal"
-                    icon={<DeleteIcon />}
-                    onClick={() =>
-                      packingActionProps.onDeleteBoxFromDistribution(box.id)
-                    }
-                  />
+                    <IconButton
+                      _hover={{
+                        backgroundColor: "transparent",
+                        opacity: "0.5",
+                      }}
+                      backgroundColor="transparent"
+                      aria-label="Delete"
+                      color="teal"
+                      icon={<DeleteIcon />}
+                      onClick={() => {
+                        // packingActionProps.onDeleteBoxFromDistribution(box.id)
+                      }}
+                    />
                   </Box>
                 </Flex>
               ))}

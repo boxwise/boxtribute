@@ -13,28 +13,28 @@ import {
 } from "@chakra-ui/react";
 import { AddIcon} from "@chakra-ui/icons";
 import { groupBy } from "utils/helpers";
-import { useState } from "react";
+import { useCallback, useState } from "react";
 import { PackingListEntry } from "views/Distributions/types";
 import PackingBoxDetailsOverlay, { BoxData, PackingActionProps } from "../State2Packing/Overlays/PackingBoxDetailsOverlay";
 import PackedListOverlay, { PackingActionListProps } from "../State2Packing/Overlays/PackedListOverlay";
-import PackingScanOverlay from "../State2Packing/Overlays/PackingScanOverlay";
+import PackingScanBoxOrFindByLabelOverlay from "./Overlays/PackingScanBoxOrFindByLabelOverlay";
 
 interface DistroEventDetailsForPackingStateProps {
   packingListEntries: PackingListEntry[];
-  onShowListClick: (itemId: string) => void;
-  boxesData: BoxData[];
-  boxData: BoxData;
-  packingActionProps: PackingActionProps;
-  packingActionListProps: PackingActionListProps;
+  // onShowListClick: (itemId: string) => void;
+  // boxesData: BoxData[];
+  // boxData: BoxData;
+  // packingActionProps: PackingActionProps;
+  // packingActionListProps: PackingActionListProps;
 }
 
 const DistroEventDetailsForPackingState = ({
   packingListEntries,
-  onShowListClick,
-  boxData,
-  boxesData,
-  packingActionProps,
-  packingActionListProps,
+  // boxesData,
+  // onShowListClick,
+  // boxData,
+  // packingActionProps,
+  // packingActionListProps,
 }: DistroEventDetailsForPackingStateProps) => {
 
   const itemsForPackingGroupedByProductName = groupBy(
@@ -76,6 +76,11 @@ const DistroEventDetailsForPackingState = ({
   const [chosenPackingNumberOfItems, setChosenPackingNumberOfItems] = useState(0);
   const [isMovingItems, setIsMovingItems] = useState(false);
 
+  const onBoxSelect = useCallback((boxId: string) => {
+    onScanClose();
+    alert(`Selected box ${boxId}`);
+  }, []);
+
   return (
     <>
         <Center>
@@ -109,7 +114,7 @@ const DistroEventDetailsForPackingState = ({
                           flex="1"
                           onClick={() => {
                             onListOpen();
-                            onShowListClick(item.id);
+                            // onShowListClick(item.id);
                           }}
                           _hover={{
                             backgroundColor: "transparent",
@@ -142,28 +147,27 @@ const DistroEventDetailsForPackingState = ({
           }, [])}
         </Accordion>
         </Center>
-      <PackingScanOverlay
-        modalProps={{
-          isScanOpen: isScanOpen,
-          onScanClose: onScanClose,
-          onBoxDetailOpen: onBoxDetailOpen,
-        }}
+      <PackingScanBoxOrFindByLabelOverlay
+          isScanOpen={isScanOpen}
+          onScanClose={onScanClose}
+          onBoxSelect={onBoxSelect}
+          // onBoxDetailOpen: onBoxDetailOpen,
       />
-      <PackingBoxDetailsOverlay
+      {/* <PackingBoxDetailsOverlay
         modalProps={{ isBoxDetailOpen: isBoxDetailOpen, onBoxDetailClose: onBoxDetailClose }}
         boxData={boxData}
-        packingActionProps={packingActionProps}
+        // packingActionProps={packingActionProps}
         itemsForPackingNumberOfItems={chosenPackingNumberOfItems}
         stateProps={{
           isMovingItems,
           setIsMovingItems,
         }}
-      />
-      <PackedListOverlay
+      /> */}
+      {/* <PackedListOverlay
         modalProps={{ isListOpen, onListClose }}
         boxesData={boxesData}
-        packingActionProps={packingActionListProps}
-      />
+        // packingActionProps={packingActionListProps}
+      /> */}
     </>
   );
 };
