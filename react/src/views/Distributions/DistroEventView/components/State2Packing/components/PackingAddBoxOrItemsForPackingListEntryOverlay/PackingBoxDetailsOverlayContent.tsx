@@ -38,34 +38,29 @@ interface PackingBoxDetailsProps {
   // onClose: () => void;
   // packingActionProps: PackingActionProps;
   targetNumberOfItemsToPack: number;
+  onAddBoxToDistributionEvent: (boxId: string) => void;
+  onAddIndividualItemsToDistribution: (boxId: string, numberOfItemsToMove: number) => void;
   // stateProps: StateProps;
 }
 
 const PackingBoxDetailsOverlayContent = ({
   // modalProps,
   boxData,
+  onAddBoxToDistributionEvent,
+  onAddIndividualItemsToDistribution,
   // isOpen,
   // onClose,
   // packingActionProps,
   targetNumberOfItemsToPack,
   // stateProps,
 }: PackingBoxDetailsProps) => {
-  const [inputNumber, setInputNumber] = useState(0);
+  const [numberOfItemsToMove, setNumberOfItemsToMove] = useState(0);
+  const [isMoveIndividualItemsToDistributionMode, setIsMoveIndividualItemsToDistributionMode] = useState(false);
 
   // const onClose = useCallback(() => {
   //   // stateProps.setIsMovingItems(false);
   //   // modalProps.onBoxDetailClose();
   // }, []);
-
-  const toast = useToast({
-    position: "bottom",
-    title: "Container style is updated",
-    containerStyle: {
-      width: "800px",
-      maxWidth: "90%",
-      borderRadius: "0px",
-    },
-  });
 
   return (
         <ModalContent>
@@ -88,37 +83,31 @@ const PackingBoxDetailsOverlayContent = ({
                   <Text>{targetNumberOfItemsToPack} items</Text>
                 </Flex>
               </Flex>
-              {/* {!stateProps.isMovingItems && (
+              {!isMoveIndividualItemsToDistributionMode && (
                 <Button
                   my={2}
                   onClick={() => {
                     // packingActionProps.onBoxToDistribution(boxData.id);
-                    onClose();
-                    toast({
-                      title: "Done!",
-                      description: "Box moved to the distribution.",
-                      status: "success",
-                      duration: 2000,
-                      isClosable: true,
-                    });
+                    // onClose();
+                    onAddBoxToDistributionEvent(boxData.labelIdentifier);
                   }}
                   colorScheme="blue"
                 >
                   Move box to the distribution
                 </Button>
-              )} */}
+              )}
 
-              {/*<Flex my={2} direction="column">
+              <Flex my={2} direction="column">
                 <Button
                   variant="outline"
                   onClick={() => {
-                    stateProps.setIsMovingItems(true);
+                    setIsMoveIndividualItemsToDistributionMode(true);
                   }}
                   colorScheme="blue"
                 >
                   Move items to the distribution
                 </Button>
-                {stateProps.isMovingItems ? (
+                {isMoveIndividualItemsToDistributionMode ? (
                   <FormControl
                     onSubmit={() => {
                       // packingActionProps.onMoveItemsToDistribution(
@@ -138,7 +127,7 @@ const PackingBoxDetailsOverlayContent = ({
                         min="1"
                         name="inputdata"
                         onChange={(e) => {
-                          setInputNumber(parseInt(e.target.value));
+                          setNumberOfItemsToMove(parseInt(e.target.value));
                         }}
                       />
                       <Text mr={2}>out of {boxData.numberOfItems}</Text>
@@ -147,21 +136,14 @@ const PackingBoxDetailsOverlayContent = ({
                       colorScheme="blue"
                       type="submit"
                       onClick={() => {
-                        onClose();
-                        toast({
-                          title: "Done!.",
-                          description: "Items moved to the distribution.",
-                          status: "success",
-                          duration: 2000,
-                          isClosable: true,
-                        });
+                        onAddIndividualItemsToDistribution(boxData.labelIdentifier, numberOfItemsToMove);
                       }}
                     >
                       Move
                     </Button>
                   </FormControl>
                 ) : null}
-              </Flex> */}
+              </Flex>
             </Flex>
           </ModalBody>
           <ModalFooter />

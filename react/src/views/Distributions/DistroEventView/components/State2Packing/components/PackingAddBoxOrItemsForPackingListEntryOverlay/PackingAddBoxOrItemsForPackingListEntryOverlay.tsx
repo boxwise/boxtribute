@@ -1,20 +1,9 @@
-import { useApolloClient, useLazyQuery } from "@apollo/client";
+import { useApolloClient } from "@apollo/client";
 import {
-  Button,
   Modal,
   ModalOverlay,
-  ModalContent,
-  ModalHeader,
-  ModalCloseButton,
-  ModalBody,
-  ModalFooter,
-  Input,
-  Flex,
-  useDisclosure,
-  useToast,
 } from "@chakra-ui/react";
-import QrScanner from "components/QrScanner";
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useState } from "react";
 import { BOX_DETAILS_FOR_MOBILE_DISTRO_QUERY } from "views/Distributions/queries";
 import { BoxData, IPackingListEntry } from "views/Distributions/types";
 import {
@@ -22,7 +11,6 @@ import {
   BoxDetailsQueryVariables,
 } from "types/generated/graphql";
 import PackingBoxDetailsOverlayContent from "./PackingBoxDetailsOverlayContent";
-import { useToggle } from "utils/hooks";
 import PackingScanBoxOrFindByLabelOverlayContent from "./PackingScanBoxOrFindByLabelOverlayContent";
 
 interface PackingScanBoxOrFindByLabelOverlayProps {
@@ -31,7 +19,7 @@ interface PackingScanBoxOrFindByLabelOverlayProps {
   onClose: () => void;
   onAddBoxToDistributionEvent: (boxId: string) => void;
   // TODO: add correct signature / type here
-  onAddUnboxedItemsToDistributionEvent: () => void;
+  onAddUnboxedItemsToDistributionEvent: (boxId: string, numberOfItemsToMove: number) => void;
 }
 
 type ValidateBoxByLabelForMatchingPackingListEntry = (
@@ -113,9 +101,10 @@ const PackingAddBoxOrItemsForPackingListEntryOverlay = ({
 
       {showPackingBoxDetails && boxData != null && (
         <PackingBoxDetailsOverlayContent
-          targetNumberOfItemsToPack={packingListEntry.numberOfItems}
-          boxData={boxData}
-        />
+                  targetNumberOfItemsToPack={packingListEntry.numberOfItems}
+                  boxData={boxData}
+                  onAddBoxToDistributionEvent={onAddBoxToDistributionEvent}
+                  onAddIndividualItemsToDistribution={onAddUnboxedItemsToDistributionEvent}                  />
       )}
     </Modal>
   );

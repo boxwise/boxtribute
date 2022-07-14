@@ -12,6 +12,7 @@ import {
   Center,
   Modal,
   ModalOverlay,
+  useToast,
 } from "@chakra-ui/react";
 import { AddIcon } from "@chakra-ui/icons";
 import { groupBy } from "utils/helpers";
@@ -42,11 +43,37 @@ const PackingListEntry = ({
     onClose: onPackedListOverlayClose,
     onOpen: onListOpen,
   } = useDisclosure();
-  const {
-    isOpen: isScanOpen,
-    onClose: onScanClose,
-    onOpen: onScanOpen,
-  } = useDisclosure();
+  const packingAddBoxOrItemsForPackingListEntryOverlayState = useDisclosure();
+
+  const toast = useToast();
+
+  const onAddUnboxedItemsToDistributionEvent = useCallback(
+    (boxId: string, numberOfItemsToMove: number) => {
+      packingAddBoxOrItemsForPackingListEntryOverlayState.onClose();
+      toast({
+        title: "Done!",
+        description: `${numberOfItemsToMove}tems moved to the distribution.`,
+        status: "success",
+        duration: 2000,
+        isClosable: true,
+      });
+    },
+    [packingAddBoxOrItemsForPackingListEntryOverlayState, toast]
+  );
+
+  const onAddBoxToDistributionEvent = useCallback(
+    (boxId: string) => {
+      packingAddBoxOrItemsForPackingListEntryOverlayState.onClose();
+      toast({
+        title: "Done!",
+        description: "Box moved to the distribution.",
+        status: "success",
+        duration: 2000,
+        isClosable: true,
+      });
+    },
+    [packingAddBoxOrItemsForPackingListEntryOverlayState, toast]
+  );
 
   return (
     <>
@@ -87,7 +114,7 @@ const PackingListEntry = ({
               aria-label="Add items"
               icon={<AddIcon />}
               onClick={(e) => {
-                onScanOpen();
+                packingAddBoxOrItemsForPackingListEntryOverlayState.onOpen();
               }}
               color="teal"
             />
@@ -96,15 +123,13 @@ const PackingListEntry = ({
       </AccordionPanel>
 
       <PackingAddBoxOrItemsForPackingListEntryOverlay
-        isOpen={isScanOpen}
-        onClose={onScanClose}
+        isOpen={packingAddBoxOrItemsForPackingListEntryOverlayState.isOpen}
+        onClose={packingAddBoxOrItemsForPackingListEntryOverlayState.onClose}
         packingListEntry={packingListEntry}
-        onAddUnboxedItemsToDistributionEvent={function (): void {
-          throw new Error("Function not implemented.");
-        }}
-        onAddBoxToDistributionEvent={function (boxId: string): void {
-          throw new Error("Function not implemented.");
-        }}
+        onAddUnboxedItemsToDistributionEvent={
+          onAddUnboxedItemsToDistributionEvent
+        }
+        onAddBoxToDistributionEvent={onAddBoxToDistributionEvent}
       />
 
       <Modal

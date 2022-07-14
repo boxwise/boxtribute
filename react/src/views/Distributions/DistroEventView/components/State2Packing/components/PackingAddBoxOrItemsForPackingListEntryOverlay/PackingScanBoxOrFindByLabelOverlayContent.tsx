@@ -31,7 +31,6 @@ interface PackingScanBoxOrFindByLabelOverlayProps {
   // onClose: () => void;
   // onAddBoxToDistributionEvent: (boxId: string) => void;
   // TODO: add correct signature / type here
-  // onAddUnboxedItemsToDistributionEvent: () => void;
 }
 
 type ValidateBoxByLabelForMatchingPackingListEntry = (
@@ -78,7 +77,6 @@ const useValidateBoxByLabelMatchingPackingListEntry = (
 
 const PackingScanBoxOrFindByLabelOverlay = ({
   // onAddBoxToDistributionEvent,
-  // onAddUnboxedItemsToDistributionEvent,
   // isOpen,
   // onClose,
   packingListEntry,
