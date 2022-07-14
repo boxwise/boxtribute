@@ -41,7 +41,7 @@ interface PackingBoxDetailsProps {
   // stateProps: StateProps;
 }
 
-const PackingBoxDetailsOverlay = ({
+const PackingBoxDetailsOverlayContent = ({
   // modalProps,
   boxData,
   // isOpen,
@@ -169,4 +169,4 @@ const PackingBoxDetailsOverlay = ({
   );
 };
 
-export default PackingBoxDetailsOverlay;
+export default PackingBoxDetailsOverlayContent;

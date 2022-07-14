@@ -21,9 +21,9 @@ import {
   BoxDetailsQuery,
   BoxDetailsQueryVariables,
 } from "types/generated/graphql";
-import PackingBoxDetailsOverlay from "./PackingBoxDetailsOverlayContent";
+import PackingBoxDetailsOverlayContent from "./PackingBoxDetailsOverlayContent";
 import { useToggle } from "utils/hooks";
-import PackingScanBoxOrFindByLabelOverlay from "./PackingScanBoxOrFindByLabelOverlayContent";
+import PackingScanBoxOrFindByLabelOverlayContent from "./PackingScanBoxOrFindByLabelOverlayContent";
 
 interface PackingScanBoxOrFindByLabelOverlayProps {
   packingListEntry: IPackingListEntry;
@@ -104,17 +104,17 @@ const PackingAddBoxOrItemsForPackingListEntryOverlay = ({
     >
       <ModalOverlay />
 
-      {showPackingBoxDetails && boxData != null && (
-        <PackingBoxDetailsOverlay
-          targetNumberOfItemsToPack={packingListEntry.numberOfItems}
-          boxData={boxData}
+      {!showPackingBoxDetails && (
+        <PackingScanBoxOrFindByLabelOverlayContent
+          packingListEntry={packingListEntry}
+          onFoundMatchingBox={onFoundMatchingBox}
         />
       )}
 
-      {!showPackingBoxDetails && (
-        <PackingScanBoxOrFindByLabelOverlay
-          packingListEntry={packingListEntry}
-          onFoundMatchingBox={onFoundMatchingBox}
+      {showPackingBoxDetails && boxData != null && (
+        <PackingBoxDetailsOverlayContent
+          targetNumberOfItemsToPack={packingListEntry.numberOfItems}
+          boxData={boxData}
         />
       )}
     </Modal>

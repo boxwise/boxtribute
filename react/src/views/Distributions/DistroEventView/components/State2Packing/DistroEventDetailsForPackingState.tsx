@@ -48,10 +48,6 @@ const PackingListEntry = ({
     onOpen: onScanOpen,
   } = useDisclosure();
 
-
-
-  console.log("FOO: packingListEntry", packingListEntry);
-
   return (
     <>
       <AccordionPanel py={0}>
@@ -105,14 +101,16 @@ const PackingListEntry = ({
         packingListEntry={packingListEntry}
         onAddUnboxedItemsToDistributionEvent={function (): void {
           throw new Error("Function not implemented.");
-        } }
+        }}
         onAddBoxToDistributionEvent={function (boxId: string): void {
           throw new Error("Function not implemented.");
-        } }    />
+        }}
+      />
 
-
-
-<Modal isOpen={isPackedListOverlayOpen} onClose={onPackedListOverlayClose}>
+      <Modal
+        isOpen={isPackedListOverlayOpen}
+        onClose={onPackedListOverlayClose}
+      >
         <ModalOverlay />
         <PackedListOverlayContent boxesData={[]} />
       </Modal>
@@ -127,11 +125,7 @@ const PackingListEntry = ({
 
 const DistroEventDetailsForPackingState = ({
   packingListEntries,
-}: // boxesData,
-// onShowListClick,
-// boxData,
-// packingActionProps,
-// packingActionListProps,
+}: // TODO: Group by product.id instead of name (because product name could be repeated)
 DistroEventDetailsForPackingStateProps) => {
   const itemsForPackingGroupedByProductName = groupBy(
     packingListEntries,
@@ -139,7 +133,7 @@ DistroEventDetailsForPackingStateProps) => {
   );
 
   //TO DO Sort the sizes by size order
-  const itemsForPackingSorted = Object.keys(
+  const packingEntriesArrayGroupedByProductName = Object.keys(
     itemsForPackingGroupedByProductName
   ).map((key) => {
     return {
@@ -148,19 +142,11 @@ DistroEventDetailsForPackingStateProps) => {
     };
   });
 
-  const {
-    isOpen: isBoxDetailOpen,
-    onClose: onBoxDetailClose,
-    onOpen: onBoxDetailOpen,
-  } = useDisclosure();
-
-  const [isMovingItems, setIsMovingItems] = useState(false);
-
   return (
     <>
       <Center>
         <Accordion w={[300, 420, 500]} allowToggle>
-          {itemsForPackingSorted.map((item, i) => {
+          {packingEntriesArrayGroupedByProductName.map((item, i) => {
             return (
               <AccordionItem w={[300, 420, 500]} justifyItems="center" key={i}>
                 <Flex justifyItems="center">
@@ -179,7 +165,6 @@ DistroEventDetailsForPackingStateProps) => {
           }, [])}
         </Accordion>
       </Center>
-
     </>
   );
 };

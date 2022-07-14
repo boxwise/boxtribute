@@ -21,7 +21,7 @@ import {
   BoxDetailsQuery,
   BoxDetailsQueryVariables,
 } from "types/generated/graphql";
-import PackingBoxDetailsOverlay from "./PackingBoxDetailsOverlayContent";
+import PackingBoxDetailsOverlayContent from "./PackingBoxDetailsOverlayContent";
 import { useToggle } from "utils/hooks";
 
 interface PackingScanBoxOrFindByLabelOverlayProps {
