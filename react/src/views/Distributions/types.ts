@@ -22,7 +22,10 @@ export type DistributionEventDetails = {
 
 export interface PackingListEntry {
   id: string;
-  productName: string;
+  product: {
+    id: string;
+    name: string;
+  }
   size?: {
     id: string;
     label: string;

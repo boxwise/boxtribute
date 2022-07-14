@@ -42,7 +42,7 @@ const DistroEventDetailsForPlanningState = ({
             key={item.id}
           >
             <Box>{item.numberOfItems}</Box>
-            <Box>{item.productName}</Box>
+            <Box>{item.product.name}</Box>
             <Box>{item.size?.label}</Box>
             <Box>{item.gender}</Box>
             <Box>

@@ -39,7 +39,7 @@ const DistroEventDetailsForPackingState = ({
 
   const itemsForPackingGroupedByProductName = groupBy(
     packingListEntries,
-    (item) => item.productName
+    (item) => item.product.name
   );
 
   //TO DO Sort the sizes by size order
@@ -52,7 +52,7 @@ const DistroEventDetailsForPackingState = ({
         numberOfItems: item.numberOfItems,
         size: item.size,
         id: item.id,
-        productName: item.productName,
+        productName: item.product.name,
       })),
     };
   });

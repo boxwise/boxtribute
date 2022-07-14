@@ -12,12 +12,20 @@ import {
 } from "@chakra-ui/react";
 import QrScanner from "components/QrScanner";
 import { useState } from "react";
+import { PackingListEntry } from "views/Distributions/types";
 
 interface ScanOverlayProps {
   isScanOpen: boolean;
   onScanClose: () => void;
   onBoxSelect: (boxId: string) => void;
 }
+
+
+// const useFindBoxByLabelMatchingPackingListEntry = (packingListEntries: PackingListEntry) => {
+//   const [boxId, setBoxId] = useState<string>("");
+//   const [isScanOpen, setIsScanOpen] = useState<boolean>(false);
+
+
 
 const PackingScanBoxOrFindByLabelOverlay = ({ onBoxSelect, isScanOpen, onScanClose }: ScanOverlayProps) => {
   const [showFindBoxByLabelForm, setShowFindBoxByLabelForm] = useState(false);
