@@ -20,7 +20,7 @@ export type DistributionEventDetails = {
     plannedStartDateTime: Date;
 }
 
-export interface PackingListEntry {
+export interface IPackingListEntry {
   id: string;
   product: {
     id: string;

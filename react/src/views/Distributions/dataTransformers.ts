@@ -1,9 +1,9 @@
 import { PackingListEntriesForDistributionEventQuery } from "types/generated/graphql";
-import { PackingListEntry } from "./types";
+import { IPackingListEntry } from "./types";
 
 export const graphqlPackingListEntriesForDistributionEventTransformer = (
     queryResult: PackingListEntriesForDistributionEventQuery | undefined
-  ): PackingListEntry[] => {
+  ): IPackingListEntry[] => {
     // TODO: Do better (e.g. yup based) validation of the query result
     if (queryResult?.distributionEvent?.packingList == null) {
       throw new Error("packingList is null");

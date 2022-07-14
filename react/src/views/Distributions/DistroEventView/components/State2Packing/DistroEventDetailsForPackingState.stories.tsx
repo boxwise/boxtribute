@@ -4,12 +4,12 @@ import { ProductGender } from 'types/generated/graphql';
 import DistroEventDetailsForPackingState from './DistroEventDetailsForPackingState';
 // import { DistroEvent } from "../State1Planning/DistroEventPlanning";
 import { action } from '@storybook/addon-actions';
-import { PackingListEntry } from 'views/Distributions/types';
+import { IPackingListEntry } from 'views/Distributions/types';
 import { BoxData, PackingActionProps } from './Overlays/PackingBoxDetailsOverlay';
 import { PackingActionListProps } from './Overlays/PackedListOverlay';
 
 
-const mockedDistroEventPackingList: PackingListEntry[] =
+const mockedDistroEventPackingList: IPackingListEntry[] =
   [
     {
       id: "3",

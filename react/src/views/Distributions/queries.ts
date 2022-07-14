@@ -40,6 +40,23 @@ export const CHANGE_DISTRIBUTION_EVENT_STATE_MUTATION = gql`
   }
 `;
 
+export const BOX_DETAILS_FOR_MOBILE_DISTRO_QUERY = gql`
+  query BoxDetails($labelIdentifier: String!) {
+    box(labelIdentifier: $labelIdentifier) {
+      labelIdentifier
+      product {
+        id
+        name
+      }
+      size {
+        id
+        label
+      }
+      items
+    }
+  }
+`;
+
 export const DISTRIBUTION_EVENT_QUERY = gql`
   query DistributionEvent($eventId: ID!) {
     distributionEvent(id: $eventId) {

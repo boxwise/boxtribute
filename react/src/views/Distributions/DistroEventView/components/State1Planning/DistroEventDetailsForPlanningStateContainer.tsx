@@ -23,7 +23,7 @@ import { PackingListEntriesForProductToAdd } from "views/Distributions/component
 import AddItemsToPackingListContainer from "views/Distributions/components/AddItemsToPackingList/AddItemsToPackingListContainer";
 import { graphqlPackingListEntriesForDistributionEventTransformer } from "views/Distributions/dataTransformers";
 import { PACKING_LIST_ENTRIES_FOR_DISTRIBUTION_EVENT_QUERY } from "views/Distributions/queries";
-import { DistributionEventDetails, PackingListEntry } from "views/Distributions/types";
+import { DistributionEventDetails, IPackingListEntry } from "views/Distributions/types";
 import DistroEventDetailsForPlanningState from "./DistroEventDetailsForPlanningState";
 
 interface DistroEventDetailsForPlanningStateContainerProps {

@@ -9,7 +9,7 @@ import { graphqlPackingListEntriesForDistributionEventTransformer } from "views/
 import { PACKING_LIST_ENTRIES_FOR_DISTRIBUTION_EVENT_QUERY } from "views/Distributions/queries";
 import {
   DistributionEventDetails,
-  PackingListEntry,
+  IPackingListEntry,
 } from "views/Distributions/types";
 import DistroEventDetailsForPackingState from "./DistroEventDetailsForPackingState";
 

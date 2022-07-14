@@ -3,9 +3,9 @@ import { ComponentStory, ComponentMeta } from "@storybook/react";
 import { DistributionEventState, ProductGender } from "types/generated/graphql";
 import DistroEventDetailsForPlanningState from "./DistroEventDetailsForPlanningState";
 import { action } from "@storybook/addon-actions";
-import { PackingListEntry } from "views/Distributions/types";
+import { IPackingListEntry } from "views/Distributions/types";
 
-const mockedDistroEventPackingList: PackingListEntry[] =
+const mockedDistroEventPackingList: IPackingListEntry[] =
   [
     {
       id: "3",

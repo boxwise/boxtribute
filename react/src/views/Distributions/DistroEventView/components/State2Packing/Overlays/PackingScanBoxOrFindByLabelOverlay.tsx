@@ -1,3 +1,4 @@
+import { useApolloClient, useLazyQuery } from "@apollo/client";
 import {
   Button,
   Modal,
@@ -12,24 +13,61 @@ import {
 } from "@chakra-ui/react";
 import QrScanner from "components/QrScanner";
 import { useState } from "react";
-import { PackingListEntry } from "views/Distributions/types";
+import { BOX_DETAILS_FOR_MOBILE_DISTRO_QUERY } from "views/Distributions/queries";
+import { IPackingListEntry } from "views/Distributions/types";
+import {
+  BoxDetailsQuery,
+  BoxDetailsQueryVariables,
+} from "types/generated/graphql";
 
-interface ScanOverlayProps {
+interface PackingScanBoxOrFindByLabelOverlayProps {
+  packingListEntry: IPackingListEntry;
   isScanOpen: boolean;
   onScanClose: () => void;
   onBoxSelect: (boxId: string) => void;
 }
 
+type ValidateBoxByLabelForMatchingPackingListEntry = (
+  boxLabel: string,
+) => Promise<boolean>;
+const useValidateBoxByLabelMatchingPackingListEntry =
+  (packingListEntry: IPackingListEntry): ValidateBoxByLabelForMatchingPackingListEntry => {
+    const apolloClient = useApolloClient();
+    return (boxLabel: string) => {
+      return apolloClient
+        .query<BoxDetailsQuery, BoxDetailsQueryVariables>({
+          query: BOX_DETAILS_FOR_MOBILE_DISTRO_QUERY,
+          variables: {
+            labelIdentifier: boxLabel,
+          },
+        })
+        .then(({ data }) => {
+          const box = data?.box;
+          if (box != null) {
+            if (
+              box.product?.id === packingListEntry.product.id &&
+              box.size.id === packingListEntry.size?.id
+            ) {
+              return true;
+            }
+          }
+          return false;
+        });
+    };
+  };
 
-// const useFindBoxByLabelMatchingPackingListEntry = (packingListEntries: PackingListEntry) => {
 //   const [boxId, setBoxId] = useState<string>("");
 //   const [isScanOpen, setIsScanOpen] = useState<boolean>(false);
 
-
-
-const PackingScanBoxOrFindByLabelOverlay = ({ onBoxSelect, isScanOpen, onScanClose }: ScanOverlayProps) => {
+const PackingScanBoxOrFindByLabelOverlay = ({
+  onBoxSelect,
+  isScanOpen,
+  onScanClose,
+  packingListEntry
+}: PackingScanBoxOrFindByLabelOverlayProps) => {
   const [showFindBoxByLabelForm, setShowFindBoxByLabelForm] = useState(false);
   const [manualBoxLabelValue, setManualBoxLabelValue] = useState(0);
+  const validateBoxByLabelMatchingPackingListEntry = useValidateBoxByLabelMatchingPackingListEntry(packingListEntry);
   return (
     <Modal
       isOpen={isScanOpen}
@@ -48,7 +86,7 @@ const PackingScanBoxOrFindByLabelOverlay = ({ onBoxSelect, isScanOpen, onScanClo
         <Button
           onClick={() => {
             onScanClose();
-            onBoxSelect("728798")
+            onBoxSelect("728798");
             setShowFindBoxByLabelForm(false);
           }}
           colorScheme="blue"
@@ -80,7 +118,16 @@ const PackingScanBoxOrFindByLabelOverlay = ({ onBoxSelect, isScanOpen, onScanClo
             />
             <Button
               onClick={() => {
-                onScanClose();
+                validateBoxByLabelMatchingPackingListEntry(manualBoxLabelValue.toString()).then(isValid => {
+                  if (isValid) {
+                    onBoxSelect(manualBoxLabelValue.toString());
+                    setShowFindBoxByLabelForm(false);
+                  }
+                  else {
+                    alert("Box not found or doesn't match the needed product and size");
+                  }
+                })
+                // onScanClose();
                 // modalProps.onBoxDetailOpen();
                 // setShowFindBoxByLabelForm(false);
               }}

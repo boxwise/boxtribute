@@ -11,16 +11,14 @@ import {
   Button,
   Center,
 } from "@chakra-ui/react";
-import { AddIcon} from "@chakra-ui/icons";
+import { AddIcon } from "@chakra-ui/icons";
 import { groupBy } from "utils/helpers";
 import { useCallback, useState } from "react";
-import { PackingListEntry } from "views/Distributions/types";
-import PackingBoxDetailsOverlay, { BoxData, PackingActionProps } from "../State2Packing/Overlays/PackingBoxDetailsOverlay";
-import PackedListOverlay, { PackingActionListProps } from "../State2Packing/Overlays/PackedListOverlay";
+import { IPackingListEntry } from "views/Distributions/types";
 import PackingScanBoxOrFindByLabelOverlay from "./Overlays/PackingScanBoxOrFindByLabelOverlay";
 
 interface DistroEventDetailsForPackingStateProps {
-  packingListEntries: PackingListEntry[];
+  packingListEntries: IPackingListEntry[];
   // onShowListClick: (itemId: string) => void;
   // boxesData: BoxData[];
   // boxData: BoxData;
@@ -28,15 +26,97 @@ interface DistroEventDetailsForPackingStateProps {
   // packingActionListProps: PackingActionListProps;
 }
 
+const PackingListEntry = ({
+  packingListEntry,
+}: {
+  packingListEntry: IPackingListEntry;
+}) => {
+  const [chosenPackingNumberOfItems, setChosenPackingNumberOfItems] =
+    useState(0);
+  const {
+    isOpen: isListOpen,
+    onClose: onListClose,
+    onOpen: onListOpen,
+  } = useDisclosure();
+  const {
+    isOpen: isScanOpen,
+    onClose: onScanClose,
+    onOpen: onScanOpen,
+  } = useDisclosure();
+
+  const onBoxSelect = useCallback((boxId: string) => {
+    onScanClose();
+    alert(`Selected box ${boxId}`);
+  }, [onScanClose]);
+
+
+  console.log("FOO: packingListEntry", packingListEntry);
+
+  return (
+    <>
+      <AccordionPanel py={0}>
+        <Flex
+          alignItems="center"
+          borderTop="1px"
+          borderColor="gray.300"
+          direction="row"
+          pl={6}
+          onClick={() =>
+            setChosenPackingNumberOfItems(packingListEntry.numberOfItems)
+          }
+        >
+          <Box
+            as={Button}
+            backgroundColor="transparent"
+            borderRadius="0px"
+            flex="1"
+            onClick={() => {
+              onListOpen();
+              // onShowListClick(item.id);
+            }}
+            _hover={{
+              backgroundColor: "transparent",
+              opacity: "0.5",
+            }}
+          >
+            {packingListEntry.numberOfItems} x {packingListEntry.size?.label}
+          </Box>
+          <Box>
+            <IconButton
+              _hover={{
+                backgroundColor: "transparent",
+                opacity: "0.5",
+              }}
+              backgroundColor="transparent"
+              aria-label="Add items"
+              icon={<AddIcon />}
+              onClick={(e) => {
+                onScanOpen();
+              }}
+              color="teal"
+            />
+          </Box>
+        </Flex>
+      </AccordionPanel>
+
+      <PackingScanBoxOrFindByLabelOverlay
+        isScanOpen={isScanOpen}
+        onScanClose={onScanClose}
+        onBoxSelect={onBoxSelect}
+        packingListEntry={packingListEntry}
+    />
+    </>
+  );
+};
+
 const DistroEventDetailsForPackingState = ({
   packingListEntries,
-  // boxesData,
-  // onShowListClick,
-  // boxData,
-  // packingActionProps,
-  // packingActionListProps,
-}: DistroEventDetailsForPackingStateProps) => {
-
+}: // boxesData,
+// onShowListClick,
+// boxData,
+// packingActionProps,
+// packingActionListProps,
+DistroEventDetailsForPackingStateProps) => {
   const itemsForPackingGroupedByProductName = groupBy(
     packingListEntries,
     (item) => item.product.name
@@ -48,46 +128,25 @@ const DistroEventDetailsForPackingState = ({
   ).map((key) => {
     return {
       productName: key,
-      items: itemsForPackingGroupedByProductName[key].map((item) => ({
-        numberOfItems: item.numberOfItems,
-        size: item.size,
-        id: item.id,
-        productName: item.product.name,
-      })),
+      items: itemsForPackingGroupedByProductName[key],
     };
   });
 
-  const {
-    isOpen: isScanOpen,
-    onClose: onScanClose,
-    onOpen: onScanOpen,
-  } = useDisclosure();
   const {
     isOpen: isBoxDetailOpen,
     onClose: onBoxDetailClose,
     onOpen: onBoxDetailOpen,
   } = useDisclosure();
-  const {
-    isOpen: isListOpen,
-    onClose: onListClose,
-    onOpen: onListOpen,
-  } = useDisclosure();
 
-  const [chosenPackingNumberOfItems, setChosenPackingNumberOfItems] = useState(0);
   const [isMovingItems, setIsMovingItems] = useState(false);
-
-  const onBoxSelect = useCallback((boxId: string) => {
-    onScanClose();
-    alert(`Selected box ${boxId}`);
-  }, []);
 
   return (
     <>
-        <Center>
+      <Center>
         <Accordion w={[300, 420, 500]} allowToggle>
-          {itemsForPackingSorted.map((item) => {
+          {itemsForPackingSorted.map((item, i) => {
             return (
-              <AccordionItem w={[300, 420, 500]} justifyItems="center">
+              <AccordionItem w={[300, 420, 500]} justifyItems="center" key={i}>
                 <Flex justifyItems="center">
                   <AccordionButton zIndex="2">
                     <Box flex="1" textAlign="center">
@@ -96,63 +155,14 @@ const DistroEventDetailsForPackingState = ({
                     <AccordionIcon />
                   </AccordionButton>
                 </Flex>
-                {item.items.map((item) => {
-                  return (
-                    <AccordionPanel py={0}>
-                      <Flex
-                        alignItems="center"
-                        borderTop="1px"
-                        borderColor="gray.300"
-                        direction="row"
-                        pl={6}
-                        onClick={() => setChosenPackingNumberOfItems(item.numberOfItems)}
-                        >
-                        <Box
-                          as={Button}
-                          backgroundColor="transparent"
-                          borderRadius="0px"
-                          flex="1"
-                          onClick={() => {
-                            onListOpen();
-                            // onShowListClick(item.id);
-                          }}
-                          _hover={{
-                            backgroundColor: "transparent",
-                            opacity: "0.5",
-                          }}
-                        >
-                          {item.numberOfItems} x {item.size?.label}
-                        </Box>
-                        <Box>
-                          <IconButton
-                            _hover={{
-                              backgroundColor: "transparent",
-                              opacity: "0.5",
-                            }}
-                            backgroundColor="transparent"
-                            aria-label="Add items"
-                            icon={<AddIcon />}
-                            onClick={(e) => {
-                              onScanOpen();
-                            }}
-                            color="teal"
-                          />
-                        </Box>
-                      </Flex>
-                    </AccordionPanel>
-                  );
-                })}
+                {item.items.map((item) => (
+                  <PackingListEntry packingListEntry={item} key={item.id} />
+                ))}
               </AccordionItem>
             );
           }, [])}
         </Accordion>
-        </Center>
-      <PackingScanBoxOrFindByLabelOverlay
-          isScanOpen={isScanOpen}
-          onScanClose={onScanClose}
-          onBoxSelect={onBoxSelect}
-          // onBoxDetailOpen: onBoxDetailOpen,
-      />
+      </Center>
       {/* <PackingBoxDetailsOverlay
         modalProps={{ isBoxDetailOpen: isBoxDetailOpen, onBoxDetailClose: onBoxDetailClose }}
         boxData={boxData}

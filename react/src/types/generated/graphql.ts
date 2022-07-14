@@ -1151,6 +1151,13 @@ export type ChangeDistributionEventStateMutationVariables = Exact<{
 
 export type ChangeDistributionEventStateMutation = { __typename?: 'Mutation', changeDistributionEventState?: { __typename: 'DistributionEvent', id: string, name?: string | null, state: DistributionEventState } | null };
 
+export type BoxDetailsQueryVariables = Exact<{
+  labelIdentifier: Scalars['String'];
+}>;
+
+
+export type BoxDetailsQuery = { __typename?: 'Query', box?: { __typename?: 'Box', labelIdentifier: string, items: number, product?: { __typename?: 'Product', id: string, name: string } | null, size: { __typename?: 'Size', id: string, label: string } } | null };
+
 export type DistributionEventQueryVariables = Exact<{
   eventId: Scalars['ID'];
 }>;

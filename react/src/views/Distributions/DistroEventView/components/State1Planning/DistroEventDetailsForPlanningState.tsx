@@ -1,9 +1,9 @@
 import { Box, Button, Flex, IconButton, SimpleGrid, Text } from "@chakra-ui/react";
 import { CloseIcon, EditIcon } from "@chakra-ui/icons";
-import { PackingListEntry } from "views/Distributions/types";
+import { IPackingListEntry } from "views/Distributions/types";
 
 interface DistroEventDetailsForPlanningStateProps {
-  packingListEntries: PackingListEntry[];
+  packingListEntries: IPackingListEntry[];
   onAddItemsClick: () => void;
   onCopyPackingListFromPreviousEventsClick: () => void;
   onEditItemOnPackingListClick: (packlistItemId: string) => void;
