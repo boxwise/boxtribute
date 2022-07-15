@@ -477,6 +477,16 @@ def resolve_location_default_box_state(location_obj, _):
     return location_obj.box_state.id
 
 
+@mutation.field("moveBoxToDistributionEvent")
+@convert_kwargs_to_snake_case
+def resolve_move_box_to_distribution_event(
+    mutation_obj, _, box_label_identifier, distribution_event_id
+):
+    # TODO: Add authorization here
+    # authorize(permission="stock:write")
+    return move_box_to_distribution_event(box_label_identifier, distribution_event_id)
+
+
 @mutation.field("removePackingListEntryFromDistributionEvent")
 @convert_kwargs_to_snake_case
 def resolve_remove_packing_list_entry_from_distribution_event(
@@ -854,13 +864,6 @@ def resolve_shipment_detail_source_location(detail_obj, _):
 def resolve_shipment_detail_target_location(detail_obj, _):
     authorize(permission="location:read")
     return detail_obj.target_location
-
-
-@mutation.field("moveBoxToDistributionEvent")
-def resolve_move_box_to_distribution_event(mutation_obj, _, input_data):
-    # TODO: Add authorization here
-    # authorize(permission="stock:write")
-    return move_box_to_distribution_event(input_data)
 
 
 @size_range.field("sizes")

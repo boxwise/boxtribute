@@ -67,14 +67,15 @@ def create_box(
     raise BoxCreationFailed()
 
 
-def move_box_to_distribution_event(box_id, distribution_event_id):
+def move_box_to_distribution_event(box_label_identifier, distribution_event_id):
     """Move a box to a distribution event."""
     with db.database.atomic():
-        box = Box.get_by_id(box_id)
+        box = Box.get(Box.label_identifier == box_label_identifier)
         distribution_event = DistributionEvent.get_by_id(distribution_event_id)
-        box.location = distribution_event
+        box.location = distribution_event.distribution_spot_id
         box.distribution_event = distribution_event_id
         box.save()
+        return box
 
 
 def add_packing_list_entry_to_distribution_event(

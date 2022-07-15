@@ -30,11 +30,10 @@ type Mutation {
     newState: DistributionEventState!
   ): DistributionEvent
 
-  moveBoxToDistributionEvent(boxId: ID!, distributionEventId: ID!): Box
+  moveBoxToDistributionEvent(boxLabelIdentifier: ID!, distributionEventId: ID!): Box
   moveItemsFromBoxToDistributionEvent(
-    boxId: ID!
+    boxLabelIdentifier: ID!
     distributionEventId: ID!
-    boxId: [ID!]!
     numberOfItems: Int!
   ): Box
 }
