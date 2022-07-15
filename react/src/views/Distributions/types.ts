@@ -46,3 +46,24 @@ export interface BoxData {
   }
   numberOfItems: number;
 }
+
+export interface GeoData {
+  latitude: number;
+  longitude: number;
+}
+
+export interface DistroEventForSpot {
+  startDateTime?: Date;
+  state: DistributionEventState;
+  id: string;
+}
+
+export interface DistroSpot {
+  id: string;
+  baseId: string;
+  name: string;
+  geoData?: GeoData;
+  nextDistroEventDate?: Date;
+  comment?: string;
+  distroEvents: DistroEventForSpot[];
+}

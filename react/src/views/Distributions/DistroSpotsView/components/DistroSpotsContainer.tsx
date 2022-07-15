@@ -5,7 +5,8 @@ import {
   DistroSpotsForBaseIdQueryVariables,
 } from "types/generated/graphql";
 import { useGlobalSiteState } from "utils/hooks";
-import DistroSpots, { DistroSpot } from "./DistroSpots";
+import { DistroSpot } from "views/Distributions/types";
+import DistroSpots from "./DistroSpots";
 
 export interface DistroSpotsContainerProps {
   onGoToDistroEventView: (distroEventId: string) => void;

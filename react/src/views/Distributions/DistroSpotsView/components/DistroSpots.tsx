@@ -13,27 +13,8 @@ import {
 } from "@chakra-ui/react";
 import React from "react";
 import { distroEventStateHumanReadableLabels } from "views/Distributions/baseData";
-import { DistributionEventState } from "views/Distributions/types";
+import { DistroSpot } from "views/Distributions/types";
 
-interface GeoData {
-  latitude: number;
-  longitude: number;
-}
-
-export interface DistroEventForSpot {
-  startDateTime?: Date;
-  state: DistributionEventState;
-  id: string;
-}
-
-export interface DistroSpot {
-  id: string;
-  name: string;
-  geoData?: GeoData;
-  nextDistroEventDate?: Date;
-  comment?: string;
-  distroEvents: DistroEventForSpot[];
-}
 
 interface DistroSpotsProps {
   distroSpots: DistroSpot[];

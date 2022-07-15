@@ -122,11 +122,12 @@ export type BeneficiaryUpdateInput = {
 };
 
 /** Representation of a box storing items of a [`Product`]({{Types.Product}}) in a [`Location`]({{Types.Location}}) */
-export type Box = {
+export type Box = ItemsCollection & {
   __typename?: 'Box';
   comment?: Maybe<Scalars['String']>;
   createdBy?: Maybe<User>;
   createdOn?: Maybe<Scalars['Datetime']>;
+  distributionEvent?: Maybe<DistributionEvent>;
   id: Scalars['ID'];
   /**  The number of items the box contains.  */
   items: Scalars['Int'];
@@ -194,6 +195,7 @@ export type BoxUpdateInput = {
 
 export type DistributionEvent = {
   __typename?: 'DistributionEvent';
+  boxes?: Maybe<BoxPage>;
   distributionSpot?: Maybe<DistributionSpot>;
   id: Scalars['ID'];
   name?: Maybe<Scalars['String']>;
@@ -201,6 +203,12 @@ export type DistributionEvent = {
   plannedEndDateTime: Scalars['Datetime'];
   plannedStartDateTime: Scalars['Datetime'];
   state: DistributionEventState;
+};
+
+
+export type DistributionEventBoxesArgs = {
+  filterInput?: InputMaybe<FilterBoxInput>;
+  paginationInput?: InputMaybe<PaginationInput>;
 };
 
 export type DistributionEventCreationInput = {
@@ -280,6 +288,14 @@ export enum HumanGender {
   Female = 'Female',
   Male = 'Male'
 }
+
+export type ItemsCollection = {
+  distributionEvent?: Maybe<DistributionEvent>;
+  items: Scalars['Int'];
+  place?: Maybe<BoxPlace>;
+  product?: Maybe<Product>;
+  size: Size;
+};
 
 /** Language codes. */
 export enum Language {
@@ -390,6 +406,8 @@ export type Mutation = {
   createQrCode?: Maybe<QrCode>;
   createShipment?: Maybe<Shipment>;
   createTransferAgreement?: Maybe<TransferAgreement>;
+  moveBoxToDistributionEvent?: Maybe<Box>;
+  moveItemsFromBoxToDistributionEvent?: Maybe<UnboxedItemsCollection>;
   rejectTransferAgreement?: Maybe<TransferAgreement>;
   removePackingListEntryFromDistributionEvent?: Maybe<DistributionEvent>;
   sendShipment?: Maybe<Shipment>;
@@ -517,6 +535,29 @@ export type MutationCreateShipmentArgs = {
  */
 export type MutationCreateTransferAgreementArgs = {
   creationInput?: InputMaybe<TransferAgreementCreationInput>;
+};
+
+
+/**
+ * Naming convention:
+ * - input argument: creationInput/updateInput
+ * - input type: <Resource>CreationInput/UpdateInput
+ */
+export type MutationMoveBoxToDistributionEventArgs = {
+  boxLabelIdentifier: Scalars['ID'];
+  distributionEventId: Scalars['ID'];
+};
+
+
+/**
+ * Naming convention:
+ * - input argument: creationInput/updateInput
+ * - input type: <Resource>CreationInput/UpdateInput
+ */
+export type MutationMoveItemsFromBoxToDistributionEventArgs = {
+  boxLabelIdentifier: Scalars['ID'];
+  distributionEventId: Scalars['ID'];
+  numberOfItems: Scalars['Int'];
 };
 
 
@@ -1023,6 +1064,17 @@ export enum TransferAgreementType {
   Unidirectional = 'Unidirectional'
 }
 
+export type UnboxedItemsCollection = ItemsCollection & {
+  __typename?: 'UnboxedItemsCollection';
+  distributionEvent?: Maybe<DistributionEvent>;
+  id: Scalars['ID'];
+  items: Scalars['Int'];
+  label?: Maybe<Scalars['String']>;
+  place?: Maybe<BoxPlace>;
+  product?: Maybe<Product>;
+  size: Size;
+};
+
 /**
  * Representation of a user signed up for the web application.
  * The user is a member of a specific [`Organisation`]({{Types.Organisation}}).
@@ -1106,6 +1158,17 @@ export type CreateDistributionEventMutationVariables = Exact<{
 
 
 export type CreateDistributionEventMutation = { __typename?: 'Mutation', createDistributionEvent?: { __typename?: 'DistributionEvent', id: string, name?: string | null, plannedStartDateTime: any } | null };
+
+export type CreateDistributionSpotMutationVariables = Exact<{
+  baseId: Scalars['Int'];
+  name: Scalars['String'];
+  comment: Scalars['String'];
+  latitude?: InputMaybe<Scalars['Float']>;
+  longitude?: InputMaybe<Scalars['Float']>;
+}>;
+
+
+export type CreateDistributionSpotMutation = { __typename?: 'Mutation', createDistributionSpot?: { __typename?: 'DistributionSpot', id: string } | null };
 
 export type RemoveEntryFromPackingListMutationVariables = Exact<{
   packingListEntryId: Scalars['ID'];

@@ -1,16 +1,18 @@
 import React from "react";
 import { ComponentStory, ComponentMeta } from "@storybook/react";
-import DistroSpots, { DistroSpot } from "./DistroSpots";
-import { DistributionEventState } from "views/Distributions/types";
+import DistroSpots from "./DistroSpots";
+import { DistributionEventState, DistroSpot } from "views/Distributions/types";
 
 const mockedDistroSpots: DistroSpot[] = [
   {
     id: "1",
+    baseId: "10",
     name: "Horgosz",
     distroEvents: [],
   },
   {
     id: "2",
+    baseId: "10",
     name: "Subotica",
     nextDistroEventDate: new Date("2022/08/22"),
     distroEvents: [
@@ -28,6 +30,7 @@ const mockedDistroSpots: DistroSpot[] = [
   },
   {
     id: "3",
+    baseId: "10",
     name: "Bihac",
     nextDistroEventDate: new Date("2022/09/15"),
     comment:
