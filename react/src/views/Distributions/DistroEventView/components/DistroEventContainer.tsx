@@ -166,7 +166,7 @@ const DistroEventContainer = ({
         <AlertDialogOverlay>
           <AlertDialogContent>
             <AlertDialogHeader fontSize='lg' fontWeight='bold'>
-              Delete Customer
+              Mark Distribution Event as Completed
             </AlertDialogHeader>
 
             <AlertDialogBody>
