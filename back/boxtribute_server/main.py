@@ -2,6 +2,10 @@
 import logging
 import os
 
+from boxtribute_server.models.definitions.unboxed_items_collection import (
+    UnboxedItemsCollection,
+)
+
 from .app import configure_app, create_app
 from .routes import api_bp, app_bp
 
@@ -26,4 +30,4 @@ from .db import db
 from .models.definitions.distribution_event import DistributionEvent
 from .models.definitions.packing_list_entry import PackingListEntry
 
-db.database.create_tables([DistributionEvent, PackingListEntry])
+db.database.create_tables([DistributionEvent, PackingListEntry, UnboxedItemsCollection])

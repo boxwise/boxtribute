@@ -1,9 +1,30 @@
 # GraphQL basic types as returned by queries and mutations, and input types for queries.
 
+
+
+interface ItemsCollection {
+  product: Product
+  size: Size!
+  items: Int!
+  place: BoxPlace
+  distributionEvent: DistributionEvent
+}
+
+type UnboxedItemsCollection implements ItemsCollection {
+  id: ID!
+  product: Product
+  size: Size!
+  items: Int!
+  label: String
+  place: BoxPlace
+  distributionEvent: DistributionEvent
+}
+
+
 """
 Representation of a box storing items of a [`Product`]({{Types.Product}}) in a [`Location`]({{Types.Location}})
 """
-type Box {
+type Box implements ItemsCollection {
   id: ID!
   " Sequence of numbers for identifying the box, usually written on box label "
   labelIdentifier: String!
