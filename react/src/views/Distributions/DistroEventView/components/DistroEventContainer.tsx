@@ -1,6 +1,18 @@
 import { useMutation } from "@apollo/client";
 import { ArrowRightIcon } from "@chakra-ui/icons";
-import { Box, VStack, Text, Button, useDisclosure, AlertDialog, AlertDialogBody, AlertDialogContent, AlertDialogFooter, AlertDialogHeader, AlertDialogOverlay } from "@chakra-ui/react";
+import {
+  Box,
+  VStack,
+  Text,
+  Button,
+  useDisclosure,
+  AlertDialog,
+  AlertDialogBody,
+  AlertDialogContent,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogOverlay,
+} from "@chakra-ui/react";
 import React, { useCallback, useMemo } from "react";
 import {
   ChangeDistributionEventStateMutation,
@@ -75,30 +87,34 @@ const DistroEventContainer = ({
     ],
   });
 
-  const nextStageTransitionAlertState = useDisclosure()
-  const cancelNextStageTransitionRef = React.useRef<HTMLButtonElement>(null)
-
+  const nextStageTransitionAlertState = useDisclosure();
+  const cancelNextStageTransitionRef = React.useRef<HTMLButtonElement>(null);
 
   const nextState = useMemo(
     () => getNextState(distributionEventDetails.state),
     [distributionEventDetails.state]
   );
 
-  const onMoveToStage = useCallback((state: DistributionEventState) => {
+  const onMoveToStage = useCallback(
+    (state: DistributionEventState) => {
+      if (state === DistributionEventState.Completed) {
+        nextStageTransitionAlertState.onOpen();
+        return;
+      }
 
-    if(state === DistributionEventState.Completed) {
-      nextStageTransitionAlertState.onOpen()
-      return
-    }
-
-    moveEventToStageMutation({
-      variables: {
-        distributionEventId: distributionEventDetails.id,
-        newState: state,
-      },
-    });
-  }, [distributionEventDetails.id, moveEventToStageMutation, nextStageTransitionAlertState]);
-
+      moveEventToStageMutation({
+        variables: {
+          distributionEventId: distributionEventDetails.id,
+          newState: state,
+        },
+      });
+    },
+    [
+      distributionEventDetails.id,
+      moveEventToStageMutation,
+      nextStageTransitionAlertState,
+    ]
+  );
 
   const onConfirmToMarkEventAsCompleted = useCallback(() => {
     moveEventToStageMutation({
@@ -108,9 +124,11 @@ const DistroEventContainer = ({
       },
     });
     nextStageTransitionAlertState.onClose();
-  }, [distributionEventDetails.id, moveEventToStageMutation, nextStageTransitionAlertState]);
-
-
+  }, [
+    distributionEventDetails.id,
+    moveEventToStageMutation,
+    nextStageTransitionAlertState,
+  ]);
 
   const eventStateToComponentMapping: {
     [key in DistributionEventState]: React.FC;
@@ -136,36 +154,39 @@ const DistroEventContainer = ({
   const StateSpecificComponent =
     eventStateToComponentMapping[distributionEventDetails.state];
   return (
-   <><VStack>
-      <Box>
-        <Text fontSize="xl">
-          {distributionEventDetails.distributionSpot.name}
-        </Text>
-        <Text fontSize="xl" mb={2} borderBottom="1px" borderColor="gray.300">
-          {distributionEventDetails.plannedStartDateTime?.toDateString()}
-        </Text>
-        <DistributionStateProgressBar
-          activeState={distributionEventDetails.state}
-          onMoveToStage={onMoveToStage}
-        />
-      </Box>
-      <Button onClick={() => onMoveToStage(nextState)}>
-        Move to next stage ({distroEventStateHumanReadableLabels.get(nextState)}
-        )
-      </Button>
-      <Box>
-        <StateSpecificComponent />
-      </Box>
-    </VStack>
+    <>
+      <VStack>
+        <Box>
+          <Text fontSize="xl">
+            {distributionEventDetails.distributionSpot.name}
+          </Text>
+          <Text fontSize="xl" mb={2} borderBottom="1px" borderColor="gray.300">
+            {distributionEventDetails.plannedStartDateTime?.toDateString()}
+          </Text>
+          <DistributionStateProgressBar
+            activeState={distributionEventDetails.state}
+            onMoveToStage={onMoveToStage}
+          />
+        </Box>
+        {nextState != null && (
+          <Button onClick={() => onMoveToStage(nextState)}>
+            Move to next stage (
+            {distroEventStateHumanReadableLabels.get(nextState)})
+          </Button>
+        )}
+        <Box>
+          <StateSpecificComponent />
+        </Box>
+      </VStack>
 
-    <AlertDialog
+      <AlertDialog
         isOpen={nextStageTransitionAlertState.isOpen}
         leastDestructiveRef={cancelNextStageTransitionRef}
         onClose={nextStageTransitionAlertState.onClose}
       >
         <AlertDialogOverlay>
           <AlertDialogContent>
-            <AlertDialogHeader fontSize='lg' fontWeight='bold'>
+            <AlertDialogHeader fontSize="lg" fontWeight="bold">
               Mark Distribution Event as Completed
             </AlertDialogHeader>
 
@@ -174,17 +195,24 @@ const DistroEventContainer = ({
             </AlertDialogBody>
 
             <AlertDialogFooter>
-              <Button ref={cancelNextStageTransitionRef} onClick={nextStageTransitionAlertState.onClose}>
+              <Button
+                ref={cancelNextStageTransitionRef}
+                onClick={nextStageTransitionAlertState.onClose}
+              >
                 Cancel
               </Button>
-              <Button colorScheme='red' onClick={onConfirmToMarkEventAsCompleted} ml={3}>
+              <Button
+                colorScheme="red"
+                onClick={onConfirmToMarkEventAsCompleted}
+                ml={3}
+              >
                 Mark Event as Completed
               </Button>
             </AlertDialogFooter>
           </AlertDialogContent>
         </AlertDialogOverlay>
       </AlertDialog>
-      </>
+    </>
   );
 };
 

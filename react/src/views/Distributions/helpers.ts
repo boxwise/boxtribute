@@ -11,8 +11,8 @@ export const getNextState = (state: DistributionEventState) => {
     case DistributionEventState.Returned:
       return DistributionEventState.Completed;
     case DistributionEventState.Completed:
-      return DistributionEventState.Completed;
+      return null;
     default:
-      return DistributionEventState.Planning;
+      return null;
   }
 };
