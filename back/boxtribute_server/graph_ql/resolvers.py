@@ -176,7 +176,9 @@ def resolve_distributions_spot(obj, _, id):
 
 @query.field("distributionEvent")
 def resolve_distribution_event(obj, _, id):
-    distribution_event = DistributionEvent.get_by_id(id)
+    distribution_event = (
+        obj.distribution_event if id is None else DistributionEvent.get_by_id(id)
+    )
     return distribution_event
 
 

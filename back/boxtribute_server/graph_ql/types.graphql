@@ -8,6 +8,7 @@ type Box {
   " Sequence of numbers for identifying the box, usually written on box label "
   labelIdentifier: String!
   place: BoxPlace
+  distributionEvent: DistributionEvent
   " The number of items the box contains. "
   items: Int!
   product: Product
