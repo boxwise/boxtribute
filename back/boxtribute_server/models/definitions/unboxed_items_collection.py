@@ -29,7 +29,7 @@ class UnboxedItemsCollection(db.Model):
         on_delete="SET NULL",
         on_update="CASCADE",
     )
-    items = IntegerField()
+    items = IntegerField(null=False, default=0)
     location = UIntForeignKeyField(
         column_name="location_id",
         field="id",

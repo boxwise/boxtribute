@@ -35,5 +35,5 @@ type Mutation {
     boxLabelIdentifier: ID!
     distributionEventId: ID!
     numberOfItems: Int!
-  ): Box
+  ): UnboxedItemsCollection
 }

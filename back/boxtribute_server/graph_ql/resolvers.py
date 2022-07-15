@@ -48,6 +48,7 @@ from ..models.crud import (
     create_qr_code,
     delete_packing_list_entry,
     move_box_to_distribution_event,
+    move_items_from_box_to_distribution_event,
     update_beneficiary,
     update_box,
 )
@@ -485,6 +486,23 @@ def resolve_move_box_to_distribution_event(
     # TODO: Add authorization here
     # authorize(permission="stock:write")
     return move_box_to_distribution_event(box_label_identifier, distribution_event_id)
+
+
+#   moveItemsFromBoxToDistributionEvent(
+#     boxLabelIdentifier: ID!
+#     distributionEventId: ID!
+#     numberOfItems: Int!
+#   ): Box
+@mutation.field("moveItemsFromBoxToDistributionEvent")
+@convert_kwargs_to_snake_case
+def resolve_move_items_from_box_to_distribution_event(
+    mutation_obj, _, box_label_identifier, distribution_event_id, number_of_items
+):
+    return move_items_from_box_to_distribution_event(
+        box_label_identifier=box_label_identifier,
+        distribution_event_id=distribution_event_id,
+        number_of_items=number_of_items,
+    )
 
 
 @mutation.field("removePackingListEntryFromDistributionEvent")
