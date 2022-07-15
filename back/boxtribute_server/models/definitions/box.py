@@ -1,3 +1,4 @@
+from boxtribute_server.models.definitions.distribution_event import DistributionEvent
 from peewee import SQL, CharField, DateTimeField, IntegerField, TextField
 
 from ...db import db
@@ -33,7 +34,8 @@ class Box(db.Model):
         on_update="CASCADE",
         object_id_name="state_id",
     )
-    # TODO: This should probably be a nullable field (also in the GraphQL Input type for the createBoxMutation)
+    # TODO: This should probably be a nullable field (also in the GraphQL Input type
+    # for the createBoxMutation)
     comment = TextField(column_name="comments")
     created_on = DateTimeField(column_name="created", null=True)
     created_by = UIntForeignKeyField(
@@ -83,6 +85,13 @@ class Box(db.Model):
         column_name="product_id",
         field="id",
         model=Product,
+        on_update="CASCADE",
+    )
+    distribution_event = UIntForeignKeyField(
+        column_name="distribution_event_id",
+        field="id",
+        model=DistributionEvent,
+        null=True,
         on_update="CASCADE",
     )
     qr_code = UIntForeignKeyField(

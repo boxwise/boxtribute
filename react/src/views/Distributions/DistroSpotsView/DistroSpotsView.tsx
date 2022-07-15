@@ -21,7 +21,9 @@ const DistroSpotsView = () => {
     <DistroSpotsContainer
       onGoToDistroEventView={onGoToDistroEventViewHandler}
       onGoToCreateNewDistroEventForDistroSpot={onGoToCreateNewDistroEventForDistroSpot}
-      onGoToCreateNewDistroSpotView={() => {}}
+      onGoToCreateNewDistroSpotView={() => {
+        navigate(`/bases/${currentBaseId}/distributions/spots/create`);
+      }}
     />
   );
 };

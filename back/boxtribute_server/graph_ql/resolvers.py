@@ -47,6 +47,7 @@ from ..models.crud import (
     create_distribution_spot,
     create_qr_code,
     delete_packing_list_entry,
+    move_box_to_distribution_event,
     update_beneficiary,
     update_box,
 )
@@ -851,6 +852,13 @@ def resolve_shipment_detail_source_location(detail_obj, _):
 def resolve_shipment_detail_target_location(detail_obj, _):
     authorize(permission="location:read")
     return detail_obj.target_location
+
+
+@mutation.field("moveBoxToDistributionEvent")
+def resolve_move_box_to_distribution_event(mutation_obj, _, input_data):
+    # TODO: Add authorization here
+    # authorize(permission="stock:write")
+    return move_box_to_distribution_event(input_data)
 
 
 @size_range.field("sizes")
