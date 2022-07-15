@@ -1,6 +1,6 @@
 import { useMutation } from "@apollo/client";
 import { ArrowRightIcon } from "@chakra-ui/icons";
-import { Box, VStack, Text, Button } from "@chakra-ui/react";
+import { Box, VStack, Text, Button, useDisclosure, AlertDialog, AlertDialogBody, AlertDialogContent, AlertDialogFooter, AlertDialogHeader, AlertDialogOverlay } from "@chakra-ui/react";
 import React, { useCallback, useMemo } from "react";
 import {
   ChangeDistributionEventStateMutation,
@@ -55,7 +55,7 @@ export interface DistroEventContainerProps {
 const DistroEventContainer = ({
   distributionEventDetails,
 }: DistroEventContainerProps) => {
-  const [moveEventToNextStageMutation] = useMutation<
+  const [moveEventToStageMutation] = useMutation<
     ChangeDistributionEventStateMutation,
     ChangeDistributionEventStateMutationVariables
   >(CHANGE_DISTRIBUTION_EVENT_STATE_MUTATION, {
@@ -75,15 +75,42 @@ const DistroEventContainer = ({
     ],
   });
 
-  const nextState = useMemo(() => getNextState(distributionEventDetails.state), [distributionEventDetails.state]);
-  const moveEventToNextStage = useCallback(() => {
-    moveEventToNextStageMutation({
+  const nextStageTransitionAlertState = useDisclosure()
+  const cancelNextStageTransitionRef = React.useRef<HTMLButtonElement>(null)
+
+
+  const nextState = useMemo(
+    () => getNextState(distributionEventDetails.state),
+    [distributionEventDetails.state]
+  );
+
+  const onMoveToStage = useCallback((state: DistributionEventState) => {
+
+    if(state === DistributionEventState.Completed) {
+      nextStageTransitionAlertState.onOpen()
+      return
+    }
+
+    moveEventToStageMutation({
       variables: {
         distributionEventId: distributionEventDetails.id,
-        newState: nextState,
+        newState: state,
       },
     });
-  }, [distributionEventDetails.id, moveEventToNextStageMutation, nextState]);
+  }, [distributionEventDetails.id, moveEventToStageMutation, nextStageTransitionAlertState]);
+
+
+  const onConfirmToMarkEventAsCompleted = useCallback(() => {
+    moveEventToStageMutation({
+      variables: {
+        distributionEventId: distributionEventDetails.id,
+        newState: DistributionEventState.Completed,
+      },
+    });
+    nextStageTransitionAlertState.onClose();
+  }, [distributionEventDetails.id, moveEventToStageMutation, nextStageTransitionAlertState]);
+
+
 
   const eventStateToComponentMapping: {
     [key in DistributionEventState]: React.FC;
@@ -109,7 +136,7 @@ const DistroEventContainer = ({
   const StateSpecificComponent =
     eventStateToComponentMapping[distributionEventDetails.state];
   return (
-    <VStack>
+   <><VStack>
       <Box>
         <Text fontSize="xl">
           {distributionEventDetails.distributionSpot.name}
@@ -119,16 +146,45 @@ const DistroEventContainer = ({
         </Text>
         <DistributionStateProgressBar
           activeState={distributionEventDetails.state}
+          onMoveToStage={onMoveToStage}
         />
       </Box>
-      <Button onClick={moveEventToNextStage}>
-        Move to next stage ({distroEventStateHumanReadableLabels.get(nextState)})
-        <ArrowRightIcon />
+      <Button onClick={() => onMoveToStage(nextState)}>
+        Move to next stage ({distroEventStateHumanReadableLabels.get(nextState)}
+        )
       </Button>
       <Box>
         <StateSpecificComponent />
       </Box>
     </VStack>
+
+    <AlertDialog
+        isOpen={nextStageTransitionAlertState.isOpen}
+        leastDestructiveRef={cancelNextStageTransitionRef}
+        onClose={nextStageTransitionAlertState.onClose}
+      >
+        <AlertDialogOverlay>
+          <AlertDialogContent>
+            <AlertDialogHeader fontSize='lg' fontWeight='bold'>
+              Delete Customer
+            </AlertDialogHeader>
+
+            <AlertDialogBody>
+              Are you sure? You can't undo this action afterwards.
+            </AlertDialogBody>
+
+            <AlertDialogFooter>
+              <Button ref={cancelNextStageTransitionRef} onClick={nextStageTransitionAlertState.onClose}>
+                Cancel
+              </Button>
+              <Button colorScheme='red' onClick={onConfirmToMarkEventAsCompleted} ml={3}>
+                Mark Event as Completed
+              </Button>
+            </AlertDialogFooter>
+          </AlertDialogContent>
+        </AlertDialogOverlay>
+      </AlertDialog>
+      </>
   );
 };
 
