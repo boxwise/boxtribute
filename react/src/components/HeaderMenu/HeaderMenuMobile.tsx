@@ -180,7 +180,7 @@ const MenuItemsMobile = ({
 
 const HeaderMenuMobileContainer = ({ children, ...props }) => {
   return (
-    <Flex as="nav" wrap="wrap" w="100%" mb={8} pt={4} pb={4} color={"black"}>
+    <Flex as="nav" wrap="wrap" w="100%"  pt={4} pb={4} color={"black"}>
       {children}
     </Flex>
   );

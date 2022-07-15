@@ -1,4 +1,16 @@
-import { Box, List, ListItem, Heading, Button, Text } from "@chakra-ui/react";
+import { EditIcon } from "@chakra-ui/icons";
+import {
+  Box,
+  List,
+  ListItem,
+  Heading,
+  Button,
+  Text,
+  Flex,
+  IconButton,
+  Wrap,
+  WrapItem,
+} from "@chakra-ui/react";
 import React from "react";
 import { NavLink } from "react-router-dom";
 import {
@@ -24,72 +36,56 @@ const BoxDetails = ({
 
   return (
     <Box>
-      <Text
-        fontSize={{ base: "16px", lg: "18px" }}
-        // color={useColorModeValue('yellow.500', 'yellow.300')}
-        fontWeight={"500"}
-        textTransform={"uppercase"}
-        mb={"4"}
-      >
-        Box Details
-      </Text>
-
-      <List spacing={2}>
-        <ListItem>
-          <Text as={"span"} fontWeight={"bold"}>
-            Box Label:
-          </Text>{" "}
-          {boxData.labelIdentifier}
-        </ListItem>
-        <ListItem>
-          <Text as={"span"} fontWeight={"bold"}>
-            Product:
-          </Text>{" "}
-          {boxData.product?.name}
-        </ListItem>
-        <ListItem>
-          <Text as={"span"} fontWeight={"bold"}>
-            Gender:
-          </Text>{" "}
-          {boxData.product?.gender}
-        </ListItem>
-        <ListItem>
-          <Text as={"span"} fontWeight={"bold"}>
-            Size:
-          </Text>{" "}
-          {boxData.size.label}
-        </ListItem>
-        <ListItem>
-          <Text as={"span"} fontWeight={"bold"}>
-            Items:
-          </Text>{" "}
-          {boxData.items}
-        </ListItem>
-        <ListItem>
-          <Text as={"span"} fontWeight={"bold"}>
-            Place:
-          </Text>{" "}
-          {boxData.place?.name}
-        </ListItem>
-      </List>
-
-      <NavLink to="edit">
-        <Button>Edit Box</Button>
-      </NavLink>
-
+      <Box border="2px" mb={2} backgroundColor="#F4E5A0">
+        <Flex pt={2} px={4} direction="row" justifyContent="space-between">
+          <Heading fontWeight={"bold"} mb={4} as="h2">
+            Box {boxData.labelIdentifier}
+          </Heading>
+          <NavLink to="edit">
+            <IconButton
+              aria-label="Edit box"
+              backgroundColor="transparent"
+              icon={<EditIcon h={6} w={6} />}
+            />
+          </NavLink>
+        </Flex>
+        <List px={4} pb={2} spacing={2}>
+          <ListItem>
+            <Text fontSize="xl" fontWeight={"bold"}>
+              {boxData.items} x {boxData.product?.name}
+            </Text>
+          </ListItem>
+          <ListItem>
+            <Flex direction="row">
+              <Text mr={2}>{boxData.product?.gender}</Text>
+              <Text>{boxData.size.label}</Text>
+            </Flex>
+          </ListItem>
+        </List>
+      </Box>
       <Box>
-        <Heading as={"h3"}>Move this box to location...</Heading>
+        <Text textAlign='center' fontSize="xl" my={4}>
+          Move this box from <strong>{boxData.place?.name}</strong> to:
+        </Text>
         <List>
-          {boxData.place?.base?.locations?.map((location, i) => (
-            <ListItem key={location.id}>
+        <Wrap>
+          {boxData.place?.base?.locations?.filter((location) => {
+            return location.id !== boxData.place?.id;
+            })
+           .map((location, i) => (
+            <WrapItem key={location.id}>
               <Button
+                borderRadius="0px"
                 onClick={() => moveToLocationClick(location.id)}
                 disabled={boxData.place?.id === location.id}
               >
                 {location.name}
               </Button>
-            </ListItem>
+              </WrapItem>
+              
+            
           ))}
+          </Wrap>
         </List>
       </Box>
     </Box>
