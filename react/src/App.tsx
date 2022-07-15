@@ -17,6 +17,7 @@ import DistrosDashboardView from "views/Distributions/DistrosDashboardView/Distr
 import CreateDistributionEventView from "views/Distributions/CreateDistroEventView/CreateDistributionEventView";
 import DistroEventView from "views/Distributions/DistroEventView/DistroEventView";
 import CreateDistributionSpotView from "views/Distributions/CreateDistroSpotView/CreateDistributionSpotView";
+import DistroSpotView from "views/Distributions/DistroSpotView/DistroSpotView";
 
 const useLoadAndSetAvailableBases = () => {
   const BASES_QUERY = gql`
@@ -94,6 +95,7 @@ const App = () => {
                 <Route index element={<DistroSpotsView />} />
                 <Route path="create" element={<CreateDistributionSpotView />} />
                 <Route path=":distributionSpotId">
+                  <Route index element={<DistroSpotView />} />
                   <Route path="events">
                     <Route path=":eventId">
                       <Route index element={<DistroEventView />} />

@@ -1,5 +1,5 @@
 import { gql, useMutation } from "@apollo/client";
-import { Center, Heading, VStack } from "@chakra-ui/react";
+import { Center, Heading, useToast, VStack } from "@chakra-ui/react";
 import React from "react";
 import { DistroSpot } from "../types";
 import CreateDistroSpot, {
@@ -9,7 +9,7 @@ import {
   CreateDistributionSpotMutation,
   CreateDistributionSpotMutationVariables,
 } from "../../../types/generated/graphql";
-import { useParams } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 
 export const CREATE_NEW_DISTRIBUTION_SPOT_MUTATION = gql`
   mutation CreateDistributionSpot(
@@ -40,6 +40,17 @@ const CreateDistributionSpotView = () => {
   >(CREATE_NEW_DISTRIBUTION_SPOT_MUTATION);
 
   const baseId = useParams<{ baseId: string }>().baseId!;
+  const navigate = useNavigate();
+  const toast = useToast();
+
+  const showErrorToast = () =>
+    toast({
+      title: "Error",
+      description: "Distribution Spot couldn't be created",
+      status: "error",
+      duration: 2000,
+      isClosable: true,
+    });
 
   const onSubmitNewDitroSpot = (distroSpot: CreateDistroSpotFormData) => {
     createDistributionSpot({
@@ -52,10 +63,19 @@ const CreateDistributionSpotView = () => {
         longitude: parseFloat(distroSpot.geoData?.longitude || "0.0"),
       },
     })
-      .then(() => {
-        console.log("Distribution spot created");
+      .then((mutationResult) => {
+        const distributionSpotId =
+          mutationResult.data?.createDistributionSpot?.id;
+        if (
+          distributionSpotId === null ||
+          (mutationResult.errors?.length || 0) > 0
+        ) {
+          showErrorToast();
+        }
+        navigate(`/bases/${baseId}/distributions/spots/${distributionSpotId}`);
       })
       .catch((error) => {
+        showErrorToast();
         console.error(error);
       });
   };
