@@ -1,5 +1,4 @@
 import { useMutation } from "@apollo/client";
-import { ArrowRightIcon } from "@chakra-ui/icons";
 import {
   Box,
   VStack,

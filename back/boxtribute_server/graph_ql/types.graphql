@@ -249,6 +249,8 @@ type DistributionEvent {
   plannedStartDateTime: Datetime!
   plannedEndDateTime: Datetime!
   packingList: PackingList!
+
+  boxes(paginationInput: PaginationInput, filterInput: FilterBoxInput): BoxPage
 }
 
 enum PackingListEntryState {

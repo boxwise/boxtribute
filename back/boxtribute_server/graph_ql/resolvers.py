@@ -763,6 +763,29 @@ def resolve_location_boxes(location_obj, _, pagination_input=None, filter_input=
     )
 
 
+#   boxes(paginationInput: PaginationInput, filterInput: FilterBoxInput): BoxPage
+@distribution_event.field("boxes")
+@convert_kwargs_to_snake_case
+def resolve_distribution_event_boxes(
+    distribution_event_obj, _, pagination_input=None, filter_input=None
+):
+    authorize(permission="stock:read")
+    distribution_event_filter_condition = (
+        Box.distribution_event == distribution_event_obj.id
+    )
+    filter_condition = distribution_event_filter_condition & derive_box_filter(
+        filter_input
+    )
+    selection = Box.select()
+    if filter_input is not None and any(
+        [f in filter_input for f in ["product_gender", "product_category_id"]]
+    ):
+        selection = Box.select().join(Product)
+    return load_into_page(
+        Box, filter_condition, selection=selection, pagination_input=pagination_input
+    )
+
+
 @metrics.field("numberOfFamiliesServed")
 def resolve_metrics_number_of_families_served(metrics_obj, _, after=None, before=None):
     return compute_number_of_families_served(
