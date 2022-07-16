@@ -44,21 +44,23 @@ const AuthenticationProtectedApp = withAuthenticationRequired(App);
 
 const SentryProfiledApp = Sentry.withProfiler(AuthenticationProtectedApp);
 
-Sentry.init({
-  dsn: "https://30b5f99479ee4c5eaeb7ec3e60a2b37e@o1321701.ingest.sentry.io/6578380",
-  integrations: [
-    new BrowserTracing(),
-    new CaptureConsole({
-      levels: ['error']
-    })
-  ],
-
-
-  // Set tracesSampleRate to 1.0 to capture 100%
-  // of transactions for performance monitoring.
-  // We recommend adjusting this value in production
-  tracesSampleRate: 1.0,
-});
+const sentryDsn = process.env.REACT_APP_SENTRY_DSN;
+if (sentryDsn != null) {
+  alert(sentryDsn);
+  Sentry.init({
+    dsn: sentryDsn,
+    integrations: [
+      new BrowserTracing(),
+      new CaptureConsole({
+        levels: ["error"],
+      }),
+    ],
+    // Set tracesSampleRate to 1.0 to capture 100%
+    // of transactions for performance monitoring.
+    // We recommend adjusting this value in production
+    tracesSampleRate: 1.0,
+  });
+};
 
 ReactDOM.render(
   <ChakraProvider theme={theme}>
