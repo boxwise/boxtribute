@@ -11,7 +11,6 @@ import * as Sentry from "@sentry/react";
 import { BrowserTracing } from "@sentry/tracing";
 import { CaptureConsole } from '@sentry/integrations';
 
-
 if (process.env.NODE_ENV === 'development') {
   const { worker } = require('./mocks/browser')
   worker.start()
@@ -46,19 +45,20 @@ const SentryProfiledApp = Sentry.withProfiler(AuthenticationProtectedApp);
 
 const sentryDsn = process.env.REACT_APP_SENTRY_DSN;
 if (sentryDsn != null) {
-  alert(sentryDsn);
   Sentry.init({
     dsn: sentryDsn,
     integrations: [
-      new BrowserTracing(),
       new CaptureConsole({
         levels: ["error"],
       }),
+      new BrowserTracing(),
     ],
     // Set tracesSampleRate to 1.0 to capture 100%
     // of transactions for performance monitoring.
     // We recommend adjusting this value in production
     tracesSampleRate: 1.0,
+    // TODO: probably we want to later on differentiate 'PRODUCTION' even more - into 'STAGING' and actual 'PRODUCTION'/'LIVE'
+    environment: process.env.NODE_ENV
   });
 };
 
