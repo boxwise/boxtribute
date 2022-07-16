@@ -12,6 +12,7 @@ import {
 } from "@apollo/client";
 import { setContext } from "@apollo/client/link/context";
 import { useAuth0 } from "@auth0/auth0-react";
+import { onError } from "@apollo/client/link/error";
 
 function ApolloAuth0Provider({ children }: { children: ReactNode }) {
   const { isAuthenticated, getAccessTokenSilently } = useAuth0();
@@ -41,6 +42,16 @@ function ApolloAuth0Provider({ children }: { children: ReactNode }) {
     };
   });
 
+  const errorLink = onError(({ graphQLErrors, networkError }) => {
+    if (graphQLErrors)
+      graphQLErrors.map(({ message, locations, path }) =>
+        console.error(
+          `[GraphQL error]: Message: ${message}, Location: ${locations}, Path: ${path}`
+        )
+      );
+    if (networkError) console.error(`[Network error]: ${networkError}`);
+  });
+
   const defaultOptions: DefaultOptions = {
     query: {
       errorPolicy: "all",
@@ -52,7 +63,7 @@ function ApolloAuth0Provider({ children }: { children: ReactNode }) {
 
   const client = new ApolloClient({
     cache: new InMemoryCache(),
-    link: auth0Link.concat(httpLink),
+    link: auth0Link.concat(errorLink).concat(httpLink),
     defaultOptions,
   });
 
