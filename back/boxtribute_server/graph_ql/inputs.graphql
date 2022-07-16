@@ -4,9 +4,9 @@ GraphQL input types for mutations **only**.
 input BoxCreationInput {
   productId: Int!
   sizeId: Int!
-  items: Int!
+  items: Int
   locationId: Int!
-  comment: String!
+  comment: String
   qrCode: String
 }
 
