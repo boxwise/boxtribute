@@ -44,7 +44,7 @@ const AuthenticationProtectedApp = withAuthenticationRequired(App);
 const SentryProfiledApp = Sentry.withProfiler(AuthenticationProtectedApp);
 
 const sentryDsn = process.env.REACT_APP_SENTRY_DSN;
-if (sentryDsn != null) {
+if (sentryDsn) {
   Sentry.init({
     dsn: sentryDsn,
     integrations: [
@@ -58,7 +58,7 @@ if (sentryDsn != null) {
     // We recommend adjusting this value in production
     tracesSampleRate: 1.0,
     // TODO: probably we want to later on differentiate 'PRODUCTION' even more - into 'STAGING' and actual 'PRODUCTION'/'LIVE'
-    environment: process.env.NODE_ENV
+    environment: process.env.SENTRY_ENVIRONMENT
   });
 };
 
