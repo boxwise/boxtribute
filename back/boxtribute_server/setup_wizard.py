@@ -163,11 +163,18 @@ def _import_products(*, data_filepath):
 
 def _clone_products(*, source_base_id, target_base_id):
     """Clone elements in Product model from given source to target base (relevant fields
-    only).
+    only). Validate that bases exist, otherwise raise ValueError.
     """
     # Import here such that patching of db.database in main() takes effect
     from boxtribute_server.models.definitions.base import Base
     from boxtribute_server.models.definitions.product import Product
+
+    try:
+        source_base = Base.get_by_id(source_base_id)
+        target_base = Base.get_by_id(target_base_id)
+    except Base.DoesNotExist:
+        LOGGER.error("The specified source or target base do not exist.")
+        raise ValueError
 
     source_base_products = list(
         Product.select(
@@ -186,8 +193,6 @@ def _clone_products(*, source_base_id, target_base_id):
     for product in source_base_products:
         product["base"] = target_base_id
         product["price"] = 0
-    source_base = Base.get_by_id(source_base_id)
-    target_base = Base.get_by_id(target_base_id)
     with db.database.atomic():
         Product.insert_many(source_base_products).execute()
         LOGGER.info(

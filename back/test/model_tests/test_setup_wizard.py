@@ -185,3 +185,8 @@ def test_clone_products(default_product):
         assert cloned_product.pop("base") == target_base_id
         assert cloned_product.pop("price") == 0
         assert cloned_product == original_product
+
+    with pytest.raises(ValueError):
+        _clone_products(source_base_id=0, target_base_id=1)
+    with pytest.raises(ValueError):
+        _clone_products(source_base_id=1, target_base_id=0)
