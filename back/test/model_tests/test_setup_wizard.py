@@ -7,6 +7,7 @@ import pytest
 from boxtribute_server.models.definitions.product import Product
 from boxtribute_server.setup_wizard import (
     PRODUCT_COLUMN_NAMES,
+    _clone_products,
     _create_db_interface,
     _import_products,
     _parse_options,
@@ -155,3 +156,20 @@ def test_import_products(
     with pytest.raises(ValueError) as exc_info:
         _import_products(data_filepath=invalid_typed_data_filepath)
     assert exc_info.value.args[0] == "Invalid fields:\nRow   1: category"
+
+
+def test_clone_products(default_product):
+    target_base_id = 2
+    _clone_products(source_base_id=1, target_base_id=target_base_id)
+
+    # Verify that source and target product are identical apart from ID, base, and price
+    products = list(Product.select().dicts())
+    cloned_products = products[-2:]
+    original_products = products[:1]
+    for cloned_product, original_product in zip(cloned_products, original_products):
+        cloned_product.pop("id")
+        for field in ["id", "base", "price"]:
+            original_product.pop(field)
+        assert cloned_product.pop("base") == target_base_id
+        assert cloned_product.pop("price") == 0
+        assert cloned_product == original_product

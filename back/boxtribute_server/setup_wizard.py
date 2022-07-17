@@ -151,6 +151,41 @@ def _import_products(*, data_filepath):
         LOGGER.info(f"Imported {nr_rows} new product(s).")
 
 
+def _clone_products(*, source_base_id, target_base_id):
+    """Clone elements in Product model from given source to target base (relevant fields
+    only).
+    """
+    # Import here such that patching of db.database in main() takes effect
+    from boxtribute_server.models.definitions.base import Base
+    from boxtribute_server.models.definitions.product import Product
+
+    source_base_products = list(
+        Product.select(
+            Product.name,
+            Product.category,
+            Product.gender,
+            Product.size_range,
+            Product.base,
+            Product.price,
+            Product.in_shop,
+            Product.comments,
+        )
+        .where((Product.base == source_base_id) & (Product.deleted.is_null()))
+        .dicts()
+    )
+    for product in source_base_products:
+        product["base"] = target_base_id
+        product["price"] = 0
+    source_base = Base.get_by_id(source_base_id)
+    target_base = Base.get_by_id(target_base_id)
+    with db.database.atomic():
+        Product.insert_many(source_base_products).execute()
+        LOGGER.info(
+            f"Cloned {len(source_base_products)} product(s) from base "
+            f"'{source_base.name}' to base '{target_base.name}'."
+        )
+
+
 def main(args=None):
     options = _parse_options(args=args)
 

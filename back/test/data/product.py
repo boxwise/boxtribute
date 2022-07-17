@@ -5,7 +5,6 @@ from .base import data as base_data
 from .product_category import default_product_category_data
 from .product_gender import default_product_gender_data
 from .size_range import data as size_range_data
-from .user import default_user_data
 
 
 def data():
@@ -20,7 +19,6 @@ def data():
             "size_range": size_range_data()["id"],
             "in_shop": 0,
             "price": 1,
-            "created_by": default_user_data()["id"],
         },
         {
             "id": 2,
@@ -31,7 +29,6 @@ def data():
             "size_range": size_range_data()["id"],
             "in_shop": 0,
             "price": 1,
-            "created_by": default_user_data()["id"],
         },
         {
             "id": 3,
@@ -42,7 +39,6 @@ def data():
             "size_range": size_range_data()["id"],
             "in_shop": 0,
             "price": 1,
-            "created_by": default_user_data()["id"],
         },
     ]
 
