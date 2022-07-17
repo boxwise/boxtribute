@@ -117,6 +117,18 @@ def test_parse_options():
         "verbose": False,
     }
 
+    assert _parse_options("clone-products -s 1 -t 2".split()) == {
+        "command": "clone-products",
+        "source_base_id": 1,
+        "target_base_id": 2,
+        "database": None,
+        "password": None,
+        "user": None,
+        "host": "127.0.0.1",
+        "port": 3386,
+        "verbose": False,
+    }
+
     assert isinstance(
         _create_db_interface(
             password="dropapp_root",

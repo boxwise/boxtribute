@@ -76,6 +76,16 @@ def _parse_options(args=None):
     )
     import_products_parser.add_argument("-f", "--data-filepath")
 
+    clone_products_parser = subparsers.add_parser(
+        "clone-products", help="Clone products from one base to another"
+    )
+    clone_products_parser.add_argument(
+        "-s", "--source-base-id", type=int, required=True
+    )
+    clone_products_parser.add_argument(
+        "-t", "--target-base-id", type=int, required=True
+    )
+
     return vars(parser.parse_args(args=args))
 
 
@@ -204,6 +214,8 @@ def main(args=None):
     try:
         if command == "import-products":
             _import_products(**options)
+        elif command == "clone-products":
+            _clone_products(**options)
     except Exception as e:
         LOGGER.exception(e) if verbose else LOGGER.error(e)
         raise SystemExit("Exiting due to above error.")
