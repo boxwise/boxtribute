@@ -177,16 +177,7 @@ def _clone_products(*, source_base_id, target_base_id):
         raise ValueError
 
     source_base_products = list(
-        Product.select(
-            Product.name,
-            Product.category,
-            Product.gender,
-            Product.size_range,
-            Product.base,
-            Product.price,
-            Product.in_shop,
-            Product.comments,
-        )
+        Product.select(*[getattr(Product, column) for column in PRODUCT_COLUMN_NAMES])
         .where((Product.base == source_base_id) & (Product.deleted.is_null()))
         .dicts()
     )
