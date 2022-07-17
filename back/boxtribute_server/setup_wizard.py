@@ -1,21 +1,21 @@
 #!/usr/bin/env python
 """Wizard for setting up a new organisation in the database.
 
-This utility reads in a given CSV file, validates its contents, and inserts new entries
-to the according database table.
-
 For establishing a connection to the database, all connection parameters must be given
 as command line options: host, port, user, database. If the password is not specified,
 you will be prompted for it. The options must be specified *before* the command:
 
     bwiz --user admin --database test-db import-products
 
-The CSV file is to be formatted according to the 'csv.excel' dialect, i.e. comma as
-delimiter and double-quote as quote char.
+Help for commands:
+
+    bwiz <command> --help
 
 Command: import-products
 - the input CSV file must have the columns name, category, gender, size_range, base,
 price, in_shop, comments. The order is not relevant
+- the CSV file is to be formatted according to the 'csv.excel' dialect, i.e. comma as
+delimiter and double-quote as quote char.
 """
 
 import argparse
