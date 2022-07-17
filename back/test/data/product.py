@@ -1,3 +1,5 @@
+from datetime import datetime
+
 import pytest
 from boxtribute_server.models.definitions.product import Product
 
@@ -19,6 +21,7 @@ def data():
             "size_range": size_range_data()["id"],
             "in_shop": 0,
             "price": 1,
+            "deleted": None,
         },
         {
             "id": 2,
@@ -29,6 +32,7 @@ def data():
             "size_range": size_range_data()["id"],
             "in_shop": 0,
             "price": 1,
+            "deleted": None,
         },
         {
             "id": 3,
@@ -39,6 +43,18 @@ def data():
             "size_range": size_range_data()["id"],
             "in_shop": 0,
             "price": 1,
+            "deleted": None,
+        },
+        {
+            "id": 4,
+            "base": base_data()[0]["id"],
+            "name": "deleted product",
+            "category": default_product_category_data()["id"],
+            "gender": default_product_gender_data()["id"],
+            "size_range": size_range_data()["id"],
+            "in_shop": 0,
+            "price": 1,
+            "deleted": datetime(2022, 1, 1),
         },
     ]
 
