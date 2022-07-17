@@ -13,7 +13,6 @@ import {
 import { setContext } from "@apollo/client/link/context";
 import { useAuth0 } from "@auth0/auth0-react";
 import { onError } from "@apollo/client/link/error";
-import * as Sentry from "@sentry/react";
 
 function ApolloAuth0Provider({ children }: { children: ReactNode }) {
   const { isAuthenticated, getAccessTokenSilently } = useAuth0();
@@ -53,8 +52,6 @@ function ApolloAuth0Provider({ children }: { children: ReactNode }) {
     }
     if (networkError) {
       console.error(`[Network error]: ${networkError}`);
-      // Sentry.captureException(networkError);
-      // throw new Error("Network error!!");
     }
   });
 
