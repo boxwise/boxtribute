@@ -207,6 +207,9 @@ jobs:
               MYSQL_DB=${DB_NAME}
               MYSQL_PORT=3306
               MYSQL_SOCKET=${DB_SOCKET}
+              SENTRY_DSN=${SENTRY_DSN}
+              SENTRY_ENVIRONMENT=${SENTRY_ENVIRONMENT}
+              SENTRY_RELEASE=${CIRCLE_SHA1}
               " > .env
             if [[ "<< parameters.serviceName >>" != "api-"* ]]; then echo "EXPOSE_FULL_GRAPHQL=1" >> .env; fi
       - run:
