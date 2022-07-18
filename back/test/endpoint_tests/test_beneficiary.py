@@ -107,6 +107,7 @@ def test_beneficiary_mutations(client):
     last_name = "One"
     dob_year = 2000
     dob = f"{dob_year}-01-01"
+    dos = "2022-07-16"
     base_id = 1
     group_id = "1234"
     gender = "Diverse"
@@ -124,6 +125,7 @@ def test_beneficiary_mutations(client):
                     languages: [{','.join(languages)}],
                     isVolunteer: true,
                     registered: false
+                    dateOfSignature: "{dos}"
                 }}"""
     mutation = f"""mutation {{
             createBeneficiary(
@@ -168,7 +170,7 @@ def test_beneficiary_mutations(client):
     assert not created_beneficiary["signed"]
     assert not created_beneficiary["registered"]
     assert created_beneficiary["signature"] is None
-    assert created_beneficiary["dateOfSignature"] is None
+    assert created_beneficiary["dateOfSignature"] == dos
     assert created_beneficiary["createdOn"] == created_beneficiary["lastModifiedOn"]
     assert created_beneficiary["createdBy"] == created_beneficiary["lastModifiedBy"]
 
