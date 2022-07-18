@@ -124,7 +124,7 @@ const DistroEventDetailsForPlanningStateContainer = ({
     //       },
     //       data: {
     //         distributionEvent: {
-    //           // TODO: reconsider using the bang here (e.g. yup based)
+    //           // TODO: reconsider using the bang here (e.g. zod based)
     //           id: existingPackingListEntries?.distributionEvent?.id!,
     //           packingList: {
     //             entries: [

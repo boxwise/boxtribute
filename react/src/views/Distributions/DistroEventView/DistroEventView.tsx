@@ -5,25 +5,11 @@ import {
   DistributionEventQueryVariables,
 } from "types/generated/graphql";
 import DistroEventContainer, {
-  DistributionEventDetails,
 } from "./components/DistroEventContainer";
 import APILoadingIndicator from "components/APILoadingIndicator";
 import { DISTRIBUTION_EVENT_QUERY } from "../queries";
+import { DistributionEventDetails, DistributionEventDetailsSchema } from "../types";
 
-// const distributionSpotSchema = yup.object({
-//   id: yup.string().required(),
-//   name: yup.string().required(),
-// });
-// const distributionEventDetailsSchema = yup.object({
-//   id: yup.string().required(),
-//   name: yup.string().required(),
-//   startDate: yup.date().required(),
-//   state: yup
-//     .mixed<DistributionEventState>()
-//     .oneOf(Object.values(DistributionEventState))
-//     .required(),
-//   distributionSpot: distributionSpotSchema,
-// });
 
 const graphqlToContainerTransformer = (
   distributionEventData: DistributionEventQuery | undefined
@@ -34,16 +20,20 @@ const graphqlToContainerTransformer = (
     throw new Error("distributionEventData.distributionEvent.distributionSpot is null");
   }
 
-  return {
-    id: distributionEventData?.distributionEvent?.id,
-    name: distributionEventData?.distributionEvent?.name || "",
-    plannedStartDateTime: new Date(distributionEventData?.distributionEvent?.plannedStartDateTime),
-    state: distributionEventData?.distributionEvent?.state,
-    distributionSpot: {
-      name: distributionEventData?.distributionEvent?.name || "",
-      id: distributionEventData?.distributionEvent?.distributionSpot?.id,
-    },
-  };
+  // type FOO = DistributionEventQuery["distributionEvent"];
+  // const jo: FOO = distributionEventData?.distributionEvent;
+  return DistributionEventDetailsSchema.parse(distributionEventData?.distributionEvent);
+
+  // return {
+  //   id: distributionEventData?.distributionEvent?.id,
+  //   name: distributionEventData?.distributionEvent?.name || "",
+  //   plannedStartDateTime: new Date(distributionEventData?.distributionEvent?.plannedStartDateTime),
+  //   state: distributionEventData?.distributionEvent?.state,
+  //   distributionSpot: {
+  //     name: distributionEventData?.distributionEvent?.name || "",
+  //     id: distributionEventData?.distributionEvent?.distributionSpot?.id,
+  //   },
+  // };
 };
 
 const DistroEventView = () => {

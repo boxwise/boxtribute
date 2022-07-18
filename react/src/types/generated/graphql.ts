@@ -145,8 +145,8 @@ export type Box = ItemsCollection & {
 
 /** GraphQL input types for mutations **only**. */
 export type BoxCreationInput = {
-  comment: Scalars['String'];
-  items: Scalars['Int'];
+  comment?: InputMaybe<Scalars['String']>;
+  items?: InputMaybe<Scalars['Int']>;
   locationId: Scalars['Int'];
   productId: Scalars['Int'];
   qrCode?: InputMaybe<Scalars['String']>;

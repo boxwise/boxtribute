@@ -24,41 +24,9 @@ import {
   CHANGE_DISTRIBUTION_EVENT_STATE_MUTATION,
   DISTRIBUTION_EVENT_QUERY,
 } from "views/Distributions/queries";
-import { DistributionEventState } from "views/Distributions/types";
-import * as yup from "yup";
+import { DistributionEventDetails, DistributionEventState, DistributionEventStateSchema } from "views/Distributions/types";
 import DistroEventDetailsForPlanningStateContainer from "./State1Planning/DistroEventDetailsForPlanningStateContainer";
 import DistroEventDetailsForPackingStateContainer from "./State2Packing/DistroEventDetailsForPackingStateContainer";
-
-const distributionSpotSchema = yup.object({
-  id: yup.string().required(),
-  name: yup.string().required(),
-});
-
-// TODO: if we don't end up using yup at all: remove this and instead define a
-// equivalent type in pure TS
-// export interface DistributionEventDetails {
-//     id: string;
-//     name?: string;
-//     startDate: Date;
-//     state: DistributionEventState;
-//     distributionSpot: {
-//         id: string;
-//         name?: string;
-//     }
-// }
-export const distributionEventDetailsSchema = yup.object({
-  id: yup.string().required(),
-  name: yup.string().required(),
-  plannedStartDateTime: yup.date().required(),
-  state: yup
-    .mixed<DistributionEventState>()
-    .oneOf(Object.values(DistributionEventState))
-    .required(),
-  distributionSpot: distributionSpotSchema,
-});
-
-export interface DistributionEventDetails
-  extends yup.InferType<typeof distributionEventDetailsSchema> {}
 
 export interface DistroEventContainerProps {
   distributionEventDetails: DistributionEventDetails;
@@ -96,7 +64,7 @@ const DistroEventContainer = ({
 
   const onMoveToStage = useCallback(
     (state: DistributionEventState) => {
-      if (state === DistributionEventState.Completed) {
+      if (state === DistributionEventStateSchema.enum.Completed) {
         nextStageTransitionAlertState.onOpen();
         return;
       }

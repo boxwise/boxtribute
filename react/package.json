@@ -31,7 +31,7 @@
     "react-table": "^7.7.0",
     "regenerator-runtime": "^0.13.9",
     "victory": "^36.5.2",
-    "yup": "^0.32.11"
+    "zod": "^3.17.9"
   },
   "devDependencies": {
     "@chakra-ui/storybook-addon": "^4.0.1",
