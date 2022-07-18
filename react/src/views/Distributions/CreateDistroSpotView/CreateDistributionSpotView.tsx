@@ -10,6 +10,7 @@ import {
   CreateDistributionSpotMutationVariables,
 } from "../../../types/generated/graphql";
 import { useNavigate, useParams } from "react-router-dom";
+import APILoadingIndicator from "components/APILoadingIndicator";
 
 export const CREATE_NEW_DISTRIBUTION_SPOT_MUTATION = gql`
   mutation CreateDistributionSpot(
@@ -84,7 +85,14 @@ const CreateDistributionSpotView = () => {
     <Center>
       <VStack>
         <Heading>Create new Distribution Spot</Heading>
-        <CreateDistroSpot onSubmitNewDitroSpot={onSubmitNewDitroSpot} />
+        {!createDistributionSpotState.error && (
+            <CreateDistroSpot
+              onSubmitNewDistributionSpot={onSubmitNewDitroSpot}
+              isMutationLoading={createDistributionSpotState.loading}
+            />
+          )}
+        {createDistributionSpotState.error && <p>Error</p>}
+        {/* {createDistributionSpotState.loading && <APILoadingIndicator />} */}
       </VStack>
     </Center>
   );

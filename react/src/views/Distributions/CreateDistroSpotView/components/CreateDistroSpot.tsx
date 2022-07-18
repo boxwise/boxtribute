@@ -1,7 +1,8 @@
 import { Button, Flex, FormLabel, Input, Spacer, Text } from "@chakra-ui/react";
 import { useForm } from "react-hook-form";
 interface CreateDistroSpotProps {
-  onSubmitNewDitroSpot: (distroSpotFormData: CreateDistroSpotFormData) => void;
+  onSubmitNewDistributionSpot: (distroSpotFormData: CreateDistroSpotFormData) => void;
+  isMutationLoading: boolean;
 }
 
 export interface CreateDistroSpotFormData {
@@ -15,12 +16,13 @@ export interface CreateDistroSpotFormData {
 }
 
 const CreateDistroSpot = ({
-  onSubmitNewDitroSpot: onSubmitNewDistroSpot,
+  onSubmitNewDistributionSpot,
+  isMutationLoading
 }: CreateDistroSpotProps) => {
   const {
     register,
     handleSubmit,
-    formState: { isSubmitting },
+    formState: { errors },
   } = useForm<CreateDistroSpotFormData>({
     defaultValues: {
       name: "",
@@ -34,22 +36,20 @@ const CreateDistroSpot = ({
   //   const onSubmit = (data) => console.log(data);
   return (
     <Flex>
-      <form onSubmit={handleSubmit(onSubmitNewDistroSpot)}>
-        <Text fontSize="xl" mb={2}>
+      <form onSubmit={handleSubmit(onSubmitNewDistributionSpot)}>
+        {/* <Text fontSize="xl" mb={2}>
           New Distro Spot
-        </Text>
+        </Text> */}
         <FormLabel fontSize="sm" htmlFor="name">
-          Name of a Distro Spot:
+          Name of the Distribution Spot:
         </FormLabel>
+        {errors.name?.message && <p>{errors.name?.message}</p>}
+
         <Input
           mb={4}
           {...register("name", { required: true })}
           placeholder="Write a name for a Distro Spot"
         />
-        <FormLabel fontSize="sm" htmlFor="comment">
-          Comment:
-        </FormLabel>
-        <Input mb={4} {...register("comment")} placeholder="Comments" />
         <FormLabel fontSize="sm" htmlFor="latitude">
           Geo Location:
         </FormLabel>
@@ -67,11 +67,18 @@ const CreateDistroSpot = ({
             placeholder="longitude"
           />
         </Flex>
-
+        <FormLabel fontSize="sm" htmlFor="comment">
+          Comment:
+        </FormLabel>
+        <Input mb={4} {...register("comment")} placeholder="Comments" />
+        <br />
+        isMutationLoading: {JSON.stringify(isMutationLoading)}
+        <br />
         <Button
+          disabled={isMutationLoading}
           mt={4}
           colorScheme="teal"
-          isLoading={isSubmitting}
+          isLoading={isMutationLoading}
           type="submit"
         >
           Submit
