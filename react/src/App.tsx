@@ -14,10 +14,10 @@ import { useAuth0 } from "@auth0/auth0-react";
 import jwt from "jwt-decode";
 import DistroSpotsView from "views/Distributions/DistroSpotsView/DistroSpotsView";
 import DistrosDashboardView from "views/Distributions/DistrosDashboardView/DistrosDashboardView";
-import CreateDistributionEventView from "views/Distributions/CreateDistroEventView/CreateDistributionEventView";
 import DistroEventView from "views/Distributions/DistroEventView/DistroEventView";
-import CreateDistributionSpotView from "views/Distributions/CreateDistroSpotView/CreateDistributionSpotView";
 import DistroSpotView from "views/Distributions/DistroSpotView/DistroSpotView";
+import CreateDistributionEventView from "views/Distributions/CreateDistributionEventView/CreateDistributionEventView";
+import CreateDistributionSpotView from "views/Distributions/CreateDistributionSpotView/CreateDistributionSpotView";
 
 const useLoadAndSetAvailableBases = () => {
   const BASES_QUERY = gql`

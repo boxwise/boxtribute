@@ -1,9 +1,9 @@
 import React from "react";
 import { ComponentStory, ComponentMeta } from "@storybook/react";
 import DistroSpots from "./DistroSpots";
-import { DistributionEventState, DistroSpot } from "views/Distributions/types";
+import { DistributionEventState, DistributionSpotEnrichedData } from "views/Distributions/types";
 
-const mockedDistroSpots: DistroSpot[] = [
+const mockedDistroSpots: DistributionSpotEnrichedData[] = [
   {
     id: "1",
     baseId: "10",

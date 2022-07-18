@@ -1,16 +1,12 @@
 import { gql, useMutation } from "@apollo/client";
 import { Center, Heading, useToast, VStack } from "@chakra-ui/react";
-import React from "react";
-import { DistroSpot } from "../types";
-import CreateDistroSpot, {
-  CreateDistroSpotFormData,
-} from "./components/CreateDistroSpot";
+import CreateDistributionSpot, { CreateDistributionSpotFormData } from "./components/CreateDistributionSpot";
 import {
   CreateDistributionSpotMutation,
   CreateDistributionSpotMutationVariables,
 } from "../../../types/generated/graphql";
 import { useNavigate, useParams } from "react-router-dom";
-import APILoadingIndicator from "components/APILoadingIndicator";
+import { DistributionSpotCoreData } from "../types";
 
 export const CREATE_NEW_DISTRIBUTION_SPOT_MUTATION = gql`
   mutation CreateDistributionSpot(
@@ -53,15 +49,15 @@ const CreateDistributionSpotView = () => {
       isClosable: true,
     });
 
-  const onSubmitNewDitroSpot = (distroSpot: CreateDistroSpotFormData) => {
+  const onSubmitNewDitroSpot = (distroSpot: CreateDistributionSpotFormData) => {
     createDistributionSpot({
       variables: {
         baseId: parseInt(baseId),
         name: distroSpot.name,
         // TODO: make comment optional in GraphQL schema
         comment: distroSpot.comment || "",
-        latitude: parseFloat(distroSpot.geoData?.latitude || "0.0"),
-        longitude: parseFloat(distroSpot.geoData?.longitude || "0.0"),
+        latitude: distroSpot.latitude,
+        longitude: distroSpot.longitude,
       },
     })
       .then((mutationResult) => {
@@ -86,7 +82,7 @@ const CreateDistributionSpotView = () => {
       <VStack>
         <Heading>Create new Distribution Spot</Heading>
         {!createDistributionSpotState.error && (
-            <CreateDistroSpot
+            <CreateDistributionSpot
               onSubmitNewDistributionSpot={onSubmitNewDitroSpot}
               isMutationLoading={createDistributionSpotState.loading}
             />
