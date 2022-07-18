@@ -11,7 +11,7 @@ import {
   Wrap,
   WrapItem,
 } from "@chakra-ui/react";
-import React from "react";
+import React, { useState } from "react";
 import { NavLink } from "react-router-dom";
 import {
   BoxByLabelIdentifierQuery,
@@ -29,6 +29,12 @@ const BoxDetails = ({
   boxData,
   onMoveToLocationClick: moveToLocationClick,
 }: BoxDetailsProps) => {
+  // const allLocations = boxData?.place?.base?.locations
+  // const [preferedLocations, setPreferedLocations] = useState(allLocations);
+
+  // const setPreferedOrder = (locationId: string) => {
+  //   const newPreferedLocations = [preferedLocations].unshift(...locationId);
+
   if (boxData == null) {
     console.error("BoxDetails Component: boxData is null");
     return <Box>No data found for a box with this id</Box>;
@@ -64,27 +70,26 @@ const BoxDetails = ({
         </List>
       </Box>
       <Box>
-        <Text textAlign='center' fontSize="xl" my={4}>
+        <Text textAlign="center" fontSize="xl" my={4}>
           Move this box from <strong>{boxData.place?.name}</strong> to:
         </Text>
         <List>
-        <Wrap>
-          {boxData.place?.base?.locations?.filter((location) => {
-            return location.id !== boxData.place?.id;
-            })
-           .map((location, i) => (
-            <WrapItem key={location.id}>
-              <Button
-                borderRadius="0px"
-                onClick={() => moveToLocationClick(location.id)}
-                disabled={boxData.place?.id === location.id}
-              >
-                {location.name}
-              </Button>
-              </WrapItem>
-              
-            
-          ))}
+          <Wrap>
+            {boxData.place?.base?.locations
+              ?.filter((location) => {
+                return location.id !== boxData.place?.id;
+              })
+              .map((location, i) => (
+                <WrapItem key={location.id}>
+                  <Button
+                    borderRadius="0px"
+                    onClick={() => moveToLocationClick(location.id)}
+                    disabled={boxData.place?.id === location.id}
+                  >
+                    {location.name}
+                  </Button>
+                </WrapItem>
+              ))}
           </Wrap>
         </List>
       </Box>

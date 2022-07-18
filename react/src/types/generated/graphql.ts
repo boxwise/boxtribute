@@ -1078,6 +1078,8 @@ export type BoxByLabelIdentifierAndAllProductsQuery = { __typename?: 'Query', bo
 export type UpdateContentOfBoxMutationVariables = Exact<{
   boxLabelIdentifier: Scalars['String'];
   productId: Scalars['Int'];
+  numberOfItems: Scalars['Int'];
+  sizeId: Scalars['Int'];
 }>;
 
 

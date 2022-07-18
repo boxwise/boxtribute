@@ -1,7 +1,7 @@
 import { useContext, useMemo } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { useAuth0 } from "@auth0/auth0-react";
-import HeaderMenu, { MenuItemProps } from "./HeaderMenu";
+import HeaderMenu, { MenuItemData } from "./HeaderMenu";
 import AutomaticBaseSwitcher from "views/AutomaticBaseSwitcher/AutomaticBaseSwitcher";
 import { GlobalPreferencesContext } from "providers/GlobalPreferencesProvider";
 
@@ -11,7 +11,7 @@ const HeaderMenuContainer = () => {
   const navigate = useNavigate();
   const baseId = useParams<{ baseId: string }>().baseId;
 
-  const menuItems: MenuItemProps[] = useMemo(
+  const menuItems: MenuItemData[] = useMemo(
     () => [
       {
         text: "Boxes",
@@ -70,6 +70,7 @@ const HeaderMenuContainer = () => {
 
   return (
     <HeaderMenu
+      // setIsMenuOpen={}
       menuItems={menuItems}
       currentActiveBaseId={baseId}
       {...auth0}

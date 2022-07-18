@@ -23,24 +23,32 @@ export interface LoginOrUserMenuButtonProps
   loginWithRedirect: () => void;
 }
 
+
 export interface MenuLinksProps
   extends LoginOrUserMenuButtonProps,
     LayoutProps {
-  menuItems: MenuItemProps[]
+  menuItems: MenuItemData[], 
+  // setIsMenuOpen: (isOpen: boolean) => void;
 }
 
 export interface MenuItemLink {
   link: string;
   name: string;
 }
-export interface MenuItemProps {
+export interface MenuItemProps extends MenuItemData {
+  // menuItemData: MenuItemData;
+  // setIsMenuOpen: (isOpen: boolean) => void;
+}
+
+export interface MenuItemData {
   text: string;
   links: MenuItemLink[];
 }
 
 export type HeaderMenuProps = LoginOrUserMenuButtonProps & {
   onClickScanQrCode: () => void;
-  menuItems: MenuItemProps[];
+  menuItems: MenuItemData[];
+  // setIsMenuOpen: (isOpen: boolean) => void;
 };
 
 const HeaderMenu = (props: HeaderMenuProps) => {

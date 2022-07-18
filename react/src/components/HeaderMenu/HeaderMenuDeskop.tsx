@@ -107,7 +107,7 @@ const LoginOrUserMenuButton = ({
   );
 };
 
-const MenuItemDesktop = ({ text, links, ...props }: MenuItemProps) => (
+const MenuItemDesktop = ({ ...props }: MenuItemProps) => (
   <Menu>
     <MenuButton
       my={0}
@@ -116,10 +116,10 @@ const MenuItemDesktop = ({ text, links, ...props }: MenuItemProps) => (
       borderRadius="0px"
       as={Button}
     >
-      <Text display="block">{text}</Text>
+      <Text display="block">{props.text}</Text>
     </MenuButton>
     <MenuList border="1px" p={0} borderColor="black" borderRadius="0px" my={0}>
-      {links.map((link, i) => (
+      {props.links.map((link, i) => (
         <MenuItem
           borderBottom="1px"
           borderColor="gray.400"

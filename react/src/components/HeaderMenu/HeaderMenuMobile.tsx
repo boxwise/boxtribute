@@ -82,12 +82,7 @@ const LoginOrUserMenuButtonMobile = ({
       <AccordionItem border="0px">
         <AccordionButton flex="1" border="1px" w="250px" my={1}>
           {user?.picture ? (
-            <Img
-              src={user?.picture}
-              width={8}
-              height={8}
-              mr={2}
-            />
+            <Img src={user?.picture} width={8} height={8} mr={2} />
           ) : null}
           <Text
             width="150px"
@@ -124,7 +119,7 @@ const LoginOrUserMenuButtonMobile = ({
   );
 };
 
-const MenuItemMobile = ({ text, links }: MenuItemProps) => (
+const MenuItemMobile = ({ setIsMenuOpen, links, text }: MenuItemProps & {setIsMenuOpen: (isOpen: boolean) => void}) => (
   <AccordionItem border="0px">
     <AccordionButton flex="1" border="1px" w="250px" my={1}>
       <Text textAlign="center" display="block">
@@ -134,7 +129,14 @@ const MenuItemMobile = ({ text, links }: MenuItemProps) => (
 
     <AccordionPanel border="1px" p={0}>
       {links.map((link, i) => (
-        <Box borderBottom="1px" borderColor="gray.300" py={2} px={3} key={i}>
+        <Box
+          onClick={() => setIsMenuOpen(false)}
+          borderBottom="1px"
+          borderColor="gray.300"
+          py={2}
+          px={3}
+          key={i}
+        >
           <NavLink to={link.link}>{link.name}</NavLink>
         </Box>
       ))}
@@ -142,18 +144,20 @@ const MenuItemMobile = ({ text, links }: MenuItemProps) => (
   </AccordionItem>
 );
 
-type MenuItemsMobileProps = MenuItemsProps & { isOpen: boolean };
+type MenuItemsMobileProps = MenuItemsProps & { isMenuOpen: boolean, setIsMenuOpen: (isOpen: boolean) => void };
 
 const MenuItemsMobile = ({
-  isOpen,
+  isMenuOpen,
+  setIsMenuOpen,
   currentActiveBaseId,
   ...props
 }: MenuItemsMobileProps) => {
+  console.log("isOpen", isMenuOpen);
   return (
     <Flex
       w="100%"
       flexBasis={{ base: "100%", md: "auto" }}
-      display={isOpen ? "block" : "none" }
+      display={isMenuOpen ? "block" : "none"}
     >
       <VStack
         alignItems="flex-end"
@@ -162,7 +166,7 @@ const MenuItemsMobile = ({
       >
         <Accordion allowToggle>
           {props.menuItems.map((item, i) => (
-            <MenuItemMobile key={i} {...item} />
+            <MenuItemMobile key={i} {...item} setIsMenuOpen={setIsMenuOpen} />
           ))}
           <LoginOrUserMenuButtonMobile
             currentActiveBaseId={currentActiveBaseId}
@@ -180,7 +184,15 @@ const MenuItemsMobile = ({
 
 const HeaderMenuMobileContainer = ({ children, ...props }) => {
   return (
-    <Flex as="nav" wrap="wrap" w="100%"  pt={4} pb={4} color={"black"}>
+    <Flex
+      as="nav"
+      wrap="wrap"
+      w="100%"
+      pt={4}
+      pb={4}
+      color={"black"}
+      zIndex="2"
+    >
       {children}
     </Flex>
   );
@@ -216,7 +228,8 @@ const HeaderMenuMobile = (props: HeaderMenuProps) => {
         />
       </Flex>
       <MenuItemsMobile
-        isOpen={isMenuOpen}
+        isMenuOpen={isMenuOpen}
+        setIsMenuOpen={setIsMenuOpen}
         currentActiveBaseId={props.currentActiveBaseId}
         availableBases={props.availableBases}
         logout={props.logout}
