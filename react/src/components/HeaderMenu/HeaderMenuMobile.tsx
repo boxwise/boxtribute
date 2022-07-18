@@ -120,7 +120,7 @@ const LoginOrUserMenuButtonMobile = ({
 };
 
 const MenuItemMobile = ({ setIsMenuOpen, links, text }: MenuItemProps & {setIsMenuOpen: (isOpen: boolean) => void}) => (
-  <AccordionItem border="0px">
+  <AccordionItem border="0px" >
     <AccordionButton flex="1" border="1px" w="250px" my={1}>
       <Text textAlign="center" display="block">
         {text}
