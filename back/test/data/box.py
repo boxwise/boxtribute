@@ -3,12 +3,13 @@ from datetime import datetime
 import pytest
 from boxtribute_server.enums import BoxState
 from boxtribute_server.models.definitions.box import Box
-from data.box_state import default_box_state_data
-from data.location import another_location_data, default_location_data
-from data.product import data as product_data
-from data.qr_code import default_qr_code_data
-from data.size import default_data as size_data
-from data.user import default_user_data
+
+from .box_state import default_box_state_data
+from .location import another_location_data, default_location_data
+from .product import data as product_data
+from .qr_code import default_qr_code_data
+from .size import default_data as size_data
+from .user import default_user_data
 
 
 def default_box_data():

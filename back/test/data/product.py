@@ -1,10 +1,11 @@
 import pytest
 from boxtribute_server.models.definitions.product import Product
-from data.base import data as base_data
-from data.product_category import default_product_category_data
-from data.product_gender import default_product_gender_data
-from data.size_range import data as size_range_data
-from data.user import default_user_data
+
+from .base import data as base_data
+from .product_category import default_product_category_data
+from .product_gender import default_product_gender_data
+from .size_range import data as size_range_data
+from .user import default_user_data
 
 
 def data():
