@@ -43,7 +43,7 @@ const AuthenticationProtectedApp = withAuthenticationRequired(App);
 
 const SentryProfiledApp = Sentry.withProfiler(AuthenticationProtectedApp);
 
-const sentryDsn = process.env.REACT_APP_SENTRY_DSN;
+const sentryDsn = process.env.REACT_APP_SENTRY_FE_DSN;
 if (sentryDsn) {
   Sentry.init({
     dsn: sentryDsn,
