@@ -1,21 +1,25 @@
-import { Button, Flex, FormLabel, Input, Spacer, Text } from "@chakra-ui/react";
+import { Button, Flex, FormLabel, Input, Spacer } from "@chakra-ui/react";
 import { useForm } from "react-hook-form";
+import { z } from "zod";
+import { zodResolver } from '@hookform/resolvers/zod';
+import { LatitudeSchema, LongitudeSchema } from "views/Distributions/types";
+
+export const CreateDistributionSpotFormDataSchema = z.object({
+  name: z.string().min(2),
+  latitude: LatitudeSchema,
+  longitude: LongitudeSchema,//.or(z.undefined()),
+  comment: z.string().nullish()
+});
+
+export type CreateDistributionSpotFormData = z.infer<typeof CreateDistributionSpotFormDataSchema>;
+
+
 interface CreateDistroSpotProps {
-  onSubmitNewDistributionSpot: (distroSpotFormData: CreateDistroSpotFormData) => void;
+  onSubmitNewDistributionSpot: (distroSpotFormData: CreateDistributionSpotFormData) => void;
   isMutationLoading: boolean;
 }
 
-export interface CreateDistroSpotFormData {
-  id: string;
-  name: string;
-  geoData?: {
-    latitude: string;
-    longitude: string;
-  };
-  comment?: string;
-}
-
-const CreateDistroSpot = ({
+const CreateDistributionSpot = ({
   onSubmitNewDistributionSpot,
   isMutationLoading
 }: CreateDistroSpotProps) => {
@@ -23,33 +27,21 @@ const CreateDistroSpot = ({
     register,
     handleSubmit,
     formState: { errors },
-  } = useForm<CreateDistroSpotFormData>({
-    defaultValues: {
-      name: "",
-      comment: "",
-      geoData: {
-        latitude: "0.0",
-        longitude: "0.0",
-      },
-    },
+  } = useForm<CreateDistributionSpotFormData>({
+    resolver: zodResolver(CreateDistributionSpotFormDataSchema),
   });
-  //   const onSubmit = (data) => console.log(data);
   return (
     <Flex>
       <form onSubmit={handleSubmit(onSubmitNewDistributionSpot)}>
-        {/* <Text fontSize="xl" mb={2}>
-          New Distro Spot
-        </Text> */}
         <FormLabel fontSize="sm" htmlFor="name">
           Name of the Distribution Spot:
         </FormLabel>
-        {errors.name?.message && <p>{errors.name?.message}</p>}
-
         <Input
           mb={4}
-          {...register("name", { required: true })}
+          {...register("name")}
           placeholder="Write a name for a Distro Spot"
         />
+        {errors.name?.message && <p>{errors.name?.message}</p>}
         <FormLabel fontSize="sm" htmlFor="latitude">
           Geo Location:
         </FormLabel>
@@ -57,22 +49,24 @@ const CreateDistroSpot = ({
           <Input
             mb={4}
             mr={2}
-            {...register("geoData.latitude")}
+            {...register("latitude", { setValueAs: (v) => v === "" ? undefined : parseFloat(v), })}
             placeholder="latitude"
           />
+        {errors.latitude?.message && <p>{errors.latitude?.message}</p>}
           <Spacer />
           <Input
             mb={4}
-            {...register("geoData.longitude")}
+            {...register("longitude", { setValueAs: (v) => v === "" ? undefined : parseFloat(v), })}
+
             placeholder="longitude"
           />
+        {errors.longitude?.message && <p>{errors.longitude?.message}</p>}
         </Flex>
         <FormLabel fontSize="sm" htmlFor="comment">
           Comment:
         </FormLabel>
         <Input mb={4} {...register("comment")} placeholder="Comments" />
         <br />
-        isMutationLoading: {JSON.stringify(isMutationLoading)}
         <br />
         <Button
           disabled={isMutationLoading}
@@ -88,4 +82,4 @@ const CreateDistroSpot = ({
   );
 };
 
-export default CreateDistroSpot;
+export default CreateDistributionSpot;

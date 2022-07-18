@@ -7,11 +7,11 @@ import {
   CreateDistributionEventMutationVariables,
   DistributionSpotQuery,
 } from "types/generated/graphql";
-import { getISODateTimeFromDateAndTimeString as getDateTimeFromDateAndTimeString } from "utils/helpers";
 import CreateDistroEvent, {
   CreateDistroEventFormData,
-} from "./components/CreateDistroEvent";
+} from "./components/CreateDistributionEvent";
 import { addHours } from 'date-fns'
+import { getISODateTimeFromDateAndTimeString } from "utils/helpers";
 
 
 const CreateDistributionEventView = () => {
@@ -58,9 +58,10 @@ const CreateDistributionEventView = () => {
 
   const onSubmitNewDistroEvent = useCallback(
     (createDistroEventFormData: CreateDistroEventFormData) => {
-      const plannedStartDateTime = getDateTimeFromDateAndTimeString(createDistroEventFormData.eventDate, createDistroEventFormData.eventTime);
+      const plannedStartDateTime = getISODateTimeFromDateAndTimeString(createDistroEventFormData.eventDate, createDistroEventFormData.eventTime);
       const plannedEndDateTime = addHours(plannedStartDateTime, createDistroEventFormData.duration);
 
+      alert("JO");
       createDistributionEventMutation({
         variables: {
           distributionSpotId: parseInt(distributionSpotId!),

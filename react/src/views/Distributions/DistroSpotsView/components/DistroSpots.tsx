@@ -13,11 +13,11 @@ import {
 } from "@chakra-ui/react";
 import React from "react";
 import { distroEventStateHumanReadableLabels } from "views/Distributions/baseData";
-import { DistroSpot } from "views/Distributions/types";
+import { DistributionSpotEnrichedData } from "views/Distributions/types";
 
 
 interface DistroSpotsProps {
-  distroSpots: DistroSpot[];
+  distroSpots: DistributionSpotEnrichedData[];
   onDistroEventClick: (distroEventId: string) => void;
   onCreateNewDistroSpotClick: () => void;
   onCreateNewDistroEventForDistroSpotClick: (distroSpotId: string) => void;

@@ -5,7 +5,7 @@ import {
   DistroSpotsForBaseIdQueryVariables,
 } from "types/generated/graphql";
 import { useGlobalSiteState } from "utils/hooks";
-import { DistroSpot } from "views/Distributions/types";
+import { DistributionSpotEnrichedData } from "views/Distributions/types";
 import DistroSpots from "./DistroSpots";
 
 export interface DistroSpotsContainerProps {
@@ -76,7 +76,7 @@ const DistroSpotsContainer = ({
           startDateTime: new Date(distroEvent.plannedStartDateTime),
         })),
       };
-    }) as DistroSpot[];
+    }) as DistributionSpotEnrichedData[];
 
   return (
     <DistroSpots
