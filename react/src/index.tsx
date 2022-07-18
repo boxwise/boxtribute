@@ -7,6 +7,9 @@ import { ChakraProvider, CSSReset, extendTheme } from "@chakra-ui/react";
 import { withAuthenticationRequired } from "@auth0/auth0-react";
 import { GlobalPreferencesProvider } from "providers/GlobalPreferencesProvider";
 import Auth0ProviderWithHistory from "providers/Auth0ProviderWithHistory";
+import * as Sentry from "@sentry/react";
+import { BrowserTracing } from "@sentry/tracing";
+import { CaptureConsole } from '@sentry/integrations';
 
 if (process.env.NODE_ENV === 'development') {
   const { worker } = require('./mocks/browser')
@@ -38,6 +41,27 @@ const theme = extendTheme({
 
 const AuthenticationProtectedApp = withAuthenticationRequired(App);
 
+const SentryProfiledApp = Sentry.withProfiler(AuthenticationProtectedApp);
+
+const sentryDsn = process.env.REACT_APP_SENTRY_FE_DSN;
+if (sentryDsn) {
+  Sentry.init({
+    dsn: sentryDsn,
+    integrations: [
+      new CaptureConsole({
+        levels: ["error"],
+      }),
+      new BrowserTracing(),
+    ],
+    // Set tracesSampleRate to 1.0 to capture 100%
+    // of transactions for performance monitoring.
+    // We recommend adjusting this value in production
+    tracesSampleRate: 1.0,
+    // TODO: probably we want to later on differentiate 'PRODUCTION' even more - into 'STAGING' and actual 'PRODUCTION'/'LIVE'
+    environment: process.env.SENTRY_ENVIRONMENT
+  });
+};
+
 ReactDOM.render(
   <ChakraProvider theme={theme}>
     <CSSReset />
@@ -45,7 +69,7 @@ ReactDOM.render(
       <Auth0ProviderWithHistory>
         <ApolloAuth0Provider>
           <GlobalPreferencesProvider>
-            <AuthenticationProtectedApp />
+            <SentryProfiledApp />
           </GlobalPreferencesProvider>
         </ApolloAuth0Provider>
       </Auth0ProviderWithHistory>
