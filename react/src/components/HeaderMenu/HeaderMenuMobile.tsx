@@ -1,32 +1,36 @@
-import { useState } from "react";
-import { Link, NavLink } from "react-router-dom";
+import { Icon, ChevronDownIcon } from "@chakra-ui/icons";
 import {
-  Box,
-  Text,
-  Button,
+  Stack,
+  useColorModeValue,
+  useDisclosure,
   Flex,
-  Image,
+  Collapse,
+  Text,
+  Box,
+  Button,
   IconButton,
+  Image,
   Img,
-  Accordion,
-  AccordionItem,
-  AccordionButton,
-  AccordionPanel,
-  VStack,
 } from "@chakra-ui/react";
-
+import { useState } from "react";
 import {
   AiFillCloseCircle,
   AiOutlineMenu,
   AiOutlineQrcode,
 } from "react-icons/ai";
-import BoxtributeLogo from "../../assets/images/boxtribute-logo.png";
+import { Link, NavLink } from "react-router-dom";
 import {
   HeaderMenuProps,
   LoginOrUserMenuButtonProps,
   MenuItemProps,
   MenuLinksProps as MenuItemsProps,
 } from "./HeaderMenu";
+import BoxtributeLogo from "../../assets/images/boxtribute-logo.png";
+
+type MenuItemsMobileProps = MenuItemsProps & {
+  isMenuOpen: boolean;
+  setIsMenuOpen: (isOpen: boolean) => void;
+};
 
 const MenuToggle = ({ toggle, isOpen, ...props }) => (
   <IconButton
@@ -50,60 +54,52 @@ const LoginOrUserMenuButtonMobile = ({
   currentActiveBaseId,
   availableBases,
 }: LoginOrUserMenuButtonProps) => {
-  return isAuthenticated ? (
-    <>
-      <AccordionItem border="0px">
-        <AccordionButton flex="1" border="1px" w="250px" my={1}>
-          <Text textAlign="center" display="block">
-            Base Switcher
-          </Text>
-        </AccordionButton>
-        <AccordionPanel border="1px" p={0}>
-          {availableBases?.map((base, i) => (
-            <Box
-              py={2}
-              px={4}
-              borderBottom="1px"
-              borderColor="gray.300"
-              key={base.id}
-            >
-              <Link
-                style={
-                  currentActiveBaseId === base.id ? { color: "orange" } : {}
-                }
-                to={`/bases/${base.id}/locations`}
-              >
-                {base.name}
-              </Link>
-            </Box>
-          ))}
-        </AccordionPanel>
-      </AccordionItem>
-      <AccordionItem border="0px">
-        <AccordionButton flex="1" border="1px" w="250px" my={1}>
-          {user?.picture ? (
-            <Img src={user?.picture} width={8} height={8} mr={2} />
-          ) : null}
-          <Text
-            width="150px"
-            whiteSpace="nowrap"
-            overflow="hidden"
-            textOverflow="ellipsis"
-          >
-            {user?.email}
-          </Text>
-        </AccordionButton>
+  const { isOpen, onToggle } = useDisclosure();
 
-        <AccordionPanel border="1px" p={0}>
-          <Box py={2} px={4} borderBottom="1px" borderColor="gray.300">
+  return isAuthenticated ? (
+    <Stack spacing={4} onClick={onToggle}>
+      <Flex
+      px={4}
+      border='1px'
+        py={2}
+        justify={"space-between"}
+        align={"center"}
+        _hover={{
+          textDecoration: "none",
+        }}
+      ><Flex align={"center"}>
+        {user?.picture ? (
+          <Img src={user?.picture} width={8} height={8} mr={2} />
+        ) : null}
+        <Text fontWeight={600} >
+          {user?.email}
+        </Text>
+        </Flex>
+        <Icon
+          as={ChevronDownIcon}
+          transition={"all .25s ease-in-out"}
+          transform={isOpen ? "rotate(180deg)" : ""}
+          w={6}
+          h={6}
+        />
+      </Flex>
+
+      <Collapse in={isOpen} animateOpacity style={{ marginTop: "10px" }}>
+        <Stack
+          pl={4}
+          borderLeft={1}
+          borderStyle={"solid"}
+          align={"start"}
+        >
+          <Box py={1} px={4} >
             Profile
           </Box>
-          <Box py={2} px={4} onClick={() => logout()}>
+          <Box py={1} px={4} onClick={() => logout()}>
             Logout
           </Box>
-        </AccordionPanel>
-      </AccordionItem>
-    </>
+        </Stack>
+      </Collapse>
+    </Stack>
   ) : (
     <Button
       py={2}
@@ -119,66 +115,87 @@ const LoginOrUserMenuButtonMobile = ({
   );
 };
 
-const MenuItemMobile = ({ setIsMenuOpen, links, text }: MenuItemProps & {setIsMenuOpen: (isOpen: boolean) => void}) => (
-  <AccordionItem border="0px" >
-    <AccordionButton flex="1" border="1px" w="250px" my={1}>
-      <Text textAlign="center" display="block">
-        {text}
-      </Text>
-    </AccordionButton>
-
-    <AccordionPanel border="1px" p={0}>
-      {links.map((link, i) => (
-        <Box
-          onClick={() => setIsMenuOpen(false)}
-          borderBottom="1px"
-          borderColor="gray.300"
-          py={2}
-          px={3}
-          key={i}
-        >
-          <NavLink to={link.link}>{link.name}</NavLink>
-        </Box>
-      ))}
-    </AccordionPanel>
-  </AccordionItem>
-);
-
-type MenuItemsMobileProps = MenuItemsProps & { isMenuOpen: boolean, setIsMenuOpen: (isOpen: boolean) => void };
-
 const MenuItemsMobile = ({
   isMenuOpen,
   setIsMenuOpen,
   currentActiveBaseId,
   ...props
 }: MenuItemsMobileProps) => {
-  console.log("isOpen", isMenuOpen);
   return (
     <Flex
       w="100%"
       flexBasis={{ base: "100%", md: "auto" }}
       display={isMenuOpen ? "block" : "none"}
     >
-      <VStack
-        alignItems="flex-end"
-        // justify='center'
+      <Stack
+        alignItems="start-end"
         direction="column"
       >
-        <Accordion allowToggle>
-          {props.menuItems.map((item, i) => (
-            <MenuItemMobile key={i} {...item} setIsMenuOpen={setIsMenuOpen} />
-          ))}
-          <LoginOrUserMenuButtonMobile
-            currentActiveBaseId={currentActiveBaseId}
-            isAuthenticated={props.isAuthenticated}
-            logout={props.logout}
-            loginWithRedirect={props.loginWithRedirect}
-            user={props.user}
-            availableBases={props.availableBases}
-          />
-        </Accordion>
-      </VStack>
+        {props.menuItems.map((item, i) => (
+          <MenuItemMobile key={i} {...item} setIsMenuOpen={setIsMenuOpen} />
+        ))}
+        <LoginOrUserMenuButtonMobile
+          currentActiveBaseId={currentActiveBaseId}
+          isAuthenticated={props.isAuthenticated}
+          logout={props.logout}
+          loginWithRedirect={props.loginWithRedirect}
+          user={props.user}
+          availableBases={props.availableBases}
+        />
+      </Stack>
     </Flex>
+  );
+};
+
+const MenuItemMobile = ({
+  setIsMenuOpen,
+  links,
+  text,
+}: MenuItemProps & { setIsMenuOpen: (isOpen: boolean) => void }) => {
+  const { isOpen, onToggle, } = useDisclosure();
+
+  return (
+    <Stack spacing={4} onClick={onToggle}>
+      <Flex
+        py={2}
+        justify={"space-between"}
+        align={"center"}
+        _hover={{
+          textDecoration: "none",
+        }}
+        px={4}
+        border='1px'
+      >
+        <Text
+          fontWeight={600}
+        >
+          {text}
+        </Text>
+        <Icon
+          as={ChevronDownIcon}
+          transition={"all .25s ease-in-out"}
+          transform={isOpen ? "rotate(180deg)" : ""}
+          w={6}
+          h={6}
+        />
+      </Flex>
+      <Collapse in={isOpen} animateOpacity style={{ marginTop: "10px" }}>
+        <Stack
+          pl={4}
+          borderLeft={1}
+          borderStyle={"solid"}
+          align={"start"}
+        >
+          {links.map((link) => (
+            <Box py={1} px={4} onClick={()=>setIsMenuOpen(false)}>
+              <Link key={link.name} to={link.link}>
+                {link.name}
+              </Link>
+            </Box>
+          ))}
+        </Stack>
+      </Collapse>
+    </Stack>
   );
 };
 
