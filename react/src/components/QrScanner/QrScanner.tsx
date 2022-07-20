@@ -150,7 +150,9 @@ const QrScanner = ({
   >(new Map());
 
   const onBulkScanningDoneButtonClick = useCallback(() => {
-    onBulkScanningDone(Array.from(scannedQrValues.values()).map((c) => c));
+    onBulkScanningDone(Array.from(scannedQrValues.values())
+    .filter((qrValueWrapper) => qrValueWrapper.finalValue?.kind === "success")
+    .map((c) => c));
   }, [onBulkScanningDone, scannedQrValues]);
 
   // const scannerBlockedSignal = useRef(false);
@@ -305,7 +307,12 @@ const QrScanner = ({
                   {scannedQrValuesAsArray.map((qrCodeValueWrapper, i) => {
                     // alert(`qrCodeValueWrapper: ${JSON.stringify(qrCodeValueWrapper)}`);
                     return (
-                      <Box key={i}>{i+1} <QrValueWrapper qrCodeValueWrapper={qrCodeValueWrapper} /></Box>
+                      <Box key={i}>
+                        {i + 1}{" "}
+                        <QrValueWrapper
+                          qrCodeValueWrapper={qrCodeValueWrapper}
+                        />
+                      </Box>
                     );
                   })}
                 </VStack>
@@ -313,7 +320,8 @@ const QrScanner = ({
                   onClick={onBulkScanningDoneButtonClick}
                   colorScheme="blue"
                   disabled={
-                    scannedQrValuesAsArray.filter((el) => !el.isLoading).length === 0
+                    scannedQrValuesAsArray.filter((el) => !el.isLoading)
+                      .length === 0
                   }
                 >
                   Scanning done
