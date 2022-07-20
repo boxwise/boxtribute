@@ -86,7 +86,8 @@ const QrScannerOverlay = ({
         query: GET_BOX_LABEL_IDENTIFIER_BY_QR_CODE,
         variables: { qrCode: extractedQrCodeFromUrl },
       })
-      .then(({ data }) => {
+      .then(({ data, error, errors }) => {
+        alert(JSON.stringify(errors))
         alert(JSON.stringify(data))
         const boxLabelIdentifier = data?.qrCode?.box?.labelIdentifier;
         if (boxLabelIdentifier == null) {

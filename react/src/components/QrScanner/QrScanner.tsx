@@ -254,8 +254,8 @@ const QrScanner = ({
   return (
     <Modal
       isOpen={isOpen}
-      closeOnOverlayClick={false}
-      closeOnEsc={false}
+      closeOnOverlayClick={true}
+      closeOnEsc={true}
       onClose={() => {
         resetState();
         handleClose();
