@@ -88,7 +88,7 @@ export type QrResolvedValue =
   | QrResolverResultNotAssignedToBox
   | QrResolverResultNoBoxtributeQr;
 
-export interface QrValueWrapper {
+export interface IQrValueWrapper {
   key: string;
   isLoading: boolean;
   interimValue?: string;
@@ -101,16 +101,47 @@ export interface QrScannerProps {
   // setScannedQrValues: ((scannedQrValues: string[]) => void) | ((setter: ((prev: string[]) => string[])) => void)
   // setScannedQrValues: Dispatch<SetStateAction<QrValueWrapper[]>>;
   // setScannedQrValues: ((setter: ((prev: string[]) => string[])) => void)
-  onBulkScanningDone: (qrValues: QrValueWrapper[]) => void;
+  onBulkScanningDone: (qrValues: IQrValueWrapper[]) => void;
   // bulkModeActive: boolean;
   // onToggleBulkMode: () => void;
   onSingleScanDone: (qrValue: string) => void;
-  qrValueResolver: (qrValueWrapper: QrValueWrapper) => Promise<QrValueWrapper>;
+  qrValueResolver: (qrValueWrapper: IQrValueWrapper) => Promise<IQrValueWrapper>;
   // updateQrValueWrapper: (qrValueWrapper)
   // onOpen: () => void;
   onClose: () => void;
   isOpen: boolean;
 }
+
+const QrValueWrapper: React.FC<{qrCodeValueWrapper: IQrValueWrapper}> = ({qrCodeValueWrapper: {
+  key,
+  isLoading,
+  interimValue,
+  finalValue,
+}}) => {
+  return isLoading ? (
+    <Box>{interimValue}</Box>
+  ) : finalValue?.kind === "success" ? (
+    <Checkbox
+      key={key}
+      colorScheme="green"
+      defaultChecked={true}
+      // isDisabled={qrCodeValueWrapper.isLoading || qrCodeValueWrapper.finalValue?.kind !== "success"}
+    >
+      <Badge colorScheme="green">
+        {finalValue.value}
+      </Badge>
+    </Checkbox>
+  ) : finalValue?.kind ===
+    "noBoxtributeQr" ? (
+    <Badge colorScheme="red">Not a Boxtribute QR Code</Badge>
+  ) : (
+    <Badge colorScheme="gray">
+      Not yet assigned to any Box
+    </Badge>
+  )
+}
+
+
 const QrScanner = ({
   isBulkModeSupported,
   isOpen,
@@ -126,7 +157,7 @@ onSingleScanDone,
   const [isBulkModeActive, setIsBulkModeActive] = useBoolean(true);
   const [zoomLevel, setZoomLevel] = useState(1);
   const [scannedQrValues, setScannedQrValues] = useState<
-    Map<string, QrValueWrapper>
+    Map<string, IQrValueWrapper>
   >(new Map());
 
   const onBulkScanningDoneButtonClick = useCallback(() => {
@@ -280,27 +311,8 @@ onSingleScanDone,
                 <VStack spacing={5} direction="row">
                   {Array.from(scannedQrValues.keys()).map((key) => {
                     const qrCodeValueWrapper = scannedQrValues.get(key)!;
-                    return qrCodeValueWrapper.isLoading ? (
-                      qrCodeValueWrapper.interimValue
-                    ) : qrCodeValueWrapper.finalValue?.kind === "success" ? (
-                      <Checkbox
-                        key={key}
-                        colorScheme="green"
-                        defaultChecked={true}
-                        // isDisabled={qrCodeValueWrapper.isLoading || qrCodeValueWrapper.finalValue?.kind !== "success"}
-                      >
-                        <Badge colorScheme="green">
-                          {qrCodeValueWrapper.finalValue.value}
-                        </Badge>
-                      </Checkbox>
-                    ) : qrCodeValueWrapper.finalValue?.kind ===
-                      "noBoxtributeQr" ? (
-                      <Badge colorScheme="red">Not a Boxtribute QR Code</Badge>
-                    ) : (
-                      <Badge colorScheme="gray">
-                        Not yet assigned to any Box
-                      </Badge>
-                    );
+                    // alert(`qrCodeValueWrapper: ${JSON.stringify(qrCodeValueWrapper)}`);
+                    return <QrValueWrapper qrCodeValueWrapper={qrCodeValueWrapper} />;
                   })}
                 </VStack>
                 <Button

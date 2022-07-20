@@ -7,7 +7,7 @@ import {
   GetBoxLabelIdentifierForQrCodeQueryVariables,
 } from "types/generated/graphql";
 import { useNavigate, useParams } from "react-router-dom";
-import QrScanner, { QrValueWrapper } from "components/QrScanner/QrScanner";
+import QrScanner, { IQrValueWrapper } from "components/QrScanner/QrScanner";
 
 const extractQrCodeFromUrl = (url) => {
   const rx = /.*barcode=(.*)/g;
@@ -45,8 +45,8 @@ const QrScannerOverlay = () => {
   // const [isBulkModeActive, setIsBulkModeActive] = useState(false);
 
   const qrValueResolver = (
-    qrValueWrapper: QrValueWrapper
-  ): Promise<QrValueWrapper> => {
+    qrValueWrapper: IQrValueWrapper
+  ): Promise<IQrValueWrapper> => {
     // qrValueWrapper.isLoading = false;
     // qrValueWrapper.finalValue = extractQrCodeFromUrl(qrValueWrapper.key) || "Error";
 
@@ -55,7 +55,7 @@ const QrScannerOverlay = () => {
       ...qrValueWrapper,
       isLoading: false,
       finalValue: extractedQrCodeFromUrl,
-    } as QrValueWrapper;
+    } as IQrValueWrapper;
 
     if (extractedQrCodeFromUrl == null) {
       // TODO: ADD PROPER ERROR MESSAGE HANDLING HERE
@@ -77,7 +77,7 @@ const QrScannerOverlay = () => {
         ...qrValueWrapper,
         isLoading: false,
         finalValue: boxLabelIdentifier,
-      } as QrValueWrapper;
+      } as IQrValueWrapper;
       return resolvedQrValueWrapper;
     });
 
@@ -113,7 +113,7 @@ const QrScannerOverlay = () => {
     [apolloClient, baseId, navigate]
   );
 
-  const onBulkScanningDone = (qrValues: QrValueWrapper[]) => {
+  const onBulkScanningDone = (qrValues: IQrValueWrapper[]) => {
     console.debug("Bulk Scanning Done");
     console.debug(qrValues);
   };

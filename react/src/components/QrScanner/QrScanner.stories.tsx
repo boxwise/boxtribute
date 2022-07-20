@@ -2,7 +2,7 @@ import React from "react";
 import { ComponentStory, ComponentMeta } from "@storybook/react";
 import { within, userEvent } from "@storybook/testing-library";
 import { action } from "@storybook/addon-actions";
-import QrScanner, { QrResolvedValue, QrValueWrapper } from "./QrScanner";
+import QrScanner, { QrResolvedValue, IQrValueWrapper } from "./QrScanner";
 
 export default {
   title: "QR Scanner",
@@ -56,9 +56,9 @@ const qrCodeToResolverResult = (qrValue: string): QrResolvedValue => {
 // }
 
 const qrValueResolver = (
-  qrValueWrapper: QrValueWrapper
-): Promise<QrValueWrapper> => {
-  return new Promise<QrValueWrapper>((resolve, reject) => {
+  qrValueWrapper: IQrValueWrapper
+): Promise<IQrValueWrapper> => {
+  return new Promise<IQrValueWrapper>((resolve, reject) => {
     setTimeout(() => {
       qrValueWrapper.isLoading = false;
       // qrValueWrapper.finalValue = qrValueWrapper.key;
@@ -66,7 +66,7 @@ const qrValueResolver = (
         ...qrValueWrapper,
         isLoading: false,
         finalValue: qrCodeToResolverResult(qrValueWrapper.key),
-      } as QrValueWrapper;
+      } as IQrValueWrapper;
       // alert(JSON.stringify(resolvedQrValueWrapper))
       resolve(resolvedQrValueWrapper);
     }, 5000);
