@@ -67,6 +67,13 @@ const BoxDetails = ({
               <Text>{boxData.size.label}</Text>
             </Flex>
           </ListItem>
+          <ListItem>
+          <Flex direction="row">
+          {boxData.tags.map((tag, i) => (
+            <Text mr={2}>{tag.name}</Text>
+          ))}
+            </Flex>
+          </ListItem>
         </List>
       </Box>
       <Box>

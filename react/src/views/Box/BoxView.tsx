@@ -22,6 +22,10 @@ export const BOX_BY_LABEL_IDENTIFIER_QUERY = gql`
         name
         gender
       }
+      tags {
+        id
+        name
+      }
       place {
         id
         name
@@ -57,6 +61,10 @@ export const UPDATE_LOCATION_OF_BOX_MUTATION = gql`
         name
         gender
         id
+      }
+      tags {
+        id
+        name
       }
       place {
         id

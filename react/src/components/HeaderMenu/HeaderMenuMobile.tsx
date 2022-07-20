@@ -1,7 +1,6 @@
 import { Icon, ChevronDownIcon } from "@chakra-ui/icons";
 import {
   Stack,
-  useColorModeValue,
   useDisclosure,
   Flex,
   Collapse,
@@ -51,8 +50,6 @@ const LoginOrUserMenuButtonMobile = ({
   logout,
   loginWithRedirect,
   user,
-  currentActiveBaseId,
-  availableBases,
 }: LoginOrUserMenuButtonProps) => {
   const { isOpen, onToggle } = useDisclosure();
 
@@ -162,9 +159,13 @@ const MenuItemMobile = ({
         align={"center"}
         _hover={{
           textDecoration: "none",
+          backgroundColor: "gray.100",
         }}
         px={4}
         border='1px'
+        as={Button}
+        borderRadius="0px"
+        backgroundColor={isOpen ? "gray.100" : "transparent"}
       >
         <Text
           fontWeight={600}
@@ -179,7 +180,7 @@ const MenuItemMobile = ({
           h={6}
         />
       </Flex>
-      <Collapse in={isOpen} animateOpacity style={{ marginTop: "10px" }}>
+      <Collapse in={isOpen} animateOpacity style={{ marginTop: "10px" }} >
         <Stack
           pl={4}
           borderLeft={1}
@@ -231,13 +232,13 @@ const QrScannerButton = ({ onClick }: { onClick: () => void }) => (
 
 const HeaderMenuMobile = (props: HeaderMenuProps) => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+
   const toggle = () => setIsMenuOpen((curr) => !curr);
   return (
     <HeaderMenuMobileContainer>
       <Flex justifyContent="space-between" w="100%" alignItems="center">
         <Logo />
         <QrScannerButton onClick={props.onClickScanQrCode} />
-
         <MenuToggle
           toggle={toggle}
           isOpen={isMenuOpen}
