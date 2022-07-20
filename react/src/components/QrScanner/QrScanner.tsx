@@ -9,22 +9,18 @@ import {
   FormLabel,
   HStack,
   IconButton,
-  List,
-  ListItem,
   Modal,
   ModalBody,
-  ModalCloseButton,
   ModalContent,
   ModalFooter,
   ModalHeader,
   ModalOverlay,
   Switch,
   useBoolean,
-  useDisclosure,
   VStack,
 } from "@chakra-ui/react";
 import { QrReader } from "components/QrReader/QrReader";
-import { Dispatch, SetStateAction, useCallback, useRef, useState } from "react";
+import { useCallback, useState } from "react";
 
 export const ViewFinder = () => (
   <>
@@ -105,19 +101,18 @@ export interface QrScannerProps {
   // bulkModeActive: boolean;
   // onToggleBulkMode: () => void;
   onSingleScanDone: (qrValue: string) => void;
-  qrValueResolver: (qrValueWrapper: IQrValueWrapper) => Promise<IQrValueWrapper>;
+  qrValueResolver: (
+    qrValueWrapper: IQrValueWrapper
+  ) => Promise<IQrValueWrapper>;
   // updateQrValueWrapper: (qrValueWrapper)
   // onOpen: () => void;
   onClose: () => void;
   isOpen: boolean;
 }
 
-const QrValueWrapper: React.FC<{qrCodeValueWrapper: IQrValueWrapper}> = ({qrCodeValueWrapper: {
-  key,
-  isLoading,
-  interimValue,
-  finalValue,
-}}) => {
+const QrValueWrapper: React.FC<{ qrCodeValueWrapper: IQrValueWrapper }> = ({
+  qrCodeValueWrapper: { key, isLoading, interimValue, finalValue },
+}) => {
   return isLoading ? (
     <Box>{interimValue}</Box>
   ) : finalValue?.kind === "success" ? (
@@ -127,20 +122,14 @@ const QrValueWrapper: React.FC<{qrCodeValueWrapper: IQrValueWrapper}> = ({qrCode
       defaultChecked={true}
       // isDisabled={qrCodeValueWrapper.isLoading || qrCodeValueWrapper.finalValue?.kind !== "success"}
     >
-      <Badge colorScheme="green">
-        {finalValue.value}
-      </Badge>
+      <Badge colorScheme="green">{finalValue.value}</Badge>
     </Checkbox>
-  ) : finalValue?.kind ===
-    "noBoxtributeQr" ? (
+  ) : finalValue?.kind === "noBoxtributeQr" ? (
     <Badge colorScheme="red">Not a Boxtribute QR Code</Badge>
   ) : (
-    <Badge colorScheme="gray">
-      Not yet assigned to any Box
-    </Badge>
-  )
-}
-
+    <Badge colorScheme="gray">Not yet assigned to any Box</Badge>
+  );
+};
 
 const QrScanner = ({
   isBulkModeSupported,
@@ -150,7 +139,7 @@ const QrScanner = ({
   // updateQrValueWrapper,
   // bulkModeActive,
   // onToggleBulkMode,
-onSingleScanDone,
+  onSingleScanDone,
   // onOpen,
   onClose,
 }: QrScannerProps) => {
@@ -222,6 +211,10 @@ onSingleScanDone,
     // scannerBlockedSignal.current = false;
     // alert("leaving addQrValueToBulkList");
   }, []);
+
+  const scannedQrValuesAsArray = Array.from(scannedQrValues.keys()).map(
+    (key) => scannedQrValues.get(key)!
+  );
 
   return (
     <Modal
@@ -309,15 +302,19 @@ onSingleScanDone,
                   {JSON.stringify(Array.from(scannedQrValues.entries()))} <br />
                 </Box> */}
                 <VStack spacing={5} direction="row">
-                  {Array.from(scannedQrValues.keys()).map((key) => {
-                    const qrCodeValueWrapper = scannedQrValues.get(key)!;
+                  {scannedQrValuesAsArray.map((qrCodeValueWrapper, i) => {
                     // alert(`qrCodeValueWrapper: ${JSON.stringify(qrCodeValueWrapper)}`);
-                    return <QrValueWrapper qrCodeValueWrapper={qrCodeValueWrapper} />;
+                    return (
+                      <Box key={i}>{i+1} <QrValueWrapper qrCodeValueWrapper={qrCodeValueWrapper} /></Box>
+                    );
                   })}
                 </VStack>
                 <Button
                   onClick={onBulkScanningDoneButtonClick}
                   colorScheme="blue"
+                  disabled={
+                    scannedQrValuesAsArray.filter((el) => !el.isLoading).length === 0
+                  }
                 >
                   Scanning done
                 </Button>
