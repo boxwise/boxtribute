@@ -1,13 +1,13 @@
-import { useCallback, useEffect, useState } from "react";
-import { QrReader } from "react-qr-reader";
-import { Container, useDisclosure } from "@chakra-ui/react";
-import { gql, useApolloClient, useLazyQuery } from "@apollo/client";
+import { useCallback } from "react";
+import { gql, useApolloClient } from "@apollo/client";
 import {
   GetBoxLabelIdentifierForQrCodeQuery,
   GetBoxLabelIdentifierForQrCodeQueryVariables,
 } from "types/generated/graphql";
-import { useNavigate, useParams } from "react-router-dom";
-import QrScanner, { IQrValueWrapper, QrResolvedValue } from "components/QrScanner/QrScanner";
+import QrScanner, {
+  IQrValueWrapper,
+  QrResolvedValue,
+} from "components/QrScanner/QrScanner";
 
 const extractQrCodeFromUrl = (url) => {
   const rx = /.*barcode=(.*)/g;
@@ -36,32 +36,11 @@ const QrScannerOverlay = ({
   onClose,
   onScanningDone,
 }: QrScannerOverlayProps) => {
-  // const [getBoxLabelIdentifierByQrCode, { data }] = useLazyQuery<
-  //   GetBoxLabelIdentifierForQrCodeQuery,
-  //   GetBoxLabelIdentifierForQrCodeQueryVariables
-  // >(GET_BOX_LABEL_IDENTIFIER_BY_QR_CODE);
-
   const apolloClient = useApolloClient();
-
-  const resetState = useCallback(() => {
-    // apolloClient.resetStore();
-
-  }
-  , []);
-
-  // useEffect(() => {
-  //   data?.qrCode?.box?.labelIdentifier &&
-  //     navigate(`/bases/${baseId}/boxes/${data.qrCode.box.labelIdentifier}`);
-  // }, [baseId, data, navigate]);
-
-  // const [isBulkModeActive, setIsBulkModeActive] = useState(false);
 
   const qrValueResolver = (
     qrValueWrapper: IQrValueWrapper
   ): Promise<IQrValueWrapper> => {
-    // qrValueWrapper.isLoading = false;
-    // qrValueWrapper.finalValue = extractQrCodeFromUrl(qrValueWrapper.key) || "Error";
-
     const extractedQrCodeFromUrl = extractQrCodeFromUrl(qrValueWrapper.key);
 
     if (extractedQrCodeFromUrl == null) {
@@ -76,7 +55,9 @@ const QrScannerOverlay = ({
       return Promise.resolve(resolvedQrValueWrapper);
     }
 
-    alert(extractedQrCodeFromUrl)
+    // alert(extractedQrCodeFromUrl);
+    // console.log("extractedQrCodeFromUrl");
+    // console.log(extractedQrCodeFromUrl);
 
     return apolloClient
       .query<
@@ -87,14 +68,15 @@ const QrScannerOverlay = ({
         variables: { qrCode: extractedQrCodeFromUrl },
       })
       .then(({ data, error, errors }) => {
-        alert(JSON.stringify(errors))
-        alert(JSON.stringify(data))
+        // alert(`Errors: ${JSON.stringify(errors)}`);
+        // alert(`Data: ${JSON.stringify(data)}`);
         const boxLabelIdentifier = data?.qrCode?.box?.labelIdentifier;
         if (boxLabelIdentifier == null) {
+          // alert("boxLabelIdentifier == null");
           const resolvedQrValueWrapper = {
             ...qrValueWrapper,
             isLoading: false,
-            finalValue: { kind: "noBoxtributeQr" },
+            finalValue: { kind: "notAssignedToBox" },
           } as IQrValueWrapper;
           console.error("No Boxtribute QR Found");
           return Promise.resolve(resolvedQrValueWrapper);
@@ -108,24 +90,18 @@ const QrScannerOverlay = ({
           },
         } as IQrValueWrapper;
         return resolvedQrValueWrapper;
-      })
-      // TODO: Handle Authorization / No Access To Box case
+      });
+    // TODO: Handle Authorization / No Access To Box case
 
-      // .catch((error) => {
-      //   alert(error);
-      //   console.error(error);
-      //   const resolvedQrValueWrapper = {
-      //     ...qrValueWrapper,
-      //     isLoading: false,
-      //     finalValue: { kind: "noBoxtributeQr" },
-      //   } as IQrValueWrapper;
-      //   return Promise.resolve(resolvedQrValueWrapper);
-      // });
-
-    // return getBoxLabelIdentifierByQrCode({
-    //   variables: {
-    //     qrCode: extractedQrCodeFromUrl,
-    //   },
+    // .catch((error) => {
+    //   alert(error);
+    //   console.error(error);
+    //   const resolvedQrValueWrapper = {
+    //     ...qrValueWrapper,
+    //     isLoading: false,
+    //     finalValue: { kind: "noBoxtributeQr" },
+    //   } as IQrValueWrapper;
+    //   return Promise.resolve(resolvedQrValueWrapper);
     // });
   };
 
@@ -136,8 +112,7 @@ const QrScannerOverlay = ({
         if (qrCode == null) {
           console.error("No Boxtribute QR Found");
           onScanningDone([{ kind: "noBoxtributeQr" }]);
-        }
-        else {
+        } else {
           apolloClient
             .query<
               GetBoxLabelIdentifierForQrCodeQuery,
@@ -151,15 +126,14 @@ const QrScannerOverlay = ({
               // call a prop callback and let the parent component handle
               // the navigation or operation
               const boxLabelIdentifier = data?.qrCode?.box?.labelIdentifier;
-              if(boxLabelIdentifier == null) {
+              if (boxLabelIdentifier == null) {
                 onScanningDone([{ kind: "noBoxtributeQr" }]);
                 console.error("No Box yet assigned to QR Code");
+              } else {
+                onScanningDone([
+                  { kind: "success", value: boxLabelIdentifier },
+                ]);
               }
-              else {
-                onScanningDone([{ kind: "success", value: boxLabelIdentifier }]);
-              }
-              // boxLabelIdentifier &&
-              //   navigate(`/bases/${baseId}/boxes/${boxLabelIdentifier}`);
             });
         }
       }
@@ -171,7 +145,7 @@ const QrScannerOverlay = ({
     const resolvedQrValues = qrValueWrappers.map(
       // TODO: improve typings/type handling here (to get rid of the `!`)
       (qrValueWrapper) => qrValueWrapper.finalValue!
-    )
+    );
     onScanningDone(resolvedQrValues);
   };
 
@@ -182,10 +156,7 @@ const QrScannerOverlay = ({
       qrValueResolver={qrValueResolver}
       onBulkScanningDone={onBulkScanningDone}
       isOpen={isOpen}
-      // onOpen={onOpen}
       onClose={onClose}
-      // bulkModeActive={isBulkModeActive}
-      // onToggleBulkMode={() => setIsBulkModeActive(prev => !prev)}
     />
   );
 };

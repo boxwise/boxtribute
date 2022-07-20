@@ -20,7 +20,7 @@ import {
   VStack,
 } from "@chakra-ui/react";
 import { QrReader } from "components/QrReader/QrReader";
-import { useCallback, useState } from "react";
+import { useCallback, useMemo, useState } from "react";
 
 export const ViewFinder = () => (
   <>
@@ -135,10 +135,10 @@ const QrValueWrapper: React.FC<{ qrCodeValueWrapper: IQrValueWrapper }> = ({
       );
     }
 
-    case "notAssignedToBox": {
+    case "noBoxtributeQr": {
       return <Badge colorScheme="red">Not a Boxtribute QR Code</Badge>;
     }
-    case "noBoxtributeQr": {
+    case "notAssignedToBox": {
       return <Badge colorScheme="gray">Not yet assigned to any Box</Badge>;
     }
     case "notAuthorized": {
@@ -183,7 +183,8 @@ const QrScanner = ({
         (qrValueWrapper) => qrValueWrapper.finalValue?.kind !== "noBoxtributeQr"
       )
     );
-  }, [onBulkScanningDone, scannedQrValues]);
+    handleClose();
+  }, [handleClose, onBulkScanningDone, scannedQrValues]);
 
   // const scannerBlockedSignal = useRef(false);
 
@@ -247,19 +248,16 @@ const QrScanner = ({
     [qrValueResolver]
   );
 
-  const scannedQrValuesAsArray = Array.from(scannedQrValues.keys()).map(
+  const scannedQrValuesAsArray = useMemo(() => Array.from(scannedQrValues.keys()).map(
     (key) => scannedQrValues.get(key)!
-  );
+  ), [scannedQrValues]);
 
   return (
     <Modal
       isOpen={isOpen}
       closeOnOverlayClick={true}
       closeOnEsc={true}
-      onClose={() => {
-        resetState();
-        handleClose();
-      }}
+      onClose={handleClose}
     >
       <ModalOverlay />
       <ModalContent>
@@ -289,9 +287,11 @@ const QrScanner = ({
                 if (!!result) {
                   if (isBulkModeSupported && isBulkModeActive) {
                     // scannerBlockedSignal.current = true;
+                    alert("onResult - isBulkModeSupported && isBulkModeActive");
                     addQrValueToBulkList(result["text"]);
                   } else {
                     onSingleScanDone(result["text"]);
+                    handleClose();
                   }
                 }
                 if (!!error) {

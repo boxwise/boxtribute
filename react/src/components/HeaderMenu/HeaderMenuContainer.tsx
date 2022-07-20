@@ -1,4 +1,4 @@
-import { useContext, useMemo } from "react";
+import { useCallback, useContext, useMemo } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { useAuth0 } from "@auth0/auth0-react";
 import HeaderMenu, { MenuItemProps } from "./HeaderMenu";
@@ -21,11 +21,12 @@ const HeaderMenuContainer = () => {
   // const navigate = useNavigate();
   const qrScannerOverlayState = useDisclosure({ defaultIsOpen: false });
 
-  const onScanningDone = (qrResolvedValues: QrResolvedValue[]) => {
+  const onScanningDone = useCallback((qrResolvedValues: QrResolvedValue[]) => {
     if (qrResolvedValues.length === 1) {
       const singleResolvedQrValue = qrResolvedValues[0];
       switch (singleResolvedQrValue.kind) {
         case "success": {
+          alert("success");
           const boxLabelIdentifier = singleResolvedQrValue.value;
           navigate(`/bases/${baseId}/boxes/${boxLabelIdentifier}`);
           break;
@@ -57,7 +58,7 @@ const HeaderMenuContainer = () => {
         duration: 2000,
       });
     }
-  };
+  }, [baseId, navigate, toast]);
 
   const menuItems: MenuItemProps[] = useMemo(
     () => [
