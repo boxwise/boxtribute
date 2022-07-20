@@ -151,8 +151,7 @@ const QrScanner = ({
 
   const onBulkScanningDoneButtonClick = useCallback(() => {
     onBulkScanningDone(Array.from(scannedQrValues.values())
-    .filter((qrValueWrapper) => qrValueWrapper.finalValue?.kind === "success")
-    .map((c) => c));
+    .filter((qrValueWrapper) => qrValueWrapper.finalValue?.kind !== "noBoxtributeQr"));
   }, [onBulkScanningDone, scannedQrValues]);
 
   // const scannerBlockedSignal = useRef(false);

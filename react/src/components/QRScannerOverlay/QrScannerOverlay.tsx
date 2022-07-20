@@ -7,7 +7,7 @@ import {
   GetBoxLabelIdentifierForQrCodeQueryVariables,
 } from "types/generated/graphql";
 import { useNavigate, useParams } from "react-router-dom";
-import QrScanner, { IQrValueWrapper } from "components/QrScanner/QrScanner";
+import QrScanner, { IQrValueWrapper, QrResolvedValue } from "components/QrScanner/QrScanner";
 
 const extractQrCodeFromUrl = (url) => {
   const rx = /.*barcode=(.*)/g;
@@ -26,15 +26,22 @@ const GET_BOX_LABEL_IDENTIFIER_BY_QR_CODE = gql`
   }
 `;
 
-const QrScannerOverlay = ({ isOpen, onClose }: { isOpen: boolean, onClose: () => void }) => {
+interface QrScannerOverlayProps {
+  isOpen: boolean;
+  onClose: () => void;
+  onScanningDone: (qrValueWrappers: QrResolvedValue[]) => void;
+}
+const QrScannerOverlay = ({
+  isOpen,
+  onClose,
+  onScanningDone,
+}: QrScannerOverlayProps) => {
   // const [getBoxLabelIdentifierByQrCode, { data }] = useLazyQuery<
   //   GetBoxLabelIdentifierForQrCodeQuery,
   //   GetBoxLabelIdentifierForQrCodeQueryVariables
   // >(GET_BOX_LABEL_IDENTIFIER_BY_QR_CODE);
-  const navigate = useNavigate();
-  const baseId = useParams<{ baseId: string }>().baseId!;
-  const apolloClient = useApolloClient();
 
+  const apolloClient = useApolloClient();
 
   // useEffect(() => {
   //   data?.qrCode?.box?.labelIdentifier &&
@@ -104,7 +111,11 @@ const QrScannerOverlay = ({ isOpen, onClose }: { isOpen: boolean, onClose: () =>
     (result: string) => {
       if (!!result) {
         const qrCode = extractQrCodeFromUrl(result);
-        if (qrCode != null) {
+        if (qrCode == null) {
+          console.error("No Boxtribute QR Found");
+          onScanningDone([{ kind: "noBoxtributeQr" }]);
+        }
+        else {
           apolloClient
             .query<
               GetBoxLabelIdentifierForQrCodeQuery,
@@ -118,18 +129,28 @@ const QrScannerOverlay = ({ isOpen, onClose }: { isOpen: boolean, onClose: () =>
               // call a prop callback and let the parent component handle
               // the navigation or operation
               const boxLabelIdentifier = data?.qrCode?.box?.labelIdentifier;
-              boxLabelIdentifier &&
-                navigate(`/bases/${baseId}/boxes/${boxLabelIdentifier}`);
+              if(boxLabelIdentifier == null) {
+                onScanningDone([{ kind: "noBoxtributeQr" }]);
+                console.error("No Box yet assigned to QR Code");
+              }
+              else {
+                onScanningDone([{ kind: "success", value: boxLabelIdentifier }]);
+              }
+              // boxLabelIdentifier &&
+              //   navigate(`/bases/${baseId}/boxes/${boxLabelIdentifier}`);
             });
         }
       }
     },
-    [apolloClient, baseId, navigate]
+    [apolloClient, onScanningDone]
   );
 
-  const onBulkScanningDone = (qrValues: IQrValueWrapper[]) => {
-    console.debug("Bulk Scanning Done");
-    console.debug(qrValues);
+  const onBulkScanningDone = (qrValueWrappers: IQrValueWrapper[]) => {
+    const resolvedQrValues = qrValueWrappers.map(
+      // TODO: improve typings/type handling here (to get rid of the `!`)
+      (qrValueWrapper) => qrValueWrapper.finalValue!
+    )
+    onScanningDone(resolvedQrValues);
   };
 
   return (

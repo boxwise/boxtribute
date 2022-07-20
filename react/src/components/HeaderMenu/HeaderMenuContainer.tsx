@@ -5,15 +5,59 @@ import HeaderMenu, { MenuItemProps } from "./HeaderMenu";
 import AutomaticBaseSwitcher from "views/AutomaticBaseSwitcher/AutomaticBaseSwitcher";
 import { GlobalPreferencesContext } from "providers/GlobalPreferencesProvider";
 import QrScannerOverlay from "components/QRScannerOverlay/QrScannerOverlay";
-import { useDisclosure } from "@chakra-ui/react";
+import { useDisclosure, useToast } from "@chakra-ui/react";
+import {
+  IQrValueWrapper,
+  QrResolvedValue,
+} from "components/QrScanner/QrScanner";
 
 const HeaderMenuContainer = () => {
   const { globalPreferences } = useContext(GlobalPreferencesContext);
   const auth0 = useAuth0();
+  const navigate = useNavigate();
+  const toast = useToast();
+  const baseId = useParams<{ baseId: string }>().baseId!;
+
   // const navigate = useNavigate();
   const qrScannerOverlayState = useDisclosure({ defaultIsOpen: false });
 
-  const baseId = useParams<{ baseId: string }>().baseId;
+  const onScanningDone = (qrResolvedValues: QrResolvedValue[]) => {
+    if (qrResolvedValues.length === 1) {
+      const singleResolvedQrValue = qrResolvedValues[0];
+      switch (singleResolvedQrValue.kind) {
+        case "success": {
+          const boxLabelIdentifier = singleResolvedQrValue.value;
+          navigate(`/bases/${baseId}/boxes/${boxLabelIdentifier}`);
+          break;
+        }
+        case "noBoxtributeQr": {
+          toast({
+            title: `Scanned QR code is not a Boxtribute QR code`,
+            status: "error",
+            isClosable: true,
+            duration: 2000,
+          });
+          break;
+        }
+        case "notAssignedToBox": {
+          toast({
+            title: `Scanned QR code is not assigned to a box yet`,
+            status: "info",
+            isClosable: true,
+            duration: 2000,
+          });
+          break;
+        }
+      }
+    } else {
+      toast({
+        title: `You scanned multiple boxes. What do you want to do with them? (WIP)`,
+        status: "info",
+        isClosable: true,
+        duration: 2000,
+      });
+    }
+  };
 
   const menuItems: MenuItemProps[] = useMemo(
     () => [
@@ -87,7 +131,11 @@ const HeaderMenuContainer = () => {
         availableBases={globalPreferences.availableBases}
         onClickScanQrCode={() => qrScannerOverlayState.onOpen()}
       />
-      <QrScannerOverlay isOpen={qrScannerOverlayState.isOpen} onClose={qrScannerOverlayState.onClose} />
+      <QrScannerOverlay
+        isOpen={qrScannerOverlayState.isOpen}
+        onClose={qrScannerOverlayState.onClose}
+        onScanningDone={onScanningDone}
+      />
     </>
   );
 };
