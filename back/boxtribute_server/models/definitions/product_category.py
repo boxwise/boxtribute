@@ -5,7 +5,7 @@ from ..fields import UIntForeignKeyField
 
 
 class ProductCategory(db.Model):
-    name = CharField(column_name="label", null=True)
+    name = CharField(column_name="label")
     parent = UIntForeignKeyField(
         column_name="parent_id",
         field="id",

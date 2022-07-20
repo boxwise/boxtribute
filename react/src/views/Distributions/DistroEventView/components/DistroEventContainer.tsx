@@ -1,6 +1,6 @@
 import { useMutation } from "@apollo/client";
 import { ArrowRightIcon } from "@chakra-ui/icons";
-import { Box, VStack, Text, IconButton, Button } from "@chakra-ui/react";
+import { Box, VStack, Text, Button } from "@chakra-ui/react";
 import React, { useCallback, useMemo } from "react";
 import {
   ChangeDistributionEventStateMutation,
@@ -12,13 +12,11 @@ import { getNextState } from "views/Distributions/helpers";
 import {
   CHANGE_DISTRIBUTION_EVENT_STATE_MUTATION,
   DISTRIBUTION_EVENT_QUERY,
-  PACKING_LIST_ENTRIES_FOR_DISTRIBUTION_EVENT_QUERY,
 } from "views/Distributions/queries";
 import { DistributionEventState } from "views/Distributions/types";
 import * as yup from "yup";
 import DistroEventDetailsForPlanningStateContainer from "./State1Planning/DistroEventDetailsForPlanningStateContainer";
-import DistroEventDetailsForPackingState from "./State4Packing/DistroEventDetailsForPackingState";
-import DistroEventDetailsForPackingStateContainer from "./State4Packing/DistroEventDetailsForPackingStateContainer";
+import DistroEventDetailsForPackingStateContainer from "./State2Packing/DistroEventDetailsForPackingStateContainer";
 
 const distributionSpotSchema = yup.object({
   id: yup.string().required(),

@@ -15,7 +15,7 @@ class Organisation(db.Model):
         on_update="CASCADE",
     )
     deleted = DateTimeField(null=True, default=None)
-    name = CharField(column_name="label", null=True)
+    name = CharField(column_name="label")
     modified = DateTimeField(null=True)
     modified_by = UIntForeignKeyField(
         model=User,

@@ -17,7 +17,6 @@ def default_box_data():
         "product": default_product_data()["id"],
         "label_identifier": "12345678",
         "state": default_box_state_data()["id"],
-        "comment": "",
         "last_modified_on": datetime(2020, 11, 27),
         "last_modified_by": default_user_data()["id"],
         "created_on": datetime(2020, 11, 27),

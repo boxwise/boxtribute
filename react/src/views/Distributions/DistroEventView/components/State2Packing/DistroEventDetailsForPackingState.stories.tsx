@@ -5,8 +5,8 @@ import DistroEventDetailsForPackingState from './DistroEventDetailsForPackingSta
 // import { DistroEvent } from "../State1Planning/DistroEventPlanning";
 import { action } from '@storybook/addon-actions';
 import { PackingListEntry } from 'views/Distributions/types';
-import { PackingActionListProps } from './Overlays/PackedListOverlay';
 import { BoxData, PackingActionProps } from './Overlays/PackingBoxDetailsOverlay';
+import { PackingActionListProps } from './Overlays/PackedListOverlay';
 
 
 const mockedDistroEventPackingList: PackingListEntry[] =
