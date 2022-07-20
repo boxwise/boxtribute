@@ -11,7 +11,6 @@ import BTBox from "views/Box/BoxView";
 import BoxEditView from "views/BoxEdit/BoxEditView";
 import { useAuth0 } from "@auth0/auth0-react";
 import jwt from 'jwt-decode'
-import QrScannerView from "views/QrScanner/QrScannerView";
 import DistroSpotsView from "views/Distributions/DistroSpotsView/DistroSpotsView";
 import DistrosDashboardView from "views/Distributions/DistrosDashboardView/DistrosDashboardView";
 import CreateDistributionEventView from "views/Distributions/CreateDistroEventView/CreateDistributionEventView";
@@ -74,7 +73,6 @@ const App = () => {
         <Route path="bases" element={<Layout />}>
           <Route index element={<AutomaticBaseSwitcher />}></Route>
           <Route path=":baseId">
-            <Route path="scan-qrcode" element={<QrScannerView />} />
             <Route path="boxes">
               <Route index element={<Boxes />} />
               <Route path=":labelIdentifier">

@@ -26,7 +26,7 @@ const GET_BOX_LABEL_IDENTIFIER_BY_QR_CODE = gql`
   }
 `;
 
-const QrScannerOverlay = () => {
+const QrScannerOverlay = ({ isOpen, onClose }: { isOpen: boolean, onClose: () => void }) => {
   // const [getBoxLabelIdentifierByQrCode, { data }] = useLazyQuery<
   //   GetBoxLabelIdentifierForQrCodeQuery,
   //   GetBoxLabelIdentifierForQrCodeQueryVariables
@@ -35,7 +35,6 @@ const QrScannerOverlay = () => {
   const baseId = useParams<{ baseId: string }>().baseId!;
   const apolloClient = useApolloClient();
 
-  const { isOpen, onClose } = useDisclosure({ defaultIsOpen: true });
 
   // useEffect(() => {
   //   data?.qrCode?.box?.labelIdentifier &&
@@ -115,6 +114,9 @@ const QrScannerOverlay = () => {
               variables: { qrCode },
             })
             .then(({ data }) => {
+              // TODO: instead of directly navigating to the box,
+              // call a prop callback and let the parent component handle
+              // the navigation or operation
               const boxLabelIdentifier = data?.qrCode?.box?.labelIdentifier;
               boxLabelIdentifier &&
                 navigate(`/bases/${baseId}/boxes/${boxLabelIdentifier}`);

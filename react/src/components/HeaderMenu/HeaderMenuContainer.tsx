@@ -4,11 +4,15 @@ import { useAuth0 } from "@auth0/auth0-react";
 import HeaderMenu, { MenuItemProps } from "./HeaderMenu";
 import AutomaticBaseSwitcher from "views/AutomaticBaseSwitcher/AutomaticBaseSwitcher";
 import { GlobalPreferencesContext } from "providers/GlobalPreferencesProvider";
+import QrScannerOverlay from "components/QRScannerOverlay/QrScannerOverlay";
+import { useDisclosure } from "@chakra-ui/react";
 
 const HeaderMenuContainer = () => {
   const { globalPreferences } = useContext(GlobalPreferencesContext);
   const auth0 = useAuth0();
-  const navigate = useNavigate();
+  // const navigate = useNavigate();
+  const qrScannerOverlayState = useDisclosure({ defaultIsOpen: false });
+
   const baseId = useParams<{ baseId: string }>().baseId;
 
   const menuItems: MenuItemProps[] = useMemo(
@@ -33,8 +37,14 @@ const HeaderMenuContainer = () => {
         text: "Mobile Distributions",
         links: [
           { link: "link", name: "Calendar" },
-          { link: `/bases/${baseId}/distributions`, name: "Distribution Events" },
-          { link: `/bases/${baseId}/distributions/spots`, name: "Distribution Spots" },
+          {
+            link: `/bases/${baseId}/distributions`,
+            name: "Distribution Events",
+          },
+          {
+            link: `/bases/${baseId}/distributions/spots`,
+            name: "Distribution Spots",
+          },
         ],
       },
       {
@@ -69,13 +79,16 @@ const HeaderMenuContainer = () => {
   }
 
   return (
-    <HeaderMenu
-      menuItems={menuItems}
-      currentActiveBaseId={baseId}
-      {...auth0}
-      availableBases={globalPreferences.availableBases}
-      onClickScanQrCode={() => navigate(`/bases/${baseId}/scan-qrcode`)}
-    />
+    <>
+      <HeaderMenu
+        menuItems={menuItems}
+        currentActiveBaseId={baseId}
+        {...auth0}
+        availableBases={globalPreferences.availableBases}
+        onClickScanQrCode={() => qrScannerOverlayState.onOpen()}
+      />
+      <QrScannerOverlay isOpen={qrScannerOverlayState.isOpen} onClose={qrScannerOverlayState.onClose} />
+    </>
   );
 };
 export default HeaderMenuContainer;
