@@ -51,36 +51,48 @@ const QrScannerOverlay = () => {
     // qrValueWrapper.finalValue = extractQrCodeFromUrl(qrValueWrapper.key) || "Error";
 
     const extractedQrCodeFromUrl = extractQrCodeFromUrl(qrValueWrapper.key);
-    const resolvedQrValueWrapper = {
-      ...qrValueWrapper,
-      isLoading: false,
-      finalValue: extractedQrCodeFromUrl,
-    } as IQrValueWrapper;
 
     if (extractedQrCodeFromUrl == null) {
       // TODO: ADD PROPER ERROR MESSAGE HANDLING HERE
-      console.error("No Boxtribute QR Found");
-      throw new Error("No Boxtribute QR Found");
-    }
-
-    return apolloClient
-    .query<
-      GetBoxLabelIdentifierForQrCodeQuery,
-      GetBoxLabelIdentifierForQrCodeQueryVariables
-    >({
-      query: GET_BOX_LABEL_IDENTIFIER_BY_QR_CODE,
-      variables: { qrCode: extractedQrCodeFromUrl },
-    })
-    .then(({ data }) => {
-      const boxLabelIdentifier = data?.qrCode?.box?.labelIdentifier;
       const resolvedQrValueWrapper = {
         ...qrValueWrapper,
         isLoading: false,
-        finalValue: boxLabelIdentifier,
+        finalValue: { kind: "noBoxtributeQr" },
       } as IQrValueWrapper;
-      return resolvedQrValueWrapper;
-    });
+      console.error("No Boxtribute QR Found");
+      // throw new Error("No Boxtribute QR Found");
+      return Promise.resolve(resolvedQrValueWrapper);
+    }
 
+    return apolloClient
+      .query<
+        GetBoxLabelIdentifierForQrCodeQuery,
+        GetBoxLabelIdentifierForQrCodeQueryVariables
+      >({
+        query: GET_BOX_LABEL_IDENTIFIER_BY_QR_CODE,
+        variables: { qrCode: extractedQrCodeFromUrl },
+      })
+      .then(({ data }) => {
+        const boxLabelIdentifier = data?.qrCode?.box?.labelIdentifier;
+        if (boxLabelIdentifier == null) {
+          const resolvedQrValueWrapper = {
+            ...qrValueWrapper,
+            isLoading: false,
+            finalValue: { kind: "noBoxtributeQr" },
+          } as IQrValueWrapper;
+          console.error("No Boxtribute QR Found");
+          return Promise.resolve(resolvedQrValueWrapper);
+        }
+        const resolvedQrValueWrapper = {
+          ...qrValueWrapper,
+          isLoading: false,
+          finalValue: {
+            kind: "success",
+            value: boxLabelIdentifier,
+          },
+        } as IQrValueWrapper;
+        return resolvedQrValueWrapper;
+      });
 
     // return getBoxLabelIdentifierByQrCode({
     //   variables: {
