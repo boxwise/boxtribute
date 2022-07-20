@@ -10,7 +10,7 @@ import {
   Input,
   Flex,
 } from "@chakra-ui/react";
-import QrScanner from "components/QrScanner/QrScanner";
+import QrScanner, { IQrValueWrapper } from "components/QrScanner/QrScanner";
 import { useState } from "react";
 
 interface ModalProps {
@@ -40,7 +40,24 @@ const PackingScanOverlay = ({ modalProps }: ScanOverlayProps) => {
           <ModalHeader pb={0}>Scan the box</ModalHeader>
           <ModalCloseButton />
           <ModalBody>
-            <QrScanner />
+            <QrScanner
+              isBulkModeSupported={true}
+              onBulkScanningDone={function (qrValues: IQrValueWrapper[]): void {
+                throw new Error("Function not implemented.");
+              }}
+              onSingleScanDone={function (qrValue: string): void {
+                throw new Error("Function not implemented.");
+              }}
+              qrValueResolver={function (
+                qrValueWrapper: IQrValueWrapper
+              ): Promise<IQrValueWrapper> {
+                throw new Error("Function not implemented.");
+              }}
+              onClose={function (): void {
+                throw new Error("Function not implemented.");
+              }}
+              isOpen={false}
+            />
           </ModalBody>
           <Button
             onClick={() => {
