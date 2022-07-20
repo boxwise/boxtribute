@@ -43,6 +43,12 @@ const QrScannerOverlay = ({
 
   const apolloClient = useApolloClient();
 
+  const resetState = useCallback(() => {
+    // apolloClient.resetStore();
+
+  }
+  , []);
+
   // useEffect(() => {
   //   data?.qrCode?.box?.labelIdentifier &&
   //     navigate(`/bases/${baseId}/boxes/${data.qrCode.box.labelIdentifier}`);
@@ -80,6 +86,7 @@ const QrScannerOverlay = ({
       })
       .then(({ data }) => {
         const boxLabelIdentifier = data?.qrCode?.box?.labelIdentifier;
+        alert("FOO")
         if (boxLabelIdentifier == null) {
           const resolvedQrValueWrapper = {
             ...qrValueWrapper,

@@ -149,6 +149,17 @@ const QrScanner = ({
     Map<string, IQrValueWrapper>
   >(new Map());
 
+  const resetState = useCallback(() => {
+    setScannedQrValues(new Map());
+  }
+  , [setScannedQrValues]);
+
+  const handleClose = useCallback(() => {
+      resetState();
+      onClose();
+    },
+    [onClose, resetState]);
+
   const onBulkScanningDoneButtonClick = useCallback(() => {
     onBulkScanningDone(Array.from(scannedQrValues.values())
     .filter((qrValueWrapper) => qrValueWrapper.finalValue?.kind !== "noBoxtributeQr"));
@@ -222,7 +233,10 @@ const QrScanner = ({
       isOpen={isOpen}
       closeOnOverlayClick={false}
       closeOnEsc={false}
-      onClose={onClose}
+      onClose={() => {
+        resetState();
+        handleClose();
+      }}
     >
       <ModalOverlay />
       <ModalContent>
@@ -331,7 +345,7 @@ const QrScanner = ({
         </ModalBody>
 
         <ModalFooter>
-          <Button mr={3} onClick={onClose}>
+          <Button mr={3} onClick={handleClose}>
             Cancel
           </Button>
         </ModalFooter>
