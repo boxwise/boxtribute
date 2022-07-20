@@ -107,6 +107,7 @@ const QrScannerOverlay = ({
 
   const onSingleScanDone = useCallback(
     (result: string) => {
+      // alert(`onSingleScanDone - result: ${result}`);
       if (!!result) {
         const qrCode = extractQrCodeFromUrl(result);
         if (qrCode == null) {
@@ -141,13 +142,17 @@ const QrScannerOverlay = ({
     [apolloClient, onScanningDone]
   );
 
-  const onBulkScanningDone = (qrValueWrappers: IQrValueWrapper[]) => {
-    const resolvedQrValues = qrValueWrappers.map(
-      // TODO: improve typings/type handling here (to get rid of the `!`)
-      (qrValueWrapper) => qrValueWrapper.finalValue!
-    );
-    onScanningDone(resolvedQrValues);
-  };
+  const onBulkScanningDone = useCallback(
+    (qrValueWrappers: IQrValueWrapper[]) => {
+      // alert("onBulkScanningDone");
+      const resolvedQrValues = qrValueWrappers.map(
+        // TODO: improve typings/type handling here (to get rid of the `!`)
+        (qrValueWrapper) => qrValueWrapper.finalValue!
+      );
+      onScanningDone(resolvedQrValues);
+    },
+    [onScanningDone]
+  );
 
   return (
     <QrScanner

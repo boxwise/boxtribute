@@ -22,11 +22,12 @@ const HeaderMenuContainer = () => {
   const qrScannerOverlayState = useDisclosure({ defaultIsOpen: false });
 
   const onScanningDone = useCallback((qrResolvedValues: QrResolvedValue[]) => {
+    // alert("onScanningDone")
     if (qrResolvedValues.length === 1) {
       const singleResolvedQrValue = qrResolvedValues[0];
       switch (singleResolvedQrValue.kind) {
         case "success": {
-          alert("success");
+          // alert("FOO success");
           const boxLabelIdentifier = singleResolvedQrValue.value;
           navigate(`/bases/${baseId}/boxes/${boxLabelIdentifier}`);
           break;

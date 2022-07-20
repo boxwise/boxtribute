@@ -173,8 +173,9 @@ const QrScanner = ({
   >(new Map());
 
   const resetState = useCallback(() => {
-    setScannedQrValues(new Map());
-  }, [setScannedQrValues]);
+    setIsBulkModeActive.off()
+    setScannedQrValues(() => new Map());
+  }, [setIsBulkModeActive]);
 
   const handleClose = useCallback(() => {
     resetState();
@@ -270,9 +271,10 @@ const QrScanner = ({
       if (!!result) {
         if (isBulkModeSupported && isBulkModeActive) {
           // scannerBlockedSignal.current = true;
-          alert("onResult - isBulkModeSupported && isBulkModeActive");
+          // alert("onResult - isBulkModeSupported && isBulkModeActive");
           addQrValueToBulkList(result["text"]);
         } else {
+          // alert("onResult - !isBulkModeSupported || !isBulkModeActive; result: " + result["text"]);
           onSingleScanDone(result["text"]);
           handleClose();
         }
