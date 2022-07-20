@@ -10,7 +10,7 @@ import {
   Input,
   Flex,
 } from "@chakra-ui/react";
-import QrScanner from "components/QrScanner";
+import QrScanner from "components/QrScanner/QrScanner";
 import { useState } from "react";
 
 interface ModalProps {

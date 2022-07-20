@@ -104,7 +104,7 @@ export interface QrScannerProps {
   onBulkScanningDone: (qrValues: QrValueWrapper[]) => void;
   // bulkModeActive: boolean;
   // onToggleBulkMode: () => void;
-  onResult: (qrValue: string) => void;
+  onSingleScanDone: (qrValue: string) => void;
   qrValueResolver: (qrValueWrapper: QrValueWrapper) => Promise<QrValueWrapper>;
   // updateQrValueWrapper: (qrValueWrapper)
   // onOpen: () => void;
@@ -119,7 +119,7 @@ const QrScanner = ({
   // updateQrValueWrapper,
   // bulkModeActive,
   // onToggleBulkMode,
-  onResult,
+onSingleScanDone,
   // onOpen,
   onClose,
 }: QrScannerProps) => {
@@ -229,7 +229,7 @@ const QrScanner = ({
                     // scannerBlockedSignal.current = true;
                     addQrValueToBulkList(result["text"]);
                   } else {
-                    onResult(result["text"]);
+                    onSingleScanDone(result["text"]);
                   }
                 }
                 if (!!error) {

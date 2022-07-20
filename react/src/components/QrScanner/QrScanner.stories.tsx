@@ -83,7 +83,7 @@ Default.args = {
   // setScannedQrValues: ,
   // bulkModeActive: false,
   // onToggleBulkMode: action(`bulk mode toggled`),
-  onResult: action(`received result`),
+  onSingleScanDone: action(`received result`),
   // onOpen: action(`open`),
   onClose: action(`close`),
 };
