@@ -4,7 +4,6 @@ import {
   AccordionButton,
   AccordionIcon,
   AccordionPanel,
-  Text,
   Box,
   Flex,
   useDisclosure,
@@ -14,37 +13,14 @@ import {
 } from "@chakra-ui/react";
 import { AddIcon} from "@chakra-ui/icons";
 import { groupBy } from "utils/helpers";
-import PackingScanOverlay from "./Overlays/PackingScanOverlay";
-import PackingBoxDetailsOverlay, {
-  BoxData,
-  PackingActionProps,
-} from "./Overlays/PackingBoxDetailsOverlay";
 import { useState } from "react";
-import { distroEventStateHumanReadableLabels } from "views/Distributions/baseData";
-import { DistributionEventState } from "types/generated/graphql";
-import PackedListOverlay, { PackingActionListProps } from "./Overlays/PackedListOverlay";
+import { PackingListEntry } from "views/Distributions/types";
+import PackingBoxDetailsOverlay, { BoxData, PackingActionProps } from "../State2Packing/Overlays/PackingBoxDetailsOverlay";
+import PackedListOverlay, { PackingActionListProps } from "../State2Packing/Overlays/PackedListOverlay";
+import PackingScanOverlay from "../State2Packing/Overlays/PackingScanOverlay";
 
-interface ItemsForPacking {
-  id: string;
-  numberOfItems: number;
-  size: string;
-  productName: string;
-}
-
-interface DistroEventData {
-  eventDate: Date;
-  distroSpotName: string;
-  status: DistributionEventState;
-  itemsForPacking: ItemsForPacking[]
-}
-
-
-export interface DistroEventPackingData {
-  distroEventData: DistroEventData;
-}
-
-interface DistroEventPackingProps {
-  distroEventDetailsData: DistroEventPackingData;
+interface DistroEventDetailsForPackingStateProps {
+  packingListEntries: PackingListEntry[];
   onShowListClick: (itemId: string) => void;
   boxesData: BoxData[];
   boxData: BoxData;
@@ -52,17 +28,17 @@ interface DistroEventPackingProps {
   packingActionListProps: PackingActionListProps;
 }
 
-const DistroEventPacking = ({
-  distroEventDetailsData,
+const DistroEventDetailsForPackingState = ({
+  packingListEntries,
   onShowListClick,
   boxData,
   boxesData,
   packingActionProps,
   packingActionListProps,
-}: DistroEventPackingProps) => {
+}: DistroEventDetailsForPackingStateProps) => {
 
   const itemsForPackingGroupedByProductName = groupBy(
-    distroEventDetailsData.distroEventData.itemsForPacking,
+    packingListEntries,
     (item) => item.productName
   );
 
@@ -102,25 +78,6 @@ const DistroEventPacking = ({
 
   return (
     <>
-      <Box textAlign="left">
-        <Flex direction="column" mb={4}>
-          <Text fontSize="xl" mb={1}>
-            Distro Event
-          </Text>
-          <Text lineHeight="normal">
-            <strong>{distroEventDetailsData.distroEventData.distroSpotName}</strong>
-          </Text>
-          <Text lineHeight="normal">
-            <strong>
-              {distroEventDetailsData.distroEventData.eventDate?.toDateString()}
-            </strong>
-          </Text>
-          <Text>
-            {distroEventStateHumanReadableLabels.get(
-              distroEventDetailsData.distroEventData.status
-            )}
-          </Text>
-        </Flex>
         <Center>
         <Accordion w={[300, 420, 500]} allowToggle>
           {itemsForPackingSorted.map((item) => {
@@ -159,7 +116,7 @@ const DistroEventPacking = ({
                             opacity: "0.5",
                           }}
                         >
-                          {item.numberOfItems} x {item.size}
+                          {item.numberOfItems} x {item.size?.label}
                         </Box>
                         <Box>
                           <IconButton
@@ -185,7 +142,6 @@ const DistroEventPacking = ({
           }, [])}
         </Accordion>
         </Center>
-      </Box>
       <PackingScanOverlay
         modalProps={{
           isScanOpen: isScanOpen,
@@ -211,4 +167,4 @@ const DistroEventPacking = ({
     </>
   );
 };
-export default DistroEventPacking;
+export default DistroEventDetailsForPackingState;

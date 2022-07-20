@@ -1,13 +1,14 @@
 import pytest
 from boxtribute_server.models.definitions.shipment_detail import ShipmentDetail
 from boxtribute_server.models.utils import utcnow
-from data.box import (
+
+from .box import (
     another_marked_for_shipment_box_data,
     box_without_qr_code_data,
     marked_for_shipment_box_data,
 )
-from data.shipment import data as shipment_data
-from data.user import default_user_data
+from .shipment import data as shipment_data
+from .user import default_user_data
 
 TIME = utcnow().replace(tzinfo=None)
 

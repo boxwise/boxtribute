@@ -25,7 +25,7 @@ def create_box(
     user_id,
     size_id,
     comment="",
-    items=0,
+    items=None,
     qr_code=None,
 ):
     """Insert information for a new Box in the database. Use current datetime
@@ -190,7 +190,7 @@ def create_beneficiary(
     languages in the corresponding cross-reference table.
     """
     now = utcnow()
-    new_beneficiary = Beneficiary.create(
+    data = dict(
         first_name=first_name,
         last_name=last_name,
         base=base_id,
@@ -213,6 +213,10 @@ def create_beneficiary(
         bicycle_ban_comment="",
         workshop_ban_comment="",
     )
+    if date_of_signature is not None:
+        # Work-around because the DB default 0000-00-00 is not a Python date
+        data["date_of_signature"] = date_of_signature
+    new_beneficiary = Beneficiary.create(**data)
 
     language_ids = languages or []
     XBeneficiaryLanguage.insert_many(
@@ -278,6 +282,13 @@ def update_beneficiary(
         beneficiary.save()
 
     return beneficiary
+
+
+def delete_packing_list_entry(packing_list_entry_id):
+    with db.database.atomic():
+        PackingListEntry.delete().where(
+            PackingListEntry.id == packing_list_entry_id
+        ).execute()
 
 
 def create_distribution_spot(user_id, distribution_spot_input=None):

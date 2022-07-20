@@ -2,7 +2,8 @@ from datetime import date, datetime
 
 import pytest
 from boxtribute_server.models.definitions.beneficiary import Beneficiary
-from data.base import data as base_data
+
+from .base import data as base_data
 
 
 def default_beneficiary_data():

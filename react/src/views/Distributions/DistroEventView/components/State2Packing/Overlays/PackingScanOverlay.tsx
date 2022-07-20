@@ -61,7 +61,7 @@ const PackingScanOverlay = ({ modalProps }: ScanOverlayProps) => {
             mx={10}
             mb={4}
           >
-            Write Box Label
+            Find Box by Label
           </Button>
           {manualBoxLabel ? (
             <Flex mx={10} mb={4} justifyContent="space-between">

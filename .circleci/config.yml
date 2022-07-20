@@ -61,6 +61,7 @@ jobs:
               REACT_APP_REDIRECT=${REACT_APP_REDIRECT}
               REACT_APP_LOGOUT_URL=${REACT_APP_LOGOUT_URL}
               REACT_APP_GRAPHQL_SERVER=${REACT_APP_GRAPHQL_SERVER}
+              REACT_APP_SENTRY_FE_DSN=${SENTRY_FE_DSN}
             " > .env
       # following https://circleci.com/docs/2.0/yarn/
       - restore_cache:
