@@ -142,7 +142,11 @@ const QrValueWrapper: React.FC<{ qrCodeValueWrapper: IQrValueWrapper }> = ({
       return <Badge colorScheme="gray">Not yet assigned to any Box</Badge>;
     }
     case "notAuthorized": {
-      return <Badge colorScheme="red">You're not authorized to view/edit this Box</Badge>;
+      return (
+        <Badge colorScheme="red">
+          You're not authorized to view/edit this Box
+        </Badge>
+      );
     }
   }
 
@@ -248,9 +252,43 @@ const QrScanner = ({
     [qrValueResolver]
   );
 
-  const scannedQrValuesAsArray = useMemo(() => Array.from(scannedQrValues.keys()).map(
-    (key) => scannedQrValues.get(key)!
-  ), [scannedQrValues]);
+  const scannedQrValuesAsArray = useMemo(
+    () =>
+      Array.from(scannedQrValues.keys()).map(
+        (key) => scannedQrValues.get(key)!
+      ),
+    [scannedQrValues]
+  );
+
+  const onResult = useCallback(
+    (result, error) => {
+      // if (scannerBlockedSignal.current === true) {
+      //   // alert("onResult - scannerBlockedSignal.current === true");
+      //   return;
+      // }
+
+      if (!!result) {
+        if (isBulkModeSupported && isBulkModeActive) {
+          // scannerBlockedSignal.current = true;
+          alert("onResult - isBulkModeSupported && isBulkModeActive");
+          addQrValueToBulkList(result["text"]);
+        } else {
+          onSingleScanDone(result["text"]);
+          handleClose();
+        }
+      }
+      if (!!error) {
+        // console.info(error);
+      }
+    },
+    [
+      addQrValueToBulkList,
+      handleClose,
+      isBulkModeActive,
+      isBulkModeSupported,
+      onSingleScanDone,
+    ]
+  );
 
   return (
     <Modal
@@ -264,107 +302,90 @@ const QrScanner = ({
         <ModalHeader>QR Scanner</ModalHeader>
         {/* <ModalCloseButton /> */}
         <ModalBody>
-          <Container maxW="md">
-            {/* LENGTH: {scannedQrValues.size}
+          {isOpen && (
+            <Container maxW="md">
+              {/* LENGTH: {scannedQrValues.size}
             <br />
             {JSON.stringify(
               Array.from(scannedQrValues.entries()).map((c) => c[0])
             )} */}
-            <QrReader
-              videoId="video"
-              ViewFinder={ViewFinder}
-              constraints={{
-                facingMode: "environment",
-                zoom: zoomLevel,
-              }}
-              scanDelay={1000}
-              onResult={(result, error) => {
-                // if (scannerBlockedSignal.current === true) {
-                //   // alert("onResult - scannerBlockedSignal.current === true");
-                //   return;
-                // }
-
-                if (!!result) {
-                  if (isBulkModeSupported && isBulkModeActive) {
-                    // scannerBlockedSignal.current = true;
-                    alert("onResult - isBulkModeSupported && isBulkModeActive");
-                    addQrValueToBulkList(result["text"]);
-                  } else {
-                    onSingleScanDone(result["text"]);
-                    handleClose();
-                  }
-                }
-                if (!!error) {
-                  // console.info(error);
-                }
-              }}
-            />
-            {isBulkModeSupported && (
-              <HStack>
+              <QrReader
+                videoId="video"
+                ViewFinder={ViewFinder}
+                constraints={{
+                  facingMode: "environment",
+                  zoom: zoomLevel,
+                }}
+                scanDelay={1000}
+                onResult={onResult}
+              />
+              {isBulkModeSupported && (
                 <HStack>
-                  <IconButton
-                    disabled={zoomLevel <= 1}
-                    onClick={() =>
-                      setZoomLevel((curr) => (curr > 1 ? curr - 1 : curr))
-                    }
-                    aria-label={"Decrease zoom level"}
-                  >
-                    <MinusIcon />
-                  </IconButton>
-                  <IconButton
-                    disabled={zoomLevel >= 8}
-                    onClick={() =>
-                      setZoomLevel((curr) => (curr < 8 ? curr + 1 : curr))
-                    }
-                    aria-label={"Increase zoom level"}
-                  >
-                    <AddIcon />
-                  </IconButton>
+                  <HStack>
+                    <IconButton
+                      disabled={zoomLevel <= 1}
+                      onClick={() =>
+                        setZoomLevel((curr) => (curr > 1 ? curr - 1 : curr))
+                      }
+                      aria-label={"Decrease zoom level"}
+                    >
+                      <MinusIcon />
+                    </IconButton>
+                    <IconButton
+                      disabled={zoomLevel >= 8}
+                      onClick={() =>
+                        setZoomLevel((curr) => (curr < 8 ? curr + 1 : curr))
+                      }
+                      aria-label={"Increase zoom level"}
+                    >
+                      <AddIcon />
+                    </IconButton>
+                  </HStack>
+                  <FormControl display="flex" alignItems="center">
+                    <FormLabel htmlFor="Bulk Mode" mb="0">
+                      Bulk Mode
+                    </FormLabel>
+                    <Switch
+                      id="Bulk Mode"
+                      onChange={setIsBulkModeActive.toggle}
+                      isChecked={isBulkModeActive}
+                    />
+                  </FormControl>
                 </HStack>
-                <FormControl display="flex" alignItems="center">
-                  <FormLabel htmlFor="Bulk Mode" mb="0">
-                    Bulk Mode
-                  </FormLabel>
-                  <Switch
-                    id="Bulk Mode"
-                    onChange={setIsBulkModeActive.toggle}
-                    isChecked={isBulkModeActive}
-                  />
-                </FormControl>
-              </HStack>
-            )}
-            {isBulkModeSupported && isBulkModeActive && (
-              <VStack>
-                {/* <Box>
+              )}
+              {isBulkModeSupported && isBulkModeActive && (
+                <VStack>
+                  {/* <Box>
                   scannedQrValues:{" "}
                   {JSON.stringify(Array.from(scannedQrValues.entries()))} <br />
                 </Box> */}
-                <VStack spacing={5} direction="row">
-                  {scannedQrValuesAsArray.map((qrCodeValueWrapper, i) => {
-                    // alert(`qrCodeValueWrapper: ${JSON.stringify(qrCodeValueWrapper)}`);
-                    return (
-                      <Box key={i}>
-                        {i + 1}{" "}
-                        <QrValueWrapper
-                          qrCodeValueWrapper={qrCodeValueWrapper}
-                        />
-                      </Box>
-                    );
-                  })}
+                  <VStack spacing={5} direction="row">
+                    {scannedQrValuesAsArray.map((qrCodeValueWrapper, i) => {
+                      // alert(`qrCodeValueWrapper: ${JSON.stringify(qrCodeValueWrapper)}`);
+                      return (
+                        <Box key={i}>
+                          {i + 1}{" "}
+                          <QrValueWrapper
+                            qrCodeValueWrapper={qrCodeValueWrapper}
+                          />
+                        </Box>
+                      );
+                    })}
+                  </VStack>
+                  <Button
+                    onClick={onBulkScanningDoneButtonClick}
+                    colorScheme="blue"
+                    disabled={
+                      scannedQrValuesAsArray.filter((el) => !el.isLoading)
+                        .length === 0
+                    }
+                  >
+                    Scanning done
+                  </Button>
                 </VStack>
-                <Button
-                  onClick={onBulkScanningDoneButtonClick}
-                  colorScheme="blue"
-                  disabled={
-                    scannedQrValuesAsArray.filter((el) => !el.isLoading)
-                      .length === 0
-                  }
-                >
-                  Scanning done
-                </Button>
-              </VStack>
-            )}
-          </Container>
+              )}
+            </Container>
+          )}
         </ModalBody>
 
         <ModalFooter>
