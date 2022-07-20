@@ -76,6 +76,8 @@ const QrScannerOverlay = ({
       return Promise.resolve(resolvedQrValueWrapper);
     }
 
+    alert(extractedQrCodeFromUrl)
+
     return apolloClient
       .query<
         GetBoxLabelIdentifierForQrCodeQuery,
@@ -85,8 +87,8 @@ const QrScannerOverlay = ({
         variables: { qrCode: extractedQrCodeFromUrl },
       })
       .then(({ data }) => {
+        alert(JSON.stringify(data))
         const boxLabelIdentifier = data?.qrCode?.box?.labelIdentifier;
-        alert("FOO")
         if (boxLabelIdentifier == null) {
           const resolvedQrValueWrapper = {
             ...qrValueWrapper,
@@ -105,7 +107,19 @@ const QrScannerOverlay = ({
           },
         } as IQrValueWrapper;
         return resolvedQrValueWrapper;
-      });
+      })
+      // TODO: Handle Authorization / No Access To Box case
+
+      // .catch((error) => {
+      //   alert(error);
+      //   console.error(error);
+      //   const resolvedQrValueWrapper = {
+      //     ...qrValueWrapper,
+      //     isLoading: false,
+      //     finalValue: { kind: "noBoxtributeQr" },
+      //   } as IQrValueWrapper;
+      //   return Promise.resolve(resolvedQrValueWrapper);
+      // });
 
     // return getBoxLabelIdentifierByQrCode({
     //   variables: {

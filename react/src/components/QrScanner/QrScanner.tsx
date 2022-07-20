@@ -75,6 +75,10 @@ interface QrResolverResultNotAssignedToBox {
   kind: "notAssignedToBox";
 }
 
+interface QrResolverResultNotAuthorized {
+  kind: "notAuthorized";
+}
+
 interface QrResolverResultNoBoxtributeQr {
   kind: "noBoxtributeQr";
 }
@@ -82,7 +86,8 @@ interface QrResolverResultNoBoxtributeQr {
 export type QrResolvedValue =
   | QrResolverResultSuccessValue
   | QrResolverResultNotAssignedToBox
-  | QrResolverResultNoBoxtributeQr;
+  | QrResolverResultNoBoxtributeQr
+  | QrResolverResultNotAuthorized;
 
 export interface IQrValueWrapper {
   key: string;
@@ -113,22 +118,36 @@ export interface QrScannerProps {
 const QrValueWrapper: React.FC<{ qrCodeValueWrapper: IQrValueWrapper }> = ({
   qrCodeValueWrapper: { key, isLoading, interimValue, finalValue },
 }) => {
-  return isLoading ? (
-    <Box>{interimValue}</Box>
-  ) : finalValue?.kind === "success" ? (
-    <Checkbox
-      key={key}
-      colorScheme="green"
-      defaultChecked={true}
-      // isDisabled={qrCodeValueWrapper.isLoading || qrCodeValueWrapper.finalValue?.kind !== "success"}
-    >
-      <Badge colorScheme="green">{finalValue.value}</Badge>
-    </Checkbox>
-  ) : finalValue?.kind === "noBoxtributeQr" ? (
-    <Badge colorScheme="red">Not a Boxtribute QR Code</Badge>
-  ) : (
-    <Badge colorScheme="gray">Not yet assigned to any Box</Badge>
-  );
+  if (isLoading) {
+    return <Box>{interimValue}</Box>;
+  }
+  switch (finalValue?.kind) {
+    case "success": {
+      return (
+        <Checkbox
+          key={key}
+          colorScheme="green"
+          defaultChecked={true}
+          // isDisabled={qrCodeValueWrapper.isLoading || qrCodeValueWrapper.finalValue?.kind !== "success"}
+        >
+          <Badge colorScheme="green">{finalValue.value}</Badge>
+        </Checkbox>
+      );
+    }
+
+    case "notAssignedToBox": {
+      return <Badge colorScheme="red">Not a Boxtribute QR Code</Badge>;
+    }
+    case "noBoxtributeQr": {
+      return <Badge colorScheme="gray">Not yet assigned to any Box</Badge>;
+    }
+    case "notAuthorized": {
+      return <Badge colorScheme="red">You're not authorized to view/edit this Box</Badge>;
+    }
+  }
+
+  // TODO: consider to handle the fallback case better
+  return <></>;
 };
 
 const QrScanner = ({
@@ -151,78 +170,82 @@ const QrScanner = ({
 
   const resetState = useCallback(() => {
     setScannedQrValues(new Map());
-  }
-  , [setScannedQrValues]);
+  }, [setScannedQrValues]);
 
   const handleClose = useCallback(() => {
-      resetState();
-      onClose();
-    },
-    [onClose, resetState]);
+    resetState();
+    onClose();
+  }, [onClose, resetState]);
 
   const onBulkScanningDoneButtonClick = useCallback(() => {
-    onBulkScanningDone(Array.from(scannedQrValues.values())
-    .filter((qrValueWrapper) => qrValueWrapper.finalValue?.kind !== "noBoxtributeQr"));
+    onBulkScanningDone(
+      Array.from(scannedQrValues.values()).filter(
+        (qrValueWrapper) => qrValueWrapper.finalValue?.kind !== "noBoxtributeQr"
+      )
+    );
   }, [onBulkScanningDone, scannedQrValues]);
 
   // const scannerBlockedSignal = useRef(false);
 
-  const addQrValueToBulkList = useCallback(async (qrValue: string) => {
-    // alert(`scannedQrValues: ${JSON.stringify(Array.from(scannedQrValues.entries()))}`);
-    console.log("FOO!!!!!");
-    // console.log("scannedQrValues.size", scannedQrValues.size);
-    // console.log("scannedQrValues", Array.from(scannedQrValues.entries()));
-    // console.log("qrValue", qrValue);
-    // if (scannedQrValues.some((curr) => curr.key === qrValue)) {
-    // console.log("scannedQrValues.has(qrValue)", scannedQrValues.has(qrValue));
+  const addQrValueToBulkList = useCallback(
+    async (qrValue: string) => {
+      // alert(`scannedQrValues: ${JSON.stringify(Array.from(scannedQrValues.entries()))}`);
+      console.log("FOO!!!!!");
+      // console.log("scannedQrValues.size", scannedQrValues.size);
+      // console.log("scannedQrValues", Array.from(scannedQrValues.entries()));
+      // console.log("qrValue", qrValue);
+      // if (scannedQrValues.some((curr) => curr.key === qrValue)) {
+      // console.log("scannedQrValues.has(qrValue)", scannedQrValues.has(qrValue));
 
-    setScannedQrValues((prev) => {
-      if (prev.has(qrValue)) {
-        return prev;
-      }
-      const newQrValueWrapper = {
-        key: qrValue,
-        isLoading: true,
-        interimValue: "loading...",
-      };
+      setScannedQrValues((prev) => {
+        if (prev.has(qrValue)) {
+          return prev;
+        }
+        const newQrValueWrapper = {
+          key: qrValue,
+          isLoading: true,
+          interimValue: "loading...",
+        };
 
-      qrValueResolver(newQrValueWrapper).then((resolvedQrValueWrapper) => {
-        setScannedQrValues((prev) => {
-          return new Map(prev.set(qrValue, resolvedQrValueWrapper));
+        qrValueResolver(newQrValueWrapper).then((resolvedQrValueWrapper) => {
+          setScannedQrValues((prev) => {
+            return new Map(prev.set(qrValue, resolvedQrValueWrapper));
+          });
         });
+        // TODO add error handling
+        // .catch((err) => {}).finally(() => {}))
+
+        return new Map(prev.set(qrValue, newQrValueWrapper));
       });
-      // TODO add error handling
-      // .catch((err) => {}).finally(() => {}))
 
-      return new Map(prev.set(qrValue, newQrValueWrapper));
-    });
+      // scannerBlockedSignal.current = false;
 
-    // scannerBlockedSignal.current = false;
+      // if (!scannedQrValues.has(qrValue)) {
+      //   // alert(`Not yet there; qrValue: ${qrValue}; scannedQrValues: ${JSON.stringify(Array.from(scannedQrValues.entries()))}`)
+      //   const newQrValueWrapper = {
+      //     key: qrValue,
+      //     isLoading: true,
+      //     interimValue: "loading...",
+      //   };
+      //   // console.log("qrValue", qrValue);
+      //   // console.log("scannedQrValues", scannedQrValues);
+      //   // console.log("newQrValueWrapper", newQrValueWrapper);
+      //   setScannedQrValues(
+      //     (prev) => new Map(prev.set(qrValue, newQrValueWrapper))
+      //   );
 
-    // if (!scannedQrValues.has(qrValue)) {
-    //   // alert(`Not yet there; qrValue: ${qrValue}; scannedQrValues: ${JSON.stringify(Array.from(scannedQrValues.entries()))}`)
-    //   const newQrValueWrapper = {
-    //     key: qrValue,
-    //     isLoading: true,
-    //     interimValue: "loading...",
-    //   };
-    //   // console.log("qrValue", qrValue);
-    //   // console.log("scannedQrValues", scannedQrValues);
-    //   // console.log("newQrValueWrapper", newQrValueWrapper);
-    //   setScannedQrValues(
-    //     (prev) => new Map(prev.set(qrValue, newQrValueWrapper))
-    //   );
-
-    //   // alert("NEW QR SCANNED AND WAITING NOW TO RESOLVE");
-    //   const resolvedQrValueWrapper = await qrValueResolver(newQrValueWrapper);
-    //   setScannedQrValues(
-    //     (prev) => new Map(prev.set(qrValue, resolvedQrValueWrapper))
-    //   );
-    // }
-    // console.log("------------------------------------------------------");
-    // scannerBlockedSignal.current = false;
-    // alert("leaving addQrValueToBulkList");
-  }, []);
+      //   // alert("NEW QR SCANNED AND WAITING NOW TO RESOLVE");
+      //   const resolvedQrValueWrapper = await qrValueResolver(newQrValueWrapper);
+      //   setScannedQrValues(
+      //     (prev) => new Map(prev.set(qrValue, resolvedQrValueWrapper))
+      //   );
+      // }
+      // console.log("------------------------------------------------------");
+      // scannerBlockedSignal.current = false;
+      // alert("leaving addQrValueToBulkList");
+    },
+    [qrValueResolver]
+  );
 
   const scannedQrValuesAsArray = Array.from(scannedQrValues.keys()).map(
     (key) => scannedQrValues.get(key)!
