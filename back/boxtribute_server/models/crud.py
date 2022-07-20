@@ -190,7 +190,7 @@ def create_beneficiary(
     languages in the corresponding cross-reference table.
     """
     now = utcnow()
-    new_beneficiary = Beneficiary.create(
+    data = dict(
         first_name=first_name,
         last_name=last_name,
         base=base_id,
@@ -213,6 +213,10 @@ def create_beneficiary(
         bicycle_ban_comment="",
         workshop_ban_comment="",
     )
+    if date_of_signature is not None:
+        # Work-around because the DB default 0000-00-00 is not a Python date
+        data["date_of_signature"] = date_of_signature
+    new_beneficiary = Beneficiary.create(**data)
 
     language_ids = languages or []
     XBeneficiaryLanguage.insert_many(
