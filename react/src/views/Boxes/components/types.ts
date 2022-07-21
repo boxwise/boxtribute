@@ -6,4 +6,5 @@ export type BoxRow = {
     size?: string | null;
     place?: string | null;
     state: string;
+    tags?: string[] 
   };

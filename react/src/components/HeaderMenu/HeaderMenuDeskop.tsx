@@ -13,12 +13,12 @@ import {
   MenuGroup,
   MenuItem,
   MenuList,
+  useDisclosure,
 } from "@chakra-ui/react";
 
 import { AiOutlineQrcode } from "react-icons/ai";
 import BoxtributeLogo from "../../assets/images/boxtribute-logo.png";
 import {
-  BaseSwitcherProps,
   HeaderMenuProps,
   LoginOrUserMenuButtonProps,
   MenuItemProps,
@@ -32,50 +32,53 @@ const Logo = () => (
   </NavLink>
 );
 
-const BaseSwitcher = ({
-  currentActiveBaseId,
-  availableBases,
-}: BaseSwitcherProps) => {
-  return (
-    <MenuGroup>
-      {availableBases?.map((base, i) => (
-        <MenuItem key={base.id}>
-          <Link
-            style={currentActiveBaseId === base.id ? { color: "orange" } : {}}
-            to={`/bases/${base.id}/locations`}
-          >
-            {base.name}
-          </Link>
-        </MenuItem>
-      ))}
-    </MenuGroup>
-  );
-};
+// const BaseSwitcher = ({
+//   currentActiveBaseId,
+//   availableBases,
+// }: BaseSwitcherProps) => {
+//   return (
+//     <MenuGroup>
+//       {availableBases?.map((base, i) => (
+//         <MenuItem key={base.id}>
+//           <Link
+//             style={currentActiveBaseId === base.id ? { color: "orange" } : {}}
+//             to={`/bases/${base.id}/locations`}
+//           >
+//             {base.name}
+//           </Link>
+//         </MenuItem>
+//       ))}
+//     </MenuGroup>
+//   );
+// };
 
-const UserMenu = ({
-  logout,
-  user,
-  currentActiveBaseId,
-  availableBases,
-}: UserMenuProps) => {
+const UserMenu = ({ logout, user }: UserMenuProps) => {
+  const { isOpen, onOpen, onClose } = useDisclosure();
   return (
-    <Menu>
+    <Menu isOpen={isOpen}>
       <MenuButton
         as={IconButton}
-        icon={
-          <Img src={user?.picture} width={10} height={10} />
-        }
+        icon={<Img src={user?.picture} width={10} height={10} />}
+        onMouseEnter={onOpen}
+        onMouseLeave={onClose}
       />
-      <MenuList py={0} my={0} border="1px" borderRadius="0px">
-        <BaseSwitcher
+      <MenuList
+        onMouseEnter={onOpen}
+        onMouseLeave={onClose}
+        my={0}
+        border="2px"
+        borderRadius="0px"
+        py={0}
+      >
+        {/* <BaseSwitcher
           currentActiveBaseId={currentActiveBaseId}
           availableBases={availableBases}
-        />
-        <MenuDivider my={0} />
-        <MenuGroup>
-          <MenuItem>Profile ({user?.email})</MenuItem>
-          <MenuItem onClick={() => logout()}>Logout</MenuItem>
-        </MenuGroup>
+        /> */}
+
+        <MenuItem py={2}>Profile ({user?.email})</MenuItem>
+        <MenuItem py={2} onClick={() => logout()}>
+          Logout
+        </MenuItem>
       </MenuList>
     </Menu>
   );
@@ -86,19 +89,12 @@ const LoginOrUserMenuButton = ({
   logout,
   loginWithRedirect,
   user,
-  currentActiveBaseId,
-  availableBases,
 }: LoginOrUserMenuButtonProps) => {
   return isAuthenticated ? (
-    <UserMenu
-      user={user}
-      logout={logout}
-      currentActiveBaseId={currentActiveBaseId}
-      availableBases={availableBases}
-    />
+    <UserMenu user={user} logout={logout} />
   ) : (
     <Button
-      border="1px"
+      border="2px"
       borderRadius="0px"
       onClick={() => (isAuthenticated ? logout() : loginWithRedirect())}
     >
@@ -107,37 +103,47 @@ const LoginOrUserMenuButton = ({
   );
 };
 
-const MenuItemDesktop = ({ ...props }: MenuItemProps) => (
-  <Menu>
-    <MenuButton
-      my={0}
-      variant="outline"
-      colorScheme="black"
-      borderRadius="0px"
-      as={Button}
-    >
-      <Text display="block">{props.text}</Text>
-    </MenuButton>
-    <MenuList border="1px" p={0} borderColor="black" borderRadius="0px" my={0}>
-      {props.links.map((link, i) => (
-        <MenuItem
-          borderBottom="1px"
-          borderColor="gray.400"
-          py={3}
-          px={3}
-          key={i}
-        >
-          <NavLink to={link.link}>{link.name}</NavLink>
-        </MenuItem>
-      ))}
-    </MenuList>
-  </Menu>
-);
+const MenuItemDesktop = ({ ...props }: MenuItemProps) => {
+  const { isOpen, onOpen, onClose } = useDisclosure();
+  return (
+    <Menu isOpen={isOpen}>
+      <MenuButton
+        my={0}
+        variant="outline"
+        colorScheme="black"
+        borderRadius="0px"
+        as={Button}
+        border="2px"
+        onMouseEnter={onOpen}
+        onMouseLeave={onClose}
+      >
+        <Text display="block">{props.text}</Text>
+      </MenuButton>
+      <MenuList
+        onMouseEnter={onOpen}
+        onMouseLeave={onClose}
+        border="2px"
+        p={0}
+        borderRadius="0px"
+        my={0}
+      >
+        {props.links.map((link, i) => (
+          <MenuItem
+            // borderBottom="1px"
+            // borderColor="gray.400"
+            py={2}
+            px={3}
+            key={i}
+          >
+            <NavLink to={link.link}>{link.name}</NavLink>
+          </MenuItem>
+        ))}
+      </MenuList>
+    </Menu>
+  );
+};
 
-const MenuItemsDesktop = ({
-  currentActiveBaseId,
-  ...props
-}: MenuItemsProps) => {
+const MenuItemsDesktop = ({ ...props }: MenuItemsProps) => {
   return (
     <Flex w="100%" flexBasis={{ base: "100%", md: "auto" }}>
       <Stack
@@ -149,12 +155,10 @@ const MenuItemsDesktop = ({
         ))}
 
         <LoginOrUserMenuButton
-          currentActiveBaseId={currentActiveBaseId}
           isAuthenticated={props.isAuthenticated}
           logout={props.logout}
           loginWithRedirect={props.loginWithRedirect}
           user={props.user}
-          availableBases={props.availableBases}
         />
       </Stack>
     </Flex>
@@ -200,7 +204,6 @@ const HeaderMenuDeskop = (props: HeaderMenuProps) => {
         <Flex justifyItems="flex-end" alignItems="center">
           <MenuItemsDesktop
             user={props.user}
-            currentActiveBaseId={props.currentActiveBaseId}
             menuItems={props.menuItems}
             isAuthenticated={props.isAuthenticated}
             logout={props.logout}

@@ -56,21 +56,27 @@ const LoginOrUserMenuButtonMobile = ({
   return isAuthenticated ? (
     <Stack spacing={4} onClick={onToggle}>
       <Flex
-      px={4}
-      border='1px'
+        px={4}
+        border="1px"
+        w="100%"
         py={2}
         justify={"space-between"}
         align={"center"}
         _hover={{
           textDecoration: "none",
+          backgroundColor: "gray.100",
         }}
-      ><Flex align={"center"}>
-        {user?.picture ? (
-          <Img src={user?.picture} width={8} height={8} mr={2} />
-        ) : null}
-        <Text fontWeight={600} >
-          {user?.email}
-        </Text>
+        as={Button}
+        borderRadius="0px"
+        backgroundColor={isOpen ? "gray.100" : "transparent"}
+      >
+        <Flex maxW="85%" align={"center"}>
+          {user?.picture ? (
+            <Img src={user?.picture} width={8} height={8} mr={2} />
+          ) : null}
+          <Text fontWeight={600} isTruncated>
+            {user?.email}
+          </Text>
         </Flex>
         <Icon
           as={ChevronDownIcon}
@@ -82,13 +88,8 @@ const LoginOrUserMenuButtonMobile = ({
       </Flex>
 
       <Collapse in={isOpen} animateOpacity style={{ marginTop: "10px" }}>
-        <Stack
-          pl={4}
-          borderLeft={1}
-          borderStyle={"solid"}
-          align={"start"}
-        >
-          <Box py={1} px={4} >
+        <Stack pl={4} borderLeft={1} borderStyle={"solid"} align={"start"}>
+          <Box py={1} px={4}>
             Profile
           </Box>
           <Box py={1} px={4} onClick={() => logout()}>
@@ -115,7 +116,6 @@ const LoginOrUserMenuButtonMobile = ({
 const MenuItemsMobile = ({
   isMenuOpen,
   setIsMenuOpen,
-  currentActiveBaseId,
   ...props
 }: MenuItemsMobileProps) => {
   return (
@@ -124,20 +124,15 @@ const MenuItemsMobile = ({
       flexBasis={{ base: "100%", md: "auto" }}
       display={isMenuOpen ? "block" : "none"}
     >
-      <Stack
-        alignItems="start-end"
-        direction="column"
-      >
+      <Stack alignItems="start-end" direction="column">
         {props.menuItems.map((item, i) => (
           <MenuItemMobile key={i} {...item} setIsMenuOpen={setIsMenuOpen} />
         ))}
         <LoginOrUserMenuButtonMobile
-          currentActiveBaseId={currentActiveBaseId}
           isAuthenticated={props.isAuthenticated}
           logout={props.logout}
           loginWithRedirect={props.loginWithRedirect}
           user={props.user}
-          availableBases={props.availableBases}
         />
       </Stack>
     </Flex>
@@ -149,7 +144,7 @@ const MenuItemMobile = ({
   links,
   text,
 }: MenuItemProps & { setIsMenuOpen: (isOpen: boolean) => void }) => {
-  const { isOpen, onToggle, } = useDisclosure();
+  const { isOpen, onToggle } = useDisclosure();
 
   return (
     <Stack spacing={4} onClick={onToggle}>
@@ -162,16 +157,12 @@ const MenuItemMobile = ({
           backgroundColor: "gray.100",
         }}
         px={4}
-        border='1px'
+        border="1px"
         as={Button}
         borderRadius="0px"
         backgroundColor={isOpen ? "gray.100" : "transparent"}
       >
-        <Text
-          fontWeight={600}
-        >
-          {text}
-        </Text>
+        <Text fontWeight={600}>{text}</Text>
         <Icon
           as={ChevronDownIcon}
           transition={"all .25s ease-in-out"}
@@ -180,15 +171,10 @@ const MenuItemMobile = ({
           h={6}
         />
       </Flex>
-      <Collapse in={isOpen} animateOpacity style={{ marginTop: "10px" }} >
-        <Stack
-          pl={4}
-          borderLeft={1}
-          borderStyle={"solid"}
-          align={"start"}
-        >
+      <Collapse in={isOpen} animateOpacity style={{ marginTop: "10px" }}>
+        <Stack pl={4} borderLeft={1} borderStyle={"solid"} align={"start"}>
           {links.map((link) => (
-            <Box py={1} px={4} onClick={()=>setIsMenuOpen(false)}>
+            <Box py={1} px={4} onClick={() => setIsMenuOpen(false)}>
               <Link key={link.name} to={link.link}>
                 {link.name}
               </Link>
@@ -248,8 +234,6 @@ const HeaderMenuMobile = (props: HeaderMenuProps) => {
       <MenuItemsMobile
         isMenuOpen={isMenuOpen}
         setIsMenuOpen={setIsMenuOpen}
-        currentActiveBaseId={props.currentActiveBaseId}
-        availableBases={props.availableBases}
         logout={props.logout}
         loginWithRedirect={props.loginWithRedirect}
         user={props.user}

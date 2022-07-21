@@ -6,7 +6,6 @@ import AutomaticBaseSwitcher from "views/AutomaticBaseSwitcher/AutomaticBaseSwit
 import { GlobalPreferencesContext } from "providers/GlobalPreferencesProvider";
 
 const HeaderMenuContainer = () => {
-  const { globalPreferences } = useContext(GlobalPreferencesContext);
   const auth0 = useAuth0();
   const navigate = useNavigate();
   const baseId = useParams<{ baseId: string }>().baseId;
@@ -72,9 +71,7 @@ const HeaderMenuContainer = () => {
     <HeaderMenu
       // setIsMenuOpen={}
       menuItems={menuItems}
-      currentActiveBaseId={baseId}
       {...auth0}
-      availableBases={globalPreferences.availableBases}
       onClickScanQrCode={() => navigate(`/bases/${baseId}/scan-qrcode`)}
     />
   );

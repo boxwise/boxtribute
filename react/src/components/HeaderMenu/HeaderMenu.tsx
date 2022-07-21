@@ -2,12 +2,8 @@ import HeaderMenuMobile from "./HeaderMenuMobile";
 import HeaderMenuDeskop from "./HeaderMenuDeskop";
 import { LayoutProps, useMediaQuery } from "@chakra-ui/react";
 
-export interface BaseSwitcherProps {
-  currentActiveBaseId: string;
-  availableBases?: { id: string; name: string }[];
-}
 
-export interface UserMenuProps extends BaseSwitcherProps {
+export interface UserMenuProps  {
   logout: () => void;
   user?: {
     picture?: string;
@@ -16,8 +12,7 @@ export interface UserMenuProps extends BaseSwitcherProps {
 }
 
 export interface LoginOrUserMenuButtonProps
-  extends UserMenuProps,
-    BaseSwitcherProps {
+  extends UserMenuProps {
   isAuthenticated: boolean;
   logout: () => void;
   loginWithRedirect: () => void;

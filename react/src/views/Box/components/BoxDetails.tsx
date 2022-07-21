@@ -1,4 +1,4 @@
-import { EditIcon } from "@chakra-ui/icons";
+import { AddIcon, EditIcon, MinusIcon } from "@chakra-ui/icons";
 import {
   Box,
   List,
@@ -10,6 +10,7 @@ import {
   IconButton,
   Wrap,
   WrapItem,
+  useDisclosure,
 } from "@chakra-ui/react";
 import React, { useState } from "react";
 import { NavLink } from "react-router-dom";
@@ -23,17 +24,25 @@ interface BoxDetailsProps {
     | BoxByLabelIdentifierQuery["box"]
     | UpdateLocationOfBoxMutation["updateBox"];
   onMoveToLocationClick: (locationId: string) => void;
+  onOpen: () => void;
+  // onAddItemsToBoxClick: (numberOfItems: number) => void;
+  // onRemoveItemsFromBoxClick: (numberOfItems: number) => void;
 }
 
 const BoxDetails = ({
   boxData,
   onMoveToLocationClick: moveToLocationClick,
+  onOpen
 }: BoxDetailsProps) => {
+  
   // const allLocations = boxData?.place?.base?.locations
   // const [preferedLocations, setPreferedLocations] = useState(allLocations);
 
   // const setPreferedOrder = (locationId: string) => {
   //   const newPreferedLocations = [preferedLocations].unshift(...locationId);
+
+const [openAddItemsModal, setOpenAddItemsModal] = useState(false);
+const [openRemoveItemsModal, setOpenRemoveItemsModal] = useState(false);
 
   if (boxData == null) {
     console.error("BoxDetails Component: boxData is null");
@@ -51,6 +60,7 @@ const BoxDetails = ({
             <IconButton
               aria-label="Edit box"
               backgroundColor="transparent"
+              borderRadius='0'
               icon={<EditIcon h={6} w={6} />}
             />
           </NavLink>
@@ -70,10 +80,17 @@ const BoxDetails = ({
           <ListItem>
           <Flex direction="row">
           {boxData.tags.map((tag, i) => (
-            <Text mr={2}>{tag.name}</Text>
+            <Text mr={2}>#{tag.name}</Text>
           ))}
             </Flex>
           </ListItem>
+          <ListItem>
+          <Flex direction="row" justifyContent='flex-end' >
+          <IconButton onClick={onOpen} mr={4} border='2px' borderRadius='0' backgroundColor='transparent' aria-label='Search database' icon={<AddIcon />} />
+          <IconButton border='2px' borderRadius='0' backgroundColor='transparent' aria-label='Search database' icon={<MinusIcon />} />
+            </Flex>
+          </ListItem>
+          
         </List>
       </Box>
       <Box>
