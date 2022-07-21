@@ -283,6 +283,9 @@ workflows:
           context: STAGING
           requires:
             - checkout-to-workspace
+          filters:
+            branches:
+              only: master
       - deploy:
           name: deploy-staging
           context: STAGING
@@ -290,9 +293,6 @@ workflows:
           requires:
             - test-flask
             - build-and-test-react-staging
-          filters:
-            branches:
-              only: master
       - deploy:
           name: deploy-api-staging
           context: STAGING
@@ -309,6 +309,11 @@ workflows:
           context: DEMO
           requires:
             - checkout-to-workspace
+          filters:
+            tags:
+              ignore: /.*/
+            branches:
+              only: production
       - deploy:
           name: deploy-demo
           context: DEMO
@@ -316,11 +321,6 @@ workflows:
           requires:
             - test-flask
             - build-and-test-react-demo
-          filters:
-            tags:
-              ignore: /.*/
-            branches:
-              only: production
       - deploy:
           name: deploy-api-demo
           context: DEMO
@@ -339,6 +339,11 @@ workflows:
           context: PRODUCTION
           requires:
             - checkout-to-workspace
+          filters:
+            tags:
+              only: /.*/
+            branches:
+              ignore: /.*/
       - deploy:
           name: deploy-production
           context: PRODUCTION
@@ -346,11 +351,6 @@ workflows:
           requires:
             - test-flask
             - build-and-test-react-production
-          filters:
-            tags:
-              only: /^v.*/
-            branches:
-              ignore: /.*/
       - deploy:
           name: deploy-api-production
           context: PRODUCTION
