@@ -18,6 +18,8 @@
     "@sentry/integrations": "^7.7.0",
     "@sentry/react": "^7.7.0",
     "@sentry/tracing": "^7.7.0",
+    "@zxing/browser": "^0.1.1",
+    "@zxing/library": "^0.19.1",
     "chakra-react-select": "^3.3.6",
     "date-fns": "^2.28.0",
     "framer-motion": "^6.3.10",

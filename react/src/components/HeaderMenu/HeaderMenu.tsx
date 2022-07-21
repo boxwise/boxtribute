@@ -187,10 +187,6 @@ const MenuLinks = ({
           text="Beneficiaries"
         />
         <MainMenuItem
-          to={`/bases/${currentActiveBaseId}/generate-qr-codes`}
-          text="Generate QR Codes"
-        />
-        <MainMenuItem
           to={`/bases/${currentActiveBaseId}/box-transfers`}
           text="Box Transfers"
         />

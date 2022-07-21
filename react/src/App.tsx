@@ -5,7 +5,6 @@ import Boxes from "views/Boxes/BoxesView";
 import Layout from "components/Layout";
 import AutomaticBaseSwitcher from "views/AutomaticBaseSwitcher/AutomaticBaseSwitcher";
 import { gql, useLazyQuery } from "@apollo/client";
-import QrScanner from "components/QrScanner";
 import { BasesQuery } from "types/generated/graphql";
 import { GlobalPreferencesContext } from "providers/GlobalPreferencesProvider";
 import BTBox from "views/Box/BoxView";
@@ -70,7 +69,6 @@ const App = () => {
         <Route path="bases" element={<Layout />}>
           <Route index element={<AutomaticBaseSwitcher />}></Route>
           <Route path=":baseId">
-            <Route path="scan-qrcode" element={<QrScanner />} />
             <Route path="boxes">
               <Route index element={<Boxes />} />
               <Route path=":labelIdentifier" element={<BTBox />} />
