@@ -262,7 +262,7 @@ jobs:
           command: |
             gcloud app deploy app-<< parameters.serviceName >>.yaml
       - slack/notify-on-failure:
-        only_for_branches: master,production
+          only_for_branches: master,production
 
 workflows:
   build-and-deploy:
@@ -314,6 +314,8 @@ workflows:
             - test-flask
             - build-and-test-react
           filters:
+            tags:
+              ignore: /.*/
             branches:
               only: production
       - deploy:
@@ -323,6 +325,8 @@ workflows:
           requires:
             - test-flask
           filters:
+            tags:
+              ignore: /.*/
             branches:
               only: production
 
@@ -335,8 +339,10 @@ workflows:
             - test-flask
             - build-and-test-react
           filters:
+            tags:
+              only: /^v.*/
             branches:
-              only: production
+              ignore: /.*/
       - deploy:
           name: deploy-api-production
           context: PRODUCTION
@@ -344,5 +350,7 @@ workflows:
           requires:
             - test-flask
           filters:
+            tags:
+              only: /^v.*/
             branches:
-              only: production
+              ignore: /.*/
