@@ -1,5 +1,6 @@
 import {
-    FormLabel,
+  Box,
+  FormLabel,
   Input,
   Modal,
   ModalBody,
@@ -9,6 +10,7 @@ import {
   ModalHeader,
   ModalOverlay,
 } from "@chakra-ui/react";
+import {Select} from "chakra-react-select";
 import { useForm } from "react-hook-form";
 
 interface AddItemsToBoxData {
@@ -52,6 +54,14 @@ const AddItemsToBoxOverlay = ({
             mb={4}
             {...register("numberOfItemsToAdd")}
         />
+        <FormLabel fontSize="sm" htmlFor="originalLocation">
+            Items are coming from:
+          </FormLabel>
+          <Box position='relative'>
+            <Select
+            {...register("originalLocation")}
+            />
+        </Box>
             </form>
             
         </ModalBody>
