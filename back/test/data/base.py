@@ -1,6 +1,7 @@
 import pytest
 from boxtribute_server.models.definitions.base import Base
-from data.organisation import data as organisation_data
+
+from .organisation import data as organisation_data
 
 
 def data():

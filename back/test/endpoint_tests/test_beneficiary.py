@@ -34,6 +34,11 @@ def _generate_beneficiary_query(id):
                 createdBy {{ id }}
                 createdOn
             }}
+            tags {{
+                id
+                name
+                color
+            }}
         }}
     }}"""
 
@@ -44,6 +49,7 @@ def test_beneficiary_query(
     relative_beneficiary,
     default_transaction,
     relative_transaction,
+    tags,
 ):
     query = _generate_beneficiary_query(default_beneficiary["id"])
     beneficiary = assert_successful_request(read_only_client, query)
@@ -77,6 +83,14 @@ def test_beneficiary_query(
             }
             for tr in [default_transaction, relative_transaction]
         ],
+        "tags": [
+            {
+                "id": str(tags[i]["id"]),
+                "name": tags[i]["name"],
+                "color": tags[i]["color"],
+            }
+            for i in [0, 2]
+        ],
     }
 
     beneficiary_id = relative_beneficiary["id"]
@@ -93,6 +107,7 @@ def test_beneficiary_mutations(client):
     last_name = "One"
     dob_year = 2000
     dob = f"{dob_year}-01-01"
+    dos = "2022-07-16"
     base_id = 1
     group_id = "1234"
     gender = "Diverse"
@@ -110,6 +125,7 @@ def test_beneficiary_mutations(client):
                     languages: [{','.join(languages)}],
                     isVolunteer: true,
                     registered: false
+                    dateOfSignature: "{dos}"
                 }}"""
     mutation = f"""mutation {{
             createBeneficiary(
@@ -154,7 +170,7 @@ def test_beneficiary_mutations(client):
     assert not created_beneficiary["signed"]
     assert not created_beneficiary["registered"]
     assert created_beneficiary["signature"] is None
-    assert created_beneficiary["dateOfSignature"] is None
+    assert created_beneficiary["dateOfSignature"] == dos
     assert created_beneficiary["createdOn"] == created_beneficiary["lastModifiedOn"]
     assert created_beneficiary["createdBy"] == created_beneficiary["lastModifiedBy"]
 
@@ -222,6 +238,7 @@ def test_beneficiary_mutations(client):
         "tokens": 0,
         "createdOn": created_beneficiary["createdOn"],
         "transactions": [],
+        "tags": [],
     }
 
 

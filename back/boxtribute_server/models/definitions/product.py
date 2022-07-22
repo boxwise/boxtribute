@@ -14,7 +14,7 @@ class Product(db.Model):
         column_name="camp_id",
         field="id",
         model=Base,
-        null=True,
+        on_delete="RESTRICT",
         on_update="CASCADE",
         object_id_name="base_id",
     )
@@ -22,7 +22,7 @@ class Product(db.Model):
         column_name="category_id",
         field="id",
         model=ProductCategory,
-        null=True,
+        on_delete="RESTRICT",
     )
     comments = CharField(null=True)
     created_on = DateTimeField(column_name="created", null=True)
@@ -55,7 +55,7 @@ class Product(db.Model):
         column_name="sizegroup_id",
         field="id",
         model=SizeRange,
-        null=True,
+        on_delete="RESTRICT",
         on_update="CASCADE",
     )
     in_shop = IntegerField(

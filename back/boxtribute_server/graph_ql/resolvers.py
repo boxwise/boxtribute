@@ -1,7 +1,13 @@
 """GraphQL resolver functionality"""
 from datetime import date
 
-from ariadne import MutationType, ObjectType, QueryType, convert_kwargs_to_snake_case
+from ariadne import (
+    MutationType,
+    ObjectType,
+    QueryType,
+    UnionType,
+    convert_kwargs_to_snake_case,
+)
 from flask import g
 from peewee import fn
 
@@ -23,7 +29,7 @@ from ..box_transfer.shipment import (
     send_shipment,
     update_shipment,
 )
-from ..enums import HumanGender, TransferAgreementType
+from ..enums import HumanGender, TaggableObjectType, TransferAgreementType
 from ..models.crud import (
     create_beneficiary,
     create_box,
@@ -42,6 +48,8 @@ from ..models.definitions.qr_code import QrCode
 from ..models.definitions.shipment import Shipment
 from ..models.definitions.shipment_detail import ShipmentDetail
 from ..models.definitions.size import Size
+from ..models.definitions.tag import Tag
+from ..models.definitions.tags_relation import TagsRelation
 from ..models.definitions.transaction import Transaction
 from ..models.definitions.transfer_agreement import TransferAgreement
 from ..models.definitions.user import User
@@ -59,6 +67,7 @@ from .pagination import load_into_page
 query = QueryType()
 mutation = MutationType()
 object_types = []
+union_types = []
 
 
 def _register_object_type(name):
@@ -78,8 +87,18 @@ product_category = _register_object_type("ProductCategory")
 qr_code = _register_object_type("QrCode")
 shipment = _register_object_type("Shipment")
 shipment_detail = _register_object_type("ShipmentDetail")
+size = _register_object_type("Size")
+size_range = _register_object_type("SizeRange")
+tag = _register_object_type("Tag")
 transfer_agreement = _register_object_type("TransferAgreement")
 user = _register_object_type("User")
+
+
+@query.field("tags")
+def resolve_tags(*_):
+    # TODO: Add correct permissions here
+    # authorize(permission="tags:read")
+    return Tag.select()
 
 
 @user.field("bases")
@@ -132,6 +151,18 @@ def resolve_qr_exists(*_, qr_code):
 def resolve_qr_code(obj, _, qr_code=None):
     authorize(permission="qr:read")
     return obj.qr_code if qr_code is None else QrCode.get(QrCode.code == qr_code)
+
+
+@box.field("tags")
+def resolve_box_tags(box_obj, _):
+    return (
+        Tag.select()
+        .join(TagsRelation)
+        .where(
+            (TagsRelation.object_id == box_obj.id)
+            & (TagsRelation.object_type == TaggableObjectType.Box)
+        )
+    )
 
 
 @query.field("product")
@@ -259,6 +290,37 @@ def resolve_metrics(*_, organisation_id=None):
 
     # Pass organisation ID to child resolvers
     return {"organisation_id": organisation_id}
+
+
+@tag.field("taggedResources")
+def resolve_tag_tagged_resources(tag_obj, _):
+    # # TODO Add correct permissions herer
+    # # authorize(permission="tag:read")
+    beneficiary_relations = TagsRelation.select(TagsRelation.object_id).where(
+        (TagsRelation.tag == tag_obj.id)
+        & (TagsRelation.object_type == TaggableObjectType.Beneficiary)
+    )
+    box_relations = TagsRelation.select(TagsRelation.object_id).where(
+        (TagsRelation.tag == tag_obj.id)
+        & (TagsRelation.object_type == TaggableObjectType.Box)
+    )
+    return list(
+        Beneficiary.select().where(
+            Beneficiary.id << [r.object_id for r in beneficiary_relations]
+        )
+    ) + list(Box.select().where(Box.id << [r.object_id for r in box_relations]))
+
+
+@beneficiary.field("tags")
+def resolve_beneficiary_tags(beneficiary_obj, _):
+    return (
+        Tag.select()
+        .join(TagsRelation)
+        .where(
+            (TagsRelation.object_id == beneficiary_obj.id)
+            & (TagsRelation.object_type == TaggableObjectType.Beneficiary)
+        )
+    )
 
 
 @beneficiary.field("tokens")
@@ -552,13 +614,6 @@ def resolve_product_gender(product_obj, _):
     return product_obj.gender.id
 
 
-@product.field("sizes")
-def resolve_product_sizes(product_id, _):
-    product = Product.get_by_id(product_id)
-    sizes = Size.select(Size.label).where(Size.seq == product.size_range.seq)
-    return [size.label for size in sizes]
-
-
 @product_category.field("hasGender")
 def resolve_product_category_has_gender(product_category_obj, _):
     # Only categories derived from 'Clothing' (ID 12) have gender information
@@ -625,6 +680,11 @@ def resolve_shipment_detail_target_location(detail_obj, _):
     return detail_obj.target_location
 
 
+@size_range.field("sizes")
+def resolve_size_range_sizes(size_range_obj, _):
+    return Size.select().where((Size.size_range == size_range_obj.id))
+
+
 @transfer_agreement.field("sourceBases")
 def resolve_transfer_agreement_source_bases(transfer_agreement_obj, _):
     authorize(permission="base:read")
@@ -652,3 +712,12 @@ def resolve_transfer_agreement_shipments(transfer_agreement_obj, _):
 @user.field("organisation")
 def resolve_user_organisation(*_):
     return Organisation.get_by_id(g.user.organisation_id)
+
+
+def resolve_taggable_resource_type(obj, *_):
+    if isinstance(obj, Box):
+        return "Box"
+    return "Beneficiary"
+
+
+union_types.append(UnionType("TaggableResource", resolve_taggable_resource_type))

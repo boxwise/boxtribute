@@ -1,9 +1,10 @@
 import pytest
 from boxtribute_server.enums import BoxState
 from boxtribute_server.models.definitions.location import Location
-from data.base import data as base_data
-from data.box_state import default_box_state_data
-from data.user import default_user_data
+
+from .base import data as base_data
+from .box_state import default_box_state_data
+from .user import default_user_data
 
 
 def default_location_data():
@@ -16,6 +17,7 @@ def default_location_data():
         "is_donated": 0,
         "is_lost": 0,
         "is_shop": True,
+        "is_stockroom": False,
         "is_scrap": 0,
         "name": "Location",
         "seq": 1,

@@ -23,6 +23,10 @@ type Query {
   beneficiary(id: ID!): Beneficiary
   " Return all [`Beneficiaries`]({{Types.Beneficiary}}) that the client is authorized to view. "
   beneficiaries(paginationInput: PaginationInput, filterInput: FilterBeneficiaryInput): BeneficiaryPage!
+  """
+  Return all [`Tags`]({{Types.Tag}}) that the client is authorized to view. Optionally filter for tags of certain type.
+  """
+  tags(tagType: TagType): [Tag!]!
   transferAgreement(id: ID!): TransferAgreement
   """
   Return all [`TransferAgreements`]({{Types.TransferAgreement}}) that the client is authorized to view.

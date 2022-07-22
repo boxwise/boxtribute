@@ -1,8 +1,12 @@
 import { useMemo } from "react";
+import { useCallback} from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { useAuth0 } from "@auth0/auth0-react";
 import HeaderMenu, { MenuItemData } from "./HeaderMenu";
 import AutomaticBaseSwitcher from "views/AutomaticBaseSwitcher/AutomaticBaseSwitcher";
+import { useDisclosure, useToast } from "@chakra-ui/react";
+import QrReaderOverlayContainer from "components/QrReaderOverlay/QrReaderOverlayContainer";
+import { QrResolvedValue } from "components/QrReaderOverlay/QrReaderOverlay";
 
 
 const HeaderMenuContainer = () => {
@@ -15,23 +19,23 @@ const HeaderMenuContainer = () => {
       {
         text: "Boxes",
         links: [
-          { link: "link", name: "Print Labels" },
+          { link: "#", name: "Print Labels" },
           { link: `/bases/${baseId}/boxes`, name: "Manage Boxes" },
-          { link: "link", name: "Stock Overview" },
+          { link: "#", name: "Stock Overview" },
         ],
       },
       {
         text: "Freeshop",
         links: [
-          { link: "link", name: "Manage Beneficiaries" },
-          { link: "link1", name: "Checkout" },
-          { link: "link2", name: "Generate Market Schedule" },
+          { link: "#", name: "Manage Beneficiaries" },
+          { link: "#", name: "Checkout" },
+          { link: "#", name: "Generate Market Schedule" },
         ],
       },
       {
         text: "Mobile Distributions",
         links: [
-          { link: "link", name: "Calendar" },
+          { link: "#", name: "Calendar" },
           { link: `/bases/${baseId}/distributions`, name: "Distribution Events" },
           { link: `/bases/${baseId}/distributions/spots`, name: "Distribution Spots" },
         ],
@@ -39,41 +43,90 @@ const HeaderMenuContainer = () => {
       {
         text: "Box Transfers",
         links: [
-          { link: "link", name: "Transfer Agreements" },
-          { link: "link1", name: "Shipments" },
+          { link: "#", name: "Transfer Agreements" },
+          { link: "#", name: "Shipments" },
         ],
       },
       {
         text: "Data Insights",
         links: [
-          { link: "link", name: "Charts" },
-          { link: "link1", name: "Export" },
+          { link: "#", name: "Charts" },
+          { link: "#", name: "Export" },
         ],
       },
       {
         text: "Admin",
         links: [
-          { link: "link", name: "Manage Tags" },
-          { link: "link1", name: "Manage Products" },
-          { link: "link1", name: "Edit Warehouses" },
-          { link: "link1", name: "Manage Users" },
+          { link: "#", name: "Manage Tags" },
+          { link: "#", name: "Manage Products" },
+          { link: "#", name: "Edit Warehouses" },
+          { link: "#", name: "Manage Users" },
         ],
       },
     ],
     [baseId]
   );
 
+  const qrScannerOverlayState = useDisclosure({ defaultIsOpen: false });
+  const toast = useToast();
+
+  const onScanningDone = useCallback((qrResolvedValues: QrResolvedValue[]) => {
+    if (qrResolvedValues.length === 1) {
+      const singleResolvedQrValue = qrResolvedValues[0];
+      switch (singleResolvedQrValue.kind) {
+        case "success": {
+          const boxLabelIdentifier = singleResolvedQrValue.value;
+          navigate(`/bases/${baseId}/boxes/${boxLabelIdentifier}`);
+          break;
+        }
+        case "noBoxtributeQr": {
+          toast({
+            title: `Scanned QR code is not a Boxtribute QR code`,
+            status: "error",
+            isClosable: true,
+            duration: 2000,
+          });
+          break;
+        }
+        case "notAssignedToBox": {
+          toast({
+            title: `Scanned QR code is not assigned to a box yet`,
+            status: "info",
+            isClosable: true,
+            duration: 2000,
+          });
+          break;
+        }
+      }
+    } else {
+      toast({
+        title: `You scanned multiple boxes. What do you want to do with them? (WIP)`,
+        status: "info",
+        isClosable: true,
+        duration: 2000,
+      });
+    }
+  }, [baseId, navigate, toast]);
+
+
   if (baseId == null) {
     return <AutomaticBaseSwitcher />;
   }
 
   return (
-    <HeaderMenu
-      // setIsMenuOpen={}
-      menuItems={menuItems}
-      {...auth0}
-      onClickScanQrCode={() => navigate(`/bases/${baseId}/scan-qrcode`)}
-    />
+
+    <>
+      <HeaderMenu
+        {...auth0}
+        menuItems={menuItems}
+        onClickScanQrCode={() => qrScannerOverlayState.onOpen()}
+      />
+      <QrReaderOverlayContainer
+        isOpen={qrScannerOverlayState.isOpen}
+        onClose={qrScannerOverlayState.onClose}
+        onScanningDone={onScanningDone}
+      />
+    </>
   );
 };
 export default HeaderMenuContainer;

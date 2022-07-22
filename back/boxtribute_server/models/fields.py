@@ -1,35 +1,59 @@
 """Custom peewee field types for data model definitions."""
-from peewee import CharField, DateTimeField, ForeignKeyField
+import enum
+
+from peewee import SQL, CharField, DateTimeField, ForeignKeyField
 
 
 class EnumCharField(CharField):
-    """Custom class to store name of Python enum item (enum class passed as the
+    """Custom class to store name OR value of Python enum item (enum class passed as the
     `choices` argument during initialization) in a `varchar` field.
     Two methods are provided to convert between application and database layer.
     The conversion is defined by the `choices` attribute.
     Cf. suggestions in https://github.com/coleifer/peewee/issues/630
 
     Note that this class does not represent the MySQL ENUM type.
+
+    If the GraphQL enum values are not identical to the values used on database level
+    (the Python enum class derives from `enum.Enum`), a mapping is performed, e.g.
+        -  GraphQL TagType.Box
+        -> Python  TagType.Box
+        -> MySQL   "Stock"
+    Otherwise (for `IntEnum` classes) the enum value is irrelevant.
+
+    If the `default` kwarg is specified, a corresponding SQL constraint is derived.
     """
 
     def __init__(self, *args, **kwargs):
         self.enum_class = kwargs.pop("choices")
+        self.is_int_enum_class = issubclass(self.enum_class, enum.IntEnum)
+
+        default = kwargs.get("default")
+        if default is not None:
+            constraints = kwargs.get("constraints", [])
+            default = default.name if self.is_int_enum_class else default.value
+            constraints.append(SQL(f"DEFAULT '{default}'"))
+            kwargs["constraints"] = constraints
+
         super().__init__(*args, **kwargs)
 
     def db_value(self, value):
         """Convert from application to database layer. Accept Python enum member as
-        value, and return the corresponding enum member name. This way, two scenarios
-        are supported:
+        value, and return the corresponding enum member name OR value. This way, two
+        scenarios are supported:
         1. storing the value of a GraphQL Enum input field
         2. assigning a Python enum member to a peewee model field
         """
-        return value.name
+        return value.name if self.is_int_enum_class else value.value
 
     def python_value(self, name):
         """Convert from database to application layer. Return Python enum member (which
         in the GraphQL layer is converted to an Enum field).
         """
-        return getattr(self.enum_class, name)
+        return (
+            getattr(self.enum_class, name)  # e.g. "Lost" -> BoxState.Lost
+            if self.is_int_enum_class
+            else self.enum_class(name)  # e.g. "Stock" -> TagType.Box
+        )
 
 
 class UIntForeignKeyField(ForeignKeyField):

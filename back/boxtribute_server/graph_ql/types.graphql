@@ -9,10 +9,9 @@ type Box {
   labelIdentifier: String!
   location: Location
   " The number of items the box contains. "
-  items: Int!
+  items: Int
   product: Product
-  # A size from a size range, consider making this enum
-  size: String
+  size: Size!
   state: BoxState!
   qrCode: QrCode
   createdBy: User
@@ -20,6 +19,7 @@ type Box {
   lastModifiedBy: User
   lastModifiedOn: Datetime
   comment: String
+  tags: [Tag!]!
 }
 
 """
@@ -41,8 +41,6 @@ type Product {
   name: String!
   category: ProductCategory!
   sizeRange: SizeRange!
-  " List of sizes for the product. "
-  sizes: [String!]!
   base: Base
   price: Float
   gender: ProductGender
@@ -74,6 +72,21 @@ type ProductPage {
   totalCount: Int!
 }
 
+" Union for resources that tags can be applied to. "
+union TaggableResource = Box | Beneficiary
+
+"""
+Representation of a tag.
+"""
+type Tag {
+  id: ID!
+  name: String!
+  description: String
+  color: String
+  type: TagType!
+  taggedResources: [TaggableResource!]!
+}
+
 """
 Classificators for [`Product`]({{Types.Product}}) gender.
 """
@@ -103,12 +116,29 @@ enum BoxState {
 }
 
 """
+Classificators for [`Tag`]({{Types.Tag}}) type.
+"""
+enum TagType {
+  Box
+  Beneficiary
+  All
+}
+
+"""
+Representation of product size.
+"""
+type Size {
+  id: ID!
+  label: String!
+}
+
+"""
 Representation of group of sizes.
 """
 type SizeRange {
   id: ID!
   label: String!
-  sizes: [String!]!
+  sizes: [Size!]!
   productCategory: [ProductCategory!]
 }
 
@@ -121,6 +151,7 @@ type Location {
   base: Base
   name: String
   isShop: Boolean!
+  isStockroom: Boolean!
   " List of all the [`Boxes`]({{Types.Box}}) in this location "
   boxes(paginationInput: PaginationInput, filterInput: FilterBoxInput): BoxPage
   " Default state for boxes in this location "
@@ -151,9 +182,11 @@ type Base {
   " List of all [`Locations`]({{Types.Location}}) present in this base "
   locations: [Location!]
   " List of all [`Beneficiaries`]({{Types.Beneficiary}}) registered in this base "
-  beneficiaries(paginationInput: PaginationInput, filterInput: FilterBeneficiaryInput): BeneficiaryPage!
+  beneficiaries(
+    paginationInput: PaginationInput
+    filterInput: FilterBeneficiaryInput
+  ): BeneficiaryPage!
   currencyName: String
-  distributions: Distributions!
 }
 
 """
@@ -164,39 +197,6 @@ type Organisation {
   name: String!
   " List of all [`Bases`]({{Types.Base}}) managed by this organisation "
   bases: [Base!]
-}
-
-enum DistributionEventState {
-  NEW
-  PLANNING
-  PLANNING_DONE
-  PACKING
-  PACKING_DONE
-  ON_DISTRO
-  RETURNED
-  RETURNS_TRACKED
-  COMPLETED
-}
-
-type DistributionEvent {
-  id: ID!
-  base: Base
-  name: String
-  state: DistributionEventState!
-  dateTime: Datetime!
-}
-
-type Distributions {
-  distributionSpots: [DistributionSpot!]!
-}
-
-type DistributionSpot {
-  id: ID!
-  name: String!
-  comment: String!
-  latitude: Float!
-  longitude: Float!
-  distributionEvents: [DistributionEvent!]!
 }
 
 """
@@ -258,6 +258,7 @@ type Beneficiary {
   createdOn: Datetime
   lastModifiedBy: User
   lastModifiedOn: Datetime
+  tags: [Tag!]!
 }
 
 """

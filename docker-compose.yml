@@ -33,6 +33,8 @@ services:
             context: ./react
         environment:
             NODE_ENV: development
+            REACT_APP_SENTRY_ENVIRONMENT: ${SENTRY_ENVIRONMENT:-development}
+            REACT_APP_SENTRY_FE_DSN: ${SENTRY_FE_DSN:-}
             REACT_APP_AUTH0_DOMAIN: ${AUTH0_DOMAIN:?auth0 config not set in .env file}
             REACT_APP_AUTH0_CLIENT_ID: ${AUTH0_CLIENT_ID:?auth0 config not set in .env file}
             REACT_APP_AUTH0_AUDIENCE:  ${AUTH0_AUDIENCE:?auth0 config not set in .env file}
@@ -57,7 +59,7 @@ services:
             - /app/react/node_modules
     db:
         image: mysql/mysql-server:8.0 # We run MySQL 8.0 on the production environment atm
-        command: --default-authentication-plugin=mysql_native_password --lower_case_table_names=1
+        command: --default-authentication-plugin=mysql_native_password --lower_case_table_names=1 --character-set-server=utf8mb4 --collation-server=utf8mb4_0900_ai_ci
         environment:
             MYSQL_ROOT_PASSWORD: dropapp_root
             MYSQL_ROOT_HOST: "%"

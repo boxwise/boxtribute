@@ -3,10 +3,7 @@ from boxtribute_server.enums import BoxState
 from utils import assert_successful_request
 
 
-def test_box_query_by_label_identifier(
-    read_only_client,
-    default_box,
-):
+def test_box_query_by_label_identifier(read_only_client, default_box, tags):
     label_identifier = default_box["label_identifier"]
     query = f"""query {{
                 box(labelIdentifier: "{label_identifier}") {{
@@ -15,11 +12,16 @@ def test_box_query_by_label_identifier(
                     location {{ id }}
                     items
                     product {{ id }}
-                    size
+                    size {{ id }}
                     state
                     qrCode {{ id }}
                     createdBy {{ id }}
                     comment
+                    tags {{
+                        id
+                        name
+                        color
+                    }}
                 }}
             }}"""
     queried_box = assert_successful_request(read_only_client, query)
@@ -29,11 +31,18 @@ def test_box_query_by_label_identifier(
         "location": {"id": str(default_box["location"])},
         "items": default_box["items"],
         "product": {"id": str(default_box["product"])},
-        "size": str(default_box["size"]),
+        "size": {"id": str(default_box["size"])},
         "state": BoxState.InStock.name,
         "qrCode": {"id": str(default_box["qr_code"])},
         "createdBy": {"id": str(default_box["created_by"])},
-        "comment": default_box["comment"],
+        "comment": None,
+        "tags": [
+            {
+                "id": str(tags[1]["id"]),
+                "name": tags[1]["name"],
+                "color": tags[1]["color"],
+            }
+        ],
     }
 
 
@@ -49,13 +58,16 @@ def test_box_query_by_qr_code(read_only_client, default_box, default_qr_code):
     assert queried_box["labelIdentifier"] == default_box["label_identifier"]
 
 
-def test_box_mutations(client, qr_code_without_box, default_size, another_size):
+def test_box_mutations(
+    client, qr_code_without_box, default_size, another_size, products, default_location
+):
+    size_id = str(default_size["id"])
+    location_id = str(default_location["id"])
+    product_id = str(products[0]["id"])
     box_creation_input_string = f"""{{
-                    productId: 1,
-                    items: 9999,
-                    locationId: 1,
-                    comment: "",
-                    sizeId: {default_size["id"]},
+                    productId: {product_id},
+                    locationId: {location_id},
+                    sizeId: {size_id},
                     qrCode: "{qr_code_without_box["code"]}",
                 }}"""
     mutation = f"""mutation {{
@@ -67,7 +79,7 @@ def test_box_mutations(client, qr_code_without_box, default_size, another_size):
                 items
                 location {{ id }}
                 product {{ id }}
-                size
+                size {{ id }}
                 qrCode {{ id }}
                 state
                 createdOn
@@ -77,36 +89,43 @@ def test_box_mutations(client, qr_code_without_box, default_size, another_size):
             }}
         }}"""
     created_box = assert_successful_request(client, mutation)
-    assert created_box["items"] == 9999
-    assert created_box["state"] == "InStock"
-    assert created_box["location"]["id"] == "1"
-    assert created_box["product"]["id"] == "1"
-    assert created_box["size"] == str(default_size["id"])
+    assert created_box["items"] is None
+    assert created_box["state"] == BoxState.InStock.name
+    assert created_box["location"]["id"] == location_id
+    assert created_box["product"]["id"] == product_id
+    assert created_box["size"]["id"] == size_id
     assert created_box["qrCode"]["id"] == str(qr_code_without_box["id"])
     assert created_box["createdOn"] == created_box["lastModifiedOn"]
     assert created_box["createdBy"] == created_box["lastModifiedBy"]
 
+    size_id = str(another_size["id"])
+    product_id = str(products[2]["id"])
+    comment = "updatedComment"
+    nr_items = 7777
     mutation = f"""mutation {{
             updateBox(
                 updateInput : {{
-                    items: 7777,
+                    items: {nr_items},
                     labelIdentifier: "{created_box["labelIdentifier"]}"
-                    comment: "updatedComment"
-                    sizeId: {another_size["id"]},
+                    comment: "{comment}"
+                    sizeId: {size_id},
+                    productId: {product_id},
                 }} ) {{
                 items
                 lastModifiedOn
                 createdOn
                 qrCode {{ id }}
                 comment
-                size
+                size {{ id }}
+                product {{ id }}
             }}
         }}"""
     updated_box = assert_successful_request(client, mutation)
-    assert updated_box["comment"] == "updatedComment"
-    assert updated_box["items"] == 7777
+    assert updated_box["comment"] == comment
+    assert updated_box["items"] == nr_items
     assert updated_box["qrCode"] == created_box["qrCode"]
-    assert updated_box["size"] == str(another_size["id"])
+    assert updated_box["size"]["id"] == size_id
+    assert updated_box["product"]["id"] == product_id
 
 
 def _format(parameter):

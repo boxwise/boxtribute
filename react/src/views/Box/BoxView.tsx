@@ -12,7 +12,10 @@ export const BOX_BY_LABEL_IDENTIFIER_QUERY = gql`
   query BoxByLabelIdentifier($labelIdentifier: String!) {
     box(labelIdentifier: $labelIdentifier) {
       labelIdentifier
-      size
+      size {
+        id
+        label
+      }
       items
       product {
         name
@@ -44,7 +47,10 @@ export const UPDATE_LOCATION_OF_BOX_MUTATION = gql`
       }
     ) {
       labelIdentifier
-      size
+      size {
+        id
+        label
+      }
       items
       product {
         name
@@ -89,7 +95,7 @@ const BTBox = () => {
     return <div>Updating box...</div>;
   }
   if (error || mutationStatus.error) {
-    console.error(error || mutationStatus.error);
+    console.error("Error in BoxView: ", error || mutationStatus.error);
     return <div>Error!</div>;
   }
 

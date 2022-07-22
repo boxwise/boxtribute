@@ -64,3 +64,14 @@ class HumanGender(enum.Enum):
     Male = "M"
     Female = "F"
     Diverse = "D"
+
+
+class TagType(enum.Enum):
+    Box = "Stock"
+    Beneficiary = "People"
+    All = "All"
+
+
+class TaggableObjectType(enum.Enum):
+    Box = "Stock"
+    Beneficiary = "People"

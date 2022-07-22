@@ -23,7 +23,7 @@ The following steps build on top of each other and have to be performed in corre
 
 ### Install python
 
-Install [Python >=3.6](https://www.python.org/downloads/) on your computer. You will need it to run tests on the back-end and the formatters and linters on both back-end and front-end.
+Install [Python >=3.10](https://www.python.org/downloads/) on your computer. You will need it to run tests on the back-end and the formatters and linters on both back-end and front-end.
 
 ### Create a Python virtual environment
 
@@ -187,6 +187,14 @@ To log to the console while running the `webapp` service, do
     from flask import current_app
     current_app.logger.warn(<whatever you want to log>)
 
+You might want to inspect the SQL queries issued by peewee while running the app. For this you need to create a Logger instance (similar to above but without attaching a `StreamHandler`) and have its output propagated to the flask logger. In `routes.py` add the following lines at the beginning of the `graphql_server` function body:
+
+    from flask import current_app
+    import logging
+    peewee_logger = logging.getLogger("peewee")
+    peewee_logger.setLevel(logging.DEBUG)
+    peewee_logger.parent = current_app.logger
+
 Note that in production mode, logging is also subject to the configuration of the WSGI server.
 
 ## Testing
@@ -249,6 +257,7 @@ Test data is set up in the `test/data/` folder. Three definitions are required:
 **Please be aware that**
 
 - for new data the fixtures must be imported in `test/data/__init__.py` and added to the `__all__` list
+- the module names of data models that are dependencies of others have to be properly added to the `_NAMES` list in `test/data/__init__.py`. This way foreign-key references set-up in correct order when the test data tables are created
 
 #### App tests
 
@@ -299,6 +308,13 @@ You can experiment with the API in the GraphQL playground.
                 name
             }
         }
+
+If you lack an internet connection to communicate with Auth0, it might be beneficial to circumvent the authentication logic. You have to hardcode your client identity then. In the `boxtribute_server/auth.py` module, replace the body of the `decorated` function by
+
+    g.user = CurrentUser(id=8, is_god=True)
+    return f(*args, **kwargs)
+
+to simulate a god user with ID 8 (for a regular user, set something like `id=1, organisation_id=1`).
 
 ## Production environment
 
