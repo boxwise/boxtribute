@@ -296,7 +296,7 @@ workflows:
           requires:
             - test-flask
             - build-and-test-react-staging
-          filters:  
+          filters:
             branches:
               only: master
       - deploy:
