@@ -348,10 +348,8 @@ workflows:
           requires:
             - checkout-to-workspace
           filters:
-            tags:
-              only: /^v.*/
             branches:
-              ignore: /.*/
+              only: production
       - deploy:
           name: deploy-production
           context: PRODUCTION
@@ -360,10 +358,8 @@ workflows:
             - test-flask
             - build-and-test-react-production
           filters:
-            tags:
-              only: /^v.*/
             branches:
-              ignore: /.*/
+              only: production
       - deploy:
           name: deploy-api-production
           context: PRODUCTION
@@ -371,7 +367,5 @@ workflows:
           requires:
             - test-flask
           filters:
-            tags:
-              only: /^v.*/
             branches:
-              ignore: /.*/
+              only: production
