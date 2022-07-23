@@ -1,6 +1,7 @@
 from boxtribute_server.models.definitions.base import Base
 from boxtribute_server.models.definitions.beneficiary import Beneficiary
 from boxtribute_server.models.definitions.box import Box
+from boxtribute_server.models.definitions.distribution_event import DistributionEvent
 from boxtribute_server.models.definitions.history import DbChangeHistory
 from boxtribute_server.models.definitions.log import Log
 from boxtribute_server.models.definitions.qr_code import QrCode
@@ -25,6 +26,7 @@ def test_models(
     default_transaction,
     default_transfer_agreement,
     default_user,
+    default_distribution_event,
 ):
     """Issue select-query for single model instance.
     Verify that result is a superset of the original test data (the test data might not
@@ -58,6 +60,11 @@ def test_models(
         TransferAgreement, default_transfer_agreement["id"]
     )
     assert transfer_agreement.items() >= default_transfer_agreement.items()
+
+    distribution_event = model_instance_dict(
+        DistributionEvent, default_distribution_event["id"]
+    )
+    assert distribution_event.items() >= default_distribution_event.items()
 
     user = model_instance_dict(User, default_user["id"])
     assert user.items() >= default_user.items()

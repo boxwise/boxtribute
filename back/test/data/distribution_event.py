@@ -1,9 +1,10 @@
 from datetime import datetime
-from test.data.location import distribution_spot_data
 
 import pytest
 from boxtribute_server.enums import DistributionEventState, LocationType
-from boxtribute_server.models.definitions.location import Location
+from boxtribute_server.models.definitions.distribution_event import DistributionEvent
+
+from .location import distribution_spot_data
 
 
 def default_distribution_event_data():
@@ -24,4 +25,4 @@ def default_distribution_event():
 
 
 def create():
-    Location.create(**default_distribution_event_data())
+    DistributionEvent.create(**default_distribution_event_data())
