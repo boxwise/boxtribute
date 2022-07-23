@@ -36,4 +36,9 @@ type Mutation {
     distributionEventId: ID!
     numberOfItems: Int!
   ): UnboxedItemsCollection
+
+  moveBoxFromDistributionEventToLocation(boxLabelIdentifier: ID!, locationId: ID!): DistributionEvent
+  moveItemsFromDistributionEventToBox(unboxedItemsCollectionId: ID!, boxLabelIdentifier: ID!): DistributionEvent
+
+  markDistributionEventAsComplete(distributionEventId: ID!): DistributionEvent
 }
