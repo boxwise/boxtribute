@@ -118,6 +118,17 @@ class InvalidShipmentState(_InvalidResourceState):
         )
 
 
+class InvalidDistributionEventState(_InvalidResourceState):
+    def __init__(self, *args, expected_states, actual_state, **kwargs):
+        super().__init__(
+            "distribution_event",
+            expected_states=expected_states,
+            actual_state=actual_state,
+            *args,
+            **kwargs,
+        )
+
+
 class InvalidPaginationInput(Exception):
     extensions = {
         "code": "BAD_USER_INPUT",

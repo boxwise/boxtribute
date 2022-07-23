@@ -10,8 +10,13 @@ from boxtribute_server.models.definitions.unboxed_items_collection import (
 )
 
 from ..db import db
-from ..enums import BoxState, LocationType, PackingListEntryState
-from ..exceptions import BoxCreationFailed
+from ..enums import (
+    BoxState,
+    DistributionEventState,
+    LocationType,
+    PackingListEntryState,
+)
+from ..exceptions import BoxCreationFailed, InvalidShipmentState
 from .definitions.beneficiary import Beneficiary
 from .definitions.box import Box
 from .definitions.location import Location
@@ -144,30 +149,48 @@ def move_box_to_distribution_event(box_label_identifier, distribution_event_id):
         return box
 
 
+def change_distribution_event_state(distribution_event_id, distribution_event_state):
+    distribution_event = DistributionEvent.get_by_id(distribution_event_id)
+
+    # TODO: als check for state == Completed for all other mutations on
+    # a DistroEvent or DistroEvent connected data
+    # Completed Events should not be mutable anymore
+    if distribution_event.state == DistributionEventState.Completed:
+        raise InvalidShipmentState(
+            expected_states=[
+                s
+                for s in DistributionEventState
+                if s != DistributionEventState.Completed
+            ],
+            actual_state=distribution_event_state,
+        )
+    distribution_event.state = distribution_event_state
+    distribution_event.save()
+    return distribution_event
+
+
 def add_packing_list_entry_to_distribution_event(
     user_id,
     distribution_event_id,
     product_id,
     size_id,
-    # TODO: Rename this to number_of_items (also numberOfItems in graphql schema)
     number_of_items,
 ):
     """
     Add a packing list entry to a distribution event.
     """
     now = utcnow()
-    with db.database.atomic():
-        return PackingListEntry.create(
-            distribution_event=distribution_event_id,
-            product=product_id,
-            number_of_items=number_of_items,
-            size=size_id,
-            state=PackingListEntryState.NotStarted,
-            created_on=now,
-            created_by=user_id,
-            last_modified_on=now,
-            last_modified_by=user_id,
-        )
+    return PackingListEntry.create(
+        distribution_event=distribution_event_id,
+        product=product_id,
+        number_of_items=number_of_items,
+        size=size_id,
+        state=PackingListEntryState.NotStarted,
+        created_on=now,
+        created_by=user_id,
+        last_modified_on=now,
+        last_modified_by=user_id,
+    )
 
 
 def create_distribution_event(
