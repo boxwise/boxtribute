@@ -974,6 +974,10 @@ CREATE TABLE `locations` (
   `deleted` datetime DEFAULT NULL,
   `is_scrap` tinyint(1) NOT NULL DEFAULT '0',
   `box_state_id` int(11) unsigned NOT NULL DEFAULT '1',
+  `type` varchar(20) NOT NULL,
+  `latitude` double DEFAULT NULL,
+  `longitude` double DEFAULT NULL,
+  `description` varchar(80) DEFAULT NULL,
   PRIMARY KEY (`id`),
   KEY `camp_id` (`camp_id`),
   KEY `box_state_id` (`box_state_id`),
@@ -989,11 +993,12 @@ CREATE TABLE `locations` (
 
 --
 -- Dumping data for table `locations`
+
 --
 
 LOCK TABLES `locations` WRITE;
 /*!40000 ALTER TABLE `locations` DISABLE KEYS */;
-INSERT INTO `locations` VALUES (1,'Shop',1,1,NULL,NULL,NULL,NULL,0,0,1,0,0,NULL,0,5),(2,'LOST',1,2,NULL,NULL,NULL,NULL,0,0,0,0,1,NULL,0,2),(3,'SCRAP',1,3,NULL,NULL,NULL,NULL,0,0,0,0,0,NULL,1,6),(4,'Stockroom',1,4,NULL,NULL,NULL,NULL,1,1,0,0,0,NULL,0,1),(5,'WH',1,5,NULL,NULL,NULL,NULL,1,0,0,0,0,NULL,0,1),(6,'WH Women',1,6,NULL,NULL,NULL,NULL,1,0,0,0,0,NULL,0,1),(7,'WH Men',1,7,NULL,NULL,NULL,NULL,1,0,0,0,0,NULL,0,1),(8,'WH Children',1,8,NULL,NULL,NULL,NULL,1,0,0,0,0,NULL,0,1),(9,'WH Babies',1,9,NULL,NULL,NULL,NULL,1,0,0,0,0,NULL,0,1),(10,'WH Shoes',1,10,NULL,NULL,NULL,NULL,1,0,0,0,0,NULL,0,1),(11,'WH New arrivals',1,11,NULL,NULL,NULL,NULL,1,0,0,0,0,NULL,0,1),(12,'WH Hygiene',1,12,NULL,NULL,NULL,NULL,1,0,0,0,0,NULL,0,1),(13,'WH Seasonal',1,12,NULL,NULL,NULL,NULL,1,0,0,0,0,NULL,0,1),(14,'LOST',2,14,NULL,NULL,NULL,NULL,0,0,0,0,1,NULL,0,2),(15,'SCRAP',2,15,NULL,NULL,NULL,NULL,0,0,0,0,0,NULL,1,6),(16,'Stockroom',2,16,NULL,NULL,NULL,NULL,1,1,0,0,0,NULL,0,1),(17,'WH1',2,17,NULL,NULL,NULL,NULL,1,0,0,0,0,NULL,0,1),(18,'WH2',2,18,NULL,NULL,NULL,NULL,1,0,0,0,0,NULL,0,1),(19,'Shop',3,19,NULL,NULL,NULL,NULL,0,0,1,0,0,NULL,0,5),(20,'LOST',3,20,NULL,NULL,NULL,NULL,0,0,0,0,1,NULL,0,2),(21,'SCRAP',3,21,NULL,NULL,NULL,NULL,0,0,0,0,0,NULL,1,6),(22,'Stockroom',3,21,NULL,NULL,NULL,NULL,1,1,0,0,0,NULL,0,1),(100000000,'TestShop',100000000,NULL,NULL,NULL,NULL,NULL,0,0,1,0,0,NULL,0,5),(100000001,'TestLOST',100000000,NULL,NULL,NULL,NULL,NULL,0,0,0,0,1,NULL,0,2),(100000002,'TestDonated',100000000,NULL,NULL,NULL,NULL,NULL,0,0,0,1,0,NULL,0,5),(100000003,'TestWarehouse',100000000,NULL,NULL,NULL,NULL,NULL,1,0,0,0,0,NULL,0,1),(100000004,'TestStockroom',100000000,NULL,NULL,NULL,NULL,NULL,1,1,0,0,0,NULL,0,1),(100000005,'TestDummyLocation',100000001,NULL,NULL,NULL,NULL,NULL,0,0,1,0,0,NULL,0,5),(100000006,'TestSCRAP',100000000,NULL,NULL,NULL,NULL,NULL,0,0,0,0,0,NULL,1,6);
+INSERT INTO `locations` VALUES (1,'Shop',1,1,NULL,NULL,NULL,NULL,0,0,1,0,0,NULL,0,5,'Warehouse', NULL, NULL, NULL),(2,'LOST',1,2,NULL,NULL,NULL,NULL,0,0,0,0,1,NULL,0,2,'Warehouse', NULL, NULL, NULL),(3,'SCRAP',1,3,NULL,NULL,NULL,NULL,0,0,0,0,0,NULL,1,6,'Warehouse', NULL, NULL, NULL),(4,'Stockroom',1,4,NULL,NULL,NULL,NULL,1,1,0,0,0,NULL,0,1,'Warehouse', NULL, NULL, NULL),(5,'WH',1,5,NULL,NULL,NULL,NULL,1,0,0,0,0,NULL,0,1,'Warehouse', NULL, NULL, NULL),(6,'WH Women',1,6,NULL,NULL,NULL,NULL,1,0,0,0,0,NULL,0,1,'Warehouse', NULL, NULL, NULL),(7,'WH Men',1,7,NULL,NULL,NULL,NULL,1,0,0,0,0,NULL,0,1,'Warehouse', NULL, NULL, NULL),(8,'WH Children',1,8,NULL,NULL,NULL,NULL,1,0,0,0,0,NULL,0,1,'Warehouse', NULL, NULL, NULL),(9,'WH Babies',1,9,NULL,NULL,NULL,NULL,1,0,0,0,0,NULL,0,1,'Warehouse', NULL, NULL, NULL),(10,'WH Shoes',1,10,NULL,NULL,NULL,NULL,1,0,0,0,0,NULL,0,1,'Warehouse', NULL, NULL, NULL),(11,'WH New arrivals',1,11,NULL,NULL,NULL,NULL,1,0,0,0,0,NULL,0,1,'Warehouse', NULL, NULL, NULL),(12,'WH Hygiene',1,12,NULL,NULL,NULL,NULL,1,0,0,0,0,NULL,0,1,'Warehouse', NULL, NULL, NULL),(13,'WH Seasonal',1,12,NULL,NULL,NULL,NULL,1,0,0,0,0,NULL,0,1,'Warehouse', NULL, NULL, NULL),(14,'LOST',2,14,NULL,NULL,NULL,NULL,0,0,0,0,1,NULL,0,2,'Warehouse', NULL, NULL, NULL),(15,'SCRAP',2,15,NULL,NULL,NULL,NULL,0,0,0,0,0,NULL,1,6,'Warehouse', NULL, NULL, NULL),(16,'Stockroom',2,16,NULL,NULL,NULL,NULL,1,1,0,0,0,NULL,0,1,'Warehouse', NULL, NULL, NULL),(17,'WH1',2,17,NULL,NULL,NULL,NULL,1,0,0,0,0,NULL,0,1,'Warehouse', NULL, NULL, NULL),(18,'WH2',2,18,NULL,NULL,NULL,NULL,1,0,0,0,0,NULL,0,1,'Warehouse', NULL, NULL, NULL),(19,'Shop',3,19,NULL,NULL,NULL,NULL,0,0,1,0,0,NULL,0,5,'Warehouse', NULL, NULL, NULL),(20,'LOST',3,20,NULL,NULL,NULL,NULL,0,0,0,0,1,NULL,0,2,'Warehouse', NULL, NULL, NULL),(21,'SCRAP',3,21,NULL,NULL,NULL,NULL,0,0,0,0,0,NULL,1,6,'Warehouse', NULL, NULL, NULL),(22,'Stockroom',3,21,NULL,NULL,NULL,NULL,1,1,0,0,0,NULL,0,1,'Warehouse', NULL, NULL, NULL),(100000000,'TestShop',100000000,NULL,NULL,NULL,NULL,NULL,0,0,1,0,0,NULL,0,5,'Warehouse', NULL, NULL, NULL),(100000001,'TestLOST',100000000,NULL,NULL,NULL,NULL,NULL,0,0,0,0,1,NULL,0,2,'Warehouse', NULL, NULL, NULL),(100000002,'TestDonated',100000000,NULL,NULL,NULL,NULL,NULL,0,0,0,1,0,NULL,0,5,'Warehouse', NULL, NULL, NULL),(100000003,'TestWarehouse',100000000,NULL,NULL,NULL,NULL,NULL,1,0,0,0,0,NULL,0,1,'Warehouse', NULL, NULL, NULL),(100000004,'TestStockroom',100000000,NULL,NULL,NULL,NULL,NULL,1,1,0,0,0,NULL,0,1,'Warehouse', NULL, NULL, NULL),(100000005,'TestDummyWarehouse',100000001,NULL,NULL,NULL,NULL,NULL,0,0,1,0,0,NULL,0,5,'Warehouse', NULL, NULL, NULL),(100000006,'TestSCRAP',100000000,NULL,NULL,NULL,NULL,NULL,0,0,0,0,0,NULL,1,6,'Warehouse', NULL, NULL, NULL);
 /*!40000 ALTER TABLE `locations` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -1499,6 +1504,16 @@ INSERT INTO `stock` VALUES (1,'923563',441,52,65,21,1,NULL,NULL,NULL,NULL,NULL,N
 /*!40000 ALTER TABLE `stock` ENABLE KEYS */;
 UNLOCK TABLES;
 
+
+
+
+-- Additional new columns
+
+ALTER TABLE dropapp_dev.stock ADD distribution_event_id int unsigned NULL;
+
+
+
+
 --
 -- Table structure for table `tags`
 --
@@ -1847,3 +1862,18 @@ UNLOCK TABLES;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
 -- Dump completed on 2022-06-18 15:29:17
+
+
+
+
+
+-- Other test/seed data, for Mobile Distributions
+
+
+INSERT INTO dropapp_dev.locations
+(id, label, camp_id, seq, created, created_by, modified, modified_by, visible, container_stock, is_market, is_donated, is_lost, is_scrap, box_state_id, `type`, latitude, longitude, description)
+VALUES(100, 'Horgos River', 1, 100, '2022-06-28 00:00:00', NULL, NULL, NULL, 1, 0, 0, 0, 0, 0, 1, 'MapDistroSpot', NULL, NULL, NULL);
+
+INSERT INTO dropapp_dev.locations
+(id, label, camp_id, seq, created, created_by, modified, modified_by, visible, container_stock, is_market, is_donated, is_lost, is_scrap, box_state_id, `type`, latitude, longitude, description)
+VALUES(101, 'Subotica LIDL', 1, 101, '2022-06-28 00:00:00', NULL, NULL, NULL, 1, 0, 0, 0, 0, 0, 1, 'MapDistroSpot', NULL, NULL, NULL);
