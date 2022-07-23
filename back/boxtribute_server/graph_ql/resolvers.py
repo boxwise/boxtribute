@@ -68,6 +68,7 @@ from ..models.definitions.tag import Tag
 from ..models.definitions.tags_relation import TagsRelation
 from ..models.definitions.transaction import Transaction
 from ..models.definitions.transfer_agreement import TransferAgreement
+from ..models.definitions.unboxed_items_collection import UnboxedItemsCollection
 from ..models.definitions.user import User
 from ..models.definitions.x_beneficiary_language import XBeneficiaryLanguage
 from ..models.metrics import (
@@ -732,6 +733,21 @@ def resolve_distribution_event_boxes(
         selection = Box.select().join(Product)
     return load_into_page(
         Box, filter_condition, selection=selection, pagination_input=pagination_input
+    )
+
+
+@distribution_event.field("unboxedItemCollections")
+@convert_kwargs_to_snake_case
+def resolve_distribution_event_unboxed_item_collections(distribution_event_obj, _):
+    # TODO: add permissions here
+    # authorize(permission="stock:read")
+    distribution_event_filter_condition = (
+        UnboxedItemsCollection.distribution_event == distribution_event_obj.id
+    )
+    return (
+        UnboxedItemsCollection.select()
+        .join(Product)
+        .where(distribution_event_filter_condition)
     )
 
 
