@@ -739,7 +739,7 @@ def resolve_distribution_event_boxes(
 def resolve_packing_list_entries(obj, *_):
     # TODO: Add permissions here
     return PackingListEntry.select().where(
-        PackingListEntry.distribution_event_id == obj.distribution_event_id
+        PackingListEntry.distribution_event_id == obj.id
     )
 
 
