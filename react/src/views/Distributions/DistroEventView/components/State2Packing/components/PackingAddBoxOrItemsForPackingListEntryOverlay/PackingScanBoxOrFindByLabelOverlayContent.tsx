@@ -13,7 +13,6 @@ import {
   useDisclosure,
   useToast,
 } from "@chakra-ui/react";
-import QrScanner from "components/QrScanner";
 import { useCallback, useEffect, useState } from "react";
 import { BOX_DETAILS_FOR_MOBILE_DISTRO_QUERY } from "views/Distributions/queries";
 import { BoxData, IPackingListEntry } from "views/Distributions/types";
@@ -23,6 +22,7 @@ import {
 } from "types/generated/graphql";
 import PackingBoxDetailsOverlayContent from "./PackingBoxDetailsOverlayContent";
 import { useToggle } from "utils/hooks";
+import { QrReader } from "components/QrReader/QrReader";
 
 interface PackingScanBoxOrFindByLabelOverlayProps {
   packingListEntry: IPackingListEntry;
@@ -113,7 +113,11 @@ const PackingScanBoxOrFindByLabelOverlay = ({
       <ModalHeader pb={0}>Scan the box</ModalHeader>
       <ModalCloseButton />
       <ModalBody>
-        <QrScanner />
+      <QrReader
+              facingMode={"environment"}
+              zoom={1}
+              scanPeriod={1000}
+            />
       </ModalBody>
       <Button
         onClick={() => {

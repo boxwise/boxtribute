@@ -36,7 +36,9 @@ class Beneficiary(db.Model):
         on_update="CASCADE",
     )
     date_of_birth = DateField(null=True, constraints=[SQL("DEFAULT NULL")])
-    date_of_signature = ZeroDateTimeField()
+    date_of_signature = ZeroDateTimeField(
+        default=None, constraints=[SQL("DEFAULT '0000-00-00 00:00:00'")]
+    )
     deleted = ZeroDateTimeField()
     email = CharField(constraints=[SQL("DEFAULT ''")])
     extra_portion = IntegerField(

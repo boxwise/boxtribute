@@ -1,8 +1,9 @@
 from boxtribute_server.enums import TaggableObjectType
 from boxtribute_server.models.definitions.tags_relation import TagsRelation
-from data.beneficiary import default_beneficiary_data
-from data.box import box_without_qr_code_data, default_box_data
-from data.tag import data as tag_data
+
+from .beneficiary import default_beneficiary_data
+from .box import box_without_qr_code_data, default_box_data
+from .tag import data as tag_data
 
 
 def data():
