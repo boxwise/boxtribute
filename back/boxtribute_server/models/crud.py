@@ -3,9 +3,14 @@ import hashlib
 import random
 
 import peewee
+from boxtribute_server.models.definitions.distribution_event import DistributionEvent
+from boxtribute_server.models.definitions.packing_list_entry import PackingListEntry
+from boxtribute_server.models.definitions.unboxed_items_collection import (
+    UnboxedItemsCollection,
+)
 
 from ..db import db
-from ..enums import BoxState
+from ..enums import BoxState, LocationType, PackingListEntryState
 from ..exceptions import BoxCreationFailed
 from .definitions.beneficiary import Beneficiary
 from .definitions.box import Box
@@ -63,6 +68,147 @@ def create_box(
             if "Duplicate entry" not in str(e):
                 raise
     raise BoxCreationFailed()
+
+
+def move_items_from_box_to_distribution_event(
+    box_label_identifier, distribution_event_id, number_of_items
+):
+    """
+    Move items from a box to a distribution event.
+    """
+
+    with db.database.atomic():
+        box = Box.get(Box.label_identifier == box_label_identifier)
+        product = box.product
+        size = box.size
+        # distribution_event = DistributionEvent.get_by_id(distribution_event_id)
+        # existing_unboxed_items_collection = UnboxedItemsCollection.select().where(
+        #     UnboxedItemsCollection.distribution_event == distribution_event_id,
+        #     product == product,
+        #     size == size,
+        # )
+
+        print("box.items", box.items)
+
+        print("box_label_identifier", box_label_identifier)
+        print("distribution_event_id", distribution_event_id)
+        print("number_of_items", number_of_items)
+        # print("existing_unboxed_items_collection", existing_unboxed_items_collection)
+
+        # unboxed_items_collection = (
+        #     UnboxedItemsCollection.create(
+        #         distribution_event=distribution_event_id,
+        #         product=product.id,
+        #         number_of_items=number_of_items,
+        #         size=size.id,
+        #         location=box.location.id,
+        #         # created_on=now,
+        #         # created_by=user_id,
+        #         # last_modified_on=now,
+        #         # last_modified_by=user_id,
+        #     )
+        #     if existing_unboxed_items_collection is None
+        #     else existing_unboxed_items_collection
+        # )
+
+        unboxed_items_collection, created = UnboxedItemsCollection.get_or_create(
+            distribution_event=distribution_event_id,
+            product=product.id,
+            size=size.id,
+            defaults={"number_of_items": 0, "location": box.location.id},
+            # created_on=now,
+            # created_by=user_id,
+            # last_modified_on=now,
+            # last_modified_by=user_id,
+        )
+
+        unboxed_items_collection.items += number_of_items
+        unboxed_items_collection.save()
+        print("FOO unboxed_items_collection:")
+        # print(unboxed_items_collection.id)
+
+        # TODO: handle cases where there are not enough items in the box
+        box.items -= number_of_items
+        box.save()
+        return unboxed_items_collection
+
+
+def move_box_to_distribution_event(box_label_identifier, distribution_event_id):
+    """Move a box to a distribution event."""
+    with db.database.atomic():
+        box = Box.get(Box.label_identifier == box_label_identifier)
+        distribution_event = DistributionEvent.get_by_id(distribution_event_id)
+        box.location = distribution_event.distribution_spot_id
+        box.distribution_event = distribution_event_id
+        box.save()
+        return box
+
+
+def add_packing_list_entry_to_distribution_event(
+    user_id,
+    distribution_event_id,
+    product_id,
+    size_id,
+    # TODO: Rename this to number_of_items (also numberOfItems in graphql schema)
+    number_of_items,
+):
+    """
+    Add a packing list entry to a distribution event.
+    """
+    now = utcnow()
+    with db.database.atomic():
+        return PackingListEntry.create(
+            distribution_event=distribution_event_id,
+            product=product_id,
+            number_of_items=number_of_items,
+            size=size_id,
+            state=PackingListEntryState.NotStarted,
+            created_on=now,
+            created_by=user_id,
+            last_modified_on=now,
+            last_modified_by=user_id,
+        )
+
+
+def create_distribution_event(
+    user_id,
+    distribution_spot_id,
+    name,
+    planned_start_date_time,
+    planned_end_date_time=None,
+):
+    """
+    TODO: Add description here
+    """
+
+    if planned_end_date_time is None:
+        # TODO: consider to change endDateTime to startDateTime + 2 or 3 hours
+        planned_end_date_time = planned_start_date_time
+
+    # if end_date_time is None:
+    #     # TODO: consider to change endDateTime to startDateTime + 2 or 3 hours
+    #     end_date_time = start_date
+
+    """
+    TODO: ensure that distribution_spot_id is realy from a Distribution Spot
+    and not from a Location
+    """
+
+    now = utcnow()
+
+    with db.database.atomic():
+        new_distribution_event = DistributionEvent.create(
+            name=name,
+            planned_start_date_time=planned_start_date_time,
+            planned_end_date_time=planned_end_date_time,
+            distribution_spot_id=distribution_spot_id,
+            created_on=now,
+            created_by=user_id,
+            last_modified_on=now,
+            last_modified_by=1,
+        )
+
+        return new_distribution_event
 
 
 def update_box(
@@ -213,6 +359,27 @@ def update_beneficiary(
         beneficiary.save()
 
     return beneficiary
+
+
+def delete_packing_list_entry(packing_list_entry_id):
+    with db.database.atomic():
+        PackingListEntry.delete().where(
+            PackingListEntry.id == packing_list_entry_id
+        ).execute()
+
+
+def create_distribution_spot(user_id, distribution_spot_input=None):
+    """Insert information for a new DistributionSpot in the database."""
+    now = utcnow()
+    new_distribution_spot = Location.create(
+        created_on=now,
+        created_by=user_id,
+        last_modified_on=now,
+        last_modified_by=user_id,
+        type=LocationType.DistributionSpot,
+        **distribution_spot_input,
+    )
+    return new_distribution_spot
 
 
 def create_qr_code(box_label_identifier=None):
