@@ -16,12 +16,12 @@ class PackingListEntryState(enum.IntEnum):
     Packed = enum.auto()
 
 
-class LocationType(enum.IntEnum):
+class LocationType(enum.Enum):
     """Indiciates which concrete type (classic Location, Distribution Spot, etc)
     a Location is."""
 
-    Location = 1
-    DistributionSpot = enum.auto()
+    Location = "Warehouse"
+    DistributionSpot = "MapDistroSpot"
 
 
 class TransferAgreementState(enum.IntEnum):

@@ -2,6 +2,7 @@
 from datetime import date
 
 from ariadne import (
+    InterfaceType,
     MutationType,
     ObjectType,
     QueryType,
@@ -29,7 +30,7 @@ from ..box_transfer.shipment import (
     send_shipment,
     update_shipment,
 )
-from ..enums import HumanGender, TaggableObjectType, TransferAgreementType
+from ..enums import HumanGender, LocationType, TaggableObjectType, TransferAgreementType
 from ..models.crud import (
     create_beneficiary,
     create_box,
@@ -68,6 +69,7 @@ query = QueryType()
 mutation = MutationType()
 object_types = []
 union_types = []
+interface_types = []
 
 
 def _register_object_type(name):
@@ -187,11 +189,17 @@ def resolve_box(*_, label_identifier):
 
 
 @query.field("location")
-@box.field("location")
-def resolve_location(obj, _, id=None):
-    location = obj.location if id is None else Location.get_by_id(id)
-    authorize(permission="location:read", base_id=location.base_id)
-    return location
+def resolve_location(obj, _, id):
+    location = Location.get_by_id(id)
+    if location.type == LocationType.Location:
+        authorize(permission="location:read", base_id=location.base_id)
+        return location
+
+
+@box.field("place")
+def resolve_box_place(obj, _):
+    authorize(permission="location:read", base_id=obj.location.base_id)
+    return obj.location
 
 
 @query.field("organisation")
@@ -720,4 +728,9 @@ def resolve_taggable_resource_type(obj, *_):
     return "Beneficiary"
 
 
+def resolve_box_place_type(obj, *_):
+    return obj.type.name
+
+
 union_types.append(UnionType("TaggableResource", resolve_taggable_resource_type))
+interface_types.append(InterfaceType("BoxPlace", resolve_box_place_type))
