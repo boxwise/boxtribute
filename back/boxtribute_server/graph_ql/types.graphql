@@ -263,7 +263,8 @@ type PackingListEntry {
   product: Product
   size: Size
   numberOfItems: Int!
-  # matchingPackedItemsCollections: [ItemsCollection!]!
+  matchingPackedItemsCollections: [ItemsCollection!]!
+  matchingBoxes: [Box!]!
   state: PackingListEntryState!
 }
 
