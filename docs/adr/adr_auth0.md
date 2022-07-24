@@ -1,4 +1,4 @@
-# Authentication with Auth0
+# ADR: Authentication with Auth0
 
 Discussion Participants: [Roanna](https://github.com/orgs/boxwise/people/aerinsol), [Hans](https://github.com/orgs/boxwise/people/HaGuesto), [James](https://github.com/orgs/boxwise/people/jamescrowley), [Stephan](https://github.com/orgs/boxwise/people/naphets123)
 
