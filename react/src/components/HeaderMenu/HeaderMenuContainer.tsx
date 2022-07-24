@@ -35,7 +35,6 @@ const HeaderMenuContainer = () => {
       {
         text: "Mobile Distributions",
         links: [
-          { link: "link", name: "Calendar" },
           {
             link: `/bases/${baseId}/distributions`,
             name: "Distribution Events",
