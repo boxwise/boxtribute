@@ -18,13 +18,18 @@ import { AddIcon } from "@chakra-ui/icons";
 import { groupBy } from "utils/helpers";
 import { useCallback, useState } from "react";
 import { IPackingListEntry } from "views/Distributions/types";
-import PackingScanBoxOrFindByLabelOverlay from "./components/PackingAddBoxOrItemsForPackingListEntryOverlay/PackingScanBoxOrFindByLabelOverlayContent";
-import PackingAddBoxOrItemsForPackingListEntryOverlay from "./components/PackingAddBoxOrItemsForPackingListEntryOverlay/PackingAddBoxOrItemsForPackingListEntryOverlay";
-import PackedContentListOverlay from "./components/PackedContentListOverlay";
 import PackedContentListOverlayContainer from "./components/PackedContentListOverlayContainer";
+import { MOVE_BOX_TO_DISTRIBUTION_MUTATION } from "views/Distributions/queries";
+import {
+  MoveBoxToDistributionEventMutation,
+  MoveBoxToDistributionEventMutationVariables,
+} from "types/generated/graphql";
+import PackingAddBoxOrItemsForPackingListEntryOverlay from "./components/PackingAddBoxOrItemsForPackingListEntryOverlay/PackingAddBoxOrItemsForPackingListEntryOverlay";
+import { useMutation } from "@apollo/client";
 
 interface DistroEventDetailsForPackingStateProps {
   packingListEntries: IPackingListEntry[];
+  distributionEventId: string;
   // onShowListClick: (itemId: string) => void;
   // boxesData: BoxData[];
   // boxData: BoxData;
@@ -34,8 +39,10 @@ interface DistroEventDetailsForPackingStateProps {
 
 const PackingListEntry = ({
   packingListEntry,
+  distributionEventId,
 }: {
   packingListEntry: IPackingListEntry;
+  distributionEventId: string;
 }) => {
   const [chosenPackingNumberOfItems, setChosenPackingNumberOfItems] =
     useState(0);
@@ -48,11 +55,16 @@ const PackingListEntry = ({
 
   const toast = useToast();
 
+  const [moveBoxToDistributionEventMutation] = useMutation<
+    MoveBoxToDistributionEventMutation,
+    MoveBoxToDistributionEventMutationVariables
+  >(MOVE_BOX_TO_DISTRIBUTION_MUTATION);
+
   const onAddUnboxedItemsToDistributionEvent = useCallback(
-    (boxId: string, numberOfItemsToMove: number) => {
+    (boxLabelIdentifier: string, numberOfItemsToMove: number) => {
       packingAddBoxOrItemsForPackingListEntryOverlayState.onClose();
       toast({
-        title: "Done!",
+        title: "PLACE HOLDER Done!",
         description: `${numberOfItemsToMove}tems moved to the distribution.`,
         status: "success",
         duration: 2000,
@@ -63,17 +75,52 @@ const PackingListEntry = ({
   );
 
   const onAddBoxToDistributionEvent = useCallback(
-    (boxId: string) => {
+    (boxLabelIdentifier: string) => {
       packingAddBoxOrItemsForPackingListEntryOverlayState.onClose();
-      toast({
-        title: "Done!",
-        description: "Box moved to the distribution.",
-        status: "success",
-        duration: 2000,
-        isClosable: true,
-      });
+      moveBoxToDistributionEventMutation({
+        variables: {
+          boxLabelIdentifier,
+          distributionEventId,
+        },
+      })
+        .then((res) => {
+          if (res.errors && res.errors.length !== 0) {
+            console.error(`GraphQL error while trying to move Box (id: ${boxLabelIdentifier}) into Distribution Event (id: ${distributionEventId})`, res.errors)
+            toast({
+              title: "Error",
+              description: "Box couldn't be moved to the distribution event.",
+              status: "error",
+              duration: 2000,
+              isClosable: true,
+            });
+          }
+          else {
+            toast({
+              title: "Done!",
+              description: "Box moved to the distribution event.",
+              status: "success",
+              duration: 2000,
+              isClosable: true,
+            });
+          }
+        })
+        .catch((err) => {
+          console.error(err);
+          toast({
+            title: "Error",
+            description: "Box couldn't be moved to the distribution event.",
+            status: "error",
+            duration: 2000,
+            isClosable: true,
+          });
+        });
     },
-    [packingAddBoxOrItemsForPackingListEntryOverlayState, toast]
+    [
+      distributionEventId,
+      moveBoxToDistributionEventMutation,
+      packingAddBoxOrItemsForPackingListEntryOverlayState,
+      toast,
+    ]
   );
 
   return (
@@ -138,9 +185,14 @@ const PackingListEntry = ({
         onClose={onPackedListOverlayClose}
       >
         <ModalOverlay />
-        <PackedContentListOverlayContainer packingListEntryId={packingListEntry.id} onDeleteBoxFromDistribution={function (boxId: string): void {
-          throw new Error("Function not implemented.");
-        } } />
+        <PackedContentListOverlayContainer
+          packingListEntryId={packingListEntry.id}
+          onDeleteBoxFromDistribution={function (
+            boxLabelIdentifier: string
+          ): void {
+            throw new Error("Function not implemented.");
+          }}
+        />
       </Modal>
       {/* <PackedListOverlay
         modalProps={{ isListOpen, onListClose }}
@@ -153,6 +205,7 @@ const PackingListEntry = ({
 
 const DistroEventDetailsForPackingState = ({
   packingListEntries,
+  distributionEventId,
 }: // TODO: Group by product.id instead of name (because product name could be repeated)
 DistroEventDetailsForPackingStateProps) => {
   const itemsForPackingGroupedByProductName = groupBy(
@@ -186,7 +239,11 @@ DistroEventDetailsForPackingStateProps) => {
                   </AccordionButton>
                 </Flex>
                 {item.items.map((item) => (
-                  <PackingListEntry packingListEntry={item} key={item.id} />
+                  <PackingListEntry
+                    packingListEntry={item}
+                    key={item.id}
+                    distributionEventId={distributionEventId}
+                  />
                 ))}
               </AccordionItem>
             );

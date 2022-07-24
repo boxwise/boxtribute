@@ -20,7 +20,6 @@ import {
   BoxDetailsQuery,
   BoxDetailsQueryVariables,
 } from "types/generated/graphql";
-import PackingBoxDetailsOverlayContent from "./PackingBoxDetailsOverlayContent";
 import { useToggle } from "utils/hooks";
 import { QrReader } from "components/QrReader/QrReader";
 

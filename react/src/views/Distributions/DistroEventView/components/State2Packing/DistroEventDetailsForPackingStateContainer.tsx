@@ -18,7 +18,7 @@ interface DistroEventDetailsForPackingStateProps {
 }
 
 const DistroEventDetailsForPackingStateContainer = ({
-  distributionEventDetails,
+  distributionEventDetails
 }: DistroEventDetailsForPackingStateProps) => {
   // const { isOpen, onOpen, onClose } = useDisclosure();
 
@@ -44,6 +44,7 @@ const DistroEventDetailsForPackingStateContainer = ({
   return (
     <DistroEventDetailsForPackingState
       packingListEntries={packingListEntries}
+      distributionEventId={distributionEventDetails.id}
       // onShowListClick={() => {}}
       // boxData={{
       //   id: "1",

@@ -61,7 +61,10 @@ const PackingAddBoxOrItemsForPackingListEntryOverlay = ({
         <PackingBoxDetailsOverlayContent
           targetNumberOfItemsToPack={packingListEntry.numberOfItems}
           boxData={boxData}
-          onAddBoxToDistributionEvent={onAddBoxToDistributionEvent}
+          onAddBoxToDistributionEvent={(boxId: string) => {
+            resetState();
+            onAddBoxToDistributionEvent(boxId)
+          }}
           onAddIndividualItemsToDistribution={(boxId: string, numberOfItemsToMove: number) => {
             resetState();
             onAddUnboxedItemsToDistributionEvent(boxId, numberOfItemsToMove);

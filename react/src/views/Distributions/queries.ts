@@ -1,5 +1,59 @@
 import { gql } from "@apollo/client";
 
+export const MOVE_BOX_TO_DISTRIBUTION_MUTATION = gql`
+  mutation MoveBoxToDistributionEvent(
+    $boxLabelIdentifier: ID!
+    $distributionEventId: ID!
+  ) {
+    moveBoxToDistributionEvent(
+      boxLabelIdentifier: $boxLabelIdentifier
+      distributionEventId: $distributionEventId
+    ) {
+      id
+      distributionEvent {
+        id
+        name
+        distributionSpot {
+          name
+        }
+      }
+    }
+  }
+`;
+
+export const MOVE_ITEMS_TO_DISTRIBUTION_EVENT = gql`
+  mutation MoveItemsToDistributionEvent(
+    $boxLabelIdentifier: ID!
+    $distributionEventId: ID!
+    $numberOfItems: Int!
+  ) {
+    moveItemsFromBoxToDistributionEvent(
+      boxLabelIdentifier: $boxLabelIdentifier
+      distributionEventId: $distributionEventId
+      numberOfItems: $numberOfItems
+    ) {
+      id
+      items
+      distributionEvent {
+        id
+        name
+
+        boxes {
+          elements {
+            product {
+              name
+            }
+          }
+        }
+        distributionSpot {
+          id
+          name
+        }
+      }
+    }
+  }
+`;
+
 export const PACKING_LIST_ENTRIES_FOR_DISTRIBUTION_EVENT_QUERY = gql`
   query PackingListEntriesForDistributionEvent($distributionEventId: ID!) {
     distributionEvent(id: $distributionEventId) {
