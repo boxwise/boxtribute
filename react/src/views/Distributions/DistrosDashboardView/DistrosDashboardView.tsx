@@ -19,6 +19,7 @@ import DistroEventsCalendarContainer from "./components/DistroEventsCalendar/Dis
 import DistroEventsStatistics from "./components/DistroEventsStatistics";
 import APILoadingIndicator from "components/APILoadingIndicator";
 import { DistributionEventDetailsSchema } from "../types";
+import { z } from "zod";
 
 const DistrosDashboardView = () => {
   const baseId = useParams<{ baseId: string }>().baseId;
@@ -35,12 +36,14 @@ const DistrosDashboardView = () => {
 
   if (loading) return <APILoadingIndicator />;
   // TODO: add error logging here
-  if (error) return <div>Error: {error.message}</div>
+  if (error) return <div>Error: {error.message}</div>;
 
-  if (data?.base?.distributionEvents == null) return <div>Error: No data</div>
+  if (data?.base?.distributionEvents == null) return <div>Error: No data</div>;
 
   console.log("RAW distributionEvents data", data?.base);
-  const parsedDistributionEventsData = data?.base?.distributionEvents.map(e => DistributionEventDetailsSchema.parse(e));
+  const parsedDistributionEventsData = z
+    .array(DistributionEventDetailsSchema)
+    .parse(data?.base?.distributionEvents);
 
   console.log("parsedDistributionEventsData", parsedDistributionEventsData);
 
@@ -64,7 +67,7 @@ const DistrosDashboardView = () => {
             <DistroEventsCalendarContainer
               distributionEvents={parsedDistributionEventsData}
               onClickOnDistroEvent={function (distroEventId: string): void {
-                throw new Error("Function not implemented.");
+                alert("not yet implemented");
               }}
             />
           </TabPanel>

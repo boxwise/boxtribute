@@ -10,6 +10,7 @@ export const DISTRIBUTION_EVENTS_FOR_BASE_ID = gql`
         plannedEndDateTime
         state
         distributionSpot {
+          id
           name
         }
       }
@@ -135,6 +136,7 @@ export const DISTRIBUTION_EVENT_QUERY = gql`
       name
       state
       plannedStartDateTime
+      plannedEndDateTime
       distributionSpot {
         id
         name

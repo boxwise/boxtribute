@@ -42,6 +42,7 @@ const CreateDistributionEventView = () => {
         id
         name
         plannedStartDateTime
+        plannedEndDateTime
       }
     }
   `;
