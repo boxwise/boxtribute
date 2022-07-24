@@ -8,8 +8,17 @@ import {
   Center,
   Box,
   Button,
+  Modal,
+  ModalBody,
+  ModalCloseButton,
+  ModalContent,
+  ModalFooter,
+  ModalHeader,
+  ModalOverlay,
+  useDisclosure,
+  VStack,
 } from "@chakra-ui/react";
-import { useParams } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import {
   DistributionEventsForBaseQuery,
   DistributionEventsForBaseQueryVariables,
@@ -18,8 +27,9 @@ import { DISTRIBUTION_EVENTS_FOR_BASE_ID } from "../queries";
 import DistroEventsCalendarContainer from "./components/DistroEventsCalendar/DistroEventsCalendarContainer";
 import DistroEventsStatistics from "./components/DistroEventsStatistics";
 import APILoadingIndicator from "components/APILoadingIndicator";
-import { DistributionEventDetailsSchema } from "../types";
+import { DistributionEventDetails, DistributionEventDetailsSchema } from "../types";
 import { z } from "zod";
+import { useCallback, useState } from "react";
 
 const DistrosDashboardView = () => {
   const baseId = useParams<{ baseId: string }>().baseId;
@@ -34,6 +44,21 @@ const DistrosDashboardView = () => {
     },
   });
 
+  const navigate = useNavigate();
+
+
+  const onGoToDistroEventViewHandler = useCallback(
+    (distroEventId: string) =>
+      navigate(`/bases/${baseId}/distributions/events/${distroEventId}`),
+    [baseId, navigate]
+  );
+
+
+  const calendarEventDetailsModalState = useDisclosure();
+  const [selectedEvent, setSelectedEvent] = useState<DistributionEventDetails | undefined>()
+
+
+
   if (loading) return <APILoadingIndicator />;
   // TODO: add error logging here
   if (error) return <div>Error: {error.message}</div>;
@@ -46,6 +71,8 @@ const DistrosDashboardView = () => {
     .parse(data?.base?.distributionEvents);
 
   console.log("parsedDistributionEventsData", parsedDistributionEventsData);
+
+
 
   return (
     <Box>
@@ -64,10 +91,32 @@ const DistrosDashboardView = () => {
             <p>Upcoming Distributions</p>
           </TabPanel>
           <TabPanel>
+            {selectedEvent &&
+            <Modal isOpen={calendarEventDetailsModalState.isOpen} onClose={calendarEventDetailsModalState.onClose}>
+              <ModalOverlay />
+              <ModalContent>
+                <ModalHeader><>{selectedEvent.distributionSpot.name} - {(new Date(selectedEvent.plannedStartDateTime)).toLocaleDateString('en-US')}</></ModalHeader>
+                <ModalCloseButton />
+                <ModalBody>
+                    <Box>Spot: {selectedEvent.distributionSpot.name}</Box>
+                    <Box>State: {selectedEvent.state}</Box>
+                </ModalBody>
+
+                <ModalFooter>
+                  <Button colorScheme="blue" mr={3} onClick={calendarEventDetailsModalState.onClose}>
+                    Close
+                  </Button>
+                  <Button variant="ghost" onClick={() => onGoToDistroEventViewHandler(selectedEvent.id)}>Go to Event Details</Button>
+                </ModalFooter>
+              </ModalContent>
+            </Modal>
+          }
+
             <DistroEventsCalendarContainer
               distributionEvents={parsedDistributionEventsData}
               onClickOnDistroEvent={function (distroEventId: string): void {
-                alert("not yet implemented");
+                setSelectedEvent(parsedDistributionEventsData.find(distroEvent => distroEvent.id === distroEventId))
+                calendarEventDetailsModalState.onOpen()
               }}
             />
           </TabPanel>

@@ -29,10 +29,9 @@ const DistroEventsCalendarContainer = ({distributionEvents: distroEvents, onClic
   const events = distroEvents.map(distroEvent => {
     return {
         id: distroEvent.id,
-        title: distroEvent.name,
+        title: `${distroEvent.name} (${distroEvent.distributionSpot.name})[${distroEvent.state}]`,
         start: distroEvent.plannedStartDateTime,
-        end: distroEvent.plannedEndDateTime,
-        state: distroEvent.state,
+        end: distroEvent.plannedEndDateTime
     }
     });
 
