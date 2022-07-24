@@ -21,6 +21,7 @@ import { IPackingListEntry } from "views/Distributions/types";
 import PackingScanBoxOrFindByLabelOverlay from "./components/PackingAddBoxOrItemsForPackingListEntryOverlay/PackingScanBoxOrFindByLabelOverlayContent";
 import PackingAddBoxOrItemsForPackingListEntryOverlay from "./components/PackingAddBoxOrItemsForPackingListEntryOverlay/PackingAddBoxOrItemsForPackingListEntryOverlay";
 import PackedContentListOverlay from "./components/PackedContentListOverlay";
+import PackedContentListOverlayContainer from "./components/PackedContentListOverlayContainer";
 
 interface DistroEventDetailsForPackingStateProps {
   packingListEntries: IPackingListEntry[];
@@ -137,7 +138,9 @@ const PackingListEntry = ({
         onClose={onPackedListOverlayClose}
       >
         <ModalOverlay />
-        <PackedContentListOverlay boxesData={[]} unboxedItemCollectionData={undefined} />
+        <PackedContentListOverlayContainer packingListEntryId={packingListEntry.id} onDeleteBoxFromDistribution={function (boxId: string): void {
+          throw new Error("Function not implemented.");
+        } } />
       </Modal>
       {/* <PackedListOverlay
         modalProps={{ isListOpen, onListClose }}
