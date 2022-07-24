@@ -17,8 +17,9 @@ In each ADR file, write these sections:
 
 # Title
 
-Trello-card:
-Decision Deadline
+Trello-card: Add Link if relevant
+Decision Deadline: Add Date
+Discussion Participants: Add list of discussion partipants and list their Github profile or email. If it is a single author, use "Author" instead of "Discussion Participants".
 
 ## Status
 
