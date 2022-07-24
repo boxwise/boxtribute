@@ -175,12 +175,9 @@ def resolve_distributions_events(base_obj, _):
     # return DistributionEvent.select().where.type == LocationType.DistributionSpot)
     return (
         DistributionEvent.select()
-        .join(Location)
-        .where(
-            Location.base
-            == base_obj.id & DistributionEvent.distribution_spot
-            == Location.id
-        )
+        .join(Location, on=(DistributionEvent.distribution_spot == Location.id))
+        .join(Base, on=(Location.base == Base.id))
+        .where(Base.id == base_obj.id & Location.type == LocationType.DistributionSpot)
     )
 
 
