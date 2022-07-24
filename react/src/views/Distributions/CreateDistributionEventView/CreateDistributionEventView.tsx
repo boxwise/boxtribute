@@ -10,9 +10,9 @@ import {
 import CreateDistroEvent, {
   CreateDistroEventFormData,
 } from "./components/CreateDistributionEvent";
-import { addHours } from 'date-fns'
+import { addHours } from "date-fns";
 import { getISODateTimeFromDateAndTimeString } from "utils/helpers";
-
+import { Center } from "@chakra-ui/react";
 
 const CreateDistributionEventView = () => {
   const DISTRIBUTION_SPOT_QUERY = gql`
@@ -46,20 +46,25 @@ const CreateDistributionEventView = () => {
     }
   `;
 
-  const { baseId, distributionSpotId } = useParams<{ baseId: string, distributionSpotId: string }>();
+  const { baseId, distributionSpotId } =
+    useParams<{ baseId: string; distributionSpotId: string }>();
   const navigate = useNavigate();
 
-  const [
-    createDistributionEventMutation,
-  ] = useMutation<
+  const [createDistributionEventMutation] = useMutation<
     CreateDistributionEventMutation,
     CreateDistributionEventMutationVariables
   >(CREATE_DISTRIBUTION_EVENT_MUTATION);
 
   const onSubmitNewDistroEvent = useCallback(
     (createDistroEventFormData: CreateDistroEventFormData) => {
-      const plannedStartDateTime = getISODateTimeFromDateAndTimeString(createDistroEventFormData.eventDate, createDistroEventFormData.eventTime);
-      const plannedEndDateTime = addHours(plannedStartDateTime, createDistroEventFormData.duration);
+      const plannedStartDateTime = getISODateTimeFromDateAndTimeString(
+        createDistroEventFormData.eventDate,
+        createDistroEventFormData.eventTime
+      );
+      const plannedEndDateTime = addHours(
+        plannedStartDateTime,
+        createDistroEventFormData.duration
+      );
 
       createDistributionEventMutation({
         variables: {
@@ -72,10 +77,9 @@ const CreateDistributionEventView = () => {
         },
       })
         .then((mutationResult) => {
-          if((mutationResult.errors?.length || 0) > 0) {
+          if ((mutationResult.errors?.length || 0) > 0) {
             // TODO: Improve Error handling
             throw new Error(JSON.stringify(mutationResult.errors));
-
           }
           navigate(
             `/bases/${baseId}/distributions/spots/${distributionSpotId}/events/${mutationResult.data?.createDistributionEvent?.id}`
@@ -114,10 +118,12 @@ const CreateDistributionEventView = () => {
     );
   }
   return (
-    <CreateDistroEvent
-      distroSpot={{ name: data.distributionSpot.name || "" }}
-      onSubmitNewDistroEvent={onSubmitNewDistroEvent}
-    />
+    <Center>
+      <CreateDistroEvent
+        distroSpot={{ name: data.distributionSpot.name || "" }}
+        onSubmitNewDistroEvent={onSubmitNewDistroEvent}
+      />
+    </Center>
   );
 };
 
