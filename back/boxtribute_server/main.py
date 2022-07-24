@@ -2,9 +2,11 @@
 import logging
 import os
 
+import sentry_sdk
 from boxtribute_server.models.definitions.unboxed_items_collection import (
     UnboxedItemsCollection,
 )
+from sentry_sdk.integrations.flask import FlaskIntegration
 
 from .app import configure_app, create_app
 from .routes import api_bp, app_bp
@@ -12,6 +14,11 @@ from .routes import api_bp, app_bp
 logger = logging.Logger("peewee")
 logger.addHandler(logging.StreamHandler())
 logger.setLevel(logging.DEBUG)
+sentry_sdk.init(
+    # dsn/environment/release: reading SENTRY_* environment variables set in CircleCI
+    integrations=[FlaskIntegration()],
+    traces_sample_rate=float(os.getenv("SENTRY_TRACES_SAMPLE_RATE", 1.0)),
+)
 
 app = create_app()
 blueprints = [api_bp] if os.getenv("EXPOSE_FULL_GRAPHQL") is None else [app_bp]
