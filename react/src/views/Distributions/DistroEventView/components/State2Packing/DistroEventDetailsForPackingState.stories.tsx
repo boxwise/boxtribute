@@ -5,7 +5,7 @@ import DistroEventDetailsForPackingState from './DistroEventDetailsForPackingSta
 // import { DistroEvent } from "../State1Planning/DistroEventPlanning";
 import { action } from '@storybook/addon-actions';
 import { BoxData, IPackingListEntry } from 'views/Distributions/types';
-import { PackingActionListProps } from './components/PackedListOverlayContent';
+import { PackingActionListProps } from './components/PackedContentListOverlay';
 
 
 const mockedDistroEventPackingList: IPackingListEntry[] =

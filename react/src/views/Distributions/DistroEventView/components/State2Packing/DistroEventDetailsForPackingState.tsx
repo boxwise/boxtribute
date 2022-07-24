@@ -20,7 +20,7 @@ import { useCallback, useState } from "react";
 import { IPackingListEntry } from "views/Distributions/types";
 import PackingScanBoxOrFindByLabelOverlay from "./components/PackingAddBoxOrItemsForPackingListEntryOverlay/PackingScanBoxOrFindByLabelOverlayContent";
 import PackingAddBoxOrItemsForPackingListEntryOverlay from "./components/PackingAddBoxOrItemsForPackingListEntryOverlay/PackingAddBoxOrItemsForPackingListEntryOverlay";
-import PackedListOverlayContent from "./components/PackedListOverlayContent";
+import PackedContentListOverlay from "./components/PackedContentListOverlay";
 
 interface DistroEventDetailsForPackingStateProps {
   packingListEntries: IPackingListEntry[];
@@ -137,7 +137,7 @@ const PackingListEntry = ({
         onClose={onPackedListOverlayClose}
       >
         <ModalOverlay />
-        <PackedListOverlayContent boxesData={[]} />
+        <PackedContentListOverlay boxesData={[]} />
       </Modal>
       {/* <PackedListOverlay
         modalProps={{ isListOpen, onListClose }}
