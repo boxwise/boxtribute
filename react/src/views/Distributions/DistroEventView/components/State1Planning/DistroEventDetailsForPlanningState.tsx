@@ -1,4 +1,11 @@
-import { Box, Button, Flex, IconButton, SimpleGrid, Text } from "@chakra-ui/react";
+import {
+  Box,
+  Button,
+  Flex,
+  IconButton,
+  SimpleGrid,
+  Text,
+} from "@chakra-ui/react";
 import { CloseIcon, EditIcon } from "@chakra-ui/icons";
 import { IPackingListEntry } from "views/Distributions/types";
 
@@ -20,8 +27,8 @@ const DistroEventDetailsForPlanningState = ({
   return (
     <>
       <Flex w={[300, 400, 600]} direction="column" mb={4}>
-        <Button my={2} onClick={() => onAddItemsClick()}>
-          Add New Items
+        <Button my={2} onClick={() => onAddItemsClick()} colorScheme="blue">
+          Add New Packing List Entry
         </Button>
         <Button onClick={() => onCopyPackingListFromPreviousEventsClick()}>
           Copy Packing List from Previous Event
@@ -46,10 +53,18 @@ const DistroEventDetailsForPlanningState = ({
             <Box>{item.size?.label}</Box>
             <Box>{item.gender}</Box>
             <Box>
-              <IconButton background="transparent" onClick={() => onEditItemOnPackingListClick(item.id)} aria-label="Edit Packing List Item">
+              <IconButton
+                background="transparent"
+                onClick={() => onEditItemOnPackingListClick(item.id)}
+                aria-label="Edit Packing List Item"
+              >
                 <EditIcon mx={2} color="teal" />
               </IconButton>
-              <IconButton background="transparent" onClick={() => onRemoveItemFromPackingListClick(item.id)} aria-label="Remove Packing List Item">
+              <IconButton
+                background="transparent"
+                onClick={() => onRemoveItemFromPackingListClick(item.id)}
+                aria-label="Remove Packing List Item"
+              >
                 <CloseIcon color="teal" />
               </IconButton>
             </Box>
