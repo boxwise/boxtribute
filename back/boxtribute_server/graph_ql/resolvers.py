@@ -97,6 +97,8 @@ distribution_spot = _register_object_type("DistributionSpot")
 location = _register_object_type("Location")
 metrics = _register_object_type("Metrics")
 organisation = _register_object_type("Organisation")
+packing_list = _register_object_type("PackingList")
+packing_list_entry = _register_object_type("PackingListEntry")
 product = _register_object_type("Product")
 product_category = _register_object_type("ProductCategory")
 qr_code = _register_object_type("QrCode")
@@ -114,6 +116,25 @@ def resolve_tags(*_):
     # TODO: Add correct permissions here
     # authorize(permission="tags:read")
     return Tag.select()
+
+
+@query.field("packingListEntry")
+def resolve_packing_list_entry(*_, id):
+    # TODO: Add correct permissions here
+    # authorize(permission="tags:read")
+    return PackingListEntry.get_by_id(id)
+
+
+@packing_list_entry.field("matchingBoxes")
+def resolve_packing_list_entry_matching_boxes(obj, *_):
+    distribution_event_id = obj.distribution_event_id
+    return Box.select().where(
+        Box.distribution_event_id == distribution_event_id,
+        # TODO: only consider available boxes
+        # Box.state == "available",
+        Box.product == obj.product,
+        Box.size == obj.size,
+    )
 
 
 @user.field("bases")

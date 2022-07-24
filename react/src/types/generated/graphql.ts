@@ -464,6 +464,38 @@ export type Organisation = {
   name: Scalars['String'];
 };
 
+<<<<<<< HEAD
+=======
+export type PackingList = {
+  __typename?: 'PackingList';
+  entries: Array<PackingListEntry>;
+};
+
+export type PackingListEntry = {
+  __typename?: 'PackingListEntry';
+  id: Scalars['ID'];
+  matchingBoxes: Array<Box>;
+  matchingPackedItemsCollections: Array<ItemsCollection>;
+  numberOfItems: Scalars['Int'];
+  product?: Maybe<Product>;
+  size?: Maybe<Size>;
+  state: PackingListEntryState;
+};
+
+export enum PackingListEntryState {
+  NotStarted = 'NotStarted',
+  Packed = 'Packed',
+  PackingInProgress = 'PackingInProgress'
+}
+
+export type PacklistEntryInput = {
+  distributionEventId: Scalars['ID'];
+  numberOfItems: Scalars['Int'];
+  productId: Scalars['Int'];
+  sizeId: Scalars['Int'];
+};
+
+>>>>>>> 56d33ff2 (Mobile Distro: BE: PackingListEntry#matchingBoxes resolver)
 /**
  * Additional information passed along in `*Page` types.
  * The client shall use the `has*Page` fields to determine whether to fetch more data.
@@ -580,6 +612,7 @@ export type Query = {
   organisation?: Maybe<Organisation>;
   /**  Return all [`Organisations`]({{Types.Organisation}}) that the client is authorized to view.  */
   organisations: Array<Organisation>;
+  packingListEntry?: Maybe<PackingListEntry>;
   product?: Maybe<Product>;
   /**  Return all [`ProductCategories`]({{Types.ProductCategory}}) that the client is authorized to view.  */
   productCategories: Array<ProductCategory>;
@@ -638,6 +671,11 @@ export type QueryMetricsArgs = {
 
 
 export type QueryOrganisationArgs = {
+  id: Scalars['ID'];
+};
+
+
+export type QueryPackingListEntryArgs = {
   id: Scalars['ID'];
 };
 
