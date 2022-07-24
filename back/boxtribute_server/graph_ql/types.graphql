@@ -251,6 +251,7 @@ type DistributionEvent {
   packingList: PackingList!
 
   boxes(paginationInput: PaginationInput, filterInput: FilterBoxInput): BoxPage
+  unboxedItemsCollections: [UnboxedItemsCollection!]
 }
 
 enum PackingListEntryState {

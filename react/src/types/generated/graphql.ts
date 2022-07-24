@@ -203,6 +203,7 @@ export type DistributionEvent = {
   plannedEndDateTime: Scalars['Datetime'];
   plannedStartDateTime: Scalars['Datetime'];
   state: DistributionEventState;
+  unboxedItemsCollections?: Maybe<Array<UnboxedItemsCollection>>;
 };
 
 
@@ -1255,6 +1256,23 @@ export type AllProductsAndSizesQueryVariables = Exact<{ [key: string]: never; }>
 
 
 export type AllProductsAndSizesQuery = { __typename?: 'Query', products: { __typename?: 'ProductPage', elements: Array<{ __typename?: 'Product', id: string, name: string, gender?: ProductGender | null, sizeRange: { __typename?: 'SizeRange', sizes: Array<{ __typename?: 'Size', id: string, label: string }> } }> } };
+
+export type MoveBoxToDistributionEventMutationVariables = Exact<{
+  boxLabelIdentifier: Scalars['ID'];
+  distributionEventId: Scalars['ID'];
+}>;
+
+
+export type MoveBoxToDistributionEventMutation = { __typename?: 'Mutation', moveBoxToDistributionEvent?: { __typename?: 'Box', id: string, distributionEvent?: { __typename?: 'DistributionEvent', id: string, name?: string | null, distributionSpot?: { __typename?: 'DistributionSpot', name?: string | null } | null } | null } | null };
+
+export type MoveItemsToDistributionEventMutationVariables = Exact<{
+  boxLabelIdentifier: Scalars['ID'];
+  distributionEventId: Scalars['ID'];
+  numberOfItems: Scalars['Int'];
+}>;
+
+
+export type MoveItemsToDistributionEventMutation = { __typename?: 'Mutation', moveItemsFromBoxToDistributionEvent?: { __typename?: 'UnboxedItemsCollection', id: string, items: number, distributionEvent?: { __typename?: 'DistributionEvent', id: string, name?: string | null, boxes?: { __typename?: 'BoxPage', elements: Array<{ __typename?: 'Box', product?: { __typename?: 'Product', name: string } | null }> } | null, distributionSpot?: { __typename?: 'DistributionSpot', id: string, name?: string | null } | null } | null } | null };
 
 export type PackingListEntriesForDistributionEventQueryVariables = Exact<{
   distributionEventId: Scalars['ID'];
