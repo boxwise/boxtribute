@@ -137,7 +137,7 @@ const PackingListEntry = ({
         onClose={onPackedListOverlayClose}
       >
         <ModalOverlay />
-        <PackedContentListOverlay boxesData={[]} />
+        <PackedContentListOverlay boxesData={[]} unboxedItemCollectionData={undefined} />
       </Modal>
       {/* <PackedListOverlay
         modalProps={{ isListOpen, onListClose }}

@@ -10,7 +10,7 @@ import {
   IconButton,
   Box,
 } from "@chakra-ui/react";
-import { BoxData } from "views/Distributions/types";
+import { BoxData, UnboxedItemsCollectionData } from "views/Distributions/types";
 
 export interface PackingActionListProps {
   onDeleteBoxFromDistribution: (boxId: string) => void;
@@ -18,10 +18,12 @@ export interface PackingActionListProps {
 
 interface PackedContentListOverlayProps {
   boxesData: BoxData[];
+  unboxedItemCollectionData?: UnboxedItemsCollectionData;
 }
 
 const PackedContentListOverlay = ({
   boxesData,
+  unboxedItemCollectionData
 }: // packingActionProps,
 PackedContentListOverlayProps) => {
   return (

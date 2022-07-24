@@ -76,8 +76,8 @@ export interface IPackingListEntry {
   numberOfItems: number;
 }
 
-export interface BoxData {
-  labelIdentifier: string;
+
+export interface ItemsCollection {
   product?: {
     id: string;
     name: string;
@@ -87,6 +87,13 @@ export interface BoxData {
     label: string;
   };
   numberOfItems: number;
+}
+
+export interface BoxData extends ItemsCollection {
+  labelIdentifier: string;
+}
+
+export interface UnboxedItemsCollectionData extends ItemsCollection  {
 }
 
 export const DistroEventForSpotSchema = z.object({
