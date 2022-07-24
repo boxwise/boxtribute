@@ -1,10 +1,10 @@
 # Authentication with Auth0
 
-Trello-card: https://trello.com/c/8KEgl3nv
+Discussion Participants: [Roanna](https://github.com/orgs/boxwise/people/aerinsol), [Hans](https://github.com/orgs/boxwise/people/HaGuesto), [James](https://github.com/orgs/boxwise/people/jamescrowley), [Stephan](https://github.com/orgs/boxwise/people/naphets123)
 
 ## Status
 
-accepted, implementation in progress
+Completed - See trello card: https://trello.com/c/8KEgl3nv
 
 ## Context or Problem Statement
 
@@ -34,8 +34,10 @@ We are not building our own authentication solution to reduce the security risks
 
 ## Consequences
 
-###Easier:
-We can almost drop a whole user flow.
+### Easier:
 
-###More difficult:
-Switching between mobile and desktop application.
+- We can almost drop a whole user flow.
+
+### More difficult:
+
+- Switching between mobile and desktop application.
