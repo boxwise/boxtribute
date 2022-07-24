@@ -176,6 +176,23 @@ def resolve_distribution_event_packing_list(obj, *_):
     return packing_list
 
 
+@base.field("distributionEvents")
+# @query.field("distributionEvents")
+def resolve_distributions_events(base_obj, _):
+    # TODO: add permissions here
+    # authorize(permission="distribution_spot:read")
+    # return DistributionEvent.select().where.type == LocationType.DistributionSpot)
+    return (
+        DistributionEvent.select()
+        .join(Location)
+        .where(
+            Location.base
+            == base_obj.id & DistributionEvent.distribution_spot
+            == Location.id
+        )
+    )
+
+
 @base.field("distributionSpots")
 @query.field("distributionSpots")
 def resolve_distributions_spots(base_obj, _):
