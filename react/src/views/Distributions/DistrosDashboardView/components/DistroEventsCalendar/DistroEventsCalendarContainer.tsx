@@ -5,18 +5,11 @@ import parse from 'date-fns/parse'
 import startOfWeek from 'date-fns/startOfWeek'
 import getDay from 'date-fns/getDay'
 import enUS from 'date-fns/locale/en-US'
-import { DistributionEventState } from "types/generated/graphql";
+import { DistributionEventDetails } from 'views/Distributions/types';
 
-export interface DistroEventForCalendar {
-  id: string;
-  startDateTime: Date;
-  endDateTime: Date;
-  state: DistributionEventState;
-  distroSpotName: string;
-}
 
 export interface DistroEventsCalendarProps {
-    distroEvents: DistroEventForCalendar[];
+    distributionEvents: DistributionEventDetails[];
     onClickOnDistroEvent: (distroEventId: string) => void;
 }
 
@@ -32,13 +25,13 @@ const localizer = dateFnsLocalizer({
   locales,
 });
 
-const DistroEventsCalendarContainer = ({distroEvents, onClickOnDistroEvent}: DistroEventsCalendarProps) => {
+const DistroEventsCalendarContainer = ({distributionEvents: distroEvents, onClickOnDistroEvent}: DistroEventsCalendarProps) => {
   const events = distroEvents.map(distroEvent => {
     return {
         id: distroEvent.id,
-        title: distroEvent.distroSpotName,
-        start: distroEvent.startDateTime,
-        end: distroEvent.endDateTime,
+        title: distroEvent.name,
+        start: distroEvent.plannedStartDateTime,
+        end: distroEvent.plannedEndDateTime,
         state: distroEvent.state,
     }
     });

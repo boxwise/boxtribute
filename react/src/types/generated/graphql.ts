@@ -1257,6 +1257,13 @@ export type AllProductsAndSizesQueryVariables = Exact<{ [key: string]: never; }>
 
 export type AllProductsAndSizesQuery = { __typename?: 'Query', products: { __typename?: 'ProductPage', elements: Array<{ __typename?: 'Product', id: string, name: string, gender?: ProductGender | null, sizeRange: { __typename?: 'SizeRange', sizes: Array<{ __typename?: 'Size', id: string, label: string }> } }> } };
 
+export type DistributionEventsForBaseQueryVariables = Exact<{
+  baseId: Scalars['ID'];
+}>;
+
+
+export type DistributionEventsForBaseQuery = { __typename?: 'Query', base?: { __typename?: 'Base', distributionEvents: Array<{ __typename?: 'DistributionEvent', id: string, name?: string | null, plannedStartDateTime: any, plannedEndDateTime: any, state: DistributionEventState, distributionSpot?: { __typename?: 'DistributionSpot', name?: string | null } | null }> } | null };
+
 export type MoveBoxToDistributionEventMutationVariables = Exact<{
   boxLabelIdentifier: Scalars['ID'];
   distributionEventId: Scalars['ID'];

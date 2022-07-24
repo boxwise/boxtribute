@@ -41,8 +41,9 @@ export const DistributionSpotSchema = z.object({
 // }
 export const DistributionEventDetailsSchema = z.object({
   id: z.string().min(1),
-  name: z.string(),
+  name: z.string().nullish(),
   plannedStartDateTime: z.string().transform(v=> new Date(v)),
+  plannedEndDateTime: z.string().transform(v=> new Date(v)),
   state: DistributionEventStateSchema,
   distributionSpot: DistributionSpotSchema,
 });

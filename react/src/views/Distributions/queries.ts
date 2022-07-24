@@ -1,5 +1,22 @@
 import { gql } from "@apollo/client";
 
+export const DISTRIBUTION_EVENTS_FOR_BASE_ID = gql`
+  query DistributionEventsForBase($baseId: ID!) {
+    base(id: $baseId) {
+      distributionEvents {
+        id
+        name
+        plannedStartDateTime
+        plannedEndDateTime
+        state
+        distributionSpot {
+          name
+        }
+      }
+    }
+  }
+`;
+
 export const MOVE_BOX_TO_DISTRIBUTION_MUTATION = gql`
   mutation MoveBoxToDistributionEvent(
     $boxLabelIdentifier: ID!
