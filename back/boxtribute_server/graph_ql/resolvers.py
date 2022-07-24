@@ -76,6 +76,9 @@ from ..models.metrics import (
 from .filtering import derive_beneficiary_filter, derive_box_filter
 from .pagination import load_into_page
 
+# from types import SimpleNamespace
+
+
 query = QueryType()
 mutation = MutationType()
 object_types = []
@@ -155,6 +158,30 @@ def resolve_beneficiary(*_, id):
     beneficiary = Beneficiary.get_by_id(id)
     authorize(permission="beneficiary:read", base_id=beneficiary.base_id)
     return beneficiary
+
+
+# @distribution_event.field("packingList")
+# def resolve_distribution_event_packing_list(obj, *_):
+#     packing_list = SimpleNamespace()
+#     packing_list.distribution_event_id = obj.id
+#     return packing_list
+
+
+@base.field("distributionEvents")
+# @query.field("distributionEvents")
+def resolve_distributions_events(base_obj, _):
+    # TODO: add permissions here
+    # authorize(permission="distribution_spot:read")
+    # return DistributionEvent.select().where.type == LocationType.DistributionSpot)
+    return (
+        DistributionEvent.select()
+        .join(Location)
+        .where(
+            Location.base
+            == base_obj.id & DistributionEvent.distribution_spot
+            == Location.id
+        )
+    )
 
 
 @query.field("users")
