@@ -176,6 +176,69 @@ export type BoxUpdateInput = {
   sizeId?: InputMaybe<Scalars['Int']>;
 };
 
+<<<<<<< HEAD
+=======
+export type DistributionEvent = {
+  __typename?: 'DistributionEvent';
+  boxes?: Maybe<BoxPage>;
+  distributionSpot?: Maybe<DistributionSpot>;
+  id: Scalars['ID'];
+  name?: Maybe<Scalars['String']>;
+  packingList: PackingList;
+  plannedEndDateTime: Scalars['Datetime'];
+  plannedStartDateTime: Scalars['Datetime'];
+  state: DistributionEventState;
+  unboxedItemsCollections?: Maybe<Array<UnboxedItemsCollection>>;
+};
+
+
+export type DistributionEventBoxesArgs = {
+  filterInput?: InputMaybe<FilterBoxInput>;
+  paginationInput?: InputMaybe<PaginationInput>;
+};
+
+export type DistributionEventCreationInput = {
+  distributionSpotId: Scalars['Int'];
+  name?: InputMaybe<Scalars['String']>;
+  plannedEndDateTime?: InputMaybe<Scalars['Datetime']>;
+  plannedStartDateTime?: InputMaybe<Scalars['Datetime']>;
+};
+
+export enum DistributionEventState {
+  Completed = 'Completed',
+  OnDistro = 'OnDistro',
+  Packing = 'Packing',
+  Planning = 'Planning',
+  Returned = 'Returned'
+}
+
+export type DistributionSpot = BoxPlace & {
+  __typename?: 'DistributionSpot';
+  base?: Maybe<Base>;
+  boxes?: Maybe<BoxPage>;
+  comment: Scalars['String'];
+  distributionEvents: Array<DistributionEvent>;
+  id: Scalars['ID'];
+  latitude?: Maybe<Scalars['Float']>;
+  longitude?: Maybe<Scalars['Float']>;
+  name?: Maybe<Scalars['String']>;
+};
+
+
+export type DistributionSpotBoxesArgs = {
+  filterInput?: InputMaybe<FilterBoxInput>;
+  paginationInput?: InputMaybe<PaginationInput>;
+};
+
+export type DistributionSpotCreationInput = {
+  baseId: Scalars['Int'];
+  comment: Scalars['String'];
+  latitude?: InputMaybe<Scalars['Float']>;
+  longitude?: InputMaybe<Scalars['Float']>;
+  name?: InputMaybe<Scalars['String']>;
+};
+
+>>>>>>> cf875230 (Mobile Distro: add unboxedItemsCollection to DistributionEvent schema)
 /**
  * Optional filter values when retrieving [`Beneficiaries`]({{Types.Beneficiary}}).
  * If several fields are defined (not null), they are combined into a filter expression using logical AND (i.e. the filter returns only elements for which *all* fields are true).
@@ -969,4 +1032,111 @@ export type BoxesForBaseQueryVariables = Exact<{
 }>;
 
 
+<<<<<<< HEAD
 export type BoxesForBaseQuery = { __typename?: 'Query', base?: { __typename?: 'Base', locations?: Array<{ __typename?: 'Location', name?: string | null, boxes?: { __typename?: 'BoxPage', totalCount: number, elements: Array<{ __typename?: 'Box', labelIdentifier: string, state: BoxState, items?: number | null, size: { __typename?: 'Size', id: string, label: string }, product?: { __typename?: 'Product', gender?: ProductGender | null, name: string } | null }> } | null }> | null } | null };
+=======
+export type BoxesForBaseQuery = { __typename?: 'Query', base?: { __typename?: 'Base', locations: Array<{ __typename?: 'Location', name?: string | null, boxes?: { __typename?: 'BoxPage', totalCount: number, elements: Array<{ __typename?: 'Box', labelIdentifier: string, state: BoxState, items: number, size: { __typename?: 'Size', id: string, label: string }, product?: { __typename?: 'Product', gender?: ProductGender | null, name: string } | null, place?: { __typename?: 'DistributionSpot', name?: string | null } | { __typename?: 'Location', name?: string | null } | null }> } | null }> } | null };
+
+export type DistributionSpotQueryVariables = Exact<{
+  id: Scalars['ID'];
+}>;
+
+
+export type DistributionSpotQuery = { __typename?: 'Query', distributionSpot?: { __typename?: 'DistributionSpot', id: string, name?: string | null } | null };
+
+export type CreateDistributionEventMutationVariables = Exact<{
+  distributionSpotId: Scalars['Int'];
+  name: Scalars['String'];
+  plannedStartDateTime: Scalars['Datetime'];
+  plannedEndDateTime: Scalars['Datetime'];
+}>;
+
+
+export type CreateDistributionEventMutation = { __typename?: 'Mutation', createDistributionEvent?: { __typename?: 'DistributionEvent', id: string, name?: string | null, plannedStartDateTime: any } | null };
+
+export type CreateDistributionSpotMutationVariables = Exact<{
+  baseId: Scalars['Int'];
+  name: Scalars['String'];
+  comment: Scalars['String'];
+  latitude?: InputMaybe<Scalars['Float']>;
+  longitude?: InputMaybe<Scalars['Float']>;
+}>;
+
+
+export type CreateDistributionSpotMutation = { __typename?: 'Mutation', createDistributionSpot?: { __typename?: 'DistributionSpot', id: string } | null };
+
+export type RemoveEntryFromPackingListMutationVariables = Exact<{
+  packingListEntryId: Scalars['ID'];
+}>;
+
+
+export type RemoveEntryFromPackingListMutation = { __typename?: 'Mutation', removePackingListEntryFromDistributionEvent?: { __typename?: 'DistributionEvent', id: string } | null };
+
+export type AddToPackingListMutationVariables = Exact<{
+  distributionEventId: Scalars['ID'];
+  productId: Scalars['Int'];
+  sizeId: Scalars['Int'];
+  numberOfItems: Scalars['Int'];
+}>;
+
+
+export type AddToPackingListMutation = { __typename?: 'Mutation', addPackingListEntryToDistributionEvent?: { __typename?: 'PackingListEntry', id: string, numberOfItems: number, product?: { __typename?: 'Product', id: string, name: string, gender?: ProductGender | null } | null, size?: { __typename?: 'Size', id: string, label: string } | null } | null };
+
+export type DistroSpotsForBaseIdQueryVariables = Exact<{
+  baseId: Scalars['ID'];
+}>;
+
+
+export type DistroSpotsForBaseIdQuery = { __typename?: 'Query', base?: { __typename?: 'Base', distributionSpots: Array<{ __typename?: 'DistributionSpot', id: string, name?: string | null, latitude?: number | null, longitude?: number | null, distributionEvents: Array<{ __typename?: 'DistributionEvent', id: string, name?: string | null, state: DistributionEventState, plannedStartDateTime: any }> }> } | null };
+
+export type AllProductsAndSizesQueryVariables = Exact<{ [key: string]: never; }>;
+
+
+export type AllProductsAndSizesQuery = { __typename?: 'Query', products: { __typename?: 'ProductPage', elements: Array<{ __typename?: 'Product', id: string, name: string, gender?: ProductGender | null, sizeRange: { __typename?: 'SizeRange', sizes: Array<{ __typename?: 'Size', id: string, label: string }> } }> } };
+
+export type MoveBoxToDistributionEventMutationVariables = Exact<{
+  boxLabelIdentifier: Scalars['ID'];
+  distributionEventId: Scalars['ID'];
+}>;
+
+
+export type MoveBoxToDistributionEventMutation = { __typename?: 'Mutation', moveBoxToDistributionEvent?: { __typename?: 'Box', id: string, distributionEvent?: { __typename?: 'DistributionEvent', id: string, name?: string | null, distributionSpot?: { __typename?: 'DistributionSpot', name?: string | null } | null } | null } | null };
+
+export type MoveItemsToDistributionEventMutationVariables = Exact<{
+  boxLabelIdentifier: Scalars['ID'];
+  distributionEventId: Scalars['ID'];
+  numberOfItems: Scalars['Int'];
+}>;
+
+
+export type MoveItemsToDistributionEventMutation = { __typename?: 'Mutation', moveItemsFromBoxToDistributionEvent?: { __typename?: 'UnboxedItemsCollection', id: string, items: number, distributionEvent?: { __typename?: 'DistributionEvent', id: string, name?: string | null, boxes?: { __typename?: 'BoxPage', elements: Array<{ __typename?: 'Box', product?: { __typename?: 'Product', name: string } | null }> } | null, distributionSpot?: { __typename?: 'DistributionSpot', id: string, name?: string | null } | null } | null } | null };
+
+export type PackingListEntriesForDistributionEventQueryVariables = Exact<{
+  distributionEventId: Scalars['ID'];
+}>;
+
+
+export type PackingListEntriesForDistributionEventQuery = { __typename?: 'Query', distributionEvent?: { __typename?: 'DistributionEvent', id: string, packingList: { __typename?: 'PackingList', entries: Array<{ __typename?: 'PackingListEntry', id: string, numberOfItems: number, product?: { __typename?: 'Product', id: string, name: string, gender?: ProductGender | null } | null, size?: { __typename?: 'Size', id: string, label: string } | null }> } } | null };
+
+export type ChangeDistributionEventStateMutationVariables = Exact<{
+  distributionEventId: Scalars['ID'];
+  newState: DistributionEventState;
+}>;
+
+
+export type ChangeDistributionEventStateMutation = { __typename?: 'Mutation', changeDistributionEventState?: { __typename: 'DistributionEvent', id: string, name?: string | null, state: DistributionEventState } | null };
+
+export type BoxDetailsQueryVariables = Exact<{
+  labelIdentifier: Scalars['String'];
+}>;
+
+
+export type BoxDetailsQuery = { __typename?: 'Query', box?: { __typename?: 'Box', labelIdentifier: string, items: number, product?: { __typename?: 'Product', id: string, name: string } | null, size: { __typename?: 'Size', id: string, label: string } } | null };
+
+export type DistributionEventQueryVariables = Exact<{
+  eventId: Scalars['ID'];
+}>;
+
+
+export type DistributionEventQuery = { __typename?: 'Query', distributionEvent?: { __typename?: 'DistributionEvent', id: string, name?: string | null, state: DistributionEventState, plannedStartDateTime: any, distributionSpot?: { __typename?: 'DistributionSpot', id: string, name?: string | null } | null } | null };
+>>>>>>> cf875230 (Mobile Distro: add unboxedItemsCollection to DistributionEvent schema)
