@@ -24,7 +24,7 @@ class PackingListEntry(db.Model):
         on_update="CASCADE",
     )
     distribution_event = UIntForeignKeyField(
-        column_name="distribution_event_id",
+        column_name="distro_event_id",
         field="id",
         model=DistributionEvent,
         on_update="CASCADE",
@@ -50,4 +50,4 @@ class PackingListEntry(db.Model):
     )
 
     class Meta:
-        table_name = "packing_list_entry"
+        table_name = "distro_events_packing_list_entries"

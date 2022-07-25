@@ -9,8 +9,8 @@ from .user import User
 
 class DistributionEvent(db.Model):
     name = CharField(null=True)
-    planned_start_date_time = DateTimeField(column_name="planned_start_date_time")
-    planned_end_date_time = DateTimeField(column_name="planned_end_date_time")
+    planned_start_date_time = DateTimeField()
+    planned_end_date_time = DateTimeField()
     # TODO: Clarify whether this is enough to make the connection
     # to DistributionSpot or whether some additional constraints
     # are needed (since the same table / PeeWee model is used as for locations)
@@ -42,4 +42,4 @@ class DistributionEvent(db.Model):
     )
 
     class Meta:
-        table_name = "distribution_events"
+        table_name = "distro_events"

@@ -20,7 +20,7 @@ class UnboxedItemsCollection(db.Model):
     )
     deleted = DateTimeField(null=True, default=None)
     distribution_event = UIntForeignKeyField(
-        column_name="distribution_event_id",
+        column_name="distro_event_id",
         field="id",
         model=DistributionEvent,
         null=True,
@@ -51,13 +51,6 @@ class UnboxedItemsCollection(db.Model):
     #     on_update="CASCADE",
     # )
 
-    distribution_event = UIntForeignKeyField(
-        column_name="distribution_event_id",
-        field="id",
-        model=DistributionEvent,
-        null=True,
-        on_update="CASCADE",
-    )
     product = UIntForeignKeyField(
         column_name="product_id",
         field="id",
@@ -72,4 +65,4 @@ class UnboxedItemsCollection(db.Model):
     )
 
     class Meta:
-        table_name = "unboxed_items_collection"
+        table_name = "distro_events_unboxed_item_collections"
