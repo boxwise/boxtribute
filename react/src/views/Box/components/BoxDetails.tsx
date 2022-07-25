@@ -92,11 +92,11 @@ const BoxDetails = ({
             </Flex>
           </ListItem>
           <ListItem>
-            <Flex direction="row">
+            {/* <Flex direction="row">
               {boxData.tags.map((tag, i) => (
                 <Text mr={2}>#{tag.name}</Text>
               ))}
-            </Flex>
+            </Flex> */}
           </ListItem>
           <ListItem>
             <Flex direction="row" justifyContent="flex-end">
@@ -134,20 +134,20 @@ const BoxDetails = ({
         px={4}
         >
         <Text textAlign="center" fontSize="xl" mb={4}>
-          Move this box from <strong>{boxData.place?.name}</strong> to:
+          Move this box from <strong>{boxData.location?.name}</strong> to:
         </Text>
         <List>
           <Flex wrap="wrap" gap='2' alignItems='center' justifyContent='center'>
-            {boxData.place?.base?.locations
+            {boxData.location?.base?.locations
               ?.filter((location) => {
-                return location.id !== boxData.place?.id;
+                return location.id !== boxData.location?.id;
               })
               .map((location, i) => (
                 <WrapItem key={location.id}>
                   <Button
                     borderRadius="0px"
                     // onClick={() => moveToLocationClick(location.id)}
-                    disabled={boxData.place?.id === location.id}
+                    disabled={boxData.location?.id === location.id}
                   >
                     {location.name}
                   </Button>

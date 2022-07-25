@@ -29,7 +29,7 @@ export const BOX_BY_LABEL_IDENTIFIER_QUERY = gql`
         id
         name
       }
-      place {
+      location {
         id
         name
         base {
@@ -69,7 +69,7 @@ export const UPDATE_LOCATION_OF_BOX_MUTATION = gql`
         id
         name
       }
-      place {
+      location {
         id
         name
         base {
