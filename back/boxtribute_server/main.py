@@ -25,18 +25,3 @@ configure_app(
     database=os.environ["MYSQL_DB"],
     unix_socket=os.getenv("MYSQL_SOCKET"),
 )
-
-
-# TODO: Remove these PeeWee table creations again once the new init.sql dump
-# is added
-#
-#
-from .db import db
-from .models.definitions.distribution_event import DistributionEvent
-from .models.definitions.packing_list_entry import PackingListEntry
-from .models.definitions.unboxed_items_collection import UnboxedItemsCollection
-
-db.database.create_tables([DistributionEvent, PackingListEntry, UnboxedItemsCollection])
-#
-#
-#
