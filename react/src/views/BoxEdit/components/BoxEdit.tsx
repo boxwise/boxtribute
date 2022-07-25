@@ -3,10 +3,11 @@ import {
   List,
   ListItem,
   Button,
-  Text,
   FormControl,
   FormErrorMessage,
   FormLabel,
+  Heading,
+  Input,
 } from "@chakra-ui/react";
 import { Select, OptionBase } from "chakra-react-select";
 
@@ -17,14 +18,14 @@ import {
 import { Controller, useForm } from "react-hook-form";
 import { groupBy } from "utils/helpers";
 
-
 interface OptionsGroup extends OptionBase {
   value: string;
   label: string;
 }
 
 export interface BoxFormValues {
-  sizeId?: string | null;
+  numberOfItems: number;
+  sizeId: string;
   productForDropdown: OptionsGroup;
   sizeForDropdown?: OptionsGroup;
 }
@@ -65,9 +66,11 @@ const BoxEdit = ({
   const {
     handleSubmit,
     control,
+    register,
     formState: { isSubmitting },
   } = useForm<BoxFormValues>({
     defaultValues: {
+      numberOfItems: boxData?.items || 0,
       sizeId: boxData?.size.id,
       productForDropdown: productsForDropdownGroups
         ?.flatMap((i) => i.options)
@@ -92,30 +95,12 @@ const BoxEdit = ({
 
   return (
     <Box>
-      <Text
-        fontSize={{ base: "16px", lg: "18px" }}
-        fontWeight={"500"}
-        textTransform={"uppercase"}
-        mb={"4"}
-      >
-        Box Details
-      </Text>
+      <Heading fontWeight={"bold"} mb={4} as="h2">
+        Box {boxData.labelIdentifier}
+      </Heading>
 
       <form onSubmit={handleSubmit(onSubmitBoxEditForm)}>
         <List spacing={2}>
-          <ListItem>
-            <Text as={"span"} fontWeight={"bold"}>
-              Box Label:
-            </Text>{" "}
-            {boxData.labelIdentifier}
-          </ListItem>
-          <ListItem>
-            <Text as={"span"} fontWeight={"bold"}>
-              Location:
-            </Text>{" "}
-            {boxData.location?.name}
-          </ListItem>
-
           <ListItem>
             <Controller
               control={control}
@@ -124,19 +109,22 @@ const BoxEdit = ({
                 field: { onChange, onBlur, value, name, ref },
                 fieldState: { invalid, error },
               }) => (
-                <FormControl py={4} isInvalid={invalid} id="products">
+                <FormControl isInvalid={invalid} id="products">
                   <FormLabel>Product</FormLabel>
-
-                  <Select
-                    name={name}
-                    ref={ref}
-                    onChange={onChange}
-                    onBlur={onBlur}
-                    value={value}
-                    options={productsForDropdownGroups}
-                    placeholder="Product"
-                    isSearchable
-                  />
+                  <Box border="2px">
+                    <Select
+                      name={name}
+                      ref={ref}
+                      onChange={onChange}
+                      onBlur={onBlur}
+                      value={value}
+                      options={productsForDropdownGroups}
+                      placeholder="Product"
+                      isSearchable
+                      tagVariant="outline"
+                      focusBorderColor="transparent"
+                    />
+                  </Box>
 
                   <FormErrorMessage>{error && error.message}</FormErrorMessage>
                 </FormControl>
@@ -145,10 +133,14 @@ const BoxEdit = ({
           </ListItem>
 
           <ListItem>
-            <Text as={"span"} fontWeight={"bold"}>
-              Items:
-            </Text>{" "}
-            {boxData.items}
+            <FormLabel htmlFor="numberOfItems">Number Of Items</FormLabel>
+            <Box border="2px">
+            <Input border='0' type="number" {...register("numberOfItems", {
+                  valueAsNumber: true,
+                  validate: (value) => value > 0,
+                  
+            })} />
+            </Box>
           </ListItem>
         </List>
         <Button

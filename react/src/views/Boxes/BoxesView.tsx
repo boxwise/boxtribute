@@ -3,6 +3,7 @@ import { BoxesForBaseQuery } from "../../types/generated/graphql";
 import { useNavigate, useParams } from "react-router-dom";
 import BoxesTable from "./components/BoxesTable";
 import { BoxRow } from "./components/types";
+import APILoadingIndicator from "components/APILoadingIndicator";
 
 export const BOXES_FOR_BASE_QUERY = gql`
   query BoxesForBase($baseId: ID!) {
@@ -22,7 +23,14 @@ export const BOXES_FOR_BASE_QUERY = gql`
               gender
               name
             }
+            tags {
+              name
+              id
+            }
             items
+            place {
+              name
+            }
           }
         }
       }
@@ -35,15 +43,19 @@ const graphqlToTableTransformer = (
 ) =>
   boxesQueryResult?.base?.locations?.flatMap(
     (location) =>
-      location?.boxes?.elements.map((element) => ({
-        productName: element.product?.name,
-        labelIdentifier: element.labelIdentifier,
-        gender: element.product?.gender,
-        items: element.items,
-        size: element.size.label,
-        state: element.state,
-        location: location?.name,
-      } as BoxRow)) || []
+      location?.boxes?.elements.map(
+        (element) =>
+          ({
+            productName: element.product?.name,
+            labelIdentifier: element.labelIdentifier,
+            gender: element.product?.gender,
+            items: element.items,
+            size: element.size.label,
+            state: element.state,
+            place: element.place?.name,
+            tags: element.tags?.map(tag => tag.name),
+          } as BoxRow)
+      ) || []
   ) || [];
 
 const Boxes = () => {
@@ -62,7 +74,7 @@ const Boxes = () => {
     }
   );
   if (loading) {
-    return <div>Loading...</div>;
+    return <APILoadingIndicator />;
   }
   if (error) {
     console.error(error);
@@ -70,7 +82,9 @@ const Boxes = () => {
   }
 
   const tableData = graphqlToTableTransformer(data);
-  return <BoxesTable tableData={tableData} onBoxRowClick={onBoxesRowClick} />;
+  return (
+      <BoxesTable tableData={tableData} onBoxRowClick={onBoxesRowClick} />
+  );
 };
 
 export default Boxes;

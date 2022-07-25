@@ -1,4 +1,6 @@
 import { gql, useMutation, useQuery } from "@apollo/client";
+import { useDisclosure } from "@chakra-ui/react";
+import APILoadingIndicator from "components/APILoadingIndicator";
 import { useParams } from "react-router-dom";
 import {
   BoxByLabelIdentifierQuery,
@@ -6,6 +8,8 @@ import {
   UpdateLocationOfBoxMutation,
   UpdateLocationOfBoxMutationVariables,
 } from "types/generated/graphql";
+import AddItemsToBoxOverlay from "./components/AddItemsToBoxOverlay";
+import TakeItemsFromBoxOverlay from "./components/TakeItemsFromBoxOverlay";
 import BoxDetails from "./components/BoxDetails";
 
 export const BOX_BY_LABEL_IDENTIFIER_QUERY = gql`
@@ -21,7 +25,11 @@ export const BOX_BY_LABEL_IDENTIFIER_QUERY = gql`
         name
         gender
       }
-      location {
+      tags {
+        id
+        name
+      }
+      place {
         id
         name
         base {
@@ -57,7 +65,11 @@ export const UPDATE_LOCATION_OF_BOX_MUTATION = gql`
         gender
         id
       }
-      location {
+      tags {
+        id
+        name
+      }
+      place {
         id
         name
         base {
@@ -71,6 +83,10 @@ export const UPDATE_LOCATION_OF_BOX_MUTATION = gql`
   }
 `;
 
+export interface ChangeNumberOfItemsBoxData {
+  numberOfItems: number;
+}
+
 const BTBox = () => {
   const labelIdentifier =
     useParams<{ labelIdentifier: string }>().labelIdentifier!;
@@ -83,13 +99,46 @@ const BTBox = () => {
     },
   });
 
-  const [updateBoxLocation, mutationStatus] = useMutation<
+  const [updateNumberOfItemsMutation, mutationStatus] = useMutation<
     UpdateLocationOfBoxMutation,
     UpdateLocationOfBoxMutationVariables
   >(UPDATE_LOCATION_OF_BOX_MUTATION);
 
+  const baseId = useParams<{ baseId: string }>().baseId;
+  // const navigate = useNavigate();
+
+  // const [updateContentOfBoxMutation] = useMutation<
+  //   UpdateContentOfBoxMutation,
+  //   UpdateContentOfBoxMutationVariables
+  // >(UPDATE_CONTENT_OF_BOX_MUTATION);
+
+  const onSubmitChangeNumberOfItems = (boxFormValues: ChangeNumberOfItemsBoxData) => {
+    console.log("boxLabelIdentifier", labelIdentifier);
+    console.log("boxFormValues", boxFormValues);
+  }
+    
+  //   updateContentOfBoxMutation({
+  //     variables: {
+  //       boxLabelIdentifier: labelIdentifier,
+  //       numberOfItems: boxFormValues.numberOfItems,
+        
+  //     },
+  //   })
+  //     .then((mutationResult) => {
+  //       navigate(
+  //         `/bases/${baseId}/boxes/${mutationResult.data?.updateBox?.labelIdentifier}`
+  //       );
+  //     })
+  //     .catch((error) => {
+  //       console.log("Error while trying to update Box", error);
+  //     });
+  // };
+
+  const { isOpen: isPlusOpen, onOpen: onPlusOpen, onClose: onPlusClose } = useDisclosure(); 
+  const { isOpen: isMinusOpen, onOpen: onMinusOpen, onClose: onMinusClose } = useDisclosure(); 
+
   if (loading) {
-    return <div>Loading...</div>;
+    return <APILoadingIndicator />;
   }
   if (mutationStatus.loading) {
     return <div>Updating box...</div>;
@@ -101,20 +150,34 @@ const BTBox = () => {
 
   const boxData = mutationStatus.data?.updateBox || data?.box;
 
-  const onMoveBoxToLocationClick = (locationId: string) => {
-    updateBoxLocation({
-      variables: {
-        boxLabelIdentifier: labelIdentifier,
-        newLocationId: parseInt(locationId),
-      },
-    });
-  };
+  // const onMoveBoxToLocationClick = (locationId: string) => {
+  //   updateBoxLocation({
+  //     variables: {
+  //       boxLabelIdentifier: labelIdentifier,
+  //       newLocationId: parseInt(locationId),
+  //     },
+  //   });
+  // };
 
   return (
+    <>
     <BoxDetails
       boxData={boxData}
-      onMoveToLocationClick={onMoveBoxToLocationClick}
+      onPlusOpen={onPlusOpen}
+      onMinusOpen={onMinusOpen}
+      // onMoveToLocationClick={onMoveBoxToLocationClick}
     />
+    <AddItemsToBoxOverlay 
+      isOpen={isPlusOpen}
+      onClose={onPlusClose}
+
+    />
+    <TakeItemsFromBoxOverlay
+      isOpen={isMinusOpen}
+      onClose={onMinusClose}
+      onSubmitTakeItemsFromBox={onSubmitChangeNumberOfItems}
+    />
+    </>
   );
 };
 
