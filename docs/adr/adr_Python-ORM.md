@@ -1,5 +1,5 @@
 # ADR: Python ORM
-Discussion participants: [Roanna](https://github.com/orgs/boxwise/people/aerinsol), [David C](https://github.com/orgs/boxwise/people/jdcsgh), [Katie](https://github.com/orgs/boxwise/people/mcgnly)
+Discussion participants: [Roanna](https://github.com/orgs/boxwise/people/aerinsol), [David C](https://github.com/orgs/boxwise/people/jdcsgh), [Katie](https://github.com/orgs/boxwise/people/mcgnly), [Philipp](https://github.com/orgs/boxwise/people/mcgnly)
 
 ## Status
 

@@ -1,8 +1,10 @@
 # ADR: GraphQL Data Layer
 
+Discussion Participants: [Roanna](https://github.com/orgs/boxwise/people/aerinsol), [James](https://github.com/orgs/boxwise/people/jamescrowley), [David C] (mailto:rfb@davidchau.com)
+
 ## Status
 
-Accepted, installation of Ariadne and Apollo complete. Creation of GraphQL schema in progress. (October 28, 2020)
+Complete. installation of Ariadne and Apollo complete. GraphQL Schema completed by Philipp. (April 30, 2021)
 
 ## Context
 
