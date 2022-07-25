@@ -46,7 +46,7 @@
     "@storybook/addon-actions": "^6.5.8",
     "@storybook/addon-essentials": "^6.5.8",
     "@storybook/addon-interactions": "^6.5.9",
-    "@storybook/addon-links": "^6.5.8",
+    "@storybook/addon-links": "^6.5.9",
     "@storybook/builder-webpack5": "^6.5.8",
     "@storybook/jest": "^0.0.10",
     "@storybook/manager-webpack5": "^6.5.8",
@@ -74,7 +74,7 @@
     "mutationobserver-shim": "^0.3.7",
     "prettier": "^2.4.1",
     "prop-types": "^15.8.1",
-    "typescript": "^4.4.4",
+    "typescript": "^4.7.4",
     "webpack": "^5.73.0"
   },
   "scripts": {
