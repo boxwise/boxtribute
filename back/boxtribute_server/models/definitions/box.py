@@ -46,7 +46,7 @@ class Box(db.Model):
     )
     deleted = DateTimeField(null=True, default=None)
     distribution_event = UIntForeignKeyField(
-        column_name="distribution_event_id",
+        column_name="distro_event_id",
         field="id",
         model=DistributionEvent,
         null=True,
