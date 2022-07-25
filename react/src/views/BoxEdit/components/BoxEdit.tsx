@@ -3,7 +3,6 @@ import {
   List,
   ListItem,
   Button,
-  Text,
   FormControl,
   FormErrorMessage,
   FormLabel,
@@ -112,7 +111,7 @@ const BoxEdit = ({
               }) => (
                 <FormControl isInvalid={invalid} id="products">
                   <FormLabel>Product</FormLabel>
-                  <Box border="1px">
+                  <Box border="2px">
                     <Select
                       name={name}
                       ref={ref}
@@ -122,6 +121,8 @@ const BoxEdit = ({
                       options={productsForDropdownGroups}
                       placeholder="Product"
                       isSearchable
+                      tagVariant="outline"
+                      focusBorderColor="transparent"
                     />
                   </Box>
 
@@ -133,10 +134,11 @@ const BoxEdit = ({
 
           <ListItem>
             <FormLabel htmlFor="numberOfItems">Number Of Items</FormLabel>
-            <Box border="1px">
-            <Input type="number" {...register("numberOfItems", {
+            <Box border="2px">
+            <Input border='0' type="number" {...register("numberOfItems", {
                   valueAsNumber: true,
                   validate: (value) => value > 0,
+                  
             })} />
             </Box>
           </ListItem>

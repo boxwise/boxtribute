@@ -8,9 +8,8 @@ import {
   Text,
   Flex,
   IconButton,
-  Wrap,
   WrapItem,
-  useDisclosure,
+
 } from "@chakra-ui/react";
 import React, { useState } from "react";
 import { NavLink } from "react-router-dom";
@@ -23,26 +22,27 @@ interface BoxDetailsProps {
   boxData:
     | BoxByLabelIdentifierQuery["box"]
     | UpdateLocationOfBoxMutation["updateBox"];
-  onMoveToLocationClick: (locationId: string) => void;
-  onOpen: () => void;
+  // onMoveToLocationClick: (locationId: string) => void;
+  onPlusOpen: () => void;
+  onMinusOpen: () => void;
   // onAddItemsToBoxClick: (numberOfItems: number) => void;
   // onRemoveItemsFromBoxClick: (numberOfItems: number) => void;
 }
 
 const BoxDetails = ({
   boxData,
-  onMoveToLocationClick: moveToLocationClick,
-  onOpen
+  // onMoveToLocationClick: moveToLocationClick,
+  onPlusOpen,
+  onMinusOpen,
 }: BoxDetailsProps) => {
-  
   // const allLocations = boxData?.place?.base?.locations
   // const [preferedLocations, setPreferedLocations] = useState(allLocations);
 
   // const setPreferedOrder = (locationId: string) => {
   //   const newPreferedLocations = [preferedLocations].unshift(...locationId);
 
-const [openAddItemsModal, setOpenAddItemsModal] = useState(false);
-const [openRemoveItemsModal, setOpenRemoveItemsModal] = useState(false);
+  // const [openAddItemsModal, setOpenAddItemsModal] = useState(false);
+  // const [openRemoveItemsModal, setOpenRemoveItemsModal] = useState(false);
 
   if (boxData == null) {
     console.error("BoxDetails Component: boxData is null");
@@ -50,8 +50,22 @@ const [openRemoveItemsModal, setOpenRemoveItemsModal] = useState(false);
   }
 
   return (
-    <Box>
-      <Box border="2px" mb={2} backgroundColor="#F4E5A0">
+    <Flex direction={["column", "column", "row"]} alignItems={['center', 'center', 'flex-start']} w='100%' justifyContent='center' >
+      <Box
+        w={[
+          "100%", // 0-30em
+          "80%", // 30em-48em
+          "40%", // 48em-62em
+          "30%", // 62em-75em
+          // 62em+
+        ]}
+        // mr={["0", "0", "2rem", "2rem"]}
+
+        border="2px"
+        mb={6}
+        backgroundColor="#F4E5A0"
+        mr={["0", "0", "6rem", "6rem"]}
+      >
         <Flex pt={2} px={4} direction="row" justifyContent="space-between">
           <Heading fontWeight={"bold"} mb={4} as="h2">
             Box {boxData.labelIdentifier}
@@ -60,7 +74,7 @@ const [openRemoveItemsModal, setOpenRemoveItemsModal] = useState(false);
             <IconButton
               aria-label="Edit box"
               backgroundColor="transparent"
-              borderRadius='0'
+              borderRadius="0"
               icon={<EditIcon h={6} w={6} />}
             />
           </NavLink>
@@ -78,27 +92,52 @@ const [openRemoveItemsModal, setOpenRemoveItemsModal] = useState(false);
             </Flex>
           </ListItem>
           <ListItem>
-          <Flex direction="row">
-          {boxData.tags.map((tag, i) => (
-            <Text mr={2}>#{tag.name}</Text>
-          ))}
+            <Flex direction="row">
+              {boxData.tags.map((tag, i) => (
+                <Text mr={2}>#{tag.name}</Text>
+              ))}
             </Flex>
           </ListItem>
           <ListItem>
-          <Flex direction="row" justifyContent='flex-end' >
-          <IconButton onClick={onOpen} mr={4} border='2px' borderRadius='0' backgroundColor='transparent' aria-label='Search database' icon={<AddIcon />} />
-          <IconButton border='2px' borderRadius='0' backgroundColor='transparent' aria-label='Search database' icon={<MinusIcon />} />
+            <Flex direction="row" justifyContent="flex-end">
+              <IconButton
+                onClick={onPlusOpen}
+                mr={4}
+                border="2px"
+                borderRadius="0"
+                backgroundColor="transparent"
+                aria-label="Search database"
+                icon={<AddIcon />}
+              />
+              <IconButton
+              onClick={onMinusOpen}
+                border="2px"
+                borderRadius="0"
+                backgroundColor="transparent"
+                aria-label="Search database"
+                icon={<MinusIcon />}
+              />
             </Flex>
           </ListItem>
-          
         </List>
       </Box>
-      <Box>
-        <Text textAlign="center" fontSize="xl" my={4}>
+      <Box alignContent='center' w={[
+          "100%", // 0-30em
+          "80%", // 30em-48em
+          "40%", // 48em-62em
+          "50%", // 62em-75em
+          // 62em+
+        ]}
+        // backgroundColor="#F4E5A0"
+        border="2px"
+        py={4}
+        px={4}
+        >
+        <Text textAlign="center" fontSize="xl" mb={4}>
           Move this box from <strong>{boxData.place?.name}</strong> to:
         </Text>
         <List>
-          <Wrap>
+          <Flex wrap="wrap" gap='2' alignItems='center' justifyContent='center'>
             {boxData.place?.base?.locations
               ?.filter((location) => {
                 return location.id !== boxData.place?.id;
@@ -107,17 +146,17 @@ const [openRemoveItemsModal, setOpenRemoveItemsModal] = useState(false);
                 <WrapItem key={location.id}>
                   <Button
                     borderRadius="0px"
-                    onClick={() => moveToLocationClick(location.id)}
+                    // onClick={() => moveToLocationClick(location.id)}
                     disabled={boxData.place?.id === location.id}
                   >
                     {location.name}
                   </Button>
                 </WrapItem>
               ))}
-          </Wrap>
+          </Flex>
         </List>
       </Box>
-    </Box>
+    </Flex>
   );
 };
 

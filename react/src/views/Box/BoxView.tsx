@@ -9,6 +9,7 @@ import {
   UpdateLocationOfBoxMutationVariables,
 } from "types/generated/graphql";
 import AddItemsToBoxOverlay from "./components/AddItemsToBoxOverlay";
+import TakeItemsFromBoxOverlay from "./components/TakeItemsFromBoxOverlay";
 import BoxDetails from "./components/BoxDetails";
 
 export const BOX_BY_LABEL_IDENTIFIER_QUERY = gql`
@@ -82,6 +83,10 @@ export const UPDATE_LOCATION_OF_BOX_MUTATION = gql`
   }
 `;
 
+export interface ChangeNumberOfItemsBoxData {
+  numberOfItems: number;
+}
+
 const BTBox = () => {
   const labelIdentifier =
     useParams<{ labelIdentifier: string }>().labelIdentifier!;
@@ -94,12 +99,43 @@ const BTBox = () => {
     },
   });
 
-  const [updateBoxLocation, mutationStatus] = useMutation<
+  const [updateNumberOfItemsMutation, mutationStatus] = useMutation<
     UpdateLocationOfBoxMutation,
     UpdateLocationOfBoxMutationVariables
   >(UPDATE_LOCATION_OF_BOX_MUTATION);
 
-  const { isOpen, onOpen, onClose } = useDisclosure(); 
+  const baseId = useParams<{ baseId: string }>().baseId;
+  // const navigate = useNavigate();
+
+  // const [updateContentOfBoxMutation] = useMutation<
+  //   UpdateContentOfBoxMutation,
+  //   UpdateContentOfBoxMutationVariables
+  // >(UPDATE_CONTENT_OF_BOX_MUTATION);
+
+  const onSubmitChangeNumberOfItems = (boxFormValues: ChangeNumberOfItemsBoxData) => {
+    console.log("boxLabelIdentifier", labelIdentifier);
+    console.log("boxFormValues", boxFormValues);
+  }
+    
+  //   updateContentOfBoxMutation({
+  //     variables: {
+  //       boxLabelIdentifier: labelIdentifier,
+  //       numberOfItems: boxFormValues.numberOfItems,
+        
+  //     },
+  //   })
+  //     .then((mutationResult) => {
+  //       navigate(
+  //         `/bases/${baseId}/boxes/${mutationResult.data?.updateBox?.labelIdentifier}`
+  //       );
+  //     })
+  //     .catch((error) => {
+  //       console.log("Error while trying to update Box", error);
+  //     });
+  // };
+
+  const { isOpen: isPlusOpen, onOpen: onPlusOpen, onClose: onPlusClose } = useDisclosure(); 
+  const { isOpen: isMinusOpen, onOpen: onMinusOpen, onClose: onMinusClose } = useDisclosure(); 
 
   if (loading) {
     return <APILoadingIndicator />;
@@ -114,25 +150,32 @@ const BTBox = () => {
 
   const boxData = mutationStatus.data?.updateBox || data?.box;
 
-  const onMoveBoxToLocationClick = (locationId: string) => {
-    updateBoxLocation({
-      variables: {
-        boxLabelIdentifier: labelIdentifier,
-        newLocationId: parseInt(locationId),
-      },
-    });
-  };
+  // const onMoveBoxToLocationClick = (locationId: string) => {
+  //   updateBoxLocation({
+  //     variables: {
+  //       boxLabelIdentifier: labelIdentifier,
+  //       newLocationId: parseInt(locationId),
+  //     },
+  //   });
+  // };
 
   return (
     <>
     <BoxDetails
       boxData={boxData}
-      onMoveToLocationClick={onMoveBoxToLocationClick}
-      onOpen={onOpen}
+      onPlusOpen={onPlusOpen}
+      onMinusOpen={onMinusOpen}
+      // onMoveToLocationClick={onMoveBoxToLocationClick}
     />
     <AddItemsToBoxOverlay 
-      isOpen={isOpen}
-      onClose={onClose}
+      isOpen={isPlusOpen}
+      onClose={onPlusClose}
+
+    />
+    <TakeItemsFromBoxOverlay
+      isOpen={isMinusOpen}
+      onClose={onMinusClose}
+      onSubmitTakeItemsFromBox={onSubmitChangeNumberOfItems}
     />
     </>
   );
