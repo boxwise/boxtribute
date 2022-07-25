@@ -75,6 +75,11 @@ def non_default_box_state_location():
     return non_default_box_state_location_data()
 
 
+@pytest.fixture()
+def distribution_spot():
+    return distribution_spot_data()
+
+
 def create():
     Location.create(**default_location_data())
     Location.create(**another_location_data())
