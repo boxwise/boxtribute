@@ -1,5 +1,7 @@
 # ADR: Python Development Environment
 
+Author: [Philipp](https://github.com/orgs/boxwise/people/pylipp)
+
 ## Status
 
 Implementation Complete.
