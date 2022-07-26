@@ -22,6 +22,12 @@ export const BOX_BY_LABEL_IDENTIFIER_AND_ALL_PRODUCTS_QUERY = gql`
         id
         name
         gender
+        sizeRange {
+          sizes {
+            id
+            label
+          }
+        }
       }
       location {
         id

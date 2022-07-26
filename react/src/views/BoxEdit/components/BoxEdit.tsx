@@ -63,6 +63,8 @@ const BoxEdit = ({
     })
     .sort((a, b) => a.label.localeCompare(b.label));
 
+  // const availableSizes = boxData?.product?.sizeRange?.sizes || [];
+
   const {
     handleSubmit,
     control,
@@ -94,7 +96,7 @@ const BoxEdit = ({
   }
 
   return (
-    <Box>
+    <Box w={["100%", "100%", "60%", "40%"]}>
       <Heading fontWeight={"bold"} mb={4} as="h2">
         Box {boxData.labelIdentifier}
       </Heading>
@@ -135,20 +137,45 @@ const BoxEdit = ({
           <ListItem>
             <FormLabel htmlFor="numberOfItems">Number Of Items</FormLabel>
             <Box border="2px">
-            <Input border='0' type="number" {...register("numberOfItems", {
+              <Input
+                border="0"
+                type="number"
+                {...register("numberOfItems", {
                   valueAsNumber: true,
                   validate: (value) => value > 0,
-                  
-            })} />
+                })}
+              />
             </Box>
           </ListItem>
+          {/* <ListItem>
+            <FormLabel htmlFor="sizeId">Size</FormLabel>
+            <Controller
+              control={control}
+              name="sizeId"
+              render={({
+                field: { onChange, onBlur, value, name, ref },
+                fieldState: { invalid, error },
+              }) => (
+                <FormControl isInvalid={invalid} id="size">
+                  <Box border="2px">
+                    <Select
+                      name={name}
+                      ref={ref}
+                      onChange={onChange}
+                      onBlur={onBlur}
+                      value={value}
+                      options={boxData.size.availableSizes}
+                      placeholder="Size"
+                      isSearchable
+                      tagVariant="outline"
+                    />
+                  </Box>
+                </FormControl>
+              )}
+            />
+          </ListItem> */}
         </List>
-        <Button
-          mt={4}
-          colorScheme="teal"
-          isLoading={isSubmitting}
-          type="submit"
-        >
+        <Button mt={4} isLoading={isSubmitting} type="submit" borderRadius="0">
           Update Box
         </Button>
       </form>
