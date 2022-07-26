@@ -19,8 +19,8 @@ import BoxtributeLogo from "../../assets/images/boxtribute-logo.png";
 import {
   HeaderMenuProps,
   LoginOrUserMenuButtonProps,
-  MenuItemProps,
-  MenuLinksProps as MenuItemsProps,
+  MenuItemsGroupProps,
+  MenuItemsGroupsProps,
   UserMenuProps,
 } from "./HeaderMenu";
 
@@ -101,7 +101,7 @@ const LoginOrUserMenuButton = ({
   );
 };
 
-const MenuItemDesktop = ({ ...props }: MenuItemProps) => {
+const MenuItemsGroupDesktop = ({ ...props }: MenuItemsGroupProps) => {
   const { isOpen, onOpen, onClose } = useDisclosure();
   return (
     <Menu isOpen={isOpen}>
@@ -135,15 +135,15 @@ const MenuItemDesktop = ({ ...props }: MenuItemProps) => {
   );
 };
 
-const MenuItemsDesktop = ({ ...props }: MenuItemsProps) => {
+const MenuItemsGroupsDesktop = ({ ...props }: MenuItemsGroupsProps) => {
   return (
     <Flex w="100%" flexBasis={{ base: "100%", md: "auto" }}>
       <Stack
         direction={["column", "row", "row", "row"]}
         justifyItems={["center", "space-between", "flex-end", "flex-end"]}
       >
-        {props.menuItems.map((item, i) => (
-          <MenuItemDesktop key={i} {...item} />
+        {props.menuItemsGroups.map((item, i) => (
+          <MenuItemsGroupDesktop key={i} {...item} />
         ))}
 
         <LoginOrUserMenuButton
@@ -193,9 +193,9 @@ const HeaderMenuDeskop = (props: HeaderMenuProps) => {
       <Flex w="100%" justifyContent="space-between" alignItems="center">
         <Logo />
         <Flex justifyItems="flex-end" alignItems="center">
-          <MenuItemsDesktop
+          <MenuItemsGroupsDesktop
             user={props.user}
-            menuItems={props.menuItems}
+            menuItemsGroups={props.menuItemsGroups}
             isAuthenticated={props.isAuthenticated}
             logout={props.logout}
             loginWithRedirect={props.loginWithRedirect}

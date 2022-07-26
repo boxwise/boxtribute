@@ -2,6 +2,16 @@ import { LayoutProps, useMediaQuery } from "@chakra-ui/react";
 import HeaderMenuDeskop from "./HeaderMenuDeskop";
 import HeaderMenuMobile from "./HeaderMenuMobile";
 
+export interface MenuItemData {
+  link: string;
+  name: string;
+}
+
+export interface MenuItemsGroupData {
+  text: string;
+  links: MenuItemData[];
+}
+
 export interface UserMenuProps {
   logout: () => void;
   user?: {
@@ -12,30 +22,20 @@ export interface UserMenuProps {
 
 export interface LoginOrUserMenuButtonProps extends UserMenuProps {
   isAuthenticated: boolean;
-  logout: () => void;
   loginWithRedirect: () => void;
 }
 
-export interface MenuLinksProps
+export interface MenuItemsGroupProps extends MenuItemsGroupData {}
+
+export interface MenuItemsGroupsProps
   extends LoginOrUserMenuButtonProps,
     LayoutProps {
-  menuItems: MenuItemData[];
-}
-
-export interface MenuItemLink {
-  link: string;
-  name: string;
-}
-export interface MenuItemProps extends MenuItemData {}
-
-export interface MenuItemData {
-  text: string;
-  links: MenuItemLink[];
+  menuItemsGroups: MenuItemsGroupData[];
 }
 
 export type HeaderMenuProps = LoginOrUserMenuButtonProps & {
   onClickScanQrCode: () => void;
-  menuItems: MenuItemData[];
+  menuItemsGroups: MenuItemsGroupData[];
 };
 
 const HeaderMenu = (props: HeaderMenuProps) => {

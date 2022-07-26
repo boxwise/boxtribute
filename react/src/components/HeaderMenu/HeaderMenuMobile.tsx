@@ -21,12 +21,12 @@ import { Link, NavLink } from "react-router-dom";
 import {
   HeaderMenuProps,
   LoginOrUserMenuButtonProps,
-  MenuItemProps,
-  MenuLinksProps as MenuItemsProps,
+  MenuItemsGroupProps,
+  MenuItemsGroupsProps,
 } from "./HeaderMenu";
 import BoxtributeLogo from "../../assets/images/boxtribute-logo.png";
 
-type MenuItemsMobileProps = MenuItemsProps & {
+type MenuItemsGroupsMobileProps = MenuItemsGroupsProps & {
   isMenuOpen: boolean;
   setIsMenuOpen: (isOpen: boolean) => void;
 };
@@ -113,11 +113,11 @@ const LoginOrUserMenuButtonMobile = ({
   );
 };
 
-const MenuItemsMobile = ({
+const MenuItemsGroupsMobile = ({
   isMenuOpen,
   setIsMenuOpen,
   ...props
-}: MenuItemsMobileProps) => {
+}: MenuItemsGroupsMobileProps) => {
   return (
     <Flex
       w="100%"
@@ -125,8 +125,8 @@ const MenuItemsMobile = ({
       display={isMenuOpen ? "block" : "none"}
     >
       <Stack alignItems="start-end" direction="column">
-        {props.menuItems.map((item, i) => (
-          <MenuItemMobile key={i} {...item} setIsMenuOpen={setIsMenuOpen} />
+        {props.menuItemsGroups.map((item, i) => (
+          <MenuItemsGroupMobile key={i} {...item} setIsMenuOpen={setIsMenuOpen} />
         ))}
         <LoginOrUserMenuButtonMobile
           isAuthenticated={props.isAuthenticated}
@@ -139,11 +139,11 @@ const MenuItemsMobile = ({
   );
 };
 
-const MenuItemMobile = ({
+const MenuItemsGroupMobile = ({
   setIsMenuOpen,
   links,
   text,
-}: MenuItemProps & { setIsMenuOpen: (isOpen: boolean) => void }) => {
+}: MenuItemsGroupProps & { setIsMenuOpen: (isOpen: boolean) => void }) => {
   const { isOpen, onToggle } = useDisclosure();
 
   return (
@@ -231,14 +231,14 @@ const HeaderMenuMobile = (props: HeaderMenuProps) => {
           display={{ base: "inline flex", md: "none" }}
         />
       </Flex>
-      <MenuItemsMobile
+      <MenuItemsGroupsMobile
         isMenuOpen={isMenuOpen}
         setIsMenuOpen={setIsMenuOpen}
         logout={props.logout}
         loginWithRedirect={props.loginWithRedirect}
         user={props.user}
         isAuthenticated={props.isAuthenticated}
-        menuItems={props.menuItems}
+        menuItemsGroups={props.menuItemsGroups}
       />
     </HeaderMenuMobileContainer>
   );

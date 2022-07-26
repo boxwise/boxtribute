@@ -2,7 +2,7 @@ import { useMemo } from "react";
 import { useCallback} from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { useAuth0 } from "@auth0/auth0-react";
-import HeaderMenu, { MenuItemData } from "./HeaderMenu";
+import HeaderMenu, { MenuItemsGroupData } from "./HeaderMenu";
 import AutomaticBaseSwitcher from "views/AutomaticBaseSwitcher/AutomaticBaseSwitcher";
 import { useDisclosure, useToast } from "@chakra-ui/react";
 import QrReaderOverlayContainer from "components/QrReaderOverlay/QrReaderOverlayContainer";
@@ -14,7 +14,7 @@ const HeaderMenuContainer = () => {
   const navigate = useNavigate();
   const baseId = useParams<{ baseId: string }>().baseId;
 
-  const menuItems: MenuItemData[] = useMemo(
+  const menuItems: MenuItemsGroupData[] = useMemo(
     () => [
       {
         text: "Boxes",
@@ -118,7 +118,7 @@ const HeaderMenuContainer = () => {
     <>
       <HeaderMenu
         {...auth0}
-        menuItems={menuItems}
+        menuItemsGroups={menuItems}
         onClickScanQrCode={() => qrScannerOverlayState.onOpen()}
       />
       <QrReaderOverlayContainer
