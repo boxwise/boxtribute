@@ -39,7 +39,6 @@ type Mutation {
 
   moveBoxFromDistributionEventToLocation(boxLabelIdentifier: ID!, locationId: ID!): DistributionEvent
   moveItemsFromDistributionEventToBox(unboxedItemsCollectionId: ID!, boxLabelIdentifier: ID!): DistributionEvent
-  createBoxFromItemsInDistributionEvent(unboxedItemsCollectionId: ID!, boxLocationId: Int!, comment: String, qrCode: String): DistributionEvent
 
   markDistributionEventAsComplete(distributionEventId: ID!): DistributionEvent
 }

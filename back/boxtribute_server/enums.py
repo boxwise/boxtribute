@@ -2,24 +2,11 @@
 import enum
 
 
-class TransferAgreementState(enum.IntEnum):
-    UnderReview = 1
-    Accepted = enum.auto()
-    Rejected = enum.auto()
-    Canceled = enum.auto()
-    Expired = enum.auto()
-
-
 class DistributionEventState(enum.IntEnum):
-    # New = 1
-    # Planning = enum.auto()
     Planning = 1
-    # PlanningDone = enum.auto()
     Packing = enum.auto()
-    # PackingDone = enum.auto()
     OnDistro = enum.auto()
     Returned = enum.auto()
-    # ReturnsTracked = enum.auto()
     Completed = enum.auto()
 
 
@@ -27,6 +14,22 @@ class PackingListEntryState(enum.IntEnum):
     NotStarted = 1
     PackingInProgress = enum.auto()
     Packed = enum.auto()
+
+
+class LocationType(enum.Enum):
+    """Indiciates which concrete type (classic Location, Distribution Spot, etc)
+    a Location is."""
+
+    Location = "Warehouse"
+    DistributionSpot = "MapDistroSpot"
+
+
+class TransferAgreementState(enum.IntEnum):
+    UnderReview = 1
+    Accepted = enum.auto()
+    Rejected = enum.auto()
+    Canceled = enum.auto()
+    Expired = enum.auto()
 
 
 class TransferAgreementType(enum.IntEnum):
@@ -51,14 +54,6 @@ class BoxState(enum.IntEnum):
     Received = enum.auto()
     Donated = enum.auto()
     Scrap = enum.auto()
-
-
-class LocationType(enum.IntEnum):
-    """Indiciates which concrete type (classic Location, Distribution Spot, etc)
-    a Location is."""
-
-    Location = 1
-    DistributionSpot = enum.auto()
 
 
 class ProductGender(enum.IntEnum):

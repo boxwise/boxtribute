@@ -91,7 +91,7 @@ def test_box_mutations(
     created_box = assert_successful_request(client, mutation)
     assert created_box["items"] is None
     assert created_box["state"] == BoxState.InStock.name
-    assert created_box["location"]["id"] == location_id
+    assert created_box["place"]["id"] == location_id
     assert created_box["product"]["id"] == product_id
     assert created_box["size"]["id"] == size_id
     assert created_box["qrCode"]["id"] == str(qr_code_without_box["id"])

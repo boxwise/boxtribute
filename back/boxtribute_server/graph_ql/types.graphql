@@ -5,7 +5,7 @@
 interface ItemsCollection {
   product: Product
   size: Size!
-  items: Int!
+  items: Int
   place: BoxPlace
   distributionEvent: DistributionEvent
 }
@@ -14,7 +14,7 @@ type UnboxedItemsCollection implements ItemsCollection {
   id: ID!
   product: Product
   size: Size!
-  items: Int!
+  items: Int
   label: String
   place: BoxPlace
   distributionEvent: DistributionEvent
@@ -31,7 +31,7 @@ type Box implements ItemsCollection {
   place: BoxPlace
   distributionEvent: DistributionEvent
   " The number of items the box contains. "
-  items: Int!
+  items: Int
   product: Product
   size: Size!
   state: BoxState!
@@ -228,18 +228,20 @@ type Organisation {
   bases: [Base!]
 }
 
+"""
+TODO: Add description here once specs are final/confirmed
+"""
 enum DistributionEventState {
-  # New
   Planning
-  # PlanningDone
   Packing
-  # PackingDone
   OnDistro
   Returned
-  # ReturnsTracked
   Completed
 }
 
+"""
+TODO: Add description here once specs are final/confirmed
+"""
 type DistributionEvent {
   id: ID!
   distributionSpot: DistributionSpot
@@ -248,32 +250,35 @@ type DistributionEvent {
 
   plannedStartDateTime: Datetime!
   plannedEndDateTime: Datetime!
-  packingList: PackingList!
+  packingListEntries: [PackingListEntry!]!
 
   boxes(paginationInput: PaginationInput, filterInput: FilterBoxInput): BoxPage
-  unboxedItemsCollections: [UnboxedItemsCollection!]
+  unboxedItemCollections: [UnboxedItemsCollection!]!
 }
 
+"""
+TODO: Add description here once specs are final/confirmed
+"""
 enum PackingListEntryState {
   NotStarted
   PackingInProgress
   Packed
 }
+
+"""
+TODO: Add description here once specs are final/confirmed
+"""
 type PackingListEntry {
   id: ID!
   product: Product
   size: Size
   numberOfItems: Int!
-  matchingPackedItemsCollections: [ItemsCollection!]!
-  matchingBoxes: [Box!]!
   state: PackingListEntryState!
 }
 
-type PackingList {
-  entries: [PackingListEntry!]!
-  # distributionEvent: DistributionEvent!
-}
-
+"""
+TODO: Add description here once specs are final/confirmed
+"""
 type DistributionSpot implements BoxPlace {
   id: ID!
   name: String

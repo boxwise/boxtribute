@@ -1,10 +1,10 @@
-from boxtribute_server.models.definitions.distribution_event import DistributionEvent
 from peewee import SQL, CharField, DateTimeField, IntegerField, TextField
 
 from ...db import db
 from ...enums import BoxState as BoxStateEnum
 from ..fields import UIntForeignKeyField
 from .box_state import BoxState
+from .distribution_event import DistributionEvent
 from .location import Location
 from .product import Product
 from .qr_code import QrCode
@@ -45,6 +45,13 @@ class Box(db.Model):
         on_update="CASCADE",
     )
     deleted = DateTimeField(null=True, default=None)
+    distribution_event = UIntForeignKeyField(
+        column_name="distro_event_id",
+        field="id",
+        model=DistributionEvent,
+        null=True,
+        on_update="CASCADE",
+    )
     items = IntegerField(null=True)
     location = UIntForeignKeyField(
         column_name="location_id",
@@ -83,13 +90,6 @@ class Box(db.Model):
         column_name="product_id",
         field="id",
         model=Product,
-        on_update="CASCADE",
-    )
-    distribution_event = UIntForeignKeyField(
-        column_name="distribution_event_id",
-        field="id",
-        model=DistributionEvent,
-        null=True,
         on_update="CASCADE",
     )
     qr_code = UIntForeignKeyField(

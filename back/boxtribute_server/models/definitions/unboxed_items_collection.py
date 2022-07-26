@@ -3,7 +3,6 @@ from peewee import DateTimeField, IntegerField
 
 from ...db import db
 from ..fields import UIntForeignKeyField
-from .location import Location
 from .product import Product
 from .size import Size
 from .user import User
@@ -20,6 +19,13 @@ class UnboxedItemsCollection(db.Model):
         on_update="CASCADE",
     )
     deleted = DateTimeField(null=True, default=None)
+    distribution_event = UIntForeignKeyField(
+        column_name="distro_event_id",
+        field="id",
+        model=DistributionEvent,
+        null=True,
+        on_update="CASCADE",
+    )
     last_modified_on = DateTimeField(column_name="modified", null=True)
     last_modified_by = UIntForeignKeyField(
         model=User,
@@ -30,19 +36,21 @@ class UnboxedItemsCollection(db.Model):
         on_update="CASCADE",
     )
     items = IntegerField(null=False, default=0)
-    location = UIntForeignKeyField(
-        column_name="location_id",
-        field="id",
-        model=Location,
-        on_update="CASCADE",
-    )
-    distribution_event = UIntForeignKeyField(
-        column_name="distribution_event_id",
-        field="id",
-        model=DistributionEvent,
-        null=True,
-        on_update="CASCADE",
-    )
+
+    # TODO: suggest to remove the relation from UnboxedItemCollection to Location again
+    # It's most likely only requried to have them for DistributionEvents (since they are
+    # kind of transient and should only exist in the Mobile Distro Context)
+
+    # TODO: If we decide to do that, also ensure that the field (FK to location) is
+    # removed again in the Database (DropApp migrations)
+
+    # location = UIntForeignKeyField(
+    #     column_name="location_id",
+    #     field="id",
+    #     model=Location,
+    #     on_update="CASCADE",
+    # )
+
     product = UIntForeignKeyField(
         column_name="product_id",
         field="id",
@@ -57,4 +65,4 @@ class UnboxedItemsCollection(db.Model):
     )
 
     class Meta:
-        table_name = "unboxed_items_collection"
+        table_name = "distro_events_unboxed_item_collections"

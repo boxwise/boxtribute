@@ -1,19 +1,12 @@
 """Main entry point for web application"""
-import logging
 import os
 
 import sentry_sdk
-from boxtribute_server.models.definitions.unboxed_items_collection import (
-    UnboxedItemsCollection,
-)
 from sentry_sdk.integrations.flask import FlaskIntegration
 
 from .app import configure_app, create_app
 from .routes import api_bp, app_bp
 
-logger = logging.Logger("peewee")
-logger.addHandler(logging.StreamHandler())
-logger.setLevel(logging.DEBUG)
 sentry_sdk.init(
     # dsn/environment/release: reading SENTRY_* environment variables set in CircleCI
     integrations=[FlaskIntegration()],
@@ -32,9 +25,3 @@ configure_app(
     database=os.environ["MYSQL_DB"],
     unix_socket=os.getenv("MYSQL_SOCKET"),
 )
-
-from .db import db
-from .models.definitions.distribution_event import DistributionEvent
-from .models.definitions.packing_list_entry import PackingListEntry
-
-db.database.create_tables([DistributionEvent, PackingListEntry, UnboxedItemsCollection])
