@@ -100,7 +100,6 @@ distribution_spot = _register_object_type("DistributionSpot")
 location = _register_object_type("Location")
 metrics = _register_object_type("Metrics")
 organisation = _register_object_type("Organisation")
-packing_list = _register_object_type("PackingList")
 packing_list_entry = _register_object_type("PackingListEntry")
 product = _register_object_type("Product")
 product_category = _register_object_type("ProductCategory")
@@ -769,7 +768,7 @@ def resolve_distribution_event_boxes(
     )
 
 
-@distribution_event.field("unboxedItemCollections")
+@distribution_event.field("unboxedItemsCollections")
 @convert_kwargs_to_snake_case
 def resolve_distribution_event_unboxed_item_collections(distribution_event_obj, _):
     # TODO: add permissions here
