@@ -11,7 +11,11 @@ import {
   AlertDialogFooter,
   AlertDialogHeader,
   AlertDialogOverlay,
+  Breadcrumb,
+  BreadcrumbItem,
+  BreadcrumbLink,
 } from "@chakra-ui/react";
+import BTBreadcrumbNavigation from "components/BTBreadcrumbNavigation";
 import React, { useCallback, useMemo } from "react";
 import {
   ChangeDistributionEventStateMutation,
@@ -24,7 +28,11 @@ import {
   CHANGE_DISTRIBUTION_EVENT_STATE_MUTATION,
   DISTRIBUTION_EVENT_QUERY,
 } from "views/Distributions/queries";
-import { DistributionEventDetails, DistributionEventState, DistributionEventStateSchema } from "views/Distributions/types";
+import {
+  DistributionEventDetails,
+  DistributionEventState,
+  DistributionEventStateSchema,
+} from "views/Distributions/types";
 import DistroEventDetailsForPlanningStateContainer from "./State1Planning/DistroEventDetailsForPlanningStateContainer";
 import DistroEventDetailsForPackingStateContainer from "./State2Packing/DistroEventDetailsForPackingStateContainer";
 
@@ -123,6 +131,7 @@ const DistroEventContainer = ({
   return (
     <>
       <VStack>
+        <BTBreadcrumbNavigation items={[{ label: 'Base "Subotica"', linkPath:  "X"}]} />
         <Box>
           <Text fontSize="xl">
             {distributionEventDetails.distributionSpot.name}

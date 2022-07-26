@@ -164,9 +164,9 @@ const HeaderMenuDesktopContainer = ({ children, ...props }) => {
       alignItems="flex-start"
       justify="space-between"
       w="100%"
-      mb={8}
+      mb={4}
       pt={4}
-      pb={4}
+      pb={2}
       color={"black"}
     >
       {children}
