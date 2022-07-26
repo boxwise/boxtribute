@@ -253,7 +253,7 @@ type DistributionEvent {
   packingListEntries: [PackingListEntry!]!
 
   boxes(paginationInput: PaginationInput, filterInput: FilterBoxInput): BoxPage
-  unboxedItemCollections: [UnboxedItemsCollection!]!
+  unboxedItemsCollections: [UnboxedItemsCollection!]
 }
 
 """
@@ -273,6 +273,8 @@ type PackingListEntry {
   product: Product
   size: Size
   numberOfItems: Int!
+  matchingPackedItemsCollections: [ItemsCollection!]!
+  matchingBoxes: [Box!]!
   state: PackingListEntryState!
 }
 

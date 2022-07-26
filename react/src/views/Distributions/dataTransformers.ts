@@ -3,12 +3,9 @@ import { IPackingListEntry } from "./types";
 
 export const graphqlPackingListEntriesForDistributionEventTransformer = (
     queryResult: PackingListEntriesForDistributionEventQuery | undefined
-  ): IPackingListEntry[] => {
+  ): IPackingListEntry[] | undefined => {
     // TODO: Do better (e.g. zod based) validation of the query result
-    if (queryResult?.distributionEvent?.packingList == null) {
-      throw new Error("packingList is null");
-    }
-    return queryResult?.distributionEvent?.packingList.entries.map((entry) => ({
+    return queryResult?.distributionEvent?.packingListEntries.map((entry) => ({
       id: entry.id,
       // TODO: for productName, sizse and gender: remove the bangs again once we have proper (e.g. zod based) validation of query result
       product: {
@@ -19,4 +16,6 @@ export const graphqlPackingListEntriesForDistributionEventTransformer = (
       gender: entry.product?.gender!,
       numberOfItems: entry.numberOfItems,
     }));
+
+
   };

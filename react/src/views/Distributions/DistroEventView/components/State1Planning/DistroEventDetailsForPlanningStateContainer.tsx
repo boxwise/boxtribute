@@ -215,6 +215,10 @@ const DistroEventDetailsForPlanningStateContainer = ({
 
   const packingListEntries = graphqlPackingListEntriesForDistributionEventTransformer(data);
 
+  if(packingListEntries == null) {
+    return <div>Error: No data found</div>;
+  }
+
   return (
     <>
       <DistroEventDetailsForPlanningState

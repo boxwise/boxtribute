@@ -58,7 +58,8 @@ const useValidateBoxByLabelMatchingPackingListEntry = (
               isValid: true,
               boxData: {
                 ...box,
-                numberOfItems: box.items,
+                // TODO: consider to make items non-nullable in GraphQL
+                numberOfItems: box.items || 0,
               },
             };
           }

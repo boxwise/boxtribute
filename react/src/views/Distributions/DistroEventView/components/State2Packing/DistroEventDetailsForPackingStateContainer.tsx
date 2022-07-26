@@ -18,7 +18,7 @@ interface DistroEventDetailsForPackingStateProps {
 }
 
 const DistroEventDetailsForPackingStateContainer = ({
-  distributionEventDetails
+  distributionEventDetails,
 }: DistroEventDetailsForPackingStateProps) => {
   // const { isOpen, onOpen, onClose } = useDisclosure();
 
@@ -40,6 +40,10 @@ const DistroEventDetailsForPackingStateContainer = ({
   // const packingListEntries = useMemo(() => graphqlPackingListEntriesForDistributionEventTransformer(data), [data]);
   const packingListEntries =
     graphqlPackingListEntriesForDistributionEventTransformer(data);
+
+  if (packingListEntries == null) {
+    return <div>Error: No data found</div>;
+  }
 
   return (
     <DistroEventDetailsForPackingState
