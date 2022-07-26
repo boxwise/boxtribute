@@ -22,7 +22,7 @@ interface BoxDetailsProps {
   boxData:
     | BoxByLabelIdentifierQuery["box"]
     | UpdateLocationOfBoxMutation["updateBox"];
-  // onMoveToLocationClick: (locationId: string) => void;
+  onMoveToLocationClick: (locationId: string) => void;
   onPlusOpen: () => void;
   onMinusOpen: () => void;
   // onAddItemsToBoxClick: (numberOfItems: number) => void;
@@ -31,7 +31,7 @@ interface BoxDetailsProps {
 
 const BoxDetails = ({
   boxData,
-  // onMoveToLocationClick: moveToLocationClick,
+  onMoveToLocationClick: moveToLocationClick,
   onPlusOpen,
   onMinusOpen,
 }: BoxDetailsProps) => {
@@ -146,7 +146,7 @@ const BoxDetails = ({
                 <WrapItem key={location.id}>
                   <Button
                     borderRadius="0px"
-                    // onClick={() => moveToLocationClick(location.id)}
+                    onClick={() => moveToLocationClick(location.id)}
                     disabled={boxData.location?.id === location.id}
                   >
                     {location.name}
