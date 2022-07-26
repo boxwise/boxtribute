@@ -1,5 +1,3 @@
-import React from "react";
-
 import { ComponentMeta, ComponentStory } from "@storybook/react";
 import HeaderMenu from "./HeaderMenu";
 import { action } from "@storybook/addon-actions";
@@ -12,8 +10,12 @@ export default {
     layout: "fullscreen",
   },
   decorators: [
-      (Story) => <Container maxWidth="container.xl"><Story /></Container>
-  ]
+    (Story) => (
+      <Container maxWidth="container.xl">
+        <Story />
+      </Container>
+    ),
+  ],
 } as ComponentMeta<typeof HeaderMenu>;
 
 const Template: ComponentStory<typeof HeaderMenu> = (args) => (
@@ -39,7 +41,7 @@ LoggedIn.args = {
       name: "Base 10",
     },
   ],
-  menuItems: [
+  menuItemsGroups: [
     {
       text: "Boxes",
       links: [

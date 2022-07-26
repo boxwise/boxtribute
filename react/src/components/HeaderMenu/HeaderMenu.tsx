@@ -1,10 +1,25 @@
-import HeaderMenuMobile from "./HeaderMenuMobile";
-import HeaderMenuDeskop from "./HeaderMenuDeskop";
 import { LayoutProps, useMediaQuery } from "@chakra-ui/react";
+import HeaderMenuDeskop from "./HeaderMenuDeskop";
+import HeaderMenuMobile from "./HeaderMenuMobile";
+
+export interface MenuItemData {
+  link: string;
+  name: string;
+}
+
+export interface MenuItemsGroupData {
+  text: string;
+  links: MenuItemData[];
+}
+
+export interface BaseData {
+  id: string;
+  name: string;
+}
 
 export interface BaseSwitcherProps {
   currentActiveBaseId: string;
-  availableBases?: { id: string; name: string }[];
+  availableBases?: BaseData[];
 }
 
 export interface UserMenuProps extends BaseSwitcherProps {
@@ -15,48 +30,30 @@ export interface UserMenuProps extends BaseSwitcherProps {
   };
 }
 
-export interface LoginOrUserMenuButtonProps
-  extends UserMenuProps,
-    BaseSwitcherProps {
+export interface LoginOrUserMenuButtonProps extends UserMenuProps {
   isAuthenticated: boolean;
-  logout: () => void;
   loginWithRedirect: () => void;
 }
 
-export interface MenuLinksProps
+export interface MenuItemsGroupProps extends MenuItemsGroupData {}
+
+export interface MenuItemsGroupsProps
   extends LoginOrUserMenuButtonProps,
     LayoutProps {
-  menuItems: MenuItemProps[]
-}
-
-export interface MenuItemLink {
-  link: string;
-  name: string;
-}
-export interface MenuItemProps {
-  text: string;
-  links: MenuItemLink[];
+  menuItemsGroups: MenuItemsGroupData[];
 }
 
 export type HeaderMenuProps = LoginOrUserMenuButtonProps & {
   onClickScanQrCode: () => void;
-  menuItems: MenuItemProps[];
+  menuItemsGroups: MenuItemsGroupData[];
 };
 
 const HeaderMenu = (props: HeaderMenuProps) => {
   const [isSmallScreen] = useMediaQuery("(max-width: 1070px)");
   if (isSmallScreen) {
-    return (
-      <HeaderMenuMobile
-        {...props}
-      />
-    );
+    return <HeaderMenuMobile {...props} />;
   } else {
-    return (
-      <HeaderMenuDeskop
-        {...props}
-      />
-    );
+    return <HeaderMenuDeskop {...props} />;
   }
 };
 export default HeaderMenu;

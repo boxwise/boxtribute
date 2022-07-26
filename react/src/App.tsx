@@ -17,6 +17,7 @@ import DistroEventView from "views/Distributions/DistroEventView/DistroEventView
 import DistroSpotView from "views/Distributions/DistroSpotView/DistroSpotView";
 import CreateDistributionEventView from "views/Distributions/CreateDistributionEventView/CreateDistributionEventView";
 import CreateDistributionSpotView from "views/Distributions/CreateDistributionSpotView/CreateDistributionSpotView";
+import BaseDashboardView from "views/BaseDashboard/BaseDashboardView";
 
 const useLoadAndSetAvailableBases = () => {
   const BASES_QUERY = gql`
@@ -75,6 +76,7 @@ const App = () => {
         <Route path="bases" element={<Layout />}>
           <Route index element={<AutomaticBaseSwitcher />}></Route>
           <Route path=":baseId">
+            <Route index element={<BaseDashboardView />} />
             <Route path="boxes">
               <Route index element={<Boxes />} />
               <Route path=":labelIdentifier">
