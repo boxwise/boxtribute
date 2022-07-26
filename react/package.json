@@ -72,7 +72,7 @@
     "eslint-plugin-react-hooks": "^4.5.0",
     "msw": "^0.42.2",
     "mutationobserver-shim": "^0.3.7",
-    "prettier": "^2.4.1",
+    "prettier": "^2.7.1",
     "prop-types": "^15.8.1",
     "typescript": "^4.7.4",
     "webpack": "^5.73.0"
