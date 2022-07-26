@@ -5661,7 +5661,7 @@
     prettier ">=2.2.1 <=2.3.0"
     ts-dedent "^2.0.0"
 
-"@storybook/node-logger@6.5.8", "@storybook/node-logger@^6.5.8":
+"@storybook/node-logger@6.5.8":
   version "6.5.8"
   resolved "https://registry.yarnpkg.com/@storybook/node-logger/-/node-logger-6.5.8.tgz#d1244c846da5a296a7432444f8682f77853fb81e"
   integrity sha512-BHdkSipgjnfsh4FRYbV2R0npM5gVx9JLRsDQ0KiTolRpN4SU98kT/6885zb9jZg6I0EY+UG9Qdr3fvL9VLpY1g==
@@ -5672,7 +5672,7 @@
     npmlog "^5.0.1"
     pretty-hrtime "^1.0.3"
 
-"@storybook/node-logger@6.5.9":
+"@storybook/node-logger@6.5.9", "@storybook/node-logger@^6.5.9":
   version "6.5.9"
   resolved "https://registry.yarnpkg.com/@storybook/node-logger/-/node-logger-6.5.9.tgz#129cfe0d0f79cab4f6a2ba194d39516680b1626f"
   integrity sha512-nZZNZG2Wtwv6Trxi3FrnIqUmB55xO+X/WQGPT5iKlqNjdRIu/T72mE7addcp4rbuWCQfZUhcDDGpBOwKtBxaGg==
@@ -9342,17 +9342,7 @@ core-js-pure@^3.8.1:
   resolved "https://registry.yarnpkg.com/core-js-pure/-/core-js-pure-3.20.3.tgz#6cc4f36da06c61d95254efc54024fe4797fd5d02"
   integrity sha512-Q2H6tQ5MtPtcC7f3HxJ48i4Q7T9ybPKgvWyuH7JXIoNa2pm0KuBnycsET/qw1SLLZYfbsbrZQNMeIOClb+6WIA==
 
-core-js@^3.0.4, core-js@^3.6.5, core-js@^3.8.2:
-  version "3.22.8"
-  resolved "https://registry.yarnpkg.com/core-js/-/core-js-3.22.8.tgz#23f860b1fe60797cc4f704d76c93fea8a2f60631"
-  integrity sha512-UoGQ/cfzGYIuiq6Z7vWL1HfkE9U9IZ4Ub+0XSiJTCzvbZzgPA69oDF2f+lgJ6dFFLEdjW5O6svvoKzXX23xFkA==
-
-core-js@^3.19.2:
-  version "3.20.3"
-  resolved "https://registry.yarnpkg.com/core-js/-/core-js-3.20.3.tgz#c710d0a676e684522f3db4ee84e5e18a9d11d69a"
-  integrity sha512-vVl8j8ph6tRS3B8qir40H7yw7voy17xL0piAjlbBUsH7WIfzoedL/ZOr1OV9FyZQLWXsayOJyV4tnRyXR85/ag==
-
-core-js@^3.22.6:
+core-js@^3.0.4, core-js@^3.19.2, core-js@^3.22.6, core-js@^3.6.5, core-js@^3.8.2:
   version "3.23.3"
   resolved "https://registry.yarnpkg.com/core-js/-/core-js-3.23.3.tgz#3b977612b15da6da0c9cc4aec487e8d24f371112"
   integrity sha512-oAKwkj9xcWNBAvGbT//WiCdOMpb9XQG92/Fe3ABFM/R16BsHgePG00mFOgKf7IsCtfj8tA1kHtf/VwErhriz5Q==
