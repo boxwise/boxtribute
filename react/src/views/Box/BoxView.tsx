@@ -99,7 +99,7 @@ export const UPDATE_LOCATION_OF_BOX_MUTATION = gql`
 `;
 
 export interface ChangeNumberOfItemsBoxData {
-  numberOfItems: number;
+  numberOfItems: number 
 }
 
 const BTBox = () => {
@@ -114,74 +114,79 @@ const BTBox = () => {
     },
   });
 
-  const [updateNumberOfItemsMutation, mutationStatus] = useMutation<
+  const [updateNumberOfItemsMutation] = useMutation<
     UpdateNumberOfItemsMutation,
     UpdateNumberOfItemsMutationVariables  
   >(UPDATE_NUMBER_OF_ITEMS_IN_BOX_MUTATION);
 
-  const baseId = useParams<{ baseId: string }>().baseId;
-  // const navigate = useNavigate();
+  const [updateBoxLocation, mutationLocationStatus] = useMutation<
+  UpdateLocationOfBoxMutation,
+  UpdateLocationOfBoxMutationVariables
+>(UPDATE_LOCATION_OF_BOX_MUTATION);
 
-  // const [updateContentOfBoxMutation] = useMutation<
-  //   UpdateContentOfBoxMutation,
-  //   UpdateContentOfBoxMutationVariables
-  // >(UPDATE_CONTENT_OF_BOX_MUTATION);
+const { isOpen: isPlusOpen, onOpen: onPlusOpen, onClose: onPlusClose } = useDisclosure(); 
+const { isOpen: isMinusOpen, onOpen: onMinusOpen, onClose: onMinusClose } = useDisclosure(); 
+
+  // const baseId = useParams<{ baseId: string }>().baseId;
+  // const navigate = useNavigate();
+  if (loading) {
+    return <APILoadingIndicator />;
+  }
+  if (mutationLocationStatus.loading) {
+    return <div>Updating number of items...</div>;
+  }
+  if (error || mutationLocationStatus.error) {
+    console.error("Error in BoxView Overlay: ", error || mutationLocationStatus.error);
+    return <div>Error!</div>;
+  }
+
+  const boxData = mutationLocationStatus.data?.updateBox || data?.box;
+  
+
 
   const onSubmitChangeNumberOfItems = (boxFormValues: ChangeNumberOfItemsBoxData) => {
     console.log("boxLabelIdentifier", labelIdentifier);
     console.log("boxFormValues", boxFormValues);
   
-    
+    if(boxFormValues.numberOfItems && boxFormValues.numberOfItems > 0 && boxData?.items) {
     updateNumberOfItemsMutation({
       variables: {
         boxLabelIdentifier: labelIdentifier,
-        numberOfItems: boxFormValues.numberOfItems,
+        numberOfItems: boxData?.items + boxFormValues?.numberOfItems 
         
-      },
-    })
-      // .then((mutationResult) => {
-      //   navigate(
-      //     `/bases/${baseId}/boxes/${mutationResult.data?.updateBox?.labelIdentifier}`
-      //   );
-      // })
+      }})
+      .then(() => {
+       onMinusClose();
+       onPlusClose();
+      })
       .catch((error) => {
-        console.log("Error while trying to update Box", error);
+        console.log("Error while trying to change number of items in the Box", error);
       });
   };
+}
 
-  const { isOpen: isPlusOpen, onOpen: onPlusOpen, onClose: onPlusClose } = useDisclosure(); 
-  const { isOpen: isMinusOpen, onOpen: onMinusOpen, onClose: onMinusClose } = useDisclosure(); 
+ 
 
-  // if (loading) {
-  //   return <APILoadingIndicator />;
-  // }
-  // if (mutationStatus.loading) {
-  //   return <div>Updating box...</div>;
-  // }
-  // if (error || mutationStatus.error) {
-  //   console.error("Error in BoxView: ", error || mutationStatus.error);
-  //   return <div>Error!</div>;
-  // }
+ 
 
-  // const boxData = mutationStatus.data?.updateBox || data?.box;
 
-  // const onMoveBoxToLocationClick = (locationId: string) => {
-  //   updateBoxLocation({
-  //     variables: {
-  //       boxLabelIdentifier: labelIdentifier,
-  //       newLocationId: parseInt(locationId),
-  //     },
-  //   });
-  // };
+  const onMoveBoxToLocationClick = (locationId: string) => {
+    updateBoxLocation({
+      variables: {
+        boxLabelIdentifier: labelIdentifier,
+        newLocationId: parseInt(locationId),
+      },
+    });
+  };
 
   return (
     <>
-    {/* <BoxDetails
+    <BoxDetails
       boxData={boxData}
       onPlusOpen={onPlusOpen}
       onMinusOpen={onMinusOpen}
-      // onMoveToLocationClick={onMoveBoxToLocationClick}
-    /> */}
+      onMoveToLocationClick={onMoveBoxToLocationClick}
+    />
     <AddItemsToBoxOverlay 
       isOpen={isPlusOpen}
       onClose={onPlusClose}
@@ -197,3 +202,27 @@ const BTBox = () => {
 };
 
 export default BTBox;
+
+
+
+// const onSubmitBoxEditForm = (boxFormValues: BoxFormValues) => {
+//   console.log("boxLabelIdentifier", labelIdentifier);
+//   console.log("boxFormValues", boxFormValues);
+  
+//   updateContentOfBoxMutation({
+//     variables: {
+//       boxLabelIdentifier: labelIdentifier,
+//       productId: parseInt(boxFormValues.productForDropdown.value),
+//       numberOfItems: boxFormValues.numberOfItems,
+//       sizeId: parseInt(boxFormValues.sizeId),
+//     },
+//   })
+//     .then((mutationResult) => {
+//       navigate(
+//         `/bases/${baseId}/boxes/${mutationResult.data?.updateBox?.labelIdentifier}`
+//       );
+//     })
+//     .catch((error) => {
+//       console.log("Error while trying to update Box", error);
+//     });
+// };

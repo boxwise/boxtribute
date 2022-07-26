@@ -125,7 +125,7 @@ ReactDOM.render(
       <Auth0ProviderWithHistory>
         <ApolloAuth0Provider>
           <GlobalPreferencesProvider>
-            <AuthenticationProtectedApp />
+            <SentryProfiledApp />
           </GlobalPreferencesProvider>
         </ApolloAuth0Provider>
       </Auth0ProviderWithHistory>

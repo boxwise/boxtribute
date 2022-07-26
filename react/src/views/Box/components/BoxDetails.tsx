@@ -9,7 +9,6 @@ import {
   Flex,
   IconButton,
   WrapItem,
-
 } from "@chakra-ui/react";
 import React, { useState } from "react";
 import { NavLink } from "react-router-dom";
@@ -50,17 +49,14 @@ const BoxDetails = ({
   }
 
   return (
-    <Flex direction={["column", "column", "row"]} alignItems={['center', 'center', 'flex-start']} w='100%' justifyContent='center' >
+    <Flex
+      direction={["column", "column", "row"]}
+      alignItems={["center", "center", "flex-start"]}
+      w="100%"
+      justifyContent="center"
+    >
       <Box
-        w={[
-          "100%", // 0-30em
-          "80%", // 30em-48em
-          "40%", // 48em-62em
-          "30%", // 62em-75em
-          // 62em+
-        ]}
-        // mr={["0", "0", "2rem", "2rem"]}
-
+        w={["100%", "80%", "40%", "30%"]}
         border="2px"
         mb={6}
         backgroundColor="#F4E5A0"
@@ -110,7 +106,7 @@ const BoxDetails = ({
                 icon={<AddIcon />}
               />
               <IconButton
-              onClick={onMinusOpen}
+                onClick={onMinusOpen}
                 border="2px"
                 borderRadius="0"
                 backgroundColor="transparent"
@@ -121,29 +117,24 @@ const BoxDetails = ({
           </ListItem>
         </List>
       </Box>
-      <Box alignContent='center' w={[
-          "100%", // 0-30em
-          "80%", // 30em-48em
-          "40%", // 48em-62em
-          "50%", // 62em-75em
-          // 62em+
-        ]}
-        // backgroundColor="#F4E5A0"
+      <Box
+        alignContent="center"
+        w={["100%", "80%", "40%", "50%"]}
         border="2px"
         py={4}
         px={4}
-        >
+      >
         <Text textAlign="center" fontSize="xl" mb={4}>
           Move this box from <strong>{boxData.location?.name}</strong> to:
         </Text>
         <List>
-          <Flex wrap="wrap" gap='2' alignItems='center' justifyContent='center'>
+          <Flex wrap="wrap" justifyContent="center">
             {boxData.location?.base?.locations
               ?.filter((location) => {
                 return location.id !== boxData.location?.id;
               })
               .map((location, i) => (
-                <WrapItem key={location.id}>
+                <WrapItem key={location.id} m={1}>
                   <Button
                     borderRadius="0px"
                     onClick={() => moveToLocationClick(location.id)}
