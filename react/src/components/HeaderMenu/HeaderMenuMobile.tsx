@@ -10,7 +10,6 @@ import {
   IconButton,
   Image,
   Img,
-  MenuItem,
   Divider,
 } from "@chakra-ui/react";
 import { useState } from "react";
