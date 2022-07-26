@@ -133,6 +133,8 @@ const MenuItemsGroupsMobile = ({
           logout={props.logout}
           loginWithRedirect={props.loginWithRedirect}
           user={props.user}
+          currentActiveBaseId={props.currentActiveBaseId}
+          availableBases={props.availableBases}
         />
       </Stack>
     </Flex>
@@ -239,6 +241,8 @@ const HeaderMenuMobile = (props: HeaderMenuProps) => {
         user={props.user}
         isAuthenticated={props.isAuthenticated}
         menuItemsGroups={props.menuItemsGroups}
+        currentActiveBaseId={props.currentActiveBaseId}
+        availableBases={props.availableBases}
       />
     </HeaderMenuMobileContainer>
   );

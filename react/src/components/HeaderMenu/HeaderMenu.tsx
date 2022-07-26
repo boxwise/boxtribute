@@ -12,7 +12,17 @@ export interface MenuItemsGroupData {
   links: MenuItemData[];
 }
 
-export interface UserMenuProps {
+export interface BaseData {
+  id: string;
+  name: string;
+}
+
+export interface BaseSwitcherProps {
+  currentActiveBaseId: string;
+  availableBases?: BaseData[];
+}
+
+export interface UserMenuProps extends BaseSwitcherProps {
   logout: () => void;
   user?: {
     picture?: string;
