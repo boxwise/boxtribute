@@ -1,4 +1,4 @@
-import { Link, NavLink } from "react-router-dom";
+import { Link, NavLink, useNavigate } from "react-router-dom";
 import {
   Text,
   Button,
@@ -9,7 +9,6 @@ import {
   Img,
   Menu,
   MenuButton,
-  useDisclosure,
   MenuItem,
   MenuList,
   MenuGroup,
@@ -40,14 +39,12 @@ const BaseSwitcher = ({
   return (
     <>
       {availableBases?.map((base, i) => (
-        <MenuItem key={base.id}>
-          <Link
-            style={currentActiveBaseId === base.id ? { color: "orange" } : {}}
-            to={`/bases/${base.id}`}
-          >
-            {base.name}
-          </Link>
-        </MenuItem>
+        <Link
+          style={currentActiveBaseId === base.id ? { color: "orange" } : {}}
+          to={`/bases/${base.id}`}
+        >
+          <MenuItem key={base.id}>{base.name}</MenuItem>
+        </Link>
       ))}
     </>
   );
@@ -59,24 +56,14 @@ const UserMenu = ({
   currentActiveBaseId,
   availableBases,
 }: UserMenuProps) => {
-  const { isOpen, onOpen, onClose } = useDisclosure();
   return (
-    <Menu isOpen={isOpen}>
+    <Menu>
       <MenuButton
         as={IconButton}
         icon={<Img src={user?.picture} width={10} height={10} />}
-        onMouseEnter={onOpen}
-        onMouseLeave={onClose}
       />
-      <MenuList
-        onMouseEnter={onOpen}
-        onMouseLeave={onClose}
-        my={0}
-        border="2px"
-        borderRadius="0px"
-        py={0}
-      >
-        <MenuGroup title='Bases'>
+      <MenuList my={0} border="2px" borderRadius="0px" py={0}>
+        <MenuGroup title="Bases">
           <BaseSwitcher
             currentActiveBaseId={currentActiveBaseId}
             availableBases={availableBases}
@@ -121,9 +108,8 @@ const LoginOrUserMenuButton = ({
 };
 
 const MenuItemsGroupDesktop = ({ ...props }: MenuItemsGroupProps) => {
-  const { isOpen, onOpen, onClose } = useDisclosure();
   return (
-    <Menu isOpen={isOpen}>
+    <Menu>
       <MenuButton
         my={0}
         variant="outline"
@@ -131,23 +117,16 @@ const MenuItemsGroupDesktop = ({ ...props }: MenuItemsGroupProps) => {
         borderRadius="0px"
         as={Button}
         border="2px"
-        onMouseEnter={onOpen}
-        onMouseLeave={onClose}
       >
         <Text display="block">{props.text}</Text>
       </MenuButton>
-      <MenuList
-        onMouseEnter={onOpen}
-        onMouseLeave={onClose}
-        border="2px"
-        p={0}
-        borderRadius="0px"
-        my={0}
-      >
+      <MenuList border="2px" p={0} borderRadius="0px" my={0}>
         {props.links.map((link, i) => (
-          <MenuItem py={2} px={3} key={i}>
-            <NavLink to={link.link}>{link.name}</NavLink>
-          </MenuItem>
+          <NavLink to={link.link}>
+            <MenuItem py={2} px={3} key={i}>
+              {link.name}
+            </MenuItem>
+          </NavLink>
         ))}
       </MenuList>
     </Menu>

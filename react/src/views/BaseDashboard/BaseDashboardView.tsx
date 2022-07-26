@@ -1,5 +1,5 @@
 import { gql, useQuery } from "@apollo/client";
-import { Center, Heading } from "@chakra-ui/react";
+import { Center, Heading, Text } from "@chakra-ui/react";
 import { useParams } from "react-router-dom";
 import { BaseDataQuery, BaseDataQueryVariables } from "types/generated/graphql";
 
@@ -32,7 +32,7 @@ const BaseDashboardView = () => {
 
   return (
     <Center>
-      <Heading>Welcome to the Base {data?.base?.name}</Heading>
+      <Heading>Welcome to the base <Text as='u'>{data?.base?.name}</Text></Heading>
     </Center>
   );
 };
