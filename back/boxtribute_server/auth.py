@@ -6,6 +6,7 @@ from functools import wraps
 
 from flask import g, request
 from jose import JOSEError, jwt
+from sentry_sdk import set_user as set_sentry_user
 
 from .exceptions import AuthenticationFailed
 
@@ -216,6 +217,7 @@ def requires_auth(f):
             audience=os.environ["AUTH0_AUDIENCE"],
         )
         g.user = CurrentUser.from_jwt(payload)
+        set_sentry_user({"id": g.user.id, "jwt_payload": payload})
 
         return f(*args, **kwargs)
 
