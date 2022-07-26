@@ -10,6 +10,8 @@ import {
   IconButton,
   Image,
   Img,
+  MenuItem,
+  Divider,
 } from "@chakra-ui/react";
 import { useState } from "react";
 import {
@@ -19,6 +21,7 @@ import {
 } from "react-icons/ai";
 import { Link, NavLink } from "react-router-dom";
 import {
+  BaseSwitcherProps,
   HeaderMenuProps,
   LoginOrUserMenuButtonProps,
   MenuItemsGroupProps,
@@ -50,7 +53,10 @@ const LoginOrUserMenuButtonMobile = ({
   logout,
   loginWithRedirect,
   user,
-}: LoginOrUserMenuButtonProps) => {
+  currentActiveBaseId,
+  availableBases,
+  setIsMenuOpen
+}: LoginOrUserMenuButtonProps & {setIsMenuOpen: (isOpen: boolean) => void}) => {
   const { isOpen, onToggle } = useDisclosure();
 
   return isAuthenticated ? (
@@ -89,6 +95,12 @@ const LoginOrUserMenuButtonMobile = ({
 
       <Collapse in={isOpen} animateOpacity style={{ marginTop: "10px" }}>
         <Stack pl={4} borderLeft={1} borderStyle={"solid"} align={"start"}>
+          <BaseSwitcher
+            currentActiveBaseId={currentActiveBaseId}
+            availableBases={availableBases}
+            setIsMenuOpen={setIsMenuOpen}
+          />
+          <Divider orientation='horizontal' />
           <Box py={1} px={4}>
             Profile
           </Box>
@@ -113,6 +125,27 @@ const LoginOrUserMenuButtonMobile = ({
   );
 };
 
+const BaseSwitcher = ({
+  currentActiveBaseId,
+  availableBases,
+  setIsMenuOpen
+}: BaseSwitcherProps & {setIsMenuOpen: (isOpen: boolean) => void}) => {
+  return (
+    <>
+      {availableBases?.map((base, i) => (
+        <Box key={i} py={1} px={4} onClick={() => setIsMenuOpen(false)}>
+          <Link
+            style={currentActiveBaseId === base.id ? { color: "orange" } : {}}
+            to={`/bases/${base.id}`}
+          >
+            {base.name}
+          </Link>
+        </Box>
+      ))}
+    </>
+  );
+};
+
 const MenuItemsGroupsMobile = ({
   isMenuOpen,
   setIsMenuOpen,
@@ -126,7 +159,11 @@ const MenuItemsGroupsMobile = ({
     >
       <Stack alignItems="start-end" direction="column">
         {props.menuItemsGroups.map((item, i) => (
-          <MenuItemsGroupMobile key={i} {...item} setIsMenuOpen={setIsMenuOpen} />
+          <MenuItemsGroupMobile
+            key={i}
+            {...item}
+            setIsMenuOpen={setIsMenuOpen}
+          />
         ))}
         <LoginOrUserMenuButtonMobile
           isAuthenticated={props.isAuthenticated}
@@ -135,6 +172,7 @@ const MenuItemsGroupsMobile = ({
           user={props.user}
           currentActiveBaseId={props.currentActiveBaseId}
           availableBases={props.availableBases}
+          setIsMenuOpen={setIsMenuOpen}
         />
       </Stack>
     </Flex>
@@ -175,8 +213,8 @@ const MenuItemsGroupMobile = ({
       </Flex>
       <Collapse in={isOpen} animateOpacity style={{ marginTop: "10px" }}>
         <Stack pl={4} borderLeft={1} borderStyle={"solid"} align={"start"}>
-          {links.map((link) => (
-            <Box py={1} px={4} onClick={() => setIsMenuOpen(false)}>
+          {links.map((link, i) => (
+            <Box key={i} py={1} px={4} onClick={() => setIsMenuOpen(false)}>
               <Link key={link.name} to={link.link}>
                 {link.name}
               </Link>

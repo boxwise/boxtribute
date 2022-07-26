@@ -13,6 +13,7 @@ import {
   MenuItem,
   MenuList,
   MenuGroup,
+  MenuDivider,
 } from "@chakra-ui/react";
 
 import { AiOutlineQrcode } from "react-icons/ai";
@@ -37,7 +38,7 @@ const BaseSwitcher = ({
   availableBases,
 }: BaseSwitcherProps) => {
   return (
-    <MenuGroup>
+    <>
       {availableBases?.map((base, i) => (
         <MenuItem key={base.id}>
           <Link
@@ -48,11 +49,16 @@ const BaseSwitcher = ({
           </Link>
         </MenuItem>
       ))}
-    </MenuGroup>
+    </>
   );
 };
 
-const UserMenu = ({ logout, user, currentActiveBaseId, availableBases }: UserMenuProps) => {
+const UserMenu = ({
+  logout,
+  user,
+  currentActiveBaseId,
+  availableBases,
+}: UserMenuProps) => {
   const { isOpen, onOpen, onClose } = useDisclosure();
   return (
     <Menu isOpen={isOpen}>
@@ -70,15 +76,19 @@ const UserMenu = ({ logout, user, currentActiveBaseId, availableBases }: UserMen
         borderRadius="0px"
         py={0}
       >
-        <BaseSwitcher
-          currentActiveBaseId={currentActiveBaseId}
-          availableBases={availableBases}
-        />
-
-        <MenuItem py={2}>Profile ({user?.email})</MenuItem>
-        <MenuItem py={2} onClick={() => logout()}>
-          Logout
-        </MenuItem>
+        <MenuGroup title='Bases'>
+          <BaseSwitcher
+            currentActiveBaseId={currentActiveBaseId}
+            availableBases={availableBases}
+          />
+        </MenuGroup>
+        <MenuDivider />
+        <MenuGroup>
+          <MenuItem py={2}>Profile ({user?.email})</MenuItem>
+          <MenuItem py={2} onClick={() => logout()}>
+            Logout
+          </MenuItem>
+        </MenuGroup>
       </MenuList>
     </Menu>
   );
@@ -90,10 +100,15 @@ const LoginOrUserMenuButton = ({
   loginWithRedirect,
   user,
   availableBases,
-  currentActiveBaseId
+  currentActiveBaseId,
 }: LoginOrUserMenuButtonProps) => {
   return isAuthenticated ? (
-    <UserMenu user={user} logout={logout} availableBases={availableBases} currentActiveBaseId={currentActiveBaseId} />
+    <UserMenu
+      user={user}
+      logout={logout}
+      availableBases={availableBases}
+      currentActiveBaseId={currentActiveBaseId}
+    />
   ) : (
     <Button
       border="2px"
