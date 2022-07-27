@@ -177,15 +177,16 @@ const DistroEventDetailsForPlanningStateContainer = ({
           }
         )
       ).then((results) => {
-        if (results.some(r => r.errors && r.errors.length !== 0)) {
+        if (results.some((r) => r.errors && r.errors.length !== 0)) {
           console.error(
-            `GraphQL error while trying to add Packing List Entries to Distribution Event (id: ${distributionEventDetails.id})`,
+            `GraphQL error while trying to add Packing List Entries to Distribution Event (id: ${distributionEventDetails.id})`
             // TODO: consider to track the respective error details
             // res.errors
           );
           toast({
             title: "Error",
-            description: "Some or all of the packing list items couldn't be added/updated.",
+            description:
+              "Some or all of the packing list items couldn't be added/updated.",
             status: "error",
             duration: 2000,
             isClosable: true,

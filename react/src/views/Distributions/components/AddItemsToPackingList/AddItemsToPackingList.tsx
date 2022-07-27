@@ -55,7 +55,14 @@ const AddItemsToPackingList = ({
     useForm<ItemToAddFormValues>({
       defaultValues: {
         productId: "",
-        sizeAndNumberOfItemsTuples: [],
+        sizeAndNumberOfItemsTuples: []
+        // productAndSizesData.map(
+        //   (productAndSizesData) => ({
+        //     size: productAndSizesData.sizes[0],
+        //     numberOfItems: 0,
+        //   })
+        // ),
+
       },
     });
   const { fields, replace } = useFieldArray({
@@ -85,6 +92,7 @@ const AddItemsToPackingList = ({
       const product = productAndSizesData.find((p) => p.id === productId);
       const newSizeAndNumTuples = product?.sizes.map((s) => ({
         size: s,
+        numberOfItems: s.currentNumberOfItems
         // currentNumberOfItems: s
       }));
       replace(newSizeAndNumTuples || []);
@@ -150,7 +158,7 @@ const AddItemsToPackingList = ({
                     w={16}
                     type="number"
                     // value={size.numberOfItems}
-                    defaultValue={size.size.currentNumberOfItems}
+                    // defaultValue={size.size.currentNumberOfItems}
                     {...register(
                       `sizeAndNumberOfItemsTuples.${index}.numberOfItems` as const,
                       {
