@@ -68,5 +68,5 @@ const Template: ComponentStory<typeof AddItemsToPackingList> = (args) => (
 
 export const Default = Template.bind({});
 Default.args = {
-  productAndSizesData: mockedAddItemToPacking,
+  productAndSizesDataWithTargetNumberOfItems: mockedAddItemToPacking,
 };

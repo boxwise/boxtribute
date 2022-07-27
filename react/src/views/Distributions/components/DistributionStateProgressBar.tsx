@@ -27,7 +27,7 @@ const DistributionStateProgressBar = ({
         {i + 1}. {distroEventStateHumanReadableLabels.get(state)}
       </Text>;
         return (
-          activeState !== DistributionEventState.Completed ? <Link onClick={() => onMoveToStage(state)}>{text}</Link> : text
+          activeState !== DistributionEventState.Completed ? <Link key={state} onClick={() => onMoveToStage(state)}>{text}</Link> : text
         );
       }
     }

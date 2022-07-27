@@ -5,31 +5,32 @@ import {
 } from "types/generated/graphql";
 import { gql, useQuery } from "@apollo/client";
 import APILoadingIndicator from "components/APILoadingIndicator";
+import { IPackingListEntry } from "views/Distributions/types";
 
-export interface SizeIdAndNameTuple {
+export interface SizeIdAndNameTupleWithTargetNumberOfItems {
   id: string;
   name: string;
+  targetNumberOfItems: number;
 }
-export type ProductAndSizesData = {
+export type ProductAndSizesDataWithTargetNumberOfItems = {
   id: string;
   name: string;
-  sizes: SizeIdAndNameTuple[];
+  sizesWithTargetNumberOfItems: SizeIdAndNameTupleWithTargetNumberOfItems[];
 };
 
-export interface SizeIdAndNumberOfItemTuple {
-  sizeId: string;
-  numberOfItems: number;
-}
-export interface PackingListEntriesForProduct {
+export interface PackingListEntriesForProductToAdd {
   productId: number;
-  sizeIdAndNumberOfItemTuples: SizeIdAndNumberOfItemTuple[];
+  sizeIdAndNumberOfItemTuples: {
+    sizeId: string;
+    targetNumberOfItems: number;
+  }[];
 }
 
 interface AddItemsToPackingListContainerProps {
   onAddEntiresToPackingListForProduct: (
-    entriesToAdd: PackingListEntriesForProduct
+    entriesToAdd: PackingListEntriesForProductToAdd
   ) => void;
-  // currentPackingListEntries: PackingListEntriesForProduct[];
+  currentPackingListEntries: IPackingListEntry[];
 }
 
 export const ALL_PRODUCTS_AND_SIZES_QUERY = gql`
@@ -54,8 +55,7 @@ type Product = AllProductsAndSizesQuery["products"]["elements"][0];
 
 const graphqlToContainerTransformer = (
   graphQLData: Product[]
-): ProductAndSizesData[] => {
-
+): ProductAndSizesDataWithTargetNumberOfItems[] => {
   return (
     graphQLData
       // TODO (IMPORTANT): Remove this fitler call again - was just temporary for dev/demo purposes
@@ -66,19 +66,19 @@ const graphqlToContainerTransformer = (
         return {
           id: product.id,
           name: product.name,
-          sizes: product.sizeRange.sizes.map((size) => ({
+          sizesWithTargetNumberOfItems: product.sizeRange.sizes.map((size) => ({
             id: size.id,
             name: size.label,
+            targetNumberOfItems: 9999999,
           })),
         };
       })
   );
-
 };
 
 const AddItemsToPackingListContainer = ({
   onAddEntiresToPackingListForProduct,
-  // currentPackingListEntries
+  currentPackingListEntries,
 }: AddItemsToPackingListContainerProps) => {
   const { loading, data } = useQuery<
     AllProductsAndSizesQuery,
@@ -89,7 +89,7 @@ const AddItemsToPackingListContainer = ({
     return <APILoadingIndicator />;
   }
 
-  const productAndSizesData = data?.products?.elements
+  const productAndSizesDataWithTargetNumberOfItems = data?.products?.elements
     ? graphqlToContainerTransformer(data?.products?.elements)
     : [];
 
@@ -98,7 +98,9 @@ const AddItemsToPackingListContainer = ({
   return (
     <AddItemsToPackingList
       onAddEntiresToPackingListForProduct={onAddEntiresToPackingListForProduct}
-      productAndSizesData={productAndSizesData}
+      productAndSizesDataWithTargetNumberOfItems={
+        productAndSizesDataWithTargetNumberOfItems
+      }
       // currentPackingListEntries={currentPackingListEntries}
     />
   );
