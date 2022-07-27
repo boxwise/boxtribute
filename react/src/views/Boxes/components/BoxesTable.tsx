@@ -143,7 +143,7 @@ const BoxesTable = ({ tableData, onBoxRowClick }: BoxesTableProps) => {
         Header: "Box Number",
         accessor: "labelIdentifier",
         id: "labelIdentifier",
-        
+
       },
       {
         Header: "Gender",
@@ -276,8 +276,6 @@ const ActualTable = ({
       ]);
     }
   );
-
-  const [filterActive, setFilterActive] = useState(false);
 
   if (!show) {
     return <></>;
