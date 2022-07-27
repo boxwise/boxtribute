@@ -1,36 +1,18 @@
-import AddItemsToPackingList from "./AddItemsToPackingList";
+import AddItemsToPackingList, {
+  PackingListEntriesForProductToAdd,
+  ProductAndSizesData,
+} from "./AddItemsToPackingList";
 import {
   AllProductsAndSizesQuery,
   AllProductsAndSizesQueryVariables,
 } from "types/generated/graphql";
 import { gql, useQuery } from "@apollo/client";
 import APILoadingIndicator from "components/APILoadingIndicator";
-import { IPackingListEntry } from "views/Distributions/types";
-
-export interface SizeIdAndNameTupleWithTargetNumberOfItems {
-  id: string;
-  name: string;
-  targetNumberOfItems: number;
-}
-export type ProductAndSizesDataWithTargetNumberOfItems = {
-  id: string;
-  name: string;
-  sizesWithTargetNumberOfItems: SizeIdAndNameTupleWithTargetNumberOfItems[];
-};
-
-export interface PackingListEntriesForProductToAdd {
-  productId: number;
-  sizeIdAndNumberOfItemTuples: {
-    sizeId: string;
-    targetNumberOfItems: number;
-  }[];
-}
 
 interface AddItemsToPackingListContainerProps {
   onAddEntiresToPackingListForProduct: (
     entriesToAdd: PackingListEntriesForProductToAdd
   ) => void;
-  currentPackingListEntries: IPackingListEntry[];
 }
 
 export const ALL_PRODUCTS_AND_SIZES_QUERY = gql`
@@ -54,9 +36,9 @@ export const ALL_PRODUCTS_AND_SIZES_QUERY = gql`
 type Product = AllProductsAndSizesQuery["products"]["elements"][0];
 
 const graphqlToContainerTransformer = (
-  graphQLData: Product[],
-  currentPackingListEntries: IPackingListEntry[]
-): ProductAndSizesDataWithTargetNumberOfItems[] => {
+  graphQLData: Product[]
+): ProductAndSizesData[] => {
+
   return (
     graphQLData
       // TODO (IMPORTANT): Remove this fitler call again - was just temporary for dev/demo purposes
@@ -67,21 +49,18 @@ const graphqlToContainerTransformer = (
         return {
           id: product.id,
           name: product.name,
-          sizesWithTargetNumberOfItems: product.sizeRange.sizes.map((size) => {
-            const targetNumberOfItems = currentPackingListEntries.find(el => el.product.id === product.id && el.size?.id === size.id)?.numberOfItems ?? 0;
-            return {
+          sizes: product.sizeRange.sizes.map((size) => ({
             id: size.id,
             name: size.label,
-            targetNumberOfItems: targetNumberOfItems,
-          }}),
+          })),
         };
       })
   );
+
 };
 
 const AddItemsToPackingListContainer = ({
   onAddEntiresToPackingListForProduct,
-  currentPackingListEntries,
 }: AddItemsToPackingListContainerProps) => {
   const { loading, data } = useQuery<
     AllProductsAndSizesQuery,
@@ -92,8 +71,8 @@ const AddItemsToPackingListContainer = ({
     return <APILoadingIndicator />;
   }
 
-  const productAndSizesDataWithTargetNumberOfItems = data?.products?.elements
-    ? graphqlToContainerTransformer(data?.products?.elements, currentPackingListEntries)
+  const productAndSizesData = data?.products?.elements
+    ? graphqlToContainerTransformer(data?.products?.elements)
     : [];
 
   // TODO: also handle error case here
@@ -101,10 +80,7 @@ const AddItemsToPackingListContainer = ({
   return (
     <AddItemsToPackingList
       onAddEntiresToPackingListForProduct={onAddEntiresToPackingListForProduct}
-      productAndSizesDataWithTargetNumberOfItems={
-        productAndSizesDataWithTargetNumberOfItems
-      }
-      // currentPackingListEntries={currentPackingListEntries}
+      productAndSizesData={productAndSizesData}
     />
   );
 };

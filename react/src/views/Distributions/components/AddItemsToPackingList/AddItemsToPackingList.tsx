@@ -10,30 +10,45 @@ import {
 } from "@chakra-ui/react";
 import { useFieldArray, useForm } from "react-hook-form";
 import { useCallback, useEffect } from "react";
-import { SizeIdAndNameTupleWithTargetNumberOfItems as SizeIdAndNameTupleWithCurrentTargetNumberOfItems, PackingListEntriesForProductToAdd, ProductAndSizesDataWithTargetNumberOfItems } from "./AddItemsToPackingListContainer";
 
-// interface SizeAndNumberOfItemsFormTuple {
-//   sizeIdAndNameTupleWithCurrentTargetNumberOfItems: SizeIdAndNameTupleWithCurrentTargetNumberOfItems;
-//   // targetNumberOfItems: number;
-// }
+interface SizeIdAndNameTuple {
+  id: string;
+  name: string;
+}
+interface SizeAndNumberOfItemsFormTuple {
+  size: SizeIdAndNameTuple;
+  numberOfItemsAsString: string;
+}
 
 interface ItemToAddFormValues {
   productId: string;
-  sizeAndNumberOfItemsTuples: SizeIdAndNameTupleWithCurrentTargetNumberOfItems[];
+  sizeAndNumberOfItemsTuples: SizeAndNumberOfItemsFormTuple[];
 }
 
+export type ProductAndSizesData = {
+  id: string;
+  name: string;
+  sizes: SizeIdAndNameTuple[];
+};
 
+export interface SizeIdAndNumberOfItemTuple {
+  sizeId: string;
+  numberOfItems: number;
+}
+export interface PackingListEntriesForProductToAdd {
+  productId: number;
+  sizeIdAndNumberOfItemTuples: SizeIdAndNumberOfItemTuple[];
+}
 interface AddItemToPackingProps {
   onAddEntiresToPackingListForProduct: (
     entriesToAdd: PackingListEntriesForProductToAdd
   ) => void;
-  productAndSizesDataWithTargetNumberOfItems: ProductAndSizesDataWithTargetNumberOfItems[];
-  // currentPackingListEntries: PackingListEntriesForProduct[];
+  productAndSizesData: ProductAndSizesData[];
 }
 
 const AddItemsToPackingList = ({
   onAddEntiresToPackingListForProduct,
-  productAndSizesDataWithTargetNumberOfItems,
+  productAndSizesData,
 }: AddItemToPackingProps) => {
   const { register, handleSubmit, control, watch } =
     useForm<ItemToAddFormValues>({
@@ -54,10 +69,10 @@ const AddItemsToPackingList = ({
         sizeIdAndNumberOfItemTuples:
           itemToAddFormValues.sizeAndNumberOfItemsTuples
           .map(tuple => ({
-            sizeId: tuple.id,
-            targetNumberOfItems: tuple.targetNumberOfItems,
+            sizeId: tuple.size.id,
+            numberOfItems: parseInt(tuple.numberOfItemsAsString),
           }))
-          .filter(tuple => tuple.targetNumberOfItems > 0)
+          .filter(tuple => tuple.numberOfItems > 0)
       };
       onAddEntiresToPackingListForProduct(newEntriesForPackingList);
     },
@@ -66,14 +81,13 @@ const AddItemsToPackingList = ({
 
   useEffect(() => {
     if (productId != null) {
-      const product = productAndSizesDataWithTargetNumberOfItems.find((p) => p.id === productId);
-      const newSizeAndNumTuples = product?.sizesWithTargetNumberOfItems;
-      // .map((s) => ({
-      //   size: s,
-      // }));
+      const product = productAndSizesData.find((p) => p.id === productId);
+      const newSizeAndNumTuples = product?.sizes.map((s) => ({
+        size: s,
+      }));
       replace(newSizeAndNumTuples || []);
     }
-  }, [productId, productAndSizesDataWithTargetNumberOfItems, replace]);
+  }, [productId, productAndSizesData, replace]);
 
   return (
     <Box>
@@ -91,7 +105,7 @@ const AddItemsToPackingList = ({
           <WrapItem>
             <FormControl id="productId">
               <Select {...register("productId")} placeholder="Select Product">
-                {productAndSizesDataWithTargetNumberOfItems?.map((product, i) => (
+                {productAndSizesData?.map((product, i) => (
                   <option value={product.id} key={i}>
                     {product.name}
                   </option>
@@ -119,7 +133,7 @@ const AddItemsToPackingList = ({
                   }}
                 >
                   <Box mr={4} w='25%'>
-                    {size.name}
+                    {size.size.name}
                   </Box>
                   <Input
                     hidden
@@ -127,18 +141,15 @@ const AddItemsToPackingList = ({
                     value={size.id}
                     type="number"
                     {...register(
-                      `sizeAndNumberOfItemsTuples.${index}.id` as const
+                      `sizeAndNumberOfItemsTuples.${index}.size.id` as const
                     )}
                   />
                   <Input
                     w={16}
                     type="number"
-                    value={size.targetNumberOfItems}
+                    value={size.numberOfItemsAsString}
                     {...register(
-                      `sizeAndNumberOfItemsTuples.${index}.targetNumberOfItems` as const,
-                      {
-                        valueAsNumber: true,
-                      }
+                      `sizeAndNumberOfItemsTuples.${index}.numberOfItemsAsString` as const
                     )}
                   />
                 </Flex>
@@ -146,7 +157,7 @@ const AddItemsToPackingList = ({
             </>
           </Flex>
           <WrapItem mt={4}>
-            <Button type="submit">Add to / Update Packing List</Button>
+            <Button type="submit">Add to Packing List</Button>
           </WrapItem>
         </Flex>
       </form>

@@ -19,11 +19,13 @@ import {
   RemoveEntryFromPackingListMutation,
   RemoveEntryFromPackingListMutationVariables,
 } from "types/generated/graphql";
-import AddItemsToPackingListContainer, { PackingListEntriesForProductToAdd } from "views/Distributions/components/AddItemsToPackingList/AddItemsToPackingListContainer";
+import { PackingListEntriesForProductToAdd } from "views/Distributions/components/AddItemsToPackingList/AddItemsToPackingList";
+import AddItemsToPackingListContainer from "views/Distributions/components/AddItemsToPackingList/AddItemsToPackingListContainer";
 import { graphqlPackingListEntriesForDistributionEventTransformer } from "views/Distributions/dataTransformers";
 import { PACKING_LIST_ENTRIES_FOR_DISTRIBUTION_EVENT_QUERY } from "views/Distributions/queries";
 import {
   DistributionEventDetails,
+  IPackingListEntry,
 } from "views/Distributions/types";
 import DistroEventDetailsForPlanningState from "./DistroEventDetailsForPlanningState";
 
@@ -163,7 +165,7 @@ const DistroEventDetailsForPlanningStateContainer = ({
         entriesToAdd.sizeIdAndNumberOfItemTuples.length;
       Promise.all(
         entriesToAdd.sizeIdAndNumberOfItemTuples.map(
-          ({ sizeId, targetNumberOfItems: numberOfItems }) => {
+          ({ sizeId, numberOfItems }) => {
             return addEntryToPackingListMutation({
               variables: {
                 distributionEventId: distributionEventDetails.id,
@@ -237,8 +239,6 @@ const DistroEventDetailsForPlanningStateContainer = ({
   const packingListEntries =
     graphqlPackingListEntriesForDistributionEventTransformer(data);
 
-  // const packingListEntriesForProducts = packingListEntries
-
   if (packingListEntries == null) {
     return <div>Error: No data found</div>;
   }
@@ -266,7 +266,6 @@ const DistroEventDetailsForPlanningStateContainer = ({
           <ModalCloseButton />
           <ModalBody>
             <AddItemsToPackingListContainer
-              currentPackingListEntries={packingListEntries}
               onAddEntiresToPackingListForProduct={
                 onAddEntiresToPackingListForProduct
               }
