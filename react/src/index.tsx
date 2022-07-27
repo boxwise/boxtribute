@@ -66,12 +66,24 @@ const colors = {
 const theme = extendTheme({
   colors,
   components: {
+    Button: {
+      defaultProps: {
+
+        borderRadius: "0",
+
+    }
+  },
     FormLabel: {
       baseStyle: {
         fontWeight: "bold",
       },
     },
     Input: {
+      defaultProps: {
+        focusBorderColor: 'transparent',
+        borderRadius: '0',
+      },
+      shadows: "none",
       sizes: {
         lg: {
           field: {
