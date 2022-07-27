@@ -23,7 +23,10 @@ import { PackingListEntriesForProductToAdd } from "views/Distributions/component
 import AddItemsToPackingListContainer from "views/Distributions/components/AddItemsToPackingList/AddItemsToPackingListContainer";
 import { graphqlPackingListEntriesForDistributionEventTransformer } from "views/Distributions/dataTransformers";
 import { PACKING_LIST_ENTRIES_FOR_DISTRIBUTION_EVENT_QUERY } from "views/Distributions/queries";
-import { DistributionEventDetails, IPackingListEntry } from "views/Distributions/types";
+import {
+  DistributionEventDetails,
+  IPackingListEntry,
+} from "views/Distributions/types";
 import DistroEventDetailsForPlanningState from "./DistroEventDetailsForPlanningState";
 
 interface DistroEventDetailsForPlanningStateContainerProps {
@@ -184,7 +187,12 @@ const DistroEventDetailsForPlanningStateContainer = ({
       });
       // TODO: add here also error catching and user notification
     },
-    [addEntryToPackingListMutation, addItemsToDistroEventsOverlayState, distributionEventDetails.id, toast]
+    [
+      addEntryToPackingListMutation,
+      addItemsToDistroEventsOverlayState,
+      distributionEventDetails.id,
+      toast,
+    ]
   );
 
   const onRemoveItemFromPackingList = useCallback(
@@ -193,16 +201,31 @@ const DistroEventDetailsForPlanningStateContainer = ({
         variables: {
           packingListEntryId: packlistEntryId,
         },
-      }).then(() =>
-        toast({
-          title: "Successfully removed entry",
-          status: "success",
-          isClosable: true,
-          duration: 2000,
-        })
-      );
+      }).then((res) => {
+        if (res.errors && res.errors.length !== 0) {
+          console.error(
+            `GraphQL error while trying to remove packing list entry from Distribution Event (id: ${distributionEventDetails.id})`,
+            res.errors
+          );
+          toast({
+            title: "Error",
+            description:
+              "Packing list entry couldn't be removed from the distribution event.",
+            status: "error",
+            duration: 2000,
+            isClosable: true,
+          });
+        } else {
+          toast({
+            title: "Successfully removed entry",
+            status: "success",
+            isClosable: true,
+            duration: 2000,
+          });
+        }
+      });
     },
-    [removeEntryFromPackingListMutation, toast]
+    [distributionEventDetails.id, removeEntryFromPackingListMutation, toast]
   );
 
   if (loading) {
@@ -213,9 +236,10 @@ const DistroEventDetailsForPlanningStateContainer = ({
     return <div>Error</div>;
   }
 
-  const packingListEntries = graphqlPackingListEntriesForDistributionEventTransformer(data);
+  const packingListEntries =
+    graphqlPackingListEntriesForDistributionEventTransformer(data);
 
-  if(packingListEntries == null) {
+  if (packingListEntries == null) {
     return <div>Error: No data found</div>;
   }
 
@@ -230,7 +254,10 @@ const DistroEventDetailsForPlanningStateContainer = ({
       />
 
       {/* TODO: Consider to extract this into a seperate component */}
-      <Modal isOpen={addItemsToDistroEventsOverlayState.isOpen} onClose={addItemsToDistroEventsOverlayState.onClose}>
+      <Modal
+        isOpen={addItemsToDistroEventsOverlayState.isOpen}
+        onClose={addItemsToDistroEventsOverlayState.onClose}
+      >
         <ModalOverlay />
         <ModalContent>
           <ModalHeader>

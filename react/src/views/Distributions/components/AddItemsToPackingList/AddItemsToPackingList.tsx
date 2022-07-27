@@ -98,7 +98,7 @@ const AddItemsToPackingList = ({
         borderColor="gray.300"
         pb={2}
       >
-        Add to Packing List
+        Add to / Update Packing List
       </Text>
       <form onSubmit={handleSubmit(onAddItemClick)}>
         <Flex direction="column">
