@@ -180,17 +180,33 @@ def add_packing_list_entry_to_distribution_event(
     Add a packing list entry to a distribution event.
     """
     now = utcnow()
-    return PackingListEntry.create(
-        distribution_event=distribution_event_id,
-        product=product_id,
-        number_of_items=number_of_items,
-        size=size_id,
-        state=PackingListEntryState.NotStarted,
-        created_on=now,
-        created_by=user_id,
-        last_modified_on=now,
-        last_modified_by=user_id,
+
+    existing_packing_list_entry = PackingListEntry.get_or_none(
+        PackingListEntry.distribution_event == distribution_event_id,
+        PackingListEntry.product == product_id,
+        PackingListEntry.size == size_id,
     )
+    if existing_packing_list_entry is not None:
+        if number_of_items > 0:
+            existing_packing_list_entry.number_of_items = number_of_items
+            existing_packing_list_entry.save()
+            return existing_packing_list_entry
+        else:
+            existing_packing_list_entry.delete()
+            return
+
+    else:
+        return PackingListEntry.create(
+            distribution_event=distribution_event_id,
+            product=product_id,
+            number_of_items=number_of_items,
+            size=size_id,
+            state=PackingListEntryState.NotStarted,
+            created_on=now,
+            created_by=user_id,
+            last_modified_on=now,
+            last_modified_by=user_id,
+        )
 
 
 def create_distribution_event(
