@@ -95,6 +95,7 @@ input TagCreationInput {
   description: String
   color: String!
   type: TagType!
+  baseId: Int!
 }
 
 input TagUpdateInput {

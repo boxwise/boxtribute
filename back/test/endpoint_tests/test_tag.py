@@ -65,3 +65,48 @@ def test_tags_query(
             ],
         },
     ]
+
+
+def test_tags_mutations(client):
+    name = "Box Group 1"
+    description = "Boxes for donation"
+    color = "#ff0000"
+    type = "All"
+    base_id = "1"
+    tags_input_string = f"""{{
+        name: "{name}",
+        description: "{description}",
+        color: "{color}",
+        type: {type}
+        baseId: {base_id}
+    }}"""
+
+    mutation = f"""mutation {{
+            createTag(
+                creationInput : {tags_input_string}
+            ) {{
+                id
+                name
+                description
+                color
+                type
+                base {{
+                    id
+                }}
+                taggedResources {{
+                    ...on Beneficiary {{ id }}
+                    ...on Box {{ id }}
+                }}
+                   }}
+        }}"""
+
+    created_tag = assert_successful_request(client, mutation)
+    created_tag.pop("id")
+    assert created_tag == {
+        "name": name,
+        "description": description,
+        "color": color,
+        "type": type,
+        "taggedResources": [],
+        "base": {"id": base_id}
+    }

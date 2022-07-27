@@ -85,6 +85,7 @@ type Tag {
   color: String
   type: TagType!
   taggedResources: [TaggableResource!]!
+  base: Base!
 }
 
 """

@@ -36,6 +36,7 @@ from ..models.crud import (
     create_qr_code,
     update_beneficiary,
     update_box,
+    create_tag,
 )
 from ..models.definitions.base import Base
 from ..models.definitions.beneficiary import Beneficiary
@@ -416,6 +417,12 @@ def resolve_create_box(*_, creation_input):
 def resolve_update_box(*_, update_input):
     authorize(permission="stock:write")
     return update_box(user_id=g.user.id, **update_input)
+
+
+@mutation.field("createTag")
+@convert_kwargs_to_snake_case
+def resolve_create_tag(*_, creation_input):
+    return create_tag(user_id=g.user.id, **creation_input)
 
 
 @mutation.field("createBeneficiary")

@@ -9,6 +9,7 @@ from ..enums import BoxState
 from ..exceptions import BoxCreationFailed
 from .definitions.beneficiary import Beneficiary
 from .definitions.box import Box
+from .definitions.tag import Tag
 from .definitions.location import Location
 from .definitions.qr_code import QrCode
 from .definitions.x_beneficiary_language import XBeneficiaryLanguage
@@ -98,6 +99,30 @@ def update_box(
     box.last_modified_on = utcnow()
     box.save()
     return box
+
+
+def create_tag(
+    *,
+    name,
+    description="",
+    color,
+    type,
+    user_id,
+    base_id,
+):
+
+    now = utcnow()
+    return Tag.create(
+        color=color,
+        created=now,
+        created_by=user_id,
+        description=description,
+        name=name,
+        modified=now,
+        modified_by=user_id,
+        type=type,
+        base=base_id,
+    )
 
 
 def create_beneficiary(
