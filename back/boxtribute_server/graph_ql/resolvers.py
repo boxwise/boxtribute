@@ -34,9 +34,9 @@ from ..models.crud import (
     create_beneficiary,
     create_box,
     create_qr_code,
+    create_tag,
     update_beneficiary,
     update_box,
-    create_tag,
 )
 from ..models.definitions.base import Base
 from ..models.definitions.beneficiary import Beneficiary

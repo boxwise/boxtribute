@@ -9,9 +9,9 @@ from ..enums import BoxState
 from ..exceptions import BoxCreationFailed
 from .definitions.beneficiary import Beneficiary
 from .definitions.box import Box
-from .definitions.tag import Tag
 from .definitions.location import Location
 from .definitions.qr_code import QrCode
+from .definitions.tag import Tag
 from .definitions.x_beneficiary_language import XBeneficiaryLanguage
 from .utils import utcnow
 

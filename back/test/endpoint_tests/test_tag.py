@@ -1,3 +1,4 @@
+from boxtribute_server.enums import TagType
 from utils import assert_successful_request
 
 
@@ -71,7 +72,7 @@ def test_tags_mutations(client):
     name = "Box Group 1"
     description = "Boxes for donation"
     color = "#ff0000"
-    type = "All"
+    type = TagType.All.name
     base_id = "1"
     tags_input_string = f"""{{
         name: "{name}",
@@ -90,14 +91,12 @@ def test_tags_mutations(client):
                 description
                 color
                 type
-                base {{
-                    id
-                }}
+                base {{ id }}
                 taggedResources {{
                     ...on Beneficiary {{ id }}
                     ...on Box {{ id }}
                 }}
-                   }}
+            }}
         }}"""
 
     created_tag = assert_successful_request(client, mutation)
@@ -108,5 +107,5 @@ def test_tags_mutations(client):
         "color": color,
         "type": type,
         "taggedResources": [],
-        "base": {"id": base_id}
+        "base": {"id": base_id},
     }
