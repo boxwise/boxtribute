@@ -10,16 +10,16 @@ import {
 } from "@chakra-ui/react";
 import { useFieldArray, useForm } from "react-hook-form";
 import { useCallback, useEffect } from "react";
-import { SizeIdAndNameTupleWithTargetNumberOfItems, PackingListEntriesForProductToAdd, ProductAndSizesDataWithTargetNumberOfItems } from "./AddItemsToPackingListContainer";
+import { SizeIdAndNameTupleWithTargetNumberOfItems as SizeIdAndNameTupleWithCurrentTargetNumberOfItems, PackingListEntriesForProductToAdd, ProductAndSizesDataWithTargetNumberOfItems } from "./AddItemsToPackingListContainer";
 
-interface SizeAndNumberOfItemsFormTuple {
-  size: SizeIdAndNameTupleWithTargetNumberOfItems;
-  numberOfItems: number;
-}
+// interface SizeAndNumberOfItemsFormTuple {
+//   sizeIdAndNameTupleWithCurrentTargetNumberOfItems: SizeIdAndNameTupleWithCurrentTargetNumberOfItems;
+//   // targetNumberOfItems: number;
+// }
 
 interface ItemToAddFormValues {
   productId: string;
-  sizeAndNumberOfItemsTuples: SizeAndNumberOfItemsFormTuple[];
+  sizeAndNumberOfItemsTuples: SizeIdAndNameTupleWithCurrentTargetNumberOfItems[];
 }
 
 
@@ -54,8 +54,8 @@ const AddItemsToPackingList = ({
         sizeIdAndNumberOfItemTuples:
           itemToAddFormValues.sizeAndNumberOfItemsTuples
           .map(tuple => ({
-            sizeId: tuple.size.id,
-            targetNumberOfItems: tuple.numberOfItems,
+            sizeId: tuple.id,
+            targetNumberOfItems: tuple.targetNumberOfItems,
           }))
           .filter(tuple => tuple.targetNumberOfItems > 0)
       };
@@ -67,9 +67,10 @@ const AddItemsToPackingList = ({
   useEffect(() => {
     if (productId != null) {
       const product = productAndSizesDataWithTargetNumberOfItems.find((p) => p.id === productId);
-      const newSizeAndNumTuples = product?.sizesWithTargetNumberOfItems.map((s) => ({
-        size: s,
-      }));
+      const newSizeAndNumTuples = product?.sizesWithTargetNumberOfItems;
+      // .map((s) => ({
+      //   size: s,
+      // }));
       replace(newSizeAndNumTuples || []);
     }
   }, [productId, productAndSizesDataWithTargetNumberOfItems, replace]);
@@ -118,7 +119,7 @@ const AddItemsToPackingList = ({
                   }}
                 >
                   <Box mr={4} w='25%'>
-                    {size.size.name}
+                    {size.name}
                   </Box>
                   <Input
                     hidden
@@ -126,15 +127,15 @@ const AddItemsToPackingList = ({
                     value={size.id}
                     type="number"
                     {...register(
-                      `sizeAndNumberOfItemsTuples.${index}.size.id` as const
+                      `sizeAndNumberOfItemsTuples.${index}.id` as const
                     )}
                   />
                   <Input
                     w={16}
                     type="number"
-                    value={size.numberOfItems}
+                    value={size.targetNumberOfItems}
                     {...register(
-                      `sizeAndNumberOfItemsTuples.${index}.numberOfItems` as const,
+                      `sizeAndNumberOfItemsTuples.${index}.targetNumberOfItems` as const,
                       {
                         valueAsNumber: true,
                       }

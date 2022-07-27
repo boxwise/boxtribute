@@ -54,7 +54,8 @@ export const ALL_PRODUCTS_AND_SIZES_QUERY = gql`
 type Product = AllProductsAndSizesQuery["products"]["elements"][0];
 
 const graphqlToContainerTransformer = (
-  graphQLData: Product[]
+  graphQLData: Product[],
+  currentPackingListEntries: IPackingListEntry[]
 ): ProductAndSizesDataWithTargetNumberOfItems[] => {
   return (
     graphQLData
@@ -66,11 +67,13 @@ const graphqlToContainerTransformer = (
         return {
           id: product.id,
           name: product.name,
-          sizesWithTargetNumberOfItems: product.sizeRange.sizes.map((size) => ({
+          sizesWithTargetNumberOfItems: product.sizeRange.sizes.map((size) => {
+            const targetNumberOfItems = currentPackingListEntries.find(el => el.product.id === product.id && el.size?.id === size.id)?.numberOfItems ?? 0;
+            return {
             id: size.id,
             name: size.label,
-            targetNumberOfItems: 9999999,
-          })),
+            targetNumberOfItems: targetNumberOfItems,
+          }}),
         };
       })
   );
@@ -90,7 +93,7 @@ const AddItemsToPackingListContainer = ({
   }
 
   const productAndSizesDataWithTargetNumberOfItems = data?.products?.elements
-    ? graphqlToContainerTransformer(data?.products?.elements)
+    ? graphqlToContainerTransformer(data?.products?.elements, currentPackingListEntries)
     : [];
 
   // TODO: also handle error case here
