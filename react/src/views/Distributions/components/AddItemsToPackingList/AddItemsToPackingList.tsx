@@ -17,7 +17,7 @@ interface SizeIdAndNameTuple {
 }
 interface SizeAndNumberOfItemsFormTuple {
   size: SizeIdAndNameTuple;
-  numberOfItemsAsString: string;
+  numberOfItems: number;
 }
 
 interface ItemToAddFormValues {
@@ -70,7 +70,7 @@ const AddItemsToPackingList = ({
           itemToAddFormValues.sizeAndNumberOfItemsTuples
           .map(tuple => ({
             sizeId: tuple.size.id,
-            numberOfItems: parseInt(tuple.numberOfItemsAsString),
+            numberOfItems: tuple.numberOfItems,
           }))
           .filter(tuple => tuple.numberOfItems > 0)
       };
@@ -141,15 +141,18 @@ const AddItemsToPackingList = ({
                     value={size.id}
                     type="number"
                     {...register(
-                      `sizeAndNumberOfItemsTuples.${index}.size.id` as const
+                      `sizeAndNumberOfItemsTuples.${index}.size.id` as const,
                     )}
                   />
                   <Input
                     w={16}
                     type="number"
-                    value={size.numberOfItemsAsString}
+                    value={size.numberOfItems}
                     {...register(
-                      `sizeAndNumberOfItemsTuples.${index}.numberOfItemsAsString` as const
+                      `sizeAndNumberOfItemsTuples.${index}.numberOfItems` as const,
+                      {
+                        valueAsNumber: true,
+                      }
                     )}
                   />
                 </Flex>
