@@ -14,6 +14,7 @@ import { useCallback, useEffect } from "react";
 interface SizeIdAndNameTuple {
   id: string;
   name: string;
+  currentNumberOfItems: number | undefined;
 }
 interface SizeAndNumberOfItemsFormTuple {
   size: SizeIdAndNameTuple;
@@ -84,6 +85,7 @@ const AddItemsToPackingList = ({
       const product = productAndSizesData.find((p) => p.id === productId);
       const newSizeAndNumTuples = product?.sizes.map((s) => ({
         size: s,
+        // currentNumberOfItems: s
       }));
       replace(newSizeAndNumTuples || []);
     }
@@ -138,7 +140,7 @@ const AddItemsToPackingList = ({
                   <Input
                     hidden
                     w={16}
-                    value={size.id}
+                    // value={size.id}
                     type="number"
                     {...register(
                       `sizeAndNumberOfItemsTuples.${index}.size.id` as const,
@@ -147,11 +149,14 @@ const AddItemsToPackingList = ({
                   <Input
                     w={16}
                     type="number"
-                    value={size.numberOfItems}
+                    // value={size.numberOfItems}
+                    defaultValue={size.size.currentNumberOfItems}
                     {...register(
                       `sizeAndNumberOfItemsTuples.${index}.numberOfItems` as const,
                       {
                         valueAsNumber: true,
+
+                        // setValueAs
                       }
                     )}
                   />

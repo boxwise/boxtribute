@@ -269,6 +269,7 @@ const DistroEventDetailsForPlanningStateContainer = ({
               onAddEntiresToPackingListForProduct={
                 onAddEntiresToPackingListForProduct
               }
+              currentPackingListEntries={packingListEntries}
             />
           </ModalBody>
         </ModalContent>

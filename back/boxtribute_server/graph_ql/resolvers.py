@@ -549,7 +549,7 @@ def resolve_remove_packing_list_entry_from_distribution_event(
         raise GraphQLError("Packing list entry not found")
     mobile_distribution_event = (
         DistributionEvent.select()
-        .where(DistributionEvent.id == packing_list_entry.distribution_event_id)
+        .where(DistributionEvent.id == packing_list_entry.distribution_event)
         .get()
     )
     # TODO: consider to throw an error in case the packing list entry for this id

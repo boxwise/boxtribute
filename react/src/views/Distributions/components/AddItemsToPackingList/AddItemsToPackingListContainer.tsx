@@ -8,11 +8,13 @@ import {
 } from "types/generated/graphql";
 import { gql, useQuery } from "@apollo/client";
 import APILoadingIndicator from "components/APILoadingIndicator";
+import { IPackingListEntry } from "views/Distributions/types";
 
 interface AddItemsToPackingListContainerProps {
   onAddEntiresToPackingListForProduct: (
     entriesToAdd: PackingListEntriesForProductToAdd
   ) => void;
+  currentPackingListEntries: IPackingListEntry[];
 }
 
 export const ALL_PRODUCTS_AND_SIZES_QUERY = gql`
@@ -36,7 +38,8 @@ export const ALL_PRODUCTS_AND_SIZES_QUERY = gql`
 type Product = AllProductsAndSizesQuery["products"]["elements"][0];
 
 const graphqlToContainerTransformer = (
-  graphQLData: Product[]
+  graphQLData: Product[],
+  currentPackingListEntries: IPackingListEntry[]
 ): ProductAndSizesData[] => {
 
   return (
@@ -49,10 +52,13 @@ const graphqlToContainerTransformer = (
         return {
           id: product.id,
           name: product.name,
-          sizes: product.sizeRange.sizes.map((size) => ({
+          sizes: product.sizeRange.sizes.map((size) => {
+          const currentNumberOfItems = currentPackingListEntries.find(el => el.product.id === product.id && el.size?.id === size.id)?.numberOfItems;
+            return {
             id: size.id,
             name: size.label,
-          })),
+            currentNumberOfItems
+            }}),
         };
       })
   );
@@ -61,6 +67,7 @@ const graphqlToContainerTransformer = (
 
 const AddItemsToPackingListContainer = ({
   onAddEntiresToPackingListForProduct,
+  currentPackingListEntries
 }: AddItemsToPackingListContainerProps) => {
   const { loading, data } = useQuery<
     AllProductsAndSizesQuery,
@@ -72,7 +79,7 @@ const AddItemsToPackingListContainer = ({
   }
 
   const productAndSizesData = data?.products?.elements
-    ? graphqlToContainerTransformer(data?.products?.elements)
+    ? graphqlToContainerTransformer(data?.products?.elements, currentPackingListEntries)
     : [];
 
   // TODO: also handle error case here
