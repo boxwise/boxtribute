@@ -176,13 +176,28 @@ const DistroEventDetailsForPlanningStateContainer = ({
             });
           }
         )
-      ).then(() => {
-        toast({
-          title: `Successfully added ${numberOfAddedEntries} entries`,
-          status: "success",
-          isClosable: true,
-          duration: 2000,
-        });
+      ).then((results) => {
+        if (results.some(r => r.errors && r.errors.length !== 0)) {
+          console.error(
+            `GraphQL error while trying to add Packing List Entries to Distribution Event (id: ${distributionEventDetails.id})`,
+            // TODO: consider to track the respective error details
+            // res.errors
+          );
+          toast({
+            title: "Error",
+            description: "Some or all of the packing list items couldn't be added/updated.",
+            status: "error",
+            duration: 2000,
+            isClosable: true,
+          });
+        } else {
+          toast({
+            title: `Successfully added ${numberOfAddedEntries} entries`,
+            status: "success",
+            isClosable: true,
+            duration: 2000,
+          });
+        }
         addItemsToDistroEventsOverlayState.onClose();
       });
       // TODO: add here also error catching and user notification
