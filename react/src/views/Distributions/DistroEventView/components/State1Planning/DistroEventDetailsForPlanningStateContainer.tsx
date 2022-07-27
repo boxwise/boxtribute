@@ -19,13 +19,11 @@ import {
   RemoveEntryFromPackingListMutation,
   RemoveEntryFromPackingListMutationVariables,
 } from "types/generated/graphql";
-import { PackingListEntriesForProductToAdd } from "views/Distributions/components/AddItemsToPackingList/AddItemsToPackingList";
-import AddItemsToPackingListContainer from "views/Distributions/components/AddItemsToPackingList/AddItemsToPackingListContainer";
+import AddItemsToPackingListContainer, { PackingListEntriesForProduct } from "views/Distributions/components/AddItemsToPackingList/AddItemsToPackingListContainer";
 import { graphqlPackingListEntriesForDistributionEventTransformer } from "views/Distributions/dataTransformers";
 import { PACKING_LIST_ENTRIES_FOR_DISTRIBUTION_EVENT_QUERY } from "views/Distributions/queries";
 import {
   DistributionEventDetails,
-  IPackingListEntry,
 } from "views/Distributions/types";
 import DistroEventDetailsForPlanningState from "./DistroEventDetailsForPlanningState";
 
@@ -158,7 +156,7 @@ const DistroEventDetailsForPlanningStateContainer = ({
   });
 
   const onAddEntiresToPackingListForProduct = useCallback(
-    (entriesToAdd: PackingListEntriesForProductToAdd) => {
+    (entriesToAdd: PackingListEntriesForProduct) => {
       // TODO: consider to offer a mutation in the API which allows to add multiple packing list entries
       // at once (instead of calling the mutation for each entry)
       const numberOfAddedEntries =
@@ -266,6 +264,7 @@ const DistroEventDetailsForPlanningStateContainer = ({
           <ModalCloseButton />
           <ModalBody>
             <AddItemsToPackingListContainer
+              // currentPackingListEntries={packingListEntries}
               onAddEntiresToPackingListForProduct={
                 onAddEntiresToPackingListForProduct
               }

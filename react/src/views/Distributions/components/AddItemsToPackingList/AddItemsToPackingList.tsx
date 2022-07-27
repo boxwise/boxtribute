@@ -10,11 +10,8 @@ import {
 } from "@chakra-ui/react";
 import { useFieldArray, useForm } from "react-hook-form";
 import { useCallback, useEffect } from "react";
+import { SizeIdAndNameTuple, PackingListEntriesForProduct, ProductAndSizesData } from "./AddItemsToPackingListContainer";
 
-interface SizeIdAndNameTuple {
-  id: string;
-  name: string;
-}
 interface SizeAndNumberOfItemsFormTuple {
   size: SizeIdAndNameTuple;
   numberOfItemsAsString: string;
@@ -25,25 +22,13 @@ interface ItemToAddFormValues {
   sizeAndNumberOfItemsTuples: SizeAndNumberOfItemsFormTuple[];
 }
 
-export type ProductAndSizesData = {
-  id: string;
-  name: string;
-  sizes: SizeIdAndNameTuple[];
-};
 
-export interface SizeIdAndNumberOfItemTuple {
-  sizeId: string;
-  numberOfItems: number;
-}
-export interface PackingListEntriesForProductToAdd {
-  productId: number;
-  sizeIdAndNumberOfItemTuples: SizeIdAndNumberOfItemTuple[];
-}
 interface AddItemToPackingProps {
   onAddEntiresToPackingListForProduct: (
-    entriesToAdd: PackingListEntriesForProductToAdd
+    entriesToAdd: PackingListEntriesForProduct
   ) => void;
   productAndSizesData: ProductAndSizesData[];
+  // currentPackingListEntries: PackingListEntriesForProduct[];
 }
 
 const AddItemsToPackingList = ({
@@ -64,7 +49,7 @@ const AddItemsToPackingList = ({
   const productId = watch("productId");
   const onAddItemClick = useCallback(
     (itemToAddFormValues: ItemToAddFormValues) => {
-      const newEntriesForPackingList: PackingListEntriesForProductToAdd = {
+      const newEntriesForPackingList: PackingListEntriesForProduct = {
         productId: parseInt(itemToAddFormValues.productId),
         sizeIdAndNumberOfItemTuples:
           itemToAddFormValues.sizeAndNumberOfItemsTuples

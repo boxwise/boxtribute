@@ -1,7 +1,4 @@
-import AddItemsToPackingList, {
-  PackingListEntriesForProductToAdd,
-  ProductAndSizesData,
-} from "./AddItemsToPackingList";
+import AddItemsToPackingList from "./AddItemsToPackingList";
 import {
   AllProductsAndSizesQuery,
   AllProductsAndSizesQueryVariables,
@@ -9,10 +6,30 @@ import {
 import { gql, useQuery } from "@apollo/client";
 import APILoadingIndicator from "components/APILoadingIndicator";
 
+export interface SizeIdAndNameTuple {
+  id: string;
+  name: string;
+}
+export type ProductAndSizesData = {
+  id: string;
+  name: string;
+  sizes: SizeIdAndNameTuple[];
+};
+
+export interface SizeIdAndNumberOfItemTuple {
+  sizeId: string;
+  numberOfItems: number;
+}
+export interface PackingListEntriesForProduct {
+  productId: number;
+  sizeIdAndNumberOfItemTuples: SizeIdAndNumberOfItemTuple[];
+}
+
 interface AddItemsToPackingListContainerProps {
   onAddEntiresToPackingListForProduct: (
-    entriesToAdd: PackingListEntriesForProductToAdd
+    entriesToAdd: PackingListEntriesForProduct
   ) => void;
+  // currentPackingListEntries: PackingListEntriesForProduct[];
 }
 
 export const ALL_PRODUCTS_AND_SIZES_QUERY = gql`
@@ -61,6 +78,7 @@ const graphqlToContainerTransformer = (
 
 const AddItemsToPackingListContainer = ({
   onAddEntiresToPackingListForProduct,
+  // currentPackingListEntries
 }: AddItemsToPackingListContainerProps) => {
   const { loading, data } = useQuery<
     AllProductsAndSizesQuery,
@@ -81,6 +99,7 @@ const AddItemsToPackingListContainer = ({
     <AddItemsToPackingList
       onAddEntiresToPackingListForProduct={onAddEntiresToPackingListForProduct}
       productAndSizesData={productAndSizesData}
+      // currentPackingListEntries={currentPackingListEntries}
     />
   );
 };
