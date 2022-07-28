@@ -137,6 +137,7 @@ def move_items_from_box_to_distribution_event(
         # TODO: handle cases where there are not enough items in the box
         box.items -= number_of_items
         box.save()
+        print("FOO Success")
         return unboxed_items_collection
 
 

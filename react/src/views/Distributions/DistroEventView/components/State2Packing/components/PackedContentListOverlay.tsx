@@ -32,7 +32,7 @@ const UnboxedItemsCollectionList = ({
       Unboxed Items
     </Heading>
     <Flex direction="column">
-      {unboxedItemCollectionData.map((box) => (
+      {unboxedItemCollectionData.map((unboxedItemsCollection) => (
         <Flex
           alignItems="center"
           borderBottom="1px"
@@ -43,7 +43,7 @@ const UnboxedItemsCollectionList = ({
         >
           <Flex direction="row">
             {/* <Text mr={4}>{box.labelIdentifier}</Text> */}
-            <Text> number of items: {box.numberOfItems}</Text>
+            <Text> number of items: {unboxedItemsCollection.numberOfItems}</Text>
           </Flex>
           <Box>
             <IconButton

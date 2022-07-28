@@ -138,9 +138,17 @@ def resolve_packing_list_entry_matching_packed_items_collections(obj, *_):
         Box.product == obj.product,
         Box.size == obj.size,
     )
+
+    unboxed_items_colletioncs = UnboxedItemsCollection.select().where(
+        UnboxedItemsCollection.distribution_event == distribution_event_id,
+        UnboxedItemsCollection.product == obj.product,
+        UnboxedItemsCollection.size == obj.size,
+    )
+
     # enriched_boxes =
     # return [for box in boxes]
-    return boxes
+    return list(boxes) + list(unboxed_items_colletioncs)
+    # return unboxed_items_colletioncs
 
 
 # @packing_list_entry.field("matchingBoxes")

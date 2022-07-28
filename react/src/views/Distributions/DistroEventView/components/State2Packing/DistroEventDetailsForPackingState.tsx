@@ -19,10 +19,12 @@ import { groupBy } from "utils/helpers";
 import { useCallback, useState } from "react";
 import { IPackingListEntry } from "views/Distributions/types";
 import PackedContentListOverlayContainer from "./components/PackedContentListOverlayContainer";
-import { MOVE_BOX_TO_DISTRIBUTION_MUTATION } from "views/Distributions/queries";
+import { MATCHING_PACKED_ITEMS_COLLECTIONS_FOR_PACKING_LIST_ENTRY, MOVE_BOX_TO_DISTRIBUTION_MUTATION, MOVE_ITEMS_TO_DISTRIBUTION_EVENT, PACKING_LIST_ENTRIES_FOR_DISTRIBUTION_EVENT_QUERY } from "views/Distributions/queries";
 import {
   MoveBoxToDistributionEventMutation,
   MoveBoxToDistributionEventMutationVariables,
+  MoveItemsToDistributionEventMutation,
+  MoveItemsToDistributionEventMutationVariables,
 } from "types/generated/graphql";
 import PackingAddBoxOrItemsForPackingListEntryOverlay from "./components/PackingAddBoxOrItemsForPackingListEntryOverlay/PackingAddBoxOrItemsForPackingListEntryOverlay";
 import { useMutation } from "@apollo/client";
@@ -60,18 +62,68 @@ const PackingListEntry = ({
     MoveBoxToDistributionEventMutationVariables
   >(MOVE_BOX_TO_DISTRIBUTION_MUTATION);
 
+  const [moveItemsToDistributionEventMutation] = useMutation<
+    MoveItemsToDistributionEventMutation,
+    MoveItemsToDistributionEventMutationVariables
+  >(MOVE_ITEMS_TO_DISTRIBUTION_EVENT);
+
   const onAddUnboxedItemsToDistributionEvent = useCallback(
     (boxLabelIdentifier: string, numberOfItemsToMove: number) => {
       packingAddBoxOrItemsForPackingListEntryOverlayState.onClose();
-      toast({
-        title: "PLACE HOLDER Done!",
-        description: `${numberOfItemsToMove} tems moved to the distribution.`,
-        status: "success",
-        duration: 2000,
-        isClosable: true,
-      });
+      moveItemsToDistributionEventMutation({
+        variables: {
+          boxLabelIdentifier,
+          distributionEventId,
+          numberOfItems: numberOfItemsToMove,
+        },
+        refetchQueries: [
+          {
+            query: PACKING_LIST_ENTRIES_FOR_DISTRIBUTION_EVENT_QUERY,
+            variables: {
+              eventId: distributionEventId,
+            },
+          },
+          {
+            query: MATCHING_PACKED_ITEMS_COLLECTIONS_FOR_PACKING_LIST_ENTRY,
+            variables: {
+              packingListEntryId: packingListEntry.id,
+            }
+          }
+        ]
+      })
+        .then((res) => {
+          if (res.errors && res.errors.length !== 0) {
+            console.error(`GraphQL error while trying to move items from Box (id: ${boxLabelIdentifier}) into Distribution Event (id: ${distributionEventId})`, res.errors)
+            toast({
+              title: "Error",
+              description: "Items couldn't be moved to the distribution event.",
+              status: "error",
+              duration: 2000,
+              isClosable: true,
+            });
+          }
+          else {
+            toast({
+              title: "Done!",
+              description: `${numberOfItemsToMove} items moved to the distribution.`,
+              status: "success",
+              duration: 2000,
+              isClosable: true,
+            });
+          }
+        })
+        .catch((err) => {
+          console.error(err);
+          toast({
+            title: "Error",
+            description: "Items couldn't be moved to the distribution event.",
+            status: "error",
+            duration: 2000,
+            isClosable: true,
+          });
+        });
     },
-    [packingAddBoxOrItemsForPackingListEntryOverlayState, toast]
+    [distributionEventId, moveItemsToDistributionEventMutation, packingAddBoxOrItemsForPackingListEntryOverlayState, toast]
   );
 
   const onAddBoxToDistributionEvent = useCallback(

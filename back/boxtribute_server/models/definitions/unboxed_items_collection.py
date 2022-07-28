@@ -10,6 +10,8 @@ from .user import User
 
 
 class UnboxedItemsCollection(db.Model):
+    items_collection_type = "UnboxedItemsCollection"
+
     created_on = DateTimeField(null=True)
     created_by = UIntForeignKeyField(
         model=User,
