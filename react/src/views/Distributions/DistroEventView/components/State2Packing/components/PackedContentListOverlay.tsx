@@ -58,34 +58,15 @@ const UnboxedItemsCollectionList = ({
         <Flex
           key={i}
           alignItems="center"
-          borderBottom="1px"
-          borderColor="gray.300"
           my={2}
           // key={box.labelIdentifier}
           justifyContent="space-between"
         >
-          <Flex direction="row">
             {/* <Text mr={4}>{box.labelIdentifier}</Text> */}
             <Text>
               {" "}
               # of items: {unboxedItemsCollection.numberOfItems}
             </Text>
-          </Flex>
-          <Box>
-            <IconButton
-              _hover={{
-                backgroundColor: "transparent",
-                opacity: "0.5",
-              }}
-              backgroundColor="transparent"
-              aria-label="Delete"
-              color="teal"
-              icon={<DeleteIcon />}
-              onClick={() => {
-                // packingActionProps.onDeleteBoxFromDistribution(box.id)
-              }}
-            />
-          </Box>
         </Flex>
       ))}
     </Flex>
