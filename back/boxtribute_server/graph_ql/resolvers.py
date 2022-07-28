@@ -145,10 +145,9 @@ def resolve_packing_list_entry_matching_packed_items_collections(obj, *_):
         UnboxedItemsCollection.size == obj.size,
     )
 
-    # enriched_boxes =
-    # return [for box in boxes]
+    print("unboxed_items_colletioncs", list(unboxed_items_colletioncs))
+
     return list(boxes) + list(unboxed_items_colletioncs)
-    # return unboxed_items_colletioncs
 
 
 # @packing_list_entry.field("matchingBoxes")

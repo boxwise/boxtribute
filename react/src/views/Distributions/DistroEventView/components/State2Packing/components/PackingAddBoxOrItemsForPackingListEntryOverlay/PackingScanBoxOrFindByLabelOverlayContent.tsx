@@ -120,16 +120,6 @@ const PackingScanBoxOrFindByLabelOverlay = ({
             />
       </ModalBody>
       <Button
-        onClick={() => {
-          onFindAndValidateBoxLabelIdentifier("728798");
-        }}
-        colorScheme="blue"
-        mx={10}
-        mb={4}
-      >
-        Mocked scanned box
-      </Button>
-      <Button
         onClick={() => setShowFindBoxByLabelForm(true)}
         colorScheme="blue"
         variant="outline"

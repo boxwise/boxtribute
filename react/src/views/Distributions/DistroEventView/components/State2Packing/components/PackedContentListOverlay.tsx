@@ -11,7 +11,11 @@ import {
   Box,
   Heading,
 } from "@chakra-ui/react";
-import { BoxData, UnboxedItemsCollectionData } from "views/Distributions/types";
+import {
+  BoxData,
+  IPackingListEntry,
+  UnboxedItemsCollectionData,
+} from "views/Distributions/types";
 
 export interface PackingActionListProps {
   onDeleteBoxFromDistribution: (boxId: string) => void;
@@ -20,6 +24,7 @@ export interface PackingActionListProps {
 interface PackedContentListOverlayProps {
   boxesData: BoxData[];
   unboxedItemCollectionData: UnboxedItemsCollectionData[];
+  packingListEntry: IPackingListEntry;
 }
 
 const UnboxedItemsCollectionList = ({
@@ -32,8 +37,9 @@ const UnboxedItemsCollectionList = ({
       Unboxed Items
     </Heading>
     <Flex direction="column">
-      {unboxedItemCollectionData.map((unboxedItemsCollection) => (
+      {unboxedItemCollectionData.map((unboxedItemsCollection, i) => (
         <Flex
+          key={i}
           alignItems="center"
           borderBottom="1px"
           borderColor="gray.300"
@@ -43,7 +49,10 @@ const UnboxedItemsCollectionList = ({
         >
           <Flex direction="row">
             {/* <Text mr={4}>{box.labelIdentifier}</Text> */}
-            <Text> number of items: {unboxedItemsCollection.numberOfItems}</Text>
+            <Text>
+              {" "}
+              number of items: {unboxedItemsCollection.numberOfItems}
+            </Text>
           </Flex>
           <Box>
             <IconButton
@@ -109,13 +118,21 @@ const BoxesList = ({ boxesData }: { boxesData: BoxData[] }) => (
 const PackedContentListOverlay = ({
   boxesData,
   unboxedItemCollectionData,
+  packingListEntry,
 }: // packingActionProps,
 PackedContentListOverlayProps) => {
   return (
     <>
       <ModalContent>
         <ModalHeader mx={4} pb={0}>
-          Packed Boxes and Items
+          <>
+            <Heading as="h3" size="md">
+              Packed Boxes and Items for{" "}: <br />
+            {/* <Heading as="h2" size="lg"> */}
+              <i>{packingListEntry.product.name} - {packingListEntry.size?.label}</i>
+            {/* </Heading> */}
+            </Heading>
+          </>
         </ModalHeader>
         <ModalCloseButton />
         <ModalBody mx={4}>

@@ -91,6 +91,10 @@ const DistroEventContainer = ({
     ]
   );
 
+  const onClickScanBoxesForDistroEvent = useCallback(() => {
+    alert("SCANNER PLACEHOLDER");
+  }, []);
+
   const onConfirmToMarkEventAsCompleted = useCallback(() => {
     moveEventToStageMutation({
       variables: {
@@ -131,7 +135,9 @@ const DistroEventContainer = ({
   return (
     <>
       <VStack>
-        <BTBreadcrumbNavigation items={[{ label: 'Base "Subotica"', linkPath:  "X"}]} />
+        <BTBreadcrumbNavigation
+          items={[{ label: 'Base "Subotica"', linkPath: "X" }]}
+        />
         <Box>
           <Text fontSize="xl">
             {distributionEventDetails.distributionSpot.name}
@@ -144,12 +150,15 @@ const DistroEventContainer = ({
             onMoveToStage={onMoveToStage}
           />
         </Box>
-        {nextState != null && (
+        {/* {nextState != null && (
           <Button onClick={() => onMoveToStage(nextState)}>
             Move to next stage (
             {distroEventStateHumanReadableLabels.get(nextState)})
           </Button>
-        )}
+        )} */}
+        <Button onClick={onClickScanBoxesForDistroEvent}>
+          Scan Boxes for this Distro Event
+        </Button>
         <Box>
           <StateSpecificComponent />
         </Box>

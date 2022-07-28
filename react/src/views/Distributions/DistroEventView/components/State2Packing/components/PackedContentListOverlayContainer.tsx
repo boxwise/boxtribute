@@ -5,23 +5,24 @@ import {
   MatchingPackedItemsCollectionsForPackingListEntryQueryVariables,
 } from "types/generated/graphql";
 import { MATCHING_PACKED_ITEMS_COLLECTIONS_FOR_PACKING_LIST_ENTRY } from "views/Distributions/queries";
-import { BoxData } from "views/Distributions/types";
+import { BoxData, IPackingListEntry } from "views/Distributions/types";
 import PackedContentListOverlay from "./PackedContentListOverlay";
 
 export interface PackedContentListOverlayContainerProps {
-  packingListEntryId: string;
+  // packingListEntryId: string;
+  packingListEntry: IPackingListEntry;
   onDeleteBoxFromDistribution: (boxId: string) => void;
 }
 
 const PackedContentListOverlayContainer = ({
-  packingListEntryId,
+  packingListEntry,
 }: PackedContentListOverlayContainerProps) => {
   const { data, loading, error } = useQuery<
   MatchingPackedItemsCollectionsForPackingListEntryQuery,
   MatchingPackedItemsCollectionsForPackingListEntryQueryVariables
 >  (MATCHING_PACKED_ITEMS_COLLECTIONS_FOR_PACKING_LIST_ENTRY, {
     variables: {
-      packingListEntryId,
+      packingListEntryId: packingListEntry.id,
     },
   });
 
@@ -52,6 +53,7 @@ const PackedContentListOverlayContainer = ({
     <PackedContentListOverlay
       boxesData={boxesData}
       unboxedItemCollectionData={unboxedItemCollectionData}
+      packingListEntry={packingListEntry}
     />
   );
 };

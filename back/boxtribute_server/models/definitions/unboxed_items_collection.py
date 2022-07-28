@@ -38,6 +38,11 @@ class UnboxedItemsCollection(db.Model):
         on_update="CASCADE",
     )
     number_of_items = IntegerField(null=False, default=0)
+    # Remove this field when we have a proper way to handle this
+    # (and we only use then number_of_items)
+    # We are doing it for now so that it's aligned with Boxes
+    # (the other subtype of the interface ItemsCollection)
+    items = IntegerField(null=False, default=0, column_name="number_of_items")
 
     # TODO: suggest to remove the relation from UnboxedItemCollection to Location again
     # It's most likely only requried to have them for DistributionEvents (since they are

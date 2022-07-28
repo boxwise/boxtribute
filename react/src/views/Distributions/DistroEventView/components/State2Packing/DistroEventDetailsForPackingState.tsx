@@ -238,7 +238,7 @@ const PackingListEntry = ({
       >
         <ModalOverlay />
         <PackedContentListOverlayContainer
-          packingListEntryId={packingListEntry.id}
+          packingListEntry={packingListEntry}
           onDeleteBoxFromDistribution={function (
             boxLabelIdentifier: string
           ): void {

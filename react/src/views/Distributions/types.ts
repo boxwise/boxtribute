@@ -68,6 +68,10 @@ export interface IPackingListEntry {
   product: {
     id: string;
     name: string;
+    // gender?: {
+    //   id: string;
+    //   label: string
+    // }
   };
   size?: {
     id: string;
