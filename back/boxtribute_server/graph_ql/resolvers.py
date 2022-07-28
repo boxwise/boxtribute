@@ -127,16 +127,32 @@ def resolve_packing_list_entry(*_, id):
     return PackingListEntry.get_by_id(id)
 
 
-@packing_list_entry.field("matchingBoxes")
-def resolve_packing_list_entry_matching_boxes(obj, *_):
+@packing_list_entry.field("matchingPackedItemsCollections")
+def resolve_packing_list_entry_matching_packed_items_collections(obj, *_):
+    # return obj.matching_packed_items_collections
     distribution_event_id = obj.distribution_event
-    return Box.select().where(
-        Box.distribution_event_id == distribution_event_id,
+    boxes = Box.select().where(
+        Box.distribution_event == distribution_event_id,
         # TODO: only consider available boxes
         # Box.state == "available",
         Box.product == obj.product,
         Box.size == obj.size,
     )
+    # enriched_boxes =
+    # return [for box in boxes]
+    return boxes
+
+
+# @packing_list_entry.field("matchingBoxes")
+# def resolve_packing_list_entry_matching_boxes(obj, *_):
+#     distribution_event_id = obj.distribution_event
+#     return Box.select().where(
+#         Box.distribution_event_id == distribution_event_id,
+#         # TODO: only consider available boxes
+#         # Box.state == "available",
+#         Box.product == obj.product,
+#         Box.size == obj.size,
+#     )
 
 
 @user.field("bases")
@@ -981,5 +997,10 @@ def resolve_box_place_type(obj, *_):
     return obj.type.name
 
 
+def resolve_items_collection_type(obj, *_):
+    return obj.items_collection_type
+
+
 union_types.append(UnionType("TaggableResource", resolve_taggable_resource_type))
 interface_types.append(InterfaceType("BoxPlace", resolve_box_place_type))
+interface_types.append(InterfaceType("ItemsCollection", resolve_items_collection_type))
