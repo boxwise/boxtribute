@@ -674,7 +674,6 @@ export type Organisation = {
 export type PackingListEntry = {
   __typename?: 'PackingListEntry';
   id: Scalars['ID'];
-  matchingBoxes: Array<Box>;
   matchingPackedItemsCollections: Array<ItemsCollection>;
   numberOfItems: Scalars['Int'];
   product?: Maybe<Product>;

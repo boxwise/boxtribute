@@ -14,8 +14,31 @@ import { useCallback, useEffect } from "react";
 interface SizeIdAndNameTuple {
   id: string;
   name: string;
-  numberOfItems: number | undefined;
+  numberOfItems?: number;
 }
+
+export type ProductAndSizesData = {
+  id: string;
+  name: string;
+  sizes: SizeIdAndNameTuple[];
+};
+
+
+export interface PackingListEntriesForProductToAdd {
+  productId: number;
+  sizeIdAndNumberOfItemTuples: {
+    sizeId: string;
+    numberOfItems: number;
+  }[];
+}
+
+interface AddItemToPackingProps {
+  onAddEntiresToPackingListForProduct: (
+    entriesToAdd: PackingListEntriesForProductToAdd
+  ) => void;
+  productAndSizesData: ProductAndSizesData[];
+}
+
 interface SizeAndNumberOfItemsFormTuple {
   size: SizeIdAndNameTuple;
   numberOfItems: number;
@@ -26,27 +49,6 @@ interface ItemToAddFormValues {
   sizeAndNumberOfItemsTuples: SizeAndNumberOfItemsFormTuple[];
 }
 
-export type ProductAndSizesData = {
-  id: string;
-  name: string;
-  sizes: SizeIdAndNameTuple[];
-};
-
-export interface SizeIdAndNumberOfItemTuple {
-  sizeId: string;
-  numberOfItems: number;
-}
-export interface PackingListEntriesForProductToAdd {
-  productId: number;
-  sizeIdAndNumberOfItemTuples: SizeIdAndNumberOfItemTuple[];
-}
-interface AddItemToPackingProps {
-  onAddEntiresToPackingListForProduct: (
-    entriesToAdd: PackingListEntriesForProductToAdd
-  ) => void;
-  productAndSizesData: ProductAndSizesData[];
-}
-
 const AddItemsToPackingList = ({
   onAddEntiresToPackingListForProduct,
   productAndSizesData,
@@ -55,14 +57,13 @@ const AddItemsToPackingList = ({
     useForm<ItemToAddFormValues>({
       defaultValues: {
         productId: "",
-        sizeAndNumberOfItemsTuples: []
+        sizeAndNumberOfItemsTuples: [],
         // productAndSizesData.map(
         //   (productAndSizesData) => ({
         //     size: productAndSizesData.sizes[0],
         //     numberOfItems: 0,
         //   })
         // ),
-
       },
     });
   const { fields, replace } = useFieldArray({
@@ -76,11 +77,11 @@ const AddItemsToPackingList = ({
         productId: parseInt(itemToAddFormValues.productId),
         sizeIdAndNumberOfItemTuples:
           itemToAddFormValues.sizeAndNumberOfItemsTuples
-          .map(tuple => ({
-            sizeId: tuple.size.id,
-            numberOfItems: tuple.numberOfItems,
-          }))
-          .filter(tuple => tuple.numberOfItems > 0)
+            .map((tuple) => ({
+              sizeId: tuple.size.id,
+              numberOfItems: tuple.numberOfItems,
+            }))
+            .filter((tuple) => tuple.numberOfItems > 0),
       };
       onAddEntiresToPackingListForProduct(newEntriesForPackingList);
     },
@@ -142,7 +143,7 @@ const AddItemsToPackingList = ({
                     backgroundColor: "gray.100",
                   }}
                 >
-                  <Box mr={4} w='25%'>
+                  <Box mr={4} w="25%">
                     {size.size.name}
                   </Box>
                   <Input
@@ -151,7 +152,7 @@ const AddItemsToPackingList = ({
                     // value={size.id}
                     type="number"
                     {...register(
-                      `sizeAndNumberOfItemsTuples.${index}.size.id` as const,
+                      `sizeAndNumberOfItemsTuples.${index}.size.id` as const
                     )}
                   />
                   <Input
