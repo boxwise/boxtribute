@@ -53,11 +53,11 @@ const graphqlToContainerTransformer = (
           id: product.id,
           name: product.name,
           sizes: product.sizeRange.sizes.map((size) => {
-          const currentNumberOfItems = currentPackingListEntries.find(el => el.product.id === product.id && el.size?.id === size.id)?.numberOfItems;
+          const numberOfItems = currentPackingListEntries.find(el => el.product.id === product.id && el.size?.id === size.id)?.numberOfItems;
             return {
             id: size.id,
             name: size.label,
-            currentNumberOfItems
+            numberOfItems
             }}),
         };
       })
