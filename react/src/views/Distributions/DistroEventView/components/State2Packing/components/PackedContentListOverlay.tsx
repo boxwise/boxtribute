@@ -1,4 +1,4 @@
-import { DeleteIcon } from "@chakra-ui/icons";
+import { CheckIcon, DeleteIcon } from "@chakra-ui/icons";
 import {
   ModalContent,
   ModalHeader,
@@ -10,7 +10,16 @@ import {
   IconButton,
   Box,
   Heading,
+  Badge,
+  VStack,
+  Stat,
+  StatArrow,
+  StatGroup,
+  StatHelpText,
+  StatLabel,
+  StatNumber,
 } from "@chakra-ui/react";
+import { useMemo } from "react";
 import {
   BoxData,
   IPackingListEntry,
@@ -121,16 +130,33 @@ const PackedContentListOverlay = ({
   packingListEntry,
 }: // packingActionProps,
 PackedContentListOverlayProps) => {
+  const totalNumberOfPackedItems = useMemo(
+    () =>
+      boxesData.reduce((acc, box) => acc + box.numberOfItems, 0) +
+      unboxedItemCollectionData.reduce(
+        (acc, unboxedItemsCollection) =>
+          acc + unboxedItemsCollection.numberOfItems,
+        0
+      ),
+    [boxesData, unboxedItemCollectionData]
+  );
+
+  const targetNumberOfItemsReached = useMemo(
+    () => totalNumberOfPackedItems >= packingListEntry.numberOfItems,
+    [packingListEntry.numberOfItems, totalNumberOfPackedItems]
+  );
   return (
     <>
       <ModalContent>
         <ModalHeader mx={4} pb={0}>
           <>
             <Heading as="h3" size="md">
-              Packed Boxes and Items for{" "}: <br />
-            {/* <Heading as="h2" size="lg"> */}
-              <i>{packingListEntry.product.name} - {packingListEntry.size?.label}</i>
-            {/* </Heading> */}
+              Packed Boxes and Items for : <br />
+              {/* <Heading as="h2" size="lg"> */}
+              <i>
+                {packingListEntry.product.name} - {packingListEntry.size?.label}
+              </i>
+              {/* </Heading> */}
             </Heading>
           </>
         </ModalHeader>
@@ -142,6 +168,26 @@ PackedContentListOverlayProps) => {
               unboxedItemCollectionData={unboxedItemCollectionData}
             />
           )}
+            <StatGroup>
+              <Stat>
+                <StatLabel>Packed # of items</StatLabel>
+                <StatNumber>{totalNumberOfPackedItems}</StatNumber>
+              </Stat>
+              <Stat>
+                <StatLabel>Target # of items</StatLabel>
+                <StatNumber>{packingListEntry.numberOfItems}</StatNumber>
+              </Stat>
+            </StatGroup>
+            {targetNumberOfItemsReached && (
+              <Badge colorScheme="green">
+                {/* <CheckIcon /> Target number ({packingListEntry.numberOfItems}) fullfilled (with {totalNumberOfPackedItems} items) */}
+                <CheckIcon />{' '}
+                Enough items packed
+              </Badge>
+            )}
+            {!targetNumberOfItemsReached && (
+              <Badge colorScheme="red">Not yet enough items</Badge>
+            )}
         </ModalBody>
         <ModalFooter />
       </ModalContent>
