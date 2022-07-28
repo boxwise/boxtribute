@@ -65,7 +65,7 @@ const PackingListEntry = ({
       packingAddBoxOrItemsForPackingListEntryOverlayState.onClose();
       toast({
         title: "PLACE HOLDER Done!",
-        description: `${numberOfItemsToMove}tems moved to the distribution.`,
+        description: `${numberOfItemsToMove} tems moved to the distribution.`,
         status: "success",
         duration: 2000,
         isClosable: true,

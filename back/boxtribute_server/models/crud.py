@@ -76,7 +76,7 @@ def create_box(
 
 
 def move_items_from_box_to_distribution_event(
-    box_label_identifier, distribution_event_id, number_of_items
+    user_id, box_label_identifier, distribution_event_id, number_of_items
 ):
     """
     Move items from a box to a distribution event.
@@ -86,6 +86,8 @@ def move_items_from_box_to_distribution_event(
         box = Box.get(Box.label_identifier == box_label_identifier)
         product = box.product
         size = box.size
+
+        # now = utcnow()
         # distribution_event = DistributionEvent.get_by_id(distribution_event_id)
         # existing_unboxed_items_collection = UnboxedItemsCollection.select().where(
         #     UnboxedItemsCollection.distribution_event == distribution_event_id,
@@ -127,7 +129,7 @@ def move_items_from_box_to_distribution_event(
             # last_modified_by=user_id,
         )
 
-        unboxed_items_collection.items += number_of_items
+        unboxed_items_collection.number_of_items += number_of_items
         unboxed_items_collection.save()
         print("FOO unboxed_items_collection:")
         # print(unboxed_items_collection.id)

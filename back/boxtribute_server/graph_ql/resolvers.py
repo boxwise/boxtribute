@@ -546,6 +546,7 @@ def resolve_move_items_from_box_to_distribution_event(
 ):
     # TODO: Add authorization here
     return move_items_from_box_to_distribution_event(
+        user_id=g.user.id,
         box_label_identifier=box_label_identifier,
         distribution_event_id=distribution_event_id,
         number_of_items=number_of_items,
