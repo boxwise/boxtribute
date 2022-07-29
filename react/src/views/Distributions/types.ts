@@ -63,11 +63,18 @@ export type DistributionEventDetails = z.infer<
 //     plannedStartDateTime: Date;
 // }
 
+// export interface MatchingPackedItemsCollection {
+//   __typename: "Box" | "UnboxedItemsCollection"
+//   numberOfItems: number;
+// }
+
 export interface IPackingListEntry {
   id: string;
+  numberOfItems: number;
   product: {
     id: string;
     name: string;
+    gender?: ProductGender;
     // gender?: {
     //   id: string;
     //   label: string
@@ -77,8 +84,7 @@ export interface IPackingListEntry {
     id: string;
     label: string;
   };
-  gender?: ProductGender;
-  numberOfItems: number;
+  matchingPackedItemsCollections: (UnboxedItemsCollectionData | BoxData)[]
 }
 
 
@@ -95,10 +101,12 @@ export interface ItemsCollection {
 }
 
 export interface BoxData extends ItemsCollection {
+  __typename: "Box";
   labelIdentifier: string;
 }
 
 export interface UnboxedItemsCollectionData extends ItemsCollection  {
+  __typename: "UnboxedItemsCollection";
 }
 
 export const DistroEventForSpotSchema = z.object({

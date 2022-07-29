@@ -35,6 +35,7 @@ interface PackingScanBoxOrFindByLabelOverlayProps {
 type ValidateBoxByLabelForMatchingPackingListEntry = (
   boxLabel: string
 ) => Promise<{ isValid: boolean; boxData?: BoxData | null }>;
+
 const useValidateBoxByLabelMatchingPackingListEntry = (
   packingListEntry: IPackingListEntry
 ): ValidateBoxByLabelForMatchingPackingListEntry => {
@@ -57,7 +58,9 @@ const useValidateBoxByLabelMatchingPackingListEntry = (
             return {
               isValid: true,
               boxData: {
-                ...box,
+                __typename: "Box",
+                labelIdentifier: boxLabel,
+                // ...box,
                 // TODO: consider to make items non-nullable in GraphQL
                 numberOfItems: box.items || 0,
               },

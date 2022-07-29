@@ -13,13 +13,18 @@ import {
   Modal,
   ModalOverlay,
   useToast,
+  Badge,
 } from "@chakra-ui/react";
-import { AddIcon } from "@chakra-ui/icons";
+import { AddIcon, CheckIcon } from "@chakra-ui/icons";
 import { groupBy } from "utils/helpers";
 import { useCallback, useState } from "react";
-import { IPackingListEntry } from "views/Distributions/types";
 import PackedContentListOverlayContainer from "./components/PackedContentListOverlayContainer";
-import { MATCHING_PACKED_ITEMS_COLLECTIONS_FOR_PACKING_LIST_ENTRY, MOVE_BOX_TO_DISTRIBUTION_MUTATION, MOVE_ITEMS_TO_DISTRIBUTION_EVENT, PACKING_LIST_ENTRIES_FOR_DISTRIBUTION_EVENT_QUERY } from "views/Distributions/queries";
+import {
+  // MATCHING_PACKED_ITEMS_COLLECTIONS_FOR_PACKING_LIST_ENTRY,
+  MOVE_BOX_TO_DISTRIBUTION_MUTATION,
+  MOVE_ITEMS_TO_DISTRIBUTION_EVENT,
+  PACKING_LIST_ENTRIES_FOR_DISTRIBUTION_EVENT_QUERY,
+} from "views/Distributions/queries";
 import {
   MoveBoxToDistributionEventMutation,
   MoveBoxToDistributionEventMutationVariables,
@@ -28,6 +33,7 @@ import {
 } from "types/generated/graphql";
 import PackingAddBoxOrItemsForPackingListEntryOverlay from "./components/PackingAddBoxOrItemsForPackingListEntryOverlay/PackingAddBoxOrItemsForPackingListEntryOverlay";
 import { useMutation } from "@apollo/client";
+import { IPackingListEntry } from "views/Distributions/types";
 
 interface DistroEventDetailsForPackingStateProps {
   packingListEntries: IPackingListEntry[];
@@ -83,17 +89,20 @@ const PackingListEntry = ({
               eventId: distributionEventId,
             },
           },
-          {
-            query: MATCHING_PACKED_ITEMS_COLLECTIONS_FOR_PACKING_LIST_ENTRY,
-            variables: {
-              packingListEntryId: packingListEntry.id,
-            }
-          }
-        ]
+          // {
+          //   query: MATCHING_PACKED_ITEMS_COLLECTIONS_FOR_PACKING_LIST_ENTRY,
+          //   variables: {
+          //     packingListEntryId: packingListEntry.id,
+          //   },
+          // },
+        ],
       })
         .then((res) => {
           if (res.errors && res.errors.length !== 0) {
-            console.error(`GraphQL error while trying to move items from Box (id: ${boxLabelIdentifier}) into Distribution Event (id: ${distributionEventId})`, res.errors)
+            console.error(
+              `GraphQL error while trying to move items from Box (id: ${boxLabelIdentifier}) into Distribution Event (id: ${distributionEventId})`,
+              res.errors
+            );
             toast({
               title: "Error",
               description: "Items couldn't be moved to the distribution event.",
@@ -101,8 +110,7 @@ const PackingListEntry = ({
               duration: 2000,
               isClosable: true,
             });
-          }
-          else {
+          } else {
             toast({
               title: "Done!",
               description: `${numberOfItemsToMove} items moved to the distribution.`,
@@ -123,7 +131,12 @@ const PackingListEntry = ({
           });
         });
     },
-    [distributionEventId, moveItemsToDistributionEventMutation, packingAddBoxOrItemsForPackingListEntryOverlayState, toast]
+    [
+      distributionEventId,
+      moveItemsToDistributionEventMutation,
+      packingAddBoxOrItemsForPackingListEntryOverlayState,
+      toast,
+    ]
   );
 
   const onAddBoxToDistributionEvent = useCallback(
@@ -137,7 +150,10 @@ const PackingListEntry = ({
       })
         .then((res) => {
           if (res.errors && res.errors.length !== 0) {
-            console.error(`GraphQL error while trying to move Box (id: ${boxLabelIdentifier}) into Distribution Event (id: ${distributionEventId})`, res.errors)
+            console.error(
+              `GraphQL error while trying to move Box (id: ${boxLabelIdentifier}) into Distribution Event (id: ${distributionEventId})`,
+              res.errors
+            );
             toast({
               title: "Error",
               description: "Box couldn't be moved to the distribution event.",
@@ -145,8 +161,7 @@ const PackingListEntry = ({
               duration: 2000,
               isClosable: true,
             });
-          }
-          else {
+          } else {
             toast({
               title: "Done!",
               description: "Box moved to the distribution event.",
@@ -255,54 +270,104 @@ const PackingListEntry = ({
   );
 };
 
+const EnoughItemsPackedStateBadge = ({
+  enoughItemsFacked,
+}: {
+  enoughItemsFacked: boolean;
+}) => {
+  if (enoughItemsFacked) {
+    return (
+      <Badge colorScheme="green">
+        {/* <CheckIcon /> Target number ({packingListEntry.numberOfItems}) fullfilled (with {totalNumberOfPackedItems} items) */}
+        <CheckIcon /> Enough items packed
+      </Badge>
+    );
+  } else {
+    return <Box>FOO</Box>;
+  }
+};
+
 const DistroEventDetailsForPackingState = ({
   packingListEntries,
   distributionEventId,
 }: // TODO: Group by product.id instead of name (because product name could be repeated)
 DistroEventDetailsForPackingStateProps) => {
-  const itemsForPackingGroupedByProductName = groupBy(
+  const packingListEntriesGroupedByProductName = groupBy(
     packingListEntries,
     (item) => item.product.name
   );
 
   //TO DO Sort the sizes by size order
-  const packingEntriesArrayGroupedByProductName = Object.keys(
-    itemsForPackingGroupedByProductName
+  const packingListEntriesGroupedByProductNameAsArray = Object.keys(
+    packingListEntriesGroupedByProductName
   ).map((key) => {
+    const packingListEntries = packingListEntriesGroupedByProductName[key].map(
+      (el) => {
+        const actualNumberOfItemsPacked =
+          el.matchingPackedItemsCollections.reduce(
+            (acc, cur) => acc + cur.numberOfItems,
+            0
+          );
+        return {
+          ...el,
+          actualNumberOfItemsPacked,
+          // ...el,
+          // actualNumberOfItemsPacked: actualNumberOfItemsPacked,
+        };
+      }
+    );
+    // const isNumberOfItemsFulfilled = items..
+    // items[0].numberOfItems
+    // items[0].
     return {
       productName: key,
-      items: itemsForPackingGroupedByProductName[key],
+      packingListEntries,
     };
   });
 
-  return (
-    <>
-      <Center>
-        <Accordion w={[300, 420, 500]} allowToggle>
-          {packingEntriesArrayGroupedByProductName.map((item, i) => {
+  return <>
+    <Center>
+      <Accordion w={[300, 420, 500]} allowToggle>
+        {packingListEntriesGroupedByProductNameAsArray.map(
+          (packingEntriesArrayForProductName, i) => {
+            const enoughItemsFacked =
+              packingEntriesArrayForProductName.packingListEntries.every(
+                (packingListEntry) =>
+                  packingListEntry.actualNumberOfItemsPacked >=
+                    packingListEntry.numberOfItems
+
+              );
             return (
               <AccordionItem w={[300, 420, 500]} justifyItems="center" key={i}>
                 <Flex justifyItems="center">
                   <AccordionButton zIndex="2">
+                    <EnoughItemsPackedStateBadge
+                      enoughItemsFacked={enoughItemsFacked}
+                    />
                     <Box flex="1" textAlign="center">
-                      <strong>{item.productName}</strong>
+                      <strong>
+                        {packingEntriesArrayForProductName.productName}
+                      </strong>
                     </Box>
                     <AccordionIcon />
                   </AccordionButton>
                 </Flex>
-                {item.items.map((item) => (
-                  <PackingListEntry
-                    packingListEntry={item}
-                    key={item.id}
-                    distributionEventId={distributionEventId}
-                  />
-                ))}
+                {packingEntriesArrayForProductName.packingListEntries.map(
+                  (item) => (
+                    <PackingListEntry
+                      packingListEntry={item}
+                      key={item.id}
+                      distributionEventId={distributionEventId}
+                    />
+                  )
+                )}
               </AccordionItem>
             );
-          }, [])}
-        </Accordion>
-      </Center>
-    </>
-  );
+          },
+          []
+        )}
+      </Accordion>
+    </Center>
+  </>;
 };
 export default DistroEventDetailsForPackingState;

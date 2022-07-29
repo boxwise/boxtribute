@@ -1,11 +1,6 @@
 import { useQuery } from "@apollo/client";
 import APILoadingIndicator from "components/APILoadingIndicator";
-import {
-  MatchingPackedItemsCollectionsForPackingListEntryQuery,
-  MatchingPackedItemsCollectionsForPackingListEntryQueryVariables,
-} from "types/generated/graphql";
-import { MATCHING_PACKED_ITEMS_COLLECTIONS_FOR_PACKING_LIST_ENTRY } from "views/Distributions/queries";
-import { BoxData, IPackingListEntry } from "views/Distributions/types";
+import { BoxData, IPackingListEntry, UnboxedItemsCollectionData } from "views/Distributions/types";
 import PackedContentListOverlay from "./PackedContentListOverlay";
 
 export interface PackedContentListOverlayContainerProps {
@@ -17,37 +12,37 @@ export interface PackedContentListOverlayContainerProps {
 const PackedContentListOverlayContainer = ({
   packingListEntry,
 }: PackedContentListOverlayContainerProps) => {
-  const { data, loading, error } = useQuery<
-  MatchingPackedItemsCollectionsForPackingListEntryQuery,
-  MatchingPackedItemsCollectionsForPackingListEntryQueryVariables
->  (MATCHING_PACKED_ITEMS_COLLECTIONS_FOR_PACKING_LIST_ENTRY, {
-    variables: {
-      packingListEntryId: packingListEntry.id,
-    },
-  });
+//   const { data, loading, error } = useQuery<
+//   MatchingPackedItemsCollectionsForPackingListEntryQuery,
+//   MatchingPackedItemsCollectionsForPackingListEntryQueryVariables
+// >  (MATCHING_PACKED_ITEMS_COLLECTIONS_FOR_PACKING_LIST_ENTRY, {
+//     variables: {
+//       packingListEntryId: packingListEntry.id,
+//     },
+//   });
 
-  if (loading) {
-    return <APILoadingIndicator />;
-  }
+//   if (loading) {
+//     return <APILoadingIndicator />;
+//   }
 
-  if (error) {
-    console.error(error);
-    return <div>Error!</div>;
-  }
+//   if (error) {
+//     console.error(error);
+//     return <div>Error!</div>;
+//   }
 
-  const transformedMatchingPackedItemsCollectionsData = data?.packingListEntry?.matchingPackedItemsCollections
-  .map(el => ({
-    ...el,
-    numberOfItems: el.numberOfItems ?? 0
-  }));
+  // const transformedMatchingPackedItemsCollectionsData = data?.packingListEntry?.matchingPackedItemsCollections
+  // .map(el => ({
+  //   ...el,
+  //   numberOfItems: el.numberOfItems ?? 0
+  // }));
 
-  const boxesData = (transformedMatchingPackedItemsCollectionsData?.filter(
+  const boxesData = (packingListEntry?.matchingPackedItemsCollections.filter(
       (el) => el.__typename === "Box"
     ) as BoxData[]) ?? [];
 
-  const unboxedItemCollectionData = (transformedMatchingPackedItemsCollectionsData?.filter(
+  const unboxedItemCollectionData = (packingListEntry?.matchingPackedItemsCollections?.filter(
     (el) => el.__typename === "UnboxedItemsCollection"
-  ) as BoxData[]) ?? [];
+  ) as UnboxedItemsCollectionData[]) ?? [];
 
   return (
     <PackedContentListOverlay

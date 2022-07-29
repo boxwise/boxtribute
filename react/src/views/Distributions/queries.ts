@@ -88,6 +88,13 @@ export const PACKING_LIST_ENTRIES_FOR_DISTRIBUTION_EVENT_QUERY = gql`
           id
           label
         }
+        matchingPackedItemsCollections {
+          __typename
+          numberOfItems: items
+          ... on Box {
+            labelIdentifier
+          }
+        }
       }
     }
   }
@@ -127,18 +134,18 @@ export const BOX_DETAILS_FOR_MOBILE_DISTRO_QUERY = gql`
   }
 `;
 
-export const MATCHING_PACKED_ITEMS_COLLECTIONS_FOR_PACKING_LIST_ENTRY = gql`
-query MatchingPackedItemsCollectionsForPackingListEntry($packingListEntryId: ID!) {
-  packingListEntry(id: $packingListEntryId) {
-    matchingPackedItemsCollections {
-      __typename
-      numberOfItems: items
-      ... on Box {
-        labelIdentifier
-      }
-    }
-  }
-}`;
+// export const MATCHING_PACKED_ITEMS_COLLECTIONS_FOR_PACKING_LIST_ENTRY = gql`
+// query MatchingPackedItemsCollectionsForPackingListEntry($packingListEntryId: ID!) {
+//   packingListEntry(id: $packingListEntryId) {
+//     matchingPackedItemsCollections {
+//       __typename
+//       numberOfItems: items
+//       ... on Box {
+//         labelIdentifier
+//       }
+//     }
+//   }
+// }`;
 
 export const DISTRIBUTION_EVENT_QUERY = gql`
   query DistributionEvent($eventId: ID!) {
