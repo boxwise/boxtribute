@@ -71,7 +71,6 @@ const ColumnSelector = ({
   const onCheckboxChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const checked = e.target.checked;
     const columnId = e.target.value;
-    debugger;
     const column = availableColumns.find((column) => column.id === columnId);
     if (column != null) {
       if (checked) {
