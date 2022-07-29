@@ -15,6 +15,7 @@ import {
   useToast,
   Text,
   VStack,
+  Heading,
 } from "@chakra-ui/react";
 import { AddIcon, CheckIcon } from "@chakra-ui/icons";
 import { groupBy } from "utils/helpers";
@@ -291,7 +292,7 @@ const DistroEventDetailsForPackingState = ({
 DistroEventDetailsForPackingStateProps) => {
   const packingListEntriesGroupedByProductName = groupBy(
     packingListEntries,
-    (item) => item.product.name
+    (item) => item.product.id
   );
 
   //TO DO Sort the sizes by size order
@@ -317,7 +318,11 @@ DistroEventDetailsForPackingStateProps) => {
     // items[0].numberOfItems
     // items[0].
     return {
-      productName: key,
+      product: {
+        id: key,
+        name: packingListEntries[0].product.name,
+        gender: packingListEntries[0].product.gender
+      },
       packingListEntries,
     };
   });
@@ -331,72 +336,72 @@ DistroEventDetailsForPackingStateProps) => {
   }, []);
 
   return (
-        <>
-        <Button onClick={onClickScanBoxesForDistroEvent}>
-          Scan Boxes for this Distro Event
-        </Button>
-        <Box bg={"gray.50"}>
-          <Accordion allowToggle px={3} py={5}>
-            {packingListEntriesGroupedByProductNameAsArray.map(
-              (packingEntriesArrayForProductName, i) => {
-                const enoughItemsFacked =
-                  packingEntriesArrayForProductName.packingListEntries.every(
-                    (packingListEntry) =>
-                      packingListEntry.actualNumberOfItemsPacked >=
-                      packingListEntry.numberOfItems
-                  );
-                return (
-                  <AccordionItem
-                    w={[300, 420, 500]}
-                    justifyItems="center"
-                    key={i}
-                    bg={enoughItemsFacked ? "green.100" : "red.100"}
-                  >
-                    <Flex justifyItems="center">
-                      <AccordionButton zIndex="2">
-                        {/* <EnoughItemsPackedStateBadge
+    <>
+      <Button onClick={onClickScanBoxesForDistroEvent}>
+        Scan Boxes for this Distro Event
+      </Button>
+      <VStack spacing={0}>
+        <Heading size="md">Packing List</Heading>
+        <Accordion allowToggle px={3} py={3}>
+          {packingListEntriesGroupedByProductNameAsArray.map(
+            (packingEntriesArrayForProductName, i) => {
+              const enoughItemsFacked =
+                packingEntriesArrayForProductName.packingListEntries.every(
+                  (packingListEntry) =>
+                    packingListEntry.actualNumberOfItemsPacked >=
+                    packingListEntry.numberOfItems
+                );
+              return (
+                <AccordionItem
+                  w={[300, 420, 500]}
+                  justifyItems="center"
+                  key={i}
+                  bg={enoughItemsFacked ? "green.100" : "red.100"}
+                >
+                  <Flex justifyItems="center">
+                    <AccordionButton zIndex="2">
+                      {/* <EnoughItemsPackedStateBadge
                         enoughItemsFacked={enoughItemsFacked}
                       /> */}
-                        <Box flex="1" textAlign="center">
-                          <Text>
-                            {" "}
-                            {packingEntriesArrayForProductName.productName}{" "}
-                          </Text>
-                        </Box>
-                        <AccordionIcon />
-                      </AccordionButton>
-                    </Flex>
-                    {packingEntriesArrayForProductName.packingListEntries.map(
-                      (item) => (
-                        <AccordionPanel
-                          py={0}
-                          bg={enoughItemsFacked ? "green.100" : "red.100"}
-                        >
-                          <PackingListEntry
-                            packingListEntry={item}
-                            key={item.id}
-                            distributionEventId={distributionEventId}
-                          />
-                        </AccordionPanel>
-                      )
-                    )}
-                  </AccordionItem>
-                );
-              },
-              []
-            )}
-          </Accordion>
-        </Box>
-        <VStack spacing={1}>
-          <Button onClick={onAddAdditionalItemsButtonClick} size={"sm"}>
-            Add additional items to this Distro Event
-          </Button>
-          <Text fontSize="xs">
-            * You can add additional items to this event, even if they are not
-            listed on the Packing list.
-          </Text>
-        </VStack>
-        </>
+                      <Box flex="1" textAlign="center">
+                        <Text fontSize={"lg"} fontWeight="bold">
+                          {packingEntriesArrayForProductName.product.name} ({packingEntriesArrayForProductName.product.gender})
+                        </Text>
+                      </Box>
+                      <AccordionIcon />
+                    </AccordionButton>
+                  </Flex>
+                  {packingEntriesArrayForProductName.packingListEntries.map(
+                    (item) => (
+                      <AccordionPanel
+                        py={0}
+                        bg={enoughItemsFacked ? "green.100" : "red.100"}
+                      >
+                        <PackingListEntry
+                          packingListEntry={item}
+                          key={item.id}
+                          distributionEventId={distributionEventId}
+                        />
+                      </AccordionPanel>
+                    )
+                  )}
+                </AccordionItem>
+              );
+            },
+            []
+          )}
+        </Accordion>
+      </VStack>
+      <VStack spacing={1}>
+        <Button onClick={onAddAdditionalItemsButtonClick} size={"sm"}>
+          Add additional items to this Distro Event
+        </Button>
+        <Text fontSize="xs">
+          * You can add additional items to this event, even if they are not
+          listed on the Packing list.
+        </Text>
+      </VStack>
+    </>
   );
 };
 export default DistroEventDetailsForPackingState;
