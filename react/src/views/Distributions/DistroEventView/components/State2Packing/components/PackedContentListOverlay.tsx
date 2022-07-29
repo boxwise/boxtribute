@@ -129,8 +129,8 @@ PackedContentListOverlayProps) => {
     [boxesData, unboxedItemCollectionData]
   );
 
-  const targetNumberOfItemsReached = useMemo(
-    () => totalNumberOfPackedItems >= packingListEntry.numberOfItems,
+  const missingNumberOfItems = useMemo(
+    () => packingListEntry.numberOfItems - totalNumberOfPackedItems,
     [packingListEntry.numberOfItems, totalNumberOfPackedItems]
   );
   return (
@@ -174,14 +174,14 @@ PackedContentListOverlayProps) => {
             </Stat>
           </StatGroup>
 
-          {targetNumberOfItemsReached && (
+          {missingNumberOfItems <= 0 && (
             <Badge colorScheme="green">
               {/* <CheckIcon /> Target number ({packingListEntry.numberOfItems}) fullfilled (with {totalNumberOfPackedItems} items) */}
               <CheckIcon /> Enough items packed
             </Badge>
           )}
-          {!targetNumberOfItemsReached && (
-            <Badge colorScheme="red">Not yet enough items</Badge>
+          {missingNumberOfItems > 0 && (
+            <Badge colorScheme="red">{missingNumberOfItems} items missing</Badge>
           )}
         </ModalBody>
         <ModalFooter />

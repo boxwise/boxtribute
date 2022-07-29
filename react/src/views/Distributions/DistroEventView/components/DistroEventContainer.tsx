@@ -91,9 +91,6 @@ const DistroEventContainer = ({
     ]
   );
 
-  const onClickScanBoxesForDistroEvent = useCallback(() => {
-    alert("SCANNER PLACEHOLDER");
-  }, []);
 
   const onConfirmToMarkEventAsCompleted = useCallback(() => {
     moveEventToStageMutation({
@@ -156,9 +153,6 @@ const DistroEventContainer = ({
             {distroEventStateHumanReadableLabels.get(nextState)})
           </Button>
         )} */}
-        <Button onClick={onClickScanBoxesForDistroEvent}>
-          Scan Boxes for this Distro Event
-        </Button>
         <Box>
           <StateSpecificComponent />
         </Box>

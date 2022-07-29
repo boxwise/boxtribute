@@ -13,7 +13,8 @@ import {
   Modal,
   ModalOverlay,
   useToast,
-  Badge,
+  Text,
+  VStack,
 } from "@chakra-ui/react";
 import { AddIcon, CheckIcon } from "@chakra-ui/icons";
 import { groupBy } from "utils/helpers";
@@ -270,22 +271,22 @@ const PackingListEntry = ({
   );
 };
 
-const EnoughItemsPackedStateBadge = ({
-  enoughItemsFacked,
-}: {
-  enoughItemsFacked: boolean;
-}) => {
-  if (enoughItemsFacked) {
-    return (
-      <Badge colorScheme="green">
-        {/* <CheckIcon /> Target number ({packingListEntry.numberOfItems}) fullfilled (with {totalNumberOfPackedItems} items) */}
-        <CheckIcon /> Enough items packed
-      </Badge>
-    );
-  } else {
-    return <Box>FOO</Box>;
-  }
-};
+// const EnoughItemsPackedStateBadge = ({
+//   enoughItemsFacked,
+// }: {
+//   enoughItemsFacked: boolean;
+// }) => {
+//   if (enoughItemsFacked) {
+//     return (
+//       <Badge colorScheme="green">
+//         {/* <CheckIcon /> Target number ({packingListEntry.numberOfItems}) fullfilled (with {totalNumberOfPackedItems} items) */}
+//         <CheckIcon /> Enough items packed
+//       </Badge>
+//     );
+//   } else {
+//     return <Badge colorScheme="red">Items missing</Badge>;
+//   }
+// };
 
 const DistroEventDetailsForPackingState = ({
   packingListEntries,
@@ -325,49 +326,77 @@ DistroEventDetailsForPackingStateProps) => {
     };
   });
 
-  return <>
-    <Center>
-      <Accordion w={[300, 420, 500]} allowToggle>
-        {packingListEntriesGroupedByProductNameAsArray.map(
-          (packingEntriesArrayForProductName, i) => {
-            const enoughItemsFacked =
-              packingEntriesArrayForProductName.packingListEntries.every(
-                (packingListEntry) =>
-                  packingListEntry.actualNumberOfItemsPacked >=
-                    packingListEntry.numberOfItems
+  const FOO = useCallback(() => {
+    alert("PLACEHOLDER");
+  }, []);
 
-              );
-            return (
-              <AccordionItem w={[300, 420, 500]} justifyItems="center" key={i}>
-                <Flex justifyItems="center">
-                  <AccordionButton zIndex="2">
-                    <EnoughItemsPackedStateBadge
-                      enoughItemsFacked={enoughItemsFacked}
-                    />
-                    <Box flex="1" textAlign="center">
-                      <strong>
-                        {packingEntriesArrayForProductName.productName}
-                      </strong>
-                    </Box>
-                    <AccordionIcon />
-                  </AccordionButton>
-                </Flex>
-                {packingEntriesArrayForProductName.packingListEntries.map(
-                  (item) => (
-                    <PackingListEntry
-                      packingListEntry={item}
-                      key={item.id}
-                      distributionEventId={distributionEventId}
-                    />
-                  )
-                )}
-              </AccordionItem>
-            );
-          },
-          []
-        )}
-      </Accordion>
+  const onClickScanBoxesForDistroEvent = useCallback(() => {
+    alert("SCANNER PLACEHOLDER");
+  }, []);
+
+  return (
+    <Center>
+      <VStack my={5} spacing='24px'>
+        <Button onClick={onClickScanBoxesForDistroEvent}>
+          Scan Boxes for this Distro Event
+        </Button>
+        <Box bg={"gray.50"}>
+          <Accordion allowToggle px={3} py={5}>
+            {packingListEntriesGroupedByProductNameAsArray.map(
+              (packingEntriesArrayForProductName, i) => {
+                const enoughItemsFacked =
+                  packingEntriesArrayForProductName.packingListEntries.every(
+                    (packingListEntry) =>
+                      packingListEntry.actualNumberOfItemsPacked >=
+                      packingListEntry.numberOfItems
+                  );
+                return (
+                  <AccordionItem
+                    w={[300, 420, 500]}
+                    justifyItems="center"
+                    key={i}
+                  >
+                    <Flex justifyItems="center">
+                      <AccordionButton zIndex="2">
+                        {/* <EnoughItemsPackedStateBadge
+                        enoughItemsFacked={enoughItemsFacked}
+                      /> */}
+                        <Box flex="1" textAlign="center">
+                          <Text color={enoughItemsFacked ? "green" : "red"}>
+                            {" "}
+                            {packingEntriesArrayForProductName.productName}{" "}
+                          </Text>
+                        </Box>
+                        <AccordionIcon />
+                      </AccordionButton>
+                    </Flex>
+                    {packingEntriesArrayForProductName.packingListEntries.map(
+                      (item) => (
+                        <PackingListEntry
+                          packingListEntry={item}
+                          key={item.id}
+                          distributionEventId={distributionEventId}
+                        />
+                      )
+                    )}
+                  </AccordionItem>
+                );
+              },
+              []
+            )}
+          </Accordion>
+        </Box>
+        <VStack spacing={1}>
+          <Button onClick={FOO} size={"sm"}>
+            Add additional items to this Distro Event
+          </Button>
+          <Text fontSize="small">
+            * You can add additional items to this event, even if they are not
+            listed on the Packing list.
+          </Text>
+        </VStack>
+      </VStack>
     </Center>
-  </>;
+  );
 };
 export default DistroEventDetailsForPackingState;
