@@ -192,51 +192,47 @@ const PackingListEntry = ({
   );
 
   return (
-    <>
-      <AccordionPanel py={0}>
-        <Flex
-          alignItems="center"
-          borderTop="1px"
-          borderColor="gray.300"
-          direction="row"
-          pl={6}
-          onClick={() =>
-            setChosenPackingNumberOfItems(packingListEntry.numberOfItems)
-          }
-        >
-          <Box
-            as={Button}
-            backgroundColor="transparent"
-            borderRadius="0px"
-            flex="1"
-            onClick={() => {
-              onListOpen();
-              // onShowListClick(item.id);
-            }}
-            _hover={{
-              backgroundColor: "transparent",
-              opacity: "0.5",
-            }}
-          >
-            {packingListEntry.numberOfItems} x {packingListEntry.size?.label}
-          </Box>
-          <Box>
-            <IconButton
-              _hover={{
-                backgroundColor: "transparent",
-                opacity: "0.5",
-              }}
-              backgroundColor="transparent"
-              aria-label="Add items"
-              icon={<AddIcon />}
-              onClick={(e) => {
-                packingAddBoxOrItemsForPackingListEntryOverlayState.onOpen();
-              }}
-              color="teal"
-            />
-          </Box>
-        </Flex>
-      </AccordionPanel>
+    <Flex
+      alignItems="center"
+      borderTop="1px"
+      borderColor="gray.300"
+      direction="row"
+      pl={6}
+      onClick={() =>
+        setChosenPackingNumberOfItems(packingListEntry.numberOfItems)
+      }
+    >
+      <Box
+        as={Button}
+        backgroundColor="transparent"
+        borderRadius="0px"
+        flex="1"
+        onClick={() => {
+          onListOpen();
+          // onShowListClick(item.id);
+        }}
+        _hover={{
+          backgroundColor: "transparent",
+          opacity: "0.5",
+        }}
+      >
+        {packingListEntry.numberOfItems} x {packingListEntry.size?.label}
+      </Box>
+      <Box>
+        <IconButton
+          _hover={{
+            backgroundColor: "transparent",
+            opacity: "0.5",
+          }}
+          backgroundColor="transparent"
+          aria-label="Add items"
+          icon={<AddIcon />}
+          onClick={(e) => {
+            packingAddBoxOrItemsForPackingListEntryOverlayState.onOpen();
+          }}
+          color="teal"
+        />
+      </Box>
 
       <PackingAddBoxOrItemsForPackingListEntryOverlay
         isOpen={packingAddBoxOrItemsForPackingListEntryOverlayState.isOpen}
@@ -267,7 +263,7 @@ const PackingListEntry = ({
         boxesData={boxesData}
         // packingActionProps={packingActionListProps}
       /> */}
-    </>
+    </Flex>
   );
 };
 
@@ -326,7 +322,7 @@ DistroEventDetailsForPackingStateProps) => {
     };
   });
 
-  const FOO = useCallback(() => {
+  const onAddAdditionalItemsButtonClick = useCallback(() => {
     alert("PLACEHOLDER");
   }, []);
 
@@ -335,8 +331,7 @@ DistroEventDetailsForPackingStateProps) => {
   }, []);
 
   return (
-    <Center>
-      <VStack my={5} spacing='24px'>
+        <>
         <Button onClick={onClickScanBoxesForDistroEvent}>
           Scan Boxes for this Distro Event
         </Button>
@@ -355,6 +350,7 @@ DistroEventDetailsForPackingStateProps) => {
                     w={[300, 420, 500]}
                     justifyItems="center"
                     key={i}
+                    bg={enoughItemsFacked ? "green.100" : "red.100"}
                   >
                     <Flex justifyItems="center">
                       <AccordionButton zIndex="2">
@@ -362,7 +358,7 @@ DistroEventDetailsForPackingStateProps) => {
                         enoughItemsFacked={enoughItemsFacked}
                       /> */}
                         <Box flex="1" textAlign="center">
-                          <Text color={enoughItemsFacked ? "green" : "red"}>
+                          <Text>
                             {" "}
                             {packingEntriesArrayForProductName.productName}{" "}
                           </Text>
@@ -372,11 +368,16 @@ DistroEventDetailsForPackingStateProps) => {
                     </Flex>
                     {packingEntriesArrayForProductName.packingListEntries.map(
                       (item) => (
-                        <PackingListEntry
-                          packingListEntry={item}
-                          key={item.id}
-                          distributionEventId={distributionEventId}
-                        />
+                        <AccordionPanel
+                          py={0}
+                          bg={enoughItemsFacked ? "green.100" : "red.100"}
+                        >
+                          <PackingListEntry
+                            packingListEntry={item}
+                            key={item.id}
+                            distributionEventId={distributionEventId}
+                          />
+                        </AccordionPanel>
                       )
                     )}
                   </AccordionItem>
@@ -387,16 +388,15 @@ DistroEventDetailsForPackingStateProps) => {
           </Accordion>
         </Box>
         <VStack spacing={1}>
-          <Button onClick={FOO} size={"sm"}>
+          <Button onClick={onAddAdditionalItemsButtonClick} size={"sm"}>
             Add additional items to this Distro Event
           </Button>
-          <Text fontSize="small">
+          <Text fontSize="xs">
             * You can add additional items to this event, even if they are not
             listed on the Packing list.
           </Text>
         </VStack>
-      </VStack>
-    </Center>
+        </>
   );
 };
 export default DistroEventDetailsForPackingState;

@@ -27,11 +27,11 @@ const DistroEventDetailsForPlanningState = ({
   return (
     <>
       <Flex w={[300, 400, 600]} direction="column" mb={4}>
-        <Button my={2} onClick={() => onAddItemsClick()} colorScheme="blue">
-          Add New Packing List Entry
-        </Button>
         <Button onClick={() => onCopyPackingListFromPreviousEventsClick()}>
           Copy Packing List from Previous Event
+        </Button>
+        <Button my={2} onClick={() => onAddItemsClick()} colorScheme="blue">
+          Add New Packing List Entry
         </Button>
       </Flex>
       <Text fontSize="md">

@@ -91,7 +91,6 @@ const DistroEventContainer = ({
     ]
   );
 
-
   const onConfirmToMarkEventAsCompleted = useCallback(() => {
     moveEventToStageMutation({
       variables: {
@@ -131,7 +130,7 @@ const DistroEventContainer = ({
     eventStateToComponentMapping[distributionEventDetails.state];
   return (
     <>
-      <VStack>
+      <VStack spacing={25}>
         <BTBreadcrumbNavigation
           items={[{ label: 'Base "Subotica"', linkPath: "X" }]}
         />
@@ -153,9 +152,9 @@ const DistroEventContainer = ({
             {distroEventStateHumanReadableLabels.get(nextState)})
           </Button>
         )} */}
-        <Box>
+        <VStack spacing={5}>
           <StateSpecificComponent />
-        </Box>
+        </VStack>
       </VStack>
 
       <AlertDialog
