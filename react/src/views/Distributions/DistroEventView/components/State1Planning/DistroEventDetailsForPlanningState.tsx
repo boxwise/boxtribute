@@ -2,6 +2,7 @@ import {
   Box,
   Button,
   Flex,
+  Heading,
   IconButton,
   SimpleGrid,
   Text,
@@ -34,13 +35,13 @@ const DistroEventDetailsForPlanningState = ({
           Add New Packing List Entry
         </Button>
       </Flex>
-      <Text fontSize="md">
-        <strong>Packing List:</strong>
-      </Text>
+      <Heading size={"md"}>
+        Packing List:
+      </Heading>
       {packingListEntries.map((item) => {
         return (
           <SimpleGrid
-            minChildWidth="10px"
+            // minChildWidth={300}
             py={2}
             columns={6}
             borderBottom="1px"

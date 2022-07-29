@@ -375,7 +375,7 @@ DistroEventDetailsForPackingStateProps) => {
                     (item) => (
                       <AccordionPanel
                         py={0}
-                        bg={enoughItemsFacked ? "green.100" : "red.100"}
+                        bg={item.actualNumberOfItemsPacked >= item.numberOfItems ? "green.100" : "red.100"}
                       >
                         <PackingListEntry
                           packingListEntry={item}
@@ -391,6 +391,9 @@ DistroEventDetailsForPackingStateProps) => {
             []
           )}
         </Accordion>
+        {/* <Button my={2} onClick={() => {}} colorScheme="blue">
+          You're all set - move to Distribution Stage.
+        </Button> */}
       </VStack>
       <VStack spacing={1}>
         <Button onClick={onAddAdditionalItemsButtonClick} size={"sm"}>
