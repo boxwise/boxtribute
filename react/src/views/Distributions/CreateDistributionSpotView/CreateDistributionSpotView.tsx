@@ -1,12 +1,15 @@
 import { gql, useMutation } from "@apollo/client";
 import { Center, Heading, useToast, VStack } from "@chakra-ui/react";
-import CreateDistributionSpot, { CreateDistributionSpotFormData } from "./components/CreateDistributionSpot";
+import CreateDistributionSpot, {
+  CreateDistributionSpotFormData,
+} from "./components/CreateDistributionSpot";
 import {
   CreateDistributionSpotMutation,
   CreateDistributionSpotMutationVariables,
 } from "../../../types/generated/graphql";
 import { useNavigate, useParams } from "react-router-dom";
 import { DistributionSpotCoreData } from "../types";
+import { DISTRO_SPOTS_FOR_BASE_ID } from "../queries";
 
 export const CREATE_NEW_DISTRIBUTION_SPOT_MUTATION = gql`
   mutation CreateDistributionSpot(
@@ -59,6 +62,14 @@ const CreateDistributionSpotView = () => {
         latitude: distroSpot.latitude,
         longitude: distroSpot.longitude,
       },
+      refetchQueries: [
+        {
+          query: DISTRO_SPOTS_FOR_BASE_ID,
+          variables: {
+            baseId: baseId,
+          },
+        },
+      ],
     })
       .then((mutationResult) => {
         const distributionSpotId =
@@ -69,7 +80,8 @@ const CreateDistributionSpotView = () => {
         ) {
           showErrorToast();
         }
-        navigate(`/bases/${baseId}/distributions/spots/${distributionSpotId}`);
+        // navigate(`/bases/${baseId}/distributions/spots/${distributionSpotId}`);
+        navigate(`/bases/${baseId}/distributions/spots`);
       })
       .catch((error) => {
         showErrorToast();
@@ -82,11 +94,11 @@ const CreateDistributionSpotView = () => {
       <VStack>
         <Heading>Create new Distribution Spot</Heading>
         {!createDistributionSpotState.error && (
-            <CreateDistributionSpot
-              onSubmitNewDistributionSpot={onSubmitNewDitroSpot}
-              isMutationLoading={createDistributionSpotState.loading}
-            />
-          )}
+          <CreateDistributionSpot
+            onSubmitNewDistributionSpot={onSubmitNewDitroSpot}
+            isMutationLoading={createDistributionSpotState.loading}
+          />
+        )}
         {createDistributionSpotState.error && <p>Error</p>}
         {/* {createDistributionSpotState.loading && <APILoadingIndicator />} */}
       </VStack>

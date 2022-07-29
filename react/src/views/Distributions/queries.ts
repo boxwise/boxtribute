@@ -1,5 +1,23 @@
 import { gql } from "@apollo/client";
 
+export const DISTRO_SPOTS_FOR_BASE_ID = gql`
+  query DistroSpotsForBaseId($baseId: ID!) {
+    base(id: $baseId) {
+      distributionSpots {
+        id
+        name
+        latitude
+        longitude
+        distributionEvents {
+          id
+          name
+          state
+          plannedStartDateTime
+        }
+      }
+    }
+  }
+`;
 export const DISTRIBUTION_EVENTS_FOR_BASE_ID = gql`
   query DistributionEventsForBase($baseId: ID!) {
     base(id: $baseId) {

@@ -5,6 +5,7 @@ import {
   DistroSpotsForBaseIdQueryVariables,
 } from "types/generated/graphql";
 import { useGlobalSiteState } from "utils/hooks";
+import { DISTRO_SPOTS_FOR_BASE_ID } from "views/Distributions/queries";
 import { DistributionSpotEnrichedData } from "views/Distributions/types";
 import DistroSpots from "./DistroSpots";
 
@@ -21,24 +22,6 @@ const DistroSpotsContainer = ({
 }: DistroSpotsContainerProps) => {
   const { currentBaseId } = useGlobalSiteState();
 
-  const DISTRO_SPOTS_FOR_BASE_ID = gql`
-    query DistroSpotsForBaseId($baseId: ID!) {
-      base(id: $baseId) {
-        distributionSpots {
-          id
-          name
-          latitude
-          longitude
-          distributionEvents {
-            id
-            name
-            state
-            plannedStartDateTime
-          }
-        }
-      }
-    }
-  `;
 
   const { loading, error, data } = useQuery<
     DistroSpotsForBaseIdQuery,
