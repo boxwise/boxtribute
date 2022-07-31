@@ -34,6 +34,7 @@ class DistributionEvent(db.Model):
     modified_on = DateTimeField(null=True)
     modified_by = UIntForeignKeyField(
         model=User,
+        column_name="modified_by",
         field="id",
         null=True,
         on_delete="SET NULL",
