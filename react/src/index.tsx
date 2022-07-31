@@ -13,6 +13,41 @@ import { CaptureConsole } from '@sentry/integrations';
 
 if (process.env.NODE_ENV === 'development') {
   const { worker } = require('./mocks/browser')
+
+  // worker.use(
+  //   mockedGraphql.query<
+  //     DistroSpotsForBaseIdQuery,
+  //     DistroSpotsForBaseIdQueryVariables
+  //   >("DistroSpotsForBaseId", (req, res, ctx) => {
+  //     const mockedDistroSpotsForBaseIdData = {
+  //       base: {
+  //         __typename: "Base",
+  //           distributionSpots: [
+  //             {
+  //               __typename: "DistributionSpot",
+  //               id: "1",
+  //               name: "Horgos (River)",
+  //               latitude: 132.142,
+  //               longitude: 132.142,
+  //               distributionEvents: [
+  //                 {
+  //                   __typename: "DistributionEvent",
+  //                   id: "3",
+  //                   name: "Warm Clothes and Tea",
+  //                   startDateTime: "2022-06-01T14:48:25+00:00",
+  //                   state: DistributionEventState.Planning,
+  //                 }
+  //               ],
+  //             },
+  //           ],
+  //       },
+  //     } as DistroSpotsForBaseIdQuery;
+  //     return res(
+  //       ctx.data(mockedDistroSpotsForBaseIdData)
+  //     );
+  //   })
+  // );
+
   worker.start()
 }
 
@@ -31,9 +66,30 @@ const colors = {
 const theme = extendTheme({
   colors,
   components: {
+    Button: {
+      defaultProps: {
+        
+        borderRadius: "0",
+
+    }
+  },
     FormLabel: {
       baseStyle: {
         fontWeight: "bold",
+      },
+    },
+    Input: {
+      defaultProps: {
+        focusBorderColor: 'transparent',
+        borderRadius: '0',
+      },
+      shadows: "none",
+      sizes: {
+        lg: {
+          field: {
+            borderRadius: 'none',
+          },
+        },
       },
     },
   },

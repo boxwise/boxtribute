@@ -1,4 +1,5 @@
 import { gql, useMutation, useQuery } from "@apollo/client";
+import APILoadingIndicator from "components/APILoadingIndicator";
 import { useNavigate, useParams } from "react-router-dom";
 import {
   BoxByLabelIdentifierAndAllProductsQuery,
@@ -21,6 +22,12 @@ export const BOX_BY_LABEL_IDENTIFIER_AND_ALL_PRODUCTS_QUERY = gql`
         id
         name
         gender
+        sizeRange {
+          sizes {
+            id
+            label
+          }
+        }
       }
       location {
         id
@@ -51,11 +58,13 @@ export const BOX_BY_LABEL_IDENTIFIER_AND_ALL_PRODUCTS_QUERY = gql`
 `;
 
 export const UPDATE_CONTENT_OF_BOX_MUTATION = gql`
-  mutation UpdateContentOfBox($boxLabelIdentifier: String!, $productId: Int!) {
+  mutation UpdateContentOfBox($boxLabelIdentifier: String!, $productId: Int!, $numberOfItems: Int!, $sizeId: Int!) {
     updateBox(
       updateInput: {
         labelIdentifier: $boxLabelIdentifier
         productId: $productId
+        items: $numberOfItems
+        sizeId: $sizeId
       }
     ) {
       labelIdentifier
@@ -83,10 +92,15 @@ const BoxEditView = () => {
   >(UPDATE_CONTENT_OF_BOX_MUTATION);
 
   const onSubmitBoxEditForm = (boxFormValues: BoxFormValues) => {
+    console.log("boxLabelIdentifier", labelIdentifier);
+    console.log("boxFormValues", boxFormValues);
+    
     updateContentOfBoxMutation({
       variables: {
         boxLabelIdentifier: labelIdentifier,
         productId: parseInt(boxFormValues.productForDropdown.value),
+        numberOfItems: boxFormValues.numberOfItems,
+        sizeId: parseInt(boxFormValues.sizeId),
       },
     })
       .then((mutationResult) => {
@@ -100,7 +114,7 @@ const BoxEditView = () => {
   };
 
   if (loading) {
-    return <div>Loading...</div>;
+    return <APILoadingIndicator />;
   }
   const boxData = data?.box;
   const allProducts = data?.products;
