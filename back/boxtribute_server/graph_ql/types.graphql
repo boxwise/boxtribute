@@ -3,6 +3,7 @@
 
 
 interface ItemsCollection {
+  id: ID!
   product: Product
   size: Size!
   items: Int
@@ -274,7 +275,8 @@ type PackingListEntry {
   size: Size
   numberOfItems: Int!
   matchingPackedItemsCollections: [ItemsCollection!]!
-  matchingBoxes: [Box!]!
+  # matchingBoxes: [Box!]!
+  # matchingUnboxedItemsCollections: [UnboxedItemsCollection!]!
   state: PackingListEntryState!
 }
 

@@ -127,16 +127,35 @@ def resolve_packing_list_entry(*_, id):
     return PackingListEntry.get_by_id(id)
 
 
-@packing_list_entry.field("matchingBoxes")
-def resolve_packing_list_entry_matching_boxes(obj, *_):
-    distribution_event_id = obj.distribution_event_id
-    return Box.select().where(
-        Box.distribution_event_id == distribution_event_id,
+@packing_list_entry.field("matchingPackedItemsCollections")
+def resolve_packing_list_entry_matching_packed_items_collections(obj, *_):
+    # return obj.matching_packed_items_collections
+    distribution_event_id = obj.distribution_event
+    boxes = Box.select().where(
+        Box.distribution_event == distribution_event_id,
         # TODO: only consider available boxes
         # Box.state == "available",
         Box.product == obj.product,
         Box.size == obj.size,
     )
+    unboxed_items_colletioncs = UnboxedItemsCollection.select().where(
+        UnboxedItemsCollection.distribution_event == distribution_event_id,
+        UnboxedItemsCollection.product == obj.product,
+        UnboxedItemsCollection.size == obj.size,
+    )
+    return list(boxes) + list(unboxed_items_colletioncs)
+
+
+# @packing_list_entry.field("matchingBoxes")
+# def resolve_packing_list_entry_matching_boxes(obj, *_):
+#     distribution_event_id = obj.distribution_event
+#     return Box.select().where(
+#         Box.distribution_event_id == distribution_event_id,
+#         # TODO: only consider available boxes
+#         # Box.state == "available",
+#         Box.product == obj.product,
+#         Box.size == obj.size,
+#     )
 
 
 @user.field("bases")
@@ -530,6 +549,7 @@ def resolve_move_items_from_box_to_distribution_event(
 ):
     # TODO: Add authorization here
     return move_items_from_box_to_distribution_event(
+        user_id=g.user.id,
         box_label_identifier=box_label_identifier,
         distribution_event_id=distribution_event_id,
         number_of_items=number_of_items,
@@ -549,7 +569,7 @@ def resolve_remove_packing_list_entry_from_distribution_event(
         raise GraphQLError("Packing list entry not found")
     mobile_distribution_event = (
         DistributionEvent.select()
-        .where(DistributionEvent.id == packing_list_entry.distribution_event_id)
+        .where(DistributionEvent.id == packing_list_entry.distribution_event)
         .get()
     )
     # TODO: consider to throw an error in case the packing list entry for this id
@@ -787,7 +807,7 @@ def resolve_distribution_event_unboxed_item_collections(distribution_event_obj, 
 def resolve_packing_list_entries(obj, *_):
     # TODO: Add permissions here
     return PackingListEntry.select().where(
-        PackingListEntry.distribution_event_id == obj.id
+        PackingListEntry.distribution_event == obj.id
     )
 
 
@@ -981,5 +1001,10 @@ def resolve_box_place_type(obj, *_):
     return obj.type.name
 
 
+def resolve_items_collection_type(obj, *_):
+    return obj.items_collection_type
+
+
 union_types.append(UnionType("TaggableResource", resolve_taggable_resource_type))
 interface_types.append(InterfaceType("BoxPlace", resolve_box_place_type))
+interface_types.append(InterfaceType("ItemsCollection", resolve_items_collection_type))

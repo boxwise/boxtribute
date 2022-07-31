@@ -30,7 +30,7 @@ class PackingListEntry(db.Model):
         on_update="CASCADE",
     )
     state = EnumCharField(choices=PackingListEntryState)
-    created_on = DateTimeField(column_name="created", null=True)
+    created_on = DateTimeField(null=True)
     created_by = UIntForeignKeyField(
         model=User,
         column_name="created_by",
@@ -39,8 +39,8 @@ class PackingListEntry(db.Model):
         on_delete="SET NULL",
         on_update="CASCADE",
     )
-    last_modified_on = DateTimeField(column_name="modified", null=True)
-    last_modified_by = UIntForeignKeyField(
+    modified_on = DateTimeField(null=True)
+    modified_by = UIntForeignKeyField(
         model=User,
         column_name="modified_by",
         field="id",

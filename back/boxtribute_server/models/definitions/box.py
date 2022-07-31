@@ -13,6 +13,7 @@ from .user import User
 
 
 class Box(db.Model):
+    items_collection_type = "Box"
     label_identifier = CharField(
         column_name="box_id",
         constraints=[SQL("DEFAULT ''")],
@@ -59,10 +60,9 @@ class Box(db.Model):
         model=Location,
         on_update="CASCADE",
     )
-    last_modified_on = DateTimeField(column_name="modified", null=True)
-    last_modified_by = UIntForeignKeyField(
+    modified_on = DateTimeField(null=True)
+    modified_by = UIntForeignKeyField(
         model=User,
-        column_name="modified_by",
         field="id",
         null=True,
         on_delete="SET NULL",
