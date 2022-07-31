@@ -60,9 +60,10 @@ class Box(db.Model):
         model=Location,
         on_update="CASCADE",
     )
-    modified_on = DateTimeField(null=True)
-    modified_by = UIntForeignKeyField(
+    last_modified_on = DateTimeField(column_name="modified", null=True)
+    last_modified_by = UIntForeignKeyField(
         model=User,
+        column_name="modified_by",
         field="id",
         null=True,
         on_delete="SET NULL",
