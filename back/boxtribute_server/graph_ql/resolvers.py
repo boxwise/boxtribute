@@ -115,15 +115,14 @@ user = _register_object_type("User")
 
 @query.field("tags")
 def resolve_tags(*_):
-    # TODO: Add correct permissions here
-    # authorize(permission="tags:read")
+    authorize(permission="tags:read")
     return Tag.select()
 
 
 @query.field("packingListEntry")
 def resolve_packing_list_entry(*_, id):
     # TODO: Add correct permissions here
-    # authorize(permission="tags:read")
+    authorize(permission="packing_list_entrie:write")
     return PackingListEntry.get_by_id(id)
 
 
