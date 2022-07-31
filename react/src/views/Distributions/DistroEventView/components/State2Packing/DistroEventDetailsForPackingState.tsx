@@ -88,7 +88,7 @@ const PackingListEntry = ({
           {
             query: PACKING_LIST_ENTRIES_FOR_DISTRIBUTION_EVENT_QUERY,
             variables: {
-              eventId: distributionEventId,
+              distributionEventId: distributionEventId,
             },
           },
           // {
@@ -149,6 +149,20 @@ const PackingListEntry = ({
           boxLabelIdentifier,
           distributionEventId,
         },
+        refetchQueries: [
+          {
+            query: PACKING_LIST_ENTRIES_FOR_DISTRIBUTION_EVENT_QUERY,
+            variables: {
+              distributionEventId: distributionEventId,
+            },
+          },
+          // {
+          //   query: MATCHING_PACKED_ITEMS_COLLECTIONS_FOR_PACKING_LIST_ENTRY,
+          //   variables: {
+          //     packingListEntryId: packingListEntry.id,
+          //   },
+          // },
+        ],
       })
         .then((res) => {
           if (res.errors && res.errors.length !== 0) {
