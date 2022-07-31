@@ -276,8 +276,6 @@ const ActualTable = ({
     }
   );
 
-  const [filterActive, setFilterActive] = useState(false);
-
   if (!show) {
     return <></>;
   }
