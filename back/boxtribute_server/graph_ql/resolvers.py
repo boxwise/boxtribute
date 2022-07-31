@@ -76,9 +76,6 @@ from ..models.metrics import (
 from .filtering import derive_beneficiary_filter, derive_box_filter
 from .pagination import load_into_page
 
-# from types import SimpleNamespace
-
-
 query = QueryType()
 mutation = MutationType()
 object_types = []
@@ -121,19 +118,15 @@ def resolve_tags(*_):
 
 @query.field("packingListEntry")
 def resolve_packing_list_entry(*_, id):
-    # TODO: Add correct permissions here
-    authorize(permission="packing_list_entrie:write")
+    authorize(permission="packing_list_entrie:read")
     return PackingListEntry.get_by_id(id)
 
 
 @packing_list_entry.field("matchingPackedItemsCollections")
 def resolve_packing_list_entry_matching_packed_items_collections(obj, *_):
-    # return obj.matching_packed_items_collections
     distribution_event_id = obj.distribution_event
     boxes = Box.select().where(
         Box.distribution_event == distribution_event_id,
-        # TODO: only consider available boxes
-        # Box.state == "available",
         Box.product == obj.product,
         Box.size == obj.size,
     )
@@ -144,22 +137,7 @@ def resolve_packing_list_entry_matching_packed_items_collections(obj, *_):
         UnboxedItemsCollection.product == obj.product,
         UnboxedItemsCollection.size == obj.size,
     )
-    # aliased_unboxed_items_collections = map()
-    # [setattr(o, 'items', o.number_of_items) for o in unboxed_items_colletions]
-    # return list(unboxed_items_colletions)
     return list(boxes) + list(unboxed_items_colletions)
-
-
-# @packing_list_entry.field("matchingBoxes")
-# def resolve_packing_list_entry_matching_boxes(obj, *_):
-#     distribution_event_id = obj.distribution_event
-#     return Box.select().where(
-#         Box.distribution_event_id == distribution_event_id,
-#         # TODO: only consider available boxes
-#         # Box.state == "available",
-#         Box.product == obj.product,
-#         Box.size == obj.size,
-#     )
 
 
 @user.field("bases")
@@ -182,25 +160,18 @@ def resolve_beneficiary(*_, id):
     return beneficiary
 
 
-# @distribution_event.field("packingList")
-# def resolve_distribution_event_packing_list(obj, *_):
-#     packing_list = SimpleNamespace()
-#     packing_list.distribution_event_id = obj.id
-#     return packing_list
-
-
 @base.field("distributionEvents")
-# @query.field("distributionEvents")
 def resolve_distributions_events(base_obj, _):
-    # TODO: add permissions here
-    # authorize(permission="distribution_spot:read")
-    # return DistributionEvent.select().where.type == LocationType.DistributionSpot)
-    return (
+    authorize(
+        permission="distro_event:read",
+    )
+    distribution_events = (
         DistributionEvent.select()
         .join(Location, on=(DistributionEvent.distribution_spot == Location.id))
         .join(Base, on=(Location.base == Base.id))
         .where(Base.id == base_obj.id & Location.type == LocationType.DistributionSpot)
     )
+    return distribution_events
 
 
 @query.field("users")
@@ -488,8 +459,7 @@ def resolve_location_default_box_state(location_obj, _):
 @mutation.field("addPackingListEntryToDistributionEvent")
 @convert_kwargs_to_snake_case
 def resolve_add_packing_list_entry_to_distribution_event(*_, creation_input):
-    # TODO: add permissions
-    # authorize(permission="stock:write")
+    authorize(permission="packing_list_entrie:write")
     return add_packing_list_entry_to_distribution_event(
         user_id=g.user.id, **creation_input
     )
@@ -506,8 +476,7 @@ def resolve_create_qr_code(*_, box_label_identifier=None):
 @mutation.field("changeDistributionEventState")
 @convert_kwargs_to_snake_case
 def resolve_change_distribution_event_state(*_, distribution_event_id, new_state):
-    # TODO: Add authorization
-    # authorize(permission="distribution_event:write")
+    authorize(permission="distro_event:write")
     return change_distribution_event_state(distribution_event_id, new_state)
 
 
@@ -515,15 +484,14 @@ def resolve_change_distribution_event_state(*_, distribution_event_id, new_state
 @convert_kwargs_to_snake_case
 def resolve_create_distribution_event(*_, creation_input):
     # TODO: Add permissions
-    # authorize(permission="stock:write")
+    authorize(permission="distro_event:write")
     return create_distribution_event(user_id=g.user.id, **creation_input)
 
 
 @mutation.field("createDistributionSpot")
 @convert_kwargs_to_snake_case
 def resolve_create_distribution_spot(*_, creation_input=None):
-    # TODO: Add permissions
-    # authorize(permission="distribution_spot:create")
+    authorize(permission="location:write")
     return create_distribution_spot(
         user_id=g.user.id, distribution_spot_input=creation_input
     )
