@@ -46,6 +46,7 @@ const DistroEventView = () => {
     variables: {
       eventId: eventId!,
     },
+    pollInterval: 5000
   });
 
   if (loading) {
