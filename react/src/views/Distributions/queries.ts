@@ -75,10 +75,8 @@ export const MOVE_ITEMS_TO_DISTRIBUTION_EVENT = gql`
         name
 
         boxes {
-          elements {
-            product {
-              name
-            }
+          product {
+            name
           }
         }
         distributionSpot {

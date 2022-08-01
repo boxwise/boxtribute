@@ -196,7 +196,7 @@ export type BoxUpdateInput = {
 /** TODO: Add description here once specs are final/confirmed */
 export type DistributionEvent = {
   __typename?: 'DistributionEvent';
-  boxes?: Maybe<BoxPage>;
+  boxes: Array<Box>;
   distributionSpot?: Maybe<DistributionSpot>;
   id: Scalars['ID'];
   name?: Maybe<Scalars['String']>;
@@ -205,13 +205,6 @@ export type DistributionEvent = {
   plannedStartDateTime: Scalars['Datetime'];
   state: DistributionEventState;
   unboxedItemsCollections?: Maybe<Array<UnboxedItemsCollection>>;
-};
-
-
-/** TODO: Add description here once specs are final/confirmed */
-export type DistributionEventBoxesArgs = {
-  filterInput?: InputMaybe<FilterBoxInput>;
-  paginationInput?: InputMaybe<PaginationInput>;
 };
 
 export type DistributionEventCreationInput = {
@@ -1285,7 +1278,7 @@ export type MoveItemsToDistributionEventMutationVariables = Exact<{
 }>;
 
 
-export type MoveItemsToDistributionEventMutation = { __typename?: 'Mutation', moveItemsFromBoxToDistributionEvent?: { __typename?: 'UnboxedItemsCollection', id: string, items?: number | null, distributionEvent?: { __typename?: 'DistributionEvent', id: string, name?: string | null, boxes?: { __typename?: 'BoxPage', elements: Array<{ __typename?: 'Box', product?: { __typename?: 'Product', name: string } | null }> } | null, distributionSpot?: { __typename?: 'DistributionSpot', id: string, name?: string | null } | null } | null } | null };
+export type MoveItemsToDistributionEventMutation = { __typename?: 'Mutation', moveItemsFromBoxToDistributionEvent?: { __typename?: 'UnboxedItemsCollection', id: string, items?: number | null, distributionEvent?: { __typename?: 'DistributionEvent', id: string, name?: string | null, boxes: Array<{ __typename?: 'Box', product?: { __typename?: 'Product', name: string } | null }>, distributionSpot?: { __typename?: 'DistributionSpot', id: string, name?: string | null } | null } | null } | null };
 
 export type PackingListEntriesForDistributionEventQueryVariables = Exact<{
   distributionEventId: Scalars['ID'];
