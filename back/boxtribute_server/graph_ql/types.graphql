@@ -253,7 +253,7 @@ type DistributionEvent {
   plannedEndDateTime: Datetime!
   packingListEntries: [PackingListEntry!]!
 
-  boxes(paginationInput: PaginationInput, filterInput: FilterBoxInput): BoxPage
+  boxes: [Box!]!
   unboxedItemsCollections: [UnboxedItemsCollection!]
 }
 
