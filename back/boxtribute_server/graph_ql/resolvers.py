@@ -31,7 +31,13 @@ from ..box_transfer.shipment import (
     send_shipment,
     update_shipment,
 )
-from ..enums import HumanGender, LocationType, TaggableObjectType, TransferAgreementType
+from ..enums import (
+    DistributionEventState,
+    HumanGender,
+    LocationType,
+    TaggableObjectType,
+    TransferAgreementType,
+)
 from ..models.crud import (
     add_packing_list_entry_to_distribution_event,
     change_distribution_event_state,
@@ -113,7 +119,8 @@ user = _register_object_type("User")
 
 @query.field("tags")
 def resolve_tags(*_):
-    authorize(permission="tags:read")
+    # TODO: Add correct permissions here
+    # authorize(permission="tags:read")
     return Tag.select()
 
 
@@ -534,6 +541,7 @@ def resolve_move_items_from_box_to_distribution_event(
 def resolve_remove_packing_list_entry_from_distribution_event(
     *_, packing_list_entry_id
 ):
+
     packing_list_entry = PackingListEntry.get(packing_list_entry_id)
     if packing_list_entry is None:
         # TODO: Discuss error handling approach
@@ -551,6 +559,9 @@ def resolve_remove_packing_list_entry_from_distribution_event(
         permission="distro_event:write",
         base_id=distribution_event.distribution_spot.base.id,
     )
+    # Completed Events should not be mutable anymore
+    if distribution_event.state == DistributionEventState.Completed:
+        raise GraphQLError("Cannot move items to completed distribution event")
     delete_packing_list_entry(packing_list_entry_id)
     return distribution_event
 

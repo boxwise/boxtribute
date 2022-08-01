@@ -84,6 +84,11 @@ def move_items_from_box_to_distribution_event(
     """
 
     with db.database.atomic():
+        # Completed Events should not be mutable anymore
+        distribution_event = DistributionEvent.get_by_id(distribution_event_id)
+        if distribution_event.state == DistributionEventState.Completed:
+            raise GraphQLError("Cannot move items to completed distribution event")
+
         box = Box.get(Box.label_identifier == box_label_identifier)
 
         # TODO: Discuss error handling approach:
@@ -111,6 +116,10 @@ def move_box_to_distribution_event(box_label_identifier, distribution_event_id):
     with db.database.atomic():
         box = Box.get(Box.label_identifier == box_label_identifier)
         distribution_event = DistributionEvent.get_by_id(distribution_event_id)
+        # Completed Events should not be mutable anymore
+        distribution_event = DistributionEvent.get_by_id(distribution_event_id)
+        if distribution_event.state == DistributionEventState.Completed:
+            raise GraphQLError("Cannot move box to completed distribution event")
         box.location = distribution_event.distribution_spot_id
         box.distribution_event = distribution_event_id
         box.save()
@@ -120,8 +129,6 @@ def move_box_to_distribution_event(box_label_identifier, distribution_event_id):
 def change_distribution_event_state(distribution_event_id, distribution_event_state):
     distribution_event = DistributionEvent.get_by_id(distribution_event_id)
 
-    # TODO: als check for state == Completed for all other mutations on
-    # a DistroEvent or DistroEvent connected data
     # Completed Events should not be mutable anymore
     if distribution_event.state == DistributionEventState.Completed:
         raise InvalidDistributionEventState(
@@ -132,6 +139,7 @@ def change_distribution_event_state(distribution_event_id, distribution_event_st
             ],
             actual_state=distribution_event_state,
         )
+
     distribution_event.state = distribution_event_state
     distribution_event.save()
     return distribution_event
@@ -148,6 +156,11 @@ def add_packing_list_entry_to_distribution_event(
     Add a packing list entry to a distribution event.
     """
     now = utcnow()
+
+    # Completed Events should not be mutable anymore
+    distribution_event = DistributionEvent.get_by_id(distribution_event_id)
+    if distribution_event.state == DistributionEventState.Completed:
+        raise GraphQLError("Cannot add packing list entry to completed event")
 
     existing_packing_list_entry = PackingListEntry.get_or_none(
         PackingListEntry.distribution_event == distribution_event_id,
