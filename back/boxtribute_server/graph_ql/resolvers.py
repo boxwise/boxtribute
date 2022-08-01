@@ -307,10 +307,13 @@ def resolve_locations(*_):
     return (
         Location.select()
         .join(Base)
-        .where(
-            Location.type
-            == LocationType.Location & base_filter_condition("location:read")
-        )
+        # .where(
+        #     Location.type
+        #     == LocationType.Location
+        #     & base_filter_condition("location:read")
+        # )
+        .where(Location.type == LocationType.Location)
+        .where(base_filter_condition("location:read"))
     )
 
 
@@ -695,7 +698,11 @@ def resolve_send_shipment(*_, id):
 @base.field("locations")
 def resolve_base_locations(base_obj, _):
     authorize(permission="location:read")
-    return Location.select().where(Location.base == base_obj.id)
+    return (
+        Location.select()
+        .where(Location.base == base_obj.id)
+        .where(Location.type == LocationType.Location)
+    )
 
 
 @base.field("distributionSpots")

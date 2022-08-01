@@ -2,15 +2,22 @@ import { gql, useMutation, useQuery } from "@apollo/client";
 import APILoadingIndicator from "components/APILoadingIndicator";
 import { useNavigate, useParams } from "react-router-dom";
 import {
-  AllProductsQuery,
-  AllProductsQueryVariables,
+  AllProductsAndLocationsForBaseQuery,
+  AllProductsAndLocationsForBaseQueryVariables,
   CreateBoxMutation,
   CreateBoxMutationVariables,
 } from "types/generated/graphql";
 import BoxCreate, { BoxFormValues } from "./components/BoxCreate";
 
 export const ALL_PRODUCTS_QUERY = gql`
-  query AllProducts {
+  query AllProductsAndLocationsForBase($baseId: ID!) {
+    base(id: $baseId) {
+      locations {
+        id
+        name
+      }
+    }
+
     products(paginationInput: { first: 500 }) {
       elements {
         id
@@ -53,14 +60,16 @@ const BoxCreateView = () => {
   const labelIdentifier = useParams<{ labelIdentifier: string }>()
     .labelIdentifier!;
   const { loading, data } = useQuery<
-    AllProductsQuery,
-    AllProductsQueryVariables
-  >(ALL_PRODUCTS_QUERY, {
-  });
+    AllProductsAndLocationsForBaseQuery,
+    AllProductsAndLocationsForBaseQueryVariables
+  >(ALL_PRODUCTS_QUERY, {});
   const baseId = useParams<{ baseId: string }>().baseId;
   const navigate = useNavigate();
 
-  const [updateContentOfBoxMutation] = useMutation<CreateBoxMutation, CreateBoxMutationVariables>(CREATE_BOX_MUTATION);
+  const [updateContentOfBoxMutation] = useMutation<
+    CreateBoxMutation,
+    CreateBoxMutationVariables
+  >(CREATE_BOX_MUTATION);
 
   const onSubmitBoxCreateForm = (boxFormValues: BoxFormValues) => {
     console.log("boxLabelIdentifier", labelIdentifier);
@@ -88,14 +97,24 @@ const BoxCreateView = () => {
     return <APILoadingIndicator />;
   }
   const allProducts = data?.products;
+  const allLocations = data?.base?.locations.map((location) => ({
+    ...location,
+    name: location.name ?? "",
+  }));
+
+  if (allLocations == null) {
+    console.error("allLocations is null");
+    return <div>Error: no locations available to choose from</div>;
+  }
 
   if (allProducts?.elements == null) {
     console.error("allProducts.elements is null");
-    return <div>Error: no products available to choose from for this Box</div>;
+    return <div>Error: no products available to choose from</div>;
   }
 
   return (
     <BoxCreate
+      locations={allLocations}
       allProducts={allProducts?.elements}
       onSubmitBoxCreateForm={onSubmitBoxCreateForm}
     />

@@ -11,9 +11,7 @@ import {
 } from "@chakra-ui/react";
 import { Select, OptionBase } from "chakra-react-select";
 
-import {
-  BoxByLabelIdentifierAndAllProductsQuery,
-} from "types/generated/graphql";
+import { AllProductsAndLocationsForBaseQuery } from "types/generated/graphql";
 import { Controller, useForm } from "react-hook-form";
 import { groupBy } from "utils/helpers";
 
@@ -32,12 +30,17 @@ export interface BoxFormValues {
 }
 
 interface BoxCreateProps {
-  allProducts: BoxByLabelIdentifierAndAllProductsQuery["products"]["elements"];
+  locations: {
+    id: string;
+    name: string;
+  }[];
+  allProducts: AllProductsAndLocationsForBaseQuery["products"]["elements"];
   onSubmitBoxCreateForm: (boxFormValues: BoxFormValues) => void;
   qrCode?: string;
 }
 
 const BoxCreate = ({
+  locations,
   allProducts,
   onSubmitBoxCreateForm,
   qrCode,
