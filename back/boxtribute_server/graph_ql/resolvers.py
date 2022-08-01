@@ -536,6 +536,11 @@ def resolve_remove_packing_list_entry_from_distribution_event(
 ):
     packing_list_entry = PackingListEntry.get(packing_list_entry_id)
     if packing_list_entry is None:
+        # TODO: Discuss error handling approach
+        # * seems to be the first time we are doing GraphQLError throwings here
+        # * also discuss how to handle this in the frontend
+        # (e.g. should we return specific error codes that the FE then
+        # handles with messages?)
         raise GraphQLError("Packing list entry not found")
     distribution_event = (
         DistributionEvent.select()

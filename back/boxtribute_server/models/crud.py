@@ -8,6 +8,7 @@ from boxtribute_server.models.definitions.packing_list_entry import PackingListE
 from boxtribute_server.models.definitions.unboxed_items_collection import (
     UnboxedItemsCollection,
 )
+from graphql import GraphQLError
 
 from ..db import db
 from ..enums import (
@@ -16,7 +17,7 @@ from ..enums import (
     LocationType,
     PackingListEntryState,
 )
-from ..exceptions import BoxCreationFailed, InvalidShipmentState
+from ..exceptions import BoxCreationFailed, InvalidDistributionEventState
 from .definitions.beneficiary import Beneficiary
 from .definitions.box import Box
 from .definitions.location import Location
@@ -84,56 +85,23 @@ def move_items_from_box_to_distribution_event(
 
     with db.database.atomic():
         box = Box.get(Box.label_identifier == box_label_identifier)
-        product = box.product
-        size = box.size
-        # distribution_event = DistributionEvent.get_by_id(distribution_event_id)
-        # existing_unboxed_items_collection = UnboxedItemsCollection.select().where(
-        #     UnboxedItemsCollection.distribution_event == distribution_event_id,
-        #     product == product,
-        #     size == size,
-        # )
 
-        print("box.items", box.items)
+        # TODO: Discuss error handling approach:
+        # Ok to throw GraphQL errors in the crud module?
+        if box.items < number_of_items:
+            raise GraphQLError("Not enough items in box")
 
-        print("box_label_identifier", box_label_identifier)
-        print("distribution_event_id", distribution_event_id)
-        print("number_of_items", number_of_items)
-        # print("existing_unboxed_items_collection", existing_unboxed_items_collection)
-
-        # unboxed_items_collection = (
-        #     UnboxedItemsCollection.create(
-        #         distribution_event=distribution_event_id,
-        #         product=product.id,
-        #         number_of_items=number_of_items,
-        #         size=size.id,
-        #         location=box.location.id,
-        #         # created_on=now,
-        #         # created_by=user_id,
-        #         # last_modified_on=now,
-        #         # last_modified_by=user_id,
-        #     )
-        #     if existing_unboxed_items_collection is None
-        #     else existing_unboxed_items_collection
-        # )
-
-        unboxed_items_collection, created = UnboxedItemsCollection.get_or_create(
+        unboxed_items_collection, _ = UnboxedItemsCollection.get_or_create(
             distribution_event=distribution_event_id,
-            product=product.id,
-            size=size.id,
+            product=box.product.id,
+            size=box.size.id,
             defaults={"number_of_items": 0, "location": box.location.id},
-            # created_on=now,
-            # created_by=user_id,
-            # last_modified_on=now,
-            # last_modified_by=user_id,
         )
 
         unboxed_items_collection.number_of_items += number_of_items
-        unboxed_items_collection.save()
-        print("FOO unboxed_items_collection:")
-        # print(unboxed_items_collection.id)
-
-        # TODO: handle cases where there are not enough items in the box
         box.items -= number_of_items
+
+        unboxed_items_collection.save()
         box.save()
         return unboxed_items_collection
 
@@ -156,7 +124,7 @@ def change_distribution_event_state(distribution_event_id, distribution_event_st
     # a DistroEvent or DistroEvent connected data
     # Completed Events should not be mutable anymore
     if distribution_event.state == DistributionEventState.Completed:
-        raise InvalidShipmentState(
+        raise InvalidDistributionEventState(
             expected_states=[
                 s
                 for s in DistributionEventState
