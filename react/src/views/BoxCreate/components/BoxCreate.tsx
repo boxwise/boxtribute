@@ -25,6 +25,7 @@ interface OptionsGroup extends OptionBase {
 export interface BoxFormValues {
   numberOfItems: number;
   sizeId: string;
+  locationId: string;
   productForDropdown: OptionsGroup;
   sizeForDropdown?: OptionsGroup;
   qrCode?: string;
@@ -131,19 +132,6 @@ const BoxCreate = ({
           </ListItem>
 
           <ListItem>
-            <FormLabel htmlFor="numberOfItems">Number Of Items</FormLabel>
-            <Box border="2px">
-              <Input
-                border="0"
-                type="number"
-                {...register("numberOfItems", {
-                  valueAsNumber: true,
-                  validate: (value) => value > 0,
-                })}
-              />
-            </Box>
-          </ListItem>
-          {/* <ListItem>
             <FormLabel htmlFor="sizeId">Size</FormLabel>
             <Controller
               control={control}
@@ -160,7 +148,7 @@ const BoxCreate = ({
                       onChange={onChange}
                       onBlur={onBlur}
                       value={value}
-                      options={boxData.size.availableSizes}
+                      options={[]}
                       placeholder="Size"
                       isSearchable
                       tagVariant="outline"
@@ -169,7 +157,49 @@ const BoxCreate = ({
                 </FormControl>
               )}
             />
-          </ListItem> */}
+          </ListItem>
+
+          <ListItem>
+            <FormLabel htmlFor="numberOfItems">Number Of Items</FormLabel>
+            <Box border="2px">
+              <Input
+                border="0"
+                type="number"
+                {...register("numberOfItems", {
+                  valueAsNumber: true,
+                  validate: (value) => value > 0,
+                })}
+              />
+            </Box>
+          </ListItem>
+
+          <ListItem>
+            <FormLabel htmlFor="locationId">Location</FormLabel>
+            <Controller
+              control={control}
+              name="locationId"
+              render={({
+                field: { onChange, onBlur, value, name, ref },
+                fieldState: { invalid, error },
+              }) => (
+                <FormControl isInvalid={invalid} id="location">
+                  <Box border="2px">
+                    <Select
+                      name={name}
+                      ref={ref}
+                      onChange={onChange}
+                      onBlur={onBlur}
+                      value={value}
+                      options={[]}
+                      placeholder="Location"
+                      isSearchable
+                      tagVariant="outline"
+                    />
+                  </Box>
+                </FormControl>
+              )}
+            />
+          </ListItem>
         </List>
         <Button mt={4} isLoading={isSubmitting} type="submit" borderRadius="0">
           Update Box

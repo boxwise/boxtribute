@@ -23,6 +23,7 @@ const HeaderMenuContainer = () => {
         links: [
           { link: "#", name: "Print Labels" },
           { link: `/bases/${baseId}/boxes`, name: "Manage Boxes" },
+          { link: `/bases/${baseId}/boxes/create`, name: "Create new Box" },
           { link: "#", name: "Stock Overview" },
         ],
       },

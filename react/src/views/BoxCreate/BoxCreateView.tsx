@@ -2,10 +2,10 @@ import { gql, useMutation, useQuery } from "@apollo/client";
 import APILoadingIndicator from "components/APILoadingIndicator";
 import { useNavigate, useParams } from "react-router-dom";
 import {
-  BoxByLabelIdentifierAndAllProductsQuery,
-  BoxByLabelIdentifierAndAllProductsQueryVariables,
-  UpdateContentOfBoxMutation,
-  UpdateContentOfBoxMutationVariables,
+  AllProductsQuery,
+  AllProductsQueryVariables,
+  CreateBoxMutation,
+  CreateBoxMutationVariables,
 } from "types/generated/graphql";
 import BoxCreate, { BoxFormValues } from "./components/BoxCreate";
 
@@ -53,20 +53,14 @@ const BoxCreateView = () => {
   const labelIdentifier = useParams<{ labelIdentifier: string }>()
     .labelIdentifier!;
   const { loading, data } = useQuery<
-    BoxByLabelIdentifierAndAllProductsQuery,
-    BoxByLabelIdentifierAndAllProductsQueryVariables
+    AllProductsQuery,
+    AllProductsQueryVariables
   >(ALL_PRODUCTS_QUERY, {
-    variables: {
-      labelIdentifier,
-    },
   });
   const baseId = useParams<{ baseId: string }>().baseId;
   const navigate = useNavigate();
 
-  const [updateContentOfBoxMutation] = useMutation<
-    UpdateContentOfBoxMutation,
-    UpdateContentOfBoxMutationVariables
-  >(CREATE_BOX_MUTATION);
+  const [updateContentOfBoxMutation] = useMutation<CreateBoxMutation, CreateBoxMutationVariables>(CREATE_BOX_MUTATION);
 
   const onSubmitBoxCreateForm = (boxFormValues: BoxFormValues) => {
     console.log("boxLabelIdentifier", labelIdentifier);
@@ -74,15 +68,15 @@ const BoxCreateView = () => {
 
     updateContentOfBoxMutation({
       variables: {
-        boxLabelIdentifier: labelIdentifier,
+        locationId: parseInt(boxFormValues.locationId),
+        sizeId: parseInt(boxFormValues.sizeId),
         productId: parseInt(boxFormValues.productForDropdown.value),
         numberOfItems: boxFormValues.numberOfItems,
-        sizeId: parseInt(boxFormValues.sizeId),
       },
     })
       .then((mutationResult) => {
         navigate(
-          `/bases/${baseId}/boxes/${mutationResult.data?.updateBox?.labelIdentifier}`
+          `/bases/${baseId}/boxes/${mutationResult.data?.createBox?.labelIdentifier}`
         );
       })
       .catch((error) => {
