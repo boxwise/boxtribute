@@ -13,7 +13,6 @@ import { Select, OptionBase } from "chakra-react-select";
 
 import {
   BoxByLabelIdentifierAndAllProductsQuery,
-  UpdateLocationOfBoxMutation,
 } from "types/generated/graphql";
 import { Controller, useForm } from "react-hook-form";
 import { groupBy } from "utils/helpers";
@@ -40,7 +39,7 @@ interface BoxCreateProps {
 const BoxCreate = ({
   allProducts,
   onSubmitBoxCreateForm,
-  qrCode
+  qrCode,
 }: BoxCreateProps) => {
   const productsGroupedByCategory = groupBy(
     allProducts,
@@ -69,12 +68,11 @@ const BoxCreate = ({
     formState: { isSubmitting },
   } = useForm<BoxFormValues>({
     defaultValues: {
-      numberOfItems: 0,
       qrCode: qrCode,
       // sizeId: boxData?.size.id,
-    //   productForDropdown: productsForDropdownGroups
-    //     ?.flatMap((i) => i.options)
-    //     .find((p) => p.value === boxData?.product?.id),
+      //   productForDropdown: productsForDropdownGroups
+      //     ?.flatMap((i) => i.options)
+      //     .find((p) => p.value === boxData?.product?.id),
     },
   });
 

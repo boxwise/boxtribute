@@ -80,9 +80,9 @@ const App = () => {
             <Route index element={<BaseDashboardView />} />
             <Route path="boxes">
               <Route index element={<Boxes />} />
+              <Route path="create" element={<BoxCreateView />} />
               <Route path=":labelIdentifier">
                 <Route index element={<BTBox />} />
-                <Route path="create" element={<BoxCreateView />} />
                 <Route path="edit" element={<BoxEditView />} />
               </Route>
             </Route>
