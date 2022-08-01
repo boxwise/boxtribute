@@ -16,9 +16,9 @@ const mockedDistroEventPackingList: IPackingListEntry[] =
       },
       product: {
         id: "1",
-        name: "T-shirt"
+        name: "T-shirt",
+        gender: ProductGender.Men,
       },
-      gender: ProductGender.Men,
     },
     {
       id: "4",
@@ -29,9 +29,9 @@ const mockedDistroEventPackingList: IPackingListEntry[] =
       },
       product: {
         id: "2",
-        name: "T-shirt"
+        name: "T-shirt",
+        gender: ProductGender.Women,
       },
-      gender: ProductGender.Women,
     },
   ];
 

@@ -35,10 +35,10 @@ import {
 } from "types/generated/graphql";
 import PackingAddBoxOrItemsForPackingListEntryOverlay from "./components/PackingAddBoxOrItemsForPackingListEntryOverlay/PackingAddBoxOrItemsForPackingListEntryOverlay";
 import { useMutation } from "@apollo/client";
-import { IPackingListEntry } from "views/Distributions/types";
+import { IPackingListEntryForPackingState } from "views/Distributions/types";
 
 interface DistroEventDetailsForPackingStateProps {
-  packingListEntries: IPackingListEntry[];
+  packingListEntries: IPackingListEntryForPackingState[];
   distributionEventId: string;
   // onShowListClick: (itemId: string) => void;
   // boxesData: BoxData[];
@@ -51,7 +51,7 @@ const PackingListEntry = ({
   packingListEntry,
   distributionEventId,
 }: {
-  packingListEntry: IPackingListEntry;
+  packingListEntry: IPackingListEntryForPackingState;
   distributionEventId: string;
 }) => {
   const [chosenPackingNumberOfItems, setChosenPackingNumberOfItems] =

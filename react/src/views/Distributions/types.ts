@@ -84,9 +84,11 @@ export interface IPackingListEntry {
     id: string;
     label: string;
   };
-  matchingPackedItemsCollections: (UnboxedItemsCollectionData | BoxData)[]
 }
 
+export interface IPackingListEntryForPackingState extends IPackingListEntry {
+  matchingPackedItemsCollections: (UnboxedItemsCollectionData | BoxData)[]
+}
 
 export interface ItemsCollection {
   product?: {

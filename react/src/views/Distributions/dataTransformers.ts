@@ -1,10 +1,10 @@
 import { el } from "date-fns/locale";
 import { PackingListEntriesForDistributionEventQuery } from "types/generated/graphql";
-import { IPackingListEntry } from "./types";
+import { IPackingListEntry, IPackingListEntryForPackingState } from "./types";
 
 export const graphqlPackingListEntriesForDistributionEventTransformer = (
   queryResult: PackingListEntriesForDistributionEventQuery | undefined
-): IPackingListEntry[] | undefined => {
+): IPackingListEntryForPackingState[] | undefined => {
   // TODO: Do better (e.g. zod based) validation of the query result
   return queryResult?.distributionEvent?.packingListEntries.map((entry) => {
 
@@ -12,11 +12,8 @@ export const graphqlPackingListEntriesForDistributionEventTransformer = (
       return {
         ...el,
         numberOfItems: el.numberOfItems || 0,
-        // numberOfItems: 0,
       }
     });
-
-      console.log(matchingPackedItemsCollections);
 
     return {
       ...entry,

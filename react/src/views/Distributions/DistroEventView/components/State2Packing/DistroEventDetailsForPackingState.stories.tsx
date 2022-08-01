@@ -4,43 +4,13 @@ import { ProductGender } from 'types/generated/graphql';
 import DistroEventDetailsForPackingState from './DistroEventDetailsForPackingState';
 // import { DistroEvent } from "../State1Planning/DistroEventPlanning";
 import { action } from '@storybook/addon-actions';
-import { BoxData, IPackingListEntry } from 'views/Distributions/types';
+import { BoxData, IPackingListEntry, IPackingListEntryForPackingState } from 'views/Distributions/types';
 import { PackingActionListProps } from './components/PackedContentListOverlay';
-
-
-const mockedDistroEventPackingList: IPackingListEntry[] =
-  [
-    {
-      id: "3",
-      numberOfItems: 32,
-      size: {
-        id: "123",
-        label: "M",
-      },
-      product: {
-        id: "1",
-        name: "T-shirt",
-      },
-      gender: ProductGender.Men,
-    },
-    {
-      id: "4",
-      numberOfItems: 10,
-      size: {
-        id: "234",
-        label: "S",
-      },
-      product: {
-        id: "2",
-        name: "T-shirt"
-      },
-      gender: ProductGender.Women,
-    },
-  ];
 
 
 
 const mockedBoxesData: BoxData[] = [{
+  __typename: "Box",
   labelIdentifier: "23982",
   product: {
     id: "3",
@@ -53,6 +23,7 @@ const mockedBoxesData: BoxData[] = [{
   numberOfItems: 42,
 },
 {
+  __typename: "Box",
   labelIdentifier: "23942",
   product: {
     id: "2",
@@ -66,6 +37,7 @@ const mockedBoxesData: BoxData[] = [{
 }]
 
 const mockedBoxData: BoxData ={
+  __typename: "Box",
   labelIdentifier: "23942",
   product: {
     id: "3",
@@ -82,6 +54,39 @@ const mockedBoxData: BoxData ={
 //   onBoxToDistribution: action("onBoxToDistribution"),
 //   onMoveItemsToDistribution: action("onMoveItemsToDistribution")
 // }
+
+const mockedDistroEventPackingList: IPackingListEntryForPackingState[] = [
+  {
+    id: "3",
+    numberOfItems: 32,
+    size: {
+      id: "123",
+      label: "M",
+    },
+    product: {
+      id: "1",
+      name: "T-shirt",
+      gender: ProductGender.Men,
+    },
+    matchingPackedItemsCollections: mockedBoxesData
+  },
+  {
+    id: "4",
+    numberOfItems: 10,
+    size: {
+      id: "234",
+      label: "S",
+    },
+    product: {
+      id: "2",
+      name: "T-shirt",
+      gender: ProductGender.Women,
+    },
+    matchingPackedItemsCollections: []
+  },
+];
+
+
 
 const mockedPackingActionListProps: PackingActionListProps = {
   onDeleteBoxFromDistribution: action("onDeleteBoxFromDistribution"),

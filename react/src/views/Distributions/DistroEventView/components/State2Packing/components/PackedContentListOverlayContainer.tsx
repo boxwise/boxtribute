@@ -1,11 +1,9 @@
-import { useQuery } from "@apollo/client";
-import APILoadingIndicator from "components/APILoadingIndicator";
-import { BoxData, IPackingListEntry, UnboxedItemsCollectionData } from "views/Distributions/types";
+import { BoxData, IPackingListEntryForPackingState, UnboxedItemsCollectionData } from "views/Distributions/types";
 import PackedContentListOverlay from "./PackedContentListOverlay";
 
 export interface PackedContentListOverlayContainerProps {
   // packingListEntryId: string;
-  packingListEntry: IPackingListEntry;
+  packingListEntry: IPackingListEntryForPackingState;
   onDeleteBoxFromDistribution: (boxId: string) => void;
 }
 

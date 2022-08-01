@@ -18,6 +18,7 @@ import DistroSpotView from "views/Distributions/DistroSpotView/DistroSpotView";
 import CreateDistributionEventView from "views/Distributions/CreateDistributionEventView/CreateDistributionEventView";
 import CreateDistributionSpotView from "views/Distributions/CreateDistributionSpotView/CreateDistributionSpotView";
 import BaseDashboardView from "views/BaseDashboard/BaseDashboardView";
+import BoxCreateView from "views/BoxCreate/BoxCreateView";
 
 const useLoadAndSetAvailableBases = () => {
   const BASES_QUERY = gql`
@@ -81,6 +82,7 @@ const App = () => {
               <Route index element={<Boxes />} />
               <Route path=":labelIdentifier">
                 <Route index element={<BTBox />} />
+                <Route path="create" element={<BoxCreateView />} />
                 <Route path="edit" element={<BoxEditView />} />
               </Route>
             </Route>

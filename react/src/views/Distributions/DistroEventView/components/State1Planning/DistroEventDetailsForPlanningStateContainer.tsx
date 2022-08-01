@@ -252,7 +252,7 @@ const DistroEventDetailsForPlanningStateContainer = ({
     return <div>Error</div>;
   }
 
-  const packingListEntries =
+  const packingListEntries: IPackingListEntry[] | undefined =
     graphqlPackingListEntriesForDistributionEventTransformer(data);
 
   if (packingListEntries == null) {
