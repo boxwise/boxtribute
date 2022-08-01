@@ -9,38 +9,8 @@ import {
 } from "types/generated/graphql";
 import BoxCreate, { BoxFormValues } from "./components/BoxCreate";
 
-export const BOX_BY_LABEL_IDENTIFIER_AND_ALL_PRODUCTS_QUERY = gql`
-  query BoxByLabelIdentifierAndAllProducts($labelIdentifier: String!) {
-    box(labelIdentifier: $labelIdentifier) {
-      labelIdentifier
-      size {
-        id
-        label
-      }
-      items
-      product {
-        id
-        name
-        gender
-        sizeRange {
-          sizes {
-            id
-            label
-          }
-        }
-      }
-      place {
-        id
-        name
-        base {
-          locations {
-            id
-            name
-          }
-        }
-      }
-    }
-
+export const ALL_PRODUCTS_QUERY = gql`
+  query AllProducts {
     products(paginationInput: { first: 500 }) {
       elements {
         id
@@ -57,14 +27,21 @@ export const BOX_BY_LABEL_IDENTIFIER_AND_ALL_PRODUCTS_QUERY = gql`
   }
 `;
 
-export const UPDATE_CONTENT_OF_BOX_MUTATION = gql`
-  mutation UpdateContentOfBox($boxLabelIdentifier: String!, $productId: Int!, $numberOfItems: Int!, $sizeId: Int!) {
-    updateBox(
-      updateInput: {
-        labelIdentifier: $boxLabelIdentifier
+export const CREATE_BOX_MUTATION = gql`
+  mutation CreateBox(
+    $locationId: Int!
+    $productId: Int!
+    $sizeId: Int!
+    $numberOfItems: Int!
+    $qrCode: String
+  ) {
+    createBox(
+      creationInput: {
+        locationId: $locationId
         productId: $productId
         items: $numberOfItems
         sizeId: $sizeId
+        qrCode: $qrCode
       }
     ) {
       labelIdentifier
@@ -73,12 +50,12 @@ export const UPDATE_CONTENT_OF_BOX_MUTATION = gql`
 `;
 
 const BoxCreateView = () => {
-  const labelIdentifier =
-    useParams<{ labelIdentifier: string }>().labelIdentifier!;
+  const labelIdentifier = useParams<{ labelIdentifier: string }>()
+    .labelIdentifier!;
   const { loading, data } = useQuery<
     BoxByLabelIdentifierAndAllProductsQuery,
     BoxByLabelIdentifierAndAllProductsQueryVariables
-  >(BOX_BY_LABEL_IDENTIFIER_AND_ALL_PRODUCTS_QUERY, {
+  >(ALL_PRODUCTS_QUERY, {
     variables: {
       labelIdentifier,
     },
@@ -89,7 +66,7 @@ const BoxCreateView = () => {
   const [updateContentOfBoxMutation] = useMutation<
     UpdateContentOfBoxMutation,
     UpdateContentOfBoxMutationVariables
-  >(UPDATE_CONTENT_OF_BOX_MUTATION);
+  >(CREATE_BOX_MUTATION);
 
   const onSubmitBoxCreateForm = (boxFormValues: BoxFormValues) => {
     console.log("boxLabelIdentifier", labelIdentifier);
@@ -116,7 +93,6 @@ const BoxCreateView = () => {
   if (loading) {
     return <APILoadingIndicator />;
   }
-  const boxData = data?.box;
   const allProducts = data?.products;
 
   if (allProducts?.elements == null) {
@@ -126,7 +102,6 @@ const BoxCreateView = () => {
 
   return (
     <BoxCreate
-      boxData={boxData}
       allProducts={allProducts?.elements}
       onSubmitBoxCreateForm={onSubmitBoxCreateForm}
     />

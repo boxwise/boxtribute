@@ -28,20 +28,19 @@ export interface BoxFormValues {
   sizeId: string;
   productForDropdown: OptionsGroup;
   sizeForDropdown?: OptionsGroup;
+  qrCode?: string;
 }
 
 interface BoxCreateProps {
-  boxData:
-    | BoxByLabelIdentifierAndAllProductsQuery["box"]
-    | UpdateLocationOfBoxMutation["updateBox"];
   allProducts: BoxByLabelIdentifierAndAllProductsQuery["products"]["elements"];
   onSubmitBoxCreateForm: (boxFormValues: BoxFormValues) => void;
+  qrCode?: string;
 }
 
 const BoxCreate = ({
-  boxData,
   allProducts,
   onSubmitBoxCreateForm,
+  qrCode
 }: BoxCreateProps) => {
   const productsGroupedByCategory = groupBy(
     allProducts,
@@ -63,8 +62,6 @@ const BoxCreate = ({
     })
     .sort((a, b) => a.label.localeCompare(b.label));
 
-  // const availableSizes = boxData?.product?.sizeRange?.sizes || [];
-
   const {
     handleSubmit,
     control,
@@ -72,18 +69,19 @@ const BoxCreate = ({
     formState: { isSubmitting },
   } = useForm<BoxFormValues>({
     defaultValues: {
-      numberOfItems: boxData?.items || 0,
-      sizeId: boxData?.size.id,
-      productForDropdown: productsForDropdownGroups
-        ?.flatMap((i) => i.options)
-        .find((p) => p.value === boxData?.product?.id),
+      numberOfItems: 0,
+      qrCode: qrCode,
+      // sizeId: boxData?.size.id,
+    //   productForDropdown: productsForDropdownGroups
+    //     ?.flatMap((i) => i.options)
+    //     .find((p) => p.value === boxData?.product?.id),
     },
   });
 
-  if (boxData == null) {
-    console.error("BoxDetails Component: boxData is null");
-    return <Box>No data found for a box with this id</Box>;
-  }
+  // if (boxData == null) {
+  //   console.error("BoxDetails Component: boxData is null");
+  //   return <Box>No data found for a box with this id</Box>;
+  // }
 
   if (productsForDropdownGroups == null) {
     console.error("BoxDetails Component: allProducts is null");
@@ -98,7 +96,7 @@ const BoxCreate = ({
   return (
     <Box w={["100%", "100%", "60%", "40%"]}>
       <Heading fontWeight={"bold"} mb={4} as="h2">
-        Box {boxData.labelIdentifier}
+        Create New Box {qrCode !== null && <>for QR code</>}
       </Heading>
 
       <form onSubmit={handleSubmit(onSubmitBoxCreateForm)}>
