@@ -17,6 +17,3 @@ def test_distribution_event_query(read_only_client, default_distribution_event):
     assert int(distribution_event["id"]) == expected_distribution_event["id"]
     assert distribution_event["name"] == expected_distribution_event["name"]
     assert distribution_event["state"] == DistributionEventState.Planning.name
-
-    # locations = base["locations"]
-    # assert {"id": str(default_location["id"])} in locations

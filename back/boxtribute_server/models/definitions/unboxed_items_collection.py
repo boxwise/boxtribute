@@ -21,13 +21,6 @@ class UnboxedItemsCollection(db.Model):
         on_update="CASCADE",
     )
     modified_on = DateTimeField(null=True)
-    # modified_by = UIntForeignKeyField(
-    #     model=User,
-    #     field="id",
-    #     null=True,
-    #     on_delete="SET NULL",
-    #     on_update="CASCADE",
-    # )
     distribution_event = UIntForeignKeyField(
         column_name="distro_event_id",
         field="id",
@@ -45,7 +38,6 @@ class UnboxedItemsCollection(db.Model):
     # TODO: suggest to remove the relation from UnboxedItemCollection to Location again
     # It's most likely only requried to have them for DistributionEvents (since they are
     # kind of transient and should only exist in the Mobile Distro Context)
-
     # TODO: If we decide to do that, also ensure that the field (FK to location) is
     # removed again in the Database (DropApp migrations)
 
