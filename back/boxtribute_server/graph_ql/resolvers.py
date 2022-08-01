@@ -704,6 +704,7 @@ def resolve_distributions_spots(base_obj, _):
     authorize(permission="location:read")
     return (
         Location.select()
+        .join(Base)
         .where(Location.type == LocationType.DistributionSpot)
         .where(base_filter_condition("location:read"))
     )
