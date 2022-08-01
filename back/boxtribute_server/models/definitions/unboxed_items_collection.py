@@ -11,7 +11,6 @@ from .user import User
 
 class UnboxedItemsCollection(db.Model):
     items_collection_type = "UnboxedItemsCollection"
-
     created_on = DateTimeField(null=True)
     created_by = UIntForeignKeyField(
         model=User,
@@ -22,14 +21,6 @@ class UnboxedItemsCollection(db.Model):
         on_update="CASCADE",
     )
     modified_on = DateTimeField(null=True)
-    modified_by = UIntForeignKeyField(
-        model=User,
-        column_name="modified_by",
-        field="id",
-        null=True,
-        on_delete="SET NULL",
-        on_update="CASCADE",
-    )
     distribution_event = UIntForeignKeyField(
         column_name="distro_event_id",
         field="id",
@@ -42,12 +33,11 @@ class UnboxedItemsCollection(db.Model):
     # (and we only use then number_of_items)
     # We are doing it for now so that it's aligned with Boxes
     # (the other subtype of the interface ItemsCollection)
-    items = IntegerField(null=False, default=0, column_name="number_of_items")
+    # items = IntegerField(null=False, default=0, column_name="number_of_items")
 
     # TODO: suggest to remove the relation from UnboxedItemCollection to Location again
     # It's most likely only requried to have them for DistributionEvents (since they are
     # kind of transient and should only exist in the Mobile Distro Context)
-
     # TODO: If we decide to do that, also ensure that the field (FK to location) is
     # removed again in the Database (DropApp migrations)
 

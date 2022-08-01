@@ -31,7 +31,13 @@ from ..box_transfer.shipment import (
     send_shipment,
     update_shipment,
 )
-from ..enums import HumanGender, LocationType, TaggableObjectType, TransferAgreementType
+from ..enums import (
+    DistributionEventState,
+    HumanGender,
+    LocationType,
+    TaggableObjectType,
+    TransferAgreementType,
+)
 from ..models.crud import (
     add_packing_list_entry_to_distribution_event,
     change_distribution_event_state,
@@ -76,9 +82,6 @@ from ..models.metrics import (
 from .filtering import derive_beneficiary_filter, derive_box_filter
 from .pagination import load_into_page
 
-# from types import SimpleNamespace
-
-
 query = QueryType()
 mutation = MutationType()
 object_types = []
@@ -110,6 +113,7 @@ size = _register_object_type("Size")
 size_range = _register_object_type("SizeRange")
 tag = _register_object_type("Tag")
 transfer_agreement = _register_object_type("TransferAgreement")
+unboxed_items_collection = _register_object_type("UnboxedItemsCollection")
 user = _register_object_type("User")
 
 
@@ -122,44 +126,31 @@ def resolve_tags(*_):
 
 @query.field("packingListEntry")
 def resolve_packing_list_entry(*_, id):
-    # TODO: Add correct permissions here
-    # authorize(permission="tags:read")
+    authorize(permission="packing_list_entrie:read")
     return PackingListEntry.get_by_id(id)
 
 
 @packing_list_entry.field("matchingPackedItemsCollections")
 def resolve_packing_list_entry_matching_packed_items_collections(obj, *_):
-    # return obj.matching_packed_items_collections
     distribution_event_id = obj.distribution_event
     boxes = Box.select().where(
         Box.distribution_event == distribution_event_id,
-        # TODO: only consider available boxes
-        # Box.state == "available",
         Box.product == obj.product,
         Box.size == obj.size,
     )
-
-    unboxed_items_colletioncs = UnboxedItemsCollection.select().where(
+    unboxed_items_colletions = UnboxedItemsCollection.select(
+        UnboxedItemsCollection,
+        # TODO: Remove the alias once the renaming from `items` is consistenly done
+        # for all involved types/fields (and we only use then number_of_items)
+        # We are doing it for now so that it's aligned with the Boxes#items field
+        # (the other subtype of the interface ItemsCollection)
+        UnboxedItemsCollection.number_of_items.alias("items"),
+    ).where(
         UnboxedItemsCollection.distribution_event == distribution_event_id,
         UnboxedItemsCollection.product == obj.product,
         UnboxedItemsCollection.size == obj.size,
     )
-
-    print("unboxed_items_colletioncs", list(unboxed_items_colletioncs))
-
-    return list(boxes) + list(unboxed_items_colletioncs)
-
-
-# @packing_list_entry.field("matchingBoxes")
-# def resolve_packing_list_entry_matching_boxes(obj, *_):
-#     distribution_event_id = obj.distribution_event
-#     return Box.select().where(
-#         Box.distribution_event_id == distribution_event_id,
-#         # TODO: only consider available boxes
-#         # Box.state == "available",
-#         Box.product == obj.product,
-#         Box.size == obj.size,
-#     )
+    return list(boxes) + list(unboxed_items_colletions)
 
 
 @user.field("bases")
@@ -182,25 +173,18 @@ def resolve_beneficiary(*_, id):
     return beneficiary
 
 
-# @distribution_event.field("packingList")
-# def resolve_distribution_event_packing_list(obj, *_):
-#     packing_list = SimpleNamespace()
-#     packing_list.distribution_event_id = obj.id
-#     return packing_list
-
-
 @base.field("distributionEvents")
-# @query.field("distributionEvents")
 def resolve_distributions_events(base_obj, _):
-    # TODO: add permissions here
-    # authorize(permission="distribution_spot:read")
-    # return DistributionEvent.select().where.type == LocationType.DistributionSpot)
-    return (
+    authorize(
+        permission="distro_event:read",
+    )
+    distribution_events = (
         DistributionEvent.select()
         .join(Location, on=(DistributionEvent.distribution_spot == Location.id))
         .join(Base, on=(Location.base == Base.id))
         .where(Base.id == base_obj.id & Location.type == LocationType.DistributionSpot)
     )
+    return distribution_events
 
 
 @query.field("users")
@@ -249,6 +233,7 @@ def resolve_box_tags(box_obj, _):
 
 @query.field("product")
 @box.field("product")
+@unboxed_items_collection.field("product")
 def resolve_product(obj, _, id=None):
     product = obj.product if id is None else Product.get_by_id(id)
     authorize(permission="product:read", base_id=product.base_id)
@@ -488,8 +473,7 @@ def resolve_location_default_box_state(location_obj, _):
 @mutation.field("addPackingListEntryToDistributionEvent")
 @convert_kwargs_to_snake_case
 def resolve_add_packing_list_entry_to_distribution_event(*_, creation_input):
-    # TODO: add permissions
-    # authorize(permission="stock:write")
+    authorize(permission="packing_list_entrie:write")
     return add_packing_list_entry_to_distribution_event(
         user_id=g.user.id, **creation_input
     )
@@ -506,8 +490,7 @@ def resolve_create_qr_code(*_, box_label_identifier=None):
 @mutation.field("changeDistributionEventState")
 @convert_kwargs_to_snake_case
 def resolve_change_distribution_event_state(*_, distribution_event_id, new_state):
-    # TODO: Add authorization
-    # authorize(permission="distribution_event:write")
+    authorize(permission="distro_event:write")
     return change_distribution_event_state(distribution_event_id, new_state)
 
 
@@ -515,15 +498,14 @@ def resolve_change_distribution_event_state(*_, distribution_event_id, new_state
 @convert_kwargs_to_snake_case
 def resolve_create_distribution_event(*_, creation_input):
     # TODO: Add permissions
-    # authorize(permission="stock:write")
+    authorize(permission="distro_event:write")
     return create_distribution_event(user_id=g.user.id, **creation_input)
 
 
 @mutation.field("createDistributionSpot")
 @convert_kwargs_to_snake_case
 def resolve_create_distribution_spot(*_, creation_input=None):
-    # TODO: Add permissions
-    # authorize(permission="distribution_spot:create")
+    authorize(permission="location:write")
     return create_distribution_spot(
         user_id=g.user.id, distribution_spot_input=creation_input
     )
@@ -541,8 +523,7 @@ def resolve_create_box(*_, creation_input):
 def resolve_move_box_to_distribution_event(
     mutation_obj, _, box_label_identifier, distribution_event_id
 ):
-    # TODO: Add authorization here
-    # authorize(permission="stock:write")
+    authorize(permission="stock:write")
     return move_box_to_distribution_event(box_label_identifier, distribution_event_id)
 
 
@@ -551,7 +532,7 @@ def resolve_move_box_to_distribution_event(
 def resolve_move_items_from_box_to_distribution_event(
     mutation_obj, _, box_label_identifier, distribution_event_id, number_of_items
 ):
-    # TODO: Add authorization here
+    authorize(permission="unboxed_items_collection:write")
     return move_items_from_box_to_distribution_event(
         user_id=g.user.id,
         box_label_identifier=box_label_identifier,
@@ -565,40 +546,28 @@ def resolve_move_items_from_box_to_distribution_event(
 def resolve_remove_packing_list_entry_from_distribution_event(
     *_, packing_list_entry_id
 ):
-    # TODO: add authorization here
-    # authorize(permission="distribution_event:write")
 
     packing_list_entry = PackingListEntry.get(packing_list_entry_id)
     if packing_list_entry is None:
+        # TODO: Discuss error handling approach
+        # * seems to be the first time we are doing GraphQLError throwings here
+        # * also discuss how to handle this in the frontend
+        # (e.g. should we return specific error codes that the FE then
+        # handles with messages?)
         raise GraphQLError("Packing list entry not found")
-    mobile_distribution_event = (
+    distribution_event = (
         DistributionEvent.select()
         .where(DistributionEvent.id == packing_list_entry.distribution_event)
         .get()
     )
-    # TODO: consider to throw an error in case the packing list entry for this id
-    # does not exist in the DB
+    authorize(
+        permission="distro_event:write",
+        base_id=distribution_event.distribution_spot.base.id,
+    )
+    # Completed Events should not be mutable anymore
+    if distribution_event.state == DistributionEventState.Completed:
+        raise GraphQLError("Cannot move items to completed distribution event")
     delete_packing_list_entry(packing_list_entry_id)
-    return mobile_distribution_event
-
-    # packing_list_entry = (
-    #     PackingListEntry.select()
-    #     .where(
-    #         # PackingListEntry.distribution_event_id
-    #         # == distribution_event_id &
-    #         PackingListEntry.id
-    #         == packing_list_entry_id
-    #     )
-    #     .get()
-    # )
-    # # if distribution_event is None:
-    # #     raise GraphQLError("Distribution event not found")
-    # if packing_list_entry is None:
-    #     raise GraphQLError("Packing list entry not found")
-    # # if distribution_event.packing_list != packing_list_entry.packing_list:
-    # #     raise GraphQLError("Packing list entry does not belong to event")
-    # distribution_event.packing_list_entries.remove(packing_list_entry)
-    # distribution_event.save()
     return distribution_event
 
 
@@ -732,18 +701,19 @@ def resolve_base_locations(base_obj, _):
 @base.field("distributionSpots")
 @query.field("distributionSpots")
 def resolve_distributions_spots(base_obj, _):
-    # TODO: add permissions here
-    # authorize(permission="distribution_spot:read")
-    return Location.select().where(Location.type == LocationType.DistributionSpot)
-    # .where(base_filter_condition("distribution_spot:read"))
+    authorize(permission="location:read")
+    return (
+        Location.select()
+        .where(Location.type == LocationType.DistributionSpot)
+        .where(base_filter_condition("location:read"))
+    )
 
 
 @query.field("distributionSpot")
 def resolve_distributions_spot(obj, _, id):
     distribution_spot = obj.location if id is None else Location.get_by_id(id)
     if distribution_spot.type == LocationType.DistributionSpot:
-        # TODO: add permissions here
-        # authorize(permission="location:read", base_id=distribution_spot.base_id)
+        authorize(permission="location:read", base_id=distribution_spot.base_id)
         return distribution_spot
     else:
         None
@@ -751,9 +721,12 @@ def resolve_distributions_spot(obj, _, id):
 
 @query.field("distributionEvent")
 def resolve_distribution_event(obj, _, id):
-    # TODO: Add permissions here
     distribution_event = (
         obj.distribution_event if id is None else DistributionEvent.get_by_id(id)
+    )
+    authorize(
+        permission="distro_event:read",
+        base_id=distribution_event.distribution_spot.base.id,
     )
     return distribution_event
 
@@ -771,45 +744,22 @@ def resolve_base_beneficiaries(base_obj, _, pagination_input=None, filter_input=
 
 @distribution_event.field("boxes")
 @convert_kwargs_to_snake_case
-def resolve_distribution_event_boxes(
-    distribution_event_obj, _, pagination_input=None, filter_input=None
-):
-    # TODO: add permissions here
-    # authorize(permission="stock:read")
-    distribution_event_filter_condition = (
-        Box.distribution_event == distribution_event_obj.id
-    )
-    filter_condition = distribution_event_filter_condition & derive_box_filter(
-        filter_input
-    )
-    selection = Box.select()
-    if filter_input is not None and any(
-        [f in filter_input for f in ["product_gender", "product_category_id"]]
-    ):
-        selection = Box.select().join(Product)
-    return load_into_page(
-        Box, filter_condition, selection=selection, pagination_input=pagination_input
-    )
+def resolve_distribution_event_boxes(distribution_event_obj, _):
+    authorize(permission="stock:read")
+    return Box.select().where(Box.distribution_event == distribution_event_obj.id)
 
 
 @distribution_event.field("unboxedItemsCollections")
 @convert_kwargs_to_snake_case
 def resolve_distribution_event_unboxed_item_collections(distribution_event_obj, _):
-    # TODO: add permissions here
-    # authorize(permission="stock:read")
-    distribution_event_filter_condition = (
+    authorize(permission="stock:read")
+    return UnboxedItemsCollection.select().where(
         UnboxedItemsCollection.distribution_event == distribution_event_obj.id
-    )
-    return (
-        UnboxedItemsCollection.select()
-        .join(Product)
-        .where(distribution_event_filter_condition)
     )
 
 
 @distribution_event.field("packingListEntries")
 def resolve_packing_list_entries(obj, *_):
-    # TODO: Add permissions here
     return PackingListEntry.select().where(
         PackingListEntry.distribution_event == obj.id
     )
@@ -817,7 +767,7 @@ def resolve_packing_list_entries(obj, *_):
 
 @distribution_spot.field("distributionEvents")
 def resolve_distribution_spot_distribution_events(obj, *_):
-    # TODO: add permissions here
+    authorize(permission="distro_event:read")
     return DistributionEvent.select().where(
         DistributionEvent.distribution_spot == obj.id
     )
