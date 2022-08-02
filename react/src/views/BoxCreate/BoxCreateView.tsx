@@ -77,7 +77,7 @@ const BoxCreateView = () => {
 
     updateContentOfBoxMutation({
       variables: {
-        locationId: parseInt(boxFormValues.locationForDropdown),
+        locationId: parseInt(boxFormValues.locationForDropdown.value),
         sizeId: parseInt(boxFormValues.sizeId),
         productId: parseInt(boxFormValues.productForDropdown.value),
         numberOfItems: boxFormValues.numberOfItems,

@@ -230,7 +230,7 @@ const BoxCreate = ({
           </ListItem>
         </List>
         <Button mt={4} isLoading={isSubmitting} type="submit" borderRadius="0">
-          Update Box
+          Create Box
         </Button>
       </form>
     </Box>

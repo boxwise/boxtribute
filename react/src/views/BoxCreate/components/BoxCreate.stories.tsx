@@ -32,7 +32,7 @@ const mockedLocations: BoxCreateProps["locations"] = [
 
 const mockedProducts: ProductData[] = [
   {
-    id: "2",
+    id: "1",
     name: "Jacket Male",
     category: {
       name: "Jackets"
