@@ -27,7 +27,10 @@ export const ALL_PRODUCTS_QUERY = gql`
           name
         }
         sizeRange {
-          label
+          sizes {
+            id
+            label
+          }
         }
       }
     }

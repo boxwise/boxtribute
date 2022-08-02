@@ -12,8 +12,9 @@ import {
 import { Select, OptionBase } from "chakra-react-select";
 
 import { ProductGender } from "types/generated/graphql";
-import { Controller, useForm } from "react-hook-form";
+import { Controller, useFieldArray, useForm } from "react-hook-form";
 import { groupBy } from "utils/helpers";
+import { useEffect } from "react";
 
 interface OptionsGroup extends OptionBase {
   value: string;
@@ -33,8 +34,14 @@ export interface CategoryData {
   name: string;
 }
 
+export interface SizeData {
+  id: string;
+  label: string;
+}
+
 export interface SizeRangeData {
   label: string;
+  sizes: SizeData[];
 }
 
 export interface ProductData {
@@ -45,24 +52,39 @@ export interface ProductData {
   sizeRange: SizeRangeData;
 }
 
+// interface SizeIdAndNameTuple {
+//   id: string;
+//   name: string;
+// }
+
+// export type ProductAndSizesData = {
+//   id: string;
+//   name: string;
+//   category: {
+//     id
+//   }
+//   sizes: SizeIdAndNameTuple[];
+// };
+
 export interface BoxCreateProps {
   locations: {
     id: string;
     name: string;
   }[];
-  allProducts: ProductData[];
+  // allProducts: ProductData[];
+  productAndSizesData: ProductData[];
   onSubmitBoxCreateForm: (boxFormValues: BoxFormValues) => void;
   qrCode?: string;
 }
 
 const BoxCreate = ({
   locations,
-  allProducts,
+  productAndSizesData,
   onSubmitBoxCreateForm,
   qrCode,
 }: BoxCreateProps) => {
   const productsGroupedByCategory = groupBy(
-    allProducts,
+    productAndSizesData,
     (product) => product.category.name
   );
 
@@ -95,6 +117,8 @@ const BoxCreate = ({
     control,
     register,
     formState: { isSubmitting },
+    watch,
+
   } = useForm<BoxFormValues>({
     defaultValues: {
       qrCode: qrCode,
@@ -104,6 +128,25 @@ const BoxCreate = ({
       //     .find((p) => p.value === boxData?.product?.id),
     },
   });
+
+  const { fields, replace } = useFieldArray({
+    control,
+    name: "sizeForDropdown",
+  });
+  const productOptionsGroup = watch("productForDropdown");
+
+  useEffect(() => {
+    if (productOptionsGroup != null) {
+      const product = productAndSizesData.find((p) => p.id === productOptionsGroup.value);
+      const newSizeAndNumTuples = product?.sizeRange?.sizes.map((s) => ({
+        size: s,
+        // numberOfItems: s.currentNumberOfItems
+        // currentNumberOfItems: s
+      }));
+      replace(newSizeAndNumTuples || []);
+    }
+  }, [productOptionsGroup, productAndSizesData, replace]);
+
 
   // if (boxData == null) {
   //   console.error("BoxDetails Component: boxData is null");
@@ -119,6 +162,7 @@ const BoxCreate = ({
       </Box>
     );
   }
+
 
   return (
     <Box w={["100%", "100%", "60%", "40%"]}>
