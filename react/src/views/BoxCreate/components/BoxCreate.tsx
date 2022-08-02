@@ -23,10 +23,10 @@ interface OptionsGroup extends OptionBase {
 
 export interface BoxFormValues {
   numberOfItems: number;
-  sizeId: string;
+  // sizeId: string;
   locationForDropdown: OptionsGroup;
   productForDropdown: OptionsGroup;
-  sizeForDropdown?: OptionsGroup;
+  sizeForDropdown?: OptionsGroup[];
   qrCode?: string;
 }
 
@@ -129,29 +129,27 @@ const BoxCreate = ({
     },
   });
 
-  // const { fields, replace } = useFieldArray({
-  //   control,
-  //   name: "sizeForDropdown",
-  // });
+  const { fields, replace } = useFieldArray({
+    control,
+    name: "sizeForDropdown",
+  });
   const productOptionsGroup = watch("productForDropdown");
+  const sizeForDropdown = watch("sizeForDropdown");
 
-  // useEffect(() => {
-  //   if (productOptionsGroup != null) {
-  //     const product = productAndSizesData.find((p) => p.id === productOptionsGroup.value);
-  //     const newSizeAndNumTuples = product?.sizeRange?.sizes.map((s) => ({
-  //       size: s,
-  //       // numberOfItems: s.currentNumberOfItems
-  //       // currentNumberOfItems: s
-  //     }));
-  //     replace(newSizeAndNumTuples || []);
-  //   }
-  // }, [productOptionsGroup, productAndSizesData, replace]);
+  useEffect(() => {
+    if (productOptionsGroup != null) {
+      const product = productAndSizesData.find((p) => p.id === productOptionsGroup.value);
+      const newSizeAndNumTuples = product?.sizeRange?.sizes.map((s) => ({
+        label: s.label,
+        value: s.id,
+        // numberOfItems: s.currentNumberOfItems
+        // currentNumberOfItems: s
+      }));
+      replace(newSizeAndNumTuples || []);
+    }
+  }, [productOptionsGroup, productAndSizesData, replace]);
 
 
-  // if (boxData == null) {
-  //   console.error("BoxDetails Component: boxData is null");
-  //   return <Box>No data found for a box with this id</Box>;
-  // }
 
   if (productsForDropdownGroups == null) {
     console.error("BoxDetails Component: allProducts is null");
@@ -169,6 +167,8 @@ const BoxCreate = ({
       <Heading fontWeight={"bold"} mb={4} as="h2">
         Create New Box {qrCode !== null && <>for QR code</>}
       </Heading>
+
+      sizeForDropdown: {JSON.stringify(sizeForDropdown)} <br />
 
       <form onSubmit={handleSubmit(onSubmitBoxCreateForm)}>
         <List spacing={2}>
@@ -220,7 +220,7 @@ const BoxCreate = ({
                       onChange={onChange}
                       onBlur={onBlur}
                       value={value}
-                      options={[]}
+                      options={sizeForDropdown}
                       placeholder="Size"
                       isSearchable
                       tagVariant="outline"
