@@ -8,10 +8,33 @@ import {
   IPackingListEntry,
   IPackingListEntryForPackingState,
 } from "views/Distributions/types";
-import BoxCreate, { BoxCreateProps, ProductData } from "./BoxCreate";
+import BoxCreate, { BoxCreateProps, ProductWithSizeRangeData, SizeRangeData } from "./BoxCreate";
 
-const mockedEuTshirtsSizeRange = {
-  label: "EU T-Shirt Sizes (XS-XXL)"
+const mockedEuTshirtsSizeRange: SizeRangeData = {
+  label: "EU T-Shirt Sizes (XS-XXL)",
+  sizes: [
+    {
+      id: "1",
+      label: "XS",
+    },
+    {
+      id: "2",
+      label: "S",
+    },
+  ]
+}
+const mockedEuJacketsSizeRange: SizeRangeData = {
+  label: "EU Jacket Sizes (XS-XXL)",
+  sizes: [
+    {
+      id: "1",
+      label: "38",
+    },
+    {
+      id: "2",
+      label: "42",
+    },
+  ]
 }
 
 
@@ -30,7 +53,7 @@ const mockedLocations: BoxCreateProps["locations"] = [
   }
 ];
 
-const mockedProducts: ProductData[] = [
+const mockedProducts: ProductWithSizeRangeData[] = [
   {
     id: "1",
     name: "Jacket Male",
@@ -45,9 +68,7 @@ const mockedProducts: ProductData[] = [
     category: {
       name: "Jackets"
     },
-    sizeRange: {
-      label: "EU Jacket Sizes (XS-XXL)"
-    }
+    sizeRange: mockedEuJacketsSizeRange
   },
   {
     id: "2",
@@ -106,7 +127,7 @@ const Template: ComponentStory<typeof BoxCreate> = (args) => (
 );
 
 const mockedProps: BoxCreateProps = {
-  allProducts: mockedProducts,
+  productAndSizesData: mockedProducts,
   locations: mockedLocations,
   onSubmitBoxCreateForm: action("onSubmitBoxCreateForm"),
   qrCode: undefined,

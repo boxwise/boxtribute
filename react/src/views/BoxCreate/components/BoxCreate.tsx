@@ -44,7 +44,7 @@ export interface SizeRangeData {
   sizes: SizeData[];
 }
 
-export interface ProductData {
+export interface ProductWithSizeRangeData {
   id: string;
   name: string;
   gender?: ProductGender | undefined | null;
@@ -72,7 +72,7 @@ export interface BoxCreateProps {
     name: string;
   }[];
   // allProducts: ProductData[];
-  productAndSizesData: ProductData[];
+  productAndSizesData: ProductWithSizeRangeData[];
   onSubmitBoxCreateForm: (boxFormValues: BoxFormValues) => void;
   qrCode?: string;
 }
@@ -129,23 +129,23 @@ const BoxCreate = ({
     },
   });
 
-  const { fields, replace } = useFieldArray({
-    control,
-    name: "sizeForDropdown",
-  });
+  // const { fields, replace } = useFieldArray({
+  //   control,
+  //   name: "sizeForDropdown",
+  // });
   const productOptionsGroup = watch("productForDropdown");
 
-  useEffect(() => {
-    if (productOptionsGroup != null) {
-      const product = productAndSizesData.find((p) => p.id === productOptionsGroup.value);
-      const newSizeAndNumTuples = product?.sizeRange?.sizes.map((s) => ({
-        size: s,
-        // numberOfItems: s.currentNumberOfItems
-        // currentNumberOfItems: s
-      }));
-      replace(newSizeAndNumTuples || []);
-    }
-  }, [productOptionsGroup, productAndSizesData, replace]);
+  // useEffect(() => {
+  //   if (productOptionsGroup != null) {
+  //     const product = productAndSizesData.find((p) => p.id === productOptionsGroup.value);
+  //     const newSizeAndNumTuples = product?.sizeRange?.sizes.map((s) => ({
+  //       size: s,
+  //       // numberOfItems: s.currentNumberOfItems
+  //       // currentNumberOfItems: s
+  //     }));
+  //     replace(newSizeAndNumTuples || []);
+  //   }
+  // }, [productOptionsGroup, productAndSizesData, replace]);
 
 
   // if (boxData == null) {
