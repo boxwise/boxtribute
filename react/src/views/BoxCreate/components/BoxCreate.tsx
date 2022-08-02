@@ -8,16 +8,15 @@ import {
   FormLabel,
   Heading,
   Input,
-  Select,
 } from "@chakra-ui/react";
-// import { Select, OptionBase } from "chakra-react-select";
+import { Select, OptionBase } from "chakra-react-select";
 
 import { ProductGender } from "types/generated/graphql";
 import { Controller, useFieldArray, useForm } from "react-hook-form";
 import { groupBy } from "utils/helpers";
 import { useEffect } from "react";
 
-interface OptionsGroup {  // extends OptionBase {
+interface OptionsGroup extends OptionBase {
   value: string;
   label: string;
 }
@@ -27,7 +26,7 @@ export interface BoxFormValues {
   sizeId: string;
   locationForDropdown: OptionsGroup;
   productForDropdown: OptionsGroup;
-  sizeForDropdown: OptionsGroup[];
+  sizeForDropdown?: OptionsGroup;
   qrCode?: string;
 }
 
@@ -92,8 +91,8 @@ const BoxCreate = ({
   const locationsForDropdownGroups = locations
     .map((location) => {
       return {
-        label: location.name,
-        value: location.id,
+            label: location.name,
+            value: location.id
       };
     })
     .sort((a, b) => a.label.localeCompare(b.label));
@@ -119,6 +118,7 @@ const BoxCreate = ({
     register,
     formState: { isSubmitting },
     watch,
+
   } = useForm<BoxFormValues>({
     defaultValues: {
       qrCode: qrCode,
@@ -129,27 +129,24 @@ const BoxCreate = ({
     },
   });
 
-  const { fields, replace } = useFieldArray({
-    control,
-    name: "sizeForDropdown",
-  });
+  // const { fields, replace } = useFieldArray({
+  //   control,
+  //   name: "sizeForDropdown",
+  // });
   const productOptionsGroup = watch("productForDropdown");
 
-  useEffect(() => {
-    if (productOptionsGroup != null) {
-      const product = productAndSizesData.find(
-        (p) => p.id === productOptionsGroup.value
-      );
-      const sizesForProduct = product?.sizeRange?.sizes.map((s) => ({
-        value: s.id,
-        label: s.label,
-        // numberOfItems: s.currentNumberOfItems
-        // currentNumberOfItems: s
-      }));
-      // console.log("newSizeAndNumTuples", sizesForProduct);
-      replace(sizesForProduct || []);
-    }
-  }, [productOptionsGroup, productAndSizesData, replace]);
+  // useEffect(() => {
+  //   if (productOptionsGroup != null) {
+  //     const product = productAndSizesData.find((p) => p.id === productOptionsGroup.value);
+  //     const newSizeAndNumTuples = product?.sizeRange?.sizes.map((s) => ({
+  //       size: s,
+  //       // numberOfItems: s.currentNumberOfItems
+  //       // currentNumberOfItems: s
+  //     }));
+  //     replace(newSizeAndNumTuples || []);
+  //   }
+  // }, [productOptionsGroup, productAndSizesData, replace]);
+
 
   // if (boxData == null) {
   //   console.error("BoxDetails Component: boxData is null");
@@ -165,6 +162,7 @@ const BoxCreate = ({
       </Box>
     );
   }
+
 
   return (
     <Box w={["100%", "100%", "60%", "40%"]}>
@@ -190,19 +188,13 @@ const BoxCreate = ({
                       ref={ref}
                       onChange={onChange}
                       onBlur={onBlur}
-                      // value={value}
-                      // options={productsForDropdownGroups}
+                      value={value}
+                      options={productsForDropdownGroups}
                       placeholder="Product"
-                      // isSearchable
-                      // tagVariant="outline"
+                      isSearchable
+                      tagVariant="outline"
                       focusBorderColor="transparent"
-                    >
-                                      {productAndSizesData?.map((product, i) => (
-                  <option value={product.id} key={i}>
-                    {product.name}
-                  </option>
-                ))}
-                </Select>
+                    />
                   </Box>
 
                   <FormErrorMessage>{error && error.message}</FormErrorMessage>
@@ -223,26 +215,16 @@ const BoxCreate = ({
                 <FormControl isInvalid={invalid} id="sizes">
                   <Box border="2px">
                     <Select
-                      // {...register("sizeForDropdown", {
-                      //   // valueAsNumber: true,
-                      //   // validate: (value) => value > 0,
-                      // })}
                       name={name}
                       ref={ref}
                       onChange={onChange}
                       onBlur={onBlur}
-                      // value={value}
-                      // options={sizesForProduct}
+                      value={value}
+                      options={[]}
                       placeholder="Size"
-                      // isSearchable
-                      // tagVariant="outline"
-                    >
-                      {fields?.map((size, i) => (
-                        <option value={size.id} key={i}>
-                          {size.label}
-                        </option>
-                      ))}
-                    </Select>
+                      isSearchable
+                      tagVariant="outline"
+                    />
                   </Box>
                 </FormControl>
               )}
@@ -279,18 +261,12 @@ const BoxCreate = ({
                       ref={ref}
                       onChange={onChange}
                       onBlur={onBlur}
-                      // value={value}
-                      // options={locationsForDropdownGroups}
+                      value={value}
+                      options={locationsForDropdownGroups}
                       placeholder="Location"
-                      // isSearchable
-                      // tagVariant="outline"
-                    >
-                                      {productAndSizesData?.map((product, i) => (
-                  <option value={product.id} key={i}>
-                    {product.name}
-                  </option>
-                ))}
-                </Select>
+                      isSearchable
+                      tagVariant="outline"
+                    />
                   </Box>
                 </FormControl>
               )}
