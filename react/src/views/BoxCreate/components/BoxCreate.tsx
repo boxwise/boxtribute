@@ -11,7 +11,7 @@ import {
 } from "@chakra-ui/react";
 import { Select, OptionBase } from "chakra-react-select";
 
-import { AllProductsAndLocationsForBaseQuery } from "types/generated/graphql";
+import { ProductGender } from "types/generated/graphql";
 import { Controller, useForm } from "react-hook-form";
 import { groupBy } from "utils/helpers";
 
@@ -23,18 +23,34 @@ interface OptionsGroup extends OptionBase {
 export interface BoxFormValues {
   numberOfItems: number;
   sizeId: string;
-  locationId: string;
+  locationForDropdown: OptionsGroup;
   productForDropdown: OptionsGroup;
   sizeForDropdown?: OptionsGroup;
   qrCode?: string;
 }
 
-interface BoxCreateProps {
+export interface CategoryData {
+  name: string;
+}
+
+export interface SizeRangeData {
+  label: string;
+}
+
+export interface ProductData {
+  id: string;
+  name: string;
+  gender?: ProductGender | undefined | null;
+  category: CategoryData;
+  sizeRange: SizeRangeData;
+}
+
+export interface BoxCreateProps {
   locations: {
     id: string;
     name: string;
   }[];
-  allProducts: AllProductsAndLocationsForBaseQuery["products"]["elements"];
+  allProducts: ProductData[];
   onSubmitBoxCreateForm: (boxFormValues: BoxFormValues) => void;
   qrCode?: string;
 }
@@ -49,6 +65,15 @@ const BoxCreate = ({
     allProducts,
     (product) => product.category.name
   );
+
+  const locationsForDropdownGroups = locations
+    .map((location) => {
+      return {
+            label: location.name,
+            value: location.id
+      };
+    })
+    .sort((a, b) => a.label.localeCompare(b.label));
 
   const productsForDropdownGroups = Object.keys(productsGroupedByCategory)
     .map((key) => {
@@ -138,12 +163,12 @@ const BoxCreate = ({
             <FormLabel htmlFor="sizeId">Size</FormLabel>
             <Controller
               control={control}
-              name="sizeId"
+              name="sizeForDropdown"
               render={({
                 field: { onChange, onBlur, value, name, ref },
                 fieldState: { invalid, error },
               }) => (
-                <FormControl isInvalid={invalid} id="size">
+                <FormControl isInvalid={invalid} id="sizes">
                   <Box border="2px">
                     <Select
                       name={name}
@@ -177,15 +202,15 @@ const BoxCreate = ({
           </ListItem>
 
           <ListItem>
-            <FormLabel htmlFor="locationId">Location</FormLabel>
+            <FormLabel htmlFor="locationForDropdown">Location</FormLabel>
             <Controller
               control={control}
-              name="locationId"
+              name="locationForDropdown"
               render={({
                 field: { onChange, onBlur, value, name, ref },
                 fieldState: { invalid, error },
               }) => (
-                <FormControl isInvalid={invalid} id="location">
+                <FormControl isInvalid={invalid} id="locationForDropdown">
                   <Box border="2px">
                     <Select
                       name={name}
@@ -193,7 +218,7 @@ const BoxCreate = ({
                       onChange={onChange}
                       onBlur={onBlur}
                       value={value}
-                      options={[]}
+                      options={locationsForDropdownGroups}
                       placeholder="Location"
                       isSearchable
                       tagVariant="outline"
