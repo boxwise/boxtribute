@@ -9,26 +9,12 @@ import {
   Heading,
   Input,
 } from "@chakra-ui/react";
-import { Select, OptionBase } from "chakra-react-select";
+import { Select } from "chakra-react-select";
 
 import { ProductGender } from "types/generated/graphql";
 import { Controller, useFieldArray, useForm } from "react-hook-form";
 import { groupBy } from "utils/helpers";
-import { useEffect } from "react";
-
-interface OptionsGroup extends OptionBase {
-  value: string;
-  label: string;
-}
-
-export interface BoxFormValues {
-  numberOfItems: number;
-  // sizeId: string;
-  locationForDropdown: OptionsGroup;
-  productForDropdown: OptionsGroup;
-  sizeForDropdown?: OptionsGroup[];
-  qrCode?: string;
-}
+import { useEffect, useState } from "react";
 
 export interface CategoryData {
   name: string;
@@ -52,6 +38,25 @@ export interface ProductWithSizeRangeData {
   sizeRange: SizeRangeData;
 }
 
+interface DropdownOption {
+  value: string;
+  label: string;
+}
+
+// interface OptionsGroup {
+//   value: string;
+//   label: string;
+// }
+
+export interface BoxFormValues {
+  product: DropdownOption;
+  size: DropdownOption;
+  numberOfItems: number;
+  // sizeId: string;
+  // productForDropdown: OptionsGroup;
+  // sizeForDropdown: OptionsGroup[];
+}
+
 // interface SizeIdAndNameTuple {
 //   id: string;
 //   name: string;
@@ -67,35 +72,19 @@ export interface ProductWithSizeRangeData {
 // };
 
 export interface BoxCreateProps {
-  locations: {
-    id: string;
-    name: string;
-  }[];
   // allProducts: ProductData[];
   productAndSizesData: ProductWithSizeRangeData[];
   onSubmitBoxCreateForm: (boxFormValues: BoxFormValues) => void;
-  qrCode?: string;
 }
 
 const BoxCreate = ({
-  locations,
   productAndSizesData,
   onSubmitBoxCreateForm,
-  qrCode,
 }: BoxCreateProps) => {
   const productsGroupedByCategory = groupBy(
     productAndSizesData,
     (product) => product.category.name
   );
-
-  const locationsForDropdownGroups = locations
-    .map((location) => {
-      return {
-            label: location.name,
-            value: location.id
-      };
-    })
-    .sort((a, b) => a.label.localeCompare(b.label));
 
   const productsForDropdownGroups = Object.keys(productsGroupedByCategory)
     .map((key) => {
@@ -115,41 +104,44 @@ const BoxCreate = ({
   const {
     handleSubmit,
     control,
-    register,
+    // register,
     formState: { isSubmitting },
     watch,
-
   } = useForm<BoxFormValues>({
-    defaultValues: {
-      qrCode: qrCode,
-      // sizeId: boxData?.size.id,
-      //   productForDropdown: productsForDropdownGroups
-      //     ?.flatMap((i) => i.options)
-      //     .find((p) => p.value === boxData?.product?.id),
-    },
+    defaultValues: {},
   });
 
-  const { fields, replace } = useFieldArray({
-    control,
-    name: "sizeForDropdown",
-  });
-  const productOptionsGroup = watch("productForDropdown");
-  const sizeForDropdown = watch("sizeForDropdown");
+  const [sizesOptionsForCurrentProduct, setSizesOptionsForCurrentProduct] =
+    useState<DropdownOption[]>([]);
+
+  const product = watch("product");
+  const size = watch("size");
+
+  // const { fields, replace } = useFieldArray({
+  //   control,
+  //   name: "size",
+  // });
+  // const sizeForDropdown = watch("sizeForDropdown");
 
   useEffect(() => {
-    if (productOptionsGroup != null) {
-      const product = productAndSizesData.find((p) => p.id === productOptionsGroup.value);
-      const newSizeAndNumTuples = product?.sizeRange?.sizes.map((s) => ({
-        label: s.label,
-        value: s.id,
-        // numberOfItems: s.currentNumberOfItems
-        // currentNumberOfItems: s
-      }));
-      replace(newSizeAndNumTuples || []);
+    if (product != null) {
+      console.log("product", product);
+      const productAndSizeDataForCurrentProduct = productAndSizesData.find(
+        (p) => p.id === product.value
+      );
+      setSizesOptionsForCurrentProduct(
+        () =>
+          productAndSizeDataForCurrentProduct?.sizeRange?.sizes?.map((s) => ({
+            label: s.label,
+            value: s.id,
+            // numberOfItems: s.currentNumberOfItems
+            // currentNumberOfItems: s
+          })) || []
+      );
+      // replace(newSizeAndNumTuples || []);
     }
-  }, [productOptionsGroup, productAndSizesData, replace]);
-
-
+    // }, [product, productAndSizesData, replace]);
+  }, [product, productAndSizesData]);
 
   if (productsForDropdownGroups == null) {
     console.error("BoxDetails Component: allProducts is null");
@@ -161,21 +153,19 @@ const BoxCreate = ({
     );
   }
 
-
   return (
     <Box w={["100%", "100%", "60%", "40%"]}>
       <Heading fontWeight={"bold"} mb={4} as="h2">
-        Create New Box {qrCode !== null && <>for QR code</>}
+        Create New Box
       </Heading>
-
-      sizeForDropdown: {JSON.stringify(sizeForDropdown)} <br />
-
+      watched product = {JSON.stringify(product)} <br />
+      sizeForDropdown: {JSON.stringify(size)} <br />
       <form onSubmit={handleSubmit(onSubmitBoxCreateForm)}>
         <List spacing={2}>
           <ListItem>
             <Controller
               control={control}
-              name="productForDropdown"
+              name="product"
               render={({
                 field: { onChange, onBlur, value, name, ref },
                 fieldState: { invalid, error },
@@ -204,15 +194,16 @@ const BoxCreate = ({
           </ListItem>
 
           <ListItem>
-            <FormLabel htmlFor="sizeId">Size</FormLabel>
+            <FormLabel htmlFor="size">Size</FormLabel>
             <Controller
               control={control}
-              name="sizeForDropdown"
+              name="size"
               render={({
                 field: { onChange, onBlur, value, name, ref },
                 fieldState: { invalid, error },
               }) => (
-                <FormControl isInvalid={invalid} id="sizes">
+                <FormControl isInvalid={invalid} id="size">
+                  value: {JSON.stringify(value)}
                   <Box border="2px">
                     <Select
                       name={name}
@@ -220,50 +211,8 @@ const BoxCreate = ({
                       onChange={onChange}
                       onBlur={onBlur}
                       value={value}
-                      options={sizeForDropdown}
+                      options={sizesOptionsForCurrentProduct}
                       placeholder="Size"
-                      isSearchable
-                      tagVariant="outline"
-                    />
-                  </Box>
-                </FormControl>
-              )}
-            />
-          </ListItem>
-
-          <ListItem>
-            <FormLabel htmlFor="numberOfItems">Number Of Items</FormLabel>
-            <Box border="2px">
-              <Input
-                border="0"
-                type="number"
-                {...register("numberOfItems", {
-                  valueAsNumber: true,
-                  validate: (value) => value > 0,
-                })}
-              />
-            </Box>
-          </ListItem>
-
-          <ListItem>
-            <FormLabel htmlFor="locationForDropdown">Location</FormLabel>
-            <Controller
-              control={control}
-              name="locationForDropdown"
-              render={({
-                field: { onChange, onBlur, value, name, ref },
-                fieldState: { invalid, error },
-              }) => (
-                <FormControl isInvalid={invalid} id="locationForDropdown">
-                  <Box border="2px">
-                    <Select
-                      name={name}
-                      ref={ref}
-                      onChange={onChange}
-                      onBlur={onBlur}
-                      value={value}
-                      options={locationsForDropdownGroups}
-                      placeholder="Location"
                       isSearchable
                       tagVariant="outline"
                     />
