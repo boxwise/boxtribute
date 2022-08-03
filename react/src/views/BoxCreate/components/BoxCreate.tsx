@@ -199,18 +199,18 @@ const BoxCreate = ({
               control={control}
               name="size"
               render={({
-                field: { onChange, onBlur, value, name, ref },
+                field,
                 fieldState: { invalid, error },
               }) => (
                 <FormControl isInvalid={invalid} id="size">
-                  value: {JSON.stringify(value)}
+                  value: {JSON.stringify(field.value)}
                   <Box border="2px">
                     <Select
-                      name={name}
-                      ref={ref}
-                      onChange={onChange}
-                      onBlur={onBlur}
-                      value={value}
+                      name={field.name}
+                      ref={field.ref}
+                      onChange={field.onChange}
+                      onBlur={field.onBlur}
+                      value={field.value}
                       options={sizesOptionsForCurrentProduct}
                       placeholder="Size"
                       isSearchable

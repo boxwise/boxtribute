@@ -70,7 +70,7 @@ const AddItemsToPackingList = ({
     control,
     name: "sizeAndNumberOfItemsTuples",
   });
-  const productId = watch("product");
+  const productId = watch("productId");
   const onAddItemClick = useCallback(
     (itemToAddFormValues: ItemToAddFormValues) => {
       const newEntriesForPackingList: PackingListEntriesForProductToAdd = {
@@ -115,7 +115,7 @@ const AddItemsToPackingList = ({
         <Flex direction="column">
           <WrapItem>
             <FormControl id="productId">
-              <Select {...register("product")} placeholder="Select Product">
+              <Select {...register("productId")} placeholder="Select Product">
                 {productAndSizesData?.map((product, i) => (
                   <option value={product.id} key={i}>
                     {product.name}
