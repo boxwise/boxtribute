@@ -59,7 +59,7 @@ const HeaderMenuContainer = () => {
       {
         text: "Admin",
         links: [
-          { link: "#", name: "Manage Tags" },
+          { link: `/bases/${baseId}/tags`, name: "Manage Tags" },
           { link: "#", name: "Manage Products" },
           { link: "#", name: "Edit Warehouses" },
           { link: "#", name: "Manage Users" },

@@ -3,6 +3,7 @@ import React, { useContext, useEffect } from "react";
 import { Route, Routes } from "react-router-dom";
 import Boxes from "views/Boxes/BoxesView";
 import Layout from "components/Layout";
+import TagsView from "views/Tags/TagsView";
 import AutomaticBaseSwitcher from "views/AutomaticBaseSwitcher/AutomaticBaseSwitcher";
 import { gql, useLazyQuery } from "@apollo/client";
 import { BasesQuery } from "types/generated/graphql";
@@ -70,6 +71,7 @@ const App = () => {
         <Route path="bases" element={<Layout />}>
           <Route index element={<AutomaticBaseSwitcher />}></Route>
           <Route path=":baseId">
+            <Route path="tags" element={<TagsView />} />
             <Route index element={<BaseDashboardView />} />
             <Route path="boxes">
               <Route index element={<Boxes />} />

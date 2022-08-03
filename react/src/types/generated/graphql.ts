@@ -311,18 +311,23 @@ export type MetricsNumberOfSalesArgs = {
 export type Mutation = {
   __typename?: 'Mutation';
   acceptTransferAgreement?: Maybe<TransferAgreement>;
+  assignTag?: Maybe<TaggableResource>;
   cancelShipment?: Maybe<Shipment>;
   cancelTransferAgreement?: Maybe<TransferAgreement>;
   createBeneficiary?: Maybe<Beneficiary>;
   createBox?: Maybe<Box>;
   createQrCode?: Maybe<QrCode>;
   createShipment?: Maybe<Shipment>;
+  createTag?: Maybe<Tag>;
   createTransferAgreement?: Maybe<TransferAgreement>;
+  deleteTag?: Maybe<Tag>;
   rejectTransferAgreement?: Maybe<TransferAgreement>;
   sendShipment?: Maybe<Shipment>;
+  unassignTag?: Maybe<TaggableResource>;
   updateBeneficiary?: Maybe<Beneficiary>;
   updateBox?: Maybe<Box>;
   updateShipment?: Maybe<Shipment>;
+  updateTag?: Maybe<Tag>;
 };
 
 
@@ -333,6 +338,16 @@ export type Mutation = {
  */
 export type MutationAcceptTransferAgreementArgs = {
   id: Scalars['ID'];
+};
+
+
+/**
+ * Naming convention:
+ * - input argument: creationInput/updateInput
+ * - input type: <Resource>CreationInput/UpdateInput
+ */
+export type MutationAssignTagArgs = {
+  assignmentInput?: InputMaybe<TagOperationInput>;
 };
 
 
@@ -401,8 +416,28 @@ export type MutationCreateShipmentArgs = {
  * - input argument: creationInput/updateInput
  * - input type: <Resource>CreationInput/UpdateInput
  */
+export type MutationCreateTagArgs = {
+  creationInput?: InputMaybe<TagCreationInput>;
+};
+
+
+/**
+ * Naming convention:
+ * - input argument: creationInput/updateInput
+ * - input type: <Resource>CreationInput/UpdateInput
+ */
 export type MutationCreateTransferAgreementArgs = {
   creationInput?: InputMaybe<TransferAgreementCreationInput>;
+};
+
+
+/**
+ * Naming convention:
+ * - input argument: creationInput/updateInput
+ * - input type: <Resource>CreationInput/UpdateInput
+ */
+export type MutationDeleteTagArgs = {
+  id: Scalars['ID'];
 };
 
 
@@ -423,6 +458,16 @@ export type MutationRejectTransferAgreementArgs = {
  */
 export type MutationSendShipmentArgs = {
   id: Scalars['ID'];
+};
+
+
+/**
+ * Naming convention:
+ * - input argument: creationInput/updateInput
+ * - input type: <Resource>CreationInput/UpdateInput
+ */
+export type MutationUnassignTagArgs = {
+  unassignmentInput?: InputMaybe<TagOperationInput>;
 };
 
 
@@ -453,6 +498,16 @@ export type MutationUpdateBoxArgs = {
  */
 export type MutationUpdateShipmentArgs = {
   updateInput?: InputMaybe<ShipmentUpdateInput>;
+};
+
+
+/**
+ * Naming convention:
+ * - input argument: creationInput/updateInput
+ * - input type: <Resource>CreationInput/UpdateInput
+ */
+export type MutationUpdateTagArgs = {
+  updateInput?: InputMaybe<TagUpdateInput>;
 };
 
 /** Representation of an organisation. */
@@ -591,6 +646,7 @@ export type Query = {
   shipment?: Maybe<Shipment>;
   /**  Return all [`Shipments`]({{Types.Shipment}}) that the client is authorized to view.  */
   shipments: Array<Shipment>;
+  tag?: Maybe<Tag>;
   /** Return all [`Tags`]({{Types.Tag}}) that the client is authorized to view. Optionally filter for tags of certain type. */
   tags: Array<Tag>;
   transferAgreement?: Maybe<TransferAgreement>;
@@ -668,6 +724,11 @@ export type QueryQrExistsArgs = {
 
 
 export type QueryShipmentArgs = {
+  id: Scalars['ID'];
+};
+
+
+export type QueryTagArgs = {
   id: Scalars['ID'];
 };
 
@@ -779,12 +840,27 @@ export type StockOverview = {
 /** Representation of a tag. */
 export type Tag = {
   __typename?: 'Tag';
+  base: Base;
   color?: Maybe<Scalars['String']>;
   description?: Maybe<Scalars['String']>;
   id: Scalars['ID'];
   name: Scalars['String'];
   taggedResources: Array<TaggableResource>;
   type: TagType;
+};
+
+export type TagCreationInput = {
+  baseId: Scalars['Int'];
+  color: Scalars['String'];
+  description?: InputMaybe<Scalars['String']>;
+  name: Scalars['String'];
+  type: TagType;
+};
+
+export type TagOperationInput = {
+  id: Scalars['ID'];
+  resourceId: Scalars['ID'];
+  resourceType: TaggableResourceType;
 };
 
 /** Classificators for [`Tag`]({{Types.Tag}}) type. */
@@ -794,8 +870,22 @@ export enum TagType {
   Box = 'Box'
 }
 
+export type TagUpdateInput = {
+  color?: InputMaybe<Scalars['String']>;
+  description?: InputMaybe<Scalars['String']>;
+  id: Scalars['ID'];
+  name?: InputMaybe<Scalars['String']>;
+  type?: InputMaybe<TagType>;
+};
+
 /**  Union for resources that tags can be applied to.  */
 export type TaggableResource = Beneficiary | Box;
+
+/** Classificator for resources that a [`Tag`]({{Types.Tag}}) can be applied to (according to [`TaggableResource`]({{Types.TaggableResource}})). */
+export enum TaggableResourceType {
+  Beneficiary = 'Beneficiary',
+  Box = 'Box'
+}
 
 /** Representation of a transaction executed by a beneficiary (spending or receiving tokens). */
 export type Transaction = {
@@ -917,7 +1007,7 @@ export type UpdateLocationOfBoxMutationVariables = Exact<{
 }>;
 
 
-export type UpdateLocationOfBoxMutation = { __typename?: 'Mutation', updateBox?: { __typename?: 'Box', labelIdentifier: string, items?: number | null, size: { __typename?: 'Size', id: string, label: string }, product?: { __typename?: 'Product', name: string, gender?: ProductGender | null, id: string } | null, tags: Array<{ __typename?: 'Tag', id: string, name: string }>, location?: { __typename?: 'Location', id: string, name?: string | null, base?: { __typename?: 'Base', locations?: Array<{ __typename?: 'Location', id: string, name?: string | null }> | null } | null } | null } | null };
+export type UpdateLocationOfBoxMutation = { __typename?: 'Mutation', updateBox?: { __typename?: 'Box', labelIdentifier: string, items?: number | null, size: { __typename?: 'Size', id: string, label: string }, product?: { __typename?: 'Product', name: string, gender?: ProductGender | null, id: string, sizeRange: { __typename?: 'SizeRange', sizes: Array<{ __typename?: 'Size', id: string, label: string }> } } | null, tags: Array<{ __typename?: 'Tag', id: string, name: string }>, location?: { __typename?: 'Location', id: string, name?: string | null, base?: { __typename?: 'Base', locations?: Array<{ __typename?: 'Location', id: string, name?: string | null }> | null } | null } | null } | null };
 
 export type BoxByLabelIdentifierAndAllProductsQueryVariables = Exact<{
   labelIdentifier: Scalars['String'];
@@ -942,3 +1032,14 @@ export type BoxesForBaseQueryVariables = Exact<{
 
 
 export type BoxesForBaseQuery = { __typename?: 'Query', base?: { __typename?: 'Base', locations?: Array<{ __typename?: 'Location', name?: string | null, boxes?: { __typename?: 'BoxPage', totalCount: number, elements: Array<{ __typename?: 'Box', labelIdentifier: string, state: BoxState, items?: number | null, size: { __typename?: 'Size', id: string, label: string }, product?: { __typename?: 'Product', gender?: ProductGender | null, name: string } | null, tags: Array<{ __typename?: 'Tag', name: string, id: string }>, location?: { __typename?: 'Location', name?: string | null } | null }> } | null }> | null } | null };
+
+export type CreateTagMutationVariables = Exact<{
+  name: Scalars['String'];
+  description?: InputMaybe<Scalars['String']>;
+  type: TagType;
+  color: Scalars['String'];
+  baseId?: InputMaybe<Scalars['Int']> ;
+}>;
+
+
+export type CreateTagMutation = { __typename?: 'Mutation', createTag?: { __typename?: 'Tag', id: string } | null };
