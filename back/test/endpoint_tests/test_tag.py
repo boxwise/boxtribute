@@ -100,7 +100,7 @@ def test_tags_mutations(client):
         }}"""
 
     created_tag = assert_successful_request(client, mutation)
-    created_tag.pop("id")
+    tag_id = created_tag.pop("id")
     assert created_tag == {
         "name": name,
         "description": description,
@@ -108,6 +108,33 @@ def test_tags_mutations(client):
         "type": type,
         "taggedResources": [],
         "base": {"id": base_id},
+    }
+
+    # Test case 4.2.3
+    name = "Another Box Group"
+    description = ""
+    color = "#c0ffee"
+    tags_input_string = f"""{{
+        id: {tag_id},
+        name: "{name}",
+        description: "{description}",
+        color: "{color}",
+    }}"""
+    mutation = f"""mutation {{
+            updateTag(updateInput : {tags_input_string}) {{
+                id
+                name
+                description
+                color
+                type
+            }} }}"""
+    updated_tag = assert_successful_request(client, mutation)
+    assert updated_tag == {
+        "id": tag_id,
+        "name": name,
+        "description": description,
+        "color": color,
+        "type": type,
     }
 
 

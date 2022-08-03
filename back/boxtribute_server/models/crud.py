@@ -125,6 +125,29 @@ def create_tag(
     )
 
 
+def update_tag(
+    *,
+    id,
+    name=None,
+    description=None,
+    color=None,
+    user_id,
+):
+    tag = Tag.get_by_id(id)
+
+    if name is not None:
+        tag.name = name
+    if description is not None:
+        tag.description = description
+    if color is not None:
+        tag.color = color
+
+    tag.modified = utcnow()
+    tag.modified_by = user_id
+    tag.save()
+    return tag
+
+
 def create_beneficiary(
     *,
     user,

@@ -37,6 +37,7 @@ from ..models.crud import (
     create_tag,
     update_beneficiary,
     update_box,
+    update_tag,
 )
 from ..models.definitions.base import Base
 from ..models.definitions.beneficiary import Beneficiary
@@ -424,6 +425,13 @@ def resolve_update_box(*_, update_input):
 def resolve_create_tag(*_, creation_input):
     authorize(permission="tag:write", base_id=creation_input["base_id"])
     return create_tag(user_id=g.user.id, **creation_input)
+
+
+@mutation.field("updateTag")
+@convert_kwargs_to_snake_case
+def resolve_update_tag(*_, update_input):
+    # authorize(permission="tag:write", base_id=update_input["base_id"])
+    return update_tag(user_id=g.user.id, **update_input)
 
 
 @mutation.field("createBeneficiary")
