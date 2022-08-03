@@ -111,31 +111,25 @@ def test_tags_mutations(client):
     }
 
     # Test case 4.2.3
-    name = "Another Box Group"
-    description = ""
-    color = "#c0ffee"
-    tags_input_string = f"""{{
-        id: {tag_id},
-        name: "{name}",
-        description: "{description}",
-        color: "{color}",
-    }}"""
-    mutation = f"""mutation {{
-            updateTag(updateInput : {tags_input_string}) {{
-                id
-                name
-                description
-                color
-                type
-            }} }}"""
-    updated_tag = assert_successful_request(client, mutation)
-    assert updated_tag == {
-        "id": tag_id,
-        "name": name,
-        "description": description,
-        "color": color,
-        "type": type,
-    }
+    for field, value in zip(
+        ["name", "description", "color"], ["Another Box Group", "", "#c0ffee"]
+    ):
+        tags_input_string = f"""{{
+            id: {tag_id},
+            {field}: "{value}"
+        }}"""
+        mutation = f"""mutation {{
+                updateTag(updateInput : {tags_input_string}) {{
+                    id
+                    {field}
+                    type
+                }} }}"""
+        updated_tag = assert_successful_request(client, mutation)
+        assert updated_tag == {
+            "id": tag_id,
+            field: value,
+            "type": type,
+        }
 
 
 def test_create_tag_with_invalid_base(client, default_bases):
