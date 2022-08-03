@@ -50,7 +50,7 @@ interface DropdownOption {
 
 export interface BoxFormValues {
   product: DropdownOption;
-  size: DropdownOption;
+  size: DropdownOption | null;
   numberOfItems: number;
   // sizeId: string;
   // productForDropdown: OptionsGroup;
@@ -104,11 +104,13 @@ const BoxCreate = ({
   const {
     handleSubmit,
     control,
-    // register,
+    setValue,
     formState: { isSubmitting },
     watch,
   } = useForm<BoxFormValues>({
-    defaultValues: {},
+    defaultValues: {
+      size: null
+    },
   });
 
   const [sizesOptionsForCurrentProduct, setSizesOptionsForCurrentProduct] =
@@ -116,12 +118,6 @@ const BoxCreate = ({
 
   const product = watch("product");
   const size = watch("size");
-
-  // const { fields, replace } = useFieldArray({
-  //   control,
-  //   name: "size",
-  // });
-  // const sizeForDropdown = watch("sizeForDropdown");
 
   useEffect(() => {
     if (product != null) {
@@ -134,14 +130,11 @@ const BoxCreate = ({
           productAndSizeDataForCurrentProduct?.sizeRange?.sizes?.map((s) => ({
             label: s.label,
             value: s.id,
-            // numberOfItems: s.currentNumberOfItems
-            // currentNumberOfItems: s
           })) || []
       );
-      // replace(newSizeAndNumTuples || []);
+      setValue("size", null)
     }
-    // }, [product, productAndSizesData, replace]);
-  }, [product, productAndSizesData]);
+  }, [product, productAndSizesData, setValue]);
 
   if (productsForDropdownGroups == null) {
     console.error("BoxDetails Component: allProducts is null");
