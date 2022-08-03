@@ -1,5 +1,5 @@
 from boxtribute_server.enums import TagType
-from utils import assert_successful_request
+from utils import assert_forbidden_request, assert_successful_request
 
 
 def test_tag_query(read_only_client, tags):
@@ -109,3 +109,18 @@ def test_tags_mutations(client):
         "taggedResources": [],
         "base": {"id": base_id},
     }
+
+
+def test_create_tag_with_invalid_base(client, default_bases):
+    # Test case 4.2.2
+    base_id = default_bases[2]["id"]
+    tags_input_string = f"""{{
+        name: "new tag",
+        color: "#112233",
+        type: {TagType.All.name}
+        baseId: {base_id}
+    }}"""
+
+    mutation = f"""mutation {{
+            createTag(creationInput : {tags_input_string}) {{ id }} }}"""
+    assert_forbidden_request(client, mutation)
