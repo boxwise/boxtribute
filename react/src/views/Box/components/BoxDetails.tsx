@@ -95,24 +95,36 @@ const BoxDetails = ({
             </Flex> */}
           </ListItem>
           <ListItem>
-            <Flex direction="row" justifyContent="flex-end">
-              <IconButton
-                onClick={onPlusOpen}
-                mr={4}
-                border="2px"
-                borderRadius="0"
-                backgroundColor="transparent"
-                aria-label="Search database"
-                icon={<AddIcon />}
-              />
-              <IconButton
-                onClick={onMinusOpen}
-                border="2px"
-                borderRadius="0"
-                backgroundColor="transparent"
-                aria-label="Search database"
-                icon={<MinusIcon />}
-              />
+            <Flex mt={4} direction="row" justifyContent="space-between">
+              <Flex wrap="wrap">
+                <Button  mb={2} mr={4} border="2px" borderRadius="0" textTransform="uppercase">
+                  lost
+                </Button>
+                <Button border="2px" borderRadius="0" textTransform="uppercase">
+                  scrap
+                </Button>
+              </Flex>
+              <Flex wrap="wrap" justifyContent="flex-end">
+                <IconButton
+                  onClick={onPlusOpen}
+                  
+                  mb={2}
+                  border="2px"
+                  borderRadius="0"
+                  backgroundColor="transparent"
+                  aria-label="Search database"
+                  icon={<AddIcon />}
+                />
+                <IconButton
+                ml={4}
+                  onClick={onMinusOpen}
+                  border="2px"
+                  borderRadius="0"
+                  backgroundColor="transparent"
+                  aria-label="Search database"
+                  icon={<MinusIcon />}
+                />
+              </Flex>
             </Flex>
           </ListItem>
         </List>

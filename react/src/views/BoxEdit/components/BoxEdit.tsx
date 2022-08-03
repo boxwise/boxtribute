@@ -63,7 +63,11 @@ const BoxEdit = ({
     })
     .sort((a, b) => a.label.localeCompare(b.label));
 
-  // const availableSizes = boxData?.product?.sizeRange?.sizes || [];
+  const availableSizes = boxData?.product?.sizeRange?.sizes.map((size) => ({
+    value: size.id,
+    label: size.label
+  }));
+
 
   const {
     handleSubmit,
@@ -77,6 +81,11 @@ const BoxEdit = ({
       productForDropdown: productsForDropdownGroups
         ?.flatMap((i) => i.options)
         .find((p) => p.value === boxData?.product?.id),
+      sizeForDropdown: availableSizes?.map((size) => ({
+        value: size.value,
+        label: size.label,
+      }))?.find((s) => s.value === boxData?.size.id),
+      
     },
   });
 
@@ -147,16 +156,16 @@ const BoxEdit = ({
               />
             </Box>
           </ListItem>
-          {/* <ListItem>
-            <FormLabel htmlFor="sizeId">Size</FormLabel>
+          <ListItem>
+            <FormLabel htmlFor="sizeForDropdown">Size</FormLabel>
             <Controller
               control={control}
-              name="sizeId"
+              name="sizeForDropdown"
               render={({
                 field: { onChange, onBlur, value, name, ref },
                 fieldState: { invalid, error },
               }) => (
-                <FormControl isInvalid={invalid} id="size">
+                <FormControl isInvalid={invalid} id="sizeId">
                   <Box border="2px">
                     <Select
                       name={name}
@@ -164,8 +173,8 @@ const BoxEdit = ({
                       onChange={onChange}
                       onBlur={onBlur}
                       value={value}
-                      options={boxData.size.availableSizes}
-                      placeholder="Size"
+                      options={availableSizes}
+                      placeholder={value}
                       isSearchable
                       tagVariant="outline"
                     />
@@ -173,7 +182,7 @@ const BoxEdit = ({
                 </FormControl>
               )}
             />
-          </ListItem> */}
+          </ListItem>
         </List>
         <Button mt={4} isLoading={isSubmitting} type="submit" borderRadius="0">
           Update Box

@@ -82,6 +82,12 @@ export const UPDATE_LOCATION_OF_BOX_MUTATION = gql`
         name
         gender
         id
+        sizeRange {
+          sizes {
+            id
+            label
+          }
+        }
       }
       tags {
         id
