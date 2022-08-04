@@ -31,6 +31,14 @@ def data():
             "name": "tag-name",
             "type": TagType.All,
         },
+        {
+            "id": 4,
+            "base": base_data()[1]["id"],
+            "color": "#000000",
+            "description": "",
+            "name": "new-tag-name",
+            "type": TagType.All,
+        },
     ]
 
 

@@ -105,7 +105,7 @@ def resolve_tag(*_, id):
 @query.field("tags")
 def resolve_tags(*_):
     authorize(permission="tag:read")
-    return Tag.select()
+    return Tag.select().where(Tag.base << g.user.authorized_base_ids("tag:read"))
 
 
 @user.field("bases")
