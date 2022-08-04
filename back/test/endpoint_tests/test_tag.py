@@ -3,6 +3,7 @@ from utils import assert_forbidden_request, assert_successful_request
 
 
 def test_tag_query(read_only_client, tags):
+    # Test case 4.1.2
     tag = tags[0]
     tag_id = str(tag["id"])
     query = f"query {{ tag(id: {tag_id}) {{ id name type }} }}"
@@ -17,6 +18,7 @@ def test_tag_query(read_only_client, tags):
 def test_tags_query(
     read_only_client, tags, default_beneficiary, default_box, box_without_qr_code
 ):
+    # Test case 4.1.1
     query = """query { tags {
                 id
                 name
@@ -69,6 +71,7 @@ def test_tags_query(
 
 
 def test_tags_mutations(client):
+    # Test case 4.2.1
     name = "Box Group 1"
     description = "Boxes for donation"
     color = "#ff0000"
