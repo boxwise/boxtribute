@@ -12,13 +12,14 @@ from utils import assert_forbidden_request, assert_successful_request
         "product",
         "productCategory",
         "shipment",
+        "tag",
         "transferAgreement",
         "user",
     ],
 )
 def test_invalid_read_permissions(unauthorized, read_only_client, resource):
     """Verify missing resource:read permission when executing query.
-    Test case 2.1.5., 3.1.4
+    Test case 2.1.5., 3.1.4, 4.1.4
     """
     # Build plural form
     resources = f"{resource}s"
