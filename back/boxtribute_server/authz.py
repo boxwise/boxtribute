@@ -57,15 +57,20 @@ def authorize(
         raise Forbidden(resource, value, current_user.__dict__)
 
 
-def base_filter_condition(permission):
-    """Derive filter condition for given permission depending the current user's
-    base-specific permissions. See also `auth.requires_auth()`.
+def base_filter_condition(model=Base):
+    """Derive base filter condition for given resource model depending the current
+    user's base-specific permissions. The resource model must have a 'base' field, and
+    the lower-case model name must match the permission resource name.
+    See also `auth.requires_auth()`.
     """
+    permission = f"{model.__name__.lower()}:read"
     base_ids = g.user.authorized_base_ids(permission)
     if base_ids is None:
         # Permission granted for all bases
         return True
-    return Base.id << base_ids
+
+    pattern = Base.id if model is Base else model.base
+    return pattern << base_ids
 
 
 def agreement_organisation_filter_condition():

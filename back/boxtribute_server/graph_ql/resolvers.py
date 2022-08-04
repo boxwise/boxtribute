@@ -105,14 +105,14 @@ def resolve_tag(*_, id):
 @query.field("tags")
 def resolve_tags(*_):
     authorize(permission="tag:read")
-    return Tag.select().where(Tag.base << g.user.authorized_base_ids("tag:read"))
+    return Tag.select().where(base_filter_condition(Tag))
 
 
 @user.field("bases")
 @query.field("bases")
 def resolve_bases(*_):
     authorize(permission="base:read")
-    return Base.select().where(base_filter_condition("base:read"))
+    return Base.select().where(base_filter_condition())
 
 
 @query.field("base")
@@ -238,7 +238,7 @@ def resolve_organisations(*_):
 @query.field("locations")
 def resolve_locations(*_):
     authorize(permission="location:read")
-    return Location.select().join(Base).where(base_filter_condition("location:read"))
+    return Location.select().where(base_filter_condition(Location))
 
 
 @query.field("products")
@@ -247,8 +247,7 @@ def resolve_products(*_, pagination_input=None):
     authorize(permission="product:read")
     return load_into_page(
         Product,
-        base_filter_condition("product:read"),
-        selection=Product.select().join(Base),
+        base_filter_condition(Product),
         pagination_input=pagination_input,
     )
 
@@ -260,8 +259,7 @@ def resolve_beneficiaries(*_, pagination_input=None, filter_input=None):
     filter_condition = derive_beneficiary_filter(filter_input)
     return load_into_page(
         Beneficiary,
-        base_filter_condition("beneficiary:read") & filter_condition,
-        selection=Beneficiary.select().join(Base),
+        base_filter_condition(Beneficiary) & filter_condition,
         pagination_input=pagination_input,
     )
 
