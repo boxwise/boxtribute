@@ -126,7 +126,7 @@ def resolve_tags(*_):
 
 @query.field("packingListEntry")
 def resolve_packing_list_entry(*_, id):
-    authorize(permission="packing_list_entrie:read")
+    authorize(permission="packing_list_entry:read")
     return PackingListEntry.get_by_id(id)
 
 
@@ -476,7 +476,7 @@ def resolve_location_default_box_state(location_obj, _):
 @mutation.field("addPackingListEntryToDistributionEvent")
 @convert_kwargs_to_snake_case
 def resolve_add_packing_list_entry_to_distribution_event(*_, creation_input):
-    authorize(permission="packing_list_entrie:write")
+    authorize(permission="packing_list_entry:write")
     return add_packing_list_entry_to_distribution_event(
         user_id=g.user.id, **creation_input
     )
