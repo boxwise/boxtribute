@@ -8,7 +8,6 @@ from boxtribute_server.models.definitions.packing_list_entry import PackingListE
 from boxtribute_server.models.definitions.unboxed_items_collection import (
     UnboxedItemsCollection,
 )
-from graphql import GraphQLError
 
 from ..db import db
 from ..enums import (
@@ -17,7 +16,12 @@ from ..enums import (
     LocationType,
     PackingListEntryState,
 )
-from ..exceptions import BoxCreationFailed, InvalidDistributionEventState
+from ..exceptions import (
+    BoxCreationFailed,
+    InvalidDistributionEventState,
+    ModifyCompletedDistributionEvent,
+    NotEnoughItemsInBox,
+)
 from .definitions.beneficiary import Beneficiary
 from .definitions.box import Box
 from .definitions.location import Location
@@ -87,14 +91,21 @@ def move_items_from_box_to_distribution_event(
         # Completed Events should not be mutable anymore
         distribution_event = DistributionEvent.get_by_id(distribution_event_id)
         if distribution_event.state == DistributionEventState.Completed:
-            raise GraphQLError("Cannot move items to completed distribution event")
+            raise ModifyCompletedDistributionEvent(
+                desired_operation="add_items",
+                distribution_event_id=distribution_event.id,
+            )
 
         box = Box.get(Box.label_identifier == box_label_identifier)
 
         # TODO: Discuss error handling approach:
         # Ok to throw GraphQL errors in the crud module?
         if box.items < number_of_items:
-            raise GraphQLError("Not enough items in box")
+            raise NotEnoughItemsInBox(
+                box_label_identifier=box_label_identifier,
+                number_of_requested_items=number_of_items,
+                number_of_actual_items=box.items,
+            )
 
         unboxed_items_collection, _ = UnboxedItemsCollection.get_or_create(
             distribution_event=distribution_event_id,
@@ -119,7 +130,10 @@ def move_box_to_distribution_event(box_label_identifier, distribution_event_id):
         # Completed Events should not be mutable anymore
         distribution_event = DistributionEvent.get_by_id(distribution_event_id)
         if distribution_event.state == DistributionEventState.Completed:
-            raise GraphQLError("Cannot move box to completed distribution event")
+            raise ModifyCompletedDistributionEvent(
+                desired_operation="move_box_to_distribution_event",
+                distribution_event_id=distribution_event.id,
+            )
         box.location = distribution_event.distribution_spot_id
         box.distribution_event = distribution_event_id
         box.save()
@@ -160,7 +174,10 @@ def add_packing_list_entry_to_distribution_event(
     # Completed Events should not be mutable anymore
     distribution_event = DistributionEvent.get_by_id(distribution_event_id)
     if distribution_event.state == DistributionEventState.Completed:
-        raise GraphQLError("Cannot add packing list entry to completed event")
+        raise ModifyCompletedDistributionEvent(
+            desired_operation="add_packing_list_entry",
+            distribution_event_id=distribution_event_id,
+        )
 
     existing_packing_list_entry = PackingListEntry.get_or_none(
         PackingListEntry.distribution_event == distribution_event_id,
@@ -382,13 +399,24 @@ def update_beneficiary(
 
 
 def delete_packing_list_entry(packing_list_entry_id):
+
     with db.database.atomic():
-        PackingListEntry.delete().where(
-            PackingListEntry.id == packing_list_entry_id
-        ).execute()
+        packing_list_entry = PackingListEntry.join(DistributionEvent).get_by_id(
+            packing_list_entry_id
+        )
+        # Completed Events should not be mutable anymore
+        if (
+            packing_list_entry.distribution_event.state
+            == DistributionEventState.Completed
+        ):
+            raise ModifyCompletedDistributionEvent(
+                desired_operation="remove_items",
+                distribution_event_id=packing_list_entry.distribution_event.id,
+            )
+        packing_list_entry.delete().execute()
 
 
-def create_distribution_spot(user_id, distribution_spot_input=None):
+def create_distribution_spot(user_id, base_id, name, comment, latitude, longitude):
     """Insert information for a new DistributionSpot in the database."""
     now = utcnow()
     new_distribution_spot = Location.create(
@@ -397,7 +425,11 @@ def create_distribution_spot(user_id, distribution_spot_input=None):
         last_modified_on=now,
         last_modified_by=user_id,
         type=LocationType.DistributionSpot,
-        **distribution_spot_input,
+        base_id=base_id,
+        name=name,
+        comment=comment,
+        latitude=latitude,
+        Longitude=longitude,
     )
     return new_distribution_spot
 

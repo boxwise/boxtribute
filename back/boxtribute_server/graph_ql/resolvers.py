@@ -10,7 +10,6 @@ from ariadne import (
     convert_kwargs_to_snake_case,
 )
 from flask import g
-from graphql import GraphQLError
 from peewee import fn
 
 from ..authz import (
@@ -31,13 +30,7 @@ from ..box_transfer.shipment import (
     send_shipment,
     update_shipment,
 )
-from ..enums import (
-    DistributionEventState,
-    HumanGender,
-    LocationType,
-    TaggableObjectType,
-    TransferAgreementType,
-)
+from ..enums import HumanGender, LocationType, TaggableObjectType, TransferAgreementType
 from ..models.crud import (
     add_packing_list_entry_to_distribution_event,
     change_distribution_event_state,
@@ -509,9 +502,7 @@ def resolve_create_distribution_event(*_, creation_input):
 @convert_kwargs_to_snake_case
 def resolve_create_distribution_spot(*_, creation_input=None):
     authorize(permission="location:write")
-    return create_distribution_spot(
-        user_id=g.user.id, distribution_spot_input=creation_input
-    )
+    return create_distribution_spot(user_id=g.user.id, **creation_input)
 
 
 @mutation.field("createBox")
@@ -551,15 +542,9 @@ def resolve_remove_packing_list_entry_from_distribution_event(
 ):
 
     packing_list_entry = PackingListEntry.get(packing_list_entry_id)
-    if packing_list_entry is None:
-        # TODO: Discuss error handling approach
-        # * seems to be the first time we are doing GraphQLError throwings here
-        # * also discuss how to handle this in the frontend
-        # (e.g. should we return specific error codes that the FE then
-        # handles with messages?)
-        raise GraphQLError("Packing list entry not found")
     distribution_event = (
         DistributionEvent.select()
+        .join(Location)
         .where(DistributionEvent.id == packing_list_entry.distribution_event)
         .get()
     )
@@ -567,9 +552,6 @@ def resolve_remove_packing_list_entry_from_distribution_event(
         permission="distro_event:write",
         base_id=distribution_event.distribution_spot.base.id,
     )
-    # Completed Events should not be mutable anymore
-    if distribution_event.state == DistributionEventState.Completed:
-        raise GraphQLError("Cannot move items to completed distribution event")
     delete_packing_list_entry(packing_list_entry_id)
     return distribution_event
 
@@ -705,7 +687,6 @@ def resolve_base_locations(base_obj, _):
     )
 
 
-@base.field("distributionSpots")
 @query.field("distributionSpots")
 def resolve_distributions_spots(base_obj, _):
     authorize(permission="location:read")
@@ -717,9 +698,20 @@ def resolve_distributions_spots(base_obj, _):
     )
 
 
+@base.field("distributionSpots")
+def resolve_base_distributions_spots(base_obj, _):
+    authorize(permission="location:read")
+    base_filter_condition = Location.base == base_obj.id
+    return (
+        Location.select()
+        .where(Location.type == LocationType.DistributionSpot)
+        .where(base_filter_condition)
+    )
+
+
 @query.field("distributionSpot")
-def resolve_distributions_spot(obj, _, id):
-    distribution_spot = obj.location if id is None else Location.get_by_id(id)
+def resolve_distributions_spot(*_, id):
+    distribution_spot = Location.get_by_id(id)
     if distribution_spot.type == LocationType.DistributionSpot:
         authorize(permission="location:read", base_id=distribution_spot.base_id)
         return distribution_spot
