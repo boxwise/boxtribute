@@ -26,7 +26,7 @@ export interface SizeData {
 }
 
 export interface SizeRangeData {
-  label: string;
+  label?: string;
   sizes: SizeData[];
 }
 
@@ -48,10 +48,12 @@ interface DropdownOption {
 //   label: string;
 // }
 
-export interface BoxFormValues {
-  product: DropdownOption;
+interface BoxFormValues {
+  product: DropdownOption | null;
   size: DropdownOption | null;
   numberOfItems: number;
+  location: DropdownOption | null;
+  qrCode?: string;
   // sizeId: string;
   // productForDropdown: OptionsGroup;
   // sizeForDropdown: OptionsGroup[];
@@ -71,20 +73,45 @@ export interface BoxFormValues {
 //   sizes: SizeIdAndNameTuple[];
 // };
 
+export interface CreateBoxData {
+  locationId: string;
+  productId: string;
+  sizeId: string;
+  numberOfItems: number;
+}
+
+interface LocationData {
+  id: string;
+  name: string;
+}
+
 export interface BoxCreateProps {
   // allProducts: ProductData[];
   productAndSizesData: ProductWithSizeRangeData[];
-  onSubmitBoxCreateForm: (boxFormValues: BoxFormValues) => void;
+  allLocations: LocationData[];
+  qrCode?: string;
+  onCreateBox: (boxFormValues: CreateBoxData) => void;
 }
 
 const BoxCreate = ({
   productAndSizesData,
-  onSubmitBoxCreateForm,
+  onCreateBox,
+  qrCode,
+  allLocations,
 }: BoxCreateProps) => {
   const productsGroupedByCategory = groupBy(
     productAndSizesData,
     (product) => product.category.name
   );
+
+  const locationsForDropdownGroups = allLocations
+    .map((location) => {
+      return {
+        label: location.name,
+        value: location.id,
+      };
+    })
+    .sort((a, b) => a.label.localeCompare(b.label));
 
   const productsForDropdownGroups = Object.keys(productsGroupedByCategory)
     .map((key) => {
@@ -101,15 +128,33 @@ const BoxCreate = ({
     })
     .sort((a, b) => a.label.localeCompare(b.label));
 
+  const onSubmitBoxCreateForm = (boxFormValues: BoxFormValues) => {
+    console.log(boxFormValues);
+    console.log(boxFormValues.numberOfItems);
+    const createBoxData: CreateBoxData = {
+      // TODO: checke whether the exlamation marks are save here (whether the obSubmit is really just sent when the form is valid)
+      productId: boxFormValues.product?.value!,
+      sizeId: boxFormValues.size?.value!,
+      locationId: boxFormValues.location?.value!,
+      numberOfItems: boxFormValues.numberOfItems,
+    }
+    onCreateBox(createBoxData);
+  };
+
   const {
     handleSubmit,
     control,
     setValue,
     formState: { isSubmitting },
     watch,
+    register,
   } = useForm<BoxFormValues>({
     defaultValues: {
-      size: null
+      product: null,
+      size: null,
+      location: null,
+      numberOfItems: 0,
+      qrCode: qrCode,
     },
   });
 
@@ -132,7 +177,7 @@ const BoxCreate = ({
             value: s.id,
           })) || []
       );
-      setValue("size", null)
+      setValue("size", null);
     }
   }, [product, productAndSizesData, setValue]);
 
@@ -149,7 +194,7 @@ const BoxCreate = ({
   return (
     <Box w={["100%", "100%", "60%", "40%"]}>
       <Heading fontWeight={"bold"} mb={4} as="h2">
-        Create New Box
+        Create New Box {qrCode !== null && <>for QR code</>}
       </Heading>
       watched product = {JSON.stringify(product)} <br />
       sizeForDropdown: {JSON.stringify(size)} <br />
@@ -158,6 +203,7 @@ const BoxCreate = ({
           <ListItem>
             <Controller
               control={control}
+              rules={{ required: true }}
               name="product"
               render={({
                 field: { onChange, onBlur, value, name, ref },
@@ -190,11 +236,9 @@ const BoxCreate = ({
             <FormLabel htmlFor="size">Size</FormLabel>
             <Controller
               control={control}
+              rules={{ required: true }}
               name="size"
-              render={({
-                field,
-                fieldState: { invalid, error },
-              }) => (
+              render={({ field, fieldState: { invalid, error } }) => (
                 <FormControl isInvalid={invalid} id="size">
                   value: {JSON.stringify(field.value)}
                   <Box border="2px">
@@ -206,6 +250,50 @@ const BoxCreate = ({
                       value={field.value}
                       options={sizesOptionsForCurrentProduct}
                       placeholder="Size"
+                      isSearchable
+                      tagVariant="outline"
+                    />
+                  </Box>
+                </FormControl>
+              )}
+            />
+          </ListItem>
+
+          <ListItem>
+            <FormLabel htmlFor="numberOfItems">Number Of Items</FormLabel>
+            <Box border="2px">
+              <Input
+                border="0"
+                type="number"
+                {...register("numberOfItems", {
+                  required:true,
+                  valueAsNumber: true,
+                  validate: (value) => value > 0,
+                })}
+              />
+            </Box>
+          </ListItem>
+
+          <ListItem>
+            <FormLabel htmlFor="locationForDropdown">Location</FormLabel>
+            <Controller
+              control={control}
+              rules={{ required: true }}
+              name="location"
+              render={({
+                field: { onChange, onBlur, value, name, ref },
+                fieldState: { invalid, error },
+              }) => (
+                <FormControl isInvalid={invalid} id="locationForDropdown">
+                  <Box border="2px">
+                    <Select
+                      name={name}
+                      ref={ref}
+                      onChange={onChange}
+                      onBlur={onBlur}
+                      value={value}
+                      options={locationsForDropdownGroups}
+                      placeholder="Location"
                       isSearchable
                       tagVariant="outline"
                     />

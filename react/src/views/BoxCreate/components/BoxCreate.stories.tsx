@@ -38,7 +38,7 @@ const mockedEuJacketsSizeRange: SizeRangeData = {
 }
 
 
-const mockedLocations: BoxCreateProps["locations"] = [
+const mockedLocations: BoxCreateProps["allLocations"] = [
   {
     id: "1",
     name: "Warehouse 1"
@@ -128,8 +128,8 @@ const Template: ComponentStory<typeof BoxCreate> = (args) => (
 
 const mockedProps: BoxCreateProps = {
   productAndSizesData: mockedProducts,
-  locations: mockedLocations,
-  onSubmitBoxCreateForm: action("onSubmitBoxCreateForm"),
+  allLocations: mockedLocations,
+  onCreateBox: action("onSubmitBoxCreateForm"),
   qrCode: undefined,
 };
 

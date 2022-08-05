@@ -1,13 +1,8 @@
 import { gql, useMutation, useQuery } from "@apollo/client";
 import APILoadingIndicator from "components/APILoadingIndicator";
 import { useNavigate, useParams } from "react-router-dom";
-import {
-  AllProductsAndLocationsForBaseQuery,
-  AllProductsAndLocationsForBaseQueryVariables,
-  CreateBoxMutation,
-  CreateBoxMutationVariables,
-} from "types/generated/graphql";
-import BoxCreate, { BoxFormValues } from "./components/BoxCreate";
+import { AllProductsAndLocationsForBaseQuery, AllProductsAndLocationsForBaseQueryVariables, CreateBoxMutation, CreateBoxMutationVariables } from "types/generated/graphql";
+import BoxCreate, { CreateBoxData } from "./components/BoxCreate";
 
 export const ALL_PRODUCTS_QUERY = gql`
   query AllProductsAndLocationsForBase($baseId: ID!) {
@@ -60,8 +55,6 @@ export const CREATE_BOX_MUTATION = gql`
 `;
 
 const BoxCreateView = () => {
-  const labelIdentifier = useParams<{ labelIdentifier: string }>()
-    .labelIdentifier!;
   const { loading, data } = useQuery<
     AllProductsAndLocationsForBaseQuery,
     AllProductsAndLocationsForBaseQueryVariables
@@ -69,21 +62,20 @@ const BoxCreateView = () => {
   const baseId = useParams<{ baseId: string }>().baseId;
   const navigate = useNavigate();
 
-  const [updateContentOfBoxMutation] = useMutation<
+  const [createBoxMutation] = useMutation<
     CreateBoxMutation,
     CreateBoxMutationVariables
   >(CREATE_BOX_MUTATION);
 
-  const onSubmitBoxCreateForm = (boxFormValues: BoxFormValues) => {
-    console.log("boxLabelIdentifier", labelIdentifier);
-    console.log("boxFormValues", boxFormValues);
+  const onSubmitBoxCreateForm = (createBoxData: CreateBoxData) => {
+    console.log("boxFormValues", createBoxData);
 
-    updateContentOfBoxMutation({
+    createBoxMutation({
       variables: {
-        locationId: parseInt(boxFormValues.locationForDropdown.value),
-        sizeId: parseInt(boxFormValues.sizeId),
-        productId: parseInt(boxFormValues.productForDropdown.value),
-        numberOfItems: boxFormValues.numberOfItems,
+        locationId: parseInt(createBoxData.locationId),
+        productId: parseInt(createBoxData.productId),
+        sizeId: parseInt(createBoxData.sizeId),
+        numberOfItems: createBoxData.numberOfItems,
       },
     })
       .then((mutationResult) => {
@@ -92,7 +84,7 @@ const BoxCreateView = () => {
         );
       })
       .catch((error) => {
-        console.log("Error while trying to update Box", error);
+        console.log("Error while trying to create Box", error);
       });
   };
 
@@ -117,9 +109,9 @@ const BoxCreateView = () => {
 
   return (
     <BoxCreate
-      locations={allLocations}
-      allProducts={allProducts?.elements}
-      onSubmitBoxCreateForm={onSubmitBoxCreateForm}
+      allLocations={allLocations}
+      productAndSizesData={allProducts?.elements}
+      onCreateBox={onSubmitBoxCreateForm}
     />
   );
 };
