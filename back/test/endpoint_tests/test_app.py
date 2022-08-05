@@ -122,10 +122,11 @@ def test_mutation_non_existent_resource(read_only_client, operation):
         "updateBox",
         "updateBeneficiary",
         "updateShipment",
+        "updateTag",
     ],
 )
 def test_mutation_update_non_existent_resource(read_only_client, operation):
-    # Test cases 3.2.21
+    # Test cases 3.2.21, 4.2.5
     if operation == "updateBox":
         update_input = """updateInput: { labelIdentifier: "xxx" }"""
     else:
