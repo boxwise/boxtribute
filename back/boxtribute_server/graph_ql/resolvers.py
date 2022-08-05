@@ -548,6 +548,7 @@ def resolve_remove_packing_list_entry_from_distribution_event(
     packing_list_entry = PackingListEntry.get(packing_list_entry_id)
     distribution_event = (
         DistributionEvent.select()
+        .join(Location)
         .where(DistributionEvent.id == packing_list_entry.distribution_event)
         .get()
     )
