@@ -118,6 +118,24 @@ class InvalidShipmentState(_InvalidResourceState):
         )
 
 
+class NotEnoughItemsInBox(Exception):
+    def __init__(
+        self,
+        *args,
+        box_label_identifier,
+        number_of_actual_items,
+        number_of_requested_items,
+        **kwargs,
+    ):
+        self.extensions = {
+            "code": "BAD_USER_INPUT",
+            "description": "There are not enough items (actual: "
+            f"{number_of_actual_items}; requested: {number_of_requested_items}) "
+            f"in the box {box_label_identifier}.) ",
+        }
+        super().__init__(*args, **kwargs)
+
+
 class InvalidDistributionEventState(_InvalidResourceState):
     def __init__(self, *args, expected_states, actual_state, **kwargs):
         super().__init__(

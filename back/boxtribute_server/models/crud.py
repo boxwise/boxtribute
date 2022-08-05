@@ -17,7 +17,11 @@ from ..enums import (
     LocationType,
     PackingListEntryState,
 )
-from ..exceptions import BoxCreationFailed, InvalidDistributionEventState
+from ..exceptions import (
+    BoxCreationFailed,
+    InvalidDistributionEventState,
+    NotEnoughItemsInBox,
+)
 from .definitions.beneficiary import Beneficiary
 from .definitions.box import Box
 from .definitions.location import Location
@@ -94,7 +98,11 @@ def move_items_from_box_to_distribution_event(
         # TODO: Discuss error handling approach:
         # Ok to throw GraphQL errors in the crud module?
         if box.items < number_of_items:
-            raise GraphQLError("Not enough items in box")
+            raise NotEnoughItemsInBox(
+                box_label_identifier=box_label_identifier,
+                number_of_requested_items=number_of_items,
+                number_of_actual_items=box.items,
+            )
 
         unboxed_items_collection, _ = UnboxedItemsCollection.get_or_create(
             distribution_event=distribution_event_id,
