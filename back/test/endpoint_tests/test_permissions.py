@@ -135,6 +135,16 @@ def test_invalid_permission_for_given_resource_id(read_only_client, mocker, quer
         "updateShipment( updateInput : { id: 1 }) { id }",
         "cancelShipment( id : 1 ) { id }",
         "sendShipment( id : 1 ) { id }",
+        # Test case 4.2.8
+        """createTag(
+            creationInput : {
+                name: "cool tag",
+                color: "#aabbcc",
+                type: All,
+                baseId: 1
+            }) { id }""",
+        # Test case 4.2.7
+        "updateTag( updateInput : { id: 1 }) { id }",
     ],
     ids=operation_name,
 )
