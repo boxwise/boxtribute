@@ -98,8 +98,9 @@ user = _register_object_type("User")
 
 @query.field("tag")
 def resolve_tag(*_, id):
-    authorize(permission="tag:read")
-    return Tag.get_by_id(id)
+    tag = Tag.get_by_id(id)
+    authorize(permission="tag:read", base_id=tag.base_id)
+    return tag
 
 
 @query.field("tags")

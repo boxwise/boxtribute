@@ -63,6 +63,8 @@ def test_invalid_permission(unauthorized, read_only_client, query):
     [
         """base( id: 0 ) { id }""",
         """location( id: 2 ) { id }""",  # ID of another_location fixture
+        # Test case 4.1.5
+        """tag( id: 4 ) { id }""",
     ],
     ids=operation_name,
 )
@@ -70,9 +72,6 @@ def test_invalid_permission_for_given_resource_id(read_only_client, mocker, quer
     """Verify missing resource:read permission, or missing permission to access
     specified resource (i.e. base).
     """
-    mocker.patch("jose.jwt.decode").return_value = create_jwt_payload(
-        permissions=["base_1/base:read"], organisation_id=1
-    )
     assert_forbidden_request(read_only_client, f"query {{ {query} }}")
 
 
