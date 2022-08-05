@@ -1,3 +1,4 @@
+import pytest
 from boxtribute_server.enums import TagType
 from utils import assert_forbidden_request, assert_successful_request
 
@@ -133,6 +134,35 @@ def test_tags_mutations(client):
             field: value,
             "type": type,
         }
+
+
+@pytest.mark.parametrize(
+    "tag_id,tag_type,tagged_resource_ids",
+    [
+        [1, TagType.Box.name, []],
+        [2, TagType.Beneficiary.name, []],
+        [3, TagType.Box.name, [3]],
+        [3, TagType.Beneficiary.name, [1]],
+    ],
+)
+def test_update_tag_type(client, tag_id, tag_type, tagged_resource_ids):
+    # Test case 4.2.4
+    mutation = f"""mutation {{ updateTag(
+            updateInput: {{ id: {tag_id}, type: {tag_type} }}) {{
+                type
+                taggedResources {{
+                    __typename
+                    ...on Beneficiary {{ id }}
+                    ...on Box {{ id }}
+                }}
+    }} }}"""
+    updated_tag = assert_successful_request(client, mutation)
+    assert updated_tag == {
+        "type": tag_type,
+        "taggedResources": [
+            {"id": str(i), "__typename": tag_type} for i in tagged_resource_ids
+        ],
+    }
 
 
 def test_create_tag_with_invalid_base(client, default_bases):

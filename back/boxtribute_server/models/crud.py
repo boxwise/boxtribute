@@ -5,13 +5,14 @@ import random
 import peewee
 
 from ..db import db
-from ..enums import BoxState
+from ..enums import BoxState, TaggableObjectType, TagType
 from ..exceptions import BoxCreationFailed
 from .definitions.beneficiary import Beneficiary
 from .definitions.box import Box
 from .definitions.location import Location
 from .definitions.qr_code import QrCode
 from .definitions.tag import Tag
+from .definitions.tags_relation import TagsRelation
 from .definitions.x_beneficiary_language import XBeneficiaryLanguage
 from .utils import utcnow
 
@@ -131,8 +132,15 @@ def update_tag(
     name=None,
     description=None,
     color=None,
+    type=None,
     user_id,
 ):
+    """Look up an existing Tag given an ID, and update all requested fields.
+    If the tag type is changed from All/Beneficiary to Box, remove the tag from all
+    beneficiaries that had it assigned before (vice versa when changing tag type from
+    All/Box to Beneficiary).
+    Insert timestamp for modification and return the tag.
+    """
     tag = Tag.get_by_id(id)
 
     if name is not None:
@@ -142,9 +150,25 @@ def update_tag(
     if color is not None:
         tag.color = color
 
+    object_type_for_deletion = None
+    # Skip tags-relation modification if type does not change
+    if type is not None and type != tag.type:
+        if type == TagType.Box:
+            object_type_for_deletion = TaggableObjectType.Beneficiary
+        elif type == TagType.Beneficiary:
+            object_type_for_deletion = TaggableObjectType.Box
+        tag.type = type
+
     tag.modified = utcnow()
     tag.modified_by = user_id
-    tag.save()
+
+    with db.database.atomic():
+        tag.save()
+        if object_type_for_deletion is not None:
+            TagsRelation.delete().where(
+                (TagsRelation.object_type == object_type_for_deletion)
+                & (TagsRelation.tag == id)
+            ).execute()
     return tag
 
 
