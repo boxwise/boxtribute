@@ -506,9 +506,7 @@ def resolve_create_distribution_event(*_, creation_input):
 @convert_kwargs_to_snake_case
 def resolve_create_distribution_spot(*_, creation_input=None):
     authorize(permission="location:write")
-    return create_distribution_spot(
-        user_id=g.user.id, distribution_spot_input=creation_input
-    )
+    return create_distribution_spot(user_id=g.user.id, **creation_input)
 
 
 @mutation.field("createBox")
