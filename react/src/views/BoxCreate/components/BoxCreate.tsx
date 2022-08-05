@@ -129,6 +129,7 @@ const BoxCreate = ({
     .sort((a, b) => a.label.localeCompare(b.label));
 
   const onSubmitBoxCreateForm = (boxFormValues: BoxFormValues) => {
+    alert("ON SUBMIT");
     console.log(boxFormValues);
     console.log(boxFormValues.numberOfItems);
     const createBoxData: CreateBoxData = {
@@ -137,7 +138,7 @@ const BoxCreate = ({
       sizeId: boxFormValues.size?.value!,
       locationId: boxFormValues.location?.value!,
       numberOfItems: boxFormValues.numberOfItems,
-    }
+    };
     onCreateBox(createBoxData);
   };
 
@@ -148,6 +149,9 @@ const BoxCreate = ({
     formState: { isSubmitting },
     watch,
     register,
+    formState: {
+      errors
+    }
   } = useForm<BoxFormValues>({
     defaultValues: {
       product: null,
@@ -259,19 +263,24 @@ const BoxCreate = ({
             />
           </ListItem>
 
+          errors: {JSON.stringify(errors)} <br />
+
           <ListItem>
             <FormLabel htmlFor="numberOfItems">Number Of Items</FormLabel>
-            <Box border="2px">
-              <Input
-                border="0"
-                type="number"
-                {...register("numberOfItems", {
-                  required:true,
-                  valueAsNumber: true,
-                  validate: (value) => value > 0,
-                })}
-              />
-            </Box>
+            <FormControl isInvalid={errors.numberOfItems != null} id="numberOfItems">
+              <Box border="2px">
+                <Input
+                  border="0"
+                  type="number"
+                  {...register("numberOfItems", {
+                    min: 1,
+                    required: true,
+                    valueAsNumber: true,
+                    validate: (value) => value > 0,
+                  })}
+                />
+              </Box>
+            </FormControl>
           </ListItem>
 
           <ListItem>
