@@ -52,7 +52,8 @@ interface BoxFormValues {
   product: DropdownOption | null;
   size: DropdownOption | null;
   numberOfItems: number;
-  location: DropdownOption | null;
+  // location: DropdownOption | null;
+  location: string;
   qrCode?: string;
   // sizeId: string;
   // productForDropdown: OptionsGroup;
@@ -136,7 +137,7 @@ const BoxCreate = ({
       // TODO: checke whether the exlamation marks are save here (whether the obSubmit is really just sent when the form is valid)
       productId: boxFormValues.product?.value!,
       sizeId: boxFormValues.size?.value!,
-      locationId: boxFormValues.location?.value!,
+      locationId: boxFormValues.location,
       numberOfItems: boxFormValues.numberOfItems,
     };
     onCreateBox(createBoxData);
@@ -156,7 +157,7 @@ const BoxCreate = ({
     defaultValues: {
       product: null,
       size: null,
-      location: null,
+      location: undefined,
       numberOfItems: 0,
       qrCode: qrCode,
     },
@@ -200,6 +201,7 @@ const BoxCreate = ({
       <Heading fontWeight={"bold"} mb={4} as="h2">
         Create New Box {qrCode !== null && <>for QR code</>}
       </Heading>
+      {/* errors: {JSON.stringify(errors)} <br /> */}
       watched product = {JSON.stringify(product)} <br />
       sizeForDropdown: {JSON.stringify(size)} <br />
       <form onSubmit={handleSubmit(onSubmitBoxCreateForm)}>
@@ -263,11 +265,12 @@ const BoxCreate = ({
             />
           </ListItem>
 
-          errors: {JSON.stringify(errors)} <br />
-
           <ListItem>
             <FormLabel htmlFor="numberOfItems">Number Of Items</FormLabel>
-            <FormControl isInvalid={errors.numberOfItems != null} id="numberOfItems">
+            <FormControl
+              isInvalid={errors.numberOfItems != null}
+              id="numberOfItems"
+            >
               <Box border="2px">
                 <Input
                   border="0"
@@ -300,7 +303,10 @@ const BoxCreate = ({
                       ref={ref}
                       onChange={onChange}
                       onBlur={onBlur}
-                      value={value}
+                      // value={value}
+                      value={locationsForDropdownGroups.find(
+                        (el) => el.value === value
+                      )}
                       options={locationsForDropdownGroups}
                       placeholder="Location"
                       isSearchable
