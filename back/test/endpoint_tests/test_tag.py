@@ -165,7 +165,7 @@ def test_update_tag_type(client, tag_id, tag_type, tagged_resource_ids):
     }
 
 
-def test_create_tag_with_invalid_base(client, default_bases):
+def test_create_tag_with_invalid_base(client, default_bases, tags):
     # Test case 4.2.2
     base_id = default_bases[2]["id"]
     tags_input_string = f"""{{
@@ -177,4 +177,10 @@ def test_create_tag_with_invalid_base(client, default_bases):
 
     mutation = f"""mutation {{
             createTag(creationInput : {tags_input_string}) {{ id }} }}"""
+    assert_forbidden_request(client, mutation)
+
+    # Test case 4.2.6
+    tag_id = tags[3]["id"]
+    mutation = f"""mutation {{ updateTag(
+            updateInput: {{ id: {tag_id}, name: "name" }}) {{ id }} }}"""
     assert_forbidden_request(client, mutation)

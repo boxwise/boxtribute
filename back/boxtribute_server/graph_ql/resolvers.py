@@ -427,7 +427,8 @@ def resolve_create_tag(*_, creation_input):
 @mutation.field("updateTag")
 @convert_kwargs_to_snake_case
 def resolve_update_tag(*_, update_input):
-    # authorize(permission="tag:write", base_id=update_input["base_id"])
+    base_id = Tag.get_by_id(update_input["id"]).base_id
+    authorize(permission="tag:write", base_id=base_id)
     return update_tag(user_id=g.user.id, **update_input)
 
 
