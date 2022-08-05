@@ -680,7 +680,6 @@ def resolve_base_locations(base_obj, _):
     return Location.select().where(Location.base == base_obj.id)
 
 
-@base.field("distributionSpots")
 @query.field("distributionSpots")
 def resolve_distributions_spots(base_obj, _):
     authorize(permission="location:read")
@@ -691,9 +690,20 @@ def resolve_distributions_spots(base_obj, _):
     )
 
 
+@base.field("distributionSpots")
+def resolve_base_distributions_spots(base_obj, _):
+    authorize(permission="location:read")
+    base_filter_condition = Location.base == base_obj.id
+    return (
+        Location.select()
+        .where(Location.type == LocationType.DistributionSpot)
+        .where(base_filter_condition)
+    )
+
+
 @query.field("distributionSpot")
-def resolve_distributions_spot(obj, _, id):
-    distribution_spot = obj.location if id is None else Location.get_by_id(id)
+def resolve_distributions_spot(*_, id):
+    distribution_spot = Location.get_by_id(id)
     if distribution_spot.type == LocationType.DistributionSpot:
         authorize(permission="location:read", base_id=distribution_spot.base_id)
         return distribution_spot
