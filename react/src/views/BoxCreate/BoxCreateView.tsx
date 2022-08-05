@@ -1,7 +1,12 @@
 import { gql, useMutation, useQuery } from "@apollo/client";
 import APILoadingIndicator from "components/APILoadingIndicator";
 import { useNavigate, useParams } from "react-router-dom";
-import { AllProductsAndLocationsForBaseQuery, AllProductsAndLocationsForBaseQueryVariables, CreateBoxMutation, CreateBoxMutationVariables } from "types/generated/graphql";
+import {
+  AllProductsAndLocationsForBaseQuery,
+  AllProductsAndLocationsForBaseQueryVariables,
+  CreateBoxMutation,
+  CreateBoxMutationVariables,
+} from "types/generated/graphql";
 import BoxCreate, { CreateBoxData } from "./components/BoxCreate";
 
 export const ALL_PRODUCTS_QUERY = gql`
@@ -55,11 +60,15 @@ export const CREATE_BOX_MUTATION = gql`
 `;
 
 const BoxCreateView = () => {
-  const { loading, data } = useQuery<
+  const baseId = useParams<{ baseId: string }>().baseId!;
+  const { loading, error, data } = useQuery<
     AllProductsAndLocationsForBaseQuery,
     AllProductsAndLocationsForBaseQueryVariables
-  >(ALL_PRODUCTS_QUERY, {});
-  const baseId = useParams<{ baseId: string }>().baseId;
+  >(ALL_PRODUCTS_QUERY, {
+    variables: {
+      baseId,
+    },
+  });
   const navigate = useNavigate();
 
   const [createBoxMutation] = useMutation<
@@ -91,6 +100,12 @@ const BoxCreateView = () => {
   if (loading) {
     return <APILoadingIndicator />;
   }
+
+  if (error) {
+    console.error("Error while trying to fetch all products", error);
+    return <div>Error</div>;
+  }
+
   const allProducts = data?.products;
   const allLocations = data?.base?.locations.map((location) => ({
     ...location,
