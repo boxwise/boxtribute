@@ -8,7 +8,6 @@ from boxtribute_server.models.definitions.packing_list_entry import PackingListE
 from boxtribute_server.models.definitions.unboxed_items_collection import (
     UnboxedItemsCollection,
 )
-from graphql import GraphQLError
 
 from ..db import db
 from ..enums import (
@@ -20,6 +19,7 @@ from ..enums import (
 from ..exceptions import (
     BoxCreationFailed,
     InvalidDistributionEventState,
+    ModifyCompletedDistributionEvent,
     NotEnoughItemsInBox,
 )
 from .definitions.beneficiary import Beneficiary
@@ -91,7 +91,10 @@ def move_items_from_box_to_distribution_event(
         # Completed Events should not be mutable anymore
         distribution_event = DistributionEvent.get_by_id(distribution_event_id)
         if distribution_event.state == DistributionEventState.Completed:
-            raise GraphQLError("Cannot move items to completed distribution event")
+            raise ModifyCompletedDistributionEvent(
+                desired_operation="add_items",
+                distribution_event_id=distribution_event.id,
+            )
 
         box = Box.get(Box.label_identifier == box_label_identifier)
 
@@ -127,7 +130,10 @@ def move_box_to_distribution_event(box_label_identifier, distribution_event_id):
         # Completed Events should not be mutable anymore
         distribution_event = DistributionEvent.get_by_id(distribution_event_id)
         if distribution_event.state == DistributionEventState.Completed:
-            raise GraphQLError("Cannot move box to completed distribution event")
+            raise ModifyCompletedDistributionEvent(
+                desired_operation="move_box_to_distribution_event",
+                distribution_event_id=distribution_event.id,
+            )
         box.location = distribution_event.distribution_spot_id
         box.distribution_event = distribution_event_id
         box.save()
@@ -168,7 +174,10 @@ def add_packing_list_entry_to_distribution_event(
     # Completed Events should not be mutable anymore
     distribution_event = DistributionEvent.get_by_id(distribution_event_id)
     if distribution_event.state == DistributionEventState.Completed:
-        raise GraphQLError("Cannot add packing list entry to completed event")
+        raise ModifyCompletedDistributionEvent(
+            desired_operation="add_packing_list_entry",
+            distribution_event_id=distribution_event_id,
+        )
 
     existing_packing_list_entry = PackingListEntry.get_or_none(
         PackingListEntry.distribution_event == distribution_event_id,
@@ -400,7 +409,10 @@ def delete_packing_list_entry(packing_list_entry_id):
             packing_list_entry.distribution_event.state
             == DistributionEventState.Completed
         ):
-            raise GraphQLError("Cannot remove items from completed distribution event")
+            raise ModifyCompletedDistributionEvent(
+                desired_operation="remove_items",
+                distribution_event_id=packing_list_entry.distribution_event.id,
+            )
         packing_list_entry.delete().execute()
 
 

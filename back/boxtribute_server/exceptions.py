@@ -147,6 +147,23 @@ class InvalidDistributionEventState(_InvalidResourceState):
         )
 
 
+class ModifyCompletedDistributionEvent(Exception):
+    def __init__(
+        self,
+        *args,
+        distribution_event_id,
+        desired_operation,
+        **kwargs,
+    ):
+        self.extensions = {
+            "code": "BAD_USER_INPUT",
+            "description": f"Cannot operate '{desired_operation}' on "
+            "the distribution event (id={distribution_event_id}). "
+            "It has already been completed. ",
+        }
+        super().__init__(*args, **kwargs)
+
+
 class InvalidPaginationInput(Exception):
     extensions = {
         "code": "BAD_USER_INPUT",
