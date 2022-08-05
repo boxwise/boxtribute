@@ -10,7 +10,6 @@ from ariadne import (
     convert_kwargs_to_snake_case,
 )
 from flask import g
-from graphql import GraphQLError
 from peewee import fn
 
 from ..authz import (
@@ -31,13 +30,7 @@ from ..box_transfer.shipment import (
     send_shipment,
     update_shipment,
 )
-from ..enums import (
-    DistributionEventState,
-    HumanGender,
-    LocationType,
-    TaggableObjectType,
-    TransferAgreementType,
-)
+from ..enums import HumanGender, LocationType, TaggableObjectType, TransferAgreementType
 from ..models.crud import (
     add_packing_list_entry_to_distribution_event,
     change_distribution_event_state,
@@ -556,9 +549,6 @@ def resolve_remove_packing_list_entry_from_distribution_event(
         permission="distro_event:write",
         base_id=distribution_event.distribution_spot.base.id,
     )
-    # Completed Events should not be mutable anymore
-    if distribution_event.state == DistributionEventState.Completed:
-        raise GraphQLError("Cannot move items to completed distribution event")
     delete_packing_list_entry(packing_list_entry_id)
     return distribution_event
 

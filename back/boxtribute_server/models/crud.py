@@ -382,10 +382,18 @@ def update_beneficiary(
 
 
 def delete_packing_list_entry(packing_list_entry_id):
+
     with db.database.atomic():
-        PackingListEntry.delete().where(
-            PackingListEntry.id == packing_list_entry_id
-        ).execute()
+        packing_list_entry = PackingListEntry.join(DistributionEvent).get_by_id(
+            packing_list_entry_id
+        )
+        # Completed Events should not be mutable anymore
+        if (
+            packing_list_entry.distribution_event.state
+            == DistributionEventState.Completed
+        ):
+            raise GraphQLError("Cannot remove items from completed distribution event")
+        packing_list_entry.delete().execute()
 
 
 def create_distribution_spot(user_id, base_id, name, comment, latitude, longitude):
