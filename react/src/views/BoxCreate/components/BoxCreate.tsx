@@ -50,7 +50,7 @@ interface DropdownOption {
 
 interface BoxFormValues {
   product: DropdownOption | null;
-  size: DropdownOption | null;
+  size: string;
   numberOfItems: number;
   // location: DropdownOption | null;
   location: string;
@@ -136,7 +136,7 @@ const BoxCreate = ({
     const createBoxData: CreateBoxData = {
       // TODO: checke whether the exlamation marks are save here (whether the obSubmit is really just sent when the form is valid)
       productId: boxFormValues.product?.value!,
-      sizeId: boxFormValues.size?.value!,
+      sizeId: boxFormValues.size,
       locationId: boxFormValues.location,
       numberOfItems: boxFormValues.numberOfItems,
     };
@@ -147,6 +147,7 @@ const BoxCreate = ({
     handleSubmit,
     control,
     setValue,
+    resetField,
     formState: { isSubmitting },
     watch,
     register,
@@ -156,7 +157,7 @@ const BoxCreate = ({
   } = useForm<BoxFormValues>({
     defaultValues: {
       product: null,
-      size: null,
+      size: undefined,
       location: undefined,
       numberOfItems: 0,
       qrCode: qrCode,
@@ -182,7 +183,8 @@ const BoxCreate = ({
             value: s.id,
           })) || []
       );
-      setValue("size", null);
+      // setValue("size", undefined);
+      resetField("size");
     }
   }, [product, productAndSizesData, setValue]);
 
@@ -201,7 +203,7 @@ const BoxCreate = ({
       <Heading fontWeight={"bold"} mb={4} as="h2">
         Create New Box {qrCode !== null && <>for QR code</>}
       </Heading>
-      {/* errors: {JSON.stringify(errors)} <br /> */}
+      errors: {JSON.stringify(errors.numberOfItems)} <br />
       watched product = {JSON.stringify(product)} <br />
       sizeForDropdown: {JSON.stringify(size)} <br />
       <form onSubmit={handleSubmit(onSubmitBoxCreateForm)}>
@@ -253,7 +255,7 @@ const BoxCreate = ({
                       ref={field.ref}
                       onChange={field.onChange}
                       onBlur={field.onBlur}
-                      value={field.value}
+                      value={sizesOptionsForCurrentProduct.find(el => el.value === field.value)}
                       options={sizesOptionsForCurrentProduct}
                       placeholder="Size"
                       isSearchable
