@@ -151,9 +151,7 @@ const BoxCreate = ({
     formState: { isSubmitting },
     watch,
     register,
-    formState: {
-      errors
-    }
+    formState: { errors },
   } = useForm<BoxFormValues>({
     defaultValues: {
       product: null,
@@ -183,7 +181,7 @@ const BoxCreate = ({
             value: s.id,
           })) || []
       );
-      setValue("size", null)
+      // setValue("size", undefined);
       resetField("size");
     }
   }, [product, productAndSizesData, resetField, setValue]);
@@ -243,27 +241,36 @@ const BoxCreate = ({
           <ListItem>
             <FormLabel htmlFor="size">Size</FormLabel>
             <Controller
+              defaultValue={null}
               control={control}
               rules={{ required: true }}
               name="size"
-              render={({ field, fieldState: { invalid, error } }) => (
-                <FormControl isInvalid={invalid} id="size">
-                  value: {JSON.stringify(field.value)}
-                  <Box border="2px">
-                    <Select
-                      name={field.name}
-                      ref={field.ref}
-                      onChange={field.onChange}
-                      onBlur={field.onBlur}
-                      value={sizesOptionsForCurrentProduct.find(el => el.value === field.value)}
-                      options={sizesOptionsForCurrentProduct}
-                      placeholder="Size"
-                      isSearchable
-                      tagVariant="outline"
-                    />
-                  </Box>
-                </FormControl>
-              )}
+              render={({ field, fieldState: { invalid, error } }) => {
+                console.log(`VALUE: `);
+                console.log(field.value);
+                console.log(`sizesOptionsForCurrentProduct: `);
+                console.log(sizesOptionsForCurrentProduct);
+                return (
+                  <FormControl isInvalid={invalid} id="size">
+                    value: {JSON.stringify(field.value)}
+                    <Box border="2px">
+                      <Select
+                        name={field.name}
+                        ref={field.ref}
+                        value={sizesOptionsForCurrentProduct.find(
+                          (el) => el.value === field.value
+                        ) || null}
+                        onChange={(selectedOption) => field.onChange(selectedOption?.value)}
+                        onBlur={field.onBlur}
+                        options={sizesOptionsForCurrentProduct}
+                        placeholder="Size"
+                        isSearchable
+                        tagVariant="outline"
+                      />
+                    </Box>
+                  </FormControl>
+                );
+              }}
             />
           </ListItem>
 
