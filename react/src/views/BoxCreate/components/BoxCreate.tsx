@@ -201,7 +201,7 @@ const BoxCreate = ({
       <Heading fontWeight={"bold"} mb={4} as="h2">
         Create New Box {qrCode !== null && <>for QR code</>}
       </Heading>
-      errors: {JSON.stringify(errors.numberOfItems)} <br />
+      {/* errors: {JSON.stringify(errors.numberOfItems)} <br /> */}
       watched product = {JSON.stringify(product)} <br />
       sizeForDropdown: {JSON.stringify(size)} <br />
       <form onSubmit={handleSubmit(onSubmitBoxCreateForm)}>
@@ -241,9 +241,9 @@ const BoxCreate = ({
           <ListItem>
             <FormLabel htmlFor="size">Size</FormLabel>
             <Controller
-              defaultValue={null}
+              // defaultValue={null}
               control={control}
-              rules={{ required: true }}
+              rules={{ required: "This is required" }}
               name="size"
               render={({ field, fieldState: { invalid, error } }) => {
                 console.log(`VALUE: `);
@@ -252,15 +252,20 @@ const BoxCreate = ({
                 console.log(sizesOptionsForCurrentProduct);
                 return (
                   <FormControl isInvalid={invalid} id="size">
+                    <FormErrorMessage>{error?.message}</FormErrorMessage>
                     value: {JSON.stringify(field.value)}
                     <Box border="2px">
                       <Select
                         name={field.name}
                         ref={field.ref}
-                        value={sizesOptionsForCurrentProduct.find(
-                          (el) => el.value === field.value
-                        ) || null}
-                        onChange={(selectedOption) => field.onChange(selectedOption?.value)}
+                        value={
+                          sizesOptionsForCurrentProduct.find(
+                            (el) => el.value === field.value
+                          ) || null
+                        }
+                        onChange={(selectedOption) =>
+                          field.onChange(selectedOption?.value)
+                        }
                         onBlur={field.onBlur}
                         options={sizesOptionsForCurrentProduct}
                         placeholder="Size"
@@ -280,15 +285,19 @@ const BoxCreate = ({
               isInvalid={errors.numberOfItems != null}
               id="numberOfItems"
             >
+              <FormErrorMessage>{errors.numberOfItems && errors.numberOfItems.message}</FormErrorMessage>
               <Box border="2px">
                 <Input
                   border="0"
                   type="number"
                   {...register("numberOfItems", {
-                    min: 1,
+                    min: {
+                      value: 1,
+                      message: "Must be at least 1",
+                    },
                     required: true,
                     valueAsNumber: true,
-                    validate: (value) => value > 0,
+                    // validate: (value) => value > 0,
                   })}
                 />
               </Box>
