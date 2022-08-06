@@ -62,6 +62,8 @@ def create_box(
                 created_on=now,
                 created_by=user_id,
                 items=items,
+                # TODO: check whether this doesn't have a small, but still too big
+                # chance of id labelIdentifier duplicate clashes.
                 label_identifier="".join(random.choices("0123456789", k=8)),
                 last_modified_on=now,
                 last_modified_by=user_id,
