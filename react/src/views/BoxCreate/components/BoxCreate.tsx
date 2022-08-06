@@ -50,7 +50,7 @@ interface DropdownOption {
 
 interface BoxFormValues {
   product: DropdownOption | null;
-  size: string;
+  size: string | null;
   numberOfItems: number;
   // location: DropdownOption | null;
   location: string;
@@ -136,7 +136,7 @@ const BoxCreate = ({
     const createBoxData: CreateBoxData = {
       // TODO: checke whether the exlamation marks are save here (whether the obSubmit is really just sent when the form is valid)
       productId: boxFormValues.product?.value!,
-      sizeId: boxFormValues.size,
+      sizeId: boxFormValues.size!,
       locationId: boxFormValues.location,
       numberOfItems: boxFormValues.numberOfItems,
     };
@@ -157,7 +157,7 @@ const BoxCreate = ({
   } = useForm<BoxFormValues>({
     defaultValues: {
       product: null,
-      size: undefined,
+      size: null,
       location: undefined,
       numberOfItems: 0,
       qrCode: qrCode,
@@ -183,10 +183,10 @@ const BoxCreate = ({
             value: s.id,
           })) || []
       );
-      // setValue("size", undefined);
+      setValue("size", null)
       resetField("size");
     }
-  }, [product, productAndSizesData, setValue]);
+  }, [product, productAndSizesData, resetField, setValue]);
 
   if (productsForDropdownGroups == null) {
     console.error("BoxDetails Component: allProducts is null");
