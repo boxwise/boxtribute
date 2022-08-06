@@ -151,7 +151,7 @@ const BTBox = () => {
     return <APILoadingIndicator />;
   }
   if (mutationLocationStatus.loading) {
-    return <div>Updating number of items...</div>;
+    return <div>Updating box...</div>;
   }
   if (error || mutationLocationStatus.error) {
     console.error(
