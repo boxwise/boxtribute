@@ -16,6 +16,9 @@ import { Controller, useForm } from "react-hook-form";
 import { groupBy } from "utils/helpers";
 import { useEffect, useState } from "react";
 
+import { z } from "zod";
+import { zodResolver } from '@hookform/resolvers/zod';
+
 export interface CategoryData {
   name: string;
 }
@@ -69,6 +72,16 @@ export interface BoxCreateProps {
   qrCode?: string;
   onCreateBox: (boxFormValues: CreateBoxData) => void;
 }
+
+export const CreateBoxFormDataSchema = z.object({
+  productId: z.string({required_error: "Product is required",}),
+  sizeId: z.string({required_error: "Size is required",}),
+  locationId: z.string({required_error: "Location is required",}),
+  numberOfItems: z.number().positive("Number of items must be at least 1").default(0),
+});
+
+export type CreateBoxFormData = z.infer<typeof CreateBoxFormDataSchema>;
+
 
 const BoxCreate = ({
   productAndSizesData,
@@ -124,7 +137,9 @@ const BoxCreate = ({
     register,
     formState: { errors },
   } = useForm<BoxFormValues>({
+    resolver: zodResolver(CreateBoxFormDataSchema),
     defaultValues: {
+      numberOfItems: 0,
       qrCode: qrCode,
     },
   });
@@ -163,20 +178,19 @@ const BoxCreate = ({
   return (
     <Box w={["100%", "100%", "60%", "40%"]}>
       <Heading fontWeight={"bold"} mb={4} as="h2">
-        Create New Box {qrCode != null && <>for QR code</>}
+        Create New Box {qrCode != null && <>(for QR code)</>}
       </Heading>
       <form onSubmit={handleSubmit(onSubmitBoxCreateForm)}>
         <List spacing={2}>
           <ListItem>
             <Controller
               control={control}
-              rules={{ required: "This is required" }}
               name="productId"
               render={({
                 field: { onChange, onBlur, value, name, ref },
                 fieldState: { error },
               }) => (
-                <FormControl isInvalid={!!error} id="products">
+                <FormControl isInvalid={!!error} id="products" isRequired>
                   <FormLabel>Product</FormLabel>
                   <Box border="2px">
                     <Select
@@ -209,7 +223,6 @@ const BoxCreate = ({
             <FormLabel htmlFor="size">Size</FormLabel>
             <Controller
               control={control}
-              rules={{ required: "This is required" }}
               name="sizeId"
               render={({ field, fieldState: { invalid, error } }) => {
                 return (
@@ -251,11 +264,6 @@ const BoxCreate = ({
                   border="0"
                   type="number"
                   {...register("numberOfItems", {
-                    min: {
-                      value: 1,
-                      message: "Must be at least 1",
-                    },
-                    required: "This is required",
                     valueAsNumber: true,
                   })}
                 />
@@ -270,7 +278,6 @@ const BoxCreate = ({
             <FormLabel htmlFor="locationForDropdown">Location</FormLabel>
             <Controller
               control={control}
-              rules={{ required: "This is required" }}
               name="locationId"
               render={({
                 field: { onChange, onBlur, value, name, ref },
