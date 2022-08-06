@@ -8,6 +8,11 @@ import {
   FormLabel,
   Heading,
   Input,
+  NumberDecrementStepper,
+  NumberIncrementStepper,
+  NumberInput,
+  NumberInputField,
+  NumberInputStepper,
 } from "@chakra-ui/react";
 import { Select } from "chakra-react-select";
 
@@ -17,7 +22,7 @@ import { groupBy } from "utils/helpers";
 import { useEffect, useState } from "react";
 
 import { z } from "zod";
-import { zodResolver } from '@hookform/resolvers/zod';
+import { zodResolver } from "@hookform/resolvers/zod";
 
 export interface CategoryData {
   name: string;
@@ -74,14 +79,16 @@ export interface BoxCreateProps {
 }
 
 export const CreateBoxFormDataSchema = z.object({
-  productId: z.string({required_error: "Product is required",}),
-  sizeId: z.string({required_error: "Size is required",}),
-  locationId: z.string({required_error: "Location is required",}),
-  numberOfItems: z.number().positive("Number of items must be at least 1").default(0),
+  productId: z.string({ required_error: "Product is required" }),
+  sizeId: z.string({ required_error: "Size is required" }),
+  locationId: z.string({ required_error: "Location is required" }),
+  numberOfItems: z
+    .number()
+    .nonnegative("Number of items must be at least 0")
+    .default(0),
 });
 
 export type CreateBoxFormData = z.infer<typeof CreateBoxFormDataSchema>;
-
 
 const BoxCreate = ({
   productAndSizesData,
@@ -111,7 +118,9 @@ const BoxCreate = ({
         options: productsForCurrentGroup
           .map((product) => ({
             value: product.id,
-            label: `${product.name} ${product.gender && (' [' + product.gender + ']')}`,
+            label: `${product.name} ${
+              product.gender && " [" + product.gender + "]"
+            }`,
           }))
           .sort((a, b) => a.label.localeCompare(b.label)),
       };
@@ -220,13 +229,13 @@ const BoxCreate = ({
           </ListItem>
 
           <ListItem>
-            <FormLabel htmlFor="size">Size</FormLabel>
             <Controller
               control={control}
               name="sizeId"
               render={({ field, fieldState: { invalid, error } }) => {
                 return (
                   <FormControl isInvalid={invalid} id="size">
+                    <FormLabel htmlFor="size">Size</FormLabel>
                     <Box border="2px">
                       <Select
                         name={field.name}
@@ -254,19 +263,24 @@ const BoxCreate = ({
           </ListItem>
 
           <ListItem>
-            <FormLabel htmlFor="numberOfItems">Number Of Items</FormLabel>
             <FormControl
               isInvalid={errors.numberOfItems != null}
               id="numberOfItems"
             >
+              <FormLabel htmlFor="numberOfItems">Number Of Items</FormLabel>
               <Box border="2px">
-                <Input
-                  border="0"
-                  type="number"
-                  {...register("numberOfItems", {
-                    valueAsNumber: true,
-                  })}
-                />
+                <NumberInput max={50} min={0}>
+                  <NumberInputField
+                    type="number"
+                    {...register("numberOfItems", {
+                      valueAsNumber: true,
+                    })}
+                  />
+                  <NumberInputStepper>
+                    <NumberIncrementStepper />
+                    <NumberDecrementStepper />
+                  </NumberInputStepper>
+                </NumberInput>
               </Box>
               <FormErrorMessage>
                 {errors.numberOfItems && errors.numberOfItems.message}
@@ -275,7 +289,6 @@ const BoxCreate = ({
           </ListItem>
 
           <ListItem>
-            <FormLabel htmlFor="locationForDropdown">Location</FormLabel>
             <Controller
               control={control}
               name="locationId"
@@ -284,6 +297,7 @@ const BoxCreate = ({
                 fieldState: { error },
               }) => (
                 <FormControl isInvalid={!!error} id="locationForDropdown">
+                  <FormLabel htmlFor="locationForDropdown">Location</FormLabel>
                   <Box border="2px">
                     <Select
                       name={name}
@@ -309,12 +323,7 @@ const BoxCreate = ({
             />
           </ListItem>
         </List>
-        <Button
-          mt={4}
-          isLoading={isSubmitting}
-          type="submit"
-          borderRadius="0"
-        >
+        <Button mt={4} isLoading={isSubmitting} type="submit" borderRadius="0">
           Create Box
         </Button>
       </form>
