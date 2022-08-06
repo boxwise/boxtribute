@@ -158,7 +158,7 @@ const BoxCreate = ({
       // productId: null,
       // sizeId: null,
       // locationId: undefined,
-      numberOfItems: 0,
+      // numberOfItems: 0,
       qrCode: qrCode,
     },
   });
@@ -306,7 +306,7 @@ const BoxCreate = ({
                       value: 1,
                       message: "Must be at least 1",
                     },
-                    required: true,
+                    required: "This is required",
                     valueAsNumber: true,
                     // validate: (value) => value > 0,
                   })}
@@ -319,7 +319,7 @@ const BoxCreate = ({
             <FormLabel htmlFor="locationForDropdown">Location</FormLabel>
             <Controller
               control={control}
-              rules={{ required: true }}
+              rules={{ required: "This is required" }}
               name="locationId"
               render={({
                 field: { onChange, onBlur, value, name, ref },
@@ -344,6 +344,7 @@ const BoxCreate = ({
                       tagVariant="outline"
                     />
                   </Box>
+                  <FormErrorMessage>{error && error.message}</FormErrorMessage>
                 </FormControl>
               )}
             />
