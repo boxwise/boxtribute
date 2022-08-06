@@ -83,12 +83,15 @@ const BoxCreateView = () => {
   const onSubmitBoxCreateForm = (createBoxData: CreateBoxData) => {
     console.log("boxFormValues", createBoxData);
 
+    debugger;
+    console.log("qrCode", qrCode);
     createBoxMutation({
       variables: {
         locationId: parseInt(createBoxData.locationId),
         productId: parseInt(createBoxData.productId),
         sizeId: parseInt(createBoxData.sizeId),
         numberOfItems: createBoxData.numberOfItems,
+        qrCode
       },
     })
       .then((mutationResult) => {

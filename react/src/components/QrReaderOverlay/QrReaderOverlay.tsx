@@ -76,6 +76,7 @@ interface QrResolverResultSuccessValue {
 
 interface QrResolverResultNotAssignedToBox {
   kind: "notAssignedToBox";
+  qrCodeValue: string;
 }
 
 // interface QrResolverResultNotAuthorized {

@@ -269,7 +269,7 @@ const BoxCreate = ({
             >
               <FormLabel htmlFor="numberOfItems">Number Of Items</FormLabel>
               <Box border="2px">
-                <NumberInput max={50} min={0}>
+                <NumberInput max={10000} min={0}>
                   <NumberInputField
                     type="number"
                     {...register("numberOfItems", {

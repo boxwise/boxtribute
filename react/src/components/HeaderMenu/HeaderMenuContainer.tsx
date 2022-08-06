@@ -98,6 +98,7 @@ const HeaderMenuContainer = () => {
               isClosable: true,
               duration: 2000,
             });
+            navigate(`/bases/${baseId}/boxes/create?qrCode=${singleResolvedQrValue.qrCodeValue}`);
             break;
           }
         }
@@ -133,6 +134,7 @@ const HeaderMenuContainer = () => {
         onClose={qrScannerOverlayState.onClose}
         onScanningDone={onScanningDone}
       />
+
     </>
   );
 };
