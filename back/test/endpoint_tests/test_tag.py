@@ -137,15 +137,16 @@ def test_tags_mutations(client):
 
 
 @pytest.mark.parametrize(
-    "tag_id,tag_type,tagged_resource_ids",
+    "tag_id,tag_type,tagged_resource_ids,typename",
     [
-        [1, TagType.Box.name, []],
-        [2, TagType.Beneficiary.name, []],
-        [3, TagType.Box.name, [3]],
-        [3, TagType.Beneficiary.name, [1]],
+        [1, TagType.Box.name, [], "Box"],
+        [2, TagType.Beneficiary.name, [], "Beneficiary"],
+        [3, TagType.Box.name, [3], "Box"],
+        [3, TagType.Beneficiary.name, [1], "Beneficiary"],
+        [1, TagType.All.name, [1], "Beneficiary"],
     ],
 )
-def test_update_tag_type(client, tag_id, tag_type, tagged_resource_ids):
+def test_update_tag_type(client, tag_id, tag_type, tagged_resource_ids, typename):
     # Test case 4.2.4
     mutation = f"""mutation {{ updateTag(
             updateInput: {{ id: {tag_id}, type: {tag_type} }}) {{
@@ -160,7 +161,7 @@ def test_update_tag_type(client, tag_id, tag_type, tagged_resource_ids):
     assert updated_tag == {
         "type": tag_type,
         "taggedResources": [
-            {"id": str(i), "__typename": tag_type} for i in tagged_resource_ids
+            {"id": str(i), "__typename": typename} for i in tagged_resource_ids
         ],
     }
 
