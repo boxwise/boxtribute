@@ -50,10 +50,10 @@ interface DropdownOption {
 
 interface BoxFormValues {
   product: DropdownOption | null;
-  size: string | null;
+  sizeId: string;
+  locationId: string;
   numberOfItems: number;
   // location: DropdownOption | null;
-  location: string;
   qrCode?: string;
   // sizeId: string;
   // productForDropdown: OptionsGroup;
@@ -136,8 +136,8 @@ const BoxCreate = ({
     const createBoxData: CreateBoxData = {
       // TODO: checke whether the exlamation marks are save here (whether the obSubmit is really just sent when the form is valid)
       productId: boxFormValues.product?.value!,
-      sizeId: boxFormValues.size!,
-      locationId: boxFormValues.location,
+      sizeId: boxFormValues.sizeId!,
+      locationId: boxFormValues.locationId,
       numberOfItems: boxFormValues.numberOfItems,
     };
     onCreateBox(createBoxData);
@@ -155,8 +155,8 @@ const BoxCreate = ({
   } = useForm<BoxFormValues>({
     defaultValues: {
       product: null,
-      size: null,
-      location: undefined,
+      // sizeId: null,
+      // locationId: undefined,
       numberOfItems: 0,
       qrCode: qrCode,
     },
@@ -166,7 +166,7 @@ const BoxCreate = ({
     useState<DropdownOption[]>([]);
 
   const product = watch("product");
-  const size = watch("size");
+  const sizeId = watch("sizeId");
 
   useEffect(() => {
     if (product != null) {
@@ -182,7 +182,7 @@ const BoxCreate = ({
           })) || []
       );
       // setValue("size", undefined);
-      resetField("size");
+      resetField("sizeId");
     }
   }, [product, productAndSizesData, resetField, setValue]);
 
@@ -203,7 +203,7 @@ const BoxCreate = ({
       </Heading>
       {/* errors: {JSON.stringify(errors.numberOfItems)} <br /> */}
       watched product = {JSON.stringify(product)} <br />
-      sizeForDropdown: {JSON.stringify(size)} <br />
+      sizeForDropdown: {JSON.stringify(sizeId)} <br />
       <form onSubmit={handleSubmit(onSubmitBoxCreateForm)}>
         <List spacing={2}>
           <ListItem>
@@ -244,7 +244,7 @@ const BoxCreate = ({
               // defaultValue={null}
               control={control}
               rules={{ required: "This is required" }}
-              name="size"
+              name="sizeId"
               render={({ field, fieldState: { invalid, error } }) => {
                 console.log(`VALUE: `);
                 console.log(field.value);
@@ -309,7 +309,7 @@ const BoxCreate = ({
             <Controller
               control={control}
               rules={{ required: true }}
-              name="location"
+              name="locationId"
               render={({
                 field: { onChange, onBlur, value, name, ref },
                 fieldState: { invalid, error },
