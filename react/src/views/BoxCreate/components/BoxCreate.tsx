@@ -200,7 +200,7 @@ const BoxCreate = ({
   return (
     <Box w={["100%", "100%", "60%", "40%"]}>
       <Heading fontWeight={"bold"} mb={4} as="h2">
-        Create New Box {qrCode !== null && <>for QR code</>}
+        Create New Box {qrCode != null && <>for QR code</>}
       </Heading>
       {/* errors: {JSON.stringify(errors.numberOfItems)} <br /> */}
       watched product = {JSON.stringify(productId)} <br />
