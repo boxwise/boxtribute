@@ -8,7 +8,6 @@ import {
   FormLabel,
   Heading,
   Input,
-  FormErrorIcon,
 } from "@chakra-ui/react";
 import { Select } from "chakra-react-select";
 
@@ -45,7 +44,6 @@ interface DropdownOption {
 }
 
 interface BoxFormValues {
-  // productId: DropdownOption | null;
   productId: string;
   sizeId: string;
   locationId: string;
@@ -100,7 +98,7 @@ const BoxCreate = ({
         options: productsForCurrentGroup
           .map((product) => ({
             value: product.id,
-            label: `${product.name} (${product.gender} - ${product.sizeRange.label})`,
+            label: `${product.name} ${product.gender && (' [' + product.gender + ']')}`,
           }))
           .sort((a, b) => a.label.localeCompare(b.label)),
       };
@@ -124,7 +122,7 @@ const BoxCreate = ({
     formState: { isSubmitting },
     watch,
     register,
-    formState: { errors, isValid },
+    formState: { errors },
   } = useForm<BoxFormValues>({
     defaultValues: {
       qrCode: qrCode,
@@ -179,7 +177,7 @@ const BoxCreate = ({
                 fieldState: { error },
               }) => (
                 <FormControl isInvalid={!!error} id="products">
-                  <FormLabel>Product {error && <FormErrorIcon />}</FormLabel>
+                  <FormLabel>Product</FormLabel>
                   <Box border="2px">
                     <Select
                       name={name}
@@ -309,7 +307,6 @@ const BoxCreate = ({
           isLoading={isSubmitting}
           type="submit"
           borderRadius="0"
-          disabled={!isValid}
         >
           Create Box
         </Button>
