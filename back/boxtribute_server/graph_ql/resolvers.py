@@ -497,7 +497,7 @@ def resolve_create_distribution_event(*_, creation_input):
 
 @mutation.field("createDistributionSpot")
 @convert_kwargs_to_snake_case
-def resolve_create_distribution_spot(*_, creation_input=None):
+def resolve_create_distribution_spot(*_, creation_input):
     authorize(permission="location:write")
     return create_distribution_spot(user_id=g.user.id, **creation_input)
 

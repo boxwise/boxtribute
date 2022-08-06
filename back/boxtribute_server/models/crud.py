@@ -416,7 +416,9 @@ def delete_packing_list_entry(packing_list_entry_id):
         packing_list_entry.delete().execute()
 
 
-def create_distribution_spot(user_id, base_id, name, comment, latitude, longitude):
+def create_distribution_spot(
+    user_id, base_id, name, comment=None, latitude=None, longitude=None
+):
     """Insert information for a new DistributionSpot in the database."""
     now = utcnow()
     new_distribution_spot = Location.create(
@@ -429,7 +431,7 @@ def create_distribution_spot(user_id, base_id, name, comment, latitude, longitud
         name=name,
         comment=comment,
         latitude=latitude,
-        Longitude=longitude,
+        longitude=longitude,
     )
     return new_distribution_spot
 
