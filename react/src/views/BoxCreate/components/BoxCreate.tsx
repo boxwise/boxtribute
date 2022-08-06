@@ -49,7 +49,8 @@ interface DropdownOption {
 // }
 
 interface BoxFormValues {
-  product: DropdownOption | null;
+  // productId: DropdownOption | null;
+  productId: string;
   sizeId: string;
   locationId: string;
   numberOfItems: number;
@@ -130,13 +131,13 @@ const BoxCreate = ({
     .sort((a, b) => a.label.localeCompare(b.label));
 
   const onSubmitBoxCreateForm = (boxFormValues: BoxFormValues) => {
-    alert("ON SUBMIT");
+    // alert("ON SUBMIT");
     console.log(boxFormValues);
     console.log(boxFormValues.numberOfItems);
     const createBoxData: CreateBoxData = {
       // TODO: checke whether the exlamation marks are save here (whether the obSubmit is really just sent when the form is valid)
-      productId: boxFormValues.product?.value!,
-      sizeId: boxFormValues.sizeId!,
+      productId: boxFormValues.productId,
+      sizeId: boxFormValues.sizeId,
       locationId: boxFormValues.locationId,
       numberOfItems: boxFormValues.numberOfItems,
     };
@@ -154,7 +155,7 @@ const BoxCreate = ({
     formState: { errors },
   } = useForm<BoxFormValues>({
     defaultValues: {
-      product: null,
+      // productId: null,
       // sizeId: null,
       // locationId: undefined,
       numberOfItems: 0,
@@ -165,14 +166,14 @@ const BoxCreate = ({
   const [sizesOptionsForCurrentProduct, setSizesOptionsForCurrentProduct] =
     useState<DropdownOption[]>([]);
 
-  const product = watch("product");
+  const productId = watch("productId");
   const sizeId = watch("sizeId");
 
   useEffect(() => {
-    if (product != null) {
-      console.log("product", product);
+    if (productId != null) {
+      console.log("product", productId);
       const productAndSizeDataForCurrentProduct = productAndSizesData.find(
-        (p) => p.id === product.value
+        (p) => p.id === productId
       );
       setSizesOptionsForCurrentProduct(
         () =>
@@ -184,7 +185,7 @@ const BoxCreate = ({
       // setValue("size", undefined);
       resetField("sizeId");
     }
-  }, [product, productAndSizesData, resetField, setValue]);
+  }, [productId, productAndSizesData, resetField, setValue]);
 
   if (productsForDropdownGroups == null) {
     console.error("BoxDetails Component: allProducts is null");
@@ -202,7 +203,7 @@ const BoxCreate = ({
         Create New Box {qrCode !== null && <>for QR code</>}
       </Heading>
       {/* errors: {JSON.stringify(errors.numberOfItems)} <br /> */}
-      watched product = {JSON.stringify(product)} <br />
+      watched product = {JSON.stringify(productId)} <br />
       sizeForDropdown: {JSON.stringify(sizeId)} <br />
       <form onSubmit={handleSubmit(onSubmitBoxCreateForm)}>
         <List spacing={2}>
@@ -210,7 +211,7 @@ const BoxCreate = ({
             <Controller
               control={control}
               rules={{ required: true }}
-              name="product"
+              name="productId"
               render={({
                 field: { onChange, onBlur, value, name, ref },
                 fieldState: { invalid, error },
@@ -221,9 +222,17 @@ const BoxCreate = ({
                     <Select
                       name={name}
                       ref={ref}
-                      onChange={onChange}
+                      // onChange={onChange}
+                      onChange={(selectedOption) =>
+                        onChange(selectedOption?.value)
+                      }
                       onBlur={onBlur}
-                      value={value}
+                      // value={value}
+                      value={
+                        productsForDropdownGroups
+                          .flatMap((group) => group.options)
+                          .find((el) => el.value === value) || null
+                      }
                       options={productsForDropdownGroups}
                       placeholder="Product"
                       isSearchable
@@ -285,7 +294,9 @@ const BoxCreate = ({
               isInvalid={errors.numberOfItems != null}
               id="numberOfItems"
             >
-              <FormErrorMessage>{errors.numberOfItems && errors.numberOfItems.message}</FormErrorMessage>
+              <FormErrorMessage>
+                {errors.numberOfItems && errors.numberOfItems.message}
+              </FormErrorMessage>
               <Box border="2px">
                 <Input
                   border="0"
@@ -319,12 +330,14 @@ const BoxCreate = ({
                     <Select
                       name={name}
                       ref={ref}
-                      onChange={onChange}
+                      onChange={selectedOption => onChange(selectedOption?.value)}
                       onBlur={onBlur}
                       // value={value}
-                      value={locationsForDropdownGroups.find(
-                        (el) => el.value === value
-                      ) || null}
+                      value={
+                        locationsForDropdownGroups.find(
+                          (el) => el.value === value
+                        ) || null
+                      }
                       options={locationsForDropdownGroups}
                       placeholder="Location"
                       isSearchable
