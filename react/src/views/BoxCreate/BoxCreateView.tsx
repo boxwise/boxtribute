@@ -71,7 +71,7 @@ const BoxCreateView = () => {
   });
   const navigate = useNavigate();
 
-  const [createBoxMutation] = useMutation<
+  const [createBoxMutation, createBoxMutationState] = useMutation<
     CreateBoxMutation,
     CreateBoxMutationVariables
   >(CREATE_BOX_MUTATION);
@@ -97,7 +97,7 @@ const BoxCreateView = () => {
       });
   };
 
-  if (loading) {
+  if (loading || createBoxMutationState.loading) {
     return <APILoadingIndicator />;
   }
 

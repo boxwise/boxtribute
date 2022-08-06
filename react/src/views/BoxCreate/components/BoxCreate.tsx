@@ -349,6 +349,7 @@ const BoxCreate = ({
             />
           </ListItem>
         </List>
+        {/* IS SUBMITTING: {JSON.stringify(isSubmitting)} <br /> */}
         <Button mt={4} isLoading={isSubmitting} type="submit" borderRadius="0">
           Create Box
         </Button>
