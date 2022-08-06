@@ -50,8 +50,7 @@ interface DropdownOption {
 
 interface BoxFormValues {
   product: DropdownOption | null;
-  // size: string | null;
-  size: DropdownOption | null;
+  size: string | null;
   numberOfItems: number;
   // location: DropdownOption | null;
   location: string;
@@ -137,7 +136,7 @@ const BoxCreate = ({
     const createBoxData: CreateBoxData = {
       // TODO: checke whether the exlamation marks are save here (whether the obSubmit is really just sent when the form is valid)
       productId: boxFormValues.product?.value!,
-      sizeId: boxFormValues.size?.value!,
+      sizeId: boxFormValues.size!,
       locationId: boxFormValues.location,
       numberOfItems: boxFormValues.numberOfItems,
     };
@@ -256,8 +255,7 @@ const BoxCreate = ({
                       ref={field.ref}
                       onChange={field.onChange}
                       onBlur={field.onBlur}
-                      // value={sizesOptionsForCurrentProduct.find(el => el.value === field.value)}
-                      value={field.value}
+                      value={sizesOptionsForCurrentProduct.find(el => el.value === field.value)}
                       options={sizesOptionsForCurrentProduct}
                       placeholder="Size"
                       isSearchable
