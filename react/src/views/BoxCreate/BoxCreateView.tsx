@@ -1,4 +1,5 @@
 import { gql, useMutation, useQuery } from "@apollo/client";
+import { Center } from "@chakra-ui/react";
 import APILoadingIndicator from "components/APILoadingIndicator";
 import { useNavigate, useParams, useSearchParams } from "react-router-dom";
 import {
@@ -126,12 +127,14 @@ const BoxCreateView = () => {
   }
 
   return (
-    <BoxCreate
-      allLocations={allLocations}
-      productAndSizesData={allProducts?.elements}
-      onCreateBox={onSubmitBoxCreateForm}
-      qrCode={qrCode}
-    />
+    <Center>
+      <BoxCreate
+        allLocations={allLocations}
+        productAndSizesData={allProducts?.elements}
+        onCreateBox={onSubmitBoxCreateForm}
+        qrCode={qrCode}
+      />
+    </Center>
   );
 };
 

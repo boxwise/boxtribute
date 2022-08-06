@@ -8,11 +8,12 @@ import {
   FormLabel,
   Heading,
   Input,
+  FormErrorIcon,
 } from "@chakra-ui/react";
 import { Select } from "chakra-react-select";
 
 import { ProductGender } from "types/generated/graphql";
-import { Controller, useFieldArray, useForm } from "react-hook-form";
+import { Controller, useForm } from "react-hook-form";
 import { groupBy } from "utils/helpers";
 import { useEffect, useState } from "react";
 
@@ -43,37 +44,14 @@ interface DropdownOption {
   label: string;
 }
 
-// interface OptionsGroup {
-//   value: string;
-//   label: string;
-// }
-
 interface BoxFormValues {
   // productId: DropdownOption | null;
   productId: string;
   sizeId: string;
   locationId: string;
   numberOfItems: number;
-  // location: DropdownOption | null;
   qrCode?: string;
-  // sizeId: string;
-  // productForDropdown: OptionsGroup;
-  // sizeForDropdown: OptionsGroup[];
 }
-
-// interface SizeIdAndNameTuple {
-//   id: string;
-//   name: string;
-// }
-
-// export type ProductAndSizesData = {
-//   id: string;
-//   name: string;
-//   category: {
-//     id
-//   }
-//   sizes: SizeIdAndNameTuple[];
-// };
 
 export interface CreateBoxData {
   locationId: string;
@@ -88,7 +66,6 @@ interface LocationData {
 }
 
 export interface BoxCreateProps {
-  // allProducts: ProductData[];
   productAndSizesData: ProductWithSizeRangeData[];
   allLocations: LocationData[];
   qrCode?: string;
@@ -131,11 +108,7 @@ const BoxCreate = ({
     .sort((a, b) => a.label.localeCompare(b.label));
 
   const onSubmitBoxCreateForm = (boxFormValues: BoxFormValues) => {
-    // alert("ON SUBMIT");
-    console.log(boxFormValues);
-    console.log(boxFormValues.numberOfItems);
     const createBoxData: CreateBoxData = {
-      // TODO: checke whether the exlamation marks are save here (whether the obSubmit is really just sent when the form is valid)
       productId: boxFormValues.productId,
       sizeId: boxFormValues.sizeId,
       locationId: boxFormValues.locationId,
@@ -147,18 +120,13 @@ const BoxCreate = ({
   const {
     handleSubmit,
     control,
-    setValue,
     resetField,
     formState: { isSubmitting },
     watch,
     register,
-    formState: { errors },
+    formState: { errors, isValid },
   } = useForm<BoxFormValues>({
     defaultValues: {
-      // productId: null,
-      // sizeId: null,
-      // locationId: undefined,
-      // numberOfItems: 0,
       qrCode: qrCode,
     },
   });
@@ -167,11 +135,9 @@ const BoxCreate = ({
     useState<DropdownOption[]>([]);
 
   const productId = watch("productId");
-  const sizeId = watch("sizeId");
 
   useEffect(() => {
     if (productId != null) {
-      console.log("product", productId);
       const productAndSizeDataForCurrentProduct = productAndSizesData.find(
         (p) => p.id === productId
       );
@@ -182,10 +148,9 @@ const BoxCreate = ({
             value: s.id,
           })) || []
       );
-      // setValue("size", undefined);
       resetField("sizeId");
     }
-  }, [productId, productAndSizesData, resetField, setValue]);
+  }, [productId, productAndSizesData, resetField]);
 
   if (productsForDropdownGroups == null) {
     console.error("BoxDetails Component: allProducts is null");
@@ -202,32 +167,27 @@ const BoxCreate = ({
       <Heading fontWeight={"bold"} mb={4} as="h2">
         Create New Box {qrCode != null && <>for QR code</>}
       </Heading>
-      {/* errors: {JSON.stringify(errors.numberOfItems)} <br /> */}
-      watched product = {JSON.stringify(productId)} <br />
-      sizeForDropdown: {JSON.stringify(sizeId)} <br />
       <form onSubmit={handleSubmit(onSubmitBoxCreateForm)}>
         <List spacing={2}>
           <ListItem>
             <Controller
               control={control}
-              rules={{ required: true }}
+              rules={{ required: "This is required" }}
               name="productId"
               render={({
                 field: { onChange, onBlur, value, name, ref },
-                fieldState: { invalid, error },
+                fieldState: { error },
               }) => (
-                <FormControl isInvalid={invalid} id="products">
-                  <FormLabel>Product</FormLabel>
+                <FormControl isInvalid={!!error} id="products">
+                  <FormLabel>Product {error && <FormErrorIcon />}</FormLabel>
                   <Box border="2px">
                     <Select
                       name={name}
                       ref={ref}
-                      // onChange={onChange}
                       onChange={(selectedOption) =>
                         onChange(selectedOption?.value)
                       }
                       onBlur={onBlur}
-                      // value={value}
                       value={
                         productsForDropdownGroups
                           .flatMap((group) => group.options)
@@ -250,19 +210,12 @@ const BoxCreate = ({
           <ListItem>
             <FormLabel htmlFor="size">Size</FormLabel>
             <Controller
-              // defaultValue={null}
               control={control}
               rules={{ required: "This is required" }}
               name="sizeId"
               render={({ field, fieldState: { invalid, error } }) => {
-                console.log(`VALUE: `);
-                console.log(field.value);
-                console.log(`sizesOptionsForCurrentProduct: `);
-                console.log(sizesOptionsForCurrentProduct);
                 return (
                   <FormControl isInvalid={invalid} id="size">
-                    <FormErrorMessage>{error?.message}</FormErrorMessage>
-                    value: {JSON.stringify(field.value)}
                     <Box border="2px">
                       <Select
                         name={field.name}
@@ -281,6 +234,7 @@ const BoxCreate = ({
                         isSearchable
                         tagVariant="outline"
                       />
+                      <FormErrorMessage>{error?.message}</FormErrorMessage>
                     </Box>
                   </FormControl>
                 );
@@ -294,9 +248,6 @@ const BoxCreate = ({
               isInvalid={errors.numberOfItems != null}
               id="numberOfItems"
             >
-              <FormErrorMessage>
-                {errors.numberOfItems && errors.numberOfItems.message}
-              </FormErrorMessage>
               <Box border="2px">
                 <Input
                   border="0"
@@ -308,10 +259,12 @@ const BoxCreate = ({
                     },
                     required: "This is required",
                     valueAsNumber: true,
-                    // validate: (value) => value > 0,
                   })}
                 />
               </Box>
+              <FormErrorMessage>
+                {errors.numberOfItems && errors.numberOfItems.message}
+              </FormErrorMessage>
             </FormControl>
           </ListItem>
 
@@ -323,16 +276,17 @@ const BoxCreate = ({
               name="locationId"
               render={({
                 field: { onChange, onBlur, value, name, ref },
-                fieldState: { invalid, error },
+                fieldState: { error },
               }) => (
-                <FormControl isInvalid={invalid} id="locationForDropdown">
+                <FormControl isInvalid={!!error} id="locationForDropdown">
                   <Box border="2px">
                     <Select
                       name={name}
                       ref={ref}
-                      onChange={selectedOption => onChange(selectedOption?.value)}
+                      onChange={(selectedOption) =>
+                        onChange(selectedOption?.value)
+                      }
                       onBlur={onBlur}
-                      // value={value}
                       value={
                         locationsForDropdownGroups.find(
                           (el) => el.value === value
@@ -350,8 +304,13 @@ const BoxCreate = ({
             />
           </ListItem>
         </List>
-        {/* IS SUBMITTING: {JSON.stringify(isSubmitting)} <br /> */}
-        <Button mt={4} isLoading={isSubmitting} type="submit" borderRadius="0">
+        <Button
+          mt={4}
+          isLoading={isSubmitting}
+          type="submit"
+          borderRadius="0"
+          disabled={!isValid}
+        >
           Create Box
         </Button>
       </form>
