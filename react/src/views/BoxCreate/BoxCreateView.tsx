@@ -1,6 +1,6 @@
 import { gql, useMutation, useQuery } from "@apollo/client";
 import APILoadingIndicator from "components/APILoadingIndicator";
-import { useNavigate, useParams } from "react-router-dom";
+import { useNavigate, useParams, useSearchParams } from "react-router-dom";
 import {
   AllProductsAndLocationsForBaseQuery,
   AllProductsAndLocationsForBaseQueryVariables,
@@ -61,6 +61,9 @@ export const CREATE_BOX_MUTATION = gql`
 
 const BoxCreateView = () => {
   const baseId = useParams<{ baseId: string }>().baseId!;
+  const [searchParams] = useSearchParams();
+  const qrCode = searchParams.get("qrCode") as string | undefined;
+
   const { loading, error, data } = useQuery<
     AllProductsAndLocationsForBaseQuery,
     AllProductsAndLocationsForBaseQueryVariables
@@ -127,6 +130,7 @@ const BoxCreateView = () => {
       allLocations={allLocations}
       productAndSizesData={allProducts?.elements}
       onCreateBox={onSubmitBoxCreateForm}
+      qrCode={qrCode}
     />
   );
 };
