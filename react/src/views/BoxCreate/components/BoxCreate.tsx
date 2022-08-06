@@ -324,7 +324,7 @@ const BoxCreate = ({
                       // value={value}
                       value={locationsForDropdownGroups.find(
                         (el) => el.value === value
-                      )}
+                      ) || null}
                       options={locationsForDropdownGroups}
                       placeholder="Location"
                       isSearchable
