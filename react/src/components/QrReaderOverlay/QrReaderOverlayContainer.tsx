@@ -61,6 +61,7 @@ const QrReaderOverlayContainer = ({
         >({
           query: GET_BOX_LABEL_IDENTIFIER_BY_QR_CODE,
           variables: { qrCode: extractedQrCodeFromUrl },
+          fetchPolicy: "no-cache",
         })
         .then(({ data, error, errors }) => {
           const boxLabelIdentifier = data?.qrCode?.box?.labelIdentifier;
@@ -113,6 +114,7 @@ const QrReaderOverlayContainer = ({
               GetBoxLabelIdentifierForQrCodeQueryVariables
             >({
               query: GET_BOX_LABEL_IDENTIFIER_BY_QR_CODE,
+              fetchPolicy: "no-cache",
               variables: { qrCode },
             })
             .then(({ data }) => {
