@@ -81,7 +81,7 @@ input DistributionSpotCreationInput {
 input DistributionEventCreationInput {
   distributionSpotId: Int!
   name: String
-  plannedStartDateTime: Datetime
+  plannedStartDateTime: Datetime!
   plannedEndDateTime: Datetime
 }
 
@@ -104,7 +104,7 @@ input ShipmentDetailUpdateInput {
   targetLocationId: Int!
 }
 
-input PacklistEntryInput {
+input PackingListEntryInput {
   distributionEventId: ID!
   productId: Int!
   sizeId: Int!

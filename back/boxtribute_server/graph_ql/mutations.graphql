@@ -23,7 +23,7 @@ type Mutation {
   createDistributionSpot(creationInput: DistributionSpotCreationInput): DistributionSpot
   createDistributionEvent(creationInput: DistributionEventCreationInput): DistributionEvent
 
-  addPackingListEntryToDistributionEvent(creationInput: PacklistEntryInput!): PackingListEntry
+  addPackingListEntryToDistributionEvent(creationInput: PackingListEntryInput!): PackingListEntry
   removePackingListEntryFromDistributionEvent(packingListEntryId: ID!): DistributionEvent
   changeDistributionEventState(
     distributionEventId: ID!

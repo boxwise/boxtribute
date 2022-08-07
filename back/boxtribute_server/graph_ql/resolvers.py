@@ -703,6 +703,7 @@ def resolve_base_distributions_spots(base_obj, _):
     base_filter_condition = Location.base == base_obj.id
     return (
         Location.select()
+        .join(Base)
         .where(Location.type == LocationType.DistributionSpot)
         .where(base_filter_condition)
     )
