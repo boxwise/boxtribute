@@ -192,7 +192,9 @@ def add_packing_list_entry_to_distribution_event(
             existing_packing_list_entry.save()
             return existing_packing_list_entry
         else:
-            existing_packing_list_entry.delete()
+            PackingListEntry.delete().where(
+                PackingListEntry.id == existing_packing_list_entry
+            ).execute()
             return
 
     else:
@@ -403,9 +405,7 @@ def update_beneficiary(
 def delete_packing_list_entry(packing_list_entry_id):
 
     with db.database.atomic():
-        packing_list_entry = PackingListEntry.join(DistributionEvent).get_by_id(
-            packing_list_entry_id
-        )
+        packing_list_entry = PackingListEntry.get_by_id(packing_list_entry_id)
         # Completed Events should not be mutable anymore
         if (
             packing_list_entry.distribution_event.state
@@ -415,10 +415,14 @@ def delete_packing_list_entry(packing_list_entry_id):
                 desired_operation="remove_items",
                 distribution_event_id=packing_list_entry.distribution_event.id,
             )
-        packing_list_entry.delete().execute()
+        PackingListEntry.delete().where(
+            PackingListEntry.id == packing_list_entry
+        ).execute()
 
 
-def create_distribution_spot(user_id, base_id, name, comment, latitude, longitude):
+def create_distribution_spot(
+    user_id, base_id, name, comment=None, latitude=None, longitude=None
+):
     """Insert information for a new DistributionSpot in the database."""
     now = utcnow()
     new_distribution_spot = Location.create(
@@ -431,7 +435,7 @@ def create_distribution_spot(user_id, base_id, name, comment, latitude, longitud
         name=name,
         comment=comment,
         latitude=latitude,
-        Longitude=longitude,
+        longitude=longitude,
     )
     return new_distribution_spot
 
