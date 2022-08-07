@@ -98,8 +98,6 @@ def move_items_from_box_to_distribution_event(
 
         box = Box.get(Box.label_identifier == box_label_identifier)
 
-        # TODO: Discuss error handling approach:
-        # Ok to throw GraphQL errors in the crud module?
         if box.items < number_of_items:
             raise NotEnoughItemsInBox(
                 box_label_identifier=box_label_identifier,
@@ -223,10 +221,6 @@ def create_distribution_event(
     if planned_end_date_time is None:
         # TODO: consider to change endDateTime to startDateTime + 2 or 3 hours
         planned_end_date_time = planned_start_date_time
-
-    # if end_date_time is None:
-    #     # TODO: consider to change endDateTime to startDateTime + 2 or 3 hours
-    #     end_date_time = start_date
 
     """
     TODO: ensure that distribution_spot_id is realy from a Distribution Spot

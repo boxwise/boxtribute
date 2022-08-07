@@ -490,7 +490,6 @@ def resolve_change_distribution_event_state(*_, distribution_event_id, new_state
 @mutation.field("createDistributionEvent")
 @convert_kwargs_to_snake_case
 def resolve_create_distribution_event(*_, creation_input):
-    # TODO: Add permissions
     authorize(permission="distro_event:write")
     return create_distribution_event(user_id=g.user.id, **creation_input)
 
