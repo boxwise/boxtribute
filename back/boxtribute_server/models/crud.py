@@ -126,7 +126,6 @@ def move_box_to_distribution_event(box_label_identifier, distribution_event_id):
         box = Box.get(Box.label_identifier == box_label_identifier)
         distribution_event = DistributionEvent.get_by_id(distribution_event_id)
         # Completed Events should not be mutable anymore
-        distribution_event = DistributionEvent.get_by_id(distribution_event_id)
         if distribution_event.state == DistributionEventState.Completed:
             raise ModifyCompletedDistributionEvent(
                 desired_operation="move_box_to_distribution_event",
