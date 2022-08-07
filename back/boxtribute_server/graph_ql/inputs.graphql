@@ -81,7 +81,7 @@ input DistributionSpotCreationInput {
 input DistributionEventCreationInput {
   distributionSpotId: Int!
   name: String
-  plannedStartDateTime: Datetime
+  plannedStartDateTime: Datetime!
   plannedEndDateTime: Datetime
 }
 
