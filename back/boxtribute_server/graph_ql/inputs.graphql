@@ -104,7 +104,7 @@ input ShipmentDetailUpdateInput {
   targetLocationId: Int!
 }
 
-input PacklistEntryInput {
+input PackingListEntryInput {
   distributionEventId: ID!
   productId: Int!
   sizeId: Int!
