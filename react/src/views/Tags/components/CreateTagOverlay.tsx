@@ -42,9 +42,9 @@ const CreateTagOverlay = ({
 }: //   createTagFormData,
 CreateTagOverlayProps) => {
   const [color, setColor] = useState("#aabbcc");
+  const [prevColor, setPrevColor] = useState("#aabbcc")
   const [open, setOpen] = useState(false);
   const [openMore, setOpenMore] = useState(false);
-
 
   const { handleSubmit, register } = useForm<CreateTagFormData>({
     defaultValues: {
@@ -80,13 +80,13 @@ CreateTagOverlayProps) => {
           <form onSubmit={handleSubmit(onCreateNewTag)}>
             <Flex direction="column">
               <List mb={4}>
-                <ListItem>
+                <ListItem mb={4}>
                   <FormLabel htmlFor="name">Name</FormLabel>
                   <Box border="2px">
                     <Input border="0" {...register("name", {})} />
                   </Box>
                 </ListItem>
-                <ListItem>
+                <ListItem mb={4}>
                   <FormLabel htmlFor="color">Color</FormLabel>
                   <Flex border="2px" direction="column">
                     <Flex direction="row">
@@ -116,23 +116,37 @@ CreateTagOverlayProps) => {
                             />
                           ))}
                         </Flex>
-                        <Button onClick={() => setOpenMore(!openMore)} borderRadius="0" m={2}>
-                          {openMore? "Less" : "More"}
+                        <Button
+                          onClick={() => setOpenMore(!openMore)}
+                          borderRadius="0"
+                          m={2}
+                        >
+                          {openMore ? "Less" : "More"}
                         </Button>
                       </Flex>
                     )}
-                    {(openMore && open) && (
-                      <Box className="color-picker" m={2}>
-                        <HexColorPicker
-                          color={color}
-                          onChange={setColor}
-                          style={{ border: "0" }}
-                        />
-                      </Box>
+                    {openMore && open && (
+                      <Flex>
+                        <Box className="color-picker" m={2}>
+                          <HexColorPicker
+                            color={color}
+                            onChange={setColor}
+                            style={{ border: "0" }}
+                          />
+                        </Box>
+                        <Flex justifyContent="flex-end" direction="column" w="100%">
+                          <Button onClick={() => {setPrevColor(color); setOpen(!open)}} borderRadius="0" m={2}>
+                            Choose
+                          </Button>
+                          <Button onClick={() => {setColor(prevColor); setOpen(!open)}} borderRadius="0" m={2}>
+                            Cancel
+                          </Button>
+                        </Flex>
+                      </Flex>
                     )}
                   </Flex>
                 </ListItem>
-                <ListItem>
+                <ListItem mb={4}>
                   <FormLabel htmlFor="type">Apply to</FormLabel>
                   <Box border="2px">
                     <Select
@@ -148,7 +162,7 @@ CreateTagOverlayProps) => {
                     </Select>
                   </Box>
                 </ListItem>
-                <ListItem>
+                <ListItem mb={4}>
                   <FormLabel htmlFor="name">Description</FormLabel>
                   <Box border="2px">
                     <Input border="0" {...register("description", {})} />
