@@ -166,7 +166,7 @@ def test_update_tag_type(client, tag_id, tag_type, tagged_resource_ids, typename
     }
 
 
-def test_create_tag_with_invalid_base(client, default_bases, tags):
+def test_mutate_tag_with_invalid_base(client, default_bases, tags):
     # Test case 4.2.2
     base_id = default_bases[2]["id"]
     tags_input_string = f"""{{

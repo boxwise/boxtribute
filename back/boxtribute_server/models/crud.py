@@ -111,7 +111,7 @@ def create_tag(
     user_id,
     base_id,
 ):
-
+    """Insert information for a new Tag in the database."""
     now = utcnow()
     return Tag.create(
         color=color,
