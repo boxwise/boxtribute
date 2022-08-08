@@ -9,6 +9,7 @@ import {
 } from "@chakra-ui/react";
 import { CloseIcon, EditIcon } from "@chakra-ui/icons";
 import { IPackingListEntry } from "views/Distributions/types";
+import _ from "lodash";
 
 interface DistroEventDetailsForPlanningStateProps {
   packingListEntries: IPackingListEntry[];
@@ -25,6 +26,17 @@ const DistroEventDetailsForPlanningState = ({
   onRemoveItemFromPackingListClick,
   onEditItemOnPackingListClick,
 }: DistroEventDetailsForPlanningStateProps) => {
+
+  // const packingListEntriesGroupedByProduct = _.groupBy(packingListEntries, (entry) => ({productId: entry.product.id, productName: entry.product.name}));
+  const packingListEntriesGroupedByProduct = Object.keys(_.groupBy(packingListEntries, (entry) => entry.product.id))
+  .map(k => ({
+    productId: k,
+    productName: packingListEntriesGroupedByProduct[k][0].product.name,
+    packingListEntries: packingListEntriesGroupedByProduct[k]
+  }));
+
+  // FOO[0].
+
   return (
     <>
       <Flex w={[300, 400, 600]} direction="column" mb={4}>
