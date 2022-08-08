@@ -8,7 +8,12 @@ from .user import User
 
 
 class Tag(db.Model):
-    base = UIntForeignKeyField(column_name="camp_id", field="id", model=Base)
+    base = UIntForeignKeyField(
+        column_name="camp_id",
+        field="id",
+        model=Base,
+        object_id_name="base_id",
+    )
     color = CharField()
     created = DateTimeField(null=True)
     created_by = UIntForeignKeyField(

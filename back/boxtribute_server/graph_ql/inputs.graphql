@@ -110,3 +110,25 @@ input PackingListEntryInput {
   sizeId: Int!
   numberOfItems: Int!
 }
+
+input TagCreationInput {
+  name: String!
+  description: String
+  color: String!
+  type: TagType!
+  baseId: Int!
+}
+
+input TagUpdateInput {
+  id: ID!
+  name: String
+  description: String
+  color: String
+  type: TagType
+}
+
+input TagOperationInput {
+  id: ID!
+  resourceId: ID!
+  resourceType: TaggableResourceType!
+}

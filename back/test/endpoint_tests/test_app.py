@@ -79,11 +79,12 @@ def test_invalid_pagination_input(read_only_client):
         "product",
         "productCategory",
         "shipment",
+        "tag",
         "transferAgreement",
     ],
 )
 def test_query_non_existent_resource(read_only_client, resource):
-    # Test cases 2.1.4, 3.1.3
+    # Test cases 2.1.4, 3.1.3, 4.1.3
     query = f"query {{ {resource}(id: 0) {{ id }} }}"
     response = assert_bad_user_input(read_only_client, query, field=resource)
     assert "SQL" not in response.json["errors"][0]["message"]
@@ -121,10 +122,11 @@ def test_mutation_non_existent_resource(read_only_client, operation):
         "updateBox",
         "updateBeneficiary",
         "updateShipment",
+        "updateTag",
     ],
 )
 def test_mutation_update_non_existent_resource(read_only_client, operation):
-    # Test cases 3.2.21
+    # Test cases 3.2.21, 4.2.5
     if operation == "updateBox":
         update_input = """updateInput: { labelIdentifier: "xxx" }"""
     else:

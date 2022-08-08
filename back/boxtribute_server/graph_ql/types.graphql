@@ -115,6 +115,7 @@ type Tag {
   color: String
   type: TagType!
   taggedResources: [TaggableResource!]!
+  base: Base!
 }
 
 """
@@ -160,6 +161,14 @@ Representation of product size.
 type Size {
   id: ID!
   label: String!
+}
+
+"""
+Classificator for resources that a [`Tag`]({{Types.Tag}}) can be applied to (according to [`TaggableResource`]({{Types.TaggableResource}})).
+"""
+enum TaggableResourceType {
+  Box
+  Beneficiary
 }
 
 """

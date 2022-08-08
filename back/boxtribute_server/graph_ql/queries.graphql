@@ -32,6 +32,7 @@ type Query {
   Return all [`Tags`]({{Types.Tag}}) that the client is authorized to view. Optionally filter for tags of certain type.
   """
   tags(tagType: TagType): [Tag!]!
+  tag(id: ID!): Tag
   transferAgreement(id: ID!): TransferAgreement
   """
   Return all [`TransferAgreements`]({{Types.TransferAgreement}}) that the client is authorized to view.
