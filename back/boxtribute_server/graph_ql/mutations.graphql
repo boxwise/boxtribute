@@ -19,4 +19,26 @@ type Mutation {
   updateShipment(updateInput: ShipmentUpdateInput): Shipment
   cancelShipment(id: ID!): Shipment
   sendShipment(id: ID!): Shipment
+
+  createDistributionSpot(creationInput: DistributionSpotCreationInput): DistributionSpot
+  createDistributionEvent(creationInput: DistributionEventCreationInput): DistributionEvent
+
+  addPackingListEntryToDistributionEvent(creationInput: PackingListEntryInput!): PackingListEntry
+  removePackingListEntryFromDistributionEvent(packingListEntryId: ID!): DistributionEvent
+  changeDistributionEventState(
+    distributionEventId: ID!
+    newState: DistributionEventState!
+  ): DistributionEvent
+
+  moveBoxToDistributionEvent(boxLabelIdentifier: ID!, distributionEventId: ID!): Box
+  moveItemsFromBoxToDistributionEvent(
+    boxLabelIdentifier: ID!
+    distributionEventId: ID!
+    numberOfItems: Int!
+  ): UnboxedItemsCollection
+
+  moveBoxFromDistributionEventToLocation(boxLabelIdentifier: ID!, locationId: ID!): DistributionEvent
+  moveItemsFromDistributionEventToBox(unboxedItemsCollectionId: ID!, boxLabelIdentifier: ID!): DistributionEvent
+
+  markDistributionEventAsComplete(distributionEventId: ID!): DistributionEvent
 }

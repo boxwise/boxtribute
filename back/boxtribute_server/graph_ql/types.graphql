@@ -1,13 +1,36 @@
 # GraphQL basic types as returned by queries and mutations, and input types for queries.
 
+
+
+interface ItemsCollection {
+  id: ID!
+  product: Product
+  size: Size!
+  items: Int
+  place: BoxPlace
+  distributionEvent: DistributionEvent
+}
+
+type UnboxedItemsCollection implements ItemsCollection {
+  id: ID!
+  product: Product
+  size: Size!
+  items: Int
+  label: String
+  place: BoxPlace
+  distributionEvent: DistributionEvent
+}
+
+
 """
 Representation of a box storing items of a [`Product`]({{Types.Product}}) in a [`Location`]({{Types.Location}})
 """
-type Box {
+type Box implements ItemsCollection {
   id: ID!
   " Sequence of numbers for identifying the box, usually written on box label "
   labelIdentifier: String!
-  location: Location
+  place: BoxPlace
+  distributionEvent: DistributionEvent
   " The number of items the box contains. "
   items: Int
   product: Product
@@ -20,6 +43,13 @@ type Box {
   lastModifiedOn: Datetime
   comment: String
   tags: [Tag!]!
+}
+
+interface BoxPlace {
+  id: ID!
+  base: Base
+  name: String
+  boxes(paginationInput: PaginationInput, filterInput: FilterBoxInput): BoxPage
 }
 
 """
@@ -146,7 +176,7 @@ type SizeRange {
 Representation of a physical location used to store [`Boxes`]({{Types.Box}}).
 The location is part of a specific [`Base`]({{Types.Base}}).
 """
-type Location {
+type Location implements BoxPlace {
   id: ID!
   base: Base
   name: String
@@ -179,14 +209,14 @@ type Base {
   id: ID!
   name: String!
   organisation: Organisation!
-  " List of all [`Locations`]({{Types.Location}}) present in this base "
-  locations: [Location!]
   " List of all [`Beneficiaries`]({{Types.Beneficiary}}) registered in this base "
-  beneficiaries(
-    paginationInput: PaginationInput
-    filterInput: FilterBeneficiaryInput
-  ): BeneficiaryPage!
+  beneficiaries(paginationInput: PaginationInput, filterInput: FilterBeneficiaryInput): BeneficiaryPage!
   currencyName: String
+  boxPlaces: [BoxPlace!]!
+  " List of all [`Locations`]({{Types.Location}}) present in this base "
+  locations: [Location!]!
+  distributionSpots: [DistributionSpot!]!
+  distributionEvents: [DistributionEvent!]!
 }
 
 """
@@ -197,6 +227,69 @@ type Organisation {
   name: String!
   " List of all [`Bases`]({{Types.Base}}) managed by this organisation "
   bases: [Base!]
+}
+
+"""
+TODO: Add description here once specs are final/confirmed
+"""
+enum DistributionEventState {
+  Planning
+  Packing
+  OnDistro
+  Returned
+  Completed
+}
+
+"""
+TODO: Add description here once specs are final/confirmed
+"""
+type DistributionEvent {
+  id: ID!
+  distributionSpot: DistributionSpot
+  name: String
+  state: DistributionEventState!
+
+  plannedStartDateTime: Datetime!
+  plannedEndDateTime: Datetime!
+  packingListEntries: [PackingListEntry!]!
+
+  boxes: [Box!]!
+  unboxedItemsCollections: [UnboxedItemsCollection!]
+}
+
+"""
+TODO: Add description here once specs are final/confirmed
+"""
+enum PackingListEntryState {
+  NotStarted
+  PackingInProgress
+  Packed
+}
+
+"""
+TODO: Add description here once specs are final/confirmed
+"""
+type PackingListEntry {
+  id: ID!
+  product: Product
+  size: Size
+  numberOfItems: Int!
+  matchingPackedItemsCollections: [ItemsCollection!]!
+  state: PackingListEntryState!
+}
+
+"""
+TODO: Add description here once specs are final/confirmed
+"""
+type DistributionSpot implements BoxPlace {
+  id: ID!
+  name: String
+  base: Base
+  boxes(paginationInput: PaginationInput, filterInput: FilterBoxInput): BoxPage
+  comment: String!
+  latitude: Float
+  longitude: Float
+  distributionEvents: [DistributionEvent!]!
 }
 
 """
