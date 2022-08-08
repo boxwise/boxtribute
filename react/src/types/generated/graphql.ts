@@ -211,7 +211,7 @@ export type DistributionEventCreationInput = {
   distributionSpotId: Scalars['Int'];
   name?: InputMaybe<Scalars['String']>;
   plannedEndDateTime?: InputMaybe<Scalars['Datetime']>;
-  plannedStartDateTime?: InputMaybe<Scalars['Datetime']>;
+  plannedStartDateTime: Scalars['Datetime'];
 };
 
 /** TODO: Add description here once specs are final/confirmed */
@@ -396,6 +396,7 @@ export type Mutation = {
   __typename?: 'Mutation';
   acceptTransferAgreement?: Maybe<TransferAgreement>;
   addPackingListEntryToDistributionEvent?: Maybe<PackingListEntry>;
+  assignTag?: Maybe<TaggableResource>;
   cancelShipment?: Maybe<Shipment>;
   cancelTransferAgreement?: Maybe<TransferAgreement>;
   changeDistributionEventState?: Maybe<DistributionEvent>;
@@ -405,7 +406,9 @@ export type Mutation = {
   createDistributionSpot?: Maybe<DistributionSpot>;
   createQrCode?: Maybe<QrCode>;
   createShipment?: Maybe<Shipment>;
+  createTag?: Maybe<Tag>;
   createTransferAgreement?: Maybe<TransferAgreement>;
+  deleteTag?: Maybe<Tag>;
   markDistributionEventAsComplete?: Maybe<DistributionEvent>;
   moveBoxFromDistributionEventToLocation?: Maybe<DistributionEvent>;
   moveBoxToDistributionEvent?: Maybe<Box>;
@@ -414,9 +417,11 @@ export type Mutation = {
   rejectTransferAgreement?: Maybe<TransferAgreement>;
   removePackingListEntryFromDistributionEvent?: Maybe<DistributionEvent>;
   sendShipment?: Maybe<Shipment>;
+  unassignTag?: Maybe<TaggableResource>;
   updateBeneficiary?: Maybe<Beneficiary>;
   updateBox?: Maybe<Box>;
   updateShipment?: Maybe<Shipment>;
+  updateTag?: Maybe<Tag>;
 };
 
 
@@ -436,7 +441,17 @@ export type MutationAcceptTransferAgreementArgs = {
  * - input type: <Resource>CreationInput/UpdateInput
  */
 export type MutationAddPackingListEntryToDistributionEventArgs = {
-  creationInput: PacklistEntryInput;
+  creationInput: PackingListEntryInput;
+};
+
+
+/**
+ * Naming convention:
+ * - input argument: creationInput/updateInput
+ * - input type: <Resource>CreationInput/UpdateInput
+ */
+export type MutationAssignTagArgs = {
+  assignmentInput?: InputMaybe<TagOperationInput>;
 };
 
 
@@ -536,8 +551,28 @@ export type MutationCreateShipmentArgs = {
  * - input argument: creationInput/updateInput
  * - input type: <Resource>CreationInput/UpdateInput
  */
+export type MutationCreateTagArgs = {
+  creationInput?: InputMaybe<TagCreationInput>;
+};
+
+
+/**
+ * Naming convention:
+ * - input argument: creationInput/updateInput
+ * - input type: <Resource>CreationInput/UpdateInput
+ */
 export type MutationCreateTransferAgreementArgs = {
   creationInput?: InputMaybe<TransferAgreementCreationInput>;
+};
+
+
+/**
+ * Naming convention:
+ * - input argument: creationInput/updateInput
+ * - input type: <Resource>CreationInput/UpdateInput
+ */
+export type MutationDeleteTagArgs = {
+  id: Scalars['ID'];
 };
 
 
@@ -631,6 +666,16 @@ export type MutationSendShipmentArgs = {
  * - input argument: creationInput/updateInput
  * - input type: <Resource>CreationInput/UpdateInput
  */
+export type MutationUnassignTagArgs = {
+  unassignmentInput?: InputMaybe<TagOperationInput>;
+};
+
+
+/**
+ * Naming convention:
+ * - input argument: creationInput/updateInput
+ * - input type: <Resource>CreationInput/UpdateInput
+ */
 export type MutationUpdateBeneficiaryArgs = {
   updateInput?: InputMaybe<BeneficiaryUpdateInput>;
 };
@@ -655,6 +700,16 @@ export type MutationUpdateShipmentArgs = {
   updateInput?: InputMaybe<ShipmentUpdateInput>;
 };
 
+
+/**
+ * Naming convention:
+ * - input argument: creationInput/updateInput
+ * - input type: <Resource>CreationInput/UpdateInput
+ */
+export type MutationUpdateTagArgs = {
+  updateInput?: InputMaybe<TagUpdateInput>;
+};
+
 /** Representation of an organisation. */
 export type Organisation = {
   __typename?: 'Organisation';
@@ -675,19 +730,19 @@ export type PackingListEntry = {
   state: PackingListEntryState;
 };
 
+export type PackingListEntryInput = {
+  distributionEventId: Scalars['ID'];
+  numberOfItems: Scalars['Int'];
+  productId: Scalars['Int'];
+  sizeId: Scalars['Int'];
+};
+
 /** TODO: Add description here once specs are final/confirmed */
 export enum PackingListEntryState {
   NotStarted = 'NotStarted',
   Packed = 'Packed',
   PackingInProgress = 'PackingInProgress'
 }
-
-export type PacklistEntryInput = {
-  distributionEventId: Scalars['ID'];
-  numberOfItems: Scalars['Int'];
-  productId: Scalars['Int'];
-  sizeId: Scalars['Int'];
-};
 
 /**
  * Additional information passed along in `*Page` types.
@@ -821,6 +876,7 @@ export type Query = {
   shipment?: Maybe<Shipment>;
   /**  Return all [`Shipments`]({{Types.Shipment}}) that the client is authorized to view.  */
   shipments: Array<Shipment>;
+  tag?: Maybe<Tag>;
   /** Return all [`Tags`]({{Types.Tag}}) that the client is authorized to view. Optionally filter for tags of certain type. */
   tags: Array<Tag>;
   transferAgreement?: Maybe<TransferAgreement>;
@@ -913,6 +969,11 @@ export type QueryQrExistsArgs = {
 
 
 export type QueryShipmentArgs = {
+  id: Scalars['ID'];
+};
+
+
+export type QueryTagArgs = {
   id: Scalars['ID'];
 };
 
@@ -1024,12 +1085,27 @@ export type StockOverview = {
 /** Representation of a tag. */
 export type Tag = {
   __typename?: 'Tag';
+  base: Base;
   color?: Maybe<Scalars['String']>;
   description?: Maybe<Scalars['String']>;
   id: Scalars['ID'];
   name: Scalars['String'];
   taggedResources: Array<TaggableResource>;
   type: TagType;
+};
+
+export type TagCreationInput = {
+  baseId: Scalars['Int'];
+  color: Scalars['String'];
+  description?: InputMaybe<Scalars['String']>;
+  name: Scalars['String'];
+  type: TagType;
+};
+
+export type TagOperationInput = {
+  id: Scalars['ID'];
+  resourceId: Scalars['ID'];
+  resourceType: TaggableResourceType;
 };
 
 /** Classificators for [`Tag`]({{Types.Tag}}) type. */
@@ -1039,8 +1115,22 @@ export enum TagType {
   Box = 'Box'
 }
 
+export type TagUpdateInput = {
+  color?: InputMaybe<Scalars['String']>;
+  description?: InputMaybe<Scalars['String']>;
+  id: Scalars['ID'];
+  name?: InputMaybe<Scalars['String']>;
+  type?: InputMaybe<TagType>;
+};
+
 /**  Union for resources that tags can be applied to.  */
 export type TaggableResource = Beneficiary | Box;
+
+/** Classificator for resources that a [`Tag`]({{Types.Tag}}) can be applied to (according to [`TaggableResource`]({{Types.TaggableResource}})). */
+export enum TaggableResourceType {
+  Beneficiary = 'Beneficiary',
+  Box = 'Box'
+}
 
 /** Representation of a transaction executed by a beneficiary (spending or receiving tokens). */
 export type Transaction = {

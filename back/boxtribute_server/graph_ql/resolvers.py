@@ -44,8 +44,10 @@ from ..models.crud import (
     create_beneficiary,
     create_box,
     create_qr_code,
+    create_tag,
     update_beneficiary,
     update_box,
+    update_tag,
 )
 from ..models.definitions.base import Base
 from ..models.definitions.beneficiary import Beneficiary
@@ -112,11 +114,17 @@ unboxed_items_collection = _register_object_type("UnboxedItemsCollection")
 user = _register_object_type("User")
 
 
+@query.field("tag")
+def resolve_tag(*_, id):
+    tag = Tag.get_by_id(id)
+    authorize(permission="tag:read", base_id=tag.base_id)
+    return tag
+
+
 @query.field("tags")
 def resolve_tags(*_):
-    # TODO: Add correct permissions here
-    # authorize(permission="tags:read")
-    return Tag.select()
+    authorize(permission="tag:read")
+    return Tag.select().where(base_filter_condition(Tag))
 
 
 @query.field("packingListEntry")
@@ -152,7 +160,7 @@ def resolve_packing_list_entry_matching_packed_items_collections(obj, *_):
 @query.field("bases")
 def resolve_bases(*_):
     authorize(permission="base:read")
-    return Base.select().where(base_filter_condition("base:read"))
+    return Base.select().where(base_filter_condition())
 
 
 @query.field("base")
@@ -299,16 +307,8 @@ def resolve_organisations(*_):
 @query.field("locations")
 def resolve_locations(*_):
     authorize(permission="location:read")
-    return (
-        Location.select()
-        .join(Base)
-        # .where(
-        #     Location.type
-        #     == LocationType.Location
-        #     & base_filter_condition("location:read")
-        # )
-        .where(Location.type == LocationType.Location)
-        .where(base_filter_condition("location:read"))
+    return Location.select().where(
+        Location.type == LocationType.Location & base_filter_condition(Location)
     )
 
 
@@ -318,8 +318,7 @@ def resolve_products(*_, pagination_input=None):
     authorize(permission="product:read")
     return load_into_page(
         Product,
-        base_filter_condition("product:read"),
-        selection=Product.select().join(Base),
+        base_filter_condition(Product),
         pagination_input=pagination_input,
     )
 
@@ -331,8 +330,7 @@ def resolve_beneficiaries(*_, pagination_input=None, filter_input=None):
     filter_condition = derive_beneficiary_filter(filter_input)
     return load_into_page(
         Beneficiary,
-        base_filter_condition("beneficiary:read") & filter_condition,
-        selection=Beneficiary.select().join(Base),
+        base_filter_condition(Beneficiary) & filter_condition,
         pagination_input=pagination_input,
     )
 
@@ -564,6 +562,21 @@ def resolve_update_box(*_, update_input):
     return update_box(user_id=g.user.id, **update_input)
 
 
+@mutation.field("createTag")
+@convert_kwargs_to_snake_case
+def resolve_create_tag(*_, creation_input):
+    authorize(permission="tag:write", base_id=creation_input["base_id"])
+    return create_tag(user_id=g.user.id, **creation_input)
+
+
+@mutation.field("updateTag")
+@convert_kwargs_to_snake_case
+def resolve_update_tag(*_, update_input):
+    base_id = Tag.get_by_id(update_input["id"]).base_id
+    authorize(permission="tag:write", base_id=base_id)
+    return update_tag(user_id=g.user.id, **update_input)
+
+
 @mutation.field("createBeneficiary")
 @convert_kwargs_to_snake_case
 def resolve_create_beneficiary(*_, creation_input):
@@ -681,11 +694,7 @@ def resolve_send_shipment(*_, id):
 @base.field("locations")
 def resolve_base_locations(base_obj, _):
     authorize(permission="location:read")
-    return (
-        Location.select()
-        .where(Location.base == base_obj.id)
-        .where(Location.type == LocationType.Location)
-    )
+    return Location.select().where(Location.base == base_obj.id)
 
 
 @query.field("distributionSpots")
@@ -693,9 +702,8 @@ def resolve_distributions_spots(base_obj, _):
     authorize(permission="location:read")
     return (
         Location.select()
-        .join(Base)
         .where(Location.type == LocationType.DistributionSpot)
-        .where(base_filter_condition("location:read"))
+        .where(base_filter_condition(Location))
     )
 
 
