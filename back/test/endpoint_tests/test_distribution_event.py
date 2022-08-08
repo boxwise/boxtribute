@@ -17,3 +17,27 @@ def test_distribution_event_query(read_only_client, default_distribution_event):
     assert int(distribution_event["id"]) == expected_distribution_event["id"]
     assert distribution_event["name"] == expected_distribution_event["name"]
     assert distribution_event["state"] == DistributionEventState.Planning.name
+
+
+def test_create_distribution_event_mutation(client, distribution_spot):
+    pass
+    # query = """mutation CreateDistributionEvent {{
+    #             createDistributionEvent(input: {{
+    #                 name: "Test"
+    #                 state: Planning
+    #                 base: 1
+    #                 location: 1
+    #                 boxState: 1
+    #             }}) {{
+    #                 id
+    #                 name
+    #                 state
+    #             }}
+    #         }}"""
+
+    # distribution_event = assert_successful_request(client, query)
+    # expected_distribution_event = default_distribution_event
+    # assert int(distribution_event["id"]) == expected_distribution_event["id"]
+    # assert distribution_event["name"] == expected_distribution_event["name"]
+    # assert distribution_event["state"] ==
+    # DistributionEventState.Planning.name
