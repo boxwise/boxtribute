@@ -33,16 +33,14 @@ const PackingListEntrieGroupForProduct = ({
 }: {
   data: IPackingListEntrieGroupForProduct;
 }) => {
-  const { productId, productName, packingListEntries } = data;
+  const { productName, packingListEntries } = data;
   return (
-    <Box>
-      <Heading as="h3" size="sm">
+    <Box pb={30}>
+      <Heading as="h3" size="sm" mb={5}>
         {productName}
       </Heading>
 
-      {/* <SimpleGrid columns={2} spacing={2}> */}
-      {/* <Center> */}
-      <TableContainer>
+      <TableContainer backgroundColor={"gray.50"}>
         <Table variant="simple">
           <Thead>
             <Tr>
@@ -60,8 +58,6 @@ const PackingListEntrieGroupForProduct = ({
           </Tbody>
         </Table>
       </TableContainer>
-      {/* </SimpleGrid> */}
-      {/* </Center> */}
     </Box>
   );
 };
@@ -94,13 +90,8 @@ const DistroEventDetailsForPlanningState = ({
     packingListEntries: packingListEntriesGroupedByProductId[k],
   }));
 
-  // console.log(packingListEntriesGroupedByProductIdAndName);
-
-  // FOO[0].
-
   return (
     <>
-      {/* packingListEntriesGroupedByProductIdAndName: {JSON.stringify(packingListEntriesGroupedByProductIdAndName)} */}
       <Flex w={[300, 400, 600]} direction="column" mb={4}>
         <Button onClick={() => onCopyPackingListFromPreviousEventsClick()}>
           Copy Packing List from Previous Event
