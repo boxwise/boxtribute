@@ -15,6 +15,7 @@
     "@fortawesome/react-fontawesome": "^0.1.18",
     "@graphql-codegen/cli": "^2.6.2",
     "@graphql-codegen/typescript-react-query": "^3.5.7",
+    "@hookform/resolvers": "^2.9.6",
     "@sentry/integrations": "^7.7.0",
     "@sentry/react": "^7.7.0",
     "@sentry/tracing": "^7.7.0",
@@ -30,12 +31,12 @@
     "react-dom": "^17.0.2",
     "react-hook-form": "^7.31.3",
     "react-icons": "^4.3.1",
-    "react-qr-reader": "^3.0.0-beta-1",
     "react-router-dom": "6",
     "react-scripts": "5.0.0",
     "react-table": "^7.7.0",
     "regenerator-runtime": "^0.13.9",
-    "victory": "^36.5.2"
+    "victory": "^36.5.2",
+    "zod": "^3.17.9"
   },
   "devDependencies": {
     "@chakra-ui/storybook-addon": "^4.0.1",
@@ -62,6 +63,7 @@
     "@types/react-big-calendar": "^0.38.0",
     "@types/react-router-dom": "^5.3.1",
     "@types/react-table": "^7.7.9",
+    "@types/w3c-image-capture": "^1.0.6",
     "autoprefixer": "^10.3.7",
     "babel-plugin-named-exports-order": "^0.0.2",
     "chromatic": "^6.5.6",

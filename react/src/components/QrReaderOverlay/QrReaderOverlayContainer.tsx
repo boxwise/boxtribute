@@ -9,6 +9,8 @@ import QrReaderOverlay, {
   QrResolvedValue,
 } from "./QrReaderOverlay";
 const extractQrCodeFromUrl = (url): string | undefined => {
+  // TODO: improve the accuracy of this regex
+  // TODO: consider to also handle different boxtribute environment urls
   const rx = /.*barcode=(.*)/g;
   const arr = rx.exec(url);
   return arr?.[1];
@@ -59,6 +61,7 @@ const QrReaderOverlayContainer = ({
         >({
           query: GET_BOX_LABEL_IDENTIFIER_BY_QR_CODE,
           variables: { qrCode: extractedQrCodeFromUrl },
+          fetchPolicy: "no-cache",
         })
         .then(({ data, error, errors }) => {
           const boxLabelIdentifier = data?.qrCode?.box?.labelIdentifier;
@@ -66,7 +69,7 @@ const QrReaderOverlayContainer = ({
             const resolvedQrValueWrapper = {
               ...qrValueWrapper,
               isLoading: false,
-              finalValue: { kind: "notAssignedToBox" },
+              finalValue: { kind: "notAssignedToBox", qrCodeValue: extractedQrCodeFromUrl },
             } as IQrValueWrapper;
             console.debug("QR Code not assigned to any box yet");
             return Promise.resolve(resolvedQrValueWrapper);
@@ -111,12 +114,13 @@ const QrReaderOverlayContainer = ({
               GetBoxLabelIdentifierForQrCodeQueryVariables
             >({
               query: GET_BOX_LABEL_IDENTIFIER_BY_QR_CODE,
+              fetchPolicy: "no-cache",
               variables: { qrCode },
             })
             .then(({ data }) => {
               const boxLabelIdentifier = data?.qrCode?.box?.labelIdentifier;
               if (boxLabelIdentifier == null) {
-                onScanningDone([{ kind: "notAssignedToBox" }]);
+                onScanningDone([{ kind: "notAssignedToBox", qrCodeValue: qrCode }]);
                 console.error("No Box yet assigned to QR Code");
               } else {
                 onScanningDone([

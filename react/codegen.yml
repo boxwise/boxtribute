@@ -1,6 +1,6 @@
 overwrite: true
 schema: "../back/boxtribute_server/graph_ql/*"
-documents: './src/**/*.tsx'
+documents: './src/**/*.{ts,tsx}'
 
 generates:
   ./src/types/generated/graphql.ts:

@@ -135,19 +135,6 @@ const BoxEdit = ({
           </ListItem>
 
           <ListItem>
-            <FormLabel htmlFor="numberOfItems">Number Of Items</FormLabel>
-            <Box border="2px">
-              <Input
-                border="0"
-                type="number"
-                {...register("numberOfItems", {
-                  valueAsNumber: true,
-                  validate: (value) => value > 0,
-                })}
-              />
-            </Box>
-          </ListItem>
-          {/* <ListItem>
             <FormLabel htmlFor="sizeId">Size</FormLabel>
             <Controller
               control={control}
@@ -164,7 +151,7 @@ const BoxEdit = ({
                       onChange={onChange}
                       onBlur={onBlur}
                       value={value}
-                      options={boxData.size.availableSizes}
+                      options={[]}
                       placeholder="Size"
                       isSearchable
                       tagVariant="outline"
@@ -173,7 +160,22 @@ const BoxEdit = ({
                 </FormControl>
               )}
             />
-          </ListItem> */}
+          </ListItem>
+
+          <ListItem>
+            <FormLabel htmlFor="numberOfItems">Number Of Items</FormLabel>
+            <Box border="2px">
+              <Input
+                border="0"
+                type="number"
+                {...register("numberOfItems", {
+                  valueAsNumber: true,
+                  validate: (value) => value > 0,
+                })}
+              />
+            </Box>
+          </ListItem>
+
         </List>
         <Button mt={4} isLoading={isSubmitting} type="submit" borderRadius="0">
           Update Box

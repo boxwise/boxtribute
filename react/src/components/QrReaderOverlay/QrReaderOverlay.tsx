@@ -76,6 +76,7 @@ interface QrResolverResultSuccessValue {
 
 interface QrResolverResultNotAssignedToBox {
   kind: "notAssignedToBox";
+  qrCodeValue: string;
 }
 
 // interface QrResolverResultNotAuthorized {
@@ -160,6 +161,8 @@ const QrReaderOverlay = ({
   const [scannedQrValues, setScannedQrValues] = useState<
     Map<string, IQrValueWrapper>
   >(new Map());
+
+  const browserSupportsZoom = useMemo(() => navigator?.mediaDevices?.getSupportedConstraints?.().zoom != null, []);
 
   const resetState = useCallback(() => {
     setScannedQrValues(() => new Map());
@@ -248,6 +251,7 @@ const QrReaderOverlay = ({
         <ModalBody>
           <Container maxW="md">
             <QrReader
+              // TODO: try to remove this hacky key setting again
               key={`${zoomLevel}-${facingMode}-${isBulkModeActive}-${isBulkModeSupported}`}
               ViewFinder={ViewFinder}
               facingMode={facingMode}
@@ -257,7 +261,7 @@ const QrReaderOverlay = ({
             />
             {isBulkModeSupported && (
               <HStack>
-                <HStack>
+                {browserSupportsZoom && <HStack>
                   <IconButton
                     disabled={zoomLevel <= 1}
                     onClick={() =>
@@ -276,7 +280,7 @@ const QrReaderOverlay = ({
                   >
                     <AddIcon />
                   </IconButton>
-                </HStack>
+                </HStack> }
                 <FormControl display="flex" alignItems="center">
                   <FormLabel htmlFor="Bulk Mode" mb="0">
                     Bulk Mode

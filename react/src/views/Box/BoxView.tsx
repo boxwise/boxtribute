@@ -31,7 +31,7 @@ export const BOX_BY_LABEL_IDENTIFIER_QUERY = gql`
         id
         name
       }
-      location {
+      place {
         id
         name
         base {
@@ -87,7 +87,7 @@ export const UPDATE_LOCATION_OF_BOX_MUTATION = gql`
         id
         name
       }
-      location {
+      place {
         id
         name
         base {
@@ -151,7 +151,7 @@ const BTBox = () => {
     return <APILoadingIndicator />;
   }
   if (mutationLocationStatus.loading) {
-    return <div>Updating number of items...</div>;
+    return <div>Updating box...</div>;
   }
   if (error || mutationLocationStatus.error) {
     console.error(

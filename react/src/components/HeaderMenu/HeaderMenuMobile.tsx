@@ -257,7 +257,6 @@ const QrScannerButton = ({ onClick }: { onClick: () => void }) => (
 
 const HeaderMenuMobile = (props: HeaderMenuProps) => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
-
   const toggle = () => setIsMenuOpen((curr) => !curr);
   return (
     <HeaderMenuMobileContainer>

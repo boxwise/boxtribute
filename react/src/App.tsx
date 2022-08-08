@@ -10,8 +10,15 @@ import { GlobalPreferencesContext } from "providers/GlobalPreferencesProvider";
 import BTBox from "views/Box/BoxView";
 import BoxEditView from "views/BoxEdit/BoxEditView";
 import { useAuth0 } from "@auth0/auth0-react";
-import jwt from 'jwt-decode'
+import jwt from "jwt-decode";
+import DistroSpotsView from "views/Distributions/DistroSpotsView/DistroSpotsView";
+import DistrosDashboardView from "views/Distributions/DistrosDashboardView/DistrosDashboardView";
+import DistroEventView from "views/Distributions/DistroEventView/DistroEventView";
+import DistroSpotView from "views/Distributions/DistroSpotView/DistroSpotView";
+import CreateDistributionEventView from "views/Distributions/CreateDistributionEventView/CreateDistributionEventView";
+import CreateDistributionSpotView from "views/Distributions/CreateDistributionSpotView/CreateDistributionSpotView";
 import BaseDashboardView from "views/BaseDashboard/BaseDashboardView";
+import BoxCreateView from "views/BoxCreate/BoxCreateView";
 
 const useLoadAndSetAvailableBases = () => {
   const BASES_QUERY = gql`
@@ -45,20 +52,20 @@ const useLoadAndSetAvailableBases = () => {
     }
   }, [data, loading, dispatch]);
 
-
-useEffect(() => {
-  const getToken = async () => {
-    const token = await getAccessTokenSilently();
-    const decodedToken = jwt<{"https://www.boxtribute.com/organisation_id": string}>(token);
-    const organisationId = decodedToken["https://www.boxtribute.com/organisation_id"];
-    dispatch({
-      type: "setOrganisationId",
-      payload: organisationId,
-    });
-  }
-  getToken();
-}, [dispatch, getAccessTokenSilently]);
-
+  useEffect(() => {
+    const getToken = async () => {
+      const token = await getAccessTokenSilently();
+      const decodedToken =
+        jwt<{ "https://www.boxtribute.com/organisation_id": string }>(token);
+      const organisationId =
+        decodedToken["https://www.boxtribute.com/organisation_id"];
+      dispatch({
+        type: "setOrganisationId",
+        payload: organisationId,
+      });
+    };
+    getToken();
+  }, [dispatch, getAccessTokenSilently]);
 };
 
 const App = () => {
@@ -73,8 +80,35 @@ const App = () => {
             <Route index element={<BaseDashboardView />} />
             <Route path="boxes">
               <Route index element={<Boxes />} />
-              <Route path=":labelIdentifier" element={<BTBox />} />
-              <Route path=":labelIdentifier/edit" element={<BoxEditView />} />
+              <Route path="create" element={<BoxCreateView />} />
+              <Route path=":labelIdentifier">
+                <Route index element={<BTBox />} />
+                <Route path="edit" element={<BoxEditView />} />
+              </Route>
+            </Route>
+            <Route path="distributions">
+              <Route index element={<DistrosDashboardView />} />
+              <Route path="events">
+                <Route path=":eventId">
+                  <Route index element={<DistroEventView />} />
+                </Route>
+              </Route>
+              <Route path="spots">
+                <Route index element={<DistroSpotsView />} />
+                <Route path="create" element={<CreateDistributionSpotView />} />
+                <Route path=":distributionSpotId">
+                  <Route index element={<DistroSpotView />} />
+                  <Route path="events">
+                    <Route path=":eventId">
+                      <Route index element={<DistroEventView />} />
+                    </Route>
+                    <Route
+                      path="create"
+                      element={<CreateDistributionEventView />}
+                    />
+                  </Route>
+                </Route>
+              </Route>
             </Route>
           </Route>
         </Route>
