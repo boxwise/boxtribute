@@ -11,6 +11,34 @@ import { CloseIcon, EditIcon } from "@chakra-ui/icons";
 import { IPackingListEntry } from "views/Distributions/types";
 import _ from "lodash";
 
+
+
+interface IPackingListEntrieGroupForProduct {
+  productId: string;
+  productName: string;
+  packingListEntries: IPackingListEntry[]
+}
+
+const PackingListEntrieGroupForProduct = ({data}: {data: IPackingListEntrieGroupForProduct}) => {
+  const {productId, productName, packingListEntries} = data;
+  return (
+    <Box>
+      <Heading as="h3" size="sm">{productName}</Heading>
+      <SimpleGrid columns={2} spacing={2}>
+        {packingListEntries.map((entry) => (
+          <Box key={entry.id}>
+
+            <Text>{entry.numberOfItems}</Text>
+            <Text>{entry.size?.label}</Text>
+          </Box>
+        ))}
+      </SimpleGrid>
+    </Box>
+  );
+}
+
+
+
 interface DistroEventDetailsForPlanningStateProps {
   packingListEntries: IPackingListEntry[];
   onAddItemsClick: () => void;
@@ -28,17 +56,21 @@ const DistroEventDetailsForPlanningState = ({
 }: DistroEventDetailsForPlanningStateProps) => {
 
   // const packingListEntriesGroupedByProduct = _.groupBy(packingListEntries, (entry) => ({productId: entry.product.id, productName: entry.product.name}));
-  const packingListEntriesGroupedByProduct = Object.keys(_.groupBy(packingListEntries, (entry) => entry.product.id))
+  const packingListEntriesGroupedByProductId = _.groupBy(packingListEntries, (entry) => entry.product.id);
+  const packingListEntriesGroupedByProductIdAndName = Object.keys(packingListEntriesGroupedByProductId)
   .map(k => ({
     productId: k,
-    productName: packingListEntriesGroupedByProduct[k][0].product.name,
-    packingListEntries: packingListEntriesGroupedByProduct[k]
+    productName: packingListEntriesGroupedByProductId[k]?.[0]?.product?.name,
+    packingListEntries: packingListEntriesGroupedByProductId[k]
   }));
+
+  // console.log(packingListEntriesGroupedByProductIdAndName);
 
   // FOO[0].
 
   return (
     <>
+    {/* packingListEntriesGroupedByProductIdAndName: {JSON.stringify(packingListEntriesGroupedByProductIdAndName)} */}
       <Flex w={[300, 400, 600]} direction="column" mb={4}>
         <Button onClick={() => onCopyPackingListFromPreviousEventsClick()}>
           Copy Packing List from Previous Event
@@ -50,7 +82,11 @@ const DistroEventDetailsForPlanningState = ({
       <Heading size={"md"}>
         Packing List:
       </Heading>
-      {packingListEntries.map((item) => {
+
+     {packingListEntriesGroupedByProductIdAndName.map(packingListEntrieGroupForProduct => <PackingListEntrieGroupForProduct data={packingListEntrieGroupForProduct} />) }
+
+
+      {/* {packingListEntries.map((item) => {
         return (
           <SimpleGrid
             // minChildWidth={300}
@@ -83,7 +119,10 @@ const DistroEventDetailsForPlanningState = ({
             </Box>
           </SimpleGrid>
         );
-      })}
+      })} */}
+
+
+
     </>
   );
 };
