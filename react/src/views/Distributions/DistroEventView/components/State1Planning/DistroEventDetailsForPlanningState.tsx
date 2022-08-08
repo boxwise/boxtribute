@@ -36,11 +36,11 @@ const PackingListEntrieGroupForProduct = ({
   const { productName, packingListEntries } = data;
   return (
     <Box pb={30}>
-      <Heading as="h3" size="sm" mb={5}>
+      <Heading as="h3" size="sm" backgroundColor={"gray.50"} textAlign="center" py={3}>
         {productName}
       </Heading>
 
-      <TableContainer backgroundColor={"gray.50"}>
+      <TableContainer>
         <Table variant="simple">
           <Thead>
             <Tr>
