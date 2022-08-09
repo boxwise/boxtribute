@@ -33,6 +33,7 @@ import DistroEventDetailsForPlanningState from "./DistroEventDetailsForPlanningS
 
 interface IDistroEventDetailsForPlanningStateContext {
   distributionEvent: DistributionEventDetails;
+  onRemoveAllPackingListEntriesForProduct: (productId: string) => void;
 }
 
 export const DistroEventDetailsForPlanningStateContext = createContext<IDistroEventDetailsForPlanningStateContext | null>(null);
@@ -325,6 +326,10 @@ const DistroEventDetailsForPlanningStateContainer = ({
     [distributionEventDetails.id, removeEntryFromPackingListMutation, toast]
   );
 
+  const onRemoveAllPackingListEntriesForProduct = (productId: string) => {
+    alert("on remove all packing list entries for product");
+  }
+
   if (loading) {
     return <APILoadingIndicator />;
   }
@@ -340,8 +345,15 @@ const DistroEventDetailsForPlanningStateContainer = ({
     return <div>Error: No data found</div>;
   }
 
+
+
+  const contextValues: IDistroEventDetailsForPlanningStateContext = {
+    distributionEvent: distributionEventDetails,
+    onRemoveAllPackingListEntriesForProduct
+  }
+
   return (
-    <DistroEventDetailsForPlanningStateContext.Provider value={{distributionEvent: distributionEventDetails}}>
+    <DistroEventDetailsForPlanningStateContext.Provider value={contextValues}>
       <DistroEventDetailsForPlanningState
         packingListEntries={packingListEntries}
         onAddItemsClick={addItemsToDistroEventsOverlayState.onOpen}

@@ -95,8 +95,9 @@ const PackingListEntriesGroupForProduct = ({
 }: {
   data: IPackingListEntrieGroupForProduct;
   onUpdatePackingListEntry: OnUpdatePackingListEntry;
+  // onRemoveAllPackingListEntriesForProduct: (distributionEventId)
 }) => {
-  const { productName, gender, packingListEntries } = data;
+  const { productId, productName, gender, packingListEntries } = data;
 
   const ctx = useContext(DistroEventDetailsForPlanningStateContext);
 
@@ -134,7 +135,7 @@ const PackingListEntriesGroupForProduct = ({
           backgroundColor="transparent"
           icon={<CloseIcon />}
           aria-label="Remove Product from Packing List"
-          // onClick={() => onRemoveAllPackingListEntriesForProduct(ctx.distributionEvent)}
+          onClick={() => ctx.onRemoveAllPackingListEntriesForProduct(productId)}
         />
       </Flex>
 
