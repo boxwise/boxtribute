@@ -3,11 +3,13 @@ import {
   Button,
   ButtonGroup,
   Center,
+  Container,
   Editable,
   EditableInput,
   EditablePreview,
   Flex,
   Heading,
+  HStack,
   IconButton,
   SimpleGrid,
   Table,
@@ -59,12 +61,13 @@ const PackingListEntryTableRow = ({
     }
   };
 
-  const [numberOfItemsFormValue, setNumberOfItemsFormValue] = useState(entry.numberOfItems);
+  const [numberOfItemsFormValue, setNumberOfItemsFormValue] = useState(
+    entry.numberOfItems
+  );
 
   useEffect(() => {
     setNumberOfItemsFormValue(entry.numberOfItems);
   }, [entry]);
-
 
   return (
     <Tr key={entry.id}>
@@ -74,7 +77,7 @@ const PackingListEntryTableRow = ({
         <Editable
           // defaultValue={entry.numberOfItems.toString()}
           value={numberOfItemsFormValue.toString()}
-          onChange={newVal => setNumberOfItemsFormValue(parseInt(newVal))}
+          onChange={(newVal) => setNumberOfItemsFormValue(parseInt(newVal))}
           onSubmit={onChangeHandlerForEntry}
         >
           <EditablePreview width={20} />
@@ -87,10 +90,10 @@ const PackingListEntryTableRow = ({
 
 const PackingListEntriesGroupForProduct = ({
   data,
-  onUpdatePackingListEntry
+  onUpdatePackingListEntry,
 }: {
   data: IPackingListEntrieGroupForProduct;
-  onUpdatePackingListEntry: OnUpdatePackingListEntry
+  onUpdatePackingListEntry: OnUpdatePackingListEntry;
 }) => {
   const { productName, gender, packingListEntries } = data;
 
@@ -116,15 +119,19 @@ const PackingListEntriesGroupForProduct = ({
 
   return (
     <Box pb={30}>
-      <Heading
-        as="h3"
-        size="sm"
-        backgroundColor={"gray.50"}
-        textAlign="center"
-        py={3}
-      >
-        {productName} ({gender})
-      </Heading>
+            {/* <Container backgroundColor={"gray.50"} centerContent></Container> */}
+      <Flex backgroundColor={"gray.50"} justifyContent={"space-around"}>
+        {/* <Heading as="h3" size="sm" textAlign="center" py={3}> */}
+        <Heading as="h3" size="sm" py={3}>
+          {productName} ({gender})
+        </Heading>
+        <IconButton
+          // ml={5}
+          backgroundColor="transparent"
+          icon={<CloseIcon />}
+          aria-label="Remove Product from Packing List"
+        />
+      </Flex>
 
       <TableContainer>
         <Table variant="simple">
@@ -136,7 +143,11 @@ const PackingListEntriesGroupForProduct = ({
           </Thead>
           <Tbody>
             {packingListEntries.map((entry) => (
-              <PackingListEntryTableRow key={entry.id} entry={entry} onUpdatePackingListEntry={onUpdatePackingListEntry} />
+              <PackingListEntryTableRow
+                key={entry.id}
+                entry={entry}
+                onUpdatePackingListEntry={onUpdatePackingListEntry}
+              />
             ))}
           </Tbody>
         </Table>
