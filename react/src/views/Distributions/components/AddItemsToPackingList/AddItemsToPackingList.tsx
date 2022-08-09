@@ -142,12 +142,41 @@ const AddItemsToPackingList = ({
     products: ProductData[];
   };
 
+
+  type ProductsForCategory = {
+    category: {
+      id: string;
+      name: string;
+    };
+    products: ProductData[];
+  };
+
+  type ProductsGroupedByCategoryForGender = {
+    gender: ProductGender;
+    productsForCategory: ProductsForCategory[];
+  }
+
   const productsGroupedByGender: ProductsForGender[] = _.chain(productData)
     .groupBy("gender")
     .map((value, key) => ({ gender: ProductGender[key], products: value }))
     .value();
 
-  console.log("productsGroupedByGender", productsGroupedByGender);
+  const productsGroupedByGenderAndCategory: ProductsGroupedByCategoryForGender[] = _.chain(productsGroupedByGender)
+  // const productsGroupedByGenderAndCategory = _.chain(productsGroupedByGender)
+  .map(productsGroupForGender => {
+    const productsGroupedByCategory = _.chain(productsGroupForGender.products)
+    .groupBy("category.id")
+    .map((value, key) => ({ category: { id: key, name: value[0].category.name }, products: value }))
+    .value();
+    // return { ...productsGroupForGender, productsGroupedByCategory };
+    return {
+      gender: productsGroupForGender.gender,
+      productsForCategory: productsGroupedByCategory
+    };
+  })
+  .value()
+
+  console.log("productsGroupedByGenderAndCategory", productsGroupedByGenderAndCategory);
   return (
     <Box>
       <Text
