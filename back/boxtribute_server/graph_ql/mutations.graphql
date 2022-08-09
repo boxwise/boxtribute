@@ -32,7 +32,10 @@ type Mutation {
   addPackingListEntryToDistributionEvent(creationInput: PackingListEntryInput!): PackingListEntry
   removePackingListEntryFromDistributionEvent(packingListEntryId: ID!): DistributionEvent
   removeAllPackingListEntriesFromDistributionEventForProduct(distributionEventId: ID!, productId: ID!): Boolean
+  # addPackingListEntriesForAllSizesOfProductToDistributionEvent(distributionEventId: ID!, productId: ID!): Boolean
   updatePackingListEntry(packingListEntryId: ID!, numberOfItems: Int): PackingListEntry
+  updateSelectedProductsForDistributionEventPackingList(distributionEventId: ID!, productIdsToAdd: [ID!]!, productIdsToRemove: [ID!]!): Boolean
+
   changeDistributionEventState(
     distributionEventId: ID!
     newState: DistributionEventState!

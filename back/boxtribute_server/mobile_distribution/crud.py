@@ -1,5 +1,8 @@
 from boxtribute_server.models.definitions.distribution_event import DistributionEvent
 from boxtribute_server.models.definitions.packing_list_entry import PackingListEntry
+from boxtribute_server.models.definitions.product import Product
+from boxtribute_server.models.definitions.size import Size
+from boxtribute_server.models.definitions.size_range import SizeRange
 from boxtribute_server.models.definitions.unboxed_items_collection import (
     UnboxedItemsCollection,
 )
@@ -90,6 +93,64 @@ def change_distribution_event_state(distribution_event_id, distribution_event_st
     distribution_event.state = distribution_event_state
     distribution_event.save()
     return distribution_event
+
+
+def set_products_for_packing_list(
+    user_id, distribution_event_id, product_ids_to_add, product_ids_to_remove
+):
+    """
+    Set the products for a packing list.
+    """
+    with db.database.atomic():
+        # Completed Events should not be mutable anymore
+        distribution_event = DistributionEvent.get_by_id(distribution_event_id)
+        if distribution_event.state == DistributionEventState.Completed:
+            raise ModifyCompletedDistributionEvent(
+                desired_operation="set_products_for_packing_list",
+                distribution_event_id=distribution_event.id,
+            )
+
+        # Remove products that are not in the list anymore
+        # for product_id in product_ids_to_remove:
+        #     remove_all_packing_list_entries_from_distribution_event_for_product(
+        #         user_id, distribution_event_id, product_id
+        #     )
+
+        # Add products that are not in the list anymore
+        #  select(Product.size).where(Product.id << product_ids_to_add)
+        for product_id in product_ids_to_add:
+            sizes = (
+                Size.select(Size.id)
+                .join(SizeRange)
+                .join(Product)
+                .where(Product.id == product_id)
+            )
+
+            for size in sizes:
+
+                PackingListEntry.get_or_create(
+                    distribution_event=distribution_event_id,
+                    product=product_id,
+                    size=size.id,
+                    defaults={
+                        "number_of_items": 0,
+                        "created_by": user_id,
+                        "created_on": utcnow(),
+                        "state": PackingListEntryState.NotStarted,
+                    },
+                )
+
+            print("sizes", list(sizes))
+            # PackingListEntry.create(
+            #     distribution_event=distribution_event_id,
+            #     product=product_id,
+            #     number_of_items=0,
+            #     state=PackingListEntryState.NotStarted,
+            #     last_modified_on=utcnow(),
+            #     last_modified_by=user_id,
+            # )
+
+        return True
 
 
 def remove_all_packing_list_entries_from_distribution_event_for_product(

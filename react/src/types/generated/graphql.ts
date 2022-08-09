@@ -395,7 +395,6 @@ export type MetricsNumberOfSalesArgs = {
 export type Mutation = {
   __typename?: 'Mutation';
   acceptTransferAgreement?: Maybe<TransferAgreement>;
-  addPackingListEntriesForAllSizesOfProductToDistributionEvent?: Maybe<Scalars['Boolean']>;
   addPackingListEntryToDistributionEvent?: Maybe<PackingListEntry>;
   assignTag?: Maybe<TaggableResource>;
   cancelShipment?: Maybe<Shipment>;
@@ -419,11 +418,11 @@ export type Mutation = {
   removeAllPackingListEntriesFromDistributionEventForProduct?: Maybe<Scalars['Boolean']>;
   removePackingListEntryFromDistributionEvent?: Maybe<DistributionEvent>;
   sendShipment?: Maybe<Shipment>;
-  setProductsForPackingList?: Maybe<Scalars['Boolean']>;
   unassignTag?: Maybe<TaggableResource>;
   updateBeneficiary?: Maybe<Beneficiary>;
   updateBox?: Maybe<Box>;
   updatePackingListEntry?: Maybe<PackingListEntry>;
+  updateSelectedProductsForDistributionEventPackingList?: Maybe<Scalars['Boolean']>;
   updateShipment?: Maybe<Shipment>;
   updateTag?: Maybe<Tag>;
 };
@@ -436,17 +435,6 @@ export type Mutation = {
  */
 export type MutationAcceptTransferAgreementArgs = {
   id: Scalars['ID'];
-};
-
-
-/**
- * Naming convention:
- * - input argument: creationInput/updateInput
- * - input type: <Resource>CreationInput/UpdateInput
- */
-export type MutationAddPackingListEntriesForAllSizesOfProductToDistributionEventArgs = {
-  distributionEventId: Scalars['ID'];
-  productId: Scalars['ID'];
 };
 
 
@@ -692,17 +680,6 @@ export type MutationSendShipmentArgs = {
  * - input argument: creationInput/updateInput
  * - input type: <Resource>CreationInput/UpdateInput
  */
-export type MutationSetProductsForPackingListArgs = {
-  distributionEventId: Scalars['ID'];
-  productIds: Array<Scalars['ID']>;
-};
-
-
-/**
- * Naming convention:
- * - input argument: creationInput/updateInput
- * - input type: <Resource>CreationInput/UpdateInput
- */
 export type MutationUnassignTagArgs = {
   unassignmentInput?: InputMaybe<TagOperationInput>;
 };
@@ -736,6 +713,18 @@ export type MutationUpdateBoxArgs = {
 export type MutationUpdatePackingListEntryArgs = {
   numberOfItems?: InputMaybe<Scalars['Int']>;
   packingListEntryId: Scalars['ID'];
+};
+
+
+/**
+ * Naming convention:
+ * - input argument: creationInput/updateInput
+ * - input type: <Resource>CreationInput/UpdateInput
+ */
+export type MutationUpdateSelectedProductsForDistributionEventPackingListArgs = {
+  distributionEventId: Scalars['ID'];
+  productIdsToAdd: Array<Scalars['ID']>;
+  productIdsToRemove: Array<Scalars['ID']>;
 };
 
 

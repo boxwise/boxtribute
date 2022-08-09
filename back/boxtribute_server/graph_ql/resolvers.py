@@ -40,6 +40,7 @@ from ..mobile_distribution.crud import (
     move_box_to_distribution_event,
     move_items_from_box_to_distribution_event,
     remove_all_packing_list_entries_from_distribution_event_for_product,
+    set_products_for_packing_list,
     update_packing_list_entry,
 )
 from ..models.crud import (
@@ -492,6 +493,17 @@ def resolve_remove_all_packing_list_entries_from_distribution_event_for_product(
     authorize(permission="packing_list_entry:write")
     return remove_all_packing_list_entries_from_distribution_event_for_product(
         g.user.id, distribution_event_id, product_id
+    )
+
+
+@mutation.field("updateSelectedProductsForDistributionEventPackingList")
+@convert_kwargs_to_snake_case
+def resolve_set_products_for_packing_list(
+    *_, distribution_event_id, product_ids_to_add, product_ids_to_remove
+):
+    authorize(permission="packing_list_entry:write")
+    return set_products_for_packing_list(
+        g.user.id, distribution_event_id, product_ids_to_add, product_ids_to_remove
     )
 
 
