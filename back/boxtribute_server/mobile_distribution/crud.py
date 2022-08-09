@@ -110,13 +110,13 @@ def set_products_for_packing_list(
                 distribution_event_id=distribution_event.id,
             )
 
-        # Remove products that are not in the list anymore
-        # for product_id in product_ids_to_remove:
-        #     remove_all_packing_list_entries_from_distribution_event_for_product(
-        #         user_id, distribution_event_id, product_id
-        #     )
+        # Remove products
+        for product_id in product_ids_to_remove:
+            remove_all_packing_list_entries_from_distribution_event_for_product(
+                user_id, distribution_event_id, product_id
+            )
 
-        # Add products that are not in the list anymore
+        # Add new products
         #  select(Product.size).where(Product.id << product_ids_to_add)
         for product_id in product_ids_to_add:
             sizes = (
