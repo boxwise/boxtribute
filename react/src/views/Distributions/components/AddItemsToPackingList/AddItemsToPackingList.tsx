@@ -3,13 +3,21 @@ import {
   Flex,
   FormControl,
   Select,
-  WrapItem,
   Box,
   Input,
   Text,
+  Tab,
+  TabList,
+  TabPanel,
+  TabPanels,
+  Tabs,
+  Checkbox,
+  VStack,
 } from "@chakra-ui/react";
 import { useFieldArray, useForm } from "react-hook-form";
 import { useCallback, useEffect } from "react";
+import { groupBy } from "utils/helpers";
+import { ProductGender } from "types/generated/graphql";
 
 interface SizeIdAndNameTuple {
   id: string;
@@ -17,12 +25,21 @@ interface SizeIdAndNameTuple {
   numberOfItems?: number;
 }
 
-export type ProductAndSizesData = {
+// export type ProductAndSizesData = {
+//   id: string;
+//   name: string;
+//   sizes: SizeIdAndNameTuple[];
+// };
+
+export type ProductData = {
   id: string;
   name: string;
-  sizes: SizeIdAndNameTuple[];
+  category: {
+    id: string;
+    name: string;
+  };
+  gender: ProductGender;
 };
-
 
 export interface PackingListEntriesForProductToAdd {
   productId: number;
@@ -36,7 +53,7 @@ interface AddItemToPackingProps {
   onAddEntiresToPackingListForProduct: (
     entriesToAdd: PackingListEntriesForProductToAdd
   ) => void;
-  productAndSizesData: ProductAndSizesData[];
+  productData: ProductData[];
 }
 
 interface SizeAndNumberOfItemsFormTuple {
@@ -51,7 +68,7 @@ interface ItemToAddFormValues {
 
 const AddItemsToPackingList = ({
   onAddEntiresToPackingListForProduct,
-  productAndSizesData,
+  productData,
 }: AddItemToPackingProps) => {
   const { register, handleSubmit, control, watch } =
     useForm<ItemToAddFormValues>({
@@ -88,20 +105,73 @@ const AddItemsToPackingList = ({
     [onAddEntiresToPackingListForProduct]
   );
 
-  useEffect(() => {
-    if (productId != null) {
-      const product = productAndSizesData.find((p) => p.id === productId);
-      const newSizeAndNumTuples = product?.sizes.map((s) => ({
-        size: s,
-        // numberOfItems: s.currentNumberOfItems
-        // currentNumberOfItems: s
-      }));
-      replace(newSizeAndNumTuples || []);
-    }
-  }, [productId, productAndSizesData, replace]);
+  // useEffect(() => {
+  //   if (productId != null) {
+  //     const product = productAndSizesData.find((p) => p.id === productId);
+  //     const newSizeAndNumTuples = product?.sizes.map((s) => ({
+  //       size: s,
+  //       // numberOfItems: s.currentNumberOfItems
+  //       // currentNumberOfItems: s
+  //     }));
+  //     replace(newSizeAndNumTuples || []);
+  //   }
+  // }, [productId, productAndSizesData, replace]);
+
+  // const productsGroupedByGender = groupBy(
+  //   productData,
+  //   (product) => product.gender.id
+  // );
+
+  // const productsGroupedByCategory = Object.keys(productsGroupedByGender).map(productsForGender => groupBy(productsForGender, (product) => product.));
+
+  // console.log(productsGroupedByGender);
+
+  // list.reduce((previous, currentItem) => {
+  //   const group = getKey(currentItem);
+  //   if (!previous[group]) previous[group] = [];
+  //   previous[group].push(currentItem);
+  //   return previous;
+  // }, {} as Record<K, T[]>);
+
+  type ProductsForGender = {
+    gender: ProductGender;
+    products: ProductData[];
+  };
+
+  debugger;
+  const productsGroupedByGender: ProductsForGender[] = productData.reduce(
+    (acc, curr) => {
+      console.log("acc");
+      console.log(acc);
+      console.log("curr");
+      console.log(curr);
+      // const groupForCurrentGender = acc.find(el => el.gender.id === curr.gender.id);
+      debugger;
+      const groupForCurrentGender = acc.find(
+        (el) => el.gender === curr.gender
+      );
+      const otherGroupsThanForCurrentGender = acc.filter(
+        (el) => el.gender !== curr.gender
+      );
+      let newGroupForCurrentGender;
+      if (groupForCurrentGender) {
+        newGroupForCurrentGender = [...groupForCurrentGender.products, curr];
+      } else {
+        newGroupForCurrentGender = {
+          gender: curr.gender,
+          products: [curr],
+        };
+      }
+      // return [...acc];
+      return [...otherGroupsThanForCurrentGender, newGroupForCurrentGender];
+    },
+    [] as ProductsForGender[]
+  );
 
   return (
     <Box>
+      {/* productData: {JSON.stringify(productData)} */}
+      {/* productsGroupedByGender: {JSON.stringify(productsGroupedByGender)} */}
       <Text
         fontSize="xl"
         mb={4}
@@ -111,9 +181,32 @@ const AddItemsToPackingList = ({
       >
         Add to / Update Packing List
       </Text>
-      <form onSubmit={handleSubmit(onAddItemClick)}>
+      <Tabs>
+        <TabList>
+          <Tab>One</Tab>
+          <Tab>Two</Tab>
+          <Tab>Three</Tab>
+        </TabList>
+
+        <TabPanels>
+          <TabPanel>
+            <VStack spacing={5} direction="row">
+              <Checkbox>Checkbox</Checkbox>
+              <Checkbox defaultChecked>Checkbox</Checkbox>
+            </VStack>
+            <p>one!</p>
+          </TabPanel>
+          <TabPanel>
+            <p>two!</p>
+          </TabPanel>
+          <TabPanel>
+            <p>three!</p>
+          </TabPanel>
+        </TabPanels>
+      </Tabs>
+
+      {/* <form onSubmit={handleSubmit(onAddItemClick)}>
         <Flex direction="column">
-          <WrapItem>
             <FormControl id="productId">
               <Select {...register("productId")} placeholder="Select Product">
                 {productAndSizesData?.map((product, i) => (
@@ -123,7 +216,6 @@ const AddItemsToPackingList = ({
                 ))}
               </Select>
             </FormControl>
-          </WrapItem>
           <Flex direction="column">
             <Text my={2} fontSize="sm">
               Size and Quantity
@@ -173,11 +265,9 @@ const AddItemsToPackingList = ({
               ))}
             </>
           </Flex>
-          <WrapItem mt={4}>
             <Button type="submit">Add to Packing List</Button>
-          </WrapItem>
         </Flex>
-      </form>
+      </form> */}
     </Box>
   );
 };

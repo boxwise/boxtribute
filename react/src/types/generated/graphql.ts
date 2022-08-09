@@ -1392,10 +1392,10 @@ export type AddToPackingListMutationVariables = Exact<{
 
 export type AddToPackingListMutation = { __typename?: 'Mutation', addPackingListEntryToDistributionEvent?: { __typename?: 'PackingListEntry', id: string, numberOfItems: number, product?: { __typename?: 'Product', id: string, name: string, gender?: ProductGender | null } | null, size?: { __typename?: 'Size', id: string, label: string } | null } | null };
 
-export type AllProductsAndSizesQueryVariables = Exact<{ [key: string]: never; }>;
+export type AllProductsForPackingListQueryVariables = Exact<{ [key: string]: never; }>;
 
 
-export type AllProductsAndSizesQuery = { __typename?: 'Query', products: { __typename?: 'ProductPage', elements: Array<{ __typename?: 'Product', id: string, name: string, gender?: ProductGender | null, sizeRange: { __typename?: 'SizeRange', sizes: Array<{ __typename?: 'Size', id: string, label: string }> } }> } };
+export type AllProductsForPackingListQuery = { __typename?: 'Query', products: { __typename?: 'ProductPage', elements: Array<{ __typename?: 'Product', id: string, name: string, gender?: ProductGender | null, category: { __typename?: 'ProductCategory', id: string, name: string }, sizeRange: { __typename?: 'SizeRange', sizes: Array<{ __typename?: 'Size', id: string, label: string }> } }> } };
 
 export type DistroSpotsForBaseIdQueryVariables = Exact<{
   baseId: Scalars['ID'];

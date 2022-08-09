@@ -1,58 +1,54 @@
 import React from "react";
 import { ComponentStory, ComponentMeta } from "@storybook/react";
-import { ProductAndSizesData } from "./AddItemsToPackingList";
+import { ProductData } from "./AddItemsToPackingList";
 import AddItemsToPackingList from "./AddItemsToPackingList";
+import { ProductGender } from "types/generated/graphql";
 
-const mockedAddItemToPacking: ProductAndSizesData[] = [
+
+// const maleGender = {
+//   id: "1",
+//   name: "Male"
+// };
+
+// const femaleGender = {
+//   id: "2",
+//   name: "Female"
+// };
+
+const clothingCategory = {
+  id: "1",
+  name: "Clothing",
+};
+
+const hygenicCategory = {
+  id: "2",
+  name: "Hygenic",
+};
+
+const mockedProductData: ProductData[] = [
   {
     id: "1",
     name: "Jacket",
-    sizes: [
-      {
-        id: "1",
-        name: "S",
-      },
-      {
-        id: "2",
-        name: "M",
-      },
-      {
-        id: "3",
-        name: "L",
-      },
-    ],
+    category: {...clothingCategory},
+    gender: ProductGender.Men
   },
   {
     id: "2",
     name: "T-shirt",
-    sizes: [
-      {
-        id: "1",
-        name: "S",
-      },
-      {
-        id: "3",
-        name: "L",
-      },
-      {
-        id: "4",
-        name: "XL",
-      },
-    ],
+    category: {...clothingCategory},
+    gender: ProductGender.Men
   },
   {
     id: "3",
     name: "Skirt",
-    sizes: [
-      {
-        id: "1",
-        name: "S",
-      },
-      {
-        id: "4",
-        name: "XL",
-      },
-    ],
+    category: {...clothingCategory},
+    gender: ProductGender.Women
+  },
+  {
+    id: "10",
+    name: "Razor (50 pack)",
+    category: {...hygenicCategory},
+    gender: ProductGender.Men
   },
 ];
 
@@ -68,5 +64,5 @@ const Template: ComponentStory<typeof AddItemsToPackingList> = (args) => (
 
 export const Default = Template.bind({});
 Default.args = {
-  productAndSizesData: mockedAddItemToPacking,
+  productData: mockedProductData,
 };
