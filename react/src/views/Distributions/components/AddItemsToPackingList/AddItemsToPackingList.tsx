@@ -14,6 +14,8 @@ import {
   Checkbox,
   VStack,
   Heading,
+  Center,
+  Spacer,
 } from "@chakra-ui/react";
 import { useFieldArray, useForm } from "react-hook-form";
 import { useCallback, useEffect } from "react";
@@ -143,7 +145,6 @@ const AddItemsToPackingList = ({
     products: ProductData[];
   };
 
-
   type ProductsForCategory = {
     category: {
       id: string;
@@ -155,31 +156,41 @@ const AddItemsToPackingList = ({
   type ProductsGroupedByCategoryForGender = {
     gender: ProductGender;
     productsForCategory: ProductsForCategory[];
-  }
+  };
 
   const productsGroupedByGender: ProductsForGender[] = _.chain(productData)
     .groupBy("gender")
     .map((value, key) => ({ gender: ProductGender[key], products: value }))
     .value();
 
-  const productsGroupedByGenderAndCategory: ProductsGroupedByCategoryForGender[] = _.chain(productsGroupedByGender)
-  // const productsGroupedByGenderAndCategory = _.chain(productsGroupedByGender)
-  .map(productsGroupForGender => {
-    const productsGroupedByCategory = _.chain(productsGroupForGender.products)
-    .groupBy("category.id")
-    .map((value, key) => ({ category: { id: key, name: value[0].category.name }, products: value }))
-    .value();
-    // return { ...productsGroupForGender, productsGroupedByCategory };
-    return {
-      gender: productsGroupForGender.gender,
-      productsForCategory: productsGroupedByCategory
-    };
-  })
-  .value()
+  const productsGroupedByGenderAndCategory: ProductsGroupedByCategoryForGender[] =
+    _.chain(productsGroupedByGender)
+      // const productsGroupedByGenderAndCategory = _.chain(productsGroupedByGender)
+      .map((productsGroupForGender) => {
+        const productsGroupedByCategory = _.chain(
+          productsGroupForGender.products
+        )
+          .groupBy("category.id")
+          .map((value, key) => ({
+            category: { id: key, name: value[0].category.name },
+            products: value,
+          }))
+          .value();
+        // return { ...productsGroupForGender, productsGroupedByCategory };
+        return {
+          gender: productsGroupForGender.gender,
+          productsForCategory: productsGroupedByCategory,
+        };
+      })
+      .value();
 
-  console.log("productsGroupedByGenderAndCategory", productsGroupedByGenderAndCategory);
+  console.log(
+    "productsGroupedByGenderAndCategory",
+    productsGroupedByGenderAndCategory
+  );
   return (
-    <Box>
+    <Flex flexDir={"column"} alignItems="center" justifyContent="space-between">
+      {/* <Box> */}
       <Text
         fontSize="xl"
         mb={4}
@@ -189,12 +200,12 @@ const AddItemsToPackingList = ({
       >
         Add to / Update Packing List
       </Text>
-      <Tabs>
+      <Tabs variant='soft-rounded' colorScheme='green' px="30">
         <TabList>
           {productsGroupedByGenderAndCategory.map((productsGroupForGender) => (
-              <Tab key={productsGroupForGender.gender}>
-                {productsGroupForGender.gender}
-              </Tab>
+            <Tab key={productsGroupForGender.gender}>
+              {productsGroupForGender.gender}
+            </Tab>
           ))}
         </TabList>
 
@@ -202,14 +213,20 @@ const AddItemsToPackingList = ({
           {productsGroupedByGenderAndCategory.map((productsGroupForGender) => (
             <TabPanel key={productsGroupForGender.gender}>
               <VStack spacing={5} direction="row">
-                {productsGroupForGender.productsForCategory.map((productsGroupForCategory) => (
-                  <Box key={productsGroupForCategory.category.id}>
-                    <Heading fontSize="lg" fontWeight="bold">{productsGroupForCategory.category.name}</Heading>
-                    {productsGroupForCategory.products.map((product) => (
-                      <Checkbox key={product.id} value={product.id}>{product.name}</Checkbox>
-                    ))}
-                  </Box>
-                ))}
+                {productsGroupForGender.productsForCategory.map(
+                  (productsGroupForCategory) => (
+                    <Box key={productsGroupForCategory.category.id}>
+                      <Heading fontSize="lg" fontWeight="bold">
+                        {productsGroupForCategory.category.name}
+                      </Heading>
+                      {productsGroupForCategory.products.map((product) => (
+                        <Checkbox key={product.id} value={product.id}>
+                          {product.name}
+                        </Checkbox>
+                      ))}
+                    </Box>
+                  )
+                )}
               </VStack>
             </TabPanel>
           ))}
@@ -275,10 +292,12 @@ const AddItemsToPackingList = ({
               ))}
             </>
           </Flex>
-            <Button type="submit">Add to Packing List</Button>
         </Flex>
       </form> */}
-    </Box>
+      {/* <Spacer /> */}
+      <Button type="submit">Apply</Button>
+      {/* <Spacer /> */}
+    </Flex>
   );
 };
 
