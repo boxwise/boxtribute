@@ -107,7 +107,9 @@ def remove_all_packing_list_entries_from_distribution_event_for_product(
         for packing_list_entry in packing_list_entries:
             packing_list_entry.delete_instance()
 
-        return packing_list_entries
+        return True
+
+    return False
 
 
 def update_packing_list_entry(user_id, packing_list_entry_id, number_of_items):
