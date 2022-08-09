@@ -172,7 +172,7 @@ const AddItemsToPackingList = ({
         )
           .groupBy("category.id")
           .map((value, key) => ({
-            category: { id: key, name: value[0].category.name },
+            category: { id: key, name: (value[0].category.name ?? "Uncategeorized") },
             products: value,
           }))
           .value();
@@ -201,10 +201,10 @@ const AddItemsToPackingList = ({
         Add to / Update Packing List
       </Text>
       <Tabs variant="soft-rounded" colorScheme="green" px="30">
-        <TabList>
+        <TabList flexWrap="wrap">
           {productsGroupedByGenderAndCategory.map((productsGroupForGender) => (
-            <Tab key={productsGroupForGender.gender}>
-              {productsGroupForGender.gender}
+            <Tab key={productsGroupForGender.gender || "No Gender"}>
+              {productsGroupForGender.gender || "No Gender"}
             </Tab>
           ))}
         </TabList>
@@ -297,7 +297,7 @@ const AddItemsToPackingList = ({
         </Flex>
       </form> */}
       {/* <Spacer /> */}
-      <Button type="submit">Apply</Button>
+      <Button type="submit" colorScheme="blue">Apply</Button>
       {/* <Spacer /> */}
     </Flex>
   );

@@ -2,7 +2,7 @@ import AddItemsToPackingList, {
   PackingListEntriesForProductToAdd,
   ProductData,
 } from "./AddItemsToPackingList";
-import { AllProductsForPackingListQuery, AllProductsForPackingListQueryVariables } from "types/generated/graphql";
+import { AllProductsForPackingListQuery, AllProductsForPackingListQueryVariables, ProductGender } from "types/generated/graphql";
 import { gql, useQuery } from "@apollo/client";
 import APILoadingIndicator from "components/APILoadingIndicator";
 import { IPackingListEntry } from "views/Distributions/types";
@@ -43,7 +43,12 @@ const graphqlToContainerTransformer = (
   currentPackingListEntries: IPackingListEntry[]
 ): ProductData[] => {
 
-  return [];
+  return graphQLData.map(product => ({
+    id: product.id,
+    name: product.name,
+    category: product.category,
+    gender: product.gender ?? ProductGender.None
+  }));
 
   // return graphQLData.map(product => {
   //   product.
