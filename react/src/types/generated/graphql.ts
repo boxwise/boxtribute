@@ -415,6 +415,7 @@ export type Mutation = {
   moveItemsFromBoxToDistributionEvent?: Maybe<UnboxedItemsCollection>;
   moveItemsFromDistributionEventToBox?: Maybe<DistributionEvent>;
   rejectTransferAgreement?: Maybe<TransferAgreement>;
+  removeAllPackingListEntriesFromDistributionEventForProduct?: Maybe<DistributionEvent>;
   removePackingListEntryFromDistributionEvent?: Maybe<DistributionEvent>;
   sendShipment?: Maybe<Shipment>;
   unassignTag?: Maybe<TaggableResource>;
@@ -639,6 +640,17 @@ export type MutationMoveItemsFromDistributionEventToBoxArgs = {
  */
 export type MutationRejectTransferAgreementArgs = {
   id: Scalars['ID'];
+};
+
+
+/**
+ * Naming convention:
+ * - input argument: creationInput/updateInput
+ * - input type: <Resource>CreationInput/UpdateInput
+ */
+export type MutationRemoveAllPackingListEntriesFromDistributionEventForProductArgs = {
+  distributionEventId: Scalars['ID'];
+  productId: Scalars['ID'];
 };
 
 
