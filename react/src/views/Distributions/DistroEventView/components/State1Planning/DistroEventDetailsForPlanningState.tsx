@@ -35,6 +35,32 @@ interface IPackingListEntrieGroupForProduct {
   packingListEntries: IPackingListEntry[];
 }
 
+const PackingListEntryTableRow = ({entry}: {entry: IPackingListEntry}) => {
+  const onChangeHandlerForEntry = (newVal: string) => {
+    const newAmount = parseInt(newVal, 10);
+    if (entry.numberOfItems === newAmount) {
+      return;
+    } else {
+      alert("VALUE CHANGED");
+    }
+  };
+
+  return (
+    <Tr key={entry.id}>
+      <Td>{entry.size?.label}</Td>
+      <Td>
+        <Editable
+          value={entry.numberOfItems.toString()}
+          onSubmit={onChangeHandlerForEntry}
+        >
+          <EditablePreview width={20} />
+          <EditableInput width={20} />
+        </Editable>
+      </Td>
+    </Tr>
+  );
+};
+
 const PackingListEntrieGroupForProduct = ({
   data,
 }: {
@@ -84,15 +110,7 @@ const PackingListEntrieGroupForProduct = ({
           </Thead>
           <Tbody>
             {packingListEntries.map((entry) => (
-              <Tr key={entry.id}>
-                <Td>{entry.size?.label}</Td>
-                <Td>
-                  <Editable value={entry.numberOfItems.toString()}>
-                    <EditablePreview width={20} />
-                    <EditableInput width={20} />
-                  </Editable>
-                </Td>
-              </Tr>
+              <PackingListEntryTableRow key={entry.id} entry={entry} />
             ))}
           </Tbody>
         </Table>
@@ -121,17 +139,17 @@ const DistroEventDetailsForPlanningState = ({
     packingListEntries,
     (entry) => entry.product.id
   );
-  const packingListEntriesGroupedByProductIdAndName: IPackingListEntrieGroupForProduct[] = Object.keys(
-    packingListEntriesGroupedByProductId
-  ).map((k) => {
-    const product = packingListEntriesGroupedByProductId[k]?.[0]?.product;
-    return {
-    productId: k,
-    productName: product?.name,
-    gender: product.gender,
-    // category: product.
-    packingListEntries: packingListEntriesGroupedByProductId[k],
-  }});
+  const packingListEntriesGroupedByProductIdAndName: IPackingListEntrieGroupForProduct[] =
+    Object.keys(packingListEntriesGroupedByProductId).map((k) => {
+      const product = packingListEntriesGroupedByProductId[k]?.[0]?.product;
+      return {
+        productId: k,
+        productName: product?.name,
+        gender: product.gender,
+        // category: product.
+        packingListEntries: packingListEntriesGroupedByProductId[k],
+      };
+    });
 
   return (
     <>
