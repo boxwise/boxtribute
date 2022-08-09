@@ -22,6 +22,8 @@ import {
   RemoveEntryFromPackingListMutationVariables,
   UpdatePackingListEntryMutation,
   UpdatePackingListEntryMutationVariables,
+  UpdateSelectedProductsForDistributionEventPackingListMutation,
+  UpdateSelectedProductsForDistributionEventPackingListMutationVariables,
 } from "types/generated/graphql";
 import { PackingListEntriesForProductToAdd } from "views/Distributions/components/AddItemsToPackingList/AddItemsToPackingList";
 import AddItemsToPackingListContainer from "views/Distributions/components/AddItemsToPackingList/AddItemsToPackingListContainer";
@@ -36,7 +38,10 @@ import DistroEventDetailsForPlanningState from "./DistroEventDetailsForPlanningS
 interface IDistroEventDetailsForPlanningStateContext {
   distributionEvent: DistributionEventDetails;
   onRemoveAllPackingListEntriesForProduct: (productId: string) => void;
-  onUpdateProductsInPackingList: (productIdsToAdd: string[], productIdsToRemove: string[]) => void;
+  onUpdateProductsInPackingList: (
+    productIdsToAdd: string[],
+    productIdsToRemove: string[]
+  ) => void;
 }
 
 export const DistroEventDetailsForPlanningStateContext =
@@ -64,6 +69,20 @@ export const REMOVE_ALL_PACKING_LIST_ENTRIES_FROM_DISTRIBUTION_EVENT_FOR_PRODUCT
     removeAllPackingListEntriesFromDistributionEventForProduct(
       distributionEventId: $distributionEventId
       productId: $productId
+    )
+  }
+`;
+
+export const UPDATE_SELECTED_PRODUCTS_FOR_DISTRO_EVENT_PACKING_LIST_MUTATION = gql`
+  mutation UpdateSelectedProductsForDistributionEventPackingList(
+    $distributionEventId: ID!
+    $productIdsToAdd: [ID!]!
+    $productIdsToRemove: [ID!]!
+  ) {
+    updateSelectedProductsForDistributionEventPackingList(
+      distributionEventId: $distributionEventId
+      productIdsToAdd: $productIdsToAdd
+      productIdsToRemove: $productIdsToRemove
     )
   }
 `;
@@ -373,18 +392,41 @@ const DistroEventDetailsForPlanningStateContainer = ({
 
   const distributionEventId = distributionEventDetails.id;
 
-  const onRemoveAllPackingListEntriesForProduct = useCallback((productId: string) => {
-    removeAllPackingListEntriesFromDistributionEventForProductMutation({
-      variables: {
-        distributionEventId,
-        productId,
-      },
-    })
-      .then((res) => {
-        if (res.errors && res.errors.length !== 0) {
+  const onRemoveAllPackingListEntriesForProduct = useCallback(
+    (productId: string) => {
+      removeAllPackingListEntriesFromDistributionEventForProductMutation({
+        variables: {
+          distributionEventId,
+          productId,
+        },
+      })
+        .then((res) => {
+          if (res.errors && res.errors.length !== 0) {
+            console.error(
+              `Error while trying to remove all packing list entries from Distribution Event (id: ${distributionEventId}) for product id ${productId}`,
+              res.errors
+            );
+            toast({
+              title: "Error",
+              description:
+                "Packing list entries couldn't be removed from the distribution event.",
+              status: "error",
+              duration: 2000,
+              isClosable: true,
+            });
+          } else {
+            toast({
+              title: "Successfully removed entries. ",
+              status: "success",
+              isClosable: true,
+              duration: 2000,
+            });
+          }
+        })
+        .catch((error) => {
           console.error(
             `Error while trying to remove all packing list entries from Distribution Event (id: ${distributionEventId}) for product id ${productId}`,
-            res.errors
+            error
           );
           toast({
             title: "Error",
@@ -394,34 +436,77 @@ const DistroEventDetailsForPlanningStateContainer = ({
             duration: 2000,
             isClosable: true,
           });
-        } else {
-          toast({
-            title: "Successfully removed entries. ",
-            status: "success",
-            isClosable: true,
-            duration: 2000,
-          });
-        }
-      })
-      .catch((error) => {
-        console.error(
-          `Error while trying to remove all packing list entries from Distribution Event (id: ${distributionEventId}) for product id ${productId}`,
-          error
-        );
-        toast({
-          title: "Error",
-          description:
-            "Packing list entries couldn't be removed from the distribution event.",
-          status: "error",
-          duration: 2000,
-          isClosable: true,
         });
-      });
-  }, [distributionEventId, removeAllPackingListEntriesFromDistributionEventForProductMutation, toast]);
+    },
+    [
+      distributionEventId,
+      removeAllPackingListEntriesFromDistributionEventForProductMutation,
+      toast,
+    ]
+  );
 
-  const onUpdateProductsInPackingList = useCallback((productIdsToAdd: string[], productIdsToRemove: string[]) => {
-    // alert("onUpdateProductsInPackingList");
-  }, []);
+  const [updateProductsInPackingListMutation] = useMutation<
+    UpdateSelectedProductsForDistributionEventPackingListMutation,
+    UpdateSelectedProductsForDistributionEventPackingListMutationVariables
+  >(UPDATE_SELECTED_PRODUCTS_FOR_DISTRO_EVENT_PACKING_LIST_MUTATION, {
+    refetchQueries: [
+      {
+        query: PACKING_LIST_ENTRIES_FOR_DISTRIBUTION_EVENT_QUERY,
+        variables: {
+          distributionEventId: distributionEventDetails.id,
+        },
+      },
+    ],
+  });
+
+  const onUpdateProductsInPackingList = useCallback(
+    (productIdsToAdd: string[], productIdsToRemove: string[]) => {
+      updateProductsInPackingListMutation({
+        variables: {
+          distributionEventId: distributionEventDetails.id,
+          productIdsToAdd,
+          productIdsToRemove,
+        },
+      })
+        .then((res) => {
+          if (res.errors && res.errors.length !== 0) {
+            console.error(
+              `GraphQL error while trying to update selected products for packing list of Distribution Event (id: ${distributionEventDetails.id})`,
+              res.errors
+            );
+            toast({
+              title: "Error",
+              description: "Packing list entry couldn't be updated.",
+              status: "error",
+              duration: 2000,
+              isClosable: true,
+            });
+          } else {
+            toast({
+              title: "Successfully updated the Products for the Packing List.",
+              status: "success",
+              isClosable: true,
+              duration: 2000,
+            });
+          }
+        })
+        .catch((error) => {
+          console.error(
+            `GraphQL error while trying to update selected products for packing list of Distribution Event (id: ${distributionEventDetails.id})`,
+            error
+          );
+          toast({
+            title: "Error",
+            description: "Packing list entry couldn't be updated.",
+            status: "error",
+            duration: 2000,
+            isClosable: true,
+          });
+        });
+      // alert("onUpdateProductsInPackingList");
+    },
+    []
+  );
 
   if (loading) {
     return <APILoadingIndicator />;
@@ -441,7 +526,7 @@ const DistroEventDetailsForPlanningStateContainer = ({
   const contextValues: IDistroEventDetailsForPlanningStateContext = {
     distributionEvent: distributionEventDetails,
     onRemoveAllPackingListEntriesForProduct,
-    onUpdateProductsInPackingList
+    onUpdateProductsInPackingList,
   };
 
   return (

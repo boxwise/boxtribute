@@ -1387,6 +1387,15 @@ export type RemoveAllPackingListEntriesFromDistributionEventForProductMutationVa
 
 export type RemoveAllPackingListEntriesFromDistributionEventForProductMutation = { __typename?: 'Mutation', removeAllPackingListEntriesFromDistributionEventForProduct?: boolean | null };
 
+export type UpdateSelectedProductsForDistributionEventPackingListMutationVariables = Exact<{
+  distributionEventId: Scalars['ID'];
+  productIdsToAdd: Array<Scalars['ID']> | Scalars['ID'];
+  productIdsToRemove: Array<Scalars['ID']> | Scalars['ID'];
+}>;
+
+
+export type UpdateSelectedProductsForDistributionEventPackingListMutation = { __typename?: 'Mutation', updateSelectedProductsForDistributionEventPackingList?: boolean | null };
+
 export type UpdatePackingListEntryMutationVariables = Exact<{
   packingListEntryId: Scalars['ID'];
   numberOfItems: Scalars['Int'];
