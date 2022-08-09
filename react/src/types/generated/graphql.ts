@@ -1359,6 +1359,39 @@ export type CreateDistributionSpotMutationVariables = Exact<{
 
 export type CreateDistributionSpotMutation = { __typename?: 'Mutation', createDistributionSpot?: { __typename?: 'DistributionSpot', id: string } | null };
 
+export type RemoveEntryFromPackingListMutationVariables = Exact<{
+  packingListEntryId: Scalars['ID'];
+}>;
+
+
+export type RemoveEntryFromPackingListMutation = { __typename?: 'Mutation', removePackingListEntryFromDistributionEvent?: { __typename?: 'DistributionEvent', id: string } | null };
+
+export type RemoveAllPackingListEntriesFromDistributionEventForProductMutationVariables = Exact<{
+  distributionEventId: Scalars['ID'];
+  productId: Scalars['ID'];
+}>;
+
+
+export type RemoveAllPackingListEntriesFromDistributionEventForProductMutation = { __typename?: 'Mutation', removeAllPackingListEntriesFromDistributionEventForProduct?: { __typename?: 'DistributionEvent', id: string } | null };
+
+export type UpdatePackingListEntryMutationVariables = Exact<{
+  packingListEntryId: Scalars['ID'];
+  numberOfItems: Scalars['Int'];
+}>;
+
+
+export type UpdatePackingListEntryMutation = { __typename?: 'Mutation', updatePackingListEntry?: { __typename?: 'PackingListEntry', id: string, numberOfItems: number, product?: { __typename?: 'Product', id: string, name: string, gender?: ProductGender | null } | null, size?: { __typename?: 'Size', id: string, label: string } | null } | null };
+
+export type AddToPackingListMutationVariables = Exact<{
+  distributionEventId: Scalars['ID'];
+  productId: Scalars['Int'];
+  sizeId: Scalars['Int'];
+  numberOfItems: Scalars['Int'];
+}>;
+
+
+export type AddToPackingListMutation = { __typename?: 'Mutation', addPackingListEntryToDistributionEvent?: { __typename?: 'PackingListEntry', id: string, numberOfItems: number, product?: { __typename?: 'Product', id: string, name: string, gender?: ProductGender | null } | null, size?: { __typename?: 'Size', id: string, label: string } | null } | null };
+
 export type AllProductsAndSizesQueryVariables = Exact<{ [key: string]: never; }>;
 
 

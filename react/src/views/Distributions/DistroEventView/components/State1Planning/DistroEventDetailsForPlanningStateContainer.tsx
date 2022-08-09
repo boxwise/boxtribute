@@ -16,6 +16,8 @@ import {
   AddToPackingListMutationVariables,
   PackingListEntriesForDistributionEventQuery,
   PackingListEntriesForDistributionEventQueryVariables,
+  RemoveAllPackingListEntriesFromDistributionEventForProductMutation,
+  RemoveAllPackingListEntriesFromDistributionEventForProductMutationVariables,
   RemoveEntryFromPackingListMutation,
   RemoveEntryFromPackingListMutationVariables,
   UpdatePackingListEntryMutation,
@@ -54,7 +56,7 @@ export const REMOVE_ENTRY_FROM_PACKING_LIST = gql`
 `;
 
 export const REMOVE_ALL_PACKING_LIST_ENTRIES_FROM_DISTRIBUTION_EVENT_FOR_PRODUCT = gql`
-  mutation RemoveAllPackingListEntriesFromDistributionEventForProduct($distributionEventId: ID!, productId: ID!) {
+  mutation RemoveAllPackingListEntriesFromDistributionEventForProduct($distributionEventId: ID!, $productId: ID!) {
     removeAllPackingListEntriesFromDistributionEventForProduct(
       distributionEventId: $distributionEventId,
       productId: $productId
@@ -214,19 +216,19 @@ const DistroEventDetailsForPlanningStateContainer = ({
     ],
   });
 
-  // const [removeAllPackingListEntriesFromDistributionEventForProductMutation] = useMutation<
-  // RemoveAllPackingListEntriesFromDistributionEventForProductMutation,
-  // RemoveAllPackingListEntriesFromDistributionEventForProductMutationVariables
-  // >(REMOVE_ALL_PACKING_LIST_ENTRIES_FROM_DISTRIBUTION_EVENT_FOR_PRODUCT, {
-  //   refetchQueries: [
-  //     {
-  //       query: PACKING_LIST_ENTRIES_FOR_DISTRIBUTION_EVENT_QUERY,
-  //       variables: {
-  //         distributionEventId: distributionEventDetails.id,
-  //       },
-  //     },
-  //   ],
-  // });
+  const [removeAllPackingListEntriesFromDistributionEventForProductMutation] = useMutation<
+  RemoveAllPackingListEntriesFromDistributionEventForProductMutation,
+  RemoveAllPackingListEntriesFromDistributionEventForProductMutationVariables
+  >(REMOVE_ALL_PACKING_LIST_ENTRIES_FROM_DISTRIBUTION_EVENT_FOR_PRODUCT, {
+    refetchQueries: [
+      {
+        query: PACKING_LIST_ENTRIES_FOR_DISTRIBUTION_EVENT_QUERY,
+        variables: {
+          distributionEventId: distributionEventDetails.id,
+        },
+      },
+    ],
+  });
 
 
 
@@ -289,7 +291,8 @@ const DistroEventDetailsForPlanningStateContainer = ({
     packingListEntryId: string,
     numberOfItems: number
   ) => {
-    // alert("onUpdatePackingListEntry");
+    alert("onUpdatePackingListEntry");
+
     updatePackingListEntryMutation({
       variables: {
         packingListEntryId: packingListEntryId,
@@ -355,7 +358,12 @@ const DistroEventDetailsForPlanningStateContainer = ({
   );
 
   const onRemoveAllPackingListEntriesForProduct = (productId: string) => {
-    alert("on remove all packing list entries for product");
+    removeAllPackingListEntriesFromDistributionEventForProductMutation({variables: {
+      distributionEventId: distributionEventDetails.id,
+      productId
+    }})
+    .then()
+    .catch();
   }
 
   if (loading) {
