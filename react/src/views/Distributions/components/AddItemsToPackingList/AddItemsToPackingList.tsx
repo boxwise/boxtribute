@@ -13,6 +13,7 @@ import {
   Tabs,
   Checkbox,
   VStack,
+  Heading,
 } from "@chakra-ui/react";
 import { useFieldArray, useForm } from "react-hook-form";
 import { useCallback, useEffect } from "react";
@@ -190,7 +191,7 @@ const AddItemsToPackingList = ({
       </Text>
       <Tabs>
         <TabList>
-          {productsGroupedByGender.map((productsGroupForGender) => (
+          {productsGroupedByGenderAndCategory.map((productsGroupForGender) => (
               <Tab key={productsGroupForGender.gender}>
                 {productsGroupForGender.gender}
               </Tab>
@@ -198,13 +199,18 @@ const AddItemsToPackingList = ({
         </TabList>
 
         <TabPanels>
-          {productsGroupedByGender.map((productsGroupForGender) => (
+          {productsGroupedByGenderAndCategory.map((productsGroupForGender) => (
             <TabPanel key={productsGroupForGender.gender}>
               <VStack spacing={5} direction="row">
-                <Checkbox>Checkbox</Checkbox>
-                <Checkbox defaultChecked>Checkbox</Checkbox>
+                {productsGroupForGender.productsForCategory.map((productsGroupForCategory) => (
+                  <Box key={productsGroupForCategory.category.id}>
+                    <Heading fontSize="lg" fontWeight="bold">{productsGroupForCategory.category.name}</Heading>
+                    {productsGroupForCategory.products.map((product) => (
+                      <Checkbox key={product.id} value={product.id}>{product.name}</Checkbox>
+                    ))}
+                  </Box>
+                ))}
               </VStack>
-              <p>one!</p>
             </TabPanel>
           ))}
         </TabPanels>
