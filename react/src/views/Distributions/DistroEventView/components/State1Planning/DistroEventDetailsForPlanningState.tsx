@@ -28,7 +28,8 @@ import {
 import { CheckIcon, CloseIcon, EditIcon } from "@chakra-ui/icons";
 import { IPackingListEntry } from "views/Distributions/types";
 import _ from "lodash";
-import { useEffect, useState } from "react";
+import { useContext, useEffect, useState } from "react";
+import { DistroEventDetailsForPlanningStateContext } from "./DistroEventDetailsForPlanningStateContainer";
 
 interface IPackingListEntrieGroupForProduct {
   productId: string;
@@ -97,6 +98,12 @@ const PackingListEntriesGroupForProduct = ({
 }) => {
   const { productName, gender, packingListEntries } = data;
 
+  const ctx = useContext(DistroEventDetailsForPlanningStateContext);
+
+  if(ctx == null) {
+    return <></>;
+  }
+
   // const EditableControls = () => {
   //   const {
   //     isEditing,
@@ -119,17 +126,15 @@ const PackingListEntriesGroupForProduct = ({
 
   return (
     <Box pb={30}>
-            {/* <Container backgroundColor={"gray.50"} centerContent></Container> */}
       <Flex backgroundColor={"gray.50"} justifyContent={"space-around"}>
-        {/* <Heading as="h3" size="sm" textAlign="center" py={3}> */}
         <Heading as="h3" size="sm" py={3}>
           {productName} ({gender})
         </Heading>
         <IconButton
-          // ml={5}
           backgroundColor="transparent"
           icon={<CloseIcon />}
           aria-label="Remove Product from Packing List"
+          // onClick={() => onRemoveAllPackingListEntriesForProduct(ctx.distributionEvent)}
         />
       </Flex>
 

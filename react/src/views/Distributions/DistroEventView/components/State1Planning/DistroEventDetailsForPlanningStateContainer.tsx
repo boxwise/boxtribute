@@ -10,7 +10,7 @@ import {
   useToast,
 } from "@chakra-ui/react";
 import APILoadingIndicator from "components/APILoadingIndicator";
-import { useCallback, useEffect } from "react";
+import { createContext, useCallback, useEffect } from "react";
 import {
   AddToPackingListMutation,
   AddToPackingListMutationVariables,
@@ -31,6 +31,13 @@ import {
 } from "views/Distributions/types";
 import DistroEventDetailsForPlanningState from "./DistroEventDetailsForPlanningState";
 
+interface IDistroEventDetailsForPlanningStateContext {
+  distributionEvent: DistributionEventDetails;
+}
+
+export const DistroEventDetailsForPlanningStateContext = createContext<IDistroEventDetailsForPlanningStateContext | null>(null);
+
+
 interface DistroEventDetailsForPlanningStateContainerProps {
   distributionEventDetails: DistributionEventDetails;
 }
@@ -44,7 +51,6 @@ export const REMOVE_ENTRY_FROM_PACKING_LIST = gql`
     }
   }
 `;
-
 
 
 export const UPDATE_PACKING_LIST_ENTRY_MUTATION = gql`
@@ -335,7 +341,7 @@ const DistroEventDetailsForPlanningStateContainer = ({
   }
 
   return (
-    <>
+    <DistroEventDetailsForPlanningStateContext.Provider value={{distributionEvent: distributionEventDetails}}>
       <DistroEventDetailsForPlanningState
         packingListEntries={packingListEntries}
         onAddItemsClick={addItemsToDistroEventsOverlayState.onOpen}
@@ -367,7 +373,7 @@ const DistroEventDetailsForPlanningStateContainer = ({
           </ModalBody>
         </ModalContent>
       </Modal>
-    </>
+      </DistroEventDetailsForPlanningStateContext.Provider>
   );
 };
 
