@@ -200,7 +200,7 @@ const AddItemsToPackingList = ({
       >
         Add to / Update Packing List
       </Text>
-      <Tabs variant='soft-rounded' colorScheme='green' px="30">
+      <Tabs variant="soft-rounded" colorScheme="green" px="30">
         <TabList>
           {productsGroupedByGenderAndCategory.map((productsGroupForGender) => (
             <Tab key={productsGroupForGender.gender}>
@@ -212,18 +212,20 @@ const AddItemsToPackingList = ({
         <TabPanels>
           {productsGroupedByGenderAndCategory.map((productsGroupForGender) => (
             <TabPanel key={productsGroupForGender.gender}>
-              <VStack spacing={5} direction="row">
+              <VStack spacing={8}>
                 {productsGroupForGender.productsForCategory.map(
                   (productsGroupForCategory) => (
                     <Box key={productsGroupForCategory.category.id}>
-                      <Heading fontSize="lg" fontWeight="bold">
+                      <Heading fontSize="lg" fontWeight="bold" textAlign={"center"} mb={15}>
                         {productsGroupForCategory.category.name}
                       </Heading>
-                      {productsGroupForCategory.products.map((product) => (
-                        <Checkbox key={product.id} value={product.id}>
-                          {product.name}
-                        </Checkbox>
-                      ))}
+                      <VStack>
+                        {productsGroupForCategory.products.map((product) => (
+                          <Checkbox key={product.id} value={product.id}>
+                            {product.name}
+                          </Checkbox>
+                        ))}
+                      </VStack>
                     </Box>
                   )
                 )}
