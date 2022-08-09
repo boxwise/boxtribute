@@ -248,10 +248,11 @@ const DistroEventDetailsForPlanningStateContainer = ({
     ]
   );
 
-  const onChangeNumberOfItemsForPackingListEntryClick = (
+  const onUpdatePackingListEntry = (
     packingListEntryId: string,
     numberOfItems: number
   ) => {
+    alert("onUpdatePackingListEntry");
     updatePackingListEntryMutation({
       variables: {
         packingListEntryId: packingListEntryId,
@@ -338,8 +339,8 @@ const DistroEventDetailsForPlanningStateContainer = ({
         onAddItemsClick={addItemsToDistroEventsOverlayState.onOpen}
         onCopyPackingListFromPreviousEventsClick={() => {}}
         onRemoveItemFromPackingListClick={onRemoveItemFromPackingList}
-        onChangeNumberOfItemsForPackingListEntryClick={
-          onChangeNumberOfItemsForPackingListEntryClick
+        onUpdatePackingListEntry={
+          onUpdatePackingListEntry
         }
       />
 

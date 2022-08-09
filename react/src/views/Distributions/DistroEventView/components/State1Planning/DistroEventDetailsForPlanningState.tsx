@@ -35,14 +35,26 @@ interface IPackingListEntrieGroupForProduct {
   packingListEntries: IPackingListEntry[];
 }
 
-const PackingListEntryTableRow = ({entry}: {entry: IPackingListEntry}) => {
-  // const update
+type OnUpdatePackingListEntry = (
+  packingListEntryId: string,
+  numberOfItems: number
+) => void;
+
+interface PackingListEntryTableRowProps {
+  entry: IPackingListEntry;
+  onUpdatePackingListEntry: OnUpdatePackingListEntry;
+}
+
+const PackingListEntryTableRow = ({
+  entry,
+  onUpdatePackingListEntry,
+}: PackingListEntryTableRowProps) => {
   const onChangeHandlerForEntry = (newVal: string) => {
     const newAmount = parseInt(newVal, 10);
     if (entry.numberOfItems === newAmount) {
       return;
     } else {
-      alert("VALUE CHANGED");
+      onUpdatePackingListEntry(entry.id, newAmount);
     }
   };
 
@@ -64,10 +76,12 @@ const PackingListEntryTableRow = ({entry}: {entry: IPackingListEntry}) => {
   );
 };
 
-const PackingListEntrieGroupForProduct = ({
+const PackingListEntriesGroupForProduct = ({
   data,
+  onUpdatePackingListEntry
 }: {
   data: IPackingListEntrieGroupForProduct;
+  onUpdatePackingListEntry: OnUpdatePackingListEntry
 }) => {
   const { productName, gender, packingListEntries } = data;
 
@@ -113,7 +127,7 @@ const PackingListEntrieGroupForProduct = ({
           </Thead>
           <Tbody>
             {packingListEntries.map((entry) => (
-              <PackingListEntryTableRow key={entry.id} entry={entry} />
+              <PackingListEntryTableRow key={entry.id} entry={entry} onUpdatePackingListEntry={onUpdatePackingListEntry} />
             ))}
           </Tbody>
         </Table>
@@ -126,16 +140,16 @@ interface DistroEventDetailsForPlanningStateProps {
   packingListEntries: IPackingListEntry[];
   onAddItemsClick: () => void;
   onCopyPackingListFromPreviousEventsClick: () => void;
-  onChangeNumberOfItemsForPackingListEntryClick: (packlistItemId: string, numberOfItems: number) => void;
   onRemoveItemFromPackingListClick: (packlistItemId: string) => void;
+  onUpdatePackingListEntry: OnUpdatePackingListEntry;
 }
 
 const DistroEventDetailsForPlanningState = ({
+  onUpdatePackingListEntry,
   packingListEntries,
   onAddItemsClick,
   onCopyPackingListFromPreviousEventsClick,
   onRemoveItemFromPackingListClick,
-  onChangeNumberOfItemsForPackingListEntryClick: onEditItemOnPackingListClick,
 }: DistroEventDetailsForPlanningStateProps) => {
   // const packingListEntriesGroupedByProduct = _.groupBy(packingListEntries, (entry) => ({productId: entry.product.id, productName: entry.product.name}));
   const packingListEntriesGroupedByProductId = _.groupBy(
@@ -168,9 +182,10 @@ const DistroEventDetailsForPlanningState = ({
 
       {packingListEntriesGroupedByProductIdAndName.map(
         (packingListEntrieGroupForProduct) => (
-          <PackingListEntrieGroupForProduct
+          <PackingListEntriesGroupForProduct
             key={packingListEntrieGroupForProduct.productId}
             data={packingListEntrieGroupForProduct}
+            onUpdatePackingListEntry={onUpdatePackingListEntry}
           />
         )
       )}

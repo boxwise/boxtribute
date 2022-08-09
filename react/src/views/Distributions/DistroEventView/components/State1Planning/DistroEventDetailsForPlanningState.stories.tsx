@@ -53,6 +53,6 @@ Default.args = {
   onCopyPackingListFromPreviousEventsClick: action(
     "onCopyPackingListFromPreviousEventsClick"
   ),
-  onChangeNumberOfItemsForPackingListEntryClick: action("onEditItemOnPackingListClick"),
+  onUpdatePackingListEntry: action("onEditItemOnPackingListClick"),
   onRemoveItemFromPackingListClick: action("onRemoveItemFromPackingListClick"),
 };
