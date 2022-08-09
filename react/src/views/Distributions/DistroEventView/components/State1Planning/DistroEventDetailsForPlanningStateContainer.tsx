@@ -53,6 +53,17 @@ export const REMOVE_ENTRY_FROM_PACKING_LIST = gql`
   }
 `;
 
+export const REMOVE_ALL_PACKING_LIST_ENTRIES_FROM_DISTRIBUTION_EVENT_FOR_PRODUCT = gql`
+  mutation RemoveAllPackingListEntriesFromDistributionEventForProduct($distributionEventId: ID!, productId: ID!) {
+    removeAllPackingListEntriesFromDistributionEventForProduct(
+      distributionEventId: $distributionEventId,
+      productId: $productId
+    ) {
+      id
+    }
+  }
+`;
+
 
 export const UPDATE_PACKING_LIST_ENTRY_MUTATION = gql`
   mutation updatePackingListEntry(
@@ -202,6 +213,23 @@ const DistroEventDetailsForPlanningStateContainer = ({
       },
     ],
   });
+
+  // const [removeAllPackingListEntriesFromDistributionEventForProductMutation] = useMutation<
+  // RemoveAllPackingListEntriesFromDistributionEventForProductMutation,
+  // RemoveAllPackingListEntriesFromDistributionEventForProductMutationVariables
+  // >(REMOVE_ALL_PACKING_LIST_ENTRIES_FROM_DISTRIBUTION_EVENT_FOR_PRODUCT, {
+  //   refetchQueries: [
+  //     {
+  //       query: PACKING_LIST_ENTRIES_FOR_DISTRIBUTION_EVENT_QUERY,
+  //       variables: {
+  //         distributionEventId: distributionEventDetails.id,
+  //       },
+  //     },
+  //   ],
+  // });
+
+
+
 
   const onAddEntiresToPackingListForProduct = useCallback(
     (entriesToAdd: PackingListEntriesForProductToAdd) => {
