@@ -92,6 +92,27 @@ def change_distribution_event_state(distribution_event_id, distribution_event_st
     return distribution_event
 
 
+def update_packing_list_entry(user_id, packing_list_entry_id, number_of_items):
+    """
+    Update a packing list entry.
+    """
+    now = utcnow()
+
+    # Completed Events should not be mutable anymore
+    packing_list_entry = PackingListEntry.get_by_id(packing_list_entry_id)
+    # if packing_list_entry.state == PackingListEntryState.Completed:
+    #     raise ModifyCompletedDistributionEvent(
+    #         desired_operation="update_packing_list_entry",
+    #         distribution_event_id=packing_list_entry.distribution_event,
+    #     )
+
+    packing_list_entry.number_of_items = number_of_items
+    packing_list_entry.last_modified_on = now
+    packing_list_entry.last_modified_by = user_id
+    packing_list_entry.save()
+    return packing_list_entry
+
+
 def add_packing_list_entry_to_distribution_event(
     user_id,
     distribution_event_id,
