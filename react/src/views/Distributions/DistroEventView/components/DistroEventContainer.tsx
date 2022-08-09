@@ -65,10 +65,10 @@ const DistroEventContainer = ({
   const nextStageTransitionAlertState = useDisclosure();
   const cancelNextStageTransitionRef = React.useRef<HTMLButtonElement>(null);
 
-  const nextState = useMemo(
-    () => getNextState(distributionEventDetails.state),
-    [distributionEventDetails.state]
-  );
+  // const nextState = useMemo(
+  //   () => getNextState(distributionEventDetails.state),
+  //   [distributionEventDetails.state]
+  // );
 
   const onMoveToStage = useCallback(
     (state: DistributionEventState) => {

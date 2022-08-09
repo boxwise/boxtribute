@@ -1,4 +1,10 @@
 import {
+  AlertDialog,
+  AlertDialogBody,
+  AlertDialogContent,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogOverlay,
   Box,
   Button,
   ButtonGroup,
@@ -22,13 +28,14 @@ import {
   Th,
   Thead,
   Tr,
+  useDisclosure,
   useEditableControls,
   VStack,
 } from "@chakra-ui/react";
 import { CheckIcon, CloseIcon, EditIcon } from "@chakra-ui/icons";
 import { IPackingListEntry } from "views/Distributions/types";
 import _ from "lodash";
-import { useContext, useEffect, useState } from "react";
+import { useContext, useEffect, useRef, useState } from "react";
 import { DistroEventDetailsForPlanningStateContext } from "./DistroEventDetailsForPlanningStateContainer";
 
 interface IPackingListEntrieGroupForProduct {
@@ -101,7 +108,10 @@ const PackingListEntriesGroupForProduct = ({
 
   const ctx = useContext(DistroEventDetailsForPlanningStateContext);
 
-  if(ctx == null) {
+  const removeAllEntriesForProductAlertState = useDisclosure();
+  const cancelRemoveAllEntriesForProductRef = useRef<HTMLButtonElement>(null);
+
+  if (ctx == null) {
     return <></>;
   }
 
@@ -126,39 +136,77 @@ const PackingListEntriesGroupForProduct = ({
   // }
 
   return (
-    <Box pb={30}>
-      <Flex backgroundColor={"gray.50"} justifyContent={"space-around"}>
-        <Heading as="h3" size="sm" py={3}>
-          {productName} ({gender})
-        </Heading>
-        <IconButton
-          backgroundColor="transparent"
-          icon={<CloseIcon />}
-          aria-label="Remove Product from Packing List"
-          onClick={() => ctx.onRemoveAllPackingListEntriesForProduct(productId)}
-        />
-      </Flex>
+    <>
+      <Box pb={30}>
+        <Flex backgroundColor={"gray.50"} justifyContent={"space-around"}>
+          <Heading as="h3" size="sm" py={3}>
+            {productName} ({gender})
+          </Heading>
+          <IconButton
+            backgroundColor="transparent"
+            icon={<CloseIcon />}
+            aria-label="Remove Product from Packing List"
+            onClick={() => removeAllEntriesForProductAlertState.onOpen()}
+          />
+        </Flex>
 
-      <TableContainer>
-        <Table variant="simple">
-          <Thead>
-            <Tr>
-              <Th>Size</Th>
-              <Th>No. of items</Th>
-            </Tr>
-          </Thead>
-          <Tbody>
-            {packingListEntries.map((entry) => (
-              <PackingListEntryTableRow
-                key={entry.id}
-                entry={entry}
-                onUpdatePackingListEntry={onUpdatePackingListEntry}
-              />
-            ))}
-          </Tbody>
-        </Table>
-      </TableContainer>
-    </Box>
+        <TableContainer>
+          <Table variant="simple">
+            <Thead>
+              <Tr>
+                <Th>Size</Th>
+                <Th>No. of items</Th>
+              </Tr>
+            </Thead>
+            <Tbody>
+              {packingListEntries.map((entry) => (
+                <PackingListEntryTableRow
+                  key={entry.id}
+                  entry={entry}
+                  onUpdatePackingListEntry={onUpdatePackingListEntry}
+                />
+              ))}
+            </Tbody>
+          </Table>
+        </TableContainer>
+      </Box>
+
+      <AlertDialog
+        isOpen={removeAllEntriesForProductAlertState.isOpen}
+        leastDestructiveRef={cancelRemoveAllEntriesForProductRef}
+        onClose={removeAllEntriesForProductAlertState.onClose}
+      >
+        <AlertDialogOverlay>
+          <AlertDialogContent>
+            <AlertDialogHeader fontSize="lg" fontWeight="bold">
+              Delete all packing list entries for this product?
+            </AlertDialogHeader>
+
+            <AlertDialogBody>
+              Are you sure?
+            </AlertDialogBody>
+
+            <AlertDialogFooter>
+              <Button
+                ref={cancelRemoveAllEntriesForProductRef}
+                onClick={removeAllEntriesForProductAlertState.onClose}
+              >
+                Cancel
+              </Button>
+              <Button
+                colorScheme="red"
+                onClick={() =>
+                  ctx.onRemoveAllPackingListEntriesForProduct(productId)
+                }
+                ml={3}
+              >
+                Delete
+              </Button>
+            </AlertDialogFooter>
+          </AlertDialogContent>
+        </AlertDialogOverlay>
+      </AlertDialog>
+    </>
   );
 };
 
@@ -216,7 +264,9 @@ const DistroEventDetailsForPlanningState = ({
         )
       )}
 
-      {packingListEntriesGroupedByProductIdAndName.length === 0 && (<Text>You don't have any entries on your packing list yet.</Text>)}
+      {packingListEntriesGroupedByProductIdAndName.length === 0 && (
+        <Text>You don't have any entries on your packing list yet.</Text>
+      )}
 
       {/* {packingListEntries.map((item) => {
         return (
