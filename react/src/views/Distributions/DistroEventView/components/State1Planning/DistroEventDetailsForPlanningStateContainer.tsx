@@ -292,8 +292,6 @@ const DistroEventDetailsForPlanningStateContainer = ({
     packingListEntryId: string,
     numberOfItems: number
   ) => {
-    alert("onUpdatePackingListEntry");
-
     updatePackingListEntryMutation({
       variables: {
         packingListEntryId: packingListEntryId,
