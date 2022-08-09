@@ -21,11 +21,12 @@ import {
   FormLabel,
 } from "@chakra-ui/react";
 import { useFieldArray, useForm } from "react-hook-form";
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useContext, useEffect, useState } from "react";
 import { groupBy } from "utils/helpers";
 import { ProductGender } from "types/generated/graphql";
 import _ from "lodash";
 import { IPackingListEntry } from "views/Distributions/types";
+import { DistroEventDetailsForPlanningStateContext } from "views/Distributions/DistroEventView/components/State1Planning/DistroEventDetailsForPlanningStateContainer";
 
 export interface ProductData {
   id: string;
@@ -50,15 +51,17 @@ export interface PackingListEntriesForProductToAdd {
 }
 
 interface AddItemToPackingProps {
-  onAddEntiresToPackingListForProduct: (
-    entriesToAdd: PackingListEntriesForProductToAdd
-  ) => void;
+  // onAddEntiresToPackingListForProduct: (
+  //   entriesToAdd: PackingListEntriesForProductToAdd
+  // ) => void;
+  onClose: () => void;
   productData: ProductData[];
   packingListEntries: IPackingListEntry[];
 }
 
 const AddItemsToPackingList = ({
-  onAddEntiresToPackingListForProduct,
+  // onAddEntiresToPackingListForProduct,
+  onClose,
   productData,
   packingListEntries,
 }: AddItemToPackingProps) => {
@@ -90,6 +93,8 @@ const AddItemsToPackingList = ({
       ),
     })
   );
+
+  const ctx = useContext(DistroEventDetailsForPlanningStateContext);
 
   const [checkedProductIds, setCheckedProductIds] = useState(productIdsWithPackingListEntries);
 
@@ -132,6 +137,9 @@ const AddItemsToPackingList = ({
   const onApplyClick = () => {
     const entriesToAdd = checkedProductIds.filter(p1 => !productIdsWithPackingListEntries.some(p2 => p1 === p2));
     const entriesToRemove = productIdsWithPackingListEntries.filter(p1 => !checkedProductIds.some(p2 => p1 === p2));
+    ctx?.onUpdateProductsInPackingList(entriesToAdd, entriesToRemove);
+    onClose();
+
     // alert(JSON.stringify(entriesToRemove));
   };
 

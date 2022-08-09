@@ -9,9 +9,10 @@ import APILoadingIndicator from "components/APILoadingIndicator";
 import { IPackingListEntry } from "views/Distributions/types";
 
 interface AddItemsToPackingListContainerProps {
-  onAddEntiresToPackingListForProduct: (
-    entriesToAdd: PackingListEntriesForProductToAdd
-  ) => void;
+  // onAddEntiresToPackingListForProduct: (
+  //   entriesToAdd: PackingListEntriesForProductToAdd
+  // ) => void;
+  onClose: () => void;
   currentPackingListEntries: IPackingListEntry[];
 }
 
@@ -85,7 +86,8 @@ const graphqlToContainerTransformer = (
 };
 
 const AddItemsToPackingListContainer = ({
-  onAddEntiresToPackingListForProduct,
+  // onAddEntiresToPackingListForProduct,
+  onClose,
   currentPackingListEntries
 }: AddItemsToPackingListContainerProps) => {
   const { loading, data } = useQuery<
@@ -105,7 +107,8 @@ const AddItemsToPackingListContainer = ({
 
   return (
     <AddItemsToPackingList
-      onAddEntiresToPackingListForProduct={onAddEntiresToPackingListForProduct}
+    onClose={onClose}
+      // onAddEntiresToPackingListForProduct={onAddEntiresToPackingListForProduct}
       productData={productAndSizesData}
       packingListEntries={currentPackingListEntries}
     />

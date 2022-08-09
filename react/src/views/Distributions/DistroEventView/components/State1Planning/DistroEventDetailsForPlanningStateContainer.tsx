@@ -36,6 +36,7 @@ import DistroEventDetailsForPlanningState from "./DistroEventDetailsForPlanningS
 interface IDistroEventDetailsForPlanningStateContext {
   distributionEvent: DistributionEventDetails;
   onRemoveAllPackingListEntriesForProduct: (productId: string) => void;
+  onUpdateProductsInPackingList: (productIdsToAdd: string[], productIdsToRemove: string[]) => void;
 }
 
 export const DistroEventDetailsForPlanningStateContext =
@@ -370,17 +371,19 @@ const DistroEventDetailsForPlanningStateContainer = ({
     [distributionEventDetails.id, removeEntryFromPackingListMutation, toast]
   );
 
-  const onRemoveAllPackingListEntriesForProduct = (productId: string) => {
+  const distributionEventId = distributionEventDetails.id;
+
+  const onRemoveAllPackingListEntriesForProduct = useCallback((productId: string) => {
     removeAllPackingListEntriesFromDistributionEventForProductMutation({
       variables: {
-        distributionEventId: distributionEventDetails.id,
+        distributionEventId,
         productId,
       },
     })
       .then((res) => {
         if (res.errors && res.errors.length !== 0) {
           console.error(
-            `Error while trying to remove all packing list entries from Distribution Event (id: ${distributionEventDetails.id}) for product id ${productId}`,
+            `Error while trying to remove all packing list entries from Distribution Event (id: ${distributionEventId}) for product id ${productId}`,
             res.errors
           );
           toast({
@@ -402,7 +405,7 @@ const DistroEventDetailsForPlanningStateContainer = ({
       })
       .catch((error) => {
         console.error(
-          `Error while trying to remove all packing list entries from Distribution Event (id: ${distributionEventDetails.id}) for product id ${productId}`,
+          `Error while trying to remove all packing list entries from Distribution Event (id: ${distributionEventId}) for product id ${productId}`,
           error
         );
         toast({
@@ -414,7 +417,11 @@ const DistroEventDetailsForPlanningStateContainer = ({
           isClosable: true,
         });
       });
-  };
+  }, [distributionEventId, removeAllPackingListEntriesFromDistributionEventForProductMutation, toast]);
+
+  const onUpdateProductsInPackingList = useCallback((productIdsToAdd: string[], productIdsToRemove: string[]) => {
+    // alert("onUpdateProductsInPackingList");
+  }, []);
 
   if (loading) {
     return <APILoadingIndicator />;
@@ -434,6 +441,7 @@ const DistroEventDetailsForPlanningStateContainer = ({
   const contextValues: IDistroEventDetailsForPlanningStateContext = {
     distributionEvent: distributionEventDetails,
     onRemoveAllPackingListEntriesForProduct,
+    onUpdateProductsInPackingList
   };
 
   return (
@@ -459,9 +467,10 @@ const DistroEventDetailsForPlanningStateContainer = ({
           <ModalCloseButton />
           <ModalBody>
             <AddItemsToPackingListContainer
-              onAddEntiresToPackingListForProduct={
-                onAddEntiresToPackingListForProduct
-              }
+              // onAddEntiresToPackingListForProduct={
+              //   onAddEntiresToPackingListForProduct
+              // }
+              onClose={addItemsToDistroEventsOverlayState.onClose}
               currentPackingListEntries={packingListEntries}
             />
           </ModalBody>
