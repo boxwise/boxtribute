@@ -21,7 +21,7 @@ import {
   FormLabel,
 } from "@chakra-ui/react";
 import { useFieldArray, useForm } from "react-hook-form";
-import { useCallback, useEffect } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { groupBy } from "utils/helpers";
 import { ProductGender } from "types/generated/graphql";
 import _ from "lodash";
@@ -35,11 +35,11 @@ export interface ProductData {
     name: string;
   };
   gender: ProductGender;
-};
+}
 
-export interface ProductDataWithPackingListEntryFlags extends ProductData{
+export interface ProductDataWithPackingListEntryFlags extends ProductData {
   hasPackingListEntries: boolean;
-};
+}
 
 export interface PackingListEntriesForProductToAdd {
   productId: number;
@@ -60,9 +60,8 @@ interface AddItemToPackingProps {
 const AddItemsToPackingList = ({
   onAddEntiresToPackingListForProduct,
   productData,
-  packingListEntries
+  packingListEntries,
 }: AddItemToPackingProps) => {
-
   type ProductsForGender = {
     gender: ProductGender;
     products: ProductDataWithPackingListEntryFlags[];
@@ -81,12 +80,22 @@ const AddItemsToPackingList = ({
     productsForCategory: ProductsForCategory[];
   };
 
-  const productDataWithPackingListEntriesSignals = productData.map(productDataPoint => ({
-    ...productDataPoint,
-    hasPackingListEntries: packingListEntries.some(entry => entry.product.id === productDataPoint.id)
-  }));
+  const productIdsWithPackingListEntries = _.chain(packingListEntries).map(p => p.product.id).uniq().value();
 
-  const productsGroupedByGender: ProductsForGender[] = _.chain(productDataWithPackingListEntriesSignals)
+  const productDataWithPackingListEntriesSignals = productData.map(
+    (productDataPoint) => ({
+      ...productDataPoint,
+      hasPackingListEntries: packingListEntries.some(
+        (entry) => entry.product.id === productDataPoint.id
+      ),
+    })
+  );
+
+  const [checkedProductIds, setCheckedProductIds] = useState(productIdsWithPackingListEntries);
+
+  const productsGroupedByGender: ProductsForGender[] = _.chain(
+    productDataWithPackingListEntriesSignals
+  )
     .groupBy("gender")
     .map((value, key) => ({ gender: ProductGender[key], products: value }))
     .value();
@@ -119,9 +128,28 @@ const AddItemsToPackingList = ({
     "productsGroupedByGenderAndCategory",
     productsGroupedByGenderAndCategory
   );
+
+  const onApplyClick = () => {
+    const entriesToAdd = checkedProductIds.filter(p1 => !productIdsWithPackingListEntries.some(p2 => p1 === p2));
+    const entriesToRemove = productIdsWithPackingListEntries.filter(p1 => !checkedProductIds.some(p2 => p1 === p2));
+    // alert(JSON.stringify(entriesToRemove));
+  };
+
+  const handleCheckboxChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    var updatedList = [...checkedProductIds];
+    if (event.target.checked) {
+      updatedList = [...checkedProductIds, event.target.value];
+    } else {
+      updatedList.splice(checkedProductIds.indexOf(event.target.value), 1);
+    }
+    setCheckedProductIds(updatedList);
+  };
+
+
   return (
     <Flex flexDir={"column"} alignItems="center" justifyContent="space-between">
-      {/* <Box> */}
+      {/* productIdsWithPackingListEntries: {JSON.stringify(productIdsWithPackingListEntries)} <br />
+      checkedProductIds: {JSON.stringify(checkedProductIds)} <br /> */}
       <Heading fontSize="xl" mb={3} borderBottom="1px" borderColor="gray.300">
         Select Products for Packing List
       </Heading>
@@ -131,7 +159,6 @@ const AddItemsToPackingList = ({
           Only show products in stock
         </FormLabel>
       </Box>
-      {/* <Divider /> */}
       <Tabs variant="soft-rounded" colorScheme="green" px="30">
         <TabList flexWrap="wrap">
           {productsGroupedByGenderAndCategory.map((productsGroupForGender) => (
@@ -158,7 +185,13 @@ const AddItemsToPackingList = ({
                       </Heading>
                       <VStack>
                         {productsGroupForCategory.products.map((product) => (
-                          <Checkbox key={product.id} value={product.id} defaultChecked={product.hasPackingListEntries}>
+                          <Checkbox
+                            key={product.id}
+                            value={product.id}
+                            checked={checkedProductIds.includes(product.id)}
+                            onChange={handleCheckboxChange}
+                            defaultChecked={product.hasPackingListEntries}
+                          >
                             {product.name}
                           </Checkbox>
                         ))}
@@ -171,7 +204,10 @@ const AddItemsToPackingList = ({
           ))}
         </TabPanels>
       </Tabs>
-      <Button onClick={onApplyClick} colorScheme="blue">
+      <Button
+        onClick={onApplyClick}
+        colorScheme="blue"
+      >
         Apply
       </Button>
     </Flex>
