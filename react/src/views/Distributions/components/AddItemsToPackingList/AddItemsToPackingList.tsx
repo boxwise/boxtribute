@@ -16,6 +16,9 @@ import {
   Heading,
   Center,
   Spacer,
+  Switch,
+  Divider,
+  FormLabel,
 } from "@chakra-ui/react";
 import { useFieldArray, useForm } from "react-hook-form";
 import { useCallback, useEffect } from "react";
@@ -172,7 +175,10 @@ const AddItemsToPackingList = ({
         )
           .groupBy("category.id")
           .map((value, key) => ({
-            category: { id: key, name: (value[0].category.name ?? "Uncategeorized") },
+            category: {
+              id: key,
+              name: value[0].category.name ?? "Uncategeorized",
+            },
             products: value,
           }))
           .value();
@@ -191,15 +197,16 @@ const AddItemsToPackingList = ({
   return (
     <Flex flexDir={"column"} alignItems="center" justifyContent="space-between">
       {/* <Box> */}
-      <Text
-        fontSize="xl"
-        mb={4}
-        borderBottom="1px"
-        borderColor="gray.300"
-        pb={2}
-      >
-        Add to / Update Packing List
-      </Text>
+      <Heading fontSize="xl" mb={3} borderBottom="1px" borderColor="gray.300">
+        Select Products for Packing List
+      </Heading>
+      <Box my={7}>
+        <Switch id="show-only-products-in-stock" />{" "}
+        <FormLabel htmlFor="show-only-products-in-stock" display="inline">
+          Only show products in stock
+        </FormLabel>
+      </Box>
+      {/* <Divider /> */}
       <Tabs variant="soft-rounded" colorScheme="green" px="30">
         <TabList flexWrap="wrap">
           {productsGroupedByGenderAndCategory.map((productsGroupForGender) => (
@@ -216,7 +223,12 @@ const AddItemsToPackingList = ({
                 {productsGroupForGender.productsForCategory.map(
                   (productsGroupForCategory) => (
                     <Box key={productsGroupForCategory.category.id}>
-                      <Heading fontSize="lg" fontWeight="bold" textAlign={"center"} mb={15}>
+                      <Heading
+                        fontSize="lg"
+                        fontWeight="bold"
+                        textAlign={"center"}
+                        mb={15}
+                      >
                         {productsGroupForCategory.category.name}
                       </Heading>
                       <VStack>
@@ -297,7 +309,9 @@ const AddItemsToPackingList = ({
         </Flex>
       </form> */}
       {/* <Spacer /> */}
-      <Button type="submit" colorScheme="blue">Apply</Button>
+      <Button type="submit" colorScheme="blue">
+        Apply
+      </Button>
       {/* <Spacer /> */}
     </Flex>
   );
