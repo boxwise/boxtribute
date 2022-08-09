@@ -59,6 +59,7 @@ interface AddItemToPackingProps {
   packingListEntries: IPackingListEntry[];
 }
 
+// TODO rename this (and also the container component) to SelectProductsForPackingList (or something like that)
 const AddItemsToPackingList = ({
   // onAddEntiresToPackingListForProduct,
   onClose,
