@@ -216,6 +216,8 @@ const DistroEventDetailsForPlanningState = ({
         )
       )}
 
+      {packingListEntriesGroupedByProductIdAndName.length === 0 && (<Text>You don't have any entries on your packing list yet.</Text>)}
+
       {/* {packingListEntries.map((item) => {
         return (
           <SimpleGrid

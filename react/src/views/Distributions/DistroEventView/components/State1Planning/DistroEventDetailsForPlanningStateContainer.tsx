@@ -38,8 +38,8 @@ interface IDistroEventDetailsForPlanningStateContext {
   onRemoveAllPackingListEntriesForProduct: (productId: string) => void;
 }
 
-export const DistroEventDetailsForPlanningStateContext = createContext<IDistroEventDetailsForPlanningStateContext | null>(null);
-
+export const DistroEventDetailsForPlanningStateContext =
+  createContext<IDistroEventDetailsForPlanningStateContext | null>(null);
 
 interface DistroEventDetailsForPlanningStateContainerProps {
   distributionEventDetails: DistributionEventDetails;
@@ -56,16 +56,16 @@ export const REMOVE_ENTRY_FROM_PACKING_LIST = gql`
 `;
 
 export const REMOVE_ALL_PACKING_LIST_ENTRIES_FROM_DISTRIBUTION_EVENT_FOR_PRODUCT = gql`
-  mutation RemoveAllPackingListEntriesFromDistributionEventForProduct($distributionEventId: ID!, $productId: ID!) {
+  mutation RemoveAllPackingListEntriesFromDistributionEventForProduct(
+    $distributionEventId: ID!
+    $productId: ID!
+  ) {
     removeAllPackingListEntriesFromDistributionEventForProduct(
-      distributionEventId: $distributionEventId,
+      distributionEventId: $distributionEventId
       productId: $productId
-    ) {
-      id
-    }
+    )
   }
 `;
-
 
 export const UPDATE_PACKING_LIST_ENTRY_MUTATION = gql`
   mutation updatePackingListEntry(
@@ -73,8 +73,8 @@ export const UPDATE_PACKING_LIST_ENTRY_MUTATION = gql`
     $numberOfItems: Int!
   ) {
     updatePackingListEntry(
-        packingListEntryId: $packingListEntryId
-        numberOfItems: $numberOfItems
+      packingListEntryId: $packingListEntryId
+      numberOfItems: $numberOfItems
     ) {
       id
       numberOfItems
@@ -135,16 +135,19 @@ const DistroEventDetailsForPlanningStateContainer = ({
 
   const toast = useToast();
 
-  const [updatePackingListEntryMutation] = useMutation<UpdatePackingListEntryMutation, UpdatePackingListEntryMutationVariables>(UPDATE_PACKING_LIST_ENTRY_MUTATION, {
-  refetchQueries: [
-    {
-      query: PACKING_LIST_ENTRIES_FOR_DISTRIBUTION_EVENT_QUERY,
-      variables: {
-        distributionEventId: distributionEventDetails.id,
+  const [updatePackingListEntryMutation] = useMutation<
+    UpdatePackingListEntryMutation,
+    UpdatePackingListEntryMutationVariables
+  >(UPDATE_PACKING_LIST_ENTRY_MUTATION, {
+    refetchQueries: [
+      {
+        query: PACKING_LIST_ENTRIES_FOR_DISTRIBUTION_EVENT_QUERY,
+        variables: {
+          distributionEventId: distributionEventDetails.id,
+        },
       },
-    },
-  ],
-});
+    ],
+  });
 
   // TODO: add proper error handling for the mutation
   // TODO: ensure to trigger the fetch of the packing list entries again when
@@ -216,22 +219,20 @@ const DistroEventDetailsForPlanningStateContainer = ({
     ],
   });
 
-  const [removeAllPackingListEntriesFromDistributionEventForProductMutation] = useMutation<
-  RemoveAllPackingListEntriesFromDistributionEventForProductMutation,
-  RemoveAllPackingListEntriesFromDistributionEventForProductMutationVariables
-  >(REMOVE_ALL_PACKING_LIST_ENTRIES_FROM_DISTRIBUTION_EVENT_FOR_PRODUCT, {
-    refetchQueries: [
-      {
-        query: PACKING_LIST_ENTRIES_FOR_DISTRIBUTION_EVENT_QUERY,
-        variables: {
-          distributionEventId: distributionEventDetails.id,
+  const [removeAllPackingListEntriesFromDistributionEventForProductMutation] =
+    useMutation<
+      RemoveAllPackingListEntriesFromDistributionEventForProductMutation,
+      RemoveAllPackingListEntriesFromDistributionEventForProductMutationVariables
+    >(REMOVE_ALL_PACKING_LIST_ENTRIES_FROM_DISTRIBUTION_EVENT_FOR_PRODUCT, {
+      refetchQueries: [
+        {
+          query: PACKING_LIST_ENTRIES_FOR_DISTRIBUTION_EVENT_QUERY,
+          variables: {
+            distributionEventId: distributionEventDetails.id,
+          },
         },
-      },
-    ],
-  });
-
-
-
+      ],
+    });
 
   const onAddEntiresToPackingListForProduct = useCallback(
     (entriesToAdd: PackingListEntriesForProductToAdd) => {
@@ -307,8 +308,7 @@ const DistroEventDetailsForPlanningStateContainer = ({
         );
         toast({
           title: "Error",
-          description:
-            "Some of the packing list entries couldn't be updated.",
+          description: "Some of the packing list entries couldn't be updated.",
           status: "error",
           duration: 2000,
           isClosable: true,
@@ -320,7 +320,7 @@ const DistroEventDetailsForPlanningStateContainer = ({
           isClosable: true,
           duration: 2000,
         });
-        }
+      }
     });
   };
 
@@ -330,11 +330,34 @@ const DistroEventDetailsForPlanningStateContainer = ({
         variables: {
           packingListEntryId: packlistEntryId,
         },
-      }).then((res) => {
-        if (res.errors && res.errors.length !== 0) {
+      })
+        .then((res) => {
+          if (res.errors && res.errors.length !== 0) {
+            console.error(
+              `GraphQL error while trying to remove packing list entry from Distribution Event (id: ${distributionEventDetails.id})`,
+              res.errors
+            );
+            toast({
+              title: "Error",
+              description:
+                "Packing list entry couldn't be removed from the distribution event.",
+              status: "error",
+              duration: 2000,
+              isClosable: true,
+            });
+          } else {
+            toast({
+              title: "Successfully removed entry",
+              status: "success",
+              isClosable: true,
+              duration: 2000,
+            });
+          }
+        })
+        .catch((error) => {
           console.error(
-            `GraphQL error while trying to remove packing list entry from Distribution Event (id: ${distributionEventDetails.id})`,
-            res.errors
+            `Error while trying to remove packing list entry from Distribution Event (id: ${distributionEventDetails.id})`,
+            error
           );
           toast({
             title: "Error",
@@ -344,27 +367,56 @@ const DistroEventDetailsForPlanningStateContainer = ({
             duration: 2000,
             isClosable: true,
           });
-        } else {
-          toast({
-            title: "Successfully removed entry",
-            status: "success",
-            isClosable: true,
-            duration: 2000,
-          });
-        }
-      });
+        });
     },
     [distributionEventDetails.id, removeEntryFromPackingListMutation, toast]
   );
 
   const onRemoveAllPackingListEntriesForProduct = (productId: string) => {
-    removeAllPackingListEntriesFromDistributionEventForProductMutation({variables: {
-      distributionEventId: distributionEventDetails.id,
-      productId
-    }})
-    .then()
-    .catch();
-  }
+    removeAllPackingListEntriesFromDistributionEventForProductMutation({
+      variables: {
+        distributionEventId: distributionEventDetails.id,
+        productId,
+      },
+    })
+      .then((res) => {
+        if (res.errors && res.errors.length !== 0) {
+          console.error(
+            `Error while trying to remove all packing list entries from Distribution Event (id: ${distributionEventDetails.id}) for product id ${productId}`,
+            res.errors
+          );
+          toast({
+            title: "Error",
+            description:
+              "Packing list entries couldn't be removed from the distribution event.",
+            status: "error",
+            duration: 2000,
+            isClosable: true,
+          });
+        } else {
+          toast({
+            title: "Successfully removed entries. ",
+            status: "success",
+            isClosable: true,
+            duration: 2000,
+          });
+        }
+      })
+      .catch((error) => {
+        console.error(
+          `Error while trying to remove all packing list entries from Distribution Event (id: ${distributionEventDetails.id}) for product id ${productId}`,
+          error
+        );
+        toast({
+          title: "Error",
+          description:
+            "Packing list entries couldn't be removed from the distribution event.",
+          status: "error",
+          duration: 2000,
+          isClosable: true,
+        });
+      });
+  };
 
   if (loading) {
     return <APILoadingIndicator />;
@@ -381,12 +433,10 @@ const DistroEventDetailsForPlanningStateContainer = ({
     return <div>Error: No data found</div>;
   }
 
-
-
   const contextValues: IDistroEventDetailsForPlanningStateContext = {
     distributionEvent: distributionEventDetails,
-    onRemoveAllPackingListEntriesForProduct
-  }
+    onRemoveAllPackingListEntriesForProduct,
+  };
 
   return (
     <DistroEventDetailsForPlanningStateContext.Provider value={contextValues}>
@@ -395,9 +445,7 @@ const DistroEventDetailsForPlanningStateContainer = ({
         onAddItemsClick={addItemsToDistroEventsOverlayState.onOpen}
         onCopyPackingListFromPreviousEventsClick={() => {}}
         onRemoveItemFromPackingListClick={onRemoveItemFromPackingList}
-        onUpdatePackingListEntry={
-          onUpdatePackingListEntry
-        }
+        onUpdatePackingListEntry={onUpdatePackingListEntry}
       />
 
       {/* TODO: Consider to extract this into a seperate component */}
@@ -421,7 +469,7 @@ const DistroEventDetailsForPlanningStateContainer = ({
           </ModalBody>
         </ModalContent>
       </Modal>
-      </DistroEventDetailsForPlanningStateContext.Provider>
+    </DistroEventDetailsForPlanningStateContext.Provider>
   );
 };
 

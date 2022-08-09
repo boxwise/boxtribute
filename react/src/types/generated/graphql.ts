@@ -415,7 +415,7 @@ export type Mutation = {
   moveItemsFromBoxToDistributionEvent?: Maybe<UnboxedItemsCollection>;
   moveItemsFromDistributionEventToBox?: Maybe<DistributionEvent>;
   rejectTransferAgreement?: Maybe<TransferAgreement>;
-  removeAllPackingListEntriesFromDistributionEventForProduct?: Maybe<DistributionEvent>;
+  removeAllPackingListEntriesFromDistributionEventForProduct?: Maybe<Scalars['Boolean']>;
   removePackingListEntryFromDistributionEvent?: Maybe<DistributionEvent>;
   sendShipment?: Maybe<Shipment>;
   unassignTag?: Maybe<TaggableResource>;
@@ -1372,7 +1372,7 @@ export type RemoveAllPackingListEntriesFromDistributionEventForProductMutationVa
 }>;
 
 
-export type RemoveAllPackingListEntriesFromDistributionEventForProductMutation = { __typename?: 'Mutation', removeAllPackingListEntriesFromDistributionEventForProduct?: { __typename?: 'DistributionEvent', id: string } | null };
+export type RemoveAllPackingListEntriesFromDistributionEventForProductMutation = { __typename?: 'Mutation', removeAllPackingListEntriesFromDistributionEventForProduct?: boolean | null };
 
 export type UpdatePackingListEntryMutationVariables = Exact<{
   packingListEntryId: Scalars['ID'];
