@@ -420,6 +420,7 @@ export type Mutation = {
   unassignTag?: Maybe<TaggableResource>;
   updateBeneficiary?: Maybe<Beneficiary>;
   updateBox?: Maybe<Box>;
+  updatePackingListEntry?: Maybe<PackingListEntry>;
   updateShipment?: Maybe<Shipment>;
   updateTag?: Maybe<Tag>;
 };
@@ -688,6 +689,17 @@ export type MutationUpdateBeneficiaryArgs = {
  */
 export type MutationUpdateBoxArgs = {
   updateInput?: InputMaybe<BoxUpdateInput>;
+};
+
+
+/**
+ * Naming convention:
+ * - input argument: creationInput/updateInput
+ * - input type: <Resource>CreationInput/UpdateInput
+ */
+export type MutationUpdatePackingListEntryArgs = {
+  numberOfItems?: InputMaybe<Scalars['Int']>;
+  packingListEntryId: Scalars['ID'];
 };
 
 
@@ -1341,6 +1353,14 @@ export type RemoveEntryFromPackingListMutationVariables = Exact<{
 
 
 export type RemoveEntryFromPackingListMutation = { __typename?: 'Mutation', removePackingListEntryFromDistributionEvent?: { __typename?: 'DistributionEvent', id: string } | null };
+
+export type UpdatePackingListEntryMutationVariables = Exact<{
+  packingListEntryId: Scalars['ID'];
+  numberOfItems: Scalars['Int'];
+}>;
+
+
+export type UpdatePackingListEntryMutation = { __typename?: 'Mutation', updatePackingListEntry?: { __typename?: 'PackingListEntry', id: string, numberOfItems: number, product?: { __typename?: 'Product', id: string, name: string, gender?: ProductGender | null } | null, size?: { __typename?: 'Size', id: string, label: string } | null } | null };
 
 export type AddToPackingListMutationVariables = Exact<{
   distributionEventId: Scalars['ID'];

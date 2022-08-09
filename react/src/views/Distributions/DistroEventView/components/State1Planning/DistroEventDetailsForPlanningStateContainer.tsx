@@ -43,6 +43,32 @@ export const REMOVE_ENTRY_FROM_PACKING_LIST = gql`
   }
 `;
 
+
+
+export const UPDATE_PACKING_LIST_ENTRY_MUTATION = gql`
+  mutation updatePackingListEntry(
+    $packingListEntryId: ID!
+    $numberOfItems: Int!
+  ) {
+    updatePackingListEntry(
+        packingListEntryId: $packingListEntryId
+        numberOfItems: $numberOfItems
+    ) {
+      id
+      numberOfItems
+      product {
+        id
+        name
+        gender
+      }
+      size {
+        id
+        label
+      }
+    }
+  }
+`;
+
 export const ADD_ENTRY_TO_PACKING_LIST_MUTATION = gql`
   mutation addToPackingList(
     $distributionEventId: ID!
@@ -86,6 +112,17 @@ const DistroEventDetailsForPlanningStateContainer = ({
   });
 
   const toast = useToast();
+
+  const [updatePackingListEntryMutation] = useMutation(UPDATE_PACKING_LIST_ENTRY_MUTATION, {
+  refetchQueries: [
+    {
+      query: PACKING_LIST_ENTRIES_FOR_DISTRIBUTION_EVENT_QUERY,
+      variables: {
+        distributionEventId: distributionEventDetails.id,
+      },
+    },
+  ],
+});
 
   // TODO: add proper error handling for the mutation
   // TODO: ensure to trigger the fetch of the packing list entries again when
@@ -211,6 +248,41 @@ const DistroEventDetailsForPlanningStateContainer = ({
     ]
   );
 
+  const onChangeNumberOfItemsForPackingListEntryClick = (
+    packingListEntryId: string,
+    numberOfItems: number
+  ) => {
+    updatePackingListEntryMutation({
+      variables: {
+        packingListEntryId: packingListEntryId,
+        numberOfItems,
+      },
+    }).then((results) => {
+      // if (results.some((r) => r.errors && r.errors.length !== 0)) {
+      //   console.error(
+      //     `GraphQL error while trying to add Packing List Entries to Distribution Event (id: ${distributionEventDetails.id})`
+      //     // TODO: consider to track the respective error details
+      //     // res.errors
+      //   );
+      //   toast({
+      //     title: "Error",
+      //     description:
+      //       "Some or all of the packing list items couldn't be added/updated.",
+      //     status: "error",
+      //     duration: 2000,
+      //     isClosable: true,
+      //   });
+      // } else {
+      //   toast({
+      //     title: `Successfully added ${numberOfAddedEntries} entries`,
+      //     status: "success",
+      //     isClosable: true,
+      //     duration: 2000,
+      //   });
+      //   }
+    });
+  };
+
   const onRemoveItemFromPackingList = useCallback(
     (packlistEntryId: string) => {
       removeEntryFromPackingListMutation({
@@ -266,7 +338,9 @@ const DistroEventDetailsForPlanningStateContainer = ({
         onAddItemsClick={addItemsToDistroEventsOverlayState.onOpen}
         onCopyPackingListFromPreviousEventsClick={() => {}}
         onRemoveItemFromPackingListClick={onRemoveItemFromPackingList}
-        onEditItemOnPackingListClick={() => {}}
+        onChangeNumberOfItemsForPackingListEntryClick={
+          onChangeNumberOfItemsForPackingListEntryClick
+        }
       />
 
       {/* TODO: Consider to extract this into a seperate component */}

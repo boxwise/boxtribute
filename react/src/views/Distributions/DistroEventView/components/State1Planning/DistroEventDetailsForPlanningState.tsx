@@ -36,6 +36,7 @@ interface IPackingListEntrieGroupForProduct {
 }
 
 const PackingListEntryTableRow = ({entry}: {entry: IPackingListEntry}) => {
+  // const update
   const onChangeHandlerForEntry = (newVal: string) => {
     const newAmount = parseInt(newVal, 10);
     if (entry.numberOfItems === newAmount) {
@@ -47,10 +48,12 @@ const PackingListEntryTableRow = ({entry}: {entry: IPackingListEntry}) => {
 
   return (
     <Tr key={entry.id}>
+      {/* <Button onClick={() => {entry.numberOfItems = 123}}>Reset</Button> */}
       <Td>{entry.size?.label}</Td>
       <Td>
         <Editable
-          value={entry.numberOfItems.toString()}
+          defaultValue={entry.numberOfItems.toString()}
+          // value={entry.numberOfItems.toString()}
           onSubmit={onChangeHandlerForEntry}
         >
           <EditablePreview width={20} />
@@ -123,7 +126,7 @@ interface DistroEventDetailsForPlanningStateProps {
   packingListEntries: IPackingListEntry[];
   onAddItemsClick: () => void;
   onCopyPackingListFromPreviousEventsClick: () => void;
-  onEditItemOnPackingListClick: (packlistItemId: string) => void;
+  onChangeNumberOfItemsForPackingListEntryClick: (packlistItemId: string, numberOfItems: number) => void;
   onRemoveItemFromPackingListClick: (packlistItemId: string) => void;
 }
 
@@ -132,7 +135,7 @@ const DistroEventDetailsForPlanningState = ({
   onAddItemsClick,
   onCopyPackingListFromPreviousEventsClick,
   onRemoveItemFromPackingListClick,
-  onEditItemOnPackingListClick,
+  onChangeNumberOfItemsForPackingListEntryClick: onEditItemOnPackingListClick,
 }: DistroEventDetailsForPlanningStateProps) => {
   // const packingListEntriesGroupedByProduct = _.groupBy(packingListEntries, (entry) => ({productId: entry.product.id, productName: entry.product.name}));
   const packingListEntriesGroupedByProductId = _.groupBy(
