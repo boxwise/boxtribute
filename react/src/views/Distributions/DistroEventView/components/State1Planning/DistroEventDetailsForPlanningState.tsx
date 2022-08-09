@@ -1,7 +1,11 @@
 import {
   Box,
   Button,
+  ButtonGroup,
   Center,
+  Editable,
+  EditableInput,
+  EditablePreview,
   Flex,
   Heading,
   IconButton,
@@ -16,15 +20,18 @@ import {
   Th,
   Thead,
   Tr,
+  useEditableControls,
   VStack,
 } from "@chakra-ui/react";
-import { CloseIcon, EditIcon } from "@chakra-ui/icons";
+import { CheckIcon, CloseIcon, EditIcon } from "@chakra-ui/icons";
 import { IPackingListEntry } from "views/Distributions/types";
 import _ from "lodash";
 
 interface IPackingListEntrieGroupForProduct {
   productId: string;
   productName: string;
+  gender?: string;
+  // category: string;
   packingListEntries: IPackingListEntry[];
 }
 
@@ -33,11 +40,38 @@ const PackingListEntrieGroupForProduct = ({
 }: {
   data: IPackingListEntrieGroupForProduct;
 }) => {
-  const { productName, packingListEntries } = data;
+  const { productName, gender, packingListEntries } = data;
+
+  // const EditableControls = () => {
+  //   const {
+  //     isEditing,
+  //     getSubmitButtonProps,
+  //     getCancelButtonProps,
+  //     getEditButtonProps,
+  //   } = useEditableControls()
+
+  //   return isEditing ? (
+  //     <ButtonGroup justifyContent='center' size='sm'>
+  //       <IconButton icon={<CheckIcon />} {...getSubmitButtonProps()} />
+  //       <IconButton icon={<CloseIcon />} {...getCancelButtonProps()} />
+  //     </ButtonGroup>
+  //   ) : (
+  //     <Flex justifyContent='center'>
+  //       <IconButton size='sm' icon={<EditIcon />} {...getEditButtonProps()} />
+  //     </Flex>
+  //   )
+  // }
+
   return (
     <Box pb={30}>
-      <Heading as="h3" size="sm" backgroundColor={"gray.50"} textAlign="center" py={3}>
-        {productName}
+      <Heading
+        as="h3"
+        size="sm"
+        backgroundColor={"gray.50"}
+        textAlign="center"
+        py={3}
+      >
+        {productName} ({gender})
       </Heading>
 
       <TableContainer>
@@ -52,7 +86,12 @@ const PackingListEntrieGroupForProduct = ({
             {packingListEntries.map((entry) => (
               <Tr key={entry.id}>
                 <Td>{entry.size?.label}</Td>
-                <Td>{entry.numberOfItems}</Td>
+                <Td>
+                  <Editable value={entry.numberOfItems.toString()}>
+                    <EditablePreview width={20} />
+                    <EditableInput width={20} />
+                  </Editable>
+                </Td>
               </Tr>
             ))}
           </Tbody>
@@ -82,13 +121,17 @@ const DistroEventDetailsForPlanningState = ({
     packingListEntries,
     (entry) => entry.product.id
   );
-  const packingListEntriesGroupedByProductIdAndName = Object.keys(
+  const packingListEntriesGroupedByProductIdAndName: IPackingListEntrieGroupForProduct[] = Object.keys(
     packingListEntriesGroupedByProductId
-  ).map((k) => ({
+  ).map((k) => {
+    const product = packingListEntriesGroupedByProductId[k]?.[0]?.product;
+    return {
     productId: k,
-    productName: packingListEntriesGroupedByProductId[k]?.[0]?.product?.name,
+    productName: product?.name,
+    gender: product.gender,
+    // category: product.
     packingListEntries: packingListEntriesGroupedByProductId[k],
-  }));
+  }});
 
   return (
     <>
