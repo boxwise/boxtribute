@@ -249,7 +249,7 @@ const DistroEventDetailsForPlanningState = ({
           Copy Packing List from Previous Event
         </Button>
         <Button my={2} onClick={() => onAddItemsClick()} colorScheme="blue">
-          Select Products on List Entry
+          Select Products for Packing List
         </Button>
       </Flex>
       <Heading size={"md"}>Packing List</Heading>
