@@ -92,6 +92,24 @@ def change_distribution_event_state(distribution_event_id, distribution_event_st
     return distribution_event
 
 
+def remove_all_packing_list_entries_from_distribution_event_for_product(
+    user_id, distribution_event_id, product_id
+):
+    """
+    Remove all packing list entries from a distribution event for a product.
+    """
+    with db.database.atomic():
+        packing_list_entries = PackingListEntry.select().where(
+            PackingListEntry.distribution_event == distribution_event_id,
+            PackingListEntry.product == product_id,
+        )
+
+        for packing_list_entry in packing_list_entries:
+            packing_list_entry.delete_instance()
+
+        return packing_list_entries
+
+
 def update_packing_list_entry(user_id, packing_list_entry_id, number_of_items):
     """
     Update a packing list entry.

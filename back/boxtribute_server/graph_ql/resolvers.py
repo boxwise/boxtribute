@@ -39,6 +39,7 @@ from ..mobile_distribution.crud import (
     delete_packing_list_entry,
     move_box_to_distribution_event,
     move_items_from_box_to_distribution_event,
+    remove_all_packing_list_entries_from_distribution_event_for_product,
     update_packing_list_entry,
 )
 from ..models.crud import (
@@ -481,6 +482,17 @@ def resolve_add_packing_list_entry_to_distribution_event(*_, creation_input):
 def resolve_update_packing_list_entry(*_, packing_list_entry_id, number_of_items):
     authorize(permission="packing_list_entry:write")
     return update_packing_list_entry(g.user.id, packing_list_entry_id, number_of_items)
+
+
+@mutation.field("removeAllPackingListEntriesFromDistributionEventForProduct")
+@convert_kwargs_to_snake_case
+def resolve_remove_all_packing_list_entries_from_distribution_event_for_product(
+    *_, distribution_event_id, product_id
+):
+    authorize(permission="packing_list_entry:write")
+    return remove_all_packing_list_entries_from_distribution_event_for_product(
+        g.user.id, distribution_event_id, product_id
+    )
 
 
 @mutation.field("createQrCode")
