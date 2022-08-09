@@ -10,7 +10,7 @@ import {
   useToast,
 } from "@chakra-ui/react";
 import APILoadingIndicator from "components/APILoadingIndicator";
-import { useCallback } from "react";
+import { useCallback, useEffect } from "react";
 import {
   AddToPackingListMutation,
   AddToPackingListMutationVariables,
@@ -18,6 +18,8 @@ import {
   PackingListEntriesForDistributionEventQueryVariables,
   RemoveEntryFromPackingListMutation,
   RemoveEntryFromPackingListMutationVariables,
+  UpdatePackingListEntryMutation,
+  UpdatePackingListEntryMutationVariables,
 } from "types/generated/graphql";
 import { PackingListEntriesForProductToAdd } from "views/Distributions/components/AddItemsToPackingList/AddItemsToPackingList";
 import AddItemsToPackingListContainer from "views/Distributions/components/AddItemsToPackingList/AddItemsToPackingListContainer";
@@ -113,7 +115,7 @@ const DistroEventDetailsForPlanningStateContainer = ({
 
   const toast = useToast();
 
-  const [updatePackingListEntryMutation] = useMutation(UPDATE_PACKING_LIST_ENTRY_MUTATION, {
+  const [updatePackingListEntryMutation] = useMutation<UpdatePackingListEntryMutation, UpdatePackingListEntryMutationVariables>(UPDATE_PACKING_LIST_ENTRY_MUTATION, {
   refetchQueries: [
     {
       query: PACKING_LIST_ENTRIES_FOR_DISTRIBUTION_EVENT_QUERY,
@@ -252,35 +254,35 @@ const DistroEventDetailsForPlanningStateContainer = ({
     packingListEntryId: string,
     numberOfItems: number
   ) => {
-    alert("onUpdatePackingListEntry");
+    // alert("onUpdatePackingListEntry");
     updatePackingListEntryMutation({
       variables: {
         packingListEntryId: packingListEntryId,
         numberOfItems,
       },
-    }).then((results) => {
-      // if (results.some((r) => r.errors && r.errors.length !== 0)) {
-      //   console.error(
-      //     `GraphQL error while trying to add Packing List Entries to Distribution Event (id: ${distributionEventDetails.id})`
-      //     // TODO: consider to track the respective error details
-      //     // res.errors
-      //   );
-      //   toast({
-      //     title: "Error",
-      //     description:
-      //       "Some or all of the packing list items couldn't be added/updated.",
-      //     status: "error",
-      //     duration: 2000,
-      //     isClosable: true,
-      //   });
-      // } else {
-      //   toast({
-      //     title: `Successfully added ${numberOfAddedEntries} entries`,
-      //     status: "success",
-      //     isClosable: true,
-      //     duration: 2000,
-      //   });
-      //   }
+    }).then((result) => {
+      if (result.errors && result.errors.length !== 0) {
+        console.error(
+          `GraphQL error while trying to update Packing List Entry (id: ${packingListEntryId})`
+          // TODO: consider to track the respective error details
+          // res.errors
+        );
+        toast({
+          title: "Error",
+          description:
+            "Some of the packing list entries couldn't be updated.",
+          status: "error",
+          duration: 2000,
+          isClosable: true,
+        });
+      } else {
+        toast({
+          title: `Successfully updated packing list entry`,
+          status: "success",
+          isClosable: true,
+          duration: 2000,
+        });
+        }
     });
   };
 

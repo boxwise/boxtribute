@@ -26,6 +26,7 @@ import {
 import { CheckIcon, CloseIcon, EditIcon } from "@chakra-ui/icons";
 import { IPackingListEntry } from "views/Distributions/types";
 import _ from "lodash";
+import { useEffect, useState } from "react";
 
 interface IPackingListEntrieGroupForProduct {
   productId: string;
@@ -58,18 +59,26 @@ const PackingListEntryTableRow = ({
     }
   };
 
+  const [numberOfItemsFormValue, setNumberOfItemsFormValue] = useState(entry.numberOfItems);
+
+  useEffect(() => {
+    setNumberOfItemsFormValue(entry.numberOfItems);
+  }, [entry]);
+
+
   return (
     <Tr key={entry.id}>
       {/* <Button onClick={() => {entry.numberOfItems = 123}}>Reset</Button> */}
       <Td>{entry.size?.label}</Td>
       <Td>
         <Editable
-          defaultValue={entry.numberOfItems.toString()}
-          // value={entry.numberOfItems.toString()}
+          // defaultValue={entry.numberOfItems.toString()}
+          value={numberOfItemsFormValue.toString()}
+          onChange={newVal => setNumberOfItemsFormValue(parseInt(newVal))}
           onSubmit={onChangeHandlerForEntry}
         >
           <EditablePreview width={20} />
-          <EditableInput width={20} />
+          <EditableInput width={20} type="number" />
         </Editable>
       </Td>
     </Tr>
