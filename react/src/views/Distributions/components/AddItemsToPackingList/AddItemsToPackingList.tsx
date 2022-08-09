@@ -18,6 +18,7 @@ import { useFieldArray, useForm } from "react-hook-form";
 import { useCallback, useEffect } from "react";
 import { groupBy } from "utils/helpers";
 import { ProductGender } from "types/generated/graphql";
+import _ from "lodash";
 
 interface SizeIdAndNameTuple {
   id: string;
@@ -105,6 +106,9 @@ const AddItemsToPackingList = ({
     [onAddEntiresToPackingListForProduct]
   );
 
+  console.log("productData");
+  console.log(productData);
+
   // useEffect(() => {
   //   if (productId != null) {
   //     const product = productAndSizesData.find((p) => p.id === productId);
@@ -138,40 +142,14 @@ const AddItemsToPackingList = ({
     products: ProductData[];
   };
 
-  debugger;
-  const productsGroupedByGender: ProductsForGender[] = productData.reduce(
-    (acc, curr) => {
-      console.log("acc");
-      console.log(acc);
-      console.log("curr");
-      console.log(curr);
-      // const groupForCurrentGender = acc.find(el => el.gender.id === curr.gender.id);
-      debugger;
-      const groupForCurrentGender = acc.find(
-        (el) => el.gender === curr.gender
-      );
-      const otherGroupsThanForCurrentGender = acc.filter(
-        (el) => el.gender !== curr.gender
-      );
-      let newGroupForCurrentGender;
-      if (groupForCurrentGender) {
-        newGroupForCurrentGender = [...groupForCurrentGender.products, curr];
-      } else {
-        newGroupForCurrentGender = {
-          gender: curr.gender,
-          products: [curr],
-        };
-      }
-      // return [...acc];
-      return [...otherGroupsThanForCurrentGender, newGroupForCurrentGender];
-    },
-    [] as ProductsForGender[]
-  );
+  const productsGroupedByGender: ProductsForGender[] = _.chain(productData)
+    .groupBy("gender")
+    .map((value, key) => ({ gender: ProductGender[key], products: value }))
+    .value();
 
+  console.log("productsGroupedByGender", productsGroupedByGender);
   return (
     <Box>
-      {/* productData: {JSON.stringify(productData)} */}
-      {/* productsGroupedByGender: {JSON.stringify(productsGroupedByGender)} */}
       <Text
         fontSize="xl"
         mb={4}
@@ -183,28 +161,25 @@ const AddItemsToPackingList = ({
       </Text>
       <Tabs>
         <TabList>
-          <Tab>One</Tab>
-          <Tab>Two</Tab>
-          <Tab>Three</Tab>
+          {productsGroupedByGender.map((productsGroupForGender) => (
+              <Tab key={productsGroupForGender.gender}>
+                {productsGroupForGender.gender}
+              </Tab>
+          ))}
         </TabList>
 
         <TabPanels>
-          <TabPanel>
-            <VStack spacing={5} direction="row">
-              <Checkbox>Checkbox</Checkbox>
-              <Checkbox defaultChecked>Checkbox</Checkbox>
-            </VStack>
-            <p>one!</p>
-          </TabPanel>
-          <TabPanel>
-            <p>two!</p>
-          </TabPanel>
-          <TabPanel>
-            <p>three!</p>
-          </TabPanel>
+          {productsGroupedByGender.map((productsGroupForGender) => (
+            <TabPanel key={productsGroupForGender.gender}>
+              <VStack spacing={5} direction="row">
+                <Checkbox>Checkbox</Checkbox>
+                <Checkbox defaultChecked>Checkbox</Checkbox>
+              </VStack>
+              <p>one!</p>
+            </TabPanel>
+          ))}
         </TabPanels>
       </Tabs>
-
       {/* <form onSubmit={handleSubmit(onAddItemClick)}>
         <Flex direction="column">
             <FormControl id="productId">
