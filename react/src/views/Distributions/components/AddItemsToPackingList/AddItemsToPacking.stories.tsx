@@ -1,19 +1,8 @@
 import React from "react";
 import { ComponentStory, ComponentMeta } from "@storybook/react";
-import { ProductData } from "./AddItemsToPackingList";
+import { ProductData, ProductDataWithPackingListEntryFlags } from "./AddItemsToPackingList";
 import AddItemsToPackingList from "./AddItemsToPackingList";
 import { ProductGender } from "types/generated/graphql";
-
-
-// const maleGender = {
-//   id: "1",
-//   name: "Male"
-// };
-
-// const femaleGender = {
-//   id: "2",
-//   name: "Female"
-// };
 
 const clothingCategory = {
   id: "1",

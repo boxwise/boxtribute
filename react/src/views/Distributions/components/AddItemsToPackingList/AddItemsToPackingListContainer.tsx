@@ -1,6 +1,7 @@
 import AddItemsToPackingList, {
   PackingListEntriesForProductToAdd,
   ProductData,
+  ProductDataWithPackingListEntryFlags,
 } from "./AddItemsToPackingList";
 import { AllProductsForPackingListQuery, AllProductsForPackingListQueryVariables, ProductGender } from "types/generated/graphql";
 import { gql, useQuery } from "@apollo/client";
@@ -106,6 +107,7 @@ const AddItemsToPackingListContainer = ({
     <AddItemsToPackingList
       onAddEntiresToPackingListForProduct={onAddEntiresToPackingListForProduct}
       productData={productAndSizesData}
+      packingListEntries={currentPackingListEntries}
     />
   );
 };

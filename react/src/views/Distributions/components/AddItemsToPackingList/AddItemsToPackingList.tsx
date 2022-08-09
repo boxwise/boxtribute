@@ -25,12 +25,13 @@ import { useCallback, useEffect } from "react";
 import { groupBy } from "utils/helpers";
 import { ProductGender } from "types/generated/graphql";
 import _ from "lodash";
+import { IPackingListEntry } from "views/Distributions/types";
 
-interface SizeIdAndNameTuple {
-  id: string;
-  name: string;
-  numberOfItems?: number;
-}
+// interface SizeIdAndNameTuple {
+//   id: string;
+//   name: string;
+//   numberOfItems?: number;
+// }
 
 // export type ProductAndSizesData = {
 //   id: string;
@@ -38,7 +39,7 @@ interface SizeIdAndNameTuple {
 //   sizes: SizeIdAndNameTuple[];
 // };
 
-export type ProductData = {
+export interface ProductData {
   id: string;
   name: string;
   category: {
@@ -47,6 +48,11 @@ export type ProductData = {
   };
   gender: ProductGender;
 };
+
+export interface ProductDataWithPackingListEntryFlags extends ProductData{
+  hasPackingListEntries: boolean;
+};
+
 
 export interface PackingListEntriesForProductToAdd {
   productId: number;
@@ -61,56 +67,61 @@ interface AddItemToPackingProps {
     entriesToAdd: PackingListEntriesForProductToAdd
   ) => void;
   productData: ProductData[];
+  packingListEntries: IPackingListEntry[];
 }
 
-interface SizeAndNumberOfItemsFormTuple {
-  size: SizeIdAndNameTuple;
-  numberOfItems: number;
-}
+// interface SizeAndNumberOfItemsFormTuple {
+//   size: SizeIdAndNameTuple;
+//   numberOfItems: number;
+// }
 
-interface ItemToAddFormValues {
-  productId: string;
-  sizeAndNumberOfItemsTuples: SizeAndNumberOfItemsFormTuple[];
-}
+// interface ItemToAddFormValues {
+//   productId: string;
+//   sizeAndNumberOfItemsTuples: SizeAndNumberOfItemsFormTuple[];
+// }
 
 const AddItemsToPackingList = ({
   onAddEntiresToPackingListForProduct,
   productData,
+  packingListEntries
 }: AddItemToPackingProps) => {
-  const { register, handleSubmit, control, watch } =
-    useForm<ItemToAddFormValues>({
-      defaultValues: {
-        productId: "",
-        sizeAndNumberOfItemsTuples: [],
-        // productAndSizesData.map(
-        //   (productAndSizesData) => ({
-        //     size: productAndSizesData.sizes[0],
-        //     numberOfItems: 0,
-        //   })
-        // ),
-      },
-    });
-  const { fields, replace } = useFieldArray({
-    control,
-    name: "sizeAndNumberOfItemsTuples",
-  });
-  const productId = watch("productId");
-  const onAddItemClick = useCallback(
-    (itemToAddFormValues: ItemToAddFormValues) => {
-      const newEntriesForPackingList: PackingListEntriesForProductToAdd = {
-        productId: parseInt(itemToAddFormValues.productId),
-        sizeIdAndNumberOfItemTuples:
-          itemToAddFormValues.sizeAndNumberOfItemsTuples
-            .map((tuple) => ({
-              sizeId: tuple.size.id,
-              numberOfItems: tuple.numberOfItems,
-            }))
-            .filter((tuple) => tuple.numberOfItems > 0),
-      };
-      onAddEntiresToPackingListForProduct(newEntriesForPackingList);
-    },
-    [onAddEntiresToPackingListForProduct]
-  );
+
+  // const productIdsWithPackingListEntries = _.uniq(packingListEntries.map(entry => entry.product.id));
+
+  // const { register, handleSubmit, control, watch } =
+  //   useForm<ItemToAddFormValues>({
+  //     defaultValues: {
+  //       productId: "",
+  //       sizeAndNumberOfItemsTuples: [],
+  //       // productAndSizesData.map(
+  //       //   (productAndSizesData) => ({
+  //       //     size: productAndSizesData.sizes[0],
+  //       //     numberOfItems: 0,
+  //       //   })
+  //       // ),
+  //     },
+  //   });
+  // const { fields, replace } = useFieldArray({
+  //   control,
+  //   name: "sizeAndNumberOfItemsTuples",
+  // });
+  // const productId = watch("productId");
+  // const onAddItemClick = useCallback(
+  //   (itemToAddFormValues: ItemToAddFormValues) => {
+  //     const newEntriesForPackingList: PackingListEntriesForProductToAdd = {
+  //       productId: parseInt(itemToAddFormValues.productId),
+  //       sizeIdAndNumberOfItemTuples:
+  //         itemToAddFormValues.sizeAndNumberOfItemsTuples
+  //           .map((tuple) => ({
+  //             sizeId: tuple.size.id,
+  //             numberOfItems: tuple.numberOfItems,
+  //           }))
+  //           .filter((tuple) => tuple.numberOfItems > 0),
+  //     };
+  //     onAddEntiresToPackingListForProduct(newEntriesForPackingList);
+  //   },
+  //   [onAddEntiresToPackingListForProduct]
+  // );
 
   console.log("productData");
   console.log(productData);
@@ -145,7 +156,7 @@ const AddItemsToPackingList = ({
 
   type ProductsForGender = {
     gender: ProductGender;
-    products: ProductData[];
+    products: ProductDataWithPackingListEntryFlags[];
   };
 
   type ProductsForCategory = {
@@ -153,7 +164,7 @@ const AddItemsToPackingList = ({
       id: string;
       name: string;
     };
-    products: ProductData[];
+    products: ProductDataWithPackingListEntryFlags[];
   };
 
   type ProductsGroupedByCategoryForGender = {
@@ -161,7 +172,12 @@ const AddItemsToPackingList = ({
     productsForCategory: ProductsForCategory[];
   };
 
-  const productsGroupedByGender: ProductsForGender[] = _.chain(productData)
+  const productDataWithPackingListEntriesSignals = productData.map(productDataPoint => ({
+    ...productDataPoint,
+    hasPackingListEntries: packingListEntries.some(entry => entry.product.id === productDataPoint.id)
+  }));
+
+  const productsGroupedByGender: ProductsForGender[] = _.chain(productDataWithPackingListEntriesSignals)
     .groupBy("gender")
     .map((value, key) => ({ gender: ProductGender[key], products: value }))
     .value();
@@ -218,7 +234,7 @@ const AddItemsToPackingList = ({
 
         <TabPanels>
           {productsGroupedByGenderAndCategory.map((productsGroupForGender) => (
-            <TabPanel key={productsGroupForGender.gender}>
+            <TabPanel key={productsGroupForGender.gender || "No Gender"}>
               <VStack spacing={8}>
                 {productsGroupForGender.productsForCategory.map(
                   (productsGroupForCategory) => (
@@ -233,7 +249,7 @@ const AddItemsToPackingList = ({
                       </Heading>
                       <VStack>
                         {productsGroupForCategory.products.map((product) => (
-                          <Checkbox key={product.id} value={product.id}>
+                          <Checkbox key={product.id} value={product.id} defaultChecked={product.hasPackingListEntries}>
                             {product.name}
                           </Checkbox>
                         ))}
