@@ -268,7 +268,7 @@ jobs:
           only_for_branches: master,production
 
 workflows:
-  build-and-deploy:
+  test:
     jobs:
       - checkout-to-workspace
       - build-flask:
@@ -279,8 +279,30 @@ workflows:
           context: STAGING
           requires:
             - build-flask
+      - build-and-test-react:
+          context: STAGING
+          requires:
+            - checkout-to-workspace
+
+  build-and-deploy:
+    jobs:
+      - checkout-to-workspace
 
       # staging
+      - build-flask:
+          context: STAGING
+          requires:
+            - checkout-to-workspace
+          filters:
+            branches:
+              only: master,production
+      - test-flask:
+          context: STAGING
+          requires:
+            - build-flask
+          filters:
+            branches:
+              only: master,production
       - build-and-test-react:
           name: build-and-test-react-staging
           context: STAGING
@@ -288,7 +310,7 @@ workflows:
             - checkout-to-workspace
           filters:
             branches:
-              only: master
+              only: master,production
       - deploy:
           name: deploy-staging
           context: STAGING
