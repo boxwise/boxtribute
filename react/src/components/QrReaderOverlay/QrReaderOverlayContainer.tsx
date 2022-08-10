@@ -8,7 +8,10 @@ import QrReaderOverlay, {
   IQrValueWrapper,
   QrResolvedValue,
 } from "./QrReaderOverlay";
-const extractQrCodeFromUrl = (url): string | undefined => {
+
+
+// TODO: move this out into a shared file or part of custom hook
+export const extractQrCodeFromUrl = (url): string | undefined => {
   // TODO: improve the accuracy of this regex
   // TODO: consider to also handle different boxtribute environment urls
   const rx = /.*barcode=(.*)/g;
@@ -16,7 +19,7 @@ const extractQrCodeFromUrl = (url): string | undefined => {
   return arr?.[1];
 };
 
-const GET_BOX_LABEL_IDENTIFIER_BY_QR_CODE = gql`
+export const GET_BOX_LABEL_IDENTIFIER_BY_QR_CODE = gql`
   query GetBoxLabelIdentifierForQrCode($qrCode: String!) {
     qrCode(qrCode: $qrCode) {
       box {

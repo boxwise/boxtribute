@@ -8,7 +8,7 @@ import { Result } from "@zxing/library";
 export type QrReaderProps = {
   facingMode?: string;
   zoom?: number;
-  onResult?: OnResultFunction;
+  onResult: OnResultFunction;
   ViewFinder?: (props: any) => React.ReactElement<any, any> | null;
   scanPeriod?: number;
 };

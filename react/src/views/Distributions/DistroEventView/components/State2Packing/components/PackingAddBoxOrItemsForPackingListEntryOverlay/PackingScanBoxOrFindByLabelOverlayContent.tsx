@@ -1,4 +1,4 @@
-import { useApolloClient, useLazyQuery } from "@apollo/client";
+import { gql, useApolloClient, useLazyQuery } from "@apollo/client";
 import {
   Button,
   Modal,
@@ -19,9 +19,15 @@ import { BoxData, IPackingListEntry } from "views/Distributions/types";
 import {
   BoxDetailsQuery,
   BoxDetailsQueryVariables,
+  GetBoxLabelIdentifierForQrCodeQuery,
+  GetBoxLabelIdentifierForQrCodeQueryVariables,
 } from "types/generated/graphql";
 import { useToggle } from "utils/hooks";
 import { QrReader } from "components/QrReader/QrReader";
+import {
+  extractQrCodeFromUrl,
+  GET_BOX_LABEL_IDENTIFIER_BY_QR_CODE,
+} from "components/QrReaderOverlay/QrReaderOverlayContainer";
 
 interface PackingScanBoxOrFindByLabelOverlayProps {
   packingListEntry: IPackingListEntry;
@@ -93,34 +99,86 @@ const PackingScanBoxOrFindByLabelOverlay = ({
   const validateBoxByLabelMatchingPackingListEntry =
     useValidateBoxByLabelMatchingPackingListEntry(packingListEntry);
 
-  const onFindAndValidateBoxLabelIdentifier = useCallback((boxLabelIdentifier: string) => {
-    validateBoxByLabelMatchingPackingListEntry(
-      boxLabelIdentifier
-    ).then(({ isValid, boxData }) => {
-      if (isValid && boxData != null) {
-        setShowFindBoxByLabelForm(false);
-        onFoundMatchingBox(boxData);
-      } else {
-        toast({
-          title: "Box not found or doesn't match the needed product and size",
-          status: "error",
-          isClosable: true,
-          duration: 2000,
-        });
+  const onFindAndValidateBoxLabelIdentifier = useCallback(
+    (boxLabelIdentifier: string) => {
+      validateBoxByLabelMatchingPackingListEntry(boxLabelIdentifier).then(
+        ({ isValid, boxData }) => {
+          if (isValid && boxData != null) {
+            setShowFindBoxByLabelForm(false);
+            onFoundMatchingBox(boxData);
+          } else {
+            toast({
+              title:
+                "Box not found or doesn't match the needed product and size",
+              status: "error",
+              isClosable: true,
+              duration: 2000,
+            });
+          }
+        }
+      );
+    },
+    [onFoundMatchingBox, toast, validateBoxByLabelMatchingPackingListEntry]
+  );
+
+  // TODO: extract duplicated code from here and QrReaderOverlayContainer into a common component/custom hook
+
+  const apolloClient = useApolloClient();
+
+  const onQrResult = useCallback(
+    (result: string) => {
+      if (!!result) {
+        const qrCode = extractQrCodeFromUrl(result);
+        if (qrCode == null) {
+          console.error("Not a Boxtribute QR Code");
+          alert("This is not a Boxtribute QR Code");
+          // onScanningDone([{ kind: "noBoxtributeQr" }]);
+        } else {
+          apolloClient
+            .query<
+              GetBoxLabelIdentifierForQrCodeQuery,
+              GetBoxLabelIdentifierForQrCodeQueryVariables
+            >({
+              query: GET_BOX_LABEL_IDENTIFIER_BY_QR_CODE,
+              fetchPolicy: "no-cache",
+              variables: { qrCode },
+            })
+            .then(({ data }) => {
+              const boxLabelIdentifier = data?.qrCode?.box?.labelIdentifier;
+              if (boxLabelIdentifier == null) {
+                // onScanningDone([
+                //   { kind: "notAssignedToBox", qrCodeValue: qrCode },
+                // ]);
+                console.error("No Box yet assigned to QR Code");
+                alert("This QR code is not assigned to any box");
+              } else {
+                onFindAndValidateBoxLabelIdentifier(boxLabelIdentifier);
+                // onScanningDone([
+                //   { kind: "success", value: boxLabelIdentifier },
+                // ]);
+              }
+            });
+        }
       }
-    });
-  }, [onFoundMatchingBox, toast, validateBoxByLabelMatchingPackingListEntry]);
+    },
+    [apolloClient]
+  );
 
   return (
     <ModalContent top="0">
       <ModalHeader pb={0}>Scan the box</ModalHeader>
       <ModalCloseButton />
       <ModalBody>
-      <QrReader
-              facingMode={"environment"}
-              zoom={1}
-              scanPeriod={1000}
-            />
+        <QrReader
+          facingMode={"environment"}
+          zoom={1}
+          scanPeriod={1000}
+          onResult={(result) =>
+            result?.["text"] != null
+              ? onQrResult(result["text"])
+              : alert("Error reading QR Code")
+          }
+        />
       </ModalBody>
       <Button
         onClick={() => setShowFindBoxByLabelForm(true)}
@@ -143,7 +201,14 @@ const PackingScanBoxOrFindByLabelOverlay = ({
               setManualBoxLabelValue(parseInt(e.target.value));
             }}
           />
-          <Button onClick={() => {onFindAndValidateBoxLabelIdentifier(manualBoxLabelValue.toString());}} colorScheme="blue">
+          <Button
+            onClick={() => {
+              onFindAndValidateBoxLabelIdentifier(
+                manualBoxLabelValue.toString()
+              );
+            }}
+            colorScheme="blue"
+          >
             Search
           </Button>
         </Flex>
