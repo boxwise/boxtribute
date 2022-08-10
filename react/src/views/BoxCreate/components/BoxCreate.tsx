@@ -1,28 +1,24 @@
 import {
-  Box,
-  List,
-  ListItem,
-  Button,
+  Box, Button,
   FormControl,
   FormErrorMessage,
   FormLabel,
-  Heading,
-  Input,
-  NumberDecrementStepper,
+  Heading, List,
+  ListItem, NumberDecrementStepper,
   NumberIncrementStepper,
   NumberInput,
   NumberInputField,
-  NumberInputStepper,
+  NumberInputStepper
 } from "@chakra-ui/react";
 import { Select } from "chakra-react-select";
 
-import { ProductGender } from "types/generated/graphql";
-import { Controller, useForm } from "react-hook-form";
-import { groupBy } from "utils/helpers";
 import { useEffect, useState } from "react";
+import { Controller, useForm } from "react-hook-form";
+import { ProductGender } from "types/generated/graphql";
+import { groupBy } from "utils/helpers";
 
-import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { z } from "zod";
 
 export interface CategoryData {
   name: string;

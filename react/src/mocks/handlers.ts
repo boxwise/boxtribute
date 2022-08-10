@@ -1,8 +1,3 @@
-import { graphql } from "msw";
-import {
-  DistroSpotsForBaseIdQuery,
-  DistroSpotsForBaseIdQueryVariables,
-} from "types/generated/graphql";
 
 export const handlers = [
   // graphql.query<DistroSpotsForBaseIdQuery, DistroSpotsForBaseIdQueryVariables>(

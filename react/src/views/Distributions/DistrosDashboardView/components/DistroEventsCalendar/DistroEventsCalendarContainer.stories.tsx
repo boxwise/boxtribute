@@ -1,9 +1,7 @@
-import React from "react";
-import { ComponentStory, ComponentMeta } from "@storybook/react";
-import { action } from "@storybook/addon-actions";
-import DistroEventsCalendarContainer from "./DistroEventsCalendarContainer";
-import { DistributionEventState } from "types/generated/graphql";
+import { ComponentMeta, ComponentStory } from "@storybook/react";
 import { addDays, addHours } from "date-fns";
+import { DistributionEventState } from "types/generated/graphql";
+import DistroEventsCalendarContainer from "./DistroEventsCalendarContainer";
 
 export default {
   title: "Mobile Distro Events/Distro Events/Calendar/Component",

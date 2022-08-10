@@ -1,37 +1,27 @@
 import { useMutation } from "@apollo/client";
 import {
-  Box,
-  VStack,
-  Text,
-  Button,
-  useDisclosure,
   AlertDialog,
   AlertDialogBody,
   AlertDialogContent,
   AlertDialogFooter,
   AlertDialogHeader,
-  AlertDialogOverlay,
-  Breadcrumb,
-  BreadcrumbItem,
-  BreadcrumbLink,
+  AlertDialogOverlay, Box, Button, Text, useDisclosure, VStack
 } from "@chakra-ui/react";
 import BTBreadcrumbNavigation from "components/BTBreadcrumbNavigation";
-import React, { useCallback, useMemo } from "react";
+import React, { useCallback } from "react";
 import {
   ChangeDistributionEventStateMutation,
-  ChangeDistributionEventStateMutationVariables,
+  ChangeDistributionEventStateMutationVariables
 } from "types/generated/graphql";
-import { distroEventStateHumanReadableLabels } from "views/Distributions/baseData";
 import DistributionStateProgressBar from "views/Distributions/components/DistributionStateProgressBar";
-import { getNextState } from "views/Distributions/helpers";
 import {
   CHANGE_DISTRIBUTION_EVENT_STATE_MUTATION,
-  DISTRIBUTION_EVENT_QUERY,
+  DISTRIBUTION_EVENT_QUERY
 } from "views/Distributions/queries";
 import {
   DistributionEventDetails,
   DistributionEventState,
-  DistributionEventStateSchema,
+  DistributionEventStateSchema
 } from "views/Distributions/types";
 import DistroEventDetailsForPlanningStateContainer from "./State1Planning/DistroEventDetailsForPlanningStateContainer";
 import DistroEventDetailsForPackingStateContainer from "./State2Packing/DistroEventDetailsForPackingStateContainer";

@@ -1,9 +1,8 @@
-import React from "react";
-import { ComponentStory, ComponentMeta } from "@storybook/react";
-import { DistributionEventState, ProductGender } from "types/generated/graphql";
-import DistroEventDetailsForPlanningState from "./DistroEventDetailsForPlanningState";
 import { action } from "@storybook/addon-actions";
+import { ComponentMeta, ComponentStory } from "@storybook/react";
+import { ProductGender } from "types/generated/graphql";
 import { IPackingListEntry } from "views/Distributions/types";
+import DistroEventDetailsForPlanningState from "./DistroEventDetailsForPlanningState";
 
 const mockedDistroEventPackingList: IPackingListEntry[] =
   [

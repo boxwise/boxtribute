@@ -1,25 +1,9 @@
 import {
-  Button,
-  Modal,
-  ModalOverlay,
-  ModalContent,
-  ModalHeader,
-  ModalCloseButton,
-  ModalBody,
-  ModalFooter,
-  Flex,
-  Text,
-  FormControl,
-  Input,
-  useToast,
+  Button, Flex, FormControl,
+  Input, ModalBody, ModalCloseButton, ModalContent, ModalFooter, ModalHeader, Text
 } from "@chakra-ui/react";
-import { useCallback, useState } from "react";
+import { useState } from "react";
 import { BoxData } from "views/Distributions/types";
-
-interface ModalProps {
-  isBoxDetailOpen: boolean;
-  onBoxDetailClose: () => void;
-}
 
 export interface PackingActionProps {
   onBoxToDistribution: (boxId: string) => void;

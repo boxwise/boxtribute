@@ -10,10 +10,8 @@ import {
   useToast,
 } from "@chakra-ui/react";
 import APILoadingIndicator from "components/APILoadingIndicator";
-import { createContext, useCallback, useEffect } from "react";
+import { createContext, useCallback } from "react";
 import {
-  AddToPackingListMutation,
-  AddToPackingListMutationVariables,
   PackingListEntriesForDistributionEventQuery,
   PackingListEntriesForDistributionEventQueryVariables,
   RemoveAllPackingListEntriesFromDistributionEventForProductMutation,
@@ -25,7 +23,6 @@ import {
   UpdateSelectedProductsForDistributionEventPackingListMutation,
   UpdateSelectedProductsForDistributionEventPackingListMutationVariables,
 } from "types/generated/graphql";
-import { PackingListEntriesForProductToAdd } from "views/Distributions/components/AddItemsToPackingList/AddItemsToPackingList";
 import AddItemsToPackingListContainer from "views/Distributions/components/AddItemsToPackingList/AddItemsToPackingListContainer";
 import { graphqlPackingListEntriesForDistributionEventTransformer } from "views/Distributions/dataTransformers";
 import { PACKING_LIST_ENTRIES_FOR_DISTRIBUTION_EVENT_QUERY } from "views/Distributions/queries";
@@ -169,62 +166,6 @@ const DistroEventDetailsForPlanningStateContainer = ({
     ],
   });
 
-  // TODO: add proper error handling for the mutation
-  // TODO: ensure to trigger the fetch of the packing list entries again when
-  // the mutation is successful for ALL new entries (all sizeId/productId combinations)
-  const [addEntryToPackingListMutation] = useMutation<
-    AddToPackingListMutation,
-    AddToPackingListMutationVariables
-  >(ADD_ENTRY_TO_PACKING_LIST_MUTATION, {
-    refetchQueries: [
-      {
-        query: PACKING_LIST_ENTRIES_FOR_DISTRIBUTION_EVENT_QUERY,
-        variables: {
-          distributionEventId: distributionEventDetails.id,
-        },
-      },
-    ],
-
-    // update(cache, { data }) {
-    //   const newPackingListEntry =
-    //     data?.addPackingListEntryToDistributionEvent;
-    //   const existingPackingListEntries =
-    //     cache.readQuery<PackingListEntriesForDistributionEventQuery>({
-    //       query: PACKING_LIST_ENTRIES_FOR_DISTRIBUTION_EVENT_QUERY,
-    //       variables: {
-    //         distributionEventId: distributionEventDetails.id,
-    //       },
-    //     });
-
-    //   console.log("existingPackingListEntries", existingPackingListEntries);
-    //   console.log("newPackingListEntry", newPackingListEntry);
-    //   if (existingPackingListEntries && newPackingListEntry) {
-    //     console.log(
-    //       "in 'if (existingPackingListEntries && newPackingListEntry)'"
-    //     );
-    //     cache.writeQuery<PackingListEntriesForDistributionEventQuery>({
-    //       query: PACKING_LIST_ENTRIES_FOR_DISTRIBUTION_EVENT_QUERY,
-    //       variables: {
-    //         distributionEventId: distributionEventDetails.id,
-    //       },
-    //       data: {
-    //         distributionEvent: {
-    //           // TODO: reconsider using the bang here (e.g. zod based)
-    //           id: existingPackingListEntries?.distributionEvent?.id!,
-    //           packingList: {
-    //             entries: [
-    //               ...existingPackingListEntries?.distributionEvent
-    //                 ?.packingList?.entries!,
-    //               newPackingListEntry,
-    //             ],
-    //           },
-    //         },
-    //       },
-    //     });
-    //   }
-    // },
-  });
-
   const [removeEntryFromPackingListMutation] = useMutation<
     RemoveEntryFromPackingListMutation,
     RemoveEntryFromPackingListMutationVariables
@@ -254,60 +195,6 @@ const DistroEventDetailsForPlanningStateContainer = ({
       ],
     });
 
-  const onAddEntiresToPackingListForProduct = useCallback(
-    (entriesToAdd: PackingListEntriesForProductToAdd) => {
-      // TODO: consider to offer a mutation in the API which allows to add multiple packing list entries
-      // at once (instead of calling the mutation for each entry)
-      const numberOfAddedEntries =
-        entriesToAdd.sizeIdAndNumberOfItemTuples.length;
-      Promise.all(
-        entriesToAdd.sizeIdAndNumberOfItemTuples.map(
-          ({ sizeId, numberOfItems }) => {
-            return addEntryToPackingListMutation({
-              variables: {
-                distributionEventId: distributionEventDetails.id,
-                productId: entriesToAdd.productId,
-                sizeId: parseInt(sizeId),
-                numberOfItems,
-              },
-            });
-          }
-        )
-      ).then((results) => {
-        if (results.some((r) => r.errors && r.errors.length !== 0)) {
-          console.error(
-            `GraphQL error while trying to add Packing List Entries to Distribution Event (id: ${distributionEventDetails.id})`
-            // TODO: consider to track the respective error details
-            // res.errors
-          );
-          toast({
-            title: "Error",
-            description:
-              "Some or all of the packing list items couldn't be added/updated.",
-            status: "error",
-            duration: 2000,
-            isClosable: true,
-          });
-        } else {
-          toast({
-            title: `Successfully added ${numberOfAddedEntries} entries`,
-            status: "success",
-            isClosable: true,
-            duration: 2000,
-          });
-        }
-        addItemsToDistroEventsOverlayState.onClose();
-      });
-      // TODO: add here also error catching and user notification
-    },
-    [
-      addEntryToPackingListMutation,
-      addItemsToDistroEventsOverlayState,
-      distributionEventDetails.id,
-      toast,
-    ]
-  );
-
   const onUpdatePackingListEntry = (
     packingListEntryId: string,
     numberOfItems: number
@@ -322,7 +209,6 @@ const DistroEventDetailsForPlanningStateContainer = ({
         console.error(
           `GraphQL error while trying to update Packing List Entry (id: ${packingListEntryId})`
           // TODO: consider to track the respective error details
-          // res.errors
         );
         toast({
           title: "Error",
@@ -459,11 +345,13 @@ const DistroEventDetailsForPlanningStateContainer = ({
     ],
   });
 
+  const distroEventId = distributionEventDetails.id;
+
   const onUpdateProductsInPackingList = useCallback(
     (productIdsToAdd: string[], productIdsToRemove: string[]) => {
       updateProductsInPackingListMutation({
         variables: {
-          distributionEventId: distributionEventDetails.id,
+          distributionEventId: distroEventId,
           productIdsToAdd,
           productIdsToRemove,
         },
@@ -471,7 +359,7 @@ const DistroEventDetailsForPlanningStateContainer = ({
         .then((res) => {
           if (res.errors && res.errors.length !== 0) {
             console.error(
-              `GraphQL error while trying to update selected products for packing list of Distribution Event (id: ${distributionEventDetails.id})`,
+              `GraphQL error while trying to update selected products for packing list of Distribution Event (id: ${distroEventId})`,
               res.errors
             );
             toast({
@@ -492,7 +380,7 @@ const DistroEventDetailsForPlanningStateContainer = ({
         })
         .catch((error) => {
           console.error(
-            `GraphQL error while trying to update selected products for packing list of Distribution Event (id: ${distributionEventDetails.id})`,
+            `GraphQL error while trying to update selected products for packing list of Distribution Event (id: ${distroEventId})`,
             error
           );
           toast({
@@ -503,9 +391,8 @@ const DistroEventDetailsForPlanningStateContainer = ({
             isClosable: true,
           });
         });
-      // alert("onUpdateProductsInPackingList");
     },
-    []
+    [distroEventId, toast, updateProductsInPackingListMutation]
   );
 
   if (loading) {
@@ -552,9 +439,6 @@ const DistroEventDetailsForPlanningStateContainer = ({
           <ModalCloseButton />
           <ModalBody>
             <AddItemsToPackingListContainer
-              // onAddEntiresToPackingListForProduct={
-              //   onAddEntiresToPackingListForProduct
-              // }
               onClose={addItemsToDistroEventsOverlayState.onClose}
               currentPackingListEntries={packingListEntries}
             />

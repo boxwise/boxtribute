@@ -1,11 +1,5 @@
 import { useQuery } from "@apollo/client";
 import {
-  Tabs,
-  TabList,
-  Tab,
-  TabPanels,
-  TabPanel,
-  Center,
   Box,
   Button,
   Modal,
@@ -14,22 +8,20 @@ import {
   ModalContent,
   ModalFooter,
   ModalHeader,
-  ModalOverlay,
-  useDisclosure,
-  VStack,
+  ModalOverlay, Tab, TabList, TabPanel, TabPanels, Tabs, useDisclosure
 } from "@chakra-ui/react";
+import APILoadingIndicator from "components/APILoadingIndicator";
+import { useCallback, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import {
   DistributionEventsForBaseQuery,
-  DistributionEventsForBaseQueryVariables,
+  DistributionEventsForBaseQueryVariables
 } from "types/generated/graphql";
+import { z } from "zod";
 import { DISTRIBUTION_EVENTS_FOR_BASE_ID } from "../queries";
+import { DistributionEventDetails, DistributionEventDetailsSchema } from "../types";
 import DistroEventsCalendarContainer from "./components/DistroEventsCalendar/DistroEventsCalendarContainer";
 import DistroEventsStatistics from "./components/DistroEventsStatistics";
-import APILoadingIndicator from "components/APILoadingIndicator";
-import { DistributionEventDetails, DistributionEventDetailsSchema } from "../types";
-import { z } from "zod";
-import { useCallback, useState } from "react";
 
 const DistrosDashboardView = () => {
   const baseId = useParams<{ baseId: string }>().baseId;

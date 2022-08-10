@@ -1,14 +1,13 @@
 import { useQuery } from "@apollo/client";
 import APILoadingIndicator from "components/APILoadingIndicator";
-import { useMemo } from "react";
 import {
   PackingListEntriesForDistributionEventQuery,
-  PackingListEntriesForDistributionEventQueryVariables,
+  PackingListEntriesForDistributionEventQueryVariables
 } from "types/generated/graphql";
 import { graphqlPackingListEntriesForDistributionEventTransformer } from "views/Distributions/dataTransformers";
 import { PACKING_LIST_ENTRIES_FOR_DISTRIBUTION_EVENT_QUERY } from "views/Distributions/queries";
 import {
-  DistributionEventDetails,
+  DistributionEventDetails
 } from "views/Distributions/types";
 import DistroEventDetailsForPackingState from "./DistroEventDetailsForPackingState";
 

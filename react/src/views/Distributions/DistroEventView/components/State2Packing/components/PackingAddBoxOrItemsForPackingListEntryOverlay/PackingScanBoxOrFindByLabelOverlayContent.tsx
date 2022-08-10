@@ -1,33 +1,21 @@
-import { gql, useApolloClient, useLazyQuery } from "@apollo/client";
+import { useApolloClient } from "@apollo/client";
 import {
-  Button,
-  Modal,
-  ModalOverlay,
-  ModalContent,
-  ModalHeader,
-  ModalCloseButton,
-  ModalBody,
-  ModalFooter,
-  Input,
-  Flex,
-  useDisclosure,
-  useToast,
+  Button, Flex, Input, ModalBody, ModalCloseButton, ModalContent, ModalFooter, ModalHeader, useToast
 } from "@chakra-ui/react";
-import { useCallback, useEffect, useState } from "react";
-import { BOX_DETAILS_FOR_MOBILE_DISTRO_QUERY } from "views/Distributions/queries";
-import { BoxData, IPackingListEntry } from "views/Distributions/types";
+import { QrReader } from "components/QrReader/QrReader";
+import {
+  extractQrCodeFromUrl,
+  GET_BOX_LABEL_IDENTIFIER_BY_QR_CODE
+} from "components/QrReaderOverlay/QrReaderOverlayContainer";
+import { useCallback, useState } from "react";
 import {
   BoxDetailsQuery,
   BoxDetailsQueryVariables,
   GetBoxLabelIdentifierForQrCodeQuery,
-  GetBoxLabelIdentifierForQrCodeQueryVariables,
+  GetBoxLabelIdentifierForQrCodeQueryVariables
 } from "types/generated/graphql";
-import { useToggle } from "utils/hooks";
-import { QrReader } from "components/QrReader/QrReader";
-import {
-  extractQrCodeFromUrl,
-  GET_BOX_LABEL_IDENTIFIER_BY_QR_CODE,
-} from "components/QrReaderOverlay/QrReaderOverlayContainer";
+import { BOX_DETAILS_FOR_MOBILE_DISTRO_QUERY } from "views/Distributions/queries";
+import { BoxData, IPackingListEntry } from "views/Distributions/types";
 
 interface PackingScanBoxOrFindByLabelOverlayProps {
   packingListEntry: IPackingListEntry;
@@ -85,9 +73,6 @@ const useValidateBoxByLabelMatchingPackingListEntry = (
 //   const [isScanOpen, setIsScanOpen] = useState<boolean>(false);
 
 const PackingScanBoxOrFindByLabelOverlay = ({
-  // onAddBoxToDistributionEvent,
-  // isOpen,
-  // onClose,
   packingListEntry,
   onFoundMatchingBox,
 }: PackingScanBoxOrFindByLabelOverlayProps) => {
@@ -161,7 +146,7 @@ const PackingScanBoxOrFindByLabelOverlay = ({
         }
       }
     },
-    [apolloClient]
+    [apolloClient, onFindAndValidateBoxLabelIdentifier]
   );
 
   return (

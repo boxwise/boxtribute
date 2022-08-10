@@ -1,14 +1,13 @@
-import { gql, useQuery } from "@apollo/client";
+import { useQuery } from "@apollo/client";
+import APILoadingIndicator from "components/APILoadingIndicator";
 import { useParams } from "react-router-dom";
 import {
   DistributionEventQuery,
-  DistributionEventQueryVariables,
+  DistributionEventQueryVariables
 } from "types/generated/graphql";
-import DistroEventContainer, {
-} from "./components/DistroEventContainer";
-import APILoadingIndicator from "components/APILoadingIndicator";
 import { DISTRIBUTION_EVENT_QUERY } from "../queries";
 import { DistributionEventDetails, DistributionEventDetailsSchema } from "../types";
+import DistroEventContainer from "./components/DistroEventContainer";
 
 
 const graphqlToContainerTransformer = (

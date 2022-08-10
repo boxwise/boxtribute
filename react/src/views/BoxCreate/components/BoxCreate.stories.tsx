@@ -1,13 +1,7 @@
-import React from "react";
-import { ComponentStory, ComponentMeta } from "@storybook/react";
+import { ComponentMeta, ComponentStory } from "@storybook/react";
 import { ProductGender } from "types/generated/graphql";
 // import { DistroEvent } from "../State1Planning/DistroEventPlanning";
 import { action } from "@storybook/addon-actions";
-import {
-  BoxData,
-  IPackingListEntry,
-  IPackingListEntryForPackingState,
-} from "views/Distributions/types";
 import BoxCreate, { BoxCreateProps, ProductWithSizeRangeData, SizeRangeData } from "./BoxCreate";
 
 const mockedEuTshirtsSizeRange: SizeRangeData = {

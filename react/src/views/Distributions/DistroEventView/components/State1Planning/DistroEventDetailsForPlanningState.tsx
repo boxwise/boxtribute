@@ -1,3 +1,4 @@
+import { CloseIcon } from "@chakra-ui/icons";
 import {
   AlertDialog,
   AlertDialogBody,
@@ -6,36 +7,21 @@ import {
   AlertDialogHeader,
   AlertDialogOverlay,
   Box,
-  Button,
-  ButtonGroup,
-  Center,
-  Container,
-  Editable,
+  Button, Editable,
   EditableInput,
   EditablePreview,
   Flex,
-  Heading,
-  HStack,
-  IconButton,
-  SimpleGrid,
-  Table,
-  TableCaption,
-  TableContainer,
+  Heading, IconButton, Table, TableContainer,
   Tbody,
   Td,
-  Text,
-  Tfoot,
-  Th,
+  Text, Th,
   Thead,
   Tr,
-  useDisclosure,
-  useEditableControls,
-  VStack,
+  useDisclosure
 } from "@chakra-ui/react";
-import { CheckIcon, CloseIcon, EditIcon } from "@chakra-ui/icons";
-import { IPackingListEntry } from "views/Distributions/types";
 import _ from "lodash";
 import { useContext, useEffect, useRef, useState } from "react";
+import { IPackingListEntry } from "views/Distributions/types";
 import { DistroEventDetailsForPlanningStateContext } from "./DistroEventDetailsForPlanningStateContainer";
 
 interface IPackingListEntrieGroupForProduct {

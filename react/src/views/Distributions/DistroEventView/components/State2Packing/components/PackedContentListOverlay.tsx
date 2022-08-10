@@ -1,37 +1,19 @@
-import { CheckIcon, DeleteIcon } from "@chakra-ui/icons";
+import { CheckIcon } from "@chakra-ui/icons";
 import {
-  ModalContent,
-  ModalHeader,
-  ModalCloseButton,
-  ModalBody,
-  ModalFooter,
-  Flex,
-  Text,
-  IconButton,
-  Box,
-  Heading,
-  Badge,
-  VStack,
-  Stat,
-  StatArrow,
-  StatGroup,
-  StatHelpText,
-  StatLabel,
+  Badge, Box, Flex, Heading, ModalBody, ModalCloseButton, ModalContent, ModalFooter, ModalHeader, Stat, StatGroup, StatLabel,
   StatNumber,
   Table,
   TableContainer,
   Tbody,
-  Td,
-  Tfoot,
-  Th,
+  Td, Text, Th,
   Thead,
-  Tr,
+  Tr
 } from "@chakra-ui/react";
 import { useMemo } from "react";
 import {
   BoxData,
   IPackingListEntry,
-  UnboxedItemsCollectionData,
+  UnboxedItemsCollectionData
 } from "views/Distributions/types";
 
 export interface PackingActionListProps {

@@ -1,50 +1,44 @@
+import { useMutation } from "@apollo/client";
+import { AddIcon } from "@chakra-ui/icons";
 import {
   Accordion,
-  AccordionItem,
   AccordionButton,
   AccordionIcon,
+  AccordionItem,
   AccordionPanel,
   Box,
-  Flex,
-  useDisclosure,
-  IconButton,
   Button,
-  Center,
+  Flex,
+  Heading,
+  IconButton,
   Modal,
   ModalOverlay,
-  useToast,
   Text,
-  VStack,
-  Heading,
+  useDisclosure,
+  useToast,
+  VStack
 } from "@chakra-ui/react";
-import { AddIcon, CheckIcon } from "@chakra-ui/icons";
-import { groupBy } from "utils/helpers";
-import { useCallback, useState } from "react";
-import PackedContentListOverlayContainer from "./components/PackedContentListOverlayContainer";
-import {
-  // MATCHING_PACKED_ITEMS_COLLECTIONS_FOR_PACKING_LIST_ENTRY,
-  MOVE_BOX_TO_DISTRIBUTION_MUTATION,
-  MOVE_ITEMS_TO_DISTRIBUTION_EVENT,
-  PACKING_LIST_ENTRIES_FOR_DISTRIBUTION_EVENT_QUERY,
-} from "views/Distributions/queries";
+import { useCallback } from "react";
 import {
   MoveBoxToDistributionEventMutation,
   MoveBoxToDistributionEventMutationVariables,
   MoveItemsToDistributionEventMutation,
-  MoveItemsToDistributionEventMutationVariables,
+  MoveItemsToDistributionEventMutationVariables
 } from "types/generated/graphql";
-import PackingAddBoxOrItemsForPackingListEntryOverlay from "./components/PackingAddBoxOrItemsForPackingListEntryOverlay/PackingAddBoxOrItemsForPackingListEntryOverlay";
-import { useMutation } from "@apollo/client";
+import { groupBy } from "utils/helpers";
+import {
+  // MATCHING_PACKED_ITEMS_COLLECTIONS_FOR_PACKING_LIST_ENTRY,
+  MOVE_BOX_TO_DISTRIBUTION_MUTATION,
+  MOVE_ITEMS_TO_DISTRIBUTION_EVENT,
+  PACKING_LIST_ENTRIES_FOR_DISTRIBUTION_EVENT_QUERY
+} from "views/Distributions/queries";
 import { IPackingListEntryForPackingState } from "views/Distributions/types";
+import PackedContentListOverlayContainer from "./components/PackedContentListOverlayContainer";
+import PackingAddBoxOrItemsForPackingListEntryOverlay from "./components/PackingAddBoxOrItemsForPackingListEntryOverlay/PackingAddBoxOrItemsForPackingListEntryOverlay";
 
 interface DistroEventDetailsForPackingStateProps {
   packingListEntries: IPackingListEntryForPackingState[];
   distributionEventId: string;
-  // onShowListClick: (itemId: string) => void;
-  // boxesData: BoxData[];
-  // boxData: BoxData;
-  // packingActionProps: PackingActionProps;
-  // packingActionListProps: PackingActionListProps;
 }
 
 const PackingListEntry = ({
@@ -54,8 +48,6 @@ const PackingListEntry = ({
   packingListEntry: IPackingListEntryForPackingState;
   distributionEventId: string;
 }) => {
-  const [chosenPackingNumberOfItems, setChosenPackingNumberOfItems] =
-    useState(0);
   const {
     isOpen: isPackedListOverlayOpen,
     onClose: onPackedListOverlayClose,
@@ -91,12 +83,6 @@ const PackingListEntry = ({
               distributionEventId: distributionEventId,
             },
           },
-          // {
-          //   query: MATCHING_PACKED_ITEMS_COLLECTIONS_FOR_PACKING_LIST_ENTRY,
-          //   variables: {
-          //     packingListEntryId: packingListEntry.id,
-          //   },
-          // },
         ],
       })
         .then((res) => {
@@ -156,12 +142,6 @@ const PackingListEntry = ({
               distributionEventId: distributionEventId,
             },
           },
-          // {
-          //   query: MATCHING_PACKED_ITEMS_COLLECTIONS_FOR_PACKING_LIST_ENTRY,
-          //   variables: {
-          //     packingListEntryId: packingListEntry.id,
-          //   },
-          // },
         ],
       })
         .then((res) => {
@@ -213,9 +193,6 @@ const PackingListEntry = ({
       borderColor="gray.300"
       direction="row"
       pl={6}
-      onClick={() =>
-        setChosenPackingNumberOfItems(packingListEntry.numberOfItems)
-      }
     >
       <Box
         as={Button}
@@ -282,23 +259,6 @@ const PackingListEntry = ({
   );
 };
 
-// const EnoughItemsPackedStateBadge = ({
-//   enoughItemsFacked,
-// }: {
-//   enoughItemsFacked: boolean;
-// }) => {
-//   if (enoughItemsFacked) {
-//     return (
-//       <Badge colorScheme="green">
-//         {/* <CheckIcon /> Target number ({packingListEntry.numberOfItems}) fullfilled (with {totalNumberOfPackedItems} items) */}
-//         <CheckIcon /> Enough items packed
-//       </Badge>
-//     );
-//   } else {
-//     return <Badge colorScheme="red">Items missing</Badge>;
-//   }
-// };
-
 const DistroEventDetailsForPackingState = ({
   packingListEntries,
   distributionEventId,
@@ -323,19 +283,14 @@ DistroEventDetailsForPackingStateProps) => {
         return {
           ...el,
           actualNumberOfItemsPacked,
-          // ...el,
-          // actualNumberOfItemsPacked: actualNumberOfItemsPacked,
         };
       }
     );
-    // const isNumberOfItemsFulfilled = items..
-    // items[0].numberOfItems
-    // items[0].
     return {
       product: {
         id: key,
         name: packingListEntries[0].product.name,
-        gender: packingListEntries[0].product.gender
+        gender: packingListEntries[0].product.gender,
       },
       packingListEntries,
     };
@@ -379,7 +334,8 @@ DistroEventDetailsForPackingStateProps) => {
                       /> */}
                       <Box flex="1" textAlign="center">
                         <Text fontSize={"lg"} fontWeight="bold">
-                          {packingEntriesArrayForProductName.product.name} ({packingEntriesArrayForProductName.product.gender})
+                          {packingEntriesArrayForProductName.product.name} (
+                          {packingEntriesArrayForProductName.product.gender})
                         </Text>
                       </Box>
                       <AccordionIcon />
@@ -389,7 +345,11 @@ DistroEventDetailsForPackingStateProps) => {
                     (item) => (
                       <AccordionPanel
                         py={0}
-                        bg={item.actualNumberOfItemsPacked >= item.numberOfItems ? "green.100" : "red.100"}
+                        bg={
+                          item.actualNumberOfItemsPacked >= item.numberOfItems
+                            ? "green.100"
+                            : "red.100"
+                        }
                       >
                         <PackingListEntry
                           packingListEntry={item}

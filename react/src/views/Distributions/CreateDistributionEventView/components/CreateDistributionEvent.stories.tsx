@@ -1,8 +1,6 @@
-import { ComponentStory, ComponentMeta } from "@storybook/react";
-import CreateDistroEvent, {
-  CreateDistroEventFormData,
-} from "./CreateDistributionEvent";
 import { action } from "@storybook/addon-actions";
+import { ComponentMeta, ComponentStory } from "@storybook/react";
+import CreateDistroEvent from "./CreateDistributionEvent";
 
 const mockedDistroSpot = {
   name: "Horgosz River",

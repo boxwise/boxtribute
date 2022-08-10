@@ -1,8 +1,6 @@
-import React from "react";
-import { ComponentStory, ComponentMeta } from "@storybook/react";
-import { ProductData, ProductDataWithPackingListEntryFlags } from "./AddItemsToPackingList";
-import AddItemsToPackingList from "./AddItemsToPackingList";
+import { ComponentMeta, ComponentStory } from "@storybook/react";
 import { ProductGender } from "types/generated/graphql";
+import AddItemsToPackingList, { ProductData } from "./AddItemsToPackingList";
 
 const clothingCategory = {
   id: "1",

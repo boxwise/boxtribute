@@ -1,8 +1,6 @@
-import React from "react";
-import { ComponentStory, ComponentMeta } from "@storybook/react";
-import { within, userEvent } from "@storybook/testing-library";
 import { action } from "@storybook/addon-actions";
-import QrReaderOverlay, { QrResolvedValue, IQrValueWrapper } from "./QrReaderOverlay";
+import { ComponentMeta, ComponentStory } from "@storybook/react";
+import QrReaderOverlay, { IQrValueWrapper, QrResolvedValue } from "./QrReaderOverlay";
 
 export default {
   title: "QrReaderOverlay",

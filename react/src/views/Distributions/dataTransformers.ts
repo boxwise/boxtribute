@@ -1,6 +1,5 @@
-import { el } from "date-fns/locale";
 import { PackingListEntriesForDistributionEventQuery } from "types/generated/graphql";
-import { IPackingListEntry, IPackingListEntryForPackingState } from "./types";
+import { IPackingListEntryForPackingState } from "./types";
 
 export const graphqlPackingListEntriesForDistributionEventTransformer = (
   queryResult: PackingListEntriesForDistributionEventQuery | undefined

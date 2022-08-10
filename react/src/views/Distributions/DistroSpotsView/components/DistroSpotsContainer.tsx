@@ -1,8 +1,8 @@
-import { gql, useQuery } from "@apollo/client";
+import { useQuery } from "@apollo/client";
 import APILoadingIndicator from "components/APILoadingIndicator";
 import {
   DistroSpotsForBaseIdQuery,
-  DistroSpotsForBaseIdQueryVariables,
+  DistroSpotsForBaseIdQueryVariables
 } from "types/generated/graphql";
 import { useGlobalSiteState } from "utils/hooks";
 import { DISTRO_SPOTS_FOR_BASE_ID } from "views/Distributions/queries";

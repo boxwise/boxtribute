@@ -1,32 +1,15 @@
 import {
-  Button,
-  Flex,
-  FormControl,
-  Select,
-  Box,
-  Input,
-  Text,
-  Tab,
+  Box, Button, Checkbox, Flex, FormLabel, Heading, Switch, Tab,
   TabList,
   TabPanel,
   TabPanels,
-  Tabs,
-  Checkbox,
-  VStack,
-  Heading,
-  Center,
-  Spacer,
-  Switch,
-  Divider,
-  FormLabel,
+  Tabs, VStack
 } from "@chakra-ui/react";
-import { useFieldArray, useForm } from "react-hook-form";
-import { useCallback, useContext, useEffect, useState } from "react";
-import { groupBy } from "utils/helpers";
-import { ProductGender } from "types/generated/graphql";
 import _ from "lodash";
-import { IPackingListEntry } from "views/Distributions/types";
+import { useContext, useState } from "react";
+import { ProductGender } from "types/generated/graphql";
 import { DistroEventDetailsForPlanningStateContext } from "views/Distributions/DistroEventView/components/State1Planning/DistroEventDetailsForPlanningStateContainer";
+import { IPackingListEntry } from "views/Distributions/types";
 
 export interface ProductData {
   id: string;

@@ -1,12 +1,10 @@
-import AddItemsToPackingList, {
-  PackingListEntriesForProductToAdd,
-  ProductData,
-  ProductDataWithPackingListEntryFlags,
-} from "./AddItemsToPackingList";
-import { AllProductsForPackingListQuery, AllProductsForPackingListQueryVariables, ProductGender } from "types/generated/graphql";
 import { gql, useQuery } from "@apollo/client";
 import APILoadingIndicator from "components/APILoadingIndicator";
+import { AllProductsForPackingListQuery, AllProductsForPackingListQueryVariables, ProductGender } from "types/generated/graphql";
 import { IPackingListEntry } from "views/Distributions/types";
+import AddItemsToPackingList, {
+  ProductData
+} from "./AddItemsToPackingList";
 
 interface AddItemsToPackingListContainerProps {
   // onAddEntiresToPackingListForProduct: (

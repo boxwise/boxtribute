@@ -1,15 +1,14 @@
 import { gql, useMutation } from "@apollo/client";
 import { Center, Heading, useToast, VStack } from "@chakra-ui/react";
-import CreateDistributionSpot, {
-  CreateDistributionSpotFormData,
-} from "./components/CreateDistributionSpot";
+import { useNavigate, useParams } from "react-router-dom";
 import {
   CreateDistributionSpotMutation,
-  CreateDistributionSpotMutationVariables,
+  CreateDistributionSpotMutationVariables
 } from "../../../types/generated/graphql";
-import { useNavigate, useParams } from "react-router-dom";
-import { DistributionSpotCoreData } from "../types";
 import { DISTRO_SPOTS_FOR_BASE_ID } from "../queries";
+import CreateDistributionSpot, {
+  CreateDistributionSpotFormData
+} from "./components/CreateDistributionSpot";
 
 export const CREATE_NEW_DISTRIBUTION_SPOT_MUTATION = gql`
   mutation CreateDistributionSpot(
