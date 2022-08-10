@@ -29,7 +29,7 @@ export const BOX_BY_LABEL_IDENTIFIER_AND_ALL_PRODUCTS_QUERY = gql`
           }
         }
       }
-      location {
+      place {
         id
         name
         base {
@@ -94,7 +94,7 @@ const BoxEditView = () => {
   const onSubmitBoxEditForm = (boxFormValues: BoxFormValues) => {
     console.log("boxLabelIdentifier", labelIdentifier);
     console.log("boxFormValues", boxFormValues);
-    
+
     updateContentOfBoxMutation({
       variables: {
         boxLabelIdentifier: labelIdentifier,
