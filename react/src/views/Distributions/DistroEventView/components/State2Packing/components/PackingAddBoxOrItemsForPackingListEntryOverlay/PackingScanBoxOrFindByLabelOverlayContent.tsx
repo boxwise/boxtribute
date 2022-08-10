@@ -130,7 +130,7 @@ const PackingScanBoxOrFindByLabelOverlay = ({
       if (!!result) {
         const qrCode = extractQrCodeFromUrl(result);
         if (qrCode == null) {
-          console.error("Not a Boxtribute QR Code");
+          console.error("Not a Boxtribute QR Code", qrCode);
           alert("This is not a Boxtribute QR Code");
           // onScanningDone([{ kind: "noBoxtributeQr" }]);
         } else {
@@ -174,9 +174,7 @@ const PackingScanBoxOrFindByLabelOverlay = ({
           zoom={1}
           scanPeriod={1000}
           onResult={(result) =>
-            result?.["text"] != null
-              ? onQrResult(result["text"])
-              : alert("Error reading QR Code")
+            result?.["text"] != null && onQrResult(result["text"])
           }
         />
       </ModalBody>
