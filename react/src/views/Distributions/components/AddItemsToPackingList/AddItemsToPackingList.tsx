@@ -84,7 +84,10 @@ const AddItemsToPackingList = ({
     productsForCategory: ProductsForCategory[];
   };
 
-  const productIdsWithPackingListEntries = _.chain(packingListEntries).map(p => p.product.id).uniq().value();
+  const productIdsWithPackingListEntries = _.chain(packingListEntries)
+    .map((p) => p.product.id)
+    .uniq()
+    .value();
 
   const productDataWithPackingListEntriesSignals = productData.map(
     (productDataPoint) => ({
@@ -97,7 +100,9 @@ const AddItemsToPackingList = ({
 
   const ctx = useContext(DistroEventDetailsForPlanningStateContext);
 
-  const [checkedProductIds, setCheckedProductIds] = useState(productIdsWithPackingListEntries);
+  const [checkedProductIds, setCheckedProductIds] = useState(
+    productIdsWithPackingListEntries
+  );
 
   const productsGroupedByGender: ProductsForGender[] = _.chain(
     productDataWithPackingListEntriesSignals
@@ -136,8 +141,12 @@ const AddItemsToPackingList = ({
   );
 
   const onApplyClick = () => {
-    const entriesToAdd = checkedProductIds.filter(p1 => !productIdsWithPackingListEntries.some(p2 => p1 === p2));
-    const entriesToRemove = productIdsWithPackingListEntries.filter(p1 => !checkedProductIds.some(p2 => p1 === p2));
+    const entriesToAdd = checkedProductIds.filter(
+      (p1) => !productIdsWithPackingListEntries.some((p2) => p1 === p2)
+    );
+    const entriesToRemove = productIdsWithPackingListEntries.filter(
+      (p1) => !checkedProductIds.some((p2) => p1 === p2)
+    );
     ctx?.onUpdateProductsInPackingList(entriesToAdd, entriesToRemove);
     onClose();
 
@@ -153,7 +162,6 @@ const AddItemsToPackingList = ({
     }
     setCheckedProductIds(updatedList);
   };
-
 
   return (
     <Flex flexDir={"column"} alignItems="center" justifyContent="space-between">
@@ -213,10 +221,7 @@ const AddItemsToPackingList = ({
           ))}
         </TabPanels>
       </Tabs>
-      <Button
-        onClick={onApplyClick}
-        colorScheme="blue"
-      >
+      <Button type="submit" onClick={onApplyClick} colorScheme="blue">
         Apply
       </Button>
     </Flex>
