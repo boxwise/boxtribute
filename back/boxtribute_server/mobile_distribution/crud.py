@@ -117,7 +117,6 @@ def set_products_for_packing_list(
             )
 
         # Add new products
-        #  select(Product.size).where(Product.id << product_ids_to_add)
         for product_id in product_ids_to_add:
             sizes = (
                 Size.select(Size.id)
@@ -139,16 +138,6 @@ def set_products_for_packing_list(
                         "state": PackingListEntryState.NotStarted,
                     },
                 )
-
-            print("sizes", list(sizes))
-            # PackingListEntry.create(
-            #     distribution_event=distribution_event_id,
-            #     product=product_id,
-            #     number_of_items=0,
-            #     state=PackingListEntryState.NotStarted,
-            #     last_modified_on=utcnow(),
-            #     last_modified_by=user_id,
-            # )
 
         return True
 
@@ -179,13 +168,7 @@ def update_packing_list_entry(user_id, packing_list_entry_id, number_of_items):
     """
     now = utcnow()
 
-    # Completed Events should not be mutable anymore
     packing_list_entry = PackingListEntry.get_by_id(packing_list_entry_id)
-    # if packing_list_entry.state == PackingListEntryState.Completed:
-    #     raise ModifyCompletedDistributionEvent(
-    #         desired_operation="update_packing_list_entry",
-    #         distribution_event_id=packing_list_entry.distribution_event,
-    #     )
 
     packing_list_entry.number_of_items = number_of_items
     packing_list_entry.last_modified_on = now
