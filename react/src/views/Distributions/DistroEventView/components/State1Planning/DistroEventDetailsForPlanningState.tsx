@@ -65,11 +65,9 @@ const PackingListEntryTableRow = ({
 
   return (
     <Tr key={entry.id}>
-      {/* <Button onClick={() => {entry.numberOfItems = 123}}>Reset</Button> */}
       <Td>{entry.size?.label}</Td>
       <Td>
         <Editable
-          // defaultValue={entry.numberOfItems.toString()}
           value={numberOfItemsFormValue.toString()}
           onChange={(newVal) => setNumberOfItemsFormValue(parseInt(newVal))}
           onSubmit={onChangeHandlerForEntry}
@@ -88,7 +86,6 @@ const PackingListEntriesGroupForProduct = ({
 }: {
   data: IPackingListEntrieGroupForProduct;
   onUpdatePackingListEntry: OnUpdatePackingListEntry;
-  // onRemoveAllPackingListEntriesForProduct: (distributionEventId)
 }) => {
   const { productId, productName, gender, packingListEntries } = data;
 
@@ -100,26 +97,6 @@ const PackingListEntriesGroupForProduct = ({
   if (ctx == null) {
     return <></>;
   }
-
-  // const EditableControls = () => {
-  //   const {
-  //     isEditing,
-  //     getSubmitButtonProps,
-  //     getCancelButtonProps,
-  //     getEditButtonProps,
-  //   } = useEditableControls()
-
-  //   return isEditing ? (
-  //     <ButtonGroup justifyContent='center' size='sm'>
-  //       <IconButton icon={<CheckIcon />} {...getSubmitButtonProps()} />
-  //       <IconButton icon={<CloseIcon />} {...getCancelButtonProps()} />
-  //     </ButtonGroup>
-  //   ) : (
-  //     <Flex justifyContent='center'>
-  //       <IconButton size='sm' icon={<EditIcon />} {...getEditButtonProps()} />
-  //     </Flex>
-  //   )
-  // }
 
   return (
     <>
@@ -211,7 +188,6 @@ const DistroEventDetailsForPlanningState = ({
   onCopyPackingListFromPreviousEventsClick,
   onRemoveItemFromPackingListClick,
 }: DistroEventDetailsForPlanningStateProps) => {
-  // const packingListEntriesGroupedByProduct = _.groupBy(packingListEntries, (entry) => ({productId: entry.product.id, productName: entry.product.name}));
   const packingListEntriesGroupedByProductId = _.groupBy(
     packingListEntries,
     (entry) => entry.product.id
@@ -223,7 +199,6 @@ const DistroEventDetailsForPlanningState = ({
         productId: k,
         productName: product?.name,
         gender: product.gender,
-        // category: product.
         packingListEntries: packingListEntriesGroupedByProductId[k],
       };
     });
@@ -249,45 +224,9 @@ const DistroEventDetailsForPlanningState = ({
           />
         )
       )}
-
       {packingListEntriesGroupedByProductIdAndName.length === 0 && (
         <Text>You don't have any entries on your packing list yet.</Text>
       )}
-
-      {/* {packingListEntries.map((item) => {
-        return (
-          <SimpleGrid
-            // minChildWidth={300}
-            py={2}
-            columns={6}
-            borderBottom="1px"
-            borderColor="gray.300"
-            my={2}
-            key={item.id}
-          >
-            <Box>{item.numberOfItems}</Box>
-            <Box>{item.product.name}</Box>
-            <Box>{item.size?.label}</Box>
-            <Box>{item.product.gender}</Box>
-            <Box>
-              <IconButton
-                background="transparent"
-                onClick={() => onEditItemOnPackingListClick(item.id)}
-                aria-label="Edit Packing List Item"
-              >
-                <EditIcon mx={2} color="teal" />
-              </IconButton>
-              <IconButton
-                background="transparent"
-                onClick={() => onRemoveItemFromPackingListClick(item.id)}
-                aria-label="Remove Packing List Item"
-              >
-                <CloseIcon color="teal" />
-              </IconButton>
-            </Box>
-          </SimpleGrid>
-        );
-      })} */}
     </>
   );
 };

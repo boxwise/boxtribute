@@ -49,38 +49,6 @@ const graphqlToContainerTransformer = (
     category: product.category,
     gender: product.gender ?? ProductGender.None
   }));
-
-  // return graphQLData.map(product => {
-  //   product.
-  //   return {
-  //     id: product.id,
-  //     name: product.name,
-  //     category: product?.category,
-  //     gender: product?.gender
-  //   }
-  // });
-
-  // return (
-  //   graphQLData
-  //     // TODO (IMPORTANT): Remove this fitler call again - was just temporary for dev/demo purposes
-  //     // to show products which have at least two sizes
-  //     // Instead, we should adapt the init.sql file to have better test data
-  //     .filter((product) => product.sizeRange.sizes.length > 1)
-  //     .map((product) => {
-  //       return {
-  //         id: product.id,
-  //         name: product.name,
-  //         sizes: product.sizeRange.sizes.map((size) => {
-  //         const numberOfItems = currentPackingListEntries.find(el => el.product.id === product.id && el.size?.id === size.id)?.numberOfItems;
-  //           return {
-  //           id: size.id,
-  //           name: size.label,
-  //           numberOfItems
-  //           }}),
-  //       };
-  //     })
-  // );
-
 };
 
 const AddItemsToPackingListContainer = ({
