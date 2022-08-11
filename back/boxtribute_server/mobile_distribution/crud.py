@@ -1,12 +1,3 @@
-from boxtribute_server.models.definitions.distribution_event import DistributionEvent
-from boxtribute_server.models.definitions.packing_list_entry import PackingListEntry
-from boxtribute_server.models.definitions.product import Product
-from boxtribute_server.models.definitions.size import Size
-from boxtribute_server.models.definitions.size_range import SizeRange
-from boxtribute_server.models.definitions.unboxed_items_collection import (
-    UnboxedItemsCollection,
-)
-
 from ..db import db
 from ..enums import DistributionEventState, LocationType, PackingListEntryState
 from ..exceptions import (
@@ -15,7 +6,13 @@ from ..exceptions import (
     NotEnoughItemsInBox,
 )
 from ..models.definitions.box import Box
+from ..models.definitions.distribution_event import DistributionEvent
 from ..models.definitions.location import Location
+from ..models.definitions.packing_list_entry import PackingListEntry
+from ..models.definitions.product import Product
+from ..models.definitions.size import Size
+from ..models.definitions.size_range import SizeRange
+from ..models.definitions.unboxed_items_collection import UnboxedItemsCollection
 from ..models.utils import utcnow
 
 
