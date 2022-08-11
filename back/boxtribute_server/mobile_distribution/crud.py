@@ -110,7 +110,9 @@ def set_products_for_packing_list(
         # Remove products
         for product_id in product_ids_to_remove:
             remove_all_packing_list_entries_from_distribution_event_for_product(
-                user_id, distribution_event_id, product_id
+                user_id=user_id,
+                distribution_event_id=distribution_event_id,
+                product_id=product_id,
             )
 
         # Add new products
@@ -141,7 +143,7 @@ def set_products_for_packing_list(
 
 
 def remove_all_packing_list_entries_from_distribution_event_for_product(
-    user_id, distribution_event_id, product_id
+    *, user_id, distribution_event_id, product_id
 ):
     """
     Remove all packing list entries from a distribution event for a product.
@@ -156,7 +158,7 @@ def remove_all_packing_list_entries_from_distribution_event_for_product(
         return True
 
 
-def update_packing_list_entry(user_id, packing_list_entry_id, number_of_items):
+def update_packing_list_entry(*, user_id, packing_list_entry_id, number_of_items):
     """
     Update a packing list entry.
     """
