@@ -39,6 +39,9 @@ from ..mobile_distribution.crud import (
     delete_packing_list_entry,
     move_box_to_distribution_event,
     move_items_from_box_to_distribution_event,
+    remove_all_packing_list_entries_from_distribution_event_for_product,
+    set_products_for_packing_list,
+    update_packing_list_entry,
 )
 from ..models.crud import (
     create_beneficiary,
@@ -472,6 +475,44 @@ def resolve_add_packing_list_entry_to_distribution_event(*_, creation_input):
     authorize(permission="packing_list_entry:write")
     return add_packing_list_entry_to_distribution_event(
         user_id=g.user.id, **creation_input
+    )
+
+
+@mutation.field("updatePackingListEntry")
+@convert_kwargs_to_snake_case
+def resolve_update_packing_list_entry(*_, packing_list_entry_id, number_of_items):
+    authorize(permission="packing_list_entry:write")
+    return update_packing_list_entry(
+        user_id=g.user.id,
+        packing_list_entry_id=packing_list_entry_id,
+        number_of_items=number_of_items,
+    )
+
+
+@mutation.field("removeAllPackingListEntriesFromDistributionEventForProduct")
+@convert_kwargs_to_snake_case
+def resolve_remove_all_packing_list_entries_from_distribution_event_for_product(
+    *_, distribution_event_id, product_id
+):
+    authorize(permission="packing_list_entry:write")
+    return remove_all_packing_list_entries_from_distribution_event_for_product(
+        user_id=g.user.id,
+        distribution_event_id=distribution_event_id,
+        product_id=product_id,
+    )
+
+
+@mutation.field("updateSelectedProductsForDistributionEventPackingList")
+@convert_kwargs_to_snake_case
+def resolve_set_products_for_packing_list(
+    *_, distribution_event_id, product_ids_to_add, product_ids_to_remove
+):
+    authorize(permission="packing_list_entry:write")
+    return set_products_for_packing_list(
+        user_id=g.user.id,
+        distribution_event_id=distribution_event_id,
+        product_ids_to_add=product_ids_to_add,
+        product_ids_to_remove=product_ids_to_remove,
     )
 
 

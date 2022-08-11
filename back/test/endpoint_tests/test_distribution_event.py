@@ -17,3 +17,50 @@ def test_distribution_event_query(read_only_client, default_distribution_event):
     assert int(distribution_event["id"]) == expected_distribution_event["id"]
     assert distribution_event["name"] == expected_distribution_event["name"]
     assert distribution_event["state"] == DistributionEventState.Planning.name
+
+
+def test_update_selected_products_for_distribution_event_packing_list(
+    client, default_distribution_event, default_product, default_size, another_size
+):
+    distribution_event_id = default_distribution_event["id"]
+    product_id = str(default_product["id"])
+    mutation = f"""mutation {{
+        updateSelectedProductsForDistributionEventPackingList(
+        distributionEventId: {distribution_event_id},
+        productIdsToAdd: [{product_id}],
+        productIdsToRemove: []
+        ) {{
+            packingListEntries {{
+                product {{ id }}
+                size {{ id }}
+                numberOfItems
+            }}
+        }}
+    }}"""
+
+    mutation_result = assert_successful_request(client, mutation)
+    assert mutation_result == {
+        "packingListEntries": [
+            {
+                "product": {"id": str(default_product["id"])},
+                "size": {"id": str(default_size["id"])},
+                "numberOfItems": 0,
+            },
+            {
+                "product": {"id": str(default_product["id"])},
+                "size": {"id": str(another_size["id"])},
+                "numberOfItems": 0,
+            },
+        ],
+    }
+
+    mutation = f"""mutation {{
+        updateSelectedProductsForDistributionEventPackingList(
+        distributionEventId: {distribution_event_id},
+        productIdsToAdd: [],
+        productIdsToRemove: [{default_product['id']}]
+        ) {{ packingListEntries {{ id }} }}
+    }}"""
+
+    mutation_result = assert_successful_request(client, mutation)
+    assert mutation_result == {"packingListEntries": []}

@@ -1,9 +1,3 @@
-from boxtribute_server.models.definitions.distribution_event import DistributionEvent
-from boxtribute_server.models.definitions.packing_list_entry import PackingListEntry
-from boxtribute_server.models.definitions.unboxed_items_collection import (
-    UnboxedItemsCollection,
-)
-
 from ..db import db
 from ..enums import DistributionEventState, LocationType, PackingListEntryState
 from ..exceptions import (
@@ -12,7 +6,13 @@ from ..exceptions import (
     NotEnoughItemsInBox,
 )
 from ..models.definitions.box import Box
+from ..models.definitions.distribution_event import DistributionEvent
 from ..models.definitions.location import Location
+from ..models.definitions.packing_list_entry import PackingListEntry
+from ..models.definitions.product import Product
+from ..models.definitions.size import Size
+from ..models.definitions.size_range import SizeRange
+from ..models.definitions.unboxed_items_collection import UnboxedItemsCollection
 from ..models.utils import utcnow
 
 
@@ -90,6 +90,87 @@ def change_distribution_event_state(distribution_event_id, distribution_event_st
     distribution_event.state = distribution_event_state
     distribution_event.save()
     return distribution_event
+
+
+def set_products_for_packing_list(
+    *, user_id, distribution_event_id, product_ids_to_add, product_ids_to_remove
+):
+    """
+    TODO: Add description and consider to extract sub logic into a separate functions.
+    """
+    with db.database.atomic():
+        # Completed Events should not be mutable anymore
+        distribution_event = DistributionEvent.get_by_id(distribution_event_id)
+        if distribution_event.state == DistributionEventState.Completed:
+            raise ModifyCompletedDistributionEvent(
+                desired_operation="set_products_for_packing_list",
+                distribution_event_id=distribution_event.id,
+            )
+
+        # Remove products
+        for product_id in product_ids_to_remove:
+            remove_all_packing_list_entries_from_distribution_event_for_product(
+                user_id=user_id,
+                distribution_event_id=distribution_event_id,
+                product_id=product_id,
+            )
+
+        # Add new products
+        now = utcnow()
+        for product_id in product_ids_to_add:
+            sizes = (
+                Size.select(Size.id)
+                .join(SizeRange)
+                .join(Product)
+                .where(Product.id == product_id)
+            )
+
+            for size in sizes:
+
+                PackingListEntry.get_or_create(
+                    distribution_event=distribution_event_id,
+                    product=product_id,
+                    size=size.id,
+                    defaults={
+                        "number_of_items": 0,
+                        "created_by": user_id,
+                        "created_on": now,
+                        "state": PackingListEntryState.NotStarted,
+                    },
+                )
+
+        return distribution_event
+
+
+def remove_all_packing_list_entries_from_distribution_event_for_product(
+    *, user_id, distribution_event_id, product_id
+):
+    """
+    Remove all packing list entries from a distribution event for a product.
+    """
+    with db.database.atomic():
+
+        PackingListEntry.delete().where(
+            PackingListEntry.distribution_event == distribution_event_id,
+            PackingListEntry.product == product_id,
+        ).execute()
+
+        return True
+
+
+def update_packing_list_entry(*, user_id, packing_list_entry_id, number_of_items):
+    """
+    Update a packing list entry.
+    """
+    now = utcnow()
+
+    packing_list_entry = PackingListEntry.get_by_id(packing_list_entry_id)
+
+    packing_list_entry.number_of_items = number_of_items
+    packing_list_entry.last_modified_on = now
+    packing_list_entry.last_modified_by = user_id
+    packing_list_entry.save()
+    return packing_list_entry
 
 
 def add_packing_list_entry_to_distribution_event(
