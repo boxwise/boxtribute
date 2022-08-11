@@ -13,9 +13,9 @@ def _assert_erroneous_request(client, query, *, code, **kwargs):
 
 
 def _verify_response_data(*, query, response, field=None, none_data=False, value=None):
-    """If `none_data` is given, verify that the `data` field of the response JSON is None.
-    Otherwise extract field as query operation name, and verify that it is identical to
-    given `value` (default: None).
+    """If `none_data` is given, verify that the `data` field of the response JSON is
+    None. Otherwise extract field as query operation name, and verify that it is
+    identical to given `value` (default: None).
     """
     if none_data:
         assert response.json["data"] is None
