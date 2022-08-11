@@ -23,28 +23,21 @@ def test_update_selected_products_for_distribution_event_packing_list(
     client, default_distribution_event, default_product, default_size, another_size
 ):
     mutation = f"""mutation {{
-    updateSelectedProductsForDistributionEventPackingList(
-      distributionEventId: {default_distribution_event['id']},
-      productIdsToAdd: [{default_product['id']}],
-      productIdsToRemove: []
-    )
+        updateSelectedProductsForDistributionEventPackingList(
+        distributionEventId: {default_distribution_event['id']},
+        productIdsToAdd: [{default_product['id']}],
+        productIdsToRemove: []
+        ) {{
+            packingListEntries {{
+                product {{ id }}
+                size {{ id }}
+                numberOfItems
+            }}
+        }}
     }}"""
 
     mutation_result = assert_successful_request(client, mutation)
-    assert mutation_result
-
-    query = f"""query {{
-                distributionEvent(id: {default_distribution_event['id']}) {{
-                    packingListEntries {{
-                        product {{ id }}
-                        size {{ id }}
-                        numberOfItems
-                    }}
-                }}
-            }}"""
-
-    queried_event = assert_successful_request(client, query)
-    assert queried_event == {
+    assert mutation_result == {
         "packingListEntries": [
             {
                 "product": {"id": str(default_product["id"])},

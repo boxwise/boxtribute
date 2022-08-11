@@ -137,7 +137,7 @@ def set_products_for_packing_list(
                     },
                 )
 
-        return True
+        return distribution_event
 
 
 def remove_all_packing_list_entries_from_distribution_event_for_product(
@@ -147,18 +147,13 @@ def remove_all_packing_list_entries_from_distribution_event_for_product(
     Remove all packing list entries from a distribution event for a product.
     """
     with db.database.atomic():
-        packing_list_entries = PackingListEntry.select().where(
+
+        PackingListEntry.delete().where(
             PackingListEntry.distribution_event == distribution_event_id,
             PackingListEntry.product == product_id,
-        )
-
-        PackingListEntry.delete().where(packing_list_entries).execute()
-        # for packing_list_entry in packing_list_entries:
-        #     packing_list_entry.delete_instance()
+        ).execute()
 
         return True
-
-    return False
 
 
 def update_packing_list_entry(user_id, packing_list_entry_id, number_of_items):

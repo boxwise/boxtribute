@@ -33,7 +33,7 @@ type Mutation {
   removePackingListEntryFromDistributionEvent(packingListEntryId: ID!): DistributionEvent
   removeAllPackingListEntriesFromDistributionEventForProduct(distributionEventId: ID!, productId: ID!): Boolean
   updatePackingListEntry(packingListEntryId: ID!, numberOfItems: Int): PackingListEntry
-  updateSelectedProductsForDistributionEventPackingList(distributionEventId: ID!, productIdsToAdd: [ID!]!, productIdsToRemove: [ID!]!): Boolean
+  updateSelectedProductsForDistributionEventPackingList(distributionEventId: ID!, productIdsToAdd: [ID!]!, productIdsToRemove: [ID!]!): DistributionEvent
 
   changeDistributionEventState(
     distributionEventId: ID!
