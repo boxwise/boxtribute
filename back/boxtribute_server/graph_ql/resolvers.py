@@ -482,7 +482,11 @@ def resolve_add_packing_list_entry_to_distribution_event(*_, creation_input):
 @convert_kwargs_to_snake_case
 def resolve_update_packing_list_entry(*_, packing_list_entry_id, number_of_items):
     authorize(permission="packing_list_entry:write")
-    return update_packing_list_entry(g.user.id, packing_list_entry_id, number_of_items)
+    return update_packing_list_entry(
+        user_id=g.user.id,
+        packing_list_entry_id=packing_list_entry_id,
+        number_of_items=number_of_items,
+    )
 
 
 @mutation.field("removeAllPackingListEntriesFromDistributionEventForProduct")
@@ -492,7 +496,9 @@ def resolve_remove_all_packing_list_entries_from_distribution_event_for_product(
 ):
     authorize(permission="packing_list_entry:write")
     return remove_all_packing_list_entries_from_distribution_event_for_product(
-        g.user.id, distribution_event_id, product_id
+        user_id=g.user.id,
+        distribution_event_id=distribution_event_id,
+        product_id=product_id,
     )
 
 
