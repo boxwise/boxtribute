@@ -12,7 +12,7 @@
     "@emotion/styled": "^11",
     "@fortawesome/fontawesome-svg-core": "^1.2.36",
     "@fortawesome/free-solid-svg-icons": "^5.15.4",
-    "@fortawesome/react-fontawesome": "^0.1.18",
+    "@fortawesome/react-fontawesome": "^0.2.0",
     "@graphql-codegen/cli": "^2.6.2",
     "@graphql-codegen/typescript-react-query": "^3.5.7",
     "@hookform/resolvers": "^2.9.6",
