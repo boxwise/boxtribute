@@ -503,7 +503,10 @@ def resolve_set_products_for_packing_list(
 ):
     authorize(permission="packing_list_entry:write")
     return set_products_for_packing_list(
-        g.user.id, distribution_event_id, product_ids_to_add, product_ids_to_remove
+        user_id=g.user.id,
+        distribution_event_id=distribution_event_id,
+        product_ids_to_add=product_ids_to_add,
+        product_ids_to_remove=product_ids_to_remove,
     )
 
 

@@ -93,10 +93,10 @@ def change_distribution_event_state(distribution_event_id, distribution_event_st
 
 
 def set_products_for_packing_list(
-    user_id, distribution_event_id, product_ids_to_add, product_ids_to_remove
+    *, user_id, distribution_event_id, product_ids_to_add, product_ids_to_remove
 ):
     """
-    Set the products for a packing list.
+    TODO: Add description and consider to extract sub logic into a separate functions.
     """
     with db.database.atomic():
         # Completed Events should not be mutable anymore
@@ -114,6 +114,7 @@ def set_products_for_packing_list(
             )
 
         # Add new products
+        now = utcnow()
         for product_id in product_ids_to_add:
             sizes = (
                 Size.select(Size.id)
@@ -131,7 +132,7 @@ def set_products_for_packing_list(
                     defaults={
                         "number_of_items": 0,
                         "created_by": user_id,
-                        "created_on": utcnow(),
+                        "created_on": now,
                         "state": PackingListEntryState.NotStarted,
                     },
                 )
@@ -151,8 +152,9 @@ def remove_all_packing_list_entries_from_distribution_event_for_product(
             PackingListEntry.product == product_id,
         )
 
-        for packing_list_entry in packing_list_entries:
-            packing_list_entry.delete_instance()
+        PackingListEntry.delete().where(packing_list_entries).execute()
+        # for packing_list_entry in packing_list_entries:
+        #     packing_list_entry.delete_instance()
 
         return True
 
