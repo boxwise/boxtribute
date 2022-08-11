@@ -22,10 +22,12 @@ def test_distribution_event_query(read_only_client, default_distribution_event):
 def test_update_selected_products_for_distribution_event_packing_list(
     client, default_distribution_event, default_product, default_size, another_size
 ):
+    distribution_event_id = default_distribution_event["id"]
+    product_id = str(default_product["id"])
     mutation = f"""mutation {{
         updateSelectedProductsForDistributionEventPackingList(
-        distributionEventId: {default_distribution_event['id']},
-        productIdsToAdd: [{default_product['id']}],
+        distributionEventId: {distribution_event_id},
+        productIdsToAdd: [{product_id}],
         productIdsToRemove: []
         ) {{
             packingListEntries {{
@@ -51,3 +53,14 @@ def test_update_selected_products_for_distribution_event_packing_list(
             },
         ],
     }
+
+    mutation = f"""mutation {{
+        updateSelectedProductsForDistributionEventPackingList(
+        distributionEventId: {distribution_event_id},
+        productIdsToAdd: [],
+        productIdsToRemove: [{default_product['id']}]
+        ) {{ packingListEntries {{ id }} }}
+    }}"""
+
+    mutation_result = assert_successful_request(client, mutation)
+    assert mutation_result == {"packingListEntries": []}
