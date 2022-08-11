@@ -118,11 +118,6 @@ const AddItemsToPackingList = ({
       })
       .value();
 
-  console.log(
-    "productsGroupedByGenderAndCategory",
-    productsGroupedByGenderAndCategory
-  );
-
   const onApplyClick = () => {
     const entriesToAdd = checkedProductIds.filter(
       (p1) => !productIdsWithPackingListEntries.some((p2) => p1 === p2)

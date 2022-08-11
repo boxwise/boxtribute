@@ -87,7 +87,7 @@ const CreateDistributionEventView = () => {
           );
         })
         .catch((error) => {
-          console.log("Error while trying to create Distribution Event", error);
+          console.error("Error while trying to create Distribution Event", error);
         });
     },
     [baseId, createDistributionEventMutation, distributionSpotId, navigate]

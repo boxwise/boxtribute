@@ -116,6 +116,7 @@ const PackingScanBoxOrFindByLabelOverlay = ({
         const qrCode = extractQrCodeFromUrl(result);
         if (qrCode == null) {
           console.error("Not a Boxtribute QR Code", qrCode);
+          // TODO: use toast instead of alert here
           alert("This is not a Boxtribute QR Code");
           // onScanningDone([{ kind: "noBoxtributeQr" }]);
         } else {
@@ -135,6 +136,7 @@ const PackingScanBoxOrFindByLabelOverlay = ({
                 //   { kind: "notAssignedToBox", qrCodeValue: qrCode },
                 // ]);
                 console.error("No Box yet assigned to QR Code");
+              // TODO: use toast instead of alert here
                 alert("This QR code is not assigned to any box");
               } else {
                 onFindAndValidateBoxLabelIdentifier(boxLabelIdentifier);

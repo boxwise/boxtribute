@@ -88,9 +88,7 @@ const QrReaderOverlayContainer = ({
           return resolvedQrValueWrapper;
         });
       // TODO: Handle Authorization / No Access To Box case
-
       // .catch((error) => {
-      //   alert(error);
       //   console.error(error);
       //   const resolvedQrValueWrapper = {
       //     ...qrValueWrapper,

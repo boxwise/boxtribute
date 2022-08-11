@@ -57,14 +57,9 @@ const DistrosDashboardView = () => {
 
   if (data?.base?.distributionEvents == null) return <div>Error: No data</div>;
 
-  console.log("RAW distributionEvents data", data?.base);
   const parsedDistributionEventsData = z
     .array(DistributionEventDetailsSchema)
     .parse(data?.base?.distributionEvents);
-
-  console.log("parsedDistributionEventsData", parsedDistributionEventsData);
-
-
 
   return (
     <Box>

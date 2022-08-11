@@ -92,9 +92,6 @@ const BoxEditView = () => {
   >(UPDATE_CONTENT_OF_BOX_MUTATION);
 
   const onSubmitBoxEditForm = (boxFormValues: BoxFormValues) => {
-    console.log("boxLabelIdentifier", labelIdentifier);
-    console.log("boxFormValues", boxFormValues);
-
     updateContentOfBoxMutation({
       variables: {
         boxLabelIdentifier: labelIdentifier,
@@ -109,7 +106,7 @@ const BoxEditView = () => {
         );
       })
       .catch((error) => {
-        console.log("Error while trying to update Box", error);
+        console.error("Error while trying to update Box", error);
       });
   };
 

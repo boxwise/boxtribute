@@ -3,7 +3,6 @@ export const handlers = [
   // graphql.query<DistroSpotsForBaseIdQuery, DistroSpotsForBaseIdQueryVariables>(
   //   "DistroSpotsForBaseId",
   //   (req, res, ctx) => {
-  //     console.log("FOO");
   //     return res(
   //       ctx.data({
   //         base: {

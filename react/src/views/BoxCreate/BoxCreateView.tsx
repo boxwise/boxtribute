@@ -81,10 +81,6 @@ const BoxCreateView = () => {
   >(CREATE_BOX_MUTATION);
 
   const onSubmitBoxCreateForm = (createBoxData: CreateBoxData) => {
-    console.log("boxFormValues", createBoxData);
-
-    debugger;
-    console.log("qrCode", qrCode);
     createBoxMutation({
       variables: {
         locationId: parseInt(createBoxData.locationId),
@@ -100,7 +96,7 @@ const BoxCreateView = () => {
         );
       })
       .catch((error) => {
-        console.log("Error while trying to create Box", error);
+        console.error("Error while trying to create Box", error);
       });
   };
 
