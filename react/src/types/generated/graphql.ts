@@ -422,7 +422,7 @@ export type Mutation = {
   updateBeneficiary?: Maybe<Beneficiary>;
   updateBox?: Maybe<Box>;
   updatePackingListEntry?: Maybe<PackingListEntry>;
-  updateSelectedProductsForDistributionEventPackingList?: Maybe<Scalars['Boolean']>;
+  updateSelectedProductsForDistributionEventPackingList?: Maybe<DistributionEvent>;
   updateShipment?: Maybe<Shipment>;
   updateTag?: Maybe<Tag>;
 };
@@ -711,7 +711,7 @@ export type MutationUpdateBoxArgs = {
  * - input type: <Resource>CreationInput/UpdateInput
  */
 export type MutationUpdatePackingListEntryArgs = {
-  numberOfItems?: InputMaybe<Scalars['Int']>;
+  numberOfItems: Scalars['Int'];
   packingListEntryId: Scalars['ID'];
 };
 
