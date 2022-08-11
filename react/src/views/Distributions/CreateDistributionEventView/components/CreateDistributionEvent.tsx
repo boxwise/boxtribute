@@ -6,7 +6,6 @@ export interface CreateDistroEventFormData {
   eventTime: string;
   duration: number;
   name?: string
-  // distroSpot: string;
 }
 
 export interface DistroSpot {

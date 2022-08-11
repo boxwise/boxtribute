@@ -5,23 +5,28 @@ import {
   AlertDialogContent,
   AlertDialogFooter,
   AlertDialogHeader,
-  AlertDialogOverlay, Box, Button, Text, useDisclosure, VStack
+  AlertDialogOverlay,
+  Box,
+  Button,
+  Text,
+  useDisclosure,
+  VStack,
 } from "@chakra-ui/react";
 import BTBreadcrumbNavigation from "components/BTBreadcrumbNavigation";
 import React, { useCallback } from "react";
 import {
   ChangeDistributionEventStateMutation,
-  ChangeDistributionEventStateMutationVariables
+  ChangeDistributionEventStateMutationVariables,
 } from "types/generated/graphql";
 import DistributionStateProgressBar from "views/Distributions/components/DistributionStateProgressBar";
 import {
   CHANGE_DISTRIBUTION_EVENT_STATE_MUTATION,
-  DISTRIBUTION_EVENT_QUERY
+  DISTRIBUTION_EVENT_QUERY,
 } from "views/Distributions/queries";
 import {
   DistributionEventDetails,
   DistributionEventState,
-  DistributionEventStateSchema
+  DistributionEventStateSchema,
 } from "views/Distributions/types";
 import DistroEventDetailsForPlanningStateContainer from "./State1Planning/DistroEventDetailsForPlanningStateContainer";
 import DistroEventDetailsForPackingStateContainer from "./State2Packing/DistroEventDetailsForPackingStateContainer";
@@ -54,11 +59,6 @@ const DistroEventContainer = ({
 
   const nextStageTransitionAlertState = useDisclosure();
   const cancelNextStageTransitionRef = React.useRef<HTMLButtonElement>(null);
-
-  // const nextState = useMemo(
-  //   () => getNextState(distributionEventDetails.state),
-  //   [distributionEventDetails.state]
-  // );
 
   const onMoveToStage = useCallback(
     (state: DistributionEventState) => {
@@ -103,16 +103,13 @@ const DistroEventContainer = ({
         distributionEventDetails={distributionEventDetails}
       />
     ),
-    // [DistributionEventState.PlanningDone]: () => <Box>PlanningDone</Box>,
     [DistributionEventState.Packing]: () => (
       <DistroEventDetailsForPackingStateContainer
         distributionEventDetails={distributionEventDetails}
       />
     ),
-    // [DistributionEventState.PackingDone]: () => <Box>PackingDone</Box>,
     [DistributionEventState.OnDistro]: () => <Box>OnDistro</Box>,
     [DistributionEventState.Returned]: () => <Box>Returned</Box>,
-    // [DistributionEventState.ReturnsTracked]: () => <Box>ReturnsTracked</Box>,
     [DistributionEventState.Completed]: () => <Box>Completed</Box>,
   };
 

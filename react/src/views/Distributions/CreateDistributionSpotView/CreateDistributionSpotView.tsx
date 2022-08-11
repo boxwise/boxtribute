@@ -79,7 +79,6 @@ const CreateDistributionSpotView = () => {
         ) {
           showErrorToast();
         }
-        // navigate(`/bases/${baseId}/distributions/spots/${distributionSpotId}`);
         navigate(`/bases/${baseId}/distributions/spots`);
       })
       .catch((error) => {
@@ -99,7 +98,6 @@ const CreateDistributionSpotView = () => {
           />
         )}
         {createDistributionSpotState.error && <p>Error</p>}
-        {/* {createDistributionSpotState.loading && <APILoadingIndicator />} */}
       </VStack>
     </Center>
   );
