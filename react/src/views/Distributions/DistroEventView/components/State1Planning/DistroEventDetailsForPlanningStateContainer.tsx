@@ -80,7 +80,9 @@ export const UPDATE_SELECTED_PRODUCTS_FOR_DISTRO_EVENT_PACKING_LIST_MUTATION = g
       distributionEventId: $distributionEventId
       productIdsToAdd: $productIdsToAdd
       productIdsToRemove: $productIdsToRemove
-    )
+    ) {
+      id
+    }
   }
 `;
 

@@ -422,7 +422,7 @@ export type Mutation = {
   updateBeneficiary?: Maybe<Beneficiary>;
   updateBox?: Maybe<Box>;
   updatePackingListEntry?: Maybe<PackingListEntry>;
-  updateSelectedProductsForDistributionEventPackingList?: Maybe<Scalars['Boolean']>;
+  updateSelectedProductsForDistributionEventPackingList?: Maybe<DistributionEvent>;
   updateShipment?: Maybe<Shipment>;
   updateTag?: Maybe<Tag>;
 };
@@ -1394,7 +1394,7 @@ export type UpdateSelectedProductsForDistributionEventPackingListMutationVariabl
 }>;
 
 
-export type UpdateSelectedProductsForDistributionEventPackingListMutation = { __typename?: 'Mutation', updateSelectedProductsForDistributionEventPackingList?: boolean | null };
+export type UpdateSelectedProductsForDistributionEventPackingListMutation = { __typename?: 'Mutation', updateSelectedProductsForDistributionEventPackingList?: { __typename?: 'DistributionEvent', id: string } | null };
 
 export type UpdatePackingListEntryMutationVariables = Exact<{
   packingListEntryId: Scalars['ID'];
