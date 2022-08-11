@@ -3,7 +3,7 @@ import os
 
 from ariadne import graphql_sync
 from ariadne.constants import PLAYGROUND_HTML
-from flask import Blueprint, jsonify, request
+from flask import Blueprint, current_app, jsonify, request
 from flask_cors import cross_origin
 
 from .auth import request_jwt, requires_auth
@@ -47,7 +47,7 @@ def query_api_server():
         query_api_schema,
         data=request.get_json(),
         context_value=request,
-        introspection=os.getenv("FLASK_ENV") == "development",
+        introspection=current_app.debug,
         error_formatter=format_database_errors,
     )
 
@@ -91,7 +91,7 @@ def graphql_server():
         data=request.get_json(),
         context_value=request,
         debug=debug_graphql,
-        introspection=os.getenv("FLASK_ENV") == "development",
+        introspection=current_app.debug,
         error_formatter=format_database_errors,
     )
 
