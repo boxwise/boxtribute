@@ -1,4 +1,4 @@
-ARG flask_env
+ARG env
 
 # using alpine for smallest docker image
 FROM python:3.10.4-alpine3.15 AS base
@@ -19,5 +19,5 @@ FROM base AS development
 # Path of module containing Flask app, relative to WORKDIR
 CMD flask --debug --app boxtribute_server.main run -h 0.0.0 -p 5000
 
-# Select final stage depending on flask_env argument
-FROM ${flask_env} AS final
+# Select final stage depending on env argument
+FROM ${env} AS final
