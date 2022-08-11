@@ -1,7 +1,7 @@
 from utils import assert_successful_request
 
 
-def test_product_query(read_only_client, default_product, default_size):
+def test_product_query(read_only_client, default_product, default_size, another_size):
     query = f"""query {{
                 product(id: {default_product['id']}) {{
                     id
@@ -23,7 +23,7 @@ def test_product_query(read_only_client, default_product, default_size):
         "category": {"hasGender": True},
         "sizeRange": {
             "id": str(default_product["size_range"]),
-            "sizes": [{"id": str(default_size["id"])}],
+            "sizes": [{"id": str(default_size["id"])}, {"id": str(another_size["id"])}],
         },
         "base": {"id": str(default_product["base"])},
         "price": default_product["price"],
