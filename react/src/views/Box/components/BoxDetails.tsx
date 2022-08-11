@@ -83,8 +83,12 @@ const BoxDetails = ({
           </ListItem>
           <ListItem>
             <Flex direction="row">
-              <Text mr={2}>{boxData.product?.gender}</Text>
-              <Text>{boxData.size.label}</Text>
+              <Text mr={2}><b>Gender: </b>{boxData.product?.gender}</Text>
+            </Flex>
+          </ListItem>
+          <ListItem>
+            <Flex direction="row">
+              <Text><b>Size: </b>{boxData.size.label}</Text>
             </Flex>
           </ListItem>
           <ListItem>

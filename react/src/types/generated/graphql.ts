@@ -1302,6 +1302,24 @@ export type UpdateLocationOfBoxMutationVariables = Exact<{
 
 export type UpdateLocationOfBoxMutation = { __typename?: 'Mutation', updateBox?: { __typename?: 'Box', labelIdentifier: string, items?: number | null, size: { __typename?: 'Size', id: string, label: string }, product?: { __typename?: 'Product', name: string, gender?: ProductGender | null, id: string } | null, tags: Array<{ __typename?: 'Tag', id: string, name: string }>, place?: { __typename?: 'DistributionSpot', id: string, name?: string | null, base?: { __typename?: 'Base', locations: Array<{ __typename?: 'Location', id: string, name?: string | null }> } | null } | { __typename?: 'Location', id: string, name?: string | null, base?: { __typename?: 'Base', locations: Array<{ __typename?: 'Location', id: string, name?: string | null }> } | null } | null } | null };
 
+export type AllProductsAndLocationsForBaseQueryVariables = Exact<{
+  baseId: Scalars['ID'];
+}>;
+
+
+export type AllProductsAndLocationsForBaseQuery = { __typename?: 'Query', base?: { __typename?: 'Base', locations: Array<{ __typename?: 'Location', id: string, name?: string | null }> } | null, products: { __typename?: 'ProductPage', elements: Array<{ __typename?: 'Product', id: string, name: string, gender?: ProductGender | null, category: { __typename?: 'ProductCategory', name: string }, sizeRange: { __typename?: 'SizeRange', sizes: Array<{ __typename?: 'Size', id: string, label: string }> } }> } };
+
+export type CreateBoxMutationVariables = Exact<{
+  locationId: Scalars['Int'];
+  productId: Scalars['Int'];
+  sizeId: Scalars['Int'];
+  numberOfItems: Scalars['Int'];
+  qrCode?: InputMaybe<Scalars['String']>;
+}>;
+
+
+export type CreateBoxMutation = { __typename?: 'Mutation', createBox?: { __typename?: 'Box', labelIdentifier: string } | null };
+
 export type BoxByLabelIdentifierAndAllProductsQueryVariables = Exact<{
   labelIdentifier: Scalars['String'];
 }>;
@@ -1325,3 +1343,78 @@ export type BoxesForBaseQueryVariables = Exact<{
 
 
 export type BoxesForBaseQuery = { __typename?: 'Query', base?: { __typename?: 'Base', locations: Array<{ __typename?: 'Location', name?: string | null, boxes?: { __typename?: 'BoxPage', totalCount: number, elements: Array<{ __typename?: 'Box', labelIdentifier: string, state: BoxState, items?: number | null, size: { __typename?: 'Size', id: string, label: string }, product?: { __typename?: 'Product', gender?: ProductGender | null, name: string } | null, tags: Array<{ __typename?: 'Tag', name: string, id: string }>, place?: { __typename?: 'DistributionSpot', name?: string | null } | { __typename?: 'Location', name?: string | null } | null }> } | null }> } | null };
+
+export type DistributionSpotQueryVariables = Exact<{
+  id: Scalars['ID'];
+}>;
+
+
+export type DistributionSpotQuery = { __typename?: 'Query', distributionSpot?: { __typename?: 'DistributionSpot', id: string, name?: string | null } | null };
+
+export type CreateDistributionEventMutationVariables = Exact<{
+  distributionSpotId: Scalars['Int'];
+  name: Scalars['String'];
+  plannedStartDateTime: Scalars['Datetime'];
+  plannedEndDateTime: Scalars['Datetime'];
+}>;
+
+
+export type CreateDistributionEventMutation = { __typename?: 'Mutation', createDistributionEvent?: { __typename?: 'DistributionEvent', id: string, name?: string | null, plannedStartDateTime: any, plannedEndDateTime: any } | null };
+
+export type CreateDistributionSpotMutationVariables = Exact<{
+  baseId: Scalars['Int'];
+  name: Scalars['String'];
+  comment: Scalars['String'];
+  latitude?: InputMaybe<Scalars['Float']>;
+  longitude?: InputMaybe<Scalars['Float']>;
+}>;
+
+
+export type CreateDistributionSpotMutation = { __typename?: 'Mutation', createDistributionSpot?: { __typename?: 'DistributionSpot', id: string } | null };
+
+export type RemoveEntryFromPackingListMutationVariables = Exact<{
+  packingListEntryId: Scalars['ID'];
+}>;
+
+
+export type RemoveEntryFromPackingListMutation = { __typename?: 'Mutation', removePackingListEntryFromDistributionEvent?: { __typename?: 'DistributionEvent', id: string } | null };
+
+export type RemoveAllPackingListEntriesFromDistributionEventForProductMutationVariables = Exact<{
+  distributionEventId: Scalars['ID'];
+  productId: Scalars['ID'];
+}>;
+
+
+export type RemoveAllPackingListEntriesFromDistributionEventForProductMutation = { __typename?: 'Mutation', removeAllPackingListEntriesFromDistributionEventForProduct?: boolean | null };
+
+export type UpdateSelectedProductsForDistributionEventPackingListMutationVariables = Exact<{
+  distributionEventId: Scalars['ID'];
+  productIdsToAdd: Array<Scalars['ID']> | Scalars['ID'];
+  productIdsToRemove: Array<Scalars['ID']> | Scalars['ID'];
+}>;
+
+
+export type UpdateSelectedProductsForDistributionEventPackingListMutation = { __typename?: 'Mutation', updateSelectedProductsForDistributionEventPackingList?: { __typename?: 'DistributionEvent', id: string } | null };
+
+export type UpdatePackingListEntryMutationVariables = Exact<{
+  packingListEntryId: Scalars['ID'];
+  numberOfItems: Scalars['Int'];
+}>;
+
+
+export type UpdatePackingListEntryMutation = { __typename?: 'Mutation', updatePackingListEntry?: { __typename?: 'PackingListEntry', id: string, numberOfItems: number, product?: { __typename?: 'Product', id: string, name: string, gender?: ProductGender | null } | null, size?: { __typename?: 'Size', id: string, label: string } | null } | null };
+
+export type AddToPackingListMutationVariables = Exact<{
+  distributionEventId: Scalars['ID'];
+  productId: Scalars['Int'];
+  sizeId: Scalars['Int'];
+  numberOfItems: Scalars['Int'];
+}>;
+
+
+export type AddToPackingListMutation = { __typename?: 'Mutation', addPackingListEntryToDistributionEvent?: { __typename?: 'PackingListEntry', id: string, numberOfItems: number, product?: { __typename?: 'Product', id: string, name: string, gender?: ProductGender | null } | null, size?: { __typename?: 'Size', id: string, label: string } | null } | null };
+
+export type AllProductsForPackingListQueryVariables = Exact<{ [key: string]: never; }>;
+
+
+export type AllProductsForPackingListQuery = { __typename?: 'Query', products: { __typename?: 'ProductPage', elements: Array<{ __typename?: 'Product', id: string, name: string, gender?: ProductGender | null, category: { __typename?: 'ProductCategory', id: string, name: string }, sizeRange: { __typename?: 'SizeRange', sizes: Array<{ __typename?: 'Size', id: string, label: string }> } }> } };

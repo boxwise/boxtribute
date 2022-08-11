@@ -1,7 +1,7 @@
-import { fireEvent, screen, waitFor } from "@testing-library/react";
 import "@testing-library/jest-dom";
-import Boxes, { BOXES_FOR_BASE_QUERY } from "./BoxesView";
+import { screen, waitFor } from "@testing-library/react";
 import { render } from "utils/test-utils";
+import Boxes, { BOXES_FOR_BASE_QUERY } from "./BoxesView";
 
 describe("Boxes view", () => {
   const mocks = [

@@ -39,12 +39,14 @@ const BaseSwitcher = ({
   return (
     <>
       {availableBases?.map((base, i) => (
-        <Link
+        <MenuItem
+          key={base.id}
           style={currentActiveBaseId === base.id ? { color: "orange" } : {}}
           to={`/bases/${base.id}`}
+          as={Link}
         >
-          <MenuItem key={base.id}>{base.name}</MenuItem>
-        </Link>
+          {base.name}
+        </MenuItem>
       ))}
     </>
   );
@@ -122,11 +124,9 @@ const MenuItemsGroupDesktop = ({ ...props }: MenuItemsGroupProps) => {
       </MenuButton>
       <MenuList border="2px" p={0} borderRadius="0px" my={0}>
         {props.links.map((link, i) => (
-          <NavLink to={link.link}>
-            <MenuItem py={2} px={3} key={i}>
-              {link.name}
-            </MenuItem>
-          </NavLink>
+          <MenuItem py={2} px={3} key={i} as={NavLink} to={link.link}>
+            {link.name}
+          </MenuItem>
         ))}
       </MenuList>
     </Menu>
@@ -164,9 +164,9 @@ const HeaderMenuDesktopContainer = ({ children, ...props }) => {
       alignItems="flex-start"
       justify="space-between"
       w="100%"
-      mb={8}
+      mb={4}
       pt={4}
-      pb={4}
+      pb={2}
       color={"black"}
     >
       {children}
