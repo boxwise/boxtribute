@@ -1418,3 +1418,63 @@ export type AllProductsForPackingListQueryVariables = Exact<{ [key: string]: nev
 
 
 export type AllProductsForPackingListQuery = { __typename?: 'Query', products: { __typename?: 'ProductPage', elements: Array<{ __typename?: 'Product', id: string, name: string, gender?: ProductGender | null, category: { __typename?: 'ProductCategory', id: string, name: string }, sizeRange: { __typename?: 'SizeRange', sizes: Array<{ __typename?: 'Size', id: string, label: string }> } }> } };
+
+export type DistroSpotsForBaseIdQueryVariables = Exact<{
+  baseId: Scalars['ID'];
+}>;
+
+
+export type DistroSpotsForBaseIdQuery = { __typename?: 'Query', base?: { __typename?: 'Base', distributionSpots: Array<{ __typename?: 'DistributionSpot', id: string, name?: string | null, latitude?: number | null, longitude?: number | null, distributionEvents: Array<{ __typename?: 'DistributionEvent', id: string, name?: string | null, state: DistributionEventState, plannedStartDateTime: any }> }> } | null };
+
+export type DistributionEventsForBaseQueryVariables = Exact<{
+  baseId: Scalars['ID'];
+}>;
+
+
+export type DistributionEventsForBaseQuery = { __typename?: 'Query', base?: { __typename?: 'Base', distributionEvents: Array<{ __typename?: 'DistributionEvent', id: string, name?: string | null, plannedStartDateTime: any, plannedEndDateTime: any, state: DistributionEventState, distributionSpot?: { __typename?: 'DistributionSpot', id: string, name?: string | null } | null }> } | null };
+
+export type MoveBoxToDistributionEventMutationVariables = Exact<{
+  boxLabelIdentifier: Scalars['ID'];
+  distributionEventId: Scalars['ID'];
+}>;
+
+
+export type MoveBoxToDistributionEventMutation = { __typename?: 'Mutation', moveBoxToDistributionEvent?: { __typename?: 'Box', id: string, distributionEvent?: { __typename?: 'DistributionEvent', id: string, name?: string | null, distributionSpot?: { __typename?: 'DistributionSpot', name?: string | null } | null } | null } | null };
+
+export type MoveItemsToDistributionEventMutationVariables = Exact<{
+  boxLabelIdentifier: Scalars['ID'];
+  distributionEventId: Scalars['ID'];
+  numberOfItems: Scalars['Int'];
+}>;
+
+
+export type MoveItemsToDistributionEventMutation = { __typename?: 'Mutation', moveItemsFromBoxToDistributionEvent?: { __typename?: 'UnboxedItemsCollection', id: string, items?: number | null, distributionEvent?: { __typename?: 'DistributionEvent', id: string, name?: string | null, boxes: Array<{ __typename?: 'Box', product?: { __typename?: 'Product', name: string } | null }>, distributionSpot?: { __typename?: 'DistributionSpot', id: string, name?: string | null } | null } | null } | null };
+
+export type PackingListEntriesForDistributionEventQueryVariables = Exact<{
+  distributionEventId: Scalars['ID'];
+}>;
+
+
+export type PackingListEntriesForDistributionEventQuery = { __typename?: 'Query', distributionEvent?: { __typename?: 'DistributionEvent', id: string, packingListEntries: Array<{ __typename?: 'PackingListEntry', id: string, numberOfItems: number, product?: { __typename?: 'Product', id: string, name: string, gender?: ProductGender | null } | null, size?: { __typename?: 'Size', id: string, label: string } | null, matchingPackedItemsCollections: Array<{ __typename: 'Box', labelIdentifier: string, numberOfItems?: number | null } | { __typename: 'UnboxedItemsCollection', numberOfItems?: number | null }> }> } | null };
+
+export type ChangeDistributionEventStateMutationVariables = Exact<{
+  distributionEventId: Scalars['ID'];
+  newState: DistributionEventState;
+}>;
+
+
+export type ChangeDistributionEventStateMutation = { __typename?: 'Mutation', changeDistributionEventState?: { __typename: 'DistributionEvent', id: string, name?: string | null, state: DistributionEventState } | null };
+
+export type BoxDetailsQueryVariables = Exact<{
+  labelIdentifier: Scalars['String'];
+}>;
+
+
+export type BoxDetailsQuery = { __typename?: 'Query', box?: { __typename?: 'Box', labelIdentifier: string, items?: number | null, product?: { __typename?: 'Product', id: string, name: string } | null, size: { __typename?: 'Size', id: string, label: string } } | null };
+
+export type DistributionEventQueryVariables = Exact<{
+  eventId: Scalars['ID'];
+}>;
+
+
+export type DistributionEventQuery = { __typename?: 'Query', distributionEvent?: { __typename?: 'DistributionEvent', id: string, name?: string | null, state: DistributionEventState, plannedStartDateTime: any, plannedEndDateTime: any, distributionSpot?: { __typename?: 'DistributionSpot', id: string, name?: string | null } | null } | null };
