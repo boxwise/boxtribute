@@ -76,7 +76,7 @@ const DistrosDashboardView = () => {
 
         <TabPanels>
           <TabPanel>
-            <UpcomingDistributions distributionsData={parsedDistributionEventsData} />
+            <UpcomingDistributions distributionEventsData={parsedDistributionEventsData} />
           </TabPanel>
           <TabPanel>
             {selectedEvent &&
