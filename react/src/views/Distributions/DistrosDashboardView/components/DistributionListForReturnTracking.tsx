@@ -16,7 +16,10 @@ import isFuture from "date-fns/isFuture";
 import isPast from "date-fns/isPast";
 import _ from "lodash";
 import React, { useState } from "react";
-import { weekDayNumberToWeekDayName } from "utils/helpers";
+import {
+  getDateNormalizedDateTime,
+  weekDayNumberToWeekDayName,
+} from "utils/helpers";
 import { useGetUrlForResourceHelpers } from "utils/hooks";
 import {
   DistributionEventDetails,
@@ -143,7 +146,9 @@ const DistributionListForReturnTracking = ({
   const distroEventsToShowGroupedByDay = _.chain(
     sortedDistroEventsWhichNeedReturnTracking
   )
-    .groupBy((el) => el.plannedStartDateTime.toISOString())
+    .groupBy((el) =>
+      getDateNormalizedDateTime(el.plannedStartDateTime).toISOString()
+    )
     .map((events, date) => ({ date: parseISO(date), events }))
     // .orderBy()
     .value();
@@ -176,30 +181,35 @@ const DistributionListForReturnTracking = ({
           const groupName = `${date.toLocaleDateString()} (${weekDayNumberToWeekDayName(
             getDay(date)
           )})`;
-          const allValuesWithLabelsOfCurrentGroup = events.map((el) => [
-            el.id,
-            `${
-              el.distributionSpot.name
-            } (${el.plannedStartDateTime.toLocaleTimeString()})`,
-          ] as [string, string]);
+          const allValuesWithLabelsOfCurrentGroup = events.map(
+            (el) =>
+              [
+                el.id,
+                `${
+                  el.distributionSpot.name
+                } (${el.plannedStartDateTime.toLocaleTimeString()})`,
+              ] as [string, string]
+          );
           const allValuesOfCurrentGroup = events.map((el) => el.id);
           return (
-            <CheckboxGroup
-              key={date.toISOString()}
-              groupName={groupName}
-              allValuesWithLabels={allValuesWithLabelsOfCurrentGroup}
-              selectedValues={selectedValues.filter((el) =>
-                allValuesOfCurrentGroup.includes(el)
-              )}
-              onChange={(newSelectedValues, newUnselectedValues) => {
-                setSelectedValues((prev) => {
-                  return [
-                    ...prev.filter((el) => !newUnselectedValues.includes(el)),
-                    ...newSelectedValues.filter((el) => !prev.includes(el)),
-                  ];
-                });
-              }}
-            />
+            <Box mb={4}>
+              <CheckboxGroup
+                key={date.toISOString()}
+                groupName={groupName}
+                allValuesWithLabels={allValuesWithLabelsOfCurrentGroup}
+                selectedValues={selectedValues.filter((el) =>
+                  allValuesOfCurrentGroup.includes(el)
+                )}
+                onChange={(newSelectedValues, newUnselectedValues) => {
+                  setSelectedValues((prev) => {
+                    return [
+                      ...prev.filter((el) => !newUnselectedValues.includes(el)),
+                      ...newSelectedValues.filter((el) => !prev.includes(el)),
+                    ];
+                  });
+                }}
+              />
+            </Box>
           );
         })}
       </Box>

@@ -18,3 +18,9 @@ export const weekDayNumberToWeekDayName = (weekDayNumber: number) => {
   const weekDayNames = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
   return weekDayNames[weekDayNumber];
 }
+
+export const getDateNormalizedDateTime = (dateTime: Date) => {
+  const newDate = new Date(dateTime);
+  newDate.setHours(0,0,0,0);
+  return newDate;
+}
