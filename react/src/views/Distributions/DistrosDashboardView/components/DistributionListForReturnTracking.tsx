@@ -40,23 +40,24 @@ function CheckboxGroup({
 
   const allChecked = selectedValues.length === allValuesWithLabels.length;
   const isIndeterminate = selectedValues.some(Boolean) && !allChecked;
+  const allValues = allValuesWithLabels.map(el => el[0])
 
   return (
     <>
       <Checkbox
         isChecked={allChecked}
         isIndeterminate={isIndeterminate}
-        // onChange={(e) => setCheckedItems([e.target.checked, e.target.checked])}
+        onChange={(e) => e.target.checked ? onChange(allValues, []) : onChange([], allValues)}
       >
         {groupName}
       </Checkbox>
       <Stack pl={6} mt={1} spacing={1}>
-        {allValuesWithLabels.map((value) => (
+        {allValuesWithLabels.map(([value, label]) => (
           <Checkbox
-          // isChecked={checkedItems[0]}
-          // onChange={(e) => setCheckedItems([e.target.checked, checkedItems[1]])}
+          isChecked={selectedValues.some(el => el === value)}
+          onChange={(e) => e.target.checked ? onChange([value], []) : onChange([], [value])}
           >
-            {allValuesWithLabels.find((v) => v[0] === value[0])?.[1]}
+            {allValuesWithLabels.find((v) => v[0] === value)?.[1]}
           </Checkbox>
         ))}
       </Stack>
@@ -179,7 +180,11 @@ const DistributionListForReturnTracking = ({
                 `${el.distributionSpot.name} (${el.plannedStartDateTime.toLocaleTimeString()})`,
               ])}
               selectedValues={selectedValues}
-              onChange={() => {}}
+              onChange={(selectedValues, unselectedValues) => {
+                setSelectedValues(prev => {
+                  return [...prev.filter(el => unselectedValues.includes(el)), ...selectedValues.filter(el => prev.includes(el))];
+                });
+              }}
             />
           );
         })}
