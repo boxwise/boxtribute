@@ -25,48 +25,42 @@ import {
 
 const ListOfEvents = ({
   distributionEventsListData,
-  heading,
 }: {
   distributionEventsListData: DistributionEventDetails[];
-  heading?: ReactElement;
 }) => {
   const { getDistroEventDetailUrlById } = useGetUrlForResourceHelpers();
 
   return (
-    <>
-      {heading != null && heading}
-      <Wrap spacing='30px' justify='center'>
-      {/* <SimpleGrid columns={[2, null, 3]} spacing="40px"> */}
-      {/* <SimpleGrid minChildWidth='200px' spacing="4px"> */}
-        {distributionEventsListData.map((distributionEventData) => (
-          <LinkBox maxW="sm" p="5" borderWidth="1px" rounded="md">
-            <Box
-              as="time"
-              dateTime={distributionEventData.plannedStartDateTime.toUTCString()}
+      <List>
+      {distributionEventsListData.map((distributionEventData) => (
+        <ListItem my={5}><LinkBox maxW="sm" p="5" borderWidth="1px" rounded="md">
+          <Box
+            as="time"
+            dateTime={distributionEventData.plannedStartDateTime.toUTCString()}
+          >
+            {distributionEventData.plannedStartDateTime.toDateString()} (
+            {distributionEventData.plannedStartDateTime.toLocaleTimeString()} -{" "}
+            {distributionEventData.plannedEndDateTime.toLocaleTimeString()})
+          </Box>
+          <Heading size="md" my="2">
+            <LinkOverlay
+              href={getDistroEventDetailUrlById(distributionEventData.id)}
             >
-              {distributionEventData.plannedStartDateTime.toDateString()} (
-              {distributionEventData.plannedStartDateTime.toLocaleTimeString()}{" "}
-              - {distributionEventData.plannedEndDateTime.toLocaleTimeString()})
-            </Box>
-            <Heading size="md" my="2">
-              <LinkOverlay
-                href={getDistroEventDetailUrlById(distributionEventData.id)}
-              >
-                {distributionEventData.distributionSpot.name}{" "}
-                {!!distributionEventData.name && (
-                  <>({distributionEventData.name})</>
-                )}
-              </LinkOverlay>
-            </Heading>
+              {distributionEventData.distributionSpot.name}{" "}
+              {!!distributionEventData.name && (
+                <>({distributionEventData.name})</>
+              )}
+            </LinkOverlay>
+          </Heading>
 
-            <Text>
-              <b>State: </b>
-              {distributionEventData.state}
-            </Text>
-          </LinkBox>
-        ))}
-      </Wrap>
-    </>
+          <Text>
+            <b>State: </b>
+            {distributionEventData.state}
+          </Text>
+        </LinkBox>
+        </ListItem>
+      ))}
+    </List>
   );
 };
 
@@ -112,43 +106,43 @@ const DistributionList = ({
     <VStack>
       {hasDistroEventsToday && (
         <>
-          <Heading as="h4">Today</Heading>
+          <Heading as="h4" py={10}>Today</Heading>
           <ListOfEvents distributionEventsListData={distroEventsToday} />
         </>
       )}
       {hasUpcomingDistroEventsAfterToday && (
-        <ListOfEvents
-          distributionEventsListData={upcomingDistroEventsAfterToday}
-          heading={
-            showHeadingForUpcomingDistroEventsAfterTodaySection ? (
-              <Heading as="h4">Upcoming</Heading>
-            ) : undefined
-          }
-        />
+        <>
+          {showHeadingForUpcomingDistroEventsAfterTodaySection && (
+            <Heading as="h4" py={10}>Upcoming</Heading>
+          )}
+          <ListOfEvents
+            distributionEventsListData={upcomingDistroEventsAfterToday}
+          />
+        </>
       )}
 
       {hasPastDistroEvents && (
         <>
-          <Heading as="h4">Past</Heading>
+          <Heading as="h4" pt={10}>Past</Heading>
           {hasPastNonCompletedDistroEvents && (
-            <ListOfEvents
-              distributionEventsListData={pastNonCompletedDistroEvents}
-              heading={
-                <Heading as="h5" size={"md"}>
-                  To be completed
-                </Heading>
-              }
-            />
+            <>
+              <Heading as="h5" size={"md"} pt={4}>
+                To be completed
+              </Heading>
+              <ListOfEvents
+                distributionEventsListData={pastNonCompletedDistroEvents}
+              />
+            </>
           )}
           {hasPastCompletedDistroEvents && (
-            <ListOfEvents
-              distributionEventsListData={pastCompletedDistroEvents}
-              heading={
-                <Heading as="h5" size={"md"}>
-                  Completed
-                </Heading>
-              }
-            />
+            <>
+              <Heading as="h5" size={"md"} pt={4}>
+                Completed
+              </Heading>
+              <ListOfEvents
+                distributionEventsListData={pastCompletedDistroEvents}
+              />
+            </>
           )}
         </>
       )}
