@@ -6,7 +6,10 @@ import {
   LinkOverlay,
   List,
   ListItem,
+  SimpleGrid,
   Text,
+  VStack,
+  Wrap,
 } from "@chakra-ui/react";
 import { isToday } from "date-fns";
 import isFuture from "date-fns/isFuture";
@@ -31,38 +34,37 @@ const ListOfEvents = ({
   return (
     <>
       {heading != null && heading}
-      <List>
+      <Wrap spacing='30px' justify='center'>
+      {/* <SimpleGrid columns={[2, null, 3]} spacing="40px"> */}
+      {/* <SimpleGrid minChildWidth='200px' spacing="4px"> */}
         {distributionEventsListData.map((distributionEventData) => (
-          <ListItem key={distributionEventData.id} my={10}>
-            <LinkBox maxW="sm" p="5" borderWidth="1px" rounded="md">
-              <Box
-                as="time"
-                dateTime={distributionEventData.plannedStartDateTime.toUTCString()}
+          <LinkBox maxW="sm" p="5" borderWidth="1px" rounded="md">
+            <Box
+              as="time"
+              dateTime={distributionEventData.plannedStartDateTime.toUTCString()}
+            >
+              {distributionEventData.plannedStartDateTime.toDateString()} (
+              {distributionEventData.plannedStartDateTime.toLocaleTimeString()}{" "}
+              - {distributionEventData.plannedEndDateTime.toLocaleTimeString()})
+            </Box>
+            <Heading size="md" my="2">
+              <LinkOverlay
+                href={getDistroEventDetailUrlById(distributionEventData.id)}
               >
-                {distributionEventData.plannedStartDateTime.toDateString()} (
-                {distributionEventData.plannedStartDateTime.toLocaleTimeString()}{" "}
-                -{" "}
-                {distributionEventData.plannedEndDateTime.toLocaleTimeString()})
-              </Box>
-              <Heading size="md" my="2">
-                <LinkOverlay
-                  href={getDistroEventDetailUrlById(distributionEventData.id)}
-                >
-                  {distributionEventData.distributionSpot.name}{" "}
-                  {!!distributionEventData.name && (
-                    <>({distributionEventData.name})</>
-                  )}
-                </LinkOverlay>
-              </Heading>
+                {distributionEventData.distributionSpot.name}{" "}
+                {!!distributionEventData.name && (
+                  <>({distributionEventData.name})</>
+                )}
+              </LinkOverlay>
+            </Heading>
 
-              <Text>
-                <b>State: </b>
-                {distributionEventData.state}
-              </Text>
-            </LinkBox>
-          </ListItem>
+            <Text>
+              <b>State: </b>
+              {distributionEventData.state}
+            </Text>
+          </LinkBox>
         ))}
-      </List>
+      </Wrap>
     </>
   );
 };
@@ -122,60 +124,50 @@ const UpcomingDistributions = ({
     pastNonCompletedDistroEvents.length > 0;
 
   return (
-    <Center>
-      <List>
-        {hasDistroEventsToday && (
-          <ListItem>
-            <Heading as="h4">Today</Heading>
-            <ListOfEvents distributionEventsListData={distroEventsToday} />
-          </ListItem>
-        )}
-        {hasUpcomingDistroEventsAfterToday && (
-          <ListItem>
+    <VStack>
+      {hasDistroEventsToday && (
+        <>
+          <Heading as="h4">Today</Heading>
+          <ListOfEvents distributionEventsListData={distroEventsToday} />
+        </>
+      )}
+      {hasUpcomingDistroEventsAfterToday && (
+        <ListOfEvents
+          distributionEventsListData={upcomingDistroEventsAfterToday}
+          heading={
+            showHeadingForUpcomingDistroEventsAfterTodaySection ? (
+              <Heading as="h4">Upcoming</Heading>
+            ) : undefined
+          }
+        />
+      )}
+
+      {hasPastDistroEvents && (
+        <>
+          <Heading as="h4">Past</Heading>
+          {hasPastNonCompletedDistroEvents && (
             <ListOfEvents
-              distributionEventsListData={upcomingDistroEventsAfterToday}
+              distributionEventsListData={pastNonCompletedDistroEvents}
               heading={
-                showHeadingForUpcomingDistroEventsAfterTodaySection ? (
-                  <Heading as="h4">Upcoming</Heading>
-                ) : undefined
+                <Heading as="h5" size={"md"}>
+                  To be completed
+                </Heading>
               }
             />
-          </ListItem>
-        )}
-
-        {hasPastDistroEvents && (
-          <ListItem>
-            <Heading as="h4">Past</Heading>
-            <List>
-              {hasPastNonCompletedDistroEvents && (
-                <ListItem>
-                  <ListOfEvents
-                    distributionEventsListData={pastNonCompletedDistroEvents}
-                    heading={
-                      <Heading as="h5" size={"md"}>
-                        To be completed
-                      </Heading>
-                    }
-                  />
-                </ListItem>
-              )}
-              {hasPastCompletedDistroEvents && (
-                <ListItem>
-                  <ListOfEvents
-                    distributionEventsListData={pastCompletedDistroEvents}
-                    heading={
-                      <Heading as="h5" size={"md"}>
-                        Completed
-                      </Heading>
-                    }
-                  />
-                </ListItem>
-              )}
-            </List>
-          </ListItem>
-        )}
-      </List>
-    </Center>
+          )}
+          {hasPastCompletedDistroEvents && (
+            <ListOfEvents
+              distributionEventsListData={pastCompletedDistroEvents}
+              heading={
+                <Heading as="h5" size={"md"}>
+                  Completed
+                </Heading>
+              }
+            />
+          )}
+        </>
+      )}
+    </VStack>
   );
 };
 
