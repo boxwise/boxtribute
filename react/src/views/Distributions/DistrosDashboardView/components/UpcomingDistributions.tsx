@@ -1,5 +1,6 @@
 import {
   Box,
+  Center,
   Heading,
   LinkBox,
   LinkOverlay,
@@ -121,58 +122,60 @@ const UpcomingDistributions = ({
     pastNonCompletedDistroEvents.length > 0;
 
   return (
-    <List>
-      {hasDistroEventsToday && (
-        <ListItem>
-          <Heading as="h4">Today</Heading>
-          <ListOfEvents distributionEventsListData={distroEventsToday} />
-        </ListItem>
-      )}
-      {hasUpcomingDistroEventsAfterToday && (
-        <ListItem>
-          <ListOfEvents
-            distributionEventsListData={upcomingDistroEventsAfterToday}
-            heading={
-              showHeadingForUpcomingDistroEventsAfterTodaySection ? (
-                <Heading as="h4">Upcoming</Heading>
-              ) : undefined
-            }
-          />
-        </ListItem>
-      )}
+    <Center>
+      <List>
+        {hasDistroEventsToday && (
+          <ListItem>
+            <Heading as="h4">Today</Heading>
+            <ListOfEvents distributionEventsListData={distroEventsToday} />
+          </ListItem>
+        )}
+        {hasUpcomingDistroEventsAfterToday && (
+          <ListItem>
+            <ListOfEvents
+              distributionEventsListData={upcomingDistroEventsAfterToday}
+              heading={
+                showHeadingForUpcomingDistroEventsAfterTodaySection ? (
+                  <Heading as="h4">Upcoming</Heading>
+                ) : undefined
+              }
+            />
+          </ListItem>
+        )}
 
-      {hasPastDistroEvents && (
-        <ListItem>
-          <Heading as="h4">Past</Heading>
-          <List>
-            {hasPastNonCompletedDistroEvents && (
-              <ListItem>
-                <ListOfEvents
-                  distributionEventsListData={pastNonCompletedDistroEvents}
-                  heading={
-                    <Heading as="h5" size={"md"}>
-                      To be completed
-                    </Heading>
-                  }
-                />
-              </ListItem>
-            )}
-            {hasPastCompletedDistroEvents && (
-              <ListItem>
-                <ListOfEvents
-                  distributionEventsListData={pastCompletedDistroEvents}
-                  heading={
-                    <Heading as="h5" size={"md"}>
-                      Completed
-                    </Heading>
-                  }
-                />
-              </ListItem>
-            )}
-          </List>
-        </ListItem>
-      )}
-    </List>
+        {hasPastDistroEvents && (
+          <ListItem>
+            <Heading as="h4">Past</Heading>
+            <List>
+              {hasPastNonCompletedDistroEvents && (
+                <ListItem>
+                  <ListOfEvents
+                    distributionEventsListData={pastNonCompletedDistroEvents}
+                    heading={
+                      <Heading as="h5" size={"md"}>
+                        To be completed
+                      </Heading>
+                    }
+                  />
+                </ListItem>
+              )}
+              {hasPastCompletedDistroEvents && (
+                <ListItem>
+                  <ListOfEvents
+                    distributionEventsListData={pastCompletedDistroEvents}
+                    heading={
+                      <Heading as="h5" size={"md"}>
+                        Completed
+                      </Heading>
+                    }
+                  />
+                </ListItem>
+              )}
+            </List>
+          </ListItem>
+        )}
+      </List>
+    </Center>
   );
 };
 
