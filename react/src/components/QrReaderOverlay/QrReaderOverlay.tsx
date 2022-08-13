@@ -156,7 +156,7 @@ const QrReaderOverlay = ({
   onSingleScanDone,
   onClose,
 }: QrReaderOverlayProps) => {
-  const [isBulkModeActive, setIsBulkModeActive] = useBoolean(true);
+  const [isBulkModeActive, setIsBulkModeActive] = useBoolean(false);
   const [zoomLevel, setZoomLevel] = useState(1);
   const [scannedQrValues, setScannedQrValues] = useState<
     Map<string, IQrValueWrapper>

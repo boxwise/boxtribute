@@ -6,7 +6,7 @@ const DistroSpotView = () => {
 
     return (
         <Center>
-            <Heading>Distribution Spot XXXX ID {distributionSpotId} </Heading>
+            <Heading>PLACEHOLDER FOR DETAIL VIEW OF Distribution Spot ID {distributionSpotId} </Heading>
         </Center>
     )
 

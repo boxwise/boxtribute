@@ -22,6 +22,7 @@ import { DISTRIBUTION_EVENTS_FOR_BASE_ID } from "../queries";
 import { DistributionEventDetails, DistributionEventDetailsSchema } from "../types";
 import DistroEventsCalendarContainer from "./components/DistroEventsCalendar/DistroEventsCalendarContainer";
 import DistroEventsStatistics from "./components/DistroEventsStatistics";
+import DistributionList from "./components/DistributionList";
 
 const DistrosDashboardView = () => {
   const baseId = useParams<{ baseId: string }>().baseId;
@@ -75,7 +76,7 @@ const DistrosDashboardView = () => {
 
         <TabPanels>
           <TabPanel>
-            <p>Upcoming Distributions</p>
+            <DistributionList distributionEventsData={parsedDistributionEventsData} />
           </TabPanel>
           <TabPanel>
             {selectedEvent &&
