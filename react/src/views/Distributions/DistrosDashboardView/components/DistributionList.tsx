@@ -1,22 +1,17 @@
 import {
   Box,
-  Center,
   Heading,
   LinkBox,
   LinkOverlay,
   List,
   ListItem,
-  SimpleGrid,
   Text,
   VStack,
-  Wrap,
 } from "@chakra-ui/react";
 import { isToday } from "date-fns";
 import isFuture from "date-fns/isFuture";
 import isPast from "date-fns/isPast";
 import _ from "lodash";
-import { ReactElement } from "react";
-import { useParams } from "react-router-dom";
 import { useGetUrlForResourceHelpers } from "utils/hooks";
 import {
   DistributionEventDetails,
