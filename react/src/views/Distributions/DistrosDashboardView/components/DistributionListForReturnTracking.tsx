@@ -57,7 +57,7 @@ function CheckboxGroup({
           isChecked={selectedValues.some(el => el === value)}
           onChange={(e) => e.target.checked ? onChange([value], []) : onChange([], [value])}
           >
-            {allValuesWithLabels.find((v) => v[0] === value)?.[1]}
+            {label}
           </Checkbox>
         ))}
       </Stack>
@@ -180,9 +180,11 @@ const DistributionListForReturnTracking = ({
                 `${el.distributionSpot.name} (${el.plannedStartDateTime.toLocaleTimeString()})`,
               ])}
               selectedValues={selectedValues}
-              onChange={(selectedValues, unselectedValues) => {
+              onChange={(newSelectedValues, newUnselectedValues) => {
+                console.log("selectedValues", newSelectedValues);
+                console.log("unselectedValues", newUnselectedValues);
                 setSelectedValues(prev => {
-                  return [...prev.filter(el => unselectedValues.includes(el)), ...selectedValues.filter(el => prev.includes(el))];
+                  return [...prev.filter(el => !newUnselectedValues.includes(el)), ...newSelectedValues.filter(el => !prev.includes(el))];
                 });
               }}
             />
