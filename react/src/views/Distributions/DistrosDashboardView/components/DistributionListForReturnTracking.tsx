@@ -1,23 +1,68 @@
 import { BellIcon } from "@chakra-ui/icons";
 import {
   Box,
+  Checkbox,
   Heading,
   LinkBox,
   LinkOverlay,
   List,
   ListItem,
+  Stack,
   Text,
   VStack,
 } from "@chakra-ui/react";
-import { isToday } from "date-fns";
+import { getDay, isToday, parseISO, weeksToDays } from "date-fns";
 import isFuture from "date-fns/isFuture";
 import isPast from "date-fns/isPast";
 import _ from "lodash";
+import React, { useState } from "react";
+import { weekDayNumberToWeekDayName } from "utils/helpers";
 import { useGetUrlForResourceHelpers } from "utils/hooks";
 import {
   DistributionEventDetails,
   DistributionEventState,
 } from "views/Distributions/types";
+import { map } from "zod";
+
+interface CheckboxGroupProps {
+  groupName: string;
+  allValuesWithLabels: [string, string][];
+  selectedValues: string[];
+  onChange: (selectedValues: string[], unselectedValues: string[]) => void;
+}
+function CheckboxGroup({
+  groupName,
+  allValuesWithLabels,
+  selectedValues,
+  onChange,
+}: CheckboxGroupProps) {
+  // const [checkedItems, setCheckedItems] = React.useState(selectedValues)
+
+  const allChecked = selectedValues.length === allValuesWithLabels.length;
+  const isIndeterminate = selectedValues.some(Boolean) && !allChecked;
+
+  return (
+    <>
+      <Checkbox
+        isChecked={allChecked}
+        isIndeterminate={isIndeterminate}
+        // onChange={(e) => setCheckedItems([e.target.checked, e.target.checked])}
+      >
+        {groupName}
+      </Checkbox>
+      <Stack pl={6} mt={1} spacing={1}>
+        {allValuesWithLabels.map((value) => (
+          <Checkbox
+          // isChecked={checkedItems[0]}
+          // onChange={(e) => setCheckedItems([e.target.checked, checkedItems[1]])}
+          >
+            {allValuesWithLabels.find((v) => v[0] === value[0])?.[1]}
+          </Checkbox>
+        ))}
+      </Stack>
+    </>
+  );
+}
 
 const ListOfEvents = ({
   distributionEventsListData,
@@ -73,7 +118,7 @@ const DistributionListForReturnTracking = ({
     .orderBy((el) => el.plannedStartDateTime, "desc")
     .value();
 
-  const numberOfPastDistroEventsNotInReturnStateNorCompleted = _.chain(
+  const pastDistroEventsNotInReturnStateNorCompleted = _.chain(
     distributionEventsData
   )
     .filter(
@@ -87,9 +132,23 @@ const DistributionListForReturnTracking = ({
     .value();
 
   const showMessageAboutPastEventsNotYetInReturnState =
-    numberOfPastDistroEventsNotInReturnStateNorCompleted.length > 0;
+    pastDistroEventsNotInReturnStateNorCompleted.length > 0;
 
-  // const sortedD
+  const distroEventsToShowGroupedByDay = _.chain(
+    sortedDistroEventsWhichNeedReturnTracking
+  )
+    .groupBy((el) => el.plannedStartDateTime.toISOString())
+    .map((events, date) => ({ date: parseISO(date), events }))
+    // .orderBy()
+    .value();
+
+  // TODO: name the following const better
+  // Or consider to move them together with the jsx/template code below
+  // into a dedicated component
+  const allValues = sortedDistroEventsWhichNeedReturnTracking.map(
+    (el) => el.id
+  );
+  const [selectedValues, setSelectedValues] = useState(allValues);
 
   return (
     <VStack>
@@ -98,11 +157,33 @@ const DistributionListForReturnTracking = ({
       </Heading>
       {showMessageAboutPastEventsNotYetInReturnState && (
         <Text backgroundColor="orange.100" textAlign="center">
-          <BellIcon /> You still have past events which are not yet in the "Returned" state.
-          <br />In the "Distributions" Tab, you can change their state. <br />Only then they will be listed here.
+          <BellIcon /> You still have past events which are not yet in the
+          "Returned" state.
+          <br />
+          In the "Distributions" Tab, you can change their state. <br />
+          Only then they will be listed here.
         </Text>
       )}
       {/* <ListOfEvents distributionEventsListData={distroEventsToday} /> */}
+      <Box backgroundColor="gray.50">
+        {distroEventsToShowGroupedByDay.map(({ date, events }) => {
+          const groupName = `${date.toLocaleDateString()} (${weekDayNumberToWeekDayName(
+            getDay(date)
+          )})`;
+          return (
+            <CheckboxGroup
+              key={date.toISOString()}
+              groupName={groupName}
+              allValuesWithLabels={events.map((el) => [
+                el.id,
+                `${el.distributionSpot.name} (${el.plannedStartDateTime.toLocaleTimeString()})`,
+              ])}
+              selectedValues={selectedValues}
+              onChange={() => {}}
+            />
+          );
+        })}
+      </Box>
     </VStack>
   );
 };

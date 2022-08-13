@@ -65,9 +65,6 @@ const DistrosDashboardView = () => {
 
   return (
     <Box>
-      <Button onClick={() => alert("Not yet implemented")}>
-        Create New Distribution Event
-      </Button>
       <Tabs>
         <TabList>
           <Tab>Distributions</Tab>

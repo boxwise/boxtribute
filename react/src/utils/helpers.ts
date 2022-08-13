@@ -1,4 +1,4 @@
-const groupBy = <T, K extends keyof any>(list: T[], getKey: (item: T) => K) =>
+export const groupBy = <T, K extends keyof any>(list: T[], getKey: (item: T) => K) =>
   list.reduce((previous, currentItem) => {
     const group = getKey(currentItem);
     if (!previous[group]) previous[group] = [];
@@ -6,7 +6,7 @@ const groupBy = <T, K extends keyof any>(list: T[], getKey: (item: T) => K) =>
     return previous;
   }, {} as Record<K, T[]>);
 
-const getISODateTimeFromDateAndTimeString = (date: Date, timeString: string) => {
+export const getISODateTimeFromDateAndTimeString = (date: Date, timeString: string) => {
   const [hours, minutes] = timeString.split(':').map(Number);
   const dateTime = new Date(date);
   dateTime.setHours(hours);
@@ -14,4 +14,7 @@ const getISODateTimeFromDateAndTimeString = (date: Date, timeString: string) => 
   return dateTime;
 }
 
-export { groupBy, getISODateTimeFromDateAndTimeString };
+export const weekDayNumberToWeekDayName = (weekDayNumber: number) => {
+  const weekDayNames = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+  return weekDayNames[weekDayNumber];
+}
