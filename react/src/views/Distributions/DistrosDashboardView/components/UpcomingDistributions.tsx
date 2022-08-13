@@ -90,16 +90,13 @@ const UpcomingDistributions = ({
   const sortedDistroEvents = _.chain(distributionEventsData)
     .orderBy((el) => el.plannedStartDateTime, "desc")
     .value();
-  // .groupBy(el => el.state)
 
-  const todaysAndUpcomingDistroEvents = sortedDistroEvents.filter((el) =>
-    isFuture(el.plannedStartDateTime) || isToday(el.plannedEndDateTime)
-  );
-  const upcomingDistroEventsToday = todaysAndUpcomingDistroEvents.filter((el) =>
+  const distroEventsToday = sortedDistroEvents.filter((el) =>
     isToday(el.plannedStartDateTime)
   );
-  const upcomingDistroEventsAfterToday = todaysAndUpcomingDistroEvents.filter((el) =>
-  !isToday(el.plannedStartDateTime)
+  const upcomingDistroEventsAfterToday = sortedDistroEvents.filter(
+    (el) =>
+      isFuture(el.plannedStartDateTime) && !isToday(el.plannedStartDateTime)
   );
 
   const pastDistroEvents = sortedDistroEvents.filter((el) =>
@@ -112,12 +109,11 @@ const UpcomingDistributions = ({
     (el) => el.state === DistributionEventState.Completed
   );
 
-  const hasUpcomingDistroEvents = todaysAndUpcomingDistroEvents.length > 0;
-  const hasUpcomingDistroEventsToday = upcomingDistroEventsToday.length > 0;
+  const hasDistroEventsToday = distroEventsToday.length > 0;
   const hasUpcomingDistroEventsAfterToday =
     upcomingDistroEventsAfterToday.length > 0;
   const showHeadingForUpcomingDistroEventsAfterTodaySection =
-    hasUpcomingDistroEventsToday;
+    hasDistroEventsToday;
 
   const hasPastDistroEvents = pastDistroEvents.length > 0;
   const hasPastCompletedDistroEvents = pastCompletedDistroEvents.length > 0;
@@ -126,37 +122,22 @@ const UpcomingDistributions = ({
 
   return (
     <List>
-      {hasUpcomingDistroEvents && (
+      {hasDistroEventsToday && (
         <ListItem>
-          <Heading as="h4">Upcoming</Heading>
-          <List>
-            {hasUpcomingDistroEventsToday && (
-              <ListItem>
-                <ListOfEvents
-                  distributionEventsListData={upcomingDistroEventsToday}
-                  heading={
-                    <Heading as="h5" size={"md"}>
-                      Today
-                    </Heading>
-                  }
-                />
-              </ListItem>
-            )}
-            {hasUpcomingDistroEventsAfterToday && (
-              <ListItem>
-                <ListOfEvents
-                  distributionEventsListData={upcomingDistroEventsAfterToday}
-                  heading={
-                    showHeadingForUpcomingDistroEventsAfterTodaySection ? (
-                      <Heading as="h5" size={"md"}>
-                        Later
-                      </Heading>
-                    ) : undefined
-                  }
-                />
-              </ListItem>
-            )}
-          </List>
+          <Heading as="h4">Today</Heading>
+          <ListOfEvents distributionEventsListData={distroEventsToday} />
+        </ListItem>
+      )}
+      {hasUpcomingDistroEventsAfterToday && (
+        <ListItem>
+          <ListOfEvents
+            distributionEventsListData={upcomingDistroEventsAfterToday}
+            heading={
+              showHeadingForUpcomingDistroEventsAfterTodaySection ? (
+                <Heading as="h4">Upcoming</Heading>
+              ) : undefined
+            }
+          />
         </ListItem>
       )}
 
@@ -170,7 +151,7 @@ const UpcomingDistributions = ({
                   distributionEventsListData={pastNonCompletedDistroEvents}
                   heading={
                     <Heading as="h5" size={"md"}>
-                      Not yet completed
+                      To be completed
                     </Heading>
                   }
                 />
