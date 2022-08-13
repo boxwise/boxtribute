@@ -93,16 +93,15 @@ const DistributionListForReturnTracking = ({
 
   return (
     <VStack>
+      <Heading as="h2" py={10} size="lg" textAlign="center">
+        Distribution Events: Returned Items Tracking
+      </Heading>
       {showMessageAboutPastEventsNotYetInReturnState && (
-        <Text backgroundColor="orange.100">
+        <Text backgroundColor="orange.100" textAlign="center">
           <BellIcon /> You still have past events which are not yet in the "Returned" state.
-          Please check them in the "Distributions" Tab and move the to the
-          "Returned" state.
+          <br />In the "Distributions" Tab, you can change their state. <br />Only then they will be listed here.
         </Text>
       )}
-      <Heading as="h4" py={10}>
-        FOO
-      </Heading>
       {/* <ListOfEvents distributionEventsListData={distroEventsToday} /> */}
     </VStack>
   );
