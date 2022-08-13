@@ -23,6 +23,7 @@ import { DistributionEventDetails, DistributionEventDetailsSchema } from "../typ
 import DistroEventsCalendarContainer from "./components/DistroEventsCalendar/DistroEventsCalendarContainer";
 import DistroEventsStatistics from "./components/DistroEventsStatistics";
 import DistributionList from "./components/DistributionList";
+import DistributionListForReturnTracking from "./components/DistributionListForReturnTracking";
 
 const DistrosDashboardView = () => {
   const baseId = useParams<{ baseId: string }>().baseId;
@@ -70,13 +71,17 @@ const DistrosDashboardView = () => {
       <Tabs>
         <TabList>
           <Tab>Distributions</Tab>
+          <Tab>Track Returns</Tab>
           <Tab>Calendar View</Tab>
           <Tab>Statistics</Tab>
         </TabList>
 
         <TabPanels>
-          <TabPanel>
+        <TabPanel>
             <DistributionList distributionEventsData={parsedDistributionEventsData} />
+          </TabPanel>
+          <TabPanel>
+            <DistributionListForReturnTracking distributionEventsData={parsedDistributionEventsData} />
           </TabPanel>
           <TabPanel>
             {selectedEvent &&

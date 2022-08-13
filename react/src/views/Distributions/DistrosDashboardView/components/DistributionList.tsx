@@ -77,7 +77,7 @@ const DistributionList = ({
   );
 
   const pastDistroEvents = sortedDistroEvents.filter((el) =>
-    isPast(el.plannedStartDateTime)
+    isPast(el.plannedStartDateTime) && !isToday(el.plannedStartDateTime)
   );
   const pastNonCompletedDistroEvents = pastDistroEvents.filter(
     (el) => el.state !== DistributionEventState.Completed
