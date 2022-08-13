@@ -8,6 +8,7 @@ import {
   AlertDialogOverlay,
   Box,
   Button,
+  Link,
   Text,
   useDisclosure,
   VStack,
@@ -18,6 +19,7 @@ import {
   ChangeDistributionEventStateMutation,
   ChangeDistributionEventStateMutationVariables,
 } from "types/generated/graphql";
+import { useGetUrlForResourceHelpers } from "utils/hooks";
 import DistributionStateProgressBar from "views/Distributions/components/DistributionStateProgressBar";
 import {
   CHANGE_DISTRIBUTION_EVENT_STATE_MUTATION,
@@ -95,6 +97,8 @@ const DistroEventContainer = ({
     nextStageTransitionAlertState,
   ]);
 
+  const { getDistroSpotDetailUrlById } = useGetUrlForResourceHelpers();
+
   const eventStateToComponentMapping: {
     [key in DistributionEventState]: React.FC;
   } = {
@@ -122,9 +126,11 @@ const DistroEventContainer = ({
           items={[{ label: 'Base "Subotica"', linkPath: "X" }]}
         />
         <Box>
-          <Text fontSize="xl">
-            {distributionEventDetails.distributionSpot.name}
-          </Text>
+          <Link href={getDistroSpotDetailUrlById(distributionEventDetails.distributionSpot.id)}>
+            <Text fontSize="xl">
+              {distributionEventDetails.distributionSpot.name}
+            </Text>
+          </Link>
           <Text fontSize="xl" mb={2} borderBottom="1px" borderColor="gray.300">
             {distributionEventDetails.plannedStartDateTime?.toDateString()}
           </Text>

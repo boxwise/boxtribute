@@ -17,6 +17,7 @@ import isPast from "date-fns/isPast";
 import _ from "lodash";
 import { ReactElement } from "react";
 import { useParams } from "react-router-dom";
+import { useGetUrlForResourceHelpers } from "utils/hooks";
 import {
   DistributionEventDetails,
   DistributionEventState,
@@ -67,22 +68,6 @@ const ListOfEvents = ({
       </Wrap>
     </>
   );
-};
-
-// TODO: move this out into own file
-// and reuse it in other views as well
-const useGetUrlForResourceHelpers = () => {
-  const baseId = useParams<{ baseId: string }>().baseId;
-  const getDistroSpotDetailUrlById = (distroSpotId: string) =>
-    `/bases/${baseId}/distributions/spots/${distroSpotId}`;
-
-  const getDistroEventDetailUrlById = (distroEventId: string) =>
-    `/bases/${baseId}/distributions/events/${distroEventId}`;
-
-  return {
-    getDistroSpotDetailUrlById,
-    getDistroEventDetailUrlById,
-  };
 };
 
 const UpcomingDistributions = ({
