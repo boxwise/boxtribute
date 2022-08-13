@@ -40,22 +40,27 @@ function CheckboxGroup({
 
   const allChecked = selectedValues.length === allValuesWithLabels.length;
   const isIndeterminate = selectedValues.some(Boolean) && !allChecked;
-  const allValues = allValuesWithLabels.map(el => el[0])
+  const allValues = allValuesWithLabels.map((el) => el[0]);
 
   return (
     <>
       <Checkbox
         isChecked={allChecked}
         isIndeterminate={isIndeterminate}
-        onChange={(e) => e.target.checked ? onChange(allValues, []) : onChange([], allValues)}
+        onChange={(e) =>
+          e.target.checked ? onChange(allValues, []) : onChange([], allValues)
+        }
       >
         {groupName}
       </Checkbox>
       <Stack pl={6} mt={1} spacing={1}>
         {allValuesWithLabels.map(([value, label]) => (
           <Checkbox
-          isChecked={selectedValues.some(el => el === value)}
-          onChange={(e) => e.target.checked ? onChange([value], []) : onChange([], [value])}
+            key={value}
+            isChecked={selectedValues.some((el) => el === value)}
+            onChange={(e) =>
+              e.target.checked ? onChange([value], []) : onChange([], [value])
+            }
           >
             {label}
           </Checkbox>
@@ -171,20 +176,27 @@ const DistributionListForReturnTracking = ({
           const groupName = `${date.toLocaleDateString()} (${weekDayNumberToWeekDayName(
             getDay(date)
           )})`;
+          const allValuesWithLabelsOfCurrentGroup = events.map((el) => [
+            el.id,
+            `${
+              el.distributionSpot.name
+            } (${el.plannedStartDateTime.toLocaleTimeString()})`,
+          ] as [string, string]);
+          const allValuesOfCurrentGroup = events.map((el) => el.id);
           return (
             <CheckboxGroup
               key={date.toISOString()}
               groupName={groupName}
-              allValuesWithLabels={events.map((el) => [
-                el.id,
-                `${el.distributionSpot.name} (${el.plannedStartDateTime.toLocaleTimeString()})`,
-              ])}
-              selectedValues={selectedValues}
+              allValuesWithLabels={allValuesWithLabelsOfCurrentGroup}
+              selectedValues={selectedValues.filter((el) =>
+                allValuesOfCurrentGroup.includes(el)
+              )}
               onChange={(newSelectedValues, newUnselectedValues) => {
-                console.log("selectedValues", newSelectedValues);
-                console.log("unselectedValues", newUnselectedValues);
-                setSelectedValues(prev => {
-                  return [...prev.filter(el => !newUnselectedValues.includes(el)), ...newSelectedValues.filter(el => !prev.includes(el))];
+                setSelectedValues((prev) => {
+                  return [
+                    ...prev.filter((el) => !newUnselectedValues.includes(el)),
+                    ...newSelectedValues.filter((el) => !prev.includes(el)),
+                  ];
                 });
               }}
             />
