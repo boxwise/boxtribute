@@ -1,6 +1,7 @@
 import { BellIcon } from "@chakra-ui/icons";
 import {
   Box,
+  Button,
   Checkbox,
   Heading,
   LinkBox,
@@ -163,9 +164,10 @@ const DistributionListForReturnTracking = ({
 
   return (
     <VStack>
-      <Heading as="h2" py={10} size="lg" textAlign="center">
-        Distribution Events: Returned Items Tracking
-      </Heading>
+      <Text mb={5}>
+        Please select the Distribution Events that you want to track returned
+        items for.
+      </Text>
       {showMessageAboutPastEventsNotYetInReturnState && (
         <Text backgroundColor="orange.100" textAlign="center">
           <BellIcon /> You still have past events which are not yet in the
@@ -213,6 +215,8 @@ const DistributionListForReturnTracking = ({
           );
         })}
       </Box>
+
+      <Button my={2} onClick={() => {}} colorScheme="blue">Select returned items</Button>
     </VStack>
   );
 };
