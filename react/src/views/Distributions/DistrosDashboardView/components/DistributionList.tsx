@@ -70,7 +70,7 @@ const ListOfEvents = ({
   );
 };
 
-const UpcomingDistributions = ({
+const DistributionList = ({
   distributionEventsData,
 }: {
   distributionEventsData: DistributionEventDetails[];
@@ -156,4 +156,4 @@ const UpcomingDistributions = ({
   );
 };
 
-export default UpcomingDistributions;
+export default DistributionList;
