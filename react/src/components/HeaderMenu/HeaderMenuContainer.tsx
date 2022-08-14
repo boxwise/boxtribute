@@ -21,49 +21,48 @@ const HeaderMenuContainer = () => {
       {
         text: "Boxes",
         links: [
-          { link: "#", name: "Print Labels" },
+          // { link: "#", name: "Print Labels" },
           { link: `/bases/${baseId}/boxes`, name: "Manage Boxes" },
           { link: `/bases/${baseId}/boxes/create`, name: "Create new Box" },
-          { link: "#", name: "Stock Overview" },
+          // { link: "#", name: "Stock Overview" },
         ],
       },
-      {
-        text: "Freeshop",
-        links: [
-          { link: "#", name: "Manage Beneficiaries" },
-          { link: "#", name: "Checkout" },
-          { link: "#", name: "Generate Market Schedule" },
-        ],
-      },
+      // {
+      //   text: "Freeshop",
+      //   links: [
+      //     { link: "#", name: "Manage Beneficiaries" },
+      //     { link: "#", name: "Checkout" },
+      //     { link: "#", name: "Generate Market Schedule" },
+      //   ],
+      // },
       {
         text: "Mobile Distributions",
         links: [
-          { link: "#", name: "Calendar" },
           { link: `/bases/${baseId}/distributions`, name: "Distribution Events" },
           { link: `/bases/${baseId}/distributions/spots`, name: "Distribution Spots" },
         ],
       },
-      {
-        text: "Box Transfers",
-        links: [
-          { link: "#", name: "Transfer Agreements" },
-          { link: "#", name: "Shipments" },
-        ],
-      },
-      {
-        text: "Data Insights",
-        links: [
-          { link: "#", name: "Charts" },
-          { link: "#", name: "Export" },
-        ],
-      },
+      // {
+      //   text: "Box Transfers",
+      //   links: [
+      //     { link: "#", name: "Transfer Agreements" },
+      //     { link: "#", name: "Shipments" },
+      //   ],
+      // },
+      // {
+      //   text: "Data Insights",
+      //   links: [
+      //     { link: "#", name: "Charts" },
+      //     { link: "#", name: "Export" },
+      //   ],
+      // },
       {
         text: "Admin",
         links: [
           { link: "#", name: "Manage Tags" },
-          { link: "#", name: "Manage Products" },
-          { link: "#", name: "Edit Warehouses" },
-          { link: "#", name: "Manage Users" },
+          // { link: "#", name: "Manage Products" },
+          // { link: "#", name: "Edit Warehouses" },
+          // { link: "#", name: "Manage Users" },
         ],
       },
     ],
