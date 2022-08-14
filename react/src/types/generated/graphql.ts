@@ -890,6 +890,7 @@ export type Query = {
   beneficiary?: Maybe<Beneficiary>;
   box?: Maybe<Box>;
   distributionEvent?: Maybe<DistributionEvent>;
+  distributionEvents: Array<DistributionEvent>;
   distributionSpot?: Maybe<DistributionSpot>;
   /**  Return all [`DistributionSpots`]({{Types.DistributionSpot}}) that the client is authorized to view.  */
   distributionSpots: Array<DistributionSpot>;
@@ -952,6 +953,11 @@ export type QueryBoxArgs = {
 
 export type QueryDistributionEventArgs = {
   id: Scalars['ID'];
+};
+
+
+export type QueryDistributionEventsArgs = {
+  ids: Array<Scalars['ID']>;
 };
 
 
@@ -1471,6 +1477,13 @@ export type BoxDetailsQueryVariables = Exact<{
 
 
 export type BoxDetailsQuery = { __typename?: 'Query', box?: { __typename?: 'Box', labelIdentifier: string, items?: number | null, product?: { __typename?: 'Product', id: string, name: string } | null, size: { __typename?: 'Size', id: string, label: string } } | null };
+
+export type DistributionEventsByIdsQueryVariables = Exact<{
+  distributionEventIds: Array<Scalars['ID']> | Scalars['ID'];
+}>;
+
+
+export type DistributionEventsByIdsQuery = { __typename?: 'Query', distributionEvents: Array<{ __typename?: 'DistributionEvent', id: string, name?: string | null, plannedStartDateTime: any, plannedEndDateTime: any, state: DistributionEventState, distributionSpot?: { __typename?: 'DistributionSpot', id: string, name?: string | null } | null }> };
 
 export type DistributionEventQueryVariables = Exact<{
   eventId: Scalars['ID'];

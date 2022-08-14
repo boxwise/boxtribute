@@ -782,6 +782,23 @@ def resolve_distribution_event(obj, _, id):
     return distribution_event
 
 
+@query.field("distributionEvents")
+def resolve_distribution_events(obj, _, ids):
+    distribution_events = DistributionEvent.select().where(DistributionEvent.id << ids)
+
+    # TODO: consider to check (and if check fails: throw error)
+    # that all distribution_events belong to the same base_id
+
+    base_ids = [
+        distribution_event.distribution_spot.base.id
+        for distribution_event in distribution_events
+    ]
+    unique_base_ids = list(set(base_ids))
+    for base_id in unique_base_ids:
+        authorize(permission="distro_event:read", base_id=base_id)
+    return distribution_events
+
+
 @base.field("beneficiaries")
 @convert_kwargs_to_snake_case
 def resolve_base_beneficiaries(base_obj, _, pagination_input=None, filter_input=None):
