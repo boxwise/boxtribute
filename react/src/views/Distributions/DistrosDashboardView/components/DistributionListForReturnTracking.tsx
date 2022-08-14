@@ -17,6 +17,7 @@ import isFuture from "date-fns/isFuture";
 import isPast from "date-fns/isPast";
 import _ from "lodash";
 import React, { useState } from "react";
+import { useNavigate, useParams } from "react-router-dom";
 import {
   getDateNormalizedDateTime,
   weekDayNumberToWeekDayName,
@@ -121,6 +122,10 @@ const DistributionListForReturnTracking = ({
 }: {
   distributionEventsData: DistributionEventDetails[];
 }) => {
+
+  const navigate = useNavigate();
+  const baseId = useParams<{baseId: string}>().baseId!;
+
   const sortedDistroEventsWhichNeedReturnTracking = _.chain(
     distributionEventsData
   )
@@ -154,7 +159,7 @@ const DistributionListForReturnTracking = ({
     // .orderBy()
     .value();
 
-  // TODO: name the following const better
+  // TODO: name the following const better/more specific
   // Or consider to move them together with the jsx/template code below
   // into a dedicated component
   const allValues = sortedDistroEventsWhichNeedReturnTracking.map(
@@ -216,7 +221,17 @@ const DistributionListForReturnTracking = ({
         })}
       </Box>
 
-      <Button my={2} onClick={() => {}} colorScheme="blue">Select returned items</Button>
+      <Button my={2} onClick={() => {
+        navigate({
+          pathname: `/bases/${baseId}/distributions/return-tracking`,
+          search: `?distroEventIds[]=${selectedValues.join("&distroEventIds[]=")}`,
+        });
+        //   `/bases/${baseId}/distributions/track-returns`,
+        //   {
+
+        //   }
+        // )
+      }} colorScheme="blue">Select returned items</Button>
     </VStack>
   );
 };

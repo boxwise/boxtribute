@@ -19,6 +19,7 @@ import CreateDistributionEventView from "views/Distributions/CreateDistributionE
 import CreateDistributionSpotView from "views/Distributions/CreateDistributionSpotView/CreateDistributionSpotView";
 import BaseDashboardView from "views/BaseDashboard/BaseDashboardView";
 import BoxCreateView from "views/BoxCreate/BoxCreateView";
+import DistrosReturnTrackingView from "views/Distributions/DistrosReturnTrackingView/DistrosReturnTrackingView";
 
 const useLoadAndSetAvailableBases = () => {
   const BASES_QUERY = gql`
@@ -88,6 +89,7 @@ const App = () => {
             </Route>
             <Route path="distributions">
               <Route index element={<DistrosDashboardView />} />
+              <Route path="return-tracking" element={<DistrosReturnTrackingView />} />
               <Route path="events">
                 <Route path=":eventId">
                   <Route index element={<DistroEventView />} />
