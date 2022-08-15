@@ -3,31 +3,23 @@ import {
   Box,
   Button,
   Checkbox,
-  Heading,
-  LinkBox,
-  LinkOverlay,
-  List,
-  ListItem,
   Stack,
   Text,
   VStack,
 } from "@chakra-ui/react";
-import { getDay, isToday, parseISO, weeksToDays } from "date-fns";
-import isFuture from "date-fns/isFuture";
+import { getDay, parseISO } from "date-fns";
 import isPast from "date-fns/isPast";
 import _ from "lodash";
-import React, { useState } from "react";
+import { useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import {
   getDateNormalizedDateTime,
   weekDayNumberToWeekDayName,
 } from "utils/helpers";
-import { useGetUrlForResourceHelpers } from "utils/hooks";
 import {
   DistributionEventDetails,
   DistributionEventState,
 } from "views/Distributions/types";
-import { map } from "zod";
 
 interface CheckboxGroupProps {
   groupName: string;
@@ -41,7 +33,6 @@ function CheckboxGroup({
   selectedValues,
   onChange,
 }: CheckboxGroupProps) {
-  // const [checkedItems, setCheckedItems] = React.useState(selectedValues)
 
   const allChecked = selectedValues.length === allValuesWithLabels.length;
   const isIndeterminate = selectedValues.some(Boolean) && !allChecked;
@@ -75,56 +66,13 @@ function CheckboxGroup({
   );
 }
 
-const ListOfEvents = ({
-  distributionEventsListData,
-}: {
-  distributionEventsListData: DistributionEventDetails[];
-}) => {
-  const { getDistroEventDetailUrlById } = useGetUrlForResourceHelpers();
-
-  return (
-    <List>
-      {distributionEventsListData.map((distributionEventData) => (
-        <ListItem my={5}>
-          <LinkBox maxW="sm" p="5" borderWidth="1px" rounded="md">
-            <Box
-              as="time"
-              dateTime={distributionEventData.plannedStartDateTime.toUTCString()}
-            >
-              {distributionEventData.plannedStartDateTime.toDateString()} (
-              {distributionEventData.plannedStartDateTime.toLocaleTimeString()}{" "}
-              - {distributionEventData.plannedEndDateTime.toLocaleTimeString()})
-            </Box>
-            <Heading size="md" my="2">
-              <LinkOverlay
-                href={getDistroEventDetailUrlById(distributionEventData.id)}
-              >
-                {distributionEventData.distributionSpot.name}{" "}
-                {!!distributionEventData.name && (
-                  <>({distributionEventData.name})</>
-                )}
-              </LinkOverlay>
-            </Heading>
-
-            <Text>
-              <b>State: </b>
-              {distributionEventData.state}
-            </Text>
-          </LinkBox>
-        </ListItem>
-      ))}
-    </List>
-  );
-};
-
 const DistributionListForReturnTracking = ({
   distributionEventsData,
 }: {
   distributionEventsData: DistributionEventDetails[];
 }) => {
-
   const navigate = useNavigate();
-  const baseId = useParams<{baseId: string}>().baseId!;
+  const baseId = useParams<{ baseId: string }>().baseId!;
 
   const sortedDistroEventsWhichNeedReturnTracking = _.chain(
     distributionEventsData
@@ -156,16 +104,15 @@ const DistributionListForReturnTracking = ({
       getDateNormalizedDateTime(el.plannedStartDateTime).toISOString()
     )
     .map((events, date) => ({ date: parseISO(date), events }))
-    // .orderBy()
     .value();
 
   // TODO: name the following const better/more specific
   // Or consider to move them together with the jsx/template code below
   // into a dedicated component
-  const allValues = sortedDistroEventsWhichNeedReturnTracking.map(
-    (el) => el.id
-  );
-  const [selectedValues, setSelectedValues] = useState(allValues);
+  // const allValues = sortedDistroEventsWhichNeedReturnTracking.map(
+  //   (el) => el.id
+  // );
+  const [selectedValues, setSelectedValues] = useState([] as string[]);
 
   return (
     <VStack>
@@ -182,7 +129,6 @@ const DistributionListForReturnTracking = ({
           Only then they will be listed here.
         </Text>
       )}
-      {/* <ListOfEvents distributionEventsListData={distroEventsToday} /> */}
       <Box backgroundColor="gray.50">
         {distroEventsToShowGroupedByDay.map(({ date, events }) => {
           const groupName = `${date.toLocaleDateString()} (${weekDayNumberToWeekDayName(
@@ -221,17 +167,20 @@ const DistributionListForReturnTracking = ({
         })}
       </Box>
 
-      <Button my={2} onClick={() => {
-        navigate({
-          pathname: `/bases/${baseId}/distributions/return-tracking`,
-          search: `?distroEventIds[]=${selectedValues.join("&distroEventIds[]=")}`,
-        });
-        //   `/bases/${baseId}/distributions/track-returns`,
-        //   {
-
-        //   }
-        // )
-      }} colorScheme="blue">Select returned items</Button>
+      <Button
+        my={2}
+        onClick={() => {
+          navigate({
+            pathname: `/bases/${baseId}/distributions/return-tracking`,
+            search: `?distroEventIds[]=${selectedValues.join(
+              "&distroEventIds[]="
+            )}`,
+          });
+        }}
+        colorScheme="blue"
+      >
+        Select returned items
+      </Button>
     </VStack>
   );
 };
