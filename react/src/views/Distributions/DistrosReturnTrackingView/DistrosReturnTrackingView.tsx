@@ -1,12 +1,13 @@
 import { useQuery } from "@apollo/client";
-import { Box, Center, Heading, VStack } from "@chakra-ui/react";
+import { Box, Center, Heading, LinkOverlay, VStack } from "@chakra-ui/react";
 import APILoadingIndicator from "components/APILoadingIndicator";
 import { useSearchParams } from "react-router-dom";
 import {
-  DistributionEventsByIdsQuery,
-  DistributionEventsByIdsQueryVariables,
+  DistributionEventsSummaryByIdsQuery,
+  DistributionEventsSummaryByIdsQueryVariables,
 } from "types/generated/graphql";
-import { DISTRIBUTION_EVENTS_BY_IDS_QUERY } from "../queries";
+import DistributionEventTimeRangeDisplay from "../components/DistributionEventTimeRangeDisplay";
+import { DISTRIBUTION_EVENTS_SUMMARY_BY_IDS_QUERY } from "../queries";
 import {
   DistributionEventDetails,
   DistributionEventDetailsSchema,
@@ -17,18 +18,31 @@ const SummaryOfDistributionEvents = ({
 }: {
   distributionEvents: DistributionEventDetails[];
 }) => {
-  console.log("FOO", distributionEvents)
+  console.log("FOO", distributionEvents);
   return (
     <VStack>
-      <Heading as={"h3"} size="md">
+      {/* <Heading as={"h3"} size="md">
         Summary of Distribution Events
-        {distributionEvents.map((distroEvent) => (
-            <Box key={distroEvent.id}>
-                {distroEvent.name}
-            </Box>
+      </Heading> */}
+      {distributionEvents.map((distroEvent) => (
+        <Box
+          key={distroEvent.id}
+          maxW="sm"
+          p="5"
+          borderWidth="1px"
+          rounded="md"
+        >
+          <DistributionEventTimeRangeDisplay
+            plannedStartDateTime={distroEvent.plannedStartDateTime}
+            plannedEndDateTime={distroEvent.plannedEndDateTime}
+          />
 
-        ))}
-      </Heading>
+          <Heading size="md" my="2">
+            {distroEvent.distributionSpot.name}{" "}
+            {!!distroEvent.name && <>({distroEvent.name})</>}
+          </Heading>
+        </Box>
+      ))}
     </VStack>
   );
 };
@@ -39,9 +53,9 @@ const DistrosReturnTrackingView = () => {
     searchParams.getAll("distroEventIds[]");
 
   const { data, error, loading } = useQuery<
-    DistributionEventsByIdsQuery,
-    DistributionEventsByIdsQueryVariables
-  >(DISTRIBUTION_EVENTS_BY_IDS_QUERY, {
+    DistributionEventsSummaryByIdsQuery,
+    DistributionEventsSummaryByIdsQueryVariables
+  >(DISTRIBUTION_EVENTS_SUMMARY_BY_IDS_QUERY, {
     variables: {
       distributionEventIds: distroEventIdsForReturnTracking,
     },
@@ -54,7 +68,7 @@ const DistrosReturnTrackingView = () => {
     console.error("Error in DistrosReturnTrackingView : ", error);
     return <Center>Error!</Center>;
   }
-  if (data?.distributionEvents == null) {
+  if (data?.distributionEventsSummary?.distributionEvents == null) {
     console.error(
       "Problem in DistrosReturnTrackingView: data?.distributionEvents is undefined|null"
     );
@@ -63,7 +77,7 @@ const DistrosReturnTrackingView = () => {
 
   let distributionEventsData: DistributionEventDetails[];
   try {
-    distributionEventsData = data?.distributionEvents.map((el) =>
+    distributionEventsData = data?.distributionEventsSummary?.distributionEvents.map((el) =>
       DistributionEventDetailsSchema.parse(el)
     );
   } catch (e) {

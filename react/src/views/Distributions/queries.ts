@@ -150,18 +150,21 @@ export const BOX_DETAILS_FOR_MOBILE_DISTRO_QUERY = gql`
   }
 `;
 
-export const DISTRIBUTION_EVENTS_BY_IDS_QUERY = gql`
-  query DistributionEventsByIds($distributionEventIds: [ID!]!) {
-    distributionEvents(ids: $distributionEventIds) {
-      id
-      name
-      plannedStartDateTime
-      plannedEndDateTime
-      state
-      distributionSpot {
+export const DISTRIBUTION_EVENTS_SUMMARY_BY_IDS_QUERY = gql`
+  query DistributionEventsSummaryByIds($distributionEventIds: [ID!]!) {
+    distributionEventsSummary(ids: $distributionEventIds) {
+      distributionEvents {
         id
         name
+        plannedStartDateTime
+        plannedEndDateTime
+        state
+        distributionSpot {
+          id
+          name
+        }
       }
+      totalCount
     }
   }
 `;
