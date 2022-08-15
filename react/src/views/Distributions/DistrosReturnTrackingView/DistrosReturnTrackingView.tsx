@@ -17,12 +17,19 @@ const SummaryOfDistributionEvents = ({
 }: {
   distributionEvents: DistributionEventDetails[];
 }) => {
+  console.log("FOO", distributionEvents)
   return (
-    <Center>
+    <VStack>
       <Heading as={"h3"} size="md">
         Summary of Distribution Events
+        {distributionEvents.map((distroEvent) => (
+            <Box key={distroEvent.id}>
+                {distroEvent.name}
+            </Box>
+
+        ))}
       </Heading>
-    </Center>
+    </VStack>
   );
 };
 

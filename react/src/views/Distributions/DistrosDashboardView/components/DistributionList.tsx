@@ -14,6 +14,7 @@ import isFuture from "date-fns/isFuture";
 import isPast from "date-fns/isPast";
 import _ from "lodash";
 import { useGetUrlForResourceHelpers } from "utils/hooks";
+import DistributionEventTimeRangeDisplay from "views/Distributions/components/DistributionEventTimeRangeDisplay";
 import {
   DistributionEventDetails,
   DistributionEventState,
@@ -31,14 +32,11 @@ const ListOfEvents = ({
       {distributionEventsListData.map((distributionEventData) => (
         <ListItem key={distributionEventData.id} my={5}>
           <LinkBox maxW="sm" p="5" borderWidth="1px" rounded="md">
-            <Box
-              as="time"
-              dateTime={distributionEventData.plannedStartDateTime.toUTCString()}
-            >
-              {distributionEventData.plannedStartDateTime.toDateString()} (
-              {distributionEventData.plannedStartDateTime.toLocaleTimeString()}{" "}
-              - {distributionEventData.plannedEndDateTime.toLocaleTimeString()})
-            </Box>
+            <DistributionEventTimeRangeDisplay
+              plannedStartDateTime={distributionEventData.plannedStartDateTime}
+              plannedEndDateTime={distributionEventData.plannedEndDateTime}
+            />
+
             <Heading size="md" my="2">
               <LinkOverlay
                 href={getDistroEventDetailUrlById(distributionEventData.id)}
