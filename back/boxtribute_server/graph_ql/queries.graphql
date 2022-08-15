@@ -6,7 +6,7 @@ type Query {
   distributionSpots: [DistributionSpot!]!
   distributionSpot(id: ID!): DistributionSpot
   distributionEvent(id: ID!): DistributionEvent
-  distributionEvents(ids: [ID!]!): [DistributionEvent!]!
+  distributionEventsSummary(ids: [ID!]!): DistributionEventsSummary
   packingListEntry(id: ID!): PackingListEntry
   organisation(id: ID!): Organisation
   " Return all [`Organisations`]({{Types.Organisation}}) that the client is authorized to view. "
