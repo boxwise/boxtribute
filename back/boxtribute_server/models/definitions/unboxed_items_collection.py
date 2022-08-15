@@ -35,7 +35,7 @@ class UnboxedItemsCollection(db.Model):
     # (the other subtype of the interface ItemsCollection)
     # items = IntegerField(null=False, default=0, column_name="number_of_items")
 
-    # TODO: suggest to remove the relation from UnboxedItemCollection to Location again
+    # TODO: suggest to remove the relation from UnboxedItemsCollection to Location again
     # It's most likely only requried to have them for DistributionEvents (since they are
     # kind of transient and should only exist in the Mobile Distro Context)
     # TODO: If we decide to do that, also ensure that the field (FK to location) is

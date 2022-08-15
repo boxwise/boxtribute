@@ -22,21 +22,21 @@ export interface PackingActionListProps {
 
 interface PackedContentListOverlayProps {
   boxesData: BoxData[];
-  unboxedItemCollectionData: UnboxedItemsCollectionData[];
+  unboxedItemsCollectionData: UnboxedItemsCollectionData[];
   packingListEntry: IPackingListEntry;
 }
 
 const UnboxedItemsCollectionList = ({
-  unboxedItemCollectionData,
+  unboxedItemsCollectionData,
 }: {
-  unboxedItemCollectionData: UnboxedItemsCollectionData[];
+  unboxedItemsCollectionData: UnboxedItemsCollectionData[];
 }) => (
   <>
     <Heading as="h3" size="md">
       Unboxed Items
     </Heading>
     <Flex direction="column">
-      {unboxedItemCollectionData.map((unboxedItemsCollection, i) => (
+      {unboxedItemsCollectionData.map((unboxedItemsCollection, i) => (
         <Flex
           key={i}
           alignItems="center"
@@ -96,19 +96,19 @@ const BoxesList = ({ boxesData }: { boxesData: BoxData[] }) => (
 
 const PackedContentListOverlay = ({
   boxesData,
-  unboxedItemCollectionData,
+  unboxedItemsCollectionData,
   packingListEntry,
 }: // packingActionProps,
 PackedContentListOverlayProps) => {
   const totalNumberOfPackedItems = useMemo(
     () =>
       boxesData.reduce((acc, box) => acc + box.numberOfItems, 0) +
-      unboxedItemCollectionData.reduce(
+      unboxedItemsCollectionData.reduce(
         (acc, unboxedItemsCollection) =>
           acc + unboxedItemsCollection.numberOfItems,
         0
       ),
-    [boxesData, unboxedItemCollectionData]
+    [boxesData, unboxedItemsCollectionData]
   );
 
   const missingNumberOfItems = useMemo(
@@ -137,10 +137,10 @@ PackedContentListOverlayProps) => {
               <BoxesList boxesData={boxesData} />
             </Box>
           )}
-          {unboxedItemCollectionData.length > 0 && (
+          {unboxedItemsCollectionData.length > 0 && (
             <Box my={5}>
               <UnboxedItemsCollectionList
-                unboxedItemCollectionData={unboxedItemCollectionData}
+                unboxedItemsCollectionData={unboxedItemsCollectionData}
               />
             </Box>
           )}

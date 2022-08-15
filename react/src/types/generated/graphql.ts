@@ -226,8 +226,10 @@ export enum DistributionEventState {
 /** TODO: Add description here once specs are final/confirmed */
 export type DistributionEventsSummary = {
   __typename?: 'DistributionEventsSummary';
-  distributionEvents?: Maybe<Array<DistributionEvent>>;
+  boxes: Array<Box>;
+  distributionEvents: Array<DistributionEvent>;
   totalCount: Scalars['Int'];
+  unboxedItemsCollections: Array<UnboxedItemsCollection>;
 };
 
 /** TODO: Add description here once specs are final/confirmed */
@@ -1490,7 +1492,7 @@ export type DistributionEventsSummaryByIdsQueryVariables = Exact<{
 }>;
 
 
-export type DistributionEventsSummaryByIdsQuery = { __typename?: 'Query', distributionEventsSummary?: { __typename?: 'DistributionEventsSummary', totalCount: number, distributionEvents?: Array<{ __typename?: 'DistributionEvent', id: string, name?: string | null, plannedStartDateTime: any, plannedEndDateTime: any, state: DistributionEventState, distributionSpot?: { __typename?: 'DistributionSpot', id: string, name?: string | null } | null }> | null } | null };
+export type DistributionEventsSummaryByIdsQuery = { __typename?: 'Query', distributionEventsSummary?: { __typename?: 'DistributionEventsSummary', totalCount: number, distributionEvents: Array<{ __typename?: 'DistributionEvent', id: string, name?: string | null, plannedStartDateTime: any, plannedEndDateTime: any, state: DistributionEventState, distributionSpot?: { __typename?: 'DistributionSpot', id: string, name?: string | null } | null }> } | null };
 
 export type DistributionEventQueryVariables = Exact<{
   eventId: Scalars['ID'];

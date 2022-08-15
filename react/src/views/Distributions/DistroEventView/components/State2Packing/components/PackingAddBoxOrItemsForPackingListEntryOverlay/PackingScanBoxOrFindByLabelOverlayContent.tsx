@@ -175,7 +175,7 @@ const PackingScanBoxOrFindByLabelOverlay = ({
         Find Box by Label
       </Button>
       {showFindBoxByLabelForm ? (
-        <Flex mx={10} mb={4} justifyContent="space-between">
+        <Flex mx={10} justifyContent="space-between">
           <Input
             type="number"
             mr={2}
@@ -198,7 +198,10 @@ const PackingScanBoxOrFindByLabelOverlay = ({
           </Button>
         </Flex>
       ) : null}
-      <Button colorScheme="blue" variant="outline" mx={10}>
+      <Button colorScheme="blue" variant="outline" my={4} mx={10} onClick={() => alert("Not yet implemented")}>
+        Show fitting boxes
+      </Button>
+      <Button colorScheme="blue" variant="outline" mx={10} onClick={() => alert("Not yet implemented")}>
         Other source
       </Button>
       <ModalFooter />

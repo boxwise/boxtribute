@@ -38,14 +38,14 @@ const PackedContentListOverlayContainer = ({
       (el) => el.__typename === "Box"
     ) as BoxData[]) ?? [];
 
-  const unboxedItemCollectionData = (packingListEntry?.matchingPackedItemsCollections?.filter(
+  const unboxedItemsCollectionData = (packingListEntry?.matchingPackedItemsCollections?.filter(
     (el) => el.__typename === "UnboxedItemsCollection"
   ) as UnboxedItemsCollectionData[]) ?? [];
 
   return (
     <PackedContentListOverlay
       boxesData={boxesData}
-      unboxedItemCollectionData={unboxedItemCollectionData}
+      unboxedItemsCollectionData={unboxedItemsCollectionData}
       packingListEntry={packingListEntry}
     />
   );

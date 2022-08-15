@@ -270,7 +270,9 @@ type DistributionEvent {
 TODO: Add description here once specs are final/confirmed
 """
 type DistributionEventsSummary {
-  distributionEvents: [DistributionEvent!]
+  distributionEvents: [DistributionEvent!]!
+  unboxedItemsCollections: [UnboxedItemsCollection!]!
+  boxes: [Box!]!
   totalCount: Int!
 }
 

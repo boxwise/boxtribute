@@ -807,6 +807,24 @@ def resolve_distribution_events(obj, _, ids):
     }
 
 
+@distribution_events_summary.field("unboxedItemsCollections")
+def resolve_unboxed_items_collection_for_distribution_events_summary(obj, _):
+    return (
+        UnboxedItemsCollection.select()
+        .join(DistributionEvent)
+        .where(DistributionEvent.id << obj["distribution_events"])
+    )
+
+
+@distribution_events_summary.field("boxes")
+def resolve_boxes_for_distribution_events_summary(obj, _):
+    return (
+        Box.select()
+        .join(DistributionEvent)
+        .where(DistributionEvent.id << obj["distribution_events"])
+    )
+
+
 @distribution_events_summary.field("distributionEvents")
 def resolve_distribution_events_for_distribution_events_summary(obj, _):
     return obj["distribution_events"]
