@@ -150,6 +150,22 @@ export const BOX_DETAILS_FOR_MOBILE_DISTRO_QUERY = gql`
   }
 `;
 
+export const DISTRIBUTION_EVENTS_BY_IDS_QUERY = gql`
+  query DistributionEventsByIds($distributionEventIds: [ID!]!) {
+    distributionEvents(ids: $distributionEventIds) {
+      id
+      name
+      plannedStartDateTime
+      plannedEndDateTime
+      state
+      distributionSpot {
+        id
+        name
+      }
+    }
+  }
+`;
+
 // export const MATCHING_PACKED_ITEMS_COLLECTIONS_FOR_PACKING_LIST_ENTRY = gql`
 // query MatchingPackedItemsCollectionsForPackingListEntry($packingListEntryId: ID!) {
 //   packingListEntry(id: $packingListEntryId) {
