@@ -40,6 +40,7 @@ class Product(db.Model):
         field="id",
         model=ProductGender,
         on_update="CASCADE",
+        object_id_name="gender_id",
     )
     last_modified_on = DateTimeField(column_name="modified", null=True)
     last_modified_by = UIntForeignKeyField(

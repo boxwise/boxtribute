@@ -910,7 +910,7 @@ def resolve_resource_base(obj, _):
 @product.field("gender")
 def resolve_product_gender(product_obj, _):
     # Instead of a ProductGender instance return an integer for EnumType conversion
-    return product_obj.gender.id
+    return product_obj.gender_id
 
 
 @product_category.field("hasGender")

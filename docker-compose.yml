@@ -4,7 +4,7 @@ services:
         build:
             context: ./back
             args:
-                flask_env: ${FLASK_ENV:-development}
+                env: ${ENV:-development}
         ports:
             - 5005:5000
             # request localhost:5001 to run debugger in vscode (cf. README)
@@ -27,7 +27,6 @@ services:
             MYSQL_DB: dropapp_dev
             MYSQL_PORT: 3306
             EXPOSE_FULL_GRAPHQL: 1
-            DEBUG_GRAPHQL:
     react:
         build:
             context: ./react
