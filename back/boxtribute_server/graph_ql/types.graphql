@@ -226,6 +226,7 @@ type Base {
   locations: [Location!]!
   distributionSpots: [DistributionSpot!]!
   distributionEvents: [DistributionEvent!]!
+  distributionEventsInReturnState: [DistributionEvent!]!
 }
 
 """
@@ -262,6 +263,8 @@ type DistributionEvent {
   plannedEndDateTime: Datetime!
   packingListEntries: [PackingListEntry!]!
 
+  # TODO: Consider to also add field "itemsCollections" to this type
+  # It would return both boxes as well as unboxed items collections
   boxes: [Box!]!
   unboxedItemsCollections: [UnboxedItemsCollection!]
 }

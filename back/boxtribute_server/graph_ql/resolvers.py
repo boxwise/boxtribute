@@ -30,7 +30,13 @@ from ..box_transfer.shipment import (
     send_shipment,
     update_shipment,
 )
-from ..enums import HumanGender, LocationType, TaggableObjectType, TransferAgreementType
+from ..enums import (
+    DistributionEventState,
+    HumanGender,
+    LocationType,
+    TaggableObjectType,
+    TransferAgreementType,
+)
 from ..mobile_distribution.crud import (
     add_packing_list_entry_to_distribution_event,
     change_distribution_event_state,
@@ -813,6 +819,22 @@ def resolve_distribution_event_unboxed_item_collections(distribution_event_obj, 
 def resolve_packing_list_entries(obj, *_):
     return PackingListEntry.select().where(
         PackingListEntry.distribution_event == obj.id
+    )
+
+
+@base.field("distributionEventsInReturnState")
+def resolve_distribution_events_in_return_state(base_obj, *_):
+    authorize(permission="distro_event:read")
+    return (
+        DistributionEvent.select()
+        .join(Location, on=(DistributionEvent.distribution_spot == Location.id))
+        .join(Base, on=(Location.base == Base.id))
+        .where(
+            Base.id
+            == base_obj.id & Location.type
+            == LocationType.DistributionSpot & DistributionEvent.state
+            == DistributionEventState.Returned
+        )
     )
 
 

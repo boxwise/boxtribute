@@ -25,6 +25,7 @@ export type Base = {
   boxPlaces: Array<BoxPlace>;
   currencyName?: Maybe<Scalars['String']>;
   distributionEvents: Array<DistributionEvent>;
+  distributionEventsInReturnState: Array<DistributionEvent>;
   distributionSpots: Array<DistributionSpot>;
   id: Scalars['ID'];
   /**  List of all [`Locations`]({{Types.Location}}) present in this base  */
@@ -1471,6 +1472,13 @@ export type BoxDetailsQueryVariables = Exact<{
 
 
 export type BoxDetailsQuery = { __typename?: 'Query', box?: { __typename?: 'Box', labelIdentifier: string, items?: number | null, product?: { __typename?: 'Product', id: string, name: string } | null, size: { __typename?: 'Size', id: string, label: string } } | null };
+
+export type DistributionEventsInReturnStateForBaseQueryVariables = Exact<{
+  baseId: Scalars['ID'];
+}>;
+
+
+export type DistributionEventsInReturnStateForBaseQuery = { __typename?: 'Query', base?: { __typename?: 'Base', id: string, distributionEventsInReturnState: Array<{ __typename?: 'DistributionEvent', boxes: Array<{ __typename?: 'Box', id: string, items?: number | null, product?: { __typename?: 'Product', id: string, name: string } | null, size: { __typename?: 'Size', id: string, label: string } }>, unboxedItemsCollections?: Array<{ __typename?: 'UnboxedItemsCollection', id: string, items?: number | null, product?: { __typename?: 'Product', id: string, name: string } | null, size: { __typename?: 'Size', id: string, label: string } }> | null }> } | null };
 
 export type DistributionEventQueryVariables = Exact<{
   eventId: Scalars['ID'];
