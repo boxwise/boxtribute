@@ -16,10 +16,9 @@ import {
   Size,
 } from "../types";
 
-
 interface ItemCollection {
   productSizeIdTuple: string;
-  product?: Product | null,
+  product?: Product | null;
   size?: Size | null;
   numberOfItems?: number | null;
 }
@@ -27,24 +26,27 @@ interface ItemCollection {
 // TODO: get rid of this quite hack groupBy logic
 // replace it e.g. by more elegant lodash method chaining
 // Or, even better, by specific GraphQL/BE queries which return the required final outcome
-const groupByProductAndSizeWithSumForNumberOfItems = (itemCollection: ItemCollection[]) => {
+const groupByProductAndSizeWithSumForNumberOfItems = (
+  itemCollection: ItemCollection[]
+) => {
   const helper = new Map<string, ItemCollection>();
   const result = itemCollection.reduce((r, o) => {
-    var key = o.product?.id + '-' + o.size?.id;
+    var key = o.product?.id + "-" + o.size?.id;
 
-    if(!helper.has(key)) {
+    if (!helper.has(key)) {
       const newEntry = Object.assign({}, o);
       helper.set(key, newEntry);
       r.push(newEntry);
     } else {
       const existingObject = helper.get(key)!;
-      existingObject.numberOfItems = (existingObject.numberOfItems || 0) + (o.numberOfItems || 0);
+      existingObject.numberOfItems =
+        (existingObject.numberOfItems || 0) + (o.numberOfItems || 0);
     }
 
     return r;
   }, [] as ItemCollection[]);
   return result;
-}
+};
 
 const graphqlToDistributionEventStockSummary = (
   queryResult: DistributionEventsInReturnStateForBaseQuery,
@@ -61,65 +63,89 @@ const graphqlToDistributionEventStockSummary = (
     .filter((distributionEvent) =>
       distributionEventsToFilterFor.includes(distributionEvent.id)
     )
-    .map((distroEvent) => {
-      const unboxedItemsCollectionsByProductAndSizeId = _(
-        distroEvent.unboxedItemsCollections
-      )
-        .keyBy((itemsCol) => `${itemsCol.product?.id!}-${itemsCol.size.id}`)
-        // .merge(
-        //   _(distroEvent.boxes)
-        //     .keyBy((itemsCol) => `${itemsCol.product?.id!}-${itemsCol.size.id}`)
-        //     .value()
-        // )
+    .flatMap((distroEvent) =>
+      _(distroEvent.boxes)
+        .map(
+          (el) =>
+            ({
+              product: el.product,
+              size: el.size,
+              numberOfItems: el.items,
+            } as ItemCollection)
+        )
+        .concat(
+          distroEvent.unboxedItemsCollections?.map(
+            (el) =>
+              ({
+                product: el.product,
+                size: el.size,
+                numberOfItems: el.items,
+              } as ItemCollection)
+          ) || []
+        )
+        .value()
+    )
+    .thru(groupByProductAndSizeWithSumForNumberOfItems)
+    .value()
+    // .map((distroEvent) => {
+    //   const unboxedItemsCollectionsByProductAndSizeId = _(
+    //     distroEvent.unboxedItemsCollections
+    //   )
+    //     .keyBy((itemsCol) => `${itemsCol.product?.id!}-${itemsCol.size.id}`)
+    //     // .merge(
+    //     //   _(distroEvent.boxes)
+    //     //     .keyBy((itemsCol) => `${itemsCol.product?.id!}-${itemsCol.size.id}`)
+    //     //     .value()
+    //     // )
 
-        // .values()
-        .map((el, id) => ({
-          productSizeIdTuple: id,
-          product: el.product,
-          size: el.size,
-          numberOfItems: el.items,
-        }))
-        .value();
+    //     // .values()
+    //     .map((el, id) => ({
+    //       productSizeIdTuple: id,
+    //       product: el.product,
+    //       size: el.size,
+    //       numberOfItems: el.items,
+    //     }))
+    //     .value();
 
-      const boxesByProductAndSizeId = _(distroEvent.boxes)
-        .keyBy((b) => `${b.product?.id!}-${b.size.id}`)
-        .map((el, id) => ({
-          productSizeIdTuple: id,
-          product: el.product,
-          size: el.size,
-          numberOfItems: el.items,
-        }))
-        .value();
+    //   const boxesByProductAndSizeId = _(distroEvent.boxes)
+    //     .keyBy((b) => `${b.product?.id!}-${b.size.id}`)
+    //     .map((el, id) => ({
+    //       productSizeIdTuple: id,
+    //       product: el.product,
+    //       size: el.size,
+    //       numberOfItems: el.items,
+    //     }))
+    //     .value();
 
-      console.log(
-        "unboxedItemsCollectionsByProductAndSizeId",
-        unboxedItemsCollectionsByProductAndSizeId
-      );
-      console.log("boxesByProductAndSizeId", boxesByProductAndSizeId);
+    //   console.log(
+    //     "unboxedItemsCollectionsByProductAndSizeId",
+    //     unboxedItemsCollectionsByProductAndSizeId
+    //   );
+    //   console.log("boxesByProductAndSizeId", boxesByProductAndSizeId);
 
-      const combined: ItemCollection[] = _.concat(
-        unboxedItemsCollectionsByProductAndSizeId,
-        boxesByProductAndSizeId
-      );
+    //   const combined: ItemCollection[] = _.concat(
+    //     unboxedItemsCollectionsByProductAndSizeId,
+    //     boxesByProductAndSizeId
+    //   );
 
-      const BAR = _(combined)
-      .groupBy("productSizeIdTuple")
-      // .groupBy(el => ({
-      //   product: el.product,
-      //   size: el.size
-      // }))
-      // .value
-      .map((el, id) => ({
-        productSizeIdTuple: id,
-        product: el.product,
+    //   const BAR = _(combined)
+    //   .groupBy("productSizeIdTuple")
+    //   // .groupBy(el => ({
+    //   //   product: el.product,
+    //   //   size: el.size
+    //   // }))
+    //   // .value
+    //   .map((el, id) => ({
+    //     productSizeIdTuple: id,
+    //     product: el.product,
 
-      });
+    //   });
 
-      console.log("combined", combined);
+    //   console.log("combined", combined);
 
-      return [];
-    })
-    .value();
+    //   return [];
+    // })
+    // .value();
   console.log("FOO", FOO);
   return FOO;
 };
