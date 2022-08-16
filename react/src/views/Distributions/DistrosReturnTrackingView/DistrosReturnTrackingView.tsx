@@ -7,7 +7,6 @@ const SummaryOfDistributionEvents = ({
 }: {
   distributionEvents: DistributionEventDetails[];
 }) => {
-  console.log("FOO", distributionEvents);
   return (
     <VStack>
       {/* <Heading as={"h3"} size="md">
