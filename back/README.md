@@ -292,7 +292,6 @@ For the production schema, documentation can be found online at `api.boxtribute.
 You can experiment with the API in the GraphQL playground.
 
 1. Activate the virtual environment
-1. Set `export FLASK_ENV=development`
 1. Start the required services by `docker-compose up webapp db`
 1. Open `localhost:5005/graphql` (or `/` for the query-only API)
 1. Simulate being a valid, logged-in user by fetching an authorization token: `./fetch_token --test`
@@ -322,7 +321,7 @@ In production, the web app is run by the WSGI server `gunicorn` which serves as 
 
 Launch the production server by
 
-    FLASK_ENV=production docker-compose up --build webapp
+    ENV=production docker-compose up --build webapp
 
 In production mode, inspection of the GraphQL server is disabled, i.e. it's not possible to run the GraphQL playground.
 

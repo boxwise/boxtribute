@@ -20,6 +20,7 @@ from .box import (
     marked_for_shipment_box,
 )
 from .box_state import default_box_state
+from .distribution_event import default_distribution_event
 from .history import default_history
 from .location import (
     another_location,
@@ -76,6 +77,7 @@ __all__ = [
     "default_box",
     "default_boxes",
     "default_box_state",
+    "default_distribution_event",
     "default_history",
     "default_location",
     "default_log",

@@ -1,7 +1,6 @@
 """
 GraphQL input types for mutations **only**.
 """
-
 input BoxCreationInput {
   productId: Int!
   sizeId: Int!
@@ -71,6 +70,21 @@ input ShipmentCreationInput {
   transferAgreementId: Int!
 }
 
+input DistributionSpotCreationInput {
+  baseId: Int!
+  name: String
+  comment: String!
+  latitude: Float
+  longitude: Float
+}
+
+input DistributionEventCreationInput {
+  distributionSpotId: Int!
+  name: String
+  plannedStartDateTime: Datetime!
+  plannedEndDateTime: Datetime
+}
+
 input ShipmentUpdateInput {
   id: ID!
   targetBaseId: Int
@@ -88,4 +102,33 @@ input ShipmentDetailUpdateInput {
   id: ID!
   targetProductId: Int!
   targetLocationId: Int!
+}
+
+input PackingListEntryInput {
+  distributionEventId: ID!
+  productId: Int!
+  sizeId: Int!
+  numberOfItems: Int!
+}
+
+input TagCreationInput {
+  name: String!
+  description: String
+  color: String!
+  type: TagType!
+  baseId: Int!
+}
+
+input TagUpdateInput {
+  id: ID!
+  name: String
+  description: String
+  color: String
+  type: TagType
+}
+
+input TagOperationInput {
+  id: ID!
+  resourceId: ID!
+  resourceType: TaggableResourceType!
 }

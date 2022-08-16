@@ -10,6 +10,12 @@ type Mutation {
   createBeneficiary(creationInput: BeneficiaryCreationInput): Beneficiary
   updateBeneficiary(updateInput: BeneficiaryUpdateInput): Beneficiary
 
+  createTag(creationInput: TagCreationInput): Tag
+  updateTag(updateInput: TagUpdateInput): Tag
+  deleteTag(id: ID!): Tag
+  assignTag(assignmentInput: TagOperationInput): TaggableResource
+  unassignTag(unassignmentInput: TagOperationInput): TaggableResource
+
   createTransferAgreement(creationInput: TransferAgreementCreationInput): TransferAgreement
   acceptTransferAgreement(id: ID!): TransferAgreement
   rejectTransferAgreement(id: ID!): TransferAgreement
@@ -19,4 +25,30 @@ type Mutation {
   updateShipment(updateInput: ShipmentUpdateInput): Shipment
   cancelShipment(id: ID!): Shipment
   sendShipment(id: ID!): Shipment
+
+  createDistributionSpot(creationInput: DistributionSpotCreationInput): DistributionSpot
+  createDistributionEvent(creationInput: DistributionEventCreationInput): DistributionEvent
+
+  addPackingListEntryToDistributionEvent(creationInput: PackingListEntryInput!): PackingListEntry
+  removePackingListEntryFromDistributionEvent(packingListEntryId: ID!): DistributionEvent
+  removeAllPackingListEntriesFromDistributionEventForProduct(distributionEventId: ID!, productId: ID!): Boolean
+  updatePackingListEntry(packingListEntryId: ID!, numberOfItems: Int!): PackingListEntry
+  updateSelectedProductsForDistributionEventPackingList(distributionEventId: ID!, productIdsToAdd: [ID!]!, productIdsToRemove: [ID!]!): DistributionEvent
+
+  changeDistributionEventState(
+    distributionEventId: ID!
+    newState: DistributionEventState!
+  ): DistributionEvent
+
+  moveBoxToDistributionEvent(boxLabelIdentifier: ID!, distributionEventId: ID!): Box
+  moveItemsFromBoxToDistributionEvent(
+    boxLabelIdentifier: ID!
+    distributionEventId: ID!
+    numberOfItems: Int!
+  ): UnboxedItemsCollection
+
+  moveBoxFromDistributionEventToLocation(boxLabelIdentifier: ID!, locationId: ID!): DistributionEvent
+  moveItemsFromDistributionEventToBox(unboxedItemsCollectionId: ID!, boxLabelIdentifier: ID!): DistributionEvent
+
+  markDistributionEventAsComplete(distributionEventId: ID!): DistributionEvent
 }

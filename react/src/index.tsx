@@ -68,7 +68,6 @@ const theme = extendTheme({
   components: {
     Button: {
       defaultProps: {
-        
         borderRadius: "0",
 
     }

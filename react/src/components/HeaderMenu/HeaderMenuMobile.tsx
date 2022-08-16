@@ -10,7 +10,6 @@ import {
   IconButton,
   Image,
   Img,
-  MenuItem,
   Divider,
 } from "@chakra-ui/react";
 import { useState } from "react";
@@ -258,7 +257,6 @@ const QrScannerButton = ({ onClick }: { onClick: () => void }) => (
 
 const HeaderMenuMobile = (props: HeaderMenuProps) => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
-
   const toggle = () => setIsMenuOpen((curr) => !curr);
   return (
     <HeaderMenuMobileContainer>

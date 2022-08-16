@@ -1,5 +1,5 @@
 import pytest
-from boxtribute_server.enums import BoxState
+from boxtribute_server.enums import BoxState, LocationType
 from boxtribute_server.models.definitions.location import Location
 
 from .base import data as base_data
@@ -23,6 +23,7 @@ def default_location_data():
         "seq": 1,
         "visible": 1,
         "created_by": default_user_data()["id"],
+        "type": LocationType.Location,
     }
 
 
@@ -52,6 +53,13 @@ def non_default_box_state_location_data():
     return data
 
 
+def distribution_spot_data():
+    data = default_location_data()
+    data["id"] = 5
+    data["type"] = LocationType.DistributionSpot
+    return data
+
+
 @pytest.fixture()
 def another_location():
     return another_location_data()
@@ -67,8 +75,14 @@ def non_default_box_state_location():
     return non_default_box_state_location_data()
 
 
+@pytest.fixture()
+def distribution_spot():
+    return distribution_spot_data()
+
+
 def create():
     Location.create(**default_location_data())
     Location.create(**another_location_data())
     Location.create(**null_box_state_location_data())
     Location.create(**non_default_box_state_location_data())
+    Location.create(**distribution_spot_data())

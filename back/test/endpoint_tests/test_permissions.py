@@ -12,12 +12,15 @@ from utils import assert_forbidden_request, assert_successful_request
         "product",
         "productCategory",
         "shipment",
+        "tag",
         "transferAgreement",
         "user",
     ],
 )
 def test_invalid_read_permissions(unauthorized, read_only_client, resource):
-    """Verify missing resource:read permission when executing query."""
+    """Verify missing resource:read permission when executing query.
+    Test case 2.1.5., 3.1.4, 4.1.4
+    """
     # Build plural form
     resources = f"{resource}s"
     if resource.endswith("y"):
@@ -60,6 +63,8 @@ def test_invalid_permission(unauthorized, read_only_client, query):
     [
         """base( id: 0 ) { id }""",
         """location( id: 2 ) { id }""",  # ID of another_location fixture
+        # Test case 4.1.5
+        """tag( id: 4 ) { id }""",
     ],
     ids=operation_name,
 )
@@ -67,9 +72,6 @@ def test_invalid_permission_for_given_resource_id(read_only_client, mocker, quer
     """Verify missing resource:read permission, or missing permission to access
     specified resource (i.e. base).
     """
-    mocker.patch("jose.jwt.decode").return_value = create_jwt_payload(
-        permissions=["base_1/base:read"], organisation_id=1
-    )
     assert_forbidden_request(read_only_client, f"query {{ {query} }}")
 
 
@@ -132,6 +134,16 @@ def test_invalid_permission_for_given_resource_id(read_only_client, mocker, quer
         "updateShipment( updateInput : { id: 1 }) { id }",
         "cancelShipment( id : 1 ) { id }",
         "sendShipment( id : 1 ) { id }",
+        # Test case 4.2.8
+        """createTag(
+            creationInput : {
+                name: "cool tag",
+                color: "#aabbcc",
+                type: All,
+                baseId: 1
+            }) { id }""",
+        # Test case 4.2.7
+        "updateTag( updateInput : { id: 1 }) { id }",
     ],
     ids=operation_name,
 )
@@ -188,7 +200,7 @@ def test_invalid_permission_for_base_locations(read_only_client, mocker):
         permissions=["base:read"]
     )
     query = "query { base(id: 1) { locations { id } } }"
-    assert_forbidden_request(read_only_client, query, value={"locations": None})
+    assert_forbidden_request(read_only_client, query, value=None)
 
 
 @pytest.mark.parametrize("field", ["sourceBases", "targetBases"])
@@ -211,7 +223,7 @@ def test_invalid_permission_for_shipment_base(read_only_client, mocker, field):
     assert_forbidden_request(read_only_client, query, value={field: None})
 
 
-@pytest.mark.parametrize("field", ["location", "product", "qrCode"])
+@pytest.mark.parametrize("field", ["place", "product", "qrCode"])
 def test_invalid_permission_for_box_field(read_only_client, mocker, default_box, field):
     # verify missing field:read permission
     mocker.patch("jose.jwt.decode").return_value = create_jwt_payload(

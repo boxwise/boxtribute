@@ -2,6 +2,28 @@
 import enum
 
 
+class DistributionEventState(enum.IntEnum):
+    Planning = 1
+    Packing = enum.auto()
+    OnDistro = enum.auto()
+    Returned = enum.auto()
+    Completed = enum.auto()
+
+
+class PackingListEntryState(enum.IntEnum):
+    NotStarted = 1
+    PackingInProgress = enum.auto()
+    Packed = enum.auto()
+
+
+class LocationType(enum.Enum):
+    """Indiciates which concrete type (classic Location, Distribution Spot, etc)
+    a Location is."""
+
+    Location = "Warehouse"
+    DistributionSpot = "MapDistroSpot"
+
+
 class TransferAgreementState(enum.IntEnum):
     UnderReview = 1
     Accepted = enum.auto()

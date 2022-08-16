@@ -2,6 +2,7 @@
 from datetime import date
 
 from ariadne import (
+    InterfaceType,
     MutationType,
     ObjectType,
     QueryType,
@@ -29,19 +30,35 @@ from ..box_transfer.shipment import (
     send_shipment,
     update_shipment,
 )
-from ..enums import HumanGender, TaggableObjectType, TransferAgreementType
+from ..enums import HumanGender, LocationType, TaggableObjectType, TransferAgreementType
+from ..mobile_distribution.crud import (
+    add_packing_list_entry_to_distribution_event,
+    change_distribution_event_state,
+    create_distribution_event,
+    create_distribution_spot,
+    delete_packing_list_entry,
+    move_box_to_distribution_event,
+    move_items_from_box_to_distribution_event,
+    remove_all_packing_list_entries_from_distribution_event_for_product,
+    set_products_for_packing_list,
+    update_packing_list_entry,
+)
 from ..models.crud import (
     create_beneficiary,
     create_box,
     create_qr_code,
+    create_tag,
     update_beneficiary,
     update_box,
+    update_tag,
 )
 from ..models.definitions.base import Base
 from ..models.definitions.beneficiary import Beneficiary
 from ..models.definitions.box import Box
+from ..models.definitions.distribution_event import DistributionEvent
 from ..models.definitions.location import Location
 from ..models.definitions.organisation import Organisation
+from ..models.definitions.packing_list_entry import PackingListEntry
 from ..models.definitions.product import Product
 from ..models.definitions.product_category import ProductCategory
 from ..models.definitions.qr_code import QrCode
@@ -52,6 +69,7 @@ from ..models.definitions.tag import Tag
 from ..models.definitions.tags_relation import TagsRelation
 from ..models.definitions.transaction import Transaction
 from ..models.definitions.transfer_agreement import TransferAgreement
+from ..models.definitions.unboxed_items_collection import UnboxedItemsCollection
 from ..models.definitions.user import User
 from ..models.definitions.x_beneficiary_language import XBeneficiaryLanguage
 from ..models.metrics import (
@@ -68,6 +86,7 @@ query = QueryType()
 mutation = MutationType()
 object_types = []
 union_types = []
+interface_types = []
 
 
 def _register_object_type(name):
@@ -79,9 +98,12 @@ def _register_object_type(name):
 base = _register_object_type("Base")
 beneficiary = _register_object_type("Beneficiary")
 box = _register_object_type("Box")
+distribution_event = _register_object_type("DistributionEvent")
+distribution_spot = _register_object_type("DistributionSpot")
 location = _register_object_type("Location")
 metrics = _register_object_type("Metrics")
 organisation = _register_object_type("Organisation")
+packing_list_entry = _register_object_type("PackingListEntry")
 product = _register_object_type("Product")
 product_category = _register_object_type("ProductCategory")
 qr_code = _register_object_type("QrCode")
@@ -91,21 +113,57 @@ size = _register_object_type("Size")
 size_range = _register_object_type("SizeRange")
 tag = _register_object_type("Tag")
 transfer_agreement = _register_object_type("TransferAgreement")
+unboxed_items_collection = _register_object_type("UnboxedItemsCollection")
 user = _register_object_type("User")
+
+
+@query.field("tag")
+def resolve_tag(*_, id):
+    tag = Tag.get_by_id(id)
+    authorize(permission="tag:read", base_id=tag.base_id)
+    return tag
 
 
 @query.field("tags")
 def resolve_tags(*_):
-    # TODO: Add correct permissions here
-    # authorize(permission="tags:read")
-    return Tag.select()
+    authorize(permission="tag:read")
+    return Tag.select().where(base_filter_condition(Tag))
+
+
+@query.field("packingListEntry")
+def resolve_packing_list_entry(*_, id):
+    authorize(permission="packing_list_entry:read")
+    return PackingListEntry.get_by_id(id)
+
+
+@packing_list_entry.field("matchingPackedItemsCollections")
+def resolve_packing_list_entry_matching_packed_items_collections(obj, *_):
+    distribution_event_id = obj.distribution_event
+    boxes = Box.select().where(
+        Box.distribution_event == distribution_event_id,
+        Box.product == obj.product,
+        Box.size == obj.size,
+    )
+    unboxed_items_colletions = UnboxedItemsCollection.select(
+        UnboxedItemsCollection,
+        # TODO: Remove the alias once the renaming from `items` is consistenly done
+        # for all involved types/fields (and we only use then number_of_items)
+        # We are doing it for now so that it's aligned with the Boxes#items field
+        # (the other subtype of the interface ItemsCollection)
+        UnboxedItemsCollection.number_of_items.alias("items"),
+    ).where(
+        UnboxedItemsCollection.distribution_event == distribution_event_id,
+        UnboxedItemsCollection.product == obj.product,
+        UnboxedItemsCollection.size == obj.size,
+    )
+    return list(boxes) + list(unboxed_items_colletions)
 
 
 @user.field("bases")
 @query.field("bases")
 def resolve_bases(*_):
     authorize(permission="base:read")
-    return Base.select().where(base_filter_condition("base:read"))
+    return Base.select().where(base_filter_condition())
 
 
 @query.field("base")
@@ -119,6 +177,20 @@ def resolve_beneficiary(*_, id):
     beneficiary = Beneficiary.get_by_id(id)
     authorize(permission="beneficiary:read", base_id=beneficiary.base_id)
     return beneficiary
+
+
+@base.field("distributionEvents")
+def resolve_distributions_events(base_obj, _):
+    authorize(
+        permission="distro_event:read",
+    )
+    distribution_events = (
+        DistributionEvent.select()
+        .join(Location, on=(DistributionEvent.distribution_spot == Location.id))
+        .join(Base, on=(Location.base == Base.id))
+        .where(Base.id == base_obj.id & Location.type == LocationType.DistributionSpot)
+    )
+    return distribution_events
 
 
 @query.field("users")
@@ -167,6 +239,7 @@ def resolve_box_tags(box_obj, _):
 
 @query.field("product")
 @box.field("product")
+@unboxed_items_collection.field("product")
 def resolve_product(obj, _, id=None):
     product = obj.product if id is None else Product.get_by_id(id)
     authorize(permission="product:read", base_id=product.base_id)
@@ -187,11 +260,17 @@ def resolve_box(*_, label_identifier):
 
 
 @query.field("location")
-@box.field("location")
-def resolve_location(obj, _, id=None):
-    location = obj.location if id is None else Location.get_by_id(id)
-    authorize(permission="location:read", base_id=location.base_id)
-    return location
+def resolve_location(obj, _, id):
+    location = Location.get_by_id(id)
+    if location.type == LocationType.Location:
+        authorize(permission="location:read", base_id=location.base_id)
+        return location
+
+
+@box.field("place")
+def resolve_box_place(obj, _):
+    authorize(permission="location:read", base_id=obj.location.base_id)
+    return obj.location
 
 
 @query.field("organisation")
@@ -231,7 +310,9 @@ def resolve_organisations(*_):
 @query.field("locations")
 def resolve_locations(*_):
     authorize(permission="location:read")
-    return Location.select().join(Base).where(base_filter_condition("location:read"))
+    return Location.select().where(
+        Location.type == LocationType.Location & base_filter_condition(Location)
+    )
 
 
 @query.field("products")
@@ -240,8 +321,7 @@ def resolve_products(*_, pagination_input=None):
     authorize(permission="product:read")
     return load_into_page(
         Product,
-        base_filter_condition("product:read"),
-        selection=Product.select().join(Base),
+        base_filter_condition(Product),
         pagination_input=pagination_input,
     )
 
@@ -253,8 +333,7 @@ def resolve_beneficiaries(*_, pagination_input=None, filter_input=None):
     filter_condition = derive_beneficiary_filter(filter_input)
     return load_into_page(
         Beneficiary,
-        base_filter_condition("beneficiary:read") & filter_condition,
-        selection=Beneficiary.select().join(Base),
+        base_filter_condition(Beneficiary) & filter_condition,
         pagination_input=pagination_input,
     )
 
@@ -390,12 +469,80 @@ def resolve_location_default_box_state(location_obj, _):
     return location_obj.box_state.id
 
 
+@mutation.field("addPackingListEntryToDistributionEvent")
+@convert_kwargs_to_snake_case
+def resolve_add_packing_list_entry_to_distribution_event(*_, creation_input):
+    authorize(permission="packing_list_entry:write")
+    return add_packing_list_entry_to_distribution_event(
+        user_id=g.user.id, **creation_input
+    )
+
+
+@mutation.field("updatePackingListEntry")
+@convert_kwargs_to_snake_case
+def resolve_update_packing_list_entry(*_, packing_list_entry_id, number_of_items):
+    authorize(permission="packing_list_entry:write")
+    return update_packing_list_entry(
+        user_id=g.user.id,
+        packing_list_entry_id=packing_list_entry_id,
+        number_of_items=number_of_items,
+    )
+
+
+@mutation.field("removeAllPackingListEntriesFromDistributionEventForProduct")
+@convert_kwargs_to_snake_case
+def resolve_remove_all_packing_list_entries_from_distribution_event_for_product(
+    *_, distribution_event_id, product_id
+):
+    authorize(permission="packing_list_entry:write")
+    return remove_all_packing_list_entries_from_distribution_event_for_product(
+        user_id=g.user.id,
+        distribution_event_id=distribution_event_id,
+        product_id=product_id,
+    )
+
+
+@mutation.field("updateSelectedProductsForDistributionEventPackingList")
+@convert_kwargs_to_snake_case
+def resolve_set_products_for_packing_list(
+    *_, distribution_event_id, product_ids_to_add, product_ids_to_remove
+):
+    authorize(permission="packing_list_entry:write")
+    return set_products_for_packing_list(
+        user_id=g.user.id,
+        distribution_event_id=distribution_event_id,
+        product_ids_to_add=product_ids_to_add,
+        product_ids_to_remove=product_ids_to_remove,
+    )
+
+
 @mutation.field("createQrCode")
 @convert_kwargs_to_snake_case
 def resolve_create_qr_code(*_, box_label_identifier=None):
     authorize(permission="qr:create")
     authorize(permission="stock:write")
     return create_qr_code(box_label_identifier=box_label_identifier)
+
+
+@mutation.field("changeDistributionEventState")
+@convert_kwargs_to_snake_case
+def resolve_change_distribution_event_state(*_, distribution_event_id, new_state):
+    authorize(permission="distro_event:write")
+    return change_distribution_event_state(distribution_event_id, new_state)
+
+
+@mutation.field("createDistributionEvent")
+@convert_kwargs_to_snake_case
+def resolve_create_distribution_event(*_, creation_input):
+    authorize(permission="distro_event:write")
+    return create_distribution_event(user_id=g.user.id, **creation_input)
+
+
+@mutation.field("createDistributionSpot")
+@convert_kwargs_to_snake_case
+def resolve_create_distribution_spot(*_, creation_input):
+    authorize(permission="location:write")
+    return create_distribution_spot(user_id=g.user.id, **creation_input)
 
 
 @mutation.field("createBox")
@@ -405,11 +552,70 @@ def resolve_create_box(*_, creation_input):
     return create_box(user_id=g.user.id, **creation_input)
 
 
+@mutation.field("moveBoxToDistributionEvent")
+@convert_kwargs_to_snake_case
+def resolve_move_box_to_distribution_event(
+    mutation_obj, _, box_label_identifier, distribution_event_id
+):
+    authorize(permission="stock:write")
+    return move_box_to_distribution_event(box_label_identifier, distribution_event_id)
+
+
+@mutation.field("moveItemsFromBoxToDistributionEvent")
+@convert_kwargs_to_snake_case
+def resolve_move_items_from_box_to_distribution_event(
+    mutation_obj, _, box_label_identifier, distribution_event_id, number_of_items
+):
+    authorize(permission="unboxed_items_collection:write")
+    return move_items_from_box_to_distribution_event(
+        user_id=g.user.id,
+        box_label_identifier=box_label_identifier,
+        distribution_event_id=distribution_event_id,
+        number_of_items=number_of_items,
+    )
+
+
+@mutation.field("removePackingListEntryFromDistributionEvent")
+@convert_kwargs_to_snake_case
+def resolve_remove_packing_list_entry_from_distribution_event(
+    *_, packing_list_entry_id
+):
+
+    packing_list_entry = PackingListEntry.get(packing_list_entry_id)
+    distribution_event = (
+        DistributionEvent.select()
+        .join(Location)
+        .where(DistributionEvent.id == packing_list_entry.distribution_event)
+        .get()
+    )
+    authorize(
+        permission="distro_event:write",
+        base_id=distribution_event.distribution_spot.base.id,
+    )
+    delete_packing_list_entry(packing_list_entry_id)
+    return distribution_event
+
+
 @mutation.field("updateBox")
 @convert_kwargs_to_snake_case
 def resolve_update_box(*_, update_input):
     authorize(permission="stock:write")
     return update_box(user_id=g.user.id, **update_input)
+
+
+@mutation.field("createTag")
+@convert_kwargs_to_snake_case
+def resolve_create_tag(*_, creation_input):
+    authorize(permission="tag:write", base_id=creation_input["base_id"])
+    return create_tag(user_id=g.user.id, **creation_input)
+
+
+@mutation.field("updateTag")
+@convert_kwargs_to_snake_case
+def resolve_update_tag(*_, update_input):
+    base_id = Tag.get_by_id(update_input["id"]).base_id
+    authorize(permission="tag:write", base_id=base_id)
+    return update_tag(user_id=g.user.id, **update_input)
 
 
 @mutation.field("createBeneficiary")
@@ -532,6 +738,50 @@ def resolve_base_locations(base_obj, _):
     return Location.select().where(Location.base == base_obj.id)
 
 
+@query.field("distributionSpots")
+def resolve_distributions_spots(base_obj, _):
+    authorize(permission="location:read")
+    return (
+        Location.select()
+        .where(Location.type == LocationType.DistributionSpot)
+        .where(base_filter_condition(Location))
+    )
+
+
+@base.field("distributionSpots")
+def resolve_base_distributions_spots(base_obj, _):
+    authorize(permission="location:read")
+    base_filter_condition = Location.base == base_obj.id
+    return (
+        Location.select()
+        .join(Base)
+        .where(Location.type == LocationType.DistributionSpot)
+        .where(base_filter_condition)
+    )
+
+
+@query.field("distributionSpot")
+def resolve_distributions_spot(*_, id):
+    distribution_spot = Location.get_by_id(id)
+    if distribution_spot.type == LocationType.DistributionSpot:
+        authorize(permission="location:read", base_id=distribution_spot.base_id)
+        return distribution_spot
+    else:
+        None
+
+
+@query.field("distributionEvent")
+def resolve_distribution_event(obj, _, id):
+    distribution_event = (
+        obj.distribution_event if id is None else DistributionEvent.get_by_id(id)
+    )
+    authorize(
+        permission="distro_event:read",
+        base_id=distribution_event.distribution_spot.base.id,
+    )
+    return distribution_event
+
+
 @base.field("beneficiaries")
 @convert_kwargs_to_snake_case
 def resolve_base_beneficiaries(base_obj, _, pagination_input=None, filter_input=None):
@@ -540,6 +790,37 @@ def resolve_base_beneficiaries(base_obj, _, pagination_input=None, filter_input=
     filter_condition = base_filter_condition & derive_beneficiary_filter(filter_input)
     return load_into_page(
         Beneficiary, filter_condition, pagination_input=pagination_input
+    )
+
+
+@distribution_event.field("boxes")
+@convert_kwargs_to_snake_case
+def resolve_distribution_event_boxes(distribution_event_obj, _):
+    authorize(permission="stock:read")
+    return Box.select().where(Box.distribution_event == distribution_event_obj.id)
+
+
+@distribution_event.field("unboxedItemsCollections")
+@convert_kwargs_to_snake_case
+def resolve_distribution_event_unboxed_item_collections(distribution_event_obj, _):
+    authorize(permission="stock:read")
+    return UnboxedItemsCollection.select().where(
+        UnboxedItemsCollection.distribution_event == distribution_event_obj.id
+    )
+
+
+@distribution_event.field("packingListEntries")
+def resolve_packing_list_entries(obj, *_):
+    return PackingListEntry.select().where(
+        PackingListEntry.distribution_event == obj.id
+    )
+
+
+@distribution_spot.field("distributionEvents")
+def resolve_distribution_spot_distribution_events(obj, *_):
+    authorize(permission="distro_event:read")
+    return DistributionEvent.select().where(
+        DistributionEvent.distribution_spot == obj.id
     )
 
 
@@ -601,6 +882,7 @@ def resolve_organisation_bases(organisation_obj, _):
 
 
 @beneficiary.field("base")
+@distribution_spot.field("base")
 @location.field("base")
 @product.field("base")
 def resolve_resource_base(obj, _):
@@ -611,7 +893,7 @@ def resolve_resource_base(obj, _):
 @product.field("gender")
 def resolve_product_gender(product_obj, _):
     # Instead of a ProductGender instance return an integer for EnumType conversion
-    return product_obj.gender.id
+    return product_obj.gender_id
 
 
 @product_category.field("hasGender")
@@ -720,4 +1002,14 @@ def resolve_taggable_resource_type(obj, *_):
     return "Beneficiary"
 
 
+def resolve_box_place_type(obj, *_):
+    return obj.type.name
+
+
+def resolve_items_collection_type(obj, *_):
+    return obj.items_collection_type
+
+
 union_types.append(UnionType("TaggableResource", resolve_taggable_resource_type))
+interface_types.append(InterfaceType("BoxPlace", resolve_box_place_type))
+interface_types.append(InterfaceType("ItemsCollection", resolve_items_collection_type))

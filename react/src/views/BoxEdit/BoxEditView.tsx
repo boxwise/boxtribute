@@ -29,7 +29,7 @@ export const BOX_BY_LABEL_IDENTIFIER_AND_ALL_PRODUCTS_QUERY = gql`
           }
         }
       }
-      location {
+      place {
         id
         name
         base {
@@ -109,7 +109,7 @@ const BoxEditView = () => {
         );
       })
       .catch((error) => {
-        console.log("Error while trying to update Box", error);
+        console.error("Error while trying to update Box", error);
       });
   };
 

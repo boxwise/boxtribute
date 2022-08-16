@@ -144,6 +144,34 @@ const BoxEdit = ({
           </ListItem>
 
           <ListItem>
+            <FormLabel htmlFor="sizeId">Size</FormLabel>
+            <Controller
+              control={control}
+              name="sizeId"
+              render={({
+                field: { onChange, onBlur, value, name, ref },
+                fieldState: { invalid, error },
+              }) => (
+                <FormControl isInvalid={invalid} id="size">
+                  <Box border="2px">
+                    <Select
+                      name={name}
+                      ref={ref}
+                      onChange={onChange}
+                      onBlur={onBlur}
+                      value={value}
+                      options={[]}
+                      placeholder="Size"
+                      isSearchable
+                      tagVariant="outline"
+                    />
+                  </Box>
+                </FormControl>
+              )}
+            />
+          </ListItem>
+
+          <ListItem>
             <FormLabel htmlFor="numberOfItems">Number Of Items</FormLabel>
             <Box border="2px">
               <Input
@@ -156,33 +184,7 @@ const BoxEdit = ({
               />
             </Box>
           </ListItem>
-          <ListItem>
-            <FormLabel htmlFor="sizeForDropdown">Size</FormLabel>
-            <Controller
-              control={control}
-              name="sizeForDropdown"
-              render={({
-                field: { onChange, onBlur, value, name, ref },
-                fieldState: { invalid, error },
-              }) => (
-                <FormControl isInvalid={invalid} id="sizeId">
-                  <Box border="2px">
-                    <Select
-                      name={name}
-                      ref={ref}
-                      onChange={onChange}
-                      onBlur={onBlur}
-                      value={value}
-                      options={availableSizes}
-                      placeholder={value}
-                      isSearchable
-                      tagVariant="outline"
-                    />
-                  </Box>
-                </FormControl>
-              )}
-            />
-          </ListItem>
+
         </List>
         <Button mt={4} isLoading={isSubmitting} type="submit" borderRadius="0">
           Update Box

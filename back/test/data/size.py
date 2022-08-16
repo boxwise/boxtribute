@@ -9,7 +9,7 @@ def default_data():
 
 
 def another_data():
-    return {"id": 2, "label": "medium"}
+    return {"id": 2, "label": "medium", "size_range": size_range_data()["id"]}
 
 
 @pytest.fixture

@@ -1,8 +1,6 @@
-import React from "react";
-import { ComponentStory, ComponentMeta } from "@storybook/react";
-import { within, userEvent } from "@storybook/testing-library";
 import { action } from "@storybook/addon-actions";
-import QrReaderOverlay, { QrResolvedValue, IQrValueWrapper } from "./QrReaderOverlay";
+import { ComponentMeta, ComponentStory } from "@storybook/react";
+import QrReaderOverlay, { IQrValueWrapper, QrResolvedValue } from "./QrReaderOverlay";
 
 export default {
   title: "QrReaderOverlay",
@@ -25,7 +23,8 @@ const qrCodeToResolverResult = (qrValue: string): QrResolvedValue => {
       kind: "noBoxtributeQr",
     }],
     ["https://staging.boxwise.co/mobile.php?barcode=149ff66629377f6404b5c8d32936855", {
-      kind: "notAssignedToBox"
+      kind: "notAssignedToBox",
+      qrCodeValue: "da9ju440f93i4oigjdlf20"
     }],
     ["https://staging.boxwise.co/mobile.php?barcode=91c1def0b674d4e7cb92b61dbe00846", {
       kind: "success",

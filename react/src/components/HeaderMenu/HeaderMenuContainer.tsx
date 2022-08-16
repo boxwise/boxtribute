@@ -21,94 +21,97 @@ const HeaderMenuContainer = () => {
       {
         text: "Boxes",
         links: [
-          { link: "#", name: "Print Labels" },
+          // { link: "#", name: "Print Labels" },
           { link: `/bases/${baseId}/boxes`, name: "Manage Boxes" },
-          { link: "#", name: "Stock Overview" },
+          { link: `/bases/${baseId}/boxes/create`, name: "Create new Box" },
+          // { link: "#", name: "Stock Overview" },
         ],
       },
-      {
-        text: "Freeshop",
-        links: [
-          { link: "#", name: "Manage Beneficiaries" },
-          { link: "#", name: "Checkout" },
-          { link: "#", name: "Generate Market Schedule" },
-        ],
-      },
+      // {
+      //   text: "Freeshop",
+      //   links: [
+      //     { link: "#", name: "Manage Beneficiaries" },
+      //     { link: "#", name: "Checkout" },
+      //     { link: "#", name: "Generate Market Schedule" },
+      //   ],
+      // },
       {
         text: "Mobile Distributions",
         links: [
-          { link: "#", name: "Calendar" },
           { link: `/bases/${baseId}/distributions`, name: "Distribution Events" },
           { link: `/bases/${baseId}/distributions/spots`, name: "Distribution Spots" },
         ],
       },
-      {
-        text: "Box Transfers",
-        links: [
-          { link: "#", name: "Transfer Agreements" },
-          { link: "#", name: "Shipments" },
-        ],
-      },
-      {
-        text: "Data Insights",
-        links: [
-          { link: "#", name: "Charts" },
-          { link: "#", name: "Export" },
-        ],
-      },
+      // {
+      //   text: "Box Transfers",
+      //   links: [
+      //     { link: "#", name: "Transfer Agreements" },
+      //     { link: "#", name: "Shipments" },
+      //   ],
+      // },
+      // {
+      //   text: "Data Insights",
+      //   links: [
+      //     { link: "#", name: "Charts" },
+      //     { link: "#", name: "Export" },
+      //   ],
+      // },
       {
         text: "Admin",
         links: [
           { link: "#", name: "Manage Tags" },
-          { link: "#", name: "Manage Products" },
-          { link: "#", name: "Edit Warehouses" },
-          { link: "#", name: "Manage Users" },
+          // { link: "#", name: "Manage Products" },
+          // { link: "#", name: "Edit Warehouses" },
+          // { link: "#", name: "Manage Users" },
         ],
       },
     ],
     [baseId]
   );
-
   const qrScannerOverlayState = useDisclosure({ defaultIsOpen: false });
   const toast = useToast();
 
-  const onScanningDone = useCallback((qrResolvedValues: QrResolvedValue[]) => {
-    if (qrResolvedValues.length === 1) {
-      const singleResolvedQrValue = qrResolvedValues[0];
-      switch (singleResolvedQrValue.kind) {
-        case "success": {
-          const boxLabelIdentifier = singleResolvedQrValue.value;
-          navigate(`/bases/${baseId}/boxes/${boxLabelIdentifier}`);
-          break;
+  const onScanningDone = useCallback(
+    (qrResolvedValues: QrResolvedValue[]) => {
+      if (qrResolvedValues.length === 1) {
+        const singleResolvedQrValue = qrResolvedValues[0];
+        switch (singleResolvedQrValue.kind) {
+          case "success": {
+            const boxLabelIdentifier = singleResolvedQrValue.value;
+            navigate(`/bases/${baseId}/boxes/${boxLabelIdentifier}`);
+            break;
+          }
+          case "noBoxtributeQr": {
+            toast({
+              title: `Scanned QR code is not a Boxtribute QR code`,
+              status: "error",
+              isClosable: true,
+              duration: 2000,
+            });
+            break;
+          }
+          case "notAssignedToBox": {
+            toast({
+              title: `Scanned QR code is not assigned to a box yet`,
+              status: "info",
+              isClosable: true,
+              duration: 2000,
+            });
+            navigate(`/bases/${baseId}/boxes/create?qrCode=${singleResolvedQrValue.qrCodeValue}`);
+            break;
+          }
         }
-        case "noBoxtributeQr": {
-          toast({
-            title: `Scanned QR code is not a Boxtribute QR code`,
-            status: "error",
-            isClosable: true,
-            duration: 2000,
-          });
-          break;
-        }
-        case "notAssignedToBox": {
-          toast({
-            title: `Scanned QR code is not assigned to a box yet`,
-            status: "info",
-            isClosable: true,
-            duration: 2000,
-          });
-          break;
-        }
+      } else {
+        toast({
+          title: `You scanned multiple boxes. What do you want to do with them? (WIP)`,
+          status: "info",
+          isClosable: true,
+          duration: 2000,
+        });
       }
-    } else {
-      toast({
-        title: `You scanned multiple boxes. What do you want to do with them? (WIP)`,
-        status: "info",
-        isClosable: true,
-        duration: 2000,
-      });
-    }
-  }, [baseId, navigate, toast]);
+    },
+    [baseId, navigate, toast]
+  );
 
 
   if (baseId == null) {
@@ -130,6 +133,7 @@ const HeaderMenuContainer = () => {
         onClose={qrScannerOverlayState.onClose}
         onScanningDone={onScanningDone}
       />
+
     </>
   );
 };
