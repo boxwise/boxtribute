@@ -269,16 +269,6 @@ type DistributionEvent {
 """
 TODO: Add description here once specs are final/confirmed
 """
-type DistributionEventsSummary {
-  distributionEvents: [DistributionEvent!]!
-  unboxedItemsCollections: [UnboxedItemsCollection!]!
-  boxes: [Box!]!
-  totalCount: Int!
-}
-
-"""
-TODO: Add description here once specs are final/confirmed
-"""
 enum PackingListEntryState {
   NotStarted
   PackingInProgress

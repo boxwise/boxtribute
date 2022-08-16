@@ -115,7 +115,6 @@ tag = _register_object_type("Tag")
 transfer_agreement = _register_object_type("TransferAgreement")
 unboxed_items_collection = _register_object_type("UnboxedItemsCollection")
 user = _register_object_type("User")
-distribution_events_summary = _register_object_type("DistributionEventsSummary")
 
 
 @query.field("tag")
@@ -781,58 +780,6 @@ def resolve_distribution_event(obj, _, id):
         base_id=distribution_event.distribution_spot.base.id,
     )
     return distribution_event
-
-
-@query.field("distributionEventsSummary")
-def resolve_distribution_events(obj, _, ids):
-    distribution_events = DistributionEvent.select().where(DistributionEvent.id << ids)
-
-    # TODO: consider to check (and if check fails: throw error)
-    # that all distribution_events belong to the same base_id
-
-    base_ids = [
-        distribution_event.distribution_spot.base.id
-        for distribution_event in distribution_events
-    ]
-    unique_base_ids = list(set(base_ids))
-    for base_id in unique_base_ids:
-        authorize(permission="distro_event:read", base_id=base_id)
-
-    # TODO: clarify whether there is a more elegant
-    # (less boilerplate) way to do this
-    # without the need to have extra resolvers for each field
-    return {
-        "distribution_events": distribution_events,
-        "total_count": len(distribution_events),
-    }
-
-
-@distribution_events_summary.field("unboxedItemsCollections")
-def resolve_unboxed_items_collection_for_distribution_events_summary(obj, _):
-    return (
-        UnboxedItemsCollection.select()
-        .join(DistributionEvent)
-        .where(DistributionEvent.id << obj["distribution_events"])
-    )
-
-
-@distribution_events_summary.field("boxes")
-def resolve_boxes_for_distribution_events_summary(obj, _):
-    return (
-        Box.select()
-        .join(DistributionEvent)
-        .where(DistributionEvent.id << obj["distribution_events"])
-    )
-
-
-@distribution_events_summary.field("distributionEvents")
-def resolve_distribution_events_for_distribution_events_summary(obj, _):
-    return obj["distribution_events"]
-
-
-@distribution_events_summary.field("totalCount")
-def resolve_total_count_for_distribution_events_summary(obj, _):
-    return obj["total_count"]
 
 
 @base.field("beneficiaries")
