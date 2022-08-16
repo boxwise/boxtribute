@@ -153,9 +153,16 @@ export const BOX_DETAILS_FOR_MOBILE_DISTRO_QUERY = gql`
 export const DISTRIBUTION_EVENTS_IN_RETURN_STATE_FOR_BASE = gql`
   query DistributionEventsInReturnStateForBase($baseId: ID!) {
     base(id: $baseId) {
-      id
       distributionEventsInReturnState {
         id
+        name
+        state
+        distributionSpot {
+          id
+          name
+        }
+        plannedStartDateTime
+        plannedEndDateTime
         boxes {
           id
           product {

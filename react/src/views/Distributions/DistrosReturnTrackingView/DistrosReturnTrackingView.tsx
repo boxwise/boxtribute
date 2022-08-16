@@ -52,17 +52,19 @@ const graphqlToDistributionEventStockSummary = (
   queryResult: DistributionEventsInReturnStateForBaseQuery,
   distributionEventsToFilterFor: string[]
 ) => {
-  const distributionEvents = queryResult.base?.distributionEventsInReturnState;
-  if (!distributionEvents) {
-    // TODO: consider to track/handle this as an error here
-    return [];
-  }
+  const distributionEvents = queryResult.base?.distributionEventsInReturnState || [];
+  // TODO: consider to track/handle this as an error here
+  // if (distributionEvents.length === 0) {
+  // }
   // TODO: consider to move this rather complex set operations/transformations into backend.
   //   something like getStockSummaryForDistributionEventsById
-  const FOO = _(distributionEvents)
-    .filter((distributionEvent) =>
-      distributionEventsToFilterFor.includes(distributionEvent.id)
-    )
+  const filteredDistributionEvents = _(distributionEvents)
+  .filter((distributionEvent) =>
+    distributionEventsToFilterFor.includes(distributionEvent.id)
+  ).value()
+
+
+  const squashedItemCollectionsAccrossAllEvents = _(filteredDistributionEvents)
     .flatMap((distroEvent) =>
       _(distroEvent.boxes)
         .map(
@@ -146,8 +148,17 @@ const graphqlToDistributionEventStockSummary = (
     //   return [];
     // })
     // .value();
-  console.log("FOO", FOO);
-  return FOO;
+  console.log("FOO", squashedItemCollectionsAccrossAllEvents);
+
+  return {
+    squashedItemCollectionsAccrossAllEvents,
+    distributionEvents: filteredDistributionEvents.map(el => DistributionEventDetailsSchema.parse(el))
+    // distributionEvents: filteredDistributionEvents.map(el => ({
+    //   id: el.id,
+    //   name: el.name,
+    //   plannedStartDateTime: el.plannedStartDateTime
+    // } as DistributionEventDetails))
+  }
 };
 
 const SummaryOfDistributionEvents = ({
@@ -229,7 +240,7 @@ const DistrosReturnTrackingView = () => {
     distroEventIdsForReturnTracking
   );
   console.log("data", data);
-  const distributionEventsStockSummary = graphqlToDistributionEventStockSummary(
+  const distributionEventsSummary = graphqlToDistributionEventStockSummary(
     data,
     distroEventIdsForReturnTracking
   );
@@ -237,7 +248,7 @@ const DistrosReturnTrackingView = () => {
   return (
     <VStack>
       <Heading>Track returns for the following events</Heading>
-      <SummaryOfDistributionEvents distributionEvents={[]} />
+      <SummaryOfDistributionEvents distributionEvents={distributionEventsSummary.distributionEvents} />
       <Box>
         {/* {JSON.stringify(distroEventIdsForReturnTracking)}
         {JSON.stringify(data)} */}
