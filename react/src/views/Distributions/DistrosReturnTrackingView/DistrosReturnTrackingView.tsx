@@ -29,21 +29,54 @@ const graphqlToDistributionEventStockSummary = (
     .filter((distributionEvent) =>
       distributionEventsToFilterFor.includes(distributionEvent.id)
     )
-    .flatMap((distroEvent) => {
-      return _(distroEvent.boxes)
-        .keyBy((b) => `${b.product?.id!}-${b.size.id}`)
-        .merge(
-          _(distroEvent.unboxedItemsCollections)
-            .keyBy((itemsCol) => `${itemsCol.product?.id!}-${itemsCol.size.id}`)
-            .value()
-        )
+    .map((distroEvent) => {
+      const unboxedItemsCollectionsByProductAndSizeId = _(
+        distroEvent.unboxedItemsCollections
+      )
+        .keyBy((itemsCol) => `${itemsCol.product?.id!}-${itemsCol.size.id}`)
+        // .merge(
+        //   _(distroEvent.boxes)
+        //     .keyBy((itemsCol) => `${itemsCol.product?.id!}-${itemsCol.size.id}`)
+        //     .value()
+        // )
+
         .values()
+        .map((el) => ({
+          product: el.product,
+          size: el.size,
+          numberOfItems: el.items,
+        }))
         .value();
+
+      const boxesByProductAndSizeId = _(distroEvent.boxes)
+        .keyBy((b) => `${b.product?.id!}-${b.size.id}`)
+        .map((el, id) => ({
+          product: el.product,
+          size: el.size,
+          numberOfItems: el.items,
+        }))
+        .value();
+
+      console.log(
+        "unboxedItemsCollectionsByProductAndSizeId",
+        unboxedItemsCollectionsByProductAndSizeId
+      );
+      console.log("boxesByProductAndSizeId", boxesByProductAndSizeId);
+
+      const combined = _.concat(
+        unboxedItemsCollectionsByProductAndSizeId,
+        boxesByProductAndSizeId
+      );
+
+      _(combined).groupBy().map();
+
+      console.log("combined", combined);
+
+      return [];
     })
     .value();
-    console.log("FOO", FOO);
-    return FOO;
-
+  console.log("FOO", FOO);
+  return FOO;
 };
 
 const SummaryOfDistributionEvents = ({
@@ -108,20 +141,23 @@ const DistrosReturnTrackingView = () => {
     return <Center>Error!</Center>;
   }
 
-//   let distributionEventsData: DistributionEventDetails[];
-//   try {
-//     distributionEventsData = data?.base?.distributionEventsInReturnState.map(
-//       (el) => DistributionEventDetailsSchema.parse(el)
-//     );
-//   } catch (e) {
-//     console.error(
-//       "Problem in DistrosReturnTrackingView while parsing data.distributionEvents: ",
-//       e
-//     );
-//     return <Center>Error!</Center>;
-//   }
-console.log("distroEventIdsForReturnTracking", distroEventIdsForReturnTracking)
-console.log("data", data)
+  //   let distributionEventsData: DistributionEventDetails[];
+  //   try {
+  //     distributionEventsData = data?.base?.distributionEventsInReturnState.map(
+  //       (el) => DistributionEventDetailsSchema.parse(el)
+  //     );
+  //   } catch (e) {
+  //     console.error(
+  //       "Problem in DistrosReturnTrackingView while parsing data.distributionEvents: ",
+  //       e
+  //     );
+  //     return <Center>Error!</Center>;
+  //   }
+  console.log(
+    "distroEventIdsForReturnTracking",
+    distroEventIdsForReturnTracking
+  );
+  console.log("data", data);
   const distributionEventsStockSummary = graphqlToDistributionEventStockSummary(
     data,
     distroEventIdsForReturnTracking
@@ -130,9 +166,7 @@ console.log("data", data)
   return (
     <VStack>
       <Heading>Track returns for the following events</Heading>
-      <SummaryOfDistributionEvents
-        distributionEvents={[]}
-      />
+      <SummaryOfDistributionEvents distributionEvents={[]} />
       <Box>
         {/* {JSON.stringify(distroEventIdsForReturnTracking)}
         {JSON.stringify(data)} */}
