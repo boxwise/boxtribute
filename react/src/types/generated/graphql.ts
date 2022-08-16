@@ -224,15 +224,6 @@ export enum DistributionEventState {
 }
 
 /** TODO: Add description here once specs are final/confirmed */
-export type DistributionEventsSummary = {
-  __typename?: 'DistributionEventsSummary';
-  boxes: Array<Box>;
-  distributionEvents: Array<DistributionEvent>;
-  totalCount: Scalars['Int'];
-  unboxedItemsCollections: Array<UnboxedItemsCollection>;
-};
-
-/** TODO: Add description here once specs are final/confirmed */
 export type DistributionSpot = BoxPlace & {
   __typename?: 'DistributionSpot';
   base?: Maybe<Base>;
@@ -899,7 +890,6 @@ export type Query = {
   beneficiary?: Maybe<Beneficiary>;
   box?: Maybe<Box>;
   distributionEvent?: Maybe<DistributionEvent>;
-  distributionEventsSummary?: Maybe<DistributionEventsSummary>;
   distributionSpot?: Maybe<DistributionSpot>;
   /**  Return all [`DistributionSpots`]({{Types.DistributionSpot}}) that the client is authorized to view.  */
   distributionSpots: Array<DistributionSpot>;
@@ -962,11 +952,6 @@ export type QueryBoxArgs = {
 
 export type QueryDistributionEventArgs = {
   id: Scalars['ID'];
-};
-
-
-export type QueryDistributionEventsSummaryArgs = {
-  ids: Array<Scalars['ID']>;
 };
 
 
@@ -1486,13 +1471,6 @@ export type BoxDetailsQueryVariables = Exact<{
 
 
 export type BoxDetailsQuery = { __typename?: 'Query', box?: { __typename?: 'Box', labelIdentifier: string, items?: number | null, product?: { __typename?: 'Product', id: string, name: string } | null, size: { __typename?: 'Size', id: string, label: string } } | null };
-
-export type DistributionEventsSummaryByIdsQueryVariables = Exact<{
-  distributionEventIds: Array<Scalars['ID']> | Scalars['ID'];
-}>;
-
-
-export type DistributionEventsSummaryByIdsQuery = { __typename?: 'Query', distributionEventsSummary?: { __typename?: 'DistributionEventsSummary', totalCount: number, distributionEvents: Array<{ __typename?: 'DistributionEvent', id: string, name?: string | null, plannedStartDateTime: any, plannedEndDateTime: any, state: DistributionEventState, distributionSpot?: { __typename?: 'DistributionSpot', id: string, name?: string | null } | null }> } | null };
 
 export type DistributionEventQueryVariables = Exact<{
   eventId: Scalars['ID'];

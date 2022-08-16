@@ -150,24 +150,24 @@ export const BOX_DETAILS_FOR_MOBILE_DISTRO_QUERY = gql`
   }
 `;
 
-export const DISTRIBUTION_EVENTS_SUMMARY_BY_IDS_QUERY = gql`
-  query DistributionEventsSummaryByIds($distributionEventIds: [ID!]!) {
-    distributionEventsSummary(ids: $distributionEventIds) {
-      distributionEvents {
-        id
-        name
-        plannedStartDateTime
-        plannedEndDateTime
-        state
-        distributionSpot {
-          id
-          name
-        }
-      }
-      totalCount
-    }
-  }
-`;
+// export const DISTRIBUTION_EVENTS_SUMMARY_BY_IDS_QUERY = gql`
+//   query DistributionEventsSummaryByIds($distributionEventIds: [ID!]!) {
+//     distributionEventsSummary(ids: $distributionEventIds) {
+//       distributionEvents {
+//         id
+//         name
+//         plannedStartDateTime
+//         plannedEndDateTime
+//         state
+//         distributionSpot {
+//           id
+//           name
+//         }
+//       }
+//       totalCount
+//     }
+//   }
+// `;
 
 // export const MATCHING_PACKED_ITEMS_COLLECTIONS_FOR_PACKING_LIST_ENTRY = gql`
 // query MatchingPackedItemsCollectionsForPackingListEntry($packingListEntryId: ID!) {

@@ -1,17 +1,6 @@
-import { useQuery } from "@apollo/client";
-import { Box, Center, Heading, LinkOverlay, VStack } from "@chakra-ui/react";
-import APILoadingIndicator from "components/APILoadingIndicator";
-import { useSearchParams } from "react-router-dom";
-import {
-  DistributionEventsSummaryByIdsQuery,
-  DistributionEventsSummaryByIdsQueryVariables,
-} from "types/generated/graphql";
+import { Box, Heading, VStack } from "@chakra-ui/react";
 import DistributionEventTimeRangeDisplay from "../components/DistributionEventTimeRangeDisplay";
-import { DISTRIBUTION_EVENTS_SUMMARY_BY_IDS_QUERY } from "../queries";
-import {
-  DistributionEventDetails,
-  DistributionEventDetailsSchema,
-} from "../types";
+import { DistributionEventDetails } from "../types";
 
 const SummaryOfDistributionEvents = ({
   distributionEvents,
@@ -48,46 +37,49 @@ const SummaryOfDistributionEvents = ({
 };
 
 const DistrosReturnTrackingView = () => {
-  const [searchParams] = useSearchParams();
-  const distroEventIdsForReturnTracking =
-    searchParams.getAll("distroEventIds[]");
+//   const [searchParams] = useSearchParams();
+//   const distroEventIdsForReturnTracking =
+//     searchParams.getAll("distroEventIds[]");
 
-  const { data, error, loading } = useQuery<
-    DistributionEventsSummaryByIdsQuery,
-    DistributionEventsSummaryByIdsQueryVariables
-  >(DISTRIBUTION_EVENTS_SUMMARY_BY_IDS_QUERY, {
-    variables: {
-      distributionEventIds: distroEventIdsForReturnTracking,
-    },
-  });
 
-  if (loading) {
-    return <APILoadingIndicator />;
-  }
-  if (error) {
-    console.error("Error in DistrosReturnTrackingView : ", error);
-    return <Center>Error!</Center>;
-  }
-  if (data?.distributionEventsSummary?.distributionEvents == null) {
-    console.error(
-      "Problem in DistrosReturnTrackingView: data?.distributionEvents is undefined|null"
-    );
-    return <Center>Error!</Center>;
-  }
+//   const { data, error, loading } = useQuery<
+//     DistributionEventsSummaryByIdsQuery,
+//     DistributionEventsSummaryByIdsQueryVariables
+//   >(DISTRIBUTION_EVENTS_SUMMARY_BY_IDS_QUERY, {
+//     variables: {
+//       distributionEventIds: distroEventIdsForReturnTracking,
+//     },
+//   });
 
-  let distributionEventsData: DistributionEventDetails[];
-  try {
-    distributionEventsData = data?.distributionEventsSummary?.distributionEvents.map((el) =>
-      DistributionEventDetailsSchema.parse(el)
-    );
-  } catch (e) {
-    console.error(
-      "Problem in DistrosReturnTrackingView while parsing data.distributionEvents: ",
-      e
-    );
-    return <Center>Error!</Center>;
-  }
+//   if (loading) {
+//     return <APILoadingIndicator />;
+//   }
+//   if (error) {
+//     console.error("Error in DistrosReturnTrackingView : ", error);
+//     return <Center>Error!</Center>;
+//   }
+//   if (data?.distributionEventsSummary?.distributionEvents == null) {
+//     console.error(
+//       "Problem in DistrosReturnTrackingView: data?.distributionEvents is undefined|null"
+//     );
+//     return <Center>Error!</Center>;
+//   }
+
+//   let distributionEventsData: DistributionEventDetails[];
+//   try {
+//     distributionEventsData = data?.distributionEventsSummary?.distributionEvents.map((el) =>
+//       DistributionEventDetailsSchema.parse(el)
+//     );
+//   } catch (e) {
+//     console.error(
+//       "Problem in DistrosReturnTrackingView while parsing data.distributionEvents: ",
+//       e
+//     );
+//     return <Center>Error!</Center>;
+//   }
   //   DistributionEventDetailsSchema.parse(data?.distributionEvents[0])
+
+  const distributionEventsData = [];
 
   return (
     <VStack>
@@ -96,8 +88,8 @@ const DistrosReturnTrackingView = () => {
         distributionEvents={distributionEventsData}
       />
       <Box>
-        {JSON.stringify(distroEventIdsForReturnTracking)}
-        {JSON.stringify(data)}
+        {/* {JSON.stringify(distroEventIdsForReturnTracking)}
+        {JSON.stringify(data)} */}
       </Box>
       <h1>DistrosReturnTrackingView</h1>
     </VStack>
