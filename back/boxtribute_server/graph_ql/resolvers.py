@@ -810,9 +810,9 @@ def resolve_distribution_event_boxes(distribution_event_obj, _):
 @convert_kwargs_to_snake_case
 def resolve_distribution_event_unboxed_item_collections(distribution_event_obj, _):
     authorize(permission="stock:read")
-    return UnboxedItemsCollection.select().where(
-        UnboxedItemsCollection.distribution_event == distribution_event_obj.id
-    )
+    return UnboxedItemsCollection.select(
+        UnboxedItemsCollection, UnboxedItemsCollection.number_of_items.alias("items")
+    ).where(UnboxedItemsCollection.distribution_event == distribution_event_obj.id)
 
 
 @distribution_event.field("packingListEntries")
