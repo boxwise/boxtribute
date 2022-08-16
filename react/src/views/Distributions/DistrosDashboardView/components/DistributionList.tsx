@@ -1,5 +1,5 @@
 import {
-  Box,
+  Button,
   Heading,
   LinkBox,
   LinkOverlay,
@@ -13,6 +13,7 @@ import isFuture from "date-fns/isFuture";
 import isPast from "date-fns/isPast";
 import _ from "lodash";
 import { useGetUrlForResourceHelpers } from "utils/hooks";
+import DistributionEventTimeRangeDisplay from "views/Distributions/components/DistributionEventTimeRangeDisplay";
 import {
   DistributionEventDetails,
   DistributionEventState,
@@ -26,33 +27,31 @@ const ListOfEvents = ({
   const { getDistroEventDetailUrlById } = useGetUrlForResourceHelpers();
 
   return (
-      <List>
+    <List>
       {distributionEventsListData.map((distributionEventData) => (
-        <ListItem my={5}><LinkBox maxW="sm" p="5" borderWidth="1px" rounded="md">
-          <Box
-            as="time"
-            dateTime={distributionEventData.plannedStartDateTime.toUTCString()}
-          >
-            {distributionEventData.plannedStartDateTime.toDateString()} (
-            {distributionEventData.plannedStartDateTime.toLocaleTimeString()} -{" "}
-            {distributionEventData.plannedEndDateTime.toLocaleTimeString()})
-          </Box>
-          <Heading size="md" my="2">
-            <LinkOverlay
-              href={getDistroEventDetailUrlById(distributionEventData.id)}
-            >
-              {distributionEventData.distributionSpot.name}{" "}
-              {!!distributionEventData.name && (
-                <>({distributionEventData.name})</>
-              )}
-            </LinkOverlay>
-          </Heading>
+        <ListItem key={distributionEventData.id} my={5}>
+          <LinkBox maxW="sm" p="5" borderWidth="1px" rounded="md">
+            <DistributionEventTimeRangeDisplay
+              plannedStartDateTime={distributionEventData.plannedStartDateTime}
+              plannedEndDateTime={distributionEventData.plannedEndDateTime}
+            />
 
-          <Text>
-            <b>State: </b>
-            {distributionEventData.state}
-          </Text>
-        </LinkBox>
+            <Heading size="md" my="2">
+              <LinkOverlay
+                href={getDistroEventDetailUrlById(distributionEventData.id)}
+              >
+                {distributionEventData.distributionSpot.name}{" "}
+                {!!distributionEventData.name && (
+                  <>({distributionEventData.name})</>
+                )}
+              </LinkOverlay>
+            </Heading>
+
+            <Text>
+              <b>State: </b>
+              {distributionEventData.state}
+            </Text>
+          </LinkBox>
         </ListItem>
       ))}
     </List>
@@ -76,8 +75,8 @@ const DistributionList = ({
       isFuture(el.plannedStartDateTime) && !isToday(el.plannedStartDateTime)
   );
 
-  const pastDistroEvents = sortedDistroEvents.filter((el) =>
-    isPast(el.plannedStartDateTime)
+  const pastDistroEvents = sortedDistroEvents.filter(
+    (el) => isPast(el.plannedStartDateTime) && !isToday(el.plannedStartDateTime)
   );
   const pastNonCompletedDistroEvents = pastDistroEvents.filter(
     (el) => el.state !== DistributionEventState.Completed
@@ -99,16 +98,23 @@ const DistributionList = ({
 
   return (
     <VStack>
+      <Button onClick={() => alert("Not yet implemented")}>
+        New Distribution Event
+      </Button>
       {hasDistroEventsToday && (
         <>
-          <Heading as="h4" py={10}>Today</Heading>
+          <Heading as="h4" py={10}>
+            Today
+          </Heading>
           <ListOfEvents distributionEventsListData={distroEventsToday} />
         </>
       )}
       {hasUpcomingDistroEventsAfterToday && (
         <>
           {showHeadingForUpcomingDistroEventsAfterTodaySection && (
-            <Heading as="h4" py={10}>Upcoming</Heading>
+            <Heading as="h4" py={10}>
+              Upcoming
+            </Heading>
           )}
           <ListOfEvents
             distributionEventsListData={upcomingDistroEventsAfterToday}
@@ -118,7 +124,9 @@ const DistributionList = ({
 
       {hasPastDistroEvents && (
         <>
-          <Heading as="h4" pt={10}>Past</Heading>
+          <Heading as="h4" pt={10}>
+            Past
+          </Heading>
           {hasPastNonCompletedDistroEvents && (
             <>
               <Heading as="h5" size={"md"} pt={4}>
