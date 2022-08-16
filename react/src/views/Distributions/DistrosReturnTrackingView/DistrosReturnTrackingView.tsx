@@ -1,5 +1,5 @@
 import { useQuery } from "@apollo/client";
-import { Box, Center, Heading, VStack } from "@chakra-ui/react";
+import { Box, Center, Heading, List, ListItem, VStack } from "@chakra-ui/react";
 import APILoadingIndicator from "components/APILoadingIndicator";
 import _ from "lodash";
 import { useParams, useSearchParams } from "react-router-dom";
@@ -52,17 +52,18 @@ const graphqlToDistributionEventStockSummary = (
   queryResult: DistributionEventsInReturnStateForBaseQuery,
   distributionEventsToFilterFor: string[]
 ) => {
-  const distributionEvents = queryResult.base?.distributionEventsInReturnState || [];
+  const distributionEvents =
+    queryResult.base?.distributionEventsInReturnState || [];
   // TODO: consider to track/handle this as an error here
   // if (distributionEvents.length === 0) {
   // }
   // TODO: consider to move this rather complex set operations/transformations into backend.
   //   something like getStockSummaryForDistributionEventsById
   const filteredDistributionEvents = _(distributionEvents)
-  .filter((distributionEvent) =>
-    distributionEventsToFilterFor.includes(distributionEvent.id)
-  ).value()
-
+    .filter((distributionEvent) =>
+      distributionEventsToFilterFor.includes(distributionEvent.id)
+    )
+    .value();
 
   const squashedItemCollectionsAccrossAllEvents = _(filteredDistributionEvents)
     .flatMap((distroEvent) =>
@@ -88,82 +89,86 @@ const graphqlToDistributionEventStockSummary = (
         .value()
     )
     .thru(groupByProductAndSizeWithSumForNumberOfItems)
-    .value()
-    // .map((distroEvent) => {
-    //   const unboxedItemsCollectionsByProductAndSizeId = _(
-    //     distroEvent.unboxedItemsCollections
-    //   )
-    //     .keyBy((itemsCol) => `${itemsCol.product?.id!}-${itemsCol.size.id}`)
-    //     // .merge(
-    //     //   _(distroEvent.boxes)
-    //     //     .keyBy((itemsCol) => `${itemsCol.product?.id!}-${itemsCol.size.id}`)
-    //     //     .value()
-    //     // )
+    .value();
+  // .map((distroEvent) => {
+  //   const unboxedItemsCollectionsByProductAndSizeId = _(
+  //     distroEvent.unboxedItemsCollections
+  //   )
+  //     .keyBy((itemsCol) => `${itemsCol.product?.id!}-${itemsCol.size.id}`)
+  //     // .merge(
+  //     //   _(distroEvent.boxes)
+  //     //     .keyBy((itemsCol) => `${itemsCol.product?.id!}-${itemsCol.size.id}`)
+  //     //     .value()
+  //     // )
 
-    //     // .values()
-    //     .map((el, id) => ({
-    //       productSizeIdTuple: id,
-    //       product: el.product,
-    //       size: el.size,
-    //       numberOfItems: el.items,
-    //     }))
-    //     .value();
+  //     // .values()
+  //     .map((el, id) => ({
+  //       productSizeIdTuple: id,
+  //       product: el.product,
+  //       size: el.size,
+  //       numberOfItems: el.items,
+  //     }))
+  //     .value();
 
-    //   const boxesByProductAndSizeId = _(distroEvent.boxes)
-    //     .keyBy((b) => `${b.product?.id!}-${b.size.id}`)
-    //     .map((el, id) => ({
-    //       productSizeIdTuple: id,
-    //       product: el.product,
-    //       size: el.size,
-    //       numberOfItems: el.items,
-    //     }))
-    //     .value();
+  //   const boxesByProductAndSizeId = _(distroEvent.boxes)
+  //     .keyBy((b) => `${b.product?.id!}-${b.size.id}`)
+  //     .map((el, id) => ({
+  //       productSizeIdTuple: id,
+  //       product: el.product,
+  //       size: el.size,
+  //       numberOfItems: el.items,
+  //     }))
+  //     .value();
 
-    //   console.log(
-    //     "unboxedItemsCollectionsByProductAndSizeId",
-    //     unboxedItemsCollectionsByProductAndSizeId
-    //   );
-    //   console.log("boxesByProductAndSizeId", boxesByProductAndSizeId);
+  //   console.log(
+  //     "unboxedItemsCollectionsByProductAndSizeId",
+  //     unboxedItemsCollectionsByProductAndSizeId
+  //   );
+  //   console.log("boxesByProductAndSizeId", boxesByProductAndSizeId);
 
-    //   const combined: ItemCollection[] = _.concat(
-    //     unboxedItemsCollectionsByProductAndSizeId,
-    //     boxesByProductAndSizeId
-    //   );
+  //   const combined: ItemCollection[] = _.concat(
+  //     unboxedItemsCollectionsByProductAndSizeId,
+  //     boxesByProductAndSizeId
+  //   );
 
-    //   const BAR = _(combined)
-    //   .groupBy("productSizeIdTuple")
-    //   // .groupBy(el => ({
-    //   //   product: el.product,
-    //   //   size: el.size
-    //   // }))
-    //   // .value
-    //   .map((el, id) => ({
-    //     productSizeIdTuple: id,
-    //     product: el.product,
+  //   const BAR = _(combined)
+  //   .groupBy("productSizeIdTuple")
+  //   // .groupBy(el => ({
+  //   //   product: el.product,
+  //   //   size: el.size
+  //   // }))
+  //   // .value
+  //   .map((el, id) => ({
+  //     productSizeIdTuple: id,
+  //     product: el.product,
 
-    //   });
+  //   });
 
-    //   console.log("combined", combined);
+  //   console.log("combined", combined);
 
-    //   return [];
-    // })
-    // .value();
+  //   return [];
+  // })
+  // .value();
   console.log("FOO", squashedItemCollectionsAccrossAllEvents);
 
   return {
     squashedItemCollectionsAccrossAllEvents,
-    distributionEvents: filteredDistributionEvents.map(el => DistributionEventDetailsSchema.parse(el))
+    distributionEvents: filteredDistributionEvents.map((el) =>
+      DistributionEventDetailsSchema.parse(el)
+    ),
     // distributionEvents: filteredDistributionEvents.map(el => ({
     //   id: el.id,
     //   name: el.name,
     //   plannedStartDateTime: el.plannedStartDateTime
     // } as DistributionEventDetails))
-  }
+  };
 };
 
 const SummaryOfDistributionEvents = ({
+  squashedItemsCollections,
   distributionEvents,
 }: {
+  squashedItemsCollections: ItemCollection[];
   distributionEvents: DistributionEventDetails[];
 }) => {
   return (
@@ -190,6 +195,21 @@ const SummaryOfDistributionEvents = ({
           </Heading>
         </Box>
       ))}
+      <List>
+        {squashedItemsCollections.map((el, i) => (
+          <ListItem key={i}>
+            <Box>
+              <b>Product:</b> {el.product?.name}
+            </Box>
+            <Box>
+              <b>Size:</b> {el.size?.label}
+            </Box>
+            <Box>
+              <b>Number of items:</b> {el.numberOfItems}
+            </Box>
+          </ListItem>
+        ))}
+      </List>
     </VStack>
   );
 };
@@ -248,12 +268,16 @@ const DistrosReturnTrackingView = () => {
   return (
     <VStack>
       <Heading>Track returns for the following events</Heading>
-      <SummaryOfDistributionEvents distributionEvents={distributionEventsSummary.distributionEvents} />
+      <SummaryOfDistributionEvents
+        squashedItemsCollections={
+          distributionEventsSummary.squashedItemCollectionsAccrossAllEvents
+        }
+        distributionEvents={distributionEventsSummary.distributionEvents}
+      />
       <Box>
         {/* {JSON.stringify(distroEventIdsForReturnTracking)}
         {JSON.stringify(data)} */}
       </Box>
-      <h1>DistrosReturnTrackingView</h1>
     </VStack>
   );
 };
