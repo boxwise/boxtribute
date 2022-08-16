@@ -64,22 +64,27 @@ export type DistributionEventDetails = z.infer<
 //   numberOfItems: number;
 // }
 
+
+export interface Product {
+  id: string;
+  name: string;
+  gender?: ProductGender;
+  // gender?: {
+  //   id: string;
+  //   label: string
+  // }
+}
+
+export interface Size {
+  id: string;
+  label: string;
+};
+
 export interface IPackingListEntry {
   id: string;
   numberOfItems: number;
-  product: {
-    id: string;
-    name: string;
-    gender?: ProductGender;
-    // gender?: {
-    //   id: string;
-    //   label: string
-    // }
-  };
-  size?: {
-    id: string;
-    label: string;
-  };
+  product: Product;
+  size?: Size;
 }
 
 export interface IPackingListEntryForPackingState extends IPackingListEntry {

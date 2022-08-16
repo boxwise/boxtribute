@@ -12,7 +12,17 @@ import { DISTRIBUTION_EVENTS_IN_RETURN_STATE_FOR_BASE } from "../queries";
 import {
   DistributionEventDetails,
   DistributionEventDetailsSchema,
+  Product,
+  Size,
 } from "../types";
+
+
+interface ItemCollection {
+  productSizeIdTuple: string;
+  product?: Product | null,
+  size?: Size | null;
+  numberOfItems?: number | null;
+}
 
 const graphqlToDistributionEventStockSummary = (
   queryResult: DistributionEventsInReturnStateForBaseQuery,
@@ -40,8 +50,9 @@ const graphqlToDistributionEventStockSummary = (
         //     .value()
         // )
 
-        .values()
-        .map((el) => ({
+        // .values()
+        .map((el, id) => ({
+          productSizeIdTuple: id,
           product: el.product,
           size: el.size,
           numberOfItems: el.items,
@@ -51,6 +62,7 @@ const graphqlToDistributionEventStockSummary = (
       const boxesByProductAndSizeId = _(distroEvent.boxes)
         .keyBy((b) => `${b.product?.id!}-${b.size.id}`)
         .map((el, id) => ({
+          productSizeIdTuple: id,
           product: el.product,
           size: el.size,
           numberOfItems: el.items,
@@ -63,12 +75,23 @@ const graphqlToDistributionEventStockSummary = (
       );
       console.log("boxesByProductAndSizeId", boxesByProductAndSizeId);
 
-      const combined = _.concat(
+      const combined: ItemCollection[] = _.concat(
         unboxedItemsCollectionsByProductAndSizeId,
         boxesByProductAndSizeId
       );
 
-      _(combined).groupBy().map();
+      const BAR = _(combined)
+      .groupBy("productSizeIdTuple")
+      // .groupBy(el => ({
+      //   product: el.product,
+      //   size: el.size
+      // }))
+      // .value
+      .map((el, id) => ({
+        productSizeIdTuple: id,
+        product: el.product,
+
+      });
 
       console.log("combined", combined);
 
