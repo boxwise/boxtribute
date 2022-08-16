@@ -24,6 +24,28 @@ interface ItemCollection {
   numberOfItems?: number | null;
 }
 
+// TODO: get rid of this quite hack groupBy logic
+// replace it e.g. by more elegant lodash method chaining
+// Or, even better, by specific GraphQL/BE queries which return the required final outcome
+const groupByProductAndSizeWithSumForNumberOfItems = (itemCollection: ItemCollection[]) => {
+  const helper = new Map<string, ItemCollection>();
+  const result = itemCollection.reduce((r, o) => {
+    var key = o.product?.id + '-' + o.size?.id;
+
+    if(!helper.has(key)) {
+      const newEntry = Object.assign({}, o);
+      helper.set(key, newEntry);
+      r.push(newEntry);
+    } else {
+      const existingObject = helper.get(key)!;
+      existingObject.numberOfItems = (existingObject.numberOfItems || 0) + (o.numberOfItems || 0);
+    }
+
+    return r;
+  }, [] as ItemCollection[]);
+  return result;
+}
+
 const graphqlToDistributionEventStockSummary = (
   queryResult: DistributionEventsInReturnStateForBaseQuery,
   distributionEventsToFilterFor: string[]
