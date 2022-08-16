@@ -53,7 +53,7 @@ class Box(db.Model):
         null=True,
         on_update="CASCADE",
     )
-    items = IntegerField(null=True)
+    number_of_items = IntegerField(column_name="items", null=True)
     location = UIntForeignKeyField(
         column_name="location_id",
         field="id",

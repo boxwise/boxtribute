@@ -22,7 +22,7 @@ def default_box_data():
         "last_modified_by": default_user_data()["id"],
         "created_on": datetime(2020, 11, 27),
         "created_by": default_user_data()["id"],
-        "items": 0,
+        "number_of_items": 0,
         "size": size_data()["id"],
         "location": default_location_data()["id"],
         "qr_code": default_qr_code_data()["id"],
@@ -33,7 +33,7 @@ def box_without_qr_code_data():
     data = default_box_data()
     data["id"] = 3
     data["label_identifier"] = "23456789"
-    data["items"] = 10
+    data["number_of_items"] = 10
     data["qr_code"] = None
     data["state"] = BoxState.MarkedForShipment
     return data

@@ -34,11 +34,11 @@ def move_items_from_box_to_distribution_event(
 
         box = Box.get(Box.label_identifier == box_label_identifier)
 
-        if box.items < number_of_items:
+        if box.number_of_items < number_of_items:
             raise NotEnoughItemsInBox(
                 box_label_identifier=box_label_identifier,
                 number_of_requested_items=number_of_items,
-                number_of_actual_items=box.items,
+                number_of_actual_items=box.number_of_items,
             )
 
         unboxed_items_collection, _ = UnboxedItemsCollection.get_or_create(
@@ -49,7 +49,7 @@ def move_items_from_box_to_distribution_event(
         )
 
         unboxed_items_collection.number_of_items += number_of_items
-        box.items -= number_of_items
+        box.number_of_items -= number_of_items
 
         unboxed_items_collection.save()
         box.save()

@@ -10,7 +10,7 @@ import { distroEventStateHumanReadableLabels } from "views/Distributions/baseDat
 export interface BTBox {
   id: string;
   labelIdentifier?: string;
-  items: number;
+  numberOfItems: number;
   size?: string;
   name: string;
   gender?: ProductGender;
@@ -54,7 +54,7 @@ const DistroEventCompleted = ({ distroEventData }: DistroEventProps) => {
             <SimpleGrid minChildWidth="10px" py={2} columns={5} borderBottom="1px" borderColor="gray.300" my={2}>
               <Box>{box.labelIdentifier}</Box>
               <Box>{box.name}</Box>
-              <Box>{box.items}</Box>
+              <Box>{box.numberOfItems}</Box>
 
               <Box>{box.size}</Box>
               <Box>{box.gender}</Box>
@@ -71,7 +71,7 @@ const DistroEventCompleted = ({ distroEventData }: DistroEventProps) => {
             <SimpleGrid py={2} minChildWidth="10px" columns={5} borderBottom="1px" borderColor="gray.300" my={2}>
               <Box>{box.labelIdentifier}</Box>
               <Box>{box.name}</Box>
-              <Box>{box.items}</Box>
+              <Box>{box.numberOfItems}</Box>
               <Box>{box.size}</Box>
               <Box>{box.gender}</Box>
             </SimpleGrid>

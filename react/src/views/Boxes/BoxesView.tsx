@@ -27,7 +27,7 @@ export const BOXES_FOR_BASE_QUERY = gql`
               name
               id
             }
-            items
+            numberOfItems
           }
         }
       }
@@ -46,7 +46,7 @@ const graphqlToTableTransformer = (
             productName: element.product?.name,
             labelIdentifier: element.labelIdentifier,
             gender: element.product?.gender,
-            items: element.items,
+            numberOfItems: element.numberOfItems,
             size: element.size.label,
             state: element.state,
             place: location.name,

@@ -69,7 +69,7 @@ export const MOVE_ITEMS_TO_DISTRIBUTION_EVENT = gql`
       numberOfItems: $numberOfItems
     ) {
       id
-      items
+      numberOfItems
       distributionEvent {
         id
         name
@@ -106,7 +106,7 @@ export const PACKING_LIST_ENTRIES_FOR_DISTRIBUTION_EVENT_QUERY = gql`
         }
         matchingPackedItemsCollections {
           __typename
-          numberOfItems: items
+          numberOfItems
           ... on Box {
             labelIdentifier
           }
@@ -145,7 +145,7 @@ export const BOX_DETAILS_FOR_MOBILE_DISTRO_QUERY = gql`
         id
         label
       }
-      items
+      numberOfItems
     }
   }
 `;
@@ -174,7 +174,7 @@ export const BOX_DETAILS_FOR_MOBILE_DISTRO_QUERY = gql`
 //   packingListEntry(id: $packingListEntryId) {
 //     matchingPackedItemsCollections {
 //       __typename
-//       numberOfItems: items
+//       numberOfItems
 //       ... on Box {
 //         labelIdentifier
 //       }

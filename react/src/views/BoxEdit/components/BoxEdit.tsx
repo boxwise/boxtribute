@@ -72,7 +72,7 @@ const BoxEdit = ({
     formState: { isSubmitting },
   } = useForm<BoxFormValues>({
     defaultValues: {
-      numberOfItems: boxData?.items || 0,
+      numberOfItems: boxData?.numberOfItems || 0,
       sizeId: boxData?.size.id,
       productForDropdown: productsForDropdownGroups
         ?.flatMap((i) => i.options)

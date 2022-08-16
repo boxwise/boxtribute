@@ -10,7 +10,7 @@ def test_box_query_by_label_identifier(read_only_client, default_box, tags):
                     id
                     labelIdentifier
                     place {{ id }}
-                    items
+                    numberOfItems
                     product {{ id }}
                     size {{ id }}
                     state
@@ -29,7 +29,7 @@ def test_box_query_by_label_identifier(read_only_client, default_box, tags):
         "id": str(default_box["id"]),
         "labelIdentifier": label_identifier,
         "place": {"id": str(default_box["location"])},
-        "items": default_box["items"],
+        "numberOfItems": default_box["number_of_items"],
         "product": {"id": str(default_box["product"])},
         "size": {"id": str(default_box["size"])},
         "state": BoxState.InStock.name,
@@ -76,7 +76,7 @@ def test_box_mutations(
             ) {{
                 id
                 labelIdentifier
-                items
+                numberOfItems
                 place {{ id }}
                 product {{ id }}
                 size {{ id }}
@@ -89,7 +89,7 @@ def test_box_mutations(
             }}
         }}"""
     created_box = assert_successful_request(client, mutation)
-    assert created_box["items"] is None
+    assert created_box["numberOfItems"] is None
     assert created_box["state"] == BoxState.InStock.name
     assert created_box["place"]["id"] == location_id
     assert created_box["product"]["id"] == product_id
@@ -105,13 +105,13 @@ def test_box_mutations(
     mutation = f"""mutation {{
             updateBox(
                 updateInput : {{
-                    items: {nr_items},
+                    numberOfItems: {nr_items},
                     labelIdentifier: "{created_box["labelIdentifier"]}"
                     comment: "{comment}"
                     sizeId: {size_id},
                     productId: {product_id},
                 }} ) {{
-                items
+                numberOfItems
                 lastModifiedOn
                 createdOn
                 qrCode {{ id }}
@@ -122,7 +122,7 @@ def test_box_mutations(
         }}"""
     updated_box = assert_successful_request(client, mutation)
     assert updated_box["comment"] == comment
-    assert updated_box["items"] == nr_items
+    assert updated_box["numberOfItems"] == nr_items
     assert updated_box["qrCode"] == created_box["qrCode"]
     assert updated_box["size"]["id"] == size_id
     assert updated_box["product"]["id"] == product_id
