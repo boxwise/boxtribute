@@ -1,6 +1,50 @@
-import { Box, Heading, VStack } from "@chakra-ui/react";
+import { useQuery } from "@apollo/client";
+import { Box, Center, Heading, VStack } from "@chakra-ui/react";
+import APILoadingIndicator from "components/APILoadingIndicator";
+import _ from "lodash";
+import { useParams, useSearchParams } from "react-router-dom";
+import {
+  DistributionEventsInReturnStateForBaseQuery,
+  DistributionEventsInReturnStateForBaseQueryVariables,
+} from "types/generated/graphql";
 import DistributionEventTimeRangeDisplay from "../components/DistributionEventTimeRangeDisplay";
-import { DistributionEventDetails } from "../types";
+import { DISTRIBUTION_EVENTS_IN_RETURN_STATE_FOR_BASE } from "../queries";
+import {
+  DistributionEventDetails,
+  DistributionEventDetailsSchema,
+} from "../types";
+
+const graphqlToDistributionEventStockSummary = (
+  queryResult: DistributionEventsInReturnStateForBaseQuery,
+  distributionEventsToFilterFor: string[]
+) => {
+  const distributionEvents = queryResult.base?.distributionEventsInReturnState;
+  if (!distributionEvents) {
+    // TODO: consider to track/handle this as an error here
+    return [];
+  }
+  // TODO: consider to move this rather complex set operations/transformations into backend.
+  //   something like getStockSummaryForDistributionEventsById
+  const FOO = _(distributionEvents)
+    .filter((distributionEvent) =>
+      distributionEventsToFilterFor.includes(distributionEvent.id)
+    )
+    .flatMap((distroEvent) => {
+      return _(distroEvent.boxes)
+        .keyBy((b) => `${b.product?.id!}-${b.size.id}`)
+        .merge(
+          _(distroEvent.unboxedItemsCollections)
+            .keyBy((itemsCol) => `${itemsCol.product?.id!}-${itemsCol.size.id}`)
+            .value()
+        )
+        .values()
+        .value();
+    })
+    .value();
+    console.log("FOO", FOO);
+    return FOO;
+
+};
 
 const SummaryOfDistributionEvents = ({
   distributionEvents,
@@ -36,38 +80,38 @@ const SummaryOfDistributionEvents = ({
 };
 
 const DistrosReturnTrackingView = () => {
-//   const [searchParams] = useSearchParams();
-//   const distroEventIdsForReturnTracking =
-//     searchParams.getAll("distroEventIds[]");
+  const [searchParams] = useSearchParams();
+  const distroEventIdsForReturnTracking =
+    searchParams.getAll("distroEventIds[]");
+  const baseId = useParams<{ baseId: string }>().baseId!;
 
+  const { data, error, loading } = useQuery<
+    DistributionEventsInReturnStateForBaseQuery,
+    DistributionEventsInReturnStateForBaseQueryVariables
+  >(DISTRIBUTION_EVENTS_IN_RETURN_STATE_FOR_BASE, {
+    variables: {
+      baseId,
+    },
+  });
 
-//   const { data, error, loading } = useQuery<
-//     DistributionEventsSummaryByIdsQuery,
-//     DistributionEventsSummaryByIdsQueryVariables
-//   >(DISTRIBUTION_EVENTS_SUMMARY_BY_IDS_QUERY, {
-//     variables: {
-//       distributionEventIds: distroEventIdsForReturnTracking,
-//     },
-//   });
-
-//   if (loading) {
-//     return <APILoadingIndicator />;
-//   }
-//   if (error) {
-//     console.error("Error in DistrosReturnTrackingView : ", error);
-//     return <Center>Error!</Center>;
-//   }
-//   if (data?.distributionEventsSummary?.distributionEvents == null) {
-//     console.error(
-//       "Problem in DistrosReturnTrackingView: data?.distributionEvents is undefined|null"
-//     );
-//     return <Center>Error!</Center>;
-//   }
+  if (loading) {
+    return <APILoadingIndicator />;
+  }
+  if (error) {
+    console.error("Error in DistrosReturnTrackingView : ", error);
+    return <Center>Error!</Center>;
+  }
+  if (data?.base?.distributionEventsInReturnState == null) {
+    console.error(
+      "Problem in DistrosReturnTrackingView: data?.distributionEvents is undefined|null"
+    );
+    return <Center>Error!</Center>;
+  }
 
 //   let distributionEventsData: DistributionEventDetails[];
 //   try {
-//     distributionEventsData = data?.distributionEventsSummary?.distributionEvents.map((el) =>
-//       DistributionEventDetailsSchema.parse(el)
+//     distributionEventsData = data?.base?.distributionEventsInReturnState.map(
+//       (el) => DistributionEventDetailsSchema.parse(el)
 //     );
 //   } catch (e) {
 //     console.error(
@@ -76,15 +120,18 @@ const DistrosReturnTrackingView = () => {
 //     );
 //     return <Center>Error!</Center>;
 //   }
-  //   DistributionEventDetailsSchema.parse(data?.distributionEvents[0])
-
-  const distributionEventsData = [];
+console.log("distroEventIdsForReturnTracking", distroEventIdsForReturnTracking)
+console.log("data", data)
+  const distributionEventsStockSummary = graphqlToDistributionEventStockSummary(
+    data,
+    distroEventIdsForReturnTracking
+  );
 
   return (
     <VStack>
       <Heading>Track returns for the following events</Heading>
       <SummaryOfDistributionEvents
-        distributionEvents={distributionEventsData}
+        distributionEvents={[]}
       />
       <Box>
         {/* {JSON.stringify(distroEventIdsForReturnTracking)}

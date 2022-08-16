@@ -1478,7 +1478,7 @@ export type DistributionEventsInReturnStateForBaseQueryVariables = Exact<{
 }>;
 
 
-export type DistributionEventsInReturnStateForBaseQuery = { __typename?: 'Query', base?: { __typename?: 'Base', id: string, distributionEventsInReturnState: Array<{ __typename?: 'DistributionEvent', boxes: Array<{ __typename?: 'Box', id: string, items?: number | null, product?: { __typename?: 'Product', id: string, name: string } | null, size: { __typename?: 'Size', id: string, label: string } }>, unboxedItemsCollections?: Array<{ __typename?: 'UnboxedItemsCollection', id: string, items?: number | null, product?: { __typename?: 'Product', id: string, name: string } | null, size: { __typename?: 'Size', id: string, label: string } }> | null }> } | null };
+export type DistributionEventsInReturnStateForBaseQuery = { __typename?: 'Query', base?: { __typename?: 'Base', id: string, distributionEventsInReturnState: Array<{ __typename?: 'DistributionEvent', id: string, boxes: Array<{ __typename?: 'Box', id: string, items?: number | null, product?: { __typename?: 'Product', id: string, name: string } | null, size: { __typename?: 'Size', id: string, label: string } }>, unboxedItemsCollections?: Array<{ __typename?: 'UnboxedItemsCollection', id: string, items?: number | null, product?: { __typename?: 'Product', id: string, name: string } | null, size: { __typename?: 'Size', id: string, label: string } }> | null }> } | null };
 
 export type DistributionEventQueryVariables = Exact<{
   eventId: Scalars['ID'];

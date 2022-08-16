@@ -150,6 +150,57 @@ export const BOX_DETAILS_FOR_MOBILE_DISTRO_QUERY = gql`
   }
 `;
 
+export const DISTRIBUTION_EVENTS_IN_RETURN_STATE_FOR_BASE = gql`
+  query DistributionEventsInReturnStateForBase($baseId: ID!) {
+    base(id: $baseId) {
+      id
+      distributionEventsInReturnState {
+        id
+        boxes {
+          id
+          product {
+            id
+            name
+          }
+          size {
+            id
+            label
+          }
+          items
+        }
+
+        unboxedItemsCollections {
+          id
+          product {
+            id
+            name
+          }
+          size {
+            id
+            label
+          }
+          items
+        }
+      }
+    }
+
+    # distributionEventsSummary(ids: ["1", "2","3", "4", "5"]) {
+    #   distributionEvents {
+    #     id
+    #   }
+    #   boxes {
+    #     id
+    #     labelIdentifier
+    #   }
+    #   unboxedItemsCollections {
+    #     product {
+    #       name
+    #     }
+    #   }
+    # }
+  }
+`;
+
 // export const DISTRIBUTION_EVENTS_SUMMARY_BY_IDS_QUERY = gql`
 //   query DistributionEventsSummaryByIds($distributionEventIds: [ID!]!) {
 //     distributionEventsSummary(ids: $distributionEventIds) {
