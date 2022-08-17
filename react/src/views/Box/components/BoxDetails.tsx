@@ -18,6 +18,8 @@ import {
   Td,
   Center,
   Link,
+  LinkOverlay,
+  LinkBox,
 } from "@chakra-ui/react";
 import React from "react";
 import { NavLink } from "react-router-dom";
@@ -25,6 +27,8 @@ import {
   BoxByLabelIdentifierQuery,
   UpdateLocationOfBoxMutation,
 } from "types/generated/graphql";
+import { useGetUrlForResourceHelpers } from "utils/hooks";
+import { distroEventStateHumanReadableLabels } from "views/Distributions/baseData";
 import DistributionEventTimeRangeDisplay from "views/Distributions/components/DistributionEventTimeRangeDisplay";
 import { DistributionEventDetailsSchema } from "views/Distributions/types";
 
@@ -54,6 +58,8 @@ const BoxDetails = ({
   // const [openAddItemsModal, setOpenAddItemsModal] = useState(false);
   // const [openRemoveItemsModal, setOpenRemoveItemsModal] = useState(false);
 
+  const { getDistroEventDetailUrlById } = useGetUrlForResourceHelpers();
+
   if (boxData == null) {
     console.error("BoxDetails Component: boxData is null");
     return <Box>No data found for a box with this id</Box>;
@@ -63,11 +69,16 @@ const BoxDetails = ({
     <Box>
       {boxData.distributionEvent?.state === "Returned" && (
         <Box backgroundColor={"orange.100"} m={10} p={5}>
-          ATTENTION: This box is still assigned to a
-          <Link>Distribution Event</Link> which is currently in the "Returned"
-          state. For ensuring data accuracy, it's strongly recommended that you
-          finish the return tracking for the Distribution Event before you make
-          changes to this box.
+          ATTENTION: This box is still assigned to a{" "}
+          <Link
+            href={getDistroEventDetailUrlById(boxData.distributionEvent?.id)}
+          >
+            Distribution Event
+          </Link>{" "}
+          which is currently in the "Returned" state. For ensuring data
+          accuracy, it's strongly recommended that you finish the return
+          tracking for the Distribution Event before you make changes to this
+          box.
         </Box>
       )}
       <Flex
@@ -196,27 +207,53 @@ const BoxDetails = ({
           {boxData.place?.base?.distributionEventsBeforeReturnState
             // .map(el => DistributionEventDetailsSchema.parse(el))
             .map((distributionEvent) => {
+              const isAssignedToDistroEvent =
+                boxData.distributionEvent?.id === distributionEvent.id;
               return (
-                <ListItem key={distributionEvent.id} m={5}>
-                  <DistributionEventTimeRangeDisplay
-                    plannedStartDateTime={
-                      new Date(distributionEvent.plannedStartDateTime)
-                    }
-                    plannedEndDateTime={
-                      new Date(distributionEvent.plannedEndDateTime)
-                    }
-                  />
-                  <Text>{distributionEvent?.distributionSpot?.name}</Text>
-                  <Text>{distributionEvent?.name}</Text>
-                  <Text>
-                    <Button
-                      disabled={
-                        boxData.distributionEvent?.id === distributionEvent.id
-                      }
+                <ListItem
+                  key={distributionEvent.id}
+                  m={5}
+                  backgroundColor={
+                    isAssignedToDistroEvent ? "gray.100" : "transparent"
+                  }
+                  p={2}
+                >
+                  <LinkBox
+                    as="article"
+                    maxW="sm"
+                    p="5"
+                    borderWidth="1px"
+                    rounded="md"
+                  >
+                    <LinkOverlay
+                      href={getDistroEventDetailUrlById(distributionEvent.id)}
                     >
-                      Assign
-                    </Button>
-                  </Text>
+                      <DistributionEventTimeRangeDisplay
+                        plannedStartDateTime={
+                          new Date(distributionEvent.plannedStartDateTime)
+                        }
+                        plannedEndDateTime={
+                          new Date(distributionEvent.plannedEndDateTime)
+                        }
+                      />
+                      <Text>{distributionEvent?.distributionSpot?.name}</Text>
+                      <Text>{distributionEvent?.name}</Text>
+                      <Text>
+                        {distroEventStateHumanReadableLabels.get(
+                          distributionEvent?.state
+                        )}
+                      </Text>
+                    </LinkOverlay>
+                    {isAssignedToDistroEvent ? (
+                      <Button my={2} onClick={() => alert()} colorScheme="red">
+                        Unassign
+                      </Button>
+                    ) : (
+                      <Button my={2} onClick={() => alert()} colorScheme="blue">
+                        Assign
+                      </Button>
+                    )}
+                  </LinkBox>
                 </ListItem>
               );
             })}

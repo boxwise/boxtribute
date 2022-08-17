@@ -35,7 +35,9 @@ export const BOX_BY_LABEL_IDENTIFIER_QUERY = gql`
       }
       distributionEvent {
         id
+        state
         name
+        state
         distributionSpot {
           name
         }
@@ -54,6 +56,7 @@ export const BOX_BY_LABEL_IDENTIFIER_QUERY = gql`
           }
           distributionEventsBeforeReturnState {
             id
+            state
             distributionSpot {
               name
             }
@@ -112,6 +115,7 @@ export const UPDATE_LOCATION_OF_BOX_MUTATION = gql`
       distributionEvent {
         id
         name
+        state
         distributionSpot {
           name
         }
@@ -130,6 +134,7 @@ export const UPDATE_LOCATION_OF_BOX_MUTATION = gql`
           }
           distributionEventsBeforeReturnState {
             id
+            state
             distributionSpot {
               name
             }
