@@ -838,6 +838,20 @@ def resolve_packing_list_entries(obj, *_):
     )
 
 
+@base.field("distributionEventsBeforeReturnState")
+def resolve_distribution_events_before_return_state(base_obj, *_):
+    authorize(permission="distro_event:read")
+    return (
+        DistributionEvent.select()
+        .join(Location, on=(DistributionEvent.distribution_spot == Location.id))
+        .join(Base, on=(Location.base == Base.id))
+        .where(Base.id == base_obj.id)
+        .where(Location.type == LocationType.DistributionSpot)
+        .where(DistributionEvent.state != DistributionEventState.Returned)
+        .where(DistributionEvent.state != DistributionEventState.Completed)
+    )
+
+
 @base.field("distributionEventsInReturnState")
 def resolve_distribution_events_in_return_state(base_obj, *_):
     authorize(permission="distro_event:read")

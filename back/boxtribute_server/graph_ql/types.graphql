@@ -227,6 +227,7 @@ type Base {
   products: [Product!]!
   distributionSpots: [DistributionSpot!]!
   distributionEvents: [DistributionEvent!]!
+  distributionEventsBeforeReturnState: [DistributionEvent!]!
   distributionEventsInReturnState: [DistributionEvent!]!
 }
 
