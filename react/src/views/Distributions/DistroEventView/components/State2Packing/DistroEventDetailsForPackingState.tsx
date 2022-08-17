@@ -264,8 +264,9 @@ const DistroEventDetailsForPackingState = ({
   distributionEventId,
 }: // TODO: Group by product.id instead of name (because product name could be repeated)
 DistroEventDetailsForPackingStateProps) => {
+  const packingListEntriesWithTargetNumberOfItemsBiggerThanZero = packingListEntries.filter(el => el.numberOfItems > 0)
   const packingListEntriesGroupedByProductName = groupBy(
-    packingListEntries,
+    packingListEntriesWithTargetNumberOfItemsBiggerThanZero,
     (item) => item.product.id
   );
 
