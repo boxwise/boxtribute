@@ -14,6 +14,8 @@ import AddItemsToBoxOverlay from "./components/AddItemsToBoxOverlay";
 import TakeItemsFromBoxOverlay from "./components/TakeItemsFromBoxOverlay";
 import BoxDetails from "./components/BoxDetails";
 
+// TODO: try to use reusable fragments
+// which can be reused both for the initial query as well as the mutation
 export const BOX_BY_LABEL_IDENTIFIER_QUERY = gql`
   query BoxByLabelIdentifier($labelIdentifier: String!) {
     box(labelIdentifier: $labelIdentifier) {
@@ -38,6 +40,15 @@ export const BOX_BY_LABEL_IDENTIFIER_QUERY = gql`
           locations {
             id
             name
+          }
+          distributionEvents {
+            id
+            distributionSpot {
+              name
+            }
+            name
+            plannedStartDateTime
+            plannedEndDateTime
           }
         }
       }
@@ -95,6 +106,15 @@ export const UPDATE_LOCATION_OF_BOX_MUTATION = gql`
             id
             name
           }
+          distributionEvents {
+            id
+            distributionSpot {
+              name
+            }
+            name
+            plannedStartDateTime
+            plannedEndDateTime
+          }
         }
       }
     }
@@ -106,8 +126,8 @@ export interface ChangeNumberOfItemsBoxData {
 }
 
 const BTBox = () => {
-  const labelIdentifier =
-    useParams<{ labelIdentifier: string }>().labelIdentifier!;
+  const labelIdentifier = useParams<{ labelIdentifier: string }>()
+    .labelIdentifier!;
   const { loading, error, data } = useQuery<
     BoxByLabelIdentifierQuery,
     BoxByLabelIdentifierQueryVariables
@@ -189,9 +209,7 @@ const BTBox = () => {
     }
   };
 
-  const onSubmitAddItemstoBox = (
-    boxFormValues: ChangeNumberOfItemsBoxData
-  ) => {
+  const onSubmitAddItemstoBox = (boxFormValues: ChangeNumberOfItemsBoxData) => {
     if (
       boxFormValues.numberOfItems &&
       boxFormValues.numberOfItems > 0 &&
