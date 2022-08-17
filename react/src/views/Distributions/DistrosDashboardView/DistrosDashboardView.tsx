@@ -89,6 +89,10 @@ const DistrosDashboardView = () => {
     .array(DistributionEventDetailsSchema)
     .parse(data?.base?.distributionEvents);
 
+
+    console.log('baseId', baseId)
+    console.log('data', data)
+
   return (
     <Box>
       <Tabs

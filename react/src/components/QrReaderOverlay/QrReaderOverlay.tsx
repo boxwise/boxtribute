@@ -162,7 +162,10 @@ const QrReaderOverlay = ({
     Map<string, IQrValueWrapper>
   >(new Map());
 
-  const browserSupportsZoom = useMemo(() => navigator?.mediaDevices?.getSupportedConstraints?.().zoom != null, []);
+  const browserSupportsZoom = useMemo(
+    () => navigator?.mediaDevices?.getSupportedConstraints?.().zoom != null,
+    []
+  );
 
   const resetState = useCallback(() => {
     setScannedQrValues(() => new Map());
@@ -259,9 +262,9 @@ const QrReaderOverlay = ({
               scanPeriod={1000}
               onResult={onResult}
             />
-            {isBulkModeSupported && (
-              <HStack>
-                {browserSupportsZoom && <HStack>
+            <HStack>
+              {browserSupportsZoom && (
+                <HStack>
                   <IconButton
                     disabled={zoomLevel <= 1}
                     onClick={() =>
@@ -280,7 +283,11 @@ const QrReaderOverlay = ({
                   >
                     <AddIcon />
                   </IconButton>
-                </HStack> }
+                </HStack>
+              )}
+            </HStack>
+            {isBulkModeSupported && (
+              <VStack borderColor="blackAlpha.100" borderWidth={2} p={4} my={5}>
                 <FormControl display="flex" alignItems="center">
                   <FormLabel htmlFor="Bulk Mode" mb="0">
                     Bulk Mode
@@ -291,32 +298,32 @@ const QrReaderOverlay = ({
                     isChecked={isBulkModeActive}
                   />
                 </FormControl>
-              </HStack>
-            )}
-            {isBulkModeSupported && isBulkModeActive && (
-              <VStack>
-                <VStack spacing={5} direction="row">
-                  {scannedQrValuesAsArray.map((qrCodeValueWrapper, i) => {
-                    return (
-                      <Box key={i}>
-                        {i + 1}{" "}
-                        <QrValueWrapper
-                          qrCodeValueWrapper={qrCodeValueWrapper}
-                        />
-                      </Box>
-                    );
-                  })}
-                </VStack>
-                <Button
-                  onClick={onBulkScanningDoneButtonClick}
-                  colorScheme="blue"
-                  disabled={
-                    scannedQrValuesAsArray.filter((el) => !el.isLoading)
-                      .length === 0
-                  }
-                >
-                  Scanning done
-                </Button>
+                {isBulkModeSupported && isBulkModeActive && (
+                  <>
+                    <VStack spacing={5} direction="row">
+                      {scannedQrValuesAsArray.map((qrCodeValueWrapper, i) => {
+                        return (
+                          <Box key={i}>
+                            {i + 1}{" "}
+                            <QrValueWrapper
+                              qrCodeValueWrapper={qrCodeValueWrapper}
+                            />
+                          </Box>
+                        );
+                      })}
+                    </VStack>
+                    <Button
+                      onClick={onBulkScanningDoneButtonClick}
+                      colorScheme="blue"
+                      disabled={
+                        scannedQrValuesAsArray.filter((el) => !el.isLoading)
+                          .length === 0
+                      }
+                    >
+                      Scanning done
+                    </Button>
+                  </>
+                )}
               </VStack>
             )}
           </Container>

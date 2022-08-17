@@ -41,7 +41,7 @@ export const BOX_BY_LABEL_IDENTIFIER_AND_ALL_PRODUCTS_QUERY = gql`
       }
     }
 
-    products(paginationInput: { first: 500 }) {
+    products(paginationInput: { first: 5000 }) {
       elements {
         id
         name

@@ -194,7 +194,12 @@ def resolve_distributions_events(base_obj, _):
         DistributionEvent.select()
         .join(Location, on=(DistributionEvent.distribution_spot == Location.id))
         .join(Base, on=(Location.base == Base.id))
-        .where(Base.id == base_obj.id & Location.type == LocationType.DistributionSpot)
+        # TODO: Discuss/inform: the logical concatination via '&'
+        # apparently does not work.
+        # I was able to see events for a different base than the one queried
+        # when I used the '&' syntax.
+        .where(Base.id == base_obj.id)
+        .where(Location.type == LocationType.DistributionSpot)
     )
     return distribution_events
 
@@ -829,12 +834,9 @@ def resolve_distribution_events_in_return_state(base_obj, *_):
         DistributionEvent.select()
         .join(Location, on=(DistributionEvent.distribution_spot == Location.id))
         .join(Base, on=(Location.base == Base.id))
-        .where(
-            Base.id
-            == base_obj.id & Location.type
-            == LocationType.DistributionSpot & DistributionEvent.state
-            == DistributionEventState.Returned
-        )
+        .where(Base.id == base_obj.id)
+        .where(Location.type == LocationType.DistributionSpot)
+        .where(DistributionEvent.state == DistributionEventState.Returned)
     )
 
 

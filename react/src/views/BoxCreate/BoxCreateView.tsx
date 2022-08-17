@@ -19,7 +19,7 @@ export const ALL_PRODUCTS_QUERY = gql`
       }
     }
 
-    products(paginationInput: { first: 500 }) {
+    products(paginationInput: { first: 5000 }) {
       elements {
         id
         name

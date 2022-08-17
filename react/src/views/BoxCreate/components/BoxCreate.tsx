@@ -182,6 +182,7 @@ const BoxCreate = ({
 
   return (
     <Box w={["100%", "100%", "60%", "40%"]}>
+      <Heading>{productId}</Heading>
       <Heading fontWeight={"bold"} mb={4} as="h2">
         Create New Box {qrCode != null && <>(for QR code)</>}
       </Heading>
