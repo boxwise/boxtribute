@@ -151,23 +151,24 @@ const SummaryOfDistributionEvents = ({
       <List>
         {squashedItemsCollectionsGroupedByProduct.map(
           (squashedItemsCollectionsGroupForProduct) => (
-            <ListItem
-              key={
-                squashedItemsCollectionsGroupForProduct.product.id
-              }
-            >
-              <Heading as="h3" size="md" textAlign="center" borderColor="red.500" borderWidth={1} backgroundColor="gray.50">
+            <ListItem key={squashedItemsCollectionsGroupForProduct.product.id} mt={10}>
+              <Heading
+                as="h3"
+                size="md"
+                textAlign="center"
+                borderColor="red.500"
+                borderWidth={1}
+                backgroundColor="gray.50"
+                p={3}
+                my={2}
+              >
                 <b>Product:</b>{" "}
-                {
-                  squashedItemsCollectionsGroupForProduct.product
-                    ?.name
-                }
+                {squashedItemsCollectionsGroupForProduct.product?.name}
               </Heading>
               <List>
                 {squashedItemsCollectionsGroupForProduct.productSizeWithNumerOfItemsTuples.map(
                   (productSizeWithNumberOfItemsTuple) => (
-                    <ListItem>
-                      {}
+                    <ListItem mb={3} backgroundColor="gray.50" p={3}>
                       <Box>
                         <b>Size:</b>{" "}
                         {productSizeWithNumberOfItemsTuple.size?.label}
