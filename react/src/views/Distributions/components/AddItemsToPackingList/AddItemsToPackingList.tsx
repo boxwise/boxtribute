@@ -11,17 +11,17 @@ import { ProductGender } from "types/generated/graphql";
 import { DistroEventDetailsForPlanningStateContext } from "views/Distributions/DistroEventView/components/State1Planning/DistroEventDetailsForPlanningStateContainer";
 import { IPackingListEntry } from "views/Distributions/types";
 
-export interface ProductData {
+export interface ProductDataForPackingList {
   id: string;
   name: string;
-  category: {
+  category?: {
     id: string;
     name: string;
   };
   gender: ProductGender;
 }
 
-export interface ProductDataWithPackingListEntryFlags extends ProductData {
+export interface ProductDataWithPackingListEntryFlags extends ProductDataForPackingList {
   hasPackingListEntries: boolean;
 }
 
@@ -38,7 +38,7 @@ interface AddItemToPackingProps {
   //   entriesToAdd: PackingListEntriesForProductToAdd
   // ) => void;
   onClose: () => void;
-  productData: ProductData[];
+  productData: ProductDataForPackingList[];
   packingListEntries: IPackingListEntry[];
 }
 
@@ -105,7 +105,7 @@ const AddItemsToPackingList = ({
           .map((value, key) => ({
             category: {
               id: key,
-              name: value[0].category.name ?? "Uncategeorized",
+              name: value[0].category?.name ?? "Uncategeorized",
             },
             products: value,
           }))

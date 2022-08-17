@@ -326,6 +326,13 @@ def resolve_locations(*_):
     )
 
 
+@base.field("products")
+@convert_kwargs_to_snake_case
+def resolve_products_for_base(obj, *_):
+    authorize(permission="product:read")
+    return Product.select().join(Base).where(Base.id == obj.id)
+
+
 @query.field("products")
 @convert_kwargs_to_snake_case
 def resolve_products(*_, pagination_input=None):

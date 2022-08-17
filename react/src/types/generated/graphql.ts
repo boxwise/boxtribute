@@ -32,6 +32,7 @@ export type Base = {
   locations: Array<Location>;
   name: Scalars['String'];
   organisation: Organisation;
+  products: Array<Product>;
 };
 
 
@@ -1303,13 +1304,6 @@ export type UpdateLocationOfBoxMutationVariables = Exact<{
 
 export type UpdateLocationOfBoxMutation = { __typename?: 'Mutation', updateBox?: { __typename?: 'Box', labelIdentifier: string, items?: number | null, size: { __typename?: 'Size', id: string, label: string }, product?: { __typename?: 'Product', name: string, gender?: ProductGender | null, id: string } | null, tags: Array<{ __typename?: 'Tag', id: string, name: string }>, place?: { __typename?: 'DistributionSpot', id: string, name?: string | null, base?: { __typename?: 'Base', locations: Array<{ __typename?: 'Location', id: string, name?: string | null }> } | null } | { __typename?: 'Location', id: string, name?: string | null, base?: { __typename?: 'Base', locations: Array<{ __typename?: 'Location', id: string, name?: string | null }> } | null } | null } | null };
 
-export type AllProductsAndLocationsForBaseQueryVariables = Exact<{
-  baseId: Scalars['ID'];
-}>;
-
-
-export type AllProductsAndLocationsForBaseQuery = { __typename?: 'Query', base?: { __typename?: 'Base', locations: Array<{ __typename?: 'Location', id: string, name?: string | null }> } | null, products: { __typename?: 'ProductPage', elements: Array<{ __typename?: 'Product', id: string, name: string, gender?: ProductGender | null, category: { __typename?: 'ProductCategory', name: string }, sizeRange: { __typename?: 'SizeRange', sizes: Array<{ __typename?: 'Size', id: string, label: string }> } }> } };
-
 export type CreateBoxMutationVariables = Exact<{
   locationId: Scalars['Int'];
   productId: Scalars['Int'];
@@ -1320,6 +1314,13 @@ export type CreateBoxMutationVariables = Exact<{
 
 
 export type CreateBoxMutation = { __typename?: 'Mutation', createBox?: { __typename?: 'Box', labelIdentifier: string } | null };
+
+export type AllProductsAndLocationsForBaseQueryVariables = Exact<{
+  baseId: Scalars['ID'];
+}>;
+
+
+export type AllProductsAndLocationsForBaseQuery = { __typename?: 'Query', base?: { __typename?: 'Base', locations: Array<{ __typename?: 'Location', id: string, name?: string | null }>, products: Array<{ __typename?: 'Product', id: string, name: string, gender?: ProductGender | null, category: { __typename?: 'ProductCategory', name: string }, sizeRange: { __typename?: 'SizeRange', sizes: Array<{ __typename?: 'Size', id: string, label: string }> } }> } | null };
 
 export type BoxByLabelIdentifierAndAllProductsQueryVariables = Exact<{
   labelIdentifier: Scalars['String'];
@@ -1415,10 +1416,12 @@ export type AddToPackingListMutationVariables = Exact<{
 
 export type AddToPackingListMutation = { __typename?: 'Mutation', addPackingListEntryToDistributionEvent?: { __typename?: 'PackingListEntry', id: string, numberOfItems: number, product?: { __typename?: 'Product', id: string, name: string, gender?: ProductGender | null } | null, size?: { __typename?: 'Size', id: string, label: string } | null } | null };
 
-export type AllProductsForPackingListQueryVariables = Exact<{ [key: string]: never; }>;
+export type AllProductsForPackingListQueryVariables = Exact<{
+  baseId: Scalars['ID'];
+}>;
 
 
-export type AllProductsForPackingListQuery = { __typename?: 'Query', products: { __typename?: 'ProductPage', elements: Array<{ __typename?: 'Product', id: string, name: string, gender?: ProductGender | null, category: { __typename?: 'ProductCategory', id: string, name: string }, sizeRange: { __typename?: 'SizeRange', sizes: Array<{ __typename?: 'Size', id: string, label: string }> } }> } };
+export type AllProductsForPackingListQuery = { __typename?: 'Query', base?: { __typename?: 'Base', products: Array<{ __typename?: 'Product', id: string, name: string, gender?: ProductGender | null, category: { __typename?: 'ProductCategory', id: string, name: string }, sizeRange: { __typename?: 'SizeRange', sizes: Array<{ __typename?: 'Size', id: string, label: string }> } }> } | null };
 
 export type DistroSpotsForBaseIdQueryVariables = Exact<{
   baseId: Scalars['ID'];

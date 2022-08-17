@@ -224,6 +224,7 @@ type Base {
   boxPlaces: [BoxPlace!]!
   " List of all [`Locations`]({{Types.Location}}) present in this base "
   locations: [Location!]!
+  products: [Product!]!
   distributionSpots: [DistributionSpot!]!
   distributionEvents: [DistributionEvent!]!
   distributionEventsInReturnState: [DistributionEvent!]!

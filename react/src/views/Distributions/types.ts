@@ -64,11 +64,16 @@ export type DistributionEventDetails = z.infer<
 //   numberOfItems: number;
 // }
 
+export interface ProductCategory {
+  id: string;
+  name: string;
+}
 
 export interface Product {
   id: string;
   name: string;
-  gender?: ProductGender;
+  gender?: ProductGender | null;
+  category?: ProductCategory;
   // gender?: {
   //   id: string;
   //   label: string

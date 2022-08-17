@@ -1,5 +1,27 @@
 import { gql } from "@apollo/client";
 
+export const ALL_PRODUCTS_FOR_PACKING_LIST = gql`
+  query AllProductsForPackingList($baseId: ID!) {
+    base(id: $baseId) {
+      products {
+        id
+        name
+        gender
+        category {
+          id
+          name
+        }
+        sizeRange {
+          sizes {
+            id
+            label
+          }
+        }
+      }
+    }
+  }
+`;
+
 export const DISTRO_SPOTS_FOR_BASE_ID = gql`
   query DistroSpotsForBaseId($baseId: ID!) {
     base(id: $baseId) {
