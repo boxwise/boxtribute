@@ -753,7 +753,11 @@ def resolve_send_shipment(*_, id):
 @base.field("locations")
 def resolve_base_locations(base_obj, _):
     authorize(permission="location:read")
-    return Location.select().where(Location.base == base_obj.id)
+    return (
+        Location.select()
+        .where(Location.base == base_obj.id)
+        .where(Location.type == LocationType.Location)
+    )
 
 
 @query.field("distributionSpots")
