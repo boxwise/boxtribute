@@ -184,15 +184,17 @@ const SummaryOfDistributionEvents = ({
           borderWidth="1px"
           rounded="md"
         >
+          <Box>
+            Id: {distroEvent.id}
+          </Box>
           <DistributionEventTimeRangeDisplay
             plannedStartDateTime={distroEvent.plannedStartDateTime}
             plannedEndDateTime={distroEvent.plannedEndDateTime}
           />
-
-          <Heading size="md" my="2">
-            {distroEvent.distributionSpot.name}{" "}
-            {!!distroEvent.name && <>({distroEvent.name})</>}
-          </Heading>
+          <Box>
+            {distroEvent.distributionSpot.name}
+            {!!distroEvent.name && <> - ({distroEvent.name})</>}
+          </Box>
         </Box>
       ))}
       <List>
