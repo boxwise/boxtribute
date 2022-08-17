@@ -17,7 +17,7 @@ export const BOX_BY_LABEL_IDENTIFIER_AND_ALL_PRODUCTS_QUERY = gql`
         id
         label
       }
-      items
+      numberOfItems
       product {
         id
         name
@@ -63,7 +63,7 @@ export const UPDATE_CONTENT_OF_BOX_MUTATION = gql`
       updateInput: {
         labelIdentifier: $boxLabelIdentifier
         productId: $productId
-        items: $numberOfItems
+        numberOfItems: $numberOfItems
         sizeId: $sizeId
       }
     ) {

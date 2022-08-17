@@ -22,7 +22,7 @@ export const BOX_BY_LABEL_IDENTIFIER_QUERY = gql`
         id
         label
       }
-      items
+      numberOfItems
       product {
         name
         gender
@@ -53,7 +53,7 @@ export const UPDATE_NUMBER_OF_ITEMS_IN_BOX_MUTATION = gql`
     updateBox(
       updateInput: {
         labelIdentifier: $boxLabelIdentifier
-        items: $numberOfItems
+        numberOfItems: $numberOfItems
       }
     ) {
       labelIdentifier
@@ -77,7 +77,7 @@ export const UPDATE_LOCATION_OF_BOX_MUTATION = gql`
         id
         label
       }
-      items
+      numberOfItems
       product {
         name
         gender
@@ -169,12 +169,12 @@ const BTBox = () => {
     if (
       boxFormValues.numberOfItems &&
       boxFormValues.numberOfItems > 0 &&
-      boxData?.items
+      boxData?.numberOfItems
     ) {
       updateNumberOfItemsMutation({
         variables: {
           boxLabelIdentifier: labelIdentifier,
-          numberOfItems: boxData?.items - boxFormValues?.numberOfItems,
+          numberOfItems: boxData?.numberOfItems - boxFormValues?.numberOfItems,
         },
       })
         .then(() => {
@@ -195,12 +195,12 @@ const BTBox = () => {
     if (
       boxFormValues.numberOfItems &&
       boxFormValues.numberOfItems > 0 &&
-      boxData?.items
+      boxData?.numberOfItems
     ) {
       updateNumberOfItemsMutation({
         variables: {
           boxLabelIdentifier: labelIdentifier,
-          numberOfItems: boxData?.items + boxFormValues?.numberOfItems,
+          numberOfItems: boxData?.numberOfItems + boxFormValues?.numberOfItems,
         },
       })
         .then(() => {

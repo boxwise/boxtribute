@@ -25,7 +25,7 @@ def create_box(
     user_id,
     size_id,
     comment="",
-    items=None,
+    number_of_items=None,
     qr_code=None,
 ):
     """Insert information for a new Box in the database. Use current datetime
@@ -48,7 +48,7 @@ def create_box(
                 comment=comment,
                 created_on=now,
                 created_by=user_id,
-                items=items,
+                number_of_items=number_of_items,
                 label_identifier="".join(random.choices("0123456789", k=8)),
                 last_modified_on=now,
                 last_modified_by=user_id,
@@ -71,7 +71,7 @@ def update_box(
     label_identifier,
     user_id,
     comment=None,
-    items=None,
+    number_of_items=None,
     location_id=None,
     product_id=None,
     size_id=None,
@@ -83,8 +83,8 @@ def update_box(
 
     if comment is not None:
         box.comment = comment
-    if items is not None:
-        box.items = items
+    if number_of_items is not None:
+        box.number_of_items = number_of_items
     if location_id is not None:
         box.location = location_id
         location_box_state_id = Location.get_by_id(location_id).box_state_id

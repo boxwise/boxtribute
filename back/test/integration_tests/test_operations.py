@@ -43,7 +43,7 @@ def test_mutations(auth0_client):
 
     mutation = """mutation { createBox(creationInput: {
                    productId: 1,
-                   items: 10,
+                   numberOfItems: 10,
                    locationId: 1,
                    sizeId: 1,
                    comment: "new things"

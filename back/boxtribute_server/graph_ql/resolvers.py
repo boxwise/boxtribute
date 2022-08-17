@@ -144,14 +144,7 @@ def resolve_packing_list_entry_matching_packed_items_collections(obj, *_):
         Box.product == obj.product,
         Box.size == obj.size,
     )
-    unboxed_items_colletions = UnboxedItemsCollection.select(
-        UnboxedItemsCollection,
-        # TODO: Remove the alias once the renaming from `items` is consistenly done
-        # for all involved types/fields (and we only use then number_of_items)
-        # We are doing it for now so that it's aligned with the Boxes#items field
-        # (the other subtype of the interface ItemsCollection)
-        UnboxedItemsCollection.number_of_items.alias("items"),
-    ).where(
+    unboxed_items_colletions = UnboxedItemsCollection.select().where(
         UnboxedItemsCollection.distribution_event == distribution_event_id,
         UnboxedItemsCollection.product == obj.product,
         UnboxedItemsCollection.size == obj.size,

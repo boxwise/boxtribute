@@ -78,7 +78,7 @@ const BoxDetails = ({
         <List px={4} pb={2} spacing={2}>
           <ListItem>
             <Text fontSize="xl" fontWeight={"bold"}>
-              {boxData.items} x {boxData.product?.name}
+              {boxData.numberOfItems} x {boxData.product?.name}
             </Text>
           </ListItem>
           <ListItem>

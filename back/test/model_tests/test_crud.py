@@ -41,7 +41,7 @@ def test_box_label_identifier_generation(
 ):
     rng_function = mocker.patch("random.choices")
     data = {
-        "items": 10,
+        "number_of_items": 10,
         "location_id": default_location["id"],
         "product_id": default_product["id"],
         "size_id": default_size["id"],
