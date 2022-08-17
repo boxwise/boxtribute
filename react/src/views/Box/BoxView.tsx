@@ -33,7 +33,18 @@ export const BOX_BY_LABEL_IDENTIFIER_QUERY = gql`
         id
         name
       }
+      distributionEvent {
+        id
+        name
+        distributionSpot {
+          name
+        }
+        plannedStartDateTime
+        plannedEndDateTime
+        state
+      }
       place {
+        __typename
         id
         name
         base {
@@ -41,7 +52,7 @@ export const BOX_BY_LABEL_IDENTIFIER_QUERY = gql`
             id
             name
           }
-          distributionEvents {
+          distributionEventsBeforeReturnState {
             id
             distributionSpot {
               name
@@ -98,7 +109,18 @@ export const UPDATE_LOCATION_OF_BOX_MUTATION = gql`
         id
         name
       }
+      distributionEvent {
+        id
+        name
+        distributionSpot {
+          name
+        }
+        plannedStartDateTime
+        plannedEndDateTime
+        state
+      }
       place {
+        __typename
         id
         name
         base {
@@ -106,7 +128,7 @@ export const UPDATE_LOCATION_OF_BOX_MUTATION = gql`
             id
             name
           }
-          distributionEvents {
+          distributionEventsBeforeReturnState {
             id
             distributionSpot {
               name

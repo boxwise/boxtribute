@@ -16,6 +16,8 @@ import {
   Thead,
   Tr,
   Td,
+  Center,
+  Link,
 } from "@chakra-ui/react";
 import React from "react";
 import { NavLink } from "react-router-dom";
@@ -59,6 +61,15 @@ const BoxDetails = ({
 
   return (
     <Box>
+      {boxData.distributionEvent?.state === "Returned" && (
+        <Box backgroundColor={"orange.100"} m={10} p={5}>
+          ATTENTION: This box is still assigned to a
+          <Link>Distribution Event</Link> which is currently in the "Returned"
+          state. For ensuring data accuracy, it's strongly recommended that you
+          finish the return tracking for the Distribution Event before you make
+          changes to this box.
+        </Box>
+      )}
       <Flex
         direction={["column", "column", "row"]}
         alignItems={["center", "center", "flex-start"]}
@@ -179,7 +190,40 @@ const BoxDetails = ({
         <Text textAlign="center" fontSize="xl" mb={4}>
           Assign this Box to Distribution Event:
         </Text>
-        <TableContainer>
+
+        <List>
+          {/* <Flex wrap="wrap" justifyContent="center"> */}
+          {boxData.place?.base?.distributionEventsBeforeReturnState
+            // .map(el => DistributionEventDetailsSchema.parse(el))
+            .map((distributionEvent) => {
+              return (
+                <ListItem key={distributionEvent.id} m={5}>
+                  <DistributionEventTimeRangeDisplay
+                    plannedStartDateTime={
+                      new Date(distributionEvent.plannedStartDateTime)
+                    }
+                    plannedEndDateTime={
+                      new Date(distributionEvent.plannedEndDateTime)
+                    }
+                  />
+                  <Text>{distributionEvent?.distributionSpot?.name}</Text>
+                  <Text>{distributionEvent?.name}</Text>
+                  <Text>
+                    <Button
+                      disabled={
+                        boxData.distributionEvent?.id === distributionEvent.id
+                      }
+                    >
+                      Assign
+                    </Button>
+                  </Text>
+                </ListItem>
+              );
+            })}
+          {/* </Flex> */}
+        </List>
+
+        {/* <TableContainer>
           <Table variant="simple">
             <Thead>
               <Tr>
@@ -216,7 +260,7 @@ const BoxDetails = ({
               )}
             </Tbody>
           </Table>
-        </TableContainer>
+        </TableContainer> */}
       </Box>
     </Box>
   );

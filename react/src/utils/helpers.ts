@@ -1,3 +1,4 @@
+// TODO: consider to remove this and use lodash consistently instead
 export const groupBy = <T, K extends keyof any>(list: T[], getKey: (item: T) => K) =>
   list.reduce((previous, currentItem) => {
     const group = getKey(currentItem);
