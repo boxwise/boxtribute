@@ -26,7 +26,7 @@ interface ItemCollection {
 // TODO: get rid of this quite hack groupBy logic
 // replace it e.g. by more elegant lodash method chaining
 // Or, even better, by specific GraphQL/BE queries which return the required final outcome
-const groupByProductAndSizeWithSumForNumberOfItems = (
+const squashByProductAndSizeWithSumForNumberOfItems = (
   itemCollection: ItemCollection[]
 ) => {
   const helper = new Map<string, ItemCollection>();
@@ -65,7 +65,9 @@ const graphqlToDistributionEventStockSummary = (
     )
     .value();
 
-  const squashedItemCollectionsAccrossAllEvents = _(filteredDistributionEvents)
+  const squashedItemCollectionsAccrossAllEventsGroupedByProduct = _(
+    filteredDistributionEvents
+  )
     .flatMap((distroEvent) =>
       _(distroEvent.boxes)
         .map(
@@ -88,71 +90,19 @@ const graphqlToDistributionEventStockSummary = (
         )
         .value()
     )
-    .thru(groupByProductAndSizeWithSumForNumberOfItems)
+    .thru(squashByProductAndSizeWithSumForNumberOfItems)
+    .groupBy((el) => el.product?.id)
+    .map((value) => ({
+      // TODO: look into proper parsing/validation overall
+      // here, but also across all other API response related code
+      product: value[0]?.product!,
+      productSizeWithNumerOfItemsTuples: value,
+    }))
     .value();
-  // .map((distroEvent) => {
-  //   const unboxedItemsCollectionsByProductAndSizeId = _(
-  //     distroEvent.unboxedItemsCollections
-  //   )
-  //     .keyBy((itemsCol) => `${itemsCol.product?.id!}-${itemsCol.size.id}`)
-  //     // .merge(
-  //     //   _(distroEvent.boxes)
-  //     //     .keyBy((itemsCol) => `${itemsCol.product?.id!}-${itemsCol.size.id}`)
-  //     //     .value()
-  //     // )
-
-  //     // .values()
-  //     .map((el, id) => ({
-  //       productSizeIdTuple: id,
-  //       product: el.product,
-  //       size: el.size,
-  //       numberOfItems: el.items,
-  //     }))
-  //     .value();
-
-  //   const boxesByProductAndSizeId = _(distroEvent.boxes)
-  //     .keyBy((b) => `${b.product?.id!}-${b.size.id}`)
-  //     .map((el, id) => ({
-  //       productSizeIdTuple: id,
-  //       product: el.product,
-  //       size: el.size,
-  //       numberOfItems: el.items,
-  //     }))
-  //     .value();
-
-  //   console.log(
-  //     "unboxedItemsCollectionsByProductAndSizeId",
-  //     unboxedItemsCollectionsByProductAndSizeId
-  //   );
-  //   console.log("boxesByProductAndSizeId", boxesByProductAndSizeId);
-
-  //   const combined: ItemCollection[] = _.concat(
-  //     unboxedItemsCollectionsByProductAndSizeId,
-  //     boxesByProductAndSizeId
-  //   );
-
-  //   const BAR = _(combined)
-  //   .groupBy("productSizeIdTuple")
-  //   // .groupBy(el => ({
-  //   //   product: el.product,
-  //   //   size: el.size
-  //   // }))
-  //   // .value
-  //   .map((el, id) => ({
-  //     productSizeIdTuple: id,
-  //     product: el.product,
-
-  //   });
-
-  //   console.log("combined", combined);
-
-  //   return [];
-  // })
-  // .value();
-  console.log("FOO", squashedItemCollectionsAccrossAllEvents);
 
   return {
-    squashedItemCollectionsAccrossAllEvents,
+    squashedItemCollectionsAccrossAllEvents:
+      squashedItemCollectionsAccrossAllEventsGroupedByProduct,
     distributionEvents: filteredDistributionEvents.map((el) =>
       DistributionEventDetailsSchema.parse(el)
     ),
@@ -165,10 +115,13 @@ const graphqlToDistributionEventStockSummary = (
 };
 
 const SummaryOfDistributionEvents = ({
-  squashedItemsCollections,
+  squashedItemsCollectionsGroupedByProduct,
   distributionEvents,
 }: {
-  squashedItemsCollections: ItemCollection[];
+  squashedItemsCollectionsGroupedByProduct: {
+    product: Product;
+    productSizeWithNumerOfItemsTuples: ItemCollection[];
+  }[];
   distributionEvents: DistributionEventDetails[];
 }) => {
   return (
@@ -184,9 +137,7 @@ const SummaryOfDistributionEvents = ({
           borderWidth="1px"
           rounded="md"
         >
-          <Box>
-            Id: {distroEvent.id}
-          </Box>
+          <Box>Id: {distroEvent.id}</Box>
           <DistributionEventTimeRangeDisplay
             plannedStartDateTime={distroEvent.plannedStartDateTime}
             plannedEndDateTime={distroEvent.plannedEndDateTime}
@@ -198,19 +149,40 @@ const SummaryOfDistributionEvents = ({
         </Box>
       ))}
       <List>
-        {squashedItemsCollections.map((el, i) => (
-          <ListItem key={i}>
-            <Box>
-              <b>Product:</b> {el.product?.name}
-            </Box>
-            <Box>
-              <b>Size:</b> {el.size?.label}
-            </Box>
-            <Box>
-              <b>Number of items:</b> {el.numberOfItems}
-            </Box>
-          </ListItem>
-        ))}
+        {squashedItemsCollectionsGroupedByProduct.map(
+          (squashedItemsCollectionsGroupForProduct) => (
+            <ListItem
+              key={
+                squashedItemsCollectionsGroupForProduct.product.id
+              }
+            >
+              <Heading as="h3" size="md" textAlign="center" borderColor="red.500" borderWidth={1} backgroundColor="gray.50">
+                <b>Product:</b>{" "}
+                {
+                  squashedItemsCollectionsGroupForProduct.product
+                    ?.name
+                }
+              </Heading>
+              <List>
+                {squashedItemsCollectionsGroupForProduct.productSizeWithNumerOfItemsTuples.map(
+                  (productSizeWithNumberOfItemsTuple) => (
+                    <ListItem>
+                      {}
+                      <Box>
+                        <b>Size:</b>{" "}
+                        {productSizeWithNumberOfItemsTuple.size?.label}
+                      </Box>
+                      <Box>
+                        <b>Number of items:</b>{" "}
+                        {productSizeWithNumberOfItemsTuple.numberOfItems}
+                      </Box>
+                    </ListItem>
+                  )
+                )}
+              </List>
+            </ListItem>
+          )
+        )}
       </List>
     </VStack>
   );
@@ -271,7 +243,7 @@ const DistrosReturnTrackingView = () => {
     <VStack>
       <Heading>Track returns for the following events</Heading>
       <SummaryOfDistributionEvents
-        squashedItemsCollections={
+        squashedItemsCollectionsGroupedByProduct={
           distributionEventsSummary.squashedItemCollectionsAccrossAllEvents
         }
         distributionEvents={distributionEventsSummary.distributionEvents}
