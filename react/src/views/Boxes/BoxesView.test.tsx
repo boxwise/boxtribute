@@ -34,7 +34,7 @@ describe("Boxes view", () => {
                         gender: "Women",
                         name: "Long Dress",
                       },
-                      itnumberOfItemsems: 64,
+                      numberOfItems: 64,
                     },
                     {
                       __typename: "Box",
@@ -126,7 +126,7 @@ describe("Boxes view", () => {
                         gender: "Boy",
                         name: "Top Boys (18-24 months)",
                       },
-                      itnumberOfItemsems: 95,
+                      numberOfItems: 95,
                     },
                   ],
                 },

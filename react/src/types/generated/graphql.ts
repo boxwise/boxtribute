@@ -133,7 +133,6 @@ export type Box = ItemsCollection & {
   labelIdentifier: Scalars['String'];
   lastModifiedBy?: Maybe<User>;
   lastModifiedOn?: Maybe<Scalars['Datetime']>;
-  /**  The number of items the box contains.  */
   numberOfItems?: Maybe<Scalars['Int']>;
   place?: Maybe<BoxPlace>;
   product?: Maybe<Product>;

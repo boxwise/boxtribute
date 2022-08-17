@@ -31,7 +31,6 @@ type Box implements ItemsCollection {
   labelIdentifier: String!
   place: BoxPlace
   distributionEvent: DistributionEvent
-  " The number of items the box contains. "
   numberOfItems: Int
   product: Product
   size: Size!
