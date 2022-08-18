@@ -255,7 +255,7 @@ const BoxDetails = ({
                       <Button
                         my={2}
                         onClick={() =>
-                          onAssignBoxToDistributionEventClick(distributionEvent.id)
+                          onUnassignBoxFromDistributionEventClick(distributionEvent.id)
                         }
                         colorScheme="red"
                       >
@@ -265,7 +265,7 @@ const BoxDetails = ({
                       <Button
                         my={2}
                         onClick={() =>
-                          onUnassignBoxFromDistributionEventClick(distributionEvent.id)
+                          onAssignBoxToDistributionEventClick(distributionEvent.id)
                         }
                         colorScheme="blue"
                       >
