@@ -1,3 +1,4 @@
+import { useMutation } from "@apollo/client";
 import { AddIcon, EditIcon, MinusIcon } from "@chakra-ui/icons";
 import {
   Box,
@@ -24,12 +25,15 @@ import {
 import React from "react";
 import { NavLink } from "react-router-dom";
 import {
+  AssignBoxToDistributionEventMutation,
+  AssignBoxToDistributionEventMutationVariables,
   BoxByLabelIdentifierQuery,
   UpdateLocationOfBoxMutation,
 } from "types/generated/graphql";
 import { useGetUrlForResourceHelpers } from "utils/hooks";
 import { distroEventStateHumanReadableLabels } from "views/Distributions/baseData";
 import DistributionEventTimeRangeDisplay from "views/Distributions/components/DistributionEventTimeRangeDisplay";
+import { ASSIGN_BOX_TO_DISTRIBUTION_MUTATION } from "views/Distributions/queries";
 import { DistributionEventDetailsSchema } from "views/Distributions/types";
 
 interface BoxDetailsProps {
@@ -60,18 +64,19 @@ const BoxDetails = ({
 
   const { getDistroEventDetailUrlById } = useGetUrlForResourceHelpers();
 
+  const [assignBoxToDistributionEventMutation] = useMutation<
+    AssignBoxToDistributionEventMutation,
+    AssignBoxToDistributionEventMutationVariables
+  >(ASSIGN_BOX_TO_DISTRIBUTION_MUTATION);
+
   if (boxData == null) {
     console.error("BoxDetails Component: boxData is null");
     return <Box>No data found for a box with this id</Box>;
   }
 
-  const assignToDistributionEvent = (distributionEventId: string) => {
+  const assignToDistributionEvent = (distributionEventId: string) => {};
 
-  };
-
-  const unassignFromDistributionEvent = (distributionEventId: string) => {
-
-  };
+  const unassignFromDistributionEvent = (distributionEventId: string) => {};
 
   return (
     <Box>
@@ -253,11 +258,23 @@ const BoxDetails = ({
                       </Text>
                     </LinkOverlay>
                     {isAssignedToDistroEvent ? (
-                      <Button my={2} onClick={() => assignToDistributionEvent(distributionEvent.id)} colorScheme="red">
+                      <Button
+                        my={2}
+                        onClick={() =>
+                          assignToDistributionEvent(distributionEvent.id)
+                        }
+                        colorScheme="red"
+                      >
                         Unassign
                       </Button>
                     ) : (
-                      <Button my={2} onClick={() => unassignFromDistributionEvent(distributionEvent.id)} colorScheme="blue">
+                      <Button
+                        my={2}
+                        onClick={() =>
+                          unassignFromDistributionEvent(distributionEvent.id)
+                        }
+                        colorScheme="blue"
+                      >
                         Assign
                       </Button>
                     )}

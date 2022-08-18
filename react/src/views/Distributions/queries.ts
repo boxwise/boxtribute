@@ -58,12 +58,12 @@ export const DISTRIBUTION_EVENTS_FOR_BASE_ID = gql`
   }
 `;
 
-export const MOVE_BOX_TO_DISTRIBUTION_MUTATION = gql`
-  mutation MoveBoxToDistributionEvent(
+export const ASSIGN_BOX_TO_DISTRIBUTION_MUTATION = gql`
+  mutation AssignBoxToDistributionEvent(
     $boxLabelIdentifier: ID!
     $distributionEventId: ID!
   ) {
-    moveBoxToDistributionEvent(
+    assignBoxToDistributionEvent(
       boxLabelIdentifier: $boxLabelIdentifier
       distributionEventId: $distributionEventId
     ) {

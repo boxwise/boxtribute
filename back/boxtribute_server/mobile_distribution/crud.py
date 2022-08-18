@@ -56,14 +56,14 @@ def move_items_from_box_to_distribution_event(
         return unboxed_items_collection
 
 
-def move_box_to_distribution_event(box_label_identifier, distribution_event_id):
-    """Move a box to a distribution event."""
+def assign_box_to_distribution_event(box_label_identifier, distribution_event_id):
+    """Assigns a box to a distribution event."""
     with db.database.atomic():
         distribution_event = DistributionEvent.get_by_id(distribution_event_id)
         # Completed Events should not be mutable anymore
         if distribution_event.state == DistributionEventState.Completed:
             raise ModifyCompletedDistributionEvent(
-                desired_operation="move_box_to_distribution_event",
+                desired_operation="assign_box_to_distribution_event",
                 distribution_event_id=distribution_event.id,
             )
         box = Box.get(Box.label_identifier == box_label_identifier)

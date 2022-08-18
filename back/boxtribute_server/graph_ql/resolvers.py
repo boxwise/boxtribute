@@ -39,11 +39,11 @@ from ..enums import (
 )
 from ..mobile_distribution.crud import (
     add_packing_list_entry_to_distribution_event,
+    assign_box_to_distribution_event,
     change_distribution_event_state,
     create_distribution_event,
     create_distribution_spot,
     delete_packing_list_entry,
-    move_box_to_distribution_event,
     move_items_from_box_to_distribution_event,
     remove_all_packing_list_entries_from_distribution_event_for_product,
     set_products_for_packing_list,
@@ -570,13 +570,13 @@ def resolve_create_box(*_, creation_input):
     return create_box(user_id=g.user.id, **creation_input)
 
 
-@mutation.field("moveBoxToDistributionEvent")
+@mutation.field("assignBoxToDistributionEvent")
 @convert_kwargs_to_snake_case
-def resolve_move_box_to_distribution_event(
+def resolve_assign_box_to_distribution_event(
     mutation_obj, _, box_label_identifier, distribution_event_id
 ):
     authorize(permission="stock:write")
-    return move_box_to_distribution_event(box_label_identifier, distribution_event_id)
+    return assign_box_to_distribution_event(box_label_identifier, distribution_event_id)
 
 
 @mutation.field("moveItemsFromBoxToDistributionEvent")

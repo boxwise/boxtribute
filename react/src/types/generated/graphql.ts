@@ -399,6 +399,7 @@ export type Mutation = {
   __typename?: 'Mutation';
   acceptTransferAgreement?: Maybe<TransferAgreement>;
   addPackingListEntryToDistributionEvent?: Maybe<PackingListEntry>;
+  assignBoxToDistributionEvent?: Maybe<Box>;
   assignTag?: Maybe<TaggableResource>;
   cancelShipment?: Maybe<Shipment>;
   cancelTransferAgreement?: Maybe<TransferAgreement>;
@@ -413,7 +414,6 @@ export type Mutation = {
   createTransferAgreement?: Maybe<TransferAgreement>;
   deleteTag?: Maybe<Tag>;
   markDistributionEventAsComplete?: Maybe<DistributionEvent>;
-  moveBoxToDistributionEvent?: Maybe<Box>;
   moveItemsFromBoxToDistributionEvent?: Maybe<UnboxedItemsCollection>;
   rejectTransferAgreement?: Maybe<TransferAgreement>;
   removeAllPackingListEntriesFromDistributionEventForProduct?: Maybe<Scalars['Boolean']>;
@@ -446,6 +446,17 @@ export type MutationAcceptTransferAgreementArgs = {
  */
 export type MutationAddPackingListEntryToDistributionEventArgs = {
   creationInput: PackingListEntryInput;
+};
+
+
+/**
+ * Naming convention:
+ * - input argument: creationInput/updateInput
+ * - input type: <Resource>CreationInput/UpdateInput
+ */
+export type MutationAssignBoxToDistributionEventArgs = {
+  boxLabelIdentifier: Scalars['ID'];
+  distributionEventId: Scalars['ID'];
 };
 
 
@@ -586,17 +597,6 @@ export type MutationDeleteTagArgs = {
  * - input type: <Resource>CreationInput/UpdateInput
  */
 export type MutationMarkDistributionEventAsCompleteArgs = {
-  distributionEventId: Scalars['ID'];
-};
-
-
-/**
- * Naming convention:
- * - input argument: creationInput/updateInput
- * - input type: <Resource>CreationInput/UpdateInput
- */
-export type MutationMoveBoxToDistributionEventArgs = {
-  boxLabelIdentifier: Scalars['ID'];
   distributionEventId: Scalars['ID'];
 };
 
@@ -1414,13 +1414,13 @@ export type DistributionEventsForBaseQueryVariables = Exact<{
 
 export type DistributionEventsForBaseQuery = { __typename?: 'Query', base?: { __typename?: 'Base', distributionEvents: Array<{ __typename?: 'DistributionEvent', id: string, name?: string | null, plannedStartDateTime: any, plannedEndDateTime: any, state: DistributionEventState, distributionSpot?: { __typename?: 'DistributionSpot', id: string, name?: string | null } | null }> } | null };
 
-export type MoveBoxToDistributionEventMutationVariables = Exact<{
+export type AssignBoxToDistributionEventMutationVariables = Exact<{
   boxLabelIdentifier: Scalars['ID'];
   distributionEventId: Scalars['ID'];
 }>;
 
 
-export type MoveBoxToDistributionEventMutation = { __typename?: 'Mutation', moveBoxToDistributionEvent?: { __typename?: 'Box', id: string, distributionEvent?: { __typename?: 'DistributionEvent', id: string, name?: string | null, distributionSpot?: { __typename?: 'DistributionSpot', name?: string | null } | null } | null } | null };
+export type AssignBoxToDistributionEventMutation = { __typename?: 'Mutation', assignBoxToDistributionEvent?: { __typename?: 'Box', id: string, distributionEvent?: { __typename?: 'DistributionEvent', id: string, name?: string | null, distributionSpot?: { __typename?: 'DistributionSpot', name?: string | null } | null } | null } | null };
 
 export type MoveItemsToDistributionEventMutationVariables = Exact<{
   boxLabelIdentifier: Scalars['ID'];

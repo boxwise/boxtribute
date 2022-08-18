@@ -21,15 +21,15 @@ import {
 import _ from "lodash";
 import { useCallback } from "react";
 import {
-  MoveBoxToDistributionEventMutation,
-  MoveBoxToDistributionEventMutationVariables,
+  AssignBoxToDistributionEventMutation,
+  AssignBoxToDistributionEventMutationVariables,
   MoveItemsToDistributionEventMutation,
   MoveItemsToDistributionEventMutationVariables,
 } from "types/generated/graphql";
 import { groupBy } from "utils/helpers";
 import {
   // MATCHING_PACKED_ITEMS_COLLECTIONS_FOR_PACKING_LIST_ENTRY,
-  MOVE_BOX_TO_DISTRIBUTION_MUTATION,
+  ASSIGN_BOX_TO_DISTRIBUTION_MUTATION,
   MOVE_ITEMS_TO_DISTRIBUTION_EVENT,
   PACKING_LIST_ENTRIES_FOR_DISTRIBUTION_EVENT_QUERY,
 } from "views/Distributions/queries";
@@ -58,10 +58,10 @@ const PackingListEntry = ({
 
   const toast = useToast();
 
-  const [moveBoxToDistributionEventMutation] = useMutation<
-    MoveBoxToDistributionEventMutation,
-    MoveBoxToDistributionEventMutationVariables
-  >(MOVE_BOX_TO_DISTRIBUTION_MUTATION);
+  const [assignBoxToDistributionEventMutation] = useMutation<
+    AssignBoxToDistributionEventMutation,
+    AssignBoxToDistributionEventMutationVariables
+  >(ASSIGN_BOX_TO_DISTRIBUTION_MUTATION);
 
   const [moveItemsToDistributionEventMutation] = useMutation<
     MoveItemsToDistributionEventMutation,
@@ -131,7 +131,7 @@ const PackingListEntry = ({
   const onAddBoxToDistributionEvent = useCallback(
     (boxLabelIdentifier: string) => {
       packingAddBoxOrItemsForPackingListEntryOverlayState.onClose();
-      moveBoxToDistributionEventMutation({
+      assignBoxToDistributionEventMutation({
         variables: {
           boxLabelIdentifier,
           distributionEventId,
@@ -181,7 +181,7 @@ const PackingListEntry = ({
     },
     [
       distributionEventId,
-      moveBoxToDistributionEventMutation,
+      assignBoxToDistributionEventMutation,
       packingAddBoxOrItemsForPackingListEntryOverlayState,
       toast,
     ]

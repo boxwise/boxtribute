@@ -40,7 +40,7 @@ type Mutation {
     newState: DistributionEventState!
   ): DistributionEvent
 
-  moveBoxToDistributionEvent(boxLabelIdentifier: ID!, distributionEventId: ID!): Box
+  assignBoxToDistributionEvent(boxLabelIdentifier: ID!, distributionEventId: ID!): Box
   moveItemsFromBoxToDistributionEvent(
     boxLabelIdentifier: ID!
     distributionEventId: ID!
