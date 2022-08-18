@@ -3,6 +3,8 @@ import { useDisclosure } from "@chakra-ui/react";
 import APILoadingIndicator from "components/APILoadingIndicator";
 import { useParams } from "react-router-dom";
 import {
+  AssignBoxToDistributionEventMutation,
+  AssignBoxToDistributionEventMutationVariables,
   BoxByLabelIdentifierQuery,
   BoxByLabelIdentifierQueryVariables,
   UpdateLocationOfBoxMutation,
@@ -13,6 +15,7 @@ import {
 import AddItemsToBoxOverlay from "./components/AddItemsToBoxOverlay";
 import TakeItemsFromBoxOverlay from "./components/TakeItemsFromBoxOverlay";
 import BoxDetails from "./components/BoxDetails";
+import { ASSIGN_BOX_TO_DISTRIBUTION_MUTATION } from "views/Distributions/queries";
 
 // TODO: try to use reusable fragments
 // which can be reused both for the initial query as well as the mutation
@@ -178,7 +181,24 @@ const BTBox = () => {
     ],
   });
 
-  const [updateBoxLocation, mutationLocationStatus] = useMutation<
+  const [
+    assignBoxToDistributionEventMutation,
+    assignBoxToDistributionEventMutationStatus,
+  ] = useMutation<
+    AssignBoxToDistributionEventMutation,
+    AssignBoxToDistributionEventMutationVariables
+  >(ASSIGN_BOX_TO_DISTRIBUTION_MUTATION, {
+    refetchQueries: [
+      {
+        query: BOX_BY_LABEL_IDENTIFIER_QUERY,
+        variables: {
+          labelIdentifier: labelIdentifier,
+        },
+      },
+    ],
+  });
+
+  const [updateBoxLocation, updateBoxLocationMutationStatus] = useMutation<
     UpdateLocationOfBoxMutation,
     UpdateLocationOfBoxMutationVariables
   >(UPDATE_LOCATION_OF_BOX_MUTATION);
@@ -197,18 +217,27 @@ const BTBox = () => {
   if (loading) {
     return <APILoadingIndicator />;
   }
-  if (mutationLocationStatus.loading) {
-    return <div>Updating box...</div>;
+  if (
+    updateBoxLocationMutationStatus.loading ||
+    assignBoxToDistributionEventMutationStatus.loading
+  ) {
+    return <APILoadingIndicator />;
   }
-  if (error || mutationLocationStatus.error) {
+  if (
+    error ||
+    updateBoxLocationMutationStatus.error ||
+    assignBoxToDistributionEventMutationStatus.error
+  ) {
     console.error(
       "Error in BoxView Overlay: ",
-      error || mutationLocationStatus.error
+      error ||
+        updateBoxLocationMutationStatus.error ||
+        assignBoxToDistributionEventMutationStatus.error
     );
     return <div>Error!</div>;
   }
 
-  const boxData = mutationLocationStatus.data?.updateBox || data?.box;
+  const boxData = data?.box;
 
   const onSubmitTakeItemsFromBox = (
     boxFormValues: ChangeNumberOfItemsBoxData
@@ -269,6 +298,19 @@ const BTBox = () => {
     });
   };
 
+  const onAssignBoxToDistributionEventClick = (distributionEventId: string) => {
+    assignBoxToDistributionEventMutation({
+      variables: {
+        boxLabelIdentifier: labelIdentifier,
+        distributionEventId: distributionEventId,
+      },
+    });
+  };
+
+  const onUnassignBoxFromDistributionEventClick = (
+    distributionEventId: string
+  ) => {};
+
   return (
     <>
       <BoxDetails
@@ -276,6 +318,12 @@ const BTBox = () => {
         onPlusOpen={onPlusOpen}
         onMinusOpen={onMinusOpen}
         onMoveToLocationClick={onMoveBoxToLocationClick}
+        onAssignBoxToDistributionEventClick={
+          onAssignBoxToDistributionEventClick
+        }
+        onUnassignBoxFromDistributionEventClick={
+          onUnassignBoxFromDistributionEventClick
+        }
       />
       <AddItemsToBoxOverlay
         isOpen={isPlusOpen}

@@ -41,6 +41,8 @@ interface BoxDetailsProps {
     | BoxByLabelIdentifierQuery["box"]
     | UpdateLocationOfBoxMutation["updateBox"];
   onMoveToLocationClick: (locationId: string) => void;
+  onAssignBoxToDistributionEventClick: (distributionEventId: string) => void;
+  onUnassignBoxFromDistributionEventClick: (distributionEventId: string) => void;
   onPlusOpen: () => void;
   onMinusOpen: () => void;
   // onAddItemsToBoxClick: (numberOfItems: number) => void;
@@ -49,7 +51,9 @@ interface BoxDetailsProps {
 
 const BoxDetails = ({
   boxData,
-  onMoveToLocationClick: moveToLocationClick,
+  onMoveToLocationClick,
+  onAssignBoxToDistributionEventClick,
+  onUnassignBoxFromDistributionEventClick,
   onPlusOpen,
   onMinusOpen,
 }: BoxDetailsProps) => {
@@ -64,20 +68,10 @@ const BoxDetails = ({
 
   const { getDistroEventDetailUrlById } = useGetUrlForResourceHelpers();
 
-  const [assignBoxToDistributionEventMutation] = useMutation<
-    AssignBoxToDistributionEventMutation,
-    AssignBoxToDistributionEventMutationVariables
-  >(ASSIGN_BOX_TO_DISTRIBUTION_MUTATION);
-
   if (boxData == null) {
     console.error("BoxDetails Component: boxData is null");
     return <Box>No data found for a box with this id</Box>;
   }
-
-  const assignToDistributionEvent = (distributionEventId: string) => {};
-
-  const unassignFromDistributionEvent = (distributionEventId: string) => {};
-
   return (
     <Box>
       {boxData.distributionEvent?.state === "Returned" && (
@@ -193,7 +187,7 @@ const BoxDetails = ({
                   <WrapItem key={location.id} m={1}>
                     <Button
                       borderRadius="0px"
-                      onClick={() => moveToLocationClick(location.id)}
+                      onClick={() => onMoveToLocationClick(location.id)}
                       disabled={boxData.place?.id === location.id}
                     >
                       {location.name}
@@ -261,7 +255,7 @@ const BoxDetails = ({
                       <Button
                         my={2}
                         onClick={() =>
-                          assignToDistributionEvent(distributionEvent.id)
+                          onAssignBoxToDistributionEventClick(distributionEvent.id)
                         }
                         colorScheme="red"
                       >
@@ -271,7 +265,7 @@ const BoxDetails = ({
                       <Button
                         my={2}
                         onClick={() =>
-                          unassignFromDistributionEvent(distributionEvent.id)
+                          onUnassignBoxFromDistributionEventClick(distributionEvent.id)
                         }
                         colorScheme="blue"
                       >
