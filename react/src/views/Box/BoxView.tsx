@@ -203,7 +203,9 @@ const BTBox = () => {
   ] = useMutation<
     UnassignBoxFromDistributionEventMutation,
     UnassignBoxFromDistributionEventMutationVariables
-  >(UNASSIGN_BOX_FROM_DISTRIBUTION_MUTATION);
+  >(UNASSIGN_BOX_FROM_DISTRIBUTION_MUTATION, {
+    refetchQueries: [refetchBoxByLabelIdentifierQueryConfig(labelIdentifier)],
+  });
 
   const [updateBoxLocation, updateBoxLocationMutationStatus] = useMutation<
     UpdateLocationOfBoxMutation,
