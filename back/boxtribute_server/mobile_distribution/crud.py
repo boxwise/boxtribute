@@ -56,6 +56,26 @@ def move_items_from_box_to_distribution_event(
         return unboxed_items_collection
 
 
+def unassign_box_from_distribution_event(box_label_identifier, distribution_event_id):
+    """Assigns a box to a distribution event."""
+    with db.database.atomic():
+
+        # TODO: consider to to do validation checks here, once
+        # business rules are finalised
+
+        # distribution_event = DistributionEvent.get_by_id(distribution_event_id)
+        # if distribution_event.state == DistributionEventState.Returned:
+        #     raise UnassignBoxFromOnDistroOrReturnedDistributionEvent(
+        #         desired_operation="unassign_box_from_distribution_event",
+        #         distribution_event_id=distribution_event.id,
+        #     )
+        box = Box.get(Box.label_identifier == box_label_identifier)
+        # box.location = distribution_event.distribution_spot_id
+        box.distribution_event = None
+        box.save()
+        return box
+
+
 def assign_box_to_distribution_event(box_label_identifier, distribution_event_id):
     """Assigns a box to a distribution event."""
     with db.database.atomic():

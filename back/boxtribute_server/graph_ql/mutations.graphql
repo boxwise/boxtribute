@@ -41,6 +41,7 @@ type Mutation {
   ): DistributionEvent
 
   assignBoxToDistributionEvent(boxLabelIdentifier: ID!, distributionEventId: ID!): Box
+  unassignBoxFromDistributionEvent(boxLabelIdentifier: ID!, distributionEventId: ID!): Box
   moveItemsFromBoxToDistributionEvent(
     boxLabelIdentifier: ID!
     distributionEventId: ID!

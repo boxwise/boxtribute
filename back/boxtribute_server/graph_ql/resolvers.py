@@ -47,6 +47,7 @@ from ..mobile_distribution.crud import (
     move_items_from_box_to_distribution_event,
     remove_all_packing_list_entries_from_distribution_event_for_product,
     set_products_for_packing_list,
+    unassign_box_from_distribution_event,
     update_packing_list_entry,
 )
 from ..models.crud import (
@@ -577,6 +578,17 @@ def resolve_assign_box_to_distribution_event(
 ):
     authorize(permission="stock:write")
     return assign_box_to_distribution_event(box_label_identifier, distribution_event_id)
+
+
+@mutation.field("unassignBoxFromDistributionEvent")
+@convert_kwargs_to_snake_case
+def resolve_unassign_box_from_distribution_event(
+    mutation_obj, _, box_label_identifier, distribution_event_id
+):
+    authorize(permission="stock:write")
+    return unassign_box_from_distribution_event(
+        box_label_identifier, distribution_event_id
+    )
 
 
 @mutation.field("moveItemsFromBoxToDistributionEvent")
