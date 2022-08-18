@@ -67,7 +67,7 @@ def assign_box_to_distribution_event(box_label_identifier, distribution_event_id
                 distribution_event_id=distribution_event.id,
             )
         box = Box.get(Box.label_identifier == box_label_identifier)
-        box.location = distribution_event.distribution_spot_id
+        # box.location = distribution_event.distribution_spot_id
         box.distribution_event = distribution_event_id
         box.save()
         return box
