@@ -7,6 +7,8 @@ import {
   AssignBoxToDistributionEventMutationVariables,
   BoxByLabelIdentifierQuery,
   BoxByLabelIdentifierQueryVariables,
+  UnassignBoxFromDistributionEventMutation,
+  UnassignBoxFromDistributionEventMutationVariables,
   UpdateLocationOfBoxMutation,
   UpdateLocationOfBoxMutationVariables,
   UpdateNumberOfItemsMutation,
@@ -15,7 +17,10 @@ import {
 import AddItemsToBoxOverlay from "./components/AddItemsToBoxOverlay";
 import TakeItemsFromBoxOverlay from "./components/TakeItemsFromBoxOverlay";
 import BoxDetails from "./components/BoxDetails";
-import { ASSIGN_BOX_TO_DISTRIBUTION_MUTATION } from "views/Distributions/queries";
+import {
+  ASSIGN_BOX_TO_DISTRIBUTION_MUTATION,
+  UNASSIGN_BOX_FROM_DISTRIBUTION_MUTATION,
+} from "views/Distributions/queries";
 
 const refetchBoxByLabelIdentifierQueryConfig = (labelIdentifier: string) => ({
   query: BOX_BY_LABEL_IDENTIFIER_QUERY,
@@ -172,7 +177,7 @@ const BTBox = () => {
     variables: {
       labelIdentifier,
     },
-    notifyOnNetworkStatusChange: true
+    // notifyOnNetworkStatusChange: true
   });
 
   const [updateNumberOfItemsMutation] = useMutation<
@@ -192,11 +197,20 @@ const BTBox = () => {
     refetchQueries: [refetchBoxByLabelIdentifierQueryConfig(labelIdentifier)],
   });
 
+  const [
+    unassignBoxFromDistributionEventMutation,
+    unassignBoxFromDistributionEventMutationStatus,
+  ] = useMutation<
+    UnassignBoxFromDistributionEventMutation,
+    UnassignBoxFromDistributionEventMutationVariables
+  >(UNASSIGN_BOX_FROM_DISTRIBUTION_MUTATION);
+
   const [updateBoxLocation, updateBoxLocationMutationStatus] = useMutation<
     UpdateLocationOfBoxMutation,
     UpdateLocationOfBoxMutationVariables
   >(UPDATE_LOCATION_OF_BOX_MUTATION, {
     refetchQueries: [refetchBoxByLabelIdentifierQueryConfig(labelIdentifier)],
+    // notifyOnNetworkStatusChange: true
   });
 
   const {
@@ -215,14 +229,16 @@ const BTBox = () => {
   }
   if (
     updateBoxLocationMutationStatus.loading ||
-    assignBoxToDistributionEventMutationStatus.loading
+    assignBoxToDistributionEventMutationStatus.loading ||
+    unassignBoxFromDistributionEventMutationStatus.loading
   ) {
     return <APILoadingIndicator />;
   }
   if (
     error ||
     updateBoxLocationMutationStatus.error ||
-    assignBoxToDistributionEventMutationStatus.error
+    assignBoxToDistributionEventMutationStatus.error ||
+    unassignBoxFromDistributionEventMutationStatus.error
   ) {
     console.error(
       "Error in BoxView Overlay: ",
@@ -305,7 +321,14 @@ const BTBox = () => {
 
   const onUnassignBoxFromDistributionEventClick = (
     distributionEventId: string
-  ) => {};
+  ) => {
+    unassignBoxFromDistributionEventMutation({
+      variables: {
+        boxLabelIdentifier: labelIdentifier,
+        distributionEventId: distributionEventId,
+      },
+    });
+  };
 
   return (
     <>

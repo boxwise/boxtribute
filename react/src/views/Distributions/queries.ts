@@ -79,6 +79,20 @@ export const ASSIGN_BOX_TO_DISTRIBUTION_MUTATION = gql`
   }
 `;
 
+export const UNASSIGN_BOX_FROM_DISTRIBUTION_MUTATION = gql`
+  mutation UnassignBoxFromDistributionEvent(
+    $boxLabelIdentifier: ID!
+    $distributionEventId: ID!
+  ) {
+    unassignBoxFromDistributionEvent(
+      boxLabelIdentifier: $boxLabelIdentifier
+      distributionEventId: $distributionEventId
+    ) {
+      id
+    }
+  }
+`;
+
 export const MOVE_ITEMS_TO_DISTRIBUTION_EVENT = gql`
   mutation MoveItemsToDistributionEvent(
     $boxLabelIdentifier: ID!

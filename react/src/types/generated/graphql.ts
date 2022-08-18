@@ -419,6 +419,7 @@ export type Mutation = {
   removeAllPackingListEntriesFromDistributionEventForProduct?: Maybe<Scalars['Boolean']>;
   removePackingListEntryFromDistributionEvent?: Maybe<DistributionEvent>;
   sendShipment?: Maybe<Shipment>;
+  unassignBoxFromDistributionEvent?: Maybe<Box>;
   unassignTag?: Maybe<TaggableResource>;
   updateBeneficiary?: Maybe<Beneficiary>;
   updateBox?: Maybe<Box>;
@@ -651,6 +652,17 @@ export type MutationRemovePackingListEntryFromDistributionEventArgs = {
  */
 export type MutationSendShipmentArgs = {
   id: Scalars['ID'];
+};
+
+
+/**
+ * Naming convention:
+ * - input argument: creationInput/updateInput
+ * - input type: <Resource>CreationInput/UpdateInput
+ */
+export type MutationUnassignBoxFromDistributionEventArgs = {
+  boxLabelIdentifier: Scalars['ID'];
+  distributionEventId: Scalars['ID'];
 };
 
 
@@ -1421,6 +1433,14 @@ export type AssignBoxToDistributionEventMutationVariables = Exact<{
 
 
 export type AssignBoxToDistributionEventMutation = { __typename?: 'Mutation', assignBoxToDistributionEvent?: { __typename?: 'Box', id: string, distributionEvent?: { __typename?: 'DistributionEvent', id: string, name?: string | null, distributionSpot?: { __typename?: 'DistributionSpot', name?: string | null } | null } | null } | null };
+
+export type UnassignBoxFromDistributionEventMutationVariables = Exact<{
+  boxLabelIdentifier: Scalars['ID'];
+  distributionEventId: Scalars['ID'];
+}>;
+
+
+export type UnassignBoxFromDistributionEventMutation = { __typename?: 'Mutation', unassignBoxFromDistributionEvent?: { __typename?: 'Box', id: string } | null };
 
 export type MoveItemsToDistributionEventMutationVariables = Exact<{
   boxLabelIdentifier: Scalars['ID'];
