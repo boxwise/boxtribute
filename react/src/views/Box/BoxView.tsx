@@ -17,6 +17,13 @@ import TakeItemsFromBoxOverlay from "./components/TakeItemsFromBoxOverlay";
 import BoxDetails from "./components/BoxDetails";
 import { ASSIGN_BOX_TO_DISTRIBUTION_MUTATION } from "views/Distributions/queries";
 
+const refetchBoxByLabelIdentifierQueryConfig = (labelIdentifier: string) => ({
+  query: BOX_BY_LABEL_IDENTIFIER_QUERY,
+  variables: {
+    labelIdentifier: labelIdentifier,
+  },
+});
+
 // TODO: try to use reusable fragments
 // which can be reused both for the initial query as well as the mutation
 export const BOX_BY_LABEL_IDENTIFIER_QUERY = gql`
@@ -165,20 +172,14 @@ const BTBox = () => {
     variables: {
       labelIdentifier,
     },
+    notifyOnNetworkStatusChange: true
   });
 
   const [updateNumberOfItemsMutation] = useMutation<
     UpdateNumberOfItemsMutation,
     UpdateNumberOfItemsMutationVariables
   >(UPDATE_NUMBER_OF_ITEMS_IN_BOX_MUTATION, {
-    refetchQueries: [
-      {
-        query: BOX_BY_LABEL_IDENTIFIER_QUERY,
-        variables: {
-          labelIdentifier: labelIdentifier,
-        },
-      },
-    ],
+    refetchQueries: [refetchBoxByLabelIdentifierQueryConfig(labelIdentifier)],
   });
 
   const [
@@ -188,20 +189,15 @@ const BTBox = () => {
     AssignBoxToDistributionEventMutation,
     AssignBoxToDistributionEventMutationVariables
   >(ASSIGN_BOX_TO_DISTRIBUTION_MUTATION, {
-    refetchQueries: [
-      {
-        query: BOX_BY_LABEL_IDENTIFIER_QUERY,
-        variables: {
-          labelIdentifier: labelIdentifier,
-        },
-      },
-    ],
+    refetchQueries: [refetchBoxByLabelIdentifierQueryConfig(labelIdentifier)],
   });
 
   const [updateBoxLocation, updateBoxLocationMutationStatus] = useMutation<
     UpdateLocationOfBoxMutation,
     UpdateLocationOfBoxMutationVariables
-  >(UPDATE_LOCATION_OF_BOX_MUTATION);
+  >(UPDATE_LOCATION_OF_BOX_MUTATION, {
+    refetchQueries: [refetchBoxByLabelIdentifierQueryConfig(labelIdentifier)],
+  });
 
   const {
     isOpen: isPlusOpen,
