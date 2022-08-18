@@ -413,10 +413,8 @@ export type Mutation = {
   createTransferAgreement?: Maybe<TransferAgreement>;
   deleteTag?: Maybe<Tag>;
   markDistributionEventAsComplete?: Maybe<DistributionEvent>;
-  moveBoxFromDistributionEventToLocation?: Maybe<DistributionEvent>;
   moveBoxToDistributionEvent?: Maybe<Box>;
   moveItemsFromBoxToDistributionEvent?: Maybe<UnboxedItemsCollection>;
-  moveItemsFromDistributionEventToBox?: Maybe<DistributionEvent>;
   rejectTransferAgreement?: Maybe<TransferAgreement>;
   removeAllPackingListEntriesFromDistributionEventForProduct?: Maybe<Scalars['Boolean']>;
   removePackingListEntryFromDistributionEvent?: Maybe<DistributionEvent>;
@@ -597,17 +595,6 @@ export type MutationMarkDistributionEventAsCompleteArgs = {
  * - input argument: creationInput/updateInput
  * - input type: <Resource>CreationInput/UpdateInput
  */
-export type MutationMoveBoxFromDistributionEventToLocationArgs = {
-  boxLabelIdentifier: Scalars['ID'];
-  locationId: Scalars['ID'];
-};
-
-
-/**
- * Naming convention:
- * - input argument: creationInput/updateInput
- * - input type: <Resource>CreationInput/UpdateInput
- */
 export type MutationMoveBoxToDistributionEventArgs = {
   boxLabelIdentifier: Scalars['ID'];
   distributionEventId: Scalars['ID'];
@@ -623,17 +610,6 @@ export type MutationMoveItemsFromBoxToDistributionEventArgs = {
   boxLabelIdentifier: Scalars['ID'];
   distributionEventId: Scalars['ID'];
   numberOfItems: Scalars['Int'];
-};
-
-
-/**
- * Naming convention:
- * - input argument: creationInput/updateInput
- * - input type: <Resource>CreationInput/UpdateInput
- */
-export type MutationMoveItemsFromDistributionEventToBoxArgs = {
-  boxLabelIdentifier: Scalars['ID'];
-  unboxedItemsCollectionId: Scalars['ID'];
 };
 
 

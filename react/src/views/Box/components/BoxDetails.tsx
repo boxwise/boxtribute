@@ -65,6 +65,14 @@ const BoxDetails = ({
     return <Box>No data found for a box with this id</Box>;
   }
 
+  const assignToDistributionEvent = (distributionEventId: string) => {
+
+  };
+
+  const unassignFromDistributionEvent = (distributionEventId: string) => {
+
+  };
+
   return (
     <Box>
       {boxData.distributionEvent?.state === "Returned" && (
@@ -245,11 +253,11 @@ const BoxDetails = ({
                       </Text>
                     </LinkOverlay>
                     {isAssignedToDistroEvent ? (
-                      <Button my={2} onClick={() => alert()} colorScheme="red">
+                      <Button my={2} onClick={() => assignToDistributionEvent(distributionEvent.id)} colorScheme="red">
                         Unassign
                       </Button>
                     ) : (
-                      <Button my={2} onClick={() => alert()} colorScheme="blue">
+                      <Button my={2} onClick={() => unassignFromDistributionEvent(distributionEvent.id)} colorScheme="blue">
                         Assign
                       </Button>
                     )}
