@@ -17,6 +17,10 @@ def test_queries(auth0_client, endpoint):
     queried_box = _assert_successful_request(auth0_client, query)
     assert queried_box == {"state": "Donated"}
 
+    query = """query { beneficiary(id: 100000007) { age dateOfBirth } }"""
+    queried_beneficiary = _assert_successful_request(auth0_client, query)
+    assert queried_beneficiary == {"age": None, "dateOfBirth": None}
+
     for resource in [
         "bases",
         "organisations",
