@@ -1,7 +1,7 @@
-from peewee import SQL, CharField, DateField, DateTimeField, IntegerField
+from peewee import SQL, CharField, DateTimeField, IntegerField
 
 from ...db import db
-from ..fields import UIntForeignKeyField
+from ..fields import UIntForeignKeyField, ZeroDateField
 from .language import Language
 
 
@@ -37,8 +37,8 @@ class User(db.Model):
         on_update="CASCADE",
     )
     name = CharField(column_name="naam", constraints=[SQL("DEFAULT ''")])
-    valid_first_day = DateField(column_name="valid_firstday", null=True)
-    valid_last_day = DateField(column_name="valid_lastday", null=True)
+    valid_first_day = ZeroDateField(column_name="valid_firstday", null=True)
+    valid_last_day = ZeroDateField(column_name="valid_lastday", null=True)
 
     class Meta:
         table_name = "cms_users"
