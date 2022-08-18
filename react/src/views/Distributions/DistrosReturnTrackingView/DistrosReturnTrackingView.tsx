@@ -114,18 +114,16 @@ const graphqlToDistributionEventStockSummary = (
   };
 };
 
-const SummaryOfDistributionEvents = ({
-  squashedItemsCollectionsGroupedByProduct,
+const DistributionEventList = ({
   distributionEvents,
 }: {
-  squashedItemsCollectionsGroupedByProduct: {
-    product: Product;
-    productSizeWithNumerOfItemsTuples: ItemCollection[];
-  }[];
   distributionEvents: DistributionEventDetails[];
 }) => {
   return (
     <VStack>
+      <Heading size="md">
+        You are tracking returns for the following Distribution Events
+      </Heading>
       {/* <Heading as={"h3"} size="md">
         Summary of Distribution Events
       </Heading> */}
@@ -148,10 +146,28 @@ const SummaryOfDistributionEvents = ({
           </Box>
         </Box>
       ))}
+    </VStack>
+  );
+};
+
+const SummaryOfItemsInDistributionEvents = ({
+  squashedItemsCollectionsGroupedByProduct,
+}: {
+  squashedItemsCollectionsGroupedByProduct: {
+    product: Product;
+    productSizeWithNumerOfItemsTuples: ItemCollection[];
+  }[];
+}) => {
+  return (
+    <VStack>
+      <Heading size="md" mt={10}>Items in these Distribution Events</Heading>
       <List>
         {squashedItemsCollectionsGroupedByProduct.map(
           (squashedItemsCollectionsGroupForProduct) => (
-            <ListItem key={squashedItemsCollectionsGroupForProduct.product.id} mt={10}>
+            <ListItem
+              key={squashedItemsCollectionsGroupForProduct.product.id}
+              mt={10}
+            >
               <Heading
                 as="h3"
                 size="md"
@@ -242,12 +258,13 @@ const DistrosReturnTrackingView = () => {
 
   return (
     <VStack>
-      <Heading>Track returns for the following events</Heading>
-      <SummaryOfDistributionEvents
+      <DistributionEventList
+        distributionEvents={distributionEventsSummary.distributionEvents}
+      />
+      <SummaryOfItemsInDistributionEvents
         squashedItemsCollectionsGroupedByProduct={
           distributionEventsSummary.squashedItemCollectionsAccrossAllEvents
         }
-        distributionEvents={distributionEventsSummary.distributionEvents}
       />
       <Box>
         {/* {JSON.stringify(distroEventIdsForReturnTracking)}
