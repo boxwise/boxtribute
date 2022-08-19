@@ -31,12 +31,15 @@ const payload = JSON.stringify({
   // query: "query { beneficiary(id: 1007) { firstName } }",
 
   // B) Request single field of multiple resources
-  query: "query { beneficiaries { elements { firstName } } }",
+  // query: "query { beneficiaries { elements { firstName } } }",
+
+  // C) All boxes for base
+  // query: "query { base(id: 1) { locations { name boxes { totalCount elements { labelIdentifier state size { id label } product { gender name } tags { name id } items } } } } }",
+  query: "query { location(id: 1) { boxes { elements { product { gender name } } } } }",
 });
 
 export const options = {
   scenarios: {
-    /*
     shared: {
       executor: 'shared-iterations',
 
@@ -45,11 +48,11 @@ export const options = {
       gracefulStop: '5s',
 
       // executor-specific configuration
-      vus: 10,
-      iterations: 100,
+      vus: 1,
+      iterations: 1,
       // maxDuration: '10s',
     },
-    */
+    /*
     ramping: {
       executor: "ramping-vus",
       startVUs: 0,
@@ -60,6 +63,7 @@ export const options = {
       ],
       gracefulRampDown: "0s",
     },
+    */
   },
 };
 
@@ -67,7 +71,7 @@ export default function () {
   const res = http.post(url, payload, params);
 
   // Use in combination with A/B to assert working auth
-  // check(res, { 'is status 200': (r) => r.status === 200, });
+  check(res, { 'is status 200': (r) => r.status === 200, });
 
   // Use in combination with A
   // check(res, { 'has correct firstName': (r) => r.json().data.beneficiary.firstName === "Kailyn", });
