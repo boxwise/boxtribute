@@ -2035,7 +2035,7 @@ UNLOCK TABLES;
 
 
 -- New tables and adaptions to existing tables in context of Mobile Distro Prototypiong (August 2022)
-CREATE TABLE `distro_events_outflow_tracking_group` (
+CREATE TABLE `distro_events_outflow_tracking_groups` (
   `id` int unsigned NOT NULL AUTO_INCREMENT,
   `camp_id` int unsigned NOT NULL,
   `state` varchar(255) NOT NULL DEFAULT 'InProgress',
@@ -2050,9 +2050,9 @@ CREATE TABLE `distro_events_outflow_tracking_group` (
   KEY `camp_id` (`camp_id`),
   KEY `created_by` (`created_by`),
   KEY `modified_by` (`modified_by`),
-  CONSTRAINT `distro_events_outflow_tracking_group_ibfk_1` FOREIGN KEY (`camp_id`) REFERENCES `camps` (`id`) ON DELETE RESTRICT ON UPDATE CASCADE,
-  CONSTRAINT `distro_events_outflow_tracking_group_ibfk_2` FOREIGN KEY (`created_by`) REFERENCES `cms_users` (`id`) ON DELETE SET NULL ON UPDATE CASCADE,
-  CONSTRAINT `distro_events_outflow_tracking_group_ibfk_3` FOREIGN KEY (`modified_by`) REFERENCES `cms_users` (`id`) ON DELETE SET NULL ON UPDATE CASCADE
+  CONSTRAINT `distro_events_outflow_tracking_groups_ibfk_1` FOREIGN KEY (`camp_id`) REFERENCES `camps` (`id`) ON DELETE RESTRICT ON UPDATE CASCADE,
+  CONSTRAINT `distro_events_outflow_tracking_groups_ibfk_2` FOREIGN KEY (`created_by`) REFERENCES `cms_users` (`id`) ON DELETE SET NULL ON UPDATE CASCADE,
+  CONSTRAINT `distro_events_outflow_tracking_groups_ibfk_3` FOREIGN KEY (`modified_by`) REFERENCES `cms_users` (`id`) ON DELETE SET NULL ON UPDATE CASCADE
  ) ENGINE=InnoDB AUTO_INCREMENT=6 DEFAULT CHARSET=utf8mb3 ROW_FORMAT=DYNAMIC;
 
 
