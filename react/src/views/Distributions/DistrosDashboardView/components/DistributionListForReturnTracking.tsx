@@ -3,6 +3,7 @@ import {
   Box,
   Button,
   Checkbox,
+  Heading,
   Stack,
   Text,
   VStack,
@@ -33,7 +34,6 @@ function CheckboxGroup({
   selectedValues,
   onChange,
 }: CheckboxGroupProps) {
-
   const allChecked = selectedValues.length === allValuesWithLabels.length;
   const isIndeterminate = selectedValues.some(Boolean) && !allChecked;
   const allValues = allValuesWithLabels.map((el) => el[0]);
@@ -116,71 +116,85 @@ const DistributionListForReturnTracking = ({
 
   return (
     <VStack>
-      <Text mb={5}>
-        Please select the Distribution Events that you want to track returned
-        items for.
-      </Text>
-      {showMessageAboutPastEventsNotYetInReturnState && (
-        <Text backgroundColor="orange.100" textAlign="center">
-          <BellIcon /> You still have past events which are not yet in the
-          "Returned" state.
-          <br />
-          In the "Distributions" Tab, you can change their state. <br />
-          Only then they will be listed here.
-        </Text>
-      )}
-      <Box backgroundColor="gray.50">
-        {distroEventsToShowGroupedByDay.map(({ date, events }) => {
-          const groupName = `${date.toLocaleDateString()} (${weekDayNumberToWeekDayName(
-            getDay(date)
-          )})`;
-          const allValuesWithLabelsOfCurrentGroup = events.map(
-            (el) =>
-              [
-                el.id,
-                `${
-                  el.distributionSpot.name
-                } (${el.plannedStartDateTime.toLocaleTimeString()})`,
-              ] as [string, string]
-          );
-          const allValuesOfCurrentGroup = events.map((el) => el.id);
-          return (
-            <Box mb={4}>
-              <CheckboxGroup
-                key={date.toISOString()}
-                groupName={groupName}
-                allValuesWithLabels={allValuesWithLabelsOfCurrentGroup}
-                selectedValues={selectedValues.filter((el) =>
-                  allValuesOfCurrentGroup.includes(el)
-                )}
-                onChange={(newSelectedValues, newUnselectedValues) => {
-                  setSelectedValues((prev) => {
-                    return [
-                      ...prev.filter((el) => !newUnselectedValues.includes(el)),
-                      ...newSelectedValues.filter((el) => !prev.includes(el)),
-                    ];
-                  });
-                }}
-              />
-            </Box>
-          );
-        })}
-      </Box>
+      <VStack mb={10}>
+        <Heading as="h3" size="md">
+          Existing Return Trackings
+        </Heading>
+        <Text>There are currently no existing Return Trackings.</Text>
+      </VStack>
 
-      <Button
-        my={2}
-        onClick={() => {
-          navigate({
-            pathname: `/bases/${baseId}/distributions/return-tracking`,
-            search: `?distroEventIds[]=${selectedValues.join(
-              "&distroEventIds[]="
-            )}`,
-          });
-        }}
-        colorScheme="blue"
-      >
-        Select returned items
-      </Button>
+      <VStack>
+        <Heading as="h3" size="md">
+          Start new Return Tracking
+        </Heading>
+        {showMessageAboutPastEventsNotYetInReturnState && (
+          <Text backgroundColor="orange.100" textAlign="center">
+            <BellIcon /> You still have past events which are not yet in the
+            "Returned" state.
+            <br />
+            In the "Distributions" Tab, you can change their state. <br />
+            Only then they will be listed here.
+          </Text>
+        )}
+        <Text mb={5}>
+          Please select the Distribution Events that you want to track returned
+          items for.
+        </Text>
+        <Box backgroundColor="gray.50">
+          {distroEventsToShowGroupedByDay.map(({ date, events }) => {
+            const groupName = `${date.toLocaleDateString()} (${weekDayNumberToWeekDayName(
+              getDay(date)
+            )})`;
+            const allValuesWithLabelsOfCurrentGroup = events.map(
+              (el) =>
+                [
+                  el.id,
+                  `${
+                    el.distributionSpot.name
+                  } (${el.plannedStartDateTime.toLocaleTimeString()})`,
+                ] as [string, string]
+            );
+            const allValuesOfCurrentGroup = events.map((el) => el.id);
+            return (
+              <Box mb={4}>
+                <CheckboxGroup
+                  key={date.toISOString()}
+                  groupName={groupName}
+                  allValuesWithLabels={allValuesWithLabelsOfCurrentGroup}
+                  selectedValues={selectedValues.filter((el) =>
+                    allValuesOfCurrentGroup.includes(el)
+                  )}
+                  onChange={(newSelectedValues, newUnselectedValues) => {
+                    setSelectedValues((prev) => {
+                      return [
+                        ...prev.filter(
+                          (el) => !newUnselectedValues.includes(el)
+                        ),
+                        ...newSelectedValues.filter((el) => !prev.includes(el)),
+                      ];
+                    });
+                  }}
+                />
+              </Box>
+            );
+          })}
+        </Box>
+
+        <Button
+          my={2}
+          onClick={() => {
+            navigate({
+              pathname: `/bases/${baseId}/distributions/return-tracking`,
+              search: `?distroEventIds[]=${selectedValues.join(
+                "&distroEventIds[]="
+              )}`,
+            });
+          }}
+          colorScheme="blue"
+        >
+          Select returned items
+        </Button>
+      </VStack>
     </VStack>
   );
 };

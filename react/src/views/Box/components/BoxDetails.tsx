@@ -23,7 +23,7 @@ import {
   LinkBox,
 } from "@chakra-ui/react";
 import React from "react";
-import { NavLink } from "react-router-dom";
+import { Link as ReactRouterLink } from "react-router-dom";
 import {
   AssignBoxToDistributionEventMutation,
   AssignBoxToDistributionEventMutationVariables,
@@ -78,7 +78,10 @@ const BoxDetails = ({
         <Box backgroundColor={"orange.100"} m={10} p={5}>
           ATTENTION: This box is still assigned to a{" "}
           <Link
-            href={getDistroEventDetailUrlById(boxData.distributionEvent?.id)}
+            as={ReactRouterLink}
+            to={getDistroEventDetailUrlById(boxData.distributionEvent?.id)}
+            color="blue"
+            textDecoration={ "underline"}
           >
             Distribution Event
           </Link>{" "}
@@ -105,14 +108,14 @@ const BoxDetails = ({
             <Heading fontWeight={"bold"} mb={4} as="h2">
               Box {boxData.labelIdentifier}
             </Heading>
-            <NavLink to="edit">
+            <ReactRouterLink to="edit">
               <IconButton
                 aria-label="Edit box"
                 backgroundColor="transparent"
                 borderRadius="0"
                 icon={<EditIcon h={6} w={6} />}
               />
-            </NavLink>
+            </ReactRouterLink>
           </Flex>
           <List px={4} pb={2} spacing={2}>
             <ListItem>

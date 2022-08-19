@@ -199,6 +199,7 @@ export type BoxUpdateInput = {
 /** TODO: Add description here once specs are final/confirmed */
 export type DistributionEvent = {
   __typename?: 'DistributionEvent';
+  DistributionEventsOutflowTrackingGroup?: Maybe<DistributionEventsOutflowTrackingGroup>;
   boxes: Array<Box>;
   distributionSpot?: Maybe<DistributionSpot>;
   id: Scalars['ID'];
@@ -224,6 +225,19 @@ export enum DistributionEventState {
   Packing = 'Packing',
   Planning = 'Planning',
   Returned = 'Returned'
+}
+
+/** TODO: Add description here once specs are final/confirmed */
+export type DistributionEventsOutflowTrackingGroup = {
+  __typename?: 'DistributionEventsOutflowTrackingGroup';
+  distributionEvents: Array<DistributionEvent>;
+  id: Scalars['ID'];
+  state: DistributionEventsOutflowTrackingGroupState;
+};
+
+export enum DistributionEventsOutflowTrackingGroupState {
+  Completed = 'Completed',
+  InProgress = 'InProgress'
 }
 
 /** TODO: Add description here once specs are final/confirmed */

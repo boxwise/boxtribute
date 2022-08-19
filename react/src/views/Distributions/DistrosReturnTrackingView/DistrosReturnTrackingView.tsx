@@ -1,7 +1,24 @@
 import { useQuery } from "@apollo/client";
-import { Box, Center, Heading, List, ListItem, VStack } from "@chakra-ui/react";
+import {
+  AlertDialog,
+  AlertDialogBody,
+  AlertDialogContent,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogOverlay,
+  Box,
+  Button,
+  Center,
+  Heading,
+  List,
+  ListItem,
+  Text,
+  useDisclosure,
+  VStack,
+} from "@chakra-ui/react";
 import APILoadingIndicator from "components/APILoadingIndicator";
 import _ from "lodash";
+import { useRef } from "react";
 import { useParams, useSearchParams } from "react-router-dom";
 import {
   DistributionEventsInReturnStateForBaseQuery,
@@ -160,7 +177,9 @@ const SummaryOfItemsInDistributionEvents = ({
 }) => {
   return (
     <VStack>
-      <Heading size="md" mt={10}>Items in these Distribution Events</Heading>
+      <Heading size="md" mt={10}>
+        Items in these Distribution Events
+      </Heading>
       <List>
         {squashedItemsCollectionsGroupedByProduct.map(
           (squashedItemsCollectionsGroupForProduct) => (
@@ -190,8 +209,17 @@ const SummaryOfItemsInDistributionEvents = ({
                         {productSizeWithNumberOfItemsTuple.size?.label}
                       </Box>
                       <Box>
-                        <b>Number of items:</b>{" "}
+                        <b>Number of items on distro :</b>{" "}
                         {productSizeWithNumberOfItemsTuple.numberOfItems}
+                      </Box>
+                      <Box>
+                        <b>
+                          You already tracked 3 items as returned (120 still
+                          open)
+                        </b>
+                      </Box>
+                      <Box>
+                        <Button>Track more items as returned</Button>
                       </Box>
                     </ListItem>
                   )
@@ -220,6 +248,13 @@ const DistrosReturnTrackingView = () => {
     },
   });
 
+  const onConfirmToMarkEventAsCompleted = () => {
+    alert("Not implemented yet");
+  }
+
+  const confirmFinishingReturnTrackingAlertState = useDisclosure();
+  const cancelNextStageTransitionRef = useRef<HTMLButtonElement>(null);
+
   if (loading) {
     return <APILoadingIndicator />;
   }
@@ -246,11 +281,7 @@ const DistrosReturnTrackingView = () => {
   //     );
   //     return <Center>Error!</Center>;
   //   }
-  console.log(
-    "distroEventIdsForReturnTracking",
-    distroEventIdsForReturnTracking
-  );
-  console.log("data", data);
+
   const distributionEventsSummary = graphqlToDistributionEventStockSummary(
     data,
     distroEventIdsForReturnTracking
@@ -266,10 +297,53 @@ const DistrosReturnTrackingView = () => {
           distributionEventsSummary.squashedItemCollectionsAccrossAllEvents
         }
       />
+      <Button
+        my={2}
+        onClick={() => alert("Not yet implemented")}
+        colorScheme="blue"
+      >
+       Done - close all involved Distribution Events. *
+      </Button>
+      <Text size="small">* This will track all left over number of items as "Distributed".</Text>
       <Box>
         {/* {JSON.stringify(distroEventIdsForReturnTracking)}
         {JSON.stringify(data)} */}
       </Box>
+
+
+      <AlertDialog
+        isOpen={confirmFinishingReturnTrackingAlertState.isOpen}
+        leastDestructiveRef={cancelNextStageTransitionRef}
+        onClose={confirmFinishingReturnTrackingAlertState.onClose}
+      >
+        <AlertDialogOverlay>
+          <AlertDialogContent>
+            <AlertDialogHeader fontSize="lg" fontWeight="bold">
+              Mark Distribution Event as Completed
+            </AlertDialogHeader>
+
+            <AlertDialogBody>
+              Are you sure you tracked all returned items properly? It will end up in setting all Boxes assigned to the Distribution Events to zero. The system will then also calculate the number of distributed items for each Product/Size combination involved in the Distributions. This data will be used for Monitoring and Evaluation purposes. You can't undo this action afterwards.
+            </AlertDialogBody>
+
+            <AlertDialogFooter>
+              <Button
+                ref={cancelNextStageTransitionRef}
+                onClick={confirmFinishingReturnTrackingAlertState.onClose}
+              >
+                Cancel
+              </Button>
+              <Button
+                colorScheme="red"
+                onClick={onConfirmToMarkEventAsCompleted}
+                ml={3}
+              >
+                Mark Event as Completed
+              </Button>
+            </AlertDialogFooter>
+          </AlertDialogContent>
+        </AlertDialogOverlay>
+      </AlertDialog>
     </VStack>
   );
 };
