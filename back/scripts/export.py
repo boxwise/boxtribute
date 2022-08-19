@@ -71,6 +71,7 @@ def fetch_data(*, kind, base_id, access_token):
                     filterInput: {{ active: true }}
                 ) {{
                     elements {{
+                        id
                         firstName
                         lastName
                         dateOfBirth
@@ -93,6 +94,12 @@ def sanitize_data(*, data, kind):
     for row in data:
         # replace any newline chars because they result in broken CSV files
         row["comment"] = row["comment"].replace("\r\n", " ")
+
+        # insert family head ID from nested field if given
+        try:
+            row["familyHead"] = row["familyHead"]["id"]
+        except TypeError:
+            pass
     return data
 
 
@@ -104,6 +111,7 @@ def write_to_csv(*, data, kind, filepath=None):
     filepath = filepath or f"{kind}-{int(time.time())}.csv"
     with open(filepath, "w", newline="") as csvfile:
         fieldnames = [
+            "id",
             "firstName",
             "lastName",
             "dateOfBirth",
