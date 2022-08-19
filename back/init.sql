@@ -2032,3 +2032,36 @@ UNLOCK TABLES;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
 -- Dump completed on 2022-07-24 14:14:59
+
+
+-- New tables and adaptions to existing tables in context of Mobile Distro Prototypiong (August 2022)
+CREATE TABLE `distro_events_outflow_tracking_group` (
+  `id` int unsigned NOT NULL AUTO_INCREMENT,
+  `camp_id` int unsigned NOT NULL,
+  `state` varchar(255) NOT NULL DEFAULT 'InProgress',
+  `created_on` datetime NOT NULL,
+  `created_by` int unsigned DEFAULT NULL,
+  `modified_on` datetime DEFAULT NULL,
+  `modified_by` int unsigned DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  KEY `distro_events_outflow_tracking_group_state` (`state`),
+  KEY `distro_events_outflow_tracking_group_modified_on` (`modified_on`),
+  KEY `distro_events_outflow_tracking_group_created_on` (`created_on`),
+  KEY `camp_id` (`camp_id`),
+  KEY `created_by` (`created_by`),
+  KEY `modified_by` (`modified_by`),
+  CONSTRAINT `distro_events_outflow_tracking_group_ibfk_1` FOREIGN KEY (`camp_id`) REFERENCES `camps` (`id`) ON DELETE RESTRICT ON UPDATE CASCADE,
+  CONSTRAINT `distro_events_outflow_tracking_group_ibfk_2` FOREIGN KEY (`created_by`) REFERENCES `cms_users` (`id`) ON DELETE SET NULL ON UPDATE CASCADE,
+  CONSTRAINT `distro_events_outflow_tracking_group_ibfk_3` FOREIGN KEY (`modified_by`) REFERENCES `cms_users` (`id`) ON DELETE SET NULL ON UPDATE CASCADE
+ ) ENGINE=InnoDB AUTO_INCREMENT=6 DEFAULT CHARSET=utf8mb3 ROW_FORMAT=DYNAMIC;
+
+
+
+
+
+ALTER TABLE dropapp_dev.distro_events_outflow_logs CHANGE distro_event_id distro_events_outflow_tracking_group_id int unsigned NOT NULL;
+
+
+ALTER TABLE dropapp_dev.distro_events_outflow_logs DROP FOREIGN KEY distro_events_outflow_logs_ibfk_4;
+ALTER TABLE dropapp_dev.distro_events_outflow_logs DROP INDEX location_id;
+ALTER TABLE dropapp_dev.distro_events_outflow_logs DROP COLUMN location_id;
