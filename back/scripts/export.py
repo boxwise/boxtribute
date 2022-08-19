@@ -13,6 +13,7 @@ Example:
 import argparse
 import csv
 import json
+import logging
 import os
 import time
 import urllib.request
@@ -21,6 +22,10 @@ from dotenv import load_dotenv
 
 URL = "https://api.boxtribute.org"
 load_dotenv()
+
+logger = logging.getLogger(__name__)
+logger.addHandler(logging.StreamHandler())
+logger.setLevel(logging.INFO)
 
 
 def post(*, url, parameters, access_token=None):
@@ -31,12 +36,14 @@ def post(*, url, parameters, access_token=None):
     if access_token is not None:
         headers["Authorization"] = f"Bearer {access_token}"
     data = json.dumps(parameters).encode("utf-8")
+    logger.debug(f"Posting to {url}...")
     request = urllib.request.Request(url, data, headers)
     with urllib.request.urlopen(request) as f:
         return json.loads(f.read().decode())
 
 
 def fetch_access_token():
+    logger.info("Fetching access token...")
     response = post(
         url=f"{URL}/token",
         parameters={
@@ -50,11 +57,13 @@ def fetch_access_token():
 def fetch_data(*, kind, base_id, access_token):
     if kind == "beneficiary":
         query = f"""query {{ base(id: {base_id}) {{
+                name
                 beneficiaries (
                     filterInput: {{ active: true }}
                 ) {{ totalCount }} }} }}"""
         response = post(url=URL, parameters={"query": query}, access_token=access_token)
         total_count = response["data"]["base"]["beneficiaries"]["totalCount"]
+        base_name = response["data"]["base"]["name"]
 
         query = f"""query {{ base(id: {base_id}) {{
                 beneficiaries (
@@ -74,6 +83,7 @@ def fetch_data(*, kind, base_id, access_token):
                         registered
                         tokens
                     }} }} }} }}"""
+        logger.info(f"Fetching data for {total_count} beneficiaries in {base_name}...")
         response = post(url=URL, parameters={"query": query}, access_token=access_token)
         return response["data"]["base"]["beneficiaries"]["elements"]
     return {}
@@ -87,6 +97,10 @@ def sanitize_data(*, data, kind):
 
 
 def write_to_csv(*, data, kind, filepath=None):
+    if not data:
+        logger.warning("Skipping export due to empty data set")
+        return
+
     filepath = filepath or f"{kind}-{int(time.time())}.csv"
     with open(filepath, "w", newline="") as csvfile:
         fieldnames = [
@@ -105,6 +119,7 @@ def write_to_csv(*, data, kind, filepath=None):
         writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
         writer.writeheader()
         writer.writerows(data)
+    logger.info(f"Exported to {filepath}")
 
 
 def main(*, data_kind, base_id, export_filepath):
@@ -127,10 +142,15 @@ def parse_cli():
         "--export-filepath",
         help="Default: time-stamped file in current working directory",
     )
+    parser.add_argument(
+        "-v", "--verbose", action="store_true", help="show internal workings"
+    )
 
     return parser.parse_args()
 
 
 if __name__ == "__main__":
-    options = parse_cli()
-    main(**vars(options))
+    options = vars(parse_cli())
+    if options.pop("verbose"):
+        logger.setLevel(logging.DEBUG)
+    main(**options)
