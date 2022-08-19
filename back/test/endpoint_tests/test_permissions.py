@@ -111,7 +111,7 @@ def test_invalid_permission_for_given_resource_id(read_only_client, mocker, quer
         }""",
         """updateBox(
             updateInput : {
-                labelIdentifier: "f00b45",
+                labelIdentifier: "12345678",
                 comment: "let's try"
             }) {
             id
@@ -149,6 +149,47 @@ def test_invalid_permission_for_given_resource_id(read_only_client, mocker, quer
 )
 def test_invalid_write_permission(unauthorized, read_only_client, mutation):
     """Verify missing resource:write permission when executing mutation."""
+    assert_forbidden_request(
+        read_only_client, f"mutation {{ {mutation} }}", field=operation_name(mutation)
+    )
+
+
+@pytest.mark.parametrize(
+    "mutation",
+    [
+        # test user does not have permission to access location ID 2 nor product ID 2
+        """createBox(
+            creationInput : {
+                productId: 1,
+                numberOfItems: 9999,
+                locationId: 2,
+                sizeId: 1,
+                comment: ""
+            }) { id }""",
+        """createBox(
+            creationInput : {
+                productId: 2,
+                numberOfItems: 9999,
+                locationId: 1,
+                sizeId: 1,
+                comment: ""
+            }) { id }""",
+        """updateBox(
+            updateInput : { labelIdentifier: "34567890" }) { id }""",
+        """updateBox(
+            updateInput : {
+                labelIdentifier: "12345678",
+                locationId: 2
+            }) { id }""",
+        """updateBox(
+            updateInput : {
+                labelIdentifier: "12345678",
+                productId: 2
+            }) { id }""",
+    ],
+    ids=operation_name,
+)
+def test_invalid_permission_when_mutating_box(read_only_client, mutation):
     assert_forbidden_request(
         read_only_client, f"mutation {{ {mutation} }}", field=operation_name(mutation)
     )

@@ -539,13 +539,6 @@ def resolve_create_distribution_spot(*_, creation_input):
     return create_distribution_spot(user_id=g.user.id, **creation_input)
 
 
-@mutation.field("createBox")
-@convert_kwargs_to_snake_case
-def resolve_create_box(*_, creation_input):
-    authorize(permission="stock:write")
-    return create_box(user_id=g.user.id, **creation_input)
-
-
 @mutation.field("moveBoxToDistributionEvent")
 @convert_kwargs_to_snake_case
 def resolve_move_box_to_distribution_event(
@@ -590,10 +583,38 @@ def resolve_remove_packing_list_entry_from_distribution_event(
     return distribution_event
 
 
+@mutation.field("createBox")
+@convert_kwargs_to_snake_case
+def resolve_create_box(*_, creation_input):
+    authorize(permission="stock:write")
+    requested_location = Location.get_by_id(creation_input["location_id"])
+    authorize(permission="location:read", base_id=requested_location.base_id)
+    requested_product = Product.get_by_id(creation_input["product_id"])
+    authorize(permission="product:read", base_id=requested_product.base_id)
+    return create_box(user_id=g.user.id, **creation_input)
+
+
 @mutation.field("updateBox")
 @convert_kwargs_to_snake_case
 def resolve_update_box(*_, update_input):
-    authorize(permission="stock:write")
+    box = (
+        Box.select(Box, Location)
+        .join(Location)
+        .where(Box.label_identifier == update_input["label_identifier"])
+        .get()
+    )
+    authorize(permission="stock:write", base_id=box.location.base_id)
+
+    location_id = update_input.get("location_id")
+    if location_id is not None:
+        requested_location = Location.get_by_id(location_id)
+        authorize(permission="location:read", base_id=requested_location.base_id)
+
+    product_id = update_input.get("product_id")
+    if product_id is not None:
+        requested_product = Product.get_by_id(product_id)
+        authorize(permission="product:read", base_id=requested_product.base_id)
+
     return update_box(user_id=g.user.id, **update_input)
 
 

@@ -55,10 +55,10 @@ def test_mutations(auth0_client):
     assert response == {"place": {"id": "1"}}
 
     mutation = """mutation { updateBox(updateInput: {
-                    labelIdentifier: "177892", productId: 2
-                }) { product { id } } }"""
+                    labelIdentifier: "177892", numberOfItems: 2
+                }) { numberOfItems } }"""
     response = assert_successful_request(auth0_client, mutation)
-    assert response == {"product": {"id": "2"}}
+    assert response == {"numberOfItems": 2}
 
     mutation = """mutation { createBeneficiary(creationInput: {
                     firstName: "Any",
