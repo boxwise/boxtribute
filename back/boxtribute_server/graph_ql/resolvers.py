@@ -189,7 +189,8 @@ def resolve_distributions_events(base_obj, _):
 @query.field("users")
 def resolve_users(*_):
     authorize(permission="user:read")
-    return User.select()
+    # Disable for non-god users until integration of Auth0 implemented
+    return User.select() if g.user.is_god else []
 
 
 @query.field("user")

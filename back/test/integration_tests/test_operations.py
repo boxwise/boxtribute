@@ -24,7 +24,6 @@ def test_queries(auth0_client, endpoint):
     for resource in [
         "bases",
         "organisations",
-        "users",
         "locations",
         "productCategories",
         "transferAgreements",
