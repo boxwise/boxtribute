@@ -2034,7 +2034,12 @@ UNLOCK TABLES;
 -- Dump completed on 2022-07-24 14:14:59
 
 
+
+
+
 -- New tables and adaptions to existing tables in context of Mobile Distro Prototypiong (August 2022)
+
+
 CREATE TABLE `distro_events_outflow_tracking_groups` (
   `id` int unsigned NOT NULL AUTO_INCREMENT,
   `camp_id` int unsigned NOT NULL,
@@ -2065,3 +2070,18 @@ ALTER TABLE dropapp_dev.distro_events_outflow_logs CHANGE distro_event_id distro
 ALTER TABLE dropapp_dev.distro_events_outflow_logs DROP FOREIGN KEY distro_events_outflow_logs_ibfk_4;
 ALTER TABLE dropapp_dev.distro_events_outflow_logs DROP INDEX location_id;
 ALTER TABLE dropapp_dev.distro_events_outflow_logs DROP COLUMN location_id;
+
+
+CREATE TABLE `distro_events_outflow_tracking_groups_distro_events` (
+  `id` int unsigned NOT NULL AUTO_INCREMENT,
+  `distro_events_outflow_tracking_group_id` int unsigned NOT NULL,
+  `distro_event_id` int unsigned NOT NULL,
+  `created_on` datetime NOT NULL,
+  `created_by` int unsigned DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  KEY `distro_events_outflow_tracking_group_id` (`distro_events_outflow_tracking_group_id`),
+  KEY `distro_event_id` (`distro_event_id`),
+  KEY `created_by` (`created_by`),
+  CONSTRAINT `distro_events_outflow_tracking_groups_distro_events_ibfk_1` FOREIGN KEY (`distro_events_outflow_tracking_group_id`) REFERENCES `distro_events_outflow_tracking_groups` (`id`) ON DELETE RESTRICT ON UPDATE CASCADE,
+  CONSTRAINT `distro_events_outflow_tracking_groups_distro_events_ibfk_2` FOREIGN KEY (`distro_event_id`) REFERENCES `distro_events` (`id`) ON DELETE RESTRICT ON UPDATE CASCADE
+ ) ENGINE=InnoDB AUTO_INCREMENT=6 DEFAULT CHARSET=utf8mb3 ROW_FORMAT=DYNAMIC;
