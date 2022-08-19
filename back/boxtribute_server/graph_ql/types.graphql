@@ -269,6 +269,35 @@ type DistributionEvent {
   # It would return both boxes as well as unboxed items collections
   boxes: [Box!]!
   unboxedItemsCollections: [UnboxedItemsCollection!]
+
+  distributionEventsOutflowTrackingGroup: DistributionEventsOutflowTrackingGroup
+}
+
+enum DistributionEventsOutflowTrackingGroupState {
+  InProgress
+  Completed
+}
+
+"""
+TODO: Add description here once specs are final/confirmed
+"""
+type DistributionEventsOutflowTrackingEntry {
+  id: ID!
+  product: Product!
+  size: Size!
+  numberOfItems: Int!
+  distributionEventsOutflowTrackingGroup: DistributionEventsOutflowTrackingGroup!
+  dateTimeOfTracking: Datetime!
+}
+
+"""
+TODO: Add description here once specs are final/confirmed
+"""
+type DistributionEventsOutflowTrackingGroup {
+  id: ID!
+  state: DistributionEventsOutflowTrackingGroupState!
+  distributionEvents: [DistributionEvent!]!
+  distributionEventsOutflowTrackingEntry: [DistributionEventsOutflowTrackingEntry!]!
 }
 
 """

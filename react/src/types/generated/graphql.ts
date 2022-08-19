@@ -199,8 +199,8 @@ export type BoxUpdateInput = {
 /** TODO: Add description here once specs are final/confirmed */
 export type DistributionEvent = {
   __typename?: 'DistributionEvent';
-  DistributionEventsOutflowTrackingGroup?: Maybe<DistributionEventsOutflowTrackingGroup>;
   boxes: Array<Box>;
+  distributionEventsOutflowTrackingGroup?: Maybe<DistributionEventsOutflowTrackingGroup>;
   distributionSpot?: Maybe<DistributionSpot>;
   id: Scalars['ID'];
   name?: Maybe<Scalars['String']>;
@@ -228,9 +228,21 @@ export enum DistributionEventState {
 }
 
 /** TODO: Add description here once specs are final/confirmed */
+export type DistributionEventsOutflowTrackingEntry = {
+  __typename?: 'DistributionEventsOutflowTrackingEntry';
+  dateTimeOfTracking: Scalars['Datetime'];
+  distributionEventsOutflowTrackingGroup: DistributionEventsOutflowTrackingGroup;
+  id: Scalars['ID'];
+  numberOfItems: Scalars['Int'];
+  product: Product;
+  size: Size;
+};
+
+/** TODO: Add description here once specs are final/confirmed */
 export type DistributionEventsOutflowTrackingGroup = {
   __typename?: 'DistributionEventsOutflowTrackingGroup';
   distributionEvents: Array<DistributionEvent>;
+  distributionEventsOutflowTrackingEntry: Array<DistributionEventsOutflowTrackingEntry>;
   id: Scalars['ID'];
   state: DistributionEventsOutflowTrackingGroupState;
 };
