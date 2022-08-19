@@ -127,7 +127,7 @@ def resolve_tag(*_, id):
 @query.field("tags")
 def resolve_tags(*_):
     authorize(permission="tag:read")
-    return Tag.select().where(base_filter_condition(Tag))
+    return Tag.select().where(Tag.deleted.is_null() & base_filter_condition(Tag))
 
 
 @query.field("packingListEntry")
