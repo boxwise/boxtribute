@@ -5,6 +5,7 @@ import { useParams } from "react-router-dom";
 import {
   BoxByLabelIdentifierQuery,
   BoxByLabelIdentifierQueryVariables,
+  BoxState,
   UpdateLocationOfBoxMutation,
   UpdateLocationOfBoxMutationVariables,
   UpdateNumberOfItemsMutation,
@@ -18,6 +19,7 @@ export const BOX_BY_LABEL_IDENTIFIER_QUERY = gql`
   query BoxByLabelIdentifier($labelIdentifier: String!) {
     box(labelIdentifier: $labelIdentifier) {
       labelIdentifier
+      state
       size {
         id
         label
@@ -61,7 +63,23 @@ export const UPDATE_NUMBER_OF_ITEMS_IN_BOX_MUTATION = gql`
   }
 `;
 
-export const UPDATE_LOCATION_OF_BOX_MUTATION = gql`
+export const UPDATE_STATUS_IN_BOX_MUTATION = gql`
+  mutation UpdateState(
+    $boxLabelIdentifier: String!
+    $newStatus: BoxState!
+  ) {
+    updateBox(
+      updateInput: {
+        labelIdentifier: $boxLabelIdentifier
+        state: $newStatus
+      }
+    ) {
+      labelIdentifier
+    }
+  }
+`;
+
+export const UPDATE_BOX_MUTATION = gql`
   mutation UpdateLocationOfBox(
     $boxLabelIdentifier: String!
     $newLocationId: Int!
@@ -77,6 +95,7 @@ export const UPDATE_LOCATION_OF_BOX_MUTATION = gql`
         id
         label
       }
+      state
       items
       product {
         name
@@ -115,6 +134,10 @@ export interface ChangeNumberOfItemsBoxData {
   numberOfItems: number;
 }
 
+export interface ChangeStatusBoxData{
+  state: BoxState;
+}
+
 const BTBox = () => {
   const labelIdentifier =
     useParams<{ labelIdentifier: string }>().labelIdentifier!;
@@ -141,10 +164,24 @@ const BTBox = () => {
     ],
   });
 
+  const [UpdateStateMutation] = useMutation<
+    UpdateStateMutation,
+    UpdateStateMutationVariables
+>(UPDATE_STATUS_IN_BOX_MUTATION, {
+  refetchQueries: [
+    {
+      query: BOX_BY_LABEL_IDENTIFIER_QUERY,
+      variables: {
+        labelIdentifier: labelIdentifier,
+      },
+    },
+  ],
+});
+
   const [updateBoxLocation, mutationLocationStatus] = useMutation<
     UpdateLocationOfBoxMutation,
     UpdateLocationOfBoxMutationVariables
-  >(UPDATE_LOCATION_OF_BOX_MUTATION);
+  >(UPDATE_BOX_MUTATION);
 
   const {
     isOpen: isPlusOpen,
@@ -172,6 +209,14 @@ const BTBox = () => {
   }
 
   const boxData = mutationLocationStatus.data?.updateBox || data?.box;
+
+  const onScrap = () => (
+    console.log("onscrap")
+  )
+
+  const onLost = () => (
+    console.log("onlost")
+  )
 
   const onSubmitTakeItemsFromBox = (
     boxFormValues: ChangeNumberOfItemsBoxData
@@ -234,6 +279,10 @@ const BTBox = () => {
     });
   };
 
+  // const onLost = (state: BoxState) => {
+
+  // }
+
   return (
     <>
       <BoxDetails
@@ -241,6 +290,8 @@ const BTBox = () => {
         onPlusOpen={onPlusOpen}
         onMinusOpen={onMinusOpen}
         onMoveToLocationClick={onMoveBoxToLocationClick}
+        onLost={onLost}
+        onScrap={onScrap}
       />
       <AddItemsToBoxOverlay
         isOpen={isPlusOpen}

@@ -9,6 +9,11 @@ import {
   Flex,
   IconButton,
   WrapItem,
+  RadioGroup,
+  Radio,
+  FormControl,
+  FormLabel,
+  Switch,
 } from "@chakra-ui/react";
 import React, { useState } from "react";
 import { NavLink } from "react-router-dom";
@@ -24,6 +29,8 @@ interface BoxDetailsProps {
   onMoveToLocationClick: (locationId: string) => void;
   onPlusOpen: () => void;
   onMinusOpen: () => void;
+  onScrap: () => void;
+  onLost: () => void;
   // onAddItemsToBoxClick: (numberOfItems: number) => void;
   // onRemoveItemsFromBoxClick: (numberOfItems: number) => void;
 }
@@ -33,7 +40,18 @@ const BoxDetails = ({
   onMoveToLocationClick: moveToLocationClick,
   onPlusOpen,
   onMinusOpen,
+  onScrap,
+  onLost,
 }: BoxDetailsProps) => {
+  const statusColor = (value) => {
+    let color;
+    if (value === "Lost" || value === "Scrap") {
+      color = "#EB404A";
+    } else {
+      color = "#0CA789";
+    }
+    return color;
+  };
   // const allLocations = boxData?.place?.base?.locations
   // const [preferedLocations, setPreferedLocations] = useState(allLocations);
 
@@ -63,9 +81,18 @@ const BoxDetails = ({
         mr={["0", "0", "6rem", "6rem"]}
       >
         <Flex pt={2} px={4} direction="row" justifyContent="space-between">
-          <Heading fontWeight={"bold"} mb={4} as="h2">
-            Box {boxData.labelIdentifier}
-          </Heading>
+          <Flex direction="column" mb={2}>
+            <Heading fontWeight={"bold"} as="h2">
+              Box {boxData.labelIdentifier}
+            </Heading>
+            <Flex>
+              <Text>
+                <b>Status:&nbsp;</b>
+              </Text>
+              <Text color={statusColor(boxData.state)}>{boxData.state}</Text>
+            </Flex>
+          </Flex>
+
           <NavLink to="edit">
             <IconButton
               aria-label="Edit box"
@@ -78,17 +105,23 @@ const BoxDetails = ({
         <List px={4} pb={2} spacing={2}>
           <ListItem>
             <Text fontSize="xl" fontWeight={"bold"}>
-              {boxData.items} x {boxData.product?.name}
+              {boxData.product?.name}
             </Text>
           </ListItem>
           <ListItem>
             <Flex direction="row">
-              <Text mr={2}><b>Gender: </b>{boxData.product?.gender}</Text>
+              <Text mr={2}>
+                <b>Gender: </b>
+                {boxData.product?.gender}
+              </Text>
             </Flex>
           </ListItem>
           <ListItem>
             <Flex direction="row">
-              <Text><b>Size: </b>{boxData.size.label}</Text>
+              <Text>
+                <b>Size: </b>
+                {boxData.size.label}
+              </Text>
             </Flex>
           </ListItem>
           <ListItem>
@@ -99,24 +132,46 @@ const BoxDetails = ({
             </Flex> */}
           </ListItem>
           <ListItem>
-            <Flex direction="row" justifyContent="flex-end">
-              <IconButton
-                onClick={onPlusOpen}
-                mr={4}
-                border="2px"
-                borderRadius="0"
-                backgroundColor="transparent"
-                aria-label="Search database"
-                icon={<AddIcon />}
-              />
-              <IconButton
-                onClick={onMinusOpen}
-                border="2px"
-                borderRadius="0"
-                backgroundColor="transparent"
-                aria-label="Search database"
-                icon={<MinusIcon />}
-              />
+            <Flex justifyContent="space-between">
+              <Flex>
+                <Button
+                  onClick={onScrap}
+                  mr={4}
+                  border="2px"
+                  borderRadius="0"
+                  backgroundColor="transparent"
+                >
+                  Scrap 
+                </Button>
+                <Button
+                  onClick={onLost}
+                  mr={4}
+                  border="2px"
+                  borderRadius="0"
+                  backgroundColor="transparent"
+                >
+                  Lost
+                </Button>
+              </Flex>
+              <Flex direction="row" justifyContent="flex-end">
+                <IconButton
+                  onClick={onPlusOpen}
+                  mr={4}
+                  border="2px"
+                  borderRadius="0"
+                  backgroundColor="transparent"
+                  aria-label="Search database"
+                  icon={<AddIcon />}
+                />
+                <IconButton
+                  onClick={onMinusOpen}
+                  border="2px"
+                  borderRadius="0"
+                  backgroundColor="transparent"
+                  aria-label="Search database"
+                  icon={<MinusIcon />}
+                />
+              </Flex>
             </Flex>
           </ListItem>
         </List>
