@@ -71,7 +71,25 @@ def test_tags_query(
     ]
 
 
-def test_tags_mutations(client):
+def test_tags_mutations(client, tags, default_beneficiary):
+    # Test case 4.2.9
+    tag_id = tags[0]["id"]
+    mutation = f"""mutation {{ deleteTag(id: {tag_id}) {{
+                name
+                taggedResources {{
+                    ...on Beneficiary {{ id }}
+                    ...on Box {{ id }}
+                }} }} }}"""
+    deleted_tag = assert_successful_request(client, mutation)
+    # Expect tag to be unassigned from any resource it was assigned to (see
+    # test/data/tags_relation.py)
+    assert deleted_tag == {"name": tags[0]["name"], "taggedResources": []}
+
+    query = """query { tags { id } }"""
+    all_tags = assert_successful_request(client, query)
+    # Expect the deleted tag to not appear in the list of active tags of base
+    assert all_tags == [{"id": str(t["id"])} for t in tags[1:3]]
+
     # Test case 4.2.1
     name = "Box Group 1"
     description = "Boxes for donation"

@@ -48,6 +48,7 @@ from ..models.crud import (
     create_box,
     create_qr_code,
     create_tag,
+    delete_tag,
     update_beneficiary,
     update_box,
     update_tag,
@@ -631,6 +632,11 @@ def resolve_update_tag(*_, update_input):
     base_id = Tag.get_by_id(update_input["id"]).base_id
     authorize(permission="tag:write", base_id=base_id)
     return update_tag(user_id=g.user.id, **update_input)
+
+
+@mutation.field("deleteTag")
+def resolve_delete_tag(*_, id):
+    return delete_tag(user_id=g.user.id, id=id)
 
 
 @mutation.field("createBeneficiary")
