@@ -286,7 +286,7 @@ const QrReaderOverlay = ({
         <ModalHeader>QR Scanner</ModalHeader>
         <ModalBody>
           <Container maxW="md">
-            {/* <QrReader
+            <QrReader
               // TODO: try to remove this hacky key setting again
               key={`${zoomLevel}-${facingMode}-${isBulkModeActive}-${isBulkModeSupported}`}
               ViewFinder={ViewFinder}
@@ -294,8 +294,8 @@ const QrReaderOverlay = ({
               zoom={zoomLevel}
               scanPeriod={1000}
               onResult={onResult}
-            /> */}
-            <Box width={300} height={300} backgroundColor="gray"></Box>
+            />
+            {/* <Box width={300} height={300} backgroundColor="gray"></Box> */}
             <HStack>
               {browserSupportsZoom && (
                 <HStack>
@@ -335,6 +335,9 @@ const QrReaderOverlay = ({
                   if (boxLabelInputValue != null && boxLabelInputValue !== "") {
                     onFindBoxByLabel(boxLabelInputValue);
                     setBoxLabelInputValue("");
+                    if (!isBulkModeSupported || !isBulkModeActive) {
+                      handleClose();
+                    }
                   }
                 }}
               >

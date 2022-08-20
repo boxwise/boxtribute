@@ -77,7 +77,7 @@ const HeaderMenuContainer = () => {
         const singleResolvedQrValue = qrResolvedValues[0];
         switch (singleResolvedQrValue.kind) {
           case "success": {
-            const boxLabelIdentifier = singleResolvedQrValue.value;
+            const boxLabelIdentifier = singleResolvedQrValue.value.labelIdentifier;
             navigate(`/bases/${baseId}/boxes/${boxLabelIdentifier}`);
             break;
           }
