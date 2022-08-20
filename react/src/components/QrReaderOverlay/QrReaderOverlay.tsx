@@ -15,7 +15,13 @@ import {
   ModalFooter,
   ModalHeader,
   ModalOverlay,
+  NumberDecrementStepper,
+  NumberIncrementStepper,
+  NumberInput,
+  NumberInputField,
+  NumberInputStepper,
   Switch,
+  Text,
   useBoolean,
   VStack,
 } from "@chakra-ui/react";
@@ -219,6 +225,9 @@ const QrReaderOverlay = ({
     [scannedQrValues]
   );
 
+  const onClickFindBoxByLabel = () => {
+  }
+
   const facingMode = "environment";
 
   const onResult: OnResultFunction = useCallback(
@@ -253,7 +262,7 @@ const QrReaderOverlay = ({
         <ModalHeader>QR Scanner</ModalHeader>
         <ModalBody>
           <Container maxW="md">
-            <QrReader
+            {/* <QrReader
               // TODO: try to remove this hacky key setting again
               key={`${zoomLevel}-${facingMode}-${isBulkModeActive}-${isBulkModeSupported}`}
               ViewFinder={ViewFinder}
@@ -261,7 +270,8 @@ const QrReaderOverlay = ({
               zoom={zoomLevel}
               scanPeriod={1000}
               onResult={onResult}
-            />
+            /> */}
+            <Box width={300} height={300} backgroundColor="gray"></Box>
             <HStack>
               {browserSupportsZoom && (
                 <HStack>
@@ -285,6 +295,13 @@ const QrReaderOverlay = ({
                   </IconButton>
                 </HStack>
               )}
+            </HStack>
+            <HStack borderColor="blackAlpha.100" borderWidth={2} p={4} my={5}>
+              <Text fontWeight="bold">By Label</Text>
+              <NumberInput width={150}>
+                <NumberInputField />
+              </NumberInput>
+              <Button onClick={onClickFindBoxByLabel}>Find</Button>
             </HStack>
             {isBulkModeSupported && (
               <VStack borderColor="blackAlpha.100" borderWidth={2} p={4} my={5}>
