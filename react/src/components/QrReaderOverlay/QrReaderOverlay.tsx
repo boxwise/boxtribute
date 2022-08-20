@@ -30,6 +30,7 @@ import { OnResultFunction, QrReader } from "components/QrReader/QrReader";
 import { useCallback, useMemo, useState } from "react";
 
 import { Result } from "@zxing/library";
+import { BOX_DETAILS_BY_LABEL_IDENTIFIER_QUERY } from "utils/queries";
 
 export const ViewFinder = () => (
   <>
@@ -109,6 +110,7 @@ export interface IQrValueWrapper {
 export interface QrReaderOverlayProps {
   isBulkModeSupported: boolean;
   onBulkScanningDone: (qrValues: IQrValueWrapper[]) => void;
+  onFindBoxByLabel: (label: string) => void;
   onSingleScanDone: (qrValue: string) => void;
   qrValueResolver: (
     qrValueWrapper: IQrValueWrapper
@@ -157,6 +159,7 @@ const QrValueWrapper: React.FC<{ qrCodeValueWrapper: IQrValueWrapper }> = ({
 const QrReaderOverlay = ({
   isBulkModeSupported,
   isOpen,
+  onFindBoxByLabel,
   onBulkScanningDone,
   qrValueResolver,
   onSingleScanDone,
@@ -164,7 +167,7 @@ const QrReaderOverlay = ({
 }: QrReaderOverlayProps) => {
   const [isBulkModeActive, setIsBulkModeActive] = useBoolean(false);
   const [zoomLevel, setZoomLevel] = useState(1);
-  const [scannedQrValues, setScannedQrValues] = useState<
+  const [scannedQrValues, setCapturedBoxData] = useState<
     Map<string, IQrValueWrapper>
   >(new Map());
 
@@ -174,7 +177,7 @@ const QrReaderOverlay = ({
   );
 
   const resetState = useCallback(() => {
-    setScannedQrValues(() => new Map());
+    setCapturedBoxData(() => new Map());
   }, []);
 
   const handleClose = useCallback(() => {
@@ -191,10 +194,17 @@ const QrReaderOverlay = ({
     handleClose();
   }, [handleClose, onBulkScanningDone, scannedQrValues]);
 
+
+  const onClickFindBoxByLabel = () => {
+    setCapturedBoxData((prev) => {
+
+    })
+  };
+
   const addQrValueToBulkList = useCallback(
     async (qrValue: string) => {
-      setScannedQrValues((prev) => {
-        if (prev.has(qrValue)) {
+      setCapturedBoxData((prev) => {
+        if (prev.has(`QR-${qrValue}`)) {
           return prev;
         }
         const newQrValueWrapper = {
@@ -204,8 +214,8 @@ const QrReaderOverlay = ({
         };
 
         qrValueResolver(newQrValueWrapper).then((resolvedQrValueWrapper) => {
-          setScannedQrValues((prev) => {
-            return new Map(prev.set(qrValue, resolvedQrValueWrapper));
+          setCapturedBoxData((prev) => {
+            return new Map(prev.set(`QR-${qrValue}`, resolvedQrValueWrapper));
           });
         });
         // TODO add error handling
@@ -224,9 +234,6 @@ const QrReaderOverlay = ({
       ),
     [scannedQrValues]
   );
-
-  const onClickFindBoxByLabel = () => {
-  }
 
   const facingMode = "environment";
 
@@ -249,6 +256,8 @@ const QrReaderOverlay = ({
       onSingleScanDone,
     ]
   );
+
+  const [boxLabelInputValue, setBoxLabelInputValue] = useState("");
 
   return (
     <Modal
@@ -298,10 +307,11 @@ const QrReaderOverlay = ({
             </HStack>
             <HStack borderColor="blackAlpha.100" borderWidth={2} p={4} my={5}>
               <Text fontWeight="bold">By Label</Text>
-              <NumberInput width={150}>
+              <NumberInput width={150} onChange={setBoxLabelInputValue} value={boxLabelInputValue}>
                 <NumberInputField />
               </NumberInput>
-              <Button onClick={onClickFindBoxByLabel}>Find</Button>
+              {/* <Button onClick={() => onFindBoxByLabel(boxLabelInputValue)}>Find</Button> */}
+              <Button onClick={() => onClickFindBoxByLabel}>Find</Button>
             </HStack>
             {isBulkModeSupported && (
               <VStack borderColor="blackAlpha.100" borderWidth={2} p={4} my={5}>

@@ -1282,6 +1282,13 @@ export type BasesQueryVariables = Exact<{ [key: string]: never; }>;
 
 export type BasesQuery = { __typename?: 'Query', bases: Array<{ __typename?: 'Base', id: string, name: string }> };
 
+export type BoxDetailsQueryVariables = Exact<{
+  labelIdentifier: Scalars['String'];
+}>;
+
+
+export type BoxDetailsQuery = { __typename?: 'Query', box?: { __typename?: 'Box', labelIdentifier: string, items?: number | null, product?: { __typename?: 'Product', id: string, name: string } | null, size: { __typename?: 'Size', id: string, label: string } } | null };
+
 export type GetBoxLabelIdentifierForQrCodeQueryVariables = Exact<{
   qrCode: Scalars['String'];
 }>;
@@ -1491,13 +1498,6 @@ export type ChangeDistributionEventStateMutationVariables = Exact<{
 
 
 export type ChangeDistributionEventStateMutation = { __typename?: 'Mutation', changeDistributionEventState?: { __typename: 'DistributionEvent', id: string, name?: string | null, state: DistributionEventState } | null };
-
-export type BoxDetailsQueryVariables = Exact<{
-  labelIdentifier: Scalars['String'];
-}>;
-
-
-export type BoxDetailsQuery = { __typename?: 'Query', box?: { __typename?: 'Box', labelIdentifier: string, items?: number | null, product?: { __typename?: 'Product', id: string, name: string } | null, size: { __typename?: 'Size', id: string, label: string } } | null };
 
 export type DistributionEventsInReturnStateForBaseQueryVariables = Exact<{
   baseId: Scalars['ID'];

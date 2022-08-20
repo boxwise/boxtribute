@@ -169,23 +169,6 @@ export const CHANGE_DISTRIBUTION_EVENT_STATE_MUTATION = gql`
   }
 `;
 
-export const BOX_DETAILS_FOR_MOBILE_DISTRO_QUERY = gql`
-  query BoxDetails($labelIdentifier: String!) {
-    box(labelIdentifier: $labelIdentifier) {
-      labelIdentifier
-      product {
-        id
-        name
-      }
-      size {
-        id
-        label
-      }
-      items
-    }
-  }
-`;
-
 export const DISTRIBUTION_EVENTS_IN_RETURN_STATE_FOR_BASE = gql`
   query DistributionEventsInReturnStateForBase($baseId: ID!) {
     base(id: $baseId) {

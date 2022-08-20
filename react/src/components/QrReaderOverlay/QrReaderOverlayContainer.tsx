@@ -8,6 +8,7 @@ import QrReaderOverlay, {
   IQrValueWrapper,
   QrResolvedValue,
 } from "./QrReaderOverlay";
+import { GET_BOX_LABEL_IDENTIFIER_BY_QR_CODE } from "utils/queries";
 
 
 // TODO: move this out into a shared file or part of custom hook
@@ -18,17 +19,6 @@ export const extractQrCodeFromUrl = (url): string | undefined => {
   const arr = rx.exec(url);
   return arr?.[1];
 };
-
-export const GET_BOX_LABEL_IDENTIFIER_BY_QR_CODE = gql`
-  query GetBoxLabelIdentifierForQrCode($qrCode: String!) {
-    qrCode(qrCode: $qrCode) {
-      box {
-        id
-        labelIdentifier
-      }
-    }
-  }
-`;
 
 interface QrReaderOverlayContainerProps {
   isOpen: boolean;
@@ -146,11 +136,58 @@ const QrReaderOverlayContainer = ({
     [onScanningDone]
   );
 
+
+  const onFindBoxByLabel = (labelIdentifier: string) => {
+  }
+
+
+// const useValidateBoxByLabelMatchingPackingListEntry = (
+// ): ValidateBoxByLabelForMatchingPackingListEntry => {
+//   const apolloClient = useApolloClient();
+//   return (boxLabel: string) => {
+//     return apolloClient
+//       .query<BoxDetailsQuery, BoxDetailsQueryVariables>({
+//         query: BOX_DETAILS_BY_LABEL_IDENTIFIER_QUERY,
+//         variables: {
+//           labelIdentifier: boxLabel,
+//         },
+//       })
+//       .then(({ data }) => {
+//         const box = data?.box;
+//         if (box != null) {
+//           if (
+//             box.product?.id === packingListEntry.product.id &&
+//             box.size.id === packingListEntry.size?.id
+//           ) {
+//             return {
+//               isValid: true,
+//               boxData: {
+//                 __typename: "Box",
+//                 labelIdentifier: boxLabel,
+//                 // ...box,
+//                 // TODO: consider to make items non-nullable in GraphQL
+//                 numberOfItems: box.items || 0,
+//               },
+//             };
+//           }
+//         }
+//         return {
+//           isValid: false,
+//           boxData: null,
+//         };
+//       });
+//   };
+// };
+
+
+
+
   return (
     <>
       <QrReaderOverlay
         isBulkModeSupported={true}
         onSingleScanDone={onSingleScanDone}
+        onFindBoxByLabel={onFindBoxByLabel}
         onBulkScanningDone={onBulkScanningDone}
         qrValueResolver={qrValueResolver}
         isOpen={isOpen}
