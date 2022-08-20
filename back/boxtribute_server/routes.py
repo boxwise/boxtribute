@@ -10,7 +10,13 @@ from flask_cors import cross_origin
 from .auth import request_jwt, requires_auth
 from .exceptions import AuthenticationFailed, format_database_errors
 from .graph_ql.schema import full_api_schema, query_api_schema
-from .loaders import ProductLoader, SizeLoader, TagsForBoxLoader
+from .loaders import (
+    ProductCategoryLoader,
+    ProductLoader,
+    SizeLoader,
+    SizeRangeLoader,
+    TagsForBoxLoader,
+)
 
 # Blueprint for query-only API. Deployed on the 'api*' subdomains
 api_bp = Blueprint("api_bp", __name__)
@@ -91,8 +97,10 @@ def graphql_server():
 
     # Create DataLoaders and persist them for the time of processing the request
     context = {
+        "product_category_loader": ProductCategoryLoader(),
         "product_loader": ProductLoader(),
         "size_loader": SizeLoader(),
+        "size_range_loader": SizeRangeLoader(),
         "tags_for_box_loader": TagsForBoxLoader(),
     }
 

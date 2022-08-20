@@ -4,7 +4,9 @@ from aiodataloader import DataLoader
 
 from .enums import TaggableObjectType
 from .models.definitions.product import Product
+from .models.definitions.product_category import ProductCategory
 from .models.definitions.size import Size
+from .models.definitions.size_range import SizeRange
 from .models.definitions.tag import Tag
 from .models.definitions.tags_relation import TagsRelation
 
@@ -34,3 +36,15 @@ class TagsForBoxLoader(DataLoader):
 
         # keys are in fact box IDs. Return empty list if box has no tags assigned
         return [tags.get(i, []) for i in keys]
+
+
+class ProductCategoryLoader(DataLoader):
+    async def batch_load_fn(self, keys):
+        categories = {c.id: c for c in ProductCategory.select()}
+        return [categories.get(i) for i in keys]
+
+
+class SizeRangeLoader(DataLoader):
+    async def batch_load_fn(self, keys):
+        ranges = {s.id: s for s in SizeRange.select()}
+        return [ranges.get(i) for i in keys]

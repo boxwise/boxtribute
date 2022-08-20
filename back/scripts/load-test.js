@@ -34,7 +34,8 @@ const payload = JSON.stringify({
   // query: "query { beneficiaries { elements { firstName } } }",
 
   // C) All boxes for base
-  query: "query { base(id: 1) { locations { name boxes { totalCount elements { labelIdentifier state size { id label } product { gender name } tags { name id } numberOfItems } } } } }",
+  query: "query { products(paginationInput: { first: 500 }) { elements { id name gender category { name } sizeRange { label } } } }",
+  // query: "query { base(id: 1) { locations { name boxes { totalCount elements { labelIdentifier state size { id label } product { gender name } tags { name id } numberOfItems } } } } }",
   // query: "query { location(id: 1) { boxes { elements { product { gender name } } } } }",
 });
 
