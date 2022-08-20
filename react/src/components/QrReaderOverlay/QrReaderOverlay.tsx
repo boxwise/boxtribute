@@ -115,6 +115,12 @@ export interface IQrValueWrapper {
 
 export interface QrReaderOverlayProps {
   isBulkModeSupported: boolean;
+  isBulkModeActive: boolean;
+  setIsBulkModeActive: {
+    on: () => void;
+    off: () => void;
+    toggle: () => void;
+  };
   boxesByLabelSearchWrappers: IQrValueWrapper[];
   onBulkScanningDone: (qrValues: IQrValueWrapper[]) => void;
   onFindBoxByLabel: (label: string) => void;
@@ -170,6 +176,8 @@ const QrValueWrapper: React.FC<{ qrCodeValueWrapper: IQrValueWrapper }> = ({
 const QrReaderOverlay = ({
   isBulkModeSupported,
   isOpen,
+  isBulkModeActive,
+  setIsBulkModeActive,
   onFindBoxByLabel,
   onBulkScanningDone,
   qrValueResolver,
@@ -177,8 +185,8 @@ const QrReaderOverlay = ({
   onClose,
   boxesByLabelSearchWrappers,
 }: QrReaderOverlayProps) => {
-  const [isBulkModeActive, setIsBulkModeActive] = useBoolean(false);
   const [zoomLevel, setZoomLevel] = useState(1);
+  // TODO: consider to lift this Map state up
   const [scannedQrValues, setScannedQrValues] = useState<
     Map<string, IQrValueWrapper>
   >(new Map());

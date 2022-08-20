@@ -15,6 +15,7 @@ import {
   GET_BOX_LABEL_IDENTIFIER_BY_QR_CODE,
 } from "utils/queries";
 import { IBoxDetailsData } from "utils/base-types";
+import { useBoolean } from "@chakra-ui/react";
 
 // TODO: move this out into a shared file or part of custom hook
 export const extractQrCodeFromUrl = (url): string | undefined => {
@@ -149,6 +150,8 @@ const QrReaderOverlayContainer = ({
     [apolloClient, onScanningDone]
   );
 
+  const [isBulkModeActive, setIsBulkModeActive] = useBoolean(false);
+
   const onBulkScanningDone = useCallback(
     (qrValueWrappers: IQrValueWrapper[]) => {
       const resolvedQrValues = qrValueWrappers.map(
@@ -274,6 +277,8 @@ const QrReaderOverlayContainer = ({
     <>
       {JSON.stringify(boxesByLabelSearchWrappers)}
       <QrReaderOverlay
+        isBulkModeActive={isBulkModeActive}
+        setIsBulkModeActive={setIsBulkModeActive}
         isBulkModeSupported={true}
         onSingleScanDone={onSingleScanDone}
         onFindBoxByLabel={onFindBoxByLabel}
