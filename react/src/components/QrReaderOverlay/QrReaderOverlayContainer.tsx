@@ -36,6 +36,8 @@ const QrReaderOverlayContainer = ({
   onClose,
   onScanningDone,
 }: QrReaderOverlayContainerProps) => {
+  const isBulkModeSupported = true;
+
   const apolloClient = useApolloClient();
 
   const qrValueResolver = useCallback(
@@ -175,64 +177,94 @@ const QrReaderOverlayContainer = ({
   }, [boxesByLabelSearchWrappersMap]);
 
   const onFindBoxByLabel = (label: string) => {
-    setBoxesByLabelSearchWrappersMap((prev) => {
-      if (prev.has(label)) {
-        return prev;
-      }
-      const newBoxByLabelSearchWrapper = {
-        key: label,
-        isLoading: true,
-        interimValue: `loading... (${label})`,
-      };
+    // TODO: refactor this big if / else into smaller methods
+    if (isBulkModeSupported && isBulkModeActive) {
+      setBoxesByLabelSearchWrappersMap((prev) => {
+        if (prev.has(label)) {
+          return prev;
+        }
+        const newBoxByLabelSearchWrapper = {
+          key: label,
+          isLoading: true,
+          interimValue: `loading... (${label})`,
+        };
 
+        apolloClient
+          .query<BoxDetailsQuery, BoxDetailsQueryVariables>({
+            query: BOX_DETAILS_BY_LABEL_IDENTIFIER_QUERY,
+            fetchPolicy: "no-cache",
+            variables: { labelIdentifier: label },
+          })
+          .then(({ data }) => {
+            const boxData = data?.box;
+            if (boxData == null) {
+              console.error("Box not found for this label");
+              setBoxesByLabelSearchWrappersMap((prev) => {
+                const newWrapperForLabelIdentifier = {
+                  key: label,
+                  isLoading: false,
+                  interimValue: undefined,
+                  finalValue: {
+                    kind: "labelNotFound",
+                  },
+                } as IQrValueWrapper;
+                const newMap = new Map(prev);
+                newMap.set(label, newWrapperForLabelIdentifier);
+                return newMap;
+              });
+            } else {
+              setBoxesByLabelSearchWrappersMap((prev) => {
+                const newWrapperForLabelIdentifier = {
+                  key: label,
+                  isLoading: false,
+                  interimValue: undefined,
+                  finalValue: {
+                    kind: "success",
+                    value: {
+                      labelIdentifier: boxData.labelIdentifier,
+                      product: boxData.product,
+                      size: boxData.size,
+                      numberOfItems: boxData.items || 0,
+                    } as IBoxDetailsData,
+                  },
+                } as IQrValueWrapper;
+                const newMap = new Map(prev);
+                newMap.set(label, newWrapperForLabelIdentifier);
+                return newMap;
+              });
+            }
+          });
+
+        return new Map(prev.set(label, newBoxByLabelSearchWrapper));
+      });
+    } else {
       apolloClient
         .query<BoxDetailsQuery, BoxDetailsQueryVariables>({
           query: BOX_DETAILS_BY_LABEL_IDENTIFIER_QUERY,
           fetchPolicy: "no-cache",
           variables: { labelIdentifier: label },
         })
+        // TODO: add catch handling here (for failed promises)
         .then(({ data }) => {
           const boxData = data?.box;
           if (boxData == null) {
-            console.error("Box Box found for this label");
-            setBoxesByLabelSearchWrappersMap((prev) => {
-              const newWrapperForLabelIdentifier = {
-                key: label,
-                isLoading: false,
-                interimValue: undefined,
-                finalValue: {
-                  kind: "labelNotFound",
-                },
-              } as IQrValueWrapper;
-              const newMap = new Map(prev);
-              newMap.set(label, newWrapperForLabelIdentifier);
-              return newMap;
-            });
-          } else {
-            setBoxesByLabelSearchWrappersMap((prev) => {
-              const newWrapperForLabelIdentifier = {
-                key: label,
-                isLoading: false,
-                interimValue: undefined,
-                finalValue: {
-                  kind: "success",
-                  value: {
-                    labelIdentifier: boxData.labelIdentifier,
-                    product: boxData.product,
-                    size: boxData.size,
-                    numberOfItems: boxData.items || 0,
-                  } as IBoxDetailsData,
-                },
-              } as IQrValueWrapper;
-              const newMap = new Map(prev);
-              newMap.set(label, newWrapperForLabelIdentifier);
-              return newMap;
-            });
+            console.error("Box not found for this label");
+          }
+          else {
+            onScanningDone([
+              {
+                kind: "success",
+                value: {
+                  labelIdentifier: boxData.labelIdentifier,
+                  product: boxData.product,
+                  size: boxData.size,
+                  numberOfItems: boxData.items || 0,
+                } as IBoxDetailsData,
+              },
+            ]);
           }
         });
-
-      return new Map(prev.set(label, newBoxByLabelSearchWrapper));
-    });
+    }
   };
 
   // const useValidateBoxByLabelMatchingPackingListEntry = (
@@ -275,11 +307,10 @@ const QrReaderOverlayContainer = ({
 
   return (
     <>
-      {JSON.stringify(boxesByLabelSearchWrappers)}
       <QrReaderOverlay
         isBulkModeActive={isBulkModeActive}
         setIsBulkModeActive={setIsBulkModeActive}
-        isBulkModeSupported={true}
+        isBulkModeSupported={isBulkModeSupported}
         onSingleScanDone={onSingleScanDone}
         onFindBoxByLabel={onFindBoxByLabel}
         boxesByLabelSearchWrappers={boxesByLabelSearchWrappers}
