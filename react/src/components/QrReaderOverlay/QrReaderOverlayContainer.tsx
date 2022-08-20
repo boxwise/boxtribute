@@ -1,4 +1,4 @@
-import { useCallback } from "react";
+import { useCallback, useMemo, useState } from "react";
 import { gql, useApolloClient } from "@apollo/client";
 import {
   GetBoxLabelIdentifierForQrCodeQuery,
@@ -9,7 +9,6 @@ import QrReaderOverlay, {
   QrResolvedValue,
 } from "./QrReaderOverlay";
 import { GET_BOX_LABEL_IDENTIFIER_BY_QR_CODE } from "utils/queries";
-
 
 // TODO: move this out into a shared file or part of custom hook
 export const extractQrCodeFromUrl = (url): string | undefined => {
@@ -62,7 +61,10 @@ const QrReaderOverlayContainer = ({
             const resolvedQrValueWrapper = {
               ...qrValueWrapper,
               isLoading: false,
-              finalValue: { kind: "notAssignedToBox", qrCodeValue: extractedQrCodeFromUrl },
+              finalValue: {
+                kind: "notAssignedToBox",
+                qrCodeValue: extractedQrCodeFromUrl,
+              },
             } as IQrValueWrapper;
             console.debug("QR Code not assigned to any box yet");
             return Promise.resolve(resolvedQrValueWrapper);
@@ -111,7 +113,9 @@ const QrReaderOverlayContainer = ({
             .then(({ data }) => {
               const boxLabelIdentifier = data?.qrCode?.box?.labelIdentifier;
               if (boxLabelIdentifier == null) {
-                onScanningDone([{ kind: "notAssignedToBox", qrCodeValue: qrCode }]);
+                onScanningDone([
+                  { kind: "notAssignedToBox", qrCodeValue: qrCode },
+                ]);
                 console.error("No Box yet assigned to QR Code");
               } else {
                 onScanningDone([
@@ -136,58 +140,82 @@ const QrReaderOverlayContainer = ({
     [onScanningDone]
   );
 
+  const [boxesByLabelSearchWrappersMap, setBoxesByLabelSearchWrappersMap] =
+    useState<Map<string, IQrValueWrapper>>(new Map());
 
-  const onFindBoxByLabel = (labelIdentifier: string) => {
-  }
+  const boxesByLabelSearchWrappers = useMemo(
+    () => {
+      return Array.from(boxesByLabelSearchWrappersMap.values())
+      // Array.from(
+      //   boxesByLabelSearchWrappersMap.keys()).map(
+      //   (key) => boxesByLabelSearchWrappersMap.get(key)!
+      // ),
+    },
+    [boxesByLabelSearchWrappersMap]
+  );
 
+  const onFindBoxByLabel = (label: string) => {
+    setBoxesByLabelSearchWrappersMap((prev) => {
+      if (prev.has(label)) {
+        alert("already has label")
+        return prev;
+      }
+      const newBoxByLabelSearchWrapper = {
+        key: label,
+        isLoading: true,
+        interimValue: "loading...",
+      };
+      alert(label)
+      return new Map(prev.set(label, newBoxByLabelSearchWrapper));
+    })
+  };
 
-// const useValidateBoxByLabelMatchingPackingListEntry = (
-// ): ValidateBoxByLabelForMatchingPackingListEntry => {
-//   const apolloClient = useApolloClient();
-//   return (boxLabel: string) => {
-//     return apolloClient
-//       .query<BoxDetailsQuery, BoxDetailsQueryVariables>({
-//         query: BOX_DETAILS_BY_LABEL_IDENTIFIER_QUERY,
-//         variables: {
-//           labelIdentifier: boxLabel,
-//         },
-//       })
-//       .then(({ data }) => {
-//         const box = data?.box;
-//         if (box != null) {
-//           if (
-//             box.product?.id === packingListEntry.product.id &&
-//             box.size.id === packingListEntry.size?.id
-//           ) {
-//             return {
-//               isValid: true,
-//               boxData: {
-//                 __typename: "Box",
-//                 labelIdentifier: boxLabel,
-//                 // ...box,
-//                 // TODO: consider to make items non-nullable in GraphQL
-//                 numberOfItems: box.items || 0,
-//               },
-//             };
-//           }
-//         }
-//         return {
-//           isValid: false,
-//           boxData: null,
-//         };
-//       });
-//   };
-// };
-
-
-
+  // const useValidateBoxByLabelMatchingPackingListEntry = (
+  // ): ValidateBoxByLabelForMatchingPackingListEntry => {
+  //   const apolloClient = useApolloClient();
+  //   return (boxLabel: string) => {
+  //     return apolloClient
+  //       .query<BoxDetailsQuery, BoxDetailsQueryVariables>({
+  //         query: BOX_DETAILS_BY_LABEL_IDENTIFIER_QUERY,
+  //         variables: {
+  //           labelIdentifier: boxLabel,
+  //         },
+  //       })
+  //       .then(({ data }) => {
+  //         const box = data?.box;
+  //         if (box != null) {
+  //           if (
+  //             box.product?.id === packingListEntry.product.id &&
+  //             box.size.id === packingListEntry.size?.id
+  //           ) {
+  //             return {
+  //               isValid: true,
+  //               boxData: {
+  //                 __typename: "Box",
+  //                 labelIdentifier: boxLabel,
+  //                 // ...box,
+  //                 // TODO: consider to make items non-nullable in GraphQL
+  //                 numberOfItems: box.items || 0,
+  //               },
+  //             };
+  //           }
+  //         }
+  //         return {
+  //           isValid: false,
+  //           boxData: null,
+  //         };
+  //       });
+  //   };
+  // };
 
   return (
     <>
+    {JSON.stringify(boxesByLabelSearchWrappers)}
       <QrReaderOverlay
         isBulkModeSupported={true}
         onSingleScanDone={onSingleScanDone}
         onFindBoxByLabel={onFindBoxByLabel}
+        boxesByLabelSearchWrappers={boxesByLabelSearchWrappers}
         onBulkScanningDone={onBulkScanningDone}
         qrValueResolver={qrValueResolver}
         isOpen={isOpen}

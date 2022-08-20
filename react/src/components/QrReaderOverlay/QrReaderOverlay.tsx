@@ -90,6 +90,10 @@ interface QrResolverResultNotAssignedToBox {
 //   kind: "notAuthorized";
 // }
 
+interface QrResolverResultLabelNotFound {
+  kind: "labelNotFound";
+}
+
 interface QrResolverResultNoBoxtributeQr {
   kind: "noBoxtributeQr";
 }
@@ -97,7 +101,8 @@ interface QrResolverResultNoBoxtributeQr {
 export type QrResolvedValue =
   | QrResolverResultSuccessValue
   | QrResolverResultNotAssignedToBox
-  | QrResolverResultNoBoxtributeQr;
+  | QrResolverResultNoBoxtributeQr
+  | QrResolverResultLabelNotFound;
 // | QrResolverResultNotAuthorized;
 
 export interface IQrValueWrapper {
@@ -109,6 +114,7 @@ export interface IQrValueWrapper {
 
 export interface QrReaderOverlayProps {
   isBulkModeSupported: boolean;
+  boxesByLabelSearchWrappers: IQrValueWrapper[];
   onBulkScanningDone: (qrValues: IQrValueWrapper[]) => void;
   onFindBoxByLabel: (label: string) => void;
   onSingleScanDone: (qrValue: string) => void;
@@ -142,6 +148,10 @@ const QrValueWrapper: React.FC<{ qrCodeValueWrapper: IQrValueWrapper }> = ({
     case "notAssignedToBox": {
       return <Badge colorScheme="gray">Not yet assigned to any Box</Badge>;
     }
+
+    case "labelNotFound": {
+      return <Badge colorScheme="red">Label not found</Badge>;
+    }
     // case "notAuthorized": {
     //   return (
     //     <Badge colorScheme="red">
@@ -164,10 +174,11 @@ const QrReaderOverlay = ({
   qrValueResolver,
   onSingleScanDone,
   onClose,
+  boxesByLabelSearchWrappers
 }: QrReaderOverlayProps) => {
   const [isBulkModeActive, setIsBulkModeActive] = useBoolean(false);
   const [zoomLevel, setZoomLevel] = useState(1);
-  const [scannedQrValues, setCapturedBoxData] = useState<
+  const [scannedQrValues, setScannedQrValues] = useState<
     Map<string, IQrValueWrapper>
   >(new Map());
 
@@ -177,7 +188,7 @@ const QrReaderOverlay = ({
   );
 
   const resetState = useCallback(() => {
-    setCapturedBoxData(() => new Map());
+    setScannedQrValues(() => new Map());
   }, []);
 
   const handleClose = useCallback(() => {
@@ -194,17 +205,12 @@ const QrReaderOverlay = ({
     handleClose();
   }, [handleClose, onBulkScanningDone, scannedQrValues]);
 
-
-  const onClickFindBoxByLabel = () => {
-    setCapturedBoxData((prev) => {
-
-    })
-  };
-
+  // TODO: consider to lift the state for the qr values up to the container
+  // and to get rid of passing in the qr value resolver callback/promise
   const addQrValueToBulkList = useCallback(
     async (qrValue: string) => {
-      setCapturedBoxData((prev) => {
-        if (prev.has(`QR-${qrValue}`)) {
+      setScannedQrValues((prev) => {
+        if (prev.has(qrValue)) {
           return prev;
         }
         const newQrValueWrapper = {
@@ -214,13 +220,13 @@ const QrReaderOverlay = ({
         };
 
         qrValueResolver(newQrValueWrapper).then((resolvedQrValueWrapper) => {
-          setCapturedBoxData((prev) => {
-            return new Map(prev.set(`QR-${qrValue}`, resolvedQrValueWrapper));
+          setScannedQrValues((prev) => {
+            const newMap = new Map(prev);
+            newMap.set(qrValue, resolvedQrValueWrapper);
+            return newMap;
           });
         });
         // TODO add error handling
-        // .catch((err) => {}).finally(() => {}))
-
         return new Map(prev.set(qrValue, newQrValueWrapper));
       });
     },
@@ -307,11 +313,17 @@ const QrReaderOverlay = ({
             </HStack>
             <HStack borderColor="blackAlpha.100" borderWidth={2} p={4} my={5}>
               <Text fontWeight="bold">By Label</Text>
-              <NumberInput width={150} onChange={setBoxLabelInputValue} value={boxLabelInputValue}>
+              <NumberInput
+                width={150}
+                onChange={setBoxLabelInputValue}
+                value={boxLabelInputValue}
+              >
                 <NumberInputField />
               </NumberInput>
               {/* <Button onClick={() => onFindBoxByLabel(boxLabelInputValue)}>Find</Button> */}
-              <Button onClick={() => onClickFindBoxByLabel}>Find</Button>
+              <Button onClick={() => onFindBoxByLabel(boxLabelInputValue)}>
+                Find
+              </Button>
             </HStack>
             {isBulkModeSupported && (
               <VStack borderColor="blackAlpha.100" borderWidth={2} p={4} my={5}>
@@ -327,17 +339,36 @@ const QrReaderOverlay = ({
                 </FormControl>
                 {isBulkModeSupported && isBulkModeActive && (
                   <>
-                    <VStack spacing={5} direction="row">
-                      {scannedQrValuesAsArray.map((qrCodeValueWrapper, i) => {
-                        return (
-                          <Box key={i}>
-                            {i + 1}{" "}
-                            <QrValueWrapper
-                              qrCodeValueWrapper={qrCodeValueWrapper}
-                            />
-                          </Box>
-                        );
-                      })}
+                    <VStack>
+                      <Text fontWeight="bold">Scanned Boxes</Text>
+                      <VStack spacing={5} direction="row">
+                        {scannedQrValuesAsArray.map((qrCodeValueWrapper, i) => {
+                          return (
+                            <Box key={i}>
+                              {i + 1}{" "}
+                              <QrValueWrapper
+                                qrCodeValueWrapper={qrCodeValueWrapper}
+                              />
+                            </Box>
+                          );
+                        })}
+                      </VStack>
+                    </VStack>
+
+                    <VStack>
+                      <Text fontWeight="bold">Boxes by label search</Text>
+                      <VStack spacing={5} direction="row">
+                        {boxesByLabelSearchWrappers.map((boxByLabelSearchWrapper, i) => {
+                          return (
+                            <Box key={i}>
+                              {i + 1}{" "}
+                              <QrValueWrapper
+                                qrCodeValueWrapper={boxByLabelSearchWrapper}
+                              />
+                            </Box>
+                          );
+                        })}
+                      </VStack>
                     </VStack>
                     <Button
                       onClick={onBulkScanningDoneButtonClick}
