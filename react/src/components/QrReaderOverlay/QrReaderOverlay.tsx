@@ -196,6 +196,7 @@ const QrReaderOverlay = ({
     []
   );
 
+  // TODO: also lift this up (and then also reset the findByLabel map state)
   const resetState = useCallback(() => {
     setScannedQrValues(() => new Map());
   }, []);
