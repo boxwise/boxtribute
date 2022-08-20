@@ -2072,19 +2072,8 @@ ALTER TABLE dropapp_dev.distro_events_outflow_logs DROP INDEX location_id;
 ALTER TABLE dropapp_dev.distro_events_outflow_logs DROP COLUMN location_id;
 
 
-CREATE TABLE `distro_events_outflow_tracking_groups_distro_events` (
-  `id` int unsigned NOT NULL AUTO_INCREMENT,
-  `distro_events_outflow_tracking_group_id` int unsigned NOT NULL,
-  `distro_event_id` int unsigned NOT NULL,
-  `created_on` datetime NOT NULL,
-  `created_by` int unsigned DEFAULT NULL,
-  PRIMARY KEY (`id`),
-  KEY `distro_events_outflow_tracking_group_id` (`distro_events_outflow_tracking_group_id`),
-  KEY `distro_event_id` (`distro_event_id`),
-  KEY `created_by` (`created_by`),
-  CONSTRAINT `distro_events_outflow_tracking_groups_distro_events_ibfk_1` FOREIGN KEY (`distro_events_outflow_tracking_group_id`) REFERENCES `distro_events_outflow_tracking_groups` (`id`) ON DELETE RESTRICT ON UPDATE CASCADE,
-  CONSTRAINT `distro_events_outflow_tracking_groups_distro_events_ibfk_2` FOREIGN KEY (`distro_event_id`) REFERENCES `distro_events` (`id`) ON DELETE RESTRICT ON UPDATE CASCADE
- ) ENGINE=InnoDB AUTO_INCREMENT=6 DEFAULT CHARSET=utf8mb3 ROW_FORMAT=DYNAMIC;
-
 RENAME TABLE dropapp_dev.distro_events_outflow_logs TO dropapp_dev.distro_events_outflow_tracking_logs;
 ALTER TABLE dropapp_dev.distro_events_outflow_tracking_logs ADD flow_direction varchar(255) NOT NULL;
+
+ALTER TABLE dropapp_dev.distro_events ADD distro_events_outflow_tracking_group_id INT UNSIGNED NULL;
+ALTER TABLE dropapp_dev.distro_events CHANGE distro_events_outflow_tracking_group_id distro_events_outflow_tracking_group_id INT UNSIGNED NULL AFTER state;
