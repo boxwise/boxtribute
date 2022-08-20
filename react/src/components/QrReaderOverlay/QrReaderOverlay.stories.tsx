@@ -1,5 +1,6 @@
 import { action } from "@storybook/addon-actions";
 import { ComponentMeta, ComponentStory } from "@storybook/react";
+import { ProductGender } from "types/generated/graphql";
 import QrReaderOverlay, { IQrValueWrapper, QrResolvedValue } from "./QrReaderOverlay";
 
 export default {
@@ -17,7 +18,19 @@ const qrCodeToResolverResult = (qrValue: string): QrResolvedValue => {
   var qrResolverResults: Map<string, QrResolvedValue> = new Map([
     ["https://staging.boxwise.co/mobile.php?barcode=387b0f0f5e62cebcafd48383035a92a", {
       kind: "success",
-      value: "9123394",
+      value: {
+        labelIdentifier: "9123394",
+        product: {
+          id: "1",
+          name: "Product 1",
+          gender: ProductGender.Men
+        },
+        size: {
+          id: "101",
+          label: "XL"
+        },
+        numberOfItems: 123
+      },
     }],
     ["https://staging.boxwise.co/mobile.php?barcode=cba56d486db6d39209dbbf9e45353c4",{
       kind: "noBoxtributeQr",
@@ -28,7 +41,19 @@ const qrCodeToResolverResult = (qrValue: string): QrResolvedValue => {
     }],
     ["https://staging.boxwise.co/mobile.php?barcode=91c1def0b674d4e7cb92b61dbe00846", {
       kind: "success",
-      value: "9334817",
+      value: {
+        labelIdentifier: "9334817",
+        product: {
+          id: "2",
+          name: "Product 2",
+          gender: ProductGender.Men
+        },
+        size: {
+          id: "101",
+          label: "XL"
+        },
+        numberOfItems: 123
+      },
     }]
   ]);
 

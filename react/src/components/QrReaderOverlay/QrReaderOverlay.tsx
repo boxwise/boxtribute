@@ -31,6 +31,7 @@ import { useCallback, useMemo, useState } from "react";
 
 import { Result } from "@zxing/library";
 import { BOX_DETAILS_BY_LABEL_IDENTIFIER_QUERY } from "utils/queries";
+import { IBoxDetailsData } from "utils/base-types";
 
 export const ViewFinder = () => (
   <>
@@ -78,7 +79,7 @@ export const ViewFinder = () => (
 
 interface QrResolverResultSuccessValue {
   kind: "success";
-  value: string;
+  value: IBoxDetailsData;
 }
 
 interface QrResolverResultNotAssignedToBox {
@@ -137,7 +138,7 @@ const QrValueWrapper: React.FC<{ qrCodeValueWrapper: IQrValueWrapper }> = ({
     case "success": {
       return (
         <Checkbox key={key} colorScheme="green" defaultChecked={true}>
-          <Badge colorScheme="green">{finalValue.value}</Badge>
+          <Badge colorScheme="green">{finalValue.value.labelIdentifier}</Badge>
         </Checkbox>
       );
     }
@@ -174,7 +175,7 @@ const QrReaderOverlay = ({
   qrValueResolver,
   onSingleScanDone,
   onClose,
-  boxesByLabelSearchWrappers
+  boxesByLabelSearchWrappers,
 }: QrReaderOverlayProps) => {
   const [isBulkModeActive, setIsBulkModeActive] = useBoolean(false);
   const [zoomLevel, setZoomLevel] = useState(1);
@@ -321,7 +322,14 @@ const QrReaderOverlay = ({
                 <NumberInputField />
               </NumberInput>
               {/* <Button onClick={() => onFindBoxByLabel(boxLabelInputValue)}>Find</Button> */}
-              <Button onClick={() => onFindBoxByLabel(boxLabelInputValue)}>
+              <Button
+                onClick={() => {
+                  if (boxLabelInputValue != null && boxLabelInputValue !== "") {
+                    onFindBoxByLabel(boxLabelInputValue);
+                    setBoxLabelInputValue("");
+                  }
+                }}
+              >
                 Find
               </Button>
             </HStack>
@@ -358,16 +366,18 @@ const QrReaderOverlay = ({
                     <VStack>
                       <Text fontWeight="bold">Boxes by label search</Text>
                       <VStack spacing={5} direction="row">
-                        {boxesByLabelSearchWrappers.map((boxByLabelSearchWrapper, i) => {
-                          return (
-                            <Box key={i}>
-                              {i + 1}{" "}
-                              <QrValueWrapper
-                                qrCodeValueWrapper={boxByLabelSearchWrapper}
-                              />
-                            </Box>
-                          );
-                        })}
+                        {boxesByLabelSearchWrappers.map(
+                          (boxByLabelSearchWrapper, i) => {
+                            return (
+                              <Box key={i}>
+                                {i + 1}{" "}
+                                <QrValueWrapper
+                                  qrCodeValueWrapper={boxByLabelSearchWrapper}
+                                />
+                              </Box>
+                            );
+                          }
+                        )}
                       </VStack>
                     </VStack>
                     <Button

@@ -7,6 +7,7 @@ export const BOX_DETAILS_BY_LABEL_IDENTIFIER_QUERY = gql`
       product {
         id
         name
+        gender
       }
       size {
         id
@@ -23,6 +24,16 @@ export const GET_BOX_LABEL_IDENTIFIER_BY_QR_CODE = gql`
       box {
         id
         labelIdentifier
+        product {
+          id
+          name
+          gender
+        }
+        size {
+          id
+          label
+        }
+        items
       }
     }
   }

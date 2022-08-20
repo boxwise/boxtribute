@@ -1,6 +1,8 @@
 import { useCallback, useMemo, useState } from "react";
 import { gql, useApolloClient } from "@apollo/client";
 import {
+  BoxDetailsQuery,
+  BoxDetailsQueryVariables,
   GetBoxLabelIdentifierForQrCodeQuery,
   GetBoxLabelIdentifierForQrCodeQueryVariables,
 } from "types/generated/graphql";
@@ -8,7 +10,11 @@ import QrReaderOverlay, {
   IQrValueWrapper,
   QrResolvedValue,
 } from "./QrReaderOverlay";
-import { GET_BOX_LABEL_IDENTIFIER_BY_QR_CODE } from "utils/queries";
+import {
+  BOX_DETAILS_BY_LABEL_IDENTIFIER_QUERY,
+  GET_BOX_LABEL_IDENTIFIER_BY_QR_CODE,
+} from "utils/queries";
+import { IBoxDetailsData } from "utils/base-types";
 
 // TODO: move this out into a shared file or part of custom hook
 export const extractQrCodeFromUrl = (url): string | undefined => {
@@ -74,7 +80,13 @@ const QrReaderOverlayContainer = ({
             isLoading: false,
             finalValue: {
               kind: "success",
-              value: boxLabelIdentifier,
+              value: {
+                labelIdentifier: boxLabelIdentifier,
+                product: data?.qrCode?.box?.product,
+                size: data?.qrCode?.box?.size,
+                // TODO: do better validation and error handling here
+                numberOfItems: data?.qrCode?.box?.items || 0,
+              },
             },
           } as IQrValueWrapper;
           return resolvedQrValueWrapper;
@@ -119,7 +131,15 @@ const QrReaderOverlayContainer = ({
                 console.error("No Box yet assigned to QR Code");
               } else {
                 onScanningDone([
-                  { kind: "success", value: boxLabelIdentifier },
+                  {
+                    kind: "success",
+                    value: {
+                      labelIdentifier: boxLabelIdentifier,
+                      product: data?.qrCode?.box?.product,
+                      size: data?.qrCode?.box?.size,
+                      numberOfItems: data?.qrCode?.box?.items || 0,
+                    } as IBoxDetailsData,
+                  },
                 ]);
               }
             });
@@ -143,31 +163,73 @@ const QrReaderOverlayContainer = ({
   const [boxesByLabelSearchWrappersMap, setBoxesByLabelSearchWrappersMap] =
     useState<Map<string, IQrValueWrapper>>(new Map());
 
-  const boxesByLabelSearchWrappers = useMemo(
-    () => {
-      return Array.from(boxesByLabelSearchWrappersMap.values())
-      // Array.from(
-      //   boxesByLabelSearchWrappersMap.keys()).map(
-      //   (key) => boxesByLabelSearchWrappersMap.get(key)!
-      // ),
-    },
-    [boxesByLabelSearchWrappersMap]
-  );
+  const boxesByLabelSearchWrappers = useMemo(() => {
+    return Array.from(boxesByLabelSearchWrappersMap.values());
+    // Array.from(
+    //   boxesByLabelSearchWrappersMap.keys()).map(
+    //   (key) => boxesByLabelSearchWrappersMap.get(key)!
+    // ),
+  }, [boxesByLabelSearchWrappersMap]);
 
   const onFindBoxByLabel = (label: string) => {
     setBoxesByLabelSearchWrappersMap((prev) => {
       if (prev.has(label)) {
-        alert("already has label")
         return prev;
       }
       const newBoxByLabelSearchWrapper = {
         key: label,
         isLoading: true,
-        interimValue: "loading...",
+        interimValue: `loading... (${label})`,
       };
-      alert(label)
+
+      apolloClient
+        .query<BoxDetailsQuery, BoxDetailsQueryVariables>({
+          query: BOX_DETAILS_BY_LABEL_IDENTIFIER_QUERY,
+          fetchPolicy: "no-cache",
+          variables: { labelIdentifier: label },
+        })
+        .then(({ data }) => {
+          const boxData = data?.box;
+          if (boxData == null) {
+            console.error("Box Box found for this label");
+            setBoxesByLabelSearchWrappersMap((prev) => {
+              const newWrapperForLabelIdentifier = {
+                key: label,
+                isLoading: false,
+                interimValue: undefined,
+                finalValue: {
+                  kind: "labelNotFound",
+                },
+              } as IQrValueWrapper;
+              const newMap = new Map(prev);
+              newMap.set(label, newWrapperForLabelIdentifier);
+              return newMap;
+            });
+          } else {
+            setBoxesByLabelSearchWrappersMap((prev) => {
+              const newWrapperForLabelIdentifier = {
+                key: label,
+                isLoading: false,
+                interimValue: undefined,
+                finalValue: {
+                  kind: "success",
+                  value: {
+                    labelIdentifier: boxData.labelIdentifier,
+                    product: boxData.product,
+                    size: boxData.size,
+                    numberOfItems: boxData.items || 0,
+                  } as IBoxDetailsData,
+                },
+              } as IQrValueWrapper;
+              const newMap = new Map(prev);
+              newMap.set(label, newWrapperForLabelIdentifier);
+              return newMap;
+            });
+          }
+        });
+
       return new Map(prev.set(label, newBoxByLabelSearchWrapper));
-    })
+    });
   };
 
   // const useValidateBoxByLabelMatchingPackingListEntry = (
@@ -210,7 +272,7 @@ const QrReaderOverlayContainer = ({
 
   return (
     <>
-    {JSON.stringify(boxesByLabelSearchWrappers)}
+      {JSON.stringify(boxesByLabelSearchWrappers)}
       <QrReaderOverlay
         isBulkModeSupported={true}
         onSingleScanDone={onSingleScanDone}
