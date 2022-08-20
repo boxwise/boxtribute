@@ -219,24 +219,32 @@ def resolve_qr_code(obj, _, qr_code=None):
 
 
 @box.field("tags")
-def resolve_box_tags(box_obj, _):
-    return (
-        Tag.select()
-        .join(TagsRelation)
-        .where(
-            (TagsRelation.object_id == box_obj.id)
-            & (TagsRelation.object_type == TaggableObjectType.Box)
-        )
-    )
+def resolve_box_tags(box_obj, info):
+    authorize(permission="tag:read")
+    return info.context["tags_for_box_loader"].load(box_obj.id)
 
 
 @query.field("product")
-@box.field("product")
-@unboxed_items_collection.field("product")
-def resolve_product(obj, _, id=None):
-    product = obj.product if id is None else Product.get_by_id(id)
+def resolve_product(*_, id):
+    product = Product.get_by_id(id)
     authorize(permission="product:read", base_id=product.base_id)
     return product
+
+
+@box.field("product")
+@unboxed_items_collection.field("product")
+def resolve_box_product(obj, info):
+    product = info.context["product_loader"].load(obj.product_id)
+    # Base-specific authz can be omitted here since it was enforced in the box
+    # parent-resolver. It's not possible that the box's product is assigned to a
+    # different base than the box is in
+    authorize(permission="product:read")
+    return product
+
+
+@box.field("size")
+def resolve_size(box_obj, info):
+    return info.context["size_loader"].load(box_obj.size_id)
 
 
 @query.field("box")
