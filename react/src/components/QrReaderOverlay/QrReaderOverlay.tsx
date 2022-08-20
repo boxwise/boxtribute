@@ -395,8 +395,8 @@ const QrReaderOverlay = ({
                       onClick={onBulkScanningDoneButtonClick}
                       colorScheme="blue"
                       disabled={
-                        scannedQrValuesAsArray.filter((el) => !el.isLoading)
-                          .length === 0
+                        scannedQrValuesAsArray.filter((el) => el.isLoading)
+                          .length !== 0
                       }
                     >
                       Scanning done
