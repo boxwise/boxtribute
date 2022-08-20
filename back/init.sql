@@ -2073,4 +2073,4 @@ ALTER TABLE dropapp_dev.distro_events_outflow_logs DROP COLUMN location_id;
 RENAME TABLE dropapp_dev.distro_events_outflow_logs TO dropapp_dev.distro_events_tracking_logs;
 ALTER TABLE dropapp_dev.distro_events_tracking_logs ADD flow_direction varchar(255) NOT NULL;
 
-ALTER TABLE dropapp_dev.distro_events ADD distro_events_tracking_group_id INT UNSIGNED NULL;
+ALTER TABLE dropapp_dev.distro_events ADD distro_events_tracking_group_id INT UNSIGNED NULL AFTER location_id;
