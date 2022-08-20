@@ -2085,3 +2085,6 @@ CREATE TABLE `distro_events_outflow_tracking_groups_distro_events` (
   CONSTRAINT `distro_events_outflow_tracking_groups_distro_events_ibfk_1` FOREIGN KEY (`distro_events_outflow_tracking_group_id`) REFERENCES `distro_events_outflow_tracking_groups` (`id`) ON DELETE RESTRICT ON UPDATE CASCADE,
   CONSTRAINT `distro_events_outflow_tracking_groups_distro_events_ibfk_2` FOREIGN KEY (`distro_event_id`) REFERENCES `distro_events` (`id`) ON DELETE RESTRICT ON UPDATE CASCADE
  ) ENGINE=InnoDB AUTO_INCREMENT=6 DEFAULT CHARSET=utf8mb3 ROW_FORMAT=DYNAMIC;
+
+RENAME TABLE dropapp_dev.distro_events_outflow_logs TO dropapp_dev.distro_events_outflow_tracking_logs;
+ALTER TABLE dropapp_dev.distro_events_outflow_tracking_logs ADD flow_direction varchar(255) NOT NULL;
