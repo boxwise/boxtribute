@@ -120,7 +120,7 @@ const DistributionListForReturnTracking = ({
         <Heading as="h3" size="md">
           Existing Return Trackings
         </Heading>
-        <Text>There are currently no existing Return Trackings.</Text>
+        <Text>There are currently no ongoing Return Trackings.</Text>
       </VStack>
 
       <VStack>
