@@ -141,13 +141,6 @@ const DistrosDashboardView = () => {
 
                   <ModalFooter>
                     <Button
-                      colorScheme="blue"
-                      mr={3}
-                      onClick={calendarEventDetailsModalState.onClose}
-                    >
-                      Close
-                    </Button>
-                    <Button
                       variant="ghost"
                       onClick={() =>
                         onGoToDistroEventViewHandler(selectedEvent.id)

@@ -4,6 +4,7 @@ import {
   Button,
   Checkbox,
   Heading,
+  Link,
   Stack,
   Text,
   VStack,
@@ -139,6 +140,9 @@ const DistributionListForReturnTracking = ({
         <Text mb={5}>
           Please select the Distribution Events that you want to track returned
           items for.
+        </Text>
+          <Text backgroundColor={"orange.100"} m={5} p={3}>
+          Attention: Once you started a Return Tracking for a group of events, you cannot change this group selection later anymore (<Link>What does that mean?</Link>).
         </Text>
         <Box backgroundColor="gray.50">
           {distroEventsToShowGroupedByDay.map(({ date, events }) => {
