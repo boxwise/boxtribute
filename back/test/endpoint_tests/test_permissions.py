@@ -144,6 +144,8 @@ def test_invalid_permission_for_given_resource_id(read_only_client, mocker, quer
             }) { id }""",
         # Test case 4.2.7
         "updateTag( updateInput : { id: 1 }) { id }",
+        # Test case 4.2.11
+        "deleteTag( id: 1 ) { id }",
     ],
     ids=operation_name,
 )

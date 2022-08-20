@@ -636,6 +636,8 @@ def resolve_update_tag(*_, update_input):
 
 @mutation.field("deleteTag")
 def resolve_delete_tag(*_, id):
+    base_id = Tag.get_by_id(id).base_id
+    authorize(permission="tag:write", base_id=base_id)
     return delete_tag(user_id=g.user.id, id=id)
 
 

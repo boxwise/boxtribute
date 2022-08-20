@@ -203,3 +203,8 @@ def test_mutate_tag_with_invalid_base(client, default_bases, tags):
     mutation = f"""mutation {{ updateTag(
             updateInput: {{ id: {tag_id}, name: "name" }}) {{ id }} }}"""
     assert_forbidden_request(client, mutation)
+
+    # Test case 4.2.12
+    tag_id = tags[3]["id"]
+    mutation = f"""mutation {{ deleteTag( id: {tag_id} ) {{ id }} }}"""
+    assert_forbidden_request(client, mutation)
