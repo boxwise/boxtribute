@@ -30,7 +30,6 @@ import { OnResultFunction, QrReader } from "components/QrReader/QrReader";
 import { useCallback, useMemo, useState } from "react";
 
 import { Result } from "@zxing/library";
-import { BOX_DETAILS_BY_LABEL_IDENTIFIER_QUERY } from "utils/queries";
 import { IBoxDetailsData } from "utils/base-types";
 
 export const ViewFinder = () => (
@@ -122,9 +121,11 @@ export interface QrReaderOverlayProps {
     toggle: () => void;
   };
   boxesByLabelSearchWrappers: IQrValueWrapper[];
-  onBulkScanningDone: (qrValues: IQrValueWrapper[]) => void;
+  scannedQrValueWrappers: IQrValueWrapper[];
+  // onBulkScanningDone: (qrValues: IQrValueWrapper[]) => void;
   onFindBoxByLabel: (label: string) => void;
   onSingleScanDone: (qrValue: string) => void;
+  onBulkScanningDoneButtonClick: () => void;
   qrValueResolver: (
     qrValueWrapper: IQrValueWrapper
   ) => Promise<IQrValueWrapper>;
@@ -179,76 +180,20 @@ const QrReaderOverlay = ({
   isBulkModeActive,
   setIsBulkModeActive,
   onFindBoxByLabel,
-  onBulkScanningDone,
+  // onBulkScanningDone,
+  onBulkScanningDoneButtonClick,
   qrValueResolver,
   onSingleScanDone,
   onClose,
   boxesByLabelSearchWrappers,
+  scannedQrValueWrappers
 }: QrReaderOverlayProps) => {
   const [zoomLevel, setZoomLevel] = useState(1);
   // TODO: consider to lift this Map state up
-  const [scannedQrValues, setScannedQrValues] = useState<
-    Map<string, IQrValueWrapper>
-  >(new Map());
 
   const browserSupportsZoom = useMemo(
     () => navigator?.mediaDevices?.getSupportedConstraints?.().zoom != null,
     []
-  );
-
-  // TODO: also lift this up (and then also reset the findByLabel map state)
-  const resetState = useCallback(() => {
-    setScannedQrValues(() => new Map());
-  }, []);
-
-  const handleClose = useCallback(() => {
-    resetState();
-    onClose();
-  }, [onClose, resetState]);
-
-  const onBulkScanningDoneButtonClick = useCallback(() => {
-    onBulkScanningDone(
-      Array.from(scannedQrValues.values()).filter(
-        (qrValueWrapper) => qrValueWrapper.finalValue?.kind !== "noBoxtributeQr"
-      )
-    );
-    handleClose();
-  }, [handleClose, onBulkScanningDone, scannedQrValues]);
-
-  // TODO: consider to lift the state for the qr values up to the container
-  // and to get rid of passing in the qr value resolver callback/promise
-  const addQrValueToBulkList = useCallback(
-    async (qrValue: string) => {
-      setScannedQrValues((prev) => {
-        if (prev.has(qrValue)) {
-          return prev;
-        }
-        const newQrValueWrapper = {
-          key: qrValue,
-          isLoading: true,
-          interimValue: "loading...",
-        };
-
-        qrValueResolver(newQrValueWrapper).then((resolvedQrValueWrapper) => {
-          setScannedQrValues((prev) => {
-            const newMap = new Map(prev);
-            newMap.set(qrValue, resolvedQrValueWrapper);
-            return newMap;
-          });
-        });
-        // TODO add error handling
-        return new Map(prev.set(qrValue, newQrValueWrapper));
-      });
-    },
-    [qrValueResolver]
-  );
-
-  const scannedQrValuesAsArray = useMemo(
-    () =>
-      Array.from(scannedQrValues.keys()).map(
-        (key) => scannedQrValues.get(key)!
-      ),
-    [scannedQrValues]
   );
 
   const facingMode = "environment";
@@ -280,7 +225,7 @@ const QrReaderOverlay = ({
       isOpen={isOpen}
       closeOnOverlayClick={true}
       closeOnEsc={true}
-      onClose={handleClose}
+      onClose={onClose}
     >
       <ModalOverlay />
       <ModalContent>
@@ -362,7 +307,7 @@ const QrReaderOverlay = ({
                     <VStack>
                       <Text fontWeight="bold">Scanned Boxes</Text>
                       <VStack spacing={5} direction="row">
-                        {scannedQrValuesAsArray.map((qrCodeValueWrapper, i) => {
+                        {scannedQrValueWrappers.map((qrCodeValueWrapper, i) => {
                           return (
                             <Box key={i}>
                               {i + 1}{" "}
@@ -396,7 +341,7 @@ const QrReaderOverlay = ({
                       onClick={onBulkScanningDoneButtonClick}
                       colorScheme="blue"
                       disabled={
-                        scannedQrValuesAsArray.filter((el) => el.isLoading)
+                        scannedQrValueWrappers.filter((el) => el.isLoading)
                           .length !== 0
                       }
                     >
@@ -410,7 +355,7 @@ const QrReaderOverlay = ({
         </ModalBody>
 
         <ModalFooter>
-          <Button mr={3} onClick={handleClose}>
+          <Button mr={3} onClick={onClose}>
             Cancel
           </Button>
         </ModalFooter>

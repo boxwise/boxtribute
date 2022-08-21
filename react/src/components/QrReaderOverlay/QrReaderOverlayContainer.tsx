@@ -165,6 +165,14 @@ const QrReaderOverlayContainer = ({
     [onScanningDone]
   );
 
+  const [scannedQrValueWrappersMap, setScannedQrValueWrappersMap] = useState<
+    Map<string, IQrValueWrapper>
+  >(new Map());
+
+  // We are using IQrValueWrapper also for the Find Boxes By Label use case
+  // since they are structurally very similar.
+  // The naming of the type could be made more general though.
+  // Or we indeed want to have two seperate types in case they semantically differ at some point.
   const [boxesByLabelSearchWrappersMap, setBoxesByLabelSearchWrappersMap] =
     useState<Map<string, IQrValueWrapper>>(new Map());
 
@@ -175,6 +183,61 @@ const QrReaderOverlayContainer = ({
     //   (key) => boxesByLabelSearchWrappersMap.get(key)!
     // ),
   }, [boxesByLabelSearchWrappersMap]);
+
+  const scannedQrValueWrappers = useMemo(
+    () =>
+      Array.from(scannedQrValueWrappersMap.keys()).map(
+        (key) => scannedQrValueWrappersMap.get(key)!
+      ),
+    [scannedQrValueWrappersMap]
+  );
+
+
+  const resetState = useCallback(() => {
+    setScannedQrValueWrappersMap(() => new Map());
+  }, []);
+
+  const handleClose = useCallback(() => {
+    resetState();
+    onClose();
+  }, [onClose, resetState]);
+
+  const onBulkScanningDoneButtonClick = useCallback(() => {
+    onBulkScanningDone(
+      Array.from(scannedQrValueWrappersMap.values()).filter(
+        (qrValueWrapper) => qrValueWrapper.finalValue?.kind !== "noBoxtributeQr"
+      )
+    );
+    handleClose();
+  }, [handleClose, onBulkScanningDone, scannedQrValueWrappersMap]);
+
+  // TODO: consider to lift the state for the qr values up to the container
+  // and to get rid of passing in the qr value resolver callback/promise
+  const addQrValueToBulkList = useCallback(
+    async (qrValue: string) => {
+      setScannedQrValueWrappersMap((prev) => {
+        if (prev.has(qrValue)) {
+          return prev;
+        }
+        const newQrValueWrapper = {
+          key: qrValue,
+          isLoading: true,
+          interimValue: "loading...",
+        };
+
+        qrValueResolver(newQrValueWrapper).then((resolvedQrValueWrapper) => {
+          setScannedQrValueWrappersMap((prev) => {
+            const newMap = new Map(prev);
+            newMap.set(qrValue, resolvedQrValueWrapper);
+            return newMap;
+          });
+        });
+        // TODO add error handling
+        return new Map(prev.set(qrValue, newQrValueWrapper));
+      });
+    },
+    [qrValueResolver]
+  );
 
   const onFindBoxByLabel = (label: string) => {
     // TODO: refactor this big if / else into smaller methods
@@ -249,8 +312,7 @@ const QrReaderOverlayContainer = ({
           const boxData = data?.box;
           if (boxData == null) {
             console.error("Box not found for this label");
-          }
-          else {
+          } else {
             onScanningDone([
               {
                 kind: "success",
@@ -314,6 +376,7 @@ const QrReaderOverlayContainer = ({
         onSingleScanDone={onSingleScanDone}
         onFindBoxByLabel={onFindBoxByLabel}
         boxesByLabelSearchWrappers={boxesByLabelSearchWrappers}
+        scannedQrValueWrappers={scannedQrValueWrappers}
         onBulkScanningDone={onBulkScanningDone}
         qrValueResolver={qrValueResolver}
         isOpen={isOpen}
