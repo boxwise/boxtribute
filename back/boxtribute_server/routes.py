@@ -2,7 +2,7 @@
 import asyncio
 import os
 
-from ariadne import graphql, graphql_sync
+from ariadne import graphql
 from ariadne.constants import PLAYGROUND_HTML
 from flask import Blueprint, current_app, jsonify, request
 from flask_cors import cross_origin
@@ -51,16 +51,7 @@ def query_api_playground():
 @cross_origin(origin="localhost", headers=["Content-Type", "Authorization"])
 @requires_auth
 def query_api_server():
-    success, result = graphql_sync(
-        query_api_schema,
-        data=request.get_json(),
-        context_value=request,
-        introspection=current_app.debug,
-        error_formatter=format_database_errors,
-    )
-
-    status_code = 200 if success else 400
-    return jsonify(result), status_code
+    return execute_async(schema=query_api_schema)
 
 
 @api_bp.route("/token", methods=["POST"])
@@ -90,6 +81,10 @@ def graphql_playgroud():
 @cross_origin(origin="localhost", headers=["Content-Type", "Authorization"])
 @requires_auth
 def graphql_server():
+    return execute_async(schema=full_api_schema)
+
+
+def execute_async(*, schema):
     # Start async event loop, required for DataLoader construction, cf.
     # https://github.com/graphql-python/graphql-core/issues/71#issuecomment-620106364
     loop = asyncio.new_event_loop()
@@ -104,9 +99,10 @@ def graphql_server():
         "tags_for_box_loader": TagsForBoxLoader(),
     }
 
+    # Execute the GraphQL request against schema in async event loop, passing in context
     success, result = loop.run_until_complete(
         graphql(
-            full_api_schema,
+            schema,
             data=request.get_json(),
             context_value=context,
             debug=current_app.debug,
