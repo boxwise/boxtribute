@@ -383,16 +383,16 @@ const QrReaderOverlayContainer = ({
   return (
     <>
       <QrReaderOverlay
+        isOpen={isOpen}
+        handleClose={handleClose}
+        isBulkModeSupported={isBulkModeSupported}
         isBulkModeActive={isBulkModeActive}
         setIsBulkModeActive={setIsBulkModeActive}
-        isBulkModeSupported={isBulkModeSupported}
-        onFindBoxByLabel={onFindBoxByLabel}
         boxesByLabelSearchWrappers={boxesByLabelSearchWrappers}
         scannedQrValueWrappers={scannedQrValueWrappers}
         onBulkScanningDoneButtonClick={onBulkScanningDone}
         onScanningResult={onScanningResult}
-        isOpen={isOpen}
-        handleClose={handleClose}
+        onFindBoxByLabel={onFindBoxByLabel}
       />
     </>
   );
