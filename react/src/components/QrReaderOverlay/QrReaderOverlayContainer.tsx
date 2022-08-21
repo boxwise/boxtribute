@@ -119,9 +119,8 @@ const QrReaderOverlayContainer = ({
     [addQrValueWrapperToMap, apolloClient]
   );
 
-  const onSingleScanDone = useCallback(
+  const handleSingleScan = useCallback(
     (result: string) => {
-      if (!!result) {
         const qrCode = extractQrCodeFromUrl(result);
         if (qrCode == null) {
           console.error("Not a Boxtribute QR Code");
@@ -158,7 +157,6 @@ const QrReaderOverlayContainer = ({
               }
             });
         }
-      }
     },
     [apolloClient, onScanningDone]
   );
@@ -245,7 +243,7 @@ const QrReaderOverlayContainer = ({
       if (isBulkModeSupported && isBulkModeActive) {
         addQrValueToBulkList(result["text"]);
       } else {
-        onSingleScanDone(result["text"]);
+        handleSingleScan(result["text"]);
         handleClose();
       }
     },
@@ -254,7 +252,7 @@ const QrReaderOverlayContainer = ({
       handleClose,
       isBulkModeActive,
       isBulkModeSupported,
-      onSingleScanDone,
+      handleSingleScan,
     ]
   );
 
