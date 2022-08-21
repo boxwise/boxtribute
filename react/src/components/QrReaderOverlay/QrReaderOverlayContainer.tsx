@@ -32,6 +32,22 @@ interface QrReaderOverlayContainerProps {
   onClose: () => void;
   onScanningDone: (qrValueWrappers: QrResolvedValue[]) => void;
 }
+
+const boxDataToSuccessQrValue = (boxData: BoxDetailsQuery["box"]) => {
+  if (boxData == null) {
+    throw new Error("boxData is null");
+  }
+  return {
+    kind: "success",
+    value: {
+      labelIdentifier: boxData.labelIdentifier,
+      product: boxData.product,
+      size: boxData.size,
+      numberOfItems: boxData.items || 0,
+    } as IBoxDetailsData,
+  } as QrResolvedValue;
+};
+
 const QrReaderOverlayContainer = ({
   isOpen,
   onClose,
@@ -89,19 +105,13 @@ const QrReaderOverlayContainer = ({
               console.debug("QR Code not assigned to any box yet");
               addQrValueWrapperToMap(resolvedQrValueWrapper);
             }
+            // TODO: also handle cases here when the base of the box is not the
+            // same as the current base of the user.
+            // E.g. introduce another non-success kind for this case.
             const resolvedQrValueWrapper = {
               ...qrValueWrapper,
               isLoading: false,
-              finalValue: {
-                kind: "success",
-                value: {
-                  labelIdentifier: boxLabelIdentifier,
-                  product: data?.qrCode?.box?.product,
-                  size: data?.qrCode?.box?.size,
-                  // TODO: do better validation and error handling here
-                  numberOfItems: data?.qrCode?.box?.items || 0,
-                },
-              },
+              finalValue: boxDataToSuccessQrValue(data?.qrCode?.box),
             } as IQrValueWrapper;
             addQrValueWrapperToMap(resolvedQrValueWrapper);
           });
@@ -144,17 +154,10 @@ const QrReaderOverlayContainer = ({
               ]);
               console.error("No Box yet assigned to QR Code");
             } else {
-              onScanningDone([
-                {
-                  kind: "success",
-                  value: {
-                    labelIdentifier: boxLabelIdentifier,
-                    product: data?.qrCode?.box?.product,
-                    size: data?.qrCode?.box?.size,
-                    numberOfItems: data?.qrCode?.box?.items || 0,
-                  } as IBoxDetailsData,
-                },
-              ]);
+              // TODO: also handle cases here when the base of the box is not the
+              // same as the current base of the user.
+              // E.g. introduce another non-success kind for this case.
+              onScanningDone([boxDataToSuccessQrValue(data?.qrCode?.box)]);
             }
           });
       }
@@ -206,7 +209,7 @@ const QrReaderOverlayContainer = ({
     const resolvedQrValues = _(scannedQrValueWrappers)
       .concat(boxesByLabelSearchWrappers)
       .filter((qrValueWrapper) => qrValueWrapper.finalValue?.kind === "success")
-      .uniqBy(el => el.key)
+      .uniqBy((el) => el.key)
       // TODO: improve typings/type handling here (to get rid of the `!`)
       .map((qrValueWrapper) => qrValueWrapper.finalValue!)
       .value();
@@ -256,34 +259,32 @@ const QrReaderOverlayContainer = ({
     ]
   );
 
-  const handleFindBoxByLabelForNonBulkMode = useCallback((label: string) => {
-    apolloClient
-      .query<BoxDetailsQuery, BoxDetailsQueryVariables>({
-        query: BOX_DETAILS_BY_LABEL_IDENTIFIER_QUERY,
-        fetchPolicy: "no-cache",
-        variables: { labelIdentifier: label },
-      })
-      // TODO: add catch handling here (for failed promises)
-      .then(({ data }) => {
-        const boxData = data?.box;
-        if (boxData == null) {
-          console.error("Box not found for this label");
-        } else {
-          onScanningDone([
-            {
-              kind: "success",
-              value: {
-                labelIdentifier: boxData.labelIdentifier,
-                product: boxData.product,
-                size: boxData.size,
-                numberOfItems: boxData.items || 0,
-              } as IBoxDetailsData,
-            },
-          ]);
-          handleClose();
-        }
-      });
-  }, [apolloClient, handleClose, onScanningDone]);
+  const handleFindBoxByLabelForNonBulkMode = useCallback(
+    (label: string) => {
+      apolloClient
+        .query<BoxDetailsQuery, BoxDetailsQueryVariables>({
+          query: BOX_DETAILS_BY_LABEL_IDENTIFIER_QUERY,
+          fetchPolicy: "no-cache",
+          variables: { labelIdentifier: label },
+        })
+        // TODO: add catch handling here (for failed promises)
+        .then(({ data }) => {
+          const boxData = data?.box;
+          if (boxData == null) {
+            console.error("Box not found for this label");
+          } else {
+            // TODO: also handle cases here when the base of the box is not the
+            // same as the current base of the user.
+            // E.g. introduce another non-success kind for this case.
+            onScanningDone([
+              boxDataToSuccessQrValue(boxData),
+            ]);
+            handleClose();
+          }
+        });
+    },
+    [apolloClient, handleClose, onScanningDone]
+  );
 
   const handleFindBoxByLabelForBulkMode = useCallback(
     (label: string) => {
@@ -321,20 +322,15 @@ const QrReaderOverlayContainer = ({
                 return newMap;
               });
             } else {
+              // TODO: also handle cases here when the base of the box is not the
+              // same as the current base of the user.
+              // E.g. introduce another non-success kind for this case.
               setBoxesByLabelSearchWrappersMap((prev) => {
                 const newWrapperForLabelIdentifier = {
                   key: label,
                   isLoading: false,
                   interimValue: undefined,
-                  finalValue: {
-                    kind: "success",
-                    value: {
-                      labelIdentifier: boxData.labelIdentifier,
-                      product: boxData.product,
-                      size: boxData.size,
-                      numberOfItems: boxData.items || 0,
-                    } as IBoxDetailsData,
-                  },
+                  finalValue: boxDataToSuccessQrValue(boxData),
                 } as IQrValueWrapper;
                 const newMap = new Map(prev);
                 newMap.set(label, newWrapperForLabelIdentifier);
