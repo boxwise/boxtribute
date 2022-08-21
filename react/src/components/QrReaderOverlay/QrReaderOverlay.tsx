@@ -123,13 +123,8 @@ export interface QrReaderOverlayProps {
   boxesByLabelSearchWrappers: IQrValueWrapper[];
   onScanningResult: (result: string) => void;
   scannedQrValueWrappers: IQrValueWrapper[];
-  // onBulkScanningDone: (qrValues: IQrValueWrapper[]) => void;
   onFindBoxByLabel: (label: string) => void;
-  onSingleScanDone: (qrValue: string) => void;
   onBulkScanningDoneButtonClick: () => void;
-  qrValueResolver: (
-    qrValueWrapper: IQrValueWrapper
-  ) => Promise<IQrValueWrapper>;
   handleClose: () => void;
   isOpen: boolean;
 }
@@ -181,10 +176,7 @@ const QrReaderOverlay = ({
   isBulkModeActive,
   setIsBulkModeActive,
   onFindBoxByLabel,
-  // onBulkScanningDone,
   onBulkScanningDoneButtonClick,
-  qrValueResolver,
-  onSingleScanDone,
   handleClose,
   onScanningResult,
   boxesByLabelSearchWrappers,
