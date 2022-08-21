@@ -154,17 +154,6 @@ const QrReaderOverlayContainer = ({
 
   const [isBulkModeActive, setIsBulkModeActive] = useBoolean(false);
 
-  const onBulkScanningDone = useCallback(
-    (qrValueWrappers: IQrValueWrapper[]) => {
-      const resolvedQrValues = qrValueWrappers.map(
-        // TODO: improve typings/type handling here (to get rid of the `!`)
-        (qrValueWrapper) => qrValueWrapper.finalValue!
-      );
-      onScanningDone(resolvedQrValues);
-    },
-    [onScanningDone]
-  );
-
   const [scannedQrValueWrappersMap, setScannedQrValueWrappersMap] = useState<
     Map<string, IQrValueWrapper>
   >(new Map());
@@ -192,9 +181,9 @@ const QrReaderOverlayContainer = ({
     [scannedQrValueWrappersMap]
   );
 
-
   const resetState = useCallback(() => {
     setScannedQrValueWrappersMap(() => new Map());
+    setBoxesByLabelSearchWrappersMap(() => new Map());
   }, []);
 
   const handleClose = useCallback(() => {
@@ -202,14 +191,19 @@ const QrReaderOverlayContainer = ({
     onClose();
   }, [onClose, resetState]);
 
-  const onBulkScanningDoneButtonClick = useCallback(() => {
-    onBulkScanningDone(
-      Array.from(scannedQrValueWrappersMap.values()).filter(
-        (qrValueWrapper) => qrValueWrapper.finalValue?.kind !== "noBoxtributeQr"
-      )
-    );
+  const onBulkScanningDone = useCallback(() => {
+    // const resolvedQrValues = Array.from(scannedQrValueWrappersMap.values()).filter(
+    //   (qrValueWrapper) => qrValueWrapper.finalValue?.kind !== "noBoxtributeQr"
+    // );
     handleClose();
-  }, [handleClose, onBulkScanningDone, scannedQrValueWrappersMap]);
+    const resolvedQrValues = scannedQrValueWrappers.filter(
+      (qrValueWrapper) => qrValueWrapper.finalValue?.kind !== "noBoxtributeQr"
+    ).map(
+      // TODO: improve typings/type handling here (to get rid of the `!`)
+      (qrValueWrapper) => qrValueWrapper.finalValue!
+    );
+    onScanningDone(resolvedQrValues);
+  }, [handleClose, onScanningDone, scannedQrValueWrappers]);
 
   // TODO: consider to lift the state for the qr values up to the container
   // and to get rid of passing in the qr value resolver callback/promise
@@ -237,6 +231,24 @@ const QrReaderOverlayContainer = ({
       });
     },
     [qrValueResolver]
+  );
+
+  const onScanningResult = useCallback(
+    (result: string) => {
+      if (isBulkModeSupported && isBulkModeActive) {
+        addQrValueToBulkList(result["text"]);
+      } else {
+        onSingleScanDone(result["text"]);
+        handleClose();
+      }
+    },
+    [
+      addQrValueToBulkList,
+      handleClose,
+      isBulkModeActive,
+      isBulkModeSupported,
+      onSingleScanDone,
+    ]
   );
 
   const onFindBoxByLabel = (label: string) => {
@@ -324,6 +336,7 @@ const QrReaderOverlayContainer = ({
                 } as IBoxDetailsData,
               },
             ]);
+            handleClose();
           }
         });
     }
@@ -377,7 +390,8 @@ const QrReaderOverlayContainer = ({
         onFindBoxByLabel={onFindBoxByLabel}
         boxesByLabelSearchWrappers={boxesByLabelSearchWrappers}
         scannedQrValueWrappers={scannedQrValueWrappers}
-        onBulkScanningDone={onBulkScanningDone}
+        onBulkScanningDoneButtonClick={onBulkScanningDone}
+        onScanningResult={onScanningResult}
         qrValueResolver={qrValueResolver}
         isOpen={isOpen}
         onClose={onClose}

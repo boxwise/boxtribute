@@ -84,7 +84,6 @@ export const Default = Template.bind({});
 Default.args = {
   isOpen: true,
   isBulkModeSupported: true,
-  onBulkScanningDone: action(`bulk scanning done`),
   qrValueResolver: qrValueResolver,
   onSingleScanDone: action(`received result`),
   onClose: action(`close`),

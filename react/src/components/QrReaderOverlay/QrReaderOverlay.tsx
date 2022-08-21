@@ -121,6 +121,7 @@ export interface QrReaderOverlayProps {
     toggle: () => void;
   };
   boxesByLabelSearchWrappers: IQrValueWrapper[];
+  onScanningResult: (result: string) => void;
   scannedQrValueWrappers: IQrValueWrapper[];
   // onBulkScanningDone: (qrValues: IQrValueWrapper[]) => void;
   onFindBoxByLabel: (label: string) => void;
@@ -185,6 +186,7 @@ const QrReaderOverlay = ({
   qrValueResolver,
   onSingleScanDone,
   onClose,
+  onScanningResult,
   boxesByLabelSearchWrappers,
   scannedQrValueWrappers
 }: QrReaderOverlayProps) => {
@@ -201,21 +203,10 @@ const QrReaderOverlay = ({
   const onResult: OnResultFunction = useCallback(
     (result: Result | undefined | null, error: Error | undefined | null) => {
       if (!!result) {
-        if (isBulkModeSupported && isBulkModeActive) {
-          addQrValueToBulkList(result["text"]);
-        } else {
-          onSingleScanDone(result["text"]);
-          handleClose();
-        }
+        onScanningResult(result["text"]);
       }
     },
-    [
-      addQrValueToBulkList,
-      handleClose,
-      isBulkModeActive,
-      isBulkModeSupported,
-      onSingleScanDone,
-    ]
+    [onScanningResult]
   );
 
   const [boxLabelInputValue, setBoxLabelInputValue] = useState("");
@@ -281,9 +272,6 @@ const QrReaderOverlay = ({
                   if (boxLabelInputValue != null && boxLabelInputValue !== "") {
                     onFindBoxByLabel(boxLabelInputValue);
                     setBoxLabelInputValue("");
-                    if (!isBulkModeSupported || !isBulkModeActive) {
-                      handleClose();
-                    }
                   }
                 }}
               >
