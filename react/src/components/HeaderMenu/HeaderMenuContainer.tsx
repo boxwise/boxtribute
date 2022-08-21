@@ -1,14 +1,16 @@
 import { useContext, useMemo } from "react";
-import { useCallback} from "react";
+import { useCallback } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { useAuth0 } from "@auth0/auth0-react";
 import HeaderMenu, { MenuItemsGroupData } from "./HeaderMenu";
 import AutomaticBaseSwitcher from "views/AutomaticBaseSwitcher/AutomaticBaseSwitcher";
 import { useDisclosure, useToast } from "@chakra-ui/react";
 import QrReaderOverlayContainer from "components/QrReaderOverlay/QrReaderOverlayContainer";
-import { QrResolvedValue } from "components/QrReaderOverlay/QrReaderOverlay";
+import {
+  QrResolvedValue,
+  QrResolverResultSuccessValue,
+} from "components/QrReaderOverlay/QrReaderOverlay";
 import { GlobalPreferencesContext } from "providers/GlobalPreferencesProvider";
-
 
 const HeaderMenuContainer = () => {
   const auth0 = useAuth0();
@@ -38,8 +40,14 @@ const HeaderMenuContainer = () => {
       {
         text: "Mobile Distributions",
         links: [
-          { link: `/bases/${baseId}/distributions`, name: "Distribution Events" },
-          { link: `/bases/${baseId}/distributions/spots`, name: "Distribution Spots" },
+          {
+            link: `/bases/${baseId}/distributions`,
+            name: "Distribution Events",
+          },
+          {
+            link: `/bases/${baseId}/distributions/spots`,
+            name: "Distribution Spots",
+          },
         ],
       },
       // {
@@ -77,7 +85,8 @@ const HeaderMenuContainer = () => {
         const singleResolvedQrValue = qrResolvedValues[0];
         switch (singleResolvedQrValue.kind) {
           case "success": {
-            const boxLabelIdentifier = singleResolvedQrValue.value.labelIdentifier;
+            const boxLabelIdentifier =
+              singleResolvedQrValue.value.labelIdentifier;
             navigate(`/bases/${baseId}/boxes/${boxLabelIdentifier}`);
             break;
           }
@@ -97,11 +106,19 @@ const HeaderMenuContainer = () => {
               isClosable: true,
               duration: 2000,
             });
-            navigate(`/bases/${baseId}/boxes/create?qrCode=${singleResolvedQrValue.qrCodeValue}`);
+            navigate(
+              `/bases/${baseId}/boxes/create?qrCode=${singleResolvedQrValue.qrCodeValue}`
+            );
             break;
           }
         }
       } else {
+        const successfullyResolvedValues = qrResolvedValues.filter(
+          (qrResolvedValue) => qrResolvedValue.kind === "success"
+        ) as QrResolverResultSuccessValue[];
+        const boxesData = successfullyResolvedValues.map(
+          (qrResolvedValue) => qrResolvedValue.value
+        );
         toast({
           title: `You scanned multiple boxes. What do you want to do with them? (WIP)`,
           status: "info",
@@ -113,13 +130,11 @@ const HeaderMenuContainer = () => {
     [baseId, navigate, toast]
   );
 
-
   if (baseId == null) {
     return <AutomaticBaseSwitcher />;
   }
 
   return (
-
     <>
       <HeaderMenu
         {...auth0}
@@ -133,7 +148,6 @@ const HeaderMenuContainer = () => {
         onClose={qrScannerOverlayState.onClose}
         onScanningDone={onScanningDone}
       />
-
     </>
   );
 };

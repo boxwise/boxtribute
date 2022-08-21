@@ -76,12 +76,12 @@ export const ViewFinder = () => (
   </>
 );
 
-interface QrResolverResultSuccessValue {
+export interface QrResolverResultSuccessValue {
   kind: "success";
   value: IBoxDetailsData;
 }
 
-interface QrResolverResultNotAssignedToBox {
+export interface QrResolverResultNotAssignedToBox {
   kind: "notAssignedToBox";
   qrCodeValue: string;
 }
@@ -90,11 +90,11 @@ interface QrResolverResultNotAssignedToBox {
 //   kind: "notAuthorized";
 // }
 
-interface QrResolverResultLabelNotFound {
+export interface QrResolverResultLabelNotFound {
   kind: "labelNotFound";
 }
 
-interface QrResolverResultNoBoxtributeQr {
+export interface QrResolverResultNoBoxtributeQr {
   kind: "noBoxtributeQr";
 }
 
