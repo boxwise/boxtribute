@@ -29,6 +29,14 @@ const qrCodeToResolverResult = (qrValue: string): QrResolvedValue => {
           id: "101",
           label: "XL"
         },
+        place: {
+          id: "1",
+          name: "WH1",
+          base: {
+            id: "1",
+            name: "Island 1"
+          }
+        },
         numberOfItems: 123
       },
     }],
@@ -51,6 +59,14 @@ const qrCodeToResolverResult = (qrValue: string): QrResolvedValue => {
         size: {
           id: "101",
           label: "XL"
+        },
+        place: {
+          id: "1",
+          name: "WH1",
+          base: {
+            id: "1",
+            name: "Island 1"
+          }
         },
         numberOfItems: 123
       },

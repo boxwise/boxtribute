@@ -15,7 +15,7 @@ import {
   GET_BOX_LABEL_IDENTIFIER_BY_QR_CODE,
 } from "utils/queries";
 import { IBoxDetailsData } from "utils/base-types";
-import { useBoolean } from "@chakra-ui/react";
+import { Box, useBoolean } from "@chakra-ui/react";
 import _ from "lodash";
 
 // TODO: move this out into a shared file or part of custom hook
@@ -34,17 +34,27 @@ interface QrReaderOverlayContainerProps {
 }
 
 const boxDataToSuccessQrValue = (boxData: BoxDetailsQuery["box"]) => {
-  if (boxData == null) {
-    throw new Error("boxData is null");
+  // TODO: replace this with cleaner/proper parsing/validation (e.g. via zod)
+  // Or make remove the nullable fields from the GraphQL API
+  if (
+    boxData == null
+    //  ||
+    // boxData.product == null ||
+    // boxData.place == null ||
+    // boxData.place.base == null
+  ) {
+    throw new Error("boxData is null or incomplete");
   }
+  const boxDetailData: IBoxDetailsData = {
+    labelIdentifier: boxData.labelIdentifier,
+    product: boxData.product,
+    size: boxData.size,
+    numberOfItems: boxData.items || 0,
+    place: boxData.place,
+  };
   return {
     kind: "success",
-    value: {
-      labelIdentifier: boxData.labelIdentifier,
-      product: boxData.product,
-      size: boxData.size,
-      numberOfItems: boxData.items || 0,
-    } as IBoxDetailsData,
+    value: boxDetailData,
   } as QrResolvedValue;
 };
 
@@ -71,7 +81,6 @@ const QrReaderOverlayContainer = ({
   const qrValueResolver = useCallback(
     (qrValueWrapper: IQrValueWrapper): void => {
       const extractedQrCodeFromUrl = extractQrCodeFromUrl(qrValueWrapper.key);
-
       if (extractedQrCodeFromUrl == null) {
         // TODO: ADD PROPER ERROR MESSAGE HANDLING HERE
         const resolvedQrValueWrapper = {
@@ -103,17 +112,19 @@ const QrReaderOverlayContainer = ({
                 },
               } as IQrValueWrapper;
               console.debug("QR Code not assigned to any box yet");
+
+              addQrValueWrapperToMap(resolvedQrValueWrapper);
+            } else {
+              // TODO: also handle cases here when the base of the box is not the
+              // same as the current base of the user.
+              // E.g. introduce another non-success kind for this case.
+              const resolvedQrValueWrapper = {
+                ...qrValueWrapper,
+                isLoading: false,
+                finalValue: boxDataToSuccessQrValue(data?.qrCode?.box),
+              } as IQrValueWrapper;
               addQrValueWrapperToMap(resolvedQrValueWrapper);
             }
-            // TODO: also handle cases here when the base of the box is not the
-            // same as the current base of the user.
-            // E.g. introduce another non-success kind for this case.
-            const resolvedQrValueWrapper = {
-              ...qrValueWrapper,
-              isLoading: false,
-              finalValue: boxDataToSuccessQrValue(data?.qrCode?.box),
-            } as IQrValueWrapper;
-            addQrValueWrapperToMap(resolvedQrValueWrapper);
           });
         // TODO: Handle Authorization / No Access To Box case
         // .catch((error) => {
@@ -244,9 +255,9 @@ const QrReaderOverlayContainer = ({
   const onScanningResult = useCallback(
     (result: string) => {
       if (isBulkModeSupported && isBulkModeActive) {
-        addQrValueToBulkList(result["text"]);
+        addQrValueToBulkList(result);
       } else {
-        handleSingleScan(result["text"]);
+        handleSingleScan(result);
         handleClose();
       }
     },
@@ -276,9 +287,7 @@ const QrReaderOverlayContainer = ({
             // TODO: also handle cases here when the base of the box is not the
             // same as the current base of the user.
             // E.g. introduce another non-success kind for this case.
-            onScanningDone([
-              boxDataToSuccessQrValue(boxData),
-            ]);
+            onScanningDone([boxDataToSuccessQrValue(boxData)]);
             handleClose();
           }
         });
@@ -354,18 +363,21 @@ const QrReaderOverlayContainer = ({
   };
 
   return (
-    <QrReaderOverlay
-      isOpen={isOpen}
-      handleClose={handleClose}
-      isBulkModeSupported={isBulkModeSupported}
-      isBulkModeActive={isBulkModeActive}
-      setIsBulkModeActive={setIsBulkModeActive}
-      boxesByLabelSearchWrappers={boxesByLabelSearchWrappers}
-      scannedQrValueWrappers={scannedQrValueWrappers}
-      onBulkScanningDoneButtonClick={onBulkScanningDone}
-      onScanningResult={onScanningResult}
-      onFindBoxByLabel={onFindBoxByLabel}
-    />
+    <Box>
+      {JSON.stringify(setScannedQrValueWrappersMap)}
+      <QrReaderOverlay
+        isOpen={isOpen}
+        handleClose={handleClose}
+        isBulkModeSupported={isBulkModeSupported}
+        isBulkModeActive={isBulkModeActive}
+        setIsBulkModeActive={setIsBulkModeActive}
+        boxesByLabelSearchWrappers={boxesByLabelSearchWrappers}
+        scannedQrValueWrappers={scannedQrValueWrappers}
+        onBulkScanningDoneButtonClick={onBulkScanningDone}
+        onScanningResult={onScanningResult}
+        onFindBoxByLabel={onFindBoxByLabel}
+      />
+    </Box>
   );
 };
 

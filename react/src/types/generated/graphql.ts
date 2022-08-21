@@ -1287,7 +1287,7 @@ export type BoxDetailsQueryVariables = Exact<{
 }>;
 
 
-export type BoxDetailsQuery = { __typename?: 'Query', box?: { __typename?: 'Box', labelIdentifier: string, items?: number | null, product?: { __typename?: 'Product', id: string, name: string, gender?: ProductGender | null } | null, size: { __typename?: 'Size', id: string, label: string } } | null };
+export type BoxDetailsQuery = { __typename?: 'Query', box?: { __typename?: 'Box', labelIdentifier: string, items?: number | null, product?: { __typename?: 'Product', id: string, name: string, gender?: ProductGender | null } | null, size: { __typename?: 'Size', id: string, label: string }, place?: { __typename?: 'DistributionSpot', id: string, name?: string | null, base?: { __typename?: 'Base', id: string, name: string } | null } | { __typename?: 'Location', id: string, name?: string | null, base?: { __typename?: 'Base', id: string, name: string } | null } | null } | null };
 
 export type GetBoxLabelIdentifierForQrCodeQueryVariables = Exact<{
   qrCode: Scalars['String'];
