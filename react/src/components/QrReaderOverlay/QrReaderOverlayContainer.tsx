@@ -40,8 +40,19 @@ const QrReaderOverlayContainer = ({
 
   const apolloClient = useApolloClient();
 
+  const addQrValueWrapperToMap = useCallback(
+    (qrValueWrapper: IQrValueWrapper) => {
+      setScannedQrValueWrappersMap((prev) => {
+        const newMap = new Map(prev);
+        newMap.set(qrValueWrapper.key, qrValueWrapper);
+        return newMap;
+      });
+    },
+    []
+  );
+
   const qrValueResolver = useCallback(
-    (qrValueWrapper: IQrValueWrapper): Promise<IQrValueWrapper> => {
+    (qrValueWrapper: IQrValueWrapper): void => {
       const extractedQrCodeFromUrl = extractQrCodeFromUrl(qrValueWrapper.key);
 
       if (extractedQrCodeFromUrl == null) {
@@ -52,60 +63,60 @@ const QrReaderOverlayContainer = ({
           finalValue: { kind: "noBoxtributeQr" },
         } as IQrValueWrapper;
         console.error("Not a Boxtribute QR Code");
-        return Promise.resolve(resolvedQrValueWrapper);
-      }
-
-      return apolloClient
-        .query<
-          GetBoxLabelIdentifierForQrCodeQuery,
-          GetBoxLabelIdentifierForQrCodeQueryVariables
-        >({
-          query: GET_BOX_LABEL_IDENTIFIER_BY_QR_CODE,
-          variables: { qrCode: extractedQrCodeFromUrl },
-          fetchPolicy: "no-cache",
-        })
-        .then(({ data, error, errors }) => {
-          const boxLabelIdentifier = data?.qrCode?.box?.labelIdentifier;
-          if (boxLabelIdentifier == null) {
+        addQrValueWrapperToMap(resolvedQrValueWrapper);
+      } else {
+        apolloClient
+          .query<
+            GetBoxLabelIdentifierForQrCodeQuery,
+            GetBoxLabelIdentifierForQrCodeQueryVariables
+          >({
+            query: GET_BOX_LABEL_IDENTIFIER_BY_QR_CODE,
+            variables: { qrCode: extractedQrCodeFromUrl },
+            fetchPolicy: "no-cache",
+          })
+          .then(({ data, error, errors }) => {
+            const boxLabelIdentifier = data?.qrCode?.box?.labelIdentifier;
+            if (boxLabelIdentifier == null) {
+              const resolvedQrValueWrapper = {
+                ...qrValueWrapper,
+                isLoading: false,
+                finalValue: {
+                  kind: "notAssignedToBox",
+                  qrCodeValue: extractedQrCodeFromUrl,
+                },
+              } as IQrValueWrapper;
+              console.debug("QR Code not assigned to any box yet");
+              addQrValueWrapperToMap(resolvedQrValueWrapper);
+            }
             const resolvedQrValueWrapper = {
               ...qrValueWrapper,
               isLoading: false,
               finalValue: {
-                kind: "notAssignedToBox",
-                qrCodeValue: extractedQrCodeFromUrl,
+                kind: "success",
+                value: {
+                  labelIdentifier: boxLabelIdentifier,
+                  product: data?.qrCode?.box?.product,
+                  size: data?.qrCode?.box?.size,
+                  // TODO: do better validation and error handling here
+                  numberOfItems: data?.qrCode?.box?.items || 0,
+                },
               },
             } as IQrValueWrapper;
-            console.debug("QR Code not assigned to any box yet");
-            return Promise.resolve(resolvedQrValueWrapper);
-          }
-          const resolvedQrValueWrapper = {
-            ...qrValueWrapper,
-            isLoading: false,
-            finalValue: {
-              kind: "success",
-              value: {
-                labelIdentifier: boxLabelIdentifier,
-                product: data?.qrCode?.box?.product,
-                size: data?.qrCode?.box?.size,
-                // TODO: do better validation and error handling here
-                numberOfItems: data?.qrCode?.box?.items || 0,
-              },
-            },
-          } as IQrValueWrapper;
-          return resolvedQrValueWrapper;
-        });
-      // TODO: Handle Authorization / No Access To Box case
-      // .catch((error) => {
-      //   console.error(error);
-      //   const resolvedQrValueWrapper = {
-      //     ...qrValueWrapper,
-      //     isLoading: false,
-      //     finalValue: { kind: "noBoxtributeQr" },
-      //   } as IQrValueWrapper;
-      //   return Promise.resolve(resolvedQrValueWrapper);
-      // });
+            addQrValueWrapperToMap(resolvedQrValueWrapper);
+          });
+        // TODO: Handle Authorization / No Access To Box case
+        // .catch((error) => {
+        //   console.error(error);
+        //   const resolvedQrValueWrapper = {
+        //     ...qrValueWrapper,
+        //     isLoading: false,
+        //     finalValue: { kind: "noBoxtributeQr" },
+        //   } as IQrValueWrapper;
+        //   return Promise.resolve(resolvedQrValueWrapper);
+        // });
+      }
     },
-    [apolloClient]
+    [addQrValueWrapperToMap, apolloClient]
   );
 
   const onSingleScanDone = useCallback(
@@ -196,12 +207,14 @@ const QrReaderOverlayContainer = ({
     //   (qrValueWrapper) => qrValueWrapper.finalValue?.kind !== "noBoxtributeQr"
     // );
     handleClose();
-    const resolvedQrValues = scannedQrValueWrappers.filter(
-      (qrValueWrapper) => qrValueWrapper.finalValue?.kind !== "noBoxtributeQr"
-    ).map(
-      // TODO: improve typings/type handling here (to get rid of the `!`)
-      (qrValueWrapper) => qrValueWrapper.finalValue!
-    );
+    const resolvedQrValues = scannedQrValueWrappers
+      .filter(
+        (qrValueWrapper) => qrValueWrapper.finalValue?.kind !== "noBoxtributeQr"
+      )
+      .map(
+        // TODO: improve typings/type handling here (to get rid of the `!`)
+        (qrValueWrapper) => qrValueWrapper.finalValue!
+      );
     onScanningDone(resolvedQrValues);
   }, [handleClose, onScanningDone, scannedQrValueWrappers]);
 
@@ -219,13 +232,7 @@ const QrReaderOverlayContainer = ({
           interimValue: "loading...",
         };
 
-        qrValueResolver(newQrValueWrapper).then((resolvedQrValueWrapper) => {
-          setScannedQrValueWrappersMap((prev) => {
-            const newMap = new Map(prev);
-            newMap.set(qrValue, resolvedQrValueWrapper);
-            return newMap;
-          });
-        });
+        qrValueResolver(newQrValueWrapper);
         // TODO add error handling
         return new Map(prev.set(qrValue, newQrValueWrapper));
       });
