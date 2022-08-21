@@ -16,6 +16,7 @@ import {
 } from "utils/queries";
 import { IBoxDetailsData } from "utils/base-types";
 import { useBoolean } from "@chakra-ui/react";
+import _ from "lodash";
 
 // TODO: move this out into a shared file or part of custom hook
 export const extractQrCodeFromUrl = (url): string | undefined => {
@@ -121,42 +122,42 @@ const QrReaderOverlayContainer = ({
 
   const handleSingleScan = useCallback(
     (result: string) => {
-        const qrCode = extractQrCodeFromUrl(result);
-        if (qrCode == null) {
-          console.error("Not a Boxtribute QR Code");
-          onScanningDone([{ kind: "noBoxtributeQr" }]);
-        } else {
-          apolloClient
-            .query<
-              GetBoxLabelIdentifierForQrCodeQuery,
-              GetBoxLabelIdentifierForQrCodeQueryVariables
-            >({
-              query: GET_BOX_LABEL_IDENTIFIER_BY_QR_CODE,
-              fetchPolicy: "no-cache",
-              variables: { qrCode },
-            })
-            .then(({ data }) => {
-              const boxLabelIdentifier = data?.qrCode?.box?.labelIdentifier;
-              if (boxLabelIdentifier == null) {
-                onScanningDone([
-                  { kind: "notAssignedToBox", qrCodeValue: qrCode },
-                ]);
-                console.error("No Box yet assigned to QR Code");
-              } else {
-                onScanningDone([
-                  {
-                    kind: "success",
-                    value: {
-                      labelIdentifier: boxLabelIdentifier,
-                      product: data?.qrCode?.box?.product,
-                      size: data?.qrCode?.box?.size,
-                      numberOfItems: data?.qrCode?.box?.items || 0,
-                    } as IBoxDetailsData,
-                  },
-                ]);
-              }
-            });
-        }
+      const qrCode = extractQrCodeFromUrl(result);
+      if (qrCode == null) {
+        console.error("Not a Boxtribute QR Code");
+        onScanningDone([{ kind: "noBoxtributeQr" }]);
+      } else {
+        apolloClient
+          .query<
+            GetBoxLabelIdentifierForQrCodeQuery,
+            GetBoxLabelIdentifierForQrCodeQueryVariables
+          >({
+            query: GET_BOX_LABEL_IDENTIFIER_BY_QR_CODE,
+            fetchPolicy: "no-cache",
+            variables: { qrCode },
+          })
+          .then(({ data }) => {
+            const boxLabelIdentifier = data?.qrCode?.box?.labelIdentifier;
+            if (boxLabelIdentifier == null) {
+              onScanningDone([
+                { kind: "notAssignedToBox", qrCodeValue: qrCode },
+              ]);
+              console.error("No Box yet assigned to QR Code");
+            } else {
+              onScanningDone([
+                {
+                  kind: "success",
+                  value: {
+                    labelIdentifier: boxLabelIdentifier,
+                    product: data?.qrCode?.box?.product,
+                    size: data?.qrCode?.box?.size,
+                    numberOfItems: data?.qrCode?.box?.items || 0,
+                  } as IBoxDetailsData,
+                },
+              ]);
+            }
+          });
+      }
     },
     [apolloClient, onScanningDone]
   );
@@ -201,23 +202,22 @@ const QrReaderOverlayContainer = ({
   }, [onClose, resetState]);
 
   const onBulkScanningDone = useCallback(() => {
-    // const resolvedQrValues = Array.from(scannedQrValueWrappersMap.values()).filter(
-    //   (qrValueWrapper) => qrValueWrapper.finalValue?.kind !== "noBoxtributeQr"
-    // );
     handleClose();
-    const resolvedQrValues = scannedQrValueWrappers
-      .filter(
-        (qrValueWrapper) => qrValueWrapper.finalValue?.kind !== "noBoxtributeQr"
-      )
-      .map(
-        // TODO: improve typings/type handling here (to get rid of the `!`)
-        (qrValueWrapper) => qrValueWrapper.finalValue!
-      );
+    const resolvedQrValues = _(scannedQrValueWrappers)
+      .concat(boxesByLabelSearchWrappers)
+      .filter((qrValueWrapper) => qrValueWrapper.finalValue?.kind === "success")
+      .uniqBy(el => el.key)
+      // TODO: improve typings/type handling here (to get rid of the `!`)
+      .map((qrValueWrapper) => qrValueWrapper.finalValue!)
+      .value();
     onScanningDone(resolvedQrValues);
-  }, [handleClose, onScanningDone, scannedQrValueWrappers]);
+  }, [
+    boxesByLabelSearchWrappers,
+    handleClose,
+    onScanningDone,
+    scannedQrValueWrappers,
+  ]);
 
-  // TODO: consider to lift the state for the qr values up to the container
-  // and to get rid of passing in the qr value resolver callback/promise
   const addQrValueToBulkList = useCallback(
     async (qrValue: string) => {
       setScannedQrValueWrappersMap((prev) => {
@@ -256,9 +256,37 @@ const QrReaderOverlayContainer = ({
     ]
   );
 
-  const onFindBoxByLabel = (label: string) => {
-    // TODO: refactor this big if / else into smaller methods
-    if (isBulkModeSupported && isBulkModeActive) {
+  const handleFindBoxByLabelForNonBulkMode = useCallback((label: string) => {
+    apolloClient
+      .query<BoxDetailsQuery, BoxDetailsQueryVariables>({
+        query: BOX_DETAILS_BY_LABEL_IDENTIFIER_QUERY,
+        fetchPolicy: "no-cache",
+        variables: { labelIdentifier: label },
+      })
+      // TODO: add catch handling here (for failed promises)
+      .then(({ data }) => {
+        const boxData = data?.box;
+        if (boxData == null) {
+          console.error("Box not found for this label");
+        } else {
+          onScanningDone([
+            {
+              kind: "success",
+              value: {
+                labelIdentifier: boxData.labelIdentifier,
+                product: boxData.product,
+                size: boxData.size,
+                numberOfItems: boxData.items || 0,
+              } as IBoxDetailsData,
+            },
+          ]);
+          handleClose();
+        }
+      });
+  }, [apolloClient, handleClose, onScanningDone]);
+
+  const handleFindBoxByLabelForBulkMode = useCallback(
+    (label: string) => {
       setBoxesByLabelSearchWrappersMap((prev) => {
         if (prev.has(label)) {
           return prev;
@@ -317,33 +345,15 @@ const QrReaderOverlayContainer = ({
 
         return new Map(prev.set(label, newBoxByLabelSearchWrapper));
       });
+    },
+    [apolloClient]
+  );
+
+  const onFindBoxByLabel = (label: string) => {
+    if (isBulkModeSupported && isBulkModeActive) {
+      handleFindBoxByLabelForBulkMode(label);
     } else {
-      apolloClient
-        .query<BoxDetailsQuery, BoxDetailsQueryVariables>({
-          query: BOX_DETAILS_BY_LABEL_IDENTIFIER_QUERY,
-          fetchPolicy: "no-cache",
-          variables: { labelIdentifier: label },
-        })
-        // TODO: add catch handling here (for failed promises)
-        .then(({ data }) => {
-          const boxData = data?.box;
-          if (boxData == null) {
-            console.error("Box not found for this label");
-          } else {
-            onScanningDone([
-              {
-                kind: "success",
-                value: {
-                  labelIdentifier: boxData.labelIdentifier,
-                  product: boxData.product,
-                  size: boxData.size,
-                  numberOfItems: boxData.items || 0,
-                } as IBoxDetailsData,
-              },
-            ]);
-            handleClose();
-          }
-        });
+      handleFindBoxByLabelForNonBulkMode(label);
     }
   };
 
