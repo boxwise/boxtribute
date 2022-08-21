@@ -349,59 +349,19 @@ const QrReaderOverlayContainer = ({
     }
   };
 
-  // const useValidateBoxByLabelMatchingPackingListEntry = (
-  // ): ValidateBoxByLabelForMatchingPackingListEntry => {
-  //   const apolloClient = useApolloClient();
-  //   return (boxLabel: string) => {
-  //     return apolloClient
-  //       .query<BoxDetailsQuery, BoxDetailsQueryVariables>({
-  //         query: BOX_DETAILS_BY_LABEL_IDENTIFIER_QUERY,
-  //         variables: {
-  //           labelIdentifier: boxLabel,
-  //         },
-  //       })
-  //       .then(({ data }) => {
-  //         const box = data?.box;
-  //         if (box != null) {
-  //           if (
-  //             box.product?.id === packingListEntry.product.id &&
-  //             box.size.id === packingListEntry.size?.id
-  //           ) {
-  //             return {
-  //               isValid: true,
-  //               boxData: {
-  //                 __typename: "Box",
-  //                 labelIdentifier: boxLabel,
-  //                 // ...box,
-  //                 // TODO: consider to make items non-nullable in GraphQL
-  //                 numberOfItems: box.items || 0,
-  //               },
-  //             };
-  //           }
-  //         }
-  //         return {
-  //           isValid: false,
-  //           boxData: null,
-  //         };
-  //       });
-  //   };
-  // };
-
   return (
-    <>
-      <QrReaderOverlay
-        isOpen={isOpen}
-        handleClose={handleClose}
-        isBulkModeSupported={isBulkModeSupported}
-        isBulkModeActive={isBulkModeActive}
-        setIsBulkModeActive={setIsBulkModeActive}
-        boxesByLabelSearchWrappers={boxesByLabelSearchWrappers}
-        scannedQrValueWrappers={scannedQrValueWrappers}
-        onBulkScanningDoneButtonClick={onBulkScanningDone}
-        onScanningResult={onScanningResult}
-        onFindBoxByLabel={onFindBoxByLabel}
-      />
-    </>
+    <QrReaderOverlay
+      isOpen={isOpen}
+      handleClose={handleClose}
+      isBulkModeSupported={isBulkModeSupported}
+      isBulkModeActive={isBulkModeActive}
+      setIsBulkModeActive={setIsBulkModeActive}
+      boxesByLabelSearchWrappers={boxesByLabelSearchWrappers}
+      scannedQrValueWrappers={scannedQrValueWrappers}
+      onBulkScanningDoneButtonClick={onBulkScanningDone}
+      onScanningResult={onScanningResult}
+      onFindBoxByLabel={onFindBoxByLabel}
+    />
   );
 };
 
