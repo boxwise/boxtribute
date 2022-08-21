@@ -1,4 +1,4 @@
-import { useContext, useMemo } from "react";
+import { useContext, useMemo, useState } from "react";
 import { useCallback } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { useAuth0 } from "@auth0/auth0-react";
@@ -11,6 +11,8 @@ import {
   QrResolverResultSuccessValue,
 } from "components/QrReaderOverlay/QrReaderOverlay";
 import { GlobalPreferencesContext } from "providers/GlobalPreferencesProvider";
+import { IBoxDetailsData } from "utils/base-types";
+import BoxesBulkOperationsOverlay from "./BoxesBulkOperationsOverlay";
 
 const HeaderMenuContainer = () => {
   const auth0 = useAuth0();
@@ -78,6 +80,9 @@ const HeaderMenuContainer = () => {
   );
   const qrScannerOverlayState = useDisclosure({ defaultIsOpen: false });
   const toast = useToast();
+  const [boxesDataForBulkOperation, setBoxesDataForBulkOperation] = useState<
+    IBoxDetailsData[]
+  >([]);
 
   const onScanningDone = useCallback(
     (qrResolvedValues: QrResolvedValue[]) => {
@@ -119,12 +124,13 @@ const HeaderMenuContainer = () => {
         const boxesData = successfullyResolvedValues.map(
           (qrResolvedValue) => qrResolvedValue.value
         );
-        toast({
-          title: `You scanned multiple boxes. What do you want to do with them? (WIP)`,
-          status: "info",
-          isClosable: true,
-          duration: 2000,
-        });
+        setBoxesDataForBulkOperation(boxesData);
+        // toast({
+        //   title: `You scanned multiple boxes. What do you want to do with them? (WIP)`,
+        //   status: "info",
+        //   isClosable: true,
+        //   duration: 2000,
+        // });
       }
     },
     [baseId, navigate, toast]
@@ -147,6 +153,11 @@ const HeaderMenuContainer = () => {
         isOpen={qrScannerOverlayState.isOpen}
         onClose={qrScannerOverlayState.onClose}
         onScanningDone={onScanningDone}
+      />
+      <BoxesBulkOperationsOverlay
+        isOpen={boxesDataForBulkOperation.length > 0}
+        handleClose={() => setBoxesDataForBulkOperation([])}
+        boxesData={boxesDataForBulkOperation}
       />
     </>
   );
