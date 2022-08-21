@@ -130,7 +130,7 @@ export interface QrReaderOverlayProps {
   qrValueResolver: (
     qrValueWrapper: IQrValueWrapper
   ) => Promise<IQrValueWrapper>;
-  onClose: () => void;
+  handleClose: () => void;
   isOpen: boolean;
 }
 
@@ -185,7 +185,7 @@ const QrReaderOverlay = ({
   onBulkScanningDoneButtonClick,
   qrValueResolver,
   onSingleScanDone,
-  onClose,
+  handleClose,
   onScanningResult,
   boxesByLabelSearchWrappers,
   scannedQrValueWrappers
@@ -216,7 +216,7 @@ const QrReaderOverlay = ({
       isOpen={isOpen}
       closeOnOverlayClick={true}
       closeOnEsc={true}
-      onClose={onClose}
+      onClose={handleClose}
     >
       <ModalOverlay />
       <ModalContent>
@@ -343,7 +343,7 @@ const QrReaderOverlay = ({
         </ModalBody>
 
         <ModalFooter>
-          <Button mr={3} onClick={onClose}>
+          <Button mr={3} onClick={handleClose}>
             Cancel
           </Button>
         </ModalFooter>

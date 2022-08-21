@@ -86,5 +86,5 @@ Default.args = {
   isBulkModeSupported: true,
   qrValueResolver: qrValueResolver,
   onSingleScanDone: action(`received result`),
-  onClose: action(`close`),
+  handleClose: action(`close`),
 };

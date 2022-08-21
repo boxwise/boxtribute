@@ -394,7 +394,7 @@ const QrReaderOverlayContainer = ({
         onScanningResult={onScanningResult}
         qrValueResolver={qrValueResolver}
         isOpen={isOpen}
-        onClose={onClose}
+        handleClose={handleClose}
       />
     </>
   );
