@@ -34,7 +34,7 @@ class TagsForBoxLoader(DataLoader):
         ):
             tags[relation.object_id].append(relation.tag)
 
-        # keys are in fact box IDs. Return empty list if box has no tags assigned
+        # Keys are in fact box IDs. Return empty list if box has no tags assigned
         return [tags.get(i, []) for i in keys]
 
 
@@ -48,3 +48,13 @@ class SizeRangeLoader(DataLoader):
     async def batch_load_fn(self, keys):
         ranges = {s.id: s for s in SizeRange.select()}
         return [ranges.get(i) for i in keys]
+
+
+class SizesForSizeRangeLoader(DataLoader):
+    async def batch_load_fn(self, keys):
+        # Mapping of size range ID to list of sizes
+        sizes = defaultdict(list)
+        for size in Size.select():
+            sizes[size.size_range_id].append(size)
+        # Keys are in fact size range IDs. Return empty list if size range has no sizes
+        return [sizes.get(i, []) for i in keys]

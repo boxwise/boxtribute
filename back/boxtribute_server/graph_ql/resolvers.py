@@ -65,7 +65,6 @@ from ..models.definitions.product_category import ProductCategory
 from ..models.definitions.qr_code import QrCode
 from ..models.definitions.shipment import Shipment
 from ..models.definitions.shipment_detail import ShipmentDetail
-from ..models.definitions.size import Size
 from ..models.definitions.tag import Tag
 from ..models.definitions.tags_relation import TagsRelation
 from ..models.definitions.transaction import Transaction
@@ -1004,8 +1003,8 @@ def resolve_shipment_detail_target_location(detail_obj, _):
 
 
 @size_range.field("sizes")
-def resolve_size_range_sizes(size_range_obj, _):
-    return Size.select().where((Size.size_range == size_range_obj.id))
+def resolve_size_range_sizes(size_range_obj, info):
+    return info.context["sizes_for_size_range_loader"].load(size_range_obj.id)
 
 
 @transfer_agreement.field("sourceBases")
