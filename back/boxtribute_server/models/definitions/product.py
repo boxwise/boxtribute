@@ -58,6 +58,7 @@ class Product(db.Model):
         model=SizeRange,
         on_delete="RESTRICT",
         on_update="CASCADE",
+        object_id_name="size_range_id",
     )
     in_shop = IntegerField(
         column_name="stockincontainer", constraints=[SQL("DEFAULT 0")]
