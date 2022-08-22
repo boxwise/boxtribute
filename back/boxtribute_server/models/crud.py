@@ -172,6 +172,22 @@ def update_tag(
     return tag
 
 
+def delete_tag(*, user_id, id):
+    """Soft-delete given tag by setting the 'deleted' timestamp. Unassign the tag from
+    any resources by deleting respective rows of the TagsRelation model.
+    Return the soft-deleted tag.
+    """
+    now = utcnow()
+    tag = Tag.get_by_id(id)
+    tag.deleted = now
+    tag.modified = now
+    tag.modified_by = user_id
+    with db.database.atomic():
+        tag.save()
+        TagsRelation.delete().where(TagsRelation.tag == id).execute()
+    return tag
+
+
 def create_beneficiary(
     *,
     user,
