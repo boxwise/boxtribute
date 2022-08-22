@@ -227,8 +227,14 @@ type Base {
   products: [Product!]!
   distributionSpots: [DistributionSpot!]!
   distributionEvents: [DistributionEvent!]!
-  distributionEventsBeforeReturnState: [DistributionEvent!]!
-  distributionEventsInReturnState: [DistributionEvent!]!
+  # TODO: rethink this query once the prototype testing is over
+  # probably better to have filter parameters and only one query operation
+  distributionEventsBeforeReturnedFromDistributionState: [DistributionEvent!]!
+  # TODO: rethink this query once the prototype testing is over (same as above)
+  # probably better to have filter parameters and only one query operation
+  distributionEventsInReturnedFromDistributionState: [DistributionEvent!]!
+
+  distributionEventsTrackingGroups: [DistributionEventsTrackingGroup!]!
 }
 
 """
@@ -248,7 +254,8 @@ enum DistributionEventState {
   Planning
   Packing
   OnDistro
-  Returned
+  ReturnedFromDistribution
+  ReturnTrackingInProgress
   Completed
 }
 
@@ -268,36 +275,46 @@ type DistributionEvent {
   # TODO: Consider to also add field "itemsCollections" to this type
   # It would return both boxes as well as unboxed items collections
   boxes: [Box!]!
-  unboxedItemsCollections: [UnboxedItemsCollection!]
+  unboxedItemsCollections: [UnboxedItemsCollection!]!
 
-  distributionEventsOutflowTrackingGroup: DistributionEventsOutflowTrackingGroup
+  DistributionEventsTrackingGroup: DistributionEventsTrackingGroup
 }
 
-enum DistributionEventsOutflowTrackingGroupState {
+enum DistributionEventsTrackingGroupState {
   InProgress
   Completed
 }
 
+
 """
 TODO: Add description here once specs are final/confirmed
 """
-type DistributionEventsOutflowTrackingEntry {
-  id: ID!
-  product: Product!
-  size: Size!
-  numberOfItems: Int!
-  distributionEventsOutflowTrackingGroup: DistributionEventsOutflowTrackingGroup!
-  dateTimeOfTracking: Datetime!
+enum DistributionEventsTrackingEntryDirection {
+  In
+  Out
 }
 
 """
 TODO: Add description here once specs are final/confirmed
 """
-type DistributionEventsOutflowTrackingGroup {
+type DistributionEventsTrackingEntry {
   id: ID!
-  state: DistributionEventsOutflowTrackingGroupState!
+  product: Product!
+  size: Size!
+  numberOfItems: Int!
+  DistributionEventsTrackingGroup: DistributionEventsTrackingGroup!
+  dateTimeOfTracking: Datetime!
+  direction: DistributionEventsTrackingEntryDirection!
+}
+
+"""
+TODO: Add description here once specs are final/confirmed
+"""
+type DistributionEventsTrackingGroup {
+  id: ID!
+  state: DistributionEventsTrackingGroupState!
   distributionEvents: [DistributionEvent!]!
-  distributionEventsOutflowTrackingEntry: [DistributionEventsOutflowTrackingEntry!]!
+  distributionEventsTrackingEntries: [DistributionEventsTrackingEntry!]!
 }
 
 """

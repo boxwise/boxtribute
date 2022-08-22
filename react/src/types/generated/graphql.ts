@@ -27,6 +27,7 @@ export type Base = {
   distributionEvents: Array<DistributionEvent>;
   distributionEventsBeforeReturnState: Array<DistributionEvent>;
   distributionEventsInReturnState: Array<DistributionEvent>;
+  distributionEventsTrackingGroups: Array<DistributionEventsTrackingGroup>;
   distributionSpots: Array<DistributionSpot>;
   id: Scalars['ID'];
   /**  List of all [`Locations`]({{Types.Location}}) present in this base  */
@@ -199,8 +200,8 @@ export type BoxUpdateInput = {
 /** TODO: Add description here once specs are final/confirmed */
 export type DistributionEvent = {
   __typename?: 'DistributionEvent';
+  DistributionEventsTrackingGroup?: Maybe<DistributionEventsTrackingGroup>;
   boxes: Array<Box>;
-  distributionEventsOutflowTrackingGroup?: Maybe<DistributionEventsOutflowTrackingGroup>;
   distributionSpot?: Maybe<DistributionSpot>;
   id: Scalars['ID'];
   name?: Maybe<Scalars['String']>;
@@ -228,10 +229,11 @@ export enum DistributionEventState {
 }
 
 /** TODO: Add description here once specs are final/confirmed */
-export type DistributionEventsOutflowTrackingEntry = {
-  __typename?: 'DistributionEventsOutflowTrackingEntry';
+export type DistributionEventsTrackingEntry = {
+  __typename?: 'DistributionEventsTrackingEntry';
+  DistributionEventsTrackingGroup: DistributionEventsTrackingGroup;
   dateTimeOfTracking: Scalars['Datetime'];
-  distributionEventsOutflowTrackingGroup: DistributionEventsOutflowTrackingGroup;
+  direction: DistributionEventsTrackingEntryDirection;
   id: Scalars['ID'];
   numberOfItems: Scalars['Int'];
   product: Product;
@@ -239,15 +241,21 @@ export type DistributionEventsOutflowTrackingEntry = {
 };
 
 /** TODO: Add description here once specs are final/confirmed */
-export type DistributionEventsOutflowTrackingGroup = {
-  __typename?: 'DistributionEventsOutflowTrackingGroup';
+export enum DistributionEventsTrackingEntryDirection {
+  In = 'In',
+  Out = 'Out'
+}
+
+/** TODO: Add description here once specs are final/confirmed */
+export type DistributionEventsTrackingGroup = {
+  __typename?: 'DistributionEventsTrackingGroup';
   distributionEvents: Array<DistributionEvent>;
-  distributionEventsOutflowTrackingEntry: Array<DistributionEventsOutflowTrackingEntry>;
+  distributionEventsTrackingEntries: Array<DistributionEventsTrackingEntry>;
   id: Scalars['ID'];
-  state: DistributionEventsOutflowTrackingGroupState;
+  state: DistributionEventsTrackingGroupState;
 };
 
-export enum DistributionEventsOutflowTrackingGroupState {
+export enum DistributionEventsTrackingGroupState {
   Completed = 'Completed',
   InProgress = 'InProgress'
 }
@@ -430,6 +438,7 @@ export type Mutation = {
   cancelShipment?: Maybe<Shipment>;
   cancelTransferAgreement?: Maybe<TransferAgreement>;
   changeDistributionEventState?: Maybe<DistributionEvent>;
+  completeDistributionEventsTrackingGroup?: Maybe<DistributionEventsTrackingGroup>;
   createBeneficiary?: Maybe<Beneficiary>;
   createBox?: Maybe<Box>;
   createDistributionEvent?: Maybe<DistributionEvent>;
@@ -441,10 +450,13 @@ export type Mutation = {
   deleteTag?: Maybe<Tag>;
   markDistributionEventAsComplete?: Maybe<DistributionEvent>;
   moveItemsFromBoxToDistributionEvent?: Maybe<UnboxedItemsCollection>;
+  moveItemsFromUnboxedItemsCollectionToBox?: Maybe<Box>;
   rejectTransferAgreement?: Maybe<TransferAgreement>;
   removeAllPackingListEntriesFromDistributionEventForProduct?: Maybe<Scalars['Boolean']>;
   removePackingListEntryFromDistributionEvent?: Maybe<DistributionEvent>;
   sendShipment?: Maybe<Shipment>;
+  startDistributionEventsTrackingGroup?: Maybe<DistributionEventsTrackingGroup>;
+  trackReturnOfItemsForDistributionEventsTrackingGroup?: Maybe<DistributionEventsTrackingEntry>;
   unassignBoxFromDistributionEvent?: Maybe<Box>;
   unassignTag?: Maybe<TaggableResource>;
   updateBeneficiary?: Maybe<Beneficiary>;
@@ -525,6 +537,16 @@ export type MutationCancelTransferAgreementArgs = {
 export type MutationChangeDistributionEventStateArgs = {
   distributionEventId: Scalars['ID'];
   newState: DistributionEventState;
+};
+
+
+/**
+ * Naming convention:
+ * - input argument: creationInput/updateInput
+ * - input type: <Resource>CreationInput/UpdateInput
+ */
+export type MutationCompleteDistributionEventsTrackingGroupArgs = {
+  distributionEventsTrackingGroupId: Scalars['ID'];
 };
 
 
@@ -645,6 +667,18 @@ export type MutationMoveItemsFromBoxToDistributionEventArgs = {
  * - input argument: creationInput/updateInput
  * - input type: <Resource>CreationInput/UpdateInput
  */
+export type MutationMoveItemsFromUnboxedItemsCollectionToBoxArgs = {
+  boxLabelIdentifier: Scalars['ID'];
+  numberOfItems: Scalars['Int'];
+  unboxedItemsCollectionId: Scalars['ID'];
+};
+
+
+/**
+ * Naming convention:
+ * - input argument: creationInput/updateInput
+ * - input type: <Resource>CreationInput/UpdateInput
+ */
 export type MutationRejectTransferAgreementArgs = {
   id: Scalars['ID'];
 };
@@ -678,6 +712,30 @@ export type MutationRemovePackingListEntryFromDistributionEventArgs = {
  */
 export type MutationSendShipmentArgs = {
   id: Scalars['ID'];
+};
+
+
+/**
+ * Naming convention:
+ * - input argument: creationInput/updateInput
+ * - input type: <Resource>CreationInput/UpdateInput
+ */
+export type MutationStartDistributionEventsTrackingGroupArgs = {
+  distributionEventIds: Array<Scalars['ID']>;
+};
+
+
+/**
+ * Naming convention:
+ * - input argument: creationInput/updateInput
+ * - input type: <Resource>CreationInput/UpdateInput
+ */
+export type MutationTrackReturnOfItemsForDistributionEventsTrackingGroupArgs = {
+  distributionEventsTrackingGroupId: Scalars['ID'];
+  numberOfItems: Scalars['ID'];
+  productId: Scalars['ID'];
+  sizeId: Scalars['ID'];
+  targetBoxId: Scalars['ID'];
 };
 
 

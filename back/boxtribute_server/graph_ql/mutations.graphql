@@ -47,6 +47,13 @@ type Mutation {
     distributionEventId: ID!
     numberOfItems: Int!
   ): UnboxedItemsCollection
+  moveItemsFromUnboxedItemsCollectionToBox(
+    unboxedItemsCollectionId: ID!
+    boxLabelIdentifier: ID!
+    numberOfItems: Int!
+  ): Box
 
-  markDistributionEventAsComplete(distributionEventId: ID!): DistributionEvent
+  startDistributionEventsTrackingGroup(distributionEventIds: [ID!]!): DistributionEventsTrackingGroup
+  trackReturnOfItemsForDistributionEventsTrackingGroup(distributionEventsTrackingGroupId: ID!, productId: ID!, sizeId: ID!, numberOfItems: ID!, targetBoxId: ID!): DistributionEventsTrackingEntry
+  completeDistributionEventsTrackingGroup(distributionEventsTrackingGroupId: ID!): DistributionEventsTrackingGroup
 }
