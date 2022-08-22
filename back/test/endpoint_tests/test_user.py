@@ -31,6 +31,4 @@ def test_user_query(read_only_client, default_users, default_organisation):
 
 def test_users_query(read_only_client, default_users):
     query = """query { users { id name } }"""
-    queried_user = assert_successful_request(read_only_client, query)[0]
-    first_id = int(queried_user["id"])
-    assert queried_user["name"] == default_users[first_id]["name"]
+    assert assert_successful_request(read_only_client, query) == []
