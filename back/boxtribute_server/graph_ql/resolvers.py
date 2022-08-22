@@ -199,8 +199,9 @@ def resolve_distributions_events(base_obj, _):
         # apparently does not work.
         # I was able to see events for a different base than the one queried
         # when I used the '&' syntax.
-        .where(Base.id == base_obj.id)
-        .where(Location.type == LocationType.DistributionSpot)
+        .where(
+            (Base.id == base_obj.id) & (Location.type == LocationType.DistributionSpot)
+        )
     )
     return distribution_events
 
@@ -765,20 +766,17 @@ def resolve_send_shipment(*_, id):
 @base.field("locations")
 def resolve_base_locations(base_obj, _):
     authorize(permission="location:read")
-    return (
-        Location.select()
-        .where(Location.base == base_obj.id)
-        .where(Location.type == LocationType.Location)
+    return Location.select().where(
+        (Location.base == base_obj.id) & (Location.type == LocationType.Location)
     )
 
 
 @query.field("distributionSpots")
 def resolve_distributions_spots(base_obj, _):
     authorize(permission="location:read")
-    return (
-        Location.select()
-        .where(Location.type == LocationType.DistributionSpot)
-        .where(base_filter_condition(Location))
+    return Location.select().where(
+        (Location.type == LocationType.DistributionSpot)
+        & (base_filter_condition(Location))
     )
 
 
@@ -789,8 +787,9 @@ def resolve_base_distributions_spots(base_obj, _):
     return (
         Location.select()
         .join(Base)
-        .where(Location.type == LocationType.DistributionSpot)
-        .where(base_filter_condition)
+        .where(
+            (Location.type == LocationType.DistributionSpot) & (base_filter_condition)
+        )
     )
 
 
@@ -857,10 +856,12 @@ def resolve_distribution_events_before_return_state(base_obj, *_):
         DistributionEvent.select()
         .join(Location, on=(DistributionEvent.distribution_spot == Location.id))
         .join(Base, on=(Location.base == Base.id))
-        .where(Base.id == base_obj.id)
-        .where(Location.type == LocationType.DistributionSpot)
-        .where(DistributionEvent.state != DistributionEventState.Returned)
-        .where(DistributionEvent.state != DistributionEventState.Completed)
+        .where(
+            (Location.type == LocationType.DistributionSpot)
+            & (DistributionEvent.state != DistributionEventState.Returned)
+            & (DistributionEvent.state != DistributionEventState.Completed)
+            & (Base.id == base_obj.id)
+        )
     )
 
 
@@ -871,9 +872,11 @@ def resolve_distribution_events_in_return_state(base_obj, *_):
         DistributionEvent.select()
         .join(Location, on=(DistributionEvent.distribution_spot == Location.id))
         .join(Base, on=(Location.base == Base.id))
-        .where(Base.id == base_obj.id)
-        .where(Location.type == LocationType.DistributionSpot)
-        .where(DistributionEvent.state == DistributionEventState.Returned)
+        .where(
+            (Base.id == base_obj.id)
+            & (Location.type == LocationType.DistributionSpot)
+            & (DistributionEvent.state == DistributionEventState.Returned)
+        )
     )
 
 

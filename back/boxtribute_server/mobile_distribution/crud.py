@@ -63,13 +63,10 @@ def unassign_box_from_distribution_event(box_label_identifier, distribution_even
         # TODO: consider to to do validation checks here, once
         # business rules are finalised
 
-        # distribution_event = DistributionEvent.get_by_id(distribution_event_id)
-        # if distribution_event.state == DistributionEventState.Returned:
-        #     raise UnassignBoxFromOnDistroOrReturnedDistributionEvent(
-        #         desired_operation="unassign_box_from_distribution_event",
-        #         distribution_event_id=distribution_event.id,
-        #     )
         box = Box.get(Box.label_identifier == box_label_identifier)
+        # TODO: business logic might actually be better to set the location to
+        # the Distro Spot only once the whole event is moved into
+        # state "OnDistribution"
         # box.location = distribution_event.distribution_spot_id
         box.distribution_event = None
         box.save()
