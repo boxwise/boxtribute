@@ -9,13 +9,7 @@ import {
   Flex,
   IconButton,
   WrapItem,
-  RadioGroup,
-  Radio,
-  FormControl,
-  FormLabel,
-  Switch,
 } from "@chakra-ui/react";
-import React, { useState } from "react";
 import { NavLink } from "react-router-dom";
 import {
   BoxByLabelIdentifierQuery,
@@ -77,6 +71,7 @@ const BoxDetails = ({
         w={["100%", "80%", "40%", "30%"]}
         border="2px"
         mb={6}
+        pb={2}
         backgroundColor="#F4E5A0"
         mr={["0", "0", "6rem", "6rem"]}
       >
@@ -87,40 +82,45 @@ const BoxDetails = ({
             </Heading>
             <Flex>
               <Text>
-                <b>Status:&nbsp;</b>
+                <b>State:&nbsp;</b>
               </Text>
-              <Text color={statusColor(boxData.state)}>{boxData.state}</Text>
+              <Text color={statusColor(boxData.state)}><b>{boxData.state}</b></Text>
             </Flex>
           </Flex>
 
           <NavLink to="edit">
             <IconButton
               aria-label="Edit box"
-              backgroundColor="transparent"
               borderRadius="0"
               icon={<EditIcon h={6} w={6} />}
+              border="2px"
             />
           </NavLink>
         </Flex>
         <List px={4} pb={2} spacing={2}>
           <ListItem>
-            <Text fontSize="xl" fontWeight={"bold"}>
+            <Text fontSize="xl" fontWeight={"bold"} >
               {boxData.product?.name}
             </Text>
           </ListItem>
-          <ListItem>
-            <Flex direction="row">
-              <Text mr={2}>
-                <b>Gender: </b>
-                {boxData.product?.gender}
-              </Text>
+          <ListItem >
+            <Flex alignItems="center">
+              <Box border="2px" borderRadius="0" px={2}>
+                <Text fontSize="xl" fontWeight={"bold"}>
+                  {boxData.items}
+                </Text>
+              </Box>
+              <Box border="2px" backgroundColor="#1A202C" borderRadius="0" px={2}>
+                <Text color='#F3E4A0' fontSize="xl" fontWeight={"bold"}>
+                  {boxData.size.label}
+                </Text>
+              </Box>
             </Flex>
           </ListItem>
           <ListItem>
-            <Flex direction="row">
-              <Text>
-                <b>Size: </b>
-                {boxData.size.label}
+            <Flex direction="row" pb={4}>
+              <Text mr={2}>
+                <b>{boxData.product?.gender}</b>
               </Text>
             </Flex>
           </ListItem>
@@ -139,16 +139,14 @@ const BoxDetails = ({
                   mr={4}
                   border="2px"
                   borderRadius="0"
-                  backgroundColor="transparent"
                 >
-                  Scrap 
+                  Scrap
                 </Button>
                 <Button
                   onClick={onLost}
                   mr={4}
                   border="2px"
                   borderRadius="0"
-                  backgroundColor="transparent"
                 >
                   Lost
                 </Button>
@@ -159,7 +157,6 @@ const BoxDetails = ({
                   mr={4}
                   border="2px"
                   borderRadius="0"
-                  backgroundColor="transparent"
                   aria-label="Search database"
                   icon={<AddIcon />}
                 />
@@ -167,7 +164,6 @@ const BoxDetails = ({
                   onClick={onMinusOpen}
                   border="2px"
                   borderRadius="0"
-                  backgroundColor="transparent"
                   aria-label="Search database"
                   icon={<MinusIcon />}
                 />
@@ -198,6 +194,7 @@ const BoxDetails = ({
                     borderRadius="0px"
                     onClick={() => moveToLocationClick(location.id)}
                     disabled={boxData.place?.id === location.id}
+                    border="2px"
                   >
                     {location.name}
                   </Button>

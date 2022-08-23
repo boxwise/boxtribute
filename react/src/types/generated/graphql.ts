@@ -1297,7 +1297,7 @@ export type UpdateNumberOfItemsMutation = { __typename?: 'Mutation', updateBox?:
 
 export type UpdateStateMutationVariables = Exact<{
   boxLabelIdentifier: Scalars['String'];
-  newStatus: BoxState;
+  newState: BoxState;
 }>;
 
 

@@ -10,6 +10,8 @@ import {
   UpdateLocationOfBoxMutationVariables,
   UpdateNumberOfItemsMutation,
   UpdateNumberOfItemsMutationVariables,
+  UpdateStateMutationVariables,
+  UpdateStateMutation,
 } from "types/generated/graphql";
 import AddItemsToBoxOverlay from "./components/AddItemsToBoxOverlay";
 import TakeItemsFromBoxOverlay from "./components/TakeItemsFromBoxOverlay";
@@ -63,16 +65,10 @@ export const UPDATE_NUMBER_OF_ITEMS_IN_BOX_MUTATION = gql`
   }
 `;
 
-export const UPDATE_STATUS_IN_BOX_MUTATION = gql`
-  mutation UpdateState(
-    $boxLabelIdentifier: String!
-    $newStatus: BoxState!
-  ) {
+export const UPDATE_STATE_IN_BOX_MUTATION = gql`
+  mutation UpdateState($boxLabelIdentifier: String!, $newState: BoxState!) {
     updateBox(
-      updateInput: {
-        labelIdentifier: $boxLabelIdentifier
-        state: $newStatus
-      }
+      updateInput: { labelIdentifier: $boxLabelIdentifier, state: $newState }
     ) {
       labelIdentifier
     }
@@ -134,13 +130,10 @@ export interface ChangeNumberOfItemsBoxData {
   numberOfItems: number;
 }
 
-export interface ChangeStatusBoxData{
-  state: BoxState;
-}
 
 const BTBox = () => {
-  const labelIdentifier =
-    useParams<{ labelIdentifier: string }>().labelIdentifier!;
+  const labelIdentifier = useParams<{ labelIdentifier: string }>()
+    .labelIdentifier!;
   const { loading, error, data } = useQuery<
     BoxByLabelIdentifierQuery,
     BoxByLabelIdentifierQueryVariables
@@ -164,19 +157,19 @@ const BTBox = () => {
     ],
   });
 
-  const [UpdateStateMutation] = useMutation<
+  const [updateStateMutation] = useMutation<
     UpdateStateMutation,
     UpdateStateMutationVariables
->(UPDATE_STATUS_IN_BOX_MUTATION, {
-  refetchQueries: [
-    {
-      query: BOX_BY_LABEL_IDENTIFIER_QUERY,
-      variables: {
-        labelIdentifier: labelIdentifier,
+  >(UPDATE_STATE_IN_BOX_MUTATION, {
+    refetchQueries: [
+      {
+        query: BOX_BY_LABEL_IDENTIFIER_QUERY,
+        variables: {
+          labelIdentifier: labelIdentifier,
+        },
       },
-    },
-  ],
-});
+    ],
+  });
 
   const [updateBoxLocation, mutationLocationStatus] = useMutation<
     UpdateLocationOfBoxMutation,
@@ -210,13 +203,25 @@ const BTBox = () => {
 
   const boxData = mutationLocationStatus.data?.updateBox || data?.box;
 
-  const onScrap = () => (
+  const onScrap = () => {
+    updateStateMutation({
+      variables: {
+        boxLabelIdentifier: labelIdentifier,
+        newState: BoxState.Scrap,
+      },
+    });
     console.log("onscrap")
-  )
+  };
 
-  const onLost = () => (
+  const onLost = () => {
+    updateStateMutation({
+      variables: {
+        boxLabelIdentifier: labelIdentifier,
+        newState: BoxState.Lost,
+      },
+    });
     console.log("onlost")
-  )
+  };
 
   const onSubmitTakeItemsFromBox = (
     boxFormValues: ChangeNumberOfItemsBoxData
@@ -244,9 +249,7 @@ const BTBox = () => {
     }
   };
 
-  const onSubmitAddItemstoBox = (
-    boxFormValues: ChangeNumberOfItemsBoxData
-  ) => {
+  const onSubmitAddItemstoBox = (boxFormValues: ChangeNumberOfItemsBoxData) => {
     if (
       boxFormValues.numberOfItems &&
       boxFormValues.numberOfItems > 0 &&
@@ -278,10 +281,6 @@ const BTBox = () => {
       },
     });
   };
-
-  // const onLost = (state: BoxState) => {
-
-  // }
 
   return (
     <>
