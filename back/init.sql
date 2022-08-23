@@ -605,7 +605,7 @@ UNLOCK TABLES;
 DROP TABLE IF EXISTS `distro_events_tracking_logs`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
-CREATE TABLE `distro_events_outflow_logs` (
+CREATE TABLE `distro_events_tracking_logs` (
   `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
   `product_id` int(11) unsigned NOT NULL,
   `number_of_items` int(11) NOT NULL,
@@ -616,10 +616,10 @@ CREATE TABLE `distro_events_outflow_logs` (
   `date` datetime NOT NULL,
   `details` text,
   PRIMARY KEY (`id`),
-  KEY `distro_events_outflow_logs_date` (`date`),
+  KEY `distro_events_tracking_logs_date` (`date`),
   KEY `product_id` (`product_id`),
   KEY `size_id` (`size_id`),
-  KEY `distro_events_outflow_logs_flow_direction` (`flow_direction`),
+  KEY `distro_events_tracking_logs_flow_direction` (`flow_direction`),
   KEY `location_id` (`location_id`),
   KEY `distro_event_tracking_group_id` (`distro_event_tracking_group_id`),
   CONSTRAINT `distro_events_tracking_logs_ibfk_2` FOREIGN KEY (`product_id`) REFERENCES `products` (`id`) ON DELETE RESTRICT ON UPDATE CASCADE,
