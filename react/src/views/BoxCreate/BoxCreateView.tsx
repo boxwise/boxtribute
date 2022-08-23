@@ -22,7 +22,7 @@ export const CREATE_BOX_MUTATION = gql`
       creationInput: {
         locationId: $locationId
         productId: $productId
-        items: $numberOfItems
+        numberOfItems: $numberOfItems
         sizeId: $sizeId
         qrCode: $qrCode
       }

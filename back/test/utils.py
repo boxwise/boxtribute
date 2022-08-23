@@ -67,5 +67,7 @@ def assert_successful_request(client, query, field=None, endpoint="graphql"):
     response = client.post(f"/{endpoint}", json=data)
     assert response.status_code == 200
 
+    assert "errors" not in response.json
+
     field = field or _extract_field(query)
     return response.json["data"][field]

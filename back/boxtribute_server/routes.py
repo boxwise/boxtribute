@@ -1,7 +1,8 @@
 """Construction of routes for web app and API"""
+import asyncio
 import os
 
-from ariadne import graphql_sync
+from ariadne import graphql
 from ariadne.constants import PLAYGROUND_HTML
 from flask import Blueprint, current_app, jsonify, request
 from flask_cors import cross_origin
@@ -9,6 +10,14 @@ from flask_cors import cross_origin
 from .auth import request_jwt, requires_auth
 from .exceptions import AuthenticationFailed, format_database_errors
 from .graph_ql.schema import full_api_schema, query_api_schema
+from .loaders import (
+    ProductCategoryLoader,
+    ProductLoader,
+    SizeLoader,
+    SizeRangeLoader,
+    SizesForSizeRangeLoader,
+    TagsForBoxLoader,
+)
 
 # Blueprint for query-only API. Deployed on the 'api*' subdomains
 api_bp = Blueprint("api_bp", __name__)
@@ -43,16 +52,7 @@ def query_api_playground():
 @cross_origin(origin="localhost", headers=["Content-Type", "Authorization"])
 @requires_auth
 def query_api_server():
-    success, result = graphql_sync(
-        query_api_schema,
-        data=request.get_json(),
-        context_value=request,
-        introspection=current_app.debug,
-        error_formatter=format_database_errors,
-    )
-
-    status_code = 200 if success else 400
-    return jsonify(result), status_code
+    return execute_async(schema=query_api_schema)
 
 
 @api_bp.route("/token", methods=["POST"])
@@ -82,15 +82,35 @@ def graphql_playgroud():
 @cross_origin(origin="localhost", headers=["Content-Type", "Authorization"])
 @requires_auth
 def graphql_server():
-    # Note: Passing the request to the context is optional.
-    # In Flask, the current request is always accessible as flask.request
-    success, result = graphql_sync(
-        full_api_schema,
-        data=request.get_json(),
-        context_value=request,
-        debug=current_app.debug,
-        introspection=current_app.debug,
-        error_formatter=format_database_errors,
+    return execute_async(schema=full_api_schema)
+
+
+def execute_async(*, schema):
+    # Start async event loop, required for DataLoader construction, cf.
+    # https://github.com/graphql-python/graphql-core/issues/71#issuecomment-620106364
+    loop = asyncio.new_event_loop()
+    asyncio.set_event_loop(loop)
+
+    # Create DataLoaders and persist them for the time of processing the request
+    context = {
+        "product_category_loader": ProductCategoryLoader(),
+        "product_loader": ProductLoader(),
+        "size_loader": SizeLoader(),
+        "size_range_loader": SizeRangeLoader(),
+        "sizes_for_size_range_loader": SizesForSizeRangeLoader(),
+        "tags_for_box_loader": TagsForBoxLoader(),
+    }
+
+    # Execute the GraphQL request against schema in async event loop, passing in context
+    success, result = loop.run_until_complete(
+        graphql(
+            schema,
+            data=request.get_json(),
+            context_value=context,
+            debug=current_app.debug,
+            introspection=current_app.debug,
+            error_formatter=format_database_errors,
+        )
     )
 
     status_code = 200 if success else 400

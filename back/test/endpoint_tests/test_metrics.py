@@ -75,7 +75,7 @@ def test_metrics_query_stock_overview(
     assert response == {
         "stockOverview": {
             "numberOfBoxes": len(boxes),
-            "numberOfItems": sum(b["items"] for b in boxes),
+            "numberOfItems": sum(b["number_of_items"] for b in boxes),
         }
     }
 
@@ -111,7 +111,7 @@ def test_metrics_query_moved_stock_overview(
                 {
                     "productCategoryName": "Underwear / Nightwear",
                     "numberOfBoxes": number_of_boxes,
-                    "numberOfItems": sum(b["items"] for b in boxes),
+                    "numberOfItems": sum(b["number_of_items"] for b in boxes),
                 }
             ]
         }

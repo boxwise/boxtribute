@@ -70,7 +70,7 @@ const graphqlToDistributionEventStockSummary = (
   distributionEventsToFilterFor: string[]
 ) => {
   const distributionEvents =
-    queryResult.base?.distributionEventsInReturnState || [];
+    queryResult.base?.distributionEventsInReturnedFromDistributionState || [];
   // TODO: consider to track/handle this as an error here
   // if (distributionEvents.length === 0) {
   // }
@@ -92,7 +92,7 @@ const graphqlToDistributionEventStockSummary = (
             ({
               product: el.product,
               size: el.size,
-              numberOfItems: el.items,
+              numberOfItems: el.numberOfItems,
             } as ItemCollection)
         )
         .concat(
@@ -101,7 +101,7 @@ const graphqlToDistributionEventStockSummary = (
               ({
                 product: el.product,
                 size: el.size,
-                numberOfItems: el.items,
+                numberOfItems: el.numberOfItems,
               } as ItemCollection)
           ) || []
         )
@@ -262,9 +262,9 @@ const DistrosReturnTrackingView = () => {
     console.error("Error in DistrosReturnTrackingView : ", error);
     return <Center>Error!</Center>;
   }
-  if (data?.base?.distributionEventsInReturnState == null) {
+  if (data?.base?.distributionEventsInReturnedFromDistributionState == null) {
     console.error(
-      "Problem in DistrosReturnTrackingView: data?.distributionEvents is undefined|null"
+      "Problem in DistrosReturnTrackingView: distributionEvents is undefined|null"
     );
     return <Center>Error!</Center>;
   }

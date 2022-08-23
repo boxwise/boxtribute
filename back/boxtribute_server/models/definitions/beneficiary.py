@@ -1,7 +1,7 @@
 from peewee import SQL, CharField, DateField, DateTimeField, IntegerField, TextField
 
 from ...db import db
-from ..fields import UIntForeignKeyField, ZeroDateTimeField
+from ..fields import UIntForeignKeyField, ZeroDateField, ZeroDateTimeField
 from .base import Base
 from .user import User
 
@@ -35,7 +35,7 @@ class Beneficiary(db.Model):
         on_delete="SET NULL",
         on_update="CASCADE",
     )
-    date_of_birth = DateField(null=True, constraints=[SQL("DEFAULT NULL")])
+    date_of_birth = ZeroDateField(null=True, constraints=[SQL("DEFAULT NULL")])
     date_of_signature = ZeroDateTimeField(
         default=None, constraints=[SQL("DEFAULT '0000-00-00 00:00:00'")]
     )

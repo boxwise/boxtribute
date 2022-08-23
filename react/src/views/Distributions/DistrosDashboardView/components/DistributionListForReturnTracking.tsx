@@ -14,13 +14,13 @@ import isPast from "date-fns/isPast";
 import _ from "lodash";
 import { useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
+import { DistributionEventState } from "types/generated/graphql";
 import {
   getDateNormalizedDateTime,
   weekDayNumberToWeekDayName,
 } from "utils/helpers";
 import {
   DistributionEventDetails,
-  DistributionEventState,
 } from "views/Distributions/types";
 
 interface CheckboxGroupProps {
@@ -78,7 +78,7 @@ const DistributionListForReturnTracking = ({
   const sortedDistroEventsWhichNeedReturnTracking = _.chain(
     distributionEventsData
   )
-    .filter((el) => el.state === DistributionEventState.Returned)
+    .filter((el) => el.state === DistributionEventState.ReturnedFromDistribution)
     .orderBy((el) => el.plannedStartDateTime, "desc")
     .value();
 
@@ -90,7 +90,7 @@ const DistributionListForReturnTracking = ({
         isPast(el.plannedEndDateTime) &&
         ![
           DistributionEventState.Completed,
-          DistributionEventState.Returned,
+          DistributionEventState.ReturnedFromDistribution,
         ].includes(el.state)
     )
     .value();

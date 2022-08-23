@@ -49,7 +49,7 @@ const boxDataToSuccessQrValue = (boxData: BoxDetailsQuery["box"]) => {
     labelIdentifier: boxData.labelIdentifier,
     product: boxData.product,
     size: boxData.size,
-    numberOfItems: boxData.items || 0,
+    numberOfItems: boxData.numberOfItems || 0,
     place: boxData.place,
   };
   return {

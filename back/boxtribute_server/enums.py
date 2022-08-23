@@ -6,7 +6,8 @@ class DistributionEventState(enum.IntEnum):
     Planning = 1
     Packing = enum.auto()
     OnDistro = enum.auto()
-    Returned = enum.auto()
+    ReturnedFromDistribution = enum.auto()
+    ReturnTrackingInProgress = enum.auto()
     Completed = enum.auto()
 
 

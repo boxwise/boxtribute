@@ -99,7 +99,7 @@ def compute_stock_overview(*, organisation_id):
     """
     overview = (
         Box.select(
-            fn.sum(Box.items).alias("number_of_items"),
+            fn.sum(Box.number_of_items).alias("number_of_items"),
             fn.Count(Box.id).alias("number_of_boxes"),
         )
         .join(Location)
@@ -126,7 +126,7 @@ def compute_moved_stock_overview(*, organisation_id, after, before):
     boxes = (
         Box.select(
             ProductCategory.name,
-            fn.sum(Box.items).alias("number_of_items"),
+            fn.sum(Box.number_of_items).alias("number_of_items"),
             fn.Count(Box.id).alias("number_of_boxes"),
         )
         .join(Location)

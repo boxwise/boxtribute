@@ -105,7 +105,7 @@ export const MOVE_ITEMS_TO_DISTRIBUTION_EVENT = gql`
       numberOfItems: $numberOfItems
     ) {
       id
-      items
+      numberOfItems
       distributionEvent {
         id
         name
@@ -142,7 +142,7 @@ export const PACKING_LIST_ENTRIES_FOR_DISTRIBUTION_EVENT_QUERY = gql`
         }
         matchingPackedItemsCollections {
           __typename
-          numberOfItems: items
+          numberOfItems
           ... on Box {
             labelIdentifier
           }
@@ -172,7 +172,7 @@ export const CHANGE_DISTRIBUTION_EVENT_STATE_MUTATION = gql`
 export const DISTRIBUTION_EVENTS_IN_RETURN_STATE_FOR_BASE = gql`
   query DistributionEventsInReturnStateForBase($baseId: ID!) {
     base(id: $baseId) {
-      distributionEventsInReturnState {
+      distributionEventsInReturnedFromDistributionState {
         id
         name
         state
@@ -192,7 +192,7 @@ export const DISTRIBUTION_EVENTS_IN_RETURN_STATE_FOR_BASE = gql`
             id
             label
           }
-          items
+          numberOfItems
         }
 
         unboxedItemsCollections {
@@ -205,7 +205,7 @@ export const DISTRIBUTION_EVENTS_IN_RETURN_STATE_FOR_BASE = gql`
             id
             label
           }
-          items
+          numberOfItems
         }
       }
     }
@@ -251,7 +251,7 @@ export const DISTRIBUTION_EVENTS_IN_RETURN_STATE_FOR_BASE = gql`
 //   packingListEntry(id: $packingListEntryId) {
 //     matchingPackedItemsCollections {
 //       __typename
-//       numberOfItems: items
+//       numberOfItems
 //       ... on Box {
 //         labelIdentifier
 //       }

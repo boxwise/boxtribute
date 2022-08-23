@@ -1,20 +1,10 @@
-import { ProductGender } from "types/generated/graphql";
+import { DistributionEventState, ProductGender } from "types/generated/graphql";
 import { z } from "zod";
 
 // export const DistributionEventStateSchema = z.enum(["Planning", "Packing", "OnDistro", "Returned", "Completed"]);
 // export type DistributionEventState = z.infer<typeof DistributionEventStateSchema>;
 
 // Consider to remove this and instead directly use the enum from the generated graphql schema
-export enum DistributionEventState {
-  Planning = "Planning",
-  // PlanningDone = 'PlanningDone',
-  Packing = "Packing",
-  // PackingDone = 'PackingDone',
-  OnDistro = "OnDistro",
-  Returned = "Returned",
-  // ReturnsTracked = 'ReturnsTracked',
-  Completed = "Completed",
-}
 
 export const DistributionEventStateSchema = z.nativeEnum(DistributionEventState);
 

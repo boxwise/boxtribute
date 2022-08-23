@@ -13,14 +13,17 @@ def test_queries(auth0_client, endpoint):
     queried_box = _assert_successful_request(auth0_client, query)["box"]
     assert queried_box == {"id": "735"}
 
-    query = """query { box(labelIdentifier: "177892") { state } }"""
+    query = """query { box(labelIdentifier: "177892") { state size { id } } }"""
     queried_box = _assert_successful_request(auth0_client, query)
-    assert queried_box == {"state": "Donated"}
+    assert queried_box == {"state": "Donated", "size": {"id": "68"}}
+
+    query = """query { beneficiary(id: 100000007) { age dateOfBirth } }"""
+    queried_beneficiary = _assert_successful_request(auth0_client, query)
+    assert queried_beneficiary == {"age": None, "dateOfBirth": None}
 
     for resource in [
         "bases",
         "organisations",
-        "users",
         "locations",
         "productCategories",
         "transferAgreements",
@@ -43,7 +46,7 @@ def test_mutations(auth0_client):
 
     mutation = """mutation { createBox(creationInput: {
                    productId: 1,
-                   items: 10,
+                   numberOfItems: 10,
                    locationId: 1,
                    sizeId: 1,
                    comment: "new things"
@@ -52,10 +55,10 @@ def test_mutations(auth0_client):
     assert response == {"place": {"id": "1"}}
 
     mutation = """mutation { updateBox(updateInput: {
-                    labelIdentifier: "177892", productId: 2
-                }) { product { id } } }"""
+                    labelIdentifier: "177892", numberOfItems: 2
+                }) { numberOfItems } }"""
     response = assert_successful_request(auth0_client, mutation)
-    assert response == {"product": {"id": "2"}}
+    assert response == {"numberOfItems": 2}
 
     mutation = """mutation { createBeneficiary(creationInput: {
                     firstName: "Any",

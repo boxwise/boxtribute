@@ -6,7 +6,7 @@ interface ItemsCollection {
   id: ID!
   product: Product
   size: Size!
-  items: Int
+  numberOfItems: Int
   place: BoxPlace
   distributionEvent: DistributionEvent
 }
@@ -15,7 +15,7 @@ type UnboxedItemsCollection implements ItemsCollection {
   id: ID!
   product: Product
   size: Size!
-  items: Int
+  numberOfItems: Int
   label: String
   place: BoxPlace
   distributionEvent: DistributionEvent
@@ -31,8 +31,7 @@ type Box implements ItemsCollection {
   labelIdentifier: String!
   place: BoxPlace
   distributionEvent: DistributionEvent
-  " The number of items the box contains. "
-  items: Int
+  numberOfItems: Int
   product: Product
   size: Size!
   state: BoxState!
@@ -227,9 +226,12 @@ type Base {
   products: [Product!]!
   distributionSpots: [DistributionSpot!]!
   distributionEvents: [DistributionEvent!]!
+
   # TODO: rethink this query once the prototype testing is over
   # probably better to have filter parameters and only one query operation
   distributionEventsBeforeReturnedFromDistributionState: [DistributionEvent!]!
+
+
   # TODO: rethink this query once the prototype testing is over (same as above)
   # probably better to have filter parameters and only one query operation
   distributionEventsInReturnedFromDistributionState: [DistributionEvent!]!

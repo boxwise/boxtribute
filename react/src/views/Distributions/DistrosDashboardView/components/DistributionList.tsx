@@ -12,11 +12,11 @@ import { isToday } from "date-fns";
 import isFuture from "date-fns/isFuture";
 import isPast from "date-fns/isPast";
 import _ from "lodash";
+import { DistributionEventState } from "types/generated/graphql";
 import { useGetUrlForResourceHelpers } from "utils/hooks";
 import DistributionEventTimeRangeDisplay from "views/Distributions/components/DistributionEventTimeRangeDisplay";
 import {
   DistributionEventDetails,
-  DistributionEventState,
 } from "views/Distributions/types";
 
 const ListOfEvents = ({

@@ -74,7 +74,7 @@ const BoxDetails = ({
   }
   return (
     <Box>
-      {boxData.distributionEvent?.state === "Returned" && (
+      {boxData.distributionEvent?.state === "ReturnedFromDistribution" && (
         <Box backgroundColor={"orange.100"} m={10} p={5}>
           ATTENTION: This box is still assigned to a{" "}
           <Link
@@ -97,6 +97,7 @@ const BoxDetails = ({
         w="100%"
         justifyContent="center"
       >
+{/* <<<<<<< HEAD
         <Box
           w={["100%", "80%", "40%", "30%"]}
           border="2px"
@@ -109,66 +110,44 @@ const BoxDetails = ({
               Box {boxData.labelIdentifier}
             </Heading>
             <ReactRouterLink to="edit">
-              <IconButton
-                aria-label="Edit box"
-                backgroundColor="transparent"
-                borderRadius="0"
-                icon={<EditIcon h={6} w={6} />}
-              />
-            </ReactRouterLink>
-          </Flex>
-          <List px={4} pb={2} spacing={2}>
-            <ListItem>
-              <Text fontSize="xl" fontWeight={"bold"}>
-                {boxData.items} x {boxData.product?.name}
-              </Text>
-            </ListItem>
-            <ListItem>
-              <Flex direction="row">
-                <Text mr={2}>
-                  <b>Gender: </b>
-                  {boxData.product?.gender}
-                </Text>
-              </Flex>
-            </ListItem>
-            <ListItem>
-              <Flex direction="row">
-                <Text>
-                  <b>Size: </b>
-                  {boxData.size.label}
-                </Text>
-              </Flex>
-            </ListItem>
-            <ListItem>
-              {/* <Flex direction="row">
+======= */}
+        <Flex pt={2} px={4} direction="row" justifyContent="space-between">
+          <Heading fontWeight={"bold"} mb={4} as="h2">
+            Box {boxData.labelIdentifier}
+          </Heading>
+          <ReactRouterLink to="edit">
+            <IconButton
+              aria-label="Edit box"
+              backgroundColor="transparent"
+              borderRadius="0"
+              icon={<EditIcon h={6} w={6} />}
+            />
+          </ReactRouterLink>
+        </Flex>
+        <List px={4} pb={2} spacing={2}>
+          <ListItem>
+            <Text fontSize="xl" fontWeight={"bold"}>
+              {boxData.numberOfItems} x {boxData.product?.name}
+            </Text>
+          </ListItem>
+          <ListItem>
+            <Flex direction="row">
+              <Text mr={2}><b>Gender: </b>{boxData.product?.gender}</Text>
+            </Flex>
+          </ListItem>
+          <ListItem>
+            <Flex direction="row">
+              <Text><b>Size: </b>{boxData.size.label}</Text>
+            </Flex>
+          </ListItem>
+          <ListItem>
+            {/* <Flex direction="row">
               {boxData.tags.map((tag, i) => (
                 <Text mr={2}>#{tag.name}</Text>
               ))}
             </Flex> */}
-            </ListItem>
-            <ListItem>
-              <Flex direction="row" justifyContent="flex-end">
-                <IconButton
-                  onClick={onPlusOpen}
-                  mr={4}
-                  border="2px"
-                  borderRadius="0"
-                  backgroundColor="transparent"
-                  aria-label="Search database"
-                  icon={<AddIcon />}
-                />
-                <IconButton
-                  onClick={onMinusOpen}
-                  border="2px"
-                  borderRadius="0"
-                  backgroundColor="transparent"
-                  aria-label="Search database"
-                  icon={<MinusIcon />}
-                />
-              </Flex>
-            </ListItem>
-          </List>
-        </Box>
+          </ListItem>
+        </List>
 
         <Box
           alignContent="center"
@@ -214,7 +193,7 @@ const BoxDetails = ({
 
         <List>
           {/* <Flex wrap="wrap" justifyContent="center"> */}
-          {boxData.place?.base?.distributionEventsBeforeReturnState
+          {boxData.place?.base?.distributionEventsBeforeReturnedFromDistributionState
             // .map(el => DistributionEventDetailsSchema.parse(el))
             .map((distributionEvent) => {
               const isAssignedToDistroEvent =

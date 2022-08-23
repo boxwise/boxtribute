@@ -19,7 +19,7 @@ from utils import assert_forbidden_request, assert_successful_request
 )
 def test_invalid_read_permissions(unauthorized, read_only_client, resource):
     """Verify missing resource:read permission when executing query.
-    Test case 2.1.5., 3.1.4, 4.1.4
+    Test case 2.1.5., 3.1.4, 4.1.4, 4.1.6
     """
     # Build plural form
     resources = f"{resource}s"
@@ -102,7 +102,7 @@ def test_invalid_permission_for_given_resource_id(read_only_client, mocker, quer
         """createBox(
             creationInput : {
                 productId: 1,
-                items: 9999,
+                numberOfItems: 9999,
                 locationId: 1,
                 sizeId: 1,
                 comment: ""
@@ -111,7 +111,7 @@ def test_invalid_permission_for_given_resource_id(read_only_client, mocker, quer
         }""",
         """updateBox(
             updateInput : {
-                labelIdentifier: "f00b45",
+                labelIdentifier: "12345678",
                 comment: "let's try"
             }) {
             id
@@ -144,11 +144,54 @@ def test_invalid_permission_for_given_resource_id(read_only_client, mocker, quer
             }) { id }""",
         # Test case 4.2.7
         "updateTag( updateInput : { id: 1 }) { id }",
+        # Test case 4.2.11
+        "deleteTag( id: 1 ) { id }",
     ],
     ids=operation_name,
 )
 def test_invalid_write_permission(unauthorized, read_only_client, mutation):
     """Verify missing resource:write permission when executing mutation."""
+    assert_forbidden_request(
+        read_only_client, f"mutation {{ {mutation} }}", field=operation_name(mutation)
+    )
+
+
+@pytest.mark.parametrize(
+    "mutation",
+    [
+        # test user does not have permission to access location ID 2 nor product ID 2
+        """createBox(
+            creationInput : {
+                productId: 1,
+                numberOfItems: 9999,
+                locationId: 2,
+                sizeId: 1,
+                comment: ""
+            }) { id }""",
+        """createBox(
+            creationInput : {
+                productId: 2,
+                numberOfItems: 9999,
+                locationId: 1,
+                sizeId: 1,
+                comment: ""
+            }) { id }""",
+        """updateBox(
+            updateInput : { labelIdentifier: "34567890" }) { id }""",
+        """updateBox(
+            updateInput : {
+                labelIdentifier: "12345678",
+                locationId: 2
+            }) { id }""",
+        """updateBox(
+            updateInput : {
+                labelIdentifier: "12345678",
+                productId: 2
+            }) { id }""",
+    ],
+    ids=operation_name,
+)
+def test_invalid_permission_when_mutating_box(read_only_client, mutation):
     assert_forbidden_request(
         read_only_client, f"mutation {{ {mutation} }}", field=operation_name(mutation)
     )
@@ -223,7 +266,7 @@ def test_invalid_permission_for_shipment_base(read_only_client, mocker, field):
     assert_forbidden_request(read_only_client, query, value={field: None})
 
 
-@pytest.mark.parametrize("field", ["place", "product", "qrCode"])
+@pytest.mark.parametrize("field", ["place", "qrCode"])
 def test_invalid_permission_for_box_field(read_only_client, mocker, default_box, field):
     # verify missing field:read permission
     mocker.patch("jose.jwt.decode").return_value = create_jwt_payload(
