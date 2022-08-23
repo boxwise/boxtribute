@@ -15,10 +15,10 @@ import { Select } from "chakra-react-select";
 import { useEffect, useState } from "react";
 import { Controller, useForm } from "react-hook-form";
 import { ProductGender } from "types/generated/graphql";
-import { groupBy } from "utils/helpers";
 
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
+import _ from "lodash";
 
 export interface CategoryData {
   name: string;
@@ -92,7 +92,7 @@ const BoxCreate = ({
   qrCode,
   allLocations,
 }: BoxCreateProps) => {
-  const productsGroupedByCategory = groupBy(
+  const productsGroupedByCategory: Record<string, ProductWithSizeRangeData[]> = _.groupBy(
     productAndSizesData,
     (product) => product.category.name
   );

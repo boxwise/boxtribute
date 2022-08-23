@@ -16,7 +16,7 @@ import {
   UpdateLocationOfBoxMutation,
 } from "types/generated/graphql";
 import { Controller, useForm } from "react-hook-form";
-import { groupBy } from "utils/helpers";
+import _ from "lodash";
 
 interface OptionsGroup extends OptionBase {
   value: string;
@@ -43,7 +43,7 @@ const BoxEdit = ({
   allProducts,
   onSubmitBoxEditForm,
 }: BoxEditProps) => {
-  const productsGroupedByCategory = groupBy(
+  const productsGroupedByCategory = _.groupBy(
     allProducts,
     (product) => product.category.name
   );

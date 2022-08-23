@@ -26,7 +26,6 @@ import {
   MoveItemsToDistributionEventMutation,
   MoveItemsToDistributionEventMutationVariables,
 } from "types/generated/graphql";
-import { groupBy } from "utils/helpers";
 import {
   // MATCHING_PACKED_ITEMS_COLLECTIONS_FOR_PACKING_LIST_ENTRY,
   ASSIGN_BOX_TO_DISTRIBUTION_MUTATION,
@@ -267,7 +266,7 @@ const DistroEventDetailsForPackingState = ({
 DistroEventDetailsForPackingStateProps) => {
   const packingListEntriesWithTargetNumberOfItemsBiggerThanZero =
     packingListEntries.filter((el) => el.numberOfItems > 0);
-  const packingListEntriesGroupedByProductName = groupBy(
+  const packingListEntriesGroupedByProductName: Record<string, IPackingListEntryForPackingState[]> = _.groupBy(
     packingListEntriesWithTargetNumberOfItemsBiggerThanZero,
     (item) => item.product.id
   );
