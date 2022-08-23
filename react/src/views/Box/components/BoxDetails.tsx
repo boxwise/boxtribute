@@ -18,7 +18,7 @@ import {
   BoxByLabelIdentifierQuery,
   UpdateLocationOfBoxMutation,
   AssignBoxToDistributionEventMutation,
-  AssignBoxToDistributionEventMutationVariables
+  AssignBoxToDistributionEventMutationVariables,
 } from "types/generated/graphql";
 import { useGetUrlForResourceHelpers } from "utils/hooks";
 import { distroEventStateHumanReadableLabels } from "views/Distributions/baseData";
@@ -34,7 +34,9 @@ interface BoxDetailsProps {
   onPlusOpen: () => void;
   onMinusOpen: () => void;
   onAssignBoxToDistributionEventClick: (distributionEventId: string) => void;
-  onUnassignBoxFromDistributionEventClick: (distributionEventId: string) => void;
+  onUnassignBoxFromDistributionEventClick: (
+    distributionEventId: string
+  ) => void;
 }
 
 const BoxDetails = ({
@@ -69,11 +71,11 @@ const BoxDetails = ({
       justifyContent="center"
     >
       <Box
-        w={["100%", "80%", "40%", "30%"]}
+        w={["100%", "80%", "30%", "30%"]}
         border="2px"
         mb={6}
         backgroundColor="#F4E5A0"
-        mr={["0", "0", "6rem", "6rem"]}
+        mr={["0", "0", "4rem", "4rem"]}
       >
         <Flex pt={2} px={4} direction="row" justifyContent="space-between">
           <Heading fontWeight={"bold"} mb={4} as="h2">
@@ -96,12 +98,18 @@ const BoxDetails = ({
           </ListItem>
           <ListItem>
             <Flex direction="row">
-              <Text mr={2}><b>Gender: </b>{boxData.product?.gender}</Text>
+              <Text mr={2}>
+                <b>Gender: </b>
+                {boxData.product?.gender}
+              </Text>
             </Flex>
           </ListItem>
           <ListItem>
             <Flex direction="row">
-              <Text><b>Size: </b>{boxData.size.label}</Text>
+              <Text>
+                <b>Size: </b>
+                {boxData.size.label}
+              </Text>
             </Flex>
           </ListItem>
           <ListItem>
@@ -136,10 +144,12 @@ const BoxDetails = ({
       </Box>
       <Box
         alignContent="center"
-        w={["100%", "80%", "40%", "50%"]}
+        w={["100%", "80%", "30%", "30%"]}
         border="2px"
         py={4}
         px={4}
+        mr={["0", "0", "4rem", "4rem"]}
+        mb={6}
       >
         <Text textAlign="center" fontSize="xl" mb={4}>
           Move this box from <strong>{boxData.place?.name}</strong> to:
@@ -166,7 +176,7 @@ const BoxDetails = ({
       </Box>
       <Box
         alignContent="center"
-        w={["100%", "80%", "40%", "50%"]}
+        w={["100%", "80%", "30%", "30%"]}
         border="2px"
         py={4}
         px={4}
@@ -185,60 +195,72 @@ const BoxDetails = ({
               return (
                 <ListItem
                   key={distributionEvent.id}
-                  m={5}
+                  m={4}
                   backgroundColor={
                     isAssignedToDistroEvent ? "gray.100" : "transparent"
                   }
                   p={2}
+                  border="2px"
+                  borderColor="gray.300"
                 >
-                  <LinkBox
-                    as="article"
-                    maxW="sm"
-                    p="5"
-                    borderWidth="1px"
-                    rounded="md"
-                  >
-                    <LinkOverlay
-                      href={getDistroEventDetailUrlById(distributionEvent.id)}
-                    >
-                      <DistributionEventTimeRangeDisplay
-                        plannedStartDateTime={
-                          new Date(distributionEvent.plannedStartDateTime)
-                        }
-                        plannedEndDateTime={
-                          new Date(distributionEvent.plannedEndDateTime)
-                        }
-                      />
-                      <Text>{distributionEvent?.distributionSpot?.name}</Text>
-                      <Text>{distributionEvent?.name}</Text>
-                      <Text>
-                        {distroEventStateHumanReadableLabels.get(
-                          distributionEvent?.state
+                  <Flex>
+                    <LinkBox as="article" p={4}>
+                      <Flex>
+                        <LinkOverlay
+                          href={getDistroEventDetailUrlById(
+                            distributionEvent.id
+                          )}
+                        >
+                          <Text>
+                            <b>{distributionEvent?.distributionSpot?.name}</b>
+                          </Text>
+                          <DistributionEventTimeRangeDisplay
+                            plannedStartDateTime={
+                              new Date(distributionEvent.plannedStartDateTime)
+                            }
+                            plannedEndDateTime={
+                              new Date(distributionEvent.plannedEndDateTime)
+                            }
+                          />
+                          <Text>{distributionEvent?.name}</Text>
+                          <Text>
+                            {distroEventStateHumanReadableLabels.get(
+                              distributionEvent?.state
+                            )}
+                          </Text>
+                        </LinkOverlay>
+                      </Flex>
+                      <Flex justifyContent="flex-end">
+                        {isAssignedToDistroEvent ? (
+                          <Button
+                            mt={2}
+                            onClick={() =>
+                              onUnassignBoxFromDistributionEventClick(
+                                distributionEvent.id
+                              )
+                            }
+                            colorScheme="red"
+                            borderRadius="0"
+                          >
+                            Unassign
+                          </Button>
+                        ) : (
+                          <Button
+                            mt={2}
+                            onClick={() =>
+                              onAssignBoxToDistributionEventClick(
+                                distributionEvent.id
+                              )
+                            }
+                            colorScheme="blue"
+                            borderRadius="0"
+                          >
+                            Assign
+                          </Button>
                         )}
-                      </Text>
-                    </LinkOverlay>
-                    {isAssignedToDistroEvent ? (
-                      <Button
-                        my={2}
-                        onClick={() =>
-                          onUnassignBoxFromDistributionEventClick(distributionEvent.id)
-                        }
-                        colorScheme="red"
-                      >
-                        Unassign
-                      </Button>
-                    ) : (
-                      <Button
-                        my={2}
-                        onClick={() =>
-                          onAssignBoxToDistributionEventClick(distributionEvent.id)
-                        }
-                        colorScheme="blue"
-                      >
-                        Assign
-                      </Button>
-                    )}
-                  </LinkBox>
+                      </Flex>
+                    </LinkBox>
+                  </Flex>
                 </ListItem>
               );
             })}
