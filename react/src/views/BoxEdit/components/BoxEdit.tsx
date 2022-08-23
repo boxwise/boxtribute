@@ -17,6 +17,7 @@ import {
 } from "types/generated/graphql";
 import { Controller, useForm } from "react-hook-form";
 import { groupBy } from "utils/helpers";
+import { useEffect, useState } from "react";
 
 interface OptionsGroup extends OptionBase {
   value: string;
@@ -81,13 +82,36 @@ const BoxEdit = ({
       productForDropdown: productsForDropdownGroups
         ?.flatMap((i) => i.options)
         .find((p) => p.value === boxData?.product?.id),
-      sizeForDropdown: availableSizes?.map((size) => ({
-        value: size.value,
-        label: size.label,
-      }))?.find((s) => s.value === boxData?.size.id),
+      // sizeForDropdown: availableSizes?.map((size) => ({
+      //   value: size.value,
+      //   label: size.label,
+      // }))?.find((s) => s.value === boxData?.size.id),
       
     },
   });
+
+
+  const [sizesOptionsForCurrentProduct, setSizesOptionsForCurrentProduct] =
+    useState<OptionsGroup[]>([]);
+
+  const productId = watch("productId");
+
+  useEffect(() => {
+    if (productId != null) {
+      const productAndSizeDataForCurrentProduct = productAndSizesData.find(
+        (p) => p.id === productId
+      );
+      setSizesOptionsForCurrentProduct(
+        () =>
+          productAndSizeDataForCurrentProduct?.sizeRange?.sizes?.map((s) => ({
+            label: s.label,
+            value: s.id,
+          })) || []
+      );
+      resetField("sizeId");
+    }
+  }, [productId, productAndSizesData, resetField]);
+
 
   if (boxData == null) {
     console.error("BoxDetails Component: boxData is null");
@@ -195,3 +219,7 @@ const BoxEdit = ({
 };
 
 export default BoxEdit;
+function watch(arg0: string) {
+  throw new Error("Function not implemented.");
+}
+
