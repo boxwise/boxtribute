@@ -211,6 +211,8 @@ jobs:
               SENTRY_DSN=${SENTRY_BE_DSN}
               SENTRY_ENVIRONMENT=${SENTRY_ENVIRONMENT}
               SENTRY_RELEASE=${CIRCLE_SHA1}
+              ENVIRONMENT=${SENTRY_ENVIRONMENT}
+              MOBILE_DISTRO_ALLOWED_USER_IDS=${MOBILE_DISTRO_ALLOWED_USER_IDS}
               " > .env
             if [[ "<< parameters.serviceName >>" != "api-"* ]]; then echo "EXPOSE_FULL_GRAPHQL=1" >> .env; fi
       - run:

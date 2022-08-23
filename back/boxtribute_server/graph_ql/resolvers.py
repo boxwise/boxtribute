@@ -121,12 +121,15 @@ user = _register_object_type("User")
 
 def mobile_distro_feature_flag_check(user_id):
     deployment_environment = os.getenv("ENVIRONMENT")
-    allowed_user_ids = os.getenv("MOBILE_DISTRO_ALLOWED_USER_IDS")
+    allowed_user_ids = os.getenv("MOBILE_DISTRO_ALLOWED_USER_IDS").split(",")
 
     if deployment_environment in ["development", "staging"]:
         return
 
     if user_id in allowed_user_ids:
+        return
+
+    if g.user.is_god:
         return
 
     raise MobileDistroFeatureFlagNotAssignedToUser(user_id)
@@ -192,9 +195,7 @@ def resolve_beneficiary(*_, id):
 @base.field("distributionEvents")
 def resolve_distributions_events(base_obj, _):
     mobile_distro_feature_flag_check(user_id=g.user.id)
-    authorize(
-        permission="distro_event:read",
-    )
+    authorize(permission="distro_event:read",)
     distribution_events = (
         DistributionEvent.select()
         .join(Location, on=(DistributionEvent.distribution_spot == Location.id))
@@ -340,9 +341,7 @@ def resolve_locations(*_):
 def resolve_products(*_, pagination_input=None):
     authorize(permission="product:read")
     return load_into_page(
-        Product,
-        base_filter_condition(Product),
-        pagination_input=pagination_input,
+        Product, base_filter_condition(Product), pagination_input=pagination_input,
     )
 
 
