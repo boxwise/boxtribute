@@ -15,6 +15,7 @@ from .loaders import (
     ProductLoader,
     SizeLoader,
     SizeRangeLoader,
+    SizesForSizeRangeLoader,
     TagsForBoxLoader,
 )
 
@@ -96,6 +97,7 @@ def execute_async(*, schema):
         "product_loader": ProductLoader(),
         "size_loader": SizeLoader(),
         "size_range_loader": SizeRangeLoader(),
+        "sizes_for_size_range_loader": SizesForSizeRangeLoader(),
         "tags_for_box_loader": TagsForBoxLoader(),
     }
 
