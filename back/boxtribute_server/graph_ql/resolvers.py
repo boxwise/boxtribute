@@ -121,7 +121,7 @@ user = _register_object_type("User")
 
 def mobile_distro_feature_flag_check(user_id):
     deployment_environment = os.getenv("ENVIRONMENT")
-    if deployment_environment in ["development", "staging"]:
+    if deployment_environment in ["development", "staging", "test"]:
         return
 
     allowed_user_ids_str = os.getenv("MOBILE_DISTRO_ALLOWED_USER_IDS")
