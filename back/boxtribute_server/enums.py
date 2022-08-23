@@ -20,6 +20,8 @@ class LocationType(enum.Enum):
     """Indiciates which concrete type (classic Location, Distribution Spot, etc)
     a Location is."""
 
+    # TODO: The Python code naming should probably be changed
+    # to be aligned with the public API naming.
     Location = "Warehouse"
     DistributionSpot = "MapDistroSpot"
 
