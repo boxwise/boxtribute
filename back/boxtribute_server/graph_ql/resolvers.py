@@ -124,11 +124,16 @@ def mobile_distro_feature_flag_check(user_id):
     if deployment_environment in ["development", "staging"]:
         return
 
-    allowed_user_ids = list(
-        map(int, os.getenv("MOBILE_DISTRO_ALLOWED_USER_IDS").split(","))
-    )
-    if user_id in allowed_user_ids:
-        return
+    allowed_user_ids_str = os.getenv("MOBILE_DISTRO_ALLOWED_USER_IDS")
+    if allowed_user_ids_str is not None:
+        allowed_user_ids_as_numbers = list(
+            map(
+                int,
+                allowed_user_ids_str.split(","),
+            )
+        )
+        if user_id in allowed_user_ids_as_numbers:
+            return
 
     if g.user.is_god:
         return
