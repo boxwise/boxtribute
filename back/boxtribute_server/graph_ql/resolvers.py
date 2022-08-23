@@ -10,6 +10,7 @@ from ariadne import (
     UnionType,
     convert_kwargs_to_snake_case,
 )
+from boxtribute_server.exceptions import MobileDistroFeatureFlagNotAssignedToUser
 from flask import g
 from peewee import fn
 
@@ -119,12 +120,16 @@ user = _register_object_type("User")
 
 
 def mobile_distro_feature_flag_check(user_id):
-    deployment_environment = os.getenv("XXXXXXXXX")
-    if deployment_environment in ["development", "staging"]:
-        return True
+    deployment_environment = os.getenv("ENVIRONMENT")
+    allowed_user_ids = os.getenv("MOBILE_DISTRO_ALLOWED_USER_IDS")
 
-    allowed_user_ids = [1137]
-    return user_id in allowed_user_ids
+    if deployment_environment in ["development", "staging"]:
+        return
+
+    if user_id in allowed_user_ids:
+        return
+
+    raise MobileDistroFeatureFlagNotAssignedToUser(user_id)
 
 
 @query.field("tag")
