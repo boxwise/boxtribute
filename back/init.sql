@@ -564,6 +564,7 @@ CREATE TABLE `distro_events` (
   `planned_start_date_time` datetime NOT NULL,
   `planned_end_date_time` datetime NOT NULL,
   `location_id` int(11) unsigned NOT NULL,
+  `distro_event_tracking_group_id` int(11) unsigned DEFAULT NULL,
   `state` varchar(255) NOT NULL DEFAULT 'Planning',
   `created_on` datetime NOT NULL,
   `created_by` int(11) unsigned DEFAULT NULL,
@@ -580,9 +581,11 @@ CREATE TABLE `distro_events` (
   KEY `location_id` (`location_id`),
   KEY `created_by` (`created_by`),
   KEY `modified_by` (`modified_by`),
+  KEY `distro_event_tracking_group_id` (`distro_event_tracking_group_id`),
   CONSTRAINT `distro_events_ibfk_1` FOREIGN KEY (`location_id`) REFERENCES `locations` (`id`) ON DELETE RESTRICT ON UPDATE CASCADE,
   CONSTRAINT `distro_events_ibfk_2` FOREIGN KEY (`created_by`) REFERENCES `cms_users` (`id`) ON DELETE SET NULL ON UPDATE CASCADE,
-  CONSTRAINT `distro_events_ibfk_3` FOREIGN KEY (`modified_by`) REFERENCES `cms_users` (`id`) ON DELETE SET NULL ON UPDATE CASCADE
+  CONSTRAINT `distro_events_ibfk_3` FOREIGN KEY (`modified_by`) REFERENCES `cms_users` (`id`) ON DELETE SET NULL ON UPDATE CASCADE,
+  CONSTRAINT `distro_events_ibfk_4` FOREIGN KEY (`distro_event_tracking_group_id`) REFERENCES `distro_events_tracking_groups` (`id`) ON DELETE RESTRICT ON UPDATE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 ROW_FORMAT=DYNAMIC;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
@@ -596,41 +599,43 @@ LOCK TABLES `distro_events` WRITE;
 UNLOCK TABLES;
 
 --
--- Table structure for table `distro_events_outflow_logs`
+-- Table structure for table `distro_events_tracking_logs`
 --
 
-DROP TABLE IF EXISTS `distro_events_outflow_logs`;
+DROP TABLE IF EXISTS `distro_events_tracking_logs`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
-CREATE TABLE `distro_events_outflow_logs` (
+CREATE TABLE `distro_events_tracking_logs` (
   `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
   `product_id` int(11) unsigned NOT NULL,
   `number_of_items` int(11) NOT NULL,
   `size_id` int(11) unsigned NOT NULL,
-  `distro_event_id` int(11) unsigned NOT NULL,
-  `location_id` int(11) unsigned NOT NULL,
+  `location_id` int(11) unsigned DEFAULT NULL,
+  `flow_direction` varchar(255) DEFAULT NULL,
+  `distro_event_tracking_group_id` int(11) unsigned DEFAULT NULL,
   `date` datetime NOT NULL,
   `details` text,
   PRIMARY KEY (`id`),
-  KEY `distro_events_outflow_logs_date` (`date`),
-  KEY `distro_event_id` (`distro_event_id`),
+  KEY `distro_events_tracking_logs_date` (`date`),
   KEY `product_id` (`product_id`),
   KEY `size_id` (`size_id`),
+  KEY `distro_events_tracking_logs_flow_direction` (`flow_direction`),
   KEY `location_id` (`location_id`),
-  CONSTRAINT `distro_events_outflow_logs_ibfk_1` FOREIGN KEY (`distro_event_id`) REFERENCES `distro_events` (`id`) ON DELETE RESTRICT ON UPDATE CASCADE,
-  CONSTRAINT `distro_events_outflow_logs_ibfk_2` FOREIGN KEY (`product_id`) REFERENCES `products` (`id`) ON DELETE RESTRICT ON UPDATE CASCADE,
-  CONSTRAINT `distro_events_outflow_logs_ibfk_3` FOREIGN KEY (`size_id`) REFERENCES `sizes` (`id`) ON DELETE RESTRICT ON UPDATE CASCADE,
-  CONSTRAINT `distro_events_outflow_logs_ibfk_4` FOREIGN KEY (`location_id`) REFERENCES `locations` (`id`) ON DELETE RESTRICT ON UPDATE CASCADE
+  KEY `distro_event_tracking_group_id` (`distro_event_tracking_group_id`),
+  CONSTRAINT `distro_events_tracking_logs_ibfk_2` FOREIGN KEY (`product_id`) REFERENCES `products` (`id`) ON DELETE RESTRICT ON UPDATE CASCADE,
+  CONSTRAINT `distro_events_tracking_logs_ibfk_3` FOREIGN KEY (`size_id`) REFERENCES `sizes` (`id`) ON DELETE RESTRICT ON UPDATE CASCADE,
+  CONSTRAINT `distro_events_tracking_logs_ibfk_4` FOREIGN KEY (`location_id`) REFERENCES `locations` (`id`) ON DELETE RESTRICT ON UPDATE CASCADE,
+  CONSTRAINT `distro_events_tracking_logs_ibfk_5` FOREIGN KEY (`distro_event_tracking_group_id`) REFERENCES `distro_events_tracking_groups` (`id`) ON DELETE RESTRICT ON UPDATE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 ROW_FORMAT=DYNAMIC;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
--- Dumping data for table `distro_events_outflow_logs`
+-- Dumping data for table `distro_events_tracking_logs`
 --
 
-LOCK TABLES `distro_events_outflow_logs` WRITE;
-/*!40000 ALTER TABLE `distro_events_outflow_logs` DISABLE KEYS */;
-/*!40000 ALTER TABLE `distro_events_outflow_logs` ENABLE KEYS */;
+LOCK TABLES `distro_events_tracking_logs` WRITE;
+/*!40000 ALTER TABLE `distro_events_tracking_logs` DISABLE KEYS */;
+/*!40000 ALTER TABLE `distro_events_tracking_logs` ENABLE KEYS */;
 UNLOCK TABLES;
 
 --
@@ -724,6 +729,45 @@ CREATE TABLE `distro_events_unboxed_item_collections` (
 LOCK TABLES `distro_events_unboxed_item_collections` WRITE;
 /*!40000 ALTER TABLE `distro_events_unboxed_item_collections` DISABLE KEYS */;
 /*!40000 ALTER TABLE `distro_events_unboxed_item_collections` ENABLE KEYS */;
+UNLOCK TABLES;
+/*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;
+
+--
+-- Table structure for table `distro_events_tracking_groups`
+--
+
+DROP TABLE IF EXISTS `distro_events_tracking_groups`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `distro_events_tracking_groups` (
+  `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
+  `group_name` varchar(255) DEFAULT NULL,
+  `base_id` int(11) unsigned NOT NULL,
+  `state` varchar(255) NOT NULL DEFAULT 'In Progress',
+  `created_on` datetime NOT NULL,
+  `created_by` int(11) unsigned DEFAULT NULL,
+  `modified_on` datetime DEFAULT NULL,
+  `modified_by` int(11) unsigned DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  KEY `distro_events_tracking_groups_state` (`state`),
+  KEY `distro_events_tracking_groups_created_on` (`created_on`),
+  KEY `distro_events_tracking_groups_modified_on` (`modified_on`),
+  KEY `base_id` (`base_id`),
+  KEY `created_by` (`created_by`),
+  KEY `modified_by` (`modified_by`),
+  CONSTRAINT `distro_events_tracking_groups_ibfk_1` FOREIGN KEY (`base_id`) REFERENCES `camps` (`id`) ON DELETE RESTRICT ON UPDATE CASCADE,
+  CONSTRAINT `distro_events_tracking_groups_ibfk_2` FOREIGN KEY (`created_by`) REFERENCES `cms_users` (`id`) ON DELETE SET NULL ON UPDATE CASCADE,
+  CONSTRAINT `distro_events_tracking_groups_ibfk_3` FOREIGN KEY (`modified_by`) REFERENCES `cms_users` (`id`) ON DELETE SET NULL ON UPDATE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 ROW_FORMAT=DYNAMIC;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `distro_events_tracking_groups`
+--
+
+LOCK TABLES `distro_events_tracking_groups` WRITE;
+/*!40000 ALTER TABLE `distro_events_tracking_groups` DISABLE KEYS */;
+/*!40000 ALTER TABLE `distro_events_tracking_groups` ENABLE KEYS */;
 UNLOCK TABLES;
 
 --
