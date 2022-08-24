@@ -1,0 +1,42 @@
+from boxtribute_server.enums import DistributionEventTrackingGroupState
+from peewee import CharField, DateTimeField
+
+from ...db import db
+from ..fields import EnumCharField, UIntForeignKeyField
+from .base import Base
+from .user import User
+
+
+class DistributionEventTrackingGroup(db.Model):
+    name = CharField(null=True)
+    base = UIntForeignKeyField(
+        column_name="camp_id",
+        field="id",
+        model=Base,
+        object_id_name="base_id",
+    )
+    state = EnumCharField(
+        choices=DistributionEventTrackingGroupState,
+        default=DistributionEventTrackingGroupState.InProgress,
+    )
+    created_on = DateTimeField(null=True)
+    created_by = UIntForeignKeyField(
+        model=User,
+        column_name="created_by",
+        field="id",
+        null=True,
+        on_delete="SET NULL",
+        on_update="CASCADE",
+    )
+    modified_on = DateTimeField(null=True)
+    modified_by = UIntForeignKeyField(
+        model=User,
+        column_name="modified_by",
+        field="id",
+        null=True,
+        on_delete="SET NULL",
+        on_update="CASCADE",
+    )
+
+    class Meta:
+        table_name = "distro_events_tracking_groups"
