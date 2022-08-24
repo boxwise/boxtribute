@@ -60,31 +60,38 @@ type Mutation {
   #   numberOfItems: Int!
   # ): Box
 
-  # startDistributionEventsTrackingGroup(
-  #   distributionEventIds: [ID!]!
-  # ): DistributionEventsTrackingGroup
-  # trackReturnOfItemsForDistributionEventsTrackingGroup(
-  #   distributionEventsTrackingGroupId: ID!
-  #   productId: ID!
-  #   sizeId: ID!
-  #   numberOfItems: ID!
-  #   targetBoxId: ID!
-  # ): DistributionEventsTrackingEntry
-  # completeDistributionEventsTrackingGroup(
-  #   distributionEventsTrackingGroupId: ID!
-  # ): DistributionEventsTrackingGroup
+  startDistributionEventsTrackingGroup(
+    distributionEventIds: [ID!]!
+  ): DistributionEventsTrackingGroup
+  trackReturnOfItemsForDistributionEventsTrackingGroup(
+    distributionEventsTrackingGroupId: ID!
+    productId: ID!
+    sizeId: ID!
+    numberOfItems: ID!
+    # targetBoxId: ID!
+  ): DistributionEventsTrackingEntry
+  moveItemsFromReturnTrackingGroupToBox(
+    distributionEventsTrackingGroupId: ID!
+    productId: ID!
+    sizeId: ID!
+    numberOfItems: ID!
+    targetBoxId: ID!
+  ): DistributionEventsTrackingEntry
+  completeDistributionEventsTrackingGroup(
+    distributionEventsTrackingGroupId: ID!
+  ): DistributionEventsTrackingGroup
 
   # TODO: REMOVE THESE (REPLACED BY MORE SPECIFIC MUTATIONS)
-  moveBoxToDistributionEvent(boxLabelIdentifier: ID!, distributionEventId: ID!): Box
-  moveBoxFromDistributionEventToLocation(
-    boxLabelIdentifier: ID!
-    locationId: ID!
-  ): DistributionEvent
-  moveItemsFromDistributionEventToBox(
-    unboxedItemsCollectionId: ID!
-    boxLabelIdentifier: ID!
-  ): DistributionEvent
+  # moveBoxToDistributionEvent(boxLabelIdentifier: ID!, distributionEventId: ID!): Box
+  # moveBoxFromDistributionEventToLocation(
+  #   boxLabelIdentifier: ID!
+  #   locationId: ID!
+  # ): DistributionEvent
+  # moveItemsFromDistributionEventToBox(
+  #   unboxedItemsCollectionId: ID!
+  #   boxLabelIdentifier: ID!
+  # ): DistributionEvent
 
-  markDistributionEventAsComplete(distributionEventId: ID!): DistributionEvent
+  # markDistributionEventAsComplete(distributionEventId: ID!): DistributionEvent
   # END OF "REMOVE THESE (REPLACED BY MORE SPECIFIC MUTATIONS)"
 }

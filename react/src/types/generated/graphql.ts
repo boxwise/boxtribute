@@ -437,6 +437,7 @@ export type Mutation = {
   cancelShipment?: Maybe<Shipment>;
   cancelTransferAgreement?: Maybe<TransferAgreement>;
   changeDistributionEventState?: Maybe<DistributionEvent>;
+  completeDistributionEventsTrackingGroup?: Maybe<DistributionEventsTrackingGroup>;
   createBeneficiary?: Maybe<Beneficiary>;
   createBox?: Maybe<Box>;
   createDistributionEvent?: Maybe<DistributionEvent>;
@@ -446,15 +447,14 @@ export type Mutation = {
   createTag?: Maybe<Tag>;
   createTransferAgreement?: Maybe<TransferAgreement>;
   deleteTag?: Maybe<Tag>;
-  markDistributionEventAsComplete?: Maybe<DistributionEvent>;
-  moveBoxFromDistributionEventToLocation?: Maybe<DistributionEvent>;
-  moveBoxToDistributionEvent?: Maybe<Box>;
   moveItemsFromBoxToDistributionEvent?: Maybe<UnboxedItemsCollection>;
-  moveItemsFromDistributionEventToBox?: Maybe<DistributionEvent>;
+  moveItemsFromReturnTrackingGroupToBox?: Maybe<DistributionEventsTrackingEntry>;
   rejectTransferAgreement?: Maybe<TransferAgreement>;
   removeAllPackingListEntriesFromDistributionEventForProduct?: Maybe<Scalars['Boolean']>;
   removePackingListEntryFromDistributionEvent?: Maybe<DistributionEvent>;
   sendShipment?: Maybe<Shipment>;
+  startDistributionEventsTrackingGroup?: Maybe<DistributionEventsTrackingGroup>;
+  trackReturnOfItemsForDistributionEventsTrackingGroup?: Maybe<DistributionEventsTrackingEntry>;
   unassignBoxFromDistributionEvent?: Maybe<Box>;
   updateBeneficiary?: Maybe<Beneficiary>;
   updateBox?: Maybe<Box>;
@@ -524,6 +524,16 @@ export type MutationCancelTransferAgreementArgs = {
 export type MutationChangeDistributionEventStateArgs = {
   distributionEventId: Scalars['ID'];
   newState: DistributionEventState;
+};
+
+
+/**
+ * Naming convention:
+ * - input argument: creationInput/updateInput
+ * - input type: <Resource>CreationInput/UpdateInput
+ */
+export type MutationCompleteDistributionEventsTrackingGroupArgs = {
+  distributionEventsTrackingGroupId: Scalars['ID'];
 };
 
 
@@ -622,38 +632,6 @@ export type MutationDeleteTagArgs = {
  * - input argument: creationInput/updateInput
  * - input type: <Resource>CreationInput/UpdateInput
  */
-export type MutationMarkDistributionEventAsCompleteArgs = {
-  distributionEventId: Scalars['ID'];
-};
-
-
-/**
- * Naming convention:
- * - input argument: creationInput/updateInput
- * - input type: <Resource>CreationInput/UpdateInput
- */
-export type MutationMoveBoxFromDistributionEventToLocationArgs = {
-  boxLabelIdentifier: Scalars['ID'];
-  locationId: Scalars['ID'];
-};
-
-
-/**
- * Naming convention:
- * - input argument: creationInput/updateInput
- * - input type: <Resource>CreationInput/UpdateInput
- */
-export type MutationMoveBoxToDistributionEventArgs = {
-  boxLabelIdentifier: Scalars['ID'];
-  distributionEventId: Scalars['ID'];
-};
-
-
-/**
- * Naming convention:
- * - input argument: creationInput/updateInput
- * - input type: <Resource>CreationInput/UpdateInput
- */
 export type MutationMoveItemsFromBoxToDistributionEventArgs = {
   boxLabelIdentifier: Scalars['ID'];
   distributionEventId: Scalars['ID'];
@@ -666,9 +644,12 @@ export type MutationMoveItemsFromBoxToDistributionEventArgs = {
  * - input argument: creationInput/updateInput
  * - input type: <Resource>CreationInput/UpdateInput
  */
-export type MutationMoveItemsFromDistributionEventToBoxArgs = {
-  boxLabelIdentifier: Scalars['ID'];
-  unboxedItemsCollectionId: Scalars['ID'];
+export type MutationMoveItemsFromReturnTrackingGroupToBoxArgs = {
+  distributionEventsTrackingGroupId: Scalars['ID'];
+  numberOfItems: Scalars['ID'];
+  productId: Scalars['ID'];
+  sizeId: Scalars['ID'];
+  targetBoxId: Scalars['ID'];
 };
 
 
@@ -710,6 +691,29 @@ export type MutationRemovePackingListEntryFromDistributionEventArgs = {
  */
 export type MutationSendShipmentArgs = {
   id: Scalars['ID'];
+};
+
+
+/**
+ * Naming convention:
+ * - input argument: creationInput/updateInput
+ * - input type: <Resource>CreationInput/UpdateInput
+ */
+export type MutationStartDistributionEventsTrackingGroupArgs = {
+  distributionEventIds: Array<Scalars['ID']>;
+};
+
+
+/**
+ * Naming convention:
+ * - input argument: creationInput/updateInput
+ * - input type: <Resource>CreationInput/UpdateInput
+ */
+export type MutationTrackReturnOfItemsForDistributionEventsTrackingGroupArgs = {
+  distributionEventsTrackingGroupId: Scalars['ID'];
+  numberOfItems: Scalars['ID'];
+  productId: Scalars['ID'];
+  sizeId: Scalars['ID'];
 };
 
 
