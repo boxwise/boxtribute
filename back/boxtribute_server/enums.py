@@ -19,7 +19,8 @@ class DistributionEventState(enum.IntEnum):
 class DistributionEventTrackingFlowDirection(enum.IntEnum):
     In = 1
     Out = enum.auto()
-    Internal = enum.auto()
+    # Internal = enum.auto()
+    BackToBox = enum.auto()
 
 
 class PackingListEntryState(enum.IntEnum):

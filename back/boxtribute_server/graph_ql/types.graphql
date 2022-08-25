@@ -285,7 +285,8 @@ type DistributionEvent {
 enum DistributionEventTrackingFlowDirection {
   In
   Out
-  Internal
+  # Internal
+  BackToBox
 }
 
 enum DistributionEventsTrackingGroupState {

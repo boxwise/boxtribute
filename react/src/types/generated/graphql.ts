@@ -229,8 +229,8 @@ export enum DistributionEventState {
 }
 
 export enum DistributionEventTrackingFlowDirection {
+  BackToBox = 'BackToBox',
   In = 'In',
-  Internal = 'Internal',
   Out = 'Out'
 }
 

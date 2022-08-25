@@ -471,10 +471,21 @@ def move_items_from_return_tracking_group_to_box(
     target_box_id,
 ):
     now = utcnow()
+    # TODO: validation/checks
+    # * ensure that for the tracking_group, product_id, size_id combo:
+    #   (
+    #     sum(logEntries(direction=In, trackingGroup, productId, sizeId).numberOfItems)
+    #     -
+    #     sum(
+    #       logEntries(direction=BackToBox, trackingGroup, productId, sizeId)
+    #       .numberOfItems
+    #     )
+    #   )
+    #   >= number_of_items mutation parameter
     with db.database.atomic():
         log_entry = DistributionEventTrackingLogEntry.create(
             distro_event_tracking_group=distribution_events_tracking_group_id,
-            flow_direction=DistributionEventTrackingFlowDirection.Internal,
+            flow_direction=DistributionEventTrackingFlowDirection.BackToBox,
             date=now,
             product_id=product_id,
             size_id=size_id,
@@ -488,13 +499,9 @@ def move_items_from_return_tracking_group_to_box(
 
 def complete_distribution_events_tracking_group(distribution_events_tracking_group_id):
     with db.database.atomic():
-        # TODO:
         distro_events_tracking_group = DistributionEventsTrackingGroup.get(
             distribution_events_tracking_group_id
         )
-        # distribution_events = DistributionEvent.select().where(
-        #   DistributionEventAlreadyInTrackingGroup == distro_event_tracking_group_id
-        # )
         distribution_events = distro_events_tracking_group.distribution_events
         for distribution_event in distribution_events:
             distribution_event.state = DistributionEventState.Completed
