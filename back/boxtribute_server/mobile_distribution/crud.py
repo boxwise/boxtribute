@@ -1,3 +1,7 @@
+from boxtribute_server.models.definitions.distribution_event_tracking_group import (
+    DistributionEventTrackingGroup,
+)
+
 from ..db import db
 from ..enums import DistributionEventState, LocationType, PackingListEntryState
 from ..exceptions import (
@@ -313,3 +317,58 @@ def create_distribution_spot(
         longitude=longitude,
     )
     return new_distribution_spot
+
+
+def start_distribution_events_tracking_group(user_id, distribution_event_ids, base_id):
+    """TODO: DESCRIPTION"""
+    # TODO: Consider to consistency checks
+    # (here and for other mobile distro spot/event etc relations)
+    # that the base of the tracking group is the same as the one of the distro spot
+    # and (if they will have camp-ids as well) distro events
+
+    # TODO: check that all events are
+    # * in the correct state
+    # * are not yet part of another tracking group
+
+    with db.database.atomic():
+        now = utcnow()
+        new_distribution_events_tracking_group = DistributionEventTrackingGroup.create(
+            created_on=now,
+            created_by=user_id,
+            last_modified_on=now,
+            last_modified_by=user_id,
+            type=LocationType.DistributionSpot,
+            base=base_id,
+        )
+        # TODO: assign all events to the new group
+
+        # TODO: sum up all numbers of items across:
+        # * all distribution events
+        # * all products
+        # * all sizes
+        # * for all UnboxedItemCollections AND Boxes
+        # TODO: create log entries for all calculated numbers
+        # TODO: set all Boxes and UnboxedItemsCollection to zero
+        # TODO: set all Boxes (and UnboxedItemsCollection?) to correct state
+        # TODO: set all events to correct state
+        return new_distribution_events_tracking_group
+
+
+def track_return_of_items_for_distribution_events_tracking_group(
+    distribution_event_tracking_group_id, product_id, number_of_items
+):
+    return
+
+
+def move_items_from_return_tracking_group_to_box(
+    distribution_events_tracking_group_id,
+    product_id,
+    size_id,
+    number_of_items,
+    target_box_id,
+):
+    return
+
+
+def complete_distribution_events_tracking_group(distribution_events_tracking_group_id):
+    return

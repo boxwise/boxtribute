@@ -43,12 +43,16 @@ from ..mobile_distribution.crud import (
     add_packing_list_entry_to_distribution_event,
     assign_box_to_distribution_event,
     change_distribution_event_state,
+    complete_distribution_events_tracking_group,
     create_distribution_event,
     create_distribution_spot,
     delete_packing_list_entry,
     move_items_from_box_to_distribution_event,
+    move_items_from_return_tracking_group_to_box,
     remove_all_packing_list_entries_from_distribution_event_for_product,
     set_products_for_packing_list,
+    start_distribution_events_tracking_group,
+    track_return_of_items_for_distribution_events_tracking_group,
     unassign_box_from_distribution_event,
     update_packing_list_entry,
 )
@@ -571,12 +575,15 @@ def resolve_set_products_for_packing_list(
 
 @mutation.field("startDistributionEventsTrackingGroup")
 @convert_kwargs_to_snake_case
-def resolve_start_distribution_events_tracking_group(*_, distribution_event_ids):
+def resolve_start_distribution_events_tracking_group(
+    *_, distribution_event_ids, base_id
+):
     mobile_distro_feature_flag_check(user_id=g.user.id)
     authorize(permission="distro_event:write")
     return start_distribution_events_tracking_group(
-        # user_id=g.user.id,
+        user_id=g.user.id,
         distribution_event_ids=distribution_event_ids,
+        base_id=base_id,
     )
 
 
@@ -611,6 +618,7 @@ def resolve_move_items_from_return_tracking_group_to_box(
         # user_id=g.user.id,
         distribution_events_tracking_group_id=distribution_events_tracking_group_id,
         product_id=product_id,
+        size_id=size_id,
         number_of_items=number_of_items,
         target_box_id=target_box_id,
     )

@@ -63,6 +63,7 @@ type Mutation {
   startDistributionEventsTrackingGroup(
     distributionEventIds: [ID!]!
   ): DistributionEventsTrackingGroup
+
   trackReturnOfItemsForDistributionEventsTrackingGroup(
     distributionEventsTrackingGroupId: ID!
     productId: ID!
@@ -70,6 +71,7 @@ type Mutation {
     numberOfItems: ID!
     # targetBoxId: ID!
   ): DistributionEventsTrackingEntry
+
   moveItemsFromReturnTrackingGroupToBox(
     distributionEventsTrackingGroupId: ID!
     productId: ID!
@@ -77,6 +79,7 @@ type Mutation {
     numberOfItems: ID!
     targetBoxId: ID!
   ): DistributionEventsTrackingEntry
+
   completeDistributionEventsTrackingGroup(
     distributionEventsTrackingGroupId: ID!
   ): DistributionEventsTrackingGroup
