@@ -3,6 +3,7 @@ from peewee import CharField, DateTimeField
 
 from ...db import db
 from ..fields import EnumCharField, UIntForeignKeyField
+from .distribution_event_tracking_group import DistributionEventsTrackingGroup
 from .location import Location
 from .user import User
 
@@ -17,7 +18,8 @@ class DistributionEvent(db.Model):
     distribution_event_tracking_group = UIntForeignKeyField(
         column_name="distro_event_tracking_group_id",
         # object_id_name="distro_event_tracking_group_id",
-        model=Location,
+        model=DistributionEventsTrackingGroup,
+        null=True,
     )
     distribution_spot = UIntForeignKeyField(
         column_name="location_id",

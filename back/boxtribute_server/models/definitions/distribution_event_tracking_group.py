@@ -1,5 +1,5 @@
 from boxtribute_server.enums import DistributionEventsTrackingGroupState
-from peewee import CharField, DateTimeField
+from peewee import DateTimeField
 
 from ...db import db
 from ..fields import EnumCharField, UIntForeignKeyField
@@ -8,7 +8,7 @@ from .user import User
 
 
 class DistributionEventsTrackingGroup(db.Model):
-    name = CharField(null=True)
+    # name = CharField(null=True)
     base = UIntForeignKeyField(
         # TODO: in the database, this is still called camp_id
         # either change the database or change the model everywhere

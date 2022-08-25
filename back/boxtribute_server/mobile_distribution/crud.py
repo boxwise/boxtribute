@@ -15,6 +15,7 @@ from ..enums import (
     PackingListEntryState,
 )
 from ..exceptions import (
+    DistributionEventAlreadyInTrackingGroup,
     InvalidDistributionEventState,
     ModifyCompletedDistributionEvent,
     NotEnoughItemsInBox,
@@ -340,24 +341,34 @@ def start_distribution_events_tracking_group(
     # that the base of the tracking group is the same as the one of the distro spot
     # and (if they will have camp-ids as well) distro events
 
-    # TODO: check that all events are
-    # * in the correct state
-    # * are not yet part of another tracking group
-
     with db.database.atomic():
+        distribution_events = DistributionEvent.select().where(
+            DistributionEvent.id << distribution_event_ids
+        )
+
+        # check that all events are
+        # * in the correct state
+        # * are not yet part of another tracking group
+        for distribution_event in distribution_events:
+            if (
+                distribution_event.state
+                != DistributionEventState.ReturnedFromDistribution
+            ):
+                raise InvalidDistributionEventState(
+                    expected_states=[DistributionEventState.ReturnedFromDistribution],
+                    actual_state=distribution_event.state,
+                )
+            if distribution_event.distribution_event_tracking_group.id is not None:
+                raise DistributionEventAlreadyInTrackingGroup()
+
         now = utcnow()
         new_distribution_events_tracking_group = DistributionEventsTrackingGroup.create(
             created_on=now,
             created_by=user_id,
             last_modified_on=now,
             last_modified_by=user_id,
-            type=LocationType.DistributionSpot,
             base=base_id,
         )
-        distribution_events = DistributionEvent.select().where(
-            DistributionEvent.id << distribution_event_ids
-        )
-
         for distribution_event in distribution_events:
             distribution_event.distribution_event_tracking_group = (
                 new_distribution_events_tracking_group.id
@@ -432,7 +443,9 @@ def start_distribution_events_tracking_group(
 def track_return_of_items_for_distribution_events_tracking_group(
     distribution_event_tracking_group_id, product_id, number_of_items
 ):
-    return
+    with db.database.atomic():
+        # TODO: create log entry with direction "In"
+        return
 
 
 def move_items_from_return_tracking_group_to_box(
@@ -442,7 +455,10 @@ def move_items_from_return_tracking_group_to_box(
     number_of_items,
     target_box_id,
 ):
-    return
+    with db.database.atomic():
+        # TODO: create log entry with direction "Internal"
+        # TODO: update box
+        return
 
 
 def complete_distribution_events_tracking_group(distribution_events_tracking_group_id):
