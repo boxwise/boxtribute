@@ -3,7 +3,7 @@ from peewee import DateTimeField, IntegerField
 
 from ...db import db
 from ..fields import EnumCharField, UIntForeignKeyField
-from .distribution_event_tracking_group import DistributionEventsTrackingGroup
+from .distribution_events_tracking_group import DistributionEventsTrackingGroup
 from .product import Product
 from .size import Size
 

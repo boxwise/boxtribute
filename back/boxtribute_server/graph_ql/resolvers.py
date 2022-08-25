@@ -71,7 +71,7 @@ from ..models.definitions.base import Base
 from ..models.definitions.beneficiary import Beneficiary
 from ..models.definitions.box import Box
 from ..models.definitions.distribution_event import DistributionEvent
-from ..models.definitions.distribution_event_tracking_group import (
+from ..models.definitions.distribution_events_tracking_group import (
     DistributionEventsTrackingGroup,
 )
 from ..models.definitions.location import Location
@@ -117,7 +117,7 @@ beneficiary = _register_object_type("Beneficiary")
 box = _register_object_type("Box")
 distribution_event = _register_object_type("DistributionEvent")
 distribution_spot = _register_object_type("DistributionSpot")
-distribution_event_tracking_group = _register_object_type(
+distribution_events_tracking_group = _register_object_type(
     "DistributionEventsTrackingGroup"
 )
 location = _register_object_type("Location")
@@ -216,9 +216,9 @@ def resolve_beneficiary(*_, id):
     return beneficiary
 
 
-@distribution_event_tracking_group.field("distributionEvents")
-def resolve_distribution_events_for_distribution_event_tracking_group(
-    distribution_event_tracking_group_obj, _
+@distribution_events_tracking_group.field("distributionEvents")
+def resolve_distribution_events_for_distribution_events_tracking_group(
+    distribution_events_tracking_group_obj, _
 ):
     mobile_distro_feature_flag_check(user_id=g.user.id)
     authorize(
@@ -227,7 +227,7 @@ def resolve_distribution_events_for_distribution_event_tracking_group(
     distribution_events = DistributionEvent.select().where(
         (
             DistributionEvent.distro_event_tracking_group_id
-            == distribution_event_tracking_group_obj.id
+            == distribution_events_tracking_group_obj.id
         )
     )
     return distribution_events
@@ -1026,6 +1026,14 @@ def resolve_packing_list_entries(obj, *_):
     return PackingListEntry.select().where(
         PackingListEntry.distribution_event == obj.id
     )
+
+
+@distribution_event.field("distributionEventsTrackingGroup")
+def resolve_tracking_group_of_distribution_event(base_obj, *_):
+    mobile_distro_feature_flag_check(user_id=g.user.id)
+    authorize(permission="distribution_event:read")
+    return base_obj.distribution_events_tracking_group
+    # DistributionEventsTrackingGroup.select().where(base_id=base_obj.id)
 
 
 @base.field("distributionEventsTrackingGroups")

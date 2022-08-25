@@ -1,10 +1,10 @@
 from collections import namedtuple
 
-from boxtribute_server.models.definitions.distribution_event_tracking_group import (
-    DistributionEventsTrackingGroup,
-)
 from boxtribute_server.models.definitions.distribution_event_tracking_log_entry import (
     DistributionEventTrackingLogEntry,
+)
+from boxtribute_server.models.definitions.distribution_events_tracking_group import (
+    DistributionEventsTrackingGroup,
 )
 
 from ..db import db
@@ -359,7 +359,7 @@ def start_distribution_events_tracking_group(
                     expected_states=[DistributionEventState.ReturnedFromDistribution],
                     actual_state=distribution_event.state,
                 )
-            if distribution_event.distribution_event_tracking_group is not None:
+            if distribution_event.distribution_events_tracking_group is not None:
                 raise DistributionEventAlreadyInTrackingGroup()
 
         now = utcnow()
@@ -372,7 +372,7 @@ def start_distribution_events_tracking_group(
             base=base_id,
         )
         for distribution_event in distribution_events:
-            distribution_event.distribution_event_tracking_group = (
+            distribution_event.distribution_events_tracking_group = (
                 new_distribution_events_tracking_group.id
             )
             distribution_event.state = DistributionEventState.ReturnTrackingInProgress

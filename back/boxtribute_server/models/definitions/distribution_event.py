@@ -3,7 +3,7 @@ from peewee import CharField, DateTimeField
 
 from ...db import db
 from ..fields import EnumCharField, UIntForeignKeyField
-from .distribution_event_tracking_group import DistributionEventsTrackingGroup
+from .distribution_events_tracking_group import DistributionEventsTrackingGroup
 from .location import Location
 from .user import User
 
@@ -15,7 +15,7 @@ class DistributionEvent(db.Model):
     # TODO: Clarify whether this is enough to make the connection
     # to DistributionSpot or whether some additional constraints
     # are needed (since the same table / PeeWee model is used as for locations)
-    distribution_event_tracking_group = UIntForeignKeyField(
+    distribution_events_tracking_group = UIntForeignKeyField(
         column_name="distro_event_tracking_group_id",
         # object_id_name="distro_event_tracking_group_id",
         model=DistributionEventsTrackingGroup,
