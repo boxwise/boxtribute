@@ -407,6 +407,7 @@ def start_distribution_events_tracking_group(
             ] += unboxed_items_collection.number_of_items
             unboxed_items_collection.number_of_items = 0
             # TODO: set all Boxes to correct state
+            # TODO: consider to just delete the unboxed_items_collection?
             unboxed_items_collection.location_id = returned_to_location_id
             unboxed_items_collection.save()
 

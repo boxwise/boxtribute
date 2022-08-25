@@ -34,6 +34,7 @@ from ..box_transfer.shipment import (
 )
 from ..enums import (
     DistributionEventState,
+    DistributionEventTrackingGroupState,
     HumanGender,
     LocationType,
     TaggableObjectType,
@@ -70,6 +71,9 @@ from ..models.definitions.base import Base
 from ..models.definitions.beneficiary import Beneficiary
 from ..models.definitions.box import Box
 from ..models.definitions.distribution_event import DistributionEvent
+from ..models.definitions.distribution_event_tracking_group import (
+    DistributionEventTrackingGroup,
+)
 from ..models.definitions.location import Location
 from ..models.definitions.organisation import Organisation
 from ..models.definitions.packing_list_entry import PackingListEntry
@@ -912,6 +916,17 @@ def resolve_base_locations(base_obj, _):
     )
 
 
+@query.field("distributionEventsTrackingGroup")
+def resolve_distribution_events_tracking_group(*_, id):
+    mobile_distro_feature_flag_check(user_id=g.user.id)
+    authorize(permission="distribution_event:read")
+    return DistributionEventTrackingGroupState.get_by_id(id)
+    # return Location.select().where(
+    #     (Location.type == LocationType.DistributionSpot)
+    #     & (base_filter_condition(Location))
+    # )
+
+
 @query.field("distributionSpots")
 def resolve_distributions_spots(base_obj, _):
     mobile_distro_feature_flag_check(user_id=g.user.id)
@@ -994,6 +1009,13 @@ def resolve_packing_list_entries(obj, *_):
     return PackingListEntry.select().where(
         PackingListEntry.distribution_event == obj.id
     )
+
+
+@base.field("distributionEventsTrackingGroups")
+def resolve_base_distribution_events_tracking_groups(base_obj, *_):
+    mobile_distro_feature_flag_check(user_id=g.user.id)
+    authorize(permission="distribution_event:read")
+    return DistributionEventTrackingGroup.select().where(base_id=base_obj.id)
 
 
 @base.field("distributionEventsBeforeReturnedFromDistributionState")

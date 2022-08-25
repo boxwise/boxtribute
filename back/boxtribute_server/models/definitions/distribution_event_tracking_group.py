@@ -10,7 +10,9 @@ from .user import User
 class DistributionEventTrackingGroup(db.Model):
     name = CharField(null=True)
     base = UIntForeignKeyField(
-        column_name="camp_id",
+        # TODO: in the database, this is still called camp_id
+        # either change the database or change the model everywhere
+        column_name="base_id",
         field="id",
         model=Base,
         object_id_name="base_id",

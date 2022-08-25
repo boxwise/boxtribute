@@ -10,7 +10,7 @@ from .size import Size
 
 class DistributionEventTrackingLogEntry(db.Model):
     distro_event_tracking_group = UIntForeignKeyField(
-        column_name="distro_event_id",
+        column_name="distro_event_tracking_group_id",
         field="id",
         model=DistributionEventTrackingGroup,
         null=True,
@@ -30,7 +30,7 @@ class DistributionEventTrackingLogEntry(db.Model):
         model=Size,
         on_update="CASCADE",
     )
-    number_of_items = IntegerField(column_name="items", null=True)
+    number_of_items = IntegerField(null=True)
 
     class Meta:
         table_name = "distro_events_tracking_logs"

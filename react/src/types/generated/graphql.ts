@@ -700,6 +700,7 @@ export type MutationSendShipmentArgs = {
  * - input type: <Resource>CreationInput/UpdateInput
  */
 export type MutationStartDistributionEventsTrackingGroupArgs = {
+  baseId: Scalars['ID'];
   distributionEventIds: Array<Scalars['ID']>;
   returnedToLocationId: Scalars['ID'];
 };
@@ -934,6 +935,7 @@ export type Query = {
   beneficiary?: Maybe<Beneficiary>;
   box?: Maybe<Box>;
   distributionEvent?: Maybe<DistributionEvent>;
+  distributionEventsTrackingGroup?: Maybe<DistributionEventsTrackingGroup>;
   distributionSpot?: Maybe<DistributionSpot>;
   /**  Return all [`DistributionSpots`]({{Types.DistributionSpot}}) that the client is authorized to view.  */
   distributionSpots: Array<DistributionSpot>;
@@ -995,6 +997,11 @@ export type QueryBoxArgs = {
 
 
 export type QueryDistributionEventArgs = {
+  id: Scalars['ID'];
+};
+
+
+export type QueryDistributionEventsTrackingGroupArgs = {
   id: Scalars['ID'];
 };
 
