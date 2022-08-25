@@ -8,7 +8,7 @@ from .product import Product
 from .size import Size
 
 
-class DistributionEventTrackingGroup(db.Model):
+class DistributionEventTrackingLogEntry(db.Model):
     distro_event_tracking_group = UIntForeignKeyField(
         column_name="distro_event_id",
         field="id",

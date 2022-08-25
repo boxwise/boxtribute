@@ -3,9 +3,17 @@ from collections import namedtuple
 from boxtribute_server.models.definitions.distribution_event_tracking_group import (
     DistributionEventTrackingGroup,
 )
+from boxtribute_server.models.definitions.distribution_event_tracking_log_entry import (
+    DistributionEventTrackingLogEntry,
+)
 
 from ..db import db
-from ..enums import DistributionEventState, LocationType, PackingListEntryState
+from ..enums import (
+    DistributionEventState,
+    DistributionEventTrackingFlowDirection,
+    LocationType,
+    PackingListEntryState,
+)
 from ..exceptions import (
     InvalidDistributionEventState,
     ModifyCompletedDistributionEvent,
@@ -402,7 +410,19 @@ def start_distribution_events_tracking_group(
             unboxed_items_collection.location_id = returned_to_location_id
             unboxed_items_collection.save()
 
-        # TODO: create log entries for all calculated numbers
+        # create log entries for all calculated numbers
+        for key, value in product_size_tuples_to_number_of_items_map.items():
+            product_id, size_id = key
+
+            DistributionEventTrackingLogEntry.create(
+                distro_event_tracking_group=new_distribution_events_tracking_group,
+                direction=DistributionEventTrackingFlowDirection.Out,
+                date=now,
+                product_id=product_id,
+                size_id=size_id,
+                number_of_items=value,
+            )
+
         return new_distribution_events_tracking_group
 
 
