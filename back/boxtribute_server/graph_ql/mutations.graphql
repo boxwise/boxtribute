@@ -61,7 +61,8 @@ type Mutation {
   # ): Box
 
   startDistributionEventsTrackingGroup(
-    distributionEventIds: [ID!]!
+    distributionEventIds: [ID!]!,
+    returnedToLocationId: ID!
   ): DistributionEventsTrackingGroup
 
   trackReturnOfItemsForDistributionEventsTrackingGroup(

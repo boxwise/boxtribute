@@ -1,3 +1,5 @@
+from collections import namedtuple
+
 from boxtribute_server.models.definitions.distribution_event_tracking_group import (
     DistributionEventTrackingGroup,
 )
@@ -18,6 +20,8 @@ from ..models.definitions.size import Size
 from ..models.definitions.size_range import SizeRange
 from ..models.definitions.unboxed_items_collection import UnboxedItemsCollection
 from ..models.utils import utcnow
+
+ProductSizeTuple = namedtuple("ProductSizeTuple", ["product_id", "size_id"])
 
 
 def move_items_from_box_to_distribution_event(
@@ -319,7 +323,9 @@ def create_distribution_spot(
     return new_distribution_spot
 
 
-def start_distribution_events_tracking_group(user_id, distribution_event_ids, base_id):
+def start_distribution_events_tracking_group(
+    user_id, distribution_event_ids, base_id, returned_to_location_id
+):
     """TODO: DESCRIPTION"""
     # TODO: Consider to consistency checks
     # (here and for other mobile distro spot/event etc relations)
@@ -340,17 +346,63 @@ def start_distribution_events_tracking_group(user_id, distribution_event_ids, ba
             type=LocationType.DistributionSpot,
             base=base_id,
         )
-        # TODO: assign all events to the new group
+        distribution_events = DistributionEvent.select().where(
+            DistributionEvent.id << distribution_event_ids
+        )
 
-        # TODO: sum up all numbers of items across:
+        for distribution_event in distribution_events:
+            distribution_event.tracking_group = new_distribution_events_tracking_group
+            distribution_event.state = DistributionEventState.ReturnTrackingInProgress
+            distribution_event.save()
+
+        # sum up all numbers of items across:
         # * all distribution events
         # * all products
         # * all sizes
         # * for all UnboxedItemCollections AND Boxes
+        product_size_tuples_to_number_of_items_map = {}
+
+        boxes = (
+            Box.select()
+            .join(DistributionEvent)
+            .where(DistributionEvent.id << distribution_event_ids)
+        )
+        unboxed_items_collections = (
+            UnboxedItemsCollection.select()
+            .join(DistributionEvent)
+            .where(DistributionEvent.id << distribution_event_ids)
+        )
+
+        # TODO: make this more DRY
+        # (currently logic repeats for boxes and unboxed items collections)
+        for box in boxes:
+            product_size_tuple = (box.product_id, box.size_id)
+            if product_size_tuple not in product_size_tuples_to_number_of_items_map:
+                product_size_tuples_to_number_of_items_map[product_size_tuple] = 0
+            product_size_tuples_to_number_of_items_map[
+                product_size_tuple
+            ] += box.number_of_items
+            box.number_of_items = 0
+            box.location_id = returned_to_location_id
+            # TODO: set all UnboxedItemsCollection to correct state (?)
+            box.save()
+
+        for unboxed_items_collection in unboxed_items_collections:
+            product_size_tuple = (
+                unboxed_items_collection.product_id,
+                unboxed_items_collection.size_id,
+            )
+            if product_size_tuple not in product_size_tuples_to_number_of_items_map:
+                product_size_tuples_to_number_of_items_map[product_size_tuple] = 0
+            product_size_tuples_to_number_of_items_map[
+                product_size_tuple
+            ] += unboxed_items_collection.number_of_items
+            unboxed_items_collection.number_of_items = 0
+            # TODO: set all Boxes to correct state
+            unboxed_items_collection.location_id = returned_to_location_id
+            unboxed_items_collection.save()
+
         # TODO: create log entries for all calculated numbers
-        # TODO: set all Boxes and UnboxedItemsCollection to zero
-        # TODO: set all Boxes (and UnboxedItemsCollection?) to correct state
-        # TODO: set all events to correct state
         return new_distribution_events_tracking_group
 
 

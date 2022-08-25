@@ -701,6 +701,7 @@ export type MutationSendShipmentArgs = {
  */
 export type MutationStartDistributionEventsTrackingGroupArgs = {
   distributionEventIds: Array<Scalars['ID']>;
+  returnedToLocationId: Scalars['ID'];
 };
 
 
