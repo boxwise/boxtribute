@@ -3,7 +3,7 @@ from peewee import DateTimeField, IntegerField
 
 from ...db import db
 from ..fields import EnumCharField, UIntForeignKeyField
-from .distribution_event_tracking_group import DistributionEventTrackingGroup
+from .distribution_event_tracking_group import DistributionEventsTrackingGroup
 from .product import Product
 from .size import Size
 
@@ -12,7 +12,7 @@ class DistributionEventTrackingLogEntry(db.Model):
     distro_event_tracking_group = UIntForeignKeyField(
         column_name="distro_event_tracking_group_id",
         field="id",
-        model=DistributionEventTrackingGroup,
+        model=DistributionEventsTrackingGroup,
         null=True,
         on_update="CASCADE",
     )

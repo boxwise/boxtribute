@@ -2,7 +2,7 @@
 import enum
 
 
-class DistributionEventTrackingGroupState(enum.IntEnum):
+class DistributionEventsTrackingGroupState(enum.IntEnum):
     InProgress = 1
     Completed = enum.auto()
 

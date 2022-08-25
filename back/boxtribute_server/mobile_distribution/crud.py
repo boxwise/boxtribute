@@ -1,7 +1,7 @@
 from collections import namedtuple
 
 from boxtribute_server.models.definitions.distribution_event_tracking_group import (
-    DistributionEventTrackingGroup,
+    DistributionEventsTrackingGroup,
 )
 from boxtribute_server.models.definitions.distribution_event_tracking_log_entry import (
     DistributionEventTrackingLogEntry,
@@ -346,7 +346,7 @@ def start_distribution_events_tracking_group(
 
     with db.database.atomic():
         now = utcnow()
-        new_distribution_events_tracking_group = DistributionEventTrackingGroup.create(
+        new_distribution_events_tracking_group = DistributionEventsTrackingGroup.create(
             created_on=now,
             created_by=user_id,
             last_modified_on=now,

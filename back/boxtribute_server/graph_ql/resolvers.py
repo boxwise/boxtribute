@@ -34,7 +34,7 @@ from ..box_transfer.shipment import (
 )
 from ..enums import (
     DistributionEventState,
-    DistributionEventTrackingGroupState,
+    DistributionEventsTrackingGroupState,
     HumanGender,
     LocationType,
     TaggableObjectType,
@@ -72,7 +72,7 @@ from ..models.definitions.beneficiary import Beneficiary
 from ..models.definitions.box import Box
 from ..models.definitions.distribution_event import DistributionEvent
 from ..models.definitions.distribution_event_tracking_group import (
-    DistributionEventTrackingGroup,
+    DistributionEventsTrackingGroup,
 )
 from ..models.definitions.location import Location
 from ..models.definitions.organisation import Organisation
@@ -117,6 +117,9 @@ beneficiary = _register_object_type("Beneficiary")
 box = _register_object_type("Box")
 distribution_event = _register_object_type("DistributionEvent")
 distribution_spot = _register_object_type("DistributionSpot")
+distribution_event_tracking_group = _register_object_type(
+    "DistributionEventsTrackingGroup"
+)
 location = _register_object_type("Location")
 metrics = _register_object_type("Metrics")
 organisation = _register_object_type("Organisation")
@@ -213,8 +216,25 @@ def resolve_beneficiary(*_, id):
     return beneficiary
 
 
+@distribution_event_tracking_group.field("distributionEvents")
+def resolve_distribution_events_for_distribution_event_tracking_group(
+    distribution_event_tracking_group_obj, _
+):
+    mobile_distro_feature_flag_check(user_id=g.user.id)
+    authorize(
+        permission="distro_event:read",
+    )
+    distribution_events = DistributionEvent.select().where(
+        (
+            DistributionEvent.distro_event_tracking_group_id
+            == distribution_event_tracking_group_obj.id
+        )
+    )
+    return distribution_events
+
+
 @base.field("distributionEvents")
-def resolve_distributions_events(base_obj, _):
+def resolve_distributions_events_for_base(base_obj, _):
     mobile_distro_feature_flag_check(user_id=g.user.id)
     authorize(
         permission="distro_event:read",
@@ -223,10 +243,6 @@ def resolve_distributions_events(base_obj, _):
         DistributionEvent.select()
         .join(Location, on=(DistributionEvent.distribution_spot == Location.id))
         .join(Base, on=(Location.base == Base.id))
-        # TODO: Discuss/inform: the logical concatination via '&'
-        # apparently does not work.
-        # I was able to see events for a different base than the one queried
-        # when I used the '&' syntax.
         .where(
             (Base.id == base_obj.id) & (Location.type == LocationType.DistributionSpot)
         )
@@ -920,7 +936,7 @@ def resolve_base_locations(base_obj, _):
 def resolve_distribution_events_tracking_group(*_, id):
     mobile_distro_feature_flag_check(user_id=g.user.id)
     authorize(permission="distribution_event:read")
-    return DistributionEventTrackingGroupState.get_by_id(id)
+    return DistributionEventsTrackingGroupState.get_by_id(id)
     # return Location.select().where(
     #     (Location.type == LocationType.DistributionSpot)
     #     & (base_filter_condition(Location))
@@ -1015,7 +1031,7 @@ def resolve_packing_list_entries(obj, *_):
 def resolve_base_distribution_events_tracking_groups(base_obj, *_):
     mobile_distro_feature_flag_check(user_id=g.user.id)
     authorize(permission="distribution_event:read")
-    return DistributionEventTrackingGroup.select().where(base_id=base_obj.id)
+    return DistributionEventsTrackingGroup.select().where(base_id=base_obj.id)
 
 
 @base.field("distributionEventsBeforeReturnedFromDistributionState")

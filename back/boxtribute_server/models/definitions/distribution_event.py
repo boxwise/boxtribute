@@ -14,6 +14,11 @@ class DistributionEvent(db.Model):
     # TODO: Clarify whether this is enough to make the connection
     # to DistributionSpot or whether some additional constraints
     # are needed (since the same table / PeeWee model is used as for locations)
+    distribution_event_tracking_group = UIntForeignKeyField(
+        column_name="distro_event_tracking_group_id",
+        # object_id_name="distro_event_tracking_group_id",
+        model=Location,
+    )
     distribution_spot = UIntForeignKeyField(
         column_name="location_id",
         object_id_name="distribution_spot_id",

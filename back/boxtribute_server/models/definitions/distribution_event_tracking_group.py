@@ -1,4 +1,4 @@
-from boxtribute_server.enums import DistributionEventTrackingGroupState
+from boxtribute_server.enums import DistributionEventsTrackingGroupState
 from peewee import CharField, DateTimeField
 
 from ...db import db
@@ -7,7 +7,7 @@ from .base import Base
 from .user import User
 
 
-class DistributionEventTrackingGroup(db.Model):
+class DistributionEventsTrackingGroup(db.Model):
     name = CharField(null=True)
     base = UIntForeignKeyField(
         # TODO: in the database, this is still called camp_id
@@ -18,8 +18,8 @@ class DistributionEventTrackingGroup(db.Model):
         object_id_name="base_id",
     )
     state = EnumCharField(
-        choices=DistributionEventTrackingGroupState,
-        default=DistributionEventTrackingGroupState.InProgress,
+        choices=DistributionEventsTrackingGroupState,
+        default=DistributionEventsTrackingGroupState.InProgress,
     )
     created_on = DateTimeField(null=True)
     created_by = UIntForeignKeyField(
