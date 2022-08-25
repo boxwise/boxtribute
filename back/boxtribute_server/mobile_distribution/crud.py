@@ -358,7 +358,7 @@ def start_distribution_events_tracking_group(
                     expected_states=[DistributionEventState.ReturnedFromDistribution],
                     actual_state=distribution_event.state,
                 )
-            if distribution_event.distribution_event_tracking_group.id is not None:
+            if distribution_event.distribution_event_tracking_group is not None:
                 raise DistributionEventAlreadyInTrackingGroup()
 
         now = utcnow()
@@ -428,14 +428,15 @@ def start_distribution_events_tracking_group(
         for key, value in product_size_tuples_to_number_of_items_map.items():
             product_id, size_id = key
 
-            DistributionEventTrackingLogEntry.create(
-                distro_event_tracking_group=new_distribution_events_tracking_group,
-                direction=DistributionEventTrackingFlowDirection.Out,
-                date=now,
-                product_id=product_id,
-                size_id=size_id,
-                number_of_items=value,
-            )
+            if value > 0:
+                DistributionEventTrackingLogEntry.create(
+                    distro_event_tracking_group=new_distribution_events_tracking_group,
+                    direction=DistributionEventTrackingFlowDirection.Out,
+                    date=now,
+                    product_id=product_id,
+                    size_id=size_id,
+                    number_of_items=value,
+                )
 
         return new_distribution_events_tracking_group
 
