@@ -282,6 +282,12 @@ type DistributionEvent {
   DistributionEventsTrackingGroup: DistributionEventsTrackingGroup
 }
 
+enum DistributionEventTrackingFlowDirection {
+  In
+  Out
+  Internal
+}
+
 enum DistributionEventsTrackingGroupState {
   InProgress
   Completed

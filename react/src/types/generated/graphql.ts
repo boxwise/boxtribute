@@ -228,6 +228,12 @@ export enum DistributionEventState {
   ReturnedFromDistribution = 'ReturnedFromDistribution'
 }
 
+export enum DistributionEventTrackingFlowDirection {
+  In = 'In',
+  Internal = 'Internal',
+  Out = 'Out'
+}
+
 /** TODO: Add description here once specs are final/confirmed */
 export type DistributionEventsTrackingEntry = {
   __typename?: 'DistributionEventsTrackingEntry';
