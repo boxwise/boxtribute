@@ -359,7 +359,9 @@ def start_distribution_events_tracking_group(
         )
 
         for distribution_event in distribution_events:
-            distribution_event.tracking_group = new_distribution_events_tracking_group
+            distribution_event.distribution_event_tracking_group = (
+                new_distribution_events_tracking_group.id
+            )
             distribution_event.state = DistributionEventState.ReturnTrackingInProgress
             distribution_event.save()
 
