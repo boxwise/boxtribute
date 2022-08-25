@@ -569,6 +569,70 @@ def resolve_set_products_for_packing_list(
     )
 
 
+@mutation.field("startDistributionEventsTrackingGroup")
+@convert_kwargs_to_snake_case
+def resolve_start_distribution_events_tracking_group(*_, distribution_event_ids):
+    mobile_distro_feature_flag_check(user_id=g.user.id)
+    authorize(permission="distro_event:write")
+    return start_distribution_events_tracking_group(
+        # user_id=g.user.id,
+        distribution_event_ids=distribution_event_ids,
+    )
+
+
+@mutation.field("trackReturnOfItemsForDistributionEventsTrackingGroup")
+@convert_kwargs_to_snake_case
+def resolve_track_return_of_items_for_distribution_events_tracking_group(
+    *_, distribution_event_tracking_group_id, product_id, number_of_items
+):
+    mobile_distro_feature_flag_check(user_id=g.user.id)
+    authorize(permission="distro_event:write")
+    return track_return_of_items_for_distribution_events_tracking_group(
+        # user_id=g.user.id,
+        distribution_event_tracking_group_id=distribution_event_tracking_group_id,
+        product_id=product_id,
+        number_of_items=number_of_items,
+    )
+
+
+@mutation.field("moveItemsFromReturnTrackingGroupToBox")
+@convert_kwargs_to_snake_case
+def resolve_move_items_from_return_tracking_group_to_box(
+    *_,
+    distribution_events_tracking_group_id,
+    product_id,
+    size_id,
+    number_of_items,
+    target_box_id,
+):
+    mobile_distro_feature_flag_check(user_id=g.user.id)
+    authorize(permission="distro_event:write")
+    return move_items_from_return_tracking_group_to_box(
+        # user_id=g.user.id,
+        distribution_events_tracking_group_id=distribution_events_tracking_group_id,
+        product_id=product_id,
+        number_of_items=number_of_items,
+        target_box_id=target_box_id,
+    )
+
+
+#   completeDistributionEventsTrackingGroup(
+#     distributionEventsTrackingGroupId: ID!
+#   ): DistributionEventsTrackingGroup
+@mutation.field("completeDistributionEventsTrackingGroup")
+@convert_kwargs_to_snake_case
+def resolve_complete_distribution_events_tracking_group(
+    *_,
+    distribution_events_tracking_group_id,
+):
+    mobile_distro_feature_flag_check(user_id=g.user.id)
+    authorize(permission="distro_event:write")
+    return complete_distribution_events_tracking_group(
+        # user_id=g.user.id,
+        distribution_events_tracking_group_id=distribution_events_tracking_group_id,
+    )
+
+
 @mutation.field("createQrCode")
 @convert_kwargs_to_snake_case
 def resolve_create_qr_code(*_, box_label_identifier=None):
