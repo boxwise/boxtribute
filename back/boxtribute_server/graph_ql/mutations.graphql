@@ -71,7 +71,6 @@ type Mutation {
     productId: ID!
     sizeId: ID!
     numberOfItems: ID!
-    # targetBoxId: ID!
   ): DistributionEventsTrackingEntry
 
   moveItemsFromReturnTrackingGroupToBox(

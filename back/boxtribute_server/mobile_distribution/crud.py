@@ -10,6 +10,7 @@ from boxtribute_server.models.definitions.distribution_event_tracking_log_entry 
 from ..db import db
 from ..enums import (
     DistributionEventState,
+    DistributionEventsTrackingGroupState,
     DistributionEventTrackingFlowDirection,
     LocationType,
     PackingListEntryState,
@@ -367,6 +368,7 @@ def start_distribution_events_tracking_group(
             created_by=user_id,
             last_modified_on=now,
             last_modified_by=user_id,
+            state=DistributionEventsTrackingGroupState.InProgress,
             base=base_id,
         )
         for distribution_event in distribution_events:
@@ -431,7 +433,7 @@ def start_distribution_events_tracking_group(
             if value > 0:
                 DistributionEventTrackingLogEntry.create(
                     distro_event_tracking_group=new_distribution_events_tracking_group,
-                    direction=DistributionEventTrackingFlowDirection.Out,
+                    flow_direction=DistributionEventTrackingFlowDirection.Out,
                     date=now,
                     product_id=product_id,
                     size_id=size_id,
@@ -442,11 +444,23 @@ def start_distribution_events_tracking_group(
 
 
 def track_return_of_items_for_distribution_events_tracking_group(
-    distribution_event_tracking_group_id, product_id, number_of_items
+    distribution_events_tracking_group_id, product_id, size_id, number_of_items
 ):
+    now = utcnow()
     with db.database.atomic():
-        # TODO: create log entry with direction "In"
-        return
+        # TODO: validation/checks
+        # * ensure that for the tracking_group, product_id, size_id combo:
+        #   * the sum of numberOfItems for the OUT log entries for that combo
+        #   * MINUS the sum of numberOfItems for the IN log entries for that combo
+        #   * is >= the number_of_items parameter
+        return DistributionEventTrackingLogEntry.create(
+            distro_event_tracking_group=distribution_events_tracking_group_id,
+            flow_direction=DistributionEventTrackingFlowDirection.In,
+            date=now,
+            product_id=product_id,
+            size_id=size_id,
+            number_of_items=number_of_items,
+        )
 
 
 def move_items_from_return_tracking_group_to_box(
@@ -456,11 +470,37 @@ def move_items_from_return_tracking_group_to_box(
     number_of_items,
     target_box_id,
 ):
+    now = utcnow()
     with db.database.atomic():
-        # TODO: create log entry with direction "Internal"
-        # TODO: update box
-        return
+        log_entry = DistributionEventTrackingLogEntry.create(
+            distro_event_tracking_group=distribution_events_tracking_group_id,
+            flow_direction=DistributionEventTrackingFlowDirection.Internal,
+            date=now,
+            product_id=product_id,
+            size_id=size_id,
+            number_of_items=number_of_items,
+        )
+        target_box = Box.get(target_box_id)
+        target_box.number_of_items += number_of_items
+        target_box.save()
+        return log_entry
 
 
 def complete_distribution_events_tracking_group(distribution_events_tracking_group_id):
-    return
+    with db.database.atomic():
+        # TODO:
+        distro_events_tracking_group = DistributionEventsTrackingGroup.get(
+            distribution_events_tracking_group_id
+        )
+        # distribution_events = DistributionEvent.select().where(
+        #   DistributionEventAlreadyInTrackingGroup == distro_event_tracking_group_id
+        # )
+        distribution_events = distro_events_tracking_group.distribution_events
+        for distribution_event in distribution_events:
+            distribution_event.state = DistributionEventState.Completed
+            distribution_event.save()
+        distro_events_tracking_group.state = (
+            DistributionEventsTrackingGroupState.Completed
+        )
+        distro_events_tracking_group.save()
+        return distro_events_tracking_group

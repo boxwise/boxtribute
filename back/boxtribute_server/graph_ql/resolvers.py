@@ -611,14 +611,15 @@ def resolve_start_distribution_events_tracking_group(
 @mutation.field("trackReturnOfItemsForDistributionEventsTrackingGroup")
 @convert_kwargs_to_snake_case
 def resolve_track_return_of_items_for_distribution_events_tracking_group(
-    *_, distribution_event_tracking_group_id, product_id, number_of_items
+    *_, distribution_events_tracking_group_id, product_id, size_id, number_of_items
 ):
     mobile_distro_feature_flag_check(user_id=g.user.id)
     authorize(permission="distro_event:write")
     return track_return_of_items_for_distribution_events_tracking_group(
         # user_id=g.user.id,
-        distribution_event_tracking_group_id=distribution_event_tracking_group_id,
+        distribution_events_tracking_group_id=distribution_events_tracking_group_id,
         product_id=product_id,
+        size_id=size_id,
         number_of_items=number_of_items,
     )
 

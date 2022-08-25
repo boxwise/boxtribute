@@ -17,7 +17,9 @@ class DistributionEventTrackingLogEntry(db.Model):
         on_update="CASCADE",
     )
     date = DateTimeField()
-    flow_direction = EnumCharField(choices=DistributionEventTrackingFlowDirection)
+    flow_direction = EnumCharField(
+        choices=DistributionEventTrackingFlowDirection, null=False
+    )
     product = UIntForeignKeyField(
         column_name="product_id",
         field="id",
