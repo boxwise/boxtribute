@@ -279,7 +279,7 @@ type DistributionEvent {
   boxes: [Box!]!
   unboxedItemsCollections: [UnboxedItemsCollection!]!
 
-  DistributionEventsTrackingGroup: DistributionEventsTrackingGroup
+  distributionEventsTrackingGroup: DistributionEventsTrackingGroup
 }
 
 enum DistributionEventTrackingFlowDirection {
@@ -311,7 +311,7 @@ type DistributionEventsTrackingEntry {
   product: Product!
   size: Size!
   numberOfItems: Int!
-  DistributionEventsTrackingGroup: DistributionEventsTrackingGroup!
+  distributionEventsTrackingGroup: DistributionEventsTrackingGroup!
   dateTimeOfTracking: Datetime!
   direction: DistributionEventsTrackingEntryDirection!
 }
