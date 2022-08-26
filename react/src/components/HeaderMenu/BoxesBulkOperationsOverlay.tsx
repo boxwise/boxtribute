@@ -1,13 +1,8 @@
-import { MinusIcon, AddIcon } from "@chakra-ui/icons";
 import {
   Box,
   Button,
   Container,
   Text,
-  FormControl,
-  FormLabel,
-  HStack,
-  IconButton,
   List,
   ListItem,
   Modal,
@@ -16,14 +11,9 @@ import {
   ModalFooter,
   ModalHeader,
   ModalOverlay,
-  NumberInput,
-  NumberInputField,
-  Switch,
   VStack,
   Heading,
 } from "@chakra-ui/react";
-import { QrReader } from "components/QrReader/QrReader";
-import { ViewFinder } from "components/QrReaderOverlay/QrReaderOverlay";
 import { IBoxDetailsData } from "utils/base-types";
 
 interface BoxesBulkOperationsOverlayProps {

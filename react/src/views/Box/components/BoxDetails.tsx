@@ -12,19 +12,14 @@ import {
   LinkBox,
   LinkOverlay,
 } from "@chakra-ui/react";
-import React from "react";
 import { NavLink } from "react-router-dom";
 import {
   BoxByLabelIdentifierQuery,
   UpdateLocationOfBoxMutation,
-  AssignBoxToDistributionEventMutation,
-  AssignBoxToDistributionEventMutationVariables,
 } from "types/generated/graphql";
 import { useGetUrlForResourceHelpers } from "utils/hooks";
 import { distroEventStateHumanReadableLabels } from "views/Distributions/baseData";
 import DistributionEventTimeRangeDisplay from "views/Distributions/components/DistributionEventTimeRangeDisplay";
-import { ASSIGN_BOX_TO_DISTRIBUTION_MUTATION } from "views/Distributions/queries";
-import { DistributionEventDetailsSchema } from "views/Distributions/types";
 
 interface BoxDetailsProps {
   boxData:

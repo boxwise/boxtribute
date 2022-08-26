@@ -15,18 +15,13 @@ import {
   ModalFooter,
   ModalHeader,
   ModalOverlay,
-  NumberDecrementStepper,
-  NumberIncrementStepper,
   NumberInput,
   NumberInputField,
-  NumberInputStepper,
   Switch,
   Text,
-  useBoolean,
   VStack,
 } from "@chakra-ui/react";
 import { OnResultFunction, QrReader } from "components/QrReader/QrReader";
-// import { OnResultFunction } from "components/QrReader/types";
 import { useCallback, useMemo, useState } from "react";
 
 import { Result } from "@zxing/library";

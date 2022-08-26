@@ -1,5 +1,5 @@
 import { useCallback, useMemo, useState } from "react";
-import { gql, useApolloClient } from "@apollo/client";
+import { useApolloClient } from "@apollo/client";
 import {
   BoxDetailsQuery,
   BoxDetailsQueryVariables,
