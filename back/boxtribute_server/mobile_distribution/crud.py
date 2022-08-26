@@ -497,7 +497,7 @@ def move_items_from_return_tracking_group_to_box(
 
 def complete_distribution_events_tracking_group(distribution_events_tracking_group_id):
     with db.database.atomic():
-        distro_events_tracking_group = DistributionEventsTrackingGroup.get(
+        distro_events_tracking_group = DistributionEventsTrackingGroup.get_by_id(
             distribution_events_tracking_group_id
         )
         distribution_events = distro_events_tracking_group.distribution_events
