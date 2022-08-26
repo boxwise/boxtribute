@@ -732,6 +732,7 @@ def resolve_assign_box_to_distribution_event(
 def resolve_unassign_box_from_distribution_event(
     mutation_obj, _, box_label_identifier, distribution_event_id
 ):
+    mobile_distro_feature_flag_check(user_id=g.user.id)
     authorize(permission="stock:write")
     return unassign_box_from_distribution_event(
         box_label_identifier, distribution_event_id
