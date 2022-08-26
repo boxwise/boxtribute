@@ -10,15 +10,18 @@ import {
   Button,
   Center,
   Heading,
+  Input,
   List,
   ListItem,
   Text,
   useDisclosure,
   VStack,
 } from "@chakra-ui/react";
+import { zodResolver } from "@hookform/resolvers/zod";
 import APILoadingIndicator from "components/APILoadingIndicator";
 import _ from "lodash";
 import { useRef } from "react";
+import { useForm, useFieldArray } from "react-hook-form";
 import { useParams, useSearchParams } from "react-router-dom";
 import {
   DistributionEventsInReturnStateForBaseQuery,
@@ -26,6 +29,7 @@ import {
   DistributionEventsTrackingGroupQuery,
   DistributionEventsTrackingGroupQueryVariables,
 } from "types/generated/graphql";
+import { z } from "zod";
 import DistributionEventTimeRangeDisplay from "../components/DistributionEventTimeRangeDisplay";
 import { DISTRIBUTION_EVENTS_IN_RETURN_STATE_FOR_BASE, DISTRIBUTION_EVENTS_TRACKING_GROUP_QUERY } from "../queries";
 import {
@@ -154,7 +158,7 @@ const DistributionEventList = ({
           borderWidth="1px"
           rounded="md"
         >
-          <Box>Id: {distroEvent.id}</Box>
+          {/* <Box>Id: {distroEvent.id}</Box> */}
           <DistributionEventTimeRangeDisplay
             plannedStartDateTime={distroEvent.plannedStartDateTime}
             plannedEndDateTime={distroEvent.plannedEndDateTime}
@@ -177,6 +181,63 @@ const SummaryOfItemsInDistributionEvents = ({
     productSizeWithNumerOfItemsTuples: ItemCollection[];
   }[];
 }) => {
+
+  // interface TrackReturnsFormDat {
+
+  // }
+
+
+// z.object().shape({
+//   countries: yup.array(
+//     yup.object().shape({
+//       name: yup.string().required(),
+//       cities: yup.array(
+//         yup.object().shape({
+//           name: yup.string().required(),
+//           description: yup.string()
+//         })
+//       )
+//     })
+//   )
+// });
+
+// export type CreateBoxFormData = z.infer<typeof CreateBoxFormDataSchema>;
+// } = useForm<BoxFormValues>({
+//   resolver: zodResolver(CreateBoxFormDataSchema),
+//   defaultValues: {
+//     numberOfItems: 0,
+//     qrCode: qrCode,
+//   },
+// });
+
+
+
+const TrackReturnsFormDataSchema = z.object({
+  numberOfItemsForProductAndSize: z.array(
+    z.object({
+      productId: z.string(),
+      sizeId: z.string(),
+      numberOfItems: z.number(),
+    })
+  )
+});
+
+type TrackReturnsFormData = z.infer<typeof TrackReturnsFormDataSchema>;
+
+
+  const methods = useForm<TrackReturnsFormData>({
+    resolver: zodResolver(TrackReturnsFormDataSchema),
+    // defaultValues,
+    // mode: "onChange"
+  });
+  const { control, watch, handleSubmit, register } = methods;
+
+  // const { fields, append, remove } = useFieldArray({
+  //   control,
+  //   name: "numberOfItemsForProductAndSize"
+  // });
+
+
   return (
     <VStack>
       <Heading size="md" mt={10}>
@@ -204,7 +265,7 @@ const SummaryOfItemsInDistributionEvents = ({
               </Heading>
               <List>
                 {squashedItemsCollectionsGroupForProduct.productSizeWithNumerOfItemsTuples.map(
-                  (productSizeWithNumberOfItemsTuple) => (
+                  (productSizeWithNumberOfItemsTuple, i) => (
                     <ListItem mb={3} backgroundColor="gray.50" p={3}>
                       <Box>
                         <b>Size:</b>{" "}
@@ -215,14 +276,21 @@ const SummaryOfItemsInDistributionEvents = ({
                         {productSizeWithNumberOfItemsTuple.numberOfItems}
                       </Box>
                       <Box>
-                        <b>
-                          You already tracked 3 items as returned (120 still
-                          open)
-                        </b>
+                        <input hidden {...register(`numberOfItemsForProductAndSize.${i}.productId`)} defaultValue={squashedItemsCollectionsGroupForProduct.product.id} />
+                        <input hidden {...register(`numberOfItemsForProductAndSize.${i}.sizeId`)} defaultValue={productSizeWithNumberOfItemsTuple.size?.id} />
+                        <Input
+                          // placeholder={distroEvent.eventDate?.toDateString()}
+                          type="number"
+                          mb={4}
+                          {...register(
+                            `numberOfItemsForProductAndSize.${i}.numberOfItems`,
+                            { required: false }
+                          )}
+                        />
                       </Box>
-                      <Box>
+                      {/* <Box>
                         <Button>Track more items as returned</Button>
-                      </Box>
+                      </Box> */}
                     </ListItem>
                   )
                 )}
@@ -304,7 +372,7 @@ const DistrosReturnTrackingView = () => {
         onClick={() => alert("Not yet implemented")}
         colorScheme="blue"
       >
-       Done - close all involved Distribution Events. *
+       Done with counting the returned items. *
       </Button>
       <Text size="small">* This will track all left over number of items as "Distributed".</Text>
       <Box>
