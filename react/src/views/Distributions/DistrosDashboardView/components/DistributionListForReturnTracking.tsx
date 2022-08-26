@@ -1,4 +1,4 @@
-import { useMutation } from "@apollo/client";
+import { useApolloClient, useMutation } from "@apollo/client";
 import { BellIcon } from "@chakra-ui/icons";
 import {
   Box,
@@ -122,24 +122,37 @@ const DistributionListForReturnTracking = ({
   // );
   const [selectedValues, setSelectedValues] = useState([] as string[]);
 
-  const [
-    startDistributionEventsTrackingGroupMutation,
-    startDistributionEventsTrackingGroupMutationStatus,
-  ] = useMutation<
-    StartDistributionEventsTrackingGroupMutation,
-    StartDistributionEventsTrackingGroupMutationVariables
-  >(START_DISTRIBUTION_EVENTS_TRACKING_GROUP_MUTATION, {
-    // refetchQueries: [refetchBoxByLabelIdentifierQueryConfig(labelIdentifier)],
-  });
+  // const [
+  //   startDistributionEventsTrackingGroupMutation,
+  //   startDistributionEventsTrackingGroupMutationStatus,
+  // ] = useMutation<
+  //   StartDistributionEventsTrackingGroupMutation,
+  //   StartDistributionEventsTrackingGroupMutationVariables
+  // >(START_DISTRIBUTION_EVENTS_TRACKING_GROUP_MUTATION, {
+  //   // refetchQueries: [refetchBoxByLabelIdentifierQueryConfig(labelIdentifier)],
+  // });
+
+  const apolloClient = useApolloClient();
 
   const onStartReturnTrackingClick = () => {
-    startDistributionEventsTrackingGroupMutation({
+    apolloClient
+    .query<
+    StartDistributionEventsTrackingGroupMutation,
+    StartDistributionEventsTrackingGroupMutationVariables
+  >({
+      query: START_DISTRIBUTION_EVENTS_TRACKING_GROUP_MUTATION,
       variables: {
         baseId,
         distributionEventIds: selectedValues,
         // returnedToLocationId: null,
 
-      }
+      },
+      fetchPolicy: "no-cache",
+    })
+    .then(({ data, error, errors }) => {
+     navigate({
+       pathname: `/bases/${baseId}/distributions/return-trackings/${data.startDistributionEventsTrackingGroup?.id}`,
+     });
     })
     // navigate({
     //   pathname: `/bases/${baseId}/distributions/return-tracking`,
@@ -149,13 +162,13 @@ const DistributionListForReturnTracking = ({
     // navigate to the return tracking view of the newly created return tracking
   };
 
-  if(startDistributionEventsTrackingGroupMutationStatus.error) {
-    return <>Error</>
-  }
+  // if(startDistributionEventsTrackingGroupMutationStatus.error) {
+  //   return <>Error</>
+  // }
 
-  if(startDistributionEventsTrackingGroupMutationStatus.loading) {
-    return <APILoadingIndicator />
-  }
+  // if(startDistributionEventsTrackingGroupMutationStatus.loading) {
+  //   return <APILoadingIndicator />
+  // }
 
   return (
     <VStack>
