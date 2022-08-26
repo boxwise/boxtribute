@@ -708,7 +708,6 @@ export type MutationSendShipmentArgs = {
 export type MutationStartDistributionEventsTrackingGroupArgs = {
   baseId: Scalars['ID'];
   distributionEventIds: Array<Scalars['ID']>;
-  returnedToLocationId?: InputMaybe<Scalars['ID']>;
 };
 
 
@@ -1548,7 +1547,6 @@ export type DistributionEventsInReturnStateForBaseQuery = { __typename?: 'Query'
 
 export type StartDistributionEventsTrackingGroupMutationVariables = Exact<{
   distributionEventIds: Array<Scalars['ID']> | Scalars['ID'];
-  returnedToLocationId?: InputMaybe<Scalars['ID']>;
   baseId: Scalars['ID'];
 }>;
 

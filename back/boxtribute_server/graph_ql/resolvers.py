@@ -596,7 +596,10 @@ def resolve_set_products_for_packing_list(
 @mutation.field("startDistributionEventsTrackingGroup")
 @convert_kwargs_to_snake_case
 def resolve_start_distribution_events_tracking_group(
-    *_, distribution_event_ids, base_id, returned_to_location_id
+    *_,
+    distribution_event_ids,
+    base_id,
+    # returned_to_location_id
 ):
     mobile_distro_feature_flag_check(user_id=g.user.id)
     authorize(permission="distro_event:write")
@@ -604,7 +607,7 @@ def resolve_start_distribution_events_tracking_group(
         user_id=g.user.id,
         distribution_event_ids=distribution_event_ids,
         base_id=base_id,
-        returned_to_location_id=returned_to_location_id,
+        # returned_to_location_id=returned_to_location_id,
     )
 
 

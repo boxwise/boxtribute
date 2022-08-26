@@ -215,13 +215,13 @@ export const DISTRIBUTION_EVENTS_IN_RETURN_STATE_FOR_BASE = gql`
 export const START_DISTRIBUTION_EVENTS_TRACKING_GROUP_MUTATION = gql`
   mutation StartDistributionEventsTrackingGroup(
     $distributionEventIds: [ID!]!
-    $returnedToLocationId: ID
     $baseId: ID!
+    # $returnedToLocationId: ID
   ) {
     startDistributionEventsTrackingGroup(
       distributionEventIds: $distributionEventIds
-      returnedToLocationId: $returnedToLocationId
       baseId: $baseId
+      # returnedToLocationId: $returnedToLocationId
     ) {
       id
       distributionEvents {

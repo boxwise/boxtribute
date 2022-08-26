@@ -137,7 +137,7 @@ const DistributionListForReturnTracking = ({
       variables: {
         baseId,
         distributionEventIds: selectedValues,
-        // returnedToLocationId: "TODO",
+        // returnedToLocationId: null,
 
       }
     })
