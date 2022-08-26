@@ -209,21 +209,6 @@ export const DISTRIBUTION_EVENTS_IN_RETURN_STATE_FOR_BASE = gql`
         }
       }
     }
-
-    # distributionEventsSummary(ids: ["1", "2","3", "4", "5"]) {
-    #   distributionEvents {
-    #     id
-    #   }
-    #   boxes {
-    #     id
-    #     labelIdentifier
-    #   }
-    #   unboxedItemsCollections {
-    #     product {
-    #       name
-    #     }
-    #   }
-    # }
   }
 `;
 
