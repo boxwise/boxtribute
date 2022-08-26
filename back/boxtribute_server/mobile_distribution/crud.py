@@ -1,4 +1,4 @@
-from collections import namedtuple
+from collections import Counter
 
 from boxtribute_server.models.definitions.distribution_event_tracking_log_entry import (
     DistributionEventTrackingLogEntry,
@@ -30,8 +30,6 @@ from ..models.definitions.size import Size
 from ..models.definitions.size_range import SizeRange
 from ..models.definitions.unboxed_items_collection import UnboxedItemsCollection
 from ..models.utils import utcnow
-
-ProductSizeTuple = namedtuple("ProductSizeTuple", ["product_id", "size_id"])
 
 
 def move_items_from_box_to_distribution_event(
@@ -384,7 +382,7 @@ def start_distribution_events_tracking_group(
         # * all products
         # * all sizes
         # * for all UnboxedItemCollections AND Boxes
-        product_size_tuples_to_number_of_items_map = {}
+        product_size_tuples_to_number_of_items_counter = Counter()
 
         boxes = Box.select().where(DistributionEvent.id << distribution_event_ids)
         unboxed_items_collections = UnboxedItemsCollection.select().where(
@@ -394,10 +392,11 @@ def start_distribution_events_tracking_group(
         # TODO: make this more DRY
         # (currently logic repeats for boxes and unboxed items collections)
         for box in boxes:
+            # TODO: general discussion point: might it make sense
+            # to introduce Size/Product tuples as a full data type,
+            # with its own table and id?
             product_size_tuple = (box.product_id, box.size_id)
-            if product_size_tuple not in product_size_tuples_to_number_of_items_map:
-                product_size_tuples_to_number_of_items_map[product_size_tuple] = 0
-            product_size_tuples_to_number_of_items_map[
+            product_size_tuples_to_number_of_items_counter[
                 product_size_tuple
             ] += box.number_of_items
             box.number_of_items = 0
@@ -415,9 +414,7 @@ def start_distribution_events_tracking_group(
                 unboxed_items_collection.product_id,
                 unboxed_items_collection.size_id,
             )
-            if product_size_tuple not in product_size_tuples_to_number_of_items_map:
-                product_size_tuples_to_number_of_items_map[product_size_tuple] = 0
-            product_size_tuples_to_number_of_items_map[
+            product_size_tuples_to_number_of_items_counter[
                 product_size_tuple
             ] += unboxed_items_collection.number_of_items
             unboxed_items_collection.number_of_items = 0
@@ -426,7 +423,7 @@ def start_distribution_events_tracking_group(
             unboxed_items_collection.save()
 
         # create log entries for all calculated numbers
-        for key, value in product_size_tuples_to_number_of_items_map.items():
+        for key, value in product_size_tuples_to_number_of_items_counter.items():
             product_id, size_id = key
 
             if value > 0:
