@@ -78,7 +78,7 @@ type Mutation {
     productId: ID!
     sizeId: ID!
     numberOfItems: Int!
-    targetBoxId: ID!
+    targetBoxLabelIdentifier: ID!
   ): DistributionEventsTrackingEntry
 
   completeDistributionEventsTrackingGroup(

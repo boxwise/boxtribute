@@ -632,7 +632,7 @@ def resolve_move_items_from_return_tracking_group_to_box(
     product_id,
     size_id,
     number_of_items,
-    target_box_id,
+    target_box_label_identifier,
 ):
     mobile_distro_feature_flag_check(user_id=g.user.id)
     authorize(permission="distro_event:write")
@@ -642,7 +642,7 @@ def resolve_move_items_from_return_tracking_group_to_box(
         product_id=product_id,
         size_id=size_id,
         number_of_items=number_of_items,
-        target_box_id=target_box_id,
+        target_box_label_identifier=target_box_label_identifier,
     )
 
 

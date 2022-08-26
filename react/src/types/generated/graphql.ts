@@ -655,7 +655,7 @@ export type MutationMoveItemsFromReturnTrackingGroupToBoxArgs = {
   numberOfItems: Scalars['Int'];
   productId: Scalars['ID'];
   sizeId: Scalars['ID'];
-  targetBoxId: Scalars['ID'];
+  targetBoxLabelIdentifier: Scalars['ID'];
 };
 
 

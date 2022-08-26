@@ -468,7 +468,7 @@ def move_items_from_return_tracking_group_to_box(
     product_id,
     size_id,
     number_of_items,
-    target_box_id,
+    target_box_label_identifier,
 ):
     now = utcnow()
     # TODO: validation/checks
@@ -493,7 +493,7 @@ def move_items_from_return_tracking_group_to_box(
             size_id=size_id,
             number_of_items=number_of_items,
         )
-        target_box = Box.get(target_box_id)
+        target_box = Box.get(Box.label_identifier == target_box_label_identifier)
         target_box.number_of_items += number_of_items
         target_box.save()
         return log_entry
