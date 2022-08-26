@@ -542,7 +542,7 @@ export type MutationChangeDistributionEventStateArgs = {
  * - input type: <Resource>CreationInput/UpdateInput
  */
 export type MutationCompleteDistributionEventsTrackingGroupArgs = {
-  distributionEventsTrackingGroupId: Scalars['ID'];
+  id: Scalars['ID'];
 };
 
 

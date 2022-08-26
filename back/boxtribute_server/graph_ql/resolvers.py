@@ -663,13 +663,13 @@ def resolve_move_items_from_return_tracking_group_to_box(
 @convert_kwargs_to_snake_case
 def resolve_complete_distribution_events_tracking_group(
     *_,
-    distribution_events_tracking_group_id,
+    id,
 ):
     mobile_distro_feature_flag_check(user_id=g.user.id)
     authorize(permission="distro_event:write")
     return complete_distribution_events_tracking_group(
         # user_id=g.user.id,
-        distribution_events_tracking_group_id=distribution_events_tracking_group_id,
+        id=id,
     )
 
 

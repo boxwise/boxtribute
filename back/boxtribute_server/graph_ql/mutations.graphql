@@ -82,7 +82,7 @@ type Mutation {
   ): DistributionEventsTrackingEntry
 
   completeDistributionEventsTrackingGroup(
-    distributionEventsTrackingGroupId: ID!
+    id: ID!
   ): DistributionEventsTrackingGroup
 
   # TODO: REMOVE THESE (REPLACED BY MORE SPECIFIC MUTATIONS)
