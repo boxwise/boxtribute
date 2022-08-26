@@ -20,6 +20,7 @@ class DistributionEvent(db.Model):
         # object_id_name="distro_event_tracking_group_id",
         model=DistributionEventsTrackingGroup,
         null=True,
+        backref="distribution_events",
     )
     distribution_spot = UIntForeignKeyField(
         column_name="location_id",

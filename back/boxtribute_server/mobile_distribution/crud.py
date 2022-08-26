@@ -497,14 +497,11 @@ def move_items_from_return_tracking_group_to_box(
 
 def complete_distribution_events_tracking_group(id):
     with db.database.atomic():
-        distribution_events = DistributionEvent.select().where(
-            DistributionEvent.distribution_events_tracking_group == id
-        )
+        distro_events_tracking_group = DistributionEventsTrackingGroup.get_by_id(id)
+        distribution_events = distro_events_tracking_group.distribution_events
         for distribution_event in distribution_events:
             distribution_event.state = DistributionEventState.Completed
             distribution_event.save()
-
-        distro_events_tracking_group = DistributionEventsTrackingGroup.get_by_id(id)
         distro_events_tracking_group.state = (
             DistributionEventsTrackingGroupState.Completed
         )
