@@ -1543,7 +1543,7 @@ export type DistributionEventsTrackingGroupQueryVariables = Exact<{
 }>;
 
 
-export type DistributionEventsTrackingGroupQuery = { __typename?: 'Query', distributionEventsTrackingGroup?: { __typename?: 'DistributionEventsTrackingGroup', id: string } | null };
+export type DistributionEventsTrackingGroupQuery = { __typename?: 'Query', distributionEventsTrackingGroup?: { __typename?: 'DistributionEventsTrackingGroup', id: string, distributionEvents: Array<{ __typename?: 'DistributionEvent', id: string, state: DistributionEventState, name?: string | null, plannedStartDateTime: any, plannedEndDateTime: any, boxes: Array<{ __typename?: 'Box', labelIdentifier: string, numberOfItems?: number | null, product?: { __typename?: 'Product', id: string, name: string, category: { __typename?: 'ProductCategory', name: string } } | null, size: { __typename?: 'Size', id: string, label: string } }>, distributionSpot?: { __typename?: 'DistributionSpot', id: string, name?: string | null } | null, unboxedItemsCollections: Array<{ __typename?: 'UnboxedItemsCollection', numberOfItems?: number | null, product?: { __typename?: 'Product', id: string, name: string, category: { __typename?: 'ProductCategory', name: string } } | null, size: { __typename?: 'Size', id: string, label: string } }> }> } | null };
 
 export type DistributionEventsInReturnStateForBaseQueryVariables = Exact<{
   baseId: Scalars['ID'];

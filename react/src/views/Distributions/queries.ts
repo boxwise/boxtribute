@@ -169,11 +169,50 @@ export const CHANGE_DISTRIBUTION_EVENT_STATE_MUTATION = gql`
   }
 `;
 
-
 export const DISTRIBUTION_EVENTS_TRACKING_GROUP_QUERY = gql`
   query DistributionEventsTrackingGroup($trackingGroupId: ID!) {
     distributionEventsTrackingGroup(id: $trackingGroupId) {
       id
+      distributionEvents {
+        id
+        state
+        name
+        boxes {
+          labelIdentifier
+          product {
+            id
+            name
+            category {
+              name
+            }
+          }
+          size {
+            id
+            label
+          }
+          numberOfItems
+        }
+        distributionSpot {
+          id
+          name
+        }
+        plannedStartDateTime
+        plannedEndDateTime
+        unboxedItemsCollections {
+          product {
+            id
+            name
+            category {
+              name
+            }
+          }
+          size {
+            id
+            label
+          }
+          numberOfItems
+        }
+      }
     }
   }
 `;
@@ -225,13 +264,13 @@ export const START_DISTRIBUTION_EVENTS_TRACKING_GROUP_MUTATION = gql`
   mutation StartDistributionEventsTrackingGroup(
     $distributionEventIds: [ID!]!
     $baseId: ID!
-    # $returnedToLocationId: ID
-  ) {
+  ) # $returnedToLocationId: ID
+  {
     startDistributionEventsTrackingGroup(
       distributionEventIds: $distributionEventIds
       baseId: $baseId
-      # returnedToLocationId: $returnedToLocationId
-    ) {
+    ) # returnedToLocationId: $returnedToLocationId
+    {
       id
       distributionEvents {
         id

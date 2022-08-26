@@ -68,24 +68,24 @@ const squashByProductAndSizeWithSumForNumberOfItems = (
 };
 
 const graphqlToDistributionEventStockSummary = (
-  queryResult: DistributionEventsInReturnStateForBaseQuery,
-  distributionEventsToFilterFor: string[]
+  queryResult: DistributionEventsTrackingGroupQuery,
 ) => {
   const distributionEvents =
-    queryResult.base?.distributionEventsInReturnedFromDistributionState || [];
+    queryResult.distributionEventsTrackingGroup?.distributionEvents || [];
   // TODO: consider to track/handle this as an error here
   // if (distributionEvents.length === 0) {
   // }
   // TODO: consider to move this rather complex set operations/transformations into backend.
   //   something like getStockSummaryForDistributionEventsById
-  const filteredDistributionEvents = _(distributionEvents)
-    .filter((distributionEvent) =>
-      distributionEventsToFilterFor.includes(distributionEvent.id)
-    )
-    .value();
+  // const filteredDistributionEvents = _(distributionEvents)
+  //   .filter((distributionEvent) =>
+  //     distributionEventsToFilterFor.includes(distributionEvent.id)
+  //   )
+  //   .value();
 
   const squashedItemCollectionsAccrossAllEventsGroupedByProduct = _(
-    filteredDistributionEvents
+    // filteredDistributionEvents
+    distributionEvents
   )
     .flatMap((distroEvent) =>
       _(distroEvent.boxes)
@@ -122,7 +122,7 @@ const graphqlToDistributionEventStockSummary = (
   return {
     squashedItemCollectionsAccrossAllEvents:
       squashedItemCollectionsAccrossAllEventsGroupedByProduct,
-    distributionEvents: filteredDistributionEvents.map((el) =>
+    distributionEvents: distributionEvents.map((el) =>
       DistributionEventDetailsSchema.parse(el)
     ),
     // distributionEvents: filteredDistributionEvents.map(el => ({
@@ -285,21 +285,20 @@ const DistrosReturnTrackingView = () => {
   //     return <Center>Error!</Center>;
   //   }
 
-  // const distributionEventsSummary = graphqlToDistributionEventStockSummary(
-  //   data,
-  //   distroEventIdsForReturnTracking
-  // );
+  const distributionEventsSummary = graphqlToDistributionEventStockSummary(
+    data,
+  );
 
   return (
     <VStack>
-      {/* <DistributionEventList
+      <DistributionEventList
         distributionEvents={distributionEventsSummary.distributionEvents}
       />
       <SummaryOfItemsInDistributionEvents
         squashedItemsCollectionsGroupedByProduct={
           distributionEventsSummary.squashedItemCollectionsAccrossAllEvents
         }
-      /> */}
+      />
       <Button
         my={2}
         onClick={() => alert("Not yet implemented")}
