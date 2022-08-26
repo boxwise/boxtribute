@@ -386,15 +386,9 @@ def start_distribution_events_tracking_group(
         # * for all UnboxedItemCollections AND Boxes
         product_size_tuples_to_number_of_items_map = {}
 
-        boxes = (
-            Box.select()
-            .join(DistributionEvent)
-            .where(DistributionEvent.id << distribution_event_ids)
-        )
-        unboxed_items_collections = (
-            UnboxedItemsCollection.select()
-            .join(DistributionEvent)
-            .where(DistributionEvent.id << distribution_event_ids)
+        boxes = Box.select().where(DistributionEvent.id << distribution_event_ids)
+        unboxed_items_collections = UnboxedItemsCollection.select().where(
+            DistributionEvent.id << distribution_event_ids
         )
 
         # TODO: make this more DRY
