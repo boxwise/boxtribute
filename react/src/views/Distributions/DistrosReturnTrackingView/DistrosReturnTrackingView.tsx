@@ -23,9 +23,11 @@ import { useParams, useSearchParams } from "react-router-dom";
 import {
   DistributionEventsInReturnStateForBaseQuery,
   DistributionEventsInReturnStateForBaseQueryVariables,
+  DistributionEventsTrackingGroupQuery,
+  DistributionEventsTrackingGroupQueryVariables,
 } from "types/generated/graphql";
 import DistributionEventTimeRangeDisplay from "../components/DistributionEventTimeRangeDisplay";
-import { DISTRIBUTION_EVENTS_IN_RETURN_STATE_FOR_BASE } from "../queries";
+import { DISTRIBUTION_EVENTS_IN_RETURN_STATE_FOR_BASE, DISTRIBUTION_EVENTS_TRACKING_GROUP_QUERY } from "../queries";
 import {
   DistributionEventDetails,
   DistributionEventDetailsSchema,
@@ -234,17 +236,18 @@ const SummaryOfItemsInDistributionEvents = ({
 };
 
 const DistrosReturnTrackingView = () => {
-  const [searchParams] = useSearchParams();
-  const distroEventIdsForReturnTracking =
-    searchParams.getAll("distroEventIds[]");
-  const baseId = useParams<{ baseId: string }>().baseId!;
+  // const [searchParams] = useSearchParams();
+  // const distroEventIdsForReturnTracking =
+  //   searchParams.getAll("distroEventIds[]");
+  const {baseId, trackingGroupId } = useParams<{ baseId: string, trackingGroupId: string }>();
 
   const { data, error, loading } = useQuery<
-    DistributionEventsInReturnStateForBaseQuery,
-    DistributionEventsInReturnStateForBaseQueryVariables
-  >(DISTRIBUTION_EVENTS_IN_RETURN_STATE_FOR_BASE, {
+  DistributionEventsTrackingGroupQuery,
+  DistributionEventsTrackingGroupQueryVariables
+  >(DISTRIBUTION_EVENTS_TRACKING_GROUP_QUERY, {
     variables: {
-      baseId,
+      // baseId: baseId!,
+      trackingGroupId: trackingGroupId!,
     },
   });
 
@@ -262,7 +265,7 @@ const DistrosReturnTrackingView = () => {
     console.error("Error in DistrosReturnTrackingView : ", error);
     return <Center>Error!</Center>;
   }
-  if (data?.base?.distributionEventsInReturnedFromDistributionState == null) {
+  if (data?.distributionEventsTrackingGroup == null) {
     console.error(
       "Problem in DistrosReturnTrackingView: distributionEvents is undefined|null"
     );
@@ -282,21 +285,21 @@ const DistrosReturnTrackingView = () => {
   //     return <Center>Error!</Center>;
   //   }
 
-  const distributionEventsSummary = graphqlToDistributionEventStockSummary(
-    data,
-    distroEventIdsForReturnTracking
-  );
+  // const distributionEventsSummary = graphqlToDistributionEventStockSummary(
+  //   data,
+  //   distroEventIdsForReturnTracking
+  // );
 
   return (
     <VStack>
-      <DistributionEventList
+      {/* <DistributionEventList
         distributionEvents={distributionEventsSummary.distributionEvents}
       />
       <SummaryOfItemsInDistributionEvents
         squashedItemsCollectionsGroupedByProduct={
           distributionEventsSummary.squashedItemCollectionsAccrossAllEvents
         }
-      />
+      /> */}
       <Button
         my={2}
         onClick={() => alert("Not yet implemented")}

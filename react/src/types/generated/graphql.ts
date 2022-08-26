@@ -1538,6 +1538,13 @@ export type ChangeDistributionEventStateMutationVariables = Exact<{
 
 export type ChangeDistributionEventStateMutation = { __typename?: 'Mutation', changeDistributionEventState?: { __typename: 'DistributionEvent', id: string, name?: string | null, state: DistributionEventState } | null };
 
+export type DistributionEventsTrackingGroupQueryVariables = Exact<{
+  trackingGroupId: Scalars['ID'];
+}>;
+
+
+export type DistributionEventsTrackingGroupQuery = { __typename?: 'Query', distributionEventsTrackingGroup?: { __typename?: 'DistributionEventsTrackingGroup', id: string } | null };
+
 export type DistributionEventsInReturnStateForBaseQueryVariables = Exact<{
   baseId: Scalars['ID'];
 }>;

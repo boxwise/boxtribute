@@ -169,6 +169,15 @@ export const CHANGE_DISTRIBUTION_EVENT_STATE_MUTATION = gql`
   }
 `;
 
+
+export const DISTRIBUTION_EVENTS_TRACKING_GROUP_QUERY = gql`
+  query DistributionEventsTrackingGroup($trackingGroupId: ID!) {
+    distributionEventsTrackingGroup(id: $trackingGroupId) {
+      id
+    }
+  }
+`;
+
 export const DISTRIBUTION_EVENTS_IN_RETURN_STATE_FOR_BASE = gql`
   query DistributionEventsInReturnStateForBase($baseId: ID!) {
     base(id: $baseId) {

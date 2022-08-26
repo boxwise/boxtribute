@@ -34,7 +34,6 @@ from ..box_transfer.shipment import (
 )
 from ..enums import (
     DistributionEventState,
-    DistributionEventsTrackingGroupState,
     HumanGender,
     LocationType,
     TaggableObjectType,
@@ -939,8 +938,8 @@ def resolve_base_locations(base_obj, _):
 @query.field("distributionEventsTrackingGroup")
 def resolve_distribution_events_tracking_group(*_, id):
     mobile_distro_feature_flag_check(user_id=g.user.id)
-    authorize(permission="distribution_event:read")
-    return DistributionEventsTrackingGroupState.get_by_id(id)
+    authorize(permission="distro_event:read")
+    return DistributionEventsTrackingGroup.get_by_id(id)
     # return Location.select().where(
     #     (Location.type == LocationType.DistributionSpot)
     #     & (base_filter_condition(Location))
