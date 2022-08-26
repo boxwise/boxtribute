@@ -249,10 +249,6 @@ const SummaryOfItemsInDistributionEvents = ({
         Items in these Distribution Events
       </Heading>
       <form onSubmit={handleSubmit(onSubmit)}>
-        <Button my={2} colorScheme="blue" type="submit">
-          {/* <button type="submit"> */}
-          Done with counting the returned items. *{/* </button> */}
-        </Button>
         <List>
           {squashedItemsCollectionsGroupedByProduct.map(
             (squashedItemsCollectionsGroupForProduct, productIndex) => {
@@ -331,6 +327,9 @@ const SummaryOfItemsInDistributionEvents = ({
             }
           )}
         </List>
+        <Button my={2} colorScheme="blue" type="submit">
+          Done with counting the returned items. *
+        </Button>
       </form>
     </VStack>
   );
