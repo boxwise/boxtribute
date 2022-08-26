@@ -298,14 +298,6 @@ enum DistributionEventsTrackingGroupState {
 """
 TODO: Add description here once specs are final/confirmed
 """
-enum DistributionEventsTrackingEntryDirection {
-  In
-  Out
-}
-
-"""
-TODO: Add description here once specs are final/confirmed
-"""
 type DistributionEventsTrackingEntry {
   id: ID!
   product: Product!
@@ -313,7 +305,7 @@ type DistributionEventsTrackingEntry {
   numberOfItems: Int!
   distributionEventsTrackingGroup: DistributionEventsTrackingGroup!
   dateTimeOfTracking: Datetime!
-  direction: DistributionEventsTrackingEntryDirection!
+  direction: DistributionEventTrackingFlowDirection!
 }
 
 """

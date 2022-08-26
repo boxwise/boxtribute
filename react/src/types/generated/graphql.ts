@@ -238,19 +238,13 @@ export enum DistributionEventTrackingFlowDirection {
 export type DistributionEventsTrackingEntry = {
   __typename?: 'DistributionEventsTrackingEntry';
   dateTimeOfTracking: Scalars['Datetime'];
-  direction: DistributionEventsTrackingEntryDirection;
+  direction: DistributionEventTrackingFlowDirection;
   distributionEventsTrackingGroup: DistributionEventsTrackingGroup;
   id: Scalars['ID'];
   numberOfItems: Scalars['Int'];
   product: Product;
   size: Size;
 };
-
-/** TODO: Add description here once specs are final/confirmed */
-export enum DistributionEventsTrackingEntryDirection {
-  In = 'In',
-  Out = 'Out'
-}
 
 /** TODO: Add description here once specs are final/confirmed */
 export type DistributionEventsTrackingGroup = {
