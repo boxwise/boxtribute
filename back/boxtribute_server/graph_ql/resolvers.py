@@ -174,6 +174,10 @@ def resolve_tags(*_):
 @query.field("packingListEntry")
 def resolve_packing_list_entry(*_, id):
     mobile_distro_feature_flag_check(user_id=g.user.id)
+    # TODO: Consider to introduce here also base specific authorize checks
+    # in case we consider packingListEntries as sensitive data
+    # Also, the API user can probably get read access via the packingListEntry
+    # to boxes details via the matchingPackedItemsCollections sub field.
     authorize(permission="packing_list_entry:read")
     return PackingListEntry.get_by_id(id)
 
@@ -181,6 +185,7 @@ def resolve_packing_list_entry(*_, id):
 @packing_list_entry.field("matchingPackedItemsCollections")
 def resolve_packing_list_entry_matching_packed_items_collections(obj, *_):
     mobile_distro_feature_flag_check(user_id=g.user.id)
+    authorize(permission="stock:read")
     distribution_event_id = obj.distribution_event
     boxes = Box.select().where(
         Box.distribution_event == distribution_event_id,
@@ -384,7 +389,7 @@ def resolve_locations(*_):
 @convert_kwargs_to_snake_case
 def resolve_products_for_base(obj, *_):
     authorize(permission="product:read")
-    return Product.select().join(Base).where(Base.id == obj.id)
+    return Product.select().where(Product.base == obj.id)
 
 
 @query.field("products")
