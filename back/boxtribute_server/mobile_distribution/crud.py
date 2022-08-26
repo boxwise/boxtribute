@@ -482,6 +482,8 @@ def move_items_from_return_tracking_group_to_box(
     #     )
     #   )
     #   >= number_of_items mutation parameter
+
+    # * ensure that the product/size combo is matching with the target box product/size
     with db.database.atomic():
         log_entry = DistributionEventTrackingLogEntry.create(
             distro_event_tracking_group=distribution_events_tracking_group_id,

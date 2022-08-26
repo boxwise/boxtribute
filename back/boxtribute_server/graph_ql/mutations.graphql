@@ -70,14 +70,14 @@ type Mutation {
     distributionEventsTrackingGroupId: ID!
     productId: ID!
     sizeId: ID!
-    numberOfItems: ID!
+    numberOfItems: Int!
   ): DistributionEventsTrackingEntry
 
   moveItemsFromReturnTrackingGroupToBox(
     distributionEventsTrackingGroupId: ID!
     productId: ID!
     sizeId: ID!
-    numberOfItems: ID!
+    numberOfItems: Int!
     targetBoxId: ID!
   ): DistributionEventsTrackingEntry
 

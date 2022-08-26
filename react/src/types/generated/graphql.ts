@@ -652,7 +652,7 @@ export type MutationMoveItemsFromBoxToDistributionEventArgs = {
  */
 export type MutationMoveItemsFromReturnTrackingGroupToBoxArgs = {
   distributionEventsTrackingGroupId: Scalars['ID'];
-  numberOfItems: Scalars['ID'];
+  numberOfItems: Scalars['Int'];
   productId: Scalars['ID'];
   sizeId: Scalars['ID'];
   targetBoxId: Scalars['ID'];
@@ -719,7 +719,7 @@ export type MutationStartDistributionEventsTrackingGroupArgs = {
  */
 export type MutationTrackReturnOfItemsForDistributionEventsTrackingGroupArgs = {
   distributionEventsTrackingGroupId: Scalars['ID'];
-  numberOfItems: Scalars['ID'];
+  numberOfItems: Scalars['Int'];
   productId: Scalars['ID'];
   sizeId: Scalars['ID'];
 };
