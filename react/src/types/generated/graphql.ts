@@ -47,6 +47,15 @@ export type BaseBeneficiariesArgs = {
   paginationInput?: InputMaybe<PaginationInput>;
 };
 
+
+/**
+ * Representation of a base.
+ * The base is managed by a specific [`Organisation`]({{Types.Organisation}}).
+ */
+export type BaseDistributionEventsArgs = {
+  states?: InputMaybe<Array<DistributionEventState>>;
+};
+
 /**
  * Representation of a beneficiary.
  * The beneficiary is registered in a specific [`Base`]({{Types.Base}}).

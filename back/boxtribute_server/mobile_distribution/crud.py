@@ -85,7 +85,6 @@ def unassign_box_from_distribution_event(box_label_identifier, distribution_even
         # TODO: business logic might actually be better to set the location to
         # the Distro Spot only once the whole event is moved into
         # state "OnDistribution"
-        # box.location = distribution_event.distribution_spot_id
         box.distribution_event = None
         box.save()
         return box
@@ -102,7 +101,6 @@ def assign_box_to_distribution_event(box_label_identifier, distribution_event_id
                 distribution_event_id=distribution_event.id,
             )
         box = Box.get(Box.label_identifier == box_label_identifier)
-        # box.location = distribution_event.distribution_spot_id
         box.distribution_event = distribution_event_id
         box.save()
         return box

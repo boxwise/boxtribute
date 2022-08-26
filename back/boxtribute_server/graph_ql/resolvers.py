@@ -238,17 +238,20 @@ def resolve_distribution_events_for_distribution_events_tracking_group(
 
 
 @base.field("distributionEvents")
-def resolve_distributions_events_for_base(base_obj, _):
+def resolve_distributions_events_for_base(base_obj, _, states=None):
     mobile_distro_feature_flag_check(user_id=g.user.id)
     authorize(
         permission="distro_event:read",
     )
+    state_filter = DistributionEvent.state << states if states else True
     distribution_events = (
         DistributionEvent.select()
         .join(Location, on=(DistributionEvent.distribution_spot == Location.id))
         .join(Base, on=(Location.base == Base.id))
         .where(
-            (Base.id == base_obj.id) & (Location.type == LocationType.DistributionSpot)
+            (Base.id == base_obj.id)
+            & (Location.type == LocationType.DistributionSpot)
+            & (state_filter)
         )
     )
     return distribution_events

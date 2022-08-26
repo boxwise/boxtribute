@@ -225,12 +225,11 @@ type Base {
   locations: [Location!]!
   products: [Product!]!
   distributionSpots: [DistributionSpot!]!
-  distributionEvents: [DistributionEvent!]!
+  distributionEvents(states: [DistributionEventState!]): [DistributionEvent!]!
 
   # TODO: rethink this query once the prototype testing is over
   # probably better to have filter parameters and only one query operation
   distributionEventsBeforeReturnedFromDistributionState: [DistributionEvent!]!
-
 
   # TODO: rethink this query once the prototype testing is over (same as above)
   # probably better to have filter parameters and only one query operation
