@@ -214,10 +214,10 @@ const SummaryOfItemsInDistributionEvents = ({
   const TrackReturnsFormDataSchema = z.object({
     numberOfItemsForProductAndSize: z.array(
       z.object({
-        productId: z.number(),
+        productId: z.string(),
         sizeAndNumberOfItems: z.array(
           z.object({
-            sizeId: z.number(),
+            sizeId: z.string(),
             numberOfItems: z.number(),
           })
         ),
@@ -240,7 +240,7 @@ const SummaryOfItemsInDistributionEvents = ({
   // });
 
   const onSubmit = (values: TrackReturnsFormData) => {
-    // alert(JSON.stringify(values));
+    alert(JSON.stringify(values));
   };
 
   return (
@@ -255,10 +255,8 @@ const SummaryOfItemsInDistributionEvents = ({
         </Button>
         <List>
           {squashedItemsCollectionsGroupedByProduct.map(
-            (squashedItemsCollectionsGroupForProduct) => {
-              const productId = parseInt(
-                squashedItemsCollectionsGroupForProduct.product.id
-              );
+            (squashedItemsCollectionsGroupForProduct, productIndex) => {
+              const productId = squashedItemsCollectionsGroupForProduct.product.id;
               return (
                 <ListItem key={productId} mt={10}>
                   <Heading
@@ -276,10 +274,8 @@ const SummaryOfItemsInDistributionEvents = ({
                   </Heading>
                   <List>
                     {squashedItemsCollectionsGroupForProduct.productSizeWithNumerOfItemsTuples.map(
-                      (productSizeWithNumberOfItemsTuple) => {
-                        const sizeId = parseInt(
-                          productSizeWithNumberOfItemsTuple.size?.id!
-                        );
+                      (productSizeWithNumberOfItemsTuple, sizeIndex) => {
+                        const sizeId = productSizeWithNumberOfItemsTuple.size?.id!;
                         return (
                           <ListItem
                             mb={3}
@@ -299,28 +295,28 @@ const SummaryOfItemsInDistributionEvents = ({
                               <input
                                 hidden
                                 {...register(
-                                  `numberOfItemsForProductAndSize.${productId}.productId`
+                                  `numberOfItemsForProductAndSize.${productIndex}.productId`
                                 )}
                                 defaultValue={productId}
                               />
                               <input
                                 hidden
                                 {...register(
-                                  `numberOfItemsForProductAndSize.${productId}.sizeAndNumberOfItems.${sizeId}.sizeId`,
+                                  `numberOfItemsForProductAndSize.${productIndex}.sizeAndNumberOfItems.${sizeIndex}.sizeId`,
                                 )}
                                 defaultValue={sizeId}
                               />
-                              {/* <Input
+                              <Input
                                 // placeholder={distroEvent.eventDate?.toDateString()}
                                 type="number"
                                 mb={4}
                                 {...register(
-                                  `numberOfItemsForProductAndSize.${productId}.sizeAndNumberOfItems.${sizeId}.numberOfItems`,
+                                  `numberOfItemsForProductAndSize.${productIndex}.sizeAndNumberOfItems.${sizeIndex}.numberOfItems`,
                                   {
                                     valueAsNumber: true,
                                   }
                                 )}
-                              /> */}
+                              />
                             </Box>
                             {/* <Box>
                         <Button>Track more items as returned</Button>
