@@ -31,7 +31,10 @@ import {
 } from "types/generated/graphql";
 import { z } from "zod";
 import DistributionEventTimeRangeDisplay from "../components/DistributionEventTimeRangeDisplay";
-import { DISTRIBUTION_EVENTS_IN_RETURN_STATE_FOR_BASE, DISTRIBUTION_EVENTS_TRACKING_GROUP_QUERY } from "../queries";
+import {
+  DISTRIBUTION_EVENTS_IN_RETURN_STATE_FOR_BASE,
+  DISTRIBUTION_EVENTS_TRACKING_GROUP_QUERY,
+} from "../queries";
 import {
   DistributionEventDetails,
   DistributionEventDetailsSchema,
@@ -72,7 +75,7 @@ const squashByProductAndSizeWithSumForNumberOfItems = (
 };
 
 const graphqlToDistributionEventStockSummary = (
-  queryResult: DistributionEventsTrackingGroupQuery,
+  queryResult: DistributionEventsTrackingGroupQuery
 ) => {
   const distributionEvents =
     queryResult.distributionEventsTrackingGroup?.distributionEvents || [];
@@ -181,49 +184,48 @@ const SummaryOfItemsInDistributionEvents = ({
     productSizeWithNumerOfItemsTuples: ItemCollection[];
   }[];
 }) => {
-
   // interface TrackReturnsFormDat {
 
   // }
 
+  // z.object().shape({
+  //   countries: yup.array(
+  //     yup.object().shape({
+  //       name: yup.string().required(),
+  //       cities: yup.array(
+  //         yup.object().shape({
+  //           name: yup.string().required(),
+  //           description: yup.string()
+  //         })
+  //       )
+  //     })
+  //   )
+  // });
 
-// z.object().shape({
-//   countries: yup.array(
-//     yup.object().shape({
-//       name: yup.string().required(),
-//       cities: yup.array(
-//         yup.object().shape({
-//           name: yup.string().required(),
-//           description: yup.string()
-//         })
-//       )
-//     })
-//   )
-// });
+  // export type CreateBoxFormData = z.infer<typeof CreateBoxFormDataSchema>;
+  // } = useForm<BoxFormValues>({
+  //   resolver: zodResolver(CreateBoxFormDataSchema),
+  //   defaultValues: {
+  //     numberOfItems: 0,
+  //     qrCode: qrCode,
+  //   },
+  // });
 
-// export type CreateBoxFormData = z.infer<typeof CreateBoxFormDataSchema>;
-// } = useForm<BoxFormValues>({
-//   resolver: zodResolver(CreateBoxFormDataSchema),
-//   defaultValues: {
-//     numberOfItems: 0,
-//     qrCode: qrCode,
-//   },
-// });
+  const TrackReturnsFormDataSchema = z.object({
+    numberOfItemsForProductAndSize: z.array(
+      z.object({
+        productId: z.number(),
+        sizeAndNumberOfItems: z.array(
+          z.object({
+            sizeId: z.number(),
+            numberOfItems: z.number(),
+          })
+        ),
+      })
+    ),
+  });
 
-
-
-const TrackReturnsFormDataSchema = z.object({
-  numberOfItemsForProductAndSize: z.array(
-    z.object({
-      productId: z.string(),
-      sizeId: z.string(),
-      numberOfItems: z.number(),
-    })
-  )
-});
-
-type TrackReturnsFormData = z.infer<typeof TrackReturnsFormDataSchema>;
-
+  type TrackReturnsFormData = z.infer<typeof TrackReturnsFormDataSchema>;
 
   const methods = useForm<TrackReturnsFormData>({
     resolver: zodResolver(TrackReturnsFormDataSchema),
@@ -237,68 +239,103 @@ type TrackReturnsFormData = z.infer<typeof TrackReturnsFormDataSchema>;
   //   name: "numberOfItemsForProductAndSize"
   // });
 
+  const onSubmit = (values: TrackReturnsFormData) => {
+    // alert(JSON.stringify(values));
+  };
 
   return (
     <VStack>
       <Heading size="md" mt={10}>
         Items in these Distribution Events
       </Heading>
-      <List>
-        {squashedItemsCollectionsGroupedByProduct.map(
-          (squashedItemsCollectionsGroupForProduct) => (
-            <ListItem
-              key={squashedItemsCollectionsGroupForProduct.product.id}
-              mt={10}
-            >
-              <Heading
-                as="h3"
-                size="md"
-                textAlign="center"
-                borderColor="red.500"
-                borderWidth={1}
-                backgroundColor="gray.50"
-                p={3}
-                my={2}
-              >
-                <b>Product:</b>{" "}
-                {squashedItemsCollectionsGroupForProduct.product?.name}
-              </Heading>
-              <List>
-                {squashedItemsCollectionsGroupForProduct.productSizeWithNumerOfItemsTuples.map(
-                  (productSizeWithNumberOfItemsTuple, i) => (
-                    <ListItem mb={3} backgroundColor="gray.50" p={3}>
-                      <Box>
-                        <b>Size:</b>{" "}
-                        {productSizeWithNumberOfItemsTuple.size?.label}
-                      </Box>
-                      <Box>
-                        <b>Number of items on distro :</b>{" "}
-                        {productSizeWithNumberOfItemsTuple.numberOfItems}
-                      </Box>
-                      <Box>
-                        <input hidden {...register(`numberOfItemsForProductAndSize.${i}.productId`)} defaultValue={squashedItemsCollectionsGroupForProduct.product.id} />
-                        <input hidden {...register(`numberOfItemsForProductAndSize.${i}.sizeId`)} defaultValue={productSizeWithNumberOfItemsTuple.size?.id} />
-                        <Input
-                          // placeholder={distroEvent.eventDate?.toDateString()}
-                          type="number"
-                          mb={4}
-                          {...register(
-                            `numberOfItemsForProductAndSize.${i}.numberOfItems`,
-                            { required: false }
-                          )}
-                        />
-                      </Box>
-                      {/* <Box>
+      <form onSubmit={handleSubmit(onSubmit)}>
+        <Button my={2} colorScheme="blue" type="submit">
+          {/* <button type="submit"> */}
+          Done with counting the returned items. *{/* </button> */}
+        </Button>
+        <List>
+          {squashedItemsCollectionsGroupedByProduct.map(
+            (squashedItemsCollectionsGroupForProduct) => {
+              const productId = parseInt(
+                squashedItemsCollectionsGroupForProduct.product.id
+              );
+              return (
+                <ListItem key={productId} mt={10}>
+                  <Heading
+                    as="h3"
+                    size="md"
+                    textAlign="center"
+                    borderColor="red.500"
+                    borderWidth={1}
+                    backgroundColor="gray.50"
+                    p={3}
+                    my={2}
+                  >
+                    <b>Product:</b>{" "}
+                    {squashedItemsCollectionsGroupForProduct.product?.name}
+                  </Heading>
+                  <List>
+                    {squashedItemsCollectionsGroupForProduct.productSizeWithNumerOfItemsTuples.map(
+                      (productSizeWithNumberOfItemsTuple) => {
+                        const sizeId = parseInt(
+                          productSizeWithNumberOfItemsTuple.size?.id!
+                        );
+                        return (
+                          <ListItem
+                            mb={3}
+                            backgroundColor="gray.50"
+                            p={3}
+                            key={sizeId}
+                          >
+                            <Box>
+                              <b>Size:</b>{" "}
+                              {productSizeWithNumberOfItemsTuple.size?.label}
+                            </Box>
+                            <Box>
+                              <b>Number of items on distro :</b>{" "}
+                              {productSizeWithNumberOfItemsTuple.numberOfItems}
+                            </Box>
+                            <Box>
+                              <input
+                                hidden
+                                {...register(
+                                  `numberOfItemsForProductAndSize.${productId}.productId`
+                                )}
+                                defaultValue={productId}
+                              />
+                              <input
+                                hidden
+                                {...register(
+                                  `numberOfItemsForProductAndSize.${productId}.sizeAndNumberOfItems.${sizeId}.sizeId`,
+                                )}
+                                defaultValue={sizeId}
+                              />
+                              {/* <Input
+                                // placeholder={distroEvent.eventDate?.toDateString()}
+                                type="number"
+                                mb={4}
+                                {...register(
+                                  `numberOfItemsForProductAndSize.${productId}.sizeAndNumberOfItems.${sizeId}.numberOfItems`,
+                                  {
+                                    valueAsNumber: true,
+                                  }
+                                )}
+                              /> */}
+                            </Box>
+                            {/* <Box>
                         <Button>Track more items as returned</Button>
                       </Box> */}
-                    </ListItem>
-                  )
-                )}
-              </List>
-            </ListItem>
-          )
-        )}
-      </List>
+                          </ListItem>
+                        );
+                      }
+                    )}
+                  </List>
+                </ListItem>
+              );
+            }
+          )}
+        </List>
+      </form>
     </VStack>
   );
 };
@@ -307,11 +344,14 @@ const DistrosReturnTrackingView = () => {
   // const [searchParams] = useSearchParams();
   // const distroEventIdsForReturnTracking =
   //   searchParams.getAll("distroEventIds[]");
-  const {baseId, trackingGroupId } = useParams<{ baseId: string, trackingGroupId: string }>();
+  const { baseId, trackingGroupId } = useParams<{
+    baseId: string;
+    trackingGroupId: string;
+  }>();
 
   const { data, error, loading } = useQuery<
-  DistributionEventsTrackingGroupQuery,
-  DistributionEventsTrackingGroupQueryVariables
+    DistributionEventsTrackingGroupQuery,
+    DistributionEventsTrackingGroupQueryVariables
   >(DISTRIBUTION_EVENTS_TRACKING_GROUP_QUERY, {
     variables: {
       // baseId: baseId!,
@@ -321,7 +361,7 @@ const DistrosReturnTrackingView = () => {
 
   const onConfirmToMarkEventAsCompleted = () => {
     alert("Not implemented yet");
-  }
+  };
 
   const confirmFinishingReturnTrackingAlertState = useDisclosure();
   const cancelNextStageTransitionRef = useRef<HTMLButtonElement>(null);
@@ -353,9 +393,8 @@ const DistrosReturnTrackingView = () => {
   //     return <Center>Error!</Center>;
   //   }
 
-  const distributionEventsSummary = graphqlToDistributionEventStockSummary(
-    data,
-  );
+  const distributionEventsSummary =
+    graphqlToDistributionEventStockSummary(data);
 
   return (
     <VStack>
@@ -367,19 +406,13 @@ const DistrosReturnTrackingView = () => {
           distributionEventsSummary.squashedItemCollectionsAccrossAllEvents
         }
       />
-      <Button
-        my={2}
-        onClick={() => alert("Not yet implemented")}
-        colorScheme="blue"
-      >
-       Done with counting the returned items. *
-      </Button>
-      <Text size="small">* This will track all left over number of items as "Distributed".</Text>
+      <Text size="small">
+        * This will track all left over number of items as "Distributed".
+      </Text>
       <Box>
         {/* {JSON.stringify(distroEventIdsForReturnTracking)}
         {JSON.stringify(data)} */}
       </Box>
-
 
       <AlertDialog
         isOpen={confirmFinishingReturnTrackingAlertState.isOpen}
@@ -393,7 +426,12 @@ const DistrosReturnTrackingView = () => {
             </AlertDialogHeader>
 
             <AlertDialogBody>
-              Are you sure you tracked all returned items properly? It will end up in setting all Boxes assigned to the Distribution Events to zero. The system will then also calculate the number of distributed items for each Product/Size combination involved in the Distributions. This data will be used for Monitoring and Evaluation purposes. You can't undo this action afterwards.
+              Are you sure you tracked all returned items properly? It will end
+              up in setting all Boxes assigned to the Distribution Events to
+              zero. The system will then also calculate the number of
+              distributed items for each Product/Size combination involved in
+              the Distributions. This data will be used for Monitoring and
+              Evaluation purposes. You can't undo this action afterwards.
             </AlertDialogBody>
 
             <AlertDialogFooter>
