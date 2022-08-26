@@ -708,7 +708,7 @@ export type MutationSendShipmentArgs = {
 export type MutationStartDistributionEventsTrackingGroupArgs = {
   baseId: Scalars['ID'];
   distributionEventIds: Array<Scalars['ID']>;
-  returnedToLocationId: Scalars['ID'];
+  returnedToLocationId?: InputMaybe<Scalars['ID']>;
 };
 
 
@@ -1545,6 +1545,15 @@ export type DistributionEventsInReturnStateForBaseQueryVariables = Exact<{
 
 
 export type DistributionEventsInReturnStateForBaseQuery = { __typename?: 'Query', base?: { __typename?: 'Base', distributionEventsInReturnedFromDistributionState: Array<{ __typename?: 'DistributionEvent', id: string, name?: string | null, state: DistributionEventState, plannedStartDateTime: any, plannedEndDateTime: any, distributionSpot?: { __typename?: 'DistributionSpot', id: string, name?: string | null } | null, boxes: Array<{ __typename?: 'Box', id: string, numberOfItems?: number | null, product?: { __typename?: 'Product', id: string, name: string } | null, size: { __typename?: 'Size', id: string, label: string } }>, unboxedItemsCollections: Array<{ __typename?: 'UnboxedItemsCollection', id: string, numberOfItems?: number | null, product?: { __typename?: 'Product', id: string, name: string } | null, size: { __typename?: 'Size', id: string, label: string } }> }> } | null };
+
+export type StartDistributionEventsTrackingGroupMutationVariables = Exact<{
+  distributionEventIds: Array<Scalars['ID']> | Scalars['ID'];
+  returnedToLocationId?: InputMaybe<Scalars['ID']>;
+  baseId: Scalars['ID'];
+}>;
+
+
+export type StartDistributionEventsTrackingGroupMutation = { __typename?: 'Mutation', startDistributionEventsTrackingGroup?: { __typename?: 'DistributionEventsTrackingGroup', id: string, distributionEvents: Array<{ __typename?: 'DistributionEvent', id: string, distributionSpot?: { __typename?: 'DistributionSpot', id: string, name?: string | null } | null }> } | null };
 
 export type DistributionEventQueryVariables = Exact<{
   eventId: Scalars['ID'];

@@ -1,3 +1,4 @@
+import { useMutation } from "@apollo/client";
 import { BellIcon } from "@chakra-ui/icons";
 import {
   Box,
@@ -9,19 +10,23 @@ import {
   Text,
   VStack,
 } from "@chakra-ui/react";
+import APILoadingIndicator from "components/APILoadingIndicator";
 import { getDay, parseISO } from "date-fns";
 import isPast from "date-fns/isPast";
 import _ from "lodash";
 import { useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
-import { DistributionEventState } from "types/generated/graphql";
+import {
+  DistributionEventState,
+  StartDistributionEventsTrackingGroupMutation,
+  StartDistributionEventsTrackingGroupMutationVariables,
+} from "types/generated/graphql";
 import {
   getDateNormalizedDateTime,
   weekDayNumberToWeekDayName,
 } from "utils/helpers";
-import {
-  DistributionEventDetails,
-} from "views/Distributions/types";
+import { START_DISTRIBUTION_EVENTS_TRACKING_GROUP_MUTATION } from "views/Distributions/queries";
+import { DistributionEventDetails } from "views/Distributions/types";
 
 interface CheckboxGroupProps {
   groupName: string;
@@ -78,7 +83,9 @@ const DistributionListForReturnTracking = ({
   const sortedDistroEventsWhichNeedReturnTracking = _.chain(
     distributionEventsData
   )
-    .filter((el) => el.state === DistributionEventState.ReturnedFromDistribution)
+    .filter(
+      (el) => el.state === DistributionEventState.ReturnedFromDistribution
+    )
     .orderBy((el) => el.plannedStartDateTime, "desc")
     .value();
 
@@ -115,6 +122,41 @@ const DistributionListForReturnTracking = ({
   // );
   const [selectedValues, setSelectedValues] = useState([] as string[]);
 
+  const [
+    startDistributionEventsTrackingGroupMutation,
+    startDistributionEventsTrackingGroupMutationStatus,
+  ] = useMutation<
+    StartDistributionEventsTrackingGroupMutation,
+    StartDistributionEventsTrackingGroupMutationVariables
+  >(START_DISTRIBUTION_EVENTS_TRACKING_GROUP_MUTATION, {
+    // refetchQueries: [refetchBoxByLabelIdentifierQueryConfig(labelIdentifier)],
+  });
+
+  const onStartReturnTrackingClick = () => {
+    startDistributionEventsTrackingGroupMutation({
+      variables: {
+        baseId,
+        distributionEventIds: selectedValues,
+        // returnedToLocationId: "TODO",
+
+      }
+    })
+    // navigate({
+    //   pathname: `/bases/${baseId}/distributions/return-tracking`,
+    //   search: `?distroEventIds[]=${selectedValues.join("&distroEventIds[]=")}`,
+    // });
+    // call mutation to start return tracking with all event ids
+    // navigate to the return tracking view of the newly created return tracking
+  };
+
+  if(startDistributionEventsTrackingGroupMutationStatus.error) {
+    return <>Error</>
+  }
+
+  if(startDistributionEventsTrackingGroupMutationStatus.loading) {
+    return <APILoadingIndicator />
+  }
+
   return (
     <VStack>
       <VStack mb={10}>
@@ -141,8 +183,10 @@ const DistributionListForReturnTracking = ({
           Please select the Distribution Events that you want to track returned
           items for.
         </Text>
-          <Text backgroundColor={"orange.100"} m={5} p={3}>
-          Attention: Once you started a Return Tracking for a group of events, you cannot change this group selection later anymore (<Link>What does that mean?</Link>).
+        <Text backgroundColor={"orange.100"} m={5} p={3}>
+          Attention: Once you started a Return Tracking for a group of events,
+          you cannot change this group selection later anymore (
+          <Link>What does that mean?</Link>).
         </Text>
         <Box backgroundColor="gray.50">
           {distroEventsToShowGroupedByDay.map(({ date, events }) => {
@@ -184,19 +228,8 @@ const DistributionListForReturnTracking = ({
           })}
         </Box>
 
-        <Button
-          my={2}
-          onClick={() => {
-            navigate({
-              pathname: `/bases/${baseId}/distributions/return-tracking`,
-              search: `?distroEventIds[]=${selectedValues.join(
-                "&distroEventIds[]="
-              )}`,
-            });
-          }}
-          colorScheme="blue"
-        >
-          Select returned items
+        <Button my={2} onClick={onStartReturnTrackingClick} colorScheme="blue">
+          Start return tracking
         </Button>
       </VStack>
     </VStack>

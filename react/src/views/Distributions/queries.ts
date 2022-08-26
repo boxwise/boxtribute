@@ -212,6 +212,29 @@ export const DISTRIBUTION_EVENTS_IN_RETURN_STATE_FOR_BASE = gql`
   }
 `;
 
+export const START_DISTRIBUTION_EVENTS_TRACKING_GROUP_MUTATION = gql`
+  mutation StartDistributionEventsTrackingGroup(
+    $distributionEventIds: [ID!]!
+    $returnedToLocationId: ID
+    $baseId: ID!
+  ) {
+    startDistributionEventsTrackingGroup(
+      distributionEventIds: $distributionEventIds
+      returnedToLocationId: $returnedToLocationId
+      baseId: $baseId
+    ) {
+      id
+      distributionEvents {
+        id
+        distributionSpot {
+          id
+          name
+        }
+      }
+    }
+  }
+`;
+
 // export const DISTRIBUTION_EVENTS_SUMMARY_BY_IDS_QUERY = gql`
 //   query DistributionEventsSummaryByIds($distributionEventIds: [ID!]!) {
 //     distributionEventsSummary(ids: $distributionEventIds) {

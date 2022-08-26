@@ -406,7 +406,13 @@ def start_distribution_events_tracking_group(
                 product_size_tuple
             ] += box.number_of_items
             box.number_of_items = 0
-            box.location_id = returned_to_location_id
+
+            # TODO: consider to change this and use
+            # returned_to_location_id as the location_id
+            # for all returned boxes
+            box.location_id = None
+            # box.location_id = returned_to_location_id
+
             # TODO: set all UnboxedItemsCollection to correct state (?)
             box.save()
 

@@ -63,7 +63,7 @@ type Mutation {
   startDistributionEventsTrackingGroup(
     distributionEventIds: [ID!]!,
     baseId: ID!,
-    returnedToLocationId: ID!
+    returnedToLocationId: ID
   ): DistributionEventsTrackingGroup
 
   trackReturnOfItemsForDistributionEventsTrackingGroup(
