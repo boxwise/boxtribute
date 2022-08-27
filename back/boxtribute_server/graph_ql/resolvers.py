@@ -1046,10 +1046,10 @@ def resolve_packing_list_entries(obj, *_):
 
 
 @distribution_event.field("distributionEventsTrackingGroup")
-def resolve_tracking_group_of_distribution_event(base_obj, *_):
+def resolve_tracking_group_of_distribution_event(distro_event_obj, *_):
     mobile_distro_feature_flag_check(user_id=g.user.id)
     authorize(permission="distribution_event:read")
-    return base_obj.distribution_events_tracking_group
+    return distro_event_obj.distribution_events_tracking_group
 
 
 @base.field("distributionEventsTrackingGroups")
@@ -1065,15 +1065,18 @@ def resolve_distribution_events_before_return_state(base_obj, *_):
     return (
         DistributionEvent.select()
         .join(Location, on=(DistributionEvent.distribution_spot == Location.id))
-        .join(Base, on=(Location.base == Base.id))
         .where(
             (Location.type == LocationType.DistributionSpot)
             & (
-                DistributionEvent.state
-                != DistributionEventState.ReturnedFromDistribution
+                DistributionEvent.state.not_in(
+                    [
+                        DistributionEventState.ReturnedFromDistribution,
+                        DistributionEventState.ReturnTrackingInProgress,
+                        DistributionEventState.Completed,
+                    ]
+                )
             )
-            & (DistributionEvent.state != DistributionEventState.Completed)
-            & (Base.id == base_obj.id)
+            & (Location.base == base_obj.id)
         )
     )
 
