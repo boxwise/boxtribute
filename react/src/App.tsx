@@ -19,7 +19,7 @@ import CreateDistributionEventView from "views/Distributions/CreateDistributionE
 import CreateDistributionSpotView from "views/Distributions/CreateDistributionSpotView/CreateDistributionSpotView";
 import BaseDashboardView from "views/BaseDashboard/BaseDashboardView";
 import BoxCreateView from "views/BoxCreate/BoxCreateView";
-import DistrosReturnTrackingGroupView from "views/Distributions/DistrosReturnTrackingGroupView/DistrosReturnTrackingGroupView";
+import DistrosReturnTrackingGroupView from "views/Distributions/DistributionReturnTrackings/DistrosReturnTrackingGroupView/DistrosReturnTrackingGroupView";
 import DistributionReturnTrackingsView from "views/Distributions/DistributionReturnTrackings/DistributionReturnTrackingsView/DistributionReturnTrackingsView";
 
 const useLoadAndSetAvailableBases = () => {

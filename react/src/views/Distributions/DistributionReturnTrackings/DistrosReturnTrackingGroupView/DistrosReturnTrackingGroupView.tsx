@@ -28,16 +28,16 @@ import {
   DistributionEventsTrackingGroupQueryVariables,
 } from "types/generated/graphql";
 import { z } from "zod";
-import DistributionEventTimeRangeDisplay from "../components/DistributionEventTimeRangeDisplay";
+import DistributionEventTimeRangeDisplay from "../../components/DistributionEventTimeRangeDisplay";
 import {
   DISTRIBUTION_EVENTS_TRACKING_GROUP_QUERY,
-} from "../queries";
+} from "../../queries";
 import {
   DistributionEventDetails,
   DistributionEventDetailsSchema,
   Product,
   Size,
-} from "../types";
+} from "../../types";
 
 interface ItemCollection {
   productSizeIdTuple: string;

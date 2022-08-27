@@ -2,11 +2,13 @@ import { useQuery } from "@apollo/client";
 import APILoadingIndicator from "components/APILoadingIndicator";
 import { useNavigate, useParams } from "react-router-dom";
 import {
+  DataForReturnTrackingOverviewForBaseQuery,
+  DataForReturnTrackingOverviewForBaseQueryVariables,
   DistributionEventsForBaseQuery,
   DistributionEventsForBaseQueryVariables,
 } from "types/generated/graphql";
 import { z } from "zod";
-import { DISTRIBUTION_EVENTS_FOR_BASE_ID } from "../../queries";
+import { DATA_FOR_RETURN_TRACKING_OVERVIEW_FOR_BASE_QUERY, DISTRIBUTION_EVENTS_FOR_BASE_ID } from "../../queries";
 import {
   DistributionEventDetailsSchema,
 } from "../../types";
@@ -19,10 +21,10 @@ const DistributionReturnTrackingsView = () => {
   // TODO: consider to extract this out into custom hook (if it really makes sense!)
 
   const { data, error, loading } = useQuery<
-    DistributionEventsForBaseQuery,
-    DistributionEventsForBaseQueryVariables
+  DataForReturnTrackingOverviewForBaseQuery,
+  DataForReturnTrackingOverviewForBaseQueryVariables
     // TODO: consider to move this into a container (so this view file only extracts the baseId from the url params)
-  >(DISTRIBUTION_EVENTS_FOR_BASE_ID, {
+  >(DATA_FOR_RETURN_TRACKING_OVERVIEW_FOR_BASE_QUERY, {
     variables: {
       baseId: baseId!,
     },
@@ -41,6 +43,7 @@ const DistributionReturnTrackingsView = () => {
   return (
     <DistributionListForReturnTracking
       distributionEventsData={parsedDistributionEventsData}
+      // returnTrackingGroups={data?.base?.returnTrackingGroups}
     />
   );
 };

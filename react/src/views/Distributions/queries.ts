@@ -263,14 +263,12 @@ export const DISTRIBUTION_EVENTS_IN_RETURN_STATE_FOR_BASE = gql`
 export const START_DISTRIBUTION_EVENTS_TRACKING_GROUP_MUTATION = gql`
   mutation StartDistributionEventsTrackingGroup(
     $distributionEventIds: [ID!]!
-    $baseId: ID!
-  ) # $returnedToLocationId: ID
-  {
+    $baseId: ID! # $returnedToLocationId: ID
+  ) {
     startDistributionEventsTrackingGroup(
       distributionEventIds: $distributionEventIds
-      baseId: $baseId
-    ) # returnedToLocationId: $returnedToLocationId
-    {
+      baseId: $baseId # returnedToLocationId: $returnedToLocationId
+    ) {
       id
       distributionEvents {
         id
@@ -326,6 +324,28 @@ export const DISTRIBUTION_EVENT_QUERY = gql`
       distributionSpot {
         id
         name
+      }
+    }
+  }
+`;
+
+export const DATA_FOR_RETURN_TRACKING_OVERVIEW_FOR_BASE_QUERY = gql`
+  query DataForReturnTrackingOverviewForBase($baseId: ID!) {
+    base(id: $baseId) {
+      distributionEventsTrackingGroups {
+        id
+        state
+      }
+      distributionEvents(states: [ReturnedFromDistribution]) {
+        id
+        name
+        plannedStartDateTime
+        plannedEndDateTime
+        state
+        distributionSpot {
+          id
+          name
+        }
       }
     }
   }
