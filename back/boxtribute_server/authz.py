@@ -31,11 +31,10 @@ def authorize(
 
     if permission is not None:
         authorized = current_user.has_permission(permission)
-
         if authorized and base_id is not None:
             # Enforce base-specific permission
             base_ids = current_user.authorized_base_ids(permission)
-            authorized = True if base_ids is None else base_id in base_ids
+            authorized = True if base_ids is None else int(base_id) in base_ids
     elif organisation_id is not None:
         authorized = organisation_id == current_user.organisation_id
     elif organisation_ids is not None:
