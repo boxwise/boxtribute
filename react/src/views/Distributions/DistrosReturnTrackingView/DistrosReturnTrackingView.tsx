@@ -21,18 +21,15 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import APILoadingIndicator from "components/APILoadingIndicator";
 import _ from "lodash";
 import { useRef } from "react";
-import { useForm, useFieldArray } from "react-hook-form";
-import { useParams, useSearchParams } from "react-router-dom";
+import { useForm } from "react-hook-form";
+import { useParams } from "react-router-dom";
 import {
-  DistributionEventsInReturnStateForBaseQuery,
-  DistributionEventsInReturnStateForBaseQueryVariables,
   DistributionEventsTrackingGroupQuery,
   DistributionEventsTrackingGroupQueryVariables,
 } from "types/generated/graphql";
 import { z } from "zod";
 import DistributionEventTimeRangeDisplay from "../components/DistributionEventTimeRangeDisplay";
 import {
-  DISTRIBUTION_EVENTS_IN_RETURN_STATE_FOR_BASE,
   DISTRIBUTION_EVENTS_TRACKING_GROUP_QUERY,
 } from "../queries";
 import {
@@ -80,18 +77,12 @@ const graphqlToDistributionEventStockSummary = (
   const distributionEvents =
     queryResult.distributionEventsTrackingGroup?.distributionEvents || [];
   // TODO: consider to track/handle this as an error here
-  // if (distributionEvents.length === 0) {
+  // if (queryResult.distributionEventsTrackingGroup?.distributionEvents.length === 0) {
   // }
+
   // TODO: consider to move this rather complex set operations/transformations into backend.
   //   something like getStockSummaryForDistributionEventsById
-  // const filteredDistributionEvents = _(distributionEvents)
-  //   .filter((distributionEvent) =>
-  //     distributionEventsToFilterFor.includes(distributionEvent.id)
-  //   )
-  //   .value();
-
   const squashedItemCollectionsAccrossAllEventsGroupedByProduct = _(
-    // filteredDistributionEvents
     distributionEvents
   )
     .flatMap((distroEvent) =>
@@ -132,11 +123,6 @@ const graphqlToDistributionEventStockSummary = (
     distributionEvents: distributionEvents.map((el) =>
       DistributionEventDetailsSchema.parse(el)
     ),
-    // distributionEvents: filteredDistributionEvents.map(el => ({
-    //   id: el.id,
-    //   name: el.name,
-    //   plannedStartDateTime: el.plannedStartDateTime
-    // } as DistributionEventDetails))
   };
 };
 
@@ -184,33 +170,6 @@ const SummaryOfItemsInDistributionEvents = ({
     productSizeWithNumerOfItemsTuples: ItemCollection[];
   }[];
 }) => {
-  // interface TrackReturnsFormDat {
-
-  // }
-
-  // z.object().shape({
-  //   countries: yup.array(
-  //     yup.object().shape({
-  //       name: yup.string().required(),
-  //       cities: yup.array(
-  //         yup.object().shape({
-  //           name: yup.string().required(),
-  //           description: yup.string()
-  //         })
-  //       )
-  //     })
-  //   )
-  // });
-
-  // export type CreateBoxFormData = z.infer<typeof CreateBoxFormDataSchema>;
-  // } = useForm<BoxFormValues>({
-  //   resolver: zodResolver(CreateBoxFormDataSchema),
-  //   defaultValues: {
-  //     numberOfItems: 0,
-  //     qrCode: qrCode,
-  //   },
-  // });
-
   const TrackReturnsFormDataSchema = z.object({
     numberOfItemsForProductAndSize: z.array(
       z.object({
@@ -229,15 +188,8 @@ const SummaryOfItemsInDistributionEvents = ({
 
   const methods = useForm<TrackReturnsFormData>({
     resolver: zodResolver(TrackReturnsFormDataSchema),
-    // defaultValues,
-    // mode: "onChange"
   });
-  const { control, watch, handleSubmit, register } = methods;
-
-  // const { fields, append, remove } = useFieldArray({
-  //   control,
-  //   name: "numberOfItemsForProductAndSize"
-  // });
+  const { handleSubmit, register } = methods;
 
   const onSubmit = (values: TrackReturnsFormData) => {
     alert(JSON.stringify(values));
@@ -252,7 +204,8 @@ const SummaryOfItemsInDistributionEvents = ({
         <List>
           {squashedItemsCollectionsGroupedByProduct.map(
             (squashedItemsCollectionsGroupForProduct, productIndex) => {
-              const productId = squashedItemsCollectionsGroupForProduct.product.id;
+              const productId =
+                squashedItemsCollectionsGroupForProduct.product.id;
               return (
                 <ListItem key={productId} mt={10}>
                   <Heading
@@ -271,7 +224,8 @@ const SummaryOfItemsInDistributionEvents = ({
                   <List>
                     {squashedItemsCollectionsGroupForProduct.productSizeWithNumerOfItemsTuples.map(
                       (productSizeWithNumberOfItemsTuple, sizeIndex) => {
-                        const sizeId = productSizeWithNumberOfItemsTuple.size?.id!;
+                        const sizeId =
+                          productSizeWithNumberOfItemsTuple.size?.id!;
                         return (
                           <ListItem
                             mb={3}
@@ -298,7 +252,7 @@ const SummaryOfItemsInDistributionEvents = ({
                               <input
                                 hidden
                                 {...register(
-                                  `numberOfItemsForProductAndSize.${productIndex}.sizeAndNumberOfItems.${sizeIndex}.sizeId`,
+                                  `numberOfItemsForProductAndSize.${productIndex}.sizeAndNumberOfItems.${sizeIndex}.sizeId`
                                 )}
                                 defaultValue={sizeId}
                               />
@@ -314,9 +268,6 @@ const SummaryOfItemsInDistributionEvents = ({
                                 )}
                               />
                             </Box>
-                            {/* <Box>
-                        <Button>Track more items as returned</Button>
-                      </Box> */}
                           </ListItem>
                         );
                       }
@@ -336,10 +287,7 @@ const SummaryOfItemsInDistributionEvents = ({
 };
 
 const DistrosReturnTrackingView = () => {
-  // const [searchParams] = useSearchParams();
-  // const distroEventIdsForReturnTracking =
-  //   searchParams.getAll("distroEventIds[]");
-  const { baseId, trackingGroupId } = useParams<{
+  const { trackingGroupId } = useParams<{
     baseId: string;
     trackingGroupId: string;
   }>();
@@ -349,7 +297,6 @@ const DistrosReturnTrackingView = () => {
     DistributionEventsTrackingGroupQueryVariables
   >(DISTRIBUTION_EVENTS_TRACKING_GROUP_QUERY, {
     variables: {
-      // baseId: baseId!,
       trackingGroupId: trackingGroupId!,
     },
   });
@@ -375,19 +322,6 @@ const DistrosReturnTrackingView = () => {
     return <Center>Error!</Center>;
   }
 
-  //   let distributionEventsData: DistributionEventDetails[];
-  //   try {
-  //     distributionEventsData = data?.base?.distributionEventsInReturnState.map(
-  //       (el) => DistributionEventDetailsSchema.parse(el)
-  //     );
-  //   } catch (e) {
-  //     console.error(
-  //       "Problem in DistrosReturnTrackingView while parsing data.distributionEvents: ",
-  //       e
-  //     );
-  //     return <Center>Error!</Center>;
-  //   }
-
   const distributionEventsSummary =
     graphqlToDistributionEventStockSummary(data);
 
@@ -404,10 +338,6 @@ const DistrosReturnTrackingView = () => {
       <Text size="small">
         * This will track all left over number of items as "Distributed".
       </Text>
-      <Box>
-        {/* {JSON.stringify(distroEventIdsForReturnTracking)}
-        {JSON.stringify(data)} */}
-      </Box>
 
       <AlertDialog
         isOpen={confirmFinishingReturnTrackingAlertState.isOpen}

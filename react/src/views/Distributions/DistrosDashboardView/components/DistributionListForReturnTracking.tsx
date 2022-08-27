@@ -1,4 +1,4 @@
-import { useApolloClient, useMutation } from "@apollo/client";
+import { useApolloClient } from "@apollo/client";
 import { BellIcon } from "@chakra-ui/icons";
 import {
   Box,
@@ -10,7 +10,6 @@ import {
   Text,
   VStack,
 } from "@chakra-ui/react";
-import APILoadingIndicator from "components/APILoadingIndicator";
 import { getDay, parseISO } from "date-fns";
 import isPast from "date-fns/isPast";
 import _ from "lodash";
