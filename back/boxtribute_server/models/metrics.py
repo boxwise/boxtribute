@@ -4,7 +4,7 @@ from peewee import JOIN, fn
 from .definitions.base import Base
 from .definitions.beneficiary import Beneficiary
 from .definitions.box import Box
-from .definitions.location import Location
+from .definitions.classic_location import Location
 from .definitions.product import Product
 from .definitions.product_category import ProductCategory
 from .definitions.transaction import Transaction

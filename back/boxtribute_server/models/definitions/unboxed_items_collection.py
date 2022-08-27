@@ -3,7 +3,7 @@ from peewee import DateTimeField, IntegerField
 
 from ...db import db
 from ..fields import UIntForeignKeyField
-from .location import Location
+from .classic_location import Location
 from .product import Product
 from .size import Size
 from .user import User

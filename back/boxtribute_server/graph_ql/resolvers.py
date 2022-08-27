@@ -69,11 +69,11 @@ from ..models.crud import (
 from ..models.definitions.base import Base
 from ..models.definitions.beneficiary import Beneficiary
 from ..models.definitions.box import Box
+from ..models.definitions.classic_location import Location
 from ..models.definitions.distribution_event import DistributionEvent
 from ..models.definitions.distribution_events_tracking_group import (
     DistributionEventsTrackingGroup,
 )
-from ..models.definitions.location import Location
 from ..models.definitions.organisation import Organisation
 from ..models.definitions.packing_list_entry import PackingListEntry
 from ..models.definitions.product import Product

@@ -3,8 +3,8 @@ from peewee import CharField, DateTimeField
 
 from ...db import db
 from ..fields import EnumCharField, UIntForeignKeyField
+from .classic_location import Location
 from .distribution_events_tracking_group import DistributionEventsTrackingGroup
-from .location import Location
 from .user import User
 
 

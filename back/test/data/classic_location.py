@@ -1,6 +1,6 @@
 import pytest
 from boxtribute_server.enums import BoxState, LocationType
-from boxtribute_server.models.definitions.location import Location
+from boxtribute_server.models.definitions.classic_location import Location
 
 from .base import data as base_data
 from .box_state import default_box_state_data

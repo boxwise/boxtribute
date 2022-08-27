@@ -5,7 +5,7 @@ from boxtribute_server.enums import BoxState
 from boxtribute_server.models.definitions.box import Box
 
 from .box_state import default_box_state_data
-from .location import another_location_data, default_location_data
+from .classic_location import another_location_data, default_location_data
 from .product import data as product_data
 from .qr_code import default_qr_code_data
 from .size import default_data as size_data

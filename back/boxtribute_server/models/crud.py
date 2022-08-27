@@ -9,7 +9,7 @@ from ..enums import BoxState, TaggableObjectType, TagType
 from ..exceptions import BoxCreationFailed
 from .definitions.beneficiary import Beneficiary
 from .definitions.box import Box
-from .definitions.location import Location
+from .definitions.classic_location import Location
 from .definitions.qr_code import QrCode
 from .definitions.tag import Tag
 from .definitions.tags_relation import TagsRelation

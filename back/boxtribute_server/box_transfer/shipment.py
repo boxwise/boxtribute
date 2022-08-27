@@ -11,7 +11,7 @@ from ..exceptions import (
     InvalidTransferAgreementState,
 )
 from ..models.definitions.box import Box
-from ..models.definitions.location import Location
+from ..models.definitions.classic_location import Location
 from ..models.definitions.product import Product
 from ..models.definitions.shipment import Shipment
 from ..models.definitions.shipment_detail import ShipmentDetail
