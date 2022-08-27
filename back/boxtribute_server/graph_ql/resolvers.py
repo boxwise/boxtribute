@@ -1031,9 +1031,9 @@ def resolve_distribution_event_boxes(distribution_event_obj, _):
 def resolve_distribution_event_unboxed_item_collections(distribution_event_obj, _):
     mobile_distro_feature_flag_check(user_id=g.user.id)
     authorize(permission="stock:read")
-    return UnboxedItemsCollection.select(
-        UnboxedItemsCollection, UnboxedItemsCollection.number_of_items.alias("items")
-    ).where(UnboxedItemsCollection.distribution_event == distribution_event_obj.id)
+    return UnboxedItemsCollection.select().where(
+        UnboxedItemsCollection.distribution_event == distribution_event_obj.id
+    )
 
 
 @distribution_event.field("packingListEntries")
