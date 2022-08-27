@@ -505,5 +505,6 @@ def complete_distribution_events_tracking_group(id):
         distro_events_tracking_group.state = (
             DistributionEventsTrackingGroupState.Completed
         )
+
         distro_events_tracking_group.save()
         return distro_events_tracking_group
