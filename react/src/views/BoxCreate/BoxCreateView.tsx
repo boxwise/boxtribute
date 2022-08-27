@@ -10,34 +10,6 @@ import {
 } from "types/generated/graphql";
 import BoxCreate, { CreateBoxData } from "./components/BoxCreate";
 
-export const ALL_PRODUCTS_QUERY = gql`
-  query AllProductsAndLocationsForBase($baseId: ID!) {
-    base(id: $baseId) {
-      locations {
-        id
-        name
-      }
-    }
-
-    products(paginationInput: { first: 500 }) {
-      elements {
-        id
-        name
-        gender
-        category {
-          name
-        }
-        sizeRange {
-          sizes {
-            id
-            label
-          }
-        }
-      }
-    }
-  }
-`;
-
 export const CREATE_BOX_MUTATION = gql`
   mutation CreateBox(
     $locationId: Int!
@@ -60,6 +32,32 @@ export const CREATE_BOX_MUTATION = gql`
   }
 `;
 
+export const ALL_PRODUCTS_AND_LOCATIONS_FOR_BASE_QUERY = gql`
+  query AllProductsAndLocationsForBase($baseId: ID!) {
+    base(id: $baseId) {
+      locations {
+        id
+        name
+      }
+
+      products {
+        id
+        name
+        gender
+        category {
+          name
+        }
+        sizeRange {
+          sizes {
+            id
+            label
+          }
+        }
+      }
+    }
+  }
+`;
+
 const BoxCreateView = () => {
   const baseId = useParams<{ baseId: string }>().baseId!;
   const [searchParams] = useSearchParams();
@@ -68,7 +66,7 @@ const BoxCreateView = () => {
   const { loading, error, data } = useQuery<
     AllProductsAndLocationsForBaseQuery,
     AllProductsAndLocationsForBaseQueryVariables
-  >(ALL_PRODUCTS_QUERY, {
+  >(ALL_PRODUCTS_AND_LOCATIONS_FOR_BASE_QUERY, {
     variables: {
       baseId,
     },
@@ -87,7 +85,7 @@ const BoxCreateView = () => {
         productId: parseInt(createBoxData.productId),
         sizeId: parseInt(createBoxData.sizeId),
         numberOfItems: createBoxData.numberOfItems,
-        qrCode
+        qrCode,
       },
     })
       .then((mutationResult) => {
@@ -109,7 +107,7 @@ const BoxCreateView = () => {
     return <div>Error</div>;
   }
 
-  const allProducts = data?.products;
+  const allProducts = data?.base?.products;
   const allLocations = data?.base?.locations.map((location) => ({
     ...location,
     name: location.name ?? "",
@@ -120,7 +118,7 @@ const BoxCreateView = () => {
     return <div>Error: no locations available to choose from</div>;
   }
 
-  if (allProducts?.elements == null) {
+  if (allProducts == null) {
     console.error("allProducts.elements is null");
     return <div>Error: no products available to choose from</div>;
   }
@@ -129,7 +127,7 @@ const BoxCreateView = () => {
     <Center>
       <BoxCreate
         allLocations={allLocations}
-        productAndSizesData={allProducts?.elements}
+        productAndSizesData={allProducts}
         onCreateBox={onSubmitBoxCreateForm}
         qrCode={qrCode}
       />

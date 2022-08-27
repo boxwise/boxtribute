@@ -3,8 +3,12 @@ import { useDisclosure } from "@chakra-ui/react";
 import APILoadingIndicator from "components/APILoadingIndicator";
 import { useParams } from "react-router-dom";
 import {
+  AssignBoxToDistributionEventMutation,
+  AssignBoxToDistributionEventMutationVariables,
   BoxByLabelIdentifierQuery,
   BoxByLabelIdentifierQueryVariables,
+  UnassignBoxFromDistributionEventMutation,
+  UnassignBoxFromDistributionEventMutationVariables,
   UpdateLocationOfBoxMutation,
   UpdateLocationOfBoxMutationVariables,
   UpdateNumberOfItemsMutation,
@@ -13,7 +17,20 @@ import {
 import AddItemsToBoxOverlay from "./components/AddItemsToBoxOverlay";
 import TakeItemsFromBoxOverlay from "./components/TakeItemsFromBoxOverlay";
 import BoxDetails from "./components/BoxDetails";
+import {
+  ASSIGN_BOX_TO_DISTRIBUTION_MUTATION,
+  UNASSIGN_BOX_FROM_DISTRIBUTION_MUTATION,
+} from "views/Distributions/queries";
 
+const refetchBoxByLabelIdentifierQueryConfig = (labelIdentifier: string) => ({
+  query: BOX_BY_LABEL_IDENTIFIER_QUERY,
+  variables: {
+    labelIdentifier: labelIdentifier,
+  },
+});
+
+// TODO: try to use reusable fragments
+// which can be reused both for the initial query as well as the mutation
 export const BOX_BY_LABEL_IDENTIFIER_QUERY = gql`
   query BoxByLabelIdentifier($labelIdentifier: String!) {
     box(labelIdentifier: $labelIdentifier) {
@@ -31,13 +48,36 @@ export const BOX_BY_LABEL_IDENTIFIER_QUERY = gql`
         id
         name
       }
+      distributionEvent {
+        id
+        state
+        name
+        state
+        distributionSpot {
+          name
+        }
+        plannedStartDateTime
+        plannedEndDateTime
+        state
+      }
       place {
+        __typename
         id
         name
         base {
           locations {
             id
             name
+          }
+          distributionEventsBeforeReturnedFromDistributionState {
+            id
+            state
+            distributionSpot {
+              name
+            }
+            name
+            plannedStartDateTime
+            plannedEndDateTime
           }
         }
       }
@@ -87,13 +127,35 @@ export const UPDATE_LOCATION_OF_BOX_MUTATION = gql`
         id
         name
       }
+      distributionEvent {
+        id
+        name
+        state
+        distributionSpot {
+          name
+        }
+        plannedStartDateTime
+        plannedEndDateTime
+        state
+      }
       place {
+        __typename
         id
         name
         base {
           locations {
             id
             name
+          }
+          distributionEventsBeforeReturnedFromDistributionState {
+            id
+            state
+            distributionSpot {
+              name
+            }
+            name
+            plannedStartDateTime
+            plannedEndDateTime
           }
         }
       }
@@ -106,8 +168,8 @@ export interface ChangeNumberOfItemsBoxData {
 }
 
 const BTBox = () => {
-  const labelIdentifier =
-    useParams<{ labelIdentifier: string }>().labelIdentifier!;
+  const labelIdentifier = useParams<{ labelIdentifier: string }>()
+    .labelIdentifier!;
   const { loading, error, data } = useQuery<
     BoxByLabelIdentifierQuery,
     BoxByLabelIdentifierQueryVariables
@@ -115,26 +177,43 @@ const BTBox = () => {
     variables: {
       labelIdentifier,
     },
+    // notifyOnNetworkStatusChange: true
   });
 
   const [updateNumberOfItemsMutation] = useMutation<
     UpdateNumberOfItemsMutation,
     UpdateNumberOfItemsMutationVariables
   >(UPDATE_NUMBER_OF_ITEMS_IN_BOX_MUTATION, {
-    refetchQueries: [
-      {
-        query: BOX_BY_LABEL_IDENTIFIER_QUERY,
-        variables: {
-          labelIdentifier: labelIdentifier,
-        },
-      },
-    ],
+    refetchQueries: [refetchBoxByLabelIdentifierQueryConfig(labelIdentifier)],
   });
 
-  const [updateBoxLocation, mutationLocationStatus] = useMutation<
+  const [
+    assignBoxToDistributionEventMutation,
+    assignBoxToDistributionEventMutationStatus,
+  ] = useMutation<
+    AssignBoxToDistributionEventMutation,
+    AssignBoxToDistributionEventMutationVariables
+  >(ASSIGN_BOX_TO_DISTRIBUTION_MUTATION, {
+    refetchQueries: [refetchBoxByLabelIdentifierQueryConfig(labelIdentifier)],
+  });
+
+  const [
+    unassignBoxFromDistributionEventMutation,
+    unassignBoxFromDistributionEventMutationStatus,
+  ] = useMutation<
+    UnassignBoxFromDistributionEventMutation,
+    UnassignBoxFromDistributionEventMutationVariables
+  >(UNASSIGN_BOX_FROM_DISTRIBUTION_MUTATION, {
+    refetchQueries: [refetchBoxByLabelIdentifierQueryConfig(labelIdentifier)],
+  });
+
+  const [updateBoxLocation, updateBoxLocationMutationStatus] = useMutation<
     UpdateLocationOfBoxMutation,
     UpdateLocationOfBoxMutationVariables
-  >(UPDATE_LOCATION_OF_BOX_MUTATION);
+  >(UPDATE_LOCATION_OF_BOX_MUTATION, {
+    refetchQueries: [refetchBoxByLabelIdentifierQueryConfig(labelIdentifier)],
+    // notifyOnNetworkStatusChange: true
+  });
 
   const {
     isOpen: isPlusOpen,
@@ -150,18 +229,29 @@ const BTBox = () => {
   if (loading) {
     return <APILoadingIndicator />;
   }
-  if (mutationLocationStatus.loading) {
-    return <div>Updating box...</div>;
+  if (
+    updateBoxLocationMutationStatus.loading ||
+    assignBoxToDistributionEventMutationStatus.loading ||
+    unassignBoxFromDistributionEventMutationStatus.loading
+  ) {
+    return <APILoadingIndicator />;
   }
-  if (error || mutationLocationStatus.error) {
+  if (
+    error ||
+    updateBoxLocationMutationStatus.error ||
+    assignBoxToDistributionEventMutationStatus.error ||
+    unassignBoxFromDistributionEventMutationStatus.error
+  ) {
     console.error(
       "Error in BoxView Overlay: ",
-      error || mutationLocationStatus.error
+      error ||
+        updateBoxLocationMutationStatus.error ||
+        assignBoxToDistributionEventMutationStatus.error
     );
     return <div>Error!</div>;
   }
 
-  const boxData = mutationLocationStatus.data?.updateBox || data?.box;
+  const boxData = data?.box;
 
   const onSubmitTakeItemsFromBox = (
     boxFormValues: ChangeNumberOfItemsBoxData
@@ -189,9 +279,7 @@ const BTBox = () => {
     }
   };
 
-  const onSubmitAddItemstoBox = (
-    boxFormValues: ChangeNumberOfItemsBoxData
-  ) => {
+  const onSubmitAddItemstoBox = (boxFormValues: ChangeNumberOfItemsBoxData) => {
     if (
       boxFormValues.numberOfItems &&
       boxFormValues.numberOfItems > 0 &&
@@ -224,6 +312,26 @@ const BTBox = () => {
     });
   };
 
+  const onAssignBoxToDistributionEventClick = (distributionEventId: string) => {
+    assignBoxToDistributionEventMutation({
+      variables: {
+        boxLabelIdentifier: labelIdentifier,
+        distributionEventId: distributionEventId,
+      },
+    });
+  };
+
+  const onUnassignBoxFromDistributionEventClick = (
+    distributionEventId: string
+  ) => {
+    unassignBoxFromDistributionEventMutation({
+      variables: {
+        boxLabelIdentifier: labelIdentifier,
+        distributionEventId: distributionEventId,
+      },
+    });
+  };
+
   return (
     <>
       <BoxDetails
@@ -231,6 +339,12 @@ const BTBox = () => {
         onPlusOpen={onPlusOpen}
         onMinusOpen={onMinusOpen}
         onMoveToLocationClick={onMoveBoxToLocationClick}
+        onAssignBoxToDistributionEventClick={
+          onAssignBoxToDistributionEventClick
+        }
+        onUnassignBoxFromDistributionEventClick={
+          onUnassignBoxFromDistributionEventClick
+        }
       />
       <AddItemsToBoxOverlay
         isOpen={isPlusOpen}

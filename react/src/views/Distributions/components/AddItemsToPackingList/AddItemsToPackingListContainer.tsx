@@ -1,9 +1,15 @@
-import { gql, useQuery } from "@apollo/client";
+import { useQuery } from "@apollo/client";
 import APILoadingIndicator from "components/APILoadingIndicator";
-import { AllProductsForPackingListQuery, AllProductsForPackingListQueryVariables, ProductGender } from "types/generated/graphql";
-import { IPackingListEntry } from "views/Distributions/types";
+import { useParams } from "react-router-dom";
+import {
+  AllProductsForPackingListQuery,
+  AllProductsForPackingListQueryVariables,
+  ProductGender,
+} from "types/generated/graphql";
+import { ALL_PRODUCTS_FOR_PACKING_LIST } from "views/Distributions/queries";
+import { IPackingListEntry, Product } from "views/Distributions/types";
 import AddItemsToPackingList, {
-  ProductData
+  ProductDataForPackingList,
 } from "./AddItemsToPackingList";
 
 interface AddItemsToPackingListContainerProps {
@@ -14,66 +20,50 @@ interface AddItemsToPackingListContainerProps {
   currentPackingListEntries: IPackingListEntry[];
 }
 
-export const ALL_PRODUCTS_FOR_PACKING_LIST = gql`
-  query AllProductsForPackingList {
-    products(paginationInput: { first: 1000 }) {
-      elements {
-        id
-        name
-        gender
-        category {
-        id
-          name
-        }
-        sizeRange {
-          sizes {
-            id
-            label
-          }
-        }
-      }
-    }
-  }
-`;
-
-type Product = AllProductsForPackingListQuery["products"]["elements"][0];
-
 const graphqlToContainerTransformer = (
   graphQLData: Product[],
   currentPackingListEntries: IPackingListEntry[]
-): ProductData[] => {
-
-  return graphQLData.map(product => ({
+): ProductDataForPackingList[] => {
+  return graphQLData.map((product) => ({
     id: product.id,
     name: product.name,
     category: product.category,
-    gender: product.gender ?? ProductGender.None
+    gender: product.gender ?? ProductGender.None,
   }));
 };
 
 const AddItemsToPackingListContainer = ({
   // onAddEntiresToPackingListForProduct,
   onClose,
-  currentPackingListEntries
+  currentPackingListEntries,
 }: AddItemsToPackingListContainerProps) => {
+  const baseId = useParams<{ baseId: string }>().baseId!;
+
   const { loading, data } = useQuery<
-  AllProductsForPackingListQuery,
-  AllProductsForPackingListQueryVariables
-  >(ALL_PRODUCTS_FOR_PACKING_LIST);
+    AllProductsForPackingListQuery,
+    AllProductsForPackingListQueryVariables
+  >(ALL_PRODUCTS_FOR_PACKING_LIST, {
+    variables: {
+      baseId,
+    },
+  });
 
   if (loading) {
     return <APILoadingIndicator />;
   }
 
-  const productAndSizesData = data?.products?.elements
-    ? graphqlToContainerTransformer(data?.products?.elements, currentPackingListEntries)
+  const productAndSizesData = data?.base?.products
+    ? graphqlToContainerTransformer(
+        data?.base?.products,
+        currentPackingListEntries
+      )
     : [];
 
   // TODO: also handle error case here
 
   return (
     <AddItemsToPackingList
-    onClose={onClose}
+      onClose={onClose}
       // onAddEntiresToPackingListForProduct={onAddEntiresToPackingListForProduct}
       productData={productAndSizesData}
       packingListEntries={currentPackingListEntries}

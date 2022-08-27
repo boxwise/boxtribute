@@ -1,14 +1,18 @@
-import { useContext, useMemo } from "react";
-import { useCallback} from "react";
+import { useContext, useMemo, useState } from "react";
+import { useCallback } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { useAuth0 } from "@auth0/auth0-react";
 import HeaderMenu, { MenuItemsGroupData } from "./HeaderMenu";
 import AutomaticBaseSwitcher from "views/AutomaticBaseSwitcher/AutomaticBaseSwitcher";
 import { useDisclosure, useToast } from "@chakra-ui/react";
 import QrReaderOverlayContainer from "components/QrReaderOverlay/QrReaderOverlayContainer";
-import { QrResolvedValue } from "components/QrReaderOverlay/QrReaderOverlay";
+import {
+  QrResolvedValue,
+  QrResolverResultSuccessValue,
+} from "components/QrReaderOverlay/QrReaderOverlay";
 import { GlobalPreferencesContext } from "providers/GlobalPreferencesProvider";
-
+import { IBoxDetailsData } from "utils/base-types";
+import BoxesBulkOperationsOverlay from "./BoxesBulkOperationsOverlay";
 
 const HeaderMenuContainer = () => {
   const auth0 = useAuth0();
@@ -38,8 +42,14 @@ const HeaderMenuContainer = () => {
       {
         text: "Mobile Distributions",
         links: [
-          { link: `/bases/${baseId}/distributions`, name: "Distribution Events" },
-          { link: `/bases/${baseId}/distributions/spots`, name: "Distribution Spots" },
+          {
+            link: `/bases/${baseId}/distributions`,
+            name: "Distribution Events",
+          },
+          {
+            link: `/bases/${baseId}/distributions/spots`,
+            name: "Distribution Spots",
+          },
         ],
       },
       // {
@@ -70,6 +80,9 @@ const HeaderMenuContainer = () => {
   );
   const qrScannerOverlayState = useDisclosure({ defaultIsOpen: false });
   const toast = useToast();
+  const [boxesDataForBulkOperation, setBoxesDataForBulkOperation] = useState<
+    IBoxDetailsData[]
+  >([]);
 
   const onScanningDone = useCallback(
     (qrResolvedValues: QrResolvedValue[]) => {
@@ -77,7 +90,8 @@ const HeaderMenuContainer = () => {
         const singleResolvedQrValue = qrResolvedValues[0];
         switch (singleResolvedQrValue.kind) {
           case "success": {
-            const boxLabelIdentifier = singleResolvedQrValue.value;
+            const boxLabelIdentifier =
+              singleResolvedQrValue.value.labelIdentifier;
             navigate(`/bases/${baseId}/boxes/${boxLabelIdentifier}`);
             break;
           }
@@ -97,29 +111,36 @@ const HeaderMenuContainer = () => {
               isClosable: true,
               duration: 2000,
             });
-            navigate(`/bases/${baseId}/boxes/create?qrCode=${singleResolvedQrValue.qrCodeValue}`);
+            navigate(
+              `/bases/${baseId}/boxes/create?qrCode=${singleResolvedQrValue.qrCodeValue}`
+            );
             break;
           }
         }
       } else {
-        toast({
-          title: `You scanned multiple boxes. What do you want to do with them? (WIP)`,
-          status: "info",
-          isClosable: true,
-          duration: 2000,
-        });
+        const successfullyResolvedValues = qrResolvedValues.filter(
+          (qrResolvedValue) => qrResolvedValue.kind === "success"
+        ) as QrResolverResultSuccessValue[];
+        const boxesData = successfullyResolvedValues.map(
+          (qrResolvedValue) => qrResolvedValue.value
+        );
+        setBoxesDataForBulkOperation(boxesData);
+        // toast({
+        //   title: `You scanned multiple boxes. What do you want to do with them? (WIP)`,
+        //   status: "info",
+        //   isClosable: true,
+        //   duration: 2000,
+        // });
       }
     },
     [baseId, navigate, toast]
   );
-
 
   if (baseId == null) {
     return <AutomaticBaseSwitcher />;
   }
 
   return (
-
     <>
       <HeaderMenu
         {...auth0}
@@ -133,7 +154,11 @@ const HeaderMenuContainer = () => {
         onClose={qrScannerOverlayState.onClose}
         onScanningDone={onScanningDone}
       />
-
+      <BoxesBulkOperationsOverlay
+        isOpen={boxesDataForBulkOperation.length > 0}
+        handleClose={() => setBoxesDataForBulkOperation([])}
+        boxesData={boxesDataForBulkOperation}
+      />
     </>
   );
 };

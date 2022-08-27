@@ -1,6 +1,6 @@
 import { ComponentMeta, ComponentStory } from "@storybook/react";
 import { ProductGender } from "types/generated/graphql";
-import AddItemsToPackingList, { ProductData } from "./AddItemsToPackingList";
+import AddItemsToPackingList, { ProductDataForPackingList } from "./AddItemsToPackingList";
 
 const clothingCategory = {
   id: "1",
@@ -12,7 +12,7 @@ const hygenicCategory = {
   name: "Hygenic",
 };
 
-const mockedProductData: ProductData[] = [
+const mockedProductData: ProductDataForPackingList[] = [
   {
     id: "1",
     name: "Jacket",

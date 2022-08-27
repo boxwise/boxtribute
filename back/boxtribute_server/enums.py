@@ -2,12 +2,25 @@
 import enum
 
 
+class DistributionEventsTrackingGroupState(enum.IntEnum):
+    InProgress = 1
+    Completed = enum.auto()
+
+
 class DistributionEventState(enum.IntEnum):
     Planning = 1
     Packing = enum.auto()
     OnDistro = enum.auto()
-    Returned = enum.auto()
+    ReturnedFromDistribution = enum.auto()
+    ReturnTrackingInProgress = enum.auto()
     Completed = enum.auto()
+
+
+class DistributionEventTrackingFlowDirection(enum.IntEnum):
+    In = 1
+    Out = enum.auto()
+    # Internal = enum.auto()
+    BackToBox = enum.auto()
 
 
 class PackingListEntryState(enum.IntEnum):

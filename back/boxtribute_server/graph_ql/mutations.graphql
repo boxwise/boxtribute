@@ -13,8 +13,8 @@ type Mutation {
   createTag(creationInput: TagCreationInput): Tag
   updateTag(updateInput: TagUpdateInput): Tag
   deleteTag(id: ID!): Tag
-  assignTag(assignmentInput: TagOperationInput): TaggableResource
-  unassignTag(unassignmentInput: TagOperationInput): TaggableResource
+  # assignTag(assignmentInput: TagOperationInput): TaggableResource
+  # unassignTag(unassignmentInput: TagOperationInput): TaggableResource
 
   createTransferAgreement(creationInput: TransferAgreementCreationInput): TransferAgreement
   acceptTransferAgreement(id: ID!): TransferAgreement
@@ -31,24 +31,71 @@ type Mutation {
 
   addPackingListEntryToDistributionEvent(creationInput: PackingListEntryInput!): PackingListEntry
   removePackingListEntryFromDistributionEvent(packingListEntryId: ID!): DistributionEvent
-  removeAllPackingListEntriesFromDistributionEventForProduct(distributionEventId: ID!, productId: ID!): Boolean
+  removeAllPackingListEntriesFromDistributionEventForProduct(
+    distributionEventId: ID!
+    productId: ID!
+  ): Boolean
   updatePackingListEntry(packingListEntryId: ID!, numberOfItems: Int!): PackingListEntry
-  updateSelectedProductsForDistributionEventPackingList(distributionEventId: ID!, productIdsToAdd: [ID!]!, productIdsToRemove: [ID!]!): DistributionEvent
+  updateSelectedProductsForDistributionEventPackingList(
+    distributionEventId: ID!
+    productIdsToAdd: [ID!]!
+    productIdsToRemove: [ID!]!
+  ): DistributionEvent
 
   changeDistributionEventState(
     distributionEventId: ID!
     newState: DistributionEventState!
   ): DistributionEvent
 
-  moveBoxToDistributionEvent(boxLabelIdentifier: ID!, distributionEventId: ID!): Box
+  assignBoxToDistributionEvent(boxLabelIdentifier: ID!, distributionEventId: ID!): Box
+  unassignBoxFromDistributionEvent(boxLabelIdentifier: ID!, distributionEventId: ID!): Box
   moveItemsFromBoxToDistributionEvent(
     boxLabelIdentifier: ID!
     distributionEventId: ID!
     numberOfItems: Int!
   ): UnboxedItemsCollection
+  # moveItemsFromUnboxedItemsCollectionToBox(
+  #   unboxedItemsCollectionId: ID!
+  #   boxLabelIdentifier: ID!
+  #   numberOfItems: Int!
+  # ): Box
 
-  moveBoxFromDistributionEventToLocation(boxLabelIdentifier: ID!, locationId: ID!): DistributionEvent
-  moveItemsFromDistributionEventToBox(unboxedItemsCollectionId: ID!, boxLabelIdentifier: ID!): DistributionEvent
+  startDistributionEventsTrackingGroup(
+    distributionEventIds: [ID!]!,
+    baseId: ID!,
+    # returnedToLocationId: ID
+  ): DistributionEventsTrackingGroup
 
-  markDistributionEventAsComplete(distributionEventId: ID!): DistributionEvent
+  trackReturnOfItemsForDistributionEventsTrackingGroup(
+    distributionEventsTrackingGroupId: ID!
+    productId: ID!
+    sizeId: ID!
+    numberOfItems: Int!
+  ): DistributionEventsTrackingEntry
+
+  moveItemsFromReturnTrackingGroupToBox(
+    distributionEventsTrackingGroupId: ID!
+    productId: ID!
+    sizeId: ID!
+    numberOfItems: Int!
+    targetBoxLabelIdentifier: ID!
+  ): DistributionEventsTrackingEntry
+
+  completeDistributionEventsTrackingGroup(
+    id: ID!
+  ): DistributionEventsTrackingGroup
+
+  # TODO: REMOVE THESE (REPLACED BY MORE SPECIFIC MUTATIONS)
+  # moveBoxToDistributionEvent(boxLabelIdentifier: ID!, distributionEventId: ID!): Box
+  # moveBoxFromDistributionEventToLocation(
+  #   boxLabelIdentifier: ID!
+  #   locationId: ID!
+  # ): DistributionEvent
+  # moveItemsFromDistributionEventToBox(
+  #   unboxedItemsCollectionId: ID!
+  #   boxLabelIdentifier: ID!
+  # ): DistributionEvent
+
+  # markDistributionEventAsComplete(distributionEventId: ID!): DistributionEvent
+  # END OF "REMOVE THESE (REPLACED BY MORE SPECIFIC MUTATIONS)"
 }

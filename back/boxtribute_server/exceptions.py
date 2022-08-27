@@ -157,6 +157,13 @@ class InvalidDistributionEventState(_InvalidResourceState):
         )
 
 
+class DistributionEventAlreadyInTrackingGroup(Exception):
+    extensions = {
+        "code": "BAD_USER_INPUT",
+        "description": "The distribution event is already part of a tracking group.",
+    }
+
+
 class ModifyCompletedDistributionEvent(Exception):
     def __init__(
         self,

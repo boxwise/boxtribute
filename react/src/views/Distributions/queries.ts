@@ -1,5 +1,27 @@
 import { gql } from "@apollo/client";
 
+export const ALL_PRODUCTS_FOR_PACKING_LIST = gql`
+  query AllProductsForPackingList($baseId: ID!) {
+    base(id: $baseId) {
+      products {
+        id
+        name
+        gender
+        category {
+          id
+          name
+        }
+        sizeRange {
+          sizes {
+            id
+            label
+          }
+        }
+      }
+    }
+  }
+`;
+
 export const DISTRO_SPOTS_FOR_BASE_ID = gql`
   query DistroSpotsForBaseId($baseId: ID!) {
     base(id: $baseId) {
@@ -36,12 +58,12 @@ export const DISTRIBUTION_EVENTS_FOR_BASE_ID = gql`
   }
 `;
 
-export const MOVE_BOX_TO_DISTRIBUTION_MUTATION = gql`
-  mutation MoveBoxToDistributionEvent(
+export const ASSIGN_BOX_TO_DISTRIBUTION_MUTATION = gql`
+  mutation AssignBoxToDistributionEvent(
     $boxLabelIdentifier: ID!
     $distributionEventId: ID!
   ) {
-    moveBoxToDistributionEvent(
+    assignBoxToDistributionEvent(
       boxLabelIdentifier: $boxLabelIdentifier
       distributionEventId: $distributionEventId
     ) {
@@ -53,6 +75,20 @@ export const MOVE_BOX_TO_DISTRIBUTION_MUTATION = gql`
           name
         }
       }
+    }
+  }
+`;
+
+export const UNASSIGN_BOX_FROM_DISTRIBUTION_MUTATION = gql`
+  mutation UnassignBoxFromDistributionEvent(
+    $boxLabelIdentifier: ID!
+    $distributionEventId: ID!
+  ) {
+    unassignBoxFromDistributionEvent(
+      boxLabelIdentifier: $boxLabelIdentifier
+      distributionEventId: $distributionEventId
+    ) {
+      id
     }
   }
 `;
@@ -133,19 +169,116 @@ export const CHANGE_DISTRIBUTION_EVENT_STATE_MUTATION = gql`
   }
 `;
 
-export const BOX_DETAILS_FOR_MOBILE_DISTRO_QUERY = gql`
-  query BoxDetails($labelIdentifier: String!) {
-    box(labelIdentifier: $labelIdentifier) {
-      labelIdentifier
-      product {
+export const DISTRIBUTION_EVENTS_TRACKING_GROUP_QUERY = gql`
+  query DistributionEventsTrackingGroup($trackingGroupId: ID!) {
+    distributionEventsTrackingGroup(id: $trackingGroupId) {
+      id
+      distributionEvents {
+        id
+        state
+        name
+        boxes {
+          labelIdentifier
+          product {
+            id
+            name
+            category {
+              name
+            }
+          }
+          size {
+            id
+            label
+          }
+          numberOfItems
+        }
+        distributionSpot {
+          id
+          name
+        }
+        plannedStartDateTime
+        plannedEndDateTime
+        unboxedItemsCollections {
+          product {
+            id
+            name
+            category {
+              name
+            }
+          }
+          size {
+            id
+            label
+          }
+          numberOfItems
+        }
+      }
+    }
+  }
+`;
+
+export const DISTRIBUTION_EVENTS_IN_RETURN_STATE_FOR_BASE = gql`
+  query DistributionEventsInReturnStateForBase($baseId: ID!) {
+    base(id: $baseId) {
+      distributionEventsInReturnedFromDistributionState {
         id
         name
+        state
+        distributionSpot {
+          id
+          name
+        }
+        plannedStartDateTime
+        plannedEndDateTime
+        boxes {
+          id
+          product {
+            id
+            name
+          }
+          size {
+            id
+            label
+          }
+          numberOfItems
+        }
+
+        unboxedItemsCollections {
+          id
+          product {
+            id
+            name
+          }
+          size {
+            id
+            label
+          }
+          numberOfItems
+        }
       }
-      size {
+    }
+  }
+`;
+
+export const START_DISTRIBUTION_EVENTS_TRACKING_GROUP_MUTATION = gql`
+  mutation StartDistributionEventsTrackingGroup(
+    $distributionEventIds: [ID!]!
+    $baseId: ID!
+  ) # $returnedToLocationId: ID
+  {
+    startDistributionEventsTrackingGroup(
+      distributionEventIds: $distributionEventIds
+      baseId: $baseId
+    ) # returnedToLocationId: $returnedToLocationId
+    {
+      id
+      distributionEvents {
         id
-        label
+        distributionSpot {
+          id
+          name
+        }
       }
-      numberOfItems
     }
   }
 `;

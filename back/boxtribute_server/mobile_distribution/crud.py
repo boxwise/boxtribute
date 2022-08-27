@@ -1,6 +1,22 @@
+from collections import Counter
+
+from boxtribute_server.models.definitions.distribution_event_tracking_log_entry import (
+    DistributionEventTrackingLogEntry,
+)
+from boxtribute_server.models.definitions.distribution_events_tracking_group import (
+    DistributionEventsTrackingGroup,
+)
+
 from ..db import db
-from ..enums import DistributionEventState, LocationType, PackingListEntryState
+from ..enums import (
+    DistributionEventState,
+    DistributionEventsTrackingGroupState,
+    DistributionEventTrackingFlowDirection,
+    LocationType,
+    PackingListEntryState,
+)
 from ..exceptions import (
+    DistributionEventAlreadyInTrackingGroup,
     InvalidDistributionEventState,
     ModifyCompletedDistributionEvent,
     NotEnoughItemsInBox,
@@ -56,18 +72,33 @@ def move_items_from_box_to_distribution_event(
         return unboxed_items_collection
 
 
-def move_box_to_distribution_event(box_label_identifier, distribution_event_id):
-    """Move a box to a distribution event."""
+def unassign_box_from_distribution_event(box_label_identifier, distribution_event_id):
+    """Unassigns a box from a distribution event."""
+    with db.database.atomic():
+
+        # TODO: consider to to do validation checks here, once
+        # business rules are finalised
+
+        box = Box.get(Box.label_identifier == box_label_identifier)
+        # TODO: business logic might actually be better to set the location to
+        # the Distro Spot only once the whole event is moved into
+        # state "OnDistribution"
+        box.distribution_event = None
+        box.save()
+        return box
+
+
+def assign_box_to_distribution_event(box_label_identifier, distribution_event_id):
+    """Assigns a box to a distribution event."""
     with db.database.atomic():
         distribution_event = DistributionEvent.get_by_id(distribution_event_id)
         # Completed Events should not be mutable anymore
         if distribution_event.state == DistributionEventState.Completed:
             raise ModifyCompletedDistributionEvent(
-                desired_operation="move_box_to_distribution_event",
+                desired_operation="assign_box_to_distribution_event",
                 distribution_event_id=distribution_event.id,
             )
         box = Box.get(Box.label_identifier == box_label_identifier)
-        box.location = distribution_event.distribution_spot_id
         box.distribution_event = distribution_event_id
         box.save()
         return box
@@ -296,3 +327,183 @@ def create_distribution_spot(
         longitude=longitude,
     )
     return new_distribution_spot
+
+
+def start_distribution_events_tracking_group(
+    user_id,
+    distribution_event_ids,
+    base_id,
+    # returned_to_location_id
+):
+    """TODO: DESCRIPTION"""
+    # TODO: Consider to consistency checks
+    # (here and for other mobile distro spot/event etc relations)
+    # that the base of the tracking group is the same as the one of the distro spot
+    # and (if they will have camp-ids as well) distro events
+
+    with db.database.atomic():
+        distribution_events = DistributionEvent.select().where(
+            DistributionEvent.id << distribution_event_ids
+        )
+
+        # check that all events are
+        # * in the correct state
+        # * are not yet part of another tracking group
+        for distribution_event in distribution_events:
+            if (
+                distribution_event.state
+                != DistributionEventState.ReturnedFromDistribution
+            ):
+                raise InvalidDistributionEventState(
+                    expected_states=[DistributionEventState.ReturnedFromDistribution],
+                    actual_state=distribution_event.state,
+                )
+            if distribution_event.distribution_events_tracking_group is not None:
+                raise DistributionEventAlreadyInTrackingGroup()
+
+        now = utcnow()
+        new_distribution_events_tracking_group = DistributionEventsTrackingGroup.create(
+            created_on=now,
+            created_by=user_id,
+            last_modified_on=now,
+            last_modified_by=user_id,
+            state=DistributionEventsTrackingGroupState.InProgress,
+            base=base_id,
+        )
+        for distribution_event in distribution_events:
+            distribution_event.distribution_events_tracking_group = (
+                new_distribution_events_tracking_group.id
+            )
+            distribution_event.state = DistributionEventState.ReturnTrackingInProgress
+            distribution_event.save()
+
+        # sum up all numbers of items across:
+        # * all distribution events
+        # * all products
+        # * all sizes
+        # * for all UnboxedItemCollections AND Boxes
+        product_size_tuples_to_number_of_items_counter = Counter()
+
+        boxes = Box.select().where(Box.distribution_event << distribution_event_ids)
+        unboxed_items_collections = UnboxedItemsCollection.select().where(
+            UnboxedItemsCollection.distribution_event << distribution_event_ids
+        )
+
+        # TODO: make this more DRY
+        # (currently logic repeats for boxes and unboxed items collections)
+        for box in boxes:
+            # TODO: general discussion point: might it make sense
+            # to introduce Size/Product tuples as a full data type,
+            # with its own table and id?
+            product_size_tuple = (box.product_id, box.size_id)
+            product_size_tuples_to_number_of_items_counter[
+                product_size_tuple
+            ] += box.number_of_items
+            box.number_of_items = 0
+
+            # TODO: consider to change this and use
+            # returned_to_location_id as the location_id
+            # for all returned boxes
+            # box.location_id = returned_to_location_id
+
+            # TODO: set all UnboxedItemsCollection to correct state (?)
+            box.save()
+
+        for unboxed_items_collection in unboxed_items_collections:
+            product_size_tuple = (
+                unboxed_items_collection.product_id,
+                unboxed_items_collection.size_id,
+            )
+            product_size_tuples_to_number_of_items_counter[
+                product_size_tuple
+            ] += unboxed_items_collection.number_of_items
+            unboxed_items_collection.number_of_items = 0
+            # TODO: set all Boxes to correct state
+            # TODO: consider to just delete the unboxed_items_collection?
+            unboxed_items_collection.save()
+
+        # create log entries for all calculated numbers
+        for key, value in product_size_tuples_to_number_of_items_counter.items():
+            product_id, size_id = key
+
+            if value > 0:
+                DistributionEventTrackingLogEntry.create(
+                    distro_event_tracking_group=new_distribution_events_tracking_group,
+                    flow_direction=DistributionEventTrackingFlowDirection.Out,
+                    date=now,
+                    product_id=product_id,
+                    size_id=size_id,
+                    number_of_items=value,
+                )
+
+        return new_distribution_events_tracking_group
+
+
+def track_return_of_items_for_distribution_events_tracking_group(
+    distribution_events_tracking_group_id, product_id, size_id, number_of_items
+):
+    now = utcnow()
+    with db.database.atomic():
+        # TODO: validation/checks
+        # * ensure that for the tracking_group, product_id, size_id combo:
+        #   * the sum of numberOfItems for the OUT log entries for that combo
+        #   * MINUS the sum of numberOfItems for the IN log entries for that combo
+        #   * is >= the number_of_items parameter
+        return DistributionEventTrackingLogEntry.create(
+            distro_event_tracking_group=distribution_events_tracking_group_id,
+            flow_direction=DistributionEventTrackingFlowDirection.In,
+            date=now,
+            product_id=product_id,
+            size_id=size_id,
+            number_of_items=number_of_items,
+        )
+
+
+def move_items_from_return_tracking_group_to_box(
+    distribution_events_tracking_group_id,
+    product_id,
+    size_id,
+    number_of_items,
+    target_box_label_identifier,
+):
+    now = utcnow()
+    # TODO: validation/checks
+    # * ensure that for the tracking_group, product_id, size_id combo:
+    #   (
+    #     sum(logEntries(direction=In, trackingGroup, productId, sizeId).numberOfItems)
+    #     -
+    #     sum(
+    #       logEntries(direction=BackToBox, trackingGroup, productId, sizeId)
+    #       .numberOfItems
+    #     )
+    #   )
+    #   >= number_of_items mutation parameter
+
+    # * ensure that the product/size combo is matching with the target box product/size
+    with db.database.atomic():
+        log_entry = DistributionEventTrackingLogEntry.create(
+            distro_event_tracking_group=distribution_events_tracking_group_id,
+            flow_direction=DistributionEventTrackingFlowDirection.BackToBox,
+            date=now,
+            product_id=product_id,
+            size_id=size_id,
+            number_of_items=number_of_items,
+        )
+        target_box = Box.get(Box.label_identifier == target_box_label_identifier)
+        target_box.number_of_items += number_of_items
+        target_box.save()
+        return log_entry
+
+
+def complete_distribution_events_tracking_group(id):
+    with db.database.atomic():
+        distro_events_tracking_group = DistributionEventsTrackingGroup.get_by_id(id)
+        distribution_events = distro_events_tracking_group.distribution_events
+        for distribution_event in distribution_events:
+            distribution_event.state = DistributionEventState.Completed
+            distribution_event.save()
+        distro_events_tracking_group.state = (
+            DistributionEventsTrackingGroupState.Completed
+        )
+        distro_events_tracking_group.save()
+        return distro_events_tracking_group
