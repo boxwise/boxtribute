@@ -73,7 +73,7 @@ def move_items_from_box_to_distribution_event(
 
 
 def unassign_box_from_distribution_event(box_label_identifier, distribution_event_id):
-    """Assigns a box to a distribution event."""
+    """Unassigns a box from a distribution event."""
     with db.database.atomic():
 
         # TODO: consider to to do validation checks here, once
