@@ -38,6 +38,13 @@ export type DistributionEventDetails = z.infer<
   typeof DistributionEventDetailsSchema
 >;
 
+export const DistributionTrackingGroupSchema = z.object({
+  id: z.string().min(1),
+  distributionEvents: z.array(DistributionEventDetailsSchema),
+})
+
+export type DistributionTrackingGroup = z.infer<typeof DistributionTrackingGroupSchema>;
+
 // export type DistributionEventDetails = {
 //     id: string;
 //     name: string

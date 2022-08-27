@@ -25,7 +25,7 @@ import {
   weekDayNumberToWeekDayName,
 } from "utils/helpers";
 import { START_DISTRIBUTION_EVENTS_TRACKING_GROUP_MUTATION } from "views/Distributions/queries";
-import { DistributionEventDetails } from "views/Distributions/types";
+import { DistributionEventDetails, DistributionTrackingGroup } from "views/Distributions/types";
 
 interface CheckboxGroupProps {
   groupName: string;
@@ -73,8 +73,10 @@ function CheckboxGroup({
 
 const DistributionListForReturnTracking = ({
   distributionEventsData,
+  returnTrackingGroups
 }: {
   distributionEventsData: DistributionEventDetails[];
+  returnTrackingGroups: DistributionTrackingGroup[];
 }) => {
   const navigate = useNavigate();
   const baseId = useParams<{ baseId: string }>().baseId!;

@@ -335,6 +335,17 @@ export const DATA_FOR_RETURN_TRACKING_OVERVIEW_FOR_BASE_QUERY = gql`
       distributionEventsTrackingGroups {
         id
         state
+        distributionEvents {
+          id
+          name
+          plannedStartDateTime
+          plannedEndDateTime
+          state
+          distributionSpot {
+            id
+            name
+          }
+        }
       }
       distributionEvents(states: [ReturnedFromDistribution]) {
         id

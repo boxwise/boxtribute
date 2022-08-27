@@ -10,7 +10,7 @@ import {
 import { z } from "zod";
 import { DATA_FOR_RETURN_TRACKING_OVERVIEW_FOR_BASE_QUERY, DISTRIBUTION_EVENTS_FOR_BASE_ID } from "../../queries";
 import {
-  DistributionEventDetailsSchema,
+  DistributionEventDetailsSchema, DistributionTrackingGroup, DistributionTrackingGroupSchema,
 } from "../../types";
 import DistributionListForReturnTracking from "./components/DistributionListForReturnTracking";
 
@@ -40,10 +40,13 @@ const DistributionReturnTrackingsView = () => {
     .array(DistributionEventDetailsSchema)
     .parse(data?.base?.distributionEvents);
 
+  const distributionEventsTrackingGroups: DistributionTrackingGroup[] = z.array(DistributionTrackingGroupSchema).parse(
+    data?.base?.distributionEventsTrackingGroups)
+
   return (
     <DistributionListForReturnTracking
       distributionEventsData={parsedDistributionEventsData}
-      // returnTrackingGroups={data?.base?.returnTrackingGroups}
+      returnTrackingGroups={distributionEventsTrackingGroups}
     />
   );
 };
