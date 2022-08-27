@@ -35,7 +35,7 @@ class LocationType(enum.Enum):
 
     # TODO: The Python code naming should probably be changed
     # to be aligned with the public API naming.
-    Location = "Warehouse"
+    ClassicLocation = "Warehouse"
     DistributionSpot = "MapDistroSpot"
 
 

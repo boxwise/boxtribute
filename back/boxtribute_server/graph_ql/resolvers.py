@@ -69,11 +69,11 @@ from ..models.crud import (
 from ..models.definitions.base import Base
 from ..models.definitions.beneficiary import Beneficiary
 from ..models.definitions.box import Box
-from ..models.definitions.classic_location import Location
 from ..models.definitions.distribution_event import DistributionEvent
 from ..models.definitions.distribution_events_tracking_group import (
     DistributionEventsTrackingGroup,
 )
+from ..models.definitions.location import Location
 from ..models.definitions.organisation import Organisation
 from ..models.definitions.packing_list_entry import PackingListEntry
 from ..models.definitions.product import Product
@@ -119,7 +119,7 @@ distribution_spot = _register_object_type("DistributionSpot")
 distribution_events_tracking_group = _register_object_type(
     "DistributionEventsTrackingGroup"
 )
-location = _register_object_type("Location")
+classic_location = _register_object_type("ClassicLocation")
 metrics = _register_object_type("Metrics")
 organisation = _register_object_type("Organisation")
 packing_list_entry = _register_object_type("PackingListEntry")
@@ -330,10 +330,10 @@ def resolve_box(*_, label_identifier):
 
 @query.field("location")
 def resolve_location(obj, _, id):
-    location = Location.get_by_id(id)
-    if location.type == LocationType.Location:
-        authorize(permission="location:read", base_id=location.base_id)
-        return location
+    classic_location = Location.get_by_id(id)
+    if classic_location.type == LocationType.ClassicLocation:
+        authorize(permission="location:read", base_id=classic_location.base_id)
+        return classic_location
 
 
 @box.field("place")
@@ -380,7 +380,7 @@ def resolve_organisations(*_):
 def resolve_locations(*_):
     authorize(permission="location:read")
     return Location.select().where(
-        Location.type == LocationType.Location & base_filter_condition(Location)
+        Location.type == LocationType.ClassicLocation & base_filter_condition(Location)
     )
 
 
@@ -539,7 +539,7 @@ def resolve_box_state(box_obj, _):
     return box_obj.state_id
 
 
-@location.field("defaultBoxState")
+@classic_location.field("defaultBoxState")
 def resolve_location_default_box_state(location_obj, _):
     # Instead of a BoxState instance return an integer for EnumType conversion
     return location_obj.box_state.id
@@ -952,7 +952,7 @@ def resolve_base_locations(base_obj, _):
     # TODO: might need adaptions after clarifying the
     # semantics of Place/Location/Warehouse/DistroSpot
     return Location.select().where(
-        (Location.base == base_obj.id) & (Location.type == LocationType.Location)
+        (Location.base == base_obj.id) & (Location.type == LocationType.ClassicLocation)
     )
 
 
@@ -1105,7 +1105,7 @@ def resolve_distribution_spot_distribution_events(obj, *_):
     )
 
 
-@location.field("boxes")
+@classic_location.field("boxes")
 @convert_kwargs_to_snake_case
 def resolve_location_boxes(location_obj, _, pagination_input=None, filter_input=None):
     authorize(permission="stock:read")
@@ -1164,7 +1164,7 @@ def resolve_organisation_bases(organisation_obj, _):
 
 @beneficiary.field("base")
 @distribution_spot.field("base")
-@location.field("base")
+@classic_location.field("base")
 @product.field("base")
 def resolve_resource_base(obj, _):
     authorize(permission="base:read")

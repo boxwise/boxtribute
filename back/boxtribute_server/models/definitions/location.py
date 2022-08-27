@@ -20,7 +20,7 @@ class Location(db.Model):
     latitude = DoubleField(null=True)
     longitude = DoubleField(null=True)
     description = CharField(null=True)
-    type = EnumCharField(choices=LocationType, default=LocationType.Location)
+    type = EnumCharField(choices=LocationType, default=LocationType.ClassicLocation)
     base = UIntForeignKeyField(
         column_name="camp_id",
         field="id",

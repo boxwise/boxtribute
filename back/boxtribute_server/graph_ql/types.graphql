@@ -23,7 +23,7 @@ type UnboxedItemsCollection implements ItemsCollection {
 
 
 """
-Representation of a box storing items of a [`Product`]({{Types.Product}}) in a [`Location`]({{Types.Location}})
+Representation of a box storing items of a [`Product`]({{Types.Product}}) in a [`ClassicLocation`]({{Types.ClassicLocation}})
 """
 type Box implements ItemsCollection {
   id: ID!
@@ -181,18 +181,18 @@ type SizeRange {
 }
 
 """
-Representation of a physical location used to store [`Boxes`]({{Types.Box}}).
-The location is part of a specific [`Base`]({{Types.Base}}).
+Representation of a classic physical location used to store [`Boxes`]({{Types.Box}}).
+The classic location is part of a specific [`Base`]({{Types.Base}}).
 """
-type Location implements BoxPlace {
+type ClassicLocation implements BoxPlace {
   id: ID!
   base: Base
   name: String
   isShop: Boolean!
   isStockroom: Boolean!
-  " List of all the [`Boxes`]({{Types.Box}}) in this location "
+  " List of all the [`Boxes`]({{Types.Box}}) in this classic location "
   boxes(paginationInput: PaginationInput, filterInput: FilterBoxInput): BoxPage
-  " Default state for boxes in this location "
+  " Default state for boxes in this classic location"
   defaultBoxState: BoxState
   createdBy: User
   createdOn: Datetime
@@ -220,9 +220,10 @@ type Base {
   " List of all [`Beneficiaries`]({{Types.Beneficiary}}) registered in this base "
   beneficiaries(paginationInput: PaginationInput, filterInput: FilterBeneficiaryInput): BeneficiaryPage!
   currencyName: String
-  boxPlaces: [BoxPlace!]!
-  " List of all [`Locations`]({{Types.Location}}) present in this base "
-  locations: [Location!]!
+  " List of all [`ClassicLocations`]({{Types.ClassicLocation}}) present in this base "
+  # TODO: consider to also rename the field to classicLocations
+  # maybe with a grace period, using a @deprecated directive
+  locations: [ClassicLocation!]!
   products: [Product!]!
   distributionSpots: [DistributionSpot!]!
   distributionEvents(states: [DistributionEventState!]): [DistributionEvent!]!
@@ -565,8 +566,8 @@ type ShipmentDetail {
   id: ID!
   sourceProduct: Product
   targetProduct: Product
-  sourceLocation: Location
-  targetLocation: Location
+  sourceLocation: ClassicLocation
+  targetLocation: ClassicLocation
   box: Box!
   shipment: Shipment!
   createdBy: User!

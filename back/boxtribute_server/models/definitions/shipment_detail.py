@@ -4,7 +4,7 @@ from ...db import db
 from ..fields import UIntForeignKeyField
 from ..utils import utcnow
 from .box import Box
-from .classic_location import Location
+from .location import Location
 from .product import Product
 from .shipment import Shipment
 from .user import User

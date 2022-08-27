@@ -22,8 +22,8 @@ from ..exceptions import (
     NotEnoughItemsInBox,
 )
 from ..models.definitions.box import Box
-from ..models.definitions.classic_location import Location
 from ..models.definitions.distribution_event import DistributionEvent
+from ..models.definitions.location import Location
 from ..models.definitions.packing_list_entry import PackingListEntry
 from ..models.definitions.product import Product
 from ..models.definitions.size import Size

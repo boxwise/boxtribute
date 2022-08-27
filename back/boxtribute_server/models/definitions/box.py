@@ -4,8 +4,8 @@ from ...db import db
 from ...enums import BoxState as BoxStateEnum
 from ..fields import UIntForeignKeyField
 from .box_state import BoxState
-from .classic_location import Location
 from .distribution_event import DistributionEvent
+from .location import Location
 from .product import Product
 from .qr_code import QrCode
 from .size import Size

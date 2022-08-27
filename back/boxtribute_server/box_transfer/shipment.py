@@ -11,7 +11,7 @@ from ..exceptions import (
     InvalidTransferAgreementState,
 )
 from ..models.definitions.box import Box
-from ..models.definitions.classic_location import Location
+from ..models.definitions.location import Location
 from ..models.definitions.product import Product
 from ..models.definitions.shipment import Shipment
 from ..models.definitions.shipment_detail import ShipmentDetail
@@ -20,6 +20,9 @@ from ..models.utils import utcnow
 from .agreement import retrieve_transfer_agreement_bases
 
 
+# TODO: consider to introduce validation checks
+# to all places where locations are used
+# to ensure they are only about classic locations
 def _validate_bases_as_part_of_transfer_agreement(
     *, transfer_agreement, source_base_id=None, target_base_id=None
 ):
