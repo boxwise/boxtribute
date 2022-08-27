@@ -1096,7 +1096,7 @@ def resolve_distribution_events_in_return_state(base_obj, *_):
 @distribution_spot.field("distributionEvents")
 def resolve_distribution_spot_distribution_events(obj, *_):
     mobile_distro_feature_flag_check(user_id=g.user.id)
-    authorize(permission="distro_event:read", base_id=distribution_spot.base_id)
+    authorize(permission="distro_event:read", base_id=obj.base_id)
     return DistributionEvent.select().where(
         DistributionEvent.distribution_spot == obj.id
     )

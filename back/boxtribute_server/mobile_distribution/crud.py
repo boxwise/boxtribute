@@ -384,9 +384,9 @@ def start_distribution_events_tracking_group(
         # * for all UnboxedItemCollections AND Boxes
         product_size_tuples_to_number_of_items_counter = Counter()
 
-        boxes = Box.select().where(DistributionEvent.id << distribution_event_ids)
+        boxes = Box.select().where(Box.distribution_event << distribution_event_ids)
         unboxed_items_collections = UnboxedItemsCollection.select().where(
-            DistributionEvent.id << distribution_event_ids
+            UnboxedItemsCollection.distribution_event << distribution_event_ids
         )
 
         # TODO: make this more DRY
