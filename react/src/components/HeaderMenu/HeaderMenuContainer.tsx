@@ -47,6 +47,10 @@ const HeaderMenuContainer = () => {
             name: "Distribution Events",
           },
           {
+            link: `/bases/${baseId}/distributions/return-trackings`,
+            name: "Return Trackings",
+          },
+          {
             link: `/bases/${baseId}/distributions/spots`,
             name: "Distribution Spots",
           },

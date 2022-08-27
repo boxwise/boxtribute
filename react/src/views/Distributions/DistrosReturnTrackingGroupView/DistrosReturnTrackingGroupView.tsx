@@ -286,7 +286,7 @@ const SummaryOfItemsInDistributionEvents = ({
   );
 };
 
-const DistrosReturnTrackingView = () => {
+const DistrosReturnTrackingGroupView = () => {
   const { trackingGroupId } = useParams<{
     baseId: string;
     trackingGroupId: string;
@@ -381,4 +381,4 @@ const DistrosReturnTrackingView = () => {
   );
 };
 
-export default DistrosReturnTrackingView;
+export default DistrosReturnTrackingGroupView;

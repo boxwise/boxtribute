@@ -135,24 +135,23 @@ const DistributionListForReturnTracking = ({
 
   const onStartReturnTrackingClick = () => {
     apolloClient
-    .query<
-    StartDistributionEventsTrackingGroupMutation,
-    StartDistributionEventsTrackingGroupMutationVariables
-  >({
-      query: START_DISTRIBUTION_EVENTS_TRACKING_GROUP_MUTATION,
-      variables: {
-        baseId,
-        distributionEventIds: selectedValues,
-        // returnedToLocationId: null,
-
-      },
-      fetchPolicy: "no-cache",
-    })
-    .then(({ data, error, errors }) => {
-     navigate({
-       pathname: `/bases/${baseId}/distributions/return-trackings/${data.startDistributionEventsTrackingGroup?.id}`,
-     });
-    })
+      .query<
+        StartDistributionEventsTrackingGroupMutation,
+        StartDistributionEventsTrackingGroupMutationVariables
+      >({
+        query: START_DISTRIBUTION_EVENTS_TRACKING_GROUP_MUTATION,
+        variables: {
+          baseId,
+          distributionEventIds: selectedValues,
+          // returnedToLocationId: null,
+        },
+        fetchPolicy: "no-cache",
+      })
+      .then(({ data, error, errors }) => {
+        navigate({
+          pathname: `/bases/${baseId}/distributions/return-trackings/${data.startDistributionEventsTrackingGroup?.id}`,
+        });
+      });
     // navigate({
     //   pathname: `/bases/${baseId}/distributions/return-tracking`,
     //   search: `?distroEventIds[]=${selectedValues.join("&distroEventIds[]=")}`,
