@@ -13,6 +13,7 @@ import {
   EditableInput,
   EditablePreview,
   Heading,
+  HStack,
   Input,
   List,
   ListItem,
@@ -23,7 +24,7 @@ import {
 import { zodResolver } from "@hookform/resolvers/zod";
 import APILoadingIndicator from "components/APILoadingIndicator";
 import _ from "lodash";
-import { useRef } from "react";
+import { useRef, useState } from "react";
 import { useForm } from "react-hook-form";
 import { useParams } from "react-router-dom";
 import {
@@ -91,7 +92,7 @@ interface ITrackingEntry {
 //   numberOfItemsReturned: number;
 // }
 
-interface ITrackingEntriesBySize {
+interface ITrackingEntryForSize {
   sizeId: string;
   sizeLabel: string;
   numberOfItemsWentOut: number;
@@ -101,7 +102,7 @@ interface ITrackingEntriesBySize {
 interface ITrackingEntriesByProduct {
   productId: string;
   productName: string;
-  trackingEntriesBySize: ITrackingEntriesBySize[];
+  trackingEntriesBySize: ITrackingEntryForSize[];
 }
 
 type ITrackingEntriesByProductAndSizeAndFlowDirection =
@@ -117,7 +118,7 @@ const graphqlToDistributionEventStockSummary = (
   queryResult: DistributionEventsTrackingGroupQuery
 ): IDistributionReturnTrackingSummary => {
   const distributionEvents =
-    queryResult.distributionEventsTrackingGroup?.distributionEvents || [];
+    queryResult?.distributionEventsTrackingGroup?.distributionEvents || [];
 
   const distributionEventTrackingEntries =
     queryResult?.distributionEventsTrackingGroup
@@ -187,6 +188,7 @@ const DistributionEventList = ({
 }: {
   distributionEvents: DistributionEventDetails[];
 }) => {
+  console.log('distributionEvents', distributionEvents)
   return (
     <VStack>
       <Heading size="md">
@@ -218,6 +220,52 @@ const DistributionEventList = ({
   );
 };
 
+const TrackingEntry = ({
+  trackingEntryForSize,
+  productId,
+  onChangeHandlerForTrackingEntry
+}: {
+  trackingEntryForSize: ITrackingEntryForSize;
+  productId: string;
+  onChangeHandlerForTrackingEntry: (productId: string, sizeId: string, numberOfItemsReturn: number) => void
+}) => {
+
+  const [numberOfItemsFormValue, setNumberOfItemsFormValue] = useState(trackingEntryForSize.numberOfItemsReturned);
+
+  return (
+    <ListItem
+      mb={3}
+      backgroundColor="gray.50"
+      p={3}
+      key={trackingEntryForSize.sizeId}
+    >
+      <Box>
+        <b>Size:</b> {trackingEntryForSize.sizeLabel}
+      </Box>
+      <HStack>
+        <b>Number of items taken on distro: </b>{" "}
+        <Text>{trackingEntryForSize.numberOfItemsWentOut}</Text>
+      </HStack>
+      <HStack>
+        <b>Number of items returned: </b>
+        <Editable
+          // backgroundColor={
+          //   entry.numberOfItems > 0
+          //     ? "organe.100"
+          //     : "transparent"
+          // }
+          value={numberOfItemsFormValue.toString()}
+          onChange={(newVal) => setNumberOfItemsFormValue(parseInt(newVal))}
+          onSubmit={() => onChangeHandlerForTrackingEntry(productId, trackingEntryForSize.sizeId, numberOfItemsFormValue)}
+        >
+          <EditablePreview width={20} />
+          <EditableInput width={20} type="number" />
+        </Editable>
+      </HStack>
+    </ListItem>
+  );
+};
+
 const SummaryOfItemsInDistributionEvents = ({
   trackingEntriesByProductAndSizeAndFlowDirection,
 }: {
@@ -240,7 +288,11 @@ const SummaryOfItemsInDistributionEvents = ({
     ),
   });
 
-  type TrackReturnsFormData = z.infer<typeof TrackReturnsFormDataSchema>;
+  // type TrackReturnsFormData = z.infer<typeof TrackReturnsFormDataSchema>;
+
+  const onChangeHandlerForTrackingEntry = (productId: string, sizeId: string, numberOfReturnedItems: number) => {
+    // alert(`product: ${productId}; size: ${sizeId}; number of items: ${numberOfReturnedItems}`);
+  };
 
   // const methods = useForm<TrackReturnsFormData>({
   //   resolver: zodResolver(TrackReturnsFormDataSchema),
@@ -281,40 +333,14 @@ const SummaryOfItemsInDistributionEvents = ({
                     (productSizeWithNumberOfItemsTuple) => {
                       const sizeId = productSizeWithNumberOfItemsTuple.sizeId;
                       return (
-                        <ListItem
-                          mb={3}
-                          backgroundColor="gray.50"
-                          p={3}
+                        <TrackingEntry
                           key={sizeId}
-                        >
-                          <Box>
-                            <b>Size:</b>{" "}
-                            {productSizeWithNumberOfItemsTuple.sizeLabel}
-                          </Box>
-                          <Box>
-                            <b>Number of items on distro :</b>{" "}
-                            {
-                              productSizeWithNumberOfItemsTuple.numberOfItemsWentOut
-                            }
-                          </Box>
-                          <Box>
-                            {/* <Editable
-                                // backgroundColor={
-                                //   entry.numberOfItems > 0
-                                //     ? "organe.100"
-                                //     : "transparent"
-                                // }
-                                value={numberOfItemsFormValue.toString()}
-                                onChange={(newVal) =>
-                                  setNumberOfItemsFormValue(parseInt(newVal))
-                                }
-                                onSubmit={onChangeHandlerForEntry}
-                              >
-                                <EditablePreview width={20} />
-                                <EditableInput width={20} type="number" />
-                              </Editable> */}
-                          </Box>
-                        </ListItem>
+                          trackingEntryForSize={
+                            productSizeWithNumberOfItemsTuple
+                          }
+                          productId={productId}
+                          onChangeHandlerForTrackingEntry={onChangeHandlerForTrackingEntry}
+                        />
                       );
                     }
                   )}
