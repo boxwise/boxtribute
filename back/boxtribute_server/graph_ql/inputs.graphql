@@ -4,7 +4,7 @@ GraphQL input types for mutations **only**.
 input BoxCreationInput {
   productId: Int!
   sizeId: Int!
-  items: Int
+  numberOfItems: Int
   locationId: Int!
   comment: String
   qrCode: String
@@ -14,7 +14,7 @@ input BoxUpdateInput {
   labelIdentifier: String!
   productId: Int
   sizeId: Int
-  items: Int
+  numberOfItems: Int
   locationId: Int
   comment: String
   state: BoxState

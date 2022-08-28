@@ -3,6 +3,7 @@ from ariadne import EnumType
 from ..enums import (
     BoxState,
     DistributionEventState,
+    DistributionEventTrackingFlowDirection,
     HumanGender,
     Language,
     PackingListEntryState,
@@ -24,4 +25,7 @@ enum_types = [
     EnumType("TransferAgreementState", TransferAgreementState),
     EnumType("TransferAgreementType", TransferAgreementType),
     EnumType("DistributionEventState", DistributionEventState),
+    EnumType(
+        "DistributionEventTrackingFlowDirection", DistributionEventTrackingFlowDirection
+    ),
 ]

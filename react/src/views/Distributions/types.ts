@@ -1,20 +1,10 @@
-import { ProductGender } from "types/generated/graphql";
+import { DistributionEventState, ProductGender } from "types/generated/graphql";
 import { z } from "zod";
 
 // export const DistributionEventStateSchema = z.enum(["Planning", "Packing", "OnDistro", "Returned", "Completed"]);
 // export type DistributionEventState = z.infer<typeof DistributionEventStateSchema>;
 
 // Consider to remove this and instead directly use the enum from the generated graphql schema
-export enum DistributionEventState {
-  Planning = "Planning",
-  // PlanningDone = 'PlanningDone',
-  Packing = "Packing",
-  // PackingDone = 'PackingDone',
-  OnDistro = "OnDistro",
-  Returned = "Returned",
-  // ReturnsTracked = 'ReturnsTracked',
-  Completed = "Completed",
-}
 
 export const DistributionEventStateSchema = z.nativeEnum(DistributionEventState);
 
@@ -64,22 +54,32 @@ export type DistributionEventDetails = z.infer<
 //   numberOfItems: number;
 // }
 
+export interface ProductCategory {
+  id: string;
+  name: string;
+}
+
+export interface Product {
+  id: string;
+  name: string;
+  gender?: ProductGender | null;
+  category?: ProductCategory;
+  // gender?: {
+  //   id: string;
+  //   label: string
+  // }
+}
+
+export interface Size {
+  id: string;
+  label: string;
+};
+
 export interface IPackingListEntry {
   id: string;
   numberOfItems: number;
-  product: {
-    id: string;
-    name: string;
-    gender?: ProductGender;
-    // gender?: {
-    //   id: string;
-    //   label: string
-    // }
-  };
-  size?: {
-    id: string;
-    label: string;
-  };
+  product: Product;
+  size?: Size;
 }
 
 export interface IPackingListEntryForPackingState extends IPackingListEntry {

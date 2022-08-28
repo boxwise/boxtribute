@@ -1,4 +1,5 @@
 """GraphQL resolver functionality"""
+import os
 from datetime import date
 
 from ariadne import (
@@ -9,6 +10,7 @@ from ariadne import (
     UnionType,
     convert_kwargs_to_snake_case,
 )
+from boxtribute_server.exceptions import MobileDistroFeatureFlagNotAssignedToUser
 from flask import g
 from peewee import fn
 
@@ -30,17 +32,28 @@ from ..box_transfer.shipment import (
     send_shipment,
     update_shipment,
 )
-from ..enums import HumanGender, LocationType, TaggableObjectType, TransferAgreementType
+from ..enums import (
+    DistributionEventState,
+    HumanGender,
+    LocationType,
+    TaggableObjectType,
+    TransferAgreementType,
+)
 from ..mobile_distribution.crud import (
     add_packing_list_entry_to_distribution_event,
+    assign_box_to_distribution_event,
     change_distribution_event_state,
+    complete_distribution_events_tracking_group,
     create_distribution_event,
     create_distribution_spot,
     delete_packing_list_entry,
-    move_box_to_distribution_event,
     move_items_from_box_to_distribution_event,
+    move_items_from_return_tracking_group_to_box,
     remove_all_packing_list_entries_from_distribution_event_for_product,
     set_products_for_packing_list,
+    start_distribution_events_tracking_group,
+    track_return_of_items_for_distribution_events_tracking_group,
+    unassign_box_from_distribution_event,
     update_packing_list_entry,
 )
 from ..models.crud import (
@@ -48,6 +61,7 @@ from ..models.crud import (
     create_box,
     create_qr_code,
     create_tag,
+    delete_tag,
     update_beneficiary,
     update_box,
     update_tag,
@@ -56,6 +70,9 @@ from ..models.definitions.base import Base
 from ..models.definitions.beneficiary import Beneficiary
 from ..models.definitions.box import Box
 from ..models.definitions.distribution_event import DistributionEvent
+from ..models.definitions.distribution_events_tracking_group import (
+    DistributionEventsTrackingGroup,
+)
 from ..models.definitions.location import Location
 from ..models.definitions.organisation import Organisation
 from ..models.definitions.packing_list_entry import PackingListEntry
@@ -64,7 +81,6 @@ from ..models.definitions.product_category import ProductCategory
 from ..models.definitions.qr_code import QrCode
 from ..models.definitions.shipment import Shipment
 from ..models.definitions.shipment_detail import ShipmentDetail
-from ..models.definitions.size import Size
 from ..models.definitions.tag import Tag
 from ..models.definitions.tags_relation import TagsRelation
 from ..models.definitions.transaction import Transaction
@@ -100,6 +116,9 @@ beneficiary = _register_object_type("Beneficiary")
 box = _register_object_type("Box")
 distribution_event = _register_object_type("DistributionEvent")
 distribution_spot = _register_object_type("DistributionSpot")
+distribution_events_tracking_group = _register_object_type(
+    "DistributionEventsTrackingGroup"
+)
 location = _register_object_type("Location")
 metrics = _register_object_type("Metrics")
 organisation = _register_object_type("Organisation")
@@ -117,6 +136,23 @@ unboxed_items_collection = _register_object_type("UnboxedItemsCollection")
 user = _register_object_type("User")
 
 
+def mobile_distro_feature_flag_check(user_id):
+    deployment_environment = os.getenv("ENVIRONMENT")
+    if deployment_environment in ["development", "staging", "test"]:
+        return
+
+    allowed_user_ids_str = os.getenv("MOBILE_DISTRO_ALLOWED_USER_IDS")
+    if allowed_user_ids_str is not None:
+        allowed_user_ids_as_numbers = [int(i) for i in allowed_user_ids_str.split(",")]
+        if user_id in allowed_user_ids_as_numbers:
+            return
+
+    if g.user.is_god:
+        return
+
+    raise MobileDistroFeatureFlagNotAssignedToUser(user_id)
+
+
 @query.field("tag")
 def resolve_tag(*_, id):
     tag = Tag.get_by_id(id)
@@ -127,31 +163,31 @@ def resolve_tag(*_, id):
 @query.field("tags")
 def resolve_tags(*_):
     authorize(permission="tag:read")
-    return Tag.select().where(base_filter_condition(Tag))
+    return Tag.select().where(Tag.deleted.is_null() & base_filter_condition(Tag))
 
 
 @query.field("packingListEntry")
 def resolve_packing_list_entry(*_, id):
+    mobile_distro_feature_flag_check(user_id=g.user.id)
+    # TODO: Consider to introduce here also base specific authorize checks
+    # in case we consider packingListEntries as sensitive data
+    # Also, the API user can probably get read access via the packingListEntry
+    # to boxes details via the matchingPackedItemsCollections sub field.
     authorize(permission="packing_list_entry:read")
     return PackingListEntry.get_by_id(id)
 
 
 @packing_list_entry.field("matchingPackedItemsCollections")
 def resolve_packing_list_entry_matching_packed_items_collections(obj, *_):
+    mobile_distro_feature_flag_check(user_id=g.user.id)
+    authorize(permission="stock:read")
     distribution_event_id = obj.distribution_event
     boxes = Box.select().where(
         Box.distribution_event == distribution_event_id,
         Box.product == obj.product,
         Box.size == obj.size,
     )
-    unboxed_items_colletions = UnboxedItemsCollection.select(
-        UnboxedItemsCollection,
-        # TODO: Remove the alias once the renaming from `items` is consistenly done
-        # for all involved types/fields (and we only use then number_of_items)
-        # We are doing it for now so that it's aligned with the Boxes#items field
-        # (the other subtype of the interface ItemsCollection)
-        UnboxedItemsCollection.number_of_items.alias("items"),
-    ).where(
+    unboxed_items_colletions = UnboxedItemsCollection.select().where(
         UnboxedItemsCollection.distribution_event == distribution_event_id,
         UnboxedItemsCollection.product == obj.product,
         UnboxedItemsCollection.size == obj.size,
@@ -179,16 +215,40 @@ def resolve_beneficiary(*_, id):
     return beneficiary
 
 
+@distribution_events_tracking_group.field("distributionEvents")
+def resolve_distribution_events_for_distribution_events_tracking_group(
+    distribution_events_tracking_group_obj, _
+):
+    mobile_distro_feature_flag_check(user_id=g.user.id)
+    authorize(
+        permission="distro_event:read",
+        base_id=distribution_events_tracking_group_obj.base_id,
+    )
+    distribution_events = DistributionEvent.select().where(
+        (
+            DistributionEvent.distro_event_tracking_group_id
+            == distribution_events_tracking_group_obj.id
+        )
+    )
+    return distribution_events
+
+
 @base.field("distributionEvents")
-def resolve_distributions_events(base_obj, _):
+def resolve_distributions_events_for_base(base_obj, _, states=None):
+    mobile_distro_feature_flag_check(user_id=g.user.id)
     authorize(
         permission="distro_event:read",
     )
+    state_filter = DistributionEvent.state << states if states else True
     distribution_events = (
         DistributionEvent.select()
         .join(Location, on=(DistributionEvent.distribution_spot == Location.id))
         .join(Base, on=(Location.base == Base.id))
-        .where(Base.id == base_obj.id & Location.type == LocationType.DistributionSpot)
+        .where(
+            (Base.id == base_obj.id)
+            & (Location.type == LocationType.DistributionSpot)
+            & (state_filter)
+        )
     )
     return distribution_events
 
@@ -196,7 +256,8 @@ def resolve_distributions_events(base_obj, _):
 @query.field("users")
 def resolve_users(*_):
     authorize(permission="user:read")
-    return User.select()
+    # Disable for non-god users until integration of Auth0 implemented
+    return User.select() if g.user.is_god else []
 
 
 @query.field("user")
@@ -226,24 +287,32 @@ def resolve_qr_code(obj, _, qr_code=None):
 
 
 @box.field("tags")
-def resolve_box_tags(box_obj, _):
-    return (
-        Tag.select()
-        .join(TagsRelation)
-        .where(
-            (TagsRelation.object_id == box_obj.id)
-            & (TagsRelation.object_type == TaggableObjectType.Box)
-        )
-    )
+def resolve_box_tags(box_obj, info):
+    authorize(permission="tag:read")
+    return info.context["tags_for_box_loader"].load(box_obj.id)
 
 
 @query.field("product")
-@box.field("product")
-@unboxed_items_collection.field("product")
-def resolve_product(obj, _, id=None):
-    product = obj.product if id is None else Product.get_by_id(id)
+def resolve_product(*_, id):
+    product = Product.get_by_id(id)
     authorize(permission="product:read", base_id=product.base_id)
     return product
+
+
+@box.field("product")
+@unboxed_items_collection.field("product")
+def resolve_box_product(obj, info):
+    product = info.context["product_loader"].load(obj.product_id)
+    # Base-specific authz can be omitted here since it was enforced in the box
+    # parent-resolver. It's not possible that the box's product is assigned to a
+    # different base than the box is in
+    authorize(permission="product:read")
+    return product
+
+
+@box.field("size")
+def resolve_size(box_obj, info):
+    return info.context["size_loader"].load(box_obj.size_id)
 
 
 @query.field("box")
@@ -313,6 +382,13 @@ def resolve_locations(*_):
     return Location.select().where(
         Location.type == LocationType.Location & base_filter_condition(Location)
     )
+
+
+@base.field("products")
+@convert_kwargs_to_snake_case
+def resolve_products_for_base(obj, *_):
+    authorize(permission="product:read")
+    return Product.select().where(Product.base == obj.id)
 
 
 @query.field("products")
@@ -472,6 +548,7 @@ def resolve_location_default_box_state(location_obj, _):
 @mutation.field("addPackingListEntryToDistributionEvent")
 @convert_kwargs_to_snake_case
 def resolve_add_packing_list_entry_to_distribution_event(*_, creation_input):
+    mobile_distro_feature_flag_check(user_id=g.user.id)
     authorize(permission="packing_list_entry:write")
     return add_packing_list_entry_to_distribution_event(
         user_id=g.user.id, **creation_input
@@ -481,6 +558,7 @@ def resolve_add_packing_list_entry_to_distribution_event(*_, creation_input):
 @mutation.field("updatePackingListEntry")
 @convert_kwargs_to_snake_case
 def resolve_update_packing_list_entry(*_, packing_list_entry_id, number_of_items):
+    mobile_distro_feature_flag_check(user_id=g.user.id)
     authorize(permission="packing_list_entry:write")
     return update_packing_list_entry(
         user_id=g.user.id,
@@ -494,6 +572,7 @@ def resolve_update_packing_list_entry(*_, packing_list_entry_id, number_of_items
 def resolve_remove_all_packing_list_entries_from_distribution_event_for_product(
     *_, distribution_event_id, product_id
 ):
+    mobile_distro_feature_flag_check(user_id=g.user.id)
     authorize(permission="packing_list_entry:write")
     return remove_all_packing_list_entries_from_distribution_event_for_product(
         user_id=g.user.id,
@@ -507,12 +586,93 @@ def resolve_remove_all_packing_list_entries_from_distribution_event_for_product(
 def resolve_set_products_for_packing_list(
     *_, distribution_event_id, product_ids_to_add, product_ids_to_remove
 ):
+    mobile_distro_feature_flag_check(user_id=g.user.id)
     authorize(permission="packing_list_entry:write")
     return set_products_for_packing_list(
         user_id=g.user.id,
         distribution_event_id=distribution_event_id,
         product_ids_to_add=product_ids_to_add,
         product_ids_to_remove=product_ids_to_remove,
+    )
+
+
+@mutation.field("startDistributionEventsTrackingGroup")
+@convert_kwargs_to_snake_case
+def resolve_start_distribution_events_tracking_group(
+    *_,
+    distribution_event_ids,
+    base_id,
+    # returned_to_location_id
+):
+    mobile_distro_feature_flag_check(user_id=g.user.id)
+    authorize(permission="distro_event:write", base_id=base_id)
+    return start_distribution_events_tracking_group(
+        user_id=g.user.id,
+        distribution_event_ids=distribution_event_ids,
+        base_id=base_id,
+        # returned_to_location_id=returned_to_location_id,
+    )
+
+
+@mutation.field("trackReturnOfItemsForDistributionEventsTrackingGroup")
+@convert_kwargs_to_snake_case
+def resolve_track_return_of_items_for_distribution_events_tracking_group(
+    *_, distribution_events_tracking_group_id, product_id, size_id, number_of_items
+):
+    mobile_distro_feature_flag_check(user_id=g.user.id)
+    tracking_group = DistributionEventsTrackingGroup.get_by_id(
+        distribution_events_tracking_group_id
+    )
+    authorize(permission="distro_event:write", base_id=tracking_group.base_id)
+    return track_return_of_items_for_distribution_events_tracking_group(
+        # user_id=g.user.id,
+        distribution_events_tracking_group_id=distribution_events_tracking_group_id,
+        product_id=product_id,
+        size_id=size_id,
+        number_of_items=number_of_items,
+    )
+
+
+@mutation.field("moveItemsFromReturnTrackingGroupToBox")
+@convert_kwargs_to_snake_case
+def resolve_move_items_from_return_tracking_group_to_box(
+    *_,
+    distribution_events_tracking_group_id,
+    product_id,
+    size_id,
+    number_of_items,
+    target_box_label_identifier,
+):
+    mobile_distro_feature_flag_check(user_id=g.user.id)
+    tracking_group = DistributionEventsTrackingGroup.get_by_id(
+        distribution_events_tracking_group_id
+    )
+    authorize(permission="distro_event:write", base_id=tracking_group.base_id)
+    return move_items_from_return_tracking_group_to_box(
+        # user_id=g.user.id,
+        distribution_events_tracking_group_id=distribution_events_tracking_group_id,
+        product_id=product_id,
+        size_id=size_id,
+        number_of_items=number_of_items,
+        target_box_label_identifier=target_box_label_identifier,
+    )
+
+
+#   completeDistributionEventsTrackingGroup(
+#     distributionEventsTrackingGroupId: ID!
+#   ): DistributionEventsTrackingGroup
+@mutation.field("completeDistributionEventsTrackingGroup")
+@convert_kwargs_to_snake_case
+def resolve_complete_distribution_events_tracking_group(
+    *_,
+    id,
+):
+    mobile_distro_feature_flag_check(user_id=g.user.id)
+    tracking_group = DistributionEventsTrackingGroup.get_by_id(id)
+    authorize(permission="distro_event:write", base_id=tracking_group.base_id)
+    return complete_distribution_events_tracking_group(
+        # user_id=g.user.id,
+        id=id,
     )
 
 
@@ -527,38 +687,56 @@ def resolve_create_qr_code(*_, box_label_identifier=None):
 @mutation.field("changeDistributionEventState")
 @convert_kwargs_to_snake_case
 def resolve_change_distribution_event_state(*_, distribution_event_id, new_state):
-    authorize(permission="distro_event:write")
+    mobile_distro_feature_flag_check(user_id=g.user.id)
+    event = (
+        DistributionEvent.select()
+        .join(Location)
+        .where(DistributionEvent.id == distribution_event_id)
+        .get()
+    )
+    authorize(permission="distro_event:write", base_id=event.distribution_spot.base_id)
     return change_distribution_event_state(distribution_event_id, new_state)
 
 
 @mutation.field("createDistributionEvent")
 @convert_kwargs_to_snake_case
 def resolve_create_distribution_event(*_, creation_input):
-    authorize(permission="distro_event:write")
+    mobile_distro_feature_flag_check(user_id=g.user.id)
+    distribution_spot = Location.get_by_id(creation_input["distribution_spot_id"])
+    authorize(permission="distro_event:write", base_id=distribution_spot.base_id)
     return create_distribution_event(user_id=g.user.id, **creation_input)
 
 
 @mutation.field("createDistributionSpot")
 @convert_kwargs_to_snake_case
 def resolve_create_distribution_spot(*_, creation_input):
-    authorize(permission="location:write")
+    mobile_distro_feature_flag_check(user_id=g.user.id)
+    authorize(permission="location:write", base_id=creation_input["base_id"])
     return create_distribution_spot(user_id=g.user.id, **creation_input)
 
 
-@mutation.field("createBox")
+@mutation.field("assignBoxToDistributionEvent")
 @convert_kwargs_to_snake_case
-def resolve_create_box(*_, creation_input):
-    authorize(permission="stock:write")
-    return create_box(user_id=g.user.id, **creation_input)
-
-
-@mutation.field("moveBoxToDistributionEvent")
-@convert_kwargs_to_snake_case
-def resolve_move_box_to_distribution_event(
+def resolve_assign_box_to_distribution_event(
     mutation_obj, _, box_label_identifier, distribution_event_id
 ):
+    mobile_distro_feature_flag_check(user_id=g.user.id)
+    # Contemplate whether to enforce base-specific permission for box or event or both
+    # Also: validate that base IDs of box location and event spot are identical
     authorize(permission="stock:write")
-    return move_box_to_distribution_event(box_label_identifier, distribution_event_id)
+    return assign_box_to_distribution_event(box_label_identifier, distribution_event_id)
+
+
+@mutation.field("unassignBoxFromDistributionEvent")
+@convert_kwargs_to_snake_case
+def resolve_unassign_box_from_distribution_event(
+    mutation_obj, _, box_label_identifier, distribution_event_id
+):
+    mobile_distro_feature_flag_check(user_id=g.user.id)
+    authorize(permission="stock:write")
+    return unassign_box_from_distribution_event(
+        box_label_identifier, distribution_event_id
+    )
 
 
 @mutation.field("moveItemsFromBoxToDistributionEvent")
@@ -566,6 +744,7 @@ def resolve_move_box_to_distribution_event(
 def resolve_move_items_from_box_to_distribution_event(
     mutation_obj, _, box_label_identifier, distribution_event_id, number_of_items
 ):
+    mobile_distro_feature_flag_check(user_id=g.user.id)
     authorize(permission="unboxed_items_collection:write")
     return move_items_from_box_to_distribution_event(
         user_id=g.user.id,
@@ -580,7 +759,7 @@ def resolve_move_items_from_box_to_distribution_event(
 def resolve_remove_packing_list_entry_from_distribution_event(
     *_, packing_list_entry_id
 ):
-
+    mobile_distro_feature_flag_check(user_id=g.user.id)
     packing_list_entry = PackingListEntry.get(packing_list_entry_id)
     distribution_event = (
         DistributionEvent.select()
@@ -596,10 +775,38 @@ def resolve_remove_packing_list_entry_from_distribution_event(
     return distribution_event
 
 
+@mutation.field("createBox")
+@convert_kwargs_to_snake_case
+def resolve_create_box(*_, creation_input):
+    authorize(permission="stock:write")
+    requested_location = Location.get_by_id(creation_input["location_id"])
+    authorize(permission="location:read", base_id=requested_location.base_id)
+    requested_product = Product.get_by_id(creation_input["product_id"])
+    authorize(permission="product:read", base_id=requested_product.base_id)
+    return create_box(user_id=g.user.id, **creation_input)
+
+
 @mutation.field("updateBox")
 @convert_kwargs_to_snake_case
 def resolve_update_box(*_, update_input):
-    authorize(permission="stock:write")
+    box = (
+        Box.select(Box, Location)
+        .join(Location)
+        .where(Box.label_identifier == update_input["label_identifier"])
+        .get()
+    )
+    authorize(permission="stock:write", base_id=box.location.base_id)
+
+    location_id = update_input.get("location_id")
+    if location_id is not None:
+        requested_location = Location.get_by_id(location_id)
+        authorize(permission="location:read", base_id=requested_location.base_id)
+
+    product_id = update_input.get("product_id")
+    if product_id is not None:
+        requested_product = Product.get_by_id(product_id)
+        authorize(permission="product:read", base_id=requested_product.base_id)
+
     return update_box(user_id=g.user.id, **update_input)
 
 
@@ -616,6 +823,13 @@ def resolve_update_tag(*_, update_input):
     base_id = Tag.get_by_id(update_input["id"]).base_id
     authorize(permission="tag:write", base_id=base_id)
     return update_tag(user_id=g.user.id, **update_input)
+
+
+@mutation.field("deleteTag")
+def resolve_delete_tag(*_, id):
+    base_id = Tag.get_by_id(id).base_id
+    authorize(permission="tag:write", base_id=base_id)
+    return delete_tag(user_id=g.user.id, id=id)
 
 
 @mutation.field("createBeneficiary")
@@ -735,49 +949,61 @@ def resolve_send_shipment(*_, id):
 @base.field("locations")
 def resolve_base_locations(base_obj, _):
     authorize(permission="location:read")
-    return Location.select().where(Location.base == base_obj.id)
+    # TODO: might need adaptions after clarifying the
+    # semantics of Place/Location/Warehouse/DistroSpot
+    return Location.select().where(
+        (Location.base == base_obj.id) & (Location.type == LocationType.Location)
+    )
+
+
+@query.field("distributionEventsTrackingGroup")
+def resolve_distribution_events_tracking_group(*_, id):
+    mobile_distro_feature_flag_check(user_id=g.user.id)
+    tracking_group = DistributionEventsTrackingGroup.get_by_id(id)
+    authorize(permission="distro_event:read", base_id=tracking_group.base_id)
+    return tracking_group
 
 
 @query.field("distributionSpots")
 def resolve_distributions_spots(base_obj, _):
+    mobile_distro_feature_flag_check(user_id=g.user.id)
     authorize(permission="location:read")
-    return (
-        Location.select()
-        .where(Location.type == LocationType.DistributionSpot)
-        .where(base_filter_condition(Location))
+    return Location.select().where(
+        (Location.type == LocationType.DistributionSpot)
+        & (base_filter_condition(Location))
     )
 
 
 @base.field("distributionSpots")
 def resolve_base_distributions_spots(base_obj, _):
+    mobile_distro_feature_flag_check(user_id=g.user.id)
     authorize(permission="location:read")
     base_filter_condition = Location.base == base_obj.id
     return (
         Location.select()
         .join(Base)
-        .where(Location.type == LocationType.DistributionSpot)
-        .where(base_filter_condition)
+        .where(
+            (Location.type == LocationType.DistributionSpot) & (base_filter_condition)
+        )
     )
 
 
 @query.field("distributionSpot")
 def resolve_distributions_spot(*_, id):
+    mobile_distro_feature_flag_check(user_id=g.user.id)
     distribution_spot = Location.get_by_id(id)
     if distribution_spot.type == LocationType.DistributionSpot:
         authorize(permission="location:read", base_id=distribution_spot.base_id)
         return distribution_spot
-    else:
-        None
 
 
 @query.field("distributionEvent")
-def resolve_distribution_event(obj, _, id):
-    distribution_event = (
-        obj.distribution_event if id is None else DistributionEvent.get_by_id(id)
-    )
+def resolve_distribution_event(*_, id):
+    mobile_distro_feature_flag_check(user_id=g.user.id)
+    distribution_event = DistributionEvent.get_by_id(id)
     authorize(
         permission="distro_event:read",
-        base_id=distribution_event.distribution_spot.base.id,
+        base_id=distribution_event.distribution_spot.base_id,
     )
     return distribution_event
 
@@ -803,6 +1029,7 @@ def resolve_distribution_event_boxes(distribution_event_obj, _):
 @distribution_event.field("unboxedItemsCollections")
 @convert_kwargs_to_snake_case
 def resolve_distribution_event_unboxed_item_collections(distribution_event_obj, _):
+    mobile_distro_feature_flag_check(user_id=g.user.id)
     authorize(permission="stock:read")
     return UnboxedItemsCollection.select().where(
         UnboxedItemsCollection.distribution_event == distribution_event_obj.id
@@ -811,14 +1038,68 @@ def resolve_distribution_event_unboxed_item_collections(distribution_event_obj, 
 
 @distribution_event.field("packingListEntries")
 def resolve_packing_list_entries(obj, *_):
+    mobile_distro_feature_flag_check(user_id=g.user.id)
+    authorize(permission="packing_list_entry:read")
     return PackingListEntry.select().where(
         PackingListEntry.distribution_event == obj.id
     )
 
 
+@distribution_event.field("distributionEventsTrackingGroup")
+def resolve_tracking_group_of_distribution_event(distro_event_obj, *_):
+    mobile_distro_feature_flag_check(user_id=g.user.id)
+    authorize(permission="distribution_event:read")
+    return distro_event_obj.distribution_events_tracking_group
+
+
+@base.field("distributionEventsTrackingGroups")
+def resolve_base_distribution_events_tracking_groups(base_obj, *_):
+    mobile_distro_feature_flag_check(user_id=g.user.id)
+    authorize(permission="distribution_event:read")
+    return DistributionEventsTrackingGroup.select().where(base_id=base_obj.id)
+
+
+@base.field("distributionEventsBeforeReturnedFromDistributionState")
+def resolve_distribution_events_before_return_state(base_obj, *_):
+    authorize(permission="distro_event:read")
+    return (
+        DistributionEvent.select()
+        .join(Location, on=(DistributionEvent.distribution_spot == Location.id))
+        .where(
+            (Location.type == LocationType.DistributionSpot)
+            & (
+                DistributionEvent.state.not_in(
+                    [
+                        DistributionEventState.ReturnedFromDistribution,
+                        DistributionEventState.ReturnTrackingInProgress,
+                        DistributionEventState.Completed,
+                    ]
+                )
+            )
+            & (Location.base == base_obj.id)
+        )
+    )
+
+
+@base.field("distributionEventsInReturnedFromDistributionState")
+def resolve_distribution_events_in_return_state(base_obj, *_):
+    authorize(permission="distro_event:read")
+    return (
+        DistributionEvent.select()
+        .join(Location, on=(DistributionEvent.distribution_spot == Location.id))
+        .join(Base, on=(Location.base == Base.id))
+        .where(
+            (Base.id == base_obj.id)
+            & (Location.type == LocationType.DistributionSpot)
+            & (DistributionEvent.state == DistributionEventState.Returned)
+        )
+    )
+
+
 @distribution_spot.field("distributionEvents")
 def resolve_distribution_spot_distribution_events(obj, *_):
-    authorize(permission="distro_event:read")
+    mobile_distro_feature_flag_check(user_id=g.user.id)
+    authorize(permission="distro_event:read", base_id=obj.base_id)
     return DistributionEvent.select().where(
         DistributionEvent.distribution_spot == obj.id
     )
@@ -888,6 +1169,16 @@ def resolve_organisation_bases(organisation_obj, _):
 def resolve_resource_base(obj, _):
     authorize(permission="base:read")
     return obj.base
+
+
+@product.field("category")
+def resolve_product_product_category(product_obj, info):
+    return info.context["product_category_loader"].load(product_obj.category_id)
+
+
+@product.field("sizeRange")
+def resolve_product_size_range(product_obj, info):
+    return info.context["size_range_loader"].load(product_obj.size_range_id)
 
 
 @product.field("gender")
@@ -963,8 +1254,8 @@ def resolve_shipment_detail_target_location(detail_obj, _):
 
 
 @size_range.field("sizes")
-def resolve_size_range_sizes(size_range_obj, _):
-    return Size.select().where((Size.size_range == size_range_obj.id))
+def resolve_size_range_sizes(size_range_obj, info):
+    return info.context["sizes_for_size_range_loader"].load(size_range_obj.id)
 
 
 @transfer_agreement.field("sourceBases")

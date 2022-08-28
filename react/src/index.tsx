@@ -9,10 +9,10 @@ import { GlobalPreferencesProvider } from "providers/GlobalPreferencesProvider";
 import Auth0ProviderWithHistory from "providers/Auth0ProviderWithHistory";
 import * as Sentry from "@sentry/react";
 import { BrowserTracing } from "@sentry/tracing";
-import { CaptureConsole } from '@sentry/integrations';
+import { CaptureConsole } from "@sentry/integrations";
 
-if (process.env.NODE_ENV === 'development') {
-  const { worker } = require('./mocks/browser')
+if (process.env.NODE_ENV === "development") {
+  const { worker } = require("./mocks/browser");
 
   // worker.use(
   //   mockedGraphql.query<
@@ -48,7 +48,7 @@ if (process.env.NODE_ENV === 'development') {
   //   })
   // );
 
-  worker.start()
+  worker.start();
 }
 
 const colors = {
@@ -69,9 +69,14 @@ const theme = extendTheme({
     Button: {
       defaultProps: {
         borderRadius: "0",
-
-    }
-  },
+      },
+    },
+    Link: {
+      // baseStyle: {
+      //   color: "blue",
+      //   textDecoration: "underline",
+      // },
+    },
     FormLabel: {
       baseStyle: {
         fontWeight: "bold",
@@ -79,14 +84,14 @@ const theme = extendTheme({
     },
     Input: {
       defaultProps: {
-        focusBorderColor: 'transparent',
-        borderRadius: '0',
+        focusBorderColor: "transparent",
+        borderRadius: "0",
       },
       shadows: "none",
       sizes: {
         lg: {
           field: {
-            borderRadius: 'none',
+            borderRadius: "none",
           },
         },
       },
@@ -113,9 +118,9 @@ if (sentryDsn) {
     // We recommend adjusting this value in production
     tracesSampleRate: 1.0,
     // TODO: probably we want to later on differentiate 'PRODUCTION' even more - into 'STAGING' and actual 'PRODUCTION'/'LIVE'
-    environment: process.env.SENTRY_ENVIRONMENT
+    environment: process.env.SENTRY_ENVIRONMENT,
   });
-};
+}
 
 ReactDOM.render(
   <ChakraProvider theme={theme}>

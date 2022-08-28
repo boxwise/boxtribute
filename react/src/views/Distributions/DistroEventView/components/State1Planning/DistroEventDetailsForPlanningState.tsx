@@ -7,20 +7,26 @@ import {
   AlertDialogHeader,
   AlertDialogOverlay,
   Box,
-  Button, Editable,
+  Button,
+  Editable,
   EditableInput,
   EditablePreview,
   Flex,
-  Heading, IconButton, Table, TableContainer,
+  Heading,
+  IconButton,
+  Table,
+  TableContainer,
   Tbody,
   Td,
-  Text, Th,
+  Text,
+  Th,
   Thead,
   Tr,
-  useDisclosure
+  useDisclosure,
 } from "@chakra-ui/react";
 import _ from "lodash";
 import { useContext, useEffect, useRef, useState } from "react";
+import { ProductGender } from "types/generated/graphql";
 import { IPackingListEntry } from "views/Distributions/types";
 import { DistroEventDetailsForPlanningStateContext } from "./DistroEventDetailsForPlanningStateContainer";
 
@@ -63,11 +69,17 @@ const PackingListEntryTableRow = ({
     setNumberOfItemsFormValue(entry.numberOfItems);
   }, [entry]);
 
+  const backgroundColor =
+    entry.numberOfItems > 0 ? "blue.50" : "transparent";
+
   return (
-    <Tr key={entry.id}>
+    <Tr key={entry.id} backgroundColor={backgroundColor}>
       <Td>{entry.size?.label}</Td>
       <Td>
         <Editable
+          backgroundColor={
+            entry.numberOfItems > 0 ? "organe.100" : "transparent"
+          }
           value={numberOfItemsFormValue.toString()}
           onChange={(newVal) => setNumberOfItemsFormValue(parseInt(newVal))}
           onSubmit={onChangeHandlerForEntry}
@@ -145,9 +157,7 @@ const PackingListEntriesGroupForProduct = ({
               Delete all packing list entries for this product?
             </AlertDialogHeader>
 
-            <AlertDialogBody>
-              Are you sure?
-            </AlertDialogBody>
+            <AlertDialogBody>Are you sure?</AlertDialogBody>
 
             <AlertDialogFooter>
               <Button
@@ -198,7 +208,7 @@ const DistroEventDetailsForPlanningState = ({
       return {
         productId: k,
         productName: product?.name,
-        gender: product.gender,
+        gender: (product.gender != null && ProductGender[product.gender]) || "",
         packingListEntries: packingListEntriesGroupedByProductId[k],
       };
     });

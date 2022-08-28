@@ -15,15 +15,17 @@ import {
   ModalFooter,
   ModalHeader,
   ModalOverlay,
+  NumberInput,
+  NumberInputField,
   Switch,
-  useBoolean,
+  Text,
   VStack,
 } from "@chakra-ui/react";
 import { OnResultFunction, QrReader } from "components/QrReader/QrReader";
-// import { OnResultFunction } from "components/QrReader/types";
 import { useCallback, useMemo, useState } from "react";
 
 import { Result } from "@zxing/library";
+import { IBoxDetailsData } from "utils/base-types";
 
 export const ViewFinder = () => (
   <>
@@ -69,12 +71,12 @@ export const ViewFinder = () => (
   </>
 );
 
-interface QrResolverResultSuccessValue {
+export interface QrResolverResultSuccessValue {
   kind: "success";
-  value: string;
+  value: IBoxDetailsData;
 }
 
-interface QrResolverResultNotAssignedToBox {
+export interface QrResolverResultNotAssignedToBox {
   kind: "notAssignedToBox";
   qrCodeValue: string;
 }
@@ -83,14 +85,19 @@ interface QrResolverResultNotAssignedToBox {
 //   kind: "notAuthorized";
 // }
 
-interface QrResolverResultNoBoxtributeQr {
+export interface QrResolverResultLabelNotFound {
+  kind: "labelNotFound";
+}
+
+export interface QrResolverResultNoBoxtributeQr {
   kind: "noBoxtributeQr";
 }
 
 export type QrResolvedValue =
   | QrResolverResultSuccessValue
   | QrResolverResultNotAssignedToBox
-  | QrResolverResultNoBoxtributeQr;
+  | QrResolverResultNoBoxtributeQr
+  | QrResolverResultLabelNotFound;
 // | QrResolverResultNotAuthorized;
 
 export interface IQrValueWrapper {
@@ -102,12 +109,18 @@ export interface IQrValueWrapper {
 
 export interface QrReaderOverlayProps {
   isBulkModeSupported: boolean;
-  onBulkScanningDone: (qrValues: IQrValueWrapper[]) => void;
-  onSingleScanDone: (qrValue: string) => void;
-  qrValueResolver: (
-    qrValueWrapper: IQrValueWrapper
-  ) => Promise<IQrValueWrapper>;
-  onClose: () => void;
+  isBulkModeActive: boolean;
+  setIsBulkModeActive: {
+    on: () => void;
+    off: () => void;
+    toggle: () => void;
+  };
+  boxesByLabelSearchWrappers: IQrValueWrapper[];
+  onScanningResult: (result: string) => void;
+  scannedQrValueWrappers: IQrValueWrapper[];
+  onFindBoxByLabel: (label: string) => void;
+  onBulkScanningDoneButtonClick: () => void;
+  handleClose: () => void;
   isOpen: boolean;
 }
 
@@ -123,7 +136,7 @@ const QrValueWrapper: React.FC<{ qrCodeValueWrapper: IQrValueWrapper }> = ({
     case "success": {
       return (
         <Checkbox key={key} colorScheme="green" defaultChecked={true}>
-          <Badge colorScheme="green">{finalValue.value}</Badge>
+          <Badge colorScheme="green">{finalValue.value.labelIdentifier}</Badge>
         </Checkbox>
       );
     }
@@ -133,6 +146,10 @@ const QrValueWrapper: React.FC<{ qrCodeValueWrapper: IQrValueWrapper }> = ({
     }
     case "notAssignedToBox": {
       return <Badge colorScheme="gray">Not yet assigned to any Box</Badge>;
+    }
+
+    case "labelNotFound": {
+      return <Badge colorScheme="red">Label not found</Badge>;
     }
     // case "notAuthorized": {
     //   return (
@@ -151,69 +168,21 @@ const QrValueWrapper: React.FC<{ qrCodeValueWrapper: IQrValueWrapper }> = ({
 const QrReaderOverlay = ({
   isBulkModeSupported,
   isOpen,
-  onBulkScanningDone,
-  qrValueResolver,
-  onSingleScanDone,
-  onClose,
+  isBulkModeActive,
+  setIsBulkModeActive,
+  onFindBoxByLabel,
+  onBulkScanningDoneButtonClick,
+  handleClose,
+  onScanningResult,
+  boxesByLabelSearchWrappers,
+  scannedQrValueWrappers
 }: QrReaderOverlayProps) => {
-  const [isBulkModeActive, setIsBulkModeActive] = useBoolean(false);
   const [zoomLevel, setZoomLevel] = useState(1);
-  const [scannedQrValues, setScannedQrValues] = useState<
-    Map<string, IQrValueWrapper>
-  >(new Map());
+  // TODO: consider to lift this Map state up
 
-  const browserSupportsZoom = useMemo(() => navigator?.mediaDevices?.getSupportedConstraints?.().zoom != null, []);
-
-  const resetState = useCallback(() => {
-    setScannedQrValues(() => new Map());
-  }, []);
-
-  const handleClose = useCallback(() => {
-    resetState();
-    onClose();
-  }, [onClose, resetState]);
-
-  const onBulkScanningDoneButtonClick = useCallback(() => {
-    onBulkScanningDone(
-      Array.from(scannedQrValues.values()).filter(
-        (qrValueWrapper) => qrValueWrapper.finalValue?.kind !== "noBoxtributeQr"
-      )
-    );
-    handleClose();
-  }, [handleClose, onBulkScanningDone, scannedQrValues]);
-
-  const addQrValueToBulkList = useCallback(
-    async (qrValue: string) => {
-      setScannedQrValues((prev) => {
-        if (prev.has(qrValue)) {
-          return prev;
-        }
-        const newQrValueWrapper = {
-          key: qrValue,
-          isLoading: true,
-          interimValue: "loading...",
-        };
-
-        qrValueResolver(newQrValueWrapper).then((resolvedQrValueWrapper) => {
-          setScannedQrValues((prev) => {
-            return new Map(prev.set(qrValue, resolvedQrValueWrapper));
-          });
-        });
-        // TODO add error handling
-        // .catch((err) => {}).finally(() => {}))
-
-        return new Map(prev.set(qrValue, newQrValueWrapper));
-      });
-    },
-    [qrValueResolver]
-  );
-
-  const scannedQrValuesAsArray = useMemo(
-    () =>
-      Array.from(scannedQrValues.keys()).map(
-        (key) => scannedQrValues.get(key)!
-      ),
-    [scannedQrValues]
+  const browserSupportsZoom = useMemo(
+    () => navigator?.mediaDevices?.getSupportedConstraints?.().zoom != null,
+    []
   );
 
   const facingMode = "environment";
@@ -221,22 +190,13 @@ const QrReaderOverlay = ({
   const onResult: OnResultFunction = useCallback(
     (result: Result | undefined | null, error: Error | undefined | null) => {
       if (!!result) {
-        if (isBulkModeSupported && isBulkModeActive) {
-          addQrValueToBulkList(result["text"]);
-        } else {
-          onSingleScanDone(result["text"]);
-          handleClose();
-        }
+        onScanningResult(result["text"]);
       }
     },
-    [
-      addQrValueToBulkList,
-      handleClose,
-      isBulkModeActive,
-      isBulkModeSupported,
-      onSingleScanDone,
-    ]
+    [onScanningResult]
   );
+
+  const [boxLabelInputValue, setBoxLabelInputValue] = useState("");
 
   return (
     <Modal
@@ -259,9 +219,10 @@ const QrReaderOverlay = ({
               scanPeriod={1000}
               onResult={onResult}
             />
-            {isBulkModeSupported && (
-              <HStack>
-                {browserSupportsZoom && <HStack>
+            {/* <Box width={300} height={300} backgroundColor="gray"></Box> */}
+            <HStack>
+              {browserSupportsZoom && (
+                <HStack>
                   <IconButton
                     disabled={zoomLevel <= 1}
                     onClick={() =>
@@ -280,7 +241,32 @@ const QrReaderOverlay = ({
                   >
                     <AddIcon />
                   </IconButton>
-                </HStack> }
+                </HStack>
+              )}
+            </HStack>
+            <HStack borderColor="blackAlpha.100" borderWidth={2} p={4} my={5}>
+              <Text fontWeight="bold">By Label</Text>
+              <NumberInput
+                width={150}
+                onChange={setBoxLabelInputValue}
+                value={boxLabelInputValue}
+              >
+                <NumberInputField />
+              </NumberInput>
+              {/* <Button onClick={() => onFindBoxByLabel(boxLabelInputValue)}>Find</Button> */}
+              <Button
+                onClick={() => {
+                  if (boxLabelInputValue != null && boxLabelInputValue !== "") {
+                    onFindBoxByLabel(boxLabelInputValue);
+                    setBoxLabelInputValue("");
+                  }
+                }}
+              >
+                Find
+              </Button>
+            </HStack>
+            {isBulkModeSupported && (
+              <VStack borderColor="blackAlpha.100" borderWidth={2} p={4} my={5}>
                 <FormControl display="flex" alignItems="center">
                   <FormLabel htmlFor="Bulk Mode" mb="0">
                     Bulk Mode
@@ -291,32 +277,53 @@ const QrReaderOverlay = ({
                     isChecked={isBulkModeActive}
                   />
                 </FormControl>
-              </HStack>
-            )}
-            {isBulkModeSupported && isBulkModeActive && (
-              <VStack>
-                <VStack spacing={5} direction="row">
-                  {scannedQrValuesAsArray.map((qrCodeValueWrapper, i) => {
-                    return (
-                      <Box key={i}>
-                        {i + 1}{" "}
-                        <QrValueWrapper
-                          qrCodeValueWrapper={qrCodeValueWrapper}
-                        />
-                      </Box>
-                    );
-                  })}
-                </VStack>
-                <Button
-                  onClick={onBulkScanningDoneButtonClick}
-                  colorScheme="blue"
-                  disabled={
-                    scannedQrValuesAsArray.filter((el) => !el.isLoading)
-                      .length === 0
-                  }
-                >
-                  Scanning done
-                </Button>
+                {isBulkModeSupported && isBulkModeActive && (
+                  <>
+                    <VStack>
+                      <Text fontWeight="bold">Scanned Boxes</Text>
+                      <VStack spacing={5} direction="row">
+                        {scannedQrValueWrappers.map((qrCodeValueWrapper, i) => {
+                          return (
+                            <Box key={i}>
+                              {i + 1}{" "}
+                              <QrValueWrapper
+                                qrCodeValueWrapper={qrCodeValueWrapper}
+                              />
+                            </Box>
+                          );
+                        })}
+                      </VStack>
+                    </VStack>
+
+                    <VStack>
+                      <Text fontWeight="bold">Boxes by label search</Text>
+                      <VStack spacing={5} direction="row">
+                        {boxesByLabelSearchWrappers.map(
+                          (boxByLabelSearchWrapper, i) => {
+                            return (
+                              <Box key={i}>
+                                {i + 1}{" "}
+                                <QrValueWrapper
+                                  qrCodeValueWrapper={boxByLabelSearchWrapper}
+                                />
+                              </Box>
+                            );
+                          }
+                        )}
+                      </VStack>
+                    </VStack>
+                    <Button
+                      onClick={onBulkScanningDoneButtonClick}
+                      colorScheme="blue"
+                      disabled={
+                        scannedQrValueWrappers.filter((el) => el.isLoading)
+                          .length !== 0
+                      }
+                    >
+                      Scanning done
+                    </Button>
+                  </>
+                )}
               </VStack>
             )}
           </Container>

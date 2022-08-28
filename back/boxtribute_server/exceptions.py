@@ -66,6 +66,16 @@ class Forbidden(Exception):
         super().__init__(*args, **kwargs)
 
 
+class MobileDistroFeatureFlagNotAssignedToUser(Exception):
+    def __init__(self, user, *args, **kwargs):
+        self.extensions = {
+            "code": "FORBIDDEN",
+            "description": "You don't have access to this feature flagged operation",
+            "user": user,
+        }
+        super().__init__(*args, **kwargs)
+
+
 class _InvalidResourceState(Exception):
     def __init__(self, resource_name, *args, expected_states, actual_state, **kwargs):
         self.extensions = {
@@ -145,6 +155,13 @@ class InvalidDistributionEventState(_InvalidResourceState):
             *args,
             **kwargs,
         )
+
+
+class DistributionEventAlreadyInTrackingGroup(Exception):
+    extensions = {
+        "code": "BAD_USER_INPUT",
+        "description": "The distribution event is already part of a tracking group.",
+    }
 
 
 class ModifyCompletedDistributionEvent(Exception):

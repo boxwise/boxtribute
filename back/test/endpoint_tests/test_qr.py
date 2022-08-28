@@ -60,13 +60,16 @@ def test_qr_code_mutation(client, box_without_qr_code):
             id
             box {{
                 id
-                items
+                numberOfItems
             }}
         }}
     }}"""
     created_qr_code = assert_successful_request(client, mutation)
     assert int(created_qr_code["id"]) == qr_code_id + 1
-    assert created_qr_code["box"]["items"] == box_without_qr_code["items"]
+    assert (
+        created_qr_code["box"]["numberOfItems"]
+        == box_without_qr_code["number_of_items"]
+    )
     assert int(created_qr_code["box"]["id"]) == box_without_qr_code["id"]
 
     assert_bad_user_input(

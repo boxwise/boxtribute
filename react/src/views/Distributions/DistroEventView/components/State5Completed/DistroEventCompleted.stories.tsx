@@ -11,7 +11,7 @@ const mockedDistroEvent: DistroEventData = {
         {
             id: "3",
             labelIdentifier: "348293",
-            items: 32,
+            numberOfItems: 32,
             size: "M",
             name: "T-shirt",
             gender: ProductGender.Men
@@ -19,7 +19,7 @@ const mockedDistroEvent: DistroEventData = {
         {
             id: "4",
             labelIdentifier: "348323",
-            items: 10,
+            numberOfItems: 10,
             size: "S",
             name: "T-shirt",
             gender: ProductGender.Men
@@ -29,7 +29,7 @@ const mockedDistroEvent: DistroEventData = {
         {
             id: "3",
             labelIdentifier: "348293",
-            items: 32,
+            numberOfItems: 32,
             size: "M",
             name: "T-shirt",
             gender: ProductGender.Men
@@ -37,7 +37,7 @@ const mockedDistroEvent: DistroEventData = {
         {
             id: "4",
             labelIdentifier: "348323",
-            items: 10,
+            numberOfItems: 10,
             size: "S",
             name: "T-shirt",
             gender: ProductGender.Men

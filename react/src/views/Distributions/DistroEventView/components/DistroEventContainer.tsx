@@ -18,6 +18,7 @@ import React, { useCallback } from "react";
 import {
   ChangeDistributionEventStateMutation,
   ChangeDistributionEventStateMutationVariables,
+  DistributionEventState,
 } from "types/generated/graphql";
 import { useGetUrlForResourceHelpers } from "utils/hooks";
 import DistributionStateProgressBar from "views/Distributions/components/DistributionStateProgressBar";
@@ -27,7 +28,6 @@ import {
 } from "views/Distributions/queries";
 import {
   DistributionEventDetails,
-  DistributionEventState,
   DistributionEventStateSchema,
 } from "views/Distributions/types";
 import DistroEventDetailsForPlanningStateContainer from "./State1Planning/DistroEventDetailsForPlanningStateContainer";
@@ -113,7 +113,8 @@ const DistroEventContainer = ({
       />
     ),
     [DistributionEventState.OnDistro]: () => <Box>OnDistro</Box>,
-    [DistributionEventState.Returned]: () => <Box>Returned</Box>,
+    [DistributionEventState.ReturnedFromDistribution]: () => <Box>Returned</Box>,
+    [DistributionEventState.ReturnTrackingInProgress]: () => <Box>Return Trackign In Progress</Box>,
     [DistributionEventState.Completed]: () => <Box>Completed</Box>,
   };
 

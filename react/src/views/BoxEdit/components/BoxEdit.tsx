@@ -17,8 +17,12 @@ import {
   UpdateLocationOfBoxMutation,
 } from "types/generated/graphql";
 import { Controller, useForm } from "react-hook-form";
-import { groupBy } from "utils/helpers";
+
+// import { groupBy } from "utils/helpers";
 import { useEffect, useState } from "react";
+
+import _ from "lodash";
+
 
 export interface CategoryData {
   name: string;
@@ -74,7 +78,7 @@ const BoxEdit = ({
   allLocations,
   onSubmitBoxEditForm,
 }: BoxEditProps) => {
-  const productsGroupedByCategory = groupBy(
+  const productsGroupedByCategory = _.groupBy(
     productAndSizesData,
     (product) => product.category.name
   );
@@ -112,7 +116,7 @@ const BoxEdit = ({
     formState: { isSubmitting },
   } = useForm<BoxFormValues>({
     defaultValues: {
-      numberOfItems: boxData?.items || 0,
+      numberOfItems: boxData?.numberOfItems || 0,
       sizeId: boxData?.size.id,
       productId: boxData?.product?.id,
       locationId: boxData?.place?.id,

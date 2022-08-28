@@ -153,7 +153,7 @@ jobs:
           name: Run pytest
           command: |
             source $(pyenv root)/versions/3.10.4/envs/env/bin/activate
-            pytest --cov-report xml:test-results/coverage.xml --cov=boxtribute_server
+            ENVIRONMENT=test pytest --cov-report xml:test-results/coverage.xml --cov=boxtribute_server
       - store_test_results:
           path: test-results
       - store_artifacts:
@@ -211,6 +211,8 @@ jobs:
               SENTRY_DSN=${SENTRY_BE_DSN}
               SENTRY_ENVIRONMENT=${SENTRY_ENVIRONMENT}
               SENTRY_RELEASE=${CIRCLE_SHA1}
+              ENVIRONMENT=${SENTRY_ENVIRONMENT}
+              MOBILE_DISTRO_ALLOWED_USER_IDS=${MOBILE_DISTRO_ALLOWED_USER_IDS}
               " > .env
             if [[ "<< parameters.serviceName >>" != "api-"* ]]; then echo "EXPOSE_FULL_GRAPHQL=1" >> .env; fi
       - run:
@@ -364,18 +366,18 @@ workflows:
             branches:
               only:
                 - production
-      - deploy:
-          name: deploy-api-demo
-          context: DEMO
-          serviceName: api-demo
-          requires:
-            - test-flask
-          filters:
-            tags:
-              ignore: /.*/
-            branches:
-              only:
-                - production
+      # - deploy:
+      #     name: deploy-api-demo
+      #     context: DEMO
+      #     serviceName: api-demo
+      #     requires:
+      #       - test-flask
+      #     filters:
+      #       tags:
+      #         ignore: /.*/
+      #       branches:
+      #         only:
+      #           - production
 
       # production
       - build-and-test-react:
@@ -398,13 +400,13 @@ workflows:
             branches:
               only:
                 - production
-      - deploy:
-          name: deploy-api-production
-          context: PRODUCTION
-          serviceName: api-production
-          requires:
-            - test-flask
-          filters:
-            branches:
-              only:
-                - production
+      # - deploy:
+      #     name: deploy-api-production
+      #     context: PRODUCTION
+      #     serviceName: api-production
+      #     requires:
+      #       - test-flask
+      #     filters:
+      #       branches:
+      #         only:
+      #           - production

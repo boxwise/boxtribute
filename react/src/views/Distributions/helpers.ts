@@ -1,4 +1,4 @@
-import { DistributionEventState } from "./types";
+import { DistributionEventState } from "types/generated/graphql";
 
 export const getNextState = (state: DistributionEventState) => {
   switch (state) {
@@ -7,8 +7,10 @@ export const getNextState = (state: DistributionEventState) => {
     case DistributionEventState.Packing:
       return DistributionEventState.OnDistro;
     case DistributionEventState.OnDistro:
-      return DistributionEventState.Returned;
-    case DistributionEventState.Returned:
+      return DistributionEventState.ReturnedFromDistribution;
+    case DistributionEventState.ReturnedFromDistribution:
+      return DistributionEventState.ReturnTrackingInProgress;
+    case DistributionEventState.ReturnTrackingInProgress:
       return DistributionEventState.Completed;
     case DistributionEventState.Completed:
       return null;

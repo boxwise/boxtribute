@@ -1,7 +1,8 @@
 import React from "react";
 import { ComponentStory, ComponentMeta } from "@storybook/react";
 import DistroSpots from "./DistroSpots";
-import { DistributionEventState, DistributionSpotEnrichedData } from "views/Distributions/types";
+import { DistributionSpotEnrichedData } from "views/Distributions/types";
+import { DistributionEventState } from "types/generated/graphql";
 
 const mockedDistroSpots: DistributionSpotEnrichedData[] = [
   {

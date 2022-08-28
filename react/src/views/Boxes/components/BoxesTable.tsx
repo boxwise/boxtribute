@@ -157,8 +157,8 @@ const BoxesTable = ({ tableData, onBoxRowClick }: BoxesTableProps) => {
       },
       {
         Header: "Items",
-        accessor: "items",
-        id: "items",
+        accessor: "numberOfItems",
+        id: "numberOfItems",
       },
       {
         Header: "State",

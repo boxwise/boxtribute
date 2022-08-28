@@ -5,7 +5,6 @@ import {
 import { QrReader } from "components/QrReader/QrReader";
 import {
   extractQrCodeFromUrl,
-  GET_BOX_LABEL_IDENTIFIER_BY_QR_CODE
 } from "components/QrReaderOverlay/QrReaderOverlayContainer";
 import { useCallback, useState } from "react";
 import {
@@ -14,7 +13,7 @@ import {
   GetBoxLabelIdentifierForQrCodeQuery,
   GetBoxLabelIdentifierForQrCodeQueryVariables
 } from "types/generated/graphql";
-import { BOX_DETAILS_FOR_MOBILE_DISTRO_QUERY } from "views/Distributions/queries";
+import { BOX_DETAILS_BY_LABEL_IDENTIFIER_QUERY, GET_BOX_LABEL_IDENTIFIER_BY_QR_CODE } from "utils/queries";
 import { BoxData, IPackingListEntry } from "views/Distributions/types";
 
 interface PackingScanBoxOrFindByLabelOverlayProps {
@@ -37,7 +36,7 @@ const useValidateBoxByLabelMatchingPackingListEntry = (
   return (boxLabel: string) => {
     return apolloClient
       .query<BoxDetailsQuery, BoxDetailsQueryVariables>({
-        query: BOX_DETAILS_FOR_MOBILE_DISTRO_QUERY,
+        query: BOX_DETAILS_BY_LABEL_IDENTIFIER_QUERY,
         variables: {
           labelIdentifier: boxLabel,
         },
@@ -56,7 +55,7 @@ const useValidateBoxByLabelMatchingPackingListEntry = (
                 labelIdentifier: boxLabel,
                 // ...box,
                 // TODO: consider to make items non-nullable in GraphQL
-                numberOfItems: box.items || 0,
+                numberOfItems: box.numberOfItems || 0,
               },
             };
           }

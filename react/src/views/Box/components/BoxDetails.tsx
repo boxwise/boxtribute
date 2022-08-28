@@ -9,12 +9,17 @@ import {
   Flex,
   IconButton,
   WrapItem,
+  LinkBox,
+  LinkOverlay,
 } from "@chakra-ui/react";
 import { NavLink } from "react-router-dom";
 import {
   BoxByLabelIdentifierQuery,
   UpdateLocationOfBoxMutation,
 } from "types/generated/graphql";
+import { useGetUrlForResourceHelpers } from "utils/hooks";
+import { distroEventStateHumanReadableLabels } from "views/Distributions/baseData";
+import DistributionEventTimeRangeDisplay from "views/Distributions/components/DistributionEventTimeRangeDisplay";
 
 interface BoxDetailsProps {
   boxData:
@@ -25,11 +30,18 @@ interface BoxDetailsProps {
   onMinusOpen: () => void;
   onScrap: () => void;
   onLost: () => void;
+  onAssignBoxToDistributionEventClick: (distributionEventId: string) => void;
+  onUnassignBoxFromDistributionEventClick: (
+    distributionEventId: string
+  ) => void;
+
 }
 
 const BoxDetails = ({
   boxData,
-  onMoveToLocationClick: moveToLocationClick,
+  onMoveToLocationClick,
+  onAssignBoxToDistributionEventClick,
+  onUnassignBoxFromDistributionEventClick,
   onPlusOpen,
   onMinusOpen,
   onScrap,
@@ -45,6 +57,8 @@ const BoxDetails = ({
     return color;
   };
 
+  const { getDistroEventDetailUrlById } = useGetUrlForResourceHelpers();
+
   if (boxData == null) {
     console.error("BoxDetails Component: boxData is null");
     return <Box>No data found for a box with this id</Box>;
@@ -58,12 +72,12 @@ const BoxDetails = ({
       justifyContent="center"
     >
       <Box
-        w={["100%", "80%", "40%", "30%"]}
+        w={["100%", "80%", "30%", "30%"]}
         border="2px"
         mb={6}
         pb={2}
         backgroundColor="#F4E5A0"
-        mr={["0", "0", "6rem", "6rem"]}
+        mr={["0", "0", "4rem", "4rem"]}
       >
         <Flex pt={2} px={4} direction="row" justifyContent="space-between">
           <Flex direction="column" mb={2}>
@@ -89,6 +103,7 @@ const BoxDetails = ({
         </Flex>
         <List px={4} pb={2} spacing={2}>
           <ListItem>
+
             <Text fontSize="xl" fontWeight={"bold"} >
               {boxData.product?.name}
             </Text>
@@ -97,7 +112,7 @@ const BoxDetails = ({
             <Flex alignItems="center">
               <Box border="2px" borderRadius="0" px={2}>
                 <Text fontSize="xl" fontWeight={"bold"}>
-                 # {boxData.items}
+                 # {boxData.numberOfItems}
                 </Text>
               </Box>
               <Box border="2px" backgroundColor="#1A202C" borderRadius="0" px={2}>
@@ -111,6 +126,7 @@ const BoxDetails = ({
             <Flex direction="row" pb={4}>
               <Text fontSize="xl" fontWeight={"bold"}>
                 <b>{boxData.product?.gender}</b>
+
               </Text>
             </Flex>
           </ListItem>
@@ -164,10 +180,12 @@ const BoxDetails = ({
       </Box>
       <Box
         alignContent="center"
-        w={["100%", "80%", "40%", "50%"]}
+        w={["100%", "80%", "30%", "30%"]}
         border="2px"
         py={4}
         px={4}
+        mr={["0", "0", "4rem", "4rem"]}
+        mb={6}
       >
         <Text textAlign="center" fontSize="xl" mb={4}>
           Move this box from <strong>{boxData.place?.name}</strong> to:
@@ -182,7 +200,7 @@ const BoxDetails = ({
                 <WrapItem key={location.id} m={1}>
                   <Button
                     borderRadius="0px"
-                    onClick={() => moveToLocationClick(location.id)}
+                    onClick={() => onMoveToLocationClick(location.id)}
                     disabled={boxData.place?.id === location.id}
                     border="2px"
                   >
@@ -192,6 +210,138 @@ const BoxDetails = ({
               ))}
           </Flex>
         </List>
+      </Box>
+      <Box
+        alignContent="center"
+        w={["100%", "80%", "30%", "30%"]}
+        border="2px"
+        py={4}
+        px={4}
+      >
+        <Text textAlign="center" fontSize="xl" mb={4}>
+          Assign this Box to Distribution Event:
+        </Text>
+
+        <List>
+          {/* <Flex wrap="wrap" justifyContent="center"> */}
+          {boxData.place?.base?.distributionEventsBeforeReturnedFromDistributionState
+            // .map(el => DistributionEventDetailsSchema.parse(el))
+            .map((distributionEvent) => {
+              const isAssignedToDistroEvent =
+                boxData.distributionEvent?.id === distributionEvent.id;
+              return (
+                <ListItem
+                  key={distributionEvent.id}
+                  m={4}
+                  backgroundColor={
+                    isAssignedToDistroEvent ? "gray.100" : "transparent"
+                  }
+                  p={2}
+                  border="2px"
+                  borderColor="gray.300"
+                >
+                  <Flex>
+                    <LinkBox as="article" p={4}>
+                      <Flex>
+                        <LinkOverlay
+                          href={getDistroEventDetailUrlById(
+                            distributionEvent.id
+                          )}
+                        >
+                          <Text>
+                            <b>{distributionEvent?.distributionSpot?.name}</b>
+                          </Text>
+                          <DistributionEventTimeRangeDisplay
+                            plannedStartDateTime={
+                              new Date(distributionEvent.plannedStartDateTime)
+                            }
+                            plannedEndDateTime={
+                              new Date(distributionEvent.plannedEndDateTime)
+                            }
+                          />
+                          <Text>{distributionEvent?.name}</Text>
+                          <Text>
+                            {distroEventStateHumanReadableLabels.get(
+                              distributionEvent?.state
+                            )}
+                          </Text>
+                        </LinkOverlay>
+                      </Flex>
+                      <Flex justifyContent="flex-end">
+                        {isAssignedToDistroEvent ? (
+                          <Button
+                            mt={2}
+                            onClick={() =>
+                              onUnassignBoxFromDistributionEventClick(
+                                distributionEvent.id
+                              )
+                            }
+                            colorScheme="red"
+                            borderRadius="0"
+                          >
+                            Unassign
+                          </Button>
+                        ) : (
+                          <Button
+                            mt={2}
+                            onClick={() =>
+                              onAssignBoxToDistributionEventClick(
+                                distributionEvent.id
+                              )
+                            }
+                            colorScheme="blue"
+                            borderRadius="0"
+                          >
+                            Assign
+                          </Button>
+                        )}
+                      </Flex>
+                    </LinkBox>
+                  </Flex>
+                </ListItem>
+              );
+            })}
+          {/* </Flex> */}
+        </List>
+
+        {/* <TableContainer>
+          <Table variant="simple">
+            <Thead>
+              <Tr>
+                <Th>Date</Th>
+                <Th>Distro Spot</Th>
+                <Th>Event Name</Th>
+                <Th>Assign/Unassign</Th>
+              </Tr>
+            </Thead>
+            <Tbody>
+              {boxData.place?.base?.distributionEvents
+              // .map(el => DistributionEventDetailsSchema.parse(el))
+              .map(
+                (distributionEvent) => {
+                  return (
+                  <Tr key={distributionEvent.id}>
+                    <Td>
+                      <DistributionEventTimeRangeDisplay
+                          plannedStartDateTime={
+                            new Date(distributionEvent.plannedStartDateTime)
+                          }
+                          plannedEndDateTime={
+                            new Date(distributionEvent.plannedEndDateTime)
+                          }
+                        />
+                    </Td>
+                    <Td>{distributionEvent?.distributionSpot?.name}</Td>
+                    <Td>{distributionEvent?.name}</Td>
+                    <Td>
+                      <Button>Assign</Button>
+                    </Td>
+                  </Tr>
+                )}
+              )}
+            </Tbody>
+          </Table>
+        </TableContainer> */}
       </Box>
     </Flex>
   );

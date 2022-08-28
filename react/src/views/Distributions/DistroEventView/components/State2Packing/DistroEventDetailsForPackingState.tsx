@@ -16,21 +16,21 @@ import {
   Text,
   useDisclosure,
   useToast,
-  VStack
+  VStack,
 } from "@chakra-ui/react";
+import _ from "lodash";
 import { useCallback } from "react";
 import {
-  MoveBoxToDistributionEventMutation,
-  MoveBoxToDistributionEventMutationVariables,
+  AssignBoxToDistributionEventMutation,
+  AssignBoxToDistributionEventMutationVariables,
   MoveItemsToDistributionEventMutation,
-  MoveItemsToDistributionEventMutationVariables
+  MoveItemsToDistributionEventMutationVariables,
 } from "types/generated/graphql";
-import { groupBy } from "utils/helpers";
 import {
   // MATCHING_PACKED_ITEMS_COLLECTIONS_FOR_PACKING_LIST_ENTRY,
-  MOVE_BOX_TO_DISTRIBUTION_MUTATION,
+  ASSIGN_BOX_TO_DISTRIBUTION_MUTATION,
   MOVE_ITEMS_TO_DISTRIBUTION_EVENT,
-  PACKING_LIST_ENTRIES_FOR_DISTRIBUTION_EVENT_QUERY
+  PACKING_LIST_ENTRIES_FOR_DISTRIBUTION_EVENT_QUERY,
 } from "views/Distributions/queries";
 import { IPackingListEntryForPackingState } from "views/Distributions/types";
 import PackedContentListOverlayContainer from "./components/PackedContentListOverlayContainer";
@@ -57,10 +57,10 @@ const PackingListEntry = ({
 
   const toast = useToast();
 
-  const [moveBoxToDistributionEventMutation] = useMutation<
-    MoveBoxToDistributionEventMutation,
-    MoveBoxToDistributionEventMutationVariables
-  >(MOVE_BOX_TO_DISTRIBUTION_MUTATION);
+  const [assignBoxToDistributionEventMutation] = useMutation<
+    AssignBoxToDistributionEventMutation,
+    AssignBoxToDistributionEventMutationVariables
+  >(ASSIGN_BOX_TO_DISTRIBUTION_MUTATION);
 
   const [moveItemsToDistributionEventMutation] = useMutation<
     MoveItemsToDistributionEventMutation,
@@ -130,7 +130,7 @@ const PackingListEntry = ({
   const onAddBoxToDistributionEvent = useCallback(
     (boxLabelIdentifier: string) => {
       packingAddBoxOrItemsForPackingListEntryOverlayState.onClose();
-      moveBoxToDistributionEventMutation({
+      assignBoxToDistributionEventMutation({
         variables: {
           boxLabelIdentifier,
           distributionEventId,
@@ -180,7 +180,7 @@ const PackingListEntry = ({
     },
     [
       distributionEventId,
-      moveBoxToDistributionEventMutation,
+      assignBoxToDistributionEventMutation,
       packingAddBoxOrItemsForPackingListEntryOverlayState,
       toast,
     ]
@@ -264,17 +264,22 @@ const DistroEventDetailsForPackingState = ({
   distributionEventId,
 }: // TODO: Group by product.id instead of name (because product name could be repeated)
 DistroEventDetailsForPackingStateProps) => {
-  const packingListEntriesGroupedByProductName = groupBy(
-    packingListEntries,
+  const packingListEntriesWithTargetNumberOfItemsBiggerThanZero =
+    packingListEntries.filter((el) => el.numberOfItems > 0);
+  const packingListEntriesGroupedByProductName: Record<string, IPackingListEntryForPackingState[]> = _.groupBy(
+    packingListEntriesWithTargetNumberOfItemsBiggerThanZero,
     (item) => item.product.id
   );
 
   //TO DO Sort the sizes by size order
-  const packingListEntriesGroupedByProductNameAsArray = Object.keys(
+  const packingListEntriesGroupedByProductNameAsArray = _(
     packingListEntriesGroupedByProductName
-  ).map((key) => {
-    const packingListEntries = packingListEntriesGroupedByProductName[key].map(
-      (el) => {
+  )
+    .keys()
+    .map((key) => {
+      const packingListEntries = packingListEntriesGroupedByProductName[
+        key
+      ].map((el) => {
         const actualNumberOfItemsPacked =
           el.matchingPackedItemsCollections.reduce(
             (acc, cur) => acc + cur.numberOfItems,
@@ -284,17 +289,25 @@ DistroEventDetailsForPackingStateProps) => {
           ...el,
           actualNumberOfItemsPacked,
         };
-      }
-    );
-    return {
-      product: {
-        id: key,
-        name: packingListEntries[0].product.name,
-        gender: packingListEntries[0].product.gender,
-      },
-      packingListEntries,
-    };
-  });
+      });
+      return {
+        product: {
+          id: key,
+          name: packingListEntries[0].product.name,
+          gender: packingListEntries[0].product.gender,
+        },
+        allPackingListEntriesFulfilled: packingListEntries.every(
+          (el) => el.actualNumberOfItemsPacked >= el.numberOfItems
+        ),
+        packingListEntries: _(packingListEntries)
+          .sortBy((el) =>
+            el.actualNumberOfItemsPacked >= el.numberOfItems ? 1 : -1
+          )
+          .value(),
+      };
+    })
+    .sortBy((el) => (el.allPackingListEntriesFulfilled ? 1 : -1))
+    .value();
 
   const onAddAdditionalItemsButtonClick = useCallback(() => {
     alert("PLACEHOLDER");
@@ -314,18 +327,16 @@ DistroEventDetailsForPackingStateProps) => {
         <Accordion allowToggle px={3} py={3}>
           {packingListEntriesGroupedByProductNameAsArray.map(
             (packingEntriesArrayForProductName, i) => {
-              const enoughItemsFacked =
-                packingEntriesArrayForProductName.packingListEntries.every(
-                  (packingListEntry) =>
-                    packingListEntry.actualNumberOfItemsPacked >=
-                    packingListEntry.numberOfItems
-                );
               return (
                 <AccordionItem
                   w={[300, 420, 500]}
                   justifyItems="center"
-                  key={i}
-                  bg={enoughItemsFacked ? "green.100" : "red.100"}
+                  key={packingEntriesArrayForProductName.product.id}
+                  bg={
+                    packingEntriesArrayForProductName.allPackingListEntriesFulfilled
+                      ? "green.100"
+                      : "red.100"
+                  }
                 >
                   <Flex justifyItems="center">
                     <AccordionButton zIndex="2">

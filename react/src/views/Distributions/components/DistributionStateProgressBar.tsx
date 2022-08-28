@@ -1,10 +1,10 @@
 import { Box, HStack, Link, Text } from "@chakra-ui/react";
 import React from "react";
+import { DistributionEventState } from "types/generated/graphql";
 import {
   distroEventStateHumanReadableLabels,
   distroEventStateOrder,
 } from "../baseData";
-import { DistributionEventState } from "../types";
 
 const DistributionStateProgressBar = ({
   activeState,

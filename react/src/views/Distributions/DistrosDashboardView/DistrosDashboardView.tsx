@@ -89,6 +89,10 @@ const DistrosDashboardView = () => {
     .array(DistributionEventDetailsSchema)
     .parse(data?.base?.distributionEvents);
 
+
+    console.log('baseId', baseId)
+    console.log('data', data)
+
   return (
     <Box>
       <Tabs
@@ -136,13 +140,6 @@ const DistrosDashboardView = () => {
                   </ModalBody>
 
                   <ModalFooter>
-                    <Button
-                      colorScheme="blue"
-                      mr={3}
-                      onClick={calendarEventDetailsModalState.onClose}
-                    >
-                      Close
-                    </Button>
                     <Button
                       variant="ghost"
                       onClick={() =>

@@ -89,7 +89,7 @@ const App = () => {
             </Route>
             <Route path="distributions">
               <Route index element={<DistrosDashboardView />} />
-              <Route path="return-tracking" element={<DistrosReturnTrackingView />} />
+              <Route path="return-trackings/:trackingGroupId" element={<DistrosReturnTrackingView />} />
               <Route path="events">
                 <Route path=":eventId">
                   <Route index element={<DistroEventView />} />
