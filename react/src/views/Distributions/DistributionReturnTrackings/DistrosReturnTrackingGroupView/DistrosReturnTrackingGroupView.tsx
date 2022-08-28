@@ -515,7 +515,7 @@ const DistrosReturnTrackingGroupView = () => {
         <AlertDialogOverlay>
           <AlertDialogContent>
             <AlertDialogHeader fontSize="lg" fontWeight="bold">
-              Mark Distribution Event as Completed
+              Mark Return Tracking as Completed
             </AlertDialogHeader>
 
             <AlertDialogBody>

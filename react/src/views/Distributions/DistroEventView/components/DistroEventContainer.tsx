@@ -65,7 +65,13 @@ const DistroEventContainer = ({
 
   const onMoveToStage = useCallback(
     (state: DistributionEventState) => {
-      if (state === DistributionEventStateSchema.enum.Completed) {
+      if (
+        [
+          DistributionEventStateSchema.enum.ReturnedFromDistribution,
+          DistributionEventStateSchema.enum.ReturnTrackingInProgress,
+          DistributionEventStateSchema.enum.Completed,
+        ].includes(state)
+      ) {
         nextStageTransitionAlertState.onOpen();
         return;
       }
@@ -180,7 +186,7 @@ const DistroEventContainer = ({
         <AlertDialogOverlay>
           <AlertDialogContent>
             <AlertDialogHeader fontSize="lg" fontWeight="bold">
-              Mark Distribution Event as Completed
+              Mark as Returned From Distribution
             </AlertDialogHeader>
 
             <AlertDialogBody>
@@ -199,7 +205,7 @@ const DistroEventContainer = ({
                 onClick={onConfirmToMarkEventAsCompleted}
                 ml={3}
               >
-                Mark Event as Completed
+                Mark Event as Returned
               </Button>
             </AlertDialogFooter>
           </AlertDialogContent>
