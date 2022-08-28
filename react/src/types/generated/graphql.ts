@@ -1596,3 +1596,10 @@ export type SetReturnedNumberOfItemsForDistributionEventsTrackingGroupMutationVa
 
 
 export type SetReturnedNumberOfItemsForDistributionEventsTrackingGroupMutation = { __typename?: 'Mutation', setReturnedNumberOfItemsForDistributionEventsTrackingGroup?: { __typename?: 'DistributionEventsTrackingEntry', id: string } | null };
+
+export type CompleteDistributionEventsTrackingGroupMutationVariables = Exact<{
+  distributionEventsTrackingGroupId: Scalars['ID'];
+}>;
+
+
+export type CompleteDistributionEventsTrackingGroupMutation = { __typename?: 'Mutation', completeDistributionEventsTrackingGroup?: { __typename?: 'DistributionEventsTrackingGroup', id: string } | null };

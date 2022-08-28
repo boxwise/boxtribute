@@ -26,8 +26,10 @@ import APILoadingIndicator from "components/APILoadingIndicator";
 import _ from "lodash";
 import { useRef, useState } from "react";
 import { useForm } from "react-hook-form";
-import { useParams } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import {
+  CompleteDistributionEventsTrackingGroupMutation,
+  CompleteDistributionEventsTrackingGroupMutationVariables,
   DistributionEventsTrackingGroupQuery,
   DistributionEventsTrackingGroupQueryVariables,
   DistributionEventsTrackingGroupState,
@@ -38,6 +40,7 @@ import {
 import { z } from "zod";
 import DistributionEventTimeRangeDisplay from "../../components/DistributionEventTimeRangeDisplay";
 import {
+  COMPLETE_DISTRIBUTION_EVENTS_TRACKING_GROUP_MUTATION,
   DISTRIBUTION_EVENTS_TRACKING_GROUP_QUERY,
   SET_RETURNED_NUMBER_OF_ITEMS_FOR_DISTRIBUTION_EVENTS_TRACKING_GROUP_MUTATION,
 } from "../../queries";
@@ -267,8 +270,10 @@ const TrackingEntry = ({
           value={numberOfItemsFormValue.toString()}
           onChange={(newVal) => {
             const newValAsNumber = parseInt(newVal);
-            if(newValAsNumber < 0 || newValAsNumber > trackingEntryForSize.numberOfItemsWentOut)
-            {
+            if (
+              newValAsNumber < 0 ||
+              newValAsNumber > trackingEntryForSize.numberOfItemsWentOut
+            ) {
               return;
             }
             setNumberOfItemsFormValue(newValAsNumber);
@@ -299,11 +304,13 @@ const TrackingEntry = ({
 const SummaryOfItemsInDistributionEvents = ({
   trackingEntriesByProductAndSizeAndFlowDirection,
   trackingGroupId,
+  onDoneWithCountingClick
 }: {
   // itemsCollectionsDataGroupedByProduct: {
   //   product: Product;
   trackingEntriesByProductAndSizeAndFlowDirection: ITrackingEntriesByProductAndSizeAndFlowDirection;
   trackingGroupId: string;
+  onDoneWithCountingClick: () => void;
   // }[];
 }) => {
   const TrackReturnsFormDataSchema = z.object({
@@ -328,7 +335,6 @@ const SummaryOfItemsInDistributionEvents = ({
   >(
     SET_RETURNED_NUMBER_OF_ITEMS_FOR_DISTRIBUTION_EVENTS_TRACKING_GROUP_MUTATION,
     {
-      // TODO: configure refetching
       refetchQueries: [
         {
           query: DISTRIBUTION_EVENTS_TRACKING_GROUP_QUERY,
@@ -339,7 +345,6 @@ const SummaryOfItemsInDistributionEvents = ({
       ],
     }
   );
-
   const onChangeHandlerForTrackingEntry = (
     productId: string,
     sizeId: string,
@@ -353,8 +358,9 @@ const SummaryOfItemsInDistributionEvents = ({
         numberOfReturnedItems,
       },
     });
-    // alert(`product: ${productId}; size: ${sizeId}; number of items: ${numberOfReturnedItems}`);
   };
+  // TODO: do success and error handling here
+  // (so: user feedback and - in error case - additional error logging)
 
   // const methods = useForm<TrackReturnsFormData>({
   //   resolver: zodResolver(TrackReturnsFormDataSchema),
@@ -414,7 +420,7 @@ const SummaryOfItemsInDistributionEvents = ({
           }
         )}
       </List>
-      <Button my={2} colorScheme="blue" type="submit">
+      <Button my={2} colorScheme="blue" onClick={onDoneWithCountingClick}>
         Done with counting the returned items. *
       </Button>
       {/* </form> */}
@@ -423,10 +429,29 @@ const SummaryOfItemsInDistributionEvents = ({
 };
 
 const DistrosReturnTrackingGroupView = () => {
-  const { trackingGroupId } = useParams<{
+  const { trackingGroupId, baseId } = useParams<{
     baseId: string;
     trackingGroupId: string;
   }>();
+
+  const navigate = useNavigate();
+
+  const [completeDistributionEventsTrackingGroupMutation] = useMutation<
+    CompleteDistributionEventsTrackingGroupMutation,
+    CompleteDistributionEventsTrackingGroupMutationVariables
+  >(COMPLETE_DISTRIBUTION_EVENTS_TRACKING_GROUP_MUTATION);
+
+  const onDoneWithCountingClick = () => {
+    completeDistributionEventsTrackingGroupMutation({
+      variables: {
+        distributionEventsTrackingGroupId: trackingGroupId!,
+      },
+    }).then((res) => {
+      // TODO: do better success and error handling here
+      // (so: user feedback and - in error case - additional error logging)
+      navigate(`/bases/${baseId}/distributions/return-trackings`);
+    });
+  };
 
   const { data, error, loading } = useQuery<
     DistributionEventsTrackingGroupQuery,
@@ -473,6 +498,7 @@ const DistrosReturnTrackingGroupView = () => {
           distributionEventsSummary.trackingEntriesByProductAndSizeAndFlowDirection
         }
         trackingGroupId={trackingGroupId!}
+        onDoneWithCountingClick={onDoneWithCountingClick}
       />
       <Text size="small">
         * This will track all left over number of items as "Distributed".
