@@ -118,7 +118,8 @@ export interface UnboxedItemsCollectionData extends ItemsCollection  {
 
 export const DistroEventForSpotSchema = z.object({
   id: z.string(),
-  startDateTime: z.string().transform(v=> new Date(v)),
+  plannedStartDateTime: z.string().transform(v=> new Date(v)),
+  plannedEndDateTime: z.string().transform(v=> new Date(v)),
   state: DistributionEventStateSchema
 })
 

@@ -1,4 +1,5 @@
 import {
+  Box,
   Button,
   Heading,
   LinkBox,
@@ -16,9 +17,7 @@ import { NavLink } from "react-router-dom";
 import { DistributionEventState } from "types/generated/graphql";
 import { useGetUrlForResourceHelpers } from "utils/hooks";
 import DistributionEventTimeRangeDisplay from "views/Distributions/components/DistributionEventTimeRangeDisplay";
-import {
-  DistributionEventDetails,
-} from "views/Distributions/types";
+import { DistributionEventDetails } from "views/Distributions/types";
 
 const ListOfEvents = ({
   distributionEventsListData,
@@ -32,10 +31,17 @@ const ListOfEvents = ({
       {distributionEventsListData.map((distributionEventData) => (
         <ListItem key={distributionEventData.id} my={5}>
           <LinkBox maxW="sm" p="5" borderWidth="1px" rounded="md">
-            <DistributionEventTimeRangeDisplay
-              plannedStartDateTime={distributionEventData.plannedStartDateTime}
-              plannedEndDateTime={distributionEventData.plannedEndDateTime}
-            />
+            <Box
+              as="time"
+              dateTime={distributionEventData.plannedStartDateTime.toUTCString()}
+            >
+              <DistributionEventTimeRangeDisplay
+                plannedStartDateTime={
+                  distributionEventData.plannedStartDateTime
+                }
+                plannedEndDateTime={distributionEventData.plannedEndDateTime}
+              />
+            </Box>
 
             <Heading size="md" my="2">
               <LinkOverlay

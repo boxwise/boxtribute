@@ -35,6 +35,7 @@ export const DISTRO_SPOTS_FOR_BASE_ID = gql`
           name
           state
           plannedStartDateTime
+          plannedEndDateTime
         }
       }
     }

@@ -21,6 +21,7 @@ import {
   DistributionEventState,
 } from "types/generated/graphql";
 import { useGetUrlForResourceHelpers } from "utils/hooks";
+import DistributionEventTimeRangeDisplay from "views/Distributions/components/DistributionEventTimeRangeDisplay";
 import DistributionStateProgressBar from "views/Distributions/components/DistributionStateProgressBar";
 import {
   CHANGE_DISTRIBUTION_EVENT_STATE_MUTATION,
@@ -113,8 +114,12 @@ const DistroEventContainer = ({
       />
     ),
     [DistributionEventState.OnDistro]: () => <Box>OnDistro</Box>,
-    [DistributionEventState.ReturnedFromDistribution]: () => <Box>Returned</Box>,
-    [DistributionEventState.ReturnTrackingInProgress]: () => <Box>Return Trackign In Progress</Box>,
+    [DistributionEventState.ReturnedFromDistribution]: () => (
+      <Box>Returned</Box>
+    ),
+    [DistributionEventState.ReturnTrackingInProgress]: () => (
+      <Box>Return Trackign In Progress</Box>
+    ),
     [DistributionEventState.Completed]: () => <Box>Completed</Box>,
   };
 
@@ -127,13 +132,29 @@ const DistroEventContainer = ({
           items={[{ label: 'Base "Subotica"', linkPath: "X" }]}
         />
         <Box>
-          <Link href={getDistroSpotDetailUrlById(distributionEventDetails.distributionSpot.id)}>
+          <Link
+            href={getDistroSpotDetailUrlById(
+              distributionEventDetails.distributionSpot.id
+            )}
+          >
             <Text fontSize="xl">
               {distributionEventDetails.distributionSpot.name}
             </Text>
           </Link>
-          <Text fontSize="xl" mb={2} borderBottom="1px" borderColor="gray.300">
-            {distributionEventDetails.plannedStartDateTime?.toDateString()}
+          <Text
+            fontSize="xl"
+            mb={2}
+            borderBottom="1px"
+            borderColor="gray.300"
+            as="time"
+            dateTime={distributionEventDetails.plannedStartDateTime.toUTCString()}
+          >
+            <DistributionEventTimeRangeDisplay
+              plannedStartDateTime={
+                distributionEventDetails.plannedStartDateTime
+              }
+              plannedEndDateTime={distributionEventDetails.plannedEndDateTime}
+            />
           </Text>
           <DistributionStateProgressBar
             activeState={distributionEventDetails.state}

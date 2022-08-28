@@ -214,10 +214,13 @@ const DistributionEventList = ({
           rounded="md"
         >
           {/* <Box>Id: {distroEvent.id}</Box> */}
-          <DistributionEventTimeRangeDisplay
+          <Box
+              as="time"
+              dateTime={distroEvent.plannedStartDateTime.toUTCString()}
+            ><DistributionEventTimeRangeDisplay
             plannedStartDateTime={distroEvent.plannedStartDateTime}
             plannedEndDateTime={distroEvent.plannedEndDateTime}
-          />
+          /></Box>
           <Box>
             {distroEvent.distributionSpot.name}
             {!!distroEvent.name && <> - ({distroEvent.name})</>}

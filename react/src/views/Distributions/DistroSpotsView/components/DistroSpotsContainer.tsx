@@ -56,7 +56,8 @@ const DistroSpotsContainer = ({
         distroEvents: distroSpot.distributionEvents.map((distroEvent) => ({
           id: distroEvent.id,
           state: distroEvent.state,
-          startDateTime: new Date(distroEvent.plannedStartDateTime),
+          plannedStartDateTime: new Date(distroEvent.plannedStartDateTime),
+          plannedEndDateTime: new Date(distroEvent.plannedEndDateTime),
         })),
       };
     }) as DistributionSpotEnrichedData[];
