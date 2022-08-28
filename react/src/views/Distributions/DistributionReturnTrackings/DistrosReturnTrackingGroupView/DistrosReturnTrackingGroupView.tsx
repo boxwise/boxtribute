@@ -37,7 +37,10 @@ import {
 } from "types/generated/graphql";
 import { z } from "zod";
 import DistributionEventTimeRangeDisplay from "../../components/DistributionEventTimeRangeDisplay";
-import { DISTRIBUTION_EVENTS_TRACKING_GROUP_QUERY, SET_RETURNED_NUMBER_OF_ITEMS_FOR_DISTRIBUTION_EVENTS_TRACKING_GROUP_MUTATION } from "../../queries";
+import {
+  DISTRIBUTION_EVENTS_TRACKING_GROUP_QUERY,
+  SET_RETURNED_NUMBER_OF_ITEMS_FOR_DISTRIBUTION_EVENTS_TRACKING_GROUP_MUTATION,
+} from "../../queries";
 import {
   DistributionEventDetails,
   DistributionEventDetailsSchema,
@@ -262,7 +265,14 @@ const TrackingEntry = ({
           //     : "transparent"
           // }
           value={numberOfItemsFormValue.toString()}
-          onChange={(newVal) => setNumberOfItemsFormValue(parseInt(newVal))}
+          onChange={(newVal) => {
+            const newValAsNumber = parseInt(newVal);
+            if(newValAsNumber < 0 || newValAsNumber > trackingEntryForSize.numberOfItemsWentOut)
+            {
+              return;
+            }
+            setNumberOfItemsFormValue(newValAsNumber);
+          }}
           onSubmit={() => {
             if (
               trackingEntryForSize.numberOfItemsReturned ===
@@ -288,7 +298,7 @@ const TrackingEntry = ({
 
 const SummaryOfItemsInDistributionEvents = ({
   trackingEntriesByProductAndSizeAndFlowDirection,
-  trackingGroupId
+  trackingGroupId,
 }: {
   // itemsCollectionsDataGroupedByProduct: {
   //   product: Product;
@@ -313,20 +323,22 @@ const SummaryOfItemsInDistributionEvents = ({
   // type TrackReturnsFormData = z.infer<typeof TrackReturnsFormDataSchema>;
 
   const [updateReturnedNumberOfItemsTrackingEntryMutation] = useMutation<
-  SetReturnedNumberOfItemsForDistributionEventsTrackingGroupMutation,
-  SetReturnedNumberOfItemsForDistributionEventsTrackingGroupMutationVariables
->(SET_RETURNED_NUMBER_OF_ITEMS_FOR_DISTRIBUTION_EVENTS_TRACKING_GROUP_MUTATION, {
-  // TODO: configure refetching
-  refetchQueries: [
+    SetReturnedNumberOfItemsForDistributionEventsTrackingGroupMutation,
+    SetReturnedNumberOfItemsForDistributionEventsTrackingGroupMutationVariables
+  >(
+    SET_RETURNED_NUMBER_OF_ITEMS_FOR_DISTRIBUTION_EVENTS_TRACKING_GROUP_MUTATION,
     {
-      query: DISTRIBUTION_EVENTS_TRACKING_GROUP_QUERY,
-      variables: {
-        trackingGroupId,
-      },
-    },
-  ],
-});
-
+      // TODO: configure refetching
+      refetchQueries: [
+        {
+          query: DISTRIBUTION_EVENTS_TRACKING_GROUP_QUERY,
+          variables: {
+            trackingGroupId,
+          },
+        },
+      ],
+    }
+  );
 
   const onChangeHandlerForTrackingEntry = (
     productId: string,
@@ -339,7 +351,7 @@ const SummaryOfItemsInDistributionEvents = ({
         productId,
         sizeId,
         numberOfReturnedItems,
-      }
+      },
     });
     // alert(`product: ${productId}; size: ${sizeId}; number of items: ${numberOfReturnedItems}`);
   };
