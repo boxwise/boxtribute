@@ -9,6 +9,9 @@ import {
   Box,
   Button,
   Center,
+  Editable,
+  EditableInput,
+  EditablePreview,
   Heading,
   Input,
   List,
@@ -80,40 +83,40 @@ const graphqlToDistributionEventStockSummary = (
 
   // TODO: consider to move this rather complex set operations/transformations into backend.
   //   something like getStockSummaryForDistributionEventsById
-  const squashedItemCollectionsAccrossAllEventsGroupedByProduct = _(
-    distributionEvents
-  )
-    .flatMap((distroEvent) =>
-      _(distroEvent.boxes)
-        .map(
-          (el) =>
-            ({
-              product: el.product,
-              size: el.size,
-              numberOfItems: el.numberOfItems,
-            } as ItemCollection)
-        )
-        .concat(
-          distroEvent.unboxedItemsCollections?.map(
-            (el) =>
-              ({
-                product: el.product,
-                size: el.size,
-                numberOfItems: el.numberOfItems,
-              } as ItemCollection)
-          ) || []
-        )
-        .value()
-    )
-    .thru(squashByProductAndSizeWithSumForNumberOfItems)
-    .groupBy((el) => el.product?.id)
-    .map((value) => ({
-      // TODO: look into proper parsing/validation overall
-      // here, but also across all other API response related code
-      product: value[0]?.product!,
-      productSizeWithNumerOfItemsTuples: value,
-    }))
-    .value();
+  // const squashedItemCollectionsAccrossAllEventsGroupedByProduct = _(
+  //   distributionEvents
+  // )
+  //   .flatMap((distroEvent) =>
+  //     _(distroEvent.boxes)
+  //       .map(
+  //         (el) =>
+  //           ({
+  //             product: el.product,
+  //             size: el.size,
+  //             numberOfItems: el.numberOfItems,
+  //           } as ItemCollection)
+  //       )
+  //       .concat(
+  //         distroEvent.unboxedItemsCollections?.map(
+  //           (el) =>
+  //             ({
+  //               product: el.product,
+  //               size: el.size,
+  //               numberOfItems: el.numberOfItems,
+  //             } as ItemCollection)
+  //         ) || []
+  //       )
+  //       .value()
+  //   )
+  //   .thru(squashByProductAndSizeWithSumForNumberOfItems)
+  //   .groupBy((el) => el.product?.id)
+  //   .map((value) => ({
+  //     // TODO: look into proper parsing/validation overall
+  //     // here, but also across all other API response related code
+  //     product: value[0]?.product!,
+  //     productSizeWithNumerOfItemsTuples: value,
+  //   }))
+  //   .value();
 
   return {
     squashedItemCollectionsAccrossAllEvents:
@@ -240,31 +243,21 @@ const SummaryOfItemsInDistributionEvents = ({
                               {productSizeWithNumberOfItemsTuple.numberOfItems}
                             </Box>
                             <Box>
-                              <input
-                                hidden
-                                {...register(
-                                  `numberOfItemsForProductAndSize.${productIndex}.productId`
-                                )}
-                                defaultValue={productId}
-                              />
-                              <input
-                                hidden
-                                {...register(
-                                  `numberOfItemsForProductAndSize.${productIndex}.sizeAndNumberOfItems.${sizeIndex}.sizeId`
-                                )}
-                                defaultValue={sizeId}
-                              />
-                              <Input
-                                // placeholder={distroEvent.eventDate?.toDateString()}
-                                type="number"
-                                mb={4}
-                                {...register(
-                                  `numberOfItemsForProductAndSize.${productIndex}.sizeAndNumberOfItems.${sizeIndex}.numberOfItems`,
-                                  {
-                                    valueAsNumber: true,
-                                  }
-                                )}
-                              />
+                              <Editable
+                                backgroundColor={
+                                  entry.numberOfItems > 0
+                                    ? "organe.100"
+                                    : "transparent"
+                                }
+                                value={numberOfItemsFormValue.toString()}
+                                onChange={(newVal) =>
+                                  setNumberOfItemsFormValue(parseInt(newVal))
+                                }
+                                onSubmit={onChangeHandlerForEntry}
+                              >
+                                <EditablePreview width={20} />
+                                <EditableInput width={20} type="number" />
+                              </Editable>
                             </Box>
                           </ListItem>
                         );

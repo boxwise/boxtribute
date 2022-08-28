@@ -336,6 +336,23 @@ export const DATA_FOR_RETURN_TRACKING_OVERVIEW_FOR_BASE_QUERY = gql`
         id
         state
         createdOn
+        distributionEventsTrackingEntries {
+          id
+          product {
+            id
+            name
+            gender
+            category {
+              name
+            }
+          }
+          size {
+            id
+            label
+          }
+          numberOfItems
+          direction
+        }
         distributionEvents {
           id
           name
