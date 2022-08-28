@@ -42,14 +42,14 @@ import {
   Size,
 } from "../../types";
 
-interface ItemCollectionDataForReturnTracking {
-  productSizeIdTuple: string;
-  product?: Product | null;
-  size?: Size | null;
-  outgoingNumberOfItems: number;
-  trackedAsReturnedNumberOfItems: number;
-  // numberOfItems?: number | null;
-}
+// interface ItemCollectionDataForReturnTracking {
+//   productSizeIdTuple: string;
+//   product?: Product | null;
+//   size?: Size | null;
+//   outgoingNumberOfItems: number;
+//   trackedAsReturnedNumberOfItems: number;
+//   // numberOfItems?: number | null;
+// }
 
 // TODO: get rid of this quite hack groupBy logic
 // replace it e.g. by more elegant lodash method chaining
@@ -76,8 +76,37 @@ interface ItemCollectionDataForReturnTracking {
 //   return result;
 // };
 
+
+interface ITrackingEntry{
+  id: string;
+  numberOfItems: number;
+  flowDirection: DistributionEventTrackingFlowDirection;
+  product?: Product | null;
+  size?: Size | null;
+}
+
+interface ITrackingEntriesByFlowDirection {
+  flowDirection: string;
+  trackingEntries: ITrackingEntry[];
+}
+
+interface ITrackingEntriesBySize {
+  sizeId: string;
+  sizeLabel: string;
+  trackingEntriesByFlowDirection: ITrackingEntriesByFlowDirection[];
+}
+
+interface ITrackingEntriesByProduct {
+  productId: string;
+  productName: string;
+  trackingEntriesBySize: ITrackingEntriesBySize[];
+}
+
+type ITrackingEntriesByProductAndSizeAndFlowDirection = ITrackingEntriesByProduct[];
+
 interface IDistributionReturnTrackingSummary {
   distributionEvents: DistributionEventDetails[];
+  trackingEntriesByProductAndSizeAndFlowDirection: ITrackingEntriesByProductAndSizeAndFlowDirection
   // itemCollectionDataForReturnTracking: ItemCollectionDataForReturnTracking[];
 }
 
@@ -90,58 +119,27 @@ const graphqlToDistributionEventStockSummary = (
   const distributionEventTrackingEntries =
     queryResult?.distributionEventsTrackingGroup
       ?.distributionEventsTrackingEntries || [];
+
+
   // TODO: consider to track/handle this as an error here
   // if (queryResult.distributionEventsTrackingGroup?.distributionEvents.length === 0) {
   // }
 
-  // TODO: consider to move this rather complex set operations/transformations into backend.
-  //   something like getStockSummaryForDistributionEventsById
-  // const squashedItemCollectionsAccrossAllEventsGroupedByProduct = _(
-  //   distributionEvents
-  // )
-  //   .flatMap((distroEvent) =>
-  //     _(distroEvent.boxes)
-  //       .map(
-  //         (el) =>
-  //           ({
-  //             product: el.product,
-  //             size: el.size,
-  //             numberOfItems: el.numberOfItems,
-  //           } as ItemCollection)
-  //       )
-  //       .concat(
-  //         distroEvent.unboxedItemsCollections?.map(
-  //           (el) =>
-  //             ({
-  //               product: el.product,
-  //               size: el.size,
-  //               numberOfItems: el.numberOfItems,
-  //             } as ItemCollection)
-  //         ) || []
-  //       )
-  //       .value()
-  //   )
-  //   .thru(squashByProductAndSizeWithSumForNumberOfItems)
-  //   .groupBy((el) => el.product?.id)
-  //   .map((value) => ({
-  //     // TODO: look into proper parsing/validation overall
-  //     // here, but also across all other API response related code
-  //     product: value[0]?.product!,
-  //     productSizeWithNumerOfItemsTuples: value,
-  //   }))
-  //   .value();
 
-  const trackingEntriesGroupedByProductAndSizeAndFlowDirection = _(distributionEventTrackingEntries)
+
+  const trackingEntriesByProductAndSizeAndFlowDirection: ITrackingEntriesByProductAndSizeAndFlowDirection = _(distributionEventTrackingEntries)
     // .groupBy(el => `${el.product.id}-${el.size.id}`)
     // .map((value, key) => ({ gender: ProductGender[key], products: value }))
     .groupBy((el) => el.product.id)
     .map((productGroup, productId) => ({
       productId,
-      sizesForProduct: _(productGroup)
+      productName: productGroup[0].product.name,
+      trackingEntriesBySize: _(productGroup)
         .groupBy((el2) => el2.size.id)
         .map((sizeGroup, sizeId) => ({
           sizeId,
-          itemsForSize: _(sizeGroup)
+          sizeLabel: sizeGroup[0]?.size.label,
+          trackingEntriesByFlowDirection: _(sizeGroup)
             .groupBy((trackingEntry) => trackingEntry.flowDirection)
             .map((trackingEntries, flowDirection) => ({
               flowDirection,
@@ -154,7 +152,7 @@ const graphqlToDistributionEventStockSummary = (
     // .filter(el => el.direction === DistributionEventTrackingFlowDirection.Out)
     .value();
 
-  console.log("FOO", trackingEntriesGroupedByProductAndSizeAndFlowDirection);
+  console.log("FOO", trackingEntriesByProductAndSizeAndFlowDirection);
 
   return {
     // squashedItemCollectionsAccrossAllEvents: queryResult.distributionEventsTrackingGroup?.distributionEventsTrackingEntries
@@ -163,6 +161,7 @@ const graphqlToDistributionEventStockSummary = (
     distributionEvents: distributionEvents.map((el) =>
       DistributionEventDetailsSchema.parse(el)
     ),
+    trackingEntriesByProductAndSizeAndFlowDirection
     // itemCollectionDataForReturnTracking:
   };
 };
@@ -204,12 +203,12 @@ const DistributionEventList = ({
 };
 
 const SummaryOfItemsInDistributionEvents = ({
-  itemsCollectionsDataGroupedByProduct,
+  trackingEntriesByProductAndSizeAndFlowDirection,
 }: {
-  itemsCollectionsDataGroupedByProduct: {
-    product: Product;
-    productSizeWithNumerOfItemsTuples: ItemCollectionDataForReturnTracking[];
-  }[];
+  // itemsCollectionsDataGroupedByProduct: {
+  //   product: Product;
+    trackingEntriesByProductAndSizeAndFlowDirection: ITrackingEntriesByProductAndSizeAndFlowDirection;
+  // }[];
 }) => {
   const TrackReturnsFormDataSchema = z.object({
     numberOfItemsForProductAndSize: z.array(
@@ -243,10 +242,10 @@ const SummaryOfItemsInDistributionEvents = ({
       </Heading>
       {/* <form onSubmit={handleSubmit(onSubmit)}> */}
       <List>
-        {itemsCollectionsDataGroupedByProduct.map(
-          (squashedItemsCollectionsGroupForProduct, productIndex) => {
+        {trackingEntriesByProductAndSizeAndFlowDirection.map(
+          (squashedItemsCollectionsGroupForProduct) => {
             const productId =
-              squashedItemsCollectionsGroupForProduct.product.id;
+              squashedItemsCollectionsGroupForProduct.productId;
             return (
               <ListItem key={productId} mt={10}>
                 <Heading
@@ -260,13 +259,13 @@ const SummaryOfItemsInDistributionEvents = ({
                   my={2}
                 >
                   <b>Product:</b>{" "}
-                  {squashedItemsCollectionsGroupForProduct.product?.name}
+                  {squashedItemsCollectionsGroupForProduct.productName}
                 </Heading>
                 <List>
-                  {squashedItemsCollectionsGroupForProduct.productSizeWithNumerOfItemsTuples.map(
-                    (productSizeWithNumberOfItemsTuple, sizeIndex) => {
+                  {squashedItemsCollectionsGroupForProduct.trackingEntriesBySize.map(
+                    (productSizeWithNumberOfItemsTuple) => {
                       const sizeId =
-                        productSizeWithNumberOfItemsTuple.size?.id!;
+                        productSizeWithNumberOfItemsTuple.sizeId;
                       return (
                         <ListItem
                           mb={3}
@@ -276,7 +275,7 @@ const SummaryOfItemsInDistributionEvents = ({
                         >
                           <Box>
                             <b>Size:</b>{" "}
-                            {productSizeWithNumberOfItemsTuple.size?.label}
+                            {productSizeWithNumberOfItemsTuple.sizeLabel}
                           </Box>
                           <Box>
                             <b>Number of items on distro :</b>{" "}

@@ -180,6 +180,7 @@ export const DISTRIBUTION_EVENTS_TRACKING_GROUP_QUERY = gql`
           name
           gender
           category {
+            id
             name
           }
         }
