@@ -1055,11 +1055,12 @@ def resolve_tracking_group_of_distribution_event(distro_event_obj, *_):
 
 
 @base.field("distributionEventsTrackingGroups")
-def resolve_base_distribution_events_tracking_groups(base_obj, *_):
+def resolve_base_distribution_events_tracking_groups(base_obj, _, states=None):
     mobile_distro_feature_flag_check(user_id=g.user.id)
     authorize(permission="distro_event:read")
+    state_filter = DistributionEventsTrackingGroup.state << states if states else True
     return DistributionEventsTrackingGroup.select().where(
-        DistributionEventsTrackingGroup.base == base_obj.id
+        (DistributionEventsTrackingGroup.base == base_obj.id) & (state_filter)
     )
 
 

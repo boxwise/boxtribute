@@ -235,7 +235,7 @@ type Base {
   # probably better to have filter parameters and only one query operation
   distributionEventsInReturnedFromDistributionState: [DistributionEvent!]!
 
-  distributionEventsTrackingGroups: [DistributionEventsTrackingGroup!]!
+  distributionEventsTrackingGroups(states: [DistributionEventsTrackingGroupState!]): [DistributionEventsTrackingGroup!]!
 }
 
 """

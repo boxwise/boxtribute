@@ -56,6 +56,15 @@ export type BaseDistributionEventsArgs = {
   states?: InputMaybe<Array<DistributionEventState>>;
 };
 
+
+/**
+ * Representation of a base.
+ * The base is managed by a specific [`Organisation`]({{Types.Organisation}}).
+ */
+export type BaseDistributionEventsTrackingGroupsArgs = {
+  states?: InputMaybe<Array<DistributionEventsTrackingGroupState>>;
+};
+
 /**
  * Representation of a beneficiary.
  * The beneficiary is registered in a specific [`Base`]({{Types.Base}}).

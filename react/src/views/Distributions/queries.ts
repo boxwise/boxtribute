@@ -332,7 +332,7 @@ export const DISTRIBUTION_EVENT_QUERY = gql`
 export const DATA_FOR_RETURN_TRACKING_OVERVIEW_FOR_BASE_QUERY = gql`
   query DataForReturnTrackingOverviewForBase($baseId: ID!) {
     base(id: $baseId) {
-      distributionEventsTrackingGroups {
+      distributionEventsTrackingGroups(states: [InProgress]) {
         id
         state
         createdOn
