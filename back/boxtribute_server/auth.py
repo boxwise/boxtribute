@@ -180,8 +180,6 @@ class CurrentUser:
         return name in self._base_ids
 
     def authorized_base_ids(self, permission):
-        if self.is_god:
-            return None
         return self._base_ids[permission]
 
     @property
