@@ -62,13 +62,20 @@ export const BOX_BY_LABEL_IDENTIFIER_AND_ALL_PRODUCTS_QUERY = gql`
 `;
 
 export const UPDATE_CONTENT_OF_BOX_MUTATION = gql`
-  mutation UpdateContentOfBox($boxLabelIdentifier: String!, $productId: Int!, $numberOfItems: Int!, $sizeId: Int!) {
+  mutation UpdateContentOfBox(
+    $boxLabelIdentifier: String!
+    $productId: Int!
+    $locationId: Int!
+    $numberOfItems: Int!
+    $sizeId: Int!
+  ) {
     updateBox(
       updateInput: {
         labelIdentifier: $boxLabelIdentifier
         productId: $productId
         items: $numberOfItems
         sizeId: $sizeId
+        locationId: $locationId
       }
     ) {
       labelIdentifier
@@ -77,8 +84,8 @@ export const UPDATE_CONTENT_OF_BOX_MUTATION = gql`
 `;
 
 const BoxEditView = () => {
-  const labelIdentifier =
-    useParams<{ labelIdentifier: string }>().labelIdentifier!;
+  const labelIdentifier = useParams<{ labelIdentifier: string }>()
+    .labelIdentifier!;
   const { loading, data } = useQuery<
     BoxByLabelIdentifierAndAllProductsQuery,
     BoxByLabelIdentifierAndAllProductsQueryVariables
@@ -98,13 +105,14 @@ const BoxEditView = () => {
   const onSubmitBoxEditForm = (boxFormValues: BoxFormValues) => {
     console.log("boxLabelIdentifier", labelIdentifier);
     console.log("boxFormValues", boxFormValues);
-    
+
     updateContentOfBoxMutation({
       variables: {
         boxLabelIdentifier: labelIdentifier,
         productId: parseInt(boxFormValues.productId),
         numberOfItems: boxFormValues.numberOfItems,
         sizeId: parseInt(boxFormValues.sizeId),
+        locationId: parseInt(boxFormValues.locationId),
       },
     })
       .then((mutationResult) => {
@@ -121,18 +129,18 @@ const BoxEditView = () => {
     return <APILoadingIndicator />;
   }
   const boxData = data?.box;
-  const allProducts = data?.products;
-  // const allLocations = data?.place.locations.map((location) => ({
-  //   ...location,
-  //   name: location.name ?? "",
-  // }));
+  const productAndSizesData = data?.products;
+  const allLocations = data?.box?.place?.base?.locations.map((location) => ({
+    ...location,
+    name: location.name ?? "",
+  }));
 
-  // if (allLocations == null) {
-  //   console.error("allLocations is null");
-  //   return <div>Error: no locations available to choose from</div>;
-  // }
+  if (allLocations == null) {
+    console.error("allLocations is null");
+    return <div>Error: no locations available to choose from</div>;
+  }
 
-  if (allProducts?.elements == null) {
+  if (productAndSizesData?.elements == null) {
     console.error("allProducts.elements is null");
     return <div>Error: no products available to choose from for this Box</div>;
   }
@@ -140,9 +148,9 @@ const BoxEditView = () => {
   return (
     <BoxEdit
       boxData={boxData}
-      allProducts={allProducts?.elements}
       onSubmitBoxEditForm={onSubmitBoxEditForm}
-      productAndSizesData={allProducts?.elements}
+      productAndSizesData={productAndSizesData?.elements}
+      allLocations={allLocations}
     />
   );
 };

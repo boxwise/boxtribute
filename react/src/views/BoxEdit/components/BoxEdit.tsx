@@ -9,7 +9,7 @@ import {
   Heading,
   Input,
 } from "@chakra-ui/react";
-import { Select} from "chakra-react-select";
+import { Select } from "chakra-react-select";
 
 import {
   BoxByLabelIdentifierAndAllProductsQuery,
@@ -47,12 +47,11 @@ interface DropdownOption {
   label: string;
 }
 
-
 export interface BoxFormValues {
   numberOfItems: number;
   sizeId: string;
   productId: string;
-  locationId : string;
+  locationId: string;
 }
 
 interface LocationData {
@@ -65,32 +64,29 @@ interface BoxEditProps {
     | BoxByLabelIdentifierAndAllProductsQuery["box"]
     | UpdateLocationOfBoxMutation["updateBox"];
   productAndSizesData: ProductWithSizeRangeData[];
-  // allLocations: LocationData[];
-  allProducts: BoxByLabelIdentifierAndAllProductsQuery["products"]["elements"];
+  allLocations: LocationData[];
   onSubmitBoxEditForm: (boxFormValues: BoxFormValues) => void;
 }
 
 const BoxEdit = ({
-  // allLocations,
   productAndSizesData,
   boxData,
-  allProducts,
+  allLocations,
   onSubmitBoxEditForm,
 }: BoxEditProps) => {
   const productsGroupedByCategory = groupBy(
-    allProducts,
+    productAndSizesData,
     (product) => product.category.name
   );
 
-  // const locationsForDropdownGroups = allLocations
-  // .map((location) => {
-  //   return {
-  //     label: location.name,
-  //     value: location.id,
-  //   };
-  // })
-  // .sort((a, b) => a.label.localeCompare(b.label));
-
+  const locationsForDropdownGroups = allLocations
+    .map((location) => {
+      return {
+        label: location.name,
+        value: location.id,
+      };
+    })
+    .sort((a, b) => a.label.localeCompare(b.label));
 
   const productsForDropdownGroups = Object.keys(productsGroupedByCategory)
     .map((key) => {
@@ -100,18 +96,12 @@ const BoxEdit = ({
         options: productsForCurrentGroup
           .map((product) => ({
             value: product.id,
-            label: `${product.name} (${product.gender} - ${product.sizeRange.label})`,
+            label: `${product.name} (${product.gender})`,
           }))
           .sort((a, b) => a.label.localeCompare(b.label)),
       };
     })
     .sort((a, b) => a.label.localeCompare(b.label));
-
-  // const availableSizes = boxData?.product?.sizeRange?.sizes.map((size) => ({
-  //   value: size.id,
-  //   label: size.label
-  // }));
-
 
   const {
     handleSubmit,
@@ -125,10 +115,9 @@ const BoxEdit = ({
       numberOfItems: boxData?.items || 0,
       sizeId: boxData?.size.id,
       productId: boxData?.product?.id,
-      locationId: boxData?.place?.id
-      },
+      locationId: boxData?.place?.id,
+    },
   });
-
 
   const [sizesOptionsForCurrentProduct, setSizesOptionsForCurrentProduct] =
     useState<DropdownOption[]>([]);
@@ -150,7 +139,6 @@ const BoxEdit = ({
       resetField("sizeId");
     }
   }, [productId, productAndSizesData, resetField]);
-
 
   if (boxData == null) {
     console.error("BoxDetails Component: boxData is null");
@@ -181,7 +169,7 @@ const BoxEdit = ({
               name="productId"
               render={({
                 field: { onChange, onBlur, value, name, ref },
-                fieldState: {error},
+                fieldState: { error },
               }) => (
                 <FormControl isInvalid={!!error} id="products">
                   <FormLabel>Product</FormLabel>
@@ -205,38 +193,42 @@ const BoxEdit = ({
                       focusBorderColor="transparent"
                     />
                   </Box>
-
                   <FormErrorMessage>{error && error.message}</FormErrorMessage>
                 </FormControl>
               )}
             />
           </ListItem>
-
-          {/* <ListItem>
-            <FormLabel htmlFor="sizeId">Size</FormLabel>
+          <ListItem>
             <Controller
               control={control}
               name="sizeId"
-              render={({
-                field: { onChange, onBlur, value, name, ref },
-                fieldState: { invalid, error },
-              }) => (
-                <FormControl isInvalid={invalid} id="size">
-                  <Box border="2px">
-                    <Select
-                      name={name}
-                      ref={ref}
-                      onChange={onChange}
-                      onBlur={onBlur}
-                      value={value}
-                      options={[]}
-                      placeholder="Size"
-                      isSearchable
-                      tagVariant="outline"
-                    />
-                  </Box>
-                </FormControl>
-              )}
+              render={({ field, fieldState: { invalid, error } }) => {
+                return (
+                  <FormControl isInvalid={invalid} id="size">
+                    <FormLabel htmlFor="size">Size</FormLabel>
+                    <Box border="2px">
+                      <Select
+                        name={field.name}
+                        ref={field.ref}
+                        value={
+                          sizesOptionsForCurrentProduct.find(
+                            (el) => el.value === field.value
+                          ) || null
+                        }
+                        onChange={(selectedOption) =>
+                          field.onChange(selectedOption?.value)
+                        }
+                        onBlur={field.onBlur}
+                        options={sizesOptionsForCurrentProduct}
+                        placeholder="Size"
+                        isSearchable
+                        tagVariant="outline"
+                      />
+                      <FormErrorMessage>{error?.message}</FormErrorMessage>
+                    </Box>
+                  </FormControl>
+                );
+              }}
             />
           </ListItem>
 
@@ -252,8 +244,41 @@ const BoxEdit = ({
                 })}
               />
             </Box>
-          </ListItem> */}
-
+          </ListItem>
+          <ListItem>
+            <Controller
+              control={control}
+              name="locationId"
+              render={({
+                field: { onChange, onBlur, value, name, ref },
+                fieldState: { error },
+              }) => (
+                <FormControl isInvalid={!!error} id="locationForDropdown">
+                  <FormLabel htmlFor="locationForDropdown">Location</FormLabel>
+                  <Box border="2px">
+                    <Select
+                      name={name}
+                      ref={ref}
+                      onChange={(selectedOption) =>
+                        onChange(selectedOption?.value)
+                      }
+                      onBlur={onBlur}
+                      value={
+                        locationsForDropdownGroups.find(
+                          (el) => el.value === value
+                        ) || null
+                      }
+                      options={locationsForDropdownGroups}
+                      placeholder="Location"
+                      isSearchable
+                      tagVariant="outline"
+                    />
+                  </Box>
+                  <FormErrorMessage>{error && error.message}</FormErrorMessage>
+                </FormControl>
+              )}
+            />
+          </ListItem>
         </List>
         <Button mt={4} isLoading={isSubmitting} type="submit" borderRadius="0">
           Update Box
@@ -264,19 +289,3 @@ const BoxEdit = ({
 };
 
 export default BoxEdit;
-
-
-
-
-
-
-
-  
-
-       
-                     
-
-  
-       
-
-

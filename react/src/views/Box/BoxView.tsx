@@ -253,7 +253,7 @@ const BTBox = () => {
     if (
       boxFormValues.numberOfItems &&
       boxFormValues.numberOfItems > 0 &&
-      boxData?.items
+      (boxData?.items || boxData?.items === 0)
     ) {
       updateNumberOfItemsMutation({
         variables: {

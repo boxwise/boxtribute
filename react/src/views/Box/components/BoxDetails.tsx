@@ -25,8 +25,6 @@ interface BoxDetailsProps {
   onMinusOpen: () => void;
   onScrap: () => void;
   onLost: () => void;
-  // onAddItemsToBoxClick: (numberOfItems: number) => void;
-  // onRemoveItemsFromBoxClick: (numberOfItems: number) => void;
 }
 
 const BoxDetails = ({
@@ -46,14 +44,6 @@ const BoxDetails = ({
     }
     return color;
   };
-  // const allLocations = boxData?.place?.base?.locations
-  // const [preferedLocations, setPreferedLocations] = useState(allLocations);
-
-  // const setPreferedOrder = (locationId: string) => {
-  //   const newPreferedLocations = [preferedLocations].unshift(...locationId);
-
-  // const [openAddItemsModal, setOpenAddItemsModal] = useState(false);
-  // const [openRemoveItemsModal, setOpenRemoveItemsModal] = useState(false);
 
   if (boxData == null) {
     console.error("BoxDetails Component: boxData is null");
@@ -107,7 +97,7 @@ const BoxDetails = ({
             <Flex alignItems="center">
               <Box border="2px" borderRadius="0" px={2}>
                 <Text fontSize="xl" fontWeight={"bold"}>
-                  {boxData.items}
+                 # {boxData.items}
                 </Text>
               </Box>
               <Box border="2px" backgroundColor="#1A202C" borderRadius="0" px={2}>
@@ -119,7 +109,7 @@ const BoxDetails = ({
           </ListItem>
           <ListItem>
             <Flex direction="row" pb={4}>
-              <Text mr={2}>
+              <Text fontSize="xl" fontWeight={"bold"}>
                 <b>{boxData.product?.gender}</b>
               </Text>
             </Flex>
