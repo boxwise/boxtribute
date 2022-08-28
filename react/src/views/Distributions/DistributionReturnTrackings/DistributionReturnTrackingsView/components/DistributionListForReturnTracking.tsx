@@ -27,7 +27,10 @@ import {
   weekDayNumberToWeekDayName,
 } from "utils/helpers";
 import { START_DISTRIBUTION_EVENTS_TRACKING_GROUP_MUTATION } from "views/Distributions/queries";
-import { DistributionEventDetails, DistributionTrackingGroup } from "views/Distributions/types";
+import {
+  DistributionEventDetails,
+  DistributionTrackingGroup,
+} from "views/Distributions/types";
 
 interface CheckboxGroupProps {
   groupName: string;
@@ -75,7 +78,7 @@ function CheckboxGroup({
 
 const DistributionListForReturnTracking = ({
   distributionEventsData,
-  returnTrackingGroups
+  returnTrackingGroups,
 }: {
   distributionEventsData: DistributionEventDetails[];
   returnTrackingGroups: DistributionTrackingGroup[];
@@ -123,7 +126,8 @@ const DistributionListForReturnTracking = ({
   // const allValues = sortedDistroEventsWhichNeedReturnTracking.map(
   //   (el) => el.id
   // );
-  const [selectedDistributionEventIds, setSelectedDistributionEventIds] = useState([] as string[]);
+  const [selectedDistributionEventIds, setSelectedDistributionEventIds] =
+    useState([] as string[]);
 
   const apolloClient = useApolloClient();
 
@@ -168,19 +172,26 @@ const DistributionListForReturnTracking = ({
         <Heading as="h3" size="md">
           Ongoing Return Trackings
         </Heading>
-        {returnTrackingGroups.length > 0 && <List>
-          {returnTrackingGroups.map((group) => (
-            <ListItem key={group.id}>
-              <Link
-                href={`/bases/${baseId}/distributions/return-trackings/${group.id}`}
-              >
-                <>{group.createdOn.toLocaleDateString()} - {group.createdOn.toLocaleTimeString()} ({group.distributionEvents.length} Events)</>
-              </Link>
-            </ListItem>
-          ))}
-          </List>}
-        {returnTrackingGroups.length === 0 && <Text>There are currently no ongoing Return Trackings.</Text>}
-
+        {returnTrackingGroups.length > 0 && (
+          <List>
+            {returnTrackingGroups.map((group) => (
+              <ListItem key={group.id}>
+                <Link
+                  href={`/bases/${baseId}/distributions/return-trackings/${group.id}`}
+                >
+                  <>
+                    {group.createdOn.toLocaleDateString()} -{" "}
+                    {group.createdOn.toLocaleTimeString()} (
+                    {group.distributionEvents.length} Events)
+                  </>
+                </Link>
+              </ListItem>
+            ))}
+          </List>
+        )}
+        {returnTrackingGroups.length === 0 && (
+          <Text>There are currently no ongoing Return Trackings.</Text>
+        )}
       </VStack>
 
       <VStack>
@@ -245,7 +256,12 @@ const DistributionListForReturnTracking = ({
           })}
         </Box>
 
-        <Button my={2} onClick={onStartReturnTrackingClick} colorScheme="blue" disabled={selectedDistributionEventIds.length <= 0}>
+        <Button
+          my={2}
+          onClick={onStartReturnTrackingClick}
+          colorScheme="blue"
+          disabled={selectedDistributionEventIds.length <= 0}
+        >
           Start return tracking
         </Button>
       </VStack>
