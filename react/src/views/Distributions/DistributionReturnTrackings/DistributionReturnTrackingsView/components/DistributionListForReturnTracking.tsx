@@ -6,6 +6,8 @@ import {
   Checkbox,
   Heading,
   Link,
+  List,
+  ListItem,
   Stack,
   Text,
   VStack,
@@ -176,7 +178,19 @@ const DistributionListForReturnTracking = ({
         <Heading as="h3" size="md">
           Ongoing Return Trackings
         </Heading>
-        <Text>There are currently no ongoing Return Trackings.</Text>
+        {returnTrackingGroups.length > 0 && <List>
+          {returnTrackingGroups.map((group) => (
+            <ListItem key={group.id}>
+              <Link
+                href={`/bases/${baseId}/distributions/return-trackings/${group.id}`}
+              >
+                <>{group.createdOn.toLocaleDateString()} - {group.createdOn.toLocaleTimeString()} ({group.distributionEvents.length} Events)</>
+              </Link>
+            </ListItem>
+          ))}
+          </List>}
+        {returnTrackingGroups.length === 0 && <Text>There are currently no ongoing Return Trackings.</Text>}
+
       </VStack>
 
       <VStack>

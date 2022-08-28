@@ -335,6 +335,7 @@ export const DATA_FOR_RETURN_TRACKING_OVERVIEW_FOR_BASE_QUERY = gql`
       distributionEventsTrackingGroups {
         id
         state
+        createdOn
         distributionEvents {
           id
           name

@@ -606,6 +606,8 @@ def resolve_start_distribution_events_tracking_group(
 ):
     mobile_distro_feature_flag_check(user_id=g.user.id)
     authorize(permission="distro_event:write", base_id=base_id)
+    # TODO: do validation check that there is at least one
+    # distribution event in the list
     return start_distribution_events_tracking_group(
         user_id=g.user.id,
         distribution_event_ids=distribution_event_ids,

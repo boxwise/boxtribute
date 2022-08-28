@@ -315,6 +315,7 @@ type DistributionEventsTrackingGroup {
   state: DistributionEventsTrackingGroupState!
   distributionEvents: [DistributionEvent!]!
   distributionEventsTrackingEntries: [DistributionEventsTrackingEntry!]!
+  createdOn: Datetime!
 }
 
 """

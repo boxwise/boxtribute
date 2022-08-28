@@ -40,6 +40,8 @@ export type DistributionEventDetails = z.infer<
 
 export const DistributionTrackingGroupSchema = z.object({
   id: z.string().min(1),
+  // createdOn: z.date(),
+  createdOn: z.string().transform(v=> new Date(v)),
   distributionEvents: z.array(DistributionEventDetailsSchema),
 })
 
