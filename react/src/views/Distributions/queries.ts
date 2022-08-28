@@ -399,10 +399,14 @@ export const SET_RETURNED_NUMBER_OF_ITEMS_FOR_DISTRIBUTION_EVENTS_TRACKING_GROUP
   }
 `;
 
-
 export const COMPLETE_DISTRIBUTION_EVENTS_TRACKING_GROUP_MUTATION = gql`
-mutation CompleteDistributionEventsTrackingGroup($distributionEventsTrackingGroupId: ID!) {
-  completeDistributionEventsTrackingGroup(id: $distributionEventsTrackingGroupId) {
-    id
+  mutation CompleteDistributionEventsTrackingGroup(
+    $distributionEventsTrackingGroupId: ID!
+  ) {
+    completeDistributionEventsTrackingGroup(
+      id: $distributionEventsTrackingGroupId
+    ) {
+      id
+    }
   }
-}`;
+`;
