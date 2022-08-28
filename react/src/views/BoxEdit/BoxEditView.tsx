@@ -51,6 +51,10 @@ export const BOX_BY_LABEL_IDENTIFIER_AND_ALL_PRODUCTS_QUERY = gql`
         }
         sizeRange {
           label
+          sizes {
+            id
+            label
+          }
         }
       }
     }
@@ -98,7 +102,7 @@ const BoxEditView = () => {
     updateContentOfBoxMutation({
       variables: {
         boxLabelIdentifier: labelIdentifier,
-        productId: parseInt(boxFormValues.productForDropdown.value),
+        productId: parseInt(boxFormValues.productId),
         numberOfItems: boxFormValues.numberOfItems,
         sizeId: parseInt(boxFormValues.sizeId),
       },
@@ -118,6 +122,15 @@ const BoxEditView = () => {
   }
   const boxData = data?.box;
   const allProducts = data?.products;
+  // const allLocations = data?.place.locations.map((location) => ({
+  //   ...location,
+  //   name: location.name ?? "",
+  // }));
+
+  // if (allLocations == null) {
+  //   console.error("allLocations is null");
+  //   return <div>Error: no locations available to choose from</div>;
+  // }
 
   if (allProducts?.elements == null) {
     console.error("allProducts.elements is null");
@@ -129,6 +142,7 @@ const BoxEditView = () => {
       boxData={boxData}
       allProducts={allProducts?.elements}
       onSubmitBoxEditForm={onSubmitBoxEditForm}
+      productAndSizesData={allProducts?.elements}
     />
   );
 };

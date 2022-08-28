@@ -9,37 +9,70 @@ import {
   Heading,
   Input,
 } from "@chakra-ui/react";
-import { Select, OptionBase } from "chakra-react-select";
+import { Select} from "chakra-react-select";
 
 import {
   BoxByLabelIdentifierAndAllProductsQuery,
+  ProductGender,
   UpdateLocationOfBoxMutation,
 } from "types/generated/graphql";
 import { Controller, useForm } from "react-hook-form";
 import { groupBy } from "utils/helpers";
 import { useEffect, useState } from "react";
 
-interface OptionsGroup extends OptionBase {
+export interface CategoryData {
+  name: string;
+}
+
+export interface SizeData {
+  id: string;
+  label: string;
+}
+
+export interface SizeRangeData {
+  label?: string;
+  sizes: SizeData[];
+}
+
+export interface ProductWithSizeRangeData {
+  id: string;
+  name: string;
+  gender?: ProductGender | undefined | null;
+  category: CategoryData;
+  sizeRange: SizeRangeData;
+}
+
+interface DropdownOption {
   value: string;
   label: string;
 }
 
+
 export interface BoxFormValues {
   numberOfItems: number;
   sizeId: string;
-  productForDropdown: OptionsGroup;
-  sizeForDropdown?: OptionsGroup;
+  productId: string;
+  locationId : string;
+}
+
+interface LocationData {
+  id: string;
+  name: string;
 }
 
 interface BoxEditProps {
   boxData:
     | BoxByLabelIdentifierAndAllProductsQuery["box"]
     | UpdateLocationOfBoxMutation["updateBox"];
+  productAndSizesData: ProductWithSizeRangeData[];
+  // allLocations: LocationData[];
   allProducts: BoxByLabelIdentifierAndAllProductsQuery["products"]["elements"];
   onSubmitBoxEditForm: (boxFormValues: BoxFormValues) => void;
 }
 
 const BoxEdit = ({
+  // allLocations,
+  productAndSizesData,
   boxData,
   allProducts,
   onSubmitBoxEditForm,
@@ -48,6 +81,16 @@ const BoxEdit = ({
     allProducts,
     (product) => product.category.name
   );
+
+  // const locationsForDropdownGroups = allLocations
+  // .map((location) => {
+  //   return {
+  //     label: location.name,
+  //     value: location.id,
+  //   };
+  // })
+  // .sort((a, b) => a.label.localeCompare(b.label));
+
 
   const productsForDropdownGroups = Object.keys(productsGroupedByCategory)
     .map((key) => {
@@ -64,35 +107,31 @@ const BoxEdit = ({
     })
     .sort((a, b) => a.label.localeCompare(b.label));
 
-  const availableSizes = boxData?.product?.sizeRange?.sizes.map((size) => ({
-    value: size.id,
-    label: size.label
-  }));
+  // const availableSizes = boxData?.product?.sizeRange?.sizes.map((size) => ({
+  //   value: size.id,
+  //   label: size.label
+  // }));
 
 
   const {
     handleSubmit,
     control,
     register,
+    resetField,
+    watch,
     formState: { isSubmitting },
   } = useForm<BoxFormValues>({
     defaultValues: {
       numberOfItems: boxData?.items || 0,
       sizeId: boxData?.size.id,
-      productForDropdown: productsForDropdownGroups
-        ?.flatMap((i) => i.options)
-        .find((p) => p.value === boxData?.product?.id),
-      // sizeForDropdown: availableSizes?.map((size) => ({
-      //   value: size.value,
-      //   label: size.label,
-      // }))?.find((s) => s.value === boxData?.size.id),
-      
-    },
+      productId: boxData?.product?.id,
+      locationId: boxData?.place?.id
+      },
   });
 
 
   const [sizesOptionsForCurrentProduct, setSizesOptionsForCurrentProduct] =
-    useState<OptionsGroup[]>([]);
+    useState<DropdownOption[]>([]);
 
   const productId = watch("productId");
 
@@ -139,20 +178,26 @@ const BoxEdit = ({
           <ListItem>
             <Controller
               control={control}
-              name="productForDropdown"
+              name="productId"
               render={({
                 field: { onChange, onBlur, value, name, ref },
-                fieldState: { invalid, error },
+                fieldState: {error},
               }) => (
-                <FormControl isInvalid={invalid} id="products">
+                <FormControl isInvalid={!!error} id="products">
                   <FormLabel>Product</FormLabel>
                   <Box border="2px">
                     <Select
                       name={name}
                       ref={ref}
-                      onChange={onChange}
+                      onChange={(selectedOption) =>
+                        onChange(selectedOption?.value)
+                      }
                       onBlur={onBlur}
-                      value={value}
+                      value={
+                        productsForDropdownGroups
+                          .flatMap((group) => group.options)
+                          .find((el) => el.value === value) || null
+                      }
                       options={productsForDropdownGroups}
                       placeholder="Product"
                       isSearchable
@@ -167,7 +212,7 @@ const BoxEdit = ({
             />
           </ListItem>
 
-          <ListItem>
+          {/* <ListItem>
             <FormLabel htmlFor="sizeId">Size</FormLabel>
             <Controller
               control={control}
@@ -207,7 +252,7 @@ const BoxEdit = ({
                 })}
               />
             </Box>
-          </ListItem>
+          </ListItem> */}
 
         </List>
         <Button mt={4} isLoading={isSubmitting} type="submit" borderRadius="0">
@@ -219,7 +264,19 @@ const BoxEdit = ({
 };
 
 export default BoxEdit;
-function watch(arg0: string) {
-  throw new Error("Function not implemented.");
-}
+
+
+
+
+
+
+
+  
+
+       
+                     
+
+  
+       
+
 
