@@ -8,6 +8,7 @@ import {
   AlertDialogOverlay,
   Box,
   Button,
+  Flex,
   Link,
   Text,
   useDisclosure,
@@ -15,6 +16,7 @@ import {
 } from "@chakra-ui/react";
 import BTBreadcrumbNavigation from "components/BTBreadcrumbNavigation";
 import React, { useCallback } from "react";
+import { Link as RouterLink } from "react-router-dom";
 import {
   ChangeDistributionEventStateMutation,
   ChangeDistributionEventStateMutationVariables,
@@ -59,6 +61,8 @@ const DistroEventContainer = ({
       // },
     ],
   });
+
+  const { getBaseRootUrlForCurrentBase } = useGetUrlForResourceHelpers();
 
   const nextStageTransitionAlertState = useDisclosure();
   const cancelNextStageTransitionRef = React.useRef<HTMLButtonElement>(null);
@@ -121,10 +125,22 @@ const DistroEventContainer = ({
     ),
     [DistributionEventState.OnDistro]: () => <Box>OnDistro</Box>,
     [DistributionEventState.ReturnedFromDistribution]: () => (
-      <Box>Returned</Box>
+      <Flex w={[300, 400, 600]} direction="column" mb={4}>
+        <Text textAlign={"center"}>
+          You didn't start any Return Tracking for this Event yet. <br /> To do so, please go to
+          the{" "}
+          <Link
+            as={RouterLink}
+            to={`${getBaseRootUrlForCurrentBase()}/distributions/return-trackings`}
+          >
+            Return Tracking page
+          </Link>{" "}
+          and start a Return Tracking which includes this Distribution Event.
+        </Text>
+      </Flex>
     ),
     [DistributionEventState.ReturnTrackingInProgress]: () => (
-      <Box>Return Trackign In Progress</Box>
+      <Box>Return Tracking In Progress</Box>
     ),
     [DistributionEventState.Completed]: () => <Box>Completed</Box>,
   };

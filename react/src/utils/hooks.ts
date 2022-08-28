@@ -4,6 +4,10 @@ import { useNavigate, useParams } from "react-router-dom";
 
 export const useGetUrlForResourceHelpers = () => {
   const baseId = useParams<{ baseId: string }>().baseId;
+
+  const getBaseRootUrlForCurrentBase = () =>
+    `/bases/${baseId}`;
+
   const getDistroSpotDetailUrlById = (distroSpotId: string) =>
     `/bases/${baseId}/distributions/spots/${distroSpotId}`;
 
@@ -13,6 +17,7 @@ export const useGetUrlForResourceHelpers = () => {
   return {
     getDistroSpotDetailUrlById,
     getDistroEventDetailUrlById,
+    getBaseRootUrlForCurrentBase
   };
 };
 
