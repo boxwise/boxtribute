@@ -8,9 +8,14 @@ import {
   DistributionEventsForBaseQueryVariables,
 } from "types/generated/graphql";
 import { z } from "zod";
-import { DATA_FOR_RETURN_TRACKING_OVERVIEW_FOR_BASE_QUERY, DISTRIBUTION_EVENTS_FOR_BASE_ID } from "../../queries";
 import {
-  DistributionEventDetailsSchema, DistributionTrackingGroup, DistributionTrackingGroupSchema,
+  DATA_FOR_RETURN_TRACKING_OVERVIEW_FOR_BASE_QUERY,
+  DISTRIBUTION_EVENTS_FOR_BASE_ID,
+} from "../../queries";
+import {
+  DistributionEventDetailsSchema,
+  DistributionTrackingGroup,
+  DistributionTrackingGroupSchema,
 } from "../../types";
 import DistributionListForReturnTracking from "./components/DistributionListForReturnTracking";
 
@@ -21,8 +26,8 @@ const DistributionReturnTrackingsView = () => {
   // TODO: consider to extract this out into custom hook (if it really makes sense!)
 
   const { data, error, loading } = useQuery<
-  DataForReturnTrackingOverviewForBaseQuery,
-  DataForReturnTrackingOverviewForBaseQueryVariables
+    DataForReturnTrackingOverviewForBaseQuery,
+    DataForReturnTrackingOverviewForBaseQueryVariables
     // TODO: consider to move this into a container (so this view file only extracts the baseId from the url params)
   >(DATA_FOR_RETURN_TRACKING_OVERVIEW_FOR_BASE_QUERY, {
     variables: {
@@ -40,8 +45,9 @@ const DistributionReturnTrackingsView = () => {
     .array(DistributionEventDetailsSchema)
     .parse(data?.base?.distributionEvents);
 
-  const distributionEventsTrackingGroups: DistributionTrackingGroup[] = z.array(DistributionTrackingGroupSchema).parse(
-    data?.base?.distributionEventsTrackingGroups)
+  const distributionEventsTrackingGroups: DistributionTrackingGroup[] = z
+    .array(DistributionTrackingGroupSchema)
+    .parse(data?.base?.distributionEventsTrackingGroups);
 
   return (
     <DistributionListForReturnTracking
