@@ -123,17 +123,7 @@ const DistributionListForReturnTracking = ({
   // const allValues = sortedDistroEventsWhichNeedReturnTracking.map(
   //   (el) => el.id
   // );
-  const [selectedValues, setSelectedValues] = useState([] as string[]);
-
-  // const [
-  //   startDistributionEventsTrackingGroupMutation,
-  //   startDistributionEventsTrackingGroupMutationStatus,
-  // ] = useMutation<
-  //   StartDistributionEventsTrackingGroupMutation,
-  //   StartDistributionEventsTrackingGroupMutationVariables
-  // >(START_DISTRIBUTION_EVENTS_TRACKING_GROUP_MUTATION, {
-  //   // refetchQueries: [refetchBoxByLabelIdentifierQueryConfig(labelIdentifier)],
-  // });
+  const [selectedDistributionEventIds, setSelectedDistributionEventIds] = useState([] as string[]);
 
   const apolloClient = useApolloClient();
 
@@ -146,7 +136,7 @@ const DistributionListForReturnTracking = ({
         query: START_DISTRIBUTION_EVENTS_TRACKING_GROUP_MUTATION,
         variables: {
           baseId,
-          distributionEventIds: selectedValues,
+          distributionEventIds: selectedDistributionEventIds,
           // returnedToLocationId: null,
         },
         fetchPolicy: "no-cache",
@@ -236,11 +226,11 @@ const DistributionListForReturnTracking = ({
                   key={date.toISOString()}
                   groupName={groupName}
                   allValuesWithLabels={allValuesWithLabelsOfCurrentGroup}
-                  selectedValues={selectedValues.filter((el) =>
+                  selectedValues={selectedDistributionEventIds.filter((el) =>
                     allValuesOfCurrentGroup.includes(el)
                   )}
                   onChange={(newSelectedValues, newUnselectedValues) => {
-                    setSelectedValues((prev) => {
+                    setSelectedDistributionEventIds((prev) => {
                       return [
                         ...prev.filter(
                           (el) => !newUnselectedValues.includes(el)
@@ -255,7 +245,7 @@ const DistributionListForReturnTracking = ({
           })}
         </Box>
 
-        <Button my={2} onClick={onStartReturnTrackingClick} colorScheme="blue">
+        <Button my={2} onClick={onStartReturnTrackingClick} colorScheme="blue" disabled={selectedDistributionEventIds.length <= 0}>
           Start return tracking
         </Button>
       </VStack>

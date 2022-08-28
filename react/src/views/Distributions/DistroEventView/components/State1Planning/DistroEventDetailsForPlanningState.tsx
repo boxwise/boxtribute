@@ -65,9 +65,10 @@ const PackingListEntryTableRow = ({
     entry.numberOfItems
   );
 
+  const { numberOfItems } = entry;
   useEffect(() => {
-    setNumberOfItemsFormValue(entry.numberOfItems);
-  }, [entry]);
+    setNumberOfItemsFormValue(numberOfItems);
+  }, [numberOfItems]);
 
   const backgroundColor =
     entry.numberOfItems > 0 ? "blue.50" : "transparent";

@@ -29,9 +29,7 @@ import {
 } from "types/generated/graphql";
 import { z } from "zod";
 import DistributionEventTimeRangeDisplay from "../../components/DistributionEventTimeRangeDisplay";
-import {
-  DISTRIBUTION_EVENTS_TRACKING_GROUP_QUERY,
-} from "../../queries";
+import { DISTRIBUTION_EVENTS_TRACKING_GROUP_QUERY } from "../../queries";
 import {
   DistributionEventDetails,
   DistributionEventDetailsSchema,
@@ -324,6 +322,8 @@ const DistrosReturnTrackingGroupView = () => {
 
   const distributionEventsSummary =
     graphqlToDistributionEventStockSummary(data);
+
+  console.log("data", data);
 
   return (
     <VStack>
