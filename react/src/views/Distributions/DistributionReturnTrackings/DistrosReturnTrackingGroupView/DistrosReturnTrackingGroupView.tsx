@@ -76,8 +76,7 @@ import {
 //   return result;
 // };
 
-
-interface ITrackingEntry{
+interface ITrackingEntry {
   id: string;
   numberOfItems: number;
   flowDirection: DistributionEventTrackingFlowDirection;
@@ -85,15 +84,18 @@ interface ITrackingEntry{
   size?: Size | null;
 }
 
-interface ITrackingEntriesByFlowDirection {
-  flowDirection: string;
-  trackingEntries: ITrackingEntry[];
-}
+// interface ITrackingEntriesByFlowDirection {
+//   // flowDirection: string;
+//   // trackingEntries: ITrackingEntry[];
+//   numberOfItemsWentOut: number;
+//   numberOfItemsReturned: number;
+// }
 
 interface ITrackingEntriesBySize {
   sizeId: string;
   sizeLabel: string;
-  trackingEntriesByFlowDirection: ITrackingEntriesByFlowDirection[];
+  numberOfItemsWentOut: number;
+  numberOfItemsReturned: number;
 }
 
 interface ITrackingEntriesByProduct {
@@ -102,11 +104,12 @@ interface ITrackingEntriesByProduct {
   trackingEntriesBySize: ITrackingEntriesBySize[];
 }
 
-type ITrackingEntriesByProductAndSizeAndFlowDirection = ITrackingEntriesByProduct[];
+type ITrackingEntriesByProductAndSizeAndFlowDirection =
+  ITrackingEntriesByProduct[];
 
 interface IDistributionReturnTrackingSummary {
   distributionEvents: DistributionEventDetails[];
-  trackingEntriesByProductAndSizeAndFlowDirection: ITrackingEntriesByProductAndSizeAndFlowDirection
+  trackingEntriesByProductAndSizeAndFlowDirection: ITrackingEntriesByProductAndSizeAndFlowDirection;
   // itemCollectionDataForReturnTracking: ItemCollectionDataForReturnTracking[];
 }
 
@@ -120,37 +123,50 @@ const graphqlToDistributionEventStockSummary = (
     queryResult?.distributionEventsTrackingGroup
       ?.distributionEventsTrackingEntries || [];
 
-
   // TODO: consider to track/handle this as an error here
   // if (queryResult.distributionEventsTrackingGroup?.distributionEvents.length === 0) {
   // }
 
-
-
-  const trackingEntriesByProductAndSizeAndFlowDirection: ITrackingEntriesByProductAndSizeAndFlowDirection = _(distributionEventTrackingEntries)
-    // .groupBy(el => `${el.product.id}-${el.size.id}`)
-    // .map((value, key) => ({ gender: ProductGender[key], products: value }))
-    .groupBy((el) => el.product.id)
-    .map((productGroup, productId) => ({
-      productId,
-      productName: productGroup[0].product.name,
-      trackingEntriesBySize: _(productGroup)
-        .groupBy((el2) => el2.size.id)
-        .map((sizeGroup, sizeId) => ({
-          sizeId,
-          sizeLabel: sizeGroup[0]?.size.label,
-          trackingEntriesByFlowDirection: _(sizeGroup)
-            .groupBy((trackingEntry) => trackingEntry.flowDirection)
-            .map((trackingEntries, flowDirection) => ({
-              flowDirection,
-              trackingEntries,
-            }))
-            .value(),
-        }))
-        .value(),
-    }))
-    // .filter(el => el.direction === DistributionEventTrackingFlowDirection.Out)
-    .value();
+  const trackingEntriesByProductAndSizeAndFlowDirection: ITrackingEntriesByProductAndSizeAndFlowDirection =
+    _(distributionEventTrackingEntries)
+      // .groupBy(el => `${el.product.id}-${el.size.id}`)
+      // .map((value, key) => ({ gender: ProductGender[key], products: value }))
+      .groupBy((el) => el.product.id)
+      .map((productGroup, productId) => ({
+        productId,
+        productName: productGroup[0].product.name,
+        trackingEntriesBySize: _(productGroup)
+          .groupBy((el2) => el2.size.id)
+          .map((sizeGroup, sizeId) => ({
+            sizeId,
+            sizeLabel: sizeGroup[0]?.size.label,
+            numberOfItemsWentOut: _(sizeGroup)
+              .filter(
+                (el) =>
+                  el.flowDirection ===
+                  DistributionEventTrackingFlowDirection.Out
+              )
+              .map((el) => el.numberOfItems)
+              .sum(),
+            numberOfItemsReturned: _(sizeGroup)
+              .filter(
+                (el) =>
+                  el.flowDirection === DistributionEventTrackingFlowDirection.In
+              )
+              .map((el) => el.numberOfItems)
+              .sum(),
+            // _(sizeGroup)
+            // .groupBy((trackingEntry) => trackingEntry.flowDirection)
+            // .map((trackingEntries, flowDirection) => ({
+            //   flowDirection,
+            //   trackingEntries,
+            // }))
+            // .value(),
+          }))
+          .value(),
+      }))
+      // .filter(el => el.direction === DistributionEventTrackingFlowDirection.Out)
+      .value();
 
   console.log("FOO", trackingEntriesByProductAndSizeAndFlowDirection);
 
@@ -161,7 +177,7 @@ const graphqlToDistributionEventStockSummary = (
     distributionEvents: distributionEvents.map((el) =>
       DistributionEventDetailsSchema.parse(el)
     ),
-    trackingEntriesByProductAndSizeAndFlowDirection
+    trackingEntriesByProductAndSizeAndFlowDirection,
     // itemCollectionDataForReturnTracking:
   };
 };
@@ -207,7 +223,7 @@ const SummaryOfItemsInDistributionEvents = ({
 }: {
   // itemsCollectionsDataGroupedByProduct: {
   //   product: Product;
-    trackingEntriesByProductAndSizeAndFlowDirection: ITrackingEntriesByProductAndSizeAndFlowDirection;
+  trackingEntriesByProductAndSizeAndFlowDirection: ITrackingEntriesByProductAndSizeAndFlowDirection;
   // }[];
 }) => {
   const TrackReturnsFormDataSchema = z.object({
@@ -244,8 +260,7 @@ const SummaryOfItemsInDistributionEvents = ({
       <List>
         {trackingEntriesByProductAndSizeAndFlowDirection.map(
           (squashedItemsCollectionsGroupForProduct) => {
-            const productId =
-              squashedItemsCollectionsGroupForProduct.productId;
+            const productId = squashedItemsCollectionsGroupForProduct.productId;
             return (
               <ListItem key={productId} mt={10}>
                 <Heading
@@ -264,8 +279,7 @@ const SummaryOfItemsInDistributionEvents = ({
                 <List>
                   {squashedItemsCollectionsGroupForProduct.trackingEntriesBySize.map(
                     (productSizeWithNumberOfItemsTuple) => {
-                      const sizeId =
-                        productSizeWithNumberOfItemsTuple.sizeId;
+                      const sizeId = productSizeWithNumberOfItemsTuple.sizeId;
                       return (
                         <ListItem
                           mb={3}
@@ -280,7 +294,7 @@ const SummaryOfItemsInDistributionEvents = ({
                           <Box>
                             <b>Number of items on distro :</b>{" "}
                             {
-                              productSizeWithNumberOfItemsTuple.outgoingNumberOfItems
+                              productSizeWithNumberOfItemsTuple.numberOfItemsWentOut
                             }
                           </Box>
                           <Box>
@@ -364,11 +378,11 @@ const DistrosReturnTrackingGroupView = () => {
       <DistributionEventList
         distributionEvents={distributionEventsSummary.distributionEvents}
       />
-      {/* <SummaryOfItemsInDistributionEvents
-        // squashedItemsCollectionsGroupedByProduct={
-        //   distributionEventsSummary.squashedItemCollectionsAccrossAllEvents
-        // }
-      /> */}
+      <SummaryOfItemsInDistributionEvents
+        trackingEntriesByProductAndSizeAndFlowDirection={
+          distributionEventsSummary.trackingEntriesByProductAndSizeAndFlowDirection
+        }
+      />
       <Text size="small">
         * This will track all left over number of items as "Distributed".
       </Text>
