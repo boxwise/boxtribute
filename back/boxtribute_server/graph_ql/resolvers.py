@@ -637,7 +637,7 @@ def resolve_start_distribution_events_tracking_group(
     )
 
 
-@mutation.field("trackReturnOfItemsForDistributionEventsTrackingGroup")
+@mutation.field("setReturnedNumberOfItemsForDistributionEventsTrackingGroup")
 @convert_kwargs_to_snake_case
 def resolve_track_return_of_items_for_distribution_events_tracking_group(
     *_, distribution_events_tracking_group_id, product_id, size_id, number_of_items
