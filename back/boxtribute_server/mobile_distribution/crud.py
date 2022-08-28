@@ -449,14 +449,25 @@ def track_return_of_items_for_distribution_events_tracking_group(
         #   * the sum of numberOfItems for the OUT log entries for that combo
         #   * MINUS the sum of numberOfItems for the IN log entries for that combo
         #   * is >= the number_of_items parameter
-        return DistributionEventTrackingLogEntry.create(
+
+        # UnboxedItemsCollection.get_or_create(
+        #     distribution_event=distribution_event_id,
+        #     product=box.product.id,
+        #     size=box.size.id,
+        #     defaults={"number_of_items": 0, "location": box.location.id},
+        # )
+        tracking_log, _ = DistributionEventTrackingLogEntry.get_or_create(
             distro_event_tracking_group=distribution_events_tracking_group_id,
-            flow_direction=DistributionEventTrackingFlowDirection.In,
-            date=now,
-            product_id=product_id,
             size_id=size_id,
-            number_of_items=number_of_items,
+            product_id=product_id,
+            flow_direction=DistributionEventTrackingFlowDirection.In,
+            defaults={"number_of_items": 0, "date": now},
         )
+
+        tracking_log.number_of_items = number_of_items
+        tracking_log.save()
+
+        return tracking_log
 
 
 def move_items_from_return_tracking_group_to_box(
