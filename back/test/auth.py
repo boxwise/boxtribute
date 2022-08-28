@@ -74,6 +74,7 @@ def create_jwt_payload(
     payload = {
         f"{JWT_CLAIM_PREFIX}/email": email,
         f"{JWT_CLAIM_PREFIX}/organisation_id": organisation_id,
+        f"{JWT_CLAIM_PREFIX}/base_ids": list(base_ids),
         f"{JWT_CLAIM_PREFIX}/roles": roles,
         "sub": f"auth0|{user_id}",
     }
