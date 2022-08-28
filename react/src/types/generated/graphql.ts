@@ -472,8 +472,8 @@ export type Mutation = {
   removeAllPackingListEntriesFromDistributionEventForProduct?: Maybe<Scalars['Boolean']>;
   removePackingListEntryFromDistributionEvent?: Maybe<DistributionEvent>;
   sendShipment?: Maybe<Shipment>;
+  setReturnedNumberOfItemsForDistributionEventsTrackingGroup?: Maybe<DistributionEventsTrackingEntry>;
   startDistributionEventsTrackingGroup?: Maybe<DistributionEventsTrackingGroup>;
-  trackReturnOfItemsForDistributionEventsTrackingGroup?: Maybe<DistributionEventsTrackingEntry>;
   unassignBoxFromDistributionEvent?: Maybe<Box>;
   updateBeneficiary?: Maybe<Beneficiary>;
   updateBox?: Maybe<Box>;
@@ -718,9 +718,11 @@ export type MutationSendShipmentArgs = {
  * - input argument: creationInput/updateInput
  * - input type: <Resource>CreationInput/UpdateInput
  */
-export type MutationStartDistributionEventsTrackingGroupArgs = {
-  baseId: Scalars['ID'];
-  distributionEventIds: Array<Scalars['ID']>;
+export type MutationSetReturnedNumberOfItemsForDistributionEventsTrackingGroupArgs = {
+  distributionEventsTrackingGroupId: Scalars['ID'];
+  numberOfItems: Scalars['Int'];
+  productId: Scalars['ID'];
+  sizeId: Scalars['ID'];
 };
 
 
@@ -729,11 +731,9 @@ export type MutationStartDistributionEventsTrackingGroupArgs = {
  * - input argument: creationInput/updateInput
  * - input type: <Resource>CreationInput/UpdateInput
  */
-export type MutationTrackReturnOfItemsForDistributionEventsTrackingGroupArgs = {
-  distributionEventsTrackingGroupId: Scalars['ID'];
-  numberOfItems: Scalars['Int'];
-  productId: Scalars['ID'];
-  sizeId: Scalars['ID'];
+export type MutationStartDistributionEventsTrackingGroupArgs = {
+  baseId: Scalars['ID'];
+  distributionEventIds: Array<Scalars['ID']>;
 };
 
 
@@ -1586,3 +1586,13 @@ export type DataForReturnTrackingOverviewForBaseQueryVariables = Exact<{
 
 
 export type DataForReturnTrackingOverviewForBaseQuery = { __typename?: 'Query', base?: { __typename?: 'Base', distributionEventsTrackingGroups: Array<{ __typename?: 'DistributionEventsTrackingGroup', id: string, state: DistributionEventsTrackingGroupState, createdOn: any, distributionEvents: Array<{ __typename?: 'DistributionEvent', id: string, name?: string | null, plannedStartDateTime: any, plannedEndDateTime: any, state: DistributionEventState, distributionSpot?: { __typename?: 'DistributionSpot', id: string, name?: string | null } | null }> }>, distributionEvents: Array<{ __typename?: 'DistributionEvent', id: string, name?: string | null, plannedStartDateTime: any, plannedEndDateTime: any, state: DistributionEventState, distributionSpot?: { __typename?: 'DistributionSpot', id: string, name?: string | null } | null }> } | null };
+
+export type SetReturnedNumberOfItemsForDistributionEventsTrackingGroupMutationVariables = Exact<{
+  distributionEventsTrackingGroupId: Scalars['ID'];
+  productId: Scalars['ID'];
+  sizeId: Scalars['ID'];
+  numberOfReturnedItems: Scalars['Int'];
+}>;
+
+
+export type SetReturnedNumberOfItemsForDistributionEventsTrackingGroupMutation = { __typename?: 'Mutation', setReturnedNumberOfItemsForDistributionEventsTrackingGroup?: { __typename?: 'DistributionEventsTrackingEntry', id: string } | null };

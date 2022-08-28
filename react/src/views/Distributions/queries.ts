@@ -380,3 +380,21 @@ export const DATA_FOR_RETURN_TRACKING_OVERVIEW_FOR_BASE_QUERY = gql`
     }
   }
 `;
+
+export const SET_RETURNED_NUMBER_OF_ITEMS_FOR_DISTRIBUTION_EVENTS_TRACKING_GROUP_MUTATION = gql`
+  mutation SetReturnedNumberOfItemsForDistributionEventsTrackingGroup(
+    $distributionEventsTrackingGroupId: ID!
+    $productId: ID!
+    $sizeId: ID!
+    $numberOfReturnedItems: Int!
+  ) {
+    setReturnedNumberOfItemsForDistributionEventsTrackingGroup(
+      distributionEventsTrackingGroupId: $distributionEventsTrackingGroupId
+      productId: $productId
+      sizeId: $sizeId
+      numberOfItems: $numberOfReturnedItems
+    ) {
+      id
+    }
+  }
+`;

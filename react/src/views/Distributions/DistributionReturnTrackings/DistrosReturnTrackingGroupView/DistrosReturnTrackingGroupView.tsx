@@ -1,4 +1,4 @@
-import { useQuery } from "@apollo/client";
+import { useMutation, useQuery } from "@apollo/client";
 import {
   AlertDialog,
   AlertDialogBody,
@@ -32,10 +32,12 @@ import {
   DistributionEventsTrackingGroupQueryVariables,
   DistributionEventsTrackingGroupState,
   DistributionEventTrackingFlowDirection,
+  SetReturnedNumberOfItemsForDistributionEventsTrackingGroupMutation,
+  SetReturnedNumberOfItemsForDistributionEventsTrackingGroupMutationVariables,
 } from "types/generated/graphql";
 import { z } from "zod";
 import DistributionEventTimeRangeDisplay from "../../components/DistributionEventTimeRangeDisplay";
-import { DISTRIBUTION_EVENTS_TRACKING_GROUP_QUERY } from "../../queries";
+import { DISTRIBUTION_EVENTS_TRACKING_GROUP_QUERY, SET_RETURNED_NUMBER_OF_ITEMS_FOR_DISTRIBUTION_EVENTS_TRACKING_GROUP_MUTATION } from "../../queries";
 import {
   DistributionEventDetails,
   DistributionEventDetailsSchema,
@@ -188,7 +190,7 @@ const DistributionEventList = ({
 }: {
   distributionEvents: DistributionEventDetails[];
 }) => {
-  console.log('distributionEvents', distributionEvents)
+  console.log("distributionEvents", distributionEvents);
   return (
     <VStack>
       <Heading size="md">
@@ -223,14 +225,19 @@ const DistributionEventList = ({
 const TrackingEntry = ({
   trackingEntryForSize,
   productId,
-  onChangeHandlerForTrackingEntry
+  onChangeHandlerForTrackingEntry,
 }: {
   trackingEntryForSize: ITrackingEntryForSize;
   productId: string;
-  onChangeHandlerForTrackingEntry: (productId: string, sizeId: string, numberOfItemsReturn: number) => void
+  onChangeHandlerForTrackingEntry: (
+    productId: string,
+    sizeId: string,
+    numberOfItemsReturn: number
+  ) => void;
 }) => {
-
-  const [numberOfItemsFormValue, setNumberOfItemsFormValue] = useState(trackingEntryForSize.numberOfItemsReturned);
+  const [numberOfItemsFormValue, setNumberOfItemsFormValue] = useState(
+    trackingEntryForSize.numberOfItemsReturned
+  );
 
   return (
     <ListItem
@@ -256,7 +263,20 @@ const TrackingEntry = ({
           // }
           value={numberOfItemsFormValue.toString()}
           onChange={(newVal) => setNumberOfItemsFormValue(parseInt(newVal))}
-          onSubmit={() => onChangeHandlerForTrackingEntry(productId, trackingEntryForSize.sizeId, numberOfItemsFormValue)}
+          onSubmit={() => {
+            if (
+              trackingEntryForSize.numberOfItemsReturned ===
+              numberOfItemsFormValue
+            ) {
+              return;
+            } else {
+              onChangeHandlerForTrackingEntry(
+                productId,
+                trackingEntryForSize.sizeId,
+                numberOfItemsFormValue
+              );
+            }
+          }}
         >
           <EditablePreview width={20} />
           <EditableInput width={20} type="number" />
@@ -268,10 +288,12 @@ const TrackingEntry = ({
 
 const SummaryOfItemsInDistributionEvents = ({
   trackingEntriesByProductAndSizeAndFlowDirection,
+  trackingGroupId
 }: {
   // itemsCollectionsDataGroupedByProduct: {
   //   product: Product;
   trackingEntriesByProductAndSizeAndFlowDirection: ITrackingEntriesByProductAndSizeAndFlowDirection;
+  trackingGroupId: string;
   // }[];
 }) => {
   const TrackReturnsFormDataSchema = z.object({
@@ -290,7 +312,35 @@ const SummaryOfItemsInDistributionEvents = ({
 
   // type TrackReturnsFormData = z.infer<typeof TrackReturnsFormDataSchema>;
 
-  const onChangeHandlerForTrackingEntry = (productId: string, sizeId: string, numberOfReturnedItems: number) => {
+  const [updateReturnedNumberOfItemsTrackingEntryMutation] = useMutation<
+  SetReturnedNumberOfItemsForDistributionEventsTrackingGroupMutation,
+  SetReturnedNumberOfItemsForDistributionEventsTrackingGroupMutationVariables
+>(SET_RETURNED_NUMBER_OF_ITEMS_FOR_DISTRIBUTION_EVENTS_TRACKING_GROUP_MUTATION, {
+  // TODO: configure refetching
+  refetchQueries: [
+    {
+      query: DISTRIBUTION_EVENTS_TRACKING_GROUP_QUERY,
+      variables: {
+        trackingGroupId,
+      },
+    },
+  ],
+});
+
+
+  const onChangeHandlerForTrackingEntry = (
+    productId: string,
+    sizeId: string,
+    numberOfReturnedItems: number
+  ) => {
+    updateReturnedNumberOfItemsTrackingEntryMutation({
+      variables: {
+        distributionEventsTrackingGroupId: trackingGroupId,
+        productId,
+        sizeId,
+        numberOfReturnedItems,
+      }
+    });
     // alert(`product: ${productId}; size: ${sizeId}; number of items: ${numberOfReturnedItems}`);
   };
 
@@ -339,7 +389,9 @@ const SummaryOfItemsInDistributionEvents = ({
                             productSizeWithNumberOfItemsTuple
                           }
                           productId={productId}
-                          onChangeHandlerForTrackingEntry={onChangeHandlerForTrackingEntry}
+                          onChangeHandlerForTrackingEntry={
+                            onChangeHandlerForTrackingEntry
+                          }
                         />
                       );
                     }
@@ -408,6 +460,7 @@ const DistrosReturnTrackingGroupView = () => {
         trackingEntriesByProductAndSizeAndFlowDirection={
           distributionEventsSummary.trackingEntriesByProductAndSizeAndFlowDirection
         }
+        trackingGroupId={trackingGroupId!}
       />
       <Text size="small">
         * This will track all left over number of items as "Distributed".
