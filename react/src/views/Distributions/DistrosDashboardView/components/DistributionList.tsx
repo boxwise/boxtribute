@@ -12,6 +12,7 @@ import { isToday } from "date-fns";
 import isFuture from "date-fns/isFuture";
 import isPast from "date-fns/isPast";
 import _ from "lodash";
+import { NavLink } from "react-router-dom";
 import { DistributionEventState } from "types/generated/graphql";
 import { useGetUrlForResourceHelpers } from "utils/hooks";
 import DistributionEventTimeRangeDisplay from "views/Distributions/components/DistributionEventTimeRangeDisplay";
@@ -38,7 +39,8 @@ const ListOfEvents = ({
 
             <Heading size="md" my="2">
               <LinkOverlay
-                href={getDistroEventDetailUrlById(distributionEventData.id)}
+                to={getDistroEventDetailUrlById(distributionEventData.id)}
+                as={NavLink}
               >
                 {distributionEventData.distributionSpot.name}{" "}
                 {!!distributionEventData.name && (
@@ -103,7 +105,7 @@ const DistributionList = ({
       </Button>
       {hasDistroEventsToday && (
         <>
-          <Heading as="h4" py={10}>
+          <Heading as="h4" py={7}>
             Today
           </Heading>
           <ListOfEvents distributionEventsListData={distroEventsToday} />
@@ -124,7 +126,7 @@ const DistributionList = ({
 
       {hasPastDistroEvents && (
         <>
-          <Heading as="h4" pt={10}>
+          <Heading as="h4" pt={7}>
             Past
           </Heading>
           {hasPastNonCompletedDistroEvents && (
