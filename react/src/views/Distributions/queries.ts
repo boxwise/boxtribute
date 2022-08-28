@@ -173,45 +173,62 @@ export const DISTRIBUTION_EVENTS_TRACKING_GROUP_QUERY = gql`
   query DistributionEventsTrackingGroup($trackingGroupId: ID!) {
     distributionEventsTrackingGroup(id: $trackingGroupId) {
       id
+      distributionEventsTrackingEntries {
+        id
+        product {
+          id
+          name
+          gender
+          category {
+            name
+          }
+        }
+        size {
+          id
+          label
+        }
+        numberOfItems
+        flowDirection
+      }
       distributionEvents {
         id
         state
         name
-        boxes {
-          labelIdentifier
-          product {
-            id
-            name
-            category {
-              name
-            }
-          }
-          size {
-            id
-            label
-          }
-          numberOfItems
-        }
+        # boxes {
+        #   labelIdentifier
+        #   product {
+        #     id
+        #     name
+        #     category {
+        #       name
+        #     }
+        #   }
+        #   size {
+        #     id
+        #     label
+        #   }
+        #   numberOfItems
+        # }
+        # unboxedItemsCollections {
+        #   product {
+        #     id
+        #     name
+        #     category {
+        #       name
+        #     }
+        #   }
+        #   size {
+        #     id
+        #     label
+        #   }
+        #   numberOfItems
+        # }
         distributionSpot {
           id
           name
         }
         plannedStartDateTime
         plannedEndDateTime
-        unboxedItemsCollections {
-          product {
-            id
-            name
-            category {
-              name
-            }
-          }
-          size {
-            id
-            label
-          }
-          numberOfItems
-        }
       }
     }
   }
@@ -336,23 +353,6 @@ export const DATA_FOR_RETURN_TRACKING_OVERVIEW_FOR_BASE_QUERY = gql`
         id
         state
         createdOn
-        distributionEventsTrackingEntries {
-          id
-          product {
-            id
-            name
-            gender
-            category {
-              name
-            }
-          }
-          size {
-            id
-            label
-          }
-          numberOfItems
-          direction
-        }
         distributionEvents {
           id
           name

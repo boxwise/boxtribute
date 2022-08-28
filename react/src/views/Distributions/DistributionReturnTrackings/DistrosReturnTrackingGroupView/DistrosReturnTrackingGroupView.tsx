@@ -29,6 +29,8 @@ import { useParams } from "react-router-dom";
 import {
   DistributionEventsTrackingGroupQuery,
   DistributionEventsTrackingGroupQueryVariables,
+  DistributionEventsTrackingGroupState,
+  DistributionEventTrackingFlowDirection,
 } from "types/generated/graphql";
 import { z } from "zod";
 import DistributionEventTimeRangeDisplay from "../../components/DistributionEventTimeRangeDisplay";
@@ -40,43 +42,54 @@ import {
   Size,
 } from "../../types";
 
-interface ItemCollection {
+interface ItemCollectionDataForReturnTracking {
   productSizeIdTuple: string;
   product?: Product | null;
   size?: Size | null;
-  numberOfItems?: number | null;
+  outgoingNumberOfItems: number;
+  trackedAsReturnedNumberOfItems: number;
+  // numberOfItems?: number | null;
 }
 
 // TODO: get rid of this quite hack groupBy logic
 // replace it e.g. by more elegant lodash method chaining
 // Or, even better, by specific GraphQL/BE queries which return the required final outcome
-const squashByProductAndSizeWithSumForNumberOfItems = (
-  itemCollection: ItemCollection[]
-) => {
-  const helper = new Map<string, ItemCollection>();
-  const result = itemCollection.reduce((r, o) => {
-    var key = o.product?.id + "-" + o.size?.id;
+// const squashByProductAndSizeWithSumForNumberOfItems = (
+//   itemCollection: ItemCollectionDataForReturnTracking[]
+// ) => {
+//   const helper = new Map<string, ItemCollectionDataForReturnTracking>();
+//   const result = itemCollection.reduce((r, o) => {
+//     var key = o.product?.id + "-" + o.size?.id;
 
-    if (!helper.has(key)) {
-      const newEntry = Object.assign({}, o);
-      helper.set(key, newEntry);
-      r.push(newEntry);
-    } else {
-      const existingObject = helper.get(key)!;
-      existingObject.numberOfItems =
-        (existingObject.numberOfItems || 0) + (o.numberOfItems || 0);
-    }
+//     if (!helper.has(key)) {
+//       const newEntry = Object.assign({}, o);
+//       helper.set(key, newEntry);
+//       r.push(newEntry);
+//     } else {
+//       const existingObject = helper.get(key)!;
+//       existingObject.numberOfItems =
+//         (existingObject.numberOfItems || 0) + (o.numberOfItems || 0);
+//     }
 
-    return r;
-  }, [] as ItemCollection[]);
-  return result;
-};
+//     return r;
+//   }, [] as ItemCollectionDataForReturnTracking[]);
+//   return result;
+// };
+
+interface IDistributionReturnTrackingSummary {
+  distributionEvents: DistributionEventDetails[];
+  // itemCollectionDataForReturnTracking: ItemCollectionDataForReturnTracking[];
+}
 
 const graphqlToDistributionEventStockSummary = (
   queryResult: DistributionEventsTrackingGroupQuery
-) => {
+): IDistributionReturnTrackingSummary => {
   const distributionEvents =
     queryResult.distributionEventsTrackingGroup?.distributionEvents || [];
+
+  const distributionEventTrackingEntries =
+    queryResult?.distributionEventsTrackingGroup
+      ?.distributionEventsTrackingEntries || [];
   // TODO: consider to track/handle this as an error here
   // if (queryResult.distributionEventsTrackingGroup?.distributionEvents.length === 0) {
   // }
@@ -118,12 +131,39 @@ const graphqlToDistributionEventStockSummary = (
   //   }))
   //   .value();
 
+  const trackingEntriesGroupedByProductAndSizeAndFlowDirection = _(distributionEventTrackingEntries)
+    // .groupBy(el => `${el.product.id}-${el.size.id}`)
+    // .map((value, key) => ({ gender: ProductGender[key], products: value }))
+    .groupBy((el) => el.product.id)
+    .map((productGroup, productId) => ({
+      productId,
+      sizesForProduct: _(productGroup)
+        .groupBy((el2) => el2.size.id)
+        .map((sizeGroup, sizeId) => ({
+          sizeId,
+          itemsForSize: _(sizeGroup)
+            .groupBy((trackingEntry) => trackingEntry.flowDirection)
+            .map((trackingEntries, flowDirection) => ({
+              flowDirection,
+              trackingEntries,
+            }))
+            .value(),
+        }))
+        .value(),
+    }))
+    // .filter(el => el.direction === DistributionEventTrackingFlowDirection.Out)
+    .value();
+
+  console.log("FOO", trackingEntriesGroupedByProductAndSizeAndFlowDirection);
+
   return {
-    squashedItemCollectionsAccrossAllEvents:
-      squashedItemCollectionsAccrossAllEventsGroupedByProduct,
+    // squashedItemCollectionsAccrossAllEvents: queryResult.distributionEventsTrackingGroup?.distributionEventsTrackingEntries
+    // squashedItemCollectionsAccrossAllEventsGroupedByProduct,
+
     distributionEvents: distributionEvents.map((el) =>
       DistributionEventDetailsSchema.parse(el)
     ),
+    // itemCollectionDataForReturnTracking:
   };
 };
 
@@ -164,11 +204,11 @@ const DistributionEventList = ({
 };
 
 const SummaryOfItemsInDistributionEvents = ({
-  squashedItemsCollectionsGroupedByProduct,
+  itemsCollectionsDataGroupedByProduct,
 }: {
-  squashedItemsCollectionsGroupedByProduct: {
+  itemsCollectionsDataGroupedByProduct: {
     product: Product;
-    productSizeWithNumerOfItemsTuples: ItemCollection[];
+    productSizeWithNumerOfItemsTuples: ItemCollectionDataForReturnTracking[];
   }[];
 }) => {
   const TrackReturnsFormDataSchema = z.object({
@@ -187,68 +227,70 @@ const SummaryOfItemsInDistributionEvents = ({
 
   type TrackReturnsFormData = z.infer<typeof TrackReturnsFormDataSchema>;
 
-  const methods = useForm<TrackReturnsFormData>({
-    resolver: zodResolver(TrackReturnsFormDataSchema),
-  });
-  const { handleSubmit, register } = methods;
+  // const methods = useForm<TrackReturnsFormData>({
+  //   resolver: zodResolver(TrackReturnsFormDataSchema),
+  // });
+  // const { handleSubmit, register } = methods;
 
-  const onSubmit = (values: TrackReturnsFormData) => {
-    alert(JSON.stringify(values));
-  };
+  // const onSubmit = (values: TrackReturnsFormData) => {
+  //   alert(JSON.stringify(values));
+  // };
 
   return (
     <VStack>
       <Heading size="md" mt={10}>
         Items in these Distribution Events
       </Heading>
-      <form onSubmit={handleSubmit(onSubmit)}>
-        <List>
-          {squashedItemsCollectionsGroupedByProduct.map(
-            (squashedItemsCollectionsGroupForProduct, productIndex) => {
-              const productId =
-                squashedItemsCollectionsGroupForProduct.product.id;
-              return (
-                <ListItem key={productId} mt={10}>
-                  <Heading
-                    as="h3"
-                    size="md"
-                    textAlign="center"
-                    borderColor="red.500"
-                    borderWidth={1}
-                    backgroundColor="gray.50"
-                    p={3}
-                    my={2}
-                  >
-                    <b>Product:</b>{" "}
-                    {squashedItemsCollectionsGroupForProduct.product?.name}
-                  </Heading>
-                  <List>
-                    {squashedItemsCollectionsGroupForProduct.productSizeWithNumerOfItemsTuples.map(
-                      (productSizeWithNumberOfItemsTuple, sizeIndex) => {
-                        const sizeId =
-                          productSizeWithNumberOfItemsTuple.size?.id!;
-                        return (
-                          <ListItem
-                            mb={3}
-                            backgroundColor="gray.50"
-                            p={3}
-                            key={sizeId}
-                          >
-                            <Box>
-                              <b>Size:</b>{" "}
-                              {productSizeWithNumberOfItemsTuple.size?.label}
-                            </Box>
-                            <Box>
-                              <b>Number of items on distro :</b>{" "}
-                              {productSizeWithNumberOfItemsTuple.numberOfItems}
-                            </Box>
-                            <Box>
-                              <Editable
-                                backgroundColor={
-                                  entry.numberOfItems > 0
-                                    ? "organe.100"
-                                    : "transparent"
-                                }
+      {/* <form onSubmit={handleSubmit(onSubmit)}> */}
+      <List>
+        {itemsCollectionsDataGroupedByProduct.map(
+          (squashedItemsCollectionsGroupForProduct, productIndex) => {
+            const productId =
+              squashedItemsCollectionsGroupForProduct.product.id;
+            return (
+              <ListItem key={productId} mt={10}>
+                <Heading
+                  as="h3"
+                  size="md"
+                  textAlign="center"
+                  borderColor="red.500"
+                  borderWidth={1}
+                  backgroundColor="gray.50"
+                  p={3}
+                  my={2}
+                >
+                  <b>Product:</b>{" "}
+                  {squashedItemsCollectionsGroupForProduct.product?.name}
+                </Heading>
+                <List>
+                  {squashedItemsCollectionsGroupForProduct.productSizeWithNumerOfItemsTuples.map(
+                    (productSizeWithNumberOfItemsTuple, sizeIndex) => {
+                      const sizeId =
+                        productSizeWithNumberOfItemsTuple.size?.id!;
+                      return (
+                        <ListItem
+                          mb={3}
+                          backgroundColor="gray.50"
+                          p={3}
+                          key={sizeId}
+                        >
+                          <Box>
+                            <b>Size:</b>{" "}
+                            {productSizeWithNumberOfItemsTuple.size?.label}
+                          </Box>
+                          <Box>
+                            <b>Number of items on distro :</b>{" "}
+                            {
+                              productSizeWithNumberOfItemsTuple.outgoingNumberOfItems
+                            }
+                          </Box>
+                          <Box>
+                            {/* <Editable
+                                // backgroundColor={
+                                //   entry.numberOfItems > 0
+                                //     ? "organe.100"
+                                //     : "transparent"
+                                // }
                                 value={numberOfItemsFormValue.toString()}
                                 onChange={(newVal) =>
                                   setNumberOfItemsFormValue(parseInt(newVal))
@@ -257,22 +299,22 @@ const SummaryOfItemsInDistributionEvents = ({
                               >
                                 <EditablePreview width={20} />
                                 <EditableInput width={20} type="number" />
-                              </Editable>
-                            </Box>
-                          </ListItem>
-                        );
-                      }
-                    )}
-                  </List>
-                </ListItem>
-              );
-            }
-          )}
-        </List>
-        <Button my={2} colorScheme="blue" type="submit">
-          Done with counting the returned items. *
-        </Button>
-      </form>
+                              </Editable> */}
+                          </Box>
+                        </ListItem>
+                      );
+                    }
+                  )}
+                </List>
+              </ListItem>
+            );
+          }
+        )}
+      </List>
+      <Button my={2} colorScheme="blue" type="submit">
+        Done with counting the returned items. *
+      </Button>
+      {/* </form> */}
     </VStack>
   );
 };
@@ -323,11 +365,11 @@ const DistrosReturnTrackingGroupView = () => {
       <DistributionEventList
         distributionEvents={distributionEventsSummary.distributionEvents}
       />
-      <SummaryOfItemsInDistributionEvents
-        squashedItemsCollectionsGroupedByProduct={
-          distributionEventsSummary.squashedItemCollectionsAccrossAllEvents
-        }
-      />
+      {/* <SummaryOfItemsInDistributionEvents
+        // squashedItemsCollectionsGroupedByProduct={
+        //   distributionEventsSummary.squashedItemCollectionsAccrossAllEvents
+        // }
+      /> */}
       <Text size="small">
         * This will track all left over number of items as "Distributed".
       </Text>
