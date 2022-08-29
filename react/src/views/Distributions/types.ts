@@ -6,7 +6,9 @@ import { z } from "zod";
 
 // Consider to remove this and instead directly use the enum from the generated graphql schema
 
-export const DistributionEventStateSchema = z.nativeEnum(DistributionEventState);
+export const DistributionEventStateSchema = z.nativeEnum(
+  DistributionEventState
+);
 
 export const DistributionSpotSchema = z.object({
   id: z.string().min(1),
@@ -28,14 +30,25 @@ export const DistributionSpotSchema = z.object({
 export const DistributionEventDetailsSchema = z.object({
   id: z.string().min(1),
   name: z.string().nullish(),
-  plannedStartDateTime: z.string().transform(v=> new Date(v)),
-  plannedEndDateTime: z.string().transform(v=> new Date(v)),
+  plannedStartDateTime: z.string().transform((v) => new Date(v)),
+  plannedEndDateTime: z.string().transform((v) => new Date(v)),
   state: DistributionEventStateSchema,
   distributionSpot: DistributionSpotSchema,
 });
 
 export type DistributionEventDetails = z.infer<
   typeof DistributionEventDetailsSchema
+>;
+
+export const DistributionTrackingGroupSchema = z.object({
+  id: z.string().min(1),
+  // createdOn: z.date(),
+  createdOn: z.string().transform((v) => new Date(v)),
+  distributionEvents: z.array(DistributionEventDetailsSchema),
+});
+
+export type DistributionTrackingGroup = z.infer<
+  typeof DistributionTrackingGroupSchema
 >;
 
 // export type DistributionEventDetails = {
@@ -73,7 +86,7 @@ export interface Product {
 export interface Size {
   id: string;
   label: string;
-};
+}
 
 export interface IPackingListEntry {
   id: string;
@@ -83,7 +96,7 @@ export interface IPackingListEntry {
 }
 
 export interface IPackingListEntryForPackingState extends IPackingListEntry {
-  matchingPackedItemsCollections: (UnboxedItemsCollectionData | BoxData)[]
+  matchingPackedItemsCollections: (UnboxedItemsCollectionData | BoxData)[];
 }
 
 export interface ItemsCollection {
@@ -103,15 +116,16 @@ export interface BoxData extends ItemsCollection {
   labelIdentifier: string;
 }
 
-export interface UnboxedItemsCollectionData extends ItemsCollection  {
+export interface UnboxedItemsCollectionData extends ItemsCollection {
   __typename: "UnboxedItemsCollection";
 }
 
 export const DistroEventForSpotSchema = z.object({
   id: z.string(),
-  startDateTime: z.string().transform(v=> new Date(v)),
-  state: DistributionEventStateSchema
-})
+  plannedStartDateTime: z.string().transform((v) => new Date(v)),
+  plannedEndDateTime: z.string().transform((v) => new Date(v)),
+  state: DistributionEventStateSchema,
+});
 
 export type DistroEventForSpot = z.infer<typeof DistroEventForSpotSchema>;
 
@@ -133,16 +147,21 @@ export type GeoData = z.infer<typeof GeoDataSchema>;
 export const DistributionSpotCoreDataSchema = z.object({
   name: z.string().min(2),
   geoData: GeoDataSchema.nullish(),
-  comment: z.string().nullish()
+  comment: z.string().nullish(),
 });
 
-export type DistributionSpotCoreData = z.infer<typeof DistributionSpotCoreDataSchema>;
+export type DistributionSpotCoreData = z.infer<
+  typeof DistributionSpotCoreDataSchema
+>;
 
-export const DistributionSpotEnrichedDataSchema = DistributionSpotCoreDataSchema.extend({
-  id: z.string().min(1),
-  baseId: z.string().min(1),
-  nextDistroEventDate: z.date().nullish(),
-  distroEvents: z.array(DistroEventForSpotSchema)
-});
+export const DistributionSpotEnrichedDataSchema =
+  DistributionSpotCoreDataSchema.extend({
+    id: z.string().min(1),
+    baseId: z.string().min(1),
+    nextDistroEventDate: z.date().nullish(),
+    distroEvents: z.array(DistroEventForSpotSchema),
+  });
 
-export type DistributionSpotEnrichedData = z.infer<typeof DistributionSpotEnrichedDataSchema>;
+export type DistributionSpotEnrichedData = z.infer<
+  typeof DistributionSpotEnrichedDataSchema
+>;

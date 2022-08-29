@@ -32,7 +32,6 @@ import {
 import DistroEventsCalendarContainer from "./components/DistroEventsCalendar/DistroEventsCalendarContainer";
 import DistroEventsStatistics from "./components/DistroEventsStatistics";
 import DistributionList from "./components/DistributionList";
-import DistributionListForReturnTracking from "./components/DistributionListForReturnTracking";
 
 const DistrosDashboardView = () => {
   const baseId = useParams<{ baseId: string }>().baseId;
@@ -89,9 +88,8 @@ const DistrosDashboardView = () => {
     .array(DistributionEventDetailsSchema)
     .parse(data?.base?.distributionEvents);
 
-
-    console.log('baseId', baseId)
-    console.log('data', data)
+  console.log("baseId", baseId);
+  console.log("data", data);
 
   return (
     <Box>
@@ -101,7 +99,6 @@ const DistrosDashboardView = () => {
       >
         <TabList>
           <Tab>Distributions</Tab>
-          <Tab>Track Returns</Tab>
           <Tab>Calendar View</Tab>
           <Tab>Statistics</Tab>
         </TabList>
@@ -109,11 +106,6 @@ const DistrosDashboardView = () => {
         <TabPanels>
           <TabPanel>
             <DistributionList
-              distributionEventsData={parsedDistributionEventsData}
-            />
-          </TabPanel>
-          <TabPanel>
-            <DistributionListForReturnTracking
               distributionEventsData={parsedDistributionEventsData}
             />
           </TabPanel>

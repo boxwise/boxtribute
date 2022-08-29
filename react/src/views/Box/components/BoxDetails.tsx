@@ -251,14 +251,19 @@ const BoxDetails = ({
                           <Text>
                             <b>{distributionEvent?.distributionSpot?.name}</b>
                           </Text>
-                          <DistributionEventTimeRangeDisplay
-                            plannedStartDateTime={
-                              new Date(distributionEvent.plannedStartDateTime)
-                            }
-                            plannedEndDateTime={
-                              new Date(distributionEvent.plannedEndDateTime)
-                            }
-                          />
+                          <Box
+                            as="time"
+                            dateTime={distributionEvent.plannedStartDateTime.toUTCString()}
+                          >
+                            <DistributionEventTimeRangeDisplay
+                              plannedStartDateTime={
+                                new Date(distributionEvent.plannedStartDateTime)
+                              }
+                              plannedEndDateTime={
+                                new Date(distributionEvent.plannedEndDateTime)
+                              }
+                            />
+                          </Box>
                           <Text>{distributionEvent?.name}</Text>
                           <Text>
                             {distroEventStateHumanReadableLabels.get(

@@ -235,7 +235,7 @@ type Base {
   # probably better to have filter parameters and only one query operation
   distributionEventsInReturnedFromDistributionState: [DistributionEvent!]!
 
-  distributionEventsTrackingGroups: [DistributionEventsTrackingGroup!]!
+  distributionEventsTrackingGroups(states: [DistributionEventsTrackingGroupState!]): [DistributionEventsTrackingGroup!]!
 }
 
 """
@@ -304,7 +304,7 @@ type DistributionEventsTrackingEntry {
   numberOfItems: Int!
   distributionEventsTrackingGroup: DistributionEventsTrackingGroup!
   dateTimeOfTracking: Datetime!
-  direction: DistributionEventTrackingFlowDirection!
+  flowDirection: DistributionEventTrackingFlowDirection!
 }
 
 """
@@ -315,6 +315,7 @@ type DistributionEventsTrackingGroup {
   state: DistributionEventsTrackingGroupState!
   distributionEvents: [DistributionEvent!]!
   distributionEventsTrackingEntries: [DistributionEventsTrackingEntry!]!
+  createdOn: Datetime!
 }
 
 """

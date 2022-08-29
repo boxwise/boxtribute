@@ -19,7 +19,8 @@ import CreateDistributionEventView from "views/Distributions/CreateDistributionE
 import CreateDistributionSpotView from "views/Distributions/CreateDistributionSpotView/CreateDistributionSpotView";
 import BaseDashboardView from "views/BaseDashboard/BaseDashboardView";
 import BoxCreateView from "views/BoxCreate/BoxCreateView";
-import DistrosReturnTrackingView from "views/Distributions/DistrosReturnTrackingView/DistrosReturnTrackingView";
+import DistrosReturnTrackingGroupView from "views/Distributions/DistributionReturnTrackings/DistrosReturnTrackingGroupView/DistrosReturnTrackingGroupView";
+import DistributionReturnTrackingsView from "views/Distributions/DistributionReturnTrackings/DistributionReturnTrackingsView/DistributionReturnTrackingsView";
 
 const useLoadAndSetAvailableBases = () => {
   const BASES_QUERY = gql`
@@ -56,8 +57,9 @@ const useLoadAndSetAvailableBases = () => {
   useEffect(() => {
     const getToken = async () => {
       const token = await getAccessTokenSilently();
-      const decodedToken =
-        jwt<{ "https://www.boxtribute.com/organisation_id": string }>(token);
+      const decodedToken = jwt<{
+        "https://www.boxtribute.com/organisation_id": string;
+      }>(token);
       const organisationId =
         decodedToken["https://www.boxtribute.com/organisation_id"];
       dispatch({
@@ -89,7 +91,13 @@ const App = () => {
             </Route>
             <Route path="distributions">
               <Route index element={<DistrosDashboardView />} />
-              <Route path="return-trackings/:trackingGroupId" element={<DistrosReturnTrackingView />} />
+              <Route path="return-trackings">
+                <Route index element={<DistributionReturnTrackingsView />} />
+                <Route
+                  path=":trackingGroupId"
+                  element={<DistrosReturnTrackingGroupView />}
+                />
+              </Route>
               <Route path="events">
                 <Route path=":eventId">
                   <Route index element={<DistroEventView />} />

@@ -11,6 +11,9 @@ from ariadne import (
     convert_kwargs_to_snake_case,
 )
 from boxtribute_server.exceptions import MobileDistroFeatureFlagNotAssignedToUser
+from boxtribute_server.models.definitions.distribution_event_tracking_log_entry import (
+    DistributionEventTrackingLogEntry,
+)
 from flask import g
 from peewee import fn
 
@@ -213,6 +216,24 @@ def resolve_beneficiary(*_, id):
     beneficiary = Beneficiary.get_by_id(id)
     authorize(permission="beneficiary:read", base_id=beneficiary.base_id)
     return beneficiary
+
+
+@distribution_events_tracking_group.field("distributionEventsTrackingEntries")
+def resolve_distribution_tracking_entries_for_tracking_group(
+    distribution_events_tracking_group_obj, _
+):
+    mobile_distro_feature_flag_check(user_id=g.user.id)
+    authorize(
+        permission="distro_event:read",
+        base_id=distribution_events_tracking_group_obj.base_id,
+    )
+    distribution_events = DistributionEventTrackingLogEntry.select().where(
+        (
+            DistributionEventTrackingLogEntry.distro_event_tracking_group_id
+            == distribution_events_tracking_group_obj.id
+        )
+    )
+    return distribution_events
 
 
 @distribution_events_tracking_group.field("distributionEvents")
@@ -606,6 +627,8 @@ def resolve_start_distribution_events_tracking_group(
 ):
     mobile_distro_feature_flag_check(user_id=g.user.id)
     authorize(permission="distro_event:write", base_id=base_id)
+    # TODO: do validation check that there is at least one
+    # distribution event in the list
     return start_distribution_events_tracking_group(
         user_id=g.user.id,
         distribution_event_ids=distribution_event_ids,
@@ -614,7 +637,7 @@ def resolve_start_distribution_events_tracking_group(
     )
 
 
-@mutation.field("trackReturnOfItemsForDistributionEventsTrackingGroup")
+@mutation.field("setReturnedNumberOfItemsForDistributionEventsTrackingGroup")
 @convert_kwargs_to_snake_case
 def resolve_track_return_of_items_for_distribution_events_tracking_group(
     *_, distribution_events_tracking_group_id, product_id, size_id, number_of_items
@@ -1048,15 +1071,18 @@ def resolve_packing_list_entries(obj, *_):
 @distribution_event.field("distributionEventsTrackingGroup")
 def resolve_tracking_group_of_distribution_event(distro_event_obj, *_):
     mobile_distro_feature_flag_check(user_id=g.user.id)
-    authorize(permission="distribution_event:read")
+    authorize(permission="distro_event:read")
     return distro_event_obj.distribution_events_tracking_group
 
 
 @base.field("distributionEventsTrackingGroups")
-def resolve_base_distribution_events_tracking_groups(base_obj, *_):
+def resolve_base_distribution_events_tracking_groups(base_obj, _, states=None):
     mobile_distro_feature_flag_check(user_id=g.user.id)
-    authorize(permission="distribution_event:read")
-    return DistributionEventsTrackingGroup.select().where(base_id=base_obj.id)
+    authorize(permission="distro_event:read")
+    state_filter = DistributionEventsTrackingGroup.state << states if states else True
+    return DistributionEventsTrackingGroup.select().where(
+        (DistributionEventsTrackingGroup.base == base_obj.id) & (state_filter)
+    )
 
 
 @base.field("distributionEventsBeforeReturnedFromDistributionState")

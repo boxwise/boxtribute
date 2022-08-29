@@ -6,6 +6,8 @@ import {
   Checkbox,
   Heading,
   Link,
+  List,
+  ListItem,
   Stack,
   Text,
   VStack,
@@ -25,7 +27,10 @@ import {
   weekDayNumberToWeekDayName,
 } from "utils/helpers";
 import { START_DISTRIBUTION_EVENTS_TRACKING_GROUP_MUTATION } from "views/Distributions/queries";
-import { DistributionEventDetails } from "views/Distributions/types";
+import {
+  DistributionEventDetails,
+  DistributionTrackingGroup,
+} from "views/Distributions/types";
 
 interface CheckboxGroupProps {
   groupName: string;
@@ -73,8 +78,10 @@ function CheckboxGroup({
 
 const DistributionListForReturnTracking = ({
   distributionEventsData,
+  returnTrackingGroups,
 }: {
   distributionEventsData: DistributionEventDetails[];
+  returnTrackingGroups: DistributionTrackingGroup[];
 }) => {
   const navigate = useNavigate();
   const baseId = useParams<{ baseId: string }>().baseId!;
@@ -113,61 +120,31 @@ const DistributionListForReturnTracking = ({
     .map((events, date) => ({ date: parseISO(date), events }))
     .value();
 
-  // TODO: name the following const better/more specific
-  // Or consider to move them together with the jsx/template code below
-  // into a dedicated component
-  // const allValues = sortedDistroEventsWhichNeedReturnTracking.map(
-  //   (el) => el.id
-  // );
-  const [selectedValues, setSelectedValues] = useState([] as string[]);
-
-  // const [
-  //   startDistributionEventsTrackingGroupMutation,
-  //   startDistributionEventsTrackingGroupMutationStatus,
-  // ] = useMutation<
-  //   StartDistributionEventsTrackingGroupMutation,
-  //   StartDistributionEventsTrackingGroupMutationVariables
-  // >(START_DISTRIBUTION_EVENTS_TRACKING_GROUP_MUTATION, {
-  //   // refetchQueries: [refetchBoxByLabelIdentifierQueryConfig(labelIdentifier)],
-  // });
+  const [selectedDistributionEventIds, setSelectedDistributionEventIds] =
+    useState([] as string[]);
 
   const apolloClient = useApolloClient();
 
   const onStartReturnTrackingClick = () => {
     apolloClient
-    .query<
-    StartDistributionEventsTrackingGroupMutation,
-    StartDistributionEventsTrackingGroupMutationVariables
-  >({
-      query: START_DISTRIBUTION_EVENTS_TRACKING_GROUP_MUTATION,
-      variables: {
-        baseId,
-        distributionEventIds: selectedValues,
-        // returnedToLocationId: null,
-
-      },
-      fetchPolicy: "no-cache",
-    })
-    .then(({ data, error, errors }) => {
-     navigate({
-       pathname: `/bases/${baseId}/distributions/return-trackings/${data.startDistributionEventsTrackingGroup?.id}`,
-     });
-    })
-    // navigate({
-    //   pathname: `/bases/${baseId}/distributions/return-tracking`,
-    //   search: `?distroEventIds[]=${selectedValues.join("&distroEventIds[]=")}`,
-    // });
-    // call mutation to start return tracking with all event ids
-    // navigate to the return tracking view of the newly created return tracking
+      .query<
+        StartDistributionEventsTrackingGroupMutation,
+        StartDistributionEventsTrackingGroupMutationVariables
+      >({
+        query: START_DISTRIBUTION_EVENTS_TRACKING_GROUP_MUTATION,
+        variables: {
+          baseId,
+          distributionEventIds: selectedDistributionEventIds,
+          // returnedToLocationId: null,
+        },
+        fetchPolicy: "no-cache",
+      })
+      .then(({ data, error, errors }) => {
+        navigate({
+          pathname: `/bases/${baseId}/distributions/return-trackings/${data.startDistributionEventsTrackingGroup?.id}`,
+        });
+      });
   };
-
-  // if(startDistributionEventsTrackingGroupMutationStatus.error) {
-  //   return <>Error</>
-  // }
-
-  // if(startDistributionEventsTrackingGroupMutationStatus.loading) {
-  //   return <APILoadingIndicator />
-  // }
 
   return (
     <VStack>
@@ -175,7 +152,26 @@ const DistributionListForReturnTracking = ({
         <Heading as="h3" size="md">
           Ongoing Return Trackings
         </Heading>
-        <Text>There are currently no ongoing Return Trackings.</Text>
+        {returnTrackingGroups.length > 0 && (
+          <List>
+            {returnTrackingGroups.map((group) => (
+              <ListItem key={group.id}>
+                <Link
+                  href={`/bases/${baseId}/distributions/return-trackings/${group.id}`}
+                >
+                  <>
+                    {group.createdOn.toLocaleDateString()} -{" "}
+                    {group.createdOn.toLocaleTimeString()} (
+                    {group.distributionEvents.length} Events)
+                  </>
+                </Link>
+              </ListItem>
+            ))}
+          </List>
+        )}
+        {returnTrackingGroups.length === 0 && (
+          <Text>There are currently no ongoing Return Trackings.</Text>
+        )}
       </VStack>
 
       <VStack>
@@ -221,11 +217,11 @@ const DistributionListForReturnTracking = ({
                   key={date.toISOString()}
                   groupName={groupName}
                   allValuesWithLabels={allValuesWithLabelsOfCurrentGroup}
-                  selectedValues={selectedValues.filter((el) =>
+                  selectedValues={selectedDistributionEventIds.filter((el) =>
                     allValuesOfCurrentGroup.includes(el)
                   )}
                   onChange={(newSelectedValues, newUnselectedValues) => {
-                    setSelectedValues((prev) => {
+                    setSelectedDistributionEventIds((prev) => {
                       return [
                         ...prev.filter(
                           (el) => !newUnselectedValues.includes(el)
@@ -240,7 +236,12 @@ const DistributionListForReturnTracking = ({
           })}
         </Box>
 
-        <Button my={2} onClick={onStartReturnTrackingClick} colorScheme="blue">
+        <Button
+          my={2}
+          onClick={onStartReturnTrackingClick}
+          colorScheme="blue"
+          disabled={selectedDistributionEventIds.length <= 0}
+        >
           Start return tracking
         </Button>
       </VStack>

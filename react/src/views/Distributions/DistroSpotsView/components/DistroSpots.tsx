@@ -13,8 +13,8 @@ import {
 } from "@chakra-ui/react";
 import React from "react";
 import { distroEventStateHumanReadableLabels } from "views/Distributions/baseData";
+import DistributionEventTimeRangeDisplay from "views/Distributions/components/DistributionEventTimeRangeDisplay";
 import { DistributionSpotEnrichedData } from "views/Distributions/types";
-
 
 interface DistroSpotsProps {
   distroSpots: DistributionSpotEnrichedData[];
@@ -77,8 +77,18 @@ const DistroSpots = ({
                         }}
                         onClick={() => onDistroEventClick(distroEvent.id)}
                       >
-                        <Box>
-                          Date: {distroEvent.startDateTime?.toLocaleString()}
+                        <Box
+                          as="time"
+                          dateTime={distroEvent.plannedStartDateTime.toUTCString()}
+                        >
+                          <DistributionEventTimeRangeDisplay
+                            plannedStartDateTime={
+                              new Date(distroEvent.plannedStartDateTime)
+                            }
+                            plannedEndDateTime={
+                              new Date(distroEvent.plannedEndDateTime)
+                            }
+                          />
                         </Box>
                         <Box>
                           Status:
