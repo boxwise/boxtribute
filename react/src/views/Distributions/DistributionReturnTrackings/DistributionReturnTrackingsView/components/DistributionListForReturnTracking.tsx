@@ -120,12 +120,6 @@ const DistributionListForReturnTracking = ({
     .map((events, date) => ({ date: parseISO(date), events }))
     .value();
 
-  // TODO: name the following const better/more specific
-  // Or consider to move them together with the jsx/template code below
-  // into a dedicated component
-  // const allValues = sortedDistroEventsWhichNeedReturnTracking.map(
-  //   (el) => el.id
-  // );
   const [selectedDistributionEventIds, setSelectedDistributionEventIds] =
     useState([] as string[]);
 
@@ -150,21 +144,7 @@ const DistributionListForReturnTracking = ({
           pathname: `/bases/${baseId}/distributions/return-trackings/${data.startDistributionEventsTrackingGroup?.id}`,
         });
       });
-    // navigate({
-    //   pathname: `/bases/${baseId}/distributions/return-tracking`,
-    //   search: `?distroEventIds[]=${selectedValues.join("&distroEventIds[]=")}`,
-    // });
-    // call mutation to start return tracking with all event ids
-    // navigate to the return tracking view of the newly created return tracking
   };
-
-  // if(startDistributionEventsTrackingGroupMutationStatus.error) {
-  //   return <>Error</>
-  // }
-
-  // if(startDistributionEventsTrackingGroupMutationStatus.loading) {
-  //   return <APILoadingIndicator />
-  // }
 
   return (
     <VStack>
