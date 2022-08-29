@@ -344,6 +344,9 @@ export const DISTRIBUTION_EVENT_QUERY = gql`
         id
         name
       }
+      distributionEventsTrackingGroup {
+        id
+      }
     }
   }
 `;

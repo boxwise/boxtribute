@@ -9,6 +9,7 @@ import {
   Box,
   Button,
   Flex,
+  Heading,
   Link,
   Text,
   useDisclosure,
@@ -127,9 +128,13 @@ const DistroEventContainer = ({
     [DistributionEventState.ReturnedFromDistribution]: () => (
       <Flex w={[300, 400, 600]} direction="column" mb={4}>
         <Text textAlign={"center"}>
-          You didn't start any Return Tracking for this Event yet. <br /> To do so, please go to
-          the{" "}
+          <Heading as="h3" size="md">
+            Returned from Distribution
+          </Heading>
+          You didn't start any Return Tracking for this Event yet. <br /> To do
+          so, please go to the{" "}
           <Link
+            color={"blue.100"}
             as={RouterLink}
             to={`${getBaseRootUrlForCurrentBase()}/distributions/return-trackings`}
           >
@@ -140,7 +145,26 @@ const DistroEventContainer = ({
       </Flex>
     ),
     [DistributionEventState.ReturnTrackingInProgress]: () => (
-      <Box>Return Tracking In Progress</Box>
+      // TODO: Consider to do validation check here that the
+      // return tracking group id is actually present
+      <Flex w={[300, 400, 600]} direction="column" mb={4}>
+        <Text textAlign={"center"}>
+          <Heading as="h3" size="md">
+            Return Tracking In Progress
+          </Heading>
+          Go to the{" "}
+          <Link
+            textDecoration="underline"
+            as={RouterLink}
+            to={`${getBaseRootUrlForCurrentBase()}/distributions/return-trackings/${
+              distributionEventDetails?.distributionEventsTrackingGroup?.id
+            }`}
+          >
+            Return Tracking
+          </Link>{" "}
+          in which this Distro Event is part of.
+        </Text>
+      </Flex>
     ),
     [DistributionEventState.Completed]: () => <Box>Completed</Box>,
   };
