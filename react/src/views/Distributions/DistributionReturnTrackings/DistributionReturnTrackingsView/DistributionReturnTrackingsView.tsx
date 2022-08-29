@@ -1,6 +1,6 @@
 import { useQuery } from "@apollo/client";
 import APILoadingIndicator from "components/APILoadingIndicator";
-import { useNavigate, useParams } from "react-router-dom";
+import { useParams } from "react-router-dom";
 import {
   DataForReturnTrackingOverviewForBaseQuery,
   DataForReturnTrackingOverviewForBaseQueryVariables,
