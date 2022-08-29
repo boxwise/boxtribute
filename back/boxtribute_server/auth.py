@@ -159,9 +159,10 @@ class CurrentUser:
                     base_prefix, permission = raw_permission.split("/")
                     ids = [int(b) for b in base_prefix[5:].split("-")]
                 except ValueError:
-                    # No base_ prefix, permission granted for all bases
+                    # Organisation admins don't have base_ prefixes, permission granted
+                    # for all bases indicated by custom 'base_ids' claim
                     permission = raw_permission
-                    ids = None
+                    ids = payload[f"{JWT_CLAIM_PREFIX}/base_ids"]
                 base_ids[permission] = ids
 
                 resource, method = permission.split(":")
@@ -179,8 +180,6 @@ class CurrentUser:
         return name in self._base_ids
 
     def authorized_base_ids(self, permission):
-        if self.is_god:
-            return None
         return self._base_ids[permission]
 
     @property
