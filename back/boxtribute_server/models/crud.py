@@ -75,6 +75,7 @@ def update_box(
     location_id=None,
     product_id=None,
     size_id=None,
+    state=None,
 ):
     """Look up an existing Box given a UUID, and update all requested fields.
     Insert timestamp for modification and return the box.
@@ -95,6 +96,8 @@ def update_box(
         box.product = product_id
     if size_id is not None:
         box.size = size_id
+    if state is not None:
+        box.state = state
 
     box.last_modified_by = user_id
     box.last_modified_on = utcnow()

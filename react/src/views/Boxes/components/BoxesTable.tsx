@@ -1,4 +1,4 @@
-import React, { useMemo } from "react";
+import React, { useMemo, useState } from "react";
 import {
   TriangleDownIcon,
   TriangleUpIcon,
@@ -142,7 +142,6 @@ const BoxesTable = ({ tableData, onBoxRowClick }: BoxesTableProps) => {
         Header: "Box Number",
         accessor: "labelIdentifier",
         id: "labelIdentifier",
-
       },
       {
         Header: "Gender",
@@ -187,7 +186,7 @@ const BoxesTable = ({ tableData, onBoxRowClick }: BoxesTableProps) => {
   );
 
   const [selectedColumns, setSelectedColumns] =
-    React.useState<Column<BoxRow>[]>(availableColumns);
+    useState<Column<BoxRow>[]>(availableColumns);
   const orderedSelectedColumns = useMemo(
     () =>
       selectedColumns.sort(
