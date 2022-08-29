@@ -4,6 +4,9 @@ import { useNavigate, useParams } from "react-router-dom";
 
 export const useGetUrlForResourceHelpers = () => {
   const baseId = useParams<{ baseId: string }>().baseId;
+  if(baseId == null) {
+    throw new Error("Coudl not extract baseId from URL");
+  }
 
   const getBaseRootUrlForCurrentBase = () =>
     `/bases/${baseId}`;
@@ -15,6 +18,7 @@ export const useGetUrlForResourceHelpers = () => {
     `/bases/${baseId}/distributions/events/${distroEventId}`;
 
   return {
+    getBaseId: () => baseId,
     getDistroSpotDetailUrlById,
     getDistroEventDetailUrlById,
     getBaseRootUrlForCurrentBase
