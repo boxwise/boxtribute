@@ -70,14 +70,40 @@ const CardWithTwoElements = ({
 
 const downloadCsvExport = (baseId: string) => {
   const rows = [
-    ["productId", "Category", "Product Name", "Gender", "sizeId", "Size Name", "Number of Items on Distro", "Number of Items Returned", "Actually distributed number of items", "Earliest possible distro date", "Latest possible distro date", "Potentially involved Distro Spots"],
-    ["1", "T-Shirts", "Dummy T-Shirt 1", "Unisex", "99", "Dummy Size XL", "123", "23", "100", "2022-08-02", "2022-08-28", "Horgos River; LIDL"],
+    [
+      "productId",
+      "Category",
+      "Product Name",
+      "Gender",
+      "sizeId",
+      "Size Name",
+      "Number of Items on Distro",
+      "Number of Items Returned",
+      "Actually distributed number of items",
+      "Earliest possible distro date",
+      "Latest possible distro date",
+      "Potentially involved Distro Spots",
+    ],
+    [
+      "1",
+      "T-Shirts",
+      "Dummy T-Shirt 1",
+      "Unisex",
+      "99",
+      "Dummy Size XL",
+      "123",
+      "23",
+      "100",
+      "2022-08-02",
+      "2022-08-28",
+      "Horgos River; LIDL",
+    ],
   ];
 
   const csvContent =
     "data:text/csv;charset=utf-8," + rows.map((e) => e.join(",")).join("\n");
 
-  const dateStr = format(new Date(), 'MM-dd-yyyy-HH-mm-ss');
+  const dateStr = format(new Date(), "MM-dd-yyyy-HH-mm-ss");
   const filename = `boxtribute_base_${baseId}_distributions_export_${dateStr}.csv`;
   const encodedUri = encodeURI(csvContent);
   const link = document.createElement("a");
