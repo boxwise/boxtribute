@@ -76,6 +76,12 @@ const theme = extendTheme({
       //   color: "blue",
       //   textDecoration: "underline",
       // },
+      variants: {
+        "inline-link": {
+          color: "blue",
+          textDecoration: "underline",
+        },
+      },
     },
     FormLabel: {
       baseStyle: {

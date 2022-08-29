@@ -95,11 +95,11 @@ const DistroEventContainer = ({
     ]
   );
 
-  const onConfirmToMarkEventAsCompleted = useCallback(() => {
+  const onConfirmToMarkEventAsReturnedFromDistribution = useCallback(() => {
     moveEventToStageMutation({
       variables: {
         distributionEventId: distributionEventDetails.id,
-        newState: DistributionEventState.Completed,
+        newState: DistributionEventState.ReturnedFromDistribution,
       },
     });
     nextStageTransitionAlertState.onClose();
@@ -124,7 +124,7 @@ const DistroEventContainer = ({
         distributionEventDetails={distributionEventDetails}
       />
     ),
-    [DistributionEventState.OnDistro]: () => <Box>OnDistro</Box>,
+    [DistributionEventState.OnDistro]: () => <Box>This Distro Event is current on Distribution!</Box>,
     [DistributionEventState.ReturnedFromDistribution]: () => (
       <Flex w={[300, 400, 600]} direction="column" mb={4}>
         <Text textAlign={"center"}>
@@ -134,7 +134,7 @@ const DistroEventContainer = ({
           You didn't start any Return Tracking for this Event yet. <br /> To do
           so, please go to the{" "}
           <Link
-            color={"blue.100"}
+            variant={"inline-link"}
             as={RouterLink}
             to={`${getBaseRootUrlForCurrentBase()}/distributions/return-trackings`}
           >
@@ -154,7 +154,7 @@ const DistroEventContainer = ({
           </Heading>
           Go to the{" "}
           <Link
-            textDecoration="underline"
+            variant={"inline-link"}
             as={RouterLink}
             to={`${getBaseRootUrlForCurrentBase()}/distributions/return-trackings/${
               distributionEventDetails?.distributionEventsTrackingGroup?.id
@@ -179,7 +179,8 @@ const DistroEventContainer = ({
         />
         <Box>
           <Link
-            href={getDistroSpotDetailUrlById(
+            as={RouterLink}
+            to={getDistroSpotDetailUrlById(
               distributionEventDetails.distributionSpot.id
             )}
           >
@@ -242,7 +243,7 @@ const DistroEventContainer = ({
               </Button>
               <Button
                 colorScheme="red"
-                onClick={onConfirmToMarkEventAsCompleted}
+                onClick={onConfirmToMarkEventAsReturnedFromDistribution}
                 ml={3}
               >
                 Mark Event as Returned
