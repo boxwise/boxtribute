@@ -186,7 +186,7 @@ const BoxesTable = ({ tableData, onBoxRowClick }: BoxesTableProps) => {
   );
 
   const [selectedColumns, setSelectedColumns] =
-    React.useState<Column<BoxRow>[]>(availableColumns);
+    useState<Column<BoxRow>[]>(availableColumns);
   const orderedSelectedColumns = useMemo(
     () =>
       selectedColumns.sort(
