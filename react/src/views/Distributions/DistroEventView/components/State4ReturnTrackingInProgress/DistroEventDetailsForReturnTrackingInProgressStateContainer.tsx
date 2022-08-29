@@ -3,14 +3,11 @@ import { Flex, Heading, Link, Text } from "@chakra-ui/react";
 import APILoadingIndicator from "components/APILoadingIndicator";
 import { Link as RouterLink } from "react-router-dom";
 import {
-  PackingListEntriesForDistributionEventQuery,
-  PackingListEntriesForDistributionEventQueryVariables,
   ReturnTrackingGroupIdForDistributionEventQuery,
   ReturnTrackingGroupIdForDistributionEventQueryVariables
 } from "types/generated/graphql";
 import { useGetUrlForResourceHelpers } from "utils/hooks";
-import { graphqlPackingListEntriesForDistributionEventTransformer } from "views/Distributions/dataTransformers";
-import { PACKING_LIST_ENTRIES_FOR_DISTRIBUTION_EVENT_QUERY, RETURN_TRACKING_GROUP_ID_FOR_DISTRIBUTION_EVENT_QUERY } from "views/Distributions/queries";
+import { RETURN_TRACKING_GROUP_ID_FOR_DISTRIBUTION_EVENT_QUERY } from "views/Distributions/queries";
 import {
   DistributionEventDetails
 } from "views/Distributions/types";

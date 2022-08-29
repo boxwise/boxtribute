@@ -14,25 +14,21 @@ import {
   EditablePreview,
   Heading,
   HStack,
-  Input,
   List,
   ListItem,
   Text,
   useDisclosure,
   VStack,
 } from "@chakra-ui/react";
-import { zodResolver } from "@hookform/resolvers/zod";
 import APILoadingIndicator from "components/APILoadingIndicator";
 import _ from "lodash";
 import { useRef, useState } from "react";
-import { useForm } from "react-hook-form";
 import { useNavigate, useParams } from "react-router-dom";
 import {
   CompleteDistributionEventsTrackingGroupMutation,
   CompleteDistributionEventsTrackingGroupMutationVariables,
   DistributionEventsTrackingGroupQuery,
   DistributionEventsTrackingGroupQueryVariables,
-  DistributionEventsTrackingGroupState,
   DistributionEventTrackingFlowDirection,
   SetReturnedNumberOfItemsForDistributionEventsTrackingGroupMutation,
   SetReturnedNumberOfItemsForDistributionEventsTrackingGroupMutationVariables,
@@ -47,58 +43,7 @@ import {
 import {
   DistributionEventDetails,
   DistributionEventDetailsSchema,
-  Product,
-  Size,
 } from "../../types";
-
-// interface ItemCollectionDataForReturnTracking {
-//   productSizeIdTuple: string;
-//   product?: Product | null;
-//   size?: Size | null;
-//   outgoingNumberOfItems: number;
-//   trackedAsReturnedNumberOfItems: number;
-//   // numberOfItems?: number | null;
-// }
-
-// TODO: get rid of this quite hack groupBy logic
-// replace it e.g. by more elegant lodash method chaining
-// Or, even better, by specific GraphQL/BE queries which return the required final outcome
-// const squashByProductAndSizeWithSumForNumberOfItems = (
-//   itemCollection: ItemCollectionDataForReturnTracking[]
-// ) => {
-//   const helper = new Map<string, ItemCollectionDataForReturnTracking>();
-//   const result = itemCollection.reduce((r, o) => {
-//     var key = o.product?.id + "-" + o.size?.id;
-
-//     if (!helper.has(key)) {
-//       const newEntry = Object.assign({}, o);
-//       helper.set(key, newEntry);
-//       r.push(newEntry);
-//     } else {
-//       const existingObject = helper.get(key)!;
-//       existingObject.numberOfItems =
-//         (existingObject.numberOfItems || 0) + (o.numberOfItems || 0);
-//     }
-
-//     return r;
-//   }, [] as ItemCollectionDataForReturnTracking[]);
-//   return result;
-// };
-
-interface ITrackingEntry {
-  id: string;
-  numberOfItems: number;
-  flowDirection: DistributionEventTrackingFlowDirection;
-  product?: Product | null;
-  size?: Size | null;
-}
-
-// interface ITrackingEntriesByFlowDirection {
-//   // flowDirection: string;
-//   // trackingEntries: ITrackingEntry[];
-//   numberOfItemsWentOut: number;
-//   numberOfItemsReturned: number;
-// }
 
 interface ITrackingEntryForSize {
   sizeId: string;
@@ -215,12 +160,14 @@ const DistributionEventList = ({
         >
           {/* <Box>Id: {distroEvent.id}</Box> */}
           <Box
-              as="time"
-              dateTime={distroEvent.plannedStartDateTime.toUTCString()}
-            ><DistributionEventTimeRangeDisplay
-            plannedStartDateTime={distroEvent.plannedStartDateTime}
-            plannedEndDateTime={distroEvent.plannedEndDateTime}
-          /></Box>
+            as="time"
+            dateTime={distroEvent.plannedStartDateTime.toUTCString()}
+          >
+            <DistributionEventTimeRangeDisplay
+              plannedStartDateTime={distroEvent.plannedStartDateTime}
+              plannedEndDateTime={distroEvent.plannedEndDateTime}
+            />
+          </Box>
           <Box>
             {distroEvent.distributionSpot.name}
             {!!distroEvent.name && <> - ({distroEvent.name})</>}
@@ -307,28 +254,25 @@ const TrackingEntry = ({
 const SummaryOfItemsInDistributionEvents = ({
   trackingEntriesByProductAndSizeAndFlowDirection,
   trackingGroupId,
-  onDoneWithCountingClick
+  onDoneWithCountingClick,
 }: {
-  // itemsCollectionsDataGroupedByProduct: {
-  //   product: Product;
   trackingEntriesByProductAndSizeAndFlowDirection: ITrackingEntriesByProductAndSizeAndFlowDirection;
   trackingGroupId: string;
   onDoneWithCountingClick: () => void;
-  // }[];
 }) => {
-  const TrackReturnsFormDataSchema = z.object({
-    numberOfItemsForProductAndSize: z.array(
-      z.object({
-        productId: z.string(),
-        sizeAndNumberOfItems: z.array(
-          z.object({
-            sizeId: z.string(),
-            numberOfItems: z.number(),
-          })
-        ),
-      })
-    ),
-  });
+  // const TrackReturnsFormDataSchema = z.object({
+  //   numberOfItemsForProductAndSize: z.array(
+  //     z.object({
+  //       productId: z.string(),
+  //       sizeAndNumberOfItems: z.array(
+  //         z.object({
+  //           sizeId: z.string(),
+  //           numberOfItems: z.number(),
+  //         })
+  //       ),
+  //     })
+  //   ),
+  // });
 
   // type TrackReturnsFormData = z.infer<typeof TrackReturnsFormDataSchema>;
 
@@ -365,21 +309,11 @@ const SummaryOfItemsInDistributionEvents = ({
   // TODO: do success and error handling here
   // (so: user feedback and - in error case - additional error logging)
 
-  // const methods = useForm<TrackReturnsFormData>({
-  //   resolver: zodResolver(TrackReturnsFormDataSchema),
-  // });
-  // const { handleSubmit, register } = methods;
-
-  // const onSubmit = (values: TrackReturnsFormData) => {
-  //   alert(JSON.stringify(values));
-  // };
-
   return (
     <VStack>
       <Heading size="md" mt={10}>
         Items in these Distribution Events
       </Heading>
-      {/* <form onSubmit={handleSubmit(onSubmit)}> */}
       <List>
         {trackingEntriesByProductAndSizeAndFlowDirection.map(
           (squashedItemsCollectionsGroupForProduct) => {
@@ -426,7 +360,6 @@ const SummaryOfItemsInDistributionEvents = ({
       <Button my={2} colorScheme="blue" onClick={onDoneWithCountingClick}>
         Done with counting the returned items. *
       </Button>
-      {/* </form> */}
     </VStack>
   );
 };

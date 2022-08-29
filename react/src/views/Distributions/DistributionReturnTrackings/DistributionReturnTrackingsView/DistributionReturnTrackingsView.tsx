@@ -4,14 +4,9 @@ import { useNavigate, useParams } from "react-router-dom";
 import {
   DataForReturnTrackingOverviewForBaseQuery,
   DataForReturnTrackingOverviewForBaseQueryVariables,
-  DistributionEventsForBaseQuery,
-  DistributionEventsForBaseQueryVariables,
 } from "types/generated/graphql";
 import { z } from "zod";
-import {
-  DATA_FOR_RETURN_TRACKING_OVERVIEW_FOR_BASE_QUERY,
-  DISTRIBUTION_EVENTS_FOR_BASE_ID,
-} from "../../queries";
+import { DATA_FOR_RETURN_TRACKING_OVERVIEW_FOR_BASE_QUERY } from "../../queries";
 import {
   DistributionEventDetailsSchema,
   DistributionTrackingGroup,
@@ -21,9 +16,6 @@ import DistributionListForReturnTracking from "./components/DistributionListForR
 
 const DistributionReturnTrackingsView = () => {
   const baseId = useParams<{ baseId: string }>().baseId;
-
-  const navigate = useNavigate();
-  // TODO: consider to extract this out into custom hook (if it really makes sense!)
 
   const { data, error, loading } = useQuery<
     DataForReturnTrackingOverviewForBaseQuery,

@@ -1,5 +1,3 @@
-import { Box } from "@chakra-ui/react";
-
 interface DistributionEventTimeRangeDisplayProps {
   plannedStartDateTime: Date;
   plannedEndDateTime: Date;
