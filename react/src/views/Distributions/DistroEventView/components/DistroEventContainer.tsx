@@ -36,6 +36,7 @@ import {
 } from "views/Distributions/types";
 import DistroEventDetailsForPlanningStateContainer from "./State1Planning/DistroEventDetailsForPlanningStateContainer";
 import DistroEventDetailsForPackingStateContainer from "./State2Packing/DistroEventDetailsForPackingStateContainer";
+import DistroEventDetailsForReturnTrackingInProgressStateContainer from "./State4ReturnTrackingInProgress/DistroEventDetailsForReturnTrackingInProgressStateContainer";
 
 export interface DistroEventContainerProps {
   distributionEventDetails: DistributionEventDetails;
@@ -145,26 +146,9 @@ const DistroEventContainer = ({
       </Flex>
     ),
     [DistributionEventState.ReturnTrackingInProgress]: () => (
-      // TODO: Consider to do validation check here that the
-      // return tracking group id is actually present
-      <Flex w={[300, 400, 600]} direction="column" mb={4}>
-        <Text textAlign={"center"}>
-          <Heading as="h3" size="md">
-            Return Tracking In Progress
-          </Heading>
-          Go to the{" "}
-          <Link
-            variant={"inline-link"}
-            as={RouterLink}
-            to={`${getBaseRootUrlForCurrentBase()}/distributions/return-trackings/${
-              distributionEventDetails?.distributionEventsTrackingGroup?.id
-            }`}
-          >
-            Return Tracking
-          </Link>{" "}
-          in which this Distro Event is part of.
-        </Text>
-      </Flex>
+      <DistroEventDetailsForReturnTrackingInProgressStateContainer
+      distributionEventDetails={distributionEventDetails}
+    />
     ),
     [DistributionEventState.Completed]: () => <Box>Completed</Box>,
   };

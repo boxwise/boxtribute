@@ -125,6 +125,17 @@ export const MOVE_ITEMS_TO_DISTRIBUTION_EVENT = gql`
   }
 `;
 
+
+
+export const RETURN_TRACKING_GROUP_ID_FOR_DISTRIBUTION_EVENT_QUERY = gql`
+query ReturnTrackingGroupIdForDistributionEvent($distributionEventId: ID!) {
+  distributionEvent(id: $distributionEventId) {
+    distributionEventsTrackingGroup {
+      id
+    }
+  }
+}`;
+
 export const PACKING_LIST_ENTRIES_FOR_DISTRIBUTION_EVENT_QUERY = gql`
   query PackingListEntriesForDistributionEvent($distributionEventId: ID!) {
     distributionEvent(id: $distributionEventId) {
@@ -343,9 +354,6 @@ export const DISTRIBUTION_EVENT_QUERY = gql`
       distributionSpot {
         id
         name
-      }
-      distributionEventsTrackingGroup {
-        id
       }
     }
   }

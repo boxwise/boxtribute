@@ -34,7 +34,6 @@ export const DistributionEventDetailsSchema = z.object({
   plannedEndDateTime: z.string().transform((v) => new Date(v)),
   state: DistributionEventStateSchema,
   distributionSpot: DistributionSpotSchema,
-  distributionEventsTrackingGroup: z.object({ id: z.string().nullish() }).nullish(),
 });
 
 export type DistributionEventDetails = z.infer<
