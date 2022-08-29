@@ -251,10 +251,7 @@ const BoxDetails = ({
                           <Text>
                             <b>{distributionEvent?.distributionSpot?.name}</b>
                           </Text>
-                          <Box
-                            as="time"
-                            dateTime={distributionEvent.plannedStartDateTime.toUTCString()}
-                          >
+                          <Box>
                             <DistributionEventTimeRangeDisplay
                               plannedStartDateTime={
                                 new Date(distributionEvent.plannedStartDateTime)
