@@ -176,9 +176,6 @@ class CurrentUser:
             base_ids=base_ids,
         )
 
-    def has_permission(self, name):
-        return name in self._base_ids
-
     def authorized_base_ids(self, permission):
         return self._base_ids[permission]
 
