@@ -117,9 +117,8 @@ class CurrentUser:
 
     def __init__(self, *, id, organisation_id=None, is_god=False, base_ids=None):
         """The `base_ids` field is a mapping of a permission name to a list of base IDs
-        that the permission is granted for, or to None if the permission is granted for
-        all bases. However it is never exposed directly to avoid accidental
-        manipulation.
+        that the permission is granted for. However it is never exposed directly to
+        avoid accidental manipulation.
         The `organisation_id` field is set to None for god users.
         """
         self._id = id
@@ -132,11 +131,12 @@ class CurrentUser:
         """Extract user information from custom claims in JWT payload. The prefix and
         the claim names are set by an Action script in Auth0.
         The `permissions` custom claim contains entries of form
-        '[base_X[-Y...]/]resource:method'. Any write/edit permission implies read
-        permission on the same resource. E.g.
+        '[base_X[-Y...]/]resource:method'. If no base prefix is given, the value from
+        the `base_ids` custom claim is used.
+        Any write/edit permission implies read permission on the same resource. E.g.
         - base_1/product:read    -> {"product:read": [1]}
         - base_2-3/stock:write   -> {"stock:write": [2, 3], "stock:read": [2, 3]}
-        - beneficiary:edit       -> {"beneficiary:edit": None, "beneficiary:read": None}
+        - beneficiary:edit       -> {"beneficiary:edit": [], "beneficiary:read": []}
 
         If the permissions custom claim is a list with a single entry "*", it indicates
         that the current user is a god user.
