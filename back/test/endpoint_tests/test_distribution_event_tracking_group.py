@@ -12,7 +12,7 @@ def test_distribution_event_tracking_group_statistics(
     default_product,
 ):
     mocker.patch("jose.jwt.decode").return_value = create_jwt_payload(
-        base_ids=[1],
+        base_ids=[1, 2],
         organisation_id=1,
         user_id=1,
         permissions=[
@@ -20,6 +20,7 @@ def test_distribution_event_tracking_group_statistics(
             "base_1/location:write",
             "base_1/distro_event:write",
             "base_1/stock:write",
+            "base_1/stock:read",
             "base_1/unboxed_items_collection:write",
         ],
     )
@@ -92,7 +93,21 @@ def test_distribution_event_tracking_group_statistics(
         read_only_client, assign_items_from_box_to_distro_event_1_mutation
     )
 
-    # TODO: assign items for product x, size a to distro event 1
+    get_new_number_of_items_of_box = f"""query {{
+      box(labelIdentifier: "{another_box['label_identifier']}") {{
+        numberOfItems
+      }}
+    }}"""
+
+    box_with_number_of_items = assert_successful_request(
+        read_only_client, get_new_number_of_items_of_box
+    )
+
+    assert (
+        box_with_number_of_items["numberOfItems"] == another_box["number_of_items"] - 5
+    )
+
+    # TODO: expect that box has less number of items now
     # TODO: create distro event 2
     # TODO: assign box with items for product x, size a to distro event 2
     # TODO: move distro event 1 to "ReturntoBase"
