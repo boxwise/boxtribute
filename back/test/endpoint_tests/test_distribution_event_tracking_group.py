@@ -8,7 +8,6 @@ def test_distribution_event_tracking_group_statistics(
     mocker,
     default_base,
     default_box,
-    another_box,
     default_product,
 ):
     mocker.patch("jose.jwt.decode").return_value = create_jwt_payload(
@@ -24,6 +23,22 @@ def test_distribution_event_tracking_group_statistics(
             "base_1/unboxed_items_collection:write",
         ],
     )
+
+    put_items_into_box = f"""mutation {{
+      updateBox(
+        updateInput: {{
+          labelIdentifier: "{default_box["label_identifier"]}"
+          numberOfItems: 10
+        }}
+        ) {{
+          numberOfItems
+        }}
+    }}"""
+
+    default_box_with_number_of_items = assert_successful_request(
+        read_only_client, put_items_into_box
+    )
+    assert default_box_with_number_of_items["numberOfItems"] == 10
 
     create_distribution_spot_1_mutation = f"""mutation {{
       createDistributionSpot(
@@ -67,9 +82,9 @@ def test_distribution_event_tracking_group_statistics(
 
     assign_items_from_box_to_distro_event_1_mutation = f"""mutation {{
       moveItemsFromBoxToDistributionEvent(
-        boxLabelIdentifier: {another_box['label_identifier']}
+        boxLabelIdentifier: {default_box['label_identifier']}
         distributionEventId: {distribution_event_1['id']}
-        numberOfItems: 5
+        numberOfItems: 6
         ) {{
         id
         numberOfItems
@@ -94,7 +109,7 @@ def test_distribution_event_tracking_group_statistics(
     )
 
     get_new_number_of_items_of_box = f"""query {{
-      box(labelIdentifier: "{another_box['label_identifier']}") {{
+      box(labelIdentifier: "{default_box['label_identifier']}") {{
         numberOfItems
       }}
     }}"""
@@ -103,9 +118,7 @@ def test_distribution_event_tracking_group_statistics(
         read_only_client, get_new_number_of_items_of_box
     )
 
-    assert (
-        box_with_number_of_items["numberOfItems"] == another_box["number_of_items"] - 5
-    )
+    assert box_with_number_of_items["numberOfItems"] == 4
 
     # TODO: expect that box has less number of items now
     # TODO: create distro event 2
