@@ -35,6 +35,7 @@ export const DISTRO_SPOTS_FOR_BASE_ID = gql`
           name
           state
           plannedStartDateTime
+          plannedEndDateTime
         }
       }
     }
@@ -124,6 +125,17 @@ export const MOVE_ITEMS_TO_DISTRIBUTION_EVENT = gql`
   }
 `;
 
+
+
+export const RETURN_TRACKING_GROUP_ID_FOR_DISTRIBUTION_EVENT_QUERY = gql`
+query ReturnTrackingGroupIdForDistributionEvent($distributionEventId: ID!) {
+  distributionEvent(id: $distributionEventId) {
+    distributionEventsTrackingGroup {
+      id
+    }
+  }
+}`;
+
 export const PACKING_LIST_ENTRIES_FOR_DISTRIBUTION_EVENT_QUERY = gql`
   query PackingListEntriesForDistributionEvent($distributionEventId: ID!) {
     distributionEvent(id: $distributionEventId) {
@@ -173,45 +185,63 @@ export const DISTRIBUTION_EVENTS_TRACKING_GROUP_QUERY = gql`
   query DistributionEventsTrackingGroup($trackingGroupId: ID!) {
     distributionEventsTrackingGroup(id: $trackingGroupId) {
       id
+      distributionEventsTrackingEntries {
+        id
+        product {
+          id
+          name
+          gender
+          category {
+            id
+            name
+          }
+        }
+        size {
+          id
+          label
+        }
+        numberOfItems
+        flowDirection
+      }
       distributionEvents {
         id
         state
         name
-        boxes {
-          labelIdentifier
-          product {
-            id
-            name
-            category {
-              name
-            }
-          }
-          size {
-            id
-            label
-          }
-          numberOfItems
-        }
+        # boxes {
+        #   labelIdentifier
+        #   product {
+        #     id
+        #     name
+        #     category {
+        #       name
+        #     }
+        #   }
+        #   size {
+        #     id
+        #     label
+        #   }
+        #   numberOfItems
+        # }
+        # unboxedItemsCollections {
+        #   product {
+        #     id
+        #     name
+        #     category {
+        #       name
+        #     }
+        #   }
+        #   size {
+        #     id
+        #     label
+        #   }
+        #   numberOfItems
+        # }
         distributionSpot {
           id
           name
         }
         plannedStartDateTime
         plannedEndDateTime
-        unboxedItemsCollections {
-          product {
-            id
-            name
-            category {
-              name
-            }
-          }
-          size {
-            id
-            label
-          }
-          numberOfItems
-        }
       }
     }
   }
@@ -263,14 +293,12 @@ export const DISTRIBUTION_EVENTS_IN_RETURN_STATE_FOR_BASE = gql`
 export const START_DISTRIBUTION_EVENTS_TRACKING_GROUP_MUTATION = gql`
   mutation StartDistributionEventsTrackingGroup(
     $distributionEventIds: [ID!]!
-    $baseId: ID!
-  ) # $returnedToLocationId: ID
-  {
+    $baseId: ID! # $returnedToLocationId: ID
+  ) {
     startDistributionEventsTrackingGroup(
       distributionEventIds: $distributionEventIds
-      baseId: $baseId
-    ) # returnedToLocationId: $returnedToLocationId
-    {
+      baseId: $baseId # returnedToLocationId: $returnedToLocationId
+    ) {
       id
       distributionEvents {
         id
@@ -327,6 +355,70 @@ export const DISTRIBUTION_EVENT_QUERY = gql`
         id
         name
       }
+    }
+  }
+`;
+
+export const DATA_FOR_RETURN_TRACKING_OVERVIEW_FOR_BASE_QUERY = gql`
+  query DataForReturnTrackingOverviewForBase($baseId: ID!) {
+    base(id: $baseId) {
+      distributionEventsTrackingGroups(states: [InProgress]) {
+        id
+        state
+        createdOn
+        distributionEvents {
+          id
+          name
+          plannedStartDateTime
+          plannedEndDateTime
+          state
+          distributionSpot {
+            id
+            name
+          }
+        }
+      }
+      distributionEvents(states: [ReturnedFromDistribution]) {
+        id
+        name
+        plannedStartDateTime
+        plannedEndDateTime
+        state
+        distributionSpot {
+          id
+          name
+        }
+      }
+    }
+  }
+`;
+
+export const SET_RETURNED_NUMBER_OF_ITEMS_FOR_DISTRIBUTION_EVENTS_TRACKING_GROUP_MUTATION = gql`
+  mutation SetReturnedNumberOfItemsForDistributionEventsTrackingGroup(
+    $distributionEventsTrackingGroupId: ID!
+    $productId: ID!
+    $sizeId: ID!
+    $numberOfReturnedItems: Int!
+  ) {
+    setReturnedNumberOfItemsForDistributionEventsTrackingGroup(
+      distributionEventsTrackingGroupId: $distributionEventsTrackingGroupId
+      productId: $productId
+      sizeId: $sizeId
+      numberOfItems: $numberOfReturnedItems
+    ) {
+      id
+    }
+  }
+`;
+
+export const COMPLETE_DISTRIBUTION_EVENTS_TRACKING_GROUP_MUTATION = gql`
+  mutation CompleteDistributionEventsTrackingGroup(
+    $distributionEventsTrackingGroupId: ID!
+  ) {
+    completeDistributionEventsTrackingGroup(
+      id: $distributionEventsTrackingGroupId
+    ) {
+      id
     }
   }
 `;

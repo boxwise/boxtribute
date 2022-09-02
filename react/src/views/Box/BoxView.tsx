@@ -7,12 +7,15 @@ import {
   AssignBoxToDistributionEventMutationVariables,
   BoxByLabelIdentifierQuery,
   BoxByLabelIdentifierQueryVariables,
+  BoxState,
   UnassignBoxFromDistributionEventMutation,
   UnassignBoxFromDistributionEventMutationVariables,
   UpdateLocationOfBoxMutation,
   UpdateLocationOfBoxMutationVariables,
   UpdateNumberOfItemsMutation,
   UpdateNumberOfItemsMutationVariables,
+  UpdateStateMutationVariables,
+  UpdateStateMutation,
 } from "types/generated/graphql";
 import AddItemsToBoxOverlay from "./components/AddItemsToBoxOverlay";
 import TakeItemsFromBoxOverlay from "./components/TakeItemsFromBoxOverlay";
@@ -35,6 +38,7 @@ export const BOX_BY_LABEL_IDENTIFIER_QUERY = gql`
   query BoxByLabelIdentifier($labelIdentifier: String!) {
     box(labelIdentifier: $labelIdentifier) {
       labelIdentifier
+      state
       size {
         id
         label
@@ -101,7 +105,17 @@ export const UPDATE_NUMBER_OF_ITEMS_IN_BOX_MUTATION = gql`
   }
 `;
 
-export const UPDATE_LOCATION_OF_BOX_MUTATION = gql`
+export const UPDATE_STATE_IN_BOX_MUTATION = gql`
+  mutation UpdateState($boxLabelIdentifier: String!, $newState: BoxState!) {
+    updateBox(
+      updateInput: { labelIdentifier: $boxLabelIdentifier, state: $newState }
+    ) {
+      labelIdentifier
+    }
+  }
+`;
+
+export const UPDATE_BOX_MUTATION = gql`
   mutation UpdateLocationOfBox(
     $boxLabelIdentifier: String!
     $newLocationId: Int!
@@ -117,11 +131,22 @@ export const UPDATE_LOCATION_OF_BOX_MUTATION = gql`
         id
         label
       }
+      state
       numberOfItems
       product {
         name
         gender
         id
+        sizeRange {
+          sizes {
+            id
+            label
+          }
+        }
+      }
+      tags {
+        id
+        name
       }
       tags {
         id
@@ -167,6 +192,7 @@ export interface ChangeNumberOfItemsBoxData {
   numberOfItems: number;
 }
 
+
 const BTBox = () => {
   const labelIdentifier = useParams<{ labelIdentifier: string }>()
     .labelIdentifier!;
@@ -207,13 +233,24 @@ const BTBox = () => {
     refetchQueries: [refetchBoxByLabelIdentifierQueryConfig(labelIdentifier)],
   });
 
+  const [updateStateMutation] = useMutation<
+    UpdateStateMutation,
+    UpdateStateMutationVariables
+  >(UPDATE_STATE_IN_BOX_MUTATION, {
+    refetchQueries: [
+      {
+        query: BOX_BY_LABEL_IDENTIFIER_QUERY,
+        variables: {
+          labelIdentifier: labelIdentifier,
+        },
+      },
+    ],
+  });
+
   const [updateBoxLocation, updateBoxLocationMutationStatus] = useMutation<
     UpdateLocationOfBoxMutation,
     UpdateLocationOfBoxMutationVariables
-  >(UPDATE_LOCATION_OF_BOX_MUTATION, {
-    refetchQueries: [refetchBoxByLabelIdentifierQueryConfig(labelIdentifier)],
-    // notifyOnNetworkStatusChange: true
-  });
+  >(UPDATE_BOX_MUTATION);
 
   const {
     isOpen: isPlusOpen,
@@ -253,6 +290,26 @@ const BTBox = () => {
 
   const boxData = data?.box;
 
+  const onScrap = () => {
+    updateStateMutation({
+      variables: {
+        boxLabelIdentifier: labelIdentifier,
+        newState: BoxState.Scrap,
+      },
+      // refetchQueries: [refetchBoxByLabelIdentifierQueryConfig(labelIdentifier)],
+    });
+  };
+
+  const onLost = () => {
+    updateStateMutation({
+      variables: {
+        boxLabelIdentifier: labelIdentifier,
+        newState: BoxState.Lost,
+      },
+      // refetchQueries: [refetchBoxByLabelIdentifierQueryConfig(labelIdentifier)],
+    });
+  };
+
   const onSubmitTakeItemsFromBox = (
     boxFormValues: ChangeNumberOfItemsBoxData
   ) => {
@@ -283,7 +340,7 @@ const BTBox = () => {
     if (
       boxFormValues.numberOfItems &&
       boxFormValues.numberOfItems > 0 &&
-      boxData?.numberOfItems
+      (boxData?.numberOfItems || boxData?.numberOfItems === 0)
     ) {
       updateNumberOfItemsMutation({
         variables: {
@@ -309,6 +366,7 @@ const BTBox = () => {
         boxLabelIdentifier: labelIdentifier,
         newLocationId: parseInt(locationId),
       },
+      refetchQueries: [refetchBoxByLabelIdentifierQueryConfig(labelIdentifier)],
     });
   };
 
@@ -339,6 +397,8 @@ const BTBox = () => {
         onPlusOpen={onPlusOpen}
         onMinusOpen={onMinusOpen}
         onMoveToLocationClick={onMoveBoxToLocationClick}
+        onLost={onLost}
+        onScrap={onScrap}
         onAssignBoxToDistributionEventClick={
           onAssignBoxToDistributionEventClick
         }

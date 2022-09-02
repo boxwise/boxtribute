@@ -1,5 +1,3 @@
-import { Box } from "@chakra-ui/react";
-
 interface DistributionEventTimeRangeDisplayProps {
   plannedStartDateTime: Date;
   plannedEndDateTime: Date;
@@ -10,11 +8,19 @@ const DistributionEventTimeRangeDisplay = ({
   plannedEndDateTime,
 }: DistributionEventTimeRangeDisplayProps) => {
   return (
-    <Box as="time" dateTime={plannedStartDateTime.toUTCString()}>
+    <>
       {plannedStartDateTime.toDateString()} (
-      {plannedStartDateTime.toLocaleTimeString()}-{" "}
-      {plannedEndDateTime.toLocaleTimeString()})
-    </Box>
+      {plannedStartDateTime.toLocaleTimeString([], {
+        hour: "2-digit",
+        minute: "2-digit",
+      })}
+      -{" "}
+      {plannedEndDateTime.toLocaleTimeString([], {
+        hour: "2-digit",
+        minute: "2-digit",
+      })}
+      )
+    </>
   );
 };
 

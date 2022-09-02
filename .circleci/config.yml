@@ -366,18 +366,18 @@ workflows:
             branches:
               only:
                 - production
-      - deploy:
-          name: deploy-api-demo
-          context: DEMO
-          serviceName: api-demo
-          requires:
-            - test-flask
-          filters:
-            tags:
-              ignore: /.*/
-            branches:
-              only:
-                - production
+      # - deploy:
+      #     name: deploy-api-demo
+      #     context: DEMO
+      #     serviceName: api-demo
+      #     requires:
+      #       - test-flask
+      #     filters:
+      #       tags:
+      #         ignore: /.*/
+      #       branches:
+      #         only:
+      #           - production
 
       # production
       - build-and-test-react:
@@ -400,13 +400,13 @@ workflows:
             branches:
               only:
                 - production
-      - deploy:
-          name: deploy-api-production
-          context: PRODUCTION
-          serviceName: api-production
-          requires:
-            - test-flask
-          filters:
-            branches:
-              only:
-                - production
+      # - deploy:
+      #     name: deploy-api-production
+      #     context: PRODUCTION
+      #     serviceName: api-production
+      #     requires:
+      #       - test-flask
+      #     filters:
+      #       branches:
+      #         only:
+      #           - production

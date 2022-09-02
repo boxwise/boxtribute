@@ -34,7 +34,7 @@ def authorize(
         if authorized and base_id is not None:
             # Enforce base-specific permission
             base_ids = current_user.authorized_base_ids(permission)
-            authorized = True if base_ids is None else int(base_id) in base_ids
+            authorized = int(base_id) in base_ids
     elif organisation_id is not None:
         authorized = organisation_id == current_user.organisation_id
     elif organisation_ids is not None:
@@ -62,12 +62,11 @@ def base_filter_condition(model=Base):
     the lower-case model name must match the permission resource name.
     See also `auth.requires_auth()`.
     """
-    permission = f"{model.__name__.lower()}:read"
-    base_ids = g.user.authorized_base_ids(permission)
-    if base_ids is None:
-        # Permission granted for all bases
+    if g.user.is_god:
         return True
 
+    permission = f"{model.__name__.lower()}:read"
+    base_ids = g.user.authorized_base_ids(permission)
     pattern = Base.id if model is Base else model.base
     return pattern << base_ids
 

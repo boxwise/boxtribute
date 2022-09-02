@@ -17,6 +17,7 @@ input BoxUpdateInput {
   numberOfItems: Int
   locationId: Int
   comment: String
+  state: BoxState
 }
 
 input BeneficiaryCreationInput {

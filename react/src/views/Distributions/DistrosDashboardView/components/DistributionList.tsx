@@ -1,4 +1,5 @@
 import {
+  Box,
   Button,
   Heading,
   LinkBox,
@@ -12,12 +13,11 @@ import { isToday } from "date-fns";
 import isFuture from "date-fns/isFuture";
 import isPast from "date-fns/isPast";
 import _ from "lodash";
+import { NavLink } from "react-router-dom";
 import { DistributionEventState } from "types/generated/graphql";
 import { useGetUrlForResourceHelpers } from "utils/hooks";
 import DistributionEventTimeRangeDisplay from "views/Distributions/components/DistributionEventTimeRangeDisplay";
-import {
-  DistributionEventDetails,
-} from "views/Distributions/types";
+import { DistributionEventDetails } from "views/Distributions/types";
 
 const ListOfEvents = ({
   distributionEventsListData,
@@ -31,14 +31,22 @@ const ListOfEvents = ({
       {distributionEventsListData.map((distributionEventData) => (
         <ListItem key={distributionEventData.id} my={5}>
           <LinkBox maxW="sm" p="5" borderWidth="1px" rounded="md">
-            <DistributionEventTimeRangeDisplay
-              plannedStartDateTime={distributionEventData.plannedStartDateTime}
-              plannedEndDateTime={distributionEventData.plannedEndDateTime}
-            />
+            <Box
+              as="time"
+              dateTime={distributionEventData.plannedStartDateTime.toUTCString()}
+            >
+              <DistributionEventTimeRangeDisplay
+                plannedStartDateTime={
+                  distributionEventData.plannedStartDateTime
+                }
+                plannedEndDateTime={distributionEventData.plannedEndDateTime}
+              />
+            </Box>
 
             <Heading size="md" my="2">
               <LinkOverlay
-                href={getDistroEventDetailUrlById(distributionEventData.id)}
+                to={getDistroEventDetailUrlById(distributionEventData.id)}
+                as={NavLink}
               >
                 {distributionEventData.distributionSpot.name}{" "}
                 {!!distributionEventData.name && (
@@ -103,7 +111,7 @@ const DistributionList = ({
       </Button>
       {hasDistroEventsToday && (
         <>
-          <Heading as="h4" py={10}>
+          <Heading as="h4" py={7}>
             Today
           </Heading>
           <ListOfEvents distributionEventsListData={distroEventsToday} />
@@ -124,7 +132,7 @@ const DistributionList = ({
 
       {hasPastDistroEvents && (
         <>
-          <Heading as="h4" pt={10}>
+          <Heading as="h4" pt={7}>
             Past
           </Heading>
           {hasPastNonCompletedDistroEvents && (

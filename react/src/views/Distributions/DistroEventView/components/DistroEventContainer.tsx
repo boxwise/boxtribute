@@ -8,6 +8,8 @@ import {
   AlertDialogOverlay,
   Box,
   Button,
+  Flex,
+  Heading,
   Link,
   Text,
   useDisclosure,
@@ -15,12 +17,14 @@ import {
 } from "@chakra-ui/react";
 import BTBreadcrumbNavigation from "components/BTBreadcrumbNavigation";
 import React, { useCallback } from "react";
+import { Link as RouterLink } from "react-router-dom";
 import {
   ChangeDistributionEventStateMutation,
   ChangeDistributionEventStateMutationVariables,
   DistributionEventState,
 } from "types/generated/graphql";
 import { useGetUrlForResourceHelpers } from "utils/hooks";
+import DistributionEventTimeRangeDisplay from "views/Distributions/components/DistributionEventTimeRangeDisplay";
 import DistributionStateProgressBar from "views/Distributions/components/DistributionStateProgressBar";
 import {
   CHANGE_DISTRIBUTION_EVENT_STATE_MUTATION,
@@ -32,6 +36,7 @@ import {
 } from "views/Distributions/types";
 import DistroEventDetailsForPlanningStateContainer from "./State1Planning/DistroEventDetailsForPlanningStateContainer";
 import DistroEventDetailsForPackingStateContainer from "./State2Packing/DistroEventDetailsForPackingStateContainer";
+import DistroEventDetailsForReturnTrackingInProgressStateContainer from "./State4ReturnTrackingInProgress/DistroEventDetailsForReturnTrackingInProgressStateContainer";
 
 export interface DistroEventContainerProps {
   distributionEventDetails: DistributionEventDetails;
@@ -59,12 +64,20 @@ const DistroEventContainer = ({
     ],
   });
 
+  const { getBaseRootUrlForCurrentBase } = useGetUrlForResourceHelpers();
+
   const nextStageTransitionAlertState = useDisclosure();
   const cancelNextStageTransitionRef = React.useRef<HTMLButtonElement>(null);
 
   const onMoveToStage = useCallback(
     (state: DistributionEventState) => {
-      if (state === DistributionEventStateSchema.enum.Completed) {
+      if (
+        [
+          DistributionEventStateSchema.enum.ReturnedFromDistribution,
+          DistributionEventStateSchema.enum.ReturnTrackingInProgress,
+          DistributionEventStateSchema.enum.Completed,
+        ].includes(state)
+      ) {
         nextStageTransitionAlertState.onOpen();
         return;
       }
@@ -83,11 +96,11 @@ const DistroEventContainer = ({
     ]
   );
 
-  const onConfirmToMarkEventAsCompleted = useCallback(() => {
+  const onConfirmToMarkEventAsReturnedFromDistribution = useCallback(() => {
     moveEventToStageMutation({
       variables: {
         distributionEventId: distributionEventDetails.id,
-        newState: DistributionEventState.Completed,
+        newState: DistributionEventState.ReturnedFromDistribution,
       },
     });
     nextStageTransitionAlertState.onClose();
@@ -112,9 +125,31 @@ const DistroEventContainer = ({
         distributionEventDetails={distributionEventDetails}
       />
     ),
-    [DistributionEventState.OnDistro]: () => <Box>OnDistro</Box>,
-    [DistributionEventState.ReturnedFromDistribution]: () => <Box>Returned</Box>,
-    [DistributionEventState.ReturnTrackingInProgress]: () => <Box>Return Trackign In Progress</Box>,
+    [DistributionEventState.OnDistro]: () => <Box>This Distro Event is current on Distribution!</Box>,
+    [DistributionEventState.ReturnedFromDistribution]: () => (
+      <Flex w={[300, 400, 600]} direction="column" mb={4}>
+        <Text textAlign={"center"}>
+          <Heading as="h3" size="md">
+            Returned from Distribution
+          </Heading>
+          You didn't start any Return Tracking for this Event yet. <br /> To do
+          so, please go to the{" "}
+          <Link
+            variant={"inline-link"}
+            as={RouterLink}
+            to={`${getBaseRootUrlForCurrentBase()}/distributions/return-trackings`}
+          >
+            Return Tracking page
+          </Link>{" "}
+          and start a Return Tracking which includes this Distribution Event.
+        </Text>
+      </Flex>
+    ),
+    [DistributionEventState.ReturnTrackingInProgress]: () => (
+      <DistroEventDetailsForReturnTrackingInProgressStateContainer
+      distributionEventDetails={distributionEventDetails}
+    />
+    ),
     [DistributionEventState.Completed]: () => <Box>Completed</Box>,
   };
 
@@ -127,13 +162,30 @@ const DistroEventContainer = ({
           items={[{ label: 'Base "Subotica"', linkPath: "X" }]}
         />
         <Box>
-          <Link href={getDistroSpotDetailUrlById(distributionEventDetails.distributionSpot.id)}>
+          <Link
+            as={RouterLink}
+            to={getDistroSpotDetailUrlById(
+              distributionEventDetails.distributionSpot.id
+            )}
+          >
             <Text fontSize="xl">
               {distributionEventDetails.distributionSpot.name}
             </Text>
           </Link>
-          <Text fontSize="xl" mb={2} borderBottom="1px" borderColor="gray.300">
-            {distributionEventDetails.plannedStartDateTime?.toDateString()}
+          <Text
+            fontSize="xl"
+            mb={2}
+            borderBottom="1px"
+            borderColor="gray.300"
+            as="time"
+            dateTime={distributionEventDetails.plannedStartDateTime.toUTCString()}
+          >
+            <DistributionEventTimeRangeDisplay
+              plannedStartDateTime={
+                distributionEventDetails.plannedStartDateTime
+              }
+              plannedEndDateTime={distributionEventDetails.plannedEndDateTime}
+            />
           </Text>
           <DistributionStateProgressBar
             activeState={distributionEventDetails.state}
@@ -159,7 +211,7 @@ const DistroEventContainer = ({
         <AlertDialogOverlay>
           <AlertDialogContent>
             <AlertDialogHeader fontSize="lg" fontWeight="bold">
-              Mark Distribution Event as Completed
+              Mark as Returned From Distribution
             </AlertDialogHeader>
 
             <AlertDialogBody>
@@ -175,10 +227,10 @@ const DistroEventContainer = ({
               </Button>
               <Button
                 colorScheme="red"
-                onClick={onConfirmToMarkEventAsCompleted}
+                onClick={onConfirmToMarkEventAsReturnedFromDistribution}
                 ml={3}
               >
-                Mark Event as Completed
+                Mark Event as Returned
               </Button>
             </AlertDialogFooter>
           </AlertDialogContent>

@@ -323,7 +323,7 @@ def test_permission_scope(read_only_client, mocker, default_bases, method):
     )
     query = "query { bases { id } }"
     bases = assert_successful_request(read_only_client, query)
-    assert len(bases) == len(default_bases)
+    assert bases == [{"id": "1"}]
 
 
 def test_permission_for_god_user(

@@ -1,9 +1,9 @@
 import { gql, useQuery } from "@apollo/client";
-import { BoxesForBaseQuery } from "../../types/generated/graphql";
 import { useNavigate, useParams } from "react-router-dom";
 import BoxesTable from "./components/BoxesTable";
 import { BoxRow } from "./components/types";
 import APILoadingIndicator from "components/APILoadingIndicator";
+import { BoxesForBaseQuery } from "types/generated/graphql";
 
 export const BOXES_FOR_BASE_QUERY = gql`
   query BoxesForBase($baseId: ID!) {

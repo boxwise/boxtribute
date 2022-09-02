@@ -28,10 +28,13 @@ interface BoxDetailsProps {
   onMoveToLocationClick: (locationId: string) => void;
   onPlusOpen: () => void;
   onMinusOpen: () => void;
+  onScrap: () => void;
+  onLost: () => void;
   onAssignBoxToDistributionEventClick: (distributionEventId: string) => void;
   onUnassignBoxFromDistributionEventClick: (
     distributionEventId: string
   ) => void;
+
 }
 
 const BoxDetails = ({
@@ -41,15 +44,18 @@ const BoxDetails = ({
   onUnassignBoxFromDistributionEventClick,
   onPlusOpen,
   onMinusOpen,
+  onScrap,
+  onLost,
 }: BoxDetailsProps) => {
-  // const allLocations = boxData?.place?.base?.locations
-  // const [preferedLocations, setPreferedLocations] = useState(allLocations);
-
-  // const setPreferedOrder = (locationId: string) => {
-  //   const newPreferedLocations = [preferedLocations].unshift(...locationId);
-
-  // const [openAddItemsModal, setOpenAddItemsModal] = useState(false);
-  // const [openRemoveItemsModal, setOpenRemoveItemsModal] = useState(false);
+  const statusColor = (value) => {
+    let color;
+    if (value === "Lost" || value === "Scrap") {
+      color = "#EB404A";
+    } else {
+      color = "#0CA789";
+    }
+    return color;
+  };
 
   const { getDistroEventDetailUrlById } = useGetUrlForResourceHelpers();
 
@@ -69,41 +75,58 @@ const BoxDetails = ({
         w={["100%", "80%", "30%", "30%"]}
         border="2px"
         mb={6}
+        pb={2}
         backgroundColor="#F4E5A0"
         mr={["0", "0", "4rem", "4rem"]}
       >
         <Flex pt={2} px={4} direction="row" justifyContent="space-between">
-          <Heading fontWeight={"bold"} mb={4} as="h2">
-            Box {boxData.labelIdentifier}
-          </Heading>
+          <Flex direction="column" mb={2}>
+            <Heading fontWeight={"bold"} as="h2">
+              Box {boxData.labelIdentifier}
+            </Heading>
+            <Flex>
+              <Text>
+                <b>State:&nbsp;</b>
+              </Text>
+              <Text color={statusColor(boxData.state)}><b>{boxData.state}</b></Text>
+            </Flex>
+          </Flex>
+
           <NavLink to="edit">
             <IconButton
               aria-label="Edit box"
-              backgroundColor="transparent"
               borderRadius="0"
               icon={<EditIcon h={6} w={6} />}
+              border="2px"
             />
           </NavLink>
         </Flex>
         <List px={4} pb={2} spacing={2}>
           <ListItem>
-            <Text fontSize="xl" fontWeight={"bold"}>
-              {boxData.numberOfItems} x {boxData.product?.name}
+
+            <Text fontSize="xl" fontWeight={"bold"} >
+              {boxData.product?.name}
             </Text>
           </ListItem>
-          <ListItem>
-            <Flex direction="row">
-              <Text mr={2}>
-                <b>Gender: </b>
-                {boxData.product?.gender}
-              </Text>
+          <ListItem >
+            <Flex alignItems="center">
+              <Box border="2px" borderRadius="0" px={2}>
+                <Text fontSize="xl" fontWeight={"bold"}>
+                 # {boxData.numberOfItems}
+                </Text>
+              </Box>
+              <Box border="2px" backgroundColor="#1A202C" borderRadius="0" px={2}>
+                <Text color='#F3E4A0' fontSize="xl" fontWeight={"bold"}>
+                  {boxData.size.label}
+                </Text>
+              </Box>
             </Flex>
           </ListItem>
           <ListItem>
-            <Flex direction="row">
-              <Text>
-                <b>Size: </b>
-                {boxData.size.label}
+            <Flex direction="row" pb={4}>
+              <Text fontSize="xl" fontWeight={"bold"}>
+                <b>{boxData.product?.gender}</b>
+
               </Text>
             </Flex>
           </ListItem>
@@ -115,24 +138,42 @@ const BoxDetails = ({
             </Flex> */}
           </ListItem>
           <ListItem>
-            <Flex direction="row" justifyContent="flex-end">
-              <IconButton
-                onClick={onPlusOpen}
-                mr={4}
-                border="2px"
-                borderRadius="0"
-                backgroundColor="transparent"
-                aria-label="Search database"
-                icon={<AddIcon />}
-              />
-              <IconButton
-                onClick={onMinusOpen}
-                border="2px"
-                borderRadius="0"
-                backgroundColor="transparent"
-                aria-label="Search database"
-                icon={<MinusIcon />}
-              />
+            <Flex justifyContent="space-between">
+              <Flex>
+                <Button
+                  onClick={onScrap}
+                  mr={4}
+                  border="2px"
+                  borderRadius="0"
+                >
+                  Scrap
+                </Button>
+                <Button
+                  onClick={onLost}
+                  mr={4}
+                  border="2px"
+                  borderRadius="0"
+                >
+                  Lost
+                </Button>
+              </Flex>
+              <Flex direction="row" justifyContent="flex-end">
+                <IconButton
+                  onClick={onPlusOpen}
+                  mr={4}
+                  border="2px"
+                  borderRadius="0"
+                  aria-label="Search database"
+                  icon={<AddIcon />}
+                />
+                <IconButton
+                  onClick={onMinusOpen}
+                  border="2px"
+                  borderRadius="0"
+                  aria-label="Search database"
+                  icon={<MinusIcon />}
+                />
+              </Flex>
             </Flex>
           </ListItem>
         </List>
@@ -161,6 +202,7 @@ const BoxDetails = ({
                     borderRadius="0px"
                     onClick={() => onMoveToLocationClick(location.id)}
                     disabled={boxData.place?.id === location.id}
+                    border="2px"
                   >
                     {location.name}
                   </Button>
@@ -209,14 +251,16 @@ const BoxDetails = ({
                           <Text>
                             <b>{distributionEvent?.distributionSpot?.name}</b>
                           </Text>
-                          <DistributionEventTimeRangeDisplay
-                            plannedStartDateTime={
-                              new Date(distributionEvent.plannedStartDateTime)
-                            }
-                            plannedEndDateTime={
-                              new Date(distributionEvent.plannedEndDateTime)
-                            }
-                          />
+                          <Box>
+                            <DistributionEventTimeRangeDisplay
+                              plannedStartDateTime={
+                                new Date(distributionEvent.plannedStartDateTime)
+                              }
+                              plannedEndDateTime={
+                                new Date(distributionEvent.plannedEndDateTime)
+                              }
+                            />
+                          </Box>
                           <Text>{distributionEvent?.name}</Text>
                           <Text>
                             {distroEventStateHumanReadableLabels.get(

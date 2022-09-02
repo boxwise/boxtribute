@@ -70,7 +70,7 @@ const BoxesBulkOperationsOverlay = ({
                   </Box>
                   <Box>
                     <Text>
-                      <b>Number of items on distro: </b>
+                      <b>Number of items: </b>
                       {boxData.numberOfItems}
                     </Text>
                   </Box>
