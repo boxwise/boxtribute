@@ -55,15 +55,15 @@ def test_distribution_event_tracking_group_statistics(
         }}
     }}"""
 
-    distribution_spot = assert_successful_request(
+    distribution_spot_1 = assert_successful_request(
         read_only_client, create_distribution_spot_1_mutation
     )
-    assert int(distribution_spot["base"]["id"]) == default_base["id"]
+    assert int(distribution_spot_1["base"]["id"]) == default_base["id"]
 
-    create_distribution_event_mutation = f"""mutation {{
+    create_distribution_event_1_mutation = f"""mutation {{
       createDistributionEvent(
         creationInput: {{
-          distributionSpotId: {distribution_spot['id']}
+          distributionSpotId: {distribution_spot_1['id']}
           name: "Test Event"
           plannedStartDateTime: "2022-08-30T14:00:00.023Z"
           plannedEndDateTime: "2022-08-30T16:00:00.023Z"
@@ -77,7 +77,7 @@ def test_distribution_event_tracking_group_statistics(
     }}"""
 
     distribution_event_1 = assert_successful_request(
-        read_only_client, create_distribution_event_mutation
+        read_only_client, create_distribution_event_1_mutation
     )
 
     assign_items_from_box_to_distro_event_1_mutation = f"""mutation {{
@@ -120,12 +120,119 @@ def test_distribution_event_tracking_group_statistics(
 
     assert box_with_number_of_items["numberOfItems"] == 4
 
-    # TODO: expect that box has less number of items now
-    # TODO: create distro event 2
-    # TODO: assign box with items for product x, size a to distro event 2
-    # TODO: move distro event 1 to "ReturntoBase"
-    # TODO: move distro event 2 to "ReturntoBase"
-    # TODO: start distro return tracking
+    create_distribution_spot_2_mutation = f"""mutation {{
+      createDistributionSpot(
+        creationInput: {{
+          baseId: {default_base['id']}
+          name: "Horgos River"
+          comment: "Test Comment 2"
+        }}
+      ){{
+          id
+          base {{
+            id
+          }}
+        }}
+    }}"""
+
+    distribution_spot_2 = assert_successful_request(
+        read_only_client, create_distribution_spot_2_mutation
+    )
+    assert int(distribution_spot_2["base"]["id"]) == default_base["id"]
+
+    create_distribution_event_2_mutation = f"""mutation {{
+      createDistributionEvent(
+        creationInput: {{
+          distributionSpotId: {distribution_spot_2['id']}
+          name: "Test Event"
+          plannedStartDateTime: "2022-08-30T14:00:00.023Z"
+          plannedEndDateTime: "2022-08-30T16:00:00.023Z"
+        }}
+      ) {{
+        id
+        name
+        plannedStartDateTime
+        plannedEndDateTime
+      }}
+    }}"""
+
+    distribution_event_2 = assert_successful_request(
+        read_only_client, create_distribution_event_2_mutation
+    )
+
+    assign_box_to_distro_event_2_mutation = f"""mutation {{
+    assignBoxToDistributionEvent(
+      boxLabelIdentifier: {default_box['label_identifier']}
+      distributionEventId: {distribution_event_2['id']}
+    ) {{
+        id
+        distributionEvent {{
+          id
+          name
+          distributionSpot {{
+            name
+          }}
+        }}
+      }}
+    }}"""
+
+    assert_successful_request(read_only_client, assign_box_to_distro_event_2_mutation)
+
+    # TODO: expect (and implement) that the state of the
+    # box is "assigned_to_distribution_event"
+
+    move_distro_event_1_to_state_return_to_base = f"""mutation {{
+      changeDistributionEventState(
+        distributionEventId: {distribution_event_1['id']}
+        newState: ReturnedFromDistribution
+      ) {{
+        id
+        state
+      }}
+    }}"""
+
+    assert_successful_request(
+        read_only_client, move_distro_event_1_to_state_return_to_base
+    )
+
+    move_distro_event_2_to_state_return_to_base = f"""mutation {{
+      changeDistributionEventState(
+        distributionEventId: {distribution_event_2['id']}
+        newState: ReturnedFromDistribution
+      ) {{
+        id
+        state
+      }}
+    }}"""
+
+    assert_successful_request(
+        read_only_client, move_distro_event_2_to_state_return_to_base
+    )
+
+    # (TODO: expect that there are exactly two distro events available
+    # for return trackings)
+
+    start_distribution_events_tracking_group_mutation = f"""mutation {{
+    startDistributionEventsTrackingGroup(
+      distributionEventIds: ["{distribution_event_1['id']}",
+      "{distribution_event_2['id']}"]
+      baseId: {default_base['id']}
+    ) {{
+        id
+        distributionEvents {{
+          id
+          distributionSpot {{
+            id
+            name
+          }}
+        }}
+      }}
+    }}"""
+
+    assert_successful_request(
+        read_only_client, start_distribution_events_tracking_group_mutation
+    )
+
     # TODO: track returns for product x, size a
     # TODO: close distro return tracking
     # TODO: query distribution event tracking group statistics and do expectations
