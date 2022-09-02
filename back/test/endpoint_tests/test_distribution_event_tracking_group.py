@@ -4,7 +4,7 @@ from utils import assert_successful_request
 
 
 def test_distribution_event_tracking_group_statistics(
-    read_only_client,
+    client,
     mocker,
     default_base,
     default_box,
@@ -36,7 +36,7 @@ def test_distribution_event_tracking_group_statistics(
     }}"""
 
     default_box_with_number_of_items = assert_successful_request(
-        read_only_client, put_items_into_box
+        client, put_items_into_box
     )
     assert default_box_with_number_of_items["numberOfItems"] == 10
 
@@ -56,7 +56,7 @@ def test_distribution_event_tracking_group_statistics(
     }}"""
 
     distribution_spot_1 = assert_successful_request(
-        read_only_client, create_distribution_spot_1_mutation
+        client, create_distribution_spot_1_mutation
     )
     assert int(distribution_spot_1["base"]["id"]) == default_base["id"]
 
@@ -77,7 +77,7 @@ def test_distribution_event_tracking_group_statistics(
     }}"""
 
     distribution_event_1 = assert_successful_request(
-        read_only_client, create_distribution_event_1_mutation
+        client, create_distribution_event_1_mutation
     )
 
     assign_items_from_box_to_distro_event_1_mutation = f"""mutation {{
@@ -104,9 +104,7 @@ def test_distribution_event_tracking_group_statistics(
       }}
     }}"""
 
-    assert_successful_request(
-        read_only_client, assign_items_from_box_to_distro_event_1_mutation
-    )
+    assert_successful_request(client, assign_items_from_box_to_distro_event_1_mutation)
 
     get_new_number_of_items_of_box = f"""query {{
       box(labelIdentifier: "{default_box['label_identifier']}") {{
@@ -115,7 +113,7 @@ def test_distribution_event_tracking_group_statistics(
     }}"""
 
     box_with_number_of_items = assert_successful_request(
-        read_only_client, get_new_number_of_items_of_box
+        client, get_new_number_of_items_of_box
     )
 
     assert box_with_number_of_items["numberOfItems"] == 4
@@ -136,7 +134,7 @@ def test_distribution_event_tracking_group_statistics(
     }}"""
 
     distribution_spot_2 = assert_successful_request(
-        read_only_client, create_distribution_spot_2_mutation
+        client, create_distribution_spot_2_mutation
     )
     assert int(distribution_spot_2["base"]["id"]) == default_base["id"]
 
@@ -157,7 +155,7 @@ def test_distribution_event_tracking_group_statistics(
     }}"""
 
     distribution_event_2 = assert_successful_request(
-        read_only_client, create_distribution_event_2_mutation
+        client, create_distribution_event_2_mutation
     )
 
     assign_box_to_distro_event_2_mutation = f"""mutation {{
@@ -176,7 +174,7 @@ def test_distribution_event_tracking_group_statistics(
       }}
     }}"""
 
-    assert_successful_request(read_only_client, assign_box_to_distro_event_2_mutation)
+    assert_successful_request(client, assign_box_to_distro_event_2_mutation)
 
     # TODO: expect (and implement) that the state of the
     # box is "assigned_to_distribution_event"
@@ -191,9 +189,7 @@ def test_distribution_event_tracking_group_statistics(
       }}
     }}"""
 
-    assert_successful_request(
-        read_only_client, move_distro_event_1_to_state_return_to_base
-    )
+    assert_successful_request(client, move_distro_event_1_to_state_return_to_base)
 
     move_distro_event_2_to_state_return_to_base = f"""mutation {{
       changeDistributionEventState(
@@ -205,9 +201,7 @@ def test_distribution_event_tracking_group_statistics(
       }}
     }}"""
 
-    assert_successful_request(
-        read_only_client, move_distro_event_2_to_state_return_to_base
-    )
+    assert_successful_request(client, move_distro_event_2_to_state_return_to_base)
 
     # (TODO: expect that there are exactly two distro events available
     # for return trackings)
@@ -230,7 +224,7 @@ def test_distribution_event_tracking_group_statistics(
     }}"""
 
     distro_reterun_tracking_group = assert_successful_request(
-        read_only_client, start_distribution_events_tracking_group_mutation
+        client, start_distribution_events_tracking_group_mutation
     )
 
     # TODO: expect that the state of the distro events is "ReturnTrackingInProgress"
@@ -252,7 +246,7 @@ def test_distribution_event_tracking_group_statistics(
     }}"""
 
     assert_successful_request(
-        read_only_client,
+        client,
         set_returned_number_of_items_of_distro_return_tracking_group_mutation,
     )
 
@@ -283,7 +277,7 @@ def test_distribution_event_tracking_group_statistics(
     #             }}
     #         }}"""
 
-    # distribution_event = assert_successful_request(read_only_client, query)
+    # distribution_event = assert_successful_request(client, query)
     # expected_distribution_event = default_distribution_event
     # assert int(distribution_event["id"]) == expected_distribution_event["id"]
     # assert distribution_event["name"] == expected_distribution_event["name"]
