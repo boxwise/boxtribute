@@ -1,15 +1,28 @@
-import { useQuery } from "@apollo/client";
+import { useMutation, useQuery } from "@apollo/client";
+import { toast, useToast } from "@chakra-ui/react";
 import APILoadingIndicator from "components/APILoadingIndicator";
+import { createContext, useCallback, useContext } from "react";
 import {
   PackingListEntriesForDistributionEventQuery,
-  PackingListEntriesForDistributionEventQueryVariables
+  PackingListEntriesForDistributionEventQueryVariables,
+  UnassignBoxFromDistributionEventMutation,
+  UnassignBoxFromDistributionEventMutationVariables,
 } from "types/generated/graphql";
 import { graphqlPackingListEntriesForDistributionEventTransformer } from "views/Distributions/dataTransformers";
-import { PACKING_LIST_ENTRIES_FOR_DISTRIBUTION_EVENT_QUERY } from "views/Distributions/queries";
 import {
-  DistributionEventDetails
-} from "views/Distributions/types";
+  DISTRIBUTION_EVENT_QUERY,
+  PACKING_LIST_ENTRIES_FOR_DISTRIBUTION_EVENT_QUERY,
+  UNASSIGN_BOX_FROM_DISTRIBUTION_MUTATION,
+} from "views/Distributions/queries";
+import { DistributionEventDetails } from "views/Distributions/types";
 import DistroEventDetailsForPackingState from "./DistroEventDetailsForPackingState";
+
+interface IDistroEventDetailsForPackingStateContext {
+  onUnassignBoxFromDistributionEvent: (labelIdentifier: string) => void;
+}
+
+export const DistroEventDetailsForPackingStateContext =
+  createContext<IDistroEventDetailsForPackingStateContext | null>(null);
 
 interface DistroEventDetailsForPackingStateProps {
   distributionEventDetails: DistributionEventDetails;
@@ -18,7 +31,68 @@ interface DistroEventDetailsForPackingStateProps {
 const DistroEventDetailsForPackingStateContainer = ({
   distributionEventDetails,
 }: DistroEventDetailsForPackingStateProps) => {
-  // const { isOpen, onOpen, onClose } = useDisclosure();
+
+  const toast = useToast();
+
+  const [unassignBoxFromDistributionEventMutation] = useMutation<
+    UnassignBoxFromDistributionEventMutation,
+    UnassignBoxFromDistributionEventMutationVariables
+  >(UNASSIGN_BOX_FROM_DISTRIBUTION_MUTATION);
+
+  const distributionEventId = distributionEventDetails.id;
+  const onUnassignBoxFromDistributionEvent = useCallback(
+    (boxLabelIdentifier: string) => {
+      const handleError = (errors: any) => {
+        console.error(
+          `Error while trying to unassign box (label identifier: ${boxLabelIdentifier}) from distribution event ${distributionEventId}`,
+          errors
+        );
+        toast({
+          title: "Error",
+          description:
+            "Box couldn't be unassigned from from the distribution event.",
+          status: "error",
+          duration: 2000,
+          isClosable: true,
+        });
+      };
+
+      unassignBoxFromDistributionEventMutation({
+        variables: {
+          boxLabelIdentifier,
+          distributionEventId,
+        },
+        refetchQueries: [
+          {
+            query: DISTRIBUTION_EVENT_QUERY,
+            variables: {
+              eventId: distributionEventDetails.id,
+            },
+          },
+        ]
+      })
+        .then((res) => {
+          if (res.errors && res.errors.length !== 0) {
+            handleError(res.errors);
+          } else {
+            toast({
+              title: "Successfully unassigned box from distribution event. ",
+              status: "success",
+              isClosable: true,
+              duration: 2000,
+            });
+          }
+        })
+        .catch((error) => {
+          handleError(error);
+        });
+    },
+    [distributionEventId, toast, unassignBoxFromDistributionEventMutation]
+  );
+
+  const contextValues: IDistroEventDetailsForPackingStateContext = {
+    onUnassignBoxFromDistributionEvent,
+  };
 
   const { data, loading, error } = useQuery<
     PackingListEntriesForDistributionEventQuery,
@@ -45,26 +119,28 @@ const DistroEventDetailsForPackingStateContainer = ({
   }
 
   return (
-    <DistroEventDetailsForPackingState
-      packingListEntries={packingListEntries}
-      distributionEventId={distributionEventDetails.id}
-      // onShowListClick={() => {}}
-      // boxData={{
-      //   id: "1",
-      //   labelIdentifier: "12345",
-      //   productName: "Product Name",
-      //   size: "S",
-      //   numberOfItems: 3,
-      // }}
-      // boxesData={[]}
-      // packingActionProps={{
-      //   onBoxToDistribution: () => {},
-      //   onMoveItemsToDistribution: () => {},
-      // }}
-      // packingActionListProps={{
-      //   onDeleteBoxFromDistribution: () => {}
-      // }}
-    />
+    <DistroEventDetailsForPackingStateContext.Provider value={contextValues}>
+      <DistroEventDetailsForPackingState
+        packingListEntries={packingListEntries}
+        distributionEventId={distributionEventDetails.id}
+        // onShowListClick={() => {}}
+        // boxData={{
+        //   id: "1",
+        //   labelIdentifier: "12345",
+        //   productName: "Product Name",
+        //   size: "S",
+        //   numberOfItems: 3,
+        // }}
+        // boxesData={[]}
+        // packingActionProps={{
+        //   onBoxToDistribution: () => {},
+        //   onMoveItemsToDistribution: () => {},
+        // }}
+        // packingActionListProps={{
+        //   onDeleteBoxFromDistribution: () => {}
+        // }}
+      />
+    </DistroEventDetailsForPackingStateContext.Provider>
   );
 };
 

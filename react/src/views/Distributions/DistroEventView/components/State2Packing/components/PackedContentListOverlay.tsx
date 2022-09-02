@@ -24,13 +24,14 @@ import {
   Tr,
 } from "@chakra-ui/react";
 import { Link as RouterLink } from "react-router-dom";
-import { useMemo } from "react";
+import { useContext, useMemo } from "react";
 import {
   BoxData,
   IPackingListEntry,
   UnboxedItemsCollectionData,
 } from "views/Distributions/types";
 import { useGetUrlForResourceHelpers } from "utils/hooks";
+import { DistroEventDetailsForPackingStateContext } from "../DistroEventDetailsForPackingStateContainer";
 
 export interface PackingActionListProps {
   onDeleteBoxFromDistribution: (boxId: string) => void;
@@ -71,6 +72,18 @@ const UnboxedItemsCollectionList = ({
 const BoxesList = ({ boxesData }: { boxesData: BoxData[] }) => {
   const { getBoxDetailViewUrlByLabelIdentifier } =
     useGetUrlForResourceHelpers();
+
+    const ctx = useContext(DistroEventDetailsForPackingStateContext);
+
+
+    // const [
+    //   unassignBoxFromDistributionEventMutation,
+    //   unassignBoxFromDistributionEventMutationStatus,
+    // ] = useMutation<
+    //   UnassignBoxFromDistributionEventMutation,
+    //   UnassignBoxFromDistributionEventMutationVariables
+    // >(UNASSIGN_BOX_FROM_DISTRIBUTION_MUTATION);
+
   return (
     <>
       <Heading as="h3" size="md">
@@ -100,7 +113,8 @@ const BoxesList = ({ boxesData }: { boxesData: BoxData[] }) => {
                 <Td isNumeric>{box.numberOfItems}</Td>
                 <Td>
                   <IconButton
-                    size='sm'
+                    onClick={() => ctx?.onUnassignBoxFromDistributionEvent(box.labelIdentifier)}
+                    size="sm"
                     aria-label="Unassign Box from Distribution Event"
                     icon={<CloseIcon />}
                   />
