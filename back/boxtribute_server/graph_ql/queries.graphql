@@ -17,12 +17,8 @@ type Query {
   box(labelIdentifier: String!): Box
   qrCode(qrCode: String!): QrCode
   qrExists(qrCode: String): Boolean
-  # TODO: consider to also rename the field to classicLocation
-  # maybe with a grace period, using a @deprecated directive
   location(id: ID!): ClassicLocation
   " Return all [`ClassicLocations`]({{Types.ClassicLocation}}) that the client is authorized to view. "
-  # TODO: consider to also rename the field to classicLocations
-  # maybe with a grace period, using a @deprecated directive
   locations: [ClassicLocation!]!
   product(id: ID!): Product
   " Return all [`Products`]({{Types.Product}}) that the client is authorized to view. "

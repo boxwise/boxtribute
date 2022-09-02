@@ -23,7 +23,7 @@ type UnboxedItemsCollection implements ItemsCollection {
 
 
 """
-Representation of a box storing items of a [`Product`]({{Types.Product}}) in a [`ClassicLocation`]({{Types.ClassicLocation}})
+Representation of a box storing items of a [`Product`]({{Types.Product}}) in a [`Location`]({{Types.Location}})
 """
 type Box implements ItemsCollection {
   id: ID!
@@ -221,8 +221,6 @@ type Base {
   beneficiaries(paginationInput: PaginationInput, filterInput: FilterBeneficiaryInput): BeneficiaryPage!
   currencyName: String
   " List of all [`ClassicLocations`]({{Types.ClassicLocation}}) present in this base "
-  # TODO: consider to also rename the field to classicLocations
-  # maybe with a grace period, using a @deprecated directive
   locations: [ClassicLocation!]!
   products: [Product!]!
   distributionSpots: [DistributionSpot!]!

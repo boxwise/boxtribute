@@ -949,8 +949,6 @@ def resolve_send_shipment(*_, id):
 @base.field("locations")
 def resolve_base_locations(base_obj, _):
     authorize(permission="location:read")
-    # TODO: might need adaptions after clarifying the
-    # semantics of Place/Location/Warehouse/DistroSpot
     return Location.select().where(
         (Location.base == base_obj.id) & (Location.type == LocationType.ClassicLocation)
     )
