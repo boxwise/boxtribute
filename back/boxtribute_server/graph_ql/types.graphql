@@ -7,7 +7,7 @@ interface ItemsCollection {
   product: Product
   size: Size!
   numberOfItems: Int
-  place: BoxPlace
+  location: Location
   distributionEvent: DistributionEvent
 }
 
@@ -17,7 +17,7 @@ type UnboxedItemsCollection implements ItemsCollection {
   size: Size!
   numberOfItems: Int
   label: String
-  place: BoxPlace
+  location: Location
   distributionEvent: DistributionEvent
 }
 
@@ -29,7 +29,7 @@ type Box implements ItemsCollection {
   id: ID!
   " Sequence of numbers for identifying the box, usually written on box label "
   labelIdentifier: String!
-  place: BoxPlace
+  location: Location
   distributionEvent: DistributionEvent
   numberOfItems: Int
   product: Product
@@ -44,7 +44,7 @@ type Box implements ItemsCollection {
   tags: [Tag!]!
 }
 
-interface BoxPlace {
+interface Location {
   id: ID!
   base: Base
   name: String
@@ -184,7 +184,7 @@ type SizeRange {
 Representation of a classic physical location used to store [`Boxes`]({{Types.Box}}).
 The classic location is part of a specific [`Base`]({{Types.Base}}).
 """
-type ClassicLocation implements BoxPlace {
+type ClassicLocation implements Location {
   id: ID!
   base: Base
   name: String
@@ -340,7 +340,7 @@ type PackingListEntry {
 """
 TODO: Add description here once specs are final/confirmed
 """
-type DistributionSpot implements BoxPlace {
+type DistributionSpot implements Location {
   id: ID!
   name: String
   base: Base

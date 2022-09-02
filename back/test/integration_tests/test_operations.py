@@ -50,9 +50,9 @@ def test_mutations(auth0_client):
                    locationId: 1,
                    sizeId: 1,
                    comment: "new things"
-                }) { place { id } } }"""
+                }) { location { id } } }"""
     response = assert_successful_request(auth0_client, mutation)
-    assert response == {"place": {"id": "1"}}
+    assert response == {"location": {"id": "1"}}
 
     mutation = """mutation { updateBox(updateInput: {
                     labelIdentifier: "177892", numberOfItems: 2

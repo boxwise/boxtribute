@@ -336,8 +336,8 @@ def resolve_location(obj, _, id):
         return classic_location
 
 
-@box.field("place")
-def resolve_box_place(obj, _):
+@box.field("location")
+def resolve_box_location(obj, _):
     authorize(permission="location:read", base_id=obj.location.base_id)
     return obj.location
 
@@ -1291,7 +1291,7 @@ def resolve_taggable_resource_type(obj, *_):
     return "Beneficiary"
 
 
-def resolve_box_place_type(obj, *_):
+def resolve_location_type(obj, *_):
     return obj.type.name
 
 
@@ -1300,5 +1300,5 @@ def resolve_items_collection_type(obj, *_):
 
 
 union_types.append(UnionType("TaggableResource", resolve_taggable_resource_type))
-interface_types.append(InterfaceType("BoxPlace", resolve_box_place_type))
+interface_types.append(InterfaceType("Location", resolve_location_type))
 interface_types.append(InterfaceType("ItemsCollection", resolve_items_collection_type))
