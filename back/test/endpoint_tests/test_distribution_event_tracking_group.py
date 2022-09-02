@@ -229,8 +229,31 @@ def test_distribution_event_tracking_group_statistics(
       }}
     }}"""
 
-    assert_successful_request(
+    distro_reterun_tracking_group = assert_successful_request(
         read_only_client, start_distribution_events_tracking_group_mutation
+    )
+
+    # TODO: expect that the state of the distro events is "ReturnTrackingInProgress"
+    # TODO: expect that the items (UnboxedItemsCollections) and Boxes in all involved
+    # distro events have zero numberOfItems
+
+    # TODO: try to track more items as returned than that were actually
+    # in the distribution events
+
+    set_returned_number_of_items_of_distro_return_tracking_group_mutation = f"""mutation {{
+      setReturnedNumberOfItemsForDistributionEventsTrackingGroup(
+        distributionEventsTrackingGroupId: {distro_reterun_tracking_group['id']}
+        productId: {default_box['product']}
+        sizeId: {default_box['size']}
+        numberOfItems: 3
+      ) {{
+        id
+      }}
+    }}"""
+
+    assert_successful_request(
+        read_only_client,
+        set_returned_number_of_items_of_distro_return_tracking_group_mutation,
     )
 
     # TODO: track returns for product x, size a

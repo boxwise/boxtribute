@@ -1575,13 +1575,6 @@ export type DistributionEventsTrackingGroupQueryVariables = Exact<{
 
 export type DistributionEventsTrackingGroupQuery = { __typename?: 'Query', distributionEventsTrackingGroup?: { __typename?: 'DistributionEventsTrackingGroup', id: string, distributionEventsTrackingEntries: Array<{ __typename?: 'DistributionEventsTrackingEntry', id: string, numberOfItems: number, flowDirection: DistributionEventTrackingFlowDirection, product: { __typename?: 'Product', id: string, name: string, gender?: ProductGender | null, category: { __typename?: 'ProductCategory', id: string, name: string } }, size: { __typename?: 'Size', id: string, label: string } }>, distributionEvents: Array<{ __typename?: 'DistributionEvent', id: string, state: DistributionEventState, name?: string | null, plannedStartDateTime: any, plannedEndDateTime: any, distributionSpot?: { __typename?: 'DistributionSpot', id: string, name?: string | null } | null }> } | null };
 
-export type DistributionEventsInReturnStateForBaseQueryVariables = Exact<{
-  baseId: Scalars['ID'];
-}>;
-
-
-export type DistributionEventsInReturnStateForBaseQuery = { __typename?: 'Query', base?: { __typename?: 'Base', distributionEventsInReturnedFromDistributionState: Array<{ __typename?: 'DistributionEvent', id: string, name?: string | null, state: DistributionEventState, plannedStartDateTime: any, plannedEndDateTime: any, distributionSpot?: { __typename?: 'DistributionSpot', id: string, name?: string | null } | null, boxes: Array<{ __typename?: 'Box', id: string, numberOfItems?: number | null, product?: { __typename?: 'Product', id: string, name: string } | null, size: { __typename?: 'Size', id: string, label: string } }>, unboxedItemsCollections: Array<{ __typename?: 'UnboxedItemsCollection', id: string, numberOfItems?: number | null, product?: { __typename?: 'Product', id: string, name: string } | null, size: { __typename?: 'Size', id: string, label: string } }> }> } | null };
-
 export type StartDistributionEventsTrackingGroupMutationVariables = Exact<{
   distributionEventIds: Array<Scalars['ID']> | Scalars['ID'];
   baseId: Scalars['ID'];

@@ -247,48 +247,48 @@ export const DISTRIBUTION_EVENTS_TRACKING_GROUP_QUERY = gql`
   }
 `;
 
-export const DISTRIBUTION_EVENTS_IN_RETURN_STATE_FOR_BASE = gql`
-  query DistributionEventsInReturnStateForBase($baseId: ID!) {
-    base(id: $baseId) {
-      distributionEventsInReturnedFromDistributionState {
-        id
-        name
-        state
-        distributionSpot {
-          id
-          name
-        }
-        plannedStartDateTime
-        plannedEndDateTime
-        boxes {
-          id
-          product {
-            id
-            name
-          }
-          size {
-            id
-            label
-          }
-          numberOfItems
-        }
+// export const DISTRIBUTION_EVENTS_IN_RETURN_STATE_FOR_BASE_QUERY = gql`
+//   query DistributionEventsInReturnStateForBase($baseId: ID!) {
+//     base(id: $baseId) {
+//       distributionEventsInReturnedFromDistributionState {
+//         id
+//         name
+//         state
+//         distributionSpot {
+//           id
+//           name
+//         }
+//         plannedStartDateTime
+//         plannedEndDateTime
+//         boxes {
+//           id
+//           product {
+//             id
+//             name
+//           }
+//           size {
+//             id
+//             label
+//           }
+//           numberOfItems
+//         }
 
-        unboxedItemsCollections {
-          id
-          product {
-            id
-            name
-          }
-          size {
-            id
-            label
-          }
-          numberOfItems
-        }
-      }
-    }
-  }
-`;
+//         unboxedItemsCollections {
+//           id
+//           product {
+//             id
+//             name
+//           }
+//           size {
+//             id
+//             label
+//           }
+//           numberOfItems
+//         }
+//       }
+//     }
+//   }
+// `;
 
 export const START_DISTRIBUTION_EVENTS_TRACKING_GROUP_MUTATION = gql`
   mutation StartDistributionEventsTrackingGroup(
