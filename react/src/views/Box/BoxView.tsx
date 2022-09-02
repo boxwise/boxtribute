@@ -22,6 +22,7 @@ import TakeItemsFromBoxOverlay from "./components/TakeItemsFromBoxOverlay";
 import BoxDetails from "./components/BoxDetails";
 import {
   ASSIGN_BOX_TO_DISTRIBUTION_MUTATION,
+  PACKING_LIST_ENTRIES_FOR_DISTRIBUTION_EVENT_QUERY,
   UNASSIGN_BOX_FROM_DISTRIBUTION_MUTATION,
 } from "views/Distributions/queries";
 
@@ -192,7 +193,6 @@ export interface ChangeNumberOfItemsBoxData {
   numberOfItems: number;
 }
 
-
 const BTBox = () => {
   const labelIdentifier = useParams<{ labelIdentifier: string }>()
     .labelIdentifier!;
@@ -229,9 +229,7 @@ const BTBox = () => {
   ] = useMutation<
     UnassignBoxFromDistributionEventMutation,
     UnassignBoxFromDistributionEventMutationVariables
-  >(UNASSIGN_BOX_FROM_DISTRIBUTION_MUTATION, {
-    refetchQueries: [refetchBoxByLabelIdentifierQueryConfig(labelIdentifier)],
-  });
+  >(UNASSIGN_BOX_FROM_DISTRIBUTION_MUTATION);
 
   const [updateStateMutation] = useMutation<
     UpdateStateMutation,
@@ -376,6 +374,13 @@ const BTBox = () => {
         boxLabelIdentifier: labelIdentifier,
         distributionEventId: distributionEventId,
       },
+      refetchQueries: [
+        refetchBoxByLabelIdentifierQueryConfig(labelIdentifier),
+        {
+          query: PACKING_LIST_ENTRIES_FOR_DISTRIBUTION_EVENT_QUERY,
+          variables: { distributionEventId: distributionEventId },
+        },
+      ],
     });
   };
 
@@ -387,6 +392,13 @@ const BTBox = () => {
         boxLabelIdentifier: labelIdentifier,
         distributionEventId: distributionEventId,
       },
+      refetchQueries: [
+        refetchBoxByLabelIdentifierQueryConfig(labelIdentifier),
+        {
+          query: PACKING_LIST_ENTRIES_FOR_DISTRIBUTION_EVENT_QUERY,
+          variables: { distributionEventId: distributionEventId },
+        },
+      ],
     });
   };
 

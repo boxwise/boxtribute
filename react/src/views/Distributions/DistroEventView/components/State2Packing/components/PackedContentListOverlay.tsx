@@ -1,20 +1,35 @@
 import { CheckIcon } from "@chakra-ui/icons";
 import {
-  Badge, Box, Flex, Heading, ModalBody, ModalCloseButton, ModalContent, ModalFooter, ModalHeader, Stat, StatGroup, StatLabel,
+  Badge,
+  Box,
+  Flex,
+  Heading,
+  ModalBody,
+  ModalCloseButton,
+  ModalContent,
+  ModalFooter,
+  ModalHeader,
+  Stat,
+  StatGroup,
+  StatLabel,
   StatNumber,
   Table,
   TableContainer,
   Tbody,
-  Td, Text, Th,
+  Td,
+  Text,
+  Th,
   Thead,
-  Tr
+  Tr,
 } from "@chakra-ui/react";
+import { Link as RouterLink } from "react-router-dom";
 import { useMemo } from "react";
 import {
   BoxData,
   IPackingListEntry,
-  UnboxedItemsCollectionData
+  UnboxedItemsCollectionData,
 } from "views/Distributions/types";
+import { useGetUrlForResourceHelpers } from "utils/hooks";
 
 export interface PackingActionListProps {
   onDeleteBoxFromDistribution: (boxId: string) => void;
@@ -44,55 +59,65 @@ const UnboxedItemsCollectionList = ({
           // key={box.labelIdentifier}
           justifyContent="space-between"
         >
-            {/* <Text mr={4}>{box.labelIdentifier}</Text> */}
-            <Text>
-              {" "}
-              # of items: {unboxedItemsCollection.numberOfItems}
-            </Text>
+          {/* <Text mr={4}>{box.labelIdentifier}</Text> */}
+          <Text> # of items: {unboxedItemsCollection.numberOfItems}</Text>
         </Flex>
       ))}
     </Flex>
   </>
 );
 
-const BoxesList = ({ boxesData }: { boxesData: BoxData[] }) => (
-  <>
-    <Heading as="h3" size="md">
-      Boxes
-    </Heading>
-    <TableContainer mt={3}>
-      <Table size="sm">
-        <Thead>
-          <Tr>
-            <Th>Box Label</Th>
-            <Th isNumeric># of items</Th>
-          </Tr>
-        </Thead>
-        <Tbody>
-          {boxesData.map((box) => (
-            <Tr key={box.labelIdentifier}>
-              <Td>{box.labelIdentifier}</Td>
-              <Td isNumeric>{box.numberOfItems}</Td>
+const BoxesList = ({ boxesData }: { boxesData: BoxData[] }) => {
+  const { getBoxDetailViewUrlByLabelIdentifier } =
+    useGetUrlForResourceHelpers();
+  return (
+    <>
+      <Heading as="h3" size="md">
+        Boxes
+      </Heading>
+      <TableContainer mt={3}>
+        <Table size="sm">
+          <Thead>
+            <Tr>
+              <Th>Box Label</Th>
+              <Th isNumeric># of items</Th>
             </Tr>
-            // <IconButton
-            //   _hover={{
-            //     backgroundColor: "transparent",
-            //     opacity: "0.5",
-            //   }}
-            //   backgroundColor="transparent"
-            //   aria-label="Delete"
-            //   color="teal"
-            //   icon={<DeleteIcon />}
-            //   onClick={() => {
-            //     // packingActionProps.onDeleteBoxFromDistribution(box.id)
-            //   }}
-            // />
-          ))}
-        </Tbody>
-      </Table>
-    </TableContainer>
-  </>
-);
+          </Thead>
+          <Tbody>
+            {boxesData.map((box) => (
+              <Tr key={box.labelIdentifier}>
+                <Td>
+                  <RouterLink
+                    to={getBoxDetailViewUrlByLabelIdentifier(
+                      box.labelIdentifier
+                    )}
+                  >
+                    {box.labelIdentifier}
+                  </RouterLink>
+                </Td>
+                <Td isNumeric>{box.numberOfItems}</Td>
+              </Tr>
+
+              // <IconButton
+              //   _hover={{
+              //     backgroundColor: "transparent",
+              //     opacity: "0.5",
+              //   }}
+              //   backgroundColor="transparent"
+              //   aria-label="Delete"
+              //   color="teal"
+              //   icon={<DeleteIcon />}
+              //   onClick={() => {
+              //     // packingActionProps.onDeleteBoxFromDistribution(box.id)
+              //   }}
+              // />
+            ))}
+          </Tbody>
+        </Table>
+      </TableContainer>
+    </>
+  );
+};
 
 const PackedContentListOverlay = ({
   boxesData,
@@ -163,7 +188,9 @@ PackedContentListOverlayProps) => {
             </Badge>
           )}
           {missingNumberOfItems > 0 && (
-            <Badge colorScheme="red">{missingNumberOfItems} items missing</Badge>
+            <Badge colorScheme="red">
+              {missingNumberOfItems} items missing
+            </Badge>
           )}
         </ModalBody>
         <ModalFooter />
