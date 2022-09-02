@@ -29,10 +29,6 @@ def authorize(
     if current_user.is_god:
         return True
 
-    print("current_user")
-    from pprint import pprint
-
-    pprint(vars(current_user))
     if permission is not None:
         authorized = current_user.has_permission(permission)
         if authorized and base_id is not None:

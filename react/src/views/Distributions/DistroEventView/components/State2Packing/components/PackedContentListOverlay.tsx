@@ -1,9 +1,10 @@
-import { CheckIcon } from "@chakra-ui/icons";
+import { CheckIcon, CloseIcon } from "@chakra-ui/icons";
 import {
   Badge,
   Box,
   Flex,
   Heading,
+  IconButton,
   ModalBody,
   ModalCloseButton,
   ModalContent,
@@ -81,6 +82,7 @@ const BoxesList = ({ boxesData }: { boxesData: BoxData[] }) => {
             <Tr>
               <Th>Box Label</Th>
               <Th isNumeric># of items</Th>
+              <Th></Th>
             </Tr>
           </Thead>
           <Tbody>
@@ -96,6 +98,13 @@ const BoxesList = ({ boxesData }: { boxesData: BoxData[] }) => {
                   </RouterLink>
                 </Td>
                 <Td isNumeric>{box.numberOfItems}</Td>
+                <Td>
+                  <IconButton
+                    size='sm'
+                    aria-label="Unassign Box from Distribution Event"
+                    icon={<CloseIcon />}
+                  />
+                </Td>
               </Tr>
 
               // <IconButton
@@ -146,7 +155,7 @@ PackedContentListOverlayProps) => {
         <ModalHeader mx={4} pb={0}>
           <>
             <Heading as="h3" size="md">
-              Packed Boxes and Items for : <br />
+              Packed Boxes and Items for: <br />
               {/* <Heading as="h2" size="lg"> */}
               <i>
                 {packingListEntry.product.name} - {packingListEntry.size?.label}
