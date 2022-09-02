@@ -29,7 +29,7 @@ const qrCodeToResolverResult = (qrValue: string): QrResolvedValue => {
           id: "101",
           label: "XL"
         },
-        place: {
+        location: {
           id: "1",
           name: "WH1",
           base: {
@@ -60,7 +60,7 @@ const qrCodeToResolverResult = (qrValue: string): QrResolvedValue => {
           id: "101",
           label: "XL"
         },
-        place: {
+        location: {
           id: "1",
           name: "WH1",
           base: {

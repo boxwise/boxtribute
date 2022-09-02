@@ -188,20 +188,20 @@ const BoxDetails = ({
         mb={6}
       >
         <Text textAlign="center" fontSize="xl" mb={4}>
-          Move this box from <strong>{boxData.place?.name}</strong> to:
+          Move this box from <strong>{boxData.location?.name}</strong> to:
         </Text>
         <List>
           <Flex wrap="wrap" justifyContent="center">
-            {boxData.place?.base?.locations
+            {boxData.location?.base?.locations
               ?.filter((location) => {
-                return location.id !== boxData.place?.id;
+                return location.id !== boxData.location?.id;
               })
               .map((location, i) => (
                 <WrapItem key={location.id} m={1}>
                   <Button
                     borderRadius="0px"
                     onClick={() => onMoveToLocationClick(location.id)}
-                    disabled={boxData.place?.id === location.id}
+                    disabled={boxData.location?.id === location.id}
                     border="2px"
                   >
                     {location.name}
@@ -224,7 +224,7 @@ const BoxDetails = ({
 
         <List>
           {/* <Flex wrap="wrap" justifyContent="center"> */}
-          {boxData.place?.base?.distributionEventsBeforeReturnedFromDistributionState
+          {boxData.location?.base?.distributionEventsBeforeReturnedFromDistributionState
             // .map(el => DistributionEventDetailsSchema.parse(el))
             .map((distributionEvent) => {
               const isAssignedToDistroEvent =
@@ -317,7 +317,7 @@ const BoxDetails = ({
               </Tr>
             </Thead>
             <Tbody>
-              {boxData.place?.base?.distributionEvents
+              {boxData.location?.base?.distributionEvents
               // .map(el => DistributionEventDetailsSchema.parse(el))
               .map(
                 (distributionEvent) => {

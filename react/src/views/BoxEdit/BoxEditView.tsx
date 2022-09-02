@@ -29,7 +29,7 @@ export const BOX_BY_LABEL_IDENTIFIER_AND_ALL_PRODUCTS_QUERY = gql`
           }
         }
       }
-      place {
+      location {
         id
         name
         base {
@@ -130,7 +130,7 @@ const BoxEditView = () => {
   }
   const boxData = data?.box;
   const productAndSizesData = data?.products;
-  const allLocations = data?.box?.place?.base?.locations.map((location) => ({
+  const allLocations = data?.box?.location?.base?.locations.map((location) => ({
     ...location,
     name: location.name ?? "",
   }));

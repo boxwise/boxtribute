@@ -64,7 +64,7 @@ export const BOX_BY_LABEL_IDENTIFIER_QUERY = gql`
         plannedEndDateTime
         state
       }
-      place {
+      location {
         __typename
         id
         name
@@ -163,7 +163,7 @@ export const UPDATE_BOX_MUTATION = gql`
         plannedEndDateTime
         state
       }
-      place {
+      location {
         __typename
         id
         name
