@@ -1,5 +1,5 @@
 import pytest
-from boxtribute_server.auth import CurrentUser
+from boxtribute_server.auth import JWT_CLAIM_PREFIX, CurrentUser
 from boxtribute_server.authz import authorize
 from boxtribute_server.exceptions import Forbidden, UnknownResource
 
@@ -108,3 +108,19 @@ def test_god_user():
     user = CurrentUser(id=0, organisation_id=0, is_god=True)
     for permission in ALL_PERMISSIONS:
         assert authorize(user, permission=permission)
+
+
+def test_user_with_multiple_roles():
+    permission = "stock:write"
+    # User is Head-of-Ops for base 2 but coordinator for base 1
+    payload = {
+        f"{JWT_CLAIM_PREFIX}/organisation_id": 1,
+        f"{JWT_CLAIM_PREFIX}/base_ids": [2],
+        f"{JWT_CLAIM_PREFIX}/permissions": [permission, f"base_1/{permission}"],
+        "sub": "auth0|42",
+    }
+    user = CurrentUser.from_jwt(payload)
+    assert sorted(user.authorized_base_ids(permission)) == [1, 2]
+
+    assert authorize(user, permission=permission, base_id=1)
+    assert authorize(user, permission=permission, base_id=2)
