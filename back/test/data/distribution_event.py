@@ -4,7 +4,7 @@ import pytest
 from boxtribute_server.enums import DistributionEventState
 from boxtribute_server.models.definitions.distribution_event import DistributionEvent
 
-from .classic_location import distribution_spot_data
+from .location import distribution_spot_data
 
 
 def default_distribution_event_data():

@@ -20,14 +20,14 @@ from .box import (
     marked_for_shipment_box,
 )
 from .box_state import default_box_state
-from .classic_location import (
+from .distribution_event import default_distribution_event
+from .history import default_history
+from .location import (
     another_location,
     default_location,
     non_default_box_state_location,
     null_box_state_location,
 )
-from .distribution_event import default_distribution_event
-from .history import default_history
 from .log import default_log
 from .organisation import another_organisation, default_organisation
 from .product import another_product, default_product, products
