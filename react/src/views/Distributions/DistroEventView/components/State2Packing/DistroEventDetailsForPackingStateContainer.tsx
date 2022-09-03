@@ -8,6 +8,7 @@ import {
   UnassignBoxFromDistributionEventMutation,
   UnassignBoxFromDistributionEventMutationVariables,
 } from "types/generated/graphql";
+import { BOX_BY_LABEL_IDENTIFIER_QUERY } from "views/Box/BoxView";
 import { graphqlPackingListEntriesForDistributionEventTransformer } from "views/Distributions/dataTransformers";
 import {
   DISTRIBUTION_EVENT_QUERY,
@@ -66,10 +67,30 @@ const DistroEventDetailsForPackingStateContainer = ({
           {
             query: DISTRIBUTION_EVENT_QUERY,
             variables: {
-              eventId: distributionEventDetails.id,
+              eventId: distributionEventId,
             },
           },
-        ]
+          {
+            query: PACKING_LIST_ENTRIES_FOR_DISTRIBUTION_EVENT_QUERY,
+            variables: {
+              distributionEventId
+            }
+          },
+          {
+            query: BOX_BY_LABEL_IDENTIFIER_QUERY,
+            variables: {
+              labelIdentifier: boxLabelIdentifier
+            }
+          }
+        ],
+        update: (cache, { data }) => {
+          cache.modify({
+            fields: {
+              packingListEntriesForDistributionEvent(existingPackingListEntries) {
+              }
+            }
+          });
+        }
       })
         .then((res) => {
           if (res.errors && res.errors.length !== 0) {

@@ -66,6 +66,7 @@ function ApolloAuth0Provider({ children }: { children: ReactNode }) {
 
   const client = new ApolloClient({
     cache: new InMemoryCache(),
+    connectToDevTools: true,
     link: auth0Link.concat(errorLink).concat(httpLink),
     defaultOptions,
   });
