@@ -2,14 +2,20 @@ import { CheckIcon, CloseIcon } from "@chakra-ui/icons";
 import {
   Badge,
   Box,
+  Button,
   Flex,
+  FormControl,
+  FormLabel,
   Heading,
   IconButton,
+  Input,
+  Modal,
   ModalBody,
   ModalCloseButton,
   ModalContent,
   ModalFooter,
   ModalHeader,
+  ModalOverlay,
   Stat,
   StatGroup,
   StatLabel,
@@ -22,6 +28,8 @@ import {
   Th,
   Thead,
   Tr,
+  useDisclosure,
+  VStack,
 } from "@chakra-ui/react";
 import { Link as RouterLink } from "react-router-dom";
 import { useContext, useMemo } from "react";
@@ -47,42 +55,73 @@ const UnboxedItemsCollectionList = ({
   unboxedItemsCollectionData,
 }: {
   unboxedItemsCollectionData: UnboxedItemsCollectionData[];
-}) => (
-  <>
-    <Heading as="h3" size="md">
-      Unboxed Items
-    </Heading>
-    <Flex direction="column">
-      {unboxedItemsCollectionData.map((unboxedItemsCollection, i) => (
-        <Flex
-          key={i}
-          alignItems="center"
-          my={2}
-          // key={box.labelIdentifier}
-          justifyContent="space-between"
-        >
-          {/* <Text mr={4}>{box.labelIdentifier}</Text> */}
-          <Text> # of items: {unboxedItemsCollection.numberOfItems}</Text>
-        </Flex>
-      ))}
-    </Flex>
-  </>
-);
+}) => {
+  const removeUnboxedItemsOverlayState = useDisclosure();
+  return (
+    <>
+      <Modal
+        isOpen={removeUnboxedItemsOverlayState.isOpen}
+        onClose={removeUnboxedItemsOverlayState.onClose}
+      >
+        <ModalOverlay />
+        <ModalContent>
+          <ModalHeader mx={4} pb={0}>
+            <>
+              <Heading as="h3" size="md">
+                Remove items
+              </Heading>
+            </>
+          </ModalHeader>
+          <ModalCloseButton />
+          <ModalBody mx={4}>
+            <Flex direction="column" alignItems="start" my={2} justifyContent="space-between">
+            {/* <VStack borderColor="blackAlpha.100" borderWidth={2} p={4} my={5}> */}
+            {/* <VStack p={4} my={5}> */}
+              <FormControl display="flex" alignItems="center">
+                <FormLabel fontSize="sm" htmlFor="numberOfItems">
+                  # of items:
+                </FormLabel>
+                <Input type="number" width={20} name="numberOfItems"></Input>
+              </FormControl>
+              <Button>Remove</Button>
+            {/* </VStack> */}
+            </Flex>
+          </ModalBody>
+          <ModalFooter />
+        </ModalContent>
+      </Modal>
+
+      <Heading as="h3" size="md">
+        Unboxed Items
+      </Heading>
+      <Flex direction="column">
+        {unboxedItemsCollectionData.map((unboxedItemsCollection, i) => (
+          <Flex
+            // direction="column"
+            key={i}
+            alignItems="start"
+            my={2}
+            // key={box.labelIdentifier}
+            justifyContent="space-between"
+          >
+            {/* <Text mr={4}>{box.labelIdentifier}</Text> */}
+            <Text> # of items: {unboxedItemsCollection.numberOfItems}</Text>
+            {/* <Box>Move XXX items out of this Distribution Event into XXX</Box> */}
+            <Button onClick={removeUnboxedItemsOverlayState.onOpen}>
+              Remove items
+            </Button>
+          </Flex>
+        ))}
+      </Flex>
+    </>
+  );
+};
 
 const BoxesList = ({ boxesData }: { boxesData: BoxData[] }) => {
   const { getBoxDetailViewUrlByLabelIdentifier } =
     useGetUrlForResourceHelpers();
 
-    const ctx = useContext(DistroEventDetailsForPackingStateContext);
-
-
-    // const [
-    //   unassignBoxFromDistributionEventMutation,
-    //   unassignBoxFromDistributionEventMutationStatus,
-    // ] = useMutation<
-    //   UnassignBoxFromDistributionEventMutation,
-    //   UnassignBoxFromDistributionEventMutationVariables
-    // >(UNASSIGN_BOX_FROM_DISTRIBUTION_MUTATION);
+  const ctx = useContext(DistroEventDetailsForPackingStateContext);
 
   return (
     <>
@@ -113,27 +152,17 @@ const BoxesList = ({ boxesData }: { boxesData: BoxData[] }) => {
                 <Td isNumeric>{box.numberOfItems}</Td>
                 <Td>
                   <IconButton
-                    onClick={() => ctx?.onUnassignBoxFromDistributionEvent(box.labelIdentifier)}
+                    onClick={() =>
+                      ctx?.onUnassignBoxFromDistributionEvent(
+                        box.labelIdentifier
+                      )
+                    }
                     size="sm"
                     aria-label="Unassign Box from Distribution Event"
                     icon={<CloseIcon />}
                   />
                 </Td>
               </Tr>
-
-              // <IconButton
-              //   _hover={{
-              //     backgroundColor: "transparent",
-              //     opacity: "0.5",
-              //   }}
-              //   backgroundColor="transparent"
-              //   aria-label="Delete"
-              //   color="teal"
-              //   icon={<DeleteIcon />}
-              //   onClick={() => {
-              //     // packingActionProps.onDeleteBoxFromDistribution(box.id)
-              //   }}
-              // />
             ))}
           </Tbody>
         </Table>
