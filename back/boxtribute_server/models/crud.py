@@ -6,7 +6,7 @@ import peewee
 
 from ..db import db
 from ..enums import BoxState, TaggableObjectType, TagType
-from ..exceptions import BoxCreationFailed
+from ..exceptions import BoxCreationFailed, IncompatibleTagTypeAndResourceType
 from .definitions.beneficiary import Beneficiary
 from .definitions.box import Box
 from .definitions.location import Location
@@ -193,8 +193,18 @@ def delete_tag(*, user_id, id):
 
 def assign_tag(*, id, resource_id, resource_type):
     """Create TagsRelation entry as cross reference of the tag given by ID, and the
-    given resource. Return the resource.
+    given resource.
+    Validate that tag type and resource type are compatible.
+    Return the resource.
     """
+    tag = Tag.get_by_id(id)
+    if (
+        (tag.type == TagType.Beneficiary) and (resource_type == TaggableObjectType.Box)
+    ) or (
+        (tag.type == TagType.Box) and (resource_type == TaggableObjectType.Beneficiary)
+    ):
+        raise IncompatibleTagTypeAndResourceType(tag=tag, resource_type=resource_type)
+
     TagsRelation.create(
         object_id=resource_id,
         object_type=resource_type,

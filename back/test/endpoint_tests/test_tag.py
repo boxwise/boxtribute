@@ -1,6 +1,10 @@
 import pytest
 from boxtribute_server.enums import TagType
-from utils import assert_forbidden_request, assert_successful_request
+from utils import (
+    assert_bad_user_input,
+    assert_forbidden_request,
+    assert_successful_request,
+)
 
 
 def test_tag_query(read_only_client, tags):
@@ -286,3 +290,33 @@ def test_mutate_tag_with_invalid_base(client, default_bases, tags):
             unassignTag( unassignmentInput: {assignment_input} ) {{
                 ...on Box {{ id }} }} }}"""
     assert_forbidden_request(client, mutation)
+
+
+def test_assign_tag_with_invalid_resource_type(
+    read_only_client, tags, another_beneficiary, default_box
+):
+    # Test case 4.2.23
+    box_tag_id = tags[1]["id"]
+    beneficiary_id = another_beneficiary["id"]
+    mutation = f"""mutation {{
+                assignTag(assignmentInput: {{
+                    id: {box_tag_id}
+                    resourceId: {beneficiary_id}
+                    resourceType: Beneficiary
+                }} ) {{
+                    ...on Beneficiary {{ tags {{ id }} }}
+                }} }}"""
+    assert_bad_user_input(read_only_client, mutation)
+
+    # Test case 4.2.24
+    beneficiary_tag_id = tags[0]["id"]
+    box_id = default_box["id"]
+    mutation = f"""mutation {{
+                assignTag(assignmentInput: {{
+                    id: {beneficiary_tag_id}
+                    resourceId: {box_id}
+                    resourceType: Box
+                }} ) {{
+                    ...on Box {{ tags {{ id }} }}
+                }} }}"""
+    assert_bad_user_input(read_only_client, mutation)
