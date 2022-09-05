@@ -181,8 +181,8 @@ type SizeRange {
 }
 
 """
-Representation of a classic physical location used to store [`Boxes`]({{Types.Box}}).
-The classic location is part of a specific [`Base`]({{Types.Base}}).
+Representation of a classic physical location used to store [`Boxes`]({{Types.Box}}) (e.g. a warehouse).
+The location is part of a specific [`Base`]({{Types.Base}}).
 """
 type ClassicLocation implements Location {
   id: ID!

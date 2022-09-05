@@ -351,10 +351,10 @@ def resolve_box(*_, label_identifier):
 
 @query.field("location")
 def resolve_location(obj, _, id):
-    classic_location = Location.get_by_id(id)
-    if classic_location.type == LocationType.ClassicLocation:
-        authorize(permission="location:read", base_id=classic_location.base_id)
-        return classic_location
+    location = Location.get_by_id(id)
+    if location.type == LocationType.ClassicLocation:
+        authorize(permission="location:read", base_id=location.base_id)
+        return location
 
 
 @box.field("location")
