@@ -1,5 +1,5 @@
 import "@testing-library/jest-dom";
-import { screen, waitFor } from "@testing-library/react";
+import { screen, waitFor, fireEvent } from "@testing-library/react";
 import { render } from "utils/test-utils";
 import Boxes, { BOXES_FOR_BASE_QUERY } from "./BoxesView";
 
@@ -173,25 +173,25 @@ describe("Boxes view", () => {
       expect(firstEntryInOriginalRowSet).toBeInTheDocument();
     });
 
-    // describe("applying the search term 'Blanket' in the filter", () => {
-    //   beforeEach(() => {
-    //     const searchField = screen.getByPlaceholderText("Search");
-    //     fireEvent.change(searchField, { target: { value: "Blanket" } });
-    //   });
-    //   it("only shows entries in the table that match the filter search term", async () => {
-    //     await waitFor(() => {
-    //       const firstEntryInOriginalRowSet = screen.queryByRole("gridcell", {
-    //         name: "Top 2-6 Months",
-    //       });
-    //       expect(firstEntryInOriginalRowSet).toBeNull();
-    //     });
+    describe("applying the search term 'Blanket' in the filter", () => {
+      beforeEach(() => {
+        const searchField = screen.getByPlaceholderText("Search");
+        fireEvent.change(searchField, { target: { value: "Blanket" } });
+      });
+      it("only shows entries in the table that match the filter search term", async () => {
+        await waitFor(() => {
+          const firstEntryInOriginalRowSet = screen.queryByRole("gridcell", {
+            name: "Top 2-6 Months",
+          });
+          expect(firstEntryInOriginalRowSet).toBeNull();
+        });
 
-    //     const blanketProduct = screen.queryByRole("gridcell", {
-    //       name: "Blanket",
-    //     });
-    //     expect(blanketProduct).toBeInTheDocument();
-    //   });
-    // });
+        const blanketProduct = screen.queryByRole("gridcell", {
+          name: "Blanket",
+        });
+        expect(blanketProduct).toBeInTheDocument();
+      });
+    });
   });
 
   // describe("filter dropdowns", () => {

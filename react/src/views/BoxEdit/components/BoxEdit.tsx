@@ -119,7 +119,7 @@ const BoxEdit = ({
       numberOfItems: boxData?.numberOfItems || 0,
       sizeId: boxData?.size.id,
       productId: boxData?.product?.id,
-      locationId: boxData?.place?.id,
+      locationId: boxData?.location?.id,
     },
   });
 

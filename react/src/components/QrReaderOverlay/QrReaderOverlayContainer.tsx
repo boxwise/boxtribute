@@ -37,8 +37,8 @@ const boxDataToSuccessQrValue = (boxData: BoxDetailsQuery["box"]) => {
     boxData == null
     //  ||
     // boxData.product == null ||
-    // boxData.place == null ||
-    // boxData.place.base == null
+    // boxData.location == null ||
+    // boxData.location.base == null
   ) {
     throw new Error("boxData is null or incomplete");
   }
@@ -47,7 +47,7 @@ const boxDataToSuccessQrValue = (boxData: BoxDetailsQuery["box"]) => {
     product: boxData.product,
     size: boxData.size,
     numberOfItems: boxData.numberOfItems || 0,
-    place: boxData.place,
+    place: boxData.location,
   };
   return {
     kind: "success",

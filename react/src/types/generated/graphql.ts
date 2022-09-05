@@ -22,7 +22,6 @@ export type Base = {
   __typename?: 'Base';
   /**  List of all [`Beneficiaries`]({{Types.Beneficiary}}) registered in this base  */
   beneficiaries: BeneficiaryPage;
-  boxPlaces: Array<BoxPlace>;
   currencyName?: Maybe<Scalars['String']>;
   distributionEvents: Array<DistributionEvent>;
   distributionEventsBeforeReturnedFromDistributionState: Array<DistributionEvent>;
@@ -30,8 +29,8 @@ export type Base = {
   distributionEventsTrackingGroups: Array<DistributionEventsTrackingGroup>;
   distributionSpots: Array<DistributionSpot>;
   id: Scalars['ID'];
-  /**  List of all [`Locations`]({{Types.Location}}) present in this base  */
-  locations: Array<Location>;
+  /**  List of all [`ClassicLocations`]({{Types.ClassicLocation}}) present in this base  */
+  locations: Array<ClassicLocation>;
   name: Scalars['String'];
   organisation: Organisation;
   products: Array<Product>;
@@ -155,8 +154,8 @@ export type Box = ItemsCollection & {
   labelIdentifier: Scalars['String'];
   lastModifiedBy?: Maybe<User>;
   lastModifiedOn?: Maybe<Scalars['Datetime']>;
+  location?: Maybe<Location>;
   numberOfItems?: Maybe<Scalars['Int']>;
-  place?: Maybe<BoxPlace>;
   product?: Maybe<Product>;
   qrCode?: Maybe<QrCode>;
   size: Size;
@@ -182,19 +181,6 @@ export type BoxPage = {
   totalCount: Scalars['Int'];
 };
 
-export type BoxPlace = {
-  base?: Maybe<Base>;
-  boxes?: Maybe<BoxPage>;
-  id: Scalars['ID'];
-  name?: Maybe<Scalars['String']>;
-};
-
-
-export type BoxPlaceBoxesArgs = {
-  filterInput?: InputMaybe<FilterBoxInput>;
-  paginationInput?: InputMaybe<PaginationInput>;
-};
-
 /** Classificators for [`Box`]({{Types.Box}}) state. */
 export enum BoxState {
   Donated = 'Donated',
@@ -213,6 +199,37 @@ export type BoxUpdateInput = {
   productId?: InputMaybe<Scalars['Int']>;
   sizeId?: InputMaybe<Scalars['Int']>;
   state?: InputMaybe<BoxState>;
+};
+
+/**
+ * Representation of a classic physical location used to store [`Boxes`]({{Types.Box}}).
+ * The classic location is part of a specific [`Base`]({{Types.Base}}).
+ */
+export type ClassicLocation = Location & {
+  __typename?: 'ClassicLocation';
+  base?: Maybe<Base>;
+  /**  List of all the [`Boxes`]({{Types.Box}}) in this classic location  */
+  boxes?: Maybe<BoxPage>;
+  createdBy?: Maybe<User>;
+  createdOn?: Maybe<Scalars['Datetime']>;
+  /**  Default state for boxes in this classic location */
+  defaultBoxState?: Maybe<BoxState>;
+  id: Scalars['ID'];
+  isShop: Scalars['Boolean'];
+  isStockroom: Scalars['Boolean'];
+  lastModifiedBy?: Maybe<User>;
+  lastModifiedOn?: Maybe<Scalars['Datetime']>;
+  name?: Maybe<Scalars['String']>;
+};
+
+
+/**
+ * Representation of a classic physical location used to store [`Boxes`]({{Types.Box}}).
+ * The classic location is part of a specific [`Base`]({{Types.Base}}).
+ */
+export type ClassicLocationBoxesArgs = {
+  filterInput?: InputMaybe<FilterBoxInput>;
+  paginationInput?: InputMaybe<PaginationInput>;
 };
 
 /** TODO: Add description here once specs are final/confirmed */
@@ -281,7 +298,7 @@ export enum DistributionEventsTrackingGroupState {
 }
 
 /** TODO: Add description here once specs are final/confirmed */
-export type DistributionSpot = BoxPlace & {
+export type DistributionSpot = Location & {
   __typename?: 'DistributionSpot';
   base?: Maybe<Base>;
   boxes?: Maybe<BoxPage>;
@@ -348,8 +365,8 @@ export enum HumanGender {
 export type ItemsCollection = {
   distributionEvent?: Maybe<DistributionEvent>;
   id: Scalars['ID'];
+  location?: Maybe<Location>;
   numberOfItems?: Maybe<Scalars['Int']>;
-  place?: Maybe<BoxPlace>;
   product?: Maybe<Product>;
   size: Size;
 };
@@ -364,32 +381,14 @@ export enum Language {
   Nl = 'nl'
 }
 
-/**
- * Representation of a physical location used to store [`Boxes`]({{Types.Box}}).
- * The location is part of a specific [`Base`]({{Types.Base}}).
- */
-export type Location = BoxPlace & {
-  __typename?: 'Location';
+export type Location = {
   base?: Maybe<Base>;
-  /**  List of all the [`Boxes`]({{Types.Box}}) in this location  */
   boxes?: Maybe<BoxPage>;
-  createdBy?: Maybe<User>;
-  createdOn?: Maybe<Scalars['Datetime']>;
-  /**  Default state for boxes in this location  */
-  defaultBoxState?: Maybe<BoxState>;
   id: Scalars['ID'];
-  isShop: Scalars['Boolean'];
-  isStockroom: Scalars['Boolean'];
-  lastModifiedBy?: Maybe<User>;
-  lastModifiedOn?: Maybe<Scalars['Datetime']>;
   name?: Maybe<Scalars['String']>;
 };
 
 
-/**
- * Representation of a physical location used to store [`Boxes`]({{Types.Box}}).
- * The location is part of a specific [`Base`]({{Types.Base}}).
- */
 export type LocationBoxesArgs = {
   filterInput?: InputMaybe<FilterBoxInput>;
   paginationInput?: InputMaybe<PaginationInput>;
@@ -958,9 +957,9 @@ export type Query = {
   distributionSpot?: Maybe<DistributionSpot>;
   /**  Return all [`DistributionSpots`]({{Types.DistributionSpot}}) that the client is authorized to view.  */
   distributionSpots: Array<DistributionSpot>;
-  location?: Maybe<Location>;
-  /**  Return all [`Locations`]({{Types.Location}}) that the client is authorized to view.  */
-  locations: Array<Location>;
+  location?: Maybe<ClassicLocation>;
+  /**  Return all [`ClassicLocations`]({{Types.ClassicLocation}}) that the client is authorized to view.  */
+  locations: Array<ClassicLocation>;
   /**  Return various metrics about stock and beneficiaries for client's organisation.  */
   metrics?: Maybe<Metrics>;
   organisation?: Maybe<Organisation>;
@@ -1137,9 +1136,9 @@ export type ShipmentDetail = {
   deletedOn?: Maybe<Scalars['Datetime']>;
   id: Scalars['ID'];
   shipment: Shipment;
-  sourceLocation?: Maybe<Location>;
+  sourceLocation?: Maybe<ClassicLocation>;
   sourceProduct?: Maybe<Product>;
-  targetLocation?: Maybe<Location>;
+  targetLocation?: Maybe<ClassicLocation>;
   targetProduct?: Maybe<Product>;
 };
 
@@ -1306,8 +1305,8 @@ export type UnboxedItemsCollection = ItemsCollection & {
   distributionEvent?: Maybe<DistributionEvent>;
   id: Scalars['ID'];
   label?: Maybe<Scalars['String']>;
+  location?: Maybe<Location>;
   numberOfItems?: Maybe<Scalars['Int']>;
-  place?: Maybe<BoxPlace>;
   product?: Maybe<Product>;
   size: Size;
 };
@@ -1340,7 +1339,7 @@ export type BoxDetailsQueryVariables = Exact<{
 }>;
 
 
-export type BoxDetailsQuery = { __typename?: 'Query', box?: { __typename?: 'Box', labelIdentifier: string, numberOfItems?: number | null, product?: { __typename?: 'Product', id: string, name: string, gender?: ProductGender | null } | null, size: { __typename?: 'Size', id: string, label: string }, place?: { __typename?: 'DistributionSpot', id: string, name?: string | null, base?: { __typename?: 'Base', id: string, name: string } | null } | { __typename?: 'Location', id: string, name?: string | null, base?: { __typename?: 'Base', id: string, name: string } | null } | null } | null };
+export type BoxDetailsQuery = { __typename?: 'Query', box?: { __typename?: 'Box', labelIdentifier: string, numberOfItems?: number | null, product?: { __typename?: 'Product', id: string, name: string, gender?: ProductGender | null } | null, size: { __typename?: 'Size', id: string, label: string }, location?: { __typename?: 'ClassicLocation', id: string, name?: string | null, base?: { __typename?: 'Base', id: string, name: string } | null } | { __typename?: 'DistributionSpot', id: string, name?: string | null, base?: { __typename?: 'Base', id: string, name: string } | null } | null } | null };
 
 export type GetBoxLabelIdentifierForQrCodeQueryVariables = Exact<{
   qrCode: Scalars['String'];
@@ -1354,14 +1353,14 @@ export type BaseDataQueryVariables = Exact<{
 }>;
 
 
-export type BaseDataQuery = { __typename?: 'Query', base?: { __typename?: 'Base', name: string, locations: Array<{ __typename?: 'Location', name?: string | null }> } | null };
+export type BaseDataQuery = { __typename?: 'Query', base?: { __typename?: 'Base', name: string, locations: Array<{ __typename?: 'ClassicLocation', name?: string | null }> } | null };
 
 export type BoxByLabelIdentifierQueryVariables = Exact<{
   labelIdentifier: Scalars['String'];
 }>;
 
 
-export type BoxByLabelIdentifierQuery = { __typename?: 'Query', box?: { __typename?: 'Box', labelIdentifier: string, state: BoxState, numberOfItems?: number | null, size: { __typename?: 'Size', id: string, label: string }, product?: { __typename?: 'Product', name: string, gender?: ProductGender | null } | null, tags: Array<{ __typename?: 'Tag', id: string, name: string }>, distributionEvent?: { __typename?: 'DistributionEvent', id: string, state: DistributionEventState, name?: string | null, plannedStartDateTime: any, plannedEndDateTime: any, distributionSpot?: { __typename?: 'DistributionSpot', name?: string | null } | null } | null, place?: { __typename: 'DistributionSpot', id: string, name?: string | null, base?: { __typename?: 'Base', locations: Array<{ __typename?: 'Location', id: string, name?: string | null }>, distributionEventsBeforeReturnedFromDistributionState: Array<{ __typename?: 'DistributionEvent', id: string, state: DistributionEventState, name?: string | null, plannedStartDateTime: any, plannedEndDateTime: any, distributionSpot?: { __typename?: 'DistributionSpot', name?: string | null } | null }> } | null } | { __typename: 'Location', id: string, name?: string | null, base?: { __typename?: 'Base', locations: Array<{ __typename?: 'Location', id: string, name?: string | null }>, distributionEventsBeforeReturnedFromDistributionState: Array<{ __typename?: 'DistributionEvent', id: string, state: DistributionEventState, name?: string | null, plannedStartDateTime: any, plannedEndDateTime: any, distributionSpot?: { __typename?: 'DistributionSpot', name?: string | null } | null }> } | null } | null } | null };
+export type BoxByLabelIdentifierQuery = { __typename?: 'Query', box?: { __typename?: 'Box', labelIdentifier: string, state: BoxState, numberOfItems?: number | null, size: { __typename?: 'Size', id: string, label: string }, product?: { __typename?: 'Product', name: string, gender?: ProductGender | null } | null, tags: Array<{ __typename?: 'Tag', id: string, name: string }>, distributionEvent?: { __typename?: 'DistributionEvent', id: string, state: DistributionEventState, name?: string | null, plannedStartDateTime: any, plannedEndDateTime: any, distributionSpot?: { __typename?: 'DistributionSpot', name?: string | null } | null } | null, location?: { __typename: 'ClassicLocation', id: string, name?: string | null, base?: { __typename?: 'Base', locations: Array<{ __typename?: 'ClassicLocation', id: string, name?: string | null }>, distributionEventsBeforeReturnedFromDistributionState: Array<{ __typename?: 'DistributionEvent', id: string, state: DistributionEventState, name?: string | null, plannedStartDateTime: any, plannedEndDateTime: any, distributionSpot?: { __typename?: 'DistributionSpot', name?: string | null } | null }> } | null } | { __typename: 'DistributionSpot', id: string, name?: string | null, base?: { __typename?: 'Base', locations: Array<{ __typename?: 'ClassicLocation', id: string, name?: string | null }>, distributionEventsBeforeReturnedFromDistributionState: Array<{ __typename?: 'DistributionEvent', id: string, state: DistributionEventState, name?: string | null, plannedStartDateTime: any, plannedEndDateTime: any, distributionSpot?: { __typename?: 'DistributionSpot', name?: string | null } | null }> } | null } | null } | null };
 
 export type UpdateNumberOfItemsMutationVariables = Exact<{
   boxLabelIdentifier: Scalars['String'];
@@ -1385,7 +1384,7 @@ export type UpdateLocationOfBoxMutationVariables = Exact<{
 }>;
 
 
-export type UpdateLocationOfBoxMutation = { __typename?: 'Mutation', updateBox?: { __typename?: 'Box', labelIdentifier: string, state: BoxState, numberOfItems?: number | null, size: { __typename?: 'Size', id: string, label: string }, product?: { __typename?: 'Product', name: string, gender?: ProductGender | null, id: string, sizeRange: { __typename?: 'SizeRange', sizes: Array<{ __typename?: 'Size', id: string, label: string }> } } | null, tags: Array<{ __typename?: 'Tag', id: string, name: string }>, distributionEvent?: { __typename?: 'DistributionEvent', id: string, name?: string | null, state: DistributionEventState, plannedStartDateTime: any, plannedEndDateTime: any, distributionSpot?: { __typename?: 'DistributionSpot', name?: string | null } | null } | null, place?: { __typename: 'DistributionSpot', id: string, name?: string | null, base?: { __typename?: 'Base', locations: Array<{ __typename?: 'Location', id: string, name?: string | null }>, distributionEventsBeforeReturnedFromDistributionState: Array<{ __typename?: 'DistributionEvent', id: string, state: DistributionEventState, name?: string | null, plannedStartDateTime: any, plannedEndDateTime: any, distributionSpot?: { __typename?: 'DistributionSpot', name?: string | null } | null }> } | null } | { __typename: 'Location', id: string, name?: string | null, base?: { __typename?: 'Base', locations: Array<{ __typename?: 'Location', id: string, name?: string | null }>, distributionEventsBeforeReturnedFromDistributionState: Array<{ __typename?: 'DistributionEvent', id: string, state: DistributionEventState, name?: string | null, plannedStartDateTime: any, plannedEndDateTime: any, distributionSpot?: { __typename?: 'DistributionSpot', name?: string | null } | null }> } | null } | null } | null };
+export type UpdateLocationOfBoxMutation = { __typename?: 'Mutation', updateBox?: { __typename?: 'Box', labelIdentifier: string, state: BoxState, numberOfItems?: number | null, size: { __typename?: 'Size', id: string, label: string }, product?: { __typename?: 'Product', name: string, gender?: ProductGender | null, id: string, sizeRange: { __typename?: 'SizeRange', sizes: Array<{ __typename?: 'Size', id: string, label: string }> } } | null, tags: Array<{ __typename?: 'Tag', id: string, name: string }>, distributionEvent?: { __typename?: 'DistributionEvent', id: string, name?: string | null, state: DistributionEventState, plannedStartDateTime: any, plannedEndDateTime: any, distributionSpot?: { __typename?: 'DistributionSpot', name?: string | null } | null } | null, location?: { __typename: 'ClassicLocation', id: string, name?: string | null, base?: { __typename?: 'Base', locations: Array<{ __typename?: 'ClassicLocation', id: string, name?: string | null }>, distributionEventsBeforeReturnedFromDistributionState: Array<{ __typename?: 'DistributionEvent', id: string, state: DistributionEventState, name?: string | null, plannedStartDateTime: any, plannedEndDateTime: any, distributionSpot?: { __typename?: 'DistributionSpot', name?: string | null } | null }> } | null } | { __typename: 'DistributionSpot', id: string, name?: string | null, base?: { __typename?: 'Base', locations: Array<{ __typename?: 'ClassicLocation', id: string, name?: string | null }>, distributionEventsBeforeReturnedFromDistributionState: Array<{ __typename?: 'DistributionEvent', id: string, state: DistributionEventState, name?: string | null, plannedStartDateTime: any, plannedEndDateTime: any, distributionSpot?: { __typename?: 'DistributionSpot', name?: string | null } | null }> } | null } | null } | null };
 
 export type CreateBoxMutationVariables = Exact<{
   locationId: Scalars['Int'];
@@ -1403,14 +1402,14 @@ export type AllProductsAndLocationsForBaseQueryVariables = Exact<{
 }>;
 
 
-export type AllProductsAndLocationsForBaseQuery = { __typename?: 'Query', base?: { __typename?: 'Base', locations: Array<{ __typename?: 'Location', id: string, name?: string | null }>, products: Array<{ __typename?: 'Product', id: string, name: string, gender?: ProductGender | null, category: { __typename?: 'ProductCategory', name: string }, sizeRange: { __typename?: 'SizeRange', sizes: Array<{ __typename?: 'Size', id: string, label: string }> } }> } | null };
+export type AllProductsAndLocationsForBaseQuery = { __typename?: 'Query', base?: { __typename?: 'Base', locations: Array<{ __typename?: 'ClassicLocation', id: string, name?: string | null }>, products: Array<{ __typename?: 'Product', id: string, name: string, gender?: ProductGender | null, category: { __typename?: 'ProductCategory', name: string }, sizeRange: { __typename?: 'SizeRange', sizes: Array<{ __typename?: 'Size', id: string, label: string }> } }> } | null };
 
 export type BoxByLabelIdentifierAndAllProductsQueryVariables = Exact<{
   labelIdentifier: Scalars['String'];
 }>;
 
 
-export type BoxByLabelIdentifierAndAllProductsQuery = { __typename?: 'Query', box?: { __typename?: 'Box', labelIdentifier: string, numberOfItems?: number | null, size: { __typename?: 'Size', id: string, label: string }, product?: { __typename?: 'Product', id: string, name: string, gender?: ProductGender | null, sizeRange: { __typename?: 'SizeRange', sizes: Array<{ __typename?: 'Size', id: string, label: string }> } } | null, place?: { __typename?: 'DistributionSpot', id: string, name?: string | null, base?: { __typename?: 'Base', locations: Array<{ __typename?: 'Location', id: string, name?: string | null }> } | null } | { __typename?: 'Location', id: string, name?: string | null, base?: { __typename?: 'Base', locations: Array<{ __typename?: 'Location', id: string, name?: string | null }> } | null } | null } | null, products: { __typename?: 'ProductPage', elements: Array<{ __typename?: 'Product', id: string, name: string, gender?: ProductGender | null, category: { __typename?: 'ProductCategory', name: string }, sizeRange: { __typename?: 'SizeRange', label: string, sizes: Array<{ __typename?: 'Size', id: string, label: string }> } }> } };
+export type BoxByLabelIdentifierAndAllProductsQuery = { __typename?: 'Query', box?: { __typename?: 'Box', labelIdentifier: string, numberOfItems?: number | null, size: { __typename?: 'Size', id: string, label: string }, product?: { __typename?: 'Product', id: string, name: string, gender?: ProductGender | null, sizeRange: { __typename?: 'SizeRange', sizes: Array<{ __typename?: 'Size', id: string, label: string }> } } | null, location?: { __typename?: 'ClassicLocation', id: string, name?: string | null, base?: { __typename?: 'Base', locations: Array<{ __typename?: 'ClassicLocation', id: string, name?: string | null }> } | null } | { __typename?: 'DistributionSpot', id: string, name?: string | null, base?: { __typename?: 'Base', locations: Array<{ __typename?: 'ClassicLocation', id: string, name?: string | null }> } | null } | null } | null, products: { __typename?: 'ProductPage', elements: Array<{ __typename?: 'Product', id: string, name: string, gender?: ProductGender | null, category: { __typename?: 'ProductCategory', name: string }, sizeRange: { __typename?: 'SizeRange', label: string, sizes: Array<{ __typename?: 'Size', id: string, label: string }> } }> } };
 
 export type UpdateContentOfBoxMutationVariables = Exact<{
   boxLabelIdentifier: Scalars['String'];
@@ -1428,7 +1427,7 @@ export type BoxesForBaseQueryVariables = Exact<{
 }>;
 
 
-export type BoxesForBaseQuery = { __typename?: 'Query', base?: { __typename?: 'Base', locations: Array<{ __typename?: 'Location', name?: string | null, boxes?: { __typename?: 'BoxPage', totalCount: number, elements: Array<{ __typename?: 'Box', labelIdentifier: string, state: BoxState, numberOfItems?: number | null, size: { __typename?: 'Size', id: string, label: string }, product?: { __typename?: 'Product', gender?: ProductGender | null, name: string } | null, tags: Array<{ __typename?: 'Tag', name: string, id: string }> }> } | null }> } | null };
+export type BoxesForBaseQuery = { __typename?: 'Query', base?: { __typename?: 'Base', locations: Array<{ __typename?: 'ClassicLocation', name?: string | null, boxes?: { __typename?: 'BoxPage', totalCount: number, elements: Array<{ __typename?: 'Box', labelIdentifier: string, state: BoxState, numberOfItems?: number | null, size: { __typename?: 'Size', id: string, label: string }, product?: { __typename?: 'Product', gender?: ProductGender | null, name: string } | null, tags: Array<{ __typename?: 'Tag', name: string, id: string }> }> } | null }> } | null };
 
 export type DistributionSpotQueryVariables = Exact<{
   id: Scalars['ID'];

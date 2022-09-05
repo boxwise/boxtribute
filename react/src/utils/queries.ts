@@ -13,7 +13,7 @@ export const BOX_DETAILS_BY_LABEL_IDENTIFIER_QUERY = gql`
         id
         label
       }
-      place {
+      location {
         id
         name
         base {
