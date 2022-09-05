@@ -96,7 +96,7 @@ def test_tags_mutations(client, tags, another_beneficiary, lost_box):
     color = "#ff0000"
     type = TagType.All.name
     base_id = "1"
-    tags_input_string = f"""{{
+    creation_input = f"""{{
         name: "{name}",
         description: "{description}",
         color: "{color}",
@@ -106,7 +106,7 @@ def test_tags_mutations(client, tags, another_beneficiary, lost_box):
 
     mutation = f"""mutation {{
             createTag(
-                creationInput : {tags_input_string}
+                creationInput : {creation_input}
             ) {{
                 id
                 name
@@ -136,12 +136,12 @@ def test_tags_mutations(client, tags, another_beneficiary, lost_box):
     for field, value in zip(
         ["name", "description", "color"], ["Another Box Group", "", "#c0ffee"]
     ):
-        tags_input_string = f"""{{
+        update_input = f"""{{
             id: {tag_id},
             {field}: "{value}"
         }}"""
         mutation = f"""mutation {{
-                updateTag(updateInput : {tags_input_string}) {{
+                updateTag(updateInput : {update_input}) {{
                     id
                     {field}
                     type
@@ -249,7 +249,7 @@ def test_update_tag_type(client, tag_id, tag_type, tagged_resource_ids, typename
 def test_mutate_tag_with_invalid_base(client, default_bases, tags):
     # Test case 4.2.2
     base_id = default_bases[2]["id"]
-    tags_input_string = f"""{{
+    creation_input = f"""{{
         name: "new tag",
         color: "#112233",
         type: {TagType.All.name}
@@ -257,7 +257,7 @@ def test_mutate_tag_with_invalid_base(client, default_bases, tags):
     }}"""
 
     mutation = f"""mutation {{
-            createTag(creationInput : {tags_input_string}) {{ id }} }}"""
+            createTag(creationInput : {creation_input}) {{ id }} }}"""
     assert_forbidden_request(client, mutation)
 
     # Test case 4.2.6
@@ -267,6 +267,5 @@ def test_mutate_tag_with_invalid_base(client, default_bases, tags):
     assert_forbidden_request(client, mutation)
 
     # Test case 4.2.12
-    tag_id = tags[3]["id"]
     mutation = f"""mutation {{ deleteTag( id: {tag_id} ) {{ id }} }}"""
     assert_forbidden_request(client, mutation)
