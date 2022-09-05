@@ -269,3 +269,20 @@ def test_mutate_tag_with_invalid_base(client, default_bases, tags):
     # Test case 4.2.12
     mutation = f"""mutation {{ deleteTag( id: {tag_id} ) {{ id }} }}"""
     assert_forbidden_request(client, mutation)
+
+    # Test case 4.2.39
+    assignment_input = f"""{{
+        id: {tag_id}
+        resourceId: 2
+        resourceType: Box
+    }}"""
+    mutation = f"""mutation {{
+            assignTag( assignmentInput: {assignment_input} ) {{
+                ...on Box {{ id }} }} }}"""
+    assert_forbidden_request(client, mutation)
+
+    # Test case 4.2.40
+    mutation = f"""mutation {{
+            unassignTag( unassignmentInput: {assignment_input} ) {{
+                ...on Box {{ id }} }} }}"""
+    assert_forbidden_request(client, mutation)
