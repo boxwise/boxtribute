@@ -188,6 +188,33 @@ def test_tags_mutations(client, tags, another_beneficiary, lost_box):
     tag = assert_successful_request(client, query)
     assert tag == {"taggedResources": [{"id": i} for i in [beneficiary_id, box_id]]}
 
+    # Test case 4.2.27
+    mutation = f"""mutation {{
+                unassignTag(unassignmentInput: {{
+                    id: {tag_id}
+                    resourceId: {box_id}
+                    resourceType: Box
+                }} ) {{
+                    ...on Box {{ tags {{ id }} }}
+                }} }}"""
+    box = assert_successful_request(client, mutation)
+    assert box == {"tags": []}
+
+    # Test case 4.2.28
+    mutation = f"""mutation {{
+                unassignTag(unassignmentInput: {{
+                    id: {tag_id}
+                    resourceId: {beneficiary_id}
+                    resourceType: Beneficiary
+                }} ) {{
+                    ...on Beneficiary {{ tags {{ id }} }}
+                }} }}"""
+    beneficiary = assert_successful_request(client, mutation)
+    assert beneficiary == {"tags": []}
+
+    tag = assert_successful_request(client, query)
+    assert tag == {"taggedResources": []}
+
 
 @pytest.mark.parametrize(
     "tag_id,tag_type,tagged_resource_ids,typename",

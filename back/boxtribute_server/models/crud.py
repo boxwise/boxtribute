@@ -204,6 +204,19 @@ def assign_tag(*, id, resource_id, resource_type):
     return model.get_by_id(resource_id)
 
 
+def unassign_tag(*, id, resource_id, resource_type):
+    """Delete TagsRelation entry defined by given tag ID, resource ID, and resource
+    type. Return the resource that the tag was unassigned from.
+    """
+    TagsRelation.delete().where(
+        TagsRelation.tag == id,
+        TagsRelation.object_id == resource_id,
+        TagsRelation.object_type == resource_type,
+    ).execute()
+    model = Box if resource_type == TaggableObjectType.Box else Beneficiary
+    return model.get_by_id(resource_id)
+
+
 def create_beneficiary(
     *,
     user,

@@ -66,6 +66,7 @@ from ..models.crud import (
     create_qr_code,
     create_tag,
     delete_tag,
+    unassign_tag,
     update_beneficiary,
     update_box,
     update_tag,
@@ -853,6 +854,12 @@ def resolve_update_tag(*_, update_input):
 @convert_kwargs_to_snake_case
 def resolve_assign_tag(*_, assignment_input):
     return assign_tag(**assignment_input)
+
+
+@mutation.field("unassignTag")
+@convert_kwargs_to_snake_case
+def resolve_unassign_tag(*_, unassignment_input):
+    return unassign_tag(**unassignment_input)
 
 
 @mutation.field("deleteTag")
