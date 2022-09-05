@@ -191,9 +191,10 @@ def delete_tag(*, user_id, id):
     return tag
 
 
-def assign_tag(*, id, resource_id, resource_type):
+def assign_tag(*, user_id, id, resource_id, resource_type):
     """Create TagsRelation entry as cross reference of the tag given by ID, and the
-    given resource.
+    given resource (a box or a beneficiary). Insert timestamp for modification in
+    resource model.
     Validate that tag type and resource type are compatible.
     Return the resource.
     """
@@ -205,26 +206,39 @@ def assign_tag(*, id, resource_id, resource_type):
     ):
         raise IncompatibleTagTypeAndResourceType(tag=tag, resource_type=resource_type)
 
-    TagsRelation.create(
-        object_id=resource_id,
-        object_type=resource_type,
-        tag=id,
-    )
     model = Box if resource_type == TaggableObjectType.Box else Beneficiary
-    return model.get_by_id(resource_id)
+    resource = model.get_by_id(resource_id)
+    resource.last_modified_by = user_id
+    resource.last_modified_on = utcnow()
+
+    with db.database.atomic():
+        TagsRelation.create(
+            object_id=resource_id,
+            object_type=resource_type,
+            tag=id,
+        )
+        resource.save()
+    return resource
 
 
-def unassign_tag(*, id, resource_id, resource_type):
+def unassign_tag(*, user_id, id, resource_id, resource_type):
     """Delete TagsRelation entry defined by given tag ID, resource ID, and resource
-    type. Return the resource that the tag was unassigned from.
+    type. Insert timestamp for modification in resource model.
+    Return the resource that the tag was unassigned from.
     """
-    TagsRelation.delete().where(
-        TagsRelation.tag == id,
-        TagsRelation.object_id == resource_id,
-        TagsRelation.object_type == resource_type,
-    ).execute()
     model = Box if resource_type == TaggableObjectType.Box else Beneficiary
-    return model.get_by_id(resource_id)
+    resource = model.get_by_id(resource_id)
+    resource.last_modified_by = user_id
+    resource.last_modified_on = utcnow()
+
+    with db.database.atomic():
+        TagsRelation.delete().where(
+            TagsRelation.tag == id,
+            TagsRelation.object_id == resource_id,
+            TagsRelation.object_type == resource_type,
+        ).execute()
+        resource.save()
+    return resource
 
 
 def create_beneficiary(
