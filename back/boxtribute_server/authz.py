@@ -29,11 +29,23 @@ def authorize(
     if current_user.is_god:
         return True
 
+    authorized = False
     if permission is not None:
-        authorized = current_user.has_permission(permission)
+        base_ids = []
+        try:
+            # Look up base IDs for given permission
+            base_ids = current_user.authorized_base_ids(permission)
+            authorized = True
+        except KeyError:
+            # Permission not granted for user
+            authorized = False
+
+        if not base_ids:
+            # Permission field exists but no access for any base granted
+            authorized = False
+
         if authorized and base_id is not None:
             # Enforce base-specific permission
-            base_ids = current_user.authorized_base_ids(permission)
             authorized = int(base_id) in base_ids
     elif organisation_id is not None:
         authorized = organisation_id == current_user.organisation_id

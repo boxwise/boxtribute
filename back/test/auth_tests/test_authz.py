@@ -1,27 +1,27 @@
 import pytest
-from boxtribute_server.auth import CurrentUser
+from boxtribute_server.auth import JWT_CLAIM_PREFIX, CurrentUser
 from boxtribute_server.authz import authorize
 from boxtribute_server.exceptions import Forbidden, UnknownResource
 
-ALL_PERMISSIONS = [
-    "base:read",
-    "beneficiary:read",
-    "category:read",
-    "location:read",
-    "product:read",
-    "shipment:read",
-    "stock:read",
-    "transaction:read",
-    "transfer_agreement:read",
-    "user:read",
-    "qr:read",
-    "beneficiary:create",
-    "beneficiary:edit",
-    "shipment:write",
-    "stock:write",
-    "transfer_agreement:write",
-    "qr:create",
-]
+ALL_PERMISSIONS = {
+    "base:read": [1],
+    "beneficiary:read": [1],
+    "category:read": [1],
+    "location:read": [1],
+    "product:read": [1],
+    "shipment:read": [1],
+    "stock:read": [1],
+    "transaction:read": [1],
+    "transfer_agreement:read": [1],
+    "user:read": [1],
+    "qr:read": [1],
+    "beneficiary:create": [1],
+    "beneficiary:edit": [1],
+    "shipment:write": [1],
+    "stock:write": [1],
+    "transfer_agreement:write": [1],
+    "qr:create": [1],
+}
 
 
 def test_authorized_user():
@@ -74,9 +74,17 @@ def test_user_with_insufficient_permissions():
         id=3, organisation_id=2, base_ids={"beneficiary:create": [2], "stock:write": []}
     )
     with pytest.raises(Forbidden):
+        # The permission field exists but access granted for different base
         authorize(user, permission="beneficiary:create", base_id=1)
     with pytest.raises(Forbidden):
+        # The permission field exists but holds no bases
         authorize(user, permission="stock:write", base_id=1)
+    with pytest.raises(Forbidden):
+        # The permission field exists but holds no bases
+        authorize(user, permission="stock:write")
+    with pytest.raises(Forbidden):
+        # The permission field does not exist
+        authorize(user, permission="product:read")
 
 
 def test_user_unauthorized_for_organisation():
@@ -100,3 +108,19 @@ def test_god_user():
     user = CurrentUser(id=0, organisation_id=0, is_god=True)
     for permission in ALL_PERMISSIONS:
         assert authorize(user, permission=permission)
+
+
+def test_user_with_multiple_roles():
+    permission = "stock:write"
+    # User is Head-of-Ops for base 2 but coordinator for base 1
+    payload = {
+        f"{JWT_CLAIM_PREFIX}/organisation_id": 1,
+        f"{JWT_CLAIM_PREFIX}/base_ids": [2],
+        f"{JWT_CLAIM_PREFIX}/permissions": [permission, f"base_1/{permission}"],
+        "sub": "auth0|42",
+    }
+    user = CurrentUser.from_jwt(payload)
+    assert sorted(user.authorized_base_ids(permission)) == [1, 2]
+
+    assert authorize(user, permission=permission, base_id=1)
+    assert authorize(user, permission=permission, base_id=2)

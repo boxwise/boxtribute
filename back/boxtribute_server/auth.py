@@ -2,6 +2,7 @@
 import json
 import os
 import urllib
+from collections import defaultdict
 from functools import wraps
 
 from flask import g, request
@@ -117,9 +118,8 @@ class CurrentUser:
 
     def __init__(self, *, id, organisation_id=None, is_god=False, base_ids=None):
         """The `base_ids` field is a mapping of a permission name to a list of base IDs
-        that the permission is granted for, or to None if the permission is granted for
-        all bases. However it is never exposed directly to avoid accidental
-        manipulation.
+        that the permission is granted for. However it is never exposed directly to
+        avoid accidental manipulation.
         The `organisation_id` field is set to None for god users.
         """
         self._id = id
@@ -131,12 +131,21 @@ class CurrentUser:
     def from_jwt(cls, payload):
         """Extract user information from custom claims in JWT payload. The prefix and
         the claim names are set by an Action script in Auth0.
+
         The `permissions` custom claim contains entries of form
-        '[base_X[-Y...]/]resource:method'. Any write/edit permission implies read
-        permission on the same resource. E.g.
+        '[base_X[-Y...]/]resource:method'. If no base prefix is given, the value from
+        the `base_ids` custom claim is used (this occurs for the Head-of-Ops user role).
+
+        If a user has multiple roles, their base-specific permissions are aggregated.
+
+        Any write/edit permission implies read permission on the same resource.
+
+        Examples:
         - base_1/product:read    -> {"product:read": [1]}
         - base_2-3/stock:write   -> {"stock:write": [2, 3], "stock:read": [2, 3]}
-        - beneficiary:edit       -> {"beneficiary:edit": None, "beneficiary:read": None}
+        - beneficiary:edit       -> {"beneficiary:edit": [], "beneficiary:read": []}
+        - base_1/stock:read, stock:read, base_ids = [2]
+                                 -> {"stock:read": [1, 2]}
 
         If the permissions custom claim is a list with a single entry "*", it indicates
         that the current user is a god user.
@@ -152,32 +161,29 @@ class CurrentUser:
                 },
             )
 
-        base_ids = {}
+        base_ids = defaultdict(list)
         if not is_god:
             for raw_permission in payload[f"{JWT_CLAIM_PREFIX}/permissions"]:
                 try:
                     base_prefix, permission = raw_permission.split("/")
                     ids = [int(b) for b in base_prefix[5:].split("-")]
                 except ValueError:
-                    # Organisation admins don't have base_ prefixes, permission granted
-                    # for all bases indicated by custom 'base_ids' claim
+                    # Organisation Head-of-Ops don't have base_ prefixes, permission
+                    # granted for all bases indicated by custom 'base_ids' claim
                     permission = raw_permission
                     ids = payload[f"{JWT_CLAIM_PREFIX}/base_ids"]
-                base_ids[permission] = ids
+                base_ids[permission].extend(ids)
 
                 resource, method = permission.split(":")
                 if method in ["write", "create", "edit"]:
-                    base_ids[f"{resource}:read"] = ids
+                    base_ids[f"{resource}:read"].extend(ids)
 
         return cls(
             organisation_id=payload[f"{JWT_CLAIM_PREFIX}/organisation_id"],
             id=int(payload["sub"].replace("auth0|", "")),
             is_god=is_god,
-            base_ids=base_ids,
+            base_ids=dict(base_ids),
         )
-
-    def has_permission(self, name):
-        return name in self._base_ids
 
     def authorized_base_ids(self, permission):
         return self._base_ids[permission]
