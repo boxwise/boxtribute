@@ -6,6 +6,7 @@ from boxtribute_server.db import db
 
 from .base import default_base, default_bases
 from .beneficiary import (
+    another_beneficiary,
     default_beneficiaries,
     default_beneficiary,
     relative_beneficiary,
@@ -60,6 +61,7 @@ from .transfer_agreement import (
 from .user import default_user, default_users
 
 __all__ = [
+    "another_beneficiary",
     "another_box",
     "another_location",
     "another_marked_for_shipment_box",

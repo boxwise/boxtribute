@@ -76,6 +76,11 @@ def relative_beneficiary():
     return relative_beneficiary_data()
 
 
+@pytest.fixture
+def another_beneficiary():
+    return another_beneficiary_data()
+
+
 def create():
     # not using insert_many() because relative_beneficiary's gender not defined
     Beneficiary.create(**default_beneficiary_data())
