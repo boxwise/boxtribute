@@ -138,6 +138,18 @@ def test_mutation_non_existent_resource(read_only_client, operation):
             "assignmentInput: { id: 0, resourceId: 2, resourceType: Beneficiary }",
             "...on Beneficiary { id }",
         ],
+        # Test case 4.2.17
+        [
+            "assignTag",
+            "assignmentInput: { id: 2, resourceId: 0, resourceType: Box }",
+            "...on Box { id }",
+        ],
+        # Test case 4.2.18
+        [
+            "assignTag",
+            "assignmentInput: { id: 1, resourceId: 0, resourceType: Beneficiary }",
+            "...on Beneficiary { id }",
+        ],
         # Test case 4.2.29
         [
             "unassignTag",
@@ -148,6 +160,18 @@ def test_mutation_non_existent_resource(read_only_client, operation):
         [
             "unassignTag",
             "unassignmentInput: { id: 0, resourceId: 2, resourceType: Beneficiary }",
+            "...on Beneficiary { id }",
+        ],
+        # Test case 4.2.31
+        [
+            "unassignTag",
+            "unassignmentInput: { id: 2, resourceId: 0, resourceType: Box }",
+            "...on Box { id }",
+        ],
+        # Test case 4.2.32
+        [
+            "unassignTag",
+            "unassignmentInput: { id: 2, resourceId: 0, resourceType: Beneficiary }",
             "...on Beneficiary { id }",
         ],
     ],
