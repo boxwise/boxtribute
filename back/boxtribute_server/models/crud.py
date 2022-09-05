@@ -191,6 +191,19 @@ def delete_tag(*, user_id, id):
     return tag
 
 
+def assign_tag(*, id, resource_id, resource_type):
+    """Create TagsRelation entry as cross reference of the tag given by ID, and the
+    given resource. Return the resource.
+    """
+    TagsRelation.create(
+        object_id=resource_id,
+        object_type=resource_type,
+        tag=id,
+    )
+    model = Box if resource_type == TaggableObjectType.Box else Beneficiary
+    return model.get_by_id(resource_id)
+
+
 def create_beneficiary(
     *,
     user,

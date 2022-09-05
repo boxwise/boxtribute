@@ -71,7 +71,7 @@ def test_tags_query(
     ]
 
 
-def test_tags_mutations(client, tags, default_beneficiary):
+def test_tags_mutations(client, tags, another_beneficiary, lost_box):
     # Test case 4.2.9
     tag_id = tags[0]["id"]
     mutation = f"""mutation {{ deleteTag(id: {tag_id}) {{
@@ -152,6 +152,41 @@ def test_tags_mutations(client, tags, default_beneficiary):
             field: value,
             "type": type,
         }
+
+    # Test case 4.2.13
+    box_id = str(lost_box["id"])
+    mutation = f"""mutation {{
+                assignTag(assignmentInput: {{
+                    id: {tag_id}
+                    resourceId: {box_id}
+                    resourceType: Box
+                }} ) {{
+                    ...on Box {{ tags {{ id }} }}
+                }} }}"""
+    box = assert_successful_request(client, mutation)
+    assert box == {"tags": [{"id": tag_id}]}
+
+    # Test case 4.2.14
+    beneficiary_id = str(another_beneficiary["id"])
+    mutation = f"""mutation {{
+                assignTag(assignmentInput: {{
+                    id: {tag_id}
+                    resourceId: {beneficiary_id}
+                    resourceType: Beneficiary
+                }} ) {{
+                    ...on Beneficiary {{ tags {{ id }} }}
+                }} }}"""
+    beneficiary = assert_successful_request(client, mutation)
+    assert beneficiary == {"tags": [{"id": tag_id}]}
+
+    query = f"""query {{ tag( id: {tag_id} ) {{
+                taggedResources {{
+                    ...on Beneficiary {{ id }}
+                    ...on Box {{ id }}
+                }}
+    }} }}"""
+    tag = assert_successful_request(client, query)
+    assert tag == {"taggedResources": [{"id": i} for i in [beneficiary_id, box_id]]}
 
 
 @pytest.mark.parametrize(

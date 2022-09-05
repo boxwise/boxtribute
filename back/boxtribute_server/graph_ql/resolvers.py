@@ -60,6 +60,7 @@ from ..mobile_distribution.crud import (
     update_packing_list_entry,
 )
 from ..models.crud import (
+    assign_tag,
     create_beneficiary,
     create_box,
     create_qr_code,
@@ -846,6 +847,12 @@ def resolve_update_tag(*_, update_input):
     base_id = Tag.get_by_id(update_input["id"]).base_id
     authorize(permission="tag:write", base_id=base_id)
     return update_tag(user_id=g.user.id, **update_input)
+
+
+@mutation.field("assignTag")
+@convert_kwargs_to_snake_case
+def resolve_assign_tag(*_, assignment_input):
+    return assign_tag(**assignment_input)
 
 
 @mutation.field("deleteTag")
