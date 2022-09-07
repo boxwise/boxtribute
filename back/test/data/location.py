@@ -23,7 +23,7 @@ def default_location_data():
         "seq": 1,
         "visible": 1,
         "created_by": default_user_data()["id"],
-        "type": LocationType.Location,
+        "type": LocationType.ClassicLocation,
     }
 
 

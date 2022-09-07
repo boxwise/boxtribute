@@ -9,7 +9,7 @@ def test_box_query_by_label_identifier(read_only_client, default_box, tags):
                 box(labelIdentifier: "{label_identifier}") {{
                     id
                     labelIdentifier
-                    place {{ id }}
+                    location {{ id }}
                     numberOfItems
                     product {{ id }}
                     size {{ id }}
@@ -28,7 +28,7 @@ def test_box_query_by_label_identifier(read_only_client, default_box, tags):
     assert queried_box == {
         "id": str(default_box["id"]),
         "labelIdentifier": label_identifier,
-        "place": {"id": str(default_box["location"])},
+        "location": {"id": str(default_box["location"])},
         "numberOfItems": default_box["number_of_items"],
         "product": {"id": str(default_box["product"])},
         "size": {"id": str(default_box["size"])},
@@ -77,7 +77,7 @@ def test_box_mutations(
                 id
                 labelIdentifier
                 numberOfItems
-                place {{ id }}
+                location {{ id }}
                 product {{ id }}
                 size {{ id }}
                 qrCode {{ id }}
@@ -91,7 +91,7 @@ def test_box_mutations(
     created_box = assert_successful_request(client, mutation)
     assert created_box["numberOfItems"] is None
     assert created_box["state"] == BoxState.InStock.name
-    assert created_box["place"]["id"] == location_id
+    assert created_box["location"]["id"] == location_id
     assert created_box["product"]["id"] == product_id
     assert created_box["size"]["id"] == size_id
     assert created_box["qrCode"]["id"] == str(qr_code_without_box["id"])

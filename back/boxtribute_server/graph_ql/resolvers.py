@@ -122,7 +122,7 @@ distribution_spot = _register_object_type("DistributionSpot")
 distribution_events_tracking_group = _register_object_type(
     "DistributionEventsTrackingGroup"
 )
-location = _register_object_type("Location")
+classic_location = _register_object_type("ClassicLocation")
 metrics = _register_object_type("Metrics")
 organisation = _register_object_type("Organisation")
 packing_list_entry = _register_object_type("PackingListEntry")
@@ -352,13 +352,13 @@ def resolve_box(*_, label_identifier):
 @query.field("location")
 def resolve_location(obj, _, id):
     location = Location.get_by_id(id)
-    if location.type == LocationType.Location:
+    if location.type == LocationType.ClassicLocation:
         authorize(permission="location:read", base_id=location.base_id)
         return location
 
 
-@box.field("place")
-def resolve_box_place(obj, _):
+@box.field("location")
+def resolve_box_location(obj, _):
     authorize(permission="location:read", base_id=obj.location.base_id)
     return obj.location
 
@@ -401,7 +401,7 @@ def resolve_organisations(*_):
 def resolve_locations(*_):
     authorize(permission="location:read")
     return Location.select().where(
-        Location.type == LocationType.Location & base_filter_condition(Location)
+        Location.type == LocationType.ClassicLocation & base_filter_condition(Location)
     )
 
 
@@ -560,7 +560,7 @@ def resolve_box_state(box_obj, _):
     return box_obj.state_id
 
 
-@location.field("defaultBoxState")
+@classic_location.field("defaultBoxState")
 def resolve_location_default_box_state(location_obj, _):
     # Instead of a BoxState instance return an integer for EnumType conversion
     return location_obj.box_state.id
@@ -976,10 +976,8 @@ def resolve_send_shipment(*_, id):
 @base.field("locations")
 def resolve_base_locations(base_obj, _):
     authorize(permission="location:read")
-    # TODO: might need adaptions after clarifying the
-    # semantics of Place/Location/Warehouse/DistroSpot
     return Location.select().where(
-        (Location.base == base_obj.id) & (Location.type == LocationType.Location)
+        (Location.base == base_obj.id) & (Location.type == LocationType.ClassicLocation)
     )
 
 
@@ -1135,7 +1133,7 @@ def resolve_distribution_spot_distribution_events(obj, *_):
     )
 
 
-@location.field("boxes")
+@classic_location.field("boxes")
 @convert_kwargs_to_snake_case
 def resolve_location_boxes(location_obj, _, pagination_input=None, filter_input=None):
     authorize(permission="stock:read")
@@ -1194,7 +1192,7 @@ def resolve_organisation_bases(organisation_obj, _):
 
 @beneficiary.field("base")
 @distribution_spot.field("base")
-@location.field("base")
+@classic_location.field("base")
 @product.field("base")
 def resolve_resource_base(obj, _):
     authorize(permission="base:read")
@@ -1323,7 +1321,7 @@ def resolve_taggable_resource_type(obj, *_):
     return "Beneficiary"
 
 
-def resolve_box_place_type(obj, *_):
+def resolve_location_type(obj, *_):
     return obj.type.name
 
 
@@ -1332,5 +1330,5 @@ def resolve_items_collection_type(obj, *_):
 
 
 union_types.append(UnionType("TaggableResource", resolve_taggable_resource_type))
-interface_types.append(InterfaceType("BoxPlace", resolve_box_place_type))
+interface_types.append(InterfaceType("Location", resolve_location_type))
 interface_types.append(InterfaceType("ItemsCollection", resolve_items_collection_type))

@@ -7,7 +7,7 @@ interface ItemsCollection {
   product: Product
   size: Size!
   numberOfItems: Int
-  place: BoxPlace
+  location: Location
   distributionEvent: DistributionEvent
 }
 
@@ -17,7 +17,7 @@ type UnboxedItemsCollection implements ItemsCollection {
   size: Size!
   numberOfItems: Int
   label: String
-  place: BoxPlace
+  location: Location
   distributionEvent: DistributionEvent
 }
 
@@ -29,7 +29,7 @@ type Box implements ItemsCollection {
   id: ID!
   " Sequence of numbers for identifying the box, usually written on box label "
   labelIdentifier: String!
-  place: BoxPlace
+  location: Location
   distributionEvent: DistributionEvent
   numberOfItems: Int
   product: Product
@@ -44,7 +44,7 @@ type Box implements ItemsCollection {
   tags: [Tag!]!
 }
 
-interface BoxPlace {
+interface Location {
   id: ID!
   base: Base
   name: String
@@ -181,18 +181,18 @@ type SizeRange {
 }
 
 """
-Representation of a physical location used to store [`Boxes`]({{Types.Box}}).
+Representation of a classic physical location used to store [`Boxes`]({{Types.Box}}) (e.g. a warehouse).
 The location is part of a specific [`Base`]({{Types.Base}}).
 """
-type Location implements BoxPlace {
+type ClassicLocation implements Location {
   id: ID!
   base: Base
   name: String
   isShop: Boolean!
   isStockroom: Boolean!
-  " List of all the [`Boxes`]({{Types.Box}}) in this location "
+  " List of all the [`Boxes`]({{Types.Box}}) in this classic location "
   boxes(paginationInput: PaginationInput, filterInput: FilterBoxInput): BoxPage
-  " Default state for boxes in this location "
+  " Default state for boxes in this classic location"
   defaultBoxState: BoxState
   createdBy: User
   createdOn: Datetime
@@ -220,9 +220,8 @@ type Base {
   " List of all [`Beneficiaries`]({{Types.Beneficiary}}) registered in this base "
   beneficiaries(paginationInput: PaginationInput, filterInput: FilterBeneficiaryInput): BeneficiaryPage!
   currencyName: String
-  boxPlaces: [BoxPlace!]!
-  " List of all [`Locations`]({{Types.Location}}) present in this base "
-  locations: [Location!]!
+  " List of all [`ClassicLocations`]({{Types.ClassicLocation}}) present in this base "
+  locations: [ClassicLocation!]!
   products: [Product!]!
   distributionSpots: [DistributionSpot!]!
   distributionEvents(states: [DistributionEventState!]): [DistributionEvent!]!
@@ -342,7 +341,7 @@ type PackingListEntry {
 """
 TODO: Add description here once specs are final/confirmed
 """
-type DistributionSpot implements BoxPlace {
+type DistributionSpot implements Location {
   id: ID!
   name: String
   base: Base
@@ -566,8 +565,8 @@ type ShipmentDetail {
   id: ID!
   sourceProduct: Product
   targetProduct: Product
-  sourceLocation: Location
-  targetLocation: Location
+  sourceLocation: ClassicLocation
+  targetLocation: ClassicLocation
   box: Box!
   shipment: Shipment!
   createdBy: User!

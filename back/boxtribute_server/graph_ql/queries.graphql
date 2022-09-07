@@ -17,9 +17,9 @@ type Query {
   box(labelIdentifier: String!): Box
   qrCode(qrCode: String!): QrCode
   qrExists(qrCode: String): Boolean
-  location(id: ID!): Location
-  " Return all [`Locations`]({{Types.Location}}) that the client is authorized to view. "
-  locations: [Location!]!
+  location(id: ID!): ClassicLocation
+  " Return all [`ClassicLocations`]({{Types.ClassicLocation}}) that the client is authorized to view. "
+  locations: [ClassicLocation!]!
   product(id: ID!): Product
   " Return all [`Products`]({{Types.Product}}) that the client is authorized to view. "
   products(paginationInput: PaginationInput): ProductPage!
