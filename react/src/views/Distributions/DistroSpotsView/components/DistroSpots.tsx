@@ -11,7 +11,6 @@ import {
   Text,
   Button,
 } from "@chakra-ui/react";
-import _ from "lodash";
 import React from "react";
 import { DistributionEventState } from "types/generated/graphql";
 import { distroEventStateHumanReadableLabels } from "views/Distributions/baseData";
