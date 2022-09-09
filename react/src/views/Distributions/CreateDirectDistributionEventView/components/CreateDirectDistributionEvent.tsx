@@ -11,7 +11,7 @@ import { Select } from "chakra-react-select";
 import { Controller, useForm } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { parse, isValid, format } from 'date-fns';
+import { parse, isValid, format } from "date-fns";
 
 export const CreateDirectDistributionEventFormDataSchema = z.object({
   name: z.string().optional(),
@@ -20,7 +20,9 @@ export const CreateDirectDistributionEventFormDataSchema = z.object({
     invalid_type_error: "Please enter a valid date",
   }),
   duration: z.number(),
-  eventTime: z.date({ required_error: "Time of event is required" }).refine(val => isValid(val), {message: "foo"}),
+  eventTime: z
+    .date({ required_error: "Time of event is required" })
+    .refine((val) => isValid(val), { message: "foo" }),
   comment: z.string().optional(),
   distroSpotId: z.string({ required_error: "Distribution Spot is required" }),
 });
@@ -51,6 +53,9 @@ const CreateDirectDistroEvent = ({
     formState: { errors },
   } = useForm<CreateDistroEventFormData>({
     resolver: zodResolver(CreateDirectDistributionEventFormDataSchema),
+    defaultValues: {
+      duration: 2
+    }
   });
 
   const distroSpotsForDropdown = allDistroSpots
