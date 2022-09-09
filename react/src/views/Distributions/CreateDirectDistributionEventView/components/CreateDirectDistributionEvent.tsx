@@ -11,22 +11,16 @@ import { Select } from "chakra-react-select";
 import { Controller, useForm } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { parse, isValid, format } from 'date-fns';
 
 export const CreateDirectDistributionEventFormDataSchema = z.object({
   name: z.string().optional(),
-  // eventDate: z.string().refine(isISODate, { message: "Not a valid ISO string date "})
-  eventDate: z
-    // .string({ required_error: "Date of event is required", invalid_type_error: "Please enter a valid date" })
-    // .transform((v) => new Date(v)),
-  .date({ required_error: "Date of event is required", invalid_type_error: "Please enter a valid date" }),
-  duration: z
-    // .string()
-    // .transform(v => parseInt(v))
-    // .nonnegative("Number of items must be at least 0")
-    .number(),
-  // .default(2),
-  //TO DO ask if the time input is helping the org
-  eventTime: z.string({ required_error: "Time of event is required" }),
+  eventDate: z.date({
+    required_error: "Date of event is required",
+    invalid_type_error: "Please enter a valid date",
+  }),
+  duration: z.number(),
+  eventTime: z.date({ required_error: "Time of event is required" }).refine(val => isValid(val), {message: "foo"}),
   comment: z.string().optional(),
   distroSpotId: z.string({ required_error: "Distribution Spot is required" }),
 });
@@ -34,14 +28,6 @@ export const CreateDirectDistributionEventFormDataSchema = z.object({
 export type CreateDistroEventFormData = z.infer<
   typeof CreateDirectDistributionEventFormDataSchema
 >;
-
-// export interface CreateDistroEventFormData {
-//   eventDate: Date;
-//   eventTime: string;
-//   duration: number;
-//   name?: string;
-//   distroSpotId: string;
-// }
 
 interface DistroSpotData {
   id: string;
@@ -112,7 +98,7 @@ const CreateDirectDistroEvent = ({
           )}
         />
         <FormControl isInvalid={errors.eventDate != null} id="eventDate">
-          <FormLabel fontSize="sm" htmlFor="date" mt={4}>
+          <FormLabel fontSize="sm" htmlFor="date">
             Date of the event:
           </FormLabel>
           <Input
@@ -124,38 +110,38 @@ const CreateDirectDistroEvent = ({
             {errors.eventDate && errors.eventDate.message}
           </FormErrorMessage>
         </FormControl>
-        <FormLabel fontSize="sm" htmlFor="time">
-          Time of the event:
-        </FormLabel>
-        <Input
-          // placeholder={distroEvent.eventDate?.toDateString()}
-          type="time"
-          mb={4}
-          {...register("eventTime", { required: true })}
-        />
-        <FormErrorMessage>
+        <FormControl isInvalid={errors.eventTime != null} id="eventTime">
+          <FormLabel fontSize="sm" htmlFor="time">
+            Time of the event:
+          </FormLabel>
+          <Input
+            // placeholder={distroEvent.eventDate?.toDateString()}
+            type="time"
+            mb={4}
+            {...register("eventTime", { required: true, valueAsDate: true })}
+          />
+          <FormErrorMessage>
             {errors.eventTime && errors.eventTime.message}
           </FormErrorMessage>
-        <FormLabel fontSize="sm" htmlFor="date">
-          Expected duration (in hours):
-        </FormLabel>
-        <Input
-          type="number"
-          mb={4}
-          {...register("duration", { required: true, valueAsNumber: true })}
-        />
-        <FormErrorMessage>
-          {errors.duration?.message && <span>{errors.duration?.message}</span>}
-        </FormErrorMessage>
-
+        </FormControl>
+        <FormControl isInvalid={errors.duration != null} id="duration">
+          <FormLabel fontSize="sm" htmlFor="date">
+            Expected duration (in hours):
+          </FormLabel>
+          <Input
+            placeholder="2"
+            type="number"
+            mb={4}
+            {...register("duration", { required: true, valueAsNumber: true })}
+          />
+          <FormErrorMessage>
+            {errors.duration?.message && errors.duration?.message}
+          </FormErrorMessage>
+        </FormControl>
         <FormLabel fontSize="sm" htmlFor="name">
           Name of the event:
         </FormLabel>
-        <Input 
-          type="text"
-          mb={4}
-          {...register("name", { required: false })}
-        />
+        <Input type="text" mb={4} {...register("name", { required: false })} />
         <Button
           mt={4}
           colorScheme="teal"

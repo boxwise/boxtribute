@@ -12,7 +12,7 @@ import CreateDirectDistroEvent, {
   CreateDistroEventFormData,
 } from "./components/CreateDirectDistributionEvent";
 import { addHours } from "date-fns";
-import { getISODateTimeFromDateAndTimeString } from "utils/helpers";
+import { getISODateTimeFromDateAndTime, getISODateTimeFromDateAndTimeString } from "utils/helpers";
 import { Center } from "@chakra-ui/react";
 import { DISTRO_SPOTS_FOR_BASE_ID } from "../queries";
 import { useGlobalSiteState } from "utils/hooks";
@@ -52,7 +52,7 @@ const CreateDirectDistributionEventView = () => {
 
   const onSubmitNewDistroEvent = useCallback(
     (createDistroEventFormData: CreateDistroEventFormData) => {
-      const plannedStartDateTime = getISODateTimeFromDateAndTimeString(
+      const plannedStartDateTime = getISODateTimeFromDateAndTime(
         createDistroEventFormData.eventDate,
         createDistroEventFormData.eventTime
       );
