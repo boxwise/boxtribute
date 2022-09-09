@@ -9,14 +9,27 @@ import {
 } from "@chakra-ui/react";
 import { Select } from "chakra-react-select";
 import { Controller, useForm } from "react-hook-form";
+import { z } from "zod";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { parse, isValid, format } from "date-fns";
 
-export interface CreateDistroEventFormData {
-  eventDate: Date;
-  eventTime: string;
-  duration: number;
-  name?: string;
-  distroSpotId: string;
-}
+export const CreateDirectDistributionEventFormDataSchema = z.object({
+  name: z.string().optional(),
+  eventDate: z.date({
+    required_error: "Date of event is required",
+    invalid_type_error: "Please enter a valid date",
+  }),
+  duration: z.number(),
+  eventTime: z
+    .date({ required_error: "Time of event is required" })
+    .refine((val) => isValid(val), { message: "foo" }),
+  comment: z.string().optional(),
+  distroSpotId: z.string({ required_error: "Distribution Spot is required" }),
+});
+
+export type CreateDistroEventFormData = z.infer<
+  typeof CreateDirectDistributionEventFormDataSchema
+>;
 
 interface DistroSpotData {
   id: string;
@@ -37,10 +50,12 @@ const CreateDirectDistroEvent = ({
     register,
     handleSubmit,
     formState: { isSubmitting },
+    formState: { errors },
   } = useForm<CreateDistroEventFormData>({
+    resolver: zodResolver(CreateDirectDistributionEventFormDataSchema),
     defaultValues: {
-      duration: 2,
-    },
+      duration: 2
+    }
   });
 
   const distroSpotsForDropdown = allDistroSpots
@@ -55,7 +70,9 @@ const CreateDirectDistroEvent = ({
   return (
     <Flex>
       <form onSubmit={handleSubmit(onSubmitNewDistroEvent)}>
-        <Text mb={2} fontSize="md">New Distro Event</Text>
+        <Text mb={2} fontSize="md">
+          New Distro Event
+        </Text>
         <Controller
           control={control}
           name="distroSpotId"
@@ -64,8 +81,9 @@ const CreateDirectDistroEvent = ({
             fieldState: { error },
           }) => (
             <FormControl isInvalid={!!error} id="distroSpotsForDropdown">
-              <FormLabel htmlFor="distroSpotsForDropdown">Location</FormLabel>
-
+              <FormLabel htmlFor="distroSpotsForDropdown">
+                Distribution Spot
+              </FormLabel>
               <Select
                 name={name}
                 ref={ref}
@@ -78,48 +96,57 @@ const CreateDirectDistroEvent = ({
                 options={distroSpotsForDropdown}
                 placeholder="Distro Spot"
                 isSearchable
-                // tagVariant="outline"
+                tagVariant="outline"
               />
-
               <FormErrorMessage>{error && error.message}</FormErrorMessage>
             </FormControl>
           )}
         />
-        <FormLabel fontSize="sm" htmlFor="date" mt={4}>
-          Date of the event:
-        </FormLabel>
-        <Input
-          type="date"
-          mb={4}
-          {...register("eventDate", { required: true })}
-        />
-        <FormLabel fontSize="sm" htmlFor="time">
-          Time of the event:
-        </FormLabel>
-        <Input
-          // placeholder={distroEvent.eventDate?.toDateString()}
-          type="time"
-          mb={4}
-          {...register("eventTime", { required: true })}
-        />
-        <FormLabel fontSize="sm" htmlFor="date">
-          Expected duration (in hours):
-        </FormLabel>
-        <Input
-          type="number"
-          mb={4}
-          {...register("duration", { required: true })}
-        />
+        <FormControl isInvalid={errors.eventDate != null} id="eventDate">
+          <FormLabel fontSize="sm" htmlFor="date">
+            Date of the event:
+          </FormLabel>
+          <Input
+            type="date"
+            mb={4}
+            {...register("eventDate", { required: true, valueAsDate: true })}
+          />
+          <FormErrorMessage>
+            {errors.eventDate && errors.eventDate.message}
+          </FormErrorMessage>
+        </FormControl>
+        <FormControl isInvalid={errors.eventTime != null} id="eventTime">
+          <FormLabel fontSize="sm" htmlFor="time">
+            Time of the event:
+          </FormLabel>
+          <Input
+            // placeholder={distroEvent.eventDate?.toDateString()}
+            type="time"
+            mb={4}
+            {...register("eventTime", { required: true, valueAsDate: true })}
+          />
+          <FormErrorMessage>
+            {errors.eventTime && errors.eventTime.message}
+          </FormErrorMessage>
+        </FormControl>
+        <FormControl isInvalid={errors.duration != null} id="duration">
+          <FormLabel fontSize="sm" htmlFor="date">
+            Expected duration (in hours):
+          </FormLabel>
+          <Input
+            placeholder="2"
+            type="number"
+            mb={4}
+            {...register("duration", { required: true, valueAsNumber: true })}
+          />
+          <FormErrorMessage>
+            {errors.duration?.message && errors.duration?.message}
+          </FormErrorMessage>
+        </FormControl>
         <FormLabel fontSize="sm" htmlFor="name">
           Name of the event:
         </FormLabel>
-        {/* it's still has to be limited to dates from today onward */}
-        <Input
-          // placeholder={distroEvent.eventDate?.toDateString()}
-          type="text"
-          mb={4}
-          {...register("name", { required: false })}
-        />
+        <Input type="text" mb={4} {...register("name", { required: false })} />
         <Button
           mt={4}
           colorScheme="teal"
