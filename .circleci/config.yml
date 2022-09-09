@@ -192,6 +192,11 @@ jobs:
             echo "CircleCI build number:${CIRCLE_BUILD_NUM}
               Branch: ${CIRCLE_BRANCH}
               Git hash: ${CIRCLE_SHA1}" > version.txt
+            if [ ! -z ${CIRCLE_TAG} ]; then
+              sed -i "s/0.0.1/${CIRCLE_TAG}/" ../docs/graphql-api/query-api-config.yml
+            elif [ ! -z ${CIRCLE_SHA1} ]; then
+              sed -i "s/0.0.1/${CIRCLE_SHA1}/" ../docs/graphql-api/query-api-config.yml
+            fi
       - run:
           name: Generate .env files
           command: |
@@ -366,18 +371,18 @@ workflows:
             branches:
               only:
                 - production
-      # - deploy:
-      #     name: deploy-api-demo
-      #     context: DEMO
-      #     serviceName: api-demo
-      #     requires:
-      #       - test-flask
-      #     filters:
-      #       tags:
-      #         ignore: /.*/
-      #       branches:
-      #         only:
-      #           - production
+      - deploy:
+          name: deploy-api-demo
+          context: DEMO
+          serviceName: api-demo
+          requires:
+            - test-flask
+          filters:
+            tags:
+              ignore: /.*/
+            branches:
+              only:
+                - production
 
       # production
       - build-and-test-react:
@@ -400,13 +405,13 @@ workflows:
             branches:
               only:
                 - production
-      # - deploy:
-      #     name: deploy-api-production
-      #     context: PRODUCTION
-      #     serviceName: api-production
-      #     requires:
-      #       - test-flask
-      #     filters:
-      #       branches:
-      #         only:
-      #           - production
+      - deploy:
+          name: deploy-api-production
+          context: PRODUCTION
+          serviceName: api-production
+          requires:
+            - test-flask
+          filters:
+            branches:
+              only:
+                - production
