@@ -6,6 +6,14 @@ export const getISODateTimeFromDateAndTimeString = (date: Date, timeString: stri
   return dateTime;
 }
 
+export const getISODateTimeFromDateAndTime = (date: Date, time: Date) => {
+  const dateTime = new Date(date);
+  dateTime.setHours(time.getHours());
+  dateTime.setMinutes(time.getMinutes());
+  return dateTime;
+}
+
+
 export const weekDayNumberToWeekDayName = (weekDayNumber: number) => {
   const weekDayNames = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
   return weekDayNames[weekDayNumber];

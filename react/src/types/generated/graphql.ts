@@ -202,8 +202,8 @@ export type BoxUpdateInput = {
 };
 
 /**
- * Representation of a classic physical location used to store [`Boxes`]({{Types.Box}}).
- * The classic location is part of a specific [`Base`]({{Types.Base}}).
+ * Representation of a classic physical location used to store [`Boxes`]({{Types.Box}}) (e.g. a warehouse).
+ * The location is part of a specific [`Base`]({{Types.Base}}).
  */
 export type ClassicLocation = Location & {
   __typename?: 'ClassicLocation';
@@ -224,8 +224,8 @@ export type ClassicLocation = Location & {
 
 
 /**
- * Representation of a classic physical location used to store [`Boxes`]({{Types.Box}}).
- * The classic location is part of a specific [`Base`]({{Types.Base}}).
+ * Representation of a classic physical location used to store [`Boxes`]({{Types.Box}}) (e.g. a warehouse).
+ * The location is part of a specific [`Base`]({{Types.Base}}).
  */
 export type ClassicLocationBoxesArgs = {
   filterInput?: InputMaybe<FilterBoxInput>;

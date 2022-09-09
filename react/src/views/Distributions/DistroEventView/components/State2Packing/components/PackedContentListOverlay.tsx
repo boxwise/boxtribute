@@ -31,7 +31,7 @@ import {
   useDisclosure,
 } from "@chakra-ui/react";
 import { Link as RouterLink } from "react-router-dom";
-import { useContext, useMemo } from "react";
+import { useContext, useEffect, useMemo, useState } from "react";
 import {
   BoxData,
   IPackingListEntry,
@@ -52,10 +52,17 @@ interface PackedContentListOverlayProps {
 
 const UnboxedItemsCollectionList = ({
   unboxedItemsCollectionData,
+
 }: {
   unboxedItemsCollectionData: UnboxedItemsCollectionData[];
 }) => {
   const removeUnboxedItemsOverlayState = useDisclosure();
+  const [numberOfItems, setNumberOfItems] = useState<number | undefined>();
+
+  useEffect(() => {
+    setNumberOfItems(undefined);
+  }, [removeUnboxedItemsOverlayState.isOpen]);
+
   return (
     <>
       <Modal
@@ -80,9 +87,9 @@ const UnboxedItemsCollectionList = ({
                 <FormLabel fontSize="sm" htmlFor="numberOfItems">
                   # of items:
                 </FormLabel>
-                <Input type="number" width={20} name="numberOfItems"></Input>
+                <Input type="number" width={20} name="numberOfItems" onChange={(ev) => setNumberOfItems(parseInt(ev.target.value))} value={numberOfItems}></Input>
               </FormControl>
-              <Button>Remove</Button>
+              {/* <Button onClick={() => onRemoveItemsClick()}>Remove</Button> */}
             {/* </VStack> */}
             </Flex>
           </ModalBody>
