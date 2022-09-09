@@ -73,12 +73,9 @@ const DistrosDashboardView = () => {
     [baseId, navigate]
   );
 
-  const onNewDirectDistroEvent = 
-    (baseId: string) => {
+  const onNewDirectDistroEvent = (baseId: string) => {
     navigate(`/bases/${baseId}/distributions/events/create`);
-    console.log("clicked on button new distro")
-    }
-  
+  };
 
   const calendarEventDetailsModalState = useDisclosure();
   const [selectedEvent, setSelectedEvent] = useState<
@@ -152,7 +149,6 @@ const DistrosDashboardView = () => {
                 </ModalContent>
               </Modal>
             )}
-
             <DistroEventsCalendarContainer
               distributionEvents={parsedDistributionEventsData}
               onClickOnDistroEvent={function (distroEventId: string): void {
