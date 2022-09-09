@@ -118,6 +118,13 @@ circleci local execute --job JOB_NAME
 - You can only trigger a job locally if it is part of a CircleCI workflow.
 - Each `run`-step in the config of CircleCI should be treated as its own terminal. If you have for example activated an virtual environment in a `run`-step, this environment is not activated in the next `run`-step.
 
+### Deployment
+
+1. Please commit (at least the last commit) using the command `git commit -S -m "..."` to make your commits verifiable. See [this ticket](https://trello.com/c/kgB1H7B0) for more info
+1. Create a new list in trello named "Boxtribute 2.0 || merged to production date (version number)"
+1. Merge master into production WITHOUT creating a merge commit. We want production to have the same history as master
+1. Create a verifiable tag with the version number (check out the production branch after the merge, run `git tag -s v2.0.1` and push the tag to the repo
+
 ## Architecture overview
 
 All our architecture decisions are logged in ADRs which you can find [here](docs/adr/adr_template.md).
