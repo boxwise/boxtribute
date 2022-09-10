@@ -50,17 +50,20 @@ interface PackedContentListOverlayProps {
   packingListEntry: IPackingListEntry;
 }
 
-const UnboxedItemsCollectionList = ({
-  unboxedItemsCollectionData,
-
+const UnboxedItemsCollectionListEntry = ({
+  unboxedItemsCollection,
 }: {
-  unboxedItemsCollectionData: UnboxedItemsCollectionData[];
+  unboxedItemsCollection: UnboxedItemsCollectionData;
 }) => {
   const removeUnboxedItemsOverlayState = useDisclosure();
-  const [numberOfItems, setNumberOfItems] = useState<number | undefined>();
+  const [numberOfItemsToRemove, setNumberOfItemsToRemove] = useState<
+    number | undefined
+  >();
+
+  const ctx = useContext(DistroEventDetailsForPackingStateContext);
 
   useEffect(() => {
-    setNumberOfItems(undefined);
+    setNumberOfItemsToRemove(undefined);
   }, [removeUnboxedItemsOverlayState.isOpen]);
 
   return (
@@ -80,43 +83,78 @@ const UnboxedItemsCollectionList = ({
           </ModalHeader>
           <ModalCloseButton />
           <ModalBody mx={4}>
-            <Flex direction="column" alignItems="start" my={2} justifyContent="space-between">
-            {/* <VStack borderColor="blackAlpha.100" borderWidth={2} p={4} my={5}> */}
-            {/* <VStack p={4} my={5}> */}
+            <Flex
+              direction="column"
+              alignItems="start"
+              my={2}
+              justifyContent="space-between"
+            >
+              {/* <VStack borderColor="blackAlpha.100" borderWidth={2} p={4} my={5}> */}
+              {/* <VStack p={4} my={5}> */}
               <FormControl display="flex" alignItems="center">
                 <FormLabel fontSize="sm" htmlFor="numberOfItems">
                   # of items:
                 </FormLabel>
-                <Input type="number" width={20} name="numberOfItems" onChange={(ev) => setNumberOfItems(parseInt(ev.target.value))} value={numberOfItems}></Input>
+                <Input
+                  type="number"
+                  width={20}
+                  name="numberOfItems"
+                  onChange={(ev) =>
+                    setNumberOfItemsToRemove(parseInt(ev.target.value))
+                  }
+                  value={numberOfItemsToRemove}
+                ></Input>
               </FormControl>
-              {/* <Button onClick={() => onRemoveItemsClick()}>Remove</Button> */}
-            {/* </VStack> */}
+              <Button
+                onClick={() =>
+                  ctx?.onRemoveUnboxedItems(
+                    unboxedItemsCollection.id,
+                    numberOfItemsToRemove!
+                  )
+                }
+                disabled={
+                  (numberOfItemsToRemove == null || numberOfItemsToRemove < 1)
+                }
+              >
+                Remove
+              </Button>
+              {/* </VStack> */}
             </Flex>
           </ModalBody>
           <ModalFooter />
         </ModalContent>
       </Modal>
 
+      <Flex alignItems="start" my={2} justifyContent="space-between">
+        <Text> # of items: {unboxedItemsCollection.numberOfItems}</Text>
+        <Button onClick={removeUnboxedItemsOverlayState.onOpen}>
+          Remove items
+        </Button>
+      </Flex>
+    </>
+  );
+};
+
+const UnboxedItemsCollectionList = ({
+  unboxedItemsCollectionData,
+  productId,
+  sizeId,
+}: {
+  unboxedItemsCollectionData: UnboxedItemsCollectionData[];
+  productId: string;
+  sizeId: string;
+}) => {
+  return (
+    <>
       <Heading as="h3" size="md">
         Unboxed Items
       </Heading>
       <Flex direction="column">
-        {unboxedItemsCollectionData.map((unboxedItemsCollection, i) => (
-          <Flex
-            // direction="column"
-            key={i}
-            alignItems="start"
-            my={2}
-            // key={box.labelIdentifier}
-            justifyContent="space-between"
-          >
-            {/* <Text mr={4}>{box.labelIdentifier}</Text> */}
-            <Text> # of items: {unboxedItemsCollection.numberOfItems}</Text>
-            {/* <Box>Move XXX items out of this Distribution Event into XXX</Box> */}
-            <Button onClick={removeUnboxedItemsOverlayState.onOpen}>
-              Remove items
-            </Button>
-          </Flex>
+        {unboxedItemsCollectionData.map((unboxedItemsCollection) => (
+          <UnboxedItemsCollectionListEntry
+            key={unboxedItemsCollection.id}
+            unboxedItemsCollection={unboxedItemsCollection}
+          />
         ))}
       </Flex>
     </>
@@ -202,16 +240,14 @@ PackedContentListOverlayProps) => {
     <>
       <ModalContent>
         <ModalHeader mx={4} pb={0}>
-          <>
-            <Heading as="h3" size="md">
-              Packed Boxes and Items for: <br />
-              {/* <Heading as="h2" size="lg"> */}
-              <i>
-                {packingListEntry.product.name} - {packingListEntry.size?.label}
-              </i>
-              {/* </Heading> */}
-            </Heading>
-          </>
+          <Heading as="h3" size="md">
+            Packed Boxes and Items for: <br />
+            {/* <Heading as="h2" size="lg"> */}
+            <i>
+              {packingListEntry.product.name} - {packingListEntry.size?.label}
+            </i>
+            {/* </Heading> */}
+          </Heading>
         </ModalHeader>
         <ModalCloseButton />
         <ModalBody mx={4}>
@@ -224,6 +260,11 @@ PackedContentListOverlayProps) => {
             <Box my={5}>
               <UnboxedItemsCollectionList
                 unboxedItemsCollectionData={unboxedItemsCollectionData}
+                productId={packingListEntry.product.id}
+                // TODO: check/align why size.id is nullable atm
+                // assumption so far: each box / unboxed items collection needs
+                // a sizeId
+                sizeId={packingListEntry.size?.id!}
               />
             </Box>
           )}

@@ -158,6 +158,9 @@ export const PACKING_LIST_ENTRIES_FOR_DISTRIBUTION_EVENT_QUERY = gql`
           ... on Box {
             labelIdentifier
           }
+          ... on UnboxedItemsCollection {
+            id
+          }
         }
       }
     }

@@ -20,6 +20,7 @@ import DistroEventDetailsForPackingState from "./DistroEventDetailsForPackingSta
 
 interface IDistroEventDetailsForPackingStateContext {
   onUnassignBoxFromDistributionEvent: (labelIdentifier: string) => void;
+  onRemoveUnboxedItems: (unboxedItemsCollectionId: string, numberOfItems: number) => void;
 }
 
 export const DistroEventDetailsForPackingStateContext =
@@ -41,6 +42,71 @@ const DistroEventDetailsForPackingStateContainer = ({
   >(UNASSIGN_BOX_FROM_DISTRIBUTION_MUTATION);
 
   const distributionEventId = distributionEventDetails.id;
+
+  // const [removeItemsFromDistributionEventMutation] = useMutation<
+  const onRemoveUnboxedItems = (unboxedItemsCollection, numberOfItems) => {
+    // const handleError = (errors: any) => {
+    //   console.error(
+    //     `Error while trying to remove items (productId: ${productId}, sizeId: ${sizeId}, numberOfItems: ${numberOfItems}) from distribution event ${distributionEventId}`,
+    //     errors
+    //   );
+    //   toast({
+    //     title: "Error",
+    //     description:
+    //       "Items couldn't be removed from from the distribution event.",
+    //     status: "error",
+    //     duration: 2000,
+    //     isClosable: true,
+    //   });
+    // };
+
+
+    // removeItemsFromDistributionEventMutation({
+    //   variables: {
+    //     productId,
+    //     sizeId,
+    //     distributionEventId,
+    //   },
+    //   refetchQueries: [
+    //     {
+    //       query: DISTRIBUTION_EVENT_QUERY,
+    //       variables: {
+    //         eventId: distributionEventId,
+    //       },
+    //     },
+    //     {
+    //       query: PACKING_LIST_ENTRIES_FOR_DISTRIBUTION_EVENT_QUERY,
+    //       variables: {
+    //         distributionEventId
+    //       }
+    //     },
+    //   ],
+    //   update: (cache, { data }) => {
+    //     cache.modify({
+    //       fields: {
+    //         packingListEntriesForDistributionEvent(existingPackingListEntries) {
+    //         }
+    //       }
+    //     });
+    //   }
+    // })
+    //   .then((res) => {
+    //     if (res.errors && res.errors.length !== 0) {
+    //       handleError(res.errors);
+    //     } else {
+    //       toast({
+    //         title: "Successfully removed items from distribution event. ",
+    //         status: "success",
+    //         isClosable: true,
+    //         duration: 2000,
+    //       });
+    //     }
+    //   })
+    //   .catch((error) => {
+    //     handleError(error);
+    //   });
+  }
+
   const onUnassignBoxFromDistributionEvent = useCallback(
     (boxLabelIdentifier: string) => {
       const handleError = (errors: any) => {
@@ -113,6 +179,7 @@ const DistroEventDetailsForPackingStateContainer = ({
 
   const contextValues: IDistroEventDetailsForPackingStateContext = {
     onUnassignBoxFromDistributionEvent,
+    onRemoveUnboxedItems
   };
 
   const { data, loading, error } = useQuery<
