@@ -34,7 +34,7 @@ import DistroEventsStatistics from "./components/DistroEventsStatistics";
 import DistributionList from "./components/DistributionList";
 
 const DistrosDashboardView = () => {
-  const baseId = useParams<{ baseId: string }>().baseId;
+  const baseId = useParams<{ baseId: string }>().baseId!;
 
   const navigate = useNavigate();
   // TODO: consider to extract this out into custom hook (if it really makes sense!)
@@ -73,6 +73,10 @@ const DistrosDashboardView = () => {
     [baseId, navigate]
   );
 
+  const onNewDirectDistroEvent = (baseId: string) => {
+    navigate(`/bases/${baseId}/distributions/events/create`);
+  };
+
   const calendarEventDetailsModalState = useDisclosure();
   const [selectedEvent, setSelectedEvent] = useState<
     DistributionEventDetails | undefined
@@ -107,6 +111,7 @@ const DistrosDashboardView = () => {
           <TabPanel>
             <DistributionList
               distributionEventsData={parsedDistributionEventsData}
+              onNewDirectDistroEvent={() => onNewDirectDistroEvent(baseId)}
             />
           </TabPanel>
           <TabPanel>
@@ -144,7 +149,6 @@ const DistrosDashboardView = () => {
                 </ModalContent>
               </Modal>
             )}
-
             <DistroEventsCalendarContainer
               distributionEvents={parsedDistributionEventsData}
               onClickOnDistroEvent={function (distroEventId: string): void {

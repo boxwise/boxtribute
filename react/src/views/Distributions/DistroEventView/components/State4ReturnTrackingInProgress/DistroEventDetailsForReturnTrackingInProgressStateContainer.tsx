@@ -27,7 +27,7 @@ const DistroEventDetailsForReturnTrackingInProgressStateContainer = ({
   ReturnTrackingGroupIdForDistributionEventQueryVariables
   >(RETURN_TRACKING_GROUP_ID_FOR_DISTRIBUTION_EVENT_QUERY, {
     variables: { distributionEventId: distributionEventDetails.id },
-    pollInterval: 5000,
+    // pollInterval: 5000,
   });
 
   if (loading) {

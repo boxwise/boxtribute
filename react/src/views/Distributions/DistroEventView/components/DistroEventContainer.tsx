@@ -15,7 +15,6 @@ import {
   useDisclosure,
   VStack,
 } from "@chakra-ui/react";
-import BTBreadcrumbNavigation from "components/BTBreadcrumbNavigation";
 import React, { useCallback } from "react";
 import { Link as RouterLink } from "react-router-dom";
 import {
@@ -158,9 +157,9 @@ const DistroEventContainer = ({
   return (
     <>
       <VStack spacing={25}>
-        <BTBreadcrumbNavigation
+        {/* <BTBreadcrumbNavigation
           items={[{ label: 'Base "Subotica"', linkPath: "X" }]}
-        />
+        /> */}
         <Box>
           <Link
             as={RouterLink}

@@ -25,7 +25,7 @@ const DistroEventDetailsForPackingStateContainer = ({
     PackingListEntriesForDistributionEventQueryVariables
   >(PACKING_LIST_ENTRIES_FOR_DISTRIBUTION_EVENT_QUERY, {
     variables: { distributionEventId: distributionEventDetails.id },
-    pollInterval: 5000,
+    // pollInterval: 5000,
   });
 
   if (loading) {
