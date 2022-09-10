@@ -1032,7 +1032,7 @@ def resolve_distribution_event(*_, id):
 @base.field("beneficiaries")
 @convert_kwargs_to_snake_case
 def resolve_base_beneficiaries(base_obj, _, pagination_input=None, filter_input=None):
-    authorize(permission="beneficiary:read")
+    authorize(permission="beneficiary:read", base_id=base_obj.id)
     base_filter_condition = Beneficiary.base == base_obj.id
     filter_condition = base_filter_condition & derive_beneficiary_filter(filter_input)
     return load_into_page(

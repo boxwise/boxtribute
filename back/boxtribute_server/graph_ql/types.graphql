@@ -218,7 +218,7 @@ type Base {
   name: String!
   organisation: Organisation!
   " List of all [`Beneficiaries`]({{Types.Beneficiary}}) registered in this base "
-  beneficiaries(paginationInput: PaginationInput, filterInput: FilterBeneficiaryInput): BeneficiaryPage!
+  beneficiaries(paginationInput: PaginationInput, filterInput: FilterBeneficiaryInput): BeneficiaryPage
   currencyName: String
   " List of all [`ClassicLocations`]({{Types.ClassicLocation}}) present in this base "
   locations: [ClassicLocation!]!
