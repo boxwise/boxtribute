@@ -13,7 +13,6 @@ export const getISODateTimeFromDateAndTime = (date: Date, time: Date) => {
   return dateTime;
 }
 
-
 export const weekDayNumberToWeekDayName = (weekDayNumber: number) => {
   const weekDayNames = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
   return weekDayNames[weekDayNumber];

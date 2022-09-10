@@ -1429,13 +1429,6 @@ export type BoxesForBaseQueryVariables = Exact<{
 
 export type BoxesForBaseQuery = { __typename?: 'Query', base?: { __typename?: 'Base', locations: Array<{ __typename?: 'ClassicLocation', name?: string | null, boxes?: { __typename?: 'BoxPage', totalCount: number, elements: Array<{ __typename?: 'Box', labelIdentifier: string, state: BoxState, numberOfItems?: number | null, size: { __typename?: 'Size', id: string, label: string }, product?: { __typename?: 'Product', gender?: ProductGender | null, name: string } | null, tags: Array<{ __typename?: 'Tag', name: string, id: string }> }> } | null }> } | null };
 
-export type DistributionSpotQueryVariables = Exact<{
-  id: Scalars['ID'];
-}>;
-
-
-export type DistributionSpotQuery = { __typename?: 'Query', distributionSpot?: { __typename?: 'DistributionSpot', id: string, name?: string | null } | null };
-
 export type CreateDistributionEventMutationVariables = Exact<{
   distributionSpotId: Scalars['Int'];
   name: Scalars['String'];
@@ -1445,6 +1438,13 @@ export type CreateDistributionEventMutationVariables = Exact<{
 
 
 export type CreateDistributionEventMutation = { __typename?: 'Mutation', createDistributionEvent?: { __typename?: 'DistributionEvent', id: string, name?: string | null, plannedStartDateTime: any, plannedEndDateTime: any } | null };
+
+export type DistributionSpotQueryVariables = Exact<{
+  id: Scalars['ID'];
+}>;
+
+
+export type DistributionSpotQuery = { __typename?: 'Query', distributionSpot?: { __typename?: 'DistributionSpot', id: string, name?: string | null } | null };
 
 export type CreateDistributionSpotMutationVariables = Exact<{
   baseId: Scalars['Int'];

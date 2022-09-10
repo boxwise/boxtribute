@@ -66,11 +66,15 @@ const ListOfEvents = ({
   );
 };
 
+interface DistributionListProps {
+  onNewDirectDistroEvent: () => void;
+  distributionEventsData: DistributionEventDetails[];
+}
+
 const DistributionList = ({
   distributionEventsData,
-}: {
-  distributionEventsData: DistributionEventDetails[];
-}) => {
+  onNewDirectDistroEvent,
+}: DistributionListProps) => {
   const sortedDistroEvents = _.chain(distributionEventsData)
     .orderBy((el) => el.plannedStartDateTime, "desc")
     .value();
@@ -106,9 +110,7 @@ const DistributionList = ({
 
   return (
     <VStack>
-      <Button onClick={() => alert("Not yet implemented")}>
-        New Distribution Event
-      </Button>
+      <Button onClick={onNewDirectDistroEvent}>New Distribution Event</Button>
       {hasDistroEventsToday && (
         <>
           <Heading as="h4" py={7}>
