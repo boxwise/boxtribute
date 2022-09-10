@@ -158,9 +158,9 @@ const DistroEventContainer = ({
   return (
     <>
       <VStack spacing={25}>
-        <BTBreadcrumbNavigation
+        {/* <BTBreadcrumbNavigation
           items={[{ label: 'Base "Subotica"', linkPath: "X" }]}
-        />
+        /> */}
         <Box>
           <Link
             as={RouterLink}
