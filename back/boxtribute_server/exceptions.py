@@ -186,3 +186,13 @@ class InvalidPaginationInput(Exception):
         "code": "BAD_USER_INPUT",
         "description": "Invalid pagination input: missing 'before' field.",
     }
+
+
+class IncompatibleTagTypeAndResourceType(Exception):
+    def __init__(self, *args, tag, resource_type, **kwargs):
+        self.extensions = {
+            "code": "BAD_USER_INPUT",
+            "description": f"The tag with ID {tag.id} and type '{tag.type.name}' "
+            f"cannot be applied to the resource of type '{resource_type.name}'",
+        }
+        super().__init__(*args, **kwargs)

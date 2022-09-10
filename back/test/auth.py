@@ -104,6 +104,7 @@ def create_jwt_payload(
             f"{base_prefix}/qr:create",
             f"{base_prefix}/stock:write",
             f"{base_prefix}/tag:write",
+            f"{base_prefix}/tag_relation:assign",
             f"{base_prefix}/transaction:write",
             "shipment:create",
             "shipment:edit",
