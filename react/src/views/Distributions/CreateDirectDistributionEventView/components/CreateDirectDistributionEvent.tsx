@@ -11,18 +11,35 @@ import { Select } from "chakra-react-select";
 import { Controller, useForm } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { parse, isValid, format } from "date-fns";
+import { parse, isValid } from "date-fns";
 
 export const CreateDirectDistributionEventFormDataSchema = z.object({
   name: z.string().optional(),
-  eventDate: z.date({
-    required_error: "Date of event is required",
-    invalid_type_error: "Please enter a valid date",
+  eventDate: z
+  .string().transform((value, ctx) => {
+    console.log('foo', value);
+    const parsedDate = parse(value, "yyyy-MM-dd", new Date());
+    if (!isValid(parsedDate)) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.invalid_date,
+        message: "Please enter a valid date",
+      });
+      return z.NEVER;
+    }
+    return parsedDate;
+  }),
+  eventTime: z.string().transform((value, ctx) => {
+    const parsedTime = parse(value, "HH:mm", new Date());
+    if (!isValid(parsedTime)) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.invalid_date,
+        message: "Please enter a valid time",
+      });
+      return z.NEVER;
+    }
+    return parsedTime;
   }),
   duration: z.number(),
-  eventTime: z
-    .date({ required_error: "Time of event is required" })
-    .refine((val) => isValid(val), { message: "foo" }),
   comment: z.string().optional(),
   distroSpotId: z.string({ required_error: "Distribution Spot is required" }),
 });
@@ -54,8 +71,8 @@ const CreateDirectDistroEvent = ({
   } = useForm<CreateDistroEventFormData>({
     resolver: zodResolver(CreateDirectDistributionEventFormDataSchema),
     defaultValues: {
-      duration: 2
-    }
+      duration: 2,
+    },
   });
 
   const distroSpotsForDropdown = allDistroSpots
@@ -109,7 +126,8 @@ const CreateDirectDistroEvent = ({
           <Input
             type="date"
             mb={4}
-            {...register("eventDate", { required: true, valueAsDate: true })}
+            {...register("eventDate", { required: true
+            })}
           />
           <FormErrorMessage>
             {errors.eventDate && errors.eventDate.message}
@@ -120,10 +138,9 @@ const CreateDirectDistroEvent = ({
             Time of the event:
           </FormLabel>
           <Input
-            // placeholder={distroEvent.eventDate?.toDateString()}
             type="time"
             mb={4}
-            {...register("eventTime", { required: true, valueAsDate: true })}
+            {...register("eventTime", { required: true })}
           />
           <FormErrorMessage>
             {errors.eventTime && errors.eventTime.message}
@@ -137,7 +154,10 @@ const CreateDirectDistroEvent = ({
             placeholder="2"
             type="number"
             mb={4}
-            {...register("duration", { required: true, valueAsNumber: true })}
+            {...register("duration", {
+              required: true,
+              setValueAs: (v) => (v === "" ? undefined : parseInt(v, 10)),
+            })}
           />
           <FormErrorMessage>
             {errors.duration?.message && errors.duration?.message}

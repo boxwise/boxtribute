@@ -12,7 +12,7 @@ import CreateDirectDistroEvent, {
   CreateDistroEventFormData,
 } from "./components/CreateDirectDistributionEvent";
 import { addHours } from "date-fns";
-import { getISODateTimeFromDateAndTime, getISODateTimeFromDateAndTimeString } from "utils/helpers";
+import { getISODateTimeFromDateAndTime } from "utils/helpers";
 import { Center } from "@chakra-ui/react";
 import { DISTRO_SPOTS_FOR_BASE_ID } from "../queries";
 import { useGlobalSiteState } from "utils/hooks";
@@ -133,6 +133,3 @@ const CreateDirectDistributionEventView = () => {
 };
 
 export default CreateDirectDistributionEventView;
-
-
-
