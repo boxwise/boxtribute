@@ -1,14 +1,23 @@
-def _assert_erroneous_request(client, query, *, code, **kwargs):
+def _assert_erroneous_request(
+    client, query, *, code, verify_response=True, error_count=1, **kwargs
+):
     """Assertion utility that posts the given query via a client fixture.
-    Assert presence of error code in response.
-    `kwargs` are forwarded to `_verify_response_data()`.
+    Assert presence of `error_count` errors with specified code in response.
+    By default, the response is verified (`kwargs` are forwarded).
+    For complex responses, set `verify_response=False` and perform the verification in
+    the test function.
     """
     data = {"query": query}
     response = client.post("/graphql", json=data)
     assert response.status_code == 200
-    assert len(response.json["errors"]) == 1
-    assert response.json["errors"][0]["extensions"]["code"] == code
-    _verify_response_data(query=query, response=response, **kwargs)
+
+    assert len(response.json["errors"]) == error_count
+    for i in range(error_count):
+        assert response.json["errors"][i]["extensions"]["code"] == code
+
+    if verify_response:
+        _verify_response_data(query=query, response=response, **kwargs)
+
     return response
 
 
