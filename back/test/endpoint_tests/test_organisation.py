@@ -2,8 +2,9 @@ from utils import assert_successful_request
 
 
 def test_organisation_query(read_only_client, default_bases, default_organisation):
+    organisation_id = str(default_organisation["id"])
     query = f"""query {{
-                organisation(id: "{default_organisation['id']}") {{
+                organisation(id: "{organisation_id}") {{
                     id
                     name
                     bases {{ id }}
@@ -11,7 +12,7 @@ def test_organisation_query(read_only_client, default_bases, default_organisatio
             }}"""
     queried_organisation = assert_successful_request(read_only_client, query)
     assert queried_organisation == {
-        "id": str(default_organisation["id"]),
+        "id": organisation_id,
         "name": default_organisation["name"],
         "bases": [{"id": str(b["id"])} for b in list(default_bases.values())[:2]],
     }
