@@ -54,6 +54,7 @@ interface ITrackingEntryForSize {
 interface ITrackingEntriesByProduct {
   productId: string;
   productName: string;
+  genderName: string | null | undefined;
   trackingEntriesBySize: ITrackingEntryForSize[];
 }
 
@@ -88,6 +89,7 @@ const graphqlToDistributionEventStockSummary = (
       .map((productGroup, productId) => ({
         productId,
         productName: productGroup[0].product.name,
+        genderName: productGroup[0].product.gender,
         trackingEntriesBySize: _(productGroup)
           .groupBy((el2) => el2.size.id)
           .map((sizeGroup, sizeId) => ({
@@ -330,7 +332,7 @@ const SummaryOfItemsInDistributionEvents = ({
                   my={2}
                 >
                   <b>Product:</b>{" "}
-                  {squashedItemsCollectionsGroupForProduct.productName}
+                  {squashedItemsCollectionsGroupForProduct.productName} ({squashedItemsCollectionsGroupForProduct.genderName})
                 </Heading>
                 <List>
                   {squashedItemsCollectionsGroupForProduct.trackingEntriesBySize.map(
