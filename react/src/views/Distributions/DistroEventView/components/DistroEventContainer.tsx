@@ -124,7 +124,7 @@ const DistroEventContainer = ({
         distributionEventDetails={distributionEventDetails}
       />
     ),
-    [DistributionEventState.OnDistro]: () => <Box>This Distro Event is current on Distribution!</Box>,
+    [DistributionEventState.OnDistro]: () => <Box>This Distro Event is currently on Distribution!</Box>,
     [DistributionEventState.ReturnedFromDistribution]: () => (
       <Flex w={[300, 400, 600]} direction="column" mb={4}>
         <Text textAlign={"center"}>

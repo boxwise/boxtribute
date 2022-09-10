@@ -768,6 +768,10 @@ def resolve_move_items_from_box_to_distribution_event(
     mutation_obj, _, box_label_identifier, distribution_event_id, number_of_items
 ):
     mobile_distro_feature_flag_check(user_id=g.user.id)
+    # TODO: here are most likely more authorization checks needed:
+    # * is the box and the event in the same base?
+    # * is the user allowed to write to the specific box (base check)?
+    # * is the user allowed to write to the specific event (base check)?
     authorize(permission="unboxed_items_collection:write")
     return move_items_from_box_to_distribution_event(
         user_id=g.user.id,

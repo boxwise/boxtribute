@@ -17,11 +17,16 @@ export const useGetUrlForResourceHelpers = () => {
   const getDistroEventDetailUrlById = (distroEventId: string) =>
     `/bases/${baseId}/distributions/events/${distroEventId}`;
 
+  const getBoxDetailViewUrlByLabelIdentifier = (labelIdentifier: string) =>
+    `/bases/${baseId}/boxes/${labelIdentifier}`;
+
+
   return {
     getBaseId: () => baseId,
     getDistroSpotDetailUrlById,
     getDistroEventDetailUrlById,
-    getBaseRootUrlForCurrentBase
+    getBaseRootUrlForCurrentBase,
+    getBoxDetailViewUrlByLabelIdentifier
   };
 };
 

@@ -123,8 +123,6 @@ const graphqlToDistributionEventStockSummary = (
       // .filter(el => el.direction === DistributionEventTrackingFlowDirection.Out)
       .value();
 
-  console.log("FOO", trackingEntriesByProductAndSizeAndFlowDirection);
-
   return {
     // squashedItemCollectionsAccrossAllEvents: queryResult.distributionEventsTrackingGroup?.distributionEventsTrackingEntries
     // squashedItemCollectionsAccrossAllEventsGroupedByProduct,
