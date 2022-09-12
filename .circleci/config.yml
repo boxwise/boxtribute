@@ -346,7 +346,7 @@ workflows:
               only:
                 - master
 
-      # demo
+      # demo - runs on any commit to the production branch
       - build-and-test-react:
           name: build-and-test-react-demo
           context: DEMO
@@ -384,16 +384,17 @@ workflows:
               only:
                 - production
 
-      # production
+      # production - this can only be triggered by a tag
       - build-and-test-react:
           name: build-and-test-react-production
           context: PRODUCTION
           requires:
             - checkout-to-workspace
           filters:
+            tags:
+              only: /^v.*/
             branches:
-              only:
-                - production
+              ignore: /.*/
       - deploy:
           name: deploy-production
           context: PRODUCTION
@@ -402,9 +403,10 @@ workflows:
             - test-flask
             - build-and-test-react-production
           filters:
+            tags:
+              only: /^v.*/
             branches:
-              only:
-                - production
+              ignore: /.*/
       - deploy:
           name: deploy-api-production
           context: PRODUCTION
@@ -412,6 +414,7 @@ workflows:
           requires:
             - test-flask
           filters:
+            tags:
+              only: /^v.*/
             branches:
-              only:
-                - production
+              ignore: /.*/
