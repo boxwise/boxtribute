@@ -17,7 +17,7 @@
     "@graphql-codegen/typescript-react-query": "^4.0.1",
     "@hookform/resolvers": "^2.9.6",
     "@sentry/integrations": "^7.7.0",
-    "@sentry/react": "^7.7.0",
+    "@sentry/react": "^7.12.1",
     "@sentry/tracing": "^7.7.0",
     "@zxing/browser": "^0.1.1",
     "@zxing/library": "^0.19.1",
