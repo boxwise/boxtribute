@@ -293,27 +293,15 @@ workflows:
 
   build-and-deploy:
     jobs:
-      - checkout-to-workspace
+      # for staging and demo only (for production see below)
+      - checkout-to-workspace:
+          filters:
+            branches:
+              only:
+                - master
+                - production
 
       # staging
-      - build-flask:
-          context: STAGING
-          requires:
-            - checkout-to-workspace
-          filters:
-            branches:
-              only:
-                - master
-                - production
-      - test-flask:
-          context: STAGING
-          requires:
-            - build-flask
-          filters:
-            branches:
-              only:
-                - master
-                - production
       - build-and-test-react:
           name: build-and-test-react-staging
           context: STAGING
@@ -323,13 +311,11 @@ workflows:
             branches:
               only:
                 - master
-                - production
       - deploy:
           name: deploy-staging
           context: STAGING
           serviceName: v2-staging
           requires:
-            - test-flask
             - build-and-test-react-staging
           filters:
             branches:
@@ -339,8 +325,6 @@ workflows:
           name: deploy-api-staging
           context: STAGING
           serviceName: api-staging
-          requires:
-            - test-flask
           filters:
             branches:
               only:
@@ -363,7 +347,6 @@ workflows:
           context: DEMO
           serviceName: v2-demo
           requires:
-            - test-flask
             - build-and-test-react-demo
           filters:
             tags:
@@ -375,8 +358,6 @@ workflows:
           name: deploy-api-demo
           context: DEMO
           serviceName: api-demo
-          requires:
-            - test-flask
           filters:
             tags:
               ignore: /.*/
@@ -385,11 +366,18 @@ workflows:
                 - production
 
       # production - this can only be triggered by a tag
+      - checkout-to-workspace:
+          name: checkout-to-workspace-production
+          filters:
+            tags:
+              only: /^v.*/
+            branches:
+              ignore: /.*/
       - build-and-test-react:
           name: build-and-test-react-production
           context: PRODUCTION
           requires:
-            - checkout-to-workspace
+            - checkout-to-workspace-production
           filters:
             tags:
               only: /^v.*/
@@ -400,7 +388,6 @@ workflows:
           context: PRODUCTION
           serviceName: v2-production
           requires:
-            - test-flask
             - build-and-test-react-production
           filters:
             tags:
@@ -411,8 +398,6 @@ workflows:
           name: deploy-api-production
           context: PRODUCTION
           serviceName: api-production
-          requires:
-            - test-flask
           filters:
             tags:
               only: /^v.*/
