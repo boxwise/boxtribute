@@ -57,6 +57,21 @@ def another_beneficiary_data():
     }
 
 
+def org2_base3_beneficiary_data():
+    return {
+        "id": 4,
+        "first_name": "No",
+        "last_name": "One",
+        "base": base_data()[2]["id"],
+        "created_on": datetime(2022, 1, 30),
+        "created_by": None,
+        "family_id": 12,
+        "seq": 1,
+        "group_identifier": "999",
+        "gender": "F",
+    }
+
+
 @pytest.fixture
 def default_beneficiaries():
     return [
@@ -86,3 +101,4 @@ def create():
     Beneficiary.create(**default_beneficiary_data())
     Beneficiary.create(**relative_beneficiary_data())
     Beneficiary.create(**another_beneficiary_data())
+    Beneficiary.create(**org2_base3_beneficiary_data())
