@@ -325,6 +325,8 @@ workflows:
           name: deploy-api-staging
           context: STAGING
           serviceName: api-staging
+          requires:
+            - checkout-to-workspace
           filters:
             branches:
               only:
@@ -358,6 +360,8 @@ workflows:
           name: deploy-api-demo
           context: DEMO
           serviceName: api-demo
+          requires:
+            - checkout-to-workspace
           filters:
             tags:
               ignore: /.*/
@@ -398,6 +402,8 @@ workflows:
           name: deploy-api-production
           context: PRODUCTION
           serviceName: api-production
+          requires:
+            - checkout-to-workspace-production
           filters:
             tags:
               only: /^v.*/
