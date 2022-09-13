@@ -293,7 +293,13 @@ workflows:
 
   build-and-deploy:
     jobs:
-      - checkout-to-workspace
+      # for staging and demo only (for production see below)
+      - checkout-to-workspace:
+          filters:
+            branches:
+              only:
+                - master
+                - production
 
       # staging
       - build-and-test-react:
