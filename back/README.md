@@ -321,7 +321,7 @@ In production, the web app is run by the WSGI server `gunicorn` which serves as 
 
 Launch the production server by
 
-    ENV=production docker-compose up --build webapp
+    ENVIRONMENT=production docker-compose up --build webapp
 
 In production mode, inspection of the GraphQL server is disabled, i.e. it's not possible to run the GraphQL playground.
 
