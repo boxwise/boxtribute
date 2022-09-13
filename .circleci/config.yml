@@ -385,11 +385,18 @@ workflows:
                 - production
 
       # production - this can only be triggered by a tag
+      - checkout-to-workspace:
+          name: checkout-to-workspace-production
+          filters:
+            tags:
+              only: /^v.*/
+            branches:
+              ignore: /.*/
       - build-and-test-react:
           name: build-and-test-react-production
           context: PRODUCTION
           requires:
-            - checkout-to-workspace
+            - checkout-to-workspace-production
           filters:
             tags:
               only: /^v.*/
