@@ -23,9 +23,11 @@ from data import *  # noqa: F401,F403
 from data import MODELS, setup_box_transfer_models, setup_models
 
 MYSQL_CONNECTION_PARAMETERS = dict(
-    # Fixtures require local MySQL server on port 3306 in CircleCI / 32000 on dev
-    # machine using docker-compose services
-    host="127.0.0.1",
+    # Fixtures require MySQL server, host:port either
+    # - 127.0.0.1:32000 when testing without container on local machine
+    # - db:3306         when testing in container on local machine
+    # - 127.0.0.1:3306  when testing in CircleCI
+    host=os.getenv("MYSQL_HOST", "127.0.0.1"),
     port=int(os.getenv("MYSQL_PORT", 3306)),
     user="root",
     password="dropapp_root",
