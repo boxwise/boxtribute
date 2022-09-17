@@ -90,6 +90,13 @@ def test_query_non_existent_resource(read_only_client, resource):
     assert "SQL" not in response.json["errors"][0]["message"]
 
 
+def test_query_non_existent_box(read_only_client):
+    # Test case 8.1.2
+    query = """query { box(labelIdentifier: "000") { id } }"""
+    response = assert_bad_user_input(read_only_client, query)
+    assert "SQL" not in response.json["errors"][0]["message"]
+
+
 @pytest.mark.parametrize("resource", ["base", "organisation", "user"])
 def test_query_non_existent_resource_for_god_user(read_only_client, mocker, resource):
     # Non-god users would not be authorized to access resource ID 0
