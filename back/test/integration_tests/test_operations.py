@@ -135,6 +135,8 @@ BOX_CARE_ID = "2"
 LESVOS_ID = "1"
 THESSALONIKI_ID = "2"
 SAMOS_ID = "3"
+LESVOS_BENEFICIARY_ID = "1"
+SAMOS_BENEFICIARY_ID = "1005"
 
 
 @pytest.mark.parametrize(
@@ -156,9 +158,11 @@ def test_usergroup_permissions(dropapp_dev_client, username, opposite_organisati
     if opposite_organisation_id == BOX_CARE_ID:
         expected_accessible_base_ids = [LESVOS_ID]
         expected_forbidden_base_ids = [THESSALONIKI_ID, SAMOS_ID]
+        forbidden_beneficiary_id = SAMOS_BENEFICIARY_ID
     elif opposite_organisation_id == BOX_AID_ID:
         expected_accessible_base_ids = [THESSALONIKI_ID, SAMOS_ID]
         expected_forbidden_base_ids = [LESVOS_ID]
+        forbidden_beneficiary_id = LESVOS_BENEFICIARY_ID
 
     # Verify that user does not have read permission to perform queries for fetching
     # other bases' beneficiaries
@@ -196,6 +200,16 @@ def test_usergroup_permissions(dropapp_dev_client, username, opposite_organisati
             }}"""
         mutation = f"mutation {{ createBeneficiary({creation_input}) {{ id }} }}"
         assert_forbidden_request(dropapp_dev_client, mutation)
+
+    # Verify that user does not have edit permission to perform mutation for updating
+    # beneficiary in inaccessible base
+    update_input = f"""updateInput: {{
+        id: {forbidden_beneficiary_id}
+        isVolunteer: true
+    }}
+    """
+    mutation = f"mutation {{ updateBeneficiary({update_input}) {{ id }} }}"
+    assert_forbidden_request(dropapp_dev_client, mutation)
 
     # Verify base-specific permissions for user.
     # - users have read-access only to beneficiaries within their bases

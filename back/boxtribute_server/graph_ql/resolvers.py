@@ -887,8 +887,8 @@ def resolve_create_beneficiary(*_, creation_input):
 @mutation.field("updateBeneficiary")
 @convert_kwargs_to_snake_case
 def resolve_update_beneficiary(*_, update_input):
-    # Use target base ID if specified, otherwise skip enforcing base-specific authz
-    authorize(permission="beneficiary:edit", base_id=update_input.get("base_id"))
+    beneficiary = Beneficiary.get_by_id(update_input["id"])
+    authorize(permission="beneficiary:edit", base_id=beneficiary.base_id)
     return update_beneficiary(**update_input, user=g.user)
 
 
