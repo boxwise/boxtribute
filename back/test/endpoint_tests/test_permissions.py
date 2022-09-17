@@ -72,6 +72,8 @@ def test_invalid_permission(unauthorized, read_only_client, query):
         """tag( id: 4 ) { id }""",
         # Test case 8.1.4
         """box( labelIdentifier: "34567890" ) { id }""",
+        # Test case 9.1.8
+        """beneficiary( id: 4 ) { id }""",
     ],
     ids=operation_name,
 )
