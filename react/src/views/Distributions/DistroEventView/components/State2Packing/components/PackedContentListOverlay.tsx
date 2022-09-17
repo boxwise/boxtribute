@@ -106,14 +106,15 @@ const UnboxedItemsCollectionListEntry = ({
                 ></Input>
               </FormControl>
               <Button
-                onClick={() =>
+                onClick={() => {
                   ctx?.onRemoveUnboxedItems(
                     unboxedItemsCollection.id,
                     numberOfItemsToRemove!
-                  )
-                }
+                  );
+                  removeUnboxedItemsOverlayState.onClose();
+                }}
                 disabled={
-                  (numberOfItemsToRemove == null || numberOfItemsToRemove < 1)
+                  numberOfItemsToRemove == null || numberOfItemsToRemove < 1
                 }
               >
                 Remove

@@ -1,10 +1,13 @@
-import { useMutation, useQuery } from "@apollo/client";
+import { gql, useMutation, useQuery } from "@apollo/client";
 import { useToast } from "@chakra-ui/react";
 import APILoadingIndicator from "components/APILoadingIndicator";
+import { number } from "prop-types";
 import { createContext, useCallback } from "react";
 import {
   PackingListEntriesForDistributionEventQuery,
   PackingListEntriesForDistributionEventQueryVariables,
+  RemoveItemsFromUnboxedItemsCollectionMutation,
+  RemoveItemsFromUnboxedItemsCollectionMutationVariables,
   UnassignBoxFromDistributionEventMutation,
   UnassignBoxFromDistributionEventMutationVariables,
 } from "types/generated/graphql";
@@ -18,9 +21,30 @@ import {
 import { DistributionEventDetails } from "views/Distributions/types";
 import DistroEventDetailsForPackingState from "./DistroEventDetailsForPackingState";
 
+const REMOVE_ITEMS_FROM_UNBOXED_ITEMS_COLLECTION_MUTATION = gql`
+  mutation RemoveItemsFromUnboxedItemsCollection(
+    $id: ID!
+    $numberOfItems: Int!
+  ) {
+    removeItemsFromUnboxedItemsCollection(
+      id: $id
+      numberOfItems: $numberOfItems
+    ) {
+      id
+      numberOfItems
+      product {
+        name
+      }
+    }
+  }
+`;
+
 interface IDistroEventDetailsForPackingStateContext {
   onUnassignBoxFromDistributionEvent: (labelIdentifier: string) => void;
-  onRemoveUnboxedItems: (unboxedItemsCollectionId: string, numberOfItems: number) => void;
+  onRemoveUnboxedItems: (
+    unboxedItemsCollectionId: string,
+    numberOfItems: number
+  ) => void;
 }
 
 export const DistroEventDetailsForPackingStateContext =
@@ -33,8 +57,12 @@ interface DistroEventDetailsForPackingStateProps {
 const DistroEventDetailsForPackingStateContainer = ({
   distributionEventDetails,
 }: DistroEventDetailsForPackingStateProps) => {
-
   const toast = useToast();
+
+  const [removeItemsFromUnboxedItemsCollectionMutation] = useMutation<
+    RemoveItemsFromUnboxedItemsCollectionMutation,
+    RemoveItemsFromUnboxedItemsCollectionMutationVariables
+  >(REMOVE_ITEMS_FROM_UNBOXED_ITEMS_COLLECTION_MUTATION);
 
   const [unassignBoxFromDistributionEventMutation] = useMutation<
     UnassignBoxFromDistributionEventMutation,
@@ -43,70 +71,61 @@ const DistroEventDetailsForPackingStateContainer = ({
 
   const distributionEventId = distributionEventDetails.id;
 
-  // const [removeItemsFromDistributionEventMutation] = useMutation<
-  const onRemoveUnboxedItems = (unboxedItemsCollectionId: string, numberOfItems: number) => {
-    alert("REMOVE")
-    // const handleError = (errors: any) => {
-    //   console.error(
-    //     `Error while trying to remove items (productId: ${productId}, sizeId: ${sizeId}, numberOfItems: ${numberOfItems}) from distribution event ${distributionEventId}`,
-    //     errors
-    //   );
-    //   toast({
-    //     title: "Error",
-    //     description:
-    //       "Items couldn't be removed from from the distribution event.",
-    //     status: "error",
-    //     duration: 2000,
-    //     isClosable: true,
-    //   });
-    // };
+  const onRemoveUnboxedItems = (
+    unboxedItemsCollectionId: string,
+    numberOfItems: number
+  ) => {
+    const handleError = (errors: any) => {
+      console.error(
+        `Error while trying to remove items (${numberOfItems}) from unboxed items collection (unbox items collection id: ${unboxedItemsCollectionId}) from distribution event ${distributionEventId}`,
+        errors
+      );
+      toast({
+        title: "Error",
+        description:
+          "Couldn't remove items from distribution event. Please try again.",
+        status: "error",
+        duration: 2000,
+        isClosable: true,
+      });
+    };
 
-
-    // removeItemsFromDistributionEventMutation({
-    //   variables: {
-    //     productId,
-    //     sizeId,
-    //     distributionEventId,
-    //   },
-    //   refetchQueries: [
-    //     {
-    //       query: DISTRIBUTION_EVENT_QUERY,
-    //       variables: {
-    //         eventId: distributionEventId,
-    //       },
-    //     },
-    //     {
-    //       query: PACKING_LIST_ENTRIES_FOR_DISTRIBUTION_EVENT_QUERY,
-    //       variables: {
-    //         distributionEventId
-    //       }
-    //     },
-    //   ],
-    //   update: (cache, { data }) => {
-    //     cache.modify({
-    //       fields: {
-    //         packingListEntriesForDistributionEvent(existingPackingListEntries) {
-    //         }
-    //       }
-    //     });
-    //   }
-    // })
-    //   .then((res) => {
-    //     if (res.errors && res.errors.length !== 0) {
-    //       handleError(res.errors);
-    //     } else {
-    //       toast({
-    //         title: "Successfully removed items from distribution event. ",
-    //         status: "success",
-    //         isClosable: true,
-    //         duration: 2000,
-    //       });
-    //     }
-    //   })
-    //   .catch((error) => {
-    //     handleError(error);
-    //   });
-  }
+    removeItemsFromUnboxedItemsCollectionMutation({
+      variables: {
+        id: unboxedItemsCollectionId,
+        numberOfItems,
+      },
+      refetchQueries: [
+        {
+          query: DISTRIBUTION_EVENT_QUERY,
+          variables: {
+            eventId: distributionEventId,
+          },
+        },
+        {
+          query: PACKING_LIST_ENTRIES_FOR_DISTRIBUTION_EVENT_QUERY,
+          variables: {
+            distributionEventId,
+          },
+        },
+      ],
+    })
+      .then((res) => {
+        if (res.errors && res.errors.length !== 0) {
+          handleError(res.errors);
+        } else {
+          toast({
+            title: "Successfully removed items from distribution event. ",
+            status: "success",
+            isClosable: true,
+            duration: 2000,
+          });
+        }
+      })
+      .catch((error) => {
+        handleError(error);
+      });
+  };
 
   const onUnassignBoxFromDistributionEvent = useCallback(
     (boxLabelIdentifier: string) => {
@@ -140,24 +159,25 @@ const DistroEventDetailsForPackingStateContainer = ({
           {
             query: PACKING_LIST_ENTRIES_FOR_DISTRIBUTION_EVENT_QUERY,
             variables: {
-              distributionEventId
-            }
+              distributionEventId,
+            },
           },
           {
             query: BOX_BY_LABEL_IDENTIFIER_QUERY,
             variables: {
-              labelIdentifier: boxLabelIdentifier
-            }
-          }
+              labelIdentifier: boxLabelIdentifier,
+            },
+          },
         ],
         update: (cache, { data }) => {
           cache.modify({
             fields: {
-              packingListEntriesForDistributionEvent(existingPackingListEntries) {
-              }
-            }
+              packingListEntriesForDistributionEvent(
+                existingPackingListEntries
+              ) {},
+            },
           });
-        }
+        },
       })
         .then((res) => {
           if (res.errors && res.errors.length !== 0) {
@@ -180,7 +200,7 @@ const DistroEventDetailsForPackingStateContainer = ({
 
   const contextValues: IDistroEventDetailsForPackingStateContext = {
     onUnassignBoxFromDistributionEvent,
-    onRemoveUnboxedItems
+    onRemoveUnboxedItems,
   };
 
   const { data, loading, error } = useQuery<
@@ -212,22 +232,6 @@ const DistroEventDetailsForPackingStateContainer = ({
       <DistroEventDetailsForPackingState
         packingListEntries={packingListEntries}
         distributionEventId={distributionEventDetails.id}
-        // onShowListClick={() => {}}
-        // boxData={{
-        //   id: "1",
-        //   labelIdentifier: "12345",
-        //   productName: "Product Name",
-        //   size: "S",
-        //   numberOfItems: 3,
-        // }}
-        // boxesData={[]}
-        // packingActionProps={{
-        //   onBoxToDistribution: () => {},
-        //   onMoveItemsToDistribution: () => {},
-        // }}
-        // packingActionListProps={{
-        //   onDeleteBoxFromDistribution: () => {}
-        // }}
       />
     </DistroEventDetailsForPackingStateContext.Provider>
   );

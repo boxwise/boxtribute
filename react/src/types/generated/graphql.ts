@@ -1533,6 +1533,14 @@ export type AddToPackingListMutationVariables = Exact<{
 
 export type AddToPackingListMutation = { __typename?: 'Mutation', addPackingListEntryToDistributionEvent?: { __typename?: 'PackingListEntry', id: string, numberOfItems: number, product?: { __typename?: 'Product', id: string, name: string, gender?: ProductGender | null } | null, size?: { __typename?: 'Size', id: string, label: string } | null } | null };
 
+export type RemoveItemsFromUnboxedItemsCollectionMutationVariables = Exact<{
+  id: Scalars['ID'];
+  numberOfItems: Scalars['Int'];
+}>;
+
+
+export type RemoveItemsFromUnboxedItemsCollectionMutation = { __typename?: 'Mutation', removeItemsFromUnboxedItemsCollection?: { __typename?: 'UnboxedItemsCollection', id: string, numberOfItems?: number | null, product?: { __typename?: 'Product', name: string } | null } | null };
+
 export type AllProductsForPackingListQueryVariables = Exact<{
   baseId: Scalars['ID'];
 }>;
