@@ -65,6 +65,8 @@ def test_invalid_permission(unauthorized, read_only_client, query):
         """location( id: 2 ) { id }""",  # ID of another_location fixture
         # Test case 4.1.5
         """tag( id: 4 ) { id }""",
+        # Test case 8.1.4
+        """box( labelIdentifier: "34567890" ) { id }""",
     ],
     ids=operation_name,
 )
