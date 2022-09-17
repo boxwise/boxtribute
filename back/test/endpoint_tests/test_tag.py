@@ -1,6 +1,10 @@
 import pytest
 from boxtribute_server.enums import TagType
-from utils import assert_forbidden_request, assert_successful_request
+from utils import (
+    assert_bad_user_input,
+    assert_forbidden_request,
+    assert_successful_request,
+)
 
 
 def test_tag_query(read_only_client, tags):
@@ -71,7 +75,7 @@ def test_tags_query(
     ]
 
 
-def test_tags_mutations(client, tags, default_beneficiary):
+def test_tags_mutations(client, tags, another_beneficiary, lost_box):
     # Test case 4.2.9
     tag_id = tags[0]["id"]
     mutation = f"""mutation {{ deleteTag(id: {tag_id}) {{
@@ -96,7 +100,7 @@ def test_tags_mutations(client, tags, default_beneficiary):
     color = "#ff0000"
     type = TagType.All.name
     base_id = "1"
-    tags_input_string = f"""{{
+    creation_input = f"""{{
         name: "{name}",
         description: "{description}",
         color: "{color}",
@@ -106,7 +110,7 @@ def test_tags_mutations(client, tags, default_beneficiary):
 
     mutation = f"""mutation {{
             createTag(
-                creationInput : {tags_input_string}
+                creationInput : {creation_input}
             ) {{
                 id
                 name
@@ -136,12 +140,12 @@ def test_tags_mutations(client, tags, default_beneficiary):
     for field, value in zip(
         ["name", "description", "color"], ["Another Box Group", "", "#c0ffee"]
     ):
-        tags_input_string = f"""{{
+        update_input = f"""{{
             id: {tag_id},
             {field}: "{value}"
         }}"""
         mutation = f"""mutation {{
-                updateTag(updateInput : {tags_input_string}) {{
+                updateTag(updateInput : {update_input}) {{
                     id
                     {field}
                     type
@@ -152,6 +156,68 @@ def test_tags_mutations(client, tags, default_beneficiary):
             field: value,
             "type": type,
         }
+
+    # Test case 4.2.13
+    box_id = str(lost_box["id"])
+    mutation = f"""mutation {{
+                assignTag(assignmentInput: {{
+                    id: {tag_id}
+                    resourceId: {box_id}
+                    resourceType: Box
+                }} ) {{
+                    ...on Box {{ tags {{ id }} }}
+                }} }}"""
+    box = assert_successful_request(client, mutation)
+    assert box == {"tags": [{"id": tag_id}]}
+
+    # Test case 4.2.14
+    beneficiary_id = str(another_beneficiary["id"])
+    mutation = f"""mutation {{
+                assignTag(assignmentInput: {{
+                    id: {tag_id}
+                    resourceId: {beneficiary_id}
+                    resourceType: Beneficiary
+                }} ) {{
+                    ...on Beneficiary {{ tags {{ id }} }}
+                }} }}"""
+    beneficiary = assert_successful_request(client, mutation)
+    assert beneficiary == {"tags": [{"id": tag_id}]}
+
+    query = f"""query {{ tag( id: {tag_id} ) {{
+                taggedResources {{
+                    ...on Beneficiary {{ id }}
+                    ...on Box {{ id }}
+                }}
+    }} }}"""
+    tag = assert_successful_request(client, query)
+    assert tag == {"taggedResources": [{"id": i} for i in [beneficiary_id, box_id]]}
+
+    # Test case 4.2.27
+    mutation = f"""mutation {{
+                unassignTag(unassignmentInput: {{
+                    id: {tag_id}
+                    resourceId: {box_id}
+                    resourceType: Box
+                }} ) {{
+                    ...on Box {{ tags {{ id }} }}
+                }} }}"""
+    box = assert_successful_request(client, mutation)
+    assert box == {"tags": []}
+
+    # Test case 4.2.28
+    mutation = f"""mutation {{
+                unassignTag(unassignmentInput: {{
+                    id: {tag_id}
+                    resourceId: {beneficiary_id}
+                    resourceType: Beneficiary
+                }} ) {{
+                    ...on Beneficiary {{ tags {{ id }} }}
+                }} }}"""
+    beneficiary = assert_successful_request(client, mutation)
+    assert beneficiary == {"tags": []}
+
+    tag = assert_successful_request(client, query)
+    assert tag == {"taggedResources": []}
 
 
 @pytest.mark.parametrize(
@@ -187,7 +253,7 @@ def test_update_tag_type(client, tag_id, tag_type, tagged_resource_ids, typename
 def test_mutate_tag_with_invalid_base(client, default_bases, tags):
     # Test case 4.2.2
     base_id = default_bases[2]["id"]
-    tags_input_string = f"""{{
+    creation_input = f"""{{
         name: "new tag",
         color: "#112233",
         type: {TagType.All.name}
@@ -195,7 +261,7 @@ def test_mutate_tag_with_invalid_base(client, default_bases, tags):
     }}"""
 
     mutation = f"""mutation {{
-            createTag(creationInput : {tags_input_string}) {{ id }} }}"""
+            createTag(creationInput : {creation_input}) {{ id }} }}"""
     assert_forbidden_request(client, mutation)
 
     # Test case 4.2.6
@@ -205,6 +271,52 @@ def test_mutate_tag_with_invalid_base(client, default_bases, tags):
     assert_forbidden_request(client, mutation)
 
     # Test case 4.2.12
-    tag_id = tags[3]["id"]
     mutation = f"""mutation {{ deleteTag( id: {tag_id} ) {{ id }} }}"""
     assert_forbidden_request(client, mutation)
+
+    # Test case 4.2.39
+    assignment_input = f"""{{
+        id: {tag_id}
+        resourceId: 2
+        resourceType: Box
+    }}"""
+    mutation = f"""mutation {{
+            assignTag( assignmentInput: {assignment_input} ) {{
+                ...on Box {{ id }} }} }}"""
+    assert_forbidden_request(client, mutation)
+
+    # Test case 4.2.40
+    mutation = f"""mutation {{
+            unassignTag( unassignmentInput: {assignment_input} ) {{
+                ...on Box {{ id }} }} }}"""
+    assert_forbidden_request(client, mutation)
+
+
+def test_assign_tag_with_invalid_resource_type(
+    read_only_client, tags, another_beneficiary, default_box
+):
+    # Test case 4.2.23
+    box_tag_id = tags[1]["id"]
+    beneficiary_id = another_beneficiary["id"]
+    mutation = f"""mutation {{
+                assignTag(assignmentInput: {{
+                    id: {box_tag_id}
+                    resourceId: {beneficiary_id}
+                    resourceType: Beneficiary
+                }} ) {{
+                    ...on Beneficiary {{ tags {{ id }} }}
+                }} }}"""
+    assert_bad_user_input(read_only_client, mutation)
+
+    # Test case 4.2.24
+    beneficiary_tag_id = tags[0]["id"]
+    box_id = default_box["id"]
+    mutation = f"""mutation {{
+                assignTag(assignmentInput: {{
+                    id: {beneficiary_tag_id}
+                    resourceId: {box_id}
+                    resourceType: Box
+                }} ) {{
+                    ...on Box {{ tags {{ id }} }}
+                }} }}"""
+    assert_bad_user_input(read_only_client, mutation)

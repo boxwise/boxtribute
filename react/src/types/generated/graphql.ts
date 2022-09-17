@@ -453,6 +453,7 @@ export type Mutation = {
   acceptTransferAgreement?: Maybe<TransferAgreement>;
   addPackingListEntryToDistributionEvent?: Maybe<PackingListEntry>;
   assignBoxToDistributionEvent?: Maybe<Box>;
+  assignTag?: Maybe<TaggableResource>;
   cancelShipment?: Maybe<Shipment>;
   cancelTransferAgreement?: Maybe<TransferAgreement>;
   changeDistributionEventState?: Maybe<DistributionEvent>;
@@ -475,6 +476,7 @@ export type Mutation = {
   setReturnedNumberOfItemsForDistributionEventsTrackingGroup?: Maybe<DistributionEventsTrackingEntry>;
   startDistributionEventsTrackingGroup?: Maybe<DistributionEventsTrackingGroup>;
   unassignBoxFromDistributionEvent?: Maybe<Box>;
+  unassignTag?: Maybe<TaggableResource>;
   updateBeneficiary?: Maybe<Beneficiary>;
   updateBox?: Maybe<Box>;
   updatePackingListEntry?: Maybe<PackingListEntry>;
@@ -512,6 +514,16 @@ export type MutationAddPackingListEntryToDistributionEventArgs = {
 export type MutationAssignBoxToDistributionEventArgs = {
   boxLabelIdentifier: Scalars['ID'];
   distributionEventId: Scalars['ID'];
+};
+
+
+/**
+ * Naming convention:
+ * - input argument: creationInput/updateInput
+ * - input type: <Resource>CreationInput/UpdateInput
+ */
+export type MutationAssignTagArgs = {
+  assignmentInput?: InputMaybe<TagOperationInput>;
 };
 
 
@@ -745,6 +757,16 @@ export type MutationStartDistributionEventsTrackingGroupArgs = {
 export type MutationUnassignBoxFromDistributionEventArgs = {
   boxLabelIdentifier: Scalars['ID'];
   distributionEventId: Scalars['ID'];
+};
+
+
+/**
+ * Naming convention:
+ * - input argument: creationInput/updateInput
+ * - input type: <Resource>CreationInput/UpdateInput
+ */
+export type MutationUnassignTagArgs = {
+  unassignmentInput?: InputMaybe<TagOperationInput>;
 };
 
 

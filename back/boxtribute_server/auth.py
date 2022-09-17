@@ -161,7 +161,10 @@ class CurrentUser:
                 },
             )
 
-        base_ids = defaultdict(list)
+        # Use set to collect base IDs, thus avoiding duplicates if both read and write
+        # permission are specified for the same resource
+        base_ids = defaultdict(set)
+
         if not is_god:
             for raw_permission in payload[f"{JWT_CLAIM_PREFIX}/permissions"]:
                 try:
@@ -172,17 +175,20 @@ class CurrentUser:
                     # granted for all bases indicated by custom 'base_ids' claim
                     permission = raw_permission
                     ids = payload[f"{JWT_CLAIM_PREFIX}/base_ids"]
-                base_ids[permission].extend(ids)
+                base_ids[permission].update(ids)
 
                 resource, method = permission.split(":")
                 if method in ["write", "create", "edit"]:
-                    base_ids[f"{resource}:read"].extend(ids)
+                    base_ids[f"{resource}:read"].update(ids)
+
+        # Convert to regular dict, using list for base IDs (set not JSON serializable)
+        base_ids = {permission: list(bases) for permission, bases in base_ids.items()}
 
         return cls(
             organisation_id=payload[f"{JWT_CLAIM_PREFIX}/organisation_id"],
             id=int(payload["sub"].replace("auth0|", "")),
             is_god=is_god,
-            base_ids=dict(base_ids),
+            base_ids=base_ids,
         )
 
     def authorized_base_ids(self, permission):

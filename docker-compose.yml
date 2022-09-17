@@ -4,7 +4,7 @@ services:
         build:
             context: ./back
             args:
-                env: ${ENV:-development}
+                env: ${ENVIRONMENT:-development}
         ports:
             - 5005:5000
             # request localhost:5001 to run debugger in vscode (cf. README)

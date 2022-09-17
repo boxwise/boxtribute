@@ -60,11 +60,13 @@ from ..mobile_distribution.crud import (
     update_packing_list_entry,
 )
 from ..models.crud import (
+    assign_tag,
     create_beneficiary,
     create_box,
     create_qr_code,
     create_tag,
     delete_tag,
+    unassign_tag,
     update_beneficiary,
     update_box,
     update_tag,
@@ -852,6 +854,22 @@ def resolve_update_tag(*_, update_input):
     return update_tag(user_id=g.user.id, **update_input)
 
 
+@mutation.field("assignTag")
+@convert_kwargs_to_snake_case
+def resolve_assign_tag(*_, assignment_input):
+    tag = Tag.get_by_id(assignment_input["id"])
+    authorize(permission="tag_relation:assign", base_id=tag.base_id)
+    return assign_tag(user_id=g.user.id, **assignment_input)
+
+
+@mutation.field("unassignTag")
+@convert_kwargs_to_snake_case
+def resolve_unassign_tag(*_, unassignment_input):
+    tag = Tag.get_by_id(unassignment_input["id"])
+    authorize(permission="tag_relation:assign", base_id=tag.base_id)
+    return unassign_tag(user_id=g.user.id, **unassignment_input)
+
+
 @mutation.field("deleteTag")
 def resolve_delete_tag(*_, id):
     base_id = Tag.get_by_id(id).base_id
@@ -1036,7 +1054,7 @@ def resolve_distribution_event(*_, id):
 @base.field("beneficiaries")
 @convert_kwargs_to_snake_case
 def resolve_base_beneficiaries(base_obj, _, pagination_input=None, filter_input=None):
-    authorize(permission="beneficiary:read")
+    authorize(permission="beneficiary:read", base_id=base_obj.id)
     base_filter_condition = Beneficiary.base == base_obj.id
     filter_condition = base_filter_condition & derive_beneficiary_filter(filter_input)
     return load_into_page(

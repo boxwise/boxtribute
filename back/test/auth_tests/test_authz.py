@@ -124,3 +124,20 @@ def test_user_with_multiple_roles():
 
     assert authorize(user, permission=permission, base_id=1)
     assert authorize(user, permission=permission, base_id=2)
+
+
+def test_non_duplicated_base_ids_when_read_and_write_permissions_given():
+    payload = {
+        f"{JWT_CLAIM_PREFIX}/organisation_id": 1,
+        f"{JWT_CLAIM_PREFIX}/permissions": [
+            "base_3/stock:read",
+            "base_3/stock:write",
+            "base_4/stock:edit",
+            "base_4/stock:read",
+        ],
+        "sub": "auth0|42",
+    }
+    user = CurrentUser.from_jwt(payload)
+    assert sorted(user.authorized_base_ids("stock:read")) == [3, 4]
+    assert sorted(user.authorized_base_ids("stock:write")) == [3]
+    assert sorted(user.authorized_base_ids("stock:edit")) == [4]
