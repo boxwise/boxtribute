@@ -683,9 +683,26 @@ def resolve_move_items_from_return_tracking_group_to_box(
     )
 
 
-#   completeDistributionEventsTrackingGroup(
-#     distributionEventsTrackingGroupId: ID!
-#   ): DistributionEventsTrackingGroup
+@mutation.field("removeItemsFromUnboxedItemsCollection")
+@convert_kwargs_to_snake_case
+def resolve_remove_items_from_unboxed_items_collection(*_, id, number_of_items):
+    mobile_distro_feature_flag_check(user_id=g.user.id)
+    unboxed_items_collection = UnboxedItemsCollection.get_by_id(id)
+    authorize(
+        permission="distro_event:write",
+        base_id=unboxed_items_collection.distribution_event.distribution_spot.base_id,
+    )
+    if unboxed_items_collection.number_of_items < number_of_items:
+        raise Exception("Cannot remove more items than are in the collection")
+    unboxed_items_collection.number_of_items -= number_of_items
+    unboxed_items_collection.save()
+    return unboxed_items_collection
+
+    # return complete_distribution_events_tracking_group(
+    #     id=id,
+    # )
+
+
 @mutation.field("completeDistributionEventsTrackingGroup")
 @convert_kwargs_to_snake_case
 def resolve_complete_distribution_events_tracking_group(

@@ -21,7 +21,7 @@ export type Scalars = {
 export type Base = {
   __typename?: 'Base';
   /**  List of all [`Beneficiaries`]({{Types.Beneficiary}}) registered in this base  */
-  beneficiaries: BeneficiaryPage;
+  beneficiaries?: Maybe<BeneficiaryPage>;
   currencyName?: Maybe<Scalars['String']>;
   distributionEvents: Array<DistributionEvent>;
   distributionEventsBeforeReturnedFromDistributionState: Array<DistributionEvent>;
@@ -471,6 +471,7 @@ export type Mutation = {
   moveItemsFromReturnTrackingGroupToBox?: Maybe<DistributionEventsTrackingEntry>;
   rejectTransferAgreement?: Maybe<TransferAgreement>;
   removeAllPackingListEntriesFromDistributionEventForProduct?: Maybe<Scalars['Boolean']>;
+  removeItemsFromUnboxedItemsCollection?: Maybe<UnboxedItemsCollection>;
   removePackingListEntryFromDistributionEvent?: Maybe<DistributionEvent>;
   sendShipment?: Maybe<Shipment>;
   setReturnedNumberOfItemsForDistributionEventsTrackingGroup?: Maybe<DistributionEventsTrackingEntry>;
@@ -702,6 +703,17 @@ export type MutationRejectTransferAgreementArgs = {
 export type MutationRemoveAllPackingListEntriesFromDistributionEventForProductArgs = {
   distributionEventId: Scalars['ID'];
   productId: Scalars['ID'];
+};
+
+
+/**
+ * Naming convention:
+ * - input argument: creationInput/updateInput
+ * - input type: <Resource>CreationInput/UpdateInput
+ */
+export type MutationRemoveItemsFromUnboxedItemsCollectionArgs = {
+  id: Scalars['ID'];
+  numberOfItems: Scalars['Int'];
 };
 
 

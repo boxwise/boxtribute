@@ -54,6 +54,10 @@ type Mutation {
     distributionEventId: ID!
     numberOfItems: Int!
   ): UnboxedItemsCollection
+  removeItemsFromUnboxedItemsCollection(
+    id: ID!
+    numberOfItems: Int!
+  ): UnboxedItemsCollection
   # moveItemsFromUnboxedItemsCollectionToBox(
   #   unboxedItemsCollectionId: ID!
   #   boxLabelIdentifier: ID!

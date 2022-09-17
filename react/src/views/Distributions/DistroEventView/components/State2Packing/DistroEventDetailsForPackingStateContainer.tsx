@@ -44,7 +44,8 @@ const DistroEventDetailsForPackingStateContainer = ({
   const distributionEventId = distributionEventDetails.id;
 
   // const [removeItemsFromDistributionEventMutation] = useMutation<
-  const onRemoveUnboxedItems = (unboxedItemsCollection, numberOfItems) => {
+  const onRemoveUnboxedItems = (unboxedItemsCollectionId: string, numberOfItems: number) => {
+    alert("REMOVE")
     // const handleError = (errors: any) => {
     //   console.error(
     //     `Error while trying to remove items (productId: ${productId}, sizeId: ${sizeId}, numberOfItems: ${numberOfItems}) from distribution event ${distributionEventId}`,
