@@ -18,7 +18,6 @@ import DistroSpotView from "views/Distributions/DistroSpotView/DistroSpotView";
 import CreateDistributionEventView from "views/Distributions/CreateDistributionEventView/CreateDistributionEventView";
 import CreateDistributionSpotView from "views/Distributions/CreateDistributionSpotView/CreateDistributionSpotView";
 import BaseDashboardView from "views/BaseDashboard/BaseDashboardView";
-import BoxCreateView from "views/BoxCreate/BoxCreateView";
 import DistrosReturnTrackingGroupView from "views/Distributions/DistributionReturnTrackings/DistrosReturnTrackingGroupView/DistrosReturnTrackingGroupView";
 import DistributionReturnTrackingsView from "views/Distributions/DistributionReturnTrackings/DistributionReturnTrackingsView/DistributionReturnTrackingsView";
 import CreateDirectDistributionEventView from "views/Distributions/CreateDirectDistributionEventView/CreateDirectDistributionEventView";
@@ -84,7 +83,8 @@ const App = () => {
             <Route index element={<BaseDashboardView />} />
             <Route path="boxes">
               <Route index element={<Boxes />} />
-              <Route path="create" element={<BoxCreateView />} />
+              {/* TODO: uncomment this once we have finished/tested the Create Box feature sufficiently */}
+              {/* <Route path="create" element={<BoxCreateView />} /> */}
               <Route path=":labelIdentifier">
                 <Route index element={<BTBox />} />
                 <Route path="edit" element={<BoxEditView />} />
