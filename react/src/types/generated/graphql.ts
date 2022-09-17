@@ -21,7 +21,7 @@ export type Scalars = {
 export type Base = {
   __typename?: 'Base';
   /**  List of all [`Beneficiaries`]({{Types.Beneficiary}}) registered in this base  */
-  beneficiaries: BeneficiaryPage;
+  beneficiaries?: Maybe<BeneficiaryPage>;
   currencyName?: Maybe<Scalars['String']>;
   distributionEvents: Array<DistributionEvent>;
   distributionEventsBeforeReturnedFromDistributionState: Array<DistributionEvent>;
@@ -126,7 +126,6 @@ export type BeneficiaryPage = {
 };
 
 export type BeneficiaryUpdateInput = {
-  baseId?: InputMaybe<Scalars['Int']>;
   comment?: InputMaybe<Scalars['String']>;
   dateOfBirth?: InputMaybe<Scalars['Date']>;
   dateOfSignature?: InputMaybe<Scalars['Date']>;

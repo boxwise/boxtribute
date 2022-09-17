@@ -197,7 +197,6 @@ def test_beneficiary_mutations(client):
 
     first_name = "Foo"
     dob = "2001-01-01"
-    base_id = 1
     group_id = "1235"
     gender = "Male"
     comment = "cool dude"
@@ -206,7 +205,6 @@ def test_beneficiary_mutations(client):
                 updateInput : {{
                     id: {beneficiary_id},
                     firstName: "{first_name}",
-                    baseId: {base_id},
                     groupIdentifier: "{group_id}",
                     dateOfBirth: "{dob}",
                     comment: "{comment}",

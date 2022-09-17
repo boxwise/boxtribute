@@ -302,7 +302,6 @@ def update_beneficiary(
     *,
     user,
     id,
-    base_id=None,
     gender=None,
     languages=None,
     family_head_id=None,
@@ -317,9 +316,6 @@ def update_beneficiary(
     beneficiary = Beneficiary.get_by_id(id)
 
     # Handle any items with keys not matching the Model fields
-    if base_id is not None:
-        beneficiary.base = base_id
-
     if gender is not None:
         beneficiary.gender = gender.value
 
