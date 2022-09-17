@@ -3,6 +3,7 @@ from utils import assert_successful_request
 
 
 def test_location_query(read_only_client, default_boxes, default_location):
+    # Test case 8.1.6, 8.1.10
     query = f"""query {{
                 location(id: "{default_location['id']}") {{
                     id
@@ -33,6 +34,7 @@ def test_location_query(read_only_client, default_boxes, default_location):
 
 
 def test_locations_query(read_only_client, default_location):
+    # Test case 8.1.9
     query = """query {
                 locations {
                     name

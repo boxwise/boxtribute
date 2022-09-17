@@ -74,17 +74,21 @@ def test_invalid_pagination_input(read_only_client):
 @pytest.mark.parametrize(
     "resource",
     [
+        # Test case 9.1.5
         "beneficiary",
+        # Test case 8.1.11
         "location",
         "product",
         "productCategory",
+        # Test case 3.1.3
         "shipment",
+        # Test case 4.1.3
         "tag",
+        # Test case 2.1.4
         "transferAgreement",
     ],
 )
 def test_query_non_existent_resource(read_only_client, resource):
-    # Test cases 2.1.4, 3.1.3, 4.1.3
     query = f"query {{ {resource}(id: 0) {{ id }} }}"
     response = assert_bad_user_input(read_only_client, query, field=resource)
     assert "SQL" not in response.json["errors"][0]["message"]

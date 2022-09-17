@@ -6,6 +6,7 @@ from utils import assert_internal_server_error, assert_successful_request
 
 
 def test_box_query_by_label_identifier(read_only_client, default_box, tags):
+    # Test case 8.1.1
     label_identifier = default_box["label_identifier"]
     query = f"""query {{
                 box(labelIdentifier: "{label_identifier}") {{
@@ -49,6 +50,7 @@ def test_box_query_by_label_identifier(read_only_client, default_box, tags):
 
 
 def test_box_query_by_qr_code(read_only_client, default_box, default_qr_code):
+    # Test case 8.1.5
     query = f"""query {{
                 qrCode(qrCode: "{default_qr_code['code']}") {{
                     box {{
@@ -63,6 +65,7 @@ def test_box_query_by_qr_code(read_only_client, default_box, default_qr_code):
 def test_box_mutations(
     client, qr_code_without_box, default_size, another_size, products, default_location
 ):
+    # Test case 8.2.1
     size_id = str(default_size["id"])
     location_id = str(default_location["id"])
     product_id = str(products[0]["id"])
@@ -100,6 +103,7 @@ def test_box_mutations(
     assert created_box["createdOn"] == created_box["lastModifiedOn"]
     assert created_box["createdBy"] == created_box["lastModifiedBy"]
 
+    # Test case 8.2.11
     new_size_id = str(another_size["id"])
     new_product_id = str(products[2]["id"])
     comment = "updatedComment"
@@ -203,6 +207,7 @@ def _format(parameter):
 @pytest.mark.parametrize(
     "filters,number",
     [
+        # Test case 8.1.7
         [[{"states": "[InStock]"}], 1],
         [[{"states": "[Lost]"}], 1],
         [[{"states": "[MarkedForShipment]"}], 3],
