@@ -113,7 +113,7 @@ const UnboxedItemsCollectionListEntry = ({
                   )
                 }
                 disabled={
-                  (numberOfItemsToRemove == null || numberOfItemsToRemove < 1)
+                  numberOfItemsToRemove == null || numberOfItemsToRemove < 1
                 }
               >
                 Remove

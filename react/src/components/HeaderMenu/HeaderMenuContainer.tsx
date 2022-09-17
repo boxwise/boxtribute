@@ -115,9 +115,10 @@ const HeaderMenuContainer = () => {
               isClosable: true,
               duration: 2000,
             });
-            navigate(
-              `/bases/${baseId}/boxes/create?qrCode=${singleResolvedQrValue.qrCodeValue}`
-            );
+            // TODO: uncomment this once we want to have finished/tested the Create Box feature sufficiently
+            // navigate(
+            //   `/bases/${baseId}/boxes/create?qrCode=${singleResolvedQrValue.qrCodeValue}`
+            // );
             break;
           }
         }
