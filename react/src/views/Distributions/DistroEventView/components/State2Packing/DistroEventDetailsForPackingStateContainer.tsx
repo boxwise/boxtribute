@@ -1,7 +1,6 @@
 import { gql, useMutation, useQuery } from "@apollo/client";
 import { useToast } from "@chakra-ui/react";
 import APILoadingIndicator from "components/APILoadingIndicator";
-import { number } from "prop-types";
 import { createContext, useCallback } from "react";
 import {
   PackingListEntriesForDistributionEventQuery,

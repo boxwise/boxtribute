@@ -1,4 +1,4 @@
-import { gql, useLazyQuery } from "@apollo/client";
+import { gql } from "@apollo/client";
 import {
   Stat,
   StatLabel,
@@ -21,7 +21,6 @@ import {
 import { useGetUrlForResourceHelpers } from "utils/hooks";
 import { VictoryPie } from "victory";
 import { useApolloClient } from "@apollo/client";
-import _ from "lodash";
 
 export const DOWNLOAD_STATIC_DATA = gql`
   query DownloadDistributionEventsStatistics($baseId: ID!) {
@@ -101,7 +100,6 @@ const CardWithTwoElements = ({
 const DistroEventsStatistics = () => {
   const apolloClient = useApolloClient();
   const { getBaseId } = useGetUrlForResourceHelpers();
-  // const [downloadDistributionEventsStatisticsQuery, { loading, data }] =
 
   const exportCsvColumns = [
     "productName",
@@ -128,11 +126,9 @@ const DistroEventsStatistics = () => {
       .then((result) => {
         const csvContent =
           "data:text/csv;charset=utf-8," +
-          // _(result.data.base?.distributionEventsStatistics).keys().join(",") +
           exportCsvColumns.join(",") + "\n" +
           result.data.base?.distributionEventsStatistics
             .map((e) =>
-              // _(e).values().value()
               exportCsvColumns.map((c) => e[c]).join(",")
             )
             .join("\n");
@@ -147,36 +143,6 @@ const DistroEventsStatistics = () => {
 
         link.click();
       });
-    const rows = [
-      // [
-      //   "productId",
-      //   "Category",
-      //   "Product Name",
-      //   "Gender",
-      //   "sizeId",
-      //   "Size Name",
-      //   "Number of Items on Distro",
-      //   "Number of Items Returned",
-      //   "Actually distributed number of items",
-      //   "Earliest possible distro date",
-      //   "Latest possible distro date",
-      //   "Potentially involved Distro Spots",
-      // ],
-      // [
-      //   "1",
-      //   "T-Shirts",
-      //   "Dummy T-Shirt 1",
-      //   "Unisex",
-      //   "99",
-      //   "Dummy Size XL",
-      //   "123",
-      //   "23",
-      //   "100",
-      //   "2022-08-02",
-      //   "2022-08-28",
-      //   "Horgos River; LIDL",
-      // ],
-    ];
   };
 
   return (

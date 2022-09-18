@@ -135,7 +135,6 @@ const DistributionListForReturnTracking = ({
         variables: {
           baseId,
           distributionEventIds: selectedDistributionEventIds,
-          // returnedToLocationId: null,
         },
         fetchPolicy: "no-cache",
       })

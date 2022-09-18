@@ -89,8 +89,6 @@ const UnboxedItemsCollectionListEntry = ({
               my={2}
               justifyContent="space-between"
             >
-              {/* <VStack borderColor="blackAlpha.100" borderWidth={2} p={4} my={5}> */}
-              {/* <VStack p={4} my={5}> */}
               <FormControl display="flex" alignItems="center">
                 <FormLabel fontSize="sm" htmlFor="numberOfItems">
                   # of items:
@@ -119,7 +117,6 @@ const UnboxedItemsCollectionListEntry = ({
               >
                 Remove
               </Button>
-              {/* </VStack> */}
             </Flex>
           </ModalBody>
           <ModalFooter />
@@ -243,11 +240,9 @@ PackedContentListOverlayProps) => {
         <ModalHeader mx={4} pb={0}>
           <Heading as="h3" size="md">
             Packed Boxes and Items for: <br />
-            {/* <Heading as="h2" size="lg"> */}
             <i>
               {packingListEntry.product.name} - {packingListEntry.size?.label}
             </i>
-            {/* </Heading> */}
           </Heading>
         </ModalHeader>
         <ModalCloseButton />
