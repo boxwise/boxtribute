@@ -26,6 +26,7 @@ export type Base = {
   distributionEvents: Array<DistributionEvent>;
   distributionEventsBeforeReturnedFromDistributionState: Array<DistributionEvent>;
   distributionEventsInReturnedFromDistributionState: Array<DistributionEvent>;
+  distributionEventsStatistics: Array<DistributionEventsStatistics>;
   distributionEventsTrackingGroups: Array<DistributionEventsTrackingGroup>;
   distributionSpots: Array<DistributionSpot>;
   id: Scalars['ID'];
@@ -269,6 +270,23 @@ export enum DistributionEventTrackingFlowDirection {
   In = 'In',
   Out = 'Out'
 }
+
+export type DistributionEventsStatistics = {
+  __typename?: 'DistributionEventsStatistics';
+  categoryLabel: Scalars['String'];
+  distroEventTrackingGroupId: Scalars['String'];
+  earliestPossibleDistroDate: Scalars['String'];
+  genderLabel: Scalars['String'];
+  inflow: Scalars['Int'];
+  involvedDistributionEventIds: Scalars['String'];
+  latestPossibleDistroDate: Scalars['String'];
+  outflow: Scalars['Int'];
+  potentiallyInvolvedDistributionSpots: Scalars['String'];
+  productId: Scalars['String'];
+  productName: Scalars['String'];
+  sizeId: Scalars['String'];
+  sizeLabel: Scalars['String'];
+};
 
 /** TODO: Add description here once specs are final/confirmed */
 export type DistributionEventsTrackingEntry = {
@@ -1540,6 +1558,13 @@ export type RemoveItemsFromUnboxedItemsCollectionMutationVariables = Exact<{
 
 
 export type RemoveItemsFromUnboxedItemsCollectionMutation = { __typename?: 'Mutation', removeItemsFromUnboxedItemsCollection?: { __typename?: 'UnboxedItemsCollection', id: string, numberOfItems?: number | null, product?: { __typename?: 'Product', name: string } | null } | null };
+
+export type DownloadDistributionEventsStatisticsQueryVariables = Exact<{
+  baseId: Scalars['ID'];
+}>;
+
+
+export type DownloadDistributionEventsStatisticsQuery = { __typename?: 'Query', base?: { __typename?: 'Base', id: string, distributionEventsStatistics: Array<{ __typename?: 'DistributionEventsStatistics', productName: string, sizeLabel: string, genderLabel: string, categoryLabel: string, inflow: number, outflow: number, earliestPossibleDistroDate: string, latestPossibleDistroDate: string, potentiallyInvolvedDistributionSpots: string, involvedDistributionEventIds: string, distroEventTrackingGroupId: string, productId: string, sizeId: string }> } | null };
 
 export type AllProductsForPackingListQueryVariables = Exact<{
   baseId: Scalars['ID'];

@@ -193,8 +193,7 @@ const DistributionListForReturnTracking = ({
         </Text>
         <Text backgroundColor={"orange.100"} m={5} p={3}>
           Attention: Once you started a Return Tracking for a group of events,
-          you cannot change this group selection later anymore (
-          <Link>What does that mean?</Link>).
+          you cannot change this group selection later anymore.
         </Text>
         <Box backgroundColor="gray.50">
           {distroEventsToShowGroupedByDay.map(({ date, events }) => {

@@ -235,6 +235,23 @@ type Base {
   distributionEventsInReturnedFromDistributionState: [DistributionEvent!]!
 
   distributionEventsTrackingGroups(states: [DistributionEventsTrackingGroupState!]): [DistributionEventsTrackingGroup!]!
+  distributionEventsStatistics: [DistributionEventsStatistics!]!
+}
+
+type DistributionEventsStatistics {
+  productName: String!
+  genderLabel: String!
+  categoryLabel: String!
+  sizeLabel: String!
+  inflow: Int!
+  outflow: Int!
+  earliestPossibleDistroDate: String!
+  latestPossibleDistroDate: String!
+  potentiallyInvolvedDistributionSpots: String!
+  involvedDistributionEventIds: String!
+  distroEventTrackingGroupId: String!
+  productId: String!
+  sizeId: String!
 }
 
 """
