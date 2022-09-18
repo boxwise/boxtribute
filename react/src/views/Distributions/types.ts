@@ -117,6 +117,7 @@ export interface BoxData extends ItemsCollection {
 }
 
 export interface UnboxedItemsCollectionData extends ItemsCollection {
+  id: string;
   __typename: "UnboxedItemsCollection";
 }
 

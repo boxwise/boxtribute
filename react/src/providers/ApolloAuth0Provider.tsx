@@ -68,7 +68,7 @@ function ApolloAuth0Provider({ children }: { children: ReactNode }) {
     cache: new InMemoryCache(),
     // HINT: Ideally, only set this temporary to true for local debugging
     // or make the usage here conditional based on the environment.
-    connectToDevTools: false,
+    connectToDevTools: true,
     link: auth0Link.concat(errorLink).concat(httpLink),
     defaultOptions,
   });

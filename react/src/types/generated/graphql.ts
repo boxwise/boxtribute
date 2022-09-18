@@ -21,11 +21,12 @@ export type Scalars = {
 export type Base = {
   __typename?: 'Base';
   /**  List of all [`Beneficiaries`]({{Types.Beneficiary}}) registered in this base  */
-  beneficiaries: BeneficiaryPage;
+  beneficiaries?: Maybe<BeneficiaryPage>;
   currencyName?: Maybe<Scalars['String']>;
   distributionEvents: Array<DistributionEvent>;
   distributionEventsBeforeReturnedFromDistributionState: Array<DistributionEvent>;
   distributionEventsInReturnedFromDistributionState: Array<DistributionEvent>;
+  distributionEventsStatistics: Array<DistributionEventsStatistics>;
   distributionEventsTrackingGroups: Array<DistributionEventsTrackingGroup>;
   distributionSpots: Array<DistributionSpot>;
   id: Scalars['ID'];
@@ -270,6 +271,23 @@ export enum DistributionEventTrackingFlowDirection {
   Out = 'Out'
 }
 
+export type DistributionEventsStatistics = {
+  __typename?: 'DistributionEventsStatistics';
+  categoryLabel: Scalars['String'];
+  distroEventTrackingGroupId: Scalars['String'];
+  earliestPossibleDistroDate: Scalars['String'];
+  genderLabel: Scalars['String'];
+  inflow: Scalars['Int'];
+  involvedDistributionEventIds: Scalars['String'];
+  latestPossibleDistroDate: Scalars['String'];
+  outflow: Scalars['Int'];
+  potentiallyInvolvedDistributionSpots: Scalars['String'];
+  productId: Scalars['String'];
+  productName: Scalars['String'];
+  sizeId: Scalars['String'];
+  sizeLabel: Scalars['String'];
+};
+
 /** TODO: Add description here once specs are final/confirmed */
 export type DistributionEventsTrackingEntry = {
   __typename?: 'DistributionEventsTrackingEntry';
@@ -471,6 +489,7 @@ export type Mutation = {
   moveItemsFromReturnTrackingGroupToBox?: Maybe<DistributionEventsTrackingEntry>;
   rejectTransferAgreement?: Maybe<TransferAgreement>;
   removeAllPackingListEntriesFromDistributionEventForProduct?: Maybe<Scalars['Boolean']>;
+  removeItemsFromUnboxedItemsCollection?: Maybe<UnboxedItemsCollection>;
   removePackingListEntryFromDistributionEvent?: Maybe<DistributionEvent>;
   sendShipment?: Maybe<Shipment>;
   setReturnedNumberOfItemsForDistributionEventsTrackingGroup?: Maybe<DistributionEventsTrackingEntry>;
@@ -702,6 +721,17 @@ export type MutationRejectTransferAgreementArgs = {
 export type MutationRemoveAllPackingListEntriesFromDistributionEventForProductArgs = {
   distributionEventId: Scalars['ID'];
   productId: Scalars['ID'];
+};
+
+
+/**
+ * Naming convention:
+ * - input argument: creationInput/updateInput
+ * - input type: <Resource>CreationInput/UpdateInput
+ */
+export type MutationRemoveItemsFromUnboxedItemsCollectionArgs = {
+  id: Scalars['ID'];
+  numberOfItems: Scalars['Int'];
 };
 
 
@@ -1521,6 +1551,21 @@ export type AddToPackingListMutationVariables = Exact<{
 
 export type AddToPackingListMutation = { __typename?: 'Mutation', addPackingListEntryToDistributionEvent?: { __typename?: 'PackingListEntry', id: string, numberOfItems: number, product?: { __typename?: 'Product', id: string, name: string, gender?: ProductGender | null } | null, size?: { __typename?: 'Size', id: string, label: string } | null } | null };
 
+export type RemoveItemsFromUnboxedItemsCollectionMutationVariables = Exact<{
+  id: Scalars['ID'];
+  numberOfItems: Scalars['Int'];
+}>;
+
+
+export type RemoveItemsFromUnboxedItemsCollectionMutation = { __typename?: 'Mutation', removeItemsFromUnboxedItemsCollection?: { __typename?: 'UnboxedItemsCollection', id: string, numberOfItems?: number | null, product?: { __typename?: 'Product', name: string } | null } | null };
+
+export type DownloadDistributionEventsStatisticsQueryVariables = Exact<{
+  baseId: Scalars['ID'];
+}>;
+
+
+export type DownloadDistributionEventsStatisticsQuery = { __typename?: 'Query', base?: { __typename?: 'Base', id: string, distributionEventsStatistics: Array<{ __typename?: 'DistributionEventsStatistics', productName: string, sizeLabel: string, genderLabel: string, categoryLabel: string, inflow: number, outflow: number, earliestPossibleDistroDate: string, latestPossibleDistroDate: string, potentiallyInvolvedDistributionSpots: string, involvedDistributionEventIds: string, distroEventTrackingGroupId: string, productId: string, sizeId: string }> } | null };
+
 export type AllProductsForPackingListQueryVariables = Exact<{
   baseId: Scalars['ID'];
 }>;
@@ -1579,7 +1624,7 @@ export type PackingListEntriesForDistributionEventQueryVariables = Exact<{
 }>;
 
 
-export type PackingListEntriesForDistributionEventQuery = { __typename?: 'Query', distributionEvent?: { __typename?: 'DistributionEvent', id: string, packingListEntries: Array<{ __typename?: 'PackingListEntry', id: string, numberOfItems: number, product?: { __typename?: 'Product', id: string, name: string, gender?: ProductGender | null } | null, size?: { __typename?: 'Size', id: string, label: string } | null, matchingPackedItemsCollections: Array<{ __typename: 'Box', labelIdentifier: string, numberOfItems?: number | null } | { __typename: 'UnboxedItemsCollection', numberOfItems?: number | null }> }> } | null };
+export type PackingListEntriesForDistributionEventQuery = { __typename?: 'Query', distributionEvent?: { __typename?: 'DistributionEvent', id: string, packingListEntries: Array<{ __typename?: 'PackingListEntry', id: string, numberOfItems: number, product?: { __typename?: 'Product', id: string, name: string, gender?: ProductGender | null } | null, size?: { __typename?: 'Size', id: string, label: string } | null, matchingPackedItemsCollections: Array<{ __typename: 'Box', labelIdentifier: string, numberOfItems?: number | null } | { __typename: 'UnboxedItemsCollection', id: string, numberOfItems?: number | null }> }> } | null };
 
 export type ChangeDistributionEventStateMutationVariables = Exact<{
   distributionEventId: Scalars['ID'];

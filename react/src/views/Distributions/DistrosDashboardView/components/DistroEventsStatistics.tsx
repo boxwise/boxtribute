@@ -1,3 +1,4 @@
+import { gql } from "@apollo/client";
 import {
   Stat,
   StatLabel,
@@ -13,8 +14,36 @@ import {
 } from "@chakra-ui/react";
 import { format } from "date-fns";
 import React, { ReactNode } from "react";
+import {
+  DownloadDistributionEventsStatisticsQuery,
+  DownloadDistributionEventsStatisticsQueryVariables,
+} from "types/generated/graphql";
 import { useGetUrlForResourceHelpers } from "utils/hooks";
 import { VictoryPie } from "victory";
+import { useApolloClient } from "@apollo/client";
+
+export const DOWNLOAD_STATIC_DATA = gql`
+  query DownloadDistributionEventsStatistics($baseId: ID!) {
+    base(id: $baseId) {
+      id
+      distributionEventsStatistics {
+        productName
+        sizeLabel
+        genderLabel
+        categoryLabel
+        inflow
+        outflow
+        earliestPossibleDistroDate
+        latestPossibleDistroDate
+        potentiallyInvolvedDistributionSpots
+        involvedDistributionEventIds
+        distroEventTrackingGroupId
+        productId
+        sizeId
+      }
+    }
+  }
+`;
 
 const Card = ({ children }: { children: ReactNode[] | ReactNode }) => (
   <Box
@@ -68,54 +97,54 @@ const CardWithTwoElements = ({
   </Card>
 );
 
-const downloadCsvExport = (baseId: string) => {
-  const rows = [
-    [
-      "productId",
-      "Category",
-      "Product Name",
-      "Gender",
-      "sizeId",
-      "Size Name",
-      "Number of Items on Distro",
-      "Number of Items Returned",
-      "Actually distributed number of items",
-      "Earliest possible distro date",
-      "Latest possible distro date",
-      "Potentially involved Distro Spots",
-    ],
-    [
-      "1",
-      "T-Shirts",
-      "Dummy T-Shirt 1",
-      "Unisex",
-      "99",
-      "Dummy Size XL",
-      "123",
-      "23",
-      "100",
-      "2022-08-02",
-      "2022-08-28",
-      "Horgos River; LIDL",
-    ],
+const DistroEventsStatistics = () => {
+  const apolloClient = useApolloClient();
+  const { getBaseId } = useGetUrlForResourceHelpers();
+
+  const exportCsvColumns = [
+    "productName",
+    "sizeLabel",
+    "genderLabel",
+    "categoryLabel",
+    "outflow",
+    "inflow",
+    "earliestPossibleDistroDate",
+    "latestPossibleDistroDate",
+    "potentiallyInvolvedDistributionSpots",
+    "involvedDistributionEventIds",
+    "distroEventTrackingGroupId",
+    "productId",
+    "sizeId",
   ];
 
-  const csvContent =
-    "data:text/csv;charset=utf-8," + rows.map((e) => e.join(",")).join("\n");
+  const downloadCsvExport = (baseId: string) => {
+    apolloClient
+      .query<
+        DownloadDistributionEventsStatisticsQuery,
+        DownloadDistributionEventsStatisticsQueryVariables
+      >({ query: DOWNLOAD_STATIC_DATA, variables: { baseId } })
+      .then((result) => {
+        const csvContent =
+          "data:text/csv;charset=utf-8," +
+          exportCsvColumns.join(",") + "\n" +
+          result.data.base?.distributionEventsStatistics
+            .map((e) =>
+              exportCsvColumns.map((c) => e[c]).join(",")
+            )
+            .join("\n");
 
-  const dateStr = format(new Date(), "MM-dd-yyyy-HH-mm-ss");
-  const filename = `boxtribute_base_${baseId}_distributions_export_${dateStr}.csv`;
-  const encodedUri = encodeURI(csvContent);
-  const link = document.createElement("a");
-  link.setAttribute("href", encodedUri);
-  link.setAttribute("download", filename);
-  document.body.appendChild(link);
+        const dateStr = format(new Date(), "MM-dd-yyyy-HH-mm-ss");
+        const filename = `boxtribute_base_${baseId}_distributions_export_${dateStr}.csv`;
+        const encodedUri = encodeURI(csvContent);
+        const link = document.createElement("a");
+        link.setAttribute("href", encodedUri);
+        link.setAttribute("download", filename);
+        document.body.appendChild(link);
 
-  link.click();
-};
+        link.click();
+      });
+  };
 
-const DistroEventsStatistics = () => {
-  const { getBaseId } = useGetUrlForResourceHelpers();
   return (
     <VStack>
       <Button my={7} onClick={() => downloadCsvExport(getBaseId())}>

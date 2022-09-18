@@ -683,9 +683,22 @@ def resolve_move_items_from_return_tracking_group_to_box(
     )
 
 
-#   completeDistributionEventsTrackingGroup(
-#     distributionEventsTrackingGroupId: ID!
-#   ): DistributionEventsTrackingGroup
+@mutation.field("removeItemsFromUnboxedItemsCollection")
+@convert_kwargs_to_snake_case
+def resolve_remove_items_from_unboxed_items_collection(*_, id, number_of_items):
+    mobile_distro_feature_flag_check(user_id=g.user.id)
+    unboxed_items_collection = UnboxedItemsCollection.get_by_id(id)
+    authorize(
+        permission="distro_event:write",
+        base_id=unboxed_items_collection.distribution_event.distribution_spot.base_id,
+    )
+    if unboxed_items_collection.number_of_items < number_of_items:
+        raise Exception("Cannot remove more items than are in the collection")
+    unboxed_items_collection.number_of_items -= number_of_items
+    unboxed_items_collection.save()
+    return unboxed_items_collection
+
+
 @mutation.field("completeDistributionEventsTrackingGroup")
 @convert_kwargs_to_snake_case
 def resolve_complete_distribution_events_tracking_group(
@@ -989,6 +1002,65 @@ def resolve_send_shipment(*_, id):
     shipment = Shipment.get_by_id(id)
     authorize(organisation_id=shipment.source_base.organisation_id)
     return send_shipment(id=id, user=g.user)
+
+
+@base.field("distributionEventsStatistics")
+def resolve_base_distribution_events_statistics(base_obj, _):
+    mobile_distro_feature_flag_check(user_id=g.user.id)
+    authorize(permission="distro_event:read")
+
+    res = DistributionEventsTrackingGroup.raw(
+        """select
+        p.name as product_name,
+        genders.label as gender_label,
+        cat.label as category_label,
+        siz.label as size_label,
+        MAX(detl.inflow) as inflow,
+        MAX(detl.outflow) as outflow,
+        min(ev.planned_start_date_time) earliest_possible_distro_date,
+        max(ev.planned_end_date_time) latest_possible_distro_date,
+        GROUP_CONCAT(distinct spot.label SEPARATOR ', ')
+          as potentially_involved_distribution_spots,
+        detl.distro_event_tracking_group_id,
+        GROUP_CONCAT(distinct ev.id SEPARATOR ',') as involved_distribution_event_ids,
+        detl.product_id,
+        detl.size_id
+        from (
+            select detl.distro_event_tracking_group_id,
+            detl.product_id,
+            detl.size_id,
+            detl.location_id,
+            SUM(CASE WHEN detl.flow_direction = "In"
+              THEN detl.number_of_items ELSE 0 END
+            ) inflow,
+            SUM(CASE WHEN detl.flow_direction = "Out"
+              THEN detl.number_of_items ELSE 0 END
+            ) outflow
+            from distro_events_tracking_logs detl
+            inner join distro_events_tracking_groups tracking_group
+              on tracking_group.id = detl.distro_event_tracking_group_id
+            where tracking_group.base_id = '%s'
+            group by detl.distro_event_tracking_group_id, detl.product_id,
+              detl.size_id, detl.location_id, detl.flow_direction
+        ) as detl
+        inner join distro_events ev
+          on ev.distro_event_tracking_group_id = detl.distro_event_tracking_group_id
+        inner join locations spot on spot.id = ev.location_id
+        inner join products p on p.id = detl.product_id
+        inner join genders on genders.id = p.gender_id
+        inner join product_categories cat on cat.id = p.category_id
+        inner join sizes siz on siz.id = detl.size_id
+        group by
+        detl.distro_event_tracking_group_id,
+        detl.product_id,
+        p.name,
+        genders.label,
+        p.category_id,
+        cat.label,
+        detl.size_id""",
+        base_obj.id,
+    )
+    return res
 
 
 @base.field("locations")
