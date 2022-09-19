@@ -2,7 +2,11 @@ import pytest
 from boxtribute_server.enums import BoxState
 from boxtribute_server.models.crud import BOX_LABEL_IDENTIFIER_GENERATION_ATTEMPTS
 from boxtribute_server.models.definitions.history import DbChangeHistory
-from utils import assert_internal_server_error, assert_successful_request
+from utils import (
+    assert_bad_user_input,
+    assert_internal_server_error,
+    assert_successful_request,
+)
 
 
 def test_box_query_by_label_identifier(read_only_client, default_box, tags):
@@ -360,3 +364,37 @@ def test_box_label_identifier_generation(
     new_box = assert_successful_request(client, mutation)
     assert rng_function.call_count == len(side_effect)
     assert new_box["labelIdentifier"] == new_identifier
+
+
+@pytest.mark.parametrize(
+    "product_id,size_id,location_id,qr_code",
+    # Test cases 8.2.3, 8.2.4, 8.2.5,, 8.2.6, 8.2.12, 8.2.13, 8.2.14
+    [[0, 1, 1, "555"], [1, 0, 1, "555"], [1, 1, 0, "555"], [1, 1, 1, "000"]],
+)
+def test_mutate_box_with_non_existing_resource(
+    read_only_client, default_box, product_id, size_id, location_id, qr_code
+):
+    creation_input = f"""{{
+                    productId: {product_id},
+                    locationId: {location_id},
+                    sizeId: {size_id},
+                    qrCode: "{qr_code}"
+                }}"""
+    mutation = f"""mutation {{
+            createBox( creationInput : {creation_input} ) {{ id }} }}"""
+    assert_bad_user_input(read_only_client, mutation)
+
+    # Box QR code cannot be updated, hence no errors possible
+    if qr_code == "000":
+        return
+
+    label_identifier = default_box["label_identifier"]
+    update_input = f"""{{
+                labelIdentifier: "{label_identifier}"
+                productId: {product_id},
+                locationId: {location_id},
+                sizeId: {size_id},
+            }}"""
+    mutation = f"""mutation {{
+            updateBox( updateInput : {update_input} ) {{ id }} }}"""
+    assert_bad_user_input(read_only_client, mutation)
