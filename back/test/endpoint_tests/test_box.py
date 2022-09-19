@@ -69,16 +69,13 @@ def test_box_mutations(
     size_id = str(default_size["id"])
     location_id = str(default_location["id"])
     product_id = str(products[0]["id"])
-    box_creation_input_string = f"""{{
+    creation_input = f"""{{
                     productId: {product_id},
                     locationId: {location_id},
                     sizeId: {size_id},
-                    qrCode: "{qr_code_without_box["code"]}",
                 }}"""
     mutation = f"""mutation {{
-            createBox(
-                creationInput : {box_creation_input_string}
-            ) {{
+            createBox( creationInput : {creation_input} ) {{
                 id
                 labelIdentifier
                 numberOfItems
@@ -91,6 +88,8 @@ def test_box_mutations(
                 createdBy {{ id }}
                 lastModifiedOn
                 lastModifiedBy {{ id }}
+                comment
+                tags {{ id }}
             }}
         }}"""
     created_box = assert_successful_request(client, mutation)
@@ -99,9 +98,42 @@ def test_box_mutations(
     assert created_box["location"]["id"] == location_id
     assert created_box["product"]["id"] == product_id
     assert created_box["size"]["id"] == size_id
-    assert created_box["qrCode"]["id"] == str(qr_code_without_box["id"])
+    assert created_box["qrCode"] is None
     assert created_box["createdOn"] == created_box["lastModifiedOn"]
     assert created_box["createdBy"] == created_box["lastModifiedBy"]
+    assert created_box["comment"] == ""
+    assert created_box["tags"] == []
+
+    # Test case 8.2.2
+    number_of_items = 3
+    comment = "good box"
+    creation_input = f"""{{
+                    productId: {product_id},
+                    locationId: {location_id},
+                    sizeId: {size_id},
+                    numberOfItems: {number_of_items}
+                    comment: "{comment}"
+                    qrCode: "{qr_code_without_box["code"]}"
+                }}"""
+    mutation = f"""mutation {{
+            createBox( creationInput : {creation_input} ) {{
+                numberOfItems
+                location {{ id }}
+                product {{ id }}
+                size {{ id }}
+                qrCode {{ id }}
+                state
+            }}
+        }}"""
+    another_created_box = assert_successful_request(client, mutation)
+    assert another_created_box == {
+        "numberOfItems": number_of_items,
+        "location": {"id": location_id},
+        "product": {"id": product_id},
+        "size": {"id": size_id},
+        "qrCode": {"id": str(qr_code_without_box["id"])},
+        "state": BoxState.InStock.name,
+    }
 
     # Test case 8.2.11
     new_size_id = str(another_size["id"])
@@ -154,6 +186,15 @@ def test_box_mutations(
             "from_int": None,
             "to_int": None,
             "record_id": box_id,
+            "table_name": "stock",
+            "user": 8,
+            "ip": "127.0.0.1",
+        },
+        {
+            "changes": "Record created",
+            "from_int": None,
+            "to_int": None,
+            "record_id": box_id + 1,
             "table_name": "stock",
             "user": 8,
             "ip": "127.0.0.1",
