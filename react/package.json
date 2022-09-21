@@ -4,7 +4,7 @@
   "private": true,
   "homepage": "",
   "dependencies": {
-    "@apollo/client": "^3.4.16",
+    "@apollo/client": "^3.6.9",
     "@auth0/auth0-react": "^1.10.2",
     "@chakra-ui/icons": "^1.1.7",
     "@chakra-ui/react": "^1.6.10",
