@@ -33,12 +33,8 @@ def test_location_query(read_only_client, default_boxes, default_location):
     }
 
 
-def test_locations_query(read_only_client, default_location):
+def test_locations_query(read_only_client, base1_classic_locations):
     # Test case 8.1.9
-    query = """query {
-                locations {
-                    name
-                }
-            }"""
-    queried_location = assert_successful_request(read_only_client, query)[0]
-    assert queried_location["name"] == default_location["name"]
+    query = """query { locations { name } }"""
+    locations = assert_successful_request(read_only_client, query)
+    assert locations == [{"name": loc["name"]} for loc in base1_classic_locations]

@@ -25,6 +25,7 @@ from .distribution_event import default_distribution_event
 from .history import default_history
 from .location import (
     another_location,
+    base1_classic_locations,
     default_location,
     non_default_box_state_location,
     null_box_state_location,
@@ -70,6 +71,7 @@ __all__ = [
     "another_shipment",
     "another_shipment_detail",
     "another_size",
+    "base1_classic_locations",
     "box_without_qr_code",
     "canceled_shipment",
     "default_beneficiary",

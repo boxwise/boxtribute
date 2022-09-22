@@ -403,7 +403,7 @@ def resolve_organisations(*_):
 def resolve_locations(*_):
     authorize(permission="location:read")
     return Location.select().where(
-        Location.type == LocationType.ClassicLocation & base_filter_condition(Location)
+        Location.type == LocationType.ClassicLocation, base_filter_condition(Location)
     )
 
 
