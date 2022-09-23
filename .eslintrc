@@ -15,7 +15,7 @@
     "quotes": "off",
     "semi": "off",
     "camelcase":"off",
-    "no-unused-expressions": "warn",
+    "no-unused-expressions": "off",
     // enforce to have interfaces/type should start with "I".
     // "@typescript-eslint/naming-convention": [
     //   "error",
@@ -31,7 +31,7 @@
     "no-loop-func":"error",
     "indent": [4, "tab"],
     "no-tabs": 0,
-    "@typescript-eslint/no-unused-vars": "error",
+    "@typescript-eslint/no-unused-vars": "off",
     "no-unused-vars": "warn",
     "no-console": "error",
     "no-debugger": 1,
