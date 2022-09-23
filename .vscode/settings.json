@@ -8,6 +8,8 @@
 
   // prettier
   "editor.defaultFormatter": "esbenp.prettier-vscode",
+  "prettier.stylelintIntegration": true,
+  "prettier.eslintIntegration": true,
 
   // eslint
   "editor.codeActionsOnSave": {

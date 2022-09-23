@@ -9,12 +9,32 @@
   ],
   "plugins": ["jsx-a11y"],
   "rules": {
+
     // driving me nuts and would have involved changing a zillion files for no real benefit
     "react/jsx-one-expression-per-line": "off",
     "quotes": "off",
     "semi": "off",
     "camelcase":"off",
-    "no-unused-expressions": "off",
+    "no-unused-expressions": "warn",
+    // enforce to have interfaces/type should start with "I".
+    // "@typescript-eslint/naming-convention": [
+    //   "error",
+    //   {
+    //     "selector": "interface",
+    //     "format": ["PascalCase"],
+    //     "custom": {
+    //       "regex": "^I[A-Z]",
+    //       "match": true
+    //     }
+    //   }
+    // ],
+    "no-loop-func":"error",
+    "indent": [4, "tab"],
+    "no-tabs": 0,
+    "@typescript-eslint/no-unused-vars": "error",
+    "no-unused-vars": "warn",
+    "no-console": "error",
+    "no-debugger": 1,
     // matter of preference
     "import/prefer-default-export": "off",
     // import/no-named-as-default disabled as it prevents a common pattern of exporting
@@ -48,6 +68,17 @@
         "tsx": "never"
       }
    ],
-   "no-debugger": 1
+   "overrides": [
+    {
+      "extends": "react-app",
+      "files": [
+        "**/*.stories.*"
+      ],
+      "rules": {
+        "import/no-anonymous-default-export": "off"
+      }
+    }
+  ]
+
   }
 }
