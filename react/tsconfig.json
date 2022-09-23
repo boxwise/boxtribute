@@ -19,7 +19,7 @@
     "jsx": "react-jsx",
     // https://engineering.zalando.com/posts/2019/02/typescript-best-practices.html
     "noImplicitAny": false,
-    "noUnusedLocals": true,
+    "noUnusedLocals": false,
     // https://github.com/google/gts/blob/main/tsconfig-google.json
     "allowUnreachableCode": false,
     "allowUnusedLabels": false,
