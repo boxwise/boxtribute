@@ -2,11 +2,7 @@
   "compilerOptions": {
     "baseUrl": "src",
     "target": "es5",
-    "lib": [
-      "dom",
-      "dom.iterable",
-      "esnext"
-    ],
+    "lib": ["dom", "dom.iterable", "esnext"],
     "allowJs": true,
     "skipLibCheck": true,
     "esModuleInterop": true,
@@ -21,11 +17,18 @@
     "isolatedModules": true,
     "noEmit": true,
     "jsx": "react-jsx",
+    // https://engineering.zalando.com/posts/2019/02/typescript-best-practices.html
     "noImplicitAny": false,
+    "noUnusedLocals": true,
+    // https://github.com/google/gts/blob/main/tsconfig-google.json
+    "allowUnreachableCode": false,
+    "allowUnusedLabels": false,
+    "declaration": true,
+    "noEmitOnError": true,
+    "noFallthroughCasesInSwitch": true,
     "noImplicitReturns": true,
-    "noFallthroughCasesInSwitch": true
+    "pretty": true,
+    "sourceMap": true,
   },
-  "include": [
-    "src"
-  ]
+  "include": ["src"]
 }
