@@ -1,12 +1,10 @@
 import peewee
 import pytest
-from boxtribute_server.enums import BoxState
 from boxtribute_server.exceptions import BoxCreationFailed
 from boxtribute_server.models.crud import (
     BOX_LABEL_IDENTIFIER_GENERATION_ATTEMPTS,
     create_box,
     create_qr_code,
-    update_box,
 )
 from boxtribute_server.models.definitions.qr_code import QrCode
 
@@ -64,51 +62,3 @@ def test_box_label_identifier_generation(
     new_box = create_box(**data)
     assert rng_function.call_count == len(side_effect)
     assert new_box.label_identifier == new_identifier
-
-
-def test_boxstate_update(
-    default_user,
-    default_product,
-    null_box_state_location,
-    non_default_box_state_location,
-    default_size,
-):
-    # creating a box in a location with box_state=NULL should set the box's location to
-    # InStock
-    box = create_box(
-        product_id=default_product["id"],
-        user_id=default_user["id"],
-        location_id=null_box_state_location["id"],
-        size_id=default_size["id"],
-    )
-    assert box.state.id == BoxState.InStock
-
-    # updating to a location with box_state!=NULL should set the box state on the box
-    # too
-    box = update_box(
-        location_id=non_default_box_state_location["id"],
-        label_identifier=box.label_identifier,
-        user_id=default_user["id"],
-    )
-    assert box.state.id == non_default_box_state_location["box_state"]
-
-    # setting it back to a location with a box_state=NULL should NOT change the box's
-    # box_state
-    box = update_box(
-        location_id=null_box_state_location["id"],
-        label_identifier=box.label_identifier,
-        user_id=default_user["id"],
-    )
-    assert box.state.id != BoxState.InStock
-    assert box.state.id == non_default_box_state_location["box_state"]
-
-    # creating a box with an explicit box_state in a location with box_state=NULL should
-    # set the box_state to that explicit box_state
-    box2 = create_box(
-        product_id=default_product["id"],
-        user_id=default_user["id"],
-        location_id=non_default_box_state_location["id"],
-        size_id=default_size["id"],
-    )
-
-    assert box2.state.id == non_default_box_state_location["box_state"]

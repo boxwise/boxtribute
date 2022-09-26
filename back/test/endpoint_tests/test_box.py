@@ -228,3 +228,51 @@ def test_boxes_query_filter(read_only_client, default_location, filters, number)
         if "states" in f and number > 0:
             states = f["states"].strip("[]").split(",")
             assert {b["state"] for b in boxes} == set(states)
+
+
+def test_update_box_state(
+    client,
+    default_product,
+    null_box_state_location,
+    non_default_box_state_location,
+    default_size,
+):
+    # creating a box in a location with box_state=NULL set the box's location to InStock
+    creation_input = f"""creationInput: {{
+        productId: {default_product["id"]}
+        locationId: {null_box_state_location["id"]}
+        sizeId: {default_size["id"]}
+    }}"""
+    mutation = f"mutation {{ createBox({creation_input}) {{ state labelIdentifier }} }}"
+    box = assert_successful_request(client, mutation)
+    assert box["state"] == BoxState.InStock.name
+
+    # updating to a location with box_state!=NULL should set the state on the box too
+    update_input = f"""updateInput: {{
+        labelIdentifier: "{box["labelIdentifier"]}"
+        locationId: {non_default_box_state_location["id"]}
+    }}"""
+    mutation = f"mutation {{ updateBox({update_input}) {{ state labelIdentifier }} }}"
+    box = assert_successful_request(client, mutation)
+    assert box["state"] == non_default_box_state_location["box_state"].name
+
+    # setting it back to a location with a box_state=NULL should NOT change the box's
+    # state
+    update_input = f"""updateInput: {{
+        labelIdentifier: "{box["labelIdentifier"]}"
+        locationId: {null_box_state_location["id"]}
+    }}"""
+    mutation = f"mutation {{ updateBox({update_input}) {{ state }} }}"
+    box = assert_successful_request(client, mutation)
+    assert box["state"] == non_default_box_state_location["box_state"].name
+
+    # creating a box with an explicit box_state in a location with box_state=NULL should
+    # set the box_state to that explicit box_state
+    creation_input = f"""creationInput: {{
+        productId: {default_product["id"]}
+        locationId: {non_default_box_state_location["id"]}
+        sizeId: {default_size["id"]}
+    }}"""
+    mutation = f"mutation {{ createBox({creation_input}) {{ state }} }}"
+    box = assert_successful_request(client, mutation)
+    assert box["state"] == non_default_box_state_location["box_state"].name
