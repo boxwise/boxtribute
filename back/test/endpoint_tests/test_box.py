@@ -1,7 +1,8 @@
 import pytest
 from boxtribute_server.enums import BoxState
+from boxtribute_server.models.crud import BOX_LABEL_IDENTIFIER_GENERATION_ATTEMPTS
 from boxtribute_server.models.definitions.history import DbChangeHistory
-from utils import assert_successful_request
+from utils import assert_internal_server_error, assert_successful_request
 
 
 def test_box_query_by_label_identifier(read_only_client, default_box, tags):
@@ -285,3 +286,31 @@ def test_update_box_state(
     mutation = f"mutation {{ createBox({creation_input}) {{ state }} }}"
     box = assert_successful_request(client, mutation)
     assert box["state"] == non_default_box_state_location["box_state"].name
+
+
+def test_box_label_identifier_generation(
+    mocker, client, default_box, default_location, default_product, default_size
+):
+    creation_input = f"""creationInput: {{
+        productId: {default_product["id"]}
+        locationId: {default_location["id"]}
+        sizeId: {default_size["id"]}
+    }}"""
+    mutation = f"mutation {{ createBox({creation_input}) {{ labelIdentifier }} }}"
+
+    rng_function = mocker.patch("random.choices")
+    # Verify that box-creation fails after several attempts if newly generated
+    # identifier is never unique
+    rng_function.return_value = default_box["label_identifier"]
+    assert_internal_server_error(client, mutation)
+    assert rng_function.call_count == BOX_LABEL_IDENTIFIER_GENERATION_ATTEMPTS
+
+    # Verify that box-creation succeeds even if an existing identifier happens to be
+    # generated once
+    new_identifier = "11112222"
+    side_effect = [default_box["label_identifier"], new_identifier]
+    rng_function.reset_mock(return_value=True)
+    rng_function.side_effect = side_effect
+    new_box = assert_successful_request(client, mutation)
+    assert rng_function.call_count == len(side_effect)
+    assert new_box["labelIdentifier"] == new_identifier
