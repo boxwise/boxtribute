@@ -16,6 +16,32 @@ def utcnow():
     return datetime.now(tz=timezone.utc).replace(microsecond=0)
 
 
+def save_creation_to_history(f):
+    """Utility for writing information about creating a resource to the history table,
+    intended to decorate a function that modifies a database resource (e.g. a box).
+
+    The function runs the decorated function, effectively executing the creation. An
+    entry in the history table is created.
+    """
+
+    @wraps(f)
+    def inner(*args, **kwargs):
+        new_resource = f(*args, **kwargs)
+
+        DbChangeHistory.create(
+            changes="Record created",
+            table_name=new_resource._meta.table_name,
+            record_id=new_resource.id,
+            user=g.user.id,
+            ip=request.remote_addr,
+            change_date=utcnow(),
+        )
+
+        return new_resource
+
+    return inner
+
+
 def save_update_to_history(*, model, id_field_name="id", field_names):
     """Utility for writing information about modifying a resource to the history table,
     intended to decorate a function that modifies a database resource (e.g. a box).

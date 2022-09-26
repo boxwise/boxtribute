@@ -145,6 +145,15 @@ def test_box_mutations(
     box_id = int(updated_box["id"])
     assert history[1:] == [
         {
+            "changes": "Record created",
+            "from_int": None,
+            "to_int": None,
+            "record_id": box_id,
+            "table_name": "stock",
+            "user": 8,
+            "ip": "127.0.0.1",
+        },
+        {
             "changes": "product_id",
             "from_int": int(product_id),
             "to_int": int(new_product_id),

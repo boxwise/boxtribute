@@ -14,11 +14,12 @@ from .definitions.qr_code import QrCode
 from .definitions.tag import Tag
 from .definitions.tags_relation import TagsRelation
 from .definitions.x_beneficiary_language import XBeneficiaryLanguage
-from .utils import save_update_to_history, utcnow
+from .utils import save_creation_to_history, save_update_to_history, utcnow
 
 BOX_LABEL_IDENTIFIER_GENERATION_ATTEMPTS = 10
 
 
+@save_creation_to_history
 def create_box(
     product_id,
     location_id,
