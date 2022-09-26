@@ -1,5 +1,6 @@
 import pytest
 from boxtribute_server.enums import BoxState
+from boxtribute_server.models.definitions.history import DbChangeHistory
 from utils import assert_successful_request
 
 
@@ -98,8 +99,8 @@ def test_box_mutations(
     assert created_box["createdOn"] == created_box["lastModifiedOn"]
     assert created_box["createdBy"] == created_box["lastModifiedBy"]
 
-    size_id = str(another_size["id"])
-    product_id = str(products[2]["id"])
+    new_size_id = str(another_size["id"])
+    new_product_id = str(products[2]["id"])
     comment = "updatedComment"
     nr_items = 7777
     mutation = f"""mutation {{
@@ -108,9 +109,10 @@ def test_box_mutations(
                     numberOfItems: {nr_items},
                     labelIdentifier: "{created_box["labelIdentifier"]}"
                     comment: "{comment}"
-                    sizeId: {size_id},
-                    productId: {product_id},
+                    sizeId: {new_size_id},
+                    productId: {new_product_id},
                 }} ) {{
+                id
                 numberOfItems
                 lastModifiedOn
                 createdOn
@@ -124,8 +126,61 @@ def test_box_mutations(
     assert updated_box["comment"] == comment
     assert updated_box["numberOfItems"] == nr_items
     assert updated_box["qrCode"] == created_box["qrCode"]
-    assert updated_box["size"]["id"] == size_id
-    assert updated_box["product"]["id"] == product_id
+    assert updated_box["size"]["id"] == new_size_id
+    assert updated_box["product"]["id"] == new_product_id
+
+    history = list(
+        DbChangeHistory.select(
+            DbChangeHistory.changes,
+            DbChangeHistory.from_int,
+            DbChangeHistory.to_int,
+            DbChangeHistory.record_id,
+            DbChangeHistory.table_name,
+            DbChangeHistory.user,
+            DbChangeHistory.ip,
+        )
+        .order_by(DbChangeHistory.change_date)
+        .dicts()
+    )
+    box_id = int(updated_box["id"])
+    assert history[1:] == [
+        {
+            "changes": "product_id",
+            "from_int": int(product_id),
+            "to_int": int(new_product_id),
+            "record_id": box_id,
+            "table_name": "stock",
+            "user": 8,
+            "ip": "127.0.0.1",
+        },
+        {
+            "changes": "size_id",
+            "from_int": int(size_id),
+            "to_int": int(new_size_id),
+            "record_id": box_id,
+            "table_name": "stock",
+            "user": 8,
+            "ip": "127.0.0.1",
+        },
+        {
+            "changes": "items",
+            "from_int": None,
+            "to_int": nr_items,
+            "record_id": box_id,
+            "table_name": "stock",
+            "user": 8,
+            "ip": "127.0.0.1",
+        },
+        {
+            "changes": f"""comments changed from "" to "{comment}".""",
+            "from_int": None,
+            "to_int": None,
+            "record_id": box_id,
+            "table_name": "stock",
+            "user": 8,
+            "ip": "127.0.0.1",
+        },
+    ]
 
 
 def _format(parameter):
