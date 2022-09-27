@@ -69,15 +69,14 @@ def create_box(
 
 
 @save_update_to_history(
-    model=Box,
     id_field_name="label_identifier",
-    field_names=[
-        "label_identifier",
-        "product",
-        "size",
-        "number_of_items",
-        "location",
-        "comment",
+    fields=[
+        Box.label_identifier,
+        Box.product,
+        Box.size,
+        Box.number_of_items,
+        Box.location,
+        Box.comment,
     ],
 )
 def update_box(

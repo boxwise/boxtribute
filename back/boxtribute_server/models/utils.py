@@ -42,24 +42,26 @@ def save_creation_to_history(f):
     return inner
 
 
-def save_update_to_history(*, model, id_field_name="id", field_names):
-    """Utility for writing information about modifying a resource to the history table,
-    intended to decorate a function that modifies a database resource (e.g. a box).
+def save_update_to_history(*, id_field_name="id", fields):
+    """Utility for writing information about updating a resource to the history table,
+    intended to decorate a function that updates a database resource (e.g. a box).
 
-    The type of the modified resource is indicated by `model`, the relevant field names
-    by `field_names`. `id_field_name` refers to the field name used to identify the
-    model instance that is being modified. In the signature of the decorated function an
-    argument with identical name must exist. The decorated function must return the
-    modified resource.
+    The relevant fields are indicated by the `fields` list. The type of the updated
+    resource (the model) is derived from the first field (hence all fields must stem
+    from the same model).
+    `id_field_name` refers to the name of the field used to identify the model instance
+    that is being updated. In the signature of the decorated function an argument with
+    identical name must exist. The decorated function must return the updated resource.
 
     The function fetches the resource (i.e. the old database row) first, and then runs
     the decorated function, effectively executing the modification. For each of the
-    fields that were actually modified an entry in the history table is created.
+    fields that were actually updated an entry in the history table is created.
     """
 
     def decorator(f):
         @wraps(f)
         def inner(*args, **kwargs):
+            model = fields[0].model
             # e.g. Box.label_identifier
             id_field = getattr(model, id_field_name)
             # e.g. Box.get(Box.label_identifier == "123456")
@@ -68,9 +70,9 @@ def save_update_to_history(*, model, id_field_name="id", field_names):
 
             now = utcnow()
             entries = []
-            for field_name in field_names:
-                old_value = getattr(old_resource, field_name)
-                new_value = getattr(new_resource, field_name)
+            for field in fields:
+                old_value = getattr(old_resource, field.name)
+                new_value = getattr(new_resource, field.name)
 
                 if old_value == new_value:
                     continue  # no change in value, hence no need for history entry
@@ -82,7 +84,6 @@ def save_update_to_history(*, model, id_field_name="id", field_names):
                 entry.ip = request.remote_addr
                 entry.change_date = now
 
-                field = getattr(model, field_name)
                 if issubclass(field.__class__, (IntegerField, ForeignKeyField)):
                     entry.from_int = old_value
                     entry.to_int = new_value
