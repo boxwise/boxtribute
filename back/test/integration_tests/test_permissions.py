@@ -50,6 +50,7 @@ def test_usergroup_cross_organisation_permissions(
 
     # Verify that user does not have read permission to perform queries for fetching
     # other bases' beneficiaries
+    # Test cases P1.1.1, P1.2.1, P1.3.1, P1.4.1, P1.5.1, P1.6.1
     query = f"""query {{ organisation(id: {opposite_organisation_id}) {{
                 id bases {{ id beneficiaries {{ totalCount }} }} }} }}"""
     response = assert_forbidden_request(
@@ -71,6 +72,7 @@ def test_usergroup_cross_organisation_permissions(
 
     # Verify that user does not have create permission to perform mutation for creating
     # beneficiary in inaccessible base
+    # Test cases P1.1.2, P1.2.2, P1.3.2, P1.4.2, P1.5.2, P1.6.2
     for base_id in expected_forbidden_base_ids:
         creation_input = f"""creationInput: {{
                 firstName: "First"
@@ -87,6 +89,7 @@ def test_usergroup_cross_organisation_permissions(
 
     # Verify that user does not have edit permission to perform mutation for updating
     # beneficiary in inaccessible base
+    # Test cases P1.1.3, P1.2.3, P1.3.3, P1.4.3, P1.5.3, P1.6.3
     update_input = f"""updateInput: {{
         id: {forbidden_beneficiary_id}
         isVolunteer: true
