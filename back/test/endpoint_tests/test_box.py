@@ -1,6 +1,8 @@
 import pytest
 from boxtribute_server.enums import BoxState
-from utils import assert_successful_request
+from boxtribute_server.models.crud import BOX_LABEL_IDENTIFIER_GENERATION_ATTEMPTS
+from boxtribute_server.models.definitions.history import DbChangeHistory
+from utils import assert_internal_server_error, assert_successful_request
 
 
 def test_box_query_by_label_identifier(read_only_client, default_box, tags):
@@ -98,8 +100,8 @@ def test_box_mutations(
     assert created_box["createdOn"] == created_box["lastModifiedOn"]
     assert created_box["createdBy"] == created_box["lastModifiedBy"]
 
-    size_id = str(another_size["id"])
-    product_id = str(products[2]["id"])
+    new_size_id = str(another_size["id"])
+    new_product_id = str(products[2]["id"])
     comment = "updatedComment"
     nr_items = 7777
     mutation = f"""mutation {{
@@ -108,9 +110,10 @@ def test_box_mutations(
                     numberOfItems: {nr_items},
                     labelIdentifier: "{created_box["labelIdentifier"]}"
                     comment: "{comment}"
-                    sizeId: {size_id},
-                    productId: {product_id},
+                    sizeId: {new_size_id},
+                    productId: {new_product_id},
                 }} ) {{
+                id
                 numberOfItems
                 lastModifiedOn
                 createdOn
@@ -124,8 +127,70 @@ def test_box_mutations(
     assert updated_box["comment"] == comment
     assert updated_box["numberOfItems"] == nr_items
     assert updated_box["qrCode"] == created_box["qrCode"]
-    assert updated_box["size"]["id"] == size_id
-    assert updated_box["product"]["id"] == product_id
+    assert updated_box["size"]["id"] == new_size_id
+    assert updated_box["product"]["id"] == new_product_id
+
+    history = list(
+        DbChangeHistory.select(
+            DbChangeHistory.changes,
+            DbChangeHistory.from_int,
+            DbChangeHistory.to_int,
+            DbChangeHistory.record_id,
+            DbChangeHistory.table_name,
+            DbChangeHistory.user,
+            DbChangeHistory.ip,
+        )
+        .order_by(DbChangeHistory.change_date)
+        .dicts()
+    )
+    box_id = int(updated_box["id"])
+    assert history[1:] == [
+        {
+            "changes": "Record created",
+            "from_int": None,
+            "to_int": None,
+            "record_id": box_id,
+            "table_name": "stock",
+            "user": 8,
+            "ip": "127.0.0.1",
+        },
+        {
+            "changes": "product_id",
+            "from_int": int(product_id),
+            "to_int": int(new_product_id),
+            "record_id": box_id,
+            "table_name": "stock",
+            "user": 8,
+            "ip": "127.0.0.1",
+        },
+        {
+            "changes": "size_id",
+            "from_int": int(size_id),
+            "to_int": int(new_size_id),
+            "record_id": box_id,
+            "table_name": "stock",
+            "user": 8,
+            "ip": "127.0.0.1",
+        },
+        {
+            "changes": "items",
+            "from_int": None,
+            "to_int": nr_items,
+            "record_id": box_id,
+            "table_name": "stock",
+            "user": 8,
+            "ip": "127.0.0.1",
+        },
+        {
+            "changes": f"""comments changed from "" to "{comment}";""",
+            "from_int": None,
+            "to_int": None,
+            "record_id": box_id,
+            "table_name": "stock",
+            "user": 8,
+            "ip": "127.0.0.1",
+        },
+    ]
 
 
 def _format(parameter):
@@ -173,3 +238,79 @@ def test_boxes_query_filter(read_only_client, default_location, filters, number)
         if "states" in f and number > 0:
             states = f["states"].strip("[]").split(",")
             assert {b["state"] for b in boxes} == set(states)
+
+
+def test_update_box_state(
+    client,
+    default_product,
+    null_box_state_location,
+    non_default_box_state_location,
+    default_size,
+):
+    # creating a box in a location with box_state=NULL set the box's location to InStock
+    creation_input = f"""creationInput: {{
+        productId: {default_product["id"]}
+        locationId: {null_box_state_location["id"]}
+        sizeId: {default_size["id"]}
+    }}"""
+    mutation = f"mutation {{ createBox({creation_input}) {{ state labelIdentifier }} }}"
+    box = assert_successful_request(client, mutation)
+    assert box["state"] == BoxState.InStock.name
+
+    # updating to a location with box_state!=NULL should set the state on the box too
+    update_input = f"""updateInput: {{
+        labelIdentifier: "{box["labelIdentifier"]}"
+        locationId: {non_default_box_state_location["id"]}
+    }}"""
+    mutation = f"mutation {{ updateBox({update_input}) {{ state labelIdentifier }} }}"
+    box = assert_successful_request(client, mutation)
+    assert box["state"] == non_default_box_state_location["box_state"].name
+
+    # setting it back to a location with a box_state=NULL should NOT change the box's
+    # state
+    update_input = f"""updateInput: {{
+        labelIdentifier: "{box["labelIdentifier"]}"
+        locationId: {null_box_state_location["id"]}
+    }}"""
+    mutation = f"mutation {{ updateBox({update_input}) {{ state }} }}"
+    box = assert_successful_request(client, mutation)
+    assert box["state"] == non_default_box_state_location["box_state"].name
+
+    # creating a box with an explicit box_state in a location with box_state=NULL should
+    # set the box_state to that explicit box_state
+    creation_input = f"""creationInput: {{
+        productId: {default_product["id"]}
+        locationId: {non_default_box_state_location["id"]}
+        sizeId: {default_size["id"]}
+    }}"""
+    mutation = f"mutation {{ createBox({creation_input}) {{ state }} }}"
+    box = assert_successful_request(client, mutation)
+    assert box["state"] == non_default_box_state_location["box_state"].name
+
+
+def test_box_label_identifier_generation(
+    mocker, client, default_box, default_location, default_product, default_size
+):
+    creation_input = f"""creationInput: {{
+        productId: {default_product["id"]}
+        locationId: {default_location["id"]}
+        sizeId: {default_size["id"]}
+    }}"""
+    mutation = f"mutation {{ createBox({creation_input}) {{ labelIdentifier }} }}"
+
+    rng_function = mocker.patch("random.choices")
+    # Verify that box-creation fails after several attempts if newly generated
+    # identifier is never unique
+    rng_function.return_value = default_box["label_identifier"]
+    assert_internal_server_error(client, mutation)
+    assert rng_function.call_count == BOX_LABEL_IDENTIFIER_GENERATION_ATTEMPTS
+
+    # Verify that box-creation succeeds even if an existing identifier happens to be
+    # generated once
+    new_identifier = "11112222"
+    side_effect = [default_box["label_identifier"], new_identifier]
+    rng_function.reset_mock(return_value=True)
+    rng_function.side_effect = side_effect
+    new_box = assert_successful_request(client, mutation)
+    assert rng_function.call_count == len(side_effect)
+    assert new_box["labelIdentifier"] == new_identifier
