@@ -40,7 +40,6 @@ input BeneficiaryUpdateInput {
   id: ID!
   firstName: String
   lastName: String
-  baseId: Int
   groupIdentifier: String
   dateOfBirth: Date
   comment: String

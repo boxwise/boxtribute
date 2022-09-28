@@ -127,7 +127,6 @@ export type BeneficiaryPage = {
 };
 
 export type BeneficiaryUpdateInput = {
-  baseId?: InputMaybe<Scalars['Int']>;
   comment?: InputMaybe<Scalars['String']>;
   dateOfBirth?: InputMaybe<Scalars['Date']>;
   dateOfSignature?: InputMaybe<Scalars['Date']>;
