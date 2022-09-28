@@ -182,7 +182,7 @@ def test_box_mutations(
             "ip": "127.0.0.1",
         },
         {
-            "changes": f"""comments changed from "" to "{comment}".""",
+            "changes": f"""comments changed from "" to "{comment}";""",
             "from_int": None,
             "to_int": None,
             "record_id": box_id,

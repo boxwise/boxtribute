@@ -90,7 +90,7 @@ def save_update_to_history(*, id_field_name="id", fields):
                     entry.changes = field.column_name
                 else:
                     entry.changes = f"""{field.column_name} changed from "{old_value}" \
-to "{new_value}"."""
+to "{new_value}";"""
                 entries.append(entry)
 
             with db.database.atomic():
