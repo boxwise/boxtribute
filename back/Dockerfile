@@ -24,7 +24,7 @@ CMD gunicorn --config back/gunicorn.conf.py
 
 FROM base AS development
 # Path of module containing Flask app, relative to WORKDIR
-CMD flask --debug --app back/boxtribute_server/main.py run -h 0.0.0 -p 5000
+CMD flask --debug --app back/boxtribute_server/main.py run -h 0.0.0 -p 5005
 
 # Select final stage depending on env argument
 FROM ${env} AS final
