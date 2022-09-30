@@ -34,6 +34,17 @@ We are using eslint as a linter and prettier as a formatter for the front-end. T
 
 The settings that these extensions are used are already defined in [`.vscode/settings.json`](../.vscode/settings.json).
 
+### General linting and formatting rules
+
+* 4 space tab
+* reject unused expressions and imports
+* trailing semicolon
+* double quotes
+* no deep nesting of loops (no loops in loops in loops)
+* no console.log
+* no debugger statements
+* no vars
+
 ## Note about yarn and Docker
 
 We are using docker to spin up our dev environment. The react folder is in sync with the react Docker container. Therefore, the hot-reloading of the yarn development server should function.
@@ -46,10 +57,10 @@ For example, to add XYZ to the `package.json` file in the `react` folder while d
 
       docker-compose exec react yarn add XYZ
 
-Afterwards: 
+Afterwards:
 1. stop docker-compose and run `docker-compose up` again
 2. run `yarn` in your local react folder (so that your tooling like VSCode also picks up the changes, like new TS types etc)
- 
+
 (This advice has come from https://github.com/BretFisher/node-docker-good-defaults)
 
 ## Testing
@@ -72,4 +83,5 @@ To eliminate repetitive code, a custom renderer was built in `react/src/utils/te
 * Ideally only one component per file
 * Files and folders which export a component/view are written UpperCamelCase, with the same name as the actual exported component/view
 * Other files (like types.ts, helpers.ts etc) and folders (like providers, utils etc) are written in lowerCamelCase
-
+* Config constants should be UPPERCASE_SNAKES
+* GraphQL queries, mutation and subscription  **string**  have the format UPPERCASE_SNAKES_<QUERY|MUTATION|SUBSCRIPTION>
