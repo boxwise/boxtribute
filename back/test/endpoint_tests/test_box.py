@@ -170,6 +170,7 @@ def test_box_mutations(
     assert updated_box["size"]["id"] == new_size_id
     assert updated_box["product"]["id"] == new_product_id
 
+    # Test cases 8.2.1, 8.2.2., 8.2.11
     history = list(
         DbChangeHistory.select(
             DbChangeHistory.changes,
@@ -297,6 +298,7 @@ def test_update_box_state(
     non_default_box_state_location,
     default_size,
 ):
+    # Test case 8.2.2a
     # creating a box in a location with box_state=NULL set the box's location to InStock
     creation_input = f"""creationInput: {{
         productId: {default_product["id"]}
@@ -307,6 +309,7 @@ def test_update_box_state(
     box = assert_successful_request(client, mutation)
     assert box["state"] == BoxState.InStock.name
 
+    # Test case 8.2.11a
     # updating to a location with box_state!=NULL should set the state on the box too
     update_input = f"""updateInput: {{
         labelIdentifier: "{box["labelIdentifier"]}"
@@ -316,6 +319,7 @@ def test_update_box_state(
     box = assert_successful_request(client, mutation)
     assert box["state"] == non_default_box_state_location["box_state"].name
 
+    # Test case 8.2.11b
     # setting it back to a location with a box_state=NULL should NOT change the box's
     # state
     update_input = f"""updateInput: {{
@@ -326,6 +330,7 @@ def test_update_box_state(
     box = assert_successful_request(client, mutation)
     assert box["state"] == non_default_box_state_location["box_state"].name
 
+    # Test case 8.2.2b
     # creating a box with an explicit box_state in a location with box_state=NULL should
     # set the box_state to that explicit box_state
     creation_input = f"""creationInput: {{
@@ -349,6 +354,7 @@ def test_box_label_identifier_generation(
     mutation = f"mutation {{ createBox({creation_input}) {{ labelIdentifier }} }}"
 
     rng_function = mocker.patch("random.choices")
+    # Test case 8.2.2c
     # Verify that box-creation fails after several attempts if newly generated
     # identifier is never unique
     rng_function.return_value = default_box["label_identifier"]

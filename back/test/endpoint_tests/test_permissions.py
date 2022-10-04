@@ -6,12 +6,15 @@ from utils import assert_forbidden_request, assert_successful_request
 @pytest.mark.parametrize(
     "resource",
     [
+        # Test cases 99.1.4, 99.1.6
         "base",
         # Test cases 9.1.6, 9.1.7
         "beneficiary",
         # Test cases 8.1.12, 8.1.13
         "location",
+        # Test cases 8.1.23, 8.1.25
         "product",
+        # Test cases 99.1.13, 99.1.14
         "productCategory",
         # Test cases 3.1.4, 3.1.5
         "shipment",
@@ -19,6 +22,7 @@ from utils import assert_forbidden_request, assert_successful_request
         "tag",
         # Test cases 2.1.5, 2.1.6
         "transferAgreement",
+        # Test cases 10.1.4, 10.1.6
         "user",
     ],
 )
@@ -52,7 +56,9 @@ def operation_name(operation):
     [
         # Test case 8.1.3
         """box( labelIdentifier: "12345678") { id }""",
+        # Test case 8.1.32
         """qrCode( qrCode: "1337beef" ) { id }""",
+        # Test case 8.1.35
         """qrExists( qrCode: "1337beef" )""",
     ],
     ids=operation_name,
@@ -127,6 +133,7 @@ def test_invalid_permission_for_given_resource_id(read_only_client, mocker, quer
             }) {
             id
         }""",
+        # Test case 8.2.33
         "createQrCode { id }",
         """createTransferAgreement(
             creationInput : {
@@ -368,6 +375,7 @@ def test_permission_for_god_user(
     mocker.patch("jose.jwt.decode").return_value = create_jwt_payload(
         permissions=["*"], organisation_id=None
     )
+    # Test case 10.1.1
     query = "query { users { id } }"
     users = assert_successful_request(read_only_client, query)
     assert len(users) == len(default_users)

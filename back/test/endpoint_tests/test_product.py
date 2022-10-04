@@ -2,6 +2,7 @@ from utils import assert_successful_request
 
 
 def test_product_query(read_only_client, default_product, default_size, another_size):
+    # Test case 8.1.21
     query = f"""query {{
                 product(id: {default_product['id']}) {{
                     id
