@@ -57,7 +57,7 @@ def test_organisation_query(
     }
 
 
-def test_organisations_query(read_only_client, default_organisation):
+def test_organisations_query(read_only_client, organisations):
     query = """query { organisations { name } }"""
-    queried_organisation = assert_successful_request(read_only_client, query)[0]
-    assert queried_organisation["name"] == default_organisation["name"]
+    queried_organisations = assert_successful_request(read_only_client, query)
+    assert queried_organisations == [{"name": org["name"]} for org in organisations]
