@@ -44,13 +44,10 @@ def save_creation_to_history(f):
 
 def get_client_ip():
     """Return client's IP address. Take into account that a proxy like nginx is used in
-    production (Google App Engine). Cf. https://stackoverflow.com/a/49760261/3865876.
+    production (Google App Engine). Cf. https://stackoverflow.com/a/49052873/3865876
     `request.remote_addr` would return the server's address.
     """
-    forwarded_ip = request.environ.get("HTTP_X_FORWARDED_FOR")
-    if forwarded_ip is None:
-        return request.environ["REMOTE_ADDR"]
-    return forwarded_ip  # pragma: no cover
+    return request.access_route[-1]
 
 
 def save_update_to_history(*, id_field_name="id", fields):
