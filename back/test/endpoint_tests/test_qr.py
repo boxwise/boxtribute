@@ -46,12 +46,6 @@ def test_code_not_associated_with_box(read_only_client, qr_code_without_box):
     assert "SQL" not in response.json["errors"][0]["message"]
 
 
-def test_code_does_not_exist(read_only_client):
-    query = """query { qrCode(qrCode: "-1") { id } }"""
-    response = assert_bad_user_input(read_only_client, query)
-    assert "SQL" not in response.json["errors"][0]["message"]
-
-
 def test_qr_code_mutation(client, box_without_qr_code):
     # Test case 8.2.30
     mutation = "mutation { createQrCode { id } }"

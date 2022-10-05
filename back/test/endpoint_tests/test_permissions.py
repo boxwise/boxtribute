@@ -71,19 +71,24 @@ def test_invalid_permission(unauthorized, read_only_client, query):
 @pytest.mark.parametrize(
     "query",
     [
-        """base( id: 0 ) { id }""",
+        # Test case 99.1.5
+        """base( id: 2 ) { id }""",
         # Test case 8.1.14
         """location( id: 2 ) { id }""",  # ID of another_location fixture
         # Test case 4.1.5
         """tag( id: 4 ) { id }""",
         # Test case 8.1.4
         """box( labelIdentifier: "34567890" ) { id }""",
+        # Test case 8.1.24
+        """product( id: 2 ) { id }""",
         # Test case 9.1.8
         """beneficiary( id: 4 ) { id }""",
+        # Test case 10.1.5
+        """user( id: 1) { id }""",
     ],
     ids=operation_name,
 )
-def test_invalid_permission_for_given_resource_id(read_only_client, mocker, query):
+def test_invalid_permission_for_given_resource_id(read_only_client, query):
     """Verify missing resource:read permission, or missing permission to access
     specified resource (i.e. base).
     """

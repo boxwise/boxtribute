@@ -88,6 +88,8 @@ def test_invalid_pagination_input(read_only_client):
         "tag",
         # Test case 2.1.4
         "transferAgreement",
+        # Test case 99.1.9
+        "organisation",
     ],
 )
 def test_query_non_existent_resource(read_only_client, resource):
@@ -99,6 +101,13 @@ def test_query_non_existent_resource(read_only_client, resource):
 def test_query_non_existent_box(read_only_client):
     # Test case 8.1.2
     query = """query { box(labelIdentifier: "000") { id } }"""
+    response = assert_bad_user_input(read_only_client, query)
+    assert "SQL" not in response.json["errors"][0]["message"]
+
+
+def test_query_non_existent_qr_code(read_only_client):
+    # Test case 8.1.31
+    query = """query { qrCode(qrCode: "-1") { id } }"""
     response = assert_bad_user_input(read_only_client, query)
     assert "SQL" not in response.json["errors"][0]["message"]
 
