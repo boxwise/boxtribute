@@ -111,7 +111,7 @@ const BoxDetails = ({
           <ListItem>
             <Flex alignItems="center">
               <Box border="2px" borderRadius="0" px={2}>
-                <Text fontSize="xl" fontWeight={"bold"}>
+                <Text fontSize="xl" fontWeight={"bold"} data-testid="boxview-number-items">
                   # {boxData.numberOfItems}
                 </Text>
               </Box>
@@ -135,11 +135,11 @@ const BoxDetails = ({
             </Flex>
           </ListItem>
           <ListItem>
-            {/* <Flex direction="row">
+            {boxData.tags.length > 0 && <Flex direction="row">
               {boxData.tags.map((tag, i) => (
                 <Text mr={2}>#{tag.name}</Text>
               ))}
-            </Flex> */}
+            </Flex>}
           </ListItem>
           <ListItem>
             <Flex justifyContent="space-between">
@@ -159,6 +159,7 @@ const BoxDetails = ({
                   borderRadius="0"
                   aria-label="Search database"
                   icon={<AddIcon />}
+                  data-testid="increase-items"
                 />
                 <IconButton
                   onClick={onMinusOpen}
@@ -166,6 +167,7 @@ const BoxDetails = ({
                   borderRadius="0"
                   aria-label="Search database"
                   icon={<MinusIcon />}
+                  data-testid="decrease-items"
                 />
               </Flex>
             </Flex>

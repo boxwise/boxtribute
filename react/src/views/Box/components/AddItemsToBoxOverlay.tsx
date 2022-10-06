@@ -40,6 +40,7 @@ const AddItemsToBoxOverlay = ({
           <form onSubmit={handleSubmit(onSubmitAddItemstoBox)}>
             <Flex>
               <Input
+                data-testid="increase-number-items"
                 placeholder="Number of items"
                 mr={4}
                 border="2px"
