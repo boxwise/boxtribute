@@ -34,7 +34,6 @@ interface BoxDetailsProps {
   onUnassignBoxFromDistributionEventClick: (
     distributionEventId: string
   ) => void;
-
 }
 
 const BoxDetails = ({
@@ -81,14 +80,16 @@ const BoxDetails = ({
       >
         <Flex pt={2} px={4} direction="row" justifyContent="space-between">
           <Flex direction="column" mb={2}>
-            <Heading fontWeight={"bold"} as="h2" data-testid="boxheader">
+            <Heading fontWeight={"bold"} as="h2" data-testid="box-header">
               Box {boxData.labelIdentifier}
             </Heading>
-            <Flex>
+            <Flex data-testid="box-subheader">
               <Text>
                 <b>State:&nbsp;</b>
               </Text>
-              <Text color={statusColor(boxData.state)}><b>{boxData.state}</b></Text>
+              <Text color={statusColor(boxData.state)}>
+                <b>{boxData.state}</b>
+              </Text>
             </Flex>
           </Flex>
 
@@ -103,20 +104,24 @@ const BoxDetails = ({
         </Flex>
         <List px={4} pb={2} spacing={2}>
           <ListItem>
-
-            <Text fontSize="xl" fontWeight={"bold"} >
+            <Text fontSize="xl" fontWeight={"bold"}>
               {boxData.product?.name}
             </Text>
           </ListItem>
-          <ListItem >
+          <ListItem>
             <Flex alignItems="center">
               <Box border="2px" borderRadius="0" px={2}>
                 <Text fontSize="xl" fontWeight={"bold"}>
-                 # {boxData.numberOfItems}
+                  # {boxData.numberOfItems}
                 </Text>
               </Box>
-              <Box border="2px" backgroundColor="#1A202C" borderRadius="0" px={2}>
-                <Text color='#F3E4A0' fontSize="xl" fontWeight={"bold"}>
+              <Box
+                border="2px"
+                backgroundColor="#1A202C"
+                borderRadius="0"
+                px={2}
+              >
+                <Text color="#F3E4A0" fontSize="xl" fontWeight={"bold"}>
                   {boxData.size.label}
                 </Text>
               </Box>
@@ -126,7 +131,6 @@ const BoxDetails = ({
             <Flex direction="row" pb={4}>
               <Text fontSize="xl" fontWeight={"bold"}>
                 <b>{boxData.product?.gender}</b>
-
               </Text>
             </Flex>
           </ListItem>
@@ -140,20 +144,10 @@ const BoxDetails = ({
           <ListItem>
             <Flex justifyContent="space-between">
               <Flex>
-                <Button
-                  onClick={onScrap}
-                  mr={4}
-                  border="2px"
-                  borderRadius="0"
-                >
+                <Button onClick={onScrap} mr={4} border="2px" borderRadius="0">
                   Scrap
                 </Button>
-                <Button
-                  onClick={onLost}
-                  mr={4}
-                  border="2px"
-                  borderRadius="0"
-                >
+                <Button onClick={onLost} mr={4} border="2px" borderRadius="0">
                   Lost
                 </Button>
               </Flex>

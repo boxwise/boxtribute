@@ -72,7 +72,6 @@ describe("Box view", () => {
   };
 
   beforeEach(() => {
-
     render(<BTBox />, {
       routePath: "/bases/:baseId/boxes/:labelIdentifier",
       initialUrl: "/bases/2/boxes/189123",
@@ -86,21 +85,21 @@ describe("Box view", () => {
     expect(loadingInfo).toBeInTheDocument();
   });
 
-  it("3.1.1.1 - renders Heading with valid box identifier", async() => {
+  it("3.1.1.1 - renders Heading with valid box identifier", async () => {
     await waitFor(waitTillLoadingIsDone);
-    const boxHeader = screen.getByTestId("boxheader");
+    const boxHeader = screen.getByTestId("box-header");
     expect(boxHeader).toHaveTextContent(
       "Box " + mocks[0].result.data.box.labelIdentifier
     );
   });
 
-  // it("3.1.1.2 - renders sub heading with valid state", async() => {
-  //   await waitFor(waitTillLoadingIsDone);
-  //   const boxSubheading = screen.getByTestId("box-subheader");
-  //   expect(boxSubheading).toHaveTextContent(
-  //     "State: " + mocks[0].result.data.box.state
-  //   );
-  // });
+  it("3.1.1.2 - renders sub heading with valid state", async () => {
+    await waitFor(waitTillLoadingIsDone);
+    const boxSubheading = screen.getByTestId("box-subheader");
+    expect(boxSubheading).toHaveTextContent(
+      "State: " + mocks[0].result.data.box.state
+    );
+  });
 
   // it("3.1.1.3 - click on + and - to increase or decrease number of items", async() => {
   //   await waitFor(waitTillLoadingIsDone);
