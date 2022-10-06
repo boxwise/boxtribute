@@ -47,29 +47,31 @@ def create_box(
     )
     for i in range(BOX_LABEL_IDENTIFIER_GENERATION_ATTEMPTS):
         try:
-            new_box = Box.create(
-                comment=comment,
-                created_on=now,
-                created_by=user_id,
-                number_of_items=number_of_items,
-                label_identifier="".join(random.choices("0123456789", k=8)),
-                last_modified_on=now,
-                last_modified_by=user_id,
-                location=location_id,
-                product=product_id,
-                size=size_id,
-                state=box_state,
-                qr_code=qr_id,
-            )
+            new_box = Box()
+            new_box.comment = comment
+            new_box.created_on = now
+            new_box.created_by = user_id
+            new_box.number_of_items = number_of_items
+            new_box.label_identifier = "".join(random.choices("0123456789", k=8))
+            new_box.last_modified_on = now
+            new_box.last_modified_by = user_id
+            new_box.location = location_id
+            new_box.product = product_id
+            new_box.size = size_id
+            new_box.state = box_state
+            new_box.qr_code = qr_id
 
-            for tag_id in tag_ids or []:
-                assign_tag(
-                    user_id=user_id,
-                    id=tag_id,
-                    resource_id=new_box.id,
-                    resource_type=TaggableObjectType.Box,
-                )
-            return new_box
+            with db.database.atomic():
+                new_box.save()
+                for tag_id in tag_ids or []:
+                    assign_tag(
+                        user_id=user_id,
+                        id=tag_id,
+                        resource_id=new_box.id,
+                        resource_type=TaggableObjectType.Box,
+                    )
+                return new_box
+
         except peewee.IntegrityError as e:
             # peewee throws the same exception for different constraint violations.
             # E.g. failing "NOT NULL" constraint shall be directly reported
