@@ -1,7 +1,7 @@
 import "@testing-library/jest-dom";
-import { screen, waitFor, fireEvent } from "@testing-library/react";
+import { screen, waitFor } from "@testing-library/react";
 import { render } from "utils/test-utils";
-import Box, { BOX_BY_LABEL_IDENTIFIER_QUERY } from "./BoxView";
+import BTBox, { BOX_BY_LABEL_IDENTIFIER_QUERY } from "./BoxView";
 
 describe("Box view", () => {
   const mocks = [
@@ -57,11 +57,7 @@ describe("Box view", () => {
               label: "Mixed",
             },
             state: "Lost",
-            tags: [{
-              "color": "#000",
-              "id": "17",
-              "name": "new"
-            }],
+            tags: [],
           },
         },
       },
@@ -76,23 +72,47 @@ describe("Box view", () => {
   };
 
   beforeEach(() => {
-    render(<Box />, {
+
+    render(<BTBox />, {
       routePath: "/bases/:baseId/boxes/:labelIdentifier",
-      initialUrl: "/bases/1/boxes/189123",
+      initialUrl: "/bases/2/boxes/189123",
       mocks,
     });
   });
 
-  it("renders with an initial 'Loading...'", () => {
+  it("renders with an initial 'Loading...'", async () => {
+    await waitFor(waitTillLoadingIsDone);
     const loadingInfo = screen.getByTestId("loading-indicator");
     expect(loadingInfo).toBeInTheDocument();
   });
+
+  it("3.1.1.1 - renders Heading with valid box identifier", async() => {
+    await waitFor(waitTillLoadingIsDone);
+    const boxHeader = screen.getByTestId("boxheader");
+    expect(boxHeader).toHaveTextContent(
+      "Box " + mocks[0].result.data.box.labelIdentifier
+    );
+  });
+
+  // it("3.1.1.2 - renders sub heading with valid state", async() => {
+  //   await waitFor(waitTillLoadingIsDone);
+  //   const boxSubheading = screen.getByTestId("box-subheader");
+  //   expect(boxSubheading).toHaveTextContent(
+  //     "State: " + mocks[0].result.data.box.state
+  //   );
+  // });
+
+  // it("3.1.1.3 - click on + and - to increase or decrease number of items", async() => {
+  //   await waitFor(waitTillLoadingIsDone);
+  //   const boxSubheading = screen.getByTestId("box-subheader");
+  //   expect(boxSubheading).toHaveTextContent(
+  //     "State: " + mocks[0].result.data.box.state
+  //   );
+  // });
 
   // it("eventually removes the 'Loading...' and shows the table head", async () => {
   //   await waitFor(waitTillLoadingIsDone);
   //   const productColumnHeader = screen.getByTestId("loading-indicator");
   //   expect(productColumnHeader).toBeInTheDocument();
   // });
-
-
 });

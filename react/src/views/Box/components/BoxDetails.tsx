@@ -81,7 +81,7 @@ const BoxDetails = ({
       >
         <Flex pt={2} px={4} direction="row" justifyContent="space-between">
           <Flex direction="column" mb={2}>
-            <Heading fontWeight={"bold"} as="h2">
+            <Heading fontWeight={"bold"} as="h2" data-testid="boxheader">
               Box {boxData.labelIdentifier}
             </Heading>
             <Flex>
