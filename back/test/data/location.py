@@ -80,6 +80,15 @@ def distribution_spot():
     return distribution_spot_data()
 
 
+@pytest.fixture
+def base1_classic_locations():
+    return [
+        default_location_data(),
+        null_box_state_location_data(),
+        non_default_box_state_location_data(),
+    ]
+
+
 def create():
     Location.create(**default_location_data())
     Location.create(**another_location_data())
