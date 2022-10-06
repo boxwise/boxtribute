@@ -67,7 +67,13 @@ def test_box_query_by_qr_code(read_only_client, default_box, default_qr_code):
 
 
 def test_box_mutations(
-    client, qr_code_without_box, default_size, another_size, products, default_location
+    client,
+    qr_code_without_box,
+    default_size,
+    another_size,
+    products,
+    default_location,
+    tags,
 ):
     # Test case 8.2.1
     size_id = str(default_size["id"])
@@ -111,6 +117,7 @@ def test_box_mutations(
     # Test case 8.2.2
     number_of_items = 3
     comment = "good box"
+    tag_id = str(tags[1]["id"])
     creation_input = f"""{{
                     productId: {product_id},
                     locationId: {location_id},
@@ -118,6 +125,7 @@ def test_box_mutations(
                     numberOfItems: {number_of_items}
                     comment: "{comment}"
                     qrCode: "{qr_code_without_box["code"]}"
+                    tagIds: [{tag_id}]
                 }}"""
     mutation = f"""mutation {{
             createBox( creationInput : {creation_input} ) {{
@@ -127,6 +135,7 @@ def test_box_mutations(
                 size {{ id }}
                 qrCode {{ id }}
                 state
+                tags {{ id }}
             }}
         }}"""
     another_created_box = assert_successful_request(client, mutation)
@@ -137,6 +146,7 @@ def test_box_mutations(
         "size": {"id": size_id},
         "qrCode": {"id": str(qr_code_without_box["id"])},
         "state": BoxState.InStock.name,
+        "tags": [{"id": tag_id}],
     }
 
     # Test case 8.2.11
