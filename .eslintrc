@@ -9,26 +9,24 @@
   ],
   "plugins": ["jsx-a11y"],
   "rules": {
-
-    // driving me nuts and would have involved changing a zillion files for no real benefit
     "react/jsx-one-expression-per-line": "off",
-    "quotes": "off",
-    "semi": "off",
-    "camelcase":"off",
+    "quotes": ["error", "double"],
+    "semi": ["error", "always"],
+    "camelcase": ["error"],
     "no-unused-expressions": "off",
     // enforce to have interfaces/type should start with "I".
-    // "@typescript-eslint/naming-convention": [
-    //   "error",
-    //   {
-    //     "selector": "interface",
-    //     "format": ["PascalCase"],
-    //     "custom": {
-    //       "regex": "^I[A-Z]",
-    //       "match": true
-    //     }
-    //   }
-    // ],
-    "no-loop-func":"error",
+    "@typescript-eslint/naming-convention": [
+      "error",
+      {
+        "selector": "interface",
+        "format": ["PascalCase"],
+        "custom": {
+          "regex": "^I[A-Z]",
+          "match": true
+        }
+      }
+    ],
+    "no-loop-func": "error",
     "indent": ["error", 4],
     "no-tabs": 0,
     "@typescript-eslint/no-unused-vars": "off",
@@ -46,7 +44,7 @@
     "react/prop-types": "off",
     // should be turned on eventually, but not compatible with current codebase
     "no-shadow": "off",
-    "object-curly-newline":"off",
+    "object-curly-newline": "off",
     // turning off no-console until actual error-handling/logging is done
     // "no-console":"warn",
     // matter of preference (allows to use props.propName instead of deconstructing props first)
@@ -57,7 +55,10 @@
     "react-hooks/rules-of-hooks": "error",
     "react-hooks/exhaustive-deps": "error",
     // suport for jsx files
-    "react/jsx-filename-extension": [1, { "extensions": [".js", ".jsx", ".ts", ".tsx"] }],
+    "react/jsx-filename-extension": [
+      1,
+      { "extensions": [".js", ".jsx", ".ts", ".tsx"] }
+    ],
     "import/extensions": [
       "error",
       "ignorePackages",
@@ -67,18 +68,15 @@
         "ts": "never",
         "tsx": "never"
       }
-   ],
-   "overrides": [
+    ]
+  },
+  "overrides": [
     {
       "extends": "react-app",
-      "files": [
-        "**/*.stories.*"
-      ],
+      "files": ["**/*.stories.*"],
       "rules": {
         "import/no-anonymous-default-export": "off"
       }
     }
   ]
-
-  }
 }
