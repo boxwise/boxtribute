@@ -22,7 +22,6 @@
     "@zxing/library": "^0.19.1",
     "chakra-react-select": "^4.2.2",
     "date-fns": "^2.29.3",
-    "framer-motion": "^6.3.10",
     "graphql": "^16.6.0",
     "jwt-decode": "^3.1.2",
     "react": "^17.0.2",
@@ -33,7 +32,6 @@
     "react-router-dom": "^6.4.1",
     "react-scripts": "^5.0.1",
     "react-table": "^7.8.0",
-    "regenerator-runtime": "^0.13.9",
     "victory": "^36.6.7",
     "zod": "^3.19.1"
   },
@@ -79,7 +77,8 @@
     "prettier-eslint": "^15.0.1",
     "prop-types": "^15.8.1",
     "typescript": "^4.8.3",
-    "webpack": "^5.74.0"
+    "webpack": "^5.74.0",
+    "regenerator-runtime": "^0.13.9"
   },
   "scripts": {
     "chromatic": "npx chromatic --project-token=2763da0ce36c",
