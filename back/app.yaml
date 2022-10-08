@@ -1,6 +1,6 @@
 runtime: python310
 service: v2-staging
-entrypoint: gunicorn -b :$PORT
+entrypoint: gunicorn -b :$PORT boxtribute_server.main:app
 handlers:
 - url: /graphql
   script: auto

@@ -20,7 +20,7 @@ ENV PYTHONPATH=/app/back
 # cf. https://stackoverflow.com/a/60820156/3865876
 FROM base AS production
 # Launch WSGI server, configured by gunicorn.conf.py
-CMD gunicorn --config back/gunicorn.conf.py
+CMD gunicorn --config back/gunicorn.conf.py boxtribute_server.main:app
 
 FROM base AS development
 # Path of module containing Flask app, relative to WORKDIR
