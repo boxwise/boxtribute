@@ -178,15 +178,70 @@ jobs:
           at: ~/
       # install gcloud orb
       - gcp-cli/install
-      - unless:
-          condition:
-            matches:
-              pattern: "^api-.+"
-              value: << parameters.serviceName >>
-          steps:
-            - run:
-                name: Copy react build into flask app for deployment
-                command: mv ../react/build react-build
+      - run:
+          name: Copy react build into flask app for deployment
+          command: mv ../react/build react-build
+      - run:
+          name: Create version.txt
+          command: |
+            echo "CircleCI build number:${CIRCLE_BUILD_NUM}
+              Branch: ${CIRCLE_BRANCH}
+              Git hash: ${CIRCLE_SHA1}" > version.txt
+      - run:
+          name: Generate .env files
+          command: |
+            echo "
+              AUTH0_DOMAIN=${AUTH0_DOMAIN}
+              AUTH0_AUDIENCE=${AUTH0_AUDIENCE}
+              AUTH0_JWKS_KID=${AUTH0_JWKS_KID}
+              AUTH0_JWKS_N=${AUTH0_JWKS_N}
+              MYSQL_HOST=127.0.0.1
+              MYSQL_USER=${DB_NAME}
+              MYSQL_PASSWORD=${DB_PASS}
+              MYSQL_DB=${DB_NAME}
+              MYSQL_PORT=3306
+              MYSQL_SOCKET=${DB_SOCKET}
+              SENTRY_DSN=${SENTRY_BE_DSN}
+              SENTRY_ENVIRONMENT=${SENTRY_ENVIRONMENT}
+              SENTRY_RELEASE=${CIRCLE_SHA1}
+              ENVIRONMENT=${SENTRY_ENVIRONMENT}
+              MOBILE_DISTRO_ALLOWED_USER_IDS=${MOBILE_DISTRO_ALLOWED_USER_IDS}
+              " > .env
+      - run:
+          name: Generate GAE app.yaml file
+          command: |
+            sed 's/service: v2-staging/service: << parameters.serviceName >>/g' app.yaml > app-<< parameters.serviceName >>.yaml
+      - run:
+          name: Compress deployment artificats
+          command: tar -cvzf ~/deploy.tar.gz ~/back
+      - store_artifacts:
+          name: Store copy of deployment artifacts
+          path: ~/deploy.tar.gz
+      - run:
+          name: Authenticate the gcloud orb
+          command: |
+            echo $GCLOUD_SERVICE_KEY | gcloud auth activate-service-account --key-file=-
+            gcloud --quiet config set project ${GOOGLE_PROJECT_ID}
+      - run:
+          name: Deploy to GAE
+          command: |
+            gcloud app deploy app-<< parameters.serviceName >>.yaml
+      - slack/notify-on-failure:
+          only_for_branches: master,production
+
+  deploy-api:
+    parameters:
+      serviceName:
+        type: string
+    docker:
+      - image: cimg/python:3.10.4-node
+    working_directory: ~/back
+    steps:
+      # Attach workspace from build
+      - attach_workspace:
+          at: ~/
+      # install gcloud orb
+      - gcp-cli/install
       - run:
           name: Create version.txt
           command: |
@@ -220,43 +275,32 @@ jobs:
               ENVIRONMENT=${SENTRY_ENVIRONMENT}
               MOBILE_DISTRO_ALLOWED_USER_IDS=${MOBILE_DISTRO_ALLOWED_USER_IDS}
               " > .env
-            if [[ "<< parameters.serviceName >>" != "api-"* ]]; then echo "EXPOSE_FULL_GRAPHQL=1" >> .env; fi
       - run:
           name: Generate GAE app.yaml file
           command: |
-            if [[ "<< parameters.serviceName >>" = "api-"* ]]; then
-                sed 's/service: api-staging/service: << parameters.serviceName >>/g' app-api.yaml > app-<< parameters.serviceName >>.yaml
-            else
-                sed 's/service: v2-staging/service: << parameters.serviceName >>/g' app.yaml > app-<< parameters.serviceName >>.yaml
+            sed 's/service: api-staging/service: << parameters.serviceName >>/g' app-api.yaml > app-<< parameters.serviceName >>.yaml
+      - restore_cache:
+          name: Restore npm Package Cache
+          keys:
+            - docs-npm-spectaql-{{ checksum "../docs/graphql-api/package.json" }}
+      - run:
+          name: Generate GraphQL documentation
+          command: |
+            cd ../docs/graphql-api
+            if [[ "<< parameters.serviceName >>" != api-production ]]; then
+                sed -i 's/api.boxtribute/<< parameters.serviceName >>.boxtribute/g' query-api-config.yml
             fi
-      - when:
-          condition:
-            matches:
-              pattern: "^api-.+"
-              value: << parameters.serviceName >>
-          steps:
-            - restore_cache:
-                name: Restore npm Package Cache
-                keys:
-                  - docs-npm-spectaql-{{ checksum "../docs/graphql-api/package.json" }}
-            - run:
-                name: Generate GraphQL documentation
-                command: |
-                  cd ../docs/graphql-api
-                  if [[ "<< parameters.serviceName >>" != api-production ]]; then
-                      sed -i 's/api.boxtribute/<< parameters.serviceName >>.boxtribute/g' query-api-config.yml
-                  fi
-                  npm install
-                  npx spectaql query-api-config.yml
-                  sed -i 's|stylesheets|docs/stylesheets|g' public/index.html
-                  sed -i 's|javascripts|docs/javascripts|g' public/index.html
-                  sed -i 's|images|docs/images|g' public/index.html
-                  mv public ../../back/graphql-docs
-            - save_cache:
-                name: Save npm Package Cache
-                key: docs-npm-spectaql-{{ checksum "../docs/graphql-api/package.json" }}
-                paths:
-                  - ~/docs/graphql-api/node_modules
+            npm install
+            npx spectaql query-api-config.yml
+            sed -i 's|stylesheets|docs/stylesheets|g' public/index.html
+            sed -i 's|javascripts|docs/javascripts|g' public/index.html
+            sed -i 's|images|docs/images|g' public/index.html
+            mv public ../../back/graphql-docs
+      - save_cache:
+          name: Save npm Package Cache
+          key: docs-npm-spectaql-{{ checksum "../docs/graphql-api/package.json" }}
+          paths:
+            - ~/docs/graphql-api/node_modules
       - run:
           name: Compress deployment artificats
           command: tar -cvzf ~/deploy.tar.gz ~/back
@@ -322,7 +366,7 @@ workflows:
             branches:
               only:
                 - master
-      - deploy:
+      - deploy-api:
           name: deploy-api-staging
           context: STAGING
           serviceName: api-staging
@@ -357,7 +401,7 @@ workflows:
             branches:
               only:
                 - production
-      - deploy:
+      - deploy-api:
           name: deploy-api-demo
           context: DEMO
           serviceName: api-demo
@@ -399,7 +443,7 @@ workflows:
               only: /^v.*/
             branches:
               ignore: /.*/
-      - deploy:
+      - deploy-api:
           name: deploy-api-production
           context: PRODUCTION
           serviceName: api-production
