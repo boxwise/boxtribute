@@ -171,6 +171,7 @@ export type BoxCreationInput = {
   productId: Scalars['Int'];
   qrCode?: InputMaybe<Scalars['String']>;
   sizeId: Scalars['Int'];
+  tagIds?: InputMaybe<Array<Scalars['Int']>>;
 };
 
 /** Utility type holding a page of [`Boxes`]({{Types.Box}}). */
