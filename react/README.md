@@ -6,12 +6,12 @@ This front-end project of Boxtribute was bootstrapped with [Create React App](ht
 
 1. [Contribution Guidelines](../CONTRIBUTING.md)
 2. [Development Set-up](#development-set-up)
-   1. [Set-up pre-commit](#set-up-pre-commit)
-   2. [Install node and yarn](#install-node-and-yarn)
-   3. [Linting and Formatting in VSCode](#linting-and-formatting-in-vscode)
+    1. [Set-up pre-commit](#set-up-pre-commit)
+    2. [Install node and yarn](#install-node-and-yarn)
+    3. [Linting and Formatting in VSCode](#linting-and-formatting-in-vscode)
 3. [Note about yarn and Docker](#note-about-yarn-and-docker)
 4. [Testing](#testing)
-4. [Conventions for file and folder organisation](#conventions-for-file-and-folder-organisation)
+5. [Conventions for file and folder organisation](#conventions-for-file-and-folder-organisation)
 
 ## Development Set-Up
 
@@ -34,16 +34,29 @@ We are using eslint as a linter and prettier as a formatter for the front-end. T
 
 The settings that these extensions are used are already defined in [`.vscode/settings.json`](../.vscode/settings.json).
 
+The following commands need to be run for linting and formatting:
+
+```sh
+# auto fix
+docker-compose exec react yarn lint
+
+# check formatting
+docker-compose exec react yarn format:check
+
+# fix formatting
+docker-compose exec react yarn format:write
+```
+
 ### General linting and formatting rules
 
-* 4 space tab
-* reject unused expressions and imports
-* trailing semicolon
-* double quotes
-* no deep nesting of loops (no loops in loops in loops)
-* no console.log
-* no debugger statements
-* no vars
+-   4 space tab
+-   reject unused expressions and imports
+-   trailing semicolon
+-   double quotes
+-   no deep nesting of loops (no loops in loops in loops)
+-   no console.log
+-   no debugger statements
+-   no vars
 
 ## Note about yarn and Docker
 
@@ -58,6 +71,7 @@ For example, to add XYZ to the `package.json` file in the `react` folder while d
       docker-compose exec react yarn add XYZ
 
 Afterwards:
+
 1. stop docker-compose and run `docker-compose up` again
 2. run `yarn` in your local react folder (so that your tooling like VSCode also picks up the changes, like new TS types etc)
 
@@ -73,15 +87,90 @@ For integration tests, we mock the Apollo client with a `MockedProvider` compone
 
 To eliminate repetitive code, a custom renderer was built in `react/src/utils/test-utils.js`. It allows developers to pass in three arguments (ui, mocks, and history) to render a component in a test environment. The utility also exports the entire react testing library, so you should import from this utility instead of `@testing-library/react`. See `CreateBox.test.js` for examples of the custom renderer's use.
 
+Tests and test coverage can be run with the following command:
+
+```sh
+# run tests
+docker-compose exec react yarn test
+
+# test coverage
+docker-compose exec react yarn test:coverage
+```
 
 ## Conventions for file and folder organisation
 
-* Views of react-router paths go into the views folder
-* Each view can have it's own folder - which in return can have a local components folder
-* Following an "As local as possible, as global as needed" approach: components get only moved into a more global/outer folder if they are used on that level
-* No index.ts files, besides the entry file for the app
-* Ideally only one component per file
-* Files and folders which export a component/view are written UpperCamelCase, with the same name as the actual exported component/view
-* Other files (like types.ts, helpers.ts etc) and folders (like providers, utils etc) are written in lowerCamelCase
-* Config constants should be UPPERCASE_SNAKES
-* GraphQL queries, mutation and subscription  **string**  have the format UPPERCASE_SNAKES_<QUERY|MUTATION|SUBSCRIPTION>
+-   Views of react-router paths go into the views folder
+-   Each view can have it's own folder - which in return can have a local components folder
+-   Following an "As local as possible, as global as needed" approach: components get only moved into a more global/outer folder if they are used on that level
+-   No index.ts files, besides the entry file for the app
+-   Ideally only one component per file
+-   Files and folders which export a component/view are written UpperCamelCase, with the same name as the actual exported component/view
+-   Other files (like types.ts, helpers.ts etc) and folders (like providers, utils etc) are written in lowerCamelCase
+-   Config constants should be UPPERCASE_SNAKES
+-   GraphQL queries, mutation and subscription **string** have the format UPPERCASE*SNAKES*<QUERY|MUTATION|SUBSCRIPTION>
+
+## Folders and files structures
+
+The following rules and naming conversions can be used to name files:
+
+```bash
+|---- <NameOfComponent>Container.ts # GraphQL string definitions, Business Logic, Data transformation
+|
+|---- <NameOfComponent>.ts # only UI parts **views**
+|---- <NameOfView>ViewContainer.tsx # main entry file the ReactRouter is referring to for a whole page including (maybe) GraphQL string definitions, extraction of URL params, ReactContext definitions (if needed), Business Logic, Data transformation
+|---- <NameOfView>Query.ts # if GraphQL definitions are too long and should be singled out
+|---- <NameOfView>Utils.ts # definitions of custom Hooks
+|---- /components # subcomponents only relevant to this page
+|--------<NameOfComponent>Container.ts # GraphQL string definitions, Business Logic, Data transformation
+|--------<NameOfComponent>.ts # **only** UI parts
+```
+
+The folder structure is as follows:
+
+```bash
+
+/react
+├── /src
+│   ├── assets
+│   ├── components
+│   │   ├── <NameOfComponent>
+│   │   |    ├── <NameOfComponent>Container.tsx
+│   |   |    └── <NameOfComponent>.stoties.tsx #storybook component definition
+│   |   └── Layout.tsx # main layout
+│   ├── mocks
+│   ├── providers #context providers
+│   ├── types #typescript definitions
+│   ├── views
+│   │   └── <NameOfComponent>
+│   │       ├──components
+│   |       └── <NameOfSubComponent>.tsx
+│   └── utils
+│           ├── bese-types.ts
+│           ├── helpers.ts
+│           ├── queries.ts
+│           ├── test-utils.ts
+│           └── hooks.ts
+├── node_modules
+├── .storybook
+├── public
+├── test
+├── App.tsx
+├── index.tsx
+├── logo.svg
+├── serviceWorker.js
+├── setupTests.js
+├── craco.confog.js
+├── codegen.yml
+├── Dockerfile
+├── README.md
+├── package.json
+├── yarn.lock
+├── tsconfig.json
+├── .prettierignore
+├── .dockerignore
+├── .prettierignore
+├── .eslintignore
+├── .eslintrc
+├── .prettierrc
+└── .gitignore
+```
