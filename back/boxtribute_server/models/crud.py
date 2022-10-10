@@ -6,7 +6,11 @@ import peewee
 
 from ..db import db
 from ..enums import BoxState, TaggableObjectType, TagType
-from ..exceptions import BoxCreationFailed, IncompatibleTagTypeAndResourceType
+from ..exceptions import (
+    BoxCreationFailed,
+    IncompatibleTagTypeAndResourceType,
+    NegativeNumberOfItems,
+)
 from .definitions.beneficiary import Beneficiary
 from .definitions.box import Box
 from .definitions.location import Location
@@ -45,6 +49,9 @@ def create_box(
     box_state = (
         BoxState.InStock if location_box_state_id is None else location_box_state_id
     )
+    if number_of_items is not None and number_of_items < 0:
+        raise NegativeNumberOfItems()
+
     for i in range(BOX_LABEL_IDENTIFIER_GENERATION_ATTEMPTS):
         try:
             new_box = Box()
@@ -109,6 +116,8 @@ def update_box(
     if comment is not None:
         box.comment = comment
     if number_of_items is not None:
+        if number_of_items < 0:
+            raise NegativeNumberOfItems()
         box.number_of_items = number_of_items
     if location_id is not None:
         box.location = location_id

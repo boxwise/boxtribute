@@ -414,3 +414,31 @@ def test_mutate_box_with_non_existing_resource(
     mutation = f"""mutation {{
             updateBox( updateInput : {update_input} ) {{ id }} }}"""
     assert_bad_user_input(read_only_client, mutation)
+
+
+def test_mutate_box_with_negative_number_of_items(
+    read_only_client, default_box, default_product, default_location, default_size
+):
+    # Test case 8.2.10
+    size_id = str(default_size["id"])
+    location_id = str(default_location["id"])
+    product_id = str(default_product["id"])
+    creation_input = f"""{{
+                    productId: {product_id},
+                    locationId: {location_id},
+                    sizeId: {size_id},
+                    numberOfItems: -3
+                }}"""
+    mutation = f"""mutation {{
+            createBox( creationInput : {creation_input} ) {{ id }} }}"""
+    assert_bad_user_input(read_only_client, mutation)
+
+    # Test case 8.2.19
+    label_identifier = default_box["label_identifier"]
+    update_input = f"""{{
+                labelIdentifier: "{label_identifier}"
+                numberOfItems: -5
+            }}"""
+    mutation = f"""mutation {{
+            updateBox( updateInput : {update_input} ) {{ id }} }}"""
+    assert_bad_user_input(read_only_client, mutation)
