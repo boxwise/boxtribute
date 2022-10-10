@@ -2,7 +2,7 @@
 from datetime import datetime, timezone
 from functools import wraps
 
-from flask import g, request
+from flask import g
 from peewee import ForeignKeyField, IntegerField
 
 from ..db import db
@@ -33,21 +33,13 @@ def save_creation_to_history(f):
             table_name=new_resource._meta.table_name,
             record_id=new_resource.id,
             user=g.user.id,
-            ip=get_client_ip(),
+            ip=None,
             change_date=utcnow(),
         )
 
         return new_resource
 
     return inner
-
-
-def get_client_ip():
-    """Return client's IP address. Take into account that a proxy like nginx is used in
-    production (Google App Engine). Cf. https://stackoverflow.com/a/49052873/3865876
-    `request.remote_addr` would return the server's address.
-    """
-    return request.access_route[-1]
 
 
 def save_update_to_history(*, id_field_name="id", fields):
@@ -89,7 +81,7 @@ def save_update_to_history(*, id_field_name="id", fields):
                 entry.table_name = model._meta.table_name
                 entry.record_id = new_resource.id
                 entry.user = g.user.id
-                entry.ip = get_client_ip()
+                entry.ip = None
                 entry.change_date = now
 
                 if issubclass(field.__class__, (IntegerField, ForeignKeyField)):
