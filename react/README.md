@@ -107,7 +107,7 @@ docker-compose exec react yarn test:coverage
 -   Files and folders which export a component/view are written UpperCamelCase, with the same name as the actual exported component/view
 -   Other files (like types.ts, helpers.ts etc) and folders (like providers, utils etc) are written in lowerCamelCase
 -   Config constants should be UPPERCASE_SNAKES
--   GraphQL queries, mutation and subscription **string** have the format UPPERCASE*SNAKES*<QUERY|MUTATION|SUBSCRIPTION>
+-   GraphQL queries, mutation and subscription **string** have the format UPPERCASE_SNAKES\_<QUERY|MUTATION|SUBSCRIPTION>
 
 ## Folders and files structures
 
@@ -135,7 +135,7 @@ The folder structure is as follows:
 │   ├── components
 │   │   ├── <NameOfComponent>
 │   │   |    ├── <NameOfComponent>Container.tsx
-│   |   |    └── <NameOfComponent>.stoties.tsx #storybook component definition
+│   |   |    └── <NameOfComponent>.stories.tsx #storybook component definition
 │   |   └── Layout.tsx # main layout
 │   ├── mocks
 │   ├── providers #context providers
@@ -145,7 +145,7 @@ The folder structure is as follows:
 │   │       ├──components
 │   |       └── <NameOfSubComponent>.tsx
 │   └── utils
-│           ├── bese-types.ts
+│           ├── base-types.ts
 │           ├── helpers.ts
 │           ├── queries.ts
 │           ├── test-utils.ts
@@ -159,7 +159,7 @@ The folder structure is as follows:
 ├── logo.svg
 ├── serviceWorker.js
 ├── setupTests.js
-├── craco.confog.js
+├── craco.config.js
 ├── codegen.yml
 ├── Dockerfile
 ├── README.md
@@ -168,7 +168,6 @@ The folder structure is as follows:
 ├── tsconfig.json
 ├── .prettierignore
 ├── .dockerignore
-├── .prettierignore
 ├── .eslintignore
 ├── .eslintrc
 ├── .prettierrc
