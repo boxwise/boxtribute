@@ -3414,7 +3414,7 @@
     "@devtools-ds/themes" "^1.2.0"
     clsx "1.1.0"
 
-"@discoveryjs/json-ext@^0.5.3":
+"@discoveryjs/json-ext@^0.5.3", "@discoveryjs/json-ext@^0.5.7":
   version "0.5.7"
   resolved "https://registry.yarnpkg.com/@discoveryjs/json-ext/-/json-ext-0.5.7.tgz#1d572bfbbe14b7704e0ba0f39b74815b84870d70"
   integrity sha512-dBVuXR082gk3jsFp7Rd/JI4kytwGHecnCoTtXFb7DB6CNHp4rg5k1bhg0nWdLGLnOV71lmDzGQaLMy8iPLY0pw==
@@ -6918,10 +6918,10 @@
   resolved "https://registry.yarnpkg.com/@types/warning/-/warning-3.0.0.tgz#0d2501268ad8f9962b740d387c4654f5f8e23e52"
   integrity sha512-t/Tvs5qR47OLOr+4E9ckN8AmP2Tf16gWq+/qA4iUGS/OOyHVO8wv2vjJuX8SNOUTJyWb+2t7wJm6cXILFnOROA==
 
-"@types/webpack-env@^1.16.0":
-  version "1.17.0"
-  resolved "https://registry.yarnpkg.com/@types/webpack-env/-/webpack-env-1.17.0.tgz#f99ce359f1bfd87da90cc4a57cab0a18f34a48d0"
-  integrity sha512-eHSaNYEyxRA5IAG0Ym/yCyf86niZUIF/TpWKofQI/CVfh5HsMEUyfE2kwFxha4ow0s5g0LfISQxpDKjbRDrizw==
+"@types/webpack-env@^1.16.0", "@types/webpack-env@^1.17.0":
+  version "1.18.0"
+  resolved "https://registry.yarnpkg.com/@types/webpack-env/-/webpack-env-1.18.0.tgz#ed6ecaa8e5ed5dfe8b2b3d00181702c9925f13fb"
+  integrity sha512-56/MAlX5WMsPVbOg7tAxnYvNYMMWr/QJiIp6BxVSW3JJXUVzzOn64qW8TzQyMSqSUFM2+PVI4aUHcHOzIz/1tg==
 
 "@types/webpack-sources@*":
   version "3.2.0"
@@ -8977,10 +8977,13 @@ chownr@^2.0.0:
   resolved "https://registry.yarnpkg.com/chownr/-/chownr-2.0.0.tgz#15bfbe53d2eab4cf70f18a8cd68ebe5b3cb1dece"
   integrity sha512-bIomtDF5KGpdogkLd9VspvFzk9KfpyyGlS8YFVZl7TGPBHL5snIOnxeshwVgPteQ9b4Eydl+pVbIyE1DcvCWgQ==
 
-chromatic@^6.5.6:
-  version "6.5.6"
-  resolved "https://registry.yarnpkg.com/chromatic/-/chromatic-6.5.6.tgz#ccd1facb0d3037e55a414c2bebbbee6c6ae05527"
-  integrity sha512-kXuqh3I9NZQYDR7ov5jvGatFVymkkb8fLOPFTg7XyKhAFv3qRlwR/c5Nsz5LpfuXrPAZfPVrNL7l2SROrDP96A==
+chromatic@^6.10.1:
+  version "6.10.1"
+  resolved "https://registry.yarnpkg.com/chromatic/-/chromatic-6.10.1.tgz#5a52e7d616dfd35b6857d724d503cb7baa842922"
+  integrity sha512-x8UN5rQ4HK1bUv2uDsHnCQW3bcsFmJH90F5w8mXHkiDc7kEAvbOAm/im2cWbi/VUDI+jW+A7SvZTUi54lBF5wQ==
+  dependencies:
+    "@discoveryjs/json-ext" "^0.5.7"
+    "@types/webpack-env" "^1.17.0"
 
 chrome-trace-event@^1.0.2:
   version "1.0.3"
