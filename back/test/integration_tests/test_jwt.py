@@ -13,7 +13,7 @@ from auth import (
     TEST_AUTH0_JWKS_N,
     TEST_AUTH0_PASSWORD,
     TEST_AUTH0_USERNAME,
-    get_user_token_string,
+    get_authorization_header,
 )
 from boxtribute_server.auth import (
     decode_jwt,
@@ -45,7 +45,7 @@ def test_decode_valid_jwt(monkeypatch):
     monkeypatch.setenv("AUTH0_JWKS_KID", TEST_AUTH0_JWKS_KID)
     monkeypatch.setenv("AUTH0_JWKS_N", TEST_AUTH0_JWKS_N)
 
-    token = get_token_from_auth_header(get_user_token_string())
+    token = get_token_from_auth_header(get_authorization_header(TEST_AUTH0_USERNAME))
     key = get_public_key(TEST_AUTH0_DOMAIN)
     assert key is not None
     params = dict(

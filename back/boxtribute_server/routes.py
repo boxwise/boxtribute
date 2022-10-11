@@ -86,24 +86,25 @@ def graphql_server():
 
 
 def execute_async(*, schema):
-    # Start async event loop, required for DataLoader construction, cf.
-    # https://github.com/graphql-python/graphql-core/issues/71#issuecomment-620106364
-    loop = asyncio.new_event_loop()
-    asyncio.set_event_loop(loop)
+    """Create coroutine and execute it with high-level `asyncio.run` which takes care of
+    managing the asyncio event loop, finalizing asynchronous generators, and closing
+    the threadpool.
+    """
 
-    # Create DataLoaders and persist them for the time of processing the request
-    context = {
-        "product_category_loader": ProductCategoryLoader(),
-        "product_loader": ProductLoader(),
-        "size_loader": SizeLoader(),
-        "size_range_loader": SizeRangeLoader(),
-        "sizes_for_size_range_loader": SizesForSizeRangeLoader(),
-        "tags_for_box_loader": TagsForBoxLoader(),
-    }
+    async def run():
+        # Create DataLoaders and persist them for the time of processing the request.
+        # DataLoaders require an event loop which is set up by asyncio.run
+        context = {
+            "product_category_loader": ProductCategoryLoader(),
+            "product_loader": ProductLoader(),
+            "size_loader": SizeLoader(),
+            "size_range_loader": SizeRangeLoader(),
+            "sizes_for_size_range_loader": SizesForSizeRangeLoader(),
+            "tags_for_box_loader": TagsForBoxLoader(),
+        }
 
-    # Execute the GraphQL request against schema in async event loop, passing in context
-    success, result = loop.run_until_complete(
-        graphql(
+        # Execute the GraphQL request against schema, passing in context
+        results = await graphql(
             schema,
             data=request.get_json(),
             context_value=context,
@@ -111,7 +112,9 @@ def execute_async(*, schema):
             introspection=current_app.debug,
             error_formatter=format_database_errors,
         )
-    )
+        return results
+
+    success, result = asyncio.run(run())
 
     status_code = 200 if success else 400
     return jsonify(result), status_code

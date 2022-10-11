@@ -123,8 +123,7 @@ if (sentryDsn) {
     // of transactions for performance monitoring.
     // We recommend adjusting this value in production
     tracesSampleRate: 1.0,
-    // TODO: probably we want to later on differentiate 'PRODUCTION' even more - into 'STAGING' and actual 'PRODUCTION'/'LIVE'
-    environment: process.env.SENTRY_ENVIRONMENT,
+    // the 'environment' option is read from the SENTRY_ENVIRONMENT env variable
   });
 }
 

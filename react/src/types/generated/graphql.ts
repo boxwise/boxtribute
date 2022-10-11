@@ -127,7 +127,6 @@ export type BeneficiaryPage = {
 };
 
 export type BeneficiaryUpdateInput = {
-  baseId?: InputMaybe<Scalars['Int']>;
   comment?: InputMaybe<Scalars['String']>;
   dateOfBirth?: InputMaybe<Scalars['Date']>;
   dateOfSignature?: InputMaybe<Scalars['Date']>;
@@ -172,6 +171,7 @@ export type BoxCreationInput = {
   productId: Scalars['Int'];
   qrCode?: InputMaybe<Scalars['String']>;
   sizeId: Scalars['Int'];
+  tagIds?: InputMaybe<Array<Scalars['Int']>>;
 };
 
 /** Utility type holding a page of [`Boxes`]({{Types.Box}}). */

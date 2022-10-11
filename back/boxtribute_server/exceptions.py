@@ -196,3 +196,10 @@ class IncompatibleTagTypeAndResourceType(Exception):
             f"cannot be applied to the resource of type '{resource_type.name}'",
         }
         super().__init__(*args, **kwargs)
+
+
+class NegativeNumberOfItems(Exception):
+    extensions = {
+        "code": "BAD_USER_INPUT",
+        "description": "Invalid input: negative value for 'numberOfItems'",
+    }
