@@ -74,24 +74,47 @@ def test_invalid_pagination_input(read_only_client):
 @pytest.mark.parametrize(
     "resource",
     [
+        # Test case 9.1.5
         "beneficiary",
+        # Test case 8.1.11
         "location",
+        # Test case 8.1.22
         "product",
+        # Test case 99.1.12
         "productCategory",
+        # Test case 3.1.3
         "shipment",
+        # Test case 4.1.3
         "tag",
+        # Test case 2.1.4
         "transferAgreement",
+        # Test case 99.1.9
+        "organisation",
     ],
 )
 def test_query_non_existent_resource(read_only_client, resource):
-    # Test cases 2.1.4, 3.1.3, 4.1.3
     query = f"query {{ {resource}(id: 0) {{ id }} }}"
     response = assert_bad_user_input(read_only_client, query, field=resource)
     assert "SQL" not in response.json["errors"][0]["message"]
 
 
+def test_query_non_existent_box(read_only_client):
+    # Test case 8.1.2
+    query = """query { box(labelIdentifier: "000") { id } }"""
+    response = assert_bad_user_input(read_only_client, query)
+    assert "SQL" not in response.json["errors"][0]["message"]
+
+
+def test_query_non_existent_qr_code(read_only_client):
+    # Test case 8.1.31
+    query = """query { qrCode(qrCode: "-1") { id } }"""
+    response = assert_bad_user_input(read_only_client, query)
+    assert "SQL" not in response.json["errors"][0]["message"]
+
+
 @pytest.mark.parametrize("resource", ["base", "organisation", "user"])
 def test_query_non_existent_resource_for_god_user(read_only_client, mocker, resource):
+    # Test case 99.1.3, 10.1.3
     # Non-god users would not be authorized to access resource ID 0
     mocker.patch("jose.jwt.decode").return_value = create_jwt_payload(permissions=["*"])
     query = f"query {{ {resource}(id: 0) {{ id }} }}"
@@ -120,7 +143,9 @@ def test_mutation_non_existent_resource(read_only_client, operation):
 @pytest.mark.parametrize(
     "operation,mutation_input,field",
     [
+        # Test case 8.2.20
         ["updateBox", """updateInput: { labelIdentifier: "xxx" }""", "id"],
+        # Test case 9.2.14
         ["updateBeneficiary", "updateInput: { id: 0 }", "id"],
         # Test case 3.2.21
         ["updateShipment", "updateInput: { id: 0 }", "id"],

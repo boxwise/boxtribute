@@ -6,21 +6,28 @@ from utils import assert_forbidden_request, assert_successful_request
 @pytest.mark.parametrize(
     "resource",
     [
+        # Test cases 99.1.4, 99.1.6
         "base",
+        # Test cases 9.1.6, 9.1.7
         "beneficiary",
+        # Test cases 8.1.12, 8.1.13
         "location",
+        # Test cases 8.1.23, 8.1.25
         "product",
+        # Test cases 99.1.13, 99.1.14
         "productCategory",
+        # Test cases 3.1.4, 3.1.5
         "shipment",
+        # Test cases 4.1.4, 4.1.6
         "tag",
+        # Test cases 2.1.5, 2.1.6
         "transferAgreement",
+        # Test cases 10.1.4, 10.1.6
         "user",
     ],
 )
 def test_invalid_read_permissions(unauthorized, read_only_client, resource):
-    """Verify missing resource:read permission when executing query.
-    Test case 2.1.5., 3.1.4, 4.1.4, 4.1.6
-    """
+    """Verify missing resource:read permission when executing query."""
     # Build plural form
     resources = f"{resource}s"
     if resource.endswith("y"):
@@ -47,8 +54,11 @@ def operation_name(operation):
 @pytest.mark.parametrize(
     "query",
     [
+        # Test case 8.1.3
         """box( labelIdentifier: "12345678") { id }""",
+        # Test case 8.1.32
         """qrCode( qrCode: "1337beef" ) { id }""",
+        # Test case 8.1.35
         """qrExists( qrCode: "1337beef" )""",
     ],
     ids=operation_name,
@@ -61,14 +71,24 @@ def test_invalid_permission(unauthorized, read_only_client, query):
 @pytest.mark.parametrize(
     "query",
     [
-        """base( id: 0 ) { id }""",
+        # Test case 99.1.5
+        """base( id: 2 ) { id }""",
+        # Test case 8.1.14
         """location( id: 2 ) { id }""",  # ID of another_location fixture
         # Test case 4.1.5
         """tag( id: 4 ) { id }""",
+        # Test case 8.1.4
+        """box( labelIdentifier: "34567890" ) { id }""",
+        # Test case 8.1.24
+        """product( id: 2 ) { id }""",
+        # Test case 9.1.8
+        """beneficiary( id: 4 ) { id }""",
+        # Test case 10.1.5
+        """user( id: 1) { id }""",
     ],
     ids=operation_name,
 )
-def test_invalid_permission_for_given_resource_id(read_only_client, mocker, query):
+def test_invalid_permission_for_given_resource_id(read_only_client, query):
     """Verify missing resource:read permission, or missing permission to access
     specified resource (i.e. base).
     """
@@ -99,6 +119,7 @@ def test_invalid_permission_for_given_resource_id(read_only_client, mocker, quer
             }) {
             id
         }""",
+        # Test case 8.2.9
         """createBox(
             creationInput : {
                 productId: 1,
@@ -109,6 +130,7 @@ def test_invalid_permission_for_given_resource_id(read_only_client, mocker, quer
             }) {
             id
         }""",
+        # Test case 8.2.17
         """updateBox(
             updateInput : {
                 labelIdentifier: "12345678",
@@ -116,6 +138,7 @@ def test_invalid_permission_for_given_resource_id(read_only_client, mocker, quer
             }) {
             id
         }""",
+        # Test case 8.2.33
         "createQrCode { id }",
         """createTransferAgreement(
             creationInput : {
@@ -174,6 +197,7 @@ def test_invalid_write_permission(unauthorized, read_only_client, mutation):
     "mutation",
     [
         # test user does not have permission to access location ID 2 nor product ID 2
+        # Test case 8.2.7
         """createBox(
             creationInput : {
                 productId: 1,
@@ -182,6 +206,7 @@ def test_invalid_write_permission(unauthorized, read_only_client, mutation):
                 sizeId: 1,
                 comment: ""
             }) { id }""",
+        # Test case 8.2.8
         """createBox(
             creationInput : {
                 productId: 2,
@@ -190,13 +215,16 @@ def test_invalid_write_permission(unauthorized, read_only_client, mutation):
                 sizeId: 1,
                 comment: ""
             }) { id }""",
+        # Test case 8.2.18
         """updateBox(
             updateInput : { labelIdentifier: "34567890" }) { id }""",
+        # Test case 8.2.16
         """updateBox(
             updateInput : {
                 labelIdentifier: "12345678",
                 locationId: 2
             }) { id }""",
+        # Test case 8.2.15
         """updateBox(
             updateInput : {
                 labelIdentifier: "12345678",
@@ -212,6 +240,7 @@ def test_invalid_permission_when_mutating_box(read_only_client, mutation):
 
 
 def test_invalid_permission_for_location_boxes(read_only_client, mocker):
+    # Test case 8.1.8
     # verify missing stock:read permission
     mocker.patch("jose.jwt.decode").return_value = create_jwt_payload(
         permissions=["location:read"]
@@ -351,6 +380,7 @@ def test_permission_for_god_user(
     mocker.patch("jose.jwt.decode").return_value = create_jwt_payload(
         permissions=["*"], organisation_id=None
     )
+    # Test case 10.1.1
     query = "query { users { id } }"
     users = assert_successful_request(read_only_client, query)
     assert len(users) == len(default_users)

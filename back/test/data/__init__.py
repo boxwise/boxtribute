@@ -25,12 +25,13 @@ from .distribution_event import default_distribution_event
 from .history import default_history
 from .location import (
     another_location,
+    base1_classic_locations,
     default_location,
     non_default_box_state_location,
     null_box_state_location,
 )
 from .log import default_log
-from .organisation import another_organisation, default_organisation
+from .organisation import another_organisation, default_organisation, organisations
 from .product import another_product, default_product, products
 from .product_category import default_product_category
 from .product_gender import default_product_gender
@@ -70,6 +71,7 @@ __all__ = [
     "another_shipment",
     "another_shipment_detail",
     "another_size",
+    "base1_classic_locations",
     "box_without_qr_code",
     "canceled_shipment",
     "default_beneficiary",
@@ -101,6 +103,7 @@ __all__ = [
     "marked_for_shipment_box",
     "non_default_box_state_location",
     "null_box_state_location",
+    "organisations",
     "prepared_shipment_detail",
     "products",
     "qr_code_without_box",

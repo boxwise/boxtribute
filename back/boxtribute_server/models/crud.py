@@ -6,7 +6,11 @@ import peewee
 
 from ..db import db
 from ..enums import BoxState, TaggableObjectType, TagType
-from ..exceptions import BoxCreationFailed, IncompatibleTagTypeAndResourceType
+from ..exceptions import (
+    BoxCreationFailed,
+    IncompatibleTagTypeAndResourceType,
+    NegativeNumberOfItems,
+)
 from .definitions.beneficiary import Beneficiary
 from .definitions.box import Box
 from .definitions.location import Location
@@ -14,11 +18,12 @@ from .definitions.qr_code import QrCode
 from .definitions.tag import Tag
 from .definitions.tags_relation import TagsRelation
 from .definitions.x_beneficiary_language import XBeneficiaryLanguage
-from .utils import utcnow
+from .utils import save_creation_to_history, save_update_to_history, utcnow
 
 BOX_LABEL_IDENTIFIER_GENERATION_ATTEMPTS = 10
 
 
+@save_creation_to_history
 def create_box(
     product_id,
     location_id,
@@ -27,12 +32,14 @@ def create_box(
     comment="",
     number_of_items=None,
     qr_code=None,
+    tag_ids=None,
 ):
     """Insert information for a new Box in the database. Use current datetime
     and box state "InStock" by default. If a location with a box state is passed
     use its box state for the new box. Generate an 8-digit sequence to identify the
     box. If the sequence is not unique, repeat the generation several times. If
     generation still fails, raise a BoxCreationFailed exception.
+    Assign any given tags to the newly created box.
     """
 
     now = utcnow()
@@ -42,23 +49,36 @@ def create_box(
     box_state = (
         BoxState.InStock if location_box_state_id is None else location_box_state_id
     )
+    if number_of_items is not None and number_of_items < 0:
+        raise NegativeNumberOfItems()
+
     for i in range(BOX_LABEL_IDENTIFIER_GENERATION_ATTEMPTS):
         try:
-            new_box = Box.create(
-                comment=comment,
-                created_on=now,
-                created_by=user_id,
-                number_of_items=number_of_items,
-                label_identifier="".join(random.choices("0123456789", k=8)),
-                last_modified_on=now,
-                last_modified_by=user_id,
-                location=location_id,
-                product=product_id,
-                size=size_id,
-                state=box_state,
-                qr_code=qr_id,
-            )
-            return new_box
+            new_box = Box()
+            new_box.comment = comment
+            new_box.created_on = now
+            new_box.created_by = user_id
+            new_box.number_of_items = number_of_items
+            new_box.label_identifier = "".join(random.choices("0123456789", k=8))
+            new_box.last_modified_on = now
+            new_box.last_modified_by = user_id
+            new_box.location = location_id
+            new_box.product = product_id
+            new_box.size = size_id
+            new_box.state = box_state
+            new_box.qr_code = qr_id
+
+            with db.database.atomic():
+                new_box.save()
+                for tag_id in tag_ids or []:
+                    assign_tag(
+                        user_id=user_id,
+                        id=tag_id,
+                        resource_id=new_box.id,
+                        resource_type=TaggableObjectType.Box,
+                    )
+                return new_box
+
         except peewee.IntegrityError as e:
             # peewee throws the same exception for different constraint violations.
             # E.g. failing "NOT NULL" constraint shall be directly reported
@@ -67,6 +87,17 @@ def create_box(
     raise BoxCreationFailed()
 
 
+@save_update_to_history(
+    id_field_name="label_identifier",
+    fields=[
+        Box.label_identifier,
+        Box.product,
+        Box.size,
+        Box.number_of_items,
+        Box.location,
+        Box.comment,
+    ],
+)
 def update_box(
     label_identifier,
     user_id,
@@ -85,6 +116,8 @@ def update_box(
     if comment is not None:
         box.comment = comment
     if number_of_items is not None:
+        if number_of_items < 0:
+            raise NegativeNumberOfItems()
         box.number_of_items = number_of_items
     if location_id is not None:
         box.location = location_id
@@ -302,7 +335,6 @@ def update_beneficiary(
     *,
     user,
     id,
-    base_id=None,
     gender=None,
     languages=None,
     family_head_id=None,
@@ -317,9 +349,6 @@ def update_beneficiary(
     beneficiary = Beneficiary.get_by_id(id)
 
     # Handle any items with keys not matching the Model fields
-    if base_id is not None:
-        beneficiary.base = base_id
-
     if gender is not None:
         beneficiary.gender = gender.value
 

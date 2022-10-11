@@ -28,7 +28,8 @@ def memoize(function):
     return wrapper
 
 
-def get_user_token():
+@memoize
+def fetch_token(username):
     """Grabs a test user access token for Auth0."""
     token = os.getenv("TEST_AUTH0_JWT")
     if token is not None:
@@ -39,15 +40,14 @@ def get_user_token():
         client_secret=os.getenv("TEST_AUTH0_CLIENT_SECRET"),
         audience=TEST_AUTH0_AUDIENCE,
         domain=TEST_AUTH0_DOMAIN,
-        username=TEST_AUTH0_USERNAME,
+        username=username,
         password=TEST_AUTH0_PASSWORD,
     )
     return response["access_token"]
 
 
-@memoize
-def get_user_token_string():
-    return "Bearer " + get_user_token()
+def get_authorization_header(username):
+    return "Bearer " + fetch_token(username)
 
 
 def create_jwt_payload(

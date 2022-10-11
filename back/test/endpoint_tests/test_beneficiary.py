@@ -51,6 +51,7 @@ def test_beneficiary_query(
     relative_transaction,
     tags,
 ):
+    # Test case 9.1.4
     query = _generate_beneficiary_query(default_beneficiary["id"])
     beneficiary = assert_successful_request(read_only_client, query)
     assert beneficiary == {
@@ -103,6 +104,7 @@ def test_beneficiary_query(
 
 
 def test_beneficiary_mutations(client):
+    # Test case 9.2.1
     first_name = "Some"
     last_name = "One"
     dob_year = 2000
@@ -174,6 +176,7 @@ def test_beneficiary_mutations(client):
     assert created_beneficiary["createdOn"] == created_beneficiary["lastModifiedOn"]
     assert created_beneficiary["createdBy"] == created_beneficiary["lastModifiedBy"]
 
+    # Test case 9.2.9
     last_name = "Body"
     dos = "2021-09-09"
     language = "nl"
@@ -197,7 +200,6 @@ def test_beneficiary_mutations(client):
 
     first_name = "Foo"
     dob = "2001-01-01"
-    base_id = 1
     group_id = "1235"
     gender = "Male"
     comment = "cool dude"
@@ -206,7 +208,6 @@ def test_beneficiary_mutations(client):
                 updateInput : {{
                     id: {beneficiary_id},
                     firstName: "{first_name}",
-                    baseId: {base_id},
                     groupIdentifier: "{group_id}",
                     dateOfBirth: "{dob}",
                     comment: "{comment}",
@@ -245,6 +246,7 @@ def test_beneficiary_mutations(client):
 @pytest.mark.parametrize(
     "input,size,has_next_page,has_previous_page",
     (
+        # Test case 9.1.1, 9.1.2
         ["", 3, False, False],
         #                             ID=0
         ["""(paginationInput: {after: "MDAwMDAwMDA="})""", 3, False, False],
@@ -316,6 +318,7 @@ def _format(parameter):
     ids=_format,
 )
 def test_beneficiaries_filtered_query(read_only_client, filters, number):
+    # Test case 9.1.3
     filter_input = ", ".join(f"{k}: {v}" for f in filters for k, v in f.items())
     query = f"""query {{ beneficiaries(filterInput: {{ {filter_input} }}) {{
                 elements {{
