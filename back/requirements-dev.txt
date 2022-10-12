@@ -5,3 +5,4 @@ pre-commit==2.20.0
 pytest>=5.4.3
 pytest-mock==3.10.0
 pytest-cov==4.0.0
+pytest-clarity==1.0.1

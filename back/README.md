@@ -218,6 +218,11 @@ Run the test suite on your machine by executing
 
 If you persistently want these variables to be set for your environment, export them via the `.envrc` file.
 
+You can also run the tests via `docker-compose`:
+
+    docker-compose up --build -d db webapp  # only once
+    docker-compose exec webapp pytest
+
 ### Test plan
 
 Before implementing any tests, the test behavior should be listed and agreed upon in the [test plan](https://docs.google.com/spreadsheets/d/1sDhSsaVwNxAhGn1VYACDPVepZpvlwTkgy9nmeTaRy2Q/edit#gid=1709672082).
