@@ -1,5 +1,10 @@
 import pytest
-from auth import TEST_AUTH0_AUDIENCE, TEST_AUTH0_DOMAIN, get_user_token_string
+from auth import (
+    TEST_AUTH0_AUDIENCE,
+    TEST_AUTH0_DOMAIN,
+    TEST_AUTH0_USERNAME,
+    get_authorization_header,
+)
 
 
 @pytest.fixture
@@ -7,7 +12,9 @@ def auth0_client(dropapp_dev_client):
     """Modify client interacting with 'dropapp_dev' app.
     Fetch authz information from Auth0 and insert it into the header of client request.
     """
-    dropapp_dev_client.environ_base["HTTP_AUTHORIZATION"] = get_user_token_string()
+    dropapp_dev_client.environ_base["HTTP_AUTHORIZATION"] = get_authorization_header(
+        TEST_AUTH0_USERNAME
+    )
     yield dropapp_dev_client
 
 

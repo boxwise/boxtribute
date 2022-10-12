@@ -8,6 +8,7 @@ def test_organisation_query(
     default_beneficiaries,
     another_organisation,
 ):
+    # Test case 99.1.8
     # The user is a member of base 1 for default_organisation. They can read name and ID
     # of the organisation's bases but the beneficiary data of base 1 ONLY
     organisation_id = str(default_organisation["id"])
@@ -57,7 +58,8 @@ def test_organisation_query(
     }
 
 
-def test_organisations_query(read_only_client, default_organisation):
+def test_organisations_query(read_only_client, organisations):
+    # Test case 99.1.7
     query = """query { organisations { name } }"""
-    queried_organisation = assert_successful_request(read_only_client, query)[0]
-    assert queried_organisation["name"] == default_organisation["name"]
+    queried_organisations = assert_successful_request(read_only_client, query)
+    assert queried_organisations == [{"name": org["name"]} for org in organisations]

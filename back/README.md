@@ -218,7 +218,41 @@ Run the test suite on your machine by executing
 
 If you persistently want these variables to be set for your environment, export them via the `.envrc` file.
 
-### Writing tests
+You can also run the tests via `docker-compose`:
+
+    docker-compose up --build -d db webapp  # only once
+    docker-compose exec webapp pytest
+
+### Test plan
+
+Before implementing any tests, the test behavior should be listed and agreed upon in the [test plan](https://docs.google.com/spreadsheets/d/1sDhSsaVwNxAhGn1VYACDPVepZpvlwTkgy9nmeTaRy2Q/edit#gid=1709672082).
+
+<details>
+  <summary>Find more info here about the structure of the document.</summary>
+
+  #### 2.0 Back-end endpoint tests
+
+  - test cases are organized in sections. Each section corresponds to one module (i.e. a logical subsection) of the back-end
+  - the test cases define the behavior of a module when it is accessed by its associated GraphQL endpoints
+  - GraphQL endpoints are either queries or mutations. The respective test cases are organized in sub-sections and, if deemed necessary for readability, grouped by functionality
+  - a test case is uniquely identified by a test ID. Test IDs are put as comments into the test code for reference. *Please do not* modify the test IDs, or sort the test cases in the document, without updating the comments in the code, and vice versa.
+  - test cases come in four categories to verify the implementation under all circumstances
+      1. when an endpoint is accessed with a valid request (i.e. valid input data and sufficient permissions)
+      2. when an endpoint is accessed with insufficient permissions
+      3. when an endpoint is accessed with invalid input data (i.e. creating a box with negative number of items)
+      4. when an endpoint is accessed for a non-existing resource
+  - the expected behavior in these categories is
+      1. the response holds the requested (queried/created/modified/deleted) data resource
+      2. the response holds a Forbidden error
+      3. the response holds a BadUserRequest error
+      4. the response holds a BadUserRequest error
+  - due to the nature of GraphQL APIs all responses (successful and erroneous) have HTTP status code 200. The content of the "data" and "errors" fields in the JSON response has to be inspected
+  - test cases for queries are formulated as "*Client requests single X by ID*" or "*Client requests list of Xs*"
+  - test cases for mutations are formulated as "*Client requests operating on X*"
+
+</details>
+
+### Implementing tests
 
 We use the pytest framework to build tests. Please refer to their excellent [documentation](https://docs.pytest.org/en/stable/contents.html).
 
@@ -230,6 +264,11 @@ and similarly the test functions must have the format
 
 In the pytest framework, **fixtures** serve as common base setups for individual test functions. To use a fixture, pass it as argument into the test function.
 Fixtures are configured in the `conftest.py` files which are automatically loaded before test execution.
+
+The actual test implementation can be in the form of
+    a. one test function per test case
+    b. one test parameter per test case (useful e.g. for permission tests)
+    c. one test function for multiple test cases (e.g. if the tested functionality represents a user flow)
 
 #### Data model tests
 
@@ -280,6 +319,8 @@ and inspect the reported output. Open the HTML report via `back/htmlcov/index.ht
 The back-end exposes the GraphQL API in two variants.
 1. The full API is consumed by our front-end at the `/graphql` endpoint (deployed to e.g. `v2-staging` subdomain).
 1. The 'query-only' API is used by our partners at `/` (for data retrieval; it is deployed on the `api*` subdomains).
+
+Starting the back-end in the former case is achieved via `main.py`, in the latter case via `api_main.py`.
 
 ### Schema documentation
 

@@ -8,6 +8,6 @@
     "url": "https://github.com/boxwise/boxtribute.git"
   },
   "dependencies": {
-    "spectaql": "1.5.3"
+    "spectaql": "1.5.4"
   }
 }

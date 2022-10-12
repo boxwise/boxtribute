@@ -8,6 +8,7 @@ input BoxCreationInput {
   locationId: Int!
   comment: String
   qrCode: String
+  tagIds: [Int!]
 }
 
 input BoxUpdateInput {
@@ -40,7 +41,6 @@ input BeneficiaryUpdateInput {
   id: ID!
   firstName: String
   lastName: String
-  baseId: Int
   groupIdentifier: String
   dateOfBirth: Date
   comment: String
