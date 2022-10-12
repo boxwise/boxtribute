@@ -128,7 +128,9 @@ About the versioning scheme:
 1. Please commit (at least the last commit) using the command `git commit -S -m "..."` to make your commits verifiable. See [this ticket](https://trello.com/c/kgB1H7B0) for more info
 1. Create a new list in trello named "Boxtribute 2.0 || merged to production date (v2.X.Y)"
 1. Move the cards from the list "Boxtribute 2.0 || merged to staging" to the new list
-1. Merge master into production WITHOUT creating a merge commit (we want production to have the same history as master): for this, checkout the production branch locally and run `git pull origin master`, followed by `git push origin production`
+1. Checkout the production branch and update it to the latest version: `git checkout production && git pull --tags origin production`
+1. Merge master into production WITHOUT creating a merge commit (we want production to have the same history as master): `git pull origin master`
+1. Publish the changes to the remote repo: `git push origin production`
 1. Create a verifiable tag with the version number (check out the production branch after the merge, run `git tag -s v2.X.Y` and push the tag with `git push --tags`
 
 ## Architecture overview
