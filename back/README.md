@@ -320,6 +320,8 @@ The back-end exposes the GraphQL API in two variants.
 1. The full API is consumed by our front-end at the `/graphql` endpoint (deployed to e.g. `v2-staging` subdomain).
 1. The 'query-only' API is used by our partners at `/` (for data retrieval; it is deployed on the `api*` subdomains).
 
+Starting the back-end in the former case is achieved via `main.py`, in the latter case via `api_main.py`.
+
 ### Schema documentation
 
 For building a static web documentation of the schema, see [this directory](../docs/graphql-api).
