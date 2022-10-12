@@ -16,6 +16,11 @@ def data():
 
 
 @pytest.fixture
+def organisations():
+    return data()
+
+
+@pytest.fixture
 def default_organisation():
     return data()[0]
 

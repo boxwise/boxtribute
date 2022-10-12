@@ -2,10 +2,15 @@ import pytest
 from boxtribute_server.enums import BoxState
 from boxtribute_server.models.crud import BOX_LABEL_IDENTIFIER_GENERATION_ATTEMPTS
 from boxtribute_server.models.definitions.history import DbChangeHistory
-from utils import assert_internal_server_error, assert_successful_request
+from utils import (
+    assert_bad_user_input,
+    assert_internal_server_error,
+    assert_successful_request,
+)
 
 
 def test_box_query_by_label_identifier(read_only_client, default_box, tags):
+    # Test case 8.1.1
     label_identifier = default_box["label_identifier"]
     query = f"""query {{
                 box(labelIdentifier: "{label_identifier}") {{
@@ -49,6 +54,7 @@ def test_box_query_by_label_identifier(read_only_client, default_box, tags):
 
 
 def test_box_query_by_qr_code(read_only_client, default_box, default_qr_code):
+    # Test case 8.1.5
     query = f"""query {{
                 qrCode(qrCode: "{default_qr_code['code']}") {{
                     box {{
@@ -61,21 +67,25 @@ def test_box_query_by_qr_code(read_only_client, default_box, default_qr_code):
 
 
 def test_box_mutations(
-    client, qr_code_without_box, default_size, another_size, products, default_location
+    client,
+    qr_code_without_box,
+    default_size,
+    another_size,
+    products,
+    default_location,
+    tags,
 ):
+    # Test case 8.2.1
     size_id = str(default_size["id"])
     location_id = str(default_location["id"])
     product_id = str(products[0]["id"])
-    box_creation_input_string = f"""{{
+    creation_input = f"""{{
                     productId: {product_id},
                     locationId: {location_id},
                     sizeId: {size_id},
-                    qrCode: "{qr_code_without_box["code"]}",
                 }}"""
     mutation = f"""mutation {{
-            createBox(
-                creationInput : {box_creation_input_string}
-            ) {{
+            createBox( creationInput : {creation_input} ) {{
                 id
                 labelIdentifier
                 numberOfItems
@@ -88,6 +98,8 @@ def test_box_mutations(
                 createdBy {{ id }}
                 lastModifiedOn
                 lastModifiedBy {{ id }}
+                comment
+                tags {{ id }}
             }}
         }}"""
     created_box = assert_successful_request(client, mutation)
@@ -96,10 +108,48 @@ def test_box_mutations(
     assert created_box["location"]["id"] == location_id
     assert created_box["product"]["id"] == product_id
     assert created_box["size"]["id"] == size_id
-    assert created_box["qrCode"]["id"] == str(qr_code_without_box["id"])
+    assert created_box["qrCode"] is None
     assert created_box["createdOn"] == created_box["lastModifiedOn"]
     assert created_box["createdBy"] == created_box["lastModifiedBy"]
+    assert created_box["comment"] == ""
+    assert created_box["tags"] == []
 
+    # Test case 8.2.2
+    number_of_items = 3
+    comment = "good box"
+    tag_id = str(tags[1]["id"])
+    creation_input = f"""{{
+                    productId: {product_id},
+                    locationId: {location_id},
+                    sizeId: {size_id},
+                    numberOfItems: {number_of_items}
+                    comment: "{comment}"
+                    qrCode: "{qr_code_without_box["code"]}"
+                    tagIds: [{tag_id}]
+                }}"""
+    mutation = f"""mutation {{
+            createBox( creationInput : {creation_input} ) {{
+                numberOfItems
+                location {{ id }}
+                product {{ id }}
+                size {{ id }}
+                qrCode {{ id }}
+                state
+                tags {{ id }}
+            }}
+        }}"""
+    another_created_box = assert_successful_request(client, mutation)
+    assert another_created_box == {
+        "numberOfItems": number_of_items,
+        "location": {"id": location_id},
+        "product": {"id": product_id},
+        "size": {"id": size_id},
+        "qrCode": {"id": str(qr_code_without_box["id"])},
+        "state": BoxState.InStock.name,
+        "tags": [{"id": tag_id}],
+    }
+
+    # Test case 8.2.11
     new_size_id = str(another_size["id"])
     new_product_id = str(products[2]["id"])
     comment = "updatedComment"
@@ -130,6 +180,7 @@ def test_box_mutations(
     assert updated_box["size"]["id"] == new_size_id
     assert updated_box["product"]["id"] == new_product_id
 
+    # Test cases 8.2.1, 8.2.2., 8.2.11
     history = list(
         DbChangeHistory.select(
             DbChangeHistory.changes,
@@ -152,7 +203,16 @@ def test_box_mutations(
             "record_id": box_id,
             "table_name": "stock",
             "user": 8,
-            "ip": "127.0.0.1",
+            "ip": None,
+        },
+        {
+            "changes": "Record created",
+            "from_int": None,
+            "to_int": None,
+            "record_id": box_id + 1,
+            "table_name": "stock",
+            "user": 8,
+            "ip": None,
         },
         {
             "changes": "product_id",
@@ -161,7 +221,7 @@ def test_box_mutations(
             "record_id": box_id,
             "table_name": "stock",
             "user": 8,
-            "ip": "127.0.0.1",
+            "ip": None,
         },
         {
             "changes": "size_id",
@@ -170,7 +230,7 @@ def test_box_mutations(
             "record_id": box_id,
             "table_name": "stock",
             "user": 8,
-            "ip": "127.0.0.1",
+            "ip": None,
         },
         {
             "changes": "items",
@@ -179,7 +239,7 @@ def test_box_mutations(
             "record_id": box_id,
             "table_name": "stock",
             "user": 8,
-            "ip": "127.0.0.1",
+            "ip": None,
         },
         {
             "changes": f"""comments changed from "" to "{comment}";""",
@@ -188,7 +248,7 @@ def test_box_mutations(
             "record_id": box_id,
             "table_name": "stock",
             "user": 8,
-            "ip": "127.0.0.1",
+            "ip": None,
         },
     ]
 
@@ -203,6 +263,7 @@ def _format(parameter):
 @pytest.mark.parametrize(
     "filters,number",
     [
+        # Test case 8.1.7
         [[{"states": "[InStock]"}], 1],
         [[{"states": "[Lost]"}], 1],
         [[{"states": "[MarkedForShipment]"}], 3],
@@ -247,6 +308,7 @@ def test_update_box_state(
     non_default_box_state_location,
     default_size,
 ):
+    # Test case 8.2.2a
     # creating a box in a location with box_state=NULL set the box's location to InStock
     creation_input = f"""creationInput: {{
         productId: {default_product["id"]}
@@ -257,6 +319,7 @@ def test_update_box_state(
     box = assert_successful_request(client, mutation)
     assert box["state"] == BoxState.InStock.name
 
+    # Test case 8.2.11a
     # updating to a location with box_state!=NULL should set the state on the box too
     update_input = f"""updateInput: {{
         labelIdentifier: "{box["labelIdentifier"]}"
@@ -266,6 +329,7 @@ def test_update_box_state(
     box = assert_successful_request(client, mutation)
     assert box["state"] == non_default_box_state_location["box_state"].name
 
+    # Test case 8.2.11b
     # setting it back to a location with a box_state=NULL should NOT change the box's
     # state
     update_input = f"""updateInput: {{
@@ -276,6 +340,7 @@ def test_update_box_state(
     box = assert_successful_request(client, mutation)
     assert box["state"] == non_default_box_state_location["box_state"].name
 
+    # Test case 8.2.2b
     # creating a box with an explicit box_state in a location with box_state=NULL should
     # set the box_state to that explicit box_state
     creation_input = f"""creationInput: {{
@@ -299,6 +364,7 @@ def test_box_label_identifier_generation(
     mutation = f"mutation {{ createBox({creation_input}) {{ labelIdentifier }} }}"
 
     rng_function = mocker.patch("random.choices")
+    # Test case 8.2.2c
     # Verify that box-creation fails after several attempts if newly generated
     # identifier is never unique
     rng_function.return_value = default_box["label_identifier"]
@@ -314,3 +380,65 @@ def test_box_label_identifier_generation(
     new_box = assert_successful_request(client, mutation)
     assert rng_function.call_count == len(side_effect)
     assert new_box["labelIdentifier"] == new_identifier
+
+
+@pytest.mark.parametrize(
+    "product_id,size_id,location_id,qr_code",
+    # Test cases 8.2.3, 8.2.4, 8.2.5,, 8.2.6, 8.2.12, 8.2.13, 8.2.14
+    [[0, 1, 1, "555"], [1, 0, 1, "555"], [1, 1, 0, "555"], [1, 1, 1, "000"]],
+)
+def test_mutate_box_with_non_existing_resource(
+    read_only_client, default_box, product_id, size_id, location_id, qr_code
+):
+    creation_input = f"""{{
+                    productId: {product_id},
+                    locationId: {location_id},
+                    sizeId: {size_id},
+                    qrCode: "{qr_code}"
+                }}"""
+    mutation = f"""mutation {{
+            createBox( creationInput : {creation_input} ) {{ id }} }}"""
+    assert_bad_user_input(read_only_client, mutation)
+
+    # Box QR code cannot be updated, hence no errors possible
+    if qr_code == "000":
+        return
+
+    label_identifier = default_box["label_identifier"]
+    update_input = f"""{{
+                labelIdentifier: "{label_identifier}"
+                productId: {product_id},
+                locationId: {location_id},
+                sizeId: {size_id},
+            }}"""
+    mutation = f"""mutation {{
+            updateBox( updateInput : {update_input} ) {{ id }} }}"""
+    assert_bad_user_input(read_only_client, mutation)
+
+
+def test_mutate_box_with_negative_number_of_items(
+    read_only_client, default_box, default_product, default_location, default_size
+):
+    # Test case 8.2.10
+    size_id = str(default_size["id"])
+    location_id = str(default_location["id"])
+    product_id = str(default_product["id"])
+    creation_input = f"""{{
+                    productId: {product_id},
+                    locationId: {location_id},
+                    sizeId: {size_id},
+                    numberOfItems: -3
+                }}"""
+    mutation = f"""mutation {{
+            createBox( creationInput : {creation_input} ) {{ id }} }}"""
+    assert_bad_user_input(read_only_client, mutation)
+
+    # Test case 8.2.19
+    label_identifier = default_box["label_identifier"]
+    update_input = f"""{{
+                labelIdentifier: "{label_identifier}"
+                numberOfItems: -5
+            }}"""
+    mutation = f"""mutation {{
+            updateBox( updateInput : {update_input} ) {{ id }} }}"""
+    assert_bad_user_input(read_only_client, mutation)

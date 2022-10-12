@@ -2,6 +2,7 @@ from utils import assert_successful_request
 
 
 def test_bases_query(read_only_client, default_bases, default_beneficiaries):
+    # Test case 99.1.1
     query = """query {
                 bases {
                     id
@@ -25,6 +26,7 @@ def test_bases_query(read_only_client, default_bases, default_beneficiaries):
 
 
 def test_base_query(read_only_client, default_location, default_bases):
+    # Test case 99.1.2
     test_id = 1
     query = f"""query Base {{
                 base(id: {test_id}) {{

@@ -2,7 +2,7 @@
 from datetime import datetime, timezone
 from functools import wraps
 
-from flask import g, request
+from flask import g
 from peewee import ForeignKeyField, IntegerField
 
 from ..db import db
@@ -33,7 +33,7 @@ def save_creation_to_history(f):
             table_name=new_resource._meta.table_name,
             record_id=new_resource.id,
             user=g.user.id,
-            ip=request.remote_addr,
+            ip=None,
             change_date=utcnow(),
         )
 
@@ -81,7 +81,7 @@ def save_update_to_history(*, id_field_name="id", fields):
                 entry.table_name = model._meta.table_name
                 entry.record_id = new_resource.id
                 entry.user = g.user.id
-                entry.ip = request.remote_addr
+                entry.ip = None
                 entry.change_date = now
 
                 if issubclass(field.__class__, (IntegerField, ForeignKeyField)):

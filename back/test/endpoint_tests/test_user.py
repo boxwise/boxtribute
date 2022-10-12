@@ -2,6 +2,7 @@ from utils import assert_successful_request
 
 
 def test_user_query(read_only_client, default_users, default_organisation):
+    # Test case 10.1.2
     test_id = 8
     expected_user = default_users[test_id]
 
@@ -30,5 +31,6 @@ def test_user_query(read_only_client, default_users, default_organisation):
 
 
 def test_users_query(read_only_client, default_users):
+    # Test case 10.1.1
     query = """query { users { id name } }"""
     assert assert_successful_request(read_only_client, query) == []
