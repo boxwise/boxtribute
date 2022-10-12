@@ -253,6 +253,8 @@ info:
       url: https://www.app.boxtribute.org
     - title: Query API
       url: https://api.boxtribute.org
+    - title: Query API changelog
+      url: https://github.com/boxwise/boxtribute/releases
     - title: Terms of Service
       description: |
           In line with the Service Agreement and other related documents as signed with [Boxtribute](https://boxtribute.org) (Stichting Boxwise)

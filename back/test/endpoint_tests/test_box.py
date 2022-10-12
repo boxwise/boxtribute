@@ -203,7 +203,7 @@ def test_box_mutations(
             "record_id": box_id,
             "table_name": "stock",
             "user": 8,
-            "ip": "127.0.0.1",
+            "ip": None,
         },
         {
             "changes": "Record created",
@@ -212,7 +212,7 @@ def test_box_mutations(
             "record_id": box_id + 1,
             "table_name": "stock",
             "user": 8,
-            "ip": "127.0.0.1",
+            "ip": None,
         },
         {
             "changes": "product_id",
@@ -221,7 +221,7 @@ def test_box_mutations(
             "record_id": box_id,
             "table_name": "stock",
             "user": 8,
-            "ip": "127.0.0.1",
+            "ip": None,
         },
         {
             "changes": "size_id",
@@ -230,7 +230,7 @@ def test_box_mutations(
             "record_id": box_id,
             "table_name": "stock",
             "user": 8,
-            "ip": "127.0.0.1",
+            "ip": None,
         },
         {
             "changes": "items",
@@ -239,7 +239,7 @@ def test_box_mutations(
             "record_id": box_id,
             "table_name": "stock",
             "user": 8,
-            "ip": "127.0.0.1",
+            "ip": None,
         },
         {
             "changes": f"""comments changed from "" to "{comment}";""",
@@ -248,7 +248,7 @@ def test_box_mutations(
             "record_id": box_id,
             "table_name": "stock",
             "user": 8,
-            "ip": "127.0.0.1",
+            "ip": None,
         },
     ]
 
