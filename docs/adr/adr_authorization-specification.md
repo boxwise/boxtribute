@@ -73,7 +73,42 @@ Cf. [related ADR](./docs/adr/adr_auth0.md)
 
 #### boxtribute 2.0 back-end
 
+When a user issues a request to the back-end, their authorization information needs to be pulled out and converted into a representation that can be programmatically used. Before data is accessed according to the request, the respective permissions are enforced on the current user.
+
 ##### Decoding of JWT
+
+Any valid request (i.e. by an authenticated user) to the back-end contains a JWT as `bearer` string in the HTTP authorization header. When a URL endpoint is hit, the token is extracted and decoded (in `auth.requires_auth()`)
+
+The decoding routine (`auth.decode_jwt()`) has to be provided with the public key of the Auth0 domain. The decoding fails with a 401 response if one of the following cases happen:
+
+- the token has expired
+- the token audience and issuer do not match the values stored in the back-end
+- the token decoding library fails
+
+Any other unexpected error results in a 500 response.
+
+Upon successful decoding, the JWT payload is returned as Python dictionary.
+
+##### Representation of current user
+
+The current user is programmatically represented by the `auth.CurrentUser` class. It has the read-only attributes
+
+- `id`: the user ID
+- `organisation_id`: ID of the organisation that the user belongs to. If the user is a god user, it is `None`
+- `is_god`: whether the user is god user or not (default: false)
+- `_base_ids`: a data structure indicating the bases in which the user is allowed to access specific resources. This structure has to be queried via the `CurrentUser.authorized_base_ids()` method, passing in an RBP name.
+
+The decoded JWT payload is converted into a `CurrentUser` instance with the following procedure:
+
+- if the `permissions` custom claim is a list with a single entry `"*"`, the attribute `is_god` is set to true
+- the `organisation_id` custom claim is copied to the eponymous attribute
+- the user ID is extracted from the `sub` claim and assigned to `id`
+- if `is_god` is false, the permissions custom claim is parsed:
+    - an element of form `base_X/permission` (`permission` is an RBP of form `resource:method`) results in the entry `{permission: [X]` for `base_ids`
+    - if multiple base IDs are given, they are grouped: `base_X-Y/permission` results in `{permission: [X, Y]`
+    - a `write`, `edit`, `create` permission method implies `read` permission on the same resource
+    - if the element has no `base_X` prefix, the custom claim `base_ids` is used to form an entry `{permission: base_ids}`
+    - for examples please see `CurrentUser.from_jwt()`
 
 ##### Enforcement of RBP in resolvers
 
