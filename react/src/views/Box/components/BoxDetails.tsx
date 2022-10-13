@@ -19,6 +19,7 @@ import { useGetUrlForResourceHelpers } from "utils/hooks";
 import { distroEventStateHumanReadableLabels } from "views/Distributions/baseData";
 import DistributionEventTimeRangeDisplay from "views/Distributions/components/DistributionEventTimeRangeDisplay";
 import { Tag, TagLabel, TagLeftIcon } from "@chakra-ui/react";
+import { Style } from "victory";
 
 interface BoxDetailsProps {
     boxData: BoxByLabelIdentifierQuery["box"] | UpdateLocationOfBoxMutation["updateBox"];
@@ -123,13 +124,14 @@ const BoxDetails = ({
                                 <b>{boxData.product?.gender}</b>
                             </Text>
                         </Flex>
-                    </ListItem>
-                    <ListItem>
-                        <Flex direction="row">
-                            <HStack spacing={4}>
+                        <Flex direction="row" pb={4}>
+                            <HStack spacing={2}>
                                 {boxData.tags.map((tag) => (
-                                    <Tag size="sm" key={tag.id} variant="solid">
-                                        <TagLeftIcon boxSize="12px" as={AddIcon} />
+                                    <Tag
+                                        size="sm"
+                                        key={tag.id}
+                                        bg={Style.toTransformString(tag.color)}
+                                    >
                                         <TagLabel>{tag.name}</TagLabel>
                                     </Tag>
                                 ))}
