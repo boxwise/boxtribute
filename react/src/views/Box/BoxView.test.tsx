@@ -4,6 +4,8 @@ import { render } from "utils/test-utils";
 import BTBox, {
     BOX_BY_LABEL_IDENTIFIER_QUERY,
     UPDATE_NUMBER_OF_ITEMS_IN_BOX_MUTATION,
+    UPDATE_STATE_IN_BOX_MUTATION,
+    UPDATE_BOX_MUTATION,
 } from "./BoxView";
 import userEvent from "@testing-library/user-event";
 import { gql } from "@apollo/client";
@@ -27,14 +29,6 @@ describe("Box view", () => {
                             base: {
                                 distributionEventsBeforeReturnedFromDistributionState: [],
                                 locations: [
-                                    {
-                                        id: "14",
-                                        name: "LOST",
-                                    },
-                                    {
-                                        id: "15",
-                                        name: "SCRAP",
-                                    },
                                     {
                                         id: "16",
                                         name: "Stockroom",
@@ -107,14 +101,6 @@ describe("Box view", () => {
                                 distributionEventsBeforeReturnedFromDistributionState: [],
                                 locations: [
                                     {
-                                        id: "14",
-                                        name: "LOST",
-                                    },
-                                    {
-                                        id: "15",
-                                        name: "SCRAP",
-                                    },
-                                    {
                                         id: "16",
                                         name: "Stockroom",
                                     },
@@ -186,14 +172,6 @@ describe("Box view", () => {
                                 distributionEventsBeforeReturnedFromDistributionState: [],
                                 locations: [
                                     {
-                                        id: "14",
-                                        name: "LOST",
-                                    },
-                                    {
-                                        id: "15",
-                                        name: "SCRAP",
-                                    },
-                                    {
                                         id: "16",
                                         name: "Stockroom",
                                     },
@@ -233,15 +211,7 @@ describe("Box view", () => {
         },
         {
             request: {
-                query: gql`
-                    mutation UpdateState($boxLabelIdentifier: String!, $newState: BoxState!) {
-                        updateBox(
-                            updateInput: { labelIdentifier: $boxLabelIdentifier, state: $newState }
-                        ) {
-                            labelIdentifier
-                        }
-                    }
-                `,
+                query: UPDATE_STATE_IN_BOX_MUTATION,
                 variables: {
                     boxLabelIdentifier: "189123",
                     newState: "Lost",
@@ -257,15 +227,7 @@ describe("Box view", () => {
         },
         {
             request: {
-                query: gql`
-                    mutation UpdateState($boxLabelIdentifier: String!, $newState: BoxState!) {
-                        updateBox(
-                            updateInput: { labelIdentifier: $boxLabelIdentifier, state: $newState }
-                        ) {
-                            labelIdentifier
-                        }
-                    }
-                `,
+                query: UPDATE_STATE_IN_BOX_MUTATION,
                 variables: {
                     boxLabelIdentifier: "189123",
                     newState: "Scrap",
@@ -281,78 +243,7 @@ describe("Box view", () => {
         },
         {
             request: {
-                query: gql`
-                    mutation UpdateLocationOfBox(
-                        $boxLabelIdentifier: String!
-                        $newLocationId: Int!
-                    ) {
-                        updateBox(
-                            updateInput: {
-                                labelIdentifier: $boxLabelIdentifier
-                                locationId: $newLocationId
-                            }
-                        ) {
-                            labelIdentifier
-                            size {
-                                id
-                                label
-                            }
-                            state
-                            numberOfItems
-                            product {
-                                name
-                                gender
-                                id
-                                sizeRange {
-                                    sizes {
-                                        id
-                                        label
-                                    }
-                                }
-                            }
-                            tags {
-                                id
-                                name
-                            }
-                            tags {
-                                id
-                                name
-                            }
-                            distributionEvent {
-                                id
-                                name
-                                state
-                                distributionSpot {
-                                    name
-                                }
-                                plannedStartDateTime
-                                plannedEndDateTime
-                                state
-                            }
-                            location {
-                                __typename
-                                id
-                                name
-                                base {
-                                    locations {
-                                        id
-                                        name
-                                    }
-                                    distributionEventsBeforeReturnedFromDistributionState {
-                                        id
-                                        state
-                                        distributionSpot {
-                                            name
-                                        }
-                                        name
-                                        plannedStartDateTime
-                                        plannedEndDateTime
-                                    }
-                                }
-                            }
-                        }
-                    }
-                `,
+                query: UPDATE_BOX_MUTATION,
                 variables: {
                     boxLabelIdentifier: "189123",
                     newLocationId: 17,
@@ -368,14 +259,6 @@ describe("Box view", () => {
                             base: {
                                 distributionEventsBeforeReturnedFromDistributionState: [],
                                 locations: [
-                                    {
-                                        id: "14",
-                                        name: "LOST",
-                                    },
-                                    {
-                                        id: "15",
-                                        name: "SCRAP",
-                                    },
                                     {
                                         id: "16",
                                         name: "Stockroom",
