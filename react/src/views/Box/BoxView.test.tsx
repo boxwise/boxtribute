@@ -433,25 +433,25 @@ describe("Box view", () => {
             mocks,
         });
     });
-
-    it("renders with an initial 'Loading...'", async () => {
+    // Test case 3.1.1.0
+    it("3.1.1.0 - renders with an initial 'Loading...'", async () => {
         await waitFor(waitTillLoadingIsDone);
         const loadingInfo = screen.getByTestId("loading-indicator");
         expect(loadingInfo).toBeInTheDocument();
     });
-
+    // Test case 3.1.1.1
     it("3.1.1.1 - renders Heading with valid box identifier", async () => {
         await waitFor(waitTillLoadingIsDone);
         const boxHeader = screen.getByTestId("box-header");
         expect(boxHeader).toHaveTextContent("Box 189123");
     });
-
+    // Test case 3.1.1.2
     it("3.1.1.2 - renders sub heading with valid state", async () => {
         await waitFor(waitTillLoadingIsDone);
         const boxSubheading = screen.getByTestId("box-subheader");
         expect(boxSubheading).toHaveTextContent("State: Lost");
     });
-
+    // Test case 3.1.1.2.1
     it("3.1.1.2.1 - change box state color respectfully", async () => {
         await waitFor(waitTillLoadingIsDone);
         let color;
@@ -463,7 +463,7 @@ describe("Box view", () => {
         }
         expect(screen.getByTestId("box-state")).toHaveStyle(`color: ${color}`);
     });
-
+    // Test case 3.1.1.3
     it("3.1.1.3 - click on + and - to increase or decrease number of items", async () => {
         await waitFor(waitTillLoadingIsDone);
         let numberOfItemWhenIncreased = 32;
@@ -489,7 +489,7 @@ describe("Box view", () => {
         //     );
         // });
     });
-
+    // Test case 3.1.1.4
     it("3.1.1.4 - clicking on Lost / Scrap must change box state respectfully", async () => {
         await waitFor(waitTillLoadingIsDone);
 
@@ -507,7 +507,7 @@ describe("Box view", () => {
             expect(screen.getByTestId("box-state")).toHaveStyle(`color: #EB404A`);
         });
     });
-
+    // Test case 3.1.1.5
     it("3.1.1.5 - click on a location should move box to seleted place", async () => {
         await waitFor(waitTillLoadingIsDone);
 
@@ -518,12 +518,13 @@ describe("Box view", () => {
         // });
     });
 
+    // Test case 3.1.1.6
     it("3.1.1.6 - If Distro Event Not Available it should not shown the ui section for that", async () => {
         await waitFor(waitTillLoadingIsDone);
         const distroEventSection = screen.getByTestId("distro-event-section");
         expect(distroEventSection).toBeInTheDocument();
     });
-
+    // Test case 3.1.1.7
     it("3.1.1.7 - render tags correctly if box assigned tags", async () => {
         await waitFor(waitTillLoadingIsDone);
         const boxTags = screen.getByTestId("box-tags");
