@@ -17,19 +17,19 @@ import {
     UpdateStateMutationVariables,
     UpdateStateMutation,
 } from "types/generated/graphql";
-import AddItemsToBoxOverlay from "./components/AddItemsToBoxOverlay";
-import TakeItemsFromBoxOverlay from "./components/TakeItemsFromBoxOverlay";
-import BoxDetails from "./components/BoxDetails";
 import {
     ASSIGN_BOX_TO_DISTRIBUTION_MUTATION,
     PACKING_LIST_ENTRIES_FOR_DISTRIBUTION_EVENT_QUERY,
     UNASSIGN_BOX_FROM_DISTRIBUTION_MUTATION,
 } from "views/Distributions/queries";
+import AddItemsToBoxOverlay from "./components/AddItemsToBoxOverlay";
+import TakeItemsFromBoxOverlay from "./components/TakeItemsFromBoxOverlay";
+import BoxDetails from "./components/BoxDetails";
 
 const refetchBoxByLabelIdentifierQueryConfig = (labelIdentifier: string) => ({
     query: BOX_BY_LABEL_IDENTIFIER_QUERY,
     variables: {
-        labelIdentifier: labelIdentifier,
+        labelIdentifier,
     },
 });
 
@@ -177,11 +177,11 @@ export const UPDATE_BOX_MUTATION = gql`
     }
 `;
 
-export interface ChangeNumberOfItemsBoxData {
+export interface IChangeNumberOfItemsBoxData {
     numberOfItems: number;
 }
 
-const BTBox = () => {
+function BTBox() {
     const labelIdentifier = useParams<{ labelIdentifier: string }>().labelIdentifier!;
     const { loading, error, data } = useQuery<
         BoxByLabelIdentifierQuery,
@@ -223,7 +223,7 @@ const BTBox = () => {
                 {
                     query: BOX_BY_LABEL_IDENTIFIER_QUERY,
                     variables: {
-                        labelIdentifier: labelIdentifier,
+                        labelIdentifier,
                     },
                 },
             ],
@@ -254,6 +254,7 @@ const BTBox = () => {
         assignBoxToDistributionEventMutationStatus.error ||
         unassignBoxFromDistributionEventMutationStatus.error
     ) {
+        // eslint-disable-next-line no-console
         console.error(
             "Error in BoxView Overlay: ",
             error ||
@@ -285,7 +286,7 @@ const BTBox = () => {
         });
     };
 
-    const onSubmitTakeItemsFromBox = (boxFormValues: ChangeNumberOfItemsBoxData) => {
+    const onSubmitTakeItemsFromBox = (boxFormValues: IChangeNumberOfItemsBoxData) => {
         if (
             boxFormValues.numberOfItems &&
             boxFormValues.numberOfItems > 0 &&
@@ -294,19 +295,21 @@ const BTBox = () => {
             updateNumberOfItemsMutation({
                 variables: {
                     boxLabelIdentifier: labelIdentifier,
-                    numberOfItems: boxData?.numberOfItems - boxFormValues?.numberOfItems,
+                    numberOfItems:
+                        (boxData?.numberOfItems || 0) - (boxFormValues?.numberOfItems || 0),
                 },
             })
                 .then(() => {
                     onMinusClose();
                 })
-                .catch((error) => {
-                    console.error("Error while trying to change number of items in the Box", error);
+                .catch((e) => {
+                    // eslint-disable-next-line no-console
+                    console.error("Error while trying to change number of items in the Box", e);
                 });
         }
     };
 
-    const onSubmitAddItemstoBox = (boxFormValues: ChangeNumberOfItemsBoxData) => {
+    const onSubmitAddItemstoBox = (boxFormValues: IChangeNumberOfItemsBoxData) => {
         if (
             boxFormValues.numberOfItems &&
             boxFormValues.numberOfItems > 0 &&
@@ -315,14 +318,16 @@ const BTBox = () => {
             updateNumberOfItemsMutation({
                 variables: {
                     boxLabelIdentifier: labelIdentifier,
-                    numberOfItems: boxData?.numberOfItems + boxFormValues?.numberOfItems,
+                    numberOfItems:
+                        (boxData?.numberOfItems || 0) + (boxFormValues?.numberOfItems || 0),
                 },
             })
                 .then(() => {
                     onPlusClose();
                 })
-                .catch((error) => {
-                    console.error("Error while trying to change number of items in the Box", error);
+                .catch((e) => {
+                    // eslint-disable-next-line no-console
+                    console.error("Error while trying to change number of items in the Box", e);
                 });
         }
     };
@@ -331,7 +336,7 @@ const BTBox = () => {
         updateBoxLocation({
             variables: {
                 boxLabelIdentifier: labelIdentifier,
-                newLocationId: parseInt(locationId),
+                newLocationId: parseInt(locationId, 10),
             },
             refetchQueries: [refetchBoxByLabelIdentifierQueryConfig(labelIdentifier)],
         });
@@ -341,13 +346,13 @@ const BTBox = () => {
         assignBoxToDistributionEventMutation({
             variables: {
                 boxLabelIdentifier: labelIdentifier,
-                distributionEventId: distributionEventId,
+                distributionEventId,
             },
             refetchQueries: [
                 refetchBoxByLabelIdentifierQueryConfig(labelIdentifier),
                 {
                     query: PACKING_LIST_ENTRIES_FOR_DISTRIBUTION_EVENT_QUERY,
-                    variables: { distributionEventId: distributionEventId },
+                    variables: { distributionEventId },
                 },
             ],
         });
@@ -357,13 +362,13 @@ const BTBox = () => {
         unassignBoxFromDistributionEventMutation({
             variables: {
                 boxLabelIdentifier: labelIdentifier,
-                distributionEventId: distributionEventId,
+                distributionEventId,
             },
             refetchQueries: [
                 refetchBoxByLabelIdentifierQueryConfig(labelIdentifier),
                 {
                     query: PACKING_LIST_ENTRIES_FOR_DISTRIBUTION_EVENT_QUERY,
-                    variables: { distributionEventId: distributionEventId },
+                    variables: { distributionEventId },
                 },
             ],
         });
@@ -393,6 +398,6 @@ const BTBox = () => {
             />
         </>
     );
-};
+}
 
 export default BTBox;

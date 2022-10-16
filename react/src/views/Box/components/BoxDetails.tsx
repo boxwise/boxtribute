@@ -12,16 +12,17 @@ import {
     LinkBox,
     LinkOverlay,
     HStack,
+    Tag,
+    TagLabel,
 } from "@chakra-ui/react";
 import { NavLink } from "react-router-dom";
 import { BoxByLabelIdentifierQuery, UpdateLocationOfBoxMutation } from "types/generated/graphql";
 import { useGetUrlForResourceHelpers } from "utils/hooks";
 import { distroEventStateHumanReadableLabels } from "views/Distributions/baseData";
 import DistributionEventTimeRangeDisplay from "views/Distributions/components/DistributionEventTimeRangeDisplay";
-import { Tag, TagLabel, TagLeftIcon } from "@chakra-ui/react";
 import { Style } from "victory";
 
-interface BoxDetailsProps {
+interface IBoxDetailsProps {
     boxData: BoxByLabelIdentifierQuery["box"] | UpdateLocationOfBoxMutation["updateBox"];
     onMoveToLocationClick: (locationId: string) => void;
     onPlusOpen: () => void;
@@ -32,7 +33,7 @@ interface BoxDetailsProps {
     onUnassignBoxFromDistributionEventClick: (distributionEventId: string) => void;
 }
 
-const BoxDetails = ({
+function BoxDetails({
     boxData,
     onMoveToLocationClick,
     onAssignBoxToDistributionEventClick,
@@ -41,7 +42,7 @@ const BoxDetails = ({
     onMinusOpen,
     onScrap,
     onLost,
-}: BoxDetailsProps) => {
+}: IBoxDetailsProps) {
     const statusColor = (value) => {
         let color;
         if (value === "Lost" || value === "Scrap") {
@@ -55,6 +56,7 @@ const BoxDetails = ({
     const { getDistroEventDetailUrlById } = useGetUrlForResourceHelpers();
 
     if (boxData == null) {
+        // eslint-disable-next-line no-console
         console.error("BoxDetails Component: boxData is null");
         return <Box>No data found for a box with this id</Box>;
     }
@@ -76,7 +78,7 @@ const BoxDetails = ({
             >
                 <Flex pt={2} px={4} direction="row" justifyContent="space-between">
                     <Flex direction="column" mb={2}>
-                        <Heading fontWeight={"bold"} as="h2">
+                        <Heading fontWeight="bold" as="h2">
                             Box {boxData.labelIdentifier}
                         </Heading>
                         <Flex>
@@ -100,19 +102,19 @@ const BoxDetails = ({
                 </Flex>
                 <List px={4} pb={2} spacing={2}>
                     <ListItem>
-                        <Text fontSize="xl" fontWeight={"bold"}>
+                        <Text fontSize="xl" fontWeight="bold">
                             {boxData.product?.name}
                         </Text>
                     </ListItem>
                     <ListItem>
                         <Flex alignItems="center">
                             <Box border="2px" borderRadius="0" px={2}>
-                                <Text fontSize="xl" fontWeight={"bold"}>
+                                <Text fontSize="xl" fontWeight="bold">
                                     # {boxData.numberOfItems}
                                 </Text>
                             </Box>
                             <Box border="2px" backgroundColor="#1A202C" borderRadius="0" px={2}>
-                                <Text color="#F3E4A0" fontSize="xl" fontWeight={"bold"}>
+                                <Text color="#F3E4A0" fontSize="xl" fontWeight="bold">
                                     {boxData.size.label}
                                 </Text>
                             </Box>
@@ -120,7 +122,7 @@ const BoxDetails = ({
                     </ListItem>
                     <ListItem>
                         <Flex direction="row" pb={4}>
-                            <Text fontSize="xl" fontWeight={"bold"}>
+                            <Text fontSize="xl" fontWeight="bold">
                                 <b>{boxData.product?.gender}</b>
                             </Text>
                         </Flex>
@@ -184,10 +186,8 @@ const BoxDetails = ({
                 <List>
                     <Flex wrap="wrap" justifyContent="center">
                         {boxData.location?.base?.locations
-                            ?.filter((location) => {
-                                return location.id !== boxData.location?.id;
-                            })
-                            .map((location, i) => (
+                            ?.filter((location) => location.id !== boxData.location?.id)
+                            .map((location) => (
                                 <WrapItem key={location.id} m={1}>
                                     <Button
                                         borderRadius="0px"
@@ -341,6 +341,6 @@ const BoxDetails = ({
             </Box>
         </Flex>
     );
-};
+}
 
 export default BoxDetails;

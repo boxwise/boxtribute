@@ -1,2 +1,20 @@
-src/types/generated/
 *.d.ts
+build
+coverage
+node_modules
+# temporarily disable eslint on the current code
+src/types
+src/components
+src/mocks
+src/providers
+src/utils
+src/views/AutomaticBaseSwitcher
+src/views/BaseDashboard
+src/views/BoxCreate
+src/views/BoxEdit
+src/views/Boxes
+src/views/Distributions
+!src/views/Box
+public
+craco.config.js
+*.js

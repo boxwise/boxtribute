@@ -5,15 +5,29 @@
         "plugin:import/errors",
         "plugin:import/warnings",
         "plugin:jsx-a11y/recommended",
-        "plugin:import/typescript"
+        "plugin:import/typescript",
+        "prettier"
     ],
     "plugins": ["jsx-a11y"],
+    "settings": {
+        "import/resolver": {
+            "node": {
+                "extensions": [".ts", ".tsx"],
+                "moduleDirectory": ["src", "node_modules"]
+            }
+        }
+    },
     "rules": {
-        "max-len": ["warn", { "ignoreComments": true }],
+        "max-len": ["warn", { "ignoreComments": true, "code": 200, "tabWidth": 4 }],
         "react/jsx-one-expression-per-line": "off",
         "quotes": ["error", "double"],
         "semi": ["error", "always"],
         "camelcase": ["error"],
+        "react/jsx-indent": ["error", 4],
+        "react/jsx-indent-props": ["error", 4],
+        "import/no-unresolved": [2, { "caseSensitive": true }],
+        "react/jsx-props-no-spreading": "off",
+        "no-use-before-define": ["error", { "variables": false }],
         // enforce to have interfaces/type should start with "I".
         "@typescript-eslint/naming-convention": [
             "error",
@@ -29,10 +43,10 @@
         "no-loop-func": "error",
         "indent": ["error", 4],
         "no-tabs": 0,
-        "import/no-unresolved": "warn",
         "@typescript-eslint/no-unused-vars": "warn",
         "no-unused-vars": "warn",
         "no-console": "error",
+        "import/no-cycle": ["off"],
         "no-debugger": "error",
         "no-var": "error",
         "react/react-in-jsx-scope": "off",
@@ -51,7 +65,7 @@
         // matter of preference (allows to use props.propName instead of deconstructing props first)
         "react/destructuring-assignment": "off",
         "import/no-unresolve": "off",
-        "import/no-unused-modules": ["warn", { "unusedExports": true }],
+        "import/no-unused-modules": "off",
         "@typescript-eslint/explicit-function-return-type": "off",
         "lines-between-class-members": "off",
         // react hook rules
