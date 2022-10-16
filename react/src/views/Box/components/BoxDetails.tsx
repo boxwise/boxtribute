@@ -11,7 +11,11 @@ import {
     WrapItem,
     LinkBox,
     LinkOverlay,
+    HStack,
+    Tag,
+    TagLabel,
 } from "@chakra-ui/react";
+import { Style } from "victory";
 import { NavLink } from "react-router-dom";
 import { BoxByLabelIdentifierQuery, UpdateLocationOfBoxMutation } from "types/generated/graphql";
 import { useGetUrlForResourceHelpers } from "utils/hooks";
@@ -125,17 +129,19 @@ const BoxDetails = ({
                                 <b>{boxData.product?.gender}</b>
                             </Text>
                         </Flex>
-                    </ListItem>
-                    <ListItem data-testid="box-tags">
-                        {boxData.tags.length > 0 && (
-                            <Flex direction="row">
-                                {boxData.tags.map((tag, i) => (
-                                    <Text key={tag.id} mr={2}>
-                                        #{tag.name}
-                                    </Text>
+                        <Flex direction="row" pb={4}>
+                            <HStack spacing={2} data-testid="box-tags">
+                                {boxData.tags.map((tag) => (
+                                    <Tag
+                                        size="sm"
+                                        key={tag.id}
+                                        bg={Style.toTransformString(tag.color)}
+                                    >
+                                        <TagLabel>{tag.name}</TagLabel>
+                                    </Tag>
                                 ))}
-                            </Flex>
-                        )}
+                            </HStack>
+                        </Flex>
                     </ListItem>
                     <ListItem>
                         <Flex justifyContent="space-between">

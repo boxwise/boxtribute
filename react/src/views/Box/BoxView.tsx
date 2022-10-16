@@ -139,6 +139,7 @@ export const UPDATE_BOX_MUTATION = gql`
             tags {
                 id
                 name
+                color
             }
             distributionEvent {
                 id
