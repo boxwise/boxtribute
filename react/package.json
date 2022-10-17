@@ -20,7 +20,7 @@
         "@sentry/tracing": "^7.15.0",
         "@zxing/browser": "^0.1.1",
         "@zxing/library": "^0.19.1",
-        "chakra-react-select": "^4.2.5",
+        "chakra-react-select": "^4.3.0",
         "date-fns": "^2.29.3",
         "framer-motion": "^6.3.10",
         "graphql": "^16.6.0",
