@@ -24,111 +24,102 @@ import DistributionReturnTrackingsView from "views/Distributions/DistributionRet
 import CreateDirectDistributionEventView from "views/Distributions/CreateDirectDistributionEventView/CreateDirectDistributionEventView";
 
 const useLoadAndSetAvailableBases = () => {
-    const BASES_QUERY = gql`
-        query Bases {
-            bases {
-                id
-                name
-            }
-        }
-    `;
+  const BASES_QUERY = gql`
+    query Bases {
+      bases {
+        id
+        name
+      }
+    }
+  `;
 
-    const { getAccessTokenSilently } = useAuth0();
+  const { getAccessTokenSilently } = useAuth0();
 
-    const [runBaseQuery, { loading, data }] = useLazyQuery<BasesQuery>(BASES_QUERY);
-    const { globalPreferences, dispatch } = useContext(GlobalPreferencesContext);
+  const [runBaseQuery, { loading, data }] = useLazyQuery<BasesQuery>(BASES_QUERY);
+  const { globalPreferences, dispatch } = useContext(GlobalPreferencesContext);
 
-    useEffect(() => {
-        if (globalPreferences.availableBases == null) {
-            runBaseQuery();
-        }
-    }, [runBaseQuery, globalPreferences.availableBases]);
+  useEffect(() => {
+    if (globalPreferences.availableBases == null) {
+      runBaseQuery();
+    }
+  }, [runBaseQuery, globalPreferences.availableBases]);
 
-    useEffect(() => {
-        if (!loading && data != null) {
-            const { bases } = data;
-            dispatch({
-                type: "setAvailableBases",
-                payload: bases,
-            });
-        }
-    }, [data, loading, dispatch]);
+  useEffect(() => {
+    if (!loading && data != null) {
+      const { bases } = data;
+      dispatch({
+        type: "setAvailableBases",
+        payload: bases,
+      });
+    }
+  }, [data, loading, dispatch]);
 
-    useEffect(() => {
-        const getToken = async () => {
-            const token = await getAccessTokenSilently();
-            const decodedToken = jwt<{
-                "https://www.boxtribute.com/organisation_id": string;
-            }>(token);
-            const organisationId = decodedToken["https://www.boxtribute.com/organisation_id"];
-            dispatch({
-                type: "setOrganisationId",
-                payload: organisationId,
-            });
-        };
-        getToken();
-    }, [dispatch, getAccessTokenSilently]);
+  useEffect(() => {
+    const getToken = async () => {
+      const token = await getAccessTokenSilently();
+      const decodedToken = jwt<{
+        "https://www.boxtribute.com/organisation_id": string;
+      }>(token);
+      const organisationId = decodedToken["https://www.boxtribute.com/organisation_id"];
+      dispatch({
+        type: "setOrganisationId",
+        payload: organisationId,
+      });
+    };
+    getToken();
+  }, [dispatch, getAccessTokenSilently]);
 };
 
 function App() {
-    useLoadAndSetAvailableBases();
-    return (
-        <Routes>
-            <Route path="/">
-                <Route index element={<AutomaticBaseSwitcher />} />
-                <Route path="bases" element={<Layout />}>
-                    <Route index element={<AutomaticBaseSwitcher />} />
-                    <Route path=":baseId">
-                        <Route index element={<BaseDashboardView />} />
-                        <Route path="boxes">
-                            <Route index element={<Boxes />} />
-                            {/* TODO: uncomment this once we have finished/tested the Create Box feature sufficiently */}
-                            {/* <Route path="create" element={<BoxCreateView />} /> */}
-                            <Route path=":labelIdentifier">
-                                <Route index element={<BTBox />} />
-                                <Route path="edit" element={<BoxEditView />} />
-                            </Route>
-                        </Route>
-                        <Route path="distributions">
-                            <Route index element={<DistrosDashboardView />} />
-                            <Route path="return-trackings">
-                                <Route index element={<DistributionReturnTrackingsView />} />
-                                <Route
-                                    path=":trackingGroupId"
-                                    element={<DistrosReturnTrackingGroupView />}
-                                />
-                            </Route>
-                            <Route path="events">
-                                <Route
-                                    path="create"
-                                    element={<CreateDirectDistributionEventView />}
-                                />
-                                <Route path=":eventId">
-                                    <Route index element={<DistroEventView />} />
-                                </Route>
-                            </Route>
-                            <Route path="spots">
-                                <Route index element={<DistroSpotsView />} />
-                                <Route path="create" element={<CreateDistributionSpotView />} />
-                                <Route path=":distributionSpotId">
-                                    <Route index element={<DistroSpotView />} />
-                                    <Route path="events">
-                                        <Route path=":eventId">
-                                            <Route index element={<DistroEventView />} />
-                                        </Route>
-                                        <Route
-                                            path="create"
-                                            element={<CreateDistributionEventView />}
-                                        />
-                                    </Route>
-                                </Route>
-                            </Route>
-                        </Route>
-                    </Route>
-                </Route>
+  useLoadAndSetAvailableBases();
+  return (
+    <Routes>
+      <Route path="/">
+        <Route index element={<AutomaticBaseSwitcher />} />
+        <Route path="bases" element={<Layout />}>
+          <Route index element={<AutomaticBaseSwitcher />} />
+          <Route path=":baseId">
+            <Route index element={<BaseDashboardView />} />
+            <Route path="boxes">
+              <Route index element={<Boxes />} />
+              {/* TODO: uncomment this once we have finished/tested the Create Box feature sufficiently */}
+              {/* <Route path="create" element={<BoxCreateView />} /> */}
+              <Route path=":labelIdentifier">
+                <Route index element={<BTBox />} />
+                <Route path="edit" element={<BoxEditView />} />
+              </Route>
             </Route>
-        </Routes>
-    );
+            <Route path="distributions">
+              <Route index element={<DistrosDashboardView />} />
+              <Route path="return-trackings">
+                <Route index element={<DistributionReturnTrackingsView />} />
+                <Route path=":trackingGroupId" element={<DistrosReturnTrackingGroupView />} />
+              </Route>
+              <Route path="events">
+                <Route path="create" element={<CreateDirectDistributionEventView />} />
+                <Route path=":eventId">
+                  <Route index element={<DistroEventView />} />
+                </Route>
+              </Route>
+              <Route path="spots">
+                <Route index element={<DistroSpotsView />} />
+                <Route path="create" element={<CreateDistributionSpotView />} />
+                <Route path=":distributionSpotId">
+                  <Route index element={<DistroSpotView />} />
+                  <Route path="events">
+                    <Route path=":eventId">
+                      <Route index element={<DistroEventView />} />
+                    </Route>
+                    <Route path="create" element={<CreateDistributionEventView />} />
+                  </Route>
+                </Route>
+              </Route>
+            </Route>
+          </Route>
+        </Route>
+      </Route>
+    </Routes>
+  );
 }
 
 export default App;

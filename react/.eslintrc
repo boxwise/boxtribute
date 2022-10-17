@@ -1,96 +1,99 @@
 {
-    "extends": [
-        "react-app",
-        "airbnb",
-        "plugin:import/errors",
-        "plugin:import/warnings",
-        "plugin:jsx-a11y/recommended",
-        "plugin:import/typescript",
-        "prettier"
+  "extends": [
+    "react-app",
+    "airbnb",
+    "plugin:import/errors",
+    "plugin:import/warnings",
+    "plugin:jsx-a11y/recommended",
+    "plugin:import/typescript",
+    "prettier"
+  ],
+  "plugins": ["jsx-a11y"],
+  "settings": {
+    "import/resolver": {
+      "node": {
+        "extensions": [".ts", ".tsx"],
+        "moduleDirectory": ["src", "node_modules"]
+      }
+    }
+  },
+  "rules": {
+    "max-len": [
+      "warn",
+      { "ignoreComments": true, "ignorePattern": "^import .*", "code": 100, "tabWidth": 2 }
     ],
-    "plugins": ["jsx-a11y"],
-    "settings": {
-        "import/resolver": {
-            "node": {
-                "extensions": [".ts", ".tsx"],
-                "moduleDirectory": ["src", "node_modules"]
-            }
+    "react/jsx-one-expression-per-line": "off",
+    "quotes": ["error", "double"],
+    "semi": ["error", "always"],
+    "camelcase": ["error"],
+    "react/jsx-indent": ["error", 2],
+    "react/jsx-indent-props": ["error", 2],
+    "import/no-unresolved": [2, { "caseSensitive": true }],
+    "react/jsx-props-no-spreading": "off",
+    "no-use-before-define": ["error", { "variables": false }],
+    // enforce to have interfaces/type should start with "I".
+    "@typescript-eslint/naming-convention": [
+      "error",
+      {
+        "selector": "interface",
+        "format": ["PascalCase"],
+        "custom": {
+          "regex": "^I[A-Z]",
+          "match": true
         }
-    },
-    "rules": {
-        "max-len": ["warn", { "ignoreComments": true, "code": 200, "tabWidth": 4 }],
-        "react/jsx-one-expression-per-line": "off",
-        "quotes": ["error", "double"],
-        "semi": ["error", "always"],
-        "camelcase": ["error"],
-        "react/jsx-indent": ["error", 4],
-        "react/jsx-indent-props": ["error", 4],
-        "import/no-unresolved": [2, { "caseSensitive": true }],
-        "react/jsx-props-no-spreading": "off",
-        "no-use-before-define": ["error", { "variables": false }],
-        // enforce to have interfaces/type should start with "I".
-        "@typescript-eslint/naming-convention": [
-            "error",
-            {
-                "selector": "interface",
-                "format": ["PascalCase"],
-                "custom": {
-                    "regex": "^I[A-Z]",
-                    "match": true
-                }
-            }
-        ],
-        "no-loop-func": "error",
-        "indent": ["error", 4],
-        "no-tabs": 0,
-        "@typescript-eslint/no-unused-vars": "warn",
-        "no-unused-vars": "warn",
-        "no-console": "error",
-        "import/no-cycle": ["off"],
-        "no-debugger": "error",
-        "no-var": "error",
-        "react/react-in-jsx-scope": "off",
-        // matter of preference
-        "import/prefer-default-export": "off",
-        // import/no-named-as-default disabled as it prevents a common pattern of exporting
-        // non-connected redux components for testing and then exporting
-        // the connected component as the default export
-        // see https://github.com/benmosher/eslint-plugin-import/issues/544
-        "import/no-named-as-default": "off",
-        // codebase uses prop types some times and not others
-        "react/prop-types": "off",
-        // should be turned on eventually, but not compatible with current codebase
-        "no-shadow": "warn",
-        "object-curly-newline": "off",
-        // matter of preference (allows to use props.propName instead of deconstructing props first)
-        "react/destructuring-assignment": "off",
-        "import/no-unresolve": "off",
-        "import/no-unused-modules": "off",
-        "@typescript-eslint/explicit-function-return-type": "off",
-        "lines-between-class-members": "off",
-        // react hook rules
-        "react-hooks/rules-of-hooks": "error",
-        "react-hooks/exhaustive-deps": "error",
-        // suport for jsx files
-        "react/jsx-filename-extension": [1, { "extensions": [".js", ".jsx", ".ts", ".tsx"] }],
-        "import/extensions": [
-            "error",
-            "ignorePackages",
-            {
-                "js": "never",
-                "jsx": "never",
-                "ts": "never",
-                "tsx": "never"
-            }
-        ]
-    },
-    "overrides": [
-        {
-            "extends": "react-app",
-            "files": ["**/*.stories.*"],
-            "rules": {
-                "import/no-anonymous-default-export": "off"
-            }
-        }
+      }
+    ],
+    "no-loop-func": "error",
+    "indent": ["error", 2],
+    "no-tabs": 0,
+    "@typescript-eslint/no-unused-vars": "warn",
+    "no-unused-vars": "warn",
+    "no-console": "error",
+    "import/no-cycle": ["off"],
+    "no-debugger": "error",
+    "no-var": "error",
+    "react/react-in-jsx-scope": "off",
+    // matter of preference
+    "import/prefer-default-export": "off",
+    // import/no-named-as-default disabled as it prevents a common pattern of exporting
+    // non-connected redux components for testing and then exporting
+    // the connected component as the default export
+    // see https://github.com/benmosher/eslint-plugin-import/issues/544
+    "import/no-named-as-default": "off",
+    // codebase uses prop types some times and not others
+    "react/prop-types": "off",
+    // should be turned on eventually, but not compatible with current codebase
+    "no-shadow": "warn",
+    "object-curly-newline": "off",
+    // matter of preference (allows to use props.propName instead of deconstructing props first)
+    "react/destructuring-assignment": "off",
+    "import/no-unresolve": "off",
+    "import/no-unused-modules": "off",
+    "@typescript-eslint/explicit-function-return-type": "off",
+    "lines-between-class-members": "off",
+    // react hook rules
+    "react-hooks/rules-of-hooks": "error",
+    "react-hooks/exhaustive-deps": "error",
+    // suport for jsx files
+    "react/jsx-filename-extension": [1, { "extensions": [".js", ".jsx", ".ts", ".tsx"] }],
+    "import/extensions": [
+      "error",
+      "ignorePackages",
+      {
+        "js": "never",
+        "jsx": "never",
+        "ts": "never",
+        "tsx": "never"
+      }
     ]
+  },
+  "overrides": [
+    {
+      "extends": "react-app",
+      "files": ["**/*.stories.*"],
+      "rules": {
+        "import/no-anonymous-default-export": "off"
+      }
+    }
+  ]
 }
