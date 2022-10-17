@@ -1,3 +1,4 @@
+/* eslint-disable import/no-extraneous-dependencies */
 import "regenerator-runtime/runtime";
 import React, { useContext, useEffect } from "react";
 import { Route, Routes } from "react-router-dom";
@@ -34,8 +35,7 @@ const useLoadAndSetAvailableBases = () => {
 
   const { getAccessTokenSilently } = useAuth0();
 
-  const [runBaseQuery, { loading, data }] =
-    useLazyQuery<BasesQuery>(BASES_QUERY);
+  const [runBaseQuery, { loading, data }] = useLazyQuery<BasesQuery>(BASES_QUERY);
   const { globalPreferences, dispatch } = useContext(GlobalPreferencesContext);
 
   useEffect(() => {
@@ -46,7 +46,7 @@ const useLoadAndSetAvailableBases = () => {
 
   useEffect(() => {
     if (!loading && data != null) {
-      const bases = data.bases;
+      const { bases } = data;
       dispatch({
         type: "setAvailableBases",
         payload: bases,
@@ -60,8 +60,7 @@ const useLoadAndSetAvailableBases = () => {
       const decodedToken = jwt<{
         "https://www.boxtribute.com/organisation_id": string;
       }>(token);
-      const organisationId =
-        decodedToken["https://www.boxtribute.com/organisation_id"];
+      const organisationId = decodedToken["https://www.boxtribute.com/organisation_id"];
       dispatch({
         type: "setOrganisationId",
         payload: organisationId,
@@ -71,14 +70,14 @@ const useLoadAndSetAvailableBases = () => {
   }, [dispatch, getAccessTokenSilently]);
 };
 
-const App = () => {
+function App() {
   useLoadAndSetAvailableBases();
   return (
     <Routes>
       <Route path="/">
-        <Route index element={<AutomaticBaseSwitcher />}></Route>
+        <Route index element={<AutomaticBaseSwitcher />} />
         <Route path="bases" element={<Layout />}>
-          <Route index element={<AutomaticBaseSwitcher />}></Route>
+          <Route index element={<AutomaticBaseSwitcher />} />
           <Route path=":baseId">
             <Route index element={<BaseDashboardView />} />
             <Route path="boxes">
@@ -94,13 +93,10 @@ const App = () => {
               <Route index element={<DistrosDashboardView />} />
               <Route path="return-trackings">
                 <Route index element={<DistributionReturnTrackingsView />} />
-                <Route
-                  path=":trackingGroupId"
-                  element={<DistrosReturnTrackingGroupView />}
-                />
+                <Route path=":trackingGroupId" element={<DistrosReturnTrackingGroupView />} />
               </Route>
               <Route path="events">
-                <Route path="create" element={<CreateDirectDistributionEventView/>}/>
+                <Route path="create" element={<CreateDirectDistributionEventView />} />
                 <Route path=":eventId">
                   <Route index element={<DistroEventView />} />
                 </Route>
@@ -114,10 +110,7 @@ const App = () => {
                     <Route path=":eventId">
                       <Route index element={<DistroEventView />} />
                     </Route>
-                    <Route
-                      path="create"
-                      element={<CreateDistributionEventView />}
-                    />
+                    <Route path="create" element={<CreateDistributionEventView />} />
                   </Route>
                 </Route>
               </Route>
@@ -127,6 +120,6 @@ const App = () => {
       </Route>
     </Routes>
   );
-};
+}
 
 export default App;
