@@ -33,17 +33,17 @@ Please check out [**Contribution Guidelines**](CONTRIBUTING.md) before you get s
 
 ## How do I get set up?
 
-:star2: *Only TWO commands required to get the full-stack app up and running* :star2:
+:star2: _Only TWO commands required to get the full-stack app up and running_ :star2:
 
 At the end of this section, there are links to further instructions to set up additional tools for your front-end and back-end environment.
 
-1. Environment variables are managed in a single file. Therefore copy `example.env` into `.env`
+1.  Environment variables are managed in a single file. Therefore copy `example.env` into `.env`
 
-1. To build and start the involved Docker services, execute
+1.  To build and start the involved Docker services, execute
 
         docker-compose up
 
-1. Open your web browser on `http://localhost:3000`
+1.  Open your web browser on `http://localhost:3000`
 
 **NB: In case you get out-of-memory related errors, make sure your max memory is at least 4GB in your Docker settings (via _Docker Settings UI -> Resources -> Memory_) and try again.**
 In (Linux) Docker there is no UI to set the memory limits globally. In that case, please specify the following in `docker-compose.yml`:
@@ -121,6 +121,7 @@ circleci local execute --job JOB_NAME
 ### Deployment
 
 About the versioning scheme:
+
 - major version is always 2
 - minor version is incremented if any database migration is part of the release
 - "bugfix" version is incremented otherwise
@@ -173,6 +174,10 @@ See the [LICENSE file](./LICENSE.md) for license rights and limitations (Apache 
 
 ## Sponsors
 
-This project is funded by the German Federal Ministry of Education and Research (BMBF). Read more [here](https://prototypefund.de/project/boxtribute-api-fuer-datenbankzugriff-und-optimierten-austausch-von-hilfsguetern/) (German only).
+This project is funded by the German Federal Ministry of Education and Research (BMBF). Read more here (German only):
+
+- [API für Datenbankzugriff und optimerten Austausch von Hilfsgütern](https://prototypefund.de/project/boxtribute-api-fuer-datenbankzugriff-und-optimierten-austausch-von-hilfsguetern/)
+- [Erweiterung zur Unterstützung von Transient Refugees](https://prototypefund.de/project/erweiterung-von-boxtribute-zur-unterstuetzung-von-transient-refugees/)
+- [Boxtribute 2.0](https://prototypefund.de/project/boxtribute-2-0/)
 
 ![BMBF logo](docs/bmbf.jpg)

@@ -11,24 +11,24 @@ import {
   ModalOverlay,
 } from "@chakra-ui/react";
 import { useForm } from "react-hook-form";
-import { ChangeNumberOfItemsBoxData } from "../BoxView";
+import { IChangeNumberOfItemsBoxData } from "../BoxView";
 
-interface PropsAddItemsToBoxOverlay {
+interface IPropsAddItemsToBoxOverlay {
   isOpen: boolean;
   onClose: () => void;
-  onSubmitAddItemstoBox: (data: ChangeNumberOfItemsBoxData) => void;
+  onSubmitAddItemstoBox: (data: IChangeNumberOfItemsBoxData) => void;
 }
 
-const AddItemsToBoxOverlay = ({
+function AddItemsToBoxOverlay({
   isOpen,
   onClose,
   onSubmitAddItemstoBox,
-}: PropsAddItemsToBoxOverlay) => {
+}: IPropsAddItemsToBoxOverlay) {
   const {
     register,
     handleSubmit,
     formState: { isSubmitting },
-  } = useForm<ChangeNumberOfItemsBoxData>({});
+  } = useForm<IChangeNumberOfItemsBoxData>({});
 
   return (
     <Modal isOpen={isOpen} onClose={onClose}>
@@ -52,12 +52,7 @@ const AddItemsToBoxOverlay = ({
                   valueAsNumber: true,
                 })}
               />
-              <Button
-                px={6}
-                borderRadius="0"
-                type="submit"
-                isLoading={isSubmitting}
-              >
+              <Button px={6} borderRadius="0" type="submit" isLoading={isSubmitting}>
                 Submit
               </Button>
             </Flex>
@@ -67,6 +62,6 @@ const AddItemsToBoxOverlay = ({
       </ModalContent>
     </Modal>
   );
-};
+}
 
 export default AddItemsToBoxOverlay;

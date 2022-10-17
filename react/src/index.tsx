@@ -1,8 +1,6 @@
 import React from "react";
 import ReactDOM from "react-dom";
 import { BrowserRouter } from "react-router-dom";
-import ApolloAuth0Provider from "./providers/ApolloAuth0Provider";
-import App from "./App";
 import { ChakraProvider, CSSReset, extendTheme } from "@chakra-ui/react";
 import { withAuthenticationRequired } from "@auth0/auth0-react";
 import { GlobalPreferencesProvider } from "providers/GlobalPreferencesProvider";
@@ -10,8 +8,11 @@ import Auth0ProviderWithHistory from "providers/Auth0ProviderWithHistory";
 import * as Sentry from "@sentry/react";
 import { BrowserTracing } from "@sentry/tracing";
 import { CaptureConsole } from "@sentry/integrations";
+import App from "./App";
+import ApolloAuth0Provider from "./providers/ApolloAuth0Provider";
 
 if (process.env.NODE_ENV === "development") {
+  // eslint-disable-next-line global-require
   const { worker } = require("./mocks/browser");
 
   // worker.use(
@@ -140,7 +141,7 @@ ReactDOM.render(
       </Auth0ProviderWithHistory>
     </BrowserRouter>
   </ChakraProvider>,
-  document.getElementById("root")
+  document.getElementById("root"),
 );
 
 // If you want your app to work offline and load faster, you can change
