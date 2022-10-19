@@ -1,4 +1,5 @@
 """Setup for logging in Google Cloud."""
+import logging
 import os
 
 from flask import request
@@ -23,4 +24,6 @@ def log_request_to_gcloud():
         # Render function ineffective if logger not defined
         return
 
-    request_logger.log_struct(request.get_json())
+    request_logger.log_struct(request.get_json(), severity=logging.INFO)
+    request_logger.log_struct(request.get_json(), severity=logging.WARN)
+    request_logger.log_struct(request.get_json(), severity=logging.ERROR)
