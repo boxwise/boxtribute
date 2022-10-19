@@ -35,14 +35,13 @@ def authorize(
         try:
             # Look up base IDs for given permission
             base_ids = current_user.authorized_base_ids(permission)
-            authorized = True
         except KeyError:
             # Permission not granted for user
             authorized = False
 
-        if not base_ids:
-            # Permission field exists but no access for any base granted
-            authorized = False
+        if base_ids:
+            # Permission field exists and access for at least one base granted
+            authorized = True
 
         if authorized and base_id is not None:
             # Enforce base-specific permission
