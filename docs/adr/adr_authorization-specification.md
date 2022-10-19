@@ -112,4 +112,18 @@ The decoded JWT payload is converted into a `CurrentUser` instance with the foll
 
 ##### Enforcement of RBP in resolvers
 
+GraphQL resolvers are functions which are called by the GraphQL server to resolve the requested fields on the data level. Resolvers allow fine-grained access over data resources and hence are suited to enforce RBP.
+
+Enforcement of RBP in the resolvers has to be explicitly called by developers using the `authz.authorize()` function. If the current user is authorized to access a resource acc. to the given arguments, the function returns, otherwise it raises an `exceptions.Forbidden` exception, resulting in an error for the particular GraphQL field being resolved. If the current user is a god user, the function instantly returns. `authz.authorize()` accepts the following combination of arguments (the developer must select the one suitable for the enforcement context):
+
+Arguments | Types | Description | Condition for successful authorization
+:--- | :--- | :--- | :---
+`permission` | string | RBP name, e.g. `category:read` | the current user was granted the given permission in at least one base
+`permission` and `base_id` | string and integer | RBP name and base ID | the current user was granted the given permission in the specified base
+`organisation_id` | integer | organisation ID | the current user is member of the organisation with given ID
+`organisation_ids` | list of integers | organisation IDs | the current user is member of one of the organisations with given IDs
+`user_id` | integer | user ID | the current user's ID matches the given user ID
+
+Any other combination of arguments can be handled by the function but is considered a development error. If no arguments are given, the function raises an exception.
+
 ## Consequences
