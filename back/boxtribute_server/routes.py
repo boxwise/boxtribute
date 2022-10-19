@@ -56,7 +56,7 @@ def query_api_server():
 
     log_request_to_gcloud()
 
-    return execute_async(schema=query_api_schema)
+    return execute_async(schema=query_api_schema, introspection=True)
 
 
 @api_bp.route("/token", methods=["POST"])
@@ -89,7 +89,7 @@ def graphql_server():
     return execute_async(schema=full_api_schema)
 
 
-def execute_async(*, schema):
+def execute_async(*, schema, introspection=None):
     """Create coroutine and execute it with high-level `asyncio.run` which takes care of
     managing the asyncio event loop, finalizing asynchronous generators, and closing
     the threadpool.
@@ -113,7 +113,7 @@ def execute_async(*, schema):
             data=request.get_json(),
             context_value=context,
             debug=current_app.debug,
-            introspection=current_app.debug,
+            introspection=current_app.debug if introspection is None else introspection,
             error_formatter=format_database_errors,
         )
         return results
