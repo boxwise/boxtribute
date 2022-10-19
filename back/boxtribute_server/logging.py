@@ -8,7 +8,7 @@ if os.getenv("CI") == "true" or os.getenv("environment") == "development":
     # Skip logger initialization when running tests in CircleCI, or during local
     # development
     request_logger = None
-else:
+else:  # pragma: no cover
     # Initializing client requires Google credentials to be set (they automatically are
     # in the GOOGLE_APPLICATION_CREDENTIALS environment variable when the app is
     # deployed on App Engine).
@@ -23,4 +23,4 @@ def log_request_to_gcloud():
         # Render function ineffective if logger not defined
         return
 
-    request_logger.log_struct(request.get_json(), severity="INFO")
+    request_logger.log_struct(request.get_json(), severity="INFO")  # pragma: no cover
