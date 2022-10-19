@@ -52,6 +52,9 @@ def query_api_playground():
 @cross_origin(origin="localhost", headers=["Content-Type", "Authorization"])
 @requires_auth
 def query_api_server():
+    from .logging import request_logger
+
+    request_logger.log_struct(request.get_json()["query"])
     return execute_async(schema=query_api_schema)
 
 

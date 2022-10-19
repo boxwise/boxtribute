@@ -344,6 +344,7 @@ workflows:
             branches:
               only:
                 - master
+                - feature/976-logging-of-graphql-queries-in-google
                 - production
 
       # staging
@@ -376,6 +377,7 @@ workflows:
             branches:
               only:
                 - master
+                - feature/976-logging-of-graphql-queries-in-google
 
       # demo - runs on any commit to the production branch
       - build-and-test-react:
