@@ -35,11 +35,15 @@ The `boxtribute` partner organisations operate in one or more sites each, called
 
 #### Usergroups
 
-- list of existing usergroups and what roles they reflect in the partner organisations
-    - Head of operations
-    - Coordinator
-    - Volunteer
-    - God user
+A usergroup reflects the user's responsibilities in the partner organisations. Currently, these usergroups exist:
+
+- administrator (head of operations)
+- coordinator
+- warehouse volunteer
+- free shop volunteer
+- library volunteer
+- label creator
+- God user
 
 #### Permissions
 
@@ -64,20 +68,46 @@ The mapping of usergroup to ABPs, and ABP to RBPs is listed in [this document](h
 
 ### User management in Auth0
 
-#### What is Auth0
+[Auth0](https://auth0.com) is a service for managing user authentication and authorization. It serves as single source of truth. An authenticated user gets issued a JSON Web Token (JWT) holding their authorization information. For signing the JWT we use the RS256 algorithm: the token will be signed with our private signing key and can be verified using our public signing key.
+
+#### Reasons to use Auth0
 
 Cf. [related ADR](./docs/adr/adr_auth0.md)
 
 #### User entity in Auth0
 
-- list user attributes stored in Auth0
-- explain how users are managed
-- explain assignment of permissions via action script
+Any user registered for boxtribute has their authorization data (`app_metadata`) stored in the Auth0 database. The user attributes are:
+
+- `is_god`: `"1"` for god user, `"0"` otherwise
+- `usergroup_id`: the ID of the usergroup the user belongs to
+- `base_ids`: a list of base IDs that the user has access to
+- `organisation_id`: the ID of the organisation the user belongs to
+
+During registration, the user gets assigned a role, indicating their usergroup and the bases they belong to. The role is named like `base_1_coordinator`.
+
+From the user's role the ABPs are derived via a script (?).
+
+When the user has successfully logged in, an Auth0 post-login action script runs. The script creates a JWT with the content derived from user authorization data and their role.
+Most importantly the script creates base-specific RBPs for the current user (see below about their format).
 
 #### Specification of custom JWT
 
-- explain usage of asymmetric encryption (public and private key)
-- explain structure (claims email, organisation_id, base_ids, roles, permissions)
+The JWT contains standard and customs fields.
+
+Field name | Kind | Description | Usage
+:--- | :--- | :--- | :---
+`iss` | standard | Name of token issuer | JWT decoding
+`aud` | standard | Name of token audience | JWT decoding
+`iat` | standard | Unix timestamp of issuing datetime | -
+`exp` | standard | Unix timestamp of expiration datetime | JWT decoding
+`azp` | standard | ID of client through which the JWT was requested | traceability of application used for authentication
+`gty` | standard | Grant type | -
+`sub` | standard | User ID | see below
+`https://www.boxtribute.com/email` | custom | User email | -
+`https://www.boxtribute.com/roles` | custom | List of user's roles | -
+`https://www.boxtribute.com/base_ids` | custom | List of IDs of bases that the user has access to | see below
+`https://www.boxtribute.com/organisation_id` | custom | ID of the organisation the user belongs to | see below
+`https://www.boxtribute.com/permissions` | custom | List of RBPs that the user holds | see below
 
 ### Implementation of authorization
 
