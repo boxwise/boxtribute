@@ -1,6 +1,6 @@
-# ADR: Python Development Environment
+# ADR: Authorization Specification
 
-Trello card:
+[Trello card](https://trello.com/c/kypUAjlw/747-20-create-agile-design-documents-artifacts-about-authorization-implementation)
 
 Decision deadline: irrelevant since implementation pending
 
