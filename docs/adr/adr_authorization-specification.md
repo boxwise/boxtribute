@@ -31,7 +31,7 @@ The current document serves as a summary of decisions about user authorization i
 
 #### Organisation and base
 
-- briefly explain the structure
+The `boxtribute` partner organisations operate in one or more sites each, called `bases`. Any registered user belongs to exactly one organisation, and one or more bases subordinated to this organisation. Hence they must not be granted access to any resource outside of the organisation or bases they're assigned to (there are exceptions to this rule depending on the context, e.g. for box transfers).
 
 #### Usergroups
 
@@ -43,10 +43,24 @@ The current document serves as a summary of decisions about user authorization i
 
 #### Permissions
 
-- action-based permissions (ABP)
-- resource-based permissions (RBP)
-- connection between usergroup and ABP
-- connection between ABP and RBP
+Depending on the user group, a user is able to perform certain actions. In our authorization concept, these actions are mirrored by action-based permissions (ABP).
+ABPs represent functions in the application that the user who was granted the ABPs can execute. Examples: viewing the inventory, or managing products. The name of an ABP consists of a verb indicating the action, and a plural noun (if applicable), separated by underscore: `manage_products`, `view_inventory`, etc.
+
+In the application back-end however it needs to be distinguished which data a user is allowed to access in what way. This is achieved through resource-based permissions (RBP).
+An RBP refers to a resource in the database, and the methods that the user who was granted the RBP can execute. These methods correspond to database operations:
+
+- read: `SELECT`
+- create: `INSERT`
+- edit: `UPDATE`
+- write: `INSERT`, `UPDATE`
+- delete: `DELETE`
+- assign: `INSERT` into cross-reference table
+
+The naming convention for RBP is a singular noun (the resource; multi-word nouns concatenated by underscore), and a method name, separated by colon: `user:edit`, `beneficiary:create`, `tag_relation:read`, etc.
+
+Every ABP comprises one or more RBP, e.g. the ABP `manage_tags` stands for `tag:write`, `stock:read`, `tag_relation:read`, and `beneficiary:read`.
+
+The mapping of usergroup to ABPs, and ABP to RBPs is listed in [this document](https://docs.google.com/spreadsheets/d/1W4YWcc59wUFUWgReumdH6DQ4zU7JcTgvf6WEbdqaGHQ/edit#gid=0).
 
 ### User management in Auth0
 
