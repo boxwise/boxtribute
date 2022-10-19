@@ -18,9 +18,9 @@ else:
 
 
 def log_request_to_gcloud():
-    """Log the query field of the current request's JSON body to Google Cloud."""
+    """Log the current request's JSON body to Google Cloud."""
     if request_logger is None:
         # Render function ineffective if logger not defined
         return
 
-    request_logger.log_struct(request.get_json()["query"])
+    request_logger.log_struct(request.get_json())
