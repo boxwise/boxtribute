@@ -1,16 +1,6 @@
-import { position, Progress, ToastPositionWithLogical } from "@chakra-ui/react";
-import React from "react";
+import { ToastPositionWithLogical } from "@chakra-ui/react";
 
 import { useNotification } from "utils/hooks";
-
-enum NotificationMessagePosition {
-  Top = "top",
-  TopLeft = "top-left",
-  TopRight = "top-right",
-  Bottom = "bottom",
-  BottomLeft = "bottom-left",
-  BottomRight = "bottom-right",
-}
 
 interface INotificationMessageProps {
   message: string;
