@@ -159,7 +159,7 @@ function BoxEdit({
 
   return (
     <Box w={["100%", "100%", "60%", "40%"]}>
-      <Heading fontWeight="bold" mb={4} as="h2">
+      <Heading fontWeight="bold" mb={4} as="h2" data-testid="box-header">
         Box {boxData.labelIdentifier}
       </Heading>
 
@@ -178,6 +178,7 @@ function BoxEdit({
                   <Box border="2px">
                     <Select
                       name={name}
+                      data-testid="products-list"
                       ref={ref}
                       onChange={(selectedOption) => onChange(selectedOption?.value)}
                       onBlur={onBlur}
@@ -193,7 +194,9 @@ function BoxEdit({
                       focusBorderColor="transparent"
                     />
                   </Box>
-                  <FormErrorMessage>{error && error.message}</FormErrorMessage>
+                  <FormErrorMessage data-testid="form-err-msg">
+                    {error && error.message}
+                  </FormErrorMessage>
                 </FormControl>
               )}
             />
@@ -207,6 +210,7 @@ function BoxEdit({
                   <FormLabel htmlFor="size">Size</FormLabel>
                   <Box border="2px">
                     <Select
+                      data-testid="products-size-list"
                       name={field.name}
                       ref={field.ref}
                       value={
@@ -230,6 +234,7 @@ function BoxEdit({
             <FormLabel htmlFor="numberOfItems">Number Of Items</FormLabel>
             <Box border="2px">
               <Input
+                data-testid="number-items"
                 border="0"
                 type="number"
                 {...register("numberOfItems", {
@@ -251,6 +256,7 @@ function BoxEdit({
                   <FormLabel htmlFor="locationForDropdown">Location</FormLabel>
                   <Box border="2px">
                     <Select
+                      data-testid="box-location"
                       name={name}
                       ref={ref}
                       onChange={(selectedOption) => onChange(selectedOption?.value)}
@@ -268,7 +274,13 @@ function BoxEdit({
             />
           </ListItem>
         </List>
-        <Button mt={4} isLoading={isSubmitting} type="submit" borderRadius="0">
+        <Button
+          mt={4}
+          isLoading={isSubmitting}
+          type="submit"
+          borderRadius="0"
+          data-testid="update-box-btn"
+        >
           Update Box
         </Button>
       </form>
