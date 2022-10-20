@@ -59,7 +59,7 @@ describe("Box view", () => {
               {
                 color: "#90d4a2",
                 id: "17",
-                name: "test",
+                name: "test tag",
               },
             ],
           },
@@ -130,7 +130,7 @@ describe("Box view", () => {
               {
                 color: "#90d4a2",
                 id: "17",
-                name: "test",
+                name: "test tag",
               },
             ],
           },
@@ -201,7 +201,7 @@ describe("Box view", () => {
               {
                 color: "#90d4a2",
                 id: "17",
-                name: "test",
+                name: "test tag",
               },
             ],
           },
@@ -299,6 +299,61 @@ describe("Box view", () => {
         },
       },
     },
+    {
+      request: {
+        query: BOX_BY_LABEL_IDENTIFIER_QUERY,
+        variables: {
+          labelIdentifier: "189123",
+        },
+      },
+      result: {
+        data: {
+          box: {
+            distributionEvent: null,
+            labelIdentifier: "123",
+            location: {
+              __typename: "ClassicLocation",
+              base: {
+                distributionEventsBeforeReturnedFromDistributionState: [],
+                locations: [
+                  {
+                    id: "16",
+                    name: "Stockroom",
+                  },
+                  {
+                    id: "17",
+                    name: "WH1",
+                  },
+                  {
+                    id: "18",
+                    name: "WH2",
+                  },
+                ],
+              },
+              id: 17,
+              name: "WH1",
+            },
+            numberOfItems: 31,
+            product: {
+              gender: "Boy",
+              name: "Snow trousers",
+            },
+            size: {
+              id: "52",
+              label: "Mixed",
+            },
+            state: "InStock",
+            tags: [
+              {
+                color: "#90d4a2",
+                id: "17",
+                name: "test tag",
+              },
+            ],
+          },
+        },
+      },
+    },
   ];
 
   const waitTillLoadingIsDone = async () => {
@@ -361,7 +416,7 @@ describe("Box view", () => {
     });
   });
   // Test case 3.1.1.4 and 3.1.1.4.1
-  it("3.1.1.4 - clicking on Lost / Scrap must change box state respectfully", async () => {
+  it("3.1.1.4.(1) - clicking on Lost / Scrap must change box state respectfully", async () => {
     await waitFor(waitTillLoadingIsDone);
 
     fireEvent.click(screen.getByTestId("box-lost-btn"));
@@ -400,5 +455,7 @@ describe("Box view", () => {
     await waitFor(waitTillLoadingIsDone);
     const boxTags = screen.getByTestId("box-tags");
     expect(boxTags).toBeInTheDocument();
+    expect(screen.getByText(/test tag/i)).toBeInTheDocument();
+    expect(boxTags).toHaveTextContent("test tag");
   });
 });
