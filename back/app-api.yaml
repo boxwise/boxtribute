@@ -1,4 +1,4 @@
-runtime: python38
+runtime: python310
 service: api-staging
 entrypoint: gunicorn -b :$PORT boxtribute_server.api_main:app
 handlers:
