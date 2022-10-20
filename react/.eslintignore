@@ -10,7 +10,7 @@ src/utils
 src/views/AutomaticBaseSwitcher
 src/views/BaseDashboard
 src/views/BoxCreate
-src/views/BoxEdit
+!src/views/BoxEdit
 src/views/Boxes
 src/views/Distributions
 !src/views/Box
