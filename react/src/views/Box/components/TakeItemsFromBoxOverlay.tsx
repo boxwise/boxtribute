@@ -44,6 +44,7 @@ function TakeItemsFromBoxOverlay({
           <form onSubmit={handleSubmit(onSubmitTakeItemsFromBox)}>
             <Flex>
               <Input
+                data-testid="decrease-number-items"
                 placeholder="Number of items"
                 mr={4}
                 borderRadius="0"
