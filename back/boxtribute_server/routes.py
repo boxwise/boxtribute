@@ -18,6 +18,7 @@ from .loaders import (
     SizesForSizeRangeLoader,
     TagsForBoxLoader,
 )
+from .logging import API_CONTEXT, WEBAPP_CONTEXT, log_request_to_gcloud
 
 # Blueprint for query-only API. Deployed on the 'api*' subdomains
 api_bp = Blueprint("api_bp", __name__)
@@ -52,10 +53,7 @@ def query_api_playground():
 @cross_origin(origin="localhost", headers=["Content-Type", "Authorization"])
 @requires_auth
 def query_api_server():
-    from .logging import log_request_to_gcloud
-
-    log_request_to_gcloud()
-
+    log_request_to_gcloud(context=API_CONTEXT)
     return execute_async(schema=query_api_schema, introspection=True)
 
 
@@ -86,6 +84,7 @@ def graphql_playgroud():
 @cross_origin(origin="localhost", headers=["Content-Type", "Authorization"])
 @requires_auth
 def graphql_server():
+    log_request_to_gcloud(context=WEBAPP_CONTEXT)
     return execute_async(schema=full_api_schema)
 
 
