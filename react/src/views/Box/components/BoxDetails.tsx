@@ -129,7 +129,7 @@ function BoxDetails({
             </Flex>
             <Flex direction="row" pb={4}>
               <HStack spacing={2} data-testid="box-tags">
-                {boxData.tags.map((tag) => (
+                {boxData.tags?.map((tag) => (
                   <Tag size="sm" key={tag.id} bg={Style.toTransformString(tag.color)}>
                     <TagLabel>{tag.name}</TagLabel>
                   </Tag>
