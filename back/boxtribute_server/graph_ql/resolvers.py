@@ -826,6 +826,11 @@ def resolve_create_box(*_, creation_input):
     authorize(permission="location:read", base_id=requested_location.base_id)
     requested_product = Product.get_by_id(creation_input["product_id"])
     authorize(permission="product:read", base_id=requested_product.base_id)
+
+    tag_ids = creation_input.get("tag_ids", [])
+    for tag in Tag.select().where(Tag.id << tag_ids):
+        authorize(permission="tag_relation:assign", base_id=tag.base_id)
+
     return create_box(user_id=g.user.id, **creation_input)
 
 
