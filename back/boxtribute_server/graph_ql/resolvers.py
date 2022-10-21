@@ -472,8 +472,7 @@ def resolve_metrics(*_, organisation_id=None):
 
 @tag.field("taggedResources")
 def resolve_tag_tagged_resources(tag_obj, _):
-    # # TODO Add correct permissions herer
-    # # authorize(permission="tag:read")
+    authorize(permission="tag_relation:read")
     beneficiary_relations = TagsRelation.select(TagsRelation.object_id).where(
         (TagsRelation.tag == tag_obj.id)
         & (TagsRelation.object_type == TaggableObjectType.Beneficiary)
@@ -484,13 +483,15 @@ def resolve_tag_tagged_resources(tag_obj, _):
     )
     return list(
         Beneficiary.select().where(
-            Beneficiary.id << [r.object_id for r in beneficiary_relations]
+            Beneficiary.id << [r.object_id for r in beneficiary_relations],
+            base_filter_condition(Beneficiary),
         )
     ) + list(Box.select().where(Box.id << [r.object_id for r in box_relations]))
 
 
 @beneficiary.field("tags")
 def resolve_beneficiary_tags(beneficiary_obj, _):
+    authorize(permission="tag:read", base_id=beneficiary_obj.base_id)
     return (
         Tag.select()
         .join(TagsRelation)

@@ -268,16 +268,20 @@ def test_invalid_permission_for_organisation_bases(
     assert_forbidden_request(read_only_client, query, value={"bases": None})
 
 
-def test_invalid_permission_for_beneficiary_tokens(
+def test_invalid_permission_for_beneficiary_fields(
     read_only_client, mocker, default_beneficiary
 ):
-    # verify missing transaction:read permission
+    # verify missing tag:read/transaction:read permission
     mocker.patch("jose.jwt.decode").return_value = create_jwt_payload(
         permissions=["beneficiary:read"]
     )
     id = default_beneficiary["id"]
     query = f"query {{ beneficiary(id: {id}) {{ tokens }} }}"
     assert_forbidden_request(read_only_client, query, value={"tokens": None})
+
+    # Test case 4.1.8
+    query = f"query {{ beneficiary(id: {id}) {{ tags {{ id }} }} }}"
+    assert_forbidden_request(read_only_client, query, value={"tags": None})
 
 
 def test_invalid_permission_for_base_locations(read_only_client, mocker):
@@ -287,6 +291,17 @@ def test_invalid_permission_for_base_locations(read_only_client, mocker):
     )
     query = "query { base(id: 1) { locations { id } } }"
     assert_forbidden_request(read_only_client, query, value=None)
+
+
+def test_invalid_permission_for_tag_resources(read_only_client, mocker, tags):
+    # Test case 4.1.7
+    # verify missing tag_relation:read permission
+    mocker.patch("jose.jwt.decode").return_value = create_jwt_payload(
+        permissions=["tag:read"]
+    )
+    id = tags[0]["id"]
+    query = f"query {{ tag(id: {id}) {{ taggedResources {{ ...on Box {{ id }} }} }} }}"
+    assert_forbidden_request(read_only_client, query, value={"taggedResources": None})
 
 
 @pytest.mark.parametrize("field", ["sourceBases", "targetBases"])
@@ -309,8 +324,9 @@ def test_invalid_permission_for_shipment_base(read_only_client, mocker, field):
     assert_forbidden_request(read_only_client, query, value={field: None})
 
 
-@pytest.mark.parametrize("field", ["location", "qrCode"])
+@pytest.mark.parametrize("field", ["location", "qrCode", "tags"])
 def test_invalid_permission_for_box_field(read_only_client, mocker, default_box, field):
+    # Test case 8.1.9
     # verify missing field:read permission
     mocker.patch("jose.jwt.decode").return_value = create_jwt_payload(
         permissions=["stock:read"]
