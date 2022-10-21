@@ -483,7 +483,8 @@ def resolve_tag_tagged_resources(tag_obj, _):
     )
     return list(
         Beneficiary.select().where(
-            Beneficiary.id << [r.object_id for r in beneficiary_relations]
+            Beneficiary.id << [r.object_id for r in beneficiary_relations],
+            base_filter_condition(Beneficiary),
         )
     ) + list(Box.select().where(Box.id << [r.object_id for r in box_relations]))
 
