@@ -17,6 +17,7 @@ from .box import (
     box_without_qr_code,
     default_box,
     default_boxes,
+    default_location_boxes,
     lost_box,
     marked_for_shipment_box,
 )
@@ -35,7 +36,7 @@ from .organisation import another_organisation, default_organisation, organisati
 from .product import another_product, default_product, products
 from .product_category import default_product_category
 from .product_gender import default_product_gender
-from .qr_code import default_qr_code, qr_code_without_box
+from .qr_code import another_qr_code_with_box, default_qr_code, qr_code_without_box
 from .shipment import (
     another_shipment,
     canceled_shipment,
@@ -68,6 +69,7 @@ __all__ = [
     "another_marked_for_shipment_box",
     "another_organisation",
     "another_product",
+    "another_qr_code_with_box",
     "another_shipment",
     "another_shipment_detail",
     "another_size",
@@ -84,6 +86,7 @@ __all__ = [
     "default_distribution_event",
     "default_history",
     "default_location",
+    "default_location_boxes",
     "default_log",
     "default_organisation",
     "default_product",
