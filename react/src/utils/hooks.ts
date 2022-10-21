@@ -1,15 +1,32 @@
 import { useState, useCallback } from "react";
 import { useNavigate, useParams } from "react-router-dom";
+import { createStandaloneToast, UseToastOptions } from "@chakra-ui/react";
+import { theme } from "./theme";
 
+export const useNotification = () => {
+  const toast = createStandaloneToast({ theme });
+
+  const createToast = (props: UseToastOptions) =>
+    toast({
+      duration: 4000,
+      isClosable: true,
+      position: "top",
+      variant: "subtle",
+      ...props,
+    });
+
+  return {
+    createToast,
+  };
+};
 
 export const useGetUrlForResourceHelpers = () => {
   const baseId = useParams<{ baseId: string }>().baseId;
-  if(baseId == null) {
+  if (baseId == null) {
     throw new Error("Coudl not extract baseId from URL");
   }
 
-  const getBaseRootUrlForCurrentBase = () =>
-    `/bases/${baseId}`;
+  const getBaseRootUrlForCurrentBase = () => `/bases/${baseId}`;
 
   const getDistroSpotDetailUrlById = (distroSpotId: string) =>
     `/bases/${baseId}/distributions/spots/${distroSpotId}`;
@@ -20,16 +37,14 @@ export const useGetUrlForResourceHelpers = () => {
   const getBoxDetailViewUrlByLabelIdentifier = (labelIdentifier: string) =>
     `/bases/${baseId}/boxes/${labelIdentifier}`;
 
-
   return {
     getBaseId: () => baseId,
     getDistroSpotDetailUrlById,
     getDistroEventDetailUrlById,
     getBaseRootUrlForCurrentBase,
-    getBoxDetailViewUrlByLabelIdentifier
+    getBoxDetailViewUrlByLabelIdentifier,
   };
 };
-
 
 export const useToggle = (initialValue = false) => {
   const [value, setValue] = useState(initialValue);
@@ -37,16 +52,14 @@ export const useToggle = (initialValue = false) => {
     setValue((v) => !v);
   }, []);
   return [value, toggle] as [boolean, () => void];
-}
+};
 
 export const useGlobalSiteState = () => {
-
   const currentBaseId = useParams<{ baseId: string }>().baseId!;
   const navigate = useNavigate();
 
-
   return {
     currentBaseId,
-    navigate
-  }
-}
+    navigate,
+  };
+};
