@@ -8,7 +8,7 @@ from google.cloud import logging as gcloud_logging
 API_CONTEXT = "api"
 WEBAPP_CONTEXT = "webapp"
 
-if os.getenv("CI") == "true" or os.getenv("environment") == "development":
+if os.getenv("CI") == "true" or os.getenv("ENVIRONMENT") == "development":
     # Skip logger initialization when running tests in CircleCI, or during local
     # development
     request_loggers = None
