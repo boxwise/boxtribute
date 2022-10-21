@@ -428,7 +428,7 @@ type Beneficiary {
   createdOn: Datetime
   lastModifiedBy: User
   lastModifiedOn: Datetime
-  tags: [Tag!]!
+  tags: [Tag!]
 }
 
 """

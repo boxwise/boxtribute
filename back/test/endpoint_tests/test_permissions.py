@@ -268,16 +268,20 @@ def test_invalid_permission_for_organisation_bases(
     assert_forbidden_request(read_only_client, query, value={"bases": None})
 
 
-def test_invalid_permission_for_beneficiary_tokens(
+def test_invalid_permission_for_beneficiary_fields(
     read_only_client, mocker, default_beneficiary
 ):
-    # verify missing transaction:read permission
+    # verify missing tag:read/transaction:read permission
     mocker.patch("jose.jwt.decode").return_value = create_jwt_payload(
         permissions=["beneficiary:read"]
     )
     id = default_beneficiary["id"]
     query = f"query {{ beneficiary(id: {id}) {{ tokens }} }}"
     assert_forbidden_request(read_only_client, query, value={"tokens": None})
+
+    # Test case 4.1.8
+    query = f"query {{ beneficiary(id: {id}) {{ tags {{ id }} }} }}"
+    assert_forbidden_request(read_only_client, query, value={"tags": None})
 
 
 def test_invalid_permission_for_base_locations(read_only_client, mocker):

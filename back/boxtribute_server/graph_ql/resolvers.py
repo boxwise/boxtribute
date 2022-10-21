@@ -490,6 +490,7 @@ def resolve_tag_tagged_resources(tag_obj, _):
 
 @beneficiary.field("tags")
 def resolve_beneficiary_tags(beneficiary_obj, _):
+    authorize(permission="tag:read", base_id=beneficiary_obj.base_id)
     return (
         Tag.select()
         .join(TagsRelation)
