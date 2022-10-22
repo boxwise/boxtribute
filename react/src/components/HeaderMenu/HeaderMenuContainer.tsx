@@ -84,6 +84,7 @@ const HeaderMenuContainer = () => {
     ],
     [baseId]
   );
+  const rolesFromGlobalPreferences = globalPreferences.roles;
   const allowedMenuItems = useMemo(() => {
     const roles = globalPreferences.roles
 
@@ -97,7 +98,7 @@ const HeaderMenuContainer = () => {
 
     );
     return filteredMenuItems;
-  }, [globalPreferences.roles, menuItems]);
+  }, [rolesFromGlobalPreferences, menuItems]);
 
   const qrScannerOverlayState = useDisclosure({ defaultIsOpen: false });
   const toast = useToast();
