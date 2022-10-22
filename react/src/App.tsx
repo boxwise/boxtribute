@@ -22,7 +22,6 @@ import BaseDashboardView from "views/BaseDashboard/BaseDashboardView";
 import DistrosReturnTrackingGroupView from "views/Distributions/DistributionReturnTrackings/DistrosReturnTrackingGroupView/DistrosReturnTrackingGroupView";
 import DistributionReturnTrackingsView from "views/Distributions/DistributionReturnTrackings/DistributionReturnTrackingsView/DistributionReturnTrackingsView";
 import CreateDirectDistributionEventView from "views/Distributions/CreateDirectDistributionEventView/CreateDirectDistributionEventView";
-import MyComp from "views/MyComp/MyComp";
 ​
 const useLoadAndSetAvailableBases = () => {
   const BASES_QUERY = gql`
@@ -83,7 +82,6 @@ function App() {
     <Routes>
       <Route path="/">
         <Route index element={<AutomaticBaseSwitcher />} />
-        <Route path=":labelIdentifier/mycomp" element={<MyComp />} />
         <Route path=":labelIdentifier/edit" element={<BoxEditView />} />
         <Route path="bases" element={<Layout />}>
           <Route index element={<AutomaticBaseSwitcher />} />
