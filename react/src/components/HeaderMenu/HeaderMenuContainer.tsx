@@ -13,6 +13,7 @@ import {
 import { GlobalPreferencesContext } from "providers/GlobalPreferencesProvider";
 import { IBoxDetailsData } from "utils/base-types";
 import BoxesBulkOperationsOverlay from "./BoxesBulkOperationsOverlay";
+import jwt from "jwt-decode";
 
 const HeaderMenuContainer = () => {
   const auth0 = useAuth0();
@@ -26,7 +27,7 @@ const HeaderMenuContainer = () => {
         text: "Boxes",
         links: [
           // { link: "#", name: "Print Labels" },
-          { link: `/bases/${baseId}/boxes`, name: "Manage Boxes" },
+          { link: `/bases/${baseId}/boxes`, name: "Manage Boxes", neededRoles: ["admin", "manager"] },
             // TODO: uncomment this once we have finished/tested the Create Box feature sufficiently
           // { link: `/bases/${baseId}/boxes/create`, name: "Create new Box" },
           // { link: "#", name: "Stock Overview" },
@@ -83,6 +84,21 @@ const HeaderMenuContainer = () => {
     ],
     [baseId]
   );
+  const allowedMenuItems = useMemo(() => {
+    const roles = globalPreferences.roles
+
+    if(roles == null || roles.length < 1) return [];
+
+    const filteredMenuItems = roles?.includes("boxtribute_god") ? menuItems : menuItems.map<MenuItemsGroupData>(el =>
+      ({
+        ...el,
+        links: el.links.filter(el2 => el2.neededRoles?.some(el3 => roles?.includes(el3)))
+      })
+
+    );
+    return filteredMenuItems;
+  }, [globalPreferences.roles, menuItems]);
+
   const qrScannerOverlayState = useDisclosure({ defaultIsOpen: false });
   const toast = useToast();
   const [boxesDataForBulkOperation, setBoxesDataForBulkOperation] = useState<
@@ -150,7 +166,7 @@ const HeaderMenuContainer = () => {
     <>
       <HeaderMenu
         {...auth0}
-        menuItemsGroups={menuItems}
+        menuItemsGroups={allowedMenuItems}
         currentActiveBaseId={baseId}
         availableBases={globalPreferences.availableBases}
         onClickScanQrCode={() => qrScannerOverlayState.onOpen()}

@@ -22,7 +22,8 @@ import BaseDashboardView from "views/BaseDashboard/BaseDashboardView";
 import DistrosReturnTrackingGroupView from "views/Distributions/DistributionReturnTrackings/DistrosReturnTrackingGroupView/DistrosReturnTrackingGroupView";
 import DistributionReturnTrackingsView from "views/Distributions/DistributionReturnTrackings/DistributionReturnTrackingsView/DistributionReturnTrackingsView";
 import CreateDirectDistributionEventView from "views/Distributions/CreateDirectDistributionEventView/CreateDirectDistributionEventView";
-
+import MyComp from "views/MyComp/MyComp";
+​
 const useLoadAndSetAvailableBases = () => {
   const BASES_QUERY = gql`
     query Bases {
@@ -32,18 +33,18 @@ const useLoadAndSetAvailableBases = () => {
       }
     }
   `;
-
+​
   const { getAccessTokenSilently } = useAuth0();
-
+​
   const [runBaseQuery, { loading, data }] = useLazyQuery<BasesQuery>(BASES_QUERY);
   const { globalPreferences, dispatch } = useContext(GlobalPreferencesContext);
-
+​
   useEffect(() => {
     if (globalPreferences.availableBases == null) {
       runBaseQuery();
     }
   }, [runBaseQuery, globalPreferences.availableBases]);
-
+​
   useEffect(() => {
     if (!loading && data != null) {
       const { bases } = data;
@@ -53,29 +54,37 @@ const useLoadAndSetAvailableBases = () => {
       });
     }
   }, [data, loading, dispatch]);
-
+​
   useEffect(() => {
     const getToken = async () => {
       const token = await getAccessTokenSilently();
       const decodedToken = jwt<{
         "https://www.boxtribute.com/organisation_id": string;
+        "https://www.boxtribute.com/roles": string[];
       }>(token);
       const organisationId = decodedToken["https://www.boxtribute.com/organisation_id"];
+      const roles = decodedToken["https://www.boxtribute.com/roles"];
       dispatch({
         type: "setOrganisationId",
         payload: organisationId,
+      });
+      dispatch({
+        type: "setRoles",
+        payload: roles,
       });
     };
     getToken();
   }, [dispatch, getAccessTokenSilently]);
 };
-
+​
 function App() {
   useLoadAndSetAvailableBases();
   return (
     <Routes>
       <Route path="/">
         <Route index element={<AutomaticBaseSwitcher />} />
+        <Route path=":labelIdentifier/mycomp" element={<MyComp />} />
+        <Route path=":labelIdentifier/edit" element={<BoxEditView />} />
         <Route path="bases" element={<Layout />}>
           <Route index element={<AutomaticBaseSwitcher />} />
           <Route path=":baseId">
@@ -121,5 +130,5 @@ function App() {
     </Routes>
   );
 }
-
+​
 export default App;

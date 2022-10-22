@@ -5,6 +5,7 @@ import HeaderMenuMobile from "./HeaderMenuMobile";
 export interface MenuItemData {
   link: string;
   name: string;
+  neededRoles?: string[];
 }
 
 export interface MenuItemsGroupData {

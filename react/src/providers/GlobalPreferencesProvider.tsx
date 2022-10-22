@@ -1,3 +1,4 @@
+import { t } from "msw/lib/glossary-dc3fd077";
 import React, { Context, createContext, useReducer } from "react";
 
 interface BaseIdAndNameTuple { id: string, name: string }
@@ -5,6 +6,7 @@ interface BaseIdAndNameTuple { id: string, name: string }
 interface GlobalPreferences {
   availableBases?: BaseIdAndNameTuple[];
   selectedOrganisationId?: string;
+  roles?: string[];
 }
 
 interface IGlobalPreferencesContext {
@@ -26,12 +28,18 @@ interface SetSelectedBaseIdAction {
   payload: string;
 }
 
+interface SetRoles {
+  type: "setRoles";
+  payload: string[];
+}
+
+
 interface SetOrganisationId {
   type: "setOrganisationId";
   payload: string;
 }
 
-type SetGlobalPreferencesAction = SetAvailableBasesAction | SetSelectedBaseIdAction | SetOrganisationId;
+type SetGlobalPreferencesAction = SetAvailableBasesAction | SetSelectedBaseIdAction | SetOrganisationId | SetRoles;
 
 const globalPreferencesReduer = (state: GlobalPreferences, action: SetGlobalPreferencesAction) => {
   switch (action.type) {
@@ -39,15 +47,17 @@ const globalPreferencesReduer = (state: GlobalPreferences, action: SetGlobalPref
       return { ...state, availableBases: action.payload };
     case "setSelectedBaseId":
       return { ...state, selectedBaseId: action.payload };
-    case "setOrganisationId": 
+    case "setOrganisationId":
       return { ...state, selectedOrganisationId: action.payload };
+    case "setRoles":
+      return { ...state, roles: action.payload };
     default:
       return state;
   }
 }
 
 const GlobalPreferencesProvider = ({ children }) => {
- 
+
   const [globalPreferences, dispatch] = useReducer(globalPreferencesReduer, {});
 
   return (
