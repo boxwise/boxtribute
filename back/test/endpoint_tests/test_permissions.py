@@ -215,6 +215,14 @@ def test_invalid_write_permission(unauthorized, read_only_client, mutation):
                 sizeId: 1,
                 comment: ""
             }) { id }""",
+        # Test case 8.2.12
+        """createBox(
+            creationInput : {
+                productId: 1,
+                locationId: 1,
+                sizeId: 1,
+                tagIds: [4]
+            }) { id }""",
         # Test case 8.2.18
         """updateBox(
             updateInput : { labelIdentifier: "34567890" }) { id }""",
@@ -237,6 +245,22 @@ def test_invalid_permission_when_mutating_box(read_only_client, mutation):
     assert_forbidden_request(
         read_only_client, f"mutation {{ {mutation} }}", field=operation_name(mutation)
     )
+
+
+def test_invalid_permission_when_creating_box_with_tags(read_only_client, mocker):
+    # Test case 8.1.11
+    # Verify missing tag_relation:assign permission
+    mocker.patch("jose.jwt.decode").return_value = create_jwt_payload(
+        permissions=["location:read", "stock:write", "product:read"]
+    )
+    mutation = """mutation { createBox(
+            creationInput : {
+                productId: 1,
+                locationId: 1,
+                sizeId: 1,
+                tagIds: [2]
+            }) { id } }"""
+    assert_forbidden_request(read_only_client, mutation)
 
 
 def test_invalid_permission_for_location_boxes(read_only_client, mocker):
