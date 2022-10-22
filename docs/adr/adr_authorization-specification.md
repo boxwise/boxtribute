@@ -158,7 +158,9 @@ The decoded JWT payload is converted into a `CurrentUser` instance with the foll
 
 GraphQL resolvers are functions which are called by the GraphQL server to resolve the requested fields on the data level. Resolvers allow fine-grained access over data resources and hence are suited to enforce RBP.
 
-Enforcement of RBP in the resolvers has to be explicitly called by developers using the `authz.authorize()` function. If the current user is authorized to access a resource acc. to the given arguments, the function returns, otherwise it raises an `exceptions.Forbidden` exception, resulting in an error for the particular GraphQL field being resolved. If the current user is a god user, the function instantly returns. `authz.authorize()` accepts the following combination of arguments (the developer must select the one suitable for the enforcement context):
+Resolvers can return either (A) a single resource entry or (B) a list of resource entries. Enforcement of RBP works differently in these cases.
+
+**(A)** Enforcement of RBP in the single-resource resolver has to be explicitly called by developers using the `authz.authorize()` function. If the current user is authorized to access a resource acc. to the given arguments, the function returns, otherwise it raises an `exceptions.Forbidden` exception, resulting in an error for the particular GraphQL field being resolved. If the current user is a god user, the function instantly returns. `authz.authorize()` accepts the following combination of arguments (the developer must select the one suitable for the enforcement context):
 
 Arguments | Types | Description | Condition for successful authorization
 :--- | :--- | :--- | :---
@@ -169,5 +171,7 @@ Arguments | Types | Description | Condition for successful authorization
 `user_id` | integer | user ID | the current user's ID matches the given user ID
 
 Any other combination of arguments can be handled by the function but is considered a development error. If no arguments are given, the function raises an exception.
+
+**(B)** In addition to enforce an RBP with `authorize()`, a filter needs to be applied to select only those resource entries in bases that the user is authorized for. This is achieved via the `authorized_bases_filter()` function.
 
 ## Consequences
