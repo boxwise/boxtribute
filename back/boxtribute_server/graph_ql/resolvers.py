@@ -20,7 +20,7 @@ from peewee import fn
 from ..authz import (
     agreement_organisation_filter_condition,
     authorize,
-    base_filter_condition,
+    authorized_bases_filter,
 )
 from ..box_transfer.agreement import (
     accept_transfer_agreement,
@@ -168,7 +168,7 @@ def resolve_tag(*_, id):
 @query.field("tags")
 def resolve_tags(*_):
     authorize(permission="tag:read")
-    return Tag.select().where(Tag.deleted.is_null() & base_filter_condition(Tag))
+    return Tag.select().where(Tag.deleted.is_null() & authorized_bases_filter(Tag))
 
 
 @query.field("packingListEntry")
@@ -203,7 +203,7 @@ def resolve_packing_list_entry_matching_packed_items_collections(obj, *_):
 @query.field("bases")
 def resolve_bases(*_):
     authorize(permission="base:read")
-    return Base.select().where(base_filter_condition())
+    return Base.select().where(authorized_bases_filter())
 
 
 @query.field("base")
@@ -400,7 +400,7 @@ def resolve_organisations(*_):
 def resolve_locations(*_):
     authorize(permission="location:read")
     return Location.select().where(
-        Location.type == LocationType.ClassicLocation, base_filter_condition(Location)
+        Location.type == LocationType.ClassicLocation, authorized_bases_filter(Location)
     )
 
 
@@ -417,7 +417,7 @@ def resolve_products(*_, pagination_input=None):
     authorize(permission="product:read")
     return load_into_page(
         Product,
-        base_filter_condition(Product),
+        authorized_bases_filter(Product),
         pagination_input=pagination_input,
     )
 
@@ -429,7 +429,7 @@ def resolve_beneficiaries(*_, pagination_input=None, filter_input=None):
     filter_condition = derive_beneficiary_filter(filter_input)
     return load_into_page(
         Beneficiary,
-        base_filter_condition(Beneficiary) & filter_condition,
+        authorized_bases_filter(Beneficiary) & filter_condition,
         pagination_input=pagination_input,
     )
 
@@ -481,7 +481,7 @@ def resolve_tag_tagged_resources(tag_obj, _):
     return list(
         Beneficiary.select().where(
             Beneficiary.id << [r.object_id for r in beneficiary_relations],
-            base_filter_condition(Beneficiary),
+            authorized_bases_filter(Beneficiary),
         )
     ) + list(Box.select().where(Box.id << [r.object_id for r in box_relations]))
 
@@ -1088,7 +1088,7 @@ def resolve_distributions_spots(base_obj, _):
     authorize(permission="location:read")
     return Location.select().where(
         (Location.type == LocationType.DistributionSpot)
-        & (base_filter_condition(Location))
+        & (authorized_bases_filter(Location))
     )
 
 

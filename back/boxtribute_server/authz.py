@@ -67,7 +67,7 @@ def authorize(
         raise Forbidden(resource, value, current_user.__dict__)
 
 
-def base_filter_condition(model=Base):
+def authorized_bases_filter(model=Base):
     """Derive base filter condition for given resource model depending the current
     user's base-specific permissions. The resource model must have a 'base' field, and
     the lower-case model name must match the permission resource name.
