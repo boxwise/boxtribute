@@ -91,10 +91,13 @@ const HeaderMenuContainer = () => {
     if(roles == null || roles.length < 1) return [];
 
     const filteredMenuItems = roles?.includes("boxtribute_god") ? menuItems : menuItems.map<MenuItemsGroupData>(el =>
-      ({
+      {
+        const FOO = el.links.filter(el2 => el2.neededRoles?.some(el3 => roles?.includes(el3)))
+        console.log('FOO', FOO);
+        return {
         ...el,
-        links: el.links.filter(el2 => el2.neededRoles?.some(el3 => roles?.includes(el3)))
-      })
+        links: FOO
+      }}
 
     );
     return filteredMenuItems;
