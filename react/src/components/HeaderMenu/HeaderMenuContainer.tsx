@@ -99,7 +99,7 @@ const HeaderMenuContainer = () => {
         links: FOO
       }}
 
-    );
+    ).filter(el => el.links.length > 0);
     return filteredMenuItems;
   }, [rolesFromGlobalPreferences, menuItems]);
 
