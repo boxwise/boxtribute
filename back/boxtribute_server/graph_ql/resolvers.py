@@ -260,14 +260,14 @@ def resolve_distributions_events_for_base(base_obj, _, states=None):
     mobile_distro_feature_flag_check(user_id=g.user.id)
     authorize(permission="distro_event:read", base_id=base_obj.id)
     state_filter = DistributionEvent.state << states if states else True
+    # simplify with test
     distribution_events = (
         DistributionEvent.select()
-        .join(Location, on=(DistributionEvent.distribution_spot == Location.id))
-        .join(Base, on=(Location.base == Base.id))
+        .join(Location)
         .where(
-            (Base.id == base_obj.id)
-            & (Location.type == LocationType.DistributionSpot)
-            & (state_filter)
+            Location.base_id == base_obj.id,
+            Location.type == LocationType.DistributionSpot,
+            state_filter,
         )
     )
     return distribution_events

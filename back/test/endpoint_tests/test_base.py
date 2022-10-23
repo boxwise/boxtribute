@@ -25,7 +25,9 @@ def test_bases_query(read_only_client, default_bases, default_beneficiaries):
     assert len(queried_base["beneficiaries"]["elements"]) == len(default_beneficiaries)
 
 
-def test_base_query(read_only_client, default_location, default_bases):
+def test_base_query(
+    read_only_client, default_location, default_bases, default_distribution_event
+):
     # Test case 99.1.2
     test_id = 1
     query = f"""query Base {{
@@ -35,6 +37,7 @@ def test_base_query(read_only_client, default_location, default_bases):
                     organisation {{ id }}
                     currencyName
                     locations {{ id }}
+                    distributionEvents {{ id }}
                 }}
             }}"""
 
@@ -47,3 +50,4 @@ def test_base_query(read_only_client, default_location, default_bases):
 
     locations = base["locations"]
     assert {"id": str(default_location["id"])} in locations
+    assert base["distributionEvents"] == [{"id": str(default_distribution_event["id"])}]
