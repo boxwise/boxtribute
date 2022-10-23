@@ -215,6 +215,14 @@ def test_invalid_write_permission(unauthorized, read_only_client, mutation):
                 sizeId: 1,
                 comment: ""
             }) { id }""",
+        # Test case 8.2.12
+        """createBox(
+            creationInput : {
+                productId: 1,
+                locationId: 1,
+                sizeId: 1,
+                tagIds: [4]
+            }) { id }""",
         # Test case 8.2.18
         """updateBox(
             updateInput : { labelIdentifier: "34567890" }) { id }""",
@@ -237,6 +245,22 @@ def test_invalid_permission_when_mutating_box(read_only_client, mutation):
     assert_forbidden_request(
         read_only_client, f"mutation {{ {mutation} }}", field=operation_name(mutation)
     )
+
+
+def test_invalid_permission_when_creating_box_with_tags(read_only_client, mocker):
+    # Test case 8.1.11
+    # Verify missing tag_relation:assign permission
+    mocker.patch("jose.jwt.decode").return_value = create_jwt_payload(
+        permissions=["location:read", "stock:write", "product:read"]
+    )
+    mutation = """mutation { createBox(
+            creationInput : {
+                productId: 1,
+                locationId: 1,
+                sizeId: 1,
+                tagIds: [2]
+            }) { id } }"""
+    assert_forbidden_request(read_only_client, mutation)
 
 
 def test_invalid_permission_for_location_boxes(read_only_client, mocker):
@@ -268,16 +292,20 @@ def test_invalid_permission_for_organisation_bases(
     assert_forbidden_request(read_only_client, query, value={"bases": None})
 
 
-def test_invalid_permission_for_beneficiary_tokens(
+def test_invalid_permission_for_beneficiary_fields(
     read_only_client, mocker, default_beneficiary
 ):
-    # verify missing transaction:read permission
+    # verify missing tag:read/transaction:read permission
     mocker.patch("jose.jwt.decode").return_value = create_jwt_payload(
         permissions=["beneficiary:read"]
     )
     id = default_beneficiary["id"]
     query = f"query {{ beneficiary(id: {id}) {{ tokens }} }}"
     assert_forbidden_request(read_only_client, query, value={"tokens": None})
+
+    # Test case 4.1.8
+    query = f"query {{ beneficiary(id: {id}) {{ tags {{ id }} }} }}"
+    assert_forbidden_request(read_only_client, query, value={"tags": None})
 
 
 def test_invalid_permission_for_base_locations(read_only_client, mocker):
@@ -287,6 +315,17 @@ def test_invalid_permission_for_base_locations(read_only_client, mocker):
     )
     query = "query { base(id: 1) { locations { id } } }"
     assert_forbidden_request(read_only_client, query, value=None)
+
+
+def test_invalid_permission_for_tag_resources(read_only_client, mocker, tags):
+    # Test case 4.1.7
+    # verify missing tag_relation:read permission
+    mocker.patch("jose.jwt.decode").return_value = create_jwt_payload(
+        permissions=["tag:read"]
+    )
+    id = tags[0]["id"]
+    query = f"query {{ tag(id: {id}) {{ taggedResources {{ ...on Box {{ id }} }} }} }}"
+    assert_forbidden_request(read_only_client, query, value={"taggedResources": None})
 
 
 @pytest.mark.parametrize("field", ["sourceBases", "targetBases"])
@@ -309,8 +348,9 @@ def test_invalid_permission_for_shipment_base(read_only_client, mocker, field):
     assert_forbidden_request(read_only_client, query, value={field: None})
 
 
-@pytest.mark.parametrize("field", ["location", "qrCode"])
+@pytest.mark.parametrize("field", ["location", "qrCode", "tags"])
 def test_invalid_permission_for_box_field(read_only_client, mocker, default_box, field):
+    # Test case 8.1.9
     # verify missing field:read permission
     mocker.patch("jose.jwt.decode").return_value = create_jwt_payload(
         permissions=["stock:read"]
