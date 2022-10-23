@@ -2,7 +2,6 @@
 import os
 
 from flask import request
-from google.cloud import logging as gcloud_logging
 
 # Context names
 API_CONTEXT = "api"
@@ -13,6 +12,9 @@ if os.getenv("CI") == "true" or os.getenv("ENVIRONMENT") == "development":
     # development
     request_loggers = None
 else:  # pragma: no cover
+    # Google Cloud Logging is only available in deployed environments
+    from google.cloud import logging as gcloud_logging
+
     # Initializing client requires Google credentials to be set (they automatically are
     # in the GOOGLE_APPLICATION_CREDENTIALS environment variable when the app is
     # deployed on App Engine).
