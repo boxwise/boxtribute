@@ -55,6 +55,7 @@ export interface IBoxFormValues {
   sizeId: string;
   productId: string;
   locationId: string;
+  comment: string;
 }
 
 interface ILocationData {
@@ -266,6 +267,12 @@ function BoxEdit({
                 </FormControl>
               )}
             />
+          </ListItem>
+          <ListItem>
+            <FormLabel htmlFor="comment">Comment</FormLabel>
+            <Box border="2px">
+              <Input border="0" type="srting" {...register("comment")} />
+            </Box>
           </ListItem>
         </List>
         <Button mt={4} isLoading={isSubmitting} type="submit" borderRadius="0">
