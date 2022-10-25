@@ -3,25 +3,35 @@ from boxtribute_server.auth import JWT_CLAIM_PREFIX, CurrentUser
 from boxtribute_server.authz import authorize
 from boxtribute_server.exceptions import Forbidden, UnknownResource
 
-ALL_PERMISSIONS = {
-    "base:read": [1],
-    "beneficiary:read": [1],
-    "category:read": [1],
-    "location:read": [1],
-    "product:read": [1],
-    "shipment:read": [1],
-    "stock:read": [1],
-    "transaction:read": [1],
-    "transfer_agreement:read": [1],
-    "user:read": [1],
-    "qr:read": [1],
-    "beneficiary:create": [1],
-    "beneficiary:edit": [1],
-    "shipment:write": [1],
-    "stock:write": [1],
-    "transfer_agreement:write": [1],
-    "qr:create": [1],
+BASE_ID = 1
+BASE_RELATED_PERMISSIONS = {
+    "base:read": [BASE_ID],
+    "beneficiary:create": [BASE_ID],
+    "beneficiary:edit": [BASE_ID],
+    "beneficiary:read": [BASE_ID],
+    "location:read": [BASE_ID],
+    "product:read": [BASE_ID],
+    "shipment:read": [BASE_ID],
+    "shipment:write": [BASE_ID],
+    "stock:read": [BASE_ID],
+    "stock:write": [BASE_ID],
 }
+BASE_AGNOSTIC_PERMISSIONS = {
+    "box_state:read": [BASE_ID],
+    "category:read": [BASE_ID],
+    "gender:read": [BASE_ID],
+    "language:read": [BASE_ID],
+    "organisation:read": [BASE_ID],
+    "qr:create": [BASE_ID],
+    "qr:read": [BASE_ID],
+    "size:read": [BASE_ID],
+    "size_range:read": [BASE_ID],
+    "transaction:read": [BASE_ID],
+    "transfer_agreement:read": [BASE_ID],
+    "transfer_agreement:write": [BASE_ID],
+    "user:read": [BASE_ID],
+}
+ALL_PERMISSIONS = {**BASE_AGNOSTIC_PERMISSIONS, **BASE_RELATED_PERMISSIONS}
 
 
 def test_authorized_user():
@@ -30,21 +40,21 @@ def test_authorized_user():
     assert authorize(user, user_id=3)
 
     user = CurrentUser(id=3, organisation_id=2, base_ids=ALL_PERMISSIONS)
-    assert authorize(user, permission="base:read")
-    assert authorize(user, permission="beneficiary:read")
+    assert authorize(user, permission="base:read", base_id=BASE_ID)
+    assert authorize(user, permission="beneficiary:read", base_id=BASE_ID)
     assert authorize(user, permission="category:read")
-    assert authorize(user, permission="location:read")
-    assert authorize(user, permission="product:read")
-    assert authorize(user, permission="shipment:read")
-    assert authorize(user, permission="stock:read")
+    assert authorize(user, permission="location:read", base_id=BASE_ID)
+    assert authorize(user, permission="product:read", base_id=BASE_ID)
+    assert authorize(user, permission="shipment:read", base_id=BASE_ID)
+    assert authorize(user, permission="stock:read", base_id=BASE_ID)
     assert authorize(user, permission="transaction:read")
     assert authorize(user, permission="transfer_agreement:read")
     assert authorize(user, permission="user:read")
     assert authorize(user, permission="qr:read")
-    assert authorize(user, permission="beneficiary:create")
-    assert authorize(user, permission="beneficiary:edit")
-    assert authorize(user, permission="shipment:write")
-    assert authorize(user, permission="stock:write")
+    assert authorize(user, permission="beneficiary:create", base_id=BASE_ID)
+    assert authorize(user, permission="beneficiary:edit", base_id=BASE_ID)
+    assert authorize(user, permission="shipment:write", base_id=BASE_ID)
+    assert authorize(user, permission="stock:write", base_id=BASE_ID)
     assert authorize(user, permission="transfer_agreement:write")
     assert authorize(user, permission="qr:create")
 
@@ -54,19 +64,22 @@ def test_authorized_user():
         base_ids={
             "qr:create": [1, 3],
             "stock:write": [2],
-            "location:write": [4],
+            "location:write": [4, 5],
         },
     )
     assert authorize(user, permission="qr:create")
     assert authorize(user, permission="qr:create", base_id=3)
     assert authorize(user, permission="stock:write", base_id=2)
-    assert authorize(user, permission="location:write")
     assert authorize(user, permission="location:write", base_id=4)
+    assert authorize(user, permission="location:write", base_id=5)
 
 
 def test_user_with_insufficient_permissions():
     user = CurrentUser(id=3, organisation_id=2, base_ids={})
-    for permission in ALL_PERMISSIONS:
+    for permission in BASE_RELATED_PERMISSIONS:
+        with pytest.raises(Forbidden):
+            authorize(user, permission=permission, base_id=0)
+    for permission in BASE_AGNOSTIC_PERMISSIONS:
         with pytest.raises(Forbidden):
             authorize(user, permission=permission)
 
@@ -81,9 +94,22 @@ def test_user_with_insufficient_permissions():
         authorize(user, permission="stock:write", base_id=1)
     with pytest.raises(Forbidden):
         # The permission field exists but holds no bases
-        authorize(user, permission="stock:write")
+        authorize(user, permission="stock:write", base_id=1)
     with pytest.raises(Forbidden):
-        # The permission field does not exist
+        # The base-related permission field is not part of the user's permissions
+        authorize(user, permission="product:read", base_id=1)
+    with pytest.raises(Forbidden):
+        # The base-agnostic permission field is not part of the user's permissions
+        authorize(user, permission="category:read")
+
+
+def test_authorize_base_related_permission_without_base_id():
+    user = CurrentUser(id=3, organisation_id=2, base_ids={"beneficiary:create": [2]})
+    with pytest.raises(ValueError):
+        # Wrong usage for base-related permission (although part of user base_ids)
+        authorize(user, permission="beneficiary:create")
+    with pytest.raises(ValueError):
+        # Wrong usage for base-related resource permission (not part of user base_ids)
         authorize(user, permission="product:read")
 
 

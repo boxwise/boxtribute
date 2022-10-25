@@ -5,6 +5,23 @@ from .exceptions import Forbidden, UnknownResource
 from .models.definitions.base import Base
 from .models.definitions.transfer_agreement import TransferAgreement
 
+BASE_AGNOSTIC_RESOURCES = (
+    "box_state",
+    "category",
+    "gender",
+    "history",
+    "language",
+    "organisation",
+    "qr",
+    "shipment",  # temporary
+    "size",
+    "size_range",
+    "tag_relation",  # temporary
+    "transaction",
+    "transfer_agreement",  # temporary
+    "user",
+)
+
 
 def authorize(
     current_user=None,
@@ -31,6 +48,10 @@ def authorize(
 
     authorized = False
     if permission is not None:
+        resource = permission.split(":")[0]
+        if resource not in BASE_AGNOSTIC_RESOURCES and base_id is None:
+            raise ValueError(f"Missing base_id for base-related resource '{resource}'.")
+
         base_ids = []
         try:
             # Look up base IDs for given permission
