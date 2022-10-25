@@ -77,6 +77,7 @@ def authorized_bases_filter(model=Base):
         return True
 
     permission = f"{model.__name__.lower()}:read"
+    authorize(permission=permission)
     base_ids = g.user.authorized_base_ids(permission)
     pattern = Base.id if model is Base else model.base
     return pattern << base_ids

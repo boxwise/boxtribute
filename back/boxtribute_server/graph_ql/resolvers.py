@@ -167,7 +167,6 @@ def resolve_tag(*_, id):
 
 @query.field("tags")
 def resolve_tags(*_):
-    authorize(permission="tag:read")
     return Tag.select().where(Tag.deleted.is_null() & authorized_bases_filter(Tag))
 
 
@@ -202,7 +201,6 @@ def resolve_packing_list_entry_matching_packed_items_collections(obj, *_):
 @user.field("bases")
 @query.field("bases")
 def resolve_bases(*_):
-    authorize(permission="base:read")
     return Base.select().where(authorized_bases_filter())
 
 
@@ -398,7 +396,6 @@ def resolve_organisations(*_):
 
 @query.field("locations")
 def resolve_locations(*_):
-    authorize(permission="location:read")
     return Location.select().where(
         Location.type == LocationType.ClassicLocation, authorized_bases_filter(Location)
     )
@@ -414,7 +411,6 @@ def resolve_products_for_base(obj, *_):
 @query.field("products")
 @convert_kwargs_to_snake_case
 def resolve_products(*_, pagination_input=None):
-    authorize(permission="product:read")
     return load_into_page(
         Product,
         authorized_bases_filter(Product),
@@ -425,7 +421,6 @@ def resolve_products(*_, pagination_input=None):
 @query.field("beneficiaries")
 @convert_kwargs_to_snake_case
 def resolve_beneficiaries(*_, pagination_input=None, filter_input=None):
-    authorize(permission="beneficiary:read")
     filter_condition = derive_beneficiary_filter(filter_input)
     return load_into_page(
         Beneficiary,
@@ -1085,7 +1080,6 @@ def resolve_distribution_events_tracking_group(*_, id):
 @query.field("distributionSpots")
 def resolve_distributions_spots(base_obj, _):
     mobile_distro_feature_flag_check(user_id=g.user.id)
-    authorize(permission="location:read")
     return Location.select().where(
         (Location.type == LocationType.DistributionSpot)
         & (authorized_bases_filter(Location))
