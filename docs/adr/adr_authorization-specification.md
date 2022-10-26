@@ -72,7 +72,7 @@ The mapping of usergroup to ABPs, and ABP to RBPs is listed in [this document](h
 
 #### Reasons to use Auth0
 
-Cf. [related ADR](./docs/adr/adr_auth0.md)
+Cf. [related ADR](./adr_auth0.md)
 
 #### User entity in Auth0
 
@@ -102,12 +102,12 @@ Field name | Kind | Description | Usage
 `exp` | standard | Unix timestamp of expiration datetime | JWT decoding
 `azp` | standard | ID of client through which the JWT was requested | traceability of application used for authentication
 `gty` | standard | Grant type | -
-`sub` | standard | User ID | see below
+`sub` | standard | User ID | see [below](#representation-of-current-user)
 `https://www.boxtribute.com/email` | custom | User email | -
 `https://www.boxtribute.com/roles` | custom | List of user's roles | -
-`https://www.boxtribute.com/base_ids` | custom | List of IDs of bases that the user has access to | see below
-`https://www.boxtribute.com/organisation_id` | custom | ID of the organisation the user belongs to | see below
-`https://www.boxtribute.com/permissions` | custom | List of RBPs that the user holds | see below
+`https://www.boxtribute.com/base_ids` | custom | List of IDs of bases that the user has access to | see [below](#representation-of-current-user)
+`https://www.boxtribute.com/organisation_id` | custom | ID of the organisation the user belongs to | see [below](#representation-of-current-user)
+`https://www.boxtribute.com/permissions` | custom | List of RBPs that the user holds | see [below](#representation-of-current-user)
 
 ### Implementation of authorization
 
