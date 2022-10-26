@@ -11,11 +11,7 @@ import {
 } from "@chakra-ui/react";
 import { Select } from "chakra-react-select";
 
-import {
-  BoxByLabelIdentifierAndAllProductsQuery,
-  ProductGender,
-  UpdateLocationOfBoxMutation,
-} from "types/generated/graphql";
+import { BoxByLabelIdentifierAndAllProductsQuery, ProductGender } from "types/generated/graphql";
 import { Controller, useForm } from "react-hook-form";
 
 // import { groupBy } from "utils/helpers";
@@ -55,7 +51,7 @@ export interface IBoxFormValues {
   sizeId: string;
   productId: string;
   locationId: string;
-  comment: string;
+  comment: string | null;
 }
 
 interface ILocationData {
@@ -64,9 +60,7 @@ interface ILocationData {
 }
 
 interface IBoxEditProps {
-  boxData:
-    | BoxByLabelIdentifierAndAllProductsQuery["box"]
-    | UpdateLocationOfBoxMutation["updateBox"];
+  boxData: BoxByLabelIdentifierAndAllProductsQuery["box"];
   productAndSizesData: IProductWithSizeRangeData[];
   allLocations: ILocationData[];
   onSubmitBoxEditForm: (boxFormValues: IBoxFormValues) => void;
@@ -118,6 +112,7 @@ function BoxEdit({
       sizeId: boxData?.size.id,
       productId: boxData?.product?.id,
       locationId: boxData?.location?.id,
+      comment: boxData?.comment,
     },
   });
 
