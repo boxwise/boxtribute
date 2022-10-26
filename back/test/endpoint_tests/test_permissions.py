@@ -86,6 +86,8 @@ def test_invalid_permission(unauthorized, read_only_client, query):
         # Test case 10.1.5
         """user( id: 1) { id }""",
         """packingListEntry( id: 1 ) { id }""",
+        # Test case 3.1.6
+        """shipment( id: 5 ) { id }""",
     ],
     ids=operation_name,
 )

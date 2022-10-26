@@ -379,8 +379,12 @@ def resolve_transfer_agreement(*_, id):
 
 @query.field("shipment")
 def resolve_shipment(*_, id):
-    authorize(permission="shipment:read")
-    return Shipment.get_by_id(id)
+    shipment = Shipment.get_by_id(id)
+    authorize(
+        permission="shipment:read",
+        base_ids=[shipment.source_base_id, shipment.target_base_id],
+    )
+    return shipment
 
 
 @query.field("productCategories")
