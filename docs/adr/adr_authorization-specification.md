@@ -43,7 +43,7 @@ A usergroup reflects the user's responsibilities in the partner organisations. C
 - free shop volunteer
 - library volunteer
 - label creator
-- God user
+- God user (note: this is an application administration role and does not belong to a specific partner organisation)
 
 #### Permissions
 
