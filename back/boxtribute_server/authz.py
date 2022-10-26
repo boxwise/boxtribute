@@ -23,15 +23,7 @@ BASE_AGNOSTIC_RESOURCES = (
 )
 
 
-def authorize(
-    current_user=None,
-    *,
-    user_id=None,
-    organisation_id=None,
-    organisation_ids=None,
-    base_id=None,
-    permission=None,
-):
+def authorize(*args, **kwargs):
     """Check whether the current user (default: `g.user`) is authorized to access the
     specified resource.
     The god user is authorized to access anything.
@@ -41,6 +33,23 @@ def authorize(
     There are no HTTP 4xx status codes associated with the error since a GraphQL
     response is returned as 200 acc. to specification.
     """
+    kwargs["ignore_missing_base_info"] = False
+    return _authorize(*args, **kwargs)
+
+
+def _authorize(
+    current_user=None,
+    *,
+    user_id=None,
+    organisation_id=None,
+    organisation_ids=None,
+    base_id=None,
+    permission=None,
+    ignore_missing_base_info=False,
+):
+    """Function for internal use that acts like authorize() but allows for ignoring
+    missing base information.
+    """
     if current_user is None:
         current_user = g.user
     if current_user.is_god:
@@ -49,7 +58,11 @@ def authorize(
     authorized = False
     if permission is not None:
         resource = permission.split(":")[0]
-        if resource not in BASE_AGNOSTIC_RESOURCES and base_id is None:
+        if (
+            resource not in BASE_AGNOSTIC_RESOURCES
+            and base_id is None
+            and not ignore_missing_base_info
+        ):
             raise ValueError(f"Missing base_id for base-related resource '{resource}'.")
 
         base_ids = []
@@ -98,7 +111,7 @@ def authorized_bases_filter(model=Base):
         return True
 
     permission = f"{model.__name__.lower()}:read"
-    authorize(permission=permission)
+    _authorize(permission=permission, ignore_missing_base_info=True)
     base_ids = g.user.authorized_base_ids(permission)
     pattern = Base.id if model is Base else model.base
     return pattern << base_ids
