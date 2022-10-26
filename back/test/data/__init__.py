@@ -33,6 +33,7 @@ from .location import (
 )
 from .log import default_log
 from .organisation import another_organisation, default_organisation, organisations
+from .packing_list_entry import packing_list_entry
 from .product import another_product, default_product, products
 from .product_category import default_product_category
 from .product_gender import default_product_gender
@@ -107,6 +108,7 @@ __all__ = [
     "non_default_box_state_location",
     "null_box_state_location",
     "organisations",
+    "packing_list_entry",
     "prepared_shipment_detail",
     "products",
     "qr_code_without_box",
