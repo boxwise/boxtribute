@@ -72,6 +72,9 @@ def test_authorized_user():
     assert authorize(user, permission="stock:write", base_id=2)
     assert authorize(user, permission="location:write", base_id=4)
     assert authorize(user, permission="location:write", base_id=5)
+    assert authorize(user, permission="location:write", base_ids=[3, 4])
+    assert authorize(user, permission="location:write", base_ids=[4, 5])
+    assert authorize(user, permission="location:write", base_ids=[5, 6])
 
 
 def test_user_with_insufficient_permissions():
@@ -89,6 +92,12 @@ def test_user_with_insufficient_permissions():
     with pytest.raises(Forbidden):
         # The permission field exists but access granted for different base
         authorize(user, permission="beneficiary:create", base_id=1)
+    with pytest.raises(Forbidden):
+        # The permission field exists but access granted for different base
+        authorize(user, permission="beneficiary:create", base_ids=[1])
+    with pytest.raises(Forbidden):
+        # The permission field exists but access granted for different base
+        authorize(user, permission="beneficiary:create", base_ids=[3, 4])
     with pytest.raises(Forbidden):
         # The permission field exists but holds no bases
         authorize(user, permission="stock:write", base_id=1)

@@ -44,6 +44,7 @@ def _authorize(
     organisation_id=None,
     organisation_ids=None,
     base_id=None,
+    base_ids=None,
     permission=None,
     ignore_missing_base_info=False,
 ):
@@ -61,25 +62,28 @@ def _authorize(
         if (
             resource not in BASE_AGNOSTIC_RESOURCES
             and base_id is None
+            and base_ids is None
             and not ignore_missing_base_info
         ):
             raise ValueError(f"Missing base_id for base-related resource '{resource}'.")
 
-        base_ids = []
         try:
             # Look up base IDs for given permission
-            base_ids = current_user.authorized_base_ids(permission)
+            authzed_base_ids = current_user.authorized_base_ids(permission)
         except KeyError:
             # Permission not granted for user
-            authorized = False
+            authzed_base_ids = []
 
-        if base_ids:
-            # Permission field exists and access for at least one base granted
-            authorized = True
-
-        if authorized and base_id is not None:
+        if authzed_base_ids:
+            # Permission field exists and access for at least one base granted.
             # Enforce base-specific permission
-            authorized = int(base_id) in base_ids
+            if base_id is not None:
+                authorized = int(base_id) in authzed_base_ids
+            elif base_ids is not None:
+                authorized = any([int(b) in authzed_base_ids for b in base_ids])
+            elif resource in BASE_AGNOSTIC_RESOURCES:
+                authorized = True
+
     elif organisation_id is not None:
         authorized = organisation_id == current_user.organisation_id
     elif organisation_ids is not None:
