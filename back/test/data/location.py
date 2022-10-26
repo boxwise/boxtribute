@@ -60,6 +60,14 @@ def distribution_spot_data():
     return data
 
 
+def another_distribution_spot_data():
+    data = default_location_data()
+    data["id"] = 6
+    data["base"] = base_data()[2]["id"]
+    data["type"] = LocationType.DistributionSpot
+    return data
+
+
 @pytest.fixture()
 def another_location():
     return another_location_data()
@@ -95,3 +103,4 @@ def create():
     Location.create(**null_box_state_location_data())
     Location.create(**non_default_box_state_location_data())
     Location.create(**distribution_spot_data())
+    Location.create(**another_distribution_spot_data())

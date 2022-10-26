@@ -174,12 +174,11 @@ def resolve_tags(*_):
 @query.field("packingListEntry")
 def resolve_packing_list_entry(*_, id):
     mobile_distro_feature_flag_check(user_id=g.user.id)
-    # TODO: Consider to introduce here also base specific authorize checks
-    # in case we consider packingListEntries as sensitive data
-    # Also, the API user can probably get read access via the packingListEntry
-    # to boxes details via the matchingPackedItemsCollections sub field.
-    authorize(permission="packing_list_entry:read")
-    return PackingListEntry.get_by_id(id)
+    entry = (
+        PackingListEntry.select().join(Product).where(PackingListEntry.id == id).get()
+    )
+    authorize(permission="packing_list_entry:read", base_id=entry.product.base_id)
+    return entry
 
 
 @packing_list_entry.field("matchingPackedItemsCollections")
@@ -259,18 +258,16 @@ def resolve_distribution_events_for_distribution_events_tracking_group(
 @base.field("distributionEvents")
 def resolve_distributions_events_for_base(base_obj, _, states=None):
     mobile_distro_feature_flag_check(user_id=g.user.id)
-    authorize(
-        permission="distro_event:read",
-    )
+    authorize(permission="distro_event:read", base_id=base_obj.id)
     state_filter = DistributionEvent.state << states if states else True
+    # simplify with test
     distribution_events = (
         DistributionEvent.select()
-        .join(Location, on=(DistributionEvent.distribution_spot == Location.id))
-        .join(Base, on=(Location.base == Base.id))
+        .join(Location)
         .where(
-            (Base.id == base_obj.id)
-            & (Location.type == LocationType.DistributionSpot)
-            & (state_filter)
+            Location.base_id == base_obj.id,
+            Location.type == LocationType.DistributionSpot,
+            state_filter,
         )
     )
     return distribution_events
@@ -1013,7 +1010,7 @@ def resolve_send_shipment(*_, id):
 @base.field("distributionEventsStatistics")
 def resolve_base_distribution_events_statistics(base_obj, _):
     mobile_distro_feature_flag_check(user_id=g.user.id)
-    authorize(permission="distro_event:read")
+    authorize(permission="distro_event:read", base_id=base_obj.id)
 
     res = DistributionEventsTrackingGroup.raw(
         """select
@@ -1098,7 +1095,7 @@ def resolve_distributions_spots(base_obj, _):
 @base.field("distributionSpots")
 def resolve_base_distributions_spots(base_obj, _):
     mobile_distro_feature_flag_check(user_id=g.user.id)
-    authorize(permission="location:read")
+    authorize(permission="location:read", base_id=base_obj.id)
     base_filter_condition = Location.base == base_obj.id
     return (
         Location.select()
@@ -1176,7 +1173,7 @@ def resolve_tracking_group_of_distribution_event(distro_event_obj, *_):
 @base.field("distributionEventsTrackingGroups")
 def resolve_base_distribution_events_tracking_groups(base_obj, _, states=None):
     mobile_distro_feature_flag_check(user_id=g.user.id)
-    authorize(permission="distro_event:read")
+    authorize(permission="distro_event:read", base_id=base_obj.id)
     state_filter = DistributionEventsTrackingGroup.state << states if states else True
     return DistributionEventsTrackingGroup.select().where(
         (DistributionEventsTrackingGroup.base == base_obj.id) & (state_filter)
