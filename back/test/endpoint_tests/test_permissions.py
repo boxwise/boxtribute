@@ -273,13 +273,35 @@ def test_invalid_permission_for_location_boxes(read_only_client, mocker):
     assert_forbidden_request(read_only_client, query, value={"boxes": None})
 
 
-def test_invalid_permission_for_qr_code_box(read_only_client, mocker, default_qr_code):
-    # verify missing stock:read permission
+def test_invalid_permission_for_qr_code_box(
+    read_only_client, mocker, default_qr_code, another_qr_code_with_box
+):
+    # Test case 8.1.10
+    # Verify missing stock:read permission
     mocker.patch("jose.jwt.decode").return_value = create_jwt_payload(
         permissions=["qr:read"]
     )
     code = default_qr_code["code"]
     query = f"""query {{ qrCode(qrCode: "{code}") {{ box {{ id }} }} }}"""
+    assert_forbidden_request(read_only_client, query, value={"box": None})
+
+    # Test case 8.1.11
+    # Verify missing base-specific stock:read permission (the QR code belongs to a box
+    # from a base that the user is not authorized for. Hence it's especially prohibited
+    # to access beneficiary data through a common tag)
+    mocker.patch("jose.jwt.decode").return_value = create_jwt_payload(
+        permissions=[
+            "qr:read",
+            "stock:read",
+            "tag:read",
+            "tag_relation:read",
+            "beneficiary:read",
+        ],
+        base_ids=[1],
+    )
+    code = another_qr_code_with_box["code"]  # the associated box is in base ID 3
+    query = f"""query {{ qrCode(qrCode: "{code}") {{
+        box {{ tags {{ taggedResources {{ ...on Beneficiary {{ id }} }} }} }} }} }}"""
     assert_forbidden_request(read_only_client, query, value={"box": None})
 
 

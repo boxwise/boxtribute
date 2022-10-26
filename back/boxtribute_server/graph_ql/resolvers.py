@@ -1329,8 +1329,9 @@ def resolve_product_category_products(product_category_obj, _, pagination_input=
 
 @qr_code.field("box")
 def resolve_qr_code_box(qr_code_obj, _):
-    authorize(permission="stock:read")
-    return Box.get(Box.qr_code == qr_code_obj.id)
+    box = Box.select().join(Location).where(Box.qr_code == qr_code_obj.id).get()
+    authorize(permission="stock:read", base_id=box.location.base_id)
+    return box
 
 
 @shipment.field("details")
