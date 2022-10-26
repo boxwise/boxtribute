@@ -1339,37 +1339,61 @@ def resolve_shipment_details(shipment_obj, _):
 
 @shipment.field("sourceBase")
 def resolve_shipment_source_base(shipment_obj, _):
-    authorize(permission="base:read")
+    authorize(permission="base:read", base_id=shipment_obj.source_base_id)
     return shipment_obj.source_base
 
 
 @shipment.field("targetBase")
 def resolve_shipment_target_base(shipment_obj, _):
-    authorize(permission="base:read")
+    authorize(permission="base:read", base_id=shipment_obj.target_base_id)
     return shipment_obj.target_base
 
 
 @shipment_detail.field("sourceProduct")
 def resolve_shipment_detail_source_product(detail_obj, _):
-    authorize(permission="product:read")
+    authorize(
+        permission="product:read",
+        base_ids=[
+            detail_obj.shipment.source_base_id,
+            detail_obj.shipment.target_base_id,
+        ],
+    )
     return detail_obj.source_product
 
 
 @shipment_detail.field("targetProduct")
 def resolve_shipment_detail_target_product(detail_obj, _):
-    authorize(permission="product:read")
+    authorize(
+        permission="product:read",
+        base_ids=[
+            detail_obj.shipment.source_base_id,
+            detail_obj.shipment.target_base_id,
+        ],
+    )
     return detail_obj.target_product
 
 
 @shipment_detail.field("sourceLocation")
 def resolve_shipment_detail_source_location(detail_obj, _):
-    authorize(permission="location:read")
+    authorize(
+        permission="location:read",
+        base_ids=[
+            detail_obj.shipment.source_base_id,
+            detail_obj.shipment.target_base_id,
+        ],
+    )
     return detail_obj.source_location
 
 
 @shipment_detail.field("targetLocation")
 def resolve_shipment_detail_target_location(detail_obj, _):
-    authorize(permission="location:read")
+    authorize(
+        permission="location:read",
+        base_ids=[
+            detail_obj.shipment.source_base_id,
+            detail_obj.shipment.target_base_id,
+        ],
+    )
     return detail_obj.target_location
 
 
