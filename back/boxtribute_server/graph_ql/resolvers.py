@@ -944,7 +944,10 @@ def resolve_cancel_transfer_agreement(*_, id):
 @mutation.field("createShipment")
 @convert_kwargs_to_snake_case
 def resolve_create_shipment(*_, creation_input):
-    authorize(permission="shipment:create")
+    authorize(
+        permission="shipment:create",
+        base_ids=[creation_input["source_base_id"], creation_input["target_base_id"]],
+    )
     agreement = TransferAgreement.get_by_id(creation_input["transfer_agreement_id"])
     organisation_ids = [agreement.source_organisation_id]
     if agreement.type == TransferAgreementType.Bidirectional:
@@ -956,9 +959,12 @@ def resolve_create_shipment(*_, creation_input):
 @mutation.field("updateShipment")
 @convert_kwargs_to_snake_case
 def resolve_update_shipment(*_, update_input):
-    authorize(permission="shipment:edit")
-
     shipment = Shipment.get_by_id(update_input["id"])
+    authorize(
+        permission="shipment:edit",
+        base_ids=[shipment.source_base_id, shipment.target_base_id],
+    )
+
     source_update_fields = [
         "prepared_box_label_identifiers",
         "removed_box_label_identifiers",
@@ -985,8 +991,11 @@ def resolve_update_shipment(*_, update_input):
 
 @mutation.field("cancelShipment")
 def resolve_cancel_shipment(*_, id):
-    authorize(permission="shipment:edit")
     shipment = Shipment.get_by_id(id)
+    authorize(
+        permission="shipment:edit",
+        base_ids=[shipment.source_base_id, shipment.target_base_id],
+    )
     authorize(
         organisation_ids=[
             shipment.transfer_agreement.source_organisation_id,
@@ -998,8 +1007,11 @@ def resolve_cancel_shipment(*_, id):
 
 @mutation.field("sendShipment")
 def resolve_send_shipment(*_, id):
-    authorize(permission="shipment:edit")
     shipment = Shipment.get_by_id(id)
+    authorize(
+        permission="shipment:edit",
+        base_ids=[shipment.source_base_id, shipment.target_base_id],
+    )
     authorize(organisation_id=shipment.source_base.organisation_id)
     return send_shipment(id=id, user=g.user)
 
