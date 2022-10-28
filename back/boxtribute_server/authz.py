@@ -105,10 +105,11 @@ def _authorize(
         raise Forbidden(resource, value, current_user.__dict__)
 
 
-def authorized_bases_filter(model=Base):
+def authorized_bases_filter(model=Base, *, base_fk_field_name="base"):
     """Derive base filter condition for given resource model depending the current
-    user's base-specific permissions. The resource model must have a 'base' field, and
-    the lower-case model name must match the permission resource name.
+    user's base-specific permissions. The resource model must have a FK field referring
+    to the Base model named 'base_fk_field_name'.
+    The lower-case model name must match the permission resource name.
     See also `auth.requires_auth()`.
     """
     if g.user.is_god:
@@ -117,7 +118,7 @@ def authorized_bases_filter(model=Base):
     permission = f"{model.__name__.lower()}:read"
     _authorize(permission=permission, ignore_missing_base_info=True)
     base_ids = g.user.authorized_base_ids(permission)
-    pattern = Base.id if model is Base else model.base
+    pattern = Base.id if model is Base else getattr(model, base_fk_field_name)
     return pattern << base_ids
 
 
