@@ -266,7 +266,7 @@ function BoxEdit({
           <ListItem>
             <FormLabel htmlFor="comment">Comment</FormLabel>
             <Box border="2px">
-              <Input border="0" type="srting" {...register("comment")} />
+              <Input border="0" type="string" {...register("comment")} />
             </Box>
           </ListItem>
         </List>
