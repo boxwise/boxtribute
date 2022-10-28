@@ -10,7 +10,6 @@ import {
   Input,
 } from "@chakra-ui/react";
 import { Select } from "chakra-react-select";
-
 import { BoxByLabelIdentifierAndAllProductsQuery, ProductGender } from "types/generated/graphql";
 import { Controller, useForm } from "react-hook-form";
 
@@ -46,12 +45,19 @@ interface IDropdownOption {
   label: string;
 }
 
+interface ITagData {
+  id: string;
+  name: string;
+  color?: string | null;
+}
+
 export interface IBoxFormValues {
   numberOfItems: number;
   sizeId: string;
   productId: string;
   locationId: string;
   comment: string | null;
+  tags?: ITagData[] | null | undefined;
 }
 
 interface ILocationData {
@@ -63,6 +69,7 @@ interface IBoxEditProps {
   boxData: BoxByLabelIdentifierAndAllProductsQuery["box"];
   productAndSizesData: IProductWithSizeRangeData[];
   allLocations: ILocationData[];
+  allTags: ITagData[] | null | undefined;
   onSubmitBoxEditForm: (boxFormValues: IBoxFormValues) => void;
 }
 
@@ -70,12 +77,18 @@ function BoxEdit({
   productAndSizesData,
   boxData,
   allLocations,
+  allTags,
   onSubmitBoxEditForm,
 }: IBoxEditProps) {
   const productsGroupedByCategory = _.groupBy(
     productAndSizesData,
     (product) => product.category.name,
   );
+
+  const tagsForDropdownGroups = allTags?.map((tag) => ({
+    label: tag.name,
+    value: tag.id,
+  }));
 
   const locationsForDropdownGroups = allLocations
     .map((location) => ({
@@ -113,6 +126,7 @@ function BoxEdit({
       productId: boxData?.product?.id,
       locationId: boxData?.location?.id,
       comment: boxData?.comment,
+      tags: boxData?.tags,
     },
   });
 
@@ -256,6 +270,36 @@ function BoxEdit({
                       placeholder="Location"
                       isSearchable
                       tagVariant="outline"
+                    />
+                  </Box>
+                  <FormErrorMessage>{error && error.message}</FormErrorMessage>
+                </FormControl>
+              )}
+            />
+          </ListItem>
+          <ListItem>
+            <Controller
+              control={control}
+              name="tags"
+              render={({
+                field: { onChange, onBlur, value, name, ref },
+                fieldState: { error },
+              }) => (
+                <FormControl isInvalid={!!error} id="tags">
+                  <FormLabel>Tags</FormLabel>
+                  <Box border="2px">
+                    <Select
+                      name={name}
+                      ref={ref}
+                      onChange={(selectedOption) => onChange(selectedOption)}
+                      onBlur={onBlur}
+                      // value={tagsForDropdownGroups?.find((el) => el.value === value) || null}
+                      options={tagsForDropdownGroups}
+                      placeholder="Tags"
+                      isMulti
+                      isSearchable
+                      tagVariant="outline"
+                      focusBorderColor="transparent"
                     />
                   </Box>
                   <FormErrorMessage>{error && error.message}</FormErrorMessage>

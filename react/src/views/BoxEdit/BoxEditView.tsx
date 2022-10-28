@@ -19,6 +19,11 @@ export const BOX_BY_LABEL_IDENTIFIER_AND_ALL_PRODUCTS_QUERY = gql`
       }
       numberOfItems
       comment
+      tags {
+        id
+        name
+        color
+      }
       product {
         id
         name
@@ -40,6 +45,12 @@ export const BOX_BY_LABEL_IDENTIFIER_AND_ALL_PRODUCTS_QUERY = gql`
           }
         }
       }
+    }
+
+    tags {
+      id
+      name
+      color
     }
 
     products(paginationInput: { first: 5000 }) {
@@ -134,6 +145,7 @@ function BoxEditView() {
   }
   const boxData = data?.box;
   const productAndSizesData = data?.products;
+  const allTags = data?.tags;
   const allLocations = data?.box?.location?.base?.locations.map((location) => ({
     ...location,
     name: location.name ?? "",
@@ -157,6 +169,7 @@ function BoxEditView() {
       onSubmitBoxEditForm={onSubmitBoxEditForm}
       productAndSizesData={productAndSizesData?.elements}
       allLocations={allLocations}
+      allTags={allTags}
     />
   );
 }
