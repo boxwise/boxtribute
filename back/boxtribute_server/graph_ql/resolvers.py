@@ -445,11 +445,9 @@ def resolve_transfer_agreements(*_, states=None):
 
 @query.field("shipments")
 def resolve_shipments(*_):
-    authorize(permission="shipment:read")
-    return (
-        Shipment.select()
-        .join(TransferAgreement)
-        .where(agreement_organisation_filter_condition())
+    return Shipment.select().orwhere(
+        authorized_bases_filter(Shipment, base_fk_field_name="source_base"),
+        authorized_bases_filter(Shipment, base_fk_field_name="target_base"),
     )
 
 
@@ -1339,13 +1337,19 @@ def resolve_shipment_details(shipment_obj, _):
 
 @shipment.field("sourceBase")
 def resolve_shipment_source_base(shipment_obj, _):
-    authorize(permission="base:read", base_id=shipment_obj.source_base_id)
+    authorize(
+        permission="base:read",
+        base_ids=[shipment_obj.source_base_id, shipment_obj.target_base_id],
+    )
     return shipment_obj.source_base
 
 
 @shipment.field("targetBase")
 def resolve_shipment_target_base(shipment_obj, _):
-    authorize(permission="base:read", base_id=shipment_obj.target_base_id)
+    authorize(
+        permission="base:read",
+        base_ids=[shipment_obj.source_base_id, shipment_obj.target_base_id],
+    )
     return shipment_obj.target_base
 
 
