@@ -281,10 +281,7 @@ function BoxEdit({
             <Controller
               control={control}
               name="tags"
-              render={({
-                field: { onChange, onBlur, value, name, ref },
-                fieldState: { error },
-              }) => (
+              render={({ field: { onChange, onBlur, name, ref }, fieldState: { error } }) => (
                 <FormControl isInvalid={!!error} id="tags">
                   <FormLabel>Tags</FormLabel>
                   <Box border="2px">
