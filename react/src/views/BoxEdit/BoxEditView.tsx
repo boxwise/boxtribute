@@ -18,6 +18,7 @@ export const BOX_BY_LABEL_IDENTIFIER_AND_ALL_PRODUCTS_QUERY = gql`
         label
       }
       numberOfItems
+      comment
       product {
         id
         name
@@ -68,6 +69,7 @@ export const UPDATE_CONTENT_OF_BOX_MUTATION = gql`
     $locationId: Int!
     $numberOfItems: Int!
     $sizeId: Int!
+    $comment: String
   ) {
     updateBox(
       updateInput: {
@@ -76,6 +78,7 @@ export const UPDATE_CONTENT_OF_BOX_MUTATION = gql`
         numberOfItems: $numberOfItems
         sizeId: $sizeId
         locationId: $locationId
+        comment: $comment
       }
     ) {
       labelIdentifier
@@ -112,6 +115,7 @@ function BoxEditView() {
         boxLabelIdentifier: labelIdentifier,
         productId: parseInt(boxFormValues.productId, 10),
         numberOfItems: boxFormValues.numberOfItems,
+        comment: boxFormValues.comment,
         sizeId: parseInt(boxFormValues.sizeId, 10),
         locationId: parseInt(boxFormValues.locationId, 10),
       },
