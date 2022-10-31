@@ -200,6 +200,7 @@ export type BoxUpdateInput = {
   productId?: InputMaybe<Scalars['Int']>;
   sizeId?: InputMaybe<Scalars['Int']>;
   state?: InputMaybe<BoxState>;
+  tagIds?: InputMaybe<Array<Scalars['Int']>>;
 };
 
 /**
