@@ -44,7 +44,7 @@
         "@graphql-codegen/typescript": "^2.7.4",
         "@graphql-codegen/typescript-operations": "^2.5.4",
         "@graphql-codegen/typescript-react-query": "^4.0.2",
-        "@sentry/types": "^7.15.0",
+        "@sentry/types": "^7.17.2",
         "@storybook/addon-actions": "^6.5.12",
         "@storybook/addon-essentials": "^6.5.12",
         "@storybook/addon-interactions": "^6.5.12",
