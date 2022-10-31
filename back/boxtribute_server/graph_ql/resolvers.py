@@ -852,6 +852,10 @@ def resolve_update_box(*_, update_input):
         requested_product = Product.get_by_id(product_id)
         authorize(permission="product:read", base_id=requested_product.base_id)
 
+    tag_ids = update_input.get("tag_ids", [])
+    for tag in Tag.select().where(Tag.id << tag_ids):
+        authorize(permission="tag_relation:assign", base_id=tag.base_id)
+
     return update_box(user_id=g.user.id, **update_input)
 
 
