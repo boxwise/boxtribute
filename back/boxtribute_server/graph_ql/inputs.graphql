@@ -19,6 +19,7 @@ input BoxUpdateInput {
   locationId: Int
   comment: String
   state: BoxState
+  tagIds: [Int!]
 }
 
 input BeneficiaryCreationInput {

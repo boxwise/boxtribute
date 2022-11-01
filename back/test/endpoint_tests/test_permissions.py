@@ -239,6 +239,12 @@ def test_invalid_write_permission(unauthorized, read_only_client, mutation):
                 labelIdentifier: "12345678",
                 productId: 2
             }) { id }""",
+        # Test case 8.2.21
+        """updateBox(
+            updateInput : {
+                labelIdentifier: "12345678",
+                tagIds: [4]
+            }) { id }""",
     ],
     ids=operation_name,
 )
