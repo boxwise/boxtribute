@@ -12,13 +12,13 @@ Implementation on-going.
 
 ## Context
 
-The `boxtribute` application is used by various organisations to manage distribution of aid goods. Some data stored contains personal, confidential information and must not be exposed to unintended parties. Implementation of authorization measures is required to define and enforce data excess depending on the current application user.
+The `boxtribute` application is used by various organisations to manage distribution of aid goods. Some data stored contains personal, confidential information of individuals in vulnerable situations. These individuals have a right to privacy, hence their data must not be exposed to unintended parties. Implementation of authorization measures is required to define and enforce data excess depending on the current application user.
 
 The current document serves as a summary of decisions about user authorization in the boxtribute application.
 
 ## Decision drives
 
-1. Security: exposure of confidential data must be prohibited
+1. Security: exposure of confidential data must be prohibited for legal and ethical reasons
 1. Clarity: make the governing structures easy to understand for stakeholders (users, product management, developers)
 1. Single source of trust: data for controlling authorization must not be distributed
 1. Simplicity during development: enforcing authorization should be straightforward for developers while guaranteeing security
@@ -33,9 +33,9 @@ The current document serves as a summary of decisions about user authorization i
 
 The `boxtribute` partner organisations operate in one or more sites each, called `bases`. Any registered user belongs to exactly one organisation, and one or more bases subordinated to this organisation. Hence they must not be granted access to any resource outside of the organisation or bases they're assigned to (there are exceptions to this rule depending on the context, e.g. for box transfers).
 
-#### Usergroups
+#### Roles
 
-A usergroup reflects the user's responsibilities in the partner organisations. Currently, these usergroups exist:
+A role reflects the user's responsibilities in the partner organisations. Currently, these roles exist:
 
 - administrator (head of operations)
 - coordinator
@@ -68,7 +68,7 @@ The mapping of usergroup to ABPs, and ABP to RBPs is listed in [this document](h
 
 ### User management in Auth0
 
-[Auth0](https://auth0.com) is a service for managing user authentication and authorization. It serves as single source of truth. An authenticated user gets issued a JSON Web Token (JWT) holding their authorization information. For signing the JWT we use the RS256 algorithm: the token will be signed with our private signing key and can be verified using our public signing key.
+[Auth0](https://auth0.com) is a service for managing user authentication and authorization. It serves as single source of truth. An authenticated user gets issued a JSON Web Token (JWT) in one of two variants holding their information: the ID token with authentication information, and the access token with authorization information. For signing the JWT we use the RS256 algorithm: the token will be signed with our private signing key and can be verified using our public signing key.
 
 #### Reasons to use Auth0
 
@@ -83,16 +83,14 @@ Any user registered for boxtribute has their authorization data (`app_metadata`)
 - `base_ids`: a list of base IDs that the user has access to
 - `organisation_id`: the ID of the organisation the user belongs to
 
-During registration, the user gets assigned a role, indicating their usergroup and the bases they belong to. The role is named like `base_1_coordinator`.
+During registration, the user manually gets assigned a role, indicating their usergroup and the bases they belong to. The role is named like `base_1_coordinator`.
 
-From the user's role the ABPs are derived via a script (?).
-
-When the user has successfully logged in, an Auth0 post-login action script runs. The script creates a JWT with the content derived from user authorization data and their role.
-Most importantly the script creates base-specific RBPs for the current user (see below about their format).
+When the user has successfully logged in, a custom Auth0 post-login action script runs ([`create-dynamic-permissions`](https://github.com/boxwise/system-management/blob/main/services/auth0/dev/actions/create-dynamic-permissions/code.js)). The script creates a JWT with the content derived from user authorization data and their role.
+Most importantly the script derives ABPs and base-specific RBPs for the current user (see below about their format).
 
 #### Specification of custom JWT
 
-The JWT contains standard and customs fields.
+The JWT (access and ID token, unless specified otherwise) contains standard and customs fields.
 
 Field name | Kind | Description | Usage
 :--- | :--- | :--- | :---
@@ -107,7 +105,7 @@ Field name | Kind | Description | Usage
 `https://www.boxtribute.com/roles` | custom | List of user's roles | -
 `https://www.boxtribute.com/base_ids` | custom | List of IDs of bases that the user has access to | see [below](#representation-of-current-user)
 `https://www.boxtribute.com/organisation_id` | custom | ID of the organisation the user belongs to | see [below](#representation-of-current-user)
-`https://www.boxtribute.com/permissions` | custom | List of RBPs that the user holds | see [below](#representation-of-current-user)
+`https://www.boxtribute.com/permissions` | custom | List of RBPs that the user holds (only in access token) | see [below](#representation-of-current-user)
 
 ### Implementation of authorization
 
@@ -115,13 +113,17 @@ Field name | Kind | Description | Usage
 
 #### boxtribute 2.0 front-end
 
+The information of the JWT ID token is used.
+
+[Work in progress.](https://trello.com/c/HvzKBexq)
+
 #### boxtribute 2.0 back-end
 
 When a user issues a request to the back-end, their authorization information needs to be pulled out and converted into a representation that can be programmatically used. Before data is accessed according to the request, the respective permissions are enforced on the current user.
 
 ##### Decoding of JWT
 
-Any valid request (i.e. by an authenticated user) to the back-end contains a JWT as `bearer` string in the HTTP authorization header. When a URL endpoint is hit, the token is extracted and decoded (in `auth.requires_auth()`)
+Any valid request (i.e. by an authenticated user) to the back-end contains a JWT access token as `bearer` string in the HTTP authorization header. When a URL endpoint is hit, the token is extracted and decoded (in `auth.requires_auth()`)
 
 The decoding routine (`auth.decode_jwt()`) has to be provided with the public key of the Auth0 domain. The decoding fails with a 401 response if one of the following cases happen:
 
@@ -149,7 +151,7 @@ The decoded JWT payload is converted into a `CurrentUser` instance with the foll
 - the user ID is extracted from the `sub` claim and assigned to `id`
 - if `is_god` is false, the permissions custom claim is parsed:
     - an element of form `base_X/permission` (`permission` is an RBP of form `resource:method`) results in the entry `{permission: [X]` for `base_ids`
-    - if multiple base IDs are given, they are grouped: `base_X-Y/permission` results in `{permission: [X, Y]`
+    - if multiple base IDs are given, they are grouped: `base_X-Y/permission` results in `{permission: [X, Y]` (in order to reduce payload size)
     - a `write`, `edit`, `create` permission method implies `read` permission on the same resource
     - if the element has no `base_X` prefix, the custom claim `base_ids` is used to form an entry `{permission: base_ids}`
     - for examples please see `CurrentUser.from_jwt()`
