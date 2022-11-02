@@ -8,6 +8,7 @@ from flask import Blueprint, current_app, jsonify, request
 from flask_cors import cross_origin
 
 from .auth import request_jwt, requires_auth
+from .authz import check_beta_feature_access
 from .exceptions import AuthenticationFailed, format_database_errors
 from .graph_ql.schema import full_api_schema, query_api_schema
 from .loaders import (
@@ -85,6 +86,10 @@ def graphql_playgroud():
 @requires_auth
 def graphql_server():
     log_request_to_gcloud(context=WEBAPP_CONTEXT)
+
+    if not check_beta_feature_access(request.get_json()["query"]):
+        return {"error": "No permission to access beta feature"}, 401
+
     return execute_async(schema=full_api_schema)
 
 
