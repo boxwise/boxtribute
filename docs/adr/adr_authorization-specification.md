@@ -152,7 +152,7 @@ The decoded JWT payload is converted into a `CurrentUser` instance with the foll
 - if `is_god` is false, the permissions custom claim is parsed:
     - an element of form `base_X/permission` (`permission` is an RBP of form `resource:method`) results in the entry `{permission: [X]` for `base_ids`
     - if multiple base IDs are given, they are grouped: `base_X-Y/permission` results in `{permission: [X, Y]` (in order to reduce payload size)
-    - a `write`, `edit`, `create` permission method implies `read` permission on the same resource
+    - a `write`, `edit`, `create`, `delete` permission method implies `read` permission on the same resource
     - if the element has no `base_X` prefix, the custom claim `base_ids` is used to form an entry `{permission: base_ids}`
     - for examples please see `CurrentUser.from_jwt()`
 
