@@ -273,6 +273,13 @@ def test_update_box_tag_ids(client, default_box, tags):
     updated_box = assert_successful_request(client, mutation)
     assert updated_box == {"tags": [{"id": tag_id}, {"id": another_tag_id}]}
 
+    # Remove all assigned tags when passing empty list
+    mutation = f"""mutation {{ updateBox(updateInput : {{
+                    labelIdentifier: "{label_identifier}"
+                    tagIds: [] }} ) {{ tags {{ id }} }} }}"""
+    updated_box = assert_successful_request(client, mutation)
+    assert updated_box == {"tags": []}
+
 
 def _format(parameter):
     try:

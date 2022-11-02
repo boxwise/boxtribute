@@ -132,7 +132,7 @@ def update_box(
         box.size = size_id
     if state is not None:
         box.state = state
-    if tag_ids:
+    if tag_ids is not None:
         # Find all tag IDs that are currently assigned to the box
         assigned_tag_ids = set(
             r.tag_id
