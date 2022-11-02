@@ -9,7 +9,7 @@ import {
   Heading,
   Input,
 } from "@chakra-ui/react";
-import { Select } from "chakra-react-select";
+import { Select, OptionBase } from "chakra-react-select";
 import { BoxByLabelIdentifierAndAllProductsQuery, ProductGender } from "types/generated/graphql";
 import { Controller, useForm } from "react-hook-form";
 
@@ -45,9 +45,9 @@ interface IDropdownOption {
   label: string;
 }
 
-interface ITagData {
-  id: string;
-  name: string;
+interface ITagData extends OptionBase {
+  value: string;
+  label: string;
   color?: string | null;
 }
 
@@ -85,9 +85,9 @@ function BoxEdit({
     (product) => product.category.name,
   );
 
-  const tagsForDropdownGroups = allTags?.map((tag) => ({
-    label: tag.name,
-    value: tag.id,
+  const tagsForDropdownGroups: Array<ITagData> | undefined = allTags?.map((tag) => ({
+    label: tag.label,
+    value: tag.value,
   }));
 
   const locationsForDropdownGroups = allLocations
@@ -281,16 +281,19 @@ function BoxEdit({
             <Controller
               control={control}
               name="tags"
-              render={({ field: { onChange, onBlur, name, ref }, fieldState: { error } }) => (
+              render={({
+                field: { onChange, onBlur, name, value, ref },
+                fieldState: { error },
+              }) => (
                 <FormControl isInvalid={!!error} id="tags">
                   <FormLabel>Tags</FormLabel>
                   <Box border="2px">
                     <Select
                       name={name}
                       ref={ref}
-                      onChange={(selectedOption) => onChange(selectedOption)}
+                      onChange={onChange}
                       onBlur={onBlur}
-                      // value={tagsForDropdownGroups?.find((el) => el.value === value) || null}
+                      value={value}
                       options={tagsForDropdownGroups}
                       placeholder="Tags"
                       isMulti

@@ -20,8 +20,8 @@ export const BOX_BY_LABEL_IDENTIFIER_AND_ALL_PRODUCTS_QUERY = gql`
       numberOfItems
       comment
       tags {
-        id
-        name
+        value: id
+        label: name
         color
       }
       product {
@@ -48,8 +48,8 @@ export const BOX_BY_LABEL_IDENTIFIER_AND_ALL_PRODUCTS_QUERY = gql`
     }
 
     tags {
-      id
-      name
+      value: id
+      label: name
       color
     }
 
@@ -81,6 +81,7 @@ export const UPDATE_CONTENT_OF_BOX_MUTATION = gql`
     $numberOfItems: Int!
     $sizeId: Int!
     $comment: String
+    $tagIds: [Int!]
   ) {
     updateBox(
       updateInput: {
@@ -90,6 +91,7 @@ export const UPDATE_CONTENT_OF_BOX_MUTATION = gql`
         sizeId: $sizeId
         locationId: $locationId
         comment: $comment
+        tagIds: $tagIds
       }
     ) {
       labelIdentifier
@@ -121,14 +123,19 @@ function BoxEditView() {
     // eslint-disable-next-line no-console
     console.log("boxFormValues", boxFormValues);
 
+    const tagIds = boxFormValues?.tags
+      ? boxFormValues?.tags?.map((tag) => parseInt(tag.value, 10))
+      : [];
+
     updateContentOfBoxMutation({
       variables: {
         boxLabelIdentifier: labelIdentifier,
         productId: parseInt(boxFormValues.productId, 10),
         numberOfItems: boxFormValues.numberOfItems,
-        comment: boxFormValues.comment,
+        comment: boxFormValues?.comment ? boxFormValues?.comment : "",
         sizeId: parseInt(boxFormValues.sizeId, 10),
         locationId: parseInt(boxFormValues.locationId, 10),
+        tagIds,
       },
     })
       .then((mutationResult) => {
@@ -143,9 +150,11 @@ function BoxEditView() {
   if (loading) {
     return <APILoadingIndicator />;
   }
+
   const boxData = data?.box;
   const productAndSizesData = data?.products;
-  const allTags = data?.tags;
+  const allTags = data?.tags || null;
+
   const allLocations = data?.box?.location?.base?.locations.map((location) => ({
     ...location,
     name: location.name ?? "",
