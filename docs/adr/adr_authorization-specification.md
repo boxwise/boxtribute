@@ -111,6 +111,15 @@ Field name | Kind | Description | Usage
 
 #### Dropapp
 
+When a new base is created, the following is created:
+- in dropapp the usergroups: administrator (only created when an organisation is created), coordinator, volunteer (combination of warehouse/free shop volunteer), warehouse volunteer, free shop volunteer, label creator.
+- in Auth0 all roles of the section roles.
+- in dropapp database table `usergroups_roles` a mapping between the user groups and roles.
+
+The mapping between user groups in dropapp and roles in Auth0 is needed because only one user group can be assigned to a user in dropapp, but multiple roles can be assigned to a user in Auth0.
+
+When a user is created/edited a user group must be assigned. Through the mapping the corresponding roles are then assigned in Auth0 to the user.
+
 #### boxtribute 2.0 front-end
 
 The information of the JWT ID token is used.
