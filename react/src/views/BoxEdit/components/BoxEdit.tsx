@@ -195,7 +195,7 @@ function BoxEdit({
                 field: { onChange, onBlur, value, name, ref },
                 fieldState: { error },
               }) => (
-                <FormControl isInvalid={!!error} id="products">
+                <FormControl isRequired isInvalid={!!error} id="products">
                   <FormLabel>Product</FormLabel>
                   <Box border="2px">
                     <Select
@@ -225,7 +225,7 @@ function BoxEdit({
               control={control}
               name="sizeId"
               render={({ field, fieldState: { invalid, error } }) => (
-                <FormControl isInvalid={invalid} id="size">
+                <FormControl isRequired isInvalid={invalid} id="size">
                   <FormLabel htmlFor="size">Size</FormLabel>
                   <Box border="2px">
                     <Select
@@ -249,17 +249,19 @@ function BoxEdit({
           </ListItem>
 
           <ListItem>
-            <FormLabel htmlFor="numberOfItems">Number Of Items</FormLabel>
-            <Box border="2px">
-              <Input
-                border="0"
-                type="number"
-                {...register("numberOfItems", {
-                  valueAsNumber: true,
-                  validate: (value) => value > 0,
-                })}
-              />
-            </Box>
+            <FormControl isRequired id="numberOfItems">
+              <FormLabel htmlFor="numberOfItems">Number Of Items</FormLabel>
+              <Box border="2px">
+                <Input
+                  border="0"
+                  type="number"
+                  {...register("numberOfItems", {
+                    valueAsNumber: true,
+                    validate: (value) => value > 0,
+                  })}
+                />
+              </Box>
+            </FormControl>
           </ListItem>
           <ListItem>
             <Controller
@@ -269,7 +271,7 @@ function BoxEdit({
                 field: { onChange, onBlur, value, name, ref },
                 fieldState: { error },
               }) => (
-                <FormControl isInvalid={!!error} id="locationForDropdown">
+                <FormControl isRequired isInvalid={!!error} id="locationForDropdown">
                   <FormLabel htmlFor="locationForDropdown">Location</FormLabel>
                   <Box border="2px">
                     <Select
