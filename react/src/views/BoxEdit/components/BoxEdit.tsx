@@ -8,6 +8,8 @@ import {
   FormLabel,
   Heading,
   Input,
+  ButtonGroup,
+  Stack,
 } from "@chakra-ui/react";
 import { Select, OptionBase } from "chakra-react-select";
 import { BoxByLabelIdentifierAndAllProductsQuery, ProductGender } from "types/generated/graphql";
@@ -17,6 +19,7 @@ import { Controller, useForm } from "react-hook-form";
 import { useEffect, useState } from "react";
 
 import _ from "lodash";
+import { useNavigate, useParams } from "react-router-dom";
 
 export interface ICategoryData {
   name: string;
@@ -80,6 +83,13 @@ function BoxEdit({
   allTags,
   onSubmitBoxEditForm,
 }: IBoxEditProps) {
+  const { baseId, labelIdentifier } = useParams<{
+    baseId: string;
+    labelIdentifier: string;
+  }>();
+
+  const navigate = useNavigate();
+
   const productsGroupedByCategory = _.groupBy(
     productAndSizesData,
     (product) => product.category.name,
@@ -112,6 +122,15 @@ function BoxEdit({
     })
     .sort((a, b) => a.label.localeCompare(b.label));
 
+  const defaultValues = {
+    numberOfItems: boxData?.numberOfItems || 0,
+    sizeId: boxData?.size.id,
+    productId: boxData?.product?.id,
+    locationId: boxData?.location?.id,
+    comment: boxData?.comment,
+    tags: boxData?.tags,
+  };
+
   const {
     handleSubmit,
     control,
@@ -120,14 +139,7 @@ function BoxEdit({
     watch,
     formState: { isSubmitting },
   } = useForm<IBoxFormValues>({
-    defaultValues: {
-      numberOfItems: boxData?.numberOfItems || 0,
-      sizeId: boxData?.size.id,
-      productId: boxData?.product?.id,
-      locationId: boxData?.location?.id,
-      comment: boxData?.comment,
-      tags: boxData?.tags,
-    },
+    defaultValues,
   });
 
   const [sizesOptionsForCurrentProduct, setSizesOptionsForCurrentProduct] = useState<
@@ -314,9 +326,27 @@ function BoxEdit({
             </Box>
           </ListItem>
         </List>
-        <Button mt={4} isLoading={isSubmitting} type="submit" borderRadius="0">
-          Update Box
-        </Button>
+
+        <Stack spacing={4}>
+          <ButtonGroup gap="4">
+            <Button
+              mt={4}
+              isLoading={isSubmitting}
+              colorScheme="blue"
+              type="button"
+              borderRadius="0"
+              w="full"
+              variant="link"
+              onClick={() => navigate(`/bases/${baseId}/boxes/${labelIdentifier}`)}
+            >
+              Cancel
+            </Button>
+
+            <Button mt={4} isLoading={isSubmitting} type="submit" borderRadius="0" w="full">
+              Update Box
+            </Button>
+          </ButtonGroup>
+        </Stack>
       </form>
     </Box>
   );
