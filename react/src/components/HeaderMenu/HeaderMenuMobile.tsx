@@ -240,7 +240,7 @@ const HeaderMenuMobile = (props: HeaderMenuProps) => {
     <HeaderMenuMobileContainer>
       <Flex justifyContent="space-between" w="100%" alignItems="center">
         <Logo />
-        <QrScannerButton onClick={props.onClickScanQrCode} />
+        {/* <QrScannerButton onClick={props.onClickScanQrCode} /> */}
         <MenuToggle
           toggle={toggle}
           isOpen={isMenuOpen}
