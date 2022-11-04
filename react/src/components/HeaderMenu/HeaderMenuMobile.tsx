@@ -263,5 +263,3 @@ const HeaderMenuMobile = (props: HeaderMenuProps) => {
 };
 
 export default HeaderMenuMobile;
-
-// tmp comment

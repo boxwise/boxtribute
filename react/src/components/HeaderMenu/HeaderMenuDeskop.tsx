@@ -32,10 +32,7 @@ const Logo = () => (
   </NavLink>
 );
 
-const BaseSwitcher = ({
-  currentActiveBaseId,
-  availableBases,
-}: BaseSwitcherProps) => {
+const BaseSwitcher = ({ currentActiveBaseId, availableBases }: BaseSwitcherProps) => {
   return (
     <>
       {availableBases?.map((base, i) => (
@@ -52,24 +49,13 @@ const BaseSwitcher = ({
   );
 };
 
-const UserMenu = ({
-  logout,
-  user,
-  currentActiveBaseId,
-  availableBases,
-}: UserMenuProps) => {
+const UserMenu = ({ logout, user, currentActiveBaseId, availableBases }: UserMenuProps) => {
   return (
     <Menu>
-      <MenuButton
-        as={IconButton}
-        icon={<Img src={user?.picture} width={10} height={10} />}
-      />
+      <MenuButton as={IconButton} icon={<Img src={user?.picture} width={10} height={10} />} />
       <MenuList my={0} border="2px" borderRadius="0px" py={0}>
         <MenuGroup title="Bases">
-          <BaseSwitcher
-            currentActiveBaseId={currentActiveBaseId}
-            availableBases={availableBases}
-          />
+          <BaseSwitcher currentActiveBaseId={currentActiveBaseId} availableBases={availableBases} />
         </MenuGroup>
         <MenuDivider />
         <MenuGroup>
@@ -202,7 +188,7 @@ const HeaderMenuDeskop = (props: HeaderMenuProps) => {
             currentActiveBaseId={props.currentActiveBaseId}
             availableBases={props.availableBases}
           />
-          <QrScannerButton onClick={props.onClickScanQrCode} />
+          {/* <QrScannerButton onClick={props.onClickScanQrCode} /> */}
         </Flex>
       </Flex>
     </HeaderMenuDesktopContainer>
