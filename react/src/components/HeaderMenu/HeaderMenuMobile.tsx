@@ -13,11 +13,7 @@ import {
   Divider,
 } from "@chakra-ui/react";
 import { useState } from "react";
-import {
-  AiFillCloseCircle,
-  AiOutlineMenu,
-  AiOutlineQrcode,
-} from "react-icons/ai";
+import { AiFillCloseCircle, AiOutlineMenu, AiOutlineQrcode } from "react-icons/ai";
 import { Link, NavLink } from "react-router-dom";
 import {
   BaseSwitcherProps,
@@ -54,8 +50,8 @@ const LoginOrUserMenuButtonMobile = ({
   user,
   currentActiveBaseId,
   availableBases,
-  setIsMenuOpen
-}: LoginOrUserMenuButtonProps & {setIsMenuOpen: (isOpen: boolean) => void}) => {
+  setIsMenuOpen,
+}: LoginOrUserMenuButtonProps & { setIsMenuOpen: (isOpen: boolean) => void }) => {
   const { isOpen, onToggle } = useDisclosure();
 
   return isAuthenticated ? (
@@ -76,9 +72,7 @@ const LoginOrUserMenuButtonMobile = ({
         backgroundColor={isOpen ? "gray.100" : "transparent"}
       >
         <Flex maxW="85%" align={"center"}>
-          {user?.picture ? (
-            <Img src={user?.picture} width={8} height={8} mr={2} />
-          ) : null}
+          {user?.picture ? <Img src={user?.picture} width={8} height={8} mr={2} /> : null}
           <Text fontWeight={600} isTruncated>
             {user?.email}
           </Text>
@@ -99,7 +93,7 @@ const LoginOrUserMenuButtonMobile = ({
             availableBases={availableBases}
             setIsMenuOpen={setIsMenuOpen}
           />
-          <Divider orientation='horizontal' />
+          <Divider orientation="horizontal" />
           <Box py={1} px={4}>
             Profile
           </Box>
@@ -127,8 +121,8 @@ const LoginOrUserMenuButtonMobile = ({
 const BaseSwitcher = ({
   currentActiveBaseId,
   availableBases,
-  setIsMenuOpen
-}: BaseSwitcherProps & {setIsMenuOpen: (isOpen: boolean) => void}) => {
+  setIsMenuOpen,
+}: BaseSwitcherProps & { setIsMenuOpen: (isOpen: boolean) => void }) => {
   return (
     <>
       {availableBases?.map((base, i) => (
@@ -151,18 +145,10 @@ const MenuItemsGroupsMobile = ({
   ...props
 }: MenuItemsGroupsMobileProps) => {
   return (
-    <Flex
-      w="100%"
-      flexBasis={{ base: "100%", md: "auto" }}
-      display={isMenuOpen ? "block" : "none"}
-    >
+    <Flex w="100%" flexBasis={{ base: "100%", md: "auto" }} display={isMenuOpen ? "block" : "none"}>
       <Stack alignItems="start-end" direction="column">
         {props.menuItemsGroups.map((item, i) => (
-          <MenuItemsGroupMobile
-            key={i}
-            {...item}
-            setIsMenuOpen={setIsMenuOpen}
-          />
+          <MenuItemsGroupMobile key={i} {...item} setIsMenuOpen={setIsMenuOpen} />
         ))}
         <LoginOrUserMenuButtonMobile
           isAuthenticated={props.isAuthenticated}
@@ -227,15 +213,7 @@ const MenuItemsGroupMobile = ({
 
 const HeaderMenuMobileContainer = ({ children, ...props }) => {
   return (
-    <Flex
-      as="nav"
-      wrap="wrap"
-      w="100%"
-      pt={4}
-      pb={4}
-      color={"black"}
-      zIndex="2"
-    >
+    <Flex as="nav" wrap="wrap" w="100%" pt={4} pb={4} color={"black"} zIndex="2">
       {children}
     </Flex>
   );
@@ -285,3 +263,5 @@ const HeaderMenuMobile = (props: HeaderMenuProps) => {
 };
 
 export default HeaderMenuMobile;
+
+// tmp comment
