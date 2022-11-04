@@ -22,6 +22,10 @@ const HeaderMenuContainer = () => {
 
   const menuItems: MenuItemsGroupData[] = useMemo(
     () => [
+      {
+        text: "Home",
+        links: [{ link: `/bases/${baseId}`, name: "Home" }],
+      },
       // {
       //   text: "Boxes",
       //   links: [
