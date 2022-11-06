@@ -44,7 +44,7 @@ def test_update_selected_products_for_distribution_event_packing_list(
             {
                 "product": {"id": str(default_product["id"])},
                 "size": {"id": str(default_size["id"])},
-                "numberOfItems": 0,
+                "numberOfItems": 1,
             },
             {
                 "product": {"id": str(default_product["id"])},

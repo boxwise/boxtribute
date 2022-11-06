@@ -18,6 +18,7 @@ from flask import g
 from peewee import fn
 
 from ..authz import (
+    _authorize,
     agreement_organisation_filter_condition,
     authorize,
     authorized_bases_filter,
@@ -183,7 +184,7 @@ def resolve_packing_list_entry(*_, id):
 @packing_list_entry.field("matchingPackedItemsCollections")
 def resolve_packing_list_entry_matching_packed_items_collections(obj, *_):
     mobile_distro_feature_flag_check(user_id=g.user.id)
-    authorize(permission="stock:read")
+    authorize(permission="stock:read", base_id=obj.product.base_id)
     distribution_event_id = obj.distribution_event
     boxes = Box.select().where(
         Box.distribution_event == distribution_event_id,
@@ -408,7 +409,7 @@ def resolve_locations(*_):
 @base.field("products")
 @convert_kwargs_to_snake_case
 def resolve_products_for_base(obj, *_):
-    authorize(permission="product:read")
+    authorize(permission="product:read", base_id=obj.id)
     return Product.select().where(Product.base == obj.id)
 
 
@@ -713,7 +714,6 @@ def resolve_complete_distribution_events_tracking_group(
 @convert_kwargs_to_snake_case
 def resolve_create_qr_code(*_, box_label_identifier=None):
     authorize(permission="qr:create")
-    authorize(permission="stock:write")
     return create_qr_code(box_label_identifier=box_label_identifier)
 
 
@@ -756,7 +756,8 @@ def resolve_assign_box_to_distribution_event(
     mobile_distro_feature_flag_check(user_id=g.user.id)
     # Contemplate whether to enforce base-specific permission for box or event or both
     # Also: validate that base IDs of box location and event spot are identical
-    authorize(permission="stock:write")
+    event = DistributionEvent.get_by_id(distribution_event_id)
+    authorize(permission="stock:write", base_id=event.distribution_spot.base_id)
     return assign_box_to_distribution_event(box_label_identifier, distribution_event_id)
 
 
@@ -815,8 +816,8 @@ def resolve_remove_packing_list_entry_from_distribution_event(
 @mutation.field("createBox")
 @convert_kwargs_to_snake_case
 def resolve_create_box(*_, creation_input):
-    authorize(permission="stock:write")
     requested_location = Location.get_by_id(creation_input["location_id"])
+    authorize(permission="stock:write", base_id=requested_location.base_id)
     authorize(permission="location:read", base_id=requested_location.base_id)
     requested_product = Product.get_by_id(creation_input["product_id"])
     authorize(permission="product:read", base_id=requested_product.base_id)
@@ -1077,7 +1078,7 @@ def resolve_base_distribution_events_statistics(base_obj, _):
 
 @base.field("locations")
 def resolve_base_locations(base_obj, _):
-    authorize(permission="location:read")
+    authorize(permission="location:read", base_id=base_obj.id)
     return Location.select().where(
         (Location.base == base_obj.id) & (Location.type == LocationType.ClassicLocation)
     )
@@ -1148,7 +1149,10 @@ def resolve_base_beneficiaries(base_obj, _, pagination_input=None, filter_input=
 @distribution_event.field("boxes")
 @convert_kwargs_to_snake_case
 def resolve_distribution_event_boxes(distribution_event_obj, _):
-    authorize(permission="stock:read")
+    authorize(
+        permission="stock:read",
+        base_id=distribution_event_obj.distribution_spot.base_id,
+    )
     return Box.select().where(Box.distribution_event == distribution_event_obj.id)
 
 
@@ -1237,7 +1241,7 @@ def resolve_distribution_spot_distribution_events(obj, *_):
 @classic_location.field("boxes")
 @convert_kwargs_to_snake_case
 def resolve_location_boxes(location_obj, _, pagination_input=None, filter_input=None):
-    authorize(permission="stock:read")
+    authorize(permission="stock:read", base_id=location_obj.base_id)
     location_filter_condition = Box.location == location_obj.id
     filter_condition = location_filter_condition & derive_box_filter(filter_input)
     selection = Box.select()
@@ -1287,7 +1291,10 @@ def resolve_metrics_moved_stock_overview(metrics_obj, _, after=None, before=None
 
 @organisation.field("bases")
 def resolve_organisation_bases(organisation_obj, _):
-    authorize(permission="base:read")
+    # This is an exceptional use for ignoring missing base info. It must be possible to
+    # read organisations' bases information for anyone. The resolvers for base fields
+    # are guarded with base-specific permission enforcement
+    _authorize(permission="base:read", ignore_missing_base_info=True)
     return Base.select().where(Base.organisation_id == organisation_obj.id)
 
 
@@ -1296,7 +1303,7 @@ def resolve_organisation_bases(organisation_obj, _):
 @classic_location.field("base")
 @product.field("base")
 def resolve_resource_base(obj, _):
-    authorize(permission="base:read")
+    authorize(permission="base:read", base_id=obj.base_id)
     return obj.base
 
 
@@ -1325,10 +1332,12 @@ def resolve_product_category_has_gender(product_category_obj, _):
 @product_category.field("products")
 @convert_kwargs_to_snake_case
 def resolve_product_category_products(product_category_obj, _, pagination_input=None):
-    authorize(permission="product:read")
     category_filter_condition = Product.category == product_category_obj.id
     return load_into_page(
-        Product, category_filter_condition, pagination_input=pagination_input
+        Product,
+        authorized_bases_filter(Product),
+        category_filter_condition,
+        pagination_input=pagination_input,
     )
 
 
@@ -1436,9 +1445,10 @@ def resolve_transfer_agreement_target_bases(transfer_agreement_obj, _):
 
 @transfer_agreement.field("shipments")
 def resolve_transfer_agreement_shipments(transfer_agreement_obj, _):
-    authorize(permission="shipment:read")
     return Shipment.select().where(
-        Shipment.transfer_agreement == transfer_agreement_obj.id
+        Shipment.transfer_agreement == transfer_agreement_obj.id,
+        authorized_bases_filter(Shipment, base_fk_field_name="source_base")
+        | authorized_bases_filter(Shipment, base_fk_field_name="target_base"),
     )
 
 
