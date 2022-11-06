@@ -1,7 +1,7 @@
 import pytest
 from boxtribute_server.auth import JWT_CLAIM_PREFIX, CurrentUser
 from boxtribute_server.authz import _authorize, authorize
-from boxtribute_server.exceptions import Forbidden, UnknownResource
+from boxtribute_server.exceptions import Forbidden
 
 BASE_ID = 1
 BASE_RELATED_PERMISSIONS = {
@@ -117,7 +117,7 @@ def test_user_with_insufficient_permissions():
         authorize(user, permission="category:read")
 
 
-def test_authorize_base_related_permission_without_base_id():
+def test_invalid_authorize_function_call():
     user = CurrentUser(id=3, organisation_id=2, base_ids={"beneficiary:create": [2]})
     with pytest.raises(ValueError):
         # Wrong usage for base-related permission (although part of user base_ids)
@@ -125,6 +125,9 @@ def test_authorize_base_related_permission_without_base_id():
     with pytest.raises(ValueError):
         # Wrong usage for base-related resource permission (not part of user base_ids)
         authorize(user, permission="product:read")
+    with pytest.raises(ValueError):
+        # Missing additional arguments
+        authorize(user)
 
 
 def test_user_unauthorized_for_organisation():
@@ -139,11 +142,6 @@ def test_user_unauthorized_for_user():
     user = CurrentUser(id=1, organisation_id=1)
     with pytest.raises(Forbidden):
         authorize(user, user_id=2)
-
-
-def test_invalid_authorization_resource():
-    with pytest.raises(UnknownResource):
-        authorize(current_user=CurrentUser(id=1, organisation_id=1))
 
 
 def test_god_user():
