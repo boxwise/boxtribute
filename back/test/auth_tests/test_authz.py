@@ -1,6 +1,6 @@
 import pytest
 from boxtribute_server.auth import JWT_CLAIM_PREFIX, CurrentUser
-from boxtribute_server.authz import authorize
+from boxtribute_server.authz import _authorize, authorize
 from boxtribute_server.exceptions import Forbidden, UnknownResource
 
 BASE_ID = 1
@@ -65,6 +65,7 @@ def test_authorized_user():
             "qr:create": [1, 3],
             "stock:write": [2],
             "location:write": [4, 5],
+            "product:read": [1],
         },
     )
     assert authorize(user, permission="qr:create")
@@ -75,6 +76,9 @@ def test_authorized_user():
     assert authorize(user, permission="location:write", base_ids=[3, 4])
     assert authorize(user, permission="location:write", base_ids=[4, 5])
     assert authorize(user, permission="location:write", base_ids=[5, 6])
+
+    # This is called in authorized_bases_filter for model=Product
+    assert _authorize(user, permission="product:read", ignore_missing_base_info=True)
 
 
 def test_user_with_insufficient_permissions():

@@ -82,7 +82,7 @@ def _authorize(
                 authorized = int(base_id) in authzed_base_ids
             elif base_ids is not None:
                 authorized = any([int(b) in authzed_base_ids for b in base_ids])
-            elif resource in BASE_AGNOSTIC_RESOURCES:
+            elif resource in BASE_AGNOSTIC_RESOURCES or ignore_missing_base_info:
                 authorized = True
 
     elif organisation_id is not None:
