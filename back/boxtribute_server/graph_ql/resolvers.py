@@ -307,7 +307,6 @@ def resolve_qr_code(obj, _, qr_code=None):
 
 @box.field("tags")
 def resolve_box_tags(box_obj, info):
-    authorize(permission="tag:read")
     return info.context["tags_for_box_loader"].load(box_obj.id)
 
 
@@ -321,12 +320,7 @@ def resolve_product(*_, id):
 @box.field("product")
 @unboxed_items_collection.field("product")
 def resolve_box_product(obj, info):
-    product = info.context["product_loader"].load(obj.product_id)
-    # Base-specific authz can be omitted here since it was enforced in the box
-    # parent-resolver. It's not possible that the box's product is assigned to a
-    # different base than the box is in
-    authorize(permission="product:read")
-    return product
+    return info.context["product_loader"].load(obj.product_id)
 
 
 @box.field("size")
