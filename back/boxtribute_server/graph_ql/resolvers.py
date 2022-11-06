@@ -1423,7 +1423,7 @@ def resolve_size_range_sizes(size_range_obj, info):
 
 @transfer_agreement.field("sourceBases")
 def resolve_transfer_agreement_source_bases(transfer_agreement_obj, _):
-    authorize(permission="base:read")
+    _authorize(permission="base:read", ignore_missing_base_info=True)
     return retrieve_transfer_agreement_bases(
         transfer_agreement=transfer_agreement_obj, kind="source"
     )
@@ -1431,7 +1431,7 @@ def resolve_transfer_agreement_source_bases(transfer_agreement_obj, _):
 
 @transfer_agreement.field("targetBases")
 def resolve_transfer_agreement_target_bases(transfer_agreement_obj, _):
-    authorize(permission="base:read")
+    _authorize(permission="base:read", ignore_missing_base_info=True)
     return retrieve_transfer_agreement_bases(
         transfer_agreement=transfer_agreement_obj, kind="target"
     )
