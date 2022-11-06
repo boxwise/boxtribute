@@ -37,6 +37,7 @@ ALL_PERMISSIONS = {**BASE_AGNOSTIC_PERMISSIONS, **BASE_RELATED_PERMISSIONS}
 def test_authorized_user():
     user = CurrentUser(id=3, organisation_id=2)
     assert authorize(user, organisation_id=2)
+    assert authorize(user, organisation_ids=[1, 2])
     assert authorize(user, user_id=3)
 
     user = CurrentUser(id=3, organisation_id=2, base_ids=ALL_PERMISSIONS)
@@ -130,6 +131,8 @@ def test_user_unauthorized_for_organisation():
     user = CurrentUser(id=1, organisation_id=1)
     with pytest.raises(Forbidden):
         authorize(user, organisation_id=2)
+    with pytest.raises(Forbidden):
+        authorize(user, organisation_ids=[2, 3])
 
 
 def test_user_unauthorized_for_user():
