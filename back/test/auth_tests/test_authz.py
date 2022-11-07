@@ -15,6 +15,8 @@ BASE_RELATED_PERMISSIONS = {
     "shipment:write": [BASE_ID],
     "stock:read": [BASE_ID],
     "stock:write": [BASE_ID],
+    "transfer_agreement:read": [BASE_ID],
+    "transfer_agreement:write": [BASE_ID],
 }
 BASE_AGNOSTIC_PERMISSIONS = {
     "box_state:read": [BASE_ID],
@@ -27,8 +29,6 @@ BASE_AGNOSTIC_PERMISSIONS = {
     "size:read": [BASE_ID],
     "size_range:read": [BASE_ID],
     "transaction:read": [BASE_ID],
-    "transfer_agreement:read": [BASE_ID],
-    "transfer_agreement:write": [BASE_ID],
     "user:read": [BASE_ID],
 }
 ALL_PERMISSIONS = {**BASE_AGNOSTIC_PERMISSIONS, **BASE_RELATED_PERMISSIONS}
@@ -49,14 +49,14 @@ def test_authorized_user():
     assert authorize(user, permission="shipment:read", base_id=BASE_ID)
     assert authorize(user, permission="stock:read", base_id=BASE_ID)
     assert authorize(user, permission="transaction:read")
-    assert authorize(user, permission="transfer_agreement:read")
+    assert authorize(user, permission="transfer_agreement:read", base_id=BASE_ID)
     assert authorize(user, permission="user:read")
     assert authorize(user, permission="qr:read")
     assert authorize(user, permission="beneficiary:create", base_id=BASE_ID)
     assert authorize(user, permission="beneficiary:edit", base_id=BASE_ID)
     assert authorize(user, permission="shipment:write", base_id=BASE_ID)
     assert authorize(user, permission="stock:write", base_id=BASE_ID)
-    assert authorize(user, permission="transfer_agreement:write")
+    assert authorize(user, permission="transfer_agreement:write", base_id=BASE_ID)
     assert authorize(user, permission="qr:create")
 
     user = CurrentUser(
