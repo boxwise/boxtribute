@@ -127,6 +127,7 @@ def agreement_organisation_filter_condition():
     """
     if g.user.is_god:
         return True
+    _authorize(permission="transfer_agreement:read", ignore_missing_base_info=True)
     return (TransferAgreement.source_organisation == g.user.organisation_id) | (
         TransferAgreement.target_organisation == g.user.organisation_id
     )
