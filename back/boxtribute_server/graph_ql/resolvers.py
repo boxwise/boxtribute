@@ -1473,6 +1473,12 @@ def resolve_transfer_agreement_shipments(transfer_agreement_obj, _):
     )
 
 
+@user.field("email")
+def resolve_user_email(user_obj, _):
+    authorize(user_id=user_obj.id)
+    return user_obj.email
+
+
 @user.field("organisation")
 def resolve_user_organisation(*_):
     return Organisation.get_by_id(g.user.organisation_id)

@@ -461,3 +461,15 @@ def test_permission_for_god_user(
     query = "query { transferAgreements { id } }"
     agreements = assert_successful_request(read_only_client, query)
     assert len(agreements) == len(transfer_agreements)
+
+
+def test_invalid_permission_for_user_read(
+    read_only_client, default_product, default_user
+):
+    product_id = default_product["id"]
+    query = f"query {{ product(id: {product_id}) {{ createdBy {{ name email }} }} }}"
+    assert_forbidden_request(
+        read_only_client,
+        query,
+        value={"createdBy": {"email": None, "name": default_user["name"]}},
+    )
