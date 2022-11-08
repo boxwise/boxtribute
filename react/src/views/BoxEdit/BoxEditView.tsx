@@ -132,7 +132,7 @@ function BoxEditView() {
         boxLabelIdentifier: labelIdentifier,
         productId: parseInt(boxFormValues.productId, 10),
         numberOfItems: boxFormValues.numberOfItems,
-        comment: boxFormValues?.comment ? boxFormValues?.comment : "",
+        comment: boxFormValues?.comment,
         sizeId: parseInt(boxFormValues.sizeId, 10),
         locationId: parseInt(boxFormValues.locationId, 10),
         tagIds,
