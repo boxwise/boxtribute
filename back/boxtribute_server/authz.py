@@ -67,7 +67,11 @@ def _authorize(
             raise ValueError(f"Missing base_id for base-related resource '{resource}'.")
 
         try:
-            # Look up base IDs for given permission
+            # Look up base IDs for given permission. If the user does not have the
+            # permission at all, the look-up will result in a KeyError.
+            # It is not distinguished between base-related and base-agnostic permissions
+            # when decoding the JWT (CurrentUser.from_jwt()), instead base IDs are
+            # mapped to every permission.
             authzed_base_ids = current_user.authorized_base_ids(permission)
         except KeyError:
             # Permission not granted for user
@@ -77,8 +81,10 @@ def _authorize(
             # Permission field exists and access for at least one base granted.
             # Enforce base-specific permission
             if base_id is not None:
+                # User is authorized for specified base
                 authorized = int(base_id) in authzed_base_ids
             elif base_ids is not None:
+                # User is authorized for at least one of the specified bases
                 authorized = any([int(b) in authzed_base_ids for b in base_ids])
             elif resource in BASE_AGNOSTIC_RESOURCES or ignore_missing_base_info:
                 authorized = True
