@@ -1,7 +1,7 @@
 """Utilities for handling authorization"""
 from flask import g
 
-from .exceptions import Forbidden, UnknownResource
+from .exceptions import Forbidden
 from .models.definitions.base import Base
 from .models.definitions.transfer_agreement import TransferAgreement
 
@@ -18,7 +18,6 @@ BASE_AGNOSTIC_RESOURCES = (
     "size_range",
     "tag_relation",
     "transaction",
-    "transfer_agreement",  # temporary
     "unboxed_items_collection",  # temporary
     "user",
 )
@@ -28,9 +27,8 @@ def authorize(*args, **kwargs):
     """Check whether the current user (default: `g.user`) is authorized to access the
     specified resource.
     The god user is authorized to access anything.
-    This function is supposed to be used in resolver functions. It may raise an
-    UnknownResource or Forbidden exception which ariadne handles by extending the
-    'errors' field of the response.
+    This function is supposed to be used in resolver functions. It may raise a Forbidden
+    exception which ariadne handles by extending the 'errors' field of the response.
     There are no HTTP 4xx status codes associated with the error since a GraphQL
     response is returned as 200 acc. to specification.
     """
@@ -92,7 +90,7 @@ def _authorize(
     elif user_id is not None:
         authorized = user_id == current_user.id
     else:
-        raise UnknownResource()
+        raise ValueError("Missing argument.")
 
     if authorized:
         return authorized
@@ -129,6 +127,7 @@ def agreement_organisation_filter_condition():
     """
     if g.user.is_god:
         return True
+    _authorize(permission="transfer_agreement:read", ignore_missing_base_info=True)
     return (TransferAgreement.source_organisation == g.user.organisation_id) | (
         TransferAgreement.target_organisation == g.user.organisation_id
     )
