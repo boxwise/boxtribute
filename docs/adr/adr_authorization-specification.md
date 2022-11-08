@@ -4,7 +4,9 @@
 
 Decision deadline: irrelevant since implementation pending
 
-Author: [Philipp](https://github.com/orgs/boxwise/people/pylipp)
+Author: Philipp (@pylipp)
+
+Discussion participants: Vahid (@vahidbazzaz), Roanna (@aerinsol), Hans (@HaGuesto)
 
 ## Status
 
