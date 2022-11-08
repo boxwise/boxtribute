@@ -138,7 +138,8 @@ class CurrentUser:
 
         If a user has multiple roles, their base-specific permissions are aggregated.
 
-        Any write/edit permission implies read permission on the same resource.
+        Any write/create/edit/delete permission implies read permission on the same
+        resource.
 
         Examples:
         - base_1/product:read    -> {"product:read": [1]}
@@ -178,7 +179,7 @@ class CurrentUser:
                 base_ids[permission].update(ids)
 
                 resource, method = permission.split(":")
-                if method in ["write", "create", "edit"]:
+                if method in ["write", "create", "edit", "delete"]:
                     base_ids[f"{resource}:read"].update(ids)
 
         # Convert to regular dict, using list for base IDs (set not JSON serializable)

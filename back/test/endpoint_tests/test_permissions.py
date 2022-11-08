@@ -428,8 +428,14 @@ def test_invalid_permission_for_metrics(read_only_client, mocker):
 
 @pytest.mark.parametrize(
     "method",
-    ["read", "write", "create", "edit"],
-    ids=["all-bases", "write-implies-read", "create-implies-read", "edit-implies-read"],
+    ["read", "write", "create", "edit", "delete"],
+    ids=[
+        "all-bases",
+        "write-implies-read",
+        "create-implies-read",
+        "edit-implies-read",
+        "delete-implies-read",
+    ],
 )
 def test_permission_scope(read_only_client, mocker, default_bases, method):
     mocker.patch("jose.jwt.decode").return_value = create_jwt_payload(
