@@ -20,7 +20,8 @@ from peewee import fn
 from ..authz import (
     agreement_organisation_filter_condition,
     authorize,
-    base_filter_condition,
+    authorize_for_organisation_bases,
+    authorized_bases_filter,
 )
 from ..box_transfer.agreement import (
     accept_transfer_agreement,
@@ -167,8 +168,7 @@ def resolve_tag(*_, id):
 
 @query.field("tags")
 def resolve_tags(*_):
-    authorize(permission="tag:read")
-    return Tag.select().where(Tag.deleted.is_null() & base_filter_condition(Tag))
+    return Tag.select().where(Tag.deleted.is_null() & authorized_bases_filter(Tag))
 
 
 @query.field("packingListEntry")
@@ -184,7 +184,7 @@ def resolve_packing_list_entry(*_, id):
 @packing_list_entry.field("matchingPackedItemsCollections")
 def resolve_packing_list_entry_matching_packed_items_collections(obj, *_):
     mobile_distro_feature_flag_check(user_id=g.user.id)
-    authorize(permission="stock:read")
+    authorize(permission="stock:read", base_id=obj.product.base_id)
     distribution_event_id = obj.distribution_event
     boxes = Box.select().where(
         Box.distribution_event == distribution_event_id,
@@ -202,8 +202,7 @@ def resolve_packing_list_entry_matching_packed_items_collections(obj, *_):
 @user.field("bases")
 @query.field("bases")
 def resolve_bases(*_):
-    authorize(permission="base:read")
-    return Base.select().where(base_filter_condition())
+    return Base.select().where(authorized_bases_filter())
 
 
 @query.field("base")
@@ -308,7 +307,6 @@ def resolve_qr_code(obj, _, qr_code=None):
 
 @box.field("tags")
 def resolve_box_tags(box_obj, info):
-    authorize(permission="tag:read")
     return info.context["tags_for_box_loader"].load(box_obj.id)
 
 
@@ -322,12 +320,7 @@ def resolve_product(*_, id):
 @box.field("product")
 @unboxed_items_collection.field("product")
 def resolve_box_product(obj, info):
-    product = info.context["product_loader"].load(obj.product_id)
-    # Base-specific authz can be omitted here since it was enforced in the box
-    # parent-resolver. It's not possible that the box's product is assigned to a
-    # different base than the box is in
-    authorize(permission="product:read")
-    return product
+    return info.context["product_loader"].load(obj.product_id)
 
 
 @box.field("size")
@@ -375,14 +368,22 @@ def resolve_product_category(*_, id):
 
 @query.field("transferAgreement")
 def resolve_transfer_agreement(*_, id):
-    authorize(permission="transfer_agreement:read")
-    return TransferAgreement.get_by_id(id)
+    agreement = TransferAgreement.get_by_id(id)
+    bases = retrieve_transfer_agreement_bases(
+        transfer_agreement=agreement, kind="source"
+    ) + retrieve_transfer_agreement_bases(transfer_agreement=agreement, kind="target")
+    authorize(permission="transfer_agreement:read", base_ids=[b.id for b in bases])
+    return agreement
 
 
 @query.field("shipment")
 def resolve_shipment(*_, id):
-    authorize(permission="shipment:read")
-    return Shipment.get_by_id(id)
+    shipment = Shipment.get_by_id(id)
+    authorize(
+        permission="shipment:read",
+        base_ids=[shipment.source_base_id, shipment.target_base_id],
+    )
+    return shipment
 
 
 @query.field("productCategories")
@@ -398,26 +399,24 @@ def resolve_organisations(*_):
 
 @query.field("locations")
 def resolve_locations(*_):
-    authorize(permission="location:read")
     return Location.select().where(
-        Location.type == LocationType.ClassicLocation, base_filter_condition(Location)
+        Location.type == LocationType.ClassicLocation, authorized_bases_filter(Location)
     )
 
 
 @base.field("products")
 @convert_kwargs_to_snake_case
 def resolve_products_for_base(obj, *_):
-    authorize(permission="product:read")
+    authorize(permission="product:read", base_id=obj.id)
     return Product.select().where(Product.base == obj.id)
 
 
 @query.field("products")
 @convert_kwargs_to_snake_case
 def resolve_products(*_, pagination_input=None):
-    authorize(permission="product:read")
     return load_into_page(
         Product,
-        base_filter_condition(Product),
+        authorized_bases_filter(Product),
         pagination_input=pagination_input,
     )
 
@@ -425,18 +424,16 @@ def resolve_products(*_, pagination_input=None):
 @query.field("beneficiaries")
 @convert_kwargs_to_snake_case
 def resolve_beneficiaries(*_, pagination_input=None, filter_input=None):
-    authorize(permission="beneficiary:read")
     filter_condition = derive_beneficiary_filter(filter_input)
     return load_into_page(
         Beneficiary,
-        base_filter_condition(Beneficiary) & filter_condition,
+        authorized_bases_filter(Beneficiary) & filter_condition,
         pagination_input=pagination_input,
     )
 
 
 @query.field("transferAgreements")
 def resolve_transfer_agreements(*_, states=None):
-    authorize(permission="transfer_agreement:read")
     # No state filter by default
     state_filter = TransferAgreement.state << states if states else True
     return TransferAgreement.select().where(
@@ -446,11 +443,9 @@ def resolve_transfer_agreements(*_, states=None):
 
 @query.field("shipments")
 def resolve_shipments(*_):
-    authorize(permission="shipment:read")
-    return (
-        Shipment.select()
-        .join(TransferAgreement)
-        .where(agreement_organisation_filter_condition())
+    return Shipment.select().orwhere(
+        authorized_bases_filter(Shipment, base_fk_field_name="source_base"),
+        authorized_bases_filter(Shipment, base_fk_field_name="target_base"),
     )
 
 
@@ -481,7 +476,7 @@ def resolve_tag_tagged_resources(tag_obj, _):
     return list(
         Beneficiary.select().where(
             Beneficiary.id << [r.object_id for r in beneficiary_relations],
-            base_filter_condition(Beneficiary),
+            authorized_bases_filter(Beneficiary),
         )
     ) + list(Box.select().where(Box.id << [r.object_id for r in box_relations]))
 
@@ -716,7 +711,6 @@ def resolve_complete_distribution_events_tracking_group(
 @convert_kwargs_to_snake_case
 def resolve_create_qr_code(*_, box_label_identifier=None):
     authorize(permission="qr:create")
-    authorize(permission="stock:write")
     return create_qr_code(box_label_identifier=box_label_identifier)
 
 
@@ -759,7 +753,8 @@ def resolve_assign_box_to_distribution_event(
     mobile_distro_feature_flag_check(user_id=g.user.id)
     # Contemplate whether to enforce base-specific permission for box or event or both
     # Also: validate that base IDs of box location and event spot are identical
-    authorize(permission="stock:write")
+    event = DistributionEvent.get_by_id(distribution_event_id)
+    authorize(permission="stock:write", base_id=event.distribution_spot.base_id)
     return assign_box_to_distribution_event(box_label_identifier, distribution_event_id)
 
 
@@ -818,8 +813,8 @@ def resolve_remove_packing_list_entry_from_distribution_event(
 @mutation.field("createBox")
 @convert_kwargs_to_snake_case
 def resolve_create_box(*_, creation_input):
-    authorize(permission="stock:write")
     requested_location = Location.get_by_id(creation_input["location_id"])
+    authorize(permission="stock:write", base_id=requested_location.base_id)
     authorize(permission="location:read", base_id=requested_location.base_id)
     requested_product = Product.get_by_id(creation_input["product_id"])
     authorize(permission="product:read", base_id=requested_product.base_id)
@@ -915,30 +910,54 @@ def resolve_update_beneficiary(*_, update_input):
 @mutation.field("createTransferAgreement")
 @convert_kwargs_to_snake_case
 def resolve_create_transfer_agreement(*_, creation_input):
-    authorize(permission="transfer_agreement:create")
+    # Enforce that the user can access at least one of the specified source bases
+    # (default: all bases of the user's organisation)
+    base_ids = creation_input.get(
+        "source_base_ids",
+        [
+            b.id
+            for b in Base.select().where(Base.organisation == g.user.organisation_id)
+        ],
+    )
+    authorize(permission="transfer_agreement:create", base_ids=base_ids)
     return create_transfer_agreement(**creation_input, user=g.user)
 
 
 @mutation.field("acceptTransferAgreement")
 def resolve_accept_transfer_agreement(*_, id):
-    authorize(permission="transfer_agreement:edit")
+    # User must be member of at least one of the target bases to be authorized for
+    # accepting the agreement
     agreement = TransferAgreement.get_by_id(id)
+    bases = retrieve_transfer_agreement_bases(
+        transfer_agreement=agreement, kind="target"
+    )
+    authorize(permission="transfer_agreement:edit", base_ids=[b.id for b in bases])
     authorize(organisation_id=agreement.target_organisation_id)
     return accept_transfer_agreement(id=id, user=g.user)
 
 
 @mutation.field("rejectTransferAgreement")
 def resolve_reject_transfer_agreement(*_, id):
-    authorize(permission="transfer_agreement:edit")
+    # User must be member of at least one of the target bases to be authorized for
+    # rejecting the agreement
     agreement = TransferAgreement.get_by_id(id)
+    bases = retrieve_transfer_agreement_bases(
+        transfer_agreement=agreement, kind="target"
+    )
+    authorize(permission="transfer_agreement:edit", base_ids=[b.id for b in bases])
     authorize(organisation_id=agreement.target_organisation_id)
     return reject_transfer_agreement(id=id, user=g.user)
 
 
 @mutation.field("cancelTransferAgreement")
 def resolve_cancel_transfer_agreement(*_, id):
-    authorize(permission="transfer_agreement:edit")
+    # User must be member of at least one of the source or target bases to be authorized
+    # for cancelling the agreement
     agreement = TransferAgreement.get_by_id(id)
+    bases = retrieve_transfer_agreement_bases(
+        transfer_agreement=agreement, kind="target"
+    ) + retrieve_transfer_agreement_bases(transfer_agreement=agreement, kind="source")
+    authorize(permission="transfer_agreement:edit", base_ids=[b.id for b in bases])
     authorize(
         organisation_ids=[
             agreement.source_organisation_id,
@@ -951,7 +970,10 @@ def resolve_cancel_transfer_agreement(*_, id):
 @mutation.field("createShipment")
 @convert_kwargs_to_snake_case
 def resolve_create_shipment(*_, creation_input):
-    authorize(permission="shipment:create")
+    authorize(
+        permission="shipment:create",
+        base_ids=[creation_input["source_base_id"], creation_input["target_base_id"]],
+    )
     agreement = TransferAgreement.get_by_id(creation_input["transfer_agreement_id"])
     organisation_ids = [agreement.source_organisation_id]
     if agreement.type == TransferAgreementType.Bidirectional:
@@ -963,9 +985,12 @@ def resolve_create_shipment(*_, creation_input):
 @mutation.field("updateShipment")
 @convert_kwargs_to_snake_case
 def resolve_update_shipment(*_, update_input):
-    authorize(permission="shipment:edit")
-
     shipment = Shipment.get_by_id(update_input["id"])
+    authorize(
+        permission="shipment:edit",
+        base_ids=[shipment.source_base_id, shipment.target_base_id],
+    )
+
     source_update_fields = [
         "prepared_box_label_identifiers",
         "removed_box_label_identifiers",
@@ -992,8 +1017,11 @@ def resolve_update_shipment(*_, update_input):
 
 @mutation.field("cancelShipment")
 def resolve_cancel_shipment(*_, id):
-    authorize(permission="shipment:edit")
     shipment = Shipment.get_by_id(id)
+    authorize(
+        permission="shipment:edit",
+        base_ids=[shipment.source_base_id, shipment.target_base_id],
+    )
     authorize(
         organisation_ids=[
             shipment.transfer_agreement.source_organisation_id,
@@ -1005,8 +1033,11 @@ def resolve_cancel_shipment(*_, id):
 
 @mutation.field("sendShipment")
 def resolve_send_shipment(*_, id):
-    authorize(permission="shipment:edit")
     shipment = Shipment.get_by_id(id)
+    authorize(
+        permission="shipment:edit",
+        base_ids=[shipment.source_base_id, shipment.target_base_id],
+    )
     authorize(organisation_id=shipment.source_base.organisation_id)
     return send_shipment(id=id, user=g.user)
 
@@ -1072,7 +1103,7 @@ def resolve_base_distribution_events_statistics(base_obj, _):
 
 @base.field("locations")
 def resolve_base_locations(base_obj, _):
-    authorize(permission="location:read")
+    authorize(permission="location:read", base_id=base_obj.id)
     return Location.select().where(
         (Location.base == base_obj.id) & (Location.type == LocationType.ClassicLocation)
     )
@@ -1089,10 +1120,9 @@ def resolve_distribution_events_tracking_group(*_, id):
 @query.field("distributionSpots")
 def resolve_distributions_spots(base_obj, _):
     mobile_distro_feature_flag_check(user_id=g.user.id)
-    authorize(permission="location:read")
     return Location.select().where(
         (Location.type == LocationType.DistributionSpot)
-        & (base_filter_condition(Location))
+        & (authorized_bases_filter(Location))
     )
 
 
@@ -1144,7 +1174,10 @@ def resolve_base_beneficiaries(base_obj, _, pagination_input=None, filter_input=
 @distribution_event.field("boxes")
 @convert_kwargs_to_snake_case
 def resolve_distribution_event_boxes(distribution_event_obj, _):
-    authorize(permission="stock:read")
+    authorize(
+        permission="stock:read",
+        base_id=distribution_event_obj.distribution_spot.base_id,
+    )
     return Box.select().where(Box.distribution_event == distribution_event_obj.id)
 
 
@@ -1233,7 +1266,7 @@ def resolve_distribution_spot_distribution_events(obj, *_):
 @classic_location.field("boxes")
 @convert_kwargs_to_snake_case
 def resolve_location_boxes(location_obj, _, pagination_input=None, filter_input=None):
-    authorize(permission="stock:read")
+    authorize(permission="stock:read", base_id=location_obj.base_id)
     location_filter_condition = Box.location == location_obj.id
     filter_condition = location_filter_condition & derive_box_filter(filter_input)
     selection = Box.select()
@@ -1283,7 +1316,7 @@ def resolve_metrics_moved_stock_overview(metrics_obj, _, after=None, before=None
 
 @organisation.field("bases")
 def resolve_organisation_bases(organisation_obj, _):
-    authorize(permission="base:read")
+    authorize_for_organisation_bases()
     return Base.select().where(Base.organisation_id == organisation_obj.id)
 
 
@@ -1292,7 +1325,7 @@ def resolve_organisation_bases(organisation_obj, _):
 @classic_location.field("base")
 @product.field("base")
 def resolve_resource_base(obj, _):
-    authorize(permission="base:read")
+    authorize(permission="base:read", base_id=obj.base_id)
     return obj.base
 
 
@@ -1321,10 +1354,12 @@ def resolve_product_category_has_gender(product_category_obj, _):
 @product_category.field("products")
 @convert_kwargs_to_snake_case
 def resolve_product_category_products(product_category_obj, _, pagination_input=None):
-    authorize(permission="product:read")
     category_filter_condition = Product.category == product_category_obj.id
     return load_into_page(
-        Product, category_filter_condition, pagination_input=pagination_input
+        Product,
+        authorized_bases_filter(Product),
+        category_filter_condition,
+        pagination_input=pagination_input,
     )
 
 
@@ -1345,37 +1380,67 @@ def resolve_shipment_details(shipment_obj, _):
 
 @shipment.field("sourceBase")
 def resolve_shipment_source_base(shipment_obj, _):
-    authorize(permission="base:read")
+    authorize(
+        permission="base:read",
+        base_ids=[shipment_obj.source_base_id, shipment_obj.target_base_id],
+    )
     return shipment_obj.source_base
 
 
 @shipment.field("targetBase")
 def resolve_shipment_target_base(shipment_obj, _):
-    authorize(permission="base:read")
+    authorize(
+        permission="base:read",
+        base_ids=[shipment_obj.source_base_id, shipment_obj.target_base_id],
+    )
     return shipment_obj.target_base
 
 
 @shipment_detail.field("sourceProduct")
 def resolve_shipment_detail_source_product(detail_obj, _):
-    authorize(permission="product:read")
+    authorize(
+        permission="product:read",
+        base_ids=[
+            detail_obj.shipment.source_base_id,
+            detail_obj.shipment.target_base_id,
+        ],
+    )
     return detail_obj.source_product
 
 
 @shipment_detail.field("targetProduct")
 def resolve_shipment_detail_target_product(detail_obj, _):
-    authorize(permission="product:read")
+    authorize(
+        permission="product:read",
+        base_ids=[
+            detail_obj.shipment.source_base_id,
+            detail_obj.shipment.target_base_id,
+        ],
+    )
     return detail_obj.target_product
 
 
 @shipment_detail.field("sourceLocation")
 def resolve_shipment_detail_source_location(detail_obj, _):
-    authorize(permission="location:read")
+    authorize(
+        permission="location:read",
+        base_ids=[
+            detail_obj.shipment.source_base_id,
+            detail_obj.shipment.target_base_id,
+        ],
+    )
     return detail_obj.source_location
 
 
 @shipment_detail.field("targetLocation")
 def resolve_shipment_detail_target_location(detail_obj, _):
-    authorize(permission="location:read")
+    authorize(
+        permission="location:read",
+        base_ids=[
+            detail_obj.shipment.source_base_id,
+            detail_obj.shipment.target_base_id,
+        ],
+    )
     return detail_obj.target_location
 
 
@@ -1386,26 +1451,45 @@ def resolve_size_range_sizes(size_range_obj, info):
 
 @transfer_agreement.field("sourceBases")
 def resolve_transfer_agreement_source_bases(transfer_agreement_obj, _):
-    authorize(permission="base:read")
-    return retrieve_transfer_agreement_bases(
+    source_bases = retrieve_transfer_agreement_bases(
         transfer_agreement=transfer_agreement_obj, kind="source"
     )
+    target_bases = retrieve_transfer_agreement_bases(
+        transfer_agreement=transfer_agreement_obj, kind="target"
+    )
+    authorize(
+        permission="base:read", base_ids=[b.id for b in source_bases + target_bases]
+    )
+    return source_bases
 
 
 @transfer_agreement.field("targetBases")
 def resolve_transfer_agreement_target_bases(transfer_agreement_obj, _):
-    authorize(permission="base:read")
-    return retrieve_transfer_agreement_bases(
+    source_bases = retrieve_transfer_agreement_bases(
+        transfer_agreement=transfer_agreement_obj, kind="source"
+    )
+    target_bases = retrieve_transfer_agreement_bases(
         transfer_agreement=transfer_agreement_obj, kind="target"
     )
+    authorize(
+        permission="base:read", base_ids=[b.id for b in source_bases + target_bases]
+    )
+    return target_bases
 
 
 @transfer_agreement.field("shipments")
 def resolve_transfer_agreement_shipments(transfer_agreement_obj, _):
-    authorize(permission="shipment:read")
     return Shipment.select().where(
-        Shipment.transfer_agreement == transfer_agreement_obj.id
+        Shipment.transfer_agreement == transfer_agreement_obj.id,
+        authorized_bases_filter(Shipment, base_fk_field_name="source_base")
+        | authorized_bases_filter(Shipment, base_fk_field_name="target_base"),
     )
+
+
+@user.field("email")
+def resolve_user_email(user_obj, _):
+    authorize(user_id=user_obj.id)
+    return user_obj.email
 
 
 @user.field("organisation")
