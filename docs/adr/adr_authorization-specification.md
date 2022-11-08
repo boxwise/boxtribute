@@ -10,6 +10,8 @@ Author: [Philipp](https://github.com/orgs/boxwise/people/pylipp)
 
 Implementation on-going.
 
+A first proposal for authorization design can be found [here](https://docs.google.com/document/d/1DYkwryrE4Q-Me-ZGFGzKJEm_VIWCXyghmjmLLFVwlxc/edit#heading=h.if4ha4s3dg7).
+
 ## Context
 
 The `boxtribute` application is used by various organisations to manage distribution of aid goods. Some data stored contains personal, confidential information of individuals in vulnerable situations. These individuals have a right to privacy, hence their data must not be exposed to unintended parties. Implementation of authorization measures is required to define and enforce data excess depending on the current application user.
@@ -86,7 +88,7 @@ Any user registered for boxtribute has their authorization data (`app_metadata`)
 During registration, the user manually gets assigned a role, indicating their usergroup and the bases they belong to. The role is named like `base_1_coordinator`.
 
 When the user has successfully logged in, a custom Auth0 post-login action script runs ([`create-dynamic-permissions`](https://github.com/boxwise/system-management/blob/main/services/auth0/dev/actions/create-dynamic-permissions/code.js)). The script creates a JWT with the content derived from user authorization data and their role.
-Most importantly the script derives ABPs and base-specific RBPs for the current user (see below about their format).
+Most importantly the script derives ABPs and base-specific RBPs for the current user (see below about their format). Auth0 permissions assigned to the user currently have no effect.
 
 #### Specification of custom JWT
 
@@ -111,14 +113,16 @@ Field name | Kind | Description | Usage
 
 #### Dropapp
 
-When a new base is created, the following is created:
+When a new base is created, the following is automatically created:
 - in dropapp the usergroups: administrator (only created when an organisation is created), coordinator, volunteer (combination of warehouse/free shop volunteer), warehouse volunteer, free shop volunteer, label creator.
-- in Auth0 all roles of the section roles.
+- in Auth0 all roles (see [above](#roles) which roles are created).
 - in dropapp database table `usergroups_roles` a mapping between the user groups and roles.
 
 The mapping between user groups in dropapp and roles in Auth0 is needed because only one user group can be assigned to a user in dropapp, but multiple roles can be assigned to a user in Auth0.
 
 When a user is created/edited a user group must be assigned. Through the mapping the corresponding roles are then assigned in Auth0 to the user.
+
+Dropapp does not use the JWT since it's a server-side application.
 
 #### boxtribute 2.0 front-end
 
