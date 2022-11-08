@@ -9,8 +9,7 @@ import {
   Heading,
   Input,
 } from "@chakra-ui/react";
-import { Select } from "chakra-react-select";
-
+import { Select, OptionBase } from "chakra-react-select";
 import { BoxByLabelIdentifierAndAllProductsQuery, ProductGender } from "types/generated/graphql";
 import { Controller, useForm } from "react-hook-form";
 
@@ -46,12 +45,19 @@ interface IDropdownOption {
   label: string;
 }
 
+interface ITagData extends OptionBase {
+  value: string;
+  label: string;
+  color?: string | null;
+}
+
 export interface IBoxFormValues {
   numberOfItems: number;
   sizeId: string;
   productId: string;
   locationId: string;
   comment: string | null;
+  tags?: ITagData[] | null | undefined;
 }
 
 interface ILocationData {
@@ -63,6 +69,7 @@ interface IBoxEditProps {
   boxData: BoxByLabelIdentifierAndAllProductsQuery["box"];
   productAndSizesData: IProductWithSizeRangeData[];
   allLocations: ILocationData[];
+  allTags: ITagData[] | null | undefined;
   onSubmitBoxEditForm: (boxFormValues: IBoxFormValues) => void;
 }
 
@@ -70,12 +77,18 @@ function BoxEdit({
   productAndSizesData,
   boxData,
   allLocations,
+  allTags,
   onSubmitBoxEditForm,
 }: IBoxEditProps) {
   const productsGroupedByCategory = _.groupBy(
     productAndSizesData,
     (product) => product.category.name,
   );
+
+  const tagsForDropdownGroups: Array<ITagData> | undefined = allTags?.map((tag) => ({
+    label: tag.label,
+    value: tag.value,
+  }));
 
   const locationsForDropdownGroups = allLocations
     .map((location) => ({
@@ -113,6 +126,7 @@ function BoxEdit({
       productId: boxData?.product?.id,
       locationId: boxData?.location?.id,
       comment: boxData?.comment,
+      tags: boxData?.tags,
     },
   });
 
@@ -139,14 +153,10 @@ function BoxEdit({
   }, [productId, productAndSizesData, resetField]);
 
   if (boxData == null) {
-    // eslint-disable-next-line no-console
-    console.error("BoxDetails Component: boxData is null");
     return <Box>No data found for a box with this id</Box>;
   }
 
   if (productsForDropdownGroups == null) {
-    // eslint-disable-next-line no-console
-    console.error("BoxDetails Component: allProducts is null");
     // eslint-disable-next-line max-len
     return (
       <Box>There was an error: the available products to choose from couldn&apos;t be loaded!</Box>
@@ -256,6 +266,36 @@ function BoxEdit({
                       placeholder="Location"
                       isSearchable
                       tagVariant="outline"
+                    />
+                  </Box>
+                  <FormErrorMessage>{error && error.message}</FormErrorMessage>
+                </FormControl>
+              )}
+            />
+          </ListItem>
+          <ListItem>
+            <Controller
+              control={control}
+              name="tags"
+              render={({
+                field: { onChange, onBlur, name, value, ref },
+                fieldState: { error },
+              }) => (
+                <FormControl isInvalid={!!error} id="tags">
+                  <FormLabel>Tags</FormLabel>
+                  <Box border="2px">
+                    <Select
+                      name={name}
+                      ref={ref}
+                      onChange={onChange}
+                      onBlur={onBlur}
+                      value={value}
+                      options={tagsForDropdownGroups}
+                      placeholder="Tags"
+                      isMulti
+                      isSearchable
+                      tagVariant="outline"
+                      focusBorderColor="transparent"
                     />
                   </Box>
                   <FormErrorMessage>{error && error.message}</FormErrorMessage>
