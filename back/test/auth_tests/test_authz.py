@@ -1,7 +1,7 @@
 import pytest
 from boxtribute_server.auth import JWT_CLAIM_PREFIX, CurrentUser
-from boxtribute_server.authz import authorize
-from boxtribute_server.exceptions import Forbidden, UnknownResource
+from boxtribute_server.authz import _authorize, authorize
+from boxtribute_server.exceptions import Forbidden
 
 BASE_ID = 1
 BASE_RELATED_PERMISSIONS = {
@@ -15,6 +15,8 @@ BASE_RELATED_PERMISSIONS = {
     "shipment:write": [BASE_ID],
     "stock:read": [BASE_ID],
     "stock:write": [BASE_ID],
+    "transfer_agreement:read": [BASE_ID],
+    "transfer_agreement:write": [BASE_ID],
 }
 BASE_AGNOSTIC_PERMISSIONS = {
     "box_state:read": [BASE_ID],
@@ -27,8 +29,6 @@ BASE_AGNOSTIC_PERMISSIONS = {
     "size:read": [BASE_ID],
     "size_range:read": [BASE_ID],
     "transaction:read": [BASE_ID],
-    "transfer_agreement:read": [BASE_ID],
-    "transfer_agreement:write": [BASE_ID],
     "user:read": [BASE_ID],
 }
 ALL_PERMISSIONS = {**BASE_AGNOSTIC_PERMISSIONS, **BASE_RELATED_PERMISSIONS}
@@ -37,6 +37,7 @@ ALL_PERMISSIONS = {**BASE_AGNOSTIC_PERMISSIONS, **BASE_RELATED_PERMISSIONS}
 def test_authorized_user():
     user = CurrentUser(id=3, organisation_id=2)
     assert authorize(user, organisation_id=2)
+    assert authorize(user, organisation_ids=[1, 2])
     assert authorize(user, user_id=3)
 
     user = CurrentUser(id=3, organisation_id=2, base_ids=ALL_PERMISSIONS)
@@ -48,14 +49,14 @@ def test_authorized_user():
     assert authorize(user, permission="shipment:read", base_id=BASE_ID)
     assert authorize(user, permission="stock:read", base_id=BASE_ID)
     assert authorize(user, permission="transaction:read")
-    assert authorize(user, permission="transfer_agreement:read")
+    assert authorize(user, permission="transfer_agreement:read", base_id=BASE_ID)
     assert authorize(user, permission="user:read")
     assert authorize(user, permission="qr:read")
     assert authorize(user, permission="beneficiary:create", base_id=BASE_ID)
     assert authorize(user, permission="beneficiary:edit", base_id=BASE_ID)
     assert authorize(user, permission="shipment:write", base_id=BASE_ID)
     assert authorize(user, permission="stock:write", base_id=BASE_ID)
-    assert authorize(user, permission="transfer_agreement:write")
+    assert authorize(user, permission="transfer_agreement:write", base_id=BASE_ID)
     assert authorize(user, permission="qr:create")
 
     user = CurrentUser(
@@ -65,6 +66,7 @@ def test_authorized_user():
             "qr:create": [1, 3],
             "stock:write": [2],
             "location:write": [4, 5],
+            "product:read": [1],
         },
     )
     assert authorize(user, permission="qr:create")
@@ -72,6 +74,12 @@ def test_authorized_user():
     assert authorize(user, permission="stock:write", base_id=2)
     assert authorize(user, permission="location:write", base_id=4)
     assert authorize(user, permission="location:write", base_id=5)
+    assert authorize(user, permission="location:write", base_ids=[3, 4])
+    assert authorize(user, permission="location:write", base_ids=[4, 5])
+    assert authorize(user, permission="location:write", base_ids=[5, 6])
+
+    # This is called in authorized_bases_filter for model=Product
+    assert _authorize(user, permission="product:read", ignore_missing_base_info=True)
 
 
 def test_user_with_insufficient_permissions():
@@ -90,6 +98,12 @@ def test_user_with_insufficient_permissions():
         # The permission field exists but access granted for different base
         authorize(user, permission="beneficiary:create", base_id=1)
     with pytest.raises(Forbidden):
+        # The permission field exists but access granted for different base
+        authorize(user, permission="beneficiary:create", base_ids=[1])
+    with pytest.raises(Forbidden):
+        # The permission field exists but access granted for different base
+        authorize(user, permission="beneficiary:create", base_ids=[3, 4])
+    with pytest.raises(Forbidden):
         # The permission field exists but holds no bases
         authorize(user, permission="stock:write", base_id=1)
     with pytest.raises(Forbidden):
@@ -103,7 +117,7 @@ def test_user_with_insufficient_permissions():
         authorize(user, permission="category:read")
 
 
-def test_authorize_base_related_permission_without_base_id():
+def test_invalid_authorize_function_call():
     user = CurrentUser(id=3, organisation_id=2, base_ids={"beneficiary:create": [2]})
     with pytest.raises(ValueError):
         # Wrong usage for base-related permission (although part of user base_ids)
@@ -111,23 +125,23 @@ def test_authorize_base_related_permission_without_base_id():
     with pytest.raises(ValueError):
         # Wrong usage for base-related resource permission (not part of user base_ids)
         authorize(user, permission="product:read")
+    with pytest.raises(ValueError):
+        # Missing additional arguments
+        authorize(user)
 
 
 def test_user_unauthorized_for_organisation():
     user = CurrentUser(id=1, organisation_id=1)
     with pytest.raises(Forbidden):
         authorize(user, organisation_id=2)
+    with pytest.raises(Forbidden):
+        authorize(user, organisation_ids=[2, 3])
 
 
 def test_user_unauthorized_for_user():
     user = CurrentUser(id=1, organisation_id=1)
     with pytest.raises(Forbidden):
         authorize(user, user_id=2)
-
-
-def test_invalid_authorization_resource():
-    with pytest.raises(UnknownResource):
-        authorize(current_user=CurrentUser(id=1, organisation_id=1))
 
 
 def test_god_user():

@@ -377,7 +377,7 @@ type User {
   id: ID!
   organisation: Organisation
   name: String
-  email: String!
+  email: String
   validFirstDay: Date
   validLastDay: Date
   " List of all [`Bases`]({{Types.Base}}) this user can access "

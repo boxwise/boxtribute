@@ -61,7 +61,7 @@ from .transfer_agreement import (
     transfer_agreements,
     unidirectional_transfer_agreement,
 )
-from .user import default_user, default_users
+from .user import another_user, default_user, default_users
 
 __all__ = [
     "another_beneficiary",
@@ -74,6 +74,7 @@ __all__ = [
     "another_shipment",
     "another_shipment_detail",
     "another_size",
+    "another_user",
     "base1_classic_locations",
     "box_without_qr_code",
     "canceled_shipment",
