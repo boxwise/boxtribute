@@ -212,3 +212,6 @@ def test_check_beta_feature_access(mocker):
     assert check_beta_feature_access(
         "query { base(id: 1) { name } }", current_user=current_user
     )
+
+    current_user = CurrentUser(id=0, organisation_id=0, is_god=True)
+    assert check_beta_feature_access({}, current_user=current_user)
