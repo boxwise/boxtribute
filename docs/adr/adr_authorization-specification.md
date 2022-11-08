@@ -173,22 +173,27 @@ The decoded JWT payload is converted into a `CurrentUser` instance with the foll
 
 ##### Enforcement of RBP in resolvers
 
-GraphQL resolvers are functions which are called by the GraphQL server to resolve the requested fields on the data level. Resolvers allow fine-grained access over data resources and hence are suited to enforce RBP.
+GraphQL resolvers are functions which are called by the GraphQL server to resolve the requested fields on the data level. Resolvers allow fine-grained access over data resources and hence are suited to enforce RBP. **Every resolver must enforce RBP in one of the ways described below.**
 
-Resolvers can return either (A) a single resource entry or (B) a list of resource entries. Enforcement of RBP works differently in these cases.
+Resolvers can either (A) directly return a single resource entry, (B) directly return a list of resource entries, or (C) load one or more resource entries through a data loader. Enforcement of RBP works differently in these cases.
 
 **(A)** Enforcement of RBP in the single-resource resolver has to be explicitly called by developers using the `authz.authorize()` function. If the current user is authorized to access a resource acc. to the given arguments, the function returns, otherwise it raises an `exceptions.Forbidden` exception, resulting in an error for the particular GraphQL field being resolved. If the current user is a god user, the function instantly returns. `authz.authorize()` accepts the following combination of arguments (the developer must select the one suitable for the enforcement context):
 
 Arguments | Types | Description | Condition for successful authorization
 :--- | :--- | :--- | :---
-`permission` | string | RBP name, e.g. `category:read` | the current user was granted the given permission in at least one base
-`permission` and `base_id` | string and integer | RBP name and base ID | the current user was granted the given permission in the specified base
+`permission` | string | base-agnostic RBP name, e.g. `category:read` | the current user was granted the given permission in at least one base
+`permission` and `base_id` | string and integer | base-related RBP name and base ID | the current user was granted the given permission in the specified base
+`permission` and `base_ids` | string and list of integers | base-related RBP name and base IDs | the current user was granted the given permission in at least one of the specified bases
 `organisation_id` | integer | organisation ID | the current user is member of the organisation with given ID
 `organisation_ids` | list of integers | organisation IDs | the current user is member of one of the organisations with given IDs
 `user_id` | integer | user ID | the current user's ID matches the given user ID
 
 Any other combination of arguments can be handled by the function but is considered a development error. If no arguments are given, the function raises an exception.
 
-**(B)** In addition to enforce an RBP with `authorize()`, a filter needs to be applied to select only those resource entries in bases that the user is authorized for. This is achieved via the `authorized_bases_filter()` function.
+Note that it is distinguished between base-agnostic (e.g. box state, product category, size range) and base-related resources (e.g. box, beneficiary, product, tag). The former are listed in `BASE_AGNOSTIC_RESOURCES` in the `authz` module. Any resources missing from the list are assumed to be base-related. When enforcing base-related RBP via `authorize()`, either `base_id` or `base_ids` argument must be provided.
+
+**(B)** A filter needs to be applied to select only those resource entries in bases that the user is authorized for. This is achieved via the `authorized_bases_filter(model)` function which enforces permission for the resource corresponding to the specified model under the hood.
+
+**(C)** When loading a resource through a data loader, one can omit enforcement of RBP in the loader. However in the loader's `batch_load_fn()` method, one of `authorize()` or `authorized_base_ids()` must be called. This reduces permission enforcement overhead.
 
 ## Consequences
