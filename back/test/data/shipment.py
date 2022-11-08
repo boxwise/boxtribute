@@ -48,6 +48,15 @@ def data():
             "started_by": default_user_data()["id"],
             "started_on": TIME,
         },
+        {
+            "id": 5,
+            "source_base": base_data()[1]["id"],
+            "target_base": base_data()[2]["id"],
+            "transfer_agreement": transfer_agreement_data()[0]["id"],
+            "state": ShipmentState.Preparing,
+            "started_by": default_user_data()["id"],
+            "started_on": TIME,
+        },
     ]
 
 

@@ -11,33 +11,29 @@ import {
   WrapItem,
   LinkBox,
   LinkOverlay,
+  HStack,
+  Tag,
+  TagLabel,
 } from "@chakra-ui/react";
+import { Style } from "victory";
 import { NavLink } from "react-router-dom";
-import {
-  BoxByLabelIdentifierQuery,
-  UpdateLocationOfBoxMutation,
-} from "types/generated/graphql";
+import { BoxByLabelIdentifierQuery, UpdateLocationOfBoxMutation } from "types/generated/graphql";
 import { useGetUrlForResourceHelpers } from "utils/hooks";
 import { distroEventStateHumanReadableLabels } from "views/Distributions/baseData";
 import DistributionEventTimeRangeDisplay from "views/Distributions/components/DistributionEventTimeRangeDisplay";
 
-interface BoxDetailsProps {
-  boxData:
-    | BoxByLabelIdentifierQuery["box"]
-    | UpdateLocationOfBoxMutation["updateBox"];
+interface IBoxDetailsProps {
+  boxData: BoxByLabelIdentifierQuery["box"] | UpdateLocationOfBoxMutation["updateBox"];
   onMoveToLocationClick: (locationId: string) => void;
   onPlusOpen: () => void;
   onMinusOpen: () => void;
   onScrap: () => void;
   onLost: () => void;
   onAssignBoxToDistributionEventClick: (distributionEventId: string) => void;
-  onUnassignBoxFromDistributionEventClick: (
-    distributionEventId: string
-  ) => void;
-
+  onUnassignBoxFromDistributionEventClick: (distributionEventId: string) => void;
 }
 
-const BoxDetails = ({
+function BoxDetails({
   boxData,
   onMoveToLocationClick,
   onAssignBoxToDistributionEventClick,
@@ -46,7 +42,7 @@ const BoxDetails = ({
   onMinusOpen,
   onScrap,
   onLost,
-}: BoxDetailsProps) => {
+}: IBoxDetailsProps) {
   const statusColor = (value) => {
     let color;
     if (value === "Lost" || value === "Scrap") {
@@ -60,6 +56,7 @@ const BoxDetails = ({
   const { getDistroEventDetailUrlById } = useGetUrlForResourceHelpers();
 
   if (boxData == null) {
+    // eslint-disable-next-line no-console
     console.error("BoxDetails Component: boxData is null");
     return <Box>No data found for a box with this id</Box>;
   }
@@ -70,6 +67,7 @@ const BoxDetails = ({
       alignItems={["center", "center", "flex-start"]}
       w="100%"
       justifyContent="center"
+      data-testid="box-sections"
     >
       <Box
         w={["100%", "80%", "30%", "30%"]}
@@ -81,14 +79,16 @@ const BoxDetails = ({
       >
         <Flex pt={2} px={4} direction="row" justifyContent="space-between">
           <Flex direction="column" mb={2}>
-            <Heading fontWeight={"bold"} as="h2">
+            <Heading fontWeight="bold" as="h2" data-testid="box-header">
               Box {boxData.labelIdentifier}
             </Heading>
-            <Flex>
+            <Flex data-testid="box-subheader">
               <Text>
                 <b>State:&nbsp;</b>
               </Text>
-              <Text color={statusColor(boxData.state)}><b>{boxData.state}</b></Text>
+              <Text data-testid="box-state" color={statusColor(boxData.state)}>
+                <b>{boxData.state}</b>
+              </Text>
             </Flex>
           </Flex>
 
@@ -103,20 +103,19 @@ const BoxDetails = ({
         </Flex>
         <List px={4} pb={2} spacing={2}>
           <ListItem>
-
-            <Text fontSize="xl" fontWeight={"bold"} >
+            <Text fontSize="xl" fontWeight="bold">
               {boxData.product?.name}
             </Text>
           </ListItem>
-          <ListItem >
+          <ListItem>
             <Flex alignItems="center">
               <Box border="2px" borderRadius="0" px={2}>
-                <Text fontSize="xl" fontWeight={"bold"}>
-                 # {boxData.numberOfItems}
+                <Text fontSize="xl" fontWeight="bold" data-testid="boxview-number-items">
+                  # {boxData.numberOfItems}
                 </Text>
               </Box>
               <Box border="2px" backgroundColor="#1A202C" borderRadius="0" px={2}>
-                <Text color='#F3E4A0' fontSize="xl" fontWeight={"bold"}>
+                <Text color="#F3E4A0" fontSize="xl" fontWeight="bold">
                   {boxData.size.label}
                 </Text>
               </Box>
@@ -124,23 +123,25 @@ const BoxDetails = ({
           </ListItem>
           <ListItem>
             <Flex direction="row" pb={4}>
-              <Text fontSize="xl" fontWeight={"bold"}>
+              <Text fontSize="xl" fontWeight="bold">
                 <b>{boxData.product?.gender}</b>
-
               </Text>
             </Flex>
-          </ListItem>
-          <ListItem>
-            {/* <Flex direction="row">
-              {boxData.tags.map((tag, i) => (
-                <Text mr={2}>#{tag.name}</Text>
-              ))}
-            </Flex> */}
+            <Flex direction="row" pb={4}>
+              <HStack spacing={2} data-testid="box-tags">
+                {boxData.tags?.map((tag) => (
+                  <Tag size="sm" key={tag.id} bg={Style.toTransformString(tag.color)}>
+                    <TagLabel>{tag.name}</TagLabel>
+                  </Tag>
+                ))}
+              </HStack>
+            </Flex>
           </ListItem>
           <ListItem>
             <Flex justifyContent="space-between">
               <Flex>
                 <Button
+                  data-testid="box-scrap-btn"
                   onClick={onScrap}
                   mr={4}
                   border="2px"
@@ -149,6 +150,7 @@ const BoxDetails = ({
                   Scrap
                 </Button>
                 <Button
+                  data-testid="box-lost-btn"
                   onClick={onLost}
                   mr={4}
                   border="2px"
@@ -165,6 +167,7 @@ const BoxDetails = ({
                   borderRadius="0"
                   aria-label="Search database"
                   icon={<AddIcon />}
+                  data-testid="increase-items"
                 />
                 <IconButton
                   onClick={onMinusOpen}
@@ -172,6 +175,7 @@ const BoxDetails = ({
                   borderRadius="0"
                   aria-label="Search database"
                   icon={<MinusIcon />}
+                  data-testid="decrease-items"
                 />
               </Flex>
             </Flex>
@@ -187,18 +191,19 @@ const BoxDetails = ({
         mr={["0", "0", "4rem", "4rem"]}
         mb={6}
       >
-        <Text textAlign="center" fontSize="xl" mb={4}>
+        <Text data-testid="box-location-label" textAlign="center" fontSize="xl" mb={4}>
           Move this box from <strong>{boxData.location?.name}</strong> to:
         </Text>
         <List>
           <Flex wrap="wrap" justifyContent="center">
             {boxData.location?.base?.locations
-              ?.filter((location) => {
-                return location.id !== boxData.location?.id;
-              })
-              .map((location, i) => (
+              ?.filter((location) => location.id !== boxData.location?.id)
+              .map((location) => (
                 <WrapItem key={location.id} m={1}>
                   <Button
+                    data-testid={`location-${location.name
+                      ?.replace(/\s+/g, "_")
+                      .toLowerCase()}-btn`}
                     borderRadius="0px"
                     onClick={() => onMoveToLocationClick(location.id)}
                     disabled={boxData.location?.id === location.id}
@@ -211,102 +216,90 @@ const BoxDetails = ({
           </Flex>
         </List>
       </Box>
-      <Box
-        alignContent="center"
-        w={["100%", "80%", "30%", "30%"]}
-        border="2px"
-        py={4}
-        px={4}
-      >
-        <Text textAlign="center" fontSize="xl" mb={4}>
-          Assign this Box to Distribution Event:
-        </Text>
+      {boxData.distributionEvent && (
+        <Box
+          data-testid="distro-event-section"
+          alignContent="center"
+          w={["100%", "80%", "30%", "30%"]}
+          border="2px"
+          py={4}
+          px={4}
+        >
+          <Text textAlign="center" fontSize="xl" mb={4}>
+            Assign this Box to Distribution Event:
+          </Text>
 
-        <List>
-          {/* <Flex wrap="wrap" justifyContent="center"> */}
-          {boxData.location?.base?.distributionEventsBeforeReturnedFromDistributionState
-            // .map(el => DistributionEventDetailsSchema.parse(el))
-            .map((distributionEvent) => {
-              const isAssignedToDistroEvent =
-                boxData.distributionEvent?.id === distributionEvent.id;
-              return (
-                <ListItem
-                  key={distributionEvent.id}
-                  m={4}
-                  backgroundColor={
-                    isAssignedToDistroEvent ? "gray.100" : "transparent"
-                  }
-                  p={2}
-                  border="2px"
-                  borderColor="gray.300"
-                >
-                  <Flex>
-                    <LinkBox as="article" p={4}>
-                      <Flex>
-                        <LinkOverlay
-                          href={getDistroEventDetailUrlById(
-                            distributionEvent.id
+          <List>
+            {/* <Flex wrap="wrap" justifyContent="center"> */}
+            {boxData.location?.base?.distributionEventsBeforeReturnedFromDistributionState
+              // .map(el => DistributionEventDetailsSchema.parse(el))
+              .map((distributionEvent) => {
+                const isAssignedToDistroEvent =
+                  boxData.distributionEvent?.id === distributionEvent.id;
+                return (
+                  <ListItem
+                    key={distributionEvent.id}
+                    m={4}
+                    backgroundColor={isAssignedToDistroEvent ? "gray.100" : "transparent"}
+                    p={2}
+                    border="2px"
+                    borderColor="gray.300"
+                  >
+                    <Flex>
+                      <LinkBox as="article" p={4}>
+                        <Flex>
+                          <LinkOverlay href={getDistroEventDetailUrlById(distributionEvent.id)}>
+                            <Text>
+                              <b>{distributionEvent?.distributionSpot?.name}</b>
+                            </Text>
+                            <Box>
+                              <DistributionEventTimeRangeDisplay
+                                plannedStartDateTime={
+                                  new Date(distributionEvent.plannedStartDateTime)
+                                }
+                                plannedEndDateTime={new Date(distributionEvent.plannedEndDateTime)}
+                              />
+                            </Box>
+                            <Text>{distributionEvent?.name}</Text>
+                            <Text>
+                              {distroEventStateHumanReadableLabels.get(distributionEvent?.state)}
+                            </Text>
+                          </LinkOverlay>
+                        </Flex>
+                        <Flex justifyContent="flex-end">
+                          {isAssignedToDistroEvent ? (
+                            <Button
+                              mt={2}
+                              onClick={() =>
+                                onUnassignBoxFromDistributionEventClick(distributionEvent.id)
+                              }
+                              colorScheme="red"
+                              borderRadius="0"
+                            >
+                              Unassign
+                            </Button>
+                          ) : (
+                            <Button
+                              mt={2}
+                              onClick={() =>
+                                onAssignBoxToDistributionEventClick(distributionEvent.id)
+                              }
+                              colorScheme="blue"
+                              borderRadius="0"
+                            >
+                              Assign
+                            </Button>
                           )}
-                        >
-                          <Text>
-                            <b>{distributionEvent?.distributionSpot?.name}</b>
-                          </Text>
-                          <Box>
-                            <DistributionEventTimeRangeDisplay
-                              plannedStartDateTime={
-                                new Date(distributionEvent.plannedStartDateTime)
-                              }
-                              plannedEndDateTime={
-                                new Date(distributionEvent.plannedEndDateTime)
-                              }
-                            />
-                          </Box>
-                          <Text>{distributionEvent?.name}</Text>
-                          <Text>
-                            {distroEventStateHumanReadableLabels.get(
-                              distributionEvent?.state
-                            )}
-                          </Text>
-                        </LinkOverlay>
-                      </Flex>
-                      <Flex justifyContent="flex-end">
-                        {isAssignedToDistroEvent ? (
-                          <Button
-                            mt={2}
-                            onClick={() =>
-                              onUnassignBoxFromDistributionEventClick(
-                                distributionEvent.id
-                              )
-                            }
-                            colorScheme="red"
-                            borderRadius="0"
-                          >
-                            Unassign
-                          </Button>
-                        ) : (
-                          <Button
-                            mt={2}
-                            onClick={() =>
-                              onAssignBoxToDistributionEventClick(
-                                distributionEvent.id
-                              )
-                            }
-                            colorScheme="blue"
-                            borderRadius="0"
-                          >
-                            Assign
-                          </Button>
-                        )}
-                      </Flex>
-                    </LinkBox>
-                  </Flex>
-                </ListItem>
-              );
-            })}
-          {/* </Flex> */}
-        </List>
+                        </Flex>
+                      </LinkBox>
+                    </Flex>
+                  </ListItem>
+                );
+              })}
+            {/* </Flex> */}
+          </List>
 
-        {/* <TableContainer>
+          {/* <TableContainer>
           <Table variant="simple">
             <Thead>
               <Tr>
@@ -344,9 +337,10 @@ const BoxDetails = ({
             </Tbody>
           </Table>
         </TableContainer> */}
-      </Box>
+        </Box>
+      )}
     </Flex>
   );
-};
+}
 
 export default BoxDetails;

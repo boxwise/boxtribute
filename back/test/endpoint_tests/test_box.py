@@ -253,6 +253,34 @@ def test_box_mutations(
     ]
 
 
+def test_update_box_tag_ids(client, default_box, tags):
+    # Test case 8.2.11c
+    label_identifier = default_box["label_identifier"]
+    tag_id = str(tags[1]["id"])
+    another_tag_id = str(tags[2]["id"])
+
+    # Default box has tag ID 2 assigned already. Remove it and add tag ID 3
+    mutation = f"""mutation {{ updateBox(updateInput : {{
+                    labelIdentifier: "{label_identifier}"
+                    tagIds: [{another_tag_id}] }} ) {{ tags {{ id }} }} }}"""
+    updated_box = assert_successful_request(client, mutation)
+    assert updated_box == {"tags": [{"id": another_tag_id}]}
+
+    # Now add tag ID 2 back while keeping tag ID 3
+    mutation = f"""mutation {{ updateBox(updateInput : {{
+                    labelIdentifier: "{label_identifier}"
+                    tagIds: [{tag_id},{another_tag_id}] }} ) {{ tags {{ id }} }} }}"""
+    updated_box = assert_successful_request(client, mutation)
+    assert updated_box == {"tags": [{"id": tag_id}, {"id": another_tag_id}]}
+
+    # Remove all assigned tags when passing empty list
+    mutation = f"""mutation {{ updateBox(updateInput : {{
+                    labelIdentifier: "{label_identifier}"
+                    tagIds: [] }} ) {{ tags {{ id }} }} }}"""
+    updated_box = assert_successful_request(client, mutation)
+    assert updated_box == {"tags": []}
+
+
 def _format(parameter):
     try:
         return ",".join(f"{k}={v}" for f in parameter for k, v in f.items())

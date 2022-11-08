@@ -8,88 +8,103 @@ import {
   FormLabel,
   Heading,
   Input,
+  ButtonGroup,
+  Stack,
 } from "@chakra-ui/react";
-import { Select } from "chakra-react-select";
-
-import {
-  BoxByLabelIdentifierAndAllProductsQuery,
-  ProductGender,
-  UpdateLocationOfBoxMutation,
-} from "types/generated/graphql";
+import { Select, OptionBase } from "chakra-react-select";
+import { BoxByLabelIdentifierAndAllProductsQuery, ProductGender } from "types/generated/graphql";
 import { Controller, useForm } from "react-hook-form";
 
 // import { groupBy } from "utils/helpers";
 import { useEffect, useState } from "react";
 
 import _ from "lodash";
+import { useNavigate, useParams } from "react-router-dom";
 
-
-export interface CategoryData {
+export interface ICategoryData {
   name: string;
 }
 
-export interface SizeData {
+export interface ISizeData {
   id: string;
   label: string;
 }
 
-export interface SizeRangeData {
+export interface ISizeRangeData {
   label?: string;
-  sizes: SizeData[];
+  sizes: ISizeData[];
 }
 
-export interface ProductWithSizeRangeData {
+export interface IProductWithSizeRangeData {
   id: string;
   name: string;
   gender?: ProductGender | undefined | null;
-  category: CategoryData;
-  sizeRange: SizeRangeData;
+  category: ICategoryData;
+  sizeRange: ISizeRangeData;
 }
 
-interface DropdownOption {
+interface IDropdownOption {
   value: string;
   label: string;
 }
 
-export interface BoxFormValues {
+interface ITagData extends OptionBase {
+  value: string;
+  label: string;
+  color?: string | null;
+}
+
+export interface IBoxFormValues {
   numberOfItems: number;
   sizeId: string;
   productId: string;
   locationId: string;
+  comment: string | null;
+  tags?: ITagData[] | null | undefined;
 }
 
-interface LocationData {
+interface ILocationData {
   id: string;
   name: string;
 }
 
-interface BoxEditProps {
-  boxData:
-    | BoxByLabelIdentifierAndAllProductsQuery["box"]
-    | UpdateLocationOfBoxMutation["updateBox"];
-  productAndSizesData: ProductWithSizeRangeData[];
-  allLocations: LocationData[];
-  onSubmitBoxEditForm: (boxFormValues: BoxFormValues) => void;
+interface IBoxEditProps {
+  boxData: BoxByLabelIdentifierAndAllProductsQuery["box"];
+  productAndSizesData: IProductWithSizeRangeData[];
+  allLocations: ILocationData[];
+  allTags: ITagData[] | null | undefined;
+  onSubmitBoxEditForm: (boxFormValues: IBoxFormValues) => void;
 }
 
-const BoxEdit = ({
+function BoxEdit({
   productAndSizesData,
   boxData,
   allLocations,
+  allTags,
   onSubmitBoxEditForm,
-}: BoxEditProps) => {
+}: IBoxEditProps) {
+  const { baseId, labelIdentifier } = useParams<{
+    baseId: string;
+    labelIdentifier: string;
+  }>();
+
+  const navigate = useNavigate();
+
   const productsGroupedByCategory = _.groupBy(
     productAndSizesData,
-    (product) => product.category.name
+    (product) => product.category.name,
   );
 
+  const tagsForDropdownGroups: Array<ITagData> | undefined = allTags?.map((tag) => ({
+    label: tag.label,
+    value: tag.value,
+  }));
+
   const locationsForDropdownGroups = allLocations
-    .map((location) => {
-      return {
-        label: location.name,
-        value: location.id,
-      };
-    })
+    .map((location) => ({
+      label: location.name,
+      value: location.id,
+    }))
     .sort((a, b) => a.label.localeCompare(b.label));
 
   const productsForDropdownGroups = Object.keys(productsGroupedByCategory)
@@ -107,6 +122,15 @@ const BoxEdit = ({
     })
     .sort((a, b) => a.label.localeCompare(b.label));
 
+  const defaultValues = {
+    numberOfItems: boxData?.numberOfItems || 0,
+    sizeId: boxData?.size.id,
+    productId: boxData?.product?.id,
+    locationId: boxData?.location?.id,
+    comment: boxData?.comment,
+    tags: boxData?.tags,
+  };
+
   const {
     handleSubmit,
     control,
@@ -114,54 +138,46 @@ const BoxEdit = ({
     resetField,
     watch,
     formState: { isSubmitting },
-  } = useForm<BoxFormValues>({
-    defaultValues: {
-      numberOfItems: boxData?.numberOfItems || 0,
-      sizeId: boxData?.size.id,
-      productId: boxData?.product?.id,
-      locationId: boxData?.location?.id,
-    },
+  } = useForm<IBoxFormValues>({
+    defaultValues,
   });
 
-  const [sizesOptionsForCurrentProduct, setSizesOptionsForCurrentProduct] =
-    useState<DropdownOption[]>([]);
+  const [sizesOptionsForCurrentProduct, setSizesOptionsForCurrentProduct] = useState<
+    IDropdownOption[]
+  >([]);
 
   const productId = watch("productId");
 
   useEffect(() => {
     if (productId != null) {
       const productAndSizeDataForCurrentProduct = productAndSizesData.find(
-        (p) => p.id === productId
+        (p) => p.id === productId,
       );
       setSizesOptionsForCurrentProduct(
         () =>
           productAndSizeDataForCurrentProduct?.sizeRange?.sizes?.map((s) => ({
             label: s.label,
             value: s.id,
-          })) || []
+          })) || [],
       );
       resetField("sizeId");
     }
   }, [productId, productAndSizesData, resetField]);
 
   if (boxData == null) {
-    console.error("BoxDetails Component: boxData is null");
     return <Box>No data found for a box with this id</Box>;
   }
 
   if (productsForDropdownGroups == null) {
-    console.error("BoxDetails Component: allProducts is null");
+    // eslint-disable-next-line max-len
     return (
-      <Box>
-        There was an error: the available products to choose from couldn't be
-        loaded!
-      </Box>
+      <Box>There was an error: the available products to choose from couldn&apos;t be loaded!</Box>
     );
   }
 
   return (
     <Box w={["100%", "100%", "60%", "40%"]}>
-      <Heading fontWeight={"bold"} mb={4} as="h2">
+      <Heading fontWeight="bold" mb={4} as="h2">
         Box {boxData.labelIdentifier}
       </Heading>
 
@@ -181,9 +197,7 @@ const BoxEdit = ({
                     <Select
                       name={name}
                       ref={ref}
-                      onChange={(selectedOption) =>
-                        onChange(selectedOption?.value)
-                      }
+                      onChange={(selectedOption) => onChange(selectedOption?.value)}
                       onBlur={onBlur}
                       value={
                         productsForDropdownGroups
@@ -206,33 +220,27 @@ const BoxEdit = ({
             <Controller
               control={control}
               name="sizeId"
-              render={({ field, fieldState: { invalid, error } }) => {
-                return (
-                  <FormControl isInvalid={invalid} id="size">
-                    <FormLabel htmlFor="size">Size</FormLabel>
-                    <Box border="2px">
-                      <Select
-                        name={field.name}
-                        ref={field.ref}
-                        value={
-                          sizesOptionsForCurrentProduct.find(
-                            (el) => el.value === field.value
-                          ) || null
-                        }
-                        onChange={(selectedOption) =>
-                          field.onChange(selectedOption?.value)
-                        }
-                        onBlur={field.onBlur}
-                        options={sizesOptionsForCurrentProduct}
-                        placeholder="Size"
-                        isSearchable
-                        tagVariant="outline"
-                      />
-                      <FormErrorMessage>{error?.message}</FormErrorMessage>
-                    </Box>
-                  </FormControl>
-                );
-              }}
+              render={({ field, fieldState: { invalid, error } }) => (
+                <FormControl isInvalid={invalid} id="size">
+                  <FormLabel htmlFor="size">Size</FormLabel>
+                  <Box border="2px">
+                    <Select
+                      name={field.name}
+                      ref={field.ref}
+                      value={
+                        sizesOptionsForCurrentProduct.find((el) => el.value === field.value) || null
+                      }
+                      onChange={(selectedOption) => field.onChange(selectedOption?.value)}
+                      onBlur={field.onBlur}
+                      options={sizesOptionsForCurrentProduct}
+                      placeholder="Size"
+                      isSearchable
+                      tagVariant="outline"
+                    />
+                    <FormErrorMessage>{error?.message}</FormErrorMessage>
+                  </Box>
+                </FormControl>
+              )}
             />
           </ListItem>
 
@@ -263,15 +271,9 @@ const BoxEdit = ({
                     <Select
                       name={name}
                       ref={ref}
-                      onChange={(selectedOption) =>
-                        onChange(selectedOption?.value)
-                      }
+                      onChange={(selectedOption) => onChange(selectedOption?.value)}
                       onBlur={onBlur}
-                      value={
-                        locationsForDropdownGroups.find(
-                          (el) => el.value === value
-                        ) || null
-                      }
+                      value={locationsForDropdownGroups.find((el) => el.value === value) || null}
                       options={locationsForDropdownGroups}
                       placeholder="Location"
                       isSearchable
@@ -283,13 +285,67 @@ const BoxEdit = ({
               )}
             />
           </ListItem>
+          <ListItem>
+            <Controller
+              control={control}
+              name="tags"
+              render={({
+                field: { onChange, onBlur, name, value, ref },
+                fieldState: { error },
+              }) => (
+                <FormControl isInvalid={!!error} id="tags">
+                  <FormLabel>Tags</FormLabel>
+                  <Box border="2px">
+                    <Select
+                      name={name}
+                      ref={ref}
+                      onChange={onChange}
+                      onBlur={onBlur}
+                      value={value}
+                      options={tagsForDropdownGroups}
+                      placeholder="Tags"
+                      isMulti
+                      isSearchable
+                      tagVariant="outline"
+                      focusBorderColor="transparent"
+                    />
+                  </Box>
+                  <FormErrorMessage>{error && error.message}</FormErrorMessage>
+                </FormControl>
+              )}
+            />
+          </ListItem>
+          <ListItem>
+            <FormLabel htmlFor="comment">Comment</FormLabel>
+            <Box border="2px">
+              <Input border="0" type="string" {...register("comment")} />
+            </Box>
+          </ListItem>
         </List>
-        <Button mt={4} isLoading={isSubmitting} type="submit" borderRadius="0">
-          Update Box
-        </Button>
+
+        <Stack spacing={4}>
+          <ButtonGroup gap="4">
+            <Button
+              mt={4}
+              isLoading={isSubmitting}
+              colorScheme="blue"
+              type="button"
+              borderRadius="0"
+              w="full"
+              variant="link"
+              onClick={() => navigate(`/bases/${baseId}/boxes/${labelIdentifier}`)}
+            >
+              Cancel
+            </Button>
+
+            <Button mt={4} isLoading={isSubmitting} type="submit" borderRadius="0" w="full">
+              Update Box
+            </Button>
+          </ButtonGroup>
+        </Stack>
       </form>
     </Box>
   );
-};
+}
 
 export default BoxEdit;

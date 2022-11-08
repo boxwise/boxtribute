@@ -6,9 +6,9 @@ This front-end project of Boxtribute was bootstrapped with [Create React App](ht
 
 1. [Contribution Guidelines](../CONTRIBUTING.md)
 2. [Development Set-up](#development-set-up)
-    1. [Set-up pre-commit](#set-up-pre-commit)
-    2. [Install node and yarn](#install-node-and-yarn)
-    3. [Linting and Formatting in VSCode](#linting-and-formatting-in-vscode)
+   1. [Set-up pre-commit](#set-up-pre-commit)
+   2. [Install node and yarn](#install-node-and-yarn)
+   3. [Linting and Formatting in VSCode](#linting-and-formatting-in-vscode)
 3. [Note about yarn and Docker](#note-about-yarn-and-docker)
 4. [Testing](#testing)
 5. [Conventions for file and folder organisation](#conventions-for-file-and-folder-organisation)
@@ -49,14 +49,14 @@ docker-compose exec react yarn format:write
 
 ### General linting and formatting rules
 
--   4 space tab
--   reject unused expressions and imports
--   trailing semicolon
--   double quotes
--   no deep nesting of loops (no loops in loops in loops)
--   no console.log
--   no debugger statements
--   no vars
+- 2 space tab
+- reject unused expressions and imports
+- trailing semicolon
+- double quotes
+- no deep nesting of loops (no loops in loops in loops)
+- no console.log
+- no debugger statements
+- no vars
 
 ## Note about yarn and Docker
 
@@ -99,15 +99,15 @@ docker-compose exec react yarn test:coverage
 
 ## Conventions for file and folder organisation
 
--   Views of react-router paths go into the views folder
--   Each view can have it's own folder - which in return can have a local components folder
--   Following an "As local as possible, as global as needed" approach: components get only moved into a more global/outer folder if they are used on that level
--   No index.ts files, besides the entry file for the app
--   Ideally only one component per file
--   Files and folders which export a component/view are written UpperCamelCase, with the same name as the actual exported component/view
--   Other files (like types.ts, helpers.ts etc) and folders (like providers, utils etc) are written in lowerCamelCase
--   Config constants should be UPPERCASE_SNAKES
--   GraphQL queries, mutation and subscription **string** have the format UPPERCASE_SNAKES\_<QUERY|MUTATION|SUBSCRIPTION>
+- Views of react-router paths go into the views folder
+- Each view can have it's own folder - which in return can have a local components folder
+- Following an "As local as possible, as global as needed" approach: components get only moved into a more global/outer folder if they are used on that level
+- No index.ts files, besides the entry file for the app
+- Ideally only one component per file
+- Files and folders which export a component/view are written UpperCamelCase, with the same name as the actual exported component/view
+- Other files (like types.ts, helpers.ts etc) and folders (like providers, utils etc) are written in lowerCamelCase
+- Config constants should be UPPERCASE_SNAKES
+- GraphQL queries, mutation and subscription **string** have the format UPPERCASE_SNAKES\_<QUERY|MUTATION|SUBSCRIPTION>
 
 ## Folders and files structures
 

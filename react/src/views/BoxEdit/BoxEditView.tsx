@@ -7,7 +7,7 @@ import {
   UpdateContentOfBoxMutation,
   UpdateContentOfBoxMutationVariables,
 } from "types/generated/graphql";
-import BoxEdit, { BoxFormValues } from "./components/BoxEdit";
+import BoxEdit, { IBoxFormValues } from "./components/BoxEdit";
 
 export const BOX_BY_LABEL_IDENTIFIER_AND_ALL_PRODUCTS_QUERY = gql`
   query BoxByLabelIdentifierAndAllProducts($labelIdentifier: String!) {
@@ -18,6 +18,12 @@ export const BOX_BY_LABEL_IDENTIFIER_AND_ALL_PRODUCTS_QUERY = gql`
         label
       }
       numberOfItems
+      comment
+      tags {
+        value: id
+        label: name
+        color
+      }
       product {
         id
         name
@@ -39,6 +45,12 @@ export const BOX_BY_LABEL_IDENTIFIER_AND_ALL_PRODUCTS_QUERY = gql`
           }
         }
       }
+    }
+
+    tags {
+      value: id
+      label: name
+      color
     }
 
     products(paginationInput: { first: 5000 }) {
@@ -68,6 +80,8 @@ export const UPDATE_CONTENT_OF_BOX_MUTATION = gql`
     $locationId: Int!
     $numberOfItems: Int!
     $sizeId: Int!
+    $comment: String
+    $tagIds: [Int!]
   ) {
     updateBox(
       updateInput: {
@@ -76,6 +90,8 @@ export const UPDATE_CONTENT_OF_BOX_MUTATION = gql`
         numberOfItems: $numberOfItems
         sizeId: $sizeId
         locationId: $locationId
+        comment: $comment
+        tagIds: $tagIds
       }
     ) {
       labelIdentifier
@@ -83,9 +99,8 @@ export const UPDATE_CONTENT_OF_BOX_MUTATION = gql`
   }
 `;
 
-const BoxEditView = () => {
-  const labelIdentifier = useParams<{ labelIdentifier: string }>()
-    .labelIdentifier!;
+function BoxEditView() {
+  const labelIdentifier = useParams<{ labelIdentifier: string }>().labelIdentifier!;
   const { loading, data } = useQuery<
     BoxByLabelIdentifierAndAllProductsQuery,
     BoxByLabelIdentifierAndAllProductsQueryVariables
@@ -94,7 +109,7 @@ const BoxEditView = () => {
       labelIdentifier,
     },
   });
-  const baseId = useParams<{ baseId: string }>().baseId;
+  const { baseId } = useParams<{ baseId: string }>();
   const navigate = useNavigate();
 
   const [updateContentOfBoxMutation] = useMutation<
@@ -102,25 +117,27 @@ const BoxEditView = () => {
     UpdateContentOfBoxMutationVariables
   >(UPDATE_CONTENT_OF_BOX_MUTATION);
 
-  const onSubmitBoxEditForm = (boxFormValues: BoxFormValues) => {
-    console.log("boxLabelIdentifier", labelIdentifier);
-    console.log("boxFormValues", boxFormValues);
+  const onSubmitBoxEditForm = (boxFormValues: IBoxFormValues) => {
+    const tagIds = boxFormValues?.tags
+      ? boxFormValues?.tags?.map((tag) => parseInt(tag.value, 10))
+      : [];
 
     updateContentOfBoxMutation({
       variables: {
         boxLabelIdentifier: labelIdentifier,
-        productId: parseInt(boxFormValues.productId),
+        productId: parseInt(boxFormValues.productId, 10),
         numberOfItems: boxFormValues.numberOfItems,
-        sizeId: parseInt(boxFormValues.sizeId),
-        locationId: parseInt(boxFormValues.locationId),
+        comment: boxFormValues?.comment,
+        sizeId: parseInt(boxFormValues.sizeId, 10),
+        locationId: parseInt(boxFormValues.locationId, 10),
+        tagIds,
       },
     })
       .then((mutationResult) => {
-        navigate(
-          `/bases/${baseId}/boxes/${mutationResult.data?.updateBox?.labelIdentifier}`
-        );
+        navigate(`/bases/${baseId}/boxes/${mutationResult.data?.updateBox?.labelIdentifier}`);
       })
       .catch((error) => {
+        // eslint-disable-next-line no-console
         console.error("Error while trying to update Box", error);
       });
   };
@@ -128,20 +145,21 @@ const BoxEditView = () => {
   if (loading) {
     return <APILoadingIndicator />;
   }
+
   const boxData = data?.box;
   const productAndSizesData = data?.products;
+  const allTags = data?.tags || null;
+
   const allLocations = data?.box?.location?.base?.locations.map((location) => ({
     ...location,
     name: location.name ?? "",
   }));
 
   if (allLocations == null) {
-    console.error("allLocations is null");
     return <div>Error: no locations available to choose from</div>;
   }
 
   if (productAndSizesData?.elements == null) {
-    console.error("allProducts.elements is null");
     return <div>Error: no products available to choose from for this Box</div>;
   }
 
@@ -151,8 +169,9 @@ const BoxEditView = () => {
       onSubmitBoxEditForm={onSubmitBoxEditForm}
       productAndSizesData={productAndSizesData?.elements}
       allLocations={allLocations}
+      allTags={allTags}
     />
   );
-};
+}
 
 export default BoxEditView;

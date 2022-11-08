@@ -41,7 +41,7 @@ type Box implements ItemsCollection {
   lastModifiedBy: User
   lastModifiedOn: Datetime
   comment: String
-  tags: [Tag!]!
+  tags: [Tag!]
 }
 
 interface Location {
@@ -113,7 +113,7 @@ type Tag {
   description: String
   color: String
   type: TagType!
-  taggedResources: [TaggableResource!]!
+  taggedResources: [TaggableResource!]
   base: Base!
 }
 
@@ -377,7 +377,7 @@ type User {
   id: ID!
   organisation: Organisation
   name: String
-  email: String!
+  email: String
   validFirstDay: Date
   validLastDay: Date
   " List of all [`Bases`]({{Types.Base}}) this user can access "
@@ -428,7 +428,7 @@ type Beneficiary {
   createdOn: Datetime
   lastModifiedBy: User
   lastModifiedOn: Datetime
-  tags: [Tag!]!
+  tags: [Tag!]
 }
 
 """

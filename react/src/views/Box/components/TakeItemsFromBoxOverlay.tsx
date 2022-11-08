@@ -11,24 +11,24 @@ import {
   Flex,
 } from "@chakra-ui/react";
 import { useForm } from "react-hook-form";
-import { ChangeNumberOfItemsBoxData } from "../BoxView";
+import { IChangeNumberOfItemsBoxData } from "../BoxView";
 
-interface TakeItemsFromBoxOverlayProps {
+interface ITakeItemsFromBoxOverlayProps {
   isOpen: boolean;
   onClose: () => void;
-  onSubmitTakeItemsFromBox: (data: ChangeNumberOfItemsBoxData) => void;
+  onSubmitTakeItemsFromBox: (data: IChangeNumberOfItemsBoxData) => void;
 }
 
-const TakeItemsFromBoxOverlay = ({
+function TakeItemsFromBoxOverlay({
   isOpen,
   onClose,
   onSubmitTakeItemsFromBox,
-}: TakeItemsFromBoxOverlayProps) => {
+}: ITakeItemsFromBoxOverlayProps) {
   const {
     register,
     handleSubmit,
     formState: { isSubmitting },
-  } = useForm<ChangeNumberOfItemsBoxData>({
+  } = useForm<IChangeNumberOfItemsBoxData>({
     defaultValues: {
       numberOfItems: 0,
     },
@@ -44,6 +44,7 @@ const TakeItemsFromBoxOverlay = ({
           <form onSubmit={handleSubmit(onSubmitTakeItemsFromBox)}>
             <Flex>
               <Input
+                data-testid="decrease-number-items"
                 placeholder="Number of items"
                 mr={4}
                 borderRadius="0"
@@ -55,12 +56,7 @@ const TakeItemsFromBoxOverlay = ({
                   valueAsNumber: true,
                 })}
               />
-              <Button
-                px={6}
-                borderRadius="0"
-                type="submit"
-                isLoading={isSubmitting}
-              >
+              <Button px={6} borderRadius="0" type="submit" isLoading={isSubmitting}>
                 Submit
               </Button>
             </Flex>
@@ -70,6 +66,6 @@ const TakeItemsFromBoxOverlay = ({
       </ModalContent>
     </Modal>
   );
-};
+}
 
 export default TakeItemsFromBoxOverlay;
