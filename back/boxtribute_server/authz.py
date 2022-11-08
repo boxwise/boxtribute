@@ -137,3 +137,12 @@ def agreement_organisation_filter_condition():
     return (TransferAgreement.source_organisation == g.user.organisation_id) | (
         TransferAgreement.target_organisation == g.user.organisation_id
     )
+
+
+def authorize_for_organisation_bases():
+    """This is an exceptional use for ignoring missing base info. It must be possible to
+    read organisations' bases information for anyone. The resolvers for base fields
+    (e.g. beneficiaries, products) are guarded with base-specific permission
+    enforcement.
+    """
+    _authorize(permission="base:read", ignore_missing_base_info=True)

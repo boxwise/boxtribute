@@ -18,9 +18,9 @@ from flask import g
 from peewee import fn
 
 from ..authz import (
-    _authorize,
     agreement_organisation_filter_condition,
     authorize,
+    authorize_for_organisation_bases,
     authorized_bases_filter,
 )
 from ..box_transfer.agreement import (
@@ -1312,10 +1312,7 @@ def resolve_metrics_moved_stock_overview(metrics_obj, _, after=None, before=None
 
 @organisation.field("bases")
 def resolve_organisation_bases(organisation_obj, _):
-    # This is an exceptional use for ignoring missing base info. It must be possible to
-    # read organisations' bases information for anyone. The resolvers for base fields
-    # are guarded with base-specific permission enforcement
-    _authorize(permission="base:read", ignore_missing_base_info=True)
+    authorize_for_organisation_bases()
     return Base.select().where(Base.organisation_id == organisation_obj.id)
 
 
@@ -1450,18 +1447,30 @@ def resolve_size_range_sizes(size_range_obj, info):
 
 @transfer_agreement.field("sourceBases")
 def resolve_transfer_agreement_source_bases(transfer_agreement_obj, _):
-    _authorize(permission="base:read", ignore_missing_base_info=True)
-    return retrieve_transfer_agreement_bases(
+    source_bases = retrieve_transfer_agreement_bases(
         transfer_agreement=transfer_agreement_obj, kind="source"
     )
+    target_bases = retrieve_transfer_agreement_bases(
+        transfer_agreement=transfer_agreement_obj, kind="target"
+    )
+    authorize(
+        permission="base:read", base_ids=[b.id for b in source_bases + target_bases]
+    )
+    return source_bases
 
 
 @transfer_agreement.field("targetBases")
 def resolve_transfer_agreement_target_bases(transfer_agreement_obj, _):
-    _authorize(permission="base:read", ignore_missing_base_info=True)
-    return retrieve_transfer_agreement_bases(
+    source_bases = retrieve_transfer_agreement_bases(
+        transfer_agreement=transfer_agreement_obj, kind="source"
+    )
+    target_bases = retrieve_transfer_agreement_bases(
         transfer_agreement=transfer_agreement_obj, kind="target"
     )
+    authorize(
+        permission="base:read", base_ids=[b.id for b in source_bases + target_bases]
+    )
+    return target_bases
 
 
 @transfer_agreement.field("shipments")
