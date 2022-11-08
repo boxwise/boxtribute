@@ -118,11 +118,6 @@ function BoxEditView() {
   >(UPDATE_CONTENT_OF_BOX_MUTATION);
 
   const onSubmitBoxEditForm = (boxFormValues: IBoxFormValues) => {
-    // eslint-disable-next-line no-console
-    console.log("boxLabelIdentifier", labelIdentifier);
-    // eslint-disable-next-line no-console
-    console.log("boxFormValues", boxFormValues);
-
     const tagIds = boxFormValues?.tags
       ? boxFormValues?.tags?.map((tag) => parseInt(tag.value, 10))
       : [];
@@ -161,14 +156,10 @@ function BoxEditView() {
   }));
 
   if (allLocations == null) {
-    // eslint-disable-next-line no-console
-    console.error("allLocations is null");
     return <div>Error: no locations available to choose from</div>;
   }
 
   if (productAndSizesData?.elements == null) {
-    // eslint-disable-next-line no-console
-    console.error("allProducts.elements is null");
     return <div>Error: no products available to choose from for this Box</div>;
   }
 
