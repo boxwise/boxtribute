@@ -1,6 +1,8 @@
+import os
+
 import pytest
 from boxtribute_server.auth import JWT_CLAIM_PREFIX, CurrentUser
-from boxtribute_server.authz import _authorize, authorize
+from boxtribute_server.authz import _authorize, authorize, check_beta_feature_access
 from boxtribute_server.exceptions import Forbidden
 
 BASE_ID = 1
@@ -181,3 +183,35 @@ def test_non_duplicated_base_ids_when_read_and_write_permissions_given():
     assert sorted(user.authorized_base_ids("stock:read")) == [3, 4]
     assert sorted(user.authorized_base_ids("stock:write")) == [3]
     assert sorted(user.authorized_base_ids("stock:edit")) == [4]
+
+
+def test_check_beta_feature_access(mocker):
+    # Enable testing of check_beta_feature_access() function
+    env_variables = os.environ.copy()
+    env_variables["CI"] = "false"
+    del env_variables["ENVIRONMENT"]
+    mocker.patch("os.environ", env_variables)
+
+    # User with scope 0 cannot access any features (only queries)
+    current_user = CurrentUser(id=1, beta_feature_scope=0)
+    for mutation in ["createQrCode", "createShipment", "createTag"]:
+        payload = f"mutation {{ {mutation} }}"
+        assert not check_beta_feature_access(payload, current_user=current_user)
+    assert check_beta_feature_access(
+        "query { base(id: 1) { name } }", current_user=current_user
+    )
+
+    # User with scope 1 can only access selected features
+    current_user = CurrentUser(id=1, beta_feature_scope=1)
+    for mutation in ["createShipment", "createTag"]:
+        payload = f"mutation {{ {mutation} }}"
+        assert not check_beta_feature_access(payload, current_user=current_user)
+    for mutation in ["createQrCode"]:
+        payload = f"mutation {{ {mutation} }}"
+        assert check_beta_feature_access(payload, current_user=current_user)
+    assert check_beta_feature_access(
+        "query { base(id: 1) { name } }", current_user=current_user
+    )
+
+    current_user = CurrentUser(id=0, organisation_id=0, is_god=True)
+    assert check_beta_feature_access({}, current_user=current_user)

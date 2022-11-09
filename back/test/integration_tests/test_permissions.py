@@ -1,3 +1,5 @@
+import os
+
 import pytest
 from auth import (
     TEST_AUTH0_AUDIENCE,
@@ -6,7 +8,7 @@ from auth import (
     get_authorization_header,
 )
 from boxtribute_server.auth import CurrentUser, decode_jwt, get_public_key
-from utils import assert_forbidden_request
+from utils import assert_forbidden_request, assert_successful_request
 
 # Test user data in dropapp_dev database:
 # users: Volunteer - Coordinator - Head of Operations
@@ -120,3 +122,24 @@ def test_usergroup_cross_organisation_permissions(
             # Coordinator and Volunteer usergroups don't have write permissions
             granted_base_ids = []
         assert all(i not in granted_base_ids for i in expected_forbidden_base_ids)
+
+
+def test_check_beta_feature_access(dropapp_dev_client, mocker):
+    # Enable testing of check_beta_feature_access() function
+    env_variables = os.environ.copy()
+    env_variables["CI"] = "false"
+    del env_variables["ENVIRONMENT"]
+    mocker.patch("os.environ", env_variables)
+
+    dropapp_dev_client.environ_base["HTTP_AUTHORIZATION"] = get_authorization_header(
+        "dev_coordinator@boxaid.org"
+    )
+
+    mutation = "mutation { createQrCode { id } }"
+    assert_successful_request(dropapp_dev_client, mutation)
+
+    mutation = "mutation { deleteTag(id: 1) { id } }"
+    data = {"query": mutation}
+    response = dropapp_dev_client.post("/graphql", json=data)
+    assert response.status_code == 401
+    assert response.json["error"] == "No permission to access beta feature"

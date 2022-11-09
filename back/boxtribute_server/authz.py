@@ -1,4 +1,6 @@
 """Utilities for handling authorization"""
+import os
+
 from flask import g
 
 from .exceptions import Forbidden
@@ -146,3 +148,26 @@ def authorize_for_organisation_bases():
     enforcement.
     """
     _authorize(permission="base:read", ignore_missing_base_info=True)
+
+
+def check_beta_feature_access(payload, *, current_user=None):
+    """Check whether the current user wants to execute a beta-feature mutation, and
+    whether they have sufficient beta-feature scope to run it.
+    """
+    if os.getenv("CI") == "true" or os.getenv("ENVIRONMENT") == "development":
+        # Skip check when running tests in CircleCI, or during local development
+        return True
+
+    current_user = current_user or g.user
+    if current_user.is_god:
+        return True
+
+    if "mutation" not in payload:
+        return True
+
+    all_allowed_mutations = {
+        0: [],
+        1: ["createQrCode"],
+    }
+    allowed_mutations = all_allowed_mutations[current_user.beta_feature_scope]
+    return any([m in payload for m in allowed_mutations])
