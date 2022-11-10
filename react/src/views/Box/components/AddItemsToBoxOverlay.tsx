@@ -34,7 +34,7 @@ function AddItemsToBoxOverlay({
     <Modal isOpen={isOpen} onClose={onClose}>
       <ModalOverlay />
       <ModalContent borderRadius="0">
-        <ModalHeader>I add items into this box:</ModalHeader>
+        <ModalHeader>Add Items to the Box</ModalHeader>
         <ModalCloseButton />
         <ModalBody>
           <form onSubmit={handleSubmit(onSubmitAddItemstoBox)}>

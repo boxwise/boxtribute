@@ -38,7 +38,7 @@ function TakeItemsFromBoxOverlay({
     <Modal isOpen={isOpen} onClose={onClose}>
       <ModalOverlay />
       <ModalContent borderRadius="0">
-        <ModalHeader>I took items out of this box:</ModalHeader>
+        <ModalHeader>Take Items from the Box</ModalHeader>
         <ModalCloseButton />
         <ModalBody>
           <form onSubmit={handleSubmit(onSubmitTakeItemsFromBox)}>
