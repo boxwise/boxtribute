@@ -22,31 +22,69 @@ SAMOS_BENEFICIARY_ID = "1005"
 
 
 @pytest.mark.parametrize(
-    "username,opposite_organisation_id",
     [
-        ["dev_headofops@boxaid.org", BOX_CARE_ID],
-        ["dev_headofops@boxcare.org", BOX_AID_ID],
-        ["dev_coordinator@boxaid.org", BOX_CARE_ID],
-        ["dev_coordinator@boxcare.org", BOX_AID_ID],
-        ["dev_volunteer@boxaid.org", BOX_CARE_ID],
-        ["dev_volunteer@boxcare.org", BOX_AID_ID],
+        "username",
+        "opposite_organisation_id",
+        "expected_accessible_base_ids",
+        "expected_forbidden_base_ids",
+        "forbidden_beneficiary_id",
+    ],
+    [
+        [
+            "dev_headofops@boxaid.org",
+            BOX_CARE_ID,
+            [LESVOS_ID],
+            [THESSALONIKI_ID, SAMOS_ID],
+            SAMOS_BENEFICIARY_ID,
+        ],
+        [
+            "dev_headofops@boxcare.org",
+            BOX_AID_ID,
+            [THESSALONIKI_ID, SAMOS_ID],
+            [LESVOS_ID],
+            LESVOS_BENEFICIARY_ID,
+        ],
+        [
+            "dev_coordinator@boxaid.org",
+            BOX_CARE_ID,
+            [LESVOS_ID],
+            [THESSALONIKI_ID, SAMOS_ID],
+            SAMOS_BENEFICIARY_ID,
+        ],
+        [
+            "dev_coordinator@boxcare.org",
+            BOX_AID_ID,
+            [THESSALONIKI_ID, SAMOS_ID],
+            [LESVOS_ID],
+            LESVOS_BENEFICIARY_ID,
+        ],
+        [
+            "dev_volunteer@boxaid.org",
+            BOX_CARE_ID,
+            [LESVOS_ID],
+            [THESSALONIKI_ID, SAMOS_ID],
+            SAMOS_BENEFICIARY_ID,
+        ],
+        [
+            "dev_volunteer@boxcare.org",
+            BOX_AID_ID,
+            [THESSALONIKI_ID, SAMOS_ID],
+            [LESVOS_ID],
+            LESVOS_BENEFICIARY_ID,
+        ],
     ],
 )
 def test_usergroup_cross_organisation_permissions(
-    dropapp_dev_client, username, opposite_organisation_id
+    dropapp_dev_client,
+    username,
+    opposite_organisation_id,
+    expected_accessible_base_ids,
+    expected_forbidden_base_ids,
+    forbidden_beneficiary_id,
 ):
     dropapp_dev_client.environ_base["HTTP_AUTHORIZATION"] = get_authorization_header(
         username
     )
-
-    if opposite_organisation_id == BOX_CARE_ID:
-        expected_accessible_base_ids = [LESVOS_ID]
-        expected_forbidden_base_ids = [THESSALONIKI_ID, SAMOS_ID]
-        forbidden_beneficiary_id = SAMOS_BENEFICIARY_ID
-    elif opposite_organisation_id == BOX_AID_ID:
-        expected_accessible_base_ids = [THESSALONIKI_ID, SAMOS_ID]
-        expected_forbidden_base_ids = [LESVOS_ID]
-        forbidden_beneficiary_id = LESVOS_BENEFICIARY_ID
 
     # Verify that user does not have read permission to perform queries for fetching
     # other bases' beneficiaries
