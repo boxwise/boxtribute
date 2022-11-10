@@ -11,14 +11,17 @@ from utils import assert_forbidden_request
 # Test user data in dropapp_dev database:
 # users: Volunteer - Coordinator - Head of Operations
 # BoxAid (ID 1): SINGLE-BASE in Lesvos (1); users 7, 8, 9
-# BoxCare (ID 2): MULTI-BASE in Samos (3) and Thessaloniki (2); users 16, 17, 18
+# BoxCare (ID 2): MULTI-BASE in Samos (3), Thessaloniki (2), Athens (4);
+#    users 16 (bases 2+3), 17 (2+3), 18 (2+3+4), 19 (2), 20 (2)
 BOX_AID_ID = "1"
 BOX_CARE_ID = "2"
 LESVOS_ID = "1"
 THESSALONIKI_ID = "2"
 SAMOS_ID = "3"
+ATHENS_ID = "4"
 LESVOS_BENEFICIARY_ID = "1"
-SAMOS_BENEFICIARY_ID = "1005"
+SAMOS_BENEFICIARY_ID = "100000484"
+ATHENS_BENEFICIARY_ID = "100000485"
 
 
 @pytest.mark.parametrize(
@@ -34,13 +37,13 @@ SAMOS_BENEFICIARY_ID = "1005"
             "dev_headofops@boxaid.org",
             BOX_CARE_ID,
             [LESVOS_ID],
-            [THESSALONIKI_ID, SAMOS_ID],
+            [THESSALONIKI_ID, SAMOS_ID, ATHENS_ID],
             SAMOS_BENEFICIARY_ID,
         ],
         [
             "dev_headofops@boxcare.org",
             BOX_AID_ID,
-            [THESSALONIKI_ID, SAMOS_ID],
+            [THESSALONIKI_ID, SAMOS_ID, ATHENS_ID],
             [LESVOS_ID],
             LESVOS_BENEFICIARY_ID,
         ],
@@ -48,7 +51,7 @@ SAMOS_BENEFICIARY_ID = "1005"
             "dev_coordinator@boxaid.org",
             BOX_CARE_ID,
             [LESVOS_ID],
-            [THESSALONIKI_ID, SAMOS_ID],
+            [THESSALONIKI_ID, SAMOS_ID, ATHENS_ID],
             SAMOS_BENEFICIARY_ID,
         ],
         [
@@ -62,7 +65,7 @@ SAMOS_BENEFICIARY_ID = "1005"
             "dev_volunteer@boxaid.org",
             BOX_CARE_ID,
             [LESVOS_ID],
-            [THESSALONIKI_ID, SAMOS_ID],
+            [THESSALONIKI_ID, SAMOS_ID, ATHENS_ID],
             SAMOS_BENEFICIARY_ID,
         ],
         [
@@ -71,6 +74,37 @@ SAMOS_BENEFICIARY_ID = "1005"
             [THESSALONIKI_ID, SAMOS_ID],
             [LESVOS_ID],
             LESVOS_BENEFICIARY_ID,
+        ],
+        # access within same organisation
+        # Multi-base users
+        [
+            "dev_coordinator@boxcare.org",
+            BOX_CARE_ID,
+            [THESSALONIKI_ID, SAMOS_ID],
+            [ATHENS_ID],
+            ATHENS_BENEFICIARY_ID,
+        ],
+        [
+            "dev_volunteer@boxcare.org",
+            BOX_CARE_ID,
+            [THESSALONIKI_ID, SAMOS_ID],
+            [ATHENS_ID],
+            ATHENS_BENEFICIARY_ID,
+        ],
+        # Single-base users
+        [
+            "another_dev_coordinatorr@boxcare.org",
+            BOX_CARE_ID,
+            [THESSALONIKI_ID],
+            [SAMOS_ID, ATHENS_ID],
+            SAMOS_BENEFICIARY_ID,
+        ],
+        [
+            "another_dev_volunteer@boxcare.org",
+            BOX_CARE_ID,
+            [THESSALONIKI_ID],
+            [SAMOS_ID, ATHENS_ID],
+            SAMOS_BENEFICIARY_ID,
         ],
     ],
 )
@@ -98,12 +132,22 @@ def test_usergroup_cross_organisation_permissions(
         error_count=len(expected_forbidden_base_ids),
     )
     organisation = response.json["data"]["organisation"]
-    assert organisation == {
-        "id": opposite_organisation_id,
-        "bases": [
-            {"id": i, "beneficiaries": None} for i in expected_forbidden_base_ids
-        ],
-    }
+    if opposite_organisation_id == BOX_CARE_ID and "boxcare" in username:
+        # In this scenario, the user tries to access another unauthorized base from the
+        # same organisation they belong to. No beneficiary data returned for this base
+        assert organisation["id"] == opposite_organisation_id
+        bases = organisation["bases"]
+        assert {"id": expected_forbidden_base_ids[0], "beneficiaries": None} in bases
+        assert len(bases) == len(expected_forbidden_base_ids) + len(
+            expected_accessible_base_ids
+        )
+    else:
+        assert organisation == {
+            "id": opposite_organisation_id,
+            "bases": [
+                {"id": i, "beneficiaries": None} for i in expected_forbidden_base_ids
+            ],
+        }
     for base_id in expected_forbidden_base_ids:
         query = f"query {{ base(id: {base_id}) {{ beneficiaries {{ totalCount }} }} }}"
         assert_forbidden_request(dropapp_dev_client, query)
