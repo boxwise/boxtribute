@@ -54,12 +54,12 @@ const UserMenu = ({ logout, user, currentActiveBaseId, availableBases }: UserMen
     <Menu>
       <MenuButton as={IconButton} icon={<Img src={user?.picture} width={10} height={10} />} />
       <MenuList my={0} border="2px" borderRadius="0px" py={0}>
-        <MenuGroup title="Bases">
+        {/* <MenuGroup title="Bases">
           <BaseSwitcher currentActiveBaseId={currentActiveBaseId} availableBases={availableBases} />
         </MenuGroup>
-        <MenuDivider />
+        <MenuDivider /> */}
         <MenuGroup>
-          <MenuItem py={2}>Profile ({user?.email})</MenuItem>
+          {/* <MenuItem py={2}>Profile ({user?.email})</MenuItem> */}
           <MenuItem py={2} onClick={() => logout()}>
             Logout
           </MenuItem>
