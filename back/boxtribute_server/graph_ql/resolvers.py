@@ -1203,7 +1203,10 @@ def resolve_packing_list_entries(obj, *_):
 @distribution_event.field("distributionEventsTrackingGroup")
 def resolve_tracking_group_of_distribution_event(distro_event_obj, *_):
     mobile_distro_feature_flag_check(user_id=g.user.id)
-    authorize(permission="distro_event:read")
+    authorize(
+        permission="distro_event:read",
+        base_id=distro_event_obj.distribution_spot.base_id,
+    )
     return distro_event_obj.distribution_events_tracking_group
 
 
@@ -1219,7 +1222,7 @@ def resolve_base_distribution_events_tracking_groups(base_obj, _, states=None):
 
 @base.field("distributionEventsBeforeReturnedFromDistributionState")
 def resolve_distribution_events_before_return_state(base_obj, *_):
-    authorize(permission="distro_event:read")
+    authorize(permission="distro_event:read", base_id=base_obj.id)
     return (
         DistributionEvent.select()
         .join(Location, on=(DistributionEvent.distribution_spot == Location.id))
@@ -1241,7 +1244,7 @@ def resolve_distribution_events_before_return_state(base_obj, *_):
 
 @base.field("distributionEventsInReturnedFromDistributionState")
 def resolve_distribution_events_in_return_state(base_obj, *_):
-    authorize(permission="distro_event:read")
+    authorize(permission="distro_event:read", base_id=base_obj.id)
     return (
         DistributionEvent.select()
         .join(Location, on=(DistributionEvent.distribution_spot == Location.id))
