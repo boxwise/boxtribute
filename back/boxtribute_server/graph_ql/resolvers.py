@@ -784,11 +784,13 @@ def resolve_move_items_from_box_to_distribution_event(
     mutation_obj, _, box_label_identifier, distribution_event_id, number_of_items
 ):
     mobile_distro_feature_flag_check(user_id=g.user.id)
-    # TODO: here are most likely more authorization checks needed:
-    # * is the box and the event in the same base?
-    # * is the user allowed to write to the specific box (base check)?
-    # * is the user allowed to write to the specific event (base check)?
-    authorize(permission="unboxed_items_collection:write")
+    event = DistributionEvent.get_by_id(distribution_event_id)
+    authorize(
+        permission="unboxed_items_collection:write",
+        base_id=event.distribution_spot.base_id,
+    )
+    box = Box.get(Box.label_identifier == box_label_identifier)
+    authorize(permission="stock:write", base_id=box.location.base_id)
     return move_items_from_box_to_distribution_event(
         user_id=g.user.id,
         box_label_identifier=box_label_identifier,

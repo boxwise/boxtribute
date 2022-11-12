@@ -19,7 +19,6 @@ BASE_AGNOSTIC_RESOURCES = (
     "size_range",
     "tag_relation",
     "transaction",
-    "unboxed_items_collection",  # temporary
     "user",
 )
 
