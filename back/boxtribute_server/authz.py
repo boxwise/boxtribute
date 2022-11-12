@@ -14,7 +14,6 @@ BASE_AGNOSTIC_RESOURCES = (
     "history",
     "language",
     "organisation",
-    "packing_list_entry",  # temporary
     "qr",
     "size",
     "size_range",
