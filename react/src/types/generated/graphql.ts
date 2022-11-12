@@ -222,6 +222,7 @@ export type ClassicLocation = Location & {
   lastModifiedBy?: Maybe<User>;
   lastModifiedOn?: Maybe<Scalars['Datetime']>;
   name?: Maybe<Scalars['String']>;
+  seq?: Maybe<Scalars['Int']>;
 };
 
 
