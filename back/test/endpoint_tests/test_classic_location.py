@@ -11,6 +11,7 @@ def test_location_query(
                     id
                     base {{ id }}
                     name
+                    seq
                     isShop
                     isStockroom
                     boxes {{
@@ -26,6 +27,7 @@ def test_location_query(
         "id": str(default_location["id"]),
         "base": {"id": str(default_location["base"])},
         "name": default_location["name"],
+        "seq": default_location["seq"],
         "isShop": default_location["is_shop"],
         "isStockroom": default_location["is_stockroom"],
         "boxes": {"elements": [{"id": str(b["id"])} for b in default_location_boxes]},

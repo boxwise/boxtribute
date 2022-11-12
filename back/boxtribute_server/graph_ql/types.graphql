@@ -188,6 +188,7 @@ type ClassicLocation implements Location {
   id: ID!
   base: Base
   name: String
+  seq: Int
   isShop: Boolean!
   isStockroom: Boolean!
   " List of all the [`Boxes`]({{Types.Box}}) in this classic location "
