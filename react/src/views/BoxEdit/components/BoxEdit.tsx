@@ -10,14 +10,20 @@ import {
   Input,
   ButtonGroup,
   Stack,
+  NumberInput,
+  NumberInputField,
+  NumberIncrementStepper,
+  NumberDecrementStepper,
+  NumberInputStepper,
 } from "@chakra-ui/react";
 import { Select, OptionBase } from "chakra-react-select";
 import { BoxByLabelIdentifierAndAllProductsQuery, ProductGender } from "types/generated/graphql";
 import { Controller, useForm } from "react-hook-form";
 
-// import { groupBy } from "utils/helpers";
 import { useEffect, useState } from "react";
 
+import { zodResolver } from "@hookform/resolvers/zod";
+import { z } from "zod";
 import _ from "lodash";
 import { useNavigate, useParams } from "react-router-dom";
 
@@ -76,6 +82,18 @@ interface IBoxEditProps {
   onSubmitBoxEditForm: (boxFormValues: IBoxFormValues) => void;
 }
 
+export const BoxEditFormDataSchema = z.object({
+  productId: z.string({ required_error: "Product is required" }),
+  sizeId: z.string({ required_error: "Size is required" }),
+  locationId: z.string({ required_error: "Location is required" }),
+  numberOfItems: z.nan({
+    required_error: "Number of items is required",
+    invalid_type_error: "Number of items must be a number",
+  }),
+});
+
+export type BoxEditFormData = z.infer<typeof BoxEditFormDataSchema>;
+
 function BoxEdit({
   productAndSizesData,
   boxData,
@@ -90,7 +108,7 @@ function BoxEdit({
 
   const navigate = useNavigate();
 
-  const productsGroupedByCategory = _.groupBy(
+  const productsGroupedByCategory: Record<string, IProductWithSizeRangeData[]> = _.groupBy(
     productAndSizesData,
     (product) => product.category.name,
   );
@@ -115,7 +133,9 @@ function BoxEdit({
         options: productsForCurrentGroup
           .map((product) => ({
             value: product.id,
-            label: `${product.name} (${product.gender})`,
+            label: `${`${product.name} (${product.sizeRange.label})`}${
+              product.gender !== "none" ? ` (${product.gender})` : ""
+            }`,
           }))
           .sort((a, b) => a.label.localeCompare(b.label)),
       };
@@ -131,15 +151,18 @@ function BoxEdit({
     tags: boxData?.tags,
   };
 
+  // eslint-disable-next-line no-console
+  console.log(defaultValues);
+
   const {
     handleSubmit,
     control,
     register,
     resetField,
     watch,
-    formState: { isSubmitting },
+    formState: { errors, isSubmitting },
   } = useForm<IBoxFormValues>({
-    defaultValues,
+    resolver: zodResolver(BoxEditFormDataSchema),
   });
 
   const [sizesOptionsForCurrentProduct, setSizesOptionsForCurrentProduct] = useState<
@@ -170,6 +193,9 @@ function BoxEdit({
     return <Box>No data found for a box with this id</Box>;
   }
 
+  // eslint-disable-next-line no-console
+  console.log(errors);
+
   if (productsForDropdownGroups == null) {
     // eslint-disable-next-line no-console
     console.error("BoxDetails Component: allProducts is null");
@@ -195,9 +221,9 @@ function BoxEdit({
                 field: { onChange, onBlur, value, name, ref },
                 fieldState: { error },
               }) => (
-                <FormControl isRequired isInvalid={!!error} id="products">
+                <FormControl isRequired isInvalid={!!errors.productId} id="products">
                   <FormLabel>Product</FormLabel>
-                  <Box border="2px">
+                  <Box border="2px" borderRadius={9} borderColor={errors.productId ? "red" : ""}>
                     <Select
                       name={name}
                       ref={ref}
@@ -224,56 +250,66 @@ function BoxEdit({
             <Controller
               control={control}
               name="sizeId"
-              render={({ field, fieldState: { invalid, error } }) => (
-                <FormControl isRequired isInvalid={invalid} id="size">
-                  <FormLabel htmlFor="size">Size</FormLabel>
-                  <Box border="2px">
+              render={({ field, fieldState: { error } }) => (
+                <FormControl isRequired id="sizeId" isInvalid={!!errors?.sizeId}>
+                  <FormLabel htmlFor="sizeId">Size</FormLabel>
+                  <Box border="2px" borderRadius={9} borderColor={errors?.sizeId ? "red" : ""}>
                     <Select
-                      name={field.name}
-                      ref={field.ref}
+                      {...register("sizeId")}
                       value={
                         sizesOptionsForCurrentProduct.find((el) => el.value === field.value) || null
                       }
                       onChange={(selectedOption) => field.onChange(selectedOption?.value)}
                       onBlur={field.onBlur}
                       options={sizesOptionsForCurrentProduct}
+                      name="sizeId"
                       placeholder="Size"
                       isSearchable
                       tagVariant="outline"
                     />
-                    <FormErrorMessage>{error?.message}</FormErrorMessage>
                   </Box>
+                  <FormErrorMessage>{errors?.sizeId?.message}</FormErrorMessage>
                 </FormControl>
               )}
             />
           </ListItem>
 
           <ListItem>
-            <FormControl isRequired id="numberOfItems">
+            <FormControl isRequired isInvalid={errors.numberOfItems != null} id="numberOfItems">
               <FormLabel htmlFor="numberOfItems">Number Of Items</FormLabel>
               <Box border="2px">
-                <Input
-                  border="0"
-                  type="number"
-                  {...register("numberOfItems", {
-                    valueAsNumber: true,
-                    validate: (value) => value > 0,
-                  })}
-                />
+                <NumberInput max={10000} min={0}>
+                  <NumberInputField
+                    type="number"
+                    {...register("numberOfItems", {
+                      valueAsNumber: true,
+                    })}
+                  />
+                  <NumberInputStepper>
+                    <NumberIncrementStepper />
+                    <NumberDecrementStepper />
+                  </NumberInputStepper>
+                </NumberInput>
               </Box>
+              <FormErrorMessage>
+                {errors.numberOfItems && errors.numberOfItems.message}
+              </FormErrorMessage>
             </FormControl>
           </ListItem>
           <ListItem>
             <Controller
               control={control}
               name="locationId"
+              rules={{
+                required: true,
+              }}
               render={({
                 field: { onChange, onBlur, value, name, ref },
                 fieldState: { error },
               }) => (
-                <FormControl isRequired isInvalid={!!error} id="locationForDropdown">
-                  <FormLabel htmlFor="locationForDropdown">Location</FormLabel>
-                  <Box border="2px">
+                <FormControl isRequired isInvalid={!!error} id="locationId">
+                  <FormLabel htmlFor="locationId">Location</FormLabel>
+                  <Box border="2px" borderRadius={9} borderColor={error ? "red" : ""}>
                     <Select
                       name={name}
                       ref={ref}
@@ -301,7 +337,7 @@ function BoxEdit({
               }) => (
                 <FormControl isInvalid={!!error} id="tags">
                   <FormLabel>Tags</FormLabel>
-                  <Box border="2px">
+                  <Box border="2px" borderRadius={9}>
                     <Select
                       name={name}
                       ref={ref}
@@ -323,7 +359,7 @@ function BoxEdit({
           </ListItem>
           <ListItem>
             <FormLabel htmlFor="comment">Comment</FormLabel>
-            <Box border="2px">
+            <Box border="2px" borderRadius={9}>
               <Input border="0" type="string" {...register("comment")} />
             </Box>
           </ListItem>
