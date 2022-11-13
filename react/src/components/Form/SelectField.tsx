@@ -16,6 +16,9 @@ export interface ISelectFieldProps {
   placeholder?: string;
 }
 
+// The examples from chakra-react-select were super helpful:
+// https://www.npmjs.com/package/chakra-react-select#usage-with-react-form-libraries
+
 function SelectField({
   fieldId,
   fieldLabel,
