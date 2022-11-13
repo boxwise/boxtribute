@@ -12,7 +12,8 @@ import {
   Stack,
 } from "@chakra-ui/react";
 import NumberField from "components/Form/NumberField";
-import { Select, OptionBase } from "chakra-react-select";
+import SelectField, { IDropdownOption } from "components/Form/SelectField";
+import { Select } from "chakra-react-select";
 import { BoxByLabelIdentifierAndAllProductsQuery, ProductGender } from "types/generated/graphql";
 import { Controller, useForm } from "react-hook-form";
 
@@ -45,24 +46,13 @@ export interface IProductWithSizeRangeData {
   sizeRange: ISizeRangeData;
 }
 
-interface IDropdownOption {
-  value: string;
-  label: string;
-}
-
-interface ITagData extends OptionBase {
-  value: string;
-  label: string;
-  color?: string | null;
-}
-
 export interface IBoxFormValues {
   numberOfItems: number;
   sizeId: string;
   productId: string;
   locationId: string;
   comment: string | null;
-  tags?: ITagData[] | null | undefined;
+  tags?: IDropdownOption[] | null | undefined;
 }
 
 interface ILocationData {
@@ -74,7 +64,7 @@ interface IBoxEditProps {
   boxData: BoxByLabelIdentifierAndAllProductsQuery["box"];
   productAndSizesData: IProductWithSizeRangeData[];
   allLocations: ILocationData[];
-  allTags: ITagData[] | null | undefined;
+  allTags: IDropdownOption[] | null | undefined;
   onSubmitBoxEditForm: (boxFormValues: IBoxFormValues) => void;
 }
 
@@ -112,9 +102,10 @@ function BoxEdit({
     (product) => product.category.name,
   );
 
-  const tagsForDropdownGroups: Array<ITagData> | undefined = allTags?.map((tag) => ({
+  const tagsForDropdownGroups: Array<IDropdownOption> | undefined = allTags?.map((tag) => ({
     label: tag.label,
     value: tag.value,
+    // colorScheme: "red",
   }));
 
   const locationsForDropdownGroups = allLocations
@@ -220,7 +211,7 @@ function BoxEdit({
                 field: { onChange, onBlur, value, name, ref },
                 fieldState: { error },
               }) => (
-                <FormControl isRequired isInvalid={!!errors.productId} id="products">
+                <FormControl isInvalid={!!errors.productId} id="products">
                   <FormLabel>Product</FormLabel>
                   <Box border="2px" borderRadius={9} borderColor={errors.productId ? "red" : ""}>
                     <Select
@@ -249,8 +240,8 @@ function BoxEdit({
             <Controller
               control={control}
               name="sizeId"
-              render={({ field, fieldState: { error } }) => (
-                <FormControl isRequired id="sizeId" isInvalid={!!errors?.sizeId}>
+              render={({ field}) => (
+                <FormControl id="sizeId" isInvalid={!!errors?.sizeId}>
                   <FormLabel htmlFor="sizeId">Size</FormLabel>
                   <Box border="2px" borderRadius={9} borderColor={errors?.sizeId ? "red" : ""}>
                     <Select
@@ -282,34 +273,13 @@ function BoxEdit({
             />
           </ListItem>
           <ListItem>
-            <Controller
+            <SelectField
+              fieldId="locationId"
+              fieldLabel="Location"
+              placeholder="Please select a location"
+              options={locationsForDropdownGroups}
+              errors={errors}
               control={control}
-              name="locationId"
-              rules={{
-                required: true,
-              }}
-              render={({
-                field: { onChange, onBlur, value, name, ref },
-                fieldState: { error },
-              }) => (
-                <FormControl isRequired isInvalid={!!error} id="locationId">
-                  <FormLabel htmlFor="locationId">Location</FormLabel>
-                  <Box border="2px" borderRadius={9} borderColor={error ? "red" : ""}>
-                    <Select
-                      name={name}
-                      ref={ref}
-                      onChange={(selectedOption) => onChange(selectedOption?.value)}
-                      onBlur={onBlur}
-                      value={locationsForDropdownGroups.find((el) => el.value === value) || null}
-                      options={locationsForDropdownGroups}
-                      placeholder="Location"
-                      isSearchable
-                      tagVariant="outline"
-                    />
-                  </Box>
-                  <FormErrorMessage>{error && error.message}</FormErrorMessage>
-                </FormControl>
-              )}
             />
           </ListItem>
           <ListItem>
