@@ -10,12 +10,8 @@ import {
   Input,
   ButtonGroup,
   Stack,
-  NumberInput,
-  NumberInputField,
-  NumberIncrementStepper,
-  NumberDecrementStepper,
-  NumberInputStepper,
 } from "@chakra-ui/react";
+import NumberField from "components/Form/NumberField";
 import { Select, OptionBase } from "chakra-react-select";
 import { BoxByLabelIdentifierAndAllProductsQuery, ProductGender } from "types/generated/graphql";
 import { Controller, useForm } from "react-hook-form";
@@ -86,10 +82,13 @@ export const BoxEditFormDataSchema = z.object({
   productId: z.string({ required_error: "Product is required" }),
   sizeId: z.string({ required_error: "Size is required" }),
   locationId: z.string({ required_error: "Location is required" }),
-  numberOfItems: z.nan({
-    required_error: "Number of items is required",
-    invalid_type_error: "Number of items must be a number",
-  }),
+  numberOfItems: z
+    .number({
+      required_error: "Please enter a number of items",
+      invalid_type_error: "Please enter an integer number",
+    })
+    .int()
+    .nonnegative(),
 });
 
 export type BoxEditFormData = z.infer<typeof BoxEditFormDataSchema>;
@@ -273,28 +272,14 @@ function BoxEdit({
               )}
             />
           </ListItem>
-
           <ListItem>
-            <FormControl isRequired isInvalid={errors.numberOfItems != null} id="numberOfItems">
-              <FormLabel htmlFor="numberOfItems">Number Of Items</FormLabel>
-              <Box border="2px">
-                <NumberInput max={10000} min={0}>
-                  <NumberInputField
-                    type="number"
-                    {...register("numberOfItems", {
-                      valueAsNumber: true,
-                    })}
-                  />
-                  <NumberInputStepper>
-                    <NumberIncrementStepper />
-                    <NumberDecrementStepper />
-                  </NumberInputStepper>
-                </NumberInput>
-              </Box>
-              <FormErrorMessage>
-                {errors.numberOfItems && errors.numberOfItems.message}
-              </FormErrorMessage>
-            </FormControl>
+            <NumberField
+              fieldId="numberOfItems"
+              fieldLabel="Number Of Items"
+              errors={errors}
+              control={control}
+              register={register}
+            />
           </ListItem>
           <ListItem>
             <Controller
