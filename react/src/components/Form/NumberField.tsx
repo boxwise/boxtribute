@@ -20,7 +20,7 @@ export interface INumberFieldProps {
 
 function NumberField({ fieldId, fieldLabel, errors, control, register }: INumberFieldProps) {
   return (
-    <FormControl isRequired isInvalid={!!errors[fieldId]}>
+    <FormControl isInvalid={!!errors[fieldId]}>
       <FormLabel htmlFor="numberOfItems">{fieldLabel}</FormLabel>
       {/* The React Form Controller is needed because the Input is actually in NumberInputField and not in Number Input chakraUI components */}
       {/* https://react-hook-form.com/api/usecontroller/controller */}
@@ -37,7 +37,7 @@ function NumberField({ fieldId, fieldLabel, errors, control, register }: INumber
               borderRadius="0"
               borderColor="black"
               {...register(field.name, {
-                setValueAs: (valueString) => Number(valueString),
+                setValueAs: (valueString) => (valueString ? Number(valueString) : null),
               })}
             />
             <NumberInputStepper>
