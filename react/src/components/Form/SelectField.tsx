@@ -13,7 +13,9 @@ export interface ISelectFieldProps {
   options: Array<IDropdownOption>;
   errors: object;
   control: any;
+  // eslint-disable-next-line react/require-default-props
   placeholder?: string;
+  defaultValue: string;
 }
 
 // The examples from chakra-react-select were super helpful:
@@ -26,9 +28,10 @@ function SelectField({
   options,
   errors,
   control,
+  defaultValue,
 }: ISelectFieldProps) {
   return (
-    <FormControl isInvalid={!!errors[fieldId]} id={fieldId}>
+    <FormControl isRequired isInvalid={!!errors[fieldId]} id={fieldId}>
       <FormLabel htmlFor={fieldId}>{fieldLabel}</FormLabel>
       <Controller
         control={control}
@@ -39,7 +42,7 @@ function SelectField({
             ref={ref}
             onChange={(selectedOption) => onChange(selectedOption?.value)}
             onBlur={onBlur}
-            value={options.find((el) => el.value === value) || null}
+            value={options.find((el) => el.value === value || el.value === defaultValue) || null}
             options={options}
             placeholder={placeholder}
             isSearchable

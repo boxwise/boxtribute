@@ -23,6 +23,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import _ from "lodash";
 import { useNavigate, useParams } from "react-router-dom";
+import ControlledSelect from "components/Form/ControlledSelectField";
 
 export interface ICategoryData {
   name: string;
@@ -60,6 +61,13 @@ interface ILocationData {
   name: string;
 }
 
+const singleSelectOptionSchema = z.object({
+  label: z.string(),
+  value: z.string(),
+});
+
+type SingleSelectOption = z.infer<typeof singleSelectOptionSchema>;
+
 interface IBoxEditProps {
   boxData: BoxByLabelIdentifierAndAllProductsQuery["box"];
   productAndSizesData: IProductWithSizeRangeData[];
@@ -67,6 +75,11 @@ interface IBoxEditProps {
   allTags: IDropdownOption[] | null | undefined;
   onSubmitBoxEditForm: (boxFormValues: IBoxFormValues) => void;
 }
+
+const tagsSchema = z.object({
+  label: z.string(),
+  value: z.string(),
+});
 
 export const BoxEditFormDataSchema = z.object({
   productId: z.string({ required_error: "Product is required" }),
@@ -79,9 +92,11 @@ export const BoxEditFormDataSchema = z.object({
     })
     .int()
     .nonnegative(),
+  comment: z.string().optional(),
+  tags: tagsSchema.array().optional(),
 });
 
-export type BoxEditFormData = z.infer<typeof BoxEditFormDataSchema>;
+type BoxEditFormData = z.infer<typeof BoxEditFormDataSchema>;
 
 function BoxEdit({
   productAndSizesData,
@@ -94,6 +109,15 @@ function BoxEdit({
     baseId: string;
     labelIdentifier: string;
   }>();
+
+  const defaultValues: BoxEditFormData = {
+    numberOfItems: boxData?.numberOfItems || 0,
+    sizeId: boxData?.size.id || "",
+    productId: boxData?.product?.id || "",
+    locationId: boxData?.location?.id || "",
+    comment: boxData?.comment || "",
+    tags: boxData?.tags || [],
+  };
 
   const navigate = useNavigate();
 
@@ -131,15 +155,6 @@ function BoxEdit({
       };
     })
     .sort((a, b) => a.label.localeCompare(b.label));
-
-  const defaultValues = {
-    numberOfItems: boxData?.numberOfItems || 0,
-    sizeId: boxData?.size.id,
-    productId: boxData?.product?.id,
-    locationId: boxData?.location?.id,
-    comment: boxData?.comment,
-    tags: boxData?.tags,
-  };
 
   // eslint-disable-next-line no-console
   console.log(defaultValues);
@@ -237,10 +252,19 @@ function BoxEdit({
             />
           </ListItem>
           <ListItem>
-            <Controller
+            <SelectField
+              fieldId="sizeId"
+              fieldLabel="Size"
+              defaultValue={boxData.size.id}
+              placeholder="Please select a size"
+              options={sizesOptionsForCurrentProduct}
+              errors={errors}
+              control={control}
+            />
+            {/* <Controller
               control={control}
               name="sizeId"
-              render={({ field}) => (
+              render={({ field }) => (
                 <FormControl id="sizeId" isInvalid={!!errors?.sizeId}>
                   <FormLabel htmlFor="sizeId">Size</FormLabel>
                   <Box border="2px" borderRadius={9} borderColor={errors?.sizeId ? "red" : ""}>
@@ -261,7 +285,7 @@ function BoxEdit({
                   <FormErrorMessage>{errors?.sizeId?.message}</FormErrorMessage>
                 </FormControl>
               )}
-            />
+            /> */}
           </ListItem>
           <ListItem>
             <NumberField
@@ -274,6 +298,7 @@ function BoxEdit({
           </ListItem>
           <ListItem>
             <SelectField
+              defaultValue={boxData.location?.id || ""}
               fieldId="locationId"
               fieldLabel="Location"
               placeholder="Please select a location"
