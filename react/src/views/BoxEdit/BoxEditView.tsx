@@ -7,7 +7,7 @@ import {
   UpdateContentOfBoxMutation,
   UpdateContentOfBoxMutationVariables,
 } from "types/generated/graphql";
-import BoxEdit, { IBoxFormValues } from "./components/BoxEdit";
+import BoxEdit, { IBoxEditFormData } from "./components/BoxEdit";
 
 export const BOX_BY_LABEL_IDENTIFIER_AND_ALL_PRODUCTS_QUERY = gql`
   query BoxByLabelIdentifierAndAllProducts($labelIdentifier: String!) {
@@ -117,25 +117,25 @@ function BoxEditView() {
     UpdateContentOfBoxMutationVariables
   >(UPDATE_CONTENT_OF_BOX_MUTATION);
 
-  const onSubmitBoxEditForm = (boxFormValues: IBoxFormValues) => {
+  const onSubmitBoxEditForm = (boxEditFormData: IBoxEditFormData) => {
     // eslint-disable-next-line no-console
     console.log("boxLabelIdentifier", labelIdentifier);
     // eslint-disable-next-line no-console
-    console.log("boxFormValues", boxFormValues);
+    console.log("boxEditFormData", boxEditFormData);
 
-    const tagIds = boxFormValues?.tags
-      ? boxFormValues?.tags?.map((tag) => parseInt(tag.value, 10))
+    const tagIds = boxEditFormData?.tags
+      ? boxEditFormData?.tags?.map((tag) => parseInt(tag.value, 10))
       : [];
 
     updateContentOfBoxMutation({
       variables: {
         boxLabelIdentifier: labelIdentifier,
-        productId: parseInt(boxFormValues.productId, 10),
-        numberOfItems: boxFormValues.numberOfItems,
-        comment: boxFormValues?.comment ? boxFormValues?.comment : "",
-        sizeId: parseInt(boxFormValues.sizeId, 10),
-        locationId: parseInt(boxFormValues.locationId, 10),
+        productId: parseInt(boxEditFormData.productId.value, 10),
+        sizeId: parseInt(boxEditFormData.sizeId.value, 10),
+        numberOfItems: boxEditFormData.numberOfItems,
+        locationId: parseInt(boxEditFormData.locationId.value, 10),
         tagIds,
+        comment: boxEditFormData?.comment,
       },
     })
       .then((mutationResult) => {
