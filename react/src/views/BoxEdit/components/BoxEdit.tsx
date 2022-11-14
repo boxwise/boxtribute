@@ -23,7 +23,6 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import _ from "lodash";
 import { useNavigate, useParams } from "react-router-dom";
-import ControlledSelect from "components/Form/ControlledSelectField";
 
 export interface ICategoryData {
   name: string;
@@ -47,44 +46,32 @@ export interface IProductWithSizeRangeData {
   sizeRange: ISizeRangeData;
 }
 
-export interface IBoxFormValues {
-  numberOfItems: number;
-  sizeId: string;
-  productId: string;
-  locationId: string;
-  comment: string | null;
-  tags?: IDropdownOption[] | null | undefined;
-}
-
 interface ILocationData {
   id: string;
   name: string;
 }
+
+// Definitions for form validation with zod
 
 const singleSelectOptionSchema = z.object({
   label: z.string(),
   value: z.string(),
 });
 
-type SingleSelectOption = z.infer<typeof singleSelectOptionSchema>;
-
-interface IBoxEditProps {
-  boxData: BoxByLabelIdentifierAndAllProductsQuery["box"];
-  productAndSizesData: IProductWithSizeRangeData[];
-  allLocations: ILocationData[];
-  allTags: IDropdownOption[] | null | undefined;
-  onSubmitBoxEditForm: (boxFormValues: IBoxFormValues) => void;
-}
-
-const tagsSchema = z.object({
-  label: z.string(),
-  value: z.string(),
-});
-
 export const BoxEditFormDataSchema = z.object({
-  productId: z.string({ required_error: "Product is required" }),
-  sizeId: z.string({ required_error: "Size is required" }),
-  locationId: z.string({ required_error: "Location is required" }),
+  // Single Select Fields are a tough nut to validate. This feels like a hacky solution, but the best I could find.
+  // It is based on this example https://codesandbox.io/s/chakra-react-select-single-react-hook-form-with-zod-validation-typescript-m1dqme?file=/app.tsx
+  productId: singleSelectOptionSchema
+    // If the Select is empty it returns null. If we put required() here. The error is "expected object, received null". I did not find a way to edit this message. Hence, this solution.
+    .nullable()
+    // We make the field nullable and can then check in the next step if it is empty or not with the refine function.
+    .refine(Boolean, {message: "Please select a product"})
+    // since the expected return type is an object of strings we have to add this transform at the end.
+    .transform((selectedOption) => selectedOption || {label: "", value: ""}),
+  sizeId: singleSelectOptionSchema
+    .nullable()
+    .refine(Boolean, {message: "Please select a size"})
+    .transform((selectedOption) => selectedOption || {label: "", value: ""}),
   numberOfItems: z
     .number({
       required_error: "Please enter a number of items",
@@ -92,11 +79,23 @@ export const BoxEditFormDataSchema = z.object({
     })
     .int()
     .nonnegative(),
+  locationId: singleSelectOptionSchema
+    .nullable()
+    .refine(Boolean, {message: "Please select a location"})
+    .transform((selectedOption) => selectedOption || {label: "", value: ""}),
+  tags: singleSelectOptionSchema.array().optional(),
   comment: z.string().optional(),
-  tags: tagsSchema.array().optional(),
 });
 
-type BoxEditFormData = z.infer<typeof BoxEditFormDataSchema>;
+export type IBoxEditFormData = z.infer<typeof BoxEditFormDataSchema>;
+
+interface IBoxEditProps {
+  boxData: BoxByLabelIdentifierAndAllProductsQuery["box"];
+  productAndSizesData: IProductWithSizeRangeData[];
+  allLocations: ILocationData[];
+  allTags: IDropdownOption[] | null | undefined;
+  onSubmitBoxEditForm: (boxEditFormData: IBoxEditFormData) => void;
+}
 
 function BoxEdit({
   productAndSizesData,
@@ -110,34 +109,23 @@ function BoxEdit({
     labelIdentifier: string;
   }>();
 
-  const defaultValues: BoxEditFormData = {
+  const navigate = useNavigate();
+
+  // Form Default Values
+  const defaultValues: IBoxEditFormData = {
+    productId: {label: boxData?.product?.name || "", value: boxData?.product?.id || ""},
+    sizeId: {label: boxData?.size?.label || "", value: boxData?.size?.id || ""},
     numberOfItems: boxData?.numberOfItems || 0,
-    sizeId: boxData?.size.id || "",
-    productId: boxData?.product?.id || "",
-    locationId: boxData?.location?.id || "",
+    locationId: {label: boxData?.location?.name || "", value: boxData?.location?.id || ""},
     comment: boxData?.comment || "",
     tags: boxData?.tags || [],
   };
 
-  const navigate = useNavigate();
-
+  // Option Preparations for select fields
   const productsGroupedByCategory: Record<string, IProductWithSizeRangeData[]> = _.groupBy(
     productAndSizesData,
     (product) => product.category.name,
   );
-
-  const tagsForDropdownGroups: Array<IDropdownOption> | undefined = allTags?.map((tag) => ({
-    label: tag.label,
-    value: tag.value,
-    // colorScheme: "red",
-  }));
-
-  const locationsForDropdownGroups = allLocations
-    .map((location) => ({
-      label: location.name,
-      value: location.id,
-    }))
-    .sort((a, b) => a.label.localeCompare(b.label));
 
   const productsForDropdownGroups = Object.keys(productsGroupedByCategory)
     .map((key) => {
@@ -147,7 +135,7 @@ function BoxEdit({
         options: productsForCurrentGroup
           .map((product) => ({
             value: product.id,
-            label: `${`${product.name} (${product.sizeRange.label})`}${
+            label: `${`${product.name}`}${
               product.gender !== "none" ? ` (${product.gender})` : ""
             }`,
           }))
@@ -156,9 +144,20 @@ function BoxEdit({
     })
     .sort((a, b) => a.label.localeCompare(b.label));
 
-  // eslint-disable-next-line no-console
-  console.log(defaultValues);
+  const locationsForDropdownGroups = allLocations
+    .map((location) => ({
+      label: location.name,
+      value: location.id,
+    }))
+    .sort((a, b) => a.label.localeCompare(b.label));
 
+  const tagsForDropdownGroups: Array<IDropdownOption> | undefined = allTags?.map((tag) => ({
+    label: tag.label,
+    value: tag.value,
+    // colorScheme: "red",
+  }));
+
+  // react-hook-form
   const {
     handleSubmit,
     control,
@@ -166,10 +165,12 @@ function BoxEdit({
     resetField,
     watch,
     formState: { errors, isSubmitting },
-  } = useForm<IBoxFormValues>({
+  } = useForm<IBoxEditFormData>({
     resolver: zodResolver(BoxEditFormDataSchema),
+    defaultValues,
   });
 
+  // sizes reset depending on selected product
   const [sizesOptionsForCurrentProduct, setSizesOptionsForCurrentProduct] = useState<
     IDropdownOption[]
   >([]);
@@ -179,7 +180,7 @@ function BoxEdit({
   useEffect(() => {
     if (productId != null) {
       const productAndSizeDataForCurrentProduct = productAndSizesData.find(
-        (p) => p.id === productId,
+        (p) => p.id === productId.value,
       );
       setSizesOptionsForCurrentProduct(
         () =>
@@ -188,18 +189,18 @@ function BoxEdit({
             value: s.id,
           })) || [],
       );
-      resetField("sizeId");
+      // only reset size field if the productId is different to the product id of the current box.
+      if ( productId.value !== (boxData?.product?.id || "")) {
+        resetField("sizeId", { defaultValue : null });
+      }
     }
-  }, [productId, productAndSizesData, resetField]);
+  }, [productId, productAndSizesData, boxData, resetField]);
 
   if (boxData == null) {
     // eslint-disable-next-line no-console
     console.error("BoxDetails Component: boxData is null");
     return <Box>No data found for a box with this id</Box>;
   }
-
-  // eslint-disable-next-line no-console
-  console.log(errors);
 
   if (productsForDropdownGroups == null) {
     // eslint-disable-next-line no-console
@@ -219,73 +220,24 @@ function BoxEdit({
       <form onSubmit={handleSubmit(onSubmitBoxEditForm)}>
         <List spacing={2}>
           <ListItem>
-            <Controller
+            <SelectField
+              fieldId="productId"
+              fieldLabel="Product"
+              placeholder="Please select a product"
+              options={productsForDropdownGroups}
+              errors={errors}
               control={control}
-              name="productId"
-              render={({
-                field: { onChange, onBlur, value, name, ref },
-                fieldState: { error },
-              }) => (
-                <FormControl isInvalid={!!errors.productId} id="products">
-                  <FormLabel>Product</FormLabel>
-                  <Box border="2px" borderRadius={9} borderColor={errors.productId ? "red" : ""}>
-                    <Select
-                      name={name}
-                      ref={ref}
-                      onChange={(selectedOption) => onChange(selectedOption?.value)}
-                      onBlur={onBlur}
-                      value={
-                        productsForDropdownGroups
-                          .flatMap((group) => group.options)
-                          .find((el) => el.value === value) || null
-                      }
-                      options={productsForDropdownGroups}
-                      placeholder="Product"
-                      isSearchable
-                      tagVariant="outline"
-                      focusBorderColor="transparent"
-                    />
-                  </Box>
-                  <FormErrorMessage>{error && error.message}</FormErrorMessage>
-                </FormControl>
-              )}
             />
           </ListItem>
           <ListItem>
             <SelectField
               fieldId="sizeId"
               fieldLabel="Size"
-              defaultValue={boxData.size.id}
               placeholder="Please select a size"
               options={sizesOptionsForCurrentProduct}
               errors={errors}
               control={control}
             />
-            {/* <Controller
-              control={control}
-              name="sizeId"
-              render={({ field }) => (
-                <FormControl id="sizeId" isInvalid={!!errors?.sizeId}>
-                  <FormLabel htmlFor="sizeId">Size</FormLabel>
-                  <Box border="2px" borderRadius={9} borderColor={errors?.sizeId ? "red" : ""}>
-                    <Select
-                      {...register("sizeId")}
-                      value={
-                        sizesOptionsForCurrentProduct.find((el) => el.value === field.value) || null
-                      }
-                      onChange={(selectedOption) => field.onChange(selectedOption?.value)}
-                      onBlur={field.onBlur}
-                      options={sizesOptionsForCurrentProduct}
-                      name="sizeId"
-                      placeholder="Size"
-                      isSearchable
-                      tagVariant="outline"
-                    />
-                  </Box>
-                  <FormErrorMessage>{errors?.sizeId?.message}</FormErrorMessage>
-                </FormControl>
-              )}
-            /> */}
           </ListItem>
           <ListItem>
             <NumberField
@@ -298,7 +250,6 @@ function BoxEdit({
           </ListItem>
           <ListItem>
             <SelectField
-              defaultValue={boxData.location?.id || ""}
               fieldId="locationId"
               fieldLabel="Location"
               placeholder="Please select a location"
