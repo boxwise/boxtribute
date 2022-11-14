@@ -65,13 +65,13 @@ export const BoxEditFormDataSchema = z.object({
     // If the Select is empty it returns null. If we put required() here. The error is "expected object, received null". I did not find a way to edit this message. Hence, this solution.
     .nullable()
     // We make the field nullable and can then check in the next step if it is empty or not with the refine function.
-    .refine(Boolean, {message: "Please select a product"})
+    .refine(Boolean, { message: "Please select a product" })
     // since the expected return type is an object of strings we have to add this transform at the end.
-    .transform((selectedOption) => selectedOption || {label: "", value: ""}),
+    .transform((selectedOption) => selectedOption || { label: "", value: "" }),
   sizeId: singleSelectOptionSchema
     .nullable()
-    .refine(Boolean, {message: "Please select a size"})
-    .transform((selectedOption) => selectedOption || {label: "", value: ""}),
+    .refine(Boolean, { message: "Please select a size" })
+    .transform((selectedOption) => selectedOption || { label: "", value: "" }),
   numberOfItems: z
     .number({
       required_error: "Please enter a number of items",
@@ -81,8 +81,8 @@ export const BoxEditFormDataSchema = z.object({
     .nonnegative(),
   locationId: singleSelectOptionSchema
     .nullable()
-    .refine(Boolean, {message: "Please select a location"})
-    .transform((selectedOption) => selectedOption || {label: "", value: ""}),
+    .refine(Boolean, { message: "Please select a location" })
+    .transform((selectedOption) => selectedOption || { label: "", value: "" }),
   tags: singleSelectOptionSchema.array().optional(),
   comment: z.string().optional(),
 });
@@ -113,10 +113,10 @@ function BoxEdit({
 
   // Form Default Values
   const defaultValues: IBoxEditFormData = {
-    productId: {label: boxData?.product?.name || "", value: boxData?.product?.id || ""},
-    sizeId: {label: boxData?.size?.label || "", value: boxData?.size?.id || ""},
+    productId: { label: boxData?.product?.name || "", value: boxData?.product?.id || "" },
+    sizeId: { label: boxData?.size?.label || "", value: boxData?.size?.id || "" },
     numberOfItems: boxData?.numberOfItems || 0,
-    locationId: {label: boxData?.location?.name || "", value: boxData?.location?.id || ""},
+    locationId: { label: boxData?.location?.name || "", value: boxData?.location?.id || "" },
     comment: boxData?.comment || "",
     tags: boxData?.tags || [],
   };
@@ -135,9 +135,7 @@ function BoxEdit({
         options: productsForCurrentGroup
           .map((product) => ({
             value: product.id,
-            label: `${`${product.name}`}${
-              product.gender !== "none" ? ` (${product.gender})` : ""
-            }`,
+            label: `${`${product.name}`}${product.gender !== "none" ? ` (${product.gender})` : ""}`,
           }))
           .sort((a, b) => a.label.localeCompare(b.label)),
       };
@@ -182,16 +180,20 @@ function BoxEdit({
       const productAndSizeDataForCurrentProduct = productAndSizesData.find(
         (p) => p.id === productId.value,
       );
-      setSizesOptionsForCurrentProduct(
-        () =>
-          productAndSizeDataForCurrentProduct?.sizeRange?.sizes?.map((s) => ({
-            label: s.label,
-            value: s.id,
-          })) || [],
-      );
+      const prepSizesOptionsForCurrentProduct =
+        productAndSizeDataForCurrentProduct?.sizeRange?.sizes?.map((s) => ({
+          label: s.label,
+          value: s.id,
+        })) || [];
+      setSizesOptionsForCurrentProduct(() => prepSizesOptionsForCurrentProduct);
       // only reset size field if the productId is different to the product id of the current box.
-      if ( productId.value !== (boxData?.product?.id || "")) {
-        resetField("sizeId", { defaultValue : null });
+      if (productId.value !== (boxData?.product?.id || "")) {
+        // if there is only one option select it directly
+        if (prepSizesOptionsForCurrentProduct.length === 1) {
+          resetField("sizeId", { defaultValue: prepSizesOptionsForCurrentProduct[0] });
+        } else {
+          resetField("sizeId", { defaultValue: null });
+        }
       }
     }
   }, [productId, productAndSizesData, boxData, resetField]);
