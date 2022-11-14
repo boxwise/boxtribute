@@ -185,23 +185,25 @@ def test_box_mutations(
     assert updated_box["product"]["id"] == new_product_id
     assert updated_box["history"] == [
         {
-            "changes": "Record created",
+            "changes": "created record",
             "user": {"name": "coord"},
         },
         {
-            "changes": "product_id",
+            "changes": f"changed product type from {products[0]['name']} to "
+            + f"{products[2]['name']};",
             "user": {"name": "coord"},
         },
         {
-            "changes": "size_id",
+            "changes": f"changed size from {default_size['label']} to "
+            + f"{another_size['label']};",
             "user": {"name": "coord"},
         },
         {
-            "changes": "items",
+            "changes": f"changed the number of items from None to {nr_items};",
             "user": {"name": "coord"},
         },
         {
-            "changes": 'comments changed from "" to "updatedComment";',
+            "changes": 'changed comments from "" to "updatedComment";',
             "user": {"name": "coord"},
         },
     ]
