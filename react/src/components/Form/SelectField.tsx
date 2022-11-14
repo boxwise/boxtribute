@@ -10,7 +10,7 @@ export interface IDropdownOption extends OptionBase {
 export interface ISelectFieldProps {
   fieldId: string;
   fieldLabel: string;
-  options: IDropdownOption[] | {label: string, options: IDropdownOption[]}[];
+  options: IDropdownOption[] | { label: string; options: IDropdownOption[] }[];
   errors: object;
   control: any;
   // eslint-disable-next-line react/require-default-props
