@@ -171,6 +171,10 @@ def test_box_mutations(
                 comment
                 size {{ id }}
                 product {{ id }}
+                history {{
+                    changes
+                    user {{ name }}
+                }}
             }}
         }}"""
     updated_box = assert_successful_request(client, mutation)
@@ -179,6 +183,28 @@ def test_box_mutations(
     assert updated_box["qrCode"] == created_box["qrCode"]
     assert updated_box["size"]["id"] == new_size_id
     assert updated_box["product"]["id"] == new_product_id
+    assert updated_box["history"] == [
+        {
+            "changes": "Record created",
+            "user": {"name": "coord"},
+        },
+        {
+            "changes": "product_id",
+            "user": {"name": "coord"},
+        },
+        {
+            "changes": "size_id",
+            "user": {"name": "coord"},
+        },
+        {
+            "changes": "items",
+            "user": {"name": "coord"},
+        },
+        {
+            "changes": 'comments changed from "" to "updatedComment";',
+            "user": {"name": "coord"},
+        },
+    ]
 
     # Test cases 8.2.1, 8.2.2., 8.2.11
     history = list(

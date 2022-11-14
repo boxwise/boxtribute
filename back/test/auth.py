@@ -109,6 +109,7 @@ def create_jwt_payload(
             f"{base_prefix}/tag_relation:read",
             f"{base_prefix}/tag_relation:assign",
             f"{base_prefix}/transaction:write",
+            f"{base_prefix}/history:read",
             "shipment:create",
             "shipment:edit",
             "transfer_agreement:create",

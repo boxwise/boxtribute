@@ -13,6 +13,7 @@ from ..exceptions import (
 )
 from .definitions.beneficiary import Beneficiary
 from .definitions.box import Box
+from .definitions.history import DbChangeHistory
 from .definitions.location import Location
 from .definitions.qr_code import QrCode
 from .definitions.tag import Tag
@@ -435,3 +436,10 @@ def create_qr_code(box_label_identifier=None):
             box.save()
 
     return new_qr_code
+
+
+def get_box_history(box_id):
+    return DbChangeHistory.select().where(
+        DbChangeHistory.table_name == "stock",
+        DbChangeHistory.record_id == box_id,
+    )

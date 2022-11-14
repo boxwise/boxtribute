@@ -68,6 +68,7 @@ from ..models.crud import (
     create_qr_code,
     create_tag,
     delete_tag,
+    get_box_history,
     unassign_tag,
     update_beneficiary,
     update_box,
@@ -309,6 +310,12 @@ def resolve_qr_code(obj, _, qr_code=None):
 @box.field("tags")
 def resolve_box_tags(box_obj, info):
     return info.context["tags_for_box_loader"].load(box_obj.id)
+
+
+@box.field("history")
+def resolve_box_history(box_obj, _):
+    authorize(permission="history:read")
+    return get_box_history(box_obj.id)
 
 
 @query.field("product")
