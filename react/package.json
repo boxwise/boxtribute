@@ -16,7 +16,7 @@
     "@fortawesome/react-fontawesome": "^0.2.0",
     "@hookform/resolvers": "^2.9.10",
     "@sentry/integrations": "^7.14.2",
-    "@sentry/react": "^7.15.0",
+    "@sentry/react": "^7.19.0",
     "@sentry/tracing": "^7.15.0",
     "@zxing/browser": "^0.1.1",
     "@zxing/library": "^0.19.1",
