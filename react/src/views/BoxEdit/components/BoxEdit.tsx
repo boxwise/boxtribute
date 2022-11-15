@@ -260,6 +260,7 @@ function BoxEdit({
               options={tagsForDropdownGroups}
               errors={errors}
               isMulti
+              isRequired={false}
               control={control}
             />
           </ListItem>

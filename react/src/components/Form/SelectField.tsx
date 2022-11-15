@@ -17,6 +17,8 @@ export interface ISelectFieldProps {
   placeholder?: string;
   // eslint-disable-next-line react/require-default-props
   isMulti?: boolean;
+  // eslint-disable-next-line react/require-default-props
+  isRequired?: boolean;
 }
 
 // The examples from chakra-react-select were super helpful:
@@ -30,9 +32,10 @@ function SelectField({
   errors,
   control,
   isMulti = false,
+  isRequired = true,
 }: ISelectFieldProps) {
   return (
-    <FormControl isRequired isInvalid={!!errors[fieldId]} id={fieldId}>
+    <FormControl isRequired={isRequired} isInvalid={!!errors[fieldId]} id={fieldId}>
       <FormLabel htmlFor={fieldId}>{fieldLabel}</FormLabel>
       <Controller
         control={control}
@@ -56,7 +59,7 @@ function SelectField({
               control: (provided) => ({
                 ...provided,
                 border: "2px",
-                borderRadius: "1",
+                borderRadius: "0",
                 borderColor: "black",
               }),
               multiValue: (provided) => ({
