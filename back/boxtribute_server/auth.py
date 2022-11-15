@@ -116,7 +116,15 @@ class CurrentUser:
     For secure access, property and utility methods are provided.
     """
 
-    def __init__(self, *, id, organisation_id=None, is_god=False, base_ids=None):
+    def __init__(
+        self,
+        *,
+        id,
+        organisation_id=None,
+        is_god=False,
+        base_ids=None,
+        beta_feature_scope=None,
+    ):
         """The `base_ids` field is a mapping of a permission name to a list of base IDs
         that the permission is granted for. However it is never exposed directly to
         avoid accidental manipulation.
@@ -126,6 +134,7 @@ class CurrentUser:
         self._organisation_id = None if is_god else organisation_id
         self._is_god = is_god
         self._base_ids = base_ids or {}
+        self._beta_feature_scope = beta_feature_scope or 0
 
     @classmethod
     def from_jwt(cls, payload):
@@ -138,7 +147,8 @@ class CurrentUser:
 
         If a user has multiple roles, their base-specific permissions are aggregated.
 
-        Any write/edit permission implies read permission on the same resource.
+        Any write/create/edit/delete permission implies read permission on the same
+        resource.
 
         Examples:
         - base_1/product:read    -> {"product:read": [1]}
@@ -178,7 +188,7 @@ class CurrentUser:
                 base_ids[permission].update(ids)
 
                 resource, method = permission.split(":")
-                if method in ["write", "create", "edit"]:
+                if method in ["write", "create", "edit", "delete"]:
                     base_ids[f"{resource}:read"].update(ids)
 
         # Convert to regular dict, using list for base IDs (set not JSON serializable)
@@ -186,6 +196,7 @@ class CurrentUser:
 
         return cls(
             organisation_id=payload[f"{JWT_CLAIM_PREFIX}/organisation_id"],
+            beta_feature_scope=payload.get(f"{JWT_CLAIM_PREFIX}/beta_user"),
             id=int(payload["sub"].replace("auth0|", "")),
             is_god=is_god,
             base_ids=base_ids,
@@ -193,6 +204,10 @@ class CurrentUser:
 
     def authorized_base_ids(self, permission):
         return self._base_ids[permission]
+
+    @property
+    def beta_feature_scope(self):
+        return self._beta_feature_scope
 
     @property
     def id(self):

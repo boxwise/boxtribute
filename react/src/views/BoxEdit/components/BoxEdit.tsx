@@ -199,14 +199,10 @@ function BoxEdit({
   }, [productId, productAndSizesData, boxData, resetField]);
 
   if (boxData == null) {
-    // eslint-disable-next-line no-console
-    console.error("BoxDetails Component: boxData is null");
     return <Box>No data found for a box with this id</Box>;
   }
 
   if (productsForDropdownGroups == null) {
-    // eslint-disable-next-line no-console
-    console.error("BoxDetails Component: allProducts is null");
     // eslint-disable-next-line max-len
     return (
       <Box>There was an error: the available products to choose from couldn&apos;t be loaded!</Box>

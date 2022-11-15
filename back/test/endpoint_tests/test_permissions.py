@@ -86,6 +86,8 @@ def test_invalid_permission(unauthorized, read_only_client, query):
         # Test case 10.1.5
         """user( id: 1) { id }""",
         """packingListEntry( id: 1 ) { id }""",
+        # Test case 3.1.6
+        """shipment( id: 5 ) { id }""",
     ],
     ids=operation_name,
 )
@@ -426,8 +428,14 @@ def test_invalid_permission_for_metrics(read_only_client, mocker):
 
 @pytest.mark.parametrize(
     "method",
-    ["read", "write", "create", "edit"],
-    ids=["all-bases", "write-implies-read", "create-implies-read", "edit-implies-read"],
+    ["read", "write", "create", "edit", "delete"],
+    ids=[
+        "all-bases",
+        "write-implies-read",
+        "create-implies-read",
+        "edit-implies-read",
+        "delete-implies-read",
+    ],
 )
 def test_permission_scope(read_only_client, mocker, default_bases, method):
     mocker.patch("jose.jwt.decode").return_value = create_jwt_payload(
@@ -465,3 +473,15 @@ def test_permission_for_god_user(
     query = "query { transferAgreements { id } }"
     agreements = assert_successful_request(read_only_client, query)
     assert len(agreements) == len(transfer_agreements)
+
+
+def test_invalid_permission_for_user_read(
+    read_only_client, default_product, default_user
+):
+    product_id = default_product["id"]
+    query = f"query {{ product(id: {product_id}) {{ createdBy {{ name email }} }} }}"
+    assert_forbidden_request(
+        read_only_client,
+        query,
+        value={"createdBy": {"email": None, "name": default_user["name"]}},
+    )

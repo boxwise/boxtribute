@@ -33,6 +33,7 @@ from .location import (
 )
 from .log import default_log
 from .organisation import another_organisation, default_organisation, organisations
+from .packing_list_entry import packing_list_entry
 from .product import another_product, default_product, products
 from .product_category import default_product_category
 from .product_gender import default_product_gender
@@ -60,7 +61,7 @@ from .transfer_agreement import (
     transfer_agreements,
     unidirectional_transfer_agreement,
 )
-from .user import default_user, default_users
+from .user import another_user, default_user, default_users
 
 __all__ = [
     "another_beneficiary",
@@ -73,6 +74,7 @@ __all__ = [
     "another_shipment",
     "another_shipment_detail",
     "another_size",
+    "another_user",
     "base1_classic_locations",
     "box_without_qr_code",
     "canceled_shipment",
@@ -107,6 +109,7 @@ __all__ = [
     "non_default_box_state_location",
     "null_box_state_location",
     "organisations",
+    "packing_list_entry",
     "prepared_shipment_detail",
     "products",
     "qr_code_without_box",
