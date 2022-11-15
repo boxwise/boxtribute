@@ -49,9 +49,18 @@ function NumberField({ fieldId, fieldLabel, errors, control, register }: INumber
               borderRadius="0"
               borderColor="black"
               {...register(field.name, {
-                setValueAs: (val) =>
-                  // eslint-disable-next-line no-nested-ternary, max-len
-                  typeof val === "number" ? val : val ? Number(val) : undefined,
+                setValueAs: (val) => {
+                  if (typeof val === "number") {
+                    // only happens if a number is passed as default value
+                    return val;
+                  } if (val) {
+                    // if a number is entered it is passed as a string
+                    return Number(val);
+                  }
+                  // This is if "" is entered.
+                  return undefined;
+
+                },
               })}
             />
             <NumberInputStepper>
