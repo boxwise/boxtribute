@@ -7,6 +7,7 @@ import {
   NumberIncrementStepper,
   NumberDecrementStepper,
   NumberInputStepper,
+  Text,
 } from "@chakra-ui/react";
 import { Controller } from "react-hook-form";
 
@@ -21,7 +22,12 @@ export interface INumberFieldProps {
 function NumberField({ fieldId, fieldLabel, errors, control, register }: INumberFieldProps) {
   return (
     <FormControl isInvalid={!!errors[fieldId]}>
-      <FormLabel htmlFor="numberOfItems">{fieldLabel}</FormLabel>
+      <FormLabel htmlFor="numberOfItems" textAlign="left">
+        {fieldLabel}{" "}
+        <Text as="span" color="red.500">
+          *
+        </Text>
+      </FormLabel>
       {/* The React Form Controller is needed because the Input is actually in NumberInputField and not in Number Input chakraUI components */}
       {/* https://react-hook-form.com/api/usecontroller/controller */}
       {/* https://codesandbox.io/s/chakra-ui-5mp8g */}
@@ -33,11 +39,19 @@ function NumberField({ fieldId, fieldLabel, errors, control, register }: INumber
           <NumberInput>
             {/* The NumberInputField only returns strings and needs to be casted before validation is possible */}
             <NumberInputField
+              onKeyDown={(e) => {
+                // prevent entering negetive number
+                if (e.code === "Minus") {
+                  e.preventDefault();
+                }
+              }}
               border="2px"
               borderRadius="0"
               borderColor="black"
               {...register(field.name, {
-                setValueAs: (val) => (typeof val === "number" ? val : (!!val ? Number(val) : undefined)),
+                setValueAs: (val) =>
+                  // eslint-disable-next-line no-nested-ternary, max-len
+                  typeof val === "number" ? val : val ? Number(val) : undefined,
               })}
             />
             <NumberInputStepper>
