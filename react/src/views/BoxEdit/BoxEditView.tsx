@@ -118,13 +118,9 @@ function BoxEditView() {
   >(UPDATE_CONTENT_OF_BOX_MUTATION);
 
   const onSubmitBoxEditForm = (boxEditFormData: IBoxEditFormData) => {
-    // eslint-disable-next-line no-console
-    console.log("boxLabelIdentifier", labelIdentifier);
-    // eslint-disable-next-line no-console
-    console.log("boxEditFormData", boxEditFormData);
-
     const tagIds = boxEditFormData?.tags
-      ? boxEditFormData?.tags?.map((tag) => parseInt(tag.value, 10)) : [];
+      ? boxEditFormData?.tags?.map((tag) => parseInt(tag.value, 10))
+      : [];
 
     updateContentOfBoxMutation({
       variables: {
