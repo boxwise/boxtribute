@@ -10,11 +10,13 @@ export interface IDropdownOption extends OptionBase {
 export interface ISelectFieldProps {
   fieldId: string;
   fieldLabel: string;
-  options: IDropdownOption[] | { label: string; options: IDropdownOption[] }[];
+  options: IDropdownOption[] | { label: string; options: IDropdownOption[] }[] | undefined;
   errors: object;
   control: any;
   // eslint-disable-next-line react/require-default-props
   placeholder?: string;
+  // eslint-disable-next-line react/require-default-props
+  isMulti?: boolean;
 }
 
 // The examples from chakra-react-select were super helpful:
@@ -27,6 +29,7 @@ function SelectField({
   options,
   errors,
   control,
+  isMulti = false,
 }: ISelectFieldProps) {
   return (
     <FormControl isRequired isInvalid={!!errors[fieldId]} id={fieldId}>
@@ -47,13 +50,19 @@ function SelectField({
             tagVariant="outline"
             colorScheme="black"
             useBasicStyles
+            isMulti={isMulti}
             focusBorderColor="blue.500"
             chakraStyles={{
               control: (provided) => ({
                 ...provided,
                 border: "2px",
-                borderRadius: "0",
+                borderRadius: "1",
                 borderColor: "black",
+              }),
+              multiValue: (provided) => ({
+                ...provided,
+                border: "1px",
+                borderRadius: "20",
               }),
             }}
           />

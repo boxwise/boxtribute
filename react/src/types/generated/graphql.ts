@@ -1372,7 +1372,7 @@ export type User = {
   __typename?: 'User';
   /**  List of all [`Bases`]({{Types.Base}}) this user can access  */
   bases?: Maybe<Array<Maybe<Base>>>;
-  email: Scalars['String'];
+  email?: Maybe<Scalars['String']>;
   id: Scalars['ID'];
   lastAction?: Maybe<Scalars['Datetime']>;
   lastLogin?: Maybe<Scalars['Datetime']>;

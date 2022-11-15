@@ -257,39 +257,20 @@ function BoxEdit({
             />
           </ListItem>
           <ListItem>
-            <Controller
+            <SelectField
+              fieldId="tags"
+              fieldLabel="Tags"
+              placeholder="Tags"
+              options={tagsForDropdownGroups}
+              errors={errors}
+              isMulti
               control={control}
-              name="tags"
-              render={({
-                field: { onChange, onBlur, name, value, ref },
-                fieldState: { error },
-              }) => (
-                <FormControl isInvalid={!!error} id="tags">
-                  <FormLabel>Tags</FormLabel>
-                  <Box border="2px" borderRadius={9}>
-                    <Select
-                      name={name}
-                      ref={ref}
-                      onChange={onChange}
-                      onBlur={onBlur}
-                      value={value}
-                      options={tagsForDropdownGroups}
-                      placeholder="Tags"
-                      isMulti
-                      isSearchable
-                      tagVariant="outline"
-                      focusBorderColor="transparent"
-                    />
-                  </Box>
-                  <FormErrorMessage>{error && error.message}</FormErrorMessage>
-                </FormControl>
-              )}
             />
           </ListItem>
           <ListItem>
             <FormLabel htmlFor="comment">Comment</FormLabel>
-            <Box border="2px" borderRadius={9}>
-              <Input border="0" type="string" {...register("comment")} />
+            <Box border="2px" borderRadius={0}>
+              <Input border="0" borderRadius={0} type="string" {...register("comment")} />
             </Box>
           </ListItem>
         </List>
