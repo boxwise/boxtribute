@@ -124,8 +124,7 @@ function BoxEditView() {
     console.log("boxEditFormData", boxEditFormData);
 
     const tagIds = boxEditFormData?.tags
-      ? boxEditFormData?.tags?.map((tag) => parseInt(tag.value, 10))
-      : [];
+      ? boxEditFormData?.tags?.map((tag) => parseInt(tag.value, 10)) : [];
 
     updateContentOfBoxMutation({
       variables: {
@@ -161,14 +160,10 @@ function BoxEditView() {
   }));
 
   if (allLocations == null) {
-    // eslint-disable-next-line no-console
-    console.error("allLocations is null");
     return <div>Error: no locations available to choose from</div>;
   }
 
   if (productAndSizesData?.elements == null) {
-    // eslint-disable-next-line no-console
-    console.error("allProducts.elements is null");
     return <div>Error: no products available to choose from for this Box</div>;
   }
 
