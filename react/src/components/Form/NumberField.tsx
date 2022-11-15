@@ -37,7 +37,7 @@ function NumberField({ fieldId, fieldLabel, errors, control, register }: INumber
               borderRadius="0"
               borderColor="black"
               {...register(field.name, {
-                setValueAs: (valueString) => (valueString ? Number(valueString) : null),
+                setValueAs: (val) => (typeof val === "number" ? val : (!!val ? Number(val) : undefined)),
               })}
             />
             <NumberInputStepper>
