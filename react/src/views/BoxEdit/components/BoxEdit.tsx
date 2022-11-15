@@ -3,8 +3,6 @@ import {
   List,
   ListItem,
   Button,
-  FormControl,
-  FormErrorMessage,
   FormLabel,
   Heading,
   Input,
@@ -13,16 +11,14 @@ import {
 } from "@chakra-ui/react";
 import NumberField from "components/Form/NumberField";
 import SelectField, { IDropdownOption } from "components/Form/SelectField";
-import { Select } from "chakra-react-select";
 import { BoxByLabelIdentifierAndAllProductsQuery, ProductGender } from "types/generated/graphql";
-import { Controller, useForm } from "react-hook-form";
-
 import { useEffect, useState } from "react";
 
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import _ from "lodash";
 import { useNavigate, useParams } from "react-router-dom";
+import { useForm } from "react-hook-form";
 
 export interface ICategoryData {
   name: string;
