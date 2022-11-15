@@ -1462,7 +1462,7 @@ export type BoxByLabelIdentifierAndAllProductsQueryVariables = Exact<{
 }>;
 
 
-export type BoxByLabelIdentifierAndAllProductsQuery = { __typename?: 'Query', box?: { __typename?: 'Box', labelIdentifier: string, numberOfItems?: number | null, comment?: string | null, size: { __typename?: 'Size', id: string, label: string }, product?: { __typename?: 'Product', id: string, name: string, gender?: ProductGender | null, sizeRange: { __typename?: 'SizeRange', sizes: Array<{ __typename?: 'Size', id: string, label: string }> } } | null, location?: { __typename?: 'ClassicLocation', id: string, name?: string | null, base?: { __typename?: 'Base', locations: Array<{ __typename?: 'ClassicLocation', id: string, name?: string | null }> } | null } | { __typename?: 'DistributionSpot', id: string, name?: string | null, base?: { __typename?: 'Base', locations: Array<{ __typename?: 'ClassicLocation', id: string, name?: string | null }> } | null } | null } | null, products: { __typename?: 'ProductPage', elements: Array<{ __typename?: 'Product', id: string, name: string, gender?: ProductGender | null, category: { __typename?: 'ProductCategory', name: string }, sizeRange: { __typename?: 'SizeRange', label: string, sizes: Array<{ __typename?: 'Size', id: string, label: string }> } }> } };
+export type BoxByLabelIdentifierAndAllProductsQuery = { __typename?: 'Query', box?: { __typename?: 'Box', labelIdentifier: string, numberOfItems?: number | null, comment?: string | null, size: { __typename?: 'Size', id: string, label: string }, tags?: Array<{ __typename?: 'Tag', color?: string | null, value: string, label: string }> | null, product?: { __typename?: 'Product', id: string, name: string, gender?: ProductGender | null, sizeRange: { __typename?: 'SizeRange', sizes: Array<{ __typename?: 'Size', id: string, label: string }> } } | null, location?: { __typename?: 'ClassicLocation', id: string, name?: string | null, base?: { __typename?: 'Base', locations: Array<{ __typename?: 'ClassicLocation', id: string, name?: string | null }> } | null } | { __typename?: 'DistributionSpot', id: string, name?: string | null, base?: { __typename?: 'Base', locations: Array<{ __typename?: 'ClassicLocation', id: string, name?: string | null }> } | null } | null } | null, tags: Array<{ __typename?: 'Tag', color?: string | null, value: string, label: string }>, products: { __typename?: 'ProductPage', elements: Array<{ __typename?: 'Product', id: string, name: string, gender?: ProductGender | null, category: { __typename?: 'ProductCategory', name: string }, sizeRange: { __typename?: 'SizeRange', label: string, sizes: Array<{ __typename?: 'Size', id: string, label: string }> } }> } };
 
 export type UpdateContentOfBoxMutationVariables = Exact<{
   boxLabelIdentifier: Scalars['String'];
@@ -1471,6 +1471,7 @@ export type UpdateContentOfBoxMutationVariables = Exact<{
   numberOfItems: Scalars['Int'];
   sizeId: Scalars['Int'];
   comment?: InputMaybe<Scalars['String']>;
+  tagIds?: InputMaybe<Array<Scalars['Int']> | Scalars['Int']>;
 }>;
 
 

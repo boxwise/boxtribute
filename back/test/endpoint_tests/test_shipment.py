@@ -79,7 +79,7 @@ def test_shipment_mutations_on_source_side(
     prepared_shipment_detail,
 ):
     # Test case 3.2.1a
-    source_base_id = default_bases[2]["id"]
+    source_base_id = default_bases[1]["id"]
     target_base_id = default_bases[3]["id"]
     agreement_id = default_transfer_agreement["id"]
     creation_input = f"""sourceBaseId: {source_base_id},
@@ -553,7 +553,7 @@ def test_shipment_mutations_create_with_invalid_base(
     # Test case 3.2.3
     assert_bad_user_input_when_creating_shipment(
         read_only_client,
-        source_base=default_bases[2],
+        source_base=default_bases[1],
         target_base=default_bases[4],  # not part of agreement
         agreement=default_transfer_agreement,
     )

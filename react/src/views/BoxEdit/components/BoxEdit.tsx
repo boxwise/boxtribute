@@ -8,9 +8,10 @@ import {
   FormLabel,
   Heading,
   Input,
+  ButtonGroup,
+  Stack,
 } from "@chakra-ui/react";
-import { Select } from "chakra-react-select";
-
+import { Select, OptionBase } from "chakra-react-select";
 import { BoxByLabelIdentifierAndAllProductsQuery, ProductGender } from "types/generated/graphql";
 import { Controller, useForm } from "react-hook-form";
 
@@ -18,6 +19,7 @@ import { Controller, useForm } from "react-hook-form";
 import { useEffect, useState } from "react";
 
 import _ from "lodash";
+import { useNavigate, useParams } from "react-router-dom";
 
 export interface ICategoryData {
   name: string;
@@ -46,12 +48,19 @@ interface IDropdownOption {
   label: string;
 }
 
+interface ITagData extends OptionBase {
+  value: string;
+  label: string;
+  color?: string | null;
+}
+
 export interface IBoxFormValues {
   numberOfItems: number;
   sizeId: string;
   productId: string;
   locationId: string;
   comment: string | null;
+  tags?: ITagData[] | null | undefined;
 }
 
 interface ILocationData {
@@ -63,6 +72,7 @@ interface IBoxEditProps {
   boxData: BoxByLabelIdentifierAndAllProductsQuery["box"];
   productAndSizesData: IProductWithSizeRangeData[];
   allLocations: ILocationData[];
+  allTags: ITagData[] | null | undefined;
   onSubmitBoxEditForm: (boxFormValues: IBoxFormValues) => void;
 }
 
@@ -70,12 +80,25 @@ function BoxEdit({
   productAndSizesData,
   boxData,
   allLocations,
+  allTags,
   onSubmitBoxEditForm,
 }: IBoxEditProps) {
+  const { baseId, labelIdentifier } = useParams<{
+    baseId: string;
+    labelIdentifier: string;
+  }>();
+
+  const navigate = useNavigate();
+
   const productsGroupedByCategory = _.groupBy(
     productAndSizesData,
     (product) => product.category.name,
   );
+
+  const tagsForDropdownGroups: Array<ITagData> | undefined = allTags?.map((tag) => ({
+    label: tag.label,
+    value: tag.value,
+  }));
 
   const locationsForDropdownGroups = allLocations
     .map((location) => ({
@@ -99,6 +122,15 @@ function BoxEdit({
     })
     .sort((a, b) => a.label.localeCompare(b.label));
 
+  const defaultValues = {
+    numberOfItems: boxData?.numberOfItems || 0,
+    sizeId: boxData?.size.id,
+    productId: boxData?.product?.id,
+    locationId: boxData?.location?.id,
+    comment: boxData?.comment,
+    tags: boxData?.tags,
+  };
+
   const {
     handleSubmit,
     control,
@@ -107,13 +139,7 @@ function BoxEdit({
     watch,
     formState: { isSubmitting },
   } = useForm<IBoxFormValues>({
-    defaultValues: {
-      numberOfItems: boxData?.numberOfItems || 0,
-      sizeId: boxData?.size.id,
-      productId: boxData?.product?.id,
-      locationId: boxData?.location?.id,
-      comment: boxData?.comment,
-    },
+    defaultValues,
   });
 
   const [sizesOptionsForCurrentProduct, setSizesOptionsForCurrentProduct] = useState<
@@ -139,14 +165,10 @@ function BoxEdit({
   }, [productId, productAndSizesData, resetField]);
 
   if (boxData == null) {
-    // eslint-disable-next-line no-console
-    console.error("BoxDetails Component: boxData is null");
     return <Box>No data found for a box with this id</Box>;
   }
 
   if (productsForDropdownGroups == null) {
-    // eslint-disable-next-line no-console
-    console.error("BoxDetails Component: allProducts is null");
     // eslint-disable-next-line max-len
     return (
       <Box>There was an error: the available products to choose from couldn&apos;t be loaded!</Box>
@@ -264,15 +286,63 @@ function BoxEdit({
             />
           </ListItem>
           <ListItem>
+            <Controller
+              control={control}
+              name="tags"
+              render={({
+                field: { onChange, onBlur, name, value, ref },
+                fieldState: { error },
+              }) => (
+                <FormControl isInvalid={!!error} id="tags">
+                  <FormLabel>Tags</FormLabel>
+                  <Box border="2px">
+                    <Select
+                      name={name}
+                      ref={ref}
+                      onChange={onChange}
+                      onBlur={onBlur}
+                      value={value}
+                      options={tagsForDropdownGroups}
+                      placeholder="Tags"
+                      isMulti
+                      isSearchable
+                      tagVariant="outline"
+                      focusBorderColor="transparent"
+                    />
+                  </Box>
+                  <FormErrorMessage>{error && error.message}</FormErrorMessage>
+                </FormControl>
+              )}
+            />
+          </ListItem>
+          <ListItem>
             <FormLabel htmlFor="comment">Comment</FormLabel>
             <Box border="2px">
               <Input border="0" type="string" {...register("comment")} />
             </Box>
           </ListItem>
         </List>
-        <Button mt={4} isLoading={isSubmitting} type="submit" borderRadius="0">
-          Update Box
-        </Button>
+
+        <Stack spacing={4}>
+          <ButtonGroup gap="4">
+            <Button
+              mt={4}
+              isLoading={isSubmitting}
+              colorScheme="blue"
+              type="button"
+              borderRadius="0"
+              w="full"
+              variant="link"
+              onClick={() => navigate(`/bases/${baseId}/boxes/${labelIdentifier}`)}
+            >
+              Cancel
+            </Button>
+
+            <Button mt={4} isLoading={isSubmitting} type="submit" borderRadius="0" w="full">
+              Update Box
+            </Button>
+          </ButtonGroup>
+        </Stack>
       </form>
     </Box>
   );
