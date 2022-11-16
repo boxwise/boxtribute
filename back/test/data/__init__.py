@@ -34,7 +34,7 @@ from .location import (
 from .log import default_log
 from .organisation import another_organisation, default_organisation, organisations
 from .packing_list_entry import packing_list_entry
-from .product import another_product, default_product, products
+from .product import another_product, base1_products, default_product, products
 from .product_category import default_product_category
 from .product_gender import default_product_gender
 from .qr_code import another_qr_code_with_box, default_qr_code, qr_code_without_box
@@ -52,7 +52,7 @@ from .shipment_detail import (
 )
 from .size import another_size, default_size
 from .size_range import default_size_range
-from .tag import tags
+from .tag import base1_active_tags, tags
 from .transaction import default_transaction, relative_transaction
 from .transfer_agreement import (
     default_transfer_agreement,
@@ -75,7 +75,9 @@ __all__ = [
     "another_shipment_detail",
     "another_size",
     "another_user",
+    "base1_active_tags",
     "base1_classic_locations",
+    "base1_products",
     "box_without_qr_code",
     "canceled_shipment",
     "default_beneficiary",
