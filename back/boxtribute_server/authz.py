@@ -150,6 +150,14 @@ def authorize_for_organisation_bases():
     _authorize(permission="base:read", ignore_missing_base_info=True)
 
 
+ALL_ALLOWED_MUTATIONS = {
+    # Mutations for BoxView/BoxEdit pages
+    0: ("updateBox",),
+    # + mutations for BoxCreate/ScanBox pages
+    1: ("updateBox", "createBox", "createQrCode"),
+}
+
+
 def check_beta_feature_access(payload, *, current_user=None):
     """Check whether the current user wants to execute a beta-feature mutation, and
     whether they have sufficient beta-feature scope to run it.
@@ -165,9 +173,5 @@ def check_beta_feature_access(payload, *, current_user=None):
     if "mutation" not in payload:
         return True
 
-    all_allowed_mutations = {
-        0: [],
-        1: ["createQrCode"],
-    }
-    allowed_mutations = all_allowed_mutations[current_user.beta_feature_scope]
+    allowed_mutations = ALL_ALLOWED_MUTATIONS[current_user.beta_feature_scope]
     return any([m in payload for m in allowed_mutations])
