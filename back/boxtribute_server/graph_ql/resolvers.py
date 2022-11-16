@@ -1109,6 +1109,12 @@ def resolve_base_locations(base_obj, _):
     )
 
 
+@base.field("tags")
+def resolve_base_tags(base_obj, _):
+    authorize(permission="tag:read", base_id=base_obj.id)
+    return Tag.select().where(Tag.base == base_obj.id, Tag.deleted.is_null())
+
+
 @query.field("distributionEventsTrackingGroup")
 def resolve_distribution_events_tracking_group(*_, id):
     mobile_distro_feature_flag_check(user_id=g.user.id)

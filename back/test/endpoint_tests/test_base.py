@@ -26,7 +26,11 @@ def test_bases_query(read_only_client, default_bases, default_beneficiaries):
 
 
 def test_base_query(
-    read_only_client, default_location, default_bases, default_distribution_event
+    read_only_client,
+    default_location,
+    default_bases,
+    default_distribution_event,
+    base1_active_tags,
 ):
     # Test case 99.1.2
     test_id = 1
@@ -37,6 +41,7 @@ def test_base_query(
                     organisation {{ id }}
                     currencyName
                     locations {{ id }}
+                    tags {{ id }}
                     distributionEvents {{ id }}
                 }}
             }}"""
@@ -47,7 +52,7 @@ def test_base_query(
     assert base["name"] == expected_base["name"]
     assert base["currencyName"] == expected_base["currency_name"]
     assert int(base["organisation"]["id"]) == expected_base["organisation"]
-
+    assert base["tags"] == [{"id": str(t["id"])} for t in base1_active_tags]
     locations = base["locations"]
     assert {"id": str(default_location["id"])} in locations
     assert base["distributionEvents"] == [{"id": str(default_distribution_event["id"])}]

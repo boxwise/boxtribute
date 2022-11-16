@@ -224,6 +224,7 @@ type Base {
   " List of all [`ClassicLocations`]({{Types.ClassicLocation}}) present in this base "
   locations: [ClassicLocation!]!
   products: [Product!]!
+  tags: [Tag!]
   distributionSpots: [DistributionSpot!]!
   distributionEvents(states: [DistributionEventState!]): [DistributionEvent!]!
 
