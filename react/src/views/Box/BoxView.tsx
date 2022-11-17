@@ -294,7 +294,7 @@ function BTBox() {
         notificationVar({
           title: `Box ${labelIdentifier}`,
           type: "error",
-          message: "Error while trying to updat the Box state",
+          message: "Error while trying to update the box state",
         });
       });
   };
@@ -311,7 +311,7 @@ function BTBox() {
           notificationVar({
             title: `Box ${boxData.labelIdentifier}`,
             type: "success",
-            message: `Successfully take ${boxFormValues?.numberOfItems}x from box`,
+            message: `Successfully removed ${boxFormValues?.numberOfItems} items from box`,
           });
           onMinusClose();
         })
@@ -319,7 +319,7 @@ function BTBox() {
           notificationVar({
             title: `Box ${boxData.labelIdentifier}`,
             type: "error",
-            message: "Error while trying to change number of items in the Box",
+            message: "Error while trying to change number of items in the box",
           });
         });
     }
@@ -341,7 +341,7 @@ function BTBox() {
           notificationVar({
             title: `Box ${boxData.labelIdentifier}`,
             type: "success",
-            message: `Successfully add ${boxFormValues?.numberOfItems}x to the box`,
+            message: `Successfully added ${boxFormValues?.numberOfItems} items to box`,
           });
           onPlusClose();
         })
@@ -349,7 +349,7 @@ function BTBox() {
           notificationVar({
             title: `Box ${boxData.labelIdentifier}`,
             type: "error",
-            message: "Error while trying to change number of items in the Box",
+            message: "Error while trying to change number of items in the box",
           });
         });
     }
@@ -374,7 +374,7 @@ function BTBox() {
         notificationVar({
           title: `Box ${labelIdentifier}`,
           type: "error",
-          message: "Error while trying to move the Box",
+          message: "Error while trying to move the box",
         });
       });
   };
