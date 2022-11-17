@@ -1,6 +1,5 @@
 import { gql, useMutation, useQuery } from "@apollo/client";
 import APILoadingIndicator from "components/APILoadingIndicator";
-import { notificationVar } from "providers/ApolloAuth0Provider";
 import { useNavigate, useParams } from "react-router-dom";
 import {
   BoxByLabelIdentifierAndAllProductsQuery,
@@ -9,6 +8,7 @@ import {
   UpdateContentOfBoxMutation,
   UpdateContentOfBoxMutationVariables,
 } from "types/generated/graphql";
+import { notificationVar } from "../../components/NotificationMessage";
 import BoxEdit, { IBoxEditFormData } from "./components/BoxEdit";
 
 export const BOX_BY_LABEL_IDENTIFIER_AND_ALL_PRODUCTS_QUERY = gql`
@@ -145,7 +145,16 @@ function BoxEditView() {
         notificationVar({
           title: `Box ${labelIdentifier}`,
           // eslint-disable-next-line max-len
-          message: `Successfully modified with ${boxData?.product?.name} (${boxData?.numberOfItems}x) in ${boxData?.location?.name}.`,
+          message: `Successfully modified with ${
+            (data?.products.elements.find((p) => p.id === boxEditFormData.productId.value) as any)
+              .name
+          } (${boxEditFormData?.numberOfItems}x) in ${
+            (
+              data?.box?.location?.base?.locations.find(
+                (l) => l.id === boxEditFormData.locationId.value,
+              ) as any
+            ).name
+          }.`,
         });
         navigate(`/bases/${baseId}/boxes/${mutationResult.data?.updateBox?.labelIdentifier}`);
       })

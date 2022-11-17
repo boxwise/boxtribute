@@ -4,7 +4,7 @@ import { Outlet } from "react-router-dom";
 import HeaderMenuContainer from "./HeaderMenu/HeaderMenuContainer";
 import { useReactiveVar } from "@apollo/client";
 import NotificationMessage, { INotificationMessageProps } from "./NotificationMessage";
-import { notificationVar } from "providers/ApolloAuth0Provider";
+import { notificationVar } from "../components/NotificationMessage";
 
 const Layout = () => {
   const notification = useReactiveVar(notificationVar);

@@ -19,7 +19,7 @@ import { z } from "zod";
 import _ from "lodash";
 import { useNavigate, useParams } from "react-router-dom";
 import { useForm } from "react-hook-form";
-import { notificationVar } from "providers/ApolloAuth0Provider";
+import { notificationVar } from "../../../components/NotificationMessage";
 
 export interface ICategoryData {
   name: string;

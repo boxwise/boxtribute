@@ -14,18 +14,8 @@ import {
 import { setContext } from "@apollo/client/link/context";
 import { useAuth0 } from "@auth0/auth0-react";
 import { onError } from "@apollo/client/link/error";
-import { makeVar } from "@apollo/client";
-import { INotificationMessageProps } from "components/NotificationMessage";
 
 export const cache = new InMemoryCache();
-
-// create a local variable to store the state of nofication message
-// https://www.apollographql.com/docs/react/local-state/reactive-variables/
-// related to this trello card: https://trello.com/c/nEPzsu8F
-export const notificationVar: ReactiveVar<INotificationMessageProps> =
-  makeVar<INotificationMessageProps>({
-    message: "",
-  });
 
 function ApolloAuth0Provider({ children }: { children: ReactNode }) {
   const { isAuthenticated, getAccessTokenSilently } = useAuth0();
