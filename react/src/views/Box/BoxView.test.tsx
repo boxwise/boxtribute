@@ -257,6 +257,22 @@ describe("Box view", () => {
     },
     {
       request: {
+        query: UPDATE_STATE_IN_BOX_MUTATION,
+        variables: {
+          boxLabelIdentifier: "189123",
+          newState: "InStock",
+        },
+      },
+      result: {
+        data: {
+          updateBox: {
+            labelIdentifier: "189123",
+          },
+        },
+      },
+    },
+    {
+      request: {
         query: UPDATE_BOX_MUTATION,
         variables: {
           boxLabelIdentifier: "189123",
