@@ -157,6 +157,7 @@ function BoxEditView() {
   const productAndSizesData = data?.products;
   const allTags = data?.tags || null;
 
+  // These are all the locations that are retrieved from the query which then filtered out the Scrap and Lost according to the defaultBoxState
   const allLocations = data?.box?.location?.base?.locations
     .filter(
       (location) =>
