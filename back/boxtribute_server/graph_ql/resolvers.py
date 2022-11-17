@@ -2,14 +2,7 @@
 import os
 from datetime import date
 
-from ariadne import (
-    InterfaceType,
-    MutationType,
-    ObjectType,
-    QueryType,
-    UnionType,
-    convert_kwargs_to_snake_case,
-)
+from ariadne import MutationType, QueryType, convert_kwargs_to_snake_case
 from boxtribute_server.exceptions import MobileDistroFeatureFlagNotAssignedToUser
 from boxtribute_server.models.definitions.distribution_event_tracking_log_entry import (
     DistributionEventTrackingLogEntry,
@@ -103,45 +96,33 @@ from ..models.metrics import (
     compute_number_of_sales,
     compute_stock_overview,
 )
+from .bindables import (
+    base,
+    beneficiary,
+    box,
+    classic_location,
+    distribution_event,
+    distribution_events_tracking_group,
+    distribution_spot,
+    metrics,
+    organisation,
+    packing_list_entry,
+    product,
+    product_category,
+    qr_code,
+    shipment,
+    shipment_detail,
+    size_range,
+    tag,
+    transfer_agreement,
+    unboxed_items_collection,
+    user,
+)
 from .filtering import derive_beneficiary_filter, derive_box_filter
 from .pagination import load_into_page
 
 query = QueryType()
 mutation = MutationType()
-object_types = []
-union_types = []
-interface_types = []
-
-
-def _register_object_type(name):
-    object_type = ObjectType(name)
-    object_types.append(object_type)
-    return object_type
-
-
-base = _register_object_type("Base")
-beneficiary = _register_object_type("Beneficiary")
-box = _register_object_type("Box")
-distribution_event = _register_object_type("DistributionEvent")
-distribution_spot = _register_object_type("DistributionSpot")
-distribution_events_tracking_group = _register_object_type(
-    "DistributionEventsTrackingGroup"
-)
-classic_location = _register_object_type("ClassicLocation")
-metrics = _register_object_type("Metrics")
-organisation = _register_object_type("Organisation")
-packing_list_entry = _register_object_type("PackingListEntry")
-product = _register_object_type("Product")
-product_category = _register_object_type("ProductCategory")
-qr_code = _register_object_type("QrCode")
-shipment = _register_object_type("Shipment")
-shipment_detail = _register_object_type("ShipmentDetail")
-size = _register_object_type("Size")
-size_range = _register_object_type("SizeRange")
-tag = _register_object_type("Tag")
-transfer_agreement = _register_object_type("TransferAgreement")
-unboxed_items_collection = _register_object_type("UnboxedItemsCollection")
-user = _register_object_type("User")
 
 
 def mobile_distro_feature_flag_check(user_id):
@@ -842,8 +823,8 @@ def resolve_create_box(*_, creation_input):
     authorize(permission="product:read", base_id=requested_product.base_id)
 
     tag_ids = creation_input.get("tag_ids", [])
-    for tag in Tag.select().where(Tag.id << tag_ids):
-        authorize(permission="tag_relation:assign", base_id=tag.base_id)
+    for t in Tag.select().where(Tag.id << tag_ids):
+        authorize(permission="tag_relation:assign", base_id=t.base_id)
 
     return create_box(user_id=g.user.id, **creation_input)
 
@@ -870,8 +851,8 @@ def resolve_update_box(*_, update_input):
         authorize(permission="product:read", base_id=requested_product.base_id)
 
     tag_ids = update_input.get("tag_ids", [])
-    for tag in Tag.select().where(Tag.id << tag_ids):
-        authorize(permission="tag_relation:assign", base_id=tag.base_id)
+    for t in Tag.select().where(Tag.id << tag_ids):
+        authorize(permission="tag_relation:assign", base_id=t.base_id)
 
     return update_box(user_id=g.user.id, **update_input)
 
@@ -1541,22 +1522,3 @@ def resolve_user_email(user_obj, _):
 @user.field("organisation")
 def resolve_user_organisation(*_):
     return Organisation.get_by_id(g.user.organisation_id)
-
-
-def resolve_taggable_resource_type(obj, *_):
-    if isinstance(obj, Box):
-        return "Box"
-    return "Beneficiary"
-
-
-def resolve_location_type(obj, *_):
-    return obj.type.name
-
-
-def resolve_items_collection_type(obj, *_):
-    return obj.items_collection_type
-
-
-union_types.append(UnionType("TaggableResource", resolve_taggable_resource_type))
-interface_types.append(InterfaceType("Location", resolve_location_type))
-interface_types.append(InterfaceType("ItemsCollection", resolve_items_collection_type))
