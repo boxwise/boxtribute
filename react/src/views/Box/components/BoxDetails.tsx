@@ -221,7 +221,7 @@ function BoxDetails({
                 isFocusable={false}
                 onChange={() =>
                   onStateChange(
-                    // toggle the box state
+                    // If the current box state 'Scrap' is toggled, set the defaultBoxState of the box location
                     boxData.state === BoxState.Scrap
                       ? (boxData?.location as any)?.defaultBoxState
                       : BoxState.Scrap,
@@ -239,7 +239,7 @@ function BoxDetails({
                 data-testid="box-lost-btn"
                 onChange={() =>
                   onStateChange(
-                    // toggle the box state
+                    // If the current box state 'Lost' is toggled, set the defaultBoxState of the box location
                     boxData.state === BoxState.Lost
                       ? (boxData?.location as any)?.defaultBoxState
                       : BoxState.Lost,
