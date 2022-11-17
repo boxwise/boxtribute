@@ -22,6 +22,7 @@ import {
   PACKING_LIST_ENTRIES_FOR_DISTRIBUTION_EVENT_QUERY,
   UNASSIGN_BOX_FROM_DISTRIBUTION_MUTATION,
 } from "views/Distributions/queries";
+import { notificationVar } from "providers/ApolloAuth0Provider";
 import AddItemsToBoxOverlay from "./components/AddItemsToBoxOverlay";
 import TakeItemsFromBoxOverlay from "./components/TakeItemsFromBoxOverlay";
 import BoxDetails from "./components/BoxDetails";
@@ -264,14 +265,12 @@ function BTBox() {
     assignBoxToDistributionEventMutationStatus.error ||
     unassignBoxFromDistributionEventMutationStatus.error
   ) {
-    // eslint-disable-next-line no-console
-    console.error(
-      "Error in BoxView Overlay: ",
-      error ||
-        updateBoxLocationMutationStatus.error ||
-        assignBoxToDistributionEventMutationStatus.error,
-    );
-    return <div>Error!</div>;
+    notificationVar({
+      title: "Error",
+      type: "error",
+      message: "Could not update the box",
+    });
+    return <div />;
   }
 
   const boxData = data?.box;
@@ -283,7 +282,21 @@ function BTBox() {
         newState,
       },
       // refetchQueries: [refetchBoxByLabelIdentifierQueryConfig(labelIdentifier)],
-    });
+    })
+      .then(() => {
+        notificationVar({
+          title: `Box ${labelIdentifier}`,
+          type: "success",
+          message: `Successfully updated the box state to ${newState} `,
+        });
+      })
+      .catch(() => {
+        notificationVar({
+          title: `Box ${labelIdentifier}`,
+          type: "error",
+          message: "Error while trying to updat the Box state",
+        });
+      });
   };
 
   const onSubmitTakeItemsFromBox = (boxFormValues: IChangeNumberOfItemsBoxData) => {
@@ -295,11 +308,19 @@ function BTBox() {
         },
       })
         .then(() => {
+          notificationVar({
+            title: `Box ${boxData.labelIdentifier}`,
+            type: "success",
+            message: `Successfully take ${boxFormValues?.numberOfItems}x from box`,
+          });
           onMinusClose();
         })
-        .catch((e) => {
-          // eslint-disable-next-line no-console
-          console.error("Error while trying to change number of items in the Box", e);
+        .catch(() => {
+          notificationVar({
+            title: `Box ${boxData.labelIdentifier}`,
+            type: "error",
+            message: "Error while trying to change number of items in the Box",
+          });
         });
     }
   };
@@ -317,11 +338,19 @@ function BTBox() {
         },
       })
         .then(() => {
+          notificationVar({
+            title: `Box ${boxData.labelIdentifier}`,
+            type: "success",
+            message: `Successfully add ${boxFormValues?.numberOfItems}x to the box`,
+          });
           onPlusClose();
         })
-        .catch((e) => {
-          // eslint-disable-next-line no-console
-          console.error("Error while trying to change number of items in the Box", e);
+        .catch(() => {
+          notificationVar({
+            title: `Box ${boxData.labelIdentifier}`,
+            type: "error",
+            message: "Error while trying to change number of items in the Box",
+          });
         });
     }
   };
@@ -333,7 +362,21 @@ function BTBox() {
         newLocationId: parseInt(locationId, 10),
       },
       refetchQueries: [refetchBoxByLabelIdentifierQueryConfig(labelIdentifier)],
-    });
+    })
+      .then(() => {
+        notificationVar({
+          title: `Box ${labelIdentifier}`,
+          type: "success",
+          message: "Successfully moved the box",
+        });
+      })
+      .catch(() => {
+        notificationVar({
+          title: `Box ${labelIdentifier}`,
+          type: "error",
+          message: "Error while trying to move the Box",
+        });
+      });
   };
 
   const onAssignBoxToDistributionEventClick = (distributionEventId: string) => {

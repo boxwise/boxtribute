@@ -1,5 +1,6 @@
 import { gql, useMutation, useQuery } from "@apollo/client";
 import APILoadingIndicator from "components/APILoadingIndicator";
+import { notificationVar } from "providers/ApolloAuth0Provider";
 import { useNavigate, useParams } from "react-router-dom";
 import {
   BoxByLabelIdentifierAndAllProductsQuery,
@@ -141,11 +142,19 @@ function BoxEditView() {
       },
     })
       .then((mutationResult) => {
+        notificationVar({
+          title: `Box ${labelIdentifier}`,
+          // eslint-disable-next-line max-len
+          message: `Successfully modified with ${boxData?.product?.name} (${boxData?.numberOfItems}x) in ${boxData?.location?.name}.`,
+        });
         navigate(`/bases/${baseId}/boxes/${mutationResult.data?.updateBox?.labelIdentifier}`);
       })
       .catch((error) => {
-        // eslint-disable-next-line no-console
-        console.error("Error while trying to update Box", error);
+        notificationVar({
+          title: `Box ${labelIdentifier}`,
+          type: "error",
+          message: `Error while trying to update Box (code: ${error.code})`,
+        });
       });
   };
 
@@ -169,11 +178,21 @@ function BoxEditView() {
     }));
 
   if (allLocations == null) {
-    return <div>Error: no locations available to choose from</div>;
+    notificationVar({
+      title: "Error",
+      type: "error",
+      message: "No locations available to choose from",
+    });
+    return <div />;
   }
 
   if (productAndSizesData?.elements == null) {
-    return <div>Error: no products available to choose from for this Box</div>;
+    notificationVar({
+      title: "Error",
+      type: "error",
+      message: "No products available to choose from for this Box",
+    });
+    return <div />;
   }
 
   return (
