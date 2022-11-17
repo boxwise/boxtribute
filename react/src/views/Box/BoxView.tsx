@@ -276,21 +276,11 @@ function BTBox() {
 
   const boxData = data?.box;
 
-  const onScrap = () => {
+  const onStateChange = (newState: BoxState) => {
     updateStateMutation({
       variables: {
         boxLabelIdentifier: labelIdentifier,
-        newState: BoxState.Scrap,
-      },
-      // refetchQueries: [refetchBoxByLabelIdentifierQueryConfig(labelIdentifier)],
-    });
-  };
-
-  const onLost = () => {
-    updateStateMutation({
-      variables: {
-        boxLabelIdentifier: labelIdentifier,
-        newState: BoxState.Lost,
+        newState,
       },
       // refetchQueries: [refetchBoxByLabelIdentifierQueryConfig(labelIdentifier)],
     });
@@ -385,8 +375,7 @@ function BTBox() {
         onPlusOpen={onPlusOpen}
         onMinusOpen={onMinusOpen}
         onMoveToLocationClick={onMoveBoxToLocationClick}
-        onLost={onLost}
-        onScrap={onScrap}
+        onStateChange={onStateChange}
         onAssignBoxToDistributionEventClick={onAssignBoxToDistributionEventClick}
         onUnassignBoxFromDistributionEventClick={onUnassignBoxFromDistributionEventClick}
       />
