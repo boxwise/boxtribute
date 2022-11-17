@@ -283,11 +283,13 @@ function BTBox() {
       },
       // refetchQueries: [refetchBoxByLabelIdentifierQueryConfig(labelIdentifier)],
     })
-      .then(() => {
+      .then((res) => {
         notificationVar({
           title: `Box ${labelIdentifier}`,
-          type: "success",
-          message: `Successfully updated the box state to ${newState} `,
+          type: res?.errors ? "error" : "success",
+          message: res?.errors
+            ? "Error while trying to update the box state"
+            : `Successfully updated the box state to ${newState} `,
         });
       })
       .catch(() => {
@@ -307,11 +309,13 @@ function BTBox() {
           numberOfItems: (boxData?.numberOfItems || 0) - (boxFormValues?.numberOfItems || 0),
         },
       })
-        .then(() => {
+        .then((res) => {
           notificationVar({
             title: `Box ${boxData.labelIdentifier}`,
-            type: "success",
-            message: `Successfully removed ${boxFormValues?.numberOfItems} items from box`,
+            type: res.errors ? "error" : "success",
+            message: res.errors
+              ? "Error while trying to change number of items in the box"
+              : `Successfully removed ${boxFormValues?.numberOfItems} items from box`,
           });
           onMinusClose();
         })
@@ -337,11 +341,13 @@ function BTBox() {
           numberOfItems: (boxData?.numberOfItems || 0) + (boxFormValues?.numberOfItems || 0),
         },
       })
-        .then(() => {
+        .then((res) => {
           notificationVar({
             title: `Box ${boxData.labelIdentifier}`,
-            type: "success",
-            message: `Successfully added ${boxFormValues?.numberOfItems} items to box`,
+            type: res.errors ? "error" : "success",
+            message: res.errors
+              ? "Error while trying to change number of items in the box"
+              : `Successfully added ${boxFormValues?.numberOfItems} items to box`,
           });
           onPlusClose();
         })
@@ -363,11 +369,11 @@ function BTBox() {
       },
       refetchQueries: [refetchBoxByLabelIdentifierQueryConfig(labelIdentifier)],
     })
-      .then(() => {
+      .then((res) => {
         notificationVar({
           title: `Box ${labelIdentifier}`,
-          type: "success",
-          message: "Successfully moved the box",
+          type: res.errors ? "error" : "success",
+          message: res.errors ? "Error while trying to move the box" : "Successfully moved the box",
         });
       })
       .catch(() => {

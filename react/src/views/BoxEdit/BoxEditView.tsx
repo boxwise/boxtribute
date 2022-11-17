@@ -142,21 +142,29 @@ function BoxEditView() {
       },
     })
       .then((mutationResult) => {
-        notificationVar({
-          title: `Box ${labelIdentifier}`,
-          // eslint-disable-next-line max-len
-          message: `Successfully modified with ${
-            (data?.products.elements.find((p) => p.id === boxEditFormData.productId.value) as any)
-              .name
-          } (${boxEditFormData?.numberOfItems}x) in ${
-            (
-              data?.box?.location?.base?.locations.find(
-                (l) => l.id === boxEditFormData.locationId.value,
-              ) as any
-            ).name
-          }.`,
-        });
-        navigate(`/bases/${baseId}/boxes/${mutationResult.data?.updateBox?.labelIdentifier}`);
+        if (mutationResult?.errors) {
+          notificationVar({
+            title: `Box ${labelIdentifier}`,
+            type: "error",
+            message: "Error while trying to update Box",
+          });
+        } else {
+          notificationVar({
+            title: `Box ${labelIdentifier}`,
+            type: "success",
+            message: `Successfully modified with ${
+              (data?.products.elements.find((p) => p.id === boxEditFormData.productId.value) as any)
+                .name
+            } (${boxEditFormData?.numberOfItems}x) in ${
+              (
+                data?.box?.location?.base?.locations.find(
+                  (l) => l.id === boxEditFormData.locationId.value,
+                ) as any
+              ).name
+            }.`,
+          });
+          navigate(`/bases/${baseId}/boxes/${mutationResult.data?.updateBox?.labelIdentifier}`);
+        }
       })
       .catch((error) => {
         notificationVar({
