@@ -20,7 +20,7 @@ import BoxtributeLogo from "../../assets/images/boxtribute-logo.png";
 import {
   BaseSwitcherProps,
   HeaderMenuProps,
-  LoginOrUserMenuButtonProps,
+  LoginOrUserMenuButtonProps, MenuItemData,
   MenuItemsGroupProps,
   MenuItemsGroupsProps,
   UserMenuProps,
@@ -70,13 +70,13 @@ const UserMenu = ({ logout, user, currentActiveBaseId, availableBases }: UserMen
 };
 
 const LoginOrUserMenuButton = ({
-  isAuthenticated,
-  logout,
-  loginWithRedirect,
-  user,
-  availableBases,
-  currentActiveBaseId,
-}: LoginOrUserMenuButtonProps) => {
+                                 isAuthenticated,
+                                 logout,
+                                 loginWithRedirect,
+                                 user,
+                                 availableBases,
+                                 currentActiveBaseId,
+                               }: LoginOrUserMenuButtonProps) => {
   return isAuthenticated ? (
     <UserMenu
       user={user}
@@ -96,6 +96,28 @@ const LoginOrUserMenuButton = ({
 };
 
 const MenuItemsGroupDesktop = ({ ...props }: MenuItemsGroupProps) => {
+
+
+  function renderMenuItem(link: MenuItemData, i: number) {
+
+    function redirectToOldApp() {
+      window.open(
+        `${process.env.REACT_APP_OLD_APP_BASE_URL}`,
+        "_blank"
+      );
+    }
+
+    if (link.link.includes(`${process.env.REACT_APP_OLD_APP_BASE_URL}`)) {
+      return <MenuItem py={2} px={3} key={i} onClick={() => redirectToOldApp()}>
+        {link.name}
+      </MenuItem>;
+    } else {
+      return <MenuItem py={2} px={3} key={i} as={NavLink} to={link.link}>
+        {link.name}
+      </MenuItem>;
+    }
+  }
+
   return (
     <Menu>
       <MenuButton
@@ -110,9 +132,7 @@ const MenuItemsGroupDesktop = ({ ...props }: MenuItemsGroupProps) => {
       </MenuButton>
       <MenuList border="2px" p={0} borderRadius="0px" my={0}>
         {props.links.map((link, i) => (
-          <MenuItem py={2} px={3} key={i} as={NavLink} to={link.link}>
-            {link.name}
-          </MenuItem>
+          renderMenuItem(link, i)
         ))}
       </MenuList>
     </Menu>

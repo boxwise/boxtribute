@@ -23,8 +23,14 @@ const HeaderMenuContainer = () => {
   const menuItems: MenuItemsGroupData[] = useMemo(
     () => [
       {
-        text: "Home",
-        links: [{ link: `/bases/${baseId}`, name: "Home" }],
+        text: "Classic View",
+        links: [
+          {
+            link: `${process.env.REACT_APP_OLD_APP_BASE_URL}/mobile.php`,
+            name: "Go to classic mobile",
+          },
+          { link: `${process.env.REACT_APP_OLD_APP_BASE_URL}/`, name: "Go to classic desktop" },
+        ],
       },
       // {
       //   text: "Boxes",
