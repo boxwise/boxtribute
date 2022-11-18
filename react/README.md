@@ -57,6 +57,7 @@ docker-compose exec react yarn format:write
 - no console.log
 - no debugger statements
 - no vars
+- interfaces/type should start with "I"
 
 ## Note about yarn and Docker
 

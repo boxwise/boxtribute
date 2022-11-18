@@ -25,19 +25,23 @@ describe("Box view", () => {
             labelIdentifier: "189123",
             location: {
               __typename: "ClassicLocation",
+              defaultBoxState: "InStock",
               base: {
                 distributionEventsBeforeReturnedFromDistributionState: [],
                 locations: [
                   {
                     id: "16",
+                    defaultBoxState: "InStock",
                     name: "Stockroom",
                   },
                   {
                     id: "17",
+                    defaultBoxState: "InStock",
                     name: "WH1",
                   },
                   {
                     id: "18",
+                    defaultBoxState: "InStock",
                     name: "WH2",
                   },
                 ],
@@ -46,6 +50,7 @@ describe("Box view", () => {
               name: "LOST",
             },
             numberOfItems: 31,
+            comment: "",
             product: {
               gender: "Boy",
               name: "Snow trousers",
@@ -101,22 +106,27 @@ describe("Box view", () => {
                 locations: [
                   {
                     id: "16",
+                    defaultBoxState: "InStock",
                     name: "Stockroom",
                   },
                   {
                     id: "17",
+                    defaultBoxState: "InStock",
                     name: "WH1",
                   },
                   {
                     id: "18",
+                    defaultBoxState: "InStock",
                     name: "WH2",
                   },
                 ],
               },
               id: "14",
+              defaultBoxState: "Lost",
               name: "LOST",
             },
             numberOfItems: 32,
+            comment: "",
             product: {
               gender: "Boy",
               name: "Snow trousers",
@@ -172,22 +182,27 @@ describe("Box view", () => {
                 locations: [
                   {
                     id: "16",
+                    defaultBoxState: "InStock",
                     name: "Stockroom",
                   },
                   {
                     id: "17",
+                    defaultBoxState: "InStock",
                     name: "WH1",
                   },
                   {
                     id: "18",
+                    defaultBoxState: "InStock",
                     name: "WH2",
                   },
                 ],
               },
               id: "14",
+              defaultBoxState: "Lost",
               name: "LOST",
             },
             numberOfItems: 31,
+            comment: "",
             product: {
               gender: "Boy",
               name: "Snow trousers",
@@ -260,22 +275,27 @@ describe("Box view", () => {
                 locations: [
                   {
                     id: "16",
+                    defaultBoxState: "InStock",
                     name: "Stockroom",
                   },
                   {
                     id: "17",
+                    defaultBoxState: "InStock",
                     name: "WH1",
                   },
                   {
                     id: "18",
+                    defaultBoxState: "InStock",
                     name: "WH2",
                   },
                 ],
               },
               id: "17",
+              defaultBoxState: "InStock",
               name: "WH1",
             },
             numberOfItems: 31,
+            comment: null,
             product: {
               gender: "Boy",
               id: "347",
@@ -318,22 +338,27 @@ describe("Box view", () => {
                 locations: [
                   {
                     id: "16",
+                    defaultBoxState: "InStock",
                     name: "Stockroom",
                   },
                   {
                     id: "17",
+                    defaultBoxState: "InStock",
                     name: "WH1",
                   },
                   {
                     id: "18",
+                    defaultBoxState: "InStock",
                     name: "WH2",
                   },
                 ],
               },
               id: 17,
+              defaultBoxState: "InStock",
               name: "WH1",
             },
             numberOfItems: 31,
+            comment: "",
             product: {
               gender: "Boy",
               name: "Snow trousers",
@@ -403,7 +428,7 @@ describe("Box view", () => {
   // Test case 3.1.1.3
   it("3.1.1.3 - click on + and - to increase or decrease number of items", async () => {
     await waitFor(waitTillLoadingIsDone);
-    const numberOfItemWhenIncreased = 32;
+    const numberOfItemWhenIncreased = 31;
     fireEvent.click(screen.getByTestId("increase-items"));
     await waitFor(() => userEvent.type(screen.getByTestId("increase-number-items"), "1"));
     fireEvent.click(screen.getByText("Submit"));
@@ -411,7 +436,7 @@ describe("Box view", () => {
     await waitFor(() => {
       expect(screen.getByTestId("boxview-number-items")).toBeInTheDocument();
       expect(screen.getByTestId("boxview-number-items")).toHaveTextContent(
-        `# ${numberOfItemWhenIncreased}`,
+        `${numberOfItemWhenIncreased}x Snow trousers`,
       );
     });
   });

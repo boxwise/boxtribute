@@ -45,6 +45,7 @@ export const BOX_BY_LABEL_IDENTIFIER_QUERY = gql`
         label
       }
       numberOfItems
+      comment
       product {
         name
         gender
@@ -70,10 +71,16 @@ export const BOX_BY_LABEL_IDENTIFIER_QUERY = gql`
         __typename
         id
         name
+        ... on ClassicLocation {
+          defaultBoxState
+        }
         base {
           locations {
             id
             name
+            ... on ClassicLocation {
+              defaultBoxState
+            }
           }
           distributionEventsBeforeReturnedFromDistributionState {
             id
@@ -119,6 +126,7 @@ export const UPDATE_BOX_MUTATION = gql`
       }
       state
       numberOfItems
+      comment
       product {
         name
         gender
@@ -154,10 +162,16 @@ export const UPDATE_BOX_MUTATION = gql`
         __typename
         id
         name
+        ... on ClassicLocation {
+          defaultBoxState
+        }
         base {
           locations {
             id
             name
+            ... on ClassicLocation {
+              defaultBoxState
+            }
           }
           distributionEventsBeforeReturnedFromDistributionState {
             id

@@ -2,7 +2,12 @@ import os
 
 import pytest
 from boxtribute_server.auth import JWT_CLAIM_PREFIX, CurrentUser
-from boxtribute_server.authz import _authorize, authorize, check_beta_feature_access
+from boxtribute_server.authz import (
+    ALL_ALLOWED_MUTATIONS,
+    _authorize,
+    authorize,
+    check_beta_feature_access,
+)
 from boxtribute_server.exceptions import Forbidden
 
 BASE_ID = 1
@@ -192,21 +197,26 @@ def test_check_beta_feature_access(mocker):
     del env_variables["ENVIRONMENT"]
     mocker.patch("os.environ", env_variables)
 
-    # User with scope 0 cannot access any features (only queries)
-    current_user = CurrentUser(id=1, beta_feature_scope=0)
-    for mutation in ["createQrCode", "createShipment", "createTag"]:
+    # User with scope 0 can only access BoxView/BoxEdit pages, and queries
+    beta_feature_scope = 0
+    current_user = CurrentUser(id=1, beta_feature_scope=beta_feature_scope)
+    for mutation in ["createQrCode", "createBox", "createShipment", "createTag"]:
         payload = f"mutation {{ {mutation} }}"
         assert not check_beta_feature_access(payload, current_user=current_user)
+    for mutation in ALL_ALLOWED_MUTATIONS[beta_feature_scope]:
+        payload = f"mutation {{ {mutation} }}"
+        assert check_beta_feature_access(payload, current_user=current_user)
     assert check_beta_feature_access(
         "query { base(id: 1) { name } }", current_user=current_user
     )
 
-    # User with scope 1 can only access selected features
-    current_user = CurrentUser(id=1, beta_feature_scope=1)
+    # User with scope 1 can additionally access BoxCreate/ScanBox pages
+    beta_feature_scope = 1
+    current_user = CurrentUser(id=1, beta_feature_scope=beta_feature_scope)
     for mutation in ["createShipment", "createTag"]:
         payload = f"mutation {{ {mutation} }}"
         assert not check_beta_feature_access(payload, current_user=current_user)
-    for mutation in ["createQrCode"]:
+    for mutation in ALL_ALLOWED_MUTATIONS[beta_feature_scope]:
         payload = f"mutation {{ {mutation} }}"
         assert check_beta_feature_access(payload, current_user=current_user)
     assert check_beta_feature_access(
