@@ -16,6 +16,9 @@ from ..core.size_range.fields import size_range
 from ..metrics.fields import metrics
 from ..metrics.queries import query as metrics_query
 from ..models.definitions.box import Box
+from ..tag.fields import tag
+from ..tag.mutations import mutation as tag_mutation
+from ..tag.queries import query as tag_query
 from ..user.fields import user
 from ..user.queries import query as user_query
 
@@ -26,11 +29,12 @@ query_types = (
     metrics_query,
     organisation_query,
     product_category_query,
+    tag_query,
     user_query,
 )
 
 # Container for MutationTypes
-mutation_types = (beneficiary_mutation,)
+mutation_types = (beneficiary_mutation, tag_mutation)
 
 # Container for ObjectTypes (public as immutable tuple)
 _object_types = [
@@ -40,6 +44,7 @@ _object_types = [
     organisation,
     product_category,
     size_range,
+    tag,
     user,
 ]
 
@@ -63,7 +68,6 @@ product = _register_object_type("Product")
 qr_code = _register_object_type("QrCode")
 shipment = _register_object_type("Shipment")
 shipment_detail = _register_object_type("ShipmentDetail")
-tag = _register_object_type("Tag")
 transfer_agreement = _register_object_type("TransferAgreement")
 unboxed_items_collection = _register_object_type("UnboxedItemsCollection")
 

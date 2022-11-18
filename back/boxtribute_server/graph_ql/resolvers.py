@@ -26,7 +26,7 @@ from ..box_transfer.shipment import (
     send_shipment,
     update_shipment,
 )
-from ..enums import LocationType, TaggableObjectType, TransferAgreementType
+from ..enums import LocationType, TransferAgreementType
 from ..mobile_distribution.crud import (
     add_packing_list_entry_to_distribution_event,
     assign_box_to_distribution_event,
@@ -44,19 +44,8 @@ from ..mobile_distribution.crud import (
     unassign_box_from_distribution_event,
     update_packing_list_entry,
 )
-from ..models.crud import (
-    assign_tag,
-    create_box,
-    create_qr_code,
-    create_tag,
-    delete_tag,
-    get_box_history,
-    unassign_tag,
-    update_box,
-    update_tag,
-)
+from ..models.crud import create_box, create_qr_code, get_box_history, update_box
 from ..models.definitions.base import Base
-from ..models.definitions.beneficiary import Beneficiary
 from ..models.definitions.box import Box
 from ..models.definitions.distribution_event import DistributionEvent
 from ..models.definitions.distribution_events_tracking_group import (
@@ -69,7 +58,6 @@ from ..models.definitions.qr_code import QrCode
 from ..models.definitions.shipment import Shipment
 from ..models.definitions.shipment_detail import ShipmentDetail
 from ..models.definitions.tag import Tag
-from ..models.definitions.tags_relation import TagsRelation
 from ..models.definitions.transfer_agreement import TransferAgreement
 from ..models.definitions.unboxed_items_collection import UnboxedItemsCollection
 from .bindables import (
@@ -84,7 +72,6 @@ from .bindables import (
     qr_code,
     shipment,
     shipment_detail,
-    tag,
     transfer_agreement,
     unboxed_items_collection,
 )
@@ -110,18 +97,6 @@ def mobile_distro_feature_flag_check(user_id):
         return
 
     raise MobileDistroFeatureFlagNotAssignedToUser(user_id)
-
-
-@query.field("tag")
-def resolve_tag(*_, id):
-    tag = Tag.get_by_id(id)
-    authorize(permission="tag:read", base_id=tag.base_id)
-    return tag
-
-
-@query.field("tags")
-def resolve_tags(*_):
-    return Tag.select().where(Tag.deleted.is_null() & authorized_bases_filter(Tag))
 
 
 @query.field("packingListEntry")
@@ -315,25 +290,6 @@ def resolve_shipments(*_):
         authorized_bases_filter(Shipment, base_fk_field_name="source_base"),
         authorized_bases_filter(Shipment, base_fk_field_name="target_base"),
     )
-
-
-@tag.field("taggedResources")
-def resolve_tag_tagged_resources(tag_obj, _):
-    authorize(permission="tag_relation:read")
-    beneficiary_relations = TagsRelation.select(TagsRelation.object_id).where(
-        (TagsRelation.tag == tag_obj.id)
-        & (TagsRelation.object_type == TaggableObjectType.Beneficiary)
-    )
-    box_relations = TagsRelation.select(TagsRelation.object_id).where(
-        (TagsRelation.tag == tag_obj.id)
-        & (TagsRelation.object_type == TaggableObjectType.Box)
-    )
-    return list(
-        Beneficiary.select().where(
-            Beneficiary.id << [r.object_id for r in beneficiary_relations],
-            authorized_bases_filter(Beneficiary),
-        )
-    ) + list(Box.select().where(Box.id << [r.object_id for r in box_relations]))
 
 
 @box.field("state")
@@ -649,44 +605,6 @@ def resolve_update_box(*_, update_input):
         authorize(permission="tag_relation:assign", base_id=t.base_id)
 
     return update_box(user_id=g.user.id, **update_input)
-
-
-@mutation.field("createTag")
-@convert_kwargs_to_snake_case
-def resolve_create_tag(*_, creation_input):
-    authorize(permission="tag:write", base_id=creation_input["base_id"])
-    return create_tag(user_id=g.user.id, **creation_input)
-
-
-@mutation.field("updateTag")
-@convert_kwargs_to_snake_case
-def resolve_update_tag(*_, update_input):
-    base_id = Tag.get_by_id(update_input["id"]).base_id
-    authorize(permission="tag:write", base_id=base_id)
-    return update_tag(user_id=g.user.id, **update_input)
-
-
-@mutation.field("assignTag")
-@convert_kwargs_to_snake_case
-def resolve_assign_tag(*_, assignment_input):
-    tag = Tag.get_by_id(assignment_input["id"])
-    authorize(permission="tag_relation:assign", base_id=tag.base_id)
-    return assign_tag(user_id=g.user.id, **assignment_input)
-
-
-@mutation.field("unassignTag")
-@convert_kwargs_to_snake_case
-def resolve_unassign_tag(*_, unassignment_input):
-    tag = Tag.get_by_id(unassignment_input["id"])
-    authorize(permission="tag_relation:assign", base_id=tag.base_id)
-    return unassign_tag(user_id=g.user.id, **unassignment_input)
-
-
-@mutation.field("deleteTag")
-def resolve_delete_tag(*_, id):
-    base_id = Tag.get_by_id(id).base_id
-    authorize(permission="tag:write", base_id=base_id)
-    return delete_tag(user_id=g.user.id, id=id)
 
 
 @mutation.field("createTransferAgreement")
