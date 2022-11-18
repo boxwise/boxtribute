@@ -35,6 +35,7 @@ export type Base = {
   name: Scalars['String'];
   organisation: Organisation;
   products: Array<Product>;
+  tags?: Maybe<Array<Tag>>;
 };
 
 

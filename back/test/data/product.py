@@ -62,5 +62,11 @@ def products():
     return data()
 
 
+@pytest.fixture
+def base1_products():
+    all_products = data()
+    return [all_products[0], all_products[2]]
+
+
 def create():
     Product.insert_many(data()).execute()
