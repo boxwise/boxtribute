@@ -73,7 +73,6 @@ from ..models.definitions.location import Location
 from ..models.definitions.organisation import Organisation
 from ..models.definitions.packing_list_entry import PackingListEntry
 from ..models.definitions.product import Product
-from ..models.definitions.product_category import ProductCategory
 from ..models.definitions.qr_code import QrCode
 from ..models.definitions.shipment import Shipment
 from ..models.definitions.shipment_detail import ShipmentDetail
@@ -92,7 +91,6 @@ from .bindables import (
     organisation,
     packing_list_entry,
     product,
-    product_category,
     qr_code,
     shipment,
     shipment_detail,
@@ -309,12 +307,6 @@ def resolve_organisation(*_, id):
     return Organisation.get_by_id(id)
 
 
-@query.field("productCategory")
-def resolve_product_category(*_, id):
-    authorize(permission="category:read")
-    return ProductCategory.get_by_id(id)
-
-
 @query.field("transferAgreement")
 def resolve_transfer_agreement(*_, id):
     agreement = TransferAgreement.get_by_id(id)
@@ -333,12 +325,6 @@ def resolve_shipment(*_, id):
         base_ids=[shipment.source_base_id, shipment.target_base_id],
     )
     return shipment
-
-
-@query.field("productCategories")
-def resolve_product_categories(*_):
-    authorize(permission="category:read")
-    return ProductCategory.select()
 
 
 @query.field("organisations")
@@ -1188,24 +1174,6 @@ def resolve_product_size_range(product_obj, info):
 def resolve_product_gender(product_obj, _):
     # Instead of a ProductGender instance return an integer for EnumType conversion
     return product_obj.gender_id
-
-
-@product_category.field("hasGender")
-def resolve_product_category_has_gender(product_category_obj, _):
-    # Only categories derived from 'Clothing' (ID 12) have gender information
-    return product_category_obj.parent_id == 12
-
-
-@product_category.field("products")
-@convert_kwargs_to_snake_case
-def resolve_product_category_products(product_category_obj, _, pagination_input=None):
-    category_filter_condition = Product.category == product_category_obj.id
-    return load_into_page(
-        Product,
-        authorized_bases_filter(Product),
-        category_filter_condition,
-        pagination_input=pagination_input,
-    )
 
 
 @qr_code.field("box")
