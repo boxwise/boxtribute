@@ -27,13 +27,7 @@ from ..box_transfer.shipment import (
     send_shipment,
     update_shipment,
 )
-from ..enums import (
-    DistributionEventState,
-    LocationType,
-    TaggableObjectType,
-    TagType,
-    TransferAgreementType,
-)
+from ..enums import LocationType, TaggableObjectType, TransferAgreementType
 from ..mobile_distribution.crud import (
     add_packing_list_entry_to_distribution_event,
     assign_box_to_distribution_event,
@@ -81,7 +75,6 @@ from ..models.definitions.tags_relation import TagsRelation
 from ..models.definitions.transfer_agreement import TransferAgreement
 from ..models.definitions.unboxed_items_collection import UnboxedItemsCollection
 from .bindables import (
-    base,
     beneficiary,
     box,
     classic_location,
@@ -98,7 +91,7 @@ from .bindables import (
     transfer_agreement,
     unboxed_items_collection,
 )
-from .filtering import derive_beneficiary_filter, derive_box_filter
+from .filtering import derive_box_filter
 from .pagination import load_into_page
 
 query = QueryType()
@@ -162,17 +155,6 @@ def resolve_packing_list_entry_matching_packed_items_collections(obj, *_):
     return list(boxes) + list(unboxed_items_colletions)
 
 
-@query.field("bases")
-def resolve_bases(*_):
-    return Base.select().where(authorized_bases_filter())
-
-
-@query.field("base")
-def resolve_base(*_, id):
-    authorize(permission="base:read", base_id=int(id))
-    return Base.get_by_id(id)
-
-
 @distribution_events_tracking_group.field("distributionEventsTrackingEntries")
 def resolve_distribution_tracking_entries_for_tracking_group(
     distribution_events_tracking_group_obj, _
@@ -204,24 +186,6 @@ def resolve_distribution_events_for_distribution_events_tracking_group(
         (
             DistributionEvent.distro_event_tracking_group_id
             == distribution_events_tracking_group_obj.id
-        )
-    )
-    return distribution_events
-
-
-@base.field("distributionEvents")
-def resolve_distributions_events_for_base(base_obj, _, states=None):
-    mobile_distro_feature_flag_check(user_id=g.user.id)
-    authorize(permission="distro_event:read", base_id=base_obj.id)
-    state_filter = DistributionEvent.state << states if states else True
-    # simplify with test
-    distribution_events = (
-        DistributionEvent.select()
-        .join(Location)
-        .where(
-            Location.base_id == base_obj.id,
-            Location.type == LocationType.DistributionSpot,
-            state_filter,
         )
     )
     return distribution_events
@@ -336,17 +300,6 @@ def resolve_organisations(*_):
 def resolve_locations(*_):
     return Location.select().where(
         Location.type == LocationType.ClassicLocation, authorized_bases_filter(Location)
-    )
-
-
-@base.field("products")
-@convert_kwargs_to_snake_case
-def resolve_base_products(base_obj, *_):
-    authorize(permission="product:read", base_id=base_obj.id)
-    return Product.select().where(
-        Product.base == base_obj.id,
-        # work-around for 0000-00-00 00:00:00 datetime fields in database
-        (Product.deleted.is_null() | (Product.deleted == 0)),
     )
 
 
@@ -884,91 +837,6 @@ def resolve_send_shipment(*_, id):
     return send_shipment(id=id, user=g.user)
 
 
-@base.field("distributionEventsStatistics")
-def resolve_base_distribution_events_statistics(base_obj, _):
-    mobile_distro_feature_flag_check(user_id=g.user.id)
-    authorize(permission="distro_event:read", base_id=base_obj.id)
-
-    res = DistributionEventsTrackingGroup.raw(
-        """select
-        p.name as product_name,
-        genders.label as gender_label,
-        cat.label as category_label,
-        siz.label as size_label,
-        MAX(detl.inflow) as inflow,
-        MAX(detl.outflow) as outflow,
-        min(ev.planned_start_date_time) earliest_possible_distro_date,
-        max(ev.planned_end_date_time) latest_possible_distro_date,
-        GROUP_CONCAT(distinct spot.label SEPARATOR ', ')
-          as potentially_involved_distribution_spots,
-        detl.distro_event_tracking_group_id,
-        GROUP_CONCAT(distinct ev.id SEPARATOR ',') as involved_distribution_event_ids,
-        detl.product_id,
-        detl.size_id
-        from (
-            select detl.distro_event_tracking_group_id,
-            detl.product_id,
-            detl.size_id,
-            detl.location_id,
-            SUM(CASE WHEN detl.flow_direction = "In"
-              THEN detl.number_of_items ELSE 0 END
-            ) inflow,
-            SUM(CASE WHEN detl.flow_direction = "Out"
-              THEN detl.number_of_items ELSE 0 END
-            ) outflow
-            from distro_events_tracking_logs detl
-            inner join distro_events_tracking_groups tracking_group
-              on tracking_group.id = detl.distro_event_tracking_group_id
-            where tracking_group.base_id = '%s'
-            group by detl.distro_event_tracking_group_id, detl.product_id,
-              detl.size_id, detl.location_id, detl.flow_direction
-        ) as detl
-        inner join distro_events ev
-          on ev.distro_event_tracking_group_id = detl.distro_event_tracking_group_id
-        inner join locations spot on spot.id = ev.location_id
-        inner join products p on p.id = detl.product_id
-        inner join genders on genders.id = p.gender_id
-        inner join product_categories cat on cat.id = p.category_id
-        inner join sizes siz on siz.id = detl.size_id
-        group by
-        detl.distro_event_tracking_group_id,
-        detl.product_id,
-        p.name,
-        genders.label,
-        p.category_id,
-        cat.label,
-        detl.size_id""",
-        base_obj.id,
-    )
-    return res
-
-
-@base.field("locations")
-def resolve_base_locations(base_obj, _):
-    authorize(permission="location:read", base_id=base_obj.id)
-    return Location.select().where(
-        Location.base == base_obj.id,
-        Location.type == LocationType.ClassicLocation,
-        Location.deleted.is_null(),
-    )
-
-
-@base.field("tags")
-@convert_kwargs_to_snake_case
-def resolve_base_tags(base_obj, _, resource_type=None):
-    authorize(permission="tag:read", base_id=base_obj.id)
-
-    filter_condition = True
-    if resource_type == TaggableObjectType.Box:
-        filter_condition = Tag.type << [TagType.Box, TagType.All]
-    elif resource_type == TaggableObjectType.Beneficiary:
-        filter_condition = Tag.type << [TagType.Beneficiary, TagType.All]
-
-    return Tag.select().where(
-        Tag.base == base_obj.id, Tag.deleted.is_null(), filter_condition
-    )
-
-
 @query.field("distributionEventsTrackingGroup")
 def resolve_distribution_events_tracking_group(*_, id):
     mobile_distro_feature_flag_check(user_id=g.user.id)
@@ -983,20 +851,6 @@ def resolve_distributions_spots(base_obj, _):
     return Location.select().where(
         (Location.type == LocationType.DistributionSpot)
         & (authorized_bases_filter(Location))
-    )
-
-
-@base.field("distributionSpots")
-def resolve_base_distributions_spots(base_obj, _):
-    mobile_distro_feature_flag_check(user_id=g.user.id)
-    authorize(permission="location:read", base_id=base_obj.id)
-    base_filter_condition = Location.base == base_obj.id
-    return (
-        Location.select()
-        .join(Base)
-        .where(
-            (Location.type == LocationType.DistributionSpot) & (base_filter_condition)
-        )
     )
 
 
@@ -1018,17 +872,6 @@ def resolve_distribution_event(*_, id):
         base_id=distribution_event.distribution_spot.base_id,
     )
     return distribution_event
-
-
-@base.field("beneficiaries")
-@convert_kwargs_to_snake_case
-def resolve_base_beneficiaries(base_obj, _, pagination_input=None, filter_input=None):
-    authorize(permission="beneficiary:read", base_id=base_obj.id)
-    base_filter_condition = Beneficiary.base == base_obj.id
-    filter_condition = base_filter_condition & derive_beneficiary_filter(filter_input)
-    return load_into_page(
-        Beneficiary, filter_condition, pagination_input=pagination_input
-    )
 
 
 @distribution_event.field("boxes")
@@ -1071,53 +914,6 @@ def resolve_tracking_group_of_distribution_event(distro_event_obj, *_):
         base_id=distro_event_obj.distribution_spot.base_id,
     )
     return distro_event_obj.distribution_events_tracking_group
-
-
-@base.field("distributionEventsTrackingGroups")
-def resolve_base_distribution_events_tracking_groups(base_obj, _, states=None):
-    mobile_distro_feature_flag_check(user_id=g.user.id)
-    authorize(permission="distro_event:read", base_id=base_obj.id)
-    state_filter = DistributionEventsTrackingGroup.state << states if states else True
-    return DistributionEventsTrackingGroup.select().where(
-        (DistributionEventsTrackingGroup.base == base_obj.id) & (state_filter)
-    )
-
-
-@base.field("distributionEventsBeforeReturnedFromDistributionState")
-def resolve_distribution_events_before_return_state(base_obj, *_):
-    authorize(permission="distro_event:read", base_id=base_obj.id)
-    return (
-        DistributionEvent.select()
-        .join(Location, on=(DistributionEvent.distribution_spot == Location.id))
-        .where(
-            (Location.type == LocationType.DistributionSpot)
-            & (
-                DistributionEvent.state.not_in(
-                    [
-                        DistributionEventState.ReturnedFromDistribution,
-                        DistributionEventState.ReturnTrackingInProgress,
-                        DistributionEventState.Completed,
-                    ]
-                )
-            )
-            & (Location.base == base_obj.id)
-        )
-    )
-
-
-@base.field("distributionEventsInReturnedFromDistributionState")
-def resolve_distribution_events_in_return_state(base_obj, *_):
-    authorize(permission="distro_event:read", base_id=base_obj.id)
-    return (
-        DistributionEvent.select()
-        .join(Location, on=(DistributionEvent.distribution_spot == Location.id))
-        .join(Base, on=(Location.base == Base.id))
-        .where(
-            (Base.id == base_obj.id)
-            & (Location.type == LocationType.DistributionSpot)
-            & (DistributionEvent.state == DistributionEventState.Returned)
-        )
-    )
 
 
 @distribution_spot.field("distributionEvents")
