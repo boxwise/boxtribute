@@ -8,6 +8,8 @@ from ..beneficiary.mutations import mutation as beneficiary_mutation
 from ..beneficiary.queries import query as beneficiary_query
 from ..core.base.fields import base
 from ..core.base.queries import query as base_query
+from ..core.organisation.fields import organisation
+from ..core.organisation.queries import query as organisation_query
 from ..core.product_category.fields import product_category
 from ..core.product_category.queries import query as product_category_query
 from ..core.size_range.fields import size_range
@@ -22,6 +24,7 @@ query_types = (
     base_query,
     beneficiary_query,
     metrics_query,
+    organisation_query,
     product_category_query,
     user_query,
 )
@@ -30,7 +33,15 @@ query_types = (
 mutation_types = (beneficiary_mutation,)
 
 # Container for ObjectTypes (public as immutable tuple)
-_object_types = [base, beneficiary, metrics, product_category, size_range, user]
+_object_types = [
+    base,
+    beneficiary,
+    metrics,
+    organisation,
+    product_category,
+    size_range,
+    user,
+]
 
 
 def _register_object_type(name):
@@ -47,7 +58,6 @@ distribution_events_tracking_group = _register_object_type(
     "DistributionEventsTrackingGroup"
 )
 classic_location = _register_object_type("ClassicLocation")
-organisation = _register_object_type("Organisation")
 packing_list_entry = _register_object_type("PackingListEntry")
 product = _register_object_type("Product")
 qr_code = _register_object_type("QrCode")

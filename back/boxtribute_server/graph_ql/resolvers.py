@@ -11,7 +11,6 @@ from flask import g
 from ..authz import (
     agreement_organisation_filter_condition,
     authorize,
-    authorize_for_organisation_bases,
     authorized_bases_filter,
 )
 from ..box_transfer.agreement import (
@@ -64,7 +63,6 @@ from ..models.definitions.distribution_events_tracking_group import (
     DistributionEventsTrackingGroup,
 )
 from ..models.definitions.location import Location
-from ..models.definitions.organisation import Organisation
 from ..models.definitions.packing_list_entry import PackingListEntry
 from ..models.definitions.product import Product
 from ..models.definitions.qr_code import QrCode
@@ -81,7 +79,6 @@ from .bindables import (
     distribution_event,
     distribution_events_tracking_group,
     distribution_spot,
-    organisation,
     packing_list_entry,
     product,
     qr_code,
@@ -266,11 +263,6 @@ def resolve_box_location(obj, _):
     return obj.location
 
 
-@query.field("organisation")
-def resolve_organisation(*_, id):
-    return Organisation.get_by_id(id)
-
-
 @query.field("transferAgreement")
 def resolve_transfer_agreement(*_, id):
     agreement = TransferAgreement.get_by_id(id)
@@ -289,11 +281,6 @@ def resolve_shipment(*_, id):
         base_ids=[shipment.source_base_id, shipment.target_base_id],
     )
     return shipment
-
-
-@query.field("organisations")
-def resolve_organisations(*_):
-    return Organisation.select()
 
 
 @query.field("locations")
@@ -939,12 +926,6 @@ def resolve_location_boxes(location_obj, _, pagination_input=None, filter_input=
     return load_into_page(
         Box, filter_condition, selection=selection, pagination_input=pagination_input
     )
-
-
-@organisation.field("bases")
-def resolve_organisation_bases(organisation_obj, _):
-    authorize_for_organisation_bases()
-    return Base.select().where(Base.organisation_id == organisation_obj.id)
 
 
 @beneficiary.field("base")
