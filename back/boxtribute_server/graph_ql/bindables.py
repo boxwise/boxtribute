@@ -6,18 +6,20 @@ from ariadne import InterfaceType, ObjectType, UnionType
 from ..beneficiary.fields import beneficiary
 from ..beneficiary.mutations import mutation as beneficiary_mutation
 from ..beneficiary.queries import query as beneficiary_query
+from ..metrics.fields import metrics
+from ..metrics.queries import query as metrics_query
 from ..models.definitions.box import Box
 from ..user.fields import user
 from ..user.queries import query as user_query
 
 # Container for QueryTypes
-query_types = (beneficiary_query, user_query)
+query_types = (beneficiary_query, metrics_query, user_query)
 
 # Container for MutationTypes
 mutation_types = (beneficiary_mutation,)
 
 # Container for ObjectTypes (public as immutable tuple)
-_object_types = [beneficiary, user]
+_object_types = [beneficiary, metrics, user]
 
 
 def _register_object_type(name):
@@ -35,7 +37,6 @@ distribution_events_tracking_group = _register_object_type(
     "DistributionEventsTrackingGroup"
 )
 classic_location = _register_object_type("ClassicLocation")
-metrics = _register_object_type("Metrics")
 organisation = _register_object_type("Organisation")
 packing_list_entry = _register_object_type("PackingListEntry")
 product = _register_object_type("Product")
