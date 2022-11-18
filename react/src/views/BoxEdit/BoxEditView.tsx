@@ -4,6 +4,7 @@ import { useNavigate, useParams } from "react-router-dom";
 import {
   BoxByLabelIdentifierAndAllProductsQuery,
   BoxByLabelIdentifierAndAllProductsQueryVariables,
+  BoxState,
   UpdateContentOfBoxMutation,
   UpdateContentOfBoxMutationVariables,
 } from "types/generated/graphql";
@@ -36,10 +37,16 @@ export const BOX_BY_LABEL_IDENTIFIER_AND_ALL_PRODUCTS_QUERY = gql`
         }
       }
       location {
+        ... on ClassicLocation {
+          defaultBoxState
+        }
         id
         name
         base {
           locations {
+            ... on ClassicLocation {
+              defaultBoxState
+            }
             id
             name
           }
@@ -150,10 +157,16 @@ function BoxEditView() {
   const productAndSizesData = data?.products;
   const allTags = data?.tags || null;
 
-  const allLocations = data?.box?.location?.base?.locations.map((location) => ({
-    ...location,
-    name: location.name ?? "",
-  }));
+  // These are all the locations that are retrieved from the query which then filtered out the Scrap and Lost according to the defaultBoxState
+  const allLocations = data?.box?.location?.base?.locations
+    .filter(
+      (location) =>
+        location?.defaultBoxState !== BoxState.Lost && location?.defaultBoxState !== BoxState.Scrap,
+    )
+    .map((location) => ({
+      ...location,
+      name: location.name ?? "",
+    }));
 
   if (allLocations == null) {
     return <div>Error: no locations available to choose from</div>;
