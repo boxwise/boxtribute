@@ -1,6 +1,5 @@
 """GraphQL resolver functionality"""
 import os
-from datetime import date
 
 from ariadne import MutationType, QueryType, convert_kwargs_to_snake_case
 from boxtribute_server.exceptions import MobileDistroFeatureFlagNotAssignedToUser
@@ -8,7 +7,6 @@ from boxtribute_server.models.definitions.distribution_event_tracking_log_entry 
     DistributionEventTrackingLogEntry,
 )
 from flask import g
-from peewee import fn
 
 from ..authz import (
     agreement_organisation_filter_condition,
@@ -31,7 +29,6 @@ from ..box_transfer.shipment import (
 )
 from ..enums import (
     DistributionEventState,
-    HumanGender,
     LocationType,
     TaggableObjectType,
     TagType,
@@ -56,14 +53,12 @@ from ..mobile_distribution.crud import (
 )
 from ..models.crud import (
     assign_tag,
-    create_beneficiary,
     create_box,
     create_qr_code,
     create_tag,
     delete_tag,
     get_box_history,
     unassign_tag,
-    update_beneficiary,
     update_box,
     update_tag,
 )
@@ -84,10 +79,8 @@ from ..models.definitions.shipment import Shipment
 from ..models.definitions.shipment_detail import ShipmentDetail
 from ..models.definitions.tag import Tag
 from ..models.definitions.tags_relation import TagsRelation
-from ..models.definitions.transaction import Transaction
 from ..models.definitions.transfer_agreement import TransferAgreement
 from ..models.definitions.unboxed_items_collection import UnboxedItemsCollection
-from ..models.definitions.x_beneficiary_language import XBeneficiaryLanguage
 from ..models.metrics import (
     compute_moved_stock_overview,
     compute_number_of_beneficiaries_served,
@@ -189,13 +182,6 @@ def resolve_bases(*_):
 def resolve_base(*_, id):
     authorize(permission="base:read", base_id=int(id))
     return Base.get_by_id(id)
-
-
-@query.field("beneficiary")
-def resolve_beneficiary(*_, id):
-    beneficiary = Beneficiary.get_by_id(id)
-    authorize(permission="beneficiary:read", base_id=beneficiary.base_id)
-    return beneficiary
 
 
 @distribution_events_tracking_group.field("distributionEventsTrackingEntries")
@@ -397,17 +383,6 @@ def resolve_products(*_, pagination_input=None):
     )
 
 
-@query.field("beneficiaries")
-@convert_kwargs_to_snake_case
-def resolve_beneficiaries(*_, pagination_input=None, filter_input=None):
-    filter_condition = derive_beneficiary_filter(filter_input)
-    return load_into_page(
-        Beneficiary,
-        authorized_bases_filter(Beneficiary) & filter_condition,
-        pagination_input=pagination_input,
-    )
-
-
 @query.field("transferAgreements")
 def resolve_transfer_agreements(*_, states=None):
     # No state filter by default
@@ -455,74 +430,6 @@ def resolve_tag_tagged_resources(tag_obj, _):
             authorized_bases_filter(Beneficiary),
         )
     ) + list(Box.select().where(Box.id << [r.object_id for r in box_relations]))
-
-
-@beneficiary.field("tags")
-def resolve_beneficiary_tags(beneficiary_obj, _):
-    authorize(permission="tag:read", base_id=beneficiary_obj.base_id)
-    return (
-        Tag.select()
-        .join(TagsRelation)
-        .where(
-            (TagsRelation.object_id == beneficiary_obj.id)
-            & (TagsRelation.object_type == TaggableObjectType.Beneficiary)
-        )
-    )
-
-
-@beneficiary.field("tokens")
-def resolve_beneficiary_tokens(beneficiary_obj, _):
-    authorize(permission="transaction:read")
-    # If the beneficiary has no transactions yet, the select query returns None
-    return (
-        Transaction.select(fn.sum(Transaction.tokens))
-        .where(Transaction.beneficiary == beneficiary_obj.id)
-        .scalar()
-        or 0
-    )
-
-
-@beneficiary.field("transactions")
-def resolve_beneficiary_transactions(beneficiary_obj, _):
-    authorize(permission="transaction:read")
-    return Transaction.select().where(Transaction.beneficiary == beneficiary_obj.id)
-
-
-@beneficiary.field("registered")
-def resolve_beneficiary_registered(beneficiary_obj, _):
-    return not beneficiary_obj.not_registered
-
-
-@beneficiary.field("languages")
-def resolve_beneficiary_languages(beneficiary_obj, _):
-    return [
-        x.language.id
-        for x in XBeneficiaryLanguage.select().where(
-            XBeneficiaryLanguage.beneficiary == beneficiary_obj.id
-        )
-    ]
-
-
-@beneficiary.field("gender")
-def resolve_beneficiary_gender(beneficiary_obj, _):
-    if beneficiary_obj.gender == "":
-        return
-    return HumanGender(beneficiary_obj.gender)
-
-
-@beneficiary.field("age")
-def resolve_beneficiary_age(beneficiary_obj, _):
-    dob = beneficiary_obj.date_of_birth
-    if dob is None:
-        return
-    today = date.today()
-    # Subtract 1 if current day is before birthday in current year
-    return today.year - dob.year - ((today.month, today.day) < (dob.month, dob.day))
-
-
-@beneficiary.field("active")
-def resolve_beneficiary_active(beneficiary_obj, _):
-    return beneficiary_obj.deleted is None  # ZeroDateTimeField
 
 
 @box.field("state")
@@ -876,21 +783,6 @@ def resolve_delete_tag(*_, id):
     base_id = Tag.get_by_id(id).base_id
     authorize(permission="tag:write", base_id=base_id)
     return delete_tag(user_id=g.user.id, id=id)
-
-
-@mutation.field("createBeneficiary")
-@convert_kwargs_to_snake_case
-def resolve_create_beneficiary(*_, creation_input):
-    authorize(permission="beneficiary:create", base_id=creation_input["base_id"])
-    return create_beneficiary(**creation_input, user=g.user)
-
-
-@mutation.field("updateBeneficiary")
-@convert_kwargs_to_snake_case
-def resolve_update_beneficiary(*_, update_input):
-    beneficiary = Beneficiary.get_by_id(update_input["id"])
-    authorize(permission="beneficiary:edit", base_id=beneficiary.base_id)
-    return update_beneficiary(**update_input, user=g.user)
 
 
 @mutation.field("createTransferAgreement")

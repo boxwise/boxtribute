@@ -3,18 +3,21 @@ values to the GraphQL schema).
 """
 from ariadne import InterfaceType, ObjectType, UnionType
 
+from ..beneficiary.fields import beneficiary
+from ..beneficiary.mutations import mutation as beneficiary_mutation
+from ..beneficiary.queries import query as beneficiary_query
 from ..models.definitions.box import Box
 from ..user.fields import user
 from ..user.queries import query as user_query
 
 # Container for QueryTypes
-query_types = (user_query,)
+query_types = (beneficiary_query, user_query)
 
 # Container for MutationTypes
-mutation_types = tuple()
+mutation_types = (beneficiary_mutation,)
 
 # Container for ObjectTypes (public as immutable tuple)
-_object_types = [user]
+_object_types = [beneficiary, user]
 
 
 def _register_object_type(name):
@@ -25,7 +28,6 @@ def _register_object_type(name):
 
 # ObjectTypes
 base = _register_object_type("Base")
-beneficiary = _register_object_type("Beneficiary")
 box = _register_object_type("Box")
 distribution_event = _register_object_type("DistributionEvent")
 distribution_spot = _register_object_type("DistributionSpot")
