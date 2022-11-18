@@ -17,7 +17,7 @@ from ..models.definitions.shipment import Shipment
 from ..models.definitions.shipment_detail import ShipmentDetail
 from ..models.definitions.transfer_agreement import TransferAgreement
 from ..models.utils import utcnow
-from .agreement import retrieve_transfer_agreement_bases
+from .agreement.crud import retrieve_transfer_agreement_bases
 
 
 # TODO: consider to introduce validation checks

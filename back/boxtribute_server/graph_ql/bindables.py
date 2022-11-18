@@ -6,6 +6,9 @@ from ariadne import InterfaceType, ObjectType, UnionType
 from ..beneficiary.fields import beneficiary
 from ..beneficiary.mutations import mutation as beneficiary_mutation
 from ..beneficiary.queries import query as beneficiary_query
+from ..box_transfer.agreement.fields import transfer_agreement
+from ..box_transfer.agreement.mutations import mutation as transfer_agreement_mutation
+from ..box_transfer.agreement.queries import query as transfer_agreement_query
 from ..core.base.fields import base
 from ..core.base.queries import query as base_query
 from ..core.organisation.fields import organisation
@@ -27,6 +30,7 @@ query_types = (
     base_query,
     beneficiary_query,
     metrics_query,
+    transfer_agreement_query,
     organisation_query,
     product_category_query,
     tag_query,
@@ -34,7 +38,7 @@ query_types = (
 )
 
 # Container for MutationTypes
-mutation_types = (beneficiary_mutation, tag_mutation)
+mutation_types = (beneficiary_mutation, tag_mutation, transfer_agreement_mutation)
 
 # Container for ObjectTypes (public as immutable tuple)
 _object_types = [
@@ -45,6 +49,7 @@ _object_types = [
     product_category,
     size_range,
     tag,
+    transfer_agreement,
     user,
 ]
 
@@ -68,7 +73,6 @@ product = _register_object_type("Product")
 qr_code = _register_object_type("QrCode")
 shipment = _register_object_type("Shipment")
 shipment_detail = _register_object_type("ShipmentDetail")
-transfer_agreement = _register_object_type("TransferAgreement")
 unboxed_items_collection = _register_object_type("UnboxedItemsCollection")
 
 object_types = tuple(_object_types)

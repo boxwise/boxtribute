@@ -8,18 +8,7 @@ from boxtribute_server.models.definitions.distribution_event_tracking_log_entry 
 )
 from flask import g
 
-from ..authz import (
-    agreement_organisation_filter_condition,
-    authorize,
-    authorized_bases_filter,
-)
-from ..box_transfer.agreement import (
-    accept_transfer_agreement,
-    cancel_transfer_agreement,
-    create_transfer_agreement,
-    reject_transfer_agreement,
-    retrieve_transfer_agreement_bases,
-)
+from ..authz import authorize, authorized_bases_filter
 from ..box_transfer.shipment import (
     cancel_shipment,
     create_shipment,
@@ -45,7 +34,6 @@ from ..mobile_distribution.crud import (
     update_packing_list_entry,
 )
 from ..models.crud import create_box, create_qr_code, get_box_history, update_box
-from ..models.definitions.base import Base
 from ..models.definitions.box import Box
 from ..models.definitions.distribution_event import DistributionEvent
 from ..models.definitions.distribution_events_tracking_group import (
@@ -72,7 +60,6 @@ from .bindables import (
     qr_code,
     shipment,
     shipment_detail,
-    transfer_agreement,
     unboxed_items_collection,
 )
 from .filtering import derive_box_filter
@@ -238,16 +225,6 @@ def resolve_box_location(obj, _):
     return obj.location
 
 
-@query.field("transferAgreement")
-def resolve_transfer_agreement(*_, id):
-    agreement = TransferAgreement.get_by_id(id)
-    bases = retrieve_transfer_agreement_bases(
-        transfer_agreement=agreement, kind="source"
-    ) + retrieve_transfer_agreement_bases(transfer_agreement=agreement, kind="target")
-    authorize(permission="transfer_agreement:read", base_ids=[b.id for b in bases])
-    return agreement
-
-
 @query.field("shipment")
 def resolve_shipment(*_, id):
     shipment = Shipment.get_by_id(id)
@@ -272,15 +249,6 @@ def resolve_products(*_, pagination_input=None):
         Product,
         authorized_bases_filter(Product),
         pagination_input=pagination_input,
-    )
-
-
-@query.field("transferAgreements")
-def resolve_transfer_agreements(*_, states=None):
-    # No state filter by default
-    state_filter = TransferAgreement.state << states if states else True
-    return TransferAgreement.select().where(
-        agreement_organisation_filter_condition() & (state_filter)
     )
 
 
@@ -607,66 +575,6 @@ def resolve_update_box(*_, update_input):
     return update_box(user_id=g.user.id, **update_input)
 
 
-@mutation.field("createTransferAgreement")
-@convert_kwargs_to_snake_case
-def resolve_create_transfer_agreement(*_, creation_input):
-    # Enforce that the user can access at least one of the specified source bases
-    # (default: all bases of the user's organisation)
-    base_ids = creation_input.get(
-        "source_base_ids",
-        [
-            b.id
-            for b in Base.select().where(Base.organisation == g.user.organisation_id)
-        ],
-    )
-    authorize(permission="transfer_agreement:create", base_ids=base_ids)
-    return create_transfer_agreement(**creation_input, user=g.user)
-
-
-@mutation.field("acceptTransferAgreement")
-def resolve_accept_transfer_agreement(*_, id):
-    # User must be member of at least one of the target bases to be authorized for
-    # accepting the agreement
-    agreement = TransferAgreement.get_by_id(id)
-    bases = retrieve_transfer_agreement_bases(
-        transfer_agreement=agreement, kind="target"
-    )
-    authorize(permission="transfer_agreement:edit", base_ids=[b.id for b in bases])
-    authorize(organisation_id=agreement.target_organisation_id)
-    return accept_transfer_agreement(id=id, user=g.user)
-
-
-@mutation.field("rejectTransferAgreement")
-def resolve_reject_transfer_agreement(*_, id):
-    # User must be member of at least one of the target bases to be authorized for
-    # rejecting the agreement
-    agreement = TransferAgreement.get_by_id(id)
-    bases = retrieve_transfer_agreement_bases(
-        transfer_agreement=agreement, kind="target"
-    )
-    authorize(permission="transfer_agreement:edit", base_ids=[b.id for b in bases])
-    authorize(organisation_id=agreement.target_organisation_id)
-    return reject_transfer_agreement(id=id, user=g.user)
-
-
-@mutation.field("cancelTransferAgreement")
-def resolve_cancel_transfer_agreement(*_, id):
-    # User must be member of at least one of the source or target bases to be authorized
-    # for cancelling the agreement
-    agreement = TransferAgreement.get_by_id(id)
-    bases = retrieve_transfer_agreement_bases(
-        transfer_agreement=agreement, kind="target"
-    ) + retrieve_transfer_agreement_bases(transfer_agreement=agreement, kind="source")
-    authorize(permission="transfer_agreement:edit", base_ids=[b.id for b in bases])
-    authorize(
-        organisation_ids=[
-            agreement.source_organisation_id,
-            agreement.target_organisation_id,
-        ]
-    )
-    return cancel_transfer_agreement(id=id, user_id=g.user.id)
-
-
 @mutation.field("createShipment")
 @convert_kwargs_to_snake_case
 def resolve_create_shipment(*_, creation_input):
@@ -950,40 +858,3 @@ def resolve_shipment_detail_target_location(detail_obj, _):
         ],
     )
     return detail_obj.target_location
-
-
-@transfer_agreement.field("sourceBases")
-def resolve_transfer_agreement_source_bases(transfer_agreement_obj, _):
-    source_bases = retrieve_transfer_agreement_bases(
-        transfer_agreement=transfer_agreement_obj, kind="source"
-    )
-    target_bases = retrieve_transfer_agreement_bases(
-        transfer_agreement=transfer_agreement_obj, kind="target"
-    )
-    authorize(
-        permission="base:read", base_ids=[b.id for b in source_bases + target_bases]
-    )
-    return source_bases
-
-
-@transfer_agreement.field("targetBases")
-def resolve_transfer_agreement_target_bases(transfer_agreement_obj, _):
-    source_bases = retrieve_transfer_agreement_bases(
-        transfer_agreement=transfer_agreement_obj, kind="source"
-    )
-    target_bases = retrieve_transfer_agreement_bases(
-        transfer_agreement=transfer_agreement_obj, kind="target"
-    )
-    authorize(
-        permission="base:read", base_ids=[b.id for b in source_bases + target_bases]
-    )
-    return target_bases
-
-
-@transfer_agreement.field("shipments")
-def resolve_transfer_agreement_shipments(transfer_agreement_obj, _):
-    return Shipment.select().where(
-        Shipment.transfer_agreement == transfer_agreement_obj.id,
-        authorized_bases_filter(Shipment, base_fk_field_name="source_base")
-        | authorized_bases_filter(Shipment, base_fk_field_name="target_base"),
-    )
