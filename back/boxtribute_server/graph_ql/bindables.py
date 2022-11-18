@@ -9,6 +9,9 @@ from ..beneficiary.queries import query as beneficiary_query
 from ..box_transfer.agreement.fields import transfer_agreement
 from ..box_transfer.agreement.mutations import mutation as transfer_agreement_mutation
 from ..box_transfer.agreement.queries import query as transfer_agreement_query
+from ..box_transfer.shipment.fields import shipment, shipment_detail
+from ..box_transfer.shipment.mutations import mutation as shipment_mutation
+from ..box_transfer.shipment.queries import query as shipment_query
 from ..core.base.fields import base
 from ..core.base.queries import query as base_query
 from ..core.organisation.fields import organisation
@@ -33,12 +36,18 @@ query_types = (
     transfer_agreement_query,
     organisation_query,
     product_category_query,
+    shipment_query,
     tag_query,
     user_query,
 )
 
 # Container for MutationTypes
-mutation_types = (beneficiary_mutation, tag_mutation, transfer_agreement_mutation)
+mutation_types = (
+    beneficiary_mutation,
+    shipment_mutation,
+    tag_mutation,
+    transfer_agreement_mutation,
+)
 
 # Container for ObjectTypes (public as immutable tuple)
 _object_types = [
@@ -47,6 +56,8 @@ _object_types = [
     metrics,
     organisation,
     product_category,
+    shipment,
+    shipment_detail,
     size_range,
     tag,
     transfer_agreement,
@@ -71,8 +82,6 @@ classic_location = _register_object_type("ClassicLocation")
 packing_list_entry = _register_object_type("PackingListEntry")
 product = _register_object_type("Product")
 qr_code = _register_object_type("QrCode")
-shipment = _register_object_type("Shipment")
-shipment_detail = _register_object_type("ShipmentDetail")
 unboxed_items_collection = _register_object_type("UnboxedItemsCollection")
 
 object_types = tuple(_object_types)

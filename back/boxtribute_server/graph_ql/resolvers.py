@@ -9,13 +9,7 @@ from boxtribute_server.models.definitions.distribution_event_tracking_log_entry 
 from flask import g
 
 from ..authz import authorize, authorized_bases_filter
-from ..box_transfer.shipment import (
-    cancel_shipment,
-    create_shipment,
-    send_shipment,
-    update_shipment,
-)
-from ..enums import LocationType, TransferAgreementType
+from ..enums import LocationType
 from ..mobile_distribution.crud import (
     add_packing_list_entry_to_distribution_event,
     assign_box_to_distribution_event,
@@ -43,10 +37,7 @@ from ..models.definitions.location import Location
 from ..models.definitions.packing_list_entry import PackingListEntry
 from ..models.definitions.product import Product
 from ..models.definitions.qr_code import QrCode
-from ..models.definitions.shipment import Shipment
-from ..models.definitions.shipment_detail import ShipmentDetail
 from ..models.definitions.tag import Tag
-from ..models.definitions.transfer_agreement import TransferAgreement
 from ..models.definitions.unboxed_items_collection import UnboxedItemsCollection
 from .bindables import (
     beneficiary,
@@ -58,8 +49,6 @@ from .bindables import (
     packing_list_entry,
     product,
     qr_code,
-    shipment,
-    shipment_detail,
     unboxed_items_collection,
 )
 from .filtering import derive_box_filter
@@ -225,16 +214,6 @@ def resolve_box_location(obj, _):
     return obj.location
 
 
-@query.field("shipment")
-def resolve_shipment(*_, id):
-    shipment = Shipment.get_by_id(id)
-    authorize(
-        permission="shipment:read",
-        base_ids=[shipment.source_base_id, shipment.target_base_id],
-    )
-    return shipment
-
-
 @query.field("locations")
 def resolve_locations(*_):
     return Location.select().where(
@@ -249,14 +228,6 @@ def resolve_products(*_, pagination_input=None):
         Product,
         authorized_bases_filter(Product),
         pagination_input=pagination_input,
-    )
-
-
-@query.field("shipments")
-def resolve_shipments(*_):
-    return Shipment.select().orwhere(
-        authorized_bases_filter(Shipment, base_fk_field_name="source_base"),
-        authorized_bases_filter(Shipment, base_fk_field_name="target_base"),
     )
 
 
@@ -575,81 +546,6 @@ def resolve_update_box(*_, update_input):
     return update_box(user_id=g.user.id, **update_input)
 
 
-@mutation.field("createShipment")
-@convert_kwargs_to_snake_case
-def resolve_create_shipment(*_, creation_input):
-    authorize(
-        permission="shipment:create",
-        base_ids=[creation_input["source_base_id"], creation_input["target_base_id"]],
-    )
-    agreement = TransferAgreement.get_by_id(creation_input["transfer_agreement_id"])
-    organisation_ids = [agreement.source_organisation_id]
-    if agreement.type == TransferAgreementType.Bidirectional:
-        organisation_ids.append(agreement.target_organisation_id)
-    authorize(organisation_ids=organisation_ids)
-    return create_shipment(**creation_input, user=g.user)
-
-
-@mutation.field("updateShipment")
-@convert_kwargs_to_snake_case
-def resolve_update_shipment(*_, update_input):
-    shipment = Shipment.get_by_id(update_input["id"])
-    authorize(
-        permission="shipment:edit",
-        base_ids=[shipment.source_base_id, shipment.target_base_id],
-    )
-
-    source_update_fields = [
-        "prepared_box_label_identifiers",
-        "removed_box_label_identifiers",
-        "target_base_id",
-    ]
-    target_update_fields = [
-        "received_shipment_detail_update_inputs",
-        "lost_box_label_identifiers",
-    ]
-    organisation_id = None
-    if any([update_input.get(f) is not None for f in source_update_fields]):
-        # User must be member of organisation that created the shipment
-        organisation_id = shipment.source_base.organisation_id
-    elif any([update_input.get(f) is not None for f in target_update_fields]):
-        # User must be member of organisation that is supposed to receive the shipment
-        organisation_id = shipment.target_base.organisation_id
-
-    if organisation_id is None:
-        return shipment  # no update arguments provided
-    authorize(organisation_id=organisation_id)
-
-    return update_shipment(**update_input, user=g.user)
-
-
-@mutation.field("cancelShipment")
-def resolve_cancel_shipment(*_, id):
-    shipment = Shipment.get_by_id(id)
-    authorize(
-        permission="shipment:edit",
-        base_ids=[shipment.source_base_id, shipment.target_base_id],
-    )
-    authorize(
-        organisation_ids=[
-            shipment.transfer_agreement.source_organisation_id,
-            shipment.transfer_agreement.target_organisation_id,
-        ]
-    )
-    return cancel_shipment(id=id, user=g.user)
-
-
-@mutation.field("sendShipment")
-def resolve_send_shipment(*_, id):
-    shipment = Shipment.get_by_id(id)
-    authorize(
-        permission="shipment:edit",
-        base_ids=[shipment.source_base_id, shipment.target_base_id],
-    )
-    authorize(organisation_id=shipment.source_base.organisation_id)
-    return send_shipment(id=id, user=g.user)
-
-
 @query.field("distributionEventsTrackingGroup")
 def resolve_distribution_events_tracking_group(*_, id):
     mobile_distro_feature_flag_check(user_id=g.user.id)
@@ -784,77 +680,3 @@ def resolve_qr_code_box(qr_code_obj, _):
     box = Box.select().join(Location).where(Box.qr_code == qr_code_obj.id).get()
     authorize(permission="stock:read", base_id=box.location.base_id)
     return box
-
-
-@shipment.field("details")
-def resolve_shipment_details(shipment_obj, _):
-    return ShipmentDetail.select().where(
-        (ShipmentDetail.shipment == shipment_obj.id)
-        & (ShipmentDetail.deleted_on.is_null())
-    )
-
-
-@shipment.field("sourceBase")
-def resolve_shipment_source_base(shipment_obj, _):
-    authorize(
-        permission="base:read",
-        base_ids=[shipment_obj.source_base_id, shipment_obj.target_base_id],
-    )
-    return shipment_obj.source_base
-
-
-@shipment.field("targetBase")
-def resolve_shipment_target_base(shipment_obj, _):
-    authorize(
-        permission="base:read",
-        base_ids=[shipment_obj.source_base_id, shipment_obj.target_base_id],
-    )
-    return shipment_obj.target_base
-
-
-@shipment_detail.field("sourceProduct")
-def resolve_shipment_detail_source_product(detail_obj, _):
-    authorize(
-        permission="product:read",
-        base_ids=[
-            detail_obj.shipment.source_base_id,
-            detail_obj.shipment.target_base_id,
-        ],
-    )
-    return detail_obj.source_product
-
-
-@shipment_detail.field("targetProduct")
-def resolve_shipment_detail_target_product(detail_obj, _):
-    authorize(
-        permission="product:read",
-        base_ids=[
-            detail_obj.shipment.source_base_id,
-            detail_obj.shipment.target_base_id,
-        ],
-    )
-    return detail_obj.target_product
-
-
-@shipment_detail.field("sourceLocation")
-def resolve_shipment_detail_source_location(detail_obj, _):
-    authorize(
-        permission="location:read",
-        base_ids=[
-            detail_obj.shipment.source_base_id,
-            detail_obj.shipment.target_base_id,
-        ],
-    )
-    return detail_obj.source_location
-
-
-@shipment_detail.field("targetLocation")
-def resolve_shipment_detail_target_location(detail_obj, _):
-    authorize(
-        permission="location:read",
-        base_ids=[
-            detail_obj.shipment.source_base_id,
-            detail_obj.shipment.target_base_id,
-        ],
-    )
-    return detail_obj.target_location
