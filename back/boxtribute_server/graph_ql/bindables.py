@@ -6,6 +6,7 @@ from ariadne import InterfaceType, ObjectType, UnionType
 from ..beneficiary.fields import beneficiary
 from ..beneficiary.mutations import mutation as beneficiary_mutation
 from ..beneficiary.queries import query as beneficiary_query
+from ..core.size_range.fields import size_range
 from ..metrics.fields import metrics
 from ..metrics.queries import query as metrics_query
 from ..models.definitions.box import Box
@@ -19,7 +20,7 @@ query_types = (beneficiary_query, metrics_query, user_query)
 mutation_types = (beneficiary_mutation,)
 
 # Container for ObjectTypes (public as immutable tuple)
-_object_types = [beneficiary, metrics, user]
+_object_types = [beneficiary, metrics, size_range, user]
 
 
 def _register_object_type(name):
@@ -44,7 +45,6 @@ product_category = _register_object_type("ProductCategory")
 qr_code = _register_object_type("QrCode")
 shipment = _register_object_type("Shipment")
 shipment_detail = _register_object_type("ShipmentDetail")
-size_range = _register_object_type("SizeRange")
 tag = _register_object_type("Tag")
 transfer_agreement = _register_object_type("TransferAgreement")
 unboxed_items_collection = _register_object_type("UnboxedItemsCollection")

@@ -96,7 +96,6 @@ from .bindables import (
     qr_code,
     shipment,
     shipment_detail,
-    size_range,
     tag,
     transfer_agreement,
     unboxed_items_collection,
@@ -1288,11 +1287,6 @@ def resolve_shipment_detail_target_location(detail_obj, _):
         ],
     )
     return detail_obj.target_location
-
-
-@size_range.field("sizes")
-def resolve_size_range_sizes(size_range_obj, info):
-    return info.context["sizes_for_size_range_loader"].load(size_range_obj.id)
 
 
 @transfer_agreement.field("sourceBases")
