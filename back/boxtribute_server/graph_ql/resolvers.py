@@ -87,7 +87,6 @@ from ..models.definitions.tags_relation import TagsRelation
 from ..models.definitions.transaction import Transaction
 from ..models.definitions.transfer_agreement import TransferAgreement
 from ..models.definitions.unboxed_items_collection import UnboxedItemsCollection
-from ..models.definitions.user import User
 from ..models.definitions.x_beneficiary_language import XBeneficiaryLanguage
 from ..models.metrics import (
     compute_moved_stock_overview,
@@ -116,7 +115,6 @@ from .bindables import (
     tag,
     transfer_agreement,
     unboxed_items_collection,
-    user,
 )
 from .filtering import derive_beneficiary_filter, derive_box_filter
 from .pagination import load_into_page
@@ -182,7 +180,6 @@ def resolve_packing_list_entry_matching_packed_items_collections(obj, *_):
     return list(boxes) + list(unboxed_items_colletions)
 
 
-@user.field("bases")
 @query.field("bases")
 def resolve_bases(*_):
     return Base.select().where(authorized_bases_filter())
@@ -253,20 +250,6 @@ def resolve_distributions_events_for_base(base_obj, _, states=None):
         )
     )
     return distribution_events
-
-
-@query.field("users")
-def resolve_users(*_):
-    authorize(permission="user:read")
-    # Disable for non-god users until integration of Auth0 implemented
-    return User.select() if g.user.is_god else []
-
-
-@query.field("user")
-def resolve_user(*_, id):
-    authorize(permission="user:read")
-    authorize(user_id=int(id))
-    return User.get_by_id(id)
 
 
 @query.field("qrExists")
@@ -1511,14 +1494,3 @@ def resolve_transfer_agreement_shipments(transfer_agreement_obj, _):
         authorized_bases_filter(Shipment, base_fk_field_name="source_base")
         | authorized_bases_filter(Shipment, base_fk_field_name="target_base"),
     )
-
-
-@user.field("email")
-def resolve_user_email(user_obj, _):
-    authorize(user_id=user_obj.id)
-    return user_obj.email
-
-
-@user.field("organisation")
-def resolve_user_organisation(*_):
-    return Organisation.get_by_id(g.user.organisation_id)

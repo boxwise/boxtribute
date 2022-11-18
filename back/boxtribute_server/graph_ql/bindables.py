@@ -4,15 +4,17 @@ values to the GraphQL schema).
 from ariadne import InterfaceType, ObjectType, UnionType
 
 from ..models.definitions.box import Box
+from ..user.fields import user
+from ..user.queries import query as user_query
 
 # Container for QueryTypes
-query_types = tuple()
+query_types = (user_query,)
 
 # Container for MutationTypes
 mutation_types = tuple()
 
 # Container for ObjectTypes (public as immutable tuple)
-_object_types = []
+_object_types = [user]
 
 
 def _register_object_type(name):
@@ -43,7 +45,6 @@ size_range = _register_object_type("SizeRange")
 tag = _register_object_type("Tag")
 transfer_agreement = _register_object_type("TransferAgreement")
 unboxed_items_collection = _register_object_type("UnboxedItemsCollection")
-user = _register_object_type("User")
 
 object_types = tuple(_object_types)
 
