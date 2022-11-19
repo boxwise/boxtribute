@@ -72,6 +72,7 @@ if (sentryDsn) {
     // We recommend adjusting this value in production
     tracesSampleRate: 1.0,
     // the 'environment' option is read from the SENTRY_ENVIRONMENT env variable
+    environment: "staging",
   });
 }
 
