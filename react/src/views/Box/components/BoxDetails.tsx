@@ -38,8 +38,7 @@ interface IBoxDetailsProps {
   onMoveToLocationClick: (locationId: string) => void;
   onPlusOpen: () => void;
   onMinusOpen: () => void;
-  onScrap: () => void;
-  onLost: () => void;
+  onStateChange: (boxState: BoxState) => void;
   onAssignBoxToDistributionEventClick: (distributionEventId: string) => void;
   onUnassignBoxFromDistributionEventClick: (distributionEventId: string) => void;
 }
@@ -51,8 +50,7 @@ function BoxDetails({
   onUnassignBoxFromDistributionEventClick,
   onPlusOpen,
   onMinusOpen,
-  onScrap,
-  onLost,
+  onStateChange,
 }: IBoxDetailsProps) {
   const statusColor = (value) => {
     let color;
@@ -194,7 +192,7 @@ function BoxDetails({
                 </Flex>
               </ListItem>
             )}
-            {boxData?.comment !== "" && (
+            {boxData?.comment !== "" && boxData?.comment !== null && (
               <ListItem>
                 <Flex direction="row">
                   <Text fontWeight="bold">
@@ -221,7 +219,14 @@ function BoxDetails({
                 isChecked={boxData.state === BoxState.Scrap}
                 data-testid="box-scrap-btn"
                 isFocusable={false}
-                onChange={onScrap}
+                onChange={() =>
+                  onStateChange(
+                    // If the current box state 'Scrap' is toggled, set the defaultBoxState of the box location
+                    boxData.state === BoxState.Scrap
+                      ? (boxData?.location as any)?.defaultBoxState
+                      : BoxState.Scrap,
+                  )
+                }
                 mr={2}
               />
             </Flex>
@@ -232,7 +237,14 @@ function BoxDetails({
                 id="lost"
                 isFocusable={false}
                 data-testid="box-lost-btn"
-                onChange={onLost}
+                onChange={() =>
+                  onStateChange(
+                    // If the current box state 'Lost' is toggled, set the defaultBoxState of the box location
+                    boxData.state === BoxState.Lost
+                      ? (boxData?.location as any)?.defaultBoxState
+                      : BoxState.Lost,
+                  )
+                }
                 mr={2}
                 isChecked={boxData.state === BoxState.Lost}
               />

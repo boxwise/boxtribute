@@ -406,9 +406,9 @@ def resolve_locations(*_):
 
 @base.field("products")
 @convert_kwargs_to_snake_case
-def resolve_products_for_base(obj, *_):
-    authorize(permission="product:read", base_id=obj.id)
-    return Product.select().where(Product.base == obj.id)
+def resolve_base_products(base_obj, *_):
+    authorize(permission="product:read", base_id=base_obj.id)
+    return Product.select().where(Product.base == base_obj.id)
 
 
 @query.field("products")
@@ -1107,6 +1107,12 @@ def resolve_base_locations(base_obj, _):
     return Location.select().where(
         (Location.base == base_obj.id) & (Location.type == LocationType.ClassicLocation)
     )
+
+
+@base.field("tags")
+def resolve_base_tags(base_obj, _):
+    authorize(permission="tag:read", base_id=base_obj.id)
+    return Tag.select().where(Tag.base == base_obj.id, Tag.deleted.is_null())
 
 
 @query.field("distributionEventsTrackingGroup")

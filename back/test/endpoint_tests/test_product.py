@@ -33,7 +33,7 @@ def test_product_query(read_only_client, default_product, default_size, another_
     }
 
 
-def test_products_query(read_only_client, default_product):
+def test_products_query(read_only_client, base1_products):
     query = """query { products { elements { name } } }"""
-    queried_product = assert_successful_request(read_only_client, query)["elements"][0]
-    assert queried_product["name"] == default_product["name"]
+    products = assert_successful_request(read_only_client, query)["elements"]
+    assert products == [{"name": p["name"]} for p in base1_products]
