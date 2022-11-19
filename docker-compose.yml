@@ -1,78 +1,79 @@
 version: "3.6"
 services:
-    webapp:
-        build:
-            context: ./back
-            args:
-                env: ${ENVIRONMENT:-development}
-        ports:
-            - 5005:5005
-            # request localhost:5001 to run debugger in vscode (cf. README)
-            - 5001:5001
-        networks:
-            - backend
-        volumes:
-            - ./back:/app/back
-        environment:
-            PYTHONUNBUFFERED: 1
-            AUTH0_DOMAIN: ${AUTH0_DOMAIN:?auth0 config not set in .env file}
-            AUTH0_AUDIENCE: ${AUTH0_AUDIENCE:?auth0 config not set in .env file}
-            AUTH0_CLIENT_ID: ${TEST_AUTH0_CLIENT_ID}
-            AUTH0_CLIENT_SECRET: ${TEST_AUTH0_CLIENT_SECRET}
-            TEST_AUTH0_CLIENT_ID: ${TEST_AUTH0_CLIENT_ID}
-            TEST_AUTH0_CLIENT_SECRET: ${TEST_AUTH0_CLIENT_SECRET}
-            AUTH0_JWKS_KID: ${AUTH0_JWKS_KID:-}
-            AUTH0_JWKS_N: ${AUTH0_JWKS_N:-}
-            MYSQL_HOST: db
-            MYSQL_USER: root
-            MYSQL_PASSWORD: dropapp_root
-            MYSQL_DB: dropapp_dev
-            MYSQL_PORT: 3306
-            ENVIRONMENT: ${ENVIRONMENT:-development}
-    react:
-        build:
-            context: ./react
-        environment:
-            NODE_ENV: development
-            REACT_APP_SENTRY_ENVIRONMENT: ${SENTRY_ENVIRONMENT:-development}
-            REACT_APP_SENTRY_FE_DSN: ${SENTRY_FE_DSN:-}
-            REACT_APP_AUTH0_DOMAIN: ${AUTH0_DOMAIN:?auth0 config not set in .env file}
-            REACT_APP_AUTH0_CLIENT_ID: ${AUTH0_CLIENT_ID:?auth0 config not set in .env file}
-            REACT_APP_AUTH0_AUDIENCE:  ${AUTH0_AUDIENCE:?auth0 config not set in .env file}
-            REACT_APP_REDIRECT: http://localhost:3000
-            REACT_APP_LOGOUT_URL: http://localhost:3000
-            REACT_APP_GRAPHQL_SERVER: http://localhost:5005/graphql
-        ports:
-            - "3000:3000"
-        stdin_open: true
-        volumes:
-            - ./react:/app/react
-            - ./back:/app/back
-            # bind-mounting these two files in will let you add packages during development without rebuilding
-            # for example, to add XYZ to your app while developing, just install it inside the container
-            # and then nodemon will restart. Your changes will last until you "docker-compose down" and will
-            # be saved on host for next build
-            # docker-compose exec react yarn add XYZ
-            - ./react/package.json:/app/react/package.json
-            - ./react/yarn.lock:/app/react/yarn.lock
-            # this is a workaround to prevent host node_modules from accidently getting mounted in container
-            # in case you want to use node/npm both outside container for test/lint etc.
-            - /app/react/node_modules
-    db:
-        image: mysql/mysql-server:8.0 # We run MySQL 8.0 on the production environment atm
-        command: --default-authentication-plugin=mysql_native_password --lower_case_table_names=1 --character-set-server=utf8mb4 --collation-server=utf8mb4_0900_ai_ci
-        environment:
-            MYSQL_ROOT_PASSWORD: dropapp_root
-            MYSQL_ROOT_HOST: "%"
-            MYSQL_DATABASE: dropapp_dev
-        volumes:
-            - ./back/init.sql:/docker-entrypoint-initdb.d/init.sql
-        ports:
-            # <Port exposed> : < MySQL Port running inside container>
-            - 32000:3306
-        networks:
-            - backend
+  webapp:
+    build:
+      context: ./back
+      args:
+        env: ${ENVIRONMENT:-development}
+    ports:
+      - 5005:5005
+      # request localhost:5001 to run debugger in vscode (cf. README)
+      - 5001:5001
+    networks:
+      - backend
+    volumes:
+      - ./back:/app/back
+    environment:
+      PYTHONUNBUFFERED: 1
+      AUTH0_DOMAIN: ${AUTH0_DOMAIN:?auth0 config not set in .env file}
+      AUTH0_AUDIENCE: ${AUTH0_AUDIENCE:?auth0 config not set in .env file}
+      AUTH0_CLIENT_ID: ${TEST_AUTH0_CLIENT_ID}
+      AUTH0_CLIENT_SECRET: ${TEST_AUTH0_CLIENT_SECRET}
+      TEST_AUTH0_CLIENT_ID: ${TEST_AUTH0_CLIENT_ID}
+      TEST_AUTH0_CLIENT_SECRET: ${TEST_AUTH0_CLIENT_SECRET}
+      AUTH0_JWKS_KID: ${AUTH0_JWKS_KID:-}
+      AUTH0_JWKS_N: ${AUTH0_JWKS_N:-}
+      MYSQL_HOST: db
+      MYSQL_USER: root
+      MYSQL_PASSWORD: dropapp_root
+      MYSQL_DB: dropapp_dev
+      MYSQL_PORT: 3306
+      ENVIRONMENT: ${ENVIRONMENT:-development}
+  react:
+    build:
+      context: ./react
+    environment:
+      NODE_ENV: development
+      REACT_APP_SENTRY_ENVIRONMENT: ${SENTRY_ENVIRONMENT:-development}
+      REACT_APP_SENTRY_FE_DSN: ${SENTRY_FE_DSN:-}
+      REACT_APP_AUTH0_DOMAIN: ${AUTH0_DOMAIN:?auth0 config not set in .env file}
+      REACT_APP_AUTH0_CLIENT_ID: ${AUTH0_CLIENT_ID:?auth0 config not set in .env file}
+      REACT_APP_AUTH0_AUDIENCE: ${AUTH0_AUDIENCE:?auth0 config not set in .env file}
+      REACT_APP_REDIRECT: http://localhost:3000
+      REACT_APP_LOGOUT_URL: http://localhost:3000
+      REACT_APP_GRAPHQL_SERVER: http://localhost:5005/graphql
+      REACT_APP_OLD_APP_BASE_URL: https://staging.boxtribute.org
+    ports:
+      - "3000:3000"
+    stdin_open: true
+    volumes:
+      - ./react:/app/react
+      - ./back:/app/back
+      # bind-mounting these two files in will let you add packages during development without rebuilding
+      # for example, to add XYZ to your app while developing, just install it inside the container
+      # and then nodemon will restart. Your changes will last until you "docker-compose down" and will
+      # be saved on host for next build
+      # docker-compose exec react yarn add XYZ
+      - ./react/package.json:/app/react/package.json
+      - ./react/yarn.lock:/app/react/yarn.lock
+      # this is a workaround to prevent host node_modules from accidently getting mounted in container
+      # in case you want to use node/npm both outside container for test/lint etc.
+      - /app/react/node_modules
+  db:
+    image: mysql/mysql-server:8.0 # We run MySQL 8.0 on the production environment atm
+    command: --default-authentication-plugin=mysql_native_password --lower_case_table_names=1 --character-set-server=utf8mb4 --collation-server=utf8mb4_0900_ai_ci
+    environment:
+      MYSQL_ROOT_PASSWORD: dropapp_root
+      MYSQL_ROOT_HOST: "%"
+      MYSQL_DATABASE: dropapp_dev
+    volumes:
+      - ./back/init.sql:/docker-entrypoint-initdb.d/init.sql
+    ports:
+      # <Port exposed> : < MySQL Port running inside container>
+      - 32000:3306
+    networks:
+      - backend
 
 networks:
-    backend:
-        driver: bridge
+  backend:
+    driver: bridge

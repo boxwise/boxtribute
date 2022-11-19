@@ -13,12 +13,13 @@ import {
   Divider,
 } from "@chakra-ui/react";
 import { useState } from "react";
-import { AiFillCloseCircle, AiOutlineMenu, AiOutlineQrcode } from "react-icons/ai";
+import { AiFillCloseCircle, AiFillWindows, AiOutlineMenu, AiOutlineQrcode } from "react-icons/ai";
 import { Link, NavLink } from "react-router-dom";
 import {
   BaseSwitcherProps,
   HeaderMenuProps,
   LoginOrUserMenuButtonProps,
+  MenuItemData,
   MenuItemsGroupProps,
   MenuItemsGroupsProps,
 } from "./HeaderMenu";
@@ -88,15 +89,15 @@ const LoginOrUserMenuButtonMobile = ({
 
       <Collapse in={isOpen} animateOpacity style={{ marginTop: "10px" }}>
         <Stack pl={4} borderLeft={1} borderStyle={"solid"} align={"start"}>
-          <BaseSwitcher
+          {/* <BaseSwitcher
             currentActiveBaseId={currentActiveBaseId}
             availableBases={availableBases}
             setIsMenuOpen={setIsMenuOpen}
-          />
+          /> */}
           <Divider orientation="horizontal" />
-          <Box py={1} px={4}>
+          {/* <Box py={1} px={4}>
             Profile
-          </Box>
+          </Box> */}
           <Box py={1} px={4} onClick={() => logout()}>
             Logout
           </Box>
@@ -171,6 +172,30 @@ const MenuItemsGroupMobile = ({
 }: MenuItemsGroupProps & { setIsMenuOpen: (isOpen: boolean) => void }) => {
   const { isOpen, onToggle } = useDisclosure();
 
+  function renderLinkBoxes(link: MenuItemData, i: number) {
+    function redirectToOldApp() {
+      window.open(`${process.env.REACT_APP_OLD_APP_BASE_URL}`, "_blank");
+    }
+
+    if (link.link.includes(`${process.env.REACT_APP_OLD_APP_BASE_URL}`)) {
+      return (
+        <Box key={i} py={1} px={4} onClick={() => setIsMenuOpen(false)}>
+          <Text key={link.name} cursor="pointer" onClick={() => redirectToOldApp()}>
+            {link.name}
+          </Text>
+        </Box>
+      );
+    } else {
+      return (
+        <Box key={i} py={1} px={4} onClick={() => setIsMenuOpen(false)}>
+          <Link key={link.name} to={link.link}>
+            {link.name}
+          </Link>
+        </Box>
+      );
+    }
+  }
+
   return (
     <Stack spacing={4} onClick={onToggle}>
       <Flex
@@ -198,13 +223,7 @@ const MenuItemsGroupMobile = ({
       </Flex>
       <Collapse in={isOpen} animateOpacity style={{ marginTop: "10px" }}>
         <Stack pl={4} borderLeft={1} borderStyle={"solid"} align={"start"}>
-          {links.map((link, i) => (
-            <Box key={i} py={1} px={4} onClick={() => setIsMenuOpen(false)}>
-              <Link key={link.name} to={link.link}>
-                {link.name}
-              </Link>
-            </Box>
-          ))}
+          {links.map((link, i) => renderLinkBoxes(link, i))}
         </Stack>
       </Collapse>
     </Stack>
