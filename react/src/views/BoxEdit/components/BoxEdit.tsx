@@ -199,7 +199,7 @@ function BoxEdit({
     notificationVar({
       title: "Error",
       type: "error",
-      message: "No data found for a box with this id",
+      message: `Error: There is no data found for box ${labelIdentifier}!`,
     });
     return <div />;
   }
@@ -208,7 +208,7 @@ function BoxEdit({
     notificationVar({
       title: "Error",
       type: "error",
-      message: "There was an error: the available products to choose from couldn&apos;t be loaded!",
+      message: "Error: The available products could not be loaded!",
     });
     return <div />;
   }

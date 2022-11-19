@@ -170,7 +170,7 @@ function BoxEditView() {
         notificationVar({
           title: `Box ${labelIdentifier}`,
           type: "error",
-          message: `Error while trying to update Box (code: ${error.code})`,
+          message: `Error - Code ${error.code}: Your changes could not be saved!`,
         });
       });
   };
@@ -198,7 +198,7 @@ function BoxEditView() {
     notificationVar({
       title: "Error",
       type: "error",
-      message: "No locations available to choose from",
+      message: "Error: No other locations are visible!",
     });
     return <div />;
   }
@@ -207,7 +207,7 @@ function BoxEditView() {
     notificationVar({
       title: "Error",
       type: "error",
-      message: "No products available to choose from for this Box",
+      message: "Error: No products are visible!",
     });
     return <div />;
   }

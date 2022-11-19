@@ -268,7 +268,7 @@ function BTBox() {
     notificationVar({
       title: "Error",
       type: "error",
-      message: "Could not update the box",
+      message: "Error: Could not update the box",
     });
     return <div />;
   }
@@ -288,7 +288,7 @@ function BTBox() {
           title: `Box ${labelIdentifier}`,
           type: res?.errors ? "error" : "success",
           message: res?.errors
-            ? "Error while trying to update the box state"
+            ? `Error: Could not update the box state to ${newState}`
             : `Successfully updated the box state to ${newState} `,
         });
       })
@@ -296,7 +296,7 @@ function BTBox() {
         notificationVar({
           title: `Box ${labelIdentifier}`,
           type: "error",
-          message: "Error while trying to update the box state",
+          message: `Error: Could not update the box state to ${newState}`,
         });
       });
   };
@@ -314,7 +314,7 @@ function BTBox() {
             title: `Box ${boxData.labelIdentifier}`,
             type: res.errors ? "error" : "success",
             message: res.errors
-              ? "Error while trying to change number of items in the box"
+              ? "Error: Could not remove items from the box"
               : `Successfully removed ${boxFormValues?.numberOfItems} items from box`,
           });
           onMinusClose();
@@ -323,7 +323,7 @@ function BTBox() {
           notificationVar({
             title: `Box ${boxData.labelIdentifier}`,
             type: "error",
-            message: "Error while trying to change number of items in the box",
+            message: "Error: Could not remove items from the box",
           });
         });
     }
@@ -346,7 +346,7 @@ function BTBox() {
             title: `Box ${boxData.labelIdentifier}`,
             type: res.errors ? "error" : "success",
             message: res.errors
-              ? "Error while trying to change number of items in the box"
+              ? "Error: Could not add items to the box"
               : `Successfully added ${boxFormValues?.numberOfItems} items to box`,
           });
           onPlusClose();
@@ -355,7 +355,7 @@ function BTBox() {
           notificationVar({
             title: `Box ${boxData.labelIdentifier}`,
             type: "error",
-            message: "Error while trying to change number of items in the box",
+            message: "Error: Could not add items to the box",
           });
         });
     }
@@ -373,14 +373,14 @@ function BTBox() {
         notificationVar({
           title: `Box ${labelIdentifier}`,
           type: res.errors ? "error" : "success",
-          message: res.errors ? "Error while trying to move the box" : "Successfully moved the box",
+          message: res.errors ? "Error: Box could not be moved!" : "Successfully moved the box",
         });
       })
       .catch(() => {
         notificationVar({
           title: `Box ${labelIdentifier}`,
           type: "error",
-          message: "Error while trying to move the box",
+          message: "Error: Box could not be moved!",
         });
       });
   };
