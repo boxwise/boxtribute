@@ -43,15 +43,6 @@ export const BOX_BY_LABEL_IDENTIFIER_AND_ALL_PRODUCTS_WITH_BASEID_QUERY = gql`
         }
         id
         name
-        base {
-          locations {
-            ... on ClassicLocation {
-              defaultBoxState
-            }
-            id
-            name
-          }
-        }
       }
     }
 
@@ -60,6 +51,14 @@ export const BOX_BY_LABEL_IDENTIFIER_AND_ALL_PRODUCTS_WITH_BASEID_QUERY = gql`
         value: id
         label: name
         color
+      }
+
+      locations {
+        ... on ClassicLocation {
+          defaultBoxState
+        }
+        id
+        name
       }
 
       products {
@@ -158,11 +157,8 @@ function BoxEditView() {
               (data?.base?.products.find((p) => p.id === boxEditFormData.productId.value) as any)
                 .name
             } (${boxEditFormData?.numberOfItems}x) in ${
-              (
-                data?.box?.location?.base?.locations.find(
-                  (l) => l.id === boxEditFormData.locationId.value,
-                ) as any
-              ).name
+              (data?.base?.locations.find((l) => l.id === boxEditFormData.locationId.value) as any)
+                .name
             }.`,
           });
           navigate(`/bases/${baseId}/boxes/${mutationResult.data?.updateBox?.labelIdentifier}`);
@@ -185,11 +181,8 @@ function BoxEditView() {
   const productAndSizesData = data?.base?.products;
   const allTags = data?.base?.tags || null;
 
-  // eslint-disable-next-line no-console
-  console.log(productAndSizesData);
-
   // These are all the locations that are retrieved from the query which then filtered out the Scrap and Lost according to the defaultBoxState
-  const allLocations = data?.box?.location?.base?.locations
+  const allLocations = data?.base?.locations
     .filter(
       (location) =>
         location?.defaultBoxState !== BoxState.Lost && location?.defaultBoxState !== BoxState.Scrap,
