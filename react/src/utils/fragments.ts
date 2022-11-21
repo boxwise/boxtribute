@@ -1,27 +1,23 @@
 import { gql } from "@apollo/client";
 
-export const PRODUCT_FIELDS_FRAGMENT = gql`
-  fragment ProductFields on Product {
+export const PRODUCT_BASIC_FIELDS_FRAGMENT = gql`
+  fragment ProductBasicFields on Product {
     id
     name
     gender
-    category {
-      name
-    }
-    sizeRange {
-      label
-      sizes {
-        id
-        label
-      }
-    }
   }
 `;
 
-export const PRODUCT_BASIC_FIELDS_FRAGMENT = gql`
-  fragment ProductBasicFields on Product {
-    name
-    gender
+export const BOX_FIELDS_FRAGMENT = gql`
+  fragment BoxFields on Box {
+    labelIdentifier
+    state
+    size {
+      id
+      label
+    }
+    numberOfItems
+    comment
   }
 `;
 
@@ -41,21 +37,21 @@ export const TAG_OPTIONS_FRAGMENT = gql`
   }
 `;
 
-export const LOCATION_FIELDS_FRAGMENT = gql`
-  fragment LocationFields on Location {
-    __typename
-    ... on ClassicLocation {
-      defaultBoxState
-    }
-    id
-    name
-  }
-`;
-
 export const SIZE_FIELDS_FRAGMENT = gql`
   fragment SizeFields on Size {
     id
     label
+  }
+`;
+
+export const SIZE_RANGE_FIELDS_FRAGMENT = gql`
+  ${SIZE_FIELDS_FRAGMENT}
+  fragment SizeRangeFields on SizeRange {
+    id
+    label
+    sizes {
+      ...SizeFields
+    }
   }
 `;
 
@@ -64,36 +60,51 @@ export const DISTRO_EVENT_FIELDS_FRAGMENT = gql`
     id
     state
     name
-    state
     distributionSpot {
       name
     }
     plannedStartDateTime
     plannedEndDateTime
-    state
   }
 `;
 
-export const BOX_FIELDS_FRAGMENT = gql`
-  fragment BoxFields on Box {
+export const PRODUCT_FIELDS_FRAGMENT = gql`
+  ${PRODUCT_BASIC_FIELDS_FRAGMENT}
+  ${SIZE_RANGE_FIELDS_FRAGMENT}
+  fragment ProductFields on Product {
+    ...ProductBasicFields
+    category {
+      name
+    }
+    sizeRange {
+      ...SizeRangeFields
+    }
+  }
+`;
+
+export const BOX_WITH_SIZE_TAG_PRODUCT_FIELDS_FRAGMENT = gql`
+  ${SIZE_FIELDS_FRAGMENT}
+  ${PRODUCT_BASIC_FIELDS_FRAGMENT}
+  ${TAG_FIELDS_FRAGMENT}
+  ${DISTRO_EVENT_FIELDS_FRAGMENT}
+  fragment BoxWithSizeTagProductFields on Box {
     labelIdentifier
     state
     size {
-      ${SIZE_FIELDS_FRAGMENT}
+      ...SizeFields
     }
     numberOfItems
     comment
     product {
-      ${PRODUCT_BASIC_FIELDS_FRAGMENT}
+      ...ProductBasicFields
     }
     tags {
-      ${TAG_FIELDS_FRAGMENT}
+      ...TagFields
     }
     distributionEvent {
-      ${DISTRO_EVENT_FIELDS_FRAGMENT}
+      ...DistroEventFields
     }
     location {
-      __typename
       id
       name
       ... on ClassicLocation {
@@ -101,7 +112,11 @@ export const BOX_FIELDS_FRAGMENT = gql`
       }
       base {
         locations {
-            ${LOCATION_FIELDS_FRAGMENT}
+          id
+          name
+          ... on ClassicLocation {
+            defaultBoxState
+          }
         }
         distributionEventsBeforeReturnedFromDistributionState {
           id

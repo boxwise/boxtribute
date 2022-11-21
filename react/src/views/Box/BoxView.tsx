@@ -22,6 +22,13 @@ import {
   PACKING_LIST_ENTRIES_FOR_DISTRIBUTION_EVENT_QUERY,
   UNASSIGN_BOX_FROM_DISTRIBUTION_MUTATION,
 } from "views/Distributions/queries";
+import {
+  BOX_FIELDS_FRAGMENT,
+  DISTRO_EVENT_FIELDS_FRAGMENT,
+  PRODUCT_BASIC_FIELDS_FRAGMENT,
+  PRODUCT_FIELDS_FRAGMENT,
+  TAG_FIELDS_FRAGMENT,
+} from "utils/fragments";
 import { notificationVar } from "../../components/NotificationMessage";
 import AddItemsToBoxOverlay from "./components/AddItemsToBoxOverlay";
 import TakeItemsFromBoxOverlay from "./components/TakeItemsFromBoxOverlay";
@@ -37,36 +44,21 @@ const refetchBoxByLabelIdentifierQueryConfig = (labelIdentifier: string) => ({
 // TODO: try to use reusable fragments
 // which can be reused both for the initial query as well as the mutation
 export const BOX_BY_LABEL_IDENTIFIER_QUERY = gql`
+  ${PRODUCT_BASIC_FIELDS_FRAGMENT}
+  ${BOX_FIELDS_FRAGMENT}
+  ${TAG_FIELDS_FRAGMENT}
+  ${DISTRO_EVENT_FIELDS_FRAGMENT}
   query BoxByLabelIdentifier($labelIdentifier: String!) {
     box(labelIdentifier: $labelIdentifier) {
-      labelIdentifier
-      state
-      size {
-        id
-        label
-      }
-      numberOfItems
-      comment
+      ...BoxFields
       product {
-        name
-        gender
+        ...ProductBasicFields
       }
       tags {
-        id
-        name
-        color
+        ...TagFields
       }
       distributionEvent {
-        id
-        state
-        name
-        state
-        distributionSpot {
-          name
-        }
-        plannedStartDateTime
-        plannedEndDateTime
-        state
+        ...DistroEventFields
       }
       location {
         __typename
@@ -118,46 +110,21 @@ export const UPDATE_STATE_IN_BOX_MUTATION = gql`
 `;
 
 export const UPDATE_BOX_MUTATION = gql`
+  ${BOX_FIELDS_FRAGMENT}
+  ${PRODUCT_FIELDS_FRAGMENT}
+  ${TAG_FIELDS_FRAGMENT}
+  ${DISTRO_EVENT_FIELDS_FRAGMENT}
   mutation UpdateLocationOfBox($boxLabelIdentifier: String!, $newLocationId: Int!) {
     updateBox(updateInput: { labelIdentifier: $boxLabelIdentifier, locationId: $newLocationId }) {
-      labelIdentifier
-      size {
-        id
-        label
-      }
-      state
-      numberOfItems
-      comment
+      ...BoxFields
       product {
-        name
-        gender
-        id
-        sizeRange {
-          sizes {
-            id
-            label
-          }
-        }
+        ...ProductFields
       }
       tags {
-        id
-        name
-      }
-      tags {
-        id
-        name
-        color
+        ...TagFields
       }
       distributionEvent {
-        id
-        name
-        state
-        distributionSpot {
-          name
-        }
-        plannedStartDateTime
-        plannedEndDateTime
-        state
+        ...DistroEventFields
       }
       location {
         __typename

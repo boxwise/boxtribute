@@ -8,34 +8,31 @@ import {
   UpdateContentOfBoxMutation,
   UpdateContentOfBoxMutationVariables,
 } from "types/generated/graphql";
+import {
+  PRODUCT_FIELDS_FRAGMENT,
+  SIZE_FIELDS_FRAGMENT,
+  TAG_OPTIONS_FRAGMENT,
+} from "utils/fragments";
 import { notificationVar } from "../../components/NotificationMessage";
 import BoxEdit, { IBoxEditFormData } from "./components/BoxEdit";
 
 export const BOX_BY_LABEL_IDENTIFIER_AND_ALL_PRODUCTS_WITH_BASEID_QUERY = gql`
+  ${TAG_OPTIONS_FRAGMENT}
+  ${PRODUCT_FIELDS_FRAGMENT}
+  ${SIZE_FIELDS_FRAGMENT}
   query BoxByLabelIdentifierAndAllProductsWithBaseId($baseId: ID!, $labelIdentifier: String!) {
     box(labelIdentifier: $labelIdentifier) {
       labelIdentifier
       size {
-        id
-        label
+        ...SizeFields
       }
       numberOfItems
       comment
       tags {
-        value: id
-        label: name
-        color
+        ...TagOptions
       }
       product {
-        id
-        name
-        gender
-        sizeRange {
-          sizes {
-            id
-            label
-          }
-        }
+        ...ProductFields
       }
       location {
         ... on ClassicLocation {
@@ -48,9 +45,7 @@ export const BOX_BY_LABEL_IDENTIFIER_AND_ALL_PRODUCTS_WITH_BASEID_QUERY = gql`
 
     base(id: $baseId) {
       tags {
-        value: id
-        label: name
-        color
+        ...TagOptions
       }
 
       locations {
@@ -62,19 +57,7 @@ export const BOX_BY_LABEL_IDENTIFIER_AND_ALL_PRODUCTS_WITH_BASEID_QUERY = gql`
       }
 
       products {
-        id
-        name
-        gender
-        category {
-          name
-        }
-        sizeRange {
-          label
-          sizes {
-            id
-            label
-          }
-        }
+        ...ProductFields
       }
     }
   }
