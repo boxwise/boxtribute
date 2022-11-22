@@ -173,14 +173,14 @@ const MenuItemsGroupMobile = ({
   const { isOpen, onToggle } = useDisclosure();
 
   function renderLinkBoxes(link: MenuItemData, i: number) {
-    function redirectToOldApp() {
-      window.open(`${process.env.REACT_APP_OLD_APP_BASE_URL}`, "_blank");
+    function redirectToOldApp(link: string) {
+      window.open(link, "_blank");
     }
 
     if (link.link.includes(`${process.env.REACT_APP_OLD_APP_BASE_URL}`)) {
       return (
         <Box key={i} py={1} px={4} onClick={() => setIsMenuOpen(false)}>
-          <Text key={link.name} cursor="pointer" onClick={() => redirectToOldApp()}>
+          <Text key={link.name} cursor="pointer" onClick={() => redirectToOldApp(link.link)}>
             {link.name}
           </Text>
         </Box>

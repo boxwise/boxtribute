@@ -98,13 +98,13 @@ const LoginOrUserMenuButton = ({
 
 const MenuItemsGroupDesktop = ({ ...props }: MenuItemsGroupProps) => {
   function renderMenuItem(link: MenuItemData, i: number) {
-    function redirectToOldApp() {
-      window.open(`${process.env.REACT_APP_OLD_APP_BASE_URL}`, "_blank");
+    function redirectToOldApp(link: string) {
+      window.open(link, "_blank");
     }
 
     if (link.link.includes(`${process.env.REACT_APP_OLD_APP_BASE_URL}`)) {
       return (
-        <MenuItem py={2} px={3} key={i} onClick={() => redirectToOldApp()}>
+        <MenuItem py={2} px={3} key={i} onClick={() => redirectToOldApp(link.link)}>
           {link.name}
         </MenuItem>
       );
