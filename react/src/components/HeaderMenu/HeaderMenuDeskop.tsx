@@ -1,4 +1,4 @@
-import { Link, NavLink, useParams, useSearchParams } from "react-router-dom";
+import { Link, NavLink, useParams } from "react-router-dom";
 import {
   Text,
   Button,
