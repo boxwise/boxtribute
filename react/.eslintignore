@@ -11,6 +11,7 @@ src/components/QrReaderOverlay
 src/mocks
 src/providers
 src/utils
+!src/utils/fragments
 src/views/AutomaticBaseSwitcher
 src/views/BaseDashboard
 src/views/BoxCreate

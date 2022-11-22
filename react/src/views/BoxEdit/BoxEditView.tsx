@@ -2,40 +2,37 @@ import { gql, useMutation, useQuery } from "@apollo/client";
 import APILoadingIndicator from "components/APILoadingIndicator";
 import { useNavigate, useParams } from "react-router-dom";
 import {
-  BoxByLabelIdentifierAndAllProductsQuery,
-  BoxByLabelIdentifierAndAllProductsQueryVariables,
+  BoxByLabelIdentifierAndAllProductsWithBaseIdQuery,
+  BoxByLabelIdentifierAndAllProductsWithBaseIdQueryVariables,
   BoxState,
   UpdateContentOfBoxMutation,
   UpdateContentOfBoxMutationVariables,
 } from "types/generated/graphql";
+import {
+  PRODUCT_FIELDS_FRAGMENT,
+  SIZE_FIELDS_FRAGMENT,
+  TAG_OPTIONS_FRAGMENT,
+} from "utils/fragments";
 import { notificationVar } from "../../components/NotificationMessage";
 import BoxEdit, { IBoxEditFormData } from "./components/BoxEdit";
 
-export const BOX_BY_LABEL_IDENTIFIER_AND_ALL_PRODUCTS_QUERY = gql`
-  query BoxByLabelIdentifierAndAllProducts($labelIdentifier: String!) {
+export const BOX_BY_LABEL_IDENTIFIER_AND_ALL_PRODUCTS_WITH_BASEID_QUERY = gql`
+  ${TAG_OPTIONS_FRAGMENT}
+  ${PRODUCT_FIELDS_FRAGMENT}
+  ${SIZE_FIELDS_FRAGMENT}
+  query BoxByLabelIdentifierAndAllProductsWithBaseId($baseId: ID!, $labelIdentifier: String!) {
     box(labelIdentifier: $labelIdentifier) {
       labelIdentifier
       size {
-        id
-        label
+        ...SizeFields
       }
       numberOfItems
       comment
       tags {
-        value: id
-        label: name
-        color
+        ...TagOptions
       }
       product {
-        id
-        name
-        gender
-        sizeRange {
-          sizes {
-            id
-            label
-          }
-        }
+        ...ProductFields
       }
       location {
         ... on ClassicLocation {
@@ -43,39 +40,24 @@ export const BOX_BY_LABEL_IDENTIFIER_AND_ALL_PRODUCTS_QUERY = gql`
         }
         id
         name
-        base {
-          locations {
-            ... on ClassicLocation {
-              defaultBoxState
-            }
-            id
-            name
-          }
-        }
       }
     }
 
-    tags {
-      value: id
-      label: name
-      color
-    }
+    base(id: $baseId) {
+      tags {
+        ...TagOptions
+      }
 
-    products(paginationInput: { first: 5000 }) {
-      elements {
+      locations {
+        ... on ClassicLocation {
+          defaultBoxState
+        }
         id
         name
-        gender
-        category {
-          name
-        }
-        sizeRange {
-          label
-          sizes {
-            id
-            label
-          }
-        }
+      }
+
+      products {
+        ...ProductFields
       }
     }
   }
@@ -109,15 +91,16 @@ export const UPDATE_CONTENT_OF_BOX_MUTATION = gql`
 
 function BoxEditView() {
   const labelIdentifier = useParams<{ labelIdentifier: string }>().labelIdentifier!;
+  const baseId = useParams<{ baseId: string }>().baseId!;
   const { loading, data } = useQuery<
-    BoxByLabelIdentifierAndAllProductsQuery,
-    BoxByLabelIdentifierAndAllProductsQueryVariables
-  >(BOX_BY_LABEL_IDENTIFIER_AND_ALL_PRODUCTS_QUERY, {
+    BoxByLabelIdentifierAndAllProductsWithBaseIdQuery,
+    BoxByLabelIdentifierAndAllProductsWithBaseIdQueryVariables
+  >(BOX_BY_LABEL_IDENTIFIER_AND_ALL_PRODUCTS_WITH_BASEID_QUERY, {
     variables: {
+      baseId,
       labelIdentifier,
     },
   });
-  const { baseId } = useParams<{ baseId: string }>();
   const navigate = useNavigate();
 
   const [updateContentOfBoxMutation] = useMutation<
@@ -153,14 +136,11 @@ function BoxEditView() {
             title: `Box ${labelIdentifier}`,
             type: "success",
             message: `Successfully modified with ${
-              (data?.products.elements.find((p) => p.id === boxEditFormData.productId.value) as any)
+              (data?.base?.products.find((p) => p.id === boxEditFormData.productId.value) as any)
                 .name
             } (${boxEditFormData?.numberOfItems}x) in ${
-              (
-                data?.box?.location?.base?.locations.find(
-                  (l) => l.id === boxEditFormData.locationId.value,
-                ) as any
-              ).name
+              (data?.base?.locations.find((l) => l.id === boxEditFormData.locationId.value) as any)
+                .name
             }.`,
           });
           navigate(`/bases/${baseId}/boxes/${mutationResult.data?.updateBox?.labelIdentifier}`);
@@ -180,11 +160,11 @@ function BoxEditView() {
   }
 
   const boxData = data?.box;
-  const productAndSizesData = data?.products;
-  const allTags = data?.tags || null;
+  const productAndSizesData = data?.base?.products;
+  const allTags = data?.base?.tags || null;
 
   // These are all the locations that are retrieved from the query which then filtered out the Scrap and Lost according to the defaultBoxState
-  const allLocations = data?.box?.location?.base?.locations
+  const allLocations = data?.base?.locations
     .filter(
       (location) =>
         location?.defaultBoxState !== BoxState.Lost && location?.defaultBoxState !== BoxState.Scrap,
@@ -203,7 +183,7 @@ function BoxEditView() {
     return <div />;
   }
 
-  if (productAndSizesData?.elements == null) {
+  if (productAndSizesData == null) {
     notificationVar({
       title: "Error",
       type: "error",
@@ -216,7 +196,7 @@ function BoxEditView() {
     <BoxEdit
       boxData={boxData}
       onSubmitBoxEditForm={onSubmitBoxEditForm}
-      productAndSizesData={productAndSizesData?.elements}
+      productAndSizesData={productAndSizesData}
       allLocations={allLocations}
       allTags={allTags}
     />
