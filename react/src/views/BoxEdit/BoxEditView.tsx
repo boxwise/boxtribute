@@ -44,7 +44,7 @@ export const BOX_BY_LABEL_IDENTIFIER_AND_ALL_PRODUCTS_WITH_BASEID_QUERY = gql`
     }
 
     base(id: $baseId) {
-      tags {
+      tags(resourceType: Box) {
         ...TagOptions
       }
 

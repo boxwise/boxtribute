@@ -41,6 +41,7 @@ from ..enums import (
     HumanGender,
     LocationType,
     TaggableObjectType,
+    TagType,
     TransferAgreementType,
 )
 from ..mobile_distribution.crud import (
@@ -1114,9 +1115,19 @@ def resolve_base_locations(base_obj, _):
 
 
 @base.field("tags")
-def resolve_base_tags(base_obj, _):
+@convert_kwargs_to_snake_case
+def resolve_base_tags(base_obj, _, resource_type=None):
     authorize(permission="tag:read", base_id=base_obj.id)
-    return Tag.select().where(Tag.base == base_obj.id, Tag.deleted.is_null())
+
+    filter_condition = True
+    if resource_type == TaggableObjectType.Box:
+        filter_condition = Tag.type << [TagType.Box, TagType.All]
+    elif resource_type == TaggableObjectType.Beneficiary:
+        filter_condition = Tag.type << [TagType.Beneficiary, TagType.All]
+
+    return Tag.select().where(
+        Tag.base == base_obj.id, Tag.deleted.is_null(), filter_condition
+    )
 
 
 @query.field("distributionEventsTrackingGroup")
