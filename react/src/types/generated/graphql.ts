@@ -30,10 +30,11 @@ export type Base = {
   distributionEventsTrackingGroups: Array<DistributionEventsTrackingGroup>;
   distributionSpots: Array<DistributionSpot>;
   id: Scalars['ID'];
-  /**  List of all [`ClassicLocations`]({{Types.ClassicLocation}}) present in this base  */
+  /**  List of all undeleted [`ClassicLocations`]({{Types.ClassicLocation}}) present in this base  */
   locations: Array<ClassicLocation>;
   name: Scalars['String'];
   organisation: Organisation;
+  /**  List of all undeleted [`Products`]({{Types.Product}}) registered in this base  */
   products: Array<Product>;
   tags?: Maybe<Array<Tag>>;
 };
