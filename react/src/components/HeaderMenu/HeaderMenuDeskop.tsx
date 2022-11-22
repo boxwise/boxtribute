@@ -1,4 +1,4 @@
-import { Link, NavLink } from "react-router-dom";
+import { Link, NavLink, useParams, useSearchParams } from "react-router-dom";
 import {
   Text,
   Button,
@@ -98,8 +98,10 @@ const LoginOrUserMenuButton = ({
 
 const MenuItemsGroupDesktop = ({ ...props }: MenuItemsGroupProps) => {
   function renderMenuItem(link: MenuItemData, i: number) {
+    let { baseId } = useParams();
+
     function redirectToOldApp(link: string) {
-      window.open(link, "_blank");
+      window.open(link + "?camp=" + baseId, "_blank");
     }
 
     if (link.link.includes(`${process.env.REACT_APP_OLD_APP_BASE_URL}`)) {

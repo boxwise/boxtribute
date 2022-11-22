@@ -14,7 +14,7 @@ import {
 } from "@chakra-ui/react";
 import { useState } from "react";
 import { AiFillCloseCircle, AiFillWindows, AiOutlineMenu, AiOutlineQrcode } from "react-icons/ai";
-import { Link, NavLink } from "react-router-dom";
+import { Link, NavLink, useParams, useSearchParams } from "react-router-dom";
 import {
   BaseSwitcherProps,
   HeaderMenuProps,
@@ -173,8 +173,10 @@ const MenuItemsGroupMobile = ({
   const { isOpen, onToggle } = useDisclosure();
 
   function renderLinkBoxes(link: MenuItemData, i: number) {
+    let { baseId } = useParams();
+
     function redirectToOldApp(link: string) {
-      window.open(link, "_blank");
+      window.open(link + "?camp=" + baseId);
     }
 
     if (link.link.includes(`${process.env.REACT_APP_OLD_APP_BASE_URL}`)) {
