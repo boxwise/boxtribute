@@ -224,7 +224,8 @@ type Base {
   " List of all [`ClassicLocations`]({{Types.ClassicLocation}}) present in this base "
   locations: [ClassicLocation!]!
   products: [Product!]!
-  tags: [Tag!]
+  " List of all [`Tags`]({{Types.Tag}}) registered in this base. Optionally filter for a [`resource type`]({{Types.TaggableResourceType}}) "
+  tags(resourceType: TaggableResourceType): [Tag!]
   distributionSpots: [DistributionSpot!]!
   distributionEvents(states: [DistributionEventState!]): [DistributionEvent!]!
 

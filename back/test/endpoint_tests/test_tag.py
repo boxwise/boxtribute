@@ -320,3 +320,17 @@ def test_assign_tag_with_invalid_resource_type(
                     ...on Box {{ tags {{ id }} }}
                 }} }}"""
     assert_bad_user_input(read_only_client, mutation)
+
+
+@pytest.mark.parametrize(
+    "filter_input,tag_ids",
+    [
+        ["", ["1", "2", "3"]],
+        ["(resourceType: Box)", ["2", "3"]],
+        ["(resourceType: Beneficiary)", ["1", "3"]],
+    ],
+)
+def test_base_tags_query(read_only_client, filter_input, tag_ids):
+    query = f"""query {{ base(id: 1) {{ tags{filter_input} {{ id }} }} }}"""
+    tags = assert_successful_request(read_only_client, query)["tags"]
+    assert tags == [{"id": i} for i in tag_ids]

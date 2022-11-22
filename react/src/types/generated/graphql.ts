@@ -35,6 +35,7 @@ export type Base = {
   name: Scalars['String'];
   organisation: Organisation;
   products: Array<Product>;
+  /**  List of all [`Tags`]({{Types.Tag}}) registered in this base. Optionally filter for a [`resource type`]({{Types.TaggableResourceType}})  */
   tags?: Maybe<Array<Tag>>;
 };
 
@@ -64,6 +65,15 @@ export type BaseDistributionEventsArgs = {
  */
 export type BaseDistributionEventsTrackingGroupsArgs = {
   states?: InputMaybe<Array<DistributionEventsTrackingGroupState>>;
+};
+
+
+/**
+ * Representation of a base.
+ * The base is managed by a specific [`Organisation`]({{Types.Organisation}}).
+ */
+export type BaseTagsArgs = {
+  resourceType?: InputMaybe<TaggableResourceType>;
 };
 
 /**
