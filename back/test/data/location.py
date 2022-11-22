@@ -117,10 +117,14 @@ def base1_undeleted_classic_locations():
 
 
 def create():
-    Location.create(**default_location_data())
-    Location.create(**another_location_data())
-    Location.create(**null_box_state_location_data())
-    Location.create(**non_default_box_state_location_data())
-    Location.create(**distribution_spot_data())
-    Location.create(**another_distribution_spot_data())
-    Location.create(**deleted_location_data())
+    Location.insert_many(
+        [
+            default_location_data(),
+            another_location_data(),
+            null_box_state_location_data(),
+            non_default_box_state_location_data(),
+            distribution_spot_data(),
+            another_distribution_spot_data(),
+            deleted_location_data(),
+        ]
+    ).execute()
