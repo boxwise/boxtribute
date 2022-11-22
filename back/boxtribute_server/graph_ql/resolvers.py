@@ -1107,7 +1107,9 @@ def resolve_base_distribution_events_statistics(base_obj, _):
 def resolve_base_locations(base_obj, _):
     authorize(permission="location:read", base_id=base_obj.id)
     return Location.select().where(
-        (Location.base == base_obj.id) & (Location.type == LocationType.ClassicLocation)
+        Location.base == base_obj.id,
+        Location.type == LocationType.ClassicLocation,
+        Location.deleted.is_null(),
     )
 
 

@@ -27,6 +27,7 @@ from .history import default_history
 from .location import (
     another_location,
     base1_classic_locations,
+    base1_undeleted_classic_locations,
     default_location,
     non_default_box_state_location,
     null_box_state_location,
@@ -84,6 +85,7 @@ __all__ = [
     "base1_active_tags",
     "base1_classic_locations",
     "base1_products",
+    "base1_undeleted_classic_locations",
     "base1_undeleted_products",
     "box_without_qr_code",
     "canceled_shipment",
