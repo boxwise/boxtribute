@@ -30,8 +30,8 @@ def test_base_query(
     default_bases,
     default_distribution_event,
     base1_active_tags,
-    base1_classic_locations,
-    base1_products,
+    base1_undeleted_classic_locations,
+    base1_undeleted_products,
 ):
     # Test case 99.1.2
     test_id = 1
@@ -54,9 +54,9 @@ def test_base_query(
     assert base["name"] == expected_base["name"]
     assert base["currencyName"] == expected_base["currency_name"]
     assert int(base["organisation"]["id"]) == expected_base["organisation"]
-    assert base["products"] == [{"id": str(p["id"])} for p in base1_products]
+    assert base["products"] == [{"id": str(p["id"])} for p in base1_undeleted_products]
     assert base["tags"] == [{"id": str(t["id"])} for t in base1_active_tags]
     assert base["locations"] == [
-        {"id": str(loc["id"])} for loc in base1_classic_locations
+        {"id": str(loc["id"])} for loc in base1_undeleted_classic_locations
     ]
     assert base["distributionEvents"] == [{"id": str(default_distribution_event["id"])}]

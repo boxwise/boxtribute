@@ -221,8 +221,9 @@ type Base {
   " List of all [`Beneficiaries`]({{Types.Beneficiary}}) registered in this base "
   beneficiaries(paginationInput: PaginationInput, filterInput: FilterBeneficiaryInput): BeneficiaryPage
   currencyName: String
-  " List of all [`ClassicLocations`]({{Types.ClassicLocation}}) present in this base "
+  " List of all undeleted [`ClassicLocations`]({{Types.ClassicLocation}}) present in this base "
   locations: [ClassicLocation!]!
+  " List of all undeleted [`Products`]({{Types.Product}}) registered in this base "
   products: [Product!]!
   tags: [Tag!]
   distributionSpots: [DistributionSpot!]!
