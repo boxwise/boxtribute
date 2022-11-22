@@ -8,6 +8,7 @@ import {
   UpdateContentOfBoxMutation,
   UpdateContentOfBoxMutationVariables,
 } from "types/generated/graphql";
+import { notificationVar } from "../../components/NotificationMessage";
 import BoxEdit, { IBoxEditFormData } from "./components/BoxEdit";
 
 export const BOX_BY_LABEL_IDENTIFIER_AND_ALL_PRODUCTS_QUERY = gql`
@@ -141,11 +142,36 @@ function BoxEditView() {
       },
     })
       .then((mutationResult) => {
-        navigate(`/bases/${baseId}/boxes/${mutationResult.data?.updateBox?.labelIdentifier}`);
+        if (mutationResult?.errors) {
+          notificationVar({
+            title: `Box ${labelIdentifier}`,
+            type: "error",
+            message: "Error while trying to update Box",
+          });
+        } else {
+          notificationVar({
+            title: `Box ${labelIdentifier}`,
+            type: "success",
+            message: `Successfully modified with ${
+              (data?.products.elements.find((p) => p.id === boxEditFormData.productId.value) as any)
+                .name
+            } (${boxEditFormData?.numberOfItems}x) in ${
+              (
+                data?.box?.location?.base?.locations.find(
+                  (l) => l.id === boxEditFormData.locationId.value,
+                ) as any
+              ).name
+            }.`,
+          });
+          navigate(`/bases/${baseId}/boxes/${mutationResult.data?.updateBox?.labelIdentifier}`);
+        }
       })
       .catch((error) => {
-        // eslint-disable-next-line no-console
-        console.error("Error while trying to update Box", error);
+        notificationVar({
+          title: `Box ${labelIdentifier}`,
+          type: "error",
+          message: `Error - Code ${error.code}: Your changes could not be saved!`,
+        });
       });
   };
 
@@ -169,11 +195,21 @@ function BoxEditView() {
     }));
 
   if (allLocations == null) {
-    return <div>Error: no locations available to choose from</div>;
+    notificationVar({
+      title: "Error",
+      type: "error",
+      message: "Error: No other locations are visible!",
+    });
+    return <div />;
   }
 
   if (productAndSizesData?.elements == null) {
-    return <div>Error: no products available to choose from for this Box</div>;
+    notificationVar({
+      title: "Error",
+      type: "error",
+      message: "Error: No products are visible!",
+    });
+    return <div />;
   }
 
   return (

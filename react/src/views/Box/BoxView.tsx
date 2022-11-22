@@ -22,6 +22,7 @@ import {
   PACKING_LIST_ENTRIES_FOR_DISTRIBUTION_EVENT_QUERY,
   UNASSIGN_BOX_FROM_DISTRIBUTION_MUTATION,
 } from "views/Distributions/queries";
+import { notificationVar } from "../../components/NotificationMessage";
 import AddItemsToBoxOverlay from "./components/AddItemsToBoxOverlay";
 import TakeItemsFromBoxOverlay from "./components/TakeItemsFromBoxOverlay";
 import BoxDetails from "./components/BoxDetails";
@@ -264,14 +265,12 @@ function BTBox() {
     assignBoxToDistributionEventMutationStatus.error ||
     unassignBoxFromDistributionEventMutationStatus.error
   ) {
-    // eslint-disable-next-line no-console
-    console.error(
-      "Error in BoxView Overlay: ",
-      error ||
-        updateBoxLocationMutationStatus.error ||
-        assignBoxToDistributionEventMutationStatus.error,
-    );
-    return <div>Error!</div>;
+    notificationVar({
+      title: "Error",
+      type: "error",
+      message: "Error: Could not update the box",
+    });
+    return <div />;
   }
 
   const boxData = data?.box;
@@ -283,7 +282,23 @@ function BTBox() {
         newState,
       },
       // refetchQueries: [refetchBoxByLabelIdentifierQueryConfig(labelIdentifier)],
-    });
+    })
+      .then((res) => {
+        notificationVar({
+          title: `Box ${labelIdentifier}`,
+          type: res?.errors ? "error" : "success",
+          message: res?.errors
+            ? `Error: Could not update the box state to ${newState}`
+            : `Successfully updated the box state to ${newState} `,
+        });
+      })
+      .catch(() => {
+        notificationVar({
+          title: `Box ${labelIdentifier}`,
+          type: "error",
+          message: `Error: Could not update the box state to ${newState}`,
+        });
+      });
   };
 
   const onSubmitTakeItemsFromBox = (boxFormValues: IChangeNumberOfItemsBoxData) => {
@@ -294,12 +309,22 @@ function BTBox() {
           numberOfItems: (boxData?.numberOfItems || 0) - (boxFormValues?.numberOfItems || 0),
         },
       })
-        .then(() => {
+        .then((res) => {
+          notificationVar({
+            title: `Box ${boxData.labelIdentifier}`,
+            type: res.errors ? "error" : "success",
+            message: res.errors
+              ? "Error: Could not remove items from the box"
+              : `Successfully removed ${boxFormValues?.numberOfItems} items from box`,
+          });
           onMinusClose();
         })
-        .catch((e) => {
-          // eslint-disable-next-line no-console
-          console.error("Error while trying to change number of items in the Box", e);
+        .catch(() => {
+          notificationVar({
+            title: `Box ${boxData.labelIdentifier}`,
+            type: "error",
+            message: "Error: Could not remove items from the box",
+          });
         });
     }
   };
@@ -316,12 +341,22 @@ function BTBox() {
           numberOfItems: (boxData?.numberOfItems || 0) + (boxFormValues?.numberOfItems || 0),
         },
       })
-        .then(() => {
+        .then((res) => {
+          notificationVar({
+            title: `Box ${boxData.labelIdentifier}`,
+            type: res.errors ? "error" : "success",
+            message: res.errors
+              ? "Error: Could not add items to the box"
+              : `Successfully added ${boxFormValues?.numberOfItems} items to box`,
+          });
           onPlusClose();
         })
-        .catch((e) => {
-          // eslint-disable-next-line no-console
-          console.error("Error while trying to change number of items in the Box", e);
+        .catch(() => {
+          notificationVar({
+            title: `Box ${boxData.labelIdentifier}`,
+            type: "error",
+            message: "Error: Could not add items to the box",
+          });
         });
     }
   };
@@ -333,7 +368,21 @@ function BTBox() {
         newLocationId: parseInt(locationId, 10),
       },
       refetchQueries: [refetchBoxByLabelIdentifierQueryConfig(labelIdentifier)],
-    });
+    })
+      .then((res) => {
+        notificationVar({
+          title: `Box ${labelIdentifier}`,
+          type: res.errors ? "error" : "success",
+          message: res.errors ? "Error: Box could not be moved!" : "Successfully moved the box",
+        });
+      })
+      .catch(() => {
+        notificationVar({
+          title: `Box ${labelIdentifier}`,
+          type: "error",
+          message: "Error: Box could not be moved!",
+        });
+      });
   };
 
   const onAssignBoxToDistributionEventClick = (distributionEventId: string) => {
