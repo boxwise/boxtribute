@@ -408,7 +408,9 @@ def resolve_locations(*_):
 @convert_kwargs_to_snake_case
 def resolve_base_products(base_obj, *_):
     authorize(permission="product:read", base_id=base_obj.id)
-    return Product.select().where(Product.base == base_obj.id)
+    return Product.select().where(
+        Product.base == base_obj.id, Product.deleted.is_null()
+    )
 
 
 @query.field("products")

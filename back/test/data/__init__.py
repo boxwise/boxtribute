@@ -34,7 +34,13 @@ from .location import (
 from .log import default_log
 from .organisation import another_organisation, default_organisation, organisations
 from .packing_list_entry import packing_list_entry
-from .product import another_product, base1_products, default_product, products
+from .product import (
+    another_product,
+    base1_products,
+    base1_undeleted_products,
+    default_product,
+    products,
+)
 from .product_category import default_product_category
 from .product_gender import default_product_gender
 from .qr_code import another_qr_code_with_box, default_qr_code, qr_code_without_box
@@ -78,6 +84,7 @@ __all__ = [
     "base1_active_tags",
     "base1_classic_locations",
     "base1_products",
+    "base1_undeleted_products",
     "box_without_qr_code",
     "canceled_shipment",
     "default_beneficiary",
