@@ -24,7 +24,6 @@ describe("Box view", () => {
             distributionEvent: null,
             labelIdentifier: "189123",
             location: {
-              __typename: "ClassicLocation",
               defaultBoxState: "InStock",
               base: {
                 distributionEventsBeforeReturnedFromDistributionState: [],
@@ -100,7 +99,6 @@ describe("Box view", () => {
             distributionEvent: null,
             labelIdentifier: "189123",
             location: {
-              __typename: "ClassicLocation",
               base: {
                 distributionEventsBeforeReturnedFromDistributionState: [],
                 locations: [
@@ -176,7 +174,6 @@ describe("Box view", () => {
             distributionEvent: null,
             labelIdentifier: "189123",
             location: {
-              __typename: "ClassicLocation",
               base: {
                 distributionEventsBeforeReturnedFromDistributionState: [],
                 locations: [
@@ -285,7 +282,6 @@ describe("Box view", () => {
             distributionEvent: null,
             labelIdentifier: "189123",
             location: {
-              __typename: "ClassicLocation",
               base: {
                 distributionEventsBeforeReturnedFromDistributionState: [],
                 locations: [
@@ -348,7 +344,6 @@ describe("Box view", () => {
             distributionEvent: null,
             labelIdentifier: "123",
             location: {
-              __typename: "ClassicLocation",
               base: {
                 distributionEventsBeforeReturnedFromDistributionState: [],
                 locations: [

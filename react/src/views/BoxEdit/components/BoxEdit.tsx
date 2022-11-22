@@ -11,7 +11,10 @@ import {
 } from "@chakra-ui/react";
 import NumberField from "components/Form/NumberField";
 import SelectField, { IDropdownOption } from "components/Form/SelectField";
-import { BoxByLabelIdentifierAndAllProductsQuery, ProductGender } from "types/generated/graphql";
+import {
+  BoxByLabelIdentifierAndAllProductsWithBaseIdQuery,
+  ProductGender,
+} from "types/generated/graphql";
 import { useEffect, useState } from "react";
 
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -87,7 +90,7 @@ export const BoxEditFormDataSchema = z.object({
 export type IBoxEditFormData = z.infer<typeof BoxEditFormDataSchema>;
 
 interface IBoxEditProps {
-  boxData: BoxByLabelIdentifierAndAllProductsQuery["box"];
+  boxData: BoxByLabelIdentifierAndAllProductsWithBaseIdQuery["box"];
   productAndSizesData: IProductWithSizeRangeData[];
   allLocations: ILocationData[];
   allTags: IDropdownOption[] | null | undefined;
