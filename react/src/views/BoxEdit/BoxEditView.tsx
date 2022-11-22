@@ -13,6 +13,7 @@ import {
   SIZE_FIELDS_FRAGMENT,
   TAG_OPTIONS_FRAGMENT,
 } from "utils/fragments";
+import { BOX_BY_LABEL_IDENTIFIER_QUERY } from "views/Box/BoxView";
 import { notificationVar } from "../../components/NotificationMessage";
 import BoxEdit, { IBoxEditFormData } from "./components/BoxEdit";
 
@@ -103,10 +104,19 @@ function BoxEditView() {
   });
   const navigate = useNavigate();
 
+  const refetchBoxByLabelIdentifierQueryConfig = () => ({
+    query: BOX_BY_LABEL_IDENTIFIER_QUERY,
+    variables: {
+      labelIdentifier,
+    },
+  });
+
   const [updateContentOfBoxMutation] = useMutation<
     UpdateContentOfBoxMutation,
     UpdateContentOfBoxMutationVariables
-  >(UPDATE_CONTENT_OF_BOX_MUTATION);
+  >(UPDATE_CONTENT_OF_BOX_MUTATION, {
+    refetchQueries: [refetchBoxByLabelIdentifierQueryConfig()],
+  });
 
   const onSubmitBoxEditForm = (boxEditFormData: IBoxEditFormData) => {
     const tagIds = boxEditFormData?.tags
