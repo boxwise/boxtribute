@@ -101,7 +101,6 @@ function BoxEditView() {
       labelIdentifier,
     },
   });
-  // const { baseId } = useParams<{ baseId: string }>();
   const navigate = useNavigate();
 
   const [updateContentOfBoxMutation] = useMutation<
