@@ -60,5 +60,10 @@ def tags():
     return data()
 
 
+@pytest.fixture
+def base1_active_tags():
+    return data()[:3]
+
+
 def create():
     Tag.insert_many(data()).execute()

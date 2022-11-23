@@ -1,3 +1,5 @@
+from datetime import datetime
+
 import pytest
 from boxtribute_server.models.definitions.product import Product
 
@@ -21,6 +23,7 @@ def data():
             "in_shop": 0,
             "price": 1,
             "created_by": default_user_data()["id"],
+            "deleted": None,
         },
         {
             "id": 2,
@@ -32,6 +35,7 @@ def data():
             "in_shop": 0,
             "price": 1,
             "created_by": default_user_data()["id"],
+            "deleted": None,
         },
         {
             "id": 3,
@@ -43,6 +47,19 @@ def data():
             "in_shop": 0,
             "price": 1,
             "created_by": default_user_data()["id"],
+            "deleted": None,
+        },
+        {
+            "id": 4,
+            "base": base_data()[0]["id"],
+            "name": "deleted product",
+            "category": default_product_category_data()["id"],
+            "gender": default_product_gender_data()["id"],
+            "size_range": size_range_data()["id"],
+            "in_shop": 0,
+            "price": 1,
+            "created_by": default_user_data()["id"],
+            "deleted": datetime(2022, 1, 1),
         },
     ]
 
@@ -60,6 +77,18 @@ def another_product():
 @pytest.fixture
 def products():
     return data()
+
+
+@pytest.fixture
+def base1_products():
+    all_products = data()
+    return [all_products[0], all_products[2], all_products[3]]
+
+
+@pytest.fixture
+def base1_undeleted_products():
+    all_products = data()
+    return [all_products[0], all_products[2]]
 
 
 def create():

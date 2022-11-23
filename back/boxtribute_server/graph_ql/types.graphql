@@ -188,6 +188,7 @@ type ClassicLocation implements Location {
   id: ID!
   base: Base
   name: String
+  seq: Int
   isShop: Boolean!
   isStockroom: Boolean!
   " List of all the [`Boxes`]({{Types.Box}}) in this classic location "
@@ -220,9 +221,12 @@ type Base {
   " List of all [`Beneficiaries`]({{Types.Beneficiary}}) registered in this base "
   beneficiaries(paginationInput: PaginationInput, filterInput: FilterBeneficiaryInput): BeneficiaryPage
   currencyName: String
-  " List of all [`ClassicLocations`]({{Types.ClassicLocation}}) present in this base "
+  " List of all undeleted [`ClassicLocations`]({{Types.ClassicLocation}}) present in this base "
   locations: [ClassicLocation!]!
+  " List of all undeleted [`Products`]({{Types.Product}}) registered in this base "
   products: [Product!]!
+  " List of all [`Tags`]({{Types.Tag}}) registered in this base. Optionally filter for a [`resource type`]({{Types.TaggableResourceType}}) "
+  tags(resourceType: TaggableResourceType): [Tag!]
   distributionSpots: [DistributionSpot!]!
   distributionEvents(states: [DistributionEventState!]): [DistributionEvent!]!
 
@@ -377,7 +381,7 @@ type User {
   id: ID!
   organisation: Organisation
   name: String
-  email: String!
+  email: String
   validFirstDay: Date
   validLastDay: Date
   " List of all [`Bases`]({{Types.Base}}) this user can access "

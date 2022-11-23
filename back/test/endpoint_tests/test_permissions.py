@@ -85,6 +85,9 @@ def test_invalid_permission(unauthorized, read_only_client, query):
         """beneficiary( id: 4 ) { id }""",
         # Test case 10.1.5
         """user( id: 1) { id }""",
+        """packingListEntry( id: 1 ) { id }""",
+        # Test case 3.1.6
+        """shipment( id: 5 ) { id }""",
     ],
     ids=operation_name,
 )
@@ -238,6 +241,12 @@ def test_invalid_write_permission(unauthorized, read_only_client, mutation):
                 labelIdentifier: "12345678",
                 productId: 2
             }) { id }""",
+        # Test case 8.2.21
+        """updateBox(
+            updateInput : {
+                labelIdentifier: "12345678",
+                tagIds: [4]
+            }) { id }""",
     ],
     ids=operation_name,
 )
@@ -273,13 +282,35 @@ def test_invalid_permission_for_location_boxes(read_only_client, mocker):
     assert_forbidden_request(read_only_client, query, value={"boxes": None})
 
 
-def test_invalid_permission_for_qr_code_box(read_only_client, mocker, default_qr_code):
-    # verify missing stock:read permission
+def test_invalid_permission_for_qr_code_box(
+    read_only_client, mocker, default_qr_code, another_qr_code_with_box
+):
+    # Test case 8.1.10
+    # Verify missing stock:read permission
     mocker.patch("jose.jwt.decode").return_value = create_jwt_payload(
         permissions=["qr:read"]
     )
     code = default_qr_code["code"]
     query = f"""query {{ qrCode(qrCode: "{code}") {{ box {{ id }} }} }}"""
+    assert_forbidden_request(read_only_client, query, value={"box": None})
+
+    # Test case 8.1.11
+    # Verify missing base-specific stock:read permission (the QR code belongs to a box
+    # from a base that the user is not authorized for. Hence it's especially prohibited
+    # to access beneficiary data through a common tag)
+    mocker.patch("jose.jwt.decode").return_value = create_jwt_payload(
+        permissions=[
+            "qr:read",
+            "stock:read",
+            "tag:read",
+            "tag_relation:read",
+            "beneficiary:read",
+        ],
+        base_ids=[1],
+    )
+    code = another_qr_code_with_box["code"]  # the associated box is in base ID 3
+    query = f"""query {{ qrCode(qrCode: "{code}") {{
+        box {{ tags {{ taggedResources {{ ...on Beneficiary {{ id }} }} }} }} }} }}"""
     assert_forbidden_request(read_only_client, query, value={"box": None})
 
 
@@ -397,8 +428,14 @@ def test_invalid_permission_for_metrics(read_only_client, mocker):
 
 @pytest.mark.parametrize(
     "method",
-    ["read", "write", "create", "edit"],
-    ids=["all-bases", "write-implies-read", "create-implies-read", "edit-implies-read"],
+    ["read", "write", "create", "edit", "delete"],
+    ids=[
+        "all-bases",
+        "write-implies-read",
+        "create-implies-read",
+        "edit-implies-read",
+        "delete-implies-read",
+    ],
 )
 def test_permission_scope(read_only_client, mocker, default_bases, method):
     mocker.patch("jose.jwt.decode").return_value = create_jwt_payload(
@@ -436,3 +473,15 @@ def test_permission_for_god_user(
     query = "query { transferAgreements { id } }"
     agreements = assert_successful_request(read_only_client, query)
     assert len(agreements) == len(transfer_agreements)
+
+
+def test_invalid_permission_for_user_read(
+    read_only_client, default_product, default_user
+):
+    product_id = default_product["id"]
+    query = f"query {{ product(id: {product_id}) {{ createdBy {{ name email }} }} }}"
+    assert_forbidden_request(
+        read_only_client,
+        query,
+        value={"createdBy": {"email": None, "name": default_user["name"]}},
+    )

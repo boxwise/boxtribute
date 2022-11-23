@@ -67,11 +67,11 @@ def test_metrics_query_number_of_sales(
 
 
 def test_metrics_query_stock_overview(
-    read_only_client, default_transaction, default_boxes
+    read_only_client, default_transaction, default_boxes, default_location_boxes
 ):
     query = "query { metrics { stockOverview { numberOfBoxes numberOfItems } } }"
     response = assert_successful_request(read_only_client, query, field="metrics")
-    boxes = default_boxes[1:]  # only boxes managed by client's organisation
+    boxes = default_location_boxes  # only boxes managed by client's organisation
     assert response == {
         "stockOverview": {
             "numberOfBoxes": len(boxes),

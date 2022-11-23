@@ -14,7 +14,13 @@ def data():
             "transfer_agreement": transfer_agreement_data()[0]["id"],
             "source_base": None,
             "target_base": base_data()[2]["id"],
-        }
+        },
+        {
+            "id": 2,
+            "transfer_agreement": transfer_agreement_data()[1]["id"],
+            "source_base": None,
+            "target_base": base_data()[2]["id"],
+        },
     ]
 
 

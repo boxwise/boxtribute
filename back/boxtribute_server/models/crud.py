@@ -107,6 +107,7 @@ def update_box(
     product_id=None,
     size_id=None,
     state=None,
+    tag_ids=None,
 ):
     """Look up an existing Box given a UUID, and update all requested fields.
     Insert timestamp for modification and return the box.
@@ -131,6 +132,35 @@ def update_box(
         box.size = size_id
     if state is not None:
         box.state = state
+    if tag_ids is not None:
+        # Find all tag IDs that are currently assigned to the box
+        assigned_tag_ids = set(
+            r.tag_id
+            for r in TagsRelation.select(TagsRelation.tag_id).where(
+                TagsRelation.object_type == TaggableObjectType.Box,
+                TagsRelation.object_id == box.id,
+            )
+        )
+        updated_tag_ids = set(tag_ids)
+
+        # Unassign all tags that were previously assigned to the box but are not part
+        # of the updated set of tags
+        for tag_id in assigned_tag_ids.difference(updated_tag_ids):
+            unassign_tag(
+                user_id=user_id,
+                id=tag_id,
+                resource_id=box.id,
+                resource_type=TaggableObjectType.Box,
+            )
+        # Assign all tags that are part of the updated set of tags but were previously
+        # not assigned to the box
+        for tag_id in updated_tag_ids.difference(assigned_tag_ids):
+            assign_tag(
+                user_id=user_id,
+                id=tag_id,
+                resource_id=box.id,
+                resource_type=TaggableObjectType.Box,
+            )
 
     box.last_modified_by = user_id
     box.last_modified_on = utcnow()

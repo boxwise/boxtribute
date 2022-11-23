@@ -3,25 +3,26 @@ import {
   List,
   ListItem,
   Button,
-  FormControl,
-  FormErrorMessage,
   FormLabel,
   Heading,
   Input,
+  ButtonGroup,
+  Stack,
 } from "@chakra-ui/react";
-import { Select } from "chakra-react-select";
-
+import NumberField from "components/Form/NumberField";
+import SelectField, { IDropdownOption } from "components/Form/SelectField";
 import {
-  BoxByLabelIdentifierAndAllProductsQuery,
+  BoxByLabelIdentifierAndAllProductsWithBaseIdQuery,
   ProductGender,
-  UpdateLocationOfBoxMutation,
 } from "types/generated/graphql";
-import { Controller, useForm } from "react-hook-form";
-
-// import { groupBy } from "utils/helpers";
 import { useEffect, useState } from "react";
 
+import { zodResolver } from "@hookform/resolvers/zod";
+import { z } from "zod";
 import _ from "lodash";
+import { useNavigate, useParams } from "react-router-dom";
+import { useForm } from "react-hook-form";
+import { notificationVar } from "../../../components/NotificationMessage";
 
 export interface ICategoryData {
   name: string;
@@ -45,49 +46,86 @@ export interface IProductWithSizeRangeData {
   sizeRange: ISizeRangeData;
 }
 
-interface IDropdownOption {
-  value: string;
-  label: string;
-}
-
-export interface IBoxFormValues {
-  numberOfItems: number;
-  sizeId: string;
-  productId: string;
-  locationId: string;
-}
-
 interface ILocationData {
   id: string;
   name: string;
 }
 
+// Definitions for form validation with zod
+
+const singleSelectOptionSchema = z.object({
+  label: z.string(),
+  value: z.string(),
+});
+
+export const BoxEditFormDataSchema = z.object({
+  // Single Select Fields are a tough nut to validate. This feels like a hacky solution, but the best I could find.
+  // It is based on this example https://codesandbox.io/s/chakra-react-select-single-react-hook-form-with-zod-validation-typescript-m1dqme?file=/app.tsx
+  productId: singleSelectOptionSchema
+    // If the Select is empty it returns null. If we put required() here. The error is "expected object, received null". I did not find a way to edit this message. Hence, this solution.
+    .nullable()
+    // We make the field nullable and can then check in the next step if it is empty or not with the refine function.
+    .refine(Boolean, { message: "Please select a product" })
+    // since the expected return type is an object of strings we have to add this transform at the end.
+    .transform((selectedOption) => selectedOption || { label: "", value: "" }),
+  sizeId: singleSelectOptionSchema
+    .nullable()
+    .refine(Boolean, { message: "Please select a size" })
+    .transform((selectedOption) => selectedOption || { label: "", value: "" }),
+  numberOfItems: z
+    .number({
+      required_error: "Please enter a number of items",
+      invalid_type_error: "Please enter an integer number",
+    })
+    .int()
+    .nonnegative(),
+  locationId: singleSelectOptionSchema
+    .nullable()
+    .refine(Boolean, { message: "Please select a location" })
+    .transform((selectedOption) => selectedOption || { label: "", value: "" }),
+  tags: singleSelectOptionSchema.array().optional(),
+  comment: z.string().optional(),
+});
+
+export type IBoxEditFormData = z.infer<typeof BoxEditFormDataSchema>;
+
 interface IBoxEditProps {
-  boxData:
-    | BoxByLabelIdentifierAndAllProductsQuery["box"]
-    | UpdateLocationOfBoxMutation["updateBox"];
+  boxData: BoxByLabelIdentifierAndAllProductsWithBaseIdQuery["box"];
   productAndSizesData: IProductWithSizeRangeData[];
   allLocations: ILocationData[];
-  onSubmitBoxEditForm: (boxFormValues: IBoxFormValues) => void;
+  allTags: IDropdownOption[] | null | undefined;
+  onSubmitBoxEditForm: (boxEditFormData: IBoxEditFormData) => void;
 }
 
 function BoxEdit({
   productAndSizesData,
   boxData,
   allLocations,
+  allTags,
   onSubmitBoxEditForm,
 }: IBoxEditProps) {
-  const productsGroupedByCategory = _.groupBy(
+  const { baseId, labelIdentifier } = useParams<{
+    baseId: string;
+    labelIdentifier: string;
+  }>();
+
+  const navigate = useNavigate();
+
+  // Form Default Values
+  const defaultValues: IBoxEditFormData = {
+    productId: { label: boxData?.product?.name || "", value: boxData?.product?.id || "" },
+    sizeId: { label: boxData?.size?.label || "", value: boxData?.size?.id || "" },
+    numberOfItems: boxData?.numberOfItems || 0,
+    locationId: { label: boxData?.location?.name || "", value: boxData?.location?.id || "" },
+    comment: boxData?.comment || "",
+    tags: boxData?.tags || [],
+  };
+
+  // Option Preparations for select fields
+  const productsGroupedByCategory: Record<string, IProductWithSizeRangeData[]> = _.groupBy(
     productAndSizesData,
     (product) => product.category.name,
   );
-
-  const locationsForDropdownGroups = allLocations
-    .map((location) => ({
-      label: location.name,
-      value: location.id,
-    }))
-    .sort((a, b) => a.label.localeCompare(b.label));
 
   const productsForDropdownGroups = Object.keys(productsGroupedByCategory)
     .map((key) => {
@@ -97,29 +135,40 @@ function BoxEdit({
         options: productsForCurrentGroup
           .map((product) => ({
             value: product.id,
-            label: `${product.name} (${product.gender})`,
+            label: `${`${product.name}`}${product.gender !== "none" ? ` (${product.gender})` : ""}`,
           }))
           .sort((a, b) => a.label.localeCompare(b.label)),
       };
     })
     .sort((a, b) => a.label.localeCompare(b.label));
 
+  const locationsForDropdownGroups = allLocations
+    .map((location) => ({
+      label: location.name,
+      value: location.id,
+    }))
+    .sort((a, b) => a.label.localeCompare(b.label));
+
+  const tagsForDropdownGroups: Array<IDropdownOption> | undefined = allTags?.map((tag) => ({
+    label: tag.label,
+    value: tag.value,
+    // colorScheme: "red",
+  }));
+
+  // react-hook-form
   const {
     handleSubmit,
     control,
     register,
     resetField,
     watch,
-    formState: { isSubmitting },
-  } = useForm<IBoxFormValues>({
-    defaultValues: {
-      numberOfItems: boxData?.numberOfItems || 0,
-      sizeId: boxData?.size.id,
-      productId: boxData?.product?.id,
-      locationId: boxData?.location?.id,
-    },
+    formState: { errors, isSubmitting },
+  } = useForm<IBoxEditFormData>({
+    resolver: zodResolver(BoxEditFormDataSchema),
+    defaultValues,
   });
 
+  // sizes reset depending on selected product
   const [sizesOptionsForCurrentProduct, setSizesOptionsForCurrentProduct] = useState<
     IDropdownOption[]
   >([]);
@@ -129,32 +178,42 @@ function BoxEdit({
   useEffect(() => {
     if (productId != null) {
       const productAndSizeDataForCurrentProduct = productAndSizesData.find(
-        (p) => p.id === productId,
+        (p) => p.id === productId.value,
       );
-      setSizesOptionsForCurrentProduct(
-        () =>
-          productAndSizeDataForCurrentProduct?.sizeRange?.sizes?.map((s) => ({
-            label: s.label,
-            value: s.id,
-          })) || [],
-      );
-      resetField("sizeId");
+      const prepSizesOptionsForCurrentProduct =
+        productAndSizeDataForCurrentProduct?.sizeRange?.sizes?.map((s) => ({
+          label: s.label,
+          value: s.id,
+        })) || [];
+      setSizesOptionsForCurrentProduct(() => prepSizesOptionsForCurrentProduct);
+      // only reset size field if the productId is different to the product id of the current box.
+      if (productId.value !== (boxData?.product?.id || "")) {
+        // if there is only one option select it directly
+        if (prepSizesOptionsForCurrentProduct.length === 1) {
+          resetField("sizeId", { defaultValue: prepSizesOptionsForCurrentProduct[0] });
+        } else {
+          resetField("sizeId", { defaultValue: null });
+        }
+      }
     }
-  }, [productId, productAndSizesData, resetField]);
+  }, [productId, productAndSizesData, boxData, resetField]);
 
   if (boxData == null) {
-    // eslint-disable-next-line no-console
-    console.error("BoxDetails Component: boxData is null");
-    return <Box>No data found for a box with this id</Box>;
+    notificationVar({
+      title: "Error",
+      type: "error",
+      message: `Error: There is no data found for box ${labelIdentifier}!`,
+    });
+    return <div />;
   }
 
   if (productsForDropdownGroups == null) {
-    // eslint-disable-next-line no-console
-    console.error("BoxDetails Component: allProducts is null");
-    // eslint-disable-next-line max-len
-    return (
-      <Box>There was an error: the available products to choose from couldn&apos;t be loaded!</Box>
-    );
+    notificationVar({
+      title: "Error",
+      type: "error",
+      message: "Error: The available products could not be loaded!",
+    });
+    return <div />;
   }
 
   return (
@@ -166,123 +225,95 @@ function BoxEdit({
       <form onSubmit={handleSubmit(onSubmitBoxEditForm)}>
         <List spacing={2}>
           <ListItem>
-            <Controller
+            <SelectField
+              data-testid="products-list"
+              fieldId="productId"
+              fieldLabel="Product"
+              placeholder="Please select a product"
+              options={productsForDropdownGroups}
+              errors={errors}
               control={control}
-              name="productId"
-              render={({
-                field: { onChange, onBlur, value, name, ref },
-                fieldState: { error },
-              }) => (
-                <FormControl isInvalid={!!error} id="products">
-                  <FormLabel>Product</FormLabel>
-                  <Box border="2px">
-                    <Select
-                      name={name}
-                      data-testid="products-list"
-                      ref={ref}
-                      onChange={(selectedOption) => onChange(selectedOption?.value)}
-                      onBlur={onBlur}
-                      value={
-                        productsForDropdownGroups
-                          .flatMap((group) => group.options)
-                          .find((el) => el.value === value) || null
-                      }
-                      options={productsForDropdownGroups}
-                      placeholder="Product"
-                      isSearchable
-                      tagVariant="outline"
-                      focusBorderColor="transparent"
-                    />
-                  </Box>
-                  <FormErrorMessage data-testid="form-err-msg">
-                    {error && error.message}
-                  </FormErrorMessage>
-                </FormControl>
-              )}
             />
           </ListItem>
           <ListItem>
-            <Controller
+            <SelectField
+              data-testid="products-size-list"
+              fieldId="sizeId"
+              fieldLabel="Size"
+              placeholder="Please select a size"
+              options={sizesOptionsForCurrentProduct}
+              errors={errors}
               control={control}
-              name="sizeId"
-              render={({ field, fieldState: { invalid, error } }) => (
-                <FormControl isInvalid={invalid} id="size">
-                  <FormLabel htmlFor="size">Size</FormLabel>
-                  <Box border="2px">
-                    <Select
-                      data-testid="products-size-list"
-                      name={field.name}
-                      ref={field.ref}
-                      value={
-                        sizesOptionsForCurrentProduct.find((el) => el.value === field.value) || null
-                      }
-                      onChange={(selectedOption) => field.onChange(selectedOption?.value)}
-                      onBlur={field.onBlur}
-                      options={sizesOptionsForCurrentProduct}
-                      placeholder="Size"
-                      isSearchable
-                      tagVariant="outline"
-                    />
-                    <FormErrorMessage>{error?.message}</FormErrorMessage>
-                  </Box>
-                </FormControl>
-              )}
             />
           </ListItem>
-
           <ListItem>
-            <FormLabel htmlFor="numberOfItems">Number Of Items</FormLabel>
-            <Box border="2px">
-              <Input
-                data-testid="number-items"
-                border="0"
-                type="number"
-                {...register("numberOfItems", {
-                  valueAsNumber: true,
-                  validate: (value) => value > 0,
-                })}
-              />
+            <NumberField
+              data-testid="number-items"
+              fieldId="numberOfItems"
+              fieldLabel="Number Of Items"
+              errors={errors}
+              control={control}
+              register={register}
+            />
+          </ListItem>
+          <ListItem>
+            <SelectField
+              data-testid="box-location"
+              fieldId="locationId"
+              fieldLabel="Location"
+              placeholder="Please select a location"
+              options={locationsForDropdownGroups}
+              errors={errors}
+              control={control}
+            />
+          </ListItem>
+          <ListItem>
+            <SelectField
+              fieldId="tags"
+              fieldLabel="Tags"
+              placeholder="Tags"
+              options={tagsForDropdownGroups}
+              errors={errors}
+              isMulti
+              isRequired={false}
+              control={control}
+            />
+          </ListItem>
+          <ListItem>
+            <FormLabel htmlFor="comment">Comment</FormLabel>
+            <Box border="2px" borderRadius={0}>
+              <Input border="0" borderRadius={0} type="string" {...register("comment")} />
             </Box>
           </ListItem>
-          <ListItem>
-            <Controller
-              control={control}
-              name="locationId"
-              render={({
-                field: { onChange, onBlur, value, name, ref },
-                fieldState: { error },
-              }) => (
-                <FormControl isInvalid={!!error} id="locationForDropdown">
-                  <FormLabel htmlFor="locationForDropdown">Location</FormLabel>
-                  <Box border="2px">
-                    <Select
-                      data-testid="box-location"
-                      name={name}
-                      ref={ref}
-                      onChange={(selectedOption) => onChange(selectedOption?.value)}
-                      onBlur={onBlur}
-                      value={locationsForDropdownGroups.find((el) => el.value === value) || null}
-                      options={locationsForDropdownGroups}
-                      placeholder="Location"
-                      isSearchable
-                      tagVariant="outline"
-                    />
-                  </Box>
-                  <FormErrorMessage>{error && error.message}</FormErrorMessage>
-                </FormControl>
-              )}
-            />
-          </ListItem>
         </List>
-        <Button
-          mt={4}
-          isLoading={isSubmitting}
-          type="submit"
-          borderRadius="0"
-          data-testid="update-box-btn"
-        >
-          Update Box
-        </Button>
+
+        <Stack spacing={4}>
+          <ButtonGroup gap="4">
+            <Button
+              mt={4}
+              isLoading={isSubmitting}
+              colorScheme="blue"
+              type="button"
+              borderRadius="0"
+              w="full"
+              variant="link"
+              onClick={() => navigate(`/bases/${baseId}/boxes/${labelIdentifier}`)}
+            >
+              Cancel
+            </Button>
+
+            <Button
+              mt={4}
+              isLoading={isSubmitting}
+              type="submit"
+              borderRadius="0"
+              w="full"
+              data-testid="update-box-btn"
+            >
+              Update Box
+            </Button>
+          </ButtonGroup>
+        </Stack>
       </form>
     </Box>
   );

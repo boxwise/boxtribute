@@ -41,13 +41,6 @@ class AuthenticationFailed(Exception):
 # cf. https://github.com/mirumee/ariadne/issues/339#issuecomment-604380881
 # Re-use error codes proposed by Apollo-Server
 # cf. https://www.apollographql.com/docs/apollo-server/data/errors/#error-codes
-class UnknownResource(Exception):
-    extensions = {
-        "code": "INTERNAL_SERVER_ERROR",
-        "description": "This resource is not known",
-    }
-
-
 class BoxCreationFailed(Exception):
     extensions = {
         "code": "INTERNAL_SERVER_ERROR",
