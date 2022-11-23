@@ -27,6 +27,10 @@ const NotificationMessage = ({
   const { createToast } = useNotification();
 
   createToast({ title: title, status: type, description: message, position: position });
+  // After the toast message is displayed, cleanup the reactive variable
+  notificationVar({
+    message: "",
+  });
 
   return <></>;
 };
