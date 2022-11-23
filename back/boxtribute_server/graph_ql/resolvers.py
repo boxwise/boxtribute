@@ -410,7 +410,9 @@ def resolve_locations(*_):
 def resolve_base_products(base_obj, *_):
     authorize(permission="product:read", base_id=base_obj.id)
     return Product.select().where(
-        Product.base == base_obj.id, Product.deleted.is_null()
+        Product.base == base_obj.id,
+        # work-around for 0000-00-00 00:00:00 datetime fields in database
+        (Product.deleted.is_null() | (Product.deleted == 0)),
     )
 
 
