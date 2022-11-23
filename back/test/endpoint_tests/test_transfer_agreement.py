@@ -217,7 +217,9 @@ def test_transfer_agreement_mutations_invalid_state(
 ):
     # The client has to be permitted to perform the action in general
     mocker.patch("jose.jwt.decode").return_value = create_jwt_payload(
-        organisation_id=expired_transfer_agreement["target_organisation"], user_id=2
+        organisation_id=expired_transfer_agreement["target_organisation"],
+        user_id=2,
+        base_ids=[3],
     )
     # Test cases 2.2.11, 2.2.12, 2.2.13
     agreement_id = expired_transfer_agreement["id"]
@@ -260,8 +262,9 @@ def test_transfer_agreement_mutations_identical_source_org_for_creation(
 
 @pytest.mark.parametrize("kind,base_id", [["source", 3], ["target", 1]])
 def test_transfer_agreement_mutations_create_invalid_source_base(
-    read_only_client, kind, base_id
+    read_only_client, mocker, kind, base_id
 ):
+    mocker.patch("jose.jwt.decode").return_value = create_jwt_payload(base_ids=[1, 3])
     # Test cases 2.2.18, 2.2.19
     mutation = f"""mutation {{ createTransferAgreement( creationInput: {{
                     targetOrganisationId: 2,

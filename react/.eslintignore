@@ -3,14 +3,21 @@ coverage
 node_modules
 # temporarily disable eslint on the current code
 src/types
-src/components
+src/components/*.tsx
+src/components/HeaderMenu
+src/components/QrReader
+src/components/QrReaderOverlay
+!src/components/Form
 src/mocks
 src/providers
 src/utils
+!src/utils/fragments
 src/views/AutomaticBaseSwitcher
 src/views/BaseDashboard
 src/views/BoxCreate
 !src/views/BoxEdit
+!src/components/NotificationMessage
+!src/components/Layout
 src/views/Boxes
 src/views/Distributions
 !src/views/Box

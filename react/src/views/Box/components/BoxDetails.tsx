@@ -14,10 +14,21 @@ import {
   HStack,
   Tag,
   TagLabel,
+  Spacer,
+  Tooltip,
+  Divider,
+  Stack,
+  ButtonGroup,
+  Switch,
+  FormLabel,
 } from "@chakra-ui/react";
 import { Style } from "victory";
 import { NavLink } from "react-router-dom";
-import { BoxByLabelIdentifierQuery, UpdateLocationOfBoxMutation } from "types/generated/graphql";
+import {
+  BoxByLabelIdentifierQuery,
+  BoxState,
+  UpdateLocationOfBoxMutation,
+} from "types/generated/graphql";
 import { useGetUrlForResourceHelpers } from "utils/hooks";
 import { distroEventStateHumanReadableLabels } from "views/Distributions/baseData";
 import DistributionEventTimeRangeDisplay from "views/Distributions/components/DistributionEventTimeRangeDisplay";
@@ -27,8 +38,7 @@ interface IBoxDetailsProps {
   onMoveToLocationClick: (locationId: string) => void;
   onPlusOpen: () => void;
   onMinusOpen: () => void;
-  onScrap: () => void;
-  onLost: () => void;
+  onStateChange: (boxState: BoxState) => void;
   onAssignBoxToDistributionEventClick: (distributionEventId: string) => void;
   onUnassignBoxFromDistributionEventClick: (distributionEventId: string) => void;
 }
@@ -40,8 +50,7 @@ function BoxDetails({
   onUnassignBoxFromDistributionEventClick,
   onPlusOpen,
   onMinusOpen,
-  onScrap,
-  onLost,
+  onStateChange,
 }: IBoxDetailsProps) {
   const statusColor = (value) => {
     let color;
@@ -77,110 +86,171 @@ function BoxDetails({
         backgroundColor="#F4E5A0"
         mr={["0", "0", "4rem", "4rem"]}
       >
-        <Flex pt={2} px={4} direction="row" justifyContent="space-between">
-          <Flex direction="column" mb={2}>
+        <Flex py={2} px={4} minWidth="max-content" alignItems="center">
+          <Box>
             <Heading fontWeight="bold" as="h2" data-testid="box-header">
               Box {boxData.labelIdentifier}
             </Heading>
-            <Flex data-testid="box-subheader">
-              <Text>
-                <b>State:&nbsp;</b>
-              </Text>
-              <Text data-testid="box-state" color={statusColor(boxData.state)}>
-                <b>{boxData.state}</b>
-              </Text>
+          </Box>
+          <Spacer />
+          <Box>
+            <NavLink to="edit">
+              <IconButton
+                aria-label="Edit box"
+                borderRadius="0"
+                icon={<EditIcon h={6} w={6} />}
+                border="2px"
+              />
+            </NavLink>
+          </Box>
+        </Flex>
+        {boxData.tags !== undefined && (
+          <Flex pb={2} px={4} direction="row">
+            <HStack spacing={1} data-testid="box-tags">
+              {boxData.tags?.map((tag) => (
+                <Tag key={tag.id} bg={Style.toTransformString(tag.color)}>
+                  <TagLabel>{tag.name}</TagLabel>
+                </Tag>
+              ))}
+            </HStack>
+          </Flex>
+        )}
+
+        <Flex data-testid="box-subheader" py={2} px={4} direction="row">
+          <Text fontWeight="bold">State:&nbsp;</Text>
+          <Text fontWeight="bold" data-testid="box-state" color={statusColor(boxData.state)}>
+            {boxData.state}
+          </Text>
+        </Flex>
+
+        <Divider />
+        <Stack py={2} px={4}>
+          <Flex>
+            <Heading as="h3" fontSize="xl" data-testid="boxview-number-items">
+              {boxData.numberOfItems}x {boxData.product?.name}
+            </Heading>
+            <Spacer />
+            <ButtonGroup gap="1">
+              <Box alignContent="flex-end" marginLeft={2}>
+                <Tooltip
+                  hasArrow
+                  shouldWrapChildren
+                  mt="3"
+                  label="add items"
+                  aria-label="A tooltip"
+                >
+                  <IconButton
+                    onClick={onPlusOpen}
+                    size="sm"
+                    border="2px"
+                    isRound
+                    borderRadius="0"
+                    aria-label="Search database"
+                    icon={<AddIcon />}
+                    data-testid="increase-items"
+                  />
+                </Tooltip>
+              </Box>
+              <Box alignContent="flex-end" marginRight={1}>
+                <Tooltip
+                  hasArrow
+                  label="remove items"
+                  shouldWrapChildren
+                  mt="3"
+                  aria-label="A tooltip"
+                >
+                  <IconButton
+                    onClick={onMinusOpen}
+                    border="2px"
+                    size="sm"
+                    borderRadius="0"
+                    isRound
+                    aria-label="Search database"
+                    icon={<MinusIcon />}
+                    data-testid="decrease-items"
+                  />
+                </Tooltip>
+              </Box>
+            </ButtonGroup>
+          </Flex>
+        </Stack>
+
+        <Spacer />
+        <Flex py={2} px={4} direction="row">
+          <List spacing={1}>
+            <ListItem>
+              <Flex alignContent="center">
+                <Text fontWeight="bold">Size: {boxData.size.label}</Text>
+              </Flex>
+            </ListItem>
+            {boxData.product?.gender !== "none" && (
+              <ListItem>
+                <Flex direction="row">
+                  <Text fontWeight="bold">
+                    Gender: <b>{boxData.product?.gender}</b>
+                  </Text>
+                </Flex>
+              </ListItem>
+            )}
+            {boxData?.comment !== "" && boxData?.comment !== null && (
+              <ListItem>
+                <Flex direction="row">
+                  <Text fontWeight="bold">
+                    Comment: <b>{boxData?.comment}</b>
+                  </Text>
+                </Flex>
+              </ListItem>
+            )}
+          </List>
+        </Flex>
+
+        <Divider />
+        <Stack py={2} px={4} alignContent="center">
+          <Flex alignContent="center" direction="row">
+            <Text fontSize="xl" fontWeight="bold">
+              Mark as: &nbsp;
+            </Text>
+          </Flex>
+          <Flex py={2} px={2} minWidth="max-content" alignItems="center">
+            <Flex alignContent="center" direction="row">
+              <FormLabel htmlFor="scrap">Scrap:</FormLabel>
+              <Switch
+                id="scrap"
+                isChecked={boxData.state === BoxState.Scrap}
+                data-testid="box-scrap-btn"
+                isFocusable={false}
+                onChange={() =>
+                  onStateChange(
+                    // If the current box state 'Scrap' is toggled, set the defaultBoxState of the box location
+                    boxData.state === BoxState.Scrap
+                      ? (boxData?.location as any)?.defaultBoxState
+                      : BoxState.Scrap,
+                  )
+                }
+                mr={2}
+              />
+            </Flex>
+            <Spacer />
+            <Flex alignContent="center" direction="row">
+              <FormLabel htmlFor="lost">Lost:</FormLabel>
+              <Switch
+                id="lost"
+                isFocusable={false}
+                data-testid="box-lost-btn"
+                onChange={() =>
+                  onStateChange(
+                    // If the current box state 'Lost' is toggled, set the defaultBoxState of the box location
+                    boxData.state === BoxState.Lost
+                      ? (boxData?.location as any)?.defaultBoxState
+                      : BoxState.Lost,
+                  )
+                }
+                mr={2}
+                isChecked={boxData.state === BoxState.Lost}
+              />
             </Flex>
           </Flex>
-
-          <NavLink to="edit">
-            <IconButton
-              aria-label="Edit box"
-              borderRadius="0"
-              icon={<EditIcon h={6} w={6} />}
-              border="2px"
-            />
-          </NavLink>
-        </Flex>
-        <List px={4} pb={2} spacing={2}>
-          <ListItem>
-            <Text fontSize="xl" fontWeight="bold">
-              {boxData.product?.name}
-            </Text>
-          </ListItem>
-          <ListItem>
-            <Flex alignItems="center">
-              <Box border="2px" borderRadius="0" px={2}>
-                <Text fontSize="xl" fontWeight="bold" data-testid="boxview-number-items">
-                  # {boxData.numberOfItems}
-                </Text>
-              </Box>
-              <Box border="2px" backgroundColor="#1A202C" borderRadius="0" px={2}>
-                <Text color="#F3E4A0" fontSize="xl" fontWeight="bold">
-                  {boxData.size.label}
-                </Text>
-              </Box>
-            </Flex>
-          </ListItem>
-          <ListItem>
-            <Flex direction="row" pb={4}>
-              <Text fontSize="xl" fontWeight="bold">
-                <b>{boxData.product?.gender}</b>
-              </Text>
-            </Flex>
-            <Flex direction="row" pb={4}>
-              <HStack spacing={2} data-testid="box-tags">
-                {boxData.tags.map((tag) => (
-                  <Tag size="sm" key={tag.id} bg={Style.toTransformString(tag.color)}>
-                    <TagLabel>{tag.name}</TagLabel>
-                  </Tag>
-                ))}
-              </HStack>
-            </Flex>
-          </ListItem>
-          <ListItem>
-            <Flex justifyContent="space-between">
-              <Flex>
-                <Button
-                  data-testid="box-scrap-btn"
-                  onClick={onScrap}
-                  mr={4}
-                  border="2px"
-                  borderRadius="0"
-                >
-                  Scrap
-                </Button>
-                <Button
-                  data-testid="box-lost-btn"
-                  onClick={onLost}
-                  mr={4}
-                  border="2px"
-                  borderRadius="0"
-                >
-                  Lost
-                </Button>
-              </Flex>
-              <Flex direction="row" justifyContent="flex-end">
-                <IconButton
-                  onClick={onPlusOpen}
-                  mr={4}
-                  border="2px"
-                  borderRadius="0"
-                  aria-label="Search database"
-                  icon={<AddIcon />}
-                  data-testid="increase-items"
-                />
-                <IconButton
-                  onClick={onMinusOpen}
-                  border="2px"
-                  borderRadius="0"
-                  aria-label="Search database"
-                  icon={<MinusIcon />}
-                  data-testid="decrease-items"
-                />
-              </Flex>
-            </Flex>
-          </ListItem>
-        </List>
+        </Stack>
       </Box>
       <Box
         alignContent="center"
@@ -198,6 +268,11 @@ function BoxDetails({
           <Flex wrap="wrap" justifyContent="center">
             {boxData.location?.base?.locations
               ?.filter((location) => location.id !== boxData.location?.id)
+              .filter(
+                (location) =>
+                  location?.defaultBoxState !== BoxState.Lost &&
+                  location?.defaultBoxState !== BoxState.Scrap,
+              )
               .map((location) => (
                 <WrapItem key={location.id} m={1}>
                   <Button

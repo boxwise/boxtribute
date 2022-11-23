@@ -2,60 +2,63 @@ import { gql, useMutation, useQuery } from "@apollo/client";
 import APILoadingIndicator from "components/APILoadingIndicator";
 import { useNavigate, useParams } from "react-router-dom";
 import {
-  BoxByLabelIdentifierAndAllProductsQuery,
-  BoxByLabelIdentifierAndAllProductsQueryVariables,
+  BoxByLabelIdentifierAndAllProductsWithBaseIdQuery,
+  BoxByLabelIdentifierAndAllProductsWithBaseIdQueryVariables,
+  BoxState,
   UpdateContentOfBoxMutation,
   UpdateContentOfBoxMutationVariables,
 } from "types/generated/graphql";
-import BoxEdit, { IBoxFormValues } from "./components/BoxEdit";
+import {
+  PRODUCT_FIELDS_FRAGMENT,
+  SIZE_FIELDS_FRAGMENT,
+  TAG_OPTIONS_FRAGMENT,
+} from "utils/fragments";
+import { BOX_BY_LABEL_IDENTIFIER_QUERY } from "views/Box/BoxView";
+import { notificationVar } from "../../components/NotificationMessage";
+import BoxEdit, { IBoxEditFormData } from "./components/BoxEdit";
 
-export const BOX_BY_LABEL_IDENTIFIER_AND_ALL_PRODUCTS_QUERY = gql`
-  query BoxByLabelIdentifierAndAllProducts($labelIdentifier: String!) {
+export const BOX_BY_LABEL_IDENTIFIER_AND_ALL_PRODUCTS_WITH_BASEID_QUERY = gql`
+  ${TAG_OPTIONS_FRAGMENT}
+  ${PRODUCT_FIELDS_FRAGMENT}
+  ${SIZE_FIELDS_FRAGMENT}
+  query BoxByLabelIdentifierAndAllProductsWithBaseId($baseId: ID!, $labelIdentifier: String!) {
     box(labelIdentifier: $labelIdentifier) {
       labelIdentifier
       size {
-        id
-        label
+        ...SizeFields
       }
       numberOfItems
+      comment
+      tags {
+        ...TagOptions
+      }
       product {
-        id
-        name
-        gender
-        sizeRange {
-          sizes {
-            id
-            label
-          }
-        }
+        ...ProductFields
       }
       location {
+        ... on ClassicLocation {
+          defaultBoxState
+        }
         id
         name
-        base {
-          locations {
-            id
-            name
-          }
-        }
       }
     }
 
-    products(paginationInput: { first: 5000 }) {
-      elements {
+    base(id: $baseId) {
+      tags(resourceType: Box) {
+        ...TagOptions
+      }
+
+      locations {
+        ... on ClassicLocation {
+          defaultBoxState
+        }
         id
         name
-        gender
-        category {
-          name
-        }
-        sizeRange {
-          label
-          sizes {
-            id
-            label
-          }
-        }
+      }
+
+      products {
+        ...ProductFields
       }
     }
   }
@@ -68,6 +71,8 @@ export const UPDATE_CONTENT_OF_BOX_MUTATION = gql`
     $locationId: Int!
     $numberOfItems: Int!
     $sizeId: Int!
+    $comment: String
+    $tagIds: [Int!]
   ) {
     updateBox(
       updateInput: {
@@ -76,6 +81,8 @@ export const UPDATE_CONTENT_OF_BOX_MUTATION = gql`
         numberOfItems: $numberOfItems
         sizeId: $sizeId
         locationId: $locationId
+        comment: $comment
+        tagIds: $tagIds
       }
     ) {
       labelIdentifier
@@ -85,74 +92,123 @@ export const UPDATE_CONTENT_OF_BOX_MUTATION = gql`
 
 function BoxEditView() {
   const labelIdentifier = useParams<{ labelIdentifier: string }>().labelIdentifier!;
+  const baseId = useParams<{ baseId: string }>().baseId!;
   const { loading, data } = useQuery<
-    BoxByLabelIdentifierAndAllProductsQuery,
-    BoxByLabelIdentifierAndAllProductsQueryVariables
-  >(BOX_BY_LABEL_IDENTIFIER_AND_ALL_PRODUCTS_QUERY, {
+    BoxByLabelIdentifierAndAllProductsWithBaseIdQuery,
+    BoxByLabelIdentifierAndAllProductsWithBaseIdQueryVariables
+  >(BOX_BY_LABEL_IDENTIFIER_AND_ALL_PRODUCTS_WITH_BASEID_QUERY, {
+    variables: {
+      baseId,
+      labelIdentifier,
+    },
+  });
+  const navigate = useNavigate();
+
+  const refetchBoxByLabelIdentifierQueryConfig = () => ({
+    query: BOX_BY_LABEL_IDENTIFIER_QUERY,
     variables: {
       labelIdentifier,
     },
   });
-  const { baseId } = useParams<{ baseId: string }>();
-  const navigate = useNavigate();
 
   const [updateContentOfBoxMutation] = useMutation<
     UpdateContentOfBoxMutation,
     UpdateContentOfBoxMutationVariables
-  >(UPDATE_CONTENT_OF_BOX_MUTATION);
+  >(UPDATE_CONTENT_OF_BOX_MUTATION, {
+    refetchQueries: [refetchBoxByLabelIdentifierQueryConfig()],
+  });
 
-  const onSubmitBoxEditForm = (boxFormValues: IBoxFormValues) => {
-    // eslint-disable-next-line no-console
-    console.log("boxLabelIdentifier", labelIdentifier);
-    // eslint-disable-next-line no-console
-    console.log("boxFormValues", boxFormValues);
+  const onSubmitBoxEditForm = (boxEditFormData: IBoxEditFormData) => {
+    const tagIds = boxEditFormData?.tags
+      ? boxEditFormData?.tags?.map((tag) => parseInt(tag.value, 10))
+      : [];
 
     updateContentOfBoxMutation({
       variables: {
         boxLabelIdentifier: labelIdentifier,
-        productId: parseInt(boxFormValues.productId, 10),
-        numberOfItems: boxFormValues.numberOfItems,
-        sizeId: parseInt(boxFormValues.sizeId, 10),
-        locationId: parseInt(boxFormValues.locationId, 10),
+        productId: parseInt(boxEditFormData.productId.value, 10),
+        sizeId: parseInt(boxEditFormData.sizeId.value, 10),
+        numberOfItems: boxEditFormData.numberOfItems,
+        locationId: parseInt(boxEditFormData.locationId.value, 10),
+        tagIds,
+        comment: boxEditFormData?.comment,
       },
     })
       .then((mutationResult) => {
-        navigate(`/bases/${baseId}/boxes/${mutationResult.data?.updateBox?.labelIdentifier}`);
+        if (mutationResult?.errors) {
+          notificationVar({
+            title: `Box ${labelIdentifier}`,
+            type: "error",
+            message: "Error while trying to update Box",
+          });
+        } else {
+          notificationVar({
+            title: `Box ${labelIdentifier}`,
+            type: "success",
+            message: `Successfully modified with ${
+              (data?.base?.products.find((p) => p.id === boxEditFormData.productId.value) as any)
+                .name
+            } (${boxEditFormData?.numberOfItems}x) in ${
+              (data?.base?.locations.find((l) => l.id === boxEditFormData.locationId.value) as any)
+                .name
+            }.`,
+          });
+          navigate(`/bases/${baseId}/boxes/${mutationResult.data?.updateBox?.labelIdentifier}`);
+        }
       })
       .catch((error) => {
-        // eslint-disable-next-line no-console
-        console.error("Error while trying to update Box", error);
+        notificationVar({
+          title: `Box ${labelIdentifier}`,
+          type: "error",
+          message: `Error - Code ${error.code}: Your changes could not be saved!`,
+        });
       });
   };
 
   if (loading) {
     return <APILoadingIndicator />;
   }
+
   const boxData = data?.box;
-  const productAndSizesData = data?.products;
-  const allLocations = data?.box?.location?.base?.locations.map((location) => ({
-    ...location,
-    name: location.name ?? "",
-  }));
+  const productAndSizesData = data?.base?.products;
+  const allTags = data?.base?.tags || null;
+
+  // These are all the locations that are retrieved from the query which then filtered out the Scrap and Lost according to the defaultBoxState
+  const allLocations = data?.base?.locations
+    .filter(
+      (location) =>
+        location?.defaultBoxState !== BoxState.Lost && location?.defaultBoxState !== BoxState.Scrap,
+    )
+    .map((location) => ({
+      ...location,
+      name: location.name ?? "",
+    }));
 
   if (allLocations == null) {
-    // eslint-disable-next-line no-console
-    console.error("allLocations is null");
-    return <div>Error: no locations available to choose from</div>;
+    notificationVar({
+      title: "Error",
+      type: "error",
+      message: "Error: No other locations are visible!",
+    });
+    return <div />;
   }
 
-  if (productAndSizesData?.elements == null) {
-    // eslint-disable-next-line no-console
-    console.error("allProducts.elements is null");
-    return <div>Error: no products available to choose from for this Box</div>;
+  if (productAndSizesData == null) {
+    notificationVar({
+      title: "Error",
+      type: "error",
+      message: "Error: No products are visible!",
+    });
+    return <div />;
   }
 
   return (
     <BoxEdit
       boxData={boxData}
       onSubmitBoxEditForm={onSubmitBoxEditForm}
-      productAndSizesData={productAndSizesData?.elements}
+      productAndSizesData={productAndSizesData}
       allLocations={allLocations}
+      allTags={allTags}
     />
   );
 }

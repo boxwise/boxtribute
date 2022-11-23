@@ -2,13 +2,16 @@ from boxtribute_server.enums import BoxState
 from utils import assert_successful_request
 
 
-def test_location_query(read_only_client, default_boxes, default_location):
+def test_location_query(
+    read_only_client, default_boxes, default_location, default_location_boxes
+):
     # Test case 8.1.6, 8.1.10
     query = f"""query {{
                 location(id: "{default_location['id']}") {{
                     id
                     base {{ id }}
                     name
+                    seq
                     isShop
                     isStockroom
                     boxes {{
@@ -24,9 +27,10 @@ def test_location_query(read_only_client, default_boxes, default_location):
         "id": str(default_location["id"]),
         "base": {"id": str(default_location["base"])},
         "name": default_location["name"],
+        "seq": default_location["seq"],
         "isShop": default_location["is_shop"],
         "isStockroom": default_location["is_stockroom"],
-        "boxes": {"elements": [{"id": str(b["id"])} for b in default_boxes[1:]]},
+        "boxes": {"elements": [{"id": str(b["id"])} for b in default_location_boxes]},
         "defaultBoxState": BoxState(default_location["box_state"]).name,
         "createdOn": None,
         "createdBy": {"id": str(default_location["created_by"])},

@@ -1,7 +1,7 @@
 import React from "react";
 import ReactDOM from "react-dom";
 import { BrowserRouter } from "react-router-dom";
-import { ChakraProvider, CSSReset, extendTheme } from "@chakra-ui/react";
+import { ChakraProvider, CSSReset } from "@chakra-ui/react";
 import { withAuthenticationRequired } from "@auth0/auth0-react";
 import { GlobalPreferencesProvider } from "providers/GlobalPreferencesProvider";
 import Auth0ProviderWithHistory from "providers/Auth0ProviderWithHistory";
@@ -10,6 +10,7 @@ import { BrowserTracing } from "@sentry/tracing";
 import { CaptureConsole } from "@sentry/integrations";
 import App from "./App";
 import ApolloAuth0Provider from "./providers/ApolloAuth0Provider";
+import { theme } from "./utils/theme";
 
 if (process.env.NODE_ENV === "development") {
   // eslint-disable-next-line global-require
@@ -52,60 +53,6 @@ if (process.env.NODE_ENV === "development") {
   worker.start();
 }
 
-const colors = {
-  brand: {
-    900: "#1a365d",
-    800: "#153e75",
-    700: "#2a69ac",
-  },
-  primary: {
-    700: "light-blue",
-    500: "blue",
-  },
-};
-
-const theme = extendTheme({
-  colors,
-  components: {
-    Button: {
-      defaultProps: {
-        borderRadius: "0",
-      },
-    },
-    Link: {
-      // baseStyle: {
-      //   color: "blue",
-      //   textDecoration: "underline",
-      // },
-      variants: {
-        "inline-link": {
-          color: "blue",
-          textDecoration: "underline",
-        },
-      },
-    },
-    FormLabel: {
-      baseStyle: {
-        fontWeight: "bold",
-      },
-    },
-    Input: {
-      defaultProps: {
-        focusBorderColor: "transparent",
-        borderRadius: "0",
-      },
-      shadows: "none",
-      sizes: {
-        lg: {
-          field: {
-            borderRadius: "none",
-          },
-        },
-      },
-    },
-  },
-});
-
 const AuthenticationProtectedApp = withAuthenticationRequired(App);
 
 const SentryProfiledApp = Sentry.withProfiler(AuthenticationProtectedApp);
@@ -124,7 +71,7 @@ if (sentryDsn) {
     // of transactions for performance monitoring.
     // We recommend adjusting this value in production
     tracesSampleRate: 1.0,
-    // the 'environment' option is read from the SENTRY_ENVIRONMENT env variable
+    environment: process.env.REACT_APP_SENTRY_ENVIRONMENT,
   });
 }
 

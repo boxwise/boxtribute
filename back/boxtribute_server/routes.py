@@ -8,6 +8,7 @@ from flask import Blueprint, current_app, jsonify, request
 from flask_cors import cross_origin
 
 from .auth import request_jwt, requires_auth
+from .authz import check_beta_feature_access
 from .exceptions import AuthenticationFailed, format_database_errors
 from .graph_ql.schema import full_api_schema, query_api_schema
 from .loaders import (
@@ -18,6 +19,7 @@ from .loaders import (
     SizesForSizeRangeLoader,
     TagsForBoxLoader,
 )
+from .logging import API_CONTEXT, WEBAPP_CONTEXT, log_request_to_gcloud
 
 # Blueprint for query-only API. Deployed on the 'api*' subdomains
 api_bp = Blueprint("api_bp", __name__)
@@ -52,7 +54,8 @@ def query_api_playground():
 @cross_origin(origin="localhost", headers=["Content-Type", "Authorization"])
 @requires_auth
 def query_api_server():
-    return execute_async(schema=query_api_schema)
+    log_request_to_gcloud(context=API_CONTEXT)
+    return execute_async(schema=query_api_schema, introspection=True)
 
 
 @api_bp.route("/token", methods=["POST"])
@@ -82,10 +85,15 @@ def graphql_playgroud():
 @cross_origin(origin="localhost", headers=["Content-Type", "Authorization"])
 @requires_auth
 def graphql_server():
+    log_request_to_gcloud(context=WEBAPP_CONTEXT)
+
+    if not check_beta_feature_access(request.get_json()["query"]):
+        return {"error": "No permission to access beta feature"}, 401
+
     return execute_async(schema=full_api_schema)
 
 
-def execute_async(*, schema):
+def execute_async(*, schema, introspection=None):
     """Create coroutine and execute it with high-level `asyncio.run` which takes care of
     managing the asyncio event loop, finalizing asynchronous generators, and closing
     the threadpool.
@@ -109,7 +117,7 @@ def execute_async(*, schema):
             data=request.get_json(),
             context_value=context,
             debug=current_app.debug,
-            introspection=current_app.debug,
+            introspection=current_app.debug if introspection is None else introspection,
             error_formatter=format_database_errors,
         )
         return results

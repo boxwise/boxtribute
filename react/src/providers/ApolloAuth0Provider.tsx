@@ -9,10 +9,13 @@ import {
   HttpLink,
   ApolloProvider,
   DefaultOptions,
+  ReactiveVar,
 } from "@apollo/client";
 import { setContext } from "@apollo/client/link/context";
 import { useAuth0 } from "@auth0/auth0-react";
 import { onError } from "@apollo/client/link/error";
+
+export const cache = new InMemoryCache();
 
 function ApolloAuth0Provider({ children }: { children: ReactNode }) {
   const { isAuthenticated, getAccessTokenSilently } = useAuth0();
@@ -46,8 +49,8 @@ function ApolloAuth0Provider({ children }: { children: ReactNode }) {
     if (graphQLErrors) {
       graphQLErrors.map(({ message, locations, path }) =>
         console.error(
-          `[GraphQL error]: Message: ${message}, Location: ${locations}, Path: ${path}`
-        )
+          `[GraphQL error]: Message: ${message}, Location: ${locations}, Path: ${path}`,
+        ),
       );
     }
     if (networkError) {
@@ -65,7 +68,7 @@ function ApolloAuth0Provider({ children }: { children: ReactNode }) {
   };
 
   const client = new ApolloClient({
-    cache: new InMemoryCache(),
+    cache: cache,
     // HINT: Ideally, only set this temporary to true for local debugging
     // or make the usage here conditional based on the environment.
     connectToDevTools: true,

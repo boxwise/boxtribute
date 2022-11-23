@@ -27,14 +27,8 @@ def default_user_data():
     }
 
 
-def default_users_data():
-    users = {}
-
-    mock_user = default_user_data()
-
-    users[mock_user["id"]] = mock_user
-
-    mock_user = {
+def second_user_data():
+    return {
         "id": 2,
         "name": "trainer",
         "email": "alarm@bedpost.com",
@@ -51,9 +45,9 @@ def default_users_data():
         "deleted": None,
     }
 
-    users[mock_user["id"]] = mock_user
 
-    mock_user = {
+def another_user_data():
+    return {
         "id": 8,
         "name": "coord",
         "email": "dev_coordinator@boxaid.org",
@@ -70,20 +64,25 @@ def default_users_data():
         "deleted": None,
     }
 
-    users[mock_user["id"]] = mock_user
 
-    return users
+def data():
+    return [default_user_data(), second_user_data(), another_user_data()]
 
 
-@pytest.fixture()
+@pytest.fixture
 def default_user():
     return default_user_data()
 
 
-@pytest.fixture()
+@pytest.fixture
 def default_users():
-    return default_users_data()
+    return data()
+
+
+@pytest.fixture
+def another_user():
+    return another_user_data()
 
 
 def create():
-    User.insert_many(default_users_data().values()).execute()
+    User.insert_many(data()).execute()
