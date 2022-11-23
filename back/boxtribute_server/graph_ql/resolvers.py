@@ -570,7 +570,10 @@ def resolve_location_default_box_state(location_obj, _):
 @convert_kwargs_to_snake_case
 def resolve_add_packing_list_entry_to_distribution_event(*_, creation_input):
     mobile_distro_feature_flag_check(user_id=g.user.id)
-    authorize(permission="packing_list_entry:write")
+    event = DistributionEvent.get_by_id(creation_input["distribution_event_id"])
+    authorize(
+        permission="packing_list_entry:write", base_id=event.distribution_spot.base_id
+    )
     return add_packing_list_entry_to_distribution_event(
         user_id=g.user.id, **creation_input
     )
@@ -580,7 +583,8 @@ def resolve_add_packing_list_entry_to_distribution_event(*_, creation_input):
 @convert_kwargs_to_snake_case
 def resolve_update_packing_list_entry(*_, packing_list_entry_id, number_of_items):
     mobile_distro_feature_flag_check(user_id=g.user.id)
-    authorize(permission="packing_list_entry:write")
+    entry = PackingListEntry.get_by_id(packing_list_entry_id)
+    authorize(permission="packing_list_entry:write", base_id=entry.product.base_id)
     return update_packing_list_entry(
         user_id=g.user.id,
         packing_list_entry_id=packing_list_entry_id,
@@ -594,7 +598,8 @@ def resolve_remove_all_packing_list_entries_from_distribution_event_for_product(
     *_, distribution_event_id, product_id
 ):
     mobile_distro_feature_flag_check(user_id=g.user.id)
-    authorize(permission="packing_list_entry:write")
+    product = Product.get_by_id(product_id)
+    authorize(permission="packing_list_entry:write", base_id=product.base_id)
     return remove_all_packing_list_entries_from_distribution_event_for_product(
         user_id=g.user.id,
         distribution_event_id=distribution_event_id,
@@ -608,7 +613,10 @@ def resolve_set_products_for_packing_list(
     *_, distribution_event_id, product_ids_to_add, product_ids_to_remove
 ):
     mobile_distro_feature_flag_check(user_id=g.user.id)
-    authorize(permission="packing_list_entry:write")
+    event = DistributionEvent.get_by_id(distribution_event_id)
+    authorize(
+        permission="packing_list_entry:write", base_id=event.distribution_spot.base_id
+    )
     return set_products_for_packing_list(
         user_id=g.user.id,
         distribution_event_id=distribution_event_id,
@@ -781,11 +789,13 @@ def resolve_move_items_from_box_to_distribution_event(
     mutation_obj, _, box_label_identifier, distribution_event_id, number_of_items
 ):
     mobile_distro_feature_flag_check(user_id=g.user.id)
-    # TODO: here are most likely more authorization checks needed:
-    # * is the box and the event in the same base?
-    # * is the user allowed to write to the specific box (base check)?
-    # * is the user allowed to write to the specific event (base check)?
-    authorize(permission="unboxed_items_collection:write")
+    event = DistributionEvent.get_by_id(distribution_event_id)
+    authorize(
+        permission="unboxed_items_collection:write",
+        base_id=event.distribution_spot.base_id,
+    )
+    box = Box.get(Box.label_identifier == box_label_identifier)
+    authorize(permission="stock:write", base_id=box.location.base_id)
     return move_items_from_box_to_distribution_event(
         user_id=g.user.id,
         box_label_identifier=box_label_identifier,
@@ -1215,11 +1225,14 @@ def resolve_distribution_event_unboxed_item_collections(distribution_event_obj, 
 
 
 @distribution_event.field("packingListEntries")
-def resolve_packing_list_entries(obj, *_):
+def resolve_packing_list_entries(distro_event_obj, *_):
     mobile_distro_feature_flag_check(user_id=g.user.id)
-    authorize(permission="packing_list_entry:read")
+    event = DistributionEvent.get_by_id(distro_event_obj.id)
+    authorize(
+        permission="packing_list_entry:read", base_id=event.distribution_spot.base_id
+    )
     return PackingListEntry.select().where(
-        PackingListEntry.distribution_event == obj.id
+        PackingListEntry.distribution_event == distro_event_obj.id
     )
 
 

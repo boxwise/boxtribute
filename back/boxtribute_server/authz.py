@@ -14,13 +14,11 @@ BASE_AGNOSTIC_RESOURCES = (
     "history",
     "language",
     "organisation",
-    "packing_list_entry",  # temporary
     "qr",
     "size",
     "size_range",
     "tag_relation",
     "transaction",
-    "unboxed_items_collection",  # temporary
     "user",
 )
 
