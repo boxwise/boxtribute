@@ -563,7 +563,7 @@ def resolve_box_state(box_obj, _):
 @classic_location.field("defaultBoxState")
 def resolve_location_default_box_state(location_obj, _):
     # Instead of a BoxState instance return an integer for EnumType conversion
-    return location_obj.box_state.id
+    return location_obj.box_state_id
 
 
 @mutation.field("addPackingListEntryToDistributionEvent")
