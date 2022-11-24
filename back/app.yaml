@@ -2,25 +2,25 @@ runtime: python310
 service: v2-staging
 entrypoint: gunicorn -b :$PORT boxtribute_server.main:app
 handlers:
-  - url: /graphql
-    script: auto
-    secure: always
-  - url: /
-    secure: always
-    static_files: react-build/index.html
-    upload: react-build/index.html
-  - url: /manifest.json
-    static_files: react-build/manifest.json
-    upload: react-build/manifest.json
-  - url: /static/(.*)
-    secure: always
-    static_files: react-build/static/\1
-    upload: react-build/static/(.*)
-  - url: /(.*\.ico)
-    mime_type: image/x-icon
-    static_files: react-build/\1
-    upload: react-build/(.*\.ico)
-  - url: /(.*)
-    secure: always
-    static_files: react-build/index.html
-    upload: react-build/index.html
+- url: /graphql
+  script: auto
+  secure: always
+- url: /
+  secure: always
+  static_files: react-build/index.html
+  upload: react-build/index.html
+- url: /manifest.json
+  static_files: react-build/manifest.json
+  upload: react-build/manifest.json
+- url: /static/(.*)
+  secure: always
+  static_files: react-build/static/\1
+  upload: react-build/static/(.*)
+- url: /(.*\.ico)
+  mime_type: image/x-icon
+  static_files: react-build/\1
+  upload: react-build/(.*\.ico)
+- url: /(.*)
+  secure: always
+  static_files: react-build/index.html
+  upload: react-build/index.html
