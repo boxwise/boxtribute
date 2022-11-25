@@ -58,7 +58,7 @@ def main(*blueprints):
     # dsn/environment/release: reading SENTRY_* environment variables set in CircleCI
     sentry_sdk.init(
         integrations=[FlaskIntegration()],
-        traces_sample_rate=float(os.getenv("SENTRY_TRACES_SAMPLE_RATE", 1.0)),
+        traces_sample_rate=float(os.getenv("SENTRY_TRACES_SAMPLE_RATE", 0.0)),
         before_send=before_sentry_send,
     )
 
