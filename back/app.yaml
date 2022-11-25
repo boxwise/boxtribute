@@ -9,6 +9,9 @@ handlers:
   secure: always
   static_files: react-build/index.html
   upload: react-build/index.html
+- url: /manifest.json
+  static_files: react-build/manifest.json
+  upload: react-build/manifest.json
 - url: /static/(.*)
   secure: always
   static_files: react-build/static/\1
