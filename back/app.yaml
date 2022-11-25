@@ -16,10 +16,10 @@ handlers:
   secure: always
   static_files: react-build/static/\1
   upload: react-build/static/(.*)
-- url: /(.*\.ico)
-  mime_type: image/x-icon
+- url: /(.*\.(ico|png|svg))$
+  secure: always
   static_files: react-build/\1
-  upload: react-build/(.*\.ico)
+  upload: react-build/(.*\.(ico|png|svg))$
 - url: /(.*)
   secure: always
   static_files: react-build/index.html
