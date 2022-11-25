@@ -62,6 +62,7 @@ jobs:
               REACT_APP_LOGOUT_URL=${REACT_APP_LOGOUT_URL}
               REACT_APP_GRAPHQL_SERVER=${REACT_APP_GRAPHQL_SERVER}
               REACT_APP_SENTRY_FE_DSN=${SENTRY_FE_DSN}
+              REACT_APP_OLD_APP_BASE_URL=${OLD_APP_BASE_URL}
               REACT_APP_SENTRY_ENVIRONMENT=${SENTRY_ENVIRONMENT}
             " > .env
       # following https://circleci.com/docs/2.0/yarn/
@@ -134,7 +135,7 @@ jobs:
             - ~/.cache/pre-commit
       # https://circleci.com/docs/2.0/postgres-config/#example-mysql-project
       - run:
-      # Our primary container isn't MYSQL so run a sleep command until it's ready.
+          # Our primary container isn't MYSQL so run a sleep command until it's ready.
           name: Waiting for MySQL to be ready
           command: |
             for i in `seq 1 10`;

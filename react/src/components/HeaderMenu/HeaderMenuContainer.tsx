@@ -23,15 +23,25 @@ const HeaderMenuContainer = () => {
   const menuItems: MenuItemsGroupData[] = useMemo(
     () => [
       {
-        text: "Boxes",
+        text: "Classic View",
         links: [
-          // { link: "#", name: "Print Labels" },
-          { link: `/bases/${baseId}/boxes`, name: "Manage Boxes" },
-            // TODO: uncomment this once we have finished/tested the Create Box feature sufficiently
-          // { link: `/bases/${baseId}/boxes/create`, name: "Create new Box" },
-          // { link: "#", name: "Stock Overview" },
+          {
+            link: `${process.env.REACT_APP_OLD_APP_BASE_URL}/mobile.php`,
+            name: "Go to classic mobile",
+          },
+          { link: `${process.env.REACT_APP_OLD_APP_BASE_URL}/`, name: "Go to classic desktop" },
         ],
       },
+      // {
+      //   text: "Boxes",
+      //   links: [
+      //     // { link: "#", name: "Print Labels" },
+      //     { link: `/bases/${baseId}/boxes`, name: "Manage Boxes" },
+      //       // TODO: uncomment this once we have finished/tested the Create Box feature sufficiently
+      //     // { link: `/bases/${baseId}/boxes/create`, name: "Create new Box" },
+      //     // { link: "#", name: "Stock Overview" },
+      //   ],
+      // },
       // {
       //   text: "Freeshop",
       //   links: [
@@ -40,23 +50,23 @@ const HeaderMenuContainer = () => {
       //     { link: "#", name: "Generate Market Schedule" },
       //   ],
       // },
-      {
-        text: "Mobile Distributions",
-        links: [
-          {
-            link: `/bases/${baseId}/distributions`,
-            name: "Distribution Events",
-          },
-          {
-            link: `/bases/${baseId}/distributions/return-trackings`,
-            name: "Return Trackings",
-          },
-          {
-            link: `/bases/${baseId}/distributions/spots`,
-            name: "Distribution Spots",
-          },
-        ],
-      },
+      // {
+      //   text: "Mobile Distributions",
+      //   links: [
+      //     {
+      //       link: `/bases/${baseId}/distributions`,
+      //       name: "Distribution Events",
+      //     },
+      //     {
+      //       link: `/bases/${baseId}/distributions/return-trackings`,
+      //       name: "Return Trackings",
+      //     },
+      //     {
+      //       link: `/bases/${baseId}/distributions/spots`,
+      //       name: "Distribution Spots",
+      //     },
+      //   ],
+      // },
       // {
       //   text: "Box Transfers",
       //   links: [
@@ -71,23 +81,21 @@ const HeaderMenuContainer = () => {
       //     { link: "#", name: "Export" },
       //   ],
       // },
-      {
-        text: "Admin",
-        links: [
-          { link: "#", name: "Manage Tags" },
-          // { link: "#", name: "Manage Products" },
-          // { link: "#", name: "Edit Warehouses" },
-          // { link: "#", name: "Manage Users" },
-        ],
-      },
+      // {
+      //   text: "Admin",
+      //   links: [
+      //     { link: "#", name: "Manage Tags" },
+      //     // { link: "#", name: "Manage Products" },
+      //     // { link: "#", name: "Edit Warehouses" },
+      //     // { link: "#", name: "Manage Users" },
+      //   ],
+      // },
     ],
-    [baseId]
+    [baseId],
   );
   const qrScannerOverlayState = useDisclosure({ defaultIsOpen: false });
   const toast = useToast();
-  const [boxesDataForBulkOperation, setBoxesDataForBulkOperation] = useState<
-    IBoxDetailsData[]
-  >([]);
+  const [boxesDataForBulkOperation, setBoxesDataForBulkOperation] = useState<IBoxDetailsData[]>([]);
 
   const onScanningDone = useCallback(
     (qrResolvedValues: QrResolvedValue[]) => {
@@ -95,8 +103,7 @@ const HeaderMenuContainer = () => {
         const singleResolvedQrValue = qrResolvedValues[0];
         switch (singleResolvedQrValue.kind) {
           case "success": {
-            const boxLabelIdentifier =
-              singleResolvedQrValue.value.labelIdentifier;
+            const boxLabelIdentifier = singleResolvedQrValue.value.labelIdentifier;
             navigate(`/bases/${baseId}/boxes/${boxLabelIdentifier}`);
             break;
           }
@@ -125,10 +132,10 @@ const HeaderMenuContainer = () => {
         }
       } else {
         const successfullyResolvedValues = qrResolvedValues.filter(
-          (qrResolvedValue) => qrResolvedValue.kind === "success"
+          (qrResolvedValue) => qrResolvedValue.kind === "success",
         ) as QrResolverResultSuccessValue[];
         const boxesData = successfullyResolvedValues.map(
-          (qrResolvedValue) => qrResolvedValue.value
+          (qrResolvedValue) => qrResolvedValue.value,
         );
         setBoxesDataForBulkOperation(boxesData);
         // toast({
@@ -139,7 +146,7 @@ const HeaderMenuContainer = () => {
         // });
       }
     },
-    [baseId, navigate, toast]
+    [baseId, navigate, toast],
   );
 
   if (baseId == null) {
