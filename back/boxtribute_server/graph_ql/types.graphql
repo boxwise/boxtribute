@@ -42,6 +42,13 @@ type Box implements ItemsCollection {
   lastModifiedOn: Datetime
   comment: String
   tags: [Tag!]
+  history: [HistoryEntry!]
+}
+
+type HistoryEntry {
+  changes: String!
+  changeDate: Datetime
+  user: User
 }
 
 interface Location {

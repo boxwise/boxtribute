@@ -73,6 +73,7 @@ def test_box_mutations(
     another_size,
     products,
     default_location,
+    null_box_state_location,
     tags,
 ):
     # Test case 8.2.1
@@ -152,6 +153,7 @@ def test_box_mutations(
     # Test case 8.2.11
     new_size_id = str(another_size["id"])
     new_product_id = str(products[2]["id"])
+    new_location_id = str(null_box_state_location["id"])
     comment = "updatedComment"
     nr_items = 7777
     mutation = f"""mutation {{
@@ -160,6 +162,7 @@ def test_box_mutations(
                     numberOfItems: {nr_items},
                     labelIdentifier: "{created_box["labelIdentifier"]}"
                     comment: "{comment}"
+                    locationId: {new_location_id},
                     sizeId: {new_size_id},
                     productId: {new_product_id},
                 }} ) {{
@@ -169,16 +172,51 @@ def test_box_mutations(
                 createdOn
                 qrCode {{ id }}
                 comment
+                location {{ id }}
                 size {{ id }}
                 product {{ id }}
+                history {{
+                    changes
+                    user {{ name }}
+                }}
             }}
         }}"""
     updated_box = assert_successful_request(client, mutation)
     assert updated_box["comment"] == comment
     assert updated_box["numberOfItems"] == nr_items
     assert updated_box["qrCode"] == created_box["qrCode"]
+    assert updated_box["location"]["id"] == new_location_id
     assert updated_box["size"]["id"] == new_size_id
     assert updated_box["product"]["id"] == new_product_id
+    assert updated_box["history"] == [
+        {
+            "changes": "created record",
+            "user": {"name": "coord"},
+        },
+        {
+            "changes": f"changed product type from {products[0]['name']} to "
+            + f"{products[2]['name']};",
+            "user": {"name": "coord"},
+        },
+        {
+            "changes": f"changed size from {default_size['label']} to "
+            + f"{another_size['label']};",
+            "user": {"name": "coord"},
+        },
+        {
+            "changes": f"changed the number of items from None to {nr_items};",
+            "user": {"name": "coord"},
+        },
+        {
+            "changes": f"changed box location from {default_location['name']} to "
+            + f"{null_box_state_location['name']};",
+            "user": {"name": "coord"},
+        },
+        {
+            "changes": 'changed comments from "" to "updatedComment";',
+            "user": {"name": "coord"},
+        },
+    ]
 
     # Test cases 8.2.1, 8.2.2., 8.2.11
     history = list(
@@ -236,6 +274,15 @@ def test_box_mutations(
             "changes": "items",
             "from_int": None,
             "to_int": nr_items,
+            "record_id": box_id,
+            "table_name": "stock",
+            "user": 8,
+            "ip": None,
+        },
+        {
+            "changes": "location_id",
+            "from_int": int(location_id),
+            "to_int": int(new_location_id),
             "record_id": box_id,
             "table_name": "stock",
             "user": 8,
