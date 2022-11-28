@@ -192,6 +192,9 @@ def resolve_distribution_events_in_return_state(base_obj, *_):
         .where(
             (Base.id == base_obj.id)
             & (Location.type == LocationType.DistributionSpot)
-            & (DistributionEvent.state == DistributionEventState.Returned)
+            & (
+                DistributionEvent.state
+                == DistributionEventState.ReturnedFromDistribution
+            )
         )
     )
