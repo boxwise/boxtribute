@@ -42,7 +42,7 @@ services:
             REACT_APP_REDIRECT: http://localhost:3000
             REACT_APP_LOGOUT_URL: http://localhost:3000
             REACT_APP_GRAPHQL_SERVER: http://localhost:5005/graphql
-            REACT_APP_OLD_APP_BASE_URL: ${OLD_APP_BASE_URL:?old app URL not set in .env file}
+            REACT_APP_OLD_APP_BASE_URL: ${OLD_APP_BASE_URL:-http://localhost:8100}
         ports:
             - "3000:3000"
         stdin_open: true
