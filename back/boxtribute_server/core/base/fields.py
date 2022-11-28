@@ -4,15 +4,14 @@ from ...authz import authorize
 from ...enums import DistributionEventState, LocationType, TaggableObjectType, TagType
 from ...graph_ql.filtering import derive_beneficiary_filter
 from ...graph_ql.pagination import load_into_page
-from ...models.definitions.base import Base
 from ...models.definitions.beneficiary import Beneficiary
-from ...models.definitions.distribution_event import DistributionEvent
 from ...models.definitions.distribution_events_tracking_group import (
     DistributionEventsTrackingGroup,
 )
 from ...models.definitions.location import Location
 from ...models.definitions.product import Product
 from ...models.definitions.tag import Tag
+from .crud import get_base_distribution_events
 
 base = ObjectType("Base")
 
@@ -68,16 +67,7 @@ def resolve_base_beneficiaries(base_obj, _, pagination_input=None, filter_input=
 @base.field("distributionEvents")
 def resolve_distributions_events_for_base(base_obj, _, states=None):
     authorize(permission="distro_event:read", base_id=base_obj.id)
-    state_filter = DistributionEvent.state << states if states else True
-    return (
-        DistributionEvent.select()
-        .join(Location)
-        .where(
-            Location.base_id == base_obj.id,
-            Location.type == LocationType.DistributionSpot,
-            state_filter,
-        )
-    )
+    return get_base_distribution_events(states=states, base_id=base_obj.id)
 
 
 @base.field("distributionEventsStatistics")
@@ -141,13 +131,9 @@ def resolve_base_distribution_events_statistics(base_obj, _):
 @base.field("distributionSpots")
 def resolve_base_distributions_spots(base_obj, _):
     authorize(permission="location:read", base_id=base_obj.id)
-    base_filter_condition = Location.base == base_obj.id
-    return (
-        Location.select()
-        .join(Base)
-        .where(
-            (Location.type == LocationType.DistributionSpot) & (base_filter_condition)
-        )
+    return Location.select().where(
+        Location.base == base_obj.id,
+        Location.type == LocationType.DistributionSpot,
     )
 
 
@@ -163,38 +149,19 @@ def resolve_base_distribution_events_tracking_groups(base_obj, _, states=None):
 @base.field("distributionEventsBeforeReturnedFromDistributionState")
 def resolve_distribution_events_before_return_state(base_obj, *_):
     authorize(permission="distro_event:read", base_id=base_obj.id)
-    return (
-        DistributionEvent.select()
-        .join(Location, on=(DistributionEvent.distribution_spot == Location.id))
-        .where(
-            (Location.type == LocationType.DistributionSpot)
-            & (
-                DistributionEvent.state.not_in(
-                    [
-                        DistributionEventState.ReturnedFromDistribution,
-                        DistributionEventState.ReturnTrackingInProgress,
-                        DistributionEventState.Completed,
-                    ]
-                )
-            )
-            & (Location.base == base_obj.id)
-        )
+    return get_base_distribution_events(
+        base_id=base_obj.id,
+        states=[
+            DistributionEventState.Planning,
+            DistributionEventState.Packing,
+            DistributionEventState.OnDistro,
+        ],
     )
 
 
 @base.field("distributionEventsInReturnedFromDistributionState")
 def resolve_distribution_events_in_return_state(base_obj, *_):
     authorize(permission="distro_event:read", base_id=base_obj.id)
-    return (
-        DistributionEvent.select()
-        .join(Location, on=(DistributionEvent.distribution_spot == Location.id))
-        .join(Base, on=(Location.base == Base.id))
-        .where(
-            (Base.id == base_obj.id)
-            & (Location.type == LocationType.DistributionSpot)
-            & (
-                DistributionEvent.state
-                == DistributionEventState.ReturnedFromDistribution
-            )
-        )
+    return get_base_distribution_events(
+        base_id=base_obj.id, states=[DistributionEventState.ReturnedFromDistribution]
     )
