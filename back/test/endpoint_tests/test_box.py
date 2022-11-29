@@ -154,6 +154,7 @@ def test_box_mutations(
     new_size_id = str(another_size["id"])
     new_product_id = str(products[2]["id"])
     new_location_id = str(null_box_state_location["id"])
+    state = BoxState.Lost.name
     comment = "updatedComment"
     nr_items = 7777
     mutation = f"""mutation {{
@@ -165,6 +166,7 @@ def test_box_mutations(
                     locationId: {new_location_id},
                     sizeId: {new_size_id},
                     productId: {new_product_id},
+                    state: {state}
                 }} ) {{
                 id
                 numberOfItems
@@ -175,6 +177,7 @@ def test_box_mutations(
                 location {{ id }}
                 size {{ id }}
                 product {{ id }}
+                state
                 history {{
                     changes
                     user {{ name }}
@@ -188,6 +191,7 @@ def test_box_mutations(
     assert updated_box["location"]["id"] == new_location_id
     assert updated_box["size"]["id"] == new_size_id
     assert updated_box["product"]["id"] == new_product_id
+    assert updated_box["state"] == state
     assert updated_box["history"] == [
         {
             "changes": "created record",
@@ -214,6 +218,10 @@ def test_box_mutations(
         },
         {
             "changes": 'changed comments from "" to "updatedComment";',
+            "user": {"name": "coord"},
+        },
+        {
+            "changes": f"changed box state from InStock to {state};",
             "user": {"name": "coord"},
         },
     ]
@@ -292,6 +300,15 @@ def test_box_mutations(
             "changes": f"""comments changed from "" to "{comment}";""",
             "from_int": None,
             "to_int": None,
+            "record_id": box_id,
+            "table_name": "stock",
+            "user": 8,
+            "ip": None,
+        },
+        {
+            "changes": "box_state_id",
+            "from_int": BoxState.InStock.value,
+            "to_int": BoxState[state].value,
             "record_id": box_id,
             "table_name": "stock",
             "user": 8,

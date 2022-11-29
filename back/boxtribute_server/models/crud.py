@@ -99,6 +99,7 @@ def create_box(
         Box.number_of_items,
         Box.location,
         Box.comment,
+        Box.state,
     ],
 )
 def update_box(
@@ -473,6 +474,11 @@ def get_box_history(box_id):
             old_size = Size.get_by_id(raw_entry.from_int)
             new_size = Size.get_by_id(raw_entry.to_int)
             changes = f"changed size from {old_size.label} to {new_size.label};"
+
+        elif changes == "box_state_id":
+            old_state = BoxState(raw_entry.from_int)
+            new_state = BoxState(raw_entry.to_int)
+            changes = f"changed box state from {old_state.name} to {new_state.name};"
 
         elif changes.startswith("comments"):
             changes = changes.replace("comments changed", "changed comments")
