@@ -26,6 +26,13 @@ from ..mobile_distribution.event.mutations import (
     mutation as distribution_event_mutation,
 )
 from ..mobile_distribution.event.queries import query as distribution_event_query
+from ..mobile_distribution.packing_list_entry.fields import packing_list_entry
+from ..mobile_distribution.packing_list_entry.mutations import (
+    mutation as packing_list_entry_mutation,
+)
+from ..mobile_distribution.packing_list_entry.queries import (
+    query as packing_list_entry_query,
+)
 from ..mobile_distribution.spot.fields import distribution_spot
 from ..mobile_distribution.spot.mutations import mutation as distribution_spot_mutation
 from ..mobile_distribution.spot.queries import query as distribution_spot_query
@@ -45,6 +52,7 @@ query_types = (
     metrics_query,
     transfer_agreement_query,
     organisation_query,
+    packing_list_entry_query,
     product_category_query,
     shipment_query,
     tag_query,
@@ -56,6 +64,7 @@ mutation_types = (
     beneficiary_mutation,
     distribution_spot_mutation,
     distribution_event_mutation,
+    packing_list_entry_mutation,
     shipment_mutation,
     tag_mutation,
     transfer_agreement_mutation,
@@ -69,6 +78,7 @@ _object_types = [
     distribution_event,
     metrics,
     organisation,
+    packing_list_entry,
     product_category,
     shipment,
     shipment_detail,
@@ -91,7 +101,6 @@ distribution_events_tracking_group = _register_object_type(
     "DistributionEventsTrackingGroup"
 )
 classic_location = _register_object_type("ClassicLocation")
-packing_list_entry = _register_object_type("PackingListEntry")
 product = _register_object_type("Product")
 qr_code = _register_object_type("QrCode")
 unboxed_items_collection = _register_object_type("UnboxedItemsCollection")

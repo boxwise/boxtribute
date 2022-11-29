@@ -23,7 +23,6 @@ from ..mobile_distribution.crud import (
     start_distribution_events_tracking_group,
     track_return_of_items_for_distribution_events_tracking_group,
     unassign_box_from_distribution_event,
-    update_packing_list_entry,
 )
 from ..models.crud import create_box, create_qr_code, get_box_history, update_box
 from ..models.definitions.box import Box
@@ -43,7 +42,6 @@ from .bindables import (
     classic_location,
     distribution_events_tracking_group,
     distribution_spot,
-    packing_list_entry,
     product,
     qr_code,
     unboxed_items_collection,
@@ -70,34 +68,6 @@ def mobile_distro_feature_flag_check(user_id):
         return
 
     raise MobileDistroFeatureFlagNotAssignedToUser(user_id)
-
-
-@query.field("packingListEntry")
-def resolve_packing_list_entry(*_, id):
-    mobile_distro_feature_flag_check(user_id=g.user.id)
-    entry = (
-        PackingListEntry.select().join(Product).where(PackingListEntry.id == id).get()
-    )
-    authorize(permission="packing_list_entry:read", base_id=entry.product.base_id)
-    return entry
-
-
-@packing_list_entry.field("matchingPackedItemsCollections")
-def resolve_packing_list_entry_matching_packed_items_collections(obj, *_):
-    mobile_distro_feature_flag_check(user_id=g.user.id)
-    authorize(permission="stock:read", base_id=obj.product.base_id)
-    distribution_event_id = obj.distribution_event
-    boxes = Box.select().where(
-        Box.distribution_event == distribution_event_id,
-        Box.product == obj.product,
-        Box.size == obj.size,
-    )
-    unboxed_items_colletions = UnboxedItemsCollection.select().where(
-        UnboxedItemsCollection.distribution_event == distribution_event_id,
-        UnboxedItemsCollection.product == obj.product,
-        UnboxedItemsCollection.size == obj.size,
-    )
-    return list(boxes) + list(unboxed_items_colletions)
 
 
 @distribution_events_tracking_group.field("distributionEventsTrackingEntries")
@@ -250,19 +220,6 @@ def resolve_add_packing_list_entry_to_distribution_event(*_, creation_input):
     )
     return add_packing_list_entry_to_distribution_event(
         user_id=g.user.id, **creation_input
-    )
-
-
-@mutation.field("updatePackingListEntry")
-@convert_kwargs_to_snake_case
-def resolve_update_packing_list_entry(*_, packing_list_entry_id, number_of_items):
-    mobile_distro_feature_flag_check(user_id=g.user.id)
-    entry = PackingListEntry.get_by_id(packing_list_entry_id)
-    authorize(permission="packing_list_entry:write", base_id=entry.product.base_id)
-    return update_packing_list_entry(
-        user_id=g.user.id,
-        packing_list_entry_id=packing_list_entry_id,
-        number_of_items=number_of_items,
     )
 
 
