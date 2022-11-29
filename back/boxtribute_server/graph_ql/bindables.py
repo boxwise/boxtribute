@@ -56,6 +56,9 @@ from ..warehouse.location.fields import classic_location
 from ..warehouse.location.queries import query as location_query
 from ..warehouse.product.fields import product
 from ..warehouse.product.queries import query as product_query
+from ..warehouse.qr_code.fields import qr_code
+from ..warehouse.qr_code.mutations import mutation as qr_code_mutation
+from ..warehouse.qr_code.queries import query as qr_code_query
 
 # Container for QueryTypes
 query_types = (
@@ -72,6 +75,7 @@ query_types = (
     packing_list_entry_query,
     product_category_query,
     product_query,
+    qr_code_query,
     shipment_query,
     tag_query,
     user_query,
@@ -85,6 +89,7 @@ mutation_types = (
     distribution_event_mutation,
     mobile_distribution_mutation,
     packing_list_entry_mutation,
+    qr_code_mutation,
     shipment_mutation,
     tag_mutation,
     transfer_agreement_mutation,
@@ -104,6 +109,7 @@ _object_types = [
     packing_list_entry,
     product,
     product_category,
+    qr_code,
     shipment,
     shipment_detail,
     size_range,
@@ -120,7 +126,6 @@ def _register_object_type(name):
 
 
 # ObjectTypes
-qr_code = _register_object_type("QrCode")
 unboxed_items_collection = _register_object_type("UnboxedItemsCollection")
 
 object_types = tuple(_object_types)

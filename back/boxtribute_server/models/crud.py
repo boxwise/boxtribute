@@ -1,6 +1,4 @@
 """Create-Retrieve-Update-Delete operations on database models."""
-import hashlib
-
 from ..db import db
 from ..enums import BoxState, TaggableObjectType, TagType
 from ..exceptions import IncompatibleTagTypeAndResourceType
@@ -9,7 +7,6 @@ from .definitions.box import Box
 from .definitions.history import DbChangeHistory
 from .definitions.location import Location
 from .definitions.product import Product
-from .definitions.qr_code import QrCode
 from .definitions.size import Size
 from .definitions.tag import Tag
 from .definitions.tags_relation import TagsRelation
@@ -150,28 +147,6 @@ def unassign_tag(*, user_id, id, resource_id, resource_type):
         ).execute()
         resource.save()
     return resource
-
-
-def create_qr_code(box_label_identifier=None):
-    """Insert a new QR code in the database. Generate an MD5 hash based on its primary
-    key. If a `box_label_identifier` is passed, look up the corresponding box (it is
-    expected to exist) and associate the QR code with it.
-    Return the newly created QR code.
-
-    All operations are run inside an atomic transaction. If e.g. the box look-up fails,
-    the operations are rolled back (i.e. no new QR code is inserted).
-    """
-    with db.database.atomic():
-        new_qr_code = QrCode.create(created_on=utcnow())
-        new_qr_code.code = hashlib.md5(str(new_qr_code.id).encode()).hexdigest()
-        new_qr_code.save()
-
-        if box_label_identifier is not None:
-            box = Box.get(Box.label_identifier == box_label_identifier)
-            box.qr_code = new_qr_code.id
-            box.save()
-
-    return new_qr_code
 
 
 def get_box_history(box_id):
