@@ -1,7 +1,7 @@
 """Definition of ariadne bindables (special types for binding Python callables and
 values to the GraphQL schema).
 """
-from ariadne import InterfaceType, ObjectType, UnionType
+from ariadne import InterfaceType, UnionType
 
 from ..beneficiary.fields import beneficiary
 from ..beneficiary.mutations import mutation as beneficiary_mutation
@@ -49,7 +49,7 @@ from ..tag.mutations import mutation as tag_mutation
 from ..tag.queries import query as tag_query
 from ..user.fields import user
 from ..user.queries import query as user_query
-from ..warehouse.box.fields import box
+from ..warehouse.box.fields import box, unboxed_items_collection
 from ..warehouse.box.mutations import mutation as box_mutation
 from ..warehouse.box.queries import query as box_query
 from ..warehouse.location.fields import classic_location
@@ -95,8 +95,8 @@ mutation_types = (
     transfer_agreement_mutation,
 )
 
-# Container for ObjectTypes (public as immutable tuple)
-_object_types = [
+# Container for ObjectTypes
+object_types = (
     base,
     beneficiary,
     box,
@@ -115,20 +115,9 @@ _object_types = [
     size_range,
     tag,
     transfer_agreement,
+    unboxed_items_collection,
     user,
-]
-
-
-def _register_object_type(name):
-    object_type = ObjectType(name)
-    _object_types.append(object_type)
-    return object_type
-
-
-# ObjectTypes
-unboxed_items_collection = _register_object_type("UnboxedItemsCollection")
-
-object_types = tuple(_object_types)
+)
 
 
 # UnionTypes and InterfaceTypes
@@ -143,7 +132,9 @@ def resolve_location_type(obj, *_):
 
 
 def resolve_items_collection_type(obj, *_):
-    return obj.items_collection_type
+    if isinstance(obj, Box):
+        return "Box"
+    return "UnboxedItemsCollection"
 
 
 union_types = (UnionType("TaggableResource", resolve_taggable_resource_type),)

@@ -1,9 +1,10 @@
 from ariadne import ObjectType, convert_kwargs_to_snake_case
 
 from ...authz import authorize
-from ...models.crud import get_box_history
+from .crud import get_box_history
 
 box = ObjectType("Box")
+unboxed_items_collection = ObjectType("UnboxedItemsCollection")
 
 
 @box.field("qrCode")
@@ -25,6 +26,7 @@ def resolve_box_history(box_obj, _):
 
 
 @box.field("product")
+@unboxed_items_collection.field("product")
 def resolve_box_product(box_obj, info):
     return info.context["product_loader"].load(box_obj.product_id)
 

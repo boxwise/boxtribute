@@ -13,7 +13,6 @@ from .user import User
 
 
 class Box(db.Model):
-    items_collection_type = "Box"
     label_identifier = CharField(
         column_name="box_id",
         constraints=[SQL("DEFAULT ''")],
