@@ -36,6 +36,12 @@ from ..mobile_distribution.packing_list_entry.queries import (
 from ..mobile_distribution.spot.fields import distribution_spot
 from ..mobile_distribution.spot.mutations import mutation as distribution_spot_mutation
 from ..mobile_distribution.spot.queries import query as distribution_spot_query
+from ..mobile_distribution.tracking_group.fields import (
+    distribution_events_tracking_group,
+)
+from ..mobile_distribution.tracking_group.queries import (
+    query as distribution_events_tracking_group_query,
+)
 from ..models.definitions.box import Box
 from ..tag.fields import tag
 from ..tag.mutations import mutation as tag_mutation
@@ -49,6 +55,7 @@ query_types = (
     beneficiary_query,
     distribution_spot_query,
     distribution_event_query,
+    distribution_events_tracking_group_query,
     metrics_query,
     transfer_agreement_query,
     organisation_query,
@@ -76,6 +83,7 @@ _object_types = [
     beneficiary,
     distribution_spot,
     distribution_event,
+    distribution_events_tracking_group,
     metrics,
     organisation,
     packing_list_entry,
@@ -97,9 +105,6 @@ def _register_object_type(name):
 
 # ObjectTypes
 box = _register_object_type("Box")
-distribution_events_tracking_group = _register_object_type(
-    "DistributionEventsTrackingGroup"
-)
 classic_location = _register_object_type("ClassicLocation")
 product = _register_object_type("Product")
 qr_code = _register_object_type("QrCode")

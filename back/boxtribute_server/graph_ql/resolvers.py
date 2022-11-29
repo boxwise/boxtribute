@@ -3,9 +3,6 @@ import os
 
 from ariadne import MutationType, QueryType, convert_kwargs_to_snake_case
 from boxtribute_server.exceptions import MobileDistroFeatureFlagNotAssignedToUser
-from boxtribute_server.models.definitions.distribution_event_tracking_log_entry import (
-    DistributionEventTrackingLogEntry,
-)
 from flask import g
 
 from ..authz import authorize, authorized_bases_filter
@@ -40,7 +37,6 @@ from .bindables import (
     beneficiary,
     box,
     classic_location,
-    distribution_events_tracking_group,
     distribution_spot,
     product,
     qr_code,
@@ -68,42 +64,6 @@ def mobile_distro_feature_flag_check(user_id):
         return
 
     raise MobileDistroFeatureFlagNotAssignedToUser(user_id)
-
-
-@distribution_events_tracking_group.field("distributionEventsTrackingEntries")
-def resolve_distribution_tracking_entries_for_tracking_group(
-    distribution_events_tracking_group_obj, _
-):
-    mobile_distro_feature_flag_check(user_id=g.user.id)
-    authorize(
-        permission="distro_event:read",
-        base_id=distribution_events_tracking_group_obj.base_id,
-    )
-    distribution_events = DistributionEventTrackingLogEntry.select().where(
-        (
-            DistributionEventTrackingLogEntry.distro_event_tracking_group_id
-            == distribution_events_tracking_group_obj.id
-        )
-    )
-    return distribution_events
-
-
-@distribution_events_tracking_group.field("distributionEvents")
-def resolve_distribution_events_for_distribution_events_tracking_group(
-    distribution_events_tracking_group_obj, _
-):
-    mobile_distro_feature_flag_check(user_id=g.user.id)
-    authorize(
-        permission="distro_event:read",
-        base_id=distribution_events_tracking_group_obj.base_id,
-    )
-    distribution_events = DistributionEvent.select().where(
-        (
-            DistributionEvent.distro_event_tracking_group_id
-            == distribution_events_tracking_group_obj.id
-        )
-    )
-    return distribution_events
 
 
 @query.field("qrExists")
@@ -481,14 +441,6 @@ def resolve_update_box(*_, update_input):
         authorize(permission="tag_relation:assign", base_id=t.base_id)
 
     return update_box(user_id=g.user.id, **update_input)
-
-
-@query.field("distributionEventsTrackingGroup")
-def resolve_distribution_events_tracking_group(*_, id):
-    mobile_distro_feature_flag_check(user_id=g.user.id)
-    tracking_group = DistributionEventsTrackingGroup.get_by_id(id)
-    authorize(permission="distro_event:read", base_id=tracking_group.base_id)
-    return tracking_group
 
 
 @classic_location.field("boxes")
