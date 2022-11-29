@@ -52,6 +52,8 @@ from ..user.queries import query as user_query
 from ..warehouse.box.fields import box
 from ..warehouse.box.mutations import mutation as box_mutation
 from ..warehouse.box.queries import query as box_query
+from ..warehouse.location.fields import classic_location
+from ..warehouse.location.queries import query as location_query
 from ..warehouse.product.fields import product
 from ..warehouse.product.queries import query as product_query
 
@@ -63,6 +65,7 @@ query_types = (
     distribution_spot_query,
     distribution_event_query,
     distribution_events_tracking_group_query,
+    location_query,
     metrics_query,
     transfer_agreement_query,
     organisation_query,
@@ -92,6 +95,7 @@ _object_types = [
     base,
     beneficiary,
     box,
+    classic_location,
     distribution_spot,
     distribution_event,
     distribution_events_tracking_group,
@@ -116,7 +120,6 @@ def _register_object_type(name):
 
 
 # ObjectTypes
-classic_location = _register_object_type("ClassicLocation")
 qr_code = _register_object_type("QrCode")
 unboxed_items_collection = _register_object_type("UnboxedItemsCollection")
 
