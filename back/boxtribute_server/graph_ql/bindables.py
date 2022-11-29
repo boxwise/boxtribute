@@ -49,11 +49,15 @@ from ..tag.mutations import mutation as tag_mutation
 from ..tag.queries import query as tag_query
 from ..user.fields import user
 from ..user.queries import query as user_query
+from ..warehouse.box.fields import box
+from ..warehouse.box.mutations import mutation as box_mutation
+from ..warehouse.box.queries import query as box_query
 
 # Container for QueryTypes
 query_types = (
     base_query,
     beneficiary_query,
+    box_query,
     distribution_spot_query,
     distribution_event_query,
     distribution_events_tracking_group_query,
@@ -70,6 +74,7 @@ query_types = (
 # Container for MutationTypes
 mutation_types = (
     beneficiary_mutation,
+    box_mutation,
     distribution_spot_mutation,
     distribution_event_mutation,
     mobile_distribution_mutation,
@@ -83,6 +88,7 @@ mutation_types = (
 _object_types = [
     base,
     beneficiary,
+    box,
     distribution_spot,
     distribution_event,
     distribution_events_tracking_group,
@@ -106,7 +112,6 @@ def _register_object_type(name):
 
 
 # ObjectTypes
-box = _register_object_type("Box")
 classic_location = _register_object_type("ClassicLocation")
 product = _register_object_type("Product")
 qr_code = _register_object_type("QrCode")
