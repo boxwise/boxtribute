@@ -15,7 +15,6 @@ from ..mobile_distribution.crud import (
     assign_box_to_distribution_event,
     change_distribution_event_state,
     complete_distribution_events_tracking_group,
-    create_distribution_event,
     delete_packing_list_entry,
     move_items_from_box_to_distribution_event,
     move_items_from_return_tracking_group_to_box,
@@ -42,7 +41,6 @@ from .bindables import (
     beneficiary,
     box,
     classic_location,
-    distribution_event,
     distribution_events_tracking_group,
     distribution_spot,
     packing_list_entry,
@@ -417,15 +415,6 @@ def resolve_change_distribution_event_state(*_, distribution_event_id, new_state
     return change_distribution_event_state(distribution_event_id, new_state)
 
 
-@mutation.field("createDistributionEvent")
-@convert_kwargs_to_snake_case
-def resolve_create_distribution_event(*_, creation_input):
-    mobile_distro_feature_flag_check(user_id=g.user.id)
-    distribution_spot = Location.get_by_id(creation_input["distribution_spot_id"])
-    authorize(permission="distro_event:write", base_id=distribution_spot.base_id)
-    return create_distribution_event(user_id=g.user.id, **creation_input)
-
-
 @mutation.field("assignBoxToDistributionEvent")
 @convert_kwargs_to_snake_case
 def resolve_assign_box_to_distribution_event(
@@ -543,59 +532,6 @@ def resolve_distribution_events_tracking_group(*_, id):
     tracking_group = DistributionEventsTrackingGroup.get_by_id(id)
     authorize(permission="distro_event:read", base_id=tracking_group.base_id)
     return tracking_group
-
-
-@query.field("distributionEvent")
-def resolve_distribution_event(*_, id):
-    mobile_distro_feature_flag_check(user_id=g.user.id)
-    distribution_event = DistributionEvent.get_by_id(id)
-    authorize(
-        permission="distro_event:read",
-        base_id=distribution_event.distribution_spot.base_id,
-    )
-    return distribution_event
-
-
-@distribution_event.field("boxes")
-@convert_kwargs_to_snake_case
-def resolve_distribution_event_boxes(distribution_event_obj, _):
-    authorize(
-        permission="stock:read",
-        base_id=distribution_event_obj.distribution_spot.base_id,
-    )
-    return Box.select().where(Box.distribution_event == distribution_event_obj.id)
-
-
-@distribution_event.field("unboxedItemsCollections")
-@convert_kwargs_to_snake_case
-def resolve_distribution_event_unboxed_item_collections(distribution_event_obj, _):
-    mobile_distro_feature_flag_check(user_id=g.user.id)
-    authorize(permission="stock:read")
-    return UnboxedItemsCollection.select().where(
-        UnboxedItemsCollection.distribution_event == distribution_event_obj.id
-    )
-
-
-@distribution_event.field("packingListEntries")
-def resolve_packing_list_entries(distro_event_obj, *_):
-    mobile_distro_feature_flag_check(user_id=g.user.id)
-    event = DistributionEvent.get_by_id(distro_event_obj.id)
-    authorize(
-        permission="packing_list_entry:read", base_id=event.distribution_spot.base_id
-    )
-    return PackingListEntry.select().where(
-        PackingListEntry.distribution_event == distro_event_obj.id
-    )
-
-
-@distribution_event.field("distributionEventsTrackingGroup")
-def resolve_tracking_group_of_distribution_event(distro_event_obj, *_):
-    mobile_distro_feature_flag_check(user_id=g.user.id)
-    authorize(
-        permission="distro_event:read",
-        base_id=distro_event_obj.distribution_spot.base_id,
-    )
-    return distro_event_obj.distribution_events_tracking_group
 
 
 @classic_location.field("boxes")
