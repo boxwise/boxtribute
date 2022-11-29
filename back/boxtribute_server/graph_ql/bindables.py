@@ -26,6 +26,7 @@ from ..mobile_distribution.event.mutations import (
     mutation as distribution_event_mutation,
 )
 from ..mobile_distribution.event.queries import query as distribution_event_query
+from ..mobile_distribution.mutations import mutation as mobile_distribution_mutation
 from ..mobile_distribution.packing_list_entry.fields import packing_list_entry
 from ..mobile_distribution.packing_list_entry.mutations import (
     mutation as packing_list_entry_mutation,
@@ -71,6 +72,7 @@ mutation_types = (
     beneficiary_mutation,
     distribution_spot_mutation,
     distribution_event_mutation,
+    mobile_distribution_mutation,
     packing_list_entry_mutation,
     shipment_mutation,
     tag_mutation,
