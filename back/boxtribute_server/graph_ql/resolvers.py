@@ -16,7 +16,6 @@ from ..mobile_distribution.crud import (
     change_distribution_event_state,
     complete_distribution_events_tracking_group,
     create_distribution_event,
-    create_distribution_spot,
     delete_packing_list_entry,
     move_items_from_box_to_distribution_event,
     move_items_from_return_tracking_group_to_box,
@@ -427,14 +426,6 @@ def resolve_create_distribution_event(*_, creation_input):
     return create_distribution_event(user_id=g.user.id, **creation_input)
 
 
-@mutation.field("createDistributionSpot")
-@convert_kwargs_to_snake_case
-def resolve_create_distribution_spot(*_, creation_input):
-    mobile_distro_feature_flag_check(user_id=g.user.id)
-    authorize(permission="location:write", base_id=creation_input["base_id"])
-    return create_distribution_spot(user_id=g.user.id, **creation_input)
-
-
 @mutation.field("assignBoxToDistributionEvent")
 @convert_kwargs_to_snake_case
 def resolve_assign_box_to_distribution_event(
@@ -554,24 +545,6 @@ def resolve_distribution_events_tracking_group(*_, id):
     return tracking_group
 
 
-@query.field("distributionSpots")
-def resolve_distributions_spots(base_obj, _):
-    mobile_distro_feature_flag_check(user_id=g.user.id)
-    return Location.select().where(
-        (Location.type == LocationType.DistributionSpot)
-        & (authorized_bases_filter(Location))
-    )
-
-
-@query.field("distributionSpot")
-def resolve_distributions_spot(*_, id):
-    mobile_distro_feature_flag_check(user_id=g.user.id)
-    distribution_spot = Location.get_by_id(id)
-    if distribution_spot.type == LocationType.DistributionSpot:
-        authorize(permission="location:read", base_id=distribution_spot.base_id)
-        return distribution_spot
-
-
 @query.field("distributionEvent")
 def resolve_distribution_event(*_, id):
     mobile_distro_feature_flag_check(user_id=g.user.id)
@@ -623,15 +596,6 @@ def resolve_tracking_group_of_distribution_event(distro_event_obj, *_):
         base_id=distro_event_obj.distribution_spot.base_id,
     )
     return distro_event_obj.distribution_events_tracking_group
-
-
-@distribution_spot.field("distributionEvents")
-def resolve_distribution_spot_distribution_events(obj, *_):
-    mobile_distro_feature_flag_check(user_id=g.user.id)
-    authorize(permission="distro_event:read", base_id=obj.base_id)
-    return DistributionEvent.select().where(
-        DistributionEvent.distribution_spot == obj.id
-    )
 
 
 @classic_location.field("boxes")

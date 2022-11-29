@@ -21,6 +21,9 @@ from ..core.product_category.queries import query as product_category_query
 from ..core.size_range.fields import size_range
 from ..metrics.fields import metrics
 from ..metrics.queries import query as metrics_query
+from ..mobile_distribution.spot.fields import distribution_spot
+from ..mobile_distribution.spot.mutations import mutation as distribution_spot_mutation
+from ..mobile_distribution.spot.queries import query as distribution_spot_query
 from ..models.definitions.box import Box
 from ..tag.fields import tag
 from ..tag.mutations import mutation as tag_mutation
@@ -32,6 +35,7 @@ from ..user.queries import query as user_query
 query_types = (
     base_query,
     beneficiary_query,
+    distribution_spot_query,
     metrics_query,
     transfer_agreement_query,
     organisation_query,
@@ -44,6 +48,7 @@ query_types = (
 # Container for MutationTypes
 mutation_types = (
     beneficiary_mutation,
+    distribution_spot_mutation,
     shipment_mutation,
     tag_mutation,
     transfer_agreement_mutation,
@@ -53,6 +58,7 @@ mutation_types = (
 _object_types = [
     base,
     beneficiary,
+    distribution_spot,
     metrics,
     organisation,
     product_category,
@@ -74,7 +80,6 @@ def _register_object_type(name):
 # ObjectTypes
 box = _register_object_type("Box")
 distribution_event = _register_object_type("DistributionEvent")
-distribution_spot = _register_object_type("DistributionSpot")
 distribution_events_tracking_group = _register_object_type(
     "DistributionEventsTrackingGroup"
 )
