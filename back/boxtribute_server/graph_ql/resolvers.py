@@ -8,13 +8,7 @@ from ..models.definitions.box import Box
 from ..models.definitions.location import Location
 from ..models.definitions.product import Product
 from ..models.definitions.qr_code import QrCode
-from .bindables import (
-    beneficiary,
-    classic_location,
-    product,
-    qr_code,
-    unboxed_items_collection,
-)
+from .bindables import beneficiary, classic_location, qr_code, unboxed_items_collection
 from .filtering import derive_box_filter
 from .pagination import load_into_page
 
@@ -40,13 +34,6 @@ def resolve_qr_code(obj, _, qr_code=None):
     return obj.qr_code if qr_code is None else QrCode.get(QrCode.code == qr_code)
 
 
-@query.field("product")
-def resolve_product(*_, id):
-    product = Product.get_by_id(id)
-    authorize(permission="product:read", base_id=product.base_id)
-    return product
-
-
 @unboxed_items_collection.field("product")
 def resolve_box_product(obj, info):
     return info.context["product_loader"].load(obj.product_id)
@@ -64,16 +51,6 @@ def resolve_location(obj, _, id):
 def resolve_locations(*_):
     return Location.select().where(
         Location.type == LocationType.ClassicLocation, authorized_bases_filter(Location)
-    )
-
-
-@query.field("products")
-@convert_kwargs_to_snake_case
-def resolve_products(*_, pagination_input=None):
-    return load_into_page(
-        Product,
-        authorized_bases_filter(Product),
-        pagination_input=pagination_input,
     )
 
 
@@ -108,26 +85,9 @@ def resolve_location_boxes(location_obj, _, pagination_input=None, filter_input=
 
 @beneficiary.field("base")
 @classic_location.field("base")
-@product.field("base")
 def resolve_resource_base(obj, _):
     authorize(permission="base:read", base_id=obj.base_id)
     return obj.base
-
-
-@product.field("category")
-def resolve_product_product_category(product_obj, info):
-    return info.context["product_category_loader"].load(product_obj.category_id)
-
-
-@product.field("sizeRange")
-def resolve_product_size_range(product_obj, info):
-    return info.context["size_range_loader"].load(product_obj.size_range_id)
-
-
-@product.field("gender")
-def resolve_product_gender(product_obj, _):
-    # Instead of a ProductGender instance return an integer for EnumType conversion
-    return product_obj.gender_id
 
 
 @qr_code.field("box")

@@ -52,6 +52,8 @@ from ..user.queries import query as user_query
 from ..warehouse.box.fields import box
 from ..warehouse.box.mutations import mutation as box_mutation
 from ..warehouse.box.queries import query as box_query
+from ..warehouse.product.fields import product
+from ..warehouse.product.queries import query as product_query
 
 # Container for QueryTypes
 query_types = (
@@ -66,6 +68,7 @@ query_types = (
     organisation_query,
     packing_list_entry_query,
     product_category_query,
+    product_query,
     shipment_query,
     tag_query,
     user_query,
@@ -95,6 +98,7 @@ _object_types = [
     metrics,
     organisation,
     packing_list_entry,
+    product,
     product_category,
     shipment,
     shipment_detail,
@@ -113,7 +117,6 @@ def _register_object_type(name):
 
 # ObjectTypes
 classic_location = _register_object_type("ClassicLocation")
-product = _register_object_type("Product")
 qr_code = _register_object_type("QrCode")
 unboxed_items_collection = _register_object_type("UnboxedItemsCollection")
 
