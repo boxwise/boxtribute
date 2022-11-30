@@ -46,6 +46,7 @@ export interface IProductWithSizeRangeData {
 interface ILocationData {
   id: string;
   name: string;
+  seq?: number | null | undefined;
 }
 
 const singleSelectOptionSchema = z.object({
@@ -124,9 +125,10 @@ function BoxCreate({
     .map((location) => ({
       label: location.name,
       value: location.id,
+      seq: location.seq,
     }))
-    .sort((a, b) => a.label.localeCompare(b.label));
-
+    // sort locations by sequence in ascending order
+    .sort((a, b) => Number(a?.seq) - Number(b?.seq));
   const tagsForDropdownGroups: Array<IDropdownOption> | undefined = allTags?.map((tag) => ({
     label: tag.label,
     value: tag.value,

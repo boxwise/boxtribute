@@ -54,6 +54,7 @@ export const ALL_PRODUCTS_AND_LOCATIONS_FOR_BASE_QUERY = gql`
         }
         id
         name
+        seq
       }
 
       products {
