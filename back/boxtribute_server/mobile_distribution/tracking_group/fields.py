@@ -10,32 +10,27 @@ distribution_events_tracking_group = ObjectType("DistributionEventsTrackingGroup
 
 
 @distribution_events_tracking_group.field("distributionEventsTrackingEntries")
-def resolve_distribution_events_tracking_group_tracking_entries(
-    distribution_events_tracking_group_obj, _
-):
+def resolve_distribution_events_tracking_group_tracking_entries(tracking_group_obj, _):
     authorize(
         permission="distro_event:read",
-        base_id=distribution_events_tracking_group_obj.base_id,
+        base_id=tracking_group_obj.base_id,
     )
     return DistributionEventTrackingLogEntry.select().where(
         (
             DistributionEventTrackingLogEntry.distro_event_tracking_group_id
-            == distribution_events_tracking_group_obj.id
+            == tracking_group_obj.id
         )
     )
 
 
 @distribution_events_tracking_group.field("distributionEvents")
 def resolve_distribution_events_tracking_group_distribution_events(
-    distribution_events_tracking_group_obj, _
+    tracking_group_obj, _
 ):
     authorize(
         permission="distro_event:read",
-        base_id=distribution_events_tracking_group_obj.base_id,
+        base_id=tracking_group_obj.base_id,
     )
     return DistributionEvent.select().where(
-        (
-            DistributionEvent.distro_event_tracking_group_id
-            == distribution_events_tracking_group_obj.id
-        )
+        (DistributionEvent.distro_event_tracking_group_id == tracking_group_obj.id)
     )

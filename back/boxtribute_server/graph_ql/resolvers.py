@@ -1,8 +1,5 @@
 """GraphQL resolver functionality"""
-import os
-
 from ariadne import MutationType, QueryType, convert_kwargs_to_snake_case
-from boxtribute_server.exceptions import MobileDistroFeatureFlagNotAssignedToUser
 from flask import g
 
 from ..authz import authorize, authorized_bases_filter
@@ -17,7 +14,6 @@ from .bindables import (
     beneficiary,
     box,
     classic_location,
-    distribution_spot,
     product,
     qr_code,
     unboxed_items_collection,
@@ -27,23 +23,6 @@ from .pagination import load_into_page
 
 query = QueryType()
 mutation = MutationType()
-
-
-def mobile_distro_feature_flag_check(user_id):
-    deployment_environment = os.getenv("ENVIRONMENT")
-    if deployment_environment in ["development", "staging", "test"]:
-        return
-
-    allowed_user_ids_str = os.getenv("MOBILE_DISTRO_ALLOWED_USER_IDS")
-    if allowed_user_ids_str is not None:
-        allowed_user_ids_as_numbers = [int(i) for i in allowed_user_ids_str.split(",")]
-        if user_id in allowed_user_ids_as_numbers:
-            return
-
-    if g.user.is_god:
-        return
-
-    raise MobileDistroFeatureFlagNotAssignedToUser(user_id)
 
 
 @query.field("qrExists")
@@ -218,7 +197,6 @@ def resolve_location_boxes(location_obj, _, pagination_input=None, filter_input=
 
 
 @beneficiary.field("base")
-@distribution_spot.field("base")
 @classic_location.field("base")
 @product.field("base")
 def resolve_resource_base(obj, _):

@@ -8,17 +8,16 @@ packing_list_entry = ObjectType("PackingListEntry")
 
 
 @packing_list_entry.field("matchingPackedItemsCollections")
-def resolve_packing_list_entry_matching_packed_items_collections(obj, *_):
-    authorize(permission="stock:read", base_id=obj.product.base_id)
-    distribution_event_id = obj.distribution_event
+def resolve_packing_list_entry_matching_packed_items_collections(entry_obj, _):
+    authorize(permission="stock:read", base_id=entry_obj.product.base_id)
     boxes = Box.select().where(
-        Box.distribution_event == distribution_event_id,
-        Box.product == obj.product,
-        Box.size == obj.size,
+        Box.distribution_event == entry_obj.distribution_event,
+        Box.product == entry_obj.product,
+        Box.size == entry_obj.size,
     )
-    unboxed_items_colletions = UnboxedItemsCollection.select().where(
-        UnboxedItemsCollection.distribution_event == distribution_event_id,
-        UnboxedItemsCollection.product == obj.product,
-        UnboxedItemsCollection.size == obj.size,
+    unboxed_items_collections = UnboxedItemsCollection.select().where(
+        UnboxedItemsCollection.distribution_event == entry_obj.distribution_event,
+        UnboxedItemsCollection.product == entry_obj.product,
+        UnboxedItemsCollection.size == entry_obj.size,
     )
-    return list(boxes) + list(unboxed_items_colletions)
+    return list(boxes) + list(unboxed_items_collections)

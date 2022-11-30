@@ -212,7 +212,6 @@ jobs:
               SENTRY_RELEASE=${CIRCLE_SHA1}
               SENTRY_TRACES_SAMPLE_RATE=${SENTRY_TRACES_SAMPLE_RATE}
               ENVIRONMENT=${SENTRY_ENVIRONMENT}
-              MOBILE_DISTRO_ALLOWED_USER_IDS=${MOBILE_DISTRO_ALLOWED_USER_IDS}
               " > .env
       - run:
           name: Generate GAE app.yaml file
@@ -285,7 +284,6 @@ jobs:
               SENTRY_RELEASE=${CIRCLE_SHA1}
               SENTRY_TRACES_SAMPLE_RATE=${SENTRY_TRACES_SAMPLE_RATE}
               ENVIRONMENT=${SENTRY_ENVIRONMENT}
-              MOBILE_DISTRO_ALLOWED_USER_IDS=${MOBILE_DISTRO_ALLOWED_USER_IDS}
               " > .env
       - run:
           name: Generate GAE app.yaml file

@@ -8,7 +8,7 @@ query = QueryType()
 
 
 @query.field("distributionSpots")
-def resolve_distributions_spots(base_obj, _):
+def resolve_distributions_spots(*_):
     return Location.select().where(
         Location.type == LocationType.DistributionSpot,
         authorized_bases_filter(Location),
