@@ -161,6 +161,7 @@ export type Box = ItemsCollection & {
   createdBy?: Maybe<User>;
   createdOn?: Maybe<Scalars['Datetime']>;
   distributionEvent?: Maybe<DistributionEvent>;
+  history?: Maybe<Array<HistoryEntry>>;
   id: Scalars['ID'];
   /**  Sequence of numbers for identifying the box, usually written on box label  */
   labelIdentifier: Scalars['String'];
@@ -386,6 +387,13 @@ export type FilterBoxInput = {
   productGender?: InputMaybe<ProductGender>;
   /**  Filter for all boxes that have *one* of the specified states.  */
   states?: InputMaybe<Array<BoxState>>;
+};
+
+export type HistoryEntry = {
+  __typename?: 'HistoryEntry';
+  changeDate?: Maybe<Scalars['Datetime']>;
+  changes: Scalars['String'];
+  user?: Maybe<User>;
 };
 
 export enum HumanGender {
