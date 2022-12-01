@@ -28,3 +28,4 @@ craco.config.js
 !src\components\HeaderMenu\HeaderMenuDeskop.tsx
 !src\components\HeaderMenu\HeaderMenuMobile.tsx
 !src\components\HeaderMenu\HeaderMenuContainer.tsx
+!src/components/QrReader
