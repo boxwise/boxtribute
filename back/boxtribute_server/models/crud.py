@@ -13,8 +13,11 @@ from ..exceptions import (
 )
 from .definitions.beneficiary import Beneficiary
 from .definitions.box import Box
+from .definitions.history import DbChangeHistory
 from .definitions.location import Location
+from .definitions.product import Product
 from .definitions.qr_code import QrCode
+from .definitions.size import Size
 from .definitions.tag import Tag
 from .definitions.tags_relation import TagsRelation
 from .definitions.x_beneficiary_language import XBeneficiaryLanguage
@@ -96,6 +99,7 @@ def create_box(
         Box.number_of_items,
         Box.location,
         Box.comment,
+        Box.state,
     ],
 )
 def update_box(
@@ -435,3 +439,53 @@ def create_qr_code(box_label_identifier=None):
             box.save()
 
     return new_qr_code
+
+
+def get_box_history(box_id):
+    entries = []
+    for raw_entry in DbChangeHistory.select().where(
+        DbChangeHistory.table_name == "stock",
+        DbChangeHistory.record_id == box_id,
+    ):
+        changes = raw_entry.changes
+        if changes == "items":
+            changes = (
+                f"changed the number of items from {raw_entry.from_int} to "
+                + f"{raw_entry.to_int};"
+            )
+
+        elif changes == "product_id":
+            old_product = Product.get_by_id(raw_entry.from_int)
+            new_product = Product.get_by_id(raw_entry.to_int)
+            changes = (
+                f"changed product type from {old_product.name} to "
+                + f"{new_product.name};"
+            )
+
+        elif changes == "location_id":
+            old_location = Location.get_by_id(raw_entry.from_int)
+            new_location = Location.get_by_id(raw_entry.to_int)
+            changes = (
+                f"changed box location from {old_location.name} to "
+                + f"{new_location.name};"
+            )
+
+        elif changes == "size_id":
+            old_size = Size.get_by_id(raw_entry.from_int)
+            new_size = Size.get_by_id(raw_entry.to_int)
+            changes = f"changed size from {old_size.label} to {new_size.label};"
+
+        elif changes == "box_state_id":
+            old_state = BoxState(raw_entry.from_int)
+            new_state = BoxState(raw_entry.to_int)
+            changes = f"changed box state from {old_state.name} to {new_state.name};"
+
+        elif changes.startswith("comments"):
+            changes = changes.replace("comments changed", "changed comments")
+
+        elif changes.startswith("Record"):
+            changes = changes.replace("Record created", "created record")
+
+        raw_entry.changes = changes
+        entries.append(raw_entry)
+    return entries
