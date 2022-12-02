@@ -21,6 +21,28 @@ from ..core.product_category.queries import query as product_category_query
 from ..core.size_range.fields import size_range
 from ..metrics.fields import metrics
 from ..metrics.queries import query as metrics_query
+from ..mobile_distribution.event.fields import distribution_event
+from ..mobile_distribution.event.mutations import (
+    mutation as distribution_event_mutation,
+)
+from ..mobile_distribution.event.queries import query as distribution_event_query
+from ..mobile_distribution.mutations import mutation as mobile_distribution_mutation
+from ..mobile_distribution.packing_list_entry.fields import packing_list_entry
+from ..mobile_distribution.packing_list_entry.mutations import (
+    mutation as packing_list_entry_mutation,
+)
+from ..mobile_distribution.packing_list_entry.queries import (
+    query as packing_list_entry_query,
+)
+from ..mobile_distribution.spot.fields import distribution_spot
+from ..mobile_distribution.spot.mutations import mutation as distribution_spot_mutation
+from ..mobile_distribution.spot.queries import query as distribution_spot_query
+from ..mobile_distribution.tracking_group.fields import (
+    distribution_events_tracking_group,
+)
+from ..mobile_distribution.tracking_group.queries import (
+    query as distribution_events_tracking_group_query,
+)
 from ..models.definitions.box import Box
 from ..tag.fields import tag
 from ..tag.mutations import mutation as tag_mutation
@@ -32,9 +54,13 @@ from ..user.queries import query as user_query
 query_types = (
     base_query,
     beneficiary_query,
+    distribution_spot_query,
+    distribution_event_query,
+    distribution_events_tracking_group_query,
     metrics_query,
     transfer_agreement_query,
     organisation_query,
+    packing_list_entry_query,
     product_category_query,
     shipment_query,
     tag_query,
@@ -44,6 +70,10 @@ query_types = (
 # Container for MutationTypes
 mutation_types = (
     beneficiary_mutation,
+    distribution_spot_mutation,
+    distribution_event_mutation,
+    mobile_distribution_mutation,
+    packing_list_entry_mutation,
     shipment_mutation,
     tag_mutation,
     transfer_agreement_mutation,
@@ -53,8 +83,12 @@ mutation_types = (
 _object_types = [
     base,
     beneficiary,
+    distribution_spot,
+    distribution_event,
+    distribution_events_tracking_group,
     metrics,
     organisation,
+    packing_list_entry,
     product_category,
     shipment,
     shipment_detail,
@@ -73,13 +107,7 @@ def _register_object_type(name):
 
 # ObjectTypes
 box = _register_object_type("Box")
-distribution_event = _register_object_type("DistributionEvent")
-distribution_spot = _register_object_type("DistributionSpot")
-distribution_events_tracking_group = _register_object_type(
-    "DistributionEventsTrackingGroup"
-)
 classic_location = _register_object_type("ClassicLocation")
-packing_list_entry = _register_object_type("PackingListEntry")
 product = _register_object_type("Product")
 qr_code = _register_object_type("QrCode")
 unboxed_items_collection = _register_object_type("UnboxedItemsCollection")

@@ -28,6 +28,7 @@ from .distribution_event import (
     distro_spot5_distribution_events_before_return_state,
     distro_spot5_distribution_events_in_return_state,
 )
+from .distribution_event_tracking_group import default_tracking_group
 from .history import default_history
 from .location import (
     another_location,
@@ -116,6 +117,7 @@ __all__ = [
     "default_shipment_detail",
     "default_size",
     "default_size_range",
+    "default_tracking_group",
     "default_transaction",
     "default_transfer_agreement",
     "default_user",
