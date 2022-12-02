@@ -29,12 +29,72 @@ def another_distribution_event_data():
     }
 
 
-@pytest.fixture()
+def packing_distro_event_data():
+    data = default_distribution_event_data()
+    data["id"] = 3
+    data["state"] = DistributionEventState.Packing
+    return data
+
+
+def on_distro_distribution_event_data():
+    data = default_distribution_event_data()
+    data["id"] = 4
+    data["state"] = DistributionEventState.OnDistro
+    return data
+
+
+def returned_distribution_event_data():
+    data = default_distribution_event_data()
+    data["id"] = 5
+    data["state"] = DistributionEventState.ReturnedFromDistribution
+    return data
+
+
+def completed_distribution_event_data():
+    data = default_distribution_event_data()
+    data["id"] = 6
+    data["state"] = DistributionEventState.Completed
+    return data
+
+
+@pytest.fixture
 def default_distribution_event():
     return default_distribution_event_data()
 
 
+@pytest.fixture
+def distro_spot5_distribution_events():
+    return [
+        default_distribution_event_data(),
+        packing_distro_event_data(),
+        on_distro_distribution_event_data(),
+        returned_distribution_event_data(),
+        completed_distribution_event_data(),
+    ]
+
+
+@pytest.fixture
+def distro_spot5_distribution_events_before_return_state():
+    return [
+        default_distribution_event_data(),
+        packing_distro_event_data(),
+        on_distro_distribution_event_data(),
+    ]
+
+
+@pytest.fixture
+def distro_spot5_distribution_events_in_return_state():
+    return [returned_distribution_event_data()]
+
+
 def create():
     DistributionEvent.insert_many(
-        [default_distribution_event_data(), another_distribution_event_data()]
+        [
+            default_distribution_event_data(),
+            another_distribution_event_data(),
+            packing_distro_event_data(),
+            on_distro_distribution_event_data(),
+            returned_distribution_event_data(),
+            completed_distribution_event_data(),
+        ]
     ).execute()

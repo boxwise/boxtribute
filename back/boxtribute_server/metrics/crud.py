@@ -1,13 +1,13 @@
 """Computation of various metrics"""
 from peewee import JOIN, fn
 
-from .definitions.base import Base
-from .definitions.beneficiary import Beneficiary
-from .definitions.box import Box
-from .definitions.location import Location
-from .definitions.product import Product
-from .definitions.product_category import ProductCategory
-from .definitions.transaction import Transaction
+from ..models.definitions.base import Base
+from ..models.definitions.beneficiary import Beneficiary
+from ..models.definitions.box import Box
+from ..models.definitions.location import Location
+from ..models.definitions.product import Product
+from ..models.definitions.product_category import ProductCategory
+from ..models.definitions.transaction import Transaction
 
 
 def _build_range_filter(field, *, low, high):

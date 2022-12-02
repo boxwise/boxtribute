@@ -88,7 +88,7 @@ def test_invalid_pagination_input(read_only_client):
         "tag",
         # Test case 2.1.4
         "transferAgreement",
-        # Test case 99.1.9
+        # Test case 99.1.9a
         "organisation",
     ],
 )
