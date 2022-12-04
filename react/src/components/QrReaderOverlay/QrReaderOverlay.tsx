@@ -43,30 +43,15 @@ export const ViewFinder = () => (
         height: "100%",
       }}
     >
-      <path
-        fill="none"
-        d="M13,0 L0,0 L0,13"
-        stroke="rgba(255, 0, 0, 0.5)"
-        strokeWidth="5"
-      />
-      <path
-        fill="none"
-        d="M0,87 L0,100 L13,100"
-        stroke="rgba(255, 0, 0, 0.5)"
-        strokeWidth="5"
-      />
+      <path fill="none" d="M13,0 L0,0 L0,13" stroke="rgba(255, 0, 0, 0.5)" strokeWidth="5" />
+      <path fill="none" d="M0,87 L0,100 L13,100" stroke="rgba(255, 0, 0, 0.5)" strokeWidth="5" />
       <path
         fill="none"
         d="M87,100 L100,100 L100,87"
         stroke="rgba(255, 0, 0, 0.5)"
         strokeWidth="5"
       />
-      <path
-        fill="none"
-        d="M100,13 L100,0 87,0"
-        stroke="rgba(255, 0, 0, 0.5)"
-        strokeWidth="5"
-      />
+      <path fill="none" d="M100,13 L100,0 87,0" stroke="rgba(255, 0, 0, 0.5)" strokeWidth="5" />
     </svg>
   </>
 );
@@ -175,14 +160,14 @@ const QrReaderOverlay = ({
   handleClose,
   onScanningResult,
   boxesByLabelSearchWrappers,
-  scannedQrValueWrappers
+  scannedQrValueWrappers,
 }: QrReaderOverlayProps) => {
   const [zoomLevel, setZoomLevel] = useState(1);
   // TODO: consider to lift this Map state up
 
   const browserSupportsZoom = useMemo(
     () => navigator?.mediaDevices?.getSupportedConstraints?.().zoom != null,
-    []
+    [],
   );
 
   const facingMode = "environment";
@@ -193,18 +178,13 @@ const QrReaderOverlay = ({
         onScanningResult(result["text"]);
       }
     },
-    [onScanningResult]
+    [onScanningResult],
   );
 
   const [boxLabelInputValue, setBoxLabelInputValue] = useState("");
 
   return (
-    <Modal
-      isOpen={isOpen}
-      closeOnOverlayClick={true}
-      closeOnEsc={true}
-      onClose={handleClose}
-    >
+    <Modal isOpen={isOpen} closeOnOverlayClick={true} closeOnEsc={true} onClose={handleClose}>
       <ModalOverlay />
       <ModalContent>
         <ModalHeader>QR Scanner</ModalHeader>
@@ -225,18 +205,14 @@ const QrReaderOverlay = ({
                 <HStack>
                   <IconButton
                     disabled={zoomLevel <= 1}
-                    onClick={() =>
-                      setZoomLevel((curr) => (curr > 1 ? curr - 1 : curr))
-                    }
+                    onClick={() => setZoomLevel((curr) => (curr > 1 ? curr - 1 : curr))}
                     aria-label={"Decrease zoom level"}
                   >
                     <MinusIcon />
                   </IconButton>
                   <IconButton
                     disabled={zoomLevel >= 8}
-                    onClick={() =>
-                      setZoomLevel((curr) => (curr < 8 ? curr + 1 : curr))
-                    }
+                    onClick={() => setZoomLevel((curr) => (curr < 8 ? curr + 1 : curr))}
                     aria-label={"Increase zoom level"}
                   >
                     <AddIcon />
@@ -247,6 +223,7 @@ const QrReaderOverlay = ({
             <HStack borderColor="blackAlpha.100" borderWidth={2} p={4} my={5}>
               <Text fontWeight="bold">By Label</Text>
               <NumberInput
+                data-testid="boxLabelIdentifier"
                 width={150}
                 onChange={setBoxLabelInputValue}
                 value={boxLabelInputValue}
@@ -285,10 +262,7 @@ const QrReaderOverlay = ({
                         {scannedQrValueWrappers.map((qrCodeValueWrapper, i) => {
                           return (
                             <Box key={i}>
-                              {i + 1}{" "}
-                              <QrValueWrapper
-                                qrCodeValueWrapper={qrCodeValueWrapper}
-                              />
+                              {i + 1} <QrValueWrapper qrCodeValueWrapper={qrCodeValueWrapper} />
                             </Box>
                           );
                         })}
@@ -298,27 +272,20 @@ const QrReaderOverlay = ({
                     <VStack>
                       <Text fontWeight="bold">Boxes by label search</Text>
                       <VStack spacing={5} direction="row">
-                        {boxesByLabelSearchWrappers.map(
-                          (boxByLabelSearchWrapper, i) => {
-                            return (
-                              <Box key={i}>
-                                {i + 1}{" "}
-                                <QrValueWrapper
-                                  qrCodeValueWrapper={boxByLabelSearchWrapper}
-                                />
-                              </Box>
-                            );
-                          }
-                        )}
+                        {boxesByLabelSearchWrappers.map((boxByLabelSearchWrapper, i) => {
+                          return (
+                            <Box key={i}>
+                              {i + 1}{" "}
+                              <QrValueWrapper qrCodeValueWrapper={boxByLabelSearchWrapper} />
+                            </Box>
+                          );
+                        })}
                       </VStack>
                     </VStack>
                     <Button
                       onClick={onBulkScanningDoneButtonClick}
                       colorScheme="blue"
-                      disabled={
-                        scannedQrValueWrappers.filter((el) => el.isLoading)
-                          .length !== 0
-                      }
+                      disabled={scannedQrValueWrappers.filter((el) => el.isLoading).length !== 0}
                     >
                       Scanning done
                     </Button>
