@@ -40,7 +40,7 @@
     "@chakra-ui/storybook-addon": "^4.0.12",
     "@craco/craco": "^6.4.5",
     "@graphql-codegen/cli": "^2.13.7",
-    "@graphql-codegen/typescript": "^2.7.4",
+    "@graphql-codegen/typescript": "^2.8.3",
     "@graphql-codegen/typescript-operations": "^2.5.7",
     "@graphql-codegen/typescript-react-query": "^4.0.2",
     "@sentry/types": "^7.21.1",
