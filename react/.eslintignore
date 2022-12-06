@@ -14,7 +14,8 @@ src/utils
 !src/utils/fragments
 src/views/AutomaticBaseSwitcher
 src/views/BaseDashboard
-src/views/BoxCreate
+*.stories.*
+!src/views/BoxCreate
 !src/views/BoxEdit
 !src/components/NotificationMessage
 !src/components/Layout

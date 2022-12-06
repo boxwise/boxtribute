@@ -2,9 +2,9 @@ import { ComponentMeta, ComponentStory } from "@storybook/react";
 import { ProductGender } from "types/generated/graphql";
 // import { DistroEvent } from "../State1Planning/DistroEventPlanning";
 import { action } from "@storybook/addon-actions";
-import BoxCreate, { BoxCreateProps, ProductWithSizeRangeData, SizeRangeData } from "./BoxCreate";
+import BoxCreate, { IBoxCreateProps, IProductWithSizeRangeData, ISizeRangeData } from "./BoxCreate";
 
-const mockedEuTshirtsSizeRange: SizeRangeData = {
+const mockedEuTshirtsSizeRange: ISizeRangeData = {
   label: "EU T-Shirt Sizes (XS-XXL)",
   sizes: [
     {
@@ -15,9 +15,9 @@ const mockedEuTshirtsSizeRange: SizeRangeData = {
       id: "2",
       label: "S",
     },
-  ]
-}
-const mockedEuJacketsSizeRange: SizeRangeData = {
+  ],
+};
+const mockedEuJacketsSizeRange: ISizeRangeData = {
   label: "EU Jacket Sizes (XS-XXL)",
   sizes: [
     {
@@ -28,50 +28,49 @@ const mockedEuJacketsSizeRange: SizeRangeData = {
       id: "2",
       label: "42",
     },
-  ]
-}
+  ],
+};
 
-
-const mockedLocations: BoxCreateProps["allLocations"] = [
+const mockedLocations: IBoxCreateProps["allLocations"] = [
   {
     id: "1",
-    name: "Warehouse 1"
+    name: "Warehouse 1",
   },
   {
     id: "2",
-    name: "Warehouse 2"
+    name: "Warehouse 2",
   },
   {
     id: "3",
-    name: "Sorting Area"
-  }
+    name: "Sorting Area",
+  },
 ];
 
-const mockedProducts: ProductWithSizeRangeData[] = [
+const mockedProducts: IProductWithSizeRangeData[] = [
   {
     id: "1",
     name: "Jacket Male",
     category: {
-      name: "Jackets"
+      name: "Jackets",
     },
-    sizeRange: mockedEuTshirtsSizeRange
+    sizeRange: mockedEuTshirtsSizeRange,
   },
   {
     id: "3",
     name: "Jacket Woman",
     category: {
-      name: "Jackets"
+      name: "Jackets",
     },
-    sizeRange: mockedEuJacketsSizeRange
+    sizeRange: mockedEuJacketsSizeRange,
   },
   {
     id: "2",
     name: "T-shirt",
     gender: ProductGender.Women,
     category: {
-      name: "T-Shirts"
+      name: "T-Shirts",
     },
-    sizeRange: mockedEuTshirtsSizeRange
+    sizeRange: mockedEuTshirtsSizeRange,
   },
   // size: {
   //   id: "1",
@@ -116,15 +115,14 @@ export default {
   parameters: {},
 } as ComponentMeta<typeof BoxCreate>;
 
-const Template: ComponentStory<typeof BoxCreate> = (args) => (
-  <BoxCreate {...args} />
-);
+const Template: ComponentStory<typeof BoxCreate> = (args) => <BoxCreate {...args} />;
 
-const mockedProps: BoxCreateProps = {
+const mockedProps: IBoxCreateProps = {
   productAndSizesData: mockedProducts,
   allLocations: mockedLocations,
-  onCreateBox: action("onSubmitBoxCreateForm"),
+  onSubmitBoxCreateForm: action("onSubmitBoxCreateForm"),
   qrCode: undefined,
+  allTags: undefined,
 };
 
 export const Default = Template.bind({});

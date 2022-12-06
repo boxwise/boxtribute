@@ -161,6 +161,7 @@ export type Box = ItemsCollection & {
   createdBy?: Maybe<User>;
   createdOn?: Maybe<Scalars['Datetime']>;
   distributionEvent?: Maybe<DistributionEvent>;
+  history?: Maybe<Array<HistoryEntry>>;
   id: Scalars['ID'];
   /**  Sequence of numbers for identifying the box, usually written on box label  */
   labelIdentifier: Scalars['String'];
@@ -386,6 +387,13 @@ export type FilterBoxInput = {
   productGender?: InputMaybe<ProductGender>;
   /**  Filter for all boxes that have *one* of the specified states.  */
   states?: InputMaybe<Array<BoxState>>;
+};
+
+export type HistoryEntry = {
+  __typename?: 'HistoryEntry';
+  changeDate?: Maybe<Scalars['Datetime']>;
+  changes: Scalars['String'];
+  user?: Maybe<User>;
 };
 
 export enum HumanGender {
@@ -1475,6 +1483,8 @@ export type CreateBoxMutationVariables = Exact<{
   productId: Scalars['Int'];
   sizeId: Scalars['Int'];
   numberOfItems: Scalars['Int'];
+  comment?: InputMaybe<Scalars['String']>;
+  tagIds?: InputMaybe<Array<Scalars['Int']> | Scalars['Int']>;
   qrCode?: InputMaybe<Scalars['String']>;
 }>;
 
@@ -1486,7 +1496,7 @@ export type AllProductsAndLocationsForBaseQueryVariables = Exact<{
 }>;
 
 
-export type AllProductsAndLocationsForBaseQuery = { __typename?: 'Query', base?: { __typename?: 'Base', locations: Array<{ __typename?: 'ClassicLocation', id: string, name?: string | null }>, products: Array<{ __typename?: 'Product', id: string, name: string, gender?: ProductGender | null, category: { __typename?: 'ProductCategory', name: string }, sizeRange: { __typename?: 'SizeRange', sizes: Array<{ __typename?: 'Size', id: string, label: string }> } }> } | null };
+export type AllProductsAndLocationsForBaseQuery = { __typename?: 'Query', base?: { __typename?: 'Base', tags?: Array<{ __typename?: 'Tag', color?: string | null, value: string, label: string }> | null, locations: Array<{ __typename?: 'ClassicLocation', defaultBoxState?: BoxState | null, id: string, name?: string | null, seq?: number | null }>, products: Array<{ __typename?: 'Product', id: string, name: string, gender?: ProductGender | null, category: { __typename?: 'ProductCategory', name: string }, sizeRange: { __typename?: 'SizeRange', id: string, label: string, sizes: Array<{ __typename?: 'Size', id: string, label: string }> } }> } | null };
 
 export type BoxByLabelIdentifierAndAllProductsWithBaseIdQueryVariables = Exact<{
   baseId: Scalars['ID'];
