@@ -36,7 +36,7 @@ function NumberField({ fieldId, fieldLabel, errors, control, register }: INumber
         name={fieldId}
         control={control}
         render={({ field }) => (
-          <NumberInput>
+          <NumberInput min={0}>
             {/* The NumberInputField only returns strings and needs to be casted before validation is possible */}
             <NumberInputField
               onKeyDown={(e) => {
@@ -53,13 +53,13 @@ function NumberField({ fieldId, fieldLabel, errors, control, register }: INumber
                   if (typeof val === "number") {
                     // only happens if a number is passed as default value
                     return val;
-                  } if (val) {
+                  }
+                  if (val) {
                     // if a number is entered it is passed as a string
                     return Number(val);
                   }
                   // This is if "" is entered.
                   return undefined;
-
                 },
               })}
             />
