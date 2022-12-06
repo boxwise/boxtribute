@@ -143,6 +143,7 @@ function BoxCreate({
     register,
     resetField,
     watch,
+    setValue,
     formState: { errors, isSubmitting },
   } = useForm<ICreateBoxFormData>({
     resolver: zodResolver(CreateBoxFormDataSchema),
@@ -166,9 +167,17 @@ function BoxCreate({
             value: s.id,
           })) || [],
       );
+
       resetField("sizeId");
+      // Put a default value for sizeId when there's only one option
+      if (productAndSizeDataForCurrentProduct?.sizeRange?.sizes?.length === 1) {
+        setValue("sizeId", {
+          label: productAndSizeDataForCurrentProduct?.sizeRange?.sizes[0].label,
+          value: productAndSizeDataForCurrentProduct?.sizeRange?.sizes[0].id,
+        });
+      }
     }
-  }, [productId, productAndSizesData, resetField]);
+  }, [productId, productAndSizesData, resetField, setValue]);
 
   if (productsForDropdownGroups == null) {
     notificationVar({
