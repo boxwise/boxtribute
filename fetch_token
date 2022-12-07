@@ -36,6 +36,9 @@ def _parse_cli():
         action="store_true",
         help="fetch JWT for test user, ignoring -u and -p options",
     )
+    parser.add_argument(
+        "-m", "--management-api", action="store_true", help="fetch management API token"
+    )
     return parser.parse_args()
 
 
@@ -62,6 +65,15 @@ def main():
             client_secret=os.environ["TEST_AUTH0_CLIENT_SECRET"],
             username=TEST_AUTH0_USERNAME,
             password=TEST_AUTH0_PASSWORD,
+        )
+    elif options.management_api:
+        extras = dict(
+            client_id=os.environ["AUTH0_MANAGEMENT_API_CLIENT_ID"],
+            client_secret=os.environ["AUTH0_MANAGEMENT_API_CLIENT_SECRET"],
+            audience=os.environ["AUTH0_MANAGEMENT_API_AUDIENCE"],
+            grant_type="client_credentials",
+            username=None,
+            password=None,
         )
     else:
         extras = dict(
