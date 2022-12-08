@@ -65,7 +65,7 @@ export enum QrResolverResultKind {
   NOT_BOXTRIBUTE_QR = "noBoxtributeQr",
 }
 
-export interface QrResolvedValue {
+export interface IQrResolvedValue {
   kind: QrResolverResultKind;
   qrCodeValue?: string;
   value?: any;
@@ -74,7 +74,7 @@ export interface IQrValueWrapper {
   key: string;
   isLoading: boolean;
   interimValue?: string;
-  finalValue?: QrResolvedValue;
+  finalValue?: IQrResolvedValue;
 }
 
 export interface QrReaderOverlayProps {

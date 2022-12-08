@@ -3,7 +3,7 @@ import { ComponentMeta, ComponentStory } from "@storybook/react";
 import { ProductGender } from "types/generated/graphql";
 import QrReaderOverlay, {
   IQrValueWrapper,
-  QrResolvedValue,
+  IQrResolvedValue,
   QrResolverResultKind,
 } from "./QrReaderOverlay";
 
@@ -15,8 +15,8 @@ export default {
 
 const Template: ComponentStory<typeof QrReaderOverlay> = (args) => <QrReaderOverlay {...args} />;
 
-const qrCodeToResolverResult = (qrValue: string): QrResolvedValue => {
-  var qrResolverResults: Map<string, QrResolvedValue> = new Map([
+const qrCodeToResolverResult = (qrValue: string): IQrResolvedValue => {
+  var qrResolverResults: Map<string, IQrResolvedValue> = new Map([
     [
       "https://staging.boxwise.co/mobile.php?barcode=387b0f0f5e62cebcafd48383035a92a",
       {

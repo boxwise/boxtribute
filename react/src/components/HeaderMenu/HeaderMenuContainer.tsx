@@ -6,7 +6,7 @@ import HeaderMenu, { MenuItemsGroupData } from "./HeaderMenu";
 import AutomaticBaseSwitcher from "views/AutomaticBaseSwitcher/AutomaticBaseSwitcher";
 import { useDisclosure, useToast } from "@chakra-ui/react";
 import QrReaderOverlayContainer from "components/QrReaderOverlay/QrReaderOverlayContainer";
-import { QrResolvedValue, QrResolverResultKind } from "components/QrReaderOverlay/QrReaderOverlay";
+import { IQrResolvedValue, QrResolverResultKind } from "components/QrReaderOverlay/QrReaderOverlay";
 import { GlobalPreferencesContext } from "providers/GlobalPreferencesProvider";
 import { IBoxDetailsData } from "utils/base-types";
 import BoxesBulkOperationsOverlay from "./BoxesBulkOperationsOverlay";
@@ -96,9 +96,9 @@ const HeaderMenuContainer = () => {
   const [boxesDataForBulkOperation, setBoxesDataForBulkOperation] = useState<IBoxDetailsData[]>([]);
 
   const onScanningDone = useCallback(
-    (qrResolvedValues: QrResolvedValue[]) => {
-      if (qrResolvedValues.length === 1) {
-        const singleResolvedQrValue = qrResolvedValues[0];
+    (IQrResolvedValues: IQrResolvedValue[]) => {
+      if (IQrResolvedValues.length === 1) {
+        const singleResolvedQrValue = IQrResolvedValues[0];
         switch (singleResolvedQrValue.kind) {
           case QrResolverResultKind.SUCCESS: {
             const boxLabelIdentifier = singleResolvedQrValue?.value.labelIdentifier;
@@ -126,11 +126,11 @@ const HeaderMenuContainer = () => {
         }
       } else {
         // TODO: Add logic to handle bulk QR codes
-        const successfullyResolvedValues = qrResolvedValues.filter(
-          (qrResolvedValue) => qrResolvedValue.kind === QrResolverResultKind.SUCCESS,
+        const successfullyResolvedValues = IQrResolvedValues.filter(
+          (IQrResolvedValue) => IQrResolvedValue.kind === QrResolverResultKind.SUCCESS,
         );
         const boxesData = successfullyResolvedValues.map(
-          (qrResolvedValue) => qrResolvedValue.value,
+          (IQrResolvedValue) => IQrResolvedValue.value,
         );
         setBoxesDataForBulkOperation(boxesData);
         // toast({

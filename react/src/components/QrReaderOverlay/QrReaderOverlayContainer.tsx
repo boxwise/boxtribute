@@ -8,7 +8,7 @@ import {
 } from "types/generated/graphql";
 import QrReaderOverlay, {
   IQrValueWrapper,
-  QrResolvedValue,
+  IQrResolvedValue,
   QrResolverResultKind,
 } from "./QrReaderOverlay";
 import { Box, useBoolean } from "@chakra-ui/react";
@@ -24,7 +24,7 @@ import { extractQrCodeFromUrl } from "utils/helpers";
 interface QrReaderOverlayContainerProps {
   isOpen: boolean;
   onClose: () => void;
-  onScanningDone: (qrValueWrappers: QrResolvedValue[]) => void;
+  onScanningDone: (qrValueWrappers: IQrResolvedValue[]) => void;
 }
 
 const boxDataToSuccessQrValue = (boxData: BoxDetailsQuery["box"]) => {
@@ -49,7 +49,7 @@ const boxDataToSuccessQrValue = (boxData: BoxDetailsQuery["box"]) => {
   return {
     kind: QrResolverResultKind.SUCCESS,
     value: boxDetailData,
-  } as QrResolvedValue;
+  } as IQrResolvedValue;
 };
 
 const QrReaderOverlayContainer = ({
@@ -230,7 +230,7 @@ const QrReaderOverlayContainer = ({
       .uniqBy((el) => el.key)
       // TODO: improve typings/type handling here (to get rid of the `!`)
       .map((qrValueWrapper) => qrValueWrapper.finalValue)
-      .value() as QrResolvedValue[];
+      .value() as IQrResolvedValue[];
     onScanningDone(resolvedQrValues);
   }, [boxesByLabelSearchWrappers, handleClose, onScanningDone, scannedQrValueWrappers]);
 
