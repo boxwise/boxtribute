@@ -9,6 +9,7 @@ import {
   FormLabel,
   HStack,
   IconButton,
+  Input,
   Modal,
   ModalBody,
   ModalContent,
@@ -43,63 +44,32 @@ export const ViewFinder = () => (
         height: "100%",
       }}
     >
-      <path
-        fill="none"
-        d="M13,0 L0,0 L0,13"
-        stroke="rgba(255, 0, 0, 0.5)"
-        strokeWidth="5"
-      />
-      <path
-        fill="none"
-        d="M0,87 L0,100 L13,100"
-        stroke="rgba(255, 0, 0, 0.5)"
-        strokeWidth="5"
-      />
+      <path fill="none" d="M13,0 L0,0 L0,13" stroke="rgba(255, 0, 0, 0.5)" strokeWidth="5" />
+      <path fill="none" d="M0,87 L0,100 L13,100" stroke="rgba(255, 0, 0, 0.5)" strokeWidth="5" />
       <path
         fill="none"
         d="M87,100 L100,100 L100,87"
         stroke="rgba(255, 0, 0, 0.5)"
         strokeWidth="5"
       />
-      <path
-        fill="none"
-        d="M100,13 L100,0 87,0"
-        stroke="rgba(255, 0, 0, 0.5)"
-        strokeWidth="5"
-      />
+      <path fill="none" d="M100,13 L100,0 87,0" stroke="rgba(255, 0, 0, 0.5)" strokeWidth="5" />
     </svg>
   </>
 );
 
-export interface QrResolverResultSuccessValue {
-  kind: "success";
-  value: IBoxDetailsData;
+export enum QrResolverResultKind {
+  SUCCESS = "success",
+  NOT_ASSIGNED_TO_BOX = "notAssignedToBox",
+  LABEL_NOT_FOUND = "labelNotFound",
+  NOT_AUTHORIZED = "notAuthorized",
+  NOT_BOXTRIBUTE_QR = "noBoxtributeQr",
 }
 
-export interface QrResolverResultNotAssignedToBox {
-  kind: "notAssignedToBox";
-  qrCodeValue: string;
+export interface QrResolvedValue {
+  kind: QrResolverResultKind;
+  qrCodeValue?: string;
+  value?: any;
 }
-
-// interface QrResolverResultNotAuthorized {
-//   kind: "notAuthorized";
-// }
-
-export interface QrResolverResultLabelNotFound {
-  kind: "labelNotFound";
-}
-
-export interface QrResolverResultNoBoxtributeQr {
-  kind: "noBoxtributeQr";
-}
-
-export type QrResolvedValue =
-  | QrResolverResultSuccessValue
-  | QrResolverResultNotAssignedToBox
-  | QrResolverResultNoBoxtributeQr
-  | QrResolverResultLabelNotFound;
-// | QrResolverResultNotAuthorized;
-
 export interface IQrValueWrapper {
   key: string;
   isLoading: boolean;
@@ -133,7 +103,7 @@ const QrValueWrapper: React.FC<{ qrCodeValueWrapper: IQrValueWrapper }> = ({
     return <Box>{interimValue}</Box>;
   }
   switch (finalValue?.kind) {
-    case "success": {
+    case QrResolverResultKind.SUCCESS: {
       return (
         <Checkbox key={key} colorScheme="green" defaultChecked={true}>
           <Badge colorScheme="green">{finalValue.value.labelIdentifier}</Badge>
@@ -141,14 +111,14 @@ const QrValueWrapper: React.FC<{ qrCodeValueWrapper: IQrValueWrapper }> = ({
       );
     }
 
-    case "noBoxtributeQr": {
+    case QrResolverResultKind.NOT_BOXTRIBUTE_QR: {
       return <Badge colorScheme="red">Not a Boxtribute QR Code</Badge>;
     }
-    case "notAssignedToBox": {
+    case QrResolverResultKind.NOT_ASSIGNED_TO_BOX: {
       return <Badge colorScheme="gray">Not yet assigned to any Box</Badge>;
     }
 
-    case "labelNotFound": {
+    case QrResolverResultKind.LABEL_NOT_FOUND: {
       return <Badge colorScheme="red">Label not found</Badge>;
     }
     // case "notAuthorized": {
@@ -175,14 +145,14 @@ const QrReaderOverlay = ({
   handleClose,
   onScanningResult,
   boxesByLabelSearchWrappers,
-  scannedQrValueWrappers
+  scannedQrValueWrappers,
 }: QrReaderOverlayProps) => {
   const [zoomLevel, setZoomLevel] = useState(1);
   // TODO: consider to lift this Map state up
 
   const browserSupportsZoom = useMemo(
     () => navigator?.mediaDevices?.getSupportedConstraints?.().zoom != null,
-    []
+    [],
   );
 
   const facingMode = "environment";
@@ -193,26 +163,20 @@ const QrReaderOverlay = ({
         onScanningResult(result["text"]);
       }
     },
-    [onScanningResult]
+    [onScanningResult],
   );
 
   const [boxLabelInputValue, setBoxLabelInputValue] = useState("");
 
   return (
-    <Modal
-      isOpen={isOpen}
-      closeOnOverlayClick={true}
-      closeOnEsc={true}
-      onClose={handleClose}
-    >
+    <Modal isOpen={isOpen} closeOnOverlayClick={true} closeOnEsc={true} onClose={handleClose}>
       <ModalOverlay />
       <ModalContent>
         <ModalHeader>QR Scanner</ModalHeader>
         <ModalBody>
           <Container maxW="md">
             <QrReader
-              // TODO: try to remove this hacky key setting again
-              key={`${zoomLevel}-${facingMode}-${isBulkModeActive}-${isBulkModeSupported}`}
+              key={"qrReader"}
               ViewFinder={ViewFinder}
               facingMode={facingMode}
               zoom={zoomLevel}
@@ -225,18 +189,14 @@ const QrReaderOverlay = ({
                 <HStack>
                   <IconButton
                     disabled={zoomLevel <= 1}
-                    onClick={() =>
-                      setZoomLevel((curr) => (curr > 1 ? curr - 1 : curr))
-                    }
+                    onClick={() => setZoomLevel((curr) => (curr > 1 ? curr - 1 : curr))}
                     aria-label={"Decrease zoom level"}
                   >
                     <MinusIcon />
                   </IconButton>
                   <IconButton
                     disabled={zoomLevel >= 8}
-                    onClick={() =>
-                      setZoomLevel((curr) => (curr < 8 ? curr + 1 : curr))
-                    }
+                    onClick={() => setZoomLevel((curr) => (curr < 8 ? curr + 1 : curr))}
                     aria-label={"Increase zoom level"}
                   >
                     <AddIcon />
@@ -246,14 +206,12 @@ const QrReaderOverlay = ({
             </HStack>
             <HStack borderColor="blackAlpha.100" borderWidth={2} p={4} my={5}>
               <Text fontWeight="bold">By Label</Text>
-              <NumberInput
+              <Input
+                type={"string"}
                 width={150}
-                onChange={setBoxLabelInputValue}
+                onChange={(e) => setBoxLabelInputValue(e.currentTarget.value)}
                 value={boxLabelInputValue}
-              >
-                <NumberInputField />
-              </NumberInput>
-              {/* <Button onClick={() => onFindBoxByLabel(boxLabelInputValue)}>Find</Button> */}
+              ></Input>
               <Button
                 onClick={() => {
                   if (boxLabelInputValue != null && boxLabelInputValue !== "") {
@@ -285,10 +243,7 @@ const QrReaderOverlay = ({
                         {scannedQrValueWrappers.map((qrCodeValueWrapper, i) => {
                           return (
                             <Box key={i}>
-                              {i + 1}{" "}
-                              <QrValueWrapper
-                                qrCodeValueWrapper={qrCodeValueWrapper}
-                              />
+                              {i + 1} <QrValueWrapper qrCodeValueWrapper={qrCodeValueWrapper} />
                             </Box>
                           );
                         })}
@@ -298,27 +253,20 @@ const QrReaderOverlay = ({
                     <VStack>
                       <Text fontWeight="bold">Boxes by label search</Text>
                       <VStack spacing={5} direction="row">
-                        {boxesByLabelSearchWrappers.map(
-                          (boxByLabelSearchWrapper, i) => {
-                            return (
-                              <Box key={i}>
-                                {i + 1}{" "}
-                                <QrValueWrapper
-                                  qrCodeValueWrapper={boxByLabelSearchWrapper}
-                                />
-                              </Box>
-                            );
-                          }
-                        )}
+                        {boxesByLabelSearchWrappers.map((boxByLabelSearchWrapper, i) => {
+                          return (
+                            <Box key={i}>
+                              {i + 1}{" "}
+                              <QrValueWrapper qrCodeValueWrapper={boxByLabelSearchWrapper} />
+                            </Box>
+                          );
+                        })}
                       </VStack>
                     </VStack>
                     <Button
                       onClick={onBulkScanningDoneButtonClick}
                       colorScheme="blue"
-                      disabled={
-                        scannedQrValueWrappers.filter((el) => el.isLoading)
-                          .length !== 0
-                      }
+                      disabled={scannedQrValueWrappers.filter((el) => el.isLoading).length !== 0}
                     >
                       Scanning done
                     </Button>

@@ -24,6 +24,7 @@ import {
   MenuItemsGroupsProps,
 } from "./HeaderMenu";
 import BoxtributeLogo from "../../assets/images/boxtribute-logo.png";
+import { QrReaderButton } from "components/QrReader/QrReaderButton";
 
 type MenuItemsGroupsMobileProps = MenuItemsGroupsProps & {
   isMenuOpen: boolean;
@@ -240,20 +241,6 @@ const HeaderMenuMobileContainer = ({ children, ...props }) => {
   );
 };
 
-// TODO: Extract this (because it's not mobile/desktop specific) out into a seperate component file
-const QrScannerButton = ({ onClick }: { onClick: () => void }) => (
-  <IconButton
-    h={20}
-    w={20}
-    fontSize="50px"
-    colorScheme="gray"
-    backgroundColor={"transparent"}
-    aria-label="Scan QR Code"
-    icon={<AiOutlineQrcode />}
-    onClick={onClick}
-  />
-);
-
 const HeaderMenuMobile = (props: HeaderMenuProps) => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const toggle = () => setIsMenuOpen((curr) => !curr);
@@ -261,7 +248,7 @@ const HeaderMenuMobile = (props: HeaderMenuProps) => {
     <HeaderMenuMobileContainer>
       <Flex justifyContent="space-between" w="100%" alignItems="center">
         <Logo />
-        {/* <QrScannerButton onClick={props.onClickScanQrCode} /> */}
+        <QrReaderButton onClick={props.onClickScanQrCode} />
         <MenuToggle
           toggle={toggle}
           isOpen={isMenuOpen}

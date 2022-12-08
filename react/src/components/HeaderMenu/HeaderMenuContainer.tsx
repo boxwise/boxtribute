@@ -6,13 +6,11 @@ import HeaderMenu, { MenuItemsGroupData } from "./HeaderMenu";
 import AutomaticBaseSwitcher from "views/AutomaticBaseSwitcher/AutomaticBaseSwitcher";
 import { useDisclosure, useToast } from "@chakra-ui/react";
 import QrReaderOverlayContainer from "components/QrReaderOverlay/QrReaderOverlayContainer";
-import {
-  QrResolvedValue,
-  QrResolverResultSuccessValue,
-} from "components/QrReaderOverlay/QrReaderOverlay";
+import { QrResolvedValue, QrResolverResultKind } from "components/QrReaderOverlay/QrReaderOverlay";
 import { GlobalPreferencesContext } from "providers/GlobalPreferencesProvider";
 import { IBoxDetailsData } from "utils/base-types";
 import BoxesBulkOperationsOverlay from "./BoxesBulkOperationsOverlay";
+import { notificationVar } from "components/NotificationMessage";
 
 const HeaderMenuContainer = () => {
   const auth0 = useAuth0();
@@ -102,38 +100,35 @@ const HeaderMenuContainer = () => {
       if (qrResolvedValues.length === 1) {
         const singleResolvedQrValue = qrResolvedValues[0];
         switch (singleResolvedQrValue.kind) {
-          case "success": {
-            const boxLabelIdentifier = singleResolvedQrValue.value.labelIdentifier;
+          case QrResolverResultKind.SUCCESS: {
+            const boxLabelIdentifier = singleResolvedQrValue?.value.labelIdentifier;
             navigate(`/bases/${baseId}/boxes/${boxLabelIdentifier}`);
             break;
           }
-          case "noBoxtributeQr": {
-            toast({
-              title: `Scanned QR code is not a Boxtribute QR code`,
-              status: "error",
-              isClosable: true,
-              duration: 2000,
+          case QrResolverResultKind.NOT_BOXTRIBUTE_QR: {
+            notificationVar({
+              title: "Error",
+              type: "error",
+              message: "Error: Scanned QR code is not a Boxtribute QR code",
             });
             break;
           }
-          case "notAssignedToBox": {
-            toast({
-              title: `Scanned QR code is not assigned to a box yet`,
-              status: "info",
-              isClosable: true,
-              duration: 2000,
+          case QrResolverResultKind.NOT_ASSIGNED_TO_BOX: {
+            notificationVar({
+              title: "QR Code",
+              type: "info",
+              message: "Scanned QR code is not assigned to a box yet",
             });
-            // TODO: uncomment this once we have finished/tested the Create Box feature sufficiently
-            // navigate(
-            //   `/bases/${baseId}/boxes/create?qrCode=${singleResolvedQrValue.qrCodeValue}`
-            // );
+
+            navigate(`/bases/${baseId}/boxes/create?qrCode=${singleResolvedQrValue?.qrCodeValue}`);
             break;
           }
         }
       } else {
+        // TODO: Add logic to handle bulk QR codes
         const successfullyResolvedValues = qrResolvedValues.filter(
-          (qrResolvedValue) => qrResolvedValue.kind === "success",
-        ) as QrResolverResultSuccessValue[];
+          (qrResolvedValue) => qrResolvedValue.kind === QrResolverResultKind.SUCCESS,
+        );
         const boxesData = successfullyResolvedValues.map(
           (qrResolvedValue) => qrResolvedValue.value,
         );
