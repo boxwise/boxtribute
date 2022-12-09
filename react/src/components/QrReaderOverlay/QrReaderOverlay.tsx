@@ -103,30 +103,30 @@ const QrValueWrapper: FC<{ qrCodeValueWrapper: IQrValueWrapper }> = function ({
   }
 
   switch (finalValue?.kind) {
-  case QrResolverResultKind.SUCCESS: {
-    return (
-      <Checkbox key={key} colorScheme="green" defaultChecked>
-        <Badge colorScheme="green">{finalValue.value.labelIdentifier}</Badge>
-      </Checkbox>
-    );
-  }
-  case QrResolverResultKind.NOT_BOXTRIBUTE_QR: {
-    return <Badge colorScheme="red">Not a Boxtribute QR Code</Badge>;
-  }
-  case QrResolverResultKind.NOT_ASSIGNED_TO_BOX: {
-    return <Badge colorScheme="gray">Not yet assigned to any Box</Badge>;
-  }
+    case QrResolverResultKind.SUCCESS: {
+      return (
+        <Checkbox key={key} colorScheme="green" defaultChecked>
+          <Badge colorScheme="green">{finalValue.value.labelIdentifier}</Badge>
+        </Checkbox>
+      );
+    }
+    case QrResolverResultKind.NOT_BOXTRIBUTE_QR: {
+      return <Badge colorScheme="red">Not a Boxtribute QR Code</Badge>;
+    }
+    case QrResolverResultKind.NOT_ASSIGNED_TO_BOX: {
+      return <Badge colorScheme="gray">Not yet assigned to any Box</Badge>;
+    }
 
-  case QrResolverResultKind.LABEL_NOT_FOUND: {
-    return <Badge colorScheme="red">Label not found</Badge>;
-  }
-  case "notAuthorized": {
-    return <Badge colorScheme="red">You are not authorized to view/edit this Box</Badge>;
-  }
-  default: {
-    // TODO: consider to handle the fallback case better
-    return <Badge colorScheme="red">-</Badge>;
-  }
+    case QrResolverResultKind.LABEL_NOT_FOUND: {
+      return <Badge colorScheme="red">Label not found</Badge>;
+    }
+    case QrResolverResultKind.NOT_AUTHORIZED: {
+      return <Badge colorScheme="red">You are not authorized to view/edit this Box</Badge>;
+    }
+    default: {
+      // TODO: consider to handle the fallback case better
+      return <Badge />;
+    }
   }
 };
 

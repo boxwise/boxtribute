@@ -64,7 +64,15 @@
       }
     ],
     "no-loop-func": "error",
-    "indent": ["error", 2],
+    "indent": [
+      "error",
+      2,
+      {
+        "SwitchCase": 1,
+        "ignoredNodes": ["ConditionalExpression"]
+      }
+    ],
+
     "no-tabs": 0,
     "@typescript-eslint/no-unused-vars": "warn",
     "no-unused-vars": "warn",
