@@ -1438,7 +1438,7 @@ export type GetBoxLabelIdentifierForQrCodeQueryVariables = Exact<{
 }>;
 
 
-export type GetBoxLabelIdentifierForQrCodeQuery = { __typename?: 'Query', qrCode?: { __typename?: 'QrCode', box?: { __typename?: 'Box', id: string, labelIdentifier: string, numberOfItems?: number | null, product?: { __typename?: 'Product', id: string, name: string, gender?: ProductGender | null } | null, size: { __typename?: 'Size', id: string, label: string } } | null } | null };
+export type GetBoxLabelIdentifierForQrCodeQuery = { __typename?: 'Query', qrCode?: { __typename?: 'QrCode', box?: { __typename?: 'Box', id: string, labelIdentifier: string, numberOfItems?: number | null, product?: { __typename?: 'Product', id: string, name: string, gender?: ProductGender | null } | null, size: { __typename?: 'Size', id: string, label: string }, location?: { __typename?: 'ClassicLocation', base?: { __typename?: 'Base', id: string } | null } | { __typename?: 'DistributionSpot', base?: { __typename?: 'Base', id: string } | null } | null } | null } | null };
 
 export type BaseDataQueryVariables = Exact<{
   baseId: Scalars['ID'];

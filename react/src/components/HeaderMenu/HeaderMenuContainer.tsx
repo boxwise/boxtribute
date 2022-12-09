@@ -113,6 +113,14 @@ const HeaderMenuContainer = () => {
             });
             break;
           }
+          case QrResolverResultKind.NOT_AUTHORIZED: {
+            notificationVar({
+              title: "Error",
+              type: "error",
+              message: "Error: You don't have access to the box assigned to this QR code",
+            });
+            break;
+          }
           case QrResolverResultKind.NOT_ASSIGNED_TO_BOX: {
             notificationVar({
               title: "QR Code",

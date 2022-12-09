@@ -6,11 +6,6 @@ import {
   GetBoxLabelIdentifierForQrCodeQuery,
   GetBoxLabelIdentifierForQrCodeQueryVariables,
 } from "types/generated/graphql";
-import QrReaderOverlay, {
-  IQrValueWrapper,
-  IQrResolvedValue,
-  QrResolverResultKind,
-} from "./QrReaderOverlay";
 import { Box, useBoolean } from "@chakra-ui/react";
 import _ from "lodash";
 import { IBoxDetailsData } from "utils/base-types";
@@ -20,23 +15,25 @@ import {
 } from "utils/queries";
 import { notificationVar } from "components/NotificationMessage";
 import { extractQrCodeFromUrl } from "utils/helpers";
+import QrReaderOverlay, {
+  IQrValueWrapper,
+  IQrResolvedValue,
+  QrResolverResultKind,
+} from "./QrReaderOverlay";
 
-interface QrReaderOverlayContainerProps {
+interface IQrReaderOverlayContainerProps {
   isOpen: boolean;
   onClose: () => void;
   onScanningDone: (qrValueWrappers: IQrResolvedValue[]) => void;
 }
 
-const boxDataToSuccessQrValue = (boxData: BoxDetailsQuery["box"]) => {
-  // TODO: replace this with cleaner/proper parsing/validation (e.g. via zod)
-  // Or make remove the nullable fields from the GraphQL API
-  if (
-    boxData == null
-    //  ||
-    // boxData.product == null ||
-    // boxData.location == null ||
-    // boxData.location.base == null
-  ) {
+const boxDataToSuccessQrValue = (boxData: any) => {
+  if (boxData == null) {
+    notificationVar({
+      title: "Error",
+      type: "error",
+      message: "Error: Could not find the box",
+    });
     throw new Error("boxData is null or incomplete");
   }
   const boxDetailData: IBoxDetailsData = {
@@ -52,11 +49,11 @@ const boxDataToSuccessQrValue = (boxData: BoxDetailsQuery["box"]) => {
   } as IQrResolvedValue;
 };
 
-const QrReaderOverlayContainer = ({
+function QrReaderOverlayContainer({
   isOpen,
   onClose,
   onScanningDone,
-}: QrReaderOverlayContainerProps) => {
+}: IQrReaderOverlayContainerProps) {
   // disable bulkmode before release
   const isBulkModeSupported = false;
 
@@ -95,46 +92,68 @@ const QrReaderOverlayContainer = ({
             },
           )
           .then(({ data, error, errors }) => {
-            const boxLabelIdentifier = data?.qrCode?.box?.labelIdentifier;
-            if (boxLabelIdentifier == null) {
-              const resolvedQrValueWrapper = {
-                ...qrValueWrapper,
-                isLoading: false,
-                finalValue: {
-                  kind: QrResolverResultKind.NOT_ASSIGNED_TO_BOX,
-                  qrCodeValue: extractedQrCodeFromUrl,
-                },
-              } as IQrValueWrapper;
+            if (!error) {
+              const boxLabelIdentifier = data?.qrCode?.box?.labelIdentifier;
+              if (boxLabelIdentifier == null && (errors?.length || 0) === 0) {
+                const resolvedQrValueWrapper = {
+                  ...qrValueWrapper,
+                  isLoading: false,
+                  finalValue: {
+                    kind: QrResolverResultKind.NOT_ASSIGNED_TO_BOX,
+                    qrCodeValue: extractedQrCodeFromUrl,
+                  },
+                } as IQrValueWrapper;
 
-              notificationVar({
-                title: "Unassigned QR Code",
-                type: "info",
-                message: "QR Code not assigned to any box yet",
-              });
+                notificationVar({
+                  title: "Unassigned QR Code",
+                  type: "info",
+                  message: "QR Code not assigned to any box yet",
+                });
 
-              addQrValueWrapperToMap(resolvedQrValueWrapper);
+                addQrValueWrapperToMap(resolvedQrValueWrapper);
+              } else if (boxLabelIdentifier !== null && (errors?.length || 0) === 0) {
+                const resolvedQrValueWrapper = {
+                  ...qrValueWrapper,
+                  isLoading: false,
+                  finalValue: boxDataToSuccessQrValue(data?.qrCode?.box),
+                } as IQrValueWrapper;
+                addQrValueWrapperToMap(resolvedQrValueWrapper);
+              } else if ((errors?.length || 0) > 0) {
+                notificationVar({
+                  title: "QR Code",
+                  type: "error",
+                  message: "Error: QR code assigned box is not accessible in your base",
+                });
+
+                const resolvedQrValueWrapper = {
+                  ...qrValueWrapper,
+                  isLoading: false,
+                  finalValue: {
+                    kind: QrResolverResultKind.NOT_AUTHORIZED,
+                    qrCodeValue: extractedQrCodeFromUrl,
+                  },
+                } as IQrValueWrapper;
+
+                addQrValueWrapperToMap(resolvedQrValueWrapper);
+              }
             } else {
-              // TODO: also handle cases here when the base of the box is not the
-              // same as the current base of the user.
-              // E.g. introduce another non-success kind for this case.
-              const resolvedQrValueWrapper = {
-                ...qrValueWrapper,
-                isLoading: false,
-                finalValue: boxDataToSuccessQrValue(data?.qrCode?.box),
-              } as IQrValueWrapper;
-              addQrValueWrapperToMap(resolvedQrValueWrapper);
+              notificationVar({
+                title: "QR Code",
+                type: "error",
+                message: "Error: The QR code could not be found",
+              });
             }
+          })
+          .catch((error) => {
+            // eslint-disable-next-line no-console
+            console.error(error);
+            //   const resolvedQrValueWrapper = {
+            //     ...qrValueWrapper,
+            //     isLoading: false,
+            //     finalValue: { kind: "noBoxtributeQr" },
+            //   } as IQrValueWrapper;
+            //   return Promise.resolve(resolvedQrValueWrapper);
           });
-        // TODO: Handle Authorization / No Access To Box case
-        // .catch((error) => {
-        //   console.error(error);
-        //   const resolvedQrValueWrapper = {
-        //     ...qrValueWrapper,
-        //     isLoading: false,
-        //     finalValue: { kind: "noBoxtributeQr" },
-        //   } as IQrValueWrapper;
-        //   return Promise.resolve(resolvedQrValueWrapper);
-        // });
       }
     },
     [addQrValueWrapperToMap, apolloClient],
@@ -159,23 +178,25 @@ const QrReaderOverlayContainer = ({
               variables: { qrCode },
             },
           )
-          .then(({ data }) => {
+          .then(({ data, errors }) => {
             const boxLabelIdentifier = data?.qrCode?.box?.labelIdentifier;
-            if (boxLabelIdentifier == null) {
+
+            if ((errors?.length || 0) > 0) {
+              onScanningDone([{ kind: QrResolverResultKind.NOT_AUTHORIZED, qrCodeValue: qrCode }]);
+            } else if (boxLabelIdentifier === null) {
               onScanningDone([
                 { kind: QrResolverResultKind.NOT_ASSIGNED_TO_BOX, qrCodeValue: qrCode },
               ]);
-              notificationVar({
-                title: "Error",
-                type: "error",
-                message: "Error: Not a Boxtribute QR Code",
-              });
             } else {
-              // TODO: also handle cases here when the base of the box is not the
-              // same as the current base of the user.
-              // E.g. introduce another non-success kind for this case.
               onScanningDone([boxDataToSuccessQrValue(data?.qrCode?.box)]);
             }
+          })
+          .catch((err) => {
+            notificationVar({
+              title: "QR Reader",
+              type: "error",
+              message: `Error - Code ${err.code}: Cannot retrive data for the QR code`,
+            });
           });
       }
     },
@@ -196,13 +217,14 @@ const QrReaderOverlayContainer = ({
     Map<string, IQrValueWrapper>
   >(new Map());
 
-  const boxesByLabelSearchWrappers = useMemo(() => {
-    return Array.from(boxesByLabelSearchWrappersMap.values());
+  const boxesByLabelSearchWrappers = useMemo(
+    () => Array.from(boxesByLabelSearchWrappersMap.values()),
     // Array.from(
     //   boxesByLabelSearchWrappersMap.keys()).map(
     //   (key) => boxesByLabelSearchWrappersMap.get(key)!
     // ),
-  }, [boxesByLabelSearchWrappersMap]);
+    [boxesByLabelSearchWrappersMap],
+  );
 
   const scannedQrValueWrappers = useMemo(
     () =>
@@ -290,7 +312,7 @@ const QrReaderOverlayContainer = ({
             handleClose();
           }
         })
-        .catch((e) => {
+        .catch(() => {
           notificationVar({
             title: "Error",
             type: "error",
@@ -327,7 +349,7 @@ const QrReaderOverlayContainer = ({
                 type: "error",
                 message: "Error: Box not found for this label",
               });
-              setBoxesByLabelSearchWrappersMap((prev) => {
+              setBoxesByLabelSearchWrappersMap(() => {
                 const newWrapperForLabelIdentifier = {
                   key: label,
                   isLoading: false,
@@ -344,7 +366,7 @@ const QrReaderOverlayContainer = ({
               // TODO: also handle cases here when the base of the box is not the
               // same as the current base of the user.
               // E.g. introduce another non-success kind for this case.
-              setBoxesByLabelSearchWrappersMap((prev) => {
+              setBoxesByLabelSearchWrappersMap(() => {
                 const newWrapperForLabelIdentifier = {
                   key: label,
                   isLoading: false,
@@ -389,6 +411,6 @@ const QrReaderOverlayContainer = ({
       />
     </Box>
   );
-};
+}
 
 export default QrReaderOverlayContainer;
