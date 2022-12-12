@@ -43,7 +43,7 @@
     "@graphql-codegen/typescript": "^2.8.3",
     "@graphql-codegen/typescript-operations": "^2.5.7",
     "@graphql-codegen/typescript-react-query": "^4.0.6",
-    "@sentry/types": "^7.21.1",
+    "@sentry/types": "^7.24.2",
     "@storybook/addon-actions": "^6.5.14",
     "@storybook/addon-essentials": "^6.5.13",
     "@storybook/addon-interactions": "^6.5.13",
