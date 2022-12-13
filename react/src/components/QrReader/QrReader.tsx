@@ -37,10 +37,6 @@ const isMediaDevicesAPIAvailable = () => {
   // eslint-disable-next-line no-shadow
   const isMediaDevicesAPIAvailable = typeof navigator !== "undefined" && !!navigator.mediaDevices;
 
-  // eslint-disable-next-line no-empty
-  if (!isMediaDevicesAPIAvailable) {
-  }
-
   return isMediaDevicesAPIAvailable;
 };
 
