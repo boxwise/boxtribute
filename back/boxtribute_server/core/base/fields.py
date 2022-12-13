@@ -94,7 +94,6 @@ def resolve_base_distribution_events_statistics(base_obj, _):
             select detl.distro_event_tracking_group_id,
             detl.product_id,
             detl.size_id,
-            detl.location_id,
             SUM(CASE WHEN detl.flow_direction = "In"
               THEN detl.number_of_items ELSE 0 END
             ) inflow,
@@ -106,7 +105,7 @@ def resolve_base_distribution_events_statistics(base_obj, _):
               on tracking_group.id = detl.distro_event_tracking_group_id
             where tracking_group.base_id = '%s'
             group by detl.distro_event_tracking_group_id, detl.product_id,
-              detl.size_id, detl.location_id, detl.flow_direction
+              detl.size_id, detl.flow_direction
         ) as detl
         inner join distro_events ev
           on ev.distro_event_tracking_group_id = detl.distro_event_tracking_group_id

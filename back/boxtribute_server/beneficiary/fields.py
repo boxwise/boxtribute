@@ -79,3 +79,9 @@ def resolve_beneficiary_age(beneficiary_obj, _):
 @beneficiary.field("active")
 def resolve_beneficiary_active(beneficiary_obj, _):
     return beneficiary_obj.deleted is None  # ZeroDateTimeField
+
+
+@beneficiary.field("base")
+def resolve_beneficiary_base(beneficiary_obj, _):
+    authorize(permission="base:read", base_id=beneficiary_obj.base_id)
+    return beneficiary_obj.base

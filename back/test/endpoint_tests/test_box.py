@@ -1,7 +1,9 @@
 import pytest
 from boxtribute_server.enums import BoxState
-from boxtribute_server.models.crud import BOX_LABEL_IDENTIFIER_GENERATION_ATTEMPTS
 from boxtribute_server.models.definitions.history import DbChangeHistory
+from boxtribute_server.warehouse.box.crud import (
+    BOX_LABEL_IDENTIFIER_GENERATION_ATTEMPTS,
+)
 from utils import (
     assert_bad_user_input,
     assert_internal_server_error,

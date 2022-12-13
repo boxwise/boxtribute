@@ -211,7 +211,7 @@ def test_update_non_existent_resource(
 
 def test_mutation_arbitrary_database_error(read_only_client, mocker):
     mocker.patch(
-        "boxtribute_server.graph_ql.resolvers.create_qr_code"
+        "boxtribute_server.warehouse.qr_code.mutations.create_qr_code"
     ).side_effect = peewee.PeeweeException
     mutation = "mutation { createQrCode { id } }"
     assert_internal_server_error(read_only_client, mutation, field="createQrCode")

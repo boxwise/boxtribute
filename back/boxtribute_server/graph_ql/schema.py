@@ -9,14 +9,11 @@ from .bindables import (
 )
 from .definitions import definitions, query_api_definitions
 from .enums import enum_types
-from .resolvers import mutation, query
 from .scalars import date_scalar, datetime_scalar
 
 full_api_schema = make_executable_schema(
     definitions,
     [
-        query,
-        mutation,
         date_scalar,
         datetime_scalar,
         *query_types,
@@ -32,7 +29,6 @@ full_api_schema = make_executable_schema(
 query_api_schema = make_executable_schema(
     query_api_definitions,
     [
-        query,
         date_scalar,
         datetime_scalar,
         *query_types,
