@@ -57,6 +57,7 @@ export function ViewFinder() {
 // eslint-disable-next-line no-shadow
 export enum QrResolverResultKind {
   SUCCESS = "success",
+  FAIL = "fail",
   NOT_ASSIGNED_TO_BOX = "notAssignedToBox",
   LABEL_NOT_FOUND = "labelNotFound",
   NOT_AUTHORIZED = "notAuthorized",
@@ -67,6 +68,7 @@ export interface IQrResolvedValue {
   kind: QrResolverResultKind;
   qrCodeValue?: string;
   value?: any;
+  error?: any;
 }
 export interface IQrValueWrapper {
   key: string;

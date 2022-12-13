@@ -71,17 +71,11 @@ function QrReaderOverlayContainer({
     (qrValueWrapper: IQrValueWrapper): void => {
       const extractedQrCodeFromUrl = extractQrCodeFromUrl(qrValueWrapper.key);
       if (extractedQrCodeFromUrl == null) {
-        const resolvedQrValueWrapper = {
+        addQrValueWrapperToMap({
           ...qrValueWrapper,
           isLoading: false,
           finalValue: { kind: QrResolverResultKind.NOT_BOXTRIBUTE_QR },
-        } as IQrValueWrapper;
-        notificationVar({
-          title: "Error",
-          type: "error",
-          message: "Error: Not a Boxtribute QR Code",
         });
-        addQrValueWrapperToMap(resolvedQrValueWrapper);
       } else {
         apolloClient
           .query<GetBoxLabelIdentifierForQrCodeQuery, GetBoxLabelIdentifierForQrCodeQueryVariables>(
@@ -95,64 +89,52 @@ function QrReaderOverlayContainer({
             if (!error) {
               const boxLabelIdentifier = data?.qrCode?.box?.labelIdentifier;
               if (boxLabelIdentifier == null && (errors?.length || 0) === 0) {
-                const resolvedQrValueWrapper = {
+                addQrValueWrapperToMap({
                   ...qrValueWrapper,
                   isLoading: false,
                   finalValue: {
                     kind: QrResolverResultKind.NOT_ASSIGNED_TO_BOX,
                     qrCodeValue: extractedQrCodeFromUrl,
                   },
-                } as IQrValueWrapper;
-
-                notificationVar({
-                  title: "Unassigned QR Code",
-                  type: "info",
-                  message: "QR Code not assigned to any box yet",
                 });
-
-                addQrValueWrapperToMap(resolvedQrValueWrapper);
               } else if (boxLabelIdentifier !== null && (errors?.length || 0) === 0) {
-                const resolvedQrValueWrapper = {
+                addQrValueWrapperToMap({
                   ...qrValueWrapper,
                   isLoading: false,
                   finalValue: boxDataToSuccessQrValue(data?.qrCode?.box),
-                } as IQrValueWrapper;
-                addQrValueWrapperToMap(resolvedQrValueWrapper);
-              } else if ((errors?.length || 0) > 0) {
-                notificationVar({
-                  title: "QR Code",
-                  type: "error",
-                  message: "Error: QR code assigned box is not accessible in your base",
                 });
-
-                const resolvedQrValueWrapper = {
+              } else if ((errors?.length || 0) > 0) {
+                addQrValueWrapperToMap({
                   ...qrValueWrapper,
                   isLoading: false,
                   finalValue: {
                     kind: QrResolverResultKind.NOT_AUTHORIZED,
                     qrCodeValue: extractedQrCodeFromUrl,
                   },
-                } as IQrValueWrapper;
-
-                addQrValueWrapperToMap(resolvedQrValueWrapper);
+                });
               }
             } else {
-              notificationVar({
-                title: "QR Code",
-                type: "error",
-                message: "Error: The QR code could not be found",
+              addQrValueWrapperToMap({
+                ...qrValueWrapper,
+                isLoading: false,
+                finalValue: {
+                  kind: QrResolverResultKind.FAIL,
+                  qrCodeValue: extractedQrCodeFromUrl,
+                },
               });
             }
           })
           .catch((error) => {
             // eslint-disable-next-line no-console
             console.error(error);
-            //   const resolvedQrValueWrapper = {
-            //     ...qrValueWrapper,
-            //     isLoading: false,
-            //     finalValue: { kind: "noBoxtributeQr" },
-            //   } as IQrValueWrapper;
-            //   return Promise.resolve(resolvedQrValueWrapper);
+            addQrValueWrapperToMap({
+              ...qrValueWrapper,
+              isLoading: false,
+              finalValue: {
+                kind: QrResolverResultKind.FAIL,
+                qrCodeValue: extractedQrCodeFromUrl,
+              },
+            });
           });
       }
     },
@@ -163,11 +145,6 @@ function QrReaderOverlayContainer({
     (result: string) => {
       const qrCode = extractQrCodeFromUrl(result);
       if (qrCode == null) {
-        notificationVar({
-          title: "Error",
-          type: "error",
-          message: "Not a Boxtribute QR Code",
-        });
         onScanningDone([{ kind: QrResolverResultKind.NOT_BOXTRIBUTE_QR }]);
       } else {
         apolloClient
@@ -179,24 +156,28 @@ function QrReaderOverlayContainer({
             },
           )
           .then(({ data, errors }) => {
-            const boxLabelIdentifier = data?.qrCode?.box?.labelIdentifier;
+            // eslint-disable-next-line no-console
+            console.log(data, errors);
 
             if ((errors?.length || 0) > 0) {
-              onScanningDone([{ kind: QrResolverResultKind.NOT_AUTHORIZED, qrCodeValue: qrCode }]);
-            } else if (boxLabelIdentifier === null) {
-              onScanningDone([
-                { kind: QrResolverResultKind.NOT_ASSIGNED_TO_BOX, qrCodeValue: qrCode },
-              ]);
+              const errorCode = errors ? errors[0].extensions.code : null;
+              if (errorCode === "FORBIDDEN") {
+                onScanningDone([
+                  { kind: QrResolverResultKind.NOT_AUTHORIZED, qrCodeValue: qrCode },
+                ]);
+              } else if (errorCode === "BAD_USER_INPUT") {
+                onScanningDone([
+                  { kind: QrResolverResultKind.LABEL_NOT_FOUND, qrCodeValue: qrCode },
+                ]);
+              } else {
+                onScanningDone([{ kind: QrResolverResultKind.FAIL, qrCodeValue: qrCode }]);
+              }
             } else {
               onScanningDone([boxDataToSuccessQrValue(data?.qrCode?.box)]);
             }
           })
           .catch((err) => {
-            notificationVar({
-              title: "QR Reader",
-              type: "error",
-              message: `Error - Code ${err.code}: Cannot retrive data for the QR code`,
-            });
+            onScanningDone([{ kind: QrResolverResultKind.FAIL, qrCodeValue: qrCode, error: err }]);
           });
       }
     },
