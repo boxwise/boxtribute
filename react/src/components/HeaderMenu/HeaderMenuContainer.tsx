@@ -121,6 +121,14 @@ const HeaderMenuContainer = () => {
             });
             break;
           }
+          case QrResolverResultKind.FAIL: {
+            notificationVar({
+              title: "QR Reader",
+              type: "error",
+              message: `Error - Code ${singleResolvedQrValue.error.code}: Cannot retrive data for the QR code`,
+            });
+            break;
+          }
           case QrResolverResultKind.NOT_ASSIGNED_TO_BOX: {
             notificationVar({
               title: "QR Code",
