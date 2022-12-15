@@ -163,6 +163,10 @@ function QrReaderOverlayContainer({
               } else {
                 onScanningDone([{ kind: QrResolverResultKind.FAIL, qrCodeValue: qrCode }]);
               }
+            } else if (data?.qrCode?.box == null) {
+              onScanningDone([
+                { kind: QrResolverResultKind.NOT_ASSIGNED_TO_BOX, qrCodeValue: qrCode },
+              ]);
             } else {
               onScanningDone([boxDataToSuccessQrValue(data?.qrCode?.box)]);
             }

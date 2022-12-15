@@ -1011,6 +1011,7 @@ export type ProductPage = {
 /** Representation of a QR code, possibly associated with a [`Box`]({{Types.Box}}). */
 export type QrCode = {
   __typename?: 'QrCode';
+  /**  [`Box`]({{Types.Box}}) associated with the QR code (`null` if none associated)  */
   box?: Maybe<Box>;
   code: Scalars['String'];
   createdOn?: Maybe<Scalars['Datetime']>;
