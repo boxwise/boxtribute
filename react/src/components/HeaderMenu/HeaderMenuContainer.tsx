@@ -121,6 +121,14 @@ const HeaderMenuContainer = () => {
             });
             break;
           }
+          case QrResolverResultKind.LABEL_NOT_FOUND: {
+            notificationVar({
+              title: "Error",
+              type: "error",
+              message: "Error: Box not found for this label",
+            });
+            break;
+          }
           case QrResolverResultKind.FAIL: {
             notificationVar({
               title: "QR Reader",
