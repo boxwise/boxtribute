@@ -133,7 +133,7 @@ const HeaderMenuContainer = () => {
             notificationVar({
               title: "QR Reader",
               type: "error",
-              message: `Error - Code ${singleResolvedQrValue.error.code}: Cannot retrive data for the QR code`,
+              message: `Error - Code ${singleResolvedQrValue?.error.code}: Cannot retrieve data for the QR code`,
             });
             break;
           }
