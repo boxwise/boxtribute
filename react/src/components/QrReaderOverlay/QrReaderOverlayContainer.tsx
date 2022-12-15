@@ -13,7 +13,6 @@ import {
   GET_BOX_LABEL_IDENTIFIER_BY_QR_CODE,
   BOX_DETAILS_BY_LABEL_IDENTIFIER_QUERY,
 } from "utils/queries";
-import { notificationVar } from "components/NotificationMessage";
 import { extractQrCodeFromUrl } from "utils/helpers";
 import QrReaderOverlay, {
   IQrValueWrapper,
@@ -29,11 +28,6 @@ interface IQrReaderOverlayContainerProps {
 
 const boxDataToSuccessQrValue = (boxData: any) => {
   if (boxData == null) {
-    notificationVar({
-      title: "Error",
-      type: "error",
-      message: "Error: Could not find the box",
-    });
     throw new Error("boxData is null or incomplete");
   }
   const boxDetailData: IBoxDetailsData = {
@@ -156,9 +150,6 @@ function QrReaderOverlayContainer({
             },
           )
           .then(({ data, errors }) => {
-            // eslint-disable-next-line no-console
-            console.log(data, errors);
-
             if ((errors?.length || 0) > 0) {
               const errorCode = errors ? errors[0].extensions.code : null;
               if (errorCode === "FORBIDDEN") {
@@ -167,7 +158,7 @@ function QrReaderOverlayContainer({
                 ]);
               } else if (errorCode === "BAD_USER_INPUT") {
                 onScanningDone([
-                  { kind: QrResolverResultKind.LABEL_NOT_FOUND, qrCodeValue: qrCode },
+                  { kind: QrResolverResultKind.NOT_BOXTRIBUTE_QR, qrCodeValue: qrCode },
                 ]);
               } else {
                 onScanningDone([{ kind: QrResolverResultKind.FAIL, qrCodeValue: qrCode }]);
@@ -231,7 +222,6 @@ function QrReaderOverlayContainer({
       .concat(boxesByLabelSearchWrappers)
       .filter((qrValueWrapper) => qrValueWrapper.finalValue?.kind === QrResolverResultKind.SUCCESS)
       .uniqBy((el) => el.key)
-      // TODO: improve typings/type handling here (to get rid of the `!`)
       .map((qrValueWrapper) => qrValueWrapper.finalValue)
       .value() as IQrResolvedValue[];
     onScanningDone(resolvedQrValues);
@@ -277,28 +267,26 @@ function QrReaderOverlayContainer({
           fetchPolicy: "no-cache",
           variables: { labelIdentifier: label },
         })
-        .then(({ data }) => {
-          const boxData = data?.box;
-          if (boxData == null) {
-            notificationVar({
-              title: "Error",
-              type: "error",
-              message: "Error: Box not found for this label",
-            });
+        .then(({ data, errors }) => {
+          if ((errors?.length || 0) > 0) {
+            const errorCode = errors ? errors[0].extensions.code : null;
+            if (errorCode === "FORBIDDEN") {
+              onScanningDone([{ kind: QrResolverResultKind.NOT_AUTHORIZED }]);
+            } else if (errorCode === "BAD_USER_INPUT") {
+              onScanningDone([{ kind: QrResolverResultKind.LABEL_NOT_FOUND }]);
+            } else {
+              onScanningDone([{ kind: QrResolverResultKind.LABEL_NOT_FOUND }]);
+            }
           } else {
-            // TODO: also handle cases here when the base of the box is not the
-            // same as the current base of the user.
-            // E.g. introduce another non-success kind for this case.
+            const boxData = data?.box;
             onScanningDone([boxDataToSuccessQrValue(boxData)]);
-            handleClose();
+            if (boxData !== null) {
+              handleClose();
+            }
           }
         })
-        .catch(() => {
-          notificationVar({
-            title: "Error",
-            type: "error",
-            message: "Error: Cannot scan the QR code",
-          });
+        .catch((err) => {
+          onScanningDone([{ kind: QrResolverResultKind.FAIL, error: err }]);
         });
     },
     [apolloClient, handleClose, onScanningDone],
@@ -322,40 +310,74 @@ function QrReaderOverlayContainer({
             fetchPolicy: "no-cache",
             variables: { labelIdentifier: label },
           })
-          .then(({ data }) => {
+          .then(({ data, errors }) => {
+            if ((errors?.length || 0) > 0) {
+              const errorCode = errors ? errors[0].extensions.code : null;
+              if (errorCode === "FORBIDDEN") {
+                setBoxesByLabelSearchWrappersMap(() => {
+                  const newMap = new Map(prev);
+                  newMap.set(label, {
+                    key: label,
+                    isLoading: false,
+                    interimValue: undefined,
+                    finalValue: {
+                      kind: QrResolverResultKind.NOT_AUTHORIZED,
+                    },
+                  });
+                  return newMap;
+                });
+              } else if (errorCode === "BAD_USER_INPUT") {
+                setBoxesByLabelSearchWrappersMap(() => {
+                  const newMap = new Map(prev);
+                  newMap.set(label, {
+                    key: label,
+                    isLoading: false,
+                    interimValue: undefined,
+                    finalValue: {
+                      kind: QrResolverResultKind.LABEL_NOT_FOUND,
+                    },
+                  });
+                  return newMap;
+                });
+              } else {
+                setBoxesByLabelSearchWrappersMap(() => {
+                  const newMap = new Map(prev);
+                  newMap.set(label, {
+                    key: label,
+                    isLoading: false,
+                    interimValue: undefined,
+                    finalValue: {
+                      kind: QrResolverResultKind.FAIL,
+                    },
+                  });
+                  return newMap;
+                });
+              }
+            }
+
             const boxData = data?.box;
             if (boxData == null) {
-              notificationVar({
-                title: "Error",
-                type: "error",
-                message: "Error: Box not found for this label",
-              });
               setBoxesByLabelSearchWrappersMap(() => {
-                const newWrapperForLabelIdentifier = {
+                const newMap = new Map(prev);
+                newMap.set(label, {
                   key: label,
                   isLoading: false,
                   interimValue: undefined,
                   finalValue: {
                     kind: QrResolverResultKind.LABEL_NOT_FOUND,
                   },
-                } as IQrValueWrapper;
-                const newMap = new Map(prev);
-                newMap.set(label, newWrapperForLabelIdentifier);
+                });
                 return newMap;
               });
             } else {
-              // TODO: also handle cases here when the base of the box is not the
-              // same as the current base of the user.
-              // E.g. introduce another non-success kind for this case.
               setBoxesByLabelSearchWrappersMap(() => {
-                const newWrapperForLabelIdentifier = {
+                const newMap = new Map(prev);
+                newMap.set(label, {
                   key: label,
                   isLoading: false,
                   interimValue: undefined,
                   finalValue: boxDataToSuccessQrValue(boxData),
-                } as IQrValueWrapper;
-                const newMap = new Map(prev);
-                newMap.set(label, newWrapperForLabelIdentifier);
+                });
                 return newMap;
               });
             }
