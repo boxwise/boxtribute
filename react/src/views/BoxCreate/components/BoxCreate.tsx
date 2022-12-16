@@ -190,7 +190,7 @@ function BoxCreate({
     <Box w={["100%", "100%", "60%", "40%"]}>
       <Heading>{productId?.label}</Heading>
       <Heading fontWeight="bold" mb={4} as="h2">
-        Create New Box {qrCode != null && <>(for QR code)</>}
+        Create New Box
       </Heading>
       <form onSubmit={handleSubmit(onSubmit)}>
         <List spacing={2}>
