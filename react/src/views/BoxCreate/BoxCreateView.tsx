@@ -1,5 +1,6 @@
 import { gql, useMutation, useQuery } from "@apollo/client";
 import { Center } from "@chakra-ui/react";
+import { useErrorHandling } from "utils/error-handling";
 import APILoadingIndicator from "components/APILoadingIndicator";
 import { notificationVar } from "components/NotificationMessage";
 import { useNavigate, useParams, useSearchParams } from "react-router-dom";
@@ -65,6 +66,7 @@ export const ALL_PRODUCTS_AND_LOCATIONS_FOR_BASE_QUERY = gql`
 `;
 
 function BoxCreateView() {
+  const { triggerError } = useErrorHandling();
   const baseId = useParams<{ baseId: string }>().baseId!;
   const [searchParams] = useSearchParams();
   const qrCode = searchParams.get("qrCode") as string | undefined;
@@ -102,9 +104,7 @@ function BoxCreateView() {
     })
       .then((mutationResult) => {
         if (mutationResult.errors) {
-          notificationVar({
-            title: "Box Create",
-            type: "error",
+          triggerError({
             message: "Error while trying to create Box",
           });
         } else {
@@ -122,10 +122,9 @@ function BoxCreateView() {
         }
       })
       .catch((err) => {
-        notificationVar({
-          title: "Box Create",
-          type: "error",
-          message: `Error - Code ${err.code}: Your changes could not be saved!`,
+        triggerError({
+          message: "Your changes could not be saved!",
+          statusCode: err.code,
         });
       });
   };
@@ -135,9 +134,7 @@ function BoxCreateView() {
   }
 
   if (error) {
-    notificationVar({
-      title: "Error",
-      type: "error",
+    triggerError({
       message: "Error: The available products could not be loaded!",
     });
   }
@@ -157,18 +154,14 @@ function BoxCreateView() {
     }));
 
   if (allLocations == null) {
-    notificationVar({
-      title: "Error",
-      type: "error",
+    triggerError({
       message: "Error: No other locations are visible!",
     });
     return <div />;
   }
 
   if (allProducts == null) {
-    notificationVar({
-      title: "Error",
-      type: "error",
+    triggerError({
       message: "Error: The available products could not be loaded!",
     });
     return <div />;
