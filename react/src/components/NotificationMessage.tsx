@@ -1,7 +1,7 @@
 import { makeVar, ReactiveVar } from "@apollo/client";
 import { ToastPositionWithLogical } from "@chakra-ui/react";
 
-import { useNotification } from "utils/hooks";
+import { useNotification } from "hooks/hooks";
 
 // create a local variable to store the state of nofication message
 // https://www.apollographql.com/docs/react/local-state/reactive-variables/

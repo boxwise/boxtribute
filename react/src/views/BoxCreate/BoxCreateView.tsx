@@ -10,7 +10,7 @@ import {
   CreateBoxMutation,
   CreateBoxMutationVariables,
 } from "types/generated/graphql";
-import { PRODUCT_FIELDS_FRAGMENT, TAG_OPTIONS_FRAGMENT } from "utils/fragments";
+import { PRODUCT_FIELDS_FRAGMENT, TAG_OPTIONS_FRAGMENT } from "queries/fragments";
 import BoxCreate, { ICreateBoxFormData } from "./components/BoxCreate";
 
 export const CREATE_BOX_MUTATION = gql`
