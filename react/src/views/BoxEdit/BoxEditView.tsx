@@ -12,7 +12,7 @@ import {
   PRODUCT_FIELDS_FRAGMENT,
   SIZE_FIELDS_FRAGMENT,
   TAG_OPTIONS_FRAGMENT,
-} from "utils/fragments";
+} from "queries/fragments";
 import { BOX_BY_LABEL_IDENTIFIER_QUERY } from "views/Box/BoxView";
 import { notificationVar } from "../../components/NotificationMessage";
 import BoxEdit, { IBoxEditFormData } from "./components/BoxEdit";

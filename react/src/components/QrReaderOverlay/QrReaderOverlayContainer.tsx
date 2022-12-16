@@ -13,7 +13,7 @@ import QrReaderOverlay, {
 import { Box, useBoolean } from "@chakra-ui/react";
 import _ from "lodash";
 import { IBoxDetailsData } from "types/base-types";
-import { GET_BOX_LABEL_IDENTIFIER_BY_QR_CODE, BOX_DETAILS_BY_LABEL_IDENTIFIER_QUERY } from "utils/queries";
+import { GET_BOX_LABEL_IDENTIFIER_BY_QR_CODE, BOX_DETAILS_BY_LABEL_IDENTIFIER_QUERY } from "queries/queries";
 
 // TODO: move this out into a shared file or part of custom hook
 export const extractQrCodeFromUrl = (url): string | undefined => {

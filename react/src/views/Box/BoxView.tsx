@@ -28,7 +28,7 @@ import {
   PRODUCT_BASIC_FIELDS_FRAGMENT,
   PRODUCT_FIELDS_FRAGMENT,
   TAG_FIELDS_FRAGMENT,
-} from "utils/fragments";
+} from "queries/fragments";
 import { notificationVar } from "../../components/NotificationMessage";
 import AddItemsToBoxOverlay from "./components/AddItemsToBoxOverlay";
 import TakeItemsFromBoxOverlay from "./components/TakeItemsFromBoxOverlay";
