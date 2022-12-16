@@ -13,8 +13,7 @@ src/components/QrReaderOverlay
 !src/components/Form
 !src/components/Layout.tsx
 src/mocks
-!src/providers
-!src/providers/ApolloAuth0Provider.tsx
+src/providers/GlobalPreferencesProvider.tsx
 src/utils
 src/views/AutomaticBaseSwitcher
 src/views/BaseDashboard
