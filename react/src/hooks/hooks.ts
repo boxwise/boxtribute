@@ -1,23 +1,32 @@
 import { useState, useCallback } from "react";
 import { useNavigate, useParams } from "react-router-dom";
-import { createStandaloneToast, UseToastOptions } from "@chakra-ui/react";
-import { theme } from "utils/theme";
+import { useToast, UseToastOptions, ToastPositionWithLogical } from "@chakra-ui/react";
+
+export interface INotificationProps extends UseToastOptions {
+  title?: string;
+  message: string;
+  type?: "info" | "warning" | "success" | "error" | undefined;
+  position?: ToastPositionWithLogical;
+}
 
 export const useNotification = () => {
-  const toast = createStandaloneToast({ theme });
+  const toast = useToast();
 
-  const createToast = (props: UseToastOptions) =>
-    toast({
-      duration: 4000,
-      isClosable: true,
-      position: "top",
-      variant: "subtle",
-      ...props,
-    });
+  const createToast = useCallback(
+    ({ message, type, ...props }: INotificationProps) =>
+      toast({
+        duration: 5000,
+        isClosable: true,
+        position: "top",
+        variant: "subtle",
+        status: type,
+        description: message,
+        ...props,
+      }),
+    [toast],
+  );
 
-  return {
-    createToast,
-  };
+  return { createToast };
 };
 
 export const useGetUrlForResourceHelpers = () => {

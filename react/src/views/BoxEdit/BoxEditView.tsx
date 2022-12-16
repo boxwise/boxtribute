@@ -14,7 +14,8 @@ import {
   TAG_OPTIONS_FRAGMENT,
 } from "queries/fragments";
 import { BOX_BY_LABEL_IDENTIFIER_QUERY } from "views/Box/BoxView";
-import { notificationVar } from "../../components/NotificationMessage";
+import { useErrorHandling } from "hooks/error-handling";
+import { useNotification } from "hooks/hooks";
 import BoxEdit, { IBoxEditFormData } from "./components/BoxEdit";
 
 export const BOX_BY_LABEL_IDENTIFIER_AND_ALL_PRODUCTS_WITH_BASEID_QUERY = gql`
@@ -91,6 +92,8 @@ export const UPDATE_CONTENT_OF_BOX_MUTATION = gql`
 `;
 
 function BoxEditView() {
+  const { triggerError } = useErrorHandling();
+  const { createToast } = useNotification();
   const labelIdentifier = useParams<{ labelIdentifier: string }>().labelIdentifier!;
   const baseId = useParams<{ baseId: string }>().baseId!;
   const { loading, data } = useQuery<
@@ -136,13 +139,11 @@ function BoxEditView() {
     })
       .then((mutationResult) => {
         if (mutationResult?.errors) {
-          notificationVar({
-            title: `Box ${labelIdentifier}`,
-            type: "error",
-            message: "Error while trying to update Box",
+          triggerError({
+            message: "Could not update Box.",
           });
         } else {
-          notificationVar({
+          createToast({
             title: `Box ${labelIdentifier}`,
             type: "success",
             message: `Successfully modified with ${
@@ -157,10 +158,9 @@ function BoxEditView() {
         }
       })
       .catch((error) => {
-        notificationVar({
-          title: `Box ${labelIdentifier}`,
-          type: "error",
-          message: `Error - Code ${error.code}: Your changes could not be saved!`,
+        triggerError({
+          message: "Could not update Box.",
+          statusCode: error.code,
         });
       });
   };
@@ -185,19 +185,15 @@ function BoxEditView() {
     }));
 
   if (allLocations == null) {
-    notificationVar({
-      title: "Error",
-      type: "error",
-      message: "Error: No other locations are visible!",
+    triggerError({
+      message: "No locations are available!",
     });
     return <div />;
   }
 
   if (productAndSizesData == null) {
-    notificationVar({
-      title: "Error",
-      type: "error",
-      message: "Error: No products are visible!",
+    triggerError({
+      message: "No products are available!",
     });
     return <div />;
   }
