@@ -29,7 +29,7 @@ import {
   PRODUCT_FIELDS_FRAGMENT,
   TAG_FIELDS_FRAGMENT,
 } from "utils/fragments";
-import { notificationVar } from "../../components/NotificationMessage";
+import { useNotification } from "utils/hooks";
 import AddItemsToBoxOverlay from "./components/AddItemsToBoxOverlay";
 import TakeItemsFromBoxOverlay from "./components/TakeItemsFromBoxOverlay";
 import BoxDetails from "./components/BoxDetails";
@@ -162,6 +162,7 @@ export interface IChangeNumberOfItemsBoxData {
 }
 
 function BTBox() {
+  const { createToast } = useNotification();
   const labelIdentifier = useParams<{ labelIdentifier: string }>().labelIdentifier!;
   const { loading, error, data } = useQuery<
     BoxByLabelIdentifierQuery,
@@ -216,18 +217,18 @@ function BTBox() {
   const { isOpen: isPlusOpen, onOpen: onPlusOpen, onClose: onPlusClose } = useDisclosure();
   const { isOpen: isMinusOpen, onOpen: onMinusOpen, onClose: onMinusClose } = useDisclosure();
 
-  if (loading) {
-    return <APILoadingIndicator />;
-  }
   if (
+    loading ||
     updateBoxLocationMutationStatus.loading ||
     assignBoxToDistributionEventMutationStatus.loading ||
     unassignBoxFromDistributionEventMutationStatus.loading
   ) {
     return <APILoadingIndicator />;
   }
+
+  if (error) return <div />;
+
   if (
-    error ||
     updateBoxLocationMutationStatus.error ||
     assignBoxToDistributionEventMutationStatus.error ||
     unassignBoxFromDistributionEventMutationStatus.error
@@ -251,7 +252,7 @@ function BTBox() {
       // refetchQueries: [refetchBoxByLabelIdentifierQueryConfig(labelIdentifier)],
     })
       .then((res) => {
-        notificationVar({
+        createToast({
           title: `Box ${labelIdentifier}`,
           type: res?.errors ? "error" : "success",
           message: res?.errors
@@ -277,7 +278,7 @@ function BTBox() {
         },
       })
         .then((res) => {
-          notificationVar({
+          createToast({
             title: `Box ${boxData.labelIdentifier}`,
             type: res.errors ? "error" : "success",
             message: res.errors
@@ -309,7 +310,7 @@ function BTBox() {
         },
       })
         .then((res) => {
-          notificationVar({
+          createToast({
             title: `Box ${boxData.labelIdentifier}`,
             type: res.errors ? "error" : "success",
             message: res.errors
@@ -337,7 +338,7 @@ function BTBox() {
       refetchQueries: [refetchBoxByLabelIdentifierQueryConfig(labelIdentifier)],
     })
       .then((res) => {
-        notificationVar({
+        createToast({
           title: `Box ${labelIdentifier}`,
           type: res.errors ? "error" : "success",
           message: res.errors ? "Error: Box could not be moved!" : "Successfully moved the box",

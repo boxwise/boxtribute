@@ -14,7 +14,7 @@ import {
   TAG_OPTIONS_FRAGMENT,
 } from "utils/fragments";
 import { BOX_BY_LABEL_IDENTIFIER_QUERY } from "views/Box/BoxView";
-import { notificationVar } from "../../components/NotificationMessage";
+import { useNotification } from "utils/hooks";
 import BoxEdit, { IBoxEditFormData } from "./components/BoxEdit";
 
 export const BOX_BY_LABEL_IDENTIFIER_AND_ALL_PRODUCTS_WITH_BASEID_QUERY = gql`
@@ -91,6 +91,7 @@ export const UPDATE_CONTENT_OF_BOX_MUTATION = gql`
 `;
 
 function BoxEditView() {
+  const { createToast } = useNotification();
   const labelIdentifier = useParams<{ labelIdentifier: string }>().labelIdentifier!;
   const baseId = useParams<{ baseId: string }>().baseId!;
   const { loading, data } = useQuery<
@@ -142,7 +143,7 @@ function BoxEditView() {
             message: "Error while trying to update Box",
           });
         } else {
-          notificationVar({
+          createToast({
             title: `Box ${labelIdentifier}`,
             type: "success",
             message: `Successfully modified with ${
