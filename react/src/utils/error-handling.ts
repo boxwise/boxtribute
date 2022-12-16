@@ -8,13 +8,13 @@ export interface ITriggerErrorProps extends UseToastOptions{
 
 export const useErrorHandling = () => {
     const toast = useToast();
-  
+
     const triggerError = ({message, userMessage, statusCode}: ITriggerErrorProps) => {
         if (statusCode) console.error(`[${statusCode}] ${message}`)
         else console.error(`${message}`)
-        
+
         toast({
-            duration: 5000, 
+            duration: 5000,
             isClosable: true,
             position: "top",
             variant: "subtle",
@@ -23,9 +23,9 @@ export const useErrorHandling = () => {
             description: userMessage || message,
         });
     }
-    
+
         return {
         triggerError,
         };
-    
+
 };

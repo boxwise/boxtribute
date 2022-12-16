@@ -50,13 +50,13 @@ function ApolloAuth0Provider({ children }: { children: ReactNode }) {
   const errorLink = onError(({ graphQLErrors, networkError }) => {
     if (graphQLErrors) {
       graphQLErrors.map(({ message, locations, path }) =>
-        triggerError({ 
+        triggerError({
           message:`[GraphQL error]: Message: ${message}, Location: ${locations}, Path: ${path}`,
           userMessage: "Something went wrong!"
         }));
     }
     if (networkError) {
-      triggerError({ 
+      triggerError({
         message:`[Network error]: ${networkError}`,
         userMessage: "Network Error! Please check your Internet connection!"
       });
