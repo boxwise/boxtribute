@@ -393,6 +393,7 @@ export type HistoryEntry = {
   __typename?: 'HistoryEntry';
   changeDate?: Maybe<Scalars['Datetime']>;
   changes: Scalars['String'];
+  id: Scalars['ID'];
   user?: Maybe<User>;
 };
 
