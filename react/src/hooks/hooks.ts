@@ -2,7 +2,7 @@ import { useState, useCallback } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { useToast, UseToastOptions, ToastPositionWithLogical } from "@chakra-ui/react";
 
-export interface INotificationProps extends UseToastOptions{
+export interface INotificationProps extends UseToastOptions {
   title?: string;
   message: string;
   type?: "info" | "warning" | "success" | "error" | undefined;
@@ -12,7 +12,7 @@ export interface INotificationProps extends UseToastOptions{
 export const useNotification = () => {
   const toast = useToast();
 
-  const createToast = ({message, type, ...props}: INotificationProps) =>
+  const createToast = ({ message, type, ...props }: INotificationProps) =>
     toast({
       duration: 90000,
       isClosable: true,
@@ -29,7 +29,7 @@ export const useNotification = () => {
 };
 
 export const useGetUrlForResourceHelpers = () => {
-  const baseId = useParams<{ baseId: string }>().baseId;
+  const { baseId } = useParams<{ baseId: string }>();
   if (baseId == null) {
     throw new Error("Coudl not extract baseId from URL");
   }

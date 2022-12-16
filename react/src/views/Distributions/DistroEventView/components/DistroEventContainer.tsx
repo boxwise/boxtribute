@@ -22,7 +22,7 @@ import {
   ChangeDistributionEventStateMutationVariables,
   DistributionEventState,
 } from "types/generated/graphql";
-import { useGetUrlForResourceHelpers } from "utils/hooks";
+import { useGetUrlForResourceHelpers } from "hooks/hooks";
 import DistributionEventTimeRangeDisplay from "views/Distributions/components/DistributionEventTimeRangeDisplay";
 import DistributionStateProgressBar from "views/Distributions/components/DistributionStateProgressBar";
 import {

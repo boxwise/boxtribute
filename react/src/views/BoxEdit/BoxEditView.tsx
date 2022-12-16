@@ -14,8 +14,8 @@ import {
   TAG_OPTIONS_FRAGMENT,
 } from "queries/fragments";
 import { BOX_BY_LABEL_IDENTIFIER_QUERY } from "views/Box/BoxView";
-import { useNotification } from "utils/hooks";
-import { useErrorHandling } from "utils/error-handling";
+import { useNotification } from "hooks/hooks";
+import { useErrorHandling } from "hooks/error-handling";
 import BoxEdit, { IBoxEditFormData } from "./components/BoxEdit";
 
 export const BOX_BY_LABEL_IDENTIFIER_AND_ALL_PRODUCTS_WITH_BASEID_QUERY = gql`
@@ -160,7 +160,7 @@ function BoxEditView() {
       .catch((error) => {
         triggerError({
           message: "Could not update Box.",
-          statusCode: error.code
+          statusCode: error.code,
         });
       });
   };

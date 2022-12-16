@@ -19,7 +19,7 @@ import { z } from "zod";
 import _ from "lodash";
 import SelectField, { IDropdownOption } from "components/Form/SelectField";
 import NumberField from "components/Form/NumberField";
-import { useErrorHandling } from "utils/error-handling";
+import { useErrorHandling } from "hooks/error-handling";
 
 export interface ICategoryData {
   name: string;

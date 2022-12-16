@@ -22,7 +22,7 @@ import { z } from "zod";
 import _ from "lodash";
 import { useNavigate, useParams } from "react-router-dom";
 import { useForm } from "react-hook-form";
-import { useErrorHandling } from "utils/error-handling";
+import { useErrorHandling } from "hooks/error-handling";
 
 export interface ICategoryData {
   name: string;

@@ -29,8 +29,8 @@ import {
   PRODUCT_FIELDS_FRAGMENT,
   TAG_FIELDS_FRAGMENT,
 } from "queries/fragments";
-import { useNotification } from "utils/hooks";
-import { useErrorHandling } from "utils/error-handling";
+import { useNotification } from "hooks/hooks";
+import { useErrorHandling } from "hooks/error-handling";
 import AddItemsToBoxOverlay from "./components/AddItemsToBoxOverlay";
 import TakeItemsFromBoxOverlay from "./components/TakeItemsFromBoxOverlay";
 import BoxDetails from "./components/BoxDetails";
@@ -219,7 +219,8 @@ function BTBox() {
   const { isOpen: isPlusOpen, onOpen: onPlusOpen, onClose: onPlusClose } = useDisclosure();
   const { isOpen: isMinusOpen, onOpen: onMinusOpen, onClose: onMinusClose } = useDisclosure();
 
-  if (loading ||
+  if (
+    loading ||
     updateBoxLocationMutationStatus.loading ||
     assignBoxToDistributionEventMutationStatus.loading ||
     unassignBoxFromDistributionEventMutationStatus.loading
