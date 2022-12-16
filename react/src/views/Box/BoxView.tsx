@@ -28,7 +28,7 @@ import {
   PRODUCT_BASIC_FIELDS_FRAGMENT,
   PRODUCT_FIELDS_FRAGMENT,
   TAG_FIELDS_FRAGMENT,
-} from "utils/fragments";
+} from "queries/fragments";
 import { useNotification } from "utils/hooks";
 import { useErrorHandling } from "utils/error-handling";
 import AddItemsToBoxOverlay from "./components/AddItemsToBoxOverlay";
