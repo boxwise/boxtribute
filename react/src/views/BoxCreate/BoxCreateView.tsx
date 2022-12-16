@@ -1,7 +1,7 @@
 import { gql, useMutation, useQuery } from "@apollo/client";
 import { Center } from "@chakra-ui/react";
 import APILoadingIndicator from "components/APILoadingIndicator";
-import { notificationVar } from "components/NotificationMessage";
+import { useNotification } from "utils/hooks";
 import { useNavigate, useParams, useSearchParams } from "react-router-dom";
 import {
   AllProductsAndLocationsForBaseQuery,
@@ -65,6 +65,7 @@ export const ALL_PRODUCTS_AND_LOCATIONS_FOR_BASE_QUERY = gql`
 `;
 
 function BoxCreateView() {
+  const { createToast } = useNotification();
   const baseId = useParams<{ baseId: string }>().baseId!;
   const [searchParams] = useSearchParams();
   const qrCode = searchParams.get("qrCode") as string | undefined;
@@ -102,13 +103,13 @@ function BoxCreateView() {
     })
       .then((mutationResult) => {
         if (mutationResult.errors) {
-          notificationVar({
+          createToast({
             title: "Box Create",
             type: "error",
             message: "Error while trying to create Box",
           });
         } else {
-          notificationVar({
+          createToast({
             title: `Box ${mutationResult.data?.createBox?.labelIdentifier}`,
             type: "success",
             message: `Successfully created with ${
@@ -122,7 +123,7 @@ function BoxCreateView() {
         }
       })
       .catch((err) => {
-        notificationVar({
+        createToast({
           title: "Box Create",
           type: "error",
           message: `Error - Code ${err.code}: Your changes could not be saved!`,
@@ -135,7 +136,7 @@ function BoxCreateView() {
   }
 
   if (error) {
-    notificationVar({
+    createToast({
       title: "Error",
       type: "error",
       message: "Error: The available products could not be loaded!",
@@ -157,7 +158,7 @@ function BoxCreateView() {
     }));
 
   if (allLocations == null) {
-    notificationVar({
+    createToast({
       title: "Error",
       type: "error",
       message: "Error: No other locations are visible!",
@@ -166,7 +167,7 @@ function BoxCreateView() {
   }
 
   if (allProducts == null) {
-    notificationVar({
+    createToast({
       title: "Error",
       type: "error",
       message: "Error: The available products could not be loaded!",
