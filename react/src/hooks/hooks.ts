@@ -1,7 +1,7 @@
 import { useState, useCallback } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { createStandaloneToast, UseToastOptions } from "@chakra-ui/react";
-import { theme } from "./theme";
+import { theme } from "utils/theme";
 
 export const useNotification = () => {
   const toast = createStandaloneToast({ theme });
@@ -21,7 +21,7 @@ export const useNotification = () => {
 };
 
 export const useGetUrlForResourceHelpers = () => {
-  const baseId = useParams<{ baseId: string }>().baseId;
+  const { baseId } = useParams<{ baseId: string }>();
   if (baseId == null) {
     throw new Error("Coudl not extract baseId from URL");
   }
