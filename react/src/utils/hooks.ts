@@ -1,36 +1,27 @@
 import { useState, useCallback } from "react";
 import { useNavigate, useParams } from "react-router-dom";
-import { useToast, UseToastOptions, ToastPositionWithLogical } from "@chakra-ui/react";
-
-export interface INotificationProps extends UseToastOptions {
-  title?: string;
-  message: string;
-  type?: "info" | "warning" | "success" | "error" | undefined;
-  position?: ToastPositionWithLogical;
-}
+import { createStandaloneToast, UseToastOptions } from "@chakra-ui/react";
+import { theme } from "./theme";
 
 export const useNotification = () => {
-  const toast = useToast();
+  const toast = createStandaloneToast({ theme });
 
-  const createToast = useCallback(
-    ({ message, type, ...props }: INotificationProps) =>
-      toast({
-        duration: 5000,
-        isClosable: true,
-        position: "top",
-        variant: "subtle",
-        status: type,
-        description: message,
-        ...props,
-      }),
-    [toast],
-  );
+  const createToast = (props: UseToastOptions) =>
+    toast({
+      duration: 4000,
+      isClosable: true,
+      position: "top",
+      variant: "subtle",
+      ...props,
+    });
 
-  return { createToast };
+  return {
+    createToast,
+  };
 };
 
 export const useGetUrlForResourceHelpers = () => {
-  const { baseId } = useParams<{ baseId: string }>();
+  const baseId = useParams<{ baseId: string }>().baseId;
   if (baseId == null) {
     throw new Error("Coudl not extract baseId from URL");
   }

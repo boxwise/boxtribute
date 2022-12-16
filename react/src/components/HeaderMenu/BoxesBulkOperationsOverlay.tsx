@@ -14,7 +14,7 @@ import {
   VStack,
   Heading,
 } from "@chakra-ui/react";
-import { IBoxDetailsData } from "types/base-types";
+import { IBoxDetailsData } from "utils/base-types";
 
 interface BoxesBulkOperationsOverlayProps {
   handleClose: () => void;

@@ -22,7 +22,7 @@ import { z } from "zod";
 import _ from "lodash";
 import { useNavigate, useParams } from "react-router-dom";
 import { useForm } from "react-hook-form";
-import { useErrorHandling } from "hooks/error-handling";
+import { notificationVar } from "../../../components/NotificationMessage";
 
 export interface ICategoryData {
   name: string;
@@ -108,7 +108,7 @@ function BoxEdit({
     baseId: string;
     labelIdentifier: string;
   }>();
-  const { triggerError } = useErrorHandling();
+
   const navigate = useNavigate();
 
   // Form Default Values
@@ -199,15 +199,19 @@ function BoxEdit({
   }, [productId, productAndSizesData, boxData, resetField]);
 
   if (boxData == null) {
-    triggerError({
-      message: `No data found for box ${labelIdentifier}!`,
+    notificationVar({
+      title: "Error",
+      type: "error",
+      message: `Error: There is no data found for box ${labelIdentifier}!`,
     });
     return <div />;
   }
 
   if (productsForDropdownGroups == null) {
-    triggerError({
-      message: "No products are available!",
+    notificationVar({
+      title: "Error",
+      type: "error",
+      message: "Error: The available products could not be loaded!",
     });
     return <div />;
   }

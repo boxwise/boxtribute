@@ -37,7 +37,7 @@ import {
   IPackingListEntry,
   UnboxedItemsCollectionData,
 } from "views/Distributions/types";
-import { useGetUrlForResourceHelpers } from "hooks/hooks";
+import { useGetUrlForResourceHelpers } from "utils/hooks";
 import { DistroEventDetailsForPackingStateContext } from "../DistroEventDetailsForPackingStateContainer";
 
 export interface PackingActionListProps {

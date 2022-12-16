@@ -83,9 +83,7 @@ function App() {
             <Route index element={<BaseDashboardView />} />
             <Route path="boxes">
               <Route index element={<Boxes />} />
-              <Route path="create">
-                <Route path=":qrCode" element={<BoxCreateView />} />
-              </Route>
+              <Route path="create" element={<BoxCreateView />} />
               <Route path=":labelIdentifier">
                 <Route index element={<BTBox />} />
                 <Route path="edit" element={<BoxEditView />} />

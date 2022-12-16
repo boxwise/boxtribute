@@ -12,37 +12,34 @@
   "prettier.eslintIntegration": true,
 
   "[javascript]": {
-    "editor.defaultFormatter": "rvest.vs-code-prettier-eslint",
+    "editor.defaultFormatter": "esbenp.prettier-vscode",
     "editor.codeActionsOnSave": {
-      "source.fixAll.eslint": true
+      "source.fixAll.eslint": false
     }
   },
   "[javascriptreact]": {
-    "editor.defaultFormatter": "rvest.vs-code-prettier-eslint",
+    "editor.defaultFormatter": "esbenp.prettier-vscode",
     "editor.codeActionsOnSave": {
-      "source.fixAll.eslint": true
+      "source.fixAll.eslint": false
     }
   },
   "[typescript]": {
-    "editor.defaultFormatter": "rvest.vs-code-prettier-eslint",
+    "editor.defaultFormatter": "esbenp.prettier-vscode",
     "editor.codeActionsOnSave": {
-      "source.fixAll": true
+      "source.fixAll.eslint": false
     }
   },
   "[typescriptreact]": {
-    "editor.defaultFormatter": "rvest.vs-code-prettier-eslint",
+    "editor.defaultFormatter": "esbenp.prettier-vscode",
     "editor.codeActionsOnSave": {
-      "source.fixAll": true
+      "source.fixAll.eslint": false
     }
   },
   // eslint
   "eslint.workingDirectories": ["./react"],
-  "editor.formatOnPaste": false, // required
-  "editor.formatOnType": false, // required
   "editor.formatOnSave": true,
   "eslint.alwaysShowStatus": true,
   "files.autoSave": "onFocusChange",
-  "eslint.packageManager": "yarn", // optional but recommended
   "editor.codeActionsOnSave": {
     "source.fixAll.eslint": true
   },

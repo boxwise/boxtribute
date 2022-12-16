@@ -1,5 +1,4 @@
 {
-  "root": true,
   "extends": [
     "react-app",
     "airbnb",

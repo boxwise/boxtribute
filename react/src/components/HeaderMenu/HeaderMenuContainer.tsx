@@ -11,7 +11,7 @@ import {
   QrResolverResultSuccessValue,
 } from "components/QrReaderOverlay/QrReaderOverlay";
 import { GlobalPreferencesContext } from "providers/GlobalPreferencesProvider";
-import { IBoxDetailsData } from "types/base-types";
+import { IBoxDetailsData } from "utils/base-types";
 import BoxesBulkOperationsOverlay from "./BoxesBulkOperationsOverlay";
 
 const HeaderMenuContainer = () => {

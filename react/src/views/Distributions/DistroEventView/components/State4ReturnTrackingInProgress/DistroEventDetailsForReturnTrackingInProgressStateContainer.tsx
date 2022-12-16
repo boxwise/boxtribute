@@ -6,7 +6,7 @@ import {
   ReturnTrackingGroupIdForDistributionEventQuery,
   ReturnTrackingGroupIdForDistributionEventQueryVariables
 } from "types/generated/graphql";
-import { useGetUrlForResourceHelpers } from "hooks/hooks";
+import { useGetUrlForResourceHelpers } from "utils/hooks";
 import { RETURN_TRACKING_GROUP_ID_FOR_DISTRIBUTION_EVENT_QUERY } from "views/Distributions/queries";
 import {
   DistributionEventDetails

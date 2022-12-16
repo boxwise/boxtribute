@@ -25,7 +25,7 @@ import { OnResultFunction, QrReader } from "components/QrReader/QrReader";
 import { useCallback, useMemo, useState } from "react";
 
 import { Result } from "@zxing/library";
-import { IBoxDetailsData } from "types/base-types";
+import { IBoxDetailsData } from "utils/base-types";
 
 export const ViewFinder = () => (
   <>

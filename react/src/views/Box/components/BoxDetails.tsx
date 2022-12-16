@@ -29,7 +29,7 @@ import {
   BoxState,
   UpdateLocationOfBoxMutation,
 } from "types/generated/graphql";
-import { useGetUrlForResourceHelpers } from "hooks/hooks";
+import { useGetUrlForResourceHelpers } from "utils/hooks";
 import { distroEventStateHumanReadableLabels } from "views/Distributions/baseData";
 import DistributionEventTimeRangeDisplay from "views/Distributions/components/DistributionEventTimeRangeDisplay";
 

@@ -13,7 +13,7 @@ import {
   GetBoxLabelIdentifierForQrCodeQuery,
   GetBoxLabelIdentifierForQrCodeQueryVariables
 } from "types/generated/graphql";
-import { BOX_DETAILS_BY_LABEL_IDENTIFIER_QUERY, GET_BOX_LABEL_IDENTIFIER_BY_QR_CODE } from "queries/queries";
+import { BOX_DETAILS_BY_LABEL_IDENTIFIER_QUERY, GET_BOX_LABEL_IDENTIFIER_BY_QR_CODE } from "utils/queries";
 import { BoxData, IPackingListEntry } from "views/Distributions/types";
 
 interface PackingScanBoxOrFindByLabelOverlayProps {

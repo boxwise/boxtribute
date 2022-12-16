@@ -46,9 +46,3 @@ export const GET_BOX_LABEL_IDENTIFIER_BY_QR_CODE = gql`
     }
   }
 `;
-
-export const CHECK_IF_QR_EXISTS_IN_DB = gql`
-  query CheckIfQrExistsInDb($qrCode: String!) {
-    qrExists(qrCode: $qrCode)
-  }
-`;

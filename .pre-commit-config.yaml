@@ -43,4 +43,4 @@ repos:
         types_or: [cython, pyi, python]
         language: system
         require_serial: true
-        args: ["--filter-files"]
+        args: ['--filter-files']

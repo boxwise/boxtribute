@@ -4,7 +4,7 @@ import {
   DistroSpotsForBaseIdQuery,
   DistroSpotsForBaseIdQueryVariables
 } from "types/generated/graphql";
-import { useGlobalSiteState } from "hooks/hooks";
+import { useGlobalSiteState } from "utils/hooks";
 import { DISTRO_SPOTS_FOR_BASE_ID } from "views/Distributions/queries";
 import { DistributionSpotEnrichedData } from "views/Distributions/types";
 import DistroSpots from "./DistroSpots";
