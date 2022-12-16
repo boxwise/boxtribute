@@ -29,6 +29,7 @@ import {
   PRODUCT_FIELDS_FRAGMENT,
   TAG_FIELDS_FRAGMENT,
 } from "utils/fragments";
+import { useErrorHandling } from "utils/error-handling";
 import { useNotification } from "utils/hooks";
 import AddItemsToBoxOverlay from "./components/AddItemsToBoxOverlay";
 import TakeItemsFromBoxOverlay from "./components/TakeItemsFromBoxOverlay";
@@ -162,6 +163,7 @@ export interface IChangeNumberOfItemsBoxData {
 }
 
 function BTBox() {
+  const { triggerError } = useErrorHandling();
   const { createToast } = useNotification();
   const labelIdentifier = useParams<{ labelIdentifier: string }>().labelIdentifier!;
   const { loading, error, data } = useQuery<
@@ -233,10 +235,8 @@ function BTBox() {
     assignBoxToDistributionEventMutationStatus.error ||
     unassignBoxFromDistributionEventMutationStatus.error
   ) {
-    createToast({
-      title: "Error",
-      type: "error",
-      message: "Error: Could not update the box",
+    triggerError({
+      message: "Could not update the box.",
     });
     return <div />;
   }
@@ -261,10 +261,8 @@ function BTBox() {
         });
       })
       .catch(() => {
-        createToast({
-          title: `Box ${labelIdentifier}`,
-          type: "error",
-          message: `Error: Could not update the box state to ${newState}`,
+        triggerError({
+          message: `Could not update the box state to ${newState}.`,
         });
       });
   };
@@ -288,10 +286,8 @@ function BTBox() {
           onMinusClose();
         })
         .catch(() => {
-          createToast({
-            title: `Box ${boxData.labelIdentifier}`,
-            type: "error",
-            message: "Error: Could not remove items from the box",
+          triggerError({
+            message: "Could not remove items from the box.",
           });
         });
     }
@@ -320,10 +316,8 @@ function BTBox() {
           onPlusClose();
         })
         .catch(() => {
-          createToast({
-            title: `Box ${boxData.labelIdentifier}`,
-            type: "error",
-            message: "Error: Could not add items to the box",
+          triggerError({
+            message: "Could not add items to the box.",
           });
         });
     }
@@ -345,10 +339,8 @@ function BTBox() {
         });
       })
       .catch(() => {
-        createToast({
-          title: `Box ${labelIdentifier}`,
-          type: "error",
-          message: "Error: Box could not be moved!",
+        triggerError({
+          message: "Box could not be moved!",
         });
       });
   };

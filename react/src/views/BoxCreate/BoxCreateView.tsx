@@ -1,16 +1,21 @@
+import { useEffect } from "react";
 import { gql, useMutation, useQuery } from "@apollo/client";
 import { Center } from "@chakra-ui/react";
-import APILoadingIndicator from "components/APILoadingIndicator";
+import { useErrorHandling } from "utils/error-handling";
 import { useNotification } from "utils/hooks";
-import { useNavigate, useParams, useSearchParams } from "react-router-dom";
+import APILoadingIndicator from "components/APILoadingIndicator";
+import { useNavigate, useParams } from "react-router-dom";
 import {
   AllProductsAndLocationsForBaseQuery,
   AllProductsAndLocationsForBaseQueryVariables,
   BoxState,
   CreateBoxMutation,
   CreateBoxMutationVariables,
+  CheckIfQrExistsInDbQuery,
+  CheckIfQrExistsInDbQueryVariables,
 } from "types/generated/graphql";
 import { PRODUCT_FIELDS_FRAGMENT, TAG_OPTIONS_FRAGMENT } from "utils/fragments";
+import { CHECK_IF_QR_EXISTS_IN_DB } from "utils/queries";
 import BoxCreate, { ICreateBoxFormData } from "./components/BoxCreate";
 
 export const CREATE_BOX_MUTATION = gql`
@@ -65,12 +70,25 @@ export const ALL_PRODUCTS_AND_LOCATIONS_FOR_BASE_QUERY = gql`
 `;
 
 function BoxCreateView() {
+  // Basics
+  const navigate = useNavigate();
+  const { triggerError } = useErrorHandling();
   const { createToast } = useNotification();
-  const baseId = useParams<{ baseId: string }>().baseId!;
-  const [searchParams] = useSearchParams();
-  const qrCode = searchParams.get("qrCode") as string | undefined;
 
-  const { loading, error, data } = useQuery<
+  // variables in URL
+  const baseId = useParams<{ baseId: string }>().baseId!;
+  const qrCode = useParams<{ qrCode: string }>().qrCode!;
+
+  // Query the QR-Code
+  const qrCodeExists = useQuery<CheckIfQrExistsInDbQuery, CheckIfQrExistsInDbQueryVariables>(
+    CHECK_IF_QR_EXISTS_IN_DB,
+    {
+      variables: { qrCode },
+    },
+  );
+
+  // Query Data for the Form
+  const allFormOptions = useQuery<
     AllProductsAndLocationsForBaseQuery,
     AllProductsAndLocationsForBaseQueryVariables
   >(ALL_PRODUCTS_AND_LOCATIONS_FOR_BASE_QUERY, {
@@ -78,13 +96,56 @@ function BoxCreateView() {
       baseId,
     },
   });
-  const navigate = useNavigate();
 
+  // Mutation after form submission
   const [createBoxMutation, createBoxMutationState] = useMutation<
     CreateBoxMutation,
     CreateBoxMutationVariables
   >(CREATE_BOX_MUTATION);
 
+  // Check the QR Code
+  useEffect(() => {
+    if (qrCodeExists.data?.qrExists === false) {
+      createToast({
+        title: "Error",
+        type: "error",
+        message: "The QR-Code is not from Boxtribute!",
+      });
+    }
+    // TODO: Add check if Qr-Code is associated to a Box
+  }, [createToast, qrCodeExists]);
+
+  // Prep data for Form
+  const allTags = allFormOptions.data?.base?.tags || undefined;
+  const allProducts = allFormOptions.data?.base?.products;
+  // These are all the locations that are retrieved from the query which then filtered out the Scrap and Lost according to the defaultBoxState
+  const allLocations = allFormOptions.data?.base?.locations
+    .filter(
+      (location) =>
+        location?.defaultBoxState !== BoxState.Lost && location?.defaultBoxState !== BoxState.Scrap,
+    )
+    .map((location) => ({
+      ...location,
+      name: location.name ?? "",
+    }));
+
+  // check data for form
+  useEffect(() => {
+    if (!allFormOptions.loading) {
+      if (allLocations === undefined) {
+        triggerError({
+          message: "Error: No other loactions are visible!",
+        });
+      }
+      if (allProducts === undefined) {
+        triggerError({
+          message: "Error: The available products could not be loaded!",
+        });
+      }
+    }
+  }, [triggerError, allFormOptions.loading, allLocations, allProducts]);
+
+  // Handle Submission
   const onSubmitBoxCreateForm = (createBoxData: ICreateBoxFormData) => {
     const tagIds = createBoxData?.tags
       ? createBoxData?.tags?.map((tag) => parseInt(tag.value, 10))
@@ -103,9 +164,7 @@ function BoxCreateView() {
     })
       .then((mutationResult) => {
         if (mutationResult.errors) {
-          createToast({
-            title: "Box Create",
-            type: "error",
+          triggerError({
             message: "Error while trying to create Box",
           });
         } else {
@@ -113,65 +172,36 @@ function BoxCreateView() {
             title: `Box ${mutationResult.data?.createBox?.labelIdentifier}`,
             type: "success",
             message: `Successfully created with ${
-              (data?.base?.products.find((p) => p.id === createBoxData.productId.value) as any).name
+              (
+                allFormOptions.data?.base?.products.find(
+                  (p) => p.id === createBoxData.productId.value,
+                ) as any
+              ).name
             } (${createBoxData?.numberOfItems}x) in ${
-              (data?.base?.locations.find((l) => l.id === createBoxData.locationId.value) as any)
-                .name
+              (
+                allFormOptions.data?.base?.locations.find(
+                  (l) => l.id === createBoxData.locationId.value,
+                ) as any
+              ).name
             }.`,
           });
           navigate(`/bases/${baseId}/boxes/${mutationResult.data?.createBox?.labelIdentifier}`);
         }
       })
       .catch((err) => {
-        createToast({
-          title: "Box Create",
-          type: "error",
-          message: `Error - Code ${err.code}: Your changes could not be saved!`,
+        triggerError({
+          message: "Your changes could not be saved!",
+          statusCode: err.code,
         });
       });
   };
 
-  if (loading || createBoxMutationState.loading) {
+  // Handle Loading State
+  if (qrCodeExists.loading || allFormOptions.loading || createBoxMutationState.loading) {
     return <APILoadingIndicator />;
   }
 
-  if (error) {
-    createToast({
-      title: "Error",
-      type: "error",
-      message: "Error: The available products could not be loaded!",
-    });
-  }
-
-  const allTags = data?.base?.tags || null;
-
-  const allProducts = data?.base?.products;
-  // These are all the locations that are retrieved from the query which then filtered out the Scrap and Lost according to the defaultBoxState
-  const allLocations = data?.base?.locations
-    .filter(
-      (location) =>
-        location?.defaultBoxState !== BoxState.Lost && location?.defaultBoxState !== BoxState.Scrap,
-    )
-    .map((location) => ({
-      ...location,
-      name: location.name ?? "",
-    }));
-
-  if (allLocations == null) {
-    createToast({
-      title: "Error",
-      type: "error",
-      message: "Error: No other locations are visible!",
-    });
-    return <div />;
-  }
-
-  if (allProducts == null) {
-    createToast({
-      title: "Error",
-      type: "error",
-      message: "Error: The available products could not be loaded!",
-    });
+  if (!qrCodeExists.data?.qrExists || allLocations === undefined || allProducts === undefined) {
     return <div />;
   }
 
@@ -182,7 +212,6 @@ function BoxCreateView() {
         productAndSizesData={allProducts}
         onSubmitBoxCreateForm={onSubmitBoxCreateForm}
         allTags={allTags}
-        qrCode={qrCode}
       />
     </Center>
   );
