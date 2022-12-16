@@ -9,7 +9,6 @@ import {
   HttpLink,
   ApolloProvider,
   DefaultOptions,
-  ReactiveVar,
 } from "@apollo/client";
 import { setContext } from "@apollo/client/link/context";
 import { useAuth0 } from "@auth0/auth0-react";
@@ -74,7 +73,7 @@ function ApolloAuth0Provider({ children }: { children: ReactNode }) {
   };
 
   const client = new ApolloClient({
-    cache: cache,
+    cache,
     // HINT: Ideally, only set this temporary to true for local debugging
     // or make the usage here conditional based on the environment.
     connectToDevTools: true,
