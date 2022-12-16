@@ -14,6 +14,7 @@ import {
   TAG_OPTIONS_FRAGMENT,
 } from "utils/fragments";
 import { BOX_BY_LABEL_IDENTIFIER_QUERY } from "views/Box/BoxView";
+import { useErrorHandling } from "utils/error-handling";
 import { notificationVar } from "../../components/NotificationMessage";
 import BoxEdit, { IBoxEditFormData } from "./components/BoxEdit";
 
@@ -91,6 +92,7 @@ export const UPDATE_CONTENT_OF_BOX_MUTATION = gql`
 `;
 
 function BoxEditView() {
+  const { triggerError } = useErrorHandling();
   const labelIdentifier = useParams<{ labelIdentifier: string }>().labelIdentifier!;
   const baseId = useParams<{ baseId: string }>().baseId!;
   const { loading, data } = useQuery<
@@ -136,10 +138,8 @@ function BoxEditView() {
     })
       .then((mutationResult) => {
         if (mutationResult?.errors) {
-          notificationVar({
-            title: `Box ${labelIdentifier}`,
-            type: "error",
-            message: "Error while trying to update Box",
+          triggerError({
+            message: "Could not update Box.",
           });
         } else {
           notificationVar({
@@ -157,10 +157,9 @@ function BoxEditView() {
         }
       })
       .catch((error) => {
-        notificationVar({
-          title: `Box ${labelIdentifier}`,
-          type: "error",
-          message: `Error - Code ${error.code}: Your changes could not be saved!`,
+        triggerError({
+          message: "Could not update Box.",
+          statusCode: error.code,
         });
       });
   };
@@ -185,19 +184,15 @@ function BoxEditView() {
     }));
 
   if (allLocations == null) {
-    notificationVar({
-      title: "Error",
-      type: "error",
-      message: "Error: No other locations are visible!",
+    triggerError({
+      message: "No locations are available!",
     });
     return <div />;
   }
 
   if (productAndSizesData == null) {
-    notificationVar({
-      title: "Error",
-      type: "error",
-      message: "Error: No products are visible!",
+    triggerError({
+      message: "No products are available!",
     });
     return <div />;
   }

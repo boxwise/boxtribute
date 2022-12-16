@@ -19,7 +19,7 @@ import { z } from "zod";
 import _ from "lodash";
 import SelectField, { IDropdownOption } from "components/Form/SelectField";
 import NumberField from "components/Form/NumberField";
-import { notificationVar } from "components/NotificationMessage";
+import { useErrorHandling } from "utils/error-handling";
 
 export interface ICategoryData {
   name: string;
@@ -101,6 +101,7 @@ function BoxCreate({
   qrCode,
   onSubmitBoxCreateForm,
 }: IBoxCreateProps) {
+  const { triggerError } = useErrorHandling();
   const productsGroupedByCategory: Record<string, IProductWithSizeRangeData[]> = _.groupBy(
     productAndSizesData,
     (product) => product.category.name,
@@ -180,10 +181,8 @@ function BoxCreate({
   }, [productId, productAndSizesData, resetField, setValue]);
 
   if (productsForDropdownGroups == null) {
-    notificationVar({
-      title: "Error",
-      type: "error",
-      message: "Error: The available products could not be loaded!",
+    triggerError({
+      message: "The available products could not be loaded!",
     });
   }
 
