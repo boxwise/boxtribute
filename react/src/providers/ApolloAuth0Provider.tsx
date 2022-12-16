@@ -51,14 +51,15 @@ function ApolloAuth0Provider({ children }: { children: ReactNode }) {
     if (graphQLErrors) {
       graphQLErrors.map(({ message, locations, path }) =>
         triggerError({
-          message:`[GraphQL error]: Message: ${message}, Location: ${locations}, Path: ${path}`,
-          userMessage: "Something went wrong!"
-        }));
+          message: `[GraphQL error]: Message: ${message}, Location: ${locations}, Path: ${path}`,
+          userMessage: "Something went wrong!",
+        }),
+      );
     }
     if (networkError) {
       triggerError({
-        message:`[Network error]: ${networkError}`,
-        userMessage: "Network Error! Please check your Internet connection!"
+        message: `[Network error]: ${networkError}`,
+        userMessage: "Network Error! Please check your Internet connection!",
       });
     }
   });
