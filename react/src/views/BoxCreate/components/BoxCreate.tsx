@@ -80,7 +80,6 @@ export const CreateBoxFormDataSchema = z.object({
     .refine(Boolean, { message: "Please select a location" })
     .transform((selectedOption) => selectedOption || { label: "", value: "" }),
   tags: singleSelectOptionSchema.array().optional(),
-  qrCode: z.string().optional(),
   comment: z.string().optional(),
 });
 
@@ -90,7 +89,6 @@ export interface IBoxCreateProps {
   productAndSizesData: IProductWithSizeRangeData[];
   allLocations: ILocationData[];
   allTags: IDropdownOption[] | null | undefined;
-  qrCode: string | undefined;
   onSubmitBoxCreateForm: (boxFormValues: ICreateBoxFormData) => void;
 }
 
@@ -98,7 +96,6 @@ function BoxCreate({
   productAndSizesData,
   allLocations,
   allTags,
-  qrCode,
   onSubmitBoxCreateForm,
 }: IBoxCreateProps) {
   const productsGroupedByCategory: Record<string, IProductWithSizeRangeData[]> = _.groupBy(

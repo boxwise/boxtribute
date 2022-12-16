@@ -216,7 +216,6 @@ function BoxCreateView() {
         productAndSizesData={allProducts}
         onSubmitBoxCreateForm={onSubmitBoxCreateForm}
         allTags={allTags}
-        qrCode={qrCode}
       />
     </Center>
   );
