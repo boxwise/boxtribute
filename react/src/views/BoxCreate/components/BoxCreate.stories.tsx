@@ -121,7 +121,6 @@ const mockedProps: IBoxCreateProps = {
   productAndSizesData: mockedProducts,
   allLocations: mockedLocations,
   onSubmitBoxCreateForm: action("onSubmitBoxCreateForm"),
-  qrCode: undefined,
   allTags: undefined,
 };
 
