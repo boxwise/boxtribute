@@ -233,7 +233,7 @@ function BTBox() {
     assignBoxToDistributionEventMutationStatus.error ||
     unassignBoxFromDistributionEventMutationStatus.error
   ) {
-    notificationVar({
+    createToast({
       title: "Error",
       type: "error",
       message: "Error: Could not update the box",
@@ -261,7 +261,7 @@ function BTBox() {
         });
       })
       .catch(() => {
-        notificationVar({
+        createToast({
           title: `Box ${labelIdentifier}`,
           type: "error",
           message: `Error: Could not update the box state to ${newState}`,
@@ -288,7 +288,7 @@ function BTBox() {
           onMinusClose();
         })
         .catch(() => {
-          notificationVar({
+          createToast({
             title: `Box ${boxData.labelIdentifier}`,
             type: "error",
             message: "Error: Could not remove items from the box",
@@ -320,7 +320,7 @@ function BTBox() {
           onPlusClose();
         })
         .catch(() => {
-          notificationVar({
+          createToast({
             title: `Box ${boxData.labelIdentifier}`,
             type: "error",
             message: "Error: Could not add items to the box",
@@ -345,7 +345,7 @@ function BTBox() {
         });
       })
       .catch(() => {
-        notificationVar({
+        createToast({
           title: `Box ${labelIdentifier}`,
           type: "error",
           message: "Error: Box could not be moved!",

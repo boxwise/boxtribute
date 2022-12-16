@@ -137,7 +137,7 @@ function BoxEditView() {
     })
       .then((mutationResult) => {
         if (mutationResult?.errors) {
-          notificationVar({
+          createToast({
             title: `Box ${labelIdentifier}`,
             type: "error",
             message: "Error while trying to update Box",
@@ -158,7 +158,7 @@ function BoxEditView() {
         }
       })
       .catch((error) => {
-        notificationVar({
+        createToast({
           title: `Box ${labelIdentifier}`,
           type: "error",
           message: `Error - Code ${error.code}: Your changes could not be saved!`,
@@ -186,7 +186,7 @@ function BoxEditView() {
     }));
 
   if (allLocations == null) {
-    notificationVar({
+    createToast({
       title: "Error",
       type: "error",
       message: "Error: No other locations are visible!",
@@ -195,7 +195,7 @@ function BoxEditView() {
   }
 
   if (productAndSizesData == null) {
-    notificationVar({
+    createToast({
       title: "Error",
       type: "error",
       message: "Error: No products are visible!",
