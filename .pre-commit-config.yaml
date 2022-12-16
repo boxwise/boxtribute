@@ -5,7 +5,9 @@ repos:
     rev: v2.4.0
     hooks:
       - id: trailing-whitespace
+        types_or: [python]
       - id: end-of-file-fixer
+        types_or: [python]
   # - repo: https://github.com/pre-commit/mirrors-eslint
   #   rev: v7.15.0
   #   hooks:
@@ -43,4 +45,4 @@ repos:
         types_or: [cython, pyi, python]
         language: system
         require_serial: true
-        args: ['--filter-files']
+        args: ["--filter-files"]
