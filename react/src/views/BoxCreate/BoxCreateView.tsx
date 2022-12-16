@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 import { gql, useMutation, useQuery } from "@apollo/client";
 import { Center } from "@chakra-ui/react";
 import APILoadingIndicator from "components/APILoadingIndicator";
@@ -17,7 +17,6 @@ import {
 import { PRODUCT_FIELDS_FRAGMENT, TAG_OPTIONS_FRAGMENT } from "queries/fragments";
 import { CHECK_IF_QR_EXISTS_IN_DB } from "queries/queries";
 import BoxCreate, { ICreateBoxFormData } from "./components/BoxCreate";
-
 
 export const CREATE_BOX_MUTATION = gql`
   mutation CreateBox(
@@ -81,12 +80,12 @@ function BoxCreateView() {
   const qrCode = useParams<{ qrCode: string }>().qrCode!;
 
   // Query the QR-Code
-  const qrCodeExists = useQuery<
-    CheckIfQrExistsInDbQuery,
-    CheckIfQrExistsInDbQueryVariables
-  >(CHECK_IF_QR_EXISTS_IN_DB, {
-    variables: { qrCode },
-  });
+  const qrCodeExists = useQuery<CheckIfQrExistsInDbQuery, CheckIfQrExistsInDbQueryVariables>(
+    CHECK_IF_QR_EXISTS_IN_DB,
+    {
+      variables: { qrCode },
+    },
+  );
 
   // Query Data for the Form
   const allFormOptions = useQuery<
@@ -94,7 +93,7 @@ function BoxCreateView() {
     AllProductsAndLocationsForBaseQueryVariables
   >(ALL_PRODUCTS_AND_LOCATIONS_FOR_BASE_QUERY, {
     variables: {
-      baseId
+      baseId,
     },
   });
 
@@ -192,7 +191,7 @@ function BoxCreateView() {
       .catch((err) => {
         triggerError({
           message: "Could not create the Box.",
-          statusCode: err.code
+          statusCode: err.code,
         });
       });
   };
