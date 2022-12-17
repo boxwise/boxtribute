@@ -1441,6 +1441,13 @@ export type GetBoxLabelIdentifierForQrCodeQueryVariables = Exact<{
 
 export type GetBoxLabelIdentifierForQrCodeQuery = { __typename?: 'Query', qrCode?: { __typename?: 'QrCode', box?: { __typename?: 'Box', id: string, labelIdentifier: string, numberOfItems?: number | null, product?: { __typename?: 'Product', id: string, name: string, gender?: ProductGender | null } | null, size: { __typename?: 'Size', id: string, label: string } } | null } | null };
 
+export type CheckIfQrExistsInDbQueryVariables = Exact<{
+  qrCode: Scalars['String'];
+}>;
+
+
+export type CheckIfQrExistsInDbQuery = { __typename?: 'Query', qrExists?: boolean | null };
+
 export type BaseDataQueryVariables = Exact<{
   baseId: Scalars['ID'];
 }>;
