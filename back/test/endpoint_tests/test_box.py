@@ -181,6 +181,7 @@ def test_box_mutations(
                 product {{ id }}
                 state
                 history {{
+                    id
                     changes
                     user {{ name }}
                 }}
@@ -196,33 +197,40 @@ def test_box_mutations(
     assert updated_box["state"] == state
     assert updated_box["history"] == [
         {
+            "id": "113",
             "changes": "created record",
             "user": {"name": "coord"},
         },
         {
+            "id": "115",
             "changes": f"changed product type from {products[0]['name']} to "
             + f"{products[2]['name']};",
             "user": {"name": "coord"},
         },
         {
+            "id": "116",
             "changes": f"changed size from {default_size['label']} to "
             + f"{another_size['label']};",
             "user": {"name": "coord"},
         },
         {
+            "id": "117",
             "changes": f"changed the number of items from None to {nr_items};",
             "user": {"name": "coord"},
         },
         {
+            "id": "118",
             "changes": f"changed box location from {default_location['name']} to "
             + f"{null_box_state_location['name']};",
             "user": {"name": "coord"},
         },
         {
+            "id": "119",
             "changes": 'changed comments from "" to "updatedComment";',
             "user": {"name": "coord"},
         },
         {
+            "id": "120",
             "changes": f"changed box state from InStock to {state};",
             "user": {"name": "coord"},
         },
