@@ -38,7 +38,7 @@ export const generateDropappUrl = (
   qrCode: String | undefined,
   labelIdentifier: String | undefined,
 ) => {
-  const newLink = "https://" + oldLink + "?camp=" + baseId + "&preference=classic";
+  const newLink = oldLink + "?camp=" + baseId + "&preference=classic";
   if (oldLink.includes("mobile.php")) {
     if (labelIdentifier !== undefined) {
       return newLink + "&boxid=" + labelIdentifier;
