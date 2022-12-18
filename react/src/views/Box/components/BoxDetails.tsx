@@ -288,7 +288,7 @@ function BoxDetails({
                     {location.defaultBoxState !== boxData.state && (
                       <>
                         {" "}
-                        - Boxes are &nbsp;<i> {location.defaultBoxState}</i>
+                        - Boxes are&nbsp;<i> {location.defaultBoxState}</i>
                       </>
                     )}
                   </Button>
