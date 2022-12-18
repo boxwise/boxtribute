@@ -181,7 +181,10 @@ function BoxEditView() {
     )
     .map((location) => ({
       ...location,
-      name: location.name ?? "",
+      name:
+        (location.defaultBoxState !== BoxState.InStock
+          ? `${location.name} - Boxes are ${location.defaultBoxState}`
+          : location.name) ?? "",
     }));
 
   if (allLocations == null) {
