@@ -8,12 +8,6 @@ interface IHistoryEntriesProps {
   total: number | undefined;
 }
 function HistoryEntries({ data, total }: IHistoryEntriesProps) {
-  // sort history entries in the descending order
-  // this can be optimize in the BE by changing the defualt query order or adding sort option
-  const historyData = [...data].sort(
-    (a, b) => new Date(b.changeDate).getTime() - new Date(a.changeDate).getTime(),
-  );
-
   // show different icons for changed / created records also default history for the rest
   const getHistoryIcon = (changes: string): IconType => {
     if (changes.includes("created")) {
@@ -29,7 +23,7 @@ function HistoryEntries({ data, total }: IHistoryEntriesProps) {
     <Stack py={2} px={2} alignContent="center">
       <Flex alignContent="center" direction="column">
         <List spacing={1}>
-          {historyData.slice(0, total).map((historyEntry) => (
+          {data.slice(0, total).map((historyEntry) => (
             <ListItem key={historyEntry.id}>
               <ListIcon as={getHistoryIcon(historyEntry?.changes)} h={5} w={5} color="green.500" />
               <b>{historyEntry?.user?.name}</b> on{" "}

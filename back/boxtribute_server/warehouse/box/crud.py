@@ -165,6 +165,9 @@ def update_box(
 
 
 def get_box_history(box_id):
+    """Return formatted history entries of box with given ID, sorted by most recent
+    first.
+    """
     entries = []
     for raw_entry in DbChangeHistory.select().where(
         DbChangeHistory.table_name == "stock",
@@ -211,4 +214,4 @@ def get_box_history(box_id):
 
         raw_entry.changes = changes
         entries.append(raw_entry)
-    return entries
+    return sorted(entries, key=lambda e: e.change_date, reverse=True)

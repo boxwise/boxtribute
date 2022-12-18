@@ -1,3 +1,5 @@
+import time
+
 import pytest
 from boxtribute_server.enums import BoxState
 from boxtribute_server.models.definitions.history import DbChangeHistory
@@ -152,6 +154,10 @@ def test_box_mutations(
         "tags": [{"id": tag_id}],
     }
 
+    # Wait for one second here such that the second-precision change_date of the
+    # previous creation entry is different from the following change entries. We then
+    # can verify that the sorting of history entries by most recent first works.
+    time.sleep(1)
     # Test case 8.2.11
     new_size_id = str(another_size["id"])
     new_product_id = str(products[2]["id"])
@@ -196,11 +202,8 @@ def test_box_mutations(
     assert updated_box["product"]["id"] == new_product_id
     assert updated_box["state"] == state
     assert updated_box["history"] == [
-        {
-            "id": "113",
-            "changes": "created record",
-            "user": {"name": "coord"},
-        },
+        # The entries for the update have the same change_date, hence the IDs do not
+        # appear reversed
         {
             "id": "115",
             "changes": f"changed product type from {products[0]['name']} to "
@@ -232,6 +235,11 @@ def test_box_mutations(
         {
             "id": "120",
             "changes": f"changed box state from InStock to {state};",
+            "user": {"name": "coord"},
+        },
+        {
+            "id": "113",
+            "changes": "created record",
             "user": {"name": "coord"},
         },
     ]
