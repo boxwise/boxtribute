@@ -285,6 +285,12 @@ function BoxDetails({
                     border="2px"
                   >
                     {location.name}
+                    {location.defaultBoxState !== boxData.state && (
+                      <>
+                        {" "}
+                        - Boxes are &nbsp;<i> {location.defaultBoxState}</i>
+                      </>
+                    )}
                   </Button>
                 </WrapItem>
               ))}
