@@ -177,11 +177,13 @@ function BoxCreate({
     }
   }, [productId, productAndSizesData, resetField, setValue]);
 
-  if (productsForDropdownGroups == null) {
-    triggerError({
-      message: "The available products could not be loaded!",
-    });
-  }
+  useEffect(() => {
+    if (productsForDropdownGroups === undefined) {
+      triggerError({
+        message: "No products are available!",
+      });
+    }
+  }, [triggerError, productsForDropdownGroups]);
 
   return (
     <Box w={["100%", "100%", "60%", "40%"]}>
