@@ -1,6 +1,7 @@
 import { useEffect } from "react";
 import { gql, useMutation, useQuery } from "@apollo/client";
 import { Center } from "@chakra-ui/react";
+import { useErrorHandling } from "utils/error-handling";
 import APILoadingIndicator from "components/APILoadingIndicator";
 import { notificationVar } from "components/NotificationMessage";
 import { useNavigate, useParams } from "react-router-dom";
@@ -16,6 +17,33 @@ import {
 import { PRODUCT_FIELDS_FRAGMENT, TAG_OPTIONS_FRAGMENT } from "utils/fragments";
 import { CHECK_IF_QR_EXISTS_IN_DB } from "utils/queries";
 import BoxCreate, { ICreateBoxFormData } from "./components/BoxCreate";
+
+// TODO: Create fragment or query for ALL_PRODUCTS_AND_LOCATIONS_FOR_BASE_QUERY
+export const ALL_PRODUCTS_AND_LOCATIONS_FOR_BASE_QUERY = gql`
+  ${TAG_OPTIONS_FRAGMENT}
+  ${PRODUCT_FIELDS_FRAGMENT}
+  query AllProductsAndLocationsForBase($baseId: ID!) {
+    base(id: $baseId) {
+      tags(resourceType: Box) {
+        ...TagOptions
+      }
+
+      # TODO create location Fragment
+      locations {
+        ... on ClassicLocation {
+          defaultBoxState
+        }
+        id
+        name
+        seq
+      }
+
+      products {
+        ...ProductFields
+      }
+    }
+  }
+`;
 
 export const CREATE_BOX_MUTATION = gql`
   mutation CreateBox(
@@ -43,34 +71,10 @@ export const CREATE_BOX_MUTATION = gql`
   }
 `;
 
-export const ALL_PRODUCTS_AND_LOCATIONS_FOR_BASE_QUERY = gql`
-  ${TAG_OPTIONS_FRAGMENT}
-  ${PRODUCT_FIELDS_FRAGMENT}
-  query AllProductsAndLocationsForBase($baseId: ID!) {
-    base(id: $baseId) {
-      tags(resourceType: Box) {
-        ...TagOptions
-      }
-
-      locations {
-        ... on ClassicLocation {
-          defaultBoxState
-        }
-        id
-        name
-        seq
-      }
-
-      products {
-        ...ProductFields
-      }
-    }
-  }
-`;
-
 function BoxCreateView() {
   // Basics
   const navigate = useNavigate();
+  const { triggerError } = useErrorHandling();
 
   // variables in URL
   const baseId = useParams<{ baseId: string }>().baseId!;
@@ -113,7 +117,7 @@ function BoxCreateView() {
   }, [qrCodeExists]);
 
   // Prep data for Form
-  const allTags = allFormOptions.data?.base?.tags || undefined;
+  const allTags = allFormOptions.data?.base?.tags;
   const allProducts = allFormOptions.data?.base?.products;
   // These are all the locations that are retrieved from the query which then filtered out the Scrap and Lost according to the defaultBoxState
   const allLocations = allFormOptions.data?.base?.locations
@@ -130,21 +134,17 @@ function BoxCreateView() {
   useEffect(() => {
     if (!allFormOptions.loading) {
       if (allLocations === undefined) {
-        notificationVar({
-          title: "Error",
-          type: "error",
-          message: "Error: No other loactions are visible!",
+        triggerError({
+          message: "No locations are available!",
         });
       }
       if (allProducts === undefined) {
-        notificationVar({
-          title: "Error",
-          type: "error",
-          message: "Error: The available products could not be loaded!",
+        triggerError({
+          message: "No products are available!",
         });
       }
     }
-  }, [allFormOptions.loading, allLocations, allProducts]);
+  }, [triggerError, allFormOptions.loading, allLocations, allProducts]);
 
   // Handle Submission
   const onSubmitBoxCreateForm = (createBoxData: ICreateBoxFormData) => {
@@ -165,9 +165,7 @@ function BoxCreateView() {
     })
       .then((mutationResult) => {
         if (mutationResult.errors) {
-          notificationVar({
-            title: "Box Create",
-            type: "error",
+          triggerError({
             message: "Error while trying to create Box",
           });
         } else {
@@ -192,10 +190,9 @@ function BoxCreateView() {
         }
       })
       .catch((err) => {
-        notificationVar({
-          title: "Box Create",
-          type: "error",
-          message: `Error - Code ${err.code}: Your changes could not be saved!`,
+        triggerError({
+          message: "Your changes could not be saved!",
+          statusCode: err.code,
         });
       });
   };
@@ -205,7 +202,13 @@ function BoxCreateView() {
     return <APILoadingIndicator />;
   }
 
-  if (!qrCodeExists.data?.qrExists || allLocations === undefined || allProducts === undefined) {
+  // TODO: handle errors not with empty div, but forward or roll data back in the view
+  if (
+    !qrCodeExists.data?.qrExists ||
+    qrCodeExists.error ||
+    allLocations === undefined ||
+    allProducts === undefined
+  ) {
     return <div />;
   }
 

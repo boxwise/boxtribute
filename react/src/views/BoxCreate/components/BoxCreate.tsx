@@ -19,7 +19,6 @@ import { z } from "zod";
 import _ from "lodash";
 import SelectField, { IDropdownOption } from "components/Form/SelectField";
 import NumberField from "components/Form/NumberField";
-import { notificationVar } from "components/NotificationMessage";
 
 export interface ICategoryData {
   name: string;
@@ -175,14 +174,6 @@ function BoxCreate({
       }
     }
   }, [productId, productAndSizesData, resetField, setValue]);
-
-  if (productsForDropdownGroups == null) {
-    notificationVar({
-      title: "Error",
-      type: "error",
-      message: "Error: The available products could not be loaded!",
-    });
-  }
 
   return (
     <Box w={["100%", "100%", "60%", "40%"]}>
