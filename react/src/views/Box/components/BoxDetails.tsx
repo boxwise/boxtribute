@@ -285,7 +285,7 @@ function BoxDetails({
                     border="2px"
                   >
                     {location.name}
-                    {location.defaultBoxState !== boxData.state && (
+                    {location.defaultBoxState !== BoxState.InStock && (
                       <>
                         {" "}
                         - Boxes are&nbsp;<i> {location.defaultBoxState}</i>
