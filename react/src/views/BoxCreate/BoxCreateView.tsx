@@ -202,7 +202,13 @@ function BoxCreateView() {
     return <APILoadingIndicator />;
   }
 
-  if (!qrCodeExists.data?.qrExists || allLocations === undefined || allProducts === undefined) {
+  // TODO: handle errors not with empty div, but forward or roll data back in the view
+  if (
+    !qrCodeExists.data?.qrExists ||
+    qrCodeExists.error ||
+    allLocations === undefined ||
+    allProducts === undefined
+  ) {
     return <div />;
   }
 
