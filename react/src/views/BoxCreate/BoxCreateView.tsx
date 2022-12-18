@@ -18,6 +18,33 @@ import { PRODUCT_FIELDS_FRAGMENT, TAG_OPTIONS_FRAGMENT } from "utils/fragments";
 import { CHECK_IF_QR_EXISTS_IN_DB } from "utils/queries";
 import BoxCreate, { ICreateBoxFormData } from "./components/BoxCreate";
 
+// TODO: Create fragment or query for ALL_PRODUCTS_AND_LOCATIONS_FOR_BASE_QUERY
+export const ALL_PRODUCTS_AND_LOCATIONS_FOR_BASE_QUERY = gql`
+  ${TAG_OPTIONS_FRAGMENT}
+  ${PRODUCT_FIELDS_FRAGMENT}
+  query AllProductsAndLocationsForBase($baseId: ID!) {
+    base(id: $baseId) {
+      tags(resourceType: Box) {
+        ...TagOptions
+      }
+
+      # TODO create location Fragment
+      locations {
+        ... on ClassicLocation {
+          defaultBoxState
+        }
+        id
+        name
+        seq
+      }
+
+      products {
+        ...ProductFields
+      }
+    }
+  }
+`;
+
 export const CREATE_BOX_MUTATION = gql`
   mutation CreateBox(
     $locationId: Int!
@@ -40,31 +67,6 @@ export const CREATE_BOX_MUTATION = gql`
       }
     ) {
       labelIdentifier
-    }
-  }
-`;
-
-export const ALL_PRODUCTS_AND_LOCATIONS_FOR_BASE_QUERY = gql`
-  ${TAG_OPTIONS_FRAGMENT}
-  ${PRODUCT_FIELDS_FRAGMENT}
-  query AllProductsAndLocationsForBase($baseId: ID!) {
-    base(id: $baseId) {
-      tags(resourceType: Box) {
-        ...TagOptions
-      }
-
-      locations {
-        ... on ClassicLocation {
-          defaultBoxState
-        }
-        id
-        name
-        seq
-      }
-
-      products {
-        ...ProductFields
-      }
     }
   }
 `;
@@ -115,7 +117,7 @@ function BoxCreateView() {
   }, [qrCodeExists]);
 
   // Prep data for Form
-  const allTags = allFormOptions.data?.base?.tags || undefined;
+  const allTags = allFormOptions.data?.base?.tags;
   const allProducts = allFormOptions.data?.base?.products;
   // These are all the locations that are retrieved from the query which then filtered out the Scrap and Lost according to the defaultBoxState
   const allLocations = allFormOptions.data?.base?.locations
@@ -133,12 +135,12 @@ function BoxCreateView() {
     if (!allFormOptions.loading) {
       if (allLocations === undefined) {
         triggerError({
-          message: "Error: No other loactions are visible!",
+          message: "No locations are available!",
         });
       }
       if (allProducts === undefined) {
         triggerError({
-          message: "Error: The available products could not be loaded!",
+          message: "No products are available!",
         });
       }
     }
