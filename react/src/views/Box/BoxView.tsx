@@ -1,3 +1,4 @@
+import { useEffect } from "react";
 import { gql, useMutation, useQuery } from "@apollo/client";
 import { useDisclosure } from "@chakra-ui/react";
 import APILoadingIndicator from "components/APILoadingIndicator";
@@ -166,17 +167,17 @@ function BTBox() {
   const { triggerError } = useErrorHandling();
   const { createToast } = useNotification();
   const labelIdentifier = useParams<{ labelIdentifier: string }>().labelIdentifier!;
-  const { loading, error, data } = useQuery<
-    BoxByLabelIdentifierQuery,
-    BoxByLabelIdentifierQueryVariables
-  >(BOX_BY_LABEL_IDENTIFIER_QUERY, {
-    variables: {
-      labelIdentifier,
+  const allBoxData = useQuery<BoxByLabelIdentifierQuery, BoxByLabelIdentifierQueryVariables>(
+    BOX_BY_LABEL_IDENTIFIER_QUERY,
+    {
+      variables: {
+        labelIdentifier,
+      },
+      // notifyOnNetworkStatusChange: true
     },
-    // notifyOnNetworkStatusChange: true
-  });
+  );
 
-  const [updateNumberOfItemsMutation] = useMutation<
+  const [updateNumberOfItemsMutation, updateNumberOfItemsMutationStatus] = useMutation<
     UpdateNumberOfItemsMutation,
     UpdateNumberOfItemsMutationVariables
   >(UPDATE_NUMBER_OF_ITEMS_IN_BOX_MUTATION, {
@@ -219,29 +220,7 @@ function BTBox() {
   const { isOpen: isPlusOpen, onOpen: onPlusOpen, onClose: onPlusClose } = useDisclosure();
   const { isOpen: isMinusOpen, onOpen: onMinusOpen, onClose: onMinusClose } = useDisclosure();
 
-  if (
-    loading ||
-    updateBoxLocationMutationStatus.loading ||
-    assignBoxToDistributionEventMutationStatus.loading ||
-    unassignBoxFromDistributionEventMutationStatus.loading
-  ) {
-    return <APILoadingIndicator />;
-  }
-
-  if (error) return <div />;
-
-  if (
-    updateBoxLocationMutationStatus.error ||
-    assignBoxToDistributionEventMutationStatus.error ||
-    unassignBoxFromDistributionEventMutationStatus.error
-  ) {
-    triggerError({
-      message: "Could not update the box.",
-    });
-    return <div />;
-  }
-
-  const boxData = data?.box;
+  const boxData = allBoxData.data?.box;
 
   const onStateChange = (newState: BoxState) => {
     updateStateMutation({
@@ -376,6 +355,33 @@ function BTBox() {
       ],
     });
   };
+
+  useEffect(() => {
+    if (!allBoxData.loading && boxData === undefined) {
+      triggerError({ message: "Could not fetch Box Data!" });
+    }
+  }, [triggerError, allBoxData.loading, boxData]);
+
+  if (
+    allBoxData.loading ||
+    updateNumberOfItemsMutationStatus.loading ||
+    updateBoxLocationMutationStatus.loading ||
+    assignBoxToDistributionEventMutationStatus.loading ||
+    unassignBoxFromDistributionEventMutationStatus.loading
+  ) {
+    return <APILoadingIndicator />;
+  }
+
+  // TODO: handle errors not with empty div, but forward or roll data back in the view
+  if (
+    allBoxData.error ||
+    updateNumberOfItemsMutationStatus.error ||
+    updateBoxLocationMutationStatus.error ||
+    assignBoxToDistributionEventMutationStatus.error ||
+    unassignBoxFromDistributionEventMutationStatus.error
+  ) {
+    return <div />;
+  }
 
   return (
     <>
