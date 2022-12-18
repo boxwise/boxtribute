@@ -26,6 +26,7 @@ import {
   MenuItemsGroupsProps,
   UserMenuProps,
 } from "./HeaderMenu";
+import { generateDropappUrl } from "utils/helpers";
 
 const Logo = () => (
   <NavLink to="/">
@@ -98,15 +99,17 @@ const LoginOrUserMenuButton = ({
 
 const MenuItemsGroupDesktop = ({ ...props }: MenuItemsGroupProps) => {
   function renderMenuItem(link: MenuItemData, i: number) {
-    let { baseId } = useParams();
-
-    function redirectToOldApp(link: string) {
-      window.open(link + "?camp=" + baseId, "_blank");
-    }
+    let { baseId, qrCode, labelIdentifier } = useParams();
 
     if (link.link.includes(`${process.env.REACT_APP_OLD_APP_BASE_URL}`)) {
       return (
-        <MenuItem py={2} px={3} key={i} onClick={() => redirectToOldApp(link.link)}>
+        <MenuItem
+          py={2}
+          px={3}
+          key={i}
+          as="a"
+          href={generateDropappUrl(link.link, baseId, qrCode, labelIdentifier)}
+        >
           {link.name}
         </MenuItem>
       );
