@@ -1,3 +1,4 @@
+import { useEffect } from "react";
 import { gql, useMutation, useQuery } from "@apollo/client";
 import APILoadingIndicator from "components/APILoadingIndicator";
 import { useNavigate, useParams } from "react-router-dom";
@@ -13,6 +14,7 @@ import {
   SIZE_FIELDS_FRAGMENT,
   TAG_OPTIONS_FRAGMENT,
 } from "queries/fragments";
+// TODO: move to global queries file
 import { BOX_BY_LABEL_IDENTIFIER_QUERY } from "views/Box/BoxView";
 import { useErrorHandling } from "hooks/error-handling";
 import { useNotification } from "hooks/hooks";
@@ -50,6 +52,7 @@ export const BOX_BY_LABEL_IDENTIFIER_AND_ALL_PRODUCTS_WITH_BASEID_QUERY = gql`
         ...TagOptions
       }
 
+      # TODO create location Fragment
       locations {
         ... on ClassicLocation {
           defaultBoxState
@@ -92,11 +95,17 @@ export const UPDATE_CONTENT_OF_BOX_MUTATION = gql`
 `;
 
 function BoxEditView() {
+  // Basics
+  const navigate = useNavigate();
   const { triggerError } = useErrorHandling();
   const { createToast } = useNotification();
+
+  // variables in URL
   const labelIdentifier = useParams<{ labelIdentifier: string }>().labelIdentifier!;
   const baseId = useParams<{ baseId: string }>().baseId!;
-  const { loading, data } = useQuery<
+
+  // Query Data for the Form
+  const allBoxAndFormData = useQuery<
     BoxByLabelIdentifierAndAllProductsWithBaseIdQuery,
     BoxByLabelIdentifierAndAllProductsWithBaseIdQueryVariables
   >(BOX_BY_LABEL_IDENTIFIER_AND_ALL_PRODUCTS_WITH_BASEID_QUERY, {
@@ -105,7 +114,6 @@ function BoxEditView() {
       labelIdentifier,
     },
   });
-  const navigate = useNavigate();
 
   const refetchBoxByLabelIdentifierQueryConfig = () => ({
     query: BOX_BY_LABEL_IDENTIFIER_QUERY,
@@ -114,13 +122,15 @@ function BoxEditView() {
     },
   });
 
-  const [updateContentOfBoxMutation] = useMutation<
+  // Mutation after form submission
+  const [updateContentOfBoxMutation, updateContentOfBoxMutationState] = useMutation<
     UpdateContentOfBoxMutation,
     UpdateContentOfBoxMutationVariables
   >(UPDATE_CONTENT_OF_BOX_MUTATION, {
     refetchQueries: [refetchBoxByLabelIdentifierQueryConfig()],
   });
 
+  // Handle Submission
   const onSubmitBoxEditForm = (boxEditFormData: IBoxEditFormData) => {
     const tagIds = boxEditFormData?.tags
       ? boxEditFormData?.tags?.map((tag) => parseInt(tag.value, 10))
@@ -147,11 +157,17 @@ function BoxEditView() {
             title: `Box ${labelIdentifier}`,
             type: "success",
             message: `Successfully modified with ${
-              (data?.base?.products.find((p) => p.id === boxEditFormData.productId.value) as any)
-                .name
+              (
+                allBoxAndFormData.data?.base?.products.find(
+                  (p) => p.id === boxEditFormData.productId.value,
+                ) as any
+              ).name
             } (${boxEditFormData?.numberOfItems}x) in ${
-              (data?.base?.locations.find((l) => l.id === boxEditFormData.locationId.value) as any)
-                .name
+              (
+                allBoxAndFormData.data?.base?.locations.find(
+                  (l) => l.id === boxEditFormData.locationId.value,
+                ) as any
+              ).name
             }.`,
           });
           navigate(`/bases/${baseId}/boxes/${mutationResult.data?.updateBox?.labelIdentifier}`);
@@ -165,16 +181,13 @@ function BoxEditView() {
       });
   };
 
-  if (loading) {
-    return <APILoadingIndicator />;
-  }
-
-  const boxData = data?.box;
-  const productAndSizesData = data?.base?.products;
-  const allTags = data?.base?.tags || null;
+  // Prep data for Form
+  const boxData = allBoxAndFormData.data?.box;
+  const productAndSizesData = allBoxAndFormData.data?.base?.products;
+  const allTags = allBoxAndFormData.data?.base?.tags;
 
   // These are all the locations that are retrieved from the query which then filtered out the Scrap and Lost according to the defaultBoxState
-  const allLocations = data?.base?.locations
+  const allLocations = allBoxAndFormData.data?.base?.locations
     .filter(
       (location) =>
         location?.defaultBoxState !== BoxState.Lost && location?.defaultBoxState !== BoxState.Scrap,
@@ -184,17 +197,37 @@ function BoxEditView() {
       name: location.name ?? "",
     }));
 
-  if (allLocations == null) {
-    triggerError({
-      message: "No locations are available!",
-    });
-    return <div />;
+  // check data for form
+  useEffect(() => {
+    if (!allBoxAndFormData.loading) {
+      if (allLocations === undefined) {
+        triggerError({
+          message: "No locations are available!",
+        });
+      }
+
+      if (productAndSizesData === undefined) {
+        triggerError({
+          message: "No products are available!",
+        });
+      }
+      if (boxData === undefined) {
+        triggerError({ message: "Could not fetch Box Data!" });
+      }
+    }
+  }, [triggerError, allBoxAndFormData.loading, allLocations, productAndSizesData, boxData]);
+
+  if (allBoxAndFormData.loading || updateContentOfBoxMutationState.loading) {
+    return <APILoadingIndicator />;
   }
 
-  if (productAndSizesData == null) {
-    triggerError({
-      message: "No products are available!",
-    });
+  // TODO: handle errors not with empty div, but forward or roll data back in the view
+  if (
+    boxData === undefined ||
+    boxData === null ||
+    allLocations === undefined ||
+    productAndSizesData === undefined
+  ) {
     return <div />;
   }
 
