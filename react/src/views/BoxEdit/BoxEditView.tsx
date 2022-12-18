@@ -210,14 +210,23 @@ function BoxEditView() {
           message: "No products are available!",
         });
       }
+      if (boxData === undefined) {
+        triggerError({ message: "Could not fetch Box Data!" });
+      }
     }
-  }, [triggerError, allBoxAndFormData.loading, allLocations, productAndSizesData]);
+  }, [triggerError, allBoxAndFormData.loading, allLocations, productAndSizesData, boxData]);
 
   if (allBoxAndFormData.loading || updateContentOfBoxMutationState.loading) {
     return <APILoadingIndicator />;
   }
 
-  if (allLocations === undefined || productAndSizesData === undefined) {
+  // TODO: handle errors not with empty div, but forward or roll data back in the view
+  if (
+    boxData === undefined ||
+    boxData === null ||
+    allLocations === undefined ||
+    productAndSizesData === undefined
+  ) {
     return <div />;
   }
 
