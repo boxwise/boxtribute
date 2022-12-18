@@ -363,6 +363,7 @@ function BTBox() {
 
   if (
     allBoxData.loading ||
+    updateNumberOfItemsMutationStatus.loading ||
     updateBoxLocationMutationStatus.loading ||
     assignBoxToDistributionEventMutationStatus.loading ||
     unassignBoxFromDistributionEventMutationStatus.loading
@@ -370,8 +371,10 @@ function BTBox() {
     return <APILoadingIndicator />;
   }
 
+  // TODO: handle errors not with empty div, but forward or roll data back in the view
   if (
     allBoxData.error ||
+    updateNumberOfItemsMutationStatus.error ||
     updateBoxLocationMutationStatus.error ||
     assignBoxToDistributionEventMutationStatus.error ||
     unassignBoxFromDistributionEventMutationStatus.error
