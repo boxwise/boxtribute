@@ -39,11 +39,7 @@ const MenuToggle = ({ toggle, isOpen, ...props }) => (
   />
 );
 
-const Logo = () => (
-  <NavLink to="/">
-    <Image src={BoxtributeLogo} maxH={"3.5em"} />
-  </NavLink>
-);
+const Logo = () => <Image src={BoxtributeLogo} maxH={"3.5em"} />;
 
 const LoginOrUserMenuButtonMobile = ({
   isAuthenticated,
