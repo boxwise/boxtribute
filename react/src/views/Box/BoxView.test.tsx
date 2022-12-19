@@ -1,5 +1,5 @@
 import "@testing-library/jest-dom";
-import { screen, waitFor, fireEvent } from "@testing-library/react";
+import { screen, waitFor, fireEvent, cleanup } from "@testing-library/react";
 import { render } from "utils/test-utils";
 import userEvent from "@testing-library/user-event";
 import BTBox, {
@@ -335,7 +335,7 @@ describe("Box view", () => {
       request: {
         query: BOX_BY_LABEL_IDENTIFIER_QUERY,
         variables: {
-          labelIdentifier: "189123",
+          labelIdentifier: "123",
         },
       },
       result: {
@@ -438,8 +438,15 @@ describe("Box view", () => {
   });
   // Test case 3.1.1.3
   it("3.1.1.3 - click on + and - to increase or decrease number of items", async () => {
+    cleanup();
+    render(<BTBox />, {
+      routePath: "/bases/:baseId/boxes/:labelIdentifier",
+      initialUrl: "/bases/2/boxes/123",
+      mocks,
+    });
     await waitFor(waitTillLoadingIsDone);
     const numberOfItemWhenIncreased = 31;
+
     fireEvent.click(screen.getByTestId("increase-items"));
     await waitFor(() => userEvent.type(screen.getByTestId("increase-number-items"), "1"));
     fireEvent.click(screen.getByText("Submit"));
