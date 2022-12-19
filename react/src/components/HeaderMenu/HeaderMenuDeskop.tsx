@@ -28,11 +28,7 @@ import {
 } from "./HeaderMenu";
 import { generateDropappUrl } from "utils/helpers";
 
-const Logo = () => (
-  <NavLink to="/">
-    <Image src={BoxtributeLogo} maxH={"3.5em"} />
-  </NavLink>
-);
+const Logo = () => <Image src={BoxtributeLogo} maxH={"3.5em"} />;
 
 const BaseSwitcher = ({ currentActiveBaseId, availableBases }: BaseSwitcherProps) => {
   return (
