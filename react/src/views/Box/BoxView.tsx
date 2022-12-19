@@ -31,7 +31,7 @@ import {
   TAG_FIELDS_FRAGMENT,
 } from "utils/fragments";
 import { useErrorHandling } from "utils/error-handling";
-import { notificationVar } from "../../components/NotificationMessage";
+import { useNotification } from "utils/hooks";
 import AddItemsToBoxOverlay from "./components/AddItemsToBoxOverlay";
 import TakeItemsFromBoxOverlay from "./components/TakeItemsFromBoxOverlay";
 import BoxDetails from "./components/BoxDetails";
@@ -165,6 +165,7 @@ export interface IChangeNumberOfItemsBoxData {
 
 function BTBox() {
   const { triggerError } = useErrorHandling();
+  const { createToast } = useNotification();
   const labelIdentifier = useParams<{ labelIdentifier: string }>().labelIdentifier!;
   const allBoxData = useQuery<BoxByLabelIdentifierQuery, BoxByLabelIdentifierQueryVariables>(
     BOX_BY_LABEL_IDENTIFIER_QUERY,
@@ -230,7 +231,7 @@ function BTBox() {
       // refetchQueries: [refetchBoxByLabelIdentifierQueryConfig(labelIdentifier)],
     })
       .then((res) => {
-        notificationVar({
+        createToast({
           title: `Box ${labelIdentifier}`,
           type: res?.errors ? "error" : "success",
           message: res?.errors
@@ -254,7 +255,7 @@ function BTBox() {
         },
       })
         .then((res) => {
-          notificationVar({
+          createToast({
             title: `Box ${boxData.labelIdentifier}`,
             type: res.errors ? "error" : "success",
             message: res.errors
@@ -284,7 +285,7 @@ function BTBox() {
         },
       })
         .then((res) => {
-          notificationVar({
+          createToast({
             title: `Box ${boxData.labelIdentifier}`,
             type: res.errors ? "error" : "success",
             message: res.errors
@@ -310,7 +311,7 @@ function BTBox() {
       refetchQueries: [refetchBoxByLabelIdentifierQueryConfig(labelIdentifier)],
     })
       .then((res) => {
-        notificationVar({
+        createToast({
           title: `Box ${labelIdentifier}`,
           type: res.errors ? "error" : "success",
           message: res.errors ? "Error: Box could not be moved!" : "Successfully moved the box",

@@ -2,8 +2,8 @@ import { useEffect } from "react";
 import { gql, useMutation, useQuery } from "@apollo/client";
 import { Center } from "@chakra-ui/react";
 import { useErrorHandling } from "utils/error-handling";
+import { useNotification } from "utils/hooks";
 import APILoadingIndicator from "components/APILoadingIndicator";
-import { notificationVar } from "components/NotificationMessage";
 import { useNavigate, useParams } from "react-router-dom";
 import {
   AllProductsAndLocationsForBaseQuery,
@@ -75,6 +75,7 @@ function BoxCreateView() {
   // Basics
   const navigate = useNavigate();
   const { triggerError } = useErrorHandling();
+  const { createToast } = useNotification();
 
   // variables in URL
   const baseId = useParams<{ baseId: string }>().baseId!;
@@ -107,14 +108,14 @@ function BoxCreateView() {
   // Check the QR Code
   useEffect(() => {
     if (qrCodeExists.data?.qrExists === false) {
-      notificationVar({
+      createToast({
         title: "Error",
         type: "error",
         message: "The QR-Code is not from Boxtribute!",
       });
     }
     // TODO: Add check if Qr-Code is associated to a Box
-  }, [qrCodeExists]);
+  }, [createToast, qrCodeExists]);
 
   // Prep data for Form
   const allTags = allFormOptions.data?.base?.tags;
@@ -169,7 +170,7 @@ function BoxCreateView() {
             message: "Error while trying to create Box",
           });
         } else {
-          notificationVar({
+          createToast({
             title: `Box ${mutationResult.data?.createBox?.labelIdentifier}`,
             type: "success",
             message: `Successfully created with ${

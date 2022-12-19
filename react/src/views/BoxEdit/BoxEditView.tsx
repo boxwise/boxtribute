@@ -17,7 +17,7 @@ import {
 // TODO: move to global queries file
 import { BOX_BY_LABEL_IDENTIFIER_QUERY } from "views/Box/BoxView";
 import { useErrorHandling } from "utils/error-handling";
-import { notificationVar } from "../../components/NotificationMessage";
+import { useNotification } from "utils/hooks";
 import BoxEdit, { IBoxEditFormData } from "./components/BoxEdit";
 
 export const BOX_BY_LABEL_IDENTIFIER_AND_ALL_PRODUCTS_WITH_BASEID_QUERY = gql`
@@ -98,6 +98,7 @@ function BoxEditView() {
   // Basics
   const navigate = useNavigate();
   const { triggerError } = useErrorHandling();
+  const { createToast } = useNotification();
 
   // variables in URL
   const labelIdentifier = useParams<{ labelIdentifier: string }>().labelIdentifier!;
@@ -152,7 +153,7 @@ function BoxEditView() {
             message: "Could not update Box.",
           });
         } else {
-          notificationVar({
+          createToast({
             title: `Box ${labelIdentifier}`,
             type: "success",
             message: `Successfully modified with ${
