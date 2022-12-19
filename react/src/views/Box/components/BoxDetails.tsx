@@ -27,11 +27,13 @@ import { NavLink } from "react-router-dom";
 import {
   BoxByLabelIdentifierQuery,
   BoxState,
+  HistoryEntry,
   UpdateLocationOfBoxMutation,
 } from "types/generated/graphql";
 import { useGetUrlForResourceHelpers } from "utils/hooks";
 import { distroEventStateHumanReadableLabels } from "views/Distributions/baseData";
 import DistributionEventTimeRangeDisplay from "views/Distributions/components/DistributionEventTimeRangeDisplay";
+import HistoryEntries from "./HistoryEntries";
 
 interface IBoxDetailsProps {
   boxData: BoxByLabelIdentifierQuery["box"] | UpdateLocationOfBoxMutation["updateBox"];
@@ -251,6 +253,21 @@ function BoxDetails({
             </Flex>
           </Flex>
         </Stack>
+
+        {boxData?.history && boxData?.history?.length > 0 && (
+          <>
+            <Divider />
+            <Stack py={2} px={4} alignContent="center">
+              <Flex alignContent="center" direction="column">
+                <Text fontSize="lg" fontWeight="bold">
+                  History: &nbsp;
+                </Text>
+                <Spacer />
+                <HistoryEntries data={boxData?.history as unknown as HistoryEntry[]} total={1} />
+              </Flex>
+            </Stack>
+          </>
+        )}
       </Box>
       <Box
         alignContent="center"
