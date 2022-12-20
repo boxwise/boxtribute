@@ -24,7 +24,7 @@ import {
   MenuItemsGroupsProps,
 } from "./HeaderMenu";
 import BoxtributeLogo from "../../assets/images/boxtribute-logo.png";
-import { generateDropappUrl } from "utils/helpers";
+import { generateDropappUrl, redirectToExternalUrl } from "utils/helpers";
 
 type MenuItemsGroupsMobileProps = MenuItemsGroupsProps & {
   isMenuOpen: boolean;
@@ -95,7 +95,7 @@ const LoginOrUserMenuButtonMobile = ({
           {/* <Box py={1} px={4}>
             Profile
           </Box> */}
-          <Box py={1} px={4} onClick={() => logout()}>
+          <Box py={1} px={4} w="100%" onClick={() => logout()}>
             Logout
           </Box>
         </Stack>
@@ -174,18 +174,30 @@ const MenuItemsGroupMobile = ({
 
     if (link.link.includes(`${process.env.REACT_APP_OLD_APP_BASE_URL}`)) {
       return (
-        <Box key={i} py={1} px={4} onClick={() => setIsMenuOpen(false)}>
-          <a key={link.name} href={generateDropappUrl(link.link, baseId, qrCode, labelIdentifier)}>
-            {link.name}
-          </a>
+        <Box
+          key={i}
+          py={1}
+          px={4}
+          w="100%"
+          onClick={() =>
+            redirectToExternalUrl(generateDropappUrl(link.link, baseId, qrCode, labelIdentifier))
+          }
+        >
+          {link.name}
         </Box>
       );
     } else {
       return (
-        <Box key={i} py={1} px={4} onClick={() => setIsMenuOpen(false)}>
-          <Link key={link.name} to={link.link}>
-            {link.name}
-          </Link>
+        <Box
+          key={i}
+          py={1}
+          px={4}
+          w="100%"
+          onClick={() => {
+            redirectToExternalUrl(link.link);
+          }}
+        >
+          {link.name}
         </Box>
       );
     }
