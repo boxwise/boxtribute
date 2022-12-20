@@ -96,14 +96,25 @@ function BoxDetails({
           </Box>
           <Spacer />
           <Box>
-            <NavLink to="edit">
+            {(BoxState.Lost === boxData.state || BoxState.Scrap === boxData.state) && (
               <IconButton
                 aria-label="Edit box"
                 borderRadius="0"
                 icon={<EditIcon h={6} w={6} />}
                 border="2px"
+                disabled
               />
-            </NavLink>
+            )}
+            {BoxState.Lost !== boxData.state && BoxState.Scrap !== boxData.state && (
+              <NavLink to="edit">
+                <IconButton
+                  aria-label="Edit box"
+                  borderRadius="0"
+                  icon={<EditIcon h={6} w={6} />}
+                  border="2px"
+                />
+              </NavLink>
+            )}
           </Box>
         </Flex>
         {boxData.tags !== undefined && (
@@ -143,6 +154,7 @@ function BoxDetails({
                 >
                   <IconButton
                     onClick={onPlusOpen}
+                    disabled={BoxState.Lost === boxData.state || BoxState.Scrap === boxData.state}
                     size="sm"
                     border="2px"
                     isRound
@@ -165,6 +177,7 @@ function BoxDetails({
                     onClick={onMinusOpen}
                     border="2px"
                     size="sm"
+                    disabled={BoxState.Lost === boxData.state || BoxState.Scrap === boxData.state}
                     borderRadius="0"
                     isRound
                     aria-label="Search database"
@@ -298,7 +311,7 @@ function BoxDetails({
                       .toLowerCase()}-btn`}
                     borderRadius="0px"
                     onClick={() => onMoveToLocationClick(location.id)}
-                    disabled={boxData.location?.id === location.id}
+                    disabled={BoxState.Lost === boxData.state || BoxState.Scrap === boxData.state}
                     border="2px"
                   >
                     {location.name}
