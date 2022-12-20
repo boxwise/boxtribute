@@ -422,7 +422,7 @@ describe("Box view", () => {
   it("3.1.1.2 - renders sub heading with valid state", async () => {
     await waitFor(waitTillLoadingIsDone);
     const boxSubheading = screen.getByTestId("box-subheader");
-    expect(boxSubheading).toHaveTextContent("State: Lost");
+    expect(boxSubheading).toHaveTextContent("Status: Lost");
   });
   // Test case 3.1.1.2.1
   it("3.1.1.2.1 - change box state color respectfully", async () => {
@@ -465,14 +465,14 @@ describe("Box view", () => {
     fireEvent.click(screen.getByTestId("box-lost-btn"));
     await waitFor(() => {
       const boxSubheading = screen.getByTestId("box-subheader");
-      expect(boxSubheading).toHaveTextContent("State: Lost");
+      expect(boxSubheading).toHaveTextContent("Status: Lost");
       expect(screen.getByTestId("box-state")).toHaveStyle("color: #EB404A");
     });
 
     fireEvent.click(screen.getByTestId("box-scrap-btn"));
     await waitFor(() => {
       const boxSubheading = screen.getByTestId("box-subheader");
-      expect(boxSubheading).toHaveTextContent("State: Scrap");
+      expect(boxSubheading).toHaveTextContent("Status: Scrap");
       expect(screen.getByTestId("box-state")).toHaveStyle("color: #EB404A");
     });
   });
