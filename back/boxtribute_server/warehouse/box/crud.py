@@ -177,7 +177,7 @@ def get_box_history(box_id):
         if changes == "items":
             changes = (
                 f"changed the number of items from {raw_entry.from_int} to "
-                + f"{raw_entry.to_int};"
+                + f"{raw_entry.to_int}"
             )
 
         elif changes == "product_id":
@@ -185,7 +185,7 @@ def get_box_history(box_id):
             new_product = Product.get_by_id(raw_entry.to_int)
             changes = (
                 f"changed product type from {old_product.name} to "
-                + f"{new_product.name};"
+                + f"{new_product.name}"
             )
 
         elif changes == "location_id":
@@ -193,18 +193,18 @@ def get_box_history(box_id):
             new_location = Location.get_by_id(raw_entry.to_int)
             changes = (
                 f"changed box location from {old_location.name} to "
-                + f"{new_location.name};"
+                + f"{new_location.name}"
             )
 
         elif changes == "size_id":
             old_size = Size.get_by_id(raw_entry.from_int)
             new_size = Size.get_by_id(raw_entry.to_int)
-            changes = f"changed size from {old_size.label} to {new_size.label};"
+            changes = f"changed size from {old_size.label} to {new_size.label}"
 
         elif changes == "box_state_id":
             old_state = BoxState(raw_entry.from_int)
             new_state = BoxState(raw_entry.to_int)
-            changes = f"changed box state from {old_state.name} to {new_state.name};"
+            changes = f"changed box state from {old_state.name} to {new_state.name}"
 
         elif changes.startswith("comments"):
             changes = changes.replace("comments changed", "changed comments")

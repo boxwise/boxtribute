@@ -75,7 +75,7 @@ from .transfer_agreement import (
     transfer_agreements,
     unidirectional_transfer_agreement,
 )
-from .user import another_user, default_user, default_users
+from .user import another_user, default_user, default_users, god_user
 
 __all__ = [
     "another_beneficiary",
@@ -127,6 +127,7 @@ __all__ = [
     "distro_spot5_distribution_events_before_return_state",
     "distro_spot5_distribution_events_in_return_state",
     "expired_transfer_agreement",
+    "god_user",
     "lost_box",
     "marked_for_shipment_box",
     "non_default_box_state_location",

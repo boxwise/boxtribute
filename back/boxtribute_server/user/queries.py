@@ -17,5 +17,4 @@ def resolve_users(*_):
 @query.field("user")
 def resolve_user(*_, id):
     authorize(permission="user:read")
-    authorize(user_id=int(id))
     return User.get_by_id(id)
