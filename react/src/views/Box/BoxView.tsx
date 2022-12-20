@@ -235,13 +235,13 @@ function BTBox() {
           title: `Box ${labelIdentifier}`,
           type: res?.errors ? "error" : "success",
           message: res?.errors
-            ? `Error: Could not update the box state to ${newState}`
-            : `Successfully updated the box state to ${newState} `,
+            ? `Error: Could not update the box status to ${newState}`
+            : `Successfully updated the box status to ${newState} `,
         });
       })
       .catch(() => {
         triggerError({
-          message: `Could not update the box state to ${newState}.`,
+          message: `Could not update the box status to ${newState}.`,
         });
       });
   };
