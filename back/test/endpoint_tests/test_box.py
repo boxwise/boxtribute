@@ -207,24 +207,24 @@ def test_box_mutations(
         {
             "id": "115",
             "changes": f"changed product type from {products[0]['name']} to "
-            + f"{products[2]['name']};",
+            + f"{products[2]['name']}",
             "user": {"name": "coord"},
         },
         {
             "id": "116",
             "changes": f"changed size from {default_size['label']} to "
-            + f"{another_size['label']};",
+            + f"{another_size['label']}",
             "user": {"name": "coord"},
         },
         {
             "id": "117",
-            "changes": f"changed the number of items from None to {nr_items};",
+            "changes": f"changed the number of items from None to {nr_items}",
             "user": {"name": "coord"},
         },
         {
             "id": "118",
             "changes": f"changed box location from {default_location['name']} to "
-            + f"{null_box_state_location['name']};",
+            + f"{null_box_state_location['name']}",
             "user": {"name": "coord"},
         },
         {
@@ -234,7 +234,7 @@ def test_box_mutations(
         },
         {
             "id": "120",
-            "changes": f"changed box state from InStock to {state};",
+            "changes": f"changed box state from InStock to {state}",
             "user": {"name": "coord"},
         },
         {
