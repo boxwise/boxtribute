@@ -150,7 +150,7 @@ function BoxEditView() {
       .then((mutationResult) => {
         if (mutationResult?.errors) {
           triggerError({
-            message: "Could not update Box.",
+            message: "Server could not update Box.",
           });
         } else {
           createToast({
@@ -161,13 +161,13 @@ function BoxEditView() {
                 allBoxAndFormData.data?.base?.products.find(
                   (p) => p.id === boxEditFormData.productId.value,
                 ) as any
-              ).name
+              )?.name || boxEditFormData.productId.label
             } (${boxEditFormData?.numberOfItems}x) in ${
               (
                 allBoxAndFormData.data?.base?.locations.find(
                   (l) => l.id === boxEditFormData.locationId.value,
                 ) as any
-              ).name
+              )?.name || boxEditFormData.locationId.label
             }.`,
           });
           navigate(`/bases/${baseId}/boxes/${mutationResult.data?.updateBox?.labelIdentifier}`);
