@@ -12,9 +12,6 @@ export const USER_BASIC_FIELDS_FRAGMENT = gql`
   fragment UserBasicFields on User {
     id
     name
-    organisation {
-      name
-    }
   }
 `;
 
