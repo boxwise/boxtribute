@@ -130,7 +130,7 @@ function BoxDetails({
         )}
 
         <Flex data-testid="box-subheader" py={2} px={4} direction="row">
-          <Text fontWeight="bold">State:&nbsp;</Text>
+          <Text fontWeight="bold">Status:&nbsp;</Text>
           <Text fontWeight="bold" data-testid="box-state" color={statusColor(boxData.state)}>
             {boxData.state}
           </Text>
