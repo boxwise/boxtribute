@@ -48,3 +48,7 @@ export const generateDropappUrl = (
   }
   return newLink;
 };
+
+export const redirectToExternalUrl = (url) => {
+  window.location.replace(url);
+};
