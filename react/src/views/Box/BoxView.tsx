@@ -286,6 +286,7 @@ function BTBox() {
       boxFormValues.numberOfItems > 0 &&
       (boxData?.numberOfItems || boxData?.numberOfItems === 0)
     ) {
+      // The number of items must be less than the maximum MySQL signed integer value
       if ((boxData.numberOfItems || 0) + boxFormValues.numberOfItems > 2147483647) {
         createToast({
           title: `Box ${boxData.labelIdentifier}`,
