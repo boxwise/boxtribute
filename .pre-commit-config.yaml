@@ -44,3 +44,10 @@ repos:
         language: system
         require_serial: true
         args: ['--filter-files']
+      - id: eslint
+        name: eslint
+        entry: ./invoke_tool
+        files: react/.*\.[jt]sx?$
+        types: [file]
+        language: script
+        require_serial: true

@@ -1,0 +1,6 @@
+#!/usr/bin/env bash
+
+# strip react/ prefix from all given filepaths (pre-commit generates them from the repository root)
+files=("${@#react/}")
+
+yarn --cwd react run lint-files "${files[@]}"
