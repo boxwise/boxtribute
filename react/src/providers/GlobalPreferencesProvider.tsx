@@ -39,7 +39,7 @@ const globalPreferencesReduer = (state: GlobalPreferences, action: SetGlobalPref
       return { ...state, availableBases: action.payload };
     case "setSelectedBaseId":
       return { ...state, selectedBaseId: action.payload };
-    case "setOrganisationId": 
+    case "setOrganisationId":
       return { ...state, selectedOrganisationId: action.payload };
     default:
       return state;
@@ -47,7 +47,7 @@ const globalPreferencesReduer = (state: GlobalPreferences, action: SetGlobalPref
 }
 
 const GlobalPreferencesProvider = ({ children }) => {
- 
+
   const [globalPreferences, dispatch] = useReducer(globalPreferencesReduer, {});
 
   return (
