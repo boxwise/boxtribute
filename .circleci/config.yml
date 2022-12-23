@@ -13,6 +13,7 @@ jobs:
           root: .
           paths:
             - .
+
   build-flask:
     docker:
       - image: cimg/python:3.10.4
@@ -87,6 +88,11 @@ jobs:
           name: Test React App
           command: |
             yarn test
+      - run:
+          name: Run FE style checks
+          command: |
+            yarn lint
+            yarn format:write
       # - run:
       #     name: Test React App Codecover
       #     command: |
@@ -371,6 +377,7 @@ workflows:
             branches:
               only:
                 - master
+                - pre-commit-yarn-integration
       - deploy:
           name: deploy-staging
           context: STAGING
