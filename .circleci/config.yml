@@ -377,7 +377,6 @@ workflows:
             branches:
               only:
                 - master
-                - pre-commit-yarn-integration
       - deploy:
           name: deploy-staging
           context: STAGING

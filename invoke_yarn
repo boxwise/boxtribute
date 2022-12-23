@@ -1,4 +1,6 @@
 #!/usr/bin/env bash
+# Utility script to invoke front-end style checks with yarn in the react/ directory
+# Usage: ./invoke_yarn lint|format FILE [FILE...]
 
 mode=$1
 shift
