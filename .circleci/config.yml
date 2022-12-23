@@ -66,8 +66,6 @@ jobs:
               REACT_APP_SENTRY_ENVIRONMENT=${SENTRY_ENVIRONMENT}
               REACT_APP_SENTRY_TRACES_SAMPLE_RATE=${SENTRY_TRACES_SAMPLE_RATE}
             " > .env
-            sed -i 's/HEAPIO_APP_ID/${HEAPIO_APP_ID}/' public/heapanalytics.js
-            sed -i 's|</head>| i <script src="/heapanalytics.js"></script>|' public/index.html
       # following https://circleci.com/docs/2.0/yarn/
       - restore_cache:
           name: Restore Yarn Package Cache
@@ -182,6 +180,11 @@ jobs:
           at: ~/
       # install gcloud orb
       - gcp-cli/install
+      - run:
+          name: Inject Heap Analytics Script to index.html
+          command: |
+            sed -i 's/HEAPIO_APP_ID/${HEAPIO_APP_ID}/' public/heapanalytics.js
+            sed -i 's|</head>| i <script src="/heapanalytics.js"></script>|' public/index.html
       - run:
           name: Copy react build into flask app for deployment
           command: mv ../react/build react-build
