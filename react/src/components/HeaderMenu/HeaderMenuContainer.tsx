@@ -10,13 +10,14 @@ import { IQrResolvedValue, QrResolverResultKind } from "components/QrReaderOverl
 import { GlobalPreferencesContext } from "providers/GlobalPreferencesProvider";
 import { IBoxDetailsData } from "utils/base-types";
 import BoxesBulkOperationsOverlay from "./BoxesBulkOperationsOverlay";
-import { notificationVar } from "components/NotificationMessage";
+import { useNotification } from "utils/hooks";
 
 const HeaderMenuContainer = () => {
   const auth0 = useAuth0();
   const navigate = useNavigate();
   const baseId = useParams<{ baseId: string }>().baseId;
   const { globalPreferences } = useContext(GlobalPreferencesContext);
+  const { createToast } = useNotification();
 
   const menuItems: MenuItemsGroupData[] = useMemo(
     () => [
@@ -106,7 +107,7 @@ const HeaderMenuContainer = () => {
             break;
           }
           case QrResolverResultKind.NOT_BOXTRIBUTE_QR: {
-            notificationVar({
+            createToast({
               title: "Error",
               type: "error",
               message: "Error: Scanned QR code is not a Boxtribute QR code",
@@ -114,7 +115,7 @@ const HeaderMenuContainer = () => {
             break;
           }
           case QrResolverResultKind.NOT_AUTHORIZED: {
-            notificationVar({
+            createToast({
               title: "Error",
               type: "error",
               message: "Error: You don't have access to the box assigned to this QR code",
@@ -122,7 +123,7 @@ const HeaderMenuContainer = () => {
             break;
           }
           case QrResolverResultKind.LABEL_NOT_FOUND: {
-            notificationVar({
+            createToast({
               title: "Error",
               type: "error",
               message: "Error: Box not found for this label",
@@ -130,7 +131,7 @@ const HeaderMenuContainer = () => {
             break;
           }
           case QrResolverResultKind.FAIL: {
-            notificationVar({
+            createToast({
               title: "QR Reader",
               type: "error",
               message: `Error - Code ${singleResolvedQrValue?.error.code}: Cannot retrieve data for the QR code`,
@@ -138,7 +139,7 @@ const HeaderMenuContainer = () => {
             break;
           }
           case QrResolverResultKind.NOT_ASSIGNED_TO_BOX: {
-            notificationVar({
+            createToast({
               title: "QR Code",
               type: "info",
               message: "Scanned QR code is not assigned to a box yet",

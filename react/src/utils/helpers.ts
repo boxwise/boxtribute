@@ -39,7 +39,8 @@ export const extractQrCodeFromUrl = (url): string | undefined => {
   const arr = rx.exec(url);
   // make sure there is no space arround qr code
   return arr?.[1].trim();
- 
+};
+
 export const generateDropappUrl = (
   oldLink: String,
   baseId: String | undefined,
