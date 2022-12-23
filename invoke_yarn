@@ -1,6 +1,7 @@
 #!/usr/bin/env bash
-# Utility script to invoke front-end style checks with yarn in the react/ directory
-# Usage: ./invoke_yarn lint|format FILE [FILE...]
+# Utility script to invoke front-end style checks in the react directory, or other
+# tools in the repository using yarn
+# Usage: ./invoke_yarn lint|format|graphql-types FILE [FILE...]
 
 mode=$1
 shift
@@ -12,6 +13,8 @@ if [[ "$mode" = "lint" ]]; then
     yarn --cwd react run lint-files "${files[@]}"
 elif [[ "$mode" = "format" ]]; then
     yarn --cwd react run format:write-files "${files[@]}"
+elif [[ "$mode" = "graphql-types" ]]; then
+    yarn --cwd react run generate-graphql-ts-types
 else
     echo "Unknown mode: $mode" >&2
     exit 1

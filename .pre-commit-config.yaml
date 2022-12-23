@@ -41,3 +41,10 @@ repos:
         types: [file]
         language: script
         require_serial: true
+      - id: generate-graphql-ts-types
+        name: Generate GraphQL Typescript definitions
+        entry: ./invoke_yarn graphql-types
+        files: back/.*\.graphql$
+        types: [file]
+        language: script
+        require_serial: true
