@@ -9,33 +9,33 @@ repos:
   - repo: local
     hooks:
       - id: black
-        name: black
+        name: Format Python files
         entry: black
         types: [python]
         language: system
         require_serial: true
       - id: flake8
-        name: flake8
+        name: Lint Python files
         entry: flake8
         types: [python]
         language: system
         require_serial: true
       - id: isort
-        name: isort
+        name: Sort Python imports
         entry: isort
         types_or: [cython, pyi, python]
         language: system
         require_serial: true
         args: ['--filter-files']
       - id: eslint
-        name: eslint
+        name: Lint Typescript files
         entry: ./invoke_yarn lint
         files: react/.*\.[jt]sx?$
         types: [file]
         language: script
         require_serial: true
       - id: prettier
-        name: prettier
+        name: Format Typescript files
         entry: ./invoke_yarn format
         files: react/.*\.[jt]sx?$
         types: [file]
