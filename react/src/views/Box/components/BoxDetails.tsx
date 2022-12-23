@@ -27,11 +27,13 @@ import { NavLink } from "react-router-dom";
 import {
   BoxByLabelIdentifierQuery,
   BoxState,
+  HistoryEntry,
   UpdateLocationOfBoxMutation,
 } from "types/generated/graphql";
 import { useGetUrlForResourceHelpers } from "utils/hooks";
 import { distroEventStateHumanReadableLabels } from "views/Distributions/baseData";
 import DistributionEventTimeRangeDisplay from "views/Distributions/components/DistributionEventTimeRangeDisplay";
+import HistoryEntries from "./HistoryEntries";
 
 interface IBoxDetailsProps {
   boxData: BoxByLabelIdentifierQuery["box"] | UpdateLocationOfBoxMutation["updateBox"];
@@ -94,14 +96,25 @@ function BoxDetails({
           </Box>
           <Spacer />
           <Box>
-            <NavLink to="edit">
+            {(BoxState.Lost === boxData.state || BoxState.Scrap === boxData.state) && (
               <IconButton
                 aria-label="Edit box"
                 borderRadius="0"
                 icon={<EditIcon h={6} w={6} />}
                 border="2px"
+                disabled
               />
-            </NavLink>
+            )}
+            {BoxState.Lost !== boxData.state && BoxState.Scrap !== boxData.state && (
+              <NavLink to="edit">
+                <IconButton
+                  aria-label="Edit box"
+                  borderRadius="0"
+                  icon={<EditIcon h={6} w={6} />}
+                  border="2px"
+                />
+              </NavLink>
+            )}
           </Box>
         </Flex>
         {boxData.tags !== undefined && (
@@ -117,7 +130,7 @@ function BoxDetails({
         )}
 
         <Flex data-testid="box-subheader" py={2} px={4} direction="row">
-          <Text fontWeight="bold">State:&nbsp;</Text>
+          <Text fontWeight="bold">Status:&nbsp;</Text>
           <Text fontWeight="bold" data-testid="box-state" color={statusColor(boxData.state)}>
             {boxData.state}
           </Text>
@@ -141,6 +154,7 @@ function BoxDetails({
                 >
                   <IconButton
                     onClick={onPlusOpen}
+                    disabled={BoxState.Lost === boxData.state || BoxState.Scrap === boxData.state}
                     size="sm"
                     border="2px"
                     isRound
@@ -163,6 +177,7 @@ function BoxDetails({
                     onClick={onMinusOpen}
                     border="2px"
                     size="sm"
+                    disabled={BoxState.Lost === boxData.state || BoxState.Scrap === boxData.state}
                     borderRadius="0"
                     isRound
                     aria-label="Search database"
@@ -251,6 +266,21 @@ function BoxDetails({
             </Flex>
           </Flex>
         </Stack>
+
+        {boxData?.history && boxData?.history?.length > 0 && (
+          <>
+            <Divider />
+            <Stack py={2} px={4} alignContent="center">
+              <Flex alignContent="center" direction="column">
+                <Text fontSize="lg" fontWeight="bold">
+                  History: &nbsp;
+                </Text>
+                <Spacer />
+                <HistoryEntries data={boxData?.history as unknown as HistoryEntry[]} total={1} />
+              </Flex>
+            </Stack>
+          </>
+        )}
       </Box>
       <Box
         alignContent="center"
@@ -281,10 +311,16 @@ function BoxDetails({
                       .toLowerCase()}-btn`}
                     borderRadius="0px"
                     onClick={() => onMoveToLocationClick(location.id)}
-                    disabled={boxData.location?.id === location.id}
+                    disabled={BoxState.Lost === boxData.state || BoxState.Scrap === boxData.state}
                     border="2px"
                   >
                     {location.name}
+                    {location.defaultBoxState !== BoxState.InStock && (
+                      <>
+                        {" "}
+                        - Boxes are&nbsp;<i> {location.defaultBoxState}</i>
+                      </>
+                    )}
                   </Button>
                 </WrapItem>
               ))}

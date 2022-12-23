@@ -19,7 +19,6 @@ import { z } from "zod";
 import _ from "lodash";
 import SelectField, { IDropdownOption } from "components/Form/SelectField";
 import NumberField from "components/Form/NumberField";
-import { notificationVar } from "components/NotificationMessage";
 
 export interface ICategoryData {
   name: string;
@@ -80,7 +79,6 @@ export const CreateBoxFormDataSchema = z.object({
     .refine(Boolean, { message: "Please select a location" })
     .transform((selectedOption) => selectedOption || { label: "", value: "" }),
   tags: singleSelectOptionSchema.array().optional(),
-  qrCode: z.string().optional(),
   comment: z.string().optional(),
 });
 
@@ -90,7 +88,6 @@ export interface IBoxCreateProps {
   productAndSizesData: IProductWithSizeRangeData[];
   allLocations: ILocationData[];
   allTags: IDropdownOption[] | null | undefined;
-  qrCode: string | undefined;
   onSubmitBoxCreateForm: (boxFormValues: ICreateBoxFormData) => void;
 }
 
@@ -98,7 +95,6 @@ function BoxCreate({
   productAndSizesData,
   allLocations,
   allTags,
-  qrCode,
   onSubmitBoxCreateForm,
 }: IBoxCreateProps) {
   const productsGroupedByCategory: Record<string, IProductWithSizeRangeData[]> = _.groupBy(
@@ -179,19 +175,11 @@ function BoxCreate({
     }
   }, [productId, productAndSizesData, resetField, setValue]);
 
-  if (productsForDropdownGroups == null) {
-    notificationVar({
-      title: "Error",
-      type: "error",
-      message: "Error: The available products could not be loaded!",
-    });
-  }
-
   return (
     <Box w={["100%", "100%", "60%", "40%"]}>
       <Heading>{productId?.label}</Heading>
       <Heading fontWeight="bold" mb={4} as="h2">
-        Create New Box {qrCode != null && <>(for QR code)</>}
+        Create New Box
       </Heading>
       <form onSubmit={handleSubmit(onSubmit)}>
         <List spacing={2}>

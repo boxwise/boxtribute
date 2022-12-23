@@ -46,6 +46,7 @@ type Box implements ItemsCollection {
 }
 
 type HistoryEntry {
+  id: ID!
   changes: String!
   changeDate: Datetime
   user: User

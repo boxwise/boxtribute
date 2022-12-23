@@ -39,4 +39,24 @@ export const extractQrCodeFromUrl = (url): string | undefined => {
   const arr = rx.exec(url);
   // make sure there is no space arround qr code
   return arr?.[1].trim();
+ 
+export const generateDropappUrl = (
+  oldLink: String,
+  baseId: String | undefined,
+  qrCode: String | undefined,
+  labelIdentifier: String | undefined,
+) => {
+  const newLink = oldLink + "?camp=" + baseId + "&preference=classic";
+  if (oldLink.includes("mobile.php")) {
+    if (labelIdentifier !== undefined) {
+      return newLink + "&boxid=" + labelIdentifier;
+    } else if (qrCode !== undefined) {
+      return newLink + "&barcode=" + qrCode;
+    }
+  }
+  return newLink;
+};
+
+export const redirectToExternalUrl = (url) => {
+  window.location.replace(url);
 };
