@@ -1,3 +1,4 @@
+// This file is only integrated for deploys
 (window.heap = window.heap || []),
   (heap.load = function (e, t) {
     (window.heap.appid = e), (window.heap.config = t = t || {});
@@ -30,4 +31,5 @@
     )
       heap[p[o]] = n(p[o]);
   });
+// HEAPIO_APP_ID will be substituted during deploy by CircleCI
 heap.load(HEAPIO_APP_ID);
