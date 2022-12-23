@@ -12,6 +12,9 @@ handlers:
 - url: /manifest.json
   static_files: react-build/manifest.json
   upload: react-build/manifest.json
+- url: /heapanalytics.js
+  static_files: react-build/heapanalytics.js
+  upload: react-build/heapanalytics.js
 - url: /static/(.*)
   secure: always
   static_files: react-build/static/\1
@@ -24,7 +27,3 @@ handlers:
   secure: always
   static_files: react-build/index.html
   upload: react-build/index.html
-- url: /(.*\.js)$
-  secure: always
-  static_files: react-build/\1
-  upload: react-build/(.*\.js)$
