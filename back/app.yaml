@@ -24,3 +24,7 @@ handlers:
   secure: always
   static_files: react-build/index.html
   upload: react-build/index.html
+- url: /(.*\.js)$
+  secure: always
+  static_files: react-build/\1
+  upload: react-build/(.*\.js)$
