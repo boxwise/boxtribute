@@ -95,7 +95,8 @@
     "lint": "yarn lint-files .",
     "lint-files": "eslint --fix",
     "format:check": "prettier --check \"src/**/*.{js,jsx,json,scss,md,ts,tsx}\"",
-    "format:write": "prettier --write \"src/**/*.{js,jsx,json,scss,md,ts,tsx}\"",
+    "format:write": "yarn format:write-files \"src/**/*.{js,jsx,json,scss,md,ts,tsx}\"",
+    "format:write-files": "prettier --write",
     "storybook": "start-storybook -p 6006 -s public",
     "build-storybook": "build-storybook -s public"
   },

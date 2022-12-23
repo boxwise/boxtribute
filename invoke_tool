@@ -1,6 +1,16 @@
 #!/usr/bin/env bash
 
+mode=$1
+shift
+
 # strip react/ prefix from all given filepaths (pre-commit generates them from the repository root)
 files=("${@#react/}")
 
-yarn --cwd react run lint-files "${files[@]}"
+if [[ "$mode" = "lint" ]]; then
+    yarn --cwd react run lint-files "${files[@]}"
+elif [[ "$mode" = "format" ]]; then
+    yarn --cwd react run format:write-files "${files[@]}"
+else
+    echo "Unknown mode: $mode" >&2
+    exit 1
+fi

@@ -46,7 +46,14 @@ repos:
         args: ['--filter-files']
       - id: eslint
         name: eslint
-        entry: ./invoke_tool
+        entry: ./invoke_tool lint
+        files: react/.*\.[jt]sx?$
+        types: [file]
+        language: script
+        require_serial: true
+      - id: prettier
+        name: prettier
+        entry: ./invoke_tool format
         files: react/.*\.[jt]sx?$
         types: [file]
         language: script
