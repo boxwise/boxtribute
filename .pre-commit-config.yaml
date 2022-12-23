@@ -30,21 +30,20 @@ repos:
       - id: eslint
         name: Lint Typescript files
         entry: ./invoke_yarn lint
-        files: react/.*\.[jt]sx?$
-        types: [file]
+        files: ^react/.*
+        types_or: [javascript, jsx, ts, tsx]
         language: script
         require_serial: true
       - id: prettier
         name: Format Typescript files
         entry: ./invoke_yarn format
-        files: react/.*\.[jt]sx?$
-        types: [file]
+        files: ^react/.*
+        types_or: [javascript, jsx, ts, tsx]
         language: script
         require_serial: true
       - id: generate-graphql-ts-types
         name: Generate GraphQL Typescript definitions
         entry: ./invoke_yarn graphql-types
-        files: back/.*\.graphql$
-        types: [file]
+        types: [graphql]
         language: script
         require_serial: true
