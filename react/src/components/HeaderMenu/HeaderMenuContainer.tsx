@@ -11,6 +11,7 @@ import { GlobalPreferencesContext } from "providers/GlobalPreferencesProvider";
 import { IBoxDetailsData } from "utils/base-types";
 import BoxesBulkOperationsOverlay from "./BoxesBulkOperationsOverlay";
 import { useNotification } from "utils/hooks";
+import { useErrorHandling } from "utils/error-handling";
 
 const HeaderMenuContainer = () => {
   const auth0 = useAuth0();
@@ -94,6 +95,7 @@ const HeaderMenuContainer = () => {
   );
   const qrScannerOverlayState = useDisclosure({ defaultIsOpen: false });
   const toast = useToast();
+  const { triggerError } = useErrorHandling();
   const [boxesDataForBulkOperation, setBoxesDataForBulkOperation] = useState<IBoxDetailsData[]>([]);
 
   const onScanningDone = useCallback(
@@ -115,26 +117,21 @@ const HeaderMenuContainer = () => {
             break;
           }
           case QrResolverResultKind.NOT_AUTHORIZED: {
-            createToast({
-              title: "Error",
-              type: "error",
+            triggerError({
               message: "Error: You don't have access to the box assigned to this QR code",
             });
             break;
           }
           case QrResolverResultKind.LABEL_NOT_FOUND: {
-            createToast({
-              title: "Error",
-              type: "error",
+            triggerError({
               message: "Error: Box not found for this label",
             });
             break;
           }
           case QrResolverResultKind.FAIL: {
-            createToast({
-              title: "QR Reader",
-              type: "error",
-              message: `Error - Code ${singleResolvedQrValue?.error.code}: Cannot retrieve data for the QR code`,
+            triggerError({
+              message: "Error: Box not found for this label",
+              statusCode: singleResolvedQrValue?.error.code,
             });
             break;
           }
@@ -145,7 +142,7 @@ const HeaderMenuContainer = () => {
               message: "Scanned QR code is not assigned to a box yet",
             });
 
-            navigate(`/bases/${baseId}/boxes/create?qrCode=${singleResolvedQrValue?.qrCodeValue}`);
+            navigate(`/bases/${baseId}/boxes/create/${singleResolvedQrValue?.qrCodeValue}`);
             break;
           }
         }
