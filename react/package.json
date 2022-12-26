@@ -48,7 +48,7 @@
     "@storybook/addon-essentials": "^6.5.13",
     "@storybook/addon-interactions": "^6.5.13",
     "@storybook/addon-links": "^6.5.13",
-    "@storybook/builder-webpack5": "^6.5.12",
+    "@storybook/builder-webpack5": "^6.5.15",
     "@storybook/jest": "^0.0.10",
     "@storybook/manager-webpack5": "^6.5.12",
     "@storybook/node-logger": "^6.5.12",
