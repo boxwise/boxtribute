@@ -215,3 +215,36 @@ def test_mutation_arbitrary_database_error(read_only_client, mocker):
     ).side_effect = peewee.PeeweeException
     mutation = "mutation { createQrCode { id } }"
     assert_internal_server_error(read_only_client, mutation, field="createQrCode")
+
+
+@pytest.mark.parametrize(
+    "origin,illegal,headers,methods",
+    [
+        ["https://illegal-origin.org", True, None, None],
+        ["http://localhost:3000", False, "Authorization", "POST"],
+        ["https://v2-staging.boxtribute.org", False, "Authorization", "POST"],
+        [
+            "https://v2-production-dot-dropapp-242214.ew.r.appspot.com",
+            False,
+            "Authorization",
+            "POST",
+        ],
+    ],
+)
+def test_cors_preflight_request(read_only_client, origin, illegal, headers, methods):
+    # Simulate CORS preflight request
+    response = read_only_client.options(
+        "/graphql",
+        headers=[
+            ("origin", origin),
+            ("Access-Control-Request-Method", "POST"),
+            ("Access-Control-Request-Headers", "Authorization"),
+        ],
+    )
+    assert response.status_code == 200
+    if illegal:
+        assert response.headers.get("Access-Control-Allow-Origin") is None
+    else:
+        assert response.headers.get("Access-Control-Allow-Origin") == origin
+    assert response.headers.get("Access-Control-Allow-Headers") == headers
+    assert response.headers.get("Access-Control-Allow-Methods") == methods
