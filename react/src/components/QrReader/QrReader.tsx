@@ -1,17 +1,14 @@
+/* eslint-disable react/function-component-definition */
+/* eslint-disable react/require-default-props */
+/* eslint-disable no-unused-expressions */
+/* eslint-disable consistent-return */
+/* eslint-disable no-console */
 import * as React from "react";
-import { styles } from "./styles";
 
 import { MutableRefObject, useEffect, useRef } from "react";
 import { BrowserQRCodeReader, IScannerControls } from "@zxing/browser";
 import { Result } from "@zxing/library";
-
-export type QrReaderProps = {
-  facingMode?: string;
-  zoom?: number;
-  onResult: OnResultFunction;
-  ViewFinder?: (props: any) => React.ReactElement<any, any> | null;
-  scanPeriod?: number;
-};
+import { styles } from "./styles";
 
 export type OnResultFunction = (
   /**
@@ -25,15 +22,20 @@ export type OnResultFunction = (
   /**
    * The instance of the QR browser reader
    */
-  codeReader?: BrowserQRCodeReader
+  codeReader?: BrowserQRCodeReader,
 ) => void;
 
-const isMediaDevicesAPIAvailable = () => {
-  const isMediaDevicesAPIAvailable =
-    typeof navigator !== "undefined" && !!navigator.mediaDevices;
+export type QrReaderProps = {
+  facingMode?: string;
+  zoom?: number;
+  onResult: OnResultFunction;
+  ViewFinder?: (props: any) => React.ReactElement<any, any> | null;
+  scanPeriod?: number;
+};
 
-  if (!isMediaDevicesAPIAvailable) {
-  }
+const isMediaDevicesAPIAvailable = () => {
+  // eslint-disable-next-line no-shadow
+  const isMediaDevicesAPIAvailable = typeof navigator !== "undefined" && !!navigator.mediaDevices;
 
   return isMediaDevicesAPIAvailable;
 };
@@ -43,13 +45,13 @@ export const QrReader: React.FC<QrReaderProps> = ({
   facingMode,
   ViewFinder,
   onResult,
+  // eslint-disable-next-line no-unused-vars
+  scanPeriod,
 }) => {
-  const videoRef: MutableRefObject<HTMLVideoElement | null> =
-    useRef<HTMLVideoElement>(null);
+  const videoRef: MutableRefObject<HTMLVideoElement | null> = useRef<HTMLVideoElement>(null);
 
   const isMountedRef = useRef(true);
-  const controlsRef: MutableRefObject<IScannerControls | null> =
-    useRef<IScannerControls>(null);
+  const controlsRef: MutableRefObject<IScannerControls | null> = useRef<IScannerControls>(null);
   const browserQRCodeReaderRef: MutableRefObject<BrowserQRCodeReader | null> =
     useRef<BrowserQRCodeReader>(null);
 
@@ -70,7 +72,7 @@ export const QrReader: React.FC<QrReaderProps> = ({
       browserQRCodeReaderRef.current = new BrowserQRCodeReader(undefined, {});
 
       if (!isMediaDevicesAPIAvailable()) {
-        const message = `QRReader: This browser doesn't support MediaDevices API."`;
+        const message = "QRReader: This browser doesn't support MediaDevices API.\"";
         console.error(message);
         onResult?.(null, new Error(message), browserQRCodeReaderRef.current);
       }
@@ -84,7 +86,7 @@ export const QrReader: React.FC<QrReaderProps> = ({
           (result, error) => {
             browserQRCodeReaderRef.current != null &&
               onResult?.(result, error, browserQRCodeReaderRef.current);
-          }
+          },
         )
         .then((controls: IScannerControls) => {
           controlsRef.current = controls;
@@ -102,12 +104,13 @@ export const QrReader: React.FC<QrReaderProps> = ({
     };
   }, [facingMode, onResult, zoom]);
 
-  useEffect(() => {
-    return () => {
+  useEffect(
+    () => () => {
       isMountedRef.current = false;
       controlsRef.current?.stop();
-    };
-  }, []);
+    },
+    [],
+  );
 
   return (
     <section>

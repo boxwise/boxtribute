@@ -65,6 +65,7 @@ Representation of a QR code, possibly associated with a [`Box`]({{Types.Box}}).
 type QrCode {
   id: ID!
   code: String!
+  " [`Box`]({{Types.Box}}) associated with the QR code (`null` if none associated) "
   box: Box
   createdOn: Datetime
 }

@@ -178,19 +178,6 @@ const HeaderMenuDesktopContainer = ({ children, ...props }) => {
   );
 };
 
-const QrScannerButton = ({ onClick }: { onClick: () => void }) => (
-  <IconButton
-    h={20}
-    w={20}
-    fontSize="50px"
-    colorScheme="gray"
-    backgroundColor={"transparent"}
-    aria-label="Scan QR Code"
-    icon={<AiOutlineQrcode />}
-    onClick={onClick}
-  />
-);
-
 const HeaderMenuDeskop = (props: HeaderMenuProps) => {
   return (
     <HeaderMenuDesktopContainer>
@@ -206,7 +193,7 @@ const HeaderMenuDeskop = (props: HeaderMenuProps) => {
             currentActiveBaseId={props.currentActiveBaseId}
             availableBases={props.availableBases}
           />
-          {/* <QrScannerButton onClick={props.onClickScanQrCode} /> */}
+          {/* <QrReaderButton onClick={props.onClickScanQrCode} /> */}
         </Flex>
       </Flex>
     </HeaderMenuDesktopContainer>

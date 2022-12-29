@@ -42,8 +42,8 @@ def test_code_not_associated_with_box(read_only_client, qr_code_without_box):
     # Test case 8.1.2a
     code = qr_code_without_box["code"]
     query = f"""query {{ qrCode(qrCode: "{code}") {{ box {{ id }} }} }}"""
-    response = assert_bad_user_input(read_only_client, query, value={"box": None})
-    assert "SQL" not in response.json["errors"][0]["message"]
+    qr_code = assert_successful_request(read_only_client, query)
+    assert qr_code == {"box": None}
 
 
 def test_qr_code_mutation(client, box_without_qr_code):

@@ -32,6 +32,15 @@ export const getDateNormalizedDateTime = (dateTime: Date) => {
   return newDate;
 };
 
+export const extractQrCodeFromUrl = (url): string | undefined => {
+  // TODO: improve the accuracy of this regex
+  // TODO: consider to also handle different boxtribute environment urls
+  const rx = /.*barcode=(.*)/g;
+  const arr = rx.exec(url);
+  // make sure there is no space arround qr code
+  return arr?.[1].trim();
+};
+
 export const generateDropappUrl = (
   oldLink: String,
   baseId: String | undefined,

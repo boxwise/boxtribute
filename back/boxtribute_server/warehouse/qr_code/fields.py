@@ -9,6 +9,9 @@ qr_code = ObjectType("QrCode")
 
 @qr_code.field("box")
 def resolve_qr_code_box(qr_code_obj, _):
-    box = Box.select().join(Location).where(Box.qr_code == qr_code_obj.id).get()
-    authorize(permission="stock:read", base_id=box.location.base_id)
+    try:
+        box = Box.select().join(Location).where(Box.qr_code == qr_code_obj.id).get()
+        authorize(permission="stock:read", base_id=box.location.base_id)
+    except Box.DoesNotExist:
+        box = None
     return box
