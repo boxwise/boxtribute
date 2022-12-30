@@ -32,4 +32,4 @@
       heap[p[o]] = n(p[o]);
   });
 // HEAPIO_APP_ID will be substituted during deploy by CircleCI
-heap.load(HEAPIO_APP_ID);
+heap.load("HEAPIO_APP_ID");
