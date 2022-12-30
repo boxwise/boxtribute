@@ -86,7 +86,9 @@ def api_token():
         "https://v2-production-dot-dropapp-242214.ew.r.appspot.com",
     ],
     methods=["POST"],
-    allow_headers=["Content-Type", "Authorization"],
+    allow_headers="*"
+    if os.getenv("ENVIRONMENT") == "development"
+    else ["Content-Type", "Authorization"],
 )
 @requires_auth
 def graphql_server():
