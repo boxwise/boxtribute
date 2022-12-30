@@ -1,7 +1,6 @@
 """Construction of routes for web app and API"""
 import asyncio
 import os
-import re
 
 from ariadne import graphql
 from ariadne.constants import PLAYGROUND_HTML
@@ -79,8 +78,12 @@ def api_token():
     origins=[
         "http://localhost:5005",
         "http://localhost:3000",
-        re.compile(r"https://.+.boxtribute.org"),
-        re.compile(r"https://v2-.+-dot-dropapp-242214.ew.r.appspot.com"),
+        "https://v2-staging.boxtribute.org",
+        "https://v2-demo.boxtribute.org",
+        "https://v2.boxtribute.org",
+        "https://v2-staging-dot-dropapp-242214.ew.r.appspot.com",
+        "https://v2-demo-dot-dropapp-242214.ew.r.appspot.com",
+        "https://v2-production-dot-dropapp-242214.ew.r.appspot.com",
     ],
     methods=["POST"],
     allow_headers=["Content-Type", "Authorization"],
