@@ -74,7 +74,7 @@
     "eslint-plugin-prettier": "^4.2.1",
     "eslint-plugin-react": "^7.31.9",
     "eslint-plugin-react-hooks": "^4.6.0",
-    "msw": "^0.48.0",
+    "msw": "^0.49.2",
     "mutationobserver-shim": "^0.3.7",
     "prettier": "^2.7.1",
     "prettier-eslint": "^15.0.1",
