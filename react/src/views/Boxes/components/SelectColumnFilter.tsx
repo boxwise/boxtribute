@@ -29,7 +29,7 @@ export function SelectColumnFilter({
         minWidth: "150px",
         width: "fit-content",
       }}
-      
+
       cursor="pointer"
       id={id}
       value={filterValue}

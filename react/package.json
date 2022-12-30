@@ -92,9 +92,11 @@
     "test:coverage": "yarn test --env=jsdom --coverage --watchAll=false",
     "upload:test-report": "./node_modules/.bin/codecov",
     "eject": "react-scripts eject",
-    "lint": "eslint . --fix",
+    "lint": "yarn lint-files .",
+    "lint-files": "eslint --fix",
     "format:check": "prettier --check \"src/**/*.{js,jsx,json,scss,md,ts,tsx}\"",
-    "format:write": "prettier --write \"src/**/*.{js,jsx,json,scss,md,ts,tsx}\"",
+    "format:write": "yarn format:write-files \"src/**/*.{js,jsx,json,scss,md,ts,tsx}\"",
+    "format:write-files": "prettier --write",
     "storybook": "start-storybook -p 6006 -s public",
     "build-storybook": "build-storybook -s public"
   },
