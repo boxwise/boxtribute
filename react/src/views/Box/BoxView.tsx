@@ -248,27 +248,35 @@ function BTBox() {
 
   const onSubmitTakeItemsFromBox = (boxFormValues: IChangeNumberOfItemsBoxData) => {
     if (boxFormValues.numberOfItems && boxFormValues.numberOfItems > 0 && boxData?.numberOfItems) {
-      updateNumberOfItemsMutation({
-        variables: {
-          boxLabelIdentifier: labelIdentifier,
-          numberOfItems: (boxData?.numberOfItems || 0) - (boxFormValues?.numberOfItems || 0),
-        },
-      })
-        .then((res) => {
-          createToast({
-            title: `Box ${boxData.labelIdentifier}`,
-            type: res.errors ? "error" : "success",
-            message: res.errors
-              ? "Error: Could not remove items from the box"
-              : `Successfully removed ${boxFormValues?.numberOfItems} items from box`,
-          });
-          onMinusClose();
-        })
-        .catch(() => {
-          triggerError({
-            message: "Could not remove items from the box.",
-          });
+      if (boxFormValues.numberOfItems > boxData?.numberOfItems) {
+        createToast({
+          title: `Box ${boxData.labelIdentifier}`,
+          type: "error",
+          message: `Could not remove more than ${boxData?.numberOfItems} items`,
         });
+      } else {
+        updateNumberOfItemsMutation({
+          variables: {
+            boxLabelIdentifier: labelIdentifier,
+            numberOfItems: (boxData?.numberOfItems || 0) - (boxFormValues?.numberOfItems || 0),
+          },
+        })
+          .then((res) => {
+            createToast({
+              title: `Box ${boxData.labelIdentifier}`,
+              type: res.errors ? "error" : "success",
+              message: res.errors
+                ? "Error: Could not remove items from the box"
+                : `Successfully removed ${boxFormValues?.numberOfItems} items from box`,
+            });
+            onMinusClose();
+          })
+          .catch(() => {
+            triggerError({
+              message: "Could not remove items from the box.",
+            });
+          });
+      }
     }
   };
 
@@ -278,27 +286,36 @@ function BTBox() {
       boxFormValues.numberOfItems > 0 &&
       (boxData?.numberOfItems || boxData?.numberOfItems === 0)
     ) {
-      updateNumberOfItemsMutation({
-        variables: {
-          boxLabelIdentifier: labelIdentifier,
-          numberOfItems: (boxData?.numberOfItems || 0) + (boxFormValues?.numberOfItems || 0),
-        },
-      })
-        .then((res) => {
-          createToast({
-            title: `Box ${boxData.labelIdentifier}`,
-            type: res.errors ? "error" : "success",
-            message: res.errors
-              ? "Error: Could not add items to the box"
-              : `Successfully added ${boxFormValues?.numberOfItems} items to box`,
-          });
-          onPlusClose();
-        })
-        .catch(() => {
-          triggerError({
-            message: "Could not add items to the box.",
-          });
+      // The number of items must be less than the maximum MySQL signed integer value
+      if ((boxData.numberOfItems || 0) + boxFormValues.numberOfItems > 2147483647) {
+        createToast({
+          title: `Box ${boxData.labelIdentifier}`,
+          type: "error",
+          message: "The number should be smaller",
         });
+      } else {
+        updateNumberOfItemsMutation({
+          variables: {
+            boxLabelIdentifier: labelIdentifier,
+            numberOfItems: (boxData?.numberOfItems || 0) + (boxFormValues?.numberOfItems || 0),
+          },
+        })
+          .then((res) => {
+            createToast({
+              title: `Box ${boxData.labelIdentifier}`,
+              type: res.errors ? "error" : "success",
+              message: res.errors
+                ? "Error: Could not add items to the box"
+                : `Successfully added ${boxFormValues?.numberOfItems} items to box`,
+            });
+            onPlusClose();
+          })
+          .catch(() => {
+            triggerError({
+              message: "Could not add items to the box.",
+            });
+          });
+      }
     }
   };
 
