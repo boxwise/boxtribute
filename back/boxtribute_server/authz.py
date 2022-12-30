@@ -1,11 +1,10 @@
 """Utilities for handling authorization"""
-import os
-
 from flask import g
 
 from .exceptions import Forbidden
 from .models.definitions.base import Base
 from .models.definitions.transfer_agreement import TransferAgreement
+from .utils import in_ci_environment, in_development_environment
 
 BASE_AGNOSTIC_RESOURCES = (
     "box_state",
@@ -160,7 +159,7 @@ def check_beta_feature_access(payload, *, current_user=None):
     """Check whether the current user wants to execute a beta-feature mutation, and
     whether they have sufficient beta-feature scope to run it.
     """
-    if os.getenv("CI") == "true" or os.getenv("ENVIRONMENT") == "development":
+    if in_ci_environment() or in_development_environment():
         # Skip check when running tests in CircleCI, or during local development
         return True
 

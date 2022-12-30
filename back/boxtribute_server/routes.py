@@ -20,6 +20,7 @@ from .loaders import (
     TagsForBoxLoader,
 )
 from .logging import API_CONTEXT, WEBAPP_CONTEXT, log_request_to_gcloud
+from .utils import in_development_environment
 
 # Blueprint for query-only API. Deployed on the 'api*' subdomains
 api_bp = Blueprint("api_bp", __name__)
@@ -87,7 +88,7 @@ def api_token():
     ],
     methods=["POST"],
     allow_headers="*"
-    if os.getenv("ENVIRONMENT") == "development"
+    if in_development_environment()
     else ["Content-Type", "Authorization"],
 )
 @requires_auth
