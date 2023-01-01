@@ -20,6 +20,14 @@ repos:
         types: [python]
         language: system
         require_serial: true
+      - id: mypy
+        name: Run Python type checks
+        entry: mypy
+        types_or: [python, pyi]
+        exclude: back/test
+        language: system
+        args: ["--scripts-are-modules"]
+        require_serial: true
       - id: isort
         name: Sort Python imports
         entry: isort
