@@ -61,3 +61,12 @@ export const generateDropappUrl = (
 export const redirectToExternalUrl = (url) => {
   window.location.replace(url);
 };
+
+export const getContrastYIQ = (hex) => {
+  const [r, g, b] = hex
+    .replace(/^#?([a-f\d])([a-f\d])([a-f\d])$/i, (m, r, g, b) => "#" + r + r + g + g + b + b)
+    .substring(1)
+    .match(/.{2}/g)
+    .map((x) => parseInt(x, 16));
+  return (r * 299 + g * 587 + b * 114) / 1000 >= 128;
+};
