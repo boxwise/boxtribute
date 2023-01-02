@@ -28,6 +28,9 @@ api_bp = Blueprint("api_bp", __name__)
 # Blueprint for app GraphQL server. Deployed on v2-* subdomains
 app_bp = Blueprint("app_bp", __name__)
 
+# Allowed headers for CORS
+CORS_HEADERS = ["Content-Type", "Authorization", "x-clacks-overhead"]
+
 
 @api_bp.errorhandler(AuthenticationFailed)
 @app_bp.errorhandler(AuthenticationFailed)
@@ -87,9 +90,7 @@ def api_token():
         "https://v2-production-dot-dropapp-242214.ew.r.appspot.com",
     ],
     methods=["POST"],
-    allow_headers="*"
-    if in_development_environment()
-    else ["Content-Type", "Authorization"],
+    allow_headers="*" if in_development_environment() else CORS_HEADERS,
 )
 @requires_auth
 def graphql_server():
