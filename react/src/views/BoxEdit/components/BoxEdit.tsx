@@ -150,7 +150,7 @@ function BoxEdit({
   const tagsForDropdownGroups: Array<IDropdownOption> | undefined = allTags?.map((tag) => ({
     label: tag.label,
     value: tag.value,
-    // colorScheme: "red",
+    color: tag.color,
   }));
 
   // react-hook-form

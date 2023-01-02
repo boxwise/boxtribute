@@ -5,6 +5,7 @@ import { Controller } from "react-hook-form";
 export interface IDropdownOption extends OptionBase {
   value: string;
   label: string;
+  color?: string | undefined | null;
 }
 
 export interface ISelectFieldProps {
@@ -62,9 +63,10 @@ function SelectField({
                 borderRadius: "0",
                 borderColor: "black",
               }),
-              multiValue: (provided) => ({
+              multiValue: (provided, state) => ({
                 ...provided,
                 border: "1px",
+                background: state.data?.color || "gray.100",
                 borderRadius: "20",
               }),
             }}
