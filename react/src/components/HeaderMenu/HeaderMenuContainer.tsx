@@ -105,7 +105,8 @@ const HeaderMenuContainer = () => {
         switch (singleResolvedQrValue.kind) {
           case QrResolverResultKind.SUCCESS: {
             const boxLabelIdentifier = singleResolvedQrValue?.value.labelIdentifier;
-            navigate(`/bases/${baseId}/boxes/${boxLabelIdentifier}`);
+            const boxBaseId = singleResolvedQrValue?.value.place.base.id;
+            navigate(`/bases/${boxBaseId}/boxes/${boxLabelIdentifier}`);
             break;
           }
           case QrResolverResultKind.NOT_BOXTRIBUTE_QR: {
