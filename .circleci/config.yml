@@ -190,7 +190,7 @@ jobs:
           name: Inject Heap Analytics Script to index.html
           command: |
             sed -i "s/HEAPIO_APP_ID/${HEAPIO_APP_ID}/" ../react/build/heapanalytics.js
-            sed -i 's|</head>| i <script src="/heapanalytics.js"></script></head>|' ../react/build/index.html
+            sed -i 's|</head>|<script src="/heapanalytics.js"></script></head>|' ../react/build/index.html
       - run:
           name: Copy react build into flask app for deployment
           command: mv ../react/build react-build
