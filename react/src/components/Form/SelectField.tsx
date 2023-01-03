@@ -1,7 +1,7 @@
 import { FormControl, FormErrorMessage, FormLabel } from "@chakra-ui/react";
 import { Select, OptionBase } from "chakra-react-select";
 import { Controller } from "react-hook-form";
-import { getContrastYIQ } from "utils/helpers";
+import { colorIsBright } from "utils/helpers";
 
 export interface IDropdownOption extends OptionBase {
   value: string;
@@ -67,8 +67,8 @@ function SelectField({
               multiValue: (provided, state) => ({
                 ...provided,
                 border: "1px",
-                borderColor: getContrastYIQ(state.data?.color) ? "gray.300" : state.data?.color,
-                color: getContrastYIQ(state.data?.color) ? "black" : "white",
+                borderColor: colorIsBright(state.data?.color) ? "gray.300" : state.data?.color,
+                color: colorIsBright(state.data?.color) ? "black" : "white",
                 background: state.data?.color || "gray.100",
                 borderRadius: "20",
               }),

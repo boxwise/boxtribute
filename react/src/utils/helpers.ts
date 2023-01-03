@@ -62,7 +62,12 @@ export const redirectToExternalUrl = (url) => {
   window.location.replace(url);
 };
 
-export const getContrastYIQ = (hex) => {
+/*
+Return true if given RGB hex color is bright, false if dark.
+This is achieved by converting the RGB value into YIQ
+and then checking the Y component (luma). Cf. https://stackoverflow.com/a/946734/3865876
+*/
+export const colorIsBright = (hex) => {
   const [r, g, b] = hex
     .replace(/^#?([a-f\d])([a-f\d])([a-f\d])$/i, (m, r, g, b) => "#" + r + r + g + g + b + b)
     .substring(1)

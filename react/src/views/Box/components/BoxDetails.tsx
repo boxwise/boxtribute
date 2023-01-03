@@ -33,7 +33,7 @@ import {
 import { useGetUrlForResourceHelpers } from "utils/hooks";
 import { distroEventStateHumanReadableLabels } from "views/Distributions/baseData";
 import DistributionEventTimeRangeDisplay from "views/Distributions/components/DistributionEventTimeRangeDisplay";
-import { getContrastYIQ } from "utils/helpers";
+import { colorIsBright } from "utils/helpers";
 import HistoryEntries from "./HistoryEntries";
 
 interface IBoxDetailsProps {
@@ -125,7 +125,7 @@ function BoxDetails({
                 <Tag
                   key={tag.id}
                   bg={Style.toTransformString(tag.color)}
-                  color={getContrastYIQ(tag.color) ? "black" : "white"}
+                  color={colorIsBright(tag.color) ? "black" : "white"}
                 >
                   <TagLabel>{tag.name}</TagLabel>
                 </Tag>
