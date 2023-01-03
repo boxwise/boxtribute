@@ -98,15 +98,19 @@ Furthermore, here a collection of QR-Codes which have been seeded in the dev db 
 **Codes connected to existing boxes in the seed**
 
 Box in base 1
+
 ![9627242265f5a7f3a1db910eb18410f](docs/qr/code-with-base-1-box-9627242265f5a7f3a1db910eb18410f.png)
 
 Box in base 2
+
 ![1efb9f5633ebf01645934bd509d93e2](docs/qr/code-with-base-2-box-1efb9f5633ebf01645934bd509d93e2.png)
 
 Box in base 3
+
 ![46985d9e6d5a244cf683bacdb7d0f33](docs/qr/code-with-base-3-box-46985d9e6d5a244cf683bacdb7d0f33.png)
 
 **Codes not yet connected to boxes in the seed**
+
 ![0af9ec1a97906cf1cac5f50617a687b](docs/qr/code-without-box-0af9ec1a97906cf1cac5f50617a687b.png)
 
 **Codes that don't exist in the seed**
