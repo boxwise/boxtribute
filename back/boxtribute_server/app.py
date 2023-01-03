@@ -3,7 +3,6 @@ import os
 
 import sentry_sdk
 from flask import Flask
-from flask_cors import CORS
 from graphql.error import GraphQLError
 from sentry_sdk.integrations.flask import FlaskIntegration
 
@@ -15,11 +14,9 @@ def create_app():
 
 
 def configure_app(app, *blueprints, database_interface=None, **mysql_kwargs):
-    """Initialize CORS handling in app, and register blueprints.
-    Configure the app's database interface. `mysql_kwargs` are forwarded.
+    """Register blueprints. Configure the app's database interface. `mysql_kwargs` are
+    forwarded.
     """
-    CORS(app)
-
     for blueprint in blueprints:
         app.register_blueprint(blueprint)
 
@@ -58,7 +55,7 @@ def main(*blueprints):
     # dsn/environment/release: reading SENTRY_* environment variables set in CircleCI
     sentry_sdk.init(
         integrations=[FlaskIntegration()],
-        traces_sample_rate=float(os.getenv("SENTRY_TRACES_SAMPLE_RATE", 1.0)),
+        traces_sample_rate=float(os.getenv("SENTRY_TRACES_SAMPLE_RATE", 0.0)),
         before_send=before_sentry_send,
     )
 

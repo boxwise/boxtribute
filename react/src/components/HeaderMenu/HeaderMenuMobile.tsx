@@ -13,20 +13,19 @@ import {
   Divider,
 } from "@chakra-ui/react";
 import { useState } from "react";
-import {
-  AiFillCloseCircle,
-  AiOutlineMenu,
-  AiOutlineQrcode,
-} from "react-icons/ai";
-import { Link, NavLink } from "react-router-dom";
+import { AiFillCloseCircle, AiFillWindows, AiOutlineMenu, AiOutlineQrcode } from "react-icons/ai";
+import { Link, NavLink, useParams } from "react-router-dom";
 import {
   BaseSwitcherProps,
   HeaderMenuProps,
   LoginOrUserMenuButtonProps,
+  MenuItemData,
   MenuItemsGroupProps,
   MenuItemsGroupsProps,
 } from "./HeaderMenu";
 import BoxtributeLogo from "../../assets/images/boxtribute-logo.png";
+import { QrReaderButton } from "components/QrReader/QrReaderButton";
+import { generateDropappUrl, redirectToExternalUrl } from "utils/helpers";
 
 type MenuItemsGroupsMobileProps = MenuItemsGroupsProps & {
   isMenuOpen: boolean;
@@ -41,11 +40,7 @@ const MenuToggle = ({ toggle, isOpen, ...props }) => (
   />
 );
 
-const Logo = () => (
-  <NavLink to="/">
-    <Image src={BoxtributeLogo} maxH={"3.5em"} />
-  </NavLink>
-);
+const Logo = () => <Image src={BoxtributeLogo} maxH={"3.5em"} />;
 
 const LoginOrUserMenuButtonMobile = ({
   isAuthenticated,
@@ -54,8 +49,8 @@ const LoginOrUserMenuButtonMobile = ({
   user,
   currentActiveBaseId,
   availableBases,
-  setIsMenuOpen
-}: LoginOrUserMenuButtonProps & {setIsMenuOpen: (isOpen: boolean) => void}) => {
+  setIsMenuOpen,
+}: LoginOrUserMenuButtonProps & { setIsMenuOpen: (isOpen: boolean) => void }) => {
   const { isOpen, onToggle } = useDisclosure();
 
   return isAuthenticated ? (
@@ -76,9 +71,7 @@ const LoginOrUserMenuButtonMobile = ({
         backgroundColor={isOpen ? "gray.100" : "transparent"}
       >
         <Flex maxW="85%" align={"center"}>
-          {user?.picture ? (
-            <Img src={user?.picture} width={8} height={8} mr={2} />
-          ) : null}
+          {user?.picture ? <Img src={user?.picture} width={8} height={8} mr={2} /> : null}
           <Text fontWeight={600} isTruncated>
             {user?.email}
           </Text>
@@ -94,16 +87,16 @@ const LoginOrUserMenuButtonMobile = ({
 
       <Collapse in={isOpen} animateOpacity style={{ marginTop: "10px" }}>
         <Stack pl={4} borderLeft={1} borderStyle={"solid"} align={"start"}>
-          <BaseSwitcher
+          {/* <BaseSwitcher
             currentActiveBaseId={currentActiveBaseId}
             availableBases={availableBases}
             setIsMenuOpen={setIsMenuOpen}
-          />
-          <Divider orientation='horizontal' />
-          <Box py={1} px={4}>
+          /> */}
+          <Divider orientation="horizontal" />
+          {/* <Box py={1} px={4}>
             Profile
-          </Box>
-          <Box py={1} px={4} onClick={() => logout()}>
+          </Box> */}
+          <Box py={1} px={4} w="100%" onClick={() => logout()}>
             Logout
           </Box>
         </Stack>
@@ -127,8 +120,8 @@ const LoginOrUserMenuButtonMobile = ({
 const BaseSwitcher = ({
   currentActiveBaseId,
   availableBases,
-  setIsMenuOpen
-}: BaseSwitcherProps & {setIsMenuOpen: (isOpen: boolean) => void}) => {
+  setIsMenuOpen,
+}: BaseSwitcherProps & { setIsMenuOpen: (isOpen: boolean) => void }) => {
   return (
     <>
       {availableBases?.map((base, i) => (
@@ -151,18 +144,10 @@ const MenuItemsGroupsMobile = ({
   ...props
 }: MenuItemsGroupsMobileProps) => {
   return (
-    <Flex
-      w="100%"
-      flexBasis={{ base: "100%", md: "auto" }}
-      display={isMenuOpen ? "block" : "none"}
-    >
+    <Flex w="100%" flexBasis={{ base: "100%", md: "auto" }} display={isMenuOpen ? "block" : "none"}>
       <Stack alignItems="start-end" direction="column">
         {props.menuItemsGroups.map((item, i) => (
-          <MenuItemsGroupMobile
-            key={i}
-            {...item}
-            setIsMenuOpen={setIsMenuOpen}
-          />
+          <MenuItemsGroupMobile key={i} {...item} setIsMenuOpen={setIsMenuOpen} />
         ))}
         <LoginOrUserMenuButtonMobile
           isAuthenticated={props.isAuthenticated}
@@ -184,6 +169,40 @@ const MenuItemsGroupMobile = ({
   text,
 }: MenuItemsGroupProps & { setIsMenuOpen: (isOpen: boolean) => void }) => {
   const { isOpen, onToggle } = useDisclosure();
+
+  function renderLinkBoxes(link: MenuItemData, i: number) {
+    let { baseId, qrCode, labelIdentifier } = useParams();
+
+    if (link.link.includes(`${process.env.REACT_APP_OLD_APP_BASE_URL}`)) {
+      return (
+        <Box
+          key={i}
+          py={1}
+          px={4}
+          w="100%"
+          onClick={() =>
+            redirectToExternalUrl(generateDropappUrl(link.link, baseId, qrCode, labelIdentifier))
+          }
+        >
+          {link.name}
+        </Box>
+      );
+    } else {
+      return (
+        <Box
+          key={i}
+          py={1}
+          px={4}
+          w="100%"
+          onClick={() => {
+            redirectToExternalUrl(link.link);
+          }}
+        >
+          {link.name}
+        </Box>
+      );
+    }
+  }
 
   return (
     <Stack spacing={4} onClick={onToggle}>
@@ -212,13 +231,7 @@ const MenuItemsGroupMobile = ({
       </Flex>
       <Collapse in={isOpen} animateOpacity style={{ marginTop: "10px" }}>
         <Stack pl={4} borderLeft={1} borderStyle={"solid"} align={"start"}>
-          {links.map((link, i) => (
-            <Box key={i} py={1} px={4} onClick={() => setIsMenuOpen(false)}>
-              <Link key={link.name} to={link.link}>
-                {link.name}
-              </Link>
-            </Box>
-          ))}
+          {links.map((link, i) => renderLinkBoxes(link, i))}
         </Stack>
       </Collapse>
     </Stack>
@@ -227,33 +240,11 @@ const MenuItemsGroupMobile = ({
 
 const HeaderMenuMobileContainer = ({ children, ...props }) => {
   return (
-    <Flex
-      as="nav"
-      wrap="wrap"
-      w="100%"
-      pt={4}
-      pb={4}
-      color={"black"}
-      zIndex="2"
-    >
+    <Flex as="nav" wrap="wrap" w="100%" pt={4} pb={4} color={"black"} zIndex="2">
       {children}
     </Flex>
   );
 };
-
-// TODO: Extract this (because it's not mobile/desktop specific) out into a seperate component file
-const QrScannerButton = ({ onClick }: { onClick: () => void }) => (
-  <IconButton
-    h={20}
-    w={20}
-    fontSize="50px"
-    colorScheme="gray"
-    backgroundColor={"transparent"}
-    aria-label="Scan QR Code"
-    icon={<AiOutlineQrcode />}
-    onClick={onClick}
-  />
-);
 
 const HeaderMenuMobile = (props: HeaderMenuProps) => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -262,7 +253,7 @@ const HeaderMenuMobile = (props: HeaderMenuProps) => {
     <HeaderMenuMobileContainer>
       <Flex justifyContent="space-between" w="100%" alignItems="center">
         <Logo />
-        <QrScannerButton onClick={props.onClickScanQrCode} />
+        <QrReaderButton onClick={props.onClickScanQrCode} />
         <MenuToggle
           toggle={toggle}
           isOpen={isMenuOpen}

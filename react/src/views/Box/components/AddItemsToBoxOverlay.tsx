@@ -1,7 +1,6 @@
 import {
   Button,
   Flex,
-  Input,
   Modal,
   ModalBody,
   ModalCloseButton,
@@ -9,7 +8,9 @@ import {
   ModalFooter,
   ModalHeader,
   ModalOverlay,
+  Spacer,
 } from "@chakra-ui/react";
+import NumberField from "components/Form/NumberField";
 import { useForm } from "react-hook-form";
 import { IChangeNumberOfItemsBoxData } from "../BoxView";
 
@@ -26,8 +27,9 @@ function AddItemsToBoxOverlay({
 }: IPropsAddItemsToBoxOverlay) {
   const {
     register,
+    control,
     handleSubmit,
-    formState: { isSubmitting },
+    formState: { isSubmitting, errors },
   } = useForm<IChangeNumberOfItemsBoxData>({});
 
   return (
@@ -38,20 +40,19 @@ function AddItemsToBoxOverlay({
         <ModalCloseButton />
         <ModalBody>
           <form onSubmit={handleSubmit(onSubmitAddItemstoBox)}>
-            <Flex>
-              <Input
-                data-testid="increase-number-items"
-                placeholder="Number of items"
-                mr={4}
-                border="2px"
-                focusBorderColor="gray.400"
-                borderRadius="0"
-                type="number"
-                mb={4}
-                {...register("numberOfItems", {
-                  valueAsNumber: true,
-                })}
+            <Flex py={1} px={1} alignItems="center" gap={1}>
+              <NumberField
+                fieldId="numberOfItems"
+                fieldLabel="Number Of Items"
+                errors={errors}
+                control={control}
+                register={register}
+                showLabel={false}
+                showError={false}
+                testId="increase-number-items"
               />
+              <Spacer />
+
               <Button px={6} borderRadius="0" type="submit" isLoading={isSubmitting}>
                 Submit
               </Button>

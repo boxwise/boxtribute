@@ -8,7 +8,27 @@ export const PRODUCT_BASIC_FIELDS_FRAGMENT = gql`
   }
 `;
 
+export const USER_BASIC_FIELDS_FRAGMENT = gql`
+  fragment UserBasicFields on User {
+    id
+    name
+  }
+`;
+
+export const HISTORY_FIELDS_FRAGMENT = gql`
+  ${USER_BASIC_FIELDS_FRAGMENT}
+  fragment HistoryFields on HistoryEntry {
+    id
+    changes
+    changeDate
+    user {
+      ...UserBasicFields
+    }
+  }
+`;
+
 export const BOX_FIELDS_FRAGMENT = gql`
+  ${HISTORY_FIELDS_FRAGMENT}
   fragment BoxFields on Box {
     labelIdentifier
     state
@@ -18,6 +38,9 @@ export const BOX_FIELDS_FRAGMENT = gql`
     }
     numberOfItems
     comment
+    history {
+      ...HistoryFields
+    }
   }
 `;
 

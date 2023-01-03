@@ -1,7 +1,11 @@
+import time
+
 import pytest
 from boxtribute_server.enums import BoxState
-from boxtribute_server.models.crud import BOX_LABEL_IDENTIFIER_GENERATION_ATTEMPTS
 from boxtribute_server.models.definitions.history import DbChangeHistory
+from boxtribute_server.warehouse.box.crud import (
+    BOX_LABEL_IDENTIFIER_GENERATION_ATTEMPTS,
+)
 from utils import (
     assert_bad_user_input,
     assert_internal_server_error,
@@ -73,6 +77,7 @@ def test_box_mutations(
     another_size,
     products,
     default_location,
+    null_box_state_location,
     tags,
 ):
     # Test case 8.2.1
@@ -149,9 +154,15 @@ def test_box_mutations(
         "tags": [{"id": tag_id}],
     }
 
+    # Wait for one second here such that the second-precision change_date of the
+    # previous creation entry is different from the following change entries. We then
+    # can verify that the sorting of history entries by most recent first works.
+    time.sleep(1)
     # Test case 8.2.11
     new_size_id = str(another_size["id"])
     new_product_id = str(products[2]["id"])
+    new_location_id = str(null_box_state_location["id"])
+    state = BoxState.Lost.name
     comment = "updatedComment"
     nr_items = 7777
     mutation = f"""mutation {{
@@ -160,8 +171,10 @@ def test_box_mutations(
                     numberOfItems: {nr_items},
                     labelIdentifier: "{created_box["labelIdentifier"]}"
                     comment: "{comment}"
+                    locationId: {new_location_id},
                     sizeId: {new_size_id},
                     productId: {new_product_id},
+                    state: {state}
                 }} ) {{
                 id
                 numberOfItems
@@ -169,16 +182,67 @@ def test_box_mutations(
                 createdOn
                 qrCode {{ id }}
                 comment
+                location {{ id }}
                 size {{ id }}
                 product {{ id }}
+                state
+                history {{
+                    id
+                    changes
+                    user {{ name }}
+                }}
             }}
         }}"""
     updated_box = assert_successful_request(client, mutation)
     assert updated_box["comment"] == comment
     assert updated_box["numberOfItems"] == nr_items
     assert updated_box["qrCode"] == created_box["qrCode"]
+    assert updated_box["location"]["id"] == new_location_id
     assert updated_box["size"]["id"] == new_size_id
     assert updated_box["product"]["id"] == new_product_id
+    assert updated_box["state"] == state
+    assert updated_box["history"] == [
+        # The entries for the update have the same change_date, hence the IDs do not
+        # appear reversed
+        {
+            "id": "115",
+            "changes": f"changed product type from {products[0]['name']} to "
+            + f"{products[2]['name']}",
+            "user": {"name": "coord"},
+        },
+        {
+            "id": "116",
+            "changes": f"changed size from {default_size['label']} to "
+            + f"{another_size['label']}",
+            "user": {"name": "coord"},
+        },
+        {
+            "id": "117",
+            "changes": f"changed the number of items from None to {nr_items}",
+            "user": {"name": "coord"},
+        },
+        {
+            "id": "118",
+            "changes": f"changed box location from {default_location['name']} to "
+            + f"{null_box_state_location['name']}",
+            "user": {"name": "coord"},
+        },
+        {
+            "id": "119",
+            "changes": 'changed comments from "" to "updatedComment";',
+            "user": {"name": "coord"},
+        },
+        {
+            "id": "120",
+            "changes": f"changed box state from InStock to {state}",
+            "user": {"name": "coord"},
+        },
+        {
+            "id": "113",
+            "changes": "created record",
+            "user": {"name": "coord"},
+        },
+    ]
 
     # Test cases 8.2.1, 8.2.2., 8.2.11
     history = list(
@@ -242,9 +306,27 @@ def test_box_mutations(
             "ip": None,
         },
         {
+            "changes": "location_id",
+            "from_int": int(location_id),
+            "to_int": int(new_location_id),
+            "record_id": box_id,
+            "table_name": "stock",
+            "user": 8,
+            "ip": None,
+        },
+        {
             "changes": f"""comments changed from "" to "{comment}";""",
             "from_int": None,
             "to_int": None,
+            "record_id": box_id,
+            "table_name": "stock",
+            "user": 8,
+            "ip": None,
+        },
+        {
+            "changes": "box_state_id",
+            "from_int": BoxState.InStock.value,
+            "to_int": BoxState[state].value,
             "record_id": box_id,
             "table_name": "stock",
             "user": 8,

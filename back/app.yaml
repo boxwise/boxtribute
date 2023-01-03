@@ -9,10 +9,20 @@ handlers:
   secure: always
   static_files: react-build/index.html
   upload: react-build/index.html
+- url: /manifest.json
+  static_files: react-build/manifest.json
+  upload: react-build/manifest.json
+- url: /heapanalytics.js
+  static_files: react-build/heapanalytics.js
+  upload: react-build/heapanalytics.js
 - url: /static/(.*)
   secure: always
   static_files: react-build/static/\1
   upload: react-build/static/(.*)
+- url: /(.*\.(ico|png|svg))$
+  secure: always
+  static_files: react-build/\1
+  upload: react-build/(.*\.(ico|png|svg))$
 - url: /(.*)
   secure: always
   static_files: react-build/index.html

@@ -6,32 +6,42 @@ import HeaderMenu, { MenuItemsGroupData } from "./HeaderMenu";
 import AutomaticBaseSwitcher from "views/AutomaticBaseSwitcher/AutomaticBaseSwitcher";
 import { useDisclosure, useToast } from "@chakra-ui/react";
 import QrReaderOverlayContainer from "components/QrReaderOverlay/QrReaderOverlayContainer";
-import {
-  QrResolvedValue,
-  QrResolverResultSuccessValue,
-} from "components/QrReaderOverlay/QrReaderOverlay";
+import { IQrResolvedValue, QrResolverResultKind } from "components/QrReaderOverlay/QrReaderOverlay";
 import { GlobalPreferencesContext } from "providers/GlobalPreferencesProvider";
 import { IBoxDetailsData } from "utils/base-types";
 import BoxesBulkOperationsOverlay from "./BoxesBulkOperationsOverlay";
+import { useNotification } from "utils/hooks";
+import { useErrorHandling } from "utils/error-handling";
 
 const HeaderMenuContainer = () => {
   const auth0 = useAuth0();
   const navigate = useNavigate();
   const baseId = useParams<{ baseId: string }>().baseId;
   const { globalPreferences } = useContext(GlobalPreferencesContext);
+  const { createToast } = useNotification();
 
   const menuItems: MenuItemsGroupData[] = useMemo(
     () => [
       {
-        text: "Boxes",
+        text: "Classic View",
         links: [
-          // { link: "#", name: "Print Labels" },
-          { link: `/bases/${baseId}/boxes`, name: "Manage Boxes" },
-            // TODO: uncomment this once we have finished/tested the Create Box feature sufficiently
-          // { link: `/bases/${baseId}/boxes/create`, name: "Create new Box" },
-          // { link: "#", name: "Stock Overview" },
+          {
+            link: `${process.env.REACT_APP_OLD_APP_BASE_URL}/mobile.php`,
+            name: "Go to classic mobile",
+          },
+          { link: `${process.env.REACT_APP_OLD_APP_BASE_URL}/`, name: "Go to classic desktop" },
         ],
       },
+      // {
+      //   text: "Boxes",
+      //   links: [
+      //     // { link: "#", name: "Print Labels" },
+      //     { link: `/bases/${baseId}/boxes`, name: "Manage Boxes" },
+      //       // TODO: uncomment this once we have finished/tested the Create Box feature sufficiently
+      //     // { link: `/bases/${baseId}/boxes/create`, name: "Create new Box" },
+      //     // { link: "#", name: "Stock Overview" },
+      //   ],
+      // },
       // {
       //   text: "Freeshop",
       //   links: [
@@ -40,23 +50,23 @@ const HeaderMenuContainer = () => {
       //     { link: "#", name: "Generate Market Schedule" },
       //   ],
       // },
-      {
-        text: "Mobile Distributions",
-        links: [
-          {
-            link: `/bases/${baseId}/distributions`,
-            name: "Distribution Events",
-          },
-          {
-            link: `/bases/${baseId}/distributions/return-trackings`,
-            name: "Return Trackings",
-          },
-          {
-            link: `/bases/${baseId}/distributions/spots`,
-            name: "Distribution Spots",
-          },
-        ],
-      },
+      // {
+      //   text: "Mobile Distributions",
+      //   links: [
+      //     {
+      //       link: `/bases/${baseId}/distributions`,
+      //       name: "Distribution Events",
+      //     },
+      //     {
+      //       link: `/bases/${baseId}/distributions/return-trackings`,
+      //       name: "Return Trackings",
+      //     },
+      //     {
+      //       link: `/bases/${baseId}/distributions/spots`,
+      //       name: "Distribution Spots",
+      //     },
+      //   ],
+      // },
       // {
       //   text: "Box Transfers",
       //   links: [
@@ -71,64 +81,79 @@ const HeaderMenuContainer = () => {
       //     { link: "#", name: "Export" },
       //   ],
       // },
-      {
-        text: "Admin",
-        links: [
-          { link: "#", name: "Manage Tags" },
-          // { link: "#", name: "Manage Products" },
-          // { link: "#", name: "Edit Warehouses" },
-          // { link: "#", name: "Manage Users" },
-        ],
-      },
+      // {
+      //   text: "Admin",
+      //   links: [
+      //     { link: "#", name: "Manage Tags" },
+      //     // { link: "#", name: "Manage Products" },
+      //     // { link: "#", name: "Edit Warehouses" },
+      //     // { link: "#", name: "Manage Users" },
+      //   ],
+      // },
     ],
-    [baseId]
+    [baseId],
   );
   const qrScannerOverlayState = useDisclosure({ defaultIsOpen: false });
   const toast = useToast();
-  const [boxesDataForBulkOperation, setBoxesDataForBulkOperation] = useState<
-    IBoxDetailsData[]
-  >([]);
+  const { triggerError } = useErrorHandling();
+  const [boxesDataForBulkOperation, setBoxesDataForBulkOperation] = useState<IBoxDetailsData[]>([]);
 
   const onScanningDone = useCallback(
-    (qrResolvedValues: QrResolvedValue[]) => {
-      if (qrResolvedValues.length === 1) {
-        const singleResolvedQrValue = qrResolvedValues[0];
+    (IQrResolvedValues: IQrResolvedValue[]) => {
+      if (IQrResolvedValues.length === 1) {
+        const singleResolvedQrValue = IQrResolvedValues[0];
         switch (singleResolvedQrValue.kind) {
-          case "success": {
-            const boxLabelIdentifier =
-              singleResolvedQrValue.value.labelIdentifier;
-            navigate(`/bases/${baseId}/boxes/${boxLabelIdentifier}`);
+          case QrResolverResultKind.SUCCESS: {
+            const boxLabelIdentifier = singleResolvedQrValue?.value.labelIdentifier;
+            const boxBaseId = singleResolvedQrValue?.value.place.base.id;
+            navigate(`/bases/${boxBaseId}/boxes/${boxLabelIdentifier}`);
             break;
           }
-          case "noBoxtributeQr": {
-            toast({
-              title: `Scanned QR code is not a Boxtribute QR code`,
-              status: "error",
-              isClosable: true,
-              duration: 2000,
+          case QrResolverResultKind.NOT_BOXTRIBUTE_QR: {
+            createToast({
+              title: "Error",
+              type: "error",
+              message: "Error: Scanned QR code is not a Boxtribute QR code",
             });
             break;
           }
-          case "notAssignedToBox": {
-            toast({
-              title: `Scanned QR code is not assigned to a box yet`,
-              status: "info",
-              isClosable: true,
-              duration: 2000,
+          case QrResolverResultKind.NOT_AUTHORIZED: {
+            triggerError({
+              message: "Error: You don't have access to the box assigned to this QR code",
             });
-            // TODO: uncomment this once we have finished/tested the Create Box feature sufficiently
-            // navigate(
-            //   `/bases/${baseId}/boxes/create?qrCode=${singleResolvedQrValue.qrCodeValue}`
-            // );
+            break;
+          }
+          case QrResolverResultKind.LABEL_NOT_FOUND: {
+            triggerError({
+              message: "Error: Box not found for this label",
+            });
+            break;
+          }
+          case QrResolverResultKind.FAIL: {
+            triggerError({
+              message: "Error: Box not found for this label",
+              statusCode: singleResolvedQrValue?.error.code,
+            });
+            break;
+          }
+          case QrResolverResultKind.NOT_ASSIGNED_TO_BOX: {
+            createToast({
+              title: "QR Code",
+              type: "info",
+              message: "Scanned QR code is not assigned to a box yet",
+            });
+
+            navigate(`/bases/${baseId}/boxes/create/${singleResolvedQrValue?.qrCodeValue}`);
             break;
           }
         }
       } else {
-        const successfullyResolvedValues = qrResolvedValues.filter(
-          (qrResolvedValue) => qrResolvedValue.kind === "success"
-        ) as QrResolverResultSuccessValue[];
+        // TODO: Add logic to handle bulk QR codes
+        const successfullyResolvedValues = IQrResolvedValues.filter(
+          (IQrResolvedValue) => IQrResolvedValue.kind === QrResolverResultKind.SUCCESS,
+        );
         const boxesData = successfullyResolvedValues.map(
-          (qrResolvedValue) => qrResolvedValue.value
+          (IQrResolvedValue) => IQrResolvedValue.value,
         );
         setBoxesDataForBulkOperation(boxesData);
         // toast({
@@ -139,7 +164,7 @@ const HeaderMenuContainer = () => {
         // });
       }
     },
-    [baseId, navigate, toast]
+    [baseId, navigate, toast],
   );
 
   if (baseId == null) {

@@ -22,7 +22,6 @@ import { z } from "zod";
 import _ from "lodash";
 import { useNavigate, useParams } from "react-router-dom";
 import { useForm } from "react-hook-form";
-import { notificationVar } from "../../../components/NotificationMessage";
 
 export interface ICategoryData {
   name: string;
@@ -90,7 +89,7 @@ export const BoxEditFormDataSchema = z.object({
 export type IBoxEditFormData = z.infer<typeof BoxEditFormDataSchema>;
 
 interface IBoxEditProps {
-  boxData: BoxByLabelIdentifierAndAllProductsWithBaseIdQuery["box"];
+  boxData: Exclude<BoxByLabelIdentifierAndAllProductsWithBaseIdQuery["box"], null | undefined>;
   productAndSizesData: IProductWithSizeRangeData[];
   allLocations: ILocationData[];
   allTags: IDropdownOption[] | null | undefined;
@@ -108,7 +107,6 @@ function BoxEdit({
     baseId: string;
     labelIdentifier: string;
   }>();
-
   const navigate = useNavigate();
 
   // Form Default Values
@@ -152,7 +150,7 @@ function BoxEdit({
   const tagsForDropdownGroups: Array<IDropdownOption> | undefined = allTags?.map((tag) => ({
     label: tag.label,
     value: tag.value,
-    // colorScheme: "red",
+    color: tag.color,
   }));
 
   // react-hook-form
@@ -197,24 +195,6 @@ function BoxEdit({
       }
     }
   }, [productId, productAndSizesData, boxData, resetField]);
-
-  if (boxData == null) {
-    notificationVar({
-      title: "Error",
-      type: "error",
-      message: `Error: There is no data found for box ${labelIdentifier}!`,
-    });
-    return <div />;
-  }
-
-  if (productsForDropdownGroups == null) {
-    notificationVar({
-      title: "Error",
-      type: "error",
-      message: "Error: The available products could not be loaded!",
-    });
-    return <div />;
-  }
 
   return (
     <Box w={["100%", "100%", "60%", "40%"]}>

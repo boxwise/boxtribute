@@ -13,6 +13,7 @@ jobs:
           root: .
           paths:
             - .
+
   build-flask:
     docker:
       - image: cimg/python:3.10.4
@@ -61,8 +62,10 @@ jobs:
               REACT_APP_REDIRECT=${REACT_APP_REDIRECT}
               REACT_APP_LOGOUT_URL=${REACT_APP_LOGOUT_URL}
               REACT_APP_GRAPHQL_SERVER=${REACT_APP_GRAPHQL_SERVER}
+              REACT_APP_OLD_APP_BASE_URL=${OLD_APP_BASE_URL}
               REACT_APP_SENTRY_FE_DSN=${SENTRY_FE_DSN}
               REACT_APP_SENTRY_ENVIRONMENT=${SENTRY_ENVIRONMENT}
+              REACT_APP_SENTRY_TRACES_SAMPLE_RATE=${SENTRY_TRACES_SAMPLE_RATE}
             " > .env
       # following https://circleci.com/docs/2.0/yarn/
       - restore_cache:
@@ -85,6 +88,11 @@ jobs:
           name: Test React App
           command: |
             yarn test
+      - run:
+          name: Run FE style checks
+          command: |
+            yarn lint
+            yarn format:write
       # - run:
       #     name: Test React App Codecover
       #     command: |
@@ -134,7 +142,7 @@ jobs:
             - ~/.cache/pre-commit
       # https://circleci.com/docs/2.0/postgres-config/#example-mysql-project
       - run:
-      # Our primary container isn't MYSQL so run a sleep command until it's ready.
+          # Our primary container isn't MYSQL so run a sleep command until it's ready.
           name: Waiting for MySQL to be ready
           command: |
             for i in `seq 1 10`;
@@ -179,6 +187,11 @@ jobs:
       # install gcloud orb
       - gcp-cli/install
       - run:
+          name: Inject Heap Analytics Script to index.html
+          command: |
+            sed -i "s/HEAPIO_APP_ID/${HEAPIO_APP_ID}/" ../react/build/heapanalytics.js
+            sed -i 's|</head>|<script src="/heapanalytics.js"></script></head>|' ../react/build/index.html
+      - run:
           name: Copy react build into flask app for deployment
           command: mv ../react/build react-build
       - run:
@@ -208,8 +221,8 @@ jobs:
               SENTRY_DSN=${SENTRY_BE_DSN}
               SENTRY_ENVIRONMENT=${SENTRY_ENVIRONMENT}
               SENTRY_RELEASE=${CIRCLE_SHA1}
+              SENTRY_TRACES_SAMPLE_RATE=${SENTRY_TRACES_SAMPLE_RATE}
               ENVIRONMENT=${SENTRY_ENVIRONMENT}
-              MOBILE_DISTRO_ALLOWED_USER_IDS=${MOBILE_DISTRO_ALLOWED_USER_IDS}
               " > .env
       - run:
           name: Generate GAE app.yaml file
@@ -280,8 +293,8 @@ jobs:
               SENTRY_DSN=${SENTRY_BE_DSN}
               SENTRY_ENVIRONMENT=${SENTRY_ENVIRONMENT}
               SENTRY_RELEASE=${CIRCLE_SHA1}
+              SENTRY_TRACES_SAMPLE_RATE=${SENTRY_TRACES_SAMPLE_RATE}
               ENVIRONMENT=${SENTRY_ENVIRONMENT}
-              MOBILE_DISTRO_ALLOWED_USER_IDS=${MOBILE_DISTRO_ALLOWED_USER_IDS}
               " > .env
       - run:
           name: Generate GAE app.yaml file

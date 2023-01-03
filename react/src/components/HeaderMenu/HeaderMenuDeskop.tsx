@@ -1,4 +1,4 @@
-import { Link, NavLink } from "react-router-dom";
+import { Link, NavLink, useParams } from "react-router-dom";
 import {
   Text,
   Button,
@@ -21,21 +21,16 @@ import {
   BaseSwitcherProps,
   HeaderMenuProps,
   LoginOrUserMenuButtonProps,
+  MenuItemData,
   MenuItemsGroupProps,
   MenuItemsGroupsProps,
   UserMenuProps,
 } from "./HeaderMenu";
+import { generateDropappUrl } from "utils/helpers";
 
-const Logo = () => (
-  <NavLink to="/">
-    <Image src={BoxtributeLogo} maxH={"3.5em"} />
-  </NavLink>
-);
+const Logo = () => <Image src={BoxtributeLogo} maxH={"3.5em"} />;
 
-const BaseSwitcher = ({
-  currentActiveBaseId,
-  availableBases,
-}: BaseSwitcherProps) => {
+const BaseSwitcher = ({ currentActiveBaseId, availableBases }: BaseSwitcherProps) => {
   return (
     <>
       {availableBases?.map((base, i) => (
@@ -52,28 +47,17 @@ const BaseSwitcher = ({
   );
 };
 
-const UserMenu = ({
-  logout,
-  user,
-  currentActiveBaseId,
-  availableBases,
-}: UserMenuProps) => {
+const UserMenu = ({ logout, user, currentActiveBaseId, availableBases }: UserMenuProps) => {
   return (
     <Menu>
-      <MenuButton
-        as={IconButton}
-        icon={<Img src={user?.picture} width={10} height={10} />}
-      />
+      <MenuButton as={IconButton} icon={<Img src={user?.picture} width={10} height={10} />} />
       <MenuList my={0} border="2px" borderRadius="0px" py={0}>
-        <MenuGroup title="Bases">
-          <BaseSwitcher
-            currentActiveBaseId={currentActiveBaseId}
-            availableBases={availableBases}
-          />
+        {/* <MenuGroup title="Bases">
+          <BaseSwitcher currentActiveBaseId={currentActiveBaseId} availableBases={availableBases} />
         </MenuGroup>
-        <MenuDivider />
+        <MenuDivider /> */}
         <MenuGroup>
-          <MenuItem py={2}>Profile ({user?.email})</MenuItem>
+          {/* <MenuItem py={2}>Profile ({user?.email})</MenuItem> */}
           <MenuItem py={2} onClick={() => logout()}>
             Logout
           </MenuItem>
@@ -110,6 +94,30 @@ const LoginOrUserMenuButton = ({
 };
 
 const MenuItemsGroupDesktop = ({ ...props }: MenuItemsGroupProps) => {
+  function renderMenuItem(link: MenuItemData, i: number) {
+    let { baseId, qrCode, labelIdentifier } = useParams();
+
+    if (link.link.includes(`${process.env.REACT_APP_OLD_APP_BASE_URL}`)) {
+      return (
+        <MenuItem
+          py={2}
+          px={3}
+          key={i}
+          as="a"
+          href={generateDropappUrl(link.link, baseId, qrCode, labelIdentifier)}
+        >
+          {link.name}
+        </MenuItem>
+      );
+    } else {
+      return (
+        <MenuItem py={2} px={3} key={i} as={NavLink} to={link.link}>
+          {link.name}
+        </MenuItem>
+      );
+    }
+  }
+
   return (
     <Menu>
       <MenuButton
@@ -123,11 +131,7 @@ const MenuItemsGroupDesktop = ({ ...props }: MenuItemsGroupProps) => {
         <Text display="block">{props.text}</Text>
       </MenuButton>
       <MenuList border="2px" p={0} borderRadius="0px" my={0}>
-        {props.links.map((link, i) => (
-          <MenuItem py={2} px={3} key={i} as={NavLink} to={link.link}>
-            {link.name}
-          </MenuItem>
-        ))}
+        {props.links.map((link, i) => renderMenuItem(link, i))}
       </MenuList>
     </Menu>
   );
@@ -174,19 +178,6 @@ const HeaderMenuDesktopContainer = ({ children, ...props }) => {
   );
 };
 
-const QrScannerButton = ({ onClick }: { onClick: () => void }) => (
-  <IconButton
-    h={20}
-    w={20}
-    fontSize="50px"
-    colorScheme="gray"
-    backgroundColor={"transparent"}
-    aria-label="Scan QR Code"
-    icon={<AiOutlineQrcode />}
-    onClick={onClick}
-  />
-);
-
 const HeaderMenuDeskop = (props: HeaderMenuProps) => {
   return (
     <HeaderMenuDesktopContainer>
@@ -202,7 +193,7 @@ const HeaderMenuDeskop = (props: HeaderMenuProps) => {
             currentActiveBaseId={props.currentActiveBaseId}
             availableBases={props.availableBases}
           />
-          <QrScannerButton onClick={props.onClickScanQrCode} />
+          {/* <QrReaderButton onClick={props.onClickScanQrCode} /> */}
         </Flex>
       </Flex>
     </HeaderMenuDesktopContainer>
