@@ -21,6 +21,7 @@ import {
   ButtonGroup,
   Switch,
   FormLabel,
+  Wrap,
 } from "@chakra-ui/react";
 import { Style } from "victory";
 import { NavLink } from "react-router-dom";
@@ -88,14 +89,14 @@ function BoxDetails({
         backgroundColor="#F4E5A0"
         mr={["0", "0", "4rem", "4rem"]}
       >
-        <Flex py={2} px={4} minWidth="max-content" alignItems="center">
-          <Box>
+        <Wrap py={2} px={4} alignItems="center">
+          <WrapItem>
             <Heading fontWeight="bold" as="h2" data-testid="box-header">
               Box {boxData.labelIdentifier}
             </Heading>
-          </Box>
+          </WrapItem>
           <Spacer />
-          <Box>
+          <WrapItem>
             {(BoxState.Lost === boxData.state || BoxState.Scrap === boxData.state) && (
               <IconButton
                 aria-label="Edit box"
@@ -115,8 +116,8 @@ function BoxDetails({
                 />
               </NavLink>
             )}
-          </Box>
-        </Flex>
+          </WrapItem>
+        </Wrap>
         {boxData.tags !== undefined && (
           <Flex pb={2} px={4} direction="row">
             <HStack spacing={1} data-testid="box-tags">
