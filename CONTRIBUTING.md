@@ -2,9 +2,9 @@
 
 First off: **thank you**. You will be helping build software that distributes clothes and food to thousands of refugees and other people in need. It gives comfort and dignity to people in a vulnerable situation. Not only will you be contributing to the open source community / ecosystem of open source projects, but your contributions will directly benefits thousands of people who are stuck in a vulnerable system.
 
-**If you want to join and support us**, just [write us at hello@boxwise.co](mailto:hello@boxwise.co) and include your github handle and / or CV!
+**If you want to join and support us**, just [write us at hello@boxtribute.org](mailto:hello@boxtribute.org) and include your github handle and / or CV!
 
-**Do you need help using Boxtribute, or you found a bug, or got an idea for a feature?** [Please write us at helpme@boxwise.co!](mailto:helpme@boxwise.co)
+**Do you need help using Boxtribute, or you found a bug, or got an idea for a feature?** [Please write us at helpme@boxtribute.org!](mailto:helpme@boxtribute.org)
 
 ### How do we work in general?
 
