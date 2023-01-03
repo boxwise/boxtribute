@@ -71,7 +71,7 @@ Boxtribute is an application for organisations who run distribution/warehouses i
 Therefore the development database seed holds at least two organisations and three bases:
 
 - Organisation `BoxAid` working on `Lesvos` and
-- Organisation `BoxCare` working on `Samos` and in `Thessaloniki`.
+- Organisation `BoxCare` working on `Samos` and in `Thessaloniki` and `Athens`.
 
 Each organisation has at least 3 user groups with different access levels in the app:
 
@@ -88,6 +88,8 @@ For each of these three user groups of each of the two organisations we created 
 - `dev_headofops@boxcare.org`
 - `dev_coordinator@boxcare.org`
 - `dev_volunteer@boxcare.org`
+- `another_dev_volunteer@boxcare.org`
+- `another_dev_coordinatorr@boxcare.org` (sic)
 
 The password of all of these users is `Browser_tests`.
 
