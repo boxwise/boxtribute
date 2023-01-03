@@ -72,7 +72,7 @@
     "eslint-import-resolver-typescript": "^3.5.2",
     "eslint-plugin-import": "^2.26.0",
     "eslint-plugin-prettier": "^4.2.1",
-    "eslint-plugin-react": "^7.31.9",
+    "eslint-plugin-react": "^7.31.11",
     "eslint-plugin-react-hooks": "^4.6.0",
     "msw": "^0.49.2",
     "mutationobserver-shim": "^0.3.7",
