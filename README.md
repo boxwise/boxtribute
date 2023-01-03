@@ -7,9 +7,9 @@ Backend Test Coverage: [![codecov](https://codecov.io/gh/boxwise/boxtribute/bran
 
 Build: [![CircleCI](https://circleci.com/gh/boxwise/boxtribute.svg?style=svg)](https://circleci.com/gh/boxwise/boxtribute)
 
-# Readme
+# boxtribute
 
-This is the repo for the new mobile web app of [Boxtribute](https://www.boxtribute.org), consisting of a [React front-end](/react) bootstrapped with [Create React App](https://github.com/facebook/create-react-app), and a [Python Flask back-end](/back).
+This is the repository for version 2 of the web app [Boxtribute](https://www.boxtribute.org), consisting of a [React front-end](/react) bootstrapped with [Create React App](https://github.com/facebook/create-react-app), and a [Python Flask back-end](/back).
 
 Please check out [**Contribution Guidelines**](CONTRIBUTING.md) before you get started!
 
@@ -28,7 +28,7 @@ Please check out [**Contribution Guidelines**](CONTRIBUTING.md) before you get s
 
 ## Preparation for Installation
 
-- Install [Docker](https://www.docker.com/products/docker-desktop)
+- Install [Docker](https://www.docker.com/products/docker-desktop) and `docker-compose`
 - Get in touch with the [Boxtribute team](mailto:hello@boxtribute.org) to get access to the [Auth0](https://auth0.com/) development tenant.
 
 ## How do I get set up?
@@ -164,9 +164,12 @@ Here, is a list of intro tutorials for each technologies / frameworks / language
 - [React Context](https://reactjs.org/docs/context.html)
 - [Apollo](https://www.apollographql.com/docs/react/)
 
-#### Back-end
+#### Interface
 
 - [GraphQL](https://graphql.org/learn/)
+
+#### Back-end
+
 - [Ariadne](https://ariadnegraphql.org/docs/flask-integration.html)
 - [Python 3.10](https://devguide.python.org/)
 - [Flask](https://flask.palletsprojects.com/en/1.1.x/tutorial/layout/)
