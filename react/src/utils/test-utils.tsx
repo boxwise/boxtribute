@@ -2,8 +2,9 @@ import React, { ReactNode } from "react";
 import { render as rtlRender } from "@testing-library/react";
 import { MockedProvider, MockedResponse } from "@apollo/client/testing";
 import { MemoryRouter, Route, Routes } from "react-router-dom";
+import { theme } from "utils/theme";
+import { ChakraProvider } from "@chakra-ui/react";
 import "mutationobserver-shim";
-
 import {
   ApolloClient,
   InMemoryCache,
@@ -15,22 +16,24 @@ import {
 function render(
   ui,
   {
-    mocks,
+    mocks = [],
     routePath,
     initialUrl,
     ...renderOptions
-  }: { mocks: Array<MockedResponse>; routePath: string, initialUrl: string },
+  }: { mocks?: Array<MockedResponse>; routePath: string; initialUrl: string },
 ) {
   const Wrapper: React.FC = ({ children }: any) => {
     return (
       <>
-        <MockedProvider mocks={mocks} addTypename={false}>
-          <MemoryRouter initialEntries={[initialUrl]}>
-            <Routes>
-              <Route path={routePath} element={children}></Route>
-            </Routes>
-          </MemoryRouter>
-        </MockedProvider>
+        <ChakraProvider theme={theme}>
+          <MockedProvider mocks={mocks} addTypename={false}>
+            <MemoryRouter initialEntries={[initialUrl]}>
+              <Routes>
+                <Route path={routePath} element={children}></Route>
+              </Routes>
+            </MemoryRouter>
+          </MockedProvider>
+        </ChakraProvider>
       </>
     );
   };
@@ -42,7 +45,7 @@ function render(
 
 function StorybookApolloProvider({ children }: { children: ReactNode }) {
   const httpLink = new HttpLink({
-    uri: "http://localhost:6006/MOCKED-graphql"
+    uri: "http://localhost:6006/MOCKED-graphql",
   });
 
   const defaultOptions: DefaultOptions = {
@@ -57,7 +60,7 @@ function StorybookApolloProvider({ children }: { children: ReactNode }) {
   const client = new ApolloClient({
     cache: new InMemoryCache(),
     defaultOptions,
-    link: httpLink
+    link: httpLink,
   });
 
   return <ApolloProvider client={client}>{children}</ApolloProvider>;
