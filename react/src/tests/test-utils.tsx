@@ -1,6 +1,5 @@
 /* eslint-disable react/function-component-definition */
 /* eslint-disable no-console */
-/* eslint-disable import/no-extraneous-dependencies */
 import React, { ReactNode } from "react";
 import { render as rtlRender } from "@testing-library/react";
 import { MockedProvider, MockedResponse, MockLink } from "@apollo/client/testing";
