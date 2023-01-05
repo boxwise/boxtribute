@@ -62,6 +62,17 @@ def fetch_data(*, kind, base_id, access_token):
                     filterInput: {{ active: true }}
                 ) {{ totalCount }} }} }}"""
         response = post(url=URL, parameters={"query": query}, access_token=access_token)
+
+        errors = response.get("errors")
+        if errors:
+            logger.error("Error fetching data!")
+            for e in errors:
+                try:
+                    logger.error(e["extensions"]["description"])
+                except KeyError:
+                    logger.error(e)
+            return []
+
         total_count = response["data"]["base"]["beneficiaries"]["totalCount"]
         base_name = response["data"]["base"]["name"]
 
