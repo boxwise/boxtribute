@@ -1,6 +1,7 @@
+/* eslint-disable */
 import "@testing-library/jest-dom";
 import { screen, waitFor, fireEvent, cleanup } from "@testing-library/react";
-import { render } from "utils/test-utils";
+import { render } from "tests/test-utils";
 import userEvent from "@testing-library/user-event";
 import BTBox, {
   BOX_BY_LABEL_IDENTIFIER_QUERY,
@@ -502,3 +503,4 @@ describe("Box view", () => {
     expect(boxTags).toHaveTextContent("test tag");
   });
 });
+/* eslint-enable */

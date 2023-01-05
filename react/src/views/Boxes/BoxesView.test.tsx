@@ -1,6 +1,6 @@
 import "@testing-library/jest-dom";
 import { screen, waitFor, fireEvent } from "@testing-library/react";
-import { render } from "utils/test-utils";
+import { render } from "tests/test-utils";
 import Boxes, { BOXES_FOR_BASE_QUERY } from "./BoxesView";
 
 describe("Boxes view", () => {
@@ -154,7 +154,7 @@ describe("Boxes view", () => {
   });
 
   it("renders with an initial 'Loading...'", () => {
-    const loadingInfo = screen.getByTestId("loading-indicator")
+    const loadingInfo = screen.getByTestId("loading-indicator");
     expect(loadingInfo).toBeInTheDocument();
   });
 
