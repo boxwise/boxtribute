@@ -4,6 +4,7 @@ import os
 import urllib
 from collections import defaultdict
 from functools import wraps
+from typing import Dict, Tuple
 
 from flask import g, request
 from jose import JOSEError, jwt
@@ -250,7 +251,9 @@ def requires_auth(f):
     return decorated
 
 
-def request_jwt(*, client_id, client_secret, audience, domain, username, password):
+def request_jwt(
+    *, client_id, client_secret, audience, domain, username, password
+) -> Tuple[bool, Dict[str, str]]:
     """Request JWT from Auth0 service on given domain, passing any additional
     parameters. Return whether request was successful, and the full response.
     """

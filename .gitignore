@@ -5,6 +5,7 @@
 .venv
 .coverage
 htmlcov/
+.mypy_cache/
 env/
 back/test-results
 *.prof
