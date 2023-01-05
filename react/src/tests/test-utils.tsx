@@ -66,10 +66,10 @@ function render(
       <MockedProvider mocks={mocks} addTypename={addTypename} link={link}>
         <MemoryRouter initialEntries={[initialUrl]}>
           <Routes>
-            <Route path={routePath} element={children} />
-            {additionalRoute === undefined && (
+            {additionalRoute !== undefined && (
               <Route path={additionalRoute} element={<h1>{additionalRoute}</h1>} />
             )}
+            <Route path={routePath} element={children} />
           </Routes>
         </MemoryRouter>
       </MockedProvider>

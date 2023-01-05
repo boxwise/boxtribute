@@ -76,8 +76,16 @@ it("3.2.1 - Initial load of Page", async () => {
   expect(screen.getByDisplayValue(/test/i)).toBeInTheDocument();
 });
 
-it("3.2.1 - Initial load of Page", async () => {});
-//   // 3.2.1.8 Cancel Button
-//   await user.click(screen.getByRole("button", { name: /cancel/i }));
-//   // console.log(screen.logTestingPlaygroundURL);
-//   expect(window.location.pathname).toBe(/boxes\/123/);
+it("3.2.2 - Cancel Button", async () => {
+  const user = userEvent.setup();
+  render(<BoxEditView />, {
+    routePath: "/bases/:baseId/boxes/:labelIdentifier/edit",
+    initialUrl: "/bases/1/boxes/123/edit",
+    mocks,
+    addTypename: true,
+    additionalRoute: "/bases/1/boxes/123",
+  });
+  const cancelButton = await screen.findByRole("button", { name: /cancel/i });
+  await user.click(cancelButton);
+  expect(screen.getByRole("heading", { name: "/bases/1/boxes/123" })).toBeInTheDocument();
+});
