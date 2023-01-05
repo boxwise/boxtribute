@@ -1,4 +1,3 @@
-import ariadne
 import peewee
 
 
@@ -8,9 +7,6 @@ def format_database_errors(error, debug=False):
     In the resulting response, the corresponding field for `data` will be None, and the
     `errors` list will have a single entry.
     """
-    if debug:  # pragma: no cover
-        return ariadne.format_error(error, debug)
-
     if isinstance(error.original_error, (peewee.DoesNotExist, peewee.IntegrityError)):
         # IntegrityError is raised when foreign key ID does not exist.
         error.message = ""  # setting `error.formatted["message"] = ""` has no effect
@@ -54,16 +50,6 @@ class Forbidden(Exception):
             "code": "FORBIDDEN",
             "description": "You don't have access to the resource "
             f"{resource}={value}",
-            "user": user,
-        }
-        super().__init__(*args, **kwargs)
-
-
-class MobileDistroFeatureFlagNotAssignedToUser(Exception):
-    def __init__(self, user, *args, **kwargs):
-        self.extensions = {
-            "code": "FORBIDDEN",
-            "description": "You don't have access to this feature flagged operation",
             "user": user,
         }
         super().__init__(*args, **kwargs)

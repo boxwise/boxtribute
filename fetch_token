@@ -14,7 +14,7 @@ from pathlib import Path
 SCRIPT_DIRPATH = Path(__file__).resolve().parent
 TEST_DATA_DIRPATH = SCRIPT_DIRPATH / "back" / "test"
 sys.path.insert(0, str(TEST_DATA_DIRPATH))
-from auth import TEST_AUTH0_PASSWORD, TEST_AUTH0_USERNAME
+from auth import TEST_AUTH0_PASSWORD, TEST_AUTH0_USERNAME  # type: ignore
 from boxtribute_server.auth import request_jwt
 from dotenv import load_dotenv
 

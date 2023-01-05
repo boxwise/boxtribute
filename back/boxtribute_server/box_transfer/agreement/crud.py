@@ -3,17 +3,17 @@ from datetime import timezone as dtimezone
 
 from dateutil import tz
 
-from ..db import db
-from ..enums import TransferAgreementState
-from ..exceptions import (
+from ...db import db
+from ...enums import TransferAgreementState
+from ...exceptions import (
     InvalidTransferAgreementBase,
     InvalidTransferAgreementOrganisation,
     InvalidTransferAgreementState,
 )
-from ..models.definitions.base import Base
-from ..models.definitions.transfer_agreement import TransferAgreement
-from ..models.definitions.transfer_agreement_detail import TransferAgreementDetail
-from ..models.utils import utcnow
+from ...models.definitions.base import Base
+from ...models.definitions.transfer_agreement import TransferAgreement
+from ...models.definitions.transfer_agreement_detail import TransferAgreementDetail
+from ...models.utils import utcnow
 
 
 def _validate_bases_as_part_of_organisation(*, base_ids, organisation_id):

@@ -26,6 +26,7 @@ def default_location_data():
         "visible": 1,
         "created_by": default_user_data()["id"],
         "type": LocationType.ClassicLocation,
+        "latitude": None,
     }
 
 
@@ -59,6 +60,7 @@ def distribution_spot_data():
     data = default_location_data()
     data["id"] = 5
     data["type"] = LocationType.DistributionSpot
+    data["latitude"] = 13.37
     return data
 
 

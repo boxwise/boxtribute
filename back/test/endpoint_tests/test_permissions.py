@@ -12,6 +12,8 @@ from utils import assert_forbidden_request, assert_successful_request
         "beneficiary",
         # Test cases 8.1.12, 8.1.13
         "location",
+        # Test cases 99.1.9b, 99.1.9c
+        "organisation",
         # Test cases 8.1.23, 8.1.25
         "product",
         # Test cases 99.1.13, 99.1.14
@@ -83,8 +85,6 @@ def test_invalid_permission(unauthorized, read_only_client, query):
         """product( id: 2 ) { id }""",
         # Test case 9.1.8
         """beneficiary( id: 4 ) { id }""",
-        # Test case 10.1.5
-        """user( id: 1) { id }""",
         """packingListEntry( id: 1 ) { id }""",
         # Test case 3.1.6
         """shipment( id: 5 ) { id }""",
@@ -315,9 +315,12 @@ def test_invalid_permission_for_qr_code_box(
 
 
 def test_invalid_permission_for_organisation_bases(
-    unauthorized, read_only_client, default_organisation
+    read_only_client, mocker, default_organisation
 ):
     # verify missing base:read permission
+    mocker.patch("jose.jwt.decode").return_value = create_jwt_payload(
+        permissions=["organisation:read"]
+    )
     org_id = default_organisation["id"]
     query = f"""query {{ organisation(id: "{org_id}") {{ bases {{ id }} }} }}"""
     assert_forbidden_request(read_only_client, query, value={"bases": None})

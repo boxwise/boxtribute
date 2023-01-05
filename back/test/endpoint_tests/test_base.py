@@ -29,6 +29,11 @@ def test_base_query(
     read_only_client,
     default_bases,
     default_distribution_event,
+    default_tracking_group,
+    distribution_spot,
+    distro_spot5_distribution_events,
+    distro_spot5_distribution_events_before_return_state,
+    distro_spot5_distribution_events_in_return_state,
     base1_active_tags,
     base1_undeleted_classic_locations,
     base1_undeleted_products,
@@ -44,7 +49,12 @@ def test_base_query(
                     locations {{ id }}
                     products {{ id }}
                     tags {{ id }}
+                    distributionSpots {{ id }}
                     distributionEvents {{ id }}
+                    distributionEventsBeforeReturnedFromDistributionState {{ id }}
+                    distributionEventsInReturnedFromDistributionState {{ id }}
+                    distributionEventsStatistics {{ productId }}
+                    distributionEventsTrackingGroups {{ id }}
                 }}
             }}"""
 
@@ -59,4 +69,19 @@ def test_base_query(
     assert base["locations"] == [
         {"id": str(loc["id"])} for loc in base1_undeleted_classic_locations
     ]
-    assert base["distributionEvents"] == [{"id": str(default_distribution_event["id"])}]
+    assert base["distributionSpots"] == [{"id": str(distribution_spot["id"])}]
+    assert base["distributionEvents"] == [
+        {"id": str(event["id"])} for event in distro_spot5_distribution_events
+    ]
+    assert base["distributionEventsBeforeReturnedFromDistributionState"] == [
+        {"id": str(event["id"])}
+        for event in distro_spot5_distribution_events_before_return_state
+    ]
+    assert base["distributionEventsInReturnedFromDistributionState"] == [
+        {"id": str(event["id"])}
+        for event in distro_spot5_distribution_events_in_return_state
+    ]
+    assert base["distributionEventsStatistics"] == []
+    assert base["distributionEventsTrackingGroups"] == [
+        {"id": str(default_tracking_group["id"])}
+    ]

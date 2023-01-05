@@ -1,23 +1,23 @@
-from ..db import db
-from ..enums import (
+from ...db import db
+from ...enums import (
     BoxState,
     ShipmentState,
     TransferAgreementState,
     TransferAgreementType,
 )
-from ..exceptions import (
+from ...exceptions import (
     InvalidShipmentState,
     InvalidTransferAgreementBase,
     InvalidTransferAgreementState,
 )
-from ..models.definitions.box import Box
-from ..models.definitions.location import Location
-from ..models.definitions.product import Product
-from ..models.definitions.shipment import Shipment
-from ..models.definitions.shipment_detail import ShipmentDetail
-from ..models.definitions.transfer_agreement import TransferAgreement
-from ..models.utils import utcnow
-from .agreement import retrieve_transfer_agreement_bases
+from ...models.definitions.box import Box
+from ...models.definitions.location import Location
+from ...models.definitions.product import Product
+from ...models.definitions.shipment import Shipment
+from ...models.definitions.shipment_detail import ShipmentDetail
+from ...models.definitions.transfer_agreement import TransferAgreement
+from ...models.utils import utcnow
+from ..agreement.crud import retrieve_transfer_agreement_bases
 
 
 # TODO: consider to introduce validation checks

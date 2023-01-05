@@ -1,22 +1,31 @@
-from boxtribute_server.enums import DistributionEventState
 from utils import assert_successful_request
 
 
-def test_distribution_event_query(read_only_client, default_distribution_event):
-    test_id = 1
-    query = f"""query DistributionEvent {{
-                distributionEvent(id: {test_id}) {{
+def test_distribution_event_query(
+    read_only_client, default_distribution_event, packing_list_entry
+):
+    test_id = str(default_distribution_event["id"])
+    query = f"""query {{ distributionEvent(id: {test_id}) {{
                     id
                     name
                     state
+                    boxes {{ id }}
+                    unboxedItemsCollections {{ id }}
+                    packingListEntries {{ id }}
+                    distributionEventsTrackingGroup {{ id }}
                 }}
             }}"""
 
     distribution_event = assert_successful_request(read_only_client, query)
-    expected_distribution_event = default_distribution_event
-    assert int(distribution_event["id"]) == expected_distribution_event["id"]
-    assert distribution_event["name"] == expected_distribution_event["name"]
-    assert distribution_event["state"] == DistributionEventState.Planning.name
+    assert distribution_event == {
+        "id": test_id,
+        "name": default_distribution_event["name"],
+        "state": default_distribution_event["state"].name,
+        "boxes": [],
+        "unboxedItemsCollections": [],
+        "packingListEntries": [{"id": str(packing_list_entry["id"])}],
+        "distributionEventsTrackingGroup": None,
+    }
 
 
 def test_update_selected_products_for_distribution_event_packing_list(

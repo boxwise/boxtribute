@@ -19,7 +19,6 @@ import { z } from "zod";
 import _ from "lodash";
 import SelectField, { IDropdownOption } from "components/Form/SelectField";
 import NumberField from "components/Form/NumberField";
-import { notificationVar } from "components/NotificationMessage";
 
 export interface ICategoryData {
   name: string;
@@ -80,7 +79,6 @@ export const CreateBoxFormDataSchema = z.object({
     .refine(Boolean, { message: "Please select a location" })
     .transform((selectedOption) => selectedOption || { label: "", value: "" }),
   tags: singleSelectOptionSchema.array().optional(),
-  qrCode: z.string().optional(),
   comment: z.string().optional(),
 });
 
@@ -90,7 +88,6 @@ export interface IBoxCreateProps {
   productAndSizesData: IProductWithSizeRangeData[];
   allLocations: ILocationData[];
   allTags: IDropdownOption[] | null | undefined;
-  qrCode: string | undefined;
   onSubmitBoxCreateForm: (boxFormValues: ICreateBoxFormData) => void;
 }
 
@@ -98,7 +95,6 @@ function BoxCreate({
   productAndSizesData,
   allLocations,
   allTags,
-  qrCode,
   onSubmitBoxCreateForm,
 }: IBoxCreateProps) {
   const productsGroupedByCategory: Record<string, IProductWithSizeRangeData[]> = _.groupBy(
@@ -132,7 +128,7 @@ function BoxCreate({
   const tagsForDropdownGroups: Array<IDropdownOption> | undefined = allTags?.map((tag) => ({
     label: tag.label,
     value: tag.value,
-    // colorScheme: "red",
+    color: tag.color,
   }));
 
   const onSubmit: SubmitHandler<ICreateBoxFormData> = (data) => onSubmitBoxCreateForm(data);
@@ -143,6 +139,7 @@ function BoxCreate({
     register,
     resetField,
     watch,
+    setValue,
     formState: { errors, isSubmitting },
   } = useForm<ICreateBoxFormData>({
     resolver: zodResolver(CreateBoxFormDataSchema),
@@ -166,23 +163,23 @@ function BoxCreate({
             value: s.id,
           })) || [],
       );
-      resetField("sizeId");
-    }
-  }, [productId, productAndSizesData, resetField]);
 
-  if (productsForDropdownGroups == null) {
-    notificationVar({
-      title: "Error",
-      type: "error",
-      message: "Error: The available products could not be loaded!",
-    });
-  }
+      resetField("sizeId");
+      // Put a default value for sizeId when there's only one option
+      if (productAndSizeDataForCurrentProduct?.sizeRange?.sizes?.length === 1) {
+        setValue("sizeId", {
+          label: productAndSizeDataForCurrentProduct?.sizeRange?.sizes[0].label,
+          value: productAndSizeDataForCurrentProduct?.sizeRange?.sizes[0].id,
+        });
+      }
+    }
+  }, [productId, productAndSizesData, resetField, setValue]);
 
   return (
     <Box w={["100%", "100%", "60%", "40%"]}>
       <Heading>{productId?.label}</Heading>
       <Heading fontWeight="bold" mb={4} as="h2">
-        Create New Box {qrCode != null && <>(for QR code)</>}
+        Create New Box
       </Heading>
       <form onSubmit={handleSubmit(onSubmit)}>
         <List spacing={2}>

@@ -356,6 +356,35 @@ If you lack an internet connection to communicate with Auth0, it might be benefi
 
 to simulate a god user with ID 8 (for a regular user, set something like `id=1, organisation_id=1`).
 
+## Project structure
+
+The back-end codebase is organized as a Python package called `boxtribute_server`. On the top-most level the most relevant modules are
+
+- `main.py` and `api_main.py`: entry-points to start the Flask app
+- `app.py`: Definition and configuration of Flask app
+- `db.py`: Definition of MySQL interface
+- `routes.py`: Definition of web endpoints; invocation of ariadne GraphQL server
+- `auth.py` and `authz.py`: Authentication and authorization utilities
+- `models/`: peewee database models
+- `graph_ql/`: GraphQL schema, definitions, utilities, and resolvers
+
+Business logic is organized in domain-specific submodules that again can be built from submodules themselves, e.g.
+
+- `beneficiary/`
+- `box_transfer/agreement/`
+- `box_transfer/shipment/`
+
+### Domain-specific submodules
+
+These submodules contain business logic that ties together the GraphQL layer and the data layer. Depending on the functionality they contain up to for files:
+
+- `crud.py`: Create-retrieve-update-delete operations on data resources
+- `fields.py`: Resolvers for GraphQL type fields that are not handled by the default resolver (e.g. `Beneficiary.registered` returns the logical opposite of the `Beneficiary.not_registered` data model field)
+- `mutations.py`: Resolvers for GraphQL mutations, calling into functions from `crud.py`
+- `queries.py`: Resolvers for GraphQL queries
+
+Ariadne query/mutation/object definitions for a GraphQL type have to be imported into `graph_ql/bindables.py` and added to the respective containers to be visible.
+
 ## Production environment
 
 In production, the web app is run by the WSGI server `gunicorn` which serves as a glue between the web app and the web server (e.g. Apache). `gunicorn` allows for more flexible configuration of request handling (see `back/gunicorn.conf.py` file).

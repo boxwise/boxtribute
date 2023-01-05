@@ -1,5 +1,5 @@
 import "@testing-library/jest-dom";
-import { screen, waitFor, fireEvent } from "@testing-library/react";
+import { screen, waitFor, fireEvent, cleanup } from "@testing-library/react";
 import { render } from "utils/test-utils";
 import userEvent from "@testing-library/user-event";
 import BTBox, {
@@ -335,7 +335,7 @@ describe("Box view", () => {
       request: {
         query: BOX_BY_LABEL_IDENTIFIER_QUERY,
         variables: {
-          labelIdentifier: "189123",
+          labelIdentifier: "123",
         },
       },
       result: {
@@ -422,7 +422,7 @@ describe("Box view", () => {
   it("3.1.1.2 - renders sub heading with valid state", async () => {
     await waitFor(waitTillLoadingIsDone);
     const boxSubheading = screen.getByTestId("box-subheader");
-    expect(boxSubheading).toHaveTextContent("State: Lost");
+    expect(boxSubheading).toHaveTextContent("Status: Lost");
   });
   // Test case 3.1.1.2.1
   it("3.1.1.2.1 - change box state color respectfully", async () => {
@@ -438,8 +438,15 @@ describe("Box view", () => {
   });
   // Test case 3.1.1.3
   it("3.1.1.3 - click on + and - to increase or decrease number of items", async () => {
+    cleanup();
+    render(<BTBox />, {
+      routePath: "/bases/:baseId/boxes/:labelIdentifier",
+      initialUrl: "/bases/2/boxes/123",
+      mocks,
+    });
     await waitFor(waitTillLoadingIsDone);
     const numberOfItemWhenIncreased = 31;
+
     fireEvent.click(screen.getByTestId("increase-items"));
     await waitFor(() => userEvent.type(screen.getByTestId("increase-number-items"), "1"));
     fireEvent.click(screen.getByText("Submit"));
@@ -458,14 +465,14 @@ describe("Box view", () => {
     fireEvent.click(screen.getByTestId("box-lost-btn"));
     await waitFor(() => {
       const boxSubheading = screen.getByTestId("box-subheader");
-      expect(boxSubheading).toHaveTextContent("State: Lost");
+      expect(boxSubheading).toHaveTextContent("Status: Lost");
       expect(screen.getByTestId("box-state")).toHaveStyle("color: #EB404A");
     });
 
     fireEvent.click(screen.getByTestId("box-scrap-btn"));
     await waitFor(() => {
       const boxSubheading = screen.getByTestId("box-subheader");
-      expect(boxSubheading).toHaveTextContent("State: Scrap");
+      expect(boxSubheading).toHaveTextContent("Status: Scrap");
       expect(screen.getByTestId("box-state")).toHaveStyle("color: #EB404A");
     });
   });

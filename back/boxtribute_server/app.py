@@ -3,7 +3,6 @@ import os
 
 import sentry_sdk
 from flask import Flask
-from flask_cors import CORS
 from graphql.error import GraphQLError
 from sentry_sdk.integrations.flask import FlaskIntegration
 
@@ -15,11 +14,9 @@ def create_app():
 
 
 def configure_app(app, *blueprints, database_interface=None, **mysql_kwargs):
-    """Initialize CORS handling in app, and register blueprints.
-    Configure the app's database interface. `mysql_kwargs` are forwarded.
+    """Register blueprints. Configure the app's database interface. `mysql_kwargs` are
+    forwarded.
     """
-    CORS(app)
-
     for blueprint in blueprints:
         app.register_blueprint(blueprint)
 
