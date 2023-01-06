@@ -24,6 +24,7 @@ import {
  * @param options.mocks - An array of `MockedResponse` objects from `@apollo/client/testing`. These objects define the mocked responses for GraphQL queries and mutations.
  * @param options.routePath - A string representing the path of the route that the `ui` component should be rendered at.
  * @param options.initialUrl - A string representing the initial URL that the `MemoryRouter` should be initialized with.
+ * @param options.additionalRoute - A string representing a path the ui component might redirect to.
  * @param options.renderOptions - Additional options that can be passed to the `rtlRender` function from `@testing-library/react`.
  * @returns An object containing the rendered component and functions for interacting with it.
  */
