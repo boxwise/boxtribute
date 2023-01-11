@@ -82,11 +82,11 @@ Afterwards:
 
 Testing is done with React Testing Library and Jest.
 
-Test files are located in the same directory as the files they are testing. For example, `CreateBox.test.js` and `CreateBox.tsx` are both located in `react/src/views/CreateBox`.
+Test files are located in the same directory as the files they are testing. For example, `EditBox.test.js` and `EditBox.tsx` are both located in `react/src/views/EditBox`.
 
 For integration tests, we mock the Apollo client with a `MockedProvider` component instead of the `ApolloProvider` component that is used to handle real data. More information on mocking the Apollo client can be found [here](https://www.apollographql.com/docs/react/development-testing/testing/).
 
-To eliminate repetitive code, a custom renderer was built in `react/src/utils/test-utils.js`. It allows developers to pass in three arguments (ui, mocks, and history) to render a component in a test environment. The utility also exports the entire react testing library, so you should import from this utility instead of `@testing-library/react`. See `CreateBox.test.js` for examples of the custom renderer's use.
+To eliminate repetitive code, a custom renderer was built in `react/src/tests/test-utils.js`. It allows developers to render a component in a test environment where chakra, Apollo and Routes are wrapped around it. The utility also exports the entire react testing library, so you should import from this utility instead of `@testing-library/react`. See `EditBox.test.js` for examples of the custom renderer's use.
 
 Tests and test coverage can be run with the following command:
 
@@ -97,6 +97,13 @@ docker-compose exec react yarn test
 # test coverage
 docker-compose exec react yarn test:coverage
 ```
+
+Here, a list of best practices you should follow when writing front-end tests with React Testing Library:
+
+- [Common mistakes with React Testing Library](https://kentcdodds.com/blog/common-mistakes-with-react-testing-library)
+- [Write tests that simulate user behavior rather than single components](https://kentcdodds.com/blog/write-fewer-longer-tests)
+- [Use the right queries in React Testing Library according to their priorization](https://testing-library.com/docs/queries/about#priority)
+- [Maybe use this Browser extension to find the best query](https://chrome.google.com/webstore/detail/testing-playground/hejbmebodbijjdhflfknehhcgaklhano)
 
 ## Conventions for file and folder organisation
 
