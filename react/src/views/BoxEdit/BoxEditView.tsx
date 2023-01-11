@@ -115,20 +115,11 @@ function BoxEditView() {
     },
   });
 
-  const refetchBoxByLabelIdentifierQueryConfig = () => ({
-    query: BOX_BY_LABEL_IDENTIFIER_QUERY,
-    variables: {
-      labelIdentifier,
-    },
-  });
-
   // Mutation after form submission
   const [updateContentOfBoxMutation, updateContentOfBoxMutationState] = useMutation<
     UpdateContentOfBoxMutation,
     UpdateContentOfBoxMutationVariables
-  >(UPDATE_CONTENT_OF_BOX_MUTATION, {
-    refetchQueries: [refetchBoxByLabelIdentifierQueryConfig()],
-  });
+  >(UPDATE_CONTENT_OF_BOX_MUTATION);
 
   // Handle Submission
   const onSubmitBoxEditForm = (boxEditFormData: IBoxEditFormData) => {
