@@ -284,8 +284,10 @@ it("3.1.4 - Move location", async () => {
 
   expect(await screen.findByText(/Move this box from/i)).toBeInTheDocument();
 
-  const boxLocationLabel = screen.queryByText(textContentMatcher("Move this box from WH Men to:"));
-  expect(boxLocationLabel).toBeInTheDocument();
+  // const boxLocationLabel = screen.queryByText(textContentMatcher("Move this box from WH Men to:"));
+  // expect(boxLocationLabel).toBeInTheDocument();
+  const boxLocationLabel = screen.getByTestId("box-location-label");
+  expect(boxLocationLabel).toHaveTextContent("Move this box from WH Men to:");
   // Test case 3.1.4.1- Click on the New Location
   const whWomenLocation = screen.getByTestId("location-wh_women-btn");
   await user.click(whWomenLocation);
@@ -293,10 +295,12 @@ it("3.1.4 - Move location", async () => {
   expect(await screen.getByText(/successfully moved the box/i)).toBeInTheDocument();
   expect(await screen.findByText(/Move this box from/i)).toBeInTheDocument();
 
-  const boxLocationUpdatedLabel = screen.queryByText(
-    textContentMatcher("Move this box from WH Women to:"),
-  );
-  expect(boxLocationUpdatedLabel).toBeInTheDocument();
+  // const boxLocationUpdatedLabel = screen.queryByText(
+  //   textContentMatcher("Move this box from WH Women to:"),
+  // );
+  // expect(boxLocationUpdatedLabel).toBeInTheDocument();
+  const boxLocationUpdatedLabel = screen.getByTestId("box-location-label");
+  expect(boxLocationUpdatedLabel).toHaveTextContent("Move this box from WH Women to:");
   // Test case 3.1.4.2- Show last history entry
   expect(await screen.findByText(/history:/i)).toBeInTheDocument();
   const historyEntry = screen.getByTestId("history-30952");
