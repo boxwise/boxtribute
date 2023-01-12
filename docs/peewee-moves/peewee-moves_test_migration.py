@@ -6,9 +6,9 @@ This migration must be moved into back/boxtribute_server/migrations to work
 """
 import logging
 
-from boxtribute_server.models import base
+from boxtribute_server.models.definitions import base
 from peewee import SQL, ForeignKeyField
-from playhouse import migrate
+from playhouse import migrate  # type: ignore
 
 logger = logging.getLogger("peewee")
 logger.addHandler(logging.StreamHandler())
