@@ -4,6 +4,12 @@ export const size1 = {
   __typename: "Size",
 };
 
+export const size2 = {
+  id: "52",
+  label: "Mixed",
+  __typename: "Size",
+};
+
 export const sizeRange1 = {
   id: "1",
   label: "S,M,L",

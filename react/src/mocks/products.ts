@@ -13,6 +13,13 @@ export const product1 = {
   __typename: "Product",
 };
 
+export const productBasic1 = {
+  id: "1",
+  gender: "Boy",
+  name: "Snow trousers",
+  __typename: "Product",
+};
+
 export const products = [
   product1,
   {
