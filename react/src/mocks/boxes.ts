@@ -1,6 +1,6 @@
 import { product1, productBasic1 } from "./products";
 import { size1, size2 } from "./sizeRanges";
-import { location1, locationWithBase } from "./locations";
+import { location1, generateMockLocationWithBase } from "./locations";
 import { tag1, tag2 } from "./tags";
 import { BoxState } from "types/generated/graphql";
 import { histories } from "./histories";
@@ -20,7 +20,7 @@ export const generateMockBox = ({
   labelIdentifier = "123",
   state = BoxState.InStock,
   numberOfItems = 31,
-  location = locationWithBase,
+  location = generateMockLocationWithBase({}),
   comment = "",
   product = productBasic1,
   size = size2,
