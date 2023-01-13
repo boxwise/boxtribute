@@ -85,23 +85,24 @@ jobs:
           command: |
             yarn build
       - run:
-          name: Test React App
-          command: |
-            yarn test
-      - run:
           name: Run FE style checks
           command: |
             yarn lint
             yarn format:write
-      # - run:
-      #     name: Test React App Codecover
-      #     command: |
-      #       yarn run test:coverage
+      - run:
+          name: Test React App Codecover
+          command: |
+            yarn test:coverage --ci --runInBand --reporters=default --reporters=jest-junit
+          environment:
+            JEST_JUNIT_OUTPUT_DIR: ./reports/
       - store_test_results:
+          path: ./reports/
+      - store_artifacts:
           path: coverage
       - codecov/upload:
-          file: coverage/clover.xml
           flags: frontend
+      - slack/notify-on-failure:
+          only_for_branches: master,production
       # Add build to workspace
       - persist_to_workspace:
           root: ~/
