@@ -231,8 +231,9 @@ it("3.1.2 - Change Number of Items", async () => {
   expect(await screen.findByText(/add items to the Box/i)).toBeInTheDocument();
 
   // Test case 3.1.2.1.1	- Number of Item
-  // await user.type(screen.getByRole("spinbutton"), "a");
-  // expect(screen.getByRole("spinbutton")).not.toContain("a");
+  await user.type(screen.getByRole("spinbutton"), "a");
+  await user.click(screen.getByText(/Submit/i));
+  expect(await screen.findByText(/add items to the Box/i)).toBeInTheDocument();
 
   // // Test case 3.1.2.1.2	- Number of Item Validation
   // await user.type(screen.getByRole("spinbutton"), "-1");
@@ -292,8 +293,11 @@ it("3.1.4 - Move location", async () => {
   const whWomenLocation = screen.getByTestId("location-wh_women-btn");
   await user.click(whWomenLocation);
 
-  expect(await screen.getByText(/successfully moved the box/i)).toBeInTheDocument();
+  expect(screen.getByText(/successfully moved the box/i)).toBeInTheDocument();
   expect(await screen.findByText(/Move this box from/i)).toBeInTheDocument();
+
+  const whMenButton = screen.getByRole("button", { name: /wh men/i });
+  expect(whMenButton).toBeInTheDocument();
 
   // const boxLocationUpdatedLabel = screen.queryByText(
   //   textContentMatcher("Move this box from WH Women to:"),
