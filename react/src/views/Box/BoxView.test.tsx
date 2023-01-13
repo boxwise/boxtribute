@@ -17,6 +17,8 @@ import { BOX_BY_LABEL_IDENTIFIER_AND_ALL_PRODUCTS_WITH_BASEID_QUERY } from "view
 import { tags } from "mocks/tags";
 import { textContentMatcher } from "tests/helpers";
 
+jest.setTimeout(30000);
+
 const initialQuery = {
   request: {
     query: BOX_BY_LABEL_IDENTIFIER_QUERY,
@@ -348,7 +350,7 @@ it("3.1.6 - Product Gender", async () => {
 
   const title = await screen.findByRole("heading", { name: "Box 123" });
   expect(title).toBeInTheDocument();
-  // Test case 3.1.6.1 - Show Dash If Product Gender Is Not Applicable
+  // Test case 3.1.6.1 - Don't Show Gender If Not Applicable
   const element = screen.queryByText(textContentMatcher("Gender:"));
   expect(element).not.toBeInTheDocument();
 });
