@@ -13,5 +13,6 @@ setup(
     author_email="hello@boxtribute.org",
     license="Apache 2.0",
     packages=find_packages(exclude=["test"]),
+    package_data={"boxtribute_server": ["py.typed"]},
     install_requires=REQUIREMENTS,
 )

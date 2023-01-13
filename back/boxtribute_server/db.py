@@ -1,5 +1,5 @@
 from peewee import MySQLDatabase
-from playhouse.flask_utils import FlaskDB
+from playhouse.flask_utils import FlaskDB  # type: ignore
 
 db = FlaskDB()
 

@@ -1,6 +1,10 @@
 """Utilities for handling authorization"""
-from flask import g
+from typing import Any, Dict, List, Optional, Tuple, Type
 
+from flask import g
+from peewee import Model
+
+from .auth import CurrentUser
 from .exceptions import Forbidden
 from .models.definitions.base import Base
 from .models.definitions.transfer_agreement import TransferAgreement
@@ -22,7 +26,7 @@ BASE_AGNOSTIC_RESOURCES = (
 )
 
 
-def authorize(*args, **kwargs):
+def authorize(*args: CurrentUser, **kwargs: Any) -> bool:
     """Check whether the current user (default: `g.user`) is authorized to access the
     specified resource.
     The god user is authorized to access anything.
@@ -36,16 +40,16 @@ def authorize(*args, **kwargs):
 
 
 def _authorize(
-    current_user=None,
+    current_user: Optional[CurrentUser] = None,
     *,
-    user_id=None,
-    organisation_id=None,
-    organisation_ids=None,
-    base_id=None,
-    base_ids=None,
-    permission=None,
-    ignore_missing_base_info=False,
-):
+    user_id: Optional[int] = None,
+    organisation_id: Optional[int] = None,
+    organisation_ids: Optional[List[int]] = None,
+    base_id: Optional[int] = None,
+    base_ids: Optional[List[int]] = None,
+    permission: Optional[str] = None,
+    ignore_missing_base_info: bool = False,
+) -> bool:
     """Function for internal use that acts like authorize() but allows for ignoring
     missing base information.
     """
@@ -109,7 +113,9 @@ def _authorize(
         raise Forbidden(resource, value, current_user.__dict__)
 
 
-def authorized_bases_filter(model=Base, *, base_fk_field_name="base"):
+def authorized_bases_filter(
+    model: Type[Model] = Base, *, base_fk_field_name: str = "base"
+) -> bool:
     """Derive base filter condition for given resource model depending the current
     user's base-specific permissions. The resource model must have a FK field referring
     to the Base model named 'base_fk_field_name'.
@@ -126,7 +132,7 @@ def authorized_bases_filter(model=Base, *, base_fk_field_name="base"):
     return pattern << base_ids
 
 
-def agreement_organisation_filter_condition():
+def agreement_organisation_filter_condition() -> bool:
     """Derive filter condition for accessing transfer agreements depending on the user's
     organisation. The god user may access any agreement.
     """
@@ -138,7 +144,7 @@ def agreement_organisation_filter_condition():
     )
 
 
-def authorize_for_organisation_bases():
+def authorize_for_organisation_bases() -> None:
     """This is an exceptional use for ignoring missing base info. It must be possible to
     read organisations' bases information for anyone. The resolvers for base fields
     (e.g. beneficiaries, products) are guarded with base-specific permission
@@ -147,7 +153,7 @@ def authorize_for_organisation_bases():
     _authorize(permission="base:read", ignore_missing_base_info=True)
 
 
-ALL_ALLOWED_MUTATIONS = {
+ALL_ALLOWED_MUTATIONS: Dict[int, Tuple[str, ...]] = {
     # Mutations for BoxView/BoxEdit pages
     0: ("updateBox",),
     # + mutations for BoxCreate/ScanBox pages
@@ -155,7 +161,9 @@ ALL_ALLOWED_MUTATIONS = {
 }
 
 
-def check_beta_feature_access(payload, *, current_user=None):
+def check_beta_feature_access(
+    payload: Dict[str, Any], *, current_user: Optional[CurrentUser] = None
+) -> bool:
     """Check whether the current user wants to execute a beta-feature mutation, and
     whether they have sufficient beta-feature scope to run it.
     """
