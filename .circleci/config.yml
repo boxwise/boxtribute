@@ -90,13 +90,13 @@ jobs:
             yarn lint
             yarn format:write
       - run:
-          name: Test React App Codecover
+          name: Test React App creating reports
           command: |
-            yarn test:coverage --ci --runInBand --reporters=default --reporters=jest-junit
+            DEBUG_PRINT_LIMIT=10000 yarn test:coverage --ci --runInBand --reporters=default --reporters=jest-junit
           environment:
-            JEST_JUNIT_OUTPUT_DIR: ./reports/
+            JEST_JUNIT_OUTPUT_DIR: reports
       - store_test_results:
-          path: ./reports/
+          path: reports
       - store_artifacts:
           path: coverage
       - codecov/upload:
