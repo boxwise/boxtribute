@@ -256,7 +256,7 @@ it("3.2.5 - No Data is loaded due to GraphQL error", async () => {
   expect(screen.queryByRole("heading")).not.toBeInTheDocument();
 });
 
-it("3.2.6 - Mutation due to Network Error", async () => {
+it("3.2.6 - Mutation Failure due to Network Error", async () => {
   const user = userEvent.setup();
   render(<BoxEditView />, {
     routePath: "/bases/:baseId/boxes/:labelIdentifier/edit",
@@ -272,7 +272,7 @@ it("3.2.6 - Mutation due to Network Error", async () => {
   expect(screen.getByRole("heading", { name: "Box 123" })).toBeInTheDocument();
 });
 
-it("3.2.7 - Mutation due to GraphQL Error", async () => {
+it("3.2.7 - Mutation failure due to GraphQL Error", async () => {
   const user = userEvent.setup();
   render(<BoxEditView />, {
     routePath: "/bases/:baseId/boxes/:labelIdentifier/edit",
