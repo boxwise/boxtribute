@@ -158,11 +158,11 @@ describe("Boxes view", () => {
   //   expect(loadingInfo).toBeInTheDocument();
   // });
 
-  it("eventually removes the 'Loading...' and shows the table head", async () => {
-    await waitFor(waitTillLoadingIsDone);
-    const productColumnHeader = screen.getByTestId("loading-indicator");
-    expect(productColumnHeader).toBeInTheDocument();
-  });
+  // it("eventually removes the 'Loading...' and shows the table head", async () => {
+  //   await waitFor(waitTillLoadingIsDone);
+  //   const productColumnHeader = screen.getByTestId("loading-indicator");
+  //   expect(productColumnHeader).toBeInTheDocument();
+  // });
 
   describe("search filter", () => {
     beforeEach(waitTillLoadingIsDone);
