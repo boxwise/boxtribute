@@ -1,7 +1,7 @@
 /* eslint-disable */
+import { GraphQLError } from "graphql";
 import "@testing-library/jest-dom";
-import { queryByText, screen } from "@testing-library/react";
-import { render } from "tests/test-utils";
+import { screen, render, waitFor } from "tests/test-utils";
 import userEvent from "@testing-library/user-event";
 import BTBox, {
   BOX_BY_LABEL_IDENTIFIER_QUERY,
@@ -170,6 +170,46 @@ const boxStateSuccessfullUpdatedRefetchQuery = {
   },
 };
 
+const initialForFailedQuery = {
+  request: {
+    query: BOX_BY_LABEL_IDENTIFIER_QUERY,
+    variables: {
+      labelIdentifier: "124",
+    },
+  },
+  result: {
+    data: {
+      box: generateMockBox({ labelIdentifier: "124" }),
+    },
+  },
+};
+
+const updateNumberOfItemsFailedMutation = {
+  request: {
+    query: UPDATE_NUMBER_OF_ITEMS_IN_BOX_MUTATION,
+    variables: {
+      boxLabelIdentifier: "123",
+      numberOfItems: 31,
+    },
+  },
+  result: {
+    errors: [new GraphQLError("Error!")],
+  },
+};
+
+const moveLocationOfBoxFailedMutation = {
+  request: {
+    query: UPDATE_BOX_MUTATION,
+    variables: {
+      boxLabelIdentifier: "123",
+      newLocationId: 10,
+    },
+  },
+  result: {
+    errors: [new GraphQLError("Error!")],
+  },
+};
+
 // Test case 3.1.1
 it("3.1.1 - Initial load of Page", async () => {
   const user = userEvent.setup();
@@ -238,15 +278,14 @@ it("3.1.2 - Change Number of Items", async () => {
   expect(await screen.findByText(/add items to the Box/i)).toBeInTheDocument();
 
   // // Test case 3.1.2.1.2	- Number of Item Validation
-  // await user.type(screen.getByRole("spinbutton"), "-1");
-  // expect(screen.getByRole("spinbutton")).not.toContain("1");
+  await user.type(screen.getByRole("spinbutton"), "-1");
+  await user.click(screen.getByText(/Submit/i));
+  await waitFor(() => expect(screen.getByRole("spinbutton")).toHaveValue("0"));
 
   // Test case 3.1.2.2 - Click on Submit Button
   await user.type(screen.getByRole("spinbutton"), "1");
   await user.click(screen.getByText(/Submit/i));
   expect(await screen.findByText("32x Snow trousers")).toBeInTheDocument();
-
-  // Test case 3.1.2.3 - Error message for Update Number of Item Mutation query
 });
 
 // Test case 3.1.3
@@ -287,8 +326,6 @@ it("3.1.4 - Move location", async () => {
 
   expect(await screen.findByText(/Move this box from/i)).toBeInTheDocument();
 
-  // const boxLocationLabel = screen.queryByText(textContentMatcher("Move this box from WH Men to:"));
-  // expect(boxLocationLabel).toBeInTheDocument();
   const boxLocationLabel = screen.getByTestId("box-location-label");
   expect(boxLocationLabel).toHaveTextContent("Move this box from WH Men to:");
   // Test case 3.1.4.1- Click on the New Location
@@ -301,10 +338,6 @@ it("3.1.4 - Move location", async () => {
   const whMenButton = screen.getByRole("button", { name: /wh men/i });
   expect(whMenButton).toBeInTheDocument();
 
-  // const boxLocationUpdatedLabel = screen.queryByText(
-  //   textContentMatcher("Move this box from WH Women to:"),
-  // );
-  // expect(boxLocationUpdatedLabel).toBeInTheDocument();
   const boxLocationUpdatedLabel = screen.getByTestId("box-location-label");
   expect(boxLocationUpdatedLabel).toHaveTextContent("Move this box from WH Women to:");
   // Test case 3.1.4.2- Show last history entry
@@ -353,4 +386,50 @@ it("3.1.6 - Product Gender", async () => {
   // Test case 3.1.6.1 - Don't Show Gender If Not Applicable
   const element = screen.queryByText(textContentMatcher("Gender:"));
   expect(element).not.toBeInTheDocument();
+});
+
+// Test case 3.1.7
+it("3.1.7 - Error When Change Number of Items", async () => {
+  const user = userEvent.setup();
+  render(<BTBox />, {
+    routePath: "/bases/:baseId/boxes/:labelIdentifier",
+    initialUrl: "/bases/2/boxes/124",
+    mocks: [initialForFailedQuery, updateNumberOfItemsFailedMutation],
+    addTypename: true,
+  });
+
+  const title = await screen.findByRole("heading", { name: "Box 124" });
+  expect(title).toBeInTheDocument();
+
+  // Test case 3.1.7.1 - Error message for Update Number of Item Mutation query
+  const takeItemsButton = screen.getByTestId("decrease-items");
+  await user.click(takeItemsButton);
+  expect(await screen.findByText(/take items from the box/i)).toBeInTheDocument();
+
+  await user.type(screen.getByRole("spinbutton"), "1");
+  await user.click(screen.getByText(/Submit/i));
+  expect(await screen.findByText(/could not remove items from the box./i)).toBeInTheDocument();
+});
+
+// Test case 3.1.8
+it("3.1.8 - Error When Move Locations", async () => {
+  const user = userEvent.setup();
+  render(<BTBox />, {
+    routePath: "/bases/:baseId/boxes/:labelIdentifier",
+    initialUrl: "/bases/2/boxes/124",
+    mocks: [initialForFailedQuery, moveLocationOfBoxFailedMutation],
+    addTypename: true,
+  });
+
+  const title = await screen.findByRole("heading", { name: "Box 124" });
+  expect(title).toBeInTheDocument();
+
+  // Test case 3.1.8.1 - Error message for Move Location Mutation query
+  const boxLocationLabel = screen.getByTestId("box-location-label");
+  expect(boxLocationLabel).toHaveTextContent("Move this box from WH Men to:");
+
+  const whWomenLocation = screen.getByRole("button", { name: /wh shoes/i });
+  await user.click(whWomenLocation);
+
+  expect(screen.getByText(/box could not be moved!/i)).toBeInTheDocument();
 });
