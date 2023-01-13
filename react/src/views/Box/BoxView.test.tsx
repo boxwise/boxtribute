@@ -292,7 +292,7 @@ it("3.1.4 - Move location", async () => {
   const boxLocationLabel = screen.getByTestId("box-location-label");
   expect(boxLocationLabel).toHaveTextContent("Move this box from WH Men to:");
   // Test case 3.1.4.1- Click on the New Location
-  const whWomenLocation = screen.getByTestId("location-wh_women-btn");
+  const whWomenLocation = screen.getByRole("button", { name: /wh women/i });
   await user.click(whWomenLocation);
 
   expect(screen.getByText(/successfully moved the box/i)).toBeInTheDocument();
