@@ -46,3 +46,21 @@ export async function selectOptionInSelectField(
   expect(screen.queryByRole("button", { name: option })).not.toBeInTheDocument();
   expect(screen.getByText(option)).toBeInTheDocument();
 }
+// Returns text content of given element
+// Cf. https://github.com/testing-library/dom-testing-library/issues/410#issuecomment-1060917305
+export function textContentMatcher(textMatch: string | RegExp) {
+  const hasText =
+    typeof textMatch === "string"
+      ? (node: Element) => node.textContent === textMatch
+      : (node: Element) => textMatch.test(node?.textContent || "");
+
+  return (_content: string, node: Element) => {
+    if (!hasText(node)) {
+      return false;
+    }
+
+    const childrenDontHaveText = Array.from(node?.children || []).every((child) => !hasText(child));
+
+    return childrenDontHaveText;
+  };
+}

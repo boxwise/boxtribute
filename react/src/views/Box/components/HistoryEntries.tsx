@@ -24,7 +24,7 @@ function HistoryEntries({ data, total }: IHistoryEntriesProps) {
       <Flex alignContent="center" direction="column">
         <List spacing={1}>
           {data.slice(0, total).map((historyEntry) => (
-            <ListItem key={historyEntry.id}>
+            <ListItem key={historyEntry.id} data-testid={`history-${historyEntry.id}`}>
               <ListIcon as={getHistoryIcon(historyEntry?.changes)} h={5} w={5} color="green.500" />
               <b>{historyEntry?.user?.name}</b> on{" "}
               <b>
