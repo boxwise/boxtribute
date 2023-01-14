@@ -76,6 +76,7 @@ export const BOX_BY_LABEL_IDENTIFIER_QUERY = gql`
             ... on ClassicLocation {
               defaultBoxState
             }
+            seq
           }
           distributionEventsBeforeReturnedFromDistributionState {
             id
