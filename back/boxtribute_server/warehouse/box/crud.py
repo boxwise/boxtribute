@@ -214,4 +214,4 @@ def get_box_history(box_id):
 
         raw_entry.changes = changes
         entries.append(raw_entry)
-    return sorted(entries, key=lambda e: e.change_date, reverse=True)
+    return sorted(entries, key=lambda e: e.id, reverse=True)
