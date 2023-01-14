@@ -12,7 +12,7 @@ This front-end project of Boxtribute was bootstrapped with [Create React App](ht
 3. [Note about yarn and Docker](#note-about-yarn-and-docker)
 4. [Testing](#testing)
 5. [Conventions for file and folder organisation](#conventions-for-file-and-folder-organisation)
-6. [About Apollo](#conventions-for-file-and-folder-organisation)
+6. [About Apollo](#apollo)
 
 ## Development Set-Up
 
