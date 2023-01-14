@@ -94,7 +94,6 @@ const HeaderMenuContainer = () => {
     [baseId],
   );
   const qrScannerOverlayState = useDisclosure({ defaultIsOpen: false });
-  const toast = useToast();
   const { triggerError } = useErrorHandling();
   const [boxesDataForBulkOperation, setBoxesDataForBulkOperation] = useState<IBoxDetailsData[]>([]);
 
@@ -164,7 +163,7 @@ const HeaderMenuContainer = () => {
         // });
       }
     },
-    [baseId, navigate, toast],
+    [baseId, navigate],
   );
 
   if (baseId == null) {
