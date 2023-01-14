@@ -1,7 +1,7 @@
 """Definition of ariadne bindables (special types for binding Python callables and
 values to the GraphQL schema).
 """
-from ariadne import InterfaceType, ObjectType, UnionType
+from ariadne import InterfaceType, UnionType
 
 from ..beneficiary.fields import beneficiary
 from ..beneficiary.mutations import mutation as beneficiary_mutation
@@ -49,19 +49,33 @@ from ..tag.mutations import mutation as tag_mutation
 from ..tag.queries import query as tag_query
 from ..user.fields import user
 from ..user.queries import query as user_query
+from ..warehouse.box.fields import box, unboxed_items_collection
+from ..warehouse.box.mutations import mutation as box_mutation
+from ..warehouse.box.queries import query as box_query
+from ..warehouse.location.fields import classic_location
+from ..warehouse.location.queries import query as location_query
+from ..warehouse.product.fields import product
+from ..warehouse.product.queries import query as product_query
+from ..warehouse.qr_code.fields import qr_code
+from ..warehouse.qr_code.mutations import mutation as qr_code_mutation
+from ..warehouse.qr_code.queries import query as qr_code_query
 
 # Container for QueryTypes
 query_types = (
     base_query,
     beneficiary_query,
+    box_query,
     distribution_spot_query,
     distribution_event_query,
     distribution_events_tracking_group_query,
+    location_query,
     metrics_query,
     transfer_agreement_query,
     organisation_query,
     packing_list_entry_query,
     product_category_query,
+    product_query,
+    qr_code_query,
     shipment_query,
     tag_query,
     user_query,
@@ -70,49 +84,40 @@ query_types = (
 # Container for MutationTypes
 mutation_types = (
     beneficiary_mutation,
+    box_mutation,
     distribution_spot_mutation,
     distribution_event_mutation,
     mobile_distribution_mutation,
     packing_list_entry_mutation,
+    qr_code_mutation,
     shipment_mutation,
     tag_mutation,
     transfer_agreement_mutation,
 )
 
-# Container for ObjectTypes (public as immutable tuple)
-_object_types = [
+# Container for ObjectTypes
+object_types = (
     base,
     beneficiary,
+    box,
+    classic_location,
     distribution_spot,
     distribution_event,
     distribution_events_tracking_group,
     metrics,
     organisation,
     packing_list_entry,
+    product,
     product_category,
+    qr_code,
     shipment,
     shipment_detail,
     size_range,
     tag,
     transfer_agreement,
+    unboxed_items_collection,
     user,
-]
-
-
-def _register_object_type(name):
-    object_type = ObjectType(name)
-    _object_types.append(object_type)
-    return object_type
-
-
-# ObjectTypes
-box = _register_object_type("Box")
-classic_location = _register_object_type("ClassicLocation")
-product = _register_object_type("Product")
-qr_code = _register_object_type("QrCode")
-unboxed_items_collection = _register_object_type("UnboxedItemsCollection")
-
-object_types = tuple(_object_types)
+)
 
 
 # UnionTypes and InterfaceTypes
@@ -127,7 +132,9 @@ def resolve_location_type(obj, *_):
 
 
 def resolve_items_collection_type(obj, *_):
-    return obj.items_collection_type
+    if isinstance(obj, Box):
+        return "Box"
+    return "UnboxedItemsCollection"
 
 
 union_types = (UnionType("TaggableResource", resolve_taggable_resource_type),)

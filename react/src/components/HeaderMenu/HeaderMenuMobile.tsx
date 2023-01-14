@@ -24,6 +24,8 @@ import {
   MenuItemsGroupsProps,
 } from "./HeaderMenu";
 import BoxtributeLogo from "../../assets/images/boxtribute-logo.png";
+import { QrReaderButton } from "components/QrReader/QrReaderButton";
+import { generateDropappUrl, redirectToExternalUrl } from "utils/helpers";
 
 type MenuItemsGroupsMobileProps = MenuItemsGroupsProps & {
   isMenuOpen: boolean;
@@ -38,11 +40,7 @@ const MenuToggle = ({ toggle, isOpen, ...props }) => (
   />
 );
 
-const Logo = () => (
-  <NavLink to="/">
-    <Image src={BoxtributeLogo} maxH={"3.5em"} />
-  </NavLink>
-);
+const Logo = () => <Image src={BoxtributeLogo} maxH={"3.5em"} />;
 
 const LoginOrUserMenuButtonMobile = ({
   isAuthenticated,
@@ -98,7 +96,7 @@ const LoginOrUserMenuButtonMobile = ({
           {/* <Box py={1} px={4}>
             Profile
           </Box> */}
-          <Box py={1} px={4} onClick={() => logout()}>
+          <Box py={1} px={4} w="100%" onClick={() => logout()}>
             Logout
           </Box>
         </Stack>
@@ -173,26 +171,34 @@ const MenuItemsGroupMobile = ({
   const { isOpen, onToggle } = useDisclosure();
 
   function renderLinkBoxes(link: MenuItemData, i: number) {
-    let { baseId } = useParams();
-
-    function redirectToOldApp(link: string) {
-      window.open(link + "?camp=" + baseId);
-    }
+    let { baseId, qrCode, labelIdentifier } = useParams();
 
     if (link.link.includes(`${process.env.REACT_APP_OLD_APP_BASE_URL}`)) {
       return (
-        <Box key={i} py={1} px={4} onClick={() => setIsMenuOpen(false)}>
-          <Text key={link.name} cursor="pointer" onClick={() => redirectToOldApp(link.link)}>
-            {link.name}
-          </Text>
+        <Box
+          key={i}
+          py={1}
+          px={4}
+          w="100%"
+          onClick={() =>
+            redirectToExternalUrl(generateDropappUrl(link.link, baseId, qrCode, labelIdentifier))
+          }
+        >
+          {link.name}
         </Box>
       );
     } else {
       return (
-        <Box key={i} py={1} px={4} onClick={() => setIsMenuOpen(false)}>
-          <Link key={link.name} to={link.link}>
-            {link.name}
-          </Link>
+        <Box
+          key={i}
+          py={1}
+          px={4}
+          w="100%"
+          onClick={() => {
+            redirectToExternalUrl(link.link);
+          }}
+        >
+          {link.name}
         </Box>
       );
     }
@@ -240,20 +246,6 @@ const HeaderMenuMobileContainer = ({ children, ...props }) => {
   );
 };
 
-// TODO: Extract this (because it's not mobile/desktop specific) out into a seperate component file
-const QrScannerButton = ({ onClick }: { onClick: () => void }) => (
-  <IconButton
-    h={20}
-    w={20}
-    fontSize="50px"
-    colorScheme="gray"
-    backgroundColor={"transparent"}
-    aria-label="Scan QR Code"
-    icon={<AiOutlineQrcode />}
-    onClick={onClick}
-  />
-);
-
 const HeaderMenuMobile = (props: HeaderMenuProps) => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const toggle = () => setIsMenuOpen((curr) => !curr);
@@ -261,7 +253,7 @@ const HeaderMenuMobile = (props: HeaderMenuProps) => {
     <HeaderMenuMobileContainer>
       <Flex justifyContent="space-between" w="100%" alignItems="center">
         <Logo />
-        {/* <QrScannerButton onClick={props.onClickScanQrCode} /> */}
+        <QrReaderButton onClick={props.onClickScanQrCode} />
         <MenuToggle
           toggle={toggle}
           isOpen={isMenuOpen}

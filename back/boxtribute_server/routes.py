@@ -20,12 +20,16 @@ from .loaders import (
     TagsForBoxLoader,
 )
 from .logging import API_CONTEXT, WEBAPP_CONTEXT, log_request_to_gcloud
+from .utils import in_development_environment
 
 # Blueprint for query-only API. Deployed on the 'api*' subdomains
 api_bp = Blueprint("api_bp", __name__)
 
 # Blueprint for app GraphQL server. Deployed on v2-* subdomains
 app_bp = Blueprint("app_bp", __name__)
+
+# Allowed headers for CORS
+CORS_HEADERS = ["Content-Type", "Authorization", "x-clacks-overhead"]
 
 
 @api_bp.errorhandler(AuthenticationFailed)
@@ -37,7 +41,6 @@ def handle_auth_error(ex):
 
 
 @app_bp.route("/public", methods=["GET"])
-@cross_origin(origin="localhost", headers=["Content-Type", "Authorization"])
 def public():
     response = (
         "Hello from a public endpoint! You don't need to be authenticated to see this."
@@ -51,7 +54,6 @@ def query_api_playground():
 
 
 @api_bp.route("/", methods=["POST"])
-@cross_origin(origin="localhost", headers=["Content-Type", "Authorization"])
 @requires_auth
 def query_api_server():
     log_request_to_gcloud(context=API_CONTEXT)
@@ -59,7 +61,6 @@ def query_api_server():
 
 
 @api_bp.route("/token", methods=["POST"])
-@cross_origin(origin="localhost", headers=["Content-Type", "Authorization"])
 def api_token():
     success, result = request_jwt(
         **request.get_json(),  # must contain username and password
@@ -72,17 +73,25 @@ def api_token():
     return jsonify(result), status_code
 
 
-@app_bp.route("/graphql", methods=["GET"])
-def graphql_playgroud():
-    # On GET request serve GraphQL Playground
-    # You don't need to provide Playground if you don't want to
-    # but keep on mind this will not prohibit clients from
-    # exploring your API using desktop GraphQL Playground app.
-    return PLAYGROUND_HTML, 200
-
-
+# Due to a bug in the flask-cors package, the function decorated with cross_origin must
+# be listed before any other function that has the same route
+# see https://github.com/corydolphin/flask-cors/issues/280
 @app_bp.route("/graphql", methods=["POST"])
-@cross_origin(origin="localhost", headers=["Content-Type", "Authorization"])
+@cross_origin(
+    # Allow dev localhost ports, and boxtribute subdomains as origins
+    origins=[
+        "http://localhost:5005",
+        "http://localhost:3000",
+        "https://v2-staging.boxtribute.org",
+        "https://v2-demo.boxtribute.org",
+        "https://v2.boxtribute.org",
+        "https://v2-staging-dot-dropapp-242214.ew.r.appspot.com",
+        "https://v2-demo-dot-dropapp-242214.ew.r.appspot.com",
+        "https://v2-production-dot-dropapp-242214.ew.r.appspot.com",
+    ],
+    methods=["POST"],
+    allow_headers="*" if in_development_environment() else CORS_HEADERS,
+)
 @requires_auth
 def graphql_server():
     log_request_to_gcloud(context=WEBAPP_CONTEXT)
@@ -91,6 +100,15 @@ def graphql_server():
         return {"error": "No permission to access beta feature"}, 401
 
     return execute_async(schema=full_api_schema)
+
+
+@app_bp.route("/graphql", methods=["GET"])
+def graphql_playgroud():
+    # On GET request serve GraphQL Playground
+    # You don't need to provide Playground if you don't want to
+    # but keep on mind this will not prohibit clients from
+    # exploring your API using desktop GraphQL Playground app.
+    return PLAYGROUND_HTML, 200
 
 
 def execute_async(*, schema, introspection=None):

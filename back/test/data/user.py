@@ -28,45 +28,39 @@ def default_user_data():
 
 
 def second_user_data():
-    return {
-        "id": 2,
-        "name": "trainer",
-        "email": "alarm@bedpost.com",
-        "valid_first_day": TODAY,
-        "valid_last_day": TODAY,
-        "last_login": TIME,
-        "last_action": TIME,
-        "is_admin": 0,
-        "created": TIME,
-        "created_by": None,
-        "modified": None,
-        "modified_by": None,
-        "language": None,
-        "deleted": None,
-    }
+    data = default_user_data()
+    data["id"] = 2
+    data["name"] = "trainer"
+    data["email"] = "alarm@bedpost.com"
+    return data
+
+
+def god_user_data():
+    data = default_user_data()
+    data["id"] = 3
+    data["name"] = "god"
+    data["email"] = "god@boxtribute.org"
+    data["is_admin"] = 1
+    data["valid_first_day"] = None
+    data["valid_last_day"] = None
+    return data
 
 
 def another_user_data():
-    return {
-        "id": 8,
-        "name": "coord",
-        "email": "dev_coordinator@boxaid.org",
-        "valid_first_day": TODAY,
-        "valid_last_day": TODAY,
-        "last_login": TIME,
-        "last_action": TIME,
-        "is_admin": 0,
-        "created": TIME,
-        "created_by": None,
-        "modified": None,
-        "modified_by": None,
-        "language": None,
-        "deleted": None,
-    }
+    data = default_user_data()
+    data["id"] = 8
+    data["name"] = "coord"
+    data["email"] = "dev_coordinator@boxaid.org"
+    return data
 
 
 def data():
-    return [default_user_data(), second_user_data(), another_user_data()]
+    return [
+        default_user_data(),
+        god_user_data(),
+        second_user_data(),
+        another_user_data(),
+    ]
 
 
 @pytest.fixture
@@ -77,6 +71,11 @@ def default_user():
 @pytest.fixture
 def default_users():
     return data()
+
+
+@pytest.fixture
+def god_user():
+    return god_user_data()
 
 
 @pytest.fixture

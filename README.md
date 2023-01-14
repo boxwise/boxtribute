@@ -93,14 +93,24 @@ The password of all of these users is `Browser_tests`.
 
 Furthermore, here a collection of QR-Codes which have been seeded in the dev db and can be used to test the box scanning and box creation.
 
-**Codes connected to existing Boxes in the seed**
+**Codes connected to existing boxes in the seed**
+
+Box in base 1
+![9627242265f5a7f3a1db910eb18410f](docs/qr/code-with-base-1-box-9627242265f5a7f3a1db910eb18410f.png)
+
+Box in base 2
+![1efb9f5633ebf01645934bd509d93e2](docs/qr/code-with-base-2-box-1efb9f5633ebf01645934bd509d93e2.png)
+
+Box in base 3
+![46985d9e6d5a244cf683bacdb7d0f33](docs/qr/code-with-base-3-box-46985d9e6d5a244cf683bacdb7d0f33.png)
+
+**Codes not yet connected to boxes in the seed**
+![0af9ec1a97906cf1cac5f50617a687b](docs/qr/code-without-box-0af9ec1a97906cf1cac5f50617a687b.png)
+
+**Codes that don't exist in the seed**
 
 ![387b0f0f5e62cebcafd48383035a92a](docs/qr/existing/387b0f0f5e62cebcafd48383035a92a.png) ![cba56d486db6d39209dbbf9e45353c4](docs/qr/existing/cba56d486db6d39209dbbf9e45353c4.png) ![a61e0efe25b75032b91106372674c26](docs/qr/existing/a61e0efe25b75032b91106372674c26.png) ![f6f20e805192618def2cb400776a2aa](docs/qr/existing/f6f20e805192618def2cb400776a2aa.png) ![12ca607ce60c484bdbb703def950c5b](docs/qr/existing/12ca607ce60c484bdbb703def950c5b.png)
-![13f12820c8010f2f7349962930e6bf4](docs/qr/existing/13f12820c8010f2f7349962930e6bf4.png) ![d0e144a0a4dc0d8af55e2b686a2e97e](docs/qr/existing/d0e144a0a4dc0d8af55e2b686a2e97e.png) ![69107b2e2b4157b5efe10415bc0bba0](docs/qr/existing/69107b2e2b4157b5efe10415bc0bba0.png) ![b8f0730d36571e4149ba3862379bb88](docs/qr/existing/b8f0730d36571e4149ba3862379bb88.png) ![e1fdfdd942db0e764c9bea06c03ba2b](docs/qr/existing/e1fdfdd942db0e764c9bea06c03ba2b.png)
-
-**Codes not yet connected to Boxes in the seed**
-
-![149ff66629377f6404b5c8d32936855](docs/qr/new/149ff66629377f6404b5c8d32936855.png) ![91c1def0b674d4e7cb92b61dbe00846](docs/qr/new/91c1def0b674d4e7cb92b61dbe00846.png) ![f660f96618eaa81e16b7869aca8d67d](docs/qr/new/f660f96618eaa81e16b7869aca8d67d.png) ![98b51c8cd1a02e54ab47edcc5733139](docs/qr/new/98b51c8cd1a02e54ab47edcc5733139.png) ![168842e6389b520d4b1836562aa1f05](docs/qr/new/168842e6389b520d4b1836562aa1f05.png) ![22324b7a180bdd31e125d5d50791d17](docs/qr/new/22324b7a180bdd31e125d5d50791d17.png)
+![13f12820c8010f2f7349962930e6bf4](docs/qr/existing/13f12820c8010f2f7349962930e6bf4.png) ![d0e144a0a4dc0d8af55e2b686a2e97e](docs/qr/existing/d0e144a0a4dc0d8af55e2b686a2e97e.png) ![69107b2e2b4157b5efe10415bc0bba0](docs/qr/existing/69107b2e2b4157b5efe10415bc0bba0.png) ![b8f0730d36571e4149ba3862379bb88](docs/qr/existing/b8f0730d36571e4149ba3862379bb88.png) ![e1fdfdd942db0e764c9bea06c03ba2b](docs/qr/existing/e1fdfdd942db0e764c9bea06c03ba2b.png) ![149ff66629377f6404b5c8d32936855](docs/qr/new/149ff66629377f6404b5c8d32936855.png) ![91c1def0b674d4e7cb92b61dbe00846](docs/qr/new/91c1def0b674d4e7cb92b61dbe00846.png) ![f660f96618eaa81e16b7869aca8d67d](docs/qr/new/f660f96618eaa81e16b7869aca8d67d.png) ![98b51c8cd1a02e54ab47edcc5733139](docs/qr/new/98b51c8cd1a02e54ab47edcc5733139.png) ![168842e6389b520d4b1836562aa1f05](docs/qr/new/168842e6389b520d4b1836562aa1f05.png) ![22324b7a180bdd31e125d5d50791d17](docs/qr/new/22324b7a180bdd31e125d5d50791d17.png)
 
 ## CircleCI
 

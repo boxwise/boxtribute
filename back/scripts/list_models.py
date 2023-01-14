@@ -8,7 +8,7 @@ from pathlib import Path
 SCRIPT_DIRPATH = Path(__file__).resolve().parent
 TEST_DATA_DIRPATH = SCRIPT_DIRPATH.parent / "test"
 sys.path.insert(0, str(TEST_DATA_DIRPATH))
-from data import MODELS
+from data import MODELS  # type: ignore
 
 
 def main():

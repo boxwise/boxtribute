@@ -22,6 +22,7 @@ import BaseDashboardView from "views/BaseDashboard/BaseDashboardView";
 import DistrosReturnTrackingGroupView from "views/Distributions/DistributionReturnTrackings/DistrosReturnTrackingGroupView/DistrosReturnTrackingGroupView";
 import DistributionReturnTrackingsView from "views/Distributions/DistributionReturnTrackings/DistributionReturnTrackingsView/DistributionReturnTrackingsView";
 import CreateDirectDistributionEventView from "views/Distributions/CreateDirectDistributionEventView/CreateDirectDistributionEventView";
+import BoxCreateView from "views/BoxCreate/BoxCreateView";
 
 const useLoadAndSetAvailableBases = () => {
   const BASES_QUERY = gql`
@@ -82,8 +83,9 @@ function App() {
             <Route index element={<BaseDashboardView />} />
             <Route path="boxes">
               <Route index element={<Boxes />} />
-              {/* TODO: uncomment this once we have finished/tested the Create Box feature sufficiently */}
-              {/* <Route path="create" element={<BoxCreateView />} /> */}
+              <Route path="create">
+                <Route path=":qrCode" element={<BoxCreateView />} />
+              </Route>
               <Route path=":labelIdentifier">
                 <Route index element={<BTBox />} />
                 <Route path="edit" element={<BoxEditView />} />

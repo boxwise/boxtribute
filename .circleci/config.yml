@@ -13,6 +13,7 @@ jobs:
           root: .
           paths:
             - .
+
   build-flask:
     docker:
       - image: cimg/python:3.10.4
@@ -87,6 +88,11 @@ jobs:
           name: Test React App
           command: |
             yarn test
+      - run:
+          name: Run FE style checks
+          command: |
+            yarn lint
+            yarn format:write
       # - run:
       #     name: Test React App Codecover
       #     command: |
@@ -180,6 +186,11 @@ jobs:
           at: ~/
       # install gcloud orb
       - gcp-cli/install
+      - run:
+          name: Inject Heap Analytics Script to index.html
+          command: |
+            sed -i "s/HEAPIO_APP_ID/${HEAPIO_APP_ID}/" ../react/build/heapanalytics.js
+            sed -i 's|</head>|<script src="/heapanalytics.js"></script></head>|' ../react/build/index.html
       - run:
           name: Copy react build into flask app for deployment
           command: mv ../react/build react-build

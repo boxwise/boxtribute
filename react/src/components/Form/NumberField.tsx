@@ -17,17 +17,34 @@ export interface INumberFieldProps {
   errors: object;
   control: any;
   register: any;
+  // eslint-disable-next-line react/require-default-props
+  showLabel?: boolean;
+  // eslint-disable-next-line react/require-default-props
+  showError?: boolean;
+  // eslint-disable-next-line react/require-default-props
+  testId?: any;
 }
 
-function NumberField({ fieldId, fieldLabel, errors, control, register }: INumberFieldProps) {
+function NumberField({
+  fieldId,
+  fieldLabel,
+  errors,
+  control,
+  register,
+  showLabel = true,
+  showError = true,
+  testId,
+}: INumberFieldProps) {
   return (
     <FormControl isInvalid={!!errors[fieldId]}>
-      <FormLabel htmlFor="numberOfItems" textAlign="left">
-        {fieldLabel}{" "}
-        <Text as="span" color="red.500">
-          *
-        </Text>
-      </FormLabel>
+      {showLabel && (
+        <FormLabel htmlFor="numberOfItems" textAlign="left">
+          {fieldLabel}{" "}
+          <Text as="span" color="red.500">
+            *
+          </Text>
+        </FormLabel>
+      )}
       {/* The React Form Controller is needed because the Input is actually in NumberInputField and not in Number Input chakraUI components */}
       {/* https://react-hook-form.com/api/usecontroller/controller */}
       {/* https://codesandbox.io/s/chakra-ui-5mp8g */}
@@ -36,7 +53,7 @@ function NumberField({ fieldId, fieldLabel, errors, control, register }: INumber
         name={fieldId}
         control={control}
         render={({ field }) => (
-          <NumberInput>
+          <NumberInput min={0} data-testid={testId}>
             {/* The NumberInputField only returns strings and needs to be casted before validation is possible */}
             <NumberInputField
               onKeyDown={(e) => {
@@ -53,13 +70,13 @@ function NumberField({ fieldId, fieldLabel, errors, control, register }: INumber
                   if (typeof val === "number") {
                     // only happens if a number is passed as default value
                     return val;
-                  } if (val) {
+                  }
+                  if (val) {
                     // if a number is entered it is passed as a string
                     return Number(val);
                   }
                   // This is if "" is entered.
                   return undefined;
-
                 },
               })}
             />
@@ -70,7 +87,9 @@ function NumberField({ fieldId, fieldLabel, errors, control, register }: INumber
           </NumberInput>
         )}
       />
-      <FormErrorMessage>{!!errors[fieldId] && errors[fieldId].message}</FormErrorMessage>
+      {showError && (
+        <FormErrorMessage>{!!errors[fieldId] && errors[fieldId].message}</FormErrorMessage>
+      )}
     </FormControl>
   );
 }

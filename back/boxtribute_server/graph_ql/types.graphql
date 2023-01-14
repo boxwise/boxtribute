@@ -46,6 +46,7 @@ type Box implements ItemsCollection {
 }
 
 type HistoryEntry {
+  id: ID!
   changes: String!
   changeDate: Datetime
   user: User
@@ -64,6 +65,7 @@ Representation of a QR code, possibly associated with a [`Box`]({{Types.Box}}).
 type QrCode {
   id: ID!
   code: String!
+  " [`Box`]({{Types.Box}}) associated with the QR code (`null` if none associated) "
   box: Box
   createdOn: Datetime
 }

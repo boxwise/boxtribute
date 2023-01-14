@@ -1,110 +1,106 @@
 import {
-  Box, Button,
-  FormControl,
-  FormErrorMessage,
+  Box,
+  Button,
+  ButtonGroup,
   FormLabel,
-  Heading, List,
-  ListItem, NumberDecrementStepper,
-  NumberIncrementStepper,
-  NumberInput,
-  NumberInputField,
-  NumberInputStepper
+  Heading,
+  Input,
+  List,
+  ListItem,
+  Stack,
 } from "@chakra-ui/react";
-import { Select } from "chakra-react-select";
 
 import { useEffect, useState } from "react";
-import { Controller, useForm } from "react-hook-form";
+import { SubmitHandler, useForm } from "react-hook-form";
 import { ProductGender } from "types/generated/graphql";
 
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import _ from "lodash";
+import SelectField, { IDropdownOption } from "components/Form/SelectField";
+import NumberField from "components/Form/NumberField";
 
-export interface CategoryData {
+export interface ICategoryData {
   name: string;
 }
 
-export interface SizeData {
+export interface ISizeData {
   id: string;
   label: string;
 }
 
-export interface SizeRangeData {
+export interface ISizeRangeData {
   label?: string;
-  sizes: SizeData[];
+  sizes: ISizeData[];
 }
 
-export interface ProductWithSizeRangeData {
+export interface IProductWithSizeRangeData {
   id: string;
   name: string;
   gender?: ProductGender | undefined | null;
-  category: CategoryData;
-  sizeRange: SizeRangeData;
+  category: ICategoryData;
+  sizeRange: ISizeRangeData;
 }
 
-interface DropdownOption {
-  value: string;
-  label: string;
-}
-
-interface BoxFormValues {
-  productId: string;
-  sizeId: string;
-  locationId: string;
-  numberOfItems: number;
-  qrCode?: string;
-}
-
-export interface CreateBoxData {
-  locationId: string;
-  productId: string;
-  sizeId: string;
-  numberOfItems: number;
-}
-
-interface LocationData {
+interface ILocationData {
   id: string;
   name: string;
+  seq?: number | null | undefined;
 }
 
-export interface BoxCreateProps {
-  productAndSizesData: ProductWithSizeRangeData[];
-  allLocations: LocationData[];
-  qrCode?: string;
-  onCreateBox: (boxFormValues: CreateBoxData) => void;
-}
-
-export const CreateBoxFormDataSchema = z.object({
-  productId: z.string({ required_error: "Product is required" }),
-  sizeId: z.string({ required_error: "Size is required" }),
-  locationId: z.string({ required_error: "Location is required" }),
-  numberOfItems: z
-    .number()
-    .nonnegative("Number of items must be at least 0")
-    .default(0),
+const singleSelectOptionSchema = z.object({
+  label: z.string(),
+  value: z.string(),
 });
 
-export type CreateBoxFormData = z.infer<typeof CreateBoxFormDataSchema>;
-
-const BoxCreate = ({
-  productAndSizesData,
-  onCreateBox,
-  qrCode,
-  allLocations,
-}: BoxCreateProps) => {
-  const productsGroupedByCategory: Record<string, ProductWithSizeRangeData[]> = _.groupBy(
-    productAndSizesData,
-    (product) => product.category.name
-  );
-
-  const locationsForDropdownGroups = allLocations
-    .map((location) => {
-      return {
-        label: location.name,
-        value: location.id,
-      };
+export const CreateBoxFormDataSchema = z.object({
+  // Single Select Fields are a tough nut to validate. This feels like a hacky solution, but the best I could find.
+  // It is based on this example https://codesandbox.io/s/chakra-react-select-single-react-hook-form-with-zod-validation-typescript-m1dqme?file=/app.tsx
+  productId: singleSelectOptionSchema
+    // If the Select is empty it returns null. If we put required() here. The error is "expected object, received null". I did not find a way to edit this message. Hence, this solution.
+    .nullable()
+    // We make the field nullable and can then check in the next step if it is empty or not with the refine function.
+    .refine(Boolean, { message: "Please select a product" })
+    // since the expected return type is an object of strings we have to add this transform at the end.
+    .transform((selectedOption) => selectedOption || { label: "", value: "" }),
+  sizeId: singleSelectOptionSchema
+    .nullable()
+    .refine(Boolean, { message: "Please select a size" })
+    .transform((selectedOption) => selectedOption || { label: "", value: "" }),
+  numberOfItems: z
+    .number({
+      required_error: "Please enter a number of items",
+      invalid_type_error: "Please enter an integer number",
     })
-    .sort((a, b) => a.label.localeCompare(b.label));
+    .int()
+    .nonnegative(),
+  locationId: singleSelectOptionSchema
+    .nullable()
+    .refine(Boolean, { message: "Please select a location" })
+    .transform((selectedOption) => selectedOption || { label: "", value: "" }),
+  tags: singleSelectOptionSchema.array().optional(),
+  comment: z.string().optional(),
+});
+
+export type ICreateBoxFormData = z.infer<typeof CreateBoxFormDataSchema>;
+
+export interface IBoxCreateProps {
+  productAndSizesData: IProductWithSizeRangeData[];
+  allLocations: ILocationData[];
+  allTags: IDropdownOption[] | null | undefined;
+  onSubmitBoxCreateForm: (boxFormValues: ICreateBoxFormData) => void;
+}
+
+function BoxCreate({
+  productAndSizesData,
+  allLocations,
+  allTags,
+  onSubmitBoxCreateForm,
+}: IBoxCreateProps) {
+  const productsGroupedByCategory: Record<string, IProductWithSizeRangeData[]> = _.groupBy(
+    productAndSizesData,
+    (product) => product.category.name,
+  );
 
   const productsForDropdownGroups = Object.keys(productsGroupedByCategory)
     .map((key) => {
@@ -114,218 +110,148 @@ const BoxCreate = ({
         options: productsForCurrentGroup
           .map((product) => ({
             value: product.id,
-            label: `${product.name} ${
-              product.gender && " [" + product.gender + "]"
-            }`,
+            label: `${`${product.name}`}${product.gender !== "none" ? ` (${product.gender})` : ""}`,
           }))
           .sort((a, b) => a.label.localeCompare(b.label)),
       };
     })
     .sort((a, b) => a.label.localeCompare(b.label));
 
-  const onSubmitBoxCreateForm = (boxFormValues: BoxFormValues) => {
-    const createBoxData: CreateBoxData = {
-      productId: boxFormValues.productId,
-      sizeId: boxFormValues.sizeId,
-      locationId: boxFormValues.locationId,
-      numberOfItems: boxFormValues.numberOfItems,
-    };
-    onCreateBox(createBoxData);
-  };
+  const locationsForDropdownGroups = allLocations
+    .map((location) => ({
+      label: location.name,
+      value: location.id,
+      seq: location.seq,
+    }))
+    // sort locations by sequence in ascending order
+    .sort((a, b) => Number(a?.seq) - Number(b?.seq));
+  const tagsForDropdownGroups: Array<IDropdownOption> | undefined = allTags?.map((tag) => ({
+    label: tag.label,
+    value: tag.value,
+    color: tag.color,
+  }));
+
+  const onSubmit: SubmitHandler<ICreateBoxFormData> = (data) => onSubmitBoxCreateForm(data);
 
   const {
     handleSubmit,
     control,
-    resetField,
-    formState: { isSubmitting },
-    watch,
     register,
-    formState: { errors },
-  } = useForm<BoxFormValues>({
+    resetField,
+    watch,
+    setValue,
+    formState: { errors, isSubmitting },
+  } = useForm<ICreateBoxFormData>({
     resolver: zodResolver(CreateBoxFormDataSchema),
-    defaultValues: {
-      numberOfItems: 0,
-      qrCode: qrCode,
-    },
   });
 
-  const [sizesOptionsForCurrentProduct, setSizesOptionsForCurrentProduct] =
-    useState<DropdownOption[]>([]);
+  const [sizesOptionsForCurrentProduct, setSizesOptionsForCurrentProduct] = useState<
+    IDropdownOption[]
+  >([]);
 
   const productId = watch("productId");
 
   useEffect(() => {
     if (productId != null) {
       const productAndSizeDataForCurrentProduct = productAndSizesData.find(
-        (p) => p.id === productId
+        (p) => p.id === productId.value,
       );
       setSizesOptionsForCurrentProduct(
         () =>
           productAndSizeDataForCurrentProduct?.sizeRange?.sizes?.map((s) => ({
             label: s.label,
             value: s.id,
-          })) || []
+          })) || [],
       );
-      resetField("sizeId");
-    }
-  }, [productId, productAndSizesData, resetField]);
 
-  if (productsForDropdownGroups == null) {
-    console.error("BoxDetails Component: allProducts is null");
-    return (
-      <Box>
-        There was an error: the available products to choose from couldn't be
-        loaded!
-      </Box>
-    );
-  }
+      resetField("sizeId");
+      // Put a default value for sizeId when there's only one option
+      if (productAndSizeDataForCurrentProduct?.sizeRange?.sizes?.length === 1) {
+        setValue("sizeId", {
+          label: productAndSizeDataForCurrentProduct?.sizeRange?.sizes[0].label,
+          value: productAndSizeDataForCurrentProduct?.sizeRange?.sizes[0].id,
+        });
+      }
+    }
+  }, [productId, productAndSizesData, resetField, setValue]);
 
   return (
     <Box w={["100%", "100%", "60%", "40%"]}>
-      <Heading>{productId}</Heading>
-      <Heading fontWeight={"bold"} mb={4} as="h2">
-        Create New Box {qrCode != null && <>(for QR code)</>}
+      <Heading>{productId?.label}</Heading>
+      <Heading fontWeight="bold" mb={4} as="h2">
+        Create New Box
       </Heading>
-      <form onSubmit={handleSubmit(onSubmitBoxCreateForm)}>
+      <form onSubmit={handleSubmit(onSubmit)}>
         <List spacing={2}>
           <ListItem>
-            <Controller
+            <SelectField
+              fieldId="productId"
+              fieldLabel="Product"
+              placeholder="Please select a product"
+              options={productsForDropdownGroups}
+              errors={errors}
               control={control}
-              name="productId"
-              render={({
-                field: { onChange, onBlur, value, name, ref },
-                fieldState: { error },
-              }) => (
-                <FormControl isInvalid={!!error} id="products" isRequired>
-                  <FormLabel>Product</FormLabel>
-                  <Box border="2px">
-                    <Select
-                      name={name}
-                      ref={ref}
-                      onChange={(selectedOption) =>
-                        onChange(selectedOption?.value)
-                      }
-                      onBlur={onBlur}
-                      value={
-                        productsForDropdownGroups
-                          .flatMap((group) => group.options)
-                          .find((el) => el.value === value) || null
-                      }
-                      options={productsForDropdownGroups}
-                      placeholder="Product"
-                      isSearchable
-                      tagVariant="outline"
-                      focusBorderColor="transparent"
-                    />
-                  </Box>
-
-                  <FormErrorMessage>{error && error.message}</FormErrorMessage>
-                </FormControl>
-              )}
             />
           </ListItem>
-
           <ListItem>
-            <Controller
+            <SelectField
+              fieldId="sizeId"
+              fieldLabel="Size"
+              placeholder="Please select a size"
+              options={sizesOptionsForCurrentProduct}
+              errors={errors}
               control={control}
-              name="sizeId"
-              render={({ field, fieldState: { invalid, error } }) => {
-                return (
-                  <FormControl isInvalid={invalid} id="size">
-                    <FormLabel htmlFor="size">Size</FormLabel>
-                    <Box border="2px">
-                      <Select
-                        name={field.name}
-                        ref={field.ref}
-                        value={
-                          sizesOptionsForCurrentProduct.find(
-                            (el) => el.value === field.value
-                          ) || null
-                        }
-                        onChange={(selectedOption) =>
-                          field.onChange(selectedOption?.value)
-                        }
-                        onBlur={field.onBlur}
-                        options={sizesOptionsForCurrentProduct}
-                        placeholder="Size"
-                        isSearchable
-                        tagVariant="outline"
-                      />
-                      <FormErrorMessage>{error?.message}</FormErrorMessage>
-                    </Box>
-                  </FormControl>
-                );
-              }}
             />
           </ListItem>
-
           <ListItem>
-            <FormControl
-              isInvalid={errors.numberOfItems != null}
-              id="numberOfItems"
-            >
-              <FormLabel htmlFor="numberOfItems">Number Of Items</FormLabel>
-              <Box border="2px">
-                <NumberInput max={10000} min={0}>
-                  <NumberInputField
-                    type="number"
-                    {...register("numberOfItems", {
-                      valueAsNumber: true,
-                    })}
-                  />
-                  <NumberInputStepper>
-                    <NumberIncrementStepper />
-                    <NumberDecrementStepper />
-                  </NumberInputStepper>
-                </NumberInput>
-              </Box>
-              <FormErrorMessage>
-                {errors.numberOfItems && errors.numberOfItems.message}
-              </FormErrorMessage>
-            </FormControl>
-          </ListItem>
-
-          <ListItem>
-            <Controller
+            <NumberField
+              fieldId="numberOfItems"
+              fieldLabel="Number Of Items"
+              errors={errors}
               control={control}
-              name="locationId"
-              render={({
-                field: { onChange, onBlur, value, name, ref },
-                fieldState: { error },
-              }) => (
-                <FormControl isInvalid={!!error} id="locationForDropdown">
-                  <FormLabel htmlFor="locationForDropdown">Location</FormLabel>
-                  <Box border="2px">
-                    <Select
-                      name={name}
-                      ref={ref}
-                      onChange={(selectedOption) =>
-                        onChange(selectedOption?.value)
-                      }
-                      onBlur={onBlur}
-                      value={
-                        locationsForDropdownGroups.find(
-                          (el) => el.value === value
-                        ) || null
-                      }
-                      options={locationsForDropdownGroups}
-                      placeholder="Location"
-                      isSearchable
-                      tagVariant="outline"
-                    />
-                  </Box>
-                  <FormErrorMessage>{error && error.message}</FormErrorMessage>
-                </FormControl>
-              )}
+              register={register}
             />
+          </ListItem>
+          <ListItem>
+            <SelectField
+              fieldId="locationId"
+              fieldLabel="Location"
+              placeholder="Please select a location"
+              options={locationsForDropdownGroups}
+              errors={errors}
+              control={control}
+            />
+          </ListItem>
+          <ListItem>
+            <SelectField
+              fieldId="tags"
+              fieldLabel="Tags"
+              placeholder="Tags"
+              options={tagsForDropdownGroups}
+              errors={errors}
+              isMulti
+              isRequired={false}
+              control={control}
+            />
+          </ListItem>
+          <ListItem>
+            <FormLabel htmlFor="comment">Comment</FormLabel>
+            <Box border="2px" borderRadius={0}>
+              <Input border="0" borderRadius={0} type="string" {...register("comment")} />
+            </Box>
           </ListItem>
         </List>
-        <Button mt={4} isLoading={isSubmitting} type="submit" borderRadius="0">
-          Create Box
-        </Button>
+
+        <Stack spacing={4}>
+          <ButtonGroup gap="4">
+            <Button mt={4} isLoading={isSubmitting} type="submit" borderRadius="0" w="full">
+              Create Box
+            </Button>
+          </ButtonGroup>
+        </Stack>
       </form>
     </Box>
   );
-};
+}
 
 export default BoxCreate;

@@ -26,12 +26,9 @@ import {
   MenuItemsGroupsProps,
   UserMenuProps,
 } from "./HeaderMenu";
+import { generateDropappUrl } from "utils/helpers";
 
-const Logo = () => (
-  <NavLink to="/">
-    <Image src={BoxtributeLogo} maxH={"3.5em"} />
-  </NavLink>
-);
+const Logo = () => <Image src={BoxtributeLogo} maxH={"3.5em"} />;
 
 const BaseSwitcher = ({ currentActiveBaseId, availableBases }: BaseSwitcherProps) => {
   return (
@@ -98,15 +95,17 @@ const LoginOrUserMenuButton = ({
 
 const MenuItemsGroupDesktop = ({ ...props }: MenuItemsGroupProps) => {
   function renderMenuItem(link: MenuItemData, i: number) {
-    let { baseId } = useParams();
-
-    function redirectToOldApp(link: string) {
-      window.open(link + "?camp=" + baseId, "_blank");
-    }
+    let { baseId, qrCode, labelIdentifier } = useParams();
 
     if (link.link.includes(`${process.env.REACT_APP_OLD_APP_BASE_URL}`)) {
       return (
-        <MenuItem py={2} px={3} key={i} onClick={() => redirectToOldApp(link.link)}>
+        <MenuItem
+          py={2}
+          px={3}
+          key={i}
+          as="a"
+          href={generateDropappUrl(link.link, baseId, qrCode, labelIdentifier)}
+        >
           {link.name}
         </MenuItem>
       );
@@ -179,19 +178,6 @@ const HeaderMenuDesktopContainer = ({ children, ...props }) => {
   );
 };
 
-const QrScannerButton = ({ onClick }: { onClick: () => void }) => (
-  <IconButton
-    h={20}
-    w={20}
-    fontSize="50px"
-    colorScheme="gray"
-    backgroundColor={"transparent"}
-    aria-label="Scan QR Code"
-    icon={<AiOutlineQrcode />}
-    onClick={onClick}
-  />
-);
-
 const HeaderMenuDeskop = (props: HeaderMenuProps) => {
   return (
     <HeaderMenuDesktopContainer>
@@ -207,7 +193,7 @@ const HeaderMenuDeskop = (props: HeaderMenuProps) => {
             currentActiveBaseId={props.currentActiveBaseId}
             availableBases={props.availableBases}
           />
-          {/* <QrScannerButton onClick={props.onClickScanQrCode} /> */}
+          {/* <QrReaderButton onClick={props.onClickScanQrCode} /> */}
         </Flex>
       </Flex>
     </HeaderMenuDesktopContainer>
