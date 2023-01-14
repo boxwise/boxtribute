@@ -16,6 +16,7 @@ import {
   ApolloProvider,
   DefaultOptions,
 } from "@apollo/client";
+import { GlobalPreferencesProvider } from "providers/GlobalPreferencesProvider";
 
 /**
  * Renders a React component with Apollo GraphQL client and @testing-library/react.
@@ -65,14 +66,16 @@ function render(
   const Wrapper: React.FC = ({ children }: any) => (
     <ChakraProvider theme={theme}>
       <MockedProvider mocks={mocks} addTypename={addTypename} link={link}>
-        <MemoryRouter initialEntries={[initialUrl]}>
-          <Routes>
-            {additionalRoute !== undefined && (
-              <Route path={additionalRoute} element={<h1>{additionalRoute}</h1>} />
-            )}
-            <Route path={routePath} element={children} />
-          </Routes>
-        </MemoryRouter>
+        <GlobalPreferencesProvider>
+          <MemoryRouter initialEntries={[initialUrl]}>
+            <Routes>
+              {additionalRoute !== undefined && (
+                <Route path={additionalRoute} element={<h1>{additionalRoute}</h1>} />
+              )}
+              <Route path={routePath} element={children} />
+            </Routes>
+          </MemoryRouter>
+        </GlobalPreferencesProvider>
       </MockedProvider>
     </ChakraProvider>
   );
