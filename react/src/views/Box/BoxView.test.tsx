@@ -264,32 +264,32 @@ it("3.1.1 - Initial load of Page", async () => {
     addTypename: true,
   });
 
-  // Test case 3.1.1.1 - Renders with an initial 'Loading...'
+  // Test case 3.1.1.1 - Is the Loading State Shown First?
   const loadingInfo = screen.getByTestId("loading-indicator");
   expect(loadingInfo).toBeInTheDocument();
 
-  // Test case 3.1.1.2 - Renders Heading with valid box identifier
+  // Test case 3.1.1.2 - Content: Heading renders correctly with valid box identifier
   const title = await screen.findByRole("heading", { name: "Box 123" });
   expect(title).toBeInTheDocument();
 
-  // Test case 3.1.1.3 - Renders sub heading with valid state
+  // Test case 3.1.1.3 - Content: Renders sub heading with valid state for an Instock Box
   const boxSubheading = screen.getByTestId("box-subheader");
   expect(boxSubheading).toHaveTextContent("Status: InStock");
 
-  // Test case 3.1.1.3.1 - state color
+  // Test case 3.1.1.3.1 - Content: State color for Instock Box is correct
   expect(screen.getByTestId("box-state")).toHaveStyle(`color: #0CA789`);
 
-  // Test case 3.1.1.4 - If Distro Event Not Available
+  // Test case 3.1.1.4 - Hide Distro Event Functionality for Ineligible Orgs
   const distroEventSection = screen.getByTestId("box-sections");
   expect(distroEventSection).not.toContain("Assign this Box to Distribution Event:");
 
-  // Test case 3.1.1.5 - Tags
+  // Test case 3.1.1.5 - Content: Box Tags are shown correctly
   const boxTags = screen.getByTestId("box-tags");
   expect(boxTags).toBeInTheDocument();
   expect(screen.getByText(/test tag/i)).toBeInTheDocument();
   expect(boxTags).toHaveTextContent("test tag");
 
-  // Test case 3.1.1.6 - Comments
+  // Test case 3.1.1.6 - Content: Comment section renders correctly
   expect(screen.getByText(/comment:/i)).toBeInTheDocument();
   const element = screen.queryByText(textContentMatcher("Good Comment"));
   expect(element).toBeInTheDocument();
@@ -308,7 +308,7 @@ it("3.1.2 - Change Number of Items", async () => {
   const title = await screen.findByRole("heading", { name: "Box 123" });
   expect(title).toBeInTheDocument();
 
-  // Test case 3.1.2.1.1 - Click on + OR - Button
+  // Test case 3.1.2.1.1 - Click on + Button
   expect(screen.getByTestId("boxview-number-items")).toHaveTextContent(`31x Snow trousers`);
 
   const addToItemsButton = screen.getByTestId("increase-items");
@@ -316,7 +316,7 @@ it("3.1.2 - Change Number of Items", async () => {
 
   expect(await screen.findByText(/add items to the Box/i)).toBeInTheDocument();
 
-  // Test case 3.1.2.1.1	- Number of Item
+  // Test case 3.1.2.1.1	- Alphabetical Input isn't allowed
   await user.type(screen.getByRole("spinbutton"), "a");
   await user.click(screen.getByText(/Submit/i));
   expect(await screen.findByText(/add items to the Box/i)).toBeInTheDocument();
@@ -326,7 +326,7 @@ it("3.1.2 - Change Number of Items", async () => {
   await user.click(screen.getByText(/Submit/i));
   await waitFor(() => expect(screen.getByRole("spinbutton")).toHaveValue("0"));
 
-  // Test case 3.1.2.2 - Click on Submit Button
+  // Test case 3.1.2.2 - Number of Item Validation
   await user.type(screen.getByRole("spinbutton"), "1");
   await user.click(screen.getByText(/Submit/i));
   expect(await screen.findByText("32x Snow trousers")).toBeInTheDocument();
@@ -360,7 +360,7 @@ it("3.1.3 - Change State to Scrap and Lost", async () => {
   const boxSubheadingChangedToScrap = screen.getByTestId("box-subheader");
   expect(boxSubheadingChangedToScrap).toHaveTextContent("Status: Scrap");
 
-  // Test case 3.1.3.1.2 - If State Scrap color changed
+  // Test case 3.1.3.1.2 - If state changes to Scrap, color also changes
   expect(screen.getByTestId("box-state")).toHaveStyle(`color: #EB404A`);
 
   // Test case 3.1.3.2 - Click on Lost
@@ -371,7 +371,7 @@ it("3.1.3 - Change State to Scrap and Lost", async () => {
   const boxSubheadingChangedToLost = screen.getByTestId("box-subheader");
   expect(boxSubheadingChangedToLost).toHaveTextContent("Status: Lost");
 
-  // Test case 3.1.3.2.2 - If State Lost color changed
+  // Test case 3.1.3.2.2 - If state changes to Lost, color also changes
   expect(screen.getByTestId("box-state")).toHaveStyle(`color: #EB404A`);
 });
 
@@ -389,7 +389,7 @@ it("3.1.4 - Move location", async () => {
 
   const boxLocationLabel = screen.getByTestId("box-location-label");
   expect(boxLocationLabel).toHaveTextContent("Move this box from WH Men to:");
-  // Test case 3.1.4.1- Click on the New Location
+  // Test case 3.1.4.1- Click to move box from WH Men to WH Women
   const whWomenLocation = screen.getByRole("button", { name: /wh women/i });
   await user.click(whWomenLocation);
 
@@ -450,7 +450,7 @@ it("3.1.6 - Product Gender", async () => {
 });
 
 // Test case 3.1.7
-it("3.1.7 - Error When Change Number of Items", async () => {
+it("3.1.7 - Error Shows Correctly When Trying to Remove (-) Items", async () => {
   const user = userEvent.setup();
   render(<BTBox />, {
     routePath: "/bases/:baseId/boxes/:labelIdentifier",
@@ -462,7 +462,7 @@ it("3.1.7 - Error When Change Number of Items", async () => {
   const title = await screen.findByRole("heading", { name: "Box 124" });
   expect(title).toBeInTheDocument();
 
-  // Test case 3.1.7.1 - Error message for Update Number of Item Mutation query
+  // Test case 3.1.7.1 - Correct input is entered, but there is a processing error (item mutation query returns and error message)
   const takeItemsButton = screen.getByTestId("decrease-items");
   await user.click(takeItemsButton);
   expect(await screen.findByText(/take items from the box/i)).toBeInTheDocument();
@@ -485,7 +485,7 @@ it("3.1.8 - Error When Move Locations", async () => {
   const title = await screen.findByRole("heading", { name: "Box 124" });
   expect(title).toBeInTheDocument();
 
-  // Test case 3.1.8.1 - Error message for Move Location Mutation query
+  // Test case 3.1.8.1 - Move Location has a processing error (box move mutation query returns error)
   const boxLocationLabel = screen.getByTestId("box-location-label");
   expect(boxLocationLabel).toHaveTextContent("Move this box from WH Men to:");
 
@@ -496,7 +496,7 @@ it("3.1.8 - Error When Move Locations", async () => {
 });
 
 // Test case 3.1.9
-it("3.1.9 - Given Invalid Box Label Identifier", async () => {
+it("3.1.9 - Given Invalid Box Label Identifier in the URL/Link", async () => {
   const user = userEvent.setup();
   render(<BTBox />, {
     routePath: "/bases/:baseId/boxes/:labelIdentifier",
@@ -509,7 +509,7 @@ it("3.1.9 - Given Invalid Box Label Identifier", async () => {
 });
 
 // Test case 3.1.10
-it("3.1.10 - Given Invalid Box Label Identifier", async () => {
+it("3.1.10 - No Data or Null Data Fetched for a given Box Label Identifier", async () => {
   const user = userEvent.setup();
   const mockFunction = jest.fn();
   render(
