@@ -16,6 +16,7 @@ import { product1, product3, products } from "mocks/products";
 import { BOX_BY_LABEL_IDENTIFIER_AND_ALL_PRODUCTS_WITH_BASEID_QUERY } from "views/BoxEdit/BoxEditView";
 import { tags } from "mocks/tags";
 import { textContentMatcher } from "tests/helpers";
+import BoxDetails from "./components/BoxDetails";
 
 jest.setTimeout(30000);
 
@@ -139,7 +140,7 @@ const moveLocationOfBoxRefetchQuery = {
   },
 };
 
-const updateBoxStateMutation = {
+const updateBoxStateToScrapMutation = {
   request: {
     query: UPDATE_STATE_IN_BOX_MUTATION,
     variables: {
@@ -156,7 +157,7 @@ const updateBoxStateMutation = {
   },
 };
 
-const boxStateSuccessfullUpdatedRefetchQuery = {
+const boxStateSuccessfullUpdatedToScrapRefetchQuery = {
   request: {
     query: BOX_BY_LABEL_IDENTIFIER_QUERY,
     variables: {
@@ -167,6 +168,49 @@ const boxStateSuccessfullUpdatedRefetchQuery = {
     data: {
       box: generateMockBox({ state: BoxState.Scrap }),
     },
+  },
+};
+
+const updateBoxStateToLostMutation = {
+  request: {
+    query: UPDATE_STATE_IN_BOX_MUTATION,
+    variables: {
+      boxLabelIdentifier: "123",
+      newState: "Lost",
+    },
+  },
+  result: {
+    data: {
+      updateBox: {
+        labelIdentifier: "123",
+      },
+    },
+  },
+};
+
+const boxStateSuccessfullUpdatedToLostRefetchQuery = {
+  request: {
+    query: BOX_BY_LABEL_IDENTIFIER_QUERY,
+    variables: {
+      labelIdentifier: "123",
+    },
+  },
+  result: {
+    data: {
+      box: generateMockBox({ state: BoxState.Lost }),
+    },
+  },
+};
+
+const initialFailedQuery = {
+  request: {
+    query: BOX_BY_LABEL_IDENTIFIER_QUERY,
+    variables: {
+      labelIdentifier: "1111",
+    },
+  },
+  result: {
+    errors: [new GraphQLError("Error!")],
   },
 };
 
@@ -294,7 +338,13 @@ it("3.1.3 - Change State to Scrap and Lost", async () => {
   render(<BTBox />, {
     routePath: "/bases/:baseId/boxes/:labelIdentifier",
     initialUrl: "/bases/2/boxes/123",
-    mocks: [initialQuery, updateBoxStateMutation, boxStateSuccessfullUpdatedRefetchQuery],
+    mocks: [
+      initialQuery,
+      updateBoxStateToScrapMutation,
+      boxStateSuccessfullUpdatedToScrapRefetchQuery,
+      updateBoxStateToLostMutation,
+      boxStateSuccessfullUpdatedToLostRefetchQuery,
+    ],
     addTypename: true,
   });
 
@@ -302,15 +352,26 @@ it("3.1.3 - Change State to Scrap and Lost", async () => {
 
   const boxSubheading = screen.getByTestId("box-subheader");
   expect(boxSubheading).toHaveTextContent("Status: InStock");
-  // Test case 3.1.3.1 - Click on Scrap / Lost
+  // Test case 3.1.3.1 - Click on Scrap
   await user.click(screen.getByTestId("box-scrap-btn"));
 
   expect(await screen.findByText(/status:/i)).toBeInTheDocument();
-  // Test case 3.1.3.1.1 - Change state on Scrap/Lost Toggled
-  const boxSubheadingUpdated = screen.getByTestId("box-subheader");
-  expect(boxSubheadingUpdated).toHaveTextContent("Status: Scrap");
+  // Test case 3.1.3.1.1 - Change state on Scrap Toggled
+  const boxSubheadingChangedToScrap = screen.getByTestId("box-subheader");
+  expect(boxSubheadingChangedToScrap).toHaveTextContent("Status: Scrap");
 
-  // Test case 3.1.3.1.2 - If State Lost / Scrap color changed
+  // Test case 3.1.3.1.2 - If State Scrap color changed
+  expect(screen.getByTestId("box-state")).toHaveStyle(`color: #EB404A`);
+
+  // Test case 3.1.3.2 - Click on Lost
+  await user.click(screen.getByTestId("box-lost-btn"));
+
+  expect(await screen.findByText(/status:/i)).toBeInTheDocument();
+  // Test case 3.1.3.2.1 - Change state on Lost Toggled
+  const boxSubheadingChangedToLost = screen.getByTestId("box-subheader");
+  expect(boxSubheadingChangedToLost).toHaveTextContent("Status: Lost");
+
+  // Test case 3.1.3.2.2 - If State Lost color changed
   expect(screen.getByTestId("box-state")).toHaveStyle(`color: #EB404A`);
 });
 
@@ -335,17 +396,17 @@ it("3.1.4 - Move location", async () => {
   expect(screen.getByText(/successfully moved the box/i)).toBeInTheDocument();
   expect(await screen.findByText(/Move this box from/i)).toBeInTheDocument();
 
-  const whMenButton = screen.getByRole("button", { name: /wh men/i });
-  expect(whMenButton).toBeInTheDocument();
-
+  await waitFor(() => expect(screen.getByRole("button", { name: /wh men/i })).toBeInTheDocument());
   const boxLocationUpdatedLabel = screen.getByTestId("box-location-label");
   expect(boxLocationUpdatedLabel).toHaveTextContent("Move this box from WH Women to:");
-  // Test case 3.1.4.2- Show last history entry
+
+  // Test case 3.1.4.2 - Show last history entry
   expect(await screen.findByText(/history:/i)).toBeInTheDocument();
-  const historyEntry = screen.getByTestId("history-30952");
+  const historyEntry = screen.getByTestId("history-1");
   expect(historyEntry).toBeInTheDocument();
 
-  // Test case 3.1.4.3 - Error message for Move Location Mutation query
+  // Test case 3.1.4.2.1 - Show last history entry icon
+  expect(screen.getByRole("presentation")).toBeInTheDocument();
 });
 
 // Test case 3.1.5
@@ -432,4 +493,44 @@ it("3.1.8 - Error When Move Locations", async () => {
   await user.click(whWomenLocation);
 
   expect(screen.getByText(/box could not be moved!/i)).toBeInTheDocument();
+});
+
+// Test case 3.1.9
+it("3.1.9 - Given Invalid Box Label Identifier", async () => {
+  const user = userEvent.setup();
+  render(<BTBox />, {
+    routePath: "/bases/:baseId/boxes/:labelIdentifier",
+    initialUrl: "/bases/2/boxes/1111",
+    mocks: [initialFailedQuery],
+    addTypename: true,
+  });
+
+  await waitFor(() => expect(screen.getByText(/could not fetch box data!/i)).toBeInTheDocument());
+});
+
+// Test case 3.1.10
+it("3.1.10 - Given Invalid Box Label Identifier", async () => {
+  const user = userEvent.setup();
+  const mockFunction = jest.fn();
+  render(
+    <BoxDetails
+      boxData={undefined}
+      onMoveToLocationClick={mockFunction}
+      onPlusOpen={mockFunction}
+      onMinusOpen={mockFunction}
+      onStateChange={mockFunction}
+      onAssignBoxToDistributionEventClick={mockFunction}
+      onUnassignBoxFromDistributionEventClick={mockFunction}
+    />,
+    {
+      routePath: "/bases/:baseId/boxes/:labelIdentifier",
+      initialUrl: "/bases/2/boxes/1111",
+      mocks: [initialFailedQuery],
+      addTypename: true,
+    },
+  );
+
+  await waitFor(() =>
+    expect(screen.getByText(/no data found for a box with this id/i)).toBeInTheDocument(),
+  );
 });

@@ -1,8 +1,9 @@
 export const history1 = {
   __typename: "HistoryEntry",
   changeDate: "2023-01-12T08:39:44+00:00",
-  changes: "changed box location from WH Men to WH Women",
-  id: "30952",
+
+  changes: "created record",
+  id: "1",
   user: {
     __typename: "User",
     id: "8",
@@ -11,15 +12,15 @@ export const history1 = {
 };
 
 export const history2 = {
-  changeDate: "2023-01-11T10:30:39+00:00",
-  changes: "changed the number of items from 31 to 32",
-  id: "30944",
+  __typename: "HistoryEntry",
+  changeDate: "2023-01-14T08:07:13+00:00",
+  changes: "changed box location from WH Men to WH Women",
+  id: "2",
   user: {
+    __typename: "User",
     id: "8",
     name: "Dev Coordinator",
-    __typename: "User",
   },
-  __typename: "HistoryEntry",
 };
 
 export const histories = [history1, history2];
