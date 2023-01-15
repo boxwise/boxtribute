@@ -216,8 +216,9 @@ function BoxDetails({
             {boxData?.comment !== "" && boxData?.comment !== null && (
               <ListItem>
                 <Flex direction="row">
-                  <Text fontWeight="bold">
-                    Comment: <b>{boxData?.comment}</b>
+                  <Text>
+                    <b>Comment: </b>
+                    {boxData?.comment}
                   </Text>
                 </Flex>
               </ListItem>
