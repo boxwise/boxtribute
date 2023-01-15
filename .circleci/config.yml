@@ -75,6 +75,8 @@ jobs:
       - run:
           name: Install Yarn Packages
           command: yarn install --immutable
+      - store_artifacts:
+          path: yarn.lock
       - save_cache:
           name: Save Yarn Package Cache
           key: react-yarn-{{ checksum "yarn.lock" }}
@@ -99,6 +101,7 @@ jobs:
           path: reports
       - store_artifacts:
           path: coverage
+          destination: coverage
       - codecov/upload:
           flags: frontend
       - slack/notify-on-failure:
