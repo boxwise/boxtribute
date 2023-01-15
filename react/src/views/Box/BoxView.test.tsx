@@ -291,7 +291,7 @@ it("3.1.1 - Initial load of Page", async () => {
 
   // Test case 3.1.1.6 - Content: Comment section renders correctly
   expect(screen.getByText(/comment:/i)).toBeInTheDocument();
-  const element = screen.queryByText(textContentMatcher("Good Comment"));
+  const element = screen.queryByText(/Good Comment/i);
   expect(element).toBeInTheDocument();
 });
 
