@@ -74,7 +74,7 @@ jobs:
             - react-yarn-{{ checksum "yarn.lock" }}
       - run:
           name: Install Yarn Packages
-          command: yarn install --immutable
+          command: yarn install --frozen-lockfile
       - store_artifacts:
           path: yarn.lock
       - save_cache:
