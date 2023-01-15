@@ -129,7 +129,8 @@ function BoxCreateView() {
     .map((location) => ({
       ...location,
       name: location.name ?? "",
-    }));
+    }))
+    .sort((a, b) => Number(a?.seq) - Number(b?.seq));
 
   // check data for form
   useEffect(() => {

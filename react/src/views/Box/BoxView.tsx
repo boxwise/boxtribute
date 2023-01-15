@@ -143,6 +143,7 @@ export const UPDATE_BOX_MUTATION = gql`
             ... on ClassicLocation {
               defaultBoxState
             }
+            seq
           }
           distributionEventsBeforeReturnedFromDistributionState {
             id
