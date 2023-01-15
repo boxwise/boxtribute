@@ -5,7 +5,9 @@ import { screen, render, fireEvent } from "tests/test-utils";
 import HeaderMenuContainer from "components/HeaderMenu/HeaderMenuContainer";
 import { useAuth0 } from "@auth0/auth0-react";
 import { QrReader } from "components/QrReader/QrReader";
-import { Result } from "@zxing/library";
+import { mockMatchMediaQuery } from "mocks/functions";
+import { mockAuthenticatedUser } from "mocks/hooks";
+import { mockImplementationOfQrReader } from "mocks/components";
 import { GET_BOX_LABEL_IDENTIFIER_BY_QR_CODE } from "utils/queries";
 
 jest.mock("@auth0/auth0-react");
@@ -32,46 +34,14 @@ const queryNoBoxAssociatedWithQrCode = {
   },
 };
 
+beforeEach(() => {
+  // setting the screensize to
+  mockMatchMediaQuery("(max-width: 1070px)", true);
+  mockAuthenticatedUser(mockedUseAuth0, "dev_volunteer@boxaid.org");
+  mockImplementationOfQrReader(mockedQrReader);
+});
+
 it("3.4.2.1 - Mobile: User scans QR code of same org without previously associated box", async () => {
-  // Jest does not implement window.matchMedia() which is used in the chackra ui hook useMediaQuery().
-  // To mock a result of useMediaQuery you have to define this property. The 'matches' boolean is the return value.
-  // https://jestjs.io/docs/26.x/manual-mocks#mocking-methods-which-are-not-implemented-in-jsdom
-  Object.defineProperty(window, "matchMedia", {
-    writable: true,
-    value: jest.fn().mockImplementation((query) => ({
-      matches: true,
-      media: query,
-      onchange: null,
-      addListener: jest.fn(), // deprecated
-      removeListener: jest.fn(), // deprecated
-      addEventListener: jest.fn(),
-      removeEventListener: jest.fn(),
-      dispatchEvent: jest.fn(),
-    })),
-  });
-
-  mockedUseAuth0.mockReturnValue({
-    isAuthenticated: true,
-    user: { email: "dev_volunteer@boxaid.org" },
-    logout: jest.fn(),
-    loginWithRedirect: jest.fn(),
-    getAccessTokenWithPopup: jest.fn(),
-    getAccessTokenSilently: jest.fn(),
-    getIdTokenClaims: jest.fn(),
-    loginWithPopup: jest.fn(),
-    isLoading: false,
-    buildAuthorizeUrl: jest.fn(),
-    buildLogoutUrl: jest.fn(),
-    handleRedirectCallback: jest.fn(),
-  });
-
-  mockedQrReader.mockImplementation((props) => (
-    <button
-      type="button"
-      data-testid="ReturnScannedQr"
-      onClick={() => props.onResult(new Result("barcode=testhash", new Uint8Array([0]), 0, [], 11))}
-    />
-  ));
   const user = userEvent.setup();
   render(<HeaderMenuContainer />, {
     routePath: "/bases/:baseId",
