@@ -373,6 +373,11 @@ it("3.1.3 - Change State to Scrap and Lost", async () => {
 
   // Test case 3.1.3.2.2 - If state changes to Lost, color also changes
   expect(screen.getByTestId("box-state")).toHaveStyle(`color: #EB404A`);
+
+  // Test case  3.1.3.3 - If the Box is in a Lost or Scrap state, editing should be disabled
+  expect(screen.getByTestId("increase-items")).toHaveAttribute("disabled");
+  expect(screen.getByTestId("decrease-items")).toHaveAttribute("disabled");
+  expect(screen.getByRole("button", { name: /edit box/i })).toHaveAttribute("disabled");
 });
 
 // Test case 3.1.4
