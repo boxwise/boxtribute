@@ -5,6 +5,8 @@ import { screen, render, fireEvent } from "tests/test-utils";
 import HeaderMenuContainer from "components/HeaderMenu/HeaderMenuContainer";
 import { useAuth0 } from "@auth0/auth0-react";
 import { useMediaQuery } from "@chakra-ui/react";
+import { QrReader } from "components/QrReader/QrReader";
+import { Result } from "@zxing/library";
 
 jest.mock("@auth0/auth0-react");
 jest.mock("components/QrReader/QrReader");
@@ -12,11 +14,7 @@ jest.mock("components/QrReader/QrReader");
 // .mocked() is a nice helper function from jest for typescript support
 // https://jestjs.io/docs/mock-function-api/#typescript-usage
 const mockedUseAuth0 = jest.mocked(useAuth0);
-
-jest.mock("components/QrReader/QrReader", () => ({
-  __esModule: true,
-  QrReader: () => <div data-testid="QrReader" />,
-}));
+const mockedQrReader = jest.mocked(QrReader);
 
 it("3.2.1 - Initial load of Page", async () => {
   // Jest does not implement window.matchMedia() which is used in the chackra ui hook useMediaQuery().
@@ -50,6 +48,14 @@ it("3.2.1 - Initial load of Page", async () => {
     buildLogoutUrl: jest.fn(),
     handleRedirectCallback: jest.fn(),
   });
+
+  mockedQrReader.mockImplementation((props) => (
+    <button
+      type="button"
+      data-testid="ReturnScannedQr"
+      onClick={() => props.onResult(new Result("barcode=testhash", new Uint8Array([0]), 0, [], 11))}
+    />
+  ));
   const user = userEvent.setup();
   render(<HeaderMenuContainer />, {
     routePath: "/bases/:baseId",
@@ -58,4 +64,6 @@ it("3.2.1 - Initial load of Page", async () => {
 
   const qrButton = await screen.findByRole("button", { name: /scan qr code/i });
   await user.click(qrButton);
+
+  await user.click(screen.getByTestId("ReturnScannedQr"));
 });
