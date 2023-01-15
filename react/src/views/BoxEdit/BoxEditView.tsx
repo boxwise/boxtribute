@@ -150,7 +150,7 @@ function BoxEditView() {
       .then((mutationResult) => {
         if (mutationResult?.errors) {
           triggerError({
-            message: "Server could not update Box.",
+            message: "Could not update Box.",
           });
         } else {
           createToast({
