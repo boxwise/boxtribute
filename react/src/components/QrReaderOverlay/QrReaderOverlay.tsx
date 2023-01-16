@@ -229,12 +229,13 @@ function QrReaderOverlay({
                   type="string"
                   width={150}
                   onChange={(e) => onBoxLabelInputChange(e.currentTarget.value)}
+                  disabled={isFindBoxByLabelForNonBulkModeLoading}
                   value={boxLabelInputValue}
                 />
                 <FormErrorMessage>{boxLabelInputError}</FormErrorMessage>
               </FormControl>
               <Button
-                disabled={!!boxLabelInputError}
+                disabled={!!boxLabelInputError || isFindBoxByLabelForNonBulkModeLoading}
                 isLoading={isFindBoxByLabelForNonBulkModeLoading}
                 onClick={() => {
                   if (boxLabelInputValue) {
