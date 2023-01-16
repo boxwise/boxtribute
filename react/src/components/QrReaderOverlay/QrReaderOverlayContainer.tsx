@@ -263,12 +263,12 @@ function QrReaderOverlayContainer({
     [addQrValueToBulkList, handleClose, isBulkModeActive, isBulkModeSupported, handleSingleScan],
   );
 
-  const [isFindByBoxLabelForNonBulModeLoading, setIsFindByBoxLabelForNonBulModeLoading] =
+  const [isFindByBoxLabelForNonBulkModeLoading, setIsFindByBoxLabelForNonBulkModeLoading] =
     useBoolean(false);
 
   const handleFindBoxByLabelForNonBulkMode = useCallback(
     (label: string) => {
-      setIsFindByBoxLabelForNonBulModeLoading.on();
+      setIsFindByBoxLabelForNonBulkModeLoading.on();
       apolloClient
         .query<BoxDetailsQuery, BoxDetailsQueryVariables>({
           query: BOX_DETAILS_BY_LABEL_IDENTIFIER_QUERY,
@@ -276,7 +276,7 @@ function QrReaderOverlayContainer({
           variables: { labelIdentifier: label },
         })
         .then(({ data, errors }) => {
-          setIsFindByBoxLabelForNonBulModeLoading.off();
+          setIsFindByBoxLabelForNonBulkModeLoading.off();
           if ((errors?.length || 0) > 0) {
             const errorCode = errors ? errors[0].extensions.code : null;
             if (errorCode === "FORBIDDEN") {
@@ -295,11 +295,11 @@ function QrReaderOverlayContainer({
           }
         })
         .catch((err) => {
-          setIsFindByBoxLabelForNonBulModeLoading.off();
+          setIsFindByBoxLabelForNonBulkModeLoading.off();
           onScanningDone([{ kind: QrResolverResultKind.FAIL, error: err }]);
         });
     },
-    [apolloClient, handleClose, onScanningDone, setIsFindByBoxLabelForNonBulModeLoading],
+    [apolloClient, handleClose, onScanningDone, setIsFindByBoxLabelForNonBulkModeLoading],
   );
 
   const handleFindBoxByLabelForBulkMode = useCallback(
@@ -415,7 +415,7 @@ function QrReaderOverlayContainer({
         handleClose={handleClose}
         isBulkModeSupported={isBulkModeSupported}
         isBulkModeActive={isBulkModeActive}
-        isFindBoxByLabelForNonBulkModeLoading={isFindByBoxLabelForNonBulModeLoading}
+        isFindBoxByLabelForNonBulkModeLoading={isFindByBoxLabelForNonBulkModeLoading}
         setIsBulkModeActive={setIsBulkModeActive}
         boxesByLabelSearchWrappers={boxesByLabelSearchWrappers}
         scannedQrValueWrappers={scannedQrValueWrappers}
