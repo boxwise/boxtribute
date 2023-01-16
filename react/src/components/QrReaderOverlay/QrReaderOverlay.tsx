@@ -81,6 +81,7 @@ export interface IQrValueWrapper {
 export interface IQrReaderOverlayProps {
   isBulkModeSupported: boolean;
   isBulkModeActive: boolean;
+  isFindBoxByLabelForNonBulkModeLoading: boolean;
   setIsBulkModeActive: {
     on: () => void;
     off: () => void;
@@ -137,6 +138,7 @@ function QrReaderOverlay({
   isBulkModeSupported,
   isOpen,
   isBulkModeActive,
+  isFindBoxByLabelForNonBulkModeLoading,
   setIsBulkModeActive,
   onFindBoxByLabel,
   onBulkScanningDoneButtonClick,
@@ -233,6 +235,7 @@ function QrReaderOverlay({
               </FormControl>
               <Button
                 disabled={!!boxLabelInputError}
+                isLoading={isFindBoxByLabelForNonBulkModeLoading}
                 onClick={() => {
                   if (boxLabelInputValue) {
                     onFindBoxByLabel(boxLabelInputValue);
