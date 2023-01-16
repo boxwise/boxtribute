@@ -6,6 +6,7 @@ import {
   Checkbox,
   Container,
   FormControl,
+  FormErrorMessage,
   FormLabel,
   HStack,
   IconButton,
@@ -164,6 +165,24 @@ function QrReaderOverlay({
   );
 
   const [boxLabelInputValue, setBoxLabelInputValue] = useState("");
+  const [boxLabelInputError, setBoxLabelInputError] = useState("");
+
+  const onBoxLabelInputChange = useCallback(
+    (value: string) => {
+      if (!value) {
+        // remove error for empty form field
+        setBoxLabelInputError("");
+      } else if (value.length < 6) {
+        setBoxLabelInputError("Please enter more than 6 digits.");
+      } else if (!/^\d+$/.test(value)) {
+        setBoxLabelInputError("Please only enter digits.");
+      } else {
+        setBoxLabelInputError("");
+      }
+      setBoxLabelInputValue(value);
+    },
+    [setBoxLabelInputValue, setBoxLabelInputError],
+  );
 
   return (
     <Modal isOpen={isOpen} closeOnOverlayClick closeOnEsc onClose={handleClose}>
@@ -203,17 +222,23 @@ function QrReaderOverlay({
             </HStack>
             <HStack borderColor="blackAlpha.100" borderWidth={2} p={4} my={5}>
               <Text fontWeight="bold">By Label</Text>
-              <Input
-                type="string"
-                width={150}
-                onChange={(e) => setBoxLabelInputValue(e.currentTarget.value)}
-                value={boxLabelInputValue}
-              />
+              <FormControl isInvalid={!!boxLabelInputError}>
+                <Input
+                  type="string"
+                  width={150}
+                  onChange={(e) => onBoxLabelInputChange(e.currentTarget.value)}
+                  value={boxLabelInputValue}
+                />
+                <FormErrorMessage>{boxLabelInputError}</FormErrorMessage>
+              </FormControl>
               <Button
+                disabled={!!boxLabelInputError}
                 onClick={() => {
-                  if (boxLabelInputValue != null && boxLabelInputValue !== "") {
+                  if (boxLabelInputValue) {
                     onFindBoxByLabel(boxLabelInputValue);
                     setBoxLabelInputValue("");
+                  } else {
+                    setBoxLabelInputError("Please enter a label id.");
                   }
                 }}
               >
