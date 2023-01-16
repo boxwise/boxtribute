@@ -175,7 +175,7 @@ function QrReaderOverlay({
         // remove error for empty form field
         setBoxLabelInputError("");
       } else if (value.length < 6) {
-        setBoxLabelInputError("Please enter more than 6 digits.");
+        setBoxLabelInputError("Please enter at least 6 digits.");
       } else if (!/^\d+$/.test(value)) {
         setBoxLabelInputError("Please only enter digits.");
       } else {
