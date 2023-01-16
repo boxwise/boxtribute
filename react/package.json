@@ -41,7 +41,7 @@
     "@craco/craco": "^6.4.5",
     "@graphql-codegen/cli": "^2.13.7",
     "@graphql-codegen/typescript": "^2.8.3",
-    "@graphql-codegen/typescript-operations": "^2.5.7",
+    "@graphql-codegen/typescript-operations": "^2.5.12",
     "@graphql-codegen/typescript-react-query": "^4.0.6",
     "@sentry/types": "^7.28.1",
     "@storybook/addon-actions": "^6.5.15",
