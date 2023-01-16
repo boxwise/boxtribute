@@ -136,12 +136,6 @@ const HeaderMenuContainer = () => {
             break;
           }
           case QrResolverResultKind.NOT_ASSIGNED_TO_BOX: {
-            createToast({
-              title: "QR Code",
-              type: "info",
-              message: "Scanned QR code is not assigned to a box yet",
-            });
-
             navigate(`/bases/${baseId}/boxes/create/${singleResolvedQrValue?.qrCodeValue}`);
             break;
           }
