@@ -56,7 +56,7 @@ services:
         mem_limit: 4G
 ```
 
-### [Further Steps]
+### Further Steps
 
 - [for front-end including react-testing-library, eslint, prettier](/react/README.md)
 - [for back-end including pytest, venv, formatting and debugging](/back/README.md)
@@ -152,7 +152,7 @@ Here, is a list of intro tutorials for each technologies / frameworks / language
 #### Front-end
 
 - [Typescript](https://react-typescript-cheatsheet.netlify.app/)
-- [Custom Rebass Library](https://github.com/boxwise/react-components)
+- [Chakra UI](https://chakra-ui.com/)
 - [React](https://reactjs.org/docs/getting-started.html)
 - [React Hooks](https://reactjs.org/docs/hooks-intro.html)
 - [React Context](https://reactjs.org/docs/context.html)
@@ -165,7 +165,7 @@ Here, is a list of intro tutorials for each technologies / frameworks / language
 - [Python 3.10](https://devguide.python.org/)
 - [Flask](https://flask.palletsprojects.com/en/1.1.x/tutorial/layout/)
 - [PeeWee](http://docs.peewee-orm.com/en/latest/peewee/quickstart.html)
-- MySQL
+- [MySQL Community Edition](https://www.mysql.com/products/community/)
 
 #### Authentication
 
