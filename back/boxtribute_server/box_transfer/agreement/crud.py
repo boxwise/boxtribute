@@ -35,6 +35,7 @@ def _validate_bases_as_part_of_organisation(*, base_ids, organisation_id):
 
 def create_transfer_agreement(
     *,
+    source_organisation_id,
     target_organisation_id,
     type,
     source_base_ids=None,
@@ -56,7 +57,6 @@ def create_transfer_agreement(
     Raise an InvalidTransferAgreementBase expection if any specified source/target base
     is not part of the source/target organisation.
     """
-    source_organisation_id = user.organisation_id
     if source_organisation_id == target_organisation_id:
         raise InvalidTransferAgreementOrganisation()
 

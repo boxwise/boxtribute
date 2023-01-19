@@ -55,6 +55,7 @@ input BeneficiaryUpdateInput {
 }
 
 input TransferAgreementCreationInput {
+  sourceOrganisationId: Int!
   targetOrganisationId: Int!
   type: TransferAgreementType!
   # pass local date and timezone information (e.g. 'Europe/Berlin')
