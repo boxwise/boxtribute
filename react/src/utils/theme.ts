@@ -37,6 +37,21 @@ export const theme = extendTheme({
         fontWeight: "bold",
       },
     },
+    // This is fix for https://github.com/chakra-ui/chakra-ui/issues/2925
+    Radio: {
+      baseStyle: {
+        label: {
+          pointerEvents: "none",
+        },
+      },
+    },
+    Checkbox: {
+      baseStyle: {
+        label: {
+          pointerEvents: "none",
+        },
+      },
+    },
     Input: {
       defaultProps: {
         focusBorderColor: "transparent",
