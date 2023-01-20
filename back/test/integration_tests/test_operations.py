@@ -81,6 +81,7 @@ def test_mutations(auth0_client):
     assert response == {"firstName": "Some"}
 
     mutation = """mutation { createTransferAgreement(creationInput: {
+                    sourceOrganisationId: 1,
                     targetOrganisationId: 2,
                     type: Bidirectional
                 }) { id type } }"""
