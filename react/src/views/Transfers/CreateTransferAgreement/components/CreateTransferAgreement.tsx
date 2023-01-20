@@ -47,8 +47,10 @@ export const TransferAgreementFormDataSchema = z.object({
   partnerOrganisationSelectedBases: singleSelectOptionSchema.array().optional(),
   validFrom: z.string().transform((value, ctx) => {
     // eslint-disable-next-line no-console
-    console.log("foo", value);
+    console.log("validFrom: ", value);
     const parsedDate = parse(value, "yyyy-MM-dd", new Date());
+    // eslint-disable-next-line no-console
+    console.log("parsedDate validFrom: ", parsedDate);
     if (!isValid(parsedDate) && value !== "") {
       ctx.addIssue({
         code: z.ZodIssueCode.invalid_date,

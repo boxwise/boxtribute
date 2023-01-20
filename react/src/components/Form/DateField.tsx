@@ -1,5 +1,5 @@
 import { FormControl, FormErrorMessage, FormLabel, Input, Text } from "@chakra-ui/react";
-import { Controller } from "react-hook-form";
+// import { Controller } from "react-hook-form";
 
 export interface IDateFieldProps {
   fieldId: string;
@@ -15,7 +15,7 @@ function DateField({
   fieldId,
   fieldLabel,
   errors,
-  control,
+  // control,
   register,
   isRequired = true,
 }: IDateFieldProps) {

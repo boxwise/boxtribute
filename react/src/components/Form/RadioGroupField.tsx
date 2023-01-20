@@ -7,7 +7,6 @@ import {
   Stack,
   StackDirection,
   Text,
-  extendTheme,
 } from "@chakra-ui/react";
 import { Controller } from "react-hook-form";
 
@@ -22,18 +21,6 @@ export interface IRadioGroupFieldProps {
   isRequired?: boolean;
 }
 
-const theme = extendTheme({
-  components: {
-    Checkbox: {
-      // can be Radio
-      baseStyle: {
-        label: {
-          touchAction: "none",
-        },
-      },
-    },
-  },
-});
 function RadioGroupField({
   fieldId,
   fieldLabel,

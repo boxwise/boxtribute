@@ -1745,6 +1745,7 @@ export type AllOrganisationsAndBasesQueryVariables = Exact<{ [key: string]: neve
 export type AllOrganisationsAndBasesQuery = { __typename?: 'Query', organisations: Array<{ __typename?: 'Organisation', id: string, name: string, bases?: Array<{ __typename?: 'Base', id: string, name: string }> | null }> };
 
 export type CreateTransferAgreementMutationVariables = Exact<{
+  sourceOrganisationId: Scalars['Int'];
   targetOrganisationId: Scalars['Int'];
   type: TransferAgreementType;
   validFrom?: InputMaybe<Scalars['Date']>;

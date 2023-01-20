@@ -2,9 +2,9 @@ import { useEffect, useContext } from "react";
 import { gql, useMutation, useQuery } from "@apollo/client";
 import { Center } from "@chakra-ui/react";
 import { useErrorHandling } from "utils/error-handling";
-import { useNotification } from "utils/hooks";
+// import { useNotification } from "utils/hooks";
 import APILoadingIndicator from "components/APILoadingIndicator";
-import { useNavigate, useParams } from "react-router-dom";
+// import { useNavigate } from "react-router-dom";
 import {
   AllOrganisationsAndBasesQuery,
   CreateTransferAgreementMutation,
@@ -32,6 +32,7 @@ export const ALL_ORGS_AND_BASES_QUERY = gql`
 
 export const CREATE_AGREEMENT_MUTATION = gql`
   mutation CreateTransferAgreement(
+    $sourceOrganisationId: Int!
     $targetOrganisationId: Int!
     $type: TransferAgreementType!
     $validFrom: Date
@@ -43,6 +44,7 @@ export const CREATE_AGREEMENT_MUTATION = gql`
   ) {
     createTransferAgreement(
       creationInput: {
+        sourceOrganisationId: $sourceOrganisationId
         targetOrganisationId: $targetOrganisationId
         type: $type
         validFrom: $validFrom
@@ -60,13 +62,13 @@ export const CREATE_AGREEMENT_MUTATION = gql`
 
 function CreateTransferAgreementView() {
   // Basics
-  const navigate = useNavigate();
+  // const navigate = useNavigate();
   const { triggerError } = useErrorHandling();
-  const { createToast } = useNotification();
+  // const { createToast } = useNotification();
   const { globalPreferences } = useContext(GlobalPreferencesContext);
 
   // variables in URL
-  const baseId = useParams<{ baseId: string }>().baseId!;
+  // const baseId = useParams<{ baseId: string }>().baseId!;
 
   // Query Data for the Form
   const allFormOptions = useQuery<AllOrganisationsAndBasesQuery>(ALL_ORGS_AND_BASES_QUERY, {});
@@ -142,28 +144,28 @@ function CreateTransferAgreementView() {
     // eslint-disable-next-line no-console
     console.log(`createTransferAgreementData: ${createTransferAgreementData}`);
 
-    // createTransferAgreementMutation({
-    //   variables: {
-    //     // sourceOrganisationId: parseInt(sourceOrganisationId, 10),
-    //     targetOrganisationId: parseInt(targetOrganisationId, 10),
-    //     type: transferType,
-    //     validFrom: createTransferAgreementData?.validFrom,
-    //     validUntil: createTransferAgreementData?.validUntil,
-    //     sourceBaseIds,
-    //     targetBaseIds,
-    //     comment: createTransferAgreementData.comment,
-    //   },
-    // })
-    //   .then((mutationResult) => {
-    //     // eslint-disable-next-line no-console
-    //     console.log(mutationResult);
-    //   })
-    //   .catch((err) => {
-    //     triggerError({
-    //       message: "Your changes could not be saved!",
-    //       statusCode: err.code,
-    //     });
-    //   });
+    createTransferAgreementMutation({
+      variables: {
+        sourceOrganisationId: parseInt(sourceOrganisationId, 10),
+        targetOrganisationId: parseInt(targetOrganisationId, 10),
+        type: transferType,
+        validFrom: createTransferAgreementData?.validFrom,
+        validUntil: createTransferAgreementData?.validUntil,
+        sourceBaseIds,
+        targetBaseIds,
+        comment: createTransferAgreementData.comment,
+      },
+    })
+      .then((mutationResult) => {
+        // eslint-disable-next-line no-console
+        console.log(mutationResult);
+      })
+      .catch((err) => {
+        triggerError({
+          message: "Your changes could not be saved!",
+          statusCode: err.code,
+        });
+      });
   };
 
   // Handle Loading State
