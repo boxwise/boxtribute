@@ -1,10 +1,10 @@
-import { useEffect, useContext } from "react";
+import { useEffect, useContext, useState } from "react";
 import { gql, useMutation, useQuery } from "@apollo/client";
-import { Center } from "@chakra-ui/react";
+import { Alert, AlertDescription, AlertIcon, AlertTitle, Center } from "@chakra-ui/react";
 import { useErrorHandling } from "utils/error-handling";
-// import { useNotification } from "utils/hooks";
+import { useNotification } from "utils/hooks";
 import APILoadingIndicator from "components/APILoadingIndicator";
-// import { useNavigate } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import {
   AllOrganisationsAndBasesQuery,
   CreateTransferAgreementMutation,
@@ -62,13 +62,14 @@ export const CREATE_AGREEMENT_MUTATION = gql`
 
 function CreateTransferAgreementView() {
   // Basics
-  // const navigate = useNavigate();
+  const navigate = useNavigate();
   const { triggerError } = useErrorHandling();
-  // const { createToast } = useNotification();
+  const { createToast } = useNotification();
   const { globalPreferences } = useContext(GlobalPreferencesContext);
+  const [success, setSuccess] = useState<Boolean>(false);
 
   // variables in URL
-  // const baseId = useParams<{ baseId: string }>().baseId!;
+  const baseId = useParams<{ baseId: string }>().baseId!;
 
   // Query Data for the Form
   const allFormOptions = useQuery<AllOrganisationsAndBasesQuery>(ALL_ORGS_AND_BASES_QUERY, {});
@@ -157,8 +158,19 @@ function CreateTransferAgreementView() {
       },
     })
       .then((mutationResult) => {
-        // eslint-disable-next-line no-console
-        console.log(mutationResult);
+        if (mutationResult.errors) {
+          triggerError({
+            message: "Error while trying to create transfer agreement",
+          });
+        } else {
+          createToast({
+            title: `Transfer Agreement ${mutationResult.data?.createTransferAgreement?.id}`,
+            type: "success",
+            message: "Successfully created a transfer agreement",
+          });
+
+          setSuccess(true);
+        }
       })
       .catch((err) => {
         triggerError({
@@ -168,12 +180,36 @@ function CreateTransferAgreementView() {
       });
   };
 
+  if (success) {
+    setTimeout(() => {
+      navigate(`/bases/${baseId}/transfers/agreements`);
+    }, 10000);
+    return (
+      <Alert
+        status="success"
+        variant="subtle"
+        flexDirection="column"
+        alignItems="center"
+        justifyContent="center"
+        textAlign="center"
+        height="200px"
+      >
+        <AlertIcon boxSize="40px" mr={0} />
+        <AlertTitle mt={4} mb={1} fontSize="lg">
+          Transfer Agreement Created!
+        </AlertTitle>
+        <AlertDescription maxWidth="sm">
+          You will be redirected to the overview of transfer agreements shortly
+        </AlertDescription>
+      </Alert>
+    );
+  }
+
   // Handle Loading State
   if (allFormOptions.loading || createTransferAgreementMutationState.loading) {
     return <APILoadingIndicator />;
   }
 
-  // TODO: handle errors not with empty div, but forward or roll data back in the view
   if (allOrgsAndTheirBases === undefined) {
     return <div />;
   }

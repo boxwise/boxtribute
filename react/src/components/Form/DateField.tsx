@@ -1,4 +1,5 @@
 import { FormControl, FormErrorMessage, FormLabel, Input, Text } from "@chakra-ui/react";
+import { Controller } from "react-hook-form";
 // import { Controller } from "react-hook-form";
 
 export interface IDateFieldProps {
@@ -9,15 +10,21 @@ export interface IDateFieldProps {
   register: any;
   // eslint-disable-next-line react/require-default-props
   isRequired?: boolean;
+  // eslint-disable-next-line react/require-default-props
+  minDate?: any;
+  // eslint-disable-next-line react/require-default-props
+  maxDate?: any;
 }
 
 function DateField({
   fieldId,
   fieldLabel,
   errors,
-  // control,
+  control,
   register,
   isRequired = true,
+  minDate = "",
+  maxDate = "",
 }: IDateFieldProps) {
   return (
     <FormControl isInvalid={!!errors[fieldId]} id={fieldId}>
@@ -29,15 +36,31 @@ function DateField({
           </Text>
         )}
       </FormLabel>
-      <Input
-        border="2px"
-        borderColor="black"
-        focusBorderColor="blue.400"
-        type="date"
-        borderRadius={0}
-        min={new Date().getDate().toString()}
-        mb={2}
-        {...register(fieldId, { required: isRequired })}
+      <Controller
+        name={fieldId}
+        control={control}
+        render={({ field }) => (
+          <Input
+            border="2px"
+            borderColor="black"
+            focusBorderColor="blue.400"
+            type="date"
+            borderRadius={0}
+            mb={2}
+            min={minDate}
+            max={maxDate}
+            aria-invalid={Boolean(errors[fieldId])}
+            {...register(field.name, {
+              setValueAs: (val) => {
+                if (val) {
+                  return new Date(val);
+                }
+                // This is if "" is entered.
+                return undefined;
+              },
+            })}
+          />
+        )}
       />
       <FormErrorMessage>{!!errors[fieldId] && errors[fieldId].message}</FormErrorMessage>
     </FormControl>

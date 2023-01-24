@@ -9,7 +9,6 @@ import {
   ListItem,
   Stack,
 } from "@chakra-ui/react";
-import { parse, isValid } from "date-fns";
 import { useEffect, useState } from "react";
 import { SubmitHandler, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -37,32 +36,42 @@ const singleSelectOptionSchema = z.object({
 export const TransferAgreementFormDataSchema = z.object({
   currentOrganisationSelectedBases: singleSelectOptionSchema
     .array()
+    .min(1)
     .nonempty("Please select at least one base"),
-  transferType: z.string().refine(Boolean, { message: "Please choose a transfer type" }),
+  transferType: z.string().nullable().refine(Boolean, { message: "Please choose a transfer type" }),
 
   partnerOrganisation: singleSelectOptionSchema
-    .nullable()
     .refine(Boolean, { message: "Please select a partner organisation" })
     .transform((selectedOption) => selectedOption || { label: "", value: "" }),
   partnerOrganisationSelectedBases: singleSelectOptionSchema.array().optional(),
-  validFrom: z.string().transform((value, ctx) => {
-    // eslint-disable-next-line no-console
-    console.log("validFrom: ", value);
-    const parsedDate = parse(value, "yyyy-MM-dd", new Date());
-    // eslint-disable-next-line no-console
-    console.log("parsedDate validFrom: ", parsedDate);
-    if (!isValid(parsedDate) && value !== "") {
-      ctx.addIssue({
-        code: z.ZodIssueCode.invalid_date,
-        message: "Please enter a valid date",
-      });
-      return z.NEVER;
-    }
-    return parsedDate;
-  }),
-  validUntil: z.string().optional(),
+  validFrom: z
+    .date({
+      required_error: "Please enter a valid date",
+      invalid_type_error: "Please enter a valid date",
+    })
+    .optional()
+    .transform((value) => value?.toISOString().substring(0, 10)),
+  validUntil: z
+    .date()
+    .optional()
+    .transform((value) => value?.toISOString().substring(0, 10)),
   comment: z.string().optional(),
 });
+// .refine(
+//   (data) => {
+//     // eslint-disable-next-line no-console
+//     console.log(data);
+//     if (typeof data.validFrom !== "undefined" && typeof data.validUntil !== "undefined") {
+//       const dateDiff = data.validUntil.getTime() - data.validFrom.getTime();
+//       return dateDiff > 0;
+//     }
+//     return true;
+//   },
+//   {
+//     message: "Please enter greater date for the valid until",
+//     path: ["validUntil"], // path of error
+//   },
+// );
 
 export type ITransferAgreementFormData = z.infer<typeof TransferAgreementFormDataSchema>;
 
@@ -110,8 +119,9 @@ function CreateTransferAgreement({
   });
 
   const [basesOptionsForPartnerOrg, setBasesOptionsForPartnerOrg] = useState<IDropdownOption[]>([]);
-
+  const [validUntilMinDate, setValidUntilMinDate] = useState("");
   const partnerOrganisation = watch("partnerOrganisation");
+  const validFrom = watch("validFrom");
 
   useEffect(() => {
     if (partnerOrganisation != null) {
@@ -146,12 +156,23 @@ function CreateTransferAgreement({
         },
       ]);
     }
+
+    if (validFrom) {
+      setValidUntilMinDate(
+        new Date(new Date(validFrom).setDate(new Date(validFrom).getDate() + 1))
+          .toJSON()
+          .split("T")[0],
+      );
+    } else {
+      setValue("validFrom", new Date().toISOString().substring(0, 10));
+    }
   }, [
     partnerOrganisation,
     resetField,
     setValue,
     partnerOrganisationsWithTheirBasesData,
     currentOrganisation?.bases,
+    validFrom,
   ]);
 
   // eslint-disable-next-line no-console
@@ -215,6 +236,7 @@ function CreateTransferAgreement({
               control={control}
               register={register}
               isRequired={false}
+              minDate={new Date().toJSON().split("T")[0]}
             />
           </ListItem>
           <ListItem>
@@ -225,6 +247,7 @@ function CreateTransferAgreement({
               control={control}
               register={register}
               isRequired={false}
+              minDate={validUntilMinDate}
             />
           </ListItem>
           <ListItem>

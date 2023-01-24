@@ -65,7 +65,7 @@ const useLoadAndSetAvailableBases = () => {
       const organisationId = decodedToken["https://www.boxtribute.com/organisation_id"];
       dispatch({
         type: "setOrganisationId",
-        payload: organisationId,
+        payload: organisationId ?? 1,
       });
     };
     getToken();
@@ -83,7 +83,8 @@ function App() {
           <Route path=":baseId">
             <Route index element={<BaseDashboardView />} />
             <Route path="transfers">
-              <Route path="agreement">
+              <Route path="agreements">
+                <Route index element="" />
                 <Route path="create" element={<CreateTransferAgreementView />} />
               </Route>
             </Route>
