@@ -1905,6 +1905,7 @@ CREATE TABLE `transfer_agreement` (
 
 LOCK TABLES `transfer_agreement` WRITE;
 /*!40000 ALTER TABLE `transfer_agreement` DISABLE KEYS */;
+INSERT INTO `transfer_agreement` VALUES (1,1,2,'UnderReview','Bidirectional','2023-01-24 07:25:25',8,NULL,NULL,NULL,NULL,'2023-01-24 07:25:25',NULL,NULL),(2,2,1,'UnderReview','Bidirectional','2023-01-24 07:27:49',8,NULL,NULL,NULL,NULL,'2023-01-24 07:27:49',NULL,NULL),(3,1,2,'UnderReview','Unidirectional','2023-01-24 07:29:24',8,NULL,NULL,NULL,NULL,'2023-01-24 07:29:24',NULL,NULL),(4,2,1,'UnderReview','Unidirectional','2023-01-24 07:30:05',8,NULL,NULL,NULL,NULL,'2023-01-24 07:30:05',NULL,NULL);
 /*!40000 ALTER TABLE `transfer_agreement` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -1936,6 +1937,7 @@ CREATE TABLE `transfer_agreement_detail` (
 
 LOCK TABLES `transfer_agreement_detail` WRITE;
 /*!40000 ALTER TABLE `transfer_agreement_detail` DISABLE KEYS */;
+INSERT INTO `transfer_agreement_detail` VALUES (1,1,1,2),(2,1,1,3),(3,2,NULL,NULL),(4,3,1,2),(5,4,NULL,NULL);
 /*!40000 ALTER TABLE `transfer_agreement_detail` ENABLE KEYS */;
 UNLOCK TABLES;
 
