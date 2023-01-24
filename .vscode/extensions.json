@@ -4,6 +4,7 @@
     "ms-vscode-remote.remote-containers",
     "ms-vsliveshare.vsliveshare",
     "esbenp.prettier-vscode",
-    "dbaeumer.vscode-eslint"
+    "dbaeumer.vscode-eslint",
+    "rvest.vs-code-prettier-eslint",
   ]
 }

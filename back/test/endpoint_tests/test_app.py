@@ -74,23 +74,47 @@ def test_invalid_pagination_input(read_only_client):
 @pytest.mark.parametrize(
     "resource",
     [
+        # Test case 9.1.5
         "beneficiary",
+        # Test case 8.1.11
         "location",
+        # Test case 8.1.22
         "product",
+        # Test case 99.1.12
         "productCategory",
+        # Test case 3.1.3
         "shipment",
+        # Test case 4.1.3
+        "tag",
+        # Test case 2.1.4
         "transferAgreement",
+        # Test case 99.1.9a
+        "organisation",
     ],
 )
 def test_query_non_existent_resource(read_only_client, resource):
-    # Test cases 2.1.4, 3.1.3
     query = f"query {{ {resource}(id: 0) {{ id }} }}"
     response = assert_bad_user_input(read_only_client, query, field=resource)
     assert "SQL" not in response.json["errors"][0]["message"]
 
 
+def test_query_non_existent_box(read_only_client):
+    # Test case 8.1.2
+    query = """query { box(labelIdentifier: "000") { id } }"""
+    response = assert_bad_user_input(read_only_client, query)
+    assert "SQL" not in response.json["errors"][0]["message"]
+
+
+def test_query_non_existent_qr_code(read_only_client):
+    # Test case 8.1.31
+    query = """query { qrCode(qrCode: "-1") { id } }"""
+    response = assert_bad_user_input(read_only_client, query)
+    assert "SQL" not in response.json["errors"][0]["message"]
+
+
 @pytest.mark.parametrize("resource", ["base", "organisation", "user"])
 def test_query_non_existent_resource_for_god_user(read_only_client, mocker, resource):
+    # Test case 99.1.3, 10.1.3
     # Non-god users would not be authorized to access resource ID 0
     mocker.patch("jose.jwt.decode").return_value = create_jwt_payload(permissions=["*"])
     query = f"query {{ {resource}(id: 0) {{ id }} }}"
@@ -106,37 +130,124 @@ def test_query_non_existent_resource_for_god_user(read_only_client, mocker, reso
         "cancelTransferAgreement",
         "cancelShipment",
         "sendShipment",
+        "deleteTag",
     ],
 )
 def test_mutation_non_existent_resource(read_only_client, operation):
-    # Test cases 2.2.4, 2.2.6, 2.2.8, 3.2.8, 3.2.12
+    # Test cases 2.2.4, 2.2.6, 2.2.8, 3.2.8, 3.2.12, 4.2.10
     mutation = f"mutation {{ {operation}(id: 0) {{ id }} }}"
     response = assert_bad_user_input(read_only_client, mutation, field=operation)
     assert "SQL" not in response.json["errors"][0]["message"]
 
 
 @pytest.mark.parametrize(
-    "operation",
+    "operation,mutation_input,field",
     [
-        "updateBox",
-        "updateBeneficiary",
-        "updateShipment",
+        # Test case 8.2.20
+        ["updateBox", """updateInput: { labelIdentifier: "xxx" }""", "id"],
+        # Test case 9.2.14
+        ["updateBeneficiary", "updateInput: { id: 0 }", "id"],
+        # Test case 3.2.21
+        ["updateShipment", "updateInput: { id: 0 }", "id"],
+        # Test case 4.2.5
+        ["updateTag", "updateInput: { id: 0 }", "id"],
+        # Test case 4.2.15
+        [
+            "assignTag",
+            "assignmentInput: { id: 0, resourceId: 2, resourceType: Box }",
+            "...on Box { id }",
+        ],
+        # Test case 4.2.16
+        [
+            "assignTag",
+            "assignmentInput: { id: 0, resourceId: 2, resourceType: Beneficiary }",
+            "...on Beneficiary { id }",
+        ],
+        # Test case 4.2.17
+        [
+            "assignTag",
+            "assignmentInput: { id: 2, resourceId: 0, resourceType: Box }",
+            "...on Box { id }",
+        ],
+        # Test case 4.2.18
+        [
+            "assignTag",
+            "assignmentInput: { id: 1, resourceId: 0, resourceType: Beneficiary }",
+            "...on Beneficiary { id }",
+        ],
+        # Test case 4.2.29
+        [
+            "unassignTag",
+            "unassignmentInput: { id: 0, resourceId: 2, resourceType: Box }",
+            "...on Box { id }",
+        ],
+        # Test case 4.2.30
+        [
+            "unassignTag",
+            "unassignmentInput: { id: 0, resourceId: 2, resourceType: Beneficiary }",
+            "...on Beneficiary { id }",
+        ],
+        # Test case 4.2.31
+        [
+            "unassignTag",
+            "unassignmentInput: { id: 2, resourceId: 0, resourceType: Box }",
+            "...on Box { id }",
+        ],
+        # Test case 4.2.32
+        [
+            "unassignTag",
+            "unassignmentInput: { id: 2, resourceId: 0, resourceType: Beneficiary }",
+            "...on Beneficiary { id }",
+        ],
     ],
 )
-def test_mutation_update_non_existent_resource(read_only_client, operation):
-    # Test cases 3.2.21
-    if operation == "updateBox":
-        update_input = """updateInput: { labelIdentifier: "xxx" }"""
-    else:
-        update_input = "updateInput: { id: 0 }"
-    mutation = f"mutation {{ {operation}({update_input}) {{ id }} }}"
+def test_update_non_existent_resource(
+    read_only_client, operation, mutation_input, field
+):
+    mutation = f"mutation {{ {operation}({mutation_input}) {{ {field} }} }}"
     response = assert_bad_user_input(read_only_client, mutation, field=operation)
     assert "SQL" not in response.json["errors"][0]["message"]
 
 
 def test_mutation_arbitrary_database_error(read_only_client, mocker):
     mocker.patch(
-        "boxtribute_server.graph_ql.resolvers.create_qr_code"
+        "boxtribute_server.business_logic.warehouse.qr_code.mutations.create_qr_code"
     ).side_effect = peewee.PeeweeException
     mutation = "mutation { createQrCode { id } }"
     assert_internal_server_error(read_only_client, mutation, field="createQrCode")
+
+
+@pytest.mark.parametrize(
+    "origin",
+    [
+        "https://illegal-origin.org",
+        "http://localhost:3000",
+        "https://v2-staging.boxtribute.org",
+        "https://v2-demo.boxtribute.org",
+        "https://v2.boxtribute.org",
+        "https://v2-staging-dot-dropapp-242214.ew.r.appspot.com",
+        "https://v2-demo-dot-dropapp-242214.ew.r.appspot.com",
+        "https://v2-production-dot-dropapp-242214.ew.r.appspot.com",
+    ],
+)
+def test_cors_preflight_request(read_only_client, origin):
+    # Simulate CORS preflight request
+    request_methods = "POST"
+    request_headers = "Authorization"
+    response = read_only_client.options(
+        "/graphql",
+        headers=[
+            ("origin", origin),
+            ("Access-Control-Request-Method", request_methods),
+            ("Access-Control-Request-Headers", request_headers),
+        ],
+    )
+    assert response.status_code == 200
+    if "illegal" in origin:
+        assert response.headers.get("Access-Control-Allow-Origin") is None
+        assert response.headers.get("Access-Control-Allow-Headers") is None
+        assert response.headers.get("Access-Control-Allow-Methods") is None
+    else:
+        assert response.headers.get("Access-Control-Allow-Origin") == origin
+        assert response.headers.get("Access-Control-Allow-Headers") == request_headers
+        assert response.headers.get("Access-Control-Allow-Methods") == request_methods

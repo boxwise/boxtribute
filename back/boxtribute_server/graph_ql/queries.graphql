@@ -2,6 +2,12 @@ type Query {
   " Return all [`Bases`]({{Types.Base}}) that the client is authorized to view. "
   bases: [Base!]!
   base(id: ID!): Base
+  " Return all [`DistributionSpots`]({{Types.DistributionSpot}}) that the client is authorized to view. "
+  distributionSpots: [DistributionSpot!]!
+  distributionSpot(id: ID!): DistributionSpot
+  distributionEvent(id: ID!): DistributionEvent
+  packingListEntry(id: ID!): PackingListEntry
+  distributionEventsTrackingGroup(id: ID!): DistributionEventsTrackingGroup
   organisation(id: ID!): Organisation
   " Return all [`Organisations`]({{Types.Organisation}}) that the client is authorized to view. "
   organisations: [Organisation!]!
@@ -11,9 +17,9 @@ type Query {
   box(labelIdentifier: String!): Box
   qrCode(qrCode: String!): QrCode
   qrExists(qrCode: String): Boolean
-  location(id: ID!): Location
-  " Return all [`Locations`]({{Types.Location}}) that the client is authorized to view. "
-  locations: [Location!]!
+  location(id: ID!): ClassicLocation
+  " Return all [`ClassicLocations`]({{Types.ClassicLocation}}) that the client is authorized to view. "
+  locations: [ClassicLocation!]!
   product(id: ID!): Product
   " Return all [`Products`]({{Types.Product}}) that the client is authorized to view. "
   products(paginationInput: PaginationInput): ProductPage!
@@ -27,6 +33,7 @@ type Query {
   Return all [`Tags`]({{Types.Tag}}) that the client is authorized to view. Optionally filter for tags of certain type.
   """
   tags(tagType: TagType): [Tag!]!
+  tag(id: ID!): Tag
   transferAgreement(id: ID!): TransferAgreement
   """
   Return all [`TransferAgreements`]({{Types.TransferAgreement}}) that the client is authorized to view.

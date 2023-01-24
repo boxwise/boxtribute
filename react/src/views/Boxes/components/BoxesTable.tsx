@@ -1,4 +1,4 @@
-import React, { useMemo } from "react";
+import React, { useMemo, useState } from "react";
 import {
   TriangleDownIcon,
   TriangleUpIcon,
@@ -71,7 +71,6 @@ const ColumnSelector = ({
   const onCheckboxChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const checked = e.target.checked;
     const columnId = e.target.value;
-    debugger;
     const column = availableColumns.find((column) => column.id === columnId);
     if (column != null) {
       if (checked) {
@@ -158,8 +157,8 @@ const BoxesTable = ({ tableData, onBoxRowClick }: BoxesTableProps) => {
       },
       {
         Header: "Items",
-        accessor: "items",
-        id: "items",
+        accessor: "numberOfItems",
+        id: "numberOfItems",
       },
       {
         Header: "State",
@@ -169,9 +168,16 @@ const BoxesTable = ({ tableData, onBoxRowClick }: BoxesTableProps) => {
         filter: "equals",
       },
       {
-        Header: "Location",
-        accessor: "location",
-        id: "location",
+        Header: "Place",
+        accessor: "place",
+        id: "place",
+        Filter: SelectColumnFilter,
+        filter: "equals",
+      },
+      {
+        Header: "Tags",
+        accessor: "tags",
+        id: "tags",
         Filter: SelectColumnFilter,
         filter: "equals",
       },
@@ -180,7 +186,7 @@ const BoxesTable = ({ tableData, onBoxRowClick }: BoxesTableProps) => {
   );
 
   const [selectedColumns, setSelectedColumns] =
-    React.useState<Column<BoxRow>[]>(availableColumns);
+    useState<Column<BoxRow>[]>(availableColumns);
   const orderedSelectedColumns = useMemo(
     () =>
       selectedColumns.sort(
@@ -231,7 +237,12 @@ const ActualTable = ({
     nextPage,
     previousPage,
   } = useTable(
+  // TODO: remove this ts-ignore again and try to fix the type error properly
+  // was most likely caused by setting one of the following flags in .tsconfig:
+  // "strictNullChecks": true
+  // "strictFunctionTypes": false
     {
+  // @ts-ignore
       columns,
       data: tableData,
       initialState: {
@@ -279,8 +290,8 @@ const ActualTable = ({
         {headerGroups.map((headerGroup) => {
           return headerGroup.headers.map((column) =>
             column.Filter ? (
-              <Button m={2} key={column.id}>
-                <label htmlFor={column.id}>{column.render("Header")}: </label>
+              <Button m={2} key={column.id} borderRadius='0px'>
+                <label htmlFor={column.id}>{column.render("Header")}</label>
                 {column.render("Filter")}
               </Button>
             ) : null
@@ -316,7 +327,7 @@ const ActualTable = ({
               <Tr
                 cursor="pointer"
                 {...row.getRowProps()}
-                onClick={() => onBoxRowClick(row.original.labelIdentifier)}
+                onClick={() => onBoxRowClick(row.original['labelIdentifier'])}
                 key={i}
               >
                 {row.cells.map((cell, i) => {

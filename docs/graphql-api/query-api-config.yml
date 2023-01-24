@@ -229,6 +229,7 @@ info:
       You can interact with the API the following ways:
       1. Open the endpoint address in your browser. This launches GraphQL Playground
       1. Send POST requests to the endpoint from a script or the command line, passing your GraphQL query in the `query` field of the request JSON
+  # Don't change the version number manually. It's substituted at deploy time in CircleCI
   version: 0.0.1
   title: Welcome!
   # This is non-standard and optional. If omitted, will use "title". Also only relevant
@@ -252,6 +253,8 @@ info:
       url: https://www.app.boxtribute.org
     - title: Query API
       url: https://api.boxtribute.org
+    - title: Query API changelog
+      url: https://github.com/boxwise/boxtribute/releases
     - title: Terms of Service
       description: |
           In line with the Service Agreement and other related documents as signed with [Boxtribute](https://boxtribute.org) (Stichting Boxwise)

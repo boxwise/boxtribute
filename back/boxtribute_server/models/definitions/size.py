@@ -33,6 +33,7 @@ class Size(db.Model):
         model=SizeRange,
         null=True,
         on_update="CASCADE",
+        object_id_name="size_range_id",
     )
 
     class Meta:

@@ -1,21 +1,30 @@
-def _assert_erroneous_request(client, query, *, code, **kwargs):
+def _assert_erroneous_request(
+    client, query, *, code, verify_response=True, error_count=1, **kwargs
+):
     """Assertion utility that posts the given query via a client fixture.
-    Assert presence of error code in response.
-    `kwargs` are forwarded to `_verify_response_data()`.
+    Assert presence of `error_count` errors with specified code in response.
+    By default, the response is verified (`kwargs` are forwarded).
+    For complex responses, set `verify_response=False` and perform the verification in
+    the test function.
     """
     data = {"query": query}
     response = client.post("/graphql", json=data)
     assert response.status_code == 200
-    assert len(response.json["errors"]) == 1
-    assert response.json["errors"][0]["extensions"]["code"] == code
-    _verify_response_data(query=query, response=response, **kwargs)
+
+    assert len(response.json["errors"]) == error_count
+    for i in range(error_count):
+        assert response.json["errors"][i]["extensions"]["code"] == code
+
+    if verify_response:
+        _verify_response_data(query=query, response=response, **kwargs)
+
     return response
 
 
 def _verify_response_data(*, query, response, field=None, none_data=False, value=None):
-    """If `none_data` is given, verify that the `data` field of the response JSON is None.
-    Otherwise extract field as query operation name, and verify that it is identical to
-    given `value` (default: None).
+    """If `none_data` is given, verify that the `data` field of the response JSON is
+    None. Otherwise extract field as query operation name, and verify that it is
+    identical to given `value` (default: None).
     """
     if none_data:
         assert response.json["data"] is None
@@ -66,6 +75,8 @@ def assert_successful_request(client, query, field=None, endpoint="graphql"):
     data = {"query": query}
     response = client.post(f"/{endpoint}", json=data)
     assert response.status_code == 200
+
+    assert "errors" not in response.json
 
     field = field or _extract_field(query)
     return response.json["data"][field]

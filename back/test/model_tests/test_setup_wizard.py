@@ -180,7 +180,8 @@ def test_clone_products(default_product):
     original_products = products[:1]
     for cloned_product, original_product in zip(cloned_products, original_products):
         cloned_product.pop("id")
-        for field in ["id", "base", "price"]:
+        cloned_product.pop("created_by")
+        for field in ["id", "base", "price", "created_by"]:
             original_product.pop(field)
         assert cloned_product.pop("base") == target_base_id
         assert cloned_product.pop("price") == 0

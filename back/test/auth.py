@@ -28,7 +28,8 @@ def memoize(function):
     return wrapper
 
 
-def get_user_token():
+@memoize
+def fetch_token(username):
     """Grabs a test user access token for Auth0."""
     token = os.getenv("TEST_AUTH0_JWT")
     if token is not None:
@@ -39,15 +40,14 @@ def get_user_token():
         client_secret=os.getenv("TEST_AUTH0_CLIENT_SECRET"),
         audience=TEST_AUTH0_AUDIENCE,
         domain=TEST_AUTH0_DOMAIN,
-        username=TEST_AUTH0_USERNAME,
+        username=username,
         password=TEST_AUTH0_PASSWORD,
     )
     return response["access_token"]
 
 
-@memoize
-def get_user_token_string():
-    return "Bearer " + get_user_token()
+def get_authorization_header(username):
+    return "Bearer " + fetch_token(username)
 
 
 def create_jwt_payload(
@@ -74,6 +74,7 @@ def create_jwt_payload(
     payload = {
         f"{JWT_CLAIM_PREFIX}/email": email,
         f"{JWT_CLAIM_PREFIX}/organisation_id": organisation_id,
+        f"{JWT_CLAIM_PREFIX}/base_ids": list(base_ids),
         f"{JWT_CLAIM_PREFIX}/roles": roles,
         "sub": f"auth0|{user_id}",
     }
@@ -84,17 +85,32 @@ def create_jwt_payload(
             f"{base_prefix}/base:read",
             f"{base_prefix}/beneficiary:read",
             f"{base_prefix}/category:read",
+            f"{base_prefix}/distro_event:write",
+            f"{base_prefix}/distro_event:read",
             f"{base_prefix}/location:read",
+            f"{base_prefix}/outflow_log:write",
+            f"{base_prefix}/outflow_log:read",
+            f"{base_prefix}/packing_list_entry:write",
+            f"{base_prefix}/packing_list_entry:read",
             f"{base_prefix}/product:read",
+            f"{base_prefix}/organisation:read",
             f"{base_prefix}/qr:read",
             f"{base_prefix}/stock:read",
             f"{base_prefix}/transaction:read",
+            f"{base_prefix}/unboxed_items_collection:write",
+            f"{base_prefix}/unboxed_items_collection:read",
             f"{base_prefix}/user:read",
             f"{base_prefix}/beneficiary:create",
             f"{base_prefix}/beneficiary:edit",
             f"{base_prefix}/qr:create",
+            f"{base_prefix}/size:read",
+            f"{base_prefix}/size_range:read",
             f"{base_prefix}/stock:write",
+            f"{base_prefix}/tag:write",
+            f"{base_prefix}/tag_relation:read",
+            f"{base_prefix}/tag_relation:assign",
             f"{base_prefix}/transaction:write",
+            f"{base_prefix}/history:read",
             "shipment:create",
             "shipment:edit",
             "transfer_agreement:create",

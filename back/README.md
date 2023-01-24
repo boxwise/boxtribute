@@ -11,6 +11,7 @@
    1. [Working with MySQL](#working-with-mysql)
    1. [Debugging](#debugging)
 1. [Testing](#testing)
+1. [Architecture](#architecture)
 1. [GraphQL API](#graphql-api)
 1. [Production environment](#production-environment)
 1. [Performance evaluation](#performance-evaluation)
@@ -218,7 +219,41 @@ Run the test suite on your machine by executing
 
 If you persistently want these variables to be set for your environment, export them via the `.envrc` file.
 
-### Writing tests
+You can also run the tests via `docker-compose`:
+
+    docker-compose up --build -d db webapp  # only once
+    docker-compose exec webapp pytest
+
+### Test plan
+
+Before implementing any tests, the test behavior should be listed and agreed upon in the [test plan](https://docs.google.com/spreadsheets/d/1sDhSsaVwNxAhGn1VYACDPVepZpvlwTkgy9nmeTaRy2Q/edit#gid=1709672082).
+
+<details>
+  <summary>Find more info here about the structure of the document.</summary>
+
+  #### 2.0 Back-end endpoint tests
+
+  - test cases are organized in sections. Each section corresponds to one module (i.e. a logical subsection) of the back-end
+  - the test cases define the behavior of a module when it is accessed by its associated GraphQL endpoints
+  - GraphQL endpoints are either queries or mutations. The respective test cases are organized in sub-sections and, if deemed necessary for readability, grouped by functionality
+  - a test case is uniquely identified by a test ID. Test IDs are put as comments into the test code for reference. *Please do not* modify the test IDs, or sort the test cases in the document, without updating the comments in the code, and vice versa.
+  - test cases come in four categories to verify the implementation under all circumstances
+      1. when an endpoint is accessed with a valid request (i.e. valid input data and sufficient permissions)
+      2. when an endpoint is accessed with insufficient permissions
+      3. when an endpoint is accessed with invalid input data (i.e. creating a box with negative number of items)
+      4. when an endpoint is accessed for a non-existing resource
+  - the expected behavior in these categories is
+      1. the response holds the requested (queried/created/modified/deleted) data resource
+      2. the response holds a Forbidden error
+      3. the response holds a BadUserRequest error
+      4. the response holds a BadUserRequest error
+  - due to the nature of GraphQL APIs all responses (successful and erroneous) have HTTP status code 200. The content of the "data" and "errors" fields in the JSON response has to be inspected
+  - test cases for queries are formulated as "*Client requests single X by ID*" or "*Client requests list of Xs*"
+  - test cases for mutations are formulated as "*Client requests operating on X*"
+
+</details>
+
+### Implementing tests
 
 We use the pytest framework to build tests. Please refer to their excellent [documentation](https://docs.pytest.org/en/stable/contents.html).
 
@@ -230,6 +265,11 @@ and similarly the test functions must have the format
 
 In the pytest framework, **fixtures** serve as common base setups for individual test functions. To use a fixture, pass it as argument into the test function.
 Fixtures are configured in the `conftest.py` files which are automatically loaded before test execution.
+
+The actual test implementation can be in the form of
+    a. one test function per test case
+    b. one test parameter per test case (useful e.g. for permission tests)
+    c. one test function for multiple test cases (e.g. if the tested functionality represents a user flow)
 
 #### Data model tests
 
@@ -275,11 +315,19 @@ From the repository root, run
 
 and inspect the reported output. Open the HTML report via `back/htmlcov/index.html` to browse coverage for individual source code files.
 
+## Architecture
+
+The following diagram shows the responsibilities of and the relationships between the back-end components.
+
+![C4 back-end components](docs/c4-backend-components.jpg)
+
 ## GraphQL API
 
 The back-end exposes the GraphQL API in two variants.
 1. The full API is consumed by our front-end at the `/graphql` endpoint (deployed to e.g. `v2-staging` subdomain).
 1. The 'query-only' API is used by our partners at `/` (for data retrieval; it is deployed on the `api*` subdomains).
+
+Starting the back-end in the former case is achieved via `main.py`, in the latter case via `api_main.py`.
 
 ### Schema documentation
 
@@ -292,7 +340,6 @@ For the production schema, documentation can be found online at `api.boxtribute.
 You can experiment with the API in the GraphQL playground.
 
 1. Activate the virtual environment
-1. Set `export FLASK_ENV=development`
 1. Start the required services by `docker-compose up webapp db`
 1. Open `localhost:5005/graphql` (or `/` for the query-only API)
 1. Simulate being a valid, logged-in user by fetching an authorization token: `./fetch_token --test`
@@ -316,13 +363,42 @@ If you lack an internet connection to communicate with Auth0, it might be benefi
 
 to simulate a god user with ID 8 (for a regular user, set something like `id=1, organisation_id=1`).
 
+## Project structure
+
+The back-end codebase is organized as a Python package called `boxtribute_server`. On the top-most level the most relevant modules are
+
+- `main.py` and `api_main.py`: entry-points to start the Flask app
+- `app.py`: Definition and configuration of Flask app
+- `db.py`: Definition of MySQL interface
+- `routes.py`: Definition of web endpoints; invocation of ariadne GraphQL server
+- `auth.py` and `authz.py`: Authentication and authorization utilities
+- `models/`: peewee database models
+- `graph_ql/`: GraphQL schema, definitions, utilities, and resolvers
+
+Business logic is organized in domain-specific submodules that again can be built from submodules themselves, e.g.
+
+- `beneficiary/`
+- `box_transfer/agreement/`
+- `box_transfer/shipment/`
+
+### Domain-specific submodules
+
+These submodules contain business logic that ties together the GraphQL layer and the data layer. Depending on the functionality they contain up to for files:
+
+- `crud.py`: Create-retrieve-update-delete operations on data resources
+- `fields.py`: Resolvers for GraphQL type fields that are not handled by the default resolver (e.g. `Beneficiary.registered` returns the logical opposite of the `Beneficiary.not_registered` data model field)
+- `mutations.py`: Resolvers for GraphQL mutations, calling into functions from `crud.py`
+- `queries.py`: Resolvers for GraphQL queries
+
+Ariadne query/mutation/object definitions for a GraphQL type have to be imported into `graph_ql/bindables.py` and added to the respective containers to be visible.
+
 ## Production environment
 
 In production, the web app is run by the WSGI server `gunicorn` which serves as a glue between the web app and the web server (e.g. Apache). `gunicorn` allows for more flexible configuration of request handling (see `back/gunicorn.conf.py` file).
 
 Launch the production server by
 
-    FLASK_ENV=production docker-compose up --build webapp
+    ENVIRONMENT=production docker-compose up --build webapp
 
 In production mode, inspection of the GraphQL server is disabled, i.e. it's not possible to run the GraphQL playground.
 
@@ -361,7 +437,7 @@ Used in combination with [k6](https://k6.io/docs/). See the example [script](./s
 
 We use the [Auth0](https://auth0.com) web service to provide the app client with user authentication and authorization data (for short, auth and authz, resp.).
 
-The user has to authenticate using their password, and is then issued a JSON Web Token (JWT) carrying authz information (e.g. permissions to access certain resources). Every request that the client sends to a private endpoint must hold the JWT as `bearer` in the authorization header. When handling the request, the server decodes the JWT, extracts the authz information, and keeps it available for the duration of the request (the implementation is in `boxtribute_server.auth.require_auth`).
+The user has to authenticate using their password, and is then issued a JSON Web Token (JWT) carrying authz information (e.g. permissions to access certain resources). Every request that the client sends to a private endpoint must hold the JWT as `bearer` in the authorization header. When handling the request, the server decodes the JWT, extracts the authz information, and keeps it available for the duration of the request (the implementation is in `boxtribute_server.auth.require_auth`). Check the relevant sections in the [authorization specification document](../docs/adr/adr_authorization-specification.md#boxtribute-20-back-end) for details.
 
 ## Database Schema Migrations
 

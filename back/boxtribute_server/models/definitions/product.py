@@ -1,7 +1,7 @@
 from peewee import SQL, CharField, DateTimeField, IntegerField
 
 from ...db import db
-from ..fields import UIntForeignKeyField
+from ..fields import UIntForeignKeyField, ZeroDateTimeField
 from .base import Base
 from .product_category import ProductCategory
 from .product_gender import ProductGender
@@ -34,12 +34,13 @@ class Product(db.Model):
         on_delete="SET NULL",
         on_update="CASCADE",
     )
-    deleted = DateTimeField(null=True, default=None)
+    deleted = ZeroDateTimeField(null=True, default=None)
     gender = UIntForeignKeyField(
         column_name="gender_id",
         field="id",
         model=ProductGender,
         on_update="CASCADE",
+        object_id_name="gender_id",
     )
     last_modified_on = DateTimeField(column_name="modified", null=True)
     last_modified_by = UIntForeignKeyField(
@@ -57,6 +58,7 @@ class Product(db.Model):
         model=SizeRange,
         on_delete="RESTRICT",
         on_update="CASCADE",
+        object_id_name="size_range_id",
     )
     in_shop = IntegerField(
         column_name="stockincontainer", constraints=[SQL("DEFAULT 0")]

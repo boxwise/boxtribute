@@ -10,6 +10,12 @@ type Mutation {
   createBeneficiary(creationInput: BeneficiaryCreationInput): Beneficiary
   updateBeneficiary(updateInput: BeneficiaryUpdateInput): Beneficiary
 
+  createTag(creationInput: TagCreationInput): Tag
+  updateTag(updateInput: TagUpdateInput): Tag
+  deleteTag(id: ID!): Tag
+  assignTag(assignmentInput: TagOperationInput): TaggableResource
+  unassignTag(unassignmentInput: TagOperationInput): TaggableResource
+
   createTransferAgreement(creationInput: TransferAgreementCreationInput): TransferAgreement
   acceptTransferAgreement(id: ID!): TransferAgreement
   rejectTransferAgreement(id: ID!): TransferAgreement
@@ -19,4 +25,67 @@ type Mutation {
   updateShipment(updateInput: ShipmentUpdateInput): Shipment
   cancelShipment(id: ID!): Shipment
   sendShipment(id: ID!): Shipment
+
+  createDistributionSpot(creationInput: DistributionSpotCreationInput): DistributionSpot
+  createDistributionEvent(creationInput: DistributionEventCreationInput): DistributionEvent
+
+  addPackingListEntryToDistributionEvent(creationInput: PackingListEntryInput!): PackingListEntry
+  removePackingListEntryFromDistributionEvent(packingListEntryId: ID!): DistributionEvent
+  removeAllPackingListEntriesFromDistributionEventForProduct(
+    distributionEventId: ID!
+    productId: ID!
+  ): Boolean
+  updatePackingListEntry(packingListEntryId: ID!, numberOfItems: Int!): PackingListEntry
+  updateSelectedProductsForDistributionEventPackingList(
+    distributionEventId: ID!
+    productIdsToAdd: [ID!]!
+    productIdsToRemove: [ID!]!
+  ): DistributionEvent
+
+  changeDistributionEventState(
+    distributionEventId: ID!
+    newState: DistributionEventState!
+  ): DistributionEvent
+
+  assignBoxToDistributionEvent(boxLabelIdentifier: ID!, distributionEventId: ID!): Box
+  unassignBoxFromDistributionEvent(boxLabelIdentifier: ID!, distributionEventId: ID!): Box
+  moveItemsFromBoxToDistributionEvent(
+    boxLabelIdentifier: ID!
+    distributionEventId: ID!
+    numberOfItems: Int!
+  ): UnboxedItemsCollection
+  removeItemsFromUnboxedItemsCollection(
+    id: ID!
+    numberOfItems: Int!
+  ): UnboxedItemsCollection
+  # moveItemsFromUnboxedItemsCollectionToBox(
+  #   unboxedItemsCollectionId: ID!
+  #   boxLabelIdentifier: ID!
+  #   numberOfItems: Int!
+  # ): Box
+
+  startDistributionEventsTrackingGroup(
+    distributionEventIds: [ID!]!,
+    baseId: ID!,
+    # returnedToLocationId: ID
+  ): DistributionEventsTrackingGroup
+
+  setReturnedNumberOfItemsForDistributionEventsTrackingGroup(
+    distributionEventsTrackingGroupId: ID!
+    productId: ID!
+    sizeId: ID!
+    numberOfItems: Int!
+  ): DistributionEventsTrackingEntry
+
+  moveItemsFromReturnTrackingGroupToBox(
+    distributionEventsTrackingGroupId: ID!
+    productId: ID!
+    sizeId: ID!
+    numberOfItems: Int!
+    targetBoxLabelIdentifier: ID!
+  ): DistributionEventsTrackingEntry
+
+  completeDistributionEventsTrackingGroup(
+    id: ID!
+  ): DistributionEventsTrackingGroup
 }

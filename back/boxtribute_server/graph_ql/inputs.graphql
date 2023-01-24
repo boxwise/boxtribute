@@ -1,23 +1,25 @@
 """
 GraphQL input types for mutations **only**.
 """
-
 input BoxCreationInput {
   productId: Int!
   sizeId: Int!
-  items: Int
+  numberOfItems: Int
   locationId: Int!
   comment: String
   qrCode: String
+  tagIds: [Int!]
 }
 
 input BoxUpdateInput {
   labelIdentifier: String!
   productId: Int
   sizeId: Int
-  items: Int
+  numberOfItems: Int
   locationId: Int
   comment: String
+  state: BoxState
+  tagIds: [Int!]
 }
 
 input BeneficiaryCreationInput {
@@ -40,7 +42,6 @@ input BeneficiaryUpdateInput {
   id: ID!
   firstName: String
   lastName: String
-  baseId: Int
   groupIdentifier: String
   dateOfBirth: Date
   comment: String
@@ -54,6 +55,7 @@ input BeneficiaryUpdateInput {
 }
 
 input TransferAgreementCreationInput {
+  sourceOrganisationId: Int!
   targetOrganisationId: Int!
   type: TransferAgreementType!
   # pass local date and timezone information (e.g. 'Europe/Berlin')
@@ -69,6 +71,21 @@ input ShipmentCreationInput {
   sourceBaseId: Int!
   targetBaseId: Int!
   transferAgreementId: Int!
+}
+
+input DistributionSpotCreationInput {
+  baseId: Int!
+  name: String
+  comment: String!
+  latitude: Float
+  longitude: Float
+}
+
+input DistributionEventCreationInput {
+  distributionSpotId: Int!
+  name: String
+  plannedStartDateTime: Datetime!
+  plannedEndDateTime: Datetime
 }
 
 input ShipmentUpdateInput {
@@ -88,4 +105,33 @@ input ShipmentDetailUpdateInput {
   id: ID!
   targetProductId: Int!
   targetLocationId: Int!
+}
+
+input PackingListEntryInput {
+  distributionEventId: ID!
+  productId: Int!
+  sizeId: Int!
+  numberOfItems: Int!
+}
+
+input TagCreationInput {
+  name: String!
+  description: String
+  color: String!
+  type: TagType!
+  baseId: Int!
+}
+
+input TagUpdateInput {
+  id: ID!
+  name: String
+  description: String
+  color: String
+  type: TagType
+}
+
+input TagOperationInput {
+  id: ID!
+  resourceId: ID!
+  resourceType: TaggableResourceType!
 }

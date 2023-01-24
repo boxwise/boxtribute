@@ -13,6 +13,7 @@ jobs:
           root: .
           paths:
             - .
+
   build-flask:
     docker:
       - image: cimg/python:3.10.4
@@ -22,7 +23,7 @@ jobs:
           at: ~/
       # Restore cached dependencies
       - restore_cache:
-          key: webapp-deps-{{ checksum "requirements.txt" }}
+          key: webapp-deps-{{ checksum "requirements.txt" }}-{{ checksum "requirements-deploy.txt" }}
       - run:
           name: create the python virtual environment and install non-cached dependencies
           command: |
@@ -31,10 +32,10 @@ jobs:
             pyenv virtualenvs
             pyenv virtualenv --force env
             source $(pyenv root)/versions/3.10.4/envs/env/bin/activate
-            pip install -e . -r requirements.txt
+            pip install -e . -r requirements.txt -r requirements-deploy.txt
       # Cache the installed packages
       - save_cache:
-          key: webapp-deps-{{ checksum "requirements.txt" }}
+          key: webapp-deps-{{ checksum "requirements.txt" }}-{{ checksum "requirements-deploy.txt" }}
           paths:
             - /home/circleci/.pyenv/versions/3.10.4/envs/env
       # save build to a CircleCI workspace
@@ -61,7 +62,10 @@ jobs:
               REACT_APP_REDIRECT=${REACT_APP_REDIRECT}
               REACT_APP_LOGOUT_URL=${REACT_APP_LOGOUT_URL}
               REACT_APP_GRAPHQL_SERVER=${REACT_APP_GRAPHQL_SERVER}
+              REACT_APP_OLD_APP_BASE_URL=${OLD_APP_BASE_URL}
               REACT_APP_SENTRY_FE_DSN=${SENTRY_FE_DSN}
+              REACT_APP_SENTRY_ENVIRONMENT=${SENTRY_ENVIRONMENT}
+              REACT_APP_SENTRY_TRACES_SAMPLE_RATE=${SENTRY_TRACES_SAMPLE_RATE}
             " > .env
       # following https://circleci.com/docs/2.0/yarn/
       - restore_cache:
@@ -70,7 +74,9 @@ jobs:
             - react-yarn-{{ checksum "yarn.lock" }}
       - run:
           name: Install Yarn Packages
-          command: yarn install --immutable
+          command: yarn install --frozen-lockfile
+      - store_artifacts:
+          path: yarn.lock
       - save_cache:
           name: Save Yarn Package Cache
           key: react-yarn-{{ checksum "yarn.lock" }}
@@ -81,18 +87,25 @@ jobs:
           command: |
             yarn build
       - run:
-          name: Test React App
+          name: Run FE style checks
           command: |
-            yarn test
-      # - run:
-      #     name: Test React App Codecover
-      #     command: |
-      #       yarn run test:coverage
+            yarn lint
+            yarn format:write
+      - run:
+          name: Test React App creating reports
+          command: |
+            DEBUG_PRINT_LIMIT=10000 yarn test:coverage --ci --runInBand --reporters=default --reporters=jest-junit
+          environment:
+            JEST_JUNIT_OUTPUT_DIR: reports
       - store_test_results:
+          path: reports
+      - store_artifacts:
           path: coverage
+          destination: coverage
       - codecov/upload:
-          file: coverage/clover.xml
           flags: frontend
+      - slack/notify-on-failure:
+          only_for_branches: master,production
       # Add build to workspace
       - persist_to_workspace:
           root: ~/
@@ -133,7 +146,7 @@ jobs:
             - ~/.cache/pre-commit
       # https://circleci.com/docs/2.0/postgres-config/#example-mysql-project
       - run:
-      # Our primary container isn't MYSQL so run a sleep command until it's ready.
+          # Our primary container isn't MYSQL so run a sleep command until it's ready.
           name: Waiting for MySQL to be ready
           command: |
             for i in `seq 1 10`;
@@ -153,7 +166,7 @@ jobs:
           name: Run pytest
           command: |
             source $(pyenv root)/versions/3.10.4/envs/env/bin/activate
-            pytest --cov-report xml:test-results/coverage.xml --cov=boxtribute_server
+            ENVIRONMENT=test pytest --cov-report xml:test-results/coverage.xml --cov=boxtribute_server
       - store_test_results:
           path: test-results
       - store_artifacts:
@@ -177,15 +190,14 @@ jobs:
           at: ~/
       # install gcloud orb
       - gcp-cli/install
-      - unless:
-          condition:
-            matches:
-              pattern: "^api-.+"
-              value: << parameters.serviceName >>
-          steps:
-            - run:
-                name: Copy react build into flask app for deployment
-                command: mv ../react/build react-build
+      - run:
+          name: Inject Heap Analytics Script to index.html
+          command: |
+            sed -i "s/HEAPIO_APP_ID/${HEAPIO_APP_ID}/" ../react/build/heapanalytics.js
+            sed -i 's|</head>|<script src="/heapanalytics.js"></script></head>|' ../react/build/index.html
+      - run:
+          name: Copy react build into flask app for deployment
+          command: mv ../react/build react-build
       - run:
           name: Create version.txt
           command: |
@@ -193,13 +205,15 @@ jobs:
               Branch: ${CIRCLE_BRANCH}
               Git hash: ${CIRCLE_SHA1}" > version.txt
       - run:
+          # GAE only installs dependencies from requirements.txt
+          name: Extend dependencies to be installed in deploy-environment
+          command: cat requirements-deploy.txt >> requirements.txt
+      - run:
           name: Generate .env files
           command: |
             echo "
               AUTH0_DOMAIN=${AUTH0_DOMAIN}
               AUTH0_AUDIENCE=${AUTH0_AUDIENCE}
-              AUTH0_CLIENT_ID=${QUERY_API_AUTH0_CLIENT_ID}
-              AUTH0_CLIENT_SECRET=${QUERY_API_AUTH0_CLIENT_SECRET}
               AUTH0_JWKS_KID=${AUTH0_JWKS_KID}
               AUTH0_JWKS_N=${AUTH0_JWKS_N}
               MYSQL_HOST=127.0.0.1
@@ -208,47 +222,16 @@ jobs:
               MYSQL_DB=${DB_NAME}
               MYSQL_PORT=3306
               MYSQL_SOCKET=${DB_SOCKET}
-              SENTRY_DSN=${SENTRY_DSN}
+              SENTRY_DSN=${SENTRY_BE_DSN}
               SENTRY_ENVIRONMENT=${SENTRY_ENVIRONMENT}
               SENTRY_RELEASE=${CIRCLE_SHA1}
+              SENTRY_TRACES_SAMPLE_RATE=${SENTRY_TRACES_SAMPLE_RATE}
+              ENVIRONMENT=${SENTRY_ENVIRONMENT}
               " > .env
-            if [[ "<< parameters.serviceName >>" != "api-"* ]]; then echo "EXPOSE_FULL_GRAPHQL=1" >> .env; fi
       - run:
           name: Generate GAE app.yaml file
           command: |
-            if [[ "<< parameters.serviceName >>" = "api-"* ]]; then
-                sed 's/service: api-staging/service: << parameters.serviceName >>/g' app-api.yaml > app-<< parameters.serviceName >>.yaml
-            else
-                sed 's/service: v2-staging/service: << parameters.serviceName >>/g' app.yaml > app-<< parameters.serviceName >>.yaml
-            fi
-      - when:
-          condition:
-            matches:
-              pattern: "^api-.+"
-              value: << parameters.serviceName >>
-          steps:
-            - restore_cache:
-                name: Restore npm Package Cache
-                keys:
-                  - docs-npm-spectaql-{{ checksum "../docs/graphql-api/package.json" }}
-            - run:
-                name: Generate GraphQL documentation
-                command: |
-                  cd ../docs/graphql-api
-                  if [[ "<< parameters.serviceName >>" != api-production ]]; then
-                      sed -i 's/api.boxtribute/<< parameters.serviceName >>.boxtribute/g' query-api-config.yml
-                  fi
-                  npm install
-                  npx spectaql query-api-config.yml
-                  sed -i 's|stylesheets|docs/stylesheets|g' public/index.html
-                  sed -i 's|javascripts|docs/javascripts|g' public/index.html
-                  sed -i 's|images|docs/images|g' public/index.html
-                  mv public ../../back/graphql-docs
-            - save_cache:
-                name: Save npm Package Cache
-                key: docs-npm-spectaql-{{ checksum "../docs/graphql-api/package.json" }}
-                paths:
-                  - ~/docs/graphql-api/node_modules
+            sed 's/service: v2-staging/service: << parameters.serviceName >>/g' app.yaml > app-<< parameters.serviceName >>.yaml
       - run:
           name: Compress deployment artificats
           command: tar -cvzf ~/deploy.tar.gz ~/back
@@ -265,10 +248,104 @@ jobs:
           command: |
             gcloud app deploy app-<< parameters.serviceName >>.yaml
       - slack/notify-on-failure:
-        only_for_branches: master,production
+          only_for_branches: master,production
+
+  deploy-api:
+    parameters:
+      serviceName:
+        type: string
+    docker:
+      - image: cimg/python:3.10.4-node
+    working_directory: ~/back
+    steps:
+      # Attach workspace from build
+      - attach_workspace:
+          at: ~/
+      # install gcloud orb
+      - gcp-cli/install
+      - run:
+          name: Create version.txt
+          command: |
+            echo "CircleCI build number:${CIRCLE_BUILD_NUM}
+              Branch: ${CIRCLE_BRANCH}
+              Git hash: ${CIRCLE_SHA1}" > version.txt
+            if [ ! -z ${CIRCLE_TAG} ]; then
+              sed -i "s/0.0.1/${CIRCLE_TAG}/" ../docs/graphql-api/query-api-config.yml
+            elif [ ! -z ${CIRCLE_SHA1} ]; then
+              sed -i "s/0.0.1/${CIRCLE_SHA1}/" ../docs/graphql-api/query-api-config.yml
+            fi
+      - run:
+          # GAE only installs dependencies from requirements.txt
+          name: Extend dependencies to be installed in deploy-environment
+          command: cat requirements-deploy.txt >> requirements.txt
+      - run:
+          name: Generate .env files
+          command: |
+            echo "
+              AUTH0_DOMAIN=${AUTH0_DOMAIN}
+              AUTH0_AUDIENCE=${AUTH0_AUDIENCE}
+              AUTH0_CLIENT_ID=${QUERY_API_AUTH0_CLIENT_ID}
+              AUTH0_CLIENT_SECRET=${QUERY_API_AUTH0_CLIENT_SECRET}
+              AUTH0_JWKS_KID=${AUTH0_JWKS_KID}
+              AUTH0_JWKS_N=${AUTH0_JWKS_N}
+              MYSQL_HOST=127.0.0.1
+              MYSQL_USER=${DB_NAME}
+              MYSQL_PASSWORD=${DB_PASS}
+              MYSQL_DB=${DB_NAME}
+              MYSQL_PORT=3306
+              MYSQL_SOCKET=${DB_SOCKET}
+              SENTRY_DSN=${SENTRY_BE_DSN}
+              SENTRY_ENVIRONMENT=${SENTRY_ENVIRONMENT}
+              SENTRY_RELEASE=${CIRCLE_SHA1}
+              SENTRY_TRACES_SAMPLE_RATE=${SENTRY_TRACES_SAMPLE_RATE}
+              ENVIRONMENT=${SENTRY_ENVIRONMENT}
+              " > .env
+      - run:
+          name: Generate GAE app.yaml file
+          command: |
+            sed 's/service: api-staging/service: << parameters.serviceName >>/g' app-api.yaml > app-<< parameters.serviceName >>.yaml
+      - restore_cache:
+          name: Restore npm Package Cache
+          keys:
+            - docs-npm-spectaql-{{ checksum "../docs/graphql-api/package.json" }}
+      - run:
+          name: Generate GraphQL documentation
+          command: |
+            cd ../docs/graphql-api
+            if [[ "<< parameters.serviceName >>" != api-production ]]; then
+                sed -i 's/api.boxtribute/<< parameters.serviceName >>.boxtribute/g' query-api-config.yml
+            fi
+            npm install
+            npx spectaql query-api-config.yml
+            sed -i 's|stylesheets|docs/stylesheets|g' public/index.html
+            sed -i 's|javascripts|docs/javascripts|g' public/index.html
+            sed -i 's|images|docs/images|g' public/index.html
+            mv public ../../back/graphql-docs
+      - save_cache:
+          name: Save npm Package Cache
+          key: docs-npm-spectaql-{{ checksum "../docs/graphql-api/package.json" }}
+          paths:
+            - ~/docs/graphql-api/node_modules
+      - run:
+          name: Compress deployment artificats
+          command: tar -cvzf ~/deploy.tar.gz ~/back
+      - store_artifacts:
+          name: Store copy of deployment artifacts
+          path: ~/deploy.tar.gz
+      - run:
+          name: Authenticate the gcloud orb
+          command: |
+            echo $GCLOUD_SERVICE_KEY | gcloud auth activate-service-account --key-file=-
+            gcloud --quiet config set project ${GOOGLE_PROJECT_ID}
+      - run:
+          name: Deploy to GAE
+          command: |
+            gcloud app deploy app-<< parameters.serviceName >>.yaml
+      - slack/notify-on-failure:
+          only_for_branches: master,production
 
 workflows:
-  build-and-deploy:
+  test:
     jobs:
       - checkout-to-workspace
       - build-flask:
@@ -280,72 +357,125 @@ workflows:
           requires:
             - build-flask
       - build-and-test-react:
-          # for now, always builds in staging context
-          # this means it will be configured with staging
-          # auth0 values...
           context: STAGING
           requires:
             - checkout-to-workspace
 
-      # deploy to staging
+  build-and-deploy:
+    jobs:
+      # for staging and demo only (for production see below)
+      - checkout-to-workspace:
+          filters:
+            branches:
+              only:
+                - master
+                - production
+
+      # staging
+      - build-and-test-react:
+          name: build-and-test-react-staging
+          context: STAGING
+          requires:
+            - checkout-to-workspace
+          filters:
+            branches:
+              only:
+                - master
       - deploy:
           name: deploy-staging
           context: STAGING
           serviceName: v2-staging
           requires:
-            - test-flask
-            - build-and-test-react
+            - build-and-test-react-staging
           filters:
             branches:
-              only: master
-      - deploy:
+              only:
+                - master
+      - deploy-api:
           name: deploy-api-staging
           context: STAGING
           serviceName: api-staging
           requires:
-            - test-flask
+            - checkout-to-workspace
           filters:
             branches:
-              only: master
+              only:
+                - master
 
-      # deploy to demo
+      # demo - runs on any commit to the production branch
+      - build-and-test-react:
+          name: build-and-test-react-demo
+          context: DEMO
+          requires:
+            - checkout-to-workspace
+          filters:
+            tags:
+              ignore: /.*/
+            branches:
+              only:
+                - production
       - deploy:
           name: deploy-demo
           context: DEMO
           serviceName: v2-demo
           requires:
-            - test-flask
-            - build-and-test-react
+            - build-and-test-react-demo
           filters:
+            tags:
+              ignore: /.*/
             branches:
-              only: production
-      - deploy:
+              only:
+                - production
+      - deploy-api:
           name: deploy-api-demo
           context: DEMO
           serviceName: api-demo
           requires:
-            - test-flask
+            - checkout-to-workspace
           filters:
+            tags:
+              ignore: /.*/
             branches:
-              only: production
+              only:
+                - production
 
-      # deploy to production
+      # production - this can only be triggered by a tag
+      - checkout-to-workspace:
+          name: checkout-to-workspace-production
+          filters:
+            tags:
+              only: /^v.*/
+            branches:
+              ignore: /.*/
+      - build-and-test-react:
+          name: build-and-test-react-production
+          context: PRODUCTION
+          requires:
+            - checkout-to-workspace-production
+          filters:
+            tags:
+              only: /^v.*/
+            branches:
+              ignore: /.*/
       - deploy:
           name: deploy-production
           context: PRODUCTION
           serviceName: v2-production
           requires:
-            - test-flask
-            - build-and-test-react
+            - build-and-test-react-production
           filters:
+            tags:
+              only: /^v.*/
             branches:
-              only: production
-      - deploy:
+              ignore: /.*/
+      - deploy-api:
           name: deploy-api-production
           context: PRODUCTION
           serviceName: api-production
           requires:
-            - test-flask
+            - checkout-to-workspace-production
           filters:
+            tags:
+              only: /^v.*/
             branches:
-              only: production
+              ignore: /.*/

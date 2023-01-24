@@ -2,7 +2,9 @@
 import json
 import os
 import urllib
+from collections import defaultdict
 from functools import wraps
+from typing import Dict, Tuple
 
 from flask import g, request
 from jose import JOSEError, jwt
@@ -115,28 +117,46 @@ class CurrentUser:
     For secure access, property and utility methods are provided.
     """
 
-    def __init__(self, *, id, organisation_id=None, is_god=False, base_ids=None):
+    def __init__(
+        self,
+        *,
+        id,
+        organisation_id=None,
+        is_god=False,
+        base_ids=None,
+        beta_feature_scope=None,
+    ):
         """The `base_ids` field is a mapping of a permission name to a list of base IDs
-        that the permission is granted for, or to None if the permission is granted for
-        all bases. However it is never exposed directly to avoid accidental
-        manipulation.
+        that the permission is granted for. However it is never exposed directly to
+        avoid accidental manipulation.
         The `organisation_id` field is set to None for god users.
         """
         self._id = id
         self._organisation_id = None if is_god else organisation_id
         self._is_god = is_god
         self._base_ids = base_ids or {}
+        self._beta_feature_scope = beta_feature_scope or 0
 
     @classmethod
     def from_jwt(cls, payload):
         """Extract user information from custom claims in JWT payload. The prefix and
         the claim names are set by an Action script in Auth0.
+
         The `permissions` custom claim contains entries of form
-        '[base_X[-Y...]/]resource:method'. Any write/edit permission implies read
-        permission on the same resource. E.g.
+        '[base_X[-Y...]/]resource:method'. If no base prefix is given, the value from
+        the `base_ids` custom claim is used (this occurs for the Head-of-Ops user role).
+
+        If a user has multiple roles, their base-specific permissions are aggregated.
+
+        Any write/create/edit/delete permission implies read permission on the same
+        resource.
+
+        Examples:
         - base_1/product:read    -> {"product:read": [1]}
         - base_2-3/stock:write   -> {"stock:write": [2, 3], "stock:read": [2, 3]}
-        - beneficiary:edit       -> {"beneficiary:edit": None, "beneficiary:read": None}
+        - beneficiary:edit       -> {"beneficiary:edit": [], "beneficiary:read": []}
+        - base_1/stock:read, stock:read, base_ids = [2]
+                                 -> {"stock:read": [1, 2]}
 
         If the permissions custom claim is a list with a single entry "*", it indicates
         that the current user is a god user.
@@ -152,36 +172,43 @@ class CurrentUser:
                 },
             )
 
-        base_ids = {}
+        # Use set to collect base IDs, thus avoiding duplicates if both read and write
+        # permission are specified for the same resource
+        base_ids = defaultdict(set)
+
         if not is_god:
             for raw_permission in payload[f"{JWT_CLAIM_PREFIX}/permissions"]:
                 try:
                     base_prefix, permission = raw_permission.split("/")
                     ids = [int(b) for b in base_prefix[5:].split("-")]
                 except ValueError:
-                    # No base_ prefix, permission granted for all bases
+                    # Organisation Head-of-Ops don't have base_ prefixes, permission
+                    # granted for all bases indicated by custom 'base_ids' claim
                     permission = raw_permission
-                    ids = None
-                base_ids[permission] = ids
+                    ids = payload[f"{JWT_CLAIM_PREFIX}/base_ids"]
+                base_ids[permission].update(ids)
 
                 resource, method = permission.split(":")
-                if method in ["write", "create", "edit"]:
-                    base_ids[f"{resource}:read"] = ids
+                if method in ["write", "create", "edit", "delete"]:
+                    base_ids[f"{resource}:read"].update(ids)
+
+        # Convert to regular dict, using list for base IDs (set not JSON serializable)
+        base_ids = {permission: list(bases) for permission, bases in base_ids.items()}
 
         return cls(
             organisation_id=payload[f"{JWT_CLAIM_PREFIX}/organisation_id"],
+            beta_feature_scope=payload.get(f"{JWT_CLAIM_PREFIX}/beta_user"),
             id=int(payload["sub"].replace("auth0|", "")),
             is_god=is_god,
             base_ids=base_ids,
         )
 
-    def has_permission(self, name):
-        return name in self._base_ids
-
     def authorized_base_ids(self, permission):
-        if self.is_god:
-            return None
         return self._base_ids[permission]
+
+    @property
+    def beta_feature_scope(self):
+        return self._beta_feature_scope
 
     @property
     def id(self):
@@ -224,14 +251,23 @@ def requires_auth(f):
     return decorated
 
 
-def request_jwt(*, client_id, client_secret, audience, domain, username, password):
+def request_jwt(
+    *,
+    client_id,
+    client_secret,
+    audience,
+    domain,
+    username,
+    password,
+    grant_type="password",
+) -> Tuple[bool, Dict[str, str]]:
     """Request JWT from Auth0 service on given domain, passing any additional
     parameters. Return whether request was successful, and the full response.
     """
     parameters = {
         "client_id": client_id,
         "client_secret": client_secret,
-        "grant_type": "password",
+        "grant_type": grant_type,
         "audience": audience,
         "username": username,
         "password": password,

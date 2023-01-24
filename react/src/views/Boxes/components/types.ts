@@ -2,8 +2,9 @@ export type BoxRow = {
     labelIdentifier: string;
     productName: string;
     gender?: string | null;
-    items: number;
+    numberOfItems: number;
     size?: string | null;
-    location?: string | null;
+    place?: string | null;
     state: string;
+    tags?: string[]
   };

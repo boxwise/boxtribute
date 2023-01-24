@@ -1,5 +1,7 @@
+from datetime import datetime
+
 import pytest
-from boxtribute_server.enums import BoxState
+from boxtribute_server.enums import BoxState, LocationType
 from boxtribute_server.models.definitions.location import Location
 
 from .base import data as base_data
@@ -23,6 +25,8 @@ def default_location_data():
         "seq": 1,
         "visible": 1,
         "created_by": default_user_data()["id"],
+        "type": LocationType.ClassicLocation,
+        "latitude": None,
     }
 
 
@@ -52,6 +56,29 @@ def non_default_box_state_location_data():
     return data
 
 
+def distribution_spot_data():
+    data = default_location_data()
+    data["id"] = 5
+    data["type"] = LocationType.DistributionSpot
+    data["latitude"] = 13.37
+    return data
+
+
+def another_distribution_spot_data():
+    data = default_location_data()
+    data["id"] = 6
+    data["base"] = base_data()[2]["id"]
+    data["type"] = LocationType.DistributionSpot
+    return data
+
+
+def deleted_location_data():
+    data = default_location_data()
+    data["id"] = 7
+    data["deleted"] = datetime(2021, 1, 1)
+    return data
+
+
 @pytest.fixture()
 def another_location():
     return another_location_data()
@@ -67,8 +94,39 @@ def non_default_box_state_location():
     return non_default_box_state_location_data()
 
 
+@pytest.fixture()
+def distribution_spot():
+    return distribution_spot_data()
+
+
+@pytest.fixture
+def base1_classic_locations():
+    return [
+        default_location_data(),
+        null_box_state_location_data(),
+        non_default_box_state_location_data(),
+        deleted_location_data(),
+    ]
+
+
+@pytest.fixture
+def base1_undeleted_classic_locations():
+    return [
+        default_location_data(),
+        null_box_state_location_data(),
+        non_default_box_state_location_data(),
+    ]
+
+
 def create():
-    Location.create(**default_location_data())
-    Location.create(**another_location_data())
-    Location.create(**null_box_state_location_data())
-    Location.create(**non_default_box_state_location_data())
+    Location.insert_many(
+        [
+            default_location_data(),
+            another_location_data(),
+            null_box_state_location_data(),
+            non_default_box_state_location_data(),
+            distribution_spot_data(),
+            another_distribution_spot_data(),
+            deleted_location_data(),
+        ]
+    ).execute()

@@ -1,7 +1,8 @@
 from utils import assert_successful_request
 
 
-def test_product_query(read_only_client, default_product, default_size):
+def test_product_query(read_only_client, default_product, default_size, another_size):
+    # Test case 8.1.21
     query = f"""query {{
                 product(id: {default_product['id']}) {{
                     id
@@ -23,16 +24,16 @@ def test_product_query(read_only_client, default_product, default_size):
         "category": {"hasGender": True},
         "sizeRange": {
             "id": str(default_product["size_range"]),
-            "sizes": [{"id": str(default_size["id"])}],
+            "sizes": [{"id": str(default_size["id"])}, {"id": str(another_size["id"])}],
         },
         "base": {"id": str(default_product["base"])},
         "price": default_product["price"],
         "gender": "Women",
-        "createdBy": None,
+        "createdBy": {"id": str(default_product["created_by"])},
     }
 
 
-def test_products_query(read_only_client, default_product):
+def test_products_query(read_only_client, base1_products):
     query = """query { products { elements { name } } }"""
-    queried_product = assert_successful_request(read_only_client, query)["elements"][0]
-    assert queried_product["name"] == default_product["name"]
+    products = assert_successful_request(read_only_client, query)["elements"]
+    assert products == [{"name": p["name"]} for p in base1_products]

@@ -7,6 +7,7 @@ from .base import data as base_data
 from .product_category import default_product_category_data
 from .product_gender import default_product_gender_data
 from .size_range import data as size_range_data
+from .user import default_user_data
 
 
 def data():
@@ -21,6 +22,7 @@ def data():
             "size_range": size_range_data()["id"],
             "in_shop": 0,
             "price": 1,
+            "created_by": default_user_data()["id"],
             "deleted": None,
         },
         {
@@ -32,6 +34,7 @@ def data():
             "size_range": size_range_data()["id"],
             "in_shop": 0,
             "price": 1,
+            "created_by": default_user_data()["id"],
             "deleted": None,
         },
         {
@@ -43,6 +46,7 @@ def data():
             "size_range": size_range_data()["id"],
             "in_shop": 0,
             "price": 1,
+            "created_by": default_user_data()["id"],
             "deleted": None,
         },
         {
@@ -54,6 +58,7 @@ def data():
             "size_range": size_range_data()["id"],
             "in_shop": 0,
             "price": 1,
+            "created_by": default_user_data()["id"],
             "deleted": datetime(2022, 1, 1),
         },
     ]
@@ -72,6 +77,18 @@ def another_product():
 @pytest.fixture
 def products():
     return data()
+
+
+@pytest.fixture
+def base1_products():
+    all_products = data()
+    return [all_products[0], all_products[2], all_products[3]]
+
+
+@pytest.fixture
+def base1_undeleted_products():
+    all_products = data()
+    return [all_products[0], all_products[2]]
 
 
 def create():

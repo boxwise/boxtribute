@@ -2,6 +2,7 @@ from utils import assert_successful_request
 
 
 def test_bases_query(read_only_client, default_bases, default_beneficiaries):
+    # Test case 99.1.1
     query = """query {
                 bases {
                     id
@@ -24,7 +25,20 @@ def test_bases_query(read_only_client, default_bases, default_beneficiaries):
     assert len(queried_base["beneficiaries"]["elements"]) == len(default_beneficiaries)
 
 
-def test_base_query(read_only_client, default_location, default_bases):
+def test_base_query(
+    read_only_client,
+    default_bases,
+    default_distribution_event,
+    default_tracking_group,
+    distribution_spot,
+    distro_spot5_distribution_events,
+    distro_spot5_distribution_events_before_return_state,
+    distro_spot5_distribution_events_in_return_state,
+    base1_active_tags,
+    base1_undeleted_classic_locations,
+    base1_undeleted_products,
+):
+    # Test case 99.1.2
     test_id = 1
     query = f"""query Base {{
                 base(id: {test_id}) {{
@@ -33,6 +47,14 @@ def test_base_query(read_only_client, default_location, default_bases):
                     organisation {{ id }}
                     currencyName
                     locations {{ id }}
+                    products {{ id }}
+                    tags {{ id }}
+                    distributionSpots {{ id }}
+                    distributionEvents {{ id }}
+                    distributionEventsBeforeReturnedFromDistributionState {{ id }}
+                    distributionEventsInReturnedFromDistributionState {{ id }}
+                    distributionEventsStatistics {{ productId }}
+                    distributionEventsTrackingGroups {{ id }}
                 }}
             }}"""
 
@@ -42,6 +64,24 @@ def test_base_query(read_only_client, default_location, default_bases):
     assert base["name"] == expected_base["name"]
     assert base["currencyName"] == expected_base["currency_name"]
     assert int(base["organisation"]["id"]) == expected_base["organisation"]
-
-    locations = base["locations"]
-    assert {"id": str(default_location["id"])} in locations
+    assert base["products"] == [{"id": str(p["id"])} for p in base1_undeleted_products]
+    assert base["tags"] == [{"id": str(t["id"])} for t in base1_active_tags]
+    assert base["locations"] == [
+        {"id": str(loc["id"])} for loc in base1_undeleted_classic_locations
+    ]
+    assert base["distributionSpots"] == [{"id": str(distribution_spot["id"])}]
+    assert base["distributionEvents"] == [
+        {"id": str(event["id"])} for event in distro_spot5_distribution_events
+    ]
+    assert base["distributionEventsBeforeReturnedFromDistributionState"] == [
+        {"id": str(event["id"])}
+        for event in distro_spot5_distribution_events_before_return_state
+    ]
+    assert base["distributionEventsInReturnedFromDistributionState"] == [
+        {"id": str(event["id"])}
+        for event in distro_spot5_distribution_events_in_return_state
+    ]
+    assert base["distributionEventsStatistics"] == []
+    assert base["distributionEventsTrackingGroups"] == [
+        {"id": str(default_tracking_group["id"])}
+    ]

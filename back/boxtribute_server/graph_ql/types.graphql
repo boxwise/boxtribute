@@ -1,15 +1,37 @@
 # GraphQL basic types as returned by queries and mutations, and input types for queries.
 
+
+
+interface ItemsCollection {
+  id: ID!
+  product: Product
+  size: Size!
+  numberOfItems: Int
+  location: Location
+  distributionEvent: DistributionEvent
+}
+
+type UnboxedItemsCollection implements ItemsCollection {
+  id: ID!
+  product: Product
+  size: Size!
+  numberOfItems: Int
+  label: String
+  location: Location
+  distributionEvent: DistributionEvent
+}
+
+
 """
 Representation of a box storing items of a [`Product`]({{Types.Product}}) in a [`Location`]({{Types.Location}})
 """
-type Box {
+type Box implements ItemsCollection {
   id: ID!
   " Sequence of numbers for identifying the box, usually written on box label "
   labelIdentifier: String!
   location: Location
-  " The number of items the box contains. "
-  items: Int
+  distributionEvent: DistributionEvent
+  numberOfItems: Int
   product: Product
   size: Size!
   state: BoxState!
@@ -19,7 +41,22 @@ type Box {
   lastModifiedBy: User
   lastModifiedOn: Datetime
   comment: String
-  tags: [Tag!]!
+  tags: [Tag!]
+  history: [HistoryEntry!]
+}
+
+type HistoryEntry {
+  id: ID!
+  changes: String!
+  changeDate: Datetime
+  user: User
+}
+
+interface Location {
+  id: ID!
+  base: Base
+  name: String
+  boxes(paginationInput: PaginationInput, filterInput: FilterBoxInput): BoxPage
 }
 
 """
@@ -28,6 +65,7 @@ Representation of a QR code, possibly associated with a [`Box`]({{Types.Box}}).
 type QrCode {
   id: ID!
   code: String!
+  " [`Box`]({{Types.Box}}) associated with the QR code (`null` if none associated) "
   box: Box
   createdOn: Datetime
 }
@@ -84,7 +122,8 @@ type Tag {
   description: String
   color: String
   type: TagType!
-  taggedResources: [TaggableResource!]!
+  taggedResources: [TaggableResource!]
+  base: Base!
 }
 
 """
@@ -133,6 +172,14 @@ type Size {
 }
 
 """
+Classificator for resources that a [`Tag`]({{Types.Tag}}) can be applied to (according to [`TaggableResource`]({{Types.TaggableResource}})).
+"""
+enum TaggableResourceType {
+  Box
+  Beneficiary
+}
+
+"""
 Representation of group of sizes.
 """
 type SizeRange {
@@ -143,18 +190,19 @@ type SizeRange {
 }
 
 """
-Representation of a physical location used to store [`Boxes`]({{Types.Box}}).
+Representation of a classic physical location used to store [`Boxes`]({{Types.Box}}) (e.g. a warehouse).
 The location is part of a specific [`Base`]({{Types.Base}}).
 """
-type Location {
+type ClassicLocation implements Location {
   id: ID!
   base: Base
   name: String
+  seq: Int
   isShop: Boolean!
   isStockroom: Boolean!
-  " List of all the [`Boxes`]({{Types.Box}}) in this location "
+  " List of all the [`Boxes`]({{Types.Box}}) in this classic location "
   boxes(paginationInput: PaginationInput, filterInput: FilterBoxInput): BoxPage
-  " Default state for boxes in this location "
+  " Default state for boxes in this classic location"
   defaultBoxState: BoxState
   createdBy: User
   createdOn: Datetime
@@ -179,14 +227,44 @@ type Base {
   id: ID!
   name: String!
   organisation: Organisation!
-  " List of all [`Locations`]({{Types.Location}}) present in this base "
-  locations: [Location!]
   " List of all [`Beneficiaries`]({{Types.Beneficiary}}) registered in this base "
-  beneficiaries(
-    paginationInput: PaginationInput
-    filterInput: FilterBeneficiaryInput
-  ): BeneficiaryPage!
+  beneficiaries(paginationInput: PaginationInput, filterInput: FilterBeneficiaryInput): BeneficiaryPage
   currencyName: String
+  " List of all undeleted [`ClassicLocations`]({{Types.ClassicLocation}}) present in this base "
+  locations: [ClassicLocation!]!
+  " List of all undeleted [`Products`]({{Types.Product}}) registered in this base "
+  products: [Product!]!
+  " List of all [`Tags`]({{Types.Tag}}) registered in this base. Optionally filter for a [`resource type`]({{Types.TaggableResourceType}}) "
+  tags(resourceType: TaggableResourceType): [Tag!]
+  distributionSpots: [DistributionSpot!]!
+  distributionEvents(states: [DistributionEventState!]): [DistributionEvent!]!
+
+  # TODO: rethink this query once the prototype testing is over
+  # probably better to have filter parameters and only one query operation
+  distributionEventsBeforeReturnedFromDistributionState: [DistributionEvent!]!
+
+  # TODO: rethink this query once the prototype testing is over (same as above)
+  # probably better to have filter parameters and only one query operation
+  distributionEventsInReturnedFromDistributionState: [DistributionEvent!]!
+
+  distributionEventsTrackingGroups(states: [DistributionEventsTrackingGroupState!]): [DistributionEventsTrackingGroup!]!
+  distributionEventsStatistics: [DistributionEventsStatistics!]!
+}
+
+type DistributionEventsStatistics {
+  productName: String!
+  genderLabel: String!
+  categoryLabel: String!
+  sizeLabel: String!
+  inflow: Int!
+  outflow: Int!
+  earliestPossibleDistroDate: String!
+  latestPossibleDistroDate: String!
+  potentiallyInvolvedDistributionSpots: String!
+  involvedDistributionEventIds: String!
+  distroEventTrackingGroupId: String!
+  productId: String!
+  sizeId: String!
 }
 
 """
@@ -200,6 +278,111 @@ type Organisation {
 }
 
 """
+TODO: Add description here once specs are final/confirmed
+"""
+enum DistributionEventState {
+  Planning
+  Packing
+  OnDistro
+  ReturnedFromDistribution
+  ReturnTrackingInProgress
+  Completed
+}
+
+"""
+TODO: Add description here once specs are final/confirmed
+"""
+type DistributionEvent {
+  id: ID!
+  distributionSpot: DistributionSpot
+  name: String
+  state: DistributionEventState!
+
+  plannedStartDateTime: Datetime!
+  plannedEndDateTime: Datetime!
+  packingListEntries: [PackingListEntry!]!
+
+  # TODO: Consider to also add field "itemsCollections" to this type
+  # It would return both boxes as well as unboxed items collections
+  boxes: [Box!]!
+  unboxedItemsCollections: [UnboxedItemsCollection!]!
+
+  distributionEventsTrackingGroup: DistributionEventsTrackingGroup
+}
+
+enum DistributionEventTrackingFlowDirection {
+  In
+  Out
+  # Internal
+  BackToBox
+}
+
+enum DistributionEventsTrackingGroupState {
+  InProgress
+  Completed
+}
+
+
+"""
+TODO: Add description here once specs are final/confirmed
+"""
+type DistributionEventsTrackingEntry {
+  id: ID!
+  product: Product!
+  size: Size!
+  numberOfItems: Int!
+  distributionEventsTrackingGroup: DistributionEventsTrackingGroup!
+  dateTimeOfTracking: Datetime!
+  flowDirection: DistributionEventTrackingFlowDirection!
+}
+
+"""
+TODO: Add description here once specs are final/confirmed
+"""
+type DistributionEventsTrackingGroup {
+  id: ID!
+  state: DistributionEventsTrackingGroupState!
+  distributionEvents: [DistributionEvent!]!
+  distributionEventsTrackingEntries: [DistributionEventsTrackingEntry!]!
+  createdOn: Datetime!
+}
+
+"""
+TODO: Add description here once specs are final/confirmed
+"""
+enum PackingListEntryState {
+  NotStarted
+  PackingInProgress
+  Packed
+}
+
+"""
+TODO: Add description here once specs are final/confirmed
+"""
+type PackingListEntry {
+  id: ID!
+  product: Product
+  size: Size
+  numberOfItems: Int!
+  matchingPackedItemsCollections: [ItemsCollection!]!
+  state: PackingListEntryState!
+}
+
+"""
+TODO: Add description here once specs are final/confirmed
+"""
+type DistributionSpot implements Location {
+  id: ID!
+  name: String
+  base: Base
+  boxes(paginationInput: PaginationInput, filterInput: FilterBoxInput): BoxPage
+  comment: String!
+  latitude: Float
+  longitude: Float
+  distributionEvents: [DistributionEvent!]!
+}
+
+"""
 Representation of a user signed up for the web application.
 The user is a member of a specific [`Organisation`]({{Types.Organisation}}).
 """
@@ -207,7 +390,7 @@ type User {
   id: ID!
   organisation: Organisation
   name: String
-  email: String!
+  email: String
   validFirstDay: Date
   validLastDay: Date
   " List of all [`Bases`]({{Types.Base}}) this user can access "
@@ -258,7 +441,7 @@ type Beneficiary {
   createdOn: Datetime
   lastModifiedBy: User
   lastModifiedOn: Datetime
-  tags: [Tag!]!
+  tags: [Tag!]
 }
 
 """
@@ -412,8 +595,8 @@ type ShipmentDetail {
   id: ID!
   sourceProduct: Product
   targetProduct: Product
-  sourceLocation: Location
-  targetLocation: Location
+  sourceLocation: ClassicLocation
+  targetLocation: ClassicLocation
   box: Box!
   shipment: Shipment!
   createdBy: User!
