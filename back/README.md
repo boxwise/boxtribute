@@ -202,7 +202,7 @@ Note that in production mode, logging is also subject to the configuration of th
 
 Our tests verify the production code on different levels:
 
-1. **Unit tests**: testing isolated functionality, e.g. `auth_tests/`
+1. **Unit tests**: testing isolated functionality, see `unit_tests/`
 1. **Data model tests**: testing data models, requiring a test database being set up. See `model_tests/`
 1. **App tests**: testing behavior of Flask app, mostly the handling of GraphQL requests. Requires a test database being set up, or a MySQL database server running in the background. Any data for user authentication and authorization is mocked. See `endpoint_tests/`
 1. **Integration tests**: testing integration of Auth0 web service for user auth(z). Requires a working internet connection. Parameters for the test user are read from the `.env` file. See `integration_tests/`
