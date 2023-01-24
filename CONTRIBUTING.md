@@ -4,7 +4,7 @@ First off: **thank you**. You will be helping build software that distributes cl
 
 **If you want to join and support us**, just [write us at hello@boxtribute.org](mailto:hello@boxtribute.org) and include your github handle and / or CV!
 
-**Do you need help using Boxtribute, or you found a bug, or got an idea for a feature?** [Please write us at helpme@boxtribute.org!](mailto:helpme@boxtribute.org)
+**Do you need help using Boxtribute, or you found a bug, or got an idea for a feature?** [Please write us at help@boxtribute.org!](mailto:help@boxtribute.org)
 
 ### How do we work in general?
 
