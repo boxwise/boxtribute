@@ -2,14 +2,14 @@ from collections import defaultdict
 
 from aiodataloader import DataLoader
 
-from .authz import authorize, authorized_bases_filter
-from .enums import TaggableObjectType
-from .models.definitions.product import Product
-from .models.definitions.product_category import ProductCategory
-from .models.definitions.size import Size
-from .models.definitions.size_range import SizeRange
-from .models.definitions.tag import Tag
-from .models.definitions.tags_relation import TagsRelation
+from ..authz import authorize, authorized_bases_filter
+from ..enums import TaggableObjectType
+from ..models.definitions.product import Product
+from ..models.definitions.product_category import ProductCategory
+from ..models.definitions.size import Size
+from ..models.definitions.size_range import SizeRange
+from ..models.definitions.tag import Tag
+from ..models.definitions.tags_relation import TagsRelation
 
 
 class ProductLoader(DataLoader):
