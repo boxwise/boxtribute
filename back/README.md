@@ -11,6 +11,7 @@
    1. [Working with MySQL](#working-with-mysql)
    1. [Debugging](#debugging)
 1. [Testing](#testing)
+1. [Architecture](#architecture)
 1. [GraphQL API](#graphql-api)
 1. [Production environment](#production-environment)
 1. [Performance evaluation](#performance-evaluation)
@@ -313,6 +314,12 @@ From the repository root, run
     pytest --cov --cov-report=term --cov-report=html back
 
 and inspect the reported output. Open the HTML report via `back/htmlcov/index.html` to browse coverage for individual source code files.
+
+## Architecture
+
+The following diagram shows the responsibilities of and the relationships between the back-end components.
+
+![C4 back-end components](docs/c4-backend-components.jpg)
 
 ## GraphQL API
 
