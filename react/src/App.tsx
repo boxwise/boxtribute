@@ -23,6 +23,7 @@ import DistrosReturnTrackingGroupView from "views/Distributions/DistributionRetu
 import DistributionReturnTrackingsView from "views/Distributions/DistributionReturnTrackings/DistributionReturnTrackingsView/DistributionReturnTrackingsView";
 import CreateDirectDistributionEventView from "views/Distributions/CreateDirectDistributionEventView/CreateDirectDistributionEventView";
 import BoxCreateView from "views/BoxCreate/BoxCreateView";
+import TransferAgreementOverviewView from "views/TransferAgreementOverview/TransferAgreementOverviewView";
 
 const useLoadAndSetAvailableBases = () => {
   const BASES_QUERY = gql`
@@ -90,6 +91,9 @@ function App() {
                 <Route index element={<BTBox />} />
                 <Route path="edit" element={<BoxEditView />} />
               </Route>
+            </Route>
+            <Route path="agreements">
+              <Route index element={<TransferAgreementOverviewView />} />
             </Route>
             <Route path="distributions">
               <Route index element={<DistrosDashboardView />} />
