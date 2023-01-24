@@ -155,3 +155,17 @@ export const BOX_WITH_SIZE_TAG_PRODUCT_FIELDS_FRAGMENT = gql`
     }
   }
 `;
+
+export const BASE_BASIC_FIELDS_FRAGMENT = gql`
+  fragment BaseBasicFields on Base {
+    id
+    name
+  }
+`;
+
+export const ORGANISATION_BASIC_FIELDS_FRAGMENT = gql`
+  fragment OrganisationBasicFields on Organisation {
+    id
+    name
+  }
+`;
