@@ -3,12 +3,11 @@ import { GraphQLError } from "graphql";
 import "@testing-library/jest-dom";
 import { screen, render, waitFor } from "tests/test-utils";
 import userEvent from "@testing-library/user-event";
-
-import { generateMockBox } from "mocks/boxes";
-
 import CreateTransferAgreementView, {
   ALL_ORGS_AND_BASES_QUERY,
 } from "./CreateTransferAgreementView";
+import { organisation1, organisations } from "mocks/oraganisations";
+import { assertOptionsInSelectField } from "tests/helpers";
 
 const initialQuery = {
   request: {
@@ -17,56 +16,7 @@ const initialQuery = {
   },
   result: {
     data: {
-      organisations: [
-        {
-          bases: [
-            {
-              id: "1",
-              name: "Lesvos",
-            },
-          ],
-          id: "1",
-          name: "BoxAid",
-        },
-        {
-          bases: [
-            {
-              id: "2",
-              name: "Thessaloniki",
-            },
-            {
-              id: "3",
-              name: "Samos",
-            },
-            {
-              id: "4",
-              name: "Athens",
-            },
-          ],
-          id: "2",
-          name: "BoxCare",
-        },
-        {
-          bases: [
-            {
-              id: "100000000",
-              name: "TestBase",
-            },
-          ],
-          id: "100000000",
-          name: "TestOrganisation",
-        },
-        {
-          bases: [
-            {
-              id: "100000001",
-              name: "DummyTestBaseWithBoxes",
-            },
-          ],
-          id: "100000001",
-          name: "DummyTestOrgWithBoxes",
-        },
-      ],
+      organisations: organisations,
     },
   },
 };
@@ -79,5 +29,23 @@ it("4.1.1 - Initial load of Page", async () => {
     initialUrl: "/transfers/agreements/create",
     mocks: [initialQuery],
     addTypename: true,
+    globalPreferences: {
+      dispatch: jest.fn(),
+      globalPreferences: {
+        selectedOrganisationId: organisation1.id,
+        availableBases: organisation1.bases,
+      },
+    },
   });
+
+  expect(screen.getByTestId("loading-indicator")).toBeInTheDocument();
+
+  const title = await screen.findByRole("heading", { name: "New Transfer Agreement" });
+  expect(title).toBeInTheDocument();
+  // Test case 4.1.4 -  Content: Display Source Organisation name on the label
+  expect(screen.getByText(/boxaid bases/i)).toBeInTheDocument();
+
+  // Test case 4.1.1.2 - Content: Displays Partner Orgs Select Options
+  await assertOptionsInSelectField(user, /Partner Organ/i, [/Care/i], title);
+  // await waitFor(() => expect(screen.getByText(/BoxCare/)).toBeInTheDocument());
 });
