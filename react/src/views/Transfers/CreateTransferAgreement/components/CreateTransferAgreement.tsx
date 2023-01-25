@@ -102,7 +102,6 @@ function CreateTransferAgreement({
 
   const onSubmit: SubmitHandler<ITransferAgreementFormData> = (data) => {
     // eslint-disable-next-line no-console
-    console.log(data);
     onSubmitCreateTransferAgreementForm(data);
   };
 
@@ -175,9 +174,6 @@ function CreateTransferAgreement({
     validFrom,
   ]);
 
-  // eslint-disable-next-line no-console
-  console.log(errors);
-
   return (
     <Box w={["100%", "100%", "60%", "40%"]}>
       <Heading fontWeight="bold" mb={2} as="h2">
@@ -220,7 +216,7 @@ function CreateTransferAgreement({
             <SelectField
               fieldId="partnerOrganisationSelectedBases"
               fieldLabel="Partner bases"
-              placeholder="Bases"
+              placeholder="Select a Base(s)"
               errors={errors}
               isMulti
               isRequired={false}
