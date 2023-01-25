@@ -135,6 +135,10 @@ it("4.1.4 - Failed to Fetch Initial Data", async () => {
   });
 
   // Test case 4.1.4.1 - No Partner Organisations and Bases Data
-  expect(await screen.findByText(/no partner organisation are available!/i)).toBeInTheDocument();
+  expect(
+    await screen.findByText(
+      /could not fetch Organisation and Base data! Please try reloading the page./i,
+    ),
+  ).toBeInTheDocument();
   // screen.debug();
 });
