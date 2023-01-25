@@ -1,6 +1,6 @@
-import { useEffect, useContext, useState } from "react";
+import { useEffect, useContext } from "react";
 import { gql, useMutation, useQuery } from "@apollo/client";
-import { Alert, AlertDescription, AlertIcon, AlertTitle, Center } from "@chakra-ui/react";
+import { Center } from "@chakra-ui/react";
 import { useErrorHandling } from "utils/error-handling";
 import { useNotification } from "utils/hooks";
 import APILoadingIndicator from "components/APILoadingIndicator";
