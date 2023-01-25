@@ -1,6 +1,6 @@
 import { useEffect, useContext } from "react";
 import { gql, useMutation, useQuery } from "@apollo/client";
-import { Center } from "@chakra-ui/react";
+import { Alert, AlertIcon, Center } from "@chakra-ui/react";
 import { useErrorHandling } from "utils/error-handling";
 import { useNotification } from "utils/hooks";
 import APILoadingIndicator from "components/APILoadingIndicator";
@@ -181,8 +181,13 @@ function CreateTransferAgreementView() {
     return <APILoadingIndicator />;
   }
 
-  if (allOrgsAndTheirBases === undefined) {
-    return <div />;
+  if (allOrgsAndTheirBases !== undefined) {
+    return (
+      <Alert status="error">
+        <AlertIcon />
+        Could not fetch Organisation and Base data! Please try reloading the page.
+      </Alert>
+    );
   }
 
   return (
