@@ -181,7 +181,7 @@ function CreateTransferAgreementView() {
     return <APILoadingIndicator />;
   }
 
-  if (allOrgsAndTheirBases !== undefined) {
+  if (allOrgsAndTheirBases === undefined) {
     return (
       <Alert status="error">
         <AlertIcon />
