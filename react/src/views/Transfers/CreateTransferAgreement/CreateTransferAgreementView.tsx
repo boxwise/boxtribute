@@ -66,7 +66,6 @@ function CreateTransferAgreementView() {
   const { triggerError } = useErrorHandling();
   const { createToast } = useNotification();
   const { globalPreferences } = useContext(GlobalPreferencesContext);
-  const [success, setSuccess] = useState<Boolean>(false);
 
   // variables in URL
   const baseId = useParams<{ baseId: string }>().baseId!;
@@ -142,9 +141,6 @@ function CreateTransferAgreementView() {
         break;
     }
 
-    // eslint-disable-next-line no-console
-    console.log(`createTransferAgreementData: ${createTransferAgreementData}`);
-
     createTransferAgreementMutation({
       variables: {
         sourceOrganisationId: parseInt(sourceOrganisationId, 10),
@@ -169,7 +165,7 @@ function CreateTransferAgreementView() {
             message: "Successfully created a transfer agreement",
           });
 
-          setSuccess(true);
+          navigate(`/bases/${baseId}/transfers/agreements`);
         }
       })
       .catch((err) => {
@@ -179,31 +175,6 @@ function CreateTransferAgreementView() {
         });
       });
   };
-
-  if (success) {
-    setTimeout(() => {
-      navigate(`/bases/${baseId}/transfers/agreements`);
-    }, 10000);
-    return (
-      <Alert
-        status="success"
-        variant="subtle"
-        flexDirection="column"
-        alignItems="center"
-        justifyContent="center"
-        textAlign="center"
-        height="200px"
-      >
-        <AlertIcon boxSize="40px" mr={0} />
-        <AlertTitle mt={4} mb={1} fontSize="lg">
-          Transfer Agreement Created!
-        </AlertTitle>
-        <AlertDescription maxWidth="sm">
-          You will be redirected to the overview of transfer agreements shortly
-        </AlertDescription>
-      </Alert>
-    );
-  }
 
   // Handle Loading State
   if (allFormOptions.loading || createTransferAgreementMutationState.loading) {
