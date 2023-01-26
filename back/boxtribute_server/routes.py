@@ -1,23 +1,14 @@
 """Construction of routes for web app and API"""
-import asyncio
 import os
 
-from ariadne import graphql
 from ariadne.constants import PLAYGROUND_HTML
-from flask import Blueprint, current_app, jsonify, request
+from flask import Blueprint, jsonify, request
 from flask_cors import cross_origin
 
 from .auth import request_jwt, requires_auth
 from .authz import check_beta_feature_access
-from .exceptions import AuthenticationFailed, format_database_errors
-from .graph_ql.loaders import (
-    ProductCategoryLoader,
-    ProductLoader,
-    SizeLoader,
-    SizeRangeLoader,
-    SizesForSizeRangeLoader,
-    TagsForBoxLoader,
-)
+from .exceptions import AuthenticationFailed
+from .graph_ql.execution import execute_async
 from .graph_ql.schema import full_api_schema, query_api_schema
 from .logging import API_CONTEXT, WEBAPP_CONTEXT, log_request_to_gcloud
 from .utils import in_development_environment
@@ -109,38 +100,3 @@ def graphql_playgroud():
     # but keep on mind this will not prohibit clients from
     # exploring your API using desktop GraphQL Playground app.
     return PLAYGROUND_HTML, 200
-
-
-def execute_async(*, schema, introspection=None):
-    """Create coroutine and execute it with high-level `asyncio.run` which takes care of
-    managing the asyncio event loop, finalizing asynchronous generators, and closing
-    the threadpool.
-    """
-
-    async def run():
-        # Create DataLoaders and persist them for the time of processing the request.
-        # DataLoaders require an event loop which is set up by asyncio.run
-        context = {
-            "product_category_loader": ProductCategoryLoader(),
-            "product_loader": ProductLoader(),
-            "size_loader": SizeLoader(),
-            "size_range_loader": SizeRangeLoader(),
-            "sizes_for_size_range_loader": SizesForSizeRangeLoader(),
-            "tags_for_box_loader": TagsForBoxLoader(),
-        }
-
-        # Execute the GraphQL request against schema, passing in context
-        results = await graphql(
-            schema,
-            data=request.get_json(),
-            context_value=context,
-            debug=current_app.debug,
-            introspection=current_app.debug if introspection is None else introspection,
-            error_formatter=format_database_errors,
-        )
-        return results
-
-    success, result = asyncio.run(run())
-
-    status_code = 200 if success else 400
-    return jsonify(result), status_code
