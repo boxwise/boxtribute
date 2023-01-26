@@ -241,6 +241,7 @@ function CreateTransferAgreement({
               control={control}
               register={register}
               isRequired={false}
+              maxDate="2080-01-01"
               minDate={new Date().toJSON().split("T")[0]}
             />
           </ListItem>
@@ -252,6 +253,7 @@ function CreateTransferAgreement({
               control={control}
               register={register}
               isRequired={false}
+              maxDate="2080-01-01"
               minDate={validUntilMinDate}
             />
           </ListItem>
