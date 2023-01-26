@@ -1,10 +1,11 @@
 import { GraphQLError } from "graphql";
 import "@testing-library/jest-dom";
-import { screen, render, cleanup } from "tests/test-utils";
+import { screen, render, cleanup, fireEvent } from "tests/test-utils";
 import userEvent from "@testing-library/user-event";
 import { organisation1, organisations } from "mocks/oraganisations";
 import { assertOptionsInSelectField, selectOptionInSelectField } from "tests/helpers";
 import { TransferAgreementType } from "types/generated/graphql";
+import { addDays } from "date-fns";
 import CreateTransferAgreementView, {
   ALL_ORGS_AND_BASES_QUERY,
   CREATE_AGREEMENT_MUTATION,
@@ -119,7 +120,7 @@ it("4.1.2 - Input Validations", async () => {
   render(<CreateTransferAgreementView />, {
     routePath: "/bases/:baseId/transfers/agreements/create",
     initialUrl: "/bases/1/transfers/agreements/create",
-    mocks: [initialQuery],
+    mocks: [initialQuery, successfulMutation],
     addTypename: true,
     globalPreferences: {
       dispatch: jest.fn(),
@@ -144,7 +145,27 @@ it("4.1.2 - Input Validations", async () => {
   // Test case 4.1.2.3 - Transfer type Radio Button cannot be empty
   expect(screen.getByText(/please choose a transfer type/i)).toBeInTheDocument();
   // Test case 4.1.2.4 - The "Valid from" field is optional, but only valid date formats should be entered
+  const validFrom = screen.getByLabelText(/valid until/i) as HTMLInputElement;
+  const testValueForValidFrom = new Date().toJSON().split("T")[0];
+  fireEvent.change(validFrom, { target: { value: testValueForValidFrom } });
+  expect(validFrom.value).toEqual(testValueForValidFrom);
+
   // Test case 4.1.2.5 - The "Valid until" field is optional, but only valid date formats should be entered
+  await selectOptionInSelectField(user, /partner organisation/i, "BoxCare");
+  const transferTypeSendingToLabel = screen.getByLabelText("Sending to");
+  expect(transferTypeSendingToLabel).not.toBeChecked();
+  await user.click(transferTypeSendingToLabel);
+  expect(transferTypeSendingToLabel).toBeChecked();
+
+  const validUntil = screen.getByLabelText(/valid until/i) as HTMLInputElement;
+  const testInavalidValueForValidUntil = addDays(new Date(), -2).toJSON().split("T")[0];
+  await user.type(validUntil, testInavalidValueForValidUntil);
+  fireEvent.change(validUntil, { target: { value: testInavalidValueForValidUntil } });
+  expect(validUntil.value).toEqual(testInavalidValueForValidUntil);
+  await user.click(submitButton);
+  expect(
+    await screen.findByText(/please enter a greater date for the valid until/i),
+  ).toBeInTheDocument();
 });
 
 // Test case 4.1.3
@@ -233,5 +254,4 @@ it("4.1.4 - Failed to Fetch Initial Data", async () => {
       /could not fetch Organisation and Base data! Please try reloading the page./i,
     ),
   ).toBeInTheDocument();
-  // screen.debug();
 });
