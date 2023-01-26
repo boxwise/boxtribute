@@ -100,13 +100,14 @@ it("4.1.2 - Input Validations", async () => {
   // Test case 4.1.2.2 - Partner Organisation SELECT field cannot be empty
   expect(screen.getByText(/please select an organisation/i)).toBeInTheDocument();
   // Test case 4.1.2.3 - Transfer type Radio Button cannot be empty
+  expect(screen.getByText(/please choose a transfer type/i)).toBeInTheDocument();
   // Test case 4.1.2.4 - The "Valid from" field is optional, but only valid date formats should be entered
   // Test case 4.1.2.5 - The "Valid until" field is optional, but only valid date formats should be entered
 });
 
 // Test case 4.1.3
 it("4.1.3 - Click on Submit Button", async () => {
-  // const user = userEvent.setup();
+  const user = userEvent.setup();
   render(<CreateTransferAgreementView />, {
     routePath: "/transfers/agreements/create",
     initialUrl: "/transfers/agreements/create",
@@ -125,6 +126,7 @@ it("4.1.3 - Click on Submit Button", async () => {
   expect(submitButton).toBeInTheDocument();
 
   // Test case 4.1.3.1 - Redirect to Transfers Agreements Page
+  await selectOptionInSelectField(user, /partner organisation/i, "BoxCare");
   // Test case 4.1.3.2 - Form data was valid, but the mutation failed
   // Test case 4.1.3.3 - Form data was valid and mutation was successful
 });
