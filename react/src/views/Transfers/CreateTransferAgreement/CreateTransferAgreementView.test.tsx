@@ -67,13 +67,13 @@ it("4.1.1 - Initial load of Page", async () => {
   const selectedBase = screen.getByRole("button", { name: /samos/i });
   expect(selectedBase).toBeInTheDocument();
   await user.click(selectedBase);
-  // Test case 4.1.1.3	- Content: Display Source Organisation name on the label
+  // Test case 4.1.1.4	- Content: Display Source Organisation name on the label
   expect(screen.getByText(/boxaid bases/i)).toBeInTheDocument();
 });
 
 // Test case 4.1.2
 it("4.1.2 - Input Validations", async () => {
-  // const user = userEvent.setup();
+  const user = userEvent.setup();
   render(<CreateTransferAgreementView />, {
     routePath: "/transfers/agreements/create",
     initialUrl: "/transfers/agreements/create",
@@ -88,10 +88,20 @@ it("4.1.2 - Input Validations", async () => {
     },
   });
 
-  expect(screen.getByTestId("loading-indicator")).toBeInTheDocument();
+  const submitButton = await screen.findByRole("button", { name: /create agreement/i });
+  expect(submitButton).toBeInTheDocument();
 
-  const title = await screen.findByRole("heading", { name: "New Transfer Agreement" });
-  expect(title).toBeInTheDocument();
+  // Test case 4.1.2.1 - Source Organisation SELECT field cannot be empty
+  const sourceSelectedBaseRemoveButton = screen.getByRole("button", { name: /remove lesvos/i });
+  await user.click(sourceSelectedBaseRemoveButton);
+  expect(screen.getByText(/please select base\(s\)/i)).toBeInTheDocument();
+  await user.click(submitButton);
+  expect(screen.getByText(/please select at least one base/i)).toBeInTheDocument();
+  // Test case 4.1.2.2 - Partner Organisation SELECT field cannot be empty
+  expect(screen.getByText(/please select an organisation/i)).toBeInTheDocument();
+  // Test case 4.1.2.3 - Transfer type Radio Button cannot be empty
+  // Test case 4.1.2.4 - The "Valid from" field is optional, but only valid date formats should be entered
+  // Test case 4.1.2.5 - The "Valid until" field is optional, but only valid date formats should be entered
 });
 
 // Test case 4.1.3
@@ -111,10 +121,12 @@ it("4.1.3 - Click on Submit Button", async () => {
     },
   });
 
-  expect(screen.getByTestId("loading-indicator")).toBeInTheDocument();
+  const submitButton = await screen.findByRole("button", { name: /create agreement/i });
+  expect(submitButton).toBeInTheDocument();
 
-  const title = await screen.findByRole("heading", { name: "New Transfer Agreement" });
-  expect(title).toBeInTheDocument();
+  // Test case 4.1.3.1 - Redirect to Transfers Agreements Page
+  // Test case 4.1.3.2 - Form data was valid, but the mutation failed
+  // Test case 4.1.3.3 - Form data was valid and mutation was successful
 });
 
 // Test case 4.1.4
