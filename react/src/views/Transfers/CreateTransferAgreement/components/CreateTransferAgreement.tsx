@@ -16,6 +16,7 @@ import { z } from "zod";
 import SelectField, { IDropdownOption } from "components/Form/SelectField";
 import RadioGroupField from "components/Form/RadioGroupField";
 import DateField from "components/Form/DateField";
+import { addDays } from "date-fns";
 
 export interface IBaseData {
   id: string;
@@ -33,54 +34,53 @@ const singleSelectOptionSchema = z.object({
   value: z.string(),
 });
 
-export const TransferAgreementFormDataSchema = z.object({
-  currentOrganisationSelectedBases: singleSelectOptionSchema
-    .array()
-    .min(1)
-    .nonempty("Please select at least one base"),
-  transferType: z
-    .string({
-      required_error: "Please choose a transfer type",
-    })
-    .refine(Boolean, {
-      message: "Please choose a transfer type",
-    }),
+export const TransferAgreementFormDataSchema = z
+  .object({
+    currentOrganisationSelectedBases: singleSelectOptionSchema
+      .array()
+      .min(1)
+      .nonempty("Please select at least one base"),
+    transferType: z
+      .string({
+        required_error: "Please choose a transfer type",
+      })
+      .refine(Boolean, {
+        message: "Please choose a transfer type",
+      }),
 
-  partnerOrganisation: singleSelectOptionSchema
-    .refine(Boolean, { message: "Please select a partner organisation" })
-    .transform((selectedOption) => selectedOption || { label: "", value: "" }),
-  partnerOrganisationSelectedBases: singleSelectOptionSchema.array().optional(),
-  validFrom: z
-    .date({
-      required_error: "Please enter a valid date",
-      invalid_type_error: "Please enter a valid date",
-    })
-    .optional()
-    .transform((value) => value?.toISOString().substring(0, 10)),
-  validUntil: z
-    .date({
-      required_error: "Please enter a valid date",
-      invalid_type_error: "Please enter a valid date",
-    })
-    .optional()
-    .transform((value) => value?.toISOString().substring(0, 10)),
-  comment: z.string().optional(),
-});
-// .refine(
-//   (data) => {
-//     // eslint-disable-next-line no-console
-//     console.log(data);
-//     if (typeof data.validFrom !== "undefined" && typeof data.validUntil !== "undefined") {
-//       const dateDiff = data.validUntil.getTime() - data.validFrom.getTime();
-//       return dateDiff > 0;
-//     }
-//     return true;
-//   },
-//   {
-//     message: "Please enter greater date for the valid until",
-//     path: ["validUntil"], // path of error
-//   },
-// );
+    partnerOrganisation: singleSelectOptionSchema
+      .refine(Boolean, { message: "Please select a partner organisation" })
+      .transform((selectedOption) => selectedOption || { label: "", value: "" }),
+    partnerOrganisationSelectedBases: singleSelectOptionSchema.array().optional(),
+    validFrom: z
+      .date({
+        required_error: "Please enter a valid date",
+        invalid_type_error: "Please enter a valid date",
+      })
+      .optional()
+      .transform((value) => value?.toISOString().substring(0, 10)),
+    validUntil: z
+      .date({
+        required_error: "Please enter a valid date",
+        invalid_type_error: "Please enter a valid date",
+      })
+      .optional()
+      .transform((value) => value?.toISOString().substring(0, 10)),
+    comment: z.string().optional(),
+  })
+  .refine(
+    (data) => {
+      if (typeof data.validFrom !== "undefined" && typeof data.validUntil !== "undefined") {
+        const dateDiff = new Date(data.validUntil).getTime() - new Date(data.validFrom).getTime();
+        return dateDiff > 0;
+      }
+      return true;
+    },
+    {
+      message: "Please enter a greater date for the valid until",
+      path: ["validUntil"], // path of error
+    },
+  );
 
 export type ITransferAgreementFormData = z.infer<typeof TransferAgreementFormDataSchema>;
 
@@ -167,11 +167,11 @@ function CreateTransferAgreement({
 
     if (validFrom) {
       setValidUntilMinDate(
-        new Date(new Date(validFrom).setDate(new Date(validFrom).getDate() + 1))
-          .toJSON()
-          .split("T")[0],
+        // Add one day to valid from date and make it the minimum valid until date
+        addDays(new Date(validFrom), 1).toJSON().split("T")[0],
       );
     } else {
+      // Use today as default for "validFrom"
       setValue("validFrom", new Date().toISOString().substring(0, 10));
     }
   }, [
