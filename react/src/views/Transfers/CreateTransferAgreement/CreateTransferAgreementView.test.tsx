@@ -1,11 +1,13 @@
 import { GraphQLError } from "graphql";
 import "@testing-library/jest-dom";
-import { screen, render } from "tests/test-utils";
+import { screen, render, cleanup } from "tests/test-utils";
 import userEvent from "@testing-library/user-event";
 import { organisation1, organisations } from "mocks/oraganisations";
 import { assertOptionsInSelectField, selectOptionInSelectField } from "tests/helpers";
+import { TransferAgreementType } from "types/generated/graphql";
 import CreateTransferAgreementView, {
   ALL_ORGS_AND_BASES_QUERY,
+  CREATE_AGREEMENT_MUTATION,
 } from "./CreateTransferAgreementView";
 
 const initialQuery = {
@@ -30,12 +32,52 @@ const initialQueryNetworkError = {
   },
 };
 
+const successfulMutation = {
+  request: {
+    query: CREATE_AGREEMENT_MUTATION,
+    variables: {
+      sourceOrganisationId: 1,
+      targetOrganisationId: 2,
+      type: TransferAgreementType.Unidirectional,
+      validFrom: new Date().toISOString().substring(0, 10),
+      validUntil: undefined,
+      sourceBaseIds: [1],
+      targetBaseIds: undefined,
+      comment: "",
+    },
+  },
+  result: {
+    data: {
+      createTransferAgreement: {
+        id: 1,
+      },
+    },
+  },
+};
+
+const mutationNetworkError = {
+  request: {
+    query: CREATE_AGREEMENT_MUTATION,
+    variables: {
+      sourceOrganisationId: 1,
+      targetOrganisationId: 2,
+      type: TransferAgreementType.Bidirectional,
+      validFrom: new Date().toISOString().substring(0, 10),
+      validUntil: undefined,
+      sourceBaseIds: [1],
+      targetBaseIds: undefined,
+      comment: "",
+    },
+  },
+  error: new Error(),
+};
+
 // Test case 4.1.1
 it("4.1.1 - Initial load of Page", async () => {
   const user = userEvent.setup();
   render(<CreateTransferAgreementView />, {
-    routePath: "/transfers/agreements/create",
-    initialUrl: "/transfers/agreements/create",
+    routePath: "/bases/:baseId/transfers/agreements/create",
+    initialUrl: "/bases/1/transfers/agreements/create",
     mocks: [initialQuery],
     addTypename: true,
     globalPreferences: {
@@ -75,8 +117,8 @@ it("4.1.1 - Initial load of Page", async () => {
 it("4.1.2 - Input Validations", async () => {
   const user = userEvent.setup();
   render(<CreateTransferAgreementView />, {
-    routePath: "/transfers/agreements/create",
-    initialUrl: "/transfers/agreements/create",
+    routePath: "/bases/:baseId/transfers/agreements/create",
+    initialUrl: "/bases/1/transfers/agreements/create",
     mocks: [initialQuery],
     addTypename: true,
     globalPreferences: {
@@ -109,9 +151,10 @@ it("4.1.2 - Input Validations", async () => {
 it("4.1.3 - Click on Submit Button", async () => {
   const user = userEvent.setup();
   render(<CreateTransferAgreementView />, {
-    routePath: "/transfers/agreements/create",
-    initialUrl: "/transfers/agreements/create",
-    mocks: [initialQuery],
+    routePath: "/bases/:baseId/transfers/agreements/create",
+    initialUrl: "/bases/1/transfers/agreements/create",
+    additionalRoute: "/bases/1/transfers/agreements",
+    mocks: [initialQuery, successfulMutation],
     addTypename: true,
     globalPreferences: {
       dispatch: jest.fn(),
@@ -125,18 +168,54 @@ it("4.1.3 - Click on Submit Button", async () => {
   const submitButton = await screen.findByRole("button", { name: /create agreement/i });
   expect(submitButton).toBeInTheDocument();
 
-  // Test case 4.1.3.1 - Redirect to Transfers Agreements Page
+  // Test case 4.1.3.1 - Form data was valid and mutation was successful
   await selectOptionInSelectField(user, /partner organisation/i, "BoxCare");
-  // Test case 4.1.3.2 - Form data was valid, but the mutation failed
-  // Test case 4.1.3.3 - Form data was valid and mutation was successful
+  const transferTypeSendingToLabel = screen.getByLabelText("Sending to");
+  expect(transferTypeSendingToLabel).not.toBeChecked();
+  await user.click(transferTypeSendingToLabel);
+  expect(transferTypeSendingToLabel).toBeChecked();
+  await user.click(submitButton);
+  expect(await screen.findByText(/successfully created a transfer agreement/i)).toBeInTheDocument();
+  // Test case 4.1.3.2 - Redirect to Transfers Agreements Page
+  expect(
+    await screen.findByRole("heading", { name: "/bases/1/transfers/agreements" }),
+  ).toBeInTheDocument();
+
+  // Test case 4.1.3.3 - Form data was valid, but the mutation failed
+  cleanup();
+  render(<CreateTransferAgreementView />, {
+    routePath: "/bases/:baseId/transfers/agreements/create",
+    initialUrl: "/bases/1/transfers/agreements/create",
+    mocks: [initialQuery, mutationNetworkError],
+    addTypename: true,
+    globalPreferences: {
+      dispatch: jest.fn(),
+      globalPreferences: {
+        selectedOrganisationId: organisation1.id,
+        availableBases: organisation1.bases,
+      },
+    },
+  });
+
+  const rerenderedSubmitButton = await screen.findByRole("button", { name: /create agreement/i });
+  expect(rerenderedSubmitButton).toBeInTheDocument();
+  await selectOptionInSelectField(user, /partner organisation/i, "BoxCare");
+  const transferTypeSendingToAndReceivingFromLabel = screen.getByLabelText(
+    "Sending to / Receiving from",
+  );
+  expect(transferTypeSendingToAndReceivingFromLabel).not.toBeChecked();
+  await user.click(transferTypeSendingToAndReceivingFromLabel);
+  expect(transferTypeSendingToAndReceivingFromLabel).toBeChecked();
+  await user.click(rerenderedSubmitButton);
+  expect(await screen.findByText(/your changes could not be saved!/i)).toBeInTheDocument();
 });
 
 // Test case 4.1.4
 it("4.1.4 - Failed to Fetch Initial Data", async () => {
   // const user = userEvent.setup();
   render(<CreateTransferAgreementView />, {
-    routePath: "/transfers/agreements/create",
-    initialUrl: "/transfers/agreements/create",
+    routePath: "/bases/:baseId/transfers/agreements/create",
+    initialUrl: "/bases/1/transfers/agreements/create",
     mocks: [initialQueryNetworkError],
     addTypename: true,
     globalPreferences: {
