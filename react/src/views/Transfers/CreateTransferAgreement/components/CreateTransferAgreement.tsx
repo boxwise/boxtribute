@@ -38,7 +38,13 @@ export const TransferAgreementFormDataSchema = z.object({
     .array()
     .min(1)
     .nonempty("Please select at least one base"),
-  transferType: z.string().nullable().refine(Boolean, { message: "Please choose a transfer type" }),
+  transferType: z
+    .string({
+      required_error: "Please choose a transfer type",
+    })
+    .refine(Boolean, {
+      message: "Please choose a transfer type",
+    }),
 
   partnerOrganisation: singleSelectOptionSchema
     .refine(Boolean, { message: "Please select a partner organisation" })
@@ -52,7 +58,10 @@ export const TransferAgreementFormDataSchema = z.object({
     .optional()
     .transform((value) => value?.toISOString().substring(0, 10)),
   validUntil: z
-    .date()
+    .date({
+      required_error: "Please enter a valid date",
+      invalid_type_error: "Please enter a valid date",
+    })
     .optional()
     .transform((value) => value?.toISOString().substring(0, 10)),
   comment: z.string().optional(),
