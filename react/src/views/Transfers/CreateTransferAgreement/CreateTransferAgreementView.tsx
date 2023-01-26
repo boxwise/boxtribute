@@ -1,4 +1,4 @@
-import { useEffect, useContext } from "react";
+import { useContext } from "react";
 import { gql, useMutation, useQuery } from "@apollo/client";
 import { Alert, AlertIcon, Center } from "@chakra-ui/react";
 import { useErrorHandling } from "utils/error-handling";
@@ -89,17 +89,6 @@ function CreateTransferAgreementView() {
   const partnerOrganisationsWithTheirBasesData = allOrgsAndTheirBases?.filter(
     (organisation) => organisation.id !== globalPreferences.selectedOrganisationId?.toString(),
   );
-
-  // check data for form
-  useEffect(() => {
-    if (!allFormOptions.loading) {
-      if (allOrgsAndTheirBases === undefined) {
-        triggerError({
-          message: "No partner organisation are available!",
-        });
-      }
-    }
-  }, [triggerError, allFormOptions.loading, allOrgsAndTheirBases]);
 
   // Handle Submission
   const onSubmitCreateAgreementForm = (createTransferAgreementData: ITransferAgreementFormData) => {
