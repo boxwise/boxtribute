@@ -225,7 +225,7 @@ function CreateTransferAgreement({
             <SelectField
               fieldId="partnerOrganisationSelectedBases"
               fieldLabel="Partner bases"
-              placeholder="Select a Base(s)"
+              placeholder="All bases (default)"
               errors={errors}
               isMulti
               isRequired={false}
