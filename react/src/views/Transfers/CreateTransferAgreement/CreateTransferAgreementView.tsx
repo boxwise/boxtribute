@@ -100,45 +100,28 @@ function CreateTransferAgreementView() {
       (base) => parseInt(base.value, 10),
     );
 
-    let sourceOrganisationId;
-    let targetOrganisationId;
-    let targetBaseIds;
-    let sourceBaseIds;
     let transferType: TransferAgreementType;
-
     switch (createTransferAgreementData.transferType) {
       case "Sending to":
-        sourceOrganisationId = globalPreferences?.selectedOrganisationId;
-        sourceBaseIds = currentOrgBaseIds;
-        targetOrganisationId = createTransferAgreementData.partnerOrganisation.value;
-        targetBaseIds = partnerBaseIds;
-        transferType = TransferAgreementType.Unidirectional;
+        transferType = TransferAgreementType.SendingTo;
         break;
       case "Receiving from":
-        targetOrganisationId = globalPreferences?.selectedOrganisationId;
-        targetBaseIds = currentOrgBaseIds;
-        sourceOrganisationId = createTransferAgreementData.partnerOrganisation.value;
-        sourceBaseIds = partnerBaseIds;
-        transferType = TransferAgreementType.Unidirectional;
+        transferType = TransferAgreementType.ReceivingFrom;
         break;
       default:
-        sourceOrganisationId = globalPreferences?.selectedOrganisationId;
-        sourceBaseIds = currentOrgBaseIds;
-        targetOrganisationId = createTransferAgreementData.partnerOrganisation.value;
-        targetBaseIds = partnerBaseIds;
         transferType = TransferAgreementType.Bidirectional;
         break;
     }
 
     createTransferAgreementMutation({
       variables: {
-        sourceOrganisationId: parseInt(sourceOrganisationId, 10),
-        targetOrganisationId: parseInt(targetOrganisationId, 10),
+        sourceOrganisationId: parseInt(globalPreferences?.selectedOrganisationId ?? "1", 10),
+        targetOrganisationId: parseInt(createTransferAgreementData.partnerOrganisation.value, 10),
         type: transferType,
         validFrom: createTransferAgreementData?.validFrom,
         validUntil: createTransferAgreementData?.validUntil,
-        sourceBaseIds,
-        targetBaseIds,
+        sourceBaseIds: currentOrgBaseIds,
+        targetBaseIds: partnerBaseIds,
         comment: createTransferAgreementData.comment,
       },
     })

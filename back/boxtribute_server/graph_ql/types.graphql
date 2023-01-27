@@ -614,7 +614,8 @@ enum TransferAgreementState {
 }
 
 enum TransferAgreementType {
-  Unidirectional
+  SendingTo
+  ReceivingFrom
   Bidirectional
 }
 

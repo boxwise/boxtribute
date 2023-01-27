@@ -71,6 +71,7 @@ from .transaction import default_transaction, relative_transaction
 from .transfer_agreement import (
     default_transfer_agreement,
     expired_transfer_agreement,
+    receiving_transfer_agreement,
     reviewed_transfer_agreement,
     transfer_agreements,
     unidirectional_transfer_agreement,
@@ -137,6 +138,7 @@ __all__ = [
     "prepared_shipment_detail",
     "products",
     "qr_code_without_box",
+    "receiving_transfer_agreement",
     "relative_beneficiary",
     "relative_transaction",
     "reviewed_transfer_agreement",
