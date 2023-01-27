@@ -39,7 +39,7 @@ const successfulMutation = {
     variables: {
       sourceOrganisationId: 1,
       targetOrganisationId: 2,
-      type: TransferAgreementType.Unidirectional,
+      type: TransferAgreementType.SendingTo,
       validFrom: new Date().toISOString().substring(0, 10),
       validUntil: undefined,
       sourceBaseIds: [1],
