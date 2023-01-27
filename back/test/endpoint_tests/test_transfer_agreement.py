@@ -258,7 +258,7 @@ def test_transfer_agreement_mutations_identical_source_org_for_creation(
     mutation = """mutation { createTransferAgreement( creationInput: {
                     sourceOrganisationId: 1
                     targetOrganisationId: 1,
-                    type: Unidirectional
+                    type: SendingTo
                 } ) { id } }"""
     assert_bad_user_input(read_only_client, mutation)
 

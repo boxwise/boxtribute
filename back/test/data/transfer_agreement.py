@@ -43,7 +43,7 @@ def data():
             "source_organisation": organisation_data()[1]["id"],
             "target_organisation": organisation_data()[0]["id"],
             "state": TransferAgreementState.Accepted,
-            "type": TransferAgreementType.Unidirectional,
+            "type": TransferAgreementType.SendingTo,
             "requested_by": default_user_data()["id"],
         },
     ]
