@@ -2,6 +2,7 @@ from ariadne import MutationType, convert_kwargs_to_snake_case
 from flask import g
 
 from ....authz import authorize
+from ....enums import TransferAgreementType
 from ....models.definitions.base import Base
 from ....models.definitions.transfer_agreement import TransferAgreement
 from .crud import (
@@ -33,12 +34,14 @@ def resolve_create_transfer_agreement(*_, creation_input):
 
 @mutation.field("acceptTransferAgreement")
 def resolve_accept_transfer_agreement(*_, id):
-    # User must be member of at least one of the target bases to be authorized for
-    # accepting the agreement
+    # For SendingTo/Bidirectional agreements, the user must be member of at least one of
+    # the target bases to be authorized for accepting the agreement. For ReceivingFrom
+    # they must be member of at least one of the source bases
     agreement = TransferAgreement.get_by_id(id)
-    bases = retrieve_transfer_agreement_bases(
-        transfer_agreement=agreement, kind="target"
+    kind = (
+        "source" if agreement.type == TransferAgreementType.ReceivingFrom else "target"
     )
+    bases = retrieve_transfer_agreement_bases(transfer_agreement=agreement, kind=kind)
     authorize(permission="transfer_agreement:edit", base_ids=[b.id for b in bases])
     authorize(organisation_id=agreement.target_organisation_id)
     return accept_transfer_agreement(id=id, user=g.user)
@@ -46,12 +49,14 @@ def resolve_accept_transfer_agreement(*_, id):
 
 @mutation.field("rejectTransferAgreement")
 def resolve_reject_transfer_agreement(*_, id):
-    # User must be member of at least one of the target bases to be authorized for
-    # rejecting the agreement
+    # For SendingTo/Bidirectional agreements, the user must be member of at least one of
+    # the target bases to be authorized for rejecting the agreement. For ReceivingFrom
+    # they must be member of at least one of the source bases
     agreement = TransferAgreement.get_by_id(id)
-    bases = retrieve_transfer_agreement_bases(
-        transfer_agreement=agreement, kind="target"
+    kind = (
+        "source" if agreement.type == TransferAgreementType.ReceivingFrom else "target"
     )
+    bases = retrieve_transfer_agreement_bases(transfer_agreement=agreement, kind=kind)
     authorize(permission="transfer_agreement:edit", base_ids=[b.id for b in bases])
     authorize(organisation_id=agreement.target_organisation_id)
     return reject_transfer_agreement(id=id, user=g.user)
