@@ -5,7 +5,7 @@ with open("requirements.txt") as f:
 
 setup(
     name="boxtribute-server",
-    description="""Boxwise is a web application that makes it easy for
+    description="""Boxtribute is a web application that makes it easy for
     organisations to source, store and distribute donated goods to people in
     need in a fair and dignified way.""",
     url="https://github.com/boxwise/boxtribute",

@@ -1374,7 +1374,8 @@ export enum TransferAgreementState {
 
 export enum TransferAgreementType {
   Bidirectional = 'Bidirectional',
-  Unidirectional = 'Unidirectional'
+  ReceivingFrom = 'ReceivingFrom',
+  SendingTo = 'SendingTo'
 }
 
 export type UnboxedItemsCollection = ItemsCollection & {
