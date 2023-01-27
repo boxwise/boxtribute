@@ -94,7 +94,6 @@ const HeaderMenuContainer = () => {
     [baseId],
   );
   const qrScannerOverlayState = useDisclosure({ defaultIsOpen: false });
-  const toast = useToast();
   const { triggerError } = useErrorHandling();
   const [boxesDataForBulkOperation, setBoxesDataForBulkOperation] = useState<IBoxDetailsData[]>([]);
 
@@ -137,12 +136,6 @@ const HeaderMenuContainer = () => {
             break;
           }
           case QrResolverResultKind.NOT_ASSIGNED_TO_BOX: {
-            createToast({
-              title: "QR Code",
-              type: "info",
-              message: "Scanned QR code is not assigned to a box yet",
-            });
-
             navigate(`/bases/${baseId}/boxes/create/${singleResolvedQrValue?.qrCodeValue}`);
             break;
           }
@@ -164,7 +157,7 @@ const HeaderMenuContainer = () => {
         // });
       }
     },
-    [baseId, navigate, toast],
+    [baseId, navigate],
   );
 
   if (baseId == null) {

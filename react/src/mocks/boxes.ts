@@ -1,7 +1,9 @@
-import { product1 } from "./products";
-import { size1 } from "./sizeRanges";
-import { location1 } from "./locations";
-import { tag1 } from "./tags";
+import { product1, productBasic1 } from "./products";
+import { size1, size2 } from "./sizeRanges";
+import { location1, generateMockLocationWithBase } from "./locations";
+import { tag1, tag2 } from "./tags";
+import { BoxState } from "types/generated/graphql";
+import { history1, history2 } from "./histories";
 
 export const box123 = {
   labelIdentifier: "123",
@@ -12,4 +14,30 @@ export const box123 = {
   tags: [tag1],
   comment: "Test",
   __typename: "Box",
+};
+
+export const generateMockBox = ({
+  labelIdentifier = "123",
+  state = BoxState.InStock,
+  numberOfItems = 31,
+  location = generateMockLocationWithBase({}),
+  comment = "Good Comment",
+  product = productBasic1,
+  size = size2,
+  tags = [tag2],
+  histories = [history1, history2],
+}) => {
+  return {
+    distributionEvent: null,
+    labelIdentifier: labelIdentifier,
+    location: location,
+    numberOfItems: numberOfItems,
+    comment: comment,
+    product: product,
+    size: size,
+    state: state,
+    tags: tags,
+    history: histories,
+    __typename: "Box",
+  };
 };

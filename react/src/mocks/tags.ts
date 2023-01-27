@@ -5,6 +5,13 @@ export const tag1 = {
   __typename: "Tag",
 };
 
+export const tag2 = {
+  color: "#90d4a2",
+  id: "17",
+  name: "test tag",
+  __typename: "Tag",
+};
+
 export const tags = [
   tag1,
   {

@@ -7,9 +7,9 @@ Backend Test Coverage: [![codecov](https://codecov.io/gh/boxwise/boxtribute/bran
 
 Build: [![CircleCI](https://circleci.com/gh/boxwise/boxtribute.svg?style=svg)](https://circleci.com/gh/boxwise/boxtribute)
 
-# Readme
+# boxtribute
 
-This is the repo for the new mobile web app of [Boxtribute](https://www.boxtribute.org), consisting of a [React front-end](/react) bootstrapped with [Create React App](https://github.com/facebook/create-react-app), and a [Python Flask back-end](/back).
+This is the repository for version 2 of the web app [Boxtribute](https://www.boxtribute.org), consisting of a [React front-end](/react) bootstrapped with [Create React App](https://github.com/facebook/create-react-app), and a [Python Flask back-end](/back).
 
 Please check out [**Contribution Guidelines**](CONTRIBUTING.md) before you get started!
 
@@ -28,7 +28,7 @@ Please check out [**Contribution Guidelines**](CONTRIBUTING.md) before you get s
 
 ## Preparation for Installation
 
-- Install [Docker](https://www.docker.com/products/docker-desktop)
+- Install [Docker](https://www.docker.com/products/docker-desktop) and `docker-compose`
 - Get in touch with the [Boxtribute team](mailto:hello@boxtribute.org) to get access to the [Auth0](https://auth0.com/) development tenant.
 
 ## How do I get set up?
@@ -56,7 +56,7 @@ services:
         mem_limit: 4G
 ```
 
-### [Further Steps]
+### Further Steps
 
 - [for front-end including react-testing-library, eslint, prettier](/react/README.md)
 - [for back-end including pytest, venv, formatting and debugging](/back/README.md)
@@ -71,7 +71,7 @@ Boxtribute is an application for organisations who run distribution/warehouses i
 Therefore the development database seed holds at least two organisations and three bases:
 
 - Organisation `BoxAid` working on `Lesvos` and
-- Organisation `BoxCare` working on `Samos` and in `Thessaloniki`.
+- Organisation `BoxCare` working on `Samos` and in `Thessaloniki` and `Athens`.
 
 Each organisation has at least 3 user groups with different access levels in the app:
 
@@ -88,6 +88,8 @@ For each of these three user groups of each of the two organisations we created 
 - `dev_headofops@boxcare.org`
 - `dev_coordinator@boxcare.org`
 - `dev_volunteer@boxcare.org`
+- `another_dev_volunteer@boxcare.org`
+- `another_dev_coordinatorr@boxcare.org` (sic)
 
 The password of all of these users is `Browser_tests`.
 
@@ -96,15 +98,19 @@ Furthermore, here a collection of QR-Codes which have been seeded in the dev db 
 **Codes connected to existing boxes in the seed**
 
 Box in base 1
+
 ![9627242265f5a7f3a1db910eb18410f](docs/qr/code-with-base-1-box-9627242265f5a7f3a1db910eb18410f.png)
 
 Box in base 2
+
 ![1efb9f5633ebf01645934bd509d93e2](docs/qr/code-with-base-2-box-1efb9f5633ebf01645934bd509d93e2.png)
 
 Box in base 3
+
 ![46985d9e6d5a244cf683bacdb7d0f33](docs/qr/code-with-base-3-box-46985d9e6d5a244cf683bacdb7d0f33.png)
 
 **Codes not yet connected to boxes in the seed**
+
 ![0af9ec1a97906cf1cac5f50617a687b](docs/qr/code-without-box-0af9ec1a97906cf1cac5f50617a687b.png)
 
 **Codes that don't exist in the seed**
@@ -152,20 +158,23 @@ Here, is a list of intro tutorials for each technologies / frameworks / language
 #### Front-end
 
 - [Typescript](https://react-typescript-cheatsheet.netlify.app/)
-- [Custom Rebass Library](https://github.com/boxwise/react-components)
+- [Chakra UI](https://chakra-ui.com/)
 - [React](https://reactjs.org/docs/getting-started.html)
 - [React Hooks](https://reactjs.org/docs/hooks-intro.html)
 - [React Context](https://reactjs.org/docs/context.html)
 - [Apollo](https://www.apollographql.com/docs/react/)
 
-#### Back-end
+#### Interface
 
 - [GraphQL](https://graphql.org/learn/)
+
+#### Back-end
+
 - [Ariadne](https://ariadnegraphql.org/docs/flask-integration.html)
 - [Python 3.10](https://devguide.python.org/)
 - [Flask](https://flask.palletsprojects.com/en/1.1.x/tutorial/layout/)
 - [PeeWee](http://docs.peewee-orm.com/en/latest/peewee/quickstart.html)
-- MySQL
+- [MySQL Community Edition](https://www.mysql.com/products/community/)
 
 #### Authentication
 

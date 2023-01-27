@@ -1355,6 +1355,7 @@ export type TransferAgreement = {
 export type TransferAgreementCreationInput = {
   comment?: InputMaybe<Scalars['String']>;
   sourceBaseIds?: InputMaybe<Array<Scalars['Int']>>;
+  sourceOrganisationId: Scalars['Int'];
   targetBaseIds?: InputMaybe<Array<Scalars['Int']>>;
   targetOrganisationId: Scalars['Int'];
   timezone?: InputMaybe<Scalars['String']>;

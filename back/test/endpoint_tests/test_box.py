@@ -1,11 +1,11 @@
 import time
 
 import pytest
-from boxtribute_server.enums import BoxState
-from boxtribute_server.models.definitions.history import DbChangeHistory
-from boxtribute_server.warehouse.box.crud import (
+from boxtribute_server.business_logic.warehouse.box.crud import (
     BOX_LABEL_IDENTIFIER_GENERATION_ATTEMPTS,
 )
+from boxtribute_server.enums import BoxState
+from boxtribute_server.models.definitions.history import DbChangeHistory
 from utils import (
     assert_bad_user_input,
     assert_internal_server_error,
@@ -205,20 +205,13 @@ def test_box_mutations(
         # The entries for the update have the same change_date, hence the IDs do not
         # appear reversed
         {
-            "id": "115",
-            "changes": f"changed product type from {products[0]['name']} to "
-            + f"{products[2]['name']}",
+            "id": "120",
+            "changes": f"changed box state from InStock to {state}",
             "user": {"name": "coord"},
         },
         {
-            "id": "116",
-            "changes": f"changed size from {default_size['label']} to "
-            + f"{another_size['label']}",
-            "user": {"name": "coord"},
-        },
-        {
-            "id": "117",
-            "changes": f"changed the number of items from None to {nr_items}",
+            "id": "119",
+            "changes": 'changed comments from "" to "updatedComment";',
             "user": {"name": "coord"},
         },
         {
@@ -228,13 +221,20 @@ def test_box_mutations(
             "user": {"name": "coord"},
         },
         {
-            "id": "119",
-            "changes": 'changed comments from "" to "updatedComment";',
+            "id": "117",
+            "changes": f"changed the number of items from None to {nr_items}",
             "user": {"name": "coord"},
         },
         {
-            "id": "120",
-            "changes": f"changed box state from InStock to {state}",
+            "id": "116",
+            "changes": f"changed size from {default_size['label']} to "
+            + f"{another_size['label']}",
+            "user": {"name": "coord"},
+        },
+        {
+            "id": "115",
+            "changes": f"changed product type from {products[0]['name']} to "
+            + f"{products[2]['name']}",
             "user": {"name": "coord"},
         },
         {
