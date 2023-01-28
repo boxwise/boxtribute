@@ -205,7 +205,7 @@ function CreateTransferAgreement({
             <RadioGroupField
               fieldId="transferType"
               fieldLabel="Transfer Type"
-              options={["Sending to", "Receiving from", "Sending to / Receiving from"]}
+              options={["Sending to", "Receiving from", "Sending to AND Receiving from"]}
               direction="column"
               errors={errors}
               control={control}
