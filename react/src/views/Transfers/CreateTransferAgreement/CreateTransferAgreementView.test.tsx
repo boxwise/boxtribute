@@ -222,7 +222,7 @@ it("4.1.3 - Click on Submit Button", async () => {
   expect(rerenderedSubmitButton).toBeInTheDocument();
   await selectOptionInSelectField(user, /partner organisation/i, "BoxCare");
   const transferTypeSendingToAndReceivingFromLabel = screen.getByLabelText(
-    "Sending to / Receiving from",
+    "Sending to AND Receiving from",
   );
   expect(transferTypeSendingToAndReceivingFromLabel).not.toBeChecked();
   await user.click(transferTypeSendingToAndReceivingFromLabel);
