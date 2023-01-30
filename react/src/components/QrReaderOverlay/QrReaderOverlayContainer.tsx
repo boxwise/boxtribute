@@ -8,11 +8,11 @@ import {
 } from "types/generated/graphql";
 import { Box, useBoolean } from "@chakra-ui/react";
 import _ from "lodash";
-import { IBoxDetailsData } from "utils/base-types";
+import { IBoxDetailsData } from "types/base-types";
 import {
   GET_BOX_LABEL_IDENTIFIER_BY_QR_CODE,
   BOX_DETAILS_BY_LABEL_IDENTIFIER_QUERY,
-} from "utils/queries";
+} from "queries/queries";
 import { extractQrCodeFromUrl } from "utils/helpers";
 import QrReaderOverlay, {
   IQrValueWrapper,
