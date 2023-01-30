@@ -13,11 +13,11 @@ import {
   PRODUCT_FIELDS_FRAGMENT,
   SIZE_FIELDS_FRAGMENT,
   TAG_OPTIONS_FRAGMENT,
-} from "utils/fragments";
+} from "queries/fragments";
 // TODO: move to global queries file
 import { BOX_BY_LABEL_IDENTIFIER_QUERY } from "views/Box/BoxView";
-import { useErrorHandling } from "utils/error-handling";
-import { useNotification } from "utils/hooks";
+import { useErrorHandling } from "hooks/error-handling";
+import { useNotification } from "hooks/hooks";
 import BoxEdit, { IBoxEditFormData } from "./components/BoxEdit";
 
 export const BOX_BY_LABEL_IDENTIFIER_AND_ALL_PRODUCTS_WITH_BASEID_QUERY = gql`

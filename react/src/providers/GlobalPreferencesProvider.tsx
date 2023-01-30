@@ -1,6 +1,9 @@
 import React, { Context, createContext, useReducer } from "react";
 
-interface BaseIdAndNameTuple { id: string, name: string }
+interface BaseIdAndNameTuple {
+  id: string;
+  name: string;
+}
 
 interface GlobalPreferences {
   availableBases?: BaseIdAndNameTuple[];
@@ -31,7 +34,10 @@ interface SetOrganisationId {
   payload: string;
 }
 
-type SetGlobalPreferencesAction = SetAvailableBasesAction | SetSelectedBaseIdAction | SetOrganisationId;
+type SetGlobalPreferencesAction =
+  | SetAvailableBasesAction
+  | SetSelectedBaseIdAction
+  | SetOrganisationId;
 
 const globalPreferencesReduer = (state: GlobalPreferences, action: SetGlobalPreferencesAction) => {
   switch (action.type) {
@@ -44,10 +50,9 @@ const globalPreferencesReduer = (state: GlobalPreferences, action: SetGlobalPref
     default:
       return state;
   }
-}
+};
 
 const GlobalPreferencesProvider = ({ children }) => {
-
   const [globalPreferences, dispatch] = useReducer(globalPreferencesReduer, {});
 
   return (
@@ -55,6 +60,6 @@ const GlobalPreferencesProvider = ({ children }) => {
       {children}
     </GlobalPreferencesContext.Provider>
   );
-}
+};
 
 export { GlobalPreferencesContext, GlobalPreferencesProvider };

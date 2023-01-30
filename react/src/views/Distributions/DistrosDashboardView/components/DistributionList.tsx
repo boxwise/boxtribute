@@ -15,7 +15,7 @@ import isPast from "date-fns/isPast";
 import _ from "lodash";
 import { NavLink } from "react-router-dom";
 import { DistributionEventState } from "types/generated/graphql";
-import { useGetUrlForResourceHelpers } from "utils/hooks";
+import { useGetUrlForResourceHelpers } from "hooks/hooks";
 import DistributionEventTimeRangeDisplay from "views/Distributions/components/DistributionEventTimeRangeDisplay";
 import { DistributionEventDetails } from "views/Distributions/types";
 
