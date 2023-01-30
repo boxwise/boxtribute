@@ -15,4 +15,9 @@ setup(
     packages=find_packages(exclude=["test"]),
     package_data={"boxtribute_server": ["py.typed"]},
     install_requires=REQUIREMENTS,
+    entry_points={
+        "console_scripts": [
+            "bwiz = boxtribute_server.setup_wizard:main",
+        ],
+    },
 )

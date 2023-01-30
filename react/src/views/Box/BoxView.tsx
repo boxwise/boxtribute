@@ -29,9 +29,9 @@ import {
   PRODUCT_BASIC_FIELDS_FRAGMENT,
   PRODUCT_FIELDS_FRAGMENT,
   TAG_FIELDS_FRAGMENT,
-} from "utils/fragments";
-import { useErrorHandling } from "utils/error-handling";
-import { useNotification } from "utils/hooks";
+} from "queries/fragments";
+import { useErrorHandling } from "hooks/error-handling";
+import { useNotification } from "hooks/hooks";
 import AddItemsToBoxOverlay from "./components/AddItemsToBoxOverlay";
 import TakeItemsFromBoxOverlay from "./components/TakeItemsFromBoxOverlay";
 import BoxDetails from "./components/BoxDetails";
