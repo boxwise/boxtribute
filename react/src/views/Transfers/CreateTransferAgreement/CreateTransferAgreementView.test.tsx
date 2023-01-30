@@ -2,7 +2,7 @@ import { GraphQLError } from "graphql";
 import "@testing-library/jest-dom";
 import { screen, render, cleanup, fireEvent } from "tests/test-utils";
 import userEvent from "@testing-library/user-event";
-import { organisation1, organisations } from "mocks/oraganisations";
+import { organisation1, organisations } from "mocks/organisations";
 import { assertOptionsInSelectField, selectOptionInSelectField } from "tests/helpers";
 import { TransferAgreementType } from "types/generated/graphql";
 import { addDays } from "date-fns";

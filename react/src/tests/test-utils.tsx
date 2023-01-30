@@ -20,7 +20,7 @@ import {
   GlobalPreferencesContext,
   IGlobalPreferencesContext,
 } from "providers/GlobalPreferencesProvider";
-import { organisation1 } from "mocks/oraganisations";
+import { organisation1 } from "mocks/organisations";
 
 /**
  * Renders a React component with Apollo GraphQL client and @testing-library/react.
