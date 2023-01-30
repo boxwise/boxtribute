@@ -10,8 +10,8 @@ import { IQrResolvedValue, QrResolverResultKind } from "components/QrReaderOverl
 import { GlobalPreferencesContext } from "providers/GlobalPreferencesProvider";
 import { IBoxDetailsData } from "types/base-types";
 import BoxesBulkOperationsOverlay from "./BoxesBulkOperationsOverlay";
-import { useNotification } from "utils/hooks";
-import { useErrorHandling } from "utils/error-handling";
+import { useNotification } from "hooks/hooks";
+import { useErrorHandling } from "hooks/error-handling";
 
 const HeaderMenuContainer = () => {
   const auth0 = useAuth0();
