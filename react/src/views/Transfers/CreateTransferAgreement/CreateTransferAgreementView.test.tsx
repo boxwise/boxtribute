@@ -160,10 +160,10 @@ it("4.1.2 - Input Validations", async () => {
   expect(transferTypeSendingToLabel).toBeChecked();
 
   const validUntil = screen.getByLabelText(/valid until/i) as HTMLInputElement;
-  const testInavalidValueForValidUntil = addDays(new Date(), -2).toJSON().split("T")[0];
-  await user.type(validUntil, testInavalidValueForValidUntil);
-  fireEvent.change(validUntil, { target: { value: testInavalidValueForValidUntil } });
-  expect(validUntil.value).toEqual(testInavalidValueForValidUntil);
+  const testInvalidValueForValidUntil = addDays(new Date(), -2).toJSON().split("T")[0];
+  await user.type(validUntil, testInvalidValueForValidUntil);
+  fireEvent.change(validUntil, { target: { value: testInvalidValueForValidUntil } });
+  expect(validUntil.value).toEqual(testInvalidValueForValidUntil);
   await user.click(submitButton);
   expect(
     await screen.findByText(/please enter a greater date for the valid until/i),
