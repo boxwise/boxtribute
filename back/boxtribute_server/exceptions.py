@@ -52,12 +52,10 @@ class QrCodeAlreadyAssignedToBox(Exception):
 
 
 class Forbidden(Exception):
-    def __init__(self, resource, value, user, *args, **kwargs):
+    def __init__(self, *args, reason, **kwargs):
         self.extensions = {
             "code": "FORBIDDEN",
-            "description": "You don't have access to the resource "
-            f"{resource}={value}",
-            "user": user,
+            "description": f"You don't have access to '{reason}'",
         }
         super().__init__(*args, **kwargs)
 
