@@ -94,9 +94,11 @@ it("4.1.1 - Initial load of Page", async () => {
 
   const title = await screen.findByRole("heading", { name: "New Transfer Agreement" });
   expect(title).toBeInTheDocument();
-  // Test case 4.1.4 -  Content: Display Source Organisation name on the label
-  expect(screen.getByText(/boxaid bases/i)).toBeInTheDocument();
-
+  // Test case 4.1.1.1 -  Content: Displays Source Bases Select Options
+  const selectSourceBaseDropDown = screen.getByRole("combobox", { name: /boxaid bases/i });
+  expect(selectSourceBaseDropDown).toBeInTheDocument();
+  await user.click(selectSourceBaseDropDown);
+  expect(await screen.findByText("Lesvos")).toBeInTheDocument();
   // Test case 4.1.1.2 - Content: Displays Partner Orgs Select Options
   await assertOptionsInSelectField(user, /partner organisation/i, [/boxcare/i], title);
   // Test case 4.1.1.3	- Content: Displays Partner Bases Select Options When Partner Organisation Selected
