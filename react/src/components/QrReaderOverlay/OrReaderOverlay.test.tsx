@@ -8,7 +8,8 @@ import { QrReader } from "components/QrReader/QrReader";
 import { mockMatchMediaQuery } from "mocks/functions";
 import { mockAuthenticatedUser } from "mocks/hooks";
 import { mockImplementationOfQrReader } from "mocks/components";
-import { GET_BOX_LABEL_IDENTIFIER_BY_QR_CODE } from "utils/queries";
+import { GET_BOX_LABEL_IDENTIFIER_BY_QR_CODE } from "queries/queries";
+import { generateMockBox } from "mocks/boxes";
 
 jest.mock("@auth0/auth0-react");
 jest.mock("components/QrReader/QrReader");
@@ -22,7 +23,7 @@ const queryNoBoxAssociatedWithQrCode = {
   request: {
     query: GET_BOX_LABEL_IDENTIFIER_BY_QR_CODE,
     variables: {
-      qrCode: "testhash",
+      qrCode: "NoBoxAssociatedWithQrCode",
     },
   },
   result: {
@@ -34,28 +35,68 @@ const queryNoBoxAssociatedWithQrCode = {
   },
 };
 
+const queryBoxAssociatedWithQrCode = {
+  request: {
+    query: GET_BOX_LABEL_IDENTIFIER_BY_QR_CODE,
+    variables: {
+      qrCode: "BoxAssociatedWithQrCode",
+    },
+  },
+  result: {
+    data: {
+      qrCode: {
+        box: generateMockBox({}),
+      },
+    },
+  },
+};
+
 beforeEach(() => {
   // setting the screensize to
-  mockMatchMediaQuery("(max-width: 1070px)", true);
+  mockMatchMediaQuery(true);
   mockAuthenticatedUser(mockedUseAuth0, "dev_volunteer@boxaid.org");
-  mockImplementationOfQrReader(mockedQrReader);
 });
 
 it("3.4.2.1 - Mobile: User scans QR code of same org without previously associated box", async () => {
   const user = userEvent.setup();
+  // mock scanning a QR code
+  mockImplementationOfQrReader(mockedQrReader, "NoBoxAssociatedWithQrCode");
   render(<HeaderMenuContainer />, {
     routePath: "/bases/:baseId",
     initialUrl: "/bases/1",
     mocks: [queryNoBoxAssociatedWithQrCode],
-    additionalRoute: "/bases/1/boxes/create/testhash",
+    additionalRoute: "/bases/1/boxes/create/NoBoxAssociatedWithQrCode",
   });
 
+  // Open QROverlay
   const qrButton = await screen.findByRole("button", { name: /scan qr code/i });
   await user.click(qrButton);
 
+  // Click a button to trigger the event of scanning a QR-Code in mockImplementationOfQrReader
   await user.click(screen.getByTestId("ReturnScannedQr"));
   expect(
-    await screen.findByRole("heading", { name: "/bases/1/boxes/create/testhash" }),
+    await screen.findByRole("heading", { name: "/bases/1/boxes/create/NoBoxAssociatedWithQrCode" }),
   ).toBeInTheDocument();
-  expect(screen.getByText(/Scanned QR code is not assigned to a box yet/i)).toBeInTheDocument();
+});
+
+it("3.4.2.2 - Mobile: user scans QR code of same org with associated box", async () => {
+  const user = userEvent.setup();
+  // mock scanning a QR code
+  mockImplementationOfQrReader(mockedQrReader, "BoxAssociatedWithQrCode");
+  render(<HeaderMenuContainer />, {
+    routePath: "/bases/:baseId",
+    initialUrl: "/bases/1",
+    mocks: [queryBoxAssociatedWithQrCode],
+    additionalRoute: "/bases/1/boxes/123",
+  });
+
+  // Open QROverlay
+  const qrButton = await screen.findByRole("button", { name: /scan qr code/i });
+  await user.click(qrButton);
+
+  // Click a button to trigger the event of scanning a QR-Code in mockImplementationOfQrReader
+  await user.click(screen.getByTestId("ReturnScannedQr"));
+  expect(
+    await screen.findByRole("heading", { name: "/bases/1/boxes/123" }),
+  ).toBeInTheDocument();
 });
