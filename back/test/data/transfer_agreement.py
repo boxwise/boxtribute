@@ -43,7 +43,15 @@ def data():
             "source_organisation": organisation_data()[1]["id"],
             "target_organisation": organisation_data()[0]["id"],
             "state": TransferAgreementState.Accepted,
-            "type": TransferAgreementType.Unidirectional,
+            "type": TransferAgreementType.SendingTo,
+            "requested_by": default_user_data()["id"],
+        },
+        {
+            "id": 5,
+            "source_organisation": organisation_data()[1]["id"],
+            "target_organisation": organisation_data()[0]["id"],
+            "state": TransferAgreementState.UnderReview,
+            "type": TransferAgreementType.ReceivingFrom,
             "requested_by": default_user_data()["id"],
         },
     ]
@@ -67,6 +75,11 @@ def reviewed_transfer_agreement():
 @pytest.fixture
 def unidirectional_transfer_agreement():
     return data()[3]
+
+
+@pytest.fixture
+def receiving_transfer_agreement():
+    return data()[4]
 
 
 @pytest.fixture

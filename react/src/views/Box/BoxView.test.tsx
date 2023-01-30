@@ -351,14 +351,14 @@ it("3.1.3 - Change State to Scrap and Lost", async () => {
   expect(await screen.findByText(/status:/i)).toBeInTheDocument();
 
   const boxSubheading = screen.getByTestId("box-subheader");
-  expect(boxSubheading).toHaveTextContent("Status: InStock");
+  await waitFor(() => expect(boxSubheading).toHaveTextContent("Status: InStock"));
   // Test case 3.1.3.1 - Click on Scrap
   await user.click(screen.getByTestId("box-scrap-btn"));
 
   expect(await screen.findByText(/status:/i)).toBeInTheDocument();
   // Test case 3.1.3.1.1 - Change state on Scrap Toggled
   const boxSubheadingChangedToScrap = screen.getByTestId("box-subheader");
-  expect(boxSubheadingChangedToScrap).toHaveTextContent("Status: Scrap");
+  await waitFor(() => expect(boxSubheadingChangedToScrap).toHaveTextContent("Status: Scrap"));
 
   // Test case 3.1.3.1.2 - If state changes to Scrap, color also changes
   expect(screen.getByTestId("box-state")).toHaveStyle(`color: #EB404A`);
@@ -373,6 +373,11 @@ it("3.1.3 - Change State to Scrap and Lost", async () => {
 
   // Test case 3.1.3.2.2 - If state changes to Lost, color also changes
   expect(screen.getByTestId("box-state")).toHaveStyle(`color: #EB404A`);
+
+  // Test case  3.1.3.3 - If the Box is in a Lost or Scrap state, editing should be disabled
+  expect(screen.getByTestId("increase-items")).toHaveAttribute("disabled");
+  expect(screen.getByTestId("decrease-items")).toHaveAttribute("disabled");
+  expect(screen.getByRole("button", { name: /edit box/i })).toHaveAttribute("disabled");
 });
 
 // Test case 3.1.4

@@ -1355,6 +1355,7 @@ export type TransferAgreement = {
 export type TransferAgreementCreationInput = {
   comment?: InputMaybe<Scalars['String']>;
   sourceBaseIds?: InputMaybe<Array<Scalars['Int']>>;
+  sourceOrganisationId: Scalars['Int'];
   targetBaseIds?: InputMaybe<Array<Scalars['Int']>>;
   targetOrganisationId: Scalars['Int'];
   timezone?: InputMaybe<Scalars['String']>;
@@ -1373,7 +1374,8 @@ export enum TransferAgreementState {
 
 export enum TransferAgreementType {
   Bidirectional = 'Bidirectional',
-  Unidirectional = 'Unidirectional'
+  ReceivingFrom = 'ReceivingFrom',
+  SendingTo = 'SendingTo'
 }
 
 export type UnboxedItemsCollection = ItemsCollection & {

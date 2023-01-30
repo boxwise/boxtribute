@@ -23,7 +23,7 @@ import { extractQrCodeFromUrl } from "utils/helpers";
 import {
   BOX_DETAILS_BY_LABEL_IDENTIFIER_QUERY,
   GET_BOX_LABEL_IDENTIFIER_BY_QR_CODE,
-} from "utils/queries";
+} from "queries/queries";
 import { BoxData, IPackingListEntry } from "views/Distributions/types";
 
 interface PackingScanBoxOrFindByLabelOverlayProps {

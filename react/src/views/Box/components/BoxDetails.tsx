@@ -31,7 +31,7 @@ import {
   HistoryEntry,
   UpdateLocationOfBoxMutation,
 } from "types/generated/graphql";
-import { useGetUrlForResourceHelpers } from "utils/hooks";
+import { useGetUrlForResourceHelpers } from "hooks/hooks";
 import { distroEventStateHumanReadableLabels } from "views/Distributions/baseData";
 import DistributionEventTimeRangeDisplay from "views/Distributions/components/DistributionEventTimeRangeDisplay";
 import { colorIsBright } from "utils/helpers";

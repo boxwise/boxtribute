@@ -8,10 +8,10 @@ import { useDisclosure, useToast } from "@chakra-ui/react";
 import QrReaderOverlayContainer from "components/QrReaderOverlay/QrReaderOverlayContainer";
 import { IQrResolvedValue, QrResolverResultKind } from "components/QrReaderOverlay/QrReaderOverlay";
 import { GlobalPreferencesContext } from "providers/GlobalPreferencesProvider";
-import { IBoxDetailsData } from "utils/base-types";
+import { IBoxDetailsData } from "types/base-types";
 import BoxesBulkOperationsOverlay from "./BoxesBulkOperationsOverlay";
-import { useNotification } from "utils/hooks";
-import { useErrorHandling } from "utils/error-handling";
+import { useNotification } from "hooks/hooks";
+import { useErrorHandling } from "hooks/error-handling";
 
 const HeaderMenuContainer = () => {
   const auth0 = useAuth0();
@@ -136,12 +136,6 @@ const HeaderMenuContainer = () => {
             break;
           }
           case QrResolverResultKind.NOT_ASSIGNED_TO_BOX: {
-            createToast({
-              title: "QR Code",
-              type: "info",
-              message: "Scanned QR code is not assigned to a box yet",
-            });
-
             navigate(`/bases/${baseId}/boxes/create/${singleResolvedQrValue?.qrCodeValue}`);
             break;
           }

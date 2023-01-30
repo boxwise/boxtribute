@@ -1,8 +1,8 @@
 import { useEffect } from "react";
 import { gql, useMutation, useQuery } from "@apollo/client";
 import { Center } from "@chakra-ui/react";
-import { useErrorHandling } from "utils/error-handling";
-import { useNotification } from "utils/hooks";
+import { useErrorHandling } from "hooks/error-handling";
+import { useNotification } from "hooks/hooks";
 import APILoadingIndicator from "components/APILoadingIndicator";
 import { useNavigate, useParams } from "react-router-dom";
 import {
@@ -14,8 +14,8 @@ import {
   CheckIfQrExistsInDbQuery,
   CheckIfQrExistsInDbQueryVariables,
 } from "types/generated/graphql";
-import { PRODUCT_FIELDS_FRAGMENT, TAG_OPTIONS_FRAGMENT } from "utils/fragments";
-import { CHECK_IF_QR_EXISTS_IN_DB } from "utils/queries";
+import { PRODUCT_FIELDS_FRAGMENT, TAG_OPTIONS_FRAGMENT } from "queries/fragments";
+import { CHECK_IF_QR_EXISTS_IN_DB } from "queries/queries";
 import BoxCreate, { ICreateBoxFormData } from "./components/BoxCreate";
 
 // TODO: Create fragment or query for ALL_PRODUCTS_AND_LOCATIONS_FOR_BASE_QUERY

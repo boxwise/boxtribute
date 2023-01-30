@@ -11,6 +11,7 @@
    1. [Working with MySQL](#working-with-mysql)
    1. [Debugging](#debugging)
 1. [Testing](#testing)
+1. [Architecture](#architecture)
 1. [GraphQL API](#graphql-api)
 1. [Production environment](#production-environment)
 1. [Performance evaluation](#performance-evaluation)
@@ -201,7 +202,7 @@ Note that in production mode, logging is also subject to the configuration of th
 
 Our tests verify the production code on different levels:
 
-1. **Unit tests**: testing isolated functionality, e.g. `auth_tests/`
+1. **Unit tests**: testing isolated functionality, see `unit_tests/`
 1. **Data model tests**: testing data models, requiring a test database being set up. See `model_tests/`
 1. **App tests**: testing behavior of Flask app, mostly the handling of GraphQL requests. Requires a test database being set up, or a MySQL database server running in the background. Any data for user authentication and authorization is mocked. See `endpoint_tests/`
 1. **Integration tests**: testing integration of Auth0 web service for user auth(z). Requires a working internet connection. Parameters for the test user are read from the `.env` file. See `integration_tests/`
@@ -313,6 +314,12 @@ From the repository root, run
     pytest --cov --cov-report=term --cov-report=html back
 
 and inspect the reported output. Open the HTML report via `back/htmlcov/index.html` to browse coverage for individual source code files.
+
+## Architecture
+
+The following diagram shows the responsibilities of and the relationships between the back-end components.
+
+![C4 back-end components](docs/c4-backend-components.jpg)
 
 ## GraphQL API
 
