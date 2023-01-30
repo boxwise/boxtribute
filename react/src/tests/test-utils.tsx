@@ -16,6 +16,11 @@ import {
   ApolloProvider,
   DefaultOptions,
 } from "@apollo/client";
+import {
+  GlobalPreferencesContext,
+  IGlobalPreferencesContext,
+} from "providers/GlobalPreferencesProvider";
+import { organisation1 } from "mocks/organisations";
 
 /**
  * Renders a React component with Apollo GraphQL client and @testing-library/react.
@@ -37,6 +42,7 @@ function render(
     initialUrl,
     additionalRoute = undefined,
     addTypename = false,
+    globalPreferences,
     ...renderOptions
   }: {
     mocks?: Array<MockedResponse>;
@@ -44,6 +50,7 @@ function render(
     initialUrl: string;
     additionalRoute?: string;
     addTypename?: boolean;
+    globalPreferences?: IGlobalPreferencesContext;
   },
 ) {
   // Log if there is an error in the mock
@@ -62,18 +69,28 @@ function render(
   });
   const link = ApolloLink.from([errorLoggingLink, mockLink]);
 
+  const globalPreferencesMock: IGlobalPreferencesContext = {
+    dispatch: jest.fn(),
+    globalPreferences: {
+      selectedOrganisationId: organisation1.id,
+      availableBases: organisation1.bases,
+    },
+  };
+
   const Wrapper: React.FC = ({ children }: any) => (
     <ChakraProvider theme={theme}>
-      <MockedProvider mocks={mocks} addTypename={addTypename} link={link}>
-        <MemoryRouter initialEntries={[initialUrl]}>
-          <Routes>
-            {additionalRoute !== undefined && (
-              <Route path={additionalRoute} element={<h1>{additionalRoute}</h1>} />
-            )}
-            <Route path={routePath} element={children} />
-          </Routes>
-        </MemoryRouter>
-      </MockedProvider>
+      <GlobalPreferencesContext.Provider value={globalPreferences ?? globalPreferencesMock}>
+        <MockedProvider mocks={mocks} addTypename={addTypename} link={link}>
+          <MemoryRouter initialEntries={[initialUrl]}>
+            <Routes>
+              {additionalRoute !== undefined && (
+                <Route path={additionalRoute} element={<h1>{additionalRoute}</h1>} />
+              )}
+              <Route path={routePath} element={children} />
+            </Routes>
+          </MemoryRouter>
+        </MockedProvider>
+      </GlobalPreferencesContext.Provider>
     </ChakraProvider>
   );
   return rtlRender(ui, {
