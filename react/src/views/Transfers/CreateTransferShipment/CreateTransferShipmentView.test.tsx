@@ -2,7 +2,7 @@
 import "@testing-library/jest-dom";
 import { screen, render } from "tests/test-utils";
 // import userEvent from "@testing-library/user-event";
-import { organisation1 } from "mocks/oraganisations";
+import { organisation1 } from "mocks/organisations";
 // import { assertOptionsInSelectField, selectOptionInSelectField } from "tests/helpers";
 // import { TransferAgreementType } from "types/generated/graphql";
 import { transferAgreement1 } from "mocks/transferAgreements";
