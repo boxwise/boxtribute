@@ -1,8 +1,8 @@
 import { useContext } from "react";
 import { gql, useMutation, useQuery } from "@apollo/client";
 import { Alert, AlertIcon, Center } from "@chakra-ui/react";
-import { useErrorHandling } from "utils/error-handling";
-import { useNotification } from "utils/hooks";
+import { useErrorHandling } from "hooks/error-handling";
+import { useNotification } from "hooks/hooks";
 import APILoadingIndicator from "components/APILoadingIndicator";
 import { useNavigate, useParams } from "react-router-dom";
 import {
@@ -82,9 +82,18 @@ function CreateTransferAgreementView() {
   // Prep data for Form
   const allOrgsAndTheirBases = allFormOptions.data?.organisations;
 
+  // When boxtribute god logs in without predifiend organisation id, use organisation id 1
+  const userCurrentOrganisatinId = globalPreferences.selectedOrganisationId?.toString() ?? "1";
+
   const currentOrganisation = allOrgsAndTheirBases?.find(
-    (organisation) => organisation.id === globalPreferences.selectedOrganisationId?.toString(),
+    (organisation) => organisation.id === userCurrentOrganisatinId,
   );
+
+  // Filter bases where the user is not authorized
+  const currentOrganisationAuthorizedBases = {
+    ...currentOrganisation,
+    bases: globalPreferences?.availableBases,
+  } as IBasesForOrganisationData;
 
   const partnerOrganisationsWithTheirBasesData = allOrgsAndTheirBases?.filter(
     (organisation) => organisation.id !== globalPreferences.selectedOrganisationId?.toString(),
@@ -115,7 +124,7 @@ function CreateTransferAgreementView() {
 
     createTransferAgreementMutation({
       variables: {
-        sourceOrganisationId: parseInt(globalPreferences?.selectedOrganisationId ?? "1", 10),
+        sourceOrganisationId: parseInt(userCurrentOrganisatinId, 10),
         targetOrganisationId: parseInt(createTransferAgreementData.partnerOrganisation.value, 10),
         type: transferType,
         validFrom: createTransferAgreementData?.validFrom,
@@ -165,7 +174,7 @@ function CreateTransferAgreementView() {
   return (
     <Center>
       <CreateTransferAgreement
-        currentOrganisation={currentOrganisation as IBasesForOrganisationData}
+        currentOrganisation={currentOrganisationAuthorizedBases}
         partnerOrganisationsWithTheirBasesData={
           partnerOrganisationsWithTheirBasesData as unknown as IBasesForOrganisationData[]
         }

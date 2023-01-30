@@ -2,7 +2,7 @@ import { GraphQLError } from "graphql";
 import "@testing-library/jest-dom";
 import { screen, render, cleanup, fireEvent } from "tests/test-utils";
 import userEvent from "@testing-library/user-event";
-import { organisation1, organisations } from "mocks/oraganisations";
+import { organisation1, organisations } from "mocks/organisations";
 import { assertOptionsInSelectField, selectOptionInSelectField } from "tests/helpers";
 import { TransferAgreementType } from "types/generated/graphql";
 import { addDays } from "date-fns";
@@ -94,9 +94,11 @@ it("4.1.1 - Initial load of Page", async () => {
 
   const title = await screen.findByRole("heading", { name: "New Transfer Agreement" });
   expect(title).toBeInTheDocument();
-  // Test case 4.1.4 -  Content: Display Source Organisation name on the label
-  expect(screen.getByText(/boxaid bases/i)).toBeInTheDocument();
-
+  // Test case 4.1.1.1 -  Content: Displays Source Bases Select Options
+  const selectSourceBaseDropDown = screen.getByRole("combobox", { name: /boxaid bases/i });
+  expect(selectSourceBaseDropDown).toBeInTheDocument();
+  await user.click(selectSourceBaseDropDown);
+  expect(await screen.findByText("Lesvos")).toBeInTheDocument();
   // Test case 4.1.1.2 - Content: Displays Partner Orgs Select Options
   await assertOptionsInSelectField(user, /partner organisation/i, [/boxcare/i], title);
   // Test case 4.1.1.3	- Content: Displays Partner Bases Select Options When Partner Organisation Selected
@@ -158,10 +160,10 @@ it("4.1.2 - Input Validations", async () => {
   expect(transferTypeSendingToLabel).toBeChecked();
 
   const validUntil = screen.getByLabelText(/valid until/i) as HTMLInputElement;
-  const testInavalidValueForValidUntil = addDays(new Date(), -2).toJSON().split("T")[0];
-  await user.type(validUntil, testInavalidValueForValidUntil);
-  fireEvent.change(validUntil, { target: { value: testInavalidValueForValidUntil } });
-  expect(validUntil.value).toEqual(testInavalidValueForValidUntil);
+  const testInvalidValueForValidUntil = addDays(new Date(), -2).toJSON().split("T")[0];
+  await user.type(validUntil, testInvalidValueForValidUntil);
+  fireEvent.change(validUntil, { target: { value: testInvalidValueForValidUntil } });
+  expect(validUntil.value).toEqual(testInvalidValueForValidUntil);
   await user.click(submitButton);
   expect(
     await screen.findByText(/please enter a greater date for the valid until/i),

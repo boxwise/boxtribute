@@ -30,7 +30,7 @@ export const useNotification = () => {
 };
 
 export const useGetUrlForResourceHelpers = () => {
-  const baseId = useParams<{ baseId: string }>().baseId;
+  const { baseId } = useParams<{ baseId: string }>();
   if (baseId == null) {
     throw new Error("Coudl not extract baseId from URL");
   }
