@@ -1,10 +1,12 @@
 import { FormControl, FormErrorMessage, FormLabel } from "@chakra-ui/react";
 import { Select, OptionBase } from "chakra-react-select";
 import { Controller } from "react-hook-form";
+import { colorIsBright } from "utils/helpers";
 
 export interface IDropdownOption extends OptionBase {
   value: string;
   label: string;
+  color?: string | undefined | null;
 }
 
 export interface ISelectFieldProps {
@@ -62,9 +64,12 @@ function SelectField({
                 borderRadius: "0",
                 borderColor: "black",
               }),
-              multiValue: (provided) => ({
+              multiValue: (provided, state) => ({
                 ...provided,
                 border: "1px",
+                borderColor: colorIsBright(state.data?.color) ? "gray.300" : state.data?.color,
+                color: colorIsBright(state.data?.color) ? "black" : "white",
+                background: state.data?.color || "gray.100",
                 borderRadius: "20",
               }),
             }}

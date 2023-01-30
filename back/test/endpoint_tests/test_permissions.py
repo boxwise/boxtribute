@@ -85,8 +85,6 @@ def test_invalid_permission(unauthorized, read_only_client, query):
         """product( id: 2 ) { id }""",
         # Test case 9.1.8
         """beneficiary( id: 4 ) { id }""",
-        # Test case 10.1.5
-        """user( id: 1) { id }""",
         """packingListEntry( id: 1 ) { id }""",
         # Test case 3.1.6
         """shipment( id: 5 ) { id }""",
@@ -147,6 +145,7 @@ def test_invalid_permission_for_given_resource_id(read_only_client, query):
         "createQrCode { id }",
         """createTransferAgreement(
             creationInput : {
+                sourceOrganisationId: 1,
                 targetOrganisationId: 2,
                 type: Bidirectional
             }) { id }""",

@@ -128,7 +128,7 @@ function BoxCreate({
   const tagsForDropdownGroups: Array<IDropdownOption> | undefined = allTags?.map((tag) => ({
     label: tag.label,
     value: tag.value,
-    // colorScheme: "red",
+    color: tag.color,
   }));
 
   const onSubmit: SubmitHandler<ICreateBoxFormData> = (data) => onSubmitBoxCreateForm(data);

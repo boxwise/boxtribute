@@ -73,8 +73,8 @@ def state_names(value):
 @pytest.mark.parametrize(
     "filter_input,transfer_agreement_ids",
     (
-        ["", ["1", "2", "3", "4"]],
-        ["(states: [UnderReview])", ["3"]],
+        ["", ["1", "2", "3", "4", "5"]],
+        ["(states: [UnderReview])", ["3", "5"]],
         ["(states: [Accepted])", ["1", "4"]],
         ["(states: [Rejected])", []],
         ["(states: [Expired])", ["2"]],
@@ -119,6 +119,7 @@ def test_transfer_agreement_mutations(
     # Leave all optional fields empty in input
     # Test case 2.2.1
     creation_input = f"""targetOrganisationId: {another_organisation['id']},
+        sourceOrganisationId: {default_organisation['id']}
         type: {TransferAgreementType.Bidirectional.name}"""
     agreement = assert_successful_request(client, _create_mutation(creation_input))
     first_agreement_id = agreement.pop("id")
@@ -142,6 +143,7 @@ def test_transfer_agreement_mutations(
     valid_until = "2022-06-30"
     comment = "this is a comment"
     creation_input = f"""targetOrganisationId: {another_organisation['id']},
+        sourceOrganisationId: {default_organisation['id']}
         type: {TransferAgreementType.Bidirectional.name},
         validFrom: "{valid_from}",
         validUntil: "{valid_until}",
@@ -231,8 +233,18 @@ def test_transfer_agreement_mutations_invalid_state(
 def test_transfer_agreement_mutations_as_member_of_source_org(
     read_only_client, reviewed_transfer_agreement, action
 ):
-    # Test cases 2.2.9, 2.2.10
+    # Test cases 2.2.9a, 2.2.10a
     agreement_id = reviewed_transfer_agreement["id"]
+    mutation = f"mutation {{ {action}TransferAgreement(id: {agreement_id}) {{ id }} }}"
+    assert_forbidden_request(read_only_client, mutation)
+
+
+@pytest.mark.parametrize("action", ["accept", "reject"])
+def test_transfer_agreement_mutations_as_member_of_receiving_org(
+    read_only_client, receiving_transfer_agreement, action
+):
+    # Test cases 2.2.9b, 2.2.10b
+    agreement_id = receiving_transfer_agreement["id"]
     mutation = f"mutation {{ {action}TransferAgreement(id: {agreement_id}) {{ id }} }}"
     assert_forbidden_request(read_only_client, mutation)
 
@@ -254,8 +266,9 @@ def test_transfer_agreement_mutations_identical_source_org_for_creation(
 ):
     # Test case 2.2.14
     mutation = """mutation { createTransferAgreement( creationInput: {
+                    sourceOrganisationId: 1
                     targetOrganisationId: 1,
-                    type: Unidirectional
+                    type: SendingTo
                 } ) { id } }"""
     assert_bad_user_input(read_only_client, mutation)
 
@@ -267,6 +280,7 @@ def test_transfer_agreement_mutations_create_invalid_source_base(
     mocker.patch("jose.jwt.decode").return_value = create_jwt_payload(base_ids=[1, 3])
     # Test cases 2.2.18, 2.2.19
     mutation = f"""mutation {{ createTransferAgreement( creationInput: {{
+                    sourceOrganisationId: 1
                     targetOrganisationId: 2,
                     {kind}BaseIds: [{base_id}],
                     type: Bidirectional
@@ -276,7 +290,7 @@ def test_transfer_agreement_mutations_create_invalid_source_base(
 
 def test_transfer_agreement_mutations_create_non_existent_target_org(read_only_client):
     # Test case 2.2.15
-    creation_input = "targetOrganisationId: 0"
+    creation_input = "sourceOrganisationId: 1, targetOrganisationId: 0"
     mutation = f"""mutation {{ createTransferAgreement( creationInput: {{
                     {creation_input},
                     type: Bidirectional

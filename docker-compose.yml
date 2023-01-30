@@ -29,6 +29,7 @@ services:
             MYSQL_DB: dropapp_dev
             MYSQL_PORT: 3306
             ENVIRONMENT: ${ENVIRONMENT:-development}
+            CI: "true"
     react:
         build:
             context: ./react

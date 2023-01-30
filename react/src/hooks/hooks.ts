@@ -17,7 +17,7 @@ export const useNotification = () => {
       toast({
         duration: 5000,
         isClosable: true,
-        position: "top",
+        position: "bottom",
         variant: "subtle",
         status: type,
         description: message,

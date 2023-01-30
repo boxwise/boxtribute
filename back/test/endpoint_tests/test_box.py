@@ -1,9 +1,11 @@
+import time
+
 import pytest
-from boxtribute_server.enums import BoxState
-from boxtribute_server.models.definitions.history import DbChangeHistory
-from boxtribute_server.warehouse.box.crud import (
+from boxtribute_server.business_logic.warehouse.box.crud import (
     BOX_LABEL_IDENTIFIER_GENERATION_ATTEMPTS,
 )
+from boxtribute_server.enums import BoxState
+from boxtribute_server.models.definitions.history import DbChangeHistory
 from utils import (
     assert_bad_user_input,
     assert_internal_server_error,
@@ -152,6 +154,10 @@ def test_box_mutations(
         "tags": [{"id": tag_id}],
     }
 
+    # Wait for one second here such that the second-precision change_date of the
+    # previous creation entry is different from the following change entries. We then
+    # can verify that the sorting of history entries by most recent first works.
+    time.sleep(1)
     # Test case 8.2.11
     new_size_id = str(another_size["id"])
     new_product_id = str(products[2]["id"])
@@ -181,6 +187,7 @@ def test_box_mutations(
                 product {{ id }}
                 state
                 history {{
+                    id
                     changes
                     user {{ name }}
                 }}
@@ -195,35 +202,44 @@ def test_box_mutations(
     assert updated_box["product"]["id"] == new_product_id
     assert updated_box["state"] == state
     assert updated_box["history"] == [
+        # The entries for the update have the same change_date, hence the IDs do not
+        # appear reversed
         {
-            "changes": "created record",
+            "id": "120",
+            "changes": f"changed box state from InStock to {state}",
             "user": {"name": "coord"},
         },
         {
-            "changes": f"changed product type from {products[0]['name']} to "
-            + f"{products[2]['name']};",
-            "user": {"name": "coord"},
-        },
-        {
-            "changes": f"changed size from {default_size['label']} to "
-            + f"{another_size['label']};",
-            "user": {"name": "coord"},
-        },
-        {
-            "changes": f"changed the number of items from None to {nr_items};",
-            "user": {"name": "coord"},
-        },
-        {
-            "changes": f"changed box location from {default_location['name']} to "
-            + f"{null_box_state_location['name']};",
-            "user": {"name": "coord"},
-        },
-        {
+            "id": "119",
             "changes": 'changed comments from "" to "updatedComment";',
             "user": {"name": "coord"},
         },
         {
-            "changes": f"changed box state from InStock to {state};",
+            "id": "118",
+            "changes": f"changed box location from {default_location['name']} to "
+            + f"{null_box_state_location['name']}",
+            "user": {"name": "coord"},
+        },
+        {
+            "id": "117",
+            "changes": f"changed the number of items from None to {nr_items}",
+            "user": {"name": "coord"},
+        },
+        {
+            "id": "116",
+            "changes": f"changed size from {default_size['label']} to "
+            + f"{another_size['label']}",
+            "user": {"name": "coord"},
+        },
+        {
+            "id": "115",
+            "changes": f"changed product type from {products[0]['name']} to "
+            + f"{products[2]['name']}",
+            "user": {"name": "coord"},
+        },
+        {
+            "id": "113",
+            "changes": "created record",
             "user": {"name": "coord"},
         },
     ]

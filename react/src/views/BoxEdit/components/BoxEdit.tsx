@@ -15,7 +15,7 @@ import {
   BoxByLabelIdentifierAndAllProductsWithBaseIdQuery,
   ProductGender,
 } from "types/generated/graphql";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
@@ -111,7 +111,13 @@ function BoxEdit({
 
   // Form Default Values
   const defaultValues: IBoxEditFormData = {
-    productId: { label: boxData?.product?.name || "", value: boxData?.product?.id || "" },
+    productId: {
+      label:
+        `${boxData?.product?.name}${
+          boxData?.product?.gender !== "none" ? ` (${boxData?.product?.gender})` : ""
+        }` || "",
+      value: boxData?.product?.id || "",
+    },
     sizeId: { label: boxData?.size?.label || "", value: boxData?.size?.id || "" },
     numberOfItems: boxData?.numberOfItems || 0,
     locationId: { label: boxData?.location?.name || "", value: boxData?.location?.id || "" },
@@ -150,7 +156,7 @@ function BoxEdit({
   const tagsForDropdownGroups: Array<IDropdownOption> | undefined = allTags?.map((tag) => ({
     label: tag.label,
     value: tag.value,
-    // colorScheme: "red",
+    color: tag.color,
   }));
 
   // react-hook-form
@@ -171,7 +177,9 @@ function BoxEdit({
     IDropdownOption[]
   >([]);
 
+  // needed for updating size select field for new product
   const productId = watch("productId");
+  const productRef = useRef<string | undefined>(boxData?.product?.id);
 
   useEffect(() => {
     if (productId != null) {
@@ -184,8 +192,10 @@ function BoxEdit({
           value: s.id,
         })) || [];
       setSizesOptionsForCurrentProduct(() => prepSizesOptionsForCurrentProduct);
-      // only reset size field if the productId is different to the product id of the current box.
-      if (productId.value !== (boxData?.product?.id || "")) {
+
+      // Reset size if the product referenec is different than the currently selected product
+      if (productRef.current !== productId.value) {
+        productRef.current = productId.value;
         // if there is only one option select it directly
         if (prepSizesOptionsForCurrentProduct.length === 1) {
           resetField("sizeId", { defaultValue: prepSizesOptionsForCurrentProduct[0] });

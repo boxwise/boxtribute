@@ -71,11 +71,12 @@ from .transaction import default_transaction, relative_transaction
 from .transfer_agreement import (
     default_transfer_agreement,
     expired_transfer_agreement,
+    receiving_transfer_agreement,
     reviewed_transfer_agreement,
     transfer_agreements,
     unidirectional_transfer_agreement,
 )
-from .user import another_user, default_user, default_users
+from .user import another_user, default_user, default_users, god_user
 
 __all__ = [
     "another_beneficiary",
@@ -127,6 +128,7 @@ __all__ = [
     "distro_spot5_distribution_events_before_return_state",
     "distro_spot5_distribution_events_in_return_state",
     "expired_transfer_agreement",
+    "god_user",
     "lost_box",
     "marked_for_shipment_box",
     "non_default_box_state_location",
@@ -136,6 +138,7 @@ __all__ = [
     "prepared_shipment_detail",
     "products",
     "qr_code_without_box",
+    "receiving_transfer_agreement",
     "relative_beneficiary",
     "relative_transaction",
     "reviewed_transfer_agreement",

@@ -1,19 +1,29 @@
 import { useApolloClient } from "@apollo/client";
 import {
-  Button, Flex, Input, ModalBody, ModalCloseButton, ModalContent, ModalFooter, ModalHeader, useToast
+  Button,
+  Flex,
+  Input,
+  ModalBody,
+  ModalCloseButton,
+  ModalContent,
+  ModalFooter,
+  ModalHeader,
+  useToast,
 } from "@chakra-ui/react";
 import { QrReader } from "components/QrReader/QrReader";
-import {
-  extractQrCodeFromUrl,
-} from "components/QrReaderOverlay/QrReaderOverlayContainer";
+
 import { useCallback, useState } from "react";
 import {
   BoxDetailsQuery,
   BoxDetailsQueryVariables,
   GetBoxLabelIdentifierForQrCodeQuery,
-  GetBoxLabelIdentifierForQrCodeQueryVariables
+  GetBoxLabelIdentifierForQrCodeQueryVariables,
 } from "types/generated/graphql";
-import { BOX_DETAILS_BY_LABEL_IDENTIFIER_QUERY, GET_BOX_LABEL_IDENTIFIER_BY_QR_CODE } from "queries/queries";
+import { extractQrCodeFromUrl } from "utils/helpers";
+import {
+  BOX_DETAILS_BY_LABEL_IDENTIFIER_QUERY,
+  GET_BOX_LABEL_IDENTIFIER_BY_QR_CODE,
+} from "queries/queries";
 import { BoxData, IPackingListEntry } from "views/Distributions/types";
 
 interface PackingScanBoxOrFindByLabelOverlayProps {
@@ -26,11 +36,11 @@ interface PackingScanBoxOrFindByLabelOverlayProps {
 }
 
 type ValidateBoxByLabelForMatchingPackingListEntry = (
-  boxLabel: string
+  boxLabel: string,
 ) => Promise<{ isValid: boolean; boxData?: BoxData | null }>;
 
 const useValidateBoxByLabelMatchingPackingListEntry = (
-  packingListEntry: IPackingListEntry
+  packingListEntry: IPackingListEntry,
 ): ValidateBoxByLabelForMatchingPackingListEntry => {
   const apolloClient = useApolloClient();
   return (boxLabel: string) => {
@@ -92,17 +102,16 @@ const PackingScanBoxOrFindByLabelOverlay = ({
             onFoundMatchingBox(boxData);
           } else {
             toast({
-              title:
-                "Box not found or doesn't match the needed product and size",
+              title: "Box not found or doesn't match the needed product and size",
               status: "error",
               isClosable: true,
               duration: 2000,
             });
           }
-        }
+        },
       );
     },
-    [onFoundMatchingBox, toast, validateBoxByLabelMatchingPackingListEntry]
+    [onFoundMatchingBox, toast, validateBoxByLabelMatchingPackingListEntry],
   );
 
   // TODO: extract duplicated code from here and QrReaderOverlayContainer into a common component/custom hook
@@ -135,7 +144,7 @@ const PackingScanBoxOrFindByLabelOverlay = ({
                 //   { kind: "notAssignedToBox", qrCodeValue: qrCode },
                 // ]);
                 console.error("No Box yet assigned to QR Code");
-              // TODO: use toast instead of alert here
+                // TODO: use toast instead of alert here
                 alert("This QR code is not assigned to any box");
               } else {
                 onFindAndValidateBoxLabelIdentifier(boxLabelIdentifier);
@@ -147,7 +156,7 @@ const PackingScanBoxOrFindByLabelOverlay = ({
         }
       }
     },
-    [apolloClient, onFindAndValidateBoxLabelIdentifier]
+    [apolloClient, onFindAndValidateBoxLabelIdentifier],
   );
 
   return (
@@ -159,9 +168,7 @@ const PackingScanBoxOrFindByLabelOverlay = ({
           facingMode={"environment"}
           zoom={1}
           scanPeriod={1000}
-          onResult={(result) =>
-            result?.["text"] != null && onQrResult(result["text"])
-          }
+          onResult={(result) => result?.["text"] != null && onQrResult(result["text"])}
         />
       </ModalBody>
       <Button
@@ -187,9 +194,7 @@ const PackingScanBoxOrFindByLabelOverlay = ({
           />
           <Button
             onClick={() => {
-              onFindAndValidateBoxLabelIdentifier(
-                manualBoxLabelValue.toString()
-              );
+              onFindAndValidateBoxLabelIdentifier(manualBoxLabelValue.toString());
             }}
             colorScheme="blue"
           >
@@ -197,10 +202,21 @@ const PackingScanBoxOrFindByLabelOverlay = ({
           </Button>
         </Flex>
       ) : null}
-      <Button colorScheme="blue" variant="outline" my={4} mx={10} onClick={() => alert("Not yet implemented")}>
+      <Button
+        colorScheme="blue"
+        variant="outline"
+        my={4}
+        mx={10}
+        onClick={() => alert("Not yet implemented")}
+      >
         Show fitting boxes
       </Button>
-      <Button colorScheme="blue" variant="outline" mx={10} onClick={() => alert("Not yet implemented")}>
+      <Button
+        colorScheme="blue"
+        variant="outline"
+        mx={10}
+        onClick={() => alert("Not yet implemented")}
+      >
         Other source
       </Button>
       <ModalFooter />
