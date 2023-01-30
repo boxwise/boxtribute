@@ -149,18 +149,20 @@ function CreateTransferShipment({
       <form onSubmit={handleSubmit(onSubmit)}>
         <List spacing={2}>
           <ListItem>
-            <Center>
-              <HStack mb={4}>
-                <SendingIcon />
-                <Text fontWeight="bold" fontSize="2xl">
-                  {" "}
-                  SENDING
-                </Text>
-              </HStack>
-            </Center>
+            <HStack mb={4}>
+              <SendingIcon />
+              <Text fontWeight="bold" fontSize="md">
+                {" "}
+                SENDING
+              </Text>
+            </HStack>
           </ListItem>
           <ListItem>
-            <Text fontSize="lg">{currentOrganisationLabel}</Text>
+            <Center>
+              <Text fontWeight="medium" fontSize="md">
+                {currentOrganisationLabel}
+              </Text>
+            </Center>
           </ListItem>
         </List>
         <Spacer mb={8} />
@@ -168,15 +170,13 @@ function CreateTransferShipment({
         <Spacer mb={8} />
         <List spacing={2}>
           <ListItem>
-            <Center>
-              <HStack mb={4}>
-                <ReceivingIcon />
-                <Text fontWeight="bold" fontSize="2xl">
-                  {" "}
-                  RECEIVING
-                </Text>
-              </HStack>
-            </Center>
+            <HStack mb={4}>
+              <ReceivingIcon />
+              <Text fontWeight="bold" fontSize="md">
+                {" "}
+                RECEIVING
+              </Text>
+            </HStack>
           </ListItem>
           <ListItem>
             <SelectField
@@ -194,11 +194,13 @@ function CreateTransferShipment({
               fieldLabel="Base"
               placeholder="Please select a base"
               errors={errors}
-              isRequired={false}
               control={control}
               options={basesOptionsForPartnerOrg}
             />
           </ListItem>
+          {/* <ListItem>
+            <Text>Agreement #{} Comment</Text>
+          </ListItem> */}
         </List>
 
         <Stack spacing={4}>
