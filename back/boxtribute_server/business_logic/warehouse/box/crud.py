@@ -4,7 +4,11 @@ import peewee
 
 from ....db import db
 from ....enums import BoxState, TaggableObjectType
-from ....exceptions import BoxCreationFailed, NegativeNumberOfItems
+from ....exceptions import (
+    BoxCreationFailed,
+    NegativeNumberOfItems,
+    QrCodeAlreadyAssignedToBox,
+)
 from ....models.definitions.box import Box
 from ....models.definitions.history import DbChangeHistory
 from ....models.definitions.location import Location
@@ -77,7 +81,13 @@ def create_box(
         except peewee.IntegrityError as e:
             # peewee throws the same exception for different constraint violations.
             # E.g. failing "NOT NULL" constraint shall be directly reported
-            if "Duplicate entry" not in str(e):
+            prefix = "Duplicate entry"
+            if f"{prefix} '{qr_id}' for key 'stock.qr_id'" in str(e):
+                raise QrCodeAlreadyAssignedToBox()
+            if (
+                f"{prefix} '{new_box.label_identifier}' for key 'stock.box_box_id'"
+                not in str(e)
+            ):
                 raise
     raise BoxCreationFailed()
 

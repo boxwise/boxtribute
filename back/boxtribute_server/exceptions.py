@@ -44,6 +44,13 @@ class BoxCreationFailed(Exception):
     }
 
 
+class QrCodeAlreadyAssignedToBox(Exception):
+    extensions = {
+        "code": "BAD_USER_INPUT",
+        "description": "The QR code is already assigned to another box.",
+    }
+
+
 class Forbidden(Exception):
     def __init__(self, resource, value, user, *args, **kwargs):
         self.extensions = {
