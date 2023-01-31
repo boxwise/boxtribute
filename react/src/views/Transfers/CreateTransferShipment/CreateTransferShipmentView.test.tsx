@@ -1,7 +1,7 @@
 import "@testing-library/jest-dom";
 import { screen, render, cleanup } from "tests/test-utils";
 import { organisation1 } from "mocks/organisations";
-import { transferAgreement1 } from "mocks/transferAgreements";
+import { acceptedTransferAgreement } from "mocks/transferAgreements";
 import userEvent from "@testing-library/user-event";
 import { assertOptionsInSelectField, selectOptionInSelectField } from "tests/helpers";
 import { GraphQLError } from "graphql";
@@ -30,7 +30,7 @@ const initialQuery = {
           name: "BoxAid",
         },
       },
-      transferAgreements: [transferAgreement1],
+      transferAgreements: [acceptedTransferAgreement],
     },
   },
 };

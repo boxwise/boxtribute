@@ -1,4 +1,4 @@
-export const transferAgreement1 = {
+export const acceptedTransferAgreement = {
   __typename: "TransferAgreement",
   comment: "",
   id: "1",
