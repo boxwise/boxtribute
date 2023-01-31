@@ -13,56 +13,22 @@ import {
   CreateTransferShipmentMutationVariables,
   TransferAgreementType,
 } from "types/generated/graphql";
+import { BASE_ORG_FIELDS_FRAGMENT, TRANSFER_AGREEMENT_FEILDS_FRAGMENT } from "queries/fragments";
 import CreateTransferShipment, {
   IOrganisationsAgreementsDataData,
   ITransferShipmentFormData,
 } from "./components/CreateTransferShipment";
 
 export const ALL_ORGS_AND_BASES_WITH_TRANSFER_AGREEMENTS_QUERY = gql`
+  ${BASE_ORG_FIELDS_FRAGMENT}
+  ${TRANSFER_AGREEMENT_FEILDS_FRAGMENT}
   query AllAcceptedTransferAgreements($baseId: ID!) {
     base(id: $baseId) {
-      name
-      organisation {
-        id
-        name
-      }
+      ...BaseOrgFields
     }
 
     transferAgreements(states: Accepted) {
-      id
-      sourceOrganisation {
-        id
-        name
-      }
-      sourceBases {
-        id
-        name
-      }
-      targetOrganisation {
-        id
-        name
-      }
-      targetBases {
-        id
-        name
-      }
-      type
-      state
-      shipments {
-        id
-        state
-      }
-      type
-      state
-      requestedBy {
-        id
-        name
-      }
-      validFrom
-      validUntil
-      validFrom
-
-      comment
+      ...TransferAgreementFields
     }
   }
 `;

@@ -155,3 +155,51 @@ export const BOX_WITH_SIZE_TAG_PRODUCT_FIELDS_FRAGMENT = gql`
     }
   }
 `;
+
+export const TRANSFER_AGREEMENT_FEILDS_FRAGMENT = gql`
+  fragment TransferAgreementFields on TransferAgreement {
+    id
+    sourceOrganisation {
+      id
+      name
+    }
+    sourceBases {
+      id
+      name
+    }
+    targetOrganisation {
+      id
+      name
+    }
+    targetBases {
+      id
+      name
+    }
+    type
+    state
+    shipments {
+      id
+      state
+    }
+    type
+    state
+    requestedBy {
+      id
+      name
+    }
+    validFrom
+    validUntil
+    validFrom
+    comment
+  }
+`;
+
+export const BASE_ORG_FIELDS_FRAGMENT = gql`
+  fragment BaseOrgFields on Base {
+    name
+    organisation {
+      id
+      name
+    }
+  }
+`;
