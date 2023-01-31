@@ -1,14 +1,17 @@
 import { GraphQLError } from "graphql";
 import "@testing-library/jest-dom";
 import userEvent from "@testing-library/user-event";
-import { screen, render, fireEvent } from "tests/test-utils";
+import { screen, render } from "tests/test-utils";
 import HeaderMenuContainer from "components/HeaderMenu/HeaderMenuContainer";
 import { useAuth0 } from "@auth0/auth0-react";
 import { QrReader } from "components/QrReader/QrReader";
 import { mockMatchMediaQuery } from "mocks/functions";
 import { mockAuthenticatedUser } from "mocks/hooks";
 import { mockImplementationOfQrReader } from "mocks/components";
-import { BOX_DETAILS_BY_LABEL_IDENTIFIER_QUERY, GET_BOX_LABEL_IDENTIFIER_BY_QR_CODE } from "queries/queries";
+import {
+  BOX_DETAILS_BY_LABEL_IDENTIFIER_QUERY,
+  GET_BOX_LABEL_IDENTIFIER_BY_QR_CODE,
+} from "queries/queries";
 import { generateMockBox } from "mocks/boxes";
 
 jest.mock("@auth0/auth0-react");
@@ -25,6 +28,47 @@ beforeEach(() => {
   mockAuthenticatedUser(mockedUseAuth0, "dev_volunteer@boxaid.org");
 });
 
+const queryFindNoBoxAssociated = {
+  request: {
+    query: BOX_DETAILS_BY_LABEL_IDENTIFIER_QUERY,
+    variables: {
+      labelIdentifier: "123456",
+    },
+  },
+  result: {
+    data: {
+      box: null,
+    },
+    errors: [new GraphQLError("Error!", { extensions: { code: "BAD_USER_INPUT" } })],
+  },
+};
+
+it("3.4.1.2 - Mobile: Enter invalid box identifier and click on Find button", async () => {
+  const user = userEvent.setup();
+  mockImplementationOfQrReader(mockedQrReader, "NoBoxAssociatedWithQrCode");
+  // mock scanning a QR code
+  render(<HeaderMenuContainer />, {
+    routePath: "/bases/:baseId",
+    initialUrl: "/bases/1",
+    mocks: [queryFindNoBoxAssociated],
+    additionalRoute: "/bases/1/boxes/123456",
+  });
+
+  // Open QROverlay
+  const qrButton = await screen.findByRole("button", { name: /scan qr code/i });
+  await user.click(qrButton);
+
+  // Find Box
+  const findBoxButton = await screen.findByRole("button", { name: /find/i });
+  await user.type(screen.getByRole("textbox"), "123456");
+  await user.click(findBoxButton);
+
+  // error message appears
+  expect(await screen.findByText(/Box not found for this label/i)).toBeInTheDocument();
+  // QrOverlay stays open
+  expect(screen.getByRole("button", { name: /find/i })).toBeInTheDocument();
+});
+
 const queryFindBoxAssociatedWithQrCode = {
   request: {
     query: BOX_DETAILS_BY_LABEL_IDENTIFIER_QUERY,
@@ -34,7 +78,7 @@ const queryFindBoxAssociatedWithQrCode = {
   },
   result: {
     data: {
-      box: generateMockBox({labelIdentifier: "123456"}),
+      box: generateMockBox({ labelIdentifier: "123456" }),
     },
   },
 };
@@ -56,13 +100,11 @@ it("3.4.1.3 - Mobile: Enter valid box identifier and click on Find button", asyn
 
   // Find Box
   const findBoxButton = await screen.findByRole("button", { name: /find/i });
-  await user.type(screen.getByRole("textbox"), "123456")
+  await user.type(screen.getByRole("textbox"), "123456");
   await user.click(findBoxButton);
 
   // Click a button to trigger the event of scanning a QR-Code in mockImplementationOfQrReader
-  expect(
-    await screen.findByRole("heading", { name: "/bases/1/boxes/123456" }),
-  ).toBeInTheDocument();
+  expect(await screen.findByRole("heading", { name: "/bases/1/boxes/123456" })).toBeInTheDocument();
 });
 
 const queryNoBoxAssociatedWithQrCode = {
@@ -136,11 +178,8 @@ it.skip("3.4.2.2 - Mobile: user scans QR code of same org with associated box", 
 
   // Click a button to trigger the event of scanning a QR-Code in mockImplementationOfQrReader
   await user.click(screen.getByTestId("ReturnScannedQr"));
-  expect(
-    await screen.findByRole("heading", { name: "/bases/1/boxes/123" }),
-  ).toBeInTheDocument();
+  expect(await screen.findByRole("heading", { name: "/bases/1/boxes/123" })).toBeInTheDocument();
 });
-
 
 const queryBoxFromOtherOrganisation = {
   request: {
@@ -155,7 +194,7 @@ const queryBoxFromOtherOrganisation = {
         box: null,
       },
     },
-    errors: [new GraphQLError("Error!", {extensions: {code:"FORBIDDEN"} })],
+    errors: [new GraphQLError("Error!", { extensions: { code: "FORBIDDEN" } })],
   },
 };
 
@@ -177,7 +216,9 @@ it.skip("3.4.2.3 - Mobile: user scans QR code of different org with associated b
   await user.click(screen.getByTestId("ReturnScannedQr"));
 
   // error message appears
-  expect(await screen.findByText("You don't have access to the box assigned to this QR code")).toBeInTheDocument();
+  expect(
+    await screen.findByText("You don't have access to the box assigned to this QR code"),
+  ).toBeInTheDocument();
   // QrOverlay stays open
   expect(screen.getByTestId("ReturnScannedQr")).toBeInTheDocument();
 });
@@ -218,7 +259,7 @@ const queryHashNotInDb = {
         box: null,
       },
     },
-    errors: [new GraphQLError("Error!", {extensions: {code:"BAD_USER_INPUT"} })],
+    errors: [new GraphQLError("Error!", { extensions: { code: "BAD_USER_INPUT" } })],
   },
 };
 
@@ -240,9 +281,9 @@ it.skip("3.4.2.5b - Mobile: User scans non Boxtribute QR code", async () => {
   await user.click(screen.getByTestId("ReturnScannedQr"));
 
   // error message appears
-  expect((await screen.findAllByText("This is not a Boxtribute QR-Code")).length).toBeGreaterThanOrEqual(
-    1,
-  );
+  expect(
+    (await screen.findAllByText("This is not a Boxtribute QR-Code")).length,
+  ).toBeGreaterThanOrEqual(1);
   // QrOverlay stays open
   expect(screen.getByTestId("ReturnScannedQr")).toBeInTheDocument();
 });
