@@ -257,9 +257,7 @@ it.skip("3.4.2.3 - Mobile: user scans QR code of different org with associated b
   await user.click(screen.getByTestId("ReturnScannedQr"));
 
   // error message appears
-  expect(
-    await screen.findByText("You don't have access to the box assigned to this QR code"),
-  ).toBeInTheDocument();
+  expect(await screen.findByText(/You don't have access to this box/i)).toBeInTheDocument();
   // QrOverlay stays open
   expect(screen.getByTestId("ReturnScannedQr")).toBeInTheDocument();
 });

@@ -117,8 +117,8 @@ const HeaderMenuContainer = () => {
           }
           case QrResolverResultKind.NOT_AUTHORIZED: {
             triggerError({
-              message: "You don't have access to the box assigned to this QR code",
-              userMessage: "You don't have access to the box assigned to this QR code",
+              message: "You don't have access to this box",
+              userMessage: "You don't have access to this box",
             });
             break;
           }
