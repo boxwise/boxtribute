@@ -137,34 +137,47 @@ function CreateTransferShipmentView() {
 
   // Handle Submission
   const onSubmitCreateShipmentForm = (createTransferShipmentData: ITransferShipmentFormData) => {
-    createTransferShipmentMutation({
-      variables: {
-        transferAgreementId: 1,
-        sourceBaseId: parseInt(baseId, 10),
-        targetBaseId: parseInt(createTransferShipmentData.partnerOrganisation.value, 10),
-      },
-    })
-      .then((mutationResult) => {
-        if (mutationResult.errors) {
-          triggerError({
-            message: "Error while trying to create a new shipment",
-          });
-        } else {
-          createToast({
-            title: `Transfer Shipment ${mutationResult.data?.createShipment?.id}`,
-            type: "success",
-            message: "Successfully created a new shipment",
-          });
+    // Choose the agreement id based on the partner organization's base id
+    const selectedAgreement = partnerOrgsAgreementData?.find((org) =>
+      org.orgBases.some(
+        (base) => base.id === createTransferShipmentData?.partnerOrganisationSelectedBase.value,
+      ),
+    );
 
-          navigate(`/bases/${baseId}/transfers/shipments`);
-        }
-      })
-      .catch((err) => {
-        triggerError({
-          message: "Your changes could not be saved!",
-          statusCode: err.code,
-        });
+    if (selectedAgreement?.agreementId === undefined) {
+      triggerError({
+        message: "Error while trying to create a new shipment",
       });
+    } else {
+      createTransferShipmentMutation({
+        variables: {
+          transferAgreementId: parseInt(selectedAgreement?.agreementId, 10),
+          sourceBaseId: parseInt(baseId, 10),
+          targetBaseId: parseInt(createTransferShipmentData.partnerOrganisation.value, 10),
+        },
+      })
+        .then((mutationResult) => {
+          if (mutationResult.errors) {
+            triggerError({
+              message: "Error while trying to create a new shipment",
+            });
+          } else {
+            createToast({
+              title: `Transfer Shipment ${mutationResult.data?.createShipment?.id}`,
+              type: "success",
+              message: "Successfully created a new shipment",
+            });
+
+            navigate(`/bases/${baseId}/transfers/shipments`);
+          }
+        })
+        .catch((err) => {
+          triggerError({
+            message: "Your changes could not be saved!",
+            statusCode: err.code,
+          });
+        });
+    }
   };
 
   // Handle Loading State

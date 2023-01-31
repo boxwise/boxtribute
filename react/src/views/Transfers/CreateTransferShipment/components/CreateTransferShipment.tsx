@@ -67,7 +67,7 @@ export const TransferShipmentFormDataSchema = z.object({
   partnerOrganisation: singleSelectOptionSchema
     .refine(Boolean, { message: "Please select a partner organisation" })
     .transform((selectedOption) => selectedOption || { label: "", value: "" }),
-  partnerOrganisationSelectedBases: singleSelectOptionSchema
+  partnerOrganisationSelectedBase: singleSelectOptionSchema
     .refine(Boolean, { message: "Please select a partner base" })
     .transform((selectedOption) => selectedOption || { label: "", value: "" }),
 });
@@ -129,10 +129,10 @@ function CreateTransferShipment({
           })) || [],
       );
 
-      resetField("partnerOrganisationSelectedBases");
+      resetField("partnerOrganisationSelectedBase");
       // Put a default value for partnerOrganisationSelectedBases when there's only one option
       if (partnerBasesDataForSelectedOrganisation?.orgBases.length === 1) {
-        setValue("partnerOrganisationSelectedBases", {
+        setValue("partnerOrganisationSelectedBase", {
           label: partnerBasesDataForSelectedOrganisation?.orgBases[0].name,
           value: partnerBasesDataForSelectedOrganisation?.orgBases[0].id,
         });
@@ -190,7 +190,7 @@ function CreateTransferShipment({
           </ListItem>
           <ListItem>
             <SelectField
-              fieldId="partnerOrganisationSelectedBases"
+              fieldId="partnerOrganisationSelectedBase"
               fieldLabel="Base"
               placeholder="Please select a base"
               errors={errors}
