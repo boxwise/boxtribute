@@ -16,8 +16,13 @@ import {
   ApolloProvider,
   DefaultOptions,
 } from "@apollo/client";
-import { GlobalPreferencesProvider } from "providers/GlobalPreferencesProvider";
+import {
+  GlobalPreferencesContext,
+  IGlobalPreferencesContext,
+} from "providers/GlobalPreferencesProvider";
+import { organisation1 } from "mocks/organisations";
 
+// Options for Apollo MockProvider
 const defaultOptions: DefaultOptions = {
   query: {
     errorPolicy: "all",
@@ -47,6 +52,7 @@ function render(
     initialUrl,
     additionalRoute = undefined,
     addTypename = false,
+    globalPreferences,
     ...renderOptions
   }: {
     mocks?: Array<MockedResponse>;
@@ -54,6 +60,7 @@ function render(
     initialUrl: string;
     additionalRoute?: string;
     addTypename?: boolean;
+    globalPreferences?: IGlobalPreferencesContext;
   },
 ) {
   // Log if there is an error in the mock
@@ -72,15 +79,23 @@ function render(
   });
   const link = ApolloLink.from([errorLoggingLink, mockLink]);
 
+  const globalPreferencesMock: IGlobalPreferencesContext = {
+    dispatch: jest.fn(),
+    globalPreferences: {
+      selectedOrganisationId: organisation1.id,
+      availableBases: organisation1.bases,
+    },
+  };
+
   const Wrapper: React.FC = ({ children }: any) => (
     <ChakraProvider theme={theme}>
-      <MockedProvider
-        mocks={mocks}
-        addTypename={addTypename}
-        link={link}
-        defaultOptions={defaultOptions}
-      >
-        <GlobalPreferencesProvider>
+      <GlobalPreferencesContext.Provider value={globalPreferences ?? globalPreferencesMock}>
+        <MockedProvider
+          mocks={mocks}
+          addTypename={addTypename}
+          link={link}
+          defaultOptions={defaultOptions}
+        >
           <MemoryRouter initialEntries={[initialUrl]}>
             <Routes>
               {additionalRoute !== undefined && (
@@ -89,8 +104,8 @@ function render(
               <Route path={routePath} element={children} />
             </Routes>
           </MemoryRouter>
-        </GlobalPreferencesProvider>
-      </MockedProvider>
+        </MockedProvider>
+      </GlobalPreferencesContext.Provider>
     </ChakraProvider>
   );
   return rtlRender(ui, {

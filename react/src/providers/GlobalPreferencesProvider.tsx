@@ -1,16 +1,16 @@
 import React, { Context, createContext, useReducer } from "react";
 
-interface BaseIdAndNameTuple {
+export interface BaseIdAndNameTuple {
   id: string;
   name: string;
 }
 
-interface GlobalPreferences {
+export interface GlobalPreferences {
   availableBases?: BaseIdAndNameTuple[];
   selectedOrganisationId?: string;
 }
 
-interface IGlobalPreferencesContext {
+export interface IGlobalPreferencesContext {
   globalPreferences: GlobalPreferences;
   dispatch: React.Dispatch<SetGlobalPreferencesAction>;
 }
@@ -19,27 +19,30 @@ const GlobalPreferencesContext: Context<IGlobalPreferencesContext> = createConte
   {} as IGlobalPreferencesContext,
 );
 
-interface SetAvailableBasesAction {
+export interface SetAvailableBasesAction {
   type: "setAvailableBases";
   payload: BaseIdAndNameTuple[];
 }
 
-interface SetSelectedBaseIdAction {
+export interface SetSelectedBaseIdAction {
   type: "setSelectedBaseId";
   payload: string;
 }
 
-interface SetOrganisationId {
+export interface SetOrganisationId {
   type: "setOrganisationId";
   payload: string;
 }
 
-type SetGlobalPreferencesAction =
+export type SetGlobalPreferencesAction =
   | SetAvailableBasesAction
   | SetSelectedBaseIdAction
   | SetOrganisationId;
 
-const globalPreferencesReduer = (state: GlobalPreferences, action: SetGlobalPreferencesAction) => {
+export const globalPreferencesReduer = (
+  state: GlobalPreferences,
+  action: SetGlobalPreferencesAction,
+) => {
   switch (action.type) {
     case "setAvailableBases":
       return { ...state, availableBases: action.payload };

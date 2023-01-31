@@ -24,6 +24,7 @@ src/views/BaseDashboard
 src/views/Boxes
 src/views/Distributions
 !src/views/Box
+!src/views/Transfers
 src/views/Box/BoxView.test.tsx
 public
 craco.config.js
