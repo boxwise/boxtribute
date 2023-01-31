@@ -35,22 +35,6 @@ const queryNoBoxAssociatedWithQrCode = {
   },
 };
 
-const queryBoxAssociatedWithQrCode = {
-  request: {
-    query: GET_BOX_LABEL_IDENTIFIER_BY_QR_CODE,
-    variables: {
-      qrCode: "BoxAssociatedWithQrCode",
-    },
-  },
-  result: {
-    data: {
-      qrCode: {
-        box: generateMockBox({}),
-      },
-    },
-  },
-};
-
 beforeEach(() => {
   // setting the screensize to
   mockMatchMediaQuery(true);
@@ -79,6 +63,22 @@ it("3.4.2.1 - Mobile: User scans QR code of same org without previously associat
   ).toBeInTheDocument();
 });
 
+const queryBoxAssociatedWithQrCode = {
+  request: {
+    query: GET_BOX_LABEL_IDENTIFIER_BY_QR_CODE,
+    variables: {
+      qrCode: "BoxAssociatedWithQrCode",
+    },
+  },
+  result: {
+    data: {
+      qrCode: {
+        box: generateMockBox({}),
+      },
+    },
+  },
+};
+
 it("3.4.2.2 - Mobile: user scans QR code of same org with associated box", async () => {
   const user = userEvent.setup();
   // mock scanning a QR code
@@ -99,4 +99,45 @@ it("3.4.2.2 - Mobile: user scans QR code of same org with associated box", async
   expect(
     await screen.findByRole("heading", { name: "/bases/1/boxes/123" }),
   ).toBeInTheDocument();
+});
+
+
+const queryBoxFromOtherOrganisation = {
+  request: {
+    query: GET_BOX_LABEL_IDENTIFIER_BY_QR_CODE,
+    variables: {
+      qrCode: "BoxFromOtherOrganisation",
+    },
+  },
+  result: {
+    data: {
+      qrCode: {
+        box: null,
+      },
+    },
+    errors: [new GraphQLError("Error!", {extensions: {code:"FORBIDDEN"} })],
+  },
+};
+
+it("3.4.2.3 - Mobile: user scans QR code of different org with associated box", async () => {
+  const user = userEvent.setup();
+  // mock scanning a QR code
+  mockImplementationOfQrReader(mockedQrReader, "BoxFromOtherOrganisation");
+  render(<HeaderMenuContainer />, {
+    routePath: "/bases/:baseId",
+    initialUrl: "/bases/1",
+    mocks: [queryBoxFromOtherOrganisation],
+  });
+
+  // Open QROverlay
+  const qrButton = await screen.findByRole("button", { name: /scan qr code/i });
+  await user.click(qrButton);
+
+  // Click a button to trigger the event of scanning a QR-Code in mockImplementationOfQrReader
+  await user.click(screen.getByTestId("ReturnScannedQr"));
+
+  // error message appears
+  expect(await screen.findByText("You don't have access to the box assigned to this QR code")).toBeInTheDocument();
+  // QrOverlay stays open
+  expect(screen.getByTestId("ReturnScannedQr")).toBeInTheDocument();
 });
