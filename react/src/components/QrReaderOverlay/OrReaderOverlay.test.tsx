@@ -143,7 +143,9 @@ it("3.4.1.4 - Mobile: Enter valid box identifier but not from the user bases (un
   await user.click(findBoxButton);
 
   // error message appears
-  expect(await screen.findByText(/You don't have access to this box/i)).toBeInTheDocument();
+  expect(
+    await screen.findByText(/You don't have permission to access this box/i),
+  ).toBeInTheDocument();
   // QrOverlay stays open
   expect(screen.getByRole("button", { name: /find/i })).toBeInTheDocument();
 });
@@ -164,7 +166,7 @@ const queryNoBoxAssociatedWithQrCode = {
   },
 };
 
-it.skip("3.4.2.1 - Mobile: User scans QR code of same org without previously associated box", async () => {
+it("3.4.2.1 - Mobile: User scans QR code of same org without previously associated box", async () => {
   const user = userEvent.setup();
   // mock scanning a QR code
   mockImplementationOfQrReader(mockedQrReader, "NoBoxAssociatedWithQrCode");
@@ -202,7 +204,7 @@ const queryBoxAssociatedWithQrCode = {
   },
 };
 
-it.skip("3.4.2.2 - Mobile: user scans QR code of same org with associated box", async () => {
+it("3.4.2.2 - Mobile: user scans QR code of same org with associated box", async () => {
   const user = userEvent.setup();
   // mock scanning a QR code
   mockImplementationOfQrReader(mockedQrReader, "BoxAssociatedWithQrCode");
@@ -239,7 +241,7 @@ const queryBoxFromOtherOrganisation = {
   },
 };
 
-it.skip("3.4.2.3 - Mobile: user scans QR code of different org with associated box", async () => {
+it("3.4.2.3 - Mobile: user scans QR code of different org with associated box", async () => {
   const user = userEvent.setup();
   // mock scanning a QR code
   mockImplementationOfQrReader(mockedQrReader, "BoxFromOtherOrganisation");
@@ -257,12 +259,14 @@ it.skip("3.4.2.3 - Mobile: user scans QR code of different org with associated b
   await user.click(screen.getByTestId("ReturnScannedQr"));
 
   // error message appears
-  expect(await screen.findByText(/You don't have access to this box/i)).toBeInTheDocument();
+  expect(
+    (await screen.findAllByText("You don't have permission to access this box")).length,
+  ).toBeGreaterThanOrEqual(1);
   // QrOverlay stays open
   expect(screen.getByTestId("ReturnScannedQr")).toBeInTheDocument();
 });
 
-it.skip("3.4.2.5a - Mobile: User scans non Boxtribute QR code", async () => {
+it("3.4.2.5a - Mobile: User scans non Boxtribute QR code", async () => {
   const user = userEvent.setup();
   // mock scanning a QR code
   mockImplementationOfQrReader(mockedQrReader, "NonBoxtributeQr", false);
@@ -302,7 +306,7 @@ const queryHashNotInDb = {
   },
 };
 
-it.skip("3.4.2.5b - Mobile: User scans non Boxtribute QR code", async () => {
+it("3.4.2.5b - Mobile: User scans non Boxtribute QR code", async () => {
   const user = userEvent.setup();
   // mock scanning a QR code
   mockImplementationOfQrReader(mockedQrReader, "HashNotInDb");
