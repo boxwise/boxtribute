@@ -16,9 +16,8 @@ class Box(db.Model):
     label_identifier = CharField(
         column_name="box_id",
         constraints=[SQL("DEFAULT ''")],
-        index=True,
-        unique=True,
         max_length=11,
+        # unique index created below
     )
     # On application level, the BoxState IntEnum is used. Its members behave like
     # integers in comparisons, and when put into int(). Since peewee does an
@@ -98,7 +97,7 @@ class Box(db.Model):
         model=QrCode,
         null=True,
         on_update="CASCADE",
-        unique=True,
+        # unique index created below
     )
     size = UIntForeignKeyField(
         column_name="size_id",
@@ -109,3 +108,10 @@ class Box(db.Model):
 
     class Meta:
         table_name = "stock"
+
+
+# Create indices separately to specify index names (by default, peewee creates index
+# names 'box_box_id' and 'box_qr_id' which do not match the original definitions from
+# the MySQL table)
+Box.add_index(SQL("CREATE UNIQUE INDEX box_id_unique ON stock (box_id)"))
+Box.add_index(SQL("CREATE UNIQUE INDEX qr_id_unique ON stock (qr_id)"))

@@ -82,10 +82,10 @@ def create_box(
             # peewee throws the same exception for different constraint violations.
             # E.g. failing "NOT NULL" constraint shall be directly reported
             prefix = "Duplicate entry"
-            if f"{prefix} '{qr_id}' for key 'stock.qr_id'" in str(e):
+            if f"{prefix} '{qr_id}' for key 'stock.qr_id_unique'" in str(e):
                 raise QrCodeAlreadyAssignedToBox()
             if (
-                f"{prefix} '{new_box.label_identifier}' for key 'stock.box_box_id'"
+                f"{prefix} '{new_box.label_identifier}' for key 'stock.box_id_unique'"
                 not in str(e)
             ):
                 raise
