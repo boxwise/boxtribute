@@ -15,10 +15,9 @@ import {
 } from "queries/queries";
 import { extractQrCodeFromUrl } from "utils/helpers";
 import QrReaderOverlay, {
-  IQrValueWrapper,
-  IQrResolvedValue,
-  QrResolverResultKind,
+  IQrValueWrapper
 } from "./QrReaderOverlay";
+import { IQrResolvedValue, QrResolverResultKind } from "hooks/QrResolver";
 
 interface IQrReaderOverlayContainerProps {
   isOpen: boolean;

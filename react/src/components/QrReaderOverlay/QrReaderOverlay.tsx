@@ -25,6 +25,7 @@ import { OnResultFunction, QrReader } from "components/QrReader/QrReader";
 import { useCallback, useMemo, useState, FC } from "react";
 
 import { Result } from "@zxing/library";
+import { IQrResolvedValue, QrResolverResultKind } from "hooks/QrResolver";
 
 export function ViewFinder() {
   return (
@@ -55,22 +56,6 @@ export function ViewFinder() {
   );
 }
 
-// eslint-disable-next-line no-shadow
-export enum QrResolverResultKind {
-  SUCCESS = "success",
-  FAIL = "fail",
-  NOT_ASSIGNED_TO_BOX = "notAssignedToBox",
-  LABEL_NOT_FOUND = "labelNotFound",
-  NOT_AUTHORIZED = "notAuthorized",
-  NOT_BOXTRIBUTE_QR = "noBoxtributeQr",
-}
-
-export interface IQrResolvedValue {
-  kind: QrResolverResultKind;
-  qrCodeValue?: string;
-  value?: any;
-  error?: any;
-}
 export interface IQrValueWrapper {
   key: string;
   isLoading: boolean;
