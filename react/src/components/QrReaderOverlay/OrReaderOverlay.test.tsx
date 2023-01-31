@@ -160,7 +160,7 @@ it("3.4.2.5a - Mobile: User scans non Boxtribute QR code", async () => {
   await user.click(screen.getByTestId("ReturnScannedQr"));
 
   // error message appears
-  expect(await screen.findByText("Scanned QR code is not a Boxtribute QR code")).toBeInTheDocument();
+  expect(await screen.findByText("This is not a Boxtribute QR-Code")).toBeInTheDocument();
   // QrOverlay stays open
   expect(screen.getByTestId("ReturnScannedQr")).toBeInTheDocument();
 });
@@ -189,7 +189,7 @@ it("3.4.2.5b - Mobile: User scans non Boxtribute QR code", async () => {
   render(<HeaderMenuContainer />, {
     routePath: "/bases/:baseId",
     initialUrl: "/bases/1",
-    mocks: [queryBoxFromOtherOrganisation],
+    mocks: [queryHashNotInDb],
   });
 
   // Open QROverlay
@@ -200,7 +200,7 @@ it("3.4.2.5b - Mobile: User scans non Boxtribute QR code", async () => {
   await user.click(screen.getByTestId("ReturnScannedQr"));
 
   // error message appears
-  expect((await screen.findAllByText("Scanned QR code is not a Boxtribute QR code")).length).toBeGreaterThanOrEqual(
+  expect((await screen.findAllByText("This is not a Boxtribute QR-Code")).length).toBeGreaterThanOrEqual(
     1,
   );
   // QrOverlay stays open

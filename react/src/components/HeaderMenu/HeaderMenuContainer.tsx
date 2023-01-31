@@ -109,10 +109,9 @@ const HeaderMenuContainer = () => {
             break;
           }
           case QrResolverResultKind.NOT_BOXTRIBUTE_QR: {
-            createToast({
-              title: "Error",
-              type: "error",
-              message: "Error: Scanned QR code is not a Boxtribute QR code",
+            triggerError({
+              message: "This is not a Boxtribute QR-Code",
+              userMessage: "This is not a Boxtribute QR-Code",
             });
             break;
           }
