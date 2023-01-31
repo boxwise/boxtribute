@@ -291,10 +291,10 @@ function QrReaderOverlayContainer({
             }
           } else {
             const boxData = data?.box;
-            onScanningDone([boxDataToSuccessQrValue(boxData)]);
             if (boxData !== null) {
               handleClose();
             }
+            onScanningDone([boxDataToSuccessQrValue(boxData)]);
           }
         })
         .catch((err) => {
