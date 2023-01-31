@@ -69,7 +69,7 @@ it("3.4.1.2 - Mobile: Enter invalid box identifier and click on Find button", as
   expect(screen.getByRole("button", { name: /find/i })).toBeInTheDocument();
 });
 
-const queryFindBoxAssociatedWithQrCode = {
+const queryFindBox = {
   request: {
     query: BOX_DETAILS_BY_LABEL_IDENTIFIER_QUERY,
     variables: {
@@ -90,7 +90,7 @@ it("3.4.1.3 - Mobile: Enter valid box identifier and click on Find button", asyn
   render(<HeaderMenuContainer />, {
     routePath: "/bases/:baseId",
     initialUrl: "/bases/1",
-    mocks: [queryFindBoxAssociatedWithQrCode],
+    mocks: [queryFindBox],
     additionalRoute: "/bases/1/boxes/123456",
   });
 
@@ -105,6 +105,47 @@ it("3.4.1.3 - Mobile: Enter valid box identifier and click on Find button", asyn
 
   // Click a button to trigger the event of scanning a QR-Code in mockImplementationOfQrReader
   expect(await screen.findByRole("heading", { name: "/bases/1/boxes/123456" })).toBeInTheDocument();
+});
+
+const queryFindBoxFromOtherOrg = {
+  request: {
+    query: BOX_DETAILS_BY_LABEL_IDENTIFIER_QUERY,
+    variables: {
+      labelIdentifier: "123456",
+    },
+  },
+  result: {
+    data: {
+      box: null,
+    },
+    errors: [new GraphQLError("Error!", { extensions: { code: "FORBIDDEN" } })],
+  },
+};
+
+it("3.4.1.4 - Mobile: Enter valid box identifier but not from the user bases (unauthorized) and click on Find button", async () => {
+  const user = userEvent.setup();
+  mockImplementationOfQrReader(mockedQrReader, "NoBoxAssociatedWithQrCode");
+  // mock scanning a QR code
+  render(<HeaderMenuContainer />, {
+    routePath: "/bases/:baseId",
+    initialUrl: "/bases/1",
+    mocks: [queryFindBoxFromOtherOrg],
+    additionalRoute: "/bases/1/boxes/123456",
+  });
+
+  // Open QROverlay
+  const qrButton = await screen.findByRole("button", { name: /scan qr code/i });
+  await user.click(qrButton);
+
+  // Find Box
+  const findBoxButton = await screen.findByRole("button", { name: /find/i });
+  await user.type(screen.getByRole("textbox"), "123456");
+  await user.click(findBoxButton);
+
+  // error message appears
+  expect(await screen.findByText(/You don't have access to this box/i)).toBeInTheDocument();
+  // QrOverlay stays open
+  expect(screen.getByRole("button", { name: /find/i })).toBeInTheDocument();
 });
 
 const queryNoBoxAssociatedWithQrCode = {
