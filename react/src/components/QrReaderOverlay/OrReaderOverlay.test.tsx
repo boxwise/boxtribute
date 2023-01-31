@@ -141,3 +141,68 @@ it("3.4.2.3 - Mobile: user scans QR code of different org with associated box", 
   // QrOverlay stays open
   expect(screen.getByTestId("ReturnScannedQr")).toBeInTheDocument();
 });
+
+it("3.4.2.5a - Mobile: User scans non Boxtribute QR code", async () => {
+  const user = userEvent.setup();
+  // mock scanning a QR code
+  mockImplementationOfQrReader(mockedQrReader, "NonBoxtributeQr", false);
+  render(<HeaderMenuContainer />, {
+    routePath: "/bases/:baseId",
+    initialUrl: "/bases/1",
+    mocks: [queryBoxFromOtherOrganisation],
+  });
+
+  // Open QROverlay
+  const qrButton = await screen.findByRole("button", { name: /scan qr code/i });
+  await user.click(qrButton);
+
+  // Click a button to trigger the event of scanning a QR-Code in mockImplementationOfQrReader
+  await user.click(screen.getByTestId("ReturnScannedQr"));
+
+  // error message appears
+  expect(await screen.findByText("Scanned QR code is not a Boxtribute QR code")).toBeInTheDocument();
+  // QrOverlay stays open
+  expect(screen.getByTestId("ReturnScannedQr")).toBeInTheDocument();
+});
+
+const queryHashNotInDb = {
+  request: {
+    query: GET_BOX_LABEL_IDENTIFIER_BY_QR_CODE,
+    variables: {
+      qrCode: "HashNotInDb",
+    },
+  },
+  result: {
+    data: {
+      qrCode: {
+        box: null,
+      },
+    },
+    errors: [new GraphQLError("Error!", {extensions: {code:"BAD_USER_INPUT"} })],
+  },
+};
+
+it("3.4.2.5b - Mobile: User scans non Boxtribute QR code", async () => {
+  const user = userEvent.setup();
+  // mock scanning a QR code
+  mockImplementationOfQrReader(mockedQrReader, "HashNotInDb");
+  render(<HeaderMenuContainer />, {
+    routePath: "/bases/:baseId",
+    initialUrl: "/bases/1",
+    mocks: [queryBoxFromOtherOrganisation],
+  });
+
+  // Open QROverlay
+  const qrButton = await screen.findByRole("button", { name: /scan qr code/i });
+  await user.click(qrButton);
+
+  // Click a button to trigger the event of scanning a QR-Code in mockImplementationOfQrReader
+  await user.click(screen.getByTestId("ReturnScannedQr"));
+
+  // error message appears
+  expect((await screen.findAllByText("Scanned QR code is not a Boxtribute QR code")).length).toBeGreaterThanOrEqual(
+    1,
+  );
+  // QrOverlay stays open
+  expect(screen.getByTestId("ReturnScannedQr")).toBeInTheDocument();
+});
