@@ -172,7 +172,11 @@ function CreateTransferShipmentView() {
     return <APILoadingIndicator />;
   }
 
-  if (partnerOrgsAgreementData === undefined) {
+  if (
+    partnerOrgsAgreementData?.length === 0 ||
+    partnerOrgsAgreementData === undefined ||
+    allTransferAgreements === undefined
+  ) {
     return (
       <Alert status="error">
         <AlertIcon />

@@ -7,14 +7,8 @@ export const transferAgreement1 = {
     id: "1",
     name: "some admin",
   },
-  shipments: [
-    {
-      __typename: "Shipment",
-      id: "1",
-      state: "Preparing",
-    },
-  ],
-  sourceBases: [
+  shipments: [],
+  targetBases: [
     {
       __typename: "Base",
       id: "2",
@@ -31,20 +25,20 @@ export const transferAgreement1 = {
       name: "Athens",
     },
   ],
-  sourceOrganisation: {
+  targetOrganisation: {
     __typename: "Organisation",
     id: "2",
     name: "BoxCare",
   },
   state: "Accepted",
-  targetBases: [
+  sourceBases: [
     {
       __typename: "Base",
       id: "1",
       name: "Lesvos",
     },
   ],
-  targetOrganisation: {
+  sourceOrganisation: {
     __typename: "Organisation",
     id: "1",
     name: "BoxAid",

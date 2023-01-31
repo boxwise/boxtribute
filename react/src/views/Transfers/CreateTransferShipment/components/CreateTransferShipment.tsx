@@ -97,7 +97,7 @@ function CreateTransferShipment({
     }));
 
   const onSubmit: SubmitHandler<ITransferShipmentFormData> = (data) => {
-    // eslint-disable-next-line no-console
+    // eslint-disable-next-line
     onSubmitCreateTransferShipmentForm(data);
   };
 
@@ -117,13 +117,13 @@ function CreateTransferShipment({
 
   useEffect(() => {
     if (partnerOrganisation != null) {
-      const partnerBasesDataForCurrentOrganisation = partnerOrganisationsAgreementsData.find(
+      const partnerBasesDataForSelectedOrganisation = partnerOrganisationsAgreementsData.find(
         (organisation) => organisation.orgId === partnerOrganisation.value,
       );
 
       setBasesOptionsForPartnerOrg(
         () =>
-          partnerBasesDataForCurrentOrganisation?.orgBases?.map((base) => ({
+          partnerBasesDataForSelectedOrganisation?.orgBases?.map((base) => ({
             label: base.name,
             value: base.id,
           })) || [],
@@ -131,10 +131,10 @@ function CreateTransferShipment({
 
       resetField("partnerOrganisationSelectedBases");
       // Put a default value for partnerOrganisationSelectedBases when there's only one option
-      if (partnerBasesDataForCurrentOrganisation?.orgBases.length === 1) {
+      if (partnerBasesDataForSelectedOrganisation?.orgBases.length === 1) {
         setValue("partnerOrganisationSelectedBases", {
-          label: partnerBasesDataForCurrentOrganisation?.orgBases[0].name,
-          value: partnerBasesDataForCurrentOrganisation?.orgBases[0].id,
+          label: partnerBasesDataForSelectedOrganisation?.orgBases[0].name,
+          value: partnerBasesDataForSelectedOrganisation?.orgBases[0].id,
         });
       }
     }
