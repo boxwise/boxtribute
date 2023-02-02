@@ -150,7 +150,7 @@ def test_transfer_agreement_mutations(
         comment: "{comment}",
         timezone: "Europe/London",
         sourceBaseIds: [1],
-        targetBaseIds: [3]"""
+        targetBaseIds: [3, 4]"""
     agreement = assert_successful_request(client, _create_mutation(creation_input))
     second_agreement_id = agreement.pop("id")
     assert agreement.pop("validFrom").startswith(valid_from)
@@ -163,7 +163,7 @@ def test_transfer_agreement_mutations(
         "requestedBy": {"id": "8"},
         "comment": comment,
         "sourceBases": [{"id": "1"}],
-        "targetBases": [{"id": "3"}],
+        "targetBases": [{"id": "3"}, {"id": "4"}],
         "shipments": [],
     }
 
