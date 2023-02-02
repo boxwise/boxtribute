@@ -44,7 +44,6 @@ def resolve_accept_transfer_agreement(*_, id):
     )
     bases = retrieve_transfer_agreement_bases(transfer_agreement=agreement, kind=kind)
     authorize(permission="transfer_agreement:edit", base_ids=[b.id for b in bases])
-    authorize(organisation_id=agreement.target_organisation_id)
     return accept_transfer_agreement(id=id, user=g.user)
 
 
@@ -59,7 +58,6 @@ def resolve_reject_transfer_agreement(*_, id):
     )
     bases = retrieve_transfer_agreement_bases(transfer_agreement=agreement, kind=kind)
     authorize(permission="transfer_agreement:edit", base_ids=[b.id for b in bases])
-    authorize(organisation_id=agreement.target_organisation_id)
     return reject_transfer_agreement(id=id, user=g.user)
 
 

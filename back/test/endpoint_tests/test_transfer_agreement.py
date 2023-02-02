@@ -171,7 +171,7 @@ def test_transfer_agreement_mutations(
         sourceOrganisationId: {default_organisation['id']}
         type: {TransferAgreementType.ReceivingFrom.name}"""
     agreement = assert_successful_request(client, _create_mutation(creation_input))
-    agreement.pop("id")
+    third_agreement_id = agreement.pop("id")
     assert agreement.pop("validFrom").startswith(date.today().isoformat())
     assert agreement == {
         "sourceOrganisation": {"id": str(another_organisation["id"])},
@@ -191,6 +191,19 @@ def test_transfer_agreement_mutations(
     )
     # Test case 2.2.3
     mutation = f"""mutation {{ acceptTransferAgreement(id: {first_agreement_id}) {{
+                    state
+                    acceptedBy {{ id }}
+                    acceptedOn
+                }}
+            }}"""
+    agreement = assert_successful_request(client, mutation)
+    assert agreement.pop("acceptedOn").startswith(date.today().isoformat())
+    assert agreement == {
+        "state": TransferAgreementState.Accepted.name,
+        "acceptedBy": {"id": "2"},
+    }
+
+    mutation = f"""mutation {{ acceptTransferAgreement(id: {third_agreement_id}) {{
                     state
                     acceptedBy {{ id }}
                     acceptedOn
