@@ -4,7 +4,7 @@ from datetime import timezone as dtimezone
 from dateutil import tz
 
 from ....db import db
-from ....enums import TransferAgreementState
+from ....enums import TransferAgreementState, TransferAgreementType
 from ....exceptions import (
     InvalidTransferAgreementBase,
     InvalidTransferAgreementOrganisation,
@@ -57,6 +57,15 @@ def create_transfer_agreement(
     Raise an InvalidTransferAgreementBase expection if any specified source/target base
     is not part of the source/target organisation.
     """
+    if type == TransferAgreementType.ReceivingFrom:
+        # Swap inputs such that transfer target is the initiating organisation, and
+        # source is their partner organisation
+        source_organisation_id, target_organisation_id = (
+            target_organisation_id,
+            source_organisation_id,
+        )
+        source_base_ids, target_base_ids = target_base_ids, source_base_ids
+
     if source_organisation_id == target_organisation_id:
         raise InvalidTransferAgreementOrganisation()
 

@@ -144,7 +144,7 @@ def test_transfer_agreement_mutations(
     comment = "this is a comment"
     creation_input = f"""targetOrganisationId: {another_organisation['id']},
         sourceOrganisationId: {default_organisation['id']}
-        type: {TransferAgreementType.Bidirectional.name},
+        type: {TransferAgreementType.SendingTo.name},
         validFrom: "{valid_from}",
         validUntil: "{valid_until}",
         comment: "{comment}",
@@ -159,11 +159,30 @@ def test_transfer_agreement_mutations(
         "sourceOrganisation": {"id": str(default_organisation["id"])},
         "targetOrganisation": {"id": str(another_organisation["id"])},
         "state": TransferAgreementState.UnderReview.name,
-        "type": TransferAgreementType.Bidirectional.name,
+        "type": TransferAgreementType.SendingTo.name,
         "requestedBy": {"id": "8"},
         "comment": comment,
         "sourceBases": [{"id": "1"}],
         "targetBases": [{"id": "3"}],
+        "shipments": [],
+    }
+
+    creation_input = f"""targetOrganisationId: {another_organisation['id']},
+        sourceOrganisationId: {default_organisation['id']}
+        type: {TransferAgreementType.ReceivingFrom.name}"""
+    agreement = assert_successful_request(client, _create_mutation(creation_input))
+    agreement.pop("id")
+    assert agreement.pop("validFrom").startswith(date.today().isoformat())
+    assert agreement == {
+        "sourceOrganisation": {"id": str(another_organisation["id"])},
+        "targetOrganisation": {"id": str(default_organisation["id"])},
+        "state": TransferAgreementState.UnderReview.name,
+        "type": TransferAgreementType.ReceivingFrom.name,
+        "requestedBy": {"id": "8"},
+        "validUntil": None,
+        "comment": None,
+        "sourceBases": [{"id": "3"}, {"id": "4"}],
+        "targetBases": [{"id": "1"}, {"id": "2"}],
         "shipments": [],
     }
 

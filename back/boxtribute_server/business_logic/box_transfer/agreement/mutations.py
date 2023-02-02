@@ -3,7 +3,6 @@ from flask import g
 
 from ....authz import authorize
 from ....enums import TransferAgreementType
-from ....models.definitions.base import Base
 from ....models.definitions.transfer_agreement import TransferAgreement
 from .crud import (
     accept_transfer_agreement,
@@ -19,16 +18,18 @@ mutation = MutationType()
 @mutation.field("createTransferAgreement")
 @convert_kwargs_to_snake_case
 def resolve_create_transfer_agreement(*_, creation_input):
-    # Enforce that the user can access at least one of the specified source bases
-    # (default: all bases of the user's organisation)
-    base_ids = creation_input.get(
-        "source_base_ids",
-        [
-            b.id
-            for b in Base.select().where(Base.organisation == g.user.organisation_id)
-        ],
-    )
+    # "Source" input arguments refer to the organisation/bases of the party that
+    # initiates the agreement.
+    try:
+        # Enforce that the user can access at least one of the bases of the initiating
+        # party (default: all bases of the user's organisation)
+        base_ids = creation_input.get(
+            "source_base_ids", g.user.authorized_base_ids("transfer_agreement:create")
+        )
+    except KeyError:
+        base_ids = []
     authorize(permission="transfer_agreement:create", base_ids=base_ids)
+
     return create_transfer_agreement(**creation_input, user=g.user)
 
 
