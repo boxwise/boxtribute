@@ -7,6 +7,7 @@ from ....db import db
 from ....enums import TransferAgreementState, TransferAgreementType
 from ....exceptions import (
     InvalidTransferAgreementBase,
+    InvalidTransferAgreementDates,
     InvalidTransferAgreementOrganisation,
     InvalidTransferAgreementState,
 )
@@ -81,6 +82,9 @@ def create_transfer_agreement(
                 valid_until = datetime.combine(
                     valid_until, time(23, 59, 59), tzinfo=tzinfo
                 ).astimezone(dtimezone.utc)
+
+                if valid_from.date() >= valid_until.date():
+                    raise InvalidTransferAgreementDates()
 
         transfer_agreement = TransferAgreement.create(
             source_organisation=source_organisation_id,

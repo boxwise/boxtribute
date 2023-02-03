@@ -328,3 +328,16 @@ def test_transfer_agreement_mutations_create_non_existent_target_org(read_only_c
                     type: Bidirectional
                 }} ) {{ id }} }}"""
     assert_bad_user_input(read_only_client, mutation)
+
+
+@pytest.mark.parametrize("valid_until", ["2022-01-31"])
+def test_transfer_agreement_mutations_invalid_dates(read_only_client, valid_until):
+    # Test case 2.2.21
+    mutation = f"""mutation {{ createTransferAgreement( creationInput: {{
+                    sourceOrganisationId: 1
+                    targetOrganisationId: 2,
+                    validFrom: "2022-02-01",
+                    validUntil: "{valid_until}",
+                    type: Bidirectional
+                }} ) {{ id }} }}"""
+    assert_bad_user_input(read_only_client, mutation)
