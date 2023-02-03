@@ -10,8 +10,7 @@ from flask_cors import cross_origin
 from .auth import request_jwt, requires_auth
 from .authz import check_beta_feature_access
 from .exceptions import AuthenticationFailed, format_database_errors
-from .graph_ql.schema import full_api_schema, query_api_schema
-from .loaders import (
+from .graph_ql.loaders import (
     ProductCategoryLoader,
     ProductLoader,
     SizeLoader,
@@ -19,6 +18,7 @@ from .loaders import (
     SizesForSizeRangeLoader,
     TagsForBoxLoader,
 )
+from .graph_ql.schema import full_api_schema, query_api_schema
 from .logging import API_CONTEXT, WEBAPP_CONTEXT, log_request_to_gcloud
 from .utils import in_development_environment
 

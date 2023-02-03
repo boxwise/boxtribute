@@ -8,10 +8,10 @@ import { useDisclosure, useToast } from "@chakra-ui/react";
 import QrReaderOverlayContainer from "components/QrReaderOverlay/QrReaderOverlayContainer";
 import { IQrResolvedValue, QrResolverResultKind } from "components/QrReaderOverlay/QrReaderOverlay";
 import { GlobalPreferencesContext } from "providers/GlobalPreferencesProvider";
-import { IBoxDetailsData } from "utils/base-types";
+import { IBoxDetailsData } from "types/base-types";
 import BoxesBulkOperationsOverlay from "./BoxesBulkOperationsOverlay";
-import { useNotification } from "utils/hooks";
-import { useErrorHandling } from "utils/error-handling";
+import { useNotification } from "hooks/hooks";
+import { useErrorHandling } from "hooks/error-handling";
 
 const HeaderMenuContainer = () => {
   const auth0 = useAuth0();
