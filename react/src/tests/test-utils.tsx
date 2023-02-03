@@ -22,6 +22,16 @@ import {
 } from "providers/GlobalPreferencesProvider";
 import { organisation1 } from "mocks/organisations";
 
+// Options for Apollo MockProvider
+const defaultOptions: DefaultOptions = {
+  query: {
+    errorPolicy: "all",
+  },
+  mutate: {
+    errorPolicy: "all",
+  },
+};
+
 /**
  * Renders a React component with Apollo GraphQL client and @testing-library/react.
  * @param ui - The React element to render.
@@ -80,7 +90,12 @@ function render(
   const Wrapper: React.FC = ({ children }: any) => (
     <ChakraProvider theme={theme}>
       <GlobalPreferencesContext.Provider value={globalPreferences ?? globalPreferencesMock}>
-        <MockedProvider mocks={mocks} addTypename={addTypename} link={link}>
+        <MockedProvider
+          mocks={mocks}
+          addTypename={addTypename}
+          link={link}
+          defaultOptions={defaultOptions}
+        >
           <MemoryRouter initialEntries={[initialUrl]}>
             <Routes>
               {additionalRoute !== undefined && (
@@ -103,15 +118,6 @@ function StorybookApolloProvider({ children }: { children: ReactNode }) {
   const httpLink = new HttpLink({
     uri: "http://localhost:6006/MOCKED-graphql",
   });
-
-  const defaultOptions: DefaultOptions = {
-    query: {
-      errorPolicy: "all",
-    },
-    mutate: {
-      errorPolicy: "all",
-    },
-  };
 
   const client = new ApolloClient({
     cache: new InMemoryCache(),
