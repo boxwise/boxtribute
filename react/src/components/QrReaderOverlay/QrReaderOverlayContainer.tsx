@@ -8,11 +8,11 @@ import {
 } from "types/generated/graphql";
 import { Box, useBoolean } from "@chakra-ui/react";
 import _ from "lodash";
-import { IBoxDetailsData } from "utils/base-types";
+import { IBoxDetailsData } from "types/base-types";
 import {
   GET_BOX_LABEL_IDENTIFIER_BY_QR_CODE,
   BOX_DETAILS_BY_LABEL_IDENTIFIER_QUERY,
-} from "utils/queries";
+} from "queries/queries";
 import { extractQrCodeFromUrl } from "utils/helpers";
 import QrReaderOverlay, {
   IQrValueWrapper,
@@ -135,50 +135,6 @@ function QrReaderOverlayContainer({
     [addQrValueWrapperToMap, apolloClient],
   );
 
-  const handleSingleScan = useCallback(
-    (result: string) => {
-      const qrCode = extractQrCodeFromUrl(result);
-      if (qrCode == null) {
-        onScanningDone([{ kind: QrResolverResultKind.NOT_BOXTRIBUTE_QR }]);
-      } else {
-        apolloClient
-          .query<GetBoxLabelIdentifierForQrCodeQuery, GetBoxLabelIdentifierForQrCodeQueryVariables>(
-            {
-              query: GET_BOX_LABEL_IDENTIFIER_BY_QR_CODE,
-              fetchPolicy: "no-cache",
-              variables: { qrCode },
-            },
-          )
-          .then(({ data, errors }) => {
-            if ((errors?.length || 0) > 0) {
-              const errorCode = errors ? errors[0].extensions.code : null;
-              if (errorCode === "FORBIDDEN") {
-                onScanningDone([
-                  { kind: QrResolverResultKind.NOT_AUTHORIZED, qrCodeValue: qrCode },
-                ]);
-              } else if (errorCode === "BAD_USER_INPUT") {
-                onScanningDone([
-                  { kind: QrResolverResultKind.NOT_BOXTRIBUTE_QR, qrCodeValue: qrCode },
-                ]);
-              } else {
-                onScanningDone([{ kind: QrResolverResultKind.FAIL, qrCodeValue: qrCode }]);
-              }
-            } else if (data?.qrCode?.box == null) {
-              onScanningDone([
-                { kind: QrResolverResultKind.NOT_ASSIGNED_TO_BOX, qrCodeValue: qrCode },
-              ]);
-            } else {
-              onScanningDone([boxDataToSuccessQrValue(data?.qrCode?.box)]);
-            }
-          })
-          .catch((err) => {
-            onScanningDone([{ kind: QrResolverResultKind.FAIL, qrCodeValue: qrCode, error: err }]);
-          });
-      }
-    },
-    [apolloClient, onScanningDone],
-  );
-
   const [isBulkModeActive, setIsBulkModeActive] = useBoolean(false);
 
   const [scannedQrValueWrappersMap, setScannedQrValueWrappersMap] = useState<
@@ -251,17 +207,64 @@ function QrReaderOverlayContainer({
     [qrValueResolver],
   );
 
+  const handleSingleScan = useCallback(
+    (result: string) => {
+      const qrCode = extractQrCodeFromUrl(result);
+      if (qrCode == null) {
+        onScanningDone([{ kind: QrResolverResultKind.NOT_BOXTRIBUTE_QR }]);
+      } else {
+        apolloClient
+          .query<GetBoxLabelIdentifierForQrCodeQuery, GetBoxLabelIdentifierForQrCodeQueryVariables>(
+            {
+              query: GET_BOX_LABEL_IDENTIFIER_BY_QR_CODE,
+              fetchPolicy: "no-cache",
+              variables: { qrCode },
+            },
+          )
+          .then(({ data, errors }) => {
+            if ((errors?.length || 0) > 0) {
+              const errorCode = errors ? errors[0].extensions.code : null;
+              if (errorCode === "FORBIDDEN") {
+                onScanningDone([
+                  { kind: QrResolverResultKind.NOT_AUTHORIZED, qrCodeValue: qrCode },
+                ]);
+              } else if (errorCode === "BAD_USER_INPUT") {
+                onScanningDone([
+                  { kind: QrResolverResultKind.NOT_BOXTRIBUTE_QR, qrCodeValue: qrCode },
+                ]);
+              } else {
+                onScanningDone([{ kind: QrResolverResultKind.FAIL, qrCodeValue: qrCode }]);
+              }
+            } else if (data?.qrCode?.box == null) {
+              handleClose();
+              onScanningDone([
+                { kind: QrResolverResultKind.NOT_ASSIGNED_TO_BOX, qrCodeValue: qrCode },
+              ]);
+            } else {
+              handleClose();
+              onScanningDone([boxDataToSuccessQrValue(data?.qrCode?.box)]);
+            }
+          })
+          .catch((err) => {
+            onScanningDone([{ kind: QrResolverResultKind.FAIL, qrCodeValue: qrCode, error: err }]);
+          });
+      }
+    },
+    [apolloClient, onScanningDone, handleClose],
+  );
+
   const onScanningResult = useCallback(
     (result: string) => {
       if (isBulkModeSupported && isBulkModeActive) {
         addQrValueToBulkList(result);
       } else {
         handleSingleScan(result);
-        handleClose();
       }
     },
-    [addQrValueToBulkList, handleClose, isBulkModeActive, isBulkModeSupported, handleSingleScan],
+    [addQrValueToBulkList, isBulkModeActive, isBulkModeSupported, handleSingleScan],
   );
+
+  // Find Box by labelidentifier Definitions
 
   const [isFindByBoxLabelForNonBulkModeLoading, setIsFindByBoxLabelForNonBulkModeLoading] =
     useBoolean(false);
@@ -288,10 +291,10 @@ function QrReaderOverlayContainer({
             }
           } else {
             const boxData = data?.box;
-            onScanningDone([boxDataToSuccessQrValue(boxData)]);
             if (boxData !== null) {
               handleClose();
             }
+            onScanningDone([boxDataToSuccessQrValue(boxData)]);
           }
         })
         .catch((err) => {

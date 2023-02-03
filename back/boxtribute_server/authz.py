@@ -78,7 +78,7 @@ def _authorize(
             authzed_base_ids = current_user.authorized_base_ids(permission)
         except KeyError:
             # Permission not granted for user
-            authzed_base_ids = []
+            raise Forbidden(reason=permission)
 
         if authzed_base_ids:
             # Permission field exists and access for at least one base granted.
@@ -105,12 +105,12 @@ def _authorize(
         return authorized
     else:
         for value, resource in zip(
-            [user_id, organisation_id, base_id, permission],
-            ["user", "organisation", "base", "permission"],
+            [base_id, base_ids, organisation_id, organisation_ids, user_id],
+            ["base", "bases", "organisation", "organisations", "user"],
         ):
             if value is not None:
                 break
-        raise Forbidden(resource, value, current_user.__dict__)
+        raise Forbidden(reason=f"{resource}={value}")
 
 
 def authorized_bases_filter(
@@ -158,6 +158,8 @@ ALL_ALLOWED_MUTATIONS: Dict[int, Tuple[str, ...]] = {
     0: ("updateBox",),
     # + mutations for BoxCreate/ScanBox pages
     1: ("updateBox", "createBox", "createQrCode"),
+    # + mutations for CreateAgreement page
+    2: ("updateBox", "createBox", "createQrCode", "createTransferAgreement"),
 }
 
 

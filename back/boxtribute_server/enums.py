@@ -46,7 +46,8 @@ class TransferAgreementState(enum.IntEnum):
 
 
 class TransferAgreementType(enum.IntEnum):
-    Unidirectional = 1
+    SendingTo = 1
+    ReceivingFrom = 2
     Bidirectional = enum.auto()
 
 
