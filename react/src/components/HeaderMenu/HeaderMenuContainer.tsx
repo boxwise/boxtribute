@@ -128,7 +128,7 @@ const HeaderMenuContainer = () => {
           }
           case QrResolverResultKind.FAIL: {
             triggerError({
-              message: "Error: Box not found for this label",
+              message: "Box not found for this label",
               statusCode: singleResolvedQrValue?.error.code,
             });
             break;

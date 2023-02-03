@@ -332,3 +332,43 @@ it("3.4.2.5b - Mobile: User scans non Boxtribute QR code", async () => {
   // QrOverlay stays open
   expect(screen.getByTestId("ReturnScannedQr")).toBeInTheDocument();
 });
+
+const queryInternalServerError = {
+  request: {
+    query: GET_BOX_LABEL_IDENTIFIER_BY_QR_CODE,
+    variables: {
+      qrCode: "InternalServerError",
+    },
+  },
+  result: {
+    data: {
+      qrCode: {
+        box: null,
+      },
+    },
+    errors: [new GraphQLError("Error!", { extensions: { code: "INTERNAL_SERVER_ERROR" } })],
+  },
+};
+
+it("3.4.2.5c - Internal Server Error", async () => {
+  const user = userEvent.setup();
+  // mock scanning a QR code
+  mockImplementationOfQrReader(mockedQrReader, "InternalServerError");
+  render(<HeaderMenuContainer />, {
+    routePath: "/bases/:baseId",
+    initialUrl: "/bases/1",
+    mocks: [queryInternalServerError],
+  });
+
+  // 3.4.1.1 - Open QROverlay
+  const qrButton = await screen.findByRole("button", { name: /scan qr code/i });
+  await user.click(qrButton);
+
+  // Click a button to trigger the event of scanning a QR-Code in mockImplementationOfQrReader
+  await user.click(screen.getByTestId("ReturnScannedQr"));
+
+  // error message appears
+  expect(await screen.findByText("Box not found for this label")).toBeInTheDocument();
+  // QrOverlay stays open
+  expect(screen.getByTestId("ReturnScannedQr")).toBeInTheDocument();
+});
