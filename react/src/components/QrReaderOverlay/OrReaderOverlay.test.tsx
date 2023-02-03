@@ -64,7 +64,9 @@ it("3.4.1.2 - Mobile: Enter invalid box identifier and click on Find button", as
   await user.click(findBoxButton);
 
   // error message appears
-  expect(await screen.findByText(/Box not found for this label/i)).toBeInTheDocument();
+  expect(
+    await screen.findByText(/A box with this label number doesn't exist/i),
+  ).toBeInTheDocument();
   // QrOverlay stays open
   expect(screen.getByRole("button", { name: /find/i })).toBeInTheDocument();
 });

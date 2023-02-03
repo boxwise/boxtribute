@@ -111,20 +111,18 @@ const HeaderMenuContainer = () => {
           case QrResolverResultKind.NOT_BOXTRIBUTE_QR: {
             triggerError({
               message: "This is not a Boxtribute QR-Code",
-              userMessage: "This is not a Boxtribute QR-Code",
             });
             break;
           }
           case QrResolverResultKind.NOT_AUTHORIZED: {
             triggerError({
               message: "You don't have permission to access this box",
-              userMessage: "You don't have permission to access this box",
             });
             break;
           }
           case QrResolverResultKind.LABEL_NOT_FOUND: {
             triggerError({
-              message: "Error: Box not found for this label",
+              message: "A box with this label number doesn't exist!",
             });
             break;
           }
