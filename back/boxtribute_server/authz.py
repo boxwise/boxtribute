@@ -160,6 +160,29 @@ ALL_ALLOWED_MUTATIONS: Dict[int, Tuple[str, ...]] = {
     1: ("updateBox", "createBox", "createQrCode"),
     # + mutations for CreateAgreement page
     2: ("updateBox", "createBox", "createQrCode", "createTransferAgreement"),
+    # + mobile distribution pages
+    99: (
+        "updateBox",
+        "createBox",
+        "createQrCode",
+        "createTransferAgreement",
+        "createDistributionSpot",
+        "createDistributionEvent",
+        "addPackingListEntryToDistributionEvent",
+        "removePackingListEntryFromDistributionEvent",
+        "removeAllPackingListEntriesFromDistributionEventForProduct",
+        "updatePackingListEntry",
+        "updateSelectedProductsForDistributionEventPackingList",
+        "changeDistributionEventState",
+        "assignBoxToDistributionEvent",
+        "unassignBoxFromDistributionEvent",
+        "moveItemsFromBoxToDistributionEvent",
+        "removeItemsFromUnboxedItemsCollection",
+        "startDistributionEventsTrackingGroup",
+        "setReturnedNumberOfItemsForDistributionEventsTrackingGroup",
+        "moveItemsFromReturnTrackingGroupToBox",
+        "completeDistributionEventsTrackingGroup",
+    ),
 }
 
 
