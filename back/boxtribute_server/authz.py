@@ -158,6 +158,8 @@ ALL_ALLOWED_MUTATIONS: Dict[int, Tuple[str, ...]] = {
     0: ("updateBox",),
     # + mutations for BoxCreate/ScanBox pages
     1: ("updateBox", "createBox", "createQrCode"),
+    # + mutations for CreateAgreement page
+    2: ("updateBox", "createBox", "createQrCode", "createTransferAgreement"),
 }
 
 

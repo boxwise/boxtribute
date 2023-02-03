@@ -1,4 +1,3 @@
-
 interface BreadCrumpItemData {
   label: string;
   linkPath: string;
@@ -9,7 +8,8 @@ interface BTBreadcrumbNavigationProps {
 }
 
 const BTBreadcrumbNavigation = ({ items }: BTBreadcrumbNavigationProps) => {
-  return (<></>
+  return (
+    <></>
     // <Breadcrumb fontWeight="medium" fontSize="sm" mb={4}>
     //   <BreadcrumbItem>
     //     <BreadcrumbLink href="#">TODOBase "Subotica"</BreadcrumbLink>

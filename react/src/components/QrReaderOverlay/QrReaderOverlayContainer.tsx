@@ -8,11 +8,11 @@ import {
 } from "types/generated/graphql";
 import { Box, useBoolean } from "@chakra-ui/react";
 import _ from "lodash";
-import { IBoxDetailsData } from "utils/base-types";
+import { IBoxDetailsData } from "types/base-types";
 import {
   GET_BOX_LABEL_IDENTIFIER_BY_QR_CODE,
   BOX_DETAILS_BY_LABEL_IDENTIFIER_QUERY,
-} from "utils/queries";
+} from "queries/queries";
 import { extractQrCodeFromUrl } from "utils/helpers";
 import QrReaderOverlay, {
   IQrValueWrapper,
@@ -263,8 +263,12 @@ function QrReaderOverlayContainer({
     [addQrValueToBulkList, handleClose, isBulkModeActive, isBulkModeSupported, handleSingleScan],
   );
 
+  const [isFindByBoxLabelForNonBulkModeLoading, setIsFindByBoxLabelForNonBulkModeLoading] =
+    useBoolean(false);
+
   const handleFindBoxByLabelForNonBulkMode = useCallback(
     (label: string) => {
+      setIsFindByBoxLabelForNonBulkModeLoading.on();
       apolloClient
         .query<BoxDetailsQuery, BoxDetailsQueryVariables>({
           query: BOX_DETAILS_BY_LABEL_IDENTIFIER_QUERY,
@@ -272,6 +276,7 @@ function QrReaderOverlayContainer({
           variables: { labelIdentifier: label },
         })
         .then(({ data, errors }) => {
+          setIsFindByBoxLabelForNonBulkModeLoading.off();
           if ((errors?.length || 0) > 0) {
             const errorCode = errors ? errors[0].extensions.code : null;
             if (errorCode === "FORBIDDEN") {
@@ -290,10 +295,11 @@ function QrReaderOverlayContainer({
           }
         })
         .catch((err) => {
+          setIsFindByBoxLabelForNonBulkModeLoading.off();
           onScanningDone([{ kind: QrResolverResultKind.FAIL, error: err }]);
         });
     },
-    [apolloClient, handleClose, onScanningDone],
+    [apolloClient, handleClose, onScanningDone, setIsFindByBoxLabelForNonBulkModeLoading],
   );
 
   const handleFindBoxByLabelForBulkMode = useCallback(
@@ -409,6 +415,7 @@ function QrReaderOverlayContainer({
         handleClose={handleClose}
         isBulkModeSupported={isBulkModeSupported}
         isBulkModeActive={isBulkModeActive}
+        isFindBoxByLabelForNonBulkModeLoading={isFindByBoxLabelForNonBulkModeLoading}
         setIsBulkModeActive={setIsBulkModeActive}
         boxesByLabelSearchWrappers={boxesByLabelSearchWrappers}
         scannedQrValueWrappers={scannedQrValueWrappers}

@@ -74,7 +74,9 @@ jobs:
             - react-yarn-{{ checksum "yarn.lock" }}
       - run:
           name: Install Yarn Packages
-          command: yarn install --immutable
+          command: yarn install --frozen-lockfile
+      - store_artifacts:
+          path: yarn.lock
       - save_cache:
           name: Save Yarn Package Cache
           key: react-yarn-{{ checksum "yarn.lock" }}
@@ -85,23 +87,25 @@ jobs:
           command: |
             yarn build
       - run:
-          name: Test React App
-          command: |
-            yarn test
-      - run:
           name: Run FE style checks
           command: |
             yarn lint
             yarn format:write
-      # - run:
-      #     name: Test React App Codecover
-      #     command: |
-      #       yarn run test:coverage
+      - run:
+          name: Test React App creating reports
+          command: |
+            DEBUG_PRINT_LIMIT=10000 yarn test:coverage --ci --runInBand --reporters=default --reporters=jest-junit
+          environment:
+            JEST_JUNIT_OUTPUT_DIR: reports
       - store_test_results:
+          path: reports
+      - store_artifacts:
           path: coverage
+          destination: coverage
       - codecov/upload:
-          file: coverage/clover.xml
           flags: frontend
+      - slack/notify-on-failure:
+          only_for_branches: master,production
       # Add build to workspace
       - persist_to_workspace:
           root: ~/
