@@ -156,7 +156,7 @@ export const BOX_WITH_SIZE_TAG_PRODUCT_FIELDS_FRAGMENT = gql`
   }
 `;
 
-export const TRANSFER_AGREEMENT_FEILDS_FRAGMENT = gql`
+export const TRANSFER_AGREEMENT_FIELDS_FRAGMENT = gql`
   fragment TransferAgreementFields on TransferAgreement {
     id
     sourceOrganisation {
@@ -182,14 +182,12 @@ export const TRANSFER_AGREEMENT_FEILDS_FRAGMENT = gql`
       state
     }
     type
-    state
     requestedBy {
       id
       name
     }
     validFrom
     validUntil
-    validFrom
     comment
   }
 `;
