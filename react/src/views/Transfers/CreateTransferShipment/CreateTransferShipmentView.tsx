@@ -135,7 +135,7 @@ function CreateTransferShipmentView() {
         })
         .catch((err) => {
           triggerError({
-            message: "Your changes could not be saved!",
+            message: "Error while trying to create a new shipment!",
             statusCode: err.code,
           });
         });

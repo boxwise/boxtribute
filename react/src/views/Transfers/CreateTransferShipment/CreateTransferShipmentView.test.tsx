@@ -1,5 +1,5 @@
 import "@testing-library/jest-dom";
-import { screen, render, cleanup } from "tests/test-utils";
+import { screen, render } from "tests/test-utils";
 import { organisation1 } from "mocks/organisations";
 import { acceptedTransferAgreement } from "mocks/transferAgreements";
 import userEvent from "@testing-library/user-event";
@@ -77,6 +77,20 @@ const mutationNetworkError = {
   error: new Error(),
 };
 
+const mutationGraphQLError = {
+  request: {
+    query: CREATE_SHIPMENT_MUTATION,
+    variables: {
+      transferAgreementId: 1,
+      sourceBaseId: 1,
+      targetBaseId: 2,
+    },
+  },
+  result: {
+    errors: [new GraphQLError("Error!")],
+  },
+};
+
 // Test case 4.3.1
 it("4.3.1 - Initial load of Page", async () => {
   const user = userEvent.setup();
@@ -140,7 +154,7 @@ it("4.3.2 - Input Validations", async () => {
 });
 
 // Test case 4.3.3
-it("4.3.3 - Click on Submit Button", async () => {
+it("4.3.3 (4.3.3.1 and 4.3.3.2) - Click on Submit Button", async () => {
   const user = userEvent.setup();
   render(<CreateTransferShipmentView />, {
     routePath: "/bases/:baseId/transfers/shipments/create",
@@ -160,7 +174,6 @@ it("4.3.3 - Click on Submit Button", async () => {
   expect(title).toBeInTheDocument();
 
   // Test case 4.3.3.1 - Form data was valid and mutation was successful
-
   const submitButton = await screen.findByRole("button", { name: /start/i });
   expect(submitButton).toBeInTheDocument();
 
@@ -178,7 +191,15 @@ it("4.3.3 - Click on Submit Button", async () => {
     await screen.findByRole("heading", { name: "/bases/1/transfers/shipments" }),
   ).toBeInTheDocument();
 
-  cleanup();
+  // Test case 4.3.3.2 - Redirect to Transfers Shipments Page
+  expect(
+    await screen.findByRole("heading", { name: "/bases/1/transfers/shipments" }),
+  ).toBeInTheDocument();
+});
+
+// Test case 4.3.3.3
+it("4.3.3.3 - Form data was valid, but the mutation failed", async () => {
+  const user = userEvent.setup();
   render(<CreateTransferShipmentView />, {
     routePath: "/bases/:baseId/transfers/shipments/create",
     initialUrl: "/bases/1/transfers/shipments/create",
@@ -206,7 +227,44 @@ it("4.3.3 - Click on Submit Button", async () => {
   await selectOptionInSelectField(user, /base/i, "Samos");
   expect(await screen.findByText("Samos")).toBeInTheDocument();
   await user.click(submitStartButton);
-  expect(await screen.findByText(/your changes could not be saved!/i)).toBeInTheDocument();
+  expect(
+    await screen.findByText(/error while trying to create a new shipment/i),
+  ).toBeInTheDocument();
+});
+
+// Test case 4.3.3.4
+it("4.3.3.4 - Form data was valid, but the mutation response has errors", async () => {
+  const user = userEvent.setup();
+  render(<CreateTransferShipmentView />, {
+    routePath: "/bases/:baseId/transfers/shipments/create",
+    initialUrl: "/bases/1/transfers/shipments/create",
+    mocks: [initialQuery, mutationGraphQLError],
+    addTypename: true,
+    globalPreferences: {
+      dispatch: jest.fn(),
+      globalPreferences: {
+        selectedOrganisationId: organisation1.id,
+        availableBases: organisation1.bases,
+      },
+    },
+  });
+
+  // Test case 4.3.3.4 - Form data was valid, but the mutation response has errors
+  const shipmentPageTitle = await screen.findByRole("heading", { name: "Start New Shipment" });
+  expect(shipmentPageTitle).toBeInTheDocument();
+
+  const submitShipmentStartButton = await screen.findByRole("button", { name: /start/i });
+  expect(submitShipmentStartButton).toBeInTheDocument();
+
+  await assertOptionsInSelectField(user, /organisation/i, [/boxcare/i], shipmentPageTitle);
+  await selectOptionInSelectField(user, /organisation/i, "BoxCare");
+  expect(await screen.findByText("BoxCare")).toBeInTheDocument();
+  await selectOptionInSelectField(user, /base/i, "Samos");
+  expect(await screen.findByText("Samos")).toBeInTheDocument();
+  await user.click(submitShipmentStartButton);
+  expect(
+    (await screen.findAllByText(/error while trying to create a new shipment/i)).length,
+  ).toBeGreaterThanOrEqual(1);
 });
 
 // Test case 4.3.4
