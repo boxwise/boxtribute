@@ -1905,7 +1905,12 @@ CREATE TABLE `transfer_agreement` (
 
 LOCK TABLES `transfer_agreement` WRITE;
 /*!40000 ALTER TABLE `transfer_agreement` DISABLE KEYS */;
-INSERT INTO `transfer_agreement` VALUES (1,1,2,'UnderReview','Bidirectional','2023-01-24 07:25:25',8,NULL,NULL,NULL,NULL,'2023-01-24 07:25:25',NULL,NULL),(2,2,1,'UnderReview','Bidirectional','2023-01-24 07:27:49',8,NULL,NULL,NULL,NULL,'2023-01-24 07:27:49',NULL,NULL),(3,1,2,'UnderReview','Unidirectional','2023-01-24 07:29:24',8,NULL,NULL,NULL,NULL,'2023-01-24 07:29:24',NULL,NULL),(4,2,1,'UnderReview','Unidirectional','2023-01-24 07:30:05',8,NULL,NULL,NULL,NULL,'2023-01-24 07:30:05',NULL,NULL);
+INSERT INTO `transfer_agreement` VALUES
+(1,1,2,'Accepted','Bidirectional','2023-02-09 17:24:29',8,'2023-02-09 17:30:51',37,NULL,NULL,'2023-02-09 17:24:29',NULL,NULL),
+(2,1,2,'UnderReview','SendingTo','2023-02-09 17:25:46',8,NULL,NULL,NULL,NULL,'2023-02-09 17:25:46',NULL,NULL),
+(3,1,2,'Canceled','ReceivingFrom','2023-02-09 17:26:02',8,NULL,NULL,'2023-02-09 17:36:09',8,'2023-02-09 17:26:02',NULL,NULL),
+(4,2,1,'Rejected','Bidirectional','2023-02-09 17:29:09',37,NULL,NULL,'2023-02-09 17:37:45',8,'2023-02-09 17:29:09',NULL,NULL),
+(5,1,2,'UnderReview','ReceivingFrom','2023-02-09 17:34:50',8,NULL,NULL,NULL,NULL,'2023-02-09 17:34:50',NULL,NULL);
 /*!40000 ALTER TABLE `transfer_agreement` ENABLE KEYS */;
 UNLOCK TABLES;
 
