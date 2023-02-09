@@ -1942,7 +1942,14 @@ CREATE TABLE `transfer_agreement_detail` (
 
 LOCK TABLES `transfer_agreement_detail` WRITE;
 /*!40000 ALTER TABLE `transfer_agreement_detail` DISABLE KEYS */;
-INSERT INTO `transfer_agreement_detail` VALUES (1,1,1,2),(2,1,1,3),(3,2,NULL,NULL),(4,3,1,2),(5,4,NULL,NULL);
+INSERT INTO `transfer_agreement_detail` VALUES
+(1,1,1,2),
+(2,1,1,3),
+(3,1,1,4),
+(4,2,1,2),
+(5,3,1,3),
+(6,4,4,1),
+(7,5,1,3);
 /*!40000 ALTER TABLE `transfer_agreement_detail` ENABLE KEYS */;
 UNLOCK TABLES;
 
