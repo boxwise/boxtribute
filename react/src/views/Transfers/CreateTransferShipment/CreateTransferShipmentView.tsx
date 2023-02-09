@@ -103,21 +103,17 @@ function CreateTransferShipmentView() {
 
   // Handle Submission
   const onSubmitCreateShipmentForm = (createTransferShipmentData: ITransferShipmentFormData) => {
-    // Choose the agreement id based on the partner organization's base id
-    const selectedAgreement = partnerOrgsAgreementData?.find((org) =>
-      org.orgBases.some(
-        (base) => base.id === createTransferShipmentData?.partnerOrganisationSelectedBase.value,
-      ),
-    );
+    const agreementId =
+      createTransferShipmentData?.partnerOrganisationSelectedBase.data?.agreementId || null;
 
-    if (selectedAgreement?.agreementId === undefined) {
+    if (agreementId === null) {
       triggerError({
         message: "Error while trying to create a new shipment",
       });
     } else {
       createTransferShipmentMutation({
         variables: {
-          transferAgreementId: parseInt(selectedAgreement?.agreementId, 10),
+          transferAgreementId: parseInt(agreementId, 10),
           sourceBaseId: parseInt(baseId, 10),
           targetBaseId: parseInt(createTransferShipmentData.partnerOrganisation.value, 10),
         },

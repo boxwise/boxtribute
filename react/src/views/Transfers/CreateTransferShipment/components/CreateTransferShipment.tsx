@@ -61,6 +61,12 @@ export interface IOrganisationsAgreementsDataData {
 const singleSelectOptionSchema = z.object({
   label: z.string(),
   value: z.string(),
+  data: z
+    .object({
+      agreementId: z.string(),
+      specialNote: z.string(),
+    })
+    .optional(),
 });
 
 export const TransferShipmentFormDataSchema = z.object({
@@ -126,6 +132,10 @@ function CreateTransferShipment({
           partnerBasesDataForSelectedOrganisation?.orgBases?.map((base) => ({
             label: base.name,
             value: base.id,
+            data: {
+              agreementId: partnerBasesDataForSelectedOrganisation.agreementId,
+              specialNote: partnerBasesDataForSelectedOrganisation.specialNote,
+            },
           })) || [],
       );
 
@@ -135,6 +145,10 @@ function CreateTransferShipment({
         setValue("partnerOrganisationSelectedBase", {
           label: partnerBasesDataForSelectedOrganisation?.orgBases[0].name,
           value: partnerBasesDataForSelectedOrganisation?.orgBases[0].id,
+          data: {
+            agreementId: partnerBasesDataForSelectedOrganisation.agreementId,
+            specialNote: partnerBasesDataForSelectedOrganisation.specialNote,
+          },
         });
       }
     }
