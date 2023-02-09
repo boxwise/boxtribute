@@ -86,8 +86,8 @@ function CreateTransferShipmentView() {
   const partnerOrgsAgreementData = allTransferAgreements
     ?.filter(
       (agreement) =>
-        agreement.sourceOrganisation.id === globalPreferences.selectedOrganisationId?.toString() &&
-        (agreement.type === TransferAgreementType.SendingTo ||
+        agreement.sourceOrganisation.id === globalPreferences.selectedOrganisationId?.toString() ||
+        (agreement.targetOrganisation.id === globalPreferences.selectedOrganisationId?.toString() &&
           agreement.type === TransferAgreementType.Bidirectional),
     )
     .map(
