@@ -181,7 +181,6 @@ export const TRANSFER_AGREEMENT_FIELDS_FRAGMENT = gql`
       id
       state
     }
-    type
     requestedBy {
       id
       name
