@@ -212,9 +212,6 @@ function CreateTransferShipment({
               options={basesOptionsForPartnerOrg}
             />
           </ListItem>
-          {/* <ListItem>
-            <Text>Agreement #{} Comment</Text>
-          </ListItem> */}
         </List>
 
         <Stack spacing={4}>
