@@ -6,49 +6,25 @@ import {
   Divider,
   Heading,
   HStack,
-  Icon,
   List,
   ListItem,
   Spacer,
   Stack,
   Text,
 } from "@chakra-ui/react";
-import { FunctionComponent, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { SubmitHandler, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import SelectField, { IDropdownOption } from "components/Form/SelectField";
-import { Props } from "chakra-react-select";
 import { useNavigate, useParams } from "react-router-dom";
+import { SendingIcon } from "components/Icon/Transfer/SendingIcon";
+import { ReceivingIcon } from "components/Icon/Transfer/ReceivingIcon";
 
 export interface IBaseData {
   id: string;
   name: string;
 }
-
-// eslint-disable-next-line react/function-component-definition
-export const ReceivingIcon: FunctionComponent<Props> = () => (
-  <Icon verticalAlign="center" width="23" height="26" viewBox="0 0 23 26" fill="none">
-    <path d="M14 1H22V25H14" stroke="#2D3748" strokeWidth="2" />
-    <path
-      // eslint-disable-next-line max-len
-      d="M12.172 11.778L6.808 6.414L8.222 5L16 12.778L8.222 20.556L6.808 19.142L12.172 13.778H0V11.778H12.172Z"
-      fill="#2D3748"
-    />
-  </Icon>
-);
-
-// eslint-disable-next-line react/function-component-definition
-export const SendingIcon: FunctionComponent<Props> = () => (
-  <Icon verticalAlign="center" width="23" height="26" viewBox="0 0 23 26" fill="none">
-    <path
-      // eslint-disable-next-line max-len
-      d="M19.172 11.778L13.808 6.414L15.222 5L23 12.778L15.222 20.556L13.808 19.142L19.172 13.778H7V11.778H19.172Z"
-      fill="#2D3748"
-    />
-    <path d="M9 25H1V1H9" stroke="#2D3748" strokeWidth="2" />
-  </Icon>
-);
 
 export interface IOrganisationsAgreementsDataData {
   agreementId: string;
