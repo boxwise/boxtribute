@@ -10,8 +10,6 @@ import CreateTransferShipmentView, {
   CREATE_SHIPMENT_MUTATION,
 } from "./CreateTransferShipmentView";
 
-jest.setTimeout(30000);
-
 const initialQuery = {
   request: {
     query: ALL_ORGS_AND_BASES_WITH_TRANSFER_AGREEMENTS_QUERY,
