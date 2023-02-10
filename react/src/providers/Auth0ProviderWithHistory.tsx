@@ -20,8 +20,10 @@ function Auth0ProviderWithHistory({ children }) {
     <Auth0Provider
       domain={domain}
       clientId={clientId}
-      audience={audience}
-      redirectUri={window.location.origin}
+      authorizationParams={{
+        audience,
+        redirect_uri: window.location.origin,
+      }}
       onRedirectCallback={onRedirectCallback}
     >
       {children}

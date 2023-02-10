@@ -1,5 +1,7 @@
 import peewee
 
+from .utils import in_development_environment
+
 
 def format_database_errors(error, debug=False):
     """Custom formatting of peewee errors (indicating a missing resource) to avoid SQL
@@ -20,6 +22,14 @@ def format_database_errors(error, debug=False):
             "code": "INTERNAL_SERVER_ERROR",
             "description": "The database failed to perform the requested action.",
         }
+
+    if in_development_environment() and debug:  # pragma: no cover
+        if not error.extensions:
+            error.extensions = {}
+        from flask import g
+
+        error.extensions["user"] = g.user.__dict__
+
     return error.formatted
 
 
@@ -44,13 +54,18 @@ class BoxCreationFailed(Exception):
     }
 
 
+class QrCodeAlreadyAssignedToBox(Exception):
+    extensions = {
+        "code": "BAD_USER_INPUT",
+        "description": "The QR code is already assigned to another box.",
+    }
+
+
 class Forbidden(Exception):
-    def __init__(self, resource, value, user, *args, **kwargs):
+    def __init__(self, *args, reason, **kwargs):
         self.extensions = {
             "code": "FORBIDDEN",
-            "description": "You don't have access to the resource "
-            f"{resource}={value}",
-            "user": user,
+            "description": f"You don't have access to '{reason}'",
         }
         super().__init__(*args, **kwargs)
 

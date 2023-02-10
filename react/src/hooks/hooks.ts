@@ -1,6 +1,11 @@
-import { useState, useCallback } from "react";
+import { useState, useCallback, useEffect } from "react";
 import { useNavigate, useParams } from "react-router-dom";
-import { useToast, UseToastOptions, ToastPositionWithLogical } from "@chakra-ui/react";
+import {
+  useToast,
+  UseToastOptions,
+  ToastPositionWithLogical,
+  useMediaQuery,
+} from "@chakra-ui/react";
 
 export interface INotificationProps extends UseToastOptions {
   title?: string;
@@ -11,19 +16,25 @@ export interface INotificationProps extends UseToastOptions {
 
 export const useNotification = () => {
   const toast = useToast();
+  const [isSmallScreen] = useMediaQuery("(max-width: 1070px)");
+  const [position, setPosition] = useState<ToastPositionWithLogical>("bottom");
+
+  useEffect(() => {
+    setPosition(isSmallScreen ? "bottom" : "top");
+  }, [isSmallScreen]);
 
   const createToast = useCallback(
     ({ message, type, ...props }: INotificationProps) =>
       toast({
         duration: 5000,
         isClosable: true,
-        position: "bottom",
+        position,
         variant: "subtle",
         status: type,
         description: message,
         ...props,
       }),
-    [toast],
+    [toast, position],
   );
 
   return { createToast };
