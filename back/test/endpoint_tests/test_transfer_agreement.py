@@ -120,6 +120,7 @@ def test_transfer_agreement_mutations(
     # Test case 2.2.1
     creation_input = f"""partnerOrganisationId: {another_organisation['id']},
         initiatingOrganisationId: {default_organisation['id']}
+        initiatingOrganisationBaseIds: [1, 2]
         type: {TransferAgreementType.Bidirectional.name}"""
     agreement = assert_successful_request(client, _create_mutation(creation_input))
     first_agreement_id = agreement.pop("id")
@@ -169,6 +170,7 @@ def test_transfer_agreement_mutations(
 
     creation_input = f"""partnerOrganisationId: {another_organisation['id']},
         initiatingOrganisationId: {default_organisation['id']}
+        initiatingOrganisationBaseIds: [1, 2]
         type: {TransferAgreementType.ReceivingFrom.name}"""
     agreement = assert_successful_request(client, _create_mutation(creation_input))
     third_agreement_id = agreement.pop("id")
@@ -300,21 +302,23 @@ def test_transfer_agreement_mutations_identical_source_org_for_creation(
     mutation = """mutation { createTransferAgreement( creationInput: {
                     initiatingOrganisationId: 1
                     partnerOrganisationId: 1,
+                    initiatingOrganisationBaseIds: [1]
                     type: SendingTo
                 } ) { id } }"""
     assert_bad_user_input(read_only_client, mutation)
 
 
-@pytest.mark.parametrize("kind,base_id", [["initiating", 3], ["partner", 1]])
+@pytest.mark.parametrize("base_ids", [[3, 4], [1, 2]])
 def test_transfer_agreement_mutations_create_invalid_source_base(
-    read_only_client, mocker, kind, base_id
+    read_only_client, mocker, base_ids
 ):
     mocker.patch("jose.jwt.decode").return_value = create_jwt_payload(base_ids=[1, 3])
     # Test cases 2.2.18, 2.2.19
     mutation = f"""mutation {{ createTransferAgreement( creationInput: {{
                     initiatingOrganisationId: 1
                     partnerOrganisationId: 2,
-                    {kind}OrganisationBaseIds: [{base_id}],
+                    initiatingOrganisationBaseIds: [{base_ids[0]}]
+                    partnerOrganisationBaseIds: [{base_ids[1]}]
                     type: Bidirectional
                 }} ) {{ id }} }}"""
     assert_bad_user_input(read_only_client, mutation)
@@ -325,6 +329,7 @@ def test_transfer_agreement_mutations_create_non_existent_target_org(read_only_c
     creation_input = "initiatingOrganisationId: 1, partnerOrganisationId: 0"
     mutation = f"""mutation {{ createTransferAgreement( creationInput: {{
                     {creation_input},
+                    initiatingOrganisationBaseIds: [1]
                     type: Bidirectional
                 }} ) {{ id }} }}"""
     assert_bad_user_input(read_only_client, mutation)
@@ -336,6 +341,7 @@ def test_transfer_agreement_mutations_invalid_dates(read_only_client, valid_unti
     mutation = f"""mutation {{ createTransferAgreement( creationInput: {{
                     initiatingOrganisationId: 1
                     partnerOrganisationId: 2,
+                    initiatingOrganisationBaseIds: [1]
                     validFrom: "2022-02-01",
                     validUntil: "{valid_until}",
                     type: Bidirectional

@@ -18,17 +18,10 @@ mutation = MutationType()
 @mutation.field("createTransferAgreement")
 @convert_kwargs_to_snake_case
 def resolve_create_transfer_agreement(*_, creation_input):
-    try:
-        # Enforce that the user can access at least one of the bases of the initiating
-        # party (default: all bases of the user's organisation they're authorized for)
-        base_ids = creation_input.get(
-            "initiating_organisation_base_ids",
-            g.user.authorized_base_ids("transfer_agreement:create"),
-        )
-    except KeyError:
-        base_ids = []
-    authorize(permission="transfer_agreement:create", base_ids=base_ids)
-
+    authorize(
+        permission="transfer_agreement:create",
+        base_ids=creation_input["initiating_organisation_base_ids"],
+    )
     return create_transfer_agreement(**creation_input, user=g.user)
 
 

@@ -62,7 +62,7 @@ input TransferAgreementCreationInput {
   validFrom: Date
   validUntil: Date
   timezone: String
-  initiatingOrganisationBaseIds: [Int!]
+  initiatingOrganisationBaseIds: [Int!]!
   partnerOrganisationBaseIds: [Int!]
   comment: String
 }

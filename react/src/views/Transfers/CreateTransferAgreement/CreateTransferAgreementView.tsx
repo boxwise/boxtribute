@@ -38,7 +38,7 @@ export const CREATE_AGREEMENT_MUTATION = gql`
     $validFrom: Date
     $validUntil: Date
     $timezone: String
-    $initiatingOrganisationBaseIds: [Int!]
+    $initiatingOrganisationBaseIds: [Int!]!
     $partnerOrganisationBaseIds: [Int!]
     $comment: String
   ) {

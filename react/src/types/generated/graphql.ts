@@ -1354,7 +1354,7 @@ export type TransferAgreement = {
 
 export type TransferAgreementCreationInput = {
   comment?: InputMaybe<Scalars['String']>;
-  initiatingOrganisationBaseIds?: InputMaybe<Array<Scalars['Int']>>;
+  initiatingOrganisationBaseIds: Array<Scalars['Int']>;
   initiatingOrganisationId: Scalars['Int'];
   partnerOrganisationBaseIds?: InputMaybe<Array<Scalars['Int']>>;
   partnerOrganisationId: Scalars['Int'];
@@ -1756,7 +1756,7 @@ export type CreateTransferAgreementMutationVariables = Exact<{
   validFrom?: InputMaybe<Scalars['Date']>;
   validUntil?: InputMaybe<Scalars['Date']>;
   timezone?: InputMaybe<Scalars['String']>;
-  initiatingOrganisationBaseIds?: InputMaybe<Array<Scalars['Int']> | Scalars['Int']>;
+  initiatingOrganisationBaseIds: Array<Scalars['Int']> | Scalars['Int'];
   partnerOrganisationBaseIds?: InputMaybe<Array<Scalars['Int']> | Scalars['Int']>;
   comment?: InputMaybe<Scalars['String']>;
 }>;

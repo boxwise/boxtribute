@@ -39,7 +39,7 @@ def create_transfer_agreement(
     initiating_organisation_id,
     partner_organisation_id,
     type,
-    initiating_organisation_base_ids=None,
+    initiating_organisation_base_ids,
     partner_organisation_base_ids=None,
     valid_from=None,
     valid_until=None,
@@ -60,6 +60,11 @@ def create_transfer_agreement(
     """
     if initiating_organisation_id == partner_organisation_id:
         raise InvalidTransferAgreementOrganisation()
+
+    # In GraphQL input, partner organisation base IDs can be omitted, or explicitly be
+    # null. Avoid duplicate base IDs by creating sets
+    initiating_organisation_base_ids = set(initiating_organisation_base_ids)
+    partner_organisation_base_ids = set(partner_organisation_base_ids or [None])
 
     if type == TransferAgreementType.ReceivingFrom:
         # Initiating organisation will be transfer target, the partner organisation will
@@ -100,11 +105,6 @@ def create_transfer_agreement(
             requested_by=user.id,
             comment=comment,
         )
-
-        # In GraphQL input, base IDs can be omitted, or explicitly be null.
-        # Avoid duplicate base IDs by creating sets
-        source_base_ids = set(source_base_ids or [None])
-        target_base_ids = set(target_base_ids or [None])
 
         _validate_bases_as_part_of_organisation(
             base_ids=source_base_ids, organisation_id=source_organisation_id
