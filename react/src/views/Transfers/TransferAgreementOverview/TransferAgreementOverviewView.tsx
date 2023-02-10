@@ -1,7 +1,7 @@
 import { useContext, useMemo } from "react";
 import { gql, useQuery } from "@apollo/client";
-import { Button, Heading} from "@chakra-ui/react";
-import { NavLink } from "react-router-dom";
+import { Alert, AlertIcon, Button, Heading } from "@chakra-ui/react";
+import { Link } from "react-router-dom";
 import { GlobalPreferencesContext } from "providers/GlobalPreferencesProvider";
 import APILoadingIndicator from "components/APILoadingIndicator";
 import {
@@ -99,7 +99,15 @@ function TransferAgreementOverviewView() {
         accessor: "direction",
       },
       {
+        Header: "Partner Agreements",
+        accessor: "state",
+      },
+      {
         Header: "Status",
+        accessor: "state",
+      },
+      {
+        Header: "Shipments",
         accessor: "state",
       },
       {
@@ -116,26 +124,29 @@ function TransferAgreementOverviewView() {
 
   const { loading, error, data } = useQuery<TransferAgreementsQuery>(ALL_TRANSFER_AGREEMENTS_QUERY);
 
-  console.log(data);
-
-  if (loading) {
-    return <APILoadingIndicator />;
-  }
-  if (error) {
-    return <div>Error!</div>;
-  }
-
   return (
     <>
       <Heading fontWeight="bold" mb={2} as="h2">
         My Transfer Network
       </Heading>
-      <NavLink to="create">
-        <Button mt={4} borderRadius="0" >
+      <Link to="create">
+        <Button mt={4} borderRadius="0">
           Create Agreement
         </Button>
-      </NavLink>
-      <TransferAgreementTable columns={columns} tableData={graphqlToTableTransformer(data)} />
+      </Link>
+      {error && (
+        <Alert status="error">
+          <AlertIcon />
+          Could not fetch transfer agreement data! Please try reloading the page.
+        </Alert>
+      )}
+      {loading ? (
+        <APILoadingIndicator />
+      ) : (
+        {
+          /* <TransferAgreementTable columns={columns} tableData={graphqlToTableTransformer(data)} /> */
+        }
+      )}
     </>
   );
 }

@@ -23,7 +23,7 @@ import DistrosReturnTrackingGroupView from "views/Distributions/DistributionRetu
 import DistributionReturnTrackingsView from "views/Distributions/DistributionReturnTrackings/DistributionReturnTrackingsView/DistributionReturnTrackingsView";
 import CreateDirectDistributionEventView from "views/Distributions/CreateDirectDistributionEventView/CreateDirectDistributionEventView";
 import BoxCreateView from "views/BoxCreate/BoxCreateView";
-import TransferAgreementOverviewView from "views/TransferAgreementOverview/TransferAgreementOverviewView";
+import TransferAgreementOverviewView from "views/Transfers/TransferAgreementOverview/TransferAgreementOverviewView";
 import CreateTransferAgreementView from "views/Transfers/CreateTransferAgreement/CreateTransferAgreementView";
 
 const useLoadAndSetAvailableBases = () => {
