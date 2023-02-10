@@ -82,11 +82,11 @@ function CreateTransferAgreementView() {
   // Prep data for Form
   const allOrgsAndTheirBases = allFormOptions.data?.organisations;
 
-  // When boxtribute god logs in without predifiend organisation id, use organisation id 1
-  const userCurrentOrganisatinId = globalPreferences.selectedOrganisationId?.toString() ?? "1";
+  // When boxtribute god logs in without predefined organisation id, use organisation id 1
+  const userCurrentOrganisationId = globalPreferences.selectedOrganisationId?.toString() ?? "1";
 
   const currentOrganisation = allOrgsAndTheirBases?.find(
-    (organisation) => organisation.id === userCurrentOrganisatinId,
+    (organisation) => organisation.id === userCurrentOrganisationId,
   );
 
   // Filter bases where the user is not authorized
@@ -124,7 +124,7 @@ function CreateTransferAgreementView() {
 
     createTransferAgreementMutation({
       variables: {
-        initiatingOrganisationId: parseInt(userCurrentOrganisatinId, 10),
+        initiatingOrganisationId: parseInt(userCurrentOrganisationId, 10),
         partnerOrganisationId: parseInt(createTransferAgreementData.partnerOrganisation.value, 10),
         type: transferType,
         validFrom: createTransferAgreementData?.validFrom,
