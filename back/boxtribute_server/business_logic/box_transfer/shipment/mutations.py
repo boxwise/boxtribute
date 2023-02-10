@@ -11,10 +11,7 @@ mutation = MutationType()
 @mutation.field("createShipment")
 @convert_kwargs_to_snake_case
 def resolve_create_shipment(*_, creation_input):
-    authorize(
-        permission="shipment:create",
-        base_ids=[creation_input["source_base_id"], creation_input["target_base_id"]],
-    )
+    authorize(permission="shipment:create", base_id=creation_input["source_base_id"])
     return create_shipment(**creation_input, user=g.user)
 
 
