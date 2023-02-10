@@ -1,5 +1,8 @@
+import { useContext, useMemo } from "react";
 import { gql, useQuery } from "@apollo/client";
-// import { useNavigate, useParams } from "react-router-dom";
+import { Button, Heading} from "@chakra-ui/react";
+import { NavLink } from "react-router-dom";
+import { GlobalPreferencesContext } from "providers/GlobalPreferencesProvider";
 import APILoadingIndicator from "components/APILoadingIndicator";
 import {
   BASE_BASIC_FIELDS_FRAGMENT,
@@ -7,9 +10,7 @@ import {
   USER_BASIC_FIELDS_FRAGMENT,
 } from "queries/fragments";
 import { TransferAgreementsQuery, TransferAgreementType } from "types/generated/graphql";
-import { useContext, useMemo } from "react";
-import { GlobalPreferencesContext } from "providers/GlobalPreferencesProvider";
-import TransferAgreementTable from "./TransferAgreementTable";
+import TransferAgreementTable from "./components/TransferAgreementTable";
 
 export const ALL_TRANSFER_AGREEMENTS_QUERY = gql`
   ${ORGANISATION_BASIC_FIELDS_FRAGMENT}
@@ -61,8 +62,6 @@ export const ALL_TRANSFER_AGREEMENTS_QUERY = gql`
 
 function TransferAgreementOverviewView() {
   const { globalPreferences } = useContext(GlobalPreferencesContext);
-  // const navigate = useNavigate();
-  // const baseId = useParams<{ baseId: string }>().baseId!;
 
   const graphqlToTableTransformer = (
     transferAgreementQueryResult: TransferAgreementsQuery | undefined,
@@ -78,13 +77,13 @@ function TransferAgreementOverviewView() {
         if (
           parseInt(globalPreferences.selectedOrganisationId, 10) ===
             parseInt(element.sourceOrganisation.id, 10) &&
-          element.type === TransferAgreementType.Unidirectional
+          element.type === TransferAgreementType.SendingTo
         ) {
           row.direction = "to";
         } else if (
           parseInt(globalPreferences.selectedOrganisationId, 10) ===
             parseInt(element.targetOrganisation.id, 10) &&
-          element.type === TransferAgreementType.Unidirectional
+          element.type === TransferAgreementType.ReceivingFrom
         ) {
           row.direction = "from";
         }
@@ -116,6 +115,9 @@ function TransferAgreementOverviewView() {
   );
 
   const { loading, error, data } = useQuery<TransferAgreementsQuery>(ALL_TRANSFER_AGREEMENTS_QUERY);
+
+  console.log(data);
+
   if (loading) {
     return <APILoadingIndicator />;
   }
@@ -123,7 +125,19 @@ function TransferAgreementOverviewView() {
     return <div>Error!</div>;
   }
 
-  return <TransferAgreementTable columns={columns} tableData={graphqlToTableTransformer(data)} />;
+  return (
+    <>
+      <Heading fontWeight="bold" mb={2} as="h2">
+        My Transfer Network
+      </Heading>
+      <NavLink to="create">
+        <Button mt={4} borderRadius="0" >
+          Create Agreement
+        </Button>
+      </NavLink>
+      <TransferAgreementTable columns={columns} tableData={graphqlToTableTransformer(data)} />
+    </>
+  );
 }
 
 export default TransferAgreementOverviewView;
