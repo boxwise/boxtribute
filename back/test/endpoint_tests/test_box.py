@@ -1,11 +1,11 @@
 import time
 
 import pytest
-from boxtribute_server.enums import BoxState
-from boxtribute_server.models.definitions.history import DbChangeHistory
-from boxtribute_server.warehouse.box.crud import (
+from boxtribute_server.business_logic.warehouse.box.crud import (
     BOX_LABEL_IDENTIFIER_GENERATION_ATTEMPTS,
 )
+from boxtribute_server.enums import BoxState
+from boxtribute_server.models.definitions.history import DbChangeHistory
 from utils import (
     assert_bad_user_input,
     assert_internal_server_error,
@@ -551,4 +551,22 @@ def test_mutate_box_with_negative_number_of_items(
             }}"""
     mutation = f"""mutation {{
             updateBox( updateInput : {update_input} ) {{ id }} }}"""
+    assert_bad_user_input(read_only_client, mutation)
+
+
+def test_create_box_with_used_qr_code(
+    read_only_client, default_qr_code, default_size, default_location, default_product
+):
+    size_id = str(default_size["id"])
+    location_id = str(default_location["id"])
+    product_id = str(default_product["id"])
+    creation_input = f"""{{
+                    productId: {product_id}
+                    locationId: {location_id}
+                    sizeId: {size_id}
+                    numberOfItems: 1
+                    qrCode: "{default_qr_code['code']}"
+                }}"""
+    mutation = f"""mutation {{
+            createBox( creationInput : {creation_input} ) {{ id }} }}"""
     assert_bad_user_input(read_only_client, mutation)

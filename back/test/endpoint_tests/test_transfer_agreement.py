@@ -73,8 +73,8 @@ def state_names(value):
 @pytest.mark.parametrize(
     "filter_input,transfer_agreement_ids",
     (
-        ["", ["1", "2", "3", "4"]],
-        ["(states: [UnderReview])", ["3"]],
+        ["", ["1", "2", "3", "4", "5"]],
+        ["(states: [UnderReview])", ["3", "5"]],
         ["(states: [Accepted])", ["1", "4"]],
         ["(states: [Rejected])", []],
         ["(states: [Expired])", ["2"]],
@@ -233,8 +233,18 @@ def test_transfer_agreement_mutations_invalid_state(
 def test_transfer_agreement_mutations_as_member_of_source_org(
     read_only_client, reviewed_transfer_agreement, action
 ):
-    # Test cases 2.2.9, 2.2.10
+    # Test cases 2.2.9a, 2.2.10a
     agreement_id = reviewed_transfer_agreement["id"]
+    mutation = f"mutation {{ {action}TransferAgreement(id: {agreement_id}) {{ id }} }}"
+    assert_forbidden_request(read_only_client, mutation)
+
+
+@pytest.mark.parametrize("action", ["accept", "reject"])
+def test_transfer_agreement_mutations_as_member_of_receiving_org(
+    read_only_client, receiving_transfer_agreement, action
+):
+    # Test cases 2.2.9b, 2.2.10b
+    agreement_id = receiving_transfer_agreement["id"]
     mutation = f"mutation {{ {action}TransferAgreement(id: {agreement_id}) {{ id }} }}"
     assert_forbidden_request(read_only_client, mutation)
 
@@ -258,7 +268,7 @@ def test_transfer_agreement_mutations_identical_source_org_for_creation(
     mutation = """mutation { createTransferAgreement( creationInput: {
                     sourceOrganisationId: 1
                     targetOrganisationId: 1,
-                    type: Unidirectional
+                    type: SendingTo
                 } ) { id } }"""
     assert_bad_user_input(read_only_client, mutation)
 

@@ -8,10 +8,10 @@ import { useDisclosure, useToast } from "@chakra-ui/react";
 import QrReaderOverlayContainer from "components/QrReaderOverlay/QrReaderOverlayContainer";
 import { IQrResolvedValue, QrResolverResultKind } from "components/QrReaderOverlay/QrReaderOverlay";
 import { GlobalPreferencesContext } from "providers/GlobalPreferencesProvider";
-import { IBoxDetailsData } from "utils/base-types";
+import { IBoxDetailsData } from "types/base-types";
 import BoxesBulkOperationsOverlay from "./BoxesBulkOperationsOverlay";
-import { useNotification } from "utils/hooks";
-import { useErrorHandling } from "utils/error-handling";
+import { useNotification } from "hooks/hooks";
+import { useErrorHandling } from "hooks/error-handling";
 
 const HeaderMenuContainer = () => {
   const auth0 = useAuth0();
@@ -109,28 +109,26 @@ const HeaderMenuContainer = () => {
             break;
           }
           case QrResolverResultKind.NOT_BOXTRIBUTE_QR: {
-            createToast({
-              title: "Error",
-              type: "error",
-              message: "Error: Scanned QR code is not a Boxtribute QR code",
+            triggerError({
+              message: "This is not a Boxtribute QR-Code",
             });
             break;
           }
           case QrResolverResultKind.NOT_AUTHORIZED: {
             triggerError({
-              message: "Error: You don't have access to the box assigned to this QR code",
+              message: "You don't have permission to access this box",
             });
             break;
           }
           case QrResolverResultKind.LABEL_NOT_FOUND: {
             triggerError({
-              message: "Error: Box not found for this label",
+              message: "A box with this label number doesn't exist!",
             });
             break;
           }
           case QrResolverResultKind.FAIL: {
             triggerError({
-              message: "Error: Box not found for this label",
+              message: "Box not found for this label",
               statusCode: singleResolvedQrValue?.error.code,
             });
             break;

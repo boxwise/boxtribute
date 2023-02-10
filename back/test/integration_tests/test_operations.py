@@ -11,7 +11,7 @@ def test_queries(auth0_client, endpoint):
                 qrCode(qrCode: "9627242265f5a7f3a1db910eb18410f") { box { id } }
             }"""
     queried_box = _assert_successful_request(auth0_client, query)["box"]
-    assert queried_box == {"id": "735"}
+    assert queried_box == {"id": "1"}
 
     query = """query { box(labelIdentifier: "177892") { state size { id } } }"""
     queried_box = _assert_successful_request(auth0_client, query)

@@ -24,6 +24,7 @@ import DistributionReturnTrackingsView from "views/Distributions/DistributionRet
 import CreateDirectDistributionEventView from "views/Distributions/CreateDirectDistributionEventView/CreateDirectDistributionEventView";
 import BoxCreateView from "views/BoxCreate/BoxCreateView";
 import TransferAgreementOverviewView from "views/TransferAgreementOverview/TransferAgreementOverviewView";
+import CreateTransferAgreementView from "views/Transfers/CreateTransferAgreement/CreateTransferAgreementView";
 
 const useLoadAndSetAvailableBases = () => {
   const BASES_QUERY = gql`
@@ -65,7 +66,7 @@ const useLoadAndSetAvailableBases = () => {
       const organisationId = decodedToken["https://www.boxtribute.com/organisation_id"];
       dispatch({
         type: "setOrganisationId",
-        payload: organisationId,
+        payload: organisationId ?? 1,
       });
     };
     getToken();
@@ -82,6 +83,12 @@ function App() {
           <Route index element={<AutomaticBaseSwitcher />} />
           <Route path=":baseId">
             <Route index element={<BaseDashboardView />} />
+            <Route path="transfers">
+              <Route path="agreements">
+                <Route index element="" />
+                <Route path="create" element={<CreateTransferAgreementView />} />
+              </Route>
+            </Route>
             <Route path="boxes">
               <Route index element={<Boxes />} />
               <Route path="create">

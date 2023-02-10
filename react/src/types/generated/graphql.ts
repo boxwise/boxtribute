@@ -1374,7 +1374,8 @@ export enum TransferAgreementState {
 
 export enum TransferAgreementType {
   Bidirectional = 'Bidirectional',
-  Unidirectional = 'Unidirectional'
+  ReceivingFrom = 'ReceivingFrom',
+  SendingTo = 'SendingTo'
 }
 
 export type UnboxedItemsCollection = ItemsCollection & {
@@ -1747,3 +1748,22 @@ export type TransferAgreementsQueryVariables = Exact<{ [key: string]: never; }>;
 
 
 export type TransferAgreementsQuery = { __typename?: 'Query', transferAgreements: Array<{ __typename?: 'TransferAgreement', id: string, type: TransferAgreementType, state?: TransferAgreementState | null, comment?: string | null, validFrom: any, validUntil?: any | null, requestedOn: any, acceptedOn?: any | null, terminatedOn?: any | null, sourceOrganisation: { __typename?: 'Organisation', id: string, name: string }, sourceBases?: Array<{ __typename?: 'Base', id: string, name: string }> | null, targetOrganisation: { __typename?: 'Organisation', id: string, name: string }, targetBases?: Array<{ __typename?: 'Base', id: string, name: string }> | null, shipments: Array<{ __typename?: 'Shipment', sourceBase?: { __typename?: 'Base', id: string, name: string } | null, targetBase?: { __typename?: 'Base', id: string, name: string } | null }>, requestedBy: { __typename?: 'User', id: string, name?: string | null }, acceptedBy?: { __typename?: 'User', id: string, name?: string | null } | null, terminatedBy?: { __typename?: 'User', id: string, name?: string | null } | null }> };
+export type AllOrganisationsAndBasesQueryVariables = Exact<{ [key: string]: never; }>;
+
+
+export type AllOrganisationsAndBasesQuery = { __typename?: 'Query', organisations: Array<{ __typename?: 'Organisation', id: string, name: string, bases?: Array<{ __typename?: 'Base', id: string, name: string }> | null }> };
+
+export type CreateTransferAgreementMutationVariables = Exact<{
+  sourceOrganisationId: Scalars['Int'];
+  targetOrganisationId: Scalars['Int'];
+  type: TransferAgreementType;
+  validFrom?: InputMaybe<Scalars['Date']>;
+  validUntil?: InputMaybe<Scalars['Date']>;
+  timezone?: InputMaybe<Scalars['String']>;
+  sourceBaseIds?: InputMaybe<Array<Scalars['Int']> | Scalars['Int']>;
+  targetBaseIds?: InputMaybe<Array<Scalars['Int']> | Scalars['Int']>;
+  comment?: InputMaybe<Scalars['String']>;
+}>;
+
+
+export type CreateTransferAgreementMutation = { __typename?: 'Mutation', createTransferAgreement?: { __typename?: 'TransferAgreement', id: string } | null };

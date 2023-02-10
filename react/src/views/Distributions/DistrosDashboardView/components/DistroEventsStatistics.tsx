@@ -18,7 +18,7 @@ import {
   DownloadDistributionEventsStatisticsQuery,
   DownloadDistributionEventsStatisticsQueryVariables,
 } from "types/generated/graphql";
-import { useGetUrlForResourceHelpers } from "utils/hooks";
+import { useGetUrlForResourceHelpers } from "hooks/hooks";
 import { VictoryPie } from "victory";
 import { useApolloClient } from "@apollo/client";
 

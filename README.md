@@ -7,9 +7,9 @@ Backend Test Coverage: [![codecov](https://codecov.io/gh/boxwise/boxtribute/bran
 
 Build: [![CircleCI](https://circleci.com/gh/boxwise/boxtribute.svg?style=svg)](https://circleci.com/gh/boxwise/boxtribute)
 
-# Readme
+# boxtribute
 
-This is the repo for the new mobile web app of [Boxtribute](https://www.boxtribute.org), consisting of a [React front-end](/react) bootstrapped with [Create React App](https://github.com/facebook/create-react-app), and a [Python Flask back-end](/back).
+This is the repository for version 2 of the web app [Boxtribute](https://www.boxtribute.org), consisting of a [React front-end](/react) bootstrapped with [Create React App](https://github.com/facebook/create-react-app), and a [Python Flask back-end](/back).
 
 Please check out [**Contribution Guidelines**](CONTRIBUTING.md) before you get started!
 
@@ -28,7 +28,7 @@ Please check out [**Contribution Guidelines**](CONTRIBUTING.md) before you get s
 
 ## Preparation for Installation
 
-- Install [Docker](https://www.docker.com/products/docker-desktop)
+- Install [Docker](https://www.docker.com/products/docker-desktop) and `docker-compose`
 - Get in touch with the [Boxtribute team](mailto:hello@boxtribute.org) to get access to the [Auth0](https://auth0.com/) development tenant.
 
 ## How do I get set up?
@@ -71,7 +71,7 @@ Boxtribute is an application for organisations who run distribution/warehouses i
 Therefore the development database seed holds at least two organisations and three bases:
 
 - Organisation `BoxAid` working on `Lesvos` and
-- Organisation `BoxCare` working on `Samos` and in `Thessaloniki`.
+- Organisation `BoxCare` working on `Samos` and in `Thessaloniki` and `Athens`.
 
 Each organisation has at least 3 user groups with different access levels in the app:
 
@@ -79,15 +79,33 @@ Each organisation has at least 3 user groups with different access levels in the
 - `Coordinator`
 - `Volunteer`
 
-For each of these three user groups of each of the two organisations we created an login credential for development purposes:
+In the development seed and Auth0 dev tenant we created the following login credentials with names telling their role and access to the various bases:
 
-- `some.admin@boxtribute.org` (God User)
-- `dev_headofops@boxaid.org`
-- `dev_coordinator@boxaid.org`
-- `dev_volunteer@boxaid.org`
-- `dev_headofops@boxcare.org`
-- `dev_coordinator@boxcare.org`
-- `dev_volunteer@boxcare.org`
+- some.admin@boxtribute.org (God User)
+
+BoxAid (all have access to only one base: Lesvos):
+
+- dev_headofops@boxaid.org
+- dev_coordinator@boxaid.org
+- dev_volunteer@boxaid.org
+- warehouse.volunteer@lesvos.org
+- freeshop.volunteer@lesvos.org
+- library.volunteer@lesvos.org
+
+BoxCare (there are 3 bases associated - Thessaloniki, Samos, Athens):
+
+- dev_headofops@boxcare.org
+- dev_coordinator@boxcare.org (Coordinator at bases Thessaloniki and Samos)
+- dev_volunteer@boxcare.org (Volunteer at bases Thessaloniki and Samos)
+- coordinator@thessaloniki.org
+- coordinator@samos.org
+- coordinator@athens.org
+- volunteer@thessaloniki.org
+- volunteer@samos.org
+- volunteer@athens.org
+- warehouse.volunteer@athens.org
+- freeshop.volunteer@athens.org
+- label@athens.org (only for label creation)
 
 The password of all of these users is `Browser_tests`.
 
@@ -96,15 +114,19 @@ Furthermore, here a collection of QR-Codes which have been seeded in the dev db 
 **Codes connected to existing boxes in the seed**
 
 Box in base 1
+
 ![9627242265f5a7f3a1db910eb18410f](docs/qr/code-with-base-1-box-9627242265f5a7f3a1db910eb18410f.png)
 
 Box in base 2
+
 ![1efb9f5633ebf01645934bd509d93e2](docs/qr/code-with-base-2-box-1efb9f5633ebf01645934bd509d93e2.png)
 
 Box in base 3
+
 ![46985d9e6d5a244cf683bacdb7d0f33](docs/qr/code-with-base-3-box-46985d9e6d5a244cf683bacdb7d0f33.png)
 
 **Codes not yet connected to boxes in the seed**
+
 ![0af9ec1a97906cf1cac5f50617a687b](docs/qr/code-without-box-0af9ec1a97906cf1cac5f50617a687b.png)
 
 **Codes that don't exist in the seed**
@@ -158,9 +180,12 @@ Here, is a list of intro tutorials for each technologies / frameworks / language
 - [React Context](https://reactjs.org/docs/context.html)
 - [Apollo](https://www.apollographql.com/docs/react/)
 
-#### Back-end
+#### Interface
 
 - [GraphQL](https://graphql.org/learn/)
+
+#### Back-end
+
 - [Ariadne](https://ariadnegraphql.org/docs/flask-integration.html)
 - [Python 3.10](https://devguide.python.org/)
 - [Flask](https://flask.palletsprojects.com/en/1.1.x/tutorial/layout/)

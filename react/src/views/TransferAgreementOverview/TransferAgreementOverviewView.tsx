@@ -5,7 +5,7 @@ import {
   BASE_BASIC_FIELDS_FRAGMENT,
   ORGANISATION_BASIC_FIELDS_FRAGMENT,
   USER_BASIC_FIELDS_FRAGMENT,
-} from "utils/fragments";
+} from "queries/fragments";
 import { TransferAgreementsQuery, TransferAgreementType } from "types/generated/graphql";
 import { useContext, useMemo } from "react";
 import { GlobalPreferencesContext } from "providers/GlobalPreferencesProvider";
