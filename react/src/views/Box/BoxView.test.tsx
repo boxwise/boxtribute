@@ -34,6 +34,28 @@ const initialQuery = {
   },
 };
 
+const initialQueryForBoxInLegacyLostLocation = {
+  request: {
+    query: BOX_BY_LABEL_IDENTIFIER_QUERY,
+    variables: {
+      labelIdentifier: "1234",
+    },
+  },
+  result: {
+    data: {
+      box: generateMockBox({
+        labelIdentifier: "1234",
+        location: generateMockLocationWithBase({
+          defaultBoxState: BoxState.Lost,
+          defaultLocationName: "LOST",
+          defaultLocationId: 1,
+        }),
+        state: BoxState.Lost,
+      }),
+    },
+  },
+};
+
 const productWithoutGenderQuery = {
   request: {
     query: BOX_BY_LABEL_IDENTIFIER_QUERY,
@@ -295,6 +317,31 @@ it("3.1.1 - Initial load of Page", async () => {
   expect(element).toBeInTheDocument();
 });
 
+// Test case 3.1.1.7
+it("3.1.1.7 - Content: Display an warning note if a box is located in a legacy location", async () => {
+  const user = userEvent.setup();
+  render(<BTBox />, {
+    routePath: "/bases/:baseId/boxes/:labelIdentifier",
+    initialUrl: "/bases/1/boxes/1234",
+    mocks: [initialQueryForBoxInLegacyLostLocation],
+    addTypename: true,
+  });
+
+  // Test case 3.1.1.7 - Content: Display an warning note if a box is located in a legacy location
+  const loadingInfo = screen.getByTestId("loading-indicator");
+  expect(loadingInfo).toBeInTheDocument();
+
+  const title = await screen.findByRole("heading", { name: "Box 1234" });
+  expect(title).toBeInTheDocument();
+
+  expect(screen.getByRole("alert")).toBeInTheDocument();
+  expect(
+    screen.getByText(
+      /if this box has been found, please move it to an instock location\. boxtribute no longer supports lost locations\./i,
+    ),
+  ).toBeInTheDocument();
+});
+
 // Test case 3.1.2
 it("3.1.2 - Change Number of Items", async () => {
   const user = userEvent.setup();
@@ -307,27 +354,30 @@ it("3.1.2 - Change Number of Items", async () => {
 
   const title = await screen.findByRole("heading", { name: "Box 123" });
   expect(title).toBeInTheDocument();
-
-  // Test case 3.1.2.1.1 - Click on + Button
   expect(screen.getByTestId("boxview-number-items")).toHaveTextContent(`31x Snow trousers`);
 
   const addToItemsButton = screen.getByTestId("increase-items");
   await user.click(addToItemsButton);
 
+  // Test case 3.1.2.1 - Click on + Button
   expect(await screen.findByText(/add items to the Box/i)).toBeInTheDocument();
+  await waitFor(() => expect(screen.getByRole("spinbutton")).toHaveValue("1"));
 
   // Test case 3.1.2.1.1	- Alphabetical Input isn't allowed
   await user.type(screen.getByRole("spinbutton"), "a");
-  await user.click(screen.getByText(/Submit/i));
-  expect(await screen.findByText(/add items to the Box/i)).toBeInTheDocument();
+  await waitFor(() => expect(screen.getByRole("spinbutton")).toHaveValue("1"));
 
   // // Test case 3.1.2.1.2	- Number of Item Validation
-  await user.type(screen.getByRole("spinbutton"), "-1");
+  await user.type(screen.getByRole("spinbutton"), "{backspace}");
+  await user.type(screen.getByRole("spinbutton"), "-");
+  await waitFor(() => expect(screen.getByRole("spinbutton")).toHaveValue("-"));
   await user.click(screen.getByText(/Submit/i));
   await waitFor(() => expect(screen.getByRole("spinbutton")).toHaveValue("0"));
 
   // Test case 3.1.2.2 - Number of Item Validation
+  await user.type(screen.getByRole("spinbutton"), "{backspace}");
   await user.type(screen.getByRole("spinbutton"), "1");
+  await waitFor(() => expect(screen.getByRole("spinbutton")).toHaveValue("1"));
   await user.click(screen.getByText(/Submit/i));
   expect(await screen.findByText("32x Snow trousers")).toBeInTheDocument();
 });
