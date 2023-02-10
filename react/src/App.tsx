@@ -85,7 +85,7 @@ function App() {
             <Route index element={<BaseDashboardView />} />
             <Route path="transfers">
               <Route path="agreements">
-                <Route index element="" />
+                <Route index element={<TransferAgreementOverviewView />} />
                 <Route path="create" element={<CreateTransferAgreementView />} />
               </Route>
             </Route>
@@ -98,9 +98,6 @@ function App() {
                 <Route index element={<BTBox />} />
                 <Route path="edit" element={<BoxEditView />} />
               </Route>
-            </Route>
-            <Route path="agreements">
-              <Route index element={<TransferAgreementOverviewView />} />
             </Route>
             <Route path="distributions">
               <Route index element={<DistrosDashboardView />} />
