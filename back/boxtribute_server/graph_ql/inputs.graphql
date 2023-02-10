@@ -55,15 +55,15 @@ input BeneficiaryUpdateInput {
 }
 
 input TransferAgreementCreationInput {
-  sourceOrganisationId: Int!
-  targetOrganisationId: Int!
+  initiatingOrganisationId: Int!
+  partnerOrganisationId: Int!
   type: TransferAgreementType!
   # pass local date and timezone information (e.g. 'Europe/Berlin')
   validFrom: Date
   validUntil: Date
   timezone: String
-  sourceBaseIds: [Int!]
-  targetBaseIds: [Int!]
+  initiatingOrganisationBaseIds: [Int!]
+  partnerOrganisationBaseIds: [Int!]
   comment: String
 }
 

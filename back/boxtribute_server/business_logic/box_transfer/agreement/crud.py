@@ -36,11 +36,11 @@ def _validate_bases_as_part_of_organisation(*, base_ids, organisation_id):
 
 def create_transfer_agreement(
     *,
-    source_organisation_id,
-    target_organisation_id,
+    initiating_organisation_id,
+    partner_organisation_id,
     type,
-    source_base_ids=None,
-    target_base_ids=None,
+    initiating_organisation_base_ids=None,
+    partner_organisation_base_ids=None,
     valid_from=None,
     valid_until=None,
     timezone=None,
@@ -58,17 +58,22 @@ def create_transfer_agreement(
     Raise an InvalidTransferAgreementBase expection if any specified source/target base
     is not part of the source/target organisation.
     """
-    if type == TransferAgreementType.ReceivingFrom:
-        # Swap inputs such that transfer target is the initiating organisation, and
-        # source is their partner organisation
-        source_organisation_id, target_organisation_id = (
-            target_organisation_id,
-            source_organisation_id,
-        )
-        source_base_ids, target_base_ids = target_base_ids, source_base_ids
-
-    if source_organisation_id == target_organisation_id:
+    if initiating_organisation_id == partner_organisation_id:
         raise InvalidTransferAgreementOrganisation()
+
+    if type == TransferAgreementType.ReceivingFrom:
+        # Initiating organisation will be transfer target, the partner organisation will
+        # be source
+        source_organisation_id = partner_organisation_id
+        target_organisation_id = initiating_organisation_id
+        source_base_ids = partner_organisation_base_ids
+        target_base_ids = initiating_organisation_base_ids
+    else:
+        # Agreement type SendingTo or Bidirectional
+        source_organisation_id = initiating_organisation_id
+        target_organisation_id = partner_organisation_id
+        source_base_ids = initiating_organisation_base_ids
+        target_base_ids = partner_organisation_base_ids
 
     with db.database.atomic():
         if valid_from is not None or valid_until is not None:

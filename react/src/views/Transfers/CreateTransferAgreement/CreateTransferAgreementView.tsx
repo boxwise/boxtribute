@@ -32,26 +32,26 @@ export const ALL_ORGS_AND_BASES_QUERY = gql`
 
 export const CREATE_AGREEMENT_MUTATION = gql`
   mutation CreateTransferAgreement(
-    $sourceOrganisationId: Int!
-    $targetOrganisationId: Int!
+    $initiatingOrganisationId: Int!
+    $partnerOrganisationId: Int!
     $type: TransferAgreementType!
     $validFrom: Date
     $validUntil: Date
     $timezone: String
-    $sourceBaseIds: [Int!]
-    $targetBaseIds: [Int!]
+    $initiatingOrganisationBaseIds: [Int!]
+    $partnerOrganisationBaseIds: [Int!]
     $comment: String
   ) {
     createTransferAgreement(
       creationInput: {
-        sourceOrganisationId: $sourceOrganisationId
-        targetOrganisationId: $targetOrganisationId
+        initiatingOrganisationId: $initiatingOrganisationId
+        partnerOrganisationId: $partnerOrganisationId
         type: $type
         validFrom: $validFrom
         validUntil: $validUntil
         timezone: $timezone
-        sourceBaseIds: $sourceBaseIds
-        targetBaseIds: $targetBaseIds
+        initiatingOrganisationBaseIds: $initiatingOrganisationBaseIds
+        partnerOrganisationBaseIds: $partnerOrganisationBaseIds
         comment: $comment
       }
     ) {
@@ -124,13 +124,13 @@ function CreateTransferAgreementView() {
 
     createTransferAgreementMutation({
       variables: {
-        sourceOrganisationId: parseInt(userCurrentOrganisatinId, 10),
-        targetOrganisationId: parseInt(createTransferAgreementData.partnerOrganisation.value, 10),
+        initiatingOrganisationId: parseInt(userCurrentOrganisatinId, 10),
+        partnerOrganisationId: parseInt(createTransferAgreementData.partnerOrganisation.value, 10),
         type: transferType,
         validFrom: createTransferAgreementData?.validFrom,
         validUntil: createTransferAgreementData?.validUntil,
-        sourceBaseIds: currentOrgBaseIds,
-        targetBaseIds: partnerBaseIds,
+        initiatingOrganisationBaseIds: currentOrgBaseIds,
+        partnerOrganisationBaseIds: partnerBaseIds,
         comment: createTransferAgreementData.comment,
       },
     })
