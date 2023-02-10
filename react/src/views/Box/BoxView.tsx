@@ -173,7 +173,6 @@ export interface IChangeNumberOfItemsBoxData {
 function BTBox() {
   const { triggerError } = useErrorHandling();
   const { createToast } = useNotification();
-  const { isOpen: isVisible, onClose, onOpen } = useDisclosure({ defaultIsOpen: true });
   const labelIdentifier = useParams<{ labelIdentifier: string }>().labelIdentifier!;
   const allBoxData = useQuery<BoxByLabelIdentifierQuery, BoxByLabelIdentifierQueryVariables>(
     BOX_BY_LABEL_IDENTIFIER_QUERY,
