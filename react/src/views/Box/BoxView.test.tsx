@@ -276,6 +276,17 @@ const moveLocationOfBoxFailedMutation = {
   },
 };
 
+const moveLocationOfBoxNetworkFailedMutation = {
+  request: {
+    query: UPDATE_BOX_MUTATION,
+    variables: {
+      boxLabelIdentifier: "123",
+      newLocationId: 10,
+    },
+  },
+  error: new Error(),
+};
+
 // Test case 3.1.1
 it("3.1.1 - Initial load of Page", async () => {
   const user = userEvent.setup();
@@ -527,13 +538,35 @@ it("3.1.7 - Error Shows Correctly When Trying to Remove (-) Items", async () => 
   expect(await screen.findByText(/could not remove items from the box./i)).toBeInTheDocument();
 });
 
+// Test case 3.1.7.2
+it("3.1.7.2 - Form data was valid, but the mutation failed", async () => {
+  const user = userEvent.setup();
+  render(<BTBox />, {
+    routePath: "/bases/:baseId/boxes/:labelIdentifier",
+    initialUrl: "/bases/2/boxes/124",
+    mocks: [initialForFailedQuery, moveLocationOfBoxFailedMutation],
+    addTypename: true,
+  });
+
+  const title = await screen.findByRole("heading", { name: "Box 124" });
+  expect(title).toBeInTheDocument();
+
+  const boxLocationLabel = screen.getByTestId("box-location-label");
+  expect(boxLocationLabel).toHaveTextContent("Move this box from WH Men to:");
+
+  const whWomenLocation = screen.getByRole("button", { name: /wh shoes/i });
+  await user.click(whWomenLocation);
+
+  expect(screen.getByText(/box could not be moved!/i)).toBeInTheDocument();
+});
+
 // Test case 3.1.8
 it("3.1.8 - Error When Move Locations", async () => {
   const user = userEvent.setup();
   render(<BTBox />, {
     routePath: "/bases/:baseId/boxes/:labelIdentifier",
     initialUrl: "/bases/2/boxes/124",
-    mocks: [initialForFailedQuery, moveLocationOfBoxFailedMutation],
+    mocks: [initialForFailedQuery, moveLocationOfBoxNetworkFailedMutation],
     addTypename: true,
   });
 
@@ -547,7 +580,7 @@ it("3.1.8 - Error When Move Locations", async () => {
   const whWomenLocation = screen.getByRole("button", { name: /wh shoes/i });
   await user.click(whWomenLocation);
 
-  expect(screen.getByText(/box could not be moved!/i)).toBeInTheDocument();
+  expect(screen.getAllByText(/box could not be moved!/i).length).toBeGreaterThanOrEqual(1);
 });
 
 // Test case 3.1.9

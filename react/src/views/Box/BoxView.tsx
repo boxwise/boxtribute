@@ -258,9 +258,6 @@ function BTBox() {
       // refetchQueries: [refetchBoxByLabelIdentifierQueryConfig(labelIdentifier)],
     })
       .then((mutationResult) => {
-        // eslint-disable-next-line no-console
-        console.log(mutationResult);
-
         if (mutationResult?.errors) {
           triggerError({
             message: `Error: Could not update the box status to ${newState}`,
@@ -444,21 +441,25 @@ function BTBox() {
     return <div />;
   }
 
+  const LegacyBoxAlert = (
+    <Alert status="warning">
+      <AlertIcon />
+      <Box>
+        <AlertTitle>Note</AlertTitle>
+        <AlertDescription>
+          If this box has been found, please move it to an instock location. Boxtribute no longer
+          supports LOST locations.
+        </AlertDescription>
+      </Box>
+    </Alert>
+  );
+
   return (
     <VStack spacing={4} align="stretch">
       {((boxData?.location as ClassicLocation).defaultBoxState === BoxState.Lost ||
-        (boxData?.location as ClassicLocation).defaultBoxState === BoxState.Scrap) && (
-        <Alert status="warning">
-          <AlertIcon />
-          <Box>
-            <AlertTitle>Note</AlertTitle>
-            <AlertDescription>
-              If this box has been found, please move it to an instock location. Boxtribute no
-              longer supports LOST locations.
-            </AlertDescription>
-          </Box>
-        </Alert>
-      )}
+        (boxData?.location as ClassicLocation).defaultBoxState === BoxState.Scrap) &&
+        boxData?.state !== BoxState.InStock &&
+        LegacyBoxAlert}
       <BoxDetails
         boxData={boxData}
         onPlusOpen={onPlusOpen}
