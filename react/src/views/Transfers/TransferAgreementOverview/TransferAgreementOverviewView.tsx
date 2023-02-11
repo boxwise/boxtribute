@@ -1,16 +1,18 @@
 import { useContext, useMemo } from "react";
 import { gql, useQuery } from "@apollo/client";
-import { Alert, AlertIcon, Button, Heading } from "@chakra-ui/react";
+import { Alert, AlertIcon, Button, Heading, Stack } from "@chakra-ui/react";
 import { Link } from "react-router-dom";
 import { GlobalPreferencesContext } from "providers/GlobalPreferencesProvider";
-import APILoadingIndicator from "components/APILoadingIndicator";
 import {
   BASE_BASIC_FIELDS_FRAGMENT,
   ORGANISATION_BASIC_FIELDS_FRAGMENT,
   USER_BASIC_FIELDS_FRAGMENT,
 } from "queries/fragments";
 import { TransferAgreementsQuery, TransferAgreementType } from "types/generated/graphql";
+import { AddIcon } from "@chakra-ui/icons";
+import { TableSkeleton } from "components/Skeletons";
 import TransferAgreementTable from "./components/TransferAgreementTable";
+import { DirectionCell } from "./components/TableCells";
 
 export const ALL_TRANSFER_AGREEMENTS_QUERY = gql`
   ${ORGANISATION_BASIC_FIELDS_FRAGMENT}
@@ -68,26 +70,33 @@ function TransferAgreementOverviewView() {
   ) =>
     transferAgreementQueryResult?.transferAgreements.map((element) => {
       if (globalPreferences.selectedOrganisationId !== undefined) {
-        const row = {
-          direction: "from/to",
+        const currentOrgId = parseInt(globalPreferences.selectedOrganisationId, 10);
+        const sourceOrgId = parseInt(element.sourceOrganisation.id, 10);
+        const targetOrgId = parseInt(element.targetOrganisation.id, 10);
+
+        const agreementRow = {
+          direction: TransferAgreementType.Bidirectional,
           state: element.state,
-          comments: element.comment,
+          comment: element.comment,
           validUntil: element.validUntil,
         };
+
         if (
-          parseInt(globalPreferences.selectedOrganisationId, 10) ===
-            parseInt(element.sourceOrganisation.id, 10) &&
-          element.type === TransferAgreementType.SendingTo
+          (element.type === TransferAgreementType.SendingTo && currentOrgId === sourceOrgId) ||
+          (element.type === TransferAgreementType.ReceivingFrom && currentOrgId === targetOrgId)
         ) {
-          row.direction = "to";
+          // We can send items to the partner org
+          agreementRow.direction = TransferAgreementType.SendingTo;
         } else if (
-          parseInt(globalPreferences.selectedOrganisationId, 10) ===
-            parseInt(element.targetOrganisation.id, 10) &&
-          element.type === TransferAgreementType.ReceivingFrom
+          (element.type === TransferAgreementType.ReceivingFrom && currentOrgId === sourceOrgId) ||
+          (element.type === TransferAgreementType.SendingTo && currentOrgId === targetOrgId)
         ) {
-          row.direction = "from";
+          // We can receive items to the partner org
+          agreementRow.direction = TransferAgreementType.ReceivingFrom;
+        } else if (element.type === TransferAgreementType.Bidirectional) {
+          agreementRow.direction = TransferAgreementType.Bidirectional;
         }
-        return row;
+        return agreementRow;
       }
       return undefined;
     }) || [];
@@ -97,10 +106,11 @@ function TransferAgreementOverviewView() {
       {
         Header: "",
         accessor: "direction",
+        Cell: DirectionCell,
       },
       {
         Header: "Partner Agreements",
-        accessor: "state",
+        accessor: "partnerOrg",
       },
       {
         Header: "Status",
@@ -108,11 +118,11 @@ function TransferAgreementOverviewView() {
       },
       {
         Header: "Shipments",
-        accessor: "state",
+        accessor: "shipments",
       },
       {
         Header: "Comments",
-        accessor: "comments",
+        accessor: "comment",
       },
       {
         Header: "Valid Until",
@@ -126,14 +136,16 @@ function TransferAgreementOverviewView() {
 
   return (
     <>
-      <Heading fontWeight="bold" mb={2} as="h2">
+      <Heading fontWeight="bold" mb={4} as="h2">
         My Transfer Network
       </Heading>
-      <Link to="create">
-        <Button mt={4} borderRadius="0">
-          Create Agreement
-        </Button>
-      </Link>
+      <Stack direction="row" my={4} spacing={4}>
+        <Link to="create">
+          <Button leftIcon={<AddIcon />} borderRadius="0">
+            Create Agreement
+          </Button>
+        </Link>
+      </Stack>
       {error && (
         <Alert status="error">
           <AlertIcon />
@@ -141,11 +153,10 @@ function TransferAgreementOverviewView() {
         </Alert>
       )}
       {loading ? (
-        <APILoadingIndicator />
+        // TODO: move to global component
+        <TableSkeleton />
       ) : (
-        {
-          /* <TransferAgreementTable columns={columns} tableData={graphqlToTableTransformer(data)} /> */
-        }
+        <TransferAgreementTable columns={columns} tableData={graphqlToTableTransformer(data)} />
       )}
     </>
   );
