@@ -8,11 +8,20 @@ import {
   ORGANISATION_BASIC_FIELDS_FRAGMENT,
   USER_BASIC_FIELDS_FRAGMENT,
 } from "queries/fragments";
-import { TransferAgreementsQuery, TransferAgreementType } from "types/generated/graphql";
+import {
+  TransferAgreementsQuery,
+  TransferAgreementState,
+  TransferAgreementType,
+} from "types/generated/graphql";
 import { AddIcon } from "@chakra-ui/icons";
 import { TableSkeleton } from "components/Skeletons";
 import TransferAgreementTable from "./components/TransferAgreementTable";
-import { DirectionCell } from "./components/TableCells";
+import {
+  CanAcceptTransferAgreementState,
+  DirectionCell,
+  IExtendedTransferAgreementState,
+  StatusCell,
+} from "./components/TableCells";
 
 export const ALL_TRANSFER_AGREEMENTS_QUERY = gql`
   ${ORGANISATION_BASIC_FIELDS_FRAGMENT}
@@ -76,26 +85,52 @@ function TransferAgreementOverviewView() {
 
         const agreementRow = {
           direction: TransferAgreementType.Bidirectional,
-          state: element.state,
+          partnerOrg: element.targetOrganisation.name,
+          state: element.state as IExtendedTransferAgreementState,
           comment: element.comment,
           validUntil: element.validUntil,
         };
 
-        if (
-          (element.type === TransferAgreementType.SendingTo && currentOrgId === sourceOrgId) ||
-          (element.type === TransferAgreementType.ReceivingFrom && currentOrgId === targetOrgId)
+        if (element.type === TransferAgreementType.SendingTo && currentOrgId === sourceOrgId) {
+          // We can send items to the partner org
+          agreementRow.direction = TransferAgreementType.SendingTo;
+          agreementRow.partnerOrg = element.targetOrganisation.name;
+        } else if (
+          element.type === TransferAgreementType.ReceivingFrom &&
+          currentOrgId === targetOrgId
         ) {
           // We can send items to the partner org
           agreementRow.direction = TransferAgreementType.SendingTo;
+          agreementRow.partnerOrg = element.sourceOrganisation.name;
         } else if (
-          (element.type === TransferAgreementType.ReceivingFrom && currentOrgId === sourceOrgId) ||
-          (element.type === TransferAgreementType.SendingTo && currentOrgId === targetOrgId)
+          element.type === TransferAgreementType.ReceivingFrom &&
+          currentOrgId === sourceOrgId
         ) {
           // We can receive items to the partner org
           agreementRow.direction = TransferAgreementType.ReceivingFrom;
+          agreementRow.partnerOrg = element.targetOrganisation.name;
+        } else if (
+          element.type === TransferAgreementType.SendingTo &&
+          currentOrgId === targetOrgId
+        ) {
+          // We can receive items to the partner org
+          agreementRow.direction = TransferAgreementType.ReceivingFrom;
+          agreementRow.partnerOrg = element.sourceOrganisation.name;
         } else if (element.type === TransferAgreementType.Bidirectional) {
+          // We can do both
           agreementRow.direction = TransferAgreementType.Bidirectional;
+          if (currentOrgId === sourceOrgId) {
+            agreementRow.partnerOrg = element.targetOrganisation.name;
+          } else if (currentOrgId === targetOrgId) {
+            agreementRow.partnerOrg = element.sourceOrganisation.name;
+          }
         }
+
+        if (element.state === TransferAgreementState.UnderReview && currentOrgId === targetOrgId) {
+          // You can accept this Agreement if it is UnderReview since the partnerOrg created it
+          agreementRow.state = CanAcceptTransferAgreementState.CanAccept;
+        }
+
         return agreementRow;
       }
       return undefined;
@@ -115,6 +150,7 @@ function TransferAgreementOverviewView() {
       {
         Header: "Status",
         accessor: "state",
+        Cell: StatusCell,
       },
       {
         Header: "Shipments",
@@ -132,7 +168,12 @@ function TransferAgreementOverviewView() {
     [],
   );
 
-  const { loading, error, data } = useQuery<TransferAgreementsQuery>(ALL_TRANSFER_AGREEMENTS_QUERY);
+  const { loading, error, data } = useQuery<TransferAgreementsQuery>(
+    ALL_TRANSFER_AGREEMENTS_QUERY,
+    {
+      errorPolicy: "all",
+    },
+  );
 
   return (
     <>
@@ -153,7 +194,6 @@ function TransferAgreementOverviewView() {
         </Alert>
       )}
       {loading ? (
-        // TODO: move to global component
         <TableSkeleton />
       ) : (
         <TransferAgreementTable columns={columns} tableData={graphqlToTableTransformer(data)} />

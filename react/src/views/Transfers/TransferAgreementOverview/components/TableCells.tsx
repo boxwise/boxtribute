@@ -1,6 +1,54 @@
-import { chakra, Stack } from "@chakra-ui/react";
+import { CheckIcon } from "@chakra-ui/icons";
+import { Button, chakra, Stack, Tooltip } from "@chakra-ui/react";
 import { CellProps } from "react-table";
+import { TransferAgreementState } from "types/generated/graphql";
 import { BidirectionalIcon, ReceivingIcon, SendingIcon } from "./TransferIcons";
+
+export enum CanAcceptTransferAgreementState {
+  CanAccept = "CanAccept",
+}
+export type IExtendedTransferAgreementState =
+  | TransferAgreementState
+  | CanAcceptTransferAgreementState;
+
+export function StatusCell({ value }: CellProps<any>) {
+  if (value === TransferAgreementState.UnderReview) {
+    return (
+      <Tooltip label="Waiting for response from partner">
+        <chakra.span>Pending ...</chakra.span>
+      </Tooltip>
+    );
+  }
+  if (value === CanAcceptTransferAgreementState.CanAccept) {
+    return (
+      <Tooltip label="Click here to accept or reject the request!">
+        <Button variant="blue">Request Open</Button>
+      </Tooltip>
+    );
+  }
+  if (value === TransferAgreementState.Accepted) {
+    return (
+      <Tooltip label="Click here if you want to terminate the agreement!">
+        <Button variant="green">Accepted</Button>
+      </Tooltip>
+    );
+  }
+  if (value === TransferAgreementState.Rejected) {
+    return (
+      <Tooltip label="Click here if you want to retry!">
+        <Button variant="gray">Declined</Button>
+      </Tooltip>
+    );
+  }
+  if (value === TransferAgreementState.Canceled || value === TransferAgreementState.Expired) {
+    return (
+      <Tooltip label="Click here if you want to renew the agreement!">
+        <Button variant="gray">Ended</Button>
+      </Tooltip>
+    );
+  }
+  return String(value);
+}
 
 export function DirectionCell({ value }: CellProps<any>) {
   if (value === "SendingTo") {
