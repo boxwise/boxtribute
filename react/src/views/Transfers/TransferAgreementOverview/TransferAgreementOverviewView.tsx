@@ -20,6 +20,7 @@ import {
   CanAcceptTransferAgreementState,
   DirectionCell,
   IExtendedTransferAgreementState,
+  ShipmentCell,
   StatusCell,
 } from "./components/TableCells";
 
@@ -71,9 +72,25 @@ export const ALL_TRANSFER_AGREEMENTS_QUERY = gql`
   }
 `;
 
+interface IShipmentBase {
+  __typename?: "Base";
+  id: string;
+  name: string;
+  count?: number;
+}
+
 function TransferAgreementOverviewView() {
   const { globalPreferences } = useContext(GlobalPreferencesContext);
 
+  // fetch agreements data
+  const { loading, error, data } = useQuery<TransferAgreementsQuery>(
+    ALL_TRANSFER_AGREEMENTS_QUERY,
+    {
+      errorPolicy: "all",
+    },
+  );
+
+  // transform data for UI
   const graphqlToTableTransformer = (
     transferAgreementQueryResult: TransferAgreementsQuery | undefined,
   ) =>
@@ -87,6 +104,7 @@ function TransferAgreementOverviewView() {
           direction: TransferAgreementType.Bidirectional,
           partnerOrg: element.targetOrganisation.name,
           state: element.state as IExtendedTransferAgreementState,
+          shipments: {},
           comment: element.comment,
           validUntil: element.validUntil,
         };
@@ -131,11 +149,40 @@ function TransferAgreementOverviewView() {
           agreementRow.state = CanAcceptTransferAgreementState.CanAccept;
         }
 
+        // prepare shipment data
+        const shipmentsTmp = [] as IShipmentBase[];
+        element.shipments.forEach((shipment) => {
+          if (globalPreferences.availableBases !== undefined) {
+            if (
+              shipment.targetBase != null &&
+              globalPreferences.availableBases.findIndex(
+                ({ id }) => shipment.targetBase?.id === id,
+              ) === -1
+            ) {
+              shipmentsTmp.push(shipment.targetBase);
+            } else if (
+              shipment.sourceBase != null &&
+              globalPreferences.availableBases.findIndex(
+                ({ id }) => shipment.sourceBase?.id === id,
+              ) === -1
+            ) {
+              shipmentsTmp.push(shipment.sourceBase);
+            }
+          }
+        });
+
+        agreementRow.shipments = shipmentsTmp.reduce((acc, { id, name }) => {
+          const count = acc[id] ? acc[id].count + 1 : 1;
+          acc[id] = { id, name, count };
+          return acc;
+        }, {});
+
         return agreementRow;
       }
       return undefined;
     }) || [];
 
+  // Define columns
   const columns = useMemo(
     () => [
       {
@@ -144,7 +191,7 @@ function TransferAgreementOverviewView() {
         Cell: DirectionCell,
       },
       {
-        Header: "Partner Agreements",
+        Header: "Partner",
         accessor: "partnerOrg",
       },
       {
@@ -155,6 +202,7 @@ function TransferAgreementOverviewView() {
       {
         Header: "Shipments",
         accessor: "shipments",
+        Cell: ShipmentCell,
       },
       {
         Header: "Comments",
@@ -166,13 +214,6 @@ function TransferAgreementOverviewView() {
       },
     ],
     [],
-  );
-
-  const { loading, error, data } = useQuery<TransferAgreementsQuery>(
-    ALL_TRANSFER_AGREEMENTS_QUERY,
-    {
-      errorPolicy: "all",
-    },
   );
 
   return (

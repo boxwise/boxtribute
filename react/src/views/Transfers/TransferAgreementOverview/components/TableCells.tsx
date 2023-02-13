@@ -1,5 +1,5 @@
-import { CheckIcon } from "@chakra-ui/icons";
-import { Button, chakra, Stack, Tooltip } from "@chakra-ui/react";
+import { Button, chakra, Link, Stack, Tooltip, VStack } from "@chakra-ui/react";
+import { Link as RouterLink } from "react-router-dom";
 import { CellProps } from "react-table";
 import { TransferAgreementState } from "types/generated/graphql";
 import { BidirectionalIcon, ReceivingIcon, SendingIcon } from "./TransferIcons";
@@ -7,6 +7,7 @@ import { BidirectionalIcon, ReceivingIcon, SendingIcon } from "./TransferIcons";
 export enum CanAcceptTransferAgreementState {
   CanAccept = "CanAccept",
 }
+
 export type IExtendedTransferAgreementState =
   | TransferAgreementState
   | CanAcceptTransferAgreementState;
@@ -48,6 +49,18 @@ export function StatusCell({ value }: CellProps<any>) {
     );
   }
   return String(value);
+}
+
+export function ShipmentCell({ value }: CellProps<any>) {
+  return (
+    <VStack align="start">
+      {Object.values(value).map(({ name, count }) => (
+        <Link as={RouterLink} to="../shipments">
+          {name} ({count})
+        </Link>
+      ))}
+    </VStack>
+  );
 }
 
 export function DirectionCell({ value }: CellProps<any>) {
