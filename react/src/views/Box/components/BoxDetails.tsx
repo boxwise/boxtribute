@@ -87,7 +87,7 @@ function BoxDetails({
         border="2px"
         mb={6}
         pb={2}
-        backgroundColor="#F4E5A0"
+        backgroundColor="brandYellow.100"
         mr={["0", "0", "4rem", "4rem"]}
       >
         <Wrap py={2} px={4} alignItems="center">

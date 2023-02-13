@@ -1,23 +1,49 @@
 import { extendTheme } from "@chakra-ui/react";
 
 const colors = {
-  brand: {
-    900: "#1a365d",
-    800: "#153e75",
-    700: "#2a69ac",
+  brandRed: {
+    300: "#ef404a",
+    200: "#f37167",
+    100: "#f8aa9e",
   },
-  primary: {
-    700: "light-blue",
-    500: "blue",
+  brandBlue: {
+    300: "#29335f",
+    200: "#315c88",
+    100: "#aacfe3",
   },
+  brandYellow: {
+    300: "#d89016",
+    200: "#e4aa4f",
+    100: "#f4e6a0",
+  },
+  brandGray: "#848689",
+  // this was additional generated on https://coolors.co/ to have a fitting green
+  brandGreen: "#60a561"
 };
 
 export const theme = extendTheme({
   colors,
   components: {
     Button: {
+      variants: {
+        "blue": {
+          bg: "brandBlue.300",
+          color: "white",
+          borderRadius: 0,
+        },
+        "green": {
+          bg: "brandGreen",
+          color: "white",
+          borderRadius: 0,
+        },
+        "gray": {
+          bg: "brandGray",
+          color: "white",
+          borderRadius: 0,
+        }
+      },
       defaultProps: {
-        borderRadius: "0",
+        borderRadius: 0,
       },
     },
     Link: {
