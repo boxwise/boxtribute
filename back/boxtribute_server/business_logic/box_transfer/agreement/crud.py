@@ -21,17 +21,16 @@ def _validate_bases_as_part_of_organisation(*, base_ids, organisation_id):
     """Raise InvalidTransferAgreementBase exception if any of the given bases is not run
     by the given organisation.
     """
-    if base_ids != {None}:
-        organisation_base_ids = [
-            b.id
-            for b in Base.select(Base.id).where(Base.organisation_id == organisation_id)
-        ]
-        invalid_base_ids = [i for i in base_ids if i not in organisation_base_ids]
-        if invalid_base_ids:
-            raise InvalidTransferAgreementBase(
-                expected_base_ids=organisation_base_ids,
-                base_id=invalid_base_ids[0],
-            )
+    organisation_base_ids = [
+        b.id
+        for b in Base.select(Base.id).where(Base.organisation_id == organisation_id)
+    ]
+    invalid_base_ids = [i for i in base_ids if i not in organisation_base_ids]
+    if invalid_base_ids:
+        raise InvalidTransferAgreementBase(
+            expected_base_ids=organisation_base_ids,
+            base_id=invalid_base_ids[0],
+        )
 
 
 def create_transfer_agreement(
@@ -61,10 +60,16 @@ def create_transfer_agreement(
     if initiating_organisation_id == partner_organisation_id:
         raise InvalidTransferAgreementOrganisation()
 
-    # In GraphQL input, partner organisation base IDs can be omitted, or explicitly be
-    # null. Avoid duplicate base IDs by creating sets
+    # In GraphQL input, partner organisation base IDs can be omitted, hence substitute
+    # actual base IDs of partner organisation. Avoid duplicate base IDs by creating sets
     initiating_organisation_base_ids = set(initiating_organisation_base_ids)
-    partner_organisation_base_ids = set(partner_organisation_base_ids or [None])
+    if partner_organisation_base_ids is None:
+        partner_organisation_base_ids = [
+            b.id
+            for b in Base.select().where(Base.organisation == partner_organisation_id)
+        ]
+    else:
+        partner_organisation_base_ids = set(partner_organisation_base_ids)
 
     if type == TransferAgreementType.ReceivingFrom:
         # Initiating organisation will be transfer target, the partner organisation will
@@ -190,13 +195,13 @@ def cancel_transfer_agreement(*, id, user_id):
 
 def retrieve_transfer_agreement_bases(*, transfer_agreement, kind):
     """Return all bases (kind: source or target) involved in the given transfer
-    agreement. If the selection is None, it indicates that all bases of the respective
-    organisation are included.
+    agreement.
     """
-    return Base.select().join(
-        TransferAgreementDetail, on=getattr(TransferAgreementDetail, f"{kind}_base")
-    ).where(
-        TransferAgreementDetail.transfer_agreement == transfer_agreement.id
-    ).distinct() or Base.select().where(
-        Base.organisation == getattr(transfer_agreement, f"{kind}_organisation")
+    return (
+        Base.select()
+        .join(
+            TransferAgreementDetail, on=getattr(TransferAgreementDetail, f"{kind}_base")
+        )
+        .where(TransferAgreementDetail.transfer_agreement == transfer_agreement.id)
+        .distinct()
     )
