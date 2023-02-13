@@ -79,17 +79,33 @@ Each organisation has at least 3 user groups with different access levels in the
 - `Coordinator`
 - `Volunteer`
 
-For each of these three user groups of each of the two organisations we created an login credential for development purposes:
+In the development seed and Auth0 dev tenant we created the following login credentials with names telling their role and access to the various bases:
 
-- `some.admin@boxtribute.org` (God User)
-- `dev_headofops@boxaid.org`
-- `dev_coordinator@boxaid.org`
-- `dev_volunteer@boxaid.org`
-- `dev_headofops@boxcare.org`
-- `dev_coordinator@boxcare.org`
-- `dev_volunteer@boxcare.org`
-- `another_dev_volunteer@boxcare.org`
-- `another_dev_coordinatorr@boxcare.org` (sic)
+- some.admin@boxtribute.org (God User)
+
+BoxAid (all have access to only one base: Lesvos):
+
+- dev_headofops@boxaid.org
+- dev_coordinator@boxaid.org
+- dev_volunteer@boxaid.org
+- warehouse.volunteer@lesvos.org
+- freeshop.volunteer@lesvos.org
+- library.volunteer@lesvos.org
+
+BoxCare (there are 3 bases associated - Thessaloniki, Samos, Athens):
+
+- dev_headofops@boxcare.org
+- dev_coordinator@boxcare.org (Coordinator at bases Thessaloniki and Samos)
+- dev_volunteer@boxcare.org (Volunteer at bases Thessaloniki and Samos)
+- coordinator@thessaloniki.org
+- coordinator@samos.org
+- coordinator@athens.org
+- volunteer@thessaloniki.org
+- volunteer@samos.org
+- volunteer@athens.org
+- warehouse.volunteer@athens.org
+- freeshop.volunteer@athens.org
+- label@athens.org (only for label creation)
 
 The password of all of these users is `Browser_tests`.
 

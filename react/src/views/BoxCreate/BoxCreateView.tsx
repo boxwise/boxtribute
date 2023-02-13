@@ -166,9 +166,21 @@ function BoxCreateView() {
     })
       .then((mutationResult) => {
         if (mutationResult.errors) {
-          triggerError({
-            message: "Error while trying to create Box",
-          });
+          const errorCode = mutationResult.errors[0].extensions.code;
+          if (errorCode === "BAD_USER_INPUT") {
+            triggerError({
+              message: "The QR code is already used for another box.",
+            });
+          } else if (errorCode === "INTERNAL_SERVER_ERROR") {
+            // Box label-identifier generation failed
+            triggerError({
+              message: "Could not create box. Please try again.",
+            });
+          } else {
+            triggerError({
+              message: "Error while trying to create Box",
+            });
+          }
         } else {
           createToast({
             title: `Box ${mutationResult.data?.createBox?.labelIdentifier}`,

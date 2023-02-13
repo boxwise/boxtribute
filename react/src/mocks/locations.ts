@@ -24,6 +24,8 @@ export const generateMockLocationWithBase = ({
     __typename: "ClassicLocation",
     base: {
       __typename: "Base",
+      id: "1",
+      name: "Lesvos",
       distributionEventsBeforeReturnedFromDistributionState: [],
       locations: [
         {
