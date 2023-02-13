@@ -30,7 +30,11 @@ function AddItemsToBoxOverlay({
     control,
     handleSubmit,
     formState: { isSubmitting, errors },
-  } = useForm<IChangeNumberOfItemsBoxData>({});
+  } = useForm<IChangeNumberOfItemsBoxData>({
+    defaultValues: {
+      numberOfItems: 1,
+    },
+  });
 
   return (
     <Modal isOpen={isOpen} onClose={onClose}>
