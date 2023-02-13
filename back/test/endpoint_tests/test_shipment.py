@@ -343,7 +343,7 @@ def test_shipment_mutations_on_target_side(
     # Test cases 3.2.1b, 3.2.1c
     for agreement in [default_transfer_agreement, unidirectional_transfer_agreement]:
         source_base_id = str(default_bases[3]["id"])
-        target_base_id = str(default_bases[2]["id"])
+        target_base_id = str(default_bases[1]["id"])
         agreement_id = agreement["id"]
         creation_input = f"""sourceBaseId: {source_base_id},
                              targetBaseId: {target_base_id},

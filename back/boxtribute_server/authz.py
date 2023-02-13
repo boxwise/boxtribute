@@ -7,7 +7,6 @@ from peewee import Model
 from .auth import CurrentUser
 from .exceptions import Forbidden
 from .models.definitions.base import Base
-from .models.definitions.transfer_agreement import TransferAgreement
 from .utils import (
     convert_pascal_to_snake_case,
     in_ci_environment,
@@ -135,18 +134,6 @@ def authorized_bases_filter(
     base_ids = g.user.authorized_base_ids(permission)
     pattern = Base.id if model is Base else getattr(model, base_fk_field_name)
     return pattern << base_ids
-
-
-def agreement_organisation_filter_condition() -> bool:
-    """Derive filter condition for accessing transfer agreements depending on the user's
-    organisation. The god user may access any agreement.
-    """
-    if g.user.is_god:
-        return True
-    _authorize(permission="transfer_agreement:read", ignore_missing_base_info=True)
-    return (TransferAgreement.source_organisation == g.user.organisation_id) | (
-        TransferAgreement.target_organisation == g.user.organisation_id
-    )
 
 
 def authorize_for_organisation_bases() -> None:

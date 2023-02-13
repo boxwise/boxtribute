@@ -1,7 +1,8 @@
 from ariadne import QueryType
 
-from ....authz import agreement_organisation_filter_condition, authorize
+from ....authz import authorize, authorized_bases_filter
 from ....models.definitions.transfer_agreement import TransferAgreement
+from ....models.definitions.transfer_agreement_detail import TransferAgreementDetail
 from .crud import retrieve_transfer_agreement_bases
 
 query = QueryType()
@@ -21,6 +22,19 @@ def resolve_transfer_agreement(*_, id):
 def resolve_transfer_agreements(*_, states=None):
     # No state filter by default
     state_filter = TransferAgreement.state << states if states else True
-    return TransferAgreement.select().where(
-        agreement_organisation_filter_condition() & (state_filter)
+    return (
+        TransferAgreement.select()
+        .join(TransferAgreementDetail)
+        .where(
+            state_filter,
+            # Filter for all agreements with have source/target bases that the user is
+            # authorized for
+            authorized_bases_filter(
+                TransferAgreementDetail, base_fk_field_name="source_base"
+            )
+            | authorized_bases_filter(
+                TransferAgreementDetail, base_fk_field_name="target_base"
+            ),
+        )
+        .distinct()
     )

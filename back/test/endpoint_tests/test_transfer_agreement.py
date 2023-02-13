@@ -73,8 +73,8 @@ def state_names(value):
 @pytest.mark.parametrize(
     "filter_input,transfer_agreement_ids",
     (
-        ["", ["1", "2", "3", "4", "5"]],
-        ["(states: [UnderReview])", ["3", "5"]],
+        ["", ["1", "2", "3", "4"]],
+        ["(states: [UnderReview])", ["3"]],
         ["(states: [Accepted])", ["1", "4"]],
         ["(states: [Rejected])", []],
         ["(states: [Expired])", ["2"]],

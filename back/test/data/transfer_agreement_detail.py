@@ -12,14 +12,38 @@ def data():
         {
             "id": 1,
             "transfer_agreement": transfer_agreement_data()[0]["id"],
-            "source_base": None,
+            "source_base": base_data()[0]["id"],
             "target_base": base_data()[2]["id"],
         },
         {
             "id": 2,
-            "transfer_agreement": transfer_agreement_data()[1]["id"],
-            "source_base": None,
+            "transfer_agreement": transfer_agreement_data()[0]["id"],
+            "source_base": base_data()[1]["id"],
             "target_base": base_data()[2]["id"],
+        },
+        {
+            "id": 3,
+            "transfer_agreement": transfer_agreement_data()[1]["id"],
+            "source_base": base_data()[0]["id"],
+            "target_base": base_data()[2]["id"],
+        },
+        {
+            "id": 4,
+            "transfer_agreement": transfer_agreement_data()[2]["id"],
+            "source_base": base_data()[0]["id"],
+            "target_base": base_data()[2]["id"],
+        },
+        {
+            "id": 5,
+            "transfer_agreement": transfer_agreement_data()[3]["id"],
+            "source_base": base_data()[2]["id"],
+            "target_base": base_data()[0]["id"],
+        },
+        {
+            "id": 6,
+            "transfer_agreement": transfer_agreement_data()[4]["id"],
+            "source_base": base_data()[2]["id"],
+            "target_base": base_data()[1]["id"],
         },
     ]
 
