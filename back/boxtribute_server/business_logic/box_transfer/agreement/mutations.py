@@ -35,9 +35,7 @@ def resolve_accept_transfer_agreement(*_, id):
     kind = (
         "source" if agreement.type == TransferAgreementType.ReceivingFrom else "target"
     )
-    for base in retrieve_transfer_agreement_bases(
-        transfer_agreement=agreement, kind=kind
-    ):
+    for base in retrieve_transfer_agreement_bases(agreement=agreement, kind=kind):
         authorize(permission="transfer_agreement:edit", base_id=base.id)
     return accept_transfer_agreement(id=id, user=g.user)
 
@@ -51,9 +49,7 @@ def resolve_reject_transfer_agreement(*_, id):
     kind = (
         "source" if agreement.type == TransferAgreementType.ReceivingFrom else "target"
     )
-    for base in retrieve_transfer_agreement_bases(
-        transfer_agreement=agreement, kind=kind
-    ):
+    for base in retrieve_transfer_agreement_bases(agreement=agreement, kind=kind):
         authorize(permission="transfer_agreement:edit", base_id=base.id)
     return reject_transfer_agreement(id=id, user=g.user)
 
@@ -63,15 +59,13 @@ def resolve_cancel_transfer_agreement(*_, id):
     # User must be member of either all source or all target bases to be authorized
     # for cancelling the agreement
     agreement = TransferAgreement.get_by_id(id)
-    source_bases = retrieve_transfer_agreement_bases(
-        transfer_agreement=agreement, kind="source"
-    )
+    source_bases = retrieve_transfer_agreement_bases(agreement=agreement, kind="source")
     try:
         for base in source_bases:
             authorize(permission="transfer_agreement:edit", base_id=base.id)
     except Forbidden:
         target_bases = retrieve_transfer_agreement_bases(
-            transfer_agreement=agreement, kind="target"
+            agreement=agreement, kind="target"
         )
         for base in target_bases:
             authorize(permission="transfer_agreement:edit", base_id=base.id)

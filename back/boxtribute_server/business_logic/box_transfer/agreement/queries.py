@@ -12,8 +12,8 @@ query = QueryType()
 def resolve_transfer_agreement(*_, id):
     agreement = TransferAgreement.get_by_id(id)
     bases = retrieve_transfer_agreement_bases(
-        transfer_agreement=agreement, kind="source"
-    ) + retrieve_transfer_agreement_bases(transfer_agreement=agreement, kind="target")
+        agreement=agreement, kind="source"
+    ) + retrieve_transfer_agreement_bases(agreement=agreement, kind="target")
     authorize(permission="transfer_agreement:read", base_ids=[b.id for b in bases])
     return agreement
 

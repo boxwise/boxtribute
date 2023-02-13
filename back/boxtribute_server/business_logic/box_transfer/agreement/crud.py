@@ -193,7 +193,7 @@ def cancel_transfer_agreement(*, id, user_id):
     return agreement
 
 
-def retrieve_transfer_agreement_bases(*, transfer_agreement, kind):
+def retrieve_transfer_agreement_bases(*, agreement, kind):
     """Return all bases (kind: source or target) involved in the given transfer
     agreement.
     """
@@ -202,6 +202,6 @@ def retrieve_transfer_agreement_bases(*, transfer_agreement, kind):
         .join(
             TransferAgreementDetail, on=getattr(TransferAgreementDetail, f"{kind}_base")
         )
-        .where(TransferAgreementDetail.transfer_agreement == transfer_agreement.id)
+        .where(TransferAgreementDetail.transfer_agreement == agreement.id)
         .distinct()
     )
