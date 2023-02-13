@@ -1779,3 +1779,10 @@ export type CreateTransferShipmentMutationVariables = Exact<{
 
 
 export type CreateTransferShipmentMutation = { __typename?: 'Mutation', createShipment?: { __typename?: 'Shipment', id: string } | null };
+
+export type ShipmentByIdQueryVariables = Exact<{
+  id?: Scalars['ID'];
+}>;
+
+
+export type ShipmentByIdQuery = { __typename?: 'Query', shipment?: { __typename?: 'Shipment', id: string, transferAgreement: { __typename?: 'TransferAgreement', id: string, type: TransferAgreementType }, sentBy?: { __typename?: 'User', id: string, name?: string | null } | null, sourceBase?: { __typename?: 'Base', id: string, name: string, organisation: { __typename?: 'Organisation', id: string, name: string } } | null, targetBase?: { __typename?: 'Base', id: string, name: string, organisation: { __typename?: 'Organisation', id: string, name: string } } | null, details: Array<{ __typename?: 'ShipmentDetail', box: { __typename?: 'Box', labelIdentifier: string, product?: { __typename?: 'Product', name: string, category: { __typename?: 'ProductCategory', id: string, name: string, hasGender: boolean, sizeRanges?: Array<{ __typename?: 'SizeRange', sizes: Array<{ __typename?: 'Size', id: string, label: string }> } | null> | null } } | null } }> } | null };
