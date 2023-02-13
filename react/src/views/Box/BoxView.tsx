@@ -235,27 +235,6 @@ function BTBox() {
         boxLabelIdentifier: labelIdentifier,
         newState,
       },
-      // optimisticResponse: {
-      //   updateBox: {
-      //     distributionEvent: boxData?.distributionEvent,
-      //     labelIdentifier,
-      //     location: boxData?.location,
-      //     numberOfItems: boxData?.numberOfItems,
-      //     comment: boxData?.comment,
-      //     product: boxData?.product,
-      //     size: {
-      //       __typename: "Size",
-      //       id: boxData?.size.id || "",
-      //       label: boxData?.size.label || "",
-      //     },
-      //     state: newState,
-      //     tags: boxData?.tags,
-      //     history: boxData?.history,
-      //     __typename: "Box",
-      //   }
-      // }
-
-      // refetchQueries: [refetchBoxByLabelIdentifierQueryConfig(labelIdentifier)],
     })
       .then((mutationResult) => {
         if (mutationResult?.errors) {
