@@ -216,6 +216,22 @@ function TransferAgreementOverviewView() {
     [],
   );
 
+  let transferAgreementTable;
+  if (error) {
+    transferAgreementTable = (
+      <Alert status="error" data-testid="ErrorAlert">
+        <AlertIcon />
+        Could not fetch transfer agreement data! Please try reloading the page.
+      </Alert>
+    );
+  } else if (loading) {
+    transferAgreementTable = <TableSkeleton />;
+  } else {
+    transferAgreementTable = (
+      <TransferAgreementTable columns={columns} tableData={graphqlToTableTransformer(data)} />
+    );
+  }
+
   return (
     <>
       <Heading fontWeight="bold" mb={4} as="h2">
@@ -228,17 +244,7 @@ function TransferAgreementOverviewView() {
           </Button>
         </Link>
       </Stack>
-      {error && (
-        <Alert status="error">
-          <AlertIcon />
-          Could not fetch transfer agreement data! Please try reloading the page.
-        </Alert>
-      )}
-      {loading ? (
-        <TableSkeleton />
-      ) : (
-        <TransferAgreementTable columns={columns} tableData={graphqlToTableTransformer(data)} />
-      )}
+      {transferAgreementTable}
     </>
   );
 }
