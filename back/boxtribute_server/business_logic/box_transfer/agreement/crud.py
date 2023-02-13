@@ -179,6 +179,6 @@ def retrieve_transfer_agreement_bases(*, transfer_agreement, kind):
         TransferAgreementDetail, on=getattr(TransferAgreementDetail, f"{kind}_base")
     ).where(
         TransferAgreementDetail.transfer_agreement == transfer_agreement.id
-    ) or Base.select().where(
+    ).distinct() or Base.select().where(
         Base.organisation == getattr(transfer_agreement, f"{kind}_organisation")
     )
