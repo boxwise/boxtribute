@@ -3,6 +3,7 @@ from flask import g
 
 from ....authz import authorize
 from ....enums import TransferAgreementType
+from ....exceptions import Forbidden
 from ....models.definitions.transfer_agreement import TransferAgreement
 from .crud import (
     accept_transfer_agreement,
@@ -59,17 +60,20 @@ def resolve_reject_transfer_agreement(*_, id):
 
 @mutation.field("cancelTransferAgreement")
 def resolve_cancel_transfer_agreement(*_, id):
-    # User must be member of at least one of the source or target bases to be authorized
+    # User must be member of either all source or all target bases to be authorized
     # for cancelling the agreement
     agreement = TransferAgreement.get_by_id(id)
-    bases = retrieve_transfer_agreement_bases(
-        transfer_agreement=agreement, kind="target"
-    ) + retrieve_transfer_agreement_bases(transfer_agreement=agreement, kind="source")
-    authorize(permission="transfer_agreement:edit", base_ids=[b.id for b in bases])
-    authorize(
-        organisation_ids=[
-            agreement.source_organisation_id,
-            agreement.target_organisation_id,
-        ]
+    source_bases = retrieve_transfer_agreement_bases(
+        transfer_agreement=agreement, kind="source"
     )
+    try:
+        for base in source_bases:
+            authorize(permission="transfer_agreement:edit", base_id=base.id)
+    except Forbidden:
+        target_bases = retrieve_transfer_agreement_bases(
+            transfer_agreement=agreement, kind="target"
+        )
+        for base in target_bases:
+            authorize(permission="transfer_agreement:edit", base_id=base.id)
+
     return cancel_transfer_agreement(id=id, user_id=g.user.id)

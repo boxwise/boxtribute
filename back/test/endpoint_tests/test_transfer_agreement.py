@@ -287,7 +287,7 @@ def test_transfer_agreement_mutations_cancel_as_member_of_neither_org(
     read_only_client, mocker, default_transfer_agreement
 ):
     mocker.patch("jose.jwt.decode").return_value = create_jwt_payload(
-        organisation_id=3, user_id=2
+        organisation_id=1, user_id=2, base_ids=[2]
     )
     # Test case 2.2.20
     agreement_id = default_transfer_agreement["id"]
