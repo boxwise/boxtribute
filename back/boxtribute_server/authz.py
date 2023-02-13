@@ -8,7 +8,11 @@ from .auth import CurrentUser
 from .exceptions import Forbidden
 from .models.definitions.base import Base
 from .models.definitions.transfer_agreement import TransferAgreement
-from .utils import in_ci_environment, in_development_environment
+from .utils import (
+    convert_pascal_to_snake_case,
+    in_ci_environment,
+    in_development_environment,
+)
 
 BASE_AGNOSTIC_RESOURCES = (
     "box_state",
@@ -125,7 +129,8 @@ def authorized_bases_filter(
     if g.user.is_god:
         return True
 
-    permission = f"{model.__name__.lower()}:read"
+    resource = convert_pascal_to_snake_case(model.__name__)
+    permission = f"{resource}:read"
     _authorize(permission=permission, ignore_missing_base_info=True)
     base_ids = g.user.authorized_base_ids(permission)
     pattern = Base.id if model is Base else getattr(model, base_fk_field_name)
