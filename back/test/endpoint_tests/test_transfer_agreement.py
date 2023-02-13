@@ -120,7 +120,7 @@ def test_transfer_agreement_mutations(
     # Test case 2.2.1
     creation_input = f"""partnerOrganisationId: {another_organisation['id']},
         initiatingOrganisationId: {default_organisation['id']}
-        initiatingOrganisationBaseIds: [1, 2]
+        initiatingOrganisationBaseIds: [1]
         type: {TransferAgreementType.Bidirectional.name}"""
     agreement = assert_successful_request(client, _create_mutation(creation_input))
     first_agreement_id = agreement.pop("id")
@@ -133,7 +133,7 @@ def test_transfer_agreement_mutations(
         "requestedBy": {"id": "8"},
         "validUntil": None,
         "comment": None,
-        "sourceBases": [{"id": "1"}, {"id": "2"}],
+        "sourceBases": [{"id": "1"}],
         "targetBases": [{"id": "3"}, {"id": "4"}],
         "shipments": [],
     }
@@ -170,7 +170,7 @@ def test_transfer_agreement_mutations(
 
     creation_input = f"""partnerOrganisationId: {another_organisation['id']},
         initiatingOrganisationId: {default_organisation['id']}
-        initiatingOrganisationBaseIds: [1, 2]
+        initiatingOrganisationBaseIds: [1]
         type: {TransferAgreementType.ReceivingFrom.name}"""
     agreement = assert_successful_request(client, _create_mutation(creation_input))
     third_agreement_id = agreement.pop("id")
@@ -184,12 +184,12 @@ def test_transfer_agreement_mutations(
         "validUntil": None,
         "comment": None,
         "sourceBases": [{"id": "3"}, {"id": "4"}],
-        "targetBases": [{"id": "1"}, {"id": "2"}],
+        "targetBases": [{"id": "1"}],
         "shipments": [],
     }
 
     mocker.patch("jose.jwt.decode").return_value = create_jwt_payload(
-        base_ids=[3], organisation_id=2, user_id=2
+        base_ids=[3, 4], organisation_id=2, user_id=2
     )
     # Test case 2.2.3
     mutation = f"""mutation {{ acceptTransferAgreement(id: {first_agreement_id}) {{

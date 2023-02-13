@@ -18,24 +18,26 @@ mutation = MutationType()
 @mutation.field("createTransferAgreement")
 @convert_kwargs_to_snake_case
 def resolve_create_transfer_agreement(*_, creation_input):
-    authorize(
-        permission="transfer_agreement:create",
-        base_ids=creation_input["initiating_organisation_base_ids"],
-    )
+    # Enforce that user is authzed for ALL specified bases (using authorize() with the
+    # base_ids argument succeeds if user authzed for at least one base already)
+    for base_id in creation_input["initiating_organisation_base_ids"]:
+        authorize(permission="transfer_agreement:create", base_id=base_id)
     return create_transfer_agreement(**creation_input, user=g.user)
 
 
 @mutation.field("acceptTransferAgreement")
 def resolve_accept_transfer_agreement(*_, id):
-    # For SendingTo/Bidirectional agreements, the user must be member of at least one of
-    # the target bases to be authorized for accepting the agreement. For ReceivingFrom
-    # they must be member of at least one of the source bases
+    # For SendingTo/Bidirectional agreements, the user must be member of all target
+    # bases to be authorized for accepting the agreement. For ReceivingFrom they must be
+    # member of all source bases
     agreement = TransferAgreement.get_by_id(id)
     kind = (
         "source" if agreement.type == TransferAgreementType.ReceivingFrom else "target"
     )
-    bases = retrieve_transfer_agreement_bases(transfer_agreement=agreement, kind=kind)
-    authorize(permission="transfer_agreement:edit", base_ids=[b.id for b in bases])
+    for base in retrieve_transfer_agreement_bases(
+        transfer_agreement=agreement, kind=kind
+    ):
+        authorize(permission="transfer_agreement:edit", base_id=base.id)
     return accept_transfer_agreement(id=id, user=g.user)
 
 
@@ -48,8 +50,10 @@ def resolve_reject_transfer_agreement(*_, id):
     kind = (
         "source" if agreement.type == TransferAgreementType.ReceivingFrom else "target"
     )
-    bases = retrieve_transfer_agreement_bases(transfer_agreement=agreement, kind=kind)
-    authorize(permission="transfer_agreement:edit", base_ids=[b.id for b in bases])
+    for base in retrieve_transfer_agreement_bases(
+        transfer_agreement=agreement, kind=kind
+    ):
+        authorize(permission="transfer_agreement:edit", base_id=base.id)
     return reject_transfer_agreement(id=id, user=g.user)
 
 
