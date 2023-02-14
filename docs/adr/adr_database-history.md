@@ -36,14 +36,14 @@ A variation is to have another table to record details for each change.
 
 *Advantages*
 
-- changes of data are recorded
+- straightforward to see information about what *changed* at any point in time
 - simple and extensible
 - can be combined with database triggers to record any change on DB level
 
 *Drawbacks*
 
-- at a later point in time, the historical state of the data cannot be clearly derived: one can see that a field of a row has changed but other fields might have changed as well
-- dealing with data type conversion when storing/reading change payload ("old"/"new" value)
+- since the audit table records changes it becomes involved to derive the state of the database at a certain point in the past
+- dealing with different data types requires additional effort when storing/reading change payload ("old"/"new" value)
 
 ### History tables (or: shadow tables)
 
@@ -52,6 +52,7 @@ For every relevant table create a history table with identical schema and an add
 *Advantages*
 
 - change date and user are recorded
+- data versions are recorded and can be easily retrieved
 - simple, especially querying (select by highest value of `effective` date column)
 - separation of data and history
 - can be combined with database triggers to record any change on DB level (no change in application code necessary then)
@@ -61,10 +62,11 @@ For every relevant table create a history table with identical schema and an add
 
 - extensibility costs: every change in the original table requires an update in the corresponding history table
 - the state of foreign key fields (i.e. tables that a history table depends on) has to be recorded as well to still be correct later
+- since shadow tables record versions of data it becomes more involved to derive the actual change (i.e. the values before/after a change)
 
 ### Insert-only tables
 
-Whenever a row would change, it is marked as inactive and copied into a new, active row.
+Whenever a row would change, it is marked as inactive and copied into a new, active row with an `effective` date set.
 
 *Advantages*
 
@@ -108,11 +110,13 @@ Every change to the state of an application is captured in an event object. Thes
 
 There are several popular audit logging techniques, but none of them serve every purpose. The most effective ones are often expensive, resource intensive, or performance degrading. Others are cheaper in terms of resources but are either incomplete, cumbersome to maintain, or require a sacrifice in design quality.
 
-I propose to use history tables. It meets the requirements for simplicity and for knowing historical state. Since we don't have a lot of tables to be shadowed (stock, products, locations, people, transactions), the maintenance cost is low.
+I propose to use history tables. It meets the requirements for simplicity and for knowing historical state. Since we don't have a lot of tables to be shadowed (stock, products, locations, people, tags, qr; maybe some for agreements/shipments), the maintenance cost is low.
 
 Quoting the first reference below,
 
 > If you only want to store logs for a few tables, shadow tables may be the most convenient option.
+
+If we want to record data *changes* rather than *versions* of data, an audit table is more suitable.
 
 ## Consequences
 
@@ -120,8 +124,8 @@ See advantages/drawbacks above.
 
 We have to think about
 
-- whether we still want `created_at`, `modified_at`, etc. fields in tables that are shadowed
-- whether to "convert" the current `history` table or to remove it
+- ~~whether we still want `created_at`, `modified_at`, etc. fields in tables that are shadowed~~ (keep for now because otherwise dropapp code needs to be modified)
+- ~~whether to "convert" the current `history` table or to remove it~~ (keep for now because otherwise dropapp code needs to be modified)
 - how to design the GraphQL API for data analysis
 
 ## References
