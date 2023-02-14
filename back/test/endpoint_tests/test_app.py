@@ -130,11 +130,12 @@ def test_query_non_existent_resource_for_god_user(read_only_client, mocker, reso
         "cancelTransferAgreement",
         "cancelShipment",
         "sendShipment",
+        "receiveShipment",
         "deleteTag",
     ],
 )
 def test_mutation_non_existent_resource(read_only_client, operation):
-    # Test cases 2.2.4, 2.2.6, 2.2.8, 3.2.8, 3.2.12, 4.2.10
+    # Test cases 2.2.4, 2.2.6, 2.2.8, 3.2.8, 3.2.12, 3.2.14b, 4.2.10
     mutation = f"mutation {{ {operation}(id: 0) {{ id }} }}"
     response = assert_bad_user_input(read_only_client, mutation, field=operation)
     assert "SQL" not in response.json["errors"][0]["message"]

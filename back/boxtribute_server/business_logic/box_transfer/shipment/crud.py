@@ -146,6 +146,22 @@ def send_shipment(*, id, user):
     return shipment
 
 
+def receive_shipment(*, id, user):
+    """Transition state of specified shipment to 'Receiving'.
+    Raise InvalidShipmentState exception if shipment state is different from 'Sent'.
+    """
+    shipment = Shipment.get_by_id(id)
+    if shipment.state != ShipmentState.Sent:
+        raise InvalidShipmentState(
+            expected_states=[ShipmentState.Sent], actual_state=shipment.state
+        )
+    shipment.state = ShipmentState.Receiving
+    # shipment.received_by = user.id
+    # shipment.received_on = utcnow()
+    shipment.save()
+    return shipment
+
+
 def _update_shipment_with_prepared_boxes(*, shipment, box_label_identifiers, user_id):
     """Update given shipment with prepared boxes.
     If boxes are requested to be updated that are not located in the shipment's source
@@ -306,7 +322,8 @@ def update_shipment(
       included in given agreement
     On the shipment target side:
     - update checked-in or lost boxes
-    - raise InvalidShipmentState exception if shipment state is different from 'Sent'
+    - raise InvalidShipmentState exception if shipment state is different from
+      'Receiving'
     """
     shipment = Shipment.get_by_id(id)
     if any(
@@ -318,9 +335,9 @@ def update_shipment(
             )
 
     if any([received_shipment_detail_update_inputs, lost_box_label_identifiers]):
-        if shipment.state != ShipmentState.Sent:
+        if shipment.state != ShipmentState.Receiving:
             raise InvalidShipmentState(
-                expected_states=[ShipmentState.Sent], actual_state=shipment.state
+                expected_states=[ShipmentState.Receiving], actual_state=shipment.state
             )
 
     _validate_bases_as_part_of_transfer_agreement(

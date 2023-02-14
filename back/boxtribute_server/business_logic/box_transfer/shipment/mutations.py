@@ -3,7 +3,13 @@ from flask import g
 
 from ....authz import authorize
 from ....models.definitions.shipment import Shipment
-from .crud import cancel_shipment, create_shipment, send_shipment, update_shipment
+from .crud import (
+    cancel_shipment,
+    create_shipment,
+    receive_shipment,
+    send_shipment,
+    update_shipment,
+)
 
 mutation = MutationType()
 
@@ -63,3 +69,10 @@ def resolve_send_shipment(*_, id):
     shipment = Shipment.get_by_id(id)
     authorize(permission="shipment:edit", base_id=shipment.source_base_id)
     return send_shipment(id=id, user=g.user)
+
+
+@mutation.field("receiveShipment")
+def resolve_receive_shipment(*_, id):
+    shipment = Shipment.get_by_id(id)
+    authorize(permission="shipment:edit", base_id=shipment.target_base_id)
+    return receive_shipment(id=id, user=g.user)

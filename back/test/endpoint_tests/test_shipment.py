@@ -389,6 +389,11 @@ def test_shipment_mutations_on_target_side(
                         }}
                     }} }}"""
 
+    # Test case 3.2.14a
+    mutation = f"""mutation {{ receiveShipment(id: "{shipment_id}") {{ id state }} }}"""
+    shipment = assert_successful_request(client, mutation)
+    assert shipment == {"id": shipment_id, "state": ShipmentState.Receiving.name}
+
     # Test case 3.2.34a
     shipment = assert_successful_request(
         client,
@@ -400,7 +405,7 @@ def test_shipment_mutations_on_target_side(
     )
     expected_shipment = {
         "id": shipment_id,
-        "state": ShipmentState.Sent.name,
+        "state": ShipmentState.Receiving.name,
         "completedBy": None,
         "completedOn": None,
         "details": [
@@ -596,12 +601,28 @@ def test_shipment_mutations_send_as_member_of_non_creating_org(
     assert_forbidden_request(read_only_client, mutation)
 
 
+def test_shipment_mutations_receive_as_member_of_creating_org(
+    read_only_client, default_shipment
+):
+    # Test case 3.2.14d
+    mutation = f"mutation {{ receiveShipment(id: {default_shipment['id']}) {{ id }} }}"
+    assert_forbidden_request(read_only_client, mutation)
+
+
 @pytest.mark.parametrize("act", ["cancel", "send"])
 def test_shipment_mutations_in_non_preparing_state(
     read_only_client, canceled_shipment, act
 ):
     # Test cases 3.2.9, 3.2.13
     mutation = f"mutation {{ {act}Shipment(id: {canceled_shipment['id']}) {{ id }} }}"
+    assert_bad_user_input(read_only_client, mutation)
+
+
+def test_shipment_mutations_receive_when_not_in_sent_state(
+    read_only_client, another_shipment
+):
+    # Test case 3.2.14c
+    mutation = f"mutation {{ receiveShipment(id: {another_shipment['id']}) {{ id }} }}"
     assert_bad_user_input(read_only_client, mutation)
 
 

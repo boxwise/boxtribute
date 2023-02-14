@@ -510,6 +510,7 @@ export type Mutation = {
   deleteTag?: Maybe<Tag>;
   moveItemsFromBoxToDistributionEvent?: Maybe<UnboxedItemsCollection>;
   moveItemsFromReturnTrackingGroupToBox?: Maybe<DistributionEventsTrackingEntry>;
+  receiveShipment?: Maybe<Shipment>;
   rejectTransferAgreement?: Maybe<TransferAgreement>;
   removeAllPackingListEntriesFromDistributionEventForProduct?: Maybe<Scalars['Boolean']>;
   removeItemsFromUnboxedItemsCollection?: Maybe<UnboxedItemsCollection>;
@@ -723,6 +724,16 @@ export type MutationMoveItemsFromReturnTrackingGroupToBoxArgs = {
   productId: Scalars['ID'];
   sizeId: Scalars['ID'];
   targetBoxLabelIdentifier: Scalars['ID'];
+};
+
+
+/**
+ * Naming convention:
+ * - input argument: creationInput/updateInput
+ * - input type: <Resource>CreationInput/UpdateInput
+ */
+export type MutationReceiveShipmentArgs = {
+  id: Scalars['ID'];
 };
 
 
