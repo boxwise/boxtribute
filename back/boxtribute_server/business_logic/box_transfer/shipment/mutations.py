@@ -8,7 +8,8 @@ from .crud import (
     create_shipment,
     receive_shipment,
     send_shipment,
-    update_shipment,
+    update_shipment_when_preparing,
+    update_shipment_when_receiving,
 )
 
 mutation = MutationType()
@@ -21,37 +22,20 @@ def resolve_create_shipment(*_, creation_input):
     return create_shipment(**creation_input, user=g.user)
 
 
-@mutation.field("updateShipment")
+@mutation.field("updateShipmentWhenPreparing")
 @convert_kwargs_to_snake_case
-def resolve_update_shipment(*_, update_input):
+def resolve_update_shipment_when_preparing(*_, update_input):
     shipment = Shipment.get_by_id(update_input["id"])
-    source_update_fields = [
-        "prepared_box_label_identifiers",
-        "removed_box_label_identifiers",
-        "target_base_id",
-    ]
-    target_update_fields = [
-        "received_shipment_detail_update_inputs",
-        "lost_box_label_identifiers",
-    ]
-    base_id = None
-    if any([update_input.get(f) is not None for f in source_update_fields]):
-        # User must be member of base that serves as shipment source
-        base_id = shipment.source_base_id
-    elif any([update_input.get(f) is not None for f in target_update_fields]):
-        # User must be member of base that is supposed to receive the shipment
-        base_id = shipment.target_base_id
+    authorize(permission="shipment:edit", base_id=shipment.source_base_id)
+    return update_shipment_when_preparing(**update_input, user=g.user)
 
-    if base_id is None:
-        authorize(
-            permission="shipment:edit",
-            base_ids=[shipment.source_base_id, shipment.target_base_id],
-        )
-        return shipment  # no update arguments provided
 
-    authorize(permission="shipment:edit", base_id=base_id)
-
-    return update_shipment(**update_input, user=g.user)
+@mutation.field("updateShipmentWhenReceiving")
+@convert_kwargs_to_snake_case
+def resolve_update_shipment_when_receiving(*_, update_input):
+    shipment = Shipment.get_by_id(update_input["id"])
+    authorize(permission="shipment:edit", base_id=shipment.target_base_id)
+    return update_shipment_when_receiving(**update_input, user=g.user)
 
 
 @mutation.field("cancelShipment")

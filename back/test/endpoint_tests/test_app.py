@@ -149,7 +149,8 @@ def test_mutation_non_existent_resource(read_only_client, operation):
         # Test case 9.2.14
         ["updateBeneficiary", "updateInput: { id: 0 }", "id"],
         # Test case 3.2.21
-        ["updateShipment", "updateInput: { id: 0 }", "id"],
+        ["updateShipmentWhenPreparing", "updateInput: { id: 0 }", "id"],
+        ["updateShipmentWhenReceiving", "updateInput: { id: 0 }", "id"],
         # Test case 4.2.5
         ["updateTag", "updateInput: { id: 0 }", "id"],
         # Test case 4.2.15
