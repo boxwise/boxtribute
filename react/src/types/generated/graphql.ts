@@ -1229,6 +1229,7 @@ export enum ShipmentState {
   Completed = 'Completed',
   Lost = 'Lost',
   Preparing = 'Preparing',
+  Receiving = 'Receiving',
   Sent = 'Sent'
 }
 

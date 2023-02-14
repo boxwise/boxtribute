@@ -622,6 +622,7 @@ enum TransferAgreementType {
 enum ShipmentState {
   Preparing
   Sent
+  Receiving
   Completed
   Canceled
   Lost
