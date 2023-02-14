@@ -26,12 +26,16 @@ Since we are using Apollo for graphQL queries we can also use the Apollo Reactiv
 ## Considered Options
 
 - React Context (with or without useReducer)
-- Apollo Reactive Varibles and cache
+- Apollo Reactive Variables and cache
 
-## Decision
+## Proposed Decision
 
-Most likely, a mix is needed to handle mutable shared states depending on the case.
-We should try out Apollo Reactive Var and cache when the next mutable shared state comes around or we refactor now the GlobalPreference Provider.
+Delay until the next situation comes where we need to implement mutable shared states.
+
+### Comment
+In general, a mix out of both considered options is most likely needed to handle mutable shared states. In some cases the Apollo Reactive Variables have more advantages (especially for remote states), sometimes the React Context is better to use. 
+We should try out Apollo Reactive Var and cache when the next mutable shared state comes around.
+There is no need to refactor the Global Preference Provider at the moment. Removing the React Context of the Global Preference Provider and creating Apollo Reactive variables for it, is just unnecassary work. The Global Preference Provider works and the code is clean. 
 
 ## Reference
 
