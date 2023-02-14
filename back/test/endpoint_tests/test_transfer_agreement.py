@@ -73,8 +73,8 @@ def state_names(value):
 @pytest.mark.parametrize(
     "filter_input,transfer_agreement_ids",
     (
-        ["", ["1", "2", "3", "4", "5"]],
-        ["(states: [UnderReview])", ["3", "5"]],
+        ["", ["1", "2", "3", "4"]],
+        ["(states: [UnderReview])", ["3"]],
         ["(states: [Accepted])", ["1", "4"]],
         ["(states: [Rejected])", []],
         ["(states: [Expired])", ["2"]],
@@ -118,8 +118,9 @@ def test_transfer_agreement_mutations(
 
     # Leave all optional fields empty in input
     # Test case 2.2.1
-    creation_input = f"""targetOrganisationId: {another_organisation['id']},
-        sourceOrganisationId: {default_organisation['id']}
+    creation_input = f"""partnerOrganisationId: {another_organisation['id']},
+        initiatingOrganisationId: {default_organisation['id']}
+        initiatingOrganisationBaseIds: [1]
         type: {TransferAgreementType.Bidirectional.name}"""
     agreement = assert_successful_request(client, _create_mutation(creation_input))
     first_agreement_id = agreement.pop("id")
@@ -132,7 +133,7 @@ def test_transfer_agreement_mutations(
         "requestedBy": {"id": "8"},
         "validUntil": None,
         "comment": None,
-        "sourceBases": [{"id": "1"}, {"id": "2"}],
+        "sourceBases": [{"id": "1"}],
         "targetBases": [{"id": "3"}, {"id": "4"}],
         "shipments": [],
     }
@@ -142,15 +143,15 @@ def test_transfer_agreement_mutations(
     valid_from = "2021-12-15"
     valid_until = "2022-06-30"
     comment = "this is a comment"
-    creation_input = f"""targetOrganisationId: {another_organisation['id']},
-        sourceOrganisationId: {default_organisation['id']}
-        type: {TransferAgreementType.Bidirectional.name},
+    creation_input = f"""partnerOrganisationId: {another_organisation['id']},
+        initiatingOrganisationId: {default_organisation['id']}
+        type: {TransferAgreementType.SendingTo.name},
         validFrom: "{valid_from}",
         validUntil: "{valid_until}",
         comment: "{comment}",
         timezone: "Europe/London",
-        sourceBaseIds: [1],
-        targetBaseIds: [3]"""
+        initiatingOrganisationBaseIds: [1],
+        partnerOrganisationBaseIds: [3, 4]"""
     agreement = assert_successful_request(client, _create_mutation(creation_input))
     second_agreement_id = agreement.pop("id")
     assert agreement.pop("validFrom").startswith(valid_from)
@@ -159,19 +160,52 @@ def test_transfer_agreement_mutations(
         "sourceOrganisation": {"id": str(default_organisation["id"])},
         "targetOrganisation": {"id": str(another_organisation["id"])},
         "state": TransferAgreementState.UnderReview.name,
-        "type": TransferAgreementType.Bidirectional.name,
+        "type": TransferAgreementType.SendingTo.name,
         "requestedBy": {"id": "8"},
         "comment": comment,
         "sourceBases": [{"id": "1"}],
-        "targetBases": [{"id": "3"}],
+        "targetBases": [{"id": "3"}, {"id": "4"}],
+        "shipments": [],
+    }
+
+    creation_input = f"""partnerOrganisationId: {another_organisation['id']},
+        initiatingOrganisationId: {default_organisation['id']}
+        initiatingOrganisationBaseIds: [1]
+        type: {TransferAgreementType.ReceivingFrom.name}"""
+    agreement = assert_successful_request(client, _create_mutation(creation_input))
+    third_agreement_id = agreement.pop("id")
+    assert agreement.pop("validFrom").startswith(date.today().isoformat())
+    assert agreement == {
+        "sourceOrganisation": {"id": str(another_organisation["id"])},
+        "targetOrganisation": {"id": str(default_organisation["id"])},
+        "state": TransferAgreementState.UnderReview.name,
+        "type": TransferAgreementType.ReceivingFrom.name,
+        "requestedBy": {"id": "8"},
+        "validUntil": None,
+        "comment": None,
+        "sourceBases": [{"id": "3"}, {"id": "4"}],
+        "targetBases": [{"id": "1"}],
         "shipments": [],
     }
 
     mocker.patch("jose.jwt.decode").return_value = create_jwt_payload(
-        base_ids=[3], organisation_id=2, user_id=2
+        base_ids=[3, 4], organisation_id=2, user_id=2
     )
     # Test case 2.2.3
     mutation = f"""mutation {{ acceptTransferAgreement(id: {first_agreement_id}) {{
+                    state
+                    acceptedBy {{ id }}
+                    acceptedOn
+                }}
+            }}"""
+    agreement = assert_successful_request(client, mutation)
+    assert agreement.pop("acceptedOn").startswith(date.today().isoformat())
+    assert agreement == {
+        "state": TransferAgreementState.Accepted.name,
+        "acceptedBy": {"id": "2"},
+    }
+
+    mutation = f"""mutation {{ acceptTransferAgreement(id: {third_agreement_id}) {{
                     state
                     acceptedBy {{ id }}
                     acceptedOn
@@ -253,7 +287,7 @@ def test_transfer_agreement_mutations_cancel_as_member_of_neither_org(
     read_only_client, mocker, default_transfer_agreement
 ):
     mocker.patch("jose.jwt.decode").return_value = create_jwt_payload(
-        organisation_id=3, user_id=2
+        organisation_id=1, user_id=2, base_ids=[2]
     )
     # Test case 2.2.20
     agreement_id = default_transfer_agreement["id"]
@@ -266,23 +300,25 @@ def test_transfer_agreement_mutations_identical_source_org_for_creation(
 ):
     # Test case 2.2.14
     mutation = """mutation { createTransferAgreement( creationInput: {
-                    sourceOrganisationId: 1
-                    targetOrganisationId: 1,
+                    initiatingOrganisationId: 1
+                    partnerOrganisationId: 1,
+                    initiatingOrganisationBaseIds: [1]
                     type: SendingTo
                 } ) { id } }"""
     assert_bad_user_input(read_only_client, mutation)
 
 
-@pytest.mark.parametrize("kind,base_id", [["source", 3], ["target", 1]])
+@pytest.mark.parametrize("base_ids", [[3, 4], [1, 2]])
 def test_transfer_agreement_mutations_create_invalid_source_base(
-    read_only_client, mocker, kind, base_id
+    read_only_client, mocker, base_ids
 ):
     mocker.patch("jose.jwt.decode").return_value = create_jwt_payload(base_ids=[1, 3])
     # Test cases 2.2.18, 2.2.19
     mutation = f"""mutation {{ createTransferAgreement( creationInput: {{
-                    sourceOrganisationId: 1
-                    targetOrganisationId: 2,
-                    {kind}BaseIds: [{base_id}],
+                    initiatingOrganisationId: 1
+                    partnerOrganisationId: 2,
+                    initiatingOrganisationBaseIds: [{base_ids[0]}]
+                    partnerOrganisationBaseIds: [{base_ids[1]}]
                     type: Bidirectional
                 }} ) {{ id }} }}"""
     assert_bad_user_input(read_only_client, mutation)
@@ -290,9 +326,24 @@ def test_transfer_agreement_mutations_create_invalid_source_base(
 
 def test_transfer_agreement_mutations_create_non_existent_target_org(read_only_client):
     # Test case 2.2.15
-    creation_input = "sourceOrganisationId: 1, targetOrganisationId: 0"
+    creation_input = "initiatingOrganisationId: 1, partnerOrganisationId: 0"
     mutation = f"""mutation {{ createTransferAgreement( creationInput: {{
                     {creation_input},
+                    initiatingOrganisationBaseIds: [1]
+                    type: Bidirectional
+                }} ) {{ id }} }}"""
+    assert_bad_user_input(read_only_client, mutation)
+
+
+@pytest.mark.parametrize("valid_until", ["2022-01-31"])
+def test_transfer_agreement_mutations_invalid_dates(read_only_client, valid_until):
+    # Test case 2.2.21
+    mutation = f"""mutation {{ createTransferAgreement( creationInput: {{
+                    initiatingOrganisationId: 1
+                    partnerOrganisationId: 2,
+                    initiatingOrganisationBaseIds: [1]
+                    validFrom: "2022-02-01",
+                    validUntil: "{valid_until}",
                     type: Bidirectional
                 }} ) {{ id }} }}"""
     assert_bad_user_input(read_only_client, mutation)

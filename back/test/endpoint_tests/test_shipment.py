@@ -343,7 +343,7 @@ def test_shipment_mutations_on_target_side(
     # Test cases 3.2.1b, 3.2.1c
     for agreement in [default_transfer_agreement, unidirectional_transfer_agreement]:
         source_base_id = str(default_bases[3]["id"])
-        target_base_id = str(default_bases[2]["id"])
+        target_base_id = str(default_bases[1]["id"])
         agreement_id = agreement["id"]
         creation_input = f"""sourceBaseId: {source_base_id},
                              targetBaseId: {target_base_id},
@@ -610,7 +610,7 @@ def test_shipment_mutations_cancel_as_member_of_neither_org(
 ):
     # Test case 3.2.10
     mocker.patch("jose.jwt.decode").return_value = create_jwt_payload(
-        organisation_id=3, user_id=2
+        organisation_id=3, user_id=2, base_ids=[5]
     )
     mutation = f"mutation {{ cancelShipment(id: {default_shipment['id']}) {{ id }} }}"
     assert_forbidden_request(read_only_client, mutation)
