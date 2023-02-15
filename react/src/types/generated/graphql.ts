@@ -1762,7 +1762,9 @@ export type CreateTransferAgreementMutationVariables = Exact<{
 }>;
 
 
-export type CreateTransferAgreementMutation = { __typename?: 'Mutation', createTransferAgreement?: { __typename?: 'TransferAgreement', id: string } | null };
+export type CreateTransferAgreementMutation = { __typename?: 'Mutation', createTransferAgreement?: { __typename?: 'TransferAgreement', id: string, type: TransferAgreementType } | null };
+
+export type NewTransferAgreementFragment = { __typename?: 'TransferAgreement', id: string, type: TransferAgreementType };
 
 export type TransferAgreementsQueryVariables = Exact<{ [key: string]: never; }>;
 

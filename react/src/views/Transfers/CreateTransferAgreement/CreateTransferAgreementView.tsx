@@ -56,6 +56,7 @@ export const CREATE_AGREEMENT_MUTATION = gql`
       }
     ) {
       id
+      type
     }
   }
 `;
@@ -77,7 +78,26 @@ function CreateTransferAgreementView() {
   const [createTransferAgreementMutation, createTransferAgreementMutationState] = useMutation<
     CreateTransferAgreementMutation,
     CreateTransferAgreementMutationVariables
-  >(CREATE_AGREEMENT_MUTATION);
+  >(CREATE_AGREEMENT_MUTATION, {
+    update(cache, { data: returnedTransferAgreement }) {
+      cache.modify({
+        fields: {
+          transferAgreements(existingTransferAgreements = []) {
+            const newTransferAgreementRef = cache.writeFragment({
+              data: returnedTransferAgreement?.createTransferAgreement,
+              fragment: gql`
+                fragment NewTransferAgreement on TransferAgreement {
+                  id
+                  type
+                }
+              `,
+            });
+            return existingTransferAgreements.concat(newTransferAgreementRef);
+          },
+        },
+      });
+    },
+  });
 
   // Prep data for Form
   const allOrgsAndTheirBases = allFormOptions.data?.organisations;
