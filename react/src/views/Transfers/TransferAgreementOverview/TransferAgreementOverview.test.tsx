@@ -87,5 +87,5 @@ it("4.2.1 - Initial Load of Page", async () => {
   expect(screen.getByRole("cell", { name: /pending/i })).toBeInTheDocument();
   expect(screen.getByRole("link", { name: /thessaloniki \(1\)/i })).toBeInTheDocument();
   expect(screen.getByRole("cell", { name: /Good Comment/i })).toBeInTheDocument();
-  expect(screen.getByRole("cell", { name: /01-01-2024/i })).toBeInTheDocument();
+  expect(screen.getByRole("cell", { name: /1\/1\/2024/i })).toBeInTheDocument();
 });

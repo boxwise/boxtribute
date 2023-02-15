@@ -106,7 +106,9 @@ function TransferAgreementOverviewView() {
           state: element.state as IExtendedTransferAgreementState,
           shipments: {},
           comment: element.comment,
-          validUntil: element.validUntil,
+          validUntil: element.validUntil
+            ? new Intl.DateTimeFormat().format(new Date(element.validUntil))
+            : "",
         };
 
         if (element.type === TransferAgreementType.SendingTo && currentOrgId === sourceOrgId) {
