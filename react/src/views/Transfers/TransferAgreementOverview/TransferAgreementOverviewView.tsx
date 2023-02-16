@@ -1,4 +1,4 @@
-import { useCallback, useContext, useMemo } from "react";
+import { useCallback, useContext, useMemo, useState } from "react";
 import { gql, useQuery } from "@apollo/client";
 import { Alert, AlertIcon, Button, Heading, Stack, useDisclosure } from "@chakra-ui/react";
 import { Link } from "react-router-dom";
@@ -15,6 +15,7 @@ import {
 } from "types/generated/graphql";
 import { AddIcon } from "@chakra-ui/icons";
 import { TableSkeleton } from "components/Skeletons";
+import { Row } from "react-table";
 import TransferAgreementTable from "./components/TransferAgreementTable";
 import {
   CanAcceptTransferAgreementState,
@@ -83,14 +84,16 @@ interface IShipmentBase {
 function TransferAgreementOverviewView() {
   const { globalPreferences } = useContext(GlobalPreferencesContext);
   const { isOpen, onClose, onOpen } = useDisclosure();
+  // State to pass Data from a row to the Overlay
+  const [transferAgreementOverlayData, setTransferAgreementOverlayData] = useState({});
 
+  // callback function triggered when a state button is clicked.
   const openTransferAgreementOverlay = useCallback(
-    (state: IExtendedTransferAgreementState) => {
-      // eslint-disable-next-line no-console
-      console.log(state);
+    ({ original: cellData }: Row<any>) => {
+      setTransferAgreementOverlayData(cellData);
       onOpen();
     },
-    [onOpen],
+    [onOpen, setTransferAgreementOverlayData],
   );
 
   // fetch agreements data
@@ -101,7 +104,7 @@ function TransferAgreementOverviewView() {
     },
   );
 
-  // transform data for UI
+  // transform agreements data for UI
   const graphqlToTableTransformer = (
     transferAgreementQueryResult: TransferAgreementsQuery | undefined,
   ) =>
@@ -120,6 +123,8 @@ function TransferAgreementOverviewView() {
           validUntil: element.validUntil
             ? new Intl.DateTimeFormat().format(new Date(element.validUntil))
             : "",
+          requestedOn: new Intl.DateTimeFormat().format(new Date(element.requestedOn)),
+          requestedBy: element.requestedBy.name,
         };
 
         if (element.type === TransferAgreementType.SendingTo && currentOrgId === sourceOrgId) {
@@ -211,7 +216,9 @@ function TransferAgreementOverviewView() {
         Header: "Status",
         accessor: "state",
         // eslint-disable-next-line react/no-unstable-nested-components
-        Cell: ({ ...cellProps }) => <StatusCell onClick={onOpen} {...cellProps} />,
+        Cell: ({ ...cellProps }) => (
+          <StatusCell onClick={openTransferAgreementOverlay} {...cellProps} />
+        ),
       },
       {
         Header: "Shipments",
@@ -227,9 +234,10 @@ function TransferAgreementOverviewView() {
         accessor: "validUntil",
       },
     ],
-    [onOpen],
+    [openTransferAgreementOverlay],
   );
 
+  // error and loading handling
   let transferAgreementTable;
   if (error) {
     transferAgreementTable = (
@@ -260,7 +268,12 @@ function TransferAgreementOverviewView() {
       </Stack>
       {transferAgreementTable}
 
-      <TransferAgreementsOverlay isOpen={isOpen} onClose={onClose} isLoading={false} />
+      <TransferAgreementsOverlay
+        isOpen={isOpen}
+        onClose={onClose}
+        isLoading={false}
+        transferAgreementOverlayData={transferAgreementOverlayData}
+      />
     </>
   );
 }

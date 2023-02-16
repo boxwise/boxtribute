@@ -1,3 +1,4 @@
+import { CheckIcon, RepeatIcon, SmallCloseIcon } from "@chakra-ui/icons";
 import {
   Modal,
   ModalBody,
@@ -7,35 +8,122 @@ import {
   ModalHeader,
   ModalOverlay,
   Button,
-  Flex,
-  Spacer,
+  VStack,
+  Text,
+  chakra,
+  HStack,
 } from "@chakra-ui/react";
+import { TransferAgreementState } from "types/generated/graphql";
+import { CanAcceptTransferAgreementState } from "./TableCells";
 
-interface IYesNoOverlayProps {
+interface ITransferAgreementsOverlayPropsProps {
   isLoading: boolean;
   isOpen: boolean;
   onClose: () => void;
+  transferAgreementOverlayData: any;
 }
 
-function TransferAgreementsOverlay({ isLoading, isOpen, onClose }: IYesNoOverlayProps) {
+function TransferAgreementsOverlay({
+  isLoading,
+  isOpen,
+  onClose,
+  transferAgreementOverlayData: data,
+}: ITransferAgreementsOverlayPropsProps) {
+  let title = "";
+  let body;
+  let leftButtonProps = {};
+  let leftButtonText = "Nevermind";
+  let rightButtonProps = {};
+  let rightButtonText = "Nevermind";
+  if (data.state === CanAcceptTransferAgreementState.CanAccept) {
+    title = "Transfer Agreement Request Open";
+    body = (
+      <VStack align="start" spacing={8}>
+        <chakra.span>
+          <Text as="b">{data.partnerOrg}</Text> has a transfer request OPEN with you with the
+          following details:
+        </chakra.span>
+        <chakra.span>
+          Created By: <Text as="b">{data.requestedBy}</Text> on{" "}
+          <Text as="b">{data.requestedOn}</Text>
+          <br />
+          From <Text as="b">{data.partnerOrg}</Text>
+        </chakra.span>
+      </VStack>
+    );
+    leftButtonProps = { colorScheme: "red", leftIcon: <SmallCloseIcon /> };
+    leftButtonText = "Reject";
+    rightButtonProps = { colorScheme: "green", leftIcon: <CheckIcon /> };
+    rightButtonText = "Accept";
+  } else if (data.state === TransferAgreementState.Accepted) {
+    title = "Terminate Transfer Agreement";
+    body = (
+      <VStack align="start" spacing={8}>
+        <chakra.span>
+          Your transfer agreement with {data.partnerOrg} is currently <Text as="b">ACCEPTED</Text>.
+        </chakra.span>
+        <chakra.span>
+          Do you want to <Text as="b">TERMINATE</Text> your transfer agreement with them?
+        </chakra.span>
+        <chakra.span>
+          <Text as="b">Note:</Text> This will <Text as="b">not</Text>affect in-transit shipments.
+        </chakra.span>
+      </VStack>
+    );
+    rightButtonProps = { colorScheme: "red", leftIcon: <SmallCloseIcon /> };
+    rightButtonText = "Terminate";
+  } else if (data.state === TransferAgreementState.Rejected) {
+    title = "Retry Transfer Agreement Request";
+    body = (
+      <VStack align="start" spacing={8}>
+        <chakra.span>
+          Your transfer agreement with {data.partnerOrg} is currently <Text as="b">DECLINED</Text>.
+        </chakra.span>
+        <chakra.span>
+          Do you want to <Text as="b">RETRY</Text> your transfer agreement request with them?
+        </chakra.span>
+      </VStack>
+    );
+    rightButtonProps = { colorScheme: "green", leftIcon: <RepeatIcon /> };
+    rightButtonText = "Retry";
+  } else if (
+    data.state === TransferAgreementState.Expired ||
+    data.state === TransferAgreementState.Canceled
+  ) {
+    title = "Renew Transfer Agreement";
+    body = (
+      <VStack align="start" spacing={8}>
+        <chakra.span>
+          Your transfer agreement with {data.partnerOrg} is currently <Text as="b">ENDED</Text>.
+        </chakra.span>
+        <chakra.span>
+          Do you want to <Text as="b">RENEW</Text> your transfer agreement with them?
+        </chakra.span>
+        <chakra.span>
+          <Text as="b">Note:</Text> This will <Text as="b">not</Text>affect in-transit shipments.
+        </chakra.span>
+      </VStack>
+    );
+    rightButtonProps = { colorScheme: "green", leftIcon: <RepeatIcon /> };
+    rightButtonText = "Renew";
+  }
+
   return (
     <Modal isOpen={isOpen} onClose={onClose}>
       <ModalOverlay />
       <ModalContent borderRadius="0">
-        <ModalHeader>Test</ModalHeader>
+        <ModalHeader>{title}</ModalHeader>
         <ModalCloseButton />
-        <ModalBody>
-          <Flex py={1} px={1} alignItems="center" gap={1}>
-            Placeholder for text in details
-          </Flex>
-        </ModalBody>
+        <ModalBody>{body}</ModalBody>
         <ModalFooter>
-          <Button variant="green" isLoading={isLoading}>
-            Left
-          </Button>
-          <Button variant="red" isLoading={isLoading}>
-            Right
-          </Button>
+          <HStack spacing={4}>
+            <Button isLoading={isLoading} {...leftButtonProps}>
+              {leftButtonText}
+            </Button>
+            <Button isLoading={isLoading} {...rightButtonProps}>
+              {rightButtonText}
+            </Button>
+          </HStack>
         </ModalFooter>
       </ModalContent>
     </Modal>
