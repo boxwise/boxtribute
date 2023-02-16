@@ -7,6 +7,8 @@ import { TransferAgreementState } from "types/generated/graphql";
 import TransferAgreementOverviewView, {
   ACCEPT_TRANSFER_AGREEMENT,
   ALL_TRANSFER_AGREEMENTS_QUERY,
+  CANCEL_TRANSFER_AGREEMENT,
+  REJECT_TRANSFER_AGREEMENT,
 } from "./TransferAgreementOverviewView";
 
 const mockSuccessfullTransferAgreementsResponse = ({
@@ -24,6 +26,14 @@ const mockSuccessfullTransferAgreementsResponse = ({
       transferAgreements: [generateMockTransferAgreement({ state, isInitiator })],
     },
   },
+});
+
+// Toasts are persisting throughout the tests since they are rendered in the wrapper and not in the render.
+// Therefore, we need to close them after each test since we get easily false positives
+// Everywhere where we have more than one occation of a toast we should do this.
+afterEach(() => {
+  const closeToastButtons = screen.queryAllByRole("button", { name: /close/i });
+  closeToastButtons.forEach((button) => userEvent.click(button));
 });
 
 it("4.2.2a - Failed to Fetch Initial Data (GraphQlError)", async () => {
@@ -73,35 +83,88 @@ it("4.2.1 - Initial Load of Page", async () => {
 
 const failedMutationTests = [
   {
-    name: "4.2.3.1a - Accept Transfer Agreement fails due to NetworkError",
+    name: "4.2.3.1a - Accept Transfer Agreement fails due to GraphQLError",
     mocks: [
       mockSuccessfullTransferAgreementsResponse({ isInitiator: false }),
-      mockNetworkError(ACCEPT_TRANSFER_AGREEMENT),
+      mockGraphQLError(ACCEPT_TRANSFER_AGREEMENT, { id: "1" }),
     ],
+    stateButtonText: /request open/i,
+    modalButtonText: /Accept/i,
+    toastText: /could not accept/i,
+  },
+  {
+    name: "4.2.3.1b - Accept Transfer Agreement fails due to NetworkError",
+    mocks: [
+      mockSuccessfullTransferAgreementsResponse({ isInitiator: false }),
+      mockNetworkError(ACCEPT_TRANSFER_AGREEMENT, { id: "1" }),
+    ],
+    stateButtonText: /request open/i,
+    modalButtonText: /Accept/i,
+    toastText: /could not accept/i,
+  },
+  {
+    name: "4.2.4.1a - Reject Transfer Agreement fails due to GraphQLError",
+    mocks: [
+      mockSuccessfullTransferAgreementsResponse({ isInitiator: false }),
+      mockGraphQLError(REJECT_TRANSFER_AGREEMENT, { id: "1" }),
+    ],
+    stateButtonText: /request open/i,
+    modalButtonText: /Reject/i,
+    toastText: /could not reject/i,
+  },
+  {
+    name: "4.2.4.1b - Reject Transfer Agreement fails due to NetworkError",
+    mocks: [
+      mockSuccessfullTransferAgreementsResponse({ isInitiator: false }),
+      mockNetworkError(REJECT_TRANSFER_AGREEMENT, { id: "1" }),
+    ],
+    stateButtonText: /request open/i,
+    modalButtonText: /Reject/i,
+    toastText: /could not reject/i,
+  },
+  {
+    name: "4.2.5.1a - Cancel Transfer Agreement fails due to GraphQLError",
+    mocks: [
+      mockSuccessfullTransferAgreementsResponse({ state: TransferAgreementState.Accepted }),
+      mockGraphQLError(CANCEL_TRANSFER_AGREEMENT, { id: "1" }),
+    ],
+    stateButtonText: /accepted/i,
+    modalButtonText: /terminate/i,
+    toastText: /could not cancel/i,
+  },
+  {
+    name: "4.2.5.1b - Cancel Transfer Agreement fails due to NetworkError",
+    mocks: [
+      mockSuccessfullTransferAgreementsResponse({ state: TransferAgreementState.Accepted }),
+      mockNetworkError(CANCEL_TRANSFER_AGREEMENT, { id: "1" }),
+    ],
+    stateButtonText: /accepted/i,
+    modalButtonText: /terminate/i,
+    toastText: /could not cancel/i,
   },
 ];
 
-failedMutationTests.forEach(({ name, mocks }) => {
+failedMutationTests.forEach(({ name, mocks, stateButtonText, modalButtonText, toastText }) => {
   it(name, async () => {
     const user = userEvent.setup();
-    render(<TransferAgreementOverviewView />, {
+    const { debug, unmount } = render(<TransferAgreementOverviewView />, {
       routePath: "/bases/:baseId/transfers/agreements",
       initialUrl: "/bases/1/transfers/agreements",
       mocks,
     });
 
     // click the button in the state column
-    const stateButton = await screen.findByRole("button", { name: /request open/i });
+    const stateButton = await screen.findByRole("button", { name: stateButtonText });
     expect(stateButton).toBeInTheDocument();
     user.click(stateButton);
 
     // click the button in the modal
-    const modalButton = await screen.findByRole("button", { name: /Accept/i });
+    const modalButton = await screen.findByRole("button", { name: modalButtonText });
     expect(modalButton).toBeInTheDocument();
     user.click(modalButton);
 
     // error toast shown and overlay is still open
-    expect(await screen.findByText(/could not accept/i)).toBeInTheDocument();
+    expect(await screen.findByText(toastText)).toBeInTheDocument();
     expect(modalButton).toBeInTheDocument();
   });
 });
