@@ -1,12 +1,48 @@
 // import { useContext } from "react";
 import { gql, useQuery } from "@apollo/client";
-import { Box, Center, Divider, Heading, VStack } from "@chakra-ui/react";
+import {
+  Box,
+  Center,
+  Heading,
+  VStack,
+  Text,
+  Flex,
+  Tabs,
+  TabList,
+  Tab,
+  TabPanels,
+  TabPanel,
+  Stack,
+  Spacer,
+  Accordion,
+  AccordionItem,
+  AccordionButton,
+  AccordionIcon,
+  AccordionPanel,
+  TableContainer,
+  Thead,
+  Tr,
+  Th,
+  Table,
+  Tbody,
+  Td,
+  ButtonGroup,
+  Button,
+} from "@chakra-ui/react";
 // import { useErrorHandling } from "hooks/error-handling";
 // import { useNotification } from "hooks/hooks";
 import APILoadingIndicator from "components/APILoadingIndicator";
+
 import { useParams } from "react-router-dom";
 // import { GlobalPreferencesContext } from "providers/GlobalPreferencesProvider";
-import { ShipmentByIdQuery, ShipmentByIdQueryVariables } from "types/generated/graphql";
+import {
+  Shipment,
+  ShipmentByIdQuery,
+  ShipmentByIdQueryVariables,
+  ShipmentDetail,
+} from "types/generated/graphql";
+import ShipmentCard from "./components/ShipmentCard";
+import ShipmentTabs from "./components/ShipmentTabs";
 
 export const SHIPMENT_BY_ID = gql`
   query ShipmentById($id: ID! = 1) {
@@ -16,11 +52,11 @@ export const SHIPMENT_BY_ID = gql`
         type
       }
       id
+      state
       sentBy {
         id
         name
       }
-
       sourceBase {
         id
         name
@@ -39,15 +75,14 @@ export const SHIPMENT_BY_ID = gql`
       }
       details {
         box {
+          id
           labelIdentifier
           product {
             name
-
             category {
               id
               name
               hasGender
-
               sizeRanges {
                 sizes {
                   id
@@ -86,22 +121,47 @@ function ShipmentView() {
 
   return (
     <Center>
-      <VStack>
-        <Heading>View Shipment</Heading>
-        <Box
-          boxShadow="dark-lg"
-          p="6"
-          padding={0}
-          rounded="md"
-          bg="white"
-          width={250}
-          borderWidth={2}
-        >
-          Outline
-          <Divider orientation="horizontal" borderColor="blackAlpha.800" />
-          <Divider orientation="horizontal" borderColor="blackAlpha.800" />
+      <Flex direction="column">
+        <VStack>
+          <Heading>View Shipment</Heading>
+          <ShipmentCard shipment={shipmentData.data?.shipment as unknown as Shipment} />
+        </VStack>
+        <Spacer />
+        <Box>
+          <ShipmentTabs
+            shipmentDetail={shipmentData.data?.shipment?.details as unknown as ShipmentDetail[]}
+          />
         </Box>
-      </VStack>
+        <Stack spacing={4}>
+          <ButtonGroup gap="4">
+            <Button
+              mt={10}
+              size="md"
+              type="button"
+              borderRadius="0"
+              border={1}
+              borderColor="blackAlpha.800"
+              w="full"
+              variant="solid"
+              backgroundColor="white"
+            >
+              Back to Overview
+            </Button>
+
+            <Button
+              mt={10}
+              type="button"
+              borderRadius="0"
+              w="full"
+              variant="solid"
+              backgroundColor="red.300"
+              color="white"
+            >
+              Reject
+            </Button>
+          </ButtonGroup>
+        </Stack>
+      </Flex>
     </Center>
   );
 }
