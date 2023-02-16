@@ -1,6 +1,6 @@
-import { useContext, useMemo } from "react";
+import { useCallback, useContext, useMemo } from "react";
 import { gql, useQuery } from "@apollo/client";
-import { Alert, AlertIcon, Button, Heading, Stack } from "@chakra-ui/react";
+import { Alert, AlertIcon, Button, Heading, Stack, useDisclosure } from "@chakra-ui/react";
 import { Link } from "react-router-dom";
 import { GlobalPreferencesContext } from "providers/GlobalPreferencesProvider";
 import {
@@ -23,6 +23,7 @@ import {
   ShipmentCell,
   StatusCell,
 } from "./components/TableCells";
+import TransferAgreementsOverlay from "./components/TransferAgreementOverlay";
 
 export const ALL_TRANSFER_AGREEMENTS_QUERY = gql`
   ${ORGANISATION_BASIC_FIELDS_FRAGMENT}
@@ -81,6 +82,16 @@ interface IShipmentBase {
 
 function TransferAgreementOverviewView() {
   const { globalPreferences } = useContext(GlobalPreferencesContext);
+  const { isOpen, onClose, onOpen } = useDisclosure();
+
+  const openTransferAgreementOverlay = useCallback(
+    (state: IExtendedTransferAgreementState) => {
+      // eslint-disable-next-line no-console
+      console.log(state);
+      onOpen();
+    },
+    [onOpen],
+  );
 
   // fetch agreements data
   const { loading, error, data } = useQuery<TransferAgreementsQuery>(
@@ -199,7 +210,8 @@ function TransferAgreementOverviewView() {
       {
         Header: "Status",
         accessor: "state",
-        Cell: StatusCell,
+        // eslint-disable-next-line react/no-unstable-nested-components
+        Cell: ({ ...cellProps }) => <StatusCell onClick={onOpen} {...cellProps} />,
       },
       {
         Header: "Shipments",
@@ -215,7 +227,7 @@ function TransferAgreementOverviewView() {
         accessor: "validUntil",
       },
     ],
-    [],
+    [onOpen],
   );
 
   let transferAgreementTable;
@@ -247,6 +259,8 @@ function TransferAgreementOverviewView() {
         </Link>
       </Stack>
       {transferAgreementTable}
+
+      <TransferAgreementsOverlay isOpen={isOpen} onClose={onClose} isLoading={false} />
     </>
   );
 }

@@ -12,20 +12,17 @@ import {
 } from "@chakra-ui/react";
 
 interface IYesNoOverlayProps {
-  header: string;
   isLoading: boolean;
   isOpen: boolean;
   onClose: () => void;
-  onYes: () => void;
-  onNo: () => void;
 }
 
-function YesNoOverlay({ header, isLoading, isOpen, onClose, onYes, onNo }: IYesNoOverlayProps) {
+function TransferAgreementsOverlay({ isLoading, isOpen, onClose }: IYesNoOverlayProps) {
   return (
     <Modal isOpen={isOpen} onClose={onClose}>
       <ModalOverlay />
       <ModalContent borderRadius="0">
-        <ModalHeader>{header}</ModalHeader>
+        <ModalHeader>Test</ModalHeader>
         <ModalCloseButton />
         <ModalBody>
           <Flex py={1} px={1} alignItems="center" gap={1}>
@@ -33,8 +30,11 @@ function YesNoOverlay({ header, isLoading, isOpen, onClose, onYes, onNo }: IYesN
           </Flex>
         </ModalBody>
         <ModalFooter>
-          <Button px={6} borderRadius="0" isLoading={isLoading}>
-            Submit
+          <Button variant="green" isLoading={isLoading}>
+            Left
+          </Button>
+          <Button variant="red" isLoading={isLoading}>
+            Right
           </Button>
         </ModalFooter>
       </ModalContent>
@@ -42,4 +42,4 @@ function YesNoOverlay({ header, isLoading, isOpen, onClose, onYes, onNo }: IYesN
   );
 }
 
-export default TakeItemsFromBoxOverlay;
+export default TransferAgreementsOverlay;

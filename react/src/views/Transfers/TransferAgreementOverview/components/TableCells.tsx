@@ -12,50 +12,55 @@ export type IExtendedTransferAgreementState =
   | TransferAgreementState
   | CanAcceptTransferAgreementState;
 
-export function StatusCell({ value }: CellProps<any>) {
-  if (value === TransferAgreementState.UnderReview) {
+export function StatusCell({ onClick, ...cellProps }: CellProps<any>) {
+  if (cellProps.value === TransferAgreementState.UnderReview) {
     return (
       <Tooltip label="Waiting for response from partner">
         <chakra.span>Pending ...</chakra.span>
       </Tooltip>
     );
   }
-  if (value === CanAcceptTransferAgreementState.CanAccept) {
+  if (cellProps.value === CanAcceptTransferAgreementState.CanAccept) {
     return (
       <Tooltip label="Click here to accept or reject the request!">
-        <Button variant="blue">Request Open</Button>
+        <Button colorScheme="blue" onClick={() => onClick()}>
+          Request Open
+        </Button>
       </Tooltip>
     );
   }
-  if (value === TransferAgreementState.Accepted) {
+  if (cellProps.value === TransferAgreementState.Accepted) {
     return (
       <Tooltip label="Click here if you want to terminate the agreement!">
-        <Button variant="green">Accepted</Button>
+        <Button colorScheme="green">Accepted</Button>
       </Tooltip>
     );
   }
-  if (value === TransferAgreementState.Rejected) {
+  if (cellProps.value === TransferAgreementState.Rejected) {
     return (
       <Tooltip label="Click here if you want to retry!">
-        <Button variant="gray">Declined</Button>
+        <Button>Declined</Button>
       </Tooltip>
     );
   }
-  if (value === TransferAgreementState.Canceled || value === TransferAgreementState.Expired) {
+  if (
+    cellProps.value === TransferAgreementState.Canceled ||
+    cellProps.value === TransferAgreementState.Expired
+  ) {
     return (
       <Tooltip label="Click here if you want to renew the agreement!">
-        <Button variant="gray">Ended</Button>
+        <Button>Ended</Button>
       </Tooltip>
     );
   }
-  return String(value);
+  return <>value</>;
 }
 
 export function ShipmentCell({ value }: CellProps<any>) {
   return (
     <VStack align="start">
       {Object.values(value).map(({ name, count }) => (
-        <Link as={RouterLink} to="../shipments">
+        <Link key={name} as={RouterLink} to="../shipments">
           {name} ({count})
         </Link>
       ))}
