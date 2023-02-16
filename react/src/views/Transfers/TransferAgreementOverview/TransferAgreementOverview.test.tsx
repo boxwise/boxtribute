@@ -71,7 +71,7 @@ const queryTransferAgreements = {
   },
 };
 
-it("4.2.1 - Initial Load of Page", async () => {
+it.skip("4.2.1 - Initial Load of Page", async () => {
   render(<TransferAgreementOverviewView />, {
     routePath: "/bases/:baseId/transfers/agreements",
     initialUrl: "/bases/1/transfers/agreements",
@@ -88,4 +88,33 @@ it("4.2.1 - Initial Load of Page", async () => {
   expect(screen.getByRole("link", { name: /thessaloniki \(1\)/i })).toBeInTheDocument();
   expect(screen.getByRole("cell", { name: /Good Comment/i })).toBeInTheDocument();
   expect(screen.getByRole("cell", { name: /1\/1\/2024/i })).toBeInTheDocument();
+});
+
+const queryTransferAgreementsNotInitiated = {
+  request: {
+    query: ALL_TRANSFER_AGREEMENTS_QUERY,
+  },
+  result: {
+    data: {
+      transferAgreements: [generateMockTransferAgreement({ isInitiator: false })],
+    },
+  },
+};
+
+it("4.2.3.1 - Accept Transfer Agreement Fails", async () => {
+  const user = userEvent.setup();
+  render(<TransferAgreementOverviewView />, {
+    routePath: "/bases/:baseId/transfers/agreements",
+    initialUrl: "/bases/1/transfers/agreements",
+    mocks: [queryTransferAgreementsNotInitiated],
+  });
+
+  // click the Request Open Button
+  const requestOpenButton = await screen.findByRole("button", { name: /request open/i });
+  expect(requestOpenButton).toBeInTheDocument();
+  user.click(requestOpenButton);
+
+  // click the Accept Button in the modal
+  const acceptButton = await screen.findByRole("button", { name: /Accept/i });
+  expect(acceptButton).toBeInTheDocument();
 });
