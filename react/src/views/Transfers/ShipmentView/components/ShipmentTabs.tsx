@@ -29,7 +29,7 @@ export interface IShipmentTabsProps {
 }
 function ShipmentTabs({ shipmentDetail }: IShipmentTabsProps) {
   return (
-    <Tabs alignContent="stretch" w="full">
+    <Tabs w="100%">
       <TabList>
         <Tab>Content</Tab>
         <Tab>History</Tab>
@@ -59,9 +59,9 @@ function ShipmentTabs({ shipmentDetail }: IShipmentTabsProps) {
                     <AccordionIcon />
                   </AccordionButton>
                 </h2>
-                <AccordionPanel pb={2}>
+                <AccordionPanel p={0}>
                   <TableContainer>
-                    <Table size="sm">
+                    <Table size="sm" variant="unstyled">
                       <Thead>
                         <Tr>
                           <Th>BOX #</Th>
@@ -71,17 +71,17 @@ function ShipmentTabs({ shipmentDetail }: IShipmentTabsProps) {
                       </Thead>
                       <Tbody>
                         <Tr>
-                          <Td>132561</Td>
+                          <Td>1325610</Td>
                           <Td>Men Large Jackets</Td>
                           <Td isNumeric>10x</Td>
                         </Tr>
                         <Tr>
-                          <Td>578941</Td>
+                          <Td>5789410</Td>
                           <Td>Men Medium Jackets</Td>
                           <Td isNumeric>8X</Td>
                         </Tr>
                         <Tr>
-                          <Td>789721</Td>
+                          <Td>7897210</Td>
                           <Td>mMen Small Jackets</Td>
                           <Td isNumeric>4X</Td>
                         </Tr>
@@ -108,7 +108,7 @@ function ShipmentTabs({ shipmentDetail }: IShipmentTabsProps) {
                     <AccordionIcon />
                   </AccordionButton>
                 </h2>
-                <AccordionPanel pb={2}>
+                <AccordionPanel p={0}>
                   <Table size="sm">
                     <Thead>
                       <Tr>
@@ -119,7 +119,7 @@ function ShipmentTabs({ shipmentDetail }: IShipmentTabsProps) {
                     </Thead>
                     <Tbody>
                       <Tr>
-                        <Td>132561</Td>
+                        <Td>1325610</Td>
                         <Td>Men Large Jackets</Td>
                         <Td isNumeric>10x</Td>
                       </Tr>

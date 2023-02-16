@@ -102,49 +102,49 @@ function ShipmentView() {
   }
 
   return (
-    <Center>
-      <Flex direction="column">
+    <Flex direction="column">
+      <Center>
         <VStack>
           <Heading>View Shipment</Heading>
           <ShipmentCard shipment={shipmentData.data?.shipment as unknown as Shipment} />
         </VStack>
-        <Spacer />
-        <Box>
-          <ShipmentTabs
-            shipmentDetail={shipmentData.data?.shipment?.details as unknown as ShipmentDetail[]}
-          />
-        </Box>
-        <Stack spacing={4}>
-          <ButtonGroup gap="4">
-            <Button
-              mt={10}
-              size="md"
-              type="button"
-              borderRadius="0"
-              border={1}
-              borderColor="blackAlpha.800"
-              w="full"
-              variant="solid"
-              backgroundColor="white"
-            >
-              Back to Overview
-            </Button>
+      </Center>
+      <Spacer />
+      <Box>
+        <ShipmentTabs
+          shipmentDetail={shipmentData.data?.shipment?.details as unknown as ShipmentDetail[]}
+        />
+      </Box>
+      <Stack spacing={4}>
+        <ButtonGroup gap="4">
+          <Button
+            mt={10}
+            size="md"
+            type="button"
+            borderRadius="0"
+            border={1}
+            borderColor="blackAlpha.800"
+            w="full"
+            variant="solid"
+            backgroundColor="white"
+          >
+            Back to Overview
+          </Button>
 
-            <Button
-              mt={10}
-              type="button"
-              borderRadius="0"
-              w="full"
-              variant="solid"
-              backgroundColor="red.300"
-              color="white"
-            >
-              Reject
-            </Button>
-          </ButtonGroup>
-        </Stack>
-      </Flex>
-    </Center>
+          <Button
+            mt={10}
+            type="button"
+            borderRadius="0"
+            w="full"
+            variant="solid"
+            backgroundColor="red.300"
+            color="white"
+          >
+            Reject
+          </Button>
+        </ButtonGroup>
+      </Stack>
+    </Flex>
   );
 }
 
