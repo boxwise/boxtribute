@@ -80,7 +80,7 @@ function TransferAgreementsOverlay({
           Do you want to <Text as="b">TERMINATE</Text> your transfer agreement with them?
         </chakra.span>
         <chakra.span>
-          <Text as="b">Note:</Text> This will <Text as="b">not</Text>affect in-transit shipments.
+          <Text as="b">Note:</Text> This will <Text as="b">not</Text> affect in-transit shipments.
         </chakra.span>
       </VStack>
     );
@@ -120,7 +120,7 @@ function TransferAgreementsOverlay({
           Do you want to <Text as="b">RENEW</Text> your transfer agreement with them?
         </chakra.span>
         <chakra.span>
-          <Text as="b">Note:</Text> This will <Text as="b">not</Text>affect in-transit shipments.
+          <Text as="b">Note:</Text> This will <Text as="b">not</Text> affect in-transit shipments.
         </chakra.span>
       </VStack>
     );
