@@ -3,7 +3,7 @@ import userEvent from "@testing-library/user-event";
 import { screen, render } from "tests/test-utils";
 import { generateMockTransferAgreement } from "mocks/transferAgreements";
 import { mockGraphQLError, mockNetworkError } from "mocks/functions";
-import { TransferAgreementState } from "types/generated/graphql";
+import { TransferAgreementState, TransferAgreementType } from "types/generated/graphql";
 import TransferAgreementOverviewView, {
   ACCEPT_TRANSFER_AGREEMENT,
   ALL_TRANSFER_AGREEMENTS_QUERY,
@@ -11,19 +11,20 @@ import TransferAgreementOverviewView, {
   REJECT_TRANSFER_AGREEMENT,
 } from "./TransferAgreementOverviewView";
 
-const mockSuccessfullTransferAgreementsResponse = ({
+const mockSuccessfullTransferAgreementsQuery = ({
   query = ALL_TRANSFER_AGREEMENTS_QUERY,
   variables = {},
   state = TransferAgreementState.UnderReview,
+  type = TransferAgreementType.Bidirectional,
   isInitiator = true,
 }) => ({
   request: {
     query,
+    variables,
   },
-  variables,
   result: {
     data: {
-      transferAgreements: [generateMockTransferAgreement({ state, isInitiator })],
+      transferAgreements: [generateMockTransferAgreement({ state, type, isInitiator })],
     },
   },
 });
@@ -69,7 +70,7 @@ it("4.2.1 - Initial Load of Page", async () => {
   render(<TransferAgreementOverviewView />, {
     routePath: "/bases/:baseId/transfers/agreements",
     initialUrl: "/bases/1/transfers/agreements",
-    mocks: [mockSuccessfullTransferAgreementsResponse({})],
+    mocks: [mockSuccessfullTransferAgreementsQuery({})],
   });
 
   // Data of Mock Transfer is shown correctly
@@ -85,7 +86,7 @@ const failedMutationTests = [
   {
     name: "4.2.3.1a - Accept Transfer Agreement fails due to GraphQLError",
     mocks: [
-      mockSuccessfullTransferAgreementsResponse({ isInitiator: false }),
+      mockSuccessfullTransferAgreementsQuery({ isInitiator: false }),
       mockGraphQLError(ACCEPT_TRANSFER_AGREEMENT, { id: "1" }),
     ],
     stateButtonText: /request open/i,
@@ -95,7 +96,7 @@ const failedMutationTests = [
   {
     name: "4.2.3.1b - Accept Transfer Agreement fails due to NetworkError",
     mocks: [
-      mockSuccessfullTransferAgreementsResponse({ isInitiator: false }),
+      mockSuccessfullTransferAgreementsQuery({ isInitiator: false }),
       mockNetworkError(ACCEPT_TRANSFER_AGREEMENT, { id: "1" }),
     ],
     stateButtonText: /request open/i,
@@ -105,7 +106,10 @@ const failedMutationTests = [
   {
     name: "4.2.4.1a - Reject Transfer Agreement fails due to GraphQLError",
     mocks: [
-      mockSuccessfullTransferAgreementsResponse({ isInitiator: false }),
+      mockSuccessfullTransferAgreementsQuery({
+        type: TransferAgreementType.SendingTo,
+        isInitiator: false,
+      }),
       mockGraphQLError(REJECT_TRANSFER_AGREEMENT, { id: "1" }),
     ],
     stateButtonText: /request open/i,
@@ -115,7 +119,10 @@ const failedMutationTests = [
   {
     name: "4.2.4.1b - Reject Transfer Agreement fails due to NetworkError",
     mocks: [
-      mockSuccessfullTransferAgreementsResponse({ isInitiator: false }),
+      mockSuccessfullTransferAgreementsQuery({
+        type: TransferAgreementType.ReceivingFrom,
+        isInitiator: false,
+      }),
       mockNetworkError(REJECT_TRANSFER_AGREEMENT, { id: "1" }),
     ],
     stateButtonText: /request open/i,
@@ -125,7 +132,7 @@ const failedMutationTests = [
   {
     name: "4.2.5.1a - Cancel Transfer Agreement fails due to GraphQLError",
     mocks: [
-      mockSuccessfullTransferAgreementsResponse({ state: TransferAgreementState.Accepted }),
+      mockSuccessfullTransferAgreementsQuery({ state: TransferAgreementState.Accepted }),
       mockGraphQLError(CANCEL_TRANSFER_AGREEMENT, { id: "1" }),
     ],
     stateButtonText: /accepted/i,
@@ -135,7 +142,7 @@ const failedMutationTests = [
   {
     name: "4.2.5.1b - Cancel Transfer Agreement fails due to NetworkError",
     mocks: [
-      mockSuccessfullTransferAgreementsResponse({ state: TransferAgreementState.Accepted }),
+      mockSuccessfullTransferAgreementsQuery({ state: TransferAgreementState.Accepted }),
       mockNetworkError(CANCEL_TRANSFER_AGREEMENT, { id: "1" }),
     ],
     stateButtonText: /accepted/i,
@@ -147,7 +154,7 @@ const failedMutationTests = [
 failedMutationTests.forEach(({ name, mocks, stateButtonText, modalButtonText, toastText }) => {
   it(name, async () => {
     const user = userEvent.setup();
-    const { debug, unmount } = render(<TransferAgreementOverviewView />, {
+    render(<TransferAgreementOverviewView />, {
       routePath: "/bases/:baseId/transfers/agreements",
       initialUrl: "/bases/1/transfers/agreements",
       mocks,
@@ -168,3 +175,67 @@ failedMutationTests.forEach(({ name, mocks, stateButtonText, modalButtonText, to
     expect(modalButton).toBeInTheDocument();
   });
 });
+
+const mockSuccessfullMutation = ({
+  mutation = ACCEPT_TRANSFER_AGREEMENT,
+  mutationKey = "acceptTransferAgreement",
+  state = TransferAgreementState.UnderReview,
+  type = TransferAgreementType.Bidirectional,
+  isInitiator = true,
+}) => {
+  const mockObject = {
+    request: {
+      query: mutation,
+      variables: { id: "1" },
+    },
+    result: {
+      data: {},
+    },
+  };
+  mockObject.result.data[mutationKey] = generateMockTransferAgreement({ state, type, isInitiator });
+  return mockObject;
+};
+
+const succesfullMutationTests = [
+  {
+    name: "4.2.3 - Accept Transfer Agreement",
+    mocks: [
+      mockSuccessfullTransferAgreementsQuery({ isInitiator: false }),
+      mockSuccessfullMutation({ state: TransferAgreementState.Accepted, isInitiator: false }),
+    ],
+    stateButtonTextBefore: /request open/i,
+    stateButtonTextAfter: "Accepted",
+    modalButtonText: "Accept",
+    toastText: /successfully accepted/i,
+  },
+];
+
+succesfullMutationTests.forEach(
+  ({ name, mocks, stateButtonTextBefore, stateButtonTextAfter, modalButtonText, toastText }) => {
+    it(name, async () => {
+      const user = userEvent.setup();
+      render(<TransferAgreementOverviewView />, {
+        routePath: "/bases/:baseId/transfers/agreements",
+        initialUrl: "/bases/1/transfers/agreements",
+        mocks,
+      });
+
+      // click the button in the state column
+      const stateButton = await screen.findByRole("button", { name: stateButtonTextBefore });
+      expect(stateButton).toBeInTheDocument();
+      user.click(stateButton);
+
+      // click the button in the modal
+      const modalButton = await screen.findByRole("button", { name: modalButtonText });
+      expect(modalButton).toBeInTheDocument();
+      user.click(modalButton);
+
+      // success toast is shown and state Button changed
+      expect(await screen.findByText(toastText)).toBeInTheDocument();
+      expect(await screen.findByRole("button", { name: stateButtonTextAfter })).toBeInTheDocument();
+      expect(
+        screen.getByRole("button", { name: modalButtonText, hidden: true }),
+      ).toBeInTheDocument();
+    });
+  },
+);

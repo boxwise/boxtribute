@@ -7,36 +7,42 @@ export const generateMockTransferAgreement = ({
   state = TransferAgreementState.UnderReview,
   comment = "Good Comment",
   isInitiator = true,
-}) => ({
-  id: "1",
-  type,
-  state,
-  comment,
-  validFrom: "01-01-2023",
-  validUntil: "01-01-2024",
-  sourceOrganisation: isInitiator ? organisation1 : organisation2,
-  sourceBases: isInitiator ? [base1] : [base2],
-  targetOrganisation: isInitiator ? organisation2 : organisation1,
-  targetBases: isInitiator ? [base2] : [base1],
-  shipments: [
-    {
-      sourceBase: isInitiator ? base1 : base2,
-      targetBase: isInitiator ? base2 : base1,
-      __typename: "Shipment",
-    },
-  ],
-  requestedOn: "01-02-2023",
-  requestedBy: {
+}) => {
+  const iAmSource =
+    (isInitiator && type !== TransferAgreementType.ReceivingFrom) ||
+    (!isInitiator && type === TransferAgreementType.ReceivingFrom);
+
+  return {
     id: "1",
-    name: "Test User",
-    __typename: "User",
-  },
-  acceptedOn: null,
-  acceptedBy: null,
-  terminatedOn: null,
-  terminatedBy: null,
-  __typename: "TransferAgreement",
-});
+    type,
+    state,
+    comment,
+    validFrom: "01-01-2023",
+    validUntil: "01-01-2024",
+    sourceOrganisation: iAmSource ? organisation1 : organisation2,
+    sourceBases: iAmSource ? [base1] : [base2],
+    targetOrganisation: iAmSource ? organisation2 : organisation1,
+    targetBases: iAmSource ? [base2] : [base1],
+    shipments: [
+      {
+        sourceBase: iAmSource ? base1 : base2,
+        targetBase: iAmSource ? base2 : base1,
+        __typename: "Shipment",
+      },
+    ],
+    requestedOn: "01-02-2023",
+    requestedBy: {
+      id: "1",
+      name: "Test User",
+      __typename: "User",
+    },
+    acceptedOn: null,
+    acceptedBy: null,
+    terminatedOn: null,
+    terminatedBy: null,
+    __typename: "TransferAgreement",
+  };
+};
 
 export const acceptedTransferAgreement = {
   __typename: "TransferAgreement",

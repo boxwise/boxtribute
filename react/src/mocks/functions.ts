@@ -23,8 +23,8 @@ export function mockMatchMediaQuery(returnBool: Boolean) {
 export const mockGraphQLError = (query, variables = {}) => ({
   request: {
     query,
+    variables,
   },
-  variables,
   result: {
     errors: [new GraphQLError("Error!")],
   },
@@ -34,7 +34,7 @@ export const mockGraphQLError = (query, variables = {}) => ({
 export const mockNetworkError = (query, variables = {}) => ({
   request: {
     query,
+    variables,
   },
-  variables,
   error: new Error(),
 });
