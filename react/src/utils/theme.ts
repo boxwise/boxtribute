@@ -25,6 +25,9 @@ export const theme = extendTheme({
   colors,
   components: {
     Button: {
+      baseStyle: {
+        borderRadius: 0,
+      },
       variants: {
         "blue": {
           bg: "brandBlue.300",
@@ -41,9 +44,6 @@ export const theme = extendTheme({
           color: "white",
           borderRadius: 0,
         }
-      },
-      defaultProps: {
-        borderRadius: 0,
       },
     },
     Link: {
