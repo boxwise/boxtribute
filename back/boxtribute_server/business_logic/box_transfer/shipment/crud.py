@@ -35,7 +35,7 @@ def _validate_bases_as_part_of_transfer_agreement(
         base_ids[kind] = [
             b.id
             for b in retrieve_transfer_agreement_bases(
-                transfer_agreement=transfer_agreement, kind=kind
+                agreement=transfer_agreement, kind=kind
             )
         ]
 

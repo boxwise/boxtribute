@@ -111,6 +111,13 @@ class InvalidTransferAgreementBase(Exception):
         super().__init__(*args, **kwargs)
 
 
+class InvalidTransferAgreementDates(Exception):
+    extensions = {
+        "code": "BAD_USER_INPUT",
+        "description": "'Valid until' date must be later than 'valid from' date.",
+    }
+
+
 class InvalidShipmentState(_InvalidResourceState):
     def __init__(self, *args, expected_states, actual_state, **kwargs):
         super().__init__(

@@ -3,7 +3,7 @@ from flask import g
 
 from ....authz import authorize
 from ....enums import TransferAgreementType
-from ....models.definitions.base import Base
+from ....exceptions import Forbidden
 from ....models.definitions.transfer_agreement import TransferAgreement
 from .crud import (
     accept_transfer_agreement,
@@ -19,31 +19,24 @@ mutation = MutationType()
 @mutation.field("createTransferAgreement")
 @convert_kwargs_to_snake_case
 def resolve_create_transfer_agreement(*_, creation_input):
-    # Enforce that the user can access at least one of the specified source bases
-    # (default: all bases of the user's organisation)
-    base_ids = creation_input.get(
-        "source_base_ids",
-        [
-            b.id
-            for b in Base.select().where(Base.organisation == g.user.organisation_id)
-        ],
-    )
-    authorize(permission="transfer_agreement:create", base_ids=base_ids)
+    # Enforce that user is authzed for ALL specified bases (using authorize() with the
+    # base_ids argument succeeds if user authzed for at least one base already)
+    for base_id in creation_input["initiating_organisation_base_ids"]:
+        authorize(permission="transfer_agreement:create", base_id=base_id)
     return create_transfer_agreement(**creation_input, user=g.user)
 
 
 @mutation.field("acceptTransferAgreement")
 def resolve_accept_transfer_agreement(*_, id):
-    # For SendingTo/Bidirectional agreements, the user must be member of at least one of
-    # the target bases to be authorized for accepting the agreement. For ReceivingFrom
-    # they must be member of at least one of the source bases
+    # For SendingTo/Bidirectional agreements, the user must be member of all target
+    # bases to be authorized for accepting the agreement. For ReceivingFrom they must be
+    # member of all source bases
     agreement = TransferAgreement.get_by_id(id)
     kind = (
         "source" if agreement.type == TransferAgreementType.ReceivingFrom else "target"
     )
-    bases = retrieve_transfer_agreement_bases(transfer_agreement=agreement, kind=kind)
-    authorize(permission="transfer_agreement:edit", base_ids=[b.id for b in bases])
-    authorize(organisation_id=agreement.target_organisation_id)
+    for base in retrieve_transfer_agreement_bases(agreement=agreement, kind=kind):
+        authorize(permission="transfer_agreement:edit", base_id=base.id)
     return accept_transfer_agreement(id=id, user=g.user)
 
 
@@ -56,25 +49,25 @@ def resolve_reject_transfer_agreement(*_, id):
     kind = (
         "source" if agreement.type == TransferAgreementType.ReceivingFrom else "target"
     )
-    bases = retrieve_transfer_agreement_bases(transfer_agreement=agreement, kind=kind)
-    authorize(permission="transfer_agreement:edit", base_ids=[b.id for b in bases])
-    authorize(organisation_id=agreement.target_organisation_id)
+    for base in retrieve_transfer_agreement_bases(agreement=agreement, kind=kind):
+        authorize(permission="transfer_agreement:edit", base_id=base.id)
     return reject_transfer_agreement(id=id, user=g.user)
 
 
 @mutation.field("cancelTransferAgreement")
 def resolve_cancel_transfer_agreement(*_, id):
-    # User must be member of at least one of the source or target bases to be authorized
+    # User must be member of either all source or all target bases to be authorized
     # for cancelling the agreement
     agreement = TransferAgreement.get_by_id(id)
-    bases = retrieve_transfer_agreement_bases(
-        transfer_agreement=agreement, kind="target"
-    ) + retrieve_transfer_agreement_bases(transfer_agreement=agreement, kind="source")
-    authorize(permission="transfer_agreement:edit", base_ids=[b.id for b in bases])
-    authorize(
-        organisation_ids=[
-            agreement.source_organisation_id,
-            agreement.target_organisation_id,
-        ]
-    )
+    source_bases = retrieve_transfer_agreement_bases(agreement=agreement, kind="source")
+    try:
+        for base in source_bases:
+            authorize(permission="transfer_agreement:edit", base_id=base.id)
+    except Forbidden:
+        target_bases = retrieve_transfer_agreement_bases(
+            agreement=agreement, kind="target"
+        )
+        for base in target_bases:
+            authorize(permission="transfer_agreement:edit", base_id=base.id)
+
     return cancel_transfer_agreement(id=id, user_id=g.user.id)

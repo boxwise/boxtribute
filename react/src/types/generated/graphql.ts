@@ -1354,10 +1354,10 @@ export type TransferAgreement = {
 
 export type TransferAgreementCreationInput = {
   comment?: InputMaybe<Scalars['String']>;
-  sourceBaseIds?: InputMaybe<Array<Scalars['Int']>>;
-  sourceOrganisationId: Scalars['Int'];
-  targetBaseIds?: InputMaybe<Array<Scalars['Int']>>;
-  targetOrganisationId: Scalars['Int'];
+  initiatingOrganisationBaseIds: Array<Scalars['Int']>;
+  initiatingOrganisationId: Scalars['Int'];
+  partnerOrganisationBaseIds?: InputMaybe<Array<Scalars['Int']>>;
+  partnerOrganisationId: Scalars['Int'];
   timezone?: InputMaybe<Scalars['String']>;
   type: TransferAgreementType;
   validFrom?: InputMaybe<Scalars['Date']>;
@@ -1437,6 +1437,10 @@ export type BoxWithSizeTagProductFieldsFragment = { __typename?: 'Box', labelIde
 export type BaseBasicFieldsFragment = { __typename?: 'Base', id: string, name: string };
 
 export type OrganisationBasicFieldsFragment = { __typename?: 'Organisation', id: string, name: string };
+
+export type TransferAgreementFieldsFragment = { __typename?: 'TransferAgreement', id: string, type: TransferAgreementType, state?: TransferAgreementState | null, validFrom: any, validUntil?: any | null, comment?: string | null, sourceOrganisation: { __typename?: 'Organisation', id: string, name: string }, sourceBases?: Array<{ __typename?: 'Base', id: string, name: string }> | null, targetOrganisation: { __typename?: 'Organisation', id: string, name: string }, targetBases?: Array<{ __typename?: 'Base', id: string, name: string }> | null, shipments: Array<{ __typename?: 'Shipment', id: string, state?: ShipmentState | null }>, requestedBy: { __typename?: 'User', id: string, name?: string | null } };
+
+export type BaseOrgFieldsFragment = { __typename?: 'Base', name: string, organisation: { __typename?: 'Organisation', id: string, name: string } };
 
 export type BoxDetailsQueryVariables = Exact<{
   labelIdentifier: Scalars['String'];
@@ -1750,14 +1754,14 @@ export type AllOrganisationsAndBasesQueryVariables = Exact<{ [key: string]: neve
 export type AllOrganisationsAndBasesQuery = { __typename?: 'Query', organisations: Array<{ __typename?: 'Organisation', id: string, name: string, bases?: Array<{ __typename?: 'Base', id: string, name: string }> | null }> };
 
 export type CreateTransferAgreementMutationVariables = Exact<{
-  sourceOrganisationId: Scalars['Int'];
-  targetOrganisationId: Scalars['Int'];
+  initiatingOrganisationId: Scalars['Int'];
+  partnerOrganisationId: Scalars['Int'];
   type: TransferAgreementType;
   validFrom?: InputMaybe<Scalars['Date']>;
   validUntil?: InputMaybe<Scalars['Date']>;
   timezone?: InputMaybe<Scalars['String']>;
-  sourceBaseIds?: InputMaybe<Array<Scalars['Int']> | Scalars['Int']>;
-  targetBaseIds?: InputMaybe<Array<Scalars['Int']> | Scalars['Int']>;
+  initiatingOrganisationBaseIds: Array<Scalars['Int']> | Scalars['Int'];
+  partnerOrganisationBaseIds?: InputMaybe<Array<Scalars['Int']> | Scalars['Int']>;
   comment?: InputMaybe<Scalars['String']>;
 }>;
 
@@ -1765,6 +1769,22 @@ export type CreateTransferAgreementMutationVariables = Exact<{
 export type CreateTransferAgreementMutation = { __typename?: 'Mutation', createTransferAgreement?: { __typename?: 'TransferAgreement', id: string, type: TransferAgreementType } | null };
 
 export type NewTransferAgreementFragment = { __typename?: 'TransferAgreement', id: string, type: TransferAgreementType };
+
+export type AllAcceptedTransferAgreementsQueryVariables = Exact<{
+  baseId: Scalars['ID'];
+}>;
+
+
+export type AllAcceptedTransferAgreementsQuery = { __typename?: 'Query', base?: { __typename?: 'Base', name: string, organisation: { __typename?: 'Organisation', id: string, name: string } } | null, transferAgreements: Array<{ __typename?: 'TransferAgreement', id: string, type: TransferAgreementType, state?: TransferAgreementState | null, validFrom: any, validUntil?: any | null, comment?: string | null, sourceOrganisation: { __typename?: 'Organisation', id: string, name: string }, sourceBases?: Array<{ __typename?: 'Base', id: string, name: string }> | null, targetOrganisation: { __typename?: 'Organisation', id: string, name: string }, targetBases?: Array<{ __typename?: 'Base', id: string, name: string }> | null, shipments: Array<{ __typename?: 'Shipment', id: string, state?: ShipmentState | null }>, requestedBy: { __typename?: 'User', id: string, name?: string | null } }> };
+
+export type CreateTransferShipmentMutationVariables = Exact<{
+  sourceBaseId: Scalars['Int'];
+  targetBaseId: Scalars['Int'];
+  transferAgreementId: Scalars['Int'];
+}>;
+
+
+export type CreateTransferShipmentMutation = { __typename?: 'Mutation', createShipment?: { __typename?: 'Shipment', id: string } | null };
 
 export type TransferAgreementsQueryVariables = Exact<{ [key: string]: never; }>;
 
