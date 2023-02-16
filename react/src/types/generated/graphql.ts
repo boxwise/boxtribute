@@ -1770,3 +1770,24 @@ export type TransferAgreementsQueryVariables = Exact<{ [key: string]: never; }>;
 
 
 export type TransferAgreementsQuery = { __typename?: 'Query', transferAgreements: Array<{ __typename?: 'TransferAgreement', id: string, type: TransferAgreementType, state?: TransferAgreementState | null, comment?: string | null, validFrom: any, validUntil?: any | null, requestedOn: any, acceptedOn?: any | null, terminatedOn?: any | null, sourceOrganisation: { __typename?: 'Organisation', id: string, name: string }, sourceBases?: Array<{ __typename?: 'Base', id: string, name: string }> | null, targetOrganisation: { __typename?: 'Organisation', id: string, name: string }, targetBases?: Array<{ __typename?: 'Base', id: string, name: string }> | null, shipments: Array<{ __typename?: 'Shipment', sourceBase?: { __typename?: 'Base', id: string, name: string } | null, targetBase?: { __typename?: 'Base', id: string, name: string } | null }>, requestedBy: { __typename?: 'User', id: string, name?: string | null }, acceptedBy?: { __typename?: 'User', id: string, name?: string | null } | null, terminatedBy?: { __typename?: 'User', id: string, name?: string | null } | null }> };
+
+export type AcceptTransferAgreementMutationVariables = Exact<{
+  id: Scalars['ID'];
+}>;
+
+
+export type AcceptTransferAgreementMutation = { __typename?: 'Mutation', acceptTransferAgreement?: { __typename?: 'TransferAgreement', id: string, state?: TransferAgreementState | null } | null };
+
+export type RejectTransferAgreementMutationVariables = Exact<{
+  id: Scalars['ID'];
+}>;
+
+
+export type RejectTransferAgreementMutation = { __typename?: 'Mutation', rejectTransferAgreement?: { __typename?: 'TransferAgreement', id: string, state?: TransferAgreementState | null } | null };
+
+export type CancelTransferAgreementMutationVariables = Exact<{
+  id: Scalars['ID'];
+}>;
+
+
+export type CancelTransferAgreementMutation = { __typename?: 'Mutation', cancelTransferAgreement?: { __typename?: 'TransferAgreement', id: string, state?: TransferAgreementState | null } | null };

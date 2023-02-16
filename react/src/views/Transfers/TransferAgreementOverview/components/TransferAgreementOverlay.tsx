@@ -19,15 +19,21 @@ import { CanAcceptTransferAgreementState } from "./TableCells";
 interface ITransferAgreementsOverlayPropsProps {
   isLoading: boolean;
   isOpen: boolean;
-  onClose: () => void;
   transferAgreementOverlayData: any;
+  onClose: () => void;
+  onAccept: (id: string) => void;
+  onReject: (id: string) => void;
+  onCancel: (id: string) => void;
 }
 
 function TransferAgreementsOverlay({
   isLoading,
   isOpen,
-  onClose,
   transferAgreementOverlayData: data,
+  onClose,
+  onAccept,
+  onReject,
+  onCancel,
 }: ITransferAgreementsOverlayPropsProps) {
   let title = "";
   let body;
@@ -51,9 +57,17 @@ function TransferAgreementsOverlay({
         </chakra.span>
       </VStack>
     );
-    leftButtonProps = { colorScheme: "red", leftIcon: <SmallCloseIcon /> };
+    leftButtonProps = {
+      colorScheme: "red",
+      leftIcon: <SmallCloseIcon />,
+      onClick: () => onReject(data.id),
+    };
     leftButtonText = "Reject";
-    rightButtonProps = { colorScheme: "green", leftIcon: <CheckIcon /> };
+    rightButtonProps = {
+      colorScheme: "green",
+      leftIcon: <CheckIcon />,
+      onClick: () => onAccept(data.id),
+    };
     rightButtonText = "Accept";
   } else if (data.state === TransferAgreementState.Accepted) {
     title = "Terminate Transfer Agreement";
@@ -70,7 +84,12 @@ function TransferAgreementsOverlay({
         </chakra.span>
       </VStack>
     );
-    rightButtonProps = { colorScheme: "red", leftIcon: <SmallCloseIcon /> };
+    leftButtonProps = { onClick: () => onClose() };
+    rightButtonProps = {
+      colorScheme: "red",
+      leftIcon: <SmallCloseIcon />,
+      onClick: () => onCancel(data.id),
+    };
     rightButtonText = "Terminate";
   } else if (data.state === TransferAgreementState.Rejected) {
     title = "Retry Transfer Agreement Request";
@@ -84,6 +103,7 @@ function TransferAgreementsOverlay({
         </chakra.span>
       </VStack>
     );
+    leftButtonProps = { onClick: () => onClose() };
     rightButtonProps = { colorScheme: "green", leftIcon: <RepeatIcon /> };
     rightButtonText = "Retry";
   } else if (
@@ -104,6 +124,7 @@ function TransferAgreementsOverlay({
         </chakra.span>
       </VStack>
     );
+    leftButtonProps = { onClick: () => onClose() };
     rightButtonProps = { colorScheme: "green", leftIcon: <RepeatIcon /> };
     rightButtonText = "Renew";
   }

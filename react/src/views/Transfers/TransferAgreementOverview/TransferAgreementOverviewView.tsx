@@ -1,5 +1,5 @@
 import { useCallback, useContext, useMemo, useState } from "react";
-import { gql, useQuery } from "@apollo/client";
+import { gql, useMutation, useQuery } from "@apollo/client";
 import { Alert, AlertIcon, Button, Heading, Stack, useDisclosure } from "@chakra-ui/react";
 import { Link } from "react-router-dom";
 import { GlobalPreferencesContext } from "providers/GlobalPreferencesProvider";
@@ -9,6 +9,12 @@ import {
   USER_BASIC_FIELDS_FRAGMENT,
 } from "queries/fragments";
 import {
+  AcceptTransferAgreementMutation,
+  AcceptTransferAgreementMutationVariables,
+  CancelTransferAgreementMutation,
+  CancelTransferAgreementMutationVariables,
+  RejectTransferAgreementMutation,
+  RejectTransferAgreementMutationVariables,
   TransferAgreementsQuery,
   TransferAgreementState,
   TransferAgreementType,
@@ -16,6 +22,8 @@ import {
 import { AddIcon } from "@chakra-ui/icons";
 import { TableSkeleton } from "components/Skeletons";
 import { Row } from "react-table";
+import { useErrorHandling } from "hooks/error-handling";
+import { useNotification } from "hooks/hooks";
 import TransferAgreementTable from "./components/TransferAgreementTable";
 import {
   CanAcceptTransferAgreementState,
@@ -74,6 +82,33 @@ export const ALL_TRANSFER_AGREEMENTS_QUERY = gql`
   }
 `;
 
+export const ACCEPT_TRANSFER_AGREEMENT = gql`
+  mutation AcceptTransferAgreement($id: ID!) {
+    acceptTransferAgreement(id: $id) {
+      id
+      state
+    }
+  }
+`;
+
+export const REJECT_TRANSFER_AGREEMENT = gql`
+  mutation RejectTransferAgreement($id: ID!) {
+    rejectTransferAgreement(id: $id) {
+      id
+      state
+    }
+  }
+`;
+
+export const CANCEL_TRANSFER_AGREEMENT = gql`
+  mutation CancelTransferAgreement($id: ID!) {
+    cancelTransferAgreement(id: $id) {
+      id
+      state
+    }
+  }
+`;
+
 interface IShipmentBase {
   __typename?: "Base";
   id: string;
@@ -82,6 +117,8 @@ interface IShipmentBase {
 }
 
 function TransferAgreementOverviewView() {
+  const { triggerError } = useErrorHandling();
+  const { createToast } = useNotification();
   const { globalPreferences } = useContext(GlobalPreferencesContext);
   const { isOpen, onClose, onOpen } = useDisclosure();
   // State to pass Data from a row to the Overlay
@@ -94,6 +131,98 @@ function TransferAgreementOverviewView() {
       onOpen();
     },
     [onOpen, setTransferAgreementOverlayData],
+  );
+
+  // Mutations for transfer agreement actions
+  const [acceptTransferAgreementMutation, acceptTransferAgreementMutationStatus] = useMutation<
+    AcceptTransferAgreementMutation,
+    AcceptTransferAgreementMutationVariables
+  >(ACCEPT_TRANSFER_AGREEMENT);
+
+  const [rejectTransferAgreementMutation, rejectTransferAgreementMutationStatus] = useMutation<
+    RejectTransferAgreementMutation,
+    RejectTransferAgreementMutationVariables
+  >(REJECT_TRANSFER_AGREEMENT);
+
+  const [cancelTransferAgreementMutation, cancelTransferAgreementMutationStatus] = useMutation<
+    CancelTransferAgreementMutation,
+    CancelTransferAgreementMutationVariables
+  >(CANCEL_TRANSFER_AGREEMENT);
+
+  // transfer agreement actions in the different modals
+  const onAccept = useCallback(
+    (id: string) => {
+      acceptTransferAgreementMutation({
+        variables: {
+          id,
+        },
+      })
+        .then((res) => {
+          if (!res?.errors) {
+            onClose();
+            createToast({
+              type: "success",
+              message: "Successfully accepted the transfer agreement.",
+            });
+          } else {
+            triggerError({ message: "Could not accept the transfer agreement." });
+          }
+        })
+        .catch(() => {
+          triggerError({ message: "Could not accept the transfer agreement." });
+        });
+    },
+    [acceptTransferAgreementMutation, onClose, createToast, triggerError],
+  );
+
+  const onReject = useCallback(
+    (id: string) => {
+      rejectTransferAgreementMutation({
+        variables: {
+          id,
+        },
+      })
+        .then((res) => {
+          if (!res?.errors) {
+            onClose();
+            createToast({
+              type: "success",
+              message: "Successfully rejected the transfer agreement.",
+            });
+          } else {
+            triggerError({ message: "Could not reject the transfer agreement." });
+          }
+        })
+        .catch(() => {
+          triggerError({ message: "Could not reject the transfer agreement." });
+        });
+    },
+    [rejectTransferAgreementMutation, onClose, createToast, triggerError],
+  );
+
+  const onCancel = useCallback(
+    (id: string) => {
+      cancelTransferAgreementMutation({
+        variables: {
+          id,
+        },
+      })
+        .then((res) => {
+          if (!res?.errors) {
+            onClose();
+            createToast({
+              type: "success",
+              message: "Successfully canceled the transfer agreement.",
+            });
+          } else {
+            triggerError({ message: "Could not cancel the transfer agreement." });
+          }
+        })
+        .catch(() => {
+          triggerError({ message: "Could not cancel the transfer agreement." });
+        });
+    },
+    [cancelTransferAgreementMutation, onClose, createToast, triggerError],
   );
 
   // fetch agreements data
@@ -115,6 +244,7 @@ function TransferAgreementOverviewView() {
         const targetOrgId = parseInt(element.targetOrganisation.id, 10);
 
         const agreementRow = {
+          id: element.id,
           direction: TransferAgreementType.Bidirectional,
           partnerOrg: element.targetOrganisation.name,
           state: element.state as IExtendedTransferAgreementState,
@@ -127,32 +257,7 @@ function TransferAgreementOverviewView() {
           requestedBy: element.requestedBy.name,
         };
 
-        if (element.type === TransferAgreementType.SendingTo && currentOrgId === sourceOrgId) {
-          // We can send items to the partner org
-          agreementRow.direction = TransferAgreementType.SendingTo;
-          agreementRow.partnerOrg = element.targetOrganisation.name;
-        } else if (
-          element.type === TransferAgreementType.ReceivingFrom &&
-          currentOrgId === targetOrgId
-        ) {
-          // We can send items to the partner org
-          agreementRow.direction = TransferAgreementType.SendingTo;
-          agreementRow.partnerOrg = element.sourceOrganisation.name;
-        } else if (
-          element.type === TransferAgreementType.ReceivingFrom &&
-          currentOrgId === sourceOrgId
-        ) {
-          // We can receive items to the partner org
-          agreementRow.direction = TransferAgreementType.ReceivingFrom;
-          agreementRow.partnerOrg = element.targetOrganisation.name;
-        } else if (
-          element.type === TransferAgreementType.SendingTo &&
-          currentOrgId === targetOrgId
-        ) {
-          // We can receive items to the partner org
-          agreementRow.direction = TransferAgreementType.ReceivingFrom;
-          agreementRow.partnerOrg = element.sourceOrganisation.name;
-        } else if (element.type === TransferAgreementType.Bidirectional) {
+        if (element.type === TransferAgreementType.Bidirectional) {
           // We can do both
           agreementRow.direction = TransferAgreementType.Bidirectional;
           if (currentOrgId === sourceOrgId) {
@@ -160,10 +265,25 @@ function TransferAgreementOverviewView() {
           } else if (currentOrgId === targetOrgId) {
             agreementRow.partnerOrg = element.sourceOrganisation.name;
           }
+        } else if (currentOrgId === sourceOrgId) {
+          // we are can only send stock to the partner
+          agreementRow.direction = TransferAgreementType.SendingTo;
+          agreementRow.partnerOrg = element.targetOrganisation.name;
+        } else if (currentOrgId === targetOrgId) {
+          // we are can only receive items from the partner
+          agreementRow.direction = TransferAgreementType.ReceivingFrom;
+          agreementRow.partnerOrg = element.sourceOrganisation.name;
         }
 
-        if (element.state === TransferAgreementState.UnderReview && currentOrgId === targetOrgId) {
-          // You can accept this Agreement if it is UnderReview since the partnerOrg created it
+        // The initiating Org is not always the sourceOrg. Therefore, we need to do this complex if statement
+        if (
+          element.state === TransferAgreementState.UnderReview &&
+          ((currentOrgId === targetOrgId &&
+            (element.type === TransferAgreementType.Bidirectional ||
+              element.type === TransferAgreementType.SendingTo)) ||
+            (currentOrgId === targetOrgId && element.type === TransferAgreementType.ReceivingFrom))
+        ) {
+          // You can accept this agreement if it is UnderReview and the partnerOrg created it
           agreementRow.state = CanAcceptTransferAgreementState.CanAccept;
         }
 
@@ -270,9 +390,12 @@ function TransferAgreementOverviewView() {
 
       <TransferAgreementsOverlay
         isOpen={isOpen}
-        onClose={onClose}
         isLoading={false}
         transferAgreementOverlayData={transferAgreementOverlayData}
+        onClose={onClose}
+        onAccept={onAccept}
+        onReject={onReject}
+        onCancel={onCancel}
       />
     </>
   );
