@@ -1,9 +1,14 @@
 /* eslint-disable no-nested-ternary */
 import { TriangleDownIcon, TriangleUpIcon } from "@chakra-ui/icons";
 import { chakra, Table, TableContainer, Tbody, Td, Th, Thead, Tr } from "@chakra-ui/react";
-import { useSortBy, useTable } from "react-table";
+import { Column, useSortBy, useTable } from "react-table";
 
-function TransferAgreementTable({ columns, tableData }) {
+interface ITranferAgreementTableProps {
+  columns: Array<Column<any>>;
+  tableData: Array<any>;
+}
+
+function TransferAgreementTable({ columns, tableData }: ITranferAgreementTableProps) {
   const { getTableProps, getTableBodyProps, headerGroups, rows, prepareRow } = useTable(
     {
       columns,
