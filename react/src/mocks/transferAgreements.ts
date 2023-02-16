@@ -22,7 +22,18 @@ export const generateMockTransferAgreement = ({
     {
       sourceBase: isInitiator ? base1 : base2,
       targetBase: isInitiator ? base2 : base1,
+      __typename: "Shipment",
     },
   ],
+  requestedOn: "01-02-2023",
+  requestedBy: {
+    id: "1",
+    name: "Test User",
+    __typename: "User",
+  },
+  acceptedOn: null,
+  acceptedBy: null,
+  terminatedOn: null,
+  terminatedBy: null,
   __typename: "TransferAgreement",
 });

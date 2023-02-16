@@ -1,3 +1,5 @@
+import { GraphQLError } from "graphql";
+
 export function mockMatchMediaQuery(returnBool: Boolean) {
   // Jest does not implement window.matchMedia() which is used in the chackra ui hook useMediaQuery().
   // To mock a result of useMediaQuery you have to define this property. The 'matches' boolean is the return value.
@@ -16,3 +18,23 @@ export function mockMatchMediaQuery(returnBool: Boolean) {
     })),
   });
 }
+
+// mock an Apollo GraphQLError
+export const mockGraphQLError = (query, variables = {}) => ({
+  request: {
+    query,
+  },
+  variables,
+  result: {
+    errors: [new GraphQLError("Error!")],
+  },
+});
+
+// mock a network error when sending a graphQL request
+export const mockNetworkError = (query, variables = {}) => ({
+  request: {
+    query,
+  },
+  variables,
+  error: new Error(),
+});

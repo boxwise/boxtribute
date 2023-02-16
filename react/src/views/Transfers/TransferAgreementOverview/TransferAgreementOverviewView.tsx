@@ -226,12 +226,7 @@ function TransferAgreementOverviewView() {
   );
 
   // fetch agreements data
-  const { loading, error, data } = useQuery<TransferAgreementsQuery>(
-    ALL_TRANSFER_AGREEMENTS_QUERY,
-    {
-      errorPolicy: "all",
-    },
-  );
+  const { loading, error, data } = useQuery<TransferAgreementsQuery>(ALL_TRANSFER_AGREEMENTS_QUERY);
 
   // transform agreements data for UI
   const graphqlToTableTransformer = (
