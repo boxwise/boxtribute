@@ -276,7 +276,7 @@ function TransferAgreementOverviewView() {
           ((currentOrgId === targetOrgId &&
             (element.type === TransferAgreementType.Bidirectional ||
               element.type === TransferAgreementType.SendingTo)) ||
-            (currentOrgId === targetOrgId && element.type === TransferAgreementType.ReceivingFrom))
+            (currentOrgId === sourceOrgId && element.type === TransferAgreementType.ReceivingFrom))
         ) {
           // You can accept this agreement if it is UnderReview and the partnerOrg created it
           agreementRow.state = CanAcceptTransferAgreementState.CanAccept;
