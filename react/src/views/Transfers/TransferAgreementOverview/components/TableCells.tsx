@@ -6,6 +6,7 @@ import { Link as RouterLink } from "react-router-dom";
 import { CellProps } from "react-table";
 import { TransferAgreementState } from "types/generated/graphql";
 
+// eslint-disable-next-line no-shadow
 export enum CanAcceptTransferAgreementState {
   CanAccept = "CanAccept",
 }
