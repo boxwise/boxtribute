@@ -1,7 +1,19 @@
 /* eslint-disable no-nested-ternary */
-import { TriangleDownIcon, TriangleUpIcon } from "@chakra-ui/icons";
-import { chakra, Table, TableContainer, Tbody, Td, Th, Thead, Tr } from "@chakra-ui/react";
-import { Column, useSortBy, useTable } from "react-table";
+import { ArrowUpDownIcon, TriangleDownIcon, TriangleUpIcon } from "@chakra-ui/icons";
+import {
+  chakra,
+  Flex,
+  IconButton,
+  Spacer,
+  Table,
+  TableContainer,
+  Tbody,
+  Td,
+  Th,
+  Thead,
+  Tr,
+} from "@chakra-ui/react";
+import { Column, useFilters, useSortBy, useTable } from "react-table";
 
 interface ITranferAgreementTableProps {
   columns: Array<Column<any>>;
@@ -14,6 +26,7 @@ function TransferAgreementTable({ columns, tableData }: ITranferAgreementTablePr
       columns,
       data: tableData,
     },
+    useFilters,
     useSortBy,
   );
 
@@ -24,22 +37,33 @@ function TransferAgreementTable({ columns, tableData }: ITranferAgreementTablePr
           {headerGroups.map((headerGroup) => (
             <Tr {...headerGroup.getHeaderGroupProps()}>
               {headerGroup.headers.map((column) => (
-                <Th
-                  {...column.getHeaderProps(column.getSortByToggleProps())}
-                  title={`Toggle SortBy for '${column.render("Header")}'`}
-                >
-                  {column.render("Header")}
-                  <chakra.span pl="4">
-                    {column.isSorted ? (
-                      column.isSortedDesc ? (
-                        <TriangleDownIcon aria-label="sorted descending" />
-                      ) : (
-                        <TriangleUpIcon aria-label="sorted ascending" />
-                      )
-                    ) : (
-                      ""
+                <Th {...column.getHeaderProps()}>
+                  <Flex alignItems="center">
+                    {column.canFilter && (
+                      <chakra.span pr="1">{column.render("Filter")}</chakra.span>
                     )}
-                  </chakra.span>
+                    {column.render("Header")}
+                    <Spacer />
+                    <chakra.span pl="1">
+                      <IconButton
+                        size="xs"
+                        background="inherit"
+                        aria-label={`Toggle SortBy for '${column.render("Header")}'`}
+                        icon={
+                          column.isSorted ? (
+                            column.isSortedDesc ? (
+                              <TriangleDownIcon aria-label="sorted descending" />
+                            ) : (
+                              <TriangleUpIcon aria-label="sorted ascending" />
+                            )
+                          ) : (
+                            <ArrowUpDownIcon />
+                          )
+                        }
+                        {...column.getSortByToggleProps()}
+                      />
+                    </chakra.span>
+                  </Flex>
                 </Th>
               ))}
             </Tr>

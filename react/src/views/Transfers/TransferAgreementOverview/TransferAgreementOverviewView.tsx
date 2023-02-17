@@ -20,6 +20,7 @@ import { TableSkeleton } from "components/Skeletons";
 import { Row } from "react-table";
 import { useErrorHandling } from "hooks/error-handling";
 import { useNotification } from "hooks/hooks";
+import { SelectColumnFilter } from "components/Table/Filter";
 import TransferAgreementTable from "./components/TransferAgreementTable";
 import {
   CanAcceptTransferAgreementState,
@@ -284,10 +285,13 @@ function TransferAgreementOverviewView() {
         Header: "",
         accessor: "direction",
         Cell: DirectionCell,
+        Filter: SelectColumnFilter,
+        filter: "includesSome",
       },
       {
         Header: "Partner",
         accessor: "partnerOrg",
+        disableFilters: true,
       },
       {
         Header: "Status",
@@ -296,19 +300,24 @@ function TransferAgreementOverviewView() {
         Cell: ({ ...cellProps }) => (
           <StatusCell onClick={openTransferAgreementOverlay} {...cellProps} />
         ),
+        Filter: SelectColumnFilter,
+        filter: "includesSome",
       },
       {
         Header: "Shipments",
         accessor: "shipments",
+        disableFilters: true,
         Cell: ShipmentCell,
       },
       {
         Header: "Comments",
         accessor: "comment",
+        disableFilters: true,
       },
       {
         Header: "Valid Until",
         accessor: "validUntil",
+        disableFilters: true,
       },
     ],
     [openTransferAgreementOverlay],
