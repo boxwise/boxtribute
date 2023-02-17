@@ -65,7 +65,6 @@ export const CREATE_AGREEMENT_MUTATION = gql`
 function CreateTransferAgreementView() {
   // Basics
   const navigate = useNavigate();
-  // const { state } = useLocation();
   const { triggerError } = useErrorHandling();
   const { createToast } = useNotification();
   const { globalPreferences } = useContext(GlobalPreferencesContext);
