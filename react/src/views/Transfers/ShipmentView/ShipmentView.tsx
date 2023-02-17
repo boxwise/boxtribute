@@ -49,8 +49,11 @@ export const SHIPMENT_BY_ID = gql`
         box {
           id
           labelIdentifier
+          numberOfItems
           product {
+            id
             name
+            gender
             category {
               id
               name

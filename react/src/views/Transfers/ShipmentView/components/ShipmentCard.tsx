@@ -102,7 +102,7 @@ function ShipmentCard({ shipment }: IShipmentProps) {
         </Box>
         <Box p={4}>
           <Center alignContent="stretch">
-            <Text fontWeight="bold">TOTAL:</Text> 6 BOX
+            <Text fontWeight="bold">TOTAL:</Text> {shipment.details.length} BOX
           </Center>
         </Box>
       </VStack>
