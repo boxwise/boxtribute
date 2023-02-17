@@ -13,6 +13,7 @@ import {
   chakra,
   HStack,
 } from "@chakra-ui/react";
+import { useNavigate } from "react-router-dom";
 import { TransferAgreementState } from "types/generated/graphql";
 import { CanAcceptTransferAgreementState } from "./TableCells";
 
@@ -35,6 +36,8 @@ function TransferAgreementsOverlay({
   onReject,
   onCancel,
 }: ITransferAgreementsOverlayPropsProps) {
+  const navigate = useNavigate();
+
   let title = "";
   let body;
   let leftButtonProps = {};
@@ -104,7 +107,11 @@ function TransferAgreementsOverlay({
       </VStack>
     );
     leftButtonProps = { onClick: () => onClose() };
-    rightButtonProps = { colorScheme: "green", leftIcon: <RepeatIcon /> };
+    rightButtonProps = {
+      colorScheme: "green",
+      leftIcon: <RepeatIcon />,
+      onClick: () => navigate("create"),
+    };
     rightButtonText = "Retry";
   } else if (
     data.state === TransferAgreementState.Expired ||
@@ -125,7 +132,11 @@ function TransferAgreementsOverlay({
       </VStack>
     );
     leftButtonProps = { onClick: () => onClose() };
-    rightButtonProps = { colorScheme: "green", leftIcon: <RepeatIcon /> };
+    rightButtonProps = {
+      colorScheme: "green",
+      leftIcon: <RepeatIcon />,
+      onClick: () => navigate("create"),
+    };
     rightButtonText = "Renew";
   }
 
