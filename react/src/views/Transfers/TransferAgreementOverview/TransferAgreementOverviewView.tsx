@@ -40,41 +40,28 @@ export const ALL_TRANSFER_AGREEMENTS_QUERY = gql`
 `;
 
 export const ACCEPT_TRANSFER_AGREEMENT = gql`
-  ${USER_BASIC_FIELDS_FRAGMENT}
+  ${TRANSFER_AGREEMENT_FIELDS_FRAGMENT}
   mutation AcceptTransferAgreement($id: ID!) {
     acceptTransferAgreement(id: $id) {
-      id
-      state
-      acceptedOn
-      acceptedBy {
-        ...UserBasicFields
-      }
+      ...TransferAgreementFields
     }
   }
 `;
 
 export const REJECT_TRANSFER_AGREEMENT = gql`
+  ${TRANSFER_AGREEMENT_FIELDS_FRAGMENT}
   mutation RejectTransferAgreement($id: ID!) {
     rejectTransferAgreement(id: $id) {
-      id
-      state
-      terminatedOn
-      terminatedBy {
-        ...UserBasicFields
-      }
+      ...TransferAgreementFields
     }
   }
 `;
 
 export const CANCEL_TRANSFER_AGREEMENT = gql`
+  ${TRANSFER_AGREEMENT_FIELDS_FRAGMENT}
   mutation CancelTransferAgreement($id: ID!) {
     cancelTransferAgreement(id: $id) {
-      id
-      state
-      terminatedOn
-      terminatedBy {
-        ...UserBasicFields
-      }
+      ...TransferAgreementFields
     }
   }
 `;
