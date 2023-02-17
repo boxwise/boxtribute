@@ -5,6 +5,7 @@ import { useErrorHandling } from "hooks/error-handling";
 import { useNotification } from "hooks/hooks";
 import APILoadingIndicator from "components/APILoadingIndicator";
 import { useNavigate, useParams } from "react-router-dom";
+import { TRANSFER_AGREEMENT_FIELDS_FRAGMENT } from "queries/fragments";
 import {
   AllOrganisationsAndBasesQuery,
   CreateTransferAgreementMutation,
@@ -31,6 +32,7 @@ export const ALL_ORGS_AND_BASES_QUERY = gql`
 `;
 
 export const CREATE_AGREEMENT_MUTATION = gql`
+  ${TRANSFER_AGREEMENT_FIELDS_FRAGMENT}
   mutation CreateTransferAgreement(
     $initiatingOrganisationId: Int!
     $partnerOrganisationId: Int!
@@ -55,8 +57,7 @@ export const CREATE_AGREEMENT_MUTATION = gql`
         comment: $comment
       }
     ) {
-      id
-      type
+      ...TransferAgreementFields
     }
   }
 `;
@@ -64,6 +65,7 @@ export const CREATE_AGREEMENT_MUTATION = gql`
 function CreateTransferAgreementView() {
   // Basics
   const navigate = useNavigate();
+  // const { state } = useLocation();
   const { triggerError } = useErrorHandling();
   const { createToast } = useNotification();
   const { globalPreferences } = useContext(GlobalPreferencesContext);

@@ -3,7 +3,7 @@ import { gql, useMutation, useQuery } from "@apollo/client";
 import { Alert, AlertIcon, Button, Heading, Stack, useDisclosure } from "@chakra-ui/react";
 import { Link } from "react-router-dom";
 import { GlobalPreferencesContext } from "providers/GlobalPreferencesProvider";
-import { TRANSFER_AGREEMENT_FIELDS_FRAGMENT, USER_BASIC_FIELDS_FRAGMENT } from "queries/fragments";
+import { TRANSFER_AGREEMENT_FIELDS_FRAGMENT } from "queries/fragments";
 import {
   AcceptTransferAgreementMutation,
   AcceptTransferAgreementMutationVariables,
