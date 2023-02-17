@@ -20,10 +20,10 @@ export interface IShipmentProps {
 function ShipmentCard({ shipment }: IShipmentProps) {
   return (
     <Box
-      boxShadow="lg"
+      boxShadow="md"
       p="6"
       padding={0}
-      rounded="md"
+      rounded="lg"
       bg="white"
       width={{ base: "240pt", md: "250pt", lg: "250pt" }}
       borderColor="blackAlpha.800"
