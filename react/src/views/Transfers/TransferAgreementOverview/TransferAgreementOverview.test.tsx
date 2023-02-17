@@ -208,6 +208,45 @@ const succesfullMutationTests = [
     modalButtonText: "Accept",
     toastText: /successfully accepted/i,
   },
+  {
+    name: "4.2.4 - Reject Transfer Agreement",
+    mocks: [
+      mockSuccessfullTransferAgreementsQuery({
+        type: TransferAgreementType.ReceivingFrom,
+        isInitiator: false,
+      }),
+      mockSuccessfullMutation({
+        mutation: REJECT_TRANSFER_AGREEMENT,
+        mutationKey: "rejectTransferAgreement",
+        state: TransferAgreementState.Rejected,
+        type: TransferAgreementType.ReceivingFrom,
+        isInitiator: false,
+      }),
+    ],
+    stateButtonTextBefore: /request open/i,
+    stateButtonTextAfter: /declined/i,
+    modalButtonText: "Reject",
+    toastText: /successfully rejected/i,
+  },
+  {
+    name: "4.2.5 - Cancel Transfer Agreement",
+    mocks: [
+      mockSuccessfullTransferAgreementsQuery({
+        state: TransferAgreementState.Accepted,
+        isInitiator: false,
+      }),
+      mockSuccessfullMutation({
+        mutation: CANCEL_TRANSFER_AGREEMENT,
+        mutationKey: "cancelTransferAgreement",
+        state: TransferAgreementState.Canceled,
+        isInitiator: false,
+      }),
+    ],
+    stateButtonTextBefore: "Accepted",
+    stateButtonTextAfter: "Ended",
+    modalButtonText: "Terminate",
+    toastText: /successfully canceled/i,
+  },
 ];
 
 succesfullMutationTests.forEach(
