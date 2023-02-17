@@ -1,7 +1,7 @@
 import "@testing-library/jest-dom";
 import { screen, render } from "tests/test-utils";
 import { organisation1 } from "mocks/organisations";
-// import { GraphQLError } from "graphql";
+import { GraphQLError } from "graphql";
 import { shipment1, shipment2 } from "mocks/shipments";
 import ShipmentView, { SHIPMENT_BY_ID } from "./ShipmentView";
 
@@ -33,17 +33,17 @@ const initialQueryWithoutBox = {
   },
 };
 
-// const initialQueryNetworkError = {
-//   request: {
-//     query: SHIPMENT_BY_ID,
-//     variables: {
-//       id: "1",
-//     },
-//   },
-//   result: {
-//     errors: [new GraphQLError("Error!")],
-//   },
-// };
+const initialQueryNetworkError = {
+  request: {
+    query: SHIPMENT_BY_ID,
+    variables: {
+      id: "1",
+    },
+  },
+  result: {
+    errors: [new GraphQLError("Error!")],
+  },
+};
 
 // Test case 4.5.1
 it("4.5.1 - Initial load of Page", async () => {
@@ -82,7 +82,6 @@ it("4.5.1 - Initial load of Page", async () => {
 // Test case 4.5.1.4
 // eslint-disable-next-line max-len
 it("4.5.1.4 - Content: When shipment does not contains any products display correct message", async () => {
-  //   const user = userEvent.setup();
   render(<ShipmentView />, {
     routePath: "/bases/:baseId/transfers/shipments/:id",
     initialUrl: "/bases/1/transfers/shipments/1",
@@ -104,5 +103,26 @@ it("4.5.1.4 - Content: When shipment does not contains any products display corr
   // Test case 4.5.1.4 - Content: When shipment does not contains any products display correct message
   expect(
     screen.getByText(/no boxes have been assigned to this shipment yet!/i),
+  ).toBeInTheDocument();
+});
+
+// Test case 4.5.2
+it("4.5.2 - Failed to Fetch Initial Data", async () => {
+  render(<ShipmentView />, {
+    routePath: "/bases/:baseId/transfers/shipments/:id",
+    initialUrl: "/bases/1/transfers/shipments/1",
+    mocks: [initialQueryNetworkError],
+    addTypename: true,
+    globalPreferences: {
+      dispatch: jest.fn(),
+      globalPreferences: {
+        selectedOrganisationId: organisation1.id,
+        availableBases: organisation1.bases,
+      },
+    },
+  });
+
+  expect(
+    await screen.findByText(/could not fetch Shipment data! Please try reloading the page./i),
   ).toBeInTheDocument();
 });

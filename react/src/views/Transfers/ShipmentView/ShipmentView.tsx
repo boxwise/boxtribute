@@ -1,6 +1,17 @@
 // import { useContext } from "react";
 import { gql, useQuery } from "@apollo/client";
-import { Box, Center, Heading, VStack, Flex, Spacer, ButtonGroup, Button } from "@chakra-ui/react";
+import {
+  Box,
+  Center,
+  Heading,
+  VStack,
+  Flex,
+  Spacer,
+  ButtonGroup,
+  Button,
+  Alert,
+  AlertIcon,
+} from "@chakra-ui/react";
 // import { useErrorHandling } from "hooks/error-handling";
 // import { useNotification } from "hooks/hooks";
 import APILoadingIndicator from "components/APILoadingIndicator";
@@ -92,6 +103,15 @@ function ShipmentView() {
   // Handle Loading State
   if (shipmentData.loading) {
     return <APILoadingIndicator />;
+  }
+
+  if (shipmentData?.data?.shipment === undefined) {
+    return (
+      <Alert status="error">
+        <AlertIcon />
+        Could not fetch Shipment data! Please try reloading the page.
+      </Alert>
+    );
   }
 
   return (
