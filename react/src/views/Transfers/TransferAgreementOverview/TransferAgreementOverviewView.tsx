@@ -3,11 +3,7 @@ import { gql, useMutation, useQuery } from "@apollo/client";
 import { Alert, AlertIcon, Button, Heading, Stack, useDisclosure } from "@chakra-ui/react";
 import { Link } from "react-router-dom";
 import { GlobalPreferencesContext } from "providers/GlobalPreferencesProvider";
-import {
-  BASE_BASIC_FIELDS_FRAGMENT,
-  ORGANISATION_BASIC_FIELDS_FRAGMENT,
-  USER_BASIC_FIELDS_FRAGMENT,
-} from "queries/fragments";
+import { TRANSFER_AGREEMENT_FIELDS_FRAGMENT, USER_BASIC_FIELDS_FRAGMENT } from "queries/fragments";
 import {
   AcceptTransferAgreementMutation,
   AcceptTransferAgreementMutationVariables,
@@ -35,58 +31,24 @@ import {
 import TransferAgreementsOverlay from "./components/TransferAgreementOverlay";
 
 export const ALL_TRANSFER_AGREEMENTS_QUERY = gql`
-  ${ORGANISATION_BASIC_FIELDS_FRAGMENT}
-  ${BASE_BASIC_FIELDS_FRAGMENT}
-  ${USER_BASIC_FIELDS_FRAGMENT}
+  ${TRANSFER_AGREEMENT_FIELDS_FRAGMENT}
   query TransferAgreements {
     transferAgreements(states: [Accepted, UnderReview, Rejected, Canceled, Rejected]) {
-      id
-      type
-      state
-      comment
-      validFrom
-      validUntil
-      sourceOrganisation {
-        ...OrganisationBasicFields
-      }
-      sourceBases {
-        ...BaseBasicFields
-      }
-      targetOrganisation {
-        ...OrganisationBasicFields
-      }
-      targetBases {
-        ...BaseBasicFields
-      }
-      shipments {
-        sourceBase {
-          ...BaseBasicFields
-        }
-        targetBase {
-          ...BaseBasicFields
-        }
-      }
-      requestedOn
-      requestedBy {
-        ...UserBasicFields
-      }
-      acceptedOn
-      acceptedBy {
-        ...UserBasicFields
-      }
-      terminatedOn
-      terminatedBy {
-        ...UserBasicFields
-      }
+      ...TransferAgreementFields
     }
   }
 `;
 
 export const ACCEPT_TRANSFER_AGREEMENT = gql`
+  ${USER_BASIC_FIELDS_FRAGMENT}
   mutation AcceptTransferAgreement($id: ID!) {
     acceptTransferAgreement(id: $id) {
       id
       state
+      acceptedOn
+      acceptedBy {
+        ...UserBasicFields
+      }
     }
   }
 `;
@@ -96,6 +58,10 @@ export const REJECT_TRANSFER_AGREEMENT = gql`
     rejectTransferAgreement(id: $id) {
       id
       state
+      terminatedOn
+      terminatedBy {
+        ...UserBasicFields
+      }
     }
   }
 `;
@@ -105,6 +71,10 @@ export const CANCEL_TRANSFER_AGREEMENT = gql`
     cancelTransferAgreement(id: $id) {
       id
       state
+      terminatedOn
+      terminatedBy {
+        ...UserBasicFields
+      }
     }
   }
 `;
