@@ -6,7 +6,6 @@ import {
   PopoverCloseButton,
   PopoverContent,
   PopoverTrigger as OrigPopoverTrigger,
-  theme,
 } from "@chakra-ui/react";
 import { Select } from "chakra-react-select";
 import { FC, ReactNode, useMemo } from "react";
