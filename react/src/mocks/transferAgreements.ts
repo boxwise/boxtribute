@@ -1,4 +1,8 @@
-import { TransferAgreementState, TransferAgreementType } from "types/generated/graphql";
+import {
+  ShipmentState,
+  TransferAgreementState,
+  TransferAgreementType,
+} from "types/generated/graphql";
 import { base1, base2 } from "./bases";
 import { organisation1, organisation2 } from "./organisations";
 
@@ -25,6 +29,8 @@ export const generateMockTransferAgreement = ({
     targetBases: iAmSource ? [base2] : [base1],
     shipments: [
       {
+        id: "1",
+        state: ShipmentState.Preparing,
         sourceBase: iAmSource ? base1 : base2,
         targetBase: iAmSource ? base2 : base1,
         __typename: "Shipment",

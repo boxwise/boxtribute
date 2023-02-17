@@ -44,9 +44,6 @@ it("4.2.2a - Failed to Fetch Initial Data (GraphQlError)", async () => {
     mocks: [mockGraphQLError(ALL_TRANSFER_AGREEMENTS_QUERY)],
   });
 
-  // 4.2.1.1 - Is the Loading State Shown First?
-  expect(await screen.findByTestId("TableSkeleton")).toBeInTheDocument();
-
   // Check if Error is shown
   expect(await screen.findByTestId("ErrorAlert")).toBeInTheDocument();
   // Check if Table is not shown
@@ -72,6 +69,9 @@ it("4.2.1 - Initial Load of Page", async () => {
     initialUrl: "/bases/1/transfers/agreements",
     mocks: [mockSuccessfullTransferAgreementsQuery({})],
   });
+
+  // 4.2.1.1 - Is the Loading State Shown First?
+  expect(await screen.findByTestId("TableSkeleton")).toBeInTheDocument();
 
   // Data of Mock Transfer is shown correctly
   expect(await screen.findByRole("cell", { name: /to \/ from/i })).toBeInTheDocument();
