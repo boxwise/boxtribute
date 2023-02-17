@@ -149,6 +149,11 @@ function TransferAgreementOverviewView() {
     CancelTransferAgreementMutationVariables
   >(CANCEL_TRANSFER_AGREEMENT);
 
+  const isLoadingFromMutation =
+    acceptTransferAgreementMutationStatus.loading ||
+    rejectTransferAgreementMutationStatus.loading ||
+    cancelTransferAgreementMutationStatus.loading;
+
   // transfer agreement actions in the different modals
   const onAccept = useCallback(
     (id: string) => {
@@ -385,7 +390,7 @@ function TransferAgreementOverviewView() {
 
       <TransferAgreementsOverlay
         isOpen={isOpen}
-        isLoading={false}
+        isLoading={isLoadingFromMutation}
         transferAgreementOverlayData={transferAgreementOverlayData}
         onClose={onClose}
         onAccept={onAccept}
