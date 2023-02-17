@@ -1,16 +1,6 @@
 // import { useContext } from "react";
 import { gql, useQuery } from "@apollo/client";
-import {
-  Box,
-  Center,
-  Heading,
-  VStack,
-  Flex,
-  Stack,
-  Spacer,
-  ButtonGroup,
-  Button,
-} from "@chakra-ui/react";
+import { Box, Center, Heading, VStack, Flex, Spacer, ButtonGroup, Button } from "@chakra-ui/react";
 // import { useErrorHandling } from "hooks/error-handling";
 // import { useNotification } from "hooks/hooks";
 import APILoadingIndicator from "components/APILoadingIndicator";
