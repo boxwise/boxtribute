@@ -8,6 +8,7 @@ import {
   Box,
   Flex,
   Spacer,
+  ButtonGroup,
 } from "@chakra-ui/react";
 import ShipmentTable from "./ShipmentTable";
 
@@ -28,27 +29,34 @@ function ShipmentContent({ items }: IShipmentContentProps) {
     <Accordion allowToggle w="full">
       {items.map((item) => (
         <AccordionItem key={item.category}>
-          <h2>
-            <AccordionButton>
-              <Box flex="1" textAlign="left">
-                <Flex>
-                  <Box>
-                    <Text>
-                      {item.category} {item?.gender || ""} ({item.totalItems}x)
-                    </Text>
+          {({ isExpanded }) => (
+            <>
+              <h2>
+                <AccordionButton _expanded={{ bg: "#F4E6A0" }}>
+                  <Box flex="1" textAlign="left">
+                    <Flex>
+                      <Box>
+                        <Text>
+                          {item.category} {item?.gender || ""} ({item.totalItems}x)
+                        </Text>
+                      </Box>
+                      <Spacer />
+                      <ButtonGroup gap={1}>
+                        <Box>
+                          <Text>{item.totalBoxes} boxes</Text>
+                        </Box>
+                        {!isExpanded && <AccordionIcon />}
+                        {isExpanded && <Box w="1em" h="1em" />}
+                      </ButtonGroup>
+                    </Flex>
                   </Box>
-                  <Spacer />
-                  <Box>
-                    <Text>{item.totalBoxes} boxes</Text>
-                  </Box>
-                </Flex>
-              </Box>
-              <AccordionIcon />
-            </AccordionButton>
-          </h2>
-          <AccordionPanel p={0}>
-            <ShipmentTable boxes={item.boxes} />
-          </AccordionPanel>
+                </AccordionButton>
+              </h2>
+              <AccordionPanel p={0}>
+                <ShipmentTable boxes={item.boxes} />
+              </AccordionPanel>
+            </>
+          )}
         </AccordionItem>
       ))}
     </Accordion>
