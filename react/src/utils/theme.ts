@@ -28,6 +28,7 @@ export const theme = extendTheme({
       baseStyle: {
         borderRadius: 0,
       },
+      // TODO: we need to define our brand color palette and apply a whole colorScheme to config chakra UI properly.
       variants: {
         "blue": {
           bg: "brandBlue.300",

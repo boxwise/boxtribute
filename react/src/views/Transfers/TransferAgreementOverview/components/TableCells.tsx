@@ -1,8 +1,10 @@
 import { Button, chakra, Link, Stack, Tooltip, VStack } from "@chakra-ui/react";
+import { BidirectionalIcon } from "components/Icon/Transfer/BidirectionalIcon";
+import { ReceivingIcon } from "components/Icon/Transfer/ReceivingIcon";
+import { SendingIcon } from "components/Icon/Transfer/SendingIcon";
 import { Link as RouterLink } from "react-router-dom";
 import { CellProps } from "react-table";
 import { TransferAgreementState } from "types/generated/graphql";
-import { BidirectionalIcon, ReceivingIcon, SendingIcon } from "./TransferIcons";
 
 export enum CanAcceptTransferAgreementState {
   CanAccept = "CanAccept",
