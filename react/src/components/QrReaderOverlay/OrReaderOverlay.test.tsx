@@ -124,6 +124,7 @@ const queryFindBoxFromOtherOrg = {
   },
 };
 
+// eslint-disable-next-line max-len
 it("3.4.1.4 - Mobile: Enter valid box identifier from unauthorized bases and click on Find button", async () => {
   const user = userEvent.setup();
   mockImplementationOfQrReader(mockedQrReader, "NoBoxAssociatedWithQrCode");
@@ -168,6 +169,7 @@ const queryNoBoxAssociatedWithQrCode = {
   },
 };
 
+// eslint-disable-next-line max-len
 it("3.4.2.1 - Mobile: User scans QR code of same org without previously associated box", async () => {
   const user = userEvent.setup();
   // mock scanning a QR code
