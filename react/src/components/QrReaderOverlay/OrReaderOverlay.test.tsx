@@ -124,7 +124,7 @@ const queryFindBoxFromOtherOrg = {
   },
 };
 
-it("3.4.1.4 - Mobile: Enter valid box identifier but not from the user bases (unauthorized) and click on Find button", async () => {
+it("3.4.1.4 - Mobile: Enter valid box identifier from unauthorized bases and click on Find button", async () => {
   const user = userEvent.setup();
   mockImplementationOfQrReader(mockedQrReader, "NoBoxAssociatedWithQrCode");
   // mock scanning a QR code
