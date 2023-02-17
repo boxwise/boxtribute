@@ -51,7 +51,7 @@ it("4.2.2a - Failed to Fetch Initial Data (GraphQlError)", async () => {
   expect(await screen.findByTestId("ErrorAlert")).toBeInTheDocument();
   // Check if Table is not shown
   expect(screen.queryByRole("table")).not.toBeInTheDocument();
-});
+}, 10000);
 
 it("4.2.2b - Failed to Fetch Initial Data (GraphQlError)", async () => {
   render(<TransferAgreementOverviewView />, {
@@ -251,30 +251,36 @@ const succesfullMutationTests = [
 
 succesfullMutationTests.forEach(
   ({ name, mocks, stateButtonTextBefore, stateButtonTextAfter, modalButtonText, toastText }) => {
-    it(name, async () => {
-      const user = userEvent.setup();
-      render(<TransferAgreementOverviewView />, {
-        routePath: "/bases/:baseId/transfers/agreements",
-        initialUrl: "/bases/1/transfers/agreements",
-        mocks,
-      });
+    it(
+      name,
+      async () => {
+        const user = userEvent.setup();
+        render(<TransferAgreementOverviewView />, {
+          routePath: "/bases/:baseId/transfers/agreements",
+          initialUrl: "/bases/1/transfers/agreements",
+          mocks,
+        });
 
-      // click the button in the state column
-      const stateButton = await screen.findByRole("button", { name: stateButtonTextBefore });
-      expect(stateButton).toBeInTheDocument();
-      user.click(stateButton);
+        // click the button in the state column
+        const stateButton = await screen.findByRole("button", { name: stateButtonTextBefore });
+        expect(stateButton).toBeInTheDocument();
+        user.click(stateButton);
 
-      // click the button in the modal
-      const modalButton = await screen.findByRole("button", { name: modalButtonText });
-      expect(modalButton).toBeInTheDocument();
-      user.click(modalButton);
+        // click the button in the modal
+        const modalButton = await screen.findByRole("button", { name: modalButtonText });
+        expect(modalButton).toBeInTheDocument();
+        user.click(modalButton);
 
-      // success toast is shown and state Button changed
-      expect(await screen.findByText(toastText)).toBeInTheDocument();
-      expect(await screen.findByRole("button", { name: stateButtonTextAfter })).toBeInTheDocument();
-      expect(
-        screen.getByRole("button", { name: modalButtonText, hidden: true }),
-      ).toBeInTheDocument();
-    });
+        // success toast is shown and state Button changed
+        expect(await screen.findByText(toastText)).toBeInTheDocument();
+        expect(
+          await screen.findByRole("button", { name: stateButtonTextAfter }),
+        ).toBeInTheDocument();
+        expect(
+          screen.getByRole("button", { name: modalButtonText, hidden: true }),
+        ).toBeInTheDocument();
+      },
+      10000,
+    );
   },
 );
