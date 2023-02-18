@@ -26,7 +26,7 @@ import BoxCreateView from "views/BoxCreate/BoxCreateView";
 import TransferAgreementOverviewView from "views/Transfers/TransferAgreementOverview/TransferAgreementOverviewView";
 import CreateTransferAgreementView from "views/Transfers/CreateTransferAgreement/CreateTransferAgreementView";
 import CreateTransferShipmentView from "views/Transfers/CreateTransferShipment/CreateTransferShipmentView";
-import TransferShipmentOverviewView from "views/Transfers/TransferShipmentsOverview/TransferShipmentsOverviewView";
+import ShipmentsOverviewView from "views/Transfers/ShipmentsOverview/ShipmentsOverviewView";
 import ShipmentView from "views/Transfers/ShipmentView/ShipmentView";
 
 const useLoadAndSetAvailableBases = () => {
@@ -92,7 +92,7 @@ function App() {
                 <Route path="create" element={<CreateTransferAgreementView />} />
               </Route>
               <Route path="shipments">
-                <Route index element={<TransferShipmentOverviewView />} />
+                <Route index element={<ShipmentsOverviewView />} />
                 <Route path="create" element={<CreateTransferShipmentView />} />
                 <Route path=":id" element={<ShipmentView />} />
               </Route>

@@ -20,7 +20,7 @@ export const ALL_SHIPMENTS_QUERY = gql`
   }
 `;
 
-function TransferShipmentOverviewView() {
+function ShipmentsOverviewView() {
   const { globalPreferences } = useContext(GlobalPreferencesContext);
 
   // fetch shipments data
@@ -172,4 +172,4 @@ function TransferShipmentOverviewView() {
   );
 }
 
-export default TransferShipmentOverviewView;
+export default ShipmentsOverviewView;
