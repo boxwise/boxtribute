@@ -1211,11 +1211,11 @@ export type Shipment = {
   id: Scalars['ID'];
   sentBy?: Maybe<User>;
   sentOn?: Maybe<Scalars['Datetime']>;
-  sourceBase?: Maybe<Base>;
+  sourceBase: Base;
   startedBy: User;
   startedOn: Scalars['Datetime'];
   state?: Maybe<ShipmentState>;
-  targetBase?: Maybe<Base>;
+  targetBase: Base;
   transferAgreement: TransferAgreement;
 };
 

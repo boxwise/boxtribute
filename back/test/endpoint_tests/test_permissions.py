@@ -383,7 +383,7 @@ def test_invalid_permission_for_shipment_base(read_only_client, mocker, field):
         permissions=["shipment:read"]
     )
     query = f"query {{ shipment(id: 1) {{ {field} {{ id }} }} }}"
-    assert_forbidden_request(read_only_client, query, value={field: None})
+    assert_forbidden_request(read_only_client, query)
 
 
 @pytest.mark.parametrize("field", ["location", "qrCode", "tags"])
