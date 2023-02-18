@@ -1786,6 +1786,13 @@ export type CreateTransferShipmentMutationVariables = Exact<{
 
 export type CreateTransferShipmentMutation = { __typename?: 'Mutation', createShipment?: { __typename?: 'Shipment', id: string } | null };
 
+export type ShipmentByIdQueryVariables = Exact<{
+  id?: Scalars['ID'];
+}>;
+
+
+export type ShipmentByIdQuery = { __typename?: 'Query', shipment?: { __typename?: 'Shipment', id: string, state?: ShipmentState | null, transferAgreement: { __typename?: 'TransferAgreement', id: string, type: TransferAgreementType }, sentBy?: { __typename?: 'User', id: string, name?: string | null } | null, sourceBase?: { __typename?: 'Base', id: string, name: string, organisation: { __typename?: 'Organisation', id: string, name: string } } | null, targetBase?: { __typename?: 'Base', id: string, name: string, organisation: { __typename?: 'Organisation', id: string, name: string } } | null, details: Array<{ __typename?: 'ShipmentDetail', box: { __typename?: 'Box', id: string, labelIdentifier: string, numberOfItems?: number | null, product?: { __typename?: 'Product', id: string, name: string, gender?: ProductGender | null, category: { __typename?: 'ProductCategory', id: string, name: string, hasGender: boolean, sizeRanges?: Array<{ __typename?: 'SizeRange', label: string, sizes: Array<{ __typename?: 'Size', id: string, label: string }> } | null> | null } } | null } }> } | null };
+
 export type TransferAgreementsQueryVariables = Exact<{ [key: string]: never; }>;
 
 
