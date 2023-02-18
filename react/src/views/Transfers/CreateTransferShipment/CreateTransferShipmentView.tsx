@@ -155,6 +155,8 @@ function CreateTransferShipmentView() {
     return (
       <Alert status="error">
         <AlertIcon />
+        {/* TODO: We need to distinguish the case here between a network error and
+         a base without transfer agreements */}
         Could not fetch Organisation and Base data! Please try reloading the page.
       </Alert>
     );
