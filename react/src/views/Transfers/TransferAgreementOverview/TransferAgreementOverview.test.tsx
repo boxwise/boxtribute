@@ -50,7 +50,7 @@ it("4.2.2a - Failed to Fetch Initial Data (GraphQlError)", async () => {
   expect(screen.queryByRole("table")).not.toBeInTheDocument();
 }, 10000);
 
-it("4.2.2b - Failed to Fetch Initial Data (GraphQlError)", async () => {
+it("4.2.2b - Failed to Fetch Initial Data (NetworkError)", async () => {
   render(<TransferAgreementOverviewView />, {
     routePath: "/bases/:baseId/transfers/agreements",
     initialUrl: "/bases/1/transfers/agreements",
