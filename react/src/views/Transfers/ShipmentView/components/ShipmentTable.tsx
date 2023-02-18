@@ -1,52 +1,45 @@
 import { Table, TableContainer, Tbody, Td, Th, Thead, Tr } from "@chakra-ui/react";
+import _ from "lodash";
 import { useMemo } from "react";
-import { useTable } from "react-table";
+import { useTable, Column } from "react-table";
 import { Box } from "types/generated/graphql";
 
-interface IShipmentTablePros {
+interface IShipmentTableProps {
   boxes: Box[];
 }
 
-function ShipmentTable({ boxes }: IShipmentTablePros) {
+function ShipmentTable({ boxes }: IShipmentTableProps) {
   // Define columns
-  const columns = useMemo(
+  const columns = useMemo<Column<Box>[]>(
     () => [
       {
-        Header: "BOX #",
+        Header: "Label Identifier",
         accessor: "labelIdentifier",
       },
       {
-        Header: "PRODUCT",
-        accessor: "product",
+        Header: "Product",
+        // eslint-disable-next-line max-len
+        accessor: (box) =>
+          `${`${box?.product?.category.name || ""} ` || ""}${
+            `${box?.product?.gender || ""} ` || ""
+          }${box?.product?.name || ""}`,
       },
       {
-        Header: "ITEMS",
-        accessor: "items",
+        Header: "Items",
+        accessor: "numberOfItems",
       },
       {
-        Header: "",
-        accessor: "id",
-        // eslint-disable-next-line react/no-unstable-nested-components
-        // Cell: ({value}) => (<DeleteIcon onClick={handleDelete}  />)
+        Header: "ID",
+        accessor: (box) => box?.product?.id || "1",
       },
     ],
     [],
   );
 
-  const boxRows = boxes.map((box) => ({
-    labelIdentifier: box.labelIdentifier,
-    // eslint-disable-next-line max-len
-    product: `${`${box?.size?.label || ""} ` || ""}${`${box?.product?.gender || ""} ` || ""}${
-      box.product?.name
-    }`,
-    items: box.numberOfItems || 0,
-    id: parseInt(box.id, 10),
-  }));
+  const data = useMemo(() => boxes, [boxes]);
 
-  const { getTableProps, getTableBodyProps, headerGroups, rows, prepareRow } = useTable({
-    columns,
-    data: boxRows,
-  });
+  const tableInstance = useTable<Box>({ columns, data });
+  const { getTableProps, getTableBodyProps, headerGroups, rows, prepareRow } = tableInstance;
 
   return (
     <TableContainer>
