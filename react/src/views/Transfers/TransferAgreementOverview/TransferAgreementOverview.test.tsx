@@ -11,7 +11,7 @@ import TransferAgreementOverviewView, {
   REJECT_TRANSFER_AGREEMENT,
 } from "./TransferAgreementOverviewView";
 
-const mockSuccessfullTransferAgreementsQuery = ({
+const mockSuccessfulTransferAgreementsQuery = ({
   query = ALL_TRANSFER_AGREEMENTS_QUERY,
   variables = {},
   state = TransferAgreementState.UnderReview,
@@ -67,7 +67,7 @@ it("4.2.1 - Initial Load of Page", async () => {
   render(<TransferAgreementOverviewView />, {
     routePath: "/bases/:baseId/transfers/agreements",
     initialUrl: "/bases/1/transfers/agreements",
-    mocks: [mockSuccessfullTransferAgreementsQuery({})],
+    mocks: [mockSuccessfulTransferAgreementsQuery({})],
   });
 
   // 4.2.1.1 - Is the Loading State Shown First?
@@ -86,7 +86,7 @@ const failedMutationTests = [
   {
     name: "4.2.3.1a - Accept Transfer Agreement fails due to GraphQLError",
     mocks: [
-      mockSuccessfullTransferAgreementsQuery({ isInitiator: false }),
+      mockSuccessfulTransferAgreementsQuery({ isInitiator: false }),
       mockGraphQLError(ACCEPT_TRANSFER_AGREEMENT, { id: "1" }),
     ],
     stateButtonText: /request open/i,
@@ -96,7 +96,7 @@ const failedMutationTests = [
   {
     name: "4.2.3.1b - Accept Transfer Agreement fails due to NetworkError",
     mocks: [
-      mockSuccessfullTransferAgreementsQuery({ isInitiator: false }),
+      mockSuccessfulTransferAgreementsQuery({ isInitiator: false }),
       mockNetworkError(ACCEPT_TRANSFER_AGREEMENT, { id: "1" }),
     ],
     stateButtonText: /request open/i,
@@ -106,7 +106,7 @@ const failedMutationTests = [
   {
     name: "4.2.4.1a - Reject Transfer Agreement fails due to GraphQLError",
     mocks: [
-      mockSuccessfullTransferAgreementsQuery({
+      mockSuccessfulTransferAgreementsQuery({
         type: TransferAgreementType.SendingTo,
         isInitiator: false,
       }),
@@ -119,7 +119,7 @@ const failedMutationTests = [
   {
     name: "4.2.4.1b - Reject Transfer Agreement fails due to NetworkError",
     mocks: [
-      mockSuccessfullTransferAgreementsQuery({
+      mockSuccessfulTransferAgreementsQuery({
         type: TransferAgreementType.ReceivingFrom,
         isInitiator: false,
       }),
@@ -132,7 +132,7 @@ const failedMutationTests = [
   {
     name: "4.2.5.1a - Cancel Transfer Agreement fails due to GraphQLError",
     mocks: [
-      mockSuccessfullTransferAgreementsQuery({ state: TransferAgreementState.Accepted }),
+      mockSuccessfulTransferAgreementsQuery({ state: TransferAgreementState.Accepted }),
       mockGraphQLError(CANCEL_TRANSFER_AGREEMENT, { id: "1" }),
     ],
     stateButtonText: /accepted/i,
@@ -142,7 +142,7 @@ const failedMutationTests = [
   {
     name: "4.2.5.1b - Cancel Transfer Agreement fails due to NetworkError",
     mocks: [
-      mockSuccessfullTransferAgreementsQuery({ state: TransferAgreementState.Accepted }),
+      mockSuccessfulTransferAgreementsQuery({ state: TransferAgreementState.Accepted }),
       mockNetworkError(CANCEL_TRANSFER_AGREEMENT, { id: "1" }),
     ],
     stateButtonText: /accepted/i,
@@ -176,7 +176,7 @@ failedMutationTests.forEach(({ name, mocks, stateButtonText, modalButtonText, to
   });
 });
 
-const mockSuccessfullMutation = ({
+const mockSuccessfulMutation = ({
   mutation = ACCEPT_TRANSFER_AGREEMENT,
   mutationKey = "acceptTransferAgreement",
   state = TransferAgreementState.UnderReview,
@@ -196,12 +196,12 @@ const mockSuccessfullMutation = ({
   return mockObject;
 };
 
-const succesfullMutationTests = [
+const successfulMutationTests = [
   {
     name: "4.2.3 - Accept Transfer Agreement",
     mocks: [
-      mockSuccessfullTransferAgreementsQuery({ isInitiator: false }),
-      mockSuccessfullMutation({ state: TransferAgreementState.Accepted, isInitiator: false }),
+      mockSuccessfulTransferAgreementsQuery({ isInitiator: false }),
+      mockSuccessfulMutation({ state: TransferAgreementState.Accepted, isInitiator: false }),
     ],
     stateButtonTextBefore: /request open/i,
     stateButtonTextAfter: "Accepted",
@@ -211,11 +211,11 @@ const succesfullMutationTests = [
   {
     name: "4.2.4 - Reject Transfer Agreement",
     mocks: [
-      mockSuccessfullTransferAgreementsQuery({
+      mockSuccessfulTransferAgreementsQuery({
         type: TransferAgreementType.ReceivingFrom,
         isInitiator: false,
       }),
-      mockSuccessfullMutation({
+      mockSuccessfulMutation({
         mutation: REJECT_TRANSFER_AGREEMENT,
         mutationKey: "rejectTransferAgreement",
         state: TransferAgreementState.Rejected,
@@ -231,11 +231,11 @@ const succesfullMutationTests = [
   {
     name: "4.2.5 - Cancel Transfer Agreement",
     mocks: [
-      mockSuccessfullTransferAgreementsQuery({
+      mockSuccessfulTransferAgreementsQuery({
         state: TransferAgreementState.Accepted,
         isInitiator: false,
       }),
-      mockSuccessfullMutation({
+      mockSuccessfulMutation({
         mutation: CANCEL_TRANSFER_AGREEMENT,
         mutationKey: "cancelTransferAgreement",
         state: TransferAgreementState.Canceled,
@@ -249,7 +249,7 @@ const succesfullMutationTests = [
   },
 ];
 
-succesfullMutationTests.forEach(
+successfulMutationTests.forEach(
   ({ name, mocks, stateButtonTextBefore, stateButtonTextAfter, modalButtonText, toastText }) => {
     it(
       name,
