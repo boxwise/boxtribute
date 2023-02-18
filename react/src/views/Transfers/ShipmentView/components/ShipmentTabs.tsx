@@ -2,6 +2,7 @@ import { TabList, TabPanels, Tabs, TabPanel, Tab, Center } from "@chakra-ui/reac
 import _ from "lodash";
 import { ShipmentDetail } from "types/generated/graphql";
 import ShipmentContent, { IShipmentContent } from "./ShipmentContent";
+import ShipmentHistory from "./ShipmentHistory";
 
 export interface IShipmentTabsProps {
   shipmentDetail: ShipmentDetail[];
@@ -9,26 +10,25 @@ export interface IShipmentTabsProps {
 function ShipmentTabs({ shipmentDetail }: IShipmentTabsProps) {
   const boxGroupedByProductGender = _.values(
     _(shipmentDetail)
-      .groupBy(
-        (shipment) => `${shipment?.box?.product?.category.name}_${shipment?.box?.product?.gender}`,
-      )
+      .groupBy((shipment) => `${shipment?.box?.product?.name}_${shipment?.box?.product?.gender}`)
       .mapValues((group) => ({
-        category: group[0]?.box?.product?.category.name,
+        product: group[0]?.box?.product,
         gender: group[0]?.box?.product?.gender,
+        sizeLabel: group[0]?.box.product?.sizeRange?.label,
         totalItems: _.sumBy(group, (shipment) => shipment?.box?.numberOfItems || 0),
         totalBoxes: group.length,
         boxes: group.map((shipment) => shipment.box),
       }))
       .mapKeys(
-        // eslint-disable-next-line max-len
         (value) =>
-          `${value.category}_${value.gender}_(${value.totalItems}x)_${value.totalBoxes}_Boxes`,
+          // eslint-disable-next-line max-len
+          `${value.sizeLabel}_${value.gender}_${value.product?.name}_(${value.totalItems}x)_${value.totalBoxes}_Boxes`,
       )
       .value(),
   ) as unknown as IShipmentContent[];
 
   return (
-    <Tabs w="100%" isFitted>
+    <Tabs w="100%" isFitted variant="enclosed-colored">
       <TabList>
         <Tab>Content</Tab>
         <Tab>History</Tab>
@@ -43,7 +43,7 @@ function ShipmentTabs({ shipmentDetail }: IShipmentTabsProps) {
           )}
         </TabPanel>
         <TabPanel>
-          <p>Nothing!</p>
+          <ShipmentHistory />
         </TabPanel>
       </TabPanels>
     </Tabs>

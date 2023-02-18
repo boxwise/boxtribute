@@ -8,7 +8,7 @@ interface IShipmentTablePros {
 function ShipmentTable({ boxes }: IShipmentTablePros) {
   return (
     <TableContainer>
-      <Table size="sm" variant="unstyled">
+      <Table size="sm" variant="simple">
         <Thead>
           <Tr>
             <Th>BOX #</Th>
@@ -20,7 +20,9 @@ function ShipmentTable({ boxes }: IShipmentTablePros) {
           {boxes.map((box) => (
             <Tr key={box.id}>
               <Td>{box.labelIdentifier}</Td>
-              <Td>{box.product?.name}</Td>
+              <Td>
+                {box.product?.sizeRange?.label} {box.product?.gender} {box.product?.name}
+              </Td>
               <Td isNumeric>{box.numberOfItems}x</Td>
             </Tr>
           ))}

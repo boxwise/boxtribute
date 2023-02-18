@@ -20,14 +20,14 @@ export interface IShipmentProps {
 function ShipmentCard({ shipment }: IShipmentProps) {
   return (
     <Box
-      boxShadow="md"
+      boxShadow="lg"
       p="6"
       padding={0}
       rounded="lg"
       bg="white"
       width={{ base: "240pt", md: "250pt", lg: "250pt" }}
       borderColor="blackAlpha.800"
-      borderWidth={2}
+      borderWidth={1.5}
     >
       <VStack
         p="6"
@@ -100,6 +100,7 @@ function ShipmentCard({ shipment }: IShipmentProps) {
             </Center>
           )}
         </Box>
+        <StackDivider borderColor="blackAlpha.800" marginTop={-1.5} />
         <Box p={4}>
           <Center alignContent="stretch">
             <Text fontWeight="bold">TOTAL:</Text> {shipment.details.length} BOX

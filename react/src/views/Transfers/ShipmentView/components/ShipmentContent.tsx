@@ -10,11 +10,13 @@ import {
   Spacer,
   ButtonGroup,
 } from "@chakra-ui/react";
+import { Product } from "types/generated/graphql";
 import ShipmentTable from "./ShipmentTable";
 
 export interface IShipmentContent {
   boxes: any;
-  category: string;
+  product: Product;
+  sizeLabel: string;
   gender: string | undefined;
   totalItems: number;
   totalBoxes: number;
@@ -28,7 +30,7 @@ function ShipmentContent({ items }: IShipmentContentProps) {
   return (
     <Accordion allowToggle w="full">
       {items.map((item) => (
-        <AccordionItem key={item.category}>
+        <AccordionItem key={item.product.id}>
           {({ isExpanded }) => (
             <>
               <h2>
@@ -37,7 +39,7 @@ function ShipmentContent({ items }: IShipmentContentProps) {
                     <Flex>
                       <Box>
                         <Text>
-                          {item.category} {item?.gender || ""} ({item.totalItems}x)
+                          {item.product.name} {item?.gender || ""} ({item.totalItems}x)
                         </Text>
                       </Box>
                       <Spacer />

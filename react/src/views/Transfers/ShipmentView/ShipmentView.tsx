@@ -57,6 +57,7 @@ export const SHIPMENT_BY_ID = gql`
         }
       }
       details {
+        deletedOn
         box {
           id
           labelIdentifier
@@ -70,6 +71,7 @@ export const SHIPMENT_BY_ID = gql`
               name
               hasGender
               sizeRanges {
+                label
                 sizes {
                   id
                   label
@@ -85,10 +87,6 @@ export const SHIPMENT_BY_ID = gql`
 
 function ShipmentView() {
   // Basics
-  // const navigate = useNavigate();
-  // const { triggerError } = useErrorHandling();
-  // const { createToast } = useNotification();
-  // const { globalPreferences } = useContext(GlobalPreferencesContext);
 
   // variables in URL
   const id = useParams<{ id: string }>().id!;
@@ -99,6 +97,10 @@ function ShipmentView() {
       id,
     },
   });
+
+  const shipmentContents = shipmentData.data?.shipment?.details.filter(
+    (shipment) => shipment.deletedOn === null,
+  ) as unknown as ShipmentDetail[];
 
   // Handle Loading State
   if (shipmentData.loading) {
@@ -115,7 +117,7 @@ function ShipmentView() {
   }
 
   return (
-    <Flex direction="column">
+    <Flex direction="column" gap={2}>
       <Center>
         <VStack>
           <Heading>View Shipment</Heading>
@@ -124,9 +126,7 @@ function ShipmentView() {
       </Center>
       <Spacer />
       <Box>
-        <ShipmentTabs
-          shipmentDetail={shipmentData.data?.shipment?.details as unknown as ShipmentDetail[]}
-        />
+        <ShipmentTabs shipmentDetail={shipmentContents} />
       </Box>
 
       <ButtonGroup gap="4">
