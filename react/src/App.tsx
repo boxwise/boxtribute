@@ -25,6 +25,7 @@ import CreateDirectDistributionEventView from "views/Distributions/CreateDirectD
 import BoxCreateView from "views/BoxCreate/BoxCreateView";
 import CreateTransferAgreementView from "views/Transfers/CreateTransferAgreement/CreateTransferAgreementView";
 import CreateTransferShipmentView from "views/Transfers/CreateTransferShipment/CreateTransferShipmentView";
+import ShipmentView from "views/Transfers/ShipmentView/ShipmentView";
 
 const useLoadAndSetAvailableBases = () => {
   const BASES_QUERY = gql`
@@ -91,6 +92,7 @@ function App() {
               <Route path="shipments">
                 <Route index element="" />
                 <Route path="create" element={<CreateTransferShipmentView />} />
+                <Route path=":id" element={<ShipmentView />} />
               </Route>
             </Route>
             <Route path="boxes">
