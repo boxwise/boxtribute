@@ -140,7 +140,7 @@ function TransferShipmentOverviewView() {
     shipmentsTable = (
       <Alert status="error" data-testid="ErrorAlert">
         <AlertIcon />
-        Could not fetch transfer shipment data! Please try reloading the page.
+        Could not fetch shipment data! Please try reloading the page.
       </Alert>
     );
   } else if (loading) {
