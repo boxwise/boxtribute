@@ -27,6 +27,7 @@ import TransferAgreementOverviewView from "views/Transfers/TransferAgreementOver
 import CreateTransferAgreementView from "views/Transfers/CreateTransferAgreement/CreateTransferAgreementView";
 import CreateTransferShipmentView from "views/Transfers/CreateTransferShipment/CreateTransferShipmentView";
 import TransferShipmentOverviewView from "views/Transfers/TransferShipmentsOverview/TransferShipmentsOverviewView";
+import ShipmentView from "views/Transfers/ShipmentView/ShipmentView";
 
 const useLoadAndSetAvailableBases = () => {
   const BASES_QUERY = gql`
@@ -93,6 +94,7 @@ function App() {
               <Route path="shipments">
                 <Route index element={<TransferShipmentOverviewView />} />
                 <Route path="create" element={<CreateTransferShipmentView />} />
+                <Route path=":id" element={<ShipmentView />} />
               </Route>
             </Route>
             <Route path="boxes">

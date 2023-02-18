@@ -88,13 +88,17 @@ input DistributionEventCreationInput {
   plannedEndDateTime: Datetime
 }
 
-input ShipmentUpdateInput {
+input ShipmentWhenPreparingUpdateInput {
   id: ID!
   targetBaseId: Int
   # label identifiers of boxes prepared for shipment
   preparedBoxLabelIdentifiers: [String!]
   # label identifiers of prepared boxes to be moved back to stock
   removedBoxLabelIdentifiers: [String!]
+}
+
+input ShipmentWhenReceivingUpdateInput {
+  id: ID!
   # label identifiers of received boxes to be moved into target stock
   receivedShipmentDetailUpdateInputs: [ShipmentDetailUpdateInput!]
   # label identifiers of boxes that went lost during shipment

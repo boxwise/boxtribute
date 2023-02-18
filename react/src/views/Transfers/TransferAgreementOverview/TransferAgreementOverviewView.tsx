@@ -34,7 +34,7 @@ import TransferAgreementsOverlay from "./components/TransferAgreementOverlay";
 export const ALL_TRANSFER_AGREEMENTS_QUERY = gql`
   ${TRANSFER_AGREEMENT_FIELDS_FRAGMENT}
   query TransferAgreements {
-    transferAgreements(states: [Accepted, UnderReview, Rejected, Canceled, Rejected]) {
+    transferAgreements(states: [Accepted, UnderReview, Rejected, Canceled, Expired]) {
       ...TransferAgreementFields
     }
   }
@@ -113,80 +113,32 @@ function TransferAgreementOverviewView() {
     cancelTransferAgreementMutationStatus.loading;
 
   // transfer agreement actions in the different modals
-  const onAccept = useCallback(
-    (id: string) => {
-      acceptTransferAgreementMutation({
-        variables: {
-          id,
-        },
+  const handleTransferAgreement = useCallback(
+    (mutation, kind) => (id) => {
+      mutation({
+        variables: { id },
       })
         .then((res) => {
           if (!res?.errors) {
             onClose();
             createToast({
               type: "success",
-              message: "Successfully accepted the transfer agreement.",
+              message: `Successfully ${kind}ed the transfer agreement.`,
             });
           } else {
-            triggerError({ message: "Could not accept the transfer agreement." });
+            triggerError({ message: `Could not ${kind} the transfer agreement.` });
           }
         })
         .catch(() => {
-          triggerError({ message: "Could not accept the transfer agreement." });
+          triggerError({ message: `Could not ${kind} the transfer agreement.` });
         });
     },
-    [acceptTransferAgreementMutation, onClose, createToast, triggerError],
+    [onClose, createToast, triggerError],
   );
 
-  const onReject = useCallback(
-    (id: string) => {
-      rejectTransferAgreementMutation({
-        variables: {
-          id,
-        },
-      })
-        .then((res) => {
-          if (!res?.errors) {
-            onClose();
-            createToast({
-              type: "success",
-              message: "Successfully rejected the transfer agreement.",
-            });
-          } else {
-            triggerError({ message: "Could not reject the transfer agreement." });
-          }
-        })
-        .catch(() => {
-          triggerError({ message: "Could not reject the transfer agreement." });
-        });
-    },
-    [rejectTransferAgreementMutation, onClose, createToast, triggerError],
-  );
-
-  const onCancel = useCallback(
-    (id: string) => {
-      cancelTransferAgreementMutation({
-        variables: {
-          id,
-        },
-      })
-        .then((res) => {
-          if (!res?.errors) {
-            onClose();
-            createToast({
-              type: "success",
-              message: "Successfully canceled the transfer agreement.",
-            });
-          } else {
-            triggerError({ message: "Could not cancel the transfer agreement." });
-          }
-        })
-        .catch(() => {
-          triggerError({ message: "Could not cancel the transfer agreement." });
-        });
-    },
-    [cancelTransferAgreementMutation, onClose, createToast, triggerError],
-  );
+  const onAccept = handleTransferAgreement(acceptTransferAgreementMutation, "accept");
+  const onReject = handleTransferAgreement(rejectTransferAgreementMutation, "reject");
+  const onCancel = handleTransferAgreement(cancelTransferAgreementMutation, "cancel");
 
   // fetch agreements data
   const { loading, error, data } = useQuery<TransferAgreementsQuery>(ALL_TRANSFER_AGREEMENTS_QUERY);

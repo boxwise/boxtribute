@@ -510,6 +510,7 @@ export type Mutation = {
   deleteTag?: Maybe<Tag>;
   moveItemsFromBoxToDistributionEvent?: Maybe<UnboxedItemsCollection>;
   moveItemsFromReturnTrackingGroupToBox?: Maybe<DistributionEventsTrackingEntry>;
+  receiveShipment?: Maybe<Shipment>;
   rejectTransferAgreement?: Maybe<TransferAgreement>;
   removeAllPackingListEntriesFromDistributionEventForProduct?: Maybe<Scalars['Boolean']>;
   removeItemsFromUnboxedItemsCollection?: Maybe<UnboxedItemsCollection>;
@@ -523,7 +524,8 @@ export type Mutation = {
   updateBox?: Maybe<Box>;
   updatePackingListEntry?: Maybe<PackingListEntry>;
   updateSelectedProductsForDistributionEventPackingList?: Maybe<DistributionEvent>;
-  updateShipment?: Maybe<Shipment>;
+  updateShipmentWhenPreparing?: Maybe<Shipment>;
+  updateShipmentWhenReceiving?: Maybe<Shipment>;
   updateTag?: Maybe<Tag>;
 };
 
@@ -731,6 +733,16 @@ export type MutationMoveItemsFromReturnTrackingGroupToBoxArgs = {
  * - input argument: creationInput/updateInput
  * - input type: <Resource>CreationInput/UpdateInput
  */
+export type MutationReceiveShipmentArgs = {
+  id: Scalars['ID'];
+};
+
+
+/**
+ * Naming convention:
+ * - input argument: creationInput/updateInput
+ * - input type: <Resource>CreationInput/UpdateInput
+ */
 export type MutationRejectTransferAgreementArgs = {
   id: Scalars['ID'];
 };
@@ -871,8 +883,18 @@ export type MutationUpdateSelectedProductsForDistributionEventPackingListArgs = 
  * - input argument: creationInput/updateInput
  * - input type: <Resource>CreationInput/UpdateInput
  */
-export type MutationUpdateShipmentArgs = {
-  updateInput?: InputMaybe<ShipmentUpdateInput>;
+export type MutationUpdateShipmentWhenPreparingArgs = {
+  updateInput?: InputMaybe<ShipmentWhenPreparingUpdateInput>;
+};
+
+
+/**
+ * Naming convention:
+ * - input argument: creationInput/updateInput
+ * - input type: <Resource>CreationInput/UpdateInput
+ */
+export type MutationUpdateShipmentWhenReceivingArgs = {
+  updateInput?: InputMaybe<ShipmentWhenReceivingUpdateInput>;
 };
 
 
@@ -1189,11 +1211,11 @@ export type Shipment = {
   id: Scalars['ID'];
   sentBy?: Maybe<User>;
   sentOn?: Maybe<Scalars['Datetime']>;
-  sourceBase?: Maybe<Base>;
+  sourceBase: Base;
   startedBy: User;
   startedOn: Scalars['Datetime'];
   state?: Maybe<ShipmentState>;
-  targetBase?: Maybe<Base>;
+  targetBase: Base;
   transferAgreement: TransferAgreement;
 };
 
@@ -1229,16 +1251,21 @@ export enum ShipmentState {
   Completed = 'Completed',
   Lost = 'Lost',
   Preparing = 'Preparing',
+  Receiving = 'Receiving',
   Sent = 'Sent'
 }
 
-export type ShipmentUpdateInput = {
+export type ShipmentWhenPreparingUpdateInput = {
   id: Scalars['ID'];
-  lostBoxLabelIdentifiers?: InputMaybe<Array<Scalars['String']>>;
   preparedBoxLabelIdentifiers?: InputMaybe<Array<Scalars['String']>>;
-  receivedShipmentDetailUpdateInputs?: InputMaybe<Array<ShipmentDetailUpdateInput>>;
   removedBoxLabelIdentifiers?: InputMaybe<Array<Scalars['String']>>;
   targetBaseId?: InputMaybe<Scalars['Int']>;
+};
+
+export type ShipmentWhenReceivingUpdateInput = {
+  id: Scalars['ID'];
+  lostBoxLabelIdentifiers?: InputMaybe<Array<Scalars['String']>>;
+  receivedShipmentDetailUpdateInputs?: InputMaybe<Array<ShipmentDetailUpdateInput>>;
 };
 
 /** Representation of product size. */
@@ -1789,6 +1816,13 @@ export type CreateTransferShipmentMutationVariables = Exact<{
 
 
 export type CreateTransferShipmentMutation = { __typename?: 'Mutation', createShipment?: { __typename?: 'Shipment', id: string } | null };
+
+export type ShipmentByIdQueryVariables = Exact<{
+  id?: Scalars['ID'];
+}>;
+
+
+export type ShipmentByIdQuery = { __typename?: 'Query', shipment?: { __typename?: 'Shipment', id: string, state?: ShipmentState | null, transferAgreement: { __typename?: 'TransferAgreement', id: string, type: TransferAgreementType }, sentBy?: { __typename?: 'User', id: string, name?: string | null } | null, sourceBase?: { __typename?: 'Base', id: string, name: string, organisation: { __typename?: 'Organisation', id: string, name: string } } | null, targetBase?: { __typename?: 'Base', id: string, name: string, organisation: { __typename?: 'Organisation', id: string, name: string } } | null, details: Array<{ __typename?: 'ShipmentDetail', box: { __typename?: 'Box', id: string, labelIdentifier: string, numberOfItems?: number | null, product?: { __typename?: 'Product', id: string, name: string, gender?: ProductGender | null, category: { __typename?: 'ProductCategory', id: string, name: string, hasGender: boolean, sizeRanges?: Array<{ __typename?: 'SizeRange', label: string, sizes: Array<{ __typename?: 'Size', id: string, label: string }> } | null> | null } } | null } }> } | null };
 
 export type TransferAgreementsQueryVariables = Exact<{ [key: string]: never; }>;
 
