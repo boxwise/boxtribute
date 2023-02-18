@@ -510,6 +510,7 @@ export type Mutation = {
   deleteTag?: Maybe<Tag>;
   moveItemsFromBoxToDistributionEvent?: Maybe<UnboxedItemsCollection>;
   moveItemsFromReturnTrackingGroupToBox?: Maybe<DistributionEventsTrackingEntry>;
+  receiveShipment?: Maybe<Shipment>;
   rejectTransferAgreement?: Maybe<TransferAgreement>;
   removeAllPackingListEntriesFromDistributionEventForProduct?: Maybe<Scalars['Boolean']>;
   removeItemsFromUnboxedItemsCollection?: Maybe<UnboxedItemsCollection>;
@@ -523,7 +524,8 @@ export type Mutation = {
   updateBox?: Maybe<Box>;
   updatePackingListEntry?: Maybe<PackingListEntry>;
   updateSelectedProductsForDistributionEventPackingList?: Maybe<DistributionEvent>;
-  updateShipment?: Maybe<Shipment>;
+  updateShipmentWhenPreparing?: Maybe<Shipment>;
+  updateShipmentWhenReceiving?: Maybe<Shipment>;
   updateTag?: Maybe<Tag>;
 };
 
@@ -731,6 +733,16 @@ export type MutationMoveItemsFromReturnTrackingGroupToBoxArgs = {
  * - input argument: creationInput/updateInput
  * - input type: <Resource>CreationInput/UpdateInput
  */
+export type MutationReceiveShipmentArgs = {
+  id: Scalars['ID'];
+};
+
+
+/**
+ * Naming convention:
+ * - input argument: creationInput/updateInput
+ * - input type: <Resource>CreationInput/UpdateInput
+ */
 export type MutationRejectTransferAgreementArgs = {
   id: Scalars['ID'];
 };
@@ -871,8 +883,18 @@ export type MutationUpdateSelectedProductsForDistributionEventPackingListArgs = 
  * - input argument: creationInput/updateInput
  * - input type: <Resource>CreationInput/UpdateInput
  */
-export type MutationUpdateShipmentArgs = {
-  updateInput?: InputMaybe<ShipmentUpdateInput>;
+export type MutationUpdateShipmentWhenPreparingArgs = {
+  updateInput?: InputMaybe<ShipmentWhenPreparingUpdateInput>;
+};
+
+
+/**
+ * Naming convention:
+ * - input argument: creationInput/updateInput
+ * - input type: <Resource>CreationInput/UpdateInput
+ */
+export type MutationUpdateShipmentWhenReceivingArgs = {
+  updateInput?: InputMaybe<ShipmentWhenReceivingUpdateInput>;
 };
 
 
@@ -1189,11 +1211,11 @@ export type Shipment = {
   id: Scalars['ID'];
   sentBy?: Maybe<User>;
   sentOn?: Maybe<Scalars['Datetime']>;
-  sourceBase?: Maybe<Base>;
+  sourceBase: Base;
   startedBy: User;
   startedOn: Scalars['Datetime'];
   state?: Maybe<ShipmentState>;
-  targetBase?: Maybe<Base>;
+  targetBase: Base;
   transferAgreement: TransferAgreement;
 };
 
@@ -1229,16 +1251,21 @@ export enum ShipmentState {
   Completed = 'Completed',
   Lost = 'Lost',
   Preparing = 'Preparing',
+  Receiving = 'Receiving',
   Sent = 'Sent'
 }
 
-export type ShipmentUpdateInput = {
+export type ShipmentWhenPreparingUpdateInput = {
   id: Scalars['ID'];
-  lostBoxLabelIdentifiers?: InputMaybe<Array<Scalars['String']>>;
   preparedBoxLabelIdentifiers?: InputMaybe<Array<Scalars['String']>>;
-  receivedShipmentDetailUpdateInputs?: InputMaybe<Array<ShipmentDetailUpdateInput>>;
   removedBoxLabelIdentifiers?: InputMaybe<Array<Scalars['String']>>;
   targetBaseId?: InputMaybe<Scalars['Int']>;
+};
+
+export type ShipmentWhenReceivingUpdateInput = {
+  id: Scalars['ID'];
+  lostBoxLabelIdentifiers?: InputMaybe<Array<Scalars['String']>>;
+  receivedShipmentDetailUpdateInputs?: InputMaybe<Array<ShipmentDetailUpdateInput>>;
 };
 
 /** Representation of product size. */

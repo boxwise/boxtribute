@@ -123,7 +123,8 @@ def test_shipment_mutations_on_source_side(
     shipment_id = str(default_shipment["id"])
     update_input = f"""{{ id: {shipment_id},
                 targetBaseId: {target_base_id} }}"""
-    mutation = f"""mutation {{ updateShipment(updateInput: {update_input}) {{
+    mutation = f"""mutation {{ updateShipmentWhenPreparing(
+                updateInput: {update_input}) {{
                     id
                     state
                     targetBase {{ id }}
@@ -139,7 +140,8 @@ def test_shipment_mutations_on_source_side(
     box_label_identifier = default_box["label_identifier"]
     update_input = f"""{{ id: {shipment_id},
                 preparedBoxLabelIdentifiers: ["{box_label_identifier}"] }}"""
-    mutation = f"""mutation {{ updateShipment(updateInput: {update_input}) {{
+    mutation = f"""mutation {{ updateShipmentWhenPreparing(
+                updateInput: {update_input}) {{
                     id
                     state
                     details {{
@@ -214,7 +216,8 @@ def test_shipment_mutations_on_source_side(
         box_label_identifier = box["label_identifier"]
         update_input = f"""{{ id: {shipment_id},
                     preparedBoxLabelIdentifiers: ["{box_label_identifier}"] }}"""
-        mutation = f"""mutation {{ updateShipment(updateInput: {update_input}) {{
+        mutation = f"""mutation {{ updateShipmentWhenPreparing(
+                    updateInput: {update_input}) {{
                         details {{ id }}
                     }} }}"""
         shipment = assert_successful_request(client, mutation)
@@ -229,7 +232,8 @@ def test_shipment_mutations_on_source_side(
     box_label_identifiers = ",".join(f'"{b["label_identifier"]}"' for b in boxes)
     update_input = f"""{{ id: {shipment_id},
                 removedBoxLabelIdentifiers: [{box_label_identifiers}] }}"""
-    mutation = f"""mutation {{ updateShipment(updateInput: {update_input}) {{
+    mutation = f"""mutation {{ updateShipmentWhenPreparing(
+                updateInput: {update_input}) {{
                     id
                     state
                     details {{ id }}
@@ -256,7 +260,8 @@ def test_shipment_mutations_on_source_side(
         box_label_identifier = box["label_identifier"]
         update_input = f"""{{ id: {shipment_id},
                     removedBoxLabelIdentifiers: ["{box_label_identifier}"] }}"""
-        mutation = f"""mutation {{ updateShipment(updateInput: {update_input}) {{
+        mutation = f"""mutation {{ updateShipmentWhenPreparing(
+                    updateInput: {update_input}) {{
                         details {{ id }}
                     }} }}"""
         shipment = assert_successful_request(client, mutation)
@@ -374,7 +379,8 @@ def test_shipment_mutations_on_target_side(
                         targetProductId: {target_product_id},
                         targetLocationId: {target_location_id}
                     }}"""
-        return f"""mutation {{ updateShipment(updateInput: {{ {update_input} }}) {{
+        return f"""mutation {{ updateShipmentWhenReceiving(
+                    updateInput: {{ {update_input} }}) {{
                         id
                         state
                         completedBy {{ id }}
@@ -389,6 +395,11 @@ def test_shipment_mutations_on_target_side(
                         }}
                     }} }}"""
 
+    # Test case 3.2.14a
+    mutation = f"""mutation {{ receiveShipment(id: "{shipment_id}") {{ id state }} }}"""
+    shipment = assert_successful_request(client, mutation)
+    assert shipment == {"id": shipment_id, "state": ShipmentState.Receiving.name}
+
     # Test case 3.2.34a
     shipment = assert_successful_request(
         client,
@@ -400,7 +411,7 @@ def test_shipment_mutations_on_target_side(
     )
     expected_shipment = {
         "id": shipment_id,
-        "state": ShipmentState.Sent.name,
+        "state": ShipmentState.Receiving.name,
         "completedBy": None,
         "completedOn": None,
         "details": [
@@ -448,7 +459,7 @@ def test_shipment_mutations_on_target_side(
 
     # Test case 3.2.40, 3.2.34b
     box_label_identifier = marked_for_shipment_box["label_identifier"]
-    mutation = f"""mutation {{ updateShipment( updateInput: {{
+    mutation = f"""mutation {{ updateShipmentWhenReceiving( updateInput: {{
                 id: {shipment_id},
                 lostBoxLabelIdentifiers: ["{box_label_identifier}"]
             }} ) {{
@@ -512,11 +523,13 @@ def _generate_update_shipment_mutation(
     target_product=None,
 ):
     update_input = f"id: {shipment['id']}"
+    update_type = "WhenPreparing"
     if target_base is not None:
         update_input += f", targetBaseId: {target_base['id']}"
     if lost_boxes is not None:
         identifiers = ",".join(f'"{b["label_identifier"]}"' for b in lost_boxes)
         update_input += f", lostBoxLabelIdentifiers: [{identifiers}]"
+        update_type = "WhenReceiving"
     if received_details is not None:
         inputs = ", ".join(
             f"""{{ id: {detail["id"]},
@@ -525,8 +538,9 @@ def _generate_update_shipment_mutation(
             for detail in received_details
         )
         update_input += f", receivedShipmentDetailUpdateInputs: [{inputs}]"
-    return f"""mutation {{ updateShipment(updateInput: {{ {update_input} }} ) {{
-                    id }} }}"""
+        update_type = "WhenReceiving"
+    return f"""mutation {{ updateShipment{update_type}(
+                updateInput: {{ {update_input} }} ) {{ id }} }}"""
 
 
 def assert_bad_user_input_when_updating_shipment(client, **kwargs):
@@ -596,12 +610,28 @@ def test_shipment_mutations_send_as_member_of_non_creating_org(
     assert_forbidden_request(read_only_client, mutation)
 
 
+def test_shipment_mutations_receive_as_member_of_creating_org(
+    read_only_client, default_shipment
+):
+    # Test case 3.2.14d
+    mutation = f"mutation {{ receiveShipment(id: {default_shipment['id']}) {{ id }} }}"
+    assert_forbidden_request(read_only_client, mutation)
+
+
 @pytest.mark.parametrize("act", ["cancel", "send"])
 def test_shipment_mutations_in_non_preparing_state(
     read_only_client, canceled_shipment, act
 ):
     # Test cases 3.2.9, 3.2.13
     mutation = f"mutation {{ {act}Shipment(id: {canceled_shipment['id']}) {{ id }} }}"
+    assert_bad_user_input(read_only_client, mutation)
+
+
+def test_shipment_mutations_receive_when_not_in_sent_state(
+    read_only_client, another_shipment
+):
+    # Test case 3.2.14c
+    mutation = f"mutation {{ receiveShipment(id: {another_shipment['id']}) {{ id }} }}"
     assert_bad_user_input(read_only_client, mutation)
 
 
@@ -620,6 +650,7 @@ def test_shipment_mutations_update_with_invalid_target_base(
     read_only_client, default_bases, default_shipment
 ):
     # Test case 3.2.24
+    # This will use updateShipmentWhenPreparing
     assert_bad_user_input_when_updating_shipment(
         read_only_client,
         target_base=default_bases[4],  # not part of agreement
@@ -631,6 +662,7 @@ def test_shipment_mutations_update_in_non_preparing_state(
     read_only_client, canceled_shipment, default_bases
 ):
     # Test case 3.2.23
+    # This will use updateShipmentWhenPreparing
     assert_bad_user_input_when_updating_shipment(
         read_only_client,
         shipment=canceled_shipment,
@@ -644,6 +676,7 @@ def test_shipment_mutations_update_as_member_of_non_creating_org(
     # Test case 3.2.25
     # The default user (see auth_service fixture) is member of organisation 1 but
     # organisation 2 is the one that created another_shipment
+    # This will use updateShipmentWhenPreparing
     mutation = _generate_update_shipment_mutation(
         shipment=another_shipment,
         target_base=default_bases[2],
@@ -659,6 +692,7 @@ def test_shipment_mutations_update_checked_in_boxes_as_member_of_creating_org(
     another_product,
 ):
     # Test case 3.2.35
+    # This will use updateShipmentWhenReceiving
     mutation = _generate_update_shipment_mutation(
         shipment=sent_shipment,
         received_details=[default_shipment_detail],
@@ -674,6 +708,7 @@ def test_shipment_mutations_update_mark_lost_boxes_as_member_of_creating_org(
     marked_for_shipment_box,
 ):
     # Test case 3.2.41
+    # This will use updateShipmentWhenReceiving
     mutation = _generate_update_shipment_mutation(
         shipment=sent_shipment,
         lost_boxes=[marked_for_shipment_box],
@@ -702,6 +737,7 @@ def test_shipment_mutations_update_checked_in_boxes_when_shipment_in_non_sent_st
     mocker.patch("jose.jwt.decode").return_value = create_jwt_payload(
         base_ids=[3], organisation_id=2, user_id=2
     )
+    # This will use updateShipmentWhenReceiving
     assert_bad_user_input_when_updating_shipment(
         read_only_client,
         shipment=default_shipment,

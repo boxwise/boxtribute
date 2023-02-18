@@ -576,8 +576,8 @@ type TransferAgreement {
 
 type Shipment {
   id: ID!
-  sourceBase: Base
-  targetBase: Base
+  sourceBase: Base!
+  targetBase: Base!
   state: ShipmentState
   startedBy: User!
   startedOn: Datetime!
@@ -622,6 +622,7 @@ enum TransferAgreementType {
 enum ShipmentState {
   Preparing
   Sent
+  Receiving
   Completed
   Canceled
   Lost
