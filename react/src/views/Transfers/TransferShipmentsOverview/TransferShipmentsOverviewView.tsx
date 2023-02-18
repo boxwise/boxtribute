@@ -81,10 +81,14 @@ function TransferShipmentOverviewView() {
         ].concat(
           // append all DateTimes in the ShipmentDetails
           element.details
-            .map((detail) => [detail.createdOn, detail.deletedOn])
-            .filter((dates) => dates.every((date) => Boolean(date)))
-            .flat(),
+            .reduce(
+              (accumulator, detail) =>
+                accumulator.concat(detail.createdOn).concat(detail.deletedOn),
+              [],
+            )
+            .filter((date) => Boolean(date)),
         );
+
         // get max date for last updates
         shipmentRow.lastUpdated = new Intl.DateTimeFormat().format(
           new Date(Math.max(...shipmentUpdateDateTimes.map((date) => new Date(date).getTime()))),
