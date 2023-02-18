@@ -53,7 +53,6 @@ export const SHIPMENT_BY_ID = gql`
         }
       }
       details {
-        deletedOn
         box {
           id
           labelIdentifier
@@ -94,9 +93,7 @@ function ShipmentView() {
     },
   });
 
-  const shipmentContents = shipmentData.data?.shipment?.details.filter(
-    (shipment) => shipment.deletedOn === null,
-  ) as unknown as ShipmentDetail[];
+  const shipmentContents = shipmentData.data?.shipment?.details as unknown as ShipmentDetail[];
 
   // Handle Loading State
   if (shipmentData.loading) {

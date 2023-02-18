@@ -6,7 +6,6 @@ import { product1, product3 } from "./products";
 export const shipment1 = {
     details: [
       {
-        deletedOn: null,
         box: generateMockBox({
             labelIdentifier: "123",
             numberOfItems: 10,
@@ -14,7 +13,6 @@ export const shipment1 = {
         })
       },
       {
-        deletedOn: null,
         box: generateMockBox({
             labelIdentifier: "124",
             numberOfItems: 12,
