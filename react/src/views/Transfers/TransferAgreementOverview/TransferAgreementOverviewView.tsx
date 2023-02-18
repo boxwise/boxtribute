@@ -34,7 +34,7 @@ import TransferAgreementsOverlay from "./components/TransferAgreementOverlay";
 export const ALL_TRANSFER_AGREEMENTS_QUERY = gql`
   ${TRANSFER_AGREEMENT_FIELDS_FRAGMENT}
   query TransferAgreements {
-    transferAgreements(states: [Accepted, UnderReview, Rejected, Canceled, Rejected]) {
+    transferAgreements(states: [Accepted, UnderReview, Rejected, Canceled, Expired]) {
       ...TransferAgreementFields
     }
   }
