@@ -5,7 +5,7 @@ import { SendingIcon } from "components/Icon/Transfer/SendingIcon";
 import { CellProps } from "react-table";
 
 export function DirectionCell({ value }: CellProps<any>) {
-  if (value === "SendingTo") {
+  if (value === "To") {
     return (
       <Stack isInline align="start">
         <SendingIcon />
@@ -13,7 +13,7 @@ export function DirectionCell({ value }: CellProps<any>) {
       </Stack>
     );
   }
-  if (value === "ReceivingFrom") {
+  if (value === "From") {
     return (
       <Stack isInline align="start">
         <ReceivingIcon />
@@ -22,7 +22,7 @@ export function DirectionCell({ value }: CellProps<any>) {
     );
   }
   return (
-    <Stack isInline align="start">
+    <Stack isInline align="Bidirectional">
       <BidirectionalIcon />
       <chakra.span ml={1}>To / From</chakra.span>
     </Stack>

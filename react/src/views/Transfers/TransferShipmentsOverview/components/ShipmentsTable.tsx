@@ -13,6 +13,8 @@ import {
   Thead,
   Tr,
 } from "@chakra-ui/react";
+import { includesSomeObjectFilterFn } from "components/Table/Filter";
+import { useMemo } from "react";
 import { Column, useFilters, useSortBy, useTable } from "react-table";
 
 interface IShipmentsTableProps {
@@ -21,10 +23,20 @@ interface IShipmentsTableProps {
 }
 
 function ShipmentsTable({ columns, tableData }: IShipmentsTableProps) {
+  // Add custom filter function to filter objects in a column
+  // https://react-table-v7.tanstack.com/docs/examples/filtering
+  const filterTypes = useMemo(
+    () => ({
+      includesSomeObject: includesSomeObjectFilterFn,
+    }),
+    [],
+  );
+
   const { getTableProps, getTableBodyProps, headerGroups, rows, prepareRow } = useTable(
     {
       columns,
       data: tableData,
+      filterTypes,
     },
     useFilters,
     useSortBy,

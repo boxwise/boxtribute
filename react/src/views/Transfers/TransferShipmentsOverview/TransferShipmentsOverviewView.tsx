@@ -110,7 +110,7 @@ function TransferShipmentOverviewView() {
         accessor: "partnerBaseOrg",
         Cell: BaseOrgCell,
         Filter: SelectColumnFilter,
-        filter: "includesSome",
+        filter: "includesSomeObject",
       },
       {
         Header: "Status",
