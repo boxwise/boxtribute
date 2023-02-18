@@ -115,6 +115,7 @@ def create_jwt_payload(
             "shipment:edit",
             "transfer_agreement:create",
             "transfer_agreement:edit",
+            "transfer_agreement_detail:read",
         ]
     else:
         payload[f"{JWT_CLAIM_PREFIX}/permissions"] = permissions
