@@ -3,6 +3,7 @@ import { BidirectionalIcon } from "components/Icon/Transfer/BidirectionalIcon";
 import { ReceivingIcon } from "components/Icon/Transfer/ReceivingIcon";
 import { SendingIcon } from "components/Icon/Transfer/SendingIcon";
 import { CellProps } from "react-table";
+import { ShipmentState } from "types/generated/graphql";
 
 export function DirectionCell({ value }: CellProps<any>) {
   if (value === "To") {
@@ -32,8 +33,25 @@ export function DirectionCell({ value }: CellProps<any>) {
 export function BaseOrgCell({ value }: CellProps<any>) {
   return (
     <VStack align="start">
-      <chakra.span>{value.base}</chakra.span>
+      <chakra.span as="b">{value.base}</chakra.span>
       <chakra.span>{value.organisation}</chakra.span>
     </VStack>
+  );
+}
+
+export function StateCell({ value }: CellProps<any>) {
+  let color = "inherit";
+
+  // TODO: Receiving State is missing in type ShipmentState
+  if (value === ShipmentState.Preparing) {
+    color = "blue.700";
+  } else if (value === ShipmentState.Sent) {
+    color = "green.700";
+  }
+
+  return (
+    <chakra.span as="b" color={color}>
+      {value}
+    </chakra.span>
   );
 }

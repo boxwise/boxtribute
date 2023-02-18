@@ -9,7 +9,7 @@ import { AddIcon } from "@chakra-ui/icons";
 import { TableSkeleton } from "components/Skeletons";
 import { SelectColumnFilter } from "components/Table/Filter";
 import ShipmentsTable from "./components/ShipmentsTable";
-import { BaseOrgCell, DirectionCell } from "./components/TableCells";
+import { BaseOrgCell, DirectionCell, StateCell } from "./components/TableCells";
 
 export const ALL_SHIPMENTS_QUERY = gql`
   ${SHIPMENT_FIELDS_FRAGMENT}
@@ -115,6 +115,7 @@ function TransferShipmentOverviewView() {
       {
         Header: "Status",
         accessor: "state",
+        Cell: StateCell,
         Filter: SelectColumnFilter,
         filter: "includesSome",
       },
