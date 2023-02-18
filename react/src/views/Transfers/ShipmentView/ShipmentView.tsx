@@ -1,4 +1,3 @@
-// import { useContext } from "react";
 import { gql, useQuery } from "@apollo/client";
 import {
   Box,
@@ -12,12 +11,9 @@ import {
   Alert,
   AlertIcon,
 } from "@chakra-ui/react";
-// import { useErrorHandling } from "hooks/error-handling";
-// import { useNotification } from "hooks/hooks";
 import APILoadingIndicator from "components/APILoadingIndicator";
 
 import { useParams } from "react-router-dom";
-// import { GlobalPreferencesContext } from "providers/GlobalPreferencesProvider";
 import {
   Shipment,
   ShipmentByIdQuery,
