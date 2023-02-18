@@ -72,7 +72,7 @@ it("4.5.1 - Initial load of Page", async () => {
   // Test case 4.5.1.2 - Content: Displays Shipment status
   expect(screen.getByText(/status:preparing/i)).toBeInTheDocument();
   // Test case 4.5.1.3 - Content: Displays total number of boxes
-  expect(screen.getByText(/2 box/i)).toBeInTheDocument();
+  expect(screen.getByText(/2 boxes/i)).toBeInTheDocument();
   // Test case 4.5.1.5 - Displays Content tab initially
   expect(screen.getByRole("tab", { name: /content/i, selected: true })).toHaveTextContent(
     "Content",
