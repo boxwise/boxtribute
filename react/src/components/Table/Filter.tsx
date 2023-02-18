@@ -25,7 +25,12 @@ export function SelectColumnFilter({
   const options = useMemo(() => {
     const groupedOptions = new Set<string | number | readonly string[] | undefined>();
     preFilteredRows.forEach((row) => {
-      groupedOptions.add(row.values[id]);
+      const value = row.values[id];
+      if (typeof value === "object" && value !== null) {
+        groupedOptions.add(Object.values(value).join(" - "));
+      } else {
+        groupedOptions.add(value);
+      }
     });
     return Array.from(groupedOptions.values()).map((groupedOption) => ({
       value: groupedOption,
