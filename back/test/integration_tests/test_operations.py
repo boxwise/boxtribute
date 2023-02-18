@@ -106,7 +106,7 @@ def test_mutations(auth0_client):
         return shipment_id
 
     shipment_id = create_shipment()
-    mutation = f"""mutation {{ updateShipment(updateInput: {{
+    mutation = f"""mutation {{ updateShipmentWhenPreparing(updateInput: {{
                     id: {shipment_id} }}) {{ id }} }}"""
     response = assert_successful_request(auth0_client, mutation)
     assert response == {"id": str(shipment_id)}
