@@ -40,7 +40,7 @@ const singleSelectOptionSchema = z.object({
   data: z
     .object({
       agreementId: z.string(),
-      specialNote: z.string(),
+      specialNote: z.string() || null,
     })
     .optional(),
 });
@@ -79,7 +79,6 @@ function CreateTransferShipment({
     }));
 
   const onSubmit: SubmitHandler<ITransferShipmentFormData> = (data) => {
-    // eslint-disable-next-line
     onSubmitCreateTransferShipmentForm(data);
   };
 
@@ -96,6 +95,9 @@ function CreateTransferShipment({
 
   const [basesOptionsForPartnerOrg, setBasesOptionsForPartnerOrg] = useState<IDropdownOption[]>([]);
   const partnerOrganisation = watch("partnerOrganisation");
+
+  // eslint-disable-next-line no-console
+  console.log(watch("partnerOrganisationSelectedBase"));
 
   useEffect(() => {
     if (partnerOrganisation != null) {

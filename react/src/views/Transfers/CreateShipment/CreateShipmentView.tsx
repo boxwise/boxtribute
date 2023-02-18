@@ -13,13 +13,17 @@ import {
   CreateTransferShipmentMutationVariables,
   TransferAgreementType,
 } from "types/generated/graphql";
-import { BASE_ORG_FIELDS_FRAGMENT, TRANSFER_AGREEMENT_FIELDS_FRAGMENT } from "queries/fragments";
+import {
+  BASE_ORG_FIELDS_FRAGMENT,
+  SHIPMENT_FIELDS_FRAGMENT,
+  TRANSFER_AGREEMENT_FIELDS_FRAGMENT,
+} from "queries/fragments";
 import CreateTransferShipment, {
   IOrganisationsAgreementsDataData,
   ITransferShipmentFormData,
-} from "./components/CreateTransferShipment";
+} from "./components/CreateShipment";
 
-export const ALL_ORGS_AND_BASES_WITH_TRANSFER_AGREEMENTS_QUERY = gql`
+export const ALL_ACCEPTED_TRANSFER_AGREEMENTS_QUERY = gql`
   ${BASE_ORG_FIELDS_FRAGMENT}
   ${TRANSFER_AGREEMENT_FIELDS_FRAGMENT}
   query AllAcceptedTransferAgreements($baseId: ID!) {
@@ -34,6 +38,7 @@ export const ALL_ORGS_AND_BASES_WITH_TRANSFER_AGREEMENTS_QUERY = gql`
 `;
 
 export const CREATE_SHIPMENT_MUTATION = gql`
+  ${SHIPMENT_FIELDS_FRAGMENT}
   mutation CreateTransferShipment(
     $sourceBaseId: Int!
     $targetBaseId: Int!
@@ -46,12 +51,12 @@ export const CREATE_SHIPMENT_MUTATION = gql`
         transferAgreementId: $transferAgreementId
       }
     ) {
-      id
+      ...ShipmentFields
     }
   }
 `;
 
-function CreateTransferShipmentView() {
+function CreateShipmentView() {
   // Basics
   const navigate = useNavigate();
   const { triggerError } = useErrorHandling();
@@ -63,7 +68,7 @@ function CreateTransferShipmentView() {
 
   // Query Data for the Form
   const allFormOptions = useQuery<AllAcceptedTransferAgreementsQuery>(
-    ALL_ORGS_AND_BASES_WITH_TRANSFER_AGREEMENTS_QUERY,
+    ALL_ACCEPTED_TRANSFER_AGREEMENTS_QUERY,
     {
       variables: {
         baseId,
@@ -75,12 +80,29 @@ function CreateTransferShipmentView() {
   const [createTransferShipmentMutation, createTransferShipmentMutationState] = useMutation<
     CreateTransferShipmentMutation,
     CreateTransferShipmentMutationVariables
-  >(CREATE_SHIPMENT_MUTATION);
+  >(CREATE_SHIPMENT_MUTATION, {
+    update(cache, { data: returnedShipment }) {
+      cache.modify({
+        fields: {
+          shipments(existingShipments = []) {
+            const newShipmentRef = cache.writeFragment({
+              data: returnedShipment?.createShipment,
+              fragment: gql`
+                fragment NewShipment on Shipment {
+                  id
+                }
+              `,
+            });
+            return existingShipments.concat(newShipmentRef);
+          },
+        },
+      });
+    },
+  });
 
   // Prep data for Form
   const allTransferAgreements = allFormOptions.data?.transferAgreements;
 
-  // eslint-disable-next-line max-len
   const currentOrganisationLabel = `${allFormOptions?.data?.base?.organisation?.name} - ${allFormOptions?.data?.base?.name}`;
 
   const partnerOrgsAgreementData = allTransferAgreements
@@ -103,6 +125,8 @@ function CreateTransferShipmentView() {
 
   // Handle Submission
   const onSubmitCreateShipmentForm = (createTransferShipmentData: ITransferShipmentFormData) => {
+    // eslint-disable-next-line no-console
+    console.log(createTransferShipmentData);
     const agreementId =
       createTransferShipmentData?.partnerOrganisationSelectedBase.data?.agreementId || null;
 
@@ -173,4 +197,4 @@ function CreateTransferShipmentView() {
   );
 }
 
-export default CreateTransferShipmentView;
+export default CreateShipmentView;
