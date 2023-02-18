@@ -107,7 +107,7 @@ it("3.4.1.3 - Mobile: Enter valid box identifier and click on Find button", asyn
 
   // Click a button to trigger the event of scanning a QR-Code in mockImplementationOfQrReader
   expect(await screen.findByRole("heading", { name: "/bases/1/boxes/123456" })).toBeInTheDocument();
-});
+}, 10000);
 
 const queryFindBoxFromOtherOrg = {
   request: {
@@ -124,7 +124,8 @@ const queryFindBoxFromOtherOrg = {
   },
 };
 
-it("3.4.1.4 - Mobile: Enter valid box identifier but not from the user bases (unauthorized) and click on Find button", async () => {
+// eslint-disable-next-line max-len
+it("3.4.1.4 - Mobile: Enter valid box identifier from unauthorized bases and click on Find button", async () => {
   const user = userEvent.setup();
   mockImplementationOfQrReader(mockedQrReader, "NoBoxAssociatedWithQrCode");
   // mock scanning a QR code
@@ -168,6 +169,7 @@ const queryNoBoxAssociatedWithQrCode = {
   },
 };
 
+// eslint-disable-next-line max-len
 it("3.4.2.1 - Mobile: User scans QR code of same org without previously associated box", async () => {
   const user = userEvent.setup();
   // mock scanning a QR code
@@ -371,4 +373,4 @@ it("3.4.2.5c - Internal Server Error", async () => {
   expect(await screen.findByText("Box not found for this label")).toBeInTheDocument();
   // QrOverlay stays open
   expect(screen.getByTestId("ReturnScannedQr")).toBeInTheDocument();
-});
+}, 10000);

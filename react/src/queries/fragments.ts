@@ -156,47 +156,75 @@ export const BOX_WITH_SIZE_TAG_PRODUCT_FIELDS_FRAGMENT = gql`
   }
 `;
 
+export const BASE_BASIC_FIELDS_FRAGMENT = gql`
+  fragment BaseBasicFields on Base {
+    id
+    name
+  }
+`;
+
+export const ORGANISATION_BASIC_FIELDS_FRAGMENT = gql`
+  fragment OrganisationBasicFields on Organisation {
+    id
+    name
+  }
+`;
+
 export const TRANSFER_AGREEMENT_FIELDS_FRAGMENT = gql`
+  ${ORGANISATION_BASIC_FIELDS_FRAGMENT}
+  ${BASE_BASIC_FIELDS_FRAGMENT}
+  ${USER_BASIC_FIELDS_FRAGMENT}
   fragment TransferAgreementFields on TransferAgreement {
     id
-    sourceOrganisation {
-      id
-      name
-    }
-    sourceBases {
-      id
-      name
-    }
-    targetOrganisation {
-      id
-      name
-    }
-    targetBases {
-      id
-      name
-    }
     type
     state
+    comment
+    validFrom
+    validUntil
+    sourceOrganisation {
+      ...OrganisationBasicFields
+    }
+    sourceBases {
+      ...BaseBasicFields
+    }
+    targetOrganisation {
+      ...OrganisationBasicFields
+    }
+    targetBases {
+      ...BaseBasicFields
+    }
     shipments {
       id
       state
+      sourceBase {
+        ...BaseBasicFields
+      }
+      targetBase {
+        ...BaseBasicFields
+      }
     }
+    requestedOn
     requestedBy {
-      id
-      name
+      ...UserBasicFields
     }
-    validFrom
-    validUntil
-    comment
+    acceptedOn
+    acceptedBy {
+      ...UserBasicFields
+    }
+    terminatedOn
+    terminatedBy {
+      ...UserBasicFields
+    }
   }
 `;
 
 export const BASE_ORG_FIELDS_FRAGMENT = gql`
+  ${ORGANISATION_BASIC_FIELDS_FRAGMENT}
   fragment BaseOrgFields on Base {
+    id
     name
     organisation {
-      id
-      name
+      ...OrganisationBasicFields
     }
   }
 `;

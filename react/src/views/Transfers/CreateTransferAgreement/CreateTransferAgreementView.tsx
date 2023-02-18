@@ -5,6 +5,7 @@ import { useErrorHandling } from "hooks/error-handling";
 import { useNotification } from "hooks/hooks";
 import APILoadingIndicator from "components/APILoadingIndicator";
 import { useNavigate, useParams } from "react-router-dom";
+import { TRANSFER_AGREEMENT_FIELDS_FRAGMENT } from "queries/fragments";
 import {
   AllOrganisationsAndBasesQuery,
   CreateTransferAgreementMutation,
@@ -31,6 +32,7 @@ export const ALL_ORGS_AND_BASES_QUERY = gql`
 `;
 
 export const CREATE_AGREEMENT_MUTATION = gql`
+  ${TRANSFER_AGREEMENT_FIELDS_FRAGMENT}
   mutation CreateTransferAgreement(
     $initiatingOrganisationId: Int!
     $partnerOrganisationId: Int!
@@ -55,7 +57,7 @@ export const CREATE_AGREEMENT_MUTATION = gql`
         comment: $comment
       }
     ) {
-      id
+      ...TransferAgreementFields
     }
   }
 `;
@@ -77,7 +79,26 @@ function CreateTransferAgreementView() {
   const [createTransferAgreementMutation, createTransferAgreementMutationState] = useMutation<
     CreateTransferAgreementMutation,
     CreateTransferAgreementMutationVariables
-  >(CREATE_AGREEMENT_MUTATION);
+  >(CREATE_AGREEMENT_MUTATION, {
+    update(cache, { data: returnedTransferAgreement }) {
+      cache.modify({
+        fields: {
+          transferAgreements(existingTransferAgreements = []) {
+            const newTransferAgreementRef = cache.writeFragment({
+              data: returnedTransferAgreement?.createTransferAgreement,
+              fragment: gql`
+                fragment NewTransferAgreement on TransferAgreement {
+                  id
+                  type
+                }
+              `,
+            });
+            return existingTransferAgreements.concat(newTransferAgreementRef);
+          },
+        },
+      });
+    },
+  });
 
   // Prep data for Form
   const allOrgsAndTheirBases = allFormOptions.data?.organisations;

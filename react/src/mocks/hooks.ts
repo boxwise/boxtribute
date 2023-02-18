@@ -13,7 +13,7 @@
 export function mockAuthenticatedUser(mockedUseAuth0: jest.MockedFunctionDeep<any>, email: string) {
   mockedUseAuth0.mockReturnValue({
     isAuthenticated: true,
-    user: { email: email },
+    user: { email },
     logout: jest.fn(),
     loginWithRedirect: jest.fn(),
     getAccessTokenWithPopup: jest.fn(),
