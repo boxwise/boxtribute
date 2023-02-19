@@ -31,7 +31,7 @@ function ShipmentsOverviewView() {
   // transform shipments data for UI
   const graphqlToTableTransformer = (shipmentQueryResult: ShipmentsQuery | undefined) =>
     shipmentQueryResult?.shipments.map((element) => {
-      if (globalPreferences?.availableBases && element?.sourceBase && element?.targetBase) {
+      if (globalPreferences?.availableBases) {
         const availableBaseIds = globalPreferences.availableBases.map((base) =>
           parseInt(base.id, 10),
         );
@@ -67,8 +67,7 @@ function ShipmentsOverviewView() {
         }
 
         // counting of boxes from details
-        const notDeletedDetails = element.details.filter((detail) => !detail.deletedOn);
-        const uniqueBoxIds = notDeletedDetails.reduce((accumulator, detail) => {
+        const uniqueBoxIds = element.details.reduce((accumulator, detail) => {
           const boxId = detail.box.labelIdentifier;
           accumulator[boxId] = (accumulator[boxId] || 0) + 1;
           return accumulator;
