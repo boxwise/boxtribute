@@ -118,15 +118,15 @@ function CreateShipmentView() {
           agreement.type === TransferAgreementType.Bidirectional
         ) {
           return {
-            id: agreement.targetOrganisation.id,
-            name: agreement.targetOrganisation.name,
-            bases: agreement.targetBases,
+            id: agreement.sourceOrganisation.id,
+            name: agreement.sourceOrganisation.name,
+            bases: agreement.sourceBases,
             agreementId: agreement.id,
           } as IAcceptedTransferAgreementsPartnerData;
         }
         return {
-          id: agreement.sourceOrganisation.id,
-          name: agreement.sourceOrganisation.name,
+          id: agreement.targetOrganisation.id,
+          name: agreement.targetOrganisation.name,
           bases: agreement.targetBases,
           agreementId: agreement.id,
         } as IAcceptedTransferAgreementsPartnerData;

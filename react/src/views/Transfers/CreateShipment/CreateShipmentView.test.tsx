@@ -23,6 +23,7 @@ const initialQuery = {
     data: {
       base: {
         __typename: "Base",
+        id: "1",
         name: "Lesvos",
         organisation: {
           __typename: "Organisation",
@@ -53,7 +54,7 @@ const successfulMutation = {
     variables: {
       transferAgreementId: 1,
       sourceBaseId: 1,
-      targetBaseId: 2,
+      targetBaseId: 3,
     },
   },
   result: {
@@ -71,7 +72,7 @@ const mutationNetworkError = {
     variables: {
       transferAgreementId: 1,
       sourceBaseId: 1,
-      targetBaseId: 2,
+      targetBaseId: 3,
     },
   },
   error: new Error(),
@@ -83,7 +84,7 @@ const mutationGraphQLError = {
     variables: {
       transferAgreementId: 1,
       sourceBaseId: 1,
-      targetBaseId: 2,
+      targetBaseId: 3,
     },
   },
   result: {
