@@ -237,6 +237,7 @@ function CreateShipmentView() {
   return (
     <Center>
       <CreateShipment
+        isLoading={createShipmentMutationState.loading}
         currentOrganisationLabel={currentOrganisationLabel}
         organisationBaseData={partnerOrganisationBaseData}
         onSubmit={onSubmitCreateShipmentForm}

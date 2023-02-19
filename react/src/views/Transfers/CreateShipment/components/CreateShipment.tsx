@@ -52,12 +52,14 @@ export const ShipmentFormSchema = z.object({
 export type ICreateShipmentFormData = z.infer<typeof ShipmentFormSchema>;
 
 export interface ICreateShipmentProps {
+  isLoading: boolean;
   currentOrganisationLabel: string;
   organisationBaseData: IOrganisationBaseData[];
   onSubmit: SubmitHandler<ICreateShipmentFormData>;
 }
 
 function CreateShipment({
+  isLoading,
   currentOrganisationLabel,
   organisationBaseData,
   onSubmit,
