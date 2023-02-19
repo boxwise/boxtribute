@@ -100,7 +100,8 @@ function CreateShipmentView() {
   });
 
   // Prep data for Form
-  const currentOrganisationLabel = `${allAcceptedTransferAgreements?.data?.base?.organisation?.name} - ${allAcceptedTransferAgreements?.data?.base?.name}`;
+  const currentBase = allAcceptedTransferAgreements?.data?.base;
+  const currentOrganisationLabel = `${currentBase?.organisation?.name} - ${currentBase?.name}`;
   const currentOrganisationId = globalPreferences.selectedOrganisationId?.toString();
   const acceptedTransferAgreementsPartnerData =
     allAcceptedTransferAgreements.data?.transferAgreements

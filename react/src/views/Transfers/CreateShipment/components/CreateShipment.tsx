@@ -178,7 +178,6 @@ function CreateShipment({
           <ButtonGroup gap="4">
             <Button
               mt={10}
-              isLoading={isSubmitting}
               size="md"
               type="button"
               borderRadius="0"
@@ -191,7 +190,7 @@ function CreateShipment({
 
             <Button
               mt={10}
-              isLoading={isSubmitting}
+              isLoading={isSubmitting || isLoading}
               type="submit"
               borderRadius="0"
               w="full"
