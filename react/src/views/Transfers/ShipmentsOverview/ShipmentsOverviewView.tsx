@@ -1,3 +1,4 @@
+/* eslint-disable indent */
 import { useContext, useMemo } from "react";
 import { gql, useQuery } from "@apollo/client";
 import { Alert, AlertIcon, Button, Heading, Stack } from "@chakra-ui/react";
@@ -103,9 +104,12 @@ function ShipmentsOverviewView() {
 
   // Set default filter if user was forwarded from AgreementsOverview
   const initialState = useMemo(
-    () => ({
-      filters: [{ id: "partnerBaseOrg", value: [location.state?.partnerBaseOrg] }],
-    }),
+    () =>
+      location.state?.partnerBaseOrg
+        ? {
+            filters: [{ id: "partnerBaseOrg", value: [location.state.partnerBaseOrg] }],
+          }
+        : {},
     [location],
   );
 

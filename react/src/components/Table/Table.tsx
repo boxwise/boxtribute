@@ -46,7 +46,7 @@ interface IInitialStateFilters {
 }
 
 interface IInitialState {
-  filters: IInitialStateFilters[];
+  filters?: IInitialStateFilters[];
 }
 
 interface IBasicTableProps {
@@ -134,5 +134,5 @@ export function FilteringSortingTable({ columns, tableData, initialState }: IBas
 }
 
 FilteringSortingTable.defaultProps = {
-  initialState: { filters: [] },
+  initialState: {},
 };

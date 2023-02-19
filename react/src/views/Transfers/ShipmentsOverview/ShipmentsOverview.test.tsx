@@ -4,7 +4,7 @@ import { screen, render } from "tests/test-utils";
 import { mockGraphQLError, mockNetworkError } from "mocks/functions";
 import { generateMockShipment } from "mocks/shipments";
 import { ShipmentState } from "types/generated/graphql";
-import TransferShipmentsOverviewView, { ALL_SHIPMENTS_QUERY } from "./ShipmentsOverviewView";
+import ShipmentsOverviewView, { ALL_SHIPMENTS_QUERY } from "./ShipmentsOverviewView";
 
 const mockSuccessfulShipmentsQuery = ({
   query = ALL_SHIPMENTS_QUERY,
@@ -36,7 +36,7 @@ failedQueryTests.forEach(({ name, mocks }) => {
   it(
     name,
     async () => {
-      render(<TransferShipmentsOverviewView />, {
+      render(<ShipmentsOverviewView />, {
         routePath: "/bases/:baseId/transfers/shipments",
         initialUrl: "/bases/1/transfers/shipments",
         mocks,
@@ -53,7 +53,7 @@ failedQueryTests.forEach(({ name, mocks }) => {
 });
 
 it("4.4.1.4 - Initial Load of Page", async () => {
-  render(<TransferShipmentsOverviewView />, {
+  render(<ShipmentsOverviewView />, {
     routePath: "/bases/:baseId/transfers/shipments",
     initialUrl: "/bases/1/transfers/shipments",
     mocks: [mockSuccessfulShipmentsQuery({})],
