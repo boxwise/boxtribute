@@ -15,7 +15,7 @@ import {
 } from "@chakra-ui/react";
 import { includesSomeObjectFilterFn } from "components/Table/Filter";
 import { ReactNode, useMemo } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { Column, Row, useFilters, useSortBy, useTable } from "react-table";
 
 interface ITableRowProps {
