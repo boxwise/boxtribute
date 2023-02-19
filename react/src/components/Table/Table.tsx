@@ -39,12 +39,22 @@ function TableRow({ row, children }: ITableRowProps) {
   return <Tr {...row.getRowProps()}>{children}</Tr>;
 }
 
+interface IInitialStateFilters {
+  id: string;
+  value: any;
+}
+
+interface IInitialState {
+  filters: IInitialStateFilters[];
+}
+
 interface IBasicTableProps {
   columns: Array<Column<any>>;
   tableData: Array<any>;
+  initialState?: IInitialState;
 }
 
-export function FilteringSortingTable({ columns, tableData }: IBasicTableProps) {
+export function FilteringSortingTable({ columns, tableData, initialState }: IBasicTableProps) {
   // Add custom filter function to filter objects in a column
   // https://react-table-v7.tanstack.com/docs/examples/filtering
   const filterTypes = useMemo(
@@ -59,6 +69,8 @@ export function FilteringSortingTable({ columns, tableData }: IBasicTableProps) 
       columns,
       data: tableData,
       filterTypes,
+      // needed if filter should be applied on load of the table
+      initialState,
     },
     useFilters,
     useSortBy,
@@ -107,7 +119,7 @@ export function FilteringSortingTable({ columns, tableData }: IBasicTableProps) 
           {rows.map((row) => {
             prepareRow(row);
             return (
-              <TableRow row={row}>
+              <TableRow key={row.index} row={row}>
                 {row.cells.map((cell) => (
                   <Td {...cell.getCellProps()}>{cell.render("Cell")}</Td>
                 ))}
@@ -119,3 +131,7 @@ export function FilteringSortingTable({ columns, tableData }: IBasicTableProps) 
     </TableContainer>
   );
 }
+
+FilteringSortingTable.defaultProps = {
+  initialState: { filters: [] },
+};

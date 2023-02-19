@@ -1,7 +1,7 @@
 import { useContext, useMemo } from "react";
 import { gql, useQuery } from "@apollo/client";
 import { Alert, AlertIcon, Button, Heading, Stack } from "@chakra-ui/react";
-import { Link } from "react-router-dom";
+import { Link, useLocation } from "react-router-dom";
 import { GlobalPreferencesContext } from "providers/GlobalPreferencesProvider";
 import { SHIPMENT_FIELDS_FRAGMENT } from "queries/fragments";
 import { ShipmentsQuery } from "types/generated/graphql";
@@ -22,6 +22,8 @@ export const ALL_SHIPMENTS_QUERY = gql`
 
 function ShipmentsOverviewView() {
   const { globalPreferences } = useContext(GlobalPreferencesContext);
+  // If forwarded from AgreementsOverview
+  const location = useLocation();
 
   // fetch shipments data
   const { loading, error, data } = useQuery<ShipmentsQuery>(ALL_SHIPMENTS_QUERY);
@@ -100,6 +102,14 @@ function ShipmentsOverviewView() {
       return undefined;
     }) || [];
 
+  // Set default filter if user was forwarded from AgreementsOverview
+  const initialState = useMemo(
+    () => ({
+      filters: [{ id: "partnerBaseOrg", value: [location.state?.partnerBaseOrg] }],
+    }),
+    [location],
+  );
+
   // Define columns
   const columns = useMemo(
     () => [
@@ -152,7 +162,11 @@ function ShipmentsOverviewView() {
     shipmentsTable = <TableSkeleton />;
   } else {
     shipmentsTable = (
-      <FilteringSortingTable columns={columns} tableData={graphqlToTableTransformer(data)} />
+      <FilteringSortingTable
+        columns={columns}
+        tableData={graphqlToTableTransformer(data)}
+        initialState={initialState}
+      />
     );
   }
 
