@@ -46,6 +46,7 @@ function ShipmentsOverviewView() {
           state: element.state,
           boxes: 0,
           lastUpdated: "",
+          href: element.id,
         };
 
         // calculating direction

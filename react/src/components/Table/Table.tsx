@@ -14,8 +14,30 @@ import {
   Tr,
 } from "@chakra-ui/react";
 import { includesSomeObjectFilterFn } from "components/Table/Filter";
-import { useMemo } from "react";
-import { Column, useFilters, useSortBy, useTable } from "react-table";
+import { ReactNode, useMemo } from "react";
+import { Link, useNavigate } from "react-router-dom";
+import { Column, Row, useFilters, useSortBy, useTable } from "react-table";
+
+interface ITableRowProps {
+  row: Row<any>;
+  children: ReactNode;
+}
+
+function TableRow({ row, children }: ITableRowProps) {
+  const navigate = useNavigate();
+  if (typeof row.original.href === "string" && row.original.href.length > 0) {
+    return (
+      <Tr
+        onClick={() => navigate(row.original.href)}
+        _hover={{ bg: "brandYellow.100" }}
+        {...row.getRowProps()}
+      >
+        {children}
+      </Tr>
+    );
+  }
+  return <Tr {...row.getRowProps()}>{children}</Tr>;
+}
 
 interface IBasicTableProps {
   columns: Array<Column<any>>;
@@ -85,11 +107,11 @@ export function FilteringSortingTable({ columns, tableData }: IBasicTableProps) 
           {rows.map((row) => {
             prepareRow(row);
             return (
-              <Tr {...row.getRowProps()}>
+              <TableRow row={row}>
                 {row.cells.map((cell) => (
                   <Td {...cell.getCellProps()}>{cell.render("Cell")}</Td>
                 ))}
-              </Tr>
+              </TableRow>
             );
           })}
         </Tbody>
