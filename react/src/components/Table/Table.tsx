@@ -30,6 +30,7 @@ function TableRow({ row, children }: ITableRowProps) {
       <Tr
         onClick={() => navigate(row.original.href)}
         _hover={{ bg: "brandYellow.100" }}
+        cursor="pointer"
         {...row.getRowProps()}
       >
         {children}

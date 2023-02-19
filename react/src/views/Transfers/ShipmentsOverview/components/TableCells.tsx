@@ -43,10 +43,12 @@ export function StateCell({ value }: CellProps<any>) {
   let color = "inherit";
 
   // TODO: Receiving State is missing in type ShipmentState
-  if (value === ShipmentState.Preparing) {
+  if (value === ShipmentState.Preparing || value === ShipmentState.Receiving) {
     color = "blue.700";
   } else if (value === ShipmentState.Sent) {
     color = "green.700";
+  } else if (value === ShipmentState.Lost || value === ShipmentState.Canceled) {
+    color = "red.700";
   }
 
   return (
