@@ -7,8 +7,8 @@ import { SHIPMENT_FIELDS_FRAGMENT } from "queries/fragments";
 import { ShipmentsQuery } from "types/generated/graphql";
 import { AddIcon } from "@chakra-ui/icons";
 import { TableSkeleton } from "components/Skeletons";
+import { FilteringSortingTable } from "components/Table/Table";
 import { SelectColumnFilter } from "components/Table/Filter";
-import ShipmentsTable from "./components/ShipmentsTable";
 import { BaseOrgCell, BoxesCell, DirectionCell, StateCell } from "./components/TableCells";
 
 export const ALL_SHIPMENTS_QUERY = gql`
@@ -151,7 +151,7 @@ function ShipmentsOverviewView() {
     shipmentsTable = <TableSkeleton />;
   } else {
     shipmentsTable = (
-      <ShipmentsTable columns={columns} tableData={graphqlToTableTransformer(data)} />
+      <FilteringSortingTable columns={columns} tableData={graphqlToTableTransformer(data)} />
     );
   }
 

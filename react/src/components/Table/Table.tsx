@@ -13,18 +13,30 @@ import {
   Thead,
   Tr,
 } from "@chakra-ui/react";
+import { includesSomeObjectFilterFn } from "components/Table/Filter";
+import { useMemo } from "react";
 import { Column, useFilters, useSortBy, useTable } from "react-table";
 
-interface ITranferAgreementTableProps {
+interface IBasicTableProps {
   columns: Array<Column<any>>;
   tableData: Array<any>;
 }
 
-function TransferAgreementTable({ columns, tableData }: ITranferAgreementTableProps) {
+export function FilteringSortingTable({ columns, tableData }: IBasicTableProps) {
+  // Add custom filter function to filter objects in a column
+  // https://react-table-v7.tanstack.com/docs/examples/filtering
+  const filterTypes = useMemo(
+    () => ({
+      includesSomeObject: includesSomeObjectFilterFn,
+    }),
+    [],
+  );
+
   const { getTableProps, getTableBodyProps, headerGroups, rows, prepareRow } = useTable(
     {
       columns,
       data: tableData,
+      filterTypes,
     },
     useFilters,
     useSortBy,
@@ -85,5 +97,3 @@ function TransferAgreementTable({ columns, tableData }: ITranferAgreementTablePr
     </TableContainer>
   );
 }
-
-export default TransferAgreementTable;
