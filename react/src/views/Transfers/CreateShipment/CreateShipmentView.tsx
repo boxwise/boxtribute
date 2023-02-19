@@ -1,4 +1,4 @@
-import { useContext } from "react";
+import { useCallback, useContext } from "react";
 import { gql, useMutation, useQuery } from "@apollo/client";
 import { Alert, AlertIcon, Center } from "@chakra-ui/react";
 import { useErrorHandling } from "hooks/error-handling";
@@ -6,11 +6,10 @@ import { useNotification } from "hooks/hooks";
 import APILoadingIndicator from "components/APILoadingIndicator";
 import { useNavigate, useParams } from "react-router-dom";
 import { GlobalPreferencesContext } from "providers/GlobalPreferencesProvider";
-
 import {
   AllAcceptedTransferAgreementsQuery,
-  CreateTransferShipmentMutation,
-  CreateTransferShipmentMutationVariables,
+  CreateShipmentMutation,
+  CreateShipmentMutationVariables,
   TransferAgreementType,
 } from "types/generated/graphql";
 import {
@@ -18,9 +17,9 @@ import {
   SHIPMENT_FIELDS_FRAGMENT,
   TRANSFER_AGREEMENT_FIELDS_FRAGMENT,
 } from "queries/fragments";
-import CreateTransferShipment, {
-  IOrganisationsAgreementsDataData,
-  ITransferShipmentFormData,
+import CreateShipment, {
+  IOrganisationBaseData,
+  ICreateShipmentFormData,
 } from "./components/CreateShipment";
 
 export const ALL_ACCEPTED_TRANSFER_AGREEMENTS_QUERY = gql`
@@ -39,11 +38,7 @@ export const ALL_ACCEPTED_TRANSFER_AGREEMENTS_QUERY = gql`
 
 export const CREATE_SHIPMENT_MUTATION = gql`
   ${SHIPMENT_FIELDS_FRAGMENT}
-  mutation CreateTransferShipment(
-    $sourceBaseId: Int!
-    $targetBaseId: Int!
-    $transferAgreementId: Int!
-  ) {
+  mutation CreateShipment($sourceBaseId: Int!, $targetBaseId: Int!, $transferAgreementId: Int!) {
     createShipment(
       creationInput: {
         sourceBaseId: $sourceBaseId
@@ -56,6 +51,10 @@ export const CREATE_SHIPMENT_MUTATION = gql`
   }
 `;
 
+interface IAcceptedTransferAgreementsPartnerData extends IOrganisationBaseData {
+  agreementId: string;
+}
+
 function CreateShipmentView() {
   // Basics
   const navigate = useNavigate();
@@ -67,7 +66,7 @@ function CreateShipmentView() {
   const baseId = useParams<{ baseId: string }>().baseId!;
 
   // Query Data for the Form
-  const allFormOptions = useQuery<AllAcceptedTransferAgreementsQuery>(
+  const allAcceptedTransferAgreements = useQuery<AllAcceptedTransferAgreementsQuery>(
     ALL_ACCEPTED_TRANSFER_AGREEMENTS_QUERY,
     {
       variables: {
@@ -77,9 +76,9 @@ function CreateShipmentView() {
   );
 
   // Mutation after form submission
-  const [createTransferShipmentMutation, createTransferShipmentMutationState] = useMutation<
-    CreateTransferShipmentMutation,
-    CreateTransferShipmentMutationVariables
+  const [createShipmentMutation, createShipmentMutationState] = useMutation<
+    CreateShipmentMutation,
+    CreateShipmentMutationVariables
   >(CREATE_SHIPMENT_MUTATION, {
     update(cache, { data: returnedShipment }) {
       cache.modify({
@@ -101,80 +100,129 @@ function CreateShipmentView() {
   });
 
   // Prep data for Form
-  const allTransferAgreements = allFormOptions.data?.transferAgreements;
-
-  const currentOrganisationLabel = `${allFormOptions?.data?.base?.organisation?.name} - ${allFormOptions?.data?.base?.name}`;
-
-  const partnerOrgsAgreementData = allTransferAgreements
-    ?.filter(
-      (agreement) =>
-        agreement.sourceOrganisation.id === globalPreferences.selectedOrganisationId?.toString() ||
-        (agreement.targetOrganisation.id === globalPreferences.selectedOrganisationId?.toString() &&
-          agreement.type === TransferAgreementType.Bidirectional),
-    )
-    .map(
-      (agreement) =>
-        ({
+  const currentOrganisationLabel = `${allAcceptedTransferAgreements?.data?.base?.organisation?.name} - ${allAcceptedTransferAgreements?.data?.base?.name}`;
+  const currentOrganisationId = globalPreferences.selectedOrganisationId?.toString();
+  const acceptedTransferAgreementsPartnerData =
+    allAcceptedTransferAgreements.data?.transferAgreements
+      ?.filter(
+        // Either we are the sourceOrg of the agreement or the targetOrg in combination with a bidirectional agreement
+        (agreement) =>
+          agreement.sourceOrganisation.id === currentOrganisationId ||
+          (agreement.targetOrganisation.id === currentOrganisationId &&
+            agreement.type === TransferAgreementType.Bidirectional),
+      )
+      .map((agreement) => {
+        // transform the agreement data to organisation base data
+        if (
+          agreement.targetOrganisation.id === currentOrganisationId &&
+          agreement.type === TransferAgreementType.Bidirectional
+        ) {
+          return {
+            id: agreement.targetOrganisation.id,
+            name: agreement.targetOrganisation.name,
+            bases: agreement.targetBases,
+            agreementId: agreement.id,
+          } as IAcceptedTransferAgreementsPartnerData;
+        }
+        return {
+          id: agreement.sourceOrganisation.id,
+          name: agreement.sourceOrganisation.name,
+          bases: agreement.targetBases,
           agreementId: agreement.id,
-          specialNote: agreement.comment,
-          orgId: agreement.targetOrganisation.id,
-          orgName: agreement.targetOrganisation.name,
-          orgBases: agreement.targetBases,
-        } as IOrganisationsAgreementsDataData),
-    );
+        } as IAcceptedTransferAgreementsPartnerData;
+      });
+
+  const partnerOrganisationBaseData = acceptedTransferAgreementsPartnerData
+    ?.map(
+      (agreement) =>
+        // transform the agreement data to organisation base data
+        ({
+          id: agreement.id,
+          name: agreement.name,
+          bases: agreement.bases,
+        } as IOrganisationBaseData),
+    )
+    .reduce((accumulator, currentOrg) => {
+      // Merge options. If there are multiple transfer agreements this step is necessary
+      const existingOrganisation = accumulator.find((org) => org.id === currentOrg.id);
+      if (existingOrganisation) {
+        existingOrganisation.bases.push(
+          ...currentOrg.bases.filter(
+            (base) => !existingOrganisation.bases.some((b) => b.id === base.id),
+          ),
+        );
+      } else {
+        accumulator.push(currentOrg);
+      }
+      return accumulator;
+    }, [] as IOrganisationBaseData[]);
 
   // Handle Submission
-  const onSubmitCreateShipmentForm = (createTransferShipmentData: ITransferShipmentFormData) => {
-    // eslint-disable-next-line no-console
-    console.log(createTransferShipmentData);
-    const agreementId =
-      createTransferShipmentData?.partnerOrganisationSelectedBase.data?.agreementId || null;
+  const onSubmitCreateShipmentForm = useCallback(
+    (createShipmentFormData: ICreateShipmentFormData) => {
+      // Find the possible agreement Ids for the partner base
+      const agreementIds: Array<string> =
+        acceptedTransferAgreementsPartnerData
+          ?.filter((org) =>
+            org.bases.some((base) => base.id === createShipmentFormData.receivingBase.value),
+          )
+          .map((org) => org.agreementId) || [];
 
-    if (agreementId === null) {
-      triggerError({
-        message: "Error while trying to create a new shipment",
-      });
-    } else {
-      createTransferShipmentMutation({
-        variables: {
-          transferAgreementId: parseInt(agreementId, 10),
-          sourceBaseId: parseInt(baseId, 10),
-          targetBaseId: parseInt(createTransferShipmentData.partnerOrganisation.value, 10),
-        },
-      })
-        .then((mutationResult) => {
-          if (mutationResult.errors) {
-            triggerError({
-              message: "Error while trying to create a new shipment",
-            });
-          } else {
-            createToast({
-              title: `Transfer Shipment ${mutationResult.data?.createShipment?.id}`,
-              type: "success",
-              message: "Successfully created a new shipment",
-            });
-
-            navigate(`/bases/${baseId}/transfers/shipments`);
-          }
-        })
-        .catch((err) => {
-          triggerError({
-            message: "Error while trying to create a new shipment!",
-            statusCode: err.code,
-          });
+      if (agreementIds.length === 0) {
+        triggerError({
+          message: "Error while trying to create a new shipment",
         });
-    }
-  };
+      } else {
+        createShipmentMutation({
+          variables: {
+            // This is just a hack since it is possible that multiple agreements exist for the same base
+            transferAgreementId: parseInt(agreementIds[0], 10),
+            sourceBaseId: parseInt(baseId, 10),
+            targetBaseId: parseInt(createShipmentFormData.receivingBase.value, 10),
+          },
+        })
+          .then((mutationResult) => {
+            if (mutationResult.errors) {
+              triggerError({
+                message: "Error while trying to create a new shipment!",
+              });
+            } else {
+              createToast({
+                title: `Transfer Shipment ${mutationResult.data?.createShipment?.id}`,
+                type: "success",
+                message: "Successfully created a new shipment",
+              });
+
+              navigate(`/bases/${baseId}/transfers/shipments`);
+            }
+          })
+          .catch((err) => {
+            triggerError({
+              message: "Error while trying to create a new shipment!",
+              statusCode: err.code,
+            });
+          });
+      }
+    },
+    [
+      acceptedTransferAgreementsPartnerData,
+      baseId,
+      createShipmentMutation,
+      createToast,
+      triggerError,
+      navigate,
+    ],
+  );
 
   // Handle Loading State
-  if (allFormOptions.loading || createTransferShipmentMutationState.loading) {
+  if (allAcceptedTransferAgreements.loading) {
     return <APILoadingIndicator />;
   }
 
   if (
-    partnerOrgsAgreementData?.length === 0 ||
-    partnerOrgsAgreementData === undefined ||
-    allTransferAgreements === undefined
+    partnerOrganisationBaseData?.length === 0 ||
+    partnerOrganisationBaseData === undefined ||
+    allAcceptedTransferAgreements.error
   ) {
     return (
       <Alert status="error">
@@ -188,10 +236,10 @@ function CreateShipmentView() {
 
   return (
     <Center>
-      <CreateTransferShipment
+      <CreateShipment
         currentOrganisationLabel={currentOrganisationLabel}
-        partnerOrganisationsAgreementsData={partnerOrgsAgreementData}
-        onSubmitCreateTransferShipmentForm={onSubmitCreateShipmentForm}
+        organisationBaseData={partnerOrganisationBaseData}
+        onSubmit={onSubmitCreateShipmentForm}
       />
     </Center>
   );
