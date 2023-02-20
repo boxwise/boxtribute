@@ -110,13 +110,25 @@ Every change to the state of an application is captured in an event object. Thes
 
 There are several popular audit logging techniques, but none of them serve every purpose. The most effective ones are often expensive, resource intensive, or performance degrading. Others are cheaper in terms of resources but are either incomplete, cumbersome to maintain, or require a sacrifice in design quality.
 
-I propose to use history tables. It meets the requirements for simplicity and for knowing historical state. Since we don't have a lot of tables to be shadowed (stock, products, locations, people, tags, qr; maybe some for agreements/shipments), the maintenance cost is low.
+I propose to use history/shadow tables. It meets the requirements for simplicity and for knowing historical state. Since we don't have a lot of tables to be shadowed (stock, products, locations, people, tags, qr; maybe some for agreements/shipments), the maintenance cost is low.
 
 Quoting the first reference below,
 
 > If you only want to store logs for a few tables, shadow tables may be the most convenient option.
 
 If we want to record data *changes* rather than *versions* of data, an audit table is more suitable.
+
+
+### Background: Fact and dimension tables
+
+Using a more theoretical approach, one can distinguish tables contents as
+
+1. facts, e.g. number of items or number of boxes. Can be measured: sum, average, count, ...
+1. dimensions, i.e. attributes describing facts (product, gender, size, location, tag)
+
+For the second type, using history/shadow tables is appropriate, also since we're dealing with Slowly Changing Dimensions.
+
+The first type however is the one we want to perform data analysis on. For that we want to avoid having to join tables in order to build the data to be analyzed but rather have all relevant data (also date information about changes) in denormalized form in a single table.
 
 ## Consequences
 
@@ -152,3 +164,7 @@ This is one of the most helpful articles I found on the topic:
 ### Event sourcing
 
 - https://martinfowler.com/eaaDev/EventSourcing.html
+
+### Slowly changing dimensions
+
+- https://en.wikipedia.org/wiki/Slowly_changing_dimension
