@@ -34,7 +34,7 @@ function ShipmentTabs({ shipmentDetail }: IShipmentTabsProps) {
       <TabPanels>
         <TabPanel p={0}>
           {(shipmentDetail.length || 0) === 0 && (
-            <Center>No boxes have been assigned to this shipment yet!</Center>
+            <Center p={8}>No boxes have been assigned to this shipment yet!</Center>
           )}
           {(shipmentDetail?.length || 0) !== 0 && (
             <ShipmentContent items={boxGroupedByProductGender} onBoxRemoved={() => {}} />
