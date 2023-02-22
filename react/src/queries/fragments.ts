@@ -275,6 +275,10 @@ export const SHIPMENT_FIELDS_FRAGMENT = gql`
     sentBy {
       ...UserBasicFields
     }
+    receivingStartedOn
+    receivingStartedBy {
+      ...UserBasicFields
+    }
     completedOn
     completedBy {
       ...UserBasicFields

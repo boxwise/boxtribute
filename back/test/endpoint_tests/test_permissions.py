@@ -163,7 +163,7 @@ def test_invalid_permission_for_given_resource_id(read_only_client, query):
         "updateShipmentWhenReceiving( updateInput : { id: 1 }) { id }",
         "cancelShipment( id : 1 ) { id }",
         "sendShipment( id : 1 ) { id }",
-        "receiveShipment( id : 1 ) { id }",
+        "startReceivingShipment( id : 1 ) { id }",
         # Test case 4.2.8
         """createTag(
             creationInput : {

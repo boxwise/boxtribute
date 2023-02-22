@@ -79,6 +79,7 @@ function ShipmentsOverviewView() {
         const shipmentUpdateDateTimes = [
           element.startedOn,
           element.sentOn,
+          element.receivingStartedOn,
           element.completedOn,
           element.canceledOn,
         ].concat(

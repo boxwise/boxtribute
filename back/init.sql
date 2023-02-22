@@ -1526,6 +1526,8 @@ CREATE TABLE `shipment` (
   `canceled_by_id` int(11) unsigned DEFAULT NULL,
   `sent_on` datetime DEFAULT NULL,
   `sent_by_id` int(11) unsigned DEFAULT NULL,
+  `receiving_started_on` datetime DEFAULT NULL,
+  `receiving_started_by_id` int unsigned DEFAULT NULL,
   `completed_on` datetime DEFAULT NULL,
   `completed_by_id` int(11) unsigned DEFAULT NULL,
   PRIMARY KEY (`id`),
@@ -1536,13 +1538,15 @@ CREATE TABLE `shipment` (
   KEY `shipment_canceled_by_id` (`canceled_by_id`),
   KEY `shipment_sent_by_id` (`sent_by_id`),
   KEY `shipment_completed_by_id` (`completed_by_id`),
+  KEY `shipment_receiving_started_by_id` (`receiving_started_by_id`),
   CONSTRAINT `shipment_ibfk_1` FOREIGN KEY (`source_base_id`) REFERENCES `camps` (`id`) ON UPDATE CASCADE,
   CONSTRAINT `shipment_ibfk_2` FOREIGN KEY (`target_base_id`) REFERENCES `camps` (`id`) ON UPDATE CASCADE,
   CONSTRAINT `shipment_ibfk_3` FOREIGN KEY (`transfer_agreement_id`) REFERENCES `transfer_agreement` (`id`) ON UPDATE CASCADE,
   CONSTRAINT `shipment_ibfk_4` FOREIGN KEY (`started_by_id`) REFERENCES `cms_users` (`id`) ON UPDATE CASCADE,
   CONSTRAINT `shipment_ibfk_5` FOREIGN KEY (`canceled_by_id`) REFERENCES `cms_users` (`id`) ON DELETE SET NULL ON UPDATE CASCADE,
   CONSTRAINT `shipment_ibfk_6` FOREIGN KEY (`sent_by_id`) REFERENCES `cms_users` (`id`) ON DELETE SET NULL ON UPDATE CASCADE,
-  CONSTRAINT `shipment_ibfk_7` FOREIGN KEY (`completed_by_id`) REFERENCES `cms_users` (`id`) ON DELETE SET NULL ON UPDATE CASCADE
+  CONSTRAINT `shipment_ibfk_7` FOREIGN KEY (`completed_by_id`) REFERENCES `cms_users` (`id`) ON DELETE SET NULL ON UPDATE CASCADE,
+  CONSTRAINT `shipment_ibfk_8` FOREIGN KEY (`receiving_started_by_id`) REFERENCES `cms_users` (`id`) ON DELETE SET NULL ON UPDATE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 ROW_FORMAT=DYNAMIC;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
@@ -1553,11 +1557,11 @@ CREATE TABLE `shipment` (
 LOCK TABLES `shipment` WRITE;
 /*!40000 ALTER TABLE `shipment` DISABLE KEYS */;
 INSERT INTO `shipment` VALUES
-(1,1,2,1,'Preparing','2023-02-09 18:05:57',8,NULL,NULL,NULL,NULL,NULL,NULL),
-(2,1,3,1,'Canceled','2023-02-09 18:06:02',8,'2023-02-09 18:07:10',8,NULL,NULL,NULL,NULL),
-(3,1,3,1,'Preparing','2023-02-09 18:06:25',8,NULL,NULL,NULL,NULL,NULL,NULL),
-(4,4,1,1,'Preparing','2023-02-09 18:08:15',37,NULL,NULL,NULL,NULL,NULL,NULL),
-(5,4,1,1,'Preparing','2023-02-09 18:08:20',37,NULL,NULL,NULL,NULL,NULL,NULL);
+(1,1,2,1,'Preparing','2023-02-09 18:05:57',8,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL),
+(2,1,3,1,'Canceled','2023-02-09 18:06:02',8,'2023-02-09 18:07:10',8,NULL,NULL,NULL,NULL,NULL,NULL),
+(3,1,3,1,'Preparing','2023-02-09 18:06:25',8,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL),
+(4,4,1,1,'Preparing','2023-02-09 18:08:15',37,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL),
+(5,4,1,1,'Preparing','2023-02-09 18:08:20',37,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL);
 /*!40000 ALTER TABLE `shipment` ENABLE KEYS */;
 UNLOCK TABLES;
 
