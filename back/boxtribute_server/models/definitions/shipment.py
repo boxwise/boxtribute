@@ -32,6 +32,10 @@ class Shipment(db.Model):
     sent_by = UIntForeignKeyField(
         model=User, on_update="CASCADE", on_delete="SET NULL", null=True
     )
+    receiving_started_on = DateTimeField(null=True)
+    receiving_started_by = UIntForeignKeyField(
+        model=User, on_update="CASCADE", on_delete="SET NULL", null=True
+    )
     completed_on = DateTimeField(null=True)
     completed_by = UIntForeignKeyField(
         model=User, on_update="CASCADE", on_delete="SET NULL", null=True

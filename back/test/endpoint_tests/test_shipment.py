@@ -23,6 +23,8 @@ def test_shipment_query(read_only_client, default_shipment, prepared_shipment_de
                     startedOn
                     sentBy {{ id }}
                     sentOn
+                    receivingStartedBy {{ id }}
+                    receivingStartedOn
                     completedBy {{ id }}
                     completedOn
                     canceledBy {{ id }}
@@ -41,6 +43,8 @@ def test_shipment_query(read_only_client, default_shipment, prepared_shipment_de
         "startedOn": default_shipment["started_on"].isoformat() + "+00:00",
         "sentBy": None,
         "sentOn": None,
+        "receivingStartedBy": None,
+        "receivingStartedOn": None,
         "completedBy": None,
         "completedOn": None,
         "canceledBy": None,
@@ -94,6 +98,8 @@ def test_shipment_mutations_on_source_side(
                     startedOn
                     sentBy {{ id }}
                     sentOn
+                    receivingStartedBy {{ id }}
+                    receivingStartedOn
                     completedBy {{ id }}
                     completedOn
                     canceledBy {{ id }}
@@ -111,6 +117,8 @@ def test_shipment_mutations_on_source_side(
         "startedBy": {"id": "8"},
         "sentBy": None,
         "sentOn": None,
+        "receivingStartedBy": None,
+        "receivingStartedOn": None,
         "completedBy": None,
         "completedOn": None,
         "canceledBy": None,
@@ -396,9 +404,19 @@ def test_shipment_mutations_on_target_side(
                     }} }}"""
 
     # Test case 3.2.14a
-    mutation = f"""mutation {{ receiveShipment(id: "{shipment_id}") {{ id state }} }}"""
+    mutation = f"""mutation {{ receiveShipment(id: "{shipment_id}") {{
+                    id
+                    state
+                    receivingStartedBy {{ id }}
+                    receivingStartedOn
+                }} }}"""
     shipment = assert_successful_request(client, mutation)
-    assert shipment == {"id": shipment_id, "state": ShipmentState.Receiving.name}
+    assert shipment.pop("receivingStartedOn").startswith(date.today().isoformat())
+    assert shipment == {
+        "id": shipment_id,
+        "state": ShipmentState.Receiving.name,
+        "receivingStartedBy": {"id": "2"},
+    }
 
     # Test case 3.2.34a
     shipment = assert_successful_request(

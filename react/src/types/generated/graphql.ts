@@ -1209,6 +1209,8 @@ export type Shipment = {
   completedOn?: Maybe<Scalars['Datetime']>;
   details: Array<ShipmentDetail>;
   id: Scalars['ID'];
+  receivingStartedBy?: Maybe<User>;
+  receivingStartedOn?: Maybe<Scalars['Datetime']>;
   sentBy?: Maybe<User>;
   sentOn?: Maybe<Scalars['Datetime']>;
   sourceBase: Base;

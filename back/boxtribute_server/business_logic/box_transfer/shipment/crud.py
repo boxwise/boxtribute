@@ -156,8 +156,8 @@ def receive_shipment(*, id, user):
             expected_states=[ShipmentState.Sent], actual_state=shipment.state
         )
     shipment.state = ShipmentState.Receiving
-    # shipment.received_by = user.id
-    # shipment.received_on = utcnow()
+    shipment.receiving_started_by = user.id
+    shipment.receiving_started_on = utcnow()
     shipment.save()
     return shipment
 
