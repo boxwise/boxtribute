@@ -404,7 +404,7 @@ def test_shipment_mutations_on_target_side(
                     }} }}"""
 
     # Test case 3.2.14a
-    mutation = f"""mutation {{ receiveShipment(id: "{shipment_id}") {{
+    mutation = f"""mutation {{ startReceivingShipment(id: "{shipment_id}") {{
                     id
                     state
                     receivingStartedBy {{ id }}
@@ -632,7 +632,9 @@ def test_shipment_mutations_receive_as_member_of_creating_org(
     read_only_client, default_shipment
 ):
     # Test case 3.2.14d
-    mutation = f"mutation {{ receiveShipment(id: {default_shipment['id']}) {{ id }} }}"
+    mutation = (
+        f"mutation {{ startReceivingShipment(id: {default_shipment['id']}) {{ id }} }}"
+    )
     assert_forbidden_request(read_only_client, mutation)
 
 
@@ -649,7 +651,9 @@ def test_shipment_mutations_receive_when_not_in_sent_state(
     read_only_client, another_shipment
 ):
     # Test case 3.2.14c
-    mutation = f"mutation {{ receiveShipment(id: {another_shipment['id']}) {{ id }} }}"
+    mutation = (
+        f"mutation {{ startReceivingShipment(id: {another_shipment['id']}) {{ id }} }}"
+    )
     assert_bad_user_input(read_only_client, mutation)
 
 

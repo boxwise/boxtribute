@@ -146,7 +146,7 @@ def send_shipment(*, id, user):
     return shipment
 
 
-def receive_shipment(*, id, user):
+def start_receiving_shipment(*, id, user):
     """Transition state of specified shipment to 'Receiving'.
     Raise InvalidShipmentState exception if shipment state is different from 'Sent'.
     """
