@@ -16,7 +16,6 @@ src/components/QrReader
 !src/mocks
 src/providers/GlobalPreferencesProvider.tsx
 src/utils
-src/views/AutomaticBaseSwitcher
 src/views/BaseDashboard
 *.stories.*
 !src/views/BoxCreate

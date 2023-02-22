@@ -1,6 +1,6 @@
 /* eslint-disable import/no-extraneous-dependencies */
 import "regenerator-runtime/runtime";
-import React, { useContext, useEffect } from "react";
+import { useContext, useEffect } from "react";
 import { Route, Routes } from "react-router-dom";
 import Boxes from "views/Boxes/BoxesView";
 import Layout from "components/Layout";
@@ -28,6 +28,8 @@ import CreateTransferAgreementView from "views/Transfers/CreateTransferAgreement
 import CreateShipmentView from "views/Transfers/CreateShipment/CreateShipmentView";
 import ShipmentsOverviewView from "views/Transfers/ShipmentsOverview/ShipmentsOverviewView";
 import ShipmentView from "views/Transfers/ShipmentView/ShipmentView";
+import QrReaderView from "views/QrReader/QrReaderView";
+import NotFoundView from "views/NotFoundView/NotFoundView";
 
 const useLoadAndSetAvailableBases = () => {
   const BASES_QUERY = gql`
@@ -133,9 +135,11 @@ function App() {
                 </Route>
               </Route>
             </Route>
+            <Route path="qrreader" element={<QrReaderView />} />
           </Route>
         </Route>
       </Route>
+      <Route path="/*" element={<NotFoundView />} />
     </Routes>
   );
 }
