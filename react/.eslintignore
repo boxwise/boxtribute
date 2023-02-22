@@ -13,7 +13,7 @@ src/components/QrReader
 !src/components/QrReaderOverlay
 !src/components/Form
 !src/components/Layout.tsx
-src/mocks
+!src/mocks
 src/providers/GlobalPreferencesProvider.tsx
 src/utils
 src/views/AutomaticBaseSwitcher

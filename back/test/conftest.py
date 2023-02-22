@@ -20,7 +20,7 @@ from boxtribute_server.routes import api_bp, app_bp
 
 # Imports fixtures into tests
 from data import *  # noqa: F401,F403
-from data import MODELS, setup_box_transfer_models, setup_models
+from data import MODELS, setup_models
 
 MYSQL_CONNECTION_PARAMETERS = dict(
     # Fixtures require MySQL server, host:port either
@@ -130,9 +130,7 @@ def dropapp_dev_client():
 
     with db.database.bind_ctx(MODELS):
         db.database.create_tables(MODELS)
-        models = setup_box_transfer_models()
         db.close_db(None)
         with app.app_context():
             yield app.test_client()
-        db.database.drop_tables(models)
     db.close_db(None)

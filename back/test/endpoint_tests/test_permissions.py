@@ -145,8 +145,9 @@ def test_invalid_permission_for_given_resource_id(read_only_client, query):
         "createQrCode { id }",
         """createTransferAgreement(
             creationInput : {
-                sourceOrganisationId: 1,
-                targetOrganisationId: 2,
+                initiatingOrganisationId: 1,
+                partnerOrganisationId: 2,
+                initiatingOrganisationBaseIds: [1]
                 type: Bidirectional
             }) { id }""",
         "acceptTransferAgreement( id: 1 ) { id }",
@@ -158,9 +159,11 @@ def test_invalid_permission_for_given_resource_id(read_only_client, query):
                 targetBaseId: 3,
                 transferAgreementId: 1
             }) { id }""",
-        "updateShipment( updateInput : { id: 1 }) { id }",
+        "updateShipmentWhenPreparing( updateInput : { id: 1 }) { id }",
+        "updateShipmentWhenReceiving( updateInput : { id: 1 }) { id }",
         "cancelShipment( id : 1 ) { id }",
         "sendShipment( id : 1 ) { id }",
+        "startReceivingShipment( id : 1 ) { id }",
         # Test case 4.2.8
         """createTag(
             creationInput : {
@@ -380,7 +383,7 @@ def test_invalid_permission_for_shipment_base(read_only_client, mocker, field):
         permissions=["shipment:read"]
     )
     query = f"query {{ shipment(id: 1) {{ {field} {{ id }} }} }}"
-    assert_forbidden_request(read_only_client, query, value={field: None})
+    assert_forbidden_request(read_only_client, query)
 
 
 @pytest.mark.parametrize("field", ["location", "qrCode", "tags"])

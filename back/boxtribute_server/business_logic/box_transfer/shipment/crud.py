@@ -35,7 +35,7 @@ def _validate_bases_as_part_of_transfer_agreement(
         base_ids[kind] = [
             b.id
             for b in retrieve_transfer_agreement_bases(
-                transfer_agreement=transfer_agreement, kind=kind
+                agreement=transfer_agreement, kind=kind
             )
         ]
 
@@ -142,6 +142,22 @@ def send_shipment(*, id, user):
     shipment.state = ShipmentState.Sent
     shipment.sent_by = user.id
     shipment.sent_on = utcnow()
+    shipment.save()
+    return shipment
+
+
+def start_receiving_shipment(*, id, user):
+    """Transition state of specified shipment to 'Receiving'.
+    Raise InvalidShipmentState exception if shipment state is different from 'Sent'.
+    """
+    shipment = Shipment.get_by_id(id)
+    if shipment.state != ShipmentState.Sent:
+        raise InvalidShipmentState(
+            expected_states=[ShipmentState.Sent], actual_state=shipment.state
+        )
+    shipment.state = ShipmentState.Receiving
+    shipment.receiving_started_by = user.id
+    shipment.receiving_started_on = utcnow()
     shipment.save()
     return shipment
 
@@ -287,41 +303,26 @@ def _complete_shipment_if_applicable(*, shipment, user_id):
         )
 
 
-def update_shipment(
+def update_shipment_when_preparing(
     *,
     id,
     user,
     prepared_box_label_identifiers=None,
     removed_box_label_identifiers=None,
-    received_shipment_detail_update_inputs=None,
-    lost_box_label_identifiers=None,
     target_base_id=None,
 ):
-    """Update shipment detail information.
-    On the shipment source side:
+    """Update shipment detail information during preparation (on shipment source side).
     - update prepared or removed boxes, or target base
     - raise InvalidShipmentState exception if shipment state is different from
       'Preparing'
     - raise an InvalidTransferAgreementBase exception if specified target base is not
       included in given agreement
-    On the shipment target side:
-    - update checked-in or lost boxes
-    - raise InvalidShipmentState exception if shipment state is different from 'Sent'
     """
     shipment = Shipment.get_by_id(id)
-    if any(
-        [prepared_box_label_identifiers, removed_box_label_identifiers, target_base_id]
-    ):
-        if shipment.state != ShipmentState.Preparing:
-            raise InvalidShipmentState(
-                expected_states=[ShipmentState.Preparing], actual_state=shipment.state
-            )
-
-    if any([received_shipment_detail_update_inputs, lost_box_label_identifiers]):
-        if shipment.state != ShipmentState.Sent:
-            raise InvalidShipmentState(
-                expected_states=[ShipmentState.Sent], actual_state=shipment.state
-            )
+    if shipment.state != ShipmentState.Preparing:
+        raise InvalidShipmentState(
+            expected_states=[ShipmentState.Preparing], actual_state=shipment.state
+        )
 
     _validate_bases_as_part_of_transfer_agreement(
         transfer_agreement=TransferAgreement.get_by_id(shipment.transfer_agreement_id),
@@ -340,6 +341,33 @@ def update_shipment(
             box_label_identifiers=removed_box_label_identifiers,
             box_state=BoxState.InStock,
         )
+
+        if target_base_id is not None:
+            shipment.target_base = target_base_id
+            shipment.save()
+
+    return shipment
+
+
+def update_shipment_when_receiving(
+    *,
+    id,
+    user,
+    received_shipment_detail_update_inputs=None,
+    lost_box_label_identifiers=None,
+):
+    """Update shipment detail information during reception (on shipment target side).
+    - update checked-in or lost boxes
+    - raise InvalidShipmentState exception if shipment state is different from
+      'Receiving'
+    """
+    shipment = Shipment.get_by_id(id)
+    if shipment.state != ShipmentState.Receiving:
+        raise InvalidShipmentState(
+            expected_states=[ShipmentState.Receiving], actual_state=shipment.state
+        )
+
+    with db.database.atomic():
         _update_shipment_with_received_boxes(
             shipment=shipment,
             shipment_detail_update_inputs=received_shipment_detail_update_inputs,
@@ -352,10 +380,6 @@ def update_shipment(
             box_state=BoxState.Lost,
         )
         _complete_shipment_if_applicable(shipment=shipment, user_id=user.id)
-
-        if target_base_id is not None:
-            shipment.target_base = target_base_id
-            shipment.save()
 
     return shipment
 

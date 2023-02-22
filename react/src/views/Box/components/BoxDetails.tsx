@@ -28,6 +28,7 @@ import { NavLink } from "react-router-dom";
 import {
   BoxByLabelIdentifierQuery,
   BoxState,
+  ClassicLocation,
   HistoryEntry,
   UpdateLocationOfBoxMutation,
 } from "types/generated/graphql";
@@ -69,8 +70,6 @@ function BoxDetails({
   const { getDistroEventDetailUrlById } = useGetUrlForResourceHelpers();
 
   if (boxData == null) {
-    // eslint-disable-next-line no-console
-    console.error("BoxDetails Component: boxData is null");
     return <Box>No data found for a box with this id</Box>;
   }
 
@@ -87,7 +86,7 @@ function BoxDetails({
         border="2px"
         mb={6}
         pb={2}
-        backgroundColor="#F4E5A0"
+        backgroundColor="brandYellow.100"
         mr={["0", "0", "4rem", "4rem"]}
       >
         <Wrap py={2} px={4} alignItems="center">
@@ -318,7 +317,12 @@ function BoxDetails({
                       .toLowerCase()}-btn`}
                     borderRadius="0px"
                     onClick={() => onMoveToLocationClick(location.id)}
-                    disabled={BoxState.Lost === boxData.state || BoxState.Scrap === boxData.state}
+                    disabled={
+                      (boxData.location as ClassicLocation).defaultBoxState !== BoxState.Lost &&
+                      (boxData.location as ClassicLocation).defaultBoxState !== BoxState.Scrap
+                        ? BoxState.Lost === boxData.state || BoxState.Scrap === boxData.state
+                        : false
+                    }
                     border="2px"
                   >
                     {location.name}

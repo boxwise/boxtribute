@@ -54,6 +54,7 @@ class TransferAgreementType(enum.IntEnum):
 class ShipmentState(enum.IntEnum):
     Preparing = 1
     Sent = enum.auto()
+    Receiving = enum.auto()
     Completed = enum.auto()
     Canceled = enum.auto()
     Lost = enum.auto()

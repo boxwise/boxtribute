@@ -10,10 +10,10 @@ transfer_agreement = ObjectType("TransferAgreement")
 @transfer_agreement.field("sourceBases")
 def resolve_transfer_agreement_source_bases(transfer_agreement_obj, _):
     source_bases = retrieve_transfer_agreement_bases(
-        transfer_agreement=transfer_agreement_obj, kind="source"
+        agreement=transfer_agreement_obj, kind="source"
     )
     target_bases = retrieve_transfer_agreement_bases(
-        transfer_agreement=transfer_agreement_obj, kind="target"
+        agreement=transfer_agreement_obj, kind="target"
     )
     authorize(
         permission="base:read", base_ids=[b.id for b in source_bases + target_bases]
@@ -24,10 +24,10 @@ def resolve_transfer_agreement_source_bases(transfer_agreement_obj, _):
 @transfer_agreement.field("targetBases")
 def resolve_transfer_agreement_target_bases(transfer_agreement_obj, _):
     source_bases = retrieve_transfer_agreement_bases(
-        transfer_agreement=transfer_agreement_obj, kind="source"
+        agreement=transfer_agreement_obj, kind="source"
     )
     target_bases = retrieve_transfer_agreement_bases(
-        transfer_agreement=transfer_agreement_obj, kind="target"
+        agreement=transfer_agreement_obj, kind="target"
     )
     authorize(
         permission="base:read", base_ids=[b.id for b in source_bases + target_bases]

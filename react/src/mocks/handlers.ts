@@ -1,4 +1,3 @@
-
 export const handlers = [
   // graphql.query<DistroSpotsForBaseIdQuery, DistroSpotsForBaseIdQueryVariables>(
   //   "DistroSpotsForBaseId",

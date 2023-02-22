@@ -23,7 +23,11 @@ import DistrosReturnTrackingGroupView from "views/Distributions/DistributionRetu
 import DistributionReturnTrackingsView from "views/Distributions/DistributionReturnTrackings/DistributionReturnTrackingsView/DistributionReturnTrackingsView";
 import CreateDirectDistributionEventView from "views/Distributions/CreateDirectDistributionEventView/CreateDirectDistributionEventView";
 import BoxCreateView from "views/BoxCreate/BoxCreateView";
+import TransferAgreementOverviewView from "views/Transfers/TransferAgreementOverview/TransferAgreementOverviewView";
 import CreateTransferAgreementView from "views/Transfers/CreateTransferAgreement/CreateTransferAgreementView";
+import CreateShipmentView from "views/Transfers/CreateShipment/CreateShipmentView";
+import ShipmentsOverviewView from "views/Transfers/ShipmentsOverview/ShipmentsOverviewView";
+import ShipmentView from "views/Transfers/ShipmentView/ShipmentView";
 
 const useLoadAndSetAvailableBases = () => {
   const BASES_QUERY = gql`
@@ -84,8 +88,13 @@ function App() {
             <Route index element={<BaseDashboardView />} />
             <Route path="transfers">
               <Route path="agreements">
-                <Route index element="" />
+                <Route index element={<TransferAgreementOverviewView />} />
                 <Route path="create" element={<CreateTransferAgreementView />} />
+              </Route>
+              <Route path="shipments">
+                <Route index element={<ShipmentsOverviewView />} />
+                <Route path="create" element={<CreateShipmentView />} />
+                <Route path=":id" element={<ShipmentView />} />
               </Route>
             </Route>
             <Route path="boxes">
