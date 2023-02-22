@@ -1,72 +1,76 @@
-import { Table, TableContainer, Tbody, Td, Th, Thead, Tr } from "@chakra-ui/react";
+import { DeleteIcon } from "@chakra-ui/icons";
+import {
+  Box as BoxWrapper,
+  IconButton,
+  Table,
+  TableCaption,
+  TableContainer,
+  Tbody,
+  Td,
+  Th,
+  Thead,
+  Tr,
+  useBreakpointValue,
+} from "@chakra-ui/react";
 import _ from "lodash";
-import { useMemo } from "react";
-import { useTable, Column } from "react-table";
-import { Box } from "types/generated/graphql";
+import { useCallback, useEffect, useMemo } from "react";
+import { Column, Row, useTable, useBlockLayout } from "react-table";
+import { Box, Product } from "types/generated/graphql";
 
-interface IShipmentTableProps {
-  boxes: Box[];
+interface IShipmentTablePros {
+  columns: Array<Column<any>>;
+  data: Array<any>;
+  onBoxRemoved: () => void;
 }
 
-function ShipmentTable({ boxes }: IShipmentTableProps) {
-  // Define columns
-  const columns = useMemo<Column<Box>[]>(
-    () => [
-      {
-        Header: "Label Identifier",
-        accessor: "labelIdentifier",
-      },
-      {
-        Header: "Product",
-        // eslint-disable-next-line max-len
-        accessor: (box) =>
-          `${`${box?.product?.category.name || ""} ` || ""}${
-            `${box?.product?.gender || ""} ` || ""
-          }${box?.product?.name || ""}`,
-      },
-      {
-        Header: "Items",
-        accessor: "numberOfItems",
-      },
-      {
-        Header: "ID",
-        accessor: (box) => box?.product?.id || "1",
-      },
-    ],
-    [],
-  );
+function ShipmentTable({ columns, data, onBoxRemoved }: IShipmentTablePros) {
+  const tableData = useMemo(() => data, [data]);
 
-  const data = useMemo(() => boxes, [boxes]);
-
-  const tableInstance = useTable<Box>({ columns, data });
+  const tableInstance = useTable({ columns, data: tableData, useBlockLayout });
   const { getTableProps, getTableBodyProps, headerGroups, rows, prepareRow } = tableInstance;
 
+  const maxTableWidth = useBreakpointValue({ base: "full", md: "100%" });
+
+  // const handleRemoveBox = useCallback(
+  //   async (boxId: string) => {
+  //     try {
+  //       onBoxRemoved();
+  //     } catch (error) {
+  //       // eslint-disable-next-line no-console
+  //       console.error(`Failed to remove box ${boxId}`, error);
+  //     }
+  //   },
+  //   [onBoxRemoved]
+  // );
+
   return (
-    <TableContainer>
-      <Table {...getTableProps()}>
-        <Thead>
-          {headerGroups.map((headerGroup) => (
-            <Tr {...headerGroup.getHeaderGroupProps()}>
-              {headerGroup.headers.map((column) => (
-                <Th {...column.getHeaderProps()}>{column.render("Header")}</Th>
-              ))}
-            </Tr>
-          ))}
-        </Thead>
-        <Tbody {...getTableBodyProps()}>
-          {rows.map((row) => {
-            prepareRow(row);
-            return (
-              <Tr {...row.getRowProps()}>
-                {row.cells.map((cell) => (
-                  <Td {...cell.getCellProps()}>{cell.render("Cell")}</Td>
+    <BoxWrapper overflowX="auto" overflowY="hidden">
+      <TableContainer maxW={maxTableWidth}>
+        <Table {...getTableProps()}>
+          <Thead>
+            {headerGroups.map((headerGroup) => (
+              <Tr {...headerGroup.getHeaderGroupProps()}>
+                {headerGroup.headers.map((column) => (
+                  <Th {...column.getHeaderProps()}>{column.render("Header")}</Th>
                 ))}
               </Tr>
-            );
-          })}
-        </Tbody>
-      </Table>
-    </TableContainer>
+            ))}
+          </Thead>
+          <Tbody {...getTableBodyProps()}>
+            {rows.map((row) => {
+              prepareRow(row);
+              return (
+                <Tr {...row.getRowProps()}>
+                  {row.cells.map((cell) => (
+                    <Td {...cell.getCellProps()}>{cell.render("Cell")}</Td>
+                  ))}
+                </Tr>
+              );
+            })}
+          </Tbody>
+        </Table>
+      </TableContainer>
+    </BoxWrapper>
   );
 }
 
