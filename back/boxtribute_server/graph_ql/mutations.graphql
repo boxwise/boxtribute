@@ -26,7 +26,7 @@ type Mutation {
   updateShipmentWhenReceiving(updateInput: ShipmentWhenReceivingUpdateInput): Shipment
   cancelShipment(id: ID!): Shipment
   sendShipment(id: ID!): Shipment
-  receiveShipment(id: ID!): Shipment
+  startReceivingShipment(id: ID!): Shipment
 
   createDistributionSpot(creationInput: DistributionSpotCreationInput): DistributionSpot
   createDistributionEvent(creationInput: DistributionEventCreationInput): DistributionEvent

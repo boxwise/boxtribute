@@ -170,6 +170,17 @@ export const ORGANISATION_BASIC_FIELDS_FRAGMENT = gql`
   }
 `;
 
+export const BASE_ORG_FIELDS_FRAGMENT = gql`
+  ${BASE_BASIC_FIELDS_FRAGMENT}
+  ${ORGANISATION_BASIC_FIELDS_FRAGMENT}
+  fragment BaseOrgFields on Base {
+    ...BaseBasicFields
+    organisation {
+      ...OrganisationBasicFields
+    }
+  }
+`;
+
 export const TRANSFER_AGREEMENT_FIELDS_FRAGMENT = gql`
   ${ORGANISATION_BASIC_FIELDS_FRAGMENT}
   ${BASE_BASIC_FIELDS_FRAGMENT}
@@ -218,13 +229,63 @@ export const TRANSFER_AGREEMENT_FIELDS_FRAGMENT = gql`
   }
 `;
 
-export const BASE_ORG_FIELDS_FRAGMENT = gql`
-  ${ORGANISATION_BASIC_FIELDS_FRAGMENT}
-  fragment BaseOrgFields on Base {
+export const SHIPMENT_DETAIL_FIELDS_FRAGMENT = gql`
+  ${BOX_FIELDS_FRAGMENT}
+  ${USER_BASIC_FIELDS_FRAGMENT}
+  fragment ShipmentDetailFields on ShipmentDetail {
     id
-    name
-    organisation {
-      ...OrganisationBasicFields
+    box {
+      ...BoxFields
+    }
+    createdOn
+    createdBy {
+      ...UserBasicFields
+    }
+    deletedOn
+    deletedBy {
+      ...UserBasicFields
+    }
+  }
+`;
+
+export const SHIPMENT_FIELDS_FRAGMENT = gql`
+  ${BASE_ORG_FIELDS_FRAGMENT}
+  ${USER_BASIC_FIELDS_FRAGMENT}
+  ${SHIPMENT_DETAIL_FIELDS_FRAGMENT}
+  fragment ShipmentFields on Shipment {
+    id
+    state
+    details {
+      ...ShipmentDetailFields
+    }
+    sourceBase {
+      ...BaseOrgFields
+    }
+    targetBase {
+      ...BaseOrgFields
+    }
+    transferAgreement {
+      id
+    }
+    startedOn
+    startedBy {
+      ...UserBasicFields
+    }
+    sentOn
+    sentBy {
+      ...UserBasicFields
+    }
+    receivingStartedOn
+    receivingStartedBy {
+      ...UserBasicFields
+    }
+    completedOn
+    completedBy {
+      ...UserBasicFields
+    }
+    canceledOn
+    canceledBy {
+      ...UserBasicFields
     }
   }
 `;

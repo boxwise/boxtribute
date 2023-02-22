@@ -1,6 +1,9 @@
+/* eslint-disable indent */
 import { ShipmentState, TransferAgreementType } from "types/generated/graphql";
+import { base1, base2 } from "./bases";
 import { generateMockBox } from "./boxes";
 import { product1, product3 } from "./products";
+import { user1 } from "./users";
 
 export const shipment1 = {
   details: [
@@ -72,3 +75,66 @@ export const shipment2 = {
 };
 
 export const shipments = [shipment1];
+
+export const generateMockShipment = ({ state = ShipmentState.Preparing, iAmSource = true }) => ({
+  id: "1",
+  state,
+  details: iAmSource
+    ? [
+        {
+          id: "1",
+          box: generateMockBox({
+            labelIdentifier: "123",
+            numberOfItems: 10,
+            product: product1,
+          }),
+          createdOn: "2023-01-09T17:24:29+00:00",
+          createdBy: user1,
+          deletedOn: "2023-01-10T17:24:29+00:00",
+          deletedBy: user1,
+          __typename: "ShipmentDetail",
+        },
+        {
+          id: "2",
+          box: generateMockBox({
+            labelIdentifier: "123",
+            numberOfItems: 10,
+            product: product1,
+          }),
+          createdOn: "2023-01-11T17:24:29+00:00",
+          createdBy: user1,
+          deletedOn: null,
+          deletedBy: null,
+          __typename: "ShipmentDetail",
+        },
+        {
+          id: "3",
+          box: generateMockBox({
+            labelIdentifier: "124",
+            numberOfItems: 12,
+            product: product3,
+          }),
+          createdOn: "2023-02-01T17:24:29+00:00",
+          createdBy: user1,
+          deletedOn: null,
+          deletedBy: null,
+          __typename: "ShipmentDetail",
+        },
+      ]
+    : [],
+  sourceBase: iAmSource ? base1 : base2,
+  targetBase: iAmSource ? base2 : base1,
+  transferAgreement: {
+    id: "1",
+    __typename: "TransferAgreement",
+  },
+  startedOn: "2023-01-08T17:24:29+00:00",
+  startedBy: user1,
+  sentOn: null,
+  sentBy: null,
+  completedOn: null,
+  completedBy: null,
+  canceledOn: null,
+  canceledBy: null,
+  __typename: "Shipment",
+});

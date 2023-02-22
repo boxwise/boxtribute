@@ -130,7 +130,7 @@ def test_query_non_existent_resource_for_god_user(read_only_client, mocker, reso
         "cancelTransferAgreement",
         "cancelShipment",
         "sendShipment",
-        "receiveShipment",
+        "startReceivingShipment",
         "deleteTag",
     ],
 )

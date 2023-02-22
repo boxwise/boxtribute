@@ -14,6 +14,16 @@ import { MdFilterList, MdFilterListAlt } from "react-icons/md";
 // Fix for https://github.com/chakra-ui/chakra-ui/issues/5896
 export const PopoverTrigger: FC<{ children: ReactNode }> = OrigPopoverTrigger;
 
+interface ISelectOption {
+  label: string;
+  value: string | object;
+}
+
+// Utility Function to show Objects in filter in a more readible way
+function ObjectToString(object: Object) {
+  return Object.values(object).join(" - ");
+}
+
 // This is a custom filter UI for selecting
 // a unique option from a list
 // https://react-table-v7.tanstack.com/docs/examples/filtering
@@ -23,14 +33,27 @@ export function SelectColumnFilter({
   // Calculate the options for filtering
   // using the preFilteredRows
   const options = useMemo(() => {
-    const groupedOptions = new Set<string | number | readonly string[] | undefined>();
+    const groupedOptionLabels = new Set<string | number>();
+    const optionValues = {};
     preFilteredRows.forEach((row) => {
-      groupedOptions.add(row.values[id]);
+      const value = row.values[id];
+      // if the data passed to the table is more complex than a string we need to pass the data as value
+      if (typeof value === "object" && value !== null) {
+        const objectToString = ObjectToString(value);
+        groupedOptionLabels.add(objectToString);
+        optionValues[objectToString] = value;
+      } else {
+        groupedOptionLabels.add(value);
+        optionValues[value] = value;
+      }
     });
-    return Array.from(groupedOptions.values()).map((groupedOption) => ({
-      value: groupedOption,
-      label: groupedOption,
-    }));
+    return Array.from(groupedOptionLabels.values()).map(
+      (label) =>
+        ({
+          label,
+          value: optionValues[label],
+        } as ISelectOption),
+    );
   }, [id, preFilteredRows]);
 
   // Render a multi-select box
@@ -50,7 +73,15 @@ export function SelectColumnFilter({
         <PopoverBody textStyle="h1">
           <Select
             size="sm"
-            value={filterValue && filterValue.map((value) => ({ value, label: value }))}
+            value={
+              filterValue &&
+              filterValue.map((value) => {
+                if (typeof value === "object" && value !== null) {
+                  return { value, label: ObjectToString(value) };
+                }
+                return { value, label: value };
+              })
+            }
             placeholder="All"
             onChange={(selectedOptions) => {
               setFilter(selectedOptions.map((selectedOption) => selectedOption.value) || undefined);
@@ -63,3 +94,17 @@ export function SelectColumnFilter({
     </Popover>
   );
 }
+
+// This is a custom filter function for columns that consist of objects
+// https://react-table-v7.tanstack.com/docs/examples/filtering
+export const includesSomeObjectFilterFn = (rows, ids, filterValue) =>
+  rows.filter((row) =>
+    ids.some((id) => {
+      const rowValue = row.values[id];
+      return (
+        rowValue &&
+        filterValue.some((valObject) => JSON.stringify(rowValue) === JSON.stringify(valObject))
+      );
+    }),
+  );
+includesSomeObjectFilterFn.autoRemove = (val) => !val || !val.length;

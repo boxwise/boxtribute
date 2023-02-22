@@ -26,63 +26,48 @@ export interface IBaseData {
   name: string;
 }
 
-export interface IOrganisationsAgreementsDataData {
-  agreementId: string;
-  specialNote: string;
-  orgId: string;
-  orgName: string;
-  orgBases: IBaseData[];
+export interface IOrganisationBaseData {
+  id: string;
+  name: string;
+  bases: IBaseData[];
 }
 
+// Define schema of the form
 const singleSelectOptionSchema = z.object({
   label: z.string(),
   value: z.string(),
-  data: z
-    .object({
-      agreementId: z.string(),
-      specialNote: z.string(),
-    })
-    .optional(),
 });
 
-export const TransferShipmentFormDataSchema = z.object({
-  partnerOrganisation: singleSelectOptionSchema
+// Define validation checks on form by defining the form schema
+export const ShipmentFormSchema = z.object({
+  receivingOrganisation: singleSelectOptionSchema
+    .nullable()
     .refine(Boolean, { message: "Please select a partner organisation" })
     .transform((selectedOption) => selectedOption || { label: "", value: "" }),
-  partnerOrganisationSelectedBase: singleSelectOptionSchema
+  receivingBase: singleSelectOptionSchema
+    .nullable()
     .refine(Boolean, { message: "Please select a partner base" })
     .transform((selectedOption) => selectedOption || { label: "", value: "" }),
 });
+export type ICreateShipmentFormData = z.infer<typeof ShipmentFormSchema>;
 
-export type ITransferShipmentFormData = z.infer<typeof TransferShipmentFormDataSchema>;
-
-export interface ICreateTranferShipmentProps {
+export interface ICreateShipmentProps {
+  isLoading: boolean;
   currentOrganisationLabel: string;
-  partnerOrganisationsAgreementsData: IOrganisationsAgreementsDataData[];
-  onSubmitCreateTransferShipmentForm: (
-    transferShipmentFormValues: ITransferShipmentFormData,
-  ) => void;
+  organisationBaseData: IOrganisationBaseData[];
+  onSubmit: SubmitHandler<ICreateShipmentFormData>;
 }
 
-function CreateTransferShipment({
+function CreateShipment({
+  isLoading,
   currentOrganisationLabel,
-  partnerOrganisationsAgreementsData,
-  onSubmitCreateTransferShipmentForm,
-}: ICreateTranferShipmentProps) {
+  organisationBaseData,
+  onSubmit,
+}: ICreateShipmentProps) {
   const navigate = useNavigate();
   const baseId = useParams<{ baseId: string }>().baseId!;
 
-  const partnerOrganisationsForDropdownGroups: Array<IDropdownOption> | undefined =
-    partnerOrganisationsAgreementsData?.map((organisation) => ({
-      label: organisation.orgName,
-      value: organisation.orgId,
-    }));
-
-  const onSubmit: SubmitHandler<ITransferShipmentFormData> = (data) => {
-    // eslint-disable-next-line
-    onSubmitCreateTransferShipmentForm(data);
-  };
-
+  // React Hook Form with zod validation
   const {
     handleSubmit,
     control,
@@ -90,45 +75,44 @@ function CreateTransferShipment({
     watch,
     setValue,
     formState: { errors, isSubmitting },
-  } = useForm<ITransferShipmentFormData>({
-    resolver: zodResolver(TransferShipmentFormDataSchema),
+  } = useForm<ICreateShipmentFormData>({
+    resolver: zodResolver(ShipmentFormSchema),
   });
 
-  const [basesOptionsForPartnerOrg, setBasesOptionsForPartnerOrg] = useState<IDropdownOption[]>([]);
-  const partnerOrganisation = watch("partnerOrganisation");
+  // Prepare options for the organisation field
+  const organisationOptions: Array<IDropdownOption> = organisationBaseData?.map((organisation) => ({
+    label: organisation.name,
+    value: organisation.id,
+  }));
 
+  // selected Option for organisation field
+  const receivingOrganisation = watch("receivingOrganisation");
+
+  // Prepare options for the base field
+  const [basesOptions, setBasesOptions] = useState<IDropdownOption[]>([]);
   useEffect(() => {
-    if (partnerOrganisation != null) {
-      const partnerBasesDataForSelectedOrganisation = partnerOrganisationsAgreementsData.find(
-        (organisation) => organisation.orgId === partnerOrganisation.value,
+    if (receivingOrganisation != null) {
+      const basesForSelectedOrganisation = organisationBaseData.find(
+        (organisation) => organisation.id === receivingOrganisation.value,
       );
 
-      setBasesOptionsForPartnerOrg(
-        () =>
-          partnerBasesDataForSelectedOrganisation?.orgBases?.map((base) => ({
-            label: base.name,
-            value: base.id,
-            data: {
-              agreementId: partnerBasesDataForSelectedOrganisation.agreementId,
-              specialNote: partnerBasesDataForSelectedOrganisation.specialNote,
-            },
-          })) || [],
+      setBasesOptions(
+        basesForSelectedOrganisation?.bases?.map((base) => ({
+          label: base.name,
+          value: base.id,
+        })) || [],
       );
 
-      resetField("partnerOrganisationSelectedBase");
+      resetField("receivingBase");
       // Put a default value for partnerOrganisationSelectedBases when there's only one option
-      if (partnerBasesDataForSelectedOrganisation?.orgBases.length === 1) {
-        setValue("partnerOrganisationSelectedBase", {
-          label: partnerBasesDataForSelectedOrganisation?.orgBases[0].name,
-          value: partnerBasesDataForSelectedOrganisation?.orgBases[0].id,
-          data: {
-            agreementId: partnerBasesDataForSelectedOrganisation.agreementId,
-            specialNote: partnerBasesDataForSelectedOrganisation.specialNote,
-          },
+      if (basesForSelectedOrganisation?.bases.length === 1) {
+        setValue("receivingBase", {
+          label: basesForSelectedOrganisation?.bases[0].name,
+          value: basesForSelectedOrganisation?.bases[0].id,
         });
       }
     }
-  }, [partnerOrganisation, resetField, setValue, partnerOrganisationsAgreementsData]);
+  }, [receivingOrganisation, resetField, setValue, organisationBaseData]);
 
   return (
     <Box w={["100%", "100%", "60%", "40%"]}>
@@ -170,22 +154,22 @@ function CreateTransferShipment({
           </ListItem>
           <ListItem>
             <SelectField
-              fieldId="partnerOrganisation"
+              fieldId="receivingOrganisation"
               fieldLabel="Organisation"
               placeholder="Please select an organisation"
-              options={partnerOrganisationsForDropdownGroups}
+              options={organisationOptions}
               errors={errors}
               control={control}
             />
           </ListItem>
           <ListItem>
             <SelectField
-              fieldId="partnerOrganisationSelectedBase"
+              fieldId="receivingBase"
               fieldLabel="Base"
               placeholder="Please select a base"
               errors={errors}
               control={control}
-              options={basesOptionsForPartnerOrg}
+              options={basesOptions}
             />
           </ListItem>
         </List>
@@ -194,7 +178,6 @@ function CreateTransferShipment({
           <ButtonGroup gap="4">
             <Button
               mt={10}
-              isLoading={isSubmitting}
               size="md"
               type="button"
               borderRadius="0"
@@ -207,7 +190,7 @@ function CreateTransferShipment({
 
             <Button
               mt={10}
-              isLoading={isSubmitting}
+              isLoading={isSubmitting || isLoading}
               type="submit"
               borderRadius="0"
               w="full"
@@ -224,4 +207,4 @@ function CreateTransferShipment({
   );
 }
 
-export default CreateTransferShipment;
+export default CreateShipment;
