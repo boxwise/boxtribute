@@ -1,24 +1,17 @@
 import { useContext, useMemo, useState } from "react";
-import { useCallback } from "react";
-import { useNavigate, useParams } from "react-router-dom";
+import { useParams } from "react-router-dom";
 import { useAuth0 } from "@auth0/auth0-react";
 import HeaderMenu, { MenuItemsGroupData } from "./HeaderMenu";
 import AutomaticBaseSwitcher from "views/AutomaticBaseSwitcher/AutomaticBaseSwitcher";
-import { useDisclosure, useToast } from "@chakra-ui/react";
-import QrReaderOverlayContainer from "components/QrReaderOverlay/QrReaderOverlayContainer";
-import { IQrResolvedValue, QrResolverResultKind } from "components/QrReaderOverlay/QrReaderOverlay";
+import { useDisclosure } from "@chakra-ui/react";
 import { GlobalPreferencesContext } from "providers/GlobalPreferencesProvider";
-import { IBoxDetailsData } from "types/base-types";
-import BoxesBulkOperationsOverlay from "./BoxesBulkOperationsOverlay";
-import { useNotification } from "hooks/hooks";
-import { useErrorHandling } from "hooks/error-handling";
+import QrReaderOverlay from "components/QrReaderOverlay/QrReaderOverlay";
 
 const HeaderMenuContainer = () => {
   const auth0 = useAuth0();
-  const navigate = useNavigate();
   const baseId = useParams<{ baseId: string }>().baseId;
   const { globalPreferences } = useContext(GlobalPreferencesContext);
-  const { createToast } = useNotification();
+  const qrReaderOverlayState = useDisclosure({ defaultIsOpen: false });
 
   const menuItems: MenuItemsGroupData[] = useMemo(
     () => [
@@ -93,70 +86,6 @@ const HeaderMenuContainer = () => {
     ],
     [baseId],
   );
-  const qrScannerOverlayState = useDisclosure({ defaultIsOpen: false });
-  const { triggerError } = useErrorHandling();
-  const [boxesDataForBulkOperation, setBoxesDataForBulkOperation] = useState<IBoxDetailsData[]>([]);
-
-  const onScanningDone = useCallback(
-    (IQrResolvedValues: IQrResolvedValue[]) => {
-      if (IQrResolvedValues.length === 1) {
-        const singleResolvedQrValue = IQrResolvedValues[0];
-        switch (singleResolvedQrValue.kind) {
-          case QrResolverResultKind.SUCCESS: {
-            const boxLabelIdentifier = singleResolvedQrValue?.value.labelIdentifier;
-            const boxBaseId = singleResolvedQrValue?.value.place.base.id;
-            navigate(`/bases/${boxBaseId}/boxes/${boxLabelIdentifier}`);
-            break;
-          }
-          case QrResolverResultKind.NOT_BOXTRIBUTE_QR: {
-            triggerError({
-              message: "This is not a Boxtribute QR-Code",
-            });
-            break;
-          }
-          case QrResolverResultKind.NOT_AUTHORIZED: {
-            triggerError({
-              message: "You don't have permission to access this box",
-            });
-            break;
-          }
-          case QrResolverResultKind.LABEL_NOT_FOUND: {
-            triggerError({
-              message: "A box with this label number doesn't exist!",
-            });
-            break;
-          }
-          case QrResolverResultKind.FAIL: {
-            triggerError({
-              message: "Box not found for this label",
-              statusCode: singleResolvedQrValue?.error.code,
-            });
-            break;
-          }
-          case QrResolverResultKind.NOT_ASSIGNED_TO_BOX: {
-            navigate(`/bases/${baseId}/boxes/create/${singleResolvedQrValue?.qrCodeValue}`);
-            break;
-          }
-        }
-      } else {
-        // TODO: Add logic to handle bulk QR codes
-        const successfullyResolvedValues = IQrResolvedValues.filter(
-          (IQrResolvedValue) => IQrResolvedValue.kind === QrResolverResultKind.SUCCESS,
-        );
-        const boxesData = successfullyResolvedValues.map(
-          (IQrResolvedValue) => IQrResolvedValue.value,
-        );
-        setBoxesDataForBulkOperation(boxesData);
-        // toast({
-        //   title: `You scanned multiple boxes. What do you want to do with them? (WIP)`,
-        //   status: "info",
-        //   isClosable: true,
-        //   duration: 2000,
-        // });
-      }
-    },
-    [baseId, navigate],
-  );
 
   if (baseId == null) {
     return <AutomaticBaseSwitcher />;
@@ -169,17 +98,11 @@ const HeaderMenuContainer = () => {
         menuItemsGroups={menuItems}
         currentActiveBaseId={baseId}
         availableBases={globalPreferences.availableBases}
-        onClickScanQrCode={() => qrScannerOverlayState.onOpen()}
+        onClickScanQrCode={() => qrReaderOverlayState.onOpen()}
       />
-      <QrReaderOverlayContainer
-        isOpen={qrScannerOverlayState.isOpen}
-        onClose={qrScannerOverlayState.onClose}
-        onScanningDone={onScanningDone}
-      />
-      <BoxesBulkOperationsOverlay
-        isOpen={boxesDataForBulkOperation.length > 0}
-        handleClose={() => setBoxesDataForBulkOperation([])}
-        boxesData={boxesDataForBulkOperation}
+      <QrReaderOverlay
+        isOpen={qrReaderOverlayState.isOpen}
+        onClose={qrReaderOverlayState.onClose}
       />
     </>
   );
