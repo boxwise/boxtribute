@@ -1,21 +1,21 @@
 import { gql } from "@apollo/client";
-import { BOX_BASIC_FIELDS_FRAGMENT } from "./warehouse";
+import { BOX_FIELDS_FRAGMENT } from "./fragments";
 
 export const BOX_DETAILS_BY_LABEL_IDENTIFIER_QUERY = gql`
-  ${BOX_BASIC_FIELDS_FRAGMENT}
+  ${BOX_FIELDS_FRAGMENT}
   query BoxDetails($labelIdentifier: String!) {
     box(labelIdentifier: $labelIdentifier) {
-      ...BoxBasicFields
+      ...BoxFields
     }
   }
 `;
 
 export const GET_BOX_LABEL_IDENTIFIER_BY_QR_CODE = gql`
-  ${BOX_BASIC_FIELDS_FRAGMENT}
+  ${BOX_FIELDS_FRAGMENT}
   query GetBoxLabelIdentifierForQrCode($qrCode: String!) {
     qrCode(qrCode: $qrCode) {
       box {
-        ...BoxBasicFields
+        ...BoxFields
       }
     }
   }

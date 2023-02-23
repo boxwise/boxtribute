@@ -9,8 +9,11 @@ import {
   UpdateContentOfBoxMutation,
   UpdateContentOfBoxMutationVariables,
 } from "types/generated/graphql";
-import { TAG_OPTIONS_FRAGMENT } from "queries/fragments";
-import { BOX_BASIC_FIELDS_FRAGMENT, PRODUCT_FIELDS_FRAGMENT } from "queries/warehouse";
+import {
+  TAG_OPTIONS_FRAGMENT,
+  BOX_FIELDS_FRAGMENT,
+  PRODUCT_FIELDS_FRAGMENT,
+} from "queries/fragments";
 // TODO: move to global queries file
 import { BOX_BY_LABEL_IDENTIFIER_QUERY } from "views/Box/BoxView";
 import { useErrorHandling } from "hooks/useErrorHandling";
@@ -20,10 +23,10 @@ import BoxEdit, { IBoxEditFormData } from "./components/BoxEdit";
 export const BOX_BY_LABEL_IDENTIFIER_AND_ALL_PRODUCTS_WITH_BASEID_QUERY = gql`
   ${TAG_OPTIONS_FRAGMENT}
   ${PRODUCT_FIELDS_FRAGMENT}
-  ${BOX_BASIC_FIELDS_FRAGMENT}
+  ${BOX_FIELDS_FRAGMENT}
   query BoxByLabelIdentifierAndAllProductsWithBaseId($baseId: ID!, $labelIdentifier: String!) {
     box(labelIdentifier: $labelIdentifier) {
-      ...BoxBasicFields
+      ...BoxFields
       tags {
         ...TagOptions
       }
