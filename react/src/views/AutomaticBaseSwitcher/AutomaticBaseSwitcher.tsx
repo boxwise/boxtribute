@@ -16,7 +16,9 @@ function AutomaticBaseSwitcher() {
     if (bases && Array.isArray(bases)) {
       if (bases.length > 0) {
         const newBaseId = bases[0].id;
-        navigate(`/bases/${newBaseId}${state.origin}`);
+        navigate(
+          state && state.origin ? `/bases/${newBaseId}${state.origin}` : `/bases/${newBaseId}`,
+        );
       } else {
         setErrorMessage("This user doesn't have access to any bases");
       }
