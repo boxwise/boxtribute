@@ -10,7 +10,7 @@ export enum IQrResolverResultKind {
   SUCCESS = "success",
   FAIL = "fail",
   NOT_ASSIGNED_TO_BOX = "notAssignedToBox",
-  NOT_FOUND = "NotFound",
+  NOT_FOUND = "notFound",
   NOT_AUTHORIZED = "notAuthorized",
   NOT_BOXTRIBUTE_QR = "noBoxtributeQr",
   // TODO: implement the following two edge cases
@@ -62,7 +62,10 @@ export const useQrResolver = () => {
                 qrHash: hash,
               } as IQrResolvedValue;
             }
-            return { kind: IQrResolverResultKind.FAIL, qrHash: hash } as IQrResolvedValue;
+            return {
+              kind: IQrResolverResultKind.FAIL,
+              qrHash: hash,
+            } as IQrResolvedValue;
           }
           if (!data?.qrCode?.box) {
             return {
@@ -72,6 +75,7 @@ export const useQrResolver = () => {
           }
           return {
             kind: IQrResolverResultKind.SUCCESS,
+            qrHash: hash,
             box: data?.qrCode?.box,
           } as IQrResolvedValue;
         })
