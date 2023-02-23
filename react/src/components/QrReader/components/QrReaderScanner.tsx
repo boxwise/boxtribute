@@ -8,7 +8,7 @@ import * as React from "react";
 import { MutableRefObject, useEffect, useRef } from "react";
 import { BrowserQRCodeReader, IScannerControls } from "@zxing/browser";
 import { Result } from "@zxing/library";
-import { styles } from "./styles";
+import { styles } from "../styles";
 
 export type OnResultFunction = (
   /**
@@ -43,8 +43,8 @@ const isMediaDevicesAPIAvailable = () => {
 export const QrReaderScanner: React.FC<QrReaderScannerProps> = ({
   zoom,
   facingMode,
-  ViewFinder,
   onResult,
+  ViewFinder,
   // eslint-disable-next-line no-unused-vars
   scanPeriod,
 }) => {
