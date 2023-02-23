@@ -6,8 +6,16 @@ import ShipmentHistory from "./ShipmentHistory";
 
 export interface IShipmentTabsProps {
   shipmentDetail: ShipmentDetail[];
+  showRemoveIcon: Boolean;
+  onBoxRemoved: (id: string) => void;
+  onBulkBoxRemoved: (ids: string[]) => void;
 }
-function ShipmentTabs({ shipmentDetail }: IShipmentTabsProps) {
+function ShipmentTabs({
+  showRemoveIcon,
+  shipmentDetail,
+  onBoxRemoved,
+  onBulkBoxRemoved,
+}: IShipmentTabsProps) {
   const boxGroupedByProductGender = _.values(
     _(shipmentDetail)
       .groupBy((shipment) => `${shipment?.box?.product?.name}_${shipment?.box?.product?.gender}`)
@@ -37,7 +45,12 @@ function ShipmentTabs({ shipmentDetail }: IShipmentTabsProps) {
             <Center p={8}>No boxes have been assigned to this shipment yet!</Center>
           )}
           {(shipmentDetail?.length || 0) !== 0 && (
-            <ShipmentContent items={boxGroupedByProductGender} onBoxRemoved={() => {}} />
+            <ShipmentContent
+              items={boxGroupedByProductGender}
+              onBoxRemoved={onBoxRemoved}
+              onBulkBoxRemoved={onBulkBoxRemoved}
+              showRemoveIcon={showRemoveIcon}
+            />
           )}
         </TabPanel>
         <TabPanel>

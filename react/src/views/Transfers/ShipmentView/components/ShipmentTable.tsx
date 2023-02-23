@@ -1,9 +1,6 @@
-import { DeleteIcon } from "@chakra-ui/icons";
 import {
   Box as BoxWrapper,
-  IconButton,
   Table,
-  TableCaption,
   TableContainer,
   Tbody,
   Td,
@@ -12,41 +9,35 @@ import {
   Tr,
   useBreakpointValue,
 } from "@chakra-ui/react";
-import _ from "lodash";
-import { useCallback, useEffect, useMemo } from "react";
-import { Column, Row, useTable, useBlockLayout } from "react-table";
-import { Box, Product } from "types/generated/graphql";
+import { useMemo } from "react";
+import { Column, useTable, useBlockLayout } from "react-table";
 
 interface IShipmentTablePros {
   columns: Array<Column<any>>;
   data: Array<any>;
-  onBoxRemoved: () => void;
 }
 
-function ShipmentTable({ columns, data, onBoxRemoved }: IShipmentTablePros) {
+function ShipmentTable({ columns, data }: IShipmentTablePros) {
   const tableData = useMemo(() => data, [data]);
 
-  const tableInstance = useTable({ columns, data: tableData, useBlockLayout });
+  const tableInstance = useTable({
+    columns,
+    data: tableData,
+    useBlockLayout,
+    initialState: {
+      hiddenColumns: columns
+        .filter((col: any) => col.show === false)
+        .map((col) => col.id || col.accessor) as any,
+    },
+  });
   const { getTableProps, getTableBodyProps, headerGroups, rows, prepareRow } = tableInstance;
 
   const maxTableWidth = useBreakpointValue({ base: "full", md: "100%" });
 
-  // const handleRemoveBox = useCallback(
-  //   async (boxId: string) => {
-  //     try {
-  //       onBoxRemoved();
-  //     } catch (error) {
-  //       // eslint-disable-next-line no-console
-  //       console.error(`Failed to remove box ${boxId}`, error);
-  //     }
-  //   },
-  //   [onBoxRemoved]
-  // );
-
   return (
-    <BoxWrapper overflowX="auto" overflowY="hidden">
+    <BoxWrapper overflowX="hidden" overflowY="hidden">
       <TableContainer maxW={maxTableWidth}>
-        <Table {...getTableProps()}>
+        <Table {...getTableProps()} variant="simple" size="sm">
           <Thead>
             {headerGroups.map((headerGroup) => (
               <Tr {...headerGroup.getHeaderGroupProps()}>
@@ -62,7 +53,12 @@ function ShipmentTable({ columns, data, onBoxRemoved }: IShipmentTablePros) {
               return (
                 <Tr {...row.getRowProps()}>
                   {row.cells.map((cell) => (
-                    <Td {...cell.getCellProps()}>{cell.render("Cell")}</Td>
+                    <Td
+                      {...cell.getCellProps()}
+                      style={{ whiteSpace: "pre-wrap", wordWrap: "break-word", fontSize: "xs" }}
+                    >
+                      {cell.render("Cell")}
+                    </Td>
                   ))}
                 </Tr>
               );

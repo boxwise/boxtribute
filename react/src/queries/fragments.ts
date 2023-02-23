@@ -27,23 +27,6 @@ export const HISTORY_FIELDS_FRAGMENT = gql`
   }
 `;
 
-export const BOX_FIELDS_FRAGMENT = gql`
-  ${HISTORY_FIELDS_FRAGMENT}
-  fragment BoxFields on Box {
-    labelIdentifier
-    state
-    size {
-      id
-      label
-    }
-    numberOfItems
-    comment
-    history {
-      ...HistoryFields
-    }
-  }
-`;
-
 export const TAG_FIELDS_FRAGMENT = gql`
   fragment TagFields on Tag {
     id
@@ -97,7 +80,9 @@ export const PRODUCT_FIELDS_FRAGMENT = gql`
   fragment ProductFields on Product {
     ...ProductBasicFields
     category {
+      id
       name
+      hasGender
     }
     sizeRange {
       ...SizeRangeFields
@@ -152,6 +137,28 @@ export const BOX_WITH_SIZE_TAG_PRODUCT_FIELDS_FRAGMENT = gql`
           plannedEndDateTime
         }
       }
+    }
+  }
+`;
+
+export const BOX_FIELDS_FRAGMENT = gql`
+  ${PRODUCT_FIELDS_FRAGMENT}
+  ${HISTORY_FIELDS_FRAGMENT}
+  fragment BoxFields on Box {
+    id
+    labelIdentifier
+    state
+    size {
+      id
+      label
+    }
+    product {
+      ...ProductFields
+    }
+    numberOfItems
+    comment
+    history {
+      ...HistoryFields
     }
   }
 `;

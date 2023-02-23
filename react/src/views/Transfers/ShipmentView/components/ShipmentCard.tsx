@@ -8,16 +8,20 @@ import {
   Text,
   Box,
   Center,
+  Wrap,
+  WrapItem,
 } from "@chakra-ui/react";
 import { ShipmentIcon } from "components/Icon/Transfer/ShipmentIcon";
 import { SpecialNoteIcon } from "components/Icon/Transfer/SpecialNoteIcon";
+import { BiMinusCircle, BiPackage, BiPlusCircle } from "react-icons/bi";
 import { Shipment } from "types/generated/graphql";
 
 export interface IShipmentProps {
   shipment: Shipment;
+  onRemove: () => void;
 }
 
-function ShipmentCard({ shipment }: IShipmentProps) {
+function ShipmentCard({ shipment, onRemove }: IShipmentProps) {
   return (
     <Box
       boxShadow="lg"
@@ -39,26 +43,32 @@ function ShipmentCard({ shipment }: IShipmentProps) {
         align="stretch"
       >
         <VStack spacing={2} padding={1} align="center">
-          <Box fontWeight="extrabold">{shipment?.id}</Box>
+          <Wrap fontSize="xl" fontWeight="extrabold">
+            <WrapItem>Shipment</WrapItem>
+            <WrapItem>{shipment?.id}</WrapItem>
+          </Wrap>
           <Box fontWeight="xl">
-            Status:
-            {shipment?.state}
+            <Wrap>
+              <WrapItem>Status:</WrapItem>
+              <WrapItem fontWeight="extrabold" color="blue.500">
+                {shipment?.state?.toUpperCase()}
+              </WrapItem>
+            </Wrap>
           </Box>
         </VStack>
         <Box border={0}>
           <Flex minWidth="max-content" alignItems="center" gap="2">
-            <Spacer />
             <Box p="4">
               <List spacing={1}>
                 <ListItem>
-                  <Flex alignContent="center">
-                    <Text fontSize="md" fontWeight="bold">
+                  <Flex alignContent="right">
+                    <Text fontSize="xl" fontWeight="bold">
                       {shipment?.sourceBase?.name}
                     </Text>
                   </Flex>
                 </ListItem>
                 <ListItem>
-                  <Flex alignContent="center">
+                  <Flex alignContent="right">
                     <Text fontSize="md">{shipment?.sourceBase?.organisation.name}</Text>
                   </Flex>
                 </ListItem>
@@ -67,27 +77,26 @@ function ShipmentCard({ shipment }: IShipmentProps) {
             <Spacer />
             <Box>
               <Flex alignContent="center">
-                <ShipmentIcon />
+                <ShipmentIcon boxSize={9} />
               </Flex>
             </Box>
             <Spacer />
             <Box p="4">
               <List spacing={1}>
                 <ListItem>
-                  <Flex alignContent="center">
-                    <Text fontSize="md" fontWeight="bold">
+                  <Flex alignContent="left">
+                    <Text fontSize="xl" fontWeight="bold">
                       {shipment?.targetBase?.name}
                     </Text>
                   </Flex>
                 </ListItem>
                 <ListItem>
-                  <Flex alignContent="center">
+                  <Flex alignContent="left">
                     <Text fontSize="md">{shipment?.targetBase?.organisation.name}</Text>
                   </Flex>
                 </ListItem>
               </List>
             </Box>
-            <Spacer />
           </Flex>
           {typeof shipment.transferAgreement?.comment !== "undefined" && (
             <Center alignContent="stretch">
@@ -102,9 +111,43 @@ function ShipmentCard({ shipment }: IShipmentProps) {
         </Box>
         <StackDivider borderColor="blackAlpha.800" marginTop={-1.5} />
         <Box p={4}>
-          <Center alignContent="stretch">
-            <Text fontWeight="bold">TOTAL:</Text> {shipment.details.length} boxes
-          </Center>
+          <Flex minWidth="max-content" alignItems="center" gap={2}>
+            <Box bg="black" p={1} marginTop={-15}>
+              <Text fontSize="xl" fontWeight="bold" color="white">
+                TOTAL
+              </Text>
+            </Box>
+            <Spacer />
+
+            <Box>
+              <Wrap spacing={2} align="center">
+                <WrapItem>
+                  <Center>
+                    <Text fontSize="3xl" fontWeight="bold">
+                      {shipment.details.length}
+                    </Text>
+                  </Center>
+                </WrapItem>
+                <WrapItem>
+                  <Center>
+                    <BiPackage size={35} />
+                  </Center>
+                </WrapItem>
+              </Wrap>
+            </Box>
+
+            <Spacer />
+            <Box>
+              <VStack spacing={2} align="stretch">
+                <Box>
+                  <BiPlusCircle onClick={() => {}} size={25} />
+                </Box>
+                <Box>
+                  <BiMinusCircle onClick={onRemove} size={25} />
+                </Box>
+              </VStack>
+            </Box>
+          </Flex>
         </Box>
       </VStack>
     </Box>

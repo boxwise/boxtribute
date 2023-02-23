@@ -6,16 +6,17 @@ import {
   AccordionItem,
   AccordionPanel,
   Box,
-  Flex,
   Spacer,
-  ButtonGroup,
   useMediaQuery,
+  Stack,
 } from "@chakra-ui/react";
 import _ from "lodash";
-import { useMemo } from "react";
+import { useCallback, useMemo } from "react";
 import { Product, Box as BoxType } from "types/generated/graphql";
-import { BiMinusCircle } from "react-icons/bi";
+import { CellProps, Row } from "react-table";
+import { AiFillMinusCircle } from "react-icons/ai";
 import ShipmentTable from "./ShipmentTable";
+import { RemoveBoxCell } from "./ShipmentTableCells";
 
 export interface IShipmentContent {
   product: Product;
@@ -26,57 +27,86 @@ export interface IShipmentContent {
 
 interface IShipmentContentProps {
   items: IShipmentContent[];
-  onBoxRemoved: () => void;
+  showRemoveIcon: Boolean;
+  onBoxRemoved: (id: string) => void;
+  onBulkBoxRemoved: (ids: string[]) => void;
 }
 
-function ShipmentContent({ items, onBoxRemoved }: IShipmentContentProps) {
+function ShipmentContent({
+  items,
+  onBoxRemoved,
+  onBulkBoxRemoved,
+  showRemoveIcon,
+}: IShipmentContentProps) {
   const boxesToTableTransformer = (boxes: BoxType[]) =>
     _.map(boxes, (box) => ({
+      id: box?.product?.id,
       labelIdentifier: box.labelIdentifier,
       // eslint-disable-next-line max-len
-      product: `${`${box?.product?.sizeRange?.label || ""} ` || ""}${
-        `${box?.product?.gender || ""} ` || ""
-      }${box?.product?.name}`,
+      product: `${`${box?.size?.label || ""} ` || ""}${`${box?.product?.gender || ""} ` || ""}${
+        box?.product?.name
+      }`,
       items: box?.numberOfItems || 0,
-      id: box?.product?.id || "",
     }));
 
   const [isMobile] = useMediaQuery("(max-width: 768px)");
+
+  // callback function triggered when box item removed
+  const handleRemoveBox = useCallback(
+    async ({ original: cellData }: Row<any>) => {
+      try {
+        onBoxRemoved(cellData.labelIdentifier);
+      } catch (error) {
+        // eslint-disable-next-line no-console
+        console.error(`Failed to remove box ${cellData}`, error);
+      }
+    },
+    [onBoxRemoved],
+  );
+
+  const handleRemoveBulkBox = useCallback(
+    async (ids: string[]) => {
+      try {
+        onBulkBoxRemoved(ids);
+      } catch (error) {
+        // eslint-disable-next-line no-console
+        console.error(`Failed to remove box ${ids}`, error);
+      }
+    },
+    [onBulkBoxRemoved],
+  );
 
   // Define columns
   const columns = useMemo(
     () => [
       {
+        id: "labelIdentifier",
         Header: "BOX #",
-        // accessor: "labelIdentifier",
         Cell: ({ row }) => row.original.labelIdentifier,
       },
       {
+        id: "product",
         Header: "PRODUCT",
-        // accessor: "product",
+        accessor: "product",
         Cell: ({ row }) => row.original.product,
+        style: { overflowWrap: "break-word" },
       },
       {
+        id: "items",
         Header: "ITEMS",
-        // accessor: "items",
+        accessor: "items",
         Cell: ({ row }) => row.original.items,
-        show: !isMobile,
+        show: isMobile,
       },
       {
-        Header: "ID",
+        id: "id",
+        Header: "",
+        show: showRemoveIcon,
         // eslint-disable-next-line react/no-unstable-nested-components
-        Cell: () => (
-          <BiMinusCircle
-            type="solid"
-            width={24}
-            style={{ cursor: "pointer", color: "red", fill: "red" }}
-            onClick={() => {}}
-          />
-        ),
-        // Cell: ({ row }) => row.original.id
+        Cell: ({ row }: CellProps<any>) => <RemoveBoxCell row={row} onClick={handleRemoveBox} />,
       },
     ],
-    [isMobile],
+    [isMobile, showRemoveIcon, handleRemoveBox],
   );
 
   return (
@@ -85,41 +115,48 @@ function ShipmentContent({ items, onBoxRemoved }: IShipmentContentProps) {
         <AccordionItem key={item.product.id}>
           {({ isExpanded }) => (
             <>
-              <h2>
-                <AccordionButton _expanded={{ bg: "#F4E6A0" }}>
-                  <Box flex="1" textAlign="left">
-                    <Flex alignSelf="center">
-                      <Box alignContent="center" padding={1}>
-                        <BiMinusCircle
-                          size={25}
-                          style={{ cursor: "pointer", color: "red", fill: "red" }}
-                          onClick={() => {}}
-                        />
-                      </Box>
-                      <Box>
-                        <Text>
-                          {" "}
-                          {item.product.name} {item?.product?.gender || ""} ({item.totalItems}x)
-                        </Text>
-                      </Box>
-                      <Spacer />
-                      <ButtonGroup gap={1}>
-                        <Box>
-                          <Text>{item.totalBoxes} boxes</Text>
-                        </Box>
-                        {!isExpanded && <AccordionIcon />}
-                        {/* {isExpanded && <Box w="1em" h="1em" />} */}
-                      </ButtonGroup>
-                    </Flex>
+              <Stack bg={isExpanded ? "#F4E6A0" : ""} p="2" direction="row" alignItems="flex-start">
+                {showRemoveIcon && (
+                  <Box alignContent="center" padding={1}>
+                    <AiFillMinusCircle
+                      size={20}
+                      style={{
+                        cursor: isExpanded ? "not-allowed" : "pointer",
+                        color: isExpanded ? "gray" : "red",
+                        fill: isExpanded ? "gray" : "red",
+                      }}
+                      onClick={
+                        !isExpanded
+                          ? () => handleRemoveBulkBox(item.boxes.map((b) => b.labelIdentifier))
+                          : undefined
+                      }
+                    />
                   </Box>
+                )}
+                <Box>
+                  <h2>
+                    <Box>
+                      <Text>
+                        {" "}
+                        {item.product.name} {item?.product?.gender || ""} ({item.totalItems}x)
+                      </Text>
+                    </Box>
+                  </h2>
+                </Box>
+                <Spacer />
+                <Box>
+                  <Text>{item.totalBoxes} boxes</Text>
+                </Box>
+                <AccordionButton
+                  _expanded={{ bg: "#F4E6A0" }}
+                  maxWidth={5}
+                  _hover={{ bgColor: "white" }}
+                >
+                  {!isExpanded && <AccordionIcon />}
                 </AccordionButton>
-              </h2>
+              </Stack>
               <AccordionPanel p={0}>
-                <ShipmentTable
-                  columns={columns}
-                  data={boxesToTableTransformer(item.boxes)}
-                  onBoxRemoved={onBoxRemoved}
-                />
+                <ShipmentTable columns={columns} data={boxesToTableTransformer(item.boxes)} />
               </AccordionPanel>
             </>
           )}

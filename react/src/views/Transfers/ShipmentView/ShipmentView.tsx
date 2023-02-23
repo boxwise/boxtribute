@@ -6,13 +6,12 @@ import {
   VStack,
   Flex,
   Spacer,
-  ButtonGroup,
   Button,
   Alert,
   AlertIcon,
 } from "@chakra-ui/react";
 import APILoadingIndicator from "components/APILoadingIndicator";
-
+import { useState } from "react";
 import { useParams } from "react-router-dom";
 import {
   Shipment,
@@ -20,87 +19,144 @@ import {
   ShipmentByIdQueryVariables,
   ShipmentDetail,
 } from "types/generated/graphql";
+// import { useErrorHandling } from "hooks/error-handling";
+import { useNotification } from "hooks/hooks";
+import { SHIPMENT_FIELDS_FRAGMENT } from "queries/fragments";
+import { SendingIcon } from "components/Icon/Transfer/SendingIcon";
 import ShipmentCard from "./components/ShipmentCard";
 import ShipmentTabs from "./components/ShipmentTabs";
 
-export const SHIPMENT_BY_ID = gql`
-  query ShipmentById($id: ID! = 1) {
+export const SHIPMENT_BY_ID_QUERY = gql`
+  ${SHIPMENT_FIELDS_FRAGMENT}
+  query ShipmentById($id: ID!) {
     shipment(id: $id) {
-      transferAgreement {
-        id
-        type
-      }
-      id
-      state
-      sentBy {
-        id
-        name
-      }
-      sourceBase {
-        id
-        name
-        organisation {
-          id
-          name
-        }
-      }
-      targetBase {
-        id
-        name
-        organisation {
-          id
-          name
-        }
-      }
-      details {
-        box {
-          id
-          labelIdentifier
-          numberOfItems
-          product {
-            id
-            name
-            gender
-            category {
-              id
-              name
-              hasGender
-              sizeRanges {
-                label
-                sizes {
-                  id
-                  label
-                }
-              }
-            }
-          }
-        }
-      }
+      ...ShipmentFields
     }
   }
 `;
 
+// export const UPDATE_SHIPMENT_WHEN_PREPARING = gql`
+//   mutation UpdateShipmentWhenPreparing(
+//     $id: ID!
+//     $removedBoxLabelIdentifiers: [String!]
+//     $preparedBoxLabelIdentifiers: [String!]
+//   ) {
+//     updateShipmentWhenPreparing(
+//       id: $id
+//       preparedBoxLabelIdentifiers: $removedBoxLabelIdentifiers
+//       removedBoxLabelIdentifiers: $preparedBoxLabelIdentifiers
+//     ) {}
+//   }
+// `;
+
 function ShipmentView() {
+  // const { triggerError } = useErrorHandling();
+  const { createToast } = useNotification();
   // Basics
+  const [showRemoveIcon, setShowRemoveIcon] = useState(false);
 
   // variables in URL
   const id = useParams<{ id: string }>().id!;
 
-  // Query Data for the Form
-  const shipmentData = useQuery<ShipmentByIdQuery, ShipmentByIdQueryVariables>(SHIPMENT_BY_ID, {
-    variables: {
-      id,
+  // fetch shipment data
+  const { loading, data } = useQuery<ShipmentByIdQuery, ShipmentByIdQueryVariables>(
+    SHIPMENT_BY_ID_QUERY,
+    {
+      variables: {
+        id,
+      },
     },
-  });
+  );
 
-  const shipmentContents = shipmentData.data?.shipment?.details as unknown as ShipmentDetail[];
+  // Mutations for transfer agreement actions
+  // const [updateShipmentWhenPreparingMutation, updateShipmentWhenPreparingStatus] = useMutation<
+  //   MutationUpdateShipmentWhenPreparingArgs
+  // >(UPDATE_SHIPMENT_WHEN_PREPARING);
+
+  // const isLoadingFromMutation =
+  // updateShipmentWhenPreparingStatus.loading;
+
+  const onRemove = () => setShowRemoveIcon(!showRemoveIcon);
+
+  const onBoxRemoved = (boxLabelIdentifier: string) => {
+    createToast({
+      title: `Box ${boxLabelIdentifier}`,
+      type: "success",
+      message: "Successfully removed the box from the shipment",
+    });
+
+    // eslint-disable-next-line no-console
+    // updateShipmentWhenPreparingMutation({
+    //   variables: {
+    //     id,
+    //     preparedBoxLabelIdentifiers: [],
+    //     removedBoxLabelIdentifiers: [boxLabelIdentifier]
+    //   },
+    // })
+    //   .then((mutationResult) => {
+    //     if (mutationResult?.errors) {
+    //       triggerError({
+    //         message: "Error: Could not remove box",
+    //       });
+    //     } else {
+    //       createToast({
+    //         title: `Box ${boxLabelIdentifier}`,
+    //         type: "success",
+    //         message: "Successfully removed the box from the shipment",
+    //       });
+    //     }
+    //   })
+    //   .catch(() => {
+    //     triggerError({
+    //       message: "Could not remove the box from the shipment.",
+    //     });
+    //   });
+  };
+
+  const onBulkBoxRemoved = (boxLabelIdentifiers: string[]) => {
+    createToast({
+      title: `Box ${boxLabelIdentifiers}`,
+      type: "success",
+      message: "Successfully removed the box from the shipment",
+    });
+
+    setShowRemoveIcon(false);
+    // eslint-disable-next-line no-console
+    // updateShipmentWhenPreparingMutation({
+    //   variables: {
+    //     id,
+    //     preparedBoxLabelIdentifiers: [],
+    //     removedBoxLabelIdentifiers: [boxLabelIdentifier]
+    //   },
+    // })
+    //   .then((mutationResult) => {
+    //     if (mutationResult?.errors) {
+    //       triggerError({
+    //         message: "Error: Could not remove box",
+    //       });
+    //     } else {
+    //       createToast({
+    //         title: `Box ${boxLabelIdentifier}`,
+    //         type: "success",
+    //         message: "Successfully removed the box from the shipment",
+    //       });
+    //     }
+    //   })
+    //   .catch(() => {
+    //     triggerError({
+    //       message: "Could not remove the box from the shipment.",
+    //     });
+    //   });
+  };
+
+  const shipmentContents = data?.shipment?.details as unknown as ShipmentDetail[];
 
   // Handle Loading State
-  if (shipmentData.loading) {
+  if (loading) {
     return <APILoadingIndicator />;
   }
 
-  if (shipmentData?.data?.shipment === undefined) {
+  if (data?.shipment === undefined) {
     return (
       <Alert status="error">
         <AlertIcon />
@@ -113,16 +169,26 @@ function ShipmentView() {
     <Flex direction="column" gap={2}>
       <Center>
         <VStack>
-          <Heading>View Shipment</Heading>
-          <ShipmentCard shipment={shipmentData.data?.shipment as unknown as Shipment} />
+          {/* TODO: switch the the title base on state and current org/user */}
+          <Heading>Prepare Shipment</Heading>
+          <ShipmentCard onRemove={onRemove} shipment={data?.shipment as unknown as Shipment} />
         </VStack>
       </Center>
       <Spacer />
       <Box>
-        <ShipmentTabs shipmentDetail={shipmentContents} />
+        <ShipmentTabs
+          shipmentDetail={shipmentContents}
+          onBoxRemoved={onBoxRemoved}
+          onBulkBoxRemoved={onBulkBoxRemoved}
+          showRemoveIcon={showRemoveIcon}
+        />
       </Box>
 
-      <ButtonGroup gap="4">
+      <Button leftIcon={<SendingIcon />} colorScheme="green" variant="solid" marginTop={2}>
+        Finalize & Send
+      </Button>
+
+      {/* <ButtonGroup gap="4">
         <Button
           mt={10}
           size="md"
@@ -148,7 +214,7 @@ function ShipmentView() {
         >
           Reject
         </Button>
-      </ButtonGroup>
+      </ButtonGroup> */}
     </Flex>
   );
 }
