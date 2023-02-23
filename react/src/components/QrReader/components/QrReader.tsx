@@ -15,12 +15,12 @@ import { OnResultFunction, QrReaderScanner } from "./QrReaderScanner";
 import { ViewFinder } from "./ViewFinder";
 
 export interface IQrReaderProps {
-  isFindBoxByLabelLoading: boolean;
-  onScanningResult: (result: string) => void;
+  findBoxByLabelIsLoading: boolean;
+  onScan: (result: string, isMulti: boolean) => void;
   onFindBoxByLabel: (label: string) => void;
 }
 
-function QrReader({ isFindBoxByLabelLoading, onScanningResult, onFindBoxByLabel }: IQrReaderProps) {
+function QrReader({ findBoxByLabelIsLoading, onScan, onFindBoxByLabel }: IQrReaderProps) {
   // Zoom
   const [zoomLevel, setZoomLevel] = useState(1);
   const browserSupportsZoom = useMemo(
@@ -28,14 +28,14 @@ function QrReader({ isFindBoxByLabelLoading, onScanningResult, onFindBoxByLabel 
     [],
   );
 
-  // Did the QrReaderScanner catch a QrCode? --> call OnScanningResult with text value
+  // Did the QrReaderScanner catch a QrCode? --> call onScan with text value
   const onResult: OnResultFunction = useCallback(
-    (result: Result | undefined | null) => {
-      if (result) {
-        onScanningResult(result.getText());
+    (qrReaderResult: Result | undefined | null) => {
+      if (qrReaderResult) {
+        onScan(qrReaderResult.getText(), false);
       }
     },
-    [onScanningResult],
+    [onScan],
   );
 
   // Input Validation for Find Box By Label Field
@@ -94,14 +94,14 @@ function QrReader({ isFindBoxByLabelLoading, onScanningResult, onFindBoxByLabel 
             type="string"
             width={150}
             onChange={(e) => onBoxLabelInputChange(e.currentTarget.value)}
-            disabled={isFindBoxByLabelLoading}
+            disabled={findBoxByLabelIsLoading}
             value={boxLabelInputValue}
           />
           <FormErrorMessage>{boxLabelInputError}</FormErrorMessage>
         </FormControl>
         <Button
-          disabled={!!boxLabelInputError || isFindBoxByLabelLoading}
-          isLoading={isFindBoxByLabelLoading}
+          disabled={!!boxLabelInputError || findBoxByLabelIsLoading}
+          isLoading={findBoxByLabelIsLoading}
           onClick={() => {
             if (boxLabelInputValue) {
               onFindBoxByLabel(boxLabelInputValue);

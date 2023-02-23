@@ -28,3 +28,4 @@ src/views/Box/BoxView.test.tsx
 public
 craco.config.js
 *.js
+*.old.*

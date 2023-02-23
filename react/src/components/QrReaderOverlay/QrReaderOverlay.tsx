@@ -21,7 +21,7 @@ function QrReaderOverlay({ isOpen, onClose }: IQrReaderOverlayProps) {
       <ModalContent>
         <ModalHeader>QR Scanner</ModalHeader>
         <ModalBody>
-          <QrReaderContainer />
+          <QrReaderContainer onSuccess={onClose} />
         </ModalBody>
         <ModalFooter>
           <Button mr={3} onClick={onClose}>
