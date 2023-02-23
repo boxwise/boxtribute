@@ -19,7 +19,7 @@ import {
   GetBoxLabelIdentifierForQrCodeQuery,
   GetBoxLabelIdentifierForQrCodeQueryVariables,
 } from "types/generated/graphql";
-import { extractQrCodeFromUrl } from "hooks/QrResolver";
+import { extractQrCodeFromUrl } from "hooks/useQrResolver";
 import {
   BOX_DETAILS_BY_LABEL_IDENTIFIER_QUERY,
   GET_BOX_LABEL_IDENTIFIER_BY_QR_CODE,
