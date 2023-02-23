@@ -16,7 +16,7 @@ import {
 } from "queries/fragments";
 // TODO: move to global queries file
 import { BOX_BY_LABEL_IDENTIFIER_QUERY } from "views/Box/BoxView";
-import { useErrorHandling } from "hooks/error-handling";
+import { useErrorHandling } from "hooks/useErrorHandling";
 import { useNotification } from "hooks/hooks";
 import BoxEdit, { IBoxEditFormData } from "./components/BoxEdit";
 

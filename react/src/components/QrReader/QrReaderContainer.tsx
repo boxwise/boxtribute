@@ -1,5 +1,5 @@
 import { useBoolean } from "@chakra-ui/react";
-import { useErrorHandling } from "hooks/error-handling";
+import { useErrorHandling } from "hooks/useErrorHandling";
 import { IQrResolvedValue, IQrResolverResultKind, useQrResolver } from "hooks/QrResolver";
 import { useCallback } from "react";
 import { useNavigate, useParams } from "react-router-dom";
