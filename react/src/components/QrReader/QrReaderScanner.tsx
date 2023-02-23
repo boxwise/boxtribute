@@ -25,7 +25,7 @@ export type OnResultFunction = (
   codeReader?: BrowserQRCodeReader,
 ) => void;
 
-export type QrReaderProps = {
+export type QrReaderScannerProps = {
   facingMode?: string;
   zoom?: number;
   onResult: OnResultFunction;
@@ -40,7 +40,7 @@ const isMediaDevicesAPIAvailable = () => {
   return isMediaDevicesAPIAvailable;
 };
 
-export const QrReader: React.FC<QrReaderProps> = ({
+export const QrReaderScanner: React.FC<QrReaderScannerProps> = ({
   zoom,
   facingMode,
   ViewFinder,
@@ -133,4 +133,4 @@ export const QrReader: React.FC<QrReaderProps> = ({
   );
 };
 
-QrReader.displayName = "QrReader";
+QrReaderScanner.displayName = "QrReader";
