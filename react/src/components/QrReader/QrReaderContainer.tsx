@@ -39,13 +39,13 @@ function QrReaderContainer({ onSuccess }: IQrReaderContainerProps) {
         }
         case IQrResolverResultKind.NOT_AUTHORIZED: {
           triggerError({
-            message: "You don't have permission to access this box",
+            message: "You don't have permission to access this box!",
           });
           break;
         }
         case IQrResolverResultKind.NOT_FOUND: {
           triggerError({
-            message: "A box with this label number doesn't exist!",
+            message: "No box found for this QR-Code!",
           });
           break;
         }
@@ -57,8 +57,7 @@ function QrReaderContainer({ onSuccess }: IQrReaderContainerProps) {
         }
         case IQrResolverResultKind.FAIL: {
           triggerError({
-            message: "Box not found for this label",
-            statusCode: qrResolvedValue?.error.code,
+            message: "The search for this QR-Code failed. Please try again.",
           });
           break;
         }
@@ -103,7 +102,7 @@ function QrReaderContainer({ onSuccess }: IQrReaderContainerProps) {
         }
         case ILabelIdentifierResolverResultKind.NOT_AUTHORIZED: {
           triggerError({
-            message: "You don't have permission to access this box",
+            message: "You don't have permission to access this box!",
           });
           break;
         }
@@ -115,7 +114,7 @@ function QrReaderContainer({ onSuccess }: IQrReaderContainerProps) {
         }
         case ILabelIdentifierResolverResultKind.FAIL: {
           triggerError({
-            message: "Box not found for this label",
+            message: "The search for this label failed. Please try again.",
             statusCode: labelIdentifierResolvedValue?.error.code,
           });
           break;
