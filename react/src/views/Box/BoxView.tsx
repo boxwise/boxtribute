@@ -32,13 +32,12 @@ import {
   PACKING_LIST_ENTRIES_FOR_DISTRIBUTION_EVENT_QUERY,
   UNASSIGN_BOX_FROM_DISTRIBUTION_MUTATION,
 } from "views/Distributions/queries";
+import { DISTRO_EVENT_FIELDS_FRAGMENT, TAG_FIELDS_FRAGMENT } from "queries/fragments";
 import {
-  BOX_FIELDS_FRAGMENT,
-  DISTRO_EVENT_FIELDS_FRAGMENT,
+  BOX_BASIC_FIELDS_FRAGMENT,
   PRODUCT_BASIC_FIELDS_FRAGMENT,
   PRODUCT_FIELDS_FRAGMENT,
-  TAG_FIELDS_FRAGMENT,
-} from "queries/fragments";
+} from "queries/warehouse";
 import { useErrorHandling } from "hooks/useErrorHandling";
 import { useNotification } from "hooks/hooks";
 import AddItemsToBoxOverlay from "./components/AddItemsToBoxOverlay";
@@ -54,12 +53,12 @@ const refetchBoxByLabelIdentifierQueryConfig = (labelIdentifier: string) => ({
 
 export const BOX_BY_LABEL_IDENTIFIER_QUERY = gql`
   ${PRODUCT_BASIC_FIELDS_FRAGMENT}
-  ${BOX_FIELDS_FRAGMENT}
+  ${BOX_BASIC_FIELDS_FRAGMENT}
   ${TAG_FIELDS_FRAGMENT}
   ${DISTRO_EVENT_FIELDS_FRAGMENT}
   query BoxByLabelIdentifier($labelIdentifier: String!) {
     box(labelIdentifier: $labelIdentifier) {
-      ...BoxFields
+      ...BoxBasicFields
       product {
         ...ProductBasicFields
       }
@@ -119,13 +118,13 @@ export const UPDATE_STATE_IN_BOX_MUTATION = gql`
 `;
 
 export const UPDATE_BOX_MUTATION = gql`
-  ${BOX_FIELDS_FRAGMENT}
+  ${BOX_BASIC_FIELDS_FRAGMENT}
   ${PRODUCT_FIELDS_FRAGMENT}
   ${TAG_FIELDS_FRAGMENT}
   ${DISTRO_EVENT_FIELDS_FRAGMENT}
   mutation UpdateLocationOfBox($boxLabelIdentifier: String!, $newLocationId: Int!) {
     updateBox(updateInput: { labelIdentifier: $boxLabelIdentifier, locationId: $newLocationId }) {
-      ...BoxFields
+      ...BoxBasicFields
       product {
         ...ProductFields
       }

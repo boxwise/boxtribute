@@ -4,8 +4,10 @@ import BoxesTable from "./components/BoxesTable";
 import { BoxRow } from "./components/types";
 import APILoadingIndicator from "components/APILoadingIndicator";
 import { BoxesForBaseQuery } from "types/generated/graphql";
+import { BOX_BASIC_FIELDS_FRAGMENT } from "queries/warehouse";
 
 export const BOXES_FOR_BASE_QUERY = gql`
+  ${BOX_BASIC_FIELDS_FRAGMENT}
   query BoxesForBase($baseId: ID!) {
     base(id: $baseId) {
       locations {
@@ -13,21 +15,7 @@ export const BOXES_FOR_BASE_QUERY = gql`
         boxes {
           totalCount
           elements {
-            labelIdentifier
-            state
-            size {
-              id
-              label
-            }
-            product {
-              gender
-              name
-            }
-            tags {
-              name
-              id
-            }
-            numberOfItems
+            ...BoxBasicFields
           }
         }
       }

@@ -14,7 +14,8 @@ import {
   CheckIfQrExistsInDbQuery,
   CheckIfQrExistsInDbQueryVariables,
 } from "types/generated/graphql";
-import { PRODUCT_FIELDS_FRAGMENT, TAG_OPTIONS_FRAGMENT } from "queries/fragments";
+import { TAG_OPTIONS_FRAGMENT } from "queries/fragments";
+import { PRODUCT_FIELDS_FRAGMENT } from "queries/warehouse";
 import { CHECK_IF_QR_EXISTS_IN_DB } from "queries/queries";
 import BoxCreate, { ICreateBoxFormData } from "./components/BoxCreate";
 
