@@ -1,6 +1,6 @@
 import { useCallback, useState } from "react";
-import { useApolloClient } from "@apollo/client";
-import { GET_BOX_LABEL_IDENTIFIER_BY_QR_CODE } from "queries/queries";
+import { gql, useApolloClient } from "@apollo/client";
+import { GET_BOX_LABEL_IDENTIFIER_BY_QR_CODE, GET_SCANNED_BOXES } from "queries/queries";
 import {
   GetBoxLabelIdentifierForQrCodeQuery,
   GetBoxLabelIdentifierForQrCodeQueryVariables,
@@ -39,8 +39,8 @@ export const useQrResolver = () => {
   const [loading, setLoading] = useState(false);
   const apolloClient = useApolloClient();
 
-  const checkQrHash = useCallback(
-    async (hash: string): Promise<IQrResolvedValue> => {
+  const resolveQrHash = useCallback(
+    async (hash: string, isMulti: boolean = false): Promise<IQrResolvedValue> => {
       setLoading(true);
       const qrResolvedValue: IQrResolvedValue = await apolloClient
         .query<GetBoxLabelIdentifierForQrCodeQuery, GetBoxLabelIdentifierForQrCodeQueryVariables>({
@@ -88,27 +88,69 @@ export const useQrResolver = () => {
               error: err,
             } as IQrResolvedValue),
         );
+
+      if (qrResolvedValue.kind === IQrResolverResultKind.SUCCESS) {
+        const boxCacheRef = `Box:{"labelIdentifier":"${qrResolvedValue.box.labelIdentifier}"}`;
+        // add a scannedOn parameter in the cache if Box was scanned
+        await apolloClient.writeFragment({
+          id: boxCacheRef,
+          fragment: gql`
+            fragment AddScannedOn on Box {
+              scannedOn
+            }
+          `,
+          data: {
+            scannedOn: new Date(),
+          },
+        });
+
+        // Only execute for Multi Box tab
+        if (isMulti) {
+          // add box Ref to query for list of all scanned boxes
+          await apolloClient.cache.updateQuery(
+            {
+              query: GET_SCANNED_BOXES,
+            },
+            (data) => ({
+              scannedBoxes: [
+                ...data.scannedBoxes,
+                {
+                  __ref: boxCacheRef,
+                  labelIdentifier: qrResolvedValue.box.labelIdentifier,
+                  state: qrResolvedValue.box.state,
+                },
+              ],
+            }),
+          );
+        }
+      }
       setLoading(false);
       return qrResolvedValue;
     },
     [apolloClient],
   );
 
-  const checkQrCode = useCallback(
-    async (qrCodeUrl: string): Promise<IQrResolvedValue> => {
+  const resolveQrCode = useCallback(
+    async (qrCodeUrl: string, isMulti: boolean = false): Promise<IQrResolvedValue> => {
+      setLoading(true);
       const extractedQrHashFromUrl = extractQrCodeFromUrl(qrCodeUrl);
       if (extractedQrHashFromUrl == null) {
+        setLoading(false);
         return { kind: IQrResolverResultKind.NOT_BOXTRIBUTE_QR } as IQrResolvedValue;
       }
-      const qrResolvedValue: IQrResolvedValue = await checkQrHash(extractedQrHashFromUrl);
+      const qrResolvedValue: IQrResolvedValue = await resolveQrHash(
+        extractedQrHashFromUrl,
+        isMulti,
+      );
+      setLoading(false);
       return qrResolvedValue;
     },
-    [checkQrHash],
+    [resolveQrHash],
   );
 
   return {
     loading,
-    checkQrHash,
-    checkQrCode,
+    resolveQrHash,
+    resolveQrCode,
   };
 };

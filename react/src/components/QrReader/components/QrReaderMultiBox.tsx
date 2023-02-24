@@ -3,27 +3,41 @@ import { DeleteIcon } from "@chakra-ui/icons";
 import { BiUndo } from "react-icons/bi";
 import { Box, Center, IconButton, Radio, RadioGroup, Stack, Text } from "@chakra-ui/react";
 
-function QrReaderMultiBox() {
+interface IQrReaderMultiBoxProps {
+  scannedBoxesCount: number;
+  onDeleteScannedBoxes: () => void;
+  onUndoLastScannedBox: () => void;
+}
+
+function QrReaderMultiBox({
+  scannedBoxesCount,
+  onDeleteScannedBoxes,
+  onUndoLastScannedBox,
+}: IQrReaderMultiBoxProps) {
   const [multiBoxAction, setMultiBoxAction] = useState("moveBox");
   return (
     <Stack direction="column">
-      <Center>
-        <Stack direction="row" alignItems="center">
-          <IconButton
-            aria-label="Delete list of scanned boxes"
-            icon={<DeleteIcon />}
-            size="sm"
-            background="inherit"
-          />
-          <Text as="b">Boxes Selected: </Text>
-          <IconButton
-            aria-label="Undo last scan"
-            icon={<BiUndo size={20} />}
-            size="sm"
-            background="inherit"
-          />
-        </Stack>
-      </Center>
+      {scannedBoxesCount && (
+        <Center>
+          <Stack direction="row" alignItems="center">
+            <IconButton
+              aria-label="Delete list of scanned boxes"
+              icon={<DeleteIcon />}
+              size="sm"
+              background="inherit"
+              onClick={onDeleteScannedBoxes}
+            />
+            <Text as="b">Boxes Selected: {scannedBoxesCount}</Text>
+            <IconButton
+              aria-label="Undo last scan"
+              icon={<BiUndo size={20} />}
+              size="sm"
+              background="inherit"
+              onClick={onUndoLastScannedBox}
+            />
+          </Stack>
+        </Center>
+      )}
       <Box border="2px" borderRadius={0} p={4}>
         <RadioGroup onChange={setMultiBoxAction} value={multiBoxAction}>
           <Stack direction="column">

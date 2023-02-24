@@ -18,7 +18,7 @@ import {
 import { AddIcon, MinusIcon, SearchIcon } from "@chakra-ui/icons";
 import { OnResultFunction, QrReaderScanner } from "./QrReaderScanner";
 import { ViewFinder } from "./ViewFinder";
-import QrReaderMultiBox from "./QrReaderMultiBox";
+import QrReaderMultiBoxContainer from "./QrReaderMultiBoxContainer";
 
 export interface IQrReaderProps {
   findBoxByLabelIsLoading: boolean;
@@ -27,6 +27,7 @@ export interface IQrReaderProps {
 }
 
 function QrReader({ findBoxByLabelIsLoading, onScan, onFindBoxByLabel }: IQrReaderProps) {
+  const [isMultiBox, setIsMultiBox] = useState(false);
   // Zoom
   const [zoomLevel, setZoomLevel] = useState(1);
   const browserSupportsZoom = useMemo(
@@ -38,10 +39,10 @@ function QrReader({ findBoxByLabelIsLoading, onScan, onFindBoxByLabel }: IQrRead
   const onResult: OnResultFunction = useCallback(
     (qrReaderResult: Result | undefined | null) => {
       if (qrReaderResult) {
-        onScan(qrReaderResult.getText(), false);
+        onScan(qrReaderResult.getText(), isMultiBox);
       }
     },
-    [onScan],
+    [onScan, isMultiBox],
   );
 
   // Input Validation for Find Box By Label Field
@@ -93,7 +94,7 @@ function QrReader({ findBoxByLabelIsLoading, onScan, onFindBoxByLabel }: IQrRead
           </IconButton>
         </HStack>
       )}
-      <Tabs>
+      <Tabs index={isMultiBox ? 1 : 0} onChange={(index) => setIsMultiBox(index === 1)}>
         <TabList justifyContent="center">
           <Tab>SOLO BOX</Tab>
           <Tab>MULTI BOX</Tab>
@@ -131,7 +132,7 @@ function QrReader({ findBoxByLabelIsLoading, onScan, onFindBoxByLabel }: IQrRead
             </FormControl>
           </TabPanel>
           <TabPanel px={0}>
-            <QrReaderMultiBox />
+            <QrReaderMultiBoxContainer />
           </TabPanel>
         </TabPanels>
       </Tabs>

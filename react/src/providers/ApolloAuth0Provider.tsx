@@ -3,26 +3,12 @@
 // https://www.youtube.com/watch?v=FROhOGcnQxs
 
 import React, { useState, useEffect, ReactNode } from "react";
-import {
-  ApolloClient,
-  InMemoryCache,
-  HttpLink,
-  ApolloProvider,
-  DefaultOptions,
-} from "@apollo/client";
+import { ApolloClient, HttpLink, ApolloProvider, DefaultOptions } from "@apollo/client";
 import { setContext } from "@apollo/client/link/context";
 import { useAuth0 } from "@auth0/auth0-react";
 import { onError } from "@apollo/client/link/error";
 import { useErrorHandling } from "hooks/useErrorHandling";
-
-export const cache = new InMemoryCache({
-  typePolicies: {
-    Box: {
-      // Boxes should be normalized by labelIdentifier
-      keyFields: ["labelIdentifier"],
-    },
-  },
-});
+import { cache } from "queries/cache";
 
 function ApolloAuth0Provider({ children }: { children: ReactNode }) {
   const { triggerError } = useErrorHandling();

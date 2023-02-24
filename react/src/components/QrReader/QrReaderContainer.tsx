@@ -16,75 +16,66 @@ interface IQrReaderContainerProps {
 function QrReaderContainer({ onSuccess }: IQrReaderContainerProps) {
   const navigate = useNavigate();
   const { triggerError } = useErrorHandling();
-  const { loading: checkQrCodeIsLoading, checkQrCode } = useQrResolver();
+  const { loading: resolveQrCodeIsLoading, resolveQrCode } = useQrResolver();
   const { loading: findByBoxLabelIsLoading, checkLabelIdentifier } = useLabelIdentifierResolver();
   const { baseId } = useParams<{ baseId: string }>();
 
-  // callback function to handle a scan of QR-codes at the solo box tab
-  const handleSingleScan = useCallback(
-    async (qrReaderResultText: string) => {
-      const qrResolvedValue: IQrResolvedValue = await checkQrCode(qrReaderResultText);
-      switch (qrResolvedValue.kind) {
-        case IQrResolverResultKind.SUCCESS: {
-          const boxLabelIdentifier = qrResolvedValue?.box.labelIdentifier;
-          const boxBaseId = qrResolvedValue?.box.location.base.id;
-          onSuccess();
-          navigate(`/bases/${boxBaseId}/boxes/${boxLabelIdentifier}`);
-          break;
-        }
-        case IQrResolverResultKind.NOT_ASSIGNED_TO_BOX: {
-          onSuccess();
-          navigate(`/bases/${baseId}/boxes/create/${qrResolvedValue?.qrHash}`);
-          break;
-        }
-        case IQrResolverResultKind.NOT_AUTHORIZED: {
-          triggerError({
-            message: "You don't have permission to access this box!",
-          });
-          break;
-        }
-        case IQrResolverResultKind.NOT_FOUND: {
-          triggerError({
-            message: "No box found for this QR-Code!",
-          });
-          break;
-        }
-        case IQrResolverResultKind.NOT_BOXTRIBUTE_QR: {
-          triggerError({
-            message: "This is not a Boxtribute QR-Code!",
-          });
-          break;
-        }
-        case IQrResolverResultKind.FAIL: {
-          triggerError({
-            message: "The search for this QR-Code failed. Please try again.",
-          });
-          break;
-        }
-        default: {
-          triggerError({
-            message: `The resolved value of the qr-code does not match
-              any case of the IQrResolverResultKind.`,
-            userMessage: "Something went wrong!",
-          });
-        }
-      }
-    },
-    [checkQrCode, triggerError, navigate, onSuccess, baseId],
-  );
-
-  // handle a scan depending on if the solo box or multi box is active
+  // handle a scan depending on if the solo box or multi box tab is active
   const onScan = useCallback(
-    (qrReaderResultText: string, isMulti: boolean) => {
-      if (!checkQrCodeIsLoading) {
-        if (isMulti) {
-          // addQrValueToBulkList(result);
-        } else {
-          handleSingleScan(qrReaderResultText);
+    async (qrReaderResultText: string, isMultiBox: boolean) => {
+      if (!resolveQrCodeIsLoading) {
+        const qrResolvedValue: IQrResolvedValue = await resolveQrCode(
+          qrReaderResultText,
+          isMultiBox,
+        );
+        switch (qrResolvedValue.kind) {
+          case IQrResolverResultKind.SUCCESS: {
+            const boxLabelIdentifier = qrResolvedValue?.box.labelIdentifier;
+            const boxBaseId = qrResolvedValue?.box.location.base.id;
+            onSuccess();
+            navigate(`/bases/${boxBaseId}/boxes/${boxLabelIdentifier}`);
+            break;
+          }
+          case IQrResolverResultKind.NOT_ASSIGNED_TO_BOX: {
+            onSuccess();
+            navigate(`/bases/${baseId}/boxes/create/${qrResolvedValue?.qrHash}`);
+            break;
+          }
+          case IQrResolverResultKind.NOT_AUTHORIZED: {
+            triggerError({
+              message: "You don't have permission to access this box!",
+            });
+            break;
+          }
+          case IQrResolverResultKind.NOT_FOUND: {
+            triggerError({
+              message: "No box found for this QR-Code!",
+            });
+            break;
+          }
+          case IQrResolverResultKind.NOT_BOXTRIBUTE_QR: {
+            triggerError({
+              message: "This is not a Boxtribute QR-Code!",
+            });
+            break;
+          }
+          case IQrResolverResultKind.FAIL: {
+            triggerError({
+              message: "The search for this QR-Code failed. Please try again.",
+            });
+            break;
+          }
+          default: {
+            triggerError({
+              message: `The resolved value of the qr-code does not match
+              any case of the IQrResolverResultKind.`,
+              userMessage: "Something went wrong!",
+            });
+          }
         }
       }
     },
-    [handleSingleScan, checkQrCodeIsLoading],
+    [resolveQrCodeIsLoading, resolveQrCode, onSuccess, navigate, baseId, triggerError],
   );
 
   // handle the search by label identifier in the solo box tab
@@ -135,7 +126,7 @@ function QrReaderContainer({ onSuccess }: IQrReaderContainerProps) {
     <QrReader
       onScan={onScan}
       onFindBoxByLabel={onFindBoxByLabel}
-      findBoxByLabelIsLoading={findByBoxLabelIsLoading || checkQrCodeIsLoading}
+      findBoxByLabelIsLoading={findByBoxLabelIsLoading || resolveQrCodeIsLoading}
     />
   );
 }
