@@ -132,6 +132,8 @@ export const generateMockShipment = ({ state = ShipmentState.Preparing, iAmSourc
   startedBy: user1,
   sentOn: null,
   sentBy: null,
+  receivingStartedOn: null,
+  receivingStartedBy: null,
   completedOn: null,
   completedBy: null,
   canceledOn: null,

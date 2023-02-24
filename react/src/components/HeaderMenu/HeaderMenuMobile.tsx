@@ -174,15 +174,15 @@ const MenuItemsGroupMobile = ({
     let { baseId, qrCode, labelIdentifier } = useParams();
 
     if (link.link.includes(`${process.env.REACT_APP_OLD_APP_BASE_URL}`)) {
+      // Since we are forwarding to an external url we need to use the a tag
       return (
         <Box
+          as="a"
+          href={generateDropappUrl(link.link, baseId, qrCode, labelIdentifier)}
           key={i}
           py={1}
           px={4}
           w="100%"
-          onClick={() =>
-            redirectToExternalUrl(generateDropappUrl(link.link, baseId, qrCode, labelIdentifier))
-          }
         >
           {link.name}
         </Box>
@@ -190,13 +190,12 @@ const MenuItemsGroupMobile = ({
     } else {
       return (
         <Box
+          as={NavLink}
+          to={link.link}
           key={i}
           py={1}
           px={4}
           w="100%"
-          onClick={() => {
-            redirectToExternalUrl(link.link);
-          }}
         >
           {link.name}
         </Box>
