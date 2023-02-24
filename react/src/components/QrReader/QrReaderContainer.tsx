@@ -51,7 +51,7 @@ function QrReaderContainer({ onSuccess }: IQrReaderContainerProps) {
         }
         case IQrResolverResultKind.NOT_BOXTRIBUTE_QR: {
           triggerError({
-            message: "This is not a Boxtribute QR-Code",
+            message: "This is not a Boxtribute QR-Code!",
           });
           break;
         }
@@ -135,7 +135,7 @@ function QrReaderContainer({ onSuccess }: IQrReaderContainerProps) {
     <QrReader
       onScan={onScan}
       onFindBoxByLabel={onFindBoxByLabel}
-      findBoxByLabelIsLoading={findByBoxLabelIsLoading}
+      findBoxByLabelIsLoading={findByBoxLabelIsLoading || checkQrCodeIsLoading}
     />
   );
 }
