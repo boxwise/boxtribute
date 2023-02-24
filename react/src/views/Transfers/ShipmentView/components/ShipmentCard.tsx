@@ -10,11 +10,12 @@ import {
   Center,
   Wrap,
   WrapItem,
+  IconButton,
 } from "@chakra-ui/react";
 import { ShipmentIcon } from "components/Icon/Transfer/ShipmentIcon";
 import { BiMinusCircle, BiPackage, BiPlusCircle } from "react-icons/bi";
 import { RiFilePaperFill } from "react-icons/ri";
-import { Shipment } from "types/generated/graphql";
+import { Shipment, ShipmentState } from "types/generated/graphql";
 
 export interface IShipmentProps {
   shipment: Shipment;
@@ -138,13 +139,24 @@ function ShipmentCard({ shipment, onRemove }: IShipmentProps) {
 
             <Spacer />
             <Box>
-              <VStack spacing={2} align="stretch">
-                <Box>
-                  <BiPlusCircle onClick={() => {}} size={25} />
-                </Box>
-                <Box>
-                  <BiMinusCircle onClick={onRemove} size={25} />
-                </Box>
+              <VStack spacing={0} align="stretch">
+                <IconButton
+                  isRound
+                  icon={<BiPlusCircle size={25} />}
+                  isDisabled={shipment.state !== ShipmentState.Preparing}
+                  onClick={() => {}}
+                  aria-label="remove box"
+                  style={{ background: "white" }}
+                />
+
+                <IconButton
+                  isRound
+                  icon={<BiMinusCircle size={25} />}
+                  isDisabled={shipment.details.length === 0}
+                  onClick={onRemove}
+                  aria-label="remove box"
+                  style={{ background: "white" }}
+                />
               </VStack>
             </Box>
           </Flex>
