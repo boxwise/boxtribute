@@ -4,9 +4,12 @@ import {
   Button,
   FormControl,
   FormErrorMessage,
+  FormLabel,
   HStack,
   IconButton,
   Input,
+  InputGroup,
+  InputRightElement,
   Tab,
   TabList,
   TabPanel,
@@ -14,7 +17,7 @@ import {
   Tabs,
   Text,
 } from "@chakra-ui/react";
-import { AddIcon, MinusIcon } from "@chakra-ui/icons";
+import { AddIcon, MinusIcon, SearchIcon } from "@chakra-ui/icons";
 import { OnResultFunction, QrReaderScanner } from "./QrReaderScanner";
 import { ViewFinder } from "./ViewFinder";
 
@@ -98,33 +101,35 @@ function QrReader({ findBoxByLabelIsLoading, onScan, onFindBoxByLabel }: IQrRead
         </TabList>
         <TabPanels>
           <TabPanel>
-            <HStack borderColor="blackAlpha.100" borderWidth={2} p={4} my={5}>
-              <Text fontWeight="bold">By Label</Text>
-              <FormControl isInvalid={!!boxLabelInputError}>
+            <FormControl isInvalid={!!boxLabelInputError}>
+              <FormLabel>Find Box</FormLabel>
+              <InputGroup borderRadius={0}>
                 <Input
                   type="string"
-                  width={150}
                   onChange={(e) => onBoxLabelInputChange(e.currentTarget.value)}
                   disabled={findBoxByLabelIsLoading}
                   value={boxLabelInputValue}
+                  borderRadius={0}
                 />
-                <FormErrorMessage>{boxLabelInputError}</FormErrorMessage>
-              </FormControl>
-              <Button
-                disabled={!!boxLabelInputError || findBoxByLabelIsLoading}
-                isLoading={findBoxByLabelIsLoading}
-                onClick={() => {
-                  if (boxLabelInputValue) {
-                    onFindBoxByLabel(boxLabelInputValue);
-                    setBoxLabelInputValue("");
-                  } else {
-                    setBoxLabelInputError("Please enter a label id.");
-                  }
-                }}
-              >
-                Find
-              </Button>
-            </HStack>
+                <InputRightElement>
+                  <IconButton
+                    aria-label="Find box By label"
+                    icon={<SearchIcon />}
+                    disabled={!!boxLabelInputError || findBoxByLabelIsLoading}
+                    isLoading={findBoxByLabelIsLoading}
+                    onClick={() => {
+                      if (boxLabelInputValue) {
+                        onFindBoxByLabel(boxLabelInputValue);
+                        setBoxLabelInputValue("");
+                      } else {
+                        setBoxLabelInputError("Please enter a label id.");
+                      }
+                    }}
+                  />
+                </InputRightElement>
+              </InputGroup>
+              <FormErrorMessage>{boxLabelInputError}</FormErrorMessage>
+            </FormControl>
           </TabPanel>
           <TabPanel />
         </TabPanels>
