@@ -20,6 +20,7 @@ import {
   ShipmentByIdQueryVariables,
   ShipmentDetail,
   ShipmentState,
+  TransferAgreementType,
   UpdateShipmentWhenPreparingMutation,
   UpdateShipmentWhenPreparingMutationVariables,
 } from "types/generated/graphql";
@@ -160,9 +161,16 @@ function ShipmentView() {
 
   const isLoadingFromMutation = updateShipmentWhenPreparingStatus.loading;
 
-  const isSender = globalPreferences.availableBases?.find(
-    (b) => b.id === data?.shipment?.sourceBase.id,
-  );
+  const isSender =
+    typeof globalPreferences.availableBases?.find(
+      (b) =>
+        b.id === data?.shipment?.sourceBase.id ||
+        (b.id === data?.shipment?.targetBase.id &&
+          data.shipment?.transferAgreement.type === TransferAgreementType.Bidirectional),
+    ) !== "undefined";
+
+  // eslint-disable-next-line no-console
+  console.log("globalPreferences.availableBases", globalPreferences.availableBases);
 
   // transform shipment data for UI
   const shipmentState = data?.shipment?.state;
@@ -232,7 +240,13 @@ function ShipmentView() {
     } else if (ShipmentState.Preparing !== shipmentState && !isSender) {
       shipmentTitle = <Heading>View Shipment</Heading>;
       shipmentActionButtons = <Box />;
+    } else {
+      shipmentTitle = <Heading>View Shipment</Heading>;
+      shipmentActionButtons = <Box />;
     }
+
+    // eslint-disable-next-line no-console
+    console.log("isSender", isSender);
 
     shipmentTab = (
       <ShipmentTabs
