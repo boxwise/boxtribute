@@ -1,7 +1,6 @@
 import { useCallback, useMemo, useState } from "react";
 import { Result } from "@zxing/library";
 import {
-  Button,
   FormControl,
   FormErrorMessage,
   FormLabel,
@@ -15,11 +14,11 @@ import {
   TabPanel,
   TabPanels,
   Tabs,
-  Text,
 } from "@chakra-ui/react";
 import { AddIcon, MinusIcon, SearchIcon } from "@chakra-ui/icons";
 import { OnResultFunction, QrReaderScanner } from "./QrReaderScanner";
 import { ViewFinder } from "./ViewFinder";
+import QrReaderMultiBox from "./QrReaderMultiBox";
 
 export interface IQrReaderProps {
   findBoxByLabelIsLoading: boolean;
@@ -131,7 +130,9 @@ function QrReader({ findBoxByLabelIsLoading, onScan, onFindBoxByLabel }: IQrRead
               <FormErrorMessage>{boxLabelInputError}</FormErrorMessage>
             </FormControl>
           </TabPanel>
-          <TabPanel />
+          <TabPanel px={0}>
+            <QrReaderMultiBox />
+          </TabPanel>
         </TabPanels>
       </Tabs>
     </>
