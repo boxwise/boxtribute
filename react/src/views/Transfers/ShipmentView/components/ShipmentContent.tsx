@@ -42,7 +42,6 @@ function ShipmentContent({
     _.map(boxes, (box) => ({
       id: box?.product?.id,
       labelIdentifier: box.labelIdentifier,
-      // eslint-disable-next-line max-len
       product: `${`${box?.size?.label || ""} ` || ""}${`${box?.product?.gender || ""} ` || ""}${
         box?.product?.name
       }`,
@@ -152,7 +151,12 @@ function ShipmentContent({
                   maxWidth={5}
                   _hover={{ bgColor: "white" }}
                 >
-                  {!isExpanded && <AccordionIcon />}
+                  <AccordionIcon
+                    mr={2}
+                    _focus={{
+                      boxShadow: "none",
+                    }}
+                  />
                 </AccordionButton>
               </Stack>
               <AccordionPanel p={0}>

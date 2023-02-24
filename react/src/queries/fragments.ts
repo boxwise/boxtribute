@@ -272,6 +272,7 @@ export const SHIPMENT_FIELDS_FRAGMENT = gql`
     }
     transferAgreement {
       id
+      comment
     }
     startedOn
     startedBy {

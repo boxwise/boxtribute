@@ -9,8 +9,9 @@ import {
   Button,
   Alert,
   AlertIcon,
+  Skeleton,
 } from "@chakra-ui/react";
-import APILoadingIndicator from "components/APILoadingIndicator";
+import { orderBy, groupBy } from "lodash";
 import { useContext, useState } from "react";
 import { useParams } from "react-router-dom";
 import {
@@ -27,6 +28,7 @@ import { useNotification } from "hooks/hooks";
 import { SHIPMENT_FIELDS_FRAGMENT } from "queries/fragments";
 import { SendingIcon } from "components/Icon/Transfer/SendingIcon";
 import { GlobalPreferencesContext } from "providers/GlobalPreferencesProvider";
+import { ButtonSkeleton, ShipmentCardSkeletons, TabsSkeleton } from "components/Skeletons";
 import ShipmentCard from "./components/ShipmentCard";
 import ShipmentTabs from "./components/ShipmentTabs";
 
@@ -69,7 +71,7 @@ function ShipmentView() {
   const id = useParams<{ id: string }>().id!;
 
   // fetch shipment data
-  const { loading, data } = useQuery<ShipmentByIdQuery, ShipmentByIdQueryVariables>(
+  const { loading, error, data } = useQuery<ShipmentByIdQuery, ShipmentByIdQueryVariables>(
     SHIPMENT_BY_ID_QUERY,
     {
       variables: {
@@ -78,13 +80,11 @@ function ShipmentView() {
     },
   );
 
-  // Mutations for transfer agreement actions
+  // Mutations for shipment actions
   const [updateShipmentWhenPreparing, updateShipmentWhenPreparingStatus] = useMutation<
     UpdateShipmentWhenPreparingMutation,
     UpdateShipmentWhenPreparingMutationVariables
   >(UPDATE_SHIPMENT_WHEN_PREPARING);
-
-  const isLoadingFromMutation = updateShipmentWhenPreparingStatus.loading;
 
   const onRemove = () => setShowRemoveIcon(!showRemoveIcon);
 
@@ -95,7 +95,6 @@ function ShipmentView() {
       message: "Successfully removed the box from the shipment",
     });
 
-    // eslint-disable-next-line no-console
     updateShipmentWhenPreparing({
       variables: {
         id,
@@ -159,90 +158,109 @@ function ShipmentView() {
       });
   };
 
+  const isLoadingFromMutation = updateShipmentWhenPreparingStatus.loading;
+
   const isSender = globalPreferences.availableBases?.find(
     (b) => b.id === data?.shipment?.sourceBase.id,
   );
 
+  // transform shipment data for UI
   const shipmentState = data?.shipment?.state;
-
   const shipmentContents = data?.shipment?.details as unknown as ShipmentDetail[];
 
-  // Handle Loading State
-  if (loading || updateShipmentWhenPreparingStatus.loading) {
-    return <APILoadingIndicator />;
-  }
+  // map over each ShipmentDetail to extract its history records
+  const historyEntries = shipmentContents?.flatMap((detail) =>
+    detail?.box?.history?.map((entry) => ({
+      ...entry,
+      labelIdentifier: detail.box?.labelIdentifier,
+    })),
+  );
 
-  if (data?.shipment === undefined) {
-    return (
-      <Alert status="error">
+  // group the history entries by their changeDate property
+  const groupedHistoryEntries = groupBy(historyEntries, (entry) => {
+    const date = new Date(entry?.changeDate);
+    return `${date.toLocaleString("default", { month: "short" })}
+     ${date.getDate()}, ${date.getFullYear()}`;
+  });
+
+  // sort each array of history entries in descending order
+  const sortedGroupedHistoryEntries = Object.entries(groupedHistoryEntries).map(
+    ([date, entries]) => ({
+      date,
+      entries: orderBy(entries, (entry) => new Date(entry?.changeDate), "desc"),
+    }),
+  );
+
+  // error and loading handling
+  let shipmentTitle;
+  let shipmentTab;
+  let shipmentCard;
+  let shipmentActionButtons;
+  if (error) {
+    shipmentTab = (
+      <Alert status="error" data-testid="ErrorAlert">
         <AlertIcon />
         Could not fetch Shipment data! Please try reloading the page.
       </Alert>
     );
-  }
+  } else if (loading) {
+    shipmentTitle = <Skeleton height="50px" width="200px" />;
+    shipmentCard = <ShipmentCardSkeletons />;
+    shipmentTab = <TabsSkeleton />;
+    shipmentActionButtons = <ButtonSkeleton />;
+  } else {
+    if (ShipmentState.Preparing === shipmentState && isSender) {
+      shipmentTitle = <Heading>Prepare Shipment</Heading>;
+      shipmentActionButtons = (
+        <Button
+          leftIcon={<SendingIcon />}
+          colorScheme="green"
+          isDisabled={shipmentContents?.length === 0 || true}
+          isLoading={isLoadingFromMutation}
+          variant="solid"
+          marginTop={2}
+        >
+          Finalize & Send
+        </Button>
+      );
+    } else if (ShipmentState.Preparing !== shipmentState && isSender) {
+      shipmentTitle = <Heading>View Shipment</Heading>;
+      shipmentActionButtons = <Box />;
+    } else if (ShipmentState.Receiving === shipmentState && !isSender) {
+      shipmentTitle = <Heading>Receive Shipment</Heading>;
+      shipmentActionButtons = <Box />;
+    } else if (ShipmentState.Preparing !== shipmentState && !isSender) {
+      shipmentTitle = <Heading>View Shipment</Heading>;
+      shipmentActionButtons = <Box />;
+    }
 
-  let pageTitle = "View Shipment";
+    shipmentTab = (
+      <ShipmentTabs
+        detail={shipmentContents}
+        histories={sortedGroupedHistoryEntries}
+        onBoxRemoved={onBoxRemoved}
+        onBulkBoxRemoved={onBulkBoxRemoved}
+        showRemoveIcon={showRemoveIcon}
+      />
+    );
 
-  if (ShipmentState.Preparing === shipmentState && isSender) {
-    pageTitle = "Prepare Shipment";
-  } else if (ShipmentState.Preparing !== shipmentState && isSender) {
-    pageTitle = "View Shipment";
-  } else if (ShipmentState.Receiving === shipmentState && !isSender) {
-    pageTitle = "Receiving Shipment";
-  } else if (ShipmentState.Preparing !== shipmentState && !isSender) {
-    pageTitle = "View Shipment";
+    shipmentCard = (
+      <ShipmentCard onRemove={onRemove} shipment={data?.shipment as unknown as Shipment} />
+    );
   }
 
   return (
     <Flex direction="column" gap={2}>
       <Center>
         <VStack>
-          {/* TODO: switch the the title base on state and current org/user */}
-          <Heading>{pageTitle}</Heading>
-          <ShipmentCard onRemove={onRemove} shipment={data?.shipment as unknown as Shipment} />
+          {shipmentTitle}
+          {shipmentCard}
         </VStack>
       </Center>
       <Spacer />
-      <Box>
-        <ShipmentTabs
-          shipmentDetail={shipmentContents}
-          onBoxRemoved={onBoxRemoved}
-          onBulkBoxRemoved={onBulkBoxRemoved}
-          showRemoveIcon={showRemoveIcon}
-        />
-      </Box>
+      <Box>{shipmentTab}</Box>
 
-      <Button leftIcon={<SendingIcon />} colorScheme="green" variant="solid" marginTop={2}>
-        Finalize & Send
-      </Button>
-
-      {/* <ButtonGroup gap="4">
-        <Button
-          mt={10}
-          size="md"
-          type="button"
-          borderRadius="0"
-          border={1}
-          borderColor="blackAlpha.800"
-          w="full"
-          variant="solid"
-          backgroundColor="white"
-        >
-          Back to Overview
-        </Button>
-
-        <Button
-          mt={10}
-          type="button"
-          borderRadius="0"
-          w="full"
-          variant="solid"
-          backgroundColor="red.300"
-          color="white"
-        >
-          Reject
-        </Button>
-      </ButtonGroup> */}
+      {shipmentActionButtons}
     </Flex>
   );
 }

@@ -12,8 +12,8 @@ import {
   WrapItem,
 } from "@chakra-ui/react";
 import { ShipmentIcon } from "components/Icon/Transfer/ShipmentIcon";
-import { SpecialNoteIcon } from "components/Icon/Transfer/SpecialNoteIcon";
 import { BiMinusCircle, BiPackage, BiPlusCircle } from "react-icons/bi";
+import { RiFilePaperFill } from "react-icons/ri";
 import { Shipment } from "types/generated/graphql";
 
 export interface IShipmentProps {
@@ -99,14 +99,14 @@ function ShipmentCard({ shipment, onRemove }: IShipmentProps) {
             </Box>
           </Flex>
           {typeof shipment.transferAgreement?.comment !== "undefined" && (
-            <Center alignContent="stretch">
+            <Flex alignContent="center" direction="row" marginBottom={-2}>
               <Spacer />
-              <SpecialNoteIcon />
+              <RiFilePaperFill />
               <Text fontStyle="italic" p={2}>
-                “{shipment.transferAgreement?.comment}”
+                “{shipment?.transferAgreement?.comment}”
               </Text>
               <Spacer />
-            </Center>
+            </Flex>
           )}
         </Box>
         <StackDivider borderColor="blackAlpha.800" marginTop={-1.5} />

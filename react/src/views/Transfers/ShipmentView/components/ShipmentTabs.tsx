@@ -1,23 +1,34 @@
 import { TabList, TabPanels, Tabs, TabPanel, Tab, Center } from "@chakra-ui/react";
 import _ from "lodash";
-import { Box, ShipmentDetail } from "types/generated/graphql";
+import { Box, HistoryEntry, ShipmentDetail } from "types/generated/graphql";
 import ShipmentContent, { IShipmentContent } from "./ShipmentContent";
 import ShipmentHistory from "./ShipmentHistory";
 
+export interface IBoxHistoryEntry extends HistoryEntry {
+  labelIdentifier: string;
+}
+
+export interface IGroupedHistoryEntry {
+  date: string;
+  entries: (IBoxHistoryEntry | null | undefined)[];
+}
+
 export interface IShipmentTabsProps {
-  shipmentDetail: ShipmentDetail[];
+  detail: ShipmentDetail[];
+  histories: IGroupedHistoryEntry[];
   showRemoveIcon: Boolean;
   onBoxRemoved: (id: string) => void;
   onBulkBoxRemoved: (ids: string[]) => void;
 }
 function ShipmentTabs({
   showRemoveIcon,
-  shipmentDetail,
+  detail,
+  histories,
   onBoxRemoved,
   onBulkBoxRemoved,
 }: IShipmentTabsProps) {
   const boxGroupedByProductGender = _.values(
-    _(shipmentDetail)
+    _(detail)
       .groupBy((shipment) => `${shipment?.box?.product?.name}_${shipment?.box?.product?.gender}`)
       .mapValues((group) => ({
         product: group[0]?.box?.product,
@@ -41,10 +52,10 @@ function ShipmentTabs({
       </TabList>
       <TabPanels>
         <TabPanel p={0}>
-          {(shipmentDetail.length || 0) === 0 && (
+          {(detail.length || 0) === 0 && (
             <Center p={8}>No boxes have been assigned to this shipment yet!</Center>
           )}
-          {(shipmentDetail?.length || 0) !== 0 && (
+          {(detail?.length || 0) !== 0 && (
             <ShipmentContent
               items={boxGroupedByProductGender}
               onBoxRemoved={onBoxRemoved}
@@ -54,7 +65,7 @@ function ShipmentTabs({
           )}
         </TabPanel>
         <TabPanel>
-          <ShipmentHistory />
+          <ShipmentHistory histories={histories} />
         </TabPanel>
       </TabPanels>
     </Tabs>
