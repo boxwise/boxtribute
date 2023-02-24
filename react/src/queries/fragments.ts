@@ -145,7 +145,6 @@ export const BOX_FIELDS_FRAGMENT = gql`
   ${PRODUCT_FIELDS_FRAGMENT}
   ${HISTORY_FIELDS_FRAGMENT}
   fragment BoxFields on Box {
-    id
     labelIdentifier
     state
     size {

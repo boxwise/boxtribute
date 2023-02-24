@@ -1,4 +1,4 @@
-import { gql, useQuery } from "@apollo/client";
+import { gql, useMutation, useQuery } from "@apollo/client";
 import {
   Box,
   Center,
@@ -19,8 +19,10 @@ import {
   ShipmentByIdQueryVariables,
   ShipmentDetail,
   ShipmentState,
+  UpdateShipmentWhenPreparingMutation,
+  UpdateShipmentWhenPreparingMutationVariables,
 } from "types/generated/graphql";
-// import { useErrorHandling } from "hooks/error-handling";
+import { useErrorHandling } from "hooks/error-handling";
 import { useNotification } from "hooks/hooks";
 import { SHIPMENT_FIELDS_FRAGMENT } from "queries/fragments";
 import { SendingIcon } from "components/Icon/Transfer/SendingIcon";
@@ -37,22 +39,27 @@ export const SHIPMENT_BY_ID_QUERY = gql`
   }
 `;
 
-// export const UPDATE_SHIPMENT_WHEN_PREPARING = gql`
-//   mutation UpdateShipmentWhenPreparing(
-//     $id: ID!
-//     $removedBoxLabelIdentifiers: [String!]
-//     $preparedBoxLabelIdentifiers: [String!]
-//   ) {
-//     updateShipmentWhenPreparing(
-//       id: $id
-//       preparedBoxLabelIdentifiers: $removedBoxLabelIdentifiers
-//       removedBoxLabelIdentifiers: $preparedBoxLabelIdentifiers
-//     ) {}
-//   }
-// `;
+export const UPDATE_SHIPMENT_WHEN_PREPARING = gql`
+  ${SHIPMENT_FIELDS_FRAGMENT}
+  mutation UpdateShipmentWhenPreparing(
+    $id: ID!
+    $removedBoxLabelIdentifiers: [String!]
+    $preparedBoxLabelIdentifiers: [String!]
+  ) {
+    updateShipmentWhenPreparing(
+      updateInput: {
+        id: $id
+        preparedBoxLabelIdentifiers: $preparedBoxLabelIdentifiers
+        removedBoxLabelIdentifiers: $removedBoxLabelIdentifiers
+      }
+    ) {
+      ...ShipmentFields
+    }
+  }
+`;
 
 function ShipmentView() {
-  // const { triggerError } = useErrorHandling();
+  const { triggerError } = useErrorHandling();
   const { globalPreferences } = useContext(GlobalPreferencesContext);
   const { createToast } = useNotification();
   // Basics
@@ -72,12 +79,12 @@ function ShipmentView() {
   );
 
   // Mutations for transfer agreement actions
-  // const [updateShipmentWhenPreparingMutation, updateShipmentWhenPreparingStatus] = useMutation<
-  //   MutationUpdateShipmentWhenPreparingArgs
-  // >(UPDATE_SHIPMENT_WHEN_PREPARING);
+  const [updateShipmentWhenPreparing, updateShipmentWhenPreparingStatus] = useMutation<
+    UpdateShipmentWhenPreparingMutation,
+    UpdateShipmentWhenPreparingMutationVariables
+  >(UPDATE_SHIPMENT_WHEN_PREPARING);
 
-  // const isLoadingFromMutation =
-  // updateShipmentWhenPreparingStatus.loading;
+  const isLoadingFromMutation = updateShipmentWhenPreparingStatus.loading;
 
   const onRemove = () => setShowRemoveIcon(!showRemoveIcon);
 
@@ -89,31 +96,31 @@ function ShipmentView() {
     });
 
     // eslint-disable-next-line no-console
-    // updateShipmentWhenPreparingMutation({
-    //   variables: {
-    //     id,
-    //     preparedBoxLabelIdentifiers: [],
-    //     removedBoxLabelIdentifiers: [boxLabelIdentifier]
-    //   },
-    // })
-    //   .then((mutationResult) => {
-    //     if (mutationResult?.errors) {
-    //       triggerError({
-    //         message: "Error: Could not remove box",
-    //       });
-    //     } else {
-    //       createToast({
-    //         title: `Box ${boxLabelIdentifier}`,
-    //         type: "success",
-    //         message: "Successfully removed the box from the shipment",
-    //       });
-    //     }
-    //   })
-    //   .catch(() => {
-    //     triggerError({
-    //       message: "Could not remove the box from the shipment.",
-    //     });
-    //   });
+    updateShipmentWhenPreparing({
+      variables: {
+        id,
+        preparedBoxLabelIdentifiers: [],
+        removedBoxLabelIdentifiers: [boxLabelIdentifier],
+      },
+    })
+      .then((mutationResult) => {
+        if (mutationResult?.errors) {
+          triggerError({
+            message: "Error: Could not remove box",
+          });
+        } else {
+          createToast({
+            title: `Box ${boxLabelIdentifier}`,
+            type: "success",
+            message: "Successfully removed the box from the shipment",
+          });
+        }
+      })
+      .catch(() => {
+        triggerError({
+          message: "Could not remove the box from the shipment.",
+        });
+      });
   };
 
   const onBulkBoxRemoved = (boxLabelIdentifiers: string[]) => {
@@ -125,31 +132,31 @@ function ShipmentView() {
 
     setShowRemoveIcon(false);
     // eslint-disable-next-line no-console
-    // updateShipmentWhenPreparingMutation({
-    //   variables: {
-    //     id,
-    //     preparedBoxLabelIdentifiers: [],
-    //     removedBoxLabelIdentifiers: [boxLabelIdentifier]
-    //   },
-    // })
-    //   .then((mutationResult) => {
-    //     if (mutationResult?.errors) {
-    //       triggerError({
-    //         message: "Error: Could not remove box",
-    //       });
-    //     } else {
-    //       createToast({
-    //         title: `Box ${boxLabelIdentifier}`,
-    //         type: "success",
-    //         message: "Successfully removed the box from the shipment",
-    //       });
-    //     }
-    //   })
-    //   .catch(() => {
-    //     triggerError({
-    //       message: "Could not remove the box from the shipment.",
-    //     });
-    //   });
+    updateShipmentWhenPreparing({
+      variables: {
+        id,
+        preparedBoxLabelIdentifiers: [],
+        removedBoxLabelIdentifiers: boxLabelIdentifiers,
+      },
+    })
+      .then((mutationResult) => {
+        if (mutationResult?.errors) {
+          triggerError({
+            message: "Error: Could not remove box",
+          });
+        } else {
+          createToast({
+            title: `Box ${boxLabelIdentifiers}`,
+            type: "success",
+            message: "Successfully removed the box from the shipment",
+          });
+        }
+      })
+      .catch(() => {
+        triggerError({
+          message: "Could not remove the box from the shipment.",
+        });
+      });
   };
 
   const isSender = globalPreferences.availableBases?.find(
@@ -161,7 +168,7 @@ function ShipmentView() {
   const shipmentContents = data?.shipment?.details as unknown as ShipmentDetail[];
 
   // Handle Loading State
-  if (loading) {
+  if (loading || updateShipmentWhenPreparingStatus.loading) {
     return <APILoadingIndicator />;
   }
 
