@@ -215,7 +215,7 @@ function ShipmentView() {
         <Button
           leftIcon={<SendingIcon />}
           colorScheme="green"
-          isDisabled={shipmentContents?.length === 0 || true}
+          isDisabled={shipmentContents.length === 0}
           isLoading={isLoadingFromMutation}
           variant="solid"
           marginTop={2}
