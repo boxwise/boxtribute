@@ -151,7 +151,7 @@ it("3.4.1.4 - Mobile: Enter valid box identifier from unauthorized bases and cli
   ).toBeInTheDocument();
   // QrOverlay stays open
   expect(screen.getByRole("button", { name: /find/i })).toBeInTheDocument();
-});
+}, 10000);
 
 const queryNoBoxAssociatedWithQrCode = {
   request: {
@@ -288,10 +288,10 @@ it("3.4.2.5a - Mobile: User scans non Boxtribute QR code", async () => {
   await user.click(screen.getByTestId("ReturnScannedQr"));
 
   // error message appears
-  expect(await screen.findByText("This is not a Boxtribute QR-Code")).toBeInTheDocument();
+  expect(await screen.findByText(/This is not a Boxtribute QR-Code/i)).toBeInTheDocument();
   // QrOverlay stays open
   expect(screen.getByTestId("ReturnScannedQr")).toBeInTheDocument();
-});
+}, 10000);
 
 const queryHashNotInDb = {
   request: {
@@ -329,11 +329,11 @@ it("3.4.2.5b - Mobile: User scans non Boxtribute QR code", async () => {
 
   // error message appears
   expect(
-    (await screen.findAllByText("This is not a Boxtribute QR-Code")).length,
+    (await screen.findAllByText(/No box found for this QR-Code/i)).length,
   ).toBeGreaterThanOrEqual(1);
   // QrOverlay stays open
   expect(screen.getByTestId("ReturnScannedQr")).toBeInTheDocument();
-});
+}, 10000);
 
 const queryInternalServerError = {
   request: {

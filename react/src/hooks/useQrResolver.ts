@@ -6,6 +6,7 @@ import {
   GetBoxLabelIdentifierForQrCodeQueryVariables,
 } from "types/generated/graphql";
 
+// eslint-disable-next-line no-shadow
 export enum IQrResolverResultKind {
   SUCCESS = "success",
   FAIL = "fail",

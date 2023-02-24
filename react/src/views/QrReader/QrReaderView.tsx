@@ -1,5 +1,7 @@
+import QrReaderContainer from "components/QrReader/QrReaderContainer";
+
 function QrReaderView() {
-  return <div />;
+  return <QrReaderContainer onSuccess={() => {}} />;
 }
 
 export default QrReaderView;
