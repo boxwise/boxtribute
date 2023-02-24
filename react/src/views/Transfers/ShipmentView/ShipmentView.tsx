@@ -11,18 +11,20 @@ import {
   AlertIcon,
 } from "@chakra-ui/react";
 import APILoadingIndicator from "components/APILoadingIndicator";
-import { useState } from "react";
+import { useContext, useState } from "react";
 import { useParams } from "react-router-dom";
 import {
   Shipment,
   ShipmentByIdQuery,
   ShipmentByIdQueryVariables,
   ShipmentDetail,
+  ShipmentState,
 } from "types/generated/graphql";
 // import { useErrorHandling } from "hooks/error-handling";
 import { useNotification } from "hooks/hooks";
 import { SHIPMENT_FIELDS_FRAGMENT } from "queries/fragments";
 import { SendingIcon } from "components/Icon/Transfer/SendingIcon";
+import { GlobalPreferencesContext } from "providers/GlobalPreferencesProvider";
 import ShipmentCard from "./components/ShipmentCard";
 import ShipmentTabs from "./components/ShipmentTabs";
 
@@ -51,6 +53,7 @@ export const SHIPMENT_BY_ID_QUERY = gql`
 
 function ShipmentView() {
   // const { triggerError } = useErrorHandling();
+  const { globalPreferences } = useContext(GlobalPreferencesContext);
   const { createToast } = useNotification();
   // Basics
   const [showRemoveIcon, setShowRemoveIcon] = useState(false);
@@ -149,6 +152,12 @@ function ShipmentView() {
     //   });
   };
 
+  const isSender = globalPreferences.availableBases?.find(
+    (b) => b.id === data?.shipment?.sourceBase.id,
+  );
+
+  const shipmentState = data?.shipment?.state;
+
   const shipmentContents = data?.shipment?.details as unknown as ShipmentDetail[];
 
   // Handle Loading State
@@ -165,12 +174,24 @@ function ShipmentView() {
     );
   }
 
+  let pageTitle = "View Shipment";
+
+  if (ShipmentState.Preparing === shipmentState && isSender) {
+    pageTitle = "Prepare Shipment";
+  } else if (ShipmentState.Preparing !== shipmentState && isSender) {
+    pageTitle = "View Shipment";
+  } else if (ShipmentState.Receiving === shipmentState && !isSender) {
+    pageTitle = "Receiving Shipment";
+  } else if (ShipmentState.Preparing !== shipmentState && !isSender) {
+    pageTitle = "View Shipment";
+  }
+
   return (
     <Flex direction="column" gap={2}>
       <Center>
         <VStack>
           {/* TODO: switch the the title base on state and current org/user */}
-          <Heading>Prepare Shipment</Heading>
+          <Heading>{pageTitle}</Heading>
           <ShipmentCard onRemove={onRemove} shipment={data?.shipment as unknown as Shipment} />
         </VStack>
       </Center>
