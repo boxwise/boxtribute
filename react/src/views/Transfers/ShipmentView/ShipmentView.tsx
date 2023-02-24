@@ -11,7 +11,7 @@ import {
   AlertIcon,
   Skeleton,
 } from "@chakra-ui/react";
-import { orderBy, groupBy } from "lodash";
+import _, { groupBy } from "lodash";
 import { useContext, useState } from "react";
 import { useParams } from "react-router-dom";
 import {
@@ -192,12 +192,17 @@ function ShipmentView() {
   });
 
   // sort each array of history entries in descending order
-  const sortedGroupedHistoryEntries = Object.entries(groupedHistoryEntries).map(
-    ([date, entries]) => ({
+  const sortedGroupedHistoryEntries = _.chain(groupedHistoryEntries)
+    .toPairs()
+    .map(([date, entries]) => ({
       date,
-      entries: orderBy(entries, (entry) => new Date(entry?.changeDate), "desc"),
-    }),
-  );
+      entries: _.orderBy(entries, (entry) => new Date(entry?.changeDate), "desc"),
+    }))
+    .orderBy("date", "desc")
+    .value();
+
+  // eslint-disable-next-line no-console
+  console.log("sortedGroupedHistoryEntries", sortedGroupedHistoryEntries);
 
   // error and loading handling
   let shipmentTitle;
