@@ -7,7 +7,6 @@ import {
   AccordionPanel,
   Box,
   Spacer,
-  useMediaQuery,
   Stack,
 } from "@chakra-ui/react";
 import _ from "lodash";
@@ -47,8 +46,6 @@ function ShipmentContent({
       }`,
       items: box?.numberOfItems || 0,
     }));
-
-  const [isMobile] = useMediaQuery("(max-width: 768px)");
 
   // callback function triggered when box item removed
   const handleRemoveBox = useCallback(
@@ -95,7 +92,6 @@ function ShipmentContent({
         Header: "ITEMS",
         accessor: "items",
         Cell: ({ row }) => row.original.items,
-        show: isMobile,
       },
       {
         id: "id",
@@ -105,7 +101,7 @@ function ShipmentContent({
         Cell: ({ row }: CellProps<any>) => <RemoveBoxCell row={row} onClick={handleRemoveBox} />,
       },
     ],
-    [isMobile, showRemoveIcon, handleRemoveBox],
+    [showRemoveIcon, handleRemoveBox],
   );
 
   return (
