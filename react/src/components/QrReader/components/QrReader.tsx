@@ -2,12 +2,16 @@ import { useCallback, useMemo, useState } from "react";
 import { Result } from "@zxing/library";
 import {
   Button,
-  Container,
   FormControl,
   FormErrorMessage,
   HStack,
   IconButton,
   Input,
+  Tab,
+  TabList,
+  TabPanel,
+  TabPanels,
+  Tabs,
   Text,
 } from "@chakra-ui/react";
 import { AddIcon, MinusIcon } from "@chakra-ui/icons";
@@ -60,7 +64,7 @@ function QrReader({ findBoxByLabelIsLoading, onScan, onFindBoxByLabel }: IQrRead
   );
 
   return (
-    <Container maxW="md">
+    <>
       <QrReaderScanner
         key="qrReaderScanner"
         ViewFinder={ViewFinder}
@@ -87,34 +91,45 @@ function QrReader({ findBoxByLabelIsLoading, onScan, onFindBoxByLabel }: IQrRead
           </IconButton>
         </HStack>
       )}
-      <HStack borderColor="blackAlpha.100" borderWidth={2} p={4} my={5}>
-        <Text fontWeight="bold">By Label</Text>
-        <FormControl isInvalid={!!boxLabelInputError}>
-          <Input
-            type="string"
-            width={150}
-            onChange={(e) => onBoxLabelInputChange(e.currentTarget.value)}
-            disabled={findBoxByLabelIsLoading}
-            value={boxLabelInputValue}
-          />
-          <FormErrorMessage>{boxLabelInputError}</FormErrorMessage>
-        </FormControl>
-        <Button
-          disabled={!!boxLabelInputError || findBoxByLabelIsLoading}
-          isLoading={findBoxByLabelIsLoading}
-          onClick={() => {
-            if (boxLabelInputValue) {
-              onFindBoxByLabel(boxLabelInputValue);
-              setBoxLabelInputValue("");
-            } else {
-              setBoxLabelInputError("Please enter a label id.");
-            }
-          }}
-        >
-          Find
-        </Button>
-      </HStack>
-    </Container>
+      <Tabs>
+        <TabList justifyContent="center">
+          <Tab>SOLO BOX</Tab>
+          <Tab>MULTI BOX</Tab>
+        </TabList>
+        <TabPanels>
+          <TabPanel>
+            <HStack borderColor="blackAlpha.100" borderWidth={2} p={4} my={5}>
+              <Text fontWeight="bold">By Label</Text>
+              <FormControl isInvalid={!!boxLabelInputError}>
+                <Input
+                  type="string"
+                  width={150}
+                  onChange={(e) => onBoxLabelInputChange(e.currentTarget.value)}
+                  disabled={findBoxByLabelIsLoading}
+                  value={boxLabelInputValue}
+                />
+                <FormErrorMessage>{boxLabelInputError}</FormErrorMessage>
+              </FormControl>
+              <Button
+                disabled={!!boxLabelInputError || findBoxByLabelIsLoading}
+                isLoading={findBoxByLabelIsLoading}
+                onClick={() => {
+                  if (boxLabelInputValue) {
+                    onFindBoxByLabel(boxLabelInputValue);
+                    setBoxLabelInputValue("");
+                  } else {
+                    setBoxLabelInputError("Please enter a label id.");
+                  }
+                }}
+              >
+                Find
+              </Button>
+            </HStack>
+          </TabPanel>
+          <TabPanel />
+        </TabPanels>
+      </Tabs>
+    </>
   );
 }
 
