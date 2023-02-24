@@ -10,19 +10,28 @@ import {
   Alert,
   AlertIcon,
   Skeleton,
+  useDisclosure,
 } from "@chakra-ui/react";
 import _, { groupBy } from "lodash";
 import { useContext, useState } from "react";
 import { useParams } from "react-router-dom";
 import {
+  CancelShipmentMutation,
+  CancelShipmentMutationVariables,
+  SendShipmentMutation,
+  SendShipmentMutationVariables,
   Shipment,
   ShipmentByIdQuery,
   ShipmentByIdQueryVariables,
   ShipmentDetail,
   ShipmentState,
+  StartReceivingShipmentMutation,
+  StartReceivingShipmentMutationVariables,
   TransferAgreementType,
   UpdateShipmentWhenPreparingMutation,
   UpdateShipmentWhenPreparingMutationVariables,
+  UpdateShipmentWhenReceivingMutation,
+  UpdateShipmentWhenReceivingMutationVariables,
 } from "types/generated/graphql";
 import { useErrorHandling } from "hooks/error-handling";
 import { useNotification } from "hooks/hooks";
@@ -61,10 +70,58 @@ export const UPDATE_SHIPMENT_WHEN_PREPARING = gql`
   }
 `;
 
+export const UPDATE_SHIPMENT_WHEN_RECEIVING = gql`
+  ${SHIPMENT_FIELDS_FRAGMENT}
+  mutation UpdateShipmentWhenReceiving(
+    $id: ID!
+    $receivedShipmentDetailUpdateInputs: [ShipmentDetailUpdateInput!]
+    $lostBoxLabelIdentifiers: [String!]
+  ) {
+    updateShipmentWhenReceiving(
+      updateInput: {
+        id: $id
+        receivedShipmentDetailUpdateInputs: $receivedShipmentDetailUpdateInputs
+        lostBoxLabelIdentifiers: $lostBoxLabelIdentifiers
+      }
+    ) {
+      ...ShipmentFields
+    }
+  }
+`;
+
+export const SEND_SHIPMENT = gql`
+  ${SHIPMENT_FIELDS_FRAGMENT}
+  mutation SendShipment($id: ID!) {
+    sendShipment(id: $id) {
+      ...ShipmentFields
+    }
+  }
+`;
+
+export const CANCEL_SHIPMENT = gql`
+  ${SHIPMENT_FIELDS_FRAGMENT}
+  mutation CancelShipment($id: ID!) {
+    cancelShipment(id: $id) {
+      ...ShipmentFields
+    }
+  }
+`;
+
+export const START_RECEIVING_SHIPMENT = gql`
+  ${SHIPMENT_FIELDS_FRAGMENT}
+  mutation StartReceivingShipment($id: ID!) {
+    startReceivingShipment(id: $id) {
+      ...ShipmentFields
+    }
+  }
+`;
+
 function ShipmentView() {
   const { triggerError } = useErrorHandling();
   const { globalPreferences } = useContext(GlobalPreferencesContext);
   const { createToast } = useNotification();
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars, no-unused-vars
+  const { isOpen, onClose, onOpen } = useDisclosure();
   // Basics
   const [showRemoveIcon, setShowRemoveIcon] = useState(false);
 
@@ -86,6 +143,26 @@ function ShipmentView() {
     UpdateShipmentWhenPreparingMutation,
     UpdateShipmentWhenPreparingMutationVariables
   >(UPDATE_SHIPMENT_WHEN_PREPARING);
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars, no-unused-vars
+  const [updateShipmentWhenReceiving, updateShipmentWhenReceivingStatus] = useMutation<
+    UpdateShipmentWhenReceivingMutation,
+    UpdateShipmentWhenReceivingMutationVariables
+  >(UPDATE_SHIPMENT_WHEN_RECEIVING);
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars, no-unused-vars
+  const [cancelShipment, cancelShipmentStatus] = useMutation<
+    CancelShipmentMutation,
+    CancelShipmentMutationVariables
+  >(CANCEL_SHIPMENT);
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars, no-unused-vars
+  const [sendShipment, sendShipmentStatus] = useMutation<
+    SendShipmentMutation,
+    SendShipmentMutationVariables
+  >(SEND_SHIPMENT);
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars, no-unused-vars
+  const [startReceivingShipment, startReceivingShipmentStatus] = useMutation<
+    StartReceivingShipmentMutation,
+    StartReceivingShipmentMutationVariables
+  >(START_RECEIVING_SHIPMENT);
 
   const onRemove = () => setShowRemoveIcon(!showRemoveIcon);
 
