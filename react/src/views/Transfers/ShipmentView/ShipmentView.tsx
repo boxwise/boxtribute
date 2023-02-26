@@ -13,7 +13,7 @@ import {
   useDisclosure,
 } from "@chakra-ui/react";
 import _, { groupBy } from "lodash";
-import { useContext, useState } from "react";
+import { useCallback, useContext, useState } from "react";
 import { useParams } from "react-router-dom";
 import {
   CancelShipmentMutation,
@@ -41,6 +41,7 @@ import { GlobalPreferencesContext } from "providers/GlobalPreferencesProvider";
 import { ButtonSkeleton, ShipmentCardSkeletons, TabsSkeleton } from "components/Skeletons";
 import ShipmentCard from "./components/ShipmentCard";
 import ShipmentTabs from "./components/ShipmentTabs";
+import ShipmentOverlay from "./components/ShipmentOverlay";
 
 export const SHIPMENT_BY_ID_QUERY = gql`
   ${SHIPMENT_FIELDS_FRAGMENT}
@@ -120,22 +121,37 @@ function ShipmentView() {
   const { triggerError } = useErrorHandling();
   const { globalPreferences } = useContext(GlobalPreferencesContext);
   const { createToast } = useNotification();
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars, no-unused-vars
   const { isOpen, onClose, onOpen } = useDisclosure();
-  // Basics
+  // State to show minus button near boxes when remove button is triggered
   const [showRemoveIcon, setShowRemoveIcon] = useState(false);
+  // State to pass Data from a row to the Overlay
+  const [shipmentOverlayData, setShipmentOverlayData] = useState({});
 
   // variables in URL
   const id = useParams<{ id: string }>().id!;
 
-  // fetch shipment data
-  const { loading, error, data } = useQuery<ShipmentByIdQuery, ShipmentByIdQueryVariables>(
-    SHIPMENT_BY_ID_QUERY,
-    {
-      variables: {
-        id,
-      },
+  // shipment actions in the modal
+  const handleShipment = useCallback(
+    (mutation, kind) => (shipmentId: string) => {
+      mutation({
+        variables: { shipmentId },
+      })
+        .then((res) => {
+          if (!res?.errors) {
+            onClose();
+            createToast({
+              type: "success",
+              message: `Successfully ${kind}ed the shipment.`,
+            });
+          } else {
+            triggerError({ message: `Could not ${kind} the shipment.` });
+          }
+        })
+        .catch(() => {
+          triggerError({ message: `Could not ${kind} the shipment.` });
+        });
     },
+    [onClose, createToast, triggerError],
   );
 
   // Mutations for shipment actions
@@ -163,6 +179,27 @@ function ShipmentView() {
     StartReceivingShipmentMutation,
     StartReceivingShipmentMutationVariables
   >(START_RECEIVING_SHIPMENT);
+
+  const onCancel = handleShipment(cancelShipment, "cancel");
+
+  // fetch shipment data
+  const { loading, error, data } = useQuery<ShipmentByIdQuery, ShipmentByIdQueryVariables>(
+    SHIPMENT_BY_ID_QUERY,
+    {
+      variables: {
+        id,
+      },
+    },
+  );
+
+  // callback function triggered when a state button is clicked.
+  const openShipmentOverlay = useCallback(
+    (shipmentOverlayInputData: any) => {
+      setShipmentOverlayData(shipmentOverlayInputData);
+      onOpen();
+    },
+    [setShipmentOverlayData, onOpen],
+  );
 
   const onRemove = () => setShowRemoveIcon(!showRemoveIcon);
 
@@ -208,7 +245,6 @@ function ShipmentView() {
     });
 
     setShowRemoveIcon(false);
-    // eslint-disable-next-line no-console
     updateShipmentWhenPreparing({
       variables: {
         id,
@@ -246,9 +282,6 @@ function ShipmentView() {
           data.shipment?.transferAgreement.type === TransferAgreementType.Bidirectional),
     ) !== "undefined";
 
-  // eslint-disable-next-line no-console
-  console.log("globalPreferences.availableBases", globalPreferences.availableBases);
-
   // transform shipment data for UI
   const shipmentState = data?.shipment?.state;
   const shipmentContents = data?.shipment?.details as unknown as ShipmentDetail[];
@@ -277,9 +310,6 @@ function ShipmentView() {
     }))
     .orderBy("date", "desc")
     .value();
-
-  // eslint-disable-next-line no-console
-  console.log("sortedGroupedHistoryEntries", sortedGroupedHistoryEntries);
 
   // error and loading handling
   let shipmentTitle;
@@ -327,9 +357,6 @@ function ShipmentView() {
       shipmentActionButtons = <Box />;
     }
 
-    // eslint-disable-next-line no-console
-    console.log("isSender", isSender);
-
     shipmentTab = (
       <ShipmentTabs
         detail={shipmentContents}
@@ -341,23 +368,37 @@ function ShipmentView() {
     );
 
     shipmentCard = (
-      <ShipmentCard onRemove={onRemove} shipment={data?.shipment as unknown as Shipment} />
+      <ShipmentCard
+        onRemove={onRemove}
+        onCancel={openShipmentOverlay}
+        shipment={data?.shipment as unknown as Shipment}
+      />
     );
   }
 
   return (
-    <Flex direction="column" gap={2}>
-      <Center>
-        <VStack>
-          {shipmentTitle}
-          {shipmentCard}
-        </VStack>
-      </Center>
-      <Spacer />
-      <Box>{shipmentTab}</Box>
+    <>
+      <Flex direction="column" gap={2}>
+        <Center>
+          <VStack>
+            {shipmentTitle}
+            {shipmentCard}
+          </VStack>
+        </Center>
+        <Spacer />
+        <Box>{shipmentTab}</Box>
 
-      {shipmentActionButtons}
-    </Flex>
+        {shipmentActionButtons}
+      </Flex>
+
+      <ShipmentOverlay
+        isOpen={isOpen}
+        isLoading={isLoadingFromMutation}
+        shipmentOverlayData={shipmentOverlayData}
+        onClose={onClose}
+        onCancel={onCancel}
+      />
+    </>
   );
 }
 
