@@ -22,12 +22,19 @@ import QrReaderMultiBoxContainer from "./QrReaderMultiBoxContainer";
 
 export interface IQrReaderProps {
   findBoxByLabelIsLoading: boolean;
-  onScan: (result: string, isMulti: boolean) => void;
+  openTab: number;
+  onTabSwitch: (index: number) => void;
+  onScan: (result: string) => void;
   onFindBoxByLabel: (label: string) => void;
 }
 
-function QrReader({ findBoxByLabelIsLoading, onScan, onFindBoxByLabel }: IQrReaderProps) {
-  const [isMultiBox, setIsMultiBox] = useState(false);
+function QrReader({
+  findBoxByLabelIsLoading,
+  openTab,
+  onTabSwitch,
+  onScan,
+  onFindBoxByLabel,
+}: IQrReaderProps) {
   // Zoom
   const [zoomLevel, setZoomLevel] = useState(1);
   const browserSupportsZoom = useMemo(
@@ -39,10 +46,10 @@ function QrReader({ findBoxByLabelIsLoading, onScan, onFindBoxByLabel }: IQrRead
   const onResult: OnResultFunction = useCallback(
     (qrReaderResult: Result | undefined | null) => {
       if (qrReaderResult) {
-        onScan(qrReaderResult.getText(), isMultiBox);
+        onScan(qrReaderResult.getText());
       }
     },
-    [onScan, isMultiBox],
+    [onScan],
   );
 
   // Input Validation for Find Box By Label Field
@@ -94,7 +101,7 @@ function QrReader({ findBoxByLabelIsLoading, onScan, onFindBoxByLabel }: IQrRead
           </IconButton>
         </HStack>
       )}
-      <Tabs index={isMultiBox ? 1 : 0} onChange={(index) => setIsMultiBox(index === 1)}>
+      <Tabs index={openTab} onChange={onTabSwitch}>
         <TabList justifyContent="center">
           <Tab>SOLO BOX</Tab>
           <Tab>MULTI BOX</Tab>

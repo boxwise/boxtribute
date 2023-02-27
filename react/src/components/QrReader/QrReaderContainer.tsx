@@ -1,4 +1,4 @@
-import { useCallback } from "react";
+import { useCallback, useState } from "react";
 import { useApolloClient } from "@apollo/client";
 import { useNavigate, useParams } from "react-router-dom";
 import { useNotification } from "hooks/hooks";
@@ -24,10 +24,11 @@ function QrReaderContainer({ onSuccess }: IQrReaderContainerProps) {
   const { triggerError } = useErrorHandling();
   const { loading: resolveQrCodeIsLoading, resolveQrCode } = useQrResolver();
   const { loading: findByBoxLabelIsLoading, checkLabelIdentifier } = useLabelIdentifierResolver();
+  const [isMultiBox, setIsMultiBox] = useState(false);
 
   // handle a scan depending on if the solo box or multi box tab is active
   const onScan = useCallback(
-    async (qrReaderResultText: string, isMultiBox: boolean) => {
+    async (qrReaderResultText: string) => {
       if (!resolveQrCodeIsLoading) {
         const qrResolvedValue: IQrResolvedValue = await resolveQrCode(qrReaderResultText);
         switch (qrResolvedValue.kind) {
@@ -121,14 +122,15 @@ function QrReaderContainer({ onSuccess }: IQrReaderContainerProps) {
       }
     },
     [
-      apolloClient,
       resolveQrCodeIsLoading,
       resolveQrCode,
+      isMultiBox,
       onSuccess,
       navigate,
+      apolloClient.cache,
+      createToast,
       baseId,
       triggerError,
-      createToast,
     ],
   );
 
@@ -178,6 +180,8 @@ function QrReaderContainer({ onSuccess }: IQrReaderContainerProps) {
 
   return (
     <QrReader
+      openTab={isMultiBox ? 1 : 0}
+      onTabSwitch={(index) => setIsMultiBox(index === 1)}
       onScan={onScan}
       onFindBoxByLabel={onFindBoxByLabel}
       findBoxByLabelIsLoading={findByBoxLabelIsLoading || resolveQrCodeIsLoading}
