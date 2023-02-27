@@ -29,12 +29,23 @@ function ShipmentTabs({
 }: IShipmentTabsProps) {
   const boxGroupedByProductGender = _.values(
     _(detail)
-      .groupBy((shipment) => `${shipment?.box?.product?.name}_${shipment?.box?.product?.gender}`)
+      .groupBy(
+        (shipment) =>
+          `${shipment?.box?.product?.name || shipment?.sourceProduct?.name}_${
+            shipment?.box?.product?.gender || shipment?.sourceProduct?.gender
+          }`,
+      )
       .mapValues((group) => ({
-        product: group[0]?.box?.product,
+        product: group[0]?.box?.product ? group[0]?.box?.product : group[0]?.sourceProduct,
         totalItems: _.sumBy(group, (shipment) => shipment?.box?.numberOfItems || 0),
         totalBoxes: group.length,
-        boxes: group.map((shipment) => shipment.box as Box),
+        boxes: group.map(
+          (shipment) =>
+            ({
+              ...shipment.box,
+              product: shipment?.box?.product ?? group[0]?.sourceProduct,
+            } as Box),
+        ),
       }))
       .mapKeys(
         (value) =>

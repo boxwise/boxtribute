@@ -238,10 +238,17 @@ export const TRANSFER_AGREEMENT_FIELDS_FRAGMENT = gql`
 export const SHIPMENT_DETAIL_FIELDS_FRAGMENT = gql`
   ${BOX_FIELDS_FRAGMENT}
   ${USER_BASIC_FIELDS_FRAGMENT}
+  ${PRODUCT_FIELDS_FRAGMENT}
   fragment ShipmentDetailFields on ShipmentDetail {
     id
     box {
       ...BoxFields
+    }
+    sourceProduct {
+      ...ProductFields
+    }
+    targetProduct {
+      ...ProductFields
     }
     createdOn
     createdBy {
