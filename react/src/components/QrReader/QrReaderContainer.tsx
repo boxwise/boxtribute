@@ -9,7 +9,7 @@ import {
   useLabelIdentifierResolver,
 } from "hooks/useLabelIdentifierResolver";
 import { IQrResolvedValue, IQrResolverResultKind, useQrResolver } from "hooks/useQrResolver";
-import { GET_SCANNED_BOXES } from "queries/queries";
+import { GET_SCANNED_BOXES } from "queries/local-only";
 import QrReader from "./components/QrReader";
 
 interface IQrReaderContainerProps {

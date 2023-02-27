@@ -1,6 +1,7 @@
 import { useCallback, useState } from "react";
-import { gql, useApolloClient } from "@apollo/client";
+import { useApolloClient } from "@apollo/client";
 import { GET_BOX_LABEL_IDENTIFIER_BY_QR_CODE } from "queries/queries";
+import { BOX_SCANNED_ON_FRAGMENT } from "queries/local-only";
 import {
   GetBoxLabelIdentifierForQrCodeQuery,
   GetBoxLabelIdentifierForQrCodeQueryVariables,
@@ -94,11 +95,7 @@ export const useQrResolver = () => {
         // add a scannedOn parameter in the cache if Box was scanned
         await apolloClient.writeFragment({
           id: boxCacheRef,
-          fragment: gql`
-            fragment AddScannedOn on Box {
-              scannedOn
-            }
-          `,
+          fragment: BOX_SCANNED_ON_FRAGMENT,
           data: {
             scannedOn: new Date(),
           },

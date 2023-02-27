@@ -1,6 +1,6 @@
 import { useCallback } from "react";
 import { useApolloClient, useQuery } from "@apollo/client";
-import { GET_SCANNED_BOXES } from "queries/queries";
+import { GET_SCANNED_BOXES } from "queries/local-only";
 import QrReaderMultiBox from "./QrReaderMultiBox";
 
 function QrReaderMultiBoxContainer() {
