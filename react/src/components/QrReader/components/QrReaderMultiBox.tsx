@@ -17,9 +17,9 @@ function QrReaderMultiBox({
   const [multiBoxAction, setMultiBoxAction] = useState("moveBox");
   return (
     <Stack direction="column">
-      {scannedBoxesCount && (
-        <Center>
-          <Stack direction="row" alignItems="center">
+      <Center>
+        <Stack direction="row" alignItems="center">
+          {scannedBoxesCount && (
             <IconButton
               aria-label="Delete list of scanned boxes"
               icon={<DeleteIcon />}
@@ -27,7 +27,9 @@ function QrReaderMultiBox({
               background="inherit"
               onClick={onDeleteScannedBoxes}
             />
-            <Text as="b">Boxes Selected: {scannedBoxesCount}</Text>
+          )}
+          <Text as="b">Boxes Selected: {scannedBoxesCount}</Text>
+          {scannedBoxesCount && (
             <IconButton
               aria-label="Undo last scan"
               icon={<BiUndo size={20} />}
@@ -35,9 +37,10 @@ function QrReaderMultiBox({
               background="inherit"
               onClick={onUndoLastScannedBox}
             />
-          </Stack>
-        </Center>
-      )}
+          )}
+        </Stack>
+      </Center>
+
       <Box border="2px" borderRadius={0} p={4}>
         <RadioGroup onChange={setMultiBoxAction} value={multiBoxAction}>
           <Stack direction="column">

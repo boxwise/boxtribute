@@ -1,3 +1,4 @@
+import { useNotification } from "hooks/hooks";
 import { useErrorHandling } from "hooks/useErrorHandling";
 import {
   ILabelIdentifierResolvedValue,
@@ -15,6 +16,7 @@ interface IQrReaderContainerProps {
 
 function QrReaderContainer({ onSuccess }: IQrReaderContainerProps) {
   const navigate = useNavigate();
+  const { createToast } = useNotification();
   const { triggerError } = useErrorHandling();
   const { loading: resolveQrCodeIsLoading, resolveQrCode } = useQrResolver();
   const { loading: findByBoxLabelIsLoading, checkLabelIdentifier } = useLabelIdentifierResolver();
@@ -31,14 +33,27 @@ function QrReaderContainer({ onSuccess }: IQrReaderContainerProps) {
         switch (qrResolvedValue.kind) {
           case IQrResolverResultKind.SUCCESS: {
             const boxLabelIdentifier = qrResolvedValue?.box.labelIdentifier;
-            const boxBaseId = qrResolvedValue?.box.location.base.id;
-            onSuccess();
-            navigate(`/bases/${boxBaseId}/boxes/${boxLabelIdentifier}`);
+            if (!isMultiBox) {
+              const boxBaseId = qrResolvedValue?.box.location.base.id;
+              onSuccess();
+              navigate(`/bases/${boxBaseId}/boxes/${boxLabelIdentifier}`);
+            } else {
+              createToast({
+                message: `Box ${boxLabelIdentifier} was added to the list.`,
+                type: "success",
+              });
+            }
             break;
           }
           case IQrResolverResultKind.NOT_ASSIGNED_TO_BOX: {
-            onSuccess();
-            navigate(`/bases/${baseId}/boxes/create/${qrResolvedValue?.qrHash}`);
+            if (!isMultiBox) {
+              onSuccess();
+              navigate(`/bases/${baseId}/boxes/create/${qrResolvedValue?.qrHash}`);
+            } else {
+              triggerError({
+                message: "No box associated to this QR-Code!",
+              });
+            }
             break;
           }
           case IQrResolverResultKind.NOT_AUTHORIZED: {
@@ -75,7 +90,7 @@ function QrReaderContainer({ onSuccess }: IQrReaderContainerProps) {
         }
       }
     },
-    [resolveQrCodeIsLoading, resolveQrCode, onSuccess, navigate, baseId, triggerError],
+    [resolveQrCodeIsLoading, resolveQrCode, onSuccess, navigate, baseId, triggerError, createToast],
   );
 
   // handle the search by label identifier in the solo box tab
