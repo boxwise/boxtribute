@@ -42,7 +42,7 @@ function ShipmentContent({
       id: box?.product?.id,
       labelIdentifier: box.labelIdentifier,
       product: `${`${box?.size?.label || ""} ` || ""}${`${box?.product?.gender || ""} ` || ""}${
-        box?.product?.name
+        box?.product?.name || "Unassigned"
       }`,
       items: box?.numberOfItems || 0,
     }));
@@ -104,10 +104,13 @@ function ShipmentContent({
     [showRemoveIcon, handleRemoveBox],
   );
 
+  // eslint-disable-next-line no-console
+  console.log("items", items);
+
   return (
     <Accordion allowToggle w="full">
-      {items.map((item) => (
-        <AccordionItem key={item.product.id}>
+      {items.map((item, index) => (
+        <AccordionItem key={item?.product?.id || index}>
           {({ isExpanded }) => (
             <>
               <Stack bg={isExpanded ? "#F4E6A0" : ""} p="2" direction="row" alignItems="flex-start">
@@ -133,7 +136,8 @@ function ShipmentContent({
                     <Box>
                       <Text>
                         {" "}
-                        {item.product.name} {item?.product?.gender || ""} ({item.totalItems}x)
+                        {item?.product?.name || "Unassigned"}
+                        {item?.product?.gender || ""} ({item.totalItems}x)
                       </Text>
                     </Box>
                   </h2>

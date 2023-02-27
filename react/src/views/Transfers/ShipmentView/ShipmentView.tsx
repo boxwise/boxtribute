@@ -27,7 +27,6 @@ import {
   ShipmentState,
   StartReceivingShipmentMutation,
   StartReceivingShipmentMutationVariables,
-  TransferAgreementType,
   UpdateShipmentWhenPreparingMutation,
   UpdateShipmentWhenPreparingMutationVariables,
   UpdateShipmentWhenReceivingMutation,
@@ -39,6 +38,8 @@ import { SHIPMENT_FIELDS_FRAGMENT } from "queries/fragments";
 import { SendingIcon } from "components/Icon/Transfer/SendingIcon";
 import { GlobalPreferencesContext } from "providers/GlobalPreferencesProvider";
 import { ButtonSkeleton, ShipmentCardSkeletons, TabsSkeleton } from "components/Skeletons";
+import { TbMapOff } from "react-icons/tb";
+import { ReceivingIcon } from "components/Icon/Transfer/ReceivingIcon";
 import ShipmentCard from "./components/ShipmentCard";
 import ShipmentTabs from "./components/ShipmentTabs";
 import ShipmentOverlay from "./components/ShipmentOverlay";
@@ -134,7 +135,7 @@ function ShipmentView() {
   const handleShipment = useCallback(
     (mutation, kind) => (shipmentId: string) => {
       mutation({
-        variables: { shipmentId },
+        variables: { id: shipmentId },
       })
         .then((res) => {
           if (!res?.errors) {
@@ -152,6 +153,16 @@ function ShipmentView() {
         });
     },
     [onClose, createToast, triggerError],
+  );
+
+  // fetch shipment data
+  const { loading, error, data } = useQuery<ShipmentByIdQuery, ShipmentByIdQueryVariables>(
+    SHIPMENT_BY_ID_QUERY,
+    {
+      variables: {
+        id,
+      },
+    },
   );
 
   // Mutations for shipment actions
@@ -181,16 +192,7 @@ function ShipmentView() {
   >(START_RECEIVING_SHIPMENT);
 
   const onCancel = handleShipment(cancelShipment, "cancel");
-
-  // fetch shipment data
-  const { loading, error, data } = useQuery<ShipmentByIdQuery, ShipmentByIdQueryVariables>(
-    SHIPMENT_BY_ID_QUERY,
-    {
-      variables: {
-        id,
-      },
-    },
-  );
+  const onSend = handleShipment(sendShipment, "send");
 
   // callback function triggered when a state button is clicked.
   const openShipmentOverlay = useCallback(
@@ -203,84 +205,82 @@ function ShipmentView() {
 
   const onRemove = () => setShowRemoveIcon(!showRemoveIcon);
 
-  const onBoxRemoved = (boxLabelIdentifier: string) => {
-    createToast({
-      title: `Box ${boxLabelIdentifier}`,
-      type: "success",
-      message: "Successfully removed the box from the shipment",
-    });
-
-    updateShipmentWhenPreparing({
-      variables: {
-        id,
-        preparedBoxLabelIdentifiers: [],
-        removedBoxLabelIdentifiers: [boxLabelIdentifier],
-      },
-    })
-      .then((mutationResult) => {
-        if (mutationResult?.errors) {
-          triggerError({
-            message: "Error: Could not remove box",
-          });
-        } else {
-          createToast({
-            title: `Box ${boxLabelIdentifier}`,
-            type: "success",
-            message: "Successfully removed the box from the shipment",
-          });
-        }
-      })
-      .catch(() => {
-        triggerError({
-          message: "Could not remove the box from the shipment.",
-        });
+  const onBoxRemoved = useCallback(
+    (boxLabelIdentifier: string) => {
+      createToast({
+        title: `Box ${boxLabelIdentifier}`,
+        type: "success",
+        message: "Successfully removed the box from the shipment",
       });
-  };
 
-  const onBulkBoxRemoved = (boxLabelIdentifiers: string[]) => {
-    createToast({
-      title: `Box ${boxLabelIdentifiers}`,
-      type: "success",
-      message: "Successfully removed the box from the shipment",
-    });
-
-    setShowRemoveIcon(false);
-    updateShipmentWhenPreparing({
-      variables: {
-        id,
-        preparedBoxLabelIdentifiers: [],
-        removedBoxLabelIdentifiers: boxLabelIdentifiers,
-      },
-    })
-      .then((mutationResult) => {
-        if (mutationResult?.errors) {
-          triggerError({
-            message: "Error: Could not remove box",
-          });
-        } else {
-          createToast({
-            title: `Box ${boxLabelIdentifiers}`,
-            type: "success",
-            message: "Successfully removed the box from the shipment",
-          });
-        }
+      updateShipmentWhenPreparing({
+        variables: {
+          id,
+          preparedBoxLabelIdentifiers: [],
+          removedBoxLabelIdentifiers: [boxLabelIdentifier],
+        },
       })
-      .catch(() => {
-        triggerError({
-          message: "Could not remove the box from the shipment.",
+        .then((mutationResult) => {
+          if (mutationResult?.errors) {
+            triggerError({
+              message: "Error: Could not remove box",
+            });
+          } else {
+            createToast({
+              title: `Box ${boxLabelIdentifier}`,
+              type: "success",
+              message: "Successfully removed the box from the shipment",
+            });
+          }
+        })
+        .catch(() => {
+          triggerError({
+            message: "Could not remove the box from the shipment.",
+          });
         });
+    },
+    [triggerError, createToast, updateShipmentWhenPreparing, id],
+  );
+
+  const onBulkBoxRemoved = useCallback(
+    (boxLabelIdentifiers: string[]) => {
+      createToast({
+        title: `Box ${boxLabelIdentifiers}`,
+        type: "success",
+        message: "Successfully removed the box from the shipment",
       });
-  };
+
+      setShowRemoveIcon(false);
+      updateShipmentWhenPreparing({
+        variables: {
+          id,
+          preparedBoxLabelIdentifiers: [],
+          removedBoxLabelIdentifiers: boxLabelIdentifiers,
+        },
+      })
+        .then((mutationResult) => {
+          if (mutationResult?.errors) {
+            triggerError({
+              message: "Error: Could not remove box",
+            });
+          } else {
+            createToast({
+              title: `Box ${boxLabelIdentifiers}`,
+              type: "success",
+              message: "Successfully removed the box from the shipment",
+            });
+          }
+        })
+        .catch(() => {
+          triggerError({
+            message: "Could not remove the box from the shipment.",
+          });
+        });
+    },
+    [triggerError, createToast, updateShipmentWhenPreparing, id],
+  );
 
   const isLoadingFromMutation = updateShipmentWhenPreparingStatus.loading;
-
-  const isSender =
-    typeof globalPreferences.availableBases?.find(
-      (b) =>
-        b.id === data?.shipment?.sourceBase.id ||
-        (b.id === data?.shipment?.targetBase.id &&
-          data.shipment?.transferAgreement.type === TransferAgreementType.Bidirectional),
-    ) !== "undefined";
 
   // transform shipment data for UI
   const shipmentState = data?.shipment?.state;
@@ -311,11 +311,17 @@ function ShipmentView() {
     .orderBy("date", "desc")
     .value();
 
-  // error and loading handling
+  // variables for loading dynamic components
   let shipmentTitle;
   let shipmentTab;
   let shipmentCard;
   let shipmentActionButtons;
+  let canUpdateShipment = false;
+  let canCancelShipment = false;
+  let canLostShipment = false;
+  let canLocatedShipment = false;
+
+  // error and loading handling
   if (error) {
     shipmentTab = (
       <Alert status="error" data-testid="ErrorAlert">
@@ -329,7 +335,19 @@ function ShipmentView() {
     shipmentTab = <TabsSkeleton />;
     shipmentActionButtons = <ButtonSkeleton />;
   } else {
+    const isSender =
+      typeof globalPreferences.availableBases?.find(
+        (b) => b.id === data?.shipment?.sourceBase.id,
+      ) !== "undefined";
+
+    // eslint-disable-next-line no-console
+    console.log("isSender", isSender);
+
+    // Role Sender // Different State UI Changes
     if (ShipmentState.Preparing === shipmentState && isSender) {
+      canUpdateShipment = true;
+      canCancelShipment = true;
+
       shipmentTitle = <Heading>Prepare Shipment</Heading>;
       shipmentActionButtons = (
         <Button
@@ -338,21 +356,103 @@ function ShipmentView() {
           isDisabled={shipmentContents.length === 0}
           isLoading={isLoadingFromMutation}
           variant="solid"
+          onClick={() => onSend(id)}
           marginTop={2}
         >
           Finalize & Send
         </Button>
       );
-    } else if (ShipmentState.Preparing !== shipmentState && isSender) {
+    } else if (ShipmentState.Canceled === shipmentState && isSender) {
+      shipmentTitle = <Heading>View Shipment</Heading>;
+      shipmentActionButtons = <Box />;
+    } else if (ShipmentState.Sent === shipmentState && isSender) {
+      canLostShipment = true;
+
+      shipmentTitle = <Heading>View Shipment</Heading>;
+      shipmentActionButtons = (
+        <Button
+          leftIcon={<TbMapOff />}
+          colorScheme="red"
+          isDisabled={shipmentContents.length === 0}
+          isLoading={isLoadingFromMutation}
+          variant="ghost"
+          onClick={() => {}}
+          size="md"
+          marginTop={2}
+        >
+          Cannot Locate Shipment
+        </Button>
+      );
+    } else if (ShipmentState.Lost === shipmentState && isSender) {
+      shipmentTitle = <Heading>View Shipment</Heading>;
+      shipmentActionButtons = <Box />;
+    } else if (ShipmentState.Receiving === shipmentState && isSender) {
+      shipmentTitle = <Heading>View Shipment</Heading>;
+      shipmentActionButtons = <Box />;
+    } else if (ShipmentState.Completed === shipmentState && isSender) {
+      shipmentTitle = <Heading>View Shipment</Heading>;
+      shipmentActionButtons = <Box />;
+    }
+    // Role Receiver // Different State UI Changes
+    else if (ShipmentState.Preparing === shipmentState && !isSender) {
+      shipmentTitle = <Heading>View Shipment</Heading>;
+      shipmentActionButtons = <Box />;
+      shipmentActionButtons = (
+        <Button
+          colorScheme="red"
+          isDisabled={shipmentContents.length === 0}
+          isLoading={isLoadingFromMutation}
+          variant="solid"
+          onClick={() => {}}
+          marginTop={2}
+        >
+          Reject
+        </Button>
+      );
+    } else if (ShipmentState.Canceled === shipmentState && !isSender) {
+      shipmentTitle = <Heading>View Shipment</Heading>;
+      shipmentActionButtons = <Box />;
+    } else if (ShipmentState.Sent === shipmentState && !isSender) {
+      shipmentTitle = <Heading>View Shipment</Heading>;
+      shipmentActionButtons = (
+        <VStack align="stretch" spacing={1}>
+          <Button
+            leftIcon={<ReceivingIcon />}
+            colorScheme="green"
+            isDisabled={shipmentContents.length === 0}
+            isLoading={isLoadingFromMutation}
+            variant="solid"
+            onClick={() => {}}
+            size="md"
+            marginTop={2}
+          >
+            Receive Shipment
+          </Button>
+
+          <Button
+            leftIcon={<TbMapOff />}
+            colorScheme="red"
+            isDisabled={shipmentContents.length === 0}
+            isLoading={isLoadingFromMutation}
+            variant="ghost"
+            onClick={() => {}}
+            size="md"
+            marginTop={2}
+          >
+            Cannot Locate Shipment
+          </Button>
+        </VStack>
+      );
+    } else if (ShipmentState.Lost === shipmentState && !isSender) {
+      canLocatedShipment = true;
       shipmentTitle = <Heading>View Shipment</Heading>;
       shipmentActionButtons = <Box />;
     } else if (ShipmentState.Receiving === shipmentState && !isSender) {
+      canLostShipment = true;
+
       shipmentTitle = <Heading>Receive Shipment</Heading>;
       shipmentActionButtons = <Box />;
-    } else if (ShipmentState.Preparing !== shipmentState && !isSender) {
-      shipmentTitle = <Heading>View Shipment</Heading>;
-      shipmentActionButtons = <Box />;
-    } else {
+    } else if (ShipmentState.Completed === shipmentState && !isSender) {
       shipmentTitle = <Heading>View Shipment</Heading>;
       shipmentActionButtons = <Box />;
     }
@@ -369,6 +469,10 @@ function ShipmentView() {
 
     shipmentCard = (
       <ShipmentCard
+        canCancelShipment={canCancelShipment}
+        canUpdateShipment={canUpdateShipment}
+        canLostShipment={canLostShipment}
+        canLocatedShipment={canLocatedShipment}
         onRemove={onRemove}
         onCancel={openShipmentOverlay}
         shipment={data?.shipment as unknown as Shipment}

@@ -1,4 +1,3 @@
-import { SmallCloseIcon } from "@chakra-ui/icons";
 import {
   Modal,
   ModalBody,
@@ -61,7 +60,6 @@ function ShipmentOverlay({
     leftButtonText = "Nevermind";
     rightButtonProps = {
       colorScheme: "red",
-      leftIcon: <SmallCloseIcon />,
       onClick: () => onCancel(data.id),
     };
     rightButtonText = "Yes, Cancel";

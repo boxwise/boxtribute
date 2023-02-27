@@ -17,16 +17,29 @@ import {
 import { ShipmentIcon } from "components/Icon/Transfer/ShipmentIcon";
 import { BiMinusCircle, BiPackage, BiPlusCircle, BiTrash } from "react-icons/bi";
 import { RiFilePaperFill } from "react-icons/ri";
+import { TbMapOff } from "react-icons/tb";
 import { Shipment, ShipmentState } from "types/generated/graphql";
 import ShipmentColoredStatus from "./ShipmentColoredStatus";
 
 export interface IShipmentProps {
+  canCancelShipment: Boolean;
+  canUpdateShipment: Boolean;
+  canLostShipment: Boolean;
+  canLocatedShipment: Boolean;
   shipment: Shipment;
   onRemove: () => void;
   onCancel: (data: any) => void;
 }
 
-function ShipmentCard({ shipment, onRemove, onCancel }: IShipmentProps) {
+function ShipmentCard({
+  canCancelShipment,
+  canUpdateShipment,
+  canLostShipment,
+  canLocatedShipment,
+  shipment,
+  onRemove,
+  onCancel,
+}: IShipmentProps) {
   return (
     <Box
       boxShadow="lg"
@@ -58,21 +71,40 @@ function ShipmentCard({ shipment, onRemove, onCancel }: IShipmentProps) {
             <ShipmentColoredStatus state={shipment?.state} />
           </VStack>
           <Spacer />
-          <IconButton
-            isRound
-            icon={<BiTrash size={30} />}
-            isDisabled={shipment.state !== ShipmentState.Preparing}
-            onClick={() =>
-              onCancel({
-                id: shipment.id,
-                state: shipment.state,
-                sourceOrg: shipment.sourceBase.organisation.name,
-                targetOrg: shipment.targetBase.organisation.name,
-              })
-            }
-            style={{ background: "white" }}
-            aria-label="cancel shipment"
-          />
+          {canCancelShipment && (
+            <IconButton
+              isRound
+              icon={<BiTrash size={30} />}
+              isDisabled={shipment.state !== ShipmentState.Preparing}
+              onClick={() =>
+                onCancel({
+                  id: shipment.id,
+                  state: shipment.state,
+                  sourceOrg: shipment.sourceBase.organisation.name,
+                  targetOrg: shipment.targetBase.organisation.name,
+                })
+              }
+              style={{ background: "white" }}
+              aria-label="cancel shipment"
+            />
+          )}
+          {canLocatedShipment && (
+            <IconButton
+              isRound
+              icon={<TbMapOff size={30} />}
+              style={{ background: "white", color: "red" }}
+              aria-label="cannot locate shipment"
+            />
+          )}
+
+          {canLostShipment && (
+            <IconButton
+              isRound
+              icon={<TbMapOff size={30} />}
+              style={{ background: "white", color: "black" }}
+              aria-label="cannot locate shipment"
+            />
+          )}
         </Flex>
 
         <Box border={0}>
@@ -117,7 +149,7 @@ function ShipmentCard({ shipment, onRemove, onCancel }: IShipmentProps) {
               </List>
             </Box>
           </Flex>
-          {typeof shipment.transferAgreement?.comment !== "undefined" && (
+          {shipment.transferAgreement?.comment && (
             <Stack direction="row" alignItems="center" bg="gray.100" marginBottom={-1}>
               <Spacer />
               <RiFilePaperFill size={30} />
@@ -157,27 +189,29 @@ function ShipmentCard({ shipment, onRemove, onCancel }: IShipmentProps) {
 
             <Spacer />
             <Box>
-              <VStack spacing={0} align="stretch">
-                <IconButton
-                  isRound
-                  height={8}
-                  icon={<BiPlusCircle size={30} />}
-                  isDisabled={shipment.state !== ShipmentState.Preparing}
-                  onClick={() => {}}
-                  aria-label="remove box"
-                  style={{ background: "white" }}
-                />
+              {canUpdateShipment && (
+                <VStack spacing={0} align="stretch">
+                  <IconButton
+                    isRound
+                    height={8}
+                    icon={<BiPlusCircle size={30} />}
+                    isDisabled={shipment.state !== ShipmentState.Preparing}
+                    onClick={() => {}}
+                    aria-label="remove box"
+                    style={{ background: "white" }}
+                  />
 
-                <IconButton
-                  isRound
-                  height={8}
-                  icon={<BiMinusCircle size={30} />}
-                  isDisabled={shipment.details.length === 0}
-                  onClick={onRemove}
-                  aria-label="remove box"
-                  style={{ background: "white" }}
-                />
-              </VStack>
+                  <IconButton
+                    isRound
+                    height={8}
+                    icon={<BiMinusCircle size={30} />}
+                    isDisabled={shipment.details.length === 0}
+                    onClick={onRemove}
+                    aria-label="remove box"
+                    style={{ background: "white" }}
+                  />
+                </VStack>
+              )}
             </Box>
           </Flex>
         </Box>
