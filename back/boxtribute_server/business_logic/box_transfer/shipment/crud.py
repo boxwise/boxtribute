@@ -2,6 +2,7 @@ from ....db import db
 from ....enums import (
     BoxState,
     ShipmentState,
+    TaggableObjectType,
     TransferAgreementState,
     TransferAgreementType,
 )
@@ -15,6 +16,7 @@ from ....models.definitions.location import Location
 from ....models.definitions.product import Product
 from ....models.definitions.shipment import Shipment
 from ....models.definitions.shipment_detail import ShipmentDetail
+from ....models.definitions.tags_relation import TagsRelation
 from ....models.definitions.transfer_agreement import TransferAgreement
 from ....models.utils import utcnow
 from ..agreement.crud import retrieve_transfer_agreement_bases
@@ -278,6 +280,7 @@ def _complete_shipment_if_applicable(*, shipment, user_id):
     shipment state to 'Completed', soft-delete the corresponding shipment details,
     assign target product and location to boxes, and transition received boxes to
     'InStock'.
+    Remove all assigned tags from Received boxes.
     """
     details = _retrieve_shipment_details(shipment.id)
     if all(d.box.state_id in [BoxState.Received, BoxState.Lost] for d in details):
@@ -301,6 +304,10 @@ def _complete_shipment_if_applicable(*, shipment, user_id):
         ShipmentDetail.bulk_update(
             details, [ShipmentDetail.deleted_on, ShipmentDetail.deleted_by]
         )
+        TagsRelation.delete().where(
+            (TagsRelation.object_type == TaggableObjectType.Box),
+            TagsRelation.object_id << [box.id for box in received_boxes],
+        ).execute()
 
 
 def update_shipment_when_preparing(

@@ -500,12 +500,14 @@ def test_shipment_mutations_on_target_side(
                     state
                     product {{ id }}
                     location {{ id }}
+                    tags {{ id }}
     }} }}"""
     box = assert_successful_request(client, query)
     assert box == {
         "state": BoxState.InStock.name,
         "product": {"id": target_product_id},
         "location": {"id": target_location_id},
+        "tags": [],
     }
 
     # The box is still registered in the source base, hence any user from the target
