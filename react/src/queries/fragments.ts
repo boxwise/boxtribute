@@ -1,10 +1,17 @@
 import { gql } from "@apollo/client";
 
-export const PRODUCT_BASIC_FIELDS_FRAGMENT = gql`
-  fragment ProductBasicFields on Product {
+// Basic Fields without reference to other fragments first
+export const ORGANISATION_BASIC_FIELDS_FRAGMENT = gql`
+  fragment OrganisationBasicFields on Organisation {
     id
     name
-    gender
+  }
+`;
+
+export const BASE_BASIC_FIELDS_FRAGMENT = gql`
+  fragment BaseBasicFields on Base {
+    id
+    name
   }
 `;
 
@@ -15,32 +22,18 @@ export const USER_BASIC_FIELDS_FRAGMENT = gql`
   }
 `;
 
-export const HISTORY_FIELDS_FRAGMENT = gql`
-  ${USER_BASIC_FIELDS_FRAGMENT}
-  fragment HistoryFields on HistoryEntry {
+export const PRODUCT_BASIC_FIELDS_FRAGMENT = gql`
+  fragment ProductBasicFields on Product {
     id
-    changes
-    changeDate
-    user {
-      ...UserBasicFields
-    }
+    name
+    gender
   }
 `;
 
-export const BOX_FIELDS_FRAGMENT = gql`
-  ${HISTORY_FIELDS_FRAGMENT}
-  fragment BoxFields on Box {
-    labelIdentifier
-    state
-    size {
-      id
-      label
-    }
-    numberOfItems
-    comment
-    history {
-      ...HistoryFields
-    }
+export const SIZE_FIELDS_FRAGMENT = gql`
+  fragment SizeFields on Size {
+    id
+    label
   }
 `;
 
@@ -60,10 +53,40 @@ export const TAG_OPTIONS_FRAGMENT = gql`
   }
 `;
 
-export const SIZE_FIELDS_FRAGMENT = gql`
-  fragment SizeFields on Size {
+export const DISTRO_EVENT_FIELDS_FRAGMENT = gql`
+  fragment DistroEventFields on DistributionEvent {
     id
-    label
+    state
+    name
+    distributionSpot {
+      name
+    }
+    plannedStartDateTime
+    plannedEndDateTime
+  }
+`;
+
+// fragments with references to Basic Fields
+export const BASE_ORG_FIELDS_FRAGMENT = gql`
+  ${BASE_BASIC_FIELDS_FRAGMENT}
+  ${ORGANISATION_BASIC_FIELDS_FRAGMENT}
+  fragment BaseOrgFields on Base {
+    ...BaseBasicFields
+    organisation {
+      ...OrganisationBasicFields
+    }
+  }
+`;
+
+export const HISTORY_FIELDS_FRAGMENT = gql`
+  ${USER_BASIC_FIELDS_FRAGMENT}
+  fragment HistoryFields on HistoryEntry {
+    id
+    changes
+    changeDate
+    user {
+      ...UserBasicFields
+    }
   }
 `;
 
@@ -78,29 +101,38 @@ export const SIZE_RANGE_FIELDS_FRAGMENT = gql`
   }
 `;
 
-export const DISTRO_EVENT_FIELDS_FRAGMENT = gql`
-  fragment DistroEventFields on DistributionEvent {
-    id
-    state
-    name
-    distributionSpot {
-      name
-    }
-    plannedStartDateTime
-    plannedEndDateTime
-  }
-`;
-
-export const PRODUCT_FIELDS_FRAGMENT = gql`
+export const BOX_FIELDS_FRAGMENT = gql`
   ${PRODUCT_BASIC_FIELDS_FRAGMENT}
-  ${SIZE_RANGE_FIELDS_FRAGMENT}
-  fragment ProductFields on Product {
-    ...ProductBasicFields
-    category {
-      name
+  ${SIZE_FIELDS_FRAGMENT}
+  ${TAG_FIELDS_FRAGMENT}
+  ${BASE_BASIC_FIELDS_FRAGMENT}
+  ${HISTORY_FIELDS_FRAGMENT}
+  fragment BoxFields on Box {
+    labelIdentifier
+    state
+    product {
+      ...ProductBasicFields
     }
-    sizeRange {
-      ...SizeRangeFields
+    size {
+      ...SizeFields
+    }
+    location {
+      id
+      name
+      ... on ClassicLocation {
+        defaultBoxState
+      }
+      base {
+        ...BaseBasicFields
+      }
+    }
+    numberOfItems
+    tags {
+      ...TagFields
+    }
+    comment
+    history {
+      ...HistoryFields
     }
   }
 `;
@@ -156,31 +188,6 @@ export const BOX_WITH_SIZE_TAG_PRODUCT_FIELDS_FRAGMENT = gql`
   }
 `;
 
-export const BASE_BASIC_FIELDS_FRAGMENT = gql`
-  fragment BaseBasicFields on Base {
-    id
-    name
-  }
-`;
-
-export const ORGANISATION_BASIC_FIELDS_FRAGMENT = gql`
-  fragment OrganisationBasicFields on Organisation {
-    id
-    name
-  }
-`;
-
-export const BASE_ORG_FIELDS_FRAGMENT = gql`
-  ${BASE_BASIC_FIELDS_FRAGMENT}
-  ${ORGANISATION_BASIC_FIELDS_FRAGMENT}
-  fragment BaseOrgFields on Base {
-    ...BaseBasicFields
-    organisation {
-      ...OrganisationBasicFields
-    }
-  }
-`;
-
 export const TRANSFER_AGREEMENT_FIELDS_FRAGMENT = gql`
   ${ORGANISATION_BASIC_FIELDS_FRAGMENT}
   ${BASE_BASIC_FIELDS_FRAGMENT}
@@ -225,6 +232,21 @@ export const TRANSFER_AGREEMENT_FIELDS_FRAGMENT = gql`
     terminatedOn
     terminatedBy {
       ...UserBasicFields
+    }
+  }
+`;
+
+// complexer fragments
+export const PRODUCT_FIELDS_FRAGMENT = gql`
+  ${PRODUCT_BASIC_FIELDS_FRAGMENT}
+  ${SIZE_RANGE_FIELDS_FRAGMENT}
+  fragment ProductFields on Product {
+    ...ProductBasicFields
+    category {
+      name
+    }
+    sizeRange {
+      ...SizeRangeFields
     }
   }
 `;
