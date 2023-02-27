@@ -6,6 +6,7 @@ from ....models.definitions.shipment import Shipment
 from .crud import (
     cancel_shipment,
     create_shipment,
+    mark_shipment_as_lost,
     send_shipment,
     start_receiving_shipment,
     update_shipment_when_preparing,
@@ -60,3 +61,13 @@ def resolve_start_receiving_shipment(*_, id):
     shipment = Shipment.get_by_id(id)
     authorize(permission="shipment:edit", base_id=shipment.target_base_id)
     return start_receiving_shipment(id=id, user=g.user)
+
+
+@mutation.field("markShipmentAsLost")
+def resolve_mark_shipment_as_lost(*_, id):
+    shipment = Shipment.get_by_id(id)
+    authorize(
+        permission="shipment:edit",
+        base_ids=[shipment.source_base_id, shipment.target_base_id],
+    )
+    return mark_shipment_as_lost(id=id, user=g.user)

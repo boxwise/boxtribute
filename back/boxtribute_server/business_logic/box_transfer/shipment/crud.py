@@ -401,3 +401,31 @@ def _validate_base_as_part_of_shipment(resource_id, *, detail, model):
         return target_resource.base_id == detail.shipment.target_base_id
     except model.DoesNotExist:
         return False
+
+
+def mark_shipment_as_lost(*, id, user):
+    """Change shipment state to 'Lost'. Update states of all contained boxes to 'Lost'
+    and soft-delete all shipment details.
+    - raise InvalidShipmentState exception if shipment state is different from 'Sent'
+    """
+    shipment = Shipment.get_by_id(id)
+    if shipment.state != ShipmentState.Sent:
+        raise InvalidShipmentState(
+            expected_states=[ShipmentState.Sent], actual_state=shipment.state
+        )
+
+    with db.database.atomic():
+        shipment.state = ShipmentState.Lost
+        shipment.completed_on = utcnow()
+        shipment.completed_by = user.id
+        box_label_identifiers = [
+            d.box.label_identifier for d in _retrieve_shipment_details(id)
+        ]
+        _remove_boxes_from_shipment(
+            shipment_id=id,
+            user_id=user.id,
+            box_label_identifiers=box_label_identifiers,
+            box_state=BoxState.Lost,
+        )
+        shipment.save()
+    return shipment

@@ -508,6 +508,7 @@ export type Mutation = {
   createTag?: Maybe<Tag>;
   createTransferAgreement?: Maybe<TransferAgreement>;
   deleteTag?: Maybe<Tag>;
+  markShipmentAsLost?: Maybe<Shipment>;
   moveItemsFromBoxToDistributionEvent?: Maybe<UnboxedItemsCollection>;
   moveItemsFromReturnTrackingGroupToBox?: Maybe<DistributionEventsTrackingEntry>;
   rejectTransferAgreement?: Maybe<TransferAgreement>;
@@ -698,6 +699,16 @@ export type MutationCreateTransferAgreementArgs = {
  * - input type: <Resource>CreationInput/UpdateInput
  */
 export type MutationDeleteTagArgs = {
+  id: Scalars['ID'];
+};
+
+
+/**
+ * Naming convention:
+ * - input argument: creationInput/updateInput
+ * - input type: <Resource>CreationInput/UpdateInput
+ */
+export type MutationMarkShipmentAsLostArgs = {
   id: Scalars['ID'];
 };
 

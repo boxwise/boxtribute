@@ -520,6 +520,39 @@ def test_shipment_mutations_on_target_side(
     assert box == {"state": BoxState.Lost.name}
 
 
+def test_shipment_mutations_on_target_side_mark_shipment_as_lost(
+    mocker, client, box_without_qr_code, sent_shipment
+):
+    mocker.patch("jose.jwt.decode").return_value = create_jwt_payload(
+        base_ids=[3], organisation_id=2, user_id=2
+    )
+
+    shipment_id = str(sent_shipment["id"])
+    mutation = f"""mutation {{ markShipmentAsLost(id: {shipment_id}) {{
+                    state
+                    completedOn
+                    completedBy {{ id }}
+                    details {{ box {{ state }} }}
+                }} }}"""
+    shipment = assert_successful_request(client, mutation)
+    assert shipment.pop("completedOn").startswith(date.today().isoformat())
+    assert shipment == {
+        "state": ShipmentState.Lost.name,
+        "completedBy": {"id": "2"},
+        "details": [],
+    }
+
+    # The box is still registered in the source base, hence any user from the target
+    # organisation can't access it
+    mocker.patch("jose.jwt.decode").return_value = create_jwt_payload()
+    box_label_identifier = box_without_qr_code["label_identifier"]
+    query = f"""query {{ box(labelIdentifier: "{box_label_identifier}") {{
+                    state
+    }} }}"""
+    box = assert_successful_request(client, query)
+    assert box == {"state": BoxState.Lost.name}
+
+
 def _generate_create_shipment_mutation(*, source_base, target_base, agreement):
     creation_input = f"""sourceBaseId: {source_base["id"]},
                          targetBaseId: {target_base["id"]},
@@ -649,13 +682,12 @@ def test_shipment_mutations_in_non_preparing_state(
     assert_bad_user_input(read_only_client, mutation)
 
 
+@pytest.mark.parametrize("action", ["startReceivingShipment", "markShipmentAsLost"])
 def test_shipment_mutations_receive_when_not_in_sent_state(
-    read_only_client, another_shipment
+    read_only_client, another_shipment, action
 ):
     # Test case 3.2.14c
-    mutation = (
-        f"mutation {{ startReceivingShipment(id: {another_shipment['id']}) {{ id }} }}"
-    )
+    mutation = f"mutation {{ {action}(id: {another_shipment['id']}) {{ id }} }}"
     assert_bad_user_input(read_only_client, mutation)
 
 
