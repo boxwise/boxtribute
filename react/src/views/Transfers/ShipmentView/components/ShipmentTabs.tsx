@@ -10,7 +10,7 @@ export interface IBoxHistoryEntry extends HistoryEntry {
 
 export interface IGroupedHistoryEntry {
   date: string;
-  entries: (IBoxHistoryEntry | null | undefined)[];
+  entries: (ShipmentDetail | null | undefined)[];
 }
 
 export interface IShipmentTabsProps {
@@ -63,7 +63,7 @@ function ShipmentTabs({
       </TabList>
       <TabPanels>
         <TabPanel p={0}>
-          {(detail.length || 0) === 0 && (
+          {(detail?.length || 0) === 0 && (
             <Center p={8}>No boxes have been assigned to this shipment yet!</Center>
           )}
           {(detail?.length || 0) !== 0 && (

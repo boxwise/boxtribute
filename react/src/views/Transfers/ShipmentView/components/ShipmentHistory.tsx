@@ -17,9 +17,10 @@ function ShipmentHistory({ histories }: IShipmentHistoryProps) {
           {entries?.map((entry) => (
             <TimelineEntry
               key={entry?.id}
-              date={entry?.changeDate}
-              title={`Box ${entry?.labelIdentifier}`}
-              content={`${entry?.user?.name} ${entry?.changes}`}
+              date={entry?.createdOn}
+              title=""
+              // eslint-disable-next-line max-len
+              content={`1 boxes of ${entry?.sourceProduct?.name} added by ${entry?.createdBy?.name}`}
             />
           ))}
         </Box>

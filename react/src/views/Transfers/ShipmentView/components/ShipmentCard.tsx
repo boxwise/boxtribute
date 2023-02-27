@@ -175,7 +175,7 @@ function ShipmentCard({
                 <WrapItem>
                   <Center>
                     <Text fontSize="3xl" fontWeight="bold">
-                      {shipment.details.length}
+                      {shipment.details?.length || 0}
                     </Text>
                   </Center>
                 </WrapItem>
@@ -205,7 +205,7 @@ function ShipmentCard({
                     isRound
                     height={8}
                     icon={<BiMinusCircle size={30} />}
-                    isDisabled={shipment.details.length === 0}
+                    isDisabled={shipment.details?.length === 0}
                     onClick={onRemove}
                     aria-label="remove box"
                     style={{ background: "white" }}

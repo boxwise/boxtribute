@@ -286,17 +286,15 @@ function ShipmentView() {
   const shipmentState = data?.shipment?.state;
   const shipmentContents = data?.shipment?.details as unknown as ShipmentDetail[];
 
-  // map over each ShipmentDetail to extract its history records
-  const historyEntries = shipmentContents?.flatMap((detail) =>
-    detail?.box?.history?.map((entry) => ({
-      ...entry,
-      labelIdentifier: detail.box?.labelIdentifier,
-    })),
-  );
+  // map over each ShipmentDetail to compile its history records
+  const historyEntries = shipmentContents?.flatMap((detail) => ({
+    ...detail,
+    labelIdentifier: detail.box?.labelIdentifier,
+  }));
 
-  // group the history entries by their changeDate property
+  // group the history entries by their createdOn property
   const groupedHistoryEntries = groupBy(historyEntries, (entry) => {
-    const date = new Date(entry?.changeDate);
+    const date = new Date(entry?.createdOn);
     return `${date.toLocaleString("default", { month: "short" })}
      ${date.getDate()}, ${date.getFullYear()}`;
   });
@@ -306,7 +304,7 @@ function ShipmentView() {
     .toPairs()
     .map(([date, entries]) => ({
       date,
-      entries: _.orderBy(entries, (entry) => new Date(entry?.changeDate), "desc"),
+      entries: _.orderBy(entries, (entry) => new Date(entry?.createdOn), "desc"),
     }))
     .orderBy("date", "desc")
     .value();
@@ -315,7 +313,7 @@ function ShipmentView() {
   let shipmentTitle;
   let shipmentTab;
   let shipmentCard;
-  let shipmentActionButtons;
+  let shipmentActionButtons = <Box />;
   let canUpdateShipment = false;
   let canCancelShipment = false;
   let canLostShipment = false;
@@ -330,18 +328,15 @@ function ShipmentView() {
       </Alert>
     );
   } else if (loading) {
-    shipmentTitle = <Skeleton height="50px" width="200px" />;
-    shipmentCard = <ShipmentCardSkeletons />;
-    shipmentTab = <TabsSkeleton />;
-    shipmentActionButtons = <ButtonSkeleton />;
+    shipmentTitle = <Skeleton height="50px" width="200px" data-testid="loader" />;
+    shipmentCard = <ShipmentCardSkeletons data-testid="loader" />;
+    shipmentTab = <TabsSkeleton data-testid="loader" />;
+    shipmentActionButtons = <ButtonSkeleton data-testid="loader" />;
   } else {
     const isSender =
       typeof globalPreferences.availableBases?.find(
-        (b) => b.id === data?.shipment?.sourceBase.id,
+        (b) => b.id === data?.shipment?.sourceBase?.id,
       ) !== "undefined";
-
-    // eslint-disable-next-line no-console
-    console.log("isSender", isSender);
 
     // Role Sender // Different State UI Changes
     if (ShipmentState.Preparing === shipmentState && isSender) {
@@ -385,18 +380,14 @@ function ShipmentView() {
       );
     } else if (ShipmentState.Lost === shipmentState && isSender) {
       shipmentTitle = <Heading>View Shipment</Heading>;
-      shipmentActionButtons = <Box />;
     } else if (ShipmentState.Receiving === shipmentState && isSender) {
       shipmentTitle = <Heading>View Shipment</Heading>;
-      shipmentActionButtons = <Box />;
     } else if (ShipmentState.Completed === shipmentState && isSender) {
       shipmentTitle = <Heading>View Shipment</Heading>;
-      shipmentActionButtons = <Box />;
     }
     // Role Receiver // Different State UI Changes
     else if (ShipmentState.Preparing === shipmentState && !isSender) {
       shipmentTitle = <Heading>View Shipment</Heading>;
-      shipmentActionButtons = <Box />;
       shipmentActionButtons = (
         <Button
           colorScheme="red"
@@ -411,7 +402,6 @@ function ShipmentView() {
       );
     } else if (ShipmentState.Canceled === shipmentState && !isSender) {
       shipmentTitle = <Heading>View Shipment</Heading>;
-      shipmentActionButtons = <Box />;
     } else if (ShipmentState.Sent === shipmentState && !isSender) {
       shipmentTitle = <Heading>View Shipment</Heading>;
       shipmentActionButtons = (
@@ -446,7 +436,6 @@ function ShipmentView() {
     } else if (ShipmentState.Lost === shipmentState && !isSender) {
       canLocatedShipment = true;
       shipmentTitle = <Heading>View Shipment</Heading>;
-      shipmentActionButtons = <Box />;
     } else if (ShipmentState.Receiving === shipmentState && !isSender) {
       canLostShipment = true;
 
@@ -454,7 +443,6 @@ function ShipmentView() {
       shipmentActionButtons = <Box />;
     } else if (ShipmentState.Completed === shipmentState && !isSender) {
       shipmentTitle = <Heading>View Shipment</Heading>;
-      shipmentActionButtons = <Box />;
     }
 
     shipmentTab = (
