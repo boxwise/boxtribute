@@ -22,20 +22,31 @@ function QrReaderContainer({ onSuccess }: IQrReaderContainerProps) {
   const navigate = useNavigate();
   const { createToast } = useNotification();
   const { triggerError } = useErrorHandling();
-  const { loading: resolveQrCodeIsLoading, resolveQrCode } = useQrResolver();
+  const { resolveQrCode } = useQrResolver();
   const { loading: findByBoxLabelIsLoading, checkLabelIdentifier } = useLabelIdentifierResolver();
   const [isMultiBox, setIsMultiBox] = useState(false);
+  const [isProcessingQrCode, setIsProcessingQrCode] = useState(false);
+  const setIsProcessingQrCodeDelayed = useCallback(
+    (state: boolean) => {
+      setTimeout(() => {
+        setIsProcessingQrCode(state);
+      }, 1000);
+    },
+    [setIsProcessingQrCode],
+  );
 
   // handle a scan depending on if the solo box or multi box tab is active
   const onScan = useCallback(
     async (qrReaderResultText: string) => {
-      if (!resolveQrCodeIsLoading) {
+      if (!isProcessingQrCode) {
+        setIsProcessingQrCode(true);
         const qrResolvedValue: IQrResolvedValue = await resolveQrCode(qrReaderResultText);
         switch (qrResolvedValue.kind) {
           case IQrResolverResultKind.SUCCESS: {
             const boxLabelIdentifier = qrResolvedValue.box.labelIdentifier;
             if (!isMultiBox) {
               const boxBaseId = qrResolvedValue.box.location.base.id;
+              setIsProcessingQrCode(false);
               onSuccess();
               navigate(`/bases/${boxBaseId}/boxes/${boxLabelIdentifier}`);
             } else {
@@ -73,6 +84,7 @@ function QrReaderContainer({ onSuccess }: IQrReaderContainerProps) {
                   };
                 },
               );
+              setIsProcessingQrCode(false);
             }
             break;
           }
@@ -84,6 +96,7 @@ function QrReaderContainer({ onSuccess }: IQrReaderContainerProps) {
               triggerError({
                 message: "No box associated to this QR-Code!",
               });
+              setIsProcessingQrCodeDelayed(false);
             }
             break;
           }
@@ -91,24 +104,28 @@ function QrReaderContainer({ onSuccess }: IQrReaderContainerProps) {
             triggerError({
               message: "You don't have permission to access this box!",
             });
+            setIsProcessingQrCodeDelayed(false);
             break;
           }
           case IQrResolverResultKind.NOT_FOUND: {
             triggerError({
               message: "No box found for this QR-Code!",
             });
+            setIsProcessingQrCodeDelayed(false);
             break;
           }
           case IQrResolverResultKind.NOT_BOXTRIBUTE_QR: {
             triggerError({
               message: "This is not a Boxtribute QR-Code!",
             });
+            setIsProcessingQrCodeDelayed(false);
             break;
           }
           case IQrResolverResultKind.FAIL: {
             triggerError({
               message: "The search for this QR-Code failed. Please try again.",
             });
+            setIsProcessingQrCodeDelayed(false);
             break;
           }
           default: {
@@ -117,12 +134,13 @@ function QrReaderContainer({ onSuccess }: IQrReaderContainerProps) {
               any case of the IQrResolverResultKind.`,
               userMessage: "Something went wrong!",
             });
+            setIsProcessingQrCodeDelayed(false);
           }
         }
       }
     },
     [
-      resolveQrCodeIsLoading,
+      isProcessingQrCode,
       resolveQrCode,
       isMultiBox,
       onSuccess,
@@ -131,6 +149,7 @@ function QrReaderContainer({ onSuccess }: IQrReaderContainerProps) {
       createToast,
       baseId,
       triggerError,
+      setIsProcessingQrCodeDelayed,
     ],
   );
 
@@ -184,7 +203,7 @@ function QrReaderContainer({ onSuccess }: IQrReaderContainerProps) {
       onTabSwitch={(index) => setIsMultiBox(index === 1)}
       onScan={onScan}
       onFindBoxByLabel={onFindBoxByLabel}
-      findBoxByLabelIsLoading={findByBoxLabelIsLoading || resolveQrCodeIsLoading}
+      findBoxByLabelIsLoading={findByBoxLabelIsLoading || isProcessingQrCode}
     />
   );
 }
