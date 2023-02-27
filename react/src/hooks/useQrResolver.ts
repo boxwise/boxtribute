@@ -1,6 +1,6 @@
 import { useCallback, useState } from "react";
 import { gql, useApolloClient } from "@apollo/client";
-import { GET_BOX_LABEL_IDENTIFIER_BY_QR_CODE, GET_SCANNED_BOXES } from "queries/queries";
+import { GET_BOX_LABEL_IDENTIFIER_BY_QR_CODE } from "queries/queries";
 import {
   GetBoxLabelIdentifierForQrCodeQuery,
   GetBoxLabelIdentifierForQrCodeQueryVariables,
@@ -40,7 +40,7 @@ export const useQrResolver = () => {
   const apolloClient = useApolloClient();
 
   const resolveQrHash = useCallback(
-    async (hash: string, isMulti: boolean = false): Promise<IQrResolvedValue> => {
+    async (hash: string): Promise<IQrResolvedValue> => {
       setLoading(true);
       const qrResolvedValue: IQrResolvedValue = await apolloClient
         .query<GetBoxLabelIdentifierForQrCodeQuery, GetBoxLabelIdentifierForQrCodeQueryVariables>({
@@ -103,26 +103,6 @@ export const useQrResolver = () => {
             scannedOn: new Date(),
           },
         });
-
-        // Only execute for Multi Box tab
-        if (isMulti) {
-          // add box Ref to query for list of all scanned boxes
-          await apolloClient.cache.updateQuery(
-            {
-              query: GET_SCANNED_BOXES,
-            },
-            (data) => ({
-              scannedBoxes: [
-                ...data.scannedBoxes,
-                {
-                  __ref: boxCacheRef,
-                  labelIdentifier: qrResolvedValue.box.labelIdentifier,
-                  state: qrResolvedValue.box.state,
-                },
-              ],
-            }),
-          );
-        }
       }
       setLoading(false);
       return qrResolvedValue;
@@ -131,17 +111,14 @@ export const useQrResolver = () => {
   );
 
   const resolveQrCode = useCallback(
-    async (qrCodeUrl: string, isMulti: boolean = false): Promise<IQrResolvedValue> => {
+    async (qrCodeUrl: string): Promise<IQrResolvedValue> => {
       setLoading(true);
       const extractedQrHashFromUrl = extractQrCodeFromUrl(qrCodeUrl);
       if (extractedQrHashFromUrl == null) {
         setLoading(false);
         return { kind: IQrResolverResultKind.NOT_BOXTRIBUTE_QR } as IQrResolvedValue;
       }
-      const qrResolvedValue: IQrResolvedValue = await resolveQrHash(
-        extractedQrHashFromUrl,
-        isMulti,
-      );
+      const qrResolvedValue: IQrResolvedValue = await resolveQrHash(extractedQrHashFromUrl);
       setLoading(false);
       return qrResolvedValue;
     },

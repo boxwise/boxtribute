@@ -1,3 +1,6 @@
+import { useCallback } from "react";
+import { useApolloClient } from "@apollo/client";
+import { useNavigate, useParams } from "react-router-dom";
 import { useNotification } from "hooks/hooks";
 import { useErrorHandling } from "hooks/useErrorHandling";
 import {
@@ -6,8 +9,7 @@ import {
   useLabelIdentifierResolver,
 } from "hooks/useLabelIdentifierResolver";
 import { IQrResolvedValue, IQrResolverResultKind, useQrResolver } from "hooks/useQrResolver";
-import { useCallback } from "react";
-import { useNavigate, useParams } from "react-router-dom";
+import { GET_SCANNED_BOXES } from "queries/queries";
 import QrReader from "./components/QrReader";
 
 interface IQrReaderContainerProps {
@@ -15,33 +17,61 @@ interface IQrReaderContainerProps {
 }
 
 function QrReaderContainer({ onSuccess }: IQrReaderContainerProps) {
+  const apolloClient = useApolloClient();
+  const { baseId } = useParams<{ baseId: string }>();
   const navigate = useNavigate();
   const { createToast } = useNotification();
   const { triggerError } = useErrorHandling();
   const { loading: resolveQrCodeIsLoading, resolveQrCode } = useQrResolver();
   const { loading: findByBoxLabelIsLoading, checkLabelIdentifier } = useLabelIdentifierResolver();
-  const { baseId } = useParams<{ baseId: string }>();
 
   // handle a scan depending on if the solo box or multi box tab is active
   const onScan = useCallback(
     async (qrReaderResultText: string, isMultiBox: boolean) => {
       if (!resolveQrCodeIsLoading) {
-        const qrResolvedValue: IQrResolvedValue = await resolveQrCode(
-          qrReaderResultText,
-          isMultiBox,
-        );
+        const qrResolvedValue: IQrResolvedValue = await resolveQrCode(qrReaderResultText);
         switch (qrResolvedValue.kind) {
           case IQrResolverResultKind.SUCCESS: {
-            const boxLabelIdentifier = qrResolvedValue?.box.labelIdentifier;
+            const boxLabelIdentifier = qrResolvedValue.box.labelIdentifier;
             if (!isMultiBox) {
-              const boxBaseId = qrResolvedValue?.box.location.base.id;
+              const boxBaseId = qrResolvedValue.box.location.base.id;
               onSuccess();
               navigate(`/bases/${boxBaseId}/boxes/${boxLabelIdentifier}`);
             } else {
-              createToast({
-                message: `Box ${boxLabelIdentifier} was added to the list.`,
-                type: "success",
-              });
+              // Only execute for Multi Box tab
+              // add box reference to query for list of all scanned boxes
+              await apolloClient.cache.updateQuery(
+                {
+                  query: GET_SCANNED_BOXES,
+                },
+                (data) => {
+                  const existingBoxRefs = data.scannedBoxes.map((box) => ({
+                    __typename: "Box",
+                    labelIdentifier: box.labelIdentifier,
+                  }));
+
+                  const alreadyExists = existingBoxRefs.some(
+                    (ref) => ref.labelIdentifier === qrResolvedValue.box.labelIdentifier,
+                  );
+
+                  if (alreadyExists) return existingBoxRefs;
+                  // execute rest only if Box is not in the scannedBoxes already
+                  createToast({
+                    message: `Box ${boxLabelIdentifier} was added to the list.`,
+                    type: "success",
+                  });
+
+                  return {
+                    scannedBoxes: [
+                      ...existingBoxRefs,
+                      {
+                        __typename: "Box",
+                        labelIdentifier: qrResolvedValue.box.labelIdentifier,
+                      },
+                    ],
+                  };
+                },
+              );
             }
             break;
           }
@@ -90,7 +120,16 @@ function QrReaderContainer({ onSuccess }: IQrReaderContainerProps) {
         }
       }
     },
-    [resolveQrCodeIsLoading, resolveQrCode, onSuccess, navigate, baseId, triggerError, createToast],
+    [
+      apolloClient,
+      resolveQrCodeIsLoading,
+      resolveQrCode,
+      onSuccess,
+      navigate,
+      baseId,
+      triggerError,
+      createToast,
+    ],
   );
 
   // handle the search by label identifier in the solo box tab

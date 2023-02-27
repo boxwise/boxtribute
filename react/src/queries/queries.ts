@@ -9,6 +9,7 @@ import { BOX_FIELDS_FRAGMENT } from "./fragments";
 export const GET_SCANNED_BOXES = gql`
   query GetScannedBoxes {
     scannedBoxes @client {
+      __typename
       labelIdentifier
       state
     }
