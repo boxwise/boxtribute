@@ -407,7 +407,7 @@ def test_invalid_permission_for_shipment_details_field(
 ):
     # verify missing field:read permission
     mocker.patch("jose.jwt.decode").return_value = create_jwt_payload(
-        permissions=["shipment:read"]
+        permissions=["shipment:read", "shipment_detail:read"]
     )
     query = f"""query {{ shipment(id: 1) {{ details
                 {{ {field} {{ id }} }} }} }}"""

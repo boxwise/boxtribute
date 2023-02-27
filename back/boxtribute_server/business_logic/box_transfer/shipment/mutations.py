@@ -28,6 +28,7 @@ def resolve_create_shipment(*_, creation_input):
 def resolve_update_shipment_when_preparing(*_, update_input):
     shipment = Shipment.get_by_id(update_input["id"])
     authorize(permission="shipment:edit", base_id=shipment.source_base_id)
+    authorize(permission="shipment_detail:write")
     return update_shipment_when_preparing(**update_input, user=g.user)
 
 
@@ -36,6 +37,7 @@ def resolve_update_shipment_when_preparing(*_, update_input):
 def resolve_update_shipment_when_receiving(*_, update_input):
     shipment = Shipment.get_by_id(update_input["id"])
     authorize(permission="shipment:edit", base_id=shipment.target_base_id)
+    authorize(permission="shipment_detail:write")
     return update_shipment_when_receiving(**update_input, user=g.user)
 
 
@@ -46,6 +48,7 @@ def resolve_cancel_shipment(*_, id):
         permission="shipment:edit",
         base_ids=[shipment.source_base_id, shipment.target_base_id],
     )
+    authorize(permission="shipment_detail:write")
     return cancel_shipment(id=id, user=g.user)
 
 
@@ -70,4 +73,5 @@ def resolve_mark_shipment_as_lost(*_, id):
         permission="shipment:edit",
         base_ids=[shipment.source_base_id, shipment.target_base_id],
     )
+    authorize(permission="shipment_detail:write")
     return mark_shipment_as_lost(id=id, user=g.user)
