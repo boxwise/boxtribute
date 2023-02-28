@@ -314,9 +314,10 @@ function ShipmentView() {
   let shipmentTab;
   let shipmentCard;
   let shipmentActionButtons = <Box />;
+  // Roanna -- check naming with Hans to be more clear
   let canUpdateShipment = false;
   let canCancelShipment = false;
-  let canLostShipment = false;
+  let canLostShipment = false; // this one!
   let canLocatedShipment = false;
 
   // error and loading handling
@@ -403,6 +404,7 @@ function ShipmentView() {
     } else if (ShipmentState.Canceled === shipmentState && !isSender) {
       shipmentTitle = <Heading>View Shipment</Heading>;
     } else if (ShipmentState.Sent === shipmentState && !isSender) {
+      canLostShipment = true;
       shipmentTitle = <Heading>View Shipment</Heading>;
       shipmentActionButtons = (
         <VStack align="stretch" spacing={1}>

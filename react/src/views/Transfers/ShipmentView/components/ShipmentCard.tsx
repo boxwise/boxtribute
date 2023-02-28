@@ -92,6 +92,7 @@ function ShipmentCard({
             <IconButton
               isRound
               icon={<TbMapOff size={30} />}
+              variant="outline"
               style={{ background: "white", color: "red" }}
               aria-label="cannot locate shipment"
             />

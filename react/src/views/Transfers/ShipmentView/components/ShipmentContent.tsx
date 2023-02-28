@@ -41,9 +41,9 @@ function ShipmentContent({
     _.map(boxes, (box) => ({
       id: box?.product?.id,
       labelIdentifier: box.labelIdentifier,
-      product: `${`${box?.size?.label || ""} ` || ""}${`${box?.product?.gender || ""} ` || ""}${
-        box?.product?.name || "Unassigned"
-      }`,
+      product: `${box?.size?.label} ${
+        (box?.product?.gender && box?.product?.gender) !== "none" ? box?.product?.gender : ""
+      } ${box?.product?.name || "Unassigned"}`,
       items: box?.numberOfItems || 0,
     }));
 
@@ -136,8 +136,11 @@ function ShipmentContent({
                     <Box>
                       <Text>
                         {" "}
-                        {item?.product?.name || "Unassigned"}
-                        {item?.product?.gender || ""} ({item.totalItems}x)
+                        {item?.product?.name || "Unassigned"}{" "}
+                        {(item?.product?.gender && item?.product?.gender) !== "none"
+                          ? item?.product?.gender
+                          : ""}{" "}
+                        ({item.totalItems}x)
                       </Text>
                     </Box>
                   </h2>
