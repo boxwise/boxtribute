@@ -1,7 +1,7 @@
 import { useCallback, useContext } from "react";
 import { gql, useMutation, useQuery } from "@apollo/client";
 import { Alert, AlertIcon, Center } from "@chakra-ui/react";
-import { useErrorHandling } from "hooks/error-handling";
+import { useErrorHandling } from "hooks/useErrorHandling";
 import { useNotification } from "hooks/hooks";
 import APILoadingIndicator from "components/APILoadingIndicator";
 import { useNavigate, useParams } from "react-router-dom";
