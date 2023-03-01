@@ -104,9 +104,6 @@ function ShipmentContent({
     [showRemoveIcon, handleRemoveBox],
   );
 
-  // eslint-disable-next-line no-console
-  console.log("items", items);
-
   return (
     <Accordion allowToggle w="full">
       {items.map((item, index) => (

@@ -330,9 +330,9 @@ function ShipmentView() {
     );
   } else if (loading) {
     shipmentTitle = <Skeleton height="50px" width="200px" data-testid="loader" />;
-    shipmentCard = <ShipmentCardSkeletons data-testid="loader" />;
-    shipmentTab = <TabsSkeleton data-testid="loader" />;
-    shipmentActionButtons = <ButtonSkeleton data-testid="loader" />;
+    shipmentCard = <ShipmentCardSkeletons />;
+    shipmentTab = <TabsSkeleton />;
+    shipmentActionButtons = <ButtonSkeleton />;
   } else {
     const isSender =
       typeof globalPreferences.availableBases?.find(

@@ -175,7 +175,7 @@ function ShipmentCard({
               <Wrap spacing={2} align="center">
                 <WrapItem>
                   <Center>
-                    <Text fontSize="3xl" fontWeight="bold">
+                    <Text as="h3" fontSize="3xl" fontWeight="bold">
                       {shipment.details?.length || 0}
                     </Text>
                   </Center>
