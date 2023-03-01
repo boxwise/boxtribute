@@ -32,7 +32,7 @@ import {
   UpdateShipmentWhenReceivingMutation,
   UpdateShipmentWhenReceivingMutationVariables,
 } from "types/generated/graphql";
-import { useErrorHandling } from "hooks/error-handling";
+import { useErrorHandling } from "hooks/useErrorHandling";
 import { useNotification } from "hooks/hooks";
 import { SHIPMENT_FIELDS_FRAGMENT } from "queries/fragments";
 import { SendingIcon } from "components/Icon/Transfer/SendingIcon";
