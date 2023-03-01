@@ -9,7 +9,12 @@ Build: [![CircleCI](https://circleci.com/gh/boxwise/boxtribute.svg?style=svg)](h
 
 # boxtribute
 
-This is the repository for version 2 of the web app [Boxtribute](https://www.boxtribute.org), consisting of a [React front-end](/react) bootstrapped with [Create React App](https://github.com/facebook/create-react-app), and a [Python Flask back-end](/back).
+This is the repository for version 2 of the humanitarian relief web app [Boxtribute](https://www.boxtribute.org). Built by aid workers for aid workers, it is designed with three top priorities in mind: 
+1. Quick deployment into crisis situations,  including an easy integration into all sorts of relief operations, whether they're new or already up and running.
+2. Effective even with minimal training - doesn't require any professional expertise to use well. Can be run smoothly with short-term volunteers of all backgrounds.
+3. Dignity and choice-based distribution as a first priority for vulnerable individuals. 
+
+The web app consists of a [React front-end](/react) bootstrapped with [Create React App](https://github.com/facebook/create-react-app), and a [Python Flask back-end](/back).
 
 Please check out [**Contribution Guidelines**](CONTRIBUTING.md) before you get started!
 
