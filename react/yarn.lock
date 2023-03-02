@@ -113,7 +113,7 @@
     convert-source-map "^1.7.0"
     debug "^4.1.0"
     gensync "^1.0.0-beta.1"
-    json5 "^2.1.2"
+    json5 "^2.2.3"
     lodash "^4.17.19"
     resolve "^1.3.2"
     semver "^5.4.1"
@@ -137,7 +137,7 @@
     convert-source-map "^1.7.0"
     debug "^4.1.0"
     gensync "^1.0.0-beta.2"
-    json5 "^2.2.1"
+    json5 "^2.2.3"
     semver "^6.3.0"
 
 "@babel/eslint-parser@^7.16.3":
@@ -4059,7 +4059,7 @@
     glob "^7.1.6"
     handlebars "^4.7.7"
     interpret "^2.2.0"
-    json5 "^2.1.3"
+    json5 "^2.2.3"
     lazy-universal-dotenv "^3.0.1"
     picomatch "^2.3.0"
     pkg-dir "^5.0.0"
@@ -4115,7 +4115,7 @@
     glob "^7.1.6"
     handlebars "^4.7.7"
     interpret "^2.2.0"
-    json5 "^2.1.3"
+    json5 "^2.2.3"
     lazy-universal-dotenv "^3.0.1"
     picomatch "^2.3.0"
     pkg-dir "^5.0.0"
@@ -4761,7 +4761,7 @@
   integrity sha512-lR8q/9W7hZpMWweNiAKU7NQerBnzQQLvi8qnTDU/fxItPhtZVMbPV3lbCwjhIlNBe9Bbr5V+KHshvWmVSG9cxQ==
   dependencies:
     ejs "^3.1.6"
-    json5 "^2.2.0"
+    json5 "^2.2.3"
     magic-string "^0.25.0"
     string.prototype.matchall "^4.0.6"
 
@@ -12648,7 +12648,7 @@ loader-utils@^2.0.4:
   dependencies:
     big.js "^5.2.2"
     emojis-list "^3.0.0"
-    json5 "^2.1.2"
+    json5 "^2.2.3"
 
 loader-utils@^3.2.0:
   version "3.2.0"
@@ -17416,7 +17416,7 @@ tsconfig-paths@^3.14.1:
   integrity sha512-fxDhWnFSLt3VuTwtvJt5fpwxBHg5AdKWMsgcPOOIilyjymcYVZoCQF8fvFRezCNfblEXmi+PcM1eYHeOAgXCOQ==
   dependencies:
     "@types/json5" "^0.0.29"
-    json5 "^1.0.1"
+    json5 "^2.2.3"
     minimist "^1.2.6"
     strip-bom "^3.0.0"
 
