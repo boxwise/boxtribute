@@ -1,4 +1,4 @@
-FROM node:17.8.0-alpine3.15
+FROM node:19.1-alpine3.15
 
 COPY package.json .
 RUN npm install
