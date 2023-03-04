@@ -14,8 +14,7 @@ import { theme } from "./utils/theme";
 
 if (process.env.NODE_ENV === "development") {
   // eslint-disable-next-line global-require
-  const { worker } = require("./mocks/browser");
-
+  // const { worker } = require("./mocks/browser");
   // worker.use(
   //   mockedGraphql.query<
   //     DistroSpotsForBaseIdQuery,
@@ -49,8 +48,7 @@ if (process.env.NODE_ENV === "development") {
   //     );
   //   })
   // );
-
-  worker.start();
+  // worker.start();
 }
 
 const AuthenticationProtectedApp = withAuthenticationRequired(App);
