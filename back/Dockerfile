@@ -1,7 +1,7 @@
 ARG env
 
 # using alpine for smallest docker image
-FROM python:3.12.0a1-alpine3.15 AS base
+FROM python:3.10.4-alpine3.15 AS base
 
 WORKDIR /app
 # install packages separately to use docker build-caching so we don't need to
