@@ -21,6 +21,7 @@ BASE_AGNOSTIC_RESOURCES = (
     "language",
     "organisation",
     "qr",
+    "shipment_detail",
     "size",
     "size_range",
     "tag_relation",

@@ -162,6 +162,7 @@ def test_invalid_permission_for_given_resource_id(read_only_client, query):
         "updateShipmentWhenPreparing( updateInput : { id: 1 }) { id }",
         "updateShipmentWhenReceiving( updateInput : { id: 1 }) { id }",
         "cancelShipment( id : 1 ) { id }",
+        "markShipmentAsLost( id : 1 ) { id }",
         "sendShipment( id : 1 ) { id }",
         "startReceivingShipment( id : 1 ) { id }",
         # Test case 4.2.8
@@ -406,7 +407,7 @@ def test_invalid_permission_for_shipment_details_field(
 ):
     # verify missing field:read permission
     mocker.patch("jose.jwt.decode").return_value = create_jwt_payload(
-        permissions=["shipment:read"]
+        permissions=["shipment:read", "shipment_detail:read"]
     )
     query = f"""query {{ shipment(id: 1) {{ details
                 {{ {field} {{ id }} }} }} }}"""
