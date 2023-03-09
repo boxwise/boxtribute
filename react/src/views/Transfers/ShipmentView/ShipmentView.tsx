@@ -18,6 +18,8 @@ import { useParams } from "react-router-dom";
 import {
   CancelShipmentMutation,
   CancelShipmentMutationVariables,
+  LostShipmentMutation,
+  LostShipmentMutationVariables,
   SendShipmentMutation,
   SendShipmentMutationVariables,
   Shipment,
@@ -109,6 +111,15 @@ export const CANCEL_SHIPMENT = gql`
   }
 `;
 
+export const LOST_SHIPMENT = gql`
+  ${SHIPMENT_FIELDS_FRAGMENT}
+  mutation LostShipment($id: ID!) {
+    markShipmentAsLost(id: $id) {
+      ...ShipmentFields
+    }
+  }
+`;
+
 export const START_RECEIVING_SHIPMENT = gql`
   ${SHIPMENT_FIELDS_FRAGMENT}
   mutation StartReceivingShipment($id: ID!) {
@@ -191,8 +202,15 @@ function ShipmentView() {
     StartReceivingShipmentMutationVariables
   >(START_RECEIVING_SHIPMENT);
 
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars, no-unused-vars
+  const [lostShipment, lostShipmentStatus] = useMutation<
+    LostShipmentMutation,
+    LostShipmentMutationVariables
+  >(LOST_SHIPMENT);
+
   const onCancel = handleShipment(cancelShipment, "cancel");
   const onSend = handleShipment(sendShipment, "send");
+  const onLost = handleShipment(lostShipment, "lost");
 
   // callback function triggered when a state button is clicked.
   const openShipmentOverlay = useCallback(
@@ -314,10 +332,9 @@ function ShipmentView() {
   let shipmentTab;
   let shipmentCard;
   let shipmentActionButtons = <Box />;
-  // Roanna -- check naming with Hans to be more clear
   let canUpdateShipment = false;
   let canCancelShipment = false;
-  let canLostShipment = false; // this one!
+  let canLostShipment = false;
   let canLocatedShipment = false;
 
   // error and loading handling
@@ -372,7 +389,7 @@ function ShipmentView() {
           isDisabled={shipmentContents.length === 0}
           isLoading={isLoadingFromMutation}
           variant="ghost"
-          onClick={() => {}}
+          onClick={() => onLost(id)}
           size="md"
           marginTop={2}
         >
@@ -427,7 +444,7 @@ function ShipmentView() {
             isDisabled={shipmentContents.length === 0}
             isLoading={isLoadingFromMutation}
             variant="ghost"
-            onClick={() => {}}
+            onClick={() => onCancel(id)}
             size="md"
             marginTop={2}
           >
