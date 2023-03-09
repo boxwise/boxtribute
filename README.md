@@ -9,10 +9,10 @@ Build: [![CircleCI](https://circleci.com/gh/boxwise/boxtribute.svg?style=svg)](h
 
 # boxtribute
 
-This is the repository for version 2 of the humanitarian relief web app [Boxtribute](https://www.boxtribute.org). Built by aid workers for aid workers, it is designed with three top priorities in mind: 
+This is the repository for version 2 of the humanitarian relief web app [Boxtribute](https://www.boxtribute.org). Built by aid workers for aid workers, it is designed with three top priorities in mind:
 1. Quick deployment into crisis situations,  including an easy integration into all sorts of relief operations, whether they're new or already up and running.
 2. Effective even with minimal training - doesn't require any professional expertise to use well. Can be run smoothly with short-term volunteers of all backgrounds.
-3. Dignity and choice-based distribution as a first priority for vulnerable individuals. 
+3. Dignity and choice-based distribution as a first priority for vulnerable individuals.
 
 The web app consists of a [React front-end](/react) bootstrapped with [Create React App](https://github.com/facebook/create-react-app), and a [Python Flask back-end](/back).
 
@@ -132,12 +132,12 @@ Box in base 3
 
 **Codes not yet connected to boxes in the seed**
 
-![0af9ec1a97906cf1cac5f50617a687b](docs/qr/code-without-box-0af9ec1a97906cf1cac5f50617a687b.png)
+![0af9ec1a97906cf1cac5f50617a687b](docs/qr/without-box/0af9ec1a97906cf1cac5f50617a687b.png)
 
 **Codes that don't exist in the seed**
 
-![387b0f0f5e62cebcafd48383035a92a](docs/qr/existing/387b0f0f5e62cebcafd48383035a92a.png) ![cba56d486db6d39209dbbf9e45353c4](docs/qr/existing/cba56d486db6d39209dbbf9e45353c4.png) ![a61e0efe25b75032b91106372674c26](docs/qr/existing/a61e0efe25b75032b91106372674c26.png) ![f6f20e805192618def2cb400776a2aa](docs/qr/existing/f6f20e805192618def2cb400776a2aa.png) ![12ca607ce60c484bdbb703def950c5b](docs/qr/existing/12ca607ce60c484bdbb703def950c5b.png)
-![13f12820c8010f2f7349962930e6bf4](docs/qr/existing/13f12820c8010f2f7349962930e6bf4.png) ![d0e144a0a4dc0d8af55e2b686a2e97e](docs/qr/existing/d0e144a0a4dc0d8af55e2b686a2e97e.png) ![69107b2e2b4157b5efe10415bc0bba0](docs/qr/existing/69107b2e2b4157b5efe10415bc0bba0.png) ![b8f0730d36571e4149ba3862379bb88](docs/qr/existing/b8f0730d36571e4149ba3862379bb88.png) ![e1fdfdd942db0e764c9bea06c03ba2b](docs/qr/existing/e1fdfdd942db0e764c9bea06c03ba2b.png) ![149ff66629377f6404b5c8d32936855](docs/qr/new/149ff66629377f6404b5c8d32936855.png) ![91c1def0b674d4e7cb92b61dbe00846](docs/qr/new/91c1def0b674d4e7cb92b61dbe00846.png) ![f660f96618eaa81e16b7869aca8d67d](docs/qr/new/f660f96618eaa81e16b7869aca8d67d.png) ![98b51c8cd1a02e54ab47edcc5733139](docs/qr/new/98b51c8cd1a02e54ab47edcc5733139.png) ![168842e6389b520d4b1836562aa1f05](docs/qr/new/168842e6389b520d4b1836562aa1f05.png) ![22324b7a180bdd31e125d5d50791d17](docs/qr/new/22324b7a180bdd31e125d5d50791d17.png)
+![387b0f0f5e62cebcafd48383035a92a](docs/qr/without-box/387b0f0f5e62cebcafd48383035a92a.png) ![cba56d486db6d39209dbbf9e45353c4](docs/qr/without-box/cba56d486db6d39209dbbf9e45353c4.png) ![a61e0efe25b75032b91106372674c26](docs/qr/without-box/a61e0efe25b75032b91106372674c26.png) ![f6f20e805192618def2cb400776a2aa](docs/qr/without-box/f6f20e805192618def2cb400776a2aa.png) ![12ca607ce60c484bdbb703def950c5b](docs/qr/without-box/12ca607ce60c484bdbb703def950c5b.png)
+![d0e144a0a4dc0d8af55e2b686a2e97e](docs/qr/without-box/d0e144a0a4dc0d8af55e2b686a2e97e.png) ![69107b2e2b4157b5efe10415bc0bba0](docs/qr/without-box/69107b2e2b4157b5efe10415bc0bba0.png) ![b8f0730d36571e4149ba3862379bb88](docs/qr/without-box/b8f0730d36571e4149ba3862379bb88.png) ![e1fdfdd942db0e764c9bea06c03ba2b](docs/qr/without-box/e1fdfdd942db0e764c9bea06c03ba2b.png) ![149ff66629377f6404b5c8d32936855](docs/qr/without-box/149ff66629377f6404b5c8d32936855.png) ![91c1def0b674d4e7cb92b61dbe00846](docs/qr/without-box/91c1def0b674d4e7cb92b61dbe00846.png) ![f660f96618eaa81e16b7869aca8d67d](docs/qr/code-not-in-db-f660f96618eaa81e16b7869aca8d67d.png) ![98b51c8cd1a02e54ab47edcc5733139](docs/qr/without-box/98b51c8cd1a02e54ab47edcc5733139.png) ![168842e6389b520d4b1836562aa1f05](docs/qr/without-box/168842e6389b520d4b1836562aa1f05.png) ![22324b7a180bdd31e125d5d50791d17](docs/qr/without-box/22324b7a180bdd31e125d5d50791d17.png)
 
 ## CircleCI
 
