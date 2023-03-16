@@ -27,8 +27,8 @@ import {
   ShipmentState,
   StartReceivingShipmentMutation,
   StartReceivingShipmentMutationVariables,
-  UpdateShipmentWhenPreparingMutation,
-  UpdateShipmentWhenPreparingMutationVariables,
+  RemoveBoxFromShipmentMutation,
+  RemoveBoxFromShipmentMutationVariables,
   UpdateShipmentWhenReceivingMutation,
   UpdateShipmentWhenReceivingMutationVariables,
 } from "types/generated/graphql";
@@ -44,6 +44,8 @@ import ShipmentCard from "./components/ShipmentCard";
 import ShipmentTabs from "./components/ShipmentTabs";
 import ShipmentOverlay from "./components/ShipmentOverlay";
 
+// graphql query and mutations
+
 export const SHIPMENT_BY_ID_QUERY = gql`
   ${SHIPMENT_FIELDS_FRAGMENT}
   query ShipmentById($id: ID!) {
@@ -53,17 +55,13 @@ export const SHIPMENT_BY_ID_QUERY = gql`
   }
 `;
 
-export const UPDATE_SHIPMENT_WHEN_PREPARING = gql`
+export const REMOVE_BOX_FROM_SHIPMENT = gql`
   ${SHIPMENT_FIELDS_FRAGMENT}
-  mutation UpdateShipmentWhenPreparing(
-    $id: ID!
-    $removedBoxLabelIdentifiers: [String!]
-    $preparedBoxLabelIdentifiers: [String!]
-  ) {
+  mutation RemoveBoxFromShipment($id: ID!, $removedBoxLabelIdentifiers: [String!]) {
     updateShipmentWhenPreparing(
       updateInput: {
         id: $id
-        preparedBoxLabelIdentifiers: $preparedBoxLabelIdentifiers
+        preparedBoxLabelIdentifiers: []
         removedBoxLabelIdentifiers: $removedBoxLabelIdentifiers
       }
     ) {
@@ -129,47 +127,23 @@ function ShipmentView() {
   const [shipmentOverlayData, setShipmentOverlayData] = useState({});
 
   // variables in URL
-  const id = useParams<{ id: string }>().id!;
-
-  // shipment actions in the modal
-  const handleShipment = useCallback(
-    (mutation, kind) => (shipmentId: string) => {
-      mutation({
-        variables: { id: shipmentId },
-      })
-        .then((res) => {
-          if (!res?.errors) {
-            onClose();
-            createToast({
-              type: "success",
-              message: `Successfully ${kind}ed the shipment.`,
-            });
-          } else {
-            triggerError({ message: `Could not ${kind} the shipment.` });
-          }
-        })
-        .catch(() => {
-          triggerError({ message: `Could not ${kind} the shipment.` });
-        });
-    },
-    [onClose, createToast, triggerError],
-  );
+  const shipmentId = useParams<{ id: string }>().id!;
 
   // fetch shipment data
   const { loading, error, data } = useQuery<ShipmentByIdQuery, ShipmentByIdQueryVariables>(
     SHIPMENT_BY_ID_QUERY,
     {
       variables: {
-        id,
+        id: shipmentId,
       },
     },
   );
 
   // Mutations for shipment actions
   const [updateShipmentWhenPreparing, updateShipmentWhenPreparingStatus] = useMutation<
-    UpdateShipmentWhenPreparingMutation,
-    UpdateShipmentWhenPreparingMutationVariables
-  >(UPDATE_SHIPMENT_WHEN_PREPARING);
+    RemoveBoxFromShipmentMutation,
+    RemoveBoxFromShipmentMutationVariables
+  >(REMOVE_BOX_FROM_SHIPMENT);
   // eslint-disable-next-line @typescript-eslint/no-unused-vars, no-unused-vars
   const [updateShipmentWhenReceiving, updateShipmentWhenReceivingStatus] = useMutation<
     UpdateShipmentWhenReceivingMutation,
@@ -191,6 +165,32 @@ function ShipmentView() {
     StartReceivingShipmentMutationVariables
   >(START_RECEIVING_SHIPMENT);
 
+  // shipment actions in the modal
+  const handleShipment = useCallback(
+    (mutation, kind) => (id: string) => {
+      mutation({
+        variables: {
+          id,
+        },
+      })
+        .then((res) => {
+          if (!res?.errors) {
+            onClose();
+            createToast({
+              type: "success",
+              message: `Successfully ${kind}ed the shipment.`,
+            });
+          } else {
+            triggerError({ message: `Could not ${kind} the shipment.` });
+          }
+        })
+        .catch(() => {
+          triggerError({ message: `Could not ${kind} the shipment.` });
+        });
+    },
+    [onClose, createToast, triggerError],
+  );
+
   const onCancel = handleShipment(cancelShipment, "cancel");
   const onSend = handleShipment(sendShipment, "send");
 
@@ -205,33 +205,32 @@ function ShipmentView() {
     onOpen();
   }, [setShipmentOverlayData, onOpen, data]);
 
-  const onRemove = () => setShowRemoveIcon(!showRemoveIcon);
+  const onMinusClick = () => setShowRemoveIcon(!showRemoveIcon);
 
-  const onBoxRemoved = useCallback(
+  const onRemoveBox = useCallback(
     (boxLabelIdentifier: string) => {
       createToast({
         title: `Box ${boxLabelIdentifier}`,
         type: "success",
-        message: "Successfully removed the box from the shipment",
+        message: "Successfully removed the box from the shipment.",
       });
 
       updateShipmentWhenPreparing({
         variables: {
-          id,
-          preparedBoxLabelIdentifiers: [],
+          id: shipmentId,
           removedBoxLabelIdentifiers: [boxLabelIdentifier],
         },
       })
         .then((mutationResult) => {
           if (mutationResult?.errors) {
             triggerError({
-              message: "Error: Could not remove box",
+              message: "Error: Could not remove box.",
             });
           } else {
             createToast({
               title: `Box ${boxLabelIdentifier}`,
               type: "success",
-              message: "Successfully removed the box from the shipment",
+              message: "Successfully removed the box from the shipment.",
             });
           }
         })
@@ -241,35 +240,34 @@ function ShipmentView() {
           });
         });
     },
-    [triggerError, createToast, updateShipmentWhenPreparing, id],
+    [triggerError, createToast, updateShipmentWhenPreparing, shipmentId],
   );
 
-  const onBulkBoxRemoved = useCallback(
+  const onBulkRemoveBox = useCallback(
     (boxLabelIdentifiers: string[]) => {
       createToast({
         title: `Box ${boxLabelIdentifiers}`,
         type: "success",
-        message: "Successfully removed the box from the shipment",
+        message: "Successfully removed the box from the shipment.",
       });
 
       setShowRemoveIcon(false);
       updateShipmentWhenPreparing({
         variables: {
-          id,
-          preparedBoxLabelIdentifiers: [],
+          id: shipmentId,
           removedBoxLabelIdentifiers: boxLabelIdentifiers,
         },
       })
         .then((mutationResult) => {
           if (mutationResult?.errors) {
             triggerError({
-              message: "Error: Could not remove box",
+              message: "Error: Could not remove box.",
             });
           } else {
             createToast({
               title: `Box ${boxLabelIdentifiers}`,
               type: "success",
-              message: "Successfully removed the box from the shipment",
+              message: "Successfully removed the box from the shipment.",
             });
           }
         })
@@ -279,14 +277,14 @@ function ShipmentView() {
           });
         });
     },
-    [triggerError, createToast, updateShipmentWhenPreparing, id],
+    [triggerError, createToast, updateShipmentWhenPreparing, shipmentId],
   );
 
   const isLoadingFromMutation = updateShipmentWhenPreparingStatus.loading;
 
   // transform shipment data for UI
   const shipmentState = data?.shipment?.state;
-  const shipmentContents = data?.shipment?.details as unknown as ShipmentDetail[];
+  const shipmentContents = data?.shipment!.details as ShipmentDetail[];
 
   // map over each ShipmentDetail to compile its history records
   const historyEntries = shipmentContents?.flatMap((detail) => ({
@@ -352,7 +350,7 @@ function ShipmentView() {
           isDisabled={shipmentContents.length === 0}
           isLoading={isLoadingFromMutation}
           variant="solid"
-          onClick={() => onSend(id)}
+          onClick={() => onSend(shipmentId)}
           marginTop={2}
         >
           Finalize & Send
@@ -450,8 +448,8 @@ function ShipmentView() {
       <ShipmentTabs
         detail={shipmentContents}
         histories={sortedGroupedHistoryEntries}
-        onBoxRemoved={onBoxRemoved}
-        onBulkBoxRemoved={onBulkBoxRemoved}
+        onRemoveBox={onRemoveBox}
+        onBulkRemoveBox={onBulkRemoveBox}
         showRemoveIcon={showRemoveIcon}
       />
     );
@@ -461,9 +459,9 @@ function ShipmentView() {
         canCancelShipment={canCancelShipment}
         canUpdateShipment={canUpdateShipment}
         canLooseShipment={canLooseShipment}
-        onRemove={onRemove}
+        onRemove={onMinusClick}
         onCancel={openShipmentOverlay}
-        shipment={data?.shipment as unknown as Shipment}
+        shipment={data?.shipment! as Shipment}
       />
     );
   }

@@ -27,14 +27,14 @@ export interface IShipmentContent {
 interface IShipmentContentProps {
   items: IShipmentContent[];
   showRemoveIcon: Boolean;
-  onBoxRemoved: (id: string) => void;
-  onBulkBoxRemoved: (ids: string[]) => void;
+  onRemoveBox: (id: string) => void;
+  onBulkRemoveBox: (ids: string[]) => void;
 }
 
 function ShipmentContent({
   items,
-  onBoxRemoved,
-  onBulkBoxRemoved,
+  onRemoveBox,
+  onBulkRemoveBox,
   showRemoveIcon,
 }: IShipmentContentProps) {
   const boxesToTableTransformer = (boxes: BoxType[]) =>
@@ -47,61 +47,36 @@ function ShipmentContent({
       items: box?.numberOfItems || 0,
     }));
 
-  // callback function triggered when box item removed
-  const handleRemoveBox = useCallback(
-    async ({ original: cellData }: Row<any>) => {
-      try {
-        onBoxRemoved(cellData.labelIdentifier);
-      } catch (error) {
-        // eslint-disable-next-line no-console
-        console.error(`Failed to remove box ${cellData}`, error);
-      }
-    },
-    [onBoxRemoved],
-  );
-
-  const handleRemoveBulkBox = useCallback(
-    async (ids: string[]) => {
-      try {
-        onBulkBoxRemoved(ids);
-      } catch (error) {
-        // eslint-disable-next-line no-console
-        console.error(`Failed to remove box ${ids}`, error);
-      }
-    },
-    [onBulkBoxRemoved],
-  );
-
   // Define columns
   const columns = useMemo(
     () => [
       {
         id: "labelIdentifier",
         Header: "BOX #",
-        Cell: ({ row }) => row.original.labelIdentifier,
+        accessor: "labelIdentifier",
       },
       {
         id: "product",
         Header: "PRODUCT",
         accessor: "product",
-        Cell: ({ row }) => row.original.product,
         style: { overflowWrap: "break-word" },
       },
       {
         id: "items",
         Header: "ITEMS",
         accessor: "items",
-        Cell: ({ row }) => row.original.items,
       },
       {
         id: "id",
         Header: "",
         show: showRemoveIcon,
         // eslint-disable-next-line react/no-unstable-nested-components
-        Cell: ({ row }: CellProps<any>) => <RemoveBoxCell row={row} onClick={handleRemoveBox} />,
+        Cell: ({ row }: CellProps<any>) => (
+          <RemoveBoxCell row={row} onRemoveIconClick={onRemoveBox} />
+        ),
       },
     ],
-    [showRemoveIcon, handleRemoveBox],
+    [showRemoveIcon, onRemoveBox],
   );
 
   return (
@@ -122,7 +97,7 @@ function ShipmentContent({
                       }}
                       onClick={
                         !isExpanded
-                          ? () => handleRemoveBulkBox(item.boxes.map((b) => b.labelIdentifier))
+                          ? () => onBulkRemoveBox(item.boxes.map((b) => b.labelIdentifier))
                           : undefined
                       }
                     />

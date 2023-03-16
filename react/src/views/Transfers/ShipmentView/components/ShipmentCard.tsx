@@ -41,7 +41,6 @@ function ShipmentCard({
   return (
     <Box
       boxShadow="lg"
-      p="6"
       padding={0}
       rounded="lg"
       bg="white"
@@ -50,7 +49,6 @@ function ShipmentCard({
       borderWidth={1.5}
     >
       <VStack
-        p="6"
         padding={0}
         rounded="md"
         bg="white"
@@ -79,24 +77,16 @@ function ShipmentCard({
               aria-label="cancel shipment"
             />
           )}
-          {shipment?.state === ShipmentState.Lost && (
-            <IconButton
-              isRound
-              icon={<TbMapOff size={30} />}
-              variant="outline"
-              style={{ background: "white", color: "red" }}
-              aria-label="cannot locate shipment"
-            />
-          )}
-
-          {canLooseShipment && (
-            <IconButton
-              isRound
-              icon={<TbMapOff size={30} />}
-              style={{ background: "white", color: "black" }}
-              aria-label="cannot locate shipment"
-            />
-          )}
+          {shipment?.state === ShipmentState.Lost ||
+            (canLooseShipment && (
+              <IconButton
+                isRound
+                icon={<TbMapOff size={30} />}
+                variant="outline"
+                style={{ background: "white", color: canLooseShipment ? "red" : "black" }}
+                aria-label="cannot locate shipment"
+              />
+            ))}
         </Flex>
 
         <Box border={0}>

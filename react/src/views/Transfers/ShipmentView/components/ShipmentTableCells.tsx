@@ -4,14 +4,14 @@ import { Row } from "react-table";
 
 interface IRemoveBoxCellProps {
   row: Row<any>;
-  onClick: (row: Row<any>) => void;
+  onRemoveIconClick: (id: string) => void;
 }
 
-export function RemoveBoxCell({ row, onClick }: IRemoveBoxCellProps) {
+export function RemoveBoxCell({ row, onRemoveIconClick }: IRemoveBoxCellProps) {
   return (
     <VStack align="start">
       <AiFillMinusCircle
-        onClick={() => onClick(row)}
+        onClick={() => onRemoveIconClick(row?.original.labelIdentifier)}
         type="solid"
         size={20}
         style={{ cursor: "pointer", color: "red", fill: "red" }}
