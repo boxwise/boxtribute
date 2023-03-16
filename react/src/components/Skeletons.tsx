@@ -39,7 +39,7 @@ export function TabsSkeleton() {
   );
 }
 
-export function ShipmentCardSkeletons() {
+export function ShipmentCardSkeleton() {
   return (
     <Box
       boxShadow="lg"

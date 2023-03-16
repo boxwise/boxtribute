@@ -37,7 +37,7 @@ import { useNotification } from "hooks/hooks";
 import { SHIPMENT_FIELDS_FRAGMENT } from "queries/fragments";
 import { SendingIcon } from "components/Icon/Transfer/SendingIcon";
 import { GlobalPreferencesContext } from "providers/GlobalPreferencesProvider";
-import { ButtonSkeleton, ShipmentCardSkeletons, TabsSkeleton } from "components/Skeletons";
+import { ButtonSkeleton, ShipmentCardSkeleton, TabsSkeleton } from "components/Skeletons";
 import { TbMapOff } from "react-icons/tb";
 import { ReceivingIcon } from "components/Icon/Transfer/ReceivingIcon";
 import ShipmentCard from "./components/ShipmentCard";
@@ -330,7 +330,7 @@ function ShipmentView() {
     );
   } else if (loading) {
     shipmentTitle = <Skeleton height="50px" width="200px" data-testid="loader" />;
-    shipmentCard = <ShipmentCardSkeletons />;
+    shipmentCard = <ShipmentCardSkeleton />;
     shipmentTab = <TabsSkeleton />;
     shipmentActionButtons = <ButtonSkeleton />;
   } else {
