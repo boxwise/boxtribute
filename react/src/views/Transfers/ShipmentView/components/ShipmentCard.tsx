@@ -25,7 +25,6 @@ export interface IShipmentProps {
   canCancelShipment: Boolean;
   canUpdateShipment: Boolean;
   canLooseShipment: Boolean;
-  canLocatedShipment: Boolean;
   shipment: Shipment;
   onRemove: () => void;
   onCancel: (data: any) => void;
@@ -35,7 +34,6 @@ function ShipmentCard({
   canCancelShipment,
   canUpdateShipment,
   canLooseShipment,
-  canLocatedShipment,
   shipment,
   onRemove,
   onCancel,
@@ -81,7 +79,7 @@ function ShipmentCard({
               aria-label="cancel shipment"
             />
           )}
-          {canLocatedShipment && (
+          {shipment?.state === ShipmentState.Lost && (
             <IconButton
               isRound
               icon={<TbMapOff size={30} />}

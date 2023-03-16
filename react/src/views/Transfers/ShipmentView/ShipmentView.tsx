@@ -319,7 +319,6 @@ function ShipmentView() {
   let canUpdateShipment = false;
   let canCancelShipment = false;
   let canLooseShipment = false;
-  let canLocatedShipment = false;
 
   // error and loading handling
   if (error) {
@@ -437,7 +436,6 @@ function ShipmentView() {
         </VStack>
       );
     } else if (ShipmentState.Lost === shipmentState && !isSender) {
-      canLocatedShipment = true;
       shipmentTitle = <Heading>View Shipment</Heading>;
     } else if (ShipmentState.Receiving === shipmentState && !isSender) {
       canLooseShipment = true;
@@ -463,7 +461,6 @@ function ShipmentView() {
         canCancelShipment={canCancelShipment}
         canUpdateShipment={canUpdateShipment}
         canLooseShipment={canLooseShipment}
-        canLocatedShipment={canLocatedShipment}
         onRemove={onRemove}
         onCancel={openShipmentOverlay}
         shipment={data?.shipment as unknown as Shipment}
