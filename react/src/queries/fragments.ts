@@ -194,6 +194,7 @@ export const BOX_WITH_SIZE_TAG_PRODUCT_FIELDS_FRAGMENT = gql`
       base {
         locations {
           id
+          seq
           name
           ... on ClassicLocation {
             defaultBoxState

@@ -79,11 +79,11 @@ export const BOX_BY_LABEL_IDENTIFIER_QUERY = gql`
         base {
           locations {
             id
+            seq
             name
             ... on ClassicLocation {
               defaultBoxState
             }
-            seq
           }
           distributionEventsBeforeReturnedFromDistributionState {
             id
@@ -146,11 +146,11 @@ export const UPDATE_BOX_MUTATION = gql`
         base {
           locations {
             id
+            seq
             name
             ... on ClassicLocation {
               defaultBoxState
             }
-            seq
           }
           distributionEventsBeforeReturnedFromDistributionState {
             id
