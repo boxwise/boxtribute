@@ -24,7 +24,7 @@ import ShipmentColoredStatus from "./ShipmentColoredStatus";
 export interface IShipmentProps {
   canCancelShipment: Boolean;
   canUpdateShipment: Boolean;
-  canLostShipment: Boolean;
+  canLooseShipment: Boolean;
   canLocatedShipment: Boolean;
   shipment: Shipment;
   onRemove: () => void;
@@ -34,7 +34,7 @@ export interface IShipmentProps {
 function ShipmentCard({
   canCancelShipment,
   canUpdateShipment,
-  canLostShipment,
+  canLooseShipment,
   canLocatedShipment,
   shipment,
   onRemove,
@@ -76,14 +76,7 @@ function ShipmentCard({
               isRound
               icon={<BiTrash size={30} />}
               isDisabled={shipment.state !== ShipmentState.Preparing}
-              onClick={() =>
-                onCancel({
-                  id: shipment.id,
-                  state: shipment.state,
-                  sourceOrg: shipment.sourceBase.organisation.name,
-                  targetOrg: shipment.targetBase.organisation.name,
-                })
-              }
+              onClick={onCancel}
               style={{ background: "white" }}
               aria-label="cancel shipment"
             />
@@ -98,7 +91,7 @@ function ShipmentCard({
             />
           )}
 
-          {canLostShipment && (
+          {canLooseShipment && (
             <IconButton
               isRound
               icon={<TbMapOff size={30} />}

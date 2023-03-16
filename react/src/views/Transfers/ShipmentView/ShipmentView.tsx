@@ -195,13 +195,15 @@ function ShipmentView() {
   const onSend = handleShipment(sendShipment, "send");
 
   // callback function triggered when a state button is clicked.
-  const openShipmentOverlay = useCallback(
-    (shipmentOverlayInputData: any) => {
-      setShipmentOverlayData(shipmentOverlayInputData);
-      onOpen();
-    },
-    [setShipmentOverlayData, onOpen],
-  );
+  const openShipmentOverlay = useCallback(() => {
+    setShipmentOverlayData({
+      id: data?.shipment?.id,
+      state: data?.shipment?.state,
+      sourceOrg: data?.shipment?.sourceBase.organisation.name,
+      targetOrg: data?.shipment?.targetBase.organisation.name,
+    });
+    onOpen();
+  }, [setShipmentOverlayData, onOpen, data]);
 
   const onRemove = () => setShowRemoveIcon(!showRemoveIcon);
 
@@ -314,10 +316,9 @@ function ShipmentView() {
   let shipmentTab;
   let shipmentCard;
   let shipmentActionButtons = <Box />;
-  // Roanna -- check naming with Hans to be more clear
   let canUpdateShipment = false;
   let canCancelShipment = false;
-  let canLostShipment = false; // this one!
+  let canLooseShipment = false;
   let canLocatedShipment = false;
 
   // error and loading handling
@@ -362,7 +363,7 @@ function ShipmentView() {
       shipmentTitle = <Heading>View Shipment</Heading>;
       shipmentActionButtons = <Box />;
     } else if (ShipmentState.Sent === shipmentState && isSender) {
-      canLostShipment = true;
+      canLooseShipment = true;
 
       shipmentTitle = <Heading>View Shipment</Heading>;
       shipmentActionButtons = (
@@ -404,7 +405,7 @@ function ShipmentView() {
     } else if (ShipmentState.Canceled === shipmentState && !isSender) {
       shipmentTitle = <Heading>View Shipment</Heading>;
     } else if (ShipmentState.Sent === shipmentState && !isSender) {
-      canLostShipment = true;
+      canLooseShipment = true;
       shipmentTitle = <Heading>View Shipment</Heading>;
       shipmentActionButtons = (
         <VStack align="stretch" spacing={1}>
@@ -439,7 +440,7 @@ function ShipmentView() {
       canLocatedShipment = true;
       shipmentTitle = <Heading>View Shipment</Heading>;
     } else if (ShipmentState.Receiving === shipmentState && !isSender) {
-      canLostShipment = true;
+      canLooseShipment = true;
 
       shipmentTitle = <Heading>Receive Shipment</Heading>;
       shipmentActionButtons = <Box />;
@@ -461,7 +462,7 @@ function ShipmentView() {
       <ShipmentCard
         canCancelShipment={canCancelShipment}
         canUpdateShipment={canUpdateShipment}
-        canLostShipment={canLostShipment}
+        canLooseShipment={canLooseShipment}
         canLocatedShipment={canLocatedShipment}
         onRemove={onRemove}
         onCancel={openShipmentOverlay}
