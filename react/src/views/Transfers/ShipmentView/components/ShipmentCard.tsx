@@ -103,7 +103,7 @@ function ShipmentCard({ shipment }: IShipmentProps) {
         <StackDivider borderColor="blackAlpha.800" marginTop={-1.5} />
         <Box p={4}>
           <Center alignContent="stretch">
-            <Text fontWeight="bold">TOTAL:</Text> {shipment.details.length} boxes
+            <Text fontWeight="bold">TOTAL:</Text> {shipment.details?.length!} boxes
           </Center>
         </Box>
       </VStack>

@@ -35,7 +35,7 @@ function ShipmentTabs({ shipmentDetail }: IShipmentTabsProps) {
       </TabList>
       <TabPanels>
         <TabPanel p={0}>
-          {(shipmentDetail.length || 0) === 0 && (
+          {(shipmentDetail?.length || 0) === 0 && (
             <Center>No boxes have been assigned to this shipment yet!</Center>
           )}
           {(shipmentDetail?.length || 0) !== 0 && (
