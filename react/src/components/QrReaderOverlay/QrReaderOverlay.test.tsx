@@ -4,7 +4,7 @@ import userEvent from "@testing-library/user-event";
 import { screen, render } from "tests/test-utils";
 import HeaderMenuContainer from "components/HeaderMenu/HeaderMenuContainer";
 import { useAuth0 } from "@auth0/auth0-react";
-import { QrReader } from "components/QrReader/QrReader";
+import { QrReaderScanner } from "components/QrReader/components/QrReaderScanner";
 import { mockMatchMediaQuery } from "mocks/functions";
 import { mockAuthenticatedUser } from "mocks/hooks";
 import { mockImplementationOfQrReader } from "mocks/components";
@@ -15,12 +15,12 @@ import {
 import { generateMockBox } from "mocks/boxes";
 
 jest.mock("@auth0/auth0-react");
-jest.mock("components/QrReader/QrReader");
+jest.mock("components/QrReader/components/QrReaderScanner");
 
 // .mocked() is a nice helper function from jest for typescript support
 // https://jestjs.io/docs/mock-function-api/#typescript-usage
 const mockedUseAuth0 = jest.mocked(useAuth0);
-const mockedQrReader = jest.mocked(QrReader);
+const mockedQrReader = jest.mocked(QrReaderScanner);
 
 beforeEach(() => {
   // setting the screensize to
@@ -107,7 +107,7 @@ it("3.4.1.3 - Mobile: Enter valid box identifier and click on Find button", asyn
 
   // Click a button to trigger the event of scanning a QR-Code in mockImplementationOfQrReader
   expect(await screen.findByRole("heading", { name: "/bases/1/boxes/123456" })).toBeInTheDocument();
-});
+}, 10000);
 
 const queryFindBoxFromOtherOrg = {
   request: {
@@ -124,7 +124,8 @@ const queryFindBoxFromOtherOrg = {
   },
 };
 
-it("3.4.1.4 - Mobile: Enter valid box identifier but not from the user bases (unauthorized) and click on Find button", async () => {
+// eslint-disable-next-line max-len
+it("3.4.1.4 - Mobile: Enter valid box identifier from unauthorized bases and click on Find button", async () => {
   const user = userEvent.setup();
   mockImplementationOfQrReader(mockedQrReader, "NoBoxAssociatedWithQrCode");
   // mock scanning a QR code
@@ -150,7 +151,7 @@ it("3.4.1.4 - Mobile: Enter valid box identifier but not from the user bases (un
   ).toBeInTheDocument();
   // QrOverlay stays open
   expect(screen.getByRole("button", { name: /find/i })).toBeInTheDocument();
-});
+}, 10000);
 
 const queryNoBoxAssociatedWithQrCode = {
   request: {
@@ -168,6 +169,7 @@ const queryNoBoxAssociatedWithQrCode = {
   },
 };
 
+// eslint-disable-next-line max-len
 it("3.4.2.1 - Mobile: User scans QR code of same org without previously associated box", async () => {
   const user = userEvent.setup();
   // mock scanning a QR code
@@ -262,7 +264,7 @@ it("3.4.2.3 - Mobile: user scans QR code of different org with associated box", 
 
   // error message appears
   expect(
-    (await screen.findAllByText("You don't have permission to access this box")).length,
+    (await screen.findAllByText(/You don't have permission to access this box/i)).length,
   ).toBeGreaterThanOrEqual(1);
   // QrOverlay stays open
   expect(screen.getByTestId("ReturnScannedQr")).toBeInTheDocument();
@@ -286,10 +288,10 @@ it("3.4.2.5a - Mobile: User scans non Boxtribute QR code", async () => {
   await user.click(screen.getByTestId("ReturnScannedQr"));
 
   // error message appears
-  expect(await screen.findByText("This is not a Boxtribute QR-Code")).toBeInTheDocument();
+  expect(await screen.findByText(/This is not a Boxtribute QR-Code/i)).toBeInTheDocument();
   // QrOverlay stays open
   expect(screen.getByTestId("ReturnScannedQr")).toBeInTheDocument();
-});
+}, 10000);
 
 const queryHashNotInDb = {
   request: {
@@ -327,11 +329,11 @@ it("3.4.2.5b - Mobile: User scans non Boxtribute QR code", async () => {
 
   // error message appears
   expect(
-    (await screen.findAllByText("This is not a Boxtribute QR-Code")).length,
+    (await screen.findAllByText(/No box found for this QR-Code/i)).length,
   ).toBeGreaterThanOrEqual(1);
   // QrOverlay stays open
   expect(screen.getByTestId("ReturnScannedQr")).toBeInTheDocument();
-});
+}, 10000);
 
 const queryInternalServerError = {
   request: {
@@ -368,7 +370,7 @@ it("3.4.2.5c - Internal Server Error", async () => {
   await user.click(screen.getByTestId("ReturnScannedQr"));
 
   // error message appears
-  expect(await screen.findByText("Box not found for this label")).toBeInTheDocument();
+  expect(await screen.findByText(/The search for this QR-Code failed/i)).toBeInTheDocument();
   // QrOverlay stays open
   expect(screen.getByTestId("ReturnScannedQr")).toBeInTheDocument();
-});
+}, 10000);

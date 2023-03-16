@@ -1,10 +1,11 @@
 import { useContext } from "react";
 import { gql, useMutation, useQuery } from "@apollo/client";
 import { Alert, AlertIcon, Center } from "@chakra-ui/react";
-import { useErrorHandling } from "hooks/error-handling";
+import { useErrorHandling } from "hooks/useErrorHandling";
 import { useNotification } from "hooks/hooks";
 import APILoadingIndicator from "components/APILoadingIndicator";
 import { useNavigate, useParams } from "react-router-dom";
+import { TRANSFER_AGREEMENT_FIELDS_FRAGMENT } from "queries/fragments";
 import {
   AllOrganisationsAndBasesQuery,
   CreateTransferAgreementMutation,
@@ -31,31 +32,32 @@ export const ALL_ORGS_AND_BASES_QUERY = gql`
 `;
 
 export const CREATE_AGREEMENT_MUTATION = gql`
+  ${TRANSFER_AGREEMENT_FIELDS_FRAGMENT}
   mutation CreateTransferAgreement(
-    $sourceOrganisationId: Int!
-    $targetOrganisationId: Int!
+    $initiatingOrganisationId: Int!
+    $partnerOrganisationId: Int!
     $type: TransferAgreementType!
     $validFrom: Date
     $validUntil: Date
     $timezone: String
-    $sourceBaseIds: [Int!]
-    $targetBaseIds: [Int!]
+    $initiatingOrganisationBaseIds: [Int!]!
+    $partnerOrganisationBaseIds: [Int!]
     $comment: String
   ) {
     createTransferAgreement(
       creationInput: {
-        sourceOrganisationId: $sourceOrganisationId
-        targetOrganisationId: $targetOrganisationId
+        initiatingOrganisationId: $initiatingOrganisationId
+        partnerOrganisationId: $partnerOrganisationId
         type: $type
         validFrom: $validFrom
         validUntil: $validUntil
         timezone: $timezone
-        sourceBaseIds: $sourceBaseIds
-        targetBaseIds: $targetBaseIds
+        initiatingOrganisationBaseIds: $initiatingOrganisationBaseIds
+        partnerOrganisationBaseIds: $partnerOrganisationBaseIds
         comment: $comment
       }
     ) {
-      id
+      ...TransferAgreementFields
     }
   }
 `;
@@ -77,16 +79,35 @@ function CreateTransferAgreementView() {
   const [createTransferAgreementMutation, createTransferAgreementMutationState] = useMutation<
     CreateTransferAgreementMutation,
     CreateTransferAgreementMutationVariables
-  >(CREATE_AGREEMENT_MUTATION);
+  >(CREATE_AGREEMENT_MUTATION, {
+    update(cache, { data: returnedTransferAgreement }) {
+      cache.modify({
+        fields: {
+          transferAgreements(existingTransferAgreements = []) {
+            const newTransferAgreementRef = cache.writeFragment({
+              data: returnedTransferAgreement?.createTransferAgreement,
+              fragment: gql`
+                fragment NewTransferAgreement on TransferAgreement {
+                  id
+                  type
+                }
+              `,
+            });
+            return existingTransferAgreements.concat(newTransferAgreementRef);
+          },
+        },
+      });
+    },
+  });
 
   // Prep data for Form
   const allOrgsAndTheirBases = allFormOptions.data?.organisations;
 
-  // When boxtribute god logs in without predifiend organisation id, use organisation id 1
-  const userCurrentOrganisatinId = globalPreferences.selectedOrganisationId?.toString() ?? "1";
+  // When boxtribute god logs in without predefined organisation id, use organisation id 1
+  const userCurrentOrganisationId = globalPreferences.selectedOrganisationId?.toString() ?? "1";
 
   const currentOrganisation = allOrgsAndTheirBases?.find(
-    (organisation) => organisation.id === userCurrentOrganisatinId,
+    (organisation) => organisation.id === userCurrentOrganisationId,
   );
 
   // Filter bases where the user is not authorized
@@ -124,13 +145,13 @@ function CreateTransferAgreementView() {
 
     createTransferAgreementMutation({
       variables: {
-        sourceOrganisationId: parseInt(userCurrentOrganisatinId, 10),
-        targetOrganisationId: parseInt(createTransferAgreementData.partnerOrganisation.value, 10),
+        initiatingOrganisationId: parseInt(userCurrentOrganisationId, 10),
+        partnerOrganisationId: parseInt(createTransferAgreementData.partnerOrganisation.value, 10),
         type: transferType,
         validFrom: createTransferAgreementData?.validFrom,
         validUntil: createTransferAgreementData?.validUntil,
-        sourceBaseIds: currentOrgBaseIds,
-        targetBaseIds: partnerBaseIds,
+        initiatingOrganisationBaseIds: currentOrgBaseIds,
+        partnerOrganisationBaseIds: partnerBaseIds,
         comment: createTransferAgreementData.comment,
       },
     })

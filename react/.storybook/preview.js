@@ -18,6 +18,6 @@ export const decorators = [
 ];
 
 if (typeof global.process === 'undefined') {
-  const { worker } = require('../src/mocks/browser')
-  worker.start()
+  // const { worker } = require('../src/mocks/browser')
+  // worker.start()
 }

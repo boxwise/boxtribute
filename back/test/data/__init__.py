@@ -198,27 +198,5 @@ def setup_models():
         module.create()
 
 
-def setup_box_transfer_models():
-    """Like `setup_models()` above but only for models related to box-transfer (not
-    present in production database dump). Return relevant model classes.
-    """
-    models = []
-    for module_name in [
-        "transfer_agreement",
-        "shipment",
-        "transfer_agreement_detail",
-        "shipment_detail",
-    ]:
-        module = importlib.import_module(f"data.{module_name}")
-        module.create()
-
-        module = importlib.import_module(
-            f"boxtribute_server.models.definitions.{module_name}"
-        )
-        model_name = "".join(p.capitalize() for p in module_name.split("_"))
-        models.append(getattr(module, model_name))
-    return models
-
-
 # List of all Models in the database, cf. https://stackoverflow.com/a/43820902/3865876
 MODELS = db.Model.__subclasses__()

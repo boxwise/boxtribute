@@ -15,12 +15,26 @@ import { Result } from "@zxing/library";
  * @param isBoxtributeQr - to test non Boxtribute qr-code
  * @returns An component including a button that fires the onResult event of the QrReader component when it is clicked.
  */
-export function mockImplementationOfQrReader(mockedQrReader: jest.MockedFunctionDeep<any>, hash: string, isBoxtributeQr:boolean = true) {
+export function mockImplementationOfQrReader(
+  mockedQrReader: jest.MockedFunctionDeep<any>,
+  hash: string,
+  isBoxtributeQr: boolean = true,
+) {
   mockedQrReader.mockImplementation((props) => (
     <button
       type="button"
       data-testid="ReturnScannedQr"
-      onClick={() => props.onResult(new Result((isBoxtributeQr ? "barcode="+hash : "nonBoxtributeQr"), new Uint8Array([0]), 0, [], 11))}
+      onClick={() =>
+        props.onResult(
+          new Result(
+            isBoxtributeQr ? `barcode=${hash}` : "nonBoxtributeQr",
+            new Uint8Array([0]),
+            0,
+            [],
+            11,
+          ),
+        )
+      }
     />
   ));
 }

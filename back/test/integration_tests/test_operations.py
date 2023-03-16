@@ -11,7 +11,7 @@ def test_queries(auth0_client, endpoint):
                 qrCode(qrCode: "9627242265f5a7f3a1db910eb18410f") { box { id } }
             }"""
     queried_box = _assert_successful_request(auth0_client, query)["box"]
-    assert queried_box == {"id": "735"}
+    assert queried_box == {"id": "1"}
 
     query = """query { box(labelIdentifier: "177892") { state size { id } } }"""
     queried_box = _assert_successful_request(auth0_client, query)
@@ -81,8 +81,9 @@ def test_mutations(auth0_client):
     assert response == {"firstName": "Some"}
 
     mutation = """mutation { createTransferAgreement(creationInput: {
-                    sourceOrganisationId: 1,
-                    targetOrganisationId: 2,
+                    initiatingOrganisationId: 1,
+                    partnerOrganisationId: 2,
+                    initiatingOrganisationBaseIds: [1]
                     type: Bidirectional
                 }) { id type } }"""
     response = assert_successful_request(auth0_client, mutation)
@@ -105,7 +106,7 @@ def test_mutations(auth0_client):
         return shipment_id
 
     shipment_id = create_shipment()
-    mutation = f"""mutation {{ updateShipment(updateInput: {{
+    mutation = f"""mutation {{ updateShipmentWhenPreparing(updateInput: {{
                     id: {shipment_id} }}) {{ id }} }}"""
     response = assert_successful_request(auth0_client, mutation)
     assert response == {"id": str(shipment_id)}

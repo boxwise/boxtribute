@@ -7,6 +7,7 @@ export interface IDropdownOption extends OptionBase {
   value: string;
   label: string;
   color?: string | undefined | null;
+  data?: object | undefined | null;
 }
 
 export interface ISelectFieldProps {

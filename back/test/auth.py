@@ -113,8 +113,10 @@ def create_jwt_payload(
             f"{base_prefix}/history:read",
             "shipment:create",
             "shipment:edit",
+            "shipment_detail:write",
             "transfer_agreement:create",
             "transfer_agreement:edit",
+            "transfer_agreement_detail:read",
         ]
     else:
         payload[f"{JWT_CLAIM_PREFIX}/permissions"] = permissions

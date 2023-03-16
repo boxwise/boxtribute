@@ -4,9 +4,10 @@ from datetime import timezone as dtimezone
 from dateutil import tz
 
 from ....db import db
-from ....enums import TransferAgreementState
+from ....enums import TransferAgreementState, TransferAgreementType
 from ....exceptions import (
     InvalidTransferAgreementBase,
+    InvalidTransferAgreementDates,
     InvalidTransferAgreementOrganisation,
     InvalidTransferAgreementState,
 )
@@ -20,26 +21,25 @@ def _validate_bases_as_part_of_organisation(*, base_ids, organisation_id):
     """Raise InvalidTransferAgreementBase exception if any of the given bases is not run
     by the given organisation.
     """
-    if base_ids != {None}:
-        organisation_base_ids = [
-            b.id
-            for b in Base.select(Base.id).where(Base.organisation_id == organisation_id)
-        ]
-        invalid_base_ids = [i for i in base_ids if i not in organisation_base_ids]
-        if invalid_base_ids:
-            raise InvalidTransferAgreementBase(
-                expected_base_ids=organisation_base_ids,
-                base_id=invalid_base_ids[0],
-            )
+    organisation_base_ids = [
+        b.id
+        for b in Base.select(Base.id).where(Base.organisation_id == organisation_id)
+    ]
+    invalid_base_ids = [i for i in base_ids if i not in organisation_base_ids]
+    if invalid_base_ids:
+        raise InvalidTransferAgreementBase(
+            expected_base_ids=organisation_base_ids,
+            base_id=invalid_base_ids[0],
+        )
 
 
 def create_transfer_agreement(
     *,
-    source_organisation_id,
-    target_organisation_id,
+    initiating_organisation_id,
+    partner_organisation_id,
     type,
-    source_base_ids=None,
-    target_base_ids=None,
+    initiating_organisation_base_ids,
+    partner_organisation_base_ids=None,
     valid_from=None,
     valid_until=None,
     timezone=None,
@@ -57,8 +57,33 @@ def create_transfer_agreement(
     Raise an InvalidTransferAgreementBase expection if any specified source/target base
     is not part of the source/target organisation.
     """
-    if source_organisation_id == target_organisation_id:
+    if initiating_organisation_id == partner_organisation_id:
         raise InvalidTransferAgreementOrganisation()
+
+    # In GraphQL input, partner organisation base IDs can be omitted, hence substitute
+    # actual base IDs of partner organisation. Avoid duplicate base IDs by creating sets
+    initiating_organisation_base_ids = set(initiating_organisation_base_ids)
+    if partner_organisation_base_ids is None:
+        partner_organisation_base_ids = [
+            b.id
+            for b in Base.select().where(Base.organisation == partner_organisation_id)
+        ]
+    else:
+        partner_organisation_base_ids = set(partner_organisation_base_ids)
+
+    if type == TransferAgreementType.ReceivingFrom:
+        # Initiating organisation will be transfer target, the partner organisation will
+        # be source
+        source_organisation_id = partner_organisation_id
+        target_organisation_id = initiating_organisation_id
+        source_base_ids = partner_organisation_base_ids
+        target_base_ids = initiating_organisation_base_ids
+    else:
+        # Agreement type SendingTo or Bidirectional
+        source_organisation_id = initiating_organisation_id
+        target_organisation_id = partner_organisation_id
+        source_base_ids = initiating_organisation_base_ids
+        target_base_ids = partner_organisation_base_ids
 
     with db.database.atomic():
         if valid_from is not None or valid_until is not None:
@@ -73,6 +98,9 @@ def create_transfer_agreement(
                     valid_until, time(23, 59, 59), tzinfo=tzinfo
                 ).astimezone(dtimezone.utc)
 
+                if valid_from.date() >= valid_until.date():
+                    raise InvalidTransferAgreementDates()
+
         transfer_agreement = TransferAgreement.create(
             source_organisation=source_organisation_id,
             target_organisation=target_organisation_id,
@@ -82,11 +110,6 @@ def create_transfer_agreement(
             requested_by=user.id,
             comment=comment,
         )
-
-        # In GraphQL input, base IDs can be omitted, or explicitly be null.
-        # Avoid duplicate base IDs by creating sets
-        source_base_ids = set(source_base_ids or [None])
-        target_base_ids = set(target_base_ids or [None])
 
         _validate_bases_as_part_of_organisation(
             base_ids=source_base_ids, organisation_id=source_organisation_id
@@ -170,15 +193,15 @@ def cancel_transfer_agreement(*, id, user_id):
     return agreement
 
 
-def retrieve_transfer_agreement_bases(*, transfer_agreement, kind):
+def retrieve_transfer_agreement_bases(*, agreement, kind):
     """Return all bases (kind: source or target) involved in the given transfer
-    agreement. If the selection is None, it indicates that all bases of the respective
-    organisation are included.
+    agreement.
     """
-    return Base.select().join(
-        TransferAgreementDetail, on=getattr(TransferAgreementDetail, f"{kind}_base")
-    ).where(
-        TransferAgreementDetail.transfer_agreement == transfer_agreement.id
-    ) or Base.select().where(
-        Base.organisation == getattr(transfer_agreement, f"{kind}_organisation")
+    return (
+        Base.select()
+        .join(
+            TransferAgreementDetail, on=getattr(TransferAgreementDetail, f"{kind}_base")
+        )
+        .where(TransferAgreementDetail.transfer_agreement == agreement.id)
+        .distinct()
     )

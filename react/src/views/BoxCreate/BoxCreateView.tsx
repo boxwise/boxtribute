@@ -1,7 +1,7 @@
 import { useEffect } from "react";
 import { gql, useMutation, useQuery } from "@apollo/client";
 import { Center } from "@chakra-ui/react";
-import { useErrorHandling } from "hooks/error-handling";
+import { useErrorHandling } from "hooks/useErrorHandling";
 import { useNotification } from "hooks/hooks";
 import APILoadingIndicator from "components/APILoadingIndicator";
 import { useNavigate, useParams } from "react-router-dom";
@@ -14,7 +14,7 @@ import {
   CheckIfQrExistsInDbQuery,
   CheckIfQrExistsInDbQueryVariables,
 } from "types/generated/graphql";
-import { PRODUCT_FIELDS_FRAGMENT, TAG_OPTIONS_FRAGMENT } from "queries/fragments";
+import { TAG_OPTIONS_FRAGMENT, PRODUCT_FIELDS_FRAGMENT } from "queries/fragments";
 import { CHECK_IF_QR_EXISTS_IN_DB } from "queries/queries";
 import BoxCreate, { ICreateBoxFormData } from "./components/BoxCreate";
 

@@ -1,8 +1,8 @@
+import { BoxState } from "types/generated/graphql";
 import { product1, productBasic1 } from "./products";
 import { size1, size2 } from "./sizeRanges";
 import { location1, generateMockLocationWithBase } from "./locations";
 import { tag1, tag2 } from "./tags";
-import { BoxState } from "types/generated/graphql";
 import { history1, history2 } from "./histories";
 
 export const box123 = {
@@ -26,18 +26,16 @@ export const generateMockBox = ({
   size = size2,
   tags = [tag2],
   histories = [history1, history2],
-}) => {
-  return {
-    distributionEvent: null,
-    labelIdentifier: labelIdentifier,
-    location: location,
-    numberOfItems: numberOfItems,
-    comment: comment,
-    product: product,
-    size: size,
-    state: state,
-    tags: tags,
-    history: histories,
-    __typename: "Box",
-  };
-};
+}) => ({
+  distributionEvent: null,
+  labelIdentifier,
+  location,
+  numberOfItems,
+  comment,
+  product,
+  size,
+  state,
+  tags,
+  history: histories,
+  __typename: "Box",
+});

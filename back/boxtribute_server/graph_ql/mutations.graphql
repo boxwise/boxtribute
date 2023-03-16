@@ -22,9 +22,12 @@ type Mutation {
   cancelTransferAgreement(id: ID!): TransferAgreement
 
   createShipment(creationInput: ShipmentCreationInput): Shipment
-  updateShipment(updateInput: ShipmentUpdateInput): Shipment
+  updateShipmentWhenPreparing(updateInput: ShipmentWhenPreparingUpdateInput): Shipment
+  updateShipmentWhenReceiving(updateInput: ShipmentWhenReceivingUpdateInput): Shipment
   cancelShipment(id: ID!): Shipment
   sendShipment(id: ID!): Shipment
+  startReceivingShipment(id: ID!): Shipment
+  markShipmentAsLost(id: ID!): Shipment
 
   createDistributionSpot(creationInput: DistributionSpotCreationInput): DistributionSpot
   createDistributionEvent(creationInput: DistributionEventCreationInput): DistributionEvent

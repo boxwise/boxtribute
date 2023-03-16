@@ -508,6 +508,7 @@ export type Mutation = {
   createTag?: Maybe<Tag>;
   createTransferAgreement?: Maybe<TransferAgreement>;
   deleteTag?: Maybe<Tag>;
+  markShipmentAsLost?: Maybe<Shipment>;
   moveItemsFromBoxToDistributionEvent?: Maybe<UnboxedItemsCollection>;
   moveItemsFromReturnTrackingGroupToBox?: Maybe<DistributionEventsTrackingEntry>;
   rejectTransferAgreement?: Maybe<TransferAgreement>;
@@ -517,13 +518,15 @@ export type Mutation = {
   sendShipment?: Maybe<Shipment>;
   setReturnedNumberOfItemsForDistributionEventsTrackingGroup?: Maybe<DistributionEventsTrackingEntry>;
   startDistributionEventsTrackingGroup?: Maybe<DistributionEventsTrackingGroup>;
+  startReceivingShipment?: Maybe<Shipment>;
   unassignBoxFromDistributionEvent?: Maybe<Box>;
   unassignTag?: Maybe<TaggableResource>;
   updateBeneficiary?: Maybe<Beneficiary>;
   updateBox?: Maybe<Box>;
   updatePackingListEntry?: Maybe<PackingListEntry>;
   updateSelectedProductsForDistributionEventPackingList?: Maybe<DistributionEvent>;
-  updateShipment?: Maybe<Shipment>;
+  updateShipmentWhenPreparing?: Maybe<Shipment>;
+  updateShipmentWhenReceiving?: Maybe<Shipment>;
   updateTag?: Maybe<Tag>;
 };
 
@@ -705,6 +708,16 @@ export type MutationDeleteTagArgs = {
  * - input argument: creationInput/updateInput
  * - input type: <Resource>CreationInput/UpdateInput
  */
+export type MutationMarkShipmentAsLostArgs = {
+  id: Scalars['ID'];
+};
+
+
+/**
+ * Naming convention:
+ * - input argument: creationInput/updateInput
+ * - input type: <Resource>CreationInput/UpdateInput
+ */
 export type MutationMoveItemsFromBoxToDistributionEventArgs = {
   boxLabelIdentifier: Scalars['ID'];
   distributionEventId: Scalars['ID'];
@@ -807,6 +820,16 @@ export type MutationStartDistributionEventsTrackingGroupArgs = {
  * - input argument: creationInput/updateInput
  * - input type: <Resource>CreationInput/UpdateInput
  */
+export type MutationStartReceivingShipmentArgs = {
+  id: Scalars['ID'];
+};
+
+
+/**
+ * Naming convention:
+ * - input argument: creationInput/updateInput
+ * - input type: <Resource>CreationInput/UpdateInput
+ */
 export type MutationUnassignBoxFromDistributionEventArgs = {
   boxLabelIdentifier: Scalars['ID'];
   distributionEventId: Scalars['ID'];
@@ -871,8 +894,18 @@ export type MutationUpdateSelectedProductsForDistributionEventPackingListArgs = 
  * - input argument: creationInput/updateInput
  * - input type: <Resource>CreationInput/UpdateInput
  */
-export type MutationUpdateShipmentArgs = {
-  updateInput?: InputMaybe<ShipmentUpdateInput>;
+export type MutationUpdateShipmentWhenPreparingArgs = {
+  updateInput?: InputMaybe<ShipmentWhenPreparingUpdateInput>;
+};
+
+
+/**
+ * Naming convention:
+ * - input argument: creationInput/updateInput
+ * - input type: <Resource>CreationInput/UpdateInput
+ */
+export type MutationUpdateShipmentWhenReceivingArgs = {
+  updateInput?: InputMaybe<ShipmentWhenReceivingUpdateInput>;
 };
 
 
@@ -1187,13 +1220,15 @@ export type Shipment = {
   completedOn?: Maybe<Scalars['Datetime']>;
   details: Array<ShipmentDetail>;
   id: Scalars['ID'];
+  receivingStartedBy?: Maybe<User>;
+  receivingStartedOn?: Maybe<Scalars['Datetime']>;
   sentBy?: Maybe<User>;
   sentOn?: Maybe<Scalars['Datetime']>;
-  sourceBase?: Maybe<Base>;
+  sourceBase: Base;
   startedBy: User;
   startedOn: Scalars['Datetime'];
   state?: Maybe<ShipmentState>;
-  targetBase?: Maybe<Base>;
+  targetBase: Base;
   transferAgreement: TransferAgreement;
 };
 
@@ -1229,16 +1264,21 @@ export enum ShipmentState {
   Completed = 'Completed',
   Lost = 'Lost',
   Preparing = 'Preparing',
+  Receiving = 'Receiving',
   Sent = 'Sent'
 }
 
-export type ShipmentUpdateInput = {
+export type ShipmentWhenPreparingUpdateInput = {
   id: Scalars['ID'];
-  lostBoxLabelIdentifiers?: InputMaybe<Array<Scalars['String']>>;
   preparedBoxLabelIdentifiers?: InputMaybe<Array<Scalars['String']>>;
-  receivedShipmentDetailUpdateInputs?: InputMaybe<Array<ShipmentDetailUpdateInput>>;
   removedBoxLabelIdentifiers?: InputMaybe<Array<Scalars['String']>>;
   targetBaseId?: InputMaybe<Scalars['Int']>;
+};
+
+export type ShipmentWhenReceivingUpdateInput = {
+  id: Scalars['ID'];
+  lostBoxLabelIdentifiers?: InputMaybe<Array<Scalars['String']>>;
+  receivedShipmentDetailUpdateInputs?: InputMaybe<Array<ShipmentDetailUpdateInput>>;
 };
 
 /** Representation of product size. */
@@ -1354,10 +1394,10 @@ export type TransferAgreement = {
 
 export type TransferAgreementCreationInput = {
   comment?: InputMaybe<Scalars['String']>;
-  sourceBaseIds?: InputMaybe<Array<Scalars['Int']>>;
-  sourceOrganisationId: Scalars['Int'];
-  targetBaseIds?: InputMaybe<Array<Scalars['Int']>>;
-  targetOrganisationId: Scalars['Int'];
+  initiatingOrganisationBaseIds: Array<Scalars['Int']>;
+  initiatingOrganisationId: Scalars['Int'];
+  partnerOrganisationBaseIds?: InputMaybe<Array<Scalars['Int']>>;
+  partnerOrganisationId: Scalars['Int'];
   timezone?: InputMaybe<Scalars['String']>;
   type: TransferAgreementType;
   validFrom?: InputMaybe<Scalars['Date']>;
@@ -1412,41 +1452,55 @@ export type BasesQueryVariables = Exact<{ [key: string]: never; }>;
 
 export type BasesQuery = { __typename?: 'Query', bases: Array<{ __typename?: 'Base', id: string, name: string }> };
 
-export type ProductBasicFieldsFragment = { __typename?: 'Product', id: string, name: string, gender?: ProductGender | null };
+export type OrganisationBasicFieldsFragment = { __typename?: 'Organisation', id: string, name: string };
+
+export type BaseBasicFieldsFragment = { __typename?: 'Base', id: string, name: string };
 
 export type UserBasicFieldsFragment = { __typename?: 'User', id: string, name?: string | null };
 
-export type HistoryFieldsFragment = { __typename?: 'HistoryEntry', id: string, changes: string, changeDate?: any | null, user?: { __typename?: 'User', id: string, name?: string | null } | null };
+export type ProductBasicFieldsFragment = { __typename?: 'Product', id: string, name: string, gender?: ProductGender | null };
 
-export type BoxFieldsFragment = { __typename?: 'Box', labelIdentifier: string, state: BoxState, numberOfItems?: number | null, comment?: string | null, size: { __typename?: 'Size', id: string, label: string }, history?: Array<{ __typename?: 'HistoryEntry', id: string, changes: string, changeDate?: any | null, user?: { __typename?: 'User', id: string, name?: string | null } | null }> | null };
+export type SizeFieldsFragment = { __typename?: 'Size', id: string, label: string };
 
 export type TagFieldsFragment = { __typename?: 'Tag', id: string, name: string, color?: string | null };
 
 export type TagOptionsFragment = { __typename?: 'Tag', color?: string | null, value: string, label: string };
 
-export type SizeFieldsFragment = { __typename?: 'Size', id: string, label: string };
+export type DistroEventFieldsFragment = { __typename?: 'DistributionEvent', id: string, state: DistributionEventState, name?: string | null, plannedStartDateTime: any, plannedEndDateTime: any, distributionSpot?: { __typename?: 'DistributionSpot', name?: string | null } | null };
+
+export type BaseOrgFieldsFragment = { __typename?: 'Base', id: string, name: string, organisation: { __typename?: 'Organisation', id: string, name: string } };
+
+export type HistoryFieldsFragment = { __typename?: 'HistoryEntry', id: string, changes: string, changeDate?: any | null, user?: { __typename?: 'User', id: string, name?: string | null } | null };
 
 export type SizeRangeFieldsFragment = { __typename?: 'SizeRange', id: string, label: string, sizes: Array<{ __typename?: 'Size', id: string, label: string }> };
 
-export type DistroEventFieldsFragment = { __typename?: 'DistributionEvent', id: string, state: DistributionEventState, name?: string | null, plannedStartDateTime: any, plannedEndDateTime: any, distributionSpot?: { __typename?: 'DistributionSpot', name?: string | null } | null };
+export type BoxFieldsFragment = { __typename?: 'Box', labelIdentifier: string, state: BoxState, numberOfItems?: number | null, comment?: string | null, product?: { __typename?: 'Product', id: string, name: string, gender?: ProductGender | null } | null, size: { __typename?: 'Size', id: string, label: string }, location?: { __typename?: 'ClassicLocation', defaultBoxState?: BoxState | null, id: string, name?: string | null, base?: { __typename?: 'Base', id: string, name: string } | null } | { __typename?: 'DistributionSpot', id: string, name?: string | null, base?: { __typename?: 'Base', id: string, name: string } | null } | null, tags?: Array<{ __typename?: 'Tag', id: string, name: string, color?: string | null }> | null, history?: Array<{ __typename?: 'HistoryEntry', id: string, changes: string, changeDate?: any | null, user?: { __typename?: 'User', id: string, name?: string | null } | null }> | null };
+
+export type BoxWithoutLocationFieldsFragment = { __typename?: 'Box', labelIdentifier: string, state: BoxState, numberOfItems?: number | null, comment?: string | null, product?: { __typename?: 'Product', id: string, name: string, gender?: ProductGender | null } | null, size: { __typename?: 'Size', id: string, label: string }, tags?: Array<{ __typename?: 'Tag', id: string, name: string, color?: string | null }> | null, history?: Array<{ __typename?: 'HistoryEntry', id: string, changes: string, changeDate?: any | null, user?: { __typename?: 'User', id: string, name?: string | null } | null }> | null };
+
+export type BoxWithSizeTagProductFieldsFragment = { __typename?: 'Box', labelIdentifier: string, state: BoxState, numberOfItems?: number | null, comment?: string | null, size: { __typename?: 'Size', id: string, label: string }, product?: { __typename?: 'Product', id: string, name: string, gender?: ProductGender | null } | null, tags?: Array<{ __typename?: 'Tag', id: string, name: string, color?: string | null }> | null, distributionEvent?: { __typename?: 'DistributionEvent', id: string, state: DistributionEventState, name?: string | null, plannedStartDateTime: any, plannedEndDateTime: any, distributionSpot?: { __typename?: 'DistributionSpot', name?: string | null } | null } | null, location?: { __typename?: 'ClassicLocation', defaultBoxState?: BoxState | null, id: string, name?: string | null, base?: { __typename?: 'Base', locations: Array<{ __typename?: 'ClassicLocation', defaultBoxState?: BoxState | null, id: string, name?: string | null }>, distributionEventsBeforeReturnedFromDistributionState: Array<{ __typename?: 'DistributionEvent', id: string, state: DistributionEventState, name?: string | null, plannedStartDateTime: any, plannedEndDateTime: any, distributionSpot?: { __typename?: 'DistributionSpot', name?: string | null } | null }> } | null } | { __typename?: 'DistributionSpot', id: string, name?: string | null, base?: { __typename?: 'Base', locations: Array<{ __typename?: 'ClassicLocation', defaultBoxState?: BoxState | null, id: string, name?: string | null }>, distributionEventsBeforeReturnedFromDistributionState: Array<{ __typename?: 'DistributionEvent', id: string, state: DistributionEventState, name?: string | null, plannedStartDateTime: any, plannedEndDateTime: any, distributionSpot?: { __typename?: 'DistributionSpot', name?: string | null } | null }> } | null } | null };
+
+export type TransferAgreementFieldsFragment = { __typename?: 'TransferAgreement', id: string, type: TransferAgreementType, state?: TransferAgreementState | null, comment?: string | null, validFrom: any, validUntil?: any | null, requestedOn: any, acceptedOn?: any | null, terminatedOn?: any | null, sourceOrganisation: { __typename?: 'Organisation', id: string, name: string }, sourceBases?: Array<{ __typename?: 'Base', id: string, name: string }> | null, targetOrganisation: { __typename?: 'Organisation', id: string, name: string }, targetBases?: Array<{ __typename?: 'Base', id: string, name: string }> | null, shipments: Array<{ __typename?: 'Shipment', id: string, state?: ShipmentState | null, sourceBase: { __typename?: 'Base', id: string, name: string }, targetBase: { __typename?: 'Base', id: string, name: string } }>, requestedBy: { __typename?: 'User', id: string, name?: string | null }, acceptedBy?: { __typename?: 'User', id: string, name?: string | null } | null, terminatedBy?: { __typename?: 'User', id: string, name?: string | null } | null };
 
 export type ProductFieldsFragment = { __typename?: 'Product', id: string, name: string, gender?: ProductGender | null, category: { __typename?: 'ProductCategory', name: string }, sizeRange: { __typename?: 'SizeRange', id: string, label: string, sizes: Array<{ __typename?: 'Size', id: string, label: string }> } };
 
-export type BoxWithSizeTagProductFieldsFragment = { __typename?: 'Box', labelIdentifier: string, state: BoxState, numberOfItems?: number | null, comment?: string | null, size: { __typename?: 'Size', id: string, label: string }, product?: { __typename?: 'Product', id: string, name: string, gender?: ProductGender | null } | null, tags?: Array<{ __typename?: 'Tag', id: string, name: string, color?: string | null }> | null, distributionEvent?: { __typename?: 'DistributionEvent', id: string, state: DistributionEventState, name?: string | null, plannedStartDateTime: any, plannedEndDateTime: any, distributionSpot?: { __typename?: 'DistributionSpot', name?: string | null } | null } | null, location?: { __typename?: 'ClassicLocation', defaultBoxState?: BoxState | null, id: string, name?: string | null, base?: { __typename?: 'Base', locations: Array<{ __typename?: 'ClassicLocation', defaultBoxState?: BoxState | null, id: string, name?: string | null }>, distributionEventsBeforeReturnedFromDistributionState: Array<{ __typename?: 'DistributionEvent', id: string, state: DistributionEventState, name?: string | null, plannedStartDateTime: any, plannedEndDateTime: any, distributionSpot?: { __typename?: 'DistributionSpot', name?: string | null } | null }> } | null } | { __typename?: 'DistributionSpot', id: string, name?: string | null, base?: { __typename?: 'Base', locations: Array<{ __typename?: 'ClassicLocation', defaultBoxState?: BoxState | null, id: string, name?: string | null }>, distributionEventsBeforeReturnedFromDistributionState: Array<{ __typename?: 'DistributionEvent', id: string, state: DistributionEventState, name?: string | null, plannedStartDateTime: any, plannedEndDateTime: any, distributionSpot?: { __typename?: 'DistributionSpot', name?: string | null } | null }> } | null } | null };
+export type ShipmentDetailFieldsFragment = { __typename?: 'ShipmentDetail', id: string, createdOn: any, deletedOn?: any | null, box: { __typename?: 'Box', labelIdentifier: string, state: BoxState, numberOfItems?: number | null, comment?: string | null, product?: { __typename?: 'Product', id: string, name: string, gender?: ProductGender | null } | null, size: { __typename?: 'Size', id: string, label: string }, tags?: Array<{ __typename?: 'Tag', id: string, name: string, color?: string | null }> | null, history?: Array<{ __typename?: 'HistoryEntry', id: string, changes: string, changeDate?: any | null, user?: { __typename?: 'User', id: string, name?: string | null } | null }> | null }, sourceProduct?: { __typename?: 'Product', id: string, name: string, gender?: ProductGender | null, category: { __typename?: 'ProductCategory', name: string }, sizeRange: { __typename?: 'SizeRange', id: string, label: string, sizes: Array<{ __typename?: 'Size', id: string, label: string }> } } | null, targetProduct?: { __typename?: 'Product', id: string, name: string, gender?: ProductGender | null, category: { __typename?: 'ProductCategory', name: string }, sizeRange: { __typename?: 'SizeRange', id: string, label: string, sizes: Array<{ __typename?: 'Size', id: string, label: string }> } } | null, createdBy: { __typename?: 'User', id: string, name?: string | null }, deletedBy?: { __typename?: 'User', id: string, name?: string | null } | null };
+
+export type ShipmentFieldsFragment = { __typename?: 'Shipment', id: string, state?: ShipmentState | null, startedOn: any, sentOn?: any | null, receivingStartedOn?: any | null, completedOn?: any | null, canceledOn?: any | null, details: Array<{ __typename?: 'ShipmentDetail', id: string, createdOn: any, deletedOn?: any | null, box: { __typename?: 'Box', labelIdentifier: string, state: BoxState, numberOfItems?: number | null, comment?: string | null, product?: { __typename?: 'Product', id: string, name: string, gender?: ProductGender | null } | null, size: { __typename?: 'Size', id: string, label: string }, tags?: Array<{ __typename?: 'Tag', id: string, name: string, color?: string | null }> | null, history?: Array<{ __typename?: 'HistoryEntry', id: string, changes: string, changeDate?: any | null, user?: { __typename?: 'User', id: string, name?: string | null } | null }> | null }, sourceProduct?: { __typename?: 'Product', id: string, name: string, gender?: ProductGender | null, category: { __typename?: 'ProductCategory', name: string }, sizeRange: { __typename?: 'SizeRange', id: string, label: string, sizes: Array<{ __typename?: 'Size', id: string, label: string }> } } | null, targetProduct?: { __typename?: 'Product', id: string, name: string, gender?: ProductGender | null, category: { __typename?: 'ProductCategory', name: string }, sizeRange: { __typename?: 'SizeRange', id: string, label: string, sizes: Array<{ __typename?: 'Size', id: string, label: string }> } } | null, createdBy: { __typename?: 'User', id: string, name?: string | null }, deletedBy?: { __typename?: 'User', id: string, name?: string | null } | null }>, sourceBase: { __typename?: 'Base', id: string, name: string, organisation: { __typename?: 'Organisation', id: string, name: string } }, targetBase: { __typename?: 'Base', id: string, name: string, organisation: { __typename?: 'Organisation', id: string, name: string } }, transferAgreement: { __typename?: 'TransferAgreement', id: string, comment?: string | null, type: TransferAgreementType }, startedBy: { __typename?: 'User', id: string, name?: string | null }, sentBy?: { __typename?: 'User', id: string, name?: string | null } | null, receivingStartedBy?: { __typename?: 'User', id: string, name?: string | null } | null, completedBy?: { __typename?: 'User', id: string, name?: string | null } | null, canceledBy?: { __typename?: 'User', id: string, name?: string | null } | null };
 
 export type BoxDetailsQueryVariables = Exact<{
   labelIdentifier: Scalars['String'];
 }>;
 
 
-export type BoxDetailsQuery = { __typename?: 'Query', box?: { __typename?: 'Box', labelIdentifier: string, numberOfItems?: number | null, product?: { __typename?: 'Product', id: string, name: string, gender?: ProductGender | null } | null, size: { __typename?: 'Size', id: string, label: string }, location?: { __typename?: 'ClassicLocation', id: string, name?: string | null, base?: { __typename?: 'Base', id: string, name: string } | null } | { __typename?: 'DistributionSpot', id: string, name?: string | null, base?: { __typename?: 'Base', id: string, name: string } | null } | null } | null };
+export type BoxDetailsQuery = { __typename?: 'Query', box?: { __typename?: 'Box', labelIdentifier: string, state: BoxState, numberOfItems?: number | null, comment?: string | null, product?: { __typename?: 'Product', id: string, name: string, gender?: ProductGender | null } | null, size: { __typename?: 'Size', id: string, label: string }, location?: { __typename?: 'ClassicLocation', defaultBoxState?: BoxState | null, id: string, name?: string | null, base?: { __typename?: 'Base', id: string, name: string } | null } | { __typename?: 'DistributionSpot', id: string, name?: string | null, base?: { __typename?: 'Base', id: string, name: string } | null } | null, tags?: Array<{ __typename?: 'Tag', id: string, name: string, color?: string | null }> | null, history?: Array<{ __typename?: 'HistoryEntry', id: string, changes: string, changeDate?: any | null, user?: { __typename?: 'User', id: string, name?: string | null } | null }> | null } | null };
 
 export type GetBoxLabelIdentifierForQrCodeQueryVariables = Exact<{
   qrCode: Scalars['String'];
 }>;
 
 
-export type GetBoxLabelIdentifierForQrCodeQuery = { __typename?: 'Query', qrCode?: { __typename?: 'QrCode', box?: { __typename?: 'Box', id: string, labelIdentifier: string, numberOfItems?: number | null, product?: { __typename?: 'Product', id: string, name: string, gender?: ProductGender | null } | null, size: { __typename?: 'Size', id: string, label: string }, location?: { __typename?: 'ClassicLocation', base?: { __typename?: 'Base', id: string } | null } | { __typename?: 'DistributionSpot', base?: { __typename?: 'Base', id: string } | null } | null } | null } | null };
+export type GetBoxLabelIdentifierForQrCodeQuery = { __typename?: 'Query', qrCode?: { __typename?: 'QrCode', box?: { __typename?: 'Box', labelIdentifier: string, state: BoxState, numberOfItems?: number | null, comment?: string | null, product?: { __typename?: 'Product', id: string, name: string, gender?: ProductGender | null } | null, size: { __typename?: 'Size', id: string, label: string }, location?: { __typename?: 'ClassicLocation', defaultBoxState?: BoxState | null, id: string, name?: string | null, base?: { __typename?: 'Base', id: string, name: string } | null } | { __typename?: 'DistributionSpot', id: string, name?: string | null, base?: { __typename?: 'Base', id: string, name: string } | null } | null, tags?: Array<{ __typename?: 'Tag', id: string, name: string, color?: string | null }> | null, history?: Array<{ __typename?: 'HistoryEntry', id: string, changes: string, changeDate?: any | null, user?: { __typename?: 'User', id: string, name?: string | null } | null }> | null } | null } | null };
 
 export type CheckIfQrExistsInDbQueryVariables = Exact<{
   qrCode: Scalars['String'];
@@ -1467,7 +1521,7 @@ export type BoxByLabelIdentifierQueryVariables = Exact<{
 }>;
 
 
-export type BoxByLabelIdentifierQuery = { __typename?: 'Query', box?: { __typename?: 'Box', labelIdentifier: string, state: BoxState, numberOfItems?: number | null, comment?: string | null, product?: { __typename?: 'Product', id: string, name: string, gender?: ProductGender | null } | null, tags?: Array<{ __typename?: 'Tag', id: string, name: string, color?: string | null }> | null, distributionEvent?: { __typename?: 'DistributionEvent', id: string, state: DistributionEventState, name?: string | null, plannedStartDateTime: any, plannedEndDateTime: any, distributionSpot?: { __typename?: 'DistributionSpot', name?: string | null } | null } | null, location?: { __typename: 'ClassicLocation', defaultBoxState?: BoxState | null, id: string, name?: string | null, base?: { __typename?: 'Base', locations: Array<{ __typename?: 'ClassicLocation', defaultBoxState?: BoxState | null, id: string, name?: string | null }>, distributionEventsBeforeReturnedFromDistributionState: Array<{ __typename?: 'DistributionEvent', id: string, state: DistributionEventState, name?: string | null, plannedStartDateTime: any, plannedEndDateTime: any, distributionSpot?: { __typename?: 'DistributionSpot', name?: string | null } | null }> } | null } | { __typename: 'DistributionSpot', id: string, name?: string | null, base?: { __typename?: 'Base', locations: Array<{ __typename?: 'ClassicLocation', defaultBoxState?: BoxState | null, id: string, name?: string | null }>, distributionEventsBeforeReturnedFromDistributionState: Array<{ __typename?: 'DistributionEvent', id: string, state: DistributionEventState, name?: string | null, plannedStartDateTime: any, plannedEndDateTime: any, distributionSpot?: { __typename?: 'DistributionSpot', name?: string | null } | null }> } | null } | null, size: { __typename?: 'Size', id: string, label: string }, history?: Array<{ __typename?: 'HistoryEntry', id: string, changes: string, changeDate?: any | null, user?: { __typename?: 'User', id: string, name?: string | null } | null }> | null } | null };
+export type BoxByLabelIdentifierQuery = { __typename?: 'Query', box?: { __typename?: 'Box', labelIdentifier: string, state: BoxState, numberOfItems?: number | null, comment?: string | null, product?: { __typename?: 'Product', id: string, name: string, gender?: ProductGender | null } | null, tags?: Array<{ __typename?: 'Tag', id: string, name: string, color?: string | null }> | null, distributionEvent?: { __typename?: 'DistributionEvent', id: string, state: DistributionEventState, name?: string | null, plannedStartDateTime: any, plannedEndDateTime: any, distributionSpot?: { __typename?: 'DistributionSpot', name?: string | null } | null } | null, location?: { __typename: 'ClassicLocation', defaultBoxState?: BoxState | null, id: string, name?: string | null, base?: { __typename?: 'Base', id: string, name: string, locations: Array<{ __typename?: 'ClassicLocation', defaultBoxState?: BoxState | null, id: string, name?: string | null }>, distributionEventsBeforeReturnedFromDistributionState: Array<{ __typename?: 'DistributionEvent', id: string, state: DistributionEventState, name?: string | null, plannedStartDateTime: any, plannedEndDateTime: any, distributionSpot?: { __typename?: 'DistributionSpot', name?: string | null } | null }> } | null } | { __typename: 'DistributionSpot', id: string, name?: string | null, base?: { __typename?: 'Base', id: string, name: string, locations: Array<{ __typename?: 'ClassicLocation', defaultBoxState?: BoxState | null, id: string, name?: string | null }>, distributionEventsBeforeReturnedFromDistributionState: Array<{ __typename?: 'DistributionEvent', id: string, state: DistributionEventState, name?: string | null, plannedStartDateTime: any, plannedEndDateTime: any, distributionSpot?: { __typename?: 'DistributionSpot', name?: string | null } | null }> } | null } | null, size: { __typename?: 'Size', id: string, label: string }, history?: Array<{ __typename?: 'HistoryEntry', id: string, changes: string, changeDate?: any | null, user?: { __typename?: 'User', id: string, name?: string | null } | null }> | null } | null };
 
 export type UpdateNumberOfItemsMutationVariables = Exact<{
   boxLabelIdentifier: Scalars['String'];
@@ -1491,7 +1545,7 @@ export type UpdateLocationOfBoxMutationVariables = Exact<{
 }>;
 
 
-export type UpdateLocationOfBoxMutation = { __typename?: 'Mutation', updateBox?: { __typename?: 'Box', labelIdentifier: string, state: BoxState, numberOfItems?: number | null, comment?: string | null, product?: { __typename?: 'Product', id: string, name: string, gender?: ProductGender | null, category: { __typename?: 'ProductCategory', name: string }, sizeRange: { __typename?: 'SizeRange', id: string, label: string, sizes: Array<{ __typename?: 'Size', id: string, label: string }> } } | null, tags?: Array<{ __typename?: 'Tag', id: string, name: string, color?: string | null }> | null, distributionEvent?: { __typename?: 'DistributionEvent', id: string, state: DistributionEventState, name?: string | null, plannedStartDateTime: any, plannedEndDateTime: any, distributionSpot?: { __typename?: 'DistributionSpot', name?: string | null } | null } | null, location?: { __typename: 'ClassicLocation', defaultBoxState?: BoxState | null, id: string, name?: string | null, base?: { __typename?: 'Base', locations: Array<{ __typename?: 'ClassicLocation', defaultBoxState?: BoxState | null, id: string, name?: string | null }>, distributionEventsBeforeReturnedFromDistributionState: Array<{ __typename?: 'DistributionEvent', id: string, state: DistributionEventState, name?: string | null, plannedStartDateTime: any, plannedEndDateTime: any, distributionSpot?: { __typename?: 'DistributionSpot', name?: string | null } | null }> } | null } | { __typename: 'DistributionSpot', id: string, name?: string | null, base?: { __typename?: 'Base', locations: Array<{ __typename?: 'ClassicLocation', defaultBoxState?: BoxState | null, id: string, name?: string | null }>, distributionEventsBeforeReturnedFromDistributionState: Array<{ __typename?: 'DistributionEvent', id: string, state: DistributionEventState, name?: string | null, plannedStartDateTime: any, plannedEndDateTime: any, distributionSpot?: { __typename?: 'DistributionSpot', name?: string | null } | null }> } | null } | null, size: { __typename?: 'Size', id: string, label: string }, history?: Array<{ __typename?: 'HistoryEntry', id: string, changes: string, changeDate?: any | null, user?: { __typename?: 'User', id: string, name?: string | null } | null }> | null } | null };
+export type UpdateLocationOfBoxMutation = { __typename?: 'Mutation', updateBox?: { __typename?: 'Box', labelIdentifier: string, state: BoxState, numberOfItems?: number | null, comment?: string | null, product?: { __typename?: 'Product', id: string, name: string, gender?: ProductGender | null, category: { __typename?: 'ProductCategory', name: string }, sizeRange: { __typename?: 'SizeRange', id: string, label: string, sizes: Array<{ __typename?: 'Size', id: string, label: string }> } } | null, tags?: Array<{ __typename?: 'Tag', id: string, name: string, color?: string | null }> | null, distributionEvent?: { __typename?: 'DistributionEvent', id: string, state: DistributionEventState, name?: string | null, plannedStartDateTime: any, plannedEndDateTime: any, distributionSpot?: { __typename?: 'DistributionSpot', name?: string | null } | null } | null, location?: { __typename: 'ClassicLocation', defaultBoxState?: BoxState | null, id: string, name?: string | null, base?: { __typename?: 'Base', id: string, name: string, locations: Array<{ __typename?: 'ClassicLocation', defaultBoxState?: BoxState | null, id: string, name?: string | null }>, distributionEventsBeforeReturnedFromDistributionState: Array<{ __typename?: 'DistributionEvent', id: string, state: DistributionEventState, name?: string | null, plannedStartDateTime: any, plannedEndDateTime: any, distributionSpot?: { __typename?: 'DistributionSpot', name?: string | null } | null }> } | null } | { __typename: 'DistributionSpot', id: string, name?: string | null, base?: { __typename?: 'Base', id: string, name: string, locations: Array<{ __typename?: 'ClassicLocation', defaultBoxState?: BoxState | null, id: string, name?: string | null }>, distributionEventsBeforeReturnedFromDistributionState: Array<{ __typename?: 'DistributionEvent', id: string, state: DistributionEventState, name?: string | null, plannedStartDateTime: any, plannedEndDateTime: any, distributionSpot?: { __typename?: 'DistributionSpot', name?: string | null } | null }> } | null } | null, size: { __typename?: 'Size', id: string, label: string }, history?: Array<{ __typename?: 'HistoryEntry', id: string, changes: string, changeDate?: any | null, user?: { __typename?: 'User', id: string, name?: string | null } | null }> | null } | null };
 
 export type AllProductsAndLocationsForBaseQueryVariables = Exact<{
   baseId: Scalars['ID'];
@@ -1519,7 +1573,7 @@ export type BoxByLabelIdentifierAndAllProductsWithBaseIdQueryVariables = Exact<{
 }>;
 
 
-export type BoxByLabelIdentifierAndAllProductsWithBaseIdQuery = { __typename?: 'Query', box?: { __typename?: 'Box', labelIdentifier: string, numberOfItems?: number | null, comment?: string | null, size: { __typename?: 'Size', id: string, label: string }, tags?: Array<{ __typename?: 'Tag', color?: string | null, value: string, label: string }> | null, product?: { __typename?: 'Product', id: string, name: string, gender?: ProductGender | null, category: { __typename?: 'ProductCategory', name: string }, sizeRange: { __typename?: 'SizeRange', id: string, label: string, sizes: Array<{ __typename?: 'Size', id: string, label: string }> } } | null, location?: { __typename?: 'ClassicLocation', defaultBoxState?: BoxState | null, id: string, name?: string | null } | { __typename?: 'DistributionSpot', id: string, name?: string | null } | null } | null, base?: { __typename?: 'Base', tags?: Array<{ __typename?: 'Tag', color?: string | null, value: string, label: string }> | null, locations: Array<{ __typename?: 'ClassicLocation', defaultBoxState?: BoxState | null, id: string, name?: string | null }>, products: Array<{ __typename?: 'Product', id: string, name: string, gender?: ProductGender | null, category: { __typename?: 'ProductCategory', name: string }, sizeRange: { __typename?: 'SizeRange', id: string, label: string, sizes: Array<{ __typename?: 'Size', id: string, label: string }> } }> } | null };
+export type BoxByLabelIdentifierAndAllProductsWithBaseIdQuery = { __typename?: 'Query', box?: { __typename?: 'Box', labelIdentifier: string, state: BoxState, numberOfItems?: number | null, comment?: string | null, tags?: Array<{ __typename?: 'Tag', color?: string | null, id: string, name: string, value: string, label: string }> | null, product?: { __typename?: 'Product', id: string, name: string, gender?: ProductGender | null, category: { __typename?: 'ProductCategory', name: string }, sizeRange: { __typename?: 'SizeRange', id: string, label: string, sizes: Array<{ __typename?: 'Size', id: string, label: string }> } } | null, size: { __typename?: 'Size', id: string, label: string }, location?: { __typename?: 'ClassicLocation', defaultBoxState?: BoxState | null, id: string, name?: string | null, base?: { __typename?: 'Base', id: string, name: string } | null } | { __typename?: 'DistributionSpot', id: string, name?: string | null, base?: { __typename?: 'Base', id: string, name: string } | null } | null, history?: Array<{ __typename?: 'HistoryEntry', id: string, changes: string, changeDate?: any | null, user?: { __typename?: 'User', id: string, name?: string | null } | null }> | null } | null, base?: { __typename?: 'Base', tags?: Array<{ __typename?: 'Tag', color?: string | null, value: string, label: string }> | null, locations: Array<{ __typename?: 'ClassicLocation', defaultBoxState?: BoxState | null, id: string, name?: string | null }>, products: Array<{ __typename?: 'Product', id: string, name: string, gender?: ProductGender | null, category: { __typename?: 'ProductCategory', name: string }, sizeRange: { __typename?: 'SizeRange', id: string, label: string, sizes: Array<{ __typename?: 'Size', id: string, label: string }> } }> } | null };
 
 export type UpdateContentOfBoxMutationVariables = Exact<{
   boxLabelIdentifier: Scalars['String'];
@@ -1539,7 +1593,7 @@ export type BoxesForBaseQueryVariables = Exact<{
 }>;
 
 
-export type BoxesForBaseQuery = { __typename?: 'Query', base?: { __typename?: 'Base', locations: Array<{ __typename?: 'ClassicLocation', name?: string | null, boxes?: { __typename?: 'BoxPage', totalCount: number, elements: Array<{ __typename?: 'Box', labelIdentifier: string, state: BoxState, numberOfItems?: number | null, size: { __typename?: 'Size', id: string, label: string }, product?: { __typename?: 'Product', gender?: ProductGender | null, name: string } | null, tags?: Array<{ __typename?: 'Tag', name: string, id: string }> | null }> } | null }> } | null };
+export type BoxesForBaseQuery = { __typename?: 'Query', base?: { __typename?: 'Base', locations: Array<{ __typename?: 'ClassicLocation', name?: string | null, boxes?: { __typename?: 'BoxPage', totalCount: number, elements: Array<{ __typename?: 'Box', labelIdentifier: string, state: BoxState, numberOfItems?: number | null, comment?: string | null, product?: { __typename?: 'Product', id: string, name: string, gender?: ProductGender | null } | null, size: { __typename?: 'Size', id: string, label: string }, location?: { __typename?: 'ClassicLocation', defaultBoxState?: BoxState | null, id: string, name?: string | null, base?: { __typename?: 'Base', id: string, name: string } | null } | { __typename?: 'DistributionSpot', id: string, name?: string | null, base?: { __typename?: 'Base', id: string, name: string } | null } | null, tags?: Array<{ __typename?: 'Tag', id: string, name: string, color?: string | null }> | null, history?: Array<{ __typename?: 'HistoryEntry', id: string, changes: string, changeDate?: any | null, user?: { __typename?: 'User', id: string, name?: string | null } | null }> | null }> } | null }> } | null };
 
 export type CreateDistributionEventMutationVariables = Exact<{
   distributionSpotId: Scalars['Int'];
@@ -1740,22 +1794,80 @@ export type CompleteDistributionEventsTrackingGroupMutationVariables = Exact<{
 
 export type CompleteDistributionEventsTrackingGroupMutation = { __typename?: 'Mutation', completeDistributionEventsTrackingGroup?: { __typename?: 'DistributionEventsTrackingGroup', id: string } | null };
 
+export type AllAcceptedTransferAgreementsQueryVariables = Exact<{
+  baseId: Scalars['ID'];
+}>;
+
+
+export type AllAcceptedTransferAgreementsQuery = { __typename?: 'Query', base?: { __typename?: 'Base', id: string, name: string, organisation: { __typename?: 'Organisation', id: string, name: string } } | null, transferAgreements: Array<{ __typename?: 'TransferAgreement', id: string, type: TransferAgreementType, state?: TransferAgreementState | null, comment?: string | null, validFrom: any, validUntil?: any | null, requestedOn: any, acceptedOn?: any | null, terminatedOn?: any | null, sourceOrganisation: { __typename?: 'Organisation', id: string, name: string }, sourceBases?: Array<{ __typename?: 'Base', id: string, name: string }> | null, targetOrganisation: { __typename?: 'Organisation', id: string, name: string }, targetBases?: Array<{ __typename?: 'Base', id: string, name: string }> | null, shipments: Array<{ __typename?: 'Shipment', id: string, state?: ShipmentState | null, sourceBase: { __typename?: 'Base', id: string, name: string }, targetBase: { __typename?: 'Base', id: string, name: string } }>, requestedBy: { __typename?: 'User', id: string, name?: string | null }, acceptedBy?: { __typename?: 'User', id: string, name?: string | null } | null, terminatedBy?: { __typename?: 'User', id: string, name?: string | null } | null }> };
+
+export type CreateShipmentMutationVariables = Exact<{
+  sourceBaseId: Scalars['Int'];
+  targetBaseId: Scalars['Int'];
+  transferAgreementId: Scalars['Int'];
+}>;
+
+
+export type CreateShipmentMutation = { __typename?: 'Mutation', createShipment?: { __typename?: 'Shipment', id: string, state?: ShipmentState | null, startedOn: any, sentOn?: any | null, receivingStartedOn?: any | null, completedOn?: any | null, canceledOn?: any | null, details: Array<{ __typename?: 'ShipmentDetail', id: string, createdOn: any, deletedOn?: any | null, box: { __typename?: 'Box', labelIdentifier: string, state: BoxState, numberOfItems?: number | null, comment?: string | null, product?: { __typename?: 'Product', id: string, name: string, gender?: ProductGender | null } | null, size: { __typename?: 'Size', id: string, label: string }, tags?: Array<{ __typename?: 'Tag', id: string, name: string, color?: string | null }> | null, history?: Array<{ __typename?: 'HistoryEntry', id: string, changes: string, changeDate?: any | null, user?: { __typename?: 'User', id: string, name?: string | null } | null }> | null }, sourceProduct?: { __typename?: 'Product', id: string, name: string, gender?: ProductGender | null, category: { __typename?: 'ProductCategory', name: string }, sizeRange: { __typename?: 'SizeRange', id: string, label: string, sizes: Array<{ __typename?: 'Size', id: string, label: string }> } } | null, targetProduct?: { __typename?: 'Product', id: string, name: string, gender?: ProductGender | null, category: { __typename?: 'ProductCategory', name: string }, sizeRange: { __typename?: 'SizeRange', id: string, label: string, sizes: Array<{ __typename?: 'Size', id: string, label: string }> } } | null, createdBy: { __typename?: 'User', id: string, name?: string | null }, deletedBy?: { __typename?: 'User', id: string, name?: string | null } | null }>, sourceBase: { __typename?: 'Base', id: string, name: string, organisation: { __typename?: 'Organisation', id: string, name: string } }, targetBase: { __typename?: 'Base', id: string, name: string, organisation: { __typename?: 'Organisation', id: string, name: string } }, transferAgreement: { __typename?: 'TransferAgreement', id: string, comment?: string | null, type: TransferAgreementType }, startedBy: { __typename?: 'User', id: string, name?: string | null }, sentBy?: { __typename?: 'User', id: string, name?: string | null } | null, receivingStartedBy?: { __typename?: 'User', id: string, name?: string | null } | null, completedBy?: { __typename?: 'User', id: string, name?: string | null } | null, canceledBy?: { __typename?: 'User', id: string, name?: string | null } | null } | null };
+
+export type NewShipmentFragment = { __typename?: 'Shipment', id: string };
+
 export type AllOrganisationsAndBasesQueryVariables = Exact<{ [key: string]: never; }>;
 
 
 export type AllOrganisationsAndBasesQuery = { __typename?: 'Query', organisations: Array<{ __typename?: 'Organisation', id: string, name: string, bases?: Array<{ __typename?: 'Base', id: string, name: string }> | null }> };
 
 export type CreateTransferAgreementMutationVariables = Exact<{
-  sourceOrganisationId: Scalars['Int'];
-  targetOrganisationId: Scalars['Int'];
+  initiatingOrganisationId: Scalars['Int'];
+  partnerOrganisationId: Scalars['Int'];
   type: TransferAgreementType;
   validFrom?: InputMaybe<Scalars['Date']>;
   validUntil?: InputMaybe<Scalars['Date']>;
   timezone?: InputMaybe<Scalars['String']>;
-  sourceBaseIds?: InputMaybe<Array<Scalars['Int']> | Scalars['Int']>;
-  targetBaseIds?: InputMaybe<Array<Scalars['Int']> | Scalars['Int']>;
+  initiatingOrganisationBaseIds: Array<Scalars['Int']> | Scalars['Int'];
+  partnerOrganisationBaseIds?: InputMaybe<Array<Scalars['Int']> | Scalars['Int']>;
   comment?: InputMaybe<Scalars['String']>;
 }>;
 
 
-export type CreateTransferAgreementMutation = { __typename?: 'Mutation', createTransferAgreement?: { __typename?: 'TransferAgreement', id: string } | null };
+export type CreateTransferAgreementMutation = { __typename?: 'Mutation', createTransferAgreement?: { __typename?: 'TransferAgreement', id: string, type: TransferAgreementType, state?: TransferAgreementState | null, comment?: string | null, validFrom: any, validUntil?: any | null, requestedOn: any, acceptedOn?: any | null, terminatedOn?: any | null, sourceOrganisation: { __typename?: 'Organisation', id: string, name: string }, sourceBases?: Array<{ __typename?: 'Base', id: string, name: string }> | null, targetOrganisation: { __typename?: 'Organisation', id: string, name: string }, targetBases?: Array<{ __typename?: 'Base', id: string, name: string }> | null, shipments: Array<{ __typename?: 'Shipment', id: string, state?: ShipmentState | null, sourceBase: { __typename?: 'Base', id: string, name: string }, targetBase: { __typename?: 'Base', id: string, name: string } }>, requestedBy: { __typename?: 'User', id: string, name?: string | null }, acceptedBy?: { __typename?: 'User', id: string, name?: string | null } | null, terminatedBy?: { __typename?: 'User', id: string, name?: string | null } | null } | null };
+
+export type NewTransferAgreementFragment = { __typename?: 'TransferAgreement', id: string, type: TransferAgreementType };
+
+export type ShipmentByIdQueryVariables = Exact<{
+  id: Scalars['ID'];
+}>;
+
+
+export type ShipmentByIdQuery = { __typename?: 'Query', shipment?: { __typename?: 'Shipment', id: string, state?: ShipmentState | null, startedOn: any, sentOn?: any | null, receivingStartedOn?: any | null, completedOn?: any | null, canceledOn?: any | null, details: Array<{ __typename?: 'ShipmentDetail', id: string, createdOn: any, deletedOn?: any | null, box: { __typename?: 'Box', labelIdentifier: string, state: BoxState, numberOfItems?: number | null, comment?: string | null, product?: { __typename?: 'Product', id: string, name: string, gender?: ProductGender | null } | null, size: { __typename?: 'Size', id: string, label: string }, tags?: Array<{ __typename?: 'Tag', id: string, name: string, color?: string | null }> | null, history?: Array<{ __typename?: 'HistoryEntry', id: string, changes: string, changeDate?: any | null, user?: { __typename?: 'User', id: string, name?: string | null } | null }> | null }, sourceProduct?: { __typename?: 'Product', id: string, name: string, gender?: ProductGender | null, category: { __typename?: 'ProductCategory', name: string }, sizeRange: { __typename?: 'SizeRange', id: string, label: string, sizes: Array<{ __typename?: 'Size', id: string, label: string }> } } | null, targetProduct?: { __typename?: 'Product', id: string, name: string, gender?: ProductGender | null, category: { __typename?: 'ProductCategory', name: string }, sizeRange: { __typename?: 'SizeRange', id: string, label: string, sizes: Array<{ __typename?: 'Size', id: string, label: string }> } } | null, createdBy: { __typename?: 'User', id: string, name?: string | null }, deletedBy?: { __typename?: 'User', id: string, name?: string | null } | null }>, sourceBase: { __typename?: 'Base', id: string, name: string, organisation: { __typename?: 'Organisation', id: string, name: string } }, targetBase: { __typename?: 'Base', id: string, name: string, organisation: { __typename?: 'Organisation', id: string, name: string } }, transferAgreement: { __typename?: 'TransferAgreement', id: string, comment?: string | null, type: TransferAgreementType }, startedBy: { __typename?: 'User', id: string, name?: string | null }, sentBy?: { __typename?: 'User', id: string, name?: string | null } | null, receivingStartedBy?: { __typename?: 'User', id: string, name?: string | null } | null, completedBy?: { __typename?: 'User', id: string, name?: string | null } | null, canceledBy?: { __typename?: 'User', id: string, name?: string | null } | null } | null };
+
+export type ShipmentsQueryVariables = Exact<{ [key: string]: never; }>;
+
+
+export type ShipmentsQuery = { __typename?: 'Query', shipments: Array<{ __typename?: 'Shipment', id: string, state?: ShipmentState | null, startedOn: any, sentOn?: any | null, receivingStartedOn?: any | null, completedOn?: any | null, canceledOn?: any | null, details: Array<{ __typename?: 'ShipmentDetail', id: string, createdOn: any, deletedOn?: any | null, box: { __typename?: 'Box', labelIdentifier: string, state: BoxState, numberOfItems?: number | null, comment?: string | null, product?: { __typename?: 'Product', id: string, name: string, gender?: ProductGender | null } | null, size: { __typename?: 'Size', id: string, label: string }, tags?: Array<{ __typename?: 'Tag', id: string, name: string, color?: string | null }> | null, history?: Array<{ __typename?: 'HistoryEntry', id: string, changes: string, changeDate?: any | null, user?: { __typename?: 'User', id: string, name?: string | null } | null }> | null }, sourceProduct?: { __typename?: 'Product', id: string, name: string, gender?: ProductGender | null, category: { __typename?: 'ProductCategory', name: string }, sizeRange: { __typename?: 'SizeRange', id: string, label: string, sizes: Array<{ __typename?: 'Size', id: string, label: string }> } } | null, targetProduct?: { __typename?: 'Product', id: string, name: string, gender?: ProductGender | null, category: { __typename?: 'ProductCategory', name: string }, sizeRange: { __typename?: 'SizeRange', id: string, label: string, sizes: Array<{ __typename?: 'Size', id: string, label: string }> } } | null, createdBy: { __typename?: 'User', id: string, name?: string | null }, deletedBy?: { __typename?: 'User', id: string, name?: string | null } | null }>, sourceBase: { __typename?: 'Base', id: string, name: string, organisation: { __typename?: 'Organisation', id: string, name: string } }, targetBase: { __typename?: 'Base', id: string, name: string, organisation: { __typename?: 'Organisation', id: string, name: string } }, transferAgreement: { __typename?: 'TransferAgreement', id: string, comment?: string | null, type: TransferAgreementType }, startedBy: { __typename?: 'User', id: string, name?: string | null }, sentBy?: { __typename?: 'User', id: string, name?: string | null } | null, receivingStartedBy?: { __typename?: 'User', id: string, name?: string | null } | null, completedBy?: { __typename?: 'User', id: string, name?: string | null } | null, canceledBy?: { __typename?: 'User', id: string, name?: string | null } | null }> };
+
+export type TransferAgreementsQueryVariables = Exact<{ [key: string]: never; }>;
+
+
+export type TransferAgreementsQuery = { __typename?: 'Query', transferAgreements: Array<{ __typename?: 'TransferAgreement', id: string, type: TransferAgreementType, state?: TransferAgreementState | null, comment?: string | null, validFrom: any, validUntil?: any | null, requestedOn: any, acceptedOn?: any | null, terminatedOn?: any | null, sourceOrganisation: { __typename?: 'Organisation', id: string, name: string }, sourceBases?: Array<{ __typename?: 'Base', id: string, name: string }> | null, targetOrganisation: { __typename?: 'Organisation', id: string, name: string }, targetBases?: Array<{ __typename?: 'Base', id: string, name: string }> | null, shipments: Array<{ __typename?: 'Shipment', id: string, state?: ShipmentState | null, sourceBase: { __typename?: 'Base', id: string, name: string }, targetBase: { __typename?: 'Base', id: string, name: string } }>, requestedBy: { __typename?: 'User', id: string, name?: string | null }, acceptedBy?: { __typename?: 'User', id: string, name?: string | null } | null, terminatedBy?: { __typename?: 'User', id: string, name?: string | null } | null }> };
+
+export type AcceptTransferAgreementMutationVariables = Exact<{
+  id: Scalars['ID'];
+}>;
+
+
+export type AcceptTransferAgreementMutation = { __typename?: 'Mutation', acceptTransferAgreement?: { __typename?: 'TransferAgreement', id: string, type: TransferAgreementType, state?: TransferAgreementState | null, comment?: string | null, validFrom: any, validUntil?: any | null, requestedOn: any, acceptedOn?: any | null, terminatedOn?: any | null, sourceOrganisation: { __typename?: 'Organisation', id: string, name: string }, sourceBases?: Array<{ __typename?: 'Base', id: string, name: string }> | null, targetOrganisation: { __typename?: 'Organisation', id: string, name: string }, targetBases?: Array<{ __typename?: 'Base', id: string, name: string }> | null, shipments: Array<{ __typename?: 'Shipment', id: string, state?: ShipmentState | null, sourceBase: { __typename?: 'Base', id: string, name: string }, targetBase: { __typename?: 'Base', id: string, name: string } }>, requestedBy: { __typename?: 'User', id: string, name?: string | null }, acceptedBy?: { __typename?: 'User', id: string, name?: string | null } | null, terminatedBy?: { __typename?: 'User', id: string, name?: string | null } | null } | null };
+
+export type RejectTransferAgreementMutationVariables = Exact<{
+  id: Scalars['ID'];
+}>;
+
+
+export type RejectTransferAgreementMutation = { __typename?: 'Mutation', rejectTransferAgreement?: { __typename?: 'TransferAgreement', id: string, type: TransferAgreementType, state?: TransferAgreementState | null, comment?: string | null, validFrom: any, validUntil?: any | null, requestedOn: any, acceptedOn?: any | null, terminatedOn?: any | null, sourceOrganisation: { __typename?: 'Organisation', id: string, name: string }, sourceBases?: Array<{ __typename?: 'Base', id: string, name: string }> | null, targetOrganisation: { __typename?: 'Organisation', id: string, name: string }, targetBases?: Array<{ __typename?: 'Base', id: string, name: string }> | null, shipments: Array<{ __typename?: 'Shipment', id: string, state?: ShipmentState | null, sourceBase: { __typename?: 'Base', id: string, name: string }, targetBase: { __typename?: 'Base', id: string, name: string } }>, requestedBy: { __typename?: 'User', id: string, name?: string | null }, acceptedBy?: { __typename?: 'User', id: string, name?: string | null } | null, terminatedBy?: { __typename?: 'User', id: string, name?: string | null } | null } | null };
+
+export type CancelTransferAgreementMutationVariables = Exact<{
+  id: Scalars['ID'];
+}>;
+
+
+export type CancelTransferAgreementMutation = { __typename?: 'Mutation', cancelTransferAgreement?: { __typename?: 'TransferAgreement', id: string, type: TransferAgreementType, state?: TransferAgreementState | null, comment?: string | null, validFrom: any, validUntil?: any | null, requestedOn: any, acceptedOn?: any | null, terminatedOn?: any | null, sourceOrganisation: { __typename?: 'Organisation', id: string, name: string }, sourceBases?: Array<{ __typename?: 'Base', id: string, name: string }> | null, targetOrganisation: { __typename?: 'Organisation', id: string, name: string }, targetBases?: Array<{ __typename?: 'Base', id: string, name: string }> | null, shipments: Array<{ __typename?: 'Shipment', id: string, state?: ShipmentState | null, sourceBase: { __typename?: 'Base', id: string, name: string }, targetBase: { __typename?: 'Base', id: string, name: string } }>, requestedBy: { __typename?: 'User', id: string, name?: string | null }, acceptedBy?: { __typename?: 'User', id: string, name?: string | null } | null, terminatedBy?: { __typename?: 'User', id: string, name?: string | null } | null } | null };
