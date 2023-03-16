@@ -71,6 +71,7 @@ from .transaction import default_transaction, relative_transaction
 from .transfer_agreement import (
     default_transfer_agreement,
     expired_transfer_agreement,
+    receiving_transfer_agreement,
     reviewed_transfer_agreement,
     transfer_agreements,
     unidirectional_transfer_agreement,
@@ -137,6 +138,7 @@ __all__ = [
     "prepared_shipment_detail",
     "products",
     "qr_code_without_box",
+    "receiving_transfer_agreement",
     "relative_beneficiary",
     "relative_transaction",
     "reviewed_transfer_agreement",
@@ -194,28 +196,6 @@ def setup_models():
     for module_name in module_names:
         module = importlib.import_module(f"data.{module_name}")
         module.create()
-
-
-def setup_box_transfer_models():
-    """Like `setup_models()` above but only for models related to box-transfer (not
-    present in production database dump). Return relevant model classes.
-    """
-    models = []
-    for module_name in [
-        "transfer_agreement",
-        "shipment",
-        "transfer_agreement_detail",
-        "shipment_detail",
-    ]:
-        module = importlib.import_module(f"data.{module_name}")
-        module.create()
-
-        module = importlib.import_module(
-            f"boxtribute_server.models.definitions.{module_name}"
-        )
-        model_name = "".join(p.capitalize() for p in module_name.split("_"))
-        models.append(getattr(module, model_name))
-    return models
 
 
 # List of all Models in the database, cf. https://stackoverflow.com/a/43820902/3865876

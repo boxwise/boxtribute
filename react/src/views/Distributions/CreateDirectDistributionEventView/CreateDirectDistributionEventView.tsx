@@ -15,7 +15,7 @@ import { addHours } from "date-fns";
 import { getISODateTimeFromDateAndTime } from "utils/helpers";
 import { Center } from "@chakra-ui/react";
 import { DISTRO_SPOTS_FOR_BASE_ID } from "../queries";
-import { useGlobalSiteState } from "utils/hooks";
+import { useGlobalSiteState } from "hooks/hooks";
 
 const CreateDirectDistributionEventView = () => {
   const { currentBaseId } = useGlobalSiteState();

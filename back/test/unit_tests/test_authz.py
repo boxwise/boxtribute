@@ -92,18 +92,29 @@ def test_authorized_user():
 def test_user_with_insufficient_permissions():
     user = CurrentUser(id=3, organisation_id=2, base_ids={})
     for permission in BASE_RELATED_PERMISSIONS:
-        with pytest.raises(Forbidden):
+        with pytest.raises(Forbidden) as exc_info:
             authorize(user, permission=permission, base_id=0)
+        assert (
+            exc_info.value.extensions["description"]
+            == f"You don't have access to '{permission}'"
+        )
     for permission in BASE_AGNOSTIC_PERMISSIONS:
-        with pytest.raises(Forbidden):
+        with pytest.raises(Forbidden) as exc_info:
             authorize(user, permission=permission)
+        assert (
+            exc_info.value.extensions["description"]
+            == f"You don't have access to '{permission}'"
+        )
 
     user = CurrentUser(
         id=3, organisation_id=2, base_ids={"beneficiary:create": [2], "stock:write": []}
     )
-    with pytest.raises(Forbidden):
+    with pytest.raises(Forbidden) as exc_info:
         # The permission field exists but access granted for different base
         authorize(user, permission="beneficiary:create", base_id=1)
+    assert (
+        exc_info.value.extensions["description"] == "You don't have access to 'base=1'"
+    )
     with pytest.raises(Forbidden):
         # The permission field exists but access granted for different base
         authorize(user, permission="beneficiary:create", base_ids=[1])

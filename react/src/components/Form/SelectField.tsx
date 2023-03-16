@@ -7,6 +7,7 @@ export interface IDropdownOption extends OptionBase {
   value: string;
   label: string;
   color?: string | undefined | null;
+  data?: object | undefined | null;
 }
 
 export interface ISelectFieldProps {
@@ -67,8 +68,10 @@ function SelectField({
               multiValue: (provided, state) => ({
                 ...provided,
                 border: "1px",
-                borderColor: colorIsBright(state.data?.color) ? "gray.300" : state.data?.color,
-                color: colorIsBright(state.data?.color) ? "black" : "white",
+                borderColor: colorIsBright(state.data?.color ?? "#fff")
+                  ? "gray.300"
+                  : state.data?.color,
+                color: colorIsBright(state.data?.color ?? "#fff") ? "black" : "white",
                 background: state.data?.color || "gray.100",
                 borderRadius: "20",
               }),

@@ -18,4 +18,3 @@ def setup_db_before_test(mysql_testing_database, mocker):
         mysql_testing_database.create_tables(MODELS)
         setup_models()
         yield mysql_testing_database
-        mysql_testing_database.drop_tables(MODELS)

@@ -7,8 +7,11 @@ from peewee import Model
 from .auth import CurrentUser
 from .exceptions import Forbidden
 from .models.definitions.base import Base
-from .models.definitions.transfer_agreement import TransferAgreement
-from .utils import in_ci_environment, in_development_environment
+from .utils import (
+    convert_pascal_to_snake_case,
+    in_ci_environment,
+    in_development_environment,
+)
 
 BASE_AGNOSTIC_RESOURCES = (
     "box_state",
@@ -18,6 +21,7 @@ BASE_AGNOSTIC_RESOURCES = (
     "language",
     "organisation",
     "qr",
+    "shipment_detail",
     "size",
     "size_range",
     "tag_relation",
@@ -78,7 +82,7 @@ def _authorize(
             authzed_base_ids = current_user.authorized_base_ids(permission)
         except KeyError:
             # Permission not granted for user
-            authzed_base_ids = []
+            raise Forbidden(reason=permission)
 
         if authzed_base_ids:
             # Permission field exists and access for at least one base granted.
@@ -105,12 +109,12 @@ def _authorize(
         return authorized
     else:
         for value, resource in zip(
-            [user_id, organisation_id, base_id, permission],
-            ["user", "organisation", "base", "permission"],
+            [base_id, base_ids, organisation_id, organisation_ids, user_id],
+            ["base", "bases", "organisation", "organisations", "user"],
         ):
             if value is not None:
                 break
-        raise Forbidden(resource, value, current_user.__dict__)
+        raise Forbidden(reason=f"{resource}={value}")
 
 
 def authorized_bases_filter(
@@ -125,23 +129,12 @@ def authorized_bases_filter(
     if g.user.is_god:
         return True
 
-    permission = f"{model.__name__.lower()}:read"
+    resource = convert_pascal_to_snake_case(model.__name__)
+    permission = f"{resource}:read"
     _authorize(permission=permission, ignore_missing_base_info=True)
     base_ids = g.user.authorized_base_ids(permission)
     pattern = Base.id if model is Base else getattr(model, base_fk_field_name)
     return pattern << base_ids
-
-
-def agreement_organisation_filter_condition() -> bool:
-    """Derive filter condition for accessing transfer agreements depending on the user's
-    organisation. The god user may access any agreement.
-    """
-    if g.user.is_god:
-        return True
-    _authorize(permission="transfer_agreement:read", ignore_missing_base_info=True)
-    return (TransferAgreement.source_organisation == g.user.organisation_id) | (
-        TransferAgreement.target_organisation == g.user.organisation_id
-    )
 
 
 def authorize_for_organisation_bases() -> None:
@@ -158,6 +151,31 @@ ALL_ALLOWED_MUTATIONS: Dict[int, Tuple[str, ...]] = {
     0: ("updateBox",),
     # + mutations for BoxCreate/ScanBox pages
     1: ("updateBox", "createBox", "createQrCode"),
+    # + mutations for CreateAgreement page
+    2: ("updateBox", "createBox", "createQrCode", "createTransferAgreement"),
+    # + mobile distribution pages
+    99: (
+        "updateBox",
+        "createBox",
+        "createQrCode",
+        "createTransferAgreement",
+        "createDistributionSpot",
+        "createDistributionEvent",
+        "addPackingListEntryToDistributionEvent",
+        "removePackingListEntryFromDistributionEvent",
+        "removeAllPackingListEntriesFromDistributionEventForProduct",
+        "updatePackingListEntry",
+        "updateSelectedProductsForDistributionEventPackingList",
+        "changeDistributionEventState",
+        "assignBoxToDistributionEvent",
+        "unassignBoxFromDistributionEvent",
+        "moveItemsFromBoxToDistributionEvent",
+        "removeItemsFromUnboxedItemsCollection",
+        "startDistributionEventsTrackingGroup",
+        "setReturnedNumberOfItemsForDistributionEventsTrackingGroup",
+        "moveItemsFromReturnTrackingGroupToBox",
+        "completeDistributionEventsTrackingGroup",
+    ),
 }
 
 

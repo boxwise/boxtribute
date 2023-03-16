@@ -10,7 +10,7 @@ import {
   ModalHeader,
   useToast,
 } from "@chakra-ui/react";
-import { QrReader } from "components/QrReader/QrReader";
+import { QrReaderScanner } from "components/QrReader/components/QrReaderScanner";
 
 import { useCallback, useState } from "react";
 import {
@@ -19,11 +19,11 @@ import {
   GetBoxLabelIdentifierForQrCodeQuery,
   GetBoxLabelIdentifierForQrCodeQueryVariables,
 } from "types/generated/graphql";
-import { extractQrCodeFromUrl } from "utils/helpers";
+import { extractQrCodeFromUrl } from "hooks/useQrResolver";
 import {
   BOX_DETAILS_BY_LABEL_IDENTIFIER_QUERY,
   GET_BOX_LABEL_IDENTIFIER_BY_QR_CODE,
-} from "utils/queries";
+} from "queries/queries";
 import { BoxData, IPackingListEntry } from "views/Distributions/types";
 
 interface PackingScanBoxOrFindByLabelOverlayProps {
@@ -164,7 +164,7 @@ const PackingScanBoxOrFindByLabelOverlay = ({
       <ModalHeader pb={0}>Scan the box</ModalHeader>
       <ModalCloseButton />
       <ModalBody>
-        <QrReader
+        <QrReaderScanner
           facingMode={"environment"}
           zoom={1}
           scanPeriod={1000}

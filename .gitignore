@@ -17,3 +17,5 @@ docs/graphql-api/public
 *.zip
 .VSCodeCounter
 .DS_Store
+
+*.old.*

@@ -1,6 +1,6 @@
 /* eslint-disable import/no-extraneous-dependencies */
 import "regenerator-runtime/runtime";
-import React, { useContext, useEffect } from "react";
+import { useContext, useEffect } from "react";
 import { Route, Routes } from "react-router-dom";
 import Boxes from "views/Boxes/BoxesView";
 import Layout from "components/Layout";
@@ -23,6 +23,13 @@ import DistrosReturnTrackingGroupView from "views/Distributions/DistributionRetu
 import DistributionReturnTrackingsView from "views/Distributions/DistributionReturnTrackings/DistributionReturnTrackingsView/DistributionReturnTrackingsView";
 import CreateDirectDistributionEventView from "views/Distributions/CreateDirectDistributionEventView/CreateDirectDistributionEventView";
 import BoxCreateView from "views/BoxCreate/BoxCreateView";
+import TransferAgreementOverviewView from "views/Transfers/TransferAgreementOverview/TransferAgreementOverviewView";
+import CreateTransferAgreementView from "views/Transfers/CreateTransferAgreement/CreateTransferAgreementView";
+import CreateShipmentView from "views/Transfers/CreateShipment/CreateShipmentView";
+import ShipmentsOverviewView from "views/Transfers/ShipmentsOverview/ShipmentsOverviewView";
+import ShipmentView from "views/Transfers/ShipmentView/ShipmentView";
+import QrReaderView from "views/QrReader/QrReaderView";
+import NotFoundView from "views/NotFoundView/NotFoundView";
 
 const useLoadAndSetAvailableBases = () => {
   const BASES_QUERY = gql`
@@ -64,7 +71,7 @@ const useLoadAndSetAvailableBases = () => {
       const organisationId = decodedToken["https://www.boxtribute.com/organisation_id"];
       dispatch({
         type: "setOrganisationId",
-        payload: organisationId,
+        payload: organisationId ?? 1,
       });
     };
     getToken();
@@ -81,6 +88,17 @@ function App() {
           <Route index element={<AutomaticBaseSwitcher />} />
           <Route path=":baseId">
             <Route index element={<BaseDashboardView />} />
+            <Route path="transfers">
+              <Route path="agreements">
+                <Route index element={<TransferAgreementOverviewView />} />
+                <Route path="create" element={<CreateTransferAgreementView />} />
+              </Route>
+              <Route path="shipments">
+                <Route index element={<ShipmentsOverviewView />} />
+                <Route path="create" element={<CreateShipmentView />} />
+                <Route path=":id" element={<ShipmentView />} />
+              </Route>
+            </Route>
             <Route path="boxes">
               <Route index element={<Boxes />} />
               <Route path="create">
@@ -117,9 +135,11 @@ function App() {
                 </Route>
               </Route>
             </Route>
+            <Route path="qrreader" element={<QrReaderView />} />
           </Route>
         </Route>
       </Route>
+      <Route path="/*" element={<NotFoundView />} />
     </Routes>
   );
 }

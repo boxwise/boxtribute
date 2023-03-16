@@ -9,14 +9,20 @@ import {
   HttpLink,
   ApolloProvider,
   DefaultOptions,
-  ReactiveVar,
 } from "@apollo/client";
 import { setContext } from "@apollo/client/link/context";
 import { useAuth0 } from "@auth0/auth0-react";
 import { onError } from "@apollo/client/link/error";
-import { useErrorHandling } from "utils/error-handling";
+import { useErrorHandling } from "hooks/useErrorHandling";
 
-export const cache = new InMemoryCache();
+export const cache = new InMemoryCache({
+  typePolicies: {
+    Box: {
+      // Boxes should be normalized by labelIdentifier
+      keyFields: ["labelIdentifier"],
+    },
+  },
+});
 
 function ApolloAuth0Provider({ children }: { children: ReactNode }) {
   const { triggerError } = useErrorHandling();
@@ -51,14 +57,15 @@ function ApolloAuth0Provider({ children }: { children: ReactNode }) {
     if (graphQLErrors) {
       graphQLErrors.map(({ message, locations, path }) =>
         triggerError({
-          message:`[GraphQL error]: Message: ${message}, Location: ${locations}, Path: ${path}`,
-          userMessage: "Something went wrong!"
-        }));
+          message: `[GraphQL error]: Message: ${message}, Location: ${locations}, Path: ${path}`,
+          userMessage: "Something went wrong!",
+        }),
+      );
     }
     if (networkError) {
       triggerError({
-        message:`[Network error]: ${networkError}`,
-        userMessage: "Network Error! Please check your Internet connection!"
+        message: `[Network error]: ${networkError}`,
+        userMessage: "Network Error! Please check your Internet connection!",
       });
     }
   });
@@ -73,7 +80,7 @@ function ApolloAuth0Provider({ children }: { children: ReactNode }) {
   };
 
   const client = new ApolloClient({
-    cache: cache,
+    cache,
     // HINT: Ideally, only set this temporary to true for local debugging
     // or make the usage here conditional based on the environment.
     connectToDevTools: true,

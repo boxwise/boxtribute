@@ -46,13 +46,15 @@ class TransferAgreementState(enum.IntEnum):
 
 
 class TransferAgreementType(enum.IntEnum):
-    Unidirectional = 1
+    SendingTo = 1
+    ReceivingFrom = 2
     Bidirectional = enum.auto()
 
 
 class ShipmentState(enum.IntEnum):
     Preparing = 1
     Sent = enum.auto()
+    Receiving = enum.auto()
     Completed = enum.auto()
     Canceled = enum.auto()
     Lost = enum.auto()

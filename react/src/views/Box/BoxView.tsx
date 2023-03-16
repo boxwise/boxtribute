@@ -1,6 +1,14 @@
 import { useEffect } from "react";
 import { gql, useMutation, useQuery } from "@apollo/client";
-import { useDisclosure } from "@chakra-ui/react";
+import {
+  Alert,
+  AlertDescription,
+  AlertIcon,
+  AlertTitle,
+  Box,
+  useDisclosure,
+  VStack,
+} from "@chakra-ui/react";
 import APILoadingIndicator from "components/APILoadingIndicator";
 import { useParams } from "react-router-dom";
 import {
@@ -17,6 +25,7 @@ import {
   UpdateNumberOfItemsMutationVariables,
   UpdateStateMutationVariables,
   UpdateStateMutation,
+  ClassicLocation,
 } from "types/generated/graphql";
 import {
   ASSIGN_BOX_TO_DISTRIBUTION_MUTATION,
@@ -24,14 +33,14 @@ import {
   UNASSIGN_BOX_FROM_DISTRIBUTION_MUTATION,
 } from "views/Distributions/queries";
 import {
-  BOX_FIELDS_FRAGMENT,
   DISTRO_EVENT_FIELDS_FRAGMENT,
+  TAG_FIELDS_FRAGMENT,
+  BOX_FIELDS_FRAGMENT,
   PRODUCT_BASIC_FIELDS_FRAGMENT,
   PRODUCT_FIELDS_FRAGMENT,
-  TAG_FIELDS_FRAGMENT,
-} from "utils/fragments";
-import { useErrorHandling } from "utils/error-handling";
-import { useNotification } from "utils/hooks";
+} from "queries/fragments";
+import { useErrorHandling } from "hooks/useErrorHandling";
+import { useNotification } from "hooks/hooks";
 import AddItemsToBoxOverlay from "./components/AddItemsToBoxOverlay";
 import TakeItemsFromBoxOverlay from "./components/TakeItemsFromBoxOverlay";
 import BoxDetails from "./components/BoxDetails";
@@ -43,8 +52,6 @@ const refetchBoxByLabelIdentifierQueryConfig = (labelIdentifier: string) => ({
   },
 });
 
-// TODO: try to use reusable fragments
-// which can be reused both for the initial query as well as the mutation
 export const BOX_BY_LABEL_IDENTIFIER_QUERY = gql`
   ${PRODUCT_BASIC_FIELDS_FRAGMENT}
   ${BOX_FIELDS_FRAGMENT}
@@ -230,16 +237,19 @@ function BTBox() {
         boxLabelIdentifier: labelIdentifier,
         newState,
       },
-      // refetchQueries: [refetchBoxByLabelIdentifierQueryConfig(labelIdentifier)],
     })
-      .then((res) => {
-        createToast({
-          title: `Box ${labelIdentifier}`,
-          type: res?.errors ? "error" : "success",
-          message: res?.errors
-            ? `Error: Could not update the box status to ${newState}`
-            : `Successfully updated the box status to ${newState} `,
-        });
+      .then((mutationResult) => {
+        if (mutationResult?.errors) {
+          triggerError({
+            message: `Error: Could not update the box status to ${newState}`,
+          });
+        } else {
+          createToast({
+            title: `Box ${labelIdentifier}`,
+            type: "success",
+            message: `Successfully updated the box status to ${newState} `,
+          });
+        }
       })
       .catch(() => {
         triggerError({
@@ -251,9 +261,7 @@ function BTBox() {
   const onSubmitTakeItemsFromBox = (boxFormValues: IChangeNumberOfItemsBoxData) => {
     if (boxFormValues.numberOfItems && boxFormValues.numberOfItems > 0 && boxData?.numberOfItems) {
       if (boxFormValues.numberOfItems > boxData?.numberOfItems) {
-        createToast({
-          title: `Box ${boxData.labelIdentifier}`,
-          type: "error",
+        triggerError({
           message: `Could not remove more than ${boxData?.numberOfItems} items`,
         });
       } else {
@@ -263,15 +271,19 @@ function BTBox() {
             numberOfItems: (boxData?.numberOfItems || 0) - (boxFormValues?.numberOfItems || 0),
           },
         })
-          .then((res) => {
-            createToast({
-              title: `Box ${boxData.labelIdentifier}`,
-              type: res.errors ? "error" : "success",
-              message: res.errors
-                ? "Error: Could not remove items from the box"
-                : `Successfully removed ${boxFormValues?.numberOfItems} items from box`,
-            });
-            onMinusClose();
+          .then((mutationResult) => {
+            if (mutationResult?.errors) {
+              triggerError({
+                message: "Error: Could not remove item from the box",
+              });
+            } else {
+              createToast({
+                title: `Box ${boxData.labelIdentifier}`,
+                type: "success",
+                message: `Successfully removed ${boxFormValues?.numberOfItems} items from box`,
+              });
+              onMinusClose();
+            }
           })
           .catch(() => {
             triggerError({
@@ -290,9 +302,7 @@ function BTBox() {
     ) {
       // The number of items must be less than the maximum MySQL signed integer value
       if ((boxData.numberOfItems || 0) + boxFormValues.numberOfItems > 2147483647) {
-        createToast({
-          title: `Box ${boxData.labelIdentifier}`,
-          type: "error",
+        triggerError({
           message: "The number should be smaller",
         });
       } else {
@@ -302,15 +312,19 @@ function BTBox() {
             numberOfItems: (boxData?.numberOfItems || 0) + (boxFormValues?.numberOfItems || 0),
           },
         })
-          .then((res) => {
-            createToast({
-              title: `Box ${boxData.labelIdentifier}`,
-              type: res.errors ? "error" : "success",
-              message: res.errors
-                ? "Error: Could not add items to the box"
-                : `Successfully added ${boxFormValues?.numberOfItems} items to box`,
-            });
-            onPlusClose();
+          .then((mutationResult) => {
+            if (mutationResult?.errors) {
+              triggerError({
+                message: "Error: Could not add items to the box",
+              });
+            } else {
+              createToast({
+                title: `Box ${boxData.labelIdentifier}`,
+                type: "success",
+                message: `Successfully added ${boxFormValues?.numberOfItems} items to box`,
+              });
+              onPlusClose();
+            }
           })
           .catch(() => {
             triggerError({
@@ -329,12 +343,18 @@ function BTBox() {
       },
       refetchQueries: [refetchBoxByLabelIdentifierQueryConfig(labelIdentifier)],
     })
-      .then((res) => {
-        createToast({
-          title: `Box ${labelIdentifier}`,
-          type: res.errors ? "error" : "success",
-          message: res.errors ? "Error: Box could not be moved!" : "Successfully moved the box",
-        });
+      .then((mutationResult) => {
+        if (mutationResult?.errors) {
+          triggerError({
+            message: "Error: Box could not be moved!",
+          });
+        } else {
+          createToast({
+            title: `Box ${labelIdentifier}`,
+            type: "success",
+            message: "Successfully moved the box",
+          });
+        }
       })
       .catch(() => {
         triggerError({
@@ -402,8 +422,25 @@ function BTBox() {
     return <div />;
   }
 
+  const LegacyBoxAlert = (
+    <Alert status="warning">
+      <AlertIcon />
+      <Box>
+        <AlertTitle>Note</AlertTitle>
+        <AlertDescription>
+          If this box has been found, please move it to an instock location. Boxtribute no longer
+          supports LOST locations.
+        </AlertDescription>
+      </Box>
+    </Alert>
+  );
+
   return (
-    <>
+    <VStack spacing={4} align="stretch">
+      {((boxData?.location as ClassicLocation).defaultBoxState === BoxState.Lost ||
+        (boxData?.location as ClassicLocation).defaultBoxState === BoxState.Scrap) &&
+        boxData?.state !== BoxState.InStock &&
+        LegacyBoxAlert}
       <BoxDetails
         boxData={boxData}
         onPlusOpen={onPlusOpen}
@@ -423,7 +460,7 @@ function BTBox() {
         onClose={onMinusClose}
         onSubmitTakeItemsFromBox={onSubmitTakeItemsFromBox}
       />
-    </>
+    </VStack>
   );
 }
 
