@@ -17,7 +17,7 @@ import {
 // TODO: move to global queries file
 import { BOX_BY_LABEL_IDENTIFIER_QUERY } from "views/Box/BoxView";
 import { useErrorHandling } from "hooks/useErrorHandling";
-import { useNotification } from "hooks/hooks";
+import { useNotification } from "hooks/useNotification";
 import BoxEdit, { IBoxEditFormData } from "./components/BoxEdit";
 
 export const BOX_BY_LABEL_IDENTIFIER_AND_ALL_PRODUCTS_WITH_BASEID_QUERY = gql`

@@ -19,7 +19,7 @@ import { AddIcon } from "@chakra-ui/icons";
 import { TableSkeleton } from "components/Skeletons";
 import { Row } from "react-table";
 import { useErrorHandling } from "hooks/useErrorHandling";
-import { useNotification } from "hooks/hooks";
+import { useNotification } from "hooks/useNotification";
 import { FilteringSortingTable } from "components/Table/Table";
 import { SelectColumnFilter } from "components/Table/Filter";
 import {

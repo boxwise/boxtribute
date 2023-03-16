@@ -40,7 +40,7 @@ import {
   PRODUCT_FIELDS_FRAGMENT,
 } from "queries/fragments";
 import { useErrorHandling } from "hooks/useErrorHandling";
-import { useNotification } from "hooks/hooks";
+import { useNotification } from "hooks/useNotification";
 import AddItemsToBoxOverlay from "./components/AddItemsToBoxOverlay";
 import TakeItemsFromBoxOverlay from "./components/TakeItemsFromBoxOverlay";
 import BoxDetails from "./components/BoxDetails";
