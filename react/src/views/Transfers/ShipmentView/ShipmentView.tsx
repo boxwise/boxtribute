@@ -22,60 +22,13 @@ import {
 } from "types/generated/graphql";
 import ShipmentCard from "./components/ShipmentCard";
 import ShipmentTabs from "./components/ShipmentTabs";
+import { SHIPMENT_FIELDS_FRAGMENT } from "../../../queries/fragments";
 
-export const SHIPMENT_BY_ID = gql`
-  query ShipmentById($id: ID! = 1) {
+export const SHIPMENT_BY_ID_QUERY = gql`
+  ${SHIPMENT_FIELDS_FRAGMENT}
+  query ShipmentById($id: ID!) {
     shipment(id: $id) {
-      transferAgreement {
-        id
-        type
-      }
-      id
-      state
-      sentBy {
-        id
-        name
-      }
-      sourceBase {
-        id
-        name
-        organisation {
-          id
-          name
-        }
-      }
-      targetBase {
-        id
-        name
-        organisation {
-          id
-          name
-        }
-      }
-      details {
-        box {
-          id
-          labelIdentifier
-          numberOfItems
-          product {
-            id
-            name
-            gender
-            category {
-              id
-              name
-              hasGender
-              sizeRanges {
-                label
-                sizes {
-                  id
-                  label
-                }
-              }
-            }
-          }
-        }
-      }
+      ...ShipmentFields
     }
   }
 `;
@@ -87,11 +40,14 @@ function ShipmentView() {
   const id = useParams<{ id: string }>().id!;
 
   // Query Data for the Form
-  const shipmentData = useQuery<ShipmentByIdQuery, ShipmentByIdQueryVariables>(SHIPMENT_BY_ID, {
-    variables: {
-      id,
+  const shipmentData = useQuery<ShipmentByIdQuery, ShipmentByIdQueryVariables>(
+    SHIPMENT_BY_ID_QUERY,
+    {
+      variables: {
+        id,
+      },
     },
-  });
+  );
 
   const shipmentContents = shipmentData.data?.shipment?.details as unknown as ShipmentDetail[];
 

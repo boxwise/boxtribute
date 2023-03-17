@@ -3,11 +3,11 @@ import { screen, render } from "tests/test-utils";
 import { organisation1 } from "mocks/organisations";
 import { GraphQLError } from "graphql";
 import { shipment1, shipment2 } from "mocks/shipments";
-import ShipmentView, { SHIPMENT_BY_ID } from "./ShipmentView";
+import ShipmentView, { SHIPMENT_BY_ID_QUERY } from "./ShipmentView";
 
 const initialQuery = {
   request: {
-    query: SHIPMENT_BY_ID,
+    query: SHIPMENT_BY_ID_QUERY,
     variables: {
       id: "1",
     },
@@ -21,7 +21,7 @@ const initialQuery = {
 
 const initialQueryWithoutBox = {
   request: {
-    query: SHIPMENT_BY_ID,
+    query: SHIPMENT_BY_ID_QUERY,
     variables: {
       id: "1",
     },
@@ -35,7 +35,7 @@ const initialQueryWithoutBox = {
 
 const initialQueryNetworkError = {
   request: {
-    query: SHIPMENT_BY_ID,
+    query: SHIPMENT_BY_ID_QUERY,
     variables: {
       id: "1",
     },

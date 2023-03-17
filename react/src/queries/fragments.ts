@@ -137,6 +137,32 @@ export const BOX_FIELDS_FRAGMENT = gql`
   }
 `;
 
+export const BOX_WITHOUT_LOCATION_FIELDS_FRAGMENT = gql`
+  ${PRODUCT_BASIC_FIELDS_FRAGMENT}
+  ${SIZE_FIELDS_FRAGMENT}
+  ${TAG_FIELDS_FRAGMENT}
+  ${BASE_BASIC_FIELDS_FRAGMENT}
+  ${HISTORY_FIELDS_FRAGMENT}
+  fragment BoxWithoutLocationFields on Box {
+    labelIdentifier
+    state
+    product {
+      ...ProductBasicFields
+    }
+    size {
+      ...SizeFields
+    }
+    numberOfItems
+    tags {
+      ...TagFields
+    }
+    comment
+    history {
+      ...HistoryFields
+    }
+  }
+`;
+
 export const BOX_WITH_SIZE_TAG_PRODUCT_FIELDS_FRAGMENT = gql`
   ${SIZE_FIELDS_FRAGMENT}
   ${PRODUCT_BASIC_FIELDS_FRAGMENT}
@@ -168,6 +194,7 @@ export const BOX_WITH_SIZE_TAG_PRODUCT_FIELDS_FRAGMENT = gql`
       base {
         locations {
           id
+          seq
           name
           ... on ClassicLocation {
             defaultBoxState
@@ -252,12 +279,19 @@ export const PRODUCT_FIELDS_FRAGMENT = gql`
 `;
 
 export const SHIPMENT_DETAIL_FIELDS_FRAGMENT = gql`
-  ${BOX_FIELDS_FRAGMENT}
+  ${BOX_WITHOUT_LOCATION_FIELDS_FRAGMENT}
   ${USER_BASIC_FIELDS_FRAGMENT}
+  ${PRODUCT_FIELDS_FRAGMENT}
   fragment ShipmentDetailFields on ShipmentDetail {
     id
     box {
-      ...BoxFields
+      ...BoxWithoutLocationFields
+    }
+    sourceProduct {
+      ...ProductFields
+    }
+    targetProduct {
+      ...ProductFields
     }
     createdOn
     createdBy {
@@ -288,6 +322,8 @@ export const SHIPMENT_FIELDS_FRAGMENT = gql`
     }
     transferAgreement {
       id
+      comment
+      type
     }
     startedOn
     startedBy {

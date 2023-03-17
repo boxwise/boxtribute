@@ -46,6 +46,7 @@ export const BOX_BY_LABEL_IDENTIFIER_AND_ALL_PRODUCTS_WITH_BASEID_QUERY = gql`
           defaultBoxState
         }
         id
+        seq
         name
       }
 
@@ -186,7 +187,8 @@ function BoxEditView() {
         (location.defaultBoxState !== BoxState.InStock
           ? `${location.name} - Boxes are ${location.defaultBoxState}`
           : location.name) ?? "",
-    }));
+    }))
+    .sort((a, b) => Number(a?.seq) - Number(b?.seq));
 
   // check data for form
   useEffect(() => {

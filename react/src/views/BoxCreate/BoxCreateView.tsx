@@ -34,8 +34,8 @@ export const ALL_PRODUCTS_AND_LOCATIONS_FOR_BASE_QUERY = gql`
           defaultBoxState
         }
         id
-        name
         seq
+        name
       }
 
       products {
@@ -129,7 +129,8 @@ function BoxCreateView() {
     .map((location) => ({
       ...location,
       name: location.name ?? "",
-    }));
+    }))
+    .sort((a, b) => Number(a?.seq) - Number(b?.seq));
 
   // check data for form
   useEffect(() => {
