@@ -184,33 +184,45 @@ function ShipmentView() {
 
   // shipment actions in the modal
   const handleShipment = useCallback(
-    (mutation, kind) => (id: string) => {
-      mutation({
-        variables: {
-          id,
-        },
-      })
-        .then((res) => {
-          if (!res?.errors) {
-            onClose();
-            createToast({
-              type: "success",
-              message: `Successfully ${kind}ed the shipment.`,
-            });
-          } else {
-            triggerError({ message: `Could not ${kind} the shipment.` });
-          }
+    (mutation, kind, successMessage = "", failedMessage = "") =>
+      (id: string) => {
+        mutation({
+          variables: {
+            id,
+          },
         })
-        .catch(() => {
-          triggerError({ message: `Could not ${kind} the shipment.` });
-        });
-    },
+          .then((res) => {
+            if (!res?.errors) {
+              onClose();
+              createToast({
+                type: "success",
+                message:
+                  successMessage !== "" ? successMessage : `Successfully ${kind}ed the shipment.`,
+              });
+            } else {
+              triggerError({
+                message: failedMessage !== "" ? failedMessage : `Could not ${kind} the shipment.`,
+              });
+            }
+          })
+          .catch(() => {
+            triggerError({
+              message: failedMessage !== "" ? failedMessage : `Could not ${kind} the shipment.`,
+            });
+          });
+      },
     [onClose, createToast, triggerError],
   );
 
   const onCancel = handleShipment(cancelShipment, "cancel");
   const onSend = handleShipment(sendShipment, "send");
-  const onLost = handleShipment(lostShipment, "lost");
+  const onLost = handleShipment(
+    lostShipment,
+    "lost",
+    "Successfully marked the shipment as Lost.",
+    "Could not marking the shipment as Lost.",
+  );
+  const onReceive = handleShipment(startReceivingShipment, "receive");
 
   // callback function triggered when a state button is clicked.
   const openShipmentOverlay = useCallback(() => {
@@ -436,7 +448,7 @@ function ShipmentView() {
             isDisabled={shipmentContents.length === 0}
             isLoading={isLoadingFromMutation}
             variant="solid"
-            onClick={() => {}}
+            onClick={() => onReceive(shipmentId)}
             size="md"
             marginTop={2}
           >
