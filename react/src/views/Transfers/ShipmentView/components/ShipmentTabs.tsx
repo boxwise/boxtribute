@@ -3,6 +3,7 @@ import _ from "lodash";
 import { Box, HistoryEntry, ShipmentDetail } from "types/generated/graphql";
 import ShipmentContent, { IShipmentContent } from "./ShipmentContent";
 import ShipmentHistory from "./ShipmentHistory";
+import ShipmentReceivingContent from "./ShipmentReceivingContent";
 
 export interface IBoxHistoryEntry extends HistoryEntry {
   labelIdentifier: string;
@@ -17,6 +18,7 @@ export interface IShipmentTabsProps {
   detail: ShipmentDetail[];
   histories: IGroupedHistoryEntry[];
   showRemoveIcon: Boolean;
+  showReceivingTable: Boolean;
   onRemoveBox: (id: string) => void;
   onBulkRemoveBox: (ids: string[]) => void;
 }
@@ -24,6 +26,7 @@ function ShipmentTabs({
   showRemoveIcon,
   detail,
   histories,
+  showReceivingTable,
   onRemoveBox,
   onBulkRemoveBox,
 }: IShipmentTabsProps) {
@@ -53,7 +56,7 @@ function ShipmentTabs({
           `${value.product?.sizeRange?.label}_${value.product?.gender}_${value.product?.name}_(${value.totalItems}x)_${value.totalBoxes}_Boxes`,
       )
       .value(),
-  ) as unknown as IShipmentContent[];
+  )! as IShipmentContent[];
 
   return (
     <Tabs w="100%" isFitted variant="enclosed-colored">
@@ -66,13 +69,16 @@ function ShipmentTabs({
           {(detail?.length || 0) === 0 && (
             <Center p={8}>No boxes have been assigned to this shipment yet!</Center>
           )}
-          {(detail?.length || 0) !== 0 && (
+          {(detail?.length || 0) !== 0 && !showReceivingTable && (
             <ShipmentContent
               items={boxGroupedByProductGender}
               onRemoveBox={onRemoveBox}
               onBulkRemoveBox={onBulkRemoveBox}
               showRemoveIcon={showRemoveIcon}
             />
+          )}
+          {(detail?.length || 0) !== 0 && showReceivingTable && (
+            <ShipmentReceivingContent items={detail} />
           )}
         </TabPanel>
         <TabPanel>
