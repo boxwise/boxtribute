@@ -44,7 +44,7 @@ function ShipmentCard({
       padding={0}
       rounded="lg"
       bg="white"
-      width={{ base: "240pt", md: "250pt", lg: "250pt" }}
+      width={80}
       borderColor="blackAlpha.800"
       borderWidth={1.5}
     >
