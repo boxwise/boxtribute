@@ -244,13 +244,23 @@ def test_shipment_mutations_on_source_side(
                 updateInput: {update_input}) {{
                     id
                     state
-                    details {{ id }}
+                    details {{
+                        id
+                        deletedOn
+                        deletedBy {{ id }}
+                        box {{ state }}
+                    }}
                 }} }}"""
     shipment = assert_successful_request(client, mutation)
+    assert shipment["details"][0].pop("deletedOn").startswith(date.today().isoformat())
+    assert shipment["details"][1].pop("deletedOn").startswith(date.today().isoformat())
     assert shipment == {
         "id": shipment_id,
         "state": ShipmentState.Preparing.name,
-        "details": [],
+        "details": [
+            {"id": i, "deletedBy": {"id": "8"}, "box": {"state": BoxState.InStock.name}}
+            for i in [prepared_shipment_detail_id, shipment_detail_id]
+        ],
     }
     for box in boxes:
         box_label_identifier = box["label_identifier"]
@@ -270,10 +280,18 @@ def test_shipment_mutations_on_source_side(
                     removedBoxLabelIdentifiers: ["{box_label_identifier}"] }}"""
         mutation = f"""mutation {{ updateShipmentWhenPreparing(
                     updateInput: {update_input}) {{
-                        details {{ id }}
+                        details {{
+                            id
+                            box {{ state }}
+                        }}
                     }} }}"""
         shipment = assert_successful_request(client, mutation)
-        assert shipment == {"details": []}
+        assert shipment == {
+            "details": [
+                {"id": i, "box": {"state": BoxState.InStock.name}}
+                for i in [prepared_shipment_detail_id, shipment_detail_id]
+            ]
+        }
     for box in boxes:
         box_label_identifier = box["label_identifier"]
         query = f"""query {{ box(labelIdentifier: "{box_label_identifier}") {{
@@ -298,7 +316,12 @@ def test_shipment_mutations_on_source_side(
 
 
 def test_shipment_mutations_cancel(
-    client, mocker, default_shipment, another_marked_for_shipment_box, another_shipment
+    client,
+    mocker,
+    default_shipment,
+    another_marked_for_shipment_box,
+    another_shipment,
+    prepared_shipment_detail,
 ):
     # Test case 3.2.7
     shipment_id = str(default_shipment["id"])
@@ -307,15 +330,27 @@ def test_shipment_mutations_cancel(
                     state
                     canceledBy {{ id }}
                     canceledOn
-                    details {{ id }}
+                    details {{
+                        id
+                        deletedOn
+                        deletedBy {{ id }}
+                        box {{ state }}
+                    }}
                 }} }}"""
     shipment = assert_successful_request(client, mutation)
     assert shipment.pop("canceledOn").startswith(date.today().isoformat())
+    assert shipment["details"][0].pop("deletedOn").startswith(date.today().isoformat())
     assert shipment == {
         "id": shipment_id,
         "state": ShipmentState.Canceled.name,
         "canceledBy": {"id": "8"},
-        "details": [],
+        "details": [
+            {
+                "id": str(prepared_shipment_detail["id"]),
+                "deletedBy": {"id": "8"},
+                "box": {"state": BoxState.InStock.name},
+            }
+        ],
     }
 
     identifier = another_marked_for_shipment_box["label_identifier"]
@@ -485,7 +520,11 @@ def test_shipment_mutations_on_target_side(
                 state
                 completedBy {{ id }}
                 completedOn
-                details {{ id }}
+                details {{
+                    id
+                    deletedBy {{ id }}
+                    box {{ state }}
+                }}
             }} }}"""
     shipment = assert_successful_request(client, mutation)
     assert shipment.pop("completedOn").startswith(date.today().isoformat())
@@ -493,7 +532,17 @@ def test_shipment_mutations_on_target_side(
         "id": shipment_id,
         "state": ShipmentState.Completed.name,
         "completedBy": {"id": "2"},
-        "details": [],
+        "details": [
+            {
+                "id": str(detail["id"]),
+                "deletedBy": {"id": "2"},
+                "box": {"state": box_state},
+            }
+            for detail, box_state in zip(
+                [default_shipment_detail, another_shipment_detail],
+                [BoxState.InStock.name, BoxState.Lost.name],
+            )
+        ],
     }
     box_label_identifier = box_without_qr_code["label_identifier"]
     query = f"""query {{ box(labelIdentifier: "{box_label_identifier}") {{
@@ -521,7 +570,12 @@ def test_shipment_mutations_on_target_side(
 
 
 def test_shipment_mutations_on_target_side_mark_shipment_as_lost(
-    mocker, client, box_without_qr_code, sent_shipment
+    mocker,
+    client,
+    box_without_qr_code,
+    sent_shipment,
+    default_shipment_detail,
+    another_shipment_detail,
 ):
     mocker.patch("jose.jwt.decode").return_value = create_jwt_payload(
         base_ids=[3], organisation_id=2, user_id=2
@@ -532,14 +586,25 @@ def test_shipment_mutations_on_target_side_mark_shipment_as_lost(
                     state
                     completedOn
                     completedBy {{ id }}
-                    details {{ box {{ state }} }}
+                    details {{
+                        id
+                        deletedBy {{ id }}
+                        box {{ state }}
+                    }}
                 }} }}"""
     shipment = assert_successful_request(client, mutation)
     assert shipment.pop("completedOn").startswith(date.today().isoformat())
     assert shipment == {
         "state": ShipmentState.Lost.name,
         "completedBy": {"id": "2"},
-        "details": [],
+        "details": [
+            {
+                "id": str(detail["id"]),
+                "deletedBy": {"id": "2"},
+                "box": {"state": BoxState.Lost.name},
+            }
+            for detail in [default_shipment_detail, another_shipment_detail]
+        ],
     }
 
     # The box is still registered in the source base, hence any user from the target
