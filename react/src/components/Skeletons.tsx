@@ -39,12 +39,11 @@ export function TabsSkeleton() {
   );
 }
 
-export function ShipmentCardSkeletons() {
+export function ShipmentCardSkeleton() {
   return (
     <Box
       boxShadow="lg"
-      p="6"
-      padding={0}
+      p={0}
       rounded="lg"
       bg="white"
       width={{ base: "240pt", md: "250pt", lg: "250pt" }}
@@ -52,7 +51,6 @@ export function ShipmentCardSkeletons() {
       borderWidth={1.5}
     >
       <VStack
-        p="6"
         padding={0}
         rounded="md"
         bg="white"

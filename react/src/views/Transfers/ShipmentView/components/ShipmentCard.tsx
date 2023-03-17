@@ -24,8 +24,7 @@ import ShipmentColoredStatus from "./ShipmentColoredStatus";
 export interface IShipmentProps {
   canCancelShipment: Boolean;
   canUpdateShipment: Boolean;
-  canLostShipment: Boolean;
-  canLocatedShipment: Boolean;
+  canLooseShipment: Boolean;
   shipment: Shipment;
   onRemove: () => void;
   onCancel: (data: any) => void;
@@ -34,8 +33,7 @@ export interface IShipmentProps {
 function ShipmentCard({
   canCancelShipment,
   canUpdateShipment,
-  canLostShipment,
-  canLocatedShipment,
+  canLooseShipment,
   shipment,
   onRemove,
   onCancel,
@@ -43,7 +41,6 @@ function ShipmentCard({
   return (
     <Box
       boxShadow="lg"
-      p="6"
       padding={0}
       rounded="lg"
       bg="white"
@@ -52,7 +49,6 @@ function ShipmentCard({
       borderWidth={1.5}
     >
       <VStack
-        p="6"
         padding={0}
         rounded="md"
         bg="white"
@@ -76,36 +72,21 @@ function ShipmentCard({
               isRound
               icon={<BiTrash size={30} />}
               isDisabled={shipment.state !== ShipmentState.Preparing}
-              onClick={() =>
-                onCancel({
-                  id: shipment.id,
-                  state: shipment.state,
-                  sourceOrg: shipment.sourceBase.organisation.name,
-                  targetOrg: shipment.targetBase.organisation.name,
-                })
-              }
+              onClick={onCancel}
               style={{ background: "white" }}
               aria-label="cancel shipment"
             />
           )}
-          {canLocatedShipment && (
-            <IconButton
-              isRound
-              icon={<TbMapOff size={30} />}
-              variant="outline"
-              style={{ background: "white", color: "red" }}
-              aria-label="cannot locate shipment"
-            />
-          )}
-
-          {canLostShipment && (
-            <IconButton
-              isRound
-              icon={<TbMapOff size={30} />}
-              style={{ background: "white", color: "black" }}
-              aria-label="cannot locate shipment"
-            />
-          )}
+          {shipment?.state === ShipmentState.Lost ||
+            (canLooseShipment && (
+              <IconButton
+                isRound
+                icon={<TbMapOff size={30} />}
+                variant="outline"
+                style={{ background: "white", color: canLooseShipment ? "red" : "black" }}
+                aria-label="cannot locate shipment"
+              />
+            ))}
         </Flex>
 
         <Box border={0}>

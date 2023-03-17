@@ -292,12 +292,6 @@ export const SHIPMENT_DETAIL_FIELDS_FRAGMENT = gql`
     targetProduct {
       ...ProductFields
     }
-    sourceProduct {
-      ...ProductFields
-    }
-    targetProduct {
-      ...ProductFields
-    }
     createdOn
     createdBy {
       ...UserBasicFields

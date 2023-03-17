@@ -17,15 +17,15 @@ export interface IShipmentTabsProps {
   detail: ShipmentDetail[];
   histories: IGroupedHistoryEntry[];
   showRemoveIcon: Boolean;
-  onBoxRemoved: (id: string) => void;
-  onBulkBoxRemoved: (ids: string[]) => void;
+  onRemoveBox: (id: string) => void;
+  onBulkRemoveBox: (ids: string[]) => void;
 }
 function ShipmentTabs({
   showRemoveIcon,
   detail,
   histories,
-  onBoxRemoved,
-  onBulkBoxRemoved,
+  onRemoveBox,
+  onBulkRemoveBox,
 }: IShipmentTabsProps) {
   const boxGroupedByProductGender = _.values(
     _(detail)
@@ -69,8 +69,8 @@ function ShipmentTabs({
           {(detail?.length || 0) !== 0 && (
             <ShipmentContent
               items={boxGroupedByProductGender}
-              onBoxRemoved={onBoxRemoved}
-              onBulkBoxRemoved={onBulkBoxRemoved}
+              onRemoveBox={onRemoveBox}
+              onBulkRemoveBox={onBulkRemoveBox}
               showRemoveIcon={showRemoveIcon}
             />
           )}

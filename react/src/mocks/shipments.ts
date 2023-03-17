@@ -142,6 +142,7 @@ export const generateMockShipment = ({
   transferAgreement: {
     id: "1",
     comment: "",
+    type: TransferAgreementType.Bidirectional,
     __typename: "TransferAgreement",
   },
   startedOn: "2023-01-08T17:24:29+00:00",

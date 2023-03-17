@@ -10,7 +10,7 @@ import {
   useBreakpointValue,
 } from "@chakra-ui/react";
 import { useMemo } from "react";
-import { Column, useTable, useBlockLayout } from "react-table";
+import { Column, useTable } from "react-table";
 
 interface IShipmentTablePros {
   columns: Array<Column<any>>;
@@ -23,7 +23,6 @@ function ShipmentTable({ columns, data }: IShipmentTablePros) {
   const tableInstance = useTable({
     columns,
     data: tableData,
-    useBlockLayout,
     initialState: {
       hiddenColumns: columns
         .filter((col: any) => col.show === false)
