@@ -10,9 +10,9 @@ import {
   Stack,
 } from "@chakra-ui/react";
 import _ from "lodash";
-import { useCallback, useMemo } from "react";
+import { useMemo } from "react";
 import { Product, Box as BoxType } from "types/generated/graphql";
-import { CellProps, Row } from "react-table";
+import { CellProps } from "react-table";
 import { AiFillMinusCircle } from "react-icons/ai";
 import ShipmentTable from "./ShipmentTable";
 import { RemoveBoxCell } from "./ShipmentTableCells";
