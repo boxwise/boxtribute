@@ -1,6 +1,7 @@
 import { gql, useQuery } from "@apollo/client";
 import { Center, Heading, Text } from "@chakra-ui/react";
-import { useParams } from "react-router-dom";
+import { GlobalPreferencesContext } from "providers/GlobalPreferencesProvider";
+import { useContext } from "react";
 import { BaseDataQuery, BaseDataQueryVariables } from "types/generated/graphql";
 
 export const BASE_DATA = gql`
@@ -15,7 +16,8 @@ export const BASE_DATA = gql`
 `;
 
 const BaseDashboardView = () => {
-  const baseId = useParams<{ baseId: string }>().baseId!;
+  const { globalPreferences } = useContext(GlobalPreferencesContext);
+  const baseId = globalPreferences.selectedBaseId!;
 
   const { loading, error, data } = useQuery<BaseDataQuery, BaseDataQueryVariables>(BASE_DATA, {
     variables: {
