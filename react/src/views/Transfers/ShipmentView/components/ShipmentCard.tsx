@@ -77,16 +77,18 @@ function ShipmentCard({
               aria-label="cancel shipment"
             />
           )}
-          {shipment?.state === ShipmentState.Lost ||
-            (canLooseShipment && (
-              <IconButton
-                isRound
-                icon={<TbMapOff size={30} />}
-                variant="outline"
-                style={{ background: "white", color: canLooseShipment ? "red" : "black" }}
-                aria-label="cannot locate shipment"
-              />
-            ))}
+          {canLooseShipment && (
+            <IconButton
+              isRound
+              icon={<TbMapOff size={30} />}
+              variant="outline"
+              style={{
+                background: "white",
+                color: ShipmentState.Lost === shipment.state ? "red" : "black",
+              }}
+              aria-label="cannot locate shipment"
+            />
+          )}
         </Flex>
 
         <Box border={0}>
