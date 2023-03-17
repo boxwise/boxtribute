@@ -2,7 +2,7 @@
 // https://github.com/samjulien/apollo-auth0-fullstack/blob/master/habit-tracker/src/ApolloWrapper.js
 // https://www.youtube.com/watch?v=FROhOGcnQxs
 
-import React, { useState, useEffect, ReactNode } from "react";
+import React, { useState, useEffect, ReactNode, createContext, Context, useMemo } from "react";
 import {
   ApolloClient,
   InMemoryCache,
@@ -14,6 +14,14 @@ import { setContext } from "@apollo/client/link/context";
 import { useAuth0 } from "@auth0/auth0-react";
 import { onError } from "@apollo/client/link/error";
 import { useErrorHandling } from "hooks/useErrorHandling";
+
+export interface IApolloAuth0WrapperContext {
+  isAccessTokenInHeader: Boolean;
+}
+
+export const ApolloAuth0WrapperContext: Context<IApolloAuth0WrapperContext> = createContext(
+  {} as IApolloAuth0WrapperContext,
+);
 
 export const cache = new InMemoryCache({
   typePolicies: {
@@ -88,7 +96,18 @@ function ApolloAuth0Provider({ children }: { children: ReactNode }) {
     defaultOptions,
   });
 
-  return <ApolloProvider client={client}>{children}</ApolloProvider>;
+  return (
+    <ApolloProvider client={client}>
+      {/* Pass isAccessTokenInHeader to the useLoadAndSetGlobalPreferences hook if the access token was set in the apolloclient
+    This is necessary to prevent the useLoadAndSetGlobalPreferences hook to send a request to the
+    server without being a accessToken in the header. */}
+      <ApolloAuth0WrapperContext.Provider
+        value={useMemo(() => ({ isAccessTokenInHeader: !!auth0Token }), [auth0Token])}
+      >
+        {children}
+      </ApolloAuth0WrapperContext.Provider>
+    </ApolloProvider>
+  );
 }
 
 export default ApolloAuth0Provider;
