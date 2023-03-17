@@ -1,17 +1,12 @@
 /* eslint-disable import/no-extraneous-dependencies */
 import "regenerator-runtime/runtime";
-import { useContext, useEffect } from "react";
 import { Route, Routes } from "react-router-dom";
-import Boxes from "views/Boxes/BoxesView";
+import { useLoadAndSetGlobalPreferences } from "hooks/useLoadAndSetGlobalPreferences";
 import Layout from "components/Layout";
+import Boxes from "views/Boxes/BoxesView";
 import AutomaticBaseSwitcher from "views/AutomaticBaseSwitcher/AutomaticBaseSwitcher";
-import { gql, useLazyQuery } from "@apollo/client";
-import { BasesQuery } from "types/generated/graphql";
-import { GlobalPreferencesContext } from "providers/GlobalPreferencesProvider";
 import BTBox from "views/Box/BoxView";
 import BoxEditView from "views/BoxEdit/BoxEditView";
-import { useAuth0 } from "@auth0/auth0-react";
-import jwt from "jwt-decode";
 import DistroSpotsView from "views/Distributions/DistroSpotsView/DistroSpotsView";
 import DistrosDashboardView from "views/Distributions/DistrosDashboardView/DistrosDashboardView";
 import DistroEventView from "views/Distributions/DistroEventView/DistroEventView";
@@ -31,55 +26,8 @@ import ShipmentView from "views/Transfers/ShipmentView/ShipmentView";
 import QrReaderView from "views/QrReader/QrReaderView";
 import NotFoundView from "views/NotFoundView/NotFoundView";
 
-const useLoadAndSetAvailableBases = () => {
-  const BASES_QUERY = gql`
-    query Bases {
-      bases {
-        id
-        name
-      }
-    }
-  `;
-
-  const { getAccessTokenSilently } = useAuth0();
-
-  const [runBaseQuery, { loading, data }] = useLazyQuery<BasesQuery>(BASES_QUERY);
-  const { globalPreferences, dispatch } = useContext(GlobalPreferencesContext);
-
-  useEffect(() => {
-    if (globalPreferences.availableBases == null) {
-      runBaseQuery();
-    }
-  }, [runBaseQuery, globalPreferences.availableBases]);
-
-  useEffect(() => {
-    if (!loading && data != null) {
-      const { bases } = data;
-      dispatch({
-        type: "setAvailableBases",
-        payload: bases,
-      });
-    }
-  }, [data, loading, dispatch]);
-
-  useEffect(() => {
-    const getToken = async () => {
-      const token = await getAccessTokenSilently();
-      const decodedToken = jwt<{
-        "https://www.boxtribute.com/organisation_id": string;
-      }>(token);
-      const organisationId = decodedToken["https://www.boxtribute.com/organisation_id"];
-      dispatch({
-        type: "setOrganisationId",
-        payload: organisationId ?? 1,
-      });
-    };
-    getToken();
-  }, [dispatch, getAccessTokenSilently]);
-};
-
 function App() {
-  useLoadAndSetAvailableBases();
+  useLoadAndSetGlobalPreferences();
   return (
     <Routes>
       <Route path="/">
