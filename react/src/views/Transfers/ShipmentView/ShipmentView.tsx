@@ -284,7 +284,7 @@ function ShipmentView() {
 
   // transform shipment data for UI
   const shipmentState = data?.shipment?.state;
-  const shipmentContents = data?.shipment!.details as ShipmentDetail[];
+  const shipmentContents = (data?.shipment?.details ?? []) as ShipmentDetail[];
 
   // map over each ShipmentDetail to compile its history records
   const historyEntries = shipmentContents?.flatMap((detail) => ({
