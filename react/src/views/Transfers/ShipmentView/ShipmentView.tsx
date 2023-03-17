@@ -42,7 +42,7 @@ import { TbMapOff } from "react-icons/tb";
 import { ReceivingIcon } from "components/Icon/Transfer/ReceivingIcon";
 import ShipmentCard from "./components/ShipmentCard";
 import ShipmentTabs from "./components/ShipmentTabs";
-import ShipmentOverlay from "./components/ShipmentOverlay";
+import ShipmentOverlay, { IShipmentOverlayData } from "./components/ShipmentOverlay";
 
 // graphql query and mutations
 
@@ -124,7 +124,7 @@ function ShipmentView() {
   // State to show minus button near boxes when remove button is triggered
   const [showRemoveIcon, setShowRemoveIcon] = useState(false);
   // State to pass Data from a row to the Overlay
-  const [shipmentOverlayData, setShipmentOverlayData] = useState({});
+  const [shipmentOverlayData, setShipmentOverlayData] = useState<IShipmentOverlayData>();
 
   // variables in URL
   const shipmentId = useParams<{ id: string }>().id!;
@@ -201,7 +201,7 @@ function ShipmentView() {
       state: data?.shipment?.state,
       sourceOrg: data?.shipment?.sourceBase.organisation.name,
       targetOrg: data?.shipment?.targetBase.organisation.name,
-    });
+    } as IShipmentOverlayData);
     onOpen();
   }, [setShipmentOverlayData, onOpen, data]);
 

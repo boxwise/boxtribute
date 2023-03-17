@@ -14,10 +14,17 @@ import {
 } from "@chakra-ui/react";
 import { ShipmentState } from "types/generated/graphql";
 
+export interface IShipmentOverlayData {
+  id: string;
+  state: ShipmentState;
+  sourceOrg: string;
+  targetOrg: string;
+}
+
 interface IShipmentsOverlayProps {
   isLoading: boolean;
   isOpen: boolean;
-  shipmentOverlayData: any;
+  shipmentOverlayData: IShipmentOverlayData | undefined;
   onClose: () => void;
   //   onSend: (id: string) => void;
   //   onStartReceiving: (id: string) => void;
@@ -40,7 +47,7 @@ function ShipmentOverlay({
   let rightButtonProps = {};
   let rightButtonText = "Nevermind";
 
-  if (data.state === ShipmentState.Preparing) {
+  if (data?.state === ShipmentState.Preparing) {
     title = "Cancel Whole Shipment?";
     body = (
       <VStack align="start" spacing={8}>
