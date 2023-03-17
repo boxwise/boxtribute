@@ -51,27 +51,25 @@ export const useLoadAndSetGlobalPreferences = () => {
         type: "setAvailableBases",
         payload: bases,
       });
-    }
-  }, [data, isBasesQueryLoading, dispatch]);
 
-  // retrieve base id from url
-  useEffect(() => {
-    const baseId = location.pathname.match(/\/bases\/(\d+)(\/)?/);
-    // validate if requested base is in the array of available bases
-    if (globalPreferences.availableBases != null && baseId != null) {
-      if (globalPreferences.availableBases.some((base) => base.id === baseId[1])) {
-        // set selected base
-        dispatch({
-          type: "setSelectedBaseId",
-          payload: baseId[1],
-        });
-      } else {
-        setError("The requested base is not available to you.");
+      // retrieve base id from the url
+      const baseId = location.pathname.match(/\/bases\/(\d+)(\/)?/);
+      // validate if requested base is in the array of available bases
+      if (baseId != null) {
+        if (bases.some((base) => base.id === baseId[1])) {
+          // set selected base
+          dispatch({
+            type: "setSelectedBaseId",
+            payload: baseId[1],
+          });
+        } else {
+          setError("The requested base is not available to you.");
+        }
       }
     }
-  }, [dispatch, globalPreferences.availableBases, location.pathname]);
+  }, [data, isBasesQueryLoading, dispatch, location.pathname]);
 
-  const isLoading = !!globalPreferences.availableBases;
+  const isLoading = !globalPreferences.availableBases;
 
   return { isLoading, error };
 };

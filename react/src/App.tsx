@@ -27,7 +27,15 @@ import QrReaderView from "views/QrReader/QrReaderView";
 import NotFoundView from "views/NotFoundView/NotFoundView";
 
 function App() {
-  useLoadAndSetGlobalPreferences();
+  const { isLoading, error } = useLoadAndSetGlobalPreferences();
+  if (error) {
+    // eslint-disable-next-line no-console
+    console.error(error);
+    return <div />;
+  }
+  if (isLoading) {
+    return <div />;
+  }
   return (
     <Routes>
       <Route path="/">
