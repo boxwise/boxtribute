@@ -65,7 +65,14 @@ function QrReaderContainer({ onSuccess }: IQrReaderContainerProps) {
                   (ref) => ref.labelIdentifier === qrResolvedValue.box.labelIdentifier,
                 );
 
-                if (alreadyExists) return existingBoxRefs;
+                if (alreadyExists) {
+                  createToast({
+                    message: `Box ${boxLabelIdentifier} is already on the list.`,
+                    type: "info",
+                  });
+
+                  return existingBoxRefs;
+                }
                 // execute rest only if Box is not in the scannedBoxes already
                 createToast({
                   message: `Box ${boxLabelIdentifier} was added to the list.`,
