@@ -155,22 +155,20 @@ function ShipmentView() {
     RemoveBoxFromShipmentMutation,
     RemoveBoxFromShipmentMutationVariables
   >(REMOVE_BOX_FROM_SHIPMENT);
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars, no-unused-vars
+  // eslint-disable-next-line no-unused-vars, @typescript-eslint/no-unused-vars
   const [updateShipmentWhenReceiving, updateShipmentWhenReceivingStatus] = useMutation<
     UpdateShipmentWhenReceivingMutation,
     UpdateShipmentWhenReceivingMutationVariables
   >(UPDATE_SHIPMENT_WHEN_RECEIVING);
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars, no-unused-vars
   const [cancelShipment, cancelShipmentStatus] = useMutation<
     CancelShipmentMutation,
     CancelShipmentMutationVariables
   >(CANCEL_SHIPMENT);
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars, no-unused-vars
   const [sendShipment, sendShipmentStatus] = useMutation<
     SendShipmentMutation,
     SendShipmentMutationVariables
   >(SEND_SHIPMENT);
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars, no-unused-vars
+  // eslint-disable-next-line no-unused-vars, @typescript-eslint/no-unused-vars
   const [startReceivingShipment, startReceivingShipmentStatus] = useMutation<
     StartReceivingShipmentMutation,
     StartReceivingShipmentMutationVariables
@@ -298,7 +296,12 @@ function ShipmentView() {
     [triggerError, createToast, updateShipmentWhenPreparing, shipmentId],
   );
 
-  const isLoadingFromMutation = updateShipmentWhenPreparingStatus.loading;
+  const isLoadingFromMutation =
+    updateShipmentWhenPreparingStatus.loading ||
+    cancelShipmentStatus.loading ||
+    sendShipmentStatus.loading ||
+    startReceivingShipmentStatus.loading ||
+    updateShipmentWhenReceivingStatus.loading;
 
   // transform shipment data for UI
   const shipmentState = data?.shipment?.state;
