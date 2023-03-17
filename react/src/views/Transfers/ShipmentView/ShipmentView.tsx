@@ -155,30 +155,32 @@ function ShipmentView() {
     RemoveBoxFromShipmentMutation,
     RemoveBoxFromShipmentMutationVariables
   >(REMOVE_BOX_FROM_SHIPMENT);
-  // eslint-disable-next-line no-unused-vars, @typescript-eslint/no-unused-vars
-  const [updateShipmentWhenReceiving, updateShipmentWhenReceivingStatus] = useMutation<
-    UpdateShipmentWhenReceivingMutation,
-    UpdateShipmentWhenReceivingMutationVariables
-  >(UPDATE_SHIPMENT_WHEN_RECEIVING);
+
   const [cancelShipment, cancelShipmentStatus] = useMutation<
     CancelShipmentMutation,
     CancelShipmentMutationVariables
   >(CANCEL_SHIPMENT);
+
+  const [lostShipment, lostShipmentStatus] = useMutation<
+    LostShipmentMutation,
+    LostShipmentMutationVariables
+  >(LOST_SHIPMENT);
+
   const [sendShipment, sendShipmentStatus] = useMutation<
     SendShipmentMutation,
     SendShipmentMutationVariables
   >(SEND_SHIPMENT);
+
   // eslint-disable-next-line no-unused-vars, @typescript-eslint/no-unused-vars
   const [startReceivingShipment, startReceivingShipmentStatus] = useMutation<
     StartReceivingShipmentMutation,
     StartReceivingShipmentMutationVariables
   >(START_RECEIVING_SHIPMENT);
-
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars, no-unused-vars
-  const [lostShipment, lostShipmentStatus] = useMutation<
-    LostShipmentMutation,
-    LostShipmentMutationVariables
-  >(LOST_SHIPMENT);
+  // eslint-disable-next-line no-unused-vars, @typescript-eslint/no-unused-vars
+  const [updateShipmentWhenReceiving, updateShipmentWhenReceivingStatus] = useMutation<
+    UpdateShipmentWhenReceivingMutation,
+    UpdateShipmentWhenReceivingMutationVariables
+  >(UPDATE_SHIPMENT_WHEN_RECEIVING);
 
   // shipment actions in the modal
   const handleShipment = useCallback(
@@ -301,7 +303,8 @@ function ShipmentView() {
     cancelShipmentStatus.loading ||
     sendShipmentStatus.loading ||
     startReceivingShipmentStatus.loading ||
-    updateShipmentWhenReceivingStatus.loading;
+    updateShipmentWhenReceivingStatus.loading ||
+    lostShipmentStatus.loading;
 
   // transform shipment data for UI
   const shipmentState = data?.shipment?.state;
