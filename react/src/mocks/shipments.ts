@@ -126,6 +126,7 @@ export const generateMockShipment = ({ state = ShipmentState.Preparing, iAmSourc
   targetBase: iAmSource ? base2 : base1,
   transferAgreement: {
     id: "1",
+    type: TransferAgreementType.Bidirectional,
     __typename: "TransferAgreement",
   },
   startedOn: "2023-01-08T17:24:29+00:00",
