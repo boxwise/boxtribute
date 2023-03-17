@@ -39,7 +39,10 @@ function QrReaderContainer({ onSuccess }: IQrReaderContainerProps) {
   const onScan = async (qrReaderResultText: string) => {
     if (!isProcessingQrCode) {
       setIsProcessingQrCode(true);
-      const qrResolvedValue: IQrResolvedValue = await resolveQrCode(qrReaderResultText);
+      const qrResolvedValue: IQrResolvedValue = await resolveQrCode(
+        qrReaderResultText,
+        isMultiBox ? "cache-first" : "network-only",
+      );
       switch (qrResolvedValue.kind) {
         case IQrResolverResultKind.SUCCESS: {
           const boxLabelIdentifier = qrResolvedValue.box.labelIdentifier;

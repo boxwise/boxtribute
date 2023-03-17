@@ -1,5 +1,5 @@
 import { useCallback, useState } from "react";
-import { useApolloClient } from "@apollo/client";
+import { FetchPolicy, useApolloClient } from "@apollo/client";
 import { GET_BOX_LABEL_IDENTIFIER_BY_QR_CODE } from "queries/queries";
 import { BOX_SCANNED_ON_FRAGMENT } from "queries/local-only";
 import {
@@ -41,13 +41,13 @@ export const useQrResolver = () => {
   const apolloClient = useApolloClient();
 
   const resolveQrHash = useCallback(
-    async (hash: string): Promise<IQrResolvedValue> => {
+    async (hash: string, fetchPolicy: FetchPolicy): Promise<IQrResolvedValue> => {
       setLoading(true);
       const qrResolvedValue: IQrResolvedValue = await apolloClient
         .query<GetBoxLabelIdentifierForQrCodeQuery, GetBoxLabelIdentifierForQrCodeQueryVariables>({
           query: GET_BOX_LABEL_IDENTIFIER_BY_QR_CODE,
           variables: { qrCode: hash },
-          fetchPolicy: "network-only",
+          fetchPolicy,
         })
         .then(({ data, errors }) => {
           if ((errors?.length || 0) > 0) {
@@ -108,14 +108,17 @@ export const useQrResolver = () => {
   );
 
   const resolveQrCode = useCallback(
-    async (qrCodeUrl: string): Promise<IQrResolvedValue> => {
+    async (qrCodeUrl: string, fetchPolicy: FetchPolicy): Promise<IQrResolvedValue> => {
       setLoading(true);
       const extractedQrHashFromUrl = extractQrCodeFromUrl(qrCodeUrl);
       if (extractedQrHashFromUrl == null) {
         setLoading(false);
         return { kind: IQrResolverResultKind.NOT_BOXTRIBUTE_QR } as IQrResolvedValue;
       }
-      const qrResolvedValue: IQrResolvedValue = await resolveQrHash(extractedQrHashFromUrl);
+      const qrResolvedValue: IQrResolvedValue = await resolveQrHash(
+        extractedQrHashFromUrl,
+        fetchPolicy,
+      );
       setLoading(false);
       return qrResolvedValue;
     },
