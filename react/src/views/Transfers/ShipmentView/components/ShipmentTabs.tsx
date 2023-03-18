@@ -16,6 +16,7 @@ export interface IGroupedHistoryEntry {
 export interface IShipmentTabsProps {
   detail: ShipmentDetail[];
   histories: IGroupedHistoryEntry[];
+  isLoadingMutation: boolean | undefined;
   showRemoveIcon: Boolean;
   onRemoveBox: (id: string) => void;
   onBulkRemoveBox: (ids: string[]) => void;
@@ -24,6 +25,7 @@ function ShipmentTabs({
   showRemoveIcon,
   detail,
   histories,
+  isLoadingMutation,
   onRemoveBox,
   onBulkRemoveBox,
 }: IShipmentTabsProps) {
@@ -68,6 +70,7 @@ function ShipmentTabs({
           )}
           {(detail?.length || 0) !== 0 && (
             <ShipmentContent
+              isLoadingMutation={isLoadingMutation}
               items={boxGroupedByProductGender}
               onRemoveBox={onRemoveBox}
               onBulkRemoveBox={onBulkRemoveBox}

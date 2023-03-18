@@ -439,6 +439,7 @@ function ShipmentView() {
       <ShipmentTabs
         detail={shipmentContents}
         histories={sortedGroupedHistoryEntries}
+        isLoadingMutation={isLoadingFromMutation}
         onRemoveBox={onRemoveBox}
         onBulkRemoveBox={onBulkRemoveBox}
         showRemoveIcon={showRemoveIcon}
@@ -450,6 +451,7 @@ function ShipmentView() {
         canCancelShipment={canCancelShipment}
         canUpdateShipment={canUpdateShipment}
         canLooseShipment={canLooseShipment}
+        isLoadingMutation={isLoadingFromMutation}
         onRemove={onMinusClick}
         onCancel={openShipmentOverlay}
         shipment={data?.shipment! as Shipment}

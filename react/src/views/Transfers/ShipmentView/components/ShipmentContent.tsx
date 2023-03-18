@@ -27,6 +27,7 @@ export interface IShipmentContent {
 interface IShipmentContentProps {
   items: IShipmentContent[];
   showRemoveIcon: Boolean;
+  isLoadingMutation: boolean | undefined;
   onRemoveBox: (id: string) => void;
   onBulkRemoveBox: (ids: string[]) => void;
 }
@@ -35,6 +36,7 @@ function ShipmentContent({
   items,
   onRemoveBox,
   onBulkRemoveBox,
+  isLoadingMutation,
   showRemoveIcon,
 }: IShipmentContentProps) {
   const boxesToTableTransformer = (boxes: BoxType[]) =>
@@ -72,11 +74,15 @@ function ShipmentContent({
         show: showRemoveIcon,
         // eslint-disable-next-line react/no-unstable-nested-components
         Cell: ({ row }: CellProps<any>) => (
-          <RemoveBoxCell row={row} onRemoveIconClick={onRemoveBox} />
+          <RemoveBoxCell
+            row={row}
+            onRemoveIconClick={onRemoveBox}
+            isLoadingMutation={isLoadingMutation}
+          />
         ),
       },
     ],
-    [showRemoveIcon, onRemoveBox],
+    [showRemoveIcon, onRemoveBox, isLoadingMutation],
   );
 
   return (
@@ -96,7 +102,7 @@ function ShipmentContent({
                         fill: isExpanded ? "gray" : "red",
                       }}
                       onClick={
-                        !isExpanded
+                        !isExpanded && !isLoadingMutation
                           ? () => onBulkRemoveBox(item.boxes.map((b) => b.labelIdentifier))
                           : undefined
                       }
