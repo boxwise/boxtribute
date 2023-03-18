@@ -207,12 +207,6 @@ function ShipmentView() {
 
   const onRemoveBox = useCallback(
     (boxLabelIdentifier: string) => {
-      createToast({
-        title: `Box ${boxLabelIdentifier}`,
-        type: "success",
-        message: "Successfully removed the box from the shipment.",
-      });
-
       updateShipmentWhenPreparing({
         variables: {
           id: shipmentId,
@@ -243,12 +237,6 @@ function ShipmentView() {
 
   const onBulkRemoveBox = useCallback(
     (boxLabelIdentifiers: string[]) => {
-      createToast({
-        title: `Box ${boxLabelIdentifiers}`,
-        type: "success",
-        message: "Successfully removed the box from the shipment.",
-      });
-
       setShowRemoveIcon(false);
       updateShipmentWhenPreparing({
         variables: {
