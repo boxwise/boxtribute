@@ -16,20 +16,20 @@ import {
   Tabs,
 } from "@chakra-ui/react";
 import { AddIcon, MinusIcon, SearchIcon } from "@chakra-ui/icons";
-import { OnResultFunction, QrReaderScanner } from "./QrReaderScanner";
+import { QrReaderScanner } from "./QrReaderScanner";
 import QrReaderMultiBoxContainer from "./QrReaderMultiBoxContainer";
 
 export interface IQrReaderProps {
+  isMultiBox: boolean;
   findBoxByLabelIsLoading: boolean;
-  openTab: number;
   onTabSwitch: (index: number) => void;
-  onScan: (result: string) => void;
+  onScan: (result: string, multiScan: boolean) => void;
   onFindBoxByLabel: (label: string) => void;
 }
 
 function QrReader({
+  isMultiBox,
   findBoxByLabelIsLoading,
-  openTab,
   onTabSwitch,
   onScan,
   onFindBoxByLabel,
@@ -42,10 +42,10 @@ function QrReader({
   );
 
   // Did the QrReaderScanner catch a QrCode? --> call onScan with text value
-  const onResult: OnResultFunction = useCallback(
-    (qrReaderResult: Result | undefined | null) => {
+  const onResult = useCallback(
+    (multiScan: boolean, qrReaderResult: Result | undefined | null) => {
       if (qrReaderResult) {
-        onScan(qrReaderResult.getText());
+        onScan(qrReaderResult.getText(), multiScan);
       }
     },
     [onScan],
@@ -76,6 +76,7 @@ function QrReader({
     <>
       <QrReaderScanner
         key="qrReaderScanner"
+        multiScan={isMultiBox}
         facingMode="environment"
         zoom={zoomLevel}
         scanPeriod={1000}
@@ -99,7 +100,7 @@ function QrReader({
           </IconButton>
         </HStack>
       )}
-      <Tabs index={openTab} onChange={onTabSwitch}>
+      <Tabs index={isMultiBox ? 1 : 0} onChange={onTabSwitch}>
         <TabList justifyContent="center">
           <Tab>SOLO BOX</Tab>
           <Tab>MULTI BOX</Tab>

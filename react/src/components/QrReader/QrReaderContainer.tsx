@@ -36,17 +36,17 @@ function QrReaderContainer({ onSuccess }: IQrReaderContainerProps) {
   );
 
   // handle a scan depending on if the solo box or multi box tab is active
-  const onScan = async (qrReaderResultText: string) => {
+  const onScan = async (qrReaderResultText: string, multiScan: boolean) => {
     if (!isProcessingQrCode) {
       setIsProcessingQrCode(true);
       const qrResolvedValue: IQrResolvedValue = await resolveQrCode(
         qrReaderResultText,
-        isMultiBox ? "cache-first" : "network-only",
+        multiScan ? "cache-first" : "network-only",
       );
       switch (qrResolvedValue.kind) {
         case IQrResolverResultKind.SUCCESS: {
           const boxLabelIdentifier = qrResolvedValue.box.labelIdentifier;
-          if (!isMultiBox) {
+          if (!multiScan) {
             const boxBaseId = qrResolvedValue.box.location.base.id;
             setIsProcessingQrCode(false);
             onSuccess();
@@ -99,7 +99,7 @@ function QrReaderContainer({ onSuccess }: IQrReaderContainerProps) {
           break;
         }
         case IQrResolverResultKind.NOT_ASSIGNED_TO_BOX: {
-          if (!isMultiBox) {
+          if (!multiScan) {
             onSuccess();
             navigate(`/bases/${baseId}/boxes/create/${qrResolvedValue?.qrHash}`);
           } else {
@@ -196,7 +196,7 @@ function QrReaderContainer({ onSuccess }: IQrReaderContainerProps) {
 
   return (
     <QrReader
-      openTab={isMultiBox ? 1 : 0}
+      isMultiBox={isMultiBox}
       onTabSwitch={(index) => setIsMultiBox(index === 1)}
       onScan={onScan}
       onFindBoxByLabel={onFindBoxByLabel}
