@@ -17,7 +17,6 @@ import {
 } from "@chakra-ui/react";
 import { AddIcon, MinusIcon, SearchIcon } from "@chakra-ui/icons";
 import { OnResultFunction, QrReaderScanner } from "./QrReaderScanner";
-import { ViewFinder } from "./ViewFinder";
 import QrReaderMultiBoxContainer from "./QrReaderMultiBoxContainer";
 
 export interface IQrReaderProps {
@@ -77,7 +76,6 @@ function QrReader({
     <>
       <QrReaderScanner
         key="qrReaderScanner"
-        ViewFinder={ViewFinder}
         facingMode="environment"
         zoom={zoomLevel}
         scanPeriod={1000}

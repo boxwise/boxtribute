@@ -1,14 +1,8 @@
-/* eslint-disable react/function-component-definition */
-/* eslint-disable react/require-default-props */
-/* eslint-disable no-unused-expressions */
-/* eslint-disable consistent-return */
-/* eslint-disable no-console */
-import * as React from "react";
-
 import { MutableRefObject, useEffect, useRef } from "react";
 import { BrowserQRCodeReader, IScannerControls } from "@zxing/browser";
 import { Result } from "@zxing/library";
 import { styles } from "./QrReaderScannerStyles";
+import { ViewFinder } from "./ViewFinder";
 
 export type OnResultFunction = (
   /**
@@ -29,7 +23,6 @@ export type QrReaderScannerProps = {
   facingMode?: string;
   zoom?: number;
   onResult: OnResultFunction;
-  ViewFinder?: (props: any) => React.ReactElement<any, any> | null;
   scanPeriod?: number;
 };
 
@@ -40,16 +33,13 @@ const isMediaDevicesAPIAvailable = () => {
   return isMediaDevicesAPIAvailable;
 };
 
-export const QrReaderScanner: React.FC<QrReaderScannerProps> = ({
+export function QrReaderScanner({
   zoom,
   facingMode,
   onResult,
-  ViewFinder,
-  // eslint-disable-next-line no-unused-vars
-  scanPeriod,
-}) => {
+  scanPeriod: delayBetweenScanAttempts,
+}: QrReaderScannerProps) {
   const videoRef: MutableRefObject<HTMLVideoElement | null> = useRef<HTMLVideoElement>(null);
-
   const isMountedRef = useRef(true);
   const controlsRef: MutableRefObject<IScannerControls | null> = useRef<IScannerControls>(null);
   const browserQRCodeReaderRef: MutableRefObject<BrowserQRCodeReader | null> =
@@ -57,6 +47,7 @@ export const QrReaderScanner: React.FC<QrReaderScannerProps> = ({
 
   useEffect(() => {
     if (videoRef.current == null) {
+      // eslint-disable-next-line no-console
       console.error("QR Reader: Video Element not (yet) available");
       return;
     }
@@ -69,12 +60,16 @@ export const QrReaderScanner: React.FC<QrReaderScannerProps> = ({
     controlsRef.current?.stop();
 
     if (browserQRCodeReaderRef.current == null) {
-      browserQRCodeReaderRef.current = new BrowserQRCodeReader(undefined, {});
+      browserQRCodeReaderRef.current = new BrowserQRCodeReader(undefined, {
+        delayBetweenScanAttempts,
+        delayBetweenScanSuccess: delayBetweenScanAttempts,
+      });
 
       if (!isMediaDevicesAPIAvailable()) {
         const message = "QRReader: This browser doesn't support MediaDevices API.\"";
+        // eslint-disable-next-line no-console
         console.error(message);
-        onResult?.(null, new Error(message), browserQRCodeReaderRef.current);
+        onResult(null, new Error(message), browserQRCodeReaderRef.current);
       }
 
       browserQRCodeReaderRef.current
@@ -84,8 +79,9 @@ export const QrReaderScanner: React.FC<QrReaderScannerProps> = ({
           },
           videoRef.current,
           (result, error) => {
-            browserQRCodeReaderRef.current != null &&
-              onResult?.(result, error, browserQRCodeReaderRef.current);
+            if (browserQRCodeReaderRef.current != null) {
+              onResult(result, error, browserQRCodeReaderRef.current);
+            }
           },
         )
         .then((controls: IScannerControls) => {
@@ -95,14 +91,16 @@ export const QrReaderScanner: React.FC<QrReaderScannerProps> = ({
           }
         })
         .catch((error: Error) => {
-          browserQRCodeReaderRef.current != null &&
-            onResult?.(null, error, browserQRCodeReaderRef.current);
+          if (browserQRCodeReaderRef.current != null) {
+            onResult(null, error, browserQRCodeReaderRef.current);
+          }
         });
     }
+    // eslint-disable-next-line consistent-return
     return () => {
       browserQRCodeReaderRef.current = null;
     };
-  }, [facingMode, onResult, zoom]);
+  }, [delayBetweenScanAttempts, facingMode, onResult, zoom]);
 
   useEffect(
     () => () => {
@@ -119,7 +117,7 @@ export const QrReaderScanner: React.FC<QrReaderScannerProps> = ({
           ...styles.container,
         }}
       >
-        {!!ViewFinder && <ViewFinder />}
+        <ViewFinder />
         <video
           muted
           ref={videoRef}
@@ -131,6 +129,11 @@ export const QrReaderScanner: React.FC<QrReaderScannerProps> = ({
       </div>
     </section>
   );
-};
+}
 
 QrReaderScanner.displayName = "QrReader";
+QrReaderScanner.defaultProps = {
+  facingMode: "environment",
+  zoom: 1,
+  scanPeriod: 500,
+};
