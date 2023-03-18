@@ -61,7 +61,7 @@ function ShipmentTabs({
   return (
     <Tabs w="100%" isFitted variant="enclosed-colored">
       <TabList>
-        <Tab>Content</Tab>
+        <Tab>{showReceivingTable ? "Needs Receiving" : "Content"}</Tab>
         <Tab>History</Tab>
       </TabList>
       <TabPanels>
