@@ -89,9 +89,7 @@ function ApolloAuth0Provider({ children }: { children: ReactNode }) {
 
   const client = new ApolloClient({
     cache,
-    // TODO: Ideally, only set this temporary to true for local debugging
-    // or make the usage here conditional based on the environment.
-    connectToDevTools: true,
+    connectToDevTools: process.env.REACT_APP_ENVIRONMENT !== "production",
     link: auth0Link.concat(errorLink).concat(httpLink),
     defaultOptions,
   });
