@@ -14,6 +14,7 @@ function ShipmentReceivingContent({ items }: IShipmentReceivingContentProps) {
     id: shipmentDetail?.sourceProduct?.id,
     labelIdentifier: shipmentDetail?.box?.labelIdentifier,
     product: shipmentDetail.sourceProduct?.name,
+    comment: shipmentDetail?.box?.comment,
     gender: shipmentDetail.sourceProduct?.gender,
     items: shipmentDetail?.box?.numberOfItems || 0,
   }));
@@ -28,40 +29,23 @@ function ShipmentReceivingContent({ items }: IShipmentReceivingContentProps) {
         id: "labelIdentifier",
         Header: "BOX #",
         accessor: "labelIdentifier",
-        // eslint-disable-next-line react/no-unstable-nested-components
-        Cell: ({ row, column, state }: CellProps<any>) => {
-          const { sortBy } = state;
-          return (
-            <Stack direction="row">
-              <Box
-                fontWeight={column.isSorted && column.id === "labelIdentifier" ? "bold" : "normal"}
-              >
-                {row.original.labelIdentifier}
-              </Box>
-              <Box fontWeight={sortBy[0]?.id === "product" ? "bold" : "normal"}>
-                {row.original.product}
-              </Box>
-              <Box fontWeight={sortBy[0]?.id === "gender" ? "bold" : "normal"}>
-                {row.original.gender}
-              </Box>
-            </Stack>
-          );
-        },
       },
       {
         id: "product",
         Header: "PRODUCT",
         style: { overflowWrap: "break-word" },
         accessor: "product",
-        // eslint-disable-next-line react/no-unstable-nested-components, no-empty-pattern
-        Cell: ({}: CellProps<any>) => null,
       },
       {
         id: "gender",
         Header: "Gender",
         accessor: "gender",
-        // eslint-disable-next-line no-empty-pattern
-        Cell: ({}: CellProps<any>) => null,
+      },
+      {
+        id: "comment",
+        Header: "Comment",
+        accessor: "comment",
+        show: false,
       },
       {
         id: "id",

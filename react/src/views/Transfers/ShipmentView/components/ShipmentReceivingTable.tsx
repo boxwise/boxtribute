@@ -1,6 +1,8 @@
 /* eslint-disable no-nested-ternary */
 import {
+  Box,
   Box as BoxWrapper,
+  Stack,
   Table,
   TableContainer,
   Tbody,
@@ -9,8 +11,13 @@ import {
   Thead,
   Tr,
   useBreakpointValue,
+  Wrap,
+  WrapItem,
 } from "@chakra-ui/react";
 import { useMemo } from "react";
+import { RiArrowDownSFill, RiArrowUpSFill } from "react-icons/ri";
+import { BsFillChatDotsFill } from "react-icons/bs";
+
 import { Column, useTable, useSortBy } from "react-table";
 
 interface IShipmentReceivingTablePros {
@@ -55,9 +62,21 @@ function ShipmentReceivingTable({ columns, data }: IShipmentReceivingTablePros) 
                   // Add the sorting props to control sorting. For this example
                   // we can add them into the header props
                   <Th {...column.getHeaderProps(column.getSortByToggleProps())}>
-                    {column.render("Header")}
-                    {/* Add a sort direction indicator */}
-                    <span>{column.isSorted ? (column.isSortedDesc ? " 🔽" : " 🔼") : ""}</span>
+                    <Wrap>
+                      <WrapItem>{column.render("Header")}</WrapItem>
+                      {/* Add a sort direction indicator */}
+                      <WrapItem>
+                        {column.isSorted ? (
+                          column.isSortedDesc ? (
+                            <RiArrowDownSFill />
+                          ) : (
+                            <RiArrowUpSFill />
+                          )
+                        ) : (
+                          ""
+                        )}
+                      </WrapItem>
+                    </Wrap>
                   </Th>
                 ))}
               </Tr>
@@ -73,16 +92,9 @@ function ShipmentReceivingTable({ columns, data }: IShipmentReceivingTablePros) 
                     {...row.cells[0].getCellProps()}
                     style={{ whiteSpace: "pre-wrap", wordWrap: "break-word", fontSize: "xs" }}
                   >
-                    {row.cells[0].render("Cell")}
+                    {row.cells[0].row.original.product}
+                    {row.cells[0].row.original.comment && <BsFillChatDotsFill />}
                   </Td>
-                  {/* {row.cells.map((cell) => (
-                    <Td
-                      {...cell.getCellProps()}
-                      style={{ whiteSpace: "pre-wrap", wordWrap: "break-word", fontSize: "xs" }}
-                    >
-                      {cell.render("Cell")}
-                    </Td>
-                  ))} */}
                 </Tr>
               );
             })}
