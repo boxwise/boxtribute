@@ -1,7 +1,5 @@
-import { Box, Stack } from "@chakra-ui/react";
 import _ from "lodash";
 import { useMemo } from "react";
-import { CellProps } from "react-table";
 import { ShipmentDetail } from "types/generated/graphql";
 import ShipmentReceivingTable from "./ShipmentReceivingTable";
 
@@ -18,9 +16,6 @@ function ShipmentReceivingContent({ items }: IShipmentReceivingContentProps) {
     gender: shipmentDetail.sourceProduct?.gender,
     items: shipmentDetail?.box?.numberOfItems || 0,
   }));
-
-  // eslint-disable-next-line no-console
-  console.log("boxes", boxes);
 
   // Define columns
   const columns = useMemo(
