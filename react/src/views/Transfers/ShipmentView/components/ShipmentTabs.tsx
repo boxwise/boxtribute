@@ -1,28 +1,58 @@
 import { TabList, TabPanels, Tabs, TabPanel, Tab, Center } from "@chakra-ui/react";
 import _ from "lodash";
-import { ShipmentDetail } from "types/generated/graphql";
+import { Box, HistoryEntry, ShipmentDetail } from "types/generated/graphql";
 import ShipmentContent, { IShipmentContent } from "./ShipmentContent";
 import ShipmentHistory from "./ShipmentHistory";
 
-export interface IShipmentTabsProps {
-  shipmentDetail: ShipmentDetail[];
+export interface IBoxHistoryEntry extends HistoryEntry {
+  labelIdentifier: string;
 }
-function ShipmentTabs({ shipmentDetail }: IShipmentTabsProps) {
+
+export interface IGroupedHistoryEntry {
+  date: string;
+  entries: (ShipmentDetail | null | undefined)[];
+}
+
+export interface IShipmentTabsProps {
+  detail: ShipmentDetail[];
+  histories: IGroupedHistoryEntry[];
+  isLoadingMutation: boolean | undefined;
+  showRemoveIcon: Boolean;
+  onRemoveBox: (id: string) => void;
+  onBulkRemoveBox: (ids: string[]) => void;
+}
+function ShipmentTabs({
+  showRemoveIcon,
+  detail,
+  histories,
+  isLoadingMutation,
+  onRemoveBox,
+  onBulkRemoveBox,
+}: IShipmentTabsProps) {
   const boxGroupedByProductGender = _.values(
-    _(shipmentDetail)
-      .groupBy((shipment) => `${shipment?.box?.product?.name}_${shipment?.box?.product?.gender}`)
+    _(detail)
+      .groupBy(
+        (shipment) =>
+          `${shipment?.box?.product?.name || shipment?.sourceProduct?.name}_${
+            shipment?.box?.product?.gender || shipment?.sourceProduct?.gender
+          }`,
+      )
       .mapValues((group) => ({
-        product: group[0]?.box?.product,
-        gender: group[0]?.box?.product?.gender,
-        sizeLabel: group[0]?.box.product?.sizeRange?.label,
+        product: group[0]?.box?.product ? group[0]?.box?.product : group[0]?.sourceProduct,
         totalItems: _.sumBy(group, (shipment) => shipment?.box?.numberOfItems || 0),
         totalBoxes: group.length,
-        boxes: group.map((shipment) => shipment.box),
+        boxes: group.map(
+          (shipment) =>
+            ({
+              ...shipment.box,
+              product: shipment?.box?.product ?? group[0]?.sourceProduct,
+            } as Box),
+        ),
       }))
       .mapKeys(
         (value) =>
           // eslint-disable-next-line max-len
-          `${value.sizeLabel}_${value.gender}_${value.product?.name}_(${value.totalItems}x)_${value.totalBoxes}_Boxes`,
+          `${value.product?.sizeRange?.label}_${value.product?.gender}_${value.product?.name}_(${value.totalItems}x)_${value.totalBoxes}_Boxes`,
       )
       .value(),
   ) as unknown as IShipmentContent[];
@@ -35,15 +65,21 @@ function ShipmentTabs({ shipmentDetail }: IShipmentTabsProps) {
       </TabList>
       <TabPanels>
         <TabPanel p={0}>
-          {(shipmentDetail.length || 0) === 0 && (
-            <Center>No boxes have been assigned to this shipment yet!</Center>
+          {(detail?.length || 0) === 0 && (
+            <Center p={8}>No boxes have been assigned to this shipment yet!</Center>
           )}
-          {(shipmentDetail?.length || 0) !== 0 && (
-            <ShipmentContent items={boxGroupedByProductGender} />
+          {(detail?.length || 0) !== 0 && (
+            <ShipmentContent
+              isLoadingMutation={isLoadingMutation}
+              items={boxGroupedByProductGender}
+              onRemoveBox={onRemoveBox}
+              onBulkRemoveBox={onBulkRemoveBox}
+              showRemoveIcon={showRemoveIcon}
+            />
           )}
         </TabPanel>
         <TabPanel>
-          <ShipmentHistory />
+          <ShipmentHistory histories={histories} />
         </TabPanel>
       </TabPanels>
     </Tabs>
