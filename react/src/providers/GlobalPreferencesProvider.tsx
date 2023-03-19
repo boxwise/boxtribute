@@ -6,6 +6,7 @@ export interface BaseIdAndNameTuple {
 }
 
 export interface GlobalPreferences {
+  selectedBaseId?: string;
   availableBases?: BaseIdAndNameTuple[];
   selectedOrganisationId?: string;
 }

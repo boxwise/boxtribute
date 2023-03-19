@@ -4,7 +4,7 @@ import { Alert, AlertIcon, Center } from "@chakra-ui/react";
 import { useErrorHandling } from "hooks/useErrorHandling";
 import { useNotification } from "hooks/useNotification";
 import APILoadingIndicator from "components/APILoadingIndicator";
-import { useNavigate, useParams } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { TRANSFER_AGREEMENT_FIELDS_FRAGMENT } from "queries/fragments";
 import {
   AllOrganisationsAndBasesQuery,
@@ -70,7 +70,7 @@ function CreateTransferAgreementView() {
   const { globalPreferences } = useContext(GlobalPreferencesContext);
 
   // variables in URL
-  const baseId = useParams<{ baseId: string }>().baseId!;
+  const baseId = globalPreferences.selectedBaseId!;
 
   // Query Data for the Form
   const allFormOptions = useQuery<AllOrganisationsAndBasesQuery>(ALL_ORGS_AND_BASES_QUERY, {});
