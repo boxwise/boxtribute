@@ -6,6 +6,7 @@ import { organisation1, organisations } from "mocks/organisations";
 import { assertOptionsInSelectField, selectOptionInSelectField } from "tests/helpers";
 import { TransferAgreementType } from "types/generated/graphql";
 import { addDays } from "date-fns";
+import { base1 } from "mocks/bases";
 import CreateTransferAgreementView, {
   ALL_ORGS_AND_BASES_QUERY,
   CREATE_AGREEMENT_MUTATION,
@@ -86,6 +87,7 @@ it("4.1.1 - Initial load of Page", async () => {
       globalPreferences: {
         selectedOrganisationId: organisation1.id,
         availableBases: organisation1.bases,
+        selectedBaseId: base1.id,
       },
     },
   });
@@ -129,6 +131,7 @@ it("4.1.2 - Input Validations", async () => {
       globalPreferences: {
         selectedOrganisationId: organisation1.id,
         availableBases: organisation1.bases,
+        selectedBaseId: base1.id,
       },
     },
   });
@@ -184,6 +187,7 @@ it("4.1.3 - Click on Submit Button", async () => {
       globalPreferences: {
         selectedOrganisationId: organisation1.id,
         availableBases: organisation1.bases,
+        selectedBaseId: base1.id,
       },
     },
   });
@@ -216,6 +220,7 @@ it("4.1.3 - Click on Submit Button", async () => {
       globalPreferences: {
         selectedOrganisationId: organisation1.id,
         availableBases: organisation1.bases,
+        selectedBaseId: base1.id,
       },
     },
   });
@@ -246,6 +251,7 @@ it("4.1.4 - Failed to Fetch Initial Data", async () => {
       globalPreferences: {
         selectedOrganisationId: organisation1.id,
         availableBases: organisation1.bases,
+        selectedBaseId: base1.id,
       },
     },
   });
