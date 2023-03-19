@@ -17,6 +17,8 @@ import { useParams } from "react-router-dom";
 import {
   CancelShipmentMutation,
   CancelShipmentMutationVariables,
+  LostShipmentMutation,
+  LostShipmentMutationVariables,
   SendShipmentMutation,
   SendShipmentMutationVariables,
   Shipment,
@@ -103,6 +105,15 @@ export const CANCEL_SHIPMENT = gql`
   }
 `;
 
+export const LOST_SHIPMENT = gql`
+  ${SHIPMENT_FIELDS_FRAGMENT}
+  mutation LostShipment($id: ID!) {
+    markShipmentAsLost(id: $id) {
+      ...ShipmentFields
+    }
+  }
+`;
+
 export const START_RECEIVING_SHIPMENT = gql`
   ${SHIPMENT_FIELDS_FRAGMENT}
   mutation StartReceivingShipment($id: ID!) {
@@ -140,53 +151,74 @@ function ShipmentView() {
     RemoveBoxFromShipmentMutation,
     RemoveBoxFromShipmentMutationVariables
   >(REMOVE_BOX_FROM_SHIPMENT);
-  // eslint-disable-next-line no-unused-vars, @typescript-eslint/no-unused-vars
-  const [updateShipmentWhenReceiving, updateShipmentWhenReceivingStatus] = useMutation<
-    UpdateShipmentWhenReceivingMutation,
-    UpdateShipmentWhenReceivingMutationVariables
-  >(UPDATE_SHIPMENT_WHEN_RECEIVING);
+
   const [cancelShipment, cancelShipmentStatus] = useMutation<
     CancelShipmentMutation,
     CancelShipmentMutationVariables
   >(CANCEL_SHIPMENT);
+
+  const [lostShipment, lostShipmentStatus] = useMutation<
+    LostShipmentMutation,
+    LostShipmentMutationVariables
+  >(LOST_SHIPMENT);
+
   const [sendShipment, sendShipmentStatus] = useMutation<
     SendShipmentMutation,
     SendShipmentMutationVariables
   >(SEND_SHIPMENT);
+
   // eslint-disable-next-line no-unused-vars, @typescript-eslint/no-unused-vars
   const [startReceivingShipment, startReceivingShipmentStatus] = useMutation<
     StartReceivingShipmentMutation,
     StartReceivingShipmentMutationVariables
   >(START_RECEIVING_SHIPMENT);
+  // eslint-disable-next-line no-unused-vars, @typescript-eslint/no-unused-vars
+  const [updateShipmentWhenReceiving, updateShipmentWhenReceivingStatus] = useMutation<
+    UpdateShipmentWhenReceivingMutation,
+    UpdateShipmentWhenReceivingMutationVariables
+  >(UPDATE_SHIPMENT_WHEN_RECEIVING);
 
   // shipment actions in the modal
   const handleShipment = useCallback(
-    (mutation, kind) => () => {
-      mutation({
-        variables: {
-          shipmentId,
-        },
-      })
-        .then((res) => {
-          if (!res?.errors) {
-            onClose();
-            createToast({
-              type: "success",
-              message: `Successfully ${kind}ed the shipment.`,
-            });
-          } else {
-            triggerError({ message: `Could not ${kind} the shipment.` });
-          }
+    (mutation, kind, successMessage = "", failedMessage = "") =>
+      () => {
+        mutation({
+          variables: {
+            shipmentId,
+          },
         })
-        .catch(() => {
-          triggerError({ message: `Could not ${kind} the shipment.` });
-        });
-    },
+          .then((res) => {
+            if (!res?.errors) {
+              onClose();
+              createToast({
+                type: "success",
+                message:
+                  successMessage !== "" ? successMessage : `Successfully ${kind}ed the shipment.`,
+              });
+            } else {
+              triggerError({
+                message: failedMessage !== "" ? failedMessage : `Could not ${kind} the shipment.`,
+              });
+            }
+          })
+          .catch(() => {
+            triggerError({
+              message: failedMessage !== "" ? failedMessage : `Could not ${kind} the shipment.`,
+            });
+          });
+      },
     [onClose, createToast, triggerError, shipmentId],
   );
 
   const onCancel = handleShipment(cancelShipment, "cancel");
   const onSend = handleShipment(sendShipment, "send");
+  const onLost = handleShipment(
+    lostShipment,
+    "lost",
+    "Successfully marked the shipment as Lost.",
+    "Could not marking the shipment as Lost.",
+  );
+  const onReceive = handleShipment(startReceivingShipment, "receive");
 
   // callback function triggered when a state button is clicked.
   const openShipmentOverlay = useCallback(() => {
@@ -267,7 +299,8 @@ function ShipmentView() {
     cancelShipmentStatus.loading ||
     sendShipmentStatus.loading ||
     startReceivingShipmentStatus.loading ||
-    updateShipmentWhenReceivingStatus.loading;
+    updateShipmentWhenReceivingStatus.loading ||
+    lostShipmentStatus.loading;
 
   // transform shipment data for UI
   const shipmentState = data?.shipment?.state;
@@ -346,9 +379,9 @@ function ShipmentView() {
         isLoadingFromMutation={isLoadingFromMutation}
         shipmentState={shipmentState}
         shipmentContents={shipmentContents}
-        onLost={() => {}}
+        onLost={onLost}
         onCancel={onCancel}
-        onReceive={() => {}}
+        onReceive={onReceive}
         onSend={onSend}
         isSender={isSender}
       />
