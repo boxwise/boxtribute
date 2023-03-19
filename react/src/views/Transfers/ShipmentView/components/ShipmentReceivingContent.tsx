@@ -14,6 +14,7 @@ function ShipmentReceivingContent({ items }: IShipmentReceivingContentProps) {
     product: shipmentDetail.sourceProduct?.name,
     comment: shipmentDetail?.box?.comment,
     gender: shipmentDetail.sourceProduct?.gender,
+    size: shipmentDetail.box.size.label,
     items: shipmentDetail?.box?.numberOfItems || 0,
   }));
 
@@ -35,12 +36,6 @@ function ShipmentReceivingContent({ items }: IShipmentReceivingContentProps) {
         id: "gender",
         Header: "Gender",
         accessor: "gender",
-      },
-      {
-        id: "comment",
-        Header: "Comment",
-        accessor: "comment",
-        show: false,
       },
       {
         id: "id",

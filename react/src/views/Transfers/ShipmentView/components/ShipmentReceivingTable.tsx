@@ -2,7 +2,6 @@
 import {
   Box,
   Box as BoxWrapper,
-  Stack,
   Table,
   TableContainer,
   Tbody,
@@ -11,6 +10,7 @@ import {
   Thead,
   Tr,
   useBreakpointValue,
+  VStack,
   Wrap,
   WrapItem,
 } from "@chakra-ui/react";
@@ -83,17 +83,51 @@ function ShipmentReceivingTable({ columns, data }: IShipmentReceivingTablePros) 
             ))}
           </Thead>
           <Tbody {...getTableBodyProps()}>
+            {}
             {rows.map((row) => {
               prepareRow(row);
+
               return (
                 <Tr {...row.getRowProps()}>
                   <Td
-                    colSpan={row.cells.length}
                     {...row.cells[0].getCellProps()}
                     style={{ whiteSpace: "pre-wrap", wordWrap: "break-word", fontSize: "xs" }}
                   >
-                    {row.cells[0].row.original.product}
-                    {row.cells[0].row.original.comment && <BsFillChatDotsFill />}
+                    <VStack spacing={4} align="stretch">
+                      <Box fontWeight={row.cells[0].column.isSorted ? "bold" : "normal"}>
+                        {row.cells[0].row.original.labelIdentifier}
+                        {row.cells[0].row.original.comment && <BsFillChatDotsFill />}
+                      </Box>
+                      <Box color="gray.500">SIZE: {row.cells[0].row.original.size}</Box>
+                    </VStack>
+                  </Td>
+                  <Td
+                    colSpan={2}
+                    {...row.cells[1].getCellProps()}
+                    style={{ whiteSpace: "pre-wrap", wordWrap: "break-word", fontSize: "xs" }}
+                  >
+                    <VStack spacing={4} align="stretch">
+                      <Box fontWeight={row.cells[1].column.isSorted ? "bold" : "normal"}>
+                        {row.cells[0].row.original.product}({row.cells[0].row.original.items}x)
+                      </Box>
+                      <Box />
+                    </VStack>
+                  </Td>
+                  <Td
+                    {...row.cells[1].getCellProps()}
+                    style={{ whiteSpace: "pre-wrap", wordWrap: "break-word", fontSize: "xs" }}
+                  >
+                    <VStack spacing={4} align="stretch">
+                      <Box />
+                      <Box
+                        fontWeight={row.cells[2].column.isSorted ? "bold" : "normal"}
+                        color="gray.500"
+                      >
+                        {row.cells[0].row.original.gender === "none"
+                          ? ""
+                          : row.cells[0].row.original.gender}
+                      </Box>
+                    </VStack>
                   </Td>
                 </Tr>
               );
