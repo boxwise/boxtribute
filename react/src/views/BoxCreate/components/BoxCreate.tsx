@@ -117,14 +117,11 @@ function BoxCreate({
     })
     .sort((a, b) => a.label.localeCompare(b.label));
 
-  const locationsForDropdownGroups = allLocations
-    .map((location) => ({
-      label: location.name,
-      value: location.id,
-      seq: location.seq,
-    }))
-    // sort locations by sequence in ascending order
-    .sort((a, b) => Number(a?.seq) - Number(b?.seq));
+  const locationsForDropdownGroups = allLocations.map((location) => ({
+    label: location.name,
+    value: location.id,
+  }));
+
   const tagsForDropdownGroups: Array<IDropdownOption> | undefined = allTags?.map((tag) => ({
     label: tag.label,
     value: tag.value,
