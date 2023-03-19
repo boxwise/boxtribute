@@ -28,7 +28,7 @@ export interface IShipmentProps {
   isLoadingMutation: boolean | undefined;
   shipment: Shipment;
   onRemove: () => void;
-  onCancel: (data: any) => void;
+  onCancel: () => void;
 }
 
 function ShipmentCard({
