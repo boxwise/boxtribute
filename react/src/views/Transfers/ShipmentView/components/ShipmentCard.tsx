@@ -8,29 +8,49 @@ import {
   Text,
   Box,
   Center,
+  Wrap,
+  WrapItem,
+  IconButton,
+  Heading,
+  Stack,
 } from "@chakra-ui/react";
 import { ShipmentIcon } from "components/Icon/Transfer/ShipmentIcon";
-import { SpecialNoteIcon } from "components/Icon/Transfer/SpecialNoteIcon";
-import { Shipment } from "types/generated/graphql";
+import { BiMinusCircle, BiPackage, BiPlusCircle, BiTrash } from "react-icons/bi";
+import { RiFilePaperFill } from "react-icons/ri";
+import { TbMapOff } from "react-icons/tb";
+import { Shipment, ShipmentState } from "types/generated/graphql";
+import ShipmentColoredStatus from "./ShipmentColoredStatus";
 
 export interface IShipmentProps {
+  canCancelShipment: Boolean;
+  canUpdateShipment: Boolean;
+  canLooseShipment: Boolean;
+  isLoadingMutation: boolean | undefined;
   shipment: Shipment;
+  onRemove: () => void;
+  onCancel: () => void;
 }
 
-function ShipmentCard({ shipment }: IShipmentProps) {
+function ShipmentCard({
+  canCancelShipment,
+  canUpdateShipment,
+  canLooseShipment,
+  isLoadingMutation,
+  shipment,
+  onRemove,
+  onCancel,
+}: IShipmentProps) {
   return (
     <Box
       boxShadow="lg"
-      p="6"
       padding={0}
       rounded="lg"
       bg="white"
-      width={{ base: "240pt", md: "250pt", lg: "250pt" }}
+      width={80}
       borderColor="blackAlpha.800"
       borderWidth={1.5}
     >
       <VStack
-        p="6"
         padding={0}
         rounded="md"
         bg="white"
@@ -38,27 +58,55 @@ function ShipmentCard({ shipment }: IShipmentProps) {
         spacing={1}
         align="stretch"
       >
-        <VStack spacing={2} padding={1} align="center">
-          <Box fontWeight="extrabold">{shipment?.id}</Box>
-          <Box fontWeight="xl">
-            Status:
-            {shipment?.state}
-          </Box>
-        </VStack>
+        <Flex minWidth="max-content" justifyContent="flex-start" p={2}>
+          <VStack>
+            <Heading>
+              <Wrap fontSize="2xl" fontWeight="extrabold">
+                <WrapItem>Shipment</WrapItem>
+                <WrapItem>{shipment?.id}</WrapItem>
+              </Wrap>
+            </Heading>
+            <ShipmentColoredStatus state={shipment?.state} />
+          </VStack>
+          <Spacer />
+          {canCancelShipment && (
+            <IconButton
+              isRound
+              icon={<BiTrash size={30} />}
+              isLoading={isLoadingMutation}
+              onClick={onCancel}
+              style={{ background: "white" }}
+              aria-label="cancel shipment"
+            />
+          )}
+          {canLooseShipment && (
+            <IconButton
+              isRound
+              icon={<TbMapOff size={30} />}
+              variant="outline"
+              isLoading={isLoadingMutation}
+              style={{
+                background: "white",
+                color: ShipmentState.Lost === shipment.state ? "red" : "black",
+              }}
+              aria-label="cannot locate shipment"
+            />
+          )}
+        </Flex>
+
         <Box border={0}>
           <Flex minWidth="max-content" alignItems="center" gap="2">
-            <Spacer />
             <Box p="4">
               <List spacing={1}>
                 <ListItem>
-                  <Flex alignContent="center">
-                    <Text fontSize="md" fontWeight="bold">
+                  <Flex alignContent="right">
+                    <Text fontSize="xl" fontWeight="bold">
                       {shipment?.sourceBase?.name}
                     </Text>
                   </Flex>
                 </ListItem>
                 <ListItem>
-                  <Flex alignContent="center">
+                  <Flex alignContent="right">
                     <Text fontSize="md">{shipment?.sourceBase?.organisation.name}</Text>
                   </Flex>
                 </ListItem>
@@ -67,44 +115,93 @@ function ShipmentCard({ shipment }: IShipmentProps) {
             <Spacer />
             <Box>
               <Flex alignContent="center">
-                <ShipmentIcon />
+                <ShipmentIcon boxSize={9} />
               </Flex>
             </Box>
             <Spacer />
             <Box p="4">
               <List spacing={1}>
                 <ListItem>
-                  <Flex alignContent="center">
-                    <Text fontSize="md" fontWeight="bold">
+                  <Flex alignContent="left">
+                    <Text fontSize="xl" fontWeight="bold">
                       {shipment?.targetBase?.name}
                     </Text>
                   </Flex>
                 </ListItem>
                 <ListItem>
-                  <Flex alignContent="center">
+                  <Flex alignContent="left">
                     <Text fontSize="md">{shipment?.targetBase?.organisation.name}</Text>
                   </Flex>
                 </ListItem>
               </List>
             </Box>
-            <Spacer />
           </Flex>
-          {typeof shipment.transferAgreement?.comment !== "undefined" && (
-            <Center alignContent="stretch">
+          {shipment.transferAgreement?.comment && (
+            <Stack direction="row" alignItems="center" bg="gray.100" marginBottom={-1}>
               <Spacer />
-              <SpecialNoteIcon />
-              <Text fontStyle="italic" p={2}>
-                “{shipment.transferAgreement?.comment}”
+              <RiFilePaperFill size={30} />
+              <Text fontStyle="italic" fontSize="sm" p={2}>
+                “{shipment?.transferAgreement?.comment}”
               </Text>
               <Spacer />
-            </Center>
+            </Stack>
           )}
         </Box>
         <StackDivider borderColor="blackAlpha.800" marginTop={-1.5} />
-        <Box p={4}>
-          <Center alignContent="stretch">
-            <Text fontWeight="bold">TOTAL:</Text> {shipment.details.length} boxes
-          </Center>
+        <Box p={2}>
+          <Flex minWidth="max-content" alignItems="center" gap={2} p={0}>
+            <Box bg="black" p={1} marginTop={-15}>
+              <Text fontSize="xl" fontWeight="bold" color="white">
+                TOTAL
+              </Text>
+            </Box>
+            <Spacer />
+
+            <Box>
+              <Wrap spacing={2} align="center">
+                <WrapItem>
+                  <Center>
+                    <Text as="h3" fontSize="3xl" fontWeight="bold">
+                      {shipment.details?.length || 0}
+                    </Text>
+                  </Center>
+                </WrapItem>
+                <WrapItem>
+                  <Center>
+                    <BiPackage size={35} />
+                  </Center>
+                </WrapItem>
+              </Wrap>
+            </Box>
+
+            <Spacer />
+            <Box>
+              {canUpdateShipment && (
+                <VStack spacing={0} align="stretch">
+                  <IconButton
+                    isRound
+                    height={8}
+                    icon={<BiPlusCircle size={30} />}
+                    isLoading={isLoadingMutation}
+                    onClick={() => {}}
+                    aria-label="add box"
+                    style={{ background: "white" }}
+                  />
+
+                  <IconButton
+                    isRound
+                    height={8}
+                    icon={<BiMinusCircle size={30} />}
+                    isDisabled={shipment.details?.length === 0}
+                    onClick={onRemove}
+                    isLoading={isLoadingMutation}
+                    aria-label="remove box"
+                    style={{ background: "white" }}
+                  />
+                </VStack>
+              )}
+            </Box>
+          </Flex>
         </Box>
       </VStack>
     </Box>

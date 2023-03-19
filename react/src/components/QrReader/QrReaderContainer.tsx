@@ -1,3 +1,6 @@
+import { useCallback, useContext } from "react";
+import { useNavigate } from "react-router-dom";
+import { GlobalPreferencesContext } from "providers/GlobalPreferencesProvider";
 import { useErrorHandling } from "hooks/useErrorHandling";
 import {
   ILabelIdentifierResolvedValue,
@@ -5,8 +8,6 @@ import {
   useLabelIdentifierResolver,
 } from "hooks/useLabelIdentifierResolver";
 import { IQrResolvedValue, IQrResolverResultKind, useQrResolver } from "hooks/useQrResolver";
-import { useCallback } from "react";
-import { useNavigate, useParams } from "react-router-dom";
 import QrReader from "./components/QrReader";
 
 interface IQrReaderContainerProps {
@@ -18,7 +19,8 @@ function QrReaderContainer({ onSuccess }: IQrReaderContainerProps) {
   const { triggerError } = useErrorHandling();
   const { loading: checkQrCodeIsLoading, checkQrCode } = useQrResolver();
   const { loading: findByBoxLabelIsLoading, checkLabelIdentifier } = useLabelIdentifierResolver();
-  const { baseId } = useParams<{ baseId: string }>();
+  const { globalPreferences } = useContext(GlobalPreferencesContext);
+  const baseId = globalPreferences.selectedBaseId;
 
   // callback function to handle a scan of QR-codes at the solo box tab
   const handleSingleScan = useCallback(

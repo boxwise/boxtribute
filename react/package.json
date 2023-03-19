@@ -10,6 +10,7 @@
     "@chakra-ui/react": "^1.8.9",
     "@emotion/react": "^11.10.5",
     "@emotion/styled": "^11.10.5",
+    "@fontsource/open-sans": "^4.5.14",
     "@fortawesome/fontawesome-svg-core": "^6.2.1",
     "@fortawesome/free-solid-svg-icons": "^5.15.4",
     "@fortawesome/react-fontawesome": "^0.2.0",
@@ -82,7 +83,7 @@
     "prop-types": "^15.8.1",
     "regenerator-runtime": "^0.13.11",
     "typescript": "^4.8.4",
-    "webpack": "^5.75.0"
+    "webpack": "^5.76.0"
   },
   "scripts": {
     "chromatic": "npx chromatic --project-token=2763da0ce36c",

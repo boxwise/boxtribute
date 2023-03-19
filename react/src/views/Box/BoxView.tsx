@@ -40,7 +40,7 @@ import {
   PRODUCT_FIELDS_FRAGMENT,
 } from "queries/fragments";
 import { useErrorHandling } from "hooks/useErrorHandling";
-import { useNotification } from "hooks/hooks";
+import { useNotification } from "hooks/useNotification";
 import AddItemsToBoxOverlay from "./components/AddItemsToBoxOverlay";
 import TakeItemsFromBoxOverlay from "./components/TakeItemsFromBoxOverlay";
 import BoxDetails from "./components/BoxDetails";
@@ -79,6 +79,7 @@ export const BOX_BY_LABEL_IDENTIFIER_QUERY = gql`
         base {
           locations {
             id
+            seq
             name
             ... on ClassicLocation {
               defaultBoxState
@@ -145,6 +146,7 @@ export const UPDATE_BOX_MUTATION = gql`
         base {
           locations {
             id
+            seq
             name
             ... on ClassicLocation {
               defaultBoxState
