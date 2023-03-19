@@ -1,10 +1,11 @@
-import { useEffect } from "react";
+import { useContext, useEffect } from "react";
 import { gql, useMutation, useQuery } from "@apollo/client";
 import { Center } from "@chakra-ui/react";
-import { useErrorHandling } from "hooks/error-handling";
-import { useNotification } from "hooks/hooks";
+import { useErrorHandling } from "hooks/useErrorHandling";
+import { useNotification } from "hooks/useNotification";
 import APILoadingIndicator from "components/APILoadingIndicator";
 import { useNavigate, useParams } from "react-router-dom";
+import { GlobalPreferencesContext } from "providers/GlobalPreferencesProvider";
 import {
   AllProductsAndLocationsForBaseQuery,
   AllProductsAndLocationsForBaseQueryVariables,
@@ -14,7 +15,7 @@ import {
   CheckIfQrExistsInDbQuery,
   CheckIfQrExistsInDbQueryVariables,
 } from "types/generated/graphql";
-import { PRODUCT_FIELDS_FRAGMENT, TAG_OPTIONS_FRAGMENT } from "queries/fragments";
+import { TAG_OPTIONS_FRAGMENT, PRODUCT_FIELDS_FRAGMENT } from "queries/fragments";
 import { CHECK_IF_QR_EXISTS_IN_DB } from "queries/queries";
 import BoxCreate, { ICreateBoxFormData } from "./components/BoxCreate";
 
@@ -34,8 +35,8 @@ export const ALL_PRODUCTS_AND_LOCATIONS_FOR_BASE_QUERY = gql`
           defaultBoxState
         }
         id
-        name
         seq
+        name
       }
 
       products {
@@ -78,7 +79,8 @@ function BoxCreateView() {
   const { createToast } = useNotification();
 
   // variables in URL
-  const baseId = useParams<{ baseId: string }>().baseId!;
+  const { globalPreferences } = useContext(GlobalPreferencesContext);
+  const baseId = globalPreferences.selectedBaseId!;
   const qrCode = useParams<{ qrCode: string }>().qrCode!;
 
   // Query the QR-Code
@@ -129,7 +131,8 @@ function BoxCreateView() {
     .map((location) => ({
       ...location,
       name: location.name ?? "",
-    }));
+    }))
+    .sort((a, b) => Number(a?.seq) - Number(b?.seq));
 
   // check data for form
   useEffect(() => {

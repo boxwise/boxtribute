@@ -1,4 +1,4 @@
-import { useEffect } from "react";
+import { useContext, useEffect } from "react";
 import { gql, useMutation, useQuery } from "@apollo/client";
 import APILoadingIndicator from "components/APILoadingIndicator";
 import { useNavigate, useParams } from "react-router-dom";
@@ -10,40 +10,29 @@ import {
   UpdateContentOfBoxMutationVariables,
 } from "types/generated/graphql";
 import {
-  PRODUCT_FIELDS_FRAGMENT,
-  SIZE_FIELDS_FRAGMENT,
   TAG_OPTIONS_FRAGMENT,
+  BOX_FIELDS_FRAGMENT,
+  PRODUCT_FIELDS_FRAGMENT,
 } from "queries/fragments";
 // TODO: move to global queries file
 import { BOX_BY_LABEL_IDENTIFIER_QUERY } from "views/Box/BoxView";
-import { useErrorHandling } from "hooks/error-handling";
-import { useNotification } from "hooks/hooks";
+import { useErrorHandling } from "hooks/useErrorHandling";
+import { useNotification } from "hooks/useNotification";
+import { GlobalPreferencesContext } from "providers/GlobalPreferencesProvider";
 import BoxEdit, { IBoxEditFormData } from "./components/BoxEdit";
 
 export const BOX_BY_LABEL_IDENTIFIER_AND_ALL_PRODUCTS_WITH_BASEID_QUERY = gql`
   ${TAG_OPTIONS_FRAGMENT}
   ${PRODUCT_FIELDS_FRAGMENT}
-  ${SIZE_FIELDS_FRAGMENT}
+  ${BOX_FIELDS_FRAGMENT}
   query BoxByLabelIdentifierAndAllProductsWithBaseId($baseId: ID!, $labelIdentifier: String!) {
     box(labelIdentifier: $labelIdentifier) {
-      labelIdentifier
-      size {
-        ...SizeFields
-      }
-      numberOfItems
-      comment
+      ...BoxFields
       tags {
         ...TagOptions
       }
       product {
         ...ProductFields
-      }
-      location {
-        ... on ClassicLocation {
-          defaultBoxState
-        }
-        id
-        name
       }
     }
 
@@ -58,6 +47,7 @@ export const BOX_BY_LABEL_IDENTIFIER_AND_ALL_PRODUCTS_WITH_BASEID_QUERY = gql`
           defaultBoxState
         }
         id
+        seq
         name
       }
 
@@ -102,7 +92,8 @@ function BoxEditView() {
 
   // variables in URL
   const labelIdentifier = useParams<{ labelIdentifier: string }>().labelIdentifier!;
-  const baseId = useParams<{ baseId: string }>().baseId!;
+  const { globalPreferences } = useContext(GlobalPreferencesContext);
+  const baseId = globalPreferences.selectedBaseId!;
 
   // Query Data for the Form
   const allBoxAndFormData = useQuery<
@@ -198,7 +189,8 @@ function BoxEditView() {
         (location.defaultBoxState !== BoxState.InStock
           ? `${location.name} - Boxes are ${location.defaultBoxState}`
           : location.name) ?? "",
-    }));
+    }))
+    .sort((a, b) => Number(a?.seq) - Number(b?.seq));
 
   // check data for form
   useEffect(() => {

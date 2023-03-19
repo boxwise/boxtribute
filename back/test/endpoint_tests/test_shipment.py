@@ -23,6 +23,8 @@ def test_shipment_query(read_only_client, default_shipment, prepared_shipment_de
                     startedOn
                     sentBy {{ id }}
                     sentOn
+                    receivingStartedBy {{ id }}
+                    receivingStartedOn
                     completedBy {{ id }}
                     completedOn
                     canceledBy {{ id }}
@@ -41,6 +43,8 @@ def test_shipment_query(read_only_client, default_shipment, prepared_shipment_de
         "startedOn": default_shipment["started_on"].isoformat() + "+00:00",
         "sentBy": None,
         "sentOn": None,
+        "receivingStartedBy": None,
+        "receivingStartedOn": None,
         "completedBy": None,
         "completedOn": None,
         "canceledBy": None,
@@ -94,6 +98,8 @@ def test_shipment_mutations_on_source_side(
                     startedOn
                     sentBy {{ id }}
                     sentOn
+                    receivingStartedBy {{ id }}
+                    receivingStartedOn
                     completedBy {{ id }}
                     completedOn
                     canceledBy {{ id }}
@@ -111,6 +117,8 @@ def test_shipment_mutations_on_source_side(
         "startedBy": {"id": "8"},
         "sentBy": None,
         "sentOn": None,
+        "receivingStartedBy": None,
+        "receivingStartedOn": None,
         "completedBy": None,
         "completedOn": None,
         "canceledBy": None,
@@ -396,9 +404,19 @@ def test_shipment_mutations_on_target_side(
                     }} }}"""
 
     # Test case 3.2.14a
-    mutation = f"""mutation {{ receiveShipment(id: "{shipment_id}") {{ id state }} }}"""
+    mutation = f"""mutation {{ startReceivingShipment(id: "{shipment_id}") {{
+                    id
+                    state
+                    receivingStartedBy {{ id }}
+                    receivingStartedOn
+                }} }}"""
     shipment = assert_successful_request(client, mutation)
-    assert shipment == {"id": shipment_id, "state": ShipmentState.Receiving.name}
+    assert shipment.pop("receivingStartedOn").startswith(date.today().isoformat())
+    assert shipment == {
+        "id": shipment_id,
+        "state": ShipmentState.Receiving.name,
+        "receivingStartedBy": {"id": "2"},
+    }
 
     # Test case 3.2.34a
     shipment = assert_successful_request(
@@ -482,12 +500,14 @@ def test_shipment_mutations_on_target_side(
                     state
                     product {{ id }}
                     location {{ id }}
+                    tags {{ id }}
     }} }}"""
     box = assert_successful_request(client, query)
     assert box == {
         "state": BoxState.InStock.name,
         "product": {"id": target_product_id},
         "location": {"id": target_location_id},
+        "tags": [],
     }
 
     # The box is still registered in the source base, hence any user from the target
@@ -496,6 +516,39 @@ def test_shipment_mutations_on_target_side(
     box_label_identifier = marked_for_shipment_box["label_identifier"]
     query = f"""query {{ box(labelIdentifier: "{box_label_identifier}") {{
                     state }} }}"""
+    box = assert_successful_request(client, query)
+    assert box == {"state": BoxState.Lost.name}
+
+
+def test_shipment_mutations_on_target_side_mark_shipment_as_lost(
+    mocker, client, box_without_qr_code, sent_shipment
+):
+    mocker.patch("jose.jwt.decode").return_value = create_jwt_payload(
+        base_ids=[3], organisation_id=2, user_id=2
+    )
+
+    shipment_id = str(sent_shipment["id"])
+    mutation = f"""mutation {{ markShipmentAsLost(id: {shipment_id}) {{
+                    state
+                    completedOn
+                    completedBy {{ id }}
+                    details {{ box {{ state }} }}
+                }} }}"""
+    shipment = assert_successful_request(client, mutation)
+    assert shipment.pop("completedOn").startswith(date.today().isoformat())
+    assert shipment == {
+        "state": ShipmentState.Lost.name,
+        "completedBy": {"id": "2"},
+        "details": [],
+    }
+
+    # The box is still registered in the source base, hence any user from the target
+    # organisation can't access it
+    mocker.patch("jose.jwt.decode").return_value = create_jwt_payload()
+    box_label_identifier = box_without_qr_code["label_identifier"]
+    query = f"""query {{ box(labelIdentifier: "{box_label_identifier}") {{
+                    state
+    }} }}"""
     box = assert_successful_request(client, query)
     assert box == {"state": BoxState.Lost.name}
 
@@ -614,7 +667,9 @@ def test_shipment_mutations_receive_as_member_of_creating_org(
     read_only_client, default_shipment
 ):
     # Test case 3.2.14d
-    mutation = f"mutation {{ receiveShipment(id: {default_shipment['id']}) {{ id }} }}"
+    mutation = (
+        f"mutation {{ startReceivingShipment(id: {default_shipment['id']}) {{ id }} }}"
+    )
     assert_forbidden_request(read_only_client, mutation)
 
 
@@ -627,11 +682,12 @@ def test_shipment_mutations_in_non_preparing_state(
     assert_bad_user_input(read_only_client, mutation)
 
 
+@pytest.mark.parametrize("action", ["startReceivingShipment", "markShipmentAsLost"])
 def test_shipment_mutations_receive_when_not_in_sent_state(
-    read_only_client, another_shipment
+    read_only_client, another_shipment, action
 ):
     # Test case 3.2.14c
-    mutation = f"mutation {{ receiveShipment(id: {another_shipment['id']}) {{ id }} }}"
+    mutation = f"mutation {{ {action}(id: {another_shipment['id']}) {{ id }} }}"
     assert_bad_user_input(read_only_client, mutation)
 
 

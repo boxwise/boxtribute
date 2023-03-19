@@ -5,16 +5,17 @@ import { acceptedTransferAgreement } from "mocks/transferAgreements";
 import userEvent from "@testing-library/user-event";
 import { assertOptionsInSelectField, selectOptionInSelectField } from "tests/helpers";
 import { GraphQLError } from "graphql";
-import CreateTransferShipmentView, {
-  ALL_ORGS_AND_BASES_WITH_TRANSFER_AGREEMENTS_QUERY,
+import { base1 } from "mocks/bases";
+import CreateShipmentView, {
+  ALL_ACCEPTED_TRANSFER_AGREEMENTS_QUERY,
   CREATE_SHIPMENT_MUTATION,
-} from "./CreateTransferShipmentView";
+} from "./CreateShipmentView";
 
 jest.setTimeout(12000);
 
 const initialQuery = {
   request: {
-    query: ALL_ORGS_AND_BASES_WITH_TRANSFER_AGREEMENTS_QUERY,
+    query: ALL_ACCEPTED_TRANSFER_AGREEMENTS_QUERY,
     variables: {
       baseId: "1",
     },
@@ -23,6 +24,7 @@ const initialQuery = {
     data: {
       base: {
         __typename: "Base",
+        id: "1",
         name: "Lesvos",
         organisation: {
           __typename: "Organisation",
@@ -37,7 +39,7 @@ const initialQuery = {
 
 const initialQueryNetworkError = {
   request: {
-    query: ALL_ORGS_AND_BASES_WITH_TRANSFER_AGREEMENTS_QUERY,
+    query: ALL_ACCEPTED_TRANSFER_AGREEMENTS_QUERY,
     variables: {
       baseId: "1",
     },
@@ -53,7 +55,7 @@ const successfulMutation = {
     variables: {
       transferAgreementId: 1,
       sourceBaseId: 1,
-      targetBaseId: 2,
+      targetBaseId: 3,
     },
   },
   result: {
@@ -71,7 +73,7 @@ const mutationNetworkError = {
     variables: {
       transferAgreementId: 1,
       sourceBaseId: 1,
-      targetBaseId: 2,
+      targetBaseId: 3,
     },
   },
   error: new Error(),
@@ -83,7 +85,7 @@ const mutationGraphQLError = {
     variables: {
       transferAgreementId: 1,
       sourceBaseId: 1,
-      targetBaseId: 2,
+      targetBaseId: 3,
     },
   },
   result: {
@@ -94,7 +96,7 @@ const mutationGraphQLError = {
 // Test case 4.3.1
 it("4.3.1 - Initial load of Page", async () => {
   const user = userEvent.setup();
-  render(<CreateTransferShipmentView />, {
+  render(<CreateShipmentView />, {
     routePath: "/bases/:baseId/transfers/shipments/create",
     initialUrl: "/bases/1/transfers/shipments/create",
     mocks: [initialQuery],
@@ -104,6 +106,7 @@ it("4.3.1 - Initial load of Page", async () => {
       globalPreferences: {
         selectedOrganisationId: organisation1.id,
         availableBases: organisation1.bases,
+        selectedBaseId: base1.id,
       },
     },
   });
@@ -126,7 +129,7 @@ it("4.3.1 - Initial load of Page", async () => {
 // Test case 4.3.2
 it("4.3.2 - Input Validations", async () => {
   const user = userEvent.setup();
-  render(<CreateTransferShipmentView />, {
+  render(<CreateShipmentView />, {
     routePath: "/bases/:baseId/transfers/shipments/create",
     initialUrl: "/bases/1/transfers/shipments/create",
     mocks: [initialQuery],
@@ -136,6 +139,7 @@ it("4.3.2 - Input Validations", async () => {
       globalPreferences: {
         selectedOrganisationId: organisation1.id,
         availableBases: organisation1.bases,
+        selectedBaseId: base1.id,
       },
     },
   });
@@ -156,7 +160,7 @@ it("4.3.2 - Input Validations", async () => {
 // Test case 4.3.3
 it("4.3.3 (4.3.3.1 and 4.3.3.2) - Click on Submit Button", async () => {
   const user = userEvent.setup();
-  render(<CreateTransferShipmentView />, {
+  render(<CreateShipmentView />, {
     routePath: "/bases/:baseId/transfers/shipments/create",
     initialUrl: "/bases/1/transfers/shipments/create",
     additionalRoute: "/bases/1/transfers/shipments",
@@ -167,6 +171,7 @@ it("4.3.3 (4.3.3.1 and 4.3.3.2) - Click on Submit Button", async () => {
       globalPreferences: {
         selectedOrganisationId: organisation1.id,
         availableBases: organisation1.bases,
+        selectedBaseId: base1.id,
       },
     },
   });
@@ -200,7 +205,7 @@ it("4.3.3 (4.3.3.1 and 4.3.3.2) - Click on Submit Button", async () => {
 // Test case 4.3.3.3
 it("4.3.3.3 - Form data was valid, but the mutation failed", async () => {
   const user = userEvent.setup();
-  render(<CreateTransferShipmentView />, {
+  render(<CreateShipmentView />, {
     routePath: "/bases/:baseId/transfers/shipments/create",
     initialUrl: "/bases/1/transfers/shipments/create",
     mocks: [initialQuery, mutationNetworkError],
@@ -210,6 +215,7 @@ it("4.3.3.3 - Form data was valid, but the mutation failed", async () => {
       globalPreferences: {
         selectedOrganisationId: organisation1.id,
         availableBases: organisation1.bases,
+        selectedBaseId: base1.id,
       },
     },
   });
@@ -235,7 +241,7 @@ it("4.3.3.3 - Form data was valid, but the mutation failed", async () => {
 // Test case 4.3.3.4
 it("4.3.3.4 - Form data was valid, but the mutation response has errors", async () => {
   const user = userEvent.setup();
-  render(<CreateTransferShipmentView />, {
+  render(<CreateShipmentView />, {
     routePath: "/bases/:baseId/transfers/shipments/create",
     initialUrl: "/bases/1/transfers/shipments/create",
     mocks: [initialQuery, mutationGraphQLError],
@@ -245,6 +251,7 @@ it("4.3.3.4 - Form data was valid, but the mutation response has errors", async 
       globalPreferences: {
         selectedOrganisationId: organisation1.id,
         availableBases: organisation1.bases,
+        selectedBaseId: base1.id,
       },
     },
   });
@@ -270,7 +277,7 @@ it("4.3.3.4 - Form data was valid, but the mutation response has errors", async 
 // Test case 4.3.4
 it("4.3.4 - Failed to Fetch Initial Data", async () => {
   // const user = userEvent.setup();
-  render(<CreateTransferShipmentView />, {
+  render(<CreateShipmentView />, {
     routePath: "/bases/:baseId/transfers/shipment/create",
     initialUrl: "/bases/1/transfers/shipment/create",
     mocks: [initialQueryNetworkError],
@@ -280,6 +287,7 @@ it("4.3.4 - Failed to Fetch Initial Data", async () => {
       globalPreferences: {
         selectedOrganisationId: organisation1.id,
         availableBases: organisation1.bases,
+        selectedBaseId: base1.id,
       },
     },
   });

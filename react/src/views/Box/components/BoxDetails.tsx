@@ -309,6 +309,7 @@ function BoxDetails({
                   location?.defaultBoxState !== BoxState.Lost &&
                   location?.defaultBoxState !== BoxState.Scrap,
               )
+              .sort((a, b) => Number(a?.seq) - Number(b?.seq))
               .map((location) => (
                 <WrapItem key={location.id} m={1}>
                   <Button

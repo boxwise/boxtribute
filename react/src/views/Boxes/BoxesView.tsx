@@ -1,11 +1,15 @@
+import { useContext } from "react";
 import { gql, useQuery } from "@apollo/client";
-import { useNavigate, useParams } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
+import { GlobalPreferencesContext } from "providers/GlobalPreferencesProvider";
 import BoxesTable from "./components/BoxesTable";
 import { BoxRow } from "./components/types";
 import APILoadingIndicator from "components/APILoadingIndicator";
 import { BoxesForBaseQuery } from "types/generated/graphql";
+import { BOX_FIELDS_FRAGMENT } from "queries/fragments";
 
 export const BOXES_FOR_BASE_QUERY = gql`
+  ${BOX_FIELDS_FRAGMENT}
   query BoxesForBase($baseId: ID!) {
     base(id: $baseId) {
       locations {
@@ -13,21 +17,7 @@ export const BOXES_FOR_BASE_QUERY = gql`
         boxes {
           totalCount
           elements {
-            labelIdentifier
-            state
-            size {
-              id
-              label
-            }
-            product {
-              gender
-              name
-            }
-            tags {
-              name
-              id
-            }
-            numberOfItems
+            ...BoxFields
           }
         }
       }
@@ -57,7 +47,8 @@ const graphqlToTableTransformer = (
 
 const Boxes = () => {
   const navigate = useNavigate();
-  const baseId = useParams<{ baseId: string }>().baseId!;
+  const { globalPreferences } = useContext(GlobalPreferencesContext);
+  const baseId = globalPreferences.selectedBaseId!;
 
   const onBoxesRowClick = (labelIdentifier: string) =>
     navigate(`/bases/${baseId}/boxes/${labelIdentifier}`);

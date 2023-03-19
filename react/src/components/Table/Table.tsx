@@ -13,18 +13,65 @@ import {
   Thead,
   Tr,
 } from "@chakra-ui/react";
-import { Column, useFilters, useSortBy, useTable } from "react-table";
+import { includesSomeObjectFilterFn } from "components/Table/Filter";
+import { ReactNode, useMemo } from "react";
+import { useNavigate } from "react-router-dom";
+import { Column, Row, useFilters, useSortBy, useTable } from "react-table";
 
-interface ITranferAgreementTableProps {
-  columns: Array<Column<any>>;
-  tableData: Array<any>;
+interface ITableRowProps {
+  row: Row<any>;
+  children: ReactNode;
 }
 
-function TransferAgreementTable({ columns, tableData }: ITranferAgreementTableProps) {
+function TableRow({ row, children }: ITableRowProps) {
+  const navigate = useNavigate();
+  if (typeof row.original.href === "string" && row.original.href.length > 0) {
+    return (
+      <Tr
+        onClick={() => navigate(row.original.href)}
+        _hover={{ bg: "brandYellow.100" }}
+        cursor="pointer"
+        {...row.getRowProps()}
+      >
+        {children}
+      </Tr>
+    );
+  }
+  return <Tr {...row.getRowProps()}>{children}</Tr>;
+}
+
+interface IInitialStateFilters {
+  id: string;
+  value: any;
+}
+
+interface IInitialState {
+  filters?: IInitialStateFilters[];
+}
+
+interface IBasicTableProps {
+  columns: Array<Column<any>>;
+  tableData: Array<any>;
+  initialState?: IInitialState;
+}
+
+export function FilteringSortingTable({ columns, tableData, initialState }: IBasicTableProps) {
+  // Add custom filter function to filter objects in a column
+  // https://react-table-v7.tanstack.com/docs/examples/filtering
+  const filterTypes = useMemo(
+    () => ({
+      includesSomeObject: includesSomeObjectFilterFn,
+    }),
+    [],
+  );
+
   const { getTableProps, getTableBodyProps, headerGroups, rows, prepareRow } = useTable(
     {
       columns,
       data: tableData,
+      filterTypes,
+      // needed if filter should be applied on load of the table
+      initialState,
     },
     useFilters,
     useSortBy,
@@ -73,11 +120,11 @@ function TransferAgreementTable({ columns, tableData }: ITranferAgreementTablePr
           {rows.map((row) => {
             prepareRow(row);
             return (
-              <Tr {...row.getRowProps()}>
+              <TableRow key={row.index} row={row}>
                 {row.cells.map((cell) => (
                   <Td {...cell.getCellProps()}>{cell.render("Cell")}</Td>
                 ))}
-              </Tr>
+              </TableRow>
             );
           })}
         </Tbody>
@@ -86,4 +133,6 @@ function TransferAgreementTable({ columns, tableData }: ITranferAgreementTablePr
   );
 }
 
-export default TransferAgreementTable;
+FilteringSortingTable.defaultProps = {
+  initialState: {},
+};

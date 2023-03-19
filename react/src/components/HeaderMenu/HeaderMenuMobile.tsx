@@ -1,3 +1,4 @@
+import { useContext, useState } from "react";
 import { Icon, ChevronDownIcon } from "@chakra-ui/icons";
 import {
   Stack,
@@ -12,9 +13,9 @@ import {
   Img,
   Divider,
 } from "@chakra-ui/react";
-import { useState } from "react";
 import { AiFillCloseCircle, AiFillWindows, AiOutlineMenu, AiOutlineQrcode } from "react-icons/ai";
 import { Link, NavLink, useParams } from "react-router-dom";
+import { GlobalPreferencesContext } from "providers/GlobalPreferencesProvider";
 import {
   BaseSwitcherProps,
   HeaderMenuProps,
@@ -168,21 +169,23 @@ const MenuItemsGroupMobile = ({
   links,
   text,
 }: MenuItemsGroupProps & { setIsMenuOpen: (isOpen: boolean) => void }) => {
+  const { globalPreferences } = useContext(GlobalPreferencesContext);
   const { isOpen, onToggle } = useDisclosure();
 
   function renderLinkBoxes(link: MenuItemData, i: number) {
-    let { baseId, qrCode, labelIdentifier } = useParams();
+    const baseId = globalPreferences.selectedBaseId;
+    let { qrCode, labelIdentifier } = useParams();
 
     if (link.link.includes(`${process.env.REACT_APP_OLD_APP_BASE_URL}`)) {
+      // Since we are forwarding to an external url we need to use the a tag
       return (
         <Box
+          as="a"
+          href={generateDropappUrl(link.link, baseId, qrCode, labelIdentifier)}
           key={i}
           py={1}
           px={4}
           w="100%"
-          onClick={() =>
-            redirectToExternalUrl(generateDropappUrl(link.link, baseId, qrCode, labelIdentifier))
-          }
         >
           {link.name}
         </Box>
@@ -190,13 +193,12 @@ const MenuItemsGroupMobile = ({
     } else {
       return (
         <Box
+          as={NavLink}
+          to={link.link}
           key={i}
           py={1}
           px={4}
           w="100%"
-          onClick={() => {
-            redirectToExternalUrl(link.link);
-          }}
         >
           {link.name}
         </Box>

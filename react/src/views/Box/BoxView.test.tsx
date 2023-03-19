@@ -430,7 +430,7 @@ it("3.1.3 - Change State to Scrap and Lost", async () => {
   expect(await screen.findByText(/status:/i)).toBeInTheDocument();
   // Test case 3.1.3.2.1 - Change state on Lost Toggled
   const boxSubheadingChangedToLost = screen.getByTestId("box-subheader");
-  expect(boxSubheadingChangedToLost).toHaveTextContent("Status: Lost");
+  await waitFor(() => expect(boxSubheadingChangedToLost).toHaveTextContent("Status: Lost"));
 
   // Test case 3.1.3.2.2 - If state changes to Lost, color also changes
   expect(screen.getByTestId("box-state")).toHaveStyle(`color: #EB404A`);

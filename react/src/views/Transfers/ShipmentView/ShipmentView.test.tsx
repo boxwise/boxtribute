@@ -1,41 +1,42 @@
 import "@testing-library/jest-dom";
-import { screen, render } from "tests/test-utils";
+import { screen, render, waitFor } from "tests/test-utils";
 import { organisation1 } from "mocks/organisations";
 import { GraphQLError } from "graphql";
-import { shipment1, shipment2 } from "mocks/shipments";
-import ShipmentView, { SHIPMENT_BY_ID } from "./ShipmentView";
+import { generateMockShipment } from "mocks/shipments";
+import { ShipmentState } from "types/generated/graphql";
+import ShipmentView, { SHIPMENT_BY_ID_QUERY } from "./ShipmentView";
 
 const initialQuery = {
   request: {
-    query: SHIPMENT_BY_ID,
+    query: SHIPMENT_BY_ID_QUERY,
     variables: {
       id: "1",
     },
   },
   result: {
     data: {
-      shipment: shipment1,
+      shipment: generateMockShipment({ state: ShipmentState.Preparing }),
     },
   },
 };
 
 const initialQueryWithoutBox = {
   request: {
-    query: SHIPMENT_BY_ID,
+    query: SHIPMENT_BY_ID_QUERY,
     variables: {
       id: "1",
     },
   },
   result: {
     data: {
-      shipment: shipment2,
+      shipment: generateMockShipment({ state: ShipmentState.Preparing, hasBoxes: false }),
     },
   },
 };
 
 const initialQueryNetworkError = {
   request: {
-    query: SHIPMENT_BY_ID,
+    query: SHIPMENT_BY_ID_QUERY,
     variables: {
       id: "1",
     },
@@ -45,84 +46,111 @@ const initialQueryNetworkError = {
   },
 };
 
-// Test case 4.5.1
-it("4.5.1 - Initial load of Page", async () => {
-  //   const user = userEvent.setup();
-  render(<ShipmentView />, {
-    routePath: "/bases/:baseId/transfers/shipments/:id",
-    initialUrl: "/bases/1/transfers/shipments/1",
-    mocks: [initialQuery],
-    addTypename: true,
-    globalPreferences: {
-      dispatch: jest.fn(),
-      globalPreferences: {
-        selectedOrganisationId: organisation1.id,
-        availableBases: organisation1.bases,
-      },
-    },
+describe("4.5 Test Cases", () => {
+  beforeEach(() => {
+    // we need to mock matchmedia
+    // https://jestjs.io/docs/manual-mocks#mocking-methods-which-are-not-implemented-in-jsdom
+    Object.defineProperty(window, "matchMedia", {
+      writable: true,
+      value: jest.fn().mockImplementation((query) => ({
+        matches: false,
+        media: query,
+        onchange: null,
+        addListener: jest.fn(), // Deprecated
+        removeListener: jest.fn(), // Deprecated
+        addEventListener: jest.fn(),
+        removeEventListener: jest.fn(),
+        dispatchEvent: jest.fn(),
+      })),
+    });
   });
 
-  expect(screen.getByTestId("loading-indicator")).toBeInTheDocument();
-
-  const title = await screen.findByRole("heading", { name: "View Shipment" });
-  expect(title).toBeInTheDocument();
-  // Test case 4.5.1.1 - Content: Displays Shipment Source and Target Bases
-  expect(screen.getByText(/lesvos/i)).toBeInTheDocument();
-  expect(screen.getByText(/thessaloniki/i)).toBeInTheDocument();
-  // Test case 4.5.1.2 - Content: Displays Shipment status
-  expect(screen.getByText(/status:preparing/i)).toBeInTheDocument();
-  // Test case 4.5.1.3 - Content: Displays total number of boxes
-  expect(screen.getByText(/2 boxes/i)).toBeInTheDocument();
-  // Test case 4.5.1.5 - Displays Content tab initially
-  expect(screen.getByRole("tab", { name: /content/i, selected: true })).toHaveTextContent(
-    "Content",
-  );
-});
-
-// Test case 4.5.1.4
-// eslint-disable-next-line max-len
-it("4.5.1.4 - Content: When shipment does not contains any products display correct message", async () => {
-  render(<ShipmentView />, {
-    routePath: "/bases/:baseId/transfers/shipments/:id",
-    initialUrl: "/bases/1/transfers/shipments/1",
-    mocks: [initialQueryWithoutBox],
-    addTypename: true,
-    globalPreferences: {
-      dispatch: jest.fn(),
+  // Test case 4.5.1
+  it("4.5.1 - Initial load of Page", async () => {
+    //   const user = userEvent.setup();
+    render(<ShipmentView />, {
+      routePath: "/bases/:baseId/transfers/shipments/:id",
+      initialUrl: "/bases/1/transfers/shipments/1",
+      mocks: [initialQuery],
+      addTypename: true,
       globalPreferences: {
-        selectedOrganisationId: organisation1.id,
-        availableBases: organisation1.bases,
+        dispatch: jest.fn(),
+        globalPreferences: {
+          selectedOrganisationId: organisation1.id,
+          availableBases: organisation1.bases,
+        },
       },
-    },
-  });
+    });
 
-  expect(screen.getByTestId("loading-indicator")).toBeInTheDocument();
+    // eslint-disable-next-line testing-library/prefer-presence-queries
+    expect(screen.getByTestId("loader")).toBeInTheDocument();
 
-  const title = await screen.findByRole("heading", { name: "View Shipment" });
-  expect(title).toBeInTheDocument();
-  // Test case 4.5.1.4 - Content: When shipment does not contains any products display correct message
-  expect(
-    screen.getByText(/no boxes have been assigned to this shipment yet!/i),
-  ).toBeInTheDocument();
-});
+    await waitFor(() => {
+      expect(screen.getByRole("tab", { name: /content/i })).toBeInTheDocument();
+    });
 
-// Test case 4.5.2
-it("4.5.2 - Failed to Fetch Initial Data", async () => {
-  render(<ShipmentView />, {
-    routePath: "/bases/:baseId/transfers/shipments/:id",
-    initialUrl: "/bases/1/transfers/shipments/1",
-    mocks: [initialQueryNetworkError],
-    addTypename: true,
-    globalPreferences: {
-      dispatch: jest.fn(),
+    const title = screen.getByText(/prepare shipment/i);
+    expect(title).toBeInTheDocument();
+    // // Test case 4.5.1.1 - Content: Displays Shipment Source and Target Bases
+    expect(screen.getByText(/lesvos/i)).toBeInTheDocument();
+    expect(screen.getByText(/thessaloniki/i)).toBeInTheDocument();
+    // Test case 4.5.1.2 - Content: Displays Shipment status
+    expect(screen.getByText(/PREPARING/)).toBeInTheDocument();
+    // // Test case 4.5.1.3 - Content: Displays total number of boxes
+    expect(screen.getByRole("heading", { name: /3/i })).toBeInTheDocument();
+    // // Test case 4.5.1.5 - Displays Content tab initially
+    expect(screen.getByRole("tab", { name: /content/i, selected: true })).toHaveTextContent(
+      "Content",
+    );
+  }, 10000);
+
+  // Test case 4.5.1.4
+  // eslint-disable-next-line max-len
+  it("4.5.1.4 - Content: When shipment does not contains any products display correct message", async () => {
+    render(<ShipmentView />, {
+      routePath: "/bases/:baseId/transfers/shipments/:id",
+      initialUrl: "/bases/1/transfers/shipments/1",
+      mocks: [initialQueryWithoutBox],
+      addTypename: true,
       globalPreferences: {
-        selectedOrganisationId: organisation1.id,
-        availableBases: organisation1.bases,
+        dispatch: jest.fn(),
+        globalPreferences: {
+          selectedOrganisationId: organisation1.id,
+          availableBases: organisation1.bases,
+        },
       },
-    },
-  });
+    });
 
-  expect(
-    await screen.findByText(/could not fetch Shipment data! Please try reloading the page./i),
-  ).toBeInTheDocument();
+    await waitFor(() => {
+      expect(screen.getByRole("tab", { name: /content/i })).toBeInTheDocument();
+    });
+
+    const title = screen.getByText(/prepare shipment/i);
+    expect(title).toBeInTheDocument();
+    // Test case 4.5.1.4 - Content: When shipment does not contains any products display correct message
+    expect(
+      screen.getByText(/no boxes have been assigned to this shipment yet!/i),
+    ).toBeInTheDocument();
+  }, 10000);
+
+  // Test case 4.5.2
+  it("4.5.2 - Failed to Fetch Initial Data", async () => {
+    render(<ShipmentView />, {
+      routePath: "/bases/:baseId/transfers/shipments/:id",
+      initialUrl: "/bases/1/transfers/shipments/1",
+      mocks: [initialQueryNetworkError],
+      addTypename: true,
+      globalPreferences: {
+        dispatch: jest.fn(),
+        globalPreferences: {
+          selectedOrganisationId: organisation1.id,
+          availableBases: organisation1.bases,
+        },
+      },
+    });
+
+    expect(
+      await screen.findByText(/could not fetch Shipment data! Please try reloading the page./i),
+    ).toBeInTheDocument();
+  });
 });

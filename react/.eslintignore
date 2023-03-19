@@ -9,14 +9,13 @@ src/components/HeaderMenu
 !src/components/HeaderMenu/HeaderMenuDeskop.tsx
 !src/components/HeaderMenu/HeaderMenuMobile.tsx
 !src/components/HeaderMenu/HeaderMenuContainer.tsx
-src/components/QrReader
+!src/components/QrReader
 !src/components/QrReaderOverlay
 !src/components/Form
 !src/components/Layout.tsx
 !src/mocks
 src/providers/GlobalPreferencesProvider.tsx
 src/utils
-src/views/AutomaticBaseSwitcher
 src/views/BaseDashboard
 *.stories.*
 !src/views/BoxCreate
@@ -29,3 +28,4 @@ src/views/Box/BoxView.test.tsx
 public
 craco.config.js
 *.js
+*.old.*

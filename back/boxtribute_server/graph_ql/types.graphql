@@ -583,6 +583,8 @@ type Shipment {
   startedOn: Datetime!
   sentBy: User
   sentOn: Datetime
+  receivingStartedBy: User
+  receivingStartedOn: Datetime
   completedBy: User
   completedOn: Datetime
   canceledBy: User
