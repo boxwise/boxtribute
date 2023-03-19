@@ -1,6 +1,8 @@
 import "@testing-library/jest-dom";
 import userEvent from "@testing-library/user-event";
-import { screen, render } from "tests/test-utils";
+import { screen, render, waitFor } from "tests/test-utils";
+import { useErrorHandling } from "hooks/useErrorHandling";
+import { useNotification } from "hooks/useNotification";
 import { generateMockTransferAgreement } from "mocks/transferAgreements";
 import { mockGraphQLError, mockNetworkError } from "mocks/functions";
 import { TransferAgreementState, TransferAgreementType } from "types/generated/graphql";
@@ -30,11 +32,18 @@ const mockSuccessfulTransferAgreementsQuery = ({
 });
 
 // Toasts are persisting throughout the tests since they are rendered in the wrapper and not in the render.
-// Therefore, we need to close them after each test since we get easily false positives
+// Therefore, we need to mock them since otherwise we easily get false negatives
 // Everywhere where we have more than one occation of a toast we should do this.
-afterEach(() => {
-  const closeToastButtons = screen.queryAllByRole("button", { name: /close/i });
-  closeToastButtons.forEach((button) => userEvent.click(button));
+const mockedTriggerError = jest.fn();
+const mockedCreateToast = jest.fn();
+jest.mock("hooks/useErrorHandling");
+jest.mock("hooks/useNotification");
+
+beforeEach(() => {
+  const mockedUseErrorHandling = jest.mocked(useErrorHandling);
+  mockedUseErrorHandling.mockReturnValue({ triggerError: mockedTriggerError });
+  const mockedUseNotification = jest.mocked(useNotification);
+  mockedUseNotification.mockReturnValue({ createToast: mockedCreateToast });
 });
 
 it("4.2.2a - Failed to Fetch Initial Data (GraphQlError)", async () => {
@@ -171,7 +180,14 @@ failedMutationTests.forEach(({ name, mocks, stateButtonText, modalButtonText, to
     user.click(modalButton);
 
     // error toast shown and overlay is still open
-    expect(await screen.findByText(toastText)).toBeInTheDocument();
+    await waitFor(() =>
+      expect(mockedTriggerError).toHaveBeenCalledWith(
+        expect.objectContaining({
+          message: expect.stringMatching(toastText),
+        }),
+      ),
+    );
+
     expect(modalButton).toBeInTheDocument();
   });
 });
@@ -272,7 +288,13 @@ successfulMutationTests.forEach(
         user.click(modalButton);
 
         // success toast is shown and state Button changed
-        expect(await screen.findByText(toastText)).toBeInTheDocument();
+        await waitFor(() =>
+          expect(mockedCreateToast).toHaveBeenCalledWith(
+            expect.objectContaining({
+              message: expect.stringMatching(toastText),
+            }),
+          ),
+        );
         expect(
           await screen.findByRole("button", { name: stateButtonTextAfter }),
         ).toBeInTheDocument();
