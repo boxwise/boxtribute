@@ -25,15 +25,17 @@ export interface IShipmentProps {
   canCancelShipment: Boolean;
   canUpdateShipment: Boolean;
   canLooseShipment: Boolean;
+  isLoadingMutation: boolean | undefined;
   shipment: Shipment;
   onRemove: () => void;
-  onCancel: (data: any) => void;
+  onCancel: () => void;
 }
 
 function ShipmentCard({
   canCancelShipment,
   canUpdateShipment,
   canLooseShipment,
+  isLoadingMutation,
   shipment,
   onRemove,
   onCancel,
@@ -44,7 +46,7 @@ function ShipmentCard({
       padding={0}
       rounded="lg"
       bg="white"
-      width={{ base: "240pt", md: "250pt", lg: "250pt" }}
+      width={80}
       borderColor="blackAlpha.800"
       borderWidth={1.5}
     >
@@ -71,7 +73,7 @@ function ShipmentCard({
             <IconButton
               isRound
               icon={<BiTrash size={30} />}
-              isDisabled={shipment.state !== ShipmentState.Preparing}
+              isLoading={isLoadingMutation}
               onClick={onCancel}
               style={{ background: "white" }}
               aria-label="cancel shipment"
@@ -82,6 +84,7 @@ function ShipmentCard({
               isRound
               icon={<TbMapOff size={30} />}
               variant="outline"
+              isLoading={isLoadingMutation}
               style={{
                 background: "white",
                 color: ShipmentState.Lost === shipment.state ? "red" : "black",
@@ -179,9 +182,9 @@ function ShipmentCard({
                     isRound
                     height={8}
                     icon={<BiPlusCircle size={30} />}
-                    isDisabled={shipment.state !== ShipmentState.Preparing}
+                    isLoading={isLoadingMutation}
                     onClick={() => {}}
-                    aria-label="remove box"
+                    aria-label="add box"
                     style={{ background: "white" }}
                   />
 
@@ -191,6 +194,7 @@ function ShipmentCard({
                     icon={<BiMinusCircle size={30} />}
                     isDisabled={shipment.details?.length === 0}
                     onClick={onRemove}
+                    isLoading={isLoadingMutation}
                     aria-label="remove box"
                     style={{ background: "white" }}
                   />
