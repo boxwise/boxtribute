@@ -40,7 +40,7 @@
   "devDependencies": {
     "@chakra-ui/storybook-addon": "^4.0.16",
     "@craco/craco": "^7.0.0",
-    "@graphql-codegen/cli": "^3.2.1",
+    "@graphql-codegen/cli": "^3.2.2",
     "@graphql-codegen/typescript": "^3.0.1",
     "@graphql-codegen/typescript-operations": "^3.0.1",
     "@graphql-codegen/typescript-react-query": "^4.1.0",
