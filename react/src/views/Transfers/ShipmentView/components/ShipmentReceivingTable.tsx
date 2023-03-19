@@ -95,8 +95,12 @@ function ShipmentReceivingTable({ columns, data }: IShipmentReceivingTablePros) 
                   >
                     <VStack spacing={4} align="stretch">
                       <Box fontWeight={row.cells[0].column.isSorted ? "bold" : "normal"}>
-                        {row.cells[0].row.original.labelIdentifier}
-                        {row.cells[0].row.original.comment && <BsFillChatDotsFill />}
+                        <Wrap>
+                          <WrapItem>{row.cells[0].row.original.labelIdentifier}</WrapItem>
+                          <WrapItem>
+                            {row.cells[0].row.original.comment && <BsFillChatDotsFill />}
+                          </WrapItem>
+                        </Wrap>
                       </Box>
                       <Box color="gray.500">SIZE: {row.cells[0].row.original.size}</Box>
                     </VStack>
