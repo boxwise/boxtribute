@@ -1,12 +1,7 @@
-import { useState, useCallback, useEffect, useContext } from "react";
+import { useState, useCallback, useContext } from "react";
 import { useNavigate } from "react-router-dom";
-import {
-  useToast,
-  UseToastOptions,
-  ToastPositionWithLogical,
-  useMediaQuery,
-} from "@chakra-ui/react";
 import { GlobalPreferencesContext } from "providers/GlobalPreferencesProvider";
+import { UseToastOptions, ToastPositionWithLogical } from "@chakra-ui/react";
 
 export interface INotificationProps extends UseToastOptions {
   title?: string;
@@ -14,32 +9,6 @@ export interface INotificationProps extends UseToastOptions {
   type?: "info" | "warning" | "success" | "error" | undefined;
   position?: ToastPositionWithLogical;
 }
-
-export const useNotification = () => {
-  const toast = useToast();
-  const [isSmallScreen] = useMediaQuery("(max-width: 1070px)");
-  const [position, setPosition] = useState<ToastPositionWithLogical>("bottom");
-
-  useEffect(() => {
-    setPosition(isSmallScreen ? "bottom" : "top");
-  }, [isSmallScreen]);
-
-  const createToast = useCallback(
-    ({ message, type, ...props }: INotificationProps) =>
-      toast({
-        duration: 5000,
-        isClosable: true,
-        position,
-        variant: "subtle",
-        status: type,
-        description: message,
-        ...props,
-      }),
-    [toast, position],
-  );
-
-  return { createToast };
-};
 
 export const useGetUrlForResourceHelpers = () => {
   const { globalPreferences } = useContext(GlobalPreferencesContext);

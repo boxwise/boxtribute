@@ -2,7 +2,7 @@ import { useContext } from "react";
 import { gql, useMutation, useQuery } from "@apollo/client";
 import { Alert, AlertIcon, Center } from "@chakra-ui/react";
 import { useErrorHandling } from "hooks/useErrorHandling";
-import { useNotification } from "hooks/hooks";
+import { useNotification } from "hooks/useNotification";
 import APILoadingIndicator from "components/APILoadingIndicator";
 import { useNavigate } from "react-router-dom";
 import { TRANSFER_AGREEMENT_FIELDS_FRAGMENT } from "queries/fragments";
