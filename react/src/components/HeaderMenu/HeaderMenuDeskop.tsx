@@ -1,3 +1,5 @@
+import { useContext } from "react";
+import { GlobalPreferencesContext } from "providers/GlobalPreferencesProvider";
 import { Link, NavLink, useParams } from "react-router-dom";
 import {
   Text,
@@ -94,8 +96,11 @@ const LoginOrUserMenuButton = ({
 };
 
 const MenuItemsGroupDesktop = ({ ...props }: MenuItemsGroupProps) => {
+  const { globalPreferences } = useContext(GlobalPreferencesContext);
+
   function renderMenuItem(link: MenuItemData, i: number) {
-    let { baseId, qrCode, labelIdentifier } = useParams();
+    const baseId = globalPreferences.selectedBaseId;
+    let { qrCode, labelIdentifier } = useParams();
 
     if (link.link.includes(`${process.env.REACT_APP_OLD_APP_BASE_URL}`)) {
       return (
