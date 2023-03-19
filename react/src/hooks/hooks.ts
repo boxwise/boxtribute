@@ -1,11 +1,7 @@
-import { useState, useCallback, useEffect } from "react";
-import { useNavigate, useParams } from "react-router-dom";
-import {
-  useToast,
-  UseToastOptions,
-  ToastPositionWithLogical,
-  useMediaQuery,
-} from "@chakra-ui/react";
+import { useState, useCallback, useContext } from "react";
+import { useNavigate } from "react-router-dom";
+import { GlobalPreferencesContext } from "providers/GlobalPreferencesProvider";
+import { UseToastOptions, ToastPositionWithLogical } from "@chakra-ui/react";
 
 export interface INotificationProps extends UseToastOptions {
   title?: string;
@@ -14,36 +10,11 @@ export interface INotificationProps extends UseToastOptions {
   position?: ToastPositionWithLogical;
 }
 
-export const useNotification = () => {
-  const toast = useToast();
-  const [isSmallScreen] = useMediaQuery("(max-width: 1070px)");
-  const [position, setPosition] = useState<ToastPositionWithLogical>("bottom");
-
-  useEffect(() => {
-    setPosition(isSmallScreen ? "bottom" : "top");
-  }, [isSmallScreen]);
-
-  const createToast = useCallback(
-    ({ message, type, ...props }: INotificationProps) =>
-      toast({
-        duration: 5000,
-        isClosable: true,
-        position,
-        variant: "subtle",
-        status: type,
-        description: message,
-        ...props,
-      }),
-    [toast, position],
-  );
-
-  return { createToast };
-};
-
 export const useGetUrlForResourceHelpers = () => {
-  const { baseId } = useParams<{ baseId: string }>();
+  const { globalPreferences } = useContext(GlobalPreferencesContext);
+  const baseId = globalPreferences.selectedBaseId;
   if (baseId == null) {
-    throw new Error("Coudl not extract baseId from URL");
+    throw new Error("Could not extract baseId from URL");
   }
 
   const getBaseRootUrlForCurrentBase = () => `/bases/${baseId}`;
@@ -75,7 +46,8 @@ export const useToggle = (initialValue = false) => {
 };
 
 export const useGlobalSiteState = () => {
-  const currentBaseId = useParams<{ baseId: string }>().baseId!;
+  const { globalPreferences } = useContext(GlobalPreferencesContext);
+  const currentBaseId = globalPreferences.selectedBaseId!;
   const navigate = useNavigate();
 
   return {
