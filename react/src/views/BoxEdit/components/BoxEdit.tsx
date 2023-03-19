@@ -146,12 +146,10 @@ function BoxEdit({
     })
     .sort((a, b) => a.label.localeCompare(b.label));
 
-  const locationsForDropdownGroups = allLocations
-    .map((location) => ({
-      label: location.name,
-      value: location.id,
-    }))
-    .sort((a, b) => a.label.localeCompare(b.label));
+  const locationsForDropdownGroups = allLocations.map((location) => ({
+    label: location.name,
+    value: location.id,
+  }));
 
   const tagsForDropdownGroups: Array<IDropdownOption> | undefined = allTags?.map((tag) => ({
     label: tag.label,

@@ -8,6 +8,7 @@ import { user1 } from "./users";
 export const shipment1 = {
   details: [
     {
+      sourceProduct: product1,
       box: generateMockBox({
         labelIdentifier: "123",
         numberOfItems: 10,
@@ -15,6 +16,7 @@ export const shipment1 = {
       }),
     },
     {
+      sourceProduct: product3,
       box: generateMockBox({
         labelIdentifier: "124",
         numberOfItems: 12,
@@ -44,6 +46,7 @@ export const shipment1 = {
   transferAgreement: {
     id: "1",
     type: TransferAgreementType.Bidirectional,
+    comment: "",
   },
 };
 
@@ -71,61 +74,74 @@ export const shipment2 = {
   transferAgreement: {
     id: "1",
     type: TransferAgreementType.Bidirectional,
+    comment: "",
   },
 };
 
 export const shipments = [shipment1];
 
-export const generateMockShipment = ({ state = ShipmentState.Preparing, iAmSource = true }) => ({
+export const generateMockShipment = ({
+  state = ShipmentState.Preparing,
+  iAmSource = true,
+  hasBoxes = true,
+}) => ({
   id: "1",
   state,
-  details: iAmSource
-    ? [
-        {
-          id: "1",
-          box: generateMockBox({
-            labelIdentifier: "123",
-            numberOfItems: 10,
-            product: product1,
-          }),
-          createdOn: "2023-01-09T17:24:29+00:00",
-          createdBy: user1,
-          deletedOn: "2023-01-10T17:24:29+00:00",
-          deletedBy: user1,
-          __typename: "ShipmentDetail",
-        },
-        {
-          id: "2",
-          box: generateMockBox({
-            labelIdentifier: "123",
-            numberOfItems: 10,
-            product: product1,
-          }),
-          createdOn: "2023-01-11T17:24:29+00:00",
-          createdBy: user1,
-          deletedOn: null,
-          deletedBy: null,
-          __typename: "ShipmentDetail",
-        },
-        {
-          id: "3",
-          box: generateMockBox({
-            labelIdentifier: "124",
-            numberOfItems: 12,
-            product: product3,
-          }),
-          createdOn: "2023-02-01T17:24:29+00:00",
-          createdBy: user1,
-          deletedOn: null,
-          deletedBy: null,
-          __typename: "ShipmentDetail",
-        },
-      ]
-    : [],
+  details:
+    iAmSource && hasBoxes
+      ? [
+          {
+            id: "1",
+            box: generateMockBox({
+              labelIdentifier: "123",
+              numberOfItems: 10,
+              product: product1,
+            }),
+            sourceProduct: product1,
+            targetProduct: null,
+            createdOn: "2023-01-09T17:24:29+00:00",
+            createdBy: user1,
+            deletedOn: "2023-01-10T17:24:29+00:00",
+            deletedBy: user1,
+            __typename: "ShipmentDetail",
+          },
+          {
+            id: "2",
+            box: generateMockBox({
+              labelIdentifier: "123",
+              numberOfItems: 10,
+              product: product1,
+            }),
+            sourceProduct: product1,
+            targetProduct: null,
+            createdOn: "2023-01-11T17:24:29+00:00",
+            createdBy: user1,
+            deletedOn: null,
+            deletedBy: null,
+            __typename: "ShipmentDetail",
+          },
+          {
+            id: "3",
+            box: generateMockBox({
+              labelIdentifier: "124",
+              numberOfItems: 12,
+              product: product3,
+            }),
+            sourceProduct: product3,
+            targetProduct: null,
+            createdOn: "2023-02-01T17:24:29+00:00",
+            createdBy: user1,
+            deletedOn: null,
+            deletedBy: null,
+            __typename: "ShipmentDetail",
+          },
+        ]
+      : [],
   sourceBase: iAmSource ? base1 : base2,
   targetBase: iAmSource ? base2 : base1,
   transferAgreement: {
     id: "1",
+    comment: "",
     type: TransferAgreementType.Bidirectional,
     __typename: "TransferAgreement",
   },

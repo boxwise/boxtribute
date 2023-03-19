@@ -23,6 +23,10 @@ const colors = {
 
 export const theme = extendTheme({
   colors,
+  fonts: {
+    heading: `'Open Sans', sans-serif`,
+    body: `'Open Sans', sans-serif`,
+  },
   components: {
     Button: {
       baseStyle: {
