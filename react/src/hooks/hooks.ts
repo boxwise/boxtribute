@@ -1,11 +1,12 @@
-import { useState, useCallback, useEffect } from "react";
-import { useNavigate, useParams } from "react-router-dom";
+import { useState, useCallback, useEffect, useContext } from "react";
+import { useNavigate } from "react-router-dom";
 import {
   useToast,
   UseToastOptions,
   ToastPositionWithLogical,
   useMediaQuery,
 } from "@chakra-ui/react";
+import { GlobalPreferencesContext } from "providers/GlobalPreferencesProvider";
 
 export interface INotificationProps extends UseToastOptions {
   title?: string;
@@ -41,9 +42,10 @@ export const useNotification = () => {
 };
 
 export const useGetUrlForResourceHelpers = () => {
-  const { baseId } = useParams<{ baseId: string }>();
+  const { globalPreferences } = useContext(GlobalPreferencesContext);
+  const baseId = globalPreferences.selectedBaseId;
   if (baseId == null) {
-    throw new Error("Coudl not extract baseId from URL");
+    throw new Error("Could not extract baseId from URL");
   }
 
   const getBaseRootUrlForCurrentBase = () => `/bases/${baseId}`;
@@ -75,7 +77,8 @@ export const useToggle = (initialValue = false) => {
 };
 
 export const useGlobalSiteState = () => {
-  const currentBaseId = useParams<{ baseId: string }>().baseId!;
+  const { globalPreferences } = useContext(GlobalPreferencesContext);
+  const currentBaseId = globalPreferences.selectedBaseId!;
   const navigate = useNavigate();
 
   return {

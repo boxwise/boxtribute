@@ -1,16 +1,14 @@
 import { useContext, useMemo, useState } from "react";
-import { useParams } from "react-router-dom";
 import { useAuth0 } from "@auth0/auth0-react";
 import HeaderMenu, { MenuItemsGroupData } from "./HeaderMenu";
-import AutomaticBaseSwitcher from "views/AutomaticBaseSwitcher/AutomaticBaseSwitcher";
 import { useDisclosure } from "@chakra-ui/react";
 import { GlobalPreferencesContext } from "providers/GlobalPreferencesProvider";
 import QrReaderOverlay from "components/QrReaderOverlay/QrReaderOverlay";
 
 const HeaderMenuContainer = () => {
   const auth0 = useAuth0();
-  const baseId = useParams<{ baseId: string }>().baseId;
   const { globalPreferences } = useContext(GlobalPreferencesContext);
+  const baseId = globalPreferences.selectedBaseId!;
   const qrReaderOverlayState = useDisclosure({ defaultIsOpen: false });
 
   const menuItems: MenuItemsGroupData[] = useMemo(
@@ -86,10 +84,6 @@ const HeaderMenuContainer = () => {
     ],
     [baseId],
   );
-
-  if (baseId == null) {
-    return <AutomaticBaseSwitcher />;
-  }
 
   return (
     <>
