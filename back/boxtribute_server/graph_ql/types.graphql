@@ -43,6 +43,8 @@ type Box implements ItemsCollection {
   comment: String
   tags: [Tag!]
   history: [HistoryEntry!]
+  " Returns null if box is not part of an active shipment "
+  shipmentDetail: ShipmentDetail
 }
 
 type HistoryEntry {

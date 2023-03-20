@@ -158,6 +158,7 @@ def test_shipment_mutations_on_source_side(
                         box {{
                             id
                             state
+                            shipmentDetail {{ id }}
                         }}
                         sourceProduct {{ id }}
                         targetProduct {{ id }}
@@ -184,6 +185,7 @@ def test_shipment_mutations_on_source_side(
                 "box": {
                     "id": str(another_marked_for_shipment_box["id"]),
                     "state": BoxState.MarkedForShipment.name,
+                    "shipmentDetail": {"id": prepared_shipment_detail_id},
                 },
                 "sourceProduct": {
                     "id": str(another_marked_for_shipment_box["product"])
@@ -202,6 +204,7 @@ def test_shipment_mutations_on_source_side(
                 "box": {
                     "id": str(default_box["id"]),
                     "state": BoxState.MarkedForShipment.name,
+                    "shipmentDetail": {"id": shipment_detail_id},
                 },
                 "sourceProduct": {"id": str(default_box["product"])},
                 "targetProduct": None,
@@ -265,9 +268,11 @@ def test_shipment_mutations_on_source_side(
     for box in boxes:
         box_label_identifier = box["label_identifier"]
         query = f"""query {{ box(labelIdentifier: "{box_label_identifier}") {{
-                        state }} }}"""
+                        state
+                        shipmentDetail {{ id }}
+        }} }}"""
         box_response = assert_successful_request(client, query)
-        assert box_response == {"state": BoxState.InStock.name}
+        assert box_response == {"state": BoxState.InStock.name, "shipmentDetail": None}
 
     # Verify that lost_box is not removed from shipment (box state different from
     # MarkedForShipment).
@@ -354,9 +359,12 @@ def test_shipment_mutations_cancel(
     }
 
     identifier = another_marked_for_shipment_box["label_identifier"]
-    query = f"""query {{ box(labelIdentifier: "{identifier}") {{ state }} }}"""
+    query = f"""query {{ box(labelIdentifier: "{identifier}") {{
+                    state
+                    shipmentDetail {{ id }}
+    }} }}"""
     box = assert_successful_request(client, query)
-    assert box == {"state": BoxState.InStock.name}
+    assert box == {"state": BoxState.InStock.name, "shipmentDetail": None}
 
     # Shipment does not have any details assigned
     mocker.patch("jose.jwt.decode").return_value = create_jwt_payload(
@@ -550,6 +558,7 @@ def test_shipment_mutations_on_target_side(
                     product {{ id }}
                     location {{ id }}
                     tags {{ id }}
+                    shipmentDetail {{ id }}
     }} }}"""
     box = assert_successful_request(client, query)
     assert box == {
@@ -557,6 +566,7 @@ def test_shipment_mutations_on_target_side(
         "product": {"id": target_product_id},
         "location": {"id": target_location_id},
         "tags": [],
+        "shipmentDetail": None,
     }
 
     # The box is still registered in the source base, hence any user from the target
@@ -564,9 +574,11 @@ def test_shipment_mutations_on_target_side(
     mocker.patch("jose.jwt.decode").return_value = create_jwt_payload()
     box_label_identifier = marked_for_shipment_box["label_identifier"]
     query = f"""query {{ box(labelIdentifier: "{box_label_identifier}") {{
-                    state }} }}"""
+                    state
+                    shipmentDetail {{ id }}
+    }} }}"""
     box = assert_successful_request(client, query)
-    assert box == {"state": BoxState.Lost.name}
+    assert box == {"state": BoxState.Lost.name, "shipmentDetail": None}
 
 
 def test_shipment_mutations_on_target_side_mark_shipment_as_lost(
@@ -613,9 +625,10 @@ def test_shipment_mutations_on_target_side_mark_shipment_as_lost(
     box_label_identifier = box_without_qr_code["label_identifier"]
     query = f"""query {{ box(labelIdentifier: "{box_label_identifier}") {{
                     state
+                    shipmentDetail {{ id }}
     }} }}"""
     box = assert_successful_request(client, query)
-    assert box == {"state": BoxState.Lost.name}
+    assert box == {"state": BoxState.Lost.name, "shipmentDetail": None}
 
 
 def _generate_create_shipment_mutation(*, source_base, target_base, agreement):
