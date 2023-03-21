@@ -127,6 +127,10 @@ function BoxEdit({
     tags: boxData?.tags || [],
   };
 
+  if (boxData?.product?.deleted !== null) {
+    defaultValues.productId = { label: "", value: "" };
+  }
+
   // Option Preparations for select fields
   const productsGroupedByCategory: Record<string, IProductWithSizeRangeData[]> = _.groupBy(
     productAndSizesData,
