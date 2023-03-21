@@ -993,6 +993,7 @@ export type Product = {
   category: ProductCategory;
   createdBy?: Maybe<User>;
   createdOn?: Maybe<Scalars['Datetime']>;
+  deleted?: Maybe<Scalars['Datetime']>;
   gender?: Maybe<ProductGender>;
   id: Scalars['ID'];
   lastModifiedBy?: Maybe<User>;
