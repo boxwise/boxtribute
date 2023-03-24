@@ -54,10 +54,16 @@ function ShipmentReceivingTable({ columns, data }: IShipmentReceivingTablePros) 
   const maxTableWidth = useBreakpointValue({ base: "full", md: "100%" });
 
   return (
-    <BoxWrapper overflowX="hidden" overflowY="hidden">
+    <BoxWrapper
+      overflowX="hidden"
+      overflowY="hidden"
+      border={1}
+      borderColor="black"
+      borderWidth="1px"
+    >
       <TableContainer maxW={maxTableWidth}>
-        <Table {...getTableProps()} variant="simple" size="sm">
-          <Thead>
+        <Table {...getTableProps()} variant="simple" size="sm" borderColor="black">
+          <Thead borderColor="black" borderWidth="1px">
             {headerGroups.map((headerGroup) => (
               <Tr {...headerGroup.getHeaderGroupProps()}>
                 {headerGroup.headers.map((column) => (
@@ -92,7 +98,7 @@ function ShipmentReceivingTable({ columns, data }: IShipmentReceivingTablePros) 
               return (
                 <Tr {...row.getRowProps()}>
                   <Td
-                    colSpan={3}
+                    colSpan={4}
                     {...row.cells[1].getCellProps()}
                     style={{
                       whiteSpace: "pre-wrap",
@@ -101,7 +107,7 @@ function ShipmentReceivingTable({ columns, data }: IShipmentReceivingTablePros) 
                       overflow: "visible",
                     }}
                   >
-                    <Box border={1} borderColor="black" alignContent="stretch">
+                    <Box>
                       <Flex>
                         <VStack spacing={4} align="stretch" minWidth="120px">
                           <Box fontWeight={row.cells[0].column.isSorted ? "bold" : "normal"}>
@@ -135,22 +141,6 @@ function ShipmentReceivingTable({ columns, data }: IShipmentReceivingTablePros) 
                       </Flex>
                     </Box>
                   </Td>
-                  {/* <Td
-                    {...row.cells[1].getCellProps()}
-                    style={{ whiteSpace: "pre-wrap", wordWrap: "break-word", fontSize: "xs" }}
-                  >
-                    <VStack spacing={4} align="stretch">
-                      <Box />
-                      <Box
-                        fontWeight={row.cells[2].column.isSorted ? "bold" : "normal"}
-                        color="gray.500"
-                      >
-                        {row.cells[0].row.original.gender === "none"
-                          ? ""
-                          : row.cells[0].row.original.gender}
-                      </Box>
-                    </VStack>
-                  </Td> */}
                 </Tr>
               );
             })}

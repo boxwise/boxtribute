@@ -42,6 +42,8 @@ import ShipmentCard from "./components/ShipmentCard";
 import ShipmentTabs from "./components/ShipmentTabs";
 import ShipmentOverlay, { IShipmentOverlayData } from "./components/ShipmentOverlay";
 import ShipmentActionButtons from "./components/ShipmentActionButtons";
+import ShipmentReceivingContent from "./components/ShipmentReceivingContent";
+import ShipmentReceivingCard from "./components/ShipmentReceivingCard";
 
 // graphql query and mutations
 export const SHIPMENT_BY_ID_QUERY = gql`
@@ -415,16 +417,26 @@ function ShipmentView() {
   return (
     <>
       <Flex direction="column" gap={2}>
-        <Center>
-          <VStack>
-            {shipmentTitle}
-            {shipmentCard}
-          </VStack>
-        </Center>
-        <Spacer />
-        <Box>{shipmentTab}</Box>
-
-        {shipmentActionButtons}
+        {shipmentState !== ShipmentState.Receiving && (
+          <>
+            <Center>
+              <VStack>
+                {shipmentTitle}
+                {shipmentCard}
+              </VStack>
+            </Center>
+            <Spacer />
+            <Box>{shipmentTab}</Box>
+            {shipmentActionButtons}
+          </>
+        )}
+        {shipmentState === ShipmentState.Receiving && (
+          <>
+            <Heading>Receive Shipment</Heading>
+            <ShipmentReceivingCard shipment={data?.shipment! as Shipment} />
+            <ShipmentReceivingContent items={shipmentContents} />
+          </>
+        )}
       </Flex>
 
       <ShipmentOverlay
