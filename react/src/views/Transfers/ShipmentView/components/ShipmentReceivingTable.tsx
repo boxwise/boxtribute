@@ -2,6 +2,8 @@
 import {
   Box,
   Box as BoxWrapper,
+  Flex,
+  Spacer,
   Table,
   TableContainer,
   Tbody,
@@ -90,34 +92,50 @@ function ShipmentReceivingTable({ columns, data }: IShipmentReceivingTablePros) 
               return (
                 <Tr {...row.getRowProps()}>
                   <Td
-                    {...row.cells[0].getCellProps()}
-                    style={{ whiteSpace: "pre-wrap", wordWrap: "break-word", fontSize: "xs" }}
-                  >
-                    <VStack spacing={4} align="stretch">
-                      <Box fontWeight={row.cells[0].column.isSorted ? "bold" : "normal"}>
-                        <Wrap>
-                          <WrapItem>{row.cells[0].row.original.labelIdentifier}</WrapItem>
-                          <WrapItem>
-                            {row.cells[0].row.original.comment && <BsFillChatDotsFill />}
-                          </WrapItem>
-                        </Wrap>
-                      </Box>
-                      <Box color="gray.500">SIZE: {row.cells[0].row.original.size}</Box>
-                    </VStack>
-                  </Td>
-                  <Td
-                    colSpan={2}
+                    colSpan={3}
                     {...row.cells[1].getCellProps()}
-                    style={{ whiteSpace: "pre-wrap", wordWrap: "break-word", fontSize: "xs" }}
+                    style={{
+                      whiteSpace: "pre-wrap",
+                      wordWrap: "break-word",
+                      fontSize: "xs",
+                      overflow: "visible",
+                    }}
                   >
-                    <VStack spacing={4} align="stretch">
-                      <Box fontWeight={row.cells[1].column.isSorted ? "bold" : "normal"}>
-                        {row.cells[0].row.original.product}({row.cells[0].row.original.items}x)
-                      </Box>
-                      <Box />
-                    </VStack>
+                    <Box border={1} borderColor="black" alignContent="stretch">
+                      <Flex>
+                        <VStack spacing={4} align="stretch" minWidth="120px">
+                          <Box fontWeight={row.cells[0].column.isSorted ? "bold" : "normal"}>
+                            <Wrap>
+                              <WrapItem>{row.cells[0].row.original.labelIdentifier}</WrapItem>
+                              <WrapItem>
+                                {row.cells[0].row.original.comment && <BsFillChatDotsFill />}
+                              </WrapItem>
+                            </Wrap>
+                          </Box>
+                          <Box color="gray.500">SIZE: {row.cells[0].row.original.size}</Box>
+                        </VStack>
+                        <VStack spacing={4} align="flex-start">
+                          <Box fontWeight={row.cells[1].column.isSorted ? "bold" : "normal"}>
+                            {row.cells[0].row.original.product}({row.cells[0].row.original.items}x)
+                          </Box>
+                          <Box />
+                        </VStack>
+                        <Spacer />
+                        <VStack spacing={4} align="stretch">
+                          <Box />
+                          <Box
+                            fontWeight={row.cells[2].column.isSorted ? "bold" : "normal"}
+                            color="gray.500"
+                          >
+                            {row.cells[0].row.original.gender === "none"
+                              ? ""
+                              : row.cells[0].row.original.gender}
+                          </Box>
+                        </VStack>
+                      </Flex>
+                    </Box>
                   </Td>
-                  <Td
+                  {/* <Td
                     {...row.cells[1].getCellProps()}
                     style={{ whiteSpace: "pre-wrap", wordWrap: "break-word", fontSize: "xs" }}
                   >
@@ -132,7 +150,7 @@ function ShipmentReceivingTable({ columns, data }: IShipmentReceivingTablePros) 
                           : row.cells[0].row.original.gender}
                       </Box>
                     </VStack>
-                  </Td>
+                  </Td> */}
                 </Tr>
               );
             })}
