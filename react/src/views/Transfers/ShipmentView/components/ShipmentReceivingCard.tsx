@@ -1,15 +1,4 @@
-import {
-  Flex,
-  Box,
-  Stack,
-  Spacer,
-  Heading,
-  Wrap,
-  WrapItem,
-  VStack,
-  Text,
-  Center,
-} from "@chakra-ui/react";
+import { Flex, Box, Spacer, Heading, Wrap, WrapItem, VStack, Text, Center } from "@chakra-ui/react";
 import { BiPackage } from "react-icons/bi";
 import { BoxState, Shipment } from "types/generated/graphql";
 
