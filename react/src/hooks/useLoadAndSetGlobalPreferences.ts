@@ -88,7 +88,7 @@ export const useLoadAndSetGlobalPreferences = () => {
     navigate,
   ]);
 
-  const isLoading = !globalPreferences.availableBases;
+  const isLoading = !globalPreferences.availableBases || !globalPreferences.selectedBaseId;
 
   return { isLoading, error };
 };
