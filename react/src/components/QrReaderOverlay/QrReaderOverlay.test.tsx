@@ -163,6 +163,7 @@ const queryNoBoxAssociatedWithQrCode = {
   result: {
     data: {
       qrCode: {
+        code: "NoBoxAssociatedWithQrCode",
         box: null,
       },
     },
@@ -185,8 +186,9 @@ it("3.4.2.1 - Mobile: User scans QR code of same org without previously associat
   const qrButton = await screen.findByRole("button", { name: /scan qr code/i });
   await user.click(qrButton);
 
+  const scanButton = await screen.findByTestId("ReturnScannedQr");
   // Click a button to trigger the event of scanning a QR-Code in mockImplementationOfQrReader
-  await user.click(screen.getByTestId("ReturnScannedQr"));
+  await user.click(scanButton);
   expect(
     await screen.findByRole("heading", { name: "/bases/1/boxes/create/NoBoxAssociatedWithQrCode" }),
   ).toBeInTheDocument();
@@ -202,6 +204,7 @@ const queryBoxAssociatedWithQrCode = {
   result: {
     data: {
       qrCode: {
+        code: "BoxAssociatedWithQrCode",
         box: generateMockBox({}),
       },
     },
@@ -238,6 +241,7 @@ const queryBoxFromOtherOrganisation = {
   result: {
     data: {
       qrCode: {
+        code: "BoxFromOtherOrganisation",
         box: null,
       },
     },
@@ -301,11 +305,7 @@ const queryHashNotInDb = {
     },
   },
   result: {
-    data: {
-      qrCode: {
-        box: null,
-      },
-    },
+    data: null,
     errors: [new GraphQLError("Error!", { extensions: { code: "BAD_USER_INPUT" } })],
   },
 };
@@ -343,11 +343,7 @@ const queryInternalServerError = {
     },
   },
   result: {
-    data: {
-      qrCode: {
-        box: null,
-      },
-    },
+    data: null,
     errors: [new GraphQLError("Error!", { extensions: { code: "INTERNAL_SERVER_ERROR" } })],
   },
 };
