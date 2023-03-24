@@ -21,6 +21,7 @@ import {
   IGlobalPreferencesContext,
 } from "providers/GlobalPreferencesProvider";
 import { organisation1 } from "mocks/organisations";
+import { base1 } from "mocks/bases";
 
 // Options for Apollo MockProvider
 const defaultOptions: DefaultOptions = {
@@ -82,6 +83,7 @@ function render(
   const globalPreferencesMock: IGlobalPreferencesContext = {
     dispatch: jest.fn(),
     globalPreferences: {
+      selectedBaseId: base1.id,
       selectedOrganisationId: organisation1.id,
       availableBases: organisation1.bases,
     },

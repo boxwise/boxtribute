@@ -15,13 +15,14 @@ import {
   BoxByLabelIdentifierAndAllProductsWithBaseIdQuery,
   ProductGender,
 } from "types/generated/graphql";
-import { useEffect, useRef, useState } from "react";
+import { useContext, useEffect, useRef, useState } from "react";
 
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import _ from "lodash";
 import { useNavigate, useParams } from "react-router-dom";
 import { useForm } from "react-hook-form";
+import { GlobalPreferencesContext } from "providers/GlobalPreferencesProvider";
 
 export interface ICategoryData {
   name: string;
@@ -103,8 +104,9 @@ function BoxEdit({
   allTags,
   onSubmitBoxEditForm,
 }: IBoxEditProps) {
-  const { baseId, labelIdentifier } = useParams<{
-    baseId: string;
+  const { globalPreferences } = useContext(GlobalPreferencesContext);
+  const baseId = globalPreferences.selectedBaseId;
+  const { labelIdentifier } = useParams<{
     labelIdentifier: string;
   }>();
   const navigate = useNavigate();

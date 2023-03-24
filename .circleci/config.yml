@@ -64,8 +64,9 @@ jobs:
               REACT_APP_GRAPHQL_SERVER=${REACT_APP_GRAPHQL_SERVER}
               REACT_APP_OLD_APP_BASE_URL=${OLD_APP_BASE_URL}
               REACT_APP_SENTRY_FE_DSN=${SENTRY_FE_DSN}
-              REACT_APP_SENTRY_ENVIRONMENT=${SENTRY_ENVIRONMENT}
+              REACT_APP_SENTRY_ENVIRONMENT=${ENVIRONMENT}
               REACT_APP_SENTRY_TRACES_SAMPLE_RATE=${SENTRY_TRACES_SAMPLE_RATE}
+              REACT_APP_ENVIRONMENT=${ENVIRONMENT}
             " > .env
       # following https://circleci.com/docs/2.0/yarn/
       - restore_cache:
@@ -223,10 +224,10 @@ jobs:
               MYSQL_PORT=3306
               MYSQL_SOCKET=${DB_SOCKET}
               SENTRY_DSN=${SENTRY_BE_DSN}
-              SENTRY_ENVIRONMENT=${SENTRY_ENVIRONMENT}
+              SENTRY_ENVIRONMENT=${ENVIRONMENT}
               SENTRY_RELEASE=${CIRCLE_SHA1}
               SENTRY_TRACES_SAMPLE_RATE=${SENTRY_TRACES_SAMPLE_RATE}
-              ENVIRONMENT=${SENTRY_ENVIRONMENT}
+              ENVIRONMENT=${ENVIRONMENT}
               " > .env
       - run:
           name: Generate GAE app.yaml file
@@ -295,10 +296,10 @@ jobs:
               MYSQL_PORT=3306
               MYSQL_SOCKET=${DB_SOCKET}
               SENTRY_DSN=${SENTRY_BE_DSN}
-              SENTRY_ENVIRONMENT=${SENTRY_ENVIRONMENT}
+              SENTRY_ENVIRONMENT=${ENVIRONMENT}
               SENTRY_RELEASE=${CIRCLE_SHA1}
               SENTRY_TRACES_SAMPLE_RATE=${SENTRY_TRACES_SAMPLE_RATE}
-              ENVIRONMENT=${SENTRY_ENVIRONMENT}
+              ENVIRONMENT=${ENVIRONMENT}
               " > .env
       - run:
           name: Generate GAE app.yaml file

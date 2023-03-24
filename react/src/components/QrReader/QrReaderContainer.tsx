@@ -1,7 +1,8 @@
-import { useCallback, useState } from "react";
+import { useCallback, useState, useContext } from "react";
 import { useApolloClient } from "@apollo/client";
-import { useNavigate, useParams } from "react-router-dom";
-import { useNotification } from "hooks/hooks";
+import { useNotification } from "hooks/useNotification";
+import { useNavigate } from "react-router-dom";
+import { GlobalPreferencesContext } from "providers/GlobalPreferencesProvider";
 import { useErrorHandling } from "hooks/useErrorHandling";
 import {
   ILabelIdentifierResolvedValue,
@@ -18,7 +19,8 @@ interface IQrReaderContainerProps {
 
 function QrReaderContainer({ onSuccess }: IQrReaderContainerProps) {
   const apolloClient = useApolloClient();
-  const { baseId } = useParams<{ baseId: string }>();
+  const { globalPreferences } = useContext(GlobalPreferencesContext);
+  const baseId = globalPreferences.selectedBaseId;
   const navigate = useNavigate();
   const { createToast } = useNotification();
   const { triggerError } = useErrorHandling();
