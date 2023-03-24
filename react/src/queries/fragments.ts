@@ -27,7 +27,7 @@ export const PRODUCT_BASIC_FIELDS_FRAGMENT = gql`
     id
     name
     gender
-    deleted
+    deletedOn
   }
 `;
 

@@ -86,7 +86,7 @@ type Product {
   createdOn: Datetime
   lastModifiedBy: User
   lastModifiedOn: Datetime
-  deleted: Datetime
+  deletedOn: Datetime
 }
 
 """

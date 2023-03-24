@@ -127,7 +127,7 @@ function BoxEdit({
     tags: boxData?.tags || [],
   };
 
-  if (boxData?.product?.deleted !== null) {
+  if (boxData?.product?.deletedOn !== null) {
     defaultValues.productId = { label: "", value: "" };
   }
 
