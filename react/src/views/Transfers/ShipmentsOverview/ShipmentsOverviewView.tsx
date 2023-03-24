@@ -1,25 +1,16 @@
 /* eslint-disable indent */
 import { useContext, useMemo } from "react";
-import { gql, useQuery } from "@apollo/client";
+import { useQuery } from "@apollo/client";
 import { Alert, AlertIcon, Button, Heading, Stack } from "@chakra-ui/react";
 import { Link, useLocation } from "react-router-dom";
 import { GlobalPreferencesContext } from "providers/GlobalPreferencesProvider";
-import { SHIPMENT_FIELDS_FRAGMENT } from "queries/fragments";
+import { ALL_SHIPMENTS_QUERY } from "queries/queries";
 import { ShipmentsQuery } from "types/generated/graphql";
 import { AddIcon } from "@chakra-ui/icons";
 import { TableSkeleton } from "components/Skeletons";
 import { FilteringSortingTable } from "components/Table/Table";
 import { SelectColumnFilter } from "components/Table/Filter";
 import { BaseOrgCell, BoxesCell, DirectionCell, StateCell } from "./components/TableCells";
-
-export const ALL_SHIPMENTS_QUERY = gql`
-  ${SHIPMENT_FIELDS_FRAGMENT}
-  query Shipments {
-    shipments {
-      ...ShipmentFields
-    }
-  }
-`;
 
 function ShipmentsOverviewView() {
   const { globalPreferences } = useContext(GlobalPreferencesContext);
