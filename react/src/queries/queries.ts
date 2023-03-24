@@ -14,6 +14,7 @@ export const GET_BOX_LABEL_IDENTIFIER_BY_QR_CODE = gql`
   ${BOX_FIELDS_FRAGMENT}
   query GetBoxLabelIdentifierForQrCode($qrCode: String!) {
     qrCode(qrCode: $qrCode) {
+      code
       box {
         ...BoxFields
       }

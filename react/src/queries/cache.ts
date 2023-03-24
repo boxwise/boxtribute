@@ -7,6 +7,10 @@ export const cache = new InMemoryCache({
       // Boxes should be normalized by labelIdentifier
       keyFields: ["labelIdentifier"],
     },
+    QrCode: {
+      // QR-Codes should be normalized by their hash
+      keyFields: ["code"],
+    },
   },
 });
 
