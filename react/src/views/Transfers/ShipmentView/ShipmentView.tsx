@@ -184,7 +184,7 @@ function ShipmentView() {
       () => {
         mutation({
           variables: {
-            shipmentId,
+            id: shipmentId,
           },
         })
           .then((res) => {
