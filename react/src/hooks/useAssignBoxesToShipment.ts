@@ -9,7 +9,9 @@ import {
 } from "types/generated/graphql";
 import { IBoxBasicFields } from "types/graphql-local-only";
 import { useErrorHandling } from "./useErrorHandling";
+import { useNotification } from "./useNotification";
 
+// eslint-disable-next-line no-shadow
 export enum IAssignBoxToShipmentResultKind {
   SUCCESS = "success",
   FAIL = "fail",
@@ -44,6 +46,7 @@ export const ASSIGN_BOX_TO_SHIPMENT = gql`
 
 export const useAssignBoxesToShipment = () => {
   const { triggerError } = useErrorHandling();
+  const { createToast } = useNotification();
   const [isLoading, setIsLoading] = useState<boolean>(false);
 
   const [assignBoxesToShipmentMutation] = useMutation<
@@ -57,7 +60,7 @@ export const useAssignBoxesToShipment = () => {
       const inStockLabelIdentifiers = boxes
         .filter((box) => box.state === BoxState.InStock)
         .map((box) => box.labelIdentifier);
-      assignBoxesToShipmentMutation({
+      return assignBoxesToShipmentMutation({
         variables: {
           id: shipmentId,
           labelIdentifiers: inStockLabelIdentifiers,
@@ -112,6 +115,11 @@ export const useAssignBoxesToShipment = () => {
               (boxInShipment) => boxInShipment.labelIdentifier === box.labelIdentifier,
             ),
           );
+          if (assignedBoxes.length) {
+            createToast({
+              message: `${assignedBoxes.length} Boxes were successfully assigned to the shipment.`,
+            });
+          }
           // Not all Boxes were assigned
           if (failedBoxes.length) {
             return {
@@ -143,7 +151,7 @@ export const useAssignBoxesToShipment = () => {
           },
         );
     },
-    [assignBoxesToShipmentMutation, triggerError],
+    [assignBoxesToShipmentMutation, createToast, triggerError],
   );
 
   return {

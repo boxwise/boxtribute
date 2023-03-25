@@ -9,7 +9,7 @@ export const useScannedBoxesActions = () => {
   const apolloClient = useApolloClient();
   const { createToast } = useNotification();
 
-  const addBoxToScannedBoxes = useCallback(
+  const addBox = useCallback(
     (box: BoxFieldsFragment) =>
       apolloClient.cache.updateQuery(
         {
@@ -55,7 +55,7 @@ export const useScannedBoxesActions = () => {
     [apolloClient.cache, createToast],
   );
 
-  const deleteScannedBoxes = useCallback(() => {
+  const flushAllBoxes = useCallback(() => {
     apolloClient.writeQuery({
       query: GET_SCANNED_BOXES,
       data: {
@@ -64,7 +64,7 @@ export const useScannedBoxesActions = () => {
     });
   }, [apolloClient]);
 
-  const undoLastScannedBox = useCallback(() => {
+  const undoLastBox = useCallback(() => {
     apolloClient.cache.updateQuery(
       {
         query: GET_SCANNED_BOXES,
@@ -76,7 +76,7 @@ export const useScannedBoxesActions = () => {
     );
   }, [apolloClient]);
 
-  const removeNonInStockBoxesFromScannedBoxes = useCallback(() => {
+  const removeNotInStockBoxes = useCallback(() => {
     apolloClient.cache.updateQuery(
       {
         query: GET_SCANNED_BOXES,
@@ -88,10 +88,28 @@ export const useScannedBoxesActions = () => {
     );
   }, [apolloClient]);
 
+  const removeBoxesByLabelIdentifier = useCallback(
+    (labelIdentifiers: string[]) => {
+      apolloClient.cache.updateQuery(
+        {
+          query: GET_SCANNED_BOXES,
+        },
+        (data: IScannedBoxesData) =>
+          ({
+            scannedBoxes: data.scannedBoxes.filter(
+              (box) => !labelIdentifiers.includes(box.labelIdentifier),
+            ),
+          } as IScannedBoxesData),
+      );
+    },
+    [apolloClient],
+  );
+
   return {
-    addBoxToScannedBoxes,
-    deleteScannedBoxes,
-    undoLastScannedBox,
-    removeNonInStockBoxesFromScannedBoxes,
+    addBox,
+    flushAllBoxes,
+    undoLastBox,
+    removeNotInStockBoxes,
+    removeBoxesByLabelIdentifier,
   };
 };

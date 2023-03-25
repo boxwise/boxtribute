@@ -1,4 +1,6 @@
+/* eslint-disable indent */
 import { useCallback, useContext, useMemo, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { useQuery } from "@apollo/client";
 import { GET_SCANNED_BOXES } from "queries/local-only";
 import { BoxState, ShipmentsQuery, ShipmentState } from "types/generated/graphql";
@@ -7,17 +9,29 @@ import { IDropdownOption } from "components/Form/SelectField";
 import { AlertWithAction, AlertWithoutAction } from "components/Alerts";
 import { QrReaderMultiBoxSkeleton } from "components/Skeletons";
 import { Stack } from "@chakra-ui/react";
-import { IGetScannedBoxesQuery } from "types/graphql-local-only";
+import { IBoxBasicFields, IGetScannedBoxesQuery } from "types/graphql-local-only";
 import { useScannedBoxesActions } from "hooks/useScannedBoxesActions";
-import { useAssignBoxesToShipment } from "hooks/useAssignBoxesToShipment";
+import {
+  IAssignBoxToShipmentResultKind,
+  useAssignBoxesToShipment,
+} from "hooks/useAssignBoxesToShipment";
 import { GlobalPreferencesContext } from "providers/GlobalPreferencesProvider";
 import QrReaderMultiBox, { IMultiBoxAction } from "./QrReaderMultiBox";
-import { NotInStockAlertText } from "./AlertTexts";
+import { FailedBoxesFromAssingToShipmentAlert, NotInStockAlertText } from "./AlertTexts";
 
-function QrReaderMultiBoxContainer() {
+interface IQrReaderMultiBoxContainerProps {
+  onSuccess: () => void;
+}
+
+function QrReaderMultiBoxContainer({ onSuccess }: IQrReaderMultiBoxContainerProps) {
+  const navigate = useNavigate();
   // scannedBoxes actions hook
-  const { deleteScannedBoxes, undoLastScannedBox, removeNonInStockBoxesFromScannedBoxes } =
-    useScannedBoxesActions();
+  const {
+    flushAllBoxes: deleteScannedBoxes,
+    undoLastBox: undoLastScannedBox,
+    removeNotInStockBoxes: removeNonInStockBoxesFromScannedBoxes,
+    removeBoxesByLabelIdentifier: removeBoxesFromScannedBoxesByLabelIdentifier,
+  } = useScannedBoxesActions();
   // box actions hook
   const { assignBoxesToShipment, isLoading: isAssignBoxesToShipmentLoading } =
     useAssignBoxesToShipment();
@@ -33,11 +47,39 @@ function QrReaderMultiBoxContainer() {
     IMultiBoxAction.assignShipment,
   );
 
+  // state to save boxes that failed to assign to a shipment
+  const [failedBoxesFromAssignToShipment, setFailedBoxesFromAssignToShipment] = useState<
+    IBoxBasicFields[]
+  >([]);
+
   const onAssignBoxesToShipment = useCallback(
-    (shipmentId: string) => {
-      assignBoxesToShipment(shipmentId, scannedBoxesQueryResult.data?.scannedBoxes ?? []);
+    async (shipmentId: string) => {
+      const assignBoxesToShipmentResult = await assignBoxesToShipment(
+        shipmentId,
+        scannedBoxesQueryResult.data?.scannedBoxes ?? [],
+      );
+      // remove all assigned Boxes from the cache
+      if (assignBoxesToShipmentResult?.assignedBoxes?.length) {
+        removeBoxesFromScannedBoxesByLabelIdentifier(
+          assignBoxesToShipmentResult.assignedBoxes.map((box) => box.labelIdentifier),
+        );
+      }
+      // To show in the UI which boxes failed
+      setFailedBoxesFromAssignToShipment(assignBoxesToShipmentResult?.failedBoxes ?? []);
+      // only if all Boxes were assigned
+      if (assignBoxesToShipmentResult.kind === IAssignBoxToShipmentResultKind.SUCCESS) {
+        onSuccess();
+        navigate(`/bases/${currentBaseId}/transfers/shipments/${shipmentId}`);
+      }
     },
-    [assignBoxesToShipment, scannedBoxesQueryResult?.data?.scannedBoxes],
+    [
+      assignBoxesToShipment,
+      currentBaseId,
+      navigate,
+      onSuccess,
+      removeBoxesFromScannedBoxesByLabelIdentifier,
+      scannedBoxesQueryResult.data?.scannedBoxes,
+    ],
   );
 
   // Data preparation
@@ -69,13 +111,29 @@ function QrReaderMultiBoxContainer() {
   return (
     <Stack direction="column" spacing={2}>
       {shipmentsQueryResult.error && (
-        <AlertWithoutAction alertText="Could not fetch shipments data! Please try reloading the page." />
+        <AlertWithoutAction alertText="Could not fetch shipments data! Please reload the page." />
       )}
-      {multiBoxAction === IMultiBoxAction.assignShipment && notInStockBoxes.length > 0 && (
+      {multiBoxAction === IMultiBoxAction.assignShipment &&
+        notInStockBoxes.length > 0 &&
+        failedBoxesFromAssignToShipment.length === 0 && (
+          <AlertWithAction
+            alertText={<NotInStockAlertText notInStockBoxes={notInStockBoxes} />}
+            actionText="Click here to remove all non InStock boxes from the list."
+            onActionClick={removeNonInStockBoxesFromScannedBoxes}
+          />
+        )}
+      {failedBoxesFromAssignToShipment.length > 0 && (
         <AlertWithAction
-          alertText={<NotInStockAlertText notInStockBoxes={notInStockBoxes} />}
-          actionText="Click here to remove all non InStock Boxes from the list."
-          onActionClick={removeNonInStockBoxesFromScannedBoxes}
+          alertText={
+            <FailedBoxesFromAssingToShipmentAlert failedBoxes={failedBoxesFromAssignToShipment} />
+          }
+          actionText="Click here to remove all failed boxes from the list."
+          onActionClick={() => {
+            removeBoxesFromScannedBoxesByLabelIdentifier(
+              failedBoxesFromAssignToShipment.map((box) => box.labelIdentifier),
+            );
+            setFailedBoxesFromAssignToShipment([]);
+          }}
         />
       )}
       <QrReaderMultiBox

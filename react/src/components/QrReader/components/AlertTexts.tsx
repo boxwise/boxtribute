@@ -1,7 +1,8 @@
-import { chakra, Text } from "@chakra-ui/react";
+import { ListItem, Text, UnorderedList } from "@chakra-ui/react";
+import { IBoxBasicFields } from "types/graphql-local-only";
 
 export interface INotInStockAlertTextProps {
-  notInStockBoxes: any[];
+  notInStockBoxes: IBoxBasicFields[];
 }
 
 export function NotInStockAlertText({ notInStockBoxes }: INotInStockAlertTextProps) {
@@ -11,15 +12,32 @@ export function NotInStockAlertText({ notInStockBoxes }: INotInStockAlertTextPro
       <br />
       {notInStockBoxes.length === 1 ? (
         <>
-          <chakra.span fontWeight="bold">Box {notInStockBoxes[0].labelIdentifier}</chakra.span> is
-          not InStock.
+          <Text as="b">Box {notInStockBoxes[0].labelIdentifier}</Text> is not InStock.
         </>
       ) : (
         <>
-          <chakra.span fontWeight="bold">{notInStockBoxes.length} Boxes</chakra.span> are not
-          InStock.
+          <Text as="b">{notInStockBoxes.length} Boxes</Text> are not InStock.
         </>
       )}
+    </Text>
+  );
+}
+
+export interface IFailedBoxesFromAssingToShipmentAlertProps {
+  failedBoxes: IBoxBasicFields[];
+}
+
+export function FailedBoxesFromAssingToShipmentAlert({
+  failedBoxes,
+}: IFailedBoxesFromAssingToShipmentAlertProps) {
+  return (
+    <Text>
+      The following boxes were not assigned to the shipment:
+      <UnorderedList>
+        {failedBoxes.map((box) => (
+          <ListItem fontWeight="bold">{box.labelIdentifier}</ListItem>
+        ))}
+      </UnorderedList>
     </Text>
   );
 }

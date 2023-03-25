@@ -22,7 +22,7 @@ function QrReaderContainer({ onSuccess }: IQrReaderContainerProps) {
   const { triggerError } = useErrorHandling();
   const { resolveQrCode } = useQrResolver();
   const { loading: findByBoxLabelIsLoading, checkLabelIdentifier } = useLabelIdentifierResolver();
-  const { addBoxToScannedBoxes } = useScannedBoxesActions();
+  const { addBox: addBoxToScannedBoxes } = useScannedBoxesActions();
   const [isMultiBox, setIsMultiBox] = useState(false);
   const [isProcessingQrCode, setIsProcessingQrCode] = useState(false);
   const setIsProcessingQrCodeDelayed = useCallback(
@@ -161,6 +161,7 @@ function QrReaderContainer({ onSuccess }: IQrReaderContainerProps) {
       onScan={onScan}
       onFindBoxByLabel={onFindBoxByLabel}
       findBoxByLabelIsLoading={findByBoxLabelIsLoading || isProcessingQrCode}
+      onSuccess={onSuccess}
     />
   );
 }
