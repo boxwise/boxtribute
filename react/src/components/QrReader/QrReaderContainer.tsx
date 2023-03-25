@@ -11,6 +11,7 @@ import {
 } from "hooks/useLabelIdentifierResolver";
 import { IQrResolvedValue, IQrResolverResultKind, useQrResolver } from "hooks/useQrResolver";
 import { GET_SCANNED_BOXES } from "queries/local-only";
+import { IScannedBoxesData } from "types/graphql-local-only";
 import QrReader from "./components/QrReader";
 
 interface IQrReaderContainerProps {
@@ -60,7 +61,7 @@ function QrReaderContainer({ onSuccess }: IQrReaderContainerProps) {
               {
                 query: GET_SCANNED_BOXES,
               },
-              (data) => {
+              (data: IScannedBoxesData) => {
                 const existingBoxRefs = data.scannedBoxes.map((box) => ({
                   __typename: "Box",
                   labelIdentifier: box.labelIdentifier,
@@ -94,7 +95,7 @@ function QrReaderContainer({ onSuccess }: IQrReaderContainerProps) {
                       state: qrResolvedValue.box.state,
                     },
                   ],
-                };
+                } as IScannedBoxesData;
               },
             );
             setIsProcessingQrCode(false);

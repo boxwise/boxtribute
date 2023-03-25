@@ -8,6 +8,7 @@ import { IDropdownOption } from "components/Form/SelectField";
 import { AlertWithAction, AlertWithoutAction } from "components/Alerts";
 import { QrReaderMultiBoxSkeleton } from "components/Skeletons";
 import { Stack } from "@chakra-ui/react";
+import { IGetScannedBoxesQuery, IScannedBoxesData } from "types/graphql-local-only";
 import QrReaderMultiBox, { IMultiBoxAction } from "./QrReaderMultiBox";
 import { NotInStockAlertText } from "./AlertTexts";
 
@@ -29,7 +30,7 @@ export const ASSIGN_BOX_TO_SHIPMENT = gql`
 function QrReaderMultiBoxContainer() {
   const apolloClient = useApolloClient();
   // local-only (cache) query for scanned Boxes
-  const scannedBoxesQueryResult = useQuery(GET_SCANNED_BOXES);
+  const scannedBoxesQueryResult = useQuery<IGetScannedBoxesQuery>(GET_SCANNED_BOXES);
   // fetch shipments data
   const shipmentsQueryResult = useQuery<ShipmentsQuery>(ALL_SHIPMENTS_QUERY);
   const [multiBoxAction, setMultiBoxAction] = useState<IMultiBoxAction>(
@@ -41,7 +42,7 @@ function QrReaderMultiBoxContainer() {
       query: GET_SCANNED_BOXES,
       data: {
         scannedBoxes: [],
-      },
+      } as IScannedBoxesData,
     });
   }, [apolloClient]);
 
@@ -50,9 +51,10 @@ function QrReaderMultiBoxContainer() {
       {
         query: GET_SCANNED_BOXES,
       },
-      (data) => ({
-        scannedBoxes: data.scannedBoxes.slice(0, -1),
-      }),
+      (data: IScannedBoxesData) =>
+        ({
+          scannedBoxes: data.scannedBoxes.slice(0, -1),
+        } as IScannedBoxesData),
     );
   }, [apolloClient]);
 
@@ -61,9 +63,10 @@ function QrReaderMultiBoxContainer() {
       {
         query: GET_SCANNED_BOXES,
       },
-      (data) => ({
-        scannedBoxes: data.scannedBoxes.filter((box) => box.state === BoxState.InStock),
-      }),
+      (data: IScannedBoxesData) =>
+        ({
+          scannedBoxes: data.scannedBoxes.filter((box) => box.state === BoxState.InStock),
+        } as IScannedBoxesData),
     );
   }, [apolloClient]);
 
@@ -82,8 +85,10 @@ function QrReaderMultiBoxContainer() {
   );
 
   const notInStockBoxes = useMemo(
-    () => scannedBoxesQueryResult.data.scannedBoxes.filter((box) => box.state !== BoxState.InStock),
-    [scannedBoxesQueryResult.data.scannedBoxes],
+    () =>
+      scannedBoxesQueryResult.data?.scannedBoxes.filter((box) => box.state !== BoxState.InStock) ??
+      [],
+    [scannedBoxesQueryResult.data?.scannedBoxes],
   );
 
   if (shipmentsQueryResult.loading) {
@@ -106,7 +111,7 @@ function QrReaderMultiBoxContainer() {
         multiBoxAction={multiBoxAction}
         onChangeMultiBoxAction={setMultiBoxAction}
         shipmentOptions={shipmentOptions}
-        scannedBoxesCount={scannedBoxesQueryResult.data?.scannedBoxes.length}
+        scannedBoxesCount={scannedBoxesQueryResult.data?.scannedBoxes.length ?? 0}
         notInStockBoxesCount={notInStockBoxes.length}
         onDeleteScannedBoxes={onDeleteScannedBoxes}
         onUndoLastScannedBox={onUndoLastScannedBox}
