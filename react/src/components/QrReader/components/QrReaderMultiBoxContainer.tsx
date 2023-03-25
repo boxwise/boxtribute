@@ -1,7 +1,6 @@
-import { useCallback, useMemo, useState } from "react";
-import { gql, useQuery } from "@apollo/client";
+import { useCallback, useContext, useMemo, useState } from "react";
+import { useQuery } from "@apollo/client";
 import { GET_SCANNED_BOXES } from "queries/local-only";
-import { SHIPMENT_FIELDS_FRAGMENT } from "queries/fragments";
 import { BoxState, ShipmentsQuery, ShipmentState } from "types/generated/graphql";
 import { ALL_SHIPMENTS_QUERY } from "queries/queries";
 import { IDropdownOption } from "components/Form/SelectField";
@@ -10,28 +9,21 @@ import { QrReaderMultiBoxSkeleton } from "components/Skeletons";
 import { Stack } from "@chakra-ui/react";
 import { IGetScannedBoxesQuery } from "types/graphql-local-only";
 import { useScannedBoxesActions } from "hooks/useScannedBoxesActions";
+import { useAssignBoxesToShipment } from "hooks/useAssignBoxesToShipment";
+import { GlobalPreferencesContext } from "providers/GlobalPreferencesProvider";
 import QrReaderMultiBox, { IMultiBoxAction } from "./QrReaderMultiBox";
 import { NotInStockAlertText } from "./AlertTexts";
-
-export const ASSIGN_BOX_TO_SHIPMENT = gql`
-  ${SHIPMENT_FIELDS_FRAGMENT}
-  mutation AssignBoxToShipment($id: ID!, $labelIdentifiers: [String!]) {
-    updateShipmentWhenPreparing(
-      updateInput: {
-        id: $id
-        preparedBoxLabelIdentifiers: $labelIdentifiers
-        removedBoxLabelIdentifiers: []
-      }
-    ) {
-      ...ShipmentFields
-    }
-  }
-`;
 
 function QrReaderMultiBoxContainer() {
   // scannedBoxes actions hook
   const { deleteScannedBoxes, undoLastScannedBox, removeNonInStockBoxesFromScannedBoxes } =
     useScannedBoxesActions();
+  // box actions hook
+  const { assignBoxesToShipment, isLoading: isAssignBoxesToShipmentLoading } =
+    useAssignBoxesToShipment();
+  const { globalPreferences } = useContext(GlobalPreferencesContext);
+  const currentBaseId = globalPreferences.selectedBaseId;
+
   // local-only (cache) query for scanned Boxes
   const scannedBoxesQueryResult = useQuery<IGetScannedBoxesQuery>(GET_SCANNED_BOXES);
   // fetch shipments data
@@ -41,18 +33,26 @@ function QrReaderMultiBoxContainer() {
     IMultiBoxAction.assignShipment,
   );
 
-  const onAssignBoxesToShipment = useCallback(() => {}, []);
+  const onAssignBoxesToShipment = useCallback(
+    (shipmentId: string) => {
+      assignBoxesToShipment(shipmentId, scannedBoxesQueryResult.data?.scannedBoxes ?? []);
+    },
+    [assignBoxesToShipment, scannedBoxesQueryResult?.data?.scannedBoxes],
+  );
 
   // Data preparation
   const shipmentOptions: IDropdownOption[] = useMemo(
     () =>
       shipmentsQueryResult.data?.shipments
-        ?.filter((shipment) => shipment.state === ShipmentState.Preparing)
+        ?.filter(
+          (shipment) =>
+            shipment.state === ShipmentState.Preparing && shipment.sourceBase.id === currentBaseId,
+        )
         ?.map((shipment) => ({
           label: `${shipment.targetBase.name} - ${shipment.targetBase.organisation.name}`,
           value: shipment.id,
         })) ?? [],
-    [shipmentsQueryResult.data?.shipments],
+    [currentBaseId, shipmentsQueryResult.data?.shipments],
   );
 
   const notInStockBoxes = useMemo(
@@ -79,6 +79,7 @@ function QrReaderMultiBoxContainer() {
         />
       )}
       <QrReaderMultiBox
+        isSubmitButtonLoading={isAssignBoxesToShipmentLoading}
         multiBoxAction={multiBoxAction}
         onChangeMultiBoxAction={setMultiBoxAction}
         shipmentOptions={shipmentOptions}

@@ -26,6 +26,7 @@ export enum IMultiBoxAction {
 }
 
 interface IQrReaderMultiBoxProps {
+  isSubmitButtonLoading: boolean;
   multiBoxAction: IMultiBoxAction;
   onChangeMultiBoxAction: (multiBoxAction: IMultiBoxAction) => void;
   shipmentOptions: IDropdownOption[];
@@ -37,6 +38,7 @@ interface IQrReaderMultiBoxProps {
 }
 
 function QrReaderMultiBox({
+  isSubmitButtonLoading,
   multiBoxAction,
   onChangeMultiBoxAction,
   shipmentOptions,
@@ -54,7 +56,7 @@ function QrReaderMultiBox({
     }
   }
 
-  const isSubmitDisabled = useMemo(() => {
+  const isSubmitButtonDisabled = useMemo(() => {
     if (
       multiBoxAction === IMultiBoxAction.assignShipment &&
       notInStockBoxesCount === 0 &&
@@ -148,7 +150,8 @@ function QrReaderMultiBox({
       </Box>
       {scannedBoxesCount && (
         <Button
-          isDisabled={isSubmitDisabled}
+          isLoading={isSubmitButtonLoading}
+          isDisabled={isSubmitButtonDisabled}
           type="button"
           colorScheme="blue"
           onClick={() => handleSubmit()}
