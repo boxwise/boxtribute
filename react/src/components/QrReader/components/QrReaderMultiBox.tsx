@@ -19,6 +19,7 @@ import { IDropdownOption } from "components/Form/SelectField";
 import { ShipmentIcon } from "components/Icon/Transfer/ShipmentIcon";
 import { FaWarehouse, FaTags } from "react-icons/fa";
 
+// eslint-disable-next-line no-shadow
 export enum IMultiBoxAction {
   moveBox = "moveBox",
   assignTag = "assignTag",
