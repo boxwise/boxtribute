@@ -1,5 +1,5 @@
 import { useCallback, useMemo, useState } from "react";
-import { gql, useApolloClient, useQuery } from "@apollo/client";
+import { gql, useQuery } from "@apollo/client";
 import { GET_SCANNED_BOXES } from "queries/local-only";
 import { SHIPMENT_FIELDS_FRAGMENT } from "queries/fragments";
 import { BoxState, ShipmentsQuery, ShipmentState } from "types/generated/graphql";
@@ -8,7 +8,8 @@ import { IDropdownOption } from "components/Form/SelectField";
 import { AlertWithAction, AlertWithoutAction } from "components/Alerts";
 import { QrReaderMultiBoxSkeleton } from "components/Skeletons";
 import { Stack } from "@chakra-ui/react";
-import { IGetScannedBoxesQuery, IScannedBoxesData } from "types/graphql-local-only";
+import { IGetScannedBoxesQuery } from "types/graphql-local-only";
+import { useScannedBoxesActions } from "hooks/useScannedBoxesActions";
 import QrReaderMultiBox, { IMultiBoxAction } from "./QrReaderMultiBox";
 import { NotInStockAlertText } from "./AlertTexts";
 
@@ -28,47 +29,17 @@ export const ASSIGN_BOX_TO_SHIPMENT = gql`
 `;
 
 function QrReaderMultiBoxContainer() {
-  const apolloClient = useApolloClient();
+  // scannedBoxes actions hook
+  const { deleteScannedBoxes, undoLastScannedBox, removeNonInStockBoxesFromScannedBoxes } =
+    useScannedBoxesActions();
   // local-only (cache) query for scanned Boxes
   const scannedBoxesQueryResult = useQuery<IGetScannedBoxesQuery>(GET_SCANNED_BOXES);
   // fetch shipments data
   const shipmentsQueryResult = useQuery<ShipmentsQuery>(ALL_SHIPMENTS_QUERY);
+  // selected radio button
   const [multiBoxAction, setMultiBoxAction] = useState<IMultiBoxAction>(
     IMultiBoxAction.assignShipment,
   );
-
-  const onDeleteScannedBoxes = useCallback(() => {
-    apolloClient.writeQuery({
-      query: GET_SCANNED_BOXES,
-      data: {
-        scannedBoxes: [],
-      } as IScannedBoxesData,
-    });
-  }, [apolloClient]);
-
-  const onUndoLastScannedBox = useCallback(() => {
-    apolloClient.cache.updateQuery(
-      {
-        query: GET_SCANNED_BOXES,
-      },
-      (data: IScannedBoxesData) =>
-        ({
-          scannedBoxes: data.scannedBoxes.slice(0, -1),
-        } as IScannedBoxesData),
-    );
-  }, [apolloClient]);
-
-  const removeNonInStockBoxesFromScannedBoxes = useCallback(() => {
-    apolloClient.cache.updateQuery(
-      {
-        query: GET_SCANNED_BOXES,
-      },
-      (data: IScannedBoxesData) =>
-        ({
-          scannedBoxes: data.scannedBoxes.filter((box) => box.state === BoxState.InStock),
-        } as IScannedBoxesData),
-    );
-  }, [apolloClient]);
 
   const onAssignBoxesToShipment = useCallback(() => {}, []);
 
@@ -113,8 +84,8 @@ function QrReaderMultiBoxContainer() {
         shipmentOptions={shipmentOptions}
         scannedBoxesCount={scannedBoxesQueryResult.data?.scannedBoxes.length ?? 0}
         notInStockBoxesCount={notInStockBoxes.length}
-        onDeleteScannedBoxes={onDeleteScannedBoxes}
-        onUndoLastScannedBox={onUndoLastScannedBox}
+        onDeleteScannedBoxes={deleteScannedBoxes}
+        onUndoLastScannedBox={undoLastScannedBox}
         onAssignBoxesToShipment={onAssignBoxesToShipment}
       />
     </Stack>

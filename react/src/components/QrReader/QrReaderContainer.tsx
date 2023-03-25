@@ -1,6 +1,4 @@
 import { useCallback, useState, useContext } from "react";
-import { useApolloClient } from "@apollo/client";
-import { useNotification } from "hooks/useNotification";
 import { useNavigate } from "react-router-dom";
 import { GlobalPreferencesContext } from "providers/GlobalPreferencesProvider";
 import { useErrorHandling } from "hooks/useErrorHandling";
@@ -10,8 +8,7 @@ import {
   useLabelIdentifierResolver,
 } from "hooks/useLabelIdentifierResolver";
 import { IQrResolvedValue, IQrResolverResultKind, useQrResolver } from "hooks/useQrResolver";
-import { GET_SCANNED_BOXES } from "queries/local-only";
-import { IScannedBoxesData } from "types/graphql-local-only";
+import { useScannedBoxesActions } from "hooks/useScannedBoxesActions";
 import QrReader from "./components/QrReader";
 
 interface IQrReaderContainerProps {
@@ -19,14 +16,13 @@ interface IQrReaderContainerProps {
 }
 
 function QrReaderContainer({ onSuccess }: IQrReaderContainerProps) {
-  const apolloClient = useApolloClient();
   const { globalPreferences } = useContext(GlobalPreferencesContext);
   const baseId = globalPreferences.selectedBaseId;
   const navigate = useNavigate();
-  const { createToast } = useNotification();
   const { triggerError } = useErrorHandling();
   const { resolveQrCode } = useQrResolver();
   const { loading: findByBoxLabelIsLoading, checkLabelIdentifier } = useLabelIdentifierResolver();
+  const { addBoxToScannedBoxes } = useScannedBoxesActions();
   const [isMultiBox, setIsMultiBox] = useState(false);
   const [isProcessingQrCode, setIsProcessingQrCode] = useState(false);
   const setIsProcessingQrCodeDelayed = useCallback(
@@ -57,47 +53,7 @@ function QrReaderContainer({ onSuccess }: IQrReaderContainerProps) {
           } else {
             // Only execute for Multi Box tab
             // add box reference to query for list of all scanned boxes
-            await apolloClient.cache.updateQuery(
-              {
-                query: GET_SCANNED_BOXES,
-              },
-              (data: IScannedBoxesData) => {
-                const existingBoxRefs = data.scannedBoxes.map((box) => ({
-                  __typename: "Box",
-                  labelIdentifier: box.labelIdentifier,
-                  state: box.state,
-                }));
-
-                const alreadyExists = existingBoxRefs.some(
-                  (ref) => ref.labelIdentifier === qrResolvedValue.box.labelIdentifier,
-                );
-
-                if (alreadyExists) {
-                  createToast({
-                    message: `Box ${boxLabelIdentifier} is already on the list.`,
-                    type: "info",
-                  });
-
-                  return existingBoxRefs;
-                }
-                // execute rest only if Box is not in the scannedBoxes already
-                createToast({
-                  message: `Box ${boxLabelIdentifier} was added to the list.`,
-                  type: "success",
-                });
-
-                return {
-                  scannedBoxes: [
-                    ...existingBoxRefs,
-                    {
-                      __typename: "Box",
-                      labelIdentifier: qrResolvedValue.box.labelIdentifier,
-                      state: qrResolvedValue.box.state,
-                    },
-                  ],
-                } as IScannedBoxesData;
-              },
-            );
+            await addBoxToScannedBoxes(qrResolvedValue.box);
             setIsProcessingQrCode(false);
           }
           break;
