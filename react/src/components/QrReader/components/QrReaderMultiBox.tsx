@@ -30,7 +30,7 @@ interface IQrReaderMultiBoxProps {
   onChangeMultiBoxAction: (multiBoxAction: IMultiBoxAction) => void;
   shipmentOptions: IDropdownOption[];
   scannedBoxesCount: number;
-  nonInStockBoxesCount: number;
+  notInStockBoxesCount: number;
   onDeleteScannedBoxes: () => void;
   onUndoLastScannedBox: () => void;
   onAssignBoxesToShipment: (shipmentId: string) => void;
@@ -41,7 +41,7 @@ function QrReaderMultiBox({
   onChangeMultiBoxAction,
   shipmentOptions,
   scannedBoxesCount,
-  nonInStockBoxesCount,
+  notInStockBoxesCount,
   onDeleteScannedBoxes,
   onUndoLastScannedBox,
   onAssignBoxesToShipment,
@@ -57,14 +57,14 @@ function QrReaderMultiBox({
   const isSubmitDisabled = useMemo(() => {
     if (
       multiBoxAction === IMultiBoxAction.assignShipment &&
-      nonInStockBoxesCount === 0 &&
+      notInStockBoxesCount === 0 &&
       scannedBoxesCount > 0 &&
       selectedShipmentOption
     ) {
       return false;
     }
     return true;
-  }, [multiBoxAction, nonInStockBoxesCount, scannedBoxesCount, selectedShipmentOption]);
+  }, [multiBoxAction, notInStockBoxesCount, scannedBoxesCount, selectedShipmentOption]);
 
   return (
     <Stack direction="column">

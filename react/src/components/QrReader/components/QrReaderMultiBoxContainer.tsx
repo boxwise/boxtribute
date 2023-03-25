@@ -9,6 +9,7 @@ import { AlertWithAction, AlertWithoutAction } from "components/Alerts";
 import { QrReaderMultiBoxSkeleton } from "components/Skeletons";
 import { Stack } from "@chakra-ui/react";
 import QrReaderMultiBox, { IMultiBoxAction } from "./QrReaderMultiBox";
+import { NotInStockAlertText } from "./AlertTexts";
 
 export const ASSIGN_BOX_TO_SHIPMENT = gql`
   ${SHIPMENT_FIELDS_FRAGMENT}
@@ -80,7 +81,7 @@ function QrReaderMultiBoxContainer() {
     [shipmentsQueryResult.data?.shipments],
   );
 
-  const boxesNotInStock = useMemo(
+  const notInStockBoxes = useMemo(
     () => scannedBoxesQueryResult.data.scannedBoxes.filter((box) => box.state !== BoxState.InStock),
     [scannedBoxesQueryResult.data.scannedBoxes],
   );
@@ -94,9 +95,9 @@ function QrReaderMultiBoxContainer() {
       {shipmentsQueryResult.error && (
         <AlertWithoutAction alertText="Could not fetch shipments data! Please try reloading the page." />
       )}
-      {multiBoxAction === IMultiBoxAction.assignShipment && boxesNotInStock.length > 0 && (
+      {multiBoxAction === IMultiBoxAction.assignShipment && notInStockBoxes.length > 0 && (
         <AlertWithAction
-          alertText="A box must be in the InStock state to be assigned to a shipment."
+          alertText={<NotInStockAlertText notInStockBoxes={notInStockBoxes} />}
           actionText="Click here to remove all non InStock Boxes from the list."
           onActionClick={removeNonInStockBoxesFromScannedBoxes}
         />
@@ -106,7 +107,7 @@ function QrReaderMultiBoxContainer() {
         onChangeMultiBoxAction={setMultiBoxAction}
         shipmentOptions={shipmentOptions}
         scannedBoxesCount={scannedBoxesQueryResult.data?.scannedBoxes.length}
-        nonInStockBoxesCount={boxesNotInStock.length}
+        notInStockBoxesCount={notInStockBoxes.length}
         onDeleteScannedBoxes={onDeleteScannedBoxes}
         onUndoLastScannedBox={onUndoLastScannedBox}
         onAssignBoxesToShipment={onAssignBoxesToShipment}

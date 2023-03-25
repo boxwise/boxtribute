@@ -1,7 +1,8 @@
-import { Alert, AlertIcon, chakra, Stack, Text } from "@chakra-ui/react";
+import React from "react";
+import { Alert, AlertIcon, chakra, Stack } from "@chakra-ui/react";
 
 export interface IAlertWithoutActionProps {
-  alertText: string;
+  alertText: React.ReactNode;
 }
 
 export interface IAlertWithActionProps extends IAlertWithoutActionProps {
@@ -12,8 +13,10 @@ export interface IAlertWithActionProps extends IAlertWithoutActionProps {
 export function AlertWithoutAction({ alertText }: IAlertWithoutActionProps) {
   return (
     <Alert status="error" data-testid="ErrorAlert">
-      <AlertIcon />
-      {alertText}
+      <>
+        <AlertIcon />
+        {alertText}
+      </>
     </Alert>
   );
 }
@@ -23,14 +26,13 @@ export function AlertWithAction({ alertText, actionText, onActionClick }: IAlert
     <Alert status="error" data-testid="ErrorAlert">
       <AlertIcon />
       <Stack direction="column">
-        <Text>{alertText}</Text>
+        <chakra.span>{alertText}</chakra.span>
         <chakra.span
           onClick={onActionClick}
           style={{ textDecoration: "underline", cursor: "pointer" }}
         >
           {actionText}
         </chakra.span>
-        {actionText}
       </Stack>
     </Alert>
   );
