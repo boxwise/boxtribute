@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { DeleteIcon } from "@chakra-ui/icons";
 import { BiUndo } from "react-icons/bi";
 import {
@@ -19,29 +19,52 @@ import { IDropdownOption } from "components/Form/SelectField";
 import { ShipmentIcon } from "components/Icon/Transfer/ShipmentIcon";
 import { FaWarehouse, FaTags } from "react-icons/fa";
 
+export enum IMultiBoxAction {
+  moveBox = "moveBox",
+  assignTag = "assignTag",
+  assignShipment = "assignShipment",
+}
+
 interface IQrReaderMultiBoxProps {
+  multiBoxAction: IMultiBoxAction;
+  onChangeMultiBoxAction: (multiBoxAction: IMultiBoxAction) => void;
   shipmentOptions: IDropdownOption[];
   scannedBoxesCount: number;
+  nonInStockBoxesCount: number;
   onDeleteScannedBoxes: () => void;
   onUndoLastScannedBox: () => void;
   onAssignBoxesToShipment: (shipmentId: string) => void;
 }
 
 function QrReaderMultiBox({
+  multiBoxAction,
+  onChangeMultiBoxAction,
   shipmentOptions,
   scannedBoxesCount,
+  nonInStockBoxesCount,
   onDeleteScannedBoxes,
   onUndoLastScannedBox,
   onAssignBoxesToShipment,
 }: IQrReaderMultiBoxProps) {
-  const [multiBoxAction, setMultiBoxAction] = useState("assignShipment");
   const [selectedShipmentOption, setSelectedShipmentOption] = useState<IDropdownOption>();
 
   function handleSubmit() {
-    if (multiBoxAction === "assignShipment" && selectedShipmentOption) {
+    if (multiBoxAction === IMultiBoxAction.assignShipment && selectedShipmentOption) {
       onAssignBoxesToShipment(selectedShipmentOption.value);
     }
   }
+
+  const isSubmitDisabled = useMemo(() => {
+    if (
+      multiBoxAction === IMultiBoxAction.assignShipment &&
+      nonInStockBoxesCount === 0 &&
+      scannedBoxesCount > 0 &&
+      selectedShipmentOption
+    ) {
+      return false;
+    }
+    return true;
+  }, [multiBoxAction, nonInStockBoxesCount, scannedBoxesCount, selectedShipmentOption]);
 
   return (
     <Stack direction="column">
@@ -70,7 +93,7 @@ function QrReaderMultiBox({
       </Center>
 
       <Box border="2px" borderRadius={0} p={4}>
-        <RadioGroup onChange={setMultiBoxAction} value={multiBoxAction}>
+        <RadioGroup onChange={onChangeMultiBoxAction} value={multiBoxAction}>
           <Stack direction="column">
             <Radio value="moveBox">
               <Stack direction="row" alignItems="center" spacing={2}>
@@ -86,7 +109,7 @@ function QrReaderMultiBox({
               </Stack>
             </Radio>
             {/* show Radio Button only if there are shipments */}
-            {shipmentOptions.length && (
+            {shipmentOptions.length > 0 && (
               <>
                 <Radio value="assignShipment">
                   <Stack direction="row" alignItems="center" spacing={2}>
@@ -95,7 +118,7 @@ function QrReaderMultiBox({
                   </Stack>
                 </Radio>
                 {/* show select field only if the radio button is selected */}
-                {multiBoxAction === "assignShipment" && (
+                {multiBoxAction === IMultiBoxAction.assignShipment && (
                   <FormControl isRequired>
                     <Select
                       placeholder="Please select a shipment ..."
@@ -123,9 +146,14 @@ function QrReaderMultiBox({
           </Stack>
         </RadioGroup>
       </Box>
-      {scannedBoxesCount && multiBoxAction && (
-        <Button type="button" colorScheme="blue" onClick={() => handleSubmit()}>
-          {multiBoxAction === "moveBox" ? "Move All" : "Assign All"}
+      {scannedBoxesCount && (
+        <Button
+          isDisabled={isSubmitDisabled}
+          type="button"
+          colorScheme="blue"
+          onClick={() => handleSubmit()}
+        >
+          {multiBoxAction === IMultiBoxAction.moveBox ? "Move All" : "Assign All"}
         </Button>
       )}
     </Stack>

@@ -64,6 +64,7 @@ function QrReaderContainer({ onSuccess }: IQrReaderContainerProps) {
                 const existingBoxRefs = data.scannedBoxes.map((box) => ({
                   __typename: "Box",
                   labelIdentifier: box.labelIdentifier,
+                  state: box.state,
                 }));
 
                 const alreadyExists = existingBoxRefs.some(
@@ -90,7 +91,7 @@ function QrReaderContainer({ onSuccess }: IQrReaderContainerProps) {
                     {
                       __typename: "Box",
                       labelIdentifier: qrResolvedValue.box.labelIdentifier,
-                      state: qrResolvedValue.box.labelIdentifier,
+                      state: qrResolvedValue.box.state,
                     },
                   ],
                 };
