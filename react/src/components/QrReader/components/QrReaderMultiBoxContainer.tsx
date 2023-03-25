@@ -5,6 +5,8 @@ import { SHIPMENT_FIELDS_FRAGMENT } from "queries/fragments";
 import { ShipmentsQuery, ShipmentState } from "types/generated/graphql";
 import { ALL_SHIPMENTS_QUERY } from "queries/queries";
 import { IDropdownOption } from "components/Form/SelectField";
+import { AlertWithoutAction } from "components/Alerts";
+import { QrReaderMultiBoxSkeleton } from "components/Skeletons";
 import QrReaderMultiBox from "./QrReaderMultiBox";
 
 export const ASSIGN_BOX_TO_SHIPMENT = gql`
@@ -52,25 +54,31 @@ function QrReaderMultiBoxContainer() {
   const onAssignBoxesToShipment = useCallback(() => {}, []);
 
   if (shipmentsQueryResult.loading) {
-    return <div />;
+    return <QrReaderMultiBoxSkeleton />;
   }
 
   // Data preparation
-  const shipmentOptions: IDropdownOption[] = shipmentsQueryResult
-    .data!.shipments.filter((shipment) => shipment.state === ShipmentState.Preparing)
-    .map((shipment) => ({
-      label: `${shipment.targetBase.name} - ${shipment.targetBase.organisation.name}`,
-      value: shipment.id,
-    }));
+  const shipmentOptions: IDropdownOption[] =
+    shipmentsQueryResult.data?.shipments
+      ?.filter((shipment) => shipment.state === ShipmentState.Preparing)
+      ?.map((shipment) => ({
+        label: `${shipment.targetBase.name} - ${shipment.targetBase.organisation.name}`,
+        value: shipment.id,
+      })) ?? [];
 
   return (
-    <QrReaderMultiBox
-      shipmentOptions={shipmentOptions}
-      scannedBoxesCount={scannedBoxesQueryResult.data?.scannedBoxes.length}
-      onDeleteScannedBoxes={onDeleteScannedBoxes}
-      onUndoLastScannedBox={onUndoLastScannedBox}
-      onAssignBoxesToShipment={onAssignBoxesToShipment}
-    />
+    <>
+      {shipmentsQueryResult.error && (
+        <AlertWithoutAction alertText="Could not fetch shipments data! Please try reloading the page." />
+      )}
+      <QrReaderMultiBox
+        shipmentOptions={shipmentOptions}
+        scannedBoxesCount={scannedBoxesQueryResult.data?.scannedBoxes.length}
+        onDeleteScannedBoxes={onDeleteScannedBoxes}
+        onUndoLastScannedBox={onUndoLastScannedBox}
+        onAssignBoxesToShipment={onAssignBoxesToShipment}
+      />
+    </>
   );
 }
 

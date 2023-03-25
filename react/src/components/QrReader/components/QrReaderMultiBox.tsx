@@ -85,34 +85,40 @@ function QrReaderMultiBox({
                 <Text>Tag Boxes</Text>
               </Stack>
             </Radio>
-            <Radio value="assignShipment">
-              <Stack direction="row" alignItems="center" spacing={2}>
-                <ShipmentIcon boxSize={6} />
-                <Text>Assign to Shipment</Text>
-              </Stack>
-            </Radio>
-            {multiBoxAction === "assignShipment" && (
-              <FormControl isRequired>
-                <Select
-                  placeholder="Please select a shipment ..."
-                  isSearchable
-                  tagVariant="outline"
-                  colorScheme="black"
-                  useBasicStyles
-                  focusBorderColor="blue.500"
-                  chakraStyles={{
-                    control: (provided) => ({
-                      ...provided,
-                      border: "2px",
-                      borderRadius: "0",
-                    }),
-                  }}
-                  options={shipmentOptions}
-                  value={selectedShipmentOption}
-                  onChange={setSelectedShipmentOption}
-                />
-                <FormErrorMessage>{false}</FormErrorMessage>
-              </FormControl>
+            {/* show Radio Button only if there are shipments */}
+            {shipmentOptions.length && (
+              <>
+                <Radio value="assignShipment">
+                  <Stack direction="row" alignItems="center" spacing={2}>
+                    <ShipmentIcon boxSize={6} />
+                    <Text>Assign to Shipment</Text>
+                  </Stack>
+                </Radio>
+                {/* show select field only if the radio button is selected */}
+                {multiBoxAction === "assignShipment" && (
+                  <FormControl isRequired>
+                    <Select
+                      placeholder="Please select a shipment ..."
+                      isSearchable
+                      tagVariant="outline"
+                      colorScheme="black"
+                      useBasicStyles
+                      focusBorderColor="blue.500"
+                      chakraStyles={{
+                        control: (provided) => ({
+                          ...provided,
+                          border: "2px",
+                          borderRadius: "0",
+                        }),
+                      }}
+                      options={shipmentOptions}
+                      value={selectedShipmentOption}
+                      onChange={setSelectedShipmentOption}
+                    />
+                    <FormErrorMessage>{false}</FormErrorMessage>
+                  </FormControl>
+                )}
+              </>
             )}
           </Stack>
         </RadioGroup>
