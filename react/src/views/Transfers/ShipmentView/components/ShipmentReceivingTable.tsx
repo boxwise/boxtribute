@@ -69,7 +69,10 @@ function ShipmentReceivingTable({ columns, data }: IShipmentReceivingTablePros) 
                 {headerGroup.headers.map((column) => (
                   // Add the sorting props to control sorting. For this example
                   // we can add them into the header props
-                  <Th {...column.getHeaderProps(column.getSortByToggleProps())}>
+                  <Th
+                    {...column.getHeaderProps(column.getSortByToggleProps())}
+                    style={{ borderBottom: "1px solid black" }}
+                  >
                     <Wrap>
                       <WrapItem>{column.render("Header")}</WrapItem>
                       {/* Add a sort direction indicator */}
@@ -96,15 +99,14 @@ function ShipmentReceivingTable({ columns, data }: IShipmentReceivingTablePros) 
               prepareRow(row);
 
               return (
-                <Tr {...row.getRowProps()}>
+                <Tr {...row.getRowProps()} style={{ border: "1px solid black" }}>
                   <Td
                     colSpan={4}
                     {...row.cells[1].getCellProps()}
                     style={{
-                      whiteSpace: "pre-wrap",
-                      wordWrap: "break-word",
                       fontSize: "xs",
                       overflow: "visible",
+                      border: "1px solid black",
                     }}
                   >
                     <Box>
@@ -120,23 +122,26 @@ function ShipmentReceivingTable({ columns, data }: IShipmentReceivingTablePros) 
                           </Box>
                           <Box color="gray.500">SIZE: {row.cells[0].row.original.size}</Box>
                         </VStack>
-                        <VStack spacing={4} align="flex-start">
-                          <Box fontWeight={row.cells[1].column.isSorted ? "bold" : "normal"}>
+                        <VStack spacing={4}>
+                          <Box
+                            alignItems="flex-start"
+                            fontWeight={row.cells[1].column.isSorted ? "bold" : "normal"}
+                          >
                             {row.cells[0].row.original.product}({row.cells[0].row.original.items}x)
                           </Box>
-                          <Box />
-                        </VStack>
-                        <Spacer />
-                        <VStack spacing={4} align="stretch">
-                          <Box />
                           <Box
                             fontWeight={row.cells[2].column.isSorted ? "bold" : "normal"}
                             color="gray.500"
+                            alignItems="flex-end"
                           >
                             {row.cells[0].row.original.gender === "none"
                               ? ""
                               : row.cells[0].row.original.gender}
                           </Box>
+                        </VStack>
+                        <Spacer />
+                        <VStack spacing={4} align="stretch">
+                          <Box />
                         </VStack>
                       </Flex>
                     </Box>
