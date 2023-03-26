@@ -9,6 +9,8 @@ import {
 } from "hooks/useLabelIdentifierResolver";
 import { IQrResolvedValue, IQrResolverResultKind, useQrResolver } from "hooks/useQrResolver";
 import { useScannedBoxesActions } from "hooks/useScannedBoxesActions";
+import { useReactiveVar } from "@apollo/client";
+import { qrReaderOverlayVar } from "queries/cache";
 import QrReader from "./components/QrReader";
 
 interface IQrReaderContainerProps {
@@ -23,7 +25,8 @@ function QrReaderContainer({ onSuccess }: IQrReaderContainerProps) {
   const { resolveQrCode } = useQrResolver();
   const { loading: findByBoxLabelIsLoading, checkLabelIdentifier } = useLabelIdentifierResolver();
   const { addBox: addBoxToScannedBoxes } = useScannedBoxesActions();
-  const [isMultiBox, setIsMultiBox] = useState(false);
+  const qrReaderOverlayState = useReactiveVar(qrReaderOverlayVar);
+  const [isMultiBox, setIsMultiBox] = useState(!!qrReaderOverlayState.isMultiBox);
   const [isProcessingQrCode, setIsProcessingQrCode] = useState(false);
   const setIsProcessingQrCodeDelayed = useCallback(
     (state: boolean) => {

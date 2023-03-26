@@ -4,12 +4,14 @@ import HeaderMenu, { MenuItemsGroupData } from "./HeaderMenu";
 import { useDisclosure } from "@chakra-ui/react";
 import { GlobalPreferencesContext } from "providers/GlobalPreferencesProvider";
 import QrReaderOverlay from "components/QrReaderOverlay/QrReaderOverlay";
+import { qrReaderOverlayVar } from "queries/cache";
+import { useReactiveVar } from "@apollo/client";
 
 const HeaderMenuContainer = () => {
   const auth0 = useAuth0();
   const { globalPreferences } = useContext(GlobalPreferencesContext);
   const baseId = globalPreferences.selectedBaseId!;
-  const qrReaderOverlayState = useDisclosure({ defaultIsOpen: false });
+  const qrReaderOverlayState = useReactiveVar(qrReaderOverlayVar);
 
   const menuItems: MenuItemsGroupData[] = useMemo(
     () => [
@@ -92,11 +94,11 @@ const HeaderMenuContainer = () => {
         menuItemsGroups={menuItems}
         currentActiveBaseId={baseId}
         availableBases={globalPreferences.availableBases}
-        onClickScanQrCode={() => qrReaderOverlayState.onOpen()}
+        onClickScanQrCode={() => qrReaderOverlayVar({isOpen: true})}
       />
       <QrReaderOverlay
         isOpen={qrReaderOverlayState.isOpen}
-        onClose={qrReaderOverlayState.onClose}
+        onClose={() => qrReaderOverlayVar({isOpen: false})}
       />
     </>
   );

@@ -1,4 +1,4 @@
-import { InMemoryCache } from "@apollo/client";
+import { InMemoryCache, makeVar } from "@apollo/client";
 import { IScannedBoxesData } from "types/graphql-local-only";
 import { GET_SCANNED_BOXES } from "./local-only";
 
@@ -22,3 +22,12 @@ cache.writeQuery({
     scannedBoxes: [],
   } as IScannedBoxesData,
 });
+
+// apollo reactive variable for QrReaderOverlay
+export interface IQrReaderOverlayVar {
+  isOpen: boolean;
+  isMultiBox?: boolean;
+  selectedShipmentId?: string;
+}
+
+export const qrReaderOverlayVar = makeVar<IQrReaderOverlayVar>({ isOpen: false });
