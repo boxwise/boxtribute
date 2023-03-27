@@ -1,7 +1,7 @@
 """Construction of routes for web app and API"""
 import os
 
-from ariadne.constants import PLAYGROUND_HTML
+from ariadne.explorer import ExplorerPlayground
 from flask import Blueprint, jsonify, request
 from flask_cors import cross_origin
 
@@ -37,6 +37,9 @@ def public():
         "Hello from a public endpoint! You don't need to be authenticated to see this."
     )
     return jsonify(message=response)
+
+
+PLAYGROUND_HTML = ExplorerPlayground(title="boxtribute API").html(None)
 
 
 @api_bp.route("/", methods=["GET"])
