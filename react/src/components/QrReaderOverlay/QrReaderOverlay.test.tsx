@@ -292,7 +292,7 @@ it("3.4.2.5a - Mobile: User scans non Boxtribute QR code", async () => {
   await user.click(screen.getByTestId("ReturnScannedQr"));
 
   // error message appears
-  expect(await screen.findByText(/This is not a Boxtribute QR-Code/i)).toBeInTheDocument();
+  expect(await screen.findByText(/This is not a Boxtribute QR code/i)).toBeInTheDocument();
   // QrOverlay stays open
   expect(screen.getByTestId("ReturnScannedQr")).toBeInTheDocument();
 }, 10000);
@@ -329,7 +329,7 @@ it("3.4.2.5b - Mobile: User scans non Boxtribute QR code", async () => {
 
   // error message appears
   expect(
-    (await screen.findAllByText(/No box found for this QR-Code/i)).length,
+    (await screen.findAllByText(/No box found for this QR code/i)).length,
   ).toBeGreaterThanOrEqual(1);
   // QrOverlay stays open
   expect(screen.getByTestId("ReturnScannedQr")).toBeInTheDocument();
@@ -366,7 +366,7 @@ it("3.4.2.5c - Internal Server Error", async () => {
   await user.click(screen.getByTestId("ReturnScannedQr"));
 
   // error message appears
-  expect(await screen.findByText(/The search for this QR-Code failed/i)).toBeInTheDocument();
+  expect(await screen.findByText(/QR code lookup failed/i)).toBeInTheDocument();
   // QrOverlay stays open
   expect(screen.getByTestId("ReturnScannedQr")).toBeInTheDocument();
 }, 10000);
