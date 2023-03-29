@@ -14,12 +14,10 @@ import {
   Thead,
   Tr,
   useBreakpointValue,
-  VStack,
   Wrap,
   WrapItem,
 } from "@chakra-ui/react";
 import { useMemo } from "react";
-import { RiArrowDownSFill, RiArrowUpSFill } from "react-icons/ri";
 import { BsFillChatDotsFill } from "react-icons/bs";
 
 import { Column, useTable, useSortBy } from "react-table";
