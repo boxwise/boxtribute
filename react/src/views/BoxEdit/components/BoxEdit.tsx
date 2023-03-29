@@ -23,6 +23,7 @@ import _ from "lodash";
 import { useNavigate, useParams } from "react-router-dom";
 import { useForm } from "react-hook-form";
 import { GlobalPreferencesContext } from "providers/GlobalPreferencesProvider";
+import { useNotification } from "hooks/useNotification";
 
 export interface ICategoryData {
   name: string;
@@ -110,6 +111,7 @@ function BoxEdit({
     labelIdentifier: string;
   }>();
   const navigate = useNavigate();
+  const { createToast, toastIsActive } = useNotification("softDeletedProduct");
 
   // Form Default Values
   const defaultValues: IBoxEditFormData = {
@@ -129,6 +131,12 @@ function BoxEdit({
 
   if (boxData?.product?.deletedOn !== null) {
     defaultValues.productId = { label: "", value: "" };
+    if (!toastIsActive!()) {
+      createToast({
+        message: "The product assigned to this box no longer exists. Please select another one.",
+        type: "warning",
+      });
+    }
   }
 
   // Option Preparations for select fields
