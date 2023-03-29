@@ -46,6 +46,20 @@ const initialQueryNetworkError = {
   },
 };
 
+const initialRecevingUiQuery = {
+  request: {
+    query: SHIPMENT_BY_ID_QUERY,
+    variables: {
+      id: "1",
+    },
+  },
+  result: {
+    data: {
+      shipment: generateMockShipment({ state: ShipmentState.Receiving }),
+    },
+  },
+};
+
 describe("4.5 Test Cases", () => {
   beforeEach(() => {
     // we need to mock matchmedia
@@ -153,4 +167,35 @@ describe("4.5 Test Cases", () => {
       await screen.findByText(/could not fetch Shipment data! Please try reloading the page./i),
     ).toBeInTheDocument();
   });
+
+  // Test case 4.5.3
+  it("4.5.3 - Initial load of Receiving UI", async () => {
+    //   const user = userEvent.setup();
+    render(<ShipmentView />, {
+      routePath: "/bases/:baseId/transfers/shipments/:id",
+      initialUrl: "/bases/1/transfers/shipments/1",
+      mocks: [initialRecevingUiQuery],
+      addTypename: true,
+      globalPreferences: {
+        dispatch: jest.fn(),
+        globalPreferences: {
+          selectedOrganisationId: organisation1.id,
+          availableBases: organisation1.bases,
+        },
+      },
+    });
+
+    // eslint-disable-next-line testing-library/prefer-presence-queries
+    expect(screen.getByTestId("loader")).toBeInTheDocument();
+
+    await waitFor(() => {
+      const title = screen.getByText(/Receive Shipment/i);
+      expect(title);
+    });
+
+    // eslint-disable-next-line max-len
+    expect(
+      screen.getByRole("cell", { name: /124 long sleeves\(12x\) size: mixed/i }),
+    ).toBeInTheDocument();
+  }, 10000);
 });
