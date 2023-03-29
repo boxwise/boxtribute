@@ -25,13 +25,13 @@ function ShipmentReceivingCard({ shipment }: IShipmentReceivingCardProps) {
                 <WrapItem>{shipment?.id}</WrapItem>
               </Wrap>
             </Heading>
-            <Text>
+            <Heading>
               <Wrap fontSize="md">
                 <WrapItem color="gray.500">From:</WrapItem>
                 <WrapItem fontWeight="bold">{shipment?.sourceBase.name}</WrapItem>
                 <WrapItem>{shipment?.sourceBase.organisation.name}</WrapItem>
               </Wrap>
-            </Text>
+            </Heading>
           </VStack>
         </Box>
         <Spacer />

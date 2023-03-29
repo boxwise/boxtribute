@@ -37,10 +37,6 @@ function ShipmentReceivingContent({ items }: IShipmentReceivingContentProps) {
         Header: "Gender",
         accessor: "gender",
       },
-      {
-        id: "id",
-        Header: "",
-      },
     ],
     [],
   );
