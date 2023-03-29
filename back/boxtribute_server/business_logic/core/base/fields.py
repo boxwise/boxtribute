@@ -23,7 +23,7 @@ def resolve_base_products(base_obj, *_):
     return Product.select().where(
         Product.base == base_obj.id,
         # work-around for 0000-00-00 00:00:00 datetime fields in database
-        (Product.deleted.is_null() | (Product.deleted == 0)),
+        (Product.deleted_on.is_null() | (Product.deleted_on == 0)),
     )
 
 
