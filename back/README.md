@@ -318,7 +318,7 @@ and inspect the reported output. Open the HTML report via `back/htmlcov/index.ht
 
 The following diagram shows the responsibilities of and the relationships between the back-end components.
 
-![C4 back-end components](docs/c4-backend-components.jpg)
+![C4 back-end components](../docs/c4-backend-components.jpg)
 
 ## GraphQL API
 

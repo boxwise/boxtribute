@@ -67,24 +67,6 @@ class Box(db.Model):
         on_delete="SET NULL",
         on_update="CASCADE",
     )
-    ordered = DateTimeField(null=True)
-    ordered_by = UIntForeignKeyField(
-        model=User,
-        column_name="ordered_by",
-        field="id",
-        null=True,
-        on_delete="SET NULL",
-        on_update="CASCADE",
-    )
-    picked = IntegerField(null=True)
-    picked_by = UIntForeignKeyField(
-        model=User,
-        column_name="picked_by",
-        field="id",
-        null=True,
-        on_delete="SET NULL",
-        on_update="CASCADE",
-    )
     product = UIntForeignKeyField(
         column_name="product_id",
         field="id",
