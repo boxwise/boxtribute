@@ -26,6 +26,7 @@ export function mockImplementationOfQrReader(
       data-testid="ReturnScannedQr"
       onClick={() =>
         props.onResult(
+          false, // multiScan
           new Result(
             isBoxtributeQr ? `barcode=${hash}` : "nonBoxtributeQr",
             new Uint8Array([0]),
