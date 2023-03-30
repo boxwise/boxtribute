@@ -32,6 +32,7 @@ import {
   RemoveBoxFromShipmentMutationVariables,
   UpdateShipmentWhenReceivingMutation,
   UpdateShipmentWhenReceivingMutationVariables,
+  BoxState,
 } from "types/generated/graphql";
 import { useErrorHandling } from "hooks/useErrorHandling";
 import { useNotification } from "hooks/useNotification";
@@ -169,12 +170,10 @@ function ShipmentView() {
     SendShipmentMutationVariables
   >(SEND_SHIPMENT);
 
-  // eslint-disable-next-line no-unused-vars, @typescript-eslint/no-unused-vars
   const [startReceivingShipment, startReceivingShipmentStatus] = useMutation<
     StartReceivingShipmentMutation,
     StartReceivingShipmentMutationVariables
   >(START_RECEIVING_SHIPMENT);
-  // eslint-disable-next-line no-unused-vars, @typescript-eslint/no-unused-vars
   const [updateShipmentWhenReceiving, updateShipmentWhenReceivingStatus] = useMutation<
     UpdateShipmentWhenReceivingMutation,
     UpdateShipmentWhenReceivingMutationVariables
@@ -234,6 +233,37 @@ function ShipmentView() {
   }, [setShipmentOverlayData, onOpen, data]);
 
   const onMinusClick = () => setShowRemoveIcon(!showRemoveIcon);
+
+  const onRemainingBoxesUndelivered = useCallback(() => {
+    const lostBoxLabelIdentifiers = data?.shipment?.details
+      .filter((shipmentDetail) => shipmentDetail.box.state === BoxState.MarkedForShipment)
+      .map((shipmentDetail) => shipmentDetail.box.labelIdentifier) as string[];
+
+    updateShipmentWhenReceiving({
+      variables: {
+        id: shipmentId,
+        lostBoxLabelIdentifiers,
+      },
+    })
+      .then((mutationResult) => {
+        if (mutationResult?.errors) {
+          triggerError({
+            message: "Error: Could not change state of remaining boxes.",
+          });
+        } else {
+          createToast({
+            title: `Box ${lostBoxLabelIdentifiers}`,
+            type: "success",
+            message: "Changed the state of remaining boxes to undelivered",
+          });
+        }
+      })
+      .catch(() => {
+        triggerError({
+          message: "Could not remove the box from the shipment.",
+        });
+      });
+  }, [triggerError, createToast, updateShipmentWhenReceiving, data, shipmentId]);
 
   const onRemoveBox = useCallback(
     (boxLabelIdentifier: string) => {
@@ -385,6 +415,8 @@ function ShipmentView() {
         onCancel={onCancel}
         onReceive={onReceive}
         onSend={onSend}
+        // TODO:
+        onRemainingBoxesUndelivered={onRemainingBoxesUndelivered}
         isSender={isSender}
       />
     );
@@ -435,6 +467,7 @@ function ShipmentView() {
             <Heading>Receive Shipment</Heading>
             <ShipmentReceivingCard shipment={data?.shipment! as Shipment} />
             <ShipmentReceivingContent items={shipmentContents} />
+            {shipmentActionButtons}
           </>
         )}
       </Flex>
