@@ -151,7 +151,7 @@ enum BoxState {
   InStock
   Lost
   MarkedForShipment
-  Received
+  Receiving
   Donated
   Scrap
 }

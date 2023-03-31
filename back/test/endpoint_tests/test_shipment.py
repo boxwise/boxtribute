@@ -478,7 +478,7 @@ def test_shipment_mutations_on_target_side(
         "details": [
             {
                 "id": detail_id,
-                "box": {"state": BoxState.Received.name},
+                "box": {"state": BoxState.Receiving.name},
                 "targetProduct": {"id": target_product_id},
                 "targetLocation": {"id": target_location_id},
             },

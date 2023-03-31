@@ -234,7 +234,7 @@ def _update_shipment_with_received_boxes(
     *, shipment, user_id, shipment_detail_update_inputs
 ):
     """Check in all given boxes by updating shipment details (target product and
-    location). Transition the corresponding box's state to 'Received'.
+    location). Transition the corresponding box's state to 'Receiving'.
     If boxes are requested to be checked-in with a location or a product that is not
     registered in the target base, they are silently discarded.
     """
@@ -265,7 +265,7 @@ def _update_shipment_with_received_boxes(
 
         detail.target_product = target_product_id
         detail.target_location = target_location_id
-        detail.box.state = BoxState.Received
+        detail.box.state = BoxState.Receiving
         details.append(detail)
 
     if details:
@@ -276,14 +276,14 @@ def _update_shipment_with_received_boxes(
 
 
 def _complete_shipment_if_applicable(*, shipment, user_id):
-    """If all boxes of the shipment are marked as Received or Lost, transition the
+    """If all boxes of the shipment are marked as Receiving or Lost, transition the
     shipment state to 'Completed', soft-delete the corresponding shipment details,
     assign target product and location to boxes, and transition received boxes to
     'InStock'.
-    Remove all assigned tags from Received boxes.
+    Remove all assigned tags from Receiving boxes.
     """
     details = _retrieve_shipment_details(shipment.id)
-    if all(d.box.state_id in [BoxState.Received, BoxState.Lost] for d in details):
+    if all(d.box.state_id in [BoxState.Receiving, BoxState.Lost] for d in details):
         now = utcnow()
         shipment.state = ShipmentState.Completed
         shipment.completed_by = user_id
@@ -296,7 +296,7 @@ def _complete_shipment_if_applicable(*, shipment, user_id):
             detail.deleted_on = now
             detail.box.product = detail.target_product
             detail.box.location = detail.target_location
-            if detail.box.state_id == BoxState.Received:
+            if detail.box.state_id == BoxState.Receiving:
                 detail.box.state = BoxState.InStock
                 received_boxes.append(detail.box)
 
