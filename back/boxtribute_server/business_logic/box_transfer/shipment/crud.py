@@ -150,6 +150,7 @@ def send_shipment(*, id, user):
 
 def start_receiving_shipment(*, id, user):
     """Transition state of specified shipment to 'Receiving'.
+    Transition states of all contained boxes to 'Receiving'.
     Raise InvalidShipmentState exception if shipment state is different from 'Sent'.
     """
     shipment = Shipment.get_by_id(id)
@@ -160,7 +161,15 @@ def start_receiving_shipment(*, id, user):
     shipment.state = ShipmentState.Receiving
     shipment.receiving_started_by = user.id
     shipment.receiving_started_on = utcnow()
-    shipment.save()
+
+    boxes = [detail.box for detail in _retrieve_shipment_details(id)]
+    for box in boxes:
+        box.state = BoxState.Receiving
+
+    with db.database.atomic():
+        shipment.save()
+        if boxes:
+            Box.bulk_update(boxes, fields=[Box.state])
     return shipment
 
 
@@ -233,8 +242,10 @@ def _remove_boxes_from_shipment(
 def _update_shipment_with_received_boxes(
     *, shipment, user_id, shipment_detail_update_inputs
 ):
-    """Check in all given boxes by updating shipment details (target product and
-    location). Transition the corresponding box's state to 'Receiving'.
+    """Move boxes from the shipment into stock of the target base.
+    Update shipment details (target product and location). Transition the corresponding
+    box's state to 'InStock' and assign target product and location.
+    Remove all assigned tags from received boxes.
     If boxes are requested to be checked-in with a location or a product that is not
     registered in the target base, they are silently discarded.
     """
@@ -265,49 +276,42 @@ def _update_shipment_with_received_boxes(
 
         detail.target_product = target_product_id
         detail.target_location = target_location_id
-        detail.box.state = BoxState.Receiving
+        detail.box.product = target_product_id
+        detail.box.location = target_location_id
+        detail.box.state = BoxState.InStock
         details.append(detail)
 
     if details:
-        Box.bulk_update([d.box for d in details], [Box.state])
+        checked_in_boxes = [d.box for d in details]
+        Box.bulk_update(checked_in_boxes, [Box.state, Box.product, Box.location])
         ShipmentDetail.bulk_update(
             details, [ShipmentDetail.target_product, ShipmentDetail.target_location]
         )
+        TagsRelation.delete().where(
+            (TagsRelation.object_type == TaggableObjectType.Box),
+            TagsRelation.object_id << [box.id for box in checked_in_boxes],
+        ).execute()
 
 
 def _complete_shipment_if_applicable(*, shipment, user_id):
-    """If all boxes of the shipment are marked as Receiving or Lost, transition the
-    shipment state to 'Completed', soft-delete the corresponding shipment details,
-    assign target product and location to boxes, and transition received boxes to
-    'InStock'.
-    Remove all assigned tags from Receiving boxes.
+    """If all boxes of the shipment are marked as InStock or Lost, transition the
+    shipment state to 'Completed', and soft-delete the corresponding shipment details.
     """
     details = _retrieve_shipment_details(shipment.id)
-    if all(d.box.state_id in [BoxState.Receiving, BoxState.Lost] for d in details):
+    if all(d.box.state_id in [BoxState.InStock, BoxState.Lost] for d in details):
         now = utcnow()
         shipment.state = ShipmentState.Completed
         shipment.completed_by = user_id
         shipment.completed_on = now
         shipment.save()
 
-        received_boxes = []
         for detail in details:
             detail.deleted_by = user_id
             detail.deleted_on = now
-            detail.box.product = detail.target_product
-            detail.box.location = detail.target_location
-            if detail.box.state_id == BoxState.Receiving:
-                detail.box.state = BoxState.InStock
-                received_boxes.append(detail.box)
 
-        Box.bulk_update(received_boxes, [Box.product, Box.location, Box.state])
         ShipmentDetail.bulk_update(
             details, [ShipmentDetail.deleted_on, ShipmentDetail.deleted_by]
         )
-        TagsRelation.delete().where(
-            (TagsRelation.object_type == TaggableObjectType.Box),
-            TagsRelation.object_id << [box.id for box in received_boxes],
-        ).execute()
 
 
 def update_shipment_when_preparing(

@@ -452,6 +452,7 @@ def test_shipment_mutations_on_target_side(
                     state
                     receivingStartedBy {{ id }}
                     receivingStartedOn
+                    details {{ box {{ state }} }}
                 }} }}"""
     shipment = assert_successful_request(client, mutation)
     assert shipment.pop("receivingStartedOn").startswith(date.today().isoformat())
@@ -459,6 +460,7 @@ def test_shipment_mutations_on_target_side(
         "id": shipment_id,
         "state": ShipmentState.Receiving.name,
         "receivingStartedBy": {"id": "2"},
+        "details": [{"box": {"state": BoxState.Receiving.name}}] * 2,
     }
 
     # Test case 3.2.34a
@@ -478,13 +480,13 @@ def test_shipment_mutations_on_target_side(
         "details": [
             {
                 "id": detail_id,
-                "box": {"state": BoxState.Receiving.name},
+                "box": {"state": BoxState.InStock.name},
                 "targetProduct": {"id": target_product_id},
                 "targetLocation": {"id": target_location_id},
             },
             {
                 "id": another_detail_id,
-                "box": {"state": BoxState.MarkedForShipment.name},
+                "box": {"state": BoxState.Receiving.name},
                 "targetProduct": None,
                 "targetLocation": None,
             },
