@@ -385,6 +385,7 @@ def test_shipment_mutations_on_target_side(
     sent_shipment,
     default_shipment_detail,
     another_shipment_detail,
+    removed_shipment_detail,
     another_location,
     another_product,
     default_product,
@@ -422,6 +423,7 @@ def test_shipment_mutations_on_target_side(
     shipment_id = str(sent_shipment["id"])
     detail_id = str(default_shipment_detail["id"])
     another_detail_id = str(another_shipment_detail["id"])
+    removed_detail_id = str(removed_shipment_detail["id"])
 
     def _create_mutation(*, detail_id, target_product_id, target_location_id):
         update_input = f"""id: {shipment_id},
@@ -460,7 +462,11 @@ def test_shipment_mutations_on_target_side(
         "id": shipment_id,
         "state": ShipmentState.Receiving.name,
         "receivingStartedBy": {"id": "2"},
-        "details": [{"box": {"state": BoxState.Receiving.name}}] * 2,
+        "details": [
+            {"box": {"state": BoxState.Receiving.name}},
+            {"box": {"state": BoxState.Receiving.name}},
+            {"box": {"state": BoxState.InStock.name}},
+        ],
     }
 
     # Test case 3.2.34a
@@ -487,6 +493,12 @@ def test_shipment_mutations_on_target_side(
             {
                 "id": another_detail_id,
                 "box": {"state": BoxState.Receiving.name},
+                "targetProduct": None,
+                "targetLocation": None,
+            },
+            {
+                "id": removed_detail_id,
+                "box": {"state": BoxState.InStock.name},
                 "targetProduct": None,
                 "targetLocation": None,
             },
@@ -544,13 +556,13 @@ def test_shipment_mutations_on_target_side(
         "completedBy": {"id": "2"},
         "details": [
             {
-                "id": str(detail["id"]),
+                "id": i,
                 "deletedBy": {"id": "2"},
                 "box": {"state": box_state},
             }
-            for detail, box_state in zip(
-                [default_shipment_detail, another_shipment_detail],
-                [BoxState.InStock.name, BoxState.Lost.name],
+            for i, box_state in zip(
+                [detail_id, another_detail_id, removed_detail_id],
+                [BoxState.InStock.name, BoxState.Lost.name, BoxState.InStock.name],
             )
         ],
     }
@@ -590,6 +602,7 @@ def test_shipment_mutations_on_target_side_mark_shipment_as_lost(
     sent_shipment,
     default_shipment_detail,
     another_shipment_detail,
+    removed_shipment_detail,
 ):
     mocker.patch("jose.jwt.decode").return_value = create_jwt_payload(
         base_ids=[3], organisation_id=2, user_id=2
@@ -615,9 +628,16 @@ def test_shipment_mutations_on_target_side_mark_shipment_as_lost(
             {
                 "id": str(detail["id"]),
                 "deletedBy": {"id": "2"},
-                "box": {"state": BoxState.Lost.name},
+                "box": {"state": box_state.name},
             }
-            for detail in [default_shipment_detail, another_shipment_detail]
+            for detail, box_state in zip(
+                [
+                    default_shipment_detail,
+                    another_shipment_detail,
+                    removed_shipment_detail,
+                ],
+                [BoxState.Lost, BoxState.Lost, BoxState.InStock],
+            )
         ],
     }
 
