@@ -251,6 +251,7 @@ function ShipmentView() {
             message: "Error: Could not change state of remaining boxes.",
           });
         } else {
+          onClose();
           createToast({
             title: `Box ${lostBoxLabelIdentifiers}`,
             type: "success",
@@ -263,7 +264,7 @@ function ShipmentView() {
           message: "Could not remove the box from the shipment.",
         });
       });
-  }, [triggerError, createToast, updateShipmentWhenReceiving, data, shipmentId]);
+  }, [triggerError, createToast, updateShipmentWhenReceiving, data, shipmentId, onClose]);
 
   const onRemoveBox = useCallback(
     (boxLabelIdentifier: string) => {
