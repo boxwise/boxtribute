@@ -304,10 +304,11 @@ function ShipmentView() {
 
   // transform shipment data for UI
   const shipmentState = data?.shipment?.state;
-  const shipmentContents = (data?.shipment?.details ?? []) as ShipmentDetail[];
+  const shipmentContents = (data?.shipment?.details.filter((item) => item.deletedOn === null) ??
+    []) as ShipmentDetail[];
 
   // map over each ShipmentDetail to compile its history records
-  const historyEntries = shipmentContents?.flatMap((detail) => ({
+  const historyEntries = (data?.shipment?.details! as ShipmentDetail[])?.flatMap((detail) => ({
     ...detail,
     labelIdentifier: detail.box?.labelIdentifier,
   }));
