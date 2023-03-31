@@ -423,7 +423,6 @@ function ShipmentView() {
 
     shipmentTab = (
       <ShipmentTabs
-        showReceivingTable={shipmentState === ShipmentState.Receiving}
         detail={shipmentContents}
         histories={sortedGroupedHistoryEntries}
         isLoadingMutation={isLoadingFromMutation}
