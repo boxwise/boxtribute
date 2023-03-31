@@ -13,7 +13,9 @@ from utils import (
 )
 
 
-def test_box_query_by_label_identifier(read_only_client, default_box, tags):
+def test_box_query_by_label_identifier(
+    read_only_client, default_box, tags, box_without_qr_code, default_shipment_detail
+):
     # Test case 8.1.1
     label_identifier = default_box["label_identifier"]
     query = f"""query {{
@@ -33,6 +35,7 @@ def test_box_query_by_label_identifier(read_only_client, default_box, tags):
                         name
                         color
                     }}
+                    shipmentDetail {{ id }}
                 }}
             }}"""
     queried_box = assert_successful_request(read_only_client, query)
@@ -54,7 +57,16 @@ def test_box_query_by_label_identifier(read_only_client, default_box, tags):
                 "color": tags[1]["color"],
             }
         ],
+        "shipmentDetail": None,
     }
+
+    label_identifier = box_without_qr_code["label_identifier"]
+    query = f"""query {{
+                box(labelIdentifier: "{label_identifier}") {{
+                    shipmentDetail {{ id }}
+                }} }}"""
+    queried_box = assert_successful_request(read_only_client, query)
+    assert queried_box == {"shipmentDetail": {"id": str(default_shipment_detail["id"])}}
 
 
 def test_box_query_by_qr_code(read_only_client, default_box, default_qr_code):

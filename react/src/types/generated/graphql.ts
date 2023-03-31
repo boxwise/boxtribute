@@ -171,6 +171,8 @@ export type Box = ItemsCollection & {
   numberOfItems?: Maybe<Scalars['Int']>;
   product?: Maybe<Product>;
   qrCode?: Maybe<QrCode>;
+  /**  Returns null if box is not part of an active shipment  */
+  shipmentDetail?: Maybe<ShipmentDetail>;
   size: Size;
   state: BoxState;
   tags?: Maybe<Array<Tag>>;
