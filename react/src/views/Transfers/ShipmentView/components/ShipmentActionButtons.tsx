@@ -14,7 +14,7 @@ export interface IShipmentActionButtonsProps {
   onLost: () => void;
   onSend: () => void;
   onReceive: () => void;
-  onRemainingBoxesUndelivered: () => void;
+  openShipmentOverlay: () => void;
 }
 
 function ShipmentActionButtons({
@@ -26,7 +26,7 @@ function ShipmentActionButtons({
   onLost,
   onSend,
   onReceive,
-  onRemainingBoxesUndelivered,
+  openShipmentOverlay,
 }: IShipmentActionButtonsProps) {
   const sendButtonProps = {
     leftIcon: <SendingIcon />,
@@ -75,7 +75,7 @@ function ShipmentActionButtons({
     isDisabled: shipmentContents.length === 0,
     isLoading: isLoadingFromMutation,
     variant: "ghost",
-    onClick: onRemainingBoxesUndelivered,
+    onClick: openShipmentOverlay,
     size: "md",
     marginTop: 2,
   };

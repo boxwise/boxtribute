@@ -54,10 +54,10 @@ function ShipmentReceivingCard({ shipment }: IShipmentReceivingCardProps) {
                 <WrapItem fontWeight="extrabold" fontSize="lg">
                   {
                     shipment.details.filter(
-                      (b) => b.deletedOn === null && b.box.state !== BoxState.Received,
+                      (b) => b.deletedOn === null || b.box.state !== BoxState.Received,
                     ).length
                   }{" "}
-                  / {shipment.details.filter((b) => b.deletedOn === null).length}
+                  / {shipment.details.length}
                 </WrapItem>
                 <WrapItem>
                   <Center>

@@ -415,8 +415,7 @@ function ShipmentView() {
         onCancel={onCancel}
         onReceive={onReceive}
         onSend={onSend}
-        // TODO:
-        onRemainingBoxesUndelivered={onRemainingBoxesUndelivered}
+        openShipmentOverlay={openShipmentOverlay}
         isSender={isSender}
       />
     );
@@ -476,6 +475,7 @@ function ShipmentView() {
         isOpen={isOpen}
         isLoading={isLoadingFromMutation}
         shipmentOverlayData={shipmentOverlayData}
+        onRemainingBoxesUndelivered={onRemainingBoxesUndelivered}
         onClose={onClose}
         onCancel={onCancel}
       />
