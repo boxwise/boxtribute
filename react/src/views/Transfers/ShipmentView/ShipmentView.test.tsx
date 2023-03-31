@@ -97,7 +97,7 @@ describe("4.5 Test Cases", () => {
     // Test case 4.5.1.2 - Content: Displays Shipment status
     expect(screen.getByText(/PREPARING/)).toBeInTheDocument();
     // // Test case 4.5.1.3 - Content: Displays total number of boxes
-    expect(screen.getByRole("heading", { name: /3/i })).toBeInTheDocument();
+    expect(screen.getByRole("heading", { name: /\b2\b/i })).toBeInTheDocument();
     // // Test case 4.5.1.5 - Displays Content tab initially
     expect(screen.getByRole("tab", { name: /content/i, selected: true })).toHaveTextContent(
       "Content",
