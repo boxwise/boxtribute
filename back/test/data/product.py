@@ -23,7 +23,7 @@ def data():
             "in_shop": 0,
             "price": 1,
             "created_by": default_user_data()["id"],
-            "deleted": None,
+            "deleted_on": None,
         },
         {
             "id": 2,
@@ -35,7 +35,7 @@ def data():
             "in_shop": 0,
             "price": 1,
             "created_by": default_user_data()["id"],
-            "deleted": None,
+            "deleted_on": None,
         },
         {
             "id": 3,
@@ -47,7 +47,7 @@ def data():
             "in_shop": 0,
             "price": 1,
             "created_by": default_user_data()["id"],
-            "deleted": None,
+            "deleted_on": None,
         },
         {
             "id": 4,
@@ -59,7 +59,7 @@ def data():
             "in_shop": 0,
             "price": 1,
             "created_by": default_user_data()["id"],
-            "deleted": datetime(2022, 1, 1),
+            "deleted_on": datetime(2022, 1, 1),
         },
     ]
 

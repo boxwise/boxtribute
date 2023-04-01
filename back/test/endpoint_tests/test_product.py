@@ -31,7 +31,7 @@ def test_product_query(read_only_client, default_product, default_size, another_
         "price": default_product["price"],
         "gender": "Women",
         "createdBy": {"id": str(default_product["created_by"])},
-        "deletedOn": default_product["deleted"],
+        "deletedOn": default_product["deleted_on"],
     }
 
 
