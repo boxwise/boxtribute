@@ -6,7 +6,7 @@ PyMySQL==1.0.2
 peewee==3.16.0
 peewee-moves==2.1.0
 python-dateutil==2.8.2
-python-dotenv==0.21.1
+python-dotenv==1.0.0
 python-jose==3.3.0
 aiodataloader==0.3.0
 gunicorn
