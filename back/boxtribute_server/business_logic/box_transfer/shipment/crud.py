@@ -253,7 +253,8 @@ def _update_shipment_with_received_boxes(
     box's state to 'InStock' and assign target product and location.
     Remove all assigned tags from received boxes.
     If boxes are requested to be checked-in with a location or a product that is not
-    registered in the target base, they are silently discarded.
+    registered in the target base, or with a state other than 'Receiving', they are
+    silently discarded.
     """
     # Transform input list into dict for easy look-up
     update_inputs = {
@@ -273,10 +274,14 @@ def _update_shipment_with_received_boxes(
         target_product_id = update_input["target_product_id"]
         target_location_id = update_input["target_location_id"]
 
-        if not _validate_base_as_part_of_shipment(
-            target_location_id, detail=detail, model=Location
-        ) or not _validate_base_as_part_of_shipment(
-            target_product_id, detail=detail, model=Product
+        if (
+            not _validate_base_as_part_of_shipment(
+                target_location_id, detail=detail, model=Location
+            )
+            or not _validate_base_as_part_of_shipment(
+                target_product_id, detail=detail, model=Product
+            )
+            or detail.box.state_id != BoxState.Receiving
         ):
             continue
 
