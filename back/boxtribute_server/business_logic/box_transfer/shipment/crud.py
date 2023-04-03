@@ -90,10 +90,11 @@ def _retrieve_shipment_details(shipment_id, *conditions, model=Box):
     """Retrieve details of shipment with given ID, taking optional conditions for
     selecting, and an additional model to select and join with into account.
     """
-    condition = ShipmentDetail.shipment == shipment_id
-    for cond in conditions:
-        condition &= cond
-    return ShipmentDetail.select(ShipmentDetail, model).join(model).where(condition)
+    return (
+        ShipmentDetail.select(ShipmentDetail, model)
+        .join(model)
+        .where(ShipmentDetail.shipment == shipment_id, *conditions)
+    )
 
 
 def cancel_shipment(*, id, user):
