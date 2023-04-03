@@ -4,6 +4,7 @@ from aiodataloader import DataLoader
 
 from ..authz import authorize, authorized_bases_filter
 from ..enums import TaggableObjectType
+from ..models.definitions.location import Location
 from ..models.definitions.product import Product
 from ..models.definitions.product_category import ProductCategory
 from ..models.definitions.size import Size
@@ -21,6 +22,17 @@ class ProductLoader(DataLoader):
             )
         }
         return [products.get(i) for i in keys]
+
+
+class LocationLoader(DataLoader):
+    async def batch_load_fn(self, keys):
+        locations = {
+            loc.id: loc
+            for loc in Location.select().where(
+                Location.id << keys, authorized_bases_filter(Location)
+            )
+        }
+        return [locations.get(i) for i in keys]
 
 
 class SizeLoader(DataLoader):
