@@ -21,6 +21,18 @@ class ShipmentDetail(db.Model):
     )
     created_on = DateTimeField(default=utcnow)
     created_by = UIntForeignKeyField(model=User, on_update="CASCADE")
+    removed_on = DateTimeField(null=True)
+    removed_by = UIntForeignKeyField(
+        model=User, on_update="CASCADE", on_delete="SET NULL", null=True
+    )
+    lost_on = DateTimeField(null=True)
+    lost_by = UIntForeignKeyField(
+        model=User, on_update="CASCADE", on_delete="SET NULL", null=True
+    )
+    received_on = DateTimeField(null=True)
+    received_by = UIntForeignKeyField(
+        model=User, on_update="CASCADE", on_delete="SET NULL", null=True
+    )
     deleted_on = DateTimeField(null=True)
     deleted_by = UIntForeignKeyField(
         model=User, on_update="CASCADE", on_delete="SET NULL", null=True
