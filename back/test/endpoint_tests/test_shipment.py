@@ -166,8 +166,8 @@ def test_shipment_mutations_on_source_side(
                         targetLocation {{ id }}
                         createdBy {{ id }}
                         createdOn
-                        deletedBy {{ id }}
-                        deletedOn
+                        removedBy {{ id }}
+                        removedOn
                     }}
                 }} }}"""
     shipment = assert_successful_request(client, mutation)
@@ -196,8 +196,8 @@ def test_shipment_mutations_on_source_side(
                 },
                 "targetLocation": None,
                 "createdBy": {"id": "1"},
-                "deletedBy": None,
-                "deletedOn": None,
+                "removedBy": None,
+                "removedOn": None,
             },
             {
                 "shipment": {"id": shipment_id},
@@ -211,8 +211,8 @@ def test_shipment_mutations_on_source_side(
                 "sourceLocation": {"id": str(default_box["location"])},
                 "targetLocation": None,
                 "createdBy": {"id": "8"},
-                "deletedBy": None,
-                "deletedOn": None,
+                "removedBy": None,
+                "removedOn": None,
             },
         ],
     }
@@ -249,19 +249,19 @@ def test_shipment_mutations_on_source_side(
                     state
                     details {{
                         id
-                        deletedOn
-                        deletedBy {{ id }}
+                        removedOn
+                        removedBy {{ id }}
                         box {{ state }}
                     }}
                 }} }}"""
     shipment = assert_successful_request(client, mutation)
-    assert shipment["details"][0].pop("deletedOn").startswith(date.today().isoformat())
-    assert shipment["details"][1].pop("deletedOn").startswith(date.today().isoformat())
+    assert shipment["details"][0].pop("removedOn").startswith(date.today().isoformat())
+    assert shipment["details"][1].pop("removedOn").startswith(date.today().isoformat())
     assert shipment == {
         "id": shipment_id,
         "state": ShipmentState.Preparing.name,
         "details": [
-            {"id": i, "deletedBy": {"id": "8"}, "box": {"state": BoxState.InStock.name}}
+            {"id": i, "removedBy": {"id": "8"}, "box": {"state": BoxState.InStock.name}}
             for i in [prepared_shipment_detail_id, shipment_detail_id]
         ],
     }
@@ -337,14 +337,14 @@ def test_shipment_mutations_cancel(
                     canceledOn
                     details {{
                         id
-                        deletedOn
-                        deletedBy {{ id }}
+                        removedOn
+                        removedBy {{ id }}
                         box {{ state }}
                     }}
                 }} }}"""
     shipment = assert_successful_request(client, mutation)
     assert shipment.pop("canceledOn").startswith(date.today().isoformat())
-    assert shipment["details"][0].pop("deletedOn").startswith(date.today().isoformat())
+    assert shipment["details"][0].pop("removedOn").startswith(date.today().isoformat())
     assert shipment == {
         "id": shipment_id,
         "state": ShipmentState.Canceled.name,
@@ -352,7 +352,7 @@ def test_shipment_mutations_cancel(
         "details": [
             {
                 "id": str(prepared_shipment_detail["id"]),
-                "deletedBy": {"id": "8"},
+                "removedBy": {"id": "8"},
                 "box": {"state": BoxState.InStock.name},
             }
         ],
@@ -544,7 +544,7 @@ def test_shipment_mutations_on_target_side(
                 completedOn
                 details {{
                     id
-                    deletedBy {{ id }}
+                    removedBy {{ id }}
                     box {{ state }}
                 }}
             }} }}"""
@@ -557,7 +557,7 @@ def test_shipment_mutations_on_target_side(
         "details": [
             {
                 "id": i,
-                "deletedBy": {"id": "2"},
+                "removedBy": {"id": "2"},
                 "box": {"state": box_state},
             }
             for i, box_state in zip(
@@ -615,7 +615,7 @@ def test_shipment_mutations_on_target_side_mark_shipment_as_lost(
                     completedBy {{ id }}
                     details {{
                         id
-                        deletedBy {{ id }}
+                        removedBy {{ id }}
                         box {{ state }}
                     }}
                 }} }}"""
@@ -627,7 +627,7 @@ def test_shipment_mutations_on_target_side_mark_shipment_as_lost(
         "details": [
             {
                 "id": str(detail["id"]),
-                "deletedBy": {"id": "2"},
+                "removedBy": {"id": "2"},
                 "box": {"state": box_state.name},
             }
             for detail, box_state in zip(

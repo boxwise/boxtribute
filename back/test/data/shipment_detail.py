@@ -29,8 +29,8 @@ def data():
             "source_location": box_without_qr_code["location"],
             "created_on": TIME,
             "created_by": default_user_data()["id"],
-            "deleted_on": None,
-            "deleted_by": None,
+            "removed_on": None,
+            "removed_by": None,
         },
         {
             "id": 2,
@@ -40,8 +40,8 @@ def data():
             "source_location": marked_for_shipment_box["location"],
             "created_on": TIME,
             "created_by": default_user_data()["id"],
-            "deleted_on": None,
-            "deleted_by": None,
+            "removed_on": None,
+            "removed_by": None,
         },
         {
             "id": 3,
@@ -51,8 +51,8 @@ def data():
             "source_location": shippable_box["location"],
             "created_on": TIME,
             "created_by": default_user_data()["id"],
-            "deleted_on": None,
-            "deleted_by": None,
+            "removed_on": None,
+            "removed_by": None,
         },
         {
             "id": 4,
@@ -62,8 +62,8 @@ def data():
             "source_location": default_box["location"],
             "created_on": TIME,
             "created_by": default_user_data()["id"],
-            "deleted_on": TIME,
-            "deleted_by": second_user_data()["id"],
+            "removed_on": TIME,
+            "removed_by": second_user_data()["id"],
         },
     ]
 

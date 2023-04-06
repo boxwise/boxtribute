@@ -605,8 +605,8 @@ type ShipmentDetail {
   shipment: Shipment!
   createdBy: User!
   createdOn: Datetime!
-  deletedBy: User
-  deletedOn: Datetime
+  removedBy: User
+  removedOn: Datetime
 }
 
 enum TransferAgreementState {
