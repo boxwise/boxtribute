@@ -100,7 +100,7 @@ def _retrieve_shipment_details(shipment_id, *conditions, model=Box):
 def cancel_shipment(*, id, user):
     """Transition state of specified shipment to 'Canceled'.
     Move any boxes marked for shipment back into stock, and soft-delete the
-    corresponding shipment details.
+    corresponding shipment details by setting the removed_on/by fields.
     Raise InvalidShipmentState exception if shipment state is different from
     'Preparing'.
     """
@@ -311,11 +311,16 @@ def _update_shipment_with_received_boxes(
 
 
 def _complete_shipment_if_applicable(*, shipment, user_id):
-    """If all boxes of the shipment are marked as InStock or Lost, transition the
-    shipment state to 'Completed', and soft-delete the corresponding shipment details.
+    """If all boxes of the shipment that were being sent (and not lost) are marked as
+    InStock, transition the shipment state to 'Completed', and soft-delete the
+    corresponding shipment details by setting the received_on/by fields.
     """
-    details = _retrieve_shipment_details(shipment.id)
-    if all(d.box.state_id in [BoxState.InStock, BoxState.Lost] for d in details):
+    details = _retrieve_shipment_details(
+        shipment.id,
+        ShipmentDetail.removed_on.is_null(),
+        ShipmentDetail.lost_on.is_null(),
+    )
+    if all(d.box.state_id == BoxState.InStock for d in details):
         now = utcnow()
         shipment.state = ShipmentState.Completed
         shipment.completed_by = user_id
@@ -425,8 +430,9 @@ def _validate_base_as_part_of_shipment(resource_id, *, detail, model):
 
 
 def mark_shipment_as_lost(*, id, user):
-    """Change shipment state to 'Lost'. Update states of all contained boxes to 'Lost'
-    and soft-delete all shipment details.
+    """Change shipment state to 'Lost'. Update states of all contained
+    'MarkedForShipment' boxes to 'Lost' and soft-delete all shipment details by setting
+    the lost_on/by fields.
     - raise InvalidShipmentState exception if shipment state is different from 'Sent'
     """
     shipment = Shipment.get_by_id(id)
