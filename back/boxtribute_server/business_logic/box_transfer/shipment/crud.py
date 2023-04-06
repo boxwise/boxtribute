@@ -117,8 +117,8 @@ def cancel_shipment(*, id, user):
 
     details = []
     for detail in _retrieve_shipment_details(id):
-        detail.deleted_by = user.id
-        detail.deleted_on = now
+        detail.removed_by = user.id
+        detail.removed_on = now
         detail.box.state = BoxState.InStock
         details.append(detail)
 
@@ -126,7 +126,7 @@ def cancel_shipment(*, id, user):
         if details:
             Box.bulk_update([d.box for d in details], [Box.state])
             ShipmentDetail.bulk_update(
-                details, [ShipmentDetail.deleted_on, ShipmentDetail.deleted_by]
+                details, [ShipmentDetail.removed_on, ShipmentDetail.removed_by]
             )
         shipment.save()
     return shipment
@@ -228,21 +228,27 @@ def _remove_boxes_from_shipment(
     if not box_label_identifiers:
         return
 
+    now = utcnow()
     details = []
     for detail in _retrieve_shipment_details(
         shipment_id, (Box.label_identifier << box_label_identifiers)
     ):
-        detail.deleted_by = user_id
-        detail.deleted_on = utcnow()
+        if box_state == BoxState.InStock:
+            detail.removed_on = now
+            detail.removed_by = user_id
+            fields = [ShipmentDetail.removed_on, ShipmentDetail.removed_by]
+        elif box_state == BoxState.Lost:
+            detail.lost_on = now
+            detail.lost_by = user_id
+            fields = [ShipmentDetail.lost_on, ShipmentDetail.lost_by]
+
         # Logically the box is in state MarkedForShipment since part of a shipment
         detail.box.state = box_state
         details.append(detail)
 
     if details:
         Box.bulk_update([d.box for d in details], fields=[Box.state])
-        ShipmentDetail.bulk_update(
-            details, [ShipmentDetail.deleted_on, ShipmentDetail.deleted_by]
-        )
+        ShipmentDetail.bulk_update(details, fields=fields)
 
 
 def _update_shipment_with_received_boxes(
@@ -317,11 +323,11 @@ def _complete_shipment_if_applicable(*, shipment, user_id):
         shipment.save()
 
         for detail in details:
-            detail.deleted_by = user_id
-            detail.deleted_on = now
+            detail.received_by = user_id
+            detail.received_on = now
 
         ShipmentDetail.bulk_update(
-            details, [ShipmentDetail.deleted_on, ShipmentDetail.deleted_by]
+            details, [ShipmentDetail.received_on, ShipmentDetail.received_by]
         )
 
 

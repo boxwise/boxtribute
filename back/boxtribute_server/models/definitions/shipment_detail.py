@@ -33,10 +33,6 @@ class ShipmentDetail(db.Model):
     received_by = UIntForeignKeyField(
         model=User, on_update="CASCADE", on_delete="SET NULL", null=True
     )
-    deleted_on = DateTimeField(null=True)
-    deleted_by = UIntForeignKeyField(
-        model=User, on_update="CASCADE", on_delete="SET NULL", null=True
-    )
 
     class Meta:
         legacy_table_names = False
