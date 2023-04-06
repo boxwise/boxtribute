@@ -116,7 +116,7 @@ def test_mutations(auth0_client):
     response = assert_successful_request(auth0_client, mutation)
     assert response == {"state": "Sent"}
 
-    # shipment_id = create_shipment()
-    # mutation = f"""mutation {{ cancelShipment(id: {shipment_id}) {{ state }} }}"""
-    # response = assert_successful_request(auth0_client, mutation)
-    # assert response == {"state": "Canceled"}
+    shipment_id = create_shipment()
+    mutation = f"""mutation {{ cancelShipment(id: {shipment_id}) {{ state }} }}"""
+    response = assert_successful_request(auth0_client, mutation)
+    assert response == {"state": "Canceled"}

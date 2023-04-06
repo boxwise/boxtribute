@@ -545,6 +545,8 @@ def test_shipment_mutations_on_target_side(
                 details {{
                     id
                     removedBy {{ id }}
+                    lostBy {{ id }}
+                    receivedBy {{ id }}
                     box {{ state }}
                 }}
             }} }}"""
@@ -556,14 +558,26 @@ def test_shipment_mutations_on_target_side(
         "completedBy": {"id": "2"},
         "details": [
             {
-                "id": i,
+                "id": detail_id,
+                "removedBy": None,
+                "lostBy": None,
+                "receivedBy": {"id": "2"},
+                "box": {"state": BoxState.InStock.name},
+            },
+            {
+                "id": another_detail_id,
+                "removedBy": None,
+                "lostBy": {"id": "2"},
+                "receivedBy": None,
+                "box": {"state": BoxState.Lost.name},
+            },
+            {
+                "id": removed_detail_id,
                 "removedBy": {"id": "2"},
-                "box": {"state": box_state},
-            }
-            for i, box_state in zip(
-                [detail_id, another_detail_id, removed_detail_id],
-                [BoxState.InStock.name, BoxState.Lost.name, BoxState.InStock.name],
-            )
+                "lostBy": None,
+                "receivedBy": None,
+                "box": {"state": BoxState.InStock.name},
+            },
         ],
     }
     box_label_identifier = box_without_qr_code["label_identifier"]
@@ -616,6 +630,7 @@ def test_shipment_mutations_on_target_side_mark_shipment_as_lost(
                     details {{
                         id
                         removedBy {{ id }}
+                        lostBy {{ id }}
                         box {{ state }}
                     }}
                 }} }}"""
@@ -626,18 +641,23 @@ def test_shipment_mutations_on_target_side_mark_shipment_as_lost(
         "completedBy": {"id": "2"},
         "details": [
             {
-                "id": str(detail["id"]),
+                "id": str(default_shipment_detail["id"]),
+                "removedBy": None,
+                "lostBy": {"id": "2"},
+                "box": {"state": BoxState.Lost.name},
+            },
+            {
+                "id": str(another_shipment_detail["id"]),
+                "removedBy": None,
+                "lostBy": {"id": "2"},
+                "box": {"state": BoxState.Lost.name},
+            },
+            {
+                "id": str(removed_shipment_detail["id"]),
                 "removedBy": {"id": "2"},
-                "box": {"state": box_state.name},
-            }
-            for detail, box_state in zip(
-                [
-                    default_shipment_detail,
-                    another_shipment_detail,
-                    removed_shipment_detail,
-                ],
-                [BoxState.Lost, BoxState.Lost, BoxState.InStock],
-            )
+                "lostBy": None,
+                "box": {"state": BoxState.InStock.name},
+            },
         ],
     }
 

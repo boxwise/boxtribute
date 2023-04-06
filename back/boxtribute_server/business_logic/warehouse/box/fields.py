@@ -55,6 +55,7 @@ def resolve_box_shipment_detail(box_obj, _):
         .where(
             ShipmentDetail.box == box_obj.id,
             ShipmentDetail.removed_on.is_null(),
+            ShipmentDetail.lost_on.is_null(),
             ShipmentDetail.received_on.is_null(),
         )
         .get_or_none()
