@@ -46,7 +46,7 @@ const initialQueryNetworkError = {
   },
 };
 
-const initialRecevingUiQuery = {
+const initialRecevingUIAsSourceOrgQuery = {
   request: {
     query: SHIPMENT_BY_ID_QUERY,
     variables: {
@@ -55,7 +55,29 @@ const initialRecevingUiQuery = {
   },
   result: {
     data: {
-      shipment: generateMockShipment({ state: ShipmentState.Receiving }),
+      shipment: generateMockShipment({
+        state: ShipmentState.Receiving,
+        iAmSource: true,
+        hasBoxes: true,
+      }),
+    },
+  },
+};
+
+const initialRecevingUIAsTargetOrgQuery = {
+  request: {
+    query: SHIPMENT_BY_ID_QUERY,
+    variables: {
+      id: "1",
+    },
+  },
+  result: {
+    data: {
+      shipment: generateMockShipment({
+        state: ShipmentState.Receiving,
+        iAmSource: false,
+        hasBoxes: true,
+      }),
     },
   },
 };
@@ -169,12 +191,12 @@ describe("4.5 Test Cases", () => {
   });
 
   // Test case 4.5.3
-  it("4.5.3 - Initial load of Receiving UI", async () => {
+  it("4.5.3 - Initial load of Receiving UI As Target Organisation", async () => {
     //   const user = userEvent.setup();
     render(<ShipmentView />, {
       routePath: "/bases/:baseId/transfers/shipments/:id",
       initialUrl: "/bases/1/transfers/shipments/1",
-      mocks: [initialRecevingUiQuery],
+      mocks: [initialRecevingUIAsTargetOrgQuery],
       addTypename: true,
       globalPreferences: {
         dispatch: jest.fn(),
@@ -189,7 +211,7 @@ describe("4.5 Test Cases", () => {
     expect(screen.getByTestId("loader")).toBeInTheDocument();
 
     await waitFor(() => {
-      const title = screen.getByText(/Receive Shipment/i);
+      const title = screen.getByRole("heading", { name: /receive shipment/i });
       expect(title);
     });
 
@@ -197,5 +219,31 @@ describe("4.5 Test Cases", () => {
     expect(
       screen.getByRole("cell", { name: /124 long sleeves\(12x\) size: mixed/i }),
     ).toBeInTheDocument();
+  }, 10000);
+
+  // Test case 4.5.4
+  it("4.5.4 - Initial load of Receiving UI As Source Organisation", async () => {
+    //   const user = userEvent.setup();
+    render(<ShipmentView />, {
+      routePath: "/bases/:baseId/transfers/shipments/:id",
+      initialUrl: "/bases/1/transfers/shipments/1",
+      mocks: [initialRecevingUIAsSourceOrgQuery],
+      addTypename: true,
+      globalPreferences: {
+        dispatch: jest.fn(),
+        globalPreferences: {
+          selectedOrganisationId: organisation1.id,
+          availableBases: organisation1.bases,
+        },
+      },
+    });
+
+    // eslint-disable-next-line testing-library/prefer-presence-queries
+    expect(screen.getByTestId("loader")).toBeInTheDocument();
+
+    await waitFor(() => {
+      const title = screen.getByRole("heading", { name: /view shipment/i });
+      expect(title);
+    });
   }, 10000);
 });
