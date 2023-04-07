@@ -367,6 +367,7 @@ function ShipmentView() {
   let shipmentTitle = <Heading>View Shipment</Heading>;
   let shipmentTab;
   let shipmentCard;
+  let isSender;
   let canUpdateShipment = false;
   let canCancelShipment = false;
   let canLooseShipment = false;
@@ -386,7 +387,7 @@ function ShipmentView() {
     shipmentTab = <TabsSkeleton />;
     shipmentActionButtons = <ButtonSkeleton />;
   } else {
-    const isSender =
+    isSender =
       typeof globalPreferences.availableBases?.find(
         (b) => b.id === data?.shipment?.sourceBase?.id,
       ) !== "undefined";
@@ -406,6 +407,8 @@ function ShipmentView() {
     } else if (ShipmentState.Receiving === shipmentState && !isSender) {
       canLooseShipment = true;
       shipmentTitle = <Heading>Receive Shipment</Heading>;
+    } else if (ShipmentState.Preparing === shipmentState && !isSender) {
+      canCancelShipment = true;
     }
 
     shipmentActionButtons = (
@@ -441,6 +444,7 @@ function ShipmentView() {
         isLoadingMutation={isLoadingFromMutation}
         onRemove={onMinusClick}
         onCancel={openShipmentOverlay}
+        onLost={onLost}
         shipment={data?.shipment! as Shipment}
       />
     );
@@ -449,7 +453,7 @@ function ShipmentView() {
   return (
     <>
       <Flex direction="column" gap={2}>
-        {shipmentState !== ShipmentState.Receiving && (
+        {!(shipmentState === ShipmentState.Receiving && !isSender) && (
           <>
             <Center>
               <VStack>
@@ -462,7 +466,7 @@ function ShipmentView() {
             {shipmentActionButtons}
           </>
         )}
-        {shipmentState === ShipmentState.Receiving && (
+        {shipmentState === ShipmentState.Receiving && !isSender && (
           <>
             <Heading>Receive Shipment</Heading>
             <ShipmentReceivingCard shipment={data?.shipment! as Shipment} />
