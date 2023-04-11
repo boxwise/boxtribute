@@ -1,4 +1,4 @@
-from ariadne import QueryType, convert_kwargs_to_snake_case
+from ariadne import QueryType
 
 from ...authz import authorize, authorized_bases_filter
 from ...graph_ql.filtering import derive_beneficiary_filter
@@ -16,7 +16,6 @@ def resolve_beneficiary(*_, id):
 
 
 @query.field("beneficiaries")
-@convert_kwargs_to_snake_case
 def resolve_beneficiaries(*_, pagination_input=None, filter_input=None):
     filter_condition = derive_beneficiary_filter(filter_input)
     return load_into_page(

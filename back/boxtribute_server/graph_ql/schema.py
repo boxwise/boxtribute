@@ -1,4 +1,4 @@
-from ariadne import make_executable_schema, snake_case_fallback_resolvers
+from ariadne import make_executable_schema
 
 from .bindables import (
     interface_types,
@@ -23,7 +23,7 @@ full_api_schema = make_executable_schema(
         *union_types,
         *interface_types,
     ],
-    snake_case_fallback_resolvers,
+    convert_names_case=True,
 )
 
 query_api_schema = make_executable_schema(
@@ -37,5 +37,5 @@ query_api_schema = make_executable_schema(
         *union_types,
         *interface_types,
     ],
-    snake_case_fallback_resolvers,
+    convert_names_case=True,
 )
