@@ -1,4 +1,4 @@
-from ariadne import MutationType, convert_kwargs_to_snake_case
+from ariadne import MutationType
 from flask import g
 
 from ...authz import authorize
@@ -30,7 +30,6 @@ mutation = MutationType()
 
 
 @mutation.field("addPackingListEntryToDistributionEvent")
-@convert_kwargs_to_snake_case
 def resolve_add_packing_list_entry_to_distribution_event(*_, creation_input):
     event = DistributionEvent.get_by_id(creation_input["distribution_event_id"])
     authorize(
@@ -42,7 +41,6 @@ def resolve_add_packing_list_entry_to_distribution_event(*_, creation_input):
 
 
 @mutation.field("removeAllPackingListEntriesFromDistributionEventForProduct")
-@convert_kwargs_to_snake_case
 def resolve_remove_all_packing_list_entries_from_distribution_event_for_product(
     *_, distribution_event_id, product_id
 ):
@@ -56,7 +54,6 @@ def resolve_remove_all_packing_list_entries_from_distribution_event_for_product(
 
 
 @mutation.field("updateSelectedProductsForDistributionEventPackingList")
-@convert_kwargs_to_snake_case
 def resolve_set_products_for_packing_list(
     *_, distribution_event_id, product_ids_to_add, product_ids_to_remove
 ):
@@ -73,7 +70,6 @@ def resolve_set_products_for_packing_list(
 
 
 @mutation.field("startDistributionEventsTrackingGroup")
-@convert_kwargs_to_snake_case
 def resolve_start_distribution_events_tracking_group(
     *_,
     distribution_event_ids,
@@ -92,7 +88,6 @@ def resolve_start_distribution_events_tracking_group(
 
 
 @mutation.field("setReturnedNumberOfItemsForDistributionEventsTrackingGroup")
-@convert_kwargs_to_snake_case
 def resolve_track_return_of_items_for_distribution_events_tracking_group(
     *_, distribution_events_tracking_group_id, product_id, size_id, number_of_items
 ):
@@ -110,7 +105,6 @@ def resolve_track_return_of_items_for_distribution_events_tracking_group(
 
 
 @mutation.field("moveItemsFromReturnTrackingGroupToBox")
-@convert_kwargs_to_snake_case
 def resolve_move_items_from_return_tracking_group_to_box(
     *_,
     distribution_events_tracking_group_id,
@@ -134,7 +128,6 @@ def resolve_move_items_from_return_tracking_group_to_box(
 
 
 @mutation.field("removeItemsFromUnboxedItemsCollection")
-@convert_kwargs_to_snake_case
 def resolve_remove_items_from_unboxed_items_collection(*_, id, number_of_items):
     unboxed_items_collection = UnboxedItemsCollection.get_by_id(id)
     authorize(
@@ -149,7 +142,6 @@ def resolve_remove_items_from_unboxed_items_collection(*_, id, number_of_items):
 
 
 @mutation.field("completeDistributionEventsTrackingGroup")
-@convert_kwargs_to_snake_case
 def resolve_complete_distribution_events_tracking_group(
     *_,
     id,
@@ -163,7 +155,6 @@ def resolve_complete_distribution_events_tracking_group(
 
 
 @mutation.field("changeDistributionEventState")
-@convert_kwargs_to_snake_case
 def resolve_change_distribution_event_state(*_, distribution_event_id, new_state):
     event = (
         DistributionEvent.select()
@@ -176,7 +167,6 @@ def resolve_change_distribution_event_state(*_, distribution_event_id, new_state
 
 
 @mutation.field("assignBoxToDistributionEvent")
-@convert_kwargs_to_snake_case
 def resolve_assign_box_to_distribution_event(
     mutation_obj, _, box_label_identifier, distribution_event_id
 ):
@@ -188,7 +178,6 @@ def resolve_assign_box_to_distribution_event(
 
 
 @mutation.field("unassignBoxFromDistributionEvent")
-@convert_kwargs_to_snake_case
 def resolve_unassign_box_from_distribution_event(
     mutation_obj, _, box_label_identifier, distribution_event_id
 ):
@@ -199,7 +188,6 @@ def resolve_unassign_box_from_distribution_event(
 
 
 @mutation.field("moveItemsFromBoxToDistributionEvent")
-@convert_kwargs_to_snake_case
 def resolve_move_items_from_box_to_distribution_event(
     mutation_obj, _, box_label_identifier, distribution_event_id, number_of_items
 ):
@@ -219,7 +207,6 @@ def resolve_move_items_from_box_to_distribution_event(
 
 
 @mutation.field("removePackingListEntryFromDistributionEvent")
-@convert_kwargs_to_snake_case
 def resolve_remove_packing_list_entry_from_distribution_event(
     *_, packing_list_entry_id
 ):
