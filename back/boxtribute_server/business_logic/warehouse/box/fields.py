@@ -1,4 +1,4 @@
-from ariadne import ObjectType, convert_kwargs_to_snake_case
+from ariadne import ObjectType
 
 from ....authz import authorize
 from ....models.definitions.shipment_detail import ShipmentDetail
@@ -9,7 +9,6 @@ unboxed_items_collection = ObjectType("UnboxedItemsCollection")
 
 
 @box.field("qrCode")
-@convert_kwargs_to_snake_case
 def resolve_box_qr_code(box_obj, _):
     authorize(permission="qr:read")
     return box_obj.qr_code
@@ -38,9 +37,8 @@ def resolve_box_size(box_obj, info):
 
 
 @box.field("location")
-def resolve_box_location(box_obj, _):
-    authorize(permission="location:read", base_id=box_obj.location.base_id)
-    return box_obj.location
+def resolve_box_location(box_obj, info):
+    return info.context["location_loader"].load(box_obj.location_id)
 
 
 @box.field("state")

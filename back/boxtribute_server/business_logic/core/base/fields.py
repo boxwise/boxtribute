@@ -1,4 +1,4 @@
-from ariadne import ObjectType, convert_kwargs_to_snake_case
+from ariadne import ObjectType
 
 from ....authz import authorize
 from ....enums import DistributionEventState, LocationType, TaggableObjectType, TagType
@@ -17,7 +17,6 @@ base = ObjectType("Base")
 
 
 @base.field("products")
-@convert_kwargs_to_snake_case
 def resolve_base_products(base_obj, *_):
     authorize(permission="product:read", base_id=base_obj.id)
     return Product.select().where(
@@ -38,7 +37,6 @@ def resolve_base_locations(base_obj, _):
 
 
 @base.field("tags")
-@convert_kwargs_to_snake_case
 def resolve_base_tags(base_obj, _, resource_type=None):
     authorize(permission="tag:read", base_id=base_obj.id)
 
@@ -54,7 +52,6 @@ def resolve_base_tags(base_obj, _, resource_type=None):
 
 
 @base.field("beneficiaries")
-@convert_kwargs_to_snake_case
 def resolve_base_beneficiaries(base_obj, _, pagination_input=None, filter_input=None):
     authorize(permission="beneficiary:read", base_id=base_obj.id)
     base_filter_condition = Beneficiary.base == base_obj.id
