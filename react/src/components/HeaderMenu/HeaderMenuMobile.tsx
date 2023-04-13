@@ -12,6 +12,8 @@ import {
   Image,
   Img,
   Divider,
+  WrapItem,
+  Wrap,
 } from "@chakra-ui/react";
 import { AiFillCloseCircle, AiFillWindows, AiOutlineMenu, AiOutlineQrcode } from "react-icons/ai";
 import { Link, NavLink, useParams } from "react-router-dom";
@@ -31,6 +33,7 @@ import { generateDropappUrl, redirectToExternalUrl } from "utils/helpers";
 type MenuItemsGroupsMobileProps = MenuItemsGroupsProps & {
   isMenuOpen: boolean;
   setIsMenuOpen: (isOpen: boolean) => void;
+  onClickScanQrCode: () => void;
 };
 
 const MenuToggle = ({ toggle, isOpen, ...props }) => (
@@ -142,6 +145,7 @@ const BaseSwitcher = ({
 const MenuItemsGroupsMobile = ({
   isMenuOpen,
   setIsMenuOpen,
+  onClickScanQrCode,
   ...props
 }: MenuItemsGroupsMobileProps) => {
   return (
@@ -150,6 +154,34 @@ const MenuItemsGroupsMobile = ({
         {props.menuItemsGroups.map((item, i) => (
           <MenuItemsGroupMobile key={i} {...item} setIsMenuOpen={setIsMenuOpen} />
         ))}
+        <Box
+          as="a"
+          onClick={onClickScanQrCode}
+          py={4}
+          px={4}
+          w="100%"
+          backgroundColor="gray.100"
+          border="1px"
+          fontWeight="bold"
+        >
+          <Wrap>
+            <WrapItem>
+              <IconButton
+                h={18}
+                w={18}
+                fontSize="50px"
+                colorScheme="gray"
+                backgroundColor="transparent"
+                aria-label="Scan QR Label"
+                onClick={onClickScanQrCode}
+                icon={<AiOutlineQrcode />}
+              />
+            </WrapItem>
+            <WrapItem>
+              <Text pl={4}>Scan QR Label</Text>
+            </WrapItem>
+          </Wrap>
+        </Box>
         <LoginOrUserMenuButtonMobile
           isAuthenticated={props.isAuthenticated}
           logout={props.logout}
@@ -192,14 +224,7 @@ const MenuItemsGroupMobile = ({
       );
     } else {
       return (
-        <Box
-          as={NavLink}
-          to={link.link}
-          key={i}
-          py={1}
-          px={4}
-          w="100%"
-        >
+        <Box as={NavLink} to={link.link} key={i} py={1} px={4} w="100%">
           {link.name}
         </Box>
       );
@@ -255,7 +280,6 @@ const HeaderMenuMobile = (props: HeaderMenuProps) => {
     <HeaderMenuMobileContainer>
       <Flex justifyContent="space-between" w="100%" alignItems="center">
         <Logo />
-        <QrReaderButton onClick={props.onClickScanQrCode} />
         <MenuToggle
           toggle={toggle}
           isOpen={isMenuOpen}
@@ -268,6 +292,7 @@ const HeaderMenuMobile = (props: HeaderMenuProps) => {
         logout={props.logout}
         loginWithRedirect={props.loginWithRedirect}
         user={props.user}
+        onClickScanQrCode={props.onClickScanQrCode}
         isAuthenticated={props.isAuthenticated}
         menuItemsGroups={props.menuItemsGroups}
         currentActiveBaseId={props.currentActiveBaseId}
