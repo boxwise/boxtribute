@@ -15,7 +15,8 @@ import {
   WrapItem,
   Wrap,
 } from "@chakra-ui/react";
-import { AiFillCloseCircle, AiFillWindows, AiOutlineMenu, AiOutlineQrcode } from "react-icons/ai";
+import { AiFillCloseCircle, AiOutlineMenu } from "react-icons/ai";
+import { RiQrCodeLine } from "react-icons/ri";
 import { Link, NavLink, useParams } from "react-router-dom";
 import { GlobalPreferencesContext } from "providers/GlobalPreferencesProvider";
 import {
@@ -27,7 +28,6 @@ import {
   MenuItemsGroupsProps,
 } from "./HeaderMenu";
 import BoxtributeLogo from "../../assets/images/boxtribute-logo.png";
-import { QrReaderButton } from "components/QrReader/QrReaderButton";
 import { generateDropappUrl, redirectToExternalUrl } from "utils/helpers";
 
 type MenuItemsGroupsMobileProps = MenuItemsGroupsProps & {
@@ -44,7 +44,7 @@ const MenuToggle = ({ toggle, isOpen, ...props }) => (
   />
 );
 
-const Logo = () => <Image src={BoxtributeLogo} maxH={"3.5em"} />;
+const Logo = () => <Image src={BoxtributeLogo} maxH={"3.5em"} mb={1}/>;
 
 const LoginOrUserMenuButtonMobile = ({
   isAuthenticated,
@@ -151,38 +151,36 @@ const MenuItemsGroupsMobile = ({
   return (
     <Flex w="100%" flexBasis={{ base: "100%", md: "auto" }} display={isMenuOpen ? "block" : "none"}>
       <Stack alignItems="start-end" direction="column">
+      <Flex
+        px={4}
+        border="1px"
+        w="100%"
+        py={2}
+        justify={"space-between"}
+        align={"center"}
+        onClick={onClickScanQrCode}
+        as="button"
+        borderRadius="0px"
+        aria-label="Scan QR code"
+        data-testid="qr-code-button"
+      >
+      <Flex maxW="100%" align={"center"}>
+      <IconButton
+                h={19}
+                w={19}
+                fontSize="45px"
+                backgroundColor="transparent"
+                aria-label="Scan QR Label"
+                icon={<RiQrCodeLine />}
+              />
+          <Text fontWeight={600} isTruncated>
+          Scan QR Label
+          </Text>
+        </Flex>
+        </Flex>
         {props.menuItemsGroups.map((item, i) => (
           <MenuItemsGroupMobile key={i} {...item} setIsMenuOpen={setIsMenuOpen} />
         ))}
-        <Box
-          as="button"
-          onClick={onClickScanQrCode}
-          py={4}
-          px={4}
-          w="100%"
-          backgroundColor="gray.100"
-          border="1px"
-          fontWeight="bold"
-          aria-label="Scan QR code"
-          data-testid="qr-code-button"
-        >
-          <Wrap>
-            <WrapItem>
-              <IconButton
-                h={18}
-                w={18}
-                fontSize="50px"
-                colorScheme="gray"
-                backgroundColor="transparent"
-                aria-label="Scan QR Label"
-                icon={<AiOutlineQrcode />}
-              />
-            </WrapItem>
-            <WrapItem>
-              <Text pl={4}>Scan QR Label</Text>
-            </WrapItem>
-          </Wrap>
-        </Box>
         <LoginOrUserMenuButtonMobile
           isAuthenticated={props.isAuthenticated}
           logout={props.logout}
@@ -216,7 +214,7 @@ const MenuItemsGroupMobile = ({
           as="a"
           href={generateDropappUrl(link.link, baseId, qrCode, labelIdentifier)}
           key={i}
-          py={1}
+          py={2}
           px={4}
           w="100%"
         >
