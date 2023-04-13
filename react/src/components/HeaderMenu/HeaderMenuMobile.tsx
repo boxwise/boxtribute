@@ -155,7 +155,7 @@ const MenuItemsGroupsMobile = ({
           <MenuItemsGroupMobile key={i} {...item} setIsMenuOpen={setIsMenuOpen} />
         ))}
         <Box
-          as="a"
+          as="button"
           onClick={onClickScanQrCode}
           py={4}
           px={4}
@@ -163,6 +163,8 @@ const MenuItemsGroupsMobile = ({
           backgroundColor="gray.100"
           border="1px"
           fontWeight="bold"
+          aria-label="Scan QR code"
+          data-testid="qr-code-button"
         >
           <Wrap>
             <WrapItem>
@@ -173,7 +175,6 @@ const MenuItemsGroupsMobile = ({
                 colorScheme="gray"
                 backgroundColor="transparent"
                 aria-label="Scan QR Label"
-                onClick={onClickScanQrCode}
                 icon={<AiOutlineQrcode />}
               />
             </WrapItem>
