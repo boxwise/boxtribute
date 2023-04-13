@@ -116,49 +116,11 @@ function ShipmentReceivingTable({ columns, data }: IShipmentReceivingTablePros) 
                       border: "1px solid black",
                     }}
                   >
-                    {/* <Box>
-                      <Flex>
-                        <VStack spacing={4} align="stretch">
-                          <Flex>
-                            <Box width="90px"
-                              fontWeight={row.cells[0].column.isSorted ? "bold" : "normal"}>
-                              <Wrap>
-                                <WrapItem>{row.cells[0].row.original.labelIdentifier}</WrapItem>
-                                <WrapItem>
-                                  {row.cells[0].row.original.comment && <BsFillChatDotsFill />}
-                                </WrapItem>
-                              </Wrap>
-                            </Box>
-                            <Spacer />
-                            <Box
-                              alignItems="flex-start"
-                              fontWeight={row.cells[1].column.isSorted ? "bold" : "normal"}
-                            >
-                              {row.cells[0].row.original.product}({row.cells[0].row.original.items}
-                              x)
-                            </Box>
-                          </Flex>
-                          <Flex>
-                            <Box color="gray.500">SIZE: {row.cells[0].row.original.size}</Box>
-                            <Spacer />
-                            <Box
-                              fontWeight={row.cells[2].column.isSorted ? "bold" : "normal"}
-                              color="gray.500"
-                              alignItems="flex-end"
-                            >
-                              {row.cells[0].row.original.gender === "none"
-                                ? ""
-                                : row.cells[0].row.original.gender}
-                            </Box>
-                          </Flex>
-                        </VStack>
-                      </Flex>
-                    </Box> */}
                     <Box>
                       <Flex alignContent="space-around">
                         <Box
                           p={1}
-                          width="100px"
+                          width="120px"
                           fontWeight={row.cells[0].column.isSorted ? "bold" : "normal"}
                         >
                           <Wrap>
