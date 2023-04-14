@@ -1,4 +1,4 @@
-from ariadne import ObjectType, convert_kwargs_to_snake_case
+from ariadne import ObjectType
 
 from ....authz import authorized_bases_filter
 from ....graph_ql.pagination import load_into_page
@@ -14,7 +14,6 @@ def resolve_product_category_has_gender(product_category_obj, _):
 
 
 @product_category.field("products")
-@convert_kwargs_to_snake_case
 def resolve_product_category_products(product_category_obj, _, pagination_input=None):
     category_filter_condition = Product.category == product_category_obj.id
     return load_into_page(

@@ -1,4 +1,4 @@
-from ariadne import MutationType, convert_kwargs_to_snake_case
+from ariadne import MutationType
 from flask import g
 
 from ....authz import authorize
@@ -17,7 +17,6 @@ mutation = MutationType()
 
 
 @mutation.field("createTransferAgreement")
-@convert_kwargs_to_snake_case
 def resolve_create_transfer_agreement(*_, creation_input):
     # Enforce that user is authzed for ALL specified bases (using authorize() with the
     # base_ids argument succeeds if user authzed for at least one base already)

@@ -60,8 +60,10 @@ function ShipmentsOverviewView() {
 
         // counting of boxes from details
         const uniqueBoxIds = element.details.reduce((accumulator, detail) => {
-          const boxId = detail.box.labelIdentifier;
-          accumulator[boxId] = (accumulator[boxId] || 0) + 1;
+          if (detail.deletedOn == null) {
+            const boxId = detail.box.labelIdentifier;
+            accumulator[boxId] = (accumulator[boxId] || 0) + 1;
+          }
           return accumulator;
         }, {});
         shipmentRow.boxes = Object.keys(uniqueBoxIds).length;

@@ -1,4 +1,4 @@
-from ariadne import MutationType, convert_kwargs_to_snake_case
+from ariadne import MutationType
 from flask import g
 
 from ....authz import authorize
@@ -12,7 +12,6 @@ mutation = MutationType()
 
 
 @mutation.field("createBox")
-@convert_kwargs_to_snake_case
 def resolve_create_box(*_, creation_input):
     requested_location = Location.get_by_id(creation_input["location_id"])
     authorize(permission="stock:write", base_id=requested_location.base_id)
@@ -28,7 +27,6 @@ def resolve_create_box(*_, creation_input):
 
 
 @mutation.field("updateBox")
-@convert_kwargs_to_snake_case
 def resolve_update_box(*_, update_input):
     box = (
         Box.select(Box, Location)
