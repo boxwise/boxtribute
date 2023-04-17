@@ -256,8 +256,8 @@ def _update_shipment_with_received_boxes(
     *, shipment, user_id, shipment_detail_update_inputs
 ):
     """Move boxes from the shipment into stock of the target base.
-    Update shipment details (target product and location). Transition the corresponding
-    box's state to 'InStock' and assign target product and location.
+    Update shipment details (target product, size and location). Transition the
+    corresponding box's state to 'InStock' and assign target product, size and location.
     Remove all assigned tags from received boxes.
     If boxes are requested to be checked-in with a location or a product that is not
     registered in the target base, or with a state other than 'Receiving', they are
@@ -268,6 +268,7 @@ def _update_shipment_with_received_boxes(
         int(i["id"]): {
             "target_product_id": i["target_product_id"],
             "target_location_id": i["target_location_id"],
+            "target_size_id": i["target_size_id"],
         }
         for i in shipment_detail_update_inputs or []
     }
@@ -280,6 +281,7 @@ def _update_shipment_with_received_boxes(
         update_input = update_inputs[detail.id]
         target_product_id = update_input["target_product_id"]
         target_location_id = update_input["target_location_id"]
+        target_size_id = update_input["target_size_id"]
 
         if (
             not _validate_base_as_part_of_shipment(
@@ -294,16 +296,25 @@ def _update_shipment_with_received_boxes(
 
         detail.target_product = target_product_id
         detail.target_location = target_location_id
+        detail.target_size = target_size_id
         detail.box.product = target_product_id
         detail.box.location = target_location_id
+        detail.box.size = target_size_id
         detail.box.state = BoxState.InStock
         details.append(detail)
 
     if details:
         checked_in_boxes = [d.box for d in details]
-        Box.bulk_update(checked_in_boxes, [Box.state, Box.product, Box.location])
+        Box.bulk_update(
+            checked_in_boxes, [Box.state, Box.product, Box.location, Box.size]
+        )
         ShipmentDetail.bulk_update(
-            details, [ShipmentDetail.target_product, ShipmentDetail.target_location]
+            details,
+            [
+                ShipmentDetail.target_product,
+                ShipmentDetail.target_location,
+                ShipmentDetail.target_size,
+            ],
         )
         TagsRelation.delete().where(
             (TagsRelation.object_type == TaggableObjectType.Box),
