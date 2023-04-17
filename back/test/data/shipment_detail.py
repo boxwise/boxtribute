@@ -5,10 +5,11 @@ from boxtribute_server.models.utils import utcnow
 from .box import (
     another_marked_for_shipment_box_data,
     box_without_qr_code_data,
+    default_box_data,
     marked_for_shipment_box_data,
 )
 from .shipment import data as shipment_data
-from .user import default_user_data
+from .user import default_user_data, second_user_data
 
 TIME = utcnow().replace(tzinfo=None)
 
@@ -16,6 +17,7 @@ TIME = utcnow().replace(tzinfo=None)
 def data():
     shipments = shipment_data()
     box_without_qr_code = box_without_qr_code_data()
+    default_box = default_box_data()
     marked_for_shipment_box = marked_for_shipment_box_data()
     shippable_box = another_marked_for_shipment_box_data()
     return [
@@ -27,6 +29,8 @@ def data():
             "source_location": box_without_qr_code["location"],
             "created_on": TIME,
             "created_by": default_user_data()["id"],
+            "deleted_on": None,
+            "deleted_by": None,
         },
         {
             "id": 2,
@@ -36,6 +40,8 @@ def data():
             "source_location": marked_for_shipment_box["location"],
             "created_on": TIME,
             "created_by": default_user_data()["id"],
+            "deleted_on": None,
+            "deleted_by": None,
         },
         {
             "id": 3,
@@ -45,6 +51,19 @@ def data():
             "source_location": shippable_box["location"],
             "created_on": TIME,
             "created_by": default_user_data()["id"],
+            "deleted_on": None,
+            "deleted_by": None,
+        },
+        {
+            "id": 4,
+            "shipment": shipments[3]["id"],  # sent shipment
+            "box": default_box["id"],
+            "source_product": default_box["product"],
+            "source_location": default_box["location"],
+            "created_on": TIME,
+            "created_by": default_user_data()["id"],
+            "deleted_on": TIME,
+            "deleted_by": second_user_data()["id"],
         },
     ]
 
@@ -62,6 +81,11 @@ def another_shipment_detail():
 @pytest.fixture
 def prepared_shipment_detail():
     return data()[2]
+
+
+@pytest.fixture
+def removed_shipment_detail():
+    return data()[3]
 
 
 def create():

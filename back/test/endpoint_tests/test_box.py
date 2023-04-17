@@ -389,7 +389,7 @@ def _format(parameter):
         [[{"states": "[InStock]"}], 1],
         [[{"states": "[Lost]"}], 1],
         [[{"states": "[MarkedForShipment]"}], 3],
-        [[{"states": "[Received]"}], 0],
+        [[{"states": "[Receiving]"}], 0],
         [[{"states": "[InStock,Lost]"}], 2],
         [[{"states": "[Lost,MarkedForShipment]"}], 4],
         [[{"lastModifiedFrom": '"2020-01-01"'}], 5],

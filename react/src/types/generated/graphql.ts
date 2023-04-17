@@ -203,7 +203,7 @@ export enum BoxState {
   InStock = 'InStock',
   Lost = 'Lost',
   MarkedForShipment = 'MarkedForShipment',
-  Received = 'Received',
+  Receiving = 'Receiving',
   Scrap = 'Scrap'
 }
 
