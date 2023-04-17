@@ -11,11 +11,10 @@ class TagsRelation(db.Model):
     object_type = EnumCharField(
         choices=TaggableObjectType,
         default=TaggableObjectType.Beneficiary,
-        null=True,
     )
     tag = UIntForeignKeyField(column_name="tag_id", field="id", model=Tag)
 
     class Meta:
         table_name = "tags_relations"
-        indexes = ((("object_id", "tag"), True),)
-        primary_key = CompositeKey("object_id", "tag")
+        indexes = ((("object_id", "tag", "object_type"), True),)
+        primary_key = CompositeKey("object_id", "tag", "object_type")
