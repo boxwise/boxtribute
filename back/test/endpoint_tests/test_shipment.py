@@ -164,6 +164,8 @@ def test_shipment_mutations_on_source_side(
                         targetProduct {{ id }}
                         sourceLocation {{ id }}
                         targetLocation {{ id }}
+                        sourceSize {{ id }}
+                        targetSize {{ id }}
                         createdBy {{ id }}
                         createdOn
                         removedBy {{ id }}
@@ -195,6 +197,8 @@ def test_shipment_mutations_on_source_side(
                     "id": str(another_marked_for_shipment_box["location"])
                 },
                 "targetLocation": None,
+                "sourceSize": {"id": str(another_marked_for_shipment_box["size"])},
+                "targetSize": None,
                 "createdBy": {"id": "1"},
                 "removedBy": None,
                 "removedOn": None,
@@ -210,6 +214,8 @@ def test_shipment_mutations_on_source_side(
                 "targetProduct": None,
                 "sourceLocation": {"id": str(default_box["location"])},
                 "targetLocation": None,
+                "sourceSize": {"id": str(default_box["size"])},
+                "targetSize": None,
                 "createdBy": {"id": "8"},
                 "removedBy": None,
                 "removedOn": None,

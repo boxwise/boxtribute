@@ -601,6 +601,8 @@ type ShipmentDetail {
   targetProduct: Product
   sourceLocation: ClassicLocation
   targetLocation: ClassicLocation
+  sourceSize: Size
+  targetSize: Size
   box: Box!
   shipment: Shipment!
   createdBy: User!

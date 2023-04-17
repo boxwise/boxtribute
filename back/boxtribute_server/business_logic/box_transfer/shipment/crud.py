@@ -207,6 +207,7 @@ def _update_shipment_with_prepared_boxes(*, shipment, box_label_identifiers, use
                 "box": box.id,
                 "source_product": box.product_id,
                 "source_location": box.location_id,
+                "source_size": box.size_id,
                 "created_by": user_id,
             }
         )

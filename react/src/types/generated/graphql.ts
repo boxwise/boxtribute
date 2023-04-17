@@ -1255,8 +1255,10 @@ export type ShipmentDetail = {
   shipment: Shipment;
   sourceLocation?: Maybe<ClassicLocation>;
   sourceProduct?: Maybe<Product>;
+  sourceSize?: Maybe<Size>;
   targetLocation?: Maybe<ClassicLocation>;
   targetProduct?: Maybe<Product>;
+  targetSize?: Maybe<Size>;
 };
 
 export type ShipmentDetailUpdateInput = {
