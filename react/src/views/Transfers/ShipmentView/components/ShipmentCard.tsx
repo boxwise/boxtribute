@@ -165,7 +165,7 @@ function ShipmentCard({
                 <WrapItem>
                   <Center>
                     <Text as="h3" fontSize="3xl" fontWeight="bold">
-                      {(shipment.details?.filter((item) => item.deletedOn === null) ?? []).length ||
+                      {(shipment.details?.filter((item) => item.removedOn === null) ?? []).length ||
                         0}
                     </Text>
                   </Center>
