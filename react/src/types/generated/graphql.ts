@@ -1265,6 +1265,7 @@ export type ShipmentDetailUpdateInput = {
   id: Scalars['ID'];
   targetLocationId: Scalars['Int'];
   targetProductId: Scalars['Int'];
+  targetSizeId: Scalars['Int'];
 };
 
 export enum ShipmentState {
