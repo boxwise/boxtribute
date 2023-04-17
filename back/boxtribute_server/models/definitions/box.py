@@ -31,6 +31,7 @@ class Box(db.Model):
         field="id",
         model=BoxState,
         on_update="CASCADE",
+        on_delete="RESTRICT",
         object_id_name="state_id",
     )
     comment = TextField(column_name="comments", null=True)
@@ -57,6 +58,7 @@ class Box(db.Model):
         field="id",
         model=Location,
         on_update="CASCADE",
+        on_delete="RESTRICT",
     )
     last_modified_on = DateTimeField(column_name="modified", null=True)
     last_modified_by = UIntForeignKeyField(
@@ -72,6 +74,7 @@ class Box(db.Model):
         field="id",
         model=Product,
         on_update="CASCADE",
+        on_delete="RESTRICT",
     )
     qr_code = UIntForeignKeyField(
         column_name="qr_id",
@@ -79,6 +82,7 @@ class Box(db.Model):
         model=QrCode,
         null=True,
         on_update="CASCADE",
+        on_delete="RESTRICT",
         # unique index created below
     )
     size = UIntForeignKeyField(
@@ -86,6 +90,7 @@ class Box(db.Model):
         field="id",
         model=Size,
         on_update="CASCADE",
+        on_delete="RESTRICT",
     )
 
     class Meta:
