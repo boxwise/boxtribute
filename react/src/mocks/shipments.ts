@@ -101,8 +101,8 @@ export const generateMockShipment = ({
             targetProduct: null,
             createdOn: "2023-01-09T17:24:29+00:00",
             createdBy: user1,
-            deletedOn: "2023-01-10T17:24:29+00:00",
-            deletedBy: user1,
+            removedOn: "2023-01-10T17:24:29+00:00",
+            removedBy: user1,
             __typename: "ShipmentDetail",
           },
           {
@@ -116,8 +116,8 @@ export const generateMockShipment = ({
             targetProduct: null,
             createdOn: "2023-01-11T17:24:29+00:00",
             createdBy: user1,
-            deletedOn: null,
-            deletedBy: null,
+            removedOn: null,
+            removedBy: null,
             __typename: "ShipmentDetail",
           },
           {
@@ -131,8 +131,8 @@ export const generateMockShipment = ({
             targetProduct: null,
             createdOn: "2023-02-01T17:24:29+00:00",
             createdBy: user1,
-            deletedOn: null,
-            deletedBy: null,
+            removedOn: null,
+            removedBy: null,
             __typename: "ShipmentDetail",
           },
         ]

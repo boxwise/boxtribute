@@ -271,8 +271,8 @@ export const SHIPMENT_DETAIL_FIELDS_FRAGMENT = gql`
     createdBy {
       ...UserBasicFields
     }
-    deletedOn
-    deletedBy {
+    removedOn
+    removedBy {
       ...UserBasicFields
     }
   }
