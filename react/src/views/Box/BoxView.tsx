@@ -1,4 +1,4 @@
-import { useEffect } from "react";
+import { useCallback, useContext, useEffect, useMemo } from "react";
 import { gql, useMutation, useQuery } from "@apollo/client";
 import {
   Alert,
@@ -9,6 +9,8 @@ import {
   useDisclosure,
   VStack,
 } from "@chakra-ui/react";
+import { GlobalPreferencesContext } from "providers/GlobalPreferencesProvider";
+
 import APILoadingIndicator from "components/APILoadingIndicator";
 import { useParams } from "react-router-dom";
 import {
@@ -26,6 +28,8 @@ import {
   UpdateStateMutationVariables,
   UpdateStateMutation,
   ClassicLocation,
+  ShipmentsQuery,
+  ShipmentState,
 } from "types/generated/graphql";
 import {
   ASSIGN_BOX_TO_DISTRIBUTION_MUTATION,
@@ -41,9 +45,17 @@ import {
 } from "queries/fragments";
 import { useErrorHandling } from "hooks/useErrorHandling";
 import { useNotification } from "hooks/useNotification";
-import AddItemsToBoxOverlay from "./components/AddItemsToBoxOverlay";
-import TakeItemsFromBoxOverlay from "./components/TakeItemsFromBoxOverlay";
+import {
+  IAssignBoxToShipmentResult,
+  IUnassignBoxToShipmentResult,
+  useAssignBoxesToShipment,
+} from "hooks/useAssignBoxesToShipment";
+import { IBoxBasicFields, IBoxBasicFieldsWithShipmentDetail } from "types/graphql-local-only";
+import { ALL_SHIPMENTS_QUERY } from "queries/queries";
+import { IDropdownOption } from "components/Form/SelectField";
 import BoxDetails from "./components/BoxDetails";
+import TakeItemsFromBoxOverlay from "./components/TakeItemsFromBoxOverlay";
+import AddItemsToBoxOverlay from "./components/AddItemsToBoxOverlay";
 
 const refetchBoxByLabelIdentifierQueryConfig = (labelIdentifier: string) => ({
   query: BOX_BY_LABEL_IDENTIFIER_QUERY,
@@ -68,6 +80,20 @@ export const BOX_BY_LABEL_IDENTIFIER_QUERY = gql`
       }
       distributionEvent {
         ...DistroEventFields
+      }
+      shipmentDetail {
+        shipment {
+          id
+          state
+          targetBase {
+            id
+            name
+            organisation {
+              id
+              name
+            }
+          }
+        }
       }
       location {
         __typename
@@ -176,6 +202,18 @@ function BTBox() {
   const { triggerError } = useErrorHandling();
   const { createToast } = useNotification();
   const labelIdentifier = useParams<{ labelIdentifier: string }>().labelIdentifier!;
+  const { globalPreferences } = useContext(GlobalPreferencesContext);
+  const currentBaseId = globalPreferences.selectedBaseId;
+
+  const {
+    assignBoxesToShipment,
+    unassignBoxesToShipment,
+    isLoading: isAssignBoxesToShipmentLoading,
+  } = useAssignBoxesToShipment();
+
+  // fetch shipments data
+  const shipmentsQueryResult = useQuery<ShipmentsQuery>(ALL_SHIPMENTS_QUERY);
+
   const allBoxData = useQuery<BoxByLabelIdentifierQuery, BoxByLabelIdentifierQueryVariables>(
     BOX_BY_LABEL_IDENTIFIER_QUERY,
     {
@@ -395,6 +433,40 @@ function BTBox() {
     });
   };
 
+  const onAssignBoxesToShipment = useCallback(
+    async (shipmentId: string) =>
+      (await assignBoxesToShipment(
+        shipmentId,
+        [boxData as IBoxBasicFields],
+        false,
+      )) as IAssignBoxToShipmentResult,
+    [assignBoxesToShipment, boxData],
+  );
+
+  const onUnassignBoxesToShipment = useCallback(
+    async (shipmentId: string) =>
+      (await unassignBoxesToShipment(
+        shipmentId,
+        [boxData as IBoxBasicFieldsWithShipmentDetail],
+        false,
+      )) as IUnassignBoxToShipmentResult,
+    [unassignBoxesToShipment, boxData],
+  );
+
+  const shipmentOptions: IDropdownOption[] = useMemo(
+    () =>
+      shipmentsQueryResult.data?.shipments
+        ?.filter(
+          (shipment) =>
+            shipment.state === ShipmentState.Preparing && shipment.sourceBase.id === currentBaseId,
+        )
+        ?.map((shipment) => ({
+          label: `${shipment.targetBase.name} - ${shipment.targetBase.organisation.name}`,
+          value: shipment.id,
+        })) ?? [],
+    [currentBaseId, shipmentsQueryResult.data?.shipments],
+  );
+
   useEffect(() => {
     if (!allBoxData.loading && boxData === undefined) {
       triggerError({ message: "Could not fetch Box Data!" });
@@ -449,6 +521,10 @@ function BTBox() {
         onStateChange={onStateChange}
         onAssignBoxToDistributionEventClick={onAssignBoxToDistributionEventClick}
         onUnassignBoxFromDistributionEventClick={onUnassignBoxFromDistributionEventClick}
+        onAssignBoxesToShipment={onAssignBoxesToShipment}
+        onUnassignBoxesToShipment={onUnassignBoxesToShipment}
+        isLoading={isAssignBoxesToShipmentLoading}
+        shipmentOptions={shipmentOptions}
       />
       <AddItemsToBoxOverlay
         isOpen={isPlusOpen}
