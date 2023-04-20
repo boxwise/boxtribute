@@ -88,9 +88,7 @@ export const useAssignBoxesToShipment = () => {
     (shipmentId: string, boxes: IBoxBasicFields[], showToastMessage: boolean = true) => {
       console.log("boxes", boxes);
       setIsLoading(true);
-      const inStockLabelIdentifiers = boxes
-        .filter((box) => box.state === BoxState.InStock)
-        .map((box) => box.labelIdentifier);
+      const inStockLabelIdentifiers = boxes.map((box) => box.labelIdentifier);
 
       console.log("inStockLabelIdentifiers", inStockLabelIdentifiers);
       return assignBoxesToShipmentMutation({
