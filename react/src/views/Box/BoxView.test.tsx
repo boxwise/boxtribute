@@ -9,6 +9,8 @@ import BTBox, {
   UPDATE_STATE_IN_BOX_MUTATION,
   UPDATE_BOX_MUTATION,
 } from "./BoxView";
+import { useErrorHandling } from "hooks/useErrorHandling";
+import { useNotification } from "hooks/useNotification";
 import { generateMockBox } from "mocks/boxes";
 import { BoxState } from "types/generated/graphql";
 import { generateMockLocationWithBase, locations } from "mocks/locations";
@@ -17,8 +19,13 @@ import { BOX_BY_LABEL_IDENTIFIER_AND_ALL_PRODUCTS_WITH_BASEID_QUERY } from "view
 import { tags } from "mocks/tags";
 import { textContentMatcher } from "tests/helpers";
 import BoxDetails from "./components/BoxDetails";
+import { generateMockTransferAgreement } from "mocks/transferAgreements";
+import { mockGraphQLError, mockNetworkError } from "mocks/functions";
 
-jest.setTimeout(30000);
+const mockedTriggerError = jest.fn();
+const mockedCreateToast = jest.fn();
+jest.mock("hooks/useErrorHandling");
+jest.mock("hooks/useNotification");
 
 const initialQuery = {
   request: {
@@ -287,6 +294,13 @@ const moveLocationOfBoxNetworkFailedMutation = {
   error: new Error(),
 };
 
+beforeEach(() => {
+  const mockedUseErrorHandling = jest.mocked(useErrorHandling);
+  mockedUseErrorHandling.mockReturnValue({ triggerError: mockedTriggerError });
+  const mockedUseNotification = jest.mocked(useNotification);
+  mockedUseNotification.mockReturnValue({ createToast: mockedCreateToast });
+});
+
 // Test case 3.1.1
 it("3.1.1 - Initial load of Page", async () => {
   const user = userEvent.setup();
@@ -326,7 +340,7 @@ it("3.1.1 - Initial load of Page", async () => {
   expect(screen.getByText(/comment:/i)).toBeInTheDocument();
   const element = screen.queryByText(/Good Comment/i);
   expect(element).toBeInTheDocument();
-});
+}, 10000);
 
 // Test case 3.1.1.7
 it("3.1.1.7 - Content: Display an warning note if a box is located in a legacy location", async () => {
@@ -351,7 +365,7 @@ it("3.1.1.7 - Content: Display an warning note if a box is located in a legacy l
       /if this box has been found, please move it to an instock location\. boxtribute no longer supports lost locations\./i,
     ),
   ).toBeInTheDocument();
-});
+}, 10000);
 
 // Test case 3.1.2
 it("3.1.2 - Change Number of Items", async () => {
@@ -365,7 +379,8 @@ it("3.1.2 - Change Number of Items", async () => {
 
   const title = await screen.findByRole("heading", { name: "Box 123" });
   expect(title).toBeInTheDocument();
-  expect(screen.getByTestId("boxview-number-items")).toHaveTextContent(`31x Snow trousers`);
+
+  expect(screen.getByRole("heading", { name: /31x snow trousers/i }));
 
   const addToItemsButton = screen.getByTestId("increase-items");
   await user.click(addToItemsButton);
@@ -390,8 +405,8 @@ it("3.1.2 - Change Number of Items", async () => {
   await user.type(screen.getByRole("spinbutton"), "1");
   await waitFor(() => expect(screen.getByRole("spinbutton")).toHaveValue("1"));
   await user.click(screen.getByText(/Submit/i));
-  expect(await screen.findByText("32x Snow trousers")).toBeInTheDocument();
-});
+  expect(screen.getByRole("heading", { name: /32x snow trousers/i }));
+}, 10000);
 
 // Test case 3.1.3
 it("3.1.3 - Change State to Scrap and Lost", async () => {
@@ -439,7 +454,7 @@ it("3.1.3 - Change State to Scrap and Lost", async () => {
   expect(screen.getByTestId("increase-items")).toHaveAttribute("disabled");
   expect(screen.getByTestId("decrease-items")).toHaveAttribute("disabled");
   expect(screen.getByRole("button", { name: /edit box/i })).toHaveAttribute("disabled");
-});
+}, 10000);
 
 // Test case 3.1.4
 it("3.1.4 - Move location", async () => {
@@ -473,7 +488,7 @@ it("3.1.4 - Move location", async () => {
 
   // Test case 3.1.4.2.1 - Show last history entry icon
   expect(screen.getByRole("presentation")).toBeInTheDocument();
-});
+}, 10000);
 
 // Test case 3.1.5
 it("3.1.5 - Redirect to Edit Box", async () => {
@@ -496,7 +511,7 @@ it("3.1.5 - Redirect to Edit Box", async () => {
   expect(
     await screen.findByRole("heading", { name: "/bases/2/boxes/123/edit" }),
   ).toBeInTheDocument();
-});
+}, 10000);
 
 // Test case 3.1.6
 it("3.1.6 - Product Gender", async () => {
@@ -513,7 +528,7 @@ it("3.1.6 - Product Gender", async () => {
   // Test case 3.1.6.1 - Don't Show Gender If Not Applicable
   const element = screen.queryByText(textContentMatcher("Gender:"));
   expect(element).not.toBeInTheDocument();
-});
+}, 10000);
 
 // Test case 3.1.7
 it("3.1.7 - Error Shows Correctly When Trying to Remove (-) Items", async () => {
@@ -536,7 +551,7 @@ it("3.1.7 - Error Shows Correctly When Trying to Remove (-) Items", async () => 
   await user.type(screen.getByRole("spinbutton"), "1");
   await user.click(screen.getByText(/Submit/i));
   expect(await screen.findByText(/could not remove items from the box./i)).toBeInTheDocument();
-});
+}, 10000);
 
 // Test case 3.1.7.2
 it("3.1.7.2 - Form data was valid, but the mutation failed", async () => {
@@ -558,7 +573,7 @@ it("3.1.7.2 - Form data was valid, but the mutation failed", async () => {
   await user.click(whWomenLocation);
 
   expect(screen.getByText(/box could not be moved!/i)).toBeInTheDocument();
-});
+}, 10000);
 
 // Test case 3.1.8
 it("3.1.8 - Error When Move Locations", async () => {
@@ -581,7 +596,7 @@ it("3.1.8 - Error When Move Locations", async () => {
   await user.click(whWomenLocation);
 
   expect(screen.getAllByText(/box could not be moved!/i).length).toBeGreaterThanOrEqual(1);
-});
+}, 10000);
 
 // Test case 3.1.9
 it("3.1.9 - Given Invalid Box Label Identifier in the URL/Link", async () => {
@@ -594,7 +609,7 @@ it("3.1.9 - Given Invalid Box Label Identifier in the URL/Link", async () => {
   });
 
   await waitFor(() => expect(screen.getByText(/could not fetch box data!/i)).toBeInTheDocument());
-});
+}, 10000);
 
 // Test case 3.1.10
 it("3.1.10 - No Data or Null Data Fetched for a given Box Label Identifier", async () => {
@@ -609,6 +624,10 @@ it("3.1.10 - No Data or Null Data Fetched for a given Box Label Identifier", asy
       onStateChange={mockFunction}
       onAssignBoxToDistributionEventClick={mockFunction}
       onUnassignBoxFromDistributionEventClick={mockFunction}
+      onAssignBoxesToShipment={mockFunction}
+      onUnassignBoxesToShipment={mockFunction}
+      shipmentOptions={[]}
+      isLoading={false}
     />,
     {
       routePath: "/bases/:baseId/boxes/:labelIdentifier",
@@ -621,4 +640,4 @@ it("3.1.10 - No Data or Null Data Fetched for a given Box Label Identifier", asy
   await waitFor(() =>
     expect(screen.getByText(/no data found for a box with this id/i)).toBeInTheDocument(),
   );
-});
+}, 10000);
