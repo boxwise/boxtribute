@@ -93,7 +93,9 @@ function BoxTabs({
             </TabPanel>
             <TabPanel>
               {shipmentOptions.length === 0 && (
-                <Text>No shipments are being prepared from your base!</Text>
+                <Text px={4} py={8} alignContent="center">
+                  No shipments are being prepared from your base!
+                </Text>
               )}
               {shipmentOptions.length > 0 && (
                 <AssignBoxToShipment
