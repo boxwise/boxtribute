@@ -4,7 +4,7 @@ import "@testing-library/jest-dom";
 import { screen, render, waitFor } from "tests/test-utils";
 import userEvent from "@testing-library/user-event";
 import BTBox, {
-  BOX_BY_LABEL_IDENTIFIER_QUERY,
+  BOX_BY_LABEL_IDENTIFIER_AND_ALL_SHIPMENTS_QUERY,
   UPDATE_NUMBER_OF_ITEMS_IN_BOX_MUTATION,
   UPDATE_STATE_IN_BOX_MUTATION,
   UPDATE_BOX_MUTATION,
@@ -29,7 +29,7 @@ jest.mock("hooks/useNotification");
 
 const initialQuery = {
   request: {
-    query: BOX_BY_LABEL_IDENTIFIER_QUERY,
+    query: BOX_BY_LABEL_IDENTIFIER_AND_ALL_SHIPMENTS_QUERY,
     variables: {
       labelIdentifier: "123",
     },
@@ -43,7 +43,7 @@ const initialQuery = {
 
 const initialQueryForBoxInLegacyLostLocation = {
   request: {
-    query: BOX_BY_LABEL_IDENTIFIER_QUERY,
+    query: BOX_BY_LABEL_IDENTIFIER_AND_ALL_SHIPMENTS_QUERY,
     variables: {
       labelIdentifier: "1234",
     },
@@ -65,7 +65,7 @@ const initialQueryForBoxInLegacyLostLocation = {
 
 const productWithoutGenderQuery = {
   request: {
-    query: BOX_BY_LABEL_IDENTIFIER_QUERY,
+    query: BOX_BY_LABEL_IDENTIFIER_AND_ALL_SHIPMENTS_QUERY,
     variables: {
       labelIdentifier: "123",
     },
@@ -116,7 +116,7 @@ const updateNumberOfItemsMutation = {
 
 const numberOfItemsSuccessfullUpdatedRefetchQuery = {
   request: {
-    query: BOX_BY_LABEL_IDENTIFIER_QUERY,
+    query: BOX_BY_LABEL_IDENTIFIER_AND_ALL_SHIPMENTS_QUERY,
     variables: {
       labelIdentifier: "123",
     },
@@ -151,7 +151,7 @@ const moveLocationOfBoxMutation = {
 
 const moveLocationOfBoxRefetchQuery = {
   request: {
-    query: BOX_BY_LABEL_IDENTIFIER_QUERY,
+    query: BOX_BY_LABEL_IDENTIFIER_AND_ALL_SHIPMENTS_QUERY,
     variables: {
       labelIdentifier: "123",
     },
@@ -188,7 +188,7 @@ const updateBoxStateToScrapMutation = {
 
 const boxStateSuccessfullUpdatedToScrapRefetchQuery = {
   request: {
-    query: BOX_BY_LABEL_IDENTIFIER_QUERY,
+    query: BOX_BY_LABEL_IDENTIFIER_AND_ALL_SHIPMENTS_QUERY,
     variables: {
       labelIdentifier: "123",
     },
@@ -219,7 +219,7 @@ const updateBoxStateToLostMutation = {
 
 const boxStateSuccessfullUpdatedToLostRefetchQuery = {
   request: {
-    query: BOX_BY_LABEL_IDENTIFIER_QUERY,
+    query: BOX_BY_LABEL_IDENTIFIER_AND_ALL_SHIPMENTS_QUERY,
     variables: {
       labelIdentifier: "123",
     },
@@ -233,7 +233,7 @@ const boxStateSuccessfullUpdatedToLostRefetchQuery = {
 
 const initialFailedQuery = {
   request: {
-    query: BOX_BY_LABEL_IDENTIFIER_QUERY,
+    query: BOX_BY_LABEL_IDENTIFIER_AND_ALL_SHIPMENTS_QUERY,
     variables: {
       labelIdentifier: "1111",
     },
@@ -245,7 +245,7 @@ const initialFailedQuery = {
 
 const initialForFailedQuery = {
   request: {
-    query: BOX_BY_LABEL_IDENTIFIER_QUERY,
+    query: BOX_BY_LABEL_IDENTIFIER_AND_ALL_SHIPMENTS_QUERY,
     variables: {
       labelIdentifier: "124",
     },

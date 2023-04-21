@@ -10,7 +10,7 @@ import {
   UnassignBoxFromDistributionEventMutation,
   UnassignBoxFromDistributionEventMutationVariables,
 } from "types/generated/graphql";
-import { BOX_BY_LABEL_IDENTIFIER_QUERY } from "views/Box/BoxView";
+import { BOX_BY_LABEL_IDENTIFIER_AND_ALL_SHIPMENTS_QUERY } from "views/Box/BoxView";
 import { graphqlPackingListEntriesForDistributionEventTransformer } from "views/Distributions/dataTransformers";
 import {
   DISTRIBUTION_EVENT_QUERY,
@@ -21,14 +21,8 @@ import { DistributionEventDetails } from "views/Distributions/types";
 import DistroEventDetailsForPackingState from "./DistroEventDetailsForPackingState";
 
 const REMOVE_ITEMS_FROM_UNBOXED_ITEMS_COLLECTION_MUTATION = gql`
-  mutation RemoveItemsFromUnboxedItemsCollection(
-    $id: ID!
-    $numberOfItems: Int!
-  ) {
-    removeItemsFromUnboxedItemsCollection(
-      id: $id
-      numberOfItems: $numberOfItems
-    ) {
+  mutation RemoveItemsFromUnboxedItemsCollection($id: ID!, $numberOfItems: Int!) {
+    removeItemsFromUnboxedItemsCollection(id: $id, numberOfItems: $numberOfItems) {
       id
       numberOfItems
       product {
@@ -40,10 +34,7 @@ const REMOVE_ITEMS_FROM_UNBOXED_ITEMS_COLLECTION_MUTATION = gql`
 
 interface IDistroEventDetailsForPackingStateContext {
   onUnassignBoxFromDistributionEvent: (labelIdentifier: string) => void;
-  onRemoveUnboxedItems: (
-    unboxedItemsCollectionId: string,
-    numberOfItems: number
-  ) => void;
+  onRemoveUnboxedItems: (unboxedItemsCollectionId: string, numberOfItems: number) => void;
 }
 
 export const DistroEventDetailsForPackingStateContext =
@@ -70,19 +61,15 @@ const DistroEventDetailsForPackingStateContainer = ({
 
   const distributionEventId = distributionEventDetails.id;
 
-  const onRemoveUnboxedItems = (
-    unboxedItemsCollectionId: string,
-    numberOfItems: number
-  ) => {
+  const onRemoveUnboxedItems = (unboxedItemsCollectionId: string, numberOfItems: number) => {
     const handleError = (errors: any) => {
       console.error(
         `Error while trying to remove items (${numberOfItems}) from unboxed items collection (unbox items collection id: ${unboxedItemsCollectionId}) from distribution event ${distributionEventId}`,
-        errors
+        errors,
       );
       toast({
         title: "Error",
-        description:
-          "Couldn't remove items from distribution event. Please try again.",
+        description: "Couldn't remove items from distribution event. Please try again.",
         status: "error",
         duration: 2000,
         isClosable: true,
@@ -131,12 +118,11 @@ const DistroEventDetailsForPackingStateContainer = ({
       const handleError = (errors: any) => {
         console.error(
           `Error while trying to unassign box (label identifier: ${boxLabelIdentifier}) from distribution event ${distributionEventId}`,
-          errors
+          errors,
         );
         toast({
           title: "Error",
-          description:
-            "Box couldn't be unassigned from from the distribution event.",
+          description: "Box couldn't be unassigned from from the distribution event.",
           status: "error",
           duration: 2000,
           isClosable: true,
@@ -162,7 +148,7 @@ const DistroEventDetailsForPackingStateContainer = ({
             },
           },
           {
-            query: BOX_BY_LABEL_IDENTIFIER_QUERY,
+            query: BOX_BY_LABEL_IDENTIFIER_AND_ALL_SHIPMENTS_QUERY,
             variables: {
               labelIdentifier: boxLabelIdentifier,
             },
@@ -171,9 +157,7 @@ const DistroEventDetailsForPackingStateContainer = ({
         update: (cache, { data }) => {
           cache.modify({
             fields: {
-              packingListEntriesForDistributionEvent(
-                existingPackingListEntries
-              ) {},
+              packingListEntriesForDistributionEvent(existingPackingListEntries) {},
             },
           });
         },
@@ -194,7 +178,7 @@ const DistroEventDetailsForPackingStateContainer = ({
           handleError(error);
         });
     },
-    [distributionEventId, toast, unassignBoxFromDistributionEventMutation]
+    [distributionEventId, toast, unassignBoxFromDistributionEventMutation],
   );
 
   const contextValues: IDistroEventDetailsForPackingStateContext = {
@@ -219,8 +203,7 @@ const DistroEventDetailsForPackingStateContainer = ({
   }
 
   // const packingListEntries = useMemo(() => graphqlPackingListEntriesForDistributionEventTransformer(data), [data]);
-  const packingListEntries =
-    graphqlPackingListEntriesForDistributionEventTransformer(data);
+  const packingListEntries = graphqlPackingListEntriesForDistributionEventTransformer(data);
 
   if (packingListEntries == null) {
     return <div>Error: No data found</div>;

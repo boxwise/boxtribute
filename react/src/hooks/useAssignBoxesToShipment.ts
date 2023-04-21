@@ -257,16 +257,16 @@ export const useAssignBoxesToShipment = () => {
               (boxInShipment) => boxInShipment.labelIdentifier === box.labelIdentifier,
             ),
           );
-          const uassignedBoxes: IBoxBasicFields[] = boxes.filter((box) =>
+          const unassignedBoxes: IBoxBasicFields[] = boxes.filter((box) =>
             boxesInShipment.find(
               (boxInShipment) => boxInShipment.labelIdentifier !== box.labelIdentifier,
             ),
           );
-          if (uassignedBoxes.length) {
+          if (unassignedBoxes.length) {
             if (showToastMessage)
               createToast({
                 // eslint-disable-next-line max-len
-                message: `${uassignedBoxes.length} Boxes were successfully unassigned to the shipment.`,
+                message: `${unassignedBoxes.length} Boxes were successfully unassigned to the shipment.`,
               });
           }
           // Not all Boxes were assigned
@@ -274,7 +274,7 @@ export const useAssignBoxesToShipment = () => {
             return {
               kind: IAssignBoxToShipmentResultKind.BOX_FAIL,
               requestedBoxes: boxes,
-              uassignedBoxes,
+              unassignedBoxes,
               failedBoxes,
             } as IAssignBoxToShipmentResult;
           }

@@ -49,7 +49,7 @@ function BoxTabs({
       mb={6}
     >
       <Flex direction="column">
-        <Stack direction="column" alignContent="flex-start" p={4}>
+        <Stack direction="column" alignContent="flex-start" p={2}>
           <Box alignItems="center" alignContent="flex-start">
             <Wrap>
               <WrapItem>
@@ -63,9 +63,9 @@ function BoxTabs({
             </Wrap>
           </Box>
           {boxData?.shipmentDetail && (
-            <Stack direction="row" alignItems="center" spacing={2}>
-              <ShipmentIcon boxSize={6} />
-              <Text>
+            <Stack direction="row" alignItems="center" alignContent="center" spacing={2}>
+              <ShipmentIcon boxSize={6} alignItems="center" />
+              <Text alignItems="center" alignContent="center">
                 <b>{boxData?.shipmentDetail?.shipment.targetBase.name},</b>{" "}
                 {boxData?.shipmentDetail?.shipment.targetBase.organisation.name}
               </Text>

@@ -21,13 +21,18 @@ import {
   WrapItem,
 } from "@chakra-ui/react";
 import { NavLink } from "react-router-dom";
-import { BoxByLabelIdentifierQuery, BoxState, HistoryEntry } from "types/generated/graphql";
+import {
+  BoxByLabelIdentifierQuery,
+  BoxState,
+  HistoryEntry,
+  UpdateLocationOfBoxMutation,
+} from "types/generated/graphql";
 import { colorIsBright } from "utils/helpers";
 import { Style } from "victory";
 import HistoryEntries from "./HistoryEntries";
 
 export interface IBoxCardProps {
-  boxData: BoxByLabelIdentifierQuery["box"];
+  boxData: BoxByLabelIdentifierQuery["box"] | UpdateLocationOfBoxMutation["updateBox"];
   onPlusOpen: () => void;
   onMinusOpen: () => void;
   onStateChange: (boxState: BoxState) => void;

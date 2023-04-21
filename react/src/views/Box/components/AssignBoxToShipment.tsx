@@ -71,8 +71,8 @@ function AssignBoxToShipment({
             status: "error",
           });
         } else {
-          const reassigneResult = await onAssignBoxesToShipment(selectedShipmentOption.value);
-          if ((reassigneResult?.error?.length || 0) > 0) {
+          const reassignedResult = await onAssignBoxesToShipment(selectedShipmentOption.value);
+          if ((reassignedResult?.error?.length || 0) > 0) {
             triggerError({
               message: "Could not reassign the box to shipment. Try again?",
               status: "error",
@@ -116,7 +116,7 @@ function AssignBoxToShipment({
     return true;
   }, [selectedShipmentOption]);
 
-  const dropDownComponent = (
+  const allShipmentsDropDown = (
     <FormControl isRequired mt={2}>
       <Select
         placeholder="Please select a shipment ..."
@@ -159,7 +159,7 @@ function AssignBoxToShipment({
       {!currentShipmentId && (
         <Flex alignItems="center" direction="column" alignContent="space-between">
           <Text>Assign this box to one of the following shipments under preparation:</Text>
-          {dropDownComponent}
+          {allShipmentsDropDown}
           <Flex mt={3}>
             <Text fontSize={16}>
               Box status will change to{" "}
@@ -174,7 +174,7 @@ function AssignBoxToShipment({
 
       {currentShipmentId && (
         <Flex direction="column" alignContent="center" alignItems="center">
-          <Flex direction="row" gap={2} alignContent="center" alignItems="center" px={4}>
+          <Flex direction="row" alignContent="center" alignItems="center" px={4}>
             <Button
               isLoading={isAssignBoxesToShipmentLoading}
               type="button"
@@ -201,7 +201,7 @@ function AssignBoxToShipment({
             </Tooltip>
           </Flex>
 
-          <Flex alignItems="center" gap={3} width={["100%"]}>
+          <Flex alignItems="center" gap={3} width="100%">
             <Divider border="2px" borderColor="black" borderRadius={0} />
             <Heading
               as="h4"
@@ -214,9 +214,9 @@ function AssignBoxToShipment({
             </Heading>
             <Divider border="2px" borderColor="black" borderRadius={0} />
           </Flex>
-          <Flex direction="column" ml={4} mr={4}>
+          <Flex direction="column" px={4}>
             <Text>Assign box to a different shipment under preparation:</Text>
-            {dropDownComponent}
+            {allShipmentsDropDown}
             {assignButton}
           </Flex>
         </Flex>

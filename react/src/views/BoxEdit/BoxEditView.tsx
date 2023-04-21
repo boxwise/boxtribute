@@ -15,7 +15,7 @@ import {
   PRODUCT_FIELDS_FRAGMENT,
 } from "queries/fragments";
 // TODO: move to global queries file
-import { BOX_BY_LABEL_IDENTIFIER_QUERY } from "views/Box/BoxView";
+import { BOX_BY_LABEL_IDENTIFIER_AND_ALL_SHIPMENTS_QUERY } from "views/Box/BoxView";
 import { useErrorHandling } from "hooks/useErrorHandling";
 import { useNotification } from "hooks/useNotification";
 import { GlobalPreferencesContext } from "providers/GlobalPreferencesProvider";
@@ -107,7 +107,7 @@ function BoxEditView() {
   });
 
   const refetchBoxByLabelIdentifierQueryConfig = () => ({
-    query: BOX_BY_LABEL_IDENTIFIER_QUERY,
+    query: BOX_BY_LABEL_IDENTIFIER_AND_ALL_SHIPMENTS_QUERY,
     variables: {
       labelIdentifier,
     },

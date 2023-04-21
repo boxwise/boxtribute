@@ -28,7 +28,6 @@ import {
   UpdateStateMutationVariables,
   UpdateStateMutation,
   ClassicLocation,
-  ShipmentsQuery,
   ShipmentState,
 } from "types/generated/graphql";
 import {
@@ -42,6 +41,7 @@ import {
   BOX_FIELDS_FRAGMENT,
   PRODUCT_BASIC_FIELDS_FRAGMENT,
   PRODUCT_FIELDS_FRAGMENT,
+  SHIPMENT_FIELDS_FRAGMENT,
 } from "queries/fragments";
 import { useErrorHandling } from "hooks/useErrorHandling";
 import { useNotification } from "hooks/useNotification";
@@ -51,24 +51,24 @@ import {
   useAssignBoxesToShipment,
 } from "hooks/useAssignBoxesToShipment";
 import { IBoxBasicFields, IBoxBasicFieldsWithShipmentDetail } from "types/graphql-local-only";
-import { ALL_SHIPMENTS_QUERY } from "queries/queries";
 import { IDropdownOption } from "components/Form/SelectField";
 import BoxDetails from "./components/BoxDetails";
 import TakeItemsFromBoxOverlay from "./components/TakeItemsFromBoxOverlay";
 import AddItemsToBoxOverlay from "./components/AddItemsToBoxOverlay";
 
 const refetchBoxByLabelIdentifierQueryConfig = (labelIdentifier: string) => ({
-  query: BOX_BY_LABEL_IDENTIFIER_QUERY,
+  query: BOX_BY_LABEL_IDENTIFIER_AND_ALL_SHIPMENTS_QUERY,
   variables: {
     labelIdentifier,
   },
 });
 
-export const BOX_BY_LABEL_IDENTIFIER_QUERY = gql`
+export const BOX_BY_LABEL_IDENTIFIER_AND_ALL_SHIPMENTS_QUERY = gql`
   ${PRODUCT_BASIC_FIELDS_FRAGMENT}
   ${BOX_FIELDS_FRAGMENT}
   ${TAG_FIELDS_FRAGMENT}
   ${DISTRO_EVENT_FIELDS_FRAGMENT}
+  ${SHIPMENT_FIELDS_FRAGMENT}
   query BoxByLabelIdentifier($labelIdentifier: String!) {
     box(labelIdentifier: $labelIdentifier) {
       ...BoxFields
@@ -123,6 +123,9 @@ export const BOX_BY_LABEL_IDENTIFIER_QUERY = gql`
           }
         }
       }
+    }
+    shipments {
+      ...ShipmentFields
     }
   }
 `;
@@ -211,11 +214,8 @@ function BTBox() {
     isLoading: isAssignBoxesToShipmentLoading,
   } = useAssignBoxesToShipment();
 
-  // fetch shipments data
-  const shipmentsQueryResult = useQuery<ShipmentsQuery>(ALL_SHIPMENTS_QUERY);
-
-  const allBoxData = useQuery<BoxByLabelIdentifierQuery, BoxByLabelIdentifierQueryVariables>(
-    BOX_BY_LABEL_IDENTIFIER_QUERY,
+  const allData = useQuery<BoxByLabelIdentifierQuery, BoxByLabelIdentifierQueryVariables>(
+    BOX_BY_LABEL_IDENTIFIER_AND_ALL_SHIPMENTS_QUERY,
     {
       variables: {
         labelIdentifier,
@@ -223,6 +223,8 @@ function BTBox() {
       // notifyOnNetworkStatusChange: true
     },
   );
+
+  const shipmentsQueryResult = allData.data?.shipments;
 
   const [updateNumberOfItemsMutation, updateNumberOfItemsMutationStatus] = useMutation<
     UpdateNumberOfItemsMutation,
@@ -250,7 +252,7 @@ function BTBox() {
     {
       refetchQueries: [
         {
-          query: BOX_BY_LABEL_IDENTIFIER_QUERY,
+          query: BOX_BY_LABEL_IDENTIFIER_AND_ALL_SHIPMENTS_QUERY,
           variables: {
             labelIdentifier,
           },
@@ -267,7 +269,7 @@ function BTBox() {
   const { isOpen: isPlusOpen, onOpen: onPlusOpen, onClose: onPlusClose } = useDisclosure();
   const { isOpen: isMinusOpen, onOpen: onMinusOpen, onClose: onMinusClose } = useDisclosure();
 
-  const boxData = allBoxData.data?.box;
+  const boxData = allData.data?.box;
 
   const onStateChange = (newState: BoxState) => {
     updateStateMutation({
@@ -455,7 +457,7 @@ function BTBox() {
 
   const shipmentOptions: IDropdownOption[] = useMemo(
     () =>
-      shipmentsQueryResult.data?.shipments
+      shipmentsQueryResult
         ?.filter(
           (shipment) =>
             shipment.state === ShipmentState.Preparing && shipment.sourceBase.id === currentBaseId,
@@ -464,17 +466,17 @@ function BTBox() {
           label: `${shipment.targetBase.name} - ${shipment.targetBase.organisation.name}`,
           value: shipment.id,
         })) ?? [],
-    [currentBaseId, shipmentsQueryResult.data?.shipments],
+    [currentBaseId, shipmentsQueryResult],
   );
 
   useEffect(() => {
-    if (!allBoxData.loading && boxData === undefined) {
+    if (!allData.loading && boxData === undefined) {
       triggerError({ message: "Could not fetch Box Data!" });
     }
-  }, [triggerError, allBoxData.loading, boxData]);
+  }, [triggerError, allData.loading, boxData]);
 
   if (
-    allBoxData.loading ||
+    allData.loading ||
     updateNumberOfItemsMutationStatus.loading ||
     updateBoxLocationMutationStatus.loading ||
     assignBoxToDistributionEventMutationStatus.loading ||
@@ -485,7 +487,7 @@ function BTBox() {
 
   // TODO: handle errors not with empty div, but forward or roll data back in the view
   if (
-    allBoxData.error ||
+    allData.error ||
     updateNumberOfItemsMutationStatus.error ||
     updateBoxLocationMutationStatus.error ||
     assignBoxToDistributionEventMutationStatus.error ||
