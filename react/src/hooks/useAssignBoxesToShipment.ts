@@ -86,11 +86,9 @@ export const useAssignBoxesToShipment = () => {
 
   const assignBoxesToShipment = useCallback(
     (shipmentId: string, boxes: IBoxBasicFields[], showToastMessage: boolean = true) => {
-      console.log("boxes", boxes);
       setIsLoading(true);
       const inStockLabelIdentifiers = boxes.map((box) => box.labelIdentifier);
 
-      console.log("inStockLabelIdentifiers", inStockLabelIdentifiers);
       return assignBoxesToShipmentMutation({
         variables: {
           id: shipmentId,
