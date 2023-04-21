@@ -50,18 +50,18 @@ function BoxTabs({
     >
       <Flex direction="column">
         <Stack direction="column" alignContent="flex-start" p={2}>
-          <Box alignItems="center" alignContent="flex-start">
+          <Stack alignContent="flex-start" spacing={2}>
             <Wrap>
-              <WrapItem>
-                <FaWarehouse />
+              <WrapItem alignItems="center">
+                <FaWarehouse size={24} />
               </WrapItem>
-              <WrapItem>
+              <WrapItem alignItems="center">
                 <Text fontWeight="bold" fontSize={16} data-testid="box-header">
                   {boxData?.location?.name}
                 </Text>
               </WrapItem>
             </Wrap>
-          </Box>
+          </Stack>
           {boxData?.shipmentDetail && (
             <Stack direction="row" alignItems="center" alignContent="center" spacing={2}>
               <ShipmentIcon boxSize={6} alignItems="center" />
