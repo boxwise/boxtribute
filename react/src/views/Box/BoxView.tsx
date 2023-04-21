@@ -1,4 +1,4 @@
-import { useCallback, useContext, useEffect, useMemo } from "react";
+import { useCallback, useContext, useMemo } from "react";
 import { gql, useMutation, useQuery } from "@apollo/client";
 import {
   Alert,
@@ -11,7 +11,6 @@ import {
 } from "@chakra-ui/react";
 import { GlobalPreferencesContext } from "providers/GlobalPreferencesProvider";
 
-import APILoadingIndicator from "components/APILoadingIndicator";
 import { useParams } from "react-router-dom";
 import {
   AssignBoxToDistributionEventMutation,
@@ -51,6 +50,7 @@ import {
 import { IBoxBasicFields, IBoxBasicFieldsWithShipmentDetail } from "types/graphql-local-only";
 import { IDropdownOption } from "components/Form/SelectField";
 import { BOX_BY_LABEL_IDENTIFIER_AND_ALL_SHIPMENTS_QUERY } from "queries/queries";
+import { BoxViewSkeleton } from "components/Skeletons";
 import BoxDetails from "./components/BoxDetails";
 import TakeItemsFromBoxOverlay from "./components/TakeItemsFromBoxOverlay";
 import AddItemsToBoxOverlay from "./components/AddItemsToBoxOverlay";
@@ -202,6 +202,20 @@ function BTBox() {
   const { isOpen: isMinusOpen, onOpen: onMinusOpen, onClose: onMinusClose } = useDisclosure();
 
   const boxData = allData.data?.box;
+
+  const loading =
+    allData.loading ||
+    updateNumberOfItemsMutationStatus.loading ||
+    updateBoxLocationMutationStatus.loading ||
+    assignBoxToDistributionEventMutationStatus.loading ||
+    unassignBoxFromDistributionEventMutationStatus.loading;
+
+  const error =
+    allData.error ||
+    updateNumberOfItemsMutationStatus.error ||
+    updateBoxLocationMutationStatus.error ||
+    assignBoxToDistributionEventMutationStatus.error ||
+    unassignBoxFromDistributionEventMutationStatus.error;
 
   const onStateChange = (newState: BoxState) => {
     updateStateMutation({
@@ -401,65 +415,57 @@ function BTBox() {
     [currentBaseId, shipmentsQueryResult],
   );
 
-  useEffect(() => {
-    if (!allData.loading && boxData === undefined) {
-      triggerError({ message: "Could not fetch Box Data!" });
-    }
-  }, [triggerError, allData.loading, boxData]);
+  let shipmentDetail;
 
-  if (
-    allData.loading ||
-    updateNumberOfItemsMutationStatus.loading ||
-    updateBoxLocationMutationStatus.loading ||
-    assignBoxToDistributionEventMutationStatus.loading ||
-    unassignBoxFromDistributionEventMutationStatus.loading
-  ) {
-    return <APILoadingIndicator />;
+  if (error) {
+    shipmentDetail = (
+      <Alert status="error" data-testid="ErrorAlert">
+        <AlertIcon />
+        Could not fetch Box Data! Please try reloading the page.
+      </Alert>
+    );
+  } else if (loading) {
+    shipmentDetail = <BoxViewSkeleton />;
+  } else {
+    const alertForLagacyBox = (
+      <Alert status="warning">
+        <AlertIcon />
+        <Box>
+          <AlertTitle>Note</AlertTitle>
+          <AlertDescription>
+            If this box has been found, please move it to an instock location. Boxtribute no longer
+            supports LOST locations.
+          </AlertDescription>
+        </Box>
+      </Alert>
+    );
+
+    shipmentDetail = (
+      <>
+        {((boxData?.location as ClassicLocation).defaultBoxState === BoxState.Lost ||
+          (boxData?.location as ClassicLocation).defaultBoxState === BoxState.Scrap) &&
+          boxData?.state !== BoxState.InStock &&
+          alertForLagacyBox}
+        <BoxDetails
+          boxData={boxData}
+          onPlusOpen={onPlusOpen}
+          onMinusOpen={onMinusOpen}
+          onMoveToLocationClick={onMoveBoxToLocationClick}
+          onStateChange={onStateChange}
+          onAssignBoxToDistributionEventClick={onAssignBoxToDistributionEventClick}
+          onUnassignBoxFromDistributionEventClick={onUnassignBoxFromDistributionEventClick}
+          onAssignBoxesToShipment={onAssignBoxesToShipment}
+          onUnassignBoxesToShipment={onUnassignBoxesToShipment}
+          isLoading={isAssignBoxesToShipmentLoading}
+          shipmentOptions={shipmentOptions}
+        />
+      </>
+    );
   }
-
-  // TODO: handle errors not with empty div, but forward or roll data back in the view
-  if (
-    allData.error ||
-    updateNumberOfItemsMutationStatus.error ||
-    updateBoxLocationMutationStatus.error ||
-    assignBoxToDistributionEventMutationStatus.error ||
-    unassignBoxFromDistributionEventMutationStatus.error
-  ) {
-    return <div />;
-  }
-
-  const LegacyBoxAlert = (
-    <Alert status="warning">
-      <AlertIcon />
-      <Box>
-        <AlertTitle>Note</AlertTitle>
-        <AlertDescription>
-          If this box has been found, please move it to an instock location. Boxtribute no longer
-          supports LOST locations.
-        </AlertDescription>
-      </Box>
-    </Alert>
-  );
 
   return (
     <VStack spacing={4} align="stretch">
-      {((boxData?.location as ClassicLocation).defaultBoxState === BoxState.Lost ||
-        (boxData?.location as ClassicLocation).defaultBoxState === BoxState.Scrap) &&
-        boxData?.state !== BoxState.InStock &&
-        LegacyBoxAlert}
-      <BoxDetails
-        boxData={boxData}
-        onPlusOpen={onPlusOpen}
-        onMinusOpen={onMinusOpen}
-        onMoveToLocationClick={onMoveBoxToLocationClick}
-        onStateChange={onStateChange}
-        onAssignBoxToDistributionEventClick={onAssignBoxToDistributionEventClick}
-        onUnassignBoxFromDistributionEventClick={onUnassignBoxFromDistributionEventClick}
-        onAssignBoxesToShipment={onAssignBoxesToShipment}
-        onUnassignBoxesToShipment={onUnassignBoxesToShipment}
-        isLoading={isAssignBoxesToShipmentLoading}
-        shipmentOptions={shipmentOptions}
-      />
+      {shipmentDetail}
       <AddItemsToBoxOverlay
         isOpen={isPlusOpen}
         onClose={onPlusClose}
