@@ -409,7 +409,8 @@ function BTBox() {
             shipment.state === ShipmentState.Preparing && shipment.sourceBase.id === currentBaseId,
         )
         ?.map((shipment) => ({
-          label: `${shipment.targetBase.name} - ${shipment.targetBase.organisation.name}`,
+          // eslint-disable-next-line max-len
+          label: `${shipment.targetBase.name} - ${shipment.targetBase.organisation.name} (Shipment ${shipment.id})`,
           value: shipment.id,
         })) ?? [],
     [currentBaseId, shipmentsQueryResult],
