@@ -81,20 +81,6 @@ export const BOX_BY_LABEL_IDENTIFIER_AND_ALL_SHIPMENTS_QUERY = gql`
       distributionEvent {
         ...DistroEventFields
       }
-      shipmentDetail {
-        shipment {
-          id
-          state
-          targetBase {
-            id
-            name
-            organisation {
-              id
-              name
-            }
-          }
-        }
-      }
       location {
         __typename
         id
