@@ -1,6 +1,7 @@
 import { gql, useMutation, useQuery } from "@apollo/client";
 import { useToast } from "@chakra-ui/react";
 import APILoadingIndicator from "components/APILoadingIndicator";
+import { BOX_BY_LABEL_IDENTIFIER_AND_ALL_SHIPMENTS_QUERY } from "queries/queries";
 import { createContext, useCallback } from "react";
 import {
   PackingListEntriesForDistributionEventQuery,
@@ -10,7 +11,6 @@ import {
   UnassignBoxFromDistributionEventMutation,
   UnassignBoxFromDistributionEventMutationVariables,
 } from "types/generated/graphql";
-import { BOX_BY_LABEL_IDENTIFIER_AND_ALL_SHIPMENTS_QUERY } from "views/Box/BoxView";
 import { graphqlPackingListEntriesForDistributionEventTransformer } from "views/Distributions/dataTransformers";
 import {
   DISTRIBUTION_EVENT_QUERY,

@@ -39,9 +39,7 @@ import {
   DISTRO_EVENT_FIELDS_FRAGMENT,
   TAG_FIELDS_FRAGMENT,
   BOX_FIELDS_FRAGMENT,
-  PRODUCT_BASIC_FIELDS_FRAGMENT,
   PRODUCT_FIELDS_FRAGMENT,
-  SHIPMENT_FIELDS_FRAGMENT,
 } from "queries/fragments";
 import { useErrorHandling } from "hooks/useErrorHandling";
 import { useNotification } from "hooks/useNotification";
@@ -52,6 +50,7 @@ import {
 } from "hooks/useAssignBoxesToShipment";
 import { IBoxBasicFields, IBoxBasicFieldsWithShipmentDetail } from "types/graphql-local-only";
 import { IDropdownOption } from "components/Form/SelectField";
+import { BOX_BY_LABEL_IDENTIFIER_AND_ALL_SHIPMENTS_QUERY } from "queries/queries";
 import BoxDetails from "./components/BoxDetails";
 import TakeItemsFromBoxOverlay from "./components/TakeItemsFromBoxOverlay";
 import AddItemsToBoxOverlay from "./components/AddItemsToBoxOverlay";
@@ -62,59 +61,6 @@ const refetchBoxByLabelIdentifierQueryConfig = (labelIdentifier: string) => ({
     labelIdentifier,
   },
 });
-
-export const BOX_BY_LABEL_IDENTIFIER_AND_ALL_SHIPMENTS_QUERY = gql`
-  ${PRODUCT_BASIC_FIELDS_FRAGMENT}
-  ${BOX_FIELDS_FRAGMENT}
-  ${TAG_FIELDS_FRAGMENT}
-  ${DISTRO_EVENT_FIELDS_FRAGMENT}
-  ${SHIPMENT_FIELDS_FRAGMENT}
-  query BoxByLabelIdentifier($labelIdentifier: String!) {
-    box(labelIdentifier: $labelIdentifier) {
-      ...BoxFields
-      product {
-        ...ProductBasicFields
-      }
-      tags {
-        ...TagFields
-      }
-      distributionEvent {
-        ...DistroEventFields
-      }
-      location {
-        __typename
-        id
-        name
-        ... on ClassicLocation {
-          defaultBoxState
-        }
-        base {
-          locations {
-            id
-            seq
-            name
-            ... on ClassicLocation {
-              defaultBoxState
-            }
-          }
-          distributionEventsBeforeReturnedFromDistributionState {
-            id
-            state
-            distributionSpot {
-              name
-            }
-            name
-            plannedStartDateTime
-            plannedEndDateTime
-          }
-        }
-      }
-    }
-    shipments {
-      ...ShipmentFields
-    }
-  }
-`;
 
 export const UPDATE_NUMBER_OF_ITEMS_IN_BOX_MUTATION = gql`
   mutation UpdateNumberOfItems($boxLabelIdentifier: String!, $numberOfItems: Int!) {

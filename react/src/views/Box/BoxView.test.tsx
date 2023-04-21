@@ -4,7 +4,6 @@ import "@testing-library/jest-dom";
 import { screen, render, waitFor } from "tests/test-utils";
 import userEvent from "@testing-library/user-event";
 import BTBox, {
-  BOX_BY_LABEL_IDENTIFIER_AND_ALL_SHIPMENTS_QUERY,
   UPDATE_NUMBER_OF_ITEMS_IN_BOX_MUTATION,
   UPDATE_STATE_IN_BOX_MUTATION,
   UPDATE_BOX_MUTATION,
@@ -21,6 +20,7 @@ import { textContentMatcher } from "tests/helpers";
 import BoxDetails from "./components/BoxDetails";
 import { generateMockTransferAgreement } from "mocks/transferAgreements";
 import { mockGraphQLError, mockNetworkError } from "mocks/functions";
+import { BOX_BY_LABEL_IDENTIFIER_AND_ALL_SHIPMENTS_QUERY } from "queries/queries";
 
 const mockedTriggerError = jest.fn();
 const mockedCreateToast = jest.fn();
