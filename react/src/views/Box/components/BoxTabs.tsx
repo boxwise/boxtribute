@@ -56,7 +56,7 @@ function BoxTabs({
                 <FaWarehouse size={24} />
               </WrapItem>
               <WrapItem alignItems="center">
-                <Text fontWeight="bold" fontSize={16} data-testid="box-header">
+                <Text fontWeight="bold" fontSize={16}>
                   {boxData?.location?.name}
                 </Text>
               </WrapItem>

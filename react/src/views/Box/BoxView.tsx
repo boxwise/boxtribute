@@ -179,19 +179,19 @@ function BTBox() {
       UnassignBoxFromDistributionEventMutationVariables
     >(UNASSIGN_BOX_FROM_DISTRIBUTION_MUTATION);
 
-  const [updateStateMutation] = useMutation<UpdateStateMutation, UpdateStateMutationVariables>(
-    UPDATE_STATE_IN_BOX_MUTATION,
-    {
-      refetchQueries: [
-        {
-          query: BOX_BY_LABEL_IDENTIFIER_AND_ALL_SHIPMENTS_QUERY,
-          variables: {
-            labelIdentifier,
-          },
+  const [updateStateMutation, updateStateMutationStatus] = useMutation<
+    UpdateStateMutation,
+    UpdateStateMutationVariables
+  >(UPDATE_STATE_IN_BOX_MUTATION, {
+    refetchQueries: [
+      {
+        query: BOX_BY_LABEL_IDENTIFIER_AND_ALL_SHIPMENTS_QUERY,
+        variables: {
+          labelIdentifier,
         },
-      ],
-    },
-  );
+      },
+    ],
+  });
 
   const [updateBoxLocation, updateBoxLocationMutationStatus] = useMutation<
     UpdateLocationOfBoxMutation,
@@ -206,14 +206,13 @@ function BTBox() {
   const loading =
     allData.loading ||
     updateNumberOfItemsMutationStatus.loading ||
+    updateStateMutationStatus.loading ||
     updateBoxLocationMutationStatus.loading ||
     assignBoxToDistributionEventMutationStatus.loading ||
     unassignBoxFromDistributionEventMutationStatus.loading;
 
   const error =
     allData.error ||
-    updateNumberOfItemsMutationStatus.error ||
-    updateBoxLocationMutationStatus.error ||
     assignBoxToDistributionEventMutationStatus.error ||
     unassignBoxFromDistributionEventMutationStatus.error;
 
@@ -426,7 +425,7 @@ function BTBox() {
       </Alert>
     );
   } else if (loading) {
-    shipmentDetail = <BoxViewSkeleton />;
+    shipmentDetail = <BoxViewSkeleton data-testid="loader" />;
   } else {
     const alertForLagacyBox = (
       <Alert status="warning">

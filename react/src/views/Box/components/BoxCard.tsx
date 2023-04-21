@@ -204,6 +204,7 @@ function BoxCard({ boxData, onPlusOpen, onMinusOpen, onStateChange, isLoading }:
             <FormLabel htmlFor="scrap">Scrap:</FormLabel>
             <Switch
               id="scrap"
+              isReadOnly={isLoading}
               isChecked={boxData?.state === BoxState.Scrap}
               data-testid="box-scrap-btn"
               isFocusable={false}
@@ -224,6 +225,7 @@ function BoxCard({ boxData, onPlusOpen, onMinusOpen, onStateChange, isLoading }:
             <Switch
               id="lost"
               isFocusable={false}
+              isReadOnly={isLoading}
               data-testid="box-lost-btn"
               onChange={() =>
                 onStateChange(
