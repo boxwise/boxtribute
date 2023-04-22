@@ -63,19 +63,21 @@ const refetchBoxByLabelIdentifierQueryConfig = (labelIdentifier: string) => ({
 });
 
 export const UPDATE_NUMBER_OF_ITEMS_IN_BOX_MUTATION = gql`
+  ${BOX_FIELDS_FRAGMENT}
   mutation UpdateNumberOfItems($boxLabelIdentifier: String!, $numberOfItems: Int!) {
     updateBox(
       updateInput: { labelIdentifier: $boxLabelIdentifier, numberOfItems: $numberOfItems }
     ) {
-      labelIdentifier
+      ...BoxFields
     }
   }
 `;
 
 export const UPDATE_STATE_IN_BOX_MUTATION = gql`
+  ${BOX_FIELDS_FRAGMENT}
   mutation UpdateState($boxLabelIdentifier: String!, $newState: BoxState!) {
     updateBox(updateInput: { labelIdentifier: $boxLabelIdentifier, state: $newState }) {
-      labelIdentifier
+      ...BoxFields
     }
   }
 `;
