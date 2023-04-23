@@ -87,7 +87,9 @@ export const useAssignBoxesToShipment = () => {
   const assignBoxesToShipment = useCallback(
     (shipmentId: string, boxes: IBoxBasicFields[], showToastMessage: boolean = true) => {
       setIsLoading(true);
-      const inStockLabelIdentifiers = boxes.map((box) => box.labelIdentifier);
+      const inStockLabelIdentifiers = boxes
+        .filter((box) => box.state === BoxState.InStock)
+        .map((box) => box.labelIdentifier);
 
       return assignBoxesToShipmentMutation({
         variables: {
@@ -196,7 +198,7 @@ export const useAssignBoxesToShipment = () => {
       showToastMessage: boolean = true,
     ) => {
       setIsLoading(true);
-      const inStockLabelIdentifiers = boxes
+      const inShipmentLabelIdentifiers = boxes
         .filter(
           (box) =>
             box.state === BoxState.MarkedForShipment &&
@@ -206,7 +208,7 @@ export const useAssignBoxesToShipment = () => {
       return unassignBoxesToShipmentMutation({
         variables: {
           id: shipmentId,
-          labelIdentifiers: inStockLabelIdentifiers,
+          labelIdentifiers: inShipmentLabelIdentifiers,
         },
       })
         .then(({ data, errors }) => {
@@ -248,14 +250,16 @@ export const useAssignBoxesToShipment = () => {
               error: errors ? errors[0] : undefined,
             } as IAssignBoxToShipmentResult;
           }
-          const boxesInShipment: IBoxBasicFields[] =
-            data?.updateShipmentWhenPreparing?.details.map((detail) => detail.box) ?? [];
-          const failedBoxes: IBoxBasicFields[] = boxes.filter((box) =>
+          const boxesInShipment =
+            (data?.updateShipmentWhenPreparing?.details
+              .filter((detail) => detail.box.state === BoxState.MarkedForShipment)
+              .map((detail) => detail.box) as IBoxBasicFieldsWithShipmentDetail[]) ?? [];
+          const failedBoxes: IBoxBasicFieldsWithShipmentDetail[] = boxes.filter((box) =>
             boxesInShipment.some(
               (boxInShipment) => boxInShipment.labelIdentifier === box.labelIdentifier,
             ),
           );
-          const unassignedBoxes: IBoxBasicFields[] = boxes.filter((box) =>
+          const unassignedBoxes: IBoxBasicFieldsWithShipmentDetail[] = boxes.filter((box) =>
             boxesInShipment.find(
               (boxInShipment) => boxInShipment.labelIdentifier !== box.labelIdentifier,
             ),
