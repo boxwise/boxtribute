@@ -13,10 +13,6 @@ import {
 } from "@chakra-ui/react";
 import { IDropdownOption } from "components/Form/SelectField";
 import { ShipmentIcon } from "components/Icon/Transfer/ShipmentIcon";
-import {
-  IAssignBoxToShipmentResult,
-  IUnassignBoxToShipmentResult,
-} from "hooks/useAssignBoxesToShipment";
 import { BiNetworkChart } from "react-icons/bi";
 import { FaDollyFlatbed, FaWarehouse } from "react-icons/fa";
 import { BoxByLabelIdentifierQuery } from "types/generated/graphql";
@@ -27,8 +23,8 @@ import BoxMoveLocation from "./BoxMoveLocation";
 export interface IBoxTabsProps {
   boxData: BoxByLabelIdentifierQuery["box"];
   onMoveToLocationClick: (locationId: string) => void;
-  onAssignBoxesToShipment: (shipmentId: string) => Promise<IAssignBoxToShipmentResult>;
-  onUnassignBoxesToShipment: (shipmentId: string) => Promise<IUnassignBoxToShipmentResult>;
+  onAssignBoxesToShipment: (shipmentId: string) => void;
+  onUnassignBoxesToShipment: (shipmentId: string) => void;
   shipmentOptions: IDropdownOption[];
   isLoading: boolean;
 }
@@ -103,7 +99,7 @@ function BoxTabs({
               )}
               {shipmentOptions.length > 0 && (
                 <AssignBoxToShipment
-                  currentShipmentId={boxData?.shipmentDetail?.shipment?.id}
+                  boxData={boxData}
                   isAssignBoxesToShipmentLoading={isLoading}
                   shipmentOptions={shipmentOptions}
                   onAssignBoxesToShipment={onAssignBoxesToShipment}

@@ -1,10 +1,4 @@
 import { useMemo, useState } from "react";
-import { useErrorHandling } from "hooks/useErrorHandling";
-import { useNotification } from "hooks/useNotification";
-import {
-  IAssignBoxToShipmentResult,
-  IUnassignBoxToShipmentResult,
-} from "hooks/useAssignBoxesToShipment";
 import {
   Text,
   FormControl,
@@ -20,94 +14,29 @@ import {
 import { Select } from "chakra-react-select";
 import { IDropdownOption } from "components/Form/SelectField";
 import { AiFillInfoCircle } from "react-icons/ai";
+import { BoxByLabelIdentifierQuery, UpdateLocationOfBoxMutation } from "types/generated/graphql";
 
 export interface IAssignBoxToShipmentProps {
-  currentShipmentId: string | undefined;
+  boxData: BoxByLabelIdentifierQuery["box"] | UpdateLocationOfBoxMutation["updateBox"];
   shipmentOptions: IDropdownOption[];
   isAssignBoxesToShipmentLoading: boolean;
-  onAssignBoxesToShipment: (shipmentId: string) => Promise<IAssignBoxToShipmentResult>;
-  onUnassignBoxesToShipment: (shipmentId: string) => Promise<IUnassignBoxToShipmentResult>;
+  onAssignBoxesToShipment: (shipmentId: string) => void;
+  onUnassignBoxesToShipment: (shipmentId: string) => void;
 }
 
 function AssignBoxToShipment({
-  currentShipmentId,
+  boxData,
   shipmentOptions,
   onAssignBoxesToShipment,
   onUnassignBoxesToShipment,
   isAssignBoxesToShipmentLoading,
 }: IAssignBoxToShipmentProps) {
-  const { triggerError } = useErrorHandling();
-  const { createToast } = useNotification();
-
   const [selectedShipmentOption, setSelectedShipmentOption] = useState<IDropdownOption>({
     value: "",
     label: "",
   });
 
-  async function handleAssignBoxesToShipment() {
-    if (selectedShipmentOption) {
-      if (!currentShipmentId) {
-        const assigmentResult = await onAssignBoxesToShipment(selectedShipmentOption.value);
-        if ((assigmentResult?.error?.length || 0) > 0) {
-          triggerError({
-            // eslint-disable-next-line max-len
-            message: `Could not assign the box to the shipment ${selectedShipmentOption.value}. Try again?`,
-            status: "error",
-          });
-        } else {
-          createToast({
-            // eslint-disable-next-line max-len
-            message: `Box has successfully assigned to the shipment ${selectedShipmentOption.value}.`,
-            status: "success",
-          });
-          setSelectedShipmentOption({ value: "", label: "" });
-        }
-      } else {
-        const unassigneResult = await onUnassignBoxesToShipment(currentShipmentId);
-
-        if ((unassigneResult?.error?.length || 0) > 0) {
-          triggerError({
-            message: `Could not unassign the box to shipment ${currentShipmentId}. Try again?`,
-            status: "error",
-          });
-        } else {
-          const reassignedResult = await onAssignBoxesToShipment(selectedShipmentOption.value);
-          if ((reassignedResult?.error?.length || 0) > 0) {
-            triggerError({
-              message: "Could not reassign the box to shipment. Try again?",
-              status: "error",
-            });
-          } else {
-            createToast({
-              // eslint-disable-next-line max-len
-              message: `Box has successfully ressigned from shipment ${currentShipmentId} to the shipment ${selectedShipmentOption.value}`,
-              status: "success",
-            });
-            setSelectedShipmentOption({ value: "", label: "" });
-          }
-        }
-      }
-    }
-  }
-
-  async function handleUnassignBoxesToShipment() {
-    if (currentShipmentId) {
-      const unassigmentResult = await onUnassignBoxesToShipment(currentShipmentId);
-      if ((unassigmentResult?.error?.length || 0) > 0) {
-        triggerError({
-          // eslint-disable-next-line max-len
-          message: `Could not unassign the box from the shipment ${currentShipmentId}. Try again?`,
-          status: "error",
-        });
-      } else {
-        createToast({
-          message: `Box has successfully unassigned from the shipment ${currentShipmentId}`,
-          status: "success",
-        });
-        setSelectedShipmentOption({ value: "", label: "" });
-      }
-    }
-  }
+  const currentShipmentId = boxData?.shipmentDetail?.shipment.id;
 
   const isSubmitButtonDisabled = useMemo(() => {
     if (selectedShipmentOption && selectedShipmentOption.value !== "") {
@@ -148,7 +77,10 @@ function AssignBoxToShipment({
       colorScheme={!currentShipmentId ? "blue" : "green"}
       mt={2}
       size="md"
-      onClick={() => handleAssignBoxesToShipment()}
+      onClick={() => {
+        onAssignBoxesToShipment(selectedShipmentOption.value);
+        setSelectedShipmentOption({ value: "", label: "" });
+      }}
     >
       {currentShipmentId ? "Reassign" : "Assign"} Box
     </Button>
@@ -182,7 +114,10 @@ function AssignBoxToShipment({
               size="md"
               mt={2}
               aria-label="remove to shipment"
-              onClick={() => handleUnassignBoxesToShipment()}
+              onClick={() => {
+                onUnassignBoxesToShipment(currentShipmentId);
+                setSelectedShipmentOption({ value: "", label: "" });
+              }}
             >
               Remove from Shipment
             </Button>

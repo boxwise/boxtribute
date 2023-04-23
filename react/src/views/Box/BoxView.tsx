@@ -43,6 +43,7 @@ import { useErrorHandling } from "hooks/useErrorHandling";
 import { useNotification } from "hooks/useNotification";
 import {
   IAssignBoxToShipmentResult,
+  IAssignBoxToShipmentResultKind,
   IUnassignBoxToShipmentResult,
   useAssignBoxesToShipment,
 } from "hooks/useAssignBoxesToShipment";
@@ -412,23 +413,101 @@ function BTBox() {
   };
 
   const onAssignBoxesToShipment = useCallback(
-    async (shipmentId: string) =>
-      (await assignBoxesToShipment(
-        shipmentId,
-        [boxData as IBoxBasicFields],
-        false,
-      )) as IAssignBoxToShipmentResult,
-    [assignBoxesToShipment, boxData],
+    async (shipmentId: string) => {
+      const currentShipmentId = boxData?.shipmentDetail?.shipment.id;
+
+      if (!currentShipmentId) {
+        const assigmentResult = (await assignBoxesToShipment(
+          shipmentId,
+          [boxData as IBoxBasicFields],
+          false,
+        )) as IAssignBoxToShipmentResult;
+
+        if (
+          (assigmentResult?.error?.length || 0) > 0 ||
+          assigmentResult.kind !== IAssignBoxToShipmentResultKind.SUCCESS
+        ) {
+          triggerError({
+            // eslint-disable-next-line max-len
+            message: `Could not assign the box to the shipment ${shipmentId}. Try again?`,
+            status: "error",
+          });
+        } else {
+          createToast({
+            // eslint-disable-next-line max-len
+            message: `Box has successfully assigned to the shipment ${shipmentId}.`,
+            status: "success",
+          });
+        }
+      } else {
+        const unassigneResult = await unassignBoxesToShipment(
+          currentShipmentId,
+          [boxData as IBoxBasicFieldsWithShipmentDetail],
+          false,
+        );
+
+        if (
+          (unassigneResult?.error?.length || 0) > 0 ||
+          unassigneResult.kind !== IAssignBoxToShipmentResultKind.SUCCESS
+        ) {
+          triggerError({
+            message: `Could not unassign the box to shipment ${shipmentId}. Try again?`,
+            status: "error",
+          });
+        } else {
+          // refetching the data before reassignment of the shipment to different shipment
+          const refetchedBoxData = await allData.refetch();
+          if (refetchedBoxData.data) {
+            const reassignedResult = (await assignBoxesToShipment(
+              shipmentId,
+              [refetchedBoxData.data.box as IBoxBasicFields],
+              false,
+            )) as IAssignBoxToShipmentResult;
+            if (
+              (reassignedResult?.error?.length || 0) > 0 ||
+              reassignedResult.kind !== IAssignBoxToShipmentResultKind.SUCCESS
+            ) {
+              triggerError({
+                message: "Could not reassign the box to shipment. Try again?",
+                status: "error",
+              });
+            } else {
+              createToast({
+                // eslint-disable-next-line max-len
+                message: `Box has successfully reassigned from shipment ${currentShipmentId} to the shipment ${shipmentId}`,
+                status: "success",
+              });
+            }
+          }
+        }
+      }
+    },
+    [assignBoxesToShipment, unassignBoxesToShipment, boxData, createToast, triggerError, allData],
   );
 
   const onUnassignBoxesToShipment = useCallback(
-    async (shipmentId: string) =>
-      (await unassignBoxesToShipment(
+    async (shipmentId: string) => {
+      const currentShipmentId = boxData?.shipmentDetail?.shipment.id;
+
+      const unassigmentResult = (await unassignBoxesToShipment(
         shipmentId,
         [boxData as IBoxBasicFieldsWithShipmentDetail],
         false,
-      )) as IUnassignBoxToShipmentResult,
-    [unassignBoxesToShipment, boxData],
+      )) as IUnassignBoxToShipmentResult;
+      if ((unassigmentResult?.error?.length || 0) > 0 || !currentShipmentId) {
+        triggerError({
+          // eslint-disable-next-line max-len
+          message: `Could not unassign the box from the shipment ${shipmentId}. Try again?`,
+          status: "error",
+        });
+      } else {
+        createToast({
+          message: `Box has successfully unassigned from the shipment ${shipmentId}`,
+          status: "success",
+        });
+      }
+    },
+    [unassignBoxesToShipment, boxData, createToast, triggerError],
   );
 
   const shipmentOptions: IDropdownOption[] = useMemo(

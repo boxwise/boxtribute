@@ -1,11 +1,6 @@
 import { Box, Flex } from "@chakra-ui/react";
 import { IDropdownOption } from "components/Form/SelectField";
 import {
-  IAssignBoxToShipmentResult,
-  IUnassignBoxToShipmentResult,
-} from "hooks/useAssignBoxesToShipment";
-
-import {
   BoxByLabelIdentifierQuery,
   BoxState,
   UpdateLocationOfBoxMutation,
@@ -22,8 +17,8 @@ interface IBoxDetailsProps {
   onStateChange: (boxState: BoxState) => void;
   onAssignBoxToDistributionEventClick: (distributionEventId: string) => void;
   onUnassignBoxFromDistributionEventClick: (distributionEventId: string) => void;
-  onAssignBoxesToShipment: (shipmentId: string) => Promise<IAssignBoxToShipmentResult>;
-  onUnassignBoxesToShipment: (shipmentId: string) => Promise<IUnassignBoxToShipmentResult>;
+  onAssignBoxesToShipment: (shipmentId: string) => void;
+  onUnassignBoxesToShipment: (shipmentId: string) => void;
   shipmentOptions: IDropdownOption[];
   isLoading: boolean;
 }
