@@ -16,12 +16,14 @@ import { IChangeNumberOfItemsBoxData } from "../BoxView";
 
 interface ITakeItemsFromBoxOverlayProps {
   isOpen: boolean;
+  isLoading: boolean;
   onClose: () => void;
   onSubmitTakeItemsFromBox: (data: IChangeNumberOfItemsBoxData) => void;
 }
 
 function TakeItemsFromBoxOverlay({
   isOpen,
+  isLoading,
   onClose,
   onSubmitTakeItemsFromBox,
 }: ITakeItemsFromBoxOverlayProps) {
@@ -56,7 +58,7 @@ function TakeItemsFromBoxOverlay({
                 testId="decrease-number-items"
               />
               <Spacer />
-              <Button px={6} borderRadius="0" type="submit" isLoading={isSubmitting}>
+              <Button px={6} borderRadius="0" type="submit" isLoading={isSubmitting || isLoading}>
                 Submit
               </Button>
             </Flex>

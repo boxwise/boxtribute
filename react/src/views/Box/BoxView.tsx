@@ -577,11 +577,13 @@ function BTBox() {
     <VStack spacing={4} align="stretch">
       {shipmentDetail}
       <AddItemsToBoxOverlay
+        isLoading={loading}
         isOpen={isPlusOpen}
         onClose={onPlusClose}
         onSubmitAddItemstoBox={onSubmitAddItemstoBox}
       />
       <TakeItemsFromBoxOverlay
+        isLoading={loading}
         isOpen={isMinusOpen}
         onClose={onMinusClose}
         onSubmitTakeItemsFromBox={onSubmitTakeItemsFromBox}
