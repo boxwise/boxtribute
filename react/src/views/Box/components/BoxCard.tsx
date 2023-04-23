@@ -19,6 +19,9 @@ import {
   Tooltip,
   Wrap,
   WrapItem,
+  SkeletonCircle,
+  Skeleton,
+  SkeletonText,
 } from "@chakra-ui/react";
 import { NavLink } from "react-router-dom";
 import {
@@ -107,17 +110,27 @@ function BoxCard({ boxData, onPlusOpen, onMinusOpen, onStateChange, isLoading }:
 
       <Flex data-testid="box-subheader" py={2} px={4} direction="row">
         <Text fontWeight="bold">Status:&nbsp;</Text>
-        <Text fontWeight="bold" data-testid="box-state" color={statusColor(boxData?.state)}>
-          {boxData?.state}
-        </Text>
+        {isLoading && <Skeleton width="60px" />}
+        {!isLoading && (
+          <Text fontWeight="bold" data-testid="box-state" color={statusColor(boxData?.state)}>
+            {boxData?.state}
+          </Text>
+        )}
       </Flex>
 
       <Divider />
       <Stack py={2} px={4}>
         <Flex>
-          <Heading as="h3" fontSize="xl" data-testid="boxview-number-items">
-            {boxData?.numberOfItems}x {boxData?.product?.name}
-          </Heading>
+          {!isLoading && (
+            <Heading as="h3" fontSize="xl" data-testid="boxview-number-items">
+              {boxData?.numberOfItems}x {boxData?.product?.name}
+            </Heading>
+          )}
+          {isLoading && (
+            <Heading as="h3" fontSize="xl">
+              <Skeleton width="100px" />
+            </Heading>
+          )}
           <Spacer />
           <ButtonGroup gap="1">
             <Box alignContent="flex-end" marginLeft={2}>
@@ -202,42 +215,47 @@ function BoxCard({ boxData, onPlusOpen, onMinusOpen, onStateChange, isLoading }:
         <Flex py={2} px={2} minWidth="max-content" alignItems="center">
           <Flex alignContent="center" direction="row">
             <FormLabel htmlFor="scrap">Scrap:</FormLabel>
-            <Switch
-              id="scrap"
-              isReadOnly={isLoading}
-              isChecked={boxData?.state === BoxState.Scrap}
-              data-testid="box-scrap-btn"
-              isFocusable={false}
-              onChange={() =>
-                onStateChange(
-                  // If the current box state 'Scrap' is toggled, set the defaultBoxState of the box location
-                  boxData?.state === BoxState.Scrap
-                    ? (boxData?.location as any)?.defaultBoxState
-                    : BoxState.Scrap,
-                )
-              }
-              mr={2}
-            />
+            {isLoading && <SkeletonCircle height="20px" width="34px" />}
+            {!isLoading && (
+              <Switch
+                id="scrap"
+                isReadOnly={isLoading}
+                isChecked={boxData?.state === BoxState.Scrap}
+                data-testid="box-scrap-btn"
+                isFocusable={false}
+                onChange={() =>
+                  onStateChange(
+                    // If the current box state 'Scrap' is toggled, set the defaultBoxState of the box location
+                    boxData?.state === BoxState.Scrap
+                      ? (boxData?.location as any)?.defaultBoxState
+                      : BoxState.Scrap,
+                  )
+                }
+                mr={2}
+              />
+            )}
           </Flex>
           <Spacer />
           <Flex alignContent="center" direction="row">
             <FormLabel htmlFor="lost">Lost:</FormLabel>
-            <Switch
-              id="lost"
-              isFocusable={false}
-              isReadOnly={isLoading}
-              data-testid="box-lost-btn"
-              onChange={() =>
-                onStateChange(
-                  // If the current box state 'Lost' is toggled, set the defaultBoxState of the box location
-                  boxData?.state === BoxState.Lost
-                    ? (boxData?.location as any)?.defaultBoxState
-                    : BoxState.Lost,
-                )
-              }
-              mr={2}
-              isChecked={boxData?.state === BoxState.Lost}
-            />
+            {isLoading && <SkeletonCircle height="20px" width="34px" mr={2} />}
+            {!isLoading && (
+              <Switch
+                id="lost"
+                isFocusable={false}
+                data-testid="box-lost-btn"
+                onChange={() =>
+                  onStateChange(
+                    // If the current box state 'Lost' is toggled, set the defaultBoxState of the box location
+                    boxData?.state === BoxState.Lost
+                      ? (boxData?.location as any)?.defaultBoxState
+                      : BoxState.Lost,
+                  )
+                }
+                mr={2}
+                isChecked={boxData?.state === BoxState.Lost}
+              />
+            )}
           </Flex>
         </Flex>
       </Stack>
@@ -251,7 +269,12 @@ function BoxCard({ boxData, onPlusOpen, onMinusOpen, onStateChange, isLoading }:
                 History: &nbsp;
               </Text>
               <Spacer />
-              <HistoryEntries data={boxData?.history as unknown as HistoryEntry[]} total={1} />
+              {!isLoading && (
+                <HistoryEntries data={boxData?.history as unknown as HistoryEntry[]} total={1} />
+              )}
+              {isLoading && (
+                <SkeletonText noOfLines={5} width="100%" py={2} px={2} alignContent="center" />
+              )}
             </Flex>
           </Stack>
         </>

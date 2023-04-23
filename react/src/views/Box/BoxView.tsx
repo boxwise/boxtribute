@@ -164,7 +164,7 @@ function BTBox() {
     UpdateNumberOfItemsMutation,
     UpdateNumberOfItemsMutationVariables
   >(UPDATE_NUMBER_OF_ITEMS_IN_BOX_MUTATION, {
-    refetchQueries: [refetchBoxByLabelIdentifierQueryConfig(labelIdentifier)],
+    // refetchQueries: [refetchBoxByLabelIdentifierQueryConfig(labelIdentifier)],
   });
 
   const [assignBoxToDistributionEventMutation, assignBoxToDistributionEventMutationStatus] =
@@ -172,7 +172,7 @@ function BTBox() {
       AssignBoxToDistributionEventMutation,
       AssignBoxToDistributionEventMutationVariables
     >(ASSIGN_BOX_TO_DISTRIBUTION_MUTATION, {
-      refetchQueries: [refetchBoxByLabelIdentifierQueryConfig(labelIdentifier)],
+      // refetchQueries: [refetchBoxByLabelIdentifierQueryConfig(labelIdentifier)],
     });
 
   const [unassignBoxFromDistributionEventMutation, unassignBoxFromDistributionEventMutationStatus] =
@@ -205,13 +205,15 @@ function BTBox() {
 
   const boxData = allData.data?.box;
 
+  //
+
   const loading =
-    allData.loading ||
-    updateNumberOfItemsMutationStatus.loading ||
+    isAssignBoxesToShipmentLoading ||
     updateStateMutationStatus.loading ||
     updateBoxLocationMutationStatus.loading ||
     assignBoxToDistributionEventMutationStatus.loading ||
-    unassignBoxFromDistributionEventMutationStatus.loading;
+    unassignBoxFromDistributionEventMutationStatus.loading ||
+    updateNumberOfItemsMutationStatus.loading;
 
   const error =
     allData.error ||
@@ -426,7 +428,7 @@ function BTBox() {
         Could not fetch Box Data! Please try reloading the page.
       </Alert>
     );
-  } else if (loading) {
+  } else if (allData.loading) {
     shipmentDetail = <BoxViewSkeleton data-testid="loader" />;
   } else {
     const alertForLagacyBox = (
@@ -458,7 +460,7 @@ function BTBox() {
           onUnassignBoxFromDistributionEventClick={onUnassignBoxFromDistributionEventClick}
           onAssignBoxesToShipment={onAssignBoxesToShipment}
           onUnassignBoxesToShipment={onUnassignBoxesToShipment}
-          isLoading={isAssignBoxesToShipmentLoading}
+          isLoading={loading}
           shipmentOptions={shipmentOptions}
         />
       </>
