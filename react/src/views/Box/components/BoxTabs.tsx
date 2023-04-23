@@ -89,7 +89,11 @@ function BoxTabs({
           </TabList>
           <TabPanels>
             <TabPanel p={4}>
-              <BoxMoveLocation boxData={boxData} onMoveToLocationClick={onMoveToLocationClick} />
+              <BoxMoveLocation
+                boxData={boxData}
+                onMoveToLocationClick={onMoveToLocationClick}
+                isLoading={isLoading}
+              />
             </TabPanel>
             <TabPanel>
               {shipmentOptions.length === 0 && (

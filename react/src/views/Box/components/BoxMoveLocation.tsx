@@ -1,17 +1,30 @@
-import { List, Text, Flex, WrapItem, Button } from "@chakra-ui/react";
+import { List, Text, Flex, WrapItem, Button, SkeletonText } from "@chakra-ui/react";
 import { BoxState, ClassicLocation } from "types/generated/graphql";
 
 export interface IBoxMoveLocationProps {
   boxData: any;
+  isLoading: boolean;
   onMoveToLocationClick: (locationId: string) => void;
 }
 
-function BoxMoveLocation({ boxData, onMoveToLocationClick }: IBoxMoveLocationProps) {
+function BoxMoveLocation({ boxData, onMoveToLocationClick, isLoading }: IBoxMoveLocationProps) {
   return (
     <>
-      <Text data-testid="box-location-label" textAlign="center" fontSize="xl" mb={4}>
-        Move this box from <strong>{boxData.location?.name}</strong> to:
-      </Text>
+      {isLoading && (
+        <SkeletonText
+          width="100%"
+          height="20px"
+          textAlign="center"
+          fontSize="xl"
+          mb={4}
+          noOfLines={1}
+        />
+      )}
+      {!isLoading && (
+        <Text data-testid="box-location-label" textAlign="center" fontSize="xl" mb={4}>
+          Move this box from <strong>{boxData.location?.name}</strong> to:
+        </Text>
+      )}
       <List>
         <Flex wrap="wrap" justifyContent="center">
           {boxData.location?.base?.locations
@@ -27,6 +40,7 @@ function BoxMoveLocation({ boxData, onMoveToLocationClick }: IBoxMoveLocationPro
                 <Button
                   data-testid={`location-${location.name?.replace(/\s+/g, "_").toLowerCase()}-btn`}
                   borderRadius="0px"
+                  isLoading={isLoading}
                   onClick={() => onMoveToLocationClick(location.id)}
                   disabled={
                     (boxData.location as ClassicLocation).defaultBoxState !== BoxState.Lost &&
