@@ -110,7 +110,7 @@ function BoxCard({ boxData, onPlusOpen, onMinusOpen, onStateChange, isLoading }:
 
       <Flex data-testid="box-subheader" py={2} px={4} direction="row">
         <Text fontWeight="bold">Status:&nbsp;</Text>
-        {isLoading && <Skeleton width="60px" />}
+        {isLoading && <Skeleton width="60px" alignItems="center" />}
         {!isLoading && (
           <Text fontWeight="bold" data-testid="box-state" color={statusColor(boxData?.state)}>
             {boxData?.state}
