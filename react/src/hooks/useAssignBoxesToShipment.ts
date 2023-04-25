@@ -27,13 +27,6 @@ export interface IAssignBoxToShipmentResult {
   kind: IAssignBoxToShipmentResultKind;
   requestedBoxes: IBoxBasicFields[];
   assignedBoxes?: IBoxBasicFields[];
-  failedBoxes?: IBoxBasicFields[];
-  error?: any;
-}
-
-export interface IUnassignBoxToShipmentResult {
-  kind: IAssignBoxToShipmentResultKind;
-  requestedBoxes: IBoxBasicFields[];
   unassignedBoxes?: IBoxBasicFields[];
   failedBoxes?: IBoxBasicFields[];
   error?: any;
@@ -198,7 +191,7 @@ export const useAssignBoxesToShipment = () => {
       showToastMessage: boolean = true,
     ) => {
       setIsLoading(true);
-      const inShipmentLabelIdentifiers = boxes
+      const inStockLabelIdentifiers = boxes
         .filter(
           (box) =>
             box.state === BoxState.MarkedForShipment &&
@@ -208,7 +201,7 @@ export const useAssignBoxesToShipment = () => {
       return unassignBoxesToShipmentMutation({
         variables: {
           id: shipmentId,
-          labelIdentifiers: inShipmentLabelIdentifiers,
+          labelIdentifiers: inStockLabelIdentifiers,
         },
       })
         .then(({ data, errors }) => {
@@ -259,11 +252,16 @@ export const useAssignBoxesToShipment = () => {
               (boxInShipment) => boxInShipment.labelIdentifier === box.labelIdentifier,
             ),
           );
-          const unassignedBoxes: IBoxBasicFieldsWithShipmentDetail[] = boxes.filter((box) =>
-            boxesInShipment.find(
-              (boxInShipment) => boxInShipment.labelIdentifier !== box.labelIdentifier,
-            ),
+
+          const boxesRemoved =
+            (data?.updateShipmentWhenPreparing?.details
+              .filter((detail) => detail.box.state === BoxState.InStock)
+              .map((detail) => detail.box) as IBoxBasicFieldsWithShipmentDetail[]) ?? [];
+
+          const unassignedBoxes: IBoxBasicFieldsWithShipmentDetail[] = boxesRemoved.filter(
+            (boxRemoved) => boxes.some((box) => box.labelIdentifier === boxRemoved.labelIdentifier),
           );
+
           if (unassignedBoxes.length) {
             if (showToastMessage)
               createToast({
@@ -271,7 +269,7 @@ export const useAssignBoxesToShipment = () => {
                 message: `${unassignedBoxes.length} Boxes were successfully unassigned to the shipment.`,
               });
           }
-          // Not all Boxes were assigned
+          // Not all Boxes were unassigned
           if (failedBoxes.length) {
             return {
               kind: IAssignBoxToShipmentResultKind.BOX_FAIL,
@@ -280,10 +278,11 @@ export const useAssignBoxesToShipment = () => {
               failedBoxes,
             } as IAssignBoxToShipmentResult;
           }
-          // all Boxes were assigned
+          // all Boxes were unassigned
           return {
             kind: IAssignBoxToShipmentResultKind.SUCCESS,
             requestedBoxes: boxes,
+            unassignedBoxes,
             error: errors ? errors[0] : undefined,
           } as IAssignBoxToShipmentResult;
         })

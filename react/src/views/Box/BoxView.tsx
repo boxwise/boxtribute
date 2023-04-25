@@ -44,7 +44,6 @@ import { useNotification } from "hooks/useNotification";
 import {
   IAssignBoxToShipmentResult,
   IAssignBoxToShipmentResultKind,
-  IUnassignBoxToShipmentResult,
   useAssignBoxesToShipment,
 } from "hooks/useAssignBoxesToShipment";
 import { IBoxBasicFields, IBoxBasicFieldsWithShipmentDetail } from "types/graphql-local-only";
@@ -417,15 +416,15 @@ function BTBox() {
       const currentShipmentId = boxData?.shipmentDetail?.shipment.id;
 
       if (!currentShipmentId) {
-        const assigmentResult = (await assignBoxesToShipment(
+        const assignedBoxResult = (await assignBoxesToShipment(
           shipmentId,
           [boxData as IBoxBasicFields],
           false,
         )) as IAssignBoxToShipmentResult;
 
         if (
-          (assigmentResult?.error?.length || 0) > 0 ||
-          assigmentResult.kind !== IAssignBoxToShipmentResultKind.SUCCESS
+          (assignedBoxResult?.error?.length || 0) > 0 ||
+          assignedBoxResult.kind !== IAssignBoxToShipmentResultKind.SUCCESS
         ) {
           triggerError({
             // eslint-disable-next-line max-len
@@ -440,15 +439,15 @@ function BTBox() {
           });
         }
       } else {
-        const unassigneResult = await unassignBoxesToShipment(
+        const unassignedBoxResult = await unassignBoxesToShipment(
           currentShipmentId,
           [boxData as IBoxBasicFieldsWithShipmentDetail],
           false,
         );
 
         if (
-          (unassigneResult?.error?.length || 0) > 0 ||
-          unassigneResult.kind !== IAssignBoxToShipmentResultKind.SUCCESS
+          (unassignedBoxResult?.error?.length || 0) > 0 ||
+          unassignedBoxResult.kind !== IAssignBoxToShipmentResultKind.SUCCESS
         ) {
           triggerError({
             message: `Could not unassign the box to shipment ${shipmentId}. Try again?`,
@@ -456,11 +455,16 @@ function BTBox() {
           });
         } else {
           // refetching the data before reassignment of the shipment to different shipment
-          const refetchedBoxData = await allData.refetch();
-          if (refetchedBoxData.data) {
+          // const refetchedBoxData = await allData.refetch();
+          const updatedBoxData =
+            unassignedBoxResult.unassignedBoxes?.filter(
+              (box) => box.labelIdentifier === boxData.labelIdentifier,
+            )[0] || undefined;
+
+          if (updatedBoxData) {
             const reassignedResult = (await assignBoxesToShipment(
               shipmentId,
-              [refetchedBoxData.data.box as IBoxBasicFields],
+              [updatedBoxData as IBoxBasicFields],
               false,
             )) as IAssignBoxToShipmentResult;
             if (
@@ -482,7 +486,7 @@ function BTBox() {
         }
       }
     },
-    [assignBoxesToShipment, unassignBoxesToShipment, boxData, createToast, triggerError, allData],
+    [assignBoxesToShipment, unassignBoxesToShipment, boxData, createToast, triggerError],
   );
 
   const onUnassignBoxesToShipment = useCallback(
@@ -493,7 +497,7 @@ function BTBox() {
         shipmentId,
         [boxData as IBoxBasicFieldsWithShipmentDetail],
         false,
-      )) as IUnassignBoxToShipmentResult;
+      )) as IAssignBoxToShipmentResult;
       if ((unassigmentResult?.error?.length || 0) > 0 || !currentShipmentId) {
         triggerError({
           // eslint-disable-next-line max-len
