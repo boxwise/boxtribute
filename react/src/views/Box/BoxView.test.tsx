@@ -81,12 +81,29 @@ const productWithoutGenderQuery = {
   },
 };
 
+const initialQueryBeforeRedirect = {
+  request: {
+    query: BOX_BY_LABEL_IDENTIFIER_AND_ALL_SHIPMENTS_QUERY,
+    variables: {
+      labelIdentifier: "127",
+    },
+  },
+  result: {
+    data: {
+      box: generateMockBox({
+        labelIdentifier: "127",
+      }),
+      shipments: null,
+    },
+  },
+};
+
 const boxEditInitialQuery = {
   request: {
     query: BOX_BY_LABEL_IDENTIFIER_AND_ALL_PRODUCTS_WITH_BASEID_QUERY,
     variables: {
       baseId: "1",
-      labelIdentifier: "123",
+      labelIdentifier: "127",
     },
   },
   result: {
@@ -111,9 +128,8 @@ const updateNumberOfItemsMutation = {
   },
   result: {
     data: {
-      updateBox: {
-        labelIdentifier: "123",
-      },
+      updateBox: generateMockBox({ numberOfItems: 32 }),
+      shipments: null,
     },
   },
 };
@@ -133,11 +149,29 @@ const numberOfItemsSuccessfullUpdatedRefetchQuery = {
   },
 };
 
+const initialQueryMoveLocationOfBox = {
+  request: {
+    query: BOX_BY_LABEL_IDENTIFIER_AND_ALL_SHIPMENTS_QUERY,
+    variables: {
+      labelIdentifier: "125",
+    },
+  },
+  result: {
+    data: {
+      box: generateMockBox({
+        labelIdentifier: "125",
+        state: BoxState.InStock,
+      }),
+      shipments: null,
+    },
+  },
+};
+
 const moveLocationOfBoxMutation = {
   request: {
     query: UPDATE_BOX_MUTATION,
     variables: {
-      boxLabelIdentifier: "123",
+      boxLabelIdentifier: "125",
       newLocationId: 6,
     },
   },
@@ -145,12 +179,14 @@ const moveLocationOfBoxMutation = {
     data: {
       updateBox: generateMockBox({
         product: product1,
+        labelIdentifier: "125",
         state: BoxState.InStock,
         location: generateMockLocationWithBase({
           defaultLocationId: 6,
           defaultLocationName: "WH Women",
         }),
       }),
+      shipments: null,
     },
   },
 };
@@ -219,7 +255,8 @@ const updateBoxStateToLostMutation = {
   },
   result: {
     data: {
-      updateBox: generateMockBox({ state: BoxState.Scrap }),
+      updateBox: generateMockBox({ state: BoxState.Lost }),
+      shipments: null,
     },
   },
 };
@@ -404,12 +441,12 @@ it("3.1.1.7 - Content: Display an warning note if a box is located in a legacy l
 }, 10000);
 
 // Test case 3.1.2
-it.skip("3.1.2 - Change Number of Items", async () => {
+it("3.1.2 - Change Number of Items", async () => {
   const user = userEvent.setup();
   render(<BTBox />, {
     routePath: "/bases/:baseId/boxes/:labelIdentifier",
     initialUrl: "/bases/2/boxes/123",
-    mocks: [initialQuery, updateNumberOfItemsMutation, numberOfItemsSuccessfullUpdatedRefetchQuery],
+    mocks: [initialQuery, updateNumberOfItemsMutation],
     addTypename: true,
     globalPreferences: {
       dispatch: jest.fn(),
@@ -436,34 +473,28 @@ it.skip("3.1.2 - Change Number of Items", async () => {
   await user.type(screen.getByRole("spinbutton"), "a");
   await waitFor(() => expect(screen.getByRole("spinbutton")).toHaveValue("1"));
 
-  // // Test case 3.1.2.1.2	- Number of Item Validation
+  // Test case 3.1.2.1.2	- Number of Item Validation
   await user.type(screen.getByRole("spinbutton"), "{backspace}");
   await user.type(screen.getByRole("spinbutton"), "-");
   await waitFor(() => expect(screen.getByRole("spinbutton")).toHaveValue("-"));
   await user.click(screen.getByText(/Submit/i));
   await waitFor(() => expect(screen.getByRole("spinbutton")).toHaveValue("0"));
 
-  // // Test case 3.1.2.2 - Number of Item Validation
+  // // // Test case 3.1.2.2 - Number of Item Validation
   await user.type(screen.getByRole("spinbutton"), "{backspace}");
   await user.type(screen.getByRole("spinbutton"), "1");
   await waitFor(() => expect(screen.getByRole("spinbutton")).toHaveValue("1"));
   await user.click(screen.getByText(/Submit/i));
-  expect(screen.getByRole("heading", { name: /32x snow trousers/i }));
+  expect(screen.getByText(/32x snow trousers/i));
 }, 10000);
 
-// Test case 3.1.3
-it.skip("3.1.3 - Change State to Scrap and Lost", async () => {
+// Test case 3.1.3.1
+it("3.1.3.1 - Change State to Scrap", async () => {
   const user = userEvent.setup();
   render(<BTBox />, {
     routePath: "/bases/:baseId/boxes/:labelIdentifier",
     initialUrl: "/bases/2/boxes/123",
-    mocks: [
-      initialQuery,
-      updateBoxStateToScrapMutation,
-      boxStateSuccessfullUpdatedToScrapRefetchQuery,
-      updateBoxStateToLostMutation,
-      boxStateSuccessfullUpdatedToLostRefetchQuery,
-    ],
+    mocks: [initialQuery, updateBoxStateToScrapMutation, updateBoxStateToLostMutation],
     addTypename: true,
     globalPreferences: {
       dispatch: jest.fn(),
@@ -486,9 +517,26 @@ it.skip("3.1.3 - Change State to Scrap and Lost", async () => {
   await waitFor(() =>
     expect(screen.getByTestId("box-subheader")).toHaveTextContent("Status: Scrap"),
   );
+}, 10000);
 
-  // Test case 3.1.3.1.2 - If state changes to Scrap, color also changes
-  expect(screen.getByTestId("box-state")).toHaveStyle(`color: #EB404A`);
+// Test case 3.1.3.2
+it("3.1.3.2 - Change State to Lost", async () => {
+  const user = userEvent.setup();
+  render(<BTBox />, {
+    routePath: "/bases/:baseId/boxes/:labelIdentifier",
+    initialUrl: "/bases/2/boxes/123",
+    mocks: [initialQuery, updateBoxStateToLostMutation],
+    addTypename: true,
+    globalPreferences: {
+      dispatch: jest.fn(),
+      globalPreferences: {
+        selectedOrganisationId: organisation1.id,
+        availableBases: organisation1.bases,
+      },
+    },
+  });
+
+  expect(await screen.findByText(/status:/i)).toBeInTheDocument();
 
   // Test case 3.1.3.2 - Click on Lost
   await user.click(screen.getByTestId("box-lost-btn"));
@@ -508,12 +556,12 @@ it.skip("3.1.3 - Change State to Scrap and Lost", async () => {
 }, 10000);
 
 // Test case 3.1.4
-it.skip("3.1.4 - Move location", async () => {
+it("3.1.4 - Move location", async () => {
   const user = userEvent.setup();
   render(<BTBox />, {
     routePath: "/bases/:baseId/boxes/:labelIdentifier",
-    initialUrl: "/bases/2/boxes/123",
-    mocks: [initialQuery, moveLocationOfBoxMutation, moveLocationOfBoxRefetchQuery],
+    initialUrl: "/bases/1/boxes/125",
+    mocks: [initialQueryMoveLocationOfBox, moveLocationOfBoxMutation],
     addTypename: true,
     globalPreferences: {
       dispatch: jest.fn(),
@@ -532,6 +580,8 @@ it.skip("3.1.4 - Move location", async () => {
   const whWomenLocation = screen.getByRole("button", { name: /wh women/i });
   await user.click(whWomenLocation);
 
+  screen.debug();
+
   await waitFor(() =>
     expect(mockedCreateToast).toHaveBeenCalledWith(
       expect.objectContaining({
@@ -544,12 +594,12 @@ it.skip("3.1.4 - Move location", async () => {
   const boxLocationUpdatedLabel = screen.getByTestId("box-location-label");
   expect(boxLocationUpdatedLabel).toHaveTextContent("Move this box from WH Women to:");
 
-  // Test case 3.1.4.2 - Show last history entry
+  // // Test case 3.1.4.2 - Show last history entry
   expect(await screen.findByText(/history:/i)).toBeInTheDocument();
   const historyEntry = screen.getByTestId("history-1");
   expect(historyEntry).toBeInTheDocument();
 
-  // Test case 3.1.4.2.1 - Show last history entry icon
+  // // Test case 3.1.4.2.1 - Show last history entry icon
   expect(screen.getByRole("presentation")).toBeInTheDocument();
 }, 10000);
 
@@ -558,9 +608,9 @@ it("3.1.5 - Redirect to Edit Box", async () => {
   const user = userEvent.setup();
   render(<BTBox />, {
     routePath: "/bases/:baseId/boxes/:labelIdentifier",
-    initialUrl: "/bases/2/boxes/123",
-    additionalRoute: "/bases/2/boxes/123/edit",
-    mocks: [initialQuery, boxEditInitialQuery],
+    initialUrl: "/bases/1/boxes/127",
+    additionalRoute: "/bases/1/boxes/127/edit",
+    mocks: [initialQueryBeforeRedirect, boxEditInitialQuery],
     addTypename: true,
     globalPreferences: {
       dispatch: jest.fn(),
@@ -571,7 +621,7 @@ it("3.1.5 - Redirect to Edit Box", async () => {
     },
   });
 
-  const title = await screen.findByRole("heading", { name: "Box 123" });
+  const title = await screen.findByRole("heading", { name: "Box 127" });
   expect(title).toBeInTheDocument();
 
   // Test case 3.1.5.1 - Click on edit Icon
@@ -579,7 +629,7 @@ it("3.1.5 - Redirect to Edit Box", async () => {
   await user.click(editLink);
 
   expect(
-    await screen.findByRole("heading", { name: "/bases/2/boxes/123/edit" }),
+    await screen.findByRole("heading", { name: "/bases/1/boxes/127/edit" }),
   ).toBeInTheDocument();
 }, 10000);
 

@@ -336,7 +336,6 @@ function BTBox() {
           boxLabelIdentifier: labelIdentifier,
           newLocationId: parseInt(locationId, 10),
         },
-        refetchQueries: [refetchBoxByLabelIdentifierQueryConfig(labelIdentifier)],
       })
         .then((mutationResult) => {
           if (mutationResult?.errors) {
