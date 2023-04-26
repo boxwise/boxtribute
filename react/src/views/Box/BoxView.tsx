@@ -162,23 +162,13 @@ function BTBox() {
   const [updateNumberOfItemsMutation, updateNumberOfItemsMutationStatus] = useMutation<
     UpdateNumberOfItemsMutation,
     UpdateNumberOfItemsMutationVariables
-  >(UPDATE_NUMBER_OF_ITEMS_IN_BOX_MUTATION, {
-    // refetchQueries: [refetchBoxByLabelIdentifierQueryConfig(labelIdentifier)],
-    // awaitRefetchQueries: true,
-    // onCompleted: (data) => {
-    //   const updatedBox = data.updateBox;
-    //   // refetch data here
-    //   allData.refetch();
-    // },
-  });
+  >(UPDATE_NUMBER_OF_ITEMS_IN_BOX_MUTATION);
 
   const [assignBoxToDistributionEventMutation, assignBoxToDistributionEventMutationStatus] =
     useMutation<
       AssignBoxToDistributionEventMutation,
       AssignBoxToDistributionEventMutationVariables
-    >(ASSIGN_BOX_TO_DISTRIBUTION_MUTATION, {
-      // refetchQueries: [refetchBoxByLabelIdentifierQueryConfig(labelIdentifier)],
-    });
+    >(ASSIGN_BOX_TO_DISTRIBUTION_MUTATION);
 
   const [unassignBoxFromDistributionEventMutation, unassignBoxFromDistributionEventMutationStatus] =
     useMutation<
@@ -189,16 +179,7 @@ function BTBox() {
   const [updateStateMutation, updateStateMutationStatus] = useMutation<
     UpdateStateMutation,
     UpdateStateMutationVariables
-  >(UPDATE_STATE_IN_BOX_MUTATION, {
-    // refetchQueries: [
-    //   {
-    //     query: BOX_BY_LABEL_IDENTIFIER_AND_ALL_SHIPMENTS_QUERY,
-    //     variables: {
-    //       labelIdentifier,
-    //     },
-    //   },
-    // ],
-  });
+  >(UPDATE_STATE_IN_BOX_MUTATION);
 
   const [updateBoxLocation, updateBoxLocationMutationStatus] = useMutation<
     UpdateLocationOfBoxMutation,
@@ -411,6 +392,31 @@ function BTBox() {
     });
   };
 
+  type requestType = "assign" | "unassign" | "reassign";
+
+  const handelAssignBoxToShipmentError = useCallback(
+    (shipmentId: string, kind: IAssignBoxToShipmentResultKind, type: requestType) => {
+      if (kind === IAssignBoxToShipmentResultKind.WRONG_SHIPMENT_STATE) {
+        triggerError({
+          message: "The shipment is not in the Preparing state.",
+          status: "error",
+        });
+      } else if (kind === IAssignBoxToShipmentResultKind.NOT_AUTHORIZED) {
+        triggerError({
+          message: `You don't have the permissions to ${type} boxes to this shipment.`,
+          status: "error",
+        });
+      } else {
+        triggerError({
+          // eslint-disable-next-line max-len
+          message: `Could not ${type} the box from the shipment ${shipmentId}. Try again?`,
+          status: "error",
+        });
+      }
+    },
+    [triggerError],
+  );
+
   const onAssignBoxesToShipment = useCallback(
     async (shipmentId: string) => {
       const currentShipmentId = boxData?.shipmentDetail?.shipment.id;
@@ -426,11 +432,7 @@ function BTBox() {
           (assignedBoxResult?.error?.length || 0) > 0 ||
           assignedBoxResult.kind !== IAssignBoxToShipmentResultKind.SUCCESS
         ) {
-          triggerError({
-            // eslint-disable-next-line max-len
-            message: `Could not assign the box to the shipment ${shipmentId}. Try again?`,
-            status: "error",
-          });
+          handelAssignBoxToShipmentError(shipmentId, assignedBoxResult.kind, "assign");
         } else {
           createToast({
             // eslint-disable-next-line max-len
@@ -449,13 +451,8 @@ function BTBox() {
           (unassignedBoxResult?.error?.length || 0) > 0 ||
           unassignedBoxResult.kind !== IAssignBoxToShipmentResultKind.SUCCESS
         ) {
-          triggerError({
-            message: `Could not unassign the box to shipment ${shipmentId}. Try again?`,
-            status: "error",
-          });
+          handelAssignBoxToShipmentError(shipmentId, unassignedBoxResult.kind, "unassign");
         } else {
-          // refetching the data before reassignment of the shipment to different shipment
-          // const refetchedBoxData = await allData.refetch();
           const updatedBoxData =
             unassignedBoxResult.unassignedBoxes?.filter(
               (box) => box.labelIdentifier === boxData.labelIdentifier,
@@ -471,10 +468,7 @@ function BTBox() {
               (reassignedResult?.error?.length || 0) > 0 ||
               reassignedResult.kind !== IAssignBoxToShipmentResultKind.SUCCESS
             ) {
-              triggerError({
-                message: "Could not reassign the box to shipment. Try again?",
-                status: "error",
-              });
+              handelAssignBoxToShipmentError(shipmentId, reassignedResult.kind, "reassign");
             } else {
               createToast({
                 // eslint-disable-next-line max-len
@@ -486,7 +480,13 @@ function BTBox() {
         }
       }
     },
-    [assignBoxesToShipment, unassignBoxesToShipment, boxData, createToast, triggerError],
+    [
+      assignBoxesToShipment,
+      unassignBoxesToShipment,
+      boxData,
+      createToast,
+      handelAssignBoxToShipmentError,
+    ],
   );
 
   const onUnassignBoxesToShipment = useCallback(
@@ -498,12 +498,12 @@ function BTBox() {
         [boxData as IBoxBasicFieldsWithShipmentDetail],
         false,
       )) as IAssignBoxToShipmentResult;
-      if ((unassigmentResult?.error?.length || 0) > 0 || !currentShipmentId) {
-        triggerError({
-          // eslint-disable-next-line max-len
-          message: `Could not unassign the box from the shipment ${shipmentId}. Try again?`,
-          status: "error",
-        });
+      if (
+        (unassigmentResult?.error?.length || 0) > 0 ||
+        !currentShipmentId ||
+        unassigmentResult.kind !== IAssignBoxToShipmentResultKind.SUCCESS
+      ) {
+        handelAssignBoxToShipmentError(shipmentId, unassigmentResult.kind, "unassign");
       } else {
         createToast({
           message: `Box has successfully unassigned from the shipment ${shipmentId}`,
@@ -511,7 +511,7 @@ function BTBox() {
         });
       }
     },
-    [unassignBoxesToShipment, boxData, createToast, triggerError],
+    [unassignBoxesToShipment, boxData, createToast, handelAssignBoxToShipmentError],
   );
 
   const shipmentOptions: IDropdownOption[] = useMemo(
