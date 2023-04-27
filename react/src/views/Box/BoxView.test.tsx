@@ -16,12 +16,13 @@ import { generateMockLocationWithBase, locations } from "mocks/locations";
 import { product1, product3, products } from "mocks/products";
 import { BOX_BY_LABEL_IDENTIFIER_AND_ALL_PRODUCTS_WITH_BASEID_QUERY } from "views/BoxEdit/BoxEditView";
 import { tags } from "mocks/tags";
-import { textContentMatcher } from "tests/helpers";
+import { selectOptionInSelectField, textContentMatcher } from "tests/helpers";
 import BoxDetails from "./components/BoxDetails";
 import { generateMockTransferAgreement } from "mocks/transferAgreements";
 import { mockGraphQLError, mockNetworkError } from "mocks/functions";
 import { BOX_BY_LABEL_IDENTIFIER_AND_ALL_SHIPMENTS_QUERY } from "queries/queries";
 import { organisation1 } from "mocks/organisations";
+import { generateMockShipment, shipment1 } from "mocks/shipments";
 
 const mockedTriggerError = jest.fn();
 const mockedCreateToast = jest.fn();
@@ -219,6 +220,21 @@ const initialFailedQuery = {
   },
   result: {
     errors: [new GraphQLError("Error!")],
+  },
+};
+
+const initialWithoutShipmentQuery = {
+  request: {
+    query: BOX_BY_LABEL_IDENTIFIER_AND_ALL_SHIPMENTS_QUERY,
+    variables: {
+      labelIdentifier: "129",
+    },
+  },
+  result: {
+    data: {
+      box: generateMockBox({ labelIdentifier: "129" }),
+      shipments: [],
+    },
   },
 };
 
@@ -751,5 +767,42 @@ it("3.1.10 - No Data or Null Data Fetched for a given Box Label Identifier", asy
 
   await waitFor(() =>
     expect(screen.getByText(/no data found for a box with this id/i)).toBeInTheDocument(),
+  );
+}, 10000);
+
+// Test case 4.6.1.3
+it("4.6.1.3 - Box is InStock and query for shipments returns no shipments in preparing state", async () => {
+  const user = userEvent.setup();
+  render(<BTBox />, {
+    routePath: "/bases/:baseId/boxes/:labelIdentifier",
+    initialUrl: "/bases/2/boxes/129",
+    mocks: [initialWithoutShipmentQuery],
+    addTypename: true,
+    globalPreferences: {
+      dispatch: jest.fn(),
+      globalPreferences: {
+        selectedOrganisationId: organisation1.id,
+        availableBases: organisation1.bases,
+      },
+    },
+  });
+
+  await waitFor(async () => {
+    expect(await screen.getByRole("heading", { name: /box 129/i })).toBeInTheDocument();
+  });
+
+  expect(screen.getByRole("tab", { name: /move/i, selected: true })).toHaveTextContent("Move");
+
+  const transferTab = screen.getByRole("tab", { name: /transfer/i });
+  await user.click(transferTab);
+
+  expect(screen.getByRole("tab", { name: /transfer/i, selected: true })).toHaveTextContent(
+    "Transfer",
+  );
+
+  await waitFor(() =>
+    expect(
+      screen.getByText(/no shipments are being prepared from your base!/i),
+    ).toBeInTheDocument(),
   );
 }, 10000);
