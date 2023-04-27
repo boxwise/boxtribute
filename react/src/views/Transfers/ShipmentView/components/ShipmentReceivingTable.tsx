@@ -120,7 +120,7 @@ function ShipmentReceivingTable({ columns, data }: IShipmentReceivingTablePros) 
                       <Flex alignContent="space-around">
                         <Box
                           p={1}
-                          width="120px"
+                          width={["100px", "200px", "250px"]}
                           fontWeight={row.cells[0].column.isSorted ? "bold" : "normal"}
                         >
                           <Wrap>
