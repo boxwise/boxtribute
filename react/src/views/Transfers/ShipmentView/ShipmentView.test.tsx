@@ -217,7 +217,7 @@ describe("4.5 Test Cases", () => {
 
     // eslint-disable-next-line max-len
     expect(
-      screen.getByRole("cell", { name: /124 long sleeves\(12x\) size: mixed/i }),
+      screen.getByRole("cell", { name: /124 long sleeves \(12x\) size: mixed/i }),
     ).toBeInTheDocument();
   }, 10000);
 
