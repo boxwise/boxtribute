@@ -55,7 +55,7 @@ function ShipmentTabs({
           `${value.product?.sizeRange?.label}_${value.product?.gender}_${value.product?.name}_(${value.totalItems}x)_${value.totalBoxes}_Boxes`,
       )
       .value(),
-  ) as unknown as IShipmentContent[];
+  )! as IShipmentContent[];
 
   return (
     <Tabs w="100%" isFitted variant="enclosed-colored">
@@ -68,15 +68,13 @@ function ShipmentTabs({
           {(detail?.length || 0) === 0 && (
             <Center p={8}>No boxes have been assigned to this shipment yet!</Center>
           )}
-          {(detail?.length || 0) !== 0 && (
-            <ShipmentContent
-              isLoadingMutation={isLoadingMutation}
-              items={boxGroupedByProductGender}
-              onRemoveBox={onRemoveBox}
-              onBulkRemoveBox={onBulkRemoveBox}
-              showRemoveIcon={showRemoveIcon}
-            />
-          )}
+          <ShipmentContent
+            isLoadingMutation={isLoadingMutation}
+            items={boxGroupedByProductGender}
+            onRemoveBox={onRemoveBox}
+            onBulkRemoveBox={onBulkRemoveBox}
+            showRemoveIcon={showRemoveIcon}
+          />
         </TabPanel>
         <TabPanel>
           <ShipmentHistory histories={histories} />

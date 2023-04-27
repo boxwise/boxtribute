@@ -63,6 +63,7 @@ from .shipment_detail import (
     another_shipment_detail,
     default_shipment_detail,
     prepared_shipment_detail,
+    removed_shipment_detail,
 )
 from .size import another_size, default_size
 from .size_range import default_size_range
@@ -141,6 +142,7 @@ __all__ = [
     "receiving_transfer_agreement",
     "relative_beneficiary",
     "relative_transaction",
+    "removed_shipment_detail",
     "reviewed_transfer_agreement",
     "sent_shipment",
     "shipments",

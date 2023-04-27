@@ -32,6 +32,7 @@ import {
   RemoveBoxFromShipmentMutationVariables,
   UpdateShipmentWhenReceivingMutation,
   UpdateShipmentWhenReceivingMutationVariables,
+  BoxState,
 } from "types/generated/graphql";
 import { useErrorHandling } from "hooks/useErrorHandling";
 import { useNotification } from "hooks/useNotification";
@@ -42,6 +43,8 @@ import ShipmentCard from "./components/ShipmentCard";
 import ShipmentTabs from "./components/ShipmentTabs";
 import ShipmentOverlay, { IShipmentOverlayData } from "./components/ShipmentOverlay";
 import ShipmentActionButtons from "./components/ShipmentActionButtons";
+import ShipmentReceivingContent from "./components/ShipmentReceivingContent";
+import ShipmentReceivingCard from "./components/ShipmentReceivingCard";
 
 // graphql query and mutations
 export const SHIPMENT_BY_ID_QUERY = gql`
@@ -167,12 +170,10 @@ function ShipmentView() {
     SendShipmentMutationVariables
   >(SEND_SHIPMENT);
 
-  // eslint-disable-next-line no-unused-vars, @typescript-eslint/no-unused-vars
   const [startReceivingShipment, startReceivingShipmentStatus] = useMutation<
     StartReceivingShipmentMutation,
     StartReceivingShipmentMutationVariables
   >(START_RECEIVING_SHIPMENT);
-  // eslint-disable-next-line no-unused-vars, @typescript-eslint/no-unused-vars
   const [updateShipmentWhenReceiving, updateShipmentWhenReceivingStatus] = useMutation<
     UpdateShipmentWhenReceivingMutation,
     UpdateShipmentWhenReceivingMutationVariables
@@ -232,6 +233,38 @@ function ShipmentView() {
   }, [setShipmentOverlayData, onOpen, data]);
 
   const onMinusClick = () => setShowRemoveIcon(!showRemoveIcon);
+
+  const onRemainingBoxesUndelivered = useCallback(() => {
+    const lostBoxLabelIdentifiers = data?.shipment?.details
+      .filter((shipmentDetail) => shipmentDetail.box.state === BoxState.MarkedForShipment)
+      .map((shipmentDetail) => shipmentDetail.box.labelIdentifier) as string[];
+
+    updateShipmentWhenReceiving({
+      variables: {
+        id: shipmentId,
+        lostBoxLabelIdentifiers,
+      },
+    })
+      .then((mutationResult) => {
+        if (mutationResult?.errors) {
+          triggerError({
+            message: "Error: Could not change state of remaining boxes.",
+          });
+        } else {
+          onClose();
+          createToast({
+            title: `Box ${lostBoxLabelIdentifiers}`,
+            type: "success",
+            message: "Changed the state of remaining boxes to undelivered",
+          });
+        }
+      })
+      .catch(() => {
+        triggerError({
+          message: "Could not remove the box from the shipment.",
+        });
+      });
+  }, [triggerError, createToast, updateShipmentWhenReceiving, data, shipmentId, onClose]);
 
   const onRemoveBox = useCallback(
     (boxLabelIdentifier: string) => {
@@ -304,7 +337,7 @@ function ShipmentView() {
 
   // transform shipment data for UI
   const shipmentState = data?.shipment?.state;
-  const shipmentContents = (data?.shipment?.details.filter((item) => item.deletedOn === null) ??
+  const shipmentContents = (data?.shipment?.details.filter((item) => item.removedOn === null) ??
     []) as ShipmentDetail[];
 
   // map over each ShipmentDetail to compile its history records
@@ -334,6 +367,7 @@ function ShipmentView() {
   let shipmentTitle = <Heading>View Shipment</Heading>;
   let shipmentTab;
   let shipmentCard;
+  let isSender;
   let canUpdateShipment = false;
   let canCancelShipment = false;
   let canLooseShipment = false;
@@ -353,7 +387,7 @@ function ShipmentView() {
     shipmentTab = <TabsSkeleton />;
     shipmentActionButtons = <ButtonSkeleton />;
   } else {
-    const isSender =
+    isSender =
       typeof globalPreferences.availableBases?.find(
         (b) => b.id === data?.shipment?.sourceBase?.id,
       ) !== "undefined";
@@ -373,6 +407,8 @@ function ShipmentView() {
     } else if (ShipmentState.Receiving === shipmentState && !isSender) {
       canLooseShipment = true;
       shipmentTitle = <Heading>Receive Shipment</Heading>;
+    } else if (ShipmentState.Preparing === shipmentState && !isSender) {
+      canCancelShipment = true;
     }
 
     shipmentActionButtons = (
@@ -384,6 +420,7 @@ function ShipmentView() {
         onCancel={onCancel}
         onReceive={onReceive}
         onSend={onSend}
+        openShipmentOverlay={openShipmentOverlay}
         isSender={isSender}
       />
     );
@@ -407,6 +444,7 @@ function ShipmentView() {
         isLoadingMutation={isLoadingFromMutation}
         onRemove={onMinusClick}
         onCancel={openShipmentOverlay}
+        onLost={onLost}
         shipment={data?.shipment! as Shipment}
       />
     );
@@ -415,22 +453,34 @@ function ShipmentView() {
   return (
     <>
       <Flex direction="column" gap={2}>
-        <Center>
-          <VStack>
-            {shipmentTitle}
-            {shipmentCard}
-          </VStack>
-        </Center>
-        <Spacer />
-        <Box>{shipmentTab}</Box>
-
-        {shipmentActionButtons}
+        {!(shipmentState === ShipmentState.Receiving && !isSender) && (
+          <>
+            <Center>
+              <VStack>
+                {shipmentTitle}
+                {shipmentCard}
+              </VStack>
+            </Center>
+            <Spacer />
+            <Box>{shipmentTab}</Box>
+            {shipmentActionButtons}
+          </>
+        )}
+        {shipmentState === ShipmentState.Receiving && !isSender && (
+          <>
+            <Heading>Receive Shipment</Heading>
+            <ShipmentReceivingCard shipment={data?.shipment! as Shipment} />
+            <ShipmentReceivingContent items={shipmentContents} />
+            {shipmentActionButtons}
+          </>
+        )}
       </Flex>
 
       <ShipmentOverlay
         isOpen={isOpen}
         isLoading={isLoadingFromMutation}
         shipmentOverlayData={shipmentOverlayData}
+        onRemainingBoxesUndelivered={onRemainingBoxesUndelivered}
         onClose={onClose}
         onCancel={onCancel}
       />

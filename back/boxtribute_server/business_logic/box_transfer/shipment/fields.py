@@ -80,6 +80,18 @@ def resolve_shipment_detail_target_location(detail_obj, _):
     return detail_obj.target_location
 
 
+@shipment_detail.field("sourceSize")
+def resolve_shipment_detail_source_size(detail_obj, _):
+    authorize(permission="size:read")
+    return detail_obj.source_size
+
+
+@shipment_detail.field("targetSize")
+def resolve_shipment_detail_target_size(detail_obj, _):
+    authorize(permission="size:read")
+    return detail_obj.target_size
+
+
 @shipment_detail.field("shipment")
 def resolve_shipment(shipment_detail_obj, _):
     shipment = Shipment.get_by_id(shipment_detail_obj.shipment_id)

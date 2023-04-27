@@ -7,6 +7,7 @@ from .box import Box
 from .location import Location
 from .product import Product
 from .shipment import Shipment
+from .size import Size
 from .user import User
 
 
@@ -19,10 +20,20 @@ class ShipmentDetail(db.Model):
     target_location = UIntForeignKeyField(
         model=Location, on_update="CASCADE", null=True
     )
+    source_size = UIntForeignKeyField(model=Size, on_update="CASCADE")
+    target_size = UIntForeignKeyField(model=Size, on_update="CASCADE", null=True)
     created_on = DateTimeField(default=utcnow)
     created_by = UIntForeignKeyField(model=User, on_update="CASCADE")
-    deleted_on = DateTimeField(null=True)
-    deleted_by = UIntForeignKeyField(
+    removed_on = DateTimeField(null=True)
+    removed_by = UIntForeignKeyField(
+        model=User, on_update="CASCADE", on_delete="SET NULL", null=True
+    )
+    lost_on = DateTimeField(null=True)
+    lost_by = UIntForeignKeyField(
+        model=User, on_update="CASCADE", on_delete="SET NULL", null=True
+    )
+    received_on = DateTimeField(null=True)
+    received_by = UIntForeignKeyField(
         model=User, on_update="CASCADE", on_delete="SET NULL", null=True
     )
 

@@ -164,10 +164,12 @@ def test_shipment_mutations_on_source_side(
                         targetProduct {{ id }}
                         sourceLocation {{ id }}
                         targetLocation {{ id }}
+                        sourceSize {{ id }}
+                        targetSize {{ id }}
                         createdBy {{ id }}
                         createdOn
-                        deletedBy {{ id }}
-                        deletedOn
+                        removedBy {{ id }}
+                        removedOn
                     }}
                 }} }}"""
     shipment = assert_successful_request(client, mutation)
@@ -195,9 +197,11 @@ def test_shipment_mutations_on_source_side(
                     "id": str(another_marked_for_shipment_box["location"])
                 },
                 "targetLocation": None,
+                "sourceSize": {"id": str(another_marked_for_shipment_box["size"])},
+                "targetSize": None,
                 "createdBy": {"id": "1"},
-                "deletedBy": None,
-                "deletedOn": None,
+                "removedBy": None,
+                "removedOn": None,
             },
             {
                 "shipment": {"id": shipment_id},
@@ -210,9 +214,11 @@ def test_shipment_mutations_on_source_side(
                 "targetProduct": None,
                 "sourceLocation": {"id": str(default_box["location"])},
                 "targetLocation": None,
+                "sourceSize": {"id": str(default_box["size"])},
+                "targetSize": None,
                 "createdBy": {"id": "8"},
-                "deletedBy": None,
-                "deletedOn": None,
+                "removedBy": None,
+                "removedOn": None,
             },
         ],
     }
@@ -249,19 +255,19 @@ def test_shipment_mutations_on_source_side(
                     state
                     details {{
                         id
-                        deletedOn
-                        deletedBy {{ id }}
+                        removedOn
+                        removedBy {{ id }}
                         box {{ state }}
                     }}
                 }} }}"""
     shipment = assert_successful_request(client, mutation)
-    assert shipment["details"][0].pop("deletedOn").startswith(date.today().isoformat())
-    assert shipment["details"][1].pop("deletedOn").startswith(date.today().isoformat())
+    assert shipment["details"][0].pop("removedOn").startswith(date.today().isoformat())
+    assert shipment["details"][1].pop("removedOn").startswith(date.today().isoformat())
     assert shipment == {
         "id": shipment_id,
         "state": ShipmentState.Preparing.name,
         "details": [
-            {"id": i, "deletedBy": {"id": "8"}, "box": {"state": BoxState.InStock.name}}
+            {"id": i, "removedBy": {"id": "8"}, "box": {"state": BoxState.InStock.name}}
             for i in [prepared_shipment_detail_id, shipment_detail_id]
         ],
     }
@@ -337,14 +343,14 @@ def test_shipment_mutations_cancel(
                     canceledOn
                     details {{
                         id
-                        deletedOn
-                        deletedBy {{ id }}
+                        removedOn
+                        removedBy {{ id }}
                         box {{ state }}
                     }}
                 }} }}"""
     shipment = assert_successful_request(client, mutation)
     assert shipment.pop("canceledOn").startswith(date.today().isoformat())
-    assert shipment["details"][0].pop("deletedOn").startswith(date.today().isoformat())
+    assert shipment["details"][0].pop("removedOn").startswith(date.today().isoformat())
     assert shipment == {
         "id": shipment_id,
         "state": ShipmentState.Canceled.name,
@@ -352,7 +358,7 @@ def test_shipment_mutations_cancel(
         "details": [
             {
                 "id": str(prepared_shipment_detail["id"]),
-                "deletedBy": {"id": "8"},
+                "removedBy": {"id": "8"},
                 "box": {"state": BoxState.InStock.name},
             }
         ],
@@ -385,8 +391,10 @@ def test_shipment_mutations_on_target_side(
     sent_shipment,
     default_shipment_detail,
     another_shipment_detail,
+    removed_shipment_detail,
     another_location,
     another_product,
+    another_size,
     default_product,
     default_location,
     box_without_qr_code,
@@ -419,16 +427,21 @@ def test_shipment_mutations_on_target_side(
 
     target_product_id = str(another_product["id"])
     target_location_id = str(another_location["id"])
+    target_size_id = str(another_size["id"])
     shipment_id = str(sent_shipment["id"])
     detail_id = str(default_shipment_detail["id"])
     another_detail_id = str(another_shipment_detail["id"])
+    removed_detail_id = str(removed_shipment_detail["id"])
 
-    def _create_mutation(*, detail_id, target_product_id, target_location_id):
+    def _create_mutation(
+        *, detail_id, target_product_id, target_location_id, target_size_id
+    ):
         update_input = f"""id: {shipment_id},
                 receivedShipmentDetailUpdateInputs: {{
                         id: {detail_id},
                         targetProductId: {target_product_id},
                         targetLocationId: {target_location_id}
+                        targetSizeId: {target_size_id}
                     }}"""
         return f"""mutation {{ updateShipmentWhenReceiving(
                     updateInput: {{ {update_input} }}) {{
@@ -440,6 +453,7 @@ def test_shipment_mutations_on_target_side(
                             id
                             targetProduct {{ id }}
                             targetLocation {{ id }}
+                            targetSize {{ id }}
                             box {{
                                 state
                             }}
@@ -452,6 +466,7 @@ def test_shipment_mutations_on_target_side(
                     state
                     receivingStartedBy {{ id }}
                     receivingStartedOn
+                    details {{ box {{ state }} }}
                 }} }}"""
     shipment = assert_successful_request(client, mutation)
     assert shipment.pop("receivingStartedOn").startswith(date.today().isoformat())
@@ -459,6 +474,11 @@ def test_shipment_mutations_on_target_side(
         "id": shipment_id,
         "state": ShipmentState.Receiving.name,
         "receivingStartedBy": {"id": "2"},
+        "details": [
+            {"box": {"state": BoxState.Receiving.name}},
+            {"box": {"state": BoxState.Receiving.name}},
+            {"box": {"state": BoxState.InStock.name}},
+        ],
     }
 
     # Test case 3.2.34a
@@ -468,6 +488,7 @@ def test_shipment_mutations_on_target_side(
             detail_id=detail_id,
             target_product_id=target_product_id,
             target_location_id=target_location_id,
+            target_size_id=target_size_id,
         ),
     )
     expected_shipment = {
@@ -478,15 +499,24 @@ def test_shipment_mutations_on_target_side(
         "details": [
             {
                 "id": detail_id,
-                "box": {"state": BoxState.Received.name},
+                "box": {"state": BoxState.InStock.name},
                 "targetProduct": {"id": target_product_id},
                 "targetLocation": {"id": target_location_id},
+                "targetSize": {"id": target_size_id},
             },
             {
                 "id": another_detail_id,
-                "box": {"state": BoxState.MarkedForShipment.name},
+                "box": {"state": BoxState.Receiving.name},
                 "targetProduct": None,
                 "targetLocation": None,
+                "targetSize": None,
+            },
+            {
+                "id": removed_detail_id,
+                "box": {"state": BoxState.InStock.name},
+                "targetProduct": None,
+                "targetLocation": None,
+                "targetSize": None,
             },
         ],
     }
@@ -501,6 +531,7 @@ def test_shipment_mutations_on_target_side(
                 detail_id=another_detail_id,
                 target_product_id=product["id"],
                 target_location_id=target_location_id,
+                target_size_id=target_size_id,
             ),
         )
         assert shipment == expected_shipment
@@ -514,6 +545,7 @@ def test_shipment_mutations_on_target_side(
                 detail_id=another_detail_id,
                 target_product_id=target_product_id,
                 target_location_id=location["id"],
+                target_size_id=target_size_id,
             ),
         )
         assert shipment == expected_shipment
@@ -530,7 +562,9 @@ def test_shipment_mutations_on_target_side(
                 completedOn
                 details {{
                     id
-                    deletedBy {{ id }}
+                    removedBy {{ id }}
+                    lostBy {{ id }}
+                    receivedBy {{ id }}
                     box {{ state }}
                 }}
             }} }}"""
@@ -542,14 +576,26 @@ def test_shipment_mutations_on_target_side(
         "completedBy": {"id": "2"},
         "details": [
             {
-                "id": str(detail["id"]),
-                "deletedBy": {"id": "2"},
-                "box": {"state": box_state},
-            }
-            for detail, box_state in zip(
-                [default_shipment_detail, another_shipment_detail],
-                [BoxState.InStock.name, BoxState.Lost.name],
-            )
+                "id": detail_id,
+                "removedBy": None,
+                "lostBy": None,
+                "receivedBy": {"id": "2"},
+                "box": {"state": BoxState.InStock.name},
+            },
+            {
+                "id": another_detail_id,
+                "removedBy": None,
+                "lostBy": {"id": "2"},
+                "receivedBy": None,
+                "box": {"state": BoxState.Lost.name},
+            },
+            {
+                "id": removed_detail_id,
+                "removedBy": {"id": "2"},
+                "lostBy": None,
+                "receivedBy": None,
+                "box": {"state": BoxState.InStock.name},
+            },
         ],
     }
     box_label_identifier = box_without_qr_code["label_identifier"]
@@ -588,6 +634,7 @@ def test_shipment_mutations_on_target_side_mark_shipment_as_lost(
     sent_shipment,
     default_shipment_detail,
     another_shipment_detail,
+    removed_shipment_detail,
 ):
     mocker.patch("jose.jwt.decode").return_value = create_jwt_payload(
         base_ids=[3], organisation_id=2, user_id=2
@@ -600,7 +647,8 @@ def test_shipment_mutations_on_target_side_mark_shipment_as_lost(
                     completedBy {{ id }}
                     details {{
                         id
-                        deletedBy {{ id }}
+                        removedBy {{ id }}
+                        lostBy {{ id }}
                         box {{ state }}
                     }}
                 }} }}"""
@@ -611,11 +659,23 @@ def test_shipment_mutations_on_target_side_mark_shipment_as_lost(
         "completedBy": {"id": "2"},
         "details": [
             {
-                "id": str(detail["id"]),
-                "deletedBy": {"id": "2"},
+                "id": str(default_shipment_detail["id"]),
+                "removedBy": None,
+                "lostBy": {"id": "2"},
                 "box": {"state": BoxState.Lost.name},
-            }
-            for detail in [default_shipment_detail, another_shipment_detail]
+            },
+            {
+                "id": str(another_shipment_detail["id"]),
+                "removedBy": None,
+                "lostBy": {"id": "2"},
+                "box": {"state": BoxState.Lost.name},
+            },
+            {
+                "id": str(removed_shipment_detail["id"]),
+                "removedBy": {"id": "2"},
+                "lostBy": None,
+                "box": {"state": BoxState.InStock.name},
+            },
         ],
     }
 
@@ -652,6 +712,7 @@ def _generate_update_shipment_mutation(
     received_details=None,
     target_location=None,
     target_product=None,
+    target_size=None,
 ):
     update_input = f"id: {shipment['id']}"
     update_type = "WhenPreparing"
@@ -665,6 +726,7 @@ def _generate_update_shipment_mutation(
         inputs = ", ".join(
             f"""{{ id: {detail["id"]},
                 targetLocationId: {target_location["id"]},
+                targetSizeId: {target_size["id"]},
                 targetProductId: {target_product["id"]} }}"""
             for detail in received_details
         )
@@ -824,6 +886,7 @@ def test_shipment_mutations_update_checked_in_boxes_as_member_of_creating_org(
     default_shipment_detail,
     another_location,
     another_product,
+    another_size,
 ):
     # Test case 3.2.35
     # This will use updateShipmentWhenReceiving
@@ -832,6 +895,7 @@ def test_shipment_mutations_update_checked_in_boxes_as_member_of_creating_org(
         received_details=[default_shipment_detail],
         target_location=another_location,
         target_product=another_product,
+        target_size=another_size,
     )
     assert_forbidden_request(read_only_client, mutation)
 
@@ -866,6 +930,7 @@ def test_shipment_mutations_update_checked_in_boxes_when_shipment_in_non_sent_st
     prepared_shipment_detail,
     another_location,
     another_product,
+    another_size,
 ):
     # Test case 3.2.36
     mocker.patch("jose.jwt.decode").return_value = create_jwt_payload(
@@ -878,6 +943,7 @@ def test_shipment_mutations_update_checked_in_boxes_when_shipment_in_non_sent_st
         received_details=[prepared_shipment_detail],
         target_location=another_location,
         target_product=another_product,
+        target_size=another_size,
     )
 
 

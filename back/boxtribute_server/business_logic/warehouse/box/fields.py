@@ -52,6 +52,11 @@ def resolve_box_shipment_detail(box_obj, _):
     authorize(permission="shipment_detail:read")
     return (
         ShipmentDetail.select()
-        .where(ShipmentDetail.box == box_obj.id, ShipmentDetail.deleted_on.is_null())
+        .where(
+            ShipmentDetail.box == box_obj.id,
+            ShipmentDetail.removed_on.is_null(),
+            ShipmentDetail.lost_on.is_null(),
+            ShipmentDetail.received_on.is_null(),
+        )
         .get_or_none()
     )

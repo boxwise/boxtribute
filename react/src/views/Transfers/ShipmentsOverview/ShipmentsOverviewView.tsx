@@ -60,7 +60,7 @@ function ShipmentsOverviewView() {
 
         // counting of boxes from details
         const uniqueBoxIds = element.details.reduce((accumulator, detail) => {
-          if (detail.deletedOn == null) {
+          if (detail.removedOn == null) {
             const boxId = detail.box.labelIdentifier;
             accumulator[boxId] = (accumulator[boxId] || 0) + 1;
           }
@@ -80,7 +80,7 @@ function ShipmentsOverviewView() {
           element.details
             .reduce(
               (accumulator, detail) =>
-                accumulator.concat(detail.createdOn).concat(detail.deletedOn),
+                accumulator.concat(detail.createdOn).concat(detail.removedOn),
               [],
             )
             .filter((date) => Boolean(date)),
