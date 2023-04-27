@@ -406,7 +406,7 @@ function ShipmentView() {
       canLooseShipment = true;
     } else if (ShipmentState.Receiving === shipmentState && !isSender) {
       canLooseShipment = true;
-      shipmentTitle = <Heading>Receive Shipment</Heading>;
+      shipmentTitle = <Heading>Receiving Shipment</Heading>;
     } else if (ShipmentState.Preparing === shipmentState && !isSender) {
       canCancelShipment = true;
     }
@@ -468,7 +468,7 @@ function ShipmentView() {
         )}
         {shipmentState === ShipmentState.Receiving && !isSender && (
           <>
-            <Heading>Receive Shipment</Heading>
+            <Heading>Receiving Shipment</Heading>
             <ShipmentReceivingCard shipment={data?.shipment! as Shipment} />
             <ShipmentReceivingContent items={shipmentContents} />
             {shipmentActionButtons}

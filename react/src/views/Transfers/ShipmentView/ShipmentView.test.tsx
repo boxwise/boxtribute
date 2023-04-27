@@ -211,7 +211,7 @@ describe("4.5 Test Cases", () => {
     expect(screen.getByTestId("loader")).toBeInTheDocument();
 
     await waitFor(() => {
-      const title = screen.getByRole("heading", { name: /receive shipment/i });
+      const title = screen.getByRole("heading", { name: /receiving shipment/i });
       expect(title);
     });
 
