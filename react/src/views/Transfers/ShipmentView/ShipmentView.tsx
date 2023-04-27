@@ -337,7 +337,7 @@ function ShipmentView() {
 
   // transform shipment data for UI
   const shipmentState = data?.shipment?.state;
-  const shipmentContents = (data?.shipment?.details.filter((item) => item.deletedOn === null) ??
+  const shipmentContents = (data?.shipment?.details.filter((item) => item.removedOn === null) ??
     []) as ShipmentDetail[];
 
   // map over each ShipmentDetail to compile its history records

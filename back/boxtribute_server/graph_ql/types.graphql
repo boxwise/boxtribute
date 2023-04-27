@@ -601,12 +601,18 @@ type ShipmentDetail {
   targetProduct: Product
   sourceLocation: ClassicLocation
   targetLocation: ClassicLocation
+  sourceSize: Size
+  targetSize: Size
   box: Box!
   shipment: Shipment!
   createdBy: User!
   createdOn: Datetime!
-  deletedBy: User
-  deletedOn: Datetime
+  removedBy: User
+  removedOn: Datetime
+  lostBy: User
+  lostOn: Datetime
+  receivedBy: User
+  receivedOn: Datetime
 }
 
 enum TransferAgreementState {
