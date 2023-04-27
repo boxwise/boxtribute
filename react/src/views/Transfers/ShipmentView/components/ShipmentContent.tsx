@@ -8,12 +8,14 @@ import {
   Box,
   Spacer,
   Stack,
+  Flex,
 } from "@chakra-ui/react";
 import _ from "lodash";
 import { useMemo } from "react";
 import { Product, Box as BoxType } from "types/generated/graphql";
 import { CellProps } from "react-table";
 import { AiFillMinusCircle } from "react-icons/ai";
+import { BiPackage } from "react-icons/bi";
 import ShipmentTable from "./ShipmentTable";
 import { RemoveBoxCell } from "./ShipmentTableCells";
 
@@ -124,9 +126,13 @@ function ShipmentContent({
                   </h2>
                 </Box>
                 <Spacer />
-                <Box>
-                  <Text>{item.totalBoxes} boxes</Text>
-                </Box>
+                <Flex direction="row" alignItems="center">
+                  <Text>{item.totalBoxes}</Text>
+                  <Spacer />
+                  <Box pl={2}>
+                    <BiPackage size={18} />
+                  </Box>
+                </Flex>
                 <AccordionButton
                   _expanded={{ bg: "#F4E6A0" }}
                   maxWidth={5}
