@@ -127,9 +127,9 @@ function BoxCard({ boxData, onPlusOpen, onMinusOpen, onStateChange, isLoading }:
             </Heading>
           )}
           {isLoading && (
-            <Heading as="h3" fontSize="xl">
-              <Skeleton width="100px" />
-            </Heading>
+            <Skeleton width="140px">
+              <Heading as="h3" fontSize="xl" />
+            </Skeleton>
           )}
           <Spacer />
           <ButtonGroup gap="1">

@@ -134,21 +134,6 @@ const updateNumberOfItemsMutation = {
   },
 };
 
-const numberOfItemsSuccessfullUpdatedRefetchQuery = {
-  request: {
-    query: BOX_BY_LABEL_IDENTIFIER_AND_ALL_SHIPMENTS_QUERY,
-    variables: {
-      labelIdentifier: "123",
-    },
-  },
-  result: {
-    data: {
-      updateBox: generateMockBox({ numberOfItems: 32 }),
-      shipments: null,
-    },
-  },
-};
-
 const initialQueryMoveLocationOfBox = {
   request: {
     query: BOX_BY_LABEL_IDENTIFIER_AND_ALL_SHIPMENTS_QUERY,
@@ -191,27 +176,6 @@ const moveLocationOfBoxMutation = {
   },
 };
 
-const moveLocationOfBoxRefetchQuery = {
-  request: {
-    query: BOX_BY_LABEL_IDENTIFIER_AND_ALL_SHIPMENTS_QUERY,
-    variables: {
-      labelIdentifier: "123",
-    },
-  },
-  result: {
-    data: {
-      box: generateMockBox({
-        product: product1,
-        location: generateMockLocationWithBase({
-          defaultLocationId: 6,
-          defaultLocationName: "WH Women",
-        }),
-      }),
-      shipments: null,
-    },
-  },
-};
-
 const updateBoxStateToScrapMutation = {
   request: {
     query: UPDATE_STATE_IN_BOX_MUTATION,
@@ -230,21 +194,6 @@ const updateBoxStateToScrapMutation = {
   },
 };
 
-const boxStateSuccessfullUpdatedToScrapRefetchQuery = {
-  request: {
-    query: BOX_BY_LABEL_IDENTIFIER_AND_ALL_SHIPMENTS_QUERY,
-    variables: {
-      labelIdentifier: "123",
-    },
-  },
-  result: {
-    data: {
-      box: generateMockBox({ state: BoxState.Scrap }),
-      shipments: null,
-    },
-  },
-};
-
 const updateBoxStateToLostMutation = {
   request: {
     query: UPDATE_STATE_IN_BOX_MUTATION,
@@ -256,21 +205,6 @@ const updateBoxStateToLostMutation = {
   result: {
     data: {
       updateBox: generateMockBox({ state: BoxState.Lost }),
-      shipments: null,
-    },
-  },
-};
-
-const boxStateSuccessfullUpdatedToLostRefetchQuery = {
-  request: {
-    query: BOX_BY_LABEL_IDENTIFIER_AND_ALL_SHIPMENTS_QUERY,
-    variables: {
-      labelIdentifier: "123",
-    },
-  },
-  result: {
-    data: {
-      box: generateMockBox({ state: BoxState.Lost }),
       shipments: null,
     },
   },

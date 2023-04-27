@@ -10,6 +10,7 @@ import {
   WrapItem,
   Wrap,
   Text,
+  SkeletonText,
 } from "@chakra-ui/react";
 import { IDropdownOption } from "components/Form/SelectField";
 import { ShipmentIcon } from "components/Icon/Transfer/ShipmentIcon";
@@ -52,19 +53,33 @@ function BoxTabs({
                 <FaWarehouse size={24} />
               </WrapItem>
               <WrapItem alignItems="center">
-                <Text as="h4" fontWeight="bold" fontSize={16}>
-                  {boxData?.location?.name}
-                </Text>
+                {!isLoading && (
+                  <Text as="h4" fontWeight="bold" fontSize={16}>
+                    {boxData?.location?.name}
+                  </Text>
+                )}
+                {isLoading && (
+                  <SkeletonText width="140px" noOfLines={1}>
+                    <Text as="h4" fontWeight="bold" fontSize={16} />
+                  </SkeletonText>
+                )}
               </WrapItem>
             </Wrap>
           </Stack>
           {boxData?.shipmentDetail && (
             <Stack direction="row" alignItems="center" alignContent="center" spacing={2}>
               <ShipmentIcon boxSize={6} alignItems="center" />
-              <Text alignItems="center" alignContent="center">
-                <b>{boxData?.shipmentDetail?.shipment.targetBase.name},</b>{" "}
-                {boxData?.shipmentDetail?.shipment.targetBase.organisation.name}
-              </Text>
+              {!isLoading && (
+                <Text alignItems="center" alignContent="center">
+                  <b>{boxData?.shipmentDetail?.shipment.targetBase.name},</b>{" "}
+                  {boxData?.shipmentDetail?.shipment.targetBase.organisation.name}
+                </Text>
+              )}
+              {isLoading && (
+                <SkeletonText width="140px" noOfLines={1}>
+                  <Text alignItems="center" alignContent="center" />
+                </SkeletonText>
+              )}
             </Stack>
           )}
         </Stack>

@@ -188,6 +188,7 @@ export function BoxViewSkeleton() {
       <Box
         w={["100%", "80%", "30%", "30%"]}
         border="2px"
+        borderColor="gray.300"
         mb={6}
         pb={2}
         mr={["0", "0", "4rem", "4rem"]}
@@ -204,7 +205,7 @@ export function BoxViewSkeleton() {
             />
           </Skeleton>
         </Flex>
-        <Skeleton height="10rem" />
+        <Skeleton height="18rem" />
       </Box>
       <Flex>
         <SkeletonText ml="4" noOfLines={1} width="50%" />
