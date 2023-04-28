@@ -15,7 +15,7 @@ import { useCallback, useMemo } from "react";
 import { Product, Box as BoxType, BoxState, ShipmentState } from "types/generated/graphql";
 import { CellProps } from "react-table";
 import { AiFillMinusCircle } from "react-icons/ai";
-import { BiPackage } from "react-icons/bi";
+// import { BiPackage } from "react-icons/bi";
 import ShipmentTable from "./ShipmentTable";
 import { RemoveBoxCell } from "./ShipmentTableCells";
 
@@ -154,11 +154,12 @@ function ShipmentContent({
                   </Text>
                   <Spacer />
                   <Box pl={1}>
-                    <BiPackage size={18} />
+                    {/* <BiPackage size={18} /> */}
+                    box{item.totalBoxes > 1 && "es"}
                   </Box>
                   {item.totalLosts > 0 && shipmentState === ShipmentState.Completed && (
                     <Box pl={1} color="gray.500">
-                      (- {item.totalLosts})
+                      (-{item.totalLosts})
                     </Box>
                   )}
                 </Flex>

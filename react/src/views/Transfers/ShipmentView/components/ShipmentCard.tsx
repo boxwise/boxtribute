@@ -18,7 +18,7 @@ import { ShipmentIcon } from "components/Icon/Transfer/ShipmentIcon";
 import { BiMinusCircle, BiPackage, BiPlusCircle, BiTrash } from "react-icons/bi";
 import { RiFilePaperFill } from "react-icons/ri";
 import { TbMapOff } from "react-icons/tb";
-import { BoxState, Shipment, ShipmentState } from "types/generated/graphql";
+import { Shipment, ShipmentState } from "types/generated/graphql";
 import ShipmentColoredStatus from "./ShipmentColoredStatus";
 
 export interface IShipmentProps {
@@ -165,8 +165,18 @@ function ShipmentCard({
                 <WrapItem>
                   <Center>
                     <Text as="h3" fontSize="3xl" fontWeight="bold">
-                      {(shipment.details?.filter((item) => item.box.state !== BoxState.Lost) ?? [])
-                        .length || 0}
+                      {
+                        (
+                          shipment.details?.filter(
+                            (item) =>
+                              (item.lostOn === null &&
+                                item.removedOn === null &&
+                                shipment.state === ShipmentState.Completed) ||
+                              (item.removedOn === null &&
+                                shipment.state !== ShipmentState.Completed),
+                          ) ?? []
+                        ).length
+                      }
                     </Text>
                   </Center>
                 </WrapItem>
@@ -219,7 +229,7 @@ function ShipmentCard({
                           {
                             (
                               shipment.details?.filter(
-                                (item) => item.box.state === BoxState.Lost,
+                                (item) => item.lostOn !== null && item.removedOn === null,
                               ) ?? []
                             ).length
                           }

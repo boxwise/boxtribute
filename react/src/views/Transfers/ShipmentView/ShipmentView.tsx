@@ -12,7 +12,7 @@ import {
   useDisclosure,
 } from "@chakra-ui/react";
 import _, { groupBy } from "lodash";
-import { useCallback, useContext, useState } from "react";
+import { useCallback, useContext, useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import {
   CancelShipmentMutation,
@@ -133,6 +133,7 @@ function ShipmentView() {
   const { isOpen, onClose, onOpen } = useDisclosure();
   // State to show minus button near boxes when remove button is triggered
   const [showRemoveIcon, setShowRemoveIcon] = useState(false);
+  const [shipmentState, setShipmentState] = useState<ShipmentState | undefined>();
   // State to pass Data from a row to the Overlay
   const [shipmentOverlayData, setShipmentOverlayData] = useState<IShipmentOverlayData>();
 
@@ -148,6 +149,10 @@ function ShipmentView() {
       },
     },
   );
+
+  useEffect(() => {
+    setShipmentState(data?.shipment?.state || undefined);
+  }, [data]);
 
   // Mutations for shipment actions
   const [updateShipmentWhenPreparing, updateShipmentWhenPreparingStatus] = useMutation<
@@ -236,7 +241,7 @@ function ShipmentView() {
 
   const onRemainingBoxesUndelivered = useCallback(() => {
     const lostBoxLabelIdentifiers = data?.shipment?.details
-      .filter((shipmentDetail) => shipmentDetail.box.state === BoxState.MarkedForShipment)
+      .filter((shipmentDetail) => shipmentDetail.box.state === BoxState.Receiving)
       .map((shipmentDetail) => shipmentDetail.box.labelIdentifier) as string[];
 
     updateShipmentWhenReceiving({
@@ -336,7 +341,7 @@ function ShipmentView() {
     lostShipmentStatus.loading;
 
   // transform shipment data for UI
-  const shipmentState = data?.shipment?.state;
+
   const shipmentContents = (data?.shipment?.details.filter((item) => item.removedOn === null) ??
     []) as ShipmentDetail[];
 
@@ -451,42 +456,56 @@ function ShipmentView() {
     );
   }
 
-  return (
-    <>
-      <Flex direction="column" gap={2}>
-        {!(shipmentState === ShipmentState.Receiving && !isSender) && (
-          <>
-            <Center>
-              <VStack>
-                {shipmentTitle}
-                {shipmentCard}
-              </VStack>
-            </Center>
-            <Spacer />
-            <Box>{shipmentTab}</Box>
-            {shipmentActionButtons}
-          </>
-        )}
-        {shipmentState === ShipmentState.Receiving && !isSender && (
-          <>
-            <Heading>Receiving Shipment</Heading>
-            <ShipmentReceivingCard shipment={data?.shipment! as Shipment} />
-            <ShipmentReceivingContent items={shipmentContents} />
-            {shipmentActionButtons}
-          </>
-        )}
-      </Flex>
+  let shipmentViewComponents;
 
-      <ShipmentOverlay
-        isOpen={isOpen}
-        isLoading={isLoadingFromMutation}
-        shipmentOverlayData={shipmentOverlayData}
-        onRemainingBoxesUndelivered={onRemainingBoxesUndelivered}
-        onClose={onClose}
-        onCancel={onCancel}
-      />
-    </>
-  );
+  if (shipmentState === ShipmentState.Receiving && !isSender) {
+    shipmentViewComponents = (
+      <>
+        <Flex direction="column" gap={2}>
+          <Heading>Receiving Shipment</Heading>
+          <ShipmentReceivingCard shipment={data?.shipment! as Shipment} />
+          <ShipmentReceivingContent items={shipmentContents} />
+          {shipmentActionButtons}
+        </Flex>
+
+        <ShipmentOverlay
+          isOpen={isOpen}
+          isLoading={isLoadingFromMutation}
+          shipmentOverlayData={shipmentOverlayData}
+          onRemainingBoxesUndelivered={onRemainingBoxesUndelivered}
+          onClose={onClose}
+          onCancel={onCancel}
+        />
+      </>
+    );
+  } else {
+    shipmentViewComponents = (
+      <>
+        <Flex direction="column" gap={2}>
+          <Center>
+            <VStack>
+              {shipmentTitle}
+              {shipmentCard}
+            </VStack>
+          </Center>
+          <Spacer />
+          <Box>{shipmentTab}</Box>
+          {shipmentActionButtons}
+        </Flex>
+
+        <ShipmentOverlay
+          isOpen={isOpen}
+          isLoading={isLoadingFromMutation}
+          shipmentOverlayData={shipmentOverlayData}
+          onRemainingBoxesUndelivered={onRemainingBoxesUndelivered}
+          onClose={onClose}
+          onCancel={onCancel}
+        />
+      </>
+    );
+  }
+
+  return shipmentViewComponents;
 }
 
 export default ShipmentView;
