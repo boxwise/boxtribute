@@ -18,7 +18,7 @@ import { ShipmentIcon } from "components/Icon/Transfer/ShipmentIcon";
 import { BiMinusCircle, BiPackage, BiPlusCircle, BiTrash } from "react-icons/bi";
 import { RiFilePaperFill } from "react-icons/ri";
 import { TbMapOff } from "react-icons/tb";
-import { Shipment, ShipmentState } from "types/generated/graphql";
+import { BoxState, Shipment, ShipmentState } from "types/generated/graphql";
 import ShipmentColoredStatus from "./ShipmentColoredStatus";
 
 export interface IShipmentProps {
@@ -60,8 +60,8 @@ function ShipmentCard({
         spacing={1}
         align="stretch"
       >
-        <Flex minWidth="max-content" justifyContent="flex-start" p={2}>
-          <VStack>
+        <Flex minWidth="max-content" justifyContent="flex-start" p={4}>
+          <VStack alignItems="flex-start">
             <Heading>
               <Wrap fontSize="2xl" fontWeight="extrabold">
                 <WrapItem>Shipment</WrapItem>
@@ -165,8 +165,8 @@ function ShipmentCard({
                 <WrapItem>
                   <Center>
                     <Text as="h3" fontSize="3xl" fontWeight="bold">
-                      {(shipment.details?.filter((item) => item.removedOn === null) ?? []).length ||
-                        0}
+                      {(shipment.details?.filter((item) => item.box.state !== BoxState.Lost) ?? [])
+                        .length || 0}
                     </Text>
                   </Center>
                 </WrapItem>
@@ -202,6 +202,42 @@ function ShipmentCard({
                     aria-label="remove box"
                     style={{ background: "white" }}
                   />
+                </VStack>
+              )}
+              {shipment.state === ShipmentState.Completed && (
+                <VStack align="stretch" mr={1}>
+                  <Wrap spacing={1} align="center" style={{ color: "#909090" }}>
+                    <WrapItem>
+                      <Text as="p" fontSize={16} fontWeight="extrabold" color="gray.500">
+                        (
+                      </Text>
+                    </WrapItem>
+                    <WrapItem>
+                      <Center>
+                        <Text as="p" fontSize={16} fontWeight="extrabold" color="gray.500">
+                          -{" "}
+                          {
+                            (
+                              shipment.details?.filter(
+                                (item) => item.box.state === BoxState.Lost,
+                              ) ?? []
+                            ).length
+                          }
+                        </Text>
+                      </Center>
+                    </WrapItem>
+                    <WrapItem>
+                      <Center>
+                        <BiPackage size={24} style={{ color: "#909090" }} />
+                      </Center>
+                    </WrapItem>
+
+                    <WrapItem>
+                      <Text as="p" fontSize={16} fontWeight="extrabold" color="gray.500">
+                        )
+                      </Text>
+                    </WrapItem>
+                  </Wrap>
                 </VStack>
               )}
             </Box>

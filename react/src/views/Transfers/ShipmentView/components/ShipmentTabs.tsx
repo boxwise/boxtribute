@@ -1,6 +1,12 @@
 import { TabList, TabPanels, Tabs, TabPanel, Tab, Center } from "@chakra-ui/react";
 import _ from "lodash";
-import { Box, HistoryEntry, ShipmentDetail } from "types/generated/graphql";
+import {
+  Box,
+  BoxState,
+  HistoryEntry,
+  ShipmentDetail,
+  ShipmentState,
+} from "types/generated/graphql";
 import ShipmentContent, { IShipmentContent } from "./ShipmentContent";
 import ShipmentHistory from "./ShipmentHistory";
 
@@ -14,6 +20,7 @@ export interface IGroupedHistoryEntry {
 }
 
 export interface IShipmentTabsProps {
+  shipmentState: ShipmentState | undefined | null;
   detail: ShipmentDetail[];
   histories: IGroupedHistoryEntry[];
   isLoadingMutation: boolean | undefined;
@@ -28,6 +35,7 @@ function ShipmentTabs({
   isLoadingMutation,
   onRemoveBox,
   onBulkRemoveBox,
+  shipmentState,
 }: IShipmentTabsProps) {
   const boxGroupedByProductGender = _.values(
     _(detail)
@@ -40,6 +48,7 @@ function ShipmentTabs({
       .mapValues((group) => ({
         product: group[0]?.box?.product ? group[0]?.box?.product : group[0]?.sourceProduct,
         totalItems: _.sumBy(group, (shipment) => shipment?.box?.numberOfItems || 0),
+        totalLosts: group.filter((item) => item.box.state === BoxState.Lost).length,
         totalBoxes: group.length,
         boxes: group.map(
           (shipment) =>
@@ -69,6 +78,7 @@ function ShipmentTabs({
             <Center p={8}>No boxes have been assigned to this shipment yet!</Center>
           )}
           <ShipmentContent
+            shipmentState={shipmentState}
             isLoadingMutation={isLoadingMutation}
             items={boxGroupedByProductGender}
             onRemoveBox={onRemoveBox}

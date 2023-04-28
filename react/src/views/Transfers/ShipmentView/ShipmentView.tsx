@@ -417,7 +417,7 @@ function ShipmentView() {
         shipmentState={shipmentState}
         shipmentContents={shipmentContents}
         onLost={onLost}
-        onCancel={onCancel}
+        onCancel={openShipmentOverlay}
         onReceive={onReceive}
         onSend={onSend}
         openShipmentOverlay={openShipmentOverlay}
@@ -427,6 +427,7 @@ function ShipmentView() {
 
     shipmentTab = (
       <ShipmentTabs
+        shipmentState={shipmentState}
         detail={shipmentContents}
         histories={sortedGroupedHistoryEntries}
         isLoadingMutation={isLoadingFromMutation}

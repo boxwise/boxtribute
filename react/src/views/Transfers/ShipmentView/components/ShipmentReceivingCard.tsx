@@ -54,7 +54,7 @@ function ShipmentReceivingCard({ shipment }: IShipmentReceivingCardProps) {
                 <WrapItem fontWeight="extrabold" fontSize="lg">
                   {
                     shipment.details.filter(
-                      (b) => b.removedOn === null && b.box.state !== BoxState.Receiving,
+                      (b) => b.removedOn === null && b.box.state !== BoxState.InStock,
                     ).length
                   }{" "}
                   / {shipment.details.filter((b) => b.removedOn === null).length}

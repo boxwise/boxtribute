@@ -127,7 +127,9 @@ function ShipmentReceivingTable({ columns, data }: IShipmentReceivingTablePros) 
                           <Wrap>
                             <WrapItem>{row.cells[0].row.original.labelIdentifier}</WrapItem>
                             <WrapItem>
-                              {row.cells[0].row.original.comment && <BsFillChatDotsFill />}
+                              {row.cells[0].row.original.comment && (
+                                <BsFillChatDotsFill color="#696969" />
+                              )}
                             </WrapItem>
                           </Wrap>
                         </Box>
