@@ -23,6 +23,7 @@ import BoxMoveLocation from "./BoxMoveLocation";
 
 export interface IBoxTabsProps {
   boxData: BoxByLabelIdentifierQuery["box"];
+  boxInTransit: boolean;
   onMoveToLocationClick: (locationId: string) => void;
   onAssignBoxesToShipment: (shipmentId: string) => void;
   onUnassignBoxesToShipment: (shipmentId: string) => void;
@@ -32,6 +33,7 @@ export interface IBoxTabsProps {
 
 function BoxTabs({
   boxData,
+  boxInTransit,
   onMoveToLocationClick,
   onAssignBoxesToShipment,
   onUnassignBoxesToShipment,
@@ -102,6 +104,7 @@ function BoxTabs({
             <TabPanel p={4}>
               <BoxMoveLocation
                 boxData={boxData}
+                boxInTransit={boxInTransit}
                 onMoveToLocationClick={onMoveToLocationClick}
                 isLoading={isLoading}
               />

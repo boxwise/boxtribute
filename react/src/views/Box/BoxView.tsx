@@ -1,4 +1,4 @@
-import { useCallback, useContext, useMemo } from "react";
+import { useCallback, useContext, useEffect, useMemo, useState } from "react";
 import { gql, useMutation, useQuery, NetworkStatus } from "@apollo/client";
 import {
   Alert,
@@ -140,6 +140,7 @@ function BTBox() {
   const labelIdentifier = useParams<{ labelIdentifier: string }>().labelIdentifier!;
   const { globalPreferences } = useContext(GlobalPreferencesContext);
   const currentBaseId = globalPreferences.selectedBaseId;
+  const [currentBoxState, setCurrentState] = useState<BoxState | undefined>();
 
   const {
     assignBoxesToShipment,
@@ -158,6 +159,14 @@ function BTBox() {
   );
 
   const shipmentsQueryResult = allData.data?.shipments;
+
+  useEffect(() => {
+    setCurrentState(allData.data?.box?.state);
+  }, [allData]);
+
+  const boxInTransit = currentBoxState
+    ? [BoxState.Receiving, BoxState.MarkedForShipment].includes(currentBoxState)
+    : false;
 
   const [updateNumberOfItemsMutation, updateNumberOfItemsMutationStatus] = useMutation<
     UpdateNumberOfItemsMutation,
@@ -561,6 +570,7 @@ function BTBox() {
           alertForLagacyBox}
         <BoxDetails
           boxData={boxData}
+          boxInTransit={boxInTransit}
           onPlusOpen={onPlusOpen}
           onMinusOpen={onMinusOpen}
           onMoveToLocationClick={onMoveBoxToLocationClick}

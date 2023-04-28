@@ -36,13 +36,21 @@ import HistoryEntries from "./HistoryEntries";
 
 export interface IBoxCardProps {
   boxData: BoxByLabelIdentifierQuery["box"] | UpdateLocationOfBoxMutation["updateBox"];
+  boxInTransit: boolean;
   onPlusOpen: () => void;
   onMinusOpen: () => void;
   onStateChange: (boxState: BoxState) => void;
   isLoading: boolean;
 }
 
-function BoxCard({ boxData, onPlusOpen, onMinusOpen, onStateChange, isLoading }: IBoxCardProps) {
+function BoxCard({
+  boxData,
+  boxInTransit,
+  onPlusOpen,
+  onMinusOpen,
+  onStateChange,
+  isLoading,
+}: IBoxCardProps) {
   const statusColor = (value) => {
     let color;
     if (value === "Lost" || value === "Scrap") {
@@ -70,7 +78,9 @@ function BoxCard({ boxData, onPlusOpen, onMinusOpen, onStateChange, isLoading }:
         </WrapItem>
         <Spacer />
         <WrapItem>
-          {(BoxState.Lost === boxData?.state || BoxState.Scrap === boxData?.state) && (
+          {(BoxState.Lost === boxData?.state ||
+            BoxState.Scrap === boxData?.state ||
+            boxInTransit) && (
             <IconButton
               aria-label="Edit box"
               borderRadius="0"
@@ -79,7 +89,11 @@ function BoxCard({ boxData, onPlusOpen, onMinusOpen, onStateChange, isLoading }:
               disabled
             />
           )}
-          {BoxState.Lost !== boxData?.state && BoxState.Scrap !== boxData?.state && (
+          {!(
+            BoxState.Lost === boxData?.state ||
+            BoxState.Scrap === boxData?.state ||
+            boxInTransit
+          ) && (
             <NavLink to="edit">
               <IconButton
                 aria-label="Edit box"
@@ -137,7 +151,11 @@ function BoxCard({ boxData, onPlusOpen, onMinusOpen, onStateChange, isLoading }:
               <Tooltip hasArrow shouldWrapChildren mt="3" label="add items" aria-label="A tooltip">
                 <IconButton
                   onClick={onPlusOpen}
-                  disabled={BoxState.Lost === boxData?.state || BoxState.Scrap === boxData?.state}
+                  disabled={
+                    BoxState.Lost === boxData?.state ||
+                    BoxState.Scrap === boxData?.state ||
+                    boxInTransit
+                  }
                   size="sm"
                   border="2px"
                   isRound
@@ -161,7 +179,11 @@ function BoxCard({ boxData, onPlusOpen, onMinusOpen, onStateChange, isLoading }:
                   onClick={onMinusOpen}
                   border="2px"
                   size="sm"
-                  disabled={BoxState.Lost === boxData?.state || BoxState.Scrap === boxData?.state}
+                  disabled={
+                    BoxState.Lost === boxData?.state ||
+                    BoxState.Scrap === boxData?.state ||
+                    boxInTransit
+                  }
                   borderRadius="0"
                   isRound
                   aria-label="Search database"
@@ -219,6 +241,7 @@ function BoxCard({ boxData, onPlusOpen, onMinusOpen, onStateChange, isLoading }:
             {!isLoading && (
               <Switch
                 id="scrap"
+                isDisabled={boxInTransit}
                 isReadOnly={isLoading}
                 isChecked={boxData?.state === BoxState.Scrap}
                 data-testid="box-scrap-btn"
@@ -244,6 +267,7 @@ function BoxCard({ boxData, onPlusOpen, onMinusOpen, onStateChange, isLoading }:
                 id="lost"
                 isFocusable={false}
                 data-testid="box-lost-btn"
+                isDisabled={boxInTransit}
                 onChange={() =>
                   onStateChange(
                     // If the current box state 'Lost' is toggled, set the defaultBoxState of the box location

@@ -11,6 +11,7 @@ import BoxTabs from "./BoxTabs";
 
 interface IBoxDetailsProps {
   boxData: BoxByLabelIdentifierQuery["box"] | UpdateLocationOfBoxMutation["updateBox"];
+  boxInTransit: boolean;
   onMoveToLocationClick: (locationId: string) => void;
   onPlusOpen: () => void;
   onMinusOpen: () => void;
@@ -25,6 +26,7 @@ interface IBoxDetailsProps {
 
 function BoxDetails({
   boxData,
+  boxInTransit,
   onMoveToLocationClick,
   onAssignBoxToDistributionEventClick,
   onUnassignBoxFromDistributionEventClick,
@@ -50,6 +52,7 @@ function BoxDetails({
     >
       <BoxCard
         boxData={boxData}
+        boxInTransit={boxInTransit}
         onMinusOpen={onMinusOpen}
         onPlusOpen={onPlusOpen}
         onStateChange={onStateChange}
@@ -57,6 +60,7 @@ function BoxDetails({
       />
       <BoxTabs
         boxData={boxData}
+        boxInTransit={boxInTransit}
         onMoveToLocationClick={onMoveToLocationClick}
         onAssignBoxesToShipment={onAssignBoxesToShipment}
         onUnassignBoxesToShipment={onUnassignBoxesToShipment}

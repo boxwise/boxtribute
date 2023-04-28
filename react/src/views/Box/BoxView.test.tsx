@@ -530,8 +530,6 @@ it("3.1.4 - Move location", async () => {
   const whWomenLocation = screen.getByRole("button", { name: /wh women/i });
   await user.click(whWomenLocation);
 
-  screen.debug();
-
   await waitFor(() =>
     expect(mockedCreateToast).toHaveBeenCalledWith(
       expect.objectContaining({
@@ -739,6 +737,7 @@ it("3.1.10 - No Data or Null Data Fetched for a given Box Label Identifier", asy
   render(
     <BoxDetails
       boxData={undefined}
+      boxInTransit={false}
       onMoveToLocationClick={mockFunction}
       onPlusOpen={mockFunction}
       onMinusOpen={mockFunction}
