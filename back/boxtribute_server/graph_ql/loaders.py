@@ -4,6 +4,7 @@ from aiodataloader import DataLoader as _DataLoader
 
 from ..authz import authorize, authorized_bases_filter
 from ..enums import TaggableObjectType
+from ..models.definitions.base import Base
 from ..models.definitions.location import Location
 from ..models.definitions.product import Product
 from ..models.definitions.product_category import ProductCategory
@@ -20,6 +21,12 @@ class DataLoader(_DataLoader):
         if key is None:
             return
         return super().load(key)
+
+
+class BaseLoader(DataLoader):
+    async def batch_load_fn(self, keys):
+        bases = {b.id: b for b in Base.select().where(Base.id << keys)}
+        return [bases.get(i) for i in keys]
 
 
 class ProductLoader(DataLoader):

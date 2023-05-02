@@ -31,6 +31,6 @@ def resolve_location_boxes(location_obj, _, pagination_input=None, filter_input=
 
 
 @classic_location.field("base")
-def resolve_location_base(location_obj, _):
+def resolve_location_base(location_obj, info):
     authorize(permission="base:read", base_id=location_obj.base_id)
-    return location_obj.base
+    return info.context["base_loader"].load(location_obj.base_id)

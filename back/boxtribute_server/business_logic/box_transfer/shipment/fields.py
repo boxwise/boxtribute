@@ -15,21 +15,21 @@ def resolve_shipment_details(shipment_obj, _):
 
 
 @shipment.field("sourceBase")
-def resolve_shipment_source_base(shipment_obj, _):
+def resolve_shipment_source_base(shipment_obj, info):
     authorize(
         permission="base:read",
         base_ids=[shipment_obj.source_base_id, shipment_obj.target_base_id],
     )
-    return shipment_obj.source_base
+    return info.context["base_loader"].load(shipment_obj.source_base_id)
 
 
 @shipment.field("targetBase")
-def resolve_shipment_target_base(shipment_obj, _):
+def resolve_shipment_target_base(shipment_obj, info):
     authorize(
         permission="base:read",
         base_ids=[shipment_obj.source_base_id, shipment_obj.target_base_id],
     )
-    return shipment_obj.target_base
+    return info.context["base_loader"].load(shipment_obj.target_base_id)
 
 
 @shipment_detail.field("sourceProduct")
