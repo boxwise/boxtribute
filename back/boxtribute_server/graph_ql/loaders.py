@@ -1,6 +1,6 @@
 from collections import defaultdict
 
-from aiodataloader import DataLoader
+from aiodataloader import DataLoader as _DataLoader
 
 from ..authz import authorize, authorized_bases_filter
 from ..enums import TaggableObjectType
@@ -11,6 +11,15 @@ from ..models.definitions.size import Size
 from ..models.definitions.size_range import SizeRange
 from ..models.definitions.tag import Tag
 from ..models.definitions.tags_relation import TagsRelation
+
+
+class DataLoader(_DataLoader):
+    """Custom implementation with a load() method that is able to handle None-keys."""
+
+    def load(self, key):
+        if key is None:
+            return
+        return super().load(key)
 
 
 class ProductLoader(DataLoader):
