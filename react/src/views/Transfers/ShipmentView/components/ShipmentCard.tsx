@@ -14,6 +14,7 @@ import {
   Heading,
   Stack,
 } from "@chakra-ui/react";
+import { BoxIcon } from "components/Icon/Transfer/BoxIcon";
 import { ShipmentIcon } from "components/Icon/Transfer/ShipmentIcon";
 import { BiMinusCircle, BiPackage, BiPlusCircle, BiTrash } from "react-icons/bi";
 import { RiFilePaperFill } from "react-icons/ri";
@@ -103,7 +104,7 @@ function ShipmentCard({
               <List spacing={1}>
                 <ListItem>
                   <Flex alignContent="right">
-                    <Text fontSize="xl" fontWeight="bold">
+                    <Text fontSize="md" fontWeight="semibold">
                       {shipment?.sourceBase?.name}
                     </Text>
                   </Flex>
@@ -126,7 +127,7 @@ function ShipmentCard({
               <List spacing={1}>
                 <ListItem>
                   <Flex alignContent="left">
-                    <Text fontSize="xl" fontWeight="bold">
+                    <Text fontSize="md" fontWeight="semibold">
                       {shipment?.targetBase?.name}
                     </Text>
                   </Flex>
@@ -182,7 +183,7 @@ function ShipmentCard({
                 </WrapItem>
                 <WrapItem>
                   <Center>
-                    <BiPackage size={35} />
+                    <BoxIcon boxSize={9} />
                   </Center>
                 </WrapItem>
               </Wrap>
@@ -218,14 +219,14 @@ function ShipmentCard({
                 <VStack align="stretch" mr={1}>
                   <Wrap spacing={1} align="center" style={{ color: "#909090" }}>
                     <WrapItem>
-                      <Text as="p" fontSize={16} fontWeight="extrabold" color="gray.500">
+                      <Text as="p" fontSize={16} fontWeight="extrabold" color="red">
                         (
                       </Text>
                     </WrapItem>
                     <WrapItem>
                       <Center>
-                        <Text as="p" fontSize={16} fontWeight="extrabold" color="gray.500">
-                          -{" "}
+                        <Text as="p" fontSize={16} fontWeight="extrabold" color="red">
+                          -
                           {
                             (
                               shipment.details?.filter(
@@ -238,12 +239,12 @@ function ShipmentCard({
                     </WrapItem>
                     <WrapItem>
                       <Center>
-                        <BiPackage size={24} style={{ color: "#909090" }} />
+                        <BoxIcon boxSize={6} style={{ color: "red" }} />
                       </Center>
                     </WrapItem>
 
                     <WrapItem>
-                      <Text as="p" fontSize={16} fontWeight="extrabold" color="gray.500">
+                      <Text as="p" fontSize={16} fontWeight="extrabold" color="red">
                         )
                       </Text>
                     </WrapItem>
