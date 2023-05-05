@@ -63,7 +63,7 @@ function ShipmentContent({
     const isStrikethrough = cell.row.original.isLost;
     const style =
       isStrikethrough && cell.row.original.shipmentState === ShipmentState.Completed
-        ? { textDecoration: "line-through", textDecorationColor: "red" }
+        ? { textDecoration: "line-through", textDecorationColor: "red", color: "red" }
         : {};
     return <div style={style}>{value}</div>;
   };
