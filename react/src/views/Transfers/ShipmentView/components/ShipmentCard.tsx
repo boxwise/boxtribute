@@ -156,8 +156,8 @@ function ShipmentCard({
         <StackDivider borderColor="blackAlpha.800" marginTop={-3} />
         <Box p={2}>
           <Flex minWidth="max-content" alignItems="center" p={0}>
-            <Box bg="black" p={0} mt={-9}>
-              <Text fontSize="xl" fontWeight="semibold" color="white">
+            <Box bg="black" px={1} mt={-10}>
+              <Text fontSize={16} fontWeight="semibold" color="white">
                 TOTAL
               </Text>
             </Box>
