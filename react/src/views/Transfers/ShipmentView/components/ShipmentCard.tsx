@@ -64,7 +64,7 @@ function ShipmentCard({
         <Flex minWidth="max-content" justifyContent="flex-start" p={4}>
           <VStack alignItems="flex-start">
             <Heading>
-              <Wrap fontSize="2xl" fontWeight="extrabold">
+              <Wrap fontSize={21} fontWeight="extrabold">
                 <WrapItem>Shipment</WrapItem>
                 <WrapItem>{shipment?.id}</WrapItem>
               </Wrap>
@@ -102,15 +102,15 @@ function ShipmentCard({
           <Flex minWidth="max-content" alignItems="center" gap="2">
             <Box p="4">
               <List spacing={1}>
-                <ListItem>
-                  <Flex alignContent="right">
+                <ListItem alignContent="flex-end">
+                  <Flex alignContent="flex-end">
                     <Text fontSize="md" fontWeight="semibold">
                       {shipment?.sourceBase?.name}
                     </Text>
                   </Flex>
                 </ListItem>
-                <ListItem>
-                  <Flex alignContent="right">
+                <ListItem alignContent="flex-end">
+                  <Flex alignContent="flex-end">
                     <Text fontSize="md">{shipment?.sourceBase?.organisation.name}</Text>
                   </Flex>
                 </ListItem>
@@ -154,7 +154,7 @@ function ShipmentCard({
         <StackDivider borderColor="blackAlpha.800" marginTop={-3} />
         <Box p={2}>
           <Flex minWidth="max-content" alignItems="center" gap={1} p={0}>
-            <Box bg="black" p={1} mt={-15}>
+            <Box bg="black" p={0} mt={-19}>
               <Text fontSize="xl" fontWeight="bold" color="white">
                 TOTAL
               </Text>
