@@ -151,10 +151,10 @@ function ShipmentCard({
             </Stack>
           )}
         </Box>
-        <StackDivider borderColor="blackAlpha.800" marginTop={-1.5} />
+        <StackDivider borderColor="blackAlpha.800" marginTop={-3} />
         <Box p={2}>
-          <Flex minWidth="max-content" alignItems="center" gap={2} p={0}>
-            <Box bg="black" p={1} marginTop={-15}>
+          <Flex minWidth="max-content" alignItems="center" gap={1} p={0}>
+            <Box bg="black" p={1} mt={-15}>
               <Text fontSize="xl" fontWeight="bold" color="white">
                 TOTAL
               </Text>
@@ -217,7 +217,7 @@ function ShipmentCard({
               )}
               {shipment.state === ShipmentState.Completed && (
                 <VStack align="stretch" mr={1}>
-                  <Wrap spacing={1} align="center" style={{ color: "#909090" }}>
+                  <Wrap spacing={0} align="center" style={{ color: "#909090" }}>
                     <WrapItem>
                       <Text as="p" fontSize={16} fontWeight="extrabold" color="red">
                         (
@@ -242,7 +242,6 @@ function ShipmentCard({
                         <BoxIcon boxSize={6} style={{ color: "red" }} />
                       </Center>
                     </WrapItem>
-
                     <WrapItem>
                       <Text as="p" fontSize={16} fontWeight="extrabold" color="red">
                         )
