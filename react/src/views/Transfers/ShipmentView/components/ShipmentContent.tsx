@@ -15,7 +15,6 @@ import { useCallback, useMemo } from "react";
 import { Product, Box as BoxType, BoxState, ShipmentState } from "types/generated/graphql";
 import { CellProps } from "react-table";
 import { AiFillMinusCircle } from "react-icons/ai";
-// import { BiPackage } from "react-icons/bi";
 import ShipmentTable from "./ShipmentTable";
 import { RemoveBoxCell } from "./ShipmentTableCells";
 
@@ -64,7 +63,7 @@ function ShipmentContent({
     const isStrikethrough = cell.row.original.isLost;
     const style =
       isStrikethrough && cell.row.original.shipmentState === ShipmentState.Completed
-        ? { textDecoration: "line-through" }
+        ? { textDecoration: "line-through", textDecorationColor: "red" }
         : {};
     return <div style={style}>{value}</div>;
   };
@@ -148,17 +147,11 @@ function ShipmentContent({
                 </Box>
                 <Spacer />
                 <Flex direction="row" alignItems="center">
-                  <Text>
-                    {item.totalBoxes -
-                      (shipmentState === ShipmentState.Completed ? item.totalLosts : 0)}
-                  </Text>
+                  <Text>{item.totalBoxes}</Text>
                   <Spacer />
-                  <Box pl={1}>
-                    {/* <BiPackage size={18} /> */}
-                    box{item.totalBoxes > 1 && "es"}
-                  </Box>
+                  <Box pl={1}>box{item.totalBoxes > 1 && "es"}</Box>
                   {item.totalLosts > 0 && shipmentState === ShipmentState.Completed && (
-                    <Box pl={1} color="gray.500">
+                    <Box pl={1} color="red.500">
                       (-{item.totalLosts})
                     </Box>
                   )}
