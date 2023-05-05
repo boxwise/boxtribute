@@ -44,7 +44,7 @@ const MenuToggle = ({ toggle, isOpen, ...props }) => (
   />
 );
 
-const Logo = () => <Image src={BoxtributeLogo} maxH={"3.5em"} mb={1}/>;
+const Logo = () => <Image src={BoxtributeLogo} maxH={"3.5em"} mb={1} />;
 
 const LoginOrUserMenuButtonMobile = ({
   isAuthenticated,
@@ -151,32 +151,36 @@ const MenuItemsGroupsMobile = ({
   return (
     <Flex w="100%" flexBasis={{ base: "100%", md: "auto" }} display={isMenuOpen ? "block" : "none"}>
       <Stack alignItems="start-end" direction="column">
-      <Flex
-        px={4}
-        border="1px"
-        w="100%"
-        py={2}
-        justify={"space-between"}
-        align={"center"}
-        onClick={onClickScanQrCode}
-        as="button"
-        borderRadius="0px"
-        aria-label="Scan QR code"
-        data-testid="qr-code-button"
-      >
-      <Flex maxW="100%" align={"center"}>
-      <IconButton
-                h={19}
-                w={19}
-                fontSize="45px"
-                backgroundColor="transparent"
-                aria-label="Scan QR Label"
-                icon={<RiQrCodeLine />}
-              />
-          <Text fontWeight={600} isTruncated>
-          Scan QR Label
-          </Text>
-        </Flex>
+        <Flex
+          px={4}
+          border="1px"
+          w="100%"
+          py={2}
+          justify={"space-between"}
+          align={"center"}
+          onClick={() => {
+            setIsMenuOpen(false);
+            onClickScanQrCode();
+          }}
+          as="button"
+          borderRadius="0px"
+          aria-label="Scan QR code"
+          data-testid="qr-code-button"
+        >
+          <Flex maxW="100%" align={"center"}>
+            <IconButton
+              as="div"
+              h={19}
+              w={19}
+              fontSize="45px"
+              backgroundColor="transparent"
+              aria-label="Scan QR Label"
+              icon={<RiQrCodeLine />}
+            />
+            <Text fontWeight={600} isTruncated>
+              Scan QR Label
+            </Text>
+          </Flex>
         </Flex>
         {props.menuItemsGroups.map((item, i) => (
           <MenuItemsGroupMobile key={i} {...item} setIsMenuOpen={setIsMenuOpen} />
