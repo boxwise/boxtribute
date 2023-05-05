@@ -12,8 +12,11 @@ import {
   Image,
   Img,
   Divider,
+  WrapItem,
+  Wrap,
 } from "@chakra-ui/react";
-import { AiFillCloseCircle, AiFillWindows, AiOutlineMenu, AiOutlineQrcode } from "react-icons/ai";
+import { AiFillCloseCircle, AiOutlineMenu } from "react-icons/ai";
+import { RiQrCodeLine } from "react-icons/ri";
 import { Link, NavLink, useParams } from "react-router-dom";
 import { GlobalPreferencesContext } from "providers/GlobalPreferencesProvider";
 import {
@@ -25,12 +28,12 @@ import {
   MenuItemsGroupsProps,
 } from "./HeaderMenu";
 import BoxtributeLogo from "../../assets/images/boxtribute-logo.png";
-import { QrReaderButton } from "components/QrReader/QrReaderButton";
 import { generateDropappUrl, redirectToExternalUrl } from "utils/helpers";
 
 type MenuItemsGroupsMobileProps = MenuItemsGroupsProps & {
   isMenuOpen: boolean;
   setIsMenuOpen: (isOpen: boolean) => void;
+  onClickScanQrCode: () => void;
 };
 
 const MenuToggle = ({ toggle, isOpen, ...props }) => (
@@ -41,7 +44,7 @@ const MenuToggle = ({ toggle, isOpen, ...props }) => (
   />
 );
 
-const Logo = () => <Image src={BoxtributeLogo} maxH={"3.5em"} />;
+const Logo = () => <Image src={BoxtributeLogo} maxH={"3.5em"} mb={1} />;
 
 const LoginOrUserMenuButtonMobile = ({
   isAuthenticated,
@@ -142,11 +145,43 @@ const BaseSwitcher = ({
 const MenuItemsGroupsMobile = ({
   isMenuOpen,
   setIsMenuOpen,
+  onClickScanQrCode,
   ...props
 }: MenuItemsGroupsMobileProps) => {
   return (
     <Flex w="100%" flexBasis={{ base: "100%", md: "auto" }} display={isMenuOpen ? "block" : "none"}>
       <Stack alignItems="start-end" direction="column">
+        <Flex
+          px={4}
+          border="1px"
+          w="100%"
+          py={2}
+          justify={"space-between"}
+          align={"center"}
+          onClick={() => {
+            setIsMenuOpen(false);
+            onClickScanQrCode();
+          }}
+          as="button"
+          borderRadius="0px"
+          aria-label="Scan QR code"
+          data-testid="qr-code-button"
+        >
+          <Flex maxW="100%" align={"center"}>
+            <IconButton
+              as="div"
+              h={19}
+              w={19}
+              fontSize="45px"
+              backgroundColor="transparent"
+              aria-label="Scan QR Label"
+              icon={<RiQrCodeLine />}
+            />
+            <Text fontWeight={600} isTruncated>
+              Scan QR Label
+            </Text>
+          </Flex>
+        </Flex>
         {props.menuItemsGroups.map((item, i) => (
           <MenuItemsGroupMobile key={i} {...item} setIsMenuOpen={setIsMenuOpen} />
         ))}
@@ -183,7 +218,7 @@ const MenuItemsGroupMobile = ({
           as="a"
           href={generateDropappUrl(link.link, baseId, qrCode, labelIdentifier)}
           key={i}
-          py={1}
+          py={2}
           px={4}
           w="100%"
         >
@@ -192,14 +227,7 @@ const MenuItemsGroupMobile = ({
       );
     } else {
       return (
-        <Box
-          as={NavLink}
-          to={link.link}
-          key={i}
-          py={1}
-          px={4}
-          w="100%"
-        >
+        <Box as={NavLink} to={link.link} key={i} py={1} px={4} w="100%">
           {link.name}
         </Box>
       );
@@ -255,7 +283,6 @@ const HeaderMenuMobile = (props: HeaderMenuProps) => {
     <HeaderMenuMobileContainer>
       <Flex justifyContent="space-between" w="100%" alignItems="center">
         <Logo />
-        <QrReaderButton onClick={props.onClickScanQrCode} />
         <MenuToggle
           toggle={toggle}
           isOpen={isMenuOpen}
@@ -268,6 +295,7 @@ const HeaderMenuMobile = (props: HeaderMenuProps) => {
         logout={props.logout}
         loginWithRedirect={props.loginWithRedirect}
         user={props.user}
+        onClickScanQrCode={props.onClickScanQrCode}
         isAuthenticated={props.isAuthenticated}
         menuItemsGroups={props.menuItemsGroups}
         currentActiveBaseId={props.currentActiveBaseId}

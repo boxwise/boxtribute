@@ -55,7 +55,7 @@ it("3.4.1.2 - Mobile: Enter invalid box identifier and click on Find button", as
   });
 
   // 3.4.1.1 - Open QROverlay
-  const qrButton = await screen.findByRole("button", { name: /scan qr code/i });
+  const qrButton = await screen.findByTestId("qr-code-button");
   await user.click(qrButton);
 
   // Find Box
@@ -97,7 +97,7 @@ it("3.4.1.3 - Mobile: Enter valid box identifier and click on Find button", asyn
   });
 
   // 3.4.1.1 - Open QROverlay
-  const qrButton = await screen.findByRole("button", { name: /scan qr code/i });
+  const qrButton = await screen.findByTestId("qr-code-button");
   await user.click(qrButton);
 
   // Find Box
@@ -137,7 +137,7 @@ it("3.4.1.4 - Mobile: Enter valid box identifier from unauthorized bases and cli
   });
 
   // 3.4.1.1 - Open QROverlay
-  const qrButton = await screen.findByRole("button", { name: /scan qr code/i });
+  const qrButton = await screen.findByTestId("qr-code-button");
   await user.click(qrButton);
 
   // Find Box
@@ -182,7 +182,7 @@ it("3.4.2.1 - Mobile: User scans QR code of same org without previously associat
   });
 
   // 3.4.1.1 - Open QROverlay
-  const qrButton = await screen.findByRole("button", { name: /scan qr code/i });
+  const qrButton = await screen.findByTestId("qr-code-button");
   await user.click(qrButton);
 
   // Click a button to trigger the event of scanning a QR-Code in mockImplementationOfQrReader
@@ -220,7 +220,7 @@ it("3.4.2.2 - Mobile: user scans QR code of same org with associated box", async
   });
 
   // 3.4.1.1 - Open QROverlay
-  const qrButton = await screen.findByRole("button", { name: /scan qr code/i });
+  const qrButton = await screen.findByTestId("qr-code-button");
   await user.click(qrButton);
 
   // Click a button to trigger the event of scanning a QR-Code in mockImplementationOfQrReader
@@ -256,7 +256,7 @@ it("3.4.2.3 - Mobile: user scans QR code of different org with associated box", 
   });
 
   // 3.4.1.1 - Open QROverlay
-  const qrButton = await screen.findByRole("button", { name: /scan qr code/i });
+  const qrButton = await screen.findByTestId("qr-code-button");
   await user.click(qrButton);
 
   // Click a button to trigger the event of scanning a QR-Code in mockImplementationOfQrReader
@@ -281,7 +281,7 @@ it("3.4.2.5a - Mobile: User scans non Boxtribute QR code", async () => {
   });
 
   // 3.4.1.1 - Open QROverlay
-  const qrButton = await screen.findByRole("button", { name: /scan qr code/i });
+  const qrButton = await screen.findByTestId("qr-code-button");
   await user.click(qrButton);
 
   // Click a button to trigger the event of scanning a QR-Code in mockImplementationOfQrReader
@@ -321,7 +321,7 @@ it("3.4.2.5b - Mobile: User scans non Boxtribute QR code", async () => {
   });
 
   // 3.4.1.1 - Open QROverlay
-  const qrButton = await screen.findByRole("button", { name: /scan qr code/i });
+  const qrButton = await screen.findByTestId("qr-code-button");
   await user.click(qrButton);
 
   // Click a button to trigger the event of scanning a QR-Code in mockImplementationOfQrReader
@@ -363,7 +363,7 @@ it("3.4.2.5c - Internal Server Error", async () => {
   });
 
   // 3.4.1.1 - Open QROverlay
-  const qrButton = await screen.findByRole("button", { name: /scan qr code/i });
+  const qrButton = await screen.findByTestId("qr-code-button");
   await user.click(qrButton);
 
   // Click a button to trigger the event of scanning a QR-Code in mockImplementationOfQrReader
