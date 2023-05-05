@@ -98,42 +98,44 @@ function ShipmentCard({
           )}
         </Flex>
 
-        <Box border={0}>
-          <Flex minWidth="max-content" alignItems="center" gap="2">
-            <Box p="4">
-              <List spacing={1}>
-                <ListItem alignContent="flex-end">
-                  <Flex alignContent="flex-end">
-                    <Text fontSize="md" fontWeight="semibold">
+        <Flex border={0} alignContent="center" justifyContent="center" py={2}>
+          <Flex minWidth="max-content" alignItems="center" gap="4" alignContent="space-between">
+            <Box>
+              <List spacing={2}>
+                <ListItem>
+                  <Flex justifyContent="flex-end">
+                    <Text fontSize="md" fontWeight="semibold" alignContent="right">
                       {shipment?.sourceBase?.name}
                     </Text>
                   </Flex>
                 </ListItem>
-                <ListItem alignContent="flex-end">
-                  <Flex alignContent="flex-end">
-                    <Text fontSize="md">{shipment?.sourceBase?.organisation.name}</Text>
+                <ListItem>
+                  <Flex justifyContent="flex-end">
+                    <Text fontSize="md" alignContent="right">
+                      {shipment?.sourceBase?.organisation.name}
+                    </Text>
                   </Flex>
                 </ListItem>
               </List>
             </Box>
-            <Spacer />
+
             <Box>
               <Flex alignContent="center">
                 <ShipmentIcon boxSize={9} />
               </Flex>
             </Box>
-            <Spacer />
-            <Box p="4">
-              <List spacing={1}>
+
+            <Box>
+              <List spacing={2}>
                 <ListItem>
-                  <Flex alignContent="left">
+                  <Flex justifyContent="flex-start">
                     <Text fontSize="md" fontWeight="semibold">
                       {shipment?.targetBase?.name}
                     </Text>
                   </Flex>
                 </ListItem>
                 <ListItem>
-                  <Flex alignContent="left">
+                  <Flex justifyContent="flex-start">
                     <Text fontSize="md">{shipment?.targetBase?.organisation.name}</Text>
                   </Flex>
                 </ListItem>
@@ -150,7 +152,7 @@ function ShipmentCard({
               <Spacer />
             </Stack>
           )}
-        </Box>
+        </Flex>
         <StackDivider borderColor="blackAlpha.800" marginTop={-3} />
         <Box p={2}>
           <Flex minWidth="max-content" alignItems="center" p={0}>
