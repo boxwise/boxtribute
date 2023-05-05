@@ -9,6 +9,8 @@ import {
   Spacer,
   Stack,
   Flex,
+  Wrap,
+  WrapItem,
 } from "@chakra-ui/react";
 import _ from "lodash";
 import { useCallback, useMemo } from "react";
@@ -134,14 +136,22 @@ function ShipmentContent({
                 <Box alignItems="center">
                   <h2>
                     <Box>
-                      <Text>
-                        {" "}
-                        {item?.product?.name || "Unassigned"}{" "}
-                        {(item?.product?.gender && item?.product?.gender) !== "none"
-                          ? item?.product?.gender
-                          : ""}{" "}
-                        ({item.totalItems}x)
-                      </Text>
+                      <Flex alignItems="center" alignContent="center">
+                        <Wrap spacing={1} alignItems="center">
+                          <WrapItem>
+                            <Text fontSize={16}>
+                              {" "}
+                              {item?.product?.name || "Unassigned"}{" "}
+                              {(item?.product?.gender && item?.product?.gender) !== "none"
+                                ? item?.product?.gender
+                                : ""}{" "}
+                            </Text>
+                          </WrapItem>
+                          <WrapItem alignItems="center">
+                            <Text fontSize={12}>({item.totalItems}x)</Text>
+                          </WrapItem>
+                        </Wrap>
+                      </Flex>
                     </Box>
                   </h2>
                 </Box>
