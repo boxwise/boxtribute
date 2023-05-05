@@ -153,9 +153,9 @@ function ShipmentCard({
         </Box>
         <StackDivider borderColor="blackAlpha.800" marginTop={-3} />
         <Box p={2}>
-          <Flex minWidth="max-content" alignItems="center" gap={1} p={0}>
-            <Box bg="black" p={0} mt={-19}>
-              <Text fontSize="xl" fontWeight="bold" color="white">
+          <Flex minWidth="max-content" alignItems="center" p={0}>
+            <Box bg="black" p={0} mt={-9}>
+              <Text fontSize="xl" fontWeight="semibold" color="white">
                 TOTAL
               </Text>
             </Box>
