@@ -1,5 +1,5 @@
 import { Flex, Box, Spacer, Heading, Wrap, WrapItem, VStack, Center } from "@chakra-ui/react";
-import { BiPackage } from "react-icons/bi";
+import { BoxIcon } from "components/Icon/Transfer/BoxIcon";
 import { BoxState, Shipment } from "types/generated/graphql";
 
 export interface IShipmentReceivingCardProps {
@@ -59,9 +59,9 @@ function ShipmentReceivingCard({ shipment }: IShipmentReceivingCardProps) {
                   }{" "}
                   / {shipment.details.filter((b) => b.removedOn === null).length}
                 </WrapItem>
-                <WrapItem>
+                <WrapItem alignItems="center">
                   <Center>
-                    <BiPackage size={25} />
+                    <BoxIcon boxSize={6} />
                   </Center>
                 </WrapItem>
               </Wrap>

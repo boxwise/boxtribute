@@ -16,7 +16,7 @@ import {
 } from "@chakra-ui/react";
 import { BoxIcon } from "components/Icon/Transfer/BoxIcon";
 import { ShipmentIcon } from "components/Icon/Transfer/ShipmentIcon";
-import { BiMinusCircle, BiPackage, BiPlusCircle, BiTrash } from "react-icons/bi";
+import { BiMinusCircle, BiPlusCircle, BiTrash } from "react-icons/bi";
 import { RiFilePaperFill } from "react-icons/ri";
 import { TbMapOff } from "react-icons/tb";
 import { Shipment, ShipmentState } from "types/generated/graphql";
