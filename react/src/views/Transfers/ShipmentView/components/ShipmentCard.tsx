@@ -13,6 +13,7 @@ import {
   IconButton,
   Heading,
   Stack,
+  Tooltip,
 } from "@chakra-ui/react";
 import { BoxIcon } from "components/Icon/Transfer/BoxIcon";
 import { ShipmentIcon } from "components/Icon/Transfer/ShipmentIcon";
@@ -219,37 +220,39 @@ function ShipmentCard({
               )}
               {shipment.state === ShipmentState.Completed && (
                 <VStack align="stretch" mr={1}>
-                  <Wrap spacing={0} align="center" style={{ color: "#909090" }}>
-                    <WrapItem>
-                      <Text as="p" fontSize={16} fontWeight="extrabold" color="red">
-                        (
-                      </Text>
-                    </WrapItem>
-                    <WrapItem>
-                      <Center>
+                  <Tooltip label="the number of boxes that didn't arrive">
+                    <Wrap spacing={0} align="center" style={{ color: "#909090" }}>
+                      <WrapItem>
                         <Text as="p" fontSize={16} fontWeight="extrabold" color="red">
-                          -
-                          {
-                            (
-                              shipment.details?.filter(
-                                (item) => item.lostOn !== null && item.removedOn === null,
-                              ) ?? []
-                            ).length
-                          }
+                          (
                         </Text>
-                      </Center>
-                    </WrapItem>
-                    <WrapItem>
-                      <Center>
-                        <BoxIcon boxSize={6} style={{ color: "red" }} />
-                      </Center>
-                    </WrapItem>
-                    <WrapItem>
-                      <Text as="p" fontSize={16} fontWeight="extrabold" color="red">
-                        )
-                      </Text>
-                    </WrapItem>
-                  </Wrap>
+                      </WrapItem>
+                      <WrapItem>
+                        <Center>
+                          <Text as="p" fontSize={16} fontWeight="extrabold" color="red">
+                            -
+                            {
+                              (
+                                shipment.details?.filter(
+                                  (item) => item.lostOn !== null && item.removedOn === null,
+                                ) ?? []
+                              ).length
+                            }
+                          </Text>
+                        </Center>
+                      </WrapItem>
+                      <WrapItem>
+                        <Center>
+                          <BoxIcon boxSize={6} style={{ color: "red" }} />
+                        </Center>
+                      </WrapItem>
+                      <WrapItem>
+                        <Text as="p" fontSize={16} fontWeight="extrabold" color="red">
+                          )
+                        </Text>
+                      </WrapItem>
+                    </Wrap>
+                  </Tooltip>
                 </VStack>
               )}
             </Box>
