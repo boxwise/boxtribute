@@ -57,6 +57,11 @@ const LoginOrUserMenuButtonMobile = ({
 }: LoginOrUserMenuButtonProps & { setIsMenuOpen: (isOpen: boolean) => void }) => {
   const { isOpen, onToggle } = useDisclosure();
 
+  const handleLoggout =  () => {
+    window.location.href = `${process.env.REACT_APP_OLD_APP_BASE_URL}/index.php?action=logoutfromv2`;
+    return null;
+  };
+
   return isAuthenticated ? (
     <Stack spacing={4} onClick={onToggle}>
       <Flex
@@ -100,7 +105,7 @@ const LoginOrUserMenuButtonMobile = ({
           {/* <Box py={1} px={4}>
             Profile
           </Box> */}
-          <Box py={1} px={4} w="100%" onClick={() => logout()}>
+          <Box py={1} px={4} w="100%" onClick={() => handleLoggout()}>
             Logout
           </Box>
         </Stack>
