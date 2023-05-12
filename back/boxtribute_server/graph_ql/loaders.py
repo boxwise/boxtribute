@@ -32,12 +32,7 @@ class BaseLoader(DataLoader):
 
 class ProductLoader(DataLoader):
     async def batch_load_fn(self, keys):
-        products = {
-            p.id: p
-            for p in Product.select().where(
-                Product.id << keys, authorized_bases_filter(Product)
-            )
-        }
+        products = {p.id: p for p in Product.select().where(Product.id << keys)}
         return [products.get(i) for i in keys]
 
 

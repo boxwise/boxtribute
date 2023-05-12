@@ -27,8 +27,10 @@ def resolve_box_history(box_obj, _):
 
 @box.field("product")
 @unboxed_items_collection.field("product")
-def resolve_box_product(box_obj, info):
-    return info.context["product_loader"].load(box_obj.product_id)
+async def resolve_box_product(box_obj, info):
+    product = await info.context["product_loader"].load(box_obj.product_id)
+    authorize(permission="product:read", base_id=product.base_id)
+    return product
 
 
 @box.field("size")

@@ -493,7 +493,9 @@ def test_shipment_mutations_on_target_side(
                         completedOn
                         details {{
                             id
+                            sourceProduct {{ id }}
                             targetProduct {{ id }}
+                            sourceLocation {{ id }}
                             targetLocation {{ id }}
                             targetSize {{ id }}
                             box {{
@@ -542,21 +544,33 @@ def test_shipment_mutations_on_target_side(
             {
                 "id": detail_id,
                 "box": {"state": BoxState.InStock.name},
+                "sourceProduct": {"id": str(default_shipment_detail["source_product"])},
                 "targetProduct": {"id": target_product_id},
+                "sourceLocation": {
+                    "id": str(default_shipment_detail["source_location"])
+                },
                 "targetLocation": {"id": target_location_id},
                 "targetSize": {"id": target_size_id},
             },
             {
                 "id": another_detail_id,
                 "box": {"state": BoxState.Receiving.name},
+                "sourceProduct": {"id": str(another_shipment_detail["source_product"])},
                 "targetProduct": None,
+                "sourceLocation": {
+                    "id": str(another_shipment_detail["source_location"])
+                },
                 "targetLocation": None,
                 "targetSize": None,
             },
             {
                 "id": removed_detail_id,
                 "box": {"state": BoxState.InStock.name},
+                "sourceProduct": {"id": str(removed_shipment_detail["source_product"])},
                 "targetProduct": None,
+                "sourceLocation": {
+                    "id": str(removed_shipment_detail["source_location"])
+                },
                 "targetLocation": None,
                 "targetSize": None,
             },

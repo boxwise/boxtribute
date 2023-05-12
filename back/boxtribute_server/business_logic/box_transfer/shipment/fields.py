@@ -58,7 +58,7 @@ def resolve_shipment_completed_by(shipment_obj, info):
 
 
 @shipment_detail.field("sourceProduct")
-def resolve_shipment_detail_source_product(detail_obj, _):
+def resolve_shipment_detail_source_product(detail_obj, info):
     authorize(
         permission="product:read",
         base_ids=[
@@ -66,11 +66,11 @@ def resolve_shipment_detail_source_product(detail_obj, _):
             detail_obj.shipment.target_base_id,
         ],
     )
-    return detail_obj.source_product
+    return info.context["product_loader"].load(detail_obj.source_product_id)
 
 
 @shipment_detail.field("targetProduct")
-def resolve_shipment_detail_target_product(detail_obj, _):
+def resolve_shipment_detail_target_product(detail_obj, info):
     authorize(
         permission="product:read",
         base_ids=[
@@ -78,7 +78,7 @@ def resolve_shipment_detail_target_product(detail_obj, _):
             detail_obj.shipment.target_base_id,
         ],
     )
-    return detail_obj.target_product
+    return info.context["product_loader"].load(detail_obj.target_product_id)
 
 
 @shipment_detail.field("sourceLocation")
