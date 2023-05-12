@@ -14,7 +14,11 @@ import {
 import { Select } from "chakra-react-select";
 import { IDropdownOption } from "components/Form/SelectField";
 import { AiFillInfoCircle } from "react-icons/ai";
-import { BoxByLabelIdentifierQuery, UpdateLocationOfBoxMutation } from "types/generated/graphql";
+import {
+  BoxByLabelIdentifierQuery,
+  BoxState,
+  UpdateLocationOfBoxMutation,
+} from "types/generated/graphql";
 
 export interface IAssignBoxToShipmentProps {
   boxData: BoxByLabelIdentifierQuery["box"] | UpdateLocationOfBoxMutation["updateBox"];
@@ -39,11 +43,15 @@ function AssignBoxToShipment({
   const currentShipmentId = boxData?.shipmentDetail?.shipment.id;
 
   const isSubmitButtonDisabled = useMemo(() => {
-    if (selectedShipmentOption && selectedShipmentOption.value !== "") {
+    if (
+      selectedShipmentOption &&
+      selectedShipmentOption.value !== "" &&
+      boxData?.state !== BoxState.Donated
+    ) {
       return false;
     }
     return true;
-  }, [selectedShipmentOption]);
+  }, [selectedShipmentOption, boxData]);
 
   const allShipmentsDropDown = (
     <FormControl isRequired mt={2}>
