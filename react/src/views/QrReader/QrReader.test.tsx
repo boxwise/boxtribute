@@ -11,6 +11,7 @@ import { useErrorHandling } from "hooks/useErrorHandling";
 import { useNotification } from "hooks/useNotification";
 import { GET_BOX_LABEL_IDENTIFIER_BY_QR_CODE } from "queries/queries";
 import { BoxState } from "types/generated/graphql";
+import { cache } from "queries/cache";
 import QrReaderView from "./QrReaderView";
 
 const mockSuccessfulQrQuery = ({
@@ -98,6 +99,7 @@ qrScanningInMultiBoxTabTests.forEach(({ name, hash, mocks, boxCount, toasts }) =
       routePath: "/bases/:baseId/qrreader",
       initialUrl: "/bases/1/qrreader",
       mocks,
+      cache,
     });
 
     // go to the MultiBox Tab

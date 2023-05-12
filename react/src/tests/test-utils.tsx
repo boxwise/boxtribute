@@ -22,7 +22,6 @@ import {
 } from "providers/GlobalPreferencesProvider";
 import { organisation1 } from "mocks/organisations";
 import { base1 } from "mocks/bases";
-import { cache } from "queries/cache";
 
 // Options for Apollo MockProvider
 const defaultOptions: DefaultOptions = {
@@ -50,6 +49,7 @@ function render(
   ui,
   {
     mocks = [],
+    cache = undefined,
     routePath,
     initialUrl,
     additionalRoute = undefined,
@@ -58,6 +58,7 @@ function render(
     ...renderOptions
   }: {
     mocks?: Array<MockedResponse>;
+    cache?: InMemoryCache;
     routePath: string;
     initialUrl: string;
     additionalRoute?: string;
