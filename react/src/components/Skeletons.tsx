@@ -194,7 +194,6 @@ export function BoxViewSkeleton() {
         mr={["0", "0", "4rem", "4rem"]}
       >
         <Flex py={2} px={4} alignItems="center">
-          <SkeletonCircle size="12" />
           <SkeletonText ml="4" noOfLines={1} width="50%" />
           <Skeleton ml="auto">
             <IconButton
