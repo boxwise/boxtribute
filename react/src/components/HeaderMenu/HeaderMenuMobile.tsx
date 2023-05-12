@@ -28,7 +28,7 @@ import {
   MenuItemsGroupsProps,
 } from "./HeaderMenu";
 import BoxtributeLogo from "../../assets/images/boxtribute-logo.png";
-import { generateDropappUrl, redirectToExternalUrl } from "utils/helpers";
+import { generateDropappUrl, handleLogout, redirectToExternalUrl } from "utils/helpers";
 
 type MenuItemsGroupsMobileProps = MenuItemsGroupsProps & {
   isMenuOpen: boolean;
@@ -56,11 +56,6 @@ const LoginOrUserMenuButtonMobile = ({
   setIsMenuOpen,
 }: LoginOrUserMenuButtonProps & { setIsMenuOpen: (isOpen: boolean) => void }) => {
   const { isOpen, onToggle } = useDisclosure();
-
-  const handleLoggout =  () => {
-    window.location.href = `${process.env.REACT_APP_OLD_APP_BASE_URL}/index.php?action=logoutfromv2`;
-    return null;
-  };
 
   return isAuthenticated ? (
     <Stack spacing={4} onClick={onToggle}>
@@ -105,7 +100,7 @@ const LoginOrUserMenuButtonMobile = ({
           {/* <Box py={1} px={4}>
             Profile
           </Box> */}
-          <Box py={1} px={4} w="100%" onClick={() => handleLoggout()}>
+          <Box py={1} px={4} w="100%" onClick={() => handleLogout()}>
             Logout
           </Box>
         </Stack>
