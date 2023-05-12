@@ -9,6 +9,7 @@ from ..models.definitions.box import Box
 from ..models.definitions.location import Location
 from ..models.definitions.product import Product
 from ..models.definitions.product_category import ProductCategory
+from ..models.definitions.shipment import Shipment
 from ..models.definitions.size import Size
 from ..models.definitions.size_range import SizeRange
 from ..models.definitions.tag import Tag
@@ -59,6 +60,18 @@ class BoxLoader(DataLoader):
     async def batch_load_fn(self, keys):
         boxes = {b.id: b for b in Box.select().where(Box.id << keys)}
         return [boxes.get(i) for i in keys]
+
+
+class ShipmentLoader(DataLoader):
+    async def batch_load_fn(self, keys):
+        shipments = {
+            s.id: s
+            for s in Shipment.select().orwhere(
+                authorized_bases_filter(Shipment, base_fk_field_name="source_base_id"),
+                authorized_bases_filter(Shipment, base_fk_field_name="target_base_id"),
+            )
+        }
+        return [shipments.get(i) for i in keys]
 
 
 class TagsForBoxLoader(DataLoader):

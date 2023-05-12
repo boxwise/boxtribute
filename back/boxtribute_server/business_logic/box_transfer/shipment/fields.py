@@ -1,7 +1,6 @@
 from ariadne import ObjectType
 
 from ....authz import authorize
-from ....models.definitions.shipment import Shipment
 from ....models.definitions.shipment_detail import ShipmentDetail
 
 shipment = ObjectType("Shipment")
@@ -130,13 +129,8 @@ def resolve_shipment_detail_target_size(detail_obj, _):
 
 
 @shipment_detail.field("shipment")
-def resolve_shipment(shipment_detail_obj, _):
-    shipment = Shipment.get_by_id(shipment_detail_obj.shipment_id)
-    authorize(
-        permission="shipment:read",
-        base_ids=[shipment.source_base_id, shipment.target_base_id],
-    )
-    return shipment
+def resolve_shipment_detail_shipment(detail_obj, info):
+    return info.context["shipment_loader"].load(detail_obj.shipment_id)
 
 
 @shipment_detail.field("createdBy")
