@@ -28,7 +28,7 @@ import {
   MenuItemsGroupsProps,
   UserMenuProps,
 } from "./HeaderMenu";
-import { generateDropappUrl } from "utils/helpers";
+import { generateDropappUrl, handleLogout } from "utils/helpers";
 
 const Logo = () => <Image src={BoxtributeLogo} maxH={"3.5em"} />;
 
@@ -60,7 +60,7 @@ const UserMenu = ({ logout, user, currentActiveBaseId, availableBases }: UserMen
         <MenuDivider /> */}
         <MenuGroup>
           {/* <MenuItem py={2}>Profile ({user?.email})</MenuItem> */}
-          <MenuItem py={2} onClick={() => logout()}>
+          <MenuItem py={2} onClick={() => handleLogout()}>
             Logout
           </MenuItem>
         </MenuGroup>

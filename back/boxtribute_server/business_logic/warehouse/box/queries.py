@@ -1,4 +1,4 @@
-from ariadne import QueryType, convert_kwargs_to_snake_case
+from ariadne import QueryType
 
 from ....authz import authorize
 from ....models.definitions.box import Box
@@ -8,7 +8,6 @@ query = QueryType()
 
 
 @query.field("box")
-@convert_kwargs_to_snake_case
 def resolve_box(*_, label_identifier):
     box = (
         Box.select(Box, Location)

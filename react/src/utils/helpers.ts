@@ -66,3 +66,9 @@ export const colorIsBright = (hex) => {
     .map((x) => parseInt(x, 16));
   return (r * 299 + g * 587 + b * 114) / 1000 >= 128;
 };
+
+// logout handler that redirect the v2 to dropapp related trello: https://trello.com/c/sbIJYHFF
+export const handleLogout =  () => {
+  window.location.href = `${process.env.REACT_APP_OLD_APP_BASE_URL}/index.php?action=logoutfromv2`;
+  return null;
+};

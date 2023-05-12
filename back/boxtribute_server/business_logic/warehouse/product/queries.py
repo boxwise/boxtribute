@@ -1,4 +1,4 @@
-from ariadne import QueryType, convert_kwargs_to_snake_case
+from ariadne import QueryType
 
 from ....authz import authorize, authorized_bases_filter
 from ....graph_ql.pagination import load_into_page
@@ -8,7 +8,6 @@ query = QueryType()
 
 
 @query.field("products")
-@convert_kwargs_to_snake_case
 def resolve_products(*_, pagination_input=None):
     return load_into_page(
         Product,
