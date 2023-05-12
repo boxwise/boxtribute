@@ -127,9 +127,12 @@ function BoxCard({ boxData, onPlusOpen, onMinusOpen, onStateChange, isLoading }:
             </Heading>
           )}
           {isLoading && (
-            <Skeleton width="140px">
-              <Heading as="h3" fontSize="xl" />
-            </Skeleton>
+            <>
+              <Skeleton width="20px" mr={5} />
+              <Heading as="h3" fontSize="xl">
+                {boxData?.product?.name}
+              </Heading>
+            </>
           )}
           <Spacer />
           <ButtonGroup gap="1">
