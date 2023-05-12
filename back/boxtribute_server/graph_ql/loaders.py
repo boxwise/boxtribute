@@ -12,6 +12,7 @@ from ..models.definitions.size import Size
 from ..models.definitions.size_range import SizeRange
 from ..models.definitions.tag import Tag
 from ..models.definitions.tags_relation import TagsRelation
+from ..models.definitions.user import User
 
 
 class DataLoader(_DataLoader):
@@ -100,3 +101,10 @@ class SizesForSizeRangeLoader(DataLoader):
             sizes[size.size_range_id].append(size)
         # Keys are in fact size range IDs. Return empty list if size range has no sizes
         return [sizes.get(i, []) for i in keys]
+
+
+class UserLoader(DataLoader):
+    async def batch_load_fn(self, keys):
+        authorize(permission="user:read")
+        users = {s.id: s for s in User.select().where(User.id << keys)}
+        return [users.get(i) for i in keys]
