@@ -6,6 +6,7 @@ from flask import current_app, jsonify, request
 from ..exceptions import format_database_errors
 from .loaders import (
     BaseLoader,
+    BoxLoader,
     LocationLoader,
     ProductCategoryLoader,
     ProductLoader,
@@ -28,6 +29,7 @@ def execute_async(*, schema, introspection=None):
         # DataLoaders require an event loop which is set up by asyncio.run
         context = {
             "base_loader": BaseLoader(),
+            "box_loader": BoxLoader(),
             "location_loader": LocationLoader(),
             "product_category_loader": ProductCategoryLoader(),
             "product_loader": ProductLoader(),

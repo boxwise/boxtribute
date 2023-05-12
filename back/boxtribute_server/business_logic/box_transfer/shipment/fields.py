@@ -105,6 +105,18 @@ def resolve_shipment_detail_target_location(detail_obj, _):
     return detail_obj.target_location
 
 
+@shipment_detail.field("box")
+def resolve_shipment_detail_box(detail_obj, info):
+    authorize(
+        permission="stock:read",
+        base_ids=[
+            detail_obj.shipment.source_base_id,
+            detail_obj.shipment.target_base_id,
+        ],
+    )
+    return info.context["box_loader"].load(detail_obj.box_id)
+
+
 @shipment_detail.field("sourceSize")
 def resolve_shipment_detail_source_size(detail_obj, _):
     authorize(permission="size:read")

@@ -5,6 +5,7 @@ from aiodataloader import DataLoader as _DataLoader
 from ..authz import authorize, authorized_bases_filter
 from ..enums import TaggableObjectType
 from ..models.definitions.base import Base
+from ..models.definitions.box import Box
 from ..models.definitions.location import Location
 from ..models.definitions.product import Product
 from ..models.definitions.product_category import ProductCategory
@@ -52,6 +53,12 @@ class SizeLoader(DataLoader):
         authorize(permission="size:read")
         sizes = {s.id: s for s in Size.select()}
         return [sizes.get(i) for i in keys]
+
+
+class BoxLoader(DataLoader):
+    async def batch_load_fn(self, keys):
+        boxes = {b.id: b for b in Box.select().where(Box.id << keys)}
+        return [boxes.get(i) for i in keys]
 
 
 class TagsForBoxLoader(DataLoader):
