@@ -28,7 +28,7 @@ export interface IShipmentContent {
 }
 
 interface IShipmentContentProps {
-  shipmentState: ShipmentState | undefined | null;
+  shipmentState: ShipmentState | undefined;
   items: IShipmentContent[];
   showRemoveIcon: Boolean;
   isLoadingMutation: boolean | undefined;
@@ -148,10 +148,7 @@ function ShipmentContent({
                 </Box>
                 <Spacer />
                 <Flex direction="row" alignItems="center">
-                  <Text>
-                    {item.totalBoxes -
-                      (shipmentState === ShipmentState.Completed ? item.totalLosts : 0)}
-                  </Text>
+                  <Text>{item.totalBoxes}</Text>
                   <Spacer />
                   <Box pl={1}>
                     {/* <BiPackage size={18} /> */}

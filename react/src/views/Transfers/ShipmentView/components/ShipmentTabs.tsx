@@ -20,7 +20,7 @@ export interface IGroupedHistoryEntry {
 }
 
 export interface IShipmentTabsProps {
-  shipmentState: ShipmentState | undefined | null;
+  shipmentState: ShipmentState | undefined;
   detail: ShipmentDetail[];
   histories: IGroupedHistoryEntry[];
   isLoadingMutation: boolean | undefined;
