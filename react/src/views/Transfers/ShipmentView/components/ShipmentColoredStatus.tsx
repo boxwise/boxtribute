@@ -31,12 +31,10 @@ function ShipmentColoredStatus({ state }: IShipmentColoredStatusProps) {
       break;
   }
   return (
-    <Box fontWeight="xl">
+    <Box fontSize={16} fontWeight="semibold">
       <Wrap>
         <WrapItem>Status:</WrapItem>
-        <WrapItem fontWeight="extrabold" color={stateColor}>
-          {state?.toUpperCase()}
-        </WrapItem>
+        <WrapItem color={stateColor}>{state?.toUpperCase()}</WrapItem>
       </Wrap>
     </Box>
   );

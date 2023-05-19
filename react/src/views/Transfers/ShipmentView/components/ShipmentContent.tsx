@@ -9,13 +9,14 @@ import {
   Spacer,
   Stack,
   Flex,
+  Wrap,
+  WrapItem,
 } from "@chakra-ui/react";
 import _ from "lodash";
 import { useCallback, useMemo } from "react";
 import { Product, Box as BoxType, BoxState, ShipmentState } from "types/generated/graphql";
 import { CellProps } from "react-table";
 import { AiFillMinusCircle } from "react-icons/ai";
-// import { BiPackage } from "react-icons/bi";
 import ShipmentTable from "./ShipmentTable";
 import { RemoveBoxCell } from "./ShipmentTableCells";
 
@@ -64,7 +65,7 @@ function ShipmentContent({
     const isStrikethrough = cell.row.original.isLost;
     const style =
       isStrikethrough && cell.row.original.shipmentState === ShipmentState.Completed
-        ? { textDecoration: "line-through" }
+        ? { textDecoration: "line-through", textDecorationColor: "red", color: "red" }
         : {};
     return <div style={style}>{value}</div>;
   };
@@ -135,14 +136,22 @@ function ShipmentContent({
                 <Box alignItems="center">
                   <h2>
                     <Box>
-                      <Text>
-                        {" "}
-                        {item?.product?.name || "Unassigned"}{" "}
-                        {(item?.product?.gender && item?.product?.gender) !== "none"
-                          ? item?.product?.gender
-                          : ""}{" "}
-                        ({item.totalItems}x)
-                      </Text>
+                      <Flex alignItems="center" alignContent="center">
+                        <Wrap spacing={1} alignItems="center">
+                          <WrapItem>
+                            <Text fontSize={16}>
+                              {" "}
+                              {item?.product?.name || "Unassigned"}{" "}
+                              {(item?.product?.gender && item?.product?.gender) !== "none"
+                                ? item?.product?.gender
+                                : ""}{" "}
+                            </Text>
+                          </WrapItem>
+                          <WrapItem alignItems="center">
+                            <Text fontSize={12}>({item.totalItems}x)</Text>
+                          </WrapItem>
+                        </Wrap>
+                      </Flex>
                     </Box>
                   </h2>
                 </Box>
@@ -150,12 +159,9 @@ function ShipmentContent({
                 <Flex direction="row" alignItems="center">
                   <Text>{item.totalBoxes}</Text>
                   <Spacer />
-                  <Box pl={1}>
-                    {/* <BiPackage size={18} /> */}
-                    box{item.totalBoxes > 1 && "es"}
-                  </Box>
+                  <Box pl={1}>box{item.totalBoxes > 1 && "es"}</Box>
                   {item.totalLosts > 0 && shipmentState === ShipmentState.Completed && (
-                    <Box pl={1} color="gray.500">
+                    <Box pl={1} color="red.500">
                       (-{item.totalLosts})
                     </Box>
                   )}
