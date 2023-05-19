@@ -351,6 +351,107 @@ function ShipmentView() {
     labelIdentifier: detail.box?.labelIdentifier,
   }));
 
+  function formatDateKey(date: Date): string {
+    const options: Intl.DateTimeFormatOptions = {
+      weekday: "long",
+      year: "numeric",
+      month: "long",
+      day: "numeric",
+    };
+
+    return new Date(date)?.toLocaleDateString("en-GB", options);
+  }
+
+  // console.log("data?.shipment?", data?.shipment);
+
+  // const actionHistory = new Map();
+  // for (const property in data?.shipment) {
+  //   switch (property) {
+  //     case "canceledOn":
+  //       if (data?.shipment?.canceledOn) {
+  //         const canceledOn = formatDateKey(data?.shipment?.canceledOn);
+  //         const canceledData = {
+  //           changeAt: data?.shipment.canceledOn,
+  //           actionType: "ShipmentCanceled",
+  //           user: data?.shipment.canceledBy,
+  //         };
+  //         if (actionHistory.has(canceledOn)) {
+  //           const data = actionHistory.get(canceledOn);
+  //           data.push(canceledData);
+  //         } else {
+  //           actionHistory.set(canceledOn, [canceledData]);
+  //         }
+  //       }
+  //       break;
+  //     case "completedOn":
+  //       if (data?.shipment?.completedOn) {
+  //         const completedOn = formatDateKey(data?.shipment.completedOn);
+  //         const completedData = {
+  //           changeAt: data?.shipment.completedOn,
+  //           actionType: "ShipmentCompleted",
+  //           user: data?.shipment.completedBy,
+  //         };
+  //         if (actionHistory.has(completedOn)) {
+  //           const data = actionHistory.get(completedOn);
+  //           data.push(completedData);
+  //         } else {
+  //           actionHistory.set(completedOn, [completedData]);
+  //         }
+  //       }
+  //       break;
+  //     case "receivingStartedOn":
+  //       if (data?.shipment?.receivingStartedOn) {
+  //         const receivingStartedOn = formatDateKey(data?.shipment.receivingStartedOn);
+  //         const receivingStartedData = {
+  //           changeAt: data?.shipment.receivingStartedOn,
+  //           actionType: "ShipmentReceivingStarted",
+  //           user: data?.shipment.receivingStartedBy,
+  //         };
+  //         if (actionHistory.has(receivingStartedData)) {
+  //           const data = actionHistory.get(receivingStartedOn);
+  //           data.push(receivingStartedData);
+  //         } else {
+  //           actionHistory.set(receivingStartedOn, [receivingStartedData]);
+  //         }
+  //       }
+  //       break;
+  //     case "sentOn":
+  //       if (data?.shipment?.sentOn) {
+  //         const sentOn = formatDateKey(data?.shipment.sentOn);
+  //         const sentData = {
+  //           changeAt: data?.shipment.sentOn,
+  //           actionType: "ShipmentSent",
+  //           user: data?.shipment.sentBy,
+  //         };
+  //         if (actionHistory.has(sentOn)) {
+  //           const data = actionHistory.get(sentOn);
+  //           data.push(sentData);
+  //         } else {
+  //           actionHistory.set(sentOn, [sentData]);
+  //         }
+  //       }
+  //       break;
+  //     case "startedOn":
+  //       if (data?.shipment?.startedOn) {
+  //         const startedOn = formatDateKey(data?.shipment.startedOn);
+  //         const startedData = {
+  //           changeAt: data?.shipment.startedOn,
+  //           actionType: "ShipmentStarted",
+  //           user: data?.shipment.sentBy,
+  //         };
+  //         if (actionHistory.has(startedOn)) {
+  //           const data = actionHistory.get(startedOn);
+  //           data.push(startedData);
+  //         } else {
+  //           actionHistory.set(startedOn, [startedData]);
+  //         }
+  //       }
+  //       break;
+  //   }
+  // }
+
+  // console.log("actionHistory", actionHistory);
+
   // group the history entries by their createdOn property
   const groupedHistoryEntries = groupBy(historyEntries, (entry) => {
     const date = new Date(entry?.createdOn);
