@@ -68,6 +68,13 @@ export const CREATE_BOX_MUTATION = gql`
       }
     ) {
       labelIdentifier
+      # update Qr-Code in cache to be associated to this Box
+      qrCode {
+        code
+        box {
+          labelIdentifier
+        }
+      }
     }
   }
 `;
