@@ -46,6 +46,42 @@ const initialQueryNetworkError = {
   },
 };
 
+const initialRecevingUIAsSourceOrgQuery = {
+  request: {
+    query: SHIPMENT_BY_ID_QUERY,
+    variables: {
+      id: "1",
+    },
+  },
+  result: {
+    data: {
+      shipment: generateMockShipment({
+        state: ShipmentState.Receiving,
+        iAmSource: true,
+        hasBoxes: true,
+      }),
+    },
+  },
+};
+
+const initialRecevingUIAsTargetOrgQuery = {
+  request: {
+    query: SHIPMENT_BY_ID_QUERY,
+    variables: {
+      id: "1",
+    },
+  },
+  result: {
+    data: {
+      shipment: generateMockShipment({
+        state: ShipmentState.Receiving,
+        iAmSource: false,
+        hasBoxes: true,
+      }),
+    },
+  },
+};
+
 describe("4.5 Test Cases", () => {
   beforeEach(() => {
     // we need to mock matchmedia
@@ -97,7 +133,7 @@ describe("4.5 Test Cases", () => {
     // Test case 4.5.1.2 - Content: Displays Shipment status
     expect(screen.getByText(/PREPARING/)).toBeInTheDocument();
     // // Test case 4.5.1.3 - Content: Displays total number of boxes
-    expect(screen.getByRole("heading", { name: /3/i })).toBeInTheDocument();
+    expect(screen.getByRole("heading", { name: /\b2\b/i })).toBeInTheDocument();
     // // Test case 4.5.1.5 - Displays Content tab initially
     expect(screen.getByRole("tab", { name: /content/i, selected: true })).toHaveTextContent(
       "Content",
@@ -153,4 +189,61 @@ describe("4.5 Test Cases", () => {
       await screen.findByText(/could not fetch Shipment data! Please try reloading the page./i),
     ).toBeInTheDocument();
   });
+
+  // Test case 4.5.3
+  it("4.5.3 - Initial load of Receiving UI As Target Organisation", async () => {
+    //   const user = userEvent.setup();
+    render(<ShipmentView />, {
+      routePath: "/bases/:baseId/transfers/shipments/:id",
+      initialUrl: "/bases/1/transfers/shipments/1",
+      mocks: [initialRecevingUIAsTargetOrgQuery],
+      addTypename: true,
+      globalPreferences: {
+        dispatch: jest.fn(),
+        globalPreferences: {
+          selectedOrganisationId: organisation1.id,
+          availableBases: organisation1.bases,
+        },
+      },
+    });
+
+    // eslint-disable-next-line testing-library/prefer-presence-queries
+    expect(screen.getByTestId("loader")).toBeInTheDocument();
+
+    await waitFor(() => {
+      const title = screen.getByRole("heading", { name: /receive shipment/i });
+      expect(title);
+    });
+
+    // eslint-disable-next-line max-len
+    expect(
+      screen.getByRole("cell", { name: /124 long sleeves\(12x\) size: mixed/i }),
+    ).toBeInTheDocument();
+  }, 10000);
+
+  // Test case 4.5.4
+  it("4.5.4 - Initial load of Receiving UI As Source Organisation", async () => {
+    //   const user = userEvent.setup();
+    render(<ShipmentView />, {
+      routePath: "/bases/:baseId/transfers/shipments/:id",
+      initialUrl: "/bases/1/transfers/shipments/1",
+      mocks: [initialRecevingUIAsSourceOrgQuery],
+      addTypename: true,
+      globalPreferences: {
+        dispatch: jest.fn(),
+        globalPreferences: {
+          selectedOrganisationId: organisation1.id,
+          availableBases: organisation1.bases,
+        },
+      },
+    });
+
+    // eslint-disable-next-line testing-library/prefer-presence-queries
+    expect(screen.getByTestId("loader")).toBeInTheDocument();
+
+    await waitFor(() => {
+      const title = screen.getByRole("heading", { name: /view shipment/i });
+      expect(title);
+    });
+  }, 10000);
 });

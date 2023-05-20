@@ -43,6 +43,8 @@ type Box implements ItemsCollection {
   comment: String
   tags: [Tag!]
   history: [HistoryEntry!]
+  " Returns null if box is not part of an active shipment "
+  shipmentDetail: ShipmentDetail
 }
 
 type HistoryEntry {
@@ -149,7 +151,7 @@ enum BoxState {
   InStock
   Lost
   MarkedForShipment
-  Received
+  Receiving
   Donated
   Scrap
 }
@@ -599,12 +601,18 @@ type ShipmentDetail {
   targetProduct: Product
   sourceLocation: ClassicLocation
   targetLocation: ClassicLocation
+  sourceSize: Size
+  targetSize: Size
   box: Box!
   shipment: Shipment!
   createdBy: User!
   createdOn: Datetime!
-  deletedBy: User
-  deletedOn: Datetime
+  removedBy: User
+  removedOn: Datetime
+  lostBy: User
+  lostOn: Datetime
+  receivedBy: User
+  receivedOn: Datetime
 }
 
 enum TransferAgreementState {

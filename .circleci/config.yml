@@ -23,7 +23,7 @@ jobs:
           at: ~/
       # Restore cached dependencies
       - restore_cache:
-          key: webapp-deps-{{ checksum "requirements.txt" }}-{{ checksum "requirements-deploy.txt" }}
+          key: webapp-deps-{{ checksum "requirements.txt" }}-{{ checksum "requirements-deploy.txt" }}-{{ checksum "requirements-dev.txt" }}-{{ checksum "../.pre-commit-config.yaml" }}
       - run:
           name: create the python virtual environment and install non-cached dependencies
           command: |
@@ -35,7 +35,7 @@ jobs:
             pip install -e . -r requirements.txt -r requirements-deploy.txt
       # Cache the installed packages
       - save_cache:
-          key: webapp-deps-{{ checksum "requirements.txt" }}-{{ checksum "requirements-deploy.txt" }}
+          key: webapp-deps-{{ checksum "requirements.txt" }}-{{ checksum "requirements-deploy.txt" }}-{{ checksum "requirements-dev.txt" }}-{{ checksum "../.pre-commit-config.yaml" }}
           paths:
             - /home/circleci/.pyenv/versions/3.10.4/envs/env
       # save build to a CircleCI workspace
@@ -129,7 +129,7 @@ jobs:
       - attach_workspace:
           at: ~/
       - restore_cache:
-          key: webapp-dev-deps-{{ checksum "requirements-dev.txt" }}-{{ checksum "../.pre-commit-config.yaml" }}
+          key: webapp-deps-{{ checksum "requirements.txt" }}-{{ checksum "requirements-deploy.txt" }}-{{ checksum "requirements-dev.txt" }}-{{ checksum "../.pre-commit-config.yaml" }}
       - run:
           name: install dev dependencies for linting and testing
           command: |
@@ -141,7 +141,7 @@ jobs:
             source $(pyenv root)/versions/3.10.4/envs/env/bin/activate
             pre-commit run --files **/*.py
       - save_cache:
-          key: webapp-dev-deps-{{ checksum "requirements-dev.txt" }}-{{ checksum "../.pre-commit-config.yaml" }}
+          key: webapp-deps-{{ checksum "requirements.txt" }}-{{ checksum "requirements-deploy.txt" }}-{{ checksum "requirements-dev.txt" }}-{{ checksum "../.pre-commit-config.yaml" }}
           paths:
             - /home/circleci/.pyenv/versions/3.10.4/envs/env
             - ~/.cache/pre-commit

@@ -1,4 +1,4 @@
-from ariadne import MutationType, convert_kwargs_to_snake_case
+from ariadne import MutationType
 from flask import g
 
 from ....authz import authorize
@@ -9,7 +9,6 @@ mutation = MutationType()
 
 
 @mutation.field("updatePackingListEntry")
-@convert_kwargs_to_snake_case
 def resolve_update_packing_list_entry(*_, packing_list_entry_id, number_of_items):
     entry = PackingListEntry.get_by_id(packing_list_entry_id)
     authorize(permission="packing_list_entry:write", base_id=entry.product.base_id)
