@@ -1,5 +1,5 @@
-import { Box, Text } from "@chakra-ui/react";
-import { IGroupedHistoryEntry } from "./ShipmentTabs";
+import { Box, Text, UnorderedList } from "@chakra-ui/react";
+import { IGroupedHistoryEntry, IShipmentHistory, ShipmentActionEvent } from "./ShipmentTabs";
 import TimelineEntry from "./TimelineEntry";
 
 export interface IShipmentHistoryProps {
@@ -7,22 +7,44 @@ export interface IShipmentHistoryProps {
 }
 
 function ShipmentHistory({ histories }: IShipmentHistoryProps) {
+  const changesLabel = (histoty: IShipmentHistory): string => {
+    let changes = "";
+    if (
+      [
+        ShipmentActionEvent.ShipmentCanceled,
+        ShipmentActionEvent.ShipmentCompleted,
+        ShipmentActionEvent.ShipmentSent,
+        ShipmentActionEvent.ShipmentStartReceiving,
+        ShipmentActionEvent.ShipmentStarted,
+      ].includes(histoty.action)
+    ) {
+      changes = `Shipment is ${histoty.action.toLowerCase().replace("shipment", "")} by ${
+        histoty.createdBy?.name
+      }`;
+    } else {
+      changes = `Box ${histoty.box}  is ${histoty.action.toLowerCase().replace("box", "")} by ${
+        histoty.createdBy?.name
+      }`;
+    }
+
+    return changes;
+  };
+
   return (
     <Box position="relative" pl={10}>
-      {histories.map(({ date, entries }) => (
+      {histories.map(({ date, entries }, index) => (
         <Box key={date}>
           <Text fontWeight="bold" mb={4}>
             {date}
           </Text>
-          {entries?.map((entry) => (
-            <TimelineEntry
-              key={entry?.id}
-              date={entry?.createdOn}
-              title=""
-              // eslint-disable-next-line max-len
-              content={`1 boxes of ${entry?.sourceProduct?.name} added by ${entry?.createdBy?.name}`}
-            />
-          ))}
+          <UnorderedList>
+            {entries?.map((entry, indx) => (
+              <TimelineEntry
+                key={`${index + indx}_${new Date().getTime()}}`}
+                content={entry ? changesLabel(entry) : ""}
+              />
+            ))}
+          </UnorderedList>
         </Box>
       ))}
       <Box

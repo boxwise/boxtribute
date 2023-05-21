@@ -1,4 +1,5 @@
 import { gql, useMutation, useQuery } from "@apollo/client";
+import { formatDateKey } from "utils/helpers";
 import {
   Box,
   Center,
@@ -11,7 +12,7 @@ import {
   Skeleton,
   useDisclosure,
 } from "@chakra-ui/react";
-import _, { groupBy } from "lodash";
+import _ from "lodash";
 import { useCallback, useContext, useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import {
@@ -33,6 +34,7 @@ import {
   UpdateShipmentWhenReceivingMutation,
   UpdateShipmentWhenReceivingMutationVariables,
   BoxState,
+  User,
 } from "types/generated/graphql";
 import { useErrorHandling } from "hooks/useErrorHandling";
 import { useNotification } from "hooks/useNotification";
@@ -40,7 +42,7 @@ import { SHIPMENT_FIELDS_FRAGMENT } from "queries/fragments";
 import { GlobalPreferencesContext } from "providers/GlobalPreferencesProvider";
 import { ButtonSkeleton, ShipmentCardSkeleton, TabsSkeleton } from "components/Skeletons";
 import ShipmentCard from "./components/ShipmentCard";
-import ShipmentTabs from "./components/ShipmentTabs";
+import ShipmentTabs, { IShipmentHistory, ShipmentActionEvent } from "./components/ShipmentTabs";
 import ShipmentOverlay, { IShipmentOverlayData } from "./components/ShipmentOverlay";
 import ShipmentActionButtons from "./components/ShipmentActionButtons";
 import ShipmentReceivingContent from "./components/ShipmentReceivingContent";
@@ -152,6 +154,9 @@ function ShipmentView() {
 
   useEffect(() => {
     setShipmentState(data?.shipment?.state || undefined);
+    return () => {
+      setShipmentState(undefined);
+    };
   }, [data]);
 
   // Mutations for shipment actions
@@ -341,132 +346,102 @@ function ShipmentView() {
     lostShipmentStatus.loading;
 
   // transform shipment data for UI
+  const shipmentData = data?.shipment! as Shipment;
 
   const shipmentContents = (data?.shipment?.details.filter((item) => item.removedOn === null) ??
     []) as ShipmentDetail[];
 
-  // map over each ShipmentDetail to compile its history records
-  const historyEntries = (data?.shipment?.details! as ShipmentDetail[])?.flatMap((detail) => ({
-    ...detail,
-    labelIdentifier: detail.box?.labelIdentifier,
-  }));
+  const generateShipmentHistory = (
+    data: Partial<Record<ShipmentActionEvent, { createdOn: string; createdBy: User }>>,
+  ): IShipmentHistory[] => {
+    const shipmentHistory: IShipmentHistory[] = [];
 
-  function formatDateKey(date: Date): string {
-    const options: Intl.DateTimeFormatOptions = {
-      weekday: "long",
-      year: "numeric",
-      month: "long",
-      day: "numeric",
-    };
+    Object.entries(data).forEach(([action, shipmentData]) => {
+      if (shipmentData) {
+        shipmentHistory.push({
+          action: action as ShipmentActionEvent,
+          createdBy: shipmentData.createdBy! as User,
+          createdOn: new Date(shipmentData.createdOn),
+        });
+      }
+    });
 
-    return new Date(date)?.toLocaleDateString("en-GB", options);
-  }
+    return shipmentHistory;
+  };
 
-  // console.log("data?.shipment?", data?.shipment);
-
-  // const actionHistory = new Map();
-  // for (const property in data?.shipment) {
-  //   switch (property) {
-  //     case "canceledOn":
-  //       if (data?.shipment?.canceledOn) {
-  //         const canceledOn = formatDateKey(data?.shipment?.canceledOn);
-  //         const canceledData = {
-  //           changeAt: data?.shipment.canceledOn,
-  //           actionType: "ShipmentCanceled",
-  //           user: data?.shipment.canceledBy,
-  //         };
-  //         if (actionHistory.has(canceledOn)) {
-  //           const data = actionHistory.get(canceledOn);
-  //           data.push(canceledData);
-  //         } else {
-  //           actionHistory.set(canceledOn, [canceledData]);
-  //         }
-  //       }
-  //       break;
-  //     case "completedOn":
-  //       if (data?.shipment?.completedOn) {
-  //         const completedOn = formatDateKey(data?.shipment.completedOn);
-  //         const completedData = {
-  //           changeAt: data?.shipment.completedOn,
-  //           actionType: "ShipmentCompleted",
-  //           user: data?.shipment.completedBy,
-  //         };
-  //         if (actionHistory.has(completedOn)) {
-  //           const data = actionHistory.get(completedOn);
-  //           data.push(completedData);
-  //         } else {
-  //           actionHistory.set(completedOn, [completedData]);
-  //         }
-  //       }
-  //       break;
-  //     case "receivingStartedOn":
-  //       if (data?.shipment?.receivingStartedOn) {
-  //         const receivingStartedOn = formatDateKey(data?.shipment.receivingStartedOn);
-  //         const receivingStartedData = {
-  //           changeAt: data?.shipment.receivingStartedOn,
-  //           actionType: "ShipmentReceivingStarted",
-  //           user: data?.shipment.receivingStartedBy,
-  //         };
-  //         if (actionHistory.has(receivingStartedData)) {
-  //           const data = actionHistory.get(receivingStartedOn);
-  //           data.push(receivingStartedData);
-  //         } else {
-  //           actionHistory.set(receivingStartedOn, [receivingStartedData]);
-  //         }
-  //       }
-  //       break;
-  //     case "sentOn":
-  //       if (data?.shipment?.sentOn) {
-  //         const sentOn = formatDateKey(data?.shipment.sentOn);
-  //         const sentData = {
-  //           changeAt: data?.shipment.sentOn,
-  //           actionType: "ShipmentSent",
-  //           user: data?.shipment.sentBy,
-  //         };
-  //         if (actionHistory.has(sentOn)) {
-  //           const data = actionHistory.get(sentOn);
-  //           data.push(sentData);
-  //         } else {
-  //           actionHistory.set(sentOn, [sentData]);
-  //         }
-  //       }
-  //       break;
-  //     case "startedOn":
-  //       if (data?.shipment?.startedOn) {
-  //         const startedOn = formatDateKey(data?.shipment.startedOn);
-  //         const startedData = {
-  //           changeAt: data?.shipment.startedOn,
-  //           actionType: "ShipmentStarted",
-  //           user: data?.shipment.sentBy,
-  //         };
-  //         if (actionHistory.has(startedOn)) {
-  //           const data = actionHistory.get(startedOn);
-  //           data.push(startedData);
-  //         } else {
-  //           actionHistory.set(startedOn, [startedData]);
-  //         }
-  //       }
-  //       break;
-  //   }
-  // }
-
-  // console.log("actionHistory", actionHistory);
-
-  // group the history entries by their createdOn property
-  const groupedHistoryEntries = groupBy(historyEntries, (entry) => {
-    const date = new Date(entry?.createdOn);
-    return `${date.toLocaleString("default", { month: "short" })}
-     ${date.getDate()}, ${date.getFullYear()}`;
+  const shipmentLogs: IShipmentHistory[] = generateShipmentHistory({
+    [ShipmentActionEvent.ShipmentStarted]: {
+      createdOn: shipmentData?.startedOn,
+      createdBy: shipmentData?.startedBy as User,
+    },
+    [ShipmentActionEvent.ShipmentCanceled]: {
+      createdOn: shipmentData?.canceledOn,
+      createdBy: shipmentData?.canceledBy as User,
+    },
+    [ShipmentActionEvent.ShipmentSent]: {
+      createdOn: shipmentData?.sentOn,
+      createdBy: shipmentData?.sentBy! as User,
+    },
+    [ShipmentActionEvent.ShipmentStartReceiving]: {
+      createdOn: shipmentData?.receivingStartedOn,
+      createdBy: shipmentData?.receivingStartedBy! as User,
+    },
+    [ShipmentActionEvent.ShipmentCompleted]: {
+      createdOn: shipmentData?.completedOn,
+      createdBy: shipmentData?.completedBy! as User,
+    },
   });
 
+  // map over each ShipmentDetail to compile its history records
+  const shipmentDetailLogs: IShipmentHistory[] = (
+    data?.shipment?.details! as ShipmentDetail[]
+  )?.flatMap((detail) =>
+    _.compact([
+      detail?.createdBy && {
+        box: detail.box.labelIdentifier,
+        action: ShipmentActionEvent.BoxAdded,
+        createdBy: detail?.createdBy as User,
+        createdOn: new Date(detail?.createdOn),
+      },
+      detail?.removedOn && {
+        box: detail.box.labelIdentifier,
+        action: ShipmentActionEvent.BoxRemoved,
+        createdBy: detail?.removedBy! as User,
+        createdOn: new Date(detail?.removedOn),
+      },
+      detail?.lostOn && {
+        box: detail.box.labelIdentifier,
+        action: ShipmentActionEvent.BoxLost,
+        createdBy: detail?.lostBy! as User,
+        createdOn: new Date(detail?.lostOn),
+      },
+      detail?.receivedOn && {
+        box: detail.box.labelIdentifier,
+        action: ShipmentActionEvent.BoxReceived,
+        createdBy: detail?.receivedBy! as User,
+        createdOn: new Date(detail?.receivedOn),
+      },
+    ]),
+  ) as unknown as IShipmentHistory[];
+
+  const allLogs = _.orderBy(
+    _.sortBy(_.concat([...(shipmentLogs || []), ...(shipmentDetailLogs || [])]), "createdOn"),
+    ["createdOn"],
+    ["asc", "desc"],
+  );
+  const groupedHistoryEntries: _.Dictionary<IShipmentHistory[]> = _.groupBy(
+    allLogs,
+    (log) => `${formatDateKey(log?.createdOn)}`,
+  );
+
   // sort each array of history entries in descending order
-  const sortedGroupedHistoryEntries = _.chain(groupedHistoryEntries)
+  const sortedGroupedHistoryEntries = _(groupedHistoryEntries)
     .toPairs()
     .map(([date, entries]) => ({
       date,
       entries: _.orderBy(entries, (entry) => new Date(entry?.createdOn), "desc"),
     }))
-    .orderBy("date", "desc")
+    .orderBy((entry) => new Date(entry.date), "desc")
     .value();
 
   // variables for loading dynamic components

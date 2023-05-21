@@ -66,3 +66,8 @@ export const colorIsBright = (hex) => {
     .map((x) => parseInt(x, 16));
   return (r * 299 + g * 587 + b * 114) / 1000 >= 128;
 };
+
+export const formatDateKey = (date: Date): string => {
+  return `${date.toLocaleString("default", { month: "short" })}
+    ${date.getDate()}, ${date.getFullYear()}`;
+}
