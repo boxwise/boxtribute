@@ -352,16 +352,16 @@ function ShipmentView() {
     []) as ShipmentDetail[];
 
   const generateShipmentHistory = (
-    data: Partial<Record<ShipmentActionEvent, { createdOn: string; createdBy: User }>>,
+    entry: Partial<Record<ShipmentActionEvent, { createdOn: string; createdBy: User }>>,
   ): IShipmentHistory[] => {
     const shipmentHistory: IShipmentHistory[] = [];
 
-    Object.entries(data).forEach(([action, shipmentData]) => {
-      if (shipmentData) {
+    Object.entries(entry).forEach(([action, shipmentObj]) => {
+      if (shipmentObj) {
         shipmentHistory.push({
           action: action as ShipmentActionEvent,
-          createdBy: shipmentData.createdBy! as User,
-          createdOn: new Date(shipmentData.createdOn),
+          createdBy: shipmentObj.createdBy! as User,
+          createdOn: new Date(shipmentObj.createdOn),
         });
       }
     });
