@@ -357,7 +357,7 @@ function ShipmentView() {
     const shipmentHistory: IShipmentHistory[] = [];
 
     Object.entries(entry).forEach(([action, shipmentObj]) => {
-      if (shipmentObj) {
+      if (shipmentObj.createdOn) {
         shipmentHistory.push({
           action: action as ShipmentActionEvent,
           createdBy: shipmentObj.createdBy! as User,
@@ -372,11 +372,11 @@ function ShipmentView() {
   const shipmentLogs: IShipmentHistory[] = generateShipmentHistory({
     [ShipmentActionEvent.ShipmentStarted]: {
       createdOn: shipmentData?.startedOn,
-      createdBy: shipmentData?.startedBy as User,
+      createdBy: shipmentData?.startedBy! as User,
     },
     [ShipmentActionEvent.ShipmentCanceled]: {
       createdOn: shipmentData?.canceledOn,
-      createdBy: shipmentData?.canceledBy as User,
+      createdBy: shipmentData?.canceledBy! as User,
     },
     [ShipmentActionEvent.ShipmentSent]: {
       createdOn: shipmentData?.sentOn,
