@@ -691,6 +691,76 @@ def test_shipment_mutations_on_target_side_mark_shipment_as_lost(
     assert box == {"state": BoxState.Lost.name, "shipmentDetail": None}
 
 
+def test_shipment_mutations_on_target_side_mark_all_boxes_as_lost(
+    mocker,
+    client,
+    box_without_qr_code,
+    marked_for_shipment_box,
+    sent_shipment,
+    default_shipment_detail,
+    another_shipment_detail,
+    removed_shipment_detail,
+):
+    mocker.patch("jose.jwt.decode").return_value = create_jwt_payload(
+        base_ids=[3], organisation_id=2, user_id=2
+    )
+
+    shipment_id = str(sent_shipment["id"])
+    mutation = f"""mutation {{ startReceivingShipment(id: {shipment_id}) {{
+                    state }} }}"""
+    shipment = assert_successful_request(client, mutation)
+    assert shipment == {"state": ShipmentState.Receiving.name}
+
+    mutation = _generate_update_shipment_mutation(
+        shipment=sent_shipment,
+        lost_boxes=[box_without_qr_code, marked_for_shipment_box],
+    )
+    shipment = assert_successful_request(client, mutation)
+    assert shipment == {"id": shipment_id}
+
+    query = f"""query {{ shipment(id: {shipment_id}) {{
+                    state
+                    completedOn
+                    completedBy {{ id }}
+                    details {{
+                        id
+                        removedBy {{ id }}
+                        receivedBy {{ id }}
+                        lostBy {{ id }}
+                        box {{ state }}
+                    }}
+                }} }}"""
+    shipment = assert_successful_request(client, query)
+    assert shipment.pop("completedOn").startswith(date.today().isoformat())
+    assert shipment == {
+        "state": ShipmentState.Lost.name,
+        "completedBy": {"id": "2"},
+        "details": [
+            {
+                "id": str(default_shipment_detail["id"]),
+                "removedBy": None,
+                "receivedBy": None,
+                "lostBy": {"id": "2"},
+                "box": {"state": BoxState.Lost.name},
+            },
+            {
+                "id": str(another_shipment_detail["id"]),
+                "removedBy": None,
+                "receivedBy": None,
+                "lostBy": {"id": "2"},
+                "box": {"state": BoxState.Lost.name},
+            },
+            {
+                "id": str(removed_shipment_detail["id"]),
+                "removedBy": {"id": "2"},
+                "receivedBy": None,
+                "lostBy": None,
+                "box": {"state": BoxState.InStock.name},
+            },
+        ],
+    }
+
+
 def _generate_create_shipment_mutation(*, source_base, target_base, agreement):
     creation_input = f"""sourceBaseId: {source_base["id"]},
                          targetBaseId: {target_base["id"]},
