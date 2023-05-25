@@ -27,6 +27,7 @@ export function BoxReconciliationContainer({ shipmentDetail }: IBoxReconciliatio
         </h2>
         <AccordionPanel>
           <Text>Product & Gender: </Text>
+          <Text>{shipmentDetail?.sourceProduct?.name} </Text>
         </AccordionPanel>
       </AccordionItem>
 
