@@ -5,9 +5,13 @@ import ShipmentReceivingTable from "./ShipmentReceivingTable";
 
 interface IShipmentReceivingContentProps {
   items: ShipmentDetail[];
+  onBoxReconciliationClick: (labelIdentifier: string) => void;
 }
 
-function ShipmentReceivingContent({ items }: IShipmentReceivingContentProps) {
+function ShipmentReceivingContent({
+  items,
+  onBoxReconciliationClick,
+}: IShipmentReceivingContentProps) {
   const boxes = _.map(items, (shipmentDetail) => ({
     id: shipmentDetail?.sourceProduct?.id,
     labelIdentifier: shipmentDetail?.box?.labelIdentifier,
@@ -41,7 +45,13 @@ function ShipmentReceivingContent({ items }: IShipmentReceivingContentProps) {
     [],
   );
 
-  return <ShipmentReceivingTable columns={columns} data={boxes} />;
+  return (
+    <ShipmentReceivingTable
+      columns={columns}
+      data={boxes}
+      onBoxReconciliationClick={onBoxReconciliationClick}
+    />
+  );
 }
 
 export default ShipmentReceivingContent;

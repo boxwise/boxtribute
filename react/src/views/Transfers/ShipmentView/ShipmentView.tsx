@@ -41,6 +41,10 @@ import { useNotification } from "hooks/useNotification";
 import { SHIPMENT_FIELDS_FRAGMENT } from "queries/fragments";
 import { GlobalPreferencesContext } from "providers/GlobalPreferencesProvider";
 import { ButtonSkeleton, ShipmentCardSkeleton, TabsSkeleton } from "components/Skeletons";
+import {
+  BoxReconcilationOverlay,
+  IBoxReconciliationOverlayData,
+} from "components/BoxReconciliationOverlay/BoxReconciliationOverlay";
 import ShipmentCard from "./components/ShipmentCard";
 import ShipmentTabs, { IShipmentHistory, ShipmentActionEvent } from "./components/ShipmentTabs";
 import ShipmentOverlay, { IShipmentOverlayData } from "./components/ShipmentOverlay";
@@ -132,12 +136,24 @@ function ShipmentView() {
   const { triggerError } = useErrorHandling();
   const { globalPreferences } = useContext(GlobalPreferencesContext);
   const { createToast } = useNotification();
-  const { isOpen, onClose, onOpen } = useDisclosure();
+  const {
+    isOpen: isShipmentOverlayOpen,
+    onClose: onShipmentOverlayClose,
+    onOpen: onShipmentOverlayOpen,
+  } = useDisclosure();
+  const {
+    isOpen: isBoxReconciliationOpen,
+    onOpen: onBoxReconciliationOpen,
+    onClose: onBoxReconciliationClose,
+  } = useDisclosure();
+
   // State to show minus button near boxes when remove button is triggered
   const [showRemoveIcon, setShowRemoveIcon] = useState(false);
   const [shipmentState, setShipmentState] = useState<ShipmentState | undefined>();
   // State to pass Data from a row to the Overlay
   const [shipmentOverlayData, setShipmentOverlayData] = useState<IShipmentOverlayData>();
+  const [boxReconciliationOverlayData, setBoxReconciliationOverlayData] =
+    useState<IBoxReconciliationOverlayData>();
 
   // variables in URL
   const shipmentId = useParams<{ id: string }>().id!;
@@ -200,7 +216,7 @@ function ShipmentView() {
         })
           .then((res) => {
             if (!res?.errors) {
-              onClose();
+              onShipmentOverlayClose();
               createToast({
                 type: "success",
                 message:
@@ -218,7 +234,7 @@ function ShipmentView() {
             });
           });
       },
-    [onClose, createToast, triggerError, shipmentId],
+    [onShipmentOverlayClose, createToast, triggerError, shipmentId],
   );
 
   const onCancel = handleShipment(cancelShipment, "cancel");
@@ -239,8 +255,18 @@ function ShipmentView() {
       sourceOrg: data?.shipment?.sourceBase.organisation.name,
       targetOrg: data?.shipment?.targetBase.organisation.name,
     } as IShipmentOverlayData);
-    onOpen();
-  }, [setShipmentOverlayData, onOpen, data]);
+    onShipmentOverlayOpen();
+  }, [setShipmentOverlayData, onShipmentOverlayOpen, data]);
+
+  const openBoxReconciliationOverlay = useCallback(
+    (labelIdentifier: string) => {
+      setBoxReconciliationOverlayData({
+        labelIdentifier,
+      } as IBoxReconciliationOverlayData);
+      onBoxReconciliationOpen();
+    },
+    [setBoxReconciliationOverlayData, onBoxReconciliationOpen],
+  );
 
   const onMinusClick = () => setShowRemoveIcon(!showRemoveIcon);
 
@@ -261,7 +287,7 @@ function ShipmentView() {
             message: "Error: Could not change state of remaining boxes.",
           });
         } else {
-          onClose();
+          onShipmentOverlayClose();
           createToast({
             title: `Box ${lostBoxLabelIdentifiers}`,
             type: "success",
@@ -274,7 +300,14 @@ function ShipmentView() {
           message: "Could not remove the box from the shipment.",
         });
       });
-  }, [triggerError, createToast, updateShipmentWhenReceiving, data, shipmentId, onClose]);
+  }, [
+    triggerError,
+    createToast,
+    updateShipmentWhenReceiving,
+    data,
+    shipmentId,
+    onShipmentOverlayClose,
+  ]);
 
   const onRemoveBox = useCallback(
     (boxLabelIdentifier: string) => {
@@ -540,16 +573,25 @@ function ShipmentView() {
         <Flex direction="column" gap={2}>
           <Heading>Receiving Shipment</Heading>
           <ShipmentReceivingCard shipment={data?.shipment! as Shipment} />
-          <ShipmentReceivingContent items={shipmentContents} />
+          <ShipmentReceivingContent
+            items={shipmentContents}
+            onBoxReconciliationClick={openBoxReconciliationOverlay}
+          />
           {shipmentActionButtons}
         </Flex>
 
+        <BoxReconcilationOverlay
+          isOpen={isBoxReconciliationOpen}
+          onClose={onBoxReconciliationClose}
+          boxReconcilationOverlayData={boxReconciliationOverlayData}
+        />
+
         <ShipmentOverlay
-          isOpen={isOpen}
+          isOpen={isShipmentOverlayOpen}
           isLoading={isLoadingFromMutation}
           shipmentOverlayData={shipmentOverlayData}
           onRemainingBoxesUndelivered={onRemainingBoxesUndelivered}
-          onClose={onClose}
+          onClose={onShipmentOverlayClose}
           onCancel={onCancel}
         />
       </>
@@ -570,11 +612,11 @@ function ShipmentView() {
         </Flex>
 
         <ShipmentOverlay
-          isOpen={isOpen}
+          isOpen={isShipmentOverlayOpen}
           isLoading={isLoadingFromMutation}
           shipmentOverlayData={shipmentOverlayData}
           onRemainingBoxesUndelivered={onRemainingBoxesUndelivered}
-          onClose={onClose}
+          onClose={onShipmentOverlayClose}
           onCancel={onCancel}
         />
       </>
