@@ -260,12 +260,15 @@ function ShipmentView() {
 
   const openBoxReconciliationOverlay = useCallback(
     (labelIdentifier: string) => {
+      const shipmentDetail = data?.shipment?.details?.find(
+        (detail) => detail.box.labelIdentifier === labelIdentifier && detail.removedOn === null,
+      );
       setBoxReconciliationOverlayData({
-        labelIdentifier,
+        shipmentDetail,
       } as IBoxReconciliationOverlayData);
       onBoxReconciliationOpen();
     },
-    [setBoxReconciliationOverlayData, onBoxReconciliationOpen],
+    [setBoxReconciliationOverlayData, onBoxReconciliationOpen, data],
   );
 
   const onMinusClick = () => setShowRemoveIcon(!showRemoveIcon);

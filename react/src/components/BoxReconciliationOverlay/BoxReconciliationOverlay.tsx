@@ -1,15 +1,22 @@
 import {
+  Box,
   Button,
+  IconButton,
   Modal,
   ModalBody,
   ModalContent,
   ModalFooter,
   ModalHeader,
   ModalOverlay,
+  Wrap,
+  WrapItem,
 } from "@chakra-ui/react";
+import { BoxReconciliationContainer } from "components/BoxReconciliation/BoxReconciliationContainer";
+import { BiTrash } from "react-icons/bi";
+import { ShipmentDetail } from "types/generated/graphql";
 
 export interface IBoxReconciliationOverlayData {
-  labelIdentifier: string;
+  shipmentDetail: ShipmentDetail;
 }
 
 export interface IBoxReconciliationOverlayProps {
@@ -27,13 +34,27 @@ export function BoxReconcilationOverlay({
     <Modal isOpen={isOpen} closeOnOverlayClick closeOnEsc onClose={onClose}>
       <ModalOverlay />
       <ModalContent>
-        <ModalHeader>Box {boxReconcilationOverlayData?.labelIdentifier}</ModalHeader>
-        <ModalBody />
-        <ModalFooter>
-          <Button mr={3} onClick={onClose}>
-            Cancel
-          </Button>
-        </ModalFooter>
+        <ModalHeader fontSize={28} fontWeight="extrabold">
+          <Wrap as="span" flex="1" alignItems="center" justifyContent="space-between">
+            <WrapItem>
+              Box {boxReconcilationOverlayData?.shipmentDetail.box.labelIdentifier}
+            </WrapItem>
+            <WrapItem>
+              <IconButton
+                isRound
+                icon={<BiTrash size={30} />}
+                style={{ background: "white" }}
+                aria-label="no delivery"
+              />
+            </WrapItem>
+          </Wrap>
+        </ModalHeader>
+        <ModalBody m={0} p={0}>
+          <BoxReconciliationContainer
+            shipmentDetail={boxReconcilationOverlayData?.shipmentDetail}
+          />
+        </ModalBody>
+        <ModalFooter />
       </ModalContent>
     </Modal>
   );
