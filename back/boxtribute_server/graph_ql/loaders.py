@@ -47,10 +47,11 @@ class TagsForBoxLoader(DataLoader):
         tags = defaultdict(list)
         # maybe need different join type
         for relation in (
-            TagsRelation.select()
+            TagsRelation.select(TagsRelation.object_type, TagsRelation.object_id, Tag)
             .join(Tag)
             .where(
                 TagsRelation.object_type == TaggableObjectType.Box,
+                TagsRelation.object_id << keys,
                 authorized_bases_filter(Tag),
             )
         ):

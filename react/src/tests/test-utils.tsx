@@ -50,6 +50,7 @@ function render(
   ui,
   {
     mocks = [],
+    cache = undefined,
     routePath,
     initialUrl,
     additionalRoute = undefined,
@@ -58,6 +59,7 @@ function render(
     ...renderOptions
   }: {
     mocks?: Array<MockedResponse>;
+    cache?: InMemoryCache;
     routePath: string;
     initialUrl: string;
     additionalRoute?: string;
