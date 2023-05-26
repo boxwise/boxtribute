@@ -1,4 +1,5 @@
 import { Result } from "@zxing/library";
+import { boxReconciliationOverlayVar } from "queries/cache";
 
 /**
  * Mocking the QrReader component in components/QrReader/QrReader by overriding the implemention of the component with a button.
@@ -36,6 +37,26 @@ export function mockImplementationOfQrReader(
             11,
           ),
         )
+      }
+    />
+  ));
+}
+
+export function mockImplementationOfBoxReconciliation(
+  mockedBoxReconciliationOverlay: jest.MockedFunctionDeep<any>,
+  labelIdentifier: string,
+  shipmentId: string,
+) {
+  mockedBoxReconciliationOverlay.mockImplementation(() => (
+    <button
+      type="button"
+      data-testid="ReturnBoxReconciliationOverlay"
+      onClick={() =>
+        boxReconciliationOverlayVar({
+          labelIdentifier,
+          isOpen: true,
+          shipmentId,
+        })
       }
     />
   ));

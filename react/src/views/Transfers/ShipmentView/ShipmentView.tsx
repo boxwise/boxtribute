@@ -41,7 +41,7 @@ import { useNotification } from "hooks/useNotification";
 import { SHIPMENT_FIELDS_FRAGMENT } from "queries/fragments";
 import { GlobalPreferencesContext } from "providers/GlobalPreferencesProvider";
 import { ButtonSkeleton, ShipmentCardSkeleton, TabsSkeleton } from "components/Skeletons";
-import { BoxReconcilationOverlay } from "components/BoxReconciliationOverlay/BoxReconciliationOverlay";
+import { BoxReconciliationOverlay } from "components/BoxReconciliationOverlay/BoxReconciliationOverlay";
 import { UPDATE_SHIPMENT_WHEN_RECEIVING } from "queries/mutations";
 import { boxReconciliationOverlayVar } from "queries/cache";
 import ShipmentCard from "./components/ShipmentCard";
@@ -554,7 +554,7 @@ function ShipmentView() {
           />
           {shipmentActionButtons}
         </Flex>
-        <BoxReconcilationOverlay />
+        <BoxReconciliationOverlay />
 
         <ShipmentOverlay
           isOpen={isShipmentOverlayOpen}

@@ -29,7 +29,7 @@ export interface IBoxReconciliationOverlayData {
   shipmentDetail: ShipmentDetail;
 }
 
-export function BoxReconcilationOverlay() {
+export function BoxReconciliationOverlay() {
   // const { createToast } = useNotification();
   const { triggerError } = useErrorHandling();
   const { globalPreferences } = useContext(GlobalPreferencesContext);
