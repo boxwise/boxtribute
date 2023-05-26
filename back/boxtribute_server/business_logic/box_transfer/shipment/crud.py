@@ -323,23 +323,33 @@ def _update_shipment_with_received_boxes(
 
 
 def _complete_shipment_if_applicable(*, shipment, user_id):
-    """If all boxes of the shipment that were being sent (and not lost) are marked as
-    InStock, transition the shipment state to 'Completed', and soft-delete the
-    corresponding shipment details by setting the received_on/by fields.
+    """If all boxes of the shipment that were being sent
+    - are marked as Lost, transition the shipment state to 'Lost',
+    - are marked as InStock or Lost, transition the shipment state to 'Completed', and
+    soft-delete the corresponding shipment details by setting the received_on/by fields.
     """
     details = _retrieve_shipment_details(
         shipment.id,
         ShipmentDetail.removed_on.is_null(),
-        ShipmentDetail.lost_on.is_null(),
     )
-    if all(d.box.state_id == BoxState.InStock for d in details):
-        now = utcnow()
+    now = utcnow()
+
+    if all(d.box.state_id == BoxState.Lost for d in details):
+        shipment.state = ShipmentState.Lost
+        shipment.completed_by = user_id
+        shipment.completed_on = now
+        shipment.save()
+
+    elif all(d.box.state_id in [BoxState.InStock, BoxState.Lost] for d in details):
         shipment.state = ShipmentState.Completed
         shipment.completed_by = user_id
         shipment.completed_on = now
         shipment.save()
 
         for detail in details:
+            if detail.box.state_id == BoxState.Lost:
+                # Lost boxes must not be marked as received
+                continue
             detail.received_by = user_id
             detail.received_on = now
 

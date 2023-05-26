@@ -165,6 +165,7 @@ const PackingScanBoxOrFindByLabelOverlay = ({
       <ModalCloseButton />
       <ModalBody>
         <QrReaderScanner
+          multiScan={false}
           facingMode={"environment"}
           zoom={1}
           scanPeriod={1000}
