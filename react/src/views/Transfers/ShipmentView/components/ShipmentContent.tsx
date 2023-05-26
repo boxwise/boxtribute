@@ -29,7 +29,7 @@ export interface IShipmentContent {
 }
 
 interface IShipmentContentProps {
-  shipmentState: ShipmentState | undefined | null;
+  shipmentState: ShipmentState | undefined;
   items: IShipmentContent[];
   showRemoveIcon: Boolean;
   isLoadingMutation: boolean | undefined;
