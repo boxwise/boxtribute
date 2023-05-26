@@ -42,7 +42,6 @@ import { SHIPMENT_FIELDS_FRAGMENT } from "queries/fragments";
 import { GlobalPreferencesContext } from "providers/GlobalPreferencesProvider";
 import { ButtonSkeleton, ShipmentCardSkeleton, TabsSkeleton } from "components/Skeletons";
 import { BoxReconcilationOverlay } from "components/BoxReconciliationOverlay/BoxReconciliationOverlay";
-import { SHIPMENT_BY_ID_QUERY } from "queries/queries";
 import { UPDATE_SHIPMENT_WHEN_RECEIVING } from "queries/mutations";
 import { boxReconciliationOverlayVar } from "queries/cache";
 import ShipmentCard from "./components/ShipmentCard";
@@ -53,6 +52,15 @@ import ShipmentReceivingContent from "./components/ShipmentReceivingContent";
 import ShipmentReceivingCard from "./components/ShipmentReceivingCard";
 
 // graphql query and mutations
+export const SHIPMENT_BY_ID_QUERY = gql`
+  ${SHIPMENT_FIELDS_FRAGMENT}
+  query ShipmentById($id: ID!) {
+    shipment(id: $id) {
+      ...ShipmentFields
+    }
+  }
+`;
+
 export const REMOVE_BOX_FROM_SHIPMENT = gql`
   ${SHIPMENT_FIELDS_FRAGMENT}
   mutation RemoveBoxFromShipment($id: ID!, $removedBoxLabelIdentifiers: [String!]) {

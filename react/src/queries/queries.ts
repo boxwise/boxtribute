@@ -33,15 +33,6 @@ export const CHECK_IF_QR_EXISTS_IN_DB = gql`
   }
 `;
 
-export const SHIPMENT_BY_ID_QUERY = gql`
-  ${SHIPMENT_FIELDS_FRAGMENT}
-  query ShipmentById($id: ID!) {
-    shipment(id: $id) {
-      ...ShipmentFields
-    }
-  }
-`;
-
 export const SHIPMENT_BY_ID_WITH_PRODUCTS_AND_LOCATIONS_QUERY = gql`
   ${SHIPMENT_FIELDS_FRAGMENT}
   ${TAG_OPTIONS_FRAGMENT}
