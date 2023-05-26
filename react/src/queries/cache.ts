@@ -1,4 +1,4 @@
-import { InMemoryCache } from "@apollo/client";
+import { InMemoryCache, makeVar } from "@apollo/client";
 import { GET_SCANNED_BOXES } from "./local-only";
 
 export const cache = new InMemoryCache({
@@ -20,4 +20,15 @@ cache.writeQuery({
   data: {
     scannedBoxes: [],
   },
+});
+
+// apollo reactive variable for BoxReconciliationOverlay
+export interface IBoxReconciliationOverlayVar {
+  isOpen: boolean;
+  labelIdentifier: string | undefined;
+}
+
+export const boxReconciliationOverlayVar = makeVar<IBoxReconciliationOverlayVar>({
+  isOpen: false,
+  labelIdentifier: undefined,
 });

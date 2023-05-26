@@ -41,10 +41,7 @@ import { useNotification } from "hooks/useNotification";
 import { SHIPMENT_FIELDS_FRAGMENT } from "queries/fragments";
 import { GlobalPreferencesContext } from "providers/GlobalPreferencesProvider";
 import { ButtonSkeleton, ShipmentCardSkeleton, TabsSkeleton } from "components/Skeletons";
-import {
-  BoxReconcilationOverlay,
-  IBoxReconciliationOverlayData,
-} from "components/BoxReconciliationOverlay/BoxReconciliationOverlay";
+import { BoxReconcilationOverlay } from "components/BoxReconciliationOverlay/BoxReconciliationOverlay";
 import ShipmentCard from "./components/ShipmentCard";
 import ShipmentTabs, { IShipmentHistory, ShipmentActionEvent } from "./components/ShipmentTabs";
 import ShipmentOverlay, { IShipmentOverlayData } from "./components/ShipmentOverlay";
@@ -136,15 +133,11 @@ function ShipmentView() {
   const { triggerError } = useErrorHandling();
   const { globalPreferences } = useContext(GlobalPreferencesContext);
   const { createToast } = useNotification();
+
   const {
     isOpen: isShipmentOverlayOpen,
     onClose: onShipmentOverlayClose,
     onOpen: onShipmentOverlayOpen,
-  } = useDisclosure();
-  const {
-    isOpen: isBoxReconciliationOpen,
-    onOpen: onBoxReconciliationOpen,
-    onClose: onBoxReconciliationClose,
   } = useDisclosure();
 
   // State to show minus button near boxes when remove button is triggered
@@ -152,8 +145,6 @@ function ShipmentView() {
   const [shipmentState, setShipmentState] = useState<ShipmentState | undefined>();
   // State to pass Data from a row to the Overlay
   const [shipmentOverlayData, setShipmentOverlayData] = useState<IShipmentOverlayData>();
-  const [boxReconciliationOverlayData, setBoxReconciliationOverlayData] =
-    useState<IBoxReconciliationOverlayData>();
 
   // variables in URL
   const shipmentId = useParams<{ id: string }>().id!;
@@ -257,19 +248,6 @@ function ShipmentView() {
     } as IShipmentOverlayData);
     onShipmentOverlayOpen();
   }, [setShipmentOverlayData, onShipmentOverlayOpen, data]);
-
-  const openBoxReconciliationOverlay = useCallback(
-    (labelIdentifier: string) => {
-      const shipmentDetail = data?.shipment?.details?.find(
-        (detail) => detail.box.labelIdentifier === labelIdentifier && detail.removedOn === null,
-      );
-      setBoxReconciliationOverlayData({
-        shipmentDetail,
-      } as IBoxReconciliationOverlayData);
-      onBoxReconciliationOpen();
-    },
-    [setBoxReconciliationOverlayData, onBoxReconciliationOpen, data],
-  );
 
   const onMinusClick = () => setShowRemoveIcon(!showRemoveIcon);
 
@@ -576,18 +554,10 @@ function ShipmentView() {
         <Flex direction="column" gap={2}>
           <Heading>Receiving Shipment</Heading>
           <ShipmentReceivingCard shipment={data?.shipment! as Shipment} />
-          <ShipmentReceivingContent
-            items={shipmentContents}
-            onBoxReconciliationClick={openBoxReconciliationOverlay}
-          />
+          <ShipmentReceivingContent items={shipmentContents} />
           {shipmentActionButtons}
         </Flex>
-
-        <BoxReconcilationOverlay
-          isOpen={isBoxReconciliationOpen}
-          onClose={onBoxReconciliationClose}
-          boxReconcilationOverlayData={boxReconciliationOverlayData}
-        />
+        <BoxReconcilationOverlay />
 
         <ShipmentOverlay
           isOpen={isShipmentOverlayOpen}

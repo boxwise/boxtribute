@@ -9,34 +9,41 @@ import {
   Wrap,
   WrapItem,
 } from "@chakra-ui/react";
-import { BoxReconciliationContainer } from "components/BoxReconciliation/BoxReconciliationContainer";
 import { BiTrash } from "react-icons/bi";
+import { boxReconciliationOverlayVar } from "queries/cache";
 import { ShipmentDetail } from "types/generated/graphql";
+import { useReactiveVar } from "@apollo/client";
+// import { useCallback, useState } from "react";
+import { BoxReconciliationContainer } from "./BoxReconciliationContainer";
 
 export interface IBoxReconciliationOverlayData {
   shipmentDetail: ShipmentDetail;
 }
 
-export interface IBoxReconciliationOverlayProps {
-  isOpen: boolean;
-  boxReconcilationOverlayData: IBoxReconciliationOverlayData | undefined;
-  onClose: () => void;
-}
+export function BoxReconcilationOverlay() {
+  const boxReconciliationOverlayState = useReactiveVar(boxReconciliationOverlayVar);
 
-export function BoxReconcilationOverlay({
-  isOpen,
-  onClose,
-  boxReconcilationOverlayData,
-}: IBoxReconciliationOverlayProps) {
+  // const openBoxReconciliationOverlay = useCallback(() => {
+  //   const shipmentDetail = data?.shipment?.details?.find(
+  //     (detail) => detail.box.labelIdentifier === labelIdentifier && detail.removedOn === null,
+  //   );
+  //   setBoxReconciliationOverlayData({
+  //     shipmentDetail,
+  //   } as IBoxReconciliationOverlayData);
+  //   onBoxReconciliationOpen();
+  // }, [setBoxReconciliationOverlayData, onBoxReconciliationOpen, boxLabelIdentifier]);
   return (
-    <Modal isOpen={isOpen} closeOnOverlayClick closeOnEsc onClose={onClose}>
+    <Modal
+      isOpen={boxReconciliationOverlayState.isOpen}
+      closeOnOverlayClick
+      closeOnEsc
+      onClose={() => boxReconciliationOverlayVar({ isOpen: false, labelIdentifier: undefined })}
+    >
       <ModalOverlay />
       <ModalContent>
         <ModalHeader fontSize={28} fontWeight="extrabold">
           <Wrap as="span" flex="1" alignItems="center" justifyContent="space-between">
-            <WrapItem>
-              Box {boxReconcilationOverlayData?.shipmentDetail.box.labelIdentifier}
-            </WrapItem>
+            <WrapItem>Box {boxReconciliationOverlayState.labelIdentifier}</WrapItem>
             <WrapItem>
               <IconButton
                 isRound
@@ -48,9 +55,7 @@ export function BoxReconcilationOverlay({
           </Wrap>
         </ModalHeader>
         <ModalBody m={0} p={0}>
-          <BoxReconciliationContainer
-            shipmentDetail={boxReconcilationOverlayData?.shipmentDetail}
-          />
+          <BoxReconciliationContainer shipmentDetail={undefined} />
         </ModalBody>
         <ModalFooter />
       </ModalContent>
