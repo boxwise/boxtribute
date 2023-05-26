@@ -1,13 +1,20 @@
 import { Accordion, AccordionButton, AccordionItem, AccordionPanel, Box } from "@chakra-ui/react";
 import { RiQuestionFill } from "react-icons/ri";
 import { ShipmentDetail } from "types/generated/graphql";
+import { IProductWithSizeRangeData } from "../BoxReconciliationContainer";
 import { MatchProductsForm } from "./MatchProductsForm";
 
 interface IBoxReconcilationAccordionProps {
   shipmentDetail: ShipmentDetail | undefined;
+  productAndSizesData: IProductWithSizeRangeData[];
+  // allLocations: ILocationData[];
 }
 
-export function BoxReconcilationAccordion({ shipmentDetail }: IBoxReconcilationAccordionProps) {
+export function BoxReconcilationAccordion({
+  shipmentDetail,
+  productAndSizesData,
+}: // allLocations,
+IBoxReconcilationAccordionProps) {
   return (
     <Accordion defaultIndex={[0]}>
       <AccordionItem>
@@ -22,7 +29,7 @@ export function BoxReconcilationAccordion({ shipmentDetail }: IBoxReconcilationA
         <AccordionPanel p={6}>
           <MatchProductsForm
             shipmentDetail={shipmentDetail}
-            // productAndSizesData={[]}
+            productAndSizesData={productAndSizesData}
             onSubmitMatchProductsForm={() => {}}
           />
         </AccordionPanel>

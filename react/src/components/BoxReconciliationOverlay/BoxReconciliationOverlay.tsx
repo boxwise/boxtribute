@@ -17,13 +17,18 @@ import { boxReconciliationOverlayVar } from "queries/cache";
 import { useErrorHandling } from "hooks/useErrorHandling";
 // import { useNotification } from "hooks/useNotification";
 import {
+  // BoxState,
   ShipmentByIdWithProductsAndLocationsQuery,
   ShipmentByIdWithProductsAndLocationsQueryVariables,
   ShipmentDetail,
 } from "types/generated/graphql";
 import { GlobalPreferencesContext } from "providers/GlobalPreferencesProvider";
 import { SHIPMENT_BY_ID_WITH_PRODUCTS_AND_LOCATIONS_QUERY } from "queries/queries";
-import { BoxReconciliationContainer } from "./BoxReconciliationContainer";
+import {
+  BoxReconciliationContainer,
+  // ILocationData,
+  IProductWithSizeRangeData,
+} from "./BoxReconciliationContainer";
 
 export interface IBoxReconciliationOverlayData {
   shipmentDetail: ShipmentDetail;
@@ -60,11 +65,29 @@ export function BoxReconciliationOverlay() {
     }
   }, [error, triggerError]);
 
+  // Prep data
   const shipmentDetail = data?.shipment?.details?.find(
     (detail) =>
       detail.box.labelIdentifier === boxReconciliationOverlayState.labelIdentifier &&
       detail.removedOn == null,
   );
+
+  const productAndSizesData = data?.base?.products;
+
+  // These are all the locations that are retrieved from the query which then filtered out the Scrap and Lost according to the defaultBoxState
+  // const allLocations = data?.base?.locations
+  //   .filter(
+  //     (location) =>
+  //       location?.defaultBoxState !== BoxState.Lost && location?.defaultBoxState !== BoxState.Scrap,
+  //   )
+  //   .map((location) => ({
+  //     ...location,
+  //     name:
+  //       (location.defaultBoxState !== BoxState.InStock
+  //         ? `${location.name} - Boxes are ${location.defaultBoxState}`
+  //         : location.name) ?? "",
+  //   }))
+  //   .sort((a, b) => Number(a?.seq) - Number(b?.seq));
 
   return (
     <Modal
@@ -96,7 +119,11 @@ export function BoxReconciliationOverlay() {
         </ModalHeader>
         <ModalBody m={0} p={0}>
           {!loading && shipmentDetail && (
-            <BoxReconciliationContainer shipmentDetail={shipmentDetail as ShipmentDetail} />
+            <BoxReconciliationContainer
+              shipmentDetail={shipmentDetail as ShipmentDetail}
+              // allLocations={allLocations as ILocationData[]}
+              productAndSizesData={productAndSizesData as IProductWithSizeRangeData[]}
+            />
           )}
           {loading && <SkeletonText noOfLines={5} />}
         </ModalBody>
