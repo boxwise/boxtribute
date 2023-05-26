@@ -1,6 +1,7 @@
 import { useCallback, useState } from "react";
-import { useApolloClient } from "@apollo/client";
+import { FetchPolicy, useApolloClient } from "@apollo/client";
 import { GET_BOX_LABEL_IDENTIFIER_BY_QR_CODE } from "queries/queries";
+import { BOX_SCANNED_ON_FRAGMENT } from "queries/local-only";
 import {
   GetBoxLabelIdentifierForQrCodeQuery,
   GetBoxLabelIdentifierForQrCodeQueryVariables,
@@ -39,14 +40,14 @@ export const useQrResolver = () => {
   const [loading, setLoading] = useState(false);
   const apolloClient = useApolloClient();
 
-  const checkQrHash = useCallback(
-    async (hash: string): Promise<IQrResolvedValue> => {
+  const resolveQrHash = useCallback(
+    async (hash: string, fetchPolicy: FetchPolicy): Promise<IQrResolvedValue> => {
       setLoading(true);
       const qrResolvedValue: IQrResolvedValue = await apolloClient
         .query<GetBoxLabelIdentifierForQrCodeQuery, GetBoxLabelIdentifierForQrCodeQueryVariables>({
           query: GET_BOX_LABEL_IDENTIFIER_BY_QR_CODE,
           variables: { qrCode: hash },
-          fetchPolicy: "network-only",
+          fetchPolicy,
         })
         .then(({ data, errors }) => {
           if ((errors?.length || 0) > 0) {
@@ -88,27 +89,45 @@ export const useQrResolver = () => {
               error: err,
             } as IQrResolvedValue),
         );
+
+      if (qrResolvedValue.kind === IQrResolverResultKind.SUCCESS) {
+        const boxCacheRef = `Box:{"labelIdentifier":"${qrResolvedValue.box.labelIdentifier}"}`;
+        // add a scannedOn parameter in the cache if Box was scanned
+        await apolloClient.writeFragment({
+          id: boxCacheRef,
+          fragment: BOX_SCANNED_ON_FRAGMENT,
+          data: {
+            scannedOn: new Date(),
+          },
+        });
+      }
       setLoading(false);
       return qrResolvedValue;
     },
     [apolloClient],
   );
 
-  const checkQrCode = useCallback(
-    async (qrCodeUrl: string): Promise<IQrResolvedValue> => {
+  const resolveQrCode = useCallback(
+    async (qrCodeUrl: string, fetchPolicy: FetchPolicy): Promise<IQrResolvedValue> => {
+      setLoading(true);
       const extractedQrHashFromUrl = extractQrCodeFromUrl(qrCodeUrl);
       if (extractedQrHashFromUrl == null) {
+        setLoading(false);
         return { kind: IQrResolverResultKind.NOT_BOXTRIBUTE_QR } as IQrResolvedValue;
       }
-      const qrResolvedValue: IQrResolvedValue = await checkQrHash(extractedQrHashFromUrl);
+      const qrResolvedValue: IQrResolvedValue = await resolveQrHash(
+        extractedQrHashFromUrl,
+        fetchPolicy,
+      );
+      setLoading(false);
       return qrResolvedValue;
     },
-    [checkQrHash],
+    [resolveQrHash],
   );
 
   return {
     loading,
-    checkQrHash,
-    checkQrCode,
+    resolveQrHash,
+    resolveQrCode,
   };
 };
