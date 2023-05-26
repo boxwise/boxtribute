@@ -42,6 +42,9 @@ import { SHIPMENT_FIELDS_FRAGMENT } from "queries/fragments";
 import { GlobalPreferencesContext } from "providers/GlobalPreferencesProvider";
 import { ButtonSkeleton, ShipmentCardSkeleton, TabsSkeleton } from "components/Skeletons";
 import { BoxReconcilationOverlay } from "components/BoxReconciliationOverlay/BoxReconciliationOverlay";
+import { SHIPMENT_BY_ID_QUERY } from "queries/queries";
+import { UPDATE_SHIPMENT_WHEN_RECEIVING } from "queries/mutations";
+import { boxReconciliationOverlayVar } from "queries/cache";
 import ShipmentCard from "./components/ShipmentCard";
 import ShipmentTabs, { IShipmentHistory, ShipmentActionEvent } from "./components/ShipmentTabs";
 import ShipmentOverlay, { IShipmentOverlayData } from "./components/ShipmentOverlay";
@@ -50,15 +53,6 @@ import ShipmentReceivingContent from "./components/ShipmentReceivingContent";
 import ShipmentReceivingCard from "./components/ShipmentReceivingCard";
 
 // graphql query and mutations
-export const SHIPMENT_BY_ID_QUERY = gql`
-  ${SHIPMENT_FIELDS_FRAGMENT}
-  query ShipmentById($id: ID!) {
-    shipment(id: $id) {
-      ...ShipmentFields
-    }
-  }
-`;
-
 export const REMOVE_BOX_FROM_SHIPMENT = gql`
   ${SHIPMENT_FIELDS_FRAGMENT}
   mutation RemoveBoxFromShipment($id: ID!, $removedBoxLabelIdentifiers: [String!]) {
@@ -67,25 +61,6 @@ export const REMOVE_BOX_FROM_SHIPMENT = gql`
         id: $id
         preparedBoxLabelIdentifiers: []
         removedBoxLabelIdentifiers: $removedBoxLabelIdentifiers
-      }
-    ) {
-      ...ShipmentFields
-    }
-  }
-`;
-
-export const UPDATE_SHIPMENT_WHEN_RECEIVING = gql`
-  ${SHIPMENT_FIELDS_FRAGMENT}
-  mutation UpdateShipmentWhenReceiving(
-    $id: ID!
-    $receivedShipmentDetailUpdateInputs: [ShipmentDetailUpdateInput!]
-    $lostBoxLabelIdentifiers: [String!]
-  ) {
-    updateShipmentWhenReceiving(
-      updateInput: {
-        id: $id
-        receivedShipmentDetailUpdateInputs: $receivedShipmentDetailUpdateInputs
-        lostBoxLabelIdentifiers: $lostBoxLabelIdentifiers
       }
     ) {
       ...ShipmentFields
@@ -248,6 +223,17 @@ function ShipmentView() {
     } as IShipmentOverlayData);
     onShipmentOverlayOpen();
   }, [setShipmentOverlayData, onShipmentOverlayOpen, data]);
+
+  const openBoxReconciliationOverlay = useCallback(
+    (labelIdentifier: string) => {
+      boxReconciliationOverlayVar({
+        labelIdentifier,
+        isOpen: true,
+        shipmentId,
+      });
+    },
+    [shipmentId],
+  );
 
   const onMinusClick = () => setShowRemoveIcon(!showRemoveIcon);
 
@@ -554,7 +540,10 @@ function ShipmentView() {
         <Flex direction="column" gap={2}>
           <Heading>Receiving Shipment</Heading>
           <ShipmentReceivingCard shipment={data?.shipment! as Shipment} />
-          <ShipmentReceivingContent items={shipmentContents} />
+          <ShipmentReceivingContent
+            items={shipmentContents}
+            onReconciliationBox={openBoxReconciliationOverlay}
+          />
           {shipmentActionButtons}
         </Flex>
         <BoxReconcilationOverlay />

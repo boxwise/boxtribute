@@ -23,14 +23,18 @@ import { BsFillChatDotsFill } from "react-icons/bs";
 
 import { Column, useTable, useSortBy } from "react-table";
 import { TriangleDownIcon, TriangleUpIcon, ArrowUpDownIcon } from "@chakra-ui/icons";
-import { boxReconciliationOverlayVar } from "queries/cache";
 
 interface IShipmentReceivingTablePros {
   columns: Array<Column<any>>;
   data: Array<any>;
+  onReconciliationBox: (id: string) => void;
 }
 
-function ShipmentReceivingTable({ columns, data }: IShipmentReceivingTablePros) {
+function ShipmentReceivingTable({
+  columns,
+  data,
+  onReconciliationBox,
+}: IShipmentReceivingTablePros) {
   const tableData = useMemo(() => data, [data]);
 
   const tableInstance = useTable(
@@ -112,12 +116,7 @@ function ShipmentReceivingTable({ columns, data }: IShipmentReceivingTablePros) 
                 <Tr
                   {...row.getRowProps()}
                   style={{ border: "1px solid black" }}
-                  onClick={() =>
-                    boxReconciliationOverlayVar({
-                      labelIdentifier: row.original.labelIdentifier,
-                      isOpen: true,
-                    })
-                  }
+                  onClick={() => onReconciliationBox(row.original.labelIdentifier)}
                 >
                   <Td
                     colSpan={3}

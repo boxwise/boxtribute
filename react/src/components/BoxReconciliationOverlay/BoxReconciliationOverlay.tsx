@@ -1,3 +1,4 @@
+import { useContext, useEffect } from "react";
 import {
   IconButton,
   Modal,
@@ -6,14 +7,22 @@ import {
   ModalFooter,
   ModalHeader,
   ModalOverlay,
+  SkeletonText,
   Wrap,
   WrapItem,
 } from "@chakra-ui/react";
 import { BiTrash } from "react-icons/bi";
+import { useQuery, useReactiveVar } from "@apollo/client";
 import { boxReconciliationOverlayVar } from "queries/cache";
-import { ShipmentDetail } from "types/generated/graphql";
-import { useReactiveVar } from "@apollo/client";
-// import { useCallback, useState } from "react";
+import { useErrorHandling } from "hooks/useErrorHandling";
+// import { useNotification } from "hooks/useNotification";
+import {
+  ShipmentByIdWithProductsAndLocationsQuery,
+  ShipmentByIdWithProductsAndLocationsQueryVariables,
+  ShipmentDetail,
+} from "types/generated/graphql";
+import { GlobalPreferencesContext } from "providers/GlobalPreferencesProvider";
+import { SHIPMENT_BY_ID_WITH_PRODUCTS_AND_LOCATIONS_QUERY } from "queries/queries";
 import { BoxReconciliationContainer } from "./BoxReconciliationContainer";
 
 export interface IBoxReconciliationOverlayData {
@@ -21,23 +30,54 @@ export interface IBoxReconciliationOverlayData {
 }
 
 export function BoxReconcilationOverlay() {
+  // const { createToast } = useNotification();
+  const { triggerError } = useErrorHandling();
+  const { globalPreferences } = useContext(GlobalPreferencesContext);
+  const baseId = globalPreferences.selectedBaseId;
   const boxReconciliationOverlayState = useReactiveVar(boxReconciliationOverlayVar);
 
-  // const openBoxReconciliationOverlay = useCallback(() => {
-  //   const shipmentDetail = data?.shipment?.details?.find(
-  //     (detail) => detail.box.labelIdentifier === labelIdentifier && detail.removedOn === null,
-  //   );
-  //   setBoxReconciliationOverlayData({
-  //     shipmentDetail,
-  //   } as IBoxReconciliationOverlayData);
-  //   onBoxReconciliationOpen();
-  // }, [setBoxReconciliationOverlayData, onBoxReconciliationOpen, boxLabelIdentifier]);
+  const { loading, error, data } = useQuery<
+    ShipmentByIdWithProductsAndLocationsQuery,
+    ShipmentByIdWithProductsAndLocationsQueryVariables
+  >(SHIPMENT_BY_ID_WITH_PRODUCTS_AND_LOCATIONS_QUERY, {
+    variables: {
+      shipmentId: boxReconciliationOverlayState.shipmentId || "",
+      baseId: baseId || "",
+    },
+    skip: !boxReconciliationOverlayState.shipmentId || !baseId,
+  });
+
+  useEffect(() => {
+    if (error) {
+      triggerError({
+        message: "No box associated with this label identifier",
+      });
+      boxReconciliationOverlayVar({
+        isOpen: false,
+        labelIdentifier: undefined,
+        shipmentId: undefined,
+      });
+    }
+  }, [error, triggerError]);
+
+  const shipmentDetail = data?.shipment?.details?.find(
+    (detail) =>
+      detail.box.labelIdentifier === boxReconciliationOverlayState.labelIdentifier &&
+      detail.removedOn == null,
+  );
+
   return (
     <Modal
       isOpen={boxReconciliationOverlayState.isOpen}
       closeOnOverlayClick
       closeOnEsc
-      onClose={() => boxReconciliationOverlayVar({ isOpen: false, labelIdentifier: undefined })}
+      onClose={() => {
+        boxReconciliationOverlayVar({
+          isOpen: false,
+          labelIdentifier: undefined,
+          shipmentId: undefined,
+        });
+      }}
     >
       <ModalOverlay />
       <ModalContent>
@@ -55,7 +95,10 @@ export function BoxReconcilationOverlay() {
           </Wrap>
         </ModalHeader>
         <ModalBody m={0} p={0}>
-          <BoxReconciliationContainer shipmentDetail={undefined} />
+          {!loading && shipmentDetail && (
+            <BoxReconciliationContainer shipmentDetail={shipmentDetail as ShipmentDetail} />
+          )}
+          {loading && <SkeletonText noOfLines={5} />}
         </ModalBody>
         <ModalFooter />
       </ModalContent>

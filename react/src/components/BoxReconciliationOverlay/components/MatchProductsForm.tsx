@@ -38,7 +38,7 @@ export function MatchProductsForm({
           showLabel={false}
           fieldId="productId"
           fieldLabel="Product"
-          placeholder="Please select a product"
+          placeholder="Select Product & Gender"
           options={[]}
           errors={errors}
           control={control}

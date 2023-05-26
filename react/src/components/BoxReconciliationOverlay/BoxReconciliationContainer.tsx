@@ -3,7 +3,7 @@ import { ShipmentDetail } from "types/generated/graphql";
 import { BoxReconcilationAccordion } from "./components/BoxReconciliationAccordion";
 
 interface IBoxReconciliationContainerProps {
-  shipmentDetail: ShipmentDetail | undefined;
+  shipmentDetail: ShipmentDetail;
 }
 
 export function BoxReconciliationContainer({ shipmentDetail }: IBoxReconciliationContainerProps) {
