@@ -83,7 +83,7 @@
     "prop-types": "^15.8.1",
     "regenerator-runtime": "^0.13.11",
     "typescript": "^4.8.4",
-    "webpack": "^5.76.0"
+    "webpack": "^5.84.1"
   },
   "scripts": {
     "chromatic": "npx chromatic --project-token=2763da0ce36c",
