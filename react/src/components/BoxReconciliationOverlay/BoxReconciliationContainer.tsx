@@ -33,18 +33,18 @@ export interface ILocationData {
 interface IBoxReconciliationContainerProps {
   shipmentDetail: ShipmentDetail;
   productAndSizesData: IProductWithSizeRangeData[];
-  // allLocations: ILocationData[];
+  allLocations: ILocationData[];
 }
 
 export function BoxReconciliationContainer({
   shipmentDetail,
   productAndSizesData,
-}: // allLocations,
-IBoxReconciliationContainerProps) {
+  allLocations,
+}: IBoxReconciliationContainerProps) {
   return (
     <BoxReconcilationAccordion
       productAndSizesData={productAndSizesData}
-      // allLocations={allLocations}
+      allLocations={allLocations}
       shipmentDetail={shipmentDetail}
     />
   );

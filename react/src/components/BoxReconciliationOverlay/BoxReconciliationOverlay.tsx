@@ -17,7 +17,7 @@ import { boxReconciliationOverlayVar } from "queries/cache";
 import { useErrorHandling } from "hooks/useErrorHandling";
 // import { useNotification } from "hooks/useNotification";
 import {
-  // BoxState,
+  BoxState,
   ShipmentByIdWithProductsAndLocationsQuery,
   ShipmentByIdWithProductsAndLocationsQueryVariables,
   ShipmentDetail,
@@ -26,7 +26,7 @@ import { GlobalPreferencesContext } from "providers/GlobalPreferencesProvider";
 import { SHIPMENT_BY_ID_WITH_PRODUCTS_AND_LOCATIONS_QUERY } from "queries/queries";
 import {
   BoxReconciliationContainer,
-  // ILocationData,
+  ILocationData,
   IProductWithSizeRangeData,
 } from "./BoxReconciliationContainer";
 
@@ -75,19 +75,19 @@ export function BoxReconciliationOverlay() {
   const productAndSizesData = data?.base?.products;
 
   // These are all the locations that are retrieved from the query which then filtered out the Scrap and Lost according to the defaultBoxState
-  // const allLocations = data?.base?.locations
-  //   .filter(
-  //     (location) =>
-  //       location?.defaultBoxState !== BoxState.Lost && location?.defaultBoxState !== BoxState.Scrap,
-  //   )
-  //   .map((location) => ({
-  //     ...location,
-  //     name:
-  //       (location.defaultBoxState !== BoxState.InStock
-  //         ? `${location.name} - Boxes are ${location.defaultBoxState}`
-  //         : location.name) ?? "",
-  //   }))
-  //   .sort((a, b) => Number(a?.seq) - Number(b?.seq));
+  const allLocations = data?.base?.locations
+    .filter(
+      (location) =>
+        location?.defaultBoxState !== BoxState.Lost && location?.defaultBoxState !== BoxState.Scrap,
+    )
+    .map((location) => ({
+      ...location,
+      name:
+        (location.defaultBoxState !== BoxState.InStock
+          ? `${location.name} - Boxes are ${location.defaultBoxState}`
+          : location.name) ?? "",
+    }))
+    .sort((a, b) => Number(a?.seq) - Number(b?.seq));
 
   return (
     <Modal
@@ -121,7 +121,7 @@ export function BoxReconciliationOverlay() {
           {!loading && shipmentDetail && (
             <BoxReconciliationContainer
               shipmentDetail={shipmentDetail as ShipmentDetail}
-              // allLocations={allLocations as ILocationData[]}
+              allLocations={allLocations as ILocationData[]}
               productAndSizesData={productAndSizesData as IProductWithSizeRangeData[]}
             />
           )}
