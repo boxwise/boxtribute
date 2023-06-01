@@ -6,10 +6,11 @@ import { useForm } from "react-hook-form";
 import { BsFillCheckCircleFill } from "react-icons/bs";
 import { FaWarehouse } from "react-icons/fa";
 import { z } from "zod";
-import { ILocationData } from "../BoxReconciliationContainer";
+import { ILocationData } from "./BoxReconciliationContainer";
 
 interface IReceiveLocationFormProps {
   allLocations: ILocationData[];
+  loading: boolean;
   onLocationSpecified: (locationSpecified: boolean) => void;
   onSubmitReceiveLocationForm: (receiveLocationId: string) => void;
 }
@@ -32,6 +33,7 @@ export type IReceiveLocationFormData = z.infer<typeof ReceiveLocationFormDataSch
 
 export function ReceiveLocationForm({
   allLocations,
+  loading,
   onLocationSpecified,
   onSubmitReceiveLocationForm,
 }: IReceiveLocationFormProps) {
@@ -58,7 +60,7 @@ export function ReceiveLocationForm({
   const locationId = watch("locationId");
 
   useEffect(() => {
-    if (locationId != null) {
+    if (locationId != null && locationId.value !== "") {
       onLocationSpecified(true);
     }
   }, [locationId, onLocationSpecified]);
@@ -83,7 +85,7 @@ export function ReceiveLocationForm({
 
         <Flex alignContent="center" alignItems="center">
           <Button
-            isLoading={isSubmitting}
+            isLoading={isSubmitting || loading}
             type="submit"
             borderRadius="0"
             w="full"

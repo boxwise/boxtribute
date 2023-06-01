@@ -1,45 +1,43 @@
-import { useContext, useEffect } from "react";
-import {
-  IconButton,
-  Modal,
-  ModalBody,
-  ModalContent,
-  ModalFooter,
-  ModalHeader,
-  ModalOverlay,
-  SkeletonText,
-  Wrap,
-  WrapItem,
-} from "@chakra-ui/react";
-import { BiTrash } from "react-icons/bi";
-import { useQuery, useReactiveVar } from "@apollo/client";
+import { useCallback, useContext, useEffect } from "react";
+import { useMutation, useQuery, useReactiveVar } from "@apollo/client";
 import { boxReconciliationOverlayVar } from "queries/cache";
 import { useErrorHandling } from "hooks/useErrorHandling";
-// import { useNotification } from "hooks/useNotification";
+import { useNotification } from "hooks/useNotification";
 import {
   BoxState,
   ShipmentByIdWithProductsAndLocationsQuery,
   ShipmentByIdWithProductsAndLocationsQueryVariables,
   ShipmentDetail,
+  UpdateShipmentWhenReceivingMutation,
+  UpdateShipmentWhenReceivingMutationVariables,
 } from "types/generated/graphql";
 import { GlobalPreferencesContext } from "providers/GlobalPreferencesProvider";
 import { SHIPMENT_BY_ID_WITH_PRODUCTS_AND_LOCATIONS_QUERY } from "queries/queries";
+import { UPDATE_SHIPMENT_WHEN_RECEIVING } from "queries/mutations";
 import {
   BoxReconciliationContainer,
   ILocationData,
   IProductWithSizeRangeData,
-} from "./BoxReconciliationContainer";
+} from "./components/BoxReconciliationContainer";
 
 export interface IBoxReconciliationOverlayData {
   shipmentDetail: ShipmentDetail;
 }
 
 export function BoxReconciliationOverlay() {
-  // const { createToast } = useNotification();
+  const { createToast } = useNotification();
   const { triggerError } = useErrorHandling();
   const { globalPreferences } = useContext(GlobalPreferencesContext);
   const baseId = globalPreferences.selectedBaseId;
   const boxReconciliationOverlayState = useReactiveVar(boxReconciliationOverlayVar);
+
+  const onOverlayClose = useCallback(() => {
+    boxReconciliationOverlayVar({
+      isOpen: false,
+      labelIdentifier: undefined,
+      shipmentId: undefined,
+    });
+  }, []);
 
   const { loading, error, data } = useQuery<
     ShipmentByIdWithProductsAndLocationsQuery,
@@ -51,6 +49,13 @@ export function BoxReconciliationOverlay() {
     },
     skip: !boxReconciliationOverlayState.shipmentId || !baseId,
   });
+
+  const [updateShipmentWhenReceiving, updateShipmentWhenReceivingStatus] = useMutation<
+    UpdateShipmentWhenReceivingMutation,
+    UpdateShipmentWhenReceivingMutationVariables
+  >(UPDATE_SHIPMENT_WHEN_RECEIVING);
+
+  const mutationLoading = updateShipmentWhenReceivingStatus.loading;
 
   useEffect(() => {
     if (error) {
@@ -64,6 +69,40 @@ export function BoxReconciliationOverlay() {
       });
     }
   }, [error, triggerError]);
+
+  const onBoxUndelivered = useCallback(
+    (labelIdentifier: string | undefined) => {
+      const shipmentId = data?.shipment?.id;
+      if (shipmentId && labelIdentifier) {
+        updateShipmentWhenReceiving({
+          variables: {
+            id: shipmentId,
+            lostBoxLabelIdentifiers: [labelIdentifier],
+          },
+        })
+          .then((mutationResult) => {
+            if (mutationResult?.errors) {
+              triggerError({
+                message: "Error: Could not change state of the box.",
+              });
+            } else {
+              onOverlayClose();
+              createToast({
+                title: `Box ${labelIdentifier}`,
+                type: "success",
+                message: "Boxe marked as undelivered",
+              });
+            }
+          })
+          .catch(() => {
+            triggerError({
+              message: "Could not remove the box from the shipment.",
+            });
+          });
+      }
+    },
+    [triggerError, createToast, onOverlayClose, data, updateShipmentWhenReceiving],
+  );
 
   // Prep data
   const shipmentDetail = data?.shipment?.details?.find(
@@ -90,45 +129,14 @@ export function BoxReconciliationOverlay() {
     .sort((a, b) => Number(a?.seq) - Number(b?.seq));
 
   return (
-    <Modal
-      isOpen={boxReconciliationOverlayState.isOpen}
-      closeOnOverlayClick
-      closeOnEsc
-      onClose={() => {
-        boxReconciliationOverlayVar({
-          isOpen: false,
-          labelIdentifier: undefined,
-          shipmentId: undefined,
-        });
-      }}
-    >
-      <ModalOverlay />
-      <ModalContent>
-        <ModalHeader fontSize={28} fontWeight="extrabold">
-          <Wrap as="span" flex="1" alignItems="center" justifyContent="space-between">
-            <WrapItem>Box {boxReconciliationOverlayState.labelIdentifier}</WrapItem>
-            <WrapItem>
-              <IconButton
-                isRound
-                icon={<BiTrash size={30} />}
-                style={{ background: "white" }}
-                aria-label="no delivery"
-              />
-            </WrapItem>
-          </Wrap>
-        </ModalHeader>
-        <ModalBody m={0} p={0}>
-          {!loading && shipmentDetail && (
-            <BoxReconciliationContainer
-              shipmentDetail={shipmentDetail as ShipmentDetail}
-              allLocations={allLocations as ILocationData[]}
-              productAndSizesData={productAndSizesData as IProductWithSizeRangeData[]}
-            />
-          )}
-          {loading && <SkeletonText noOfLines={5} />}
-        </ModalBody>
-        <ModalFooter />
-      </ModalContent>
-    </Modal>
+    <BoxReconciliationContainer
+      loading={loading}
+      mutationLoading={mutationLoading}
+      onClose={onOverlayClose}
+      onBoxUndelivered={onBoxUndelivered}
+      shipmentDetail={shipmentDetail as ShipmentDetail}
+      allLocations={allLocations as ILocationData[]}
+      productAndSizesData={productAndSizesData as IProductWithSizeRangeData[]}
+    />
   );
 }

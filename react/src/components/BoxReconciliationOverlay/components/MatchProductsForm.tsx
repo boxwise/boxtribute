@@ -9,7 +9,7 @@ import { BiSubdirectoryRight } from "react-icons/bi";
 import { BsFillCheckCircleFill } from "react-icons/bs";
 import { ShipmentDetail } from "types/generated/graphql";
 import { z } from "zod";
-import { IProductWithSizeRangeData } from "../BoxReconciliationContainer";
+import { IProductWithSizeRangeData } from "./BoxReconciliationContainer";
 
 export interface ICategoryData {
   name: string;
@@ -58,15 +58,19 @@ export const MatchProductsFormDataSchema = z.object({
 export type IMatchProductsFormData = z.infer<typeof MatchProductsFormDataSchema>;
 
 interface IMatchProductsFormProps {
-  shipmentDetail: ShipmentDetail | undefined;
+  shipmentDetail: ShipmentDetail;
   productAndSizesData: IProductWithSizeRangeData[];
+  loading: boolean;
   onSubmitMatchProductsForm: (matchedProductsFormData: IMatchProductsFormData) => void;
+  onBoxUndelivered: (labelIdentifier: string) => void;
 }
 
 export function MatchProductsForm({
   shipmentDetail,
   productAndSizesData,
+  loading,
   onSubmitMatchProductsForm,
+  onBoxUndelivered,
 }: IMatchProductsFormProps) {
   // default Values
   const defaultValues: IMatchProductsFormData = {
@@ -226,7 +230,7 @@ export function MatchProductsForm({
         </Flex>
         <Flex direction="column" gap={1}>
           <Button
-            isLoading={isSubmitting}
+            isLoading={isSubmitting || loading}
             type="submit"
             borderRadius="0"
             w="full"
@@ -237,7 +241,8 @@ export function MatchProductsForm({
             Confirm Delivered Items
           </Button>
           <Button
-            isLoading={isSubmitting}
+            isLoading={isSubmitting || loading}
+            onClick={() => onBoxUndelivered(shipmentDetail?.box.labelIdentifier)}
             type="submit"
             borderRadius="0"
             w="full"

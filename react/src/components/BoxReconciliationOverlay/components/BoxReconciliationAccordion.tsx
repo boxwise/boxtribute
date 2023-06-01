@@ -3,20 +3,24 @@ import { useState } from "react";
 import { BsFillCheckCircleFill } from "react-icons/bs";
 import { RiQuestionFill } from "react-icons/ri";
 import { ShipmentDetail } from "types/generated/graphql";
-import { ILocationData, IProductWithSizeRangeData } from "../BoxReconciliationContainer";
+import { ILocationData, IProductWithSizeRangeData } from "./BoxReconciliationContainer";
 import { MatchProductsForm } from "./MatchProductsForm";
 import { ReceiveLocationForm } from "./ReceiveLocationForm";
 
 interface IBoxReconcilationAccordionProps {
-  shipmentDetail: ShipmentDetail | undefined;
+  shipmentDetail: ShipmentDetail;
   productAndSizesData: IProductWithSizeRangeData[];
   allLocations: ILocationData[];
+  loading: boolean;
+  onBoxUndelivered: (labelIdentifier: string) => void;
 }
 
 export function BoxReconcilationAccordion({
   shipmentDetail,
   productAndSizesData,
   allLocations,
+  loading,
+  onBoxUndelivered,
 }: IBoxReconcilationAccordionProps) {
   const [accordionIndex, setAccordionIndex] = useState(-1);
   const [productMatched, setProductMatched] = useState<boolean>(false);
@@ -42,8 +46,10 @@ export function BoxReconcilationAccordion({
         </h2>
         <AccordionPanel p={6}>
           <MatchProductsForm
+            loading={loading}
             shipmentDetail={shipmentDetail}
             productAndSizesData={productAndSizesData}
+            onBoxUndelivered={onBoxUndelivered}
             onSubmitMatchProductsForm={() => {
               setProductMatched(true);
               setAccordionIndex(1);
@@ -69,6 +75,7 @@ export function BoxReconcilationAccordion({
         </h2>
         <AccordionPanel p={6}>
           <ReceiveLocationForm
+            loading={loading}
             onLocationSpecified={setLocationSpecified}
             allLocations={allLocations}
             onSubmitReceiveLocationForm={() => {
