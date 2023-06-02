@@ -1,6 +1,6 @@
 import _ from "lodash";
 import { useMemo } from "react";
-import { ShipmentDetail } from "types/generated/graphql";
+import { BoxState, ShipmentDetail } from "types/generated/graphql";
 import ShipmentReceivingTable from "./ShipmentReceivingTable";
 
 interface IShipmentReceivingContentProps {
@@ -9,15 +9,18 @@ interface IShipmentReceivingContentProps {
 }
 
 function ShipmentReceivingContent({ items, onReconciliationBox }: IShipmentReceivingContentProps) {
-  const boxes = _.map(items, (shipmentDetail) => ({
-    id: shipmentDetail?.sourceProduct?.id,
-    labelIdentifier: shipmentDetail?.box?.labelIdentifier,
-    product: shipmentDetail.sourceProduct?.name,
-    comment: shipmentDetail?.box?.comment,
-    gender: shipmentDetail.sourceProduct?.gender,
-    size: shipmentDetail.box.size.label,
-    items: shipmentDetail?.box?.numberOfItems || 0,
-  }));
+  const boxes = _.map(
+    items.filter((b) => b.removedOn === null && b.box.state !== BoxState.InStock),
+    (shipmentDetail) => ({
+      id: shipmentDetail?.sourceProduct?.id,
+      labelIdentifier: shipmentDetail?.box?.labelIdentifier,
+      product: shipmentDetail.sourceProduct?.name,
+      comment: shipmentDetail?.box?.comment,
+      gender: shipmentDetail.sourceProduct?.gender,
+      size: shipmentDetail.box.size.label,
+      items: shipmentDetail?.box?.numberOfItems || 0,
+    }),
+  );
 
   // Define columns
   const columns = useMemo(
