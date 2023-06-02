@@ -44,6 +44,10 @@ function ShipmentCard({
   onCancel,
   onLost,
 }: IShipmentProps) {
+  const totalLostBoxes = (
+    shipment.details?.filter((item) => item.lostOn !== null && item.removedOn === null) ?? []
+  ).length;
+
   return (
     <Box
       boxShadow="lg"
@@ -218,7 +222,7 @@ function ShipmentCard({
                   />
                 </VStack>
               )}
-              {shipment.state === ShipmentState.Completed && (
+              {shipment.state === ShipmentState.Completed && totalLostBoxes > 0 && (
                 <VStack align="stretch" mr={1}>
                   <Tooltip label="the number of boxes that didn't arrive">
                     <Wrap spacing={0} align="center" style={{ color: "#909090" }}>
@@ -230,14 +234,7 @@ function ShipmentCard({
                       <WrapItem>
                         <Center>
                           <Text as="p" fontSize={16} fontWeight="extrabold" color="red">
-                            -
-                            {
-                              (
-                                shipment.details?.filter(
-                                  (item) => item.lostOn !== null && item.removedOn === null,
-                                ) ?? []
-                              ).length
-                            }
+                            -{totalLostBoxes}
                           </Text>
                         </Center>
                       </WrapItem>
