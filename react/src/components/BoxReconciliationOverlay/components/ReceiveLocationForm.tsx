@@ -8,13 +8,6 @@ import { FaWarehouse } from "react-icons/fa";
 import { z } from "zod";
 import { ILocationData } from "./BoxReconciliationContainer";
 
-interface IReceiveLocationFormProps {
-  allLocations: ILocationData[];
-  loading: boolean;
-  onLocationSpecified: (locationSpecified: boolean) => void;
-  onSubmitReceiveLocationForm: (receiveLocationId: string) => void;
-}
-
 // Definitions for form validation with zod
 
 const singleSelectOptionSchema = z.object({
@@ -30,6 +23,13 @@ export const ReceiveLocationFormDataSchema = z.object({
 });
 
 export type IReceiveLocationFormData = z.infer<typeof ReceiveLocationFormDataSchema>;
+
+interface IReceiveLocationFormProps {
+  allLocations: ILocationData[];
+  loading: boolean;
+  onLocationSpecified: (locationSpecified: boolean) => void;
+  onSubmitReceiveLocationForm: (receiveLocationFormData: IReceiveLocationFormData) => void;
+}
 
 export function ReceiveLocationForm({
   allLocations,
@@ -51,6 +51,7 @@ export function ReceiveLocationForm({
   const {
     control,
     watch,
+    handleSubmit,
     formState: { errors, isSubmitting },
   } = useForm<IReceiveLocationFormData>({
     resolver: zodResolver(ReceiveLocationFormDataSchema),
@@ -66,10 +67,10 @@ export function ReceiveLocationForm({
   }, [locationId, onLocationSpecified]);
 
   return (
-    <form onSubmit={() => onSubmitReceiveLocationForm}>
+    <form onSubmit={handleSubmit(onSubmitReceiveLocationForm)}>
       <Flex direction="column" gap="2">
         <Flex alignContent="center" gap={2} alignItems="center">
-          <FaWarehouse size={20} />
+          <FaWarehouse size={28} />
           <SelectField
             showError={false}
             showLabel={false}

@@ -1,8 +1,10 @@
+import { useReactiveVar } from "@apollo/client";
 import { Button, Flex, Text, Wrap, WrapItem } from "@chakra-ui/react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import NumberField from "components/Form/NumberField";
 import SelectField, { IDropdownOption } from "components/Form/SelectField";
-import _ from "lodash";
+import { groupBy } from "lodash";
+import { boxReconciliationProductFormDataVar } from "queries/cache";
 import { useEffect, useRef, useState } from "react";
 import { useForm } from "react-hook-form";
 import { BiSubdirectoryRight } from "react-icons/bi";
@@ -72,13 +74,28 @@ export function MatchProductsForm({
   onSubmitMatchProductsForm,
   onBoxUndelivered,
 }: IMatchProductsFormProps) {
+  const boxReconciliationProductFormDataState = useReactiveVar(boxReconciliationProductFormDataVar);
+
+  // read from apollo cache
+  const selectedProduct = productAndSizesData.find(
+    (p) => p.id === boxReconciliationProductFormDataState?.productId?.toString(),
+  );
+  const selectedSizeId = selectedProduct?.sizeRange.sizes.find(
+    (size) => size.id === boxReconciliationProductFormDataState?.sizeId?.toString(),
+  );
+
+  const defaultProductLabel = `${selectedProduct?.name}${
+    selectedProduct?.gender !== "none" ? ` (${selectedProduct?.gender})` : ""
+  }`;
+
   // default Values
   const defaultValues: IMatchProductsFormData = {
     productId: {
-      label: "Select Product & Gender",
-      value: "",
+      label:
+        (selectedProduct?.name !== undefined && defaultProductLabel) || "Select Product & Gender",
+      value: selectedProduct?.id || "",
     },
-    sizeId: { label: "Select Size", value: "" },
+    sizeId: { label: selectedSizeId?.label || "Select Size", value: selectedSizeId?.id || "" },
     numberOfItems: shipmentDetail?.box.numberOfItems ?? 0,
   };
 
@@ -131,7 +148,7 @@ export function MatchProductsForm({
   }, [productId, productAndSizesData, resetField]);
 
   // Option Preparations for select fields
-  const productsGroupedByCategory: Record<string, IProductWithSizeRangeData[]> = _.groupBy(
+  const productsGroupedByCategory: Record<string, IProductWithSizeRangeData[]> = groupBy(
     productAndSizesData,
     (product) => product.category.name,
   );
@@ -160,7 +177,7 @@ export function MatchProductsForm({
         <Text
           fontSize={16}
           fontWeight="semibold"
-          style={{ color: productId.value === "" ? "#FF0000" : "#000" }}
+          style={{ color: productId?.value === "" ? "#FF0000" : "#000" }}
         >
           {shipmentDetail?.sourceProduct?.name}{" "}
         </Text>
@@ -176,7 +193,7 @@ export function MatchProductsForm({
             errors={errors}
             control={control}
           />
-          <BsFillCheckCircleFill color={sizeId?.value !== "" ? "#659A7E" : "#fff"} size={18} />
+          <BsFillCheckCircleFill color={productId?.value !== "" ? "#659A7E" : "#fff"} size={18} />
         </Flex>
         <Wrap>
           <WrapItem>

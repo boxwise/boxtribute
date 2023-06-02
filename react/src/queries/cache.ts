@@ -34,3 +34,24 @@ export const boxReconciliationOverlayVar = makeVar<IBoxReconciliationOverlayVar>
   labelIdentifier: undefined,
   shipmentId: undefined,
 });
+
+// apollo reactive variable for BoxReconciliationProductFormData and BoxReconciliationLocationFormData
+export interface IBoxReconciliationProductFormDataVar {
+  productId: number | undefined;
+  sizeId: number | undefined;
+  numberOfItems: number | undefined;
+}
+
+export interface IBoxReconciliationLocationFormDataVar {
+  locationId: number | undefined;
+}
+
+export const boxReconciliationProductFormDataVar = makeVar<IBoxReconciliationProductFormDataVar>({
+  productId: undefined,
+  sizeId: undefined,
+  numberOfItems: undefined,
+});
+
+export const boxReconciliationLocationFormDataVar = makeVar<IBoxReconciliationLocationFormDataVar>({
+  locationId: undefined,
+});

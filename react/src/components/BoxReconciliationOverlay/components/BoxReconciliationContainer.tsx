@@ -53,6 +53,7 @@ interface IBoxReconciliationContainerProps {
   mutationLoading: boolean;
   onClose: () => void;
   onBoxUndelivered: (labelIdentifier: string) => void;
+  onBoxDelivered: (labelIdentifier: string) => void;
 }
 
 export function BoxReconciliationContainer({
@@ -63,6 +64,7 @@ export function BoxReconciliationContainer({
   mutationLoading,
   onClose,
   onBoxUndelivered,
+  onBoxDelivered,
 }: IBoxReconciliationContainerProps) {
   const boxReconciliationOverlayState = useReactiveVar(boxReconciliationOverlayVar);
 
@@ -97,6 +99,7 @@ export function BoxReconciliationContainer({
               allLocations={allLocations}
               shipmentDetail={shipmentDetail}
               onBoxUndelivered={onBoxUndelivered}
+              onBoxDelivered={onBoxDelivered}
             />
           )}
           {loading && <SkeletonText noOfLines={5} />}
