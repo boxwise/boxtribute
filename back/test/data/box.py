@@ -80,6 +80,21 @@ def box_in_another_location_with_qr_code_data():
     return data
 
 
+def in_transit_box_data():
+    data = box_without_qr_code_data()
+    data["id"] = 9
+    data["label_identifier"] = "89012345"
+    data["state"] = BoxState.InTransit
+    return data
+
+
+def another_in_transit_box_data():
+    data = in_transit_box_data()
+    data["id"] = 10
+    data["label_identifier"] = "90123456"
+    return data
+
+
 def data():
     return [
         another_box_data(),
@@ -89,6 +104,8 @@ def data():
         marked_for_shipment_box_data(),
         another_marked_for_shipment_box_data(),
         box_in_another_location_with_qr_code_data(),
+        in_transit_box_data(),
+        another_in_transit_box_data(),
     ]
 
 
@@ -130,6 +147,16 @@ def marked_for_shipment_box():
 @pytest.fixture
 def another_marked_for_shipment_box():
     return another_marked_for_shipment_box_data()
+
+
+@pytest.fixture
+def in_transit_box():
+    return in_transit_box_data()
+
+
+@pytest.fixture
+def another_in_transit_box():
+    return another_in_transit_box_data()
 
 
 def create():

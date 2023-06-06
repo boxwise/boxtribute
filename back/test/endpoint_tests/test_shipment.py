@@ -358,11 +358,11 @@ def test_shipment_mutations_on_source_side(
             },
             {
                 "id": shipment_detail_id,
-                "box": {"state": BoxState.MarkedForShipment.name},
+                "box": {"state": BoxState.InTransit.name},
             },
             {
                 "id": newest_shipment_detail_id,
-                "box": {"state": BoxState.MarkedForShipment.name},
+                "box": {"state": BoxState.InTransit.name},
             },
         ],
     }
@@ -439,8 +439,8 @@ def test_shipment_mutations_on_target_side(
     another_size,
     default_product,
     default_location,
-    box_without_qr_code,
-    marked_for_shipment_box,
+    in_transit_box,
+    another_in_transit_box,
 ):
     mocker.patch("jose.jwt.decode").return_value = create_jwt_payload(
         base_ids=[3], organisation_id=2, user_id=2
@@ -508,7 +508,7 @@ def test_shipment_mutations_on_target_side(
                     state
                     receivingStartedBy {{ id }}
                     receivingStartedOn
-                    details {{ box {{ state }} }}
+                    details {{ id box {{ state }} }}
                 }} }}"""
     shipment = assert_successful_request(client, mutation)
     assert shipment.pop("receivingStartedOn").startswith(date.today().isoformat())
@@ -517,9 +517,9 @@ def test_shipment_mutations_on_target_side(
         "state": ShipmentState.Receiving.name,
         "receivingStartedBy": {"id": "2"},
         "details": [
-            {"box": {"state": BoxState.Receiving.name}},
-            {"box": {"state": BoxState.Receiving.name}},
-            {"box": {"state": BoxState.InStock.name}},
+            {"id": detail_id, "box": {"state": BoxState.Receiving.name}},
+            {"id": another_detail_id, "box": {"state": BoxState.Receiving.name}},
+            {"id": removed_detail_id, "box": {"state": BoxState.InStock.name}},
         ],
     }
 
@@ -593,7 +593,7 @@ def test_shipment_mutations_on_target_side(
         assert shipment == expected_shipment
 
     # Test case 3.2.40, 3.2.34b
-    box_label_identifier = marked_for_shipment_box["label_identifier"]
+    box_label_identifier = another_in_transit_box["label_identifier"]
     mutation = f"""mutation {{ updateShipmentWhenReceiving( updateInput: {{
                 id: {shipment_id},
                 lostBoxLabelIdentifiers: ["{box_label_identifier}"]
@@ -640,7 +640,7 @@ def test_shipment_mutations_on_target_side(
             },
         ],
     }
-    box_label_identifier = box_without_qr_code["label_identifier"]
+    box_label_identifier = in_transit_box["label_identifier"]
     query = f"""query {{ box(labelIdentifier: "{box_label_identifier}") {{
                     state
                     product {{ id }}
@@ -660,7 +660,7 @@ def test_shipment_mutations_on_target_side(
     # The box is still registered in the source base, hence any user from the target
     # organisation can't access it
     mocker.patch("jose.jwt.decode").return_value = create_jwt_payload()
-    box_label_identifier = marked_for_shipment_box["label_identifier"]
+    box_label_identifier = another_in_transit_box["label_identifier"]
     query = f"""query {{ box(labelIdentifier: "{box_label_identifier}") {{
                     state
                     shipmentDetail {{ id }}
@@ -672,7 +672,7 @@ def test_shipment_mutations_on_target_side(
 def test_shipment_mutations_on_target_side_mark_shipment_as_lost(
     mocker,
     client,
-    box_without_qr_code,
+    in_transit_box,
     sent_shipment,
     default_shipment_detail,
     another_shipment_detail,
@@ -724,7 +724,7 @@ def test_shipment_mutations_on_target_side_mark_shipment_as_lost(
     # The box is still registered in the source base, hence any user from the target
     # organisation can't access it
     mocker.patch("jose.jwt.decode").return_value = create_jwt_payload()
-    box_label_identifier = box_without_qr_code["label_identifier"]
+    box_label_identifier = in_transit_box["label_identifier"]
     query = f"""query {{ box(labelIdentifier: "{box_label_identifier}") {{
                     state
                     shipmentDetail {{ id }}
@@ -736,8 +736,8 @@ def test_shipment_mutations_on_target_side_mark_shipment_as_lost(
 def test_shipment_mutations_on_target_side_mark_all_boxes_as_lost(
     mocker,
     client,
-    box_without_qr_code,
-    marked_for_shipment_box,
+    in_transit_box,
+    another_in_transit_box,
     sent_shipment,
     default_shipment_detail,
     another_shipment_detail,
@@ -755,7 +755,7 @@ def test_shipment_mutations_on_target_side_mark_all_boxes_as_lost(
 
     mutation = _generate_update_shipment_mutation(
         shipment=sent_shipment,
-        lost_boxes=[box_without_qr_code, marked_for_shipment_box],
+        lost_boxes=[in_transit_box, another_in_transit_box],
     )
     shipment = assert_successful_request(client, mutation)
     assert shipment == {"id": shipment_id}

@@ -134,6 +134,7 @@ def cancel_shipment(*, id, user):
 
 def send_shipment(*, id, user):
     """Transition state of specified shipment to 'Sent'.
+    Transition states of all contained MarkedForShipment boxes to 'InTransit'.
     Raise InvalidShipmentState exception if shipment state is different from
     'Preparing'.
     """
@@ -145,13 +146,28 @@ def send_shipment(*, id, user):
     shipment.state = ShipmentState.Sent
     shipment.sent_by = user.id
     shipment.sent_on = utcnow()
-    shipment.save()
+
+    boxes = [
+        detail.box
+        for detail in _retrieve_shipment_details(
+            id,
+            Box.state == BoxState.MarkedForShipment,
+            ShipmentDetail.removed_on.is_null(),
+        )
+    ]
+    for box in boxes:
+        box.state = BoxState.InTransit
+
+    with db.database.atomic():
+        shipment.save()
+        if boxes:
+            Box.bulk_update(boxes, fields=[Box.state])
     return shipment
 
 
 def start_receiving_shipment(*, id, user):
     """Transition state of specified shipment to 'Receiving'.
-    Transition states of all contained MarkedForShipment boxes to 'Receiving'.
+    Transition states of all contained InTransit boxes to 'Receiving'.
     Raise InvalidShipmentState exception if shipment state is different from 'Sent'.
     """
     shipment = Shipment.get_by_id(id)
@@ -166,7 +182,7 @@ def start_receiving_shipment(*, id, user):
     boxes = [
         detail.box
         for detail in _retrieve_shipment_details(
-            id, Box.state == BoxState.MarkedForShipment
+            id, Box.state == BoxState.InTransit, ShipmentDetail.removed_on.is_null()
         )
     ]
     for box in boxes:
@@ -453,8 +469,8 @@ def _validate_base_as_part_of_shipment(resource_id, *, detail, model):
 
 def mark_shipment_as_lost(*, id, user):
     """Change shipment state to 'Lost'. Update states of all contained
-    'MarkedForShipment' boxes to 'Lost' and soft-delete all shipment details by setting
-    the lost_on/by fields.
+    'InTransit' boxes to 'Lost' and soft-delete all shipment details by setting the
+    lost_on/by fields.
     - raise InvalidShipmentState exception if shipment state is different from 'Sent'
     """
     shipment = Shipment.get_by_id(id)
@@ -469,9 +485,7 @@ def mark_shipment_as_lost(*, id, user):
         shipment.completed_by = user.id
         box_label_identifiers = [
             d.box.label_identifier
-            for d in _retrieve_shipment_details(
-                id, Box.state == BoxState.MarkedForShipment
-            )
+            for d in _retrieve_shipment_details(id, Box.state == BoxState.InTransit)
         ]
         _remove_boxes_from_shipment(
             shipment_id=id,
