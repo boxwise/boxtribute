@@ -310,13 +310,39 @@ def test_shipment_mutations_on_source_side(
         box_response = assert_successful_request(client, query)
         assert box_response == {"state": BoxState(box["state"]).name}
 
+    # Add one box again
+    box_label_identifier = default_box["label_identifier"]
+    update_input = f"""{{ id: {shipment_id},
+                preparedBoxLabelIdentifiers: ["{box_label_identifier}"] }}"""
+    mutation = f"""mutation {{ updateShipmentWhenPreparing(
+                updateInput: {update_input}) {{
+                    details {{ id box {{ state }} }} }} }}"""
+    shipment = assert_successful_request(client, mutation)
+    newest_shipment_detail_id = str(shipment["details"][-1].pop("id"))
+    assert shipment == {
+        "details": [
+            {
+                "id": prepared_shipment_detail_id,
+                "box": {"state": BoxState.InStock.name},
+            },
+            {
+                "id": shipment_detail_id,
+                # this points to the box that has been marked for shipment again
+                "box": {"state": BoxState.MarkedForShipment.name},
+            },
+            {
+                "box": {"state": BoxState.MarkedForShipment.name},
+            },
+        ]
+    }
+
     # Test case 3.2.11
     mutation = f"""mutation {{ sendShipment(id: {shipment_id}) {{
                     id
                     state
                     sentBy {{ id }}
                     sentOn
-                    details {{ box {{ state }} }}
+                    details {{ id box {{ state }} }}
                 }} }}"""
     shipment = assert_successful_request(client, mutation)
     assert shipment.pop("sentOn").startswith(date.today().isoformat())
@@ -326,8 +352,18 @@ def test_shipment_mutations_on_source_side(
         "sentBy": {"id": "8"},
         "details": [
             # two boxes have been returned to stock
-            {"box": {"state": BoxState.InStock.name}},
-            {"box": {"state": BoxState.InStock.name}},
+            {
+                "id": prepared_shipment_detail_id,
+                "box": {"state": BoxState.InStock.name},
+            },
+            {
+                "id": shipment_detail_id,
+                "box": {"state": BoxState.MarkedForShipment.name},
+            },
+            {
+                "id": newest_shipment_detail_id,
+                "box": {"state": BoxState.MarkedForShipment.name},
+            },
         ],
     }
 
