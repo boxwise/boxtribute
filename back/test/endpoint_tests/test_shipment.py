@@ -316,6 +316,7 @@ def test_shipment_mutations_on_source_side(
                     state
                     sentBy {{ id }}
                     sentOn
+                    details {{ box {{ state }} }}
                 }} }}"""
     shipment = assert_successful_request(client, mutation)
     assert shipment.pop("sentOn").startswith(date.today().isoformat())
@@ -323,6 +324,11 @@ def test_shipment_mutations_on_source_side(
         "id": shipment_id,
         "state": ShipmentState.Sent.name,
         "sentBy": {"id": "8"},
+        "details": [
+            # two boxes have been returned to stock
+            {"box": {"state": BoxState.InStock.name}},
+            {"box": {"state": BoxState.InStock.name}},
+        ],
     }
 
 
