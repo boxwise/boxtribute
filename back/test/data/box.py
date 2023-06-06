@@ -103,9 +103,9 @@ def data():
         lost_box_data(),
         marked_for_shipment_box_data(),
         another_marked_for_shipment_box_data(),
-        box_in_another_location_with_qr_code_data(),
         in_transit_box_data(),
         another_in_transit_box_data(),
+        box_in_another_location_with_qr_code_data(),
     ]
 
 
