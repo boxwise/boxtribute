@@ -10,6 +10,7 @@ from ..models.definitions.location import Location
 from ..models.definitions.product import Product
 from ..models.definitions.product_category import ProductCategory
 from ..models.definitions.shipment import Shipment
+from ..models.definitions.shipment_detail import ShipmentDetail
 from ..models.definitions.size import Size
 from ..models.definitions.size_range import SizeRange
 from ..models.definitions.tag import Tag
@@ -91,6 +92,21 @@ class TagsForBoxLoader(DataLoader):
 
         # Keys are in fact box IDs. Return empty list if box has no tags assigned
         return [tags.get(i, []) for i in keys]
+
+
+class ShipmentDetailForBoxLoader(DataLoader):
+    async def batch_load_fn(self, keys):
+        details = {
+            detail.box_id: detail
+            for detail in ShipmentDetail.select().where(
+                ShipmentDetail.box << keys,
+                ShipmentDetail.removed_on.is_null(),
+                ShipmentDetail.lost_on.is_null(),
+                ShipmentDetail.received_on.is_null(),
+            )
+        }
+        # Keys are in fact box IDs. Return None if box has no shipment detail associated
+        return [details.get(i) for i in keys]
 
 
 class ProductCategoryLoader(DataLoader):

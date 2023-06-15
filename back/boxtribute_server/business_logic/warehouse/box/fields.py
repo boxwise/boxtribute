@@ -1,7 +1,6 @@
 from ariadne import ObjectType
 
 from ....authz import authorize
-from ....models.definitions.shipment_detail import ShipmentDetail
 from .crud import get_box_history
 
 box = ObjectType("Box")
@@ -50,15 +49,6 @@ def resolve_box_state(box_obj, _):
 
 
 @box.field("shipmentDetail")
-def resolve_box_shipment_detail(box_obj, _):
+def resolve_box_shipment_detail(box_obj, info):
     authorize(permission="shipment_detail:read")
-    return (
-        ShipmentDetail.select()
-        .where(
-            ShipmentDetail.box == box_obj.id,
-            ShipmentDetail.removed_on.is_null(),
-            ShipmentDetail.lost_on.is_null(),
-            ShipmentDetail.received_on.is_null(),
-        )
-        .get_or_none()
-    )
+    return info.context["shipment_detail_for_box_loader"].load(box_obj.id)
