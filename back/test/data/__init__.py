@@ -13,11 +13,13 @@ from .beneficiary import (
 )
 from .box import (
     another_box,
+    another_in_transit_box,
     another_marked_for_shipment_box,
     box_without_qr_code,
     default_box,
     default_boxes,
     default_location_boxes,
+    in_transit_box,
     lost_box,
     marked_for_shipment_box,
 )
@@ -82,6 +84,7 @@ from .user import another_user, default_user, default_users, god_user
 __all__ = [
     "another_beneficiary",
     "another_box",
+    "another_in_transit_box",
     "another_location",
     "another_marked_for_shipment_box",
     "another_organisation",
@@ -130,6 +133,7 @@ __all__ = [
     "distro_spot5_distribution_events_in_return_state",
     "expired_transfer_agreement",
     "god_user",
+    "in_transit_box",
     "lost_box",
     "marked_for_shipment_box",
     "non_default_box_state_location",
