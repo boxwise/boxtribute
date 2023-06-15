@@ -9,7 +9,7 @@ export enum ShipmentActionEvent {
   ShipmentStarted = "Shipment Started",
   ShipmentCanceled = "Shipment Canceled",
   ShipmentSent = "Shipment Sent",
-  ShipmentStartReceiving = "Shipment StartReceiving",
+  ShipmentStartReceiving = "Shipment BeingReceived",
   ShipmentCompleted = "Shipment Completed",
   BoxAdded = "Box Added",
   BoxRemoved = "Box Removed",
