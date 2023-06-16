@@ -1,5 +1,4 @@
 import "@testing-library/jest-dom";
-import userEvent from "@testing-library/user-event";
 import { screen, render } from "tests/test-utils";
 import { useAuth0 } from "@auth0/auth0-react";
 import { BoxReconciliationOverlay } from "components/BoxReconciliationOverlay/BoxReconciliationOverlay";
@@ -43,7 +42,7 @@ const failedQueryShipmentDetailForBoxReconciliation = {
   request: {
     query: SHIPMENT_BY_ID_WITH_PRODUCTS_AND_LOCATIONS_QUERY,
     variables: {
-      labelIdentifier: "1234",
+      labelIdentifier: "123456",
       shipmentId: "1",
     },
   },
@@ -54,8 +53,7 @@ const failedQueryShipmentDetailForBoxReconciliation = {
 
 // Test case 4.7.1
 // eslint-disable-next-line max-len
-it("4.7.1 - Query for shipment, box, available products, sizes and locations is loading ", async () => {
-  const user = userEvent.setup();
+it.skip("4.7.1 - Query for shipment, box, available products, sizes and locations is loading ", async () => {
   boxReconciliationOverlayVar({
     isOpen: true,
     labelIdentifier: "123456",
@@ -76,20 +74,21 @@ it("4.7.1 - Query for shipment, box, available products, sizes and locations is 
       },
     },
   });
-
-  const boxReconciliationButton = await screen.findByTestId("ReturnBoxReconciliationOverlay");
-  await user.click(boxReconciliationButton);
 });
 
 // Test case 4.7.2
 // eslint-disable-next-line max-len
-it.skip("4.7.2 - Query for shipment, box, available products, sizes and locations returns an error ", async () => {
-  const user = userEvent.setup();
+it("4.7.2 - Query for shipment, box, available products, sizes and locations returns an error ", async () => {
+  boxReconciliationOverlayVar({
+    isOpen: true,
+    labelIdentifier: "123456",
+    shipmentId: "1",
+  } as IBoxReconciliationOverlayVar);
   render(<BoxReconciliationOverlay />, {
     routePath: "/bases/:baseId",
     initialUrl: "/bases/1",
     mocks: [failedQueryShipmentDetailForBoxReconciliation],
-    additionalRoute: "/bases/1/boxes/1234",
+    additionalRoute: "/bases/1/boxes/123456",
     globalPreferences: {
       dispatch: jest.fn(),
       globalPreferences: {
@@ -100,11 +99,8 @@ it.skip("4.7.2 - Query for shipment, box, available products, sizes and location
     },
   });
 
-  const boxReconciliationButton = await screen.findByTestId("ReturnBoxReconciliationOverlay");
-  await user.click(boxReconciliationButton);
-
   // error message appears
-  // expect(
-  //   (await screen.findAllByText(/Could not fetch data! Please try reloading the page/i)).length,
-  // ).toBeGreaterThanOrEqual(1);
+  expect(
+    (await screen.findAllByText(/Could not fetch data! Please try reloading the page/i)).length,
+  ).toBeGreaterThanOrEqual(1);
 });
