@@ -11,8 +11,9 @@ import { organisation1 } from "mocks/organisations";
 import { GraphQLError } from "graphql";
 import { cache, boxReconciliationOverlayVar, IBoxReconciliationOverlayVar } from "queries/cache";
 import { generateMockLocationWithBase } from "mocks/locations";
-import { product1, product3 } from "mocks/products";
+import { products } from "mocks/products";
 import { tag1, tag2 } from "mocks/tags";
+import userEvent from "@testing-library/user-event";
 
 jest.mock("@auth0/auth0-react");
 
@@ -38,7 +39,7 @@ const queryShipmentDetailForBoxReconciliation = {
     data: {
       base: {
         locations: [generateMockLocationWithBase({})],
-        products: [product1, product3],
+        products,
         tags: [tag1, tag2],
       },
       shipment: generateMockShipment({ state: ShipmentState.Receiving }),
@@ -62,6 +63,7 @@ const failedQueryShipmentDetailForBoxReconciliation = {
 // Test case 4.7.1
 // eslint-disable-next-line max-len
 it("4.7.1 - Query for shipment, box, available products, sizes and locations is loading ", async () => {
+  const user = userEvent.setup();
   boxReconciliationOverlayVar({
     isOpen: true,
     labelIdentifier: "123",
@@ -83,7 +85,35 @@ it("4.7.1 - Query for shipment, box, available products, sizes and locations is 
   });
 
   expect((await screen.findAllByText(/box 123/i)).length).toBeGreaterThanOrEqual(1);
-});
+
+  expect(screen.getAllByText(/1\. match products/i)).toHaveLength(1);
+  expect(screen.getAllByText(/2\. receive location/i)).toHaveLength(1);
+  const matchProductButton = screen.getByRole("button", {
+    name: /1\. match products/i,
+  });
+  user.click(matchProductButton);
+
+  expect((await screen.findAllByText(/Long Sleeves/i)).length).toBeGreaterThanOrEqual(1);
+  expect((await screen.findAllByText(/product & gender/i)).length).toBeGreaterThanOrEqual(1);
+  const selectProductControlInput = screen.getByText(/select product & gender/i);
+  await user.click(selectProductControlInput);
+  [/Winter Jackets \(Men\)/, /Long Sleeves \(Women\)/].forEach((option) => {
+    expect(screen.getByRole("button", { name: option })).toBeInTheDocument();
+  });
+
+  const receiveLocationButton = screen.getByRole("button", {
+    name: /2\. receive location/i,
+  });
+  user.click(receiveLocationButton);
+
+  expect((await screen.findAllByText(/select location/i)).length).toBeGreaterThanOrEqual(1);
+
+  const selectLocationControlInput = screen.getByText(/select location/i);
+  await user.click(selectLocationControlInput);
+  [/WH Men/].forEach((option) => {
+    expect(screen.getByRole("button", { name: option })).toBeInTheDocument();
+  });
+}, 10000);
 
 // Test case 4.7.2
 // eslint-disable-next-line max-len
