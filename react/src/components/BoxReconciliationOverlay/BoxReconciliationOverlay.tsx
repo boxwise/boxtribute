@@ -22,7 +22,7 @@ import {
   BoxReconciliationContainer,
   ILocationData,
   IProductWithSizeRangeData,
-} from "./components/BoxReconciliationContainer";
+} from "./components/BoxReconciliationView";
 
 export interface IBoxReconciliationOverlayData {
   shipmentDetail: ShipmentDetail;

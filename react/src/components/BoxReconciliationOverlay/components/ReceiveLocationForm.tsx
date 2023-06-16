@@ -6,7 +6,7 @@ import { useForm } from "react-hook-form";
 import { BsFillCheckCircleFill } from "react-icons/bs";
 import { FaWarehouse } from "react-icons/fa";
 import { z } from "zod";
-import { ILocationData } from "./BoxReconciliationContainer";
+import { ILocationData } from "./BoxReconciliationView";
 
 // Definitions for form validation with zod
 

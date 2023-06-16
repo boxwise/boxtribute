@@ -2,6 +2,7 @@
 import { ShipmentState, TransferAgreementType } from "types/generated/graphql";
 import { base1, base2 } from "./bases";
 import { generateMockBox } from "./boxes";
+import { generateMockLocationWithBase } from "./locations";
 import { product1, product3 } from "./products";
 import { user1 } from "./users";
 
@@ -95,6 +96,7 @@ export const generateMockShipment = ({
             labelIdentifier: "123",
             numberOfItems: 10,
             product: product1,
+            location: generateMockLocationWithBase({}),
           }),
           sourceProduct: product1,
           targetProduct: null,

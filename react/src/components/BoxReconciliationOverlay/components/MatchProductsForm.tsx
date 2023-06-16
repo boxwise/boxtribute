@@ -11,7 +11,7 @@ import { BiSubdirectoryRight } from "react-icons/bi";
 import { BsFillCheckCircleFill } from "react-icons/bs";
 import { ShipmentDetail } from "types/generated/graphql";
 import { z } from "zod";
-import { IProductWithSizeRangeData } from "./BoxReconciliationContainer";
+import { IProductWithSizeRangeData } from "./BoxReconciliationView";
 
 export interface ICategoryData {
   name: string;

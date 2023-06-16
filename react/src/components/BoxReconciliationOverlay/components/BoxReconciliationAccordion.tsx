@@ -7,7 +7,7 @@ import { useState } from "react";
 import { BsFillCheckCircleFill } from "react-icons/bs";
 import { RiQuestionFill } from "react-icons/ri";
 import { ShipmentDetail } from "types/generated/graphql";
-import { ILocationData, IProductWithSizeRangeData } from "./BoxReconciliationContainer";
+import { ILocationData, IProductWithSizeRangeData } from "./BoxReconciliationView";
 import { IMatchProductsFormData, MatchProductsForm } from "./MatchProductsForm";
 import { IReceiveLocationFormData, ReceiveLocationForm } from "./ReceiveLocationForm";
 
