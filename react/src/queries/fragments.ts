@@ -137,6 +137,7 @@ export const BOX_FIELDS_FRAGMENT = gql`
       ... on ClassicLocation {
         defaultBoxState
       }
+      seq
       base {
         ...BaseBasicFields
       }
