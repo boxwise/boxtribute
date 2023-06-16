@@ -41,23 +41,3 @@ export function mockImplementationOfQrReader(
     />
   ));
 }
-
-export function mockImplementationOfBoxReconciliation(
-  mockedBoxReconciliationOverlay: jest.MockedFunctionDeep<any>,
-  labelIdentifier: string,
-  shipmentId: string,
-) {
-  mockedBoxReconciliationOverlay.mockImplementation(() => (
-    <button
-      type="button"
-      data-testid="ReturnBoxReconciliationOverlay"
-      onClick={() =>
-        boxReconciliationOverlayVar({
-          labelIdentifier,
-          isOpen: true,
-          shipmentId,
-        })
-      }
-    />
-  ));
-}

@@ -5,7 +5,6 @@ import { useAuth0 } from "@auth0/auth0-react";
 import { BoxReconciliationOverlay } from "components/BoxReconciliationOverlay/BoxReconciliationOverlay";
 import { mockMatchMediaQuery } from "mocks/functions";
 import { mockAuthenticatedUser } from "mocks/hooks";
-import { mockImplementationOfBoxReconciliation } from "mocks/components";
 import { SHIPMENT_BY_ID_WITH_PRODUCTS_AND_LOCATIONS_QUERY } from "queries/queries";
 import { generateMockShipment } from "mocks/shipments";
 import { ShipmentState } from "types/generated/graphql";
