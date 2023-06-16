@@ -89,6 +89,7 @@ it("4.7.2 - Query for shipment, box, available products, sizes and locations ret
     initialUrl: "/bases/1",
     mocks: [failedQueryShipmentDetailForBoxReconciliation],
     additionalRoute: "/bases/1/boxes/123456",
+    cache,
     globalPreferences: {
       dispatch: jest.fn(),
       globalPreferences: {
