@@ -10,6 +10,9 @@ import { ShipmentState } from "types/generated/graphql";
 import { organisation1 } from "mocks/organisations";
 import { GraphQLError } from "graphql";
 import { cache, boxReconciliationOverlayVar, IBoxReconciliationOverlayVar } from "queries/cache";
+import { generateMockLocationWithBase } from "mocks/locations";
+import { product1, product3 } from "mocks/products";
+import { tag1, tag2 } from "mocks/tags";
 
 jest.mock("@auth0/auth0-react");
 
@@ -27,12 +30,17 @@ const queryShipmentDetailForBoxReconciliation = {
   request: {
     query: SHIPMENT_BY_ID_WITH_PRODUCTS_AND_LOCATIONS_QUERY,
     variables: {
-      labelIdentifier: "123456",
       shipmentId: "1",
+      baseId: "1",
     },
   },
   result: {
     data: {
+      base: {
+        locations: [generateMockLocationWithBase({})],
+        products: [product1, product3],
+        tags: [tag1, tag2],
+      },
       shipment: generateMockShipment({ state: ShipmentState.Receiving }),
     },
   },
@@ -42,8 +50,8 @@ const failedQueryShipmentDetailForBoxReconciliation = {
   request: {
     query: SHIPMENT_BY_ID_WITH_PRODUCTS_AND_LOCATIONS_QUERY,
     variables: {
-      labelIdentifier: "123456",
       shipmentId: "1",
+      baseId: "1",
     },
   },
   result: {
@@ -53,17 +61,16 @@ const failedQueryShipmentDetailForBoxReconciliation = {
 
 // Test case 4.7.1
 // eslint-disable-next-line max-len
-it.skip("4.7.1 - Query for shipment, box, available products, sizes and locations is loading ", async () => {
+it("4.7.1 - Query for shipment, box, available products, sizes and locations is loading ", async () => {
   boxReconciliationOverlayVar({
     isOpen: true,
-    labelIdentifier: "123456",
+    labelIdentifier: "123",
     shipmentId: "1",
   } as IBoxReconciliationOverlayVar);
   render(<BoxReconciliationOverlay />, {
     routePath: "/bases/:baseId",
     initialUrl: "/bases/1",
     mocks: [queryShipmentDetailForBoxReconciliation],
-    additionalRoute: "/bases/1/boxes/123456",
     cache,
     globalPreferences: {
       dispatch: jest.fn(),
@@ -74,6 +81,8 @@ it.skip("4.7.1 - Query for shipment, box, available products, sizes and location
       },
     },
   });
+
+  expect((await screen.findAllByText(/box 123/i)).length).toBeGreaterThanOrEqual(1);
 });
 
 // Test case 4.7.2
@@ -81,14 +90,13 @@ it.skip("4.7.1 - Query for shipment, box, available products, sizes and location
 it("4.7.2 - Query for shipment, box, available products, sizes and locations returns an error ", async () => {
   boxReconciliationOverlayVar({
     isOpen: true,
-    labelIdentifier: "123456",
+    labelIdentifier: "123",
     shipmentId: "1",
   } as IBoxReconciliationOverlayVar);
   render(<BoxReconciliationOverlay />, {
     routePath: "/bases/:baseId",
     initialUrl: "/bases/1",
     mocks: [failedQueryShipmentDetailForBoxReconciliation],
-    additionalRoute: "/bases/1/boxes/123456",
     cache,
     globalPreferences: {
       dispatch: jest.fn(),
