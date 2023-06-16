@@ -56,7 +56,7 @@ interface IBoxReconciliationContainerProps {
   onBoxDelivered: (labelIdentifier: string) => void;
 }
 
-export function BoxReconciliationContainer({
+export function BoxReconciliationView({
   shipmentDetail,
   productAndSizesData,
   allLocations,

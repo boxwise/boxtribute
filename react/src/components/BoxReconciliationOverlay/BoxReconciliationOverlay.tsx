@@ -19,7 +19,7 @@ import { GlobalPreferencesContext } from "providers/GlobalPreferencesProvider";
 import { SHIPMENT_BY_ID_WITH_PRODUCTS_AND_LOCATIONS_QUERY } from "queries/queries";
 import { UPDATE_SHIPMENT_WHEN_RECEIVING } from "queries/mutations";
 import {
-  BoxReconciliationContainer,
+  BoxReconciliationView,
   ILocationData,
   IProductWithSizeRangeData,
 } from "./components/BoxReconciliationView";
@@ -218,7 +218,7 @@ export function BoxReconciliationOverlay() {
   );
 
   return (
-    <BoxReconciliationContainer
+    <BoxReconciliationView
       loading={loading}
       mutationLoading={mutationLoading}
       onClose={onOverlayClose}
