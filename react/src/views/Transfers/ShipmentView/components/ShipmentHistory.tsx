@@ -34,27 +34,40 @@ function ShipmentHistory({ histories }: IShipmentHistoryProps) {
     <Box position="relative" pl={10}>
       {histories.map(({ date, entries }, index) => (
         <Box key={date}>
-          <Text fontWeight="bold" mb={4}>
-            {date}
-          </Text>
-          <UnorderedList>
+          <Box
+            border={1}
+            borderColor="red.500"
+            background="red.500"
+            padding={1}
+            alignContent="center"
+            alignItems="center"
+            maxWidth={140}
+          >
+            <Text fontWeight="bold" color="white" alignItems="center">
+              {date}
+            </Text>
+          </Box>
+          <UnorderedList styleType="none">
             {entries?.map((entry, indx) => (
               <TimelineEntry
                 key={`${index + indx}_${new Date().getTime()}}`}
                 content={entry ? changesLabel(entry) : ""}
+                time={`${entry?.createdOn.getHours().toString()}:${entry?.createdOn
+                  .getMinutes()
+                  .toString()}`}
               />
             ))}
           </UnorderedList>
         </Box>
       ))}
-      <Box
+      {/* <Box
         position="absolute"
         top={0}
         bottom={0}
         left={5}
         borderLeft="2px solid"
         borderColor="gray.300"
-      />
+      /> */}
     </Box>
   );
 }
