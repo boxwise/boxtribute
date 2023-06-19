@@ -1,6 +1,6 @@
 # ADR: GraphQL Data Layer
 
-Discussion Participants: [Roanna](https://github.com/orgs/boxwise/people/aerinsol), [James](https://github.com/orgs/boxwise/people/jamescrowley), [David C] (mailto:rfb@davidchau.com)
+Discussion Participants: [Roanna](https://github.com/orgs/boxwise/people/aerinsol), [James](https://github.com/orgs/boxwise/people/jamescrowley), [David C](https://github.com/orgs/boxwise/people/jdcsgh)
 
 ## Status
 
