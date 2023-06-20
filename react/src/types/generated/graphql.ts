@@ -1256,9 +1256,11 @@ export type ShipmentDetail = {
   shipment: Shipment;
   sourceLocation?: Maybe<ClassicLocation>;
   sourceProduct?: Maybe<Product>;
+  sourceQuantity?: Maybe<Scalars['Int']>;
   sourceSize?: Maybe<Size>;
   targetLocation?: Maybe<ClassicLocation>;
   targetProduct?: Maybe<Product>;
+  targetQuantity?: Maybe<Scalars['Int']>;
   targetSize?: Maybe<Size>;
 };
 
@@ -1266,6 +1268,7 @@ export type ShipmentDetailUpdateInput = {
   id: Scalars['ID'];
   targetLocationId: Scalars['Int'];
   targetProductId: Scalars['Int'];
+  targetQuantity: Scalars['Int'];
   targetSizeId: Scalars['Int'];
 };
 

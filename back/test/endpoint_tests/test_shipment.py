@@ -166,6 +166,8 @@ def test_shipment_mutations_on_source_side(
                         targetLocation {{ id }}
                         sourceSize {{ id }}
                         targetSize {{ id }}
+                        sourceQuantity
+                        targetQuantity
                         createdBy {{ id }}
                         createdOn
                         removedBy {{ id }}
@@ -199,6 +201,8 @@ def test_shipment_mutations_on_source_side(
                 "targetLocation": None,
                 "sourceSize": {"id": str(another_marked_for_shipment_box["size"])},
                 "targetSize": None,
+                "sourceQuantity": another_marked_for_shipment_box["number_of_items"],
+                "targetQuantity": None,
                 "createdBy": {"id": "1"},
                 "removedBy": None,
                 "removedOn": None,
@@ -216,6 +220,8 @@ def test_shipment_mutations_on_source_side(
                 "targetLocation": None,
                 "sourceSize": {"id": str(default_box["size"])},
                 "targetSize": None,
+                "sourceQuantity": default_box["number_of_items"],
+                "targetQuantity": None,
                 "createdBy": {"id": "8"},
                 "removedBy": None,
                 "removedOn": None,
@@ -470,13 +476,19 @@ def test_shipment_mutations_on_target_side(
     target_product_id = str(another_product["id"])
     target_location_id = str(another_location["id"])
     target_size_id = str(another_size["id"])
+    target_quantity = 11
     shipment_id = str(sent_shipment["id"])
     detail_id = str(default_shipment_detail["id"])
     another_detail_id = str(another_shipment_detail["id"])
     removed_detail_id = str(removed_shipment_detail["id"])
 
     def _create_mutation(
-        *, detail_id, target_product_id, target_location_id, target_size_id
+        *,
+        detail_id,
+        target_product_id,
+        target_location_id,
+        target_size_id,
+        target_quantity,
     ):
         update_input = f"""id: {shipment_id},
                 receivedShipmentDetailUpdateInputs: {{
@@ -484,6 +496,7 @@ def test_shipment_mutations_on_target_side(
                         targetProductId: {target_product_id},
                         targetLocationId: {target_location_id}
                         targetSizeId: {target_size_id}
+                        targetQuantity: {target_quantity}
                     }}"""
         return f"""mutation {{ updateShipmentWhenReceiving(
                     updateInput: {{ {update_input} }}) {{
@@ -496,6 +509,7 @@ def test_shipment_mutations_on_target_side(
                             targetProduct {{ id }}
                             targetLocation {{ id }}
                             targetSize {{ id }}
+                            targetQuantity
                             box {{
                                 state
                             }}
@@ -531,6 +545,7 @@ def test_shipment_mutations_on_target_side(
             target_product_id=target_product_id,
             target_location_id=target_location_id,
             target_size_id=target_size_id,
+            target_quantity=target_quantity,
         ),
     )
     expected_shipment = {
@@ -545,6 +560,7 @@ def test_shipment_mutations_on_target_side(
                 "targetProduct": {"id": target_product_id},
                 "targetLocation": {"id": target_location_id},
                 "targetSize": {"id": target_size_id},
+                "targetQuantity": target_quantity,
             },
             {
                 "id": another_detail_id,
@@ -552,6 +568,7 @@ def test_shipment_mutations_on_target_side(
                 "targetProduct": None,
                 "targetLocation": None,
                 "targetSize": None,
+                "targetQuantity": None,
             },
             {
                 "id": removed_detail_id,
@@ -559,6 +576,7 @@ def test_shipment_mutations_on_target_side(
                 "targetProduct": None,
                 "targetLocation": None,
                 "targetSize": None,
+                "targetQuantity": None,
             },
         ],
     }
@@ -574,6 +592,7 @@ def test_shipment_mutations_on_target_side(
                 target_product_id=product["id"],
                 target_location_id=target_location_id,
                 target_size_id=target_size_id,
+                target_quantity=target_quantity,
             ),
         )
         assert shipment == expected_shipment
@@ -588,6 +607,7 @@ def test_shipment_mutations_on_target_side(
                 target_product_id=target_product_id,
                 target_location_id=location["id"],
                 target_size_id=target_size_id,
+                target_quantity=target_quantity,
             ),
         )
         assert shipment == expected_shipment
@@ -825,6 +845,7 @@ def _generate_update_shipment_mutation(
     target_location=None,
     target_product=None,
     target_size=None,
+    target_quantity=None,
 ):
     update_input = f"id: {shipment['id']}"
     update_type = "WhenPreparing"
@@ -839,6 +860,7 @@ def _generate_update_shipment_mutation(
             f"""{{ id: {detail["id"]},
                 targetLocationId: {target_location["id"]},
                 targetSizeId: {target_size["id"]},
+                targetQuantity: {target_quantity}
                 targetProductId: {target_product["id"]} }}"""
             for detail in received_details
         )
@@ -1008,6 +1030,7 @@ def test_shipment_mutations_update_checked_in_boxes_as_member_of_creating_org(
         target_location=another_location,
         target_product=another_product,
         target_size=another_size,
+        target_quantity=1,
     )
     assert_forbidden_request(read_only_client, mutation)
 
@@ -1056,6 +1079,7 @@ def test_shipment_mutations_update_checked_in_boxes_when_shipment_in_non_sent_st
         target_location=another_location,
         target_product=another_product,
         target_size=another_size,
+        target_quantity=1,
     )
 
 
