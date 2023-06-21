@@ -13,7 +13,9 @@ from utils import (
 )
 
 
-def test_box_query_by_label_identifier(read_only_client, default_box, tags):
+def test_box_query_by_label_identifier(
+    read_only_client, default_box, tags, in_transit_box, default_shipment_detail
+):
     # Test case 8.1.1
     label_identifier = default_box["label_identifier"]
     query = f"""query {{
@@ -33,6 +35,7 @@ def test_box_query_by_label_identifier(read_only_client, default_box, tags):
                         name
                         color
                     }}
+                    shipmentDetail {{ id }}
                 }}
             }}"""
     queried_box = assert_successful_request(read_only_client, query)
@@ -54,7 +57,16 @@ def test_box_query_by_label_identifier(read_only_client, default_box, tags):
                 "color": tags[1]["color"],
             }
         ],
+        "shipmentDetail": None,
     }
+
+    label_identifier = in_transit_box["label_identifier"]
+    query = f"""query {{
+                box(labelIdentifier: "{label_identifier}") {{
+                    shipmentDetail {{ id }}
+                }} }}"""
+    queried_box = assert_successful_request(read_only_client, query)
+    assert queried_box == {"shipmentDetail": {"id": str(default_shipment_detail["id"])}}
 
 
 def test_box_query_by_qr_code(read_only_client, default_box, default_qr_code):
@@ -377,18 +389,19 @@ def _format(parameter):
         [[{"states": "[InStock]"}], 1],
         [[{"states": "[Lost]"}], 1],
         [[{"states": "[MarkedForShipment]"}], 3],
-        [[{"states": "[Received]"}], 0],
+        [[{"states": "[InTransit]"}], 2],
+        [[{"states": "[Receiving]"}], 0],
         [[{"states": "[InStock,Lost]"}], 2],
         [[{"states": "[Lost,MarkedForShipment]"}], 4],
-        [[{"lastModifiedFrom": '"2020-01-01"'}], 5],
+        [[{"lastModifiedFrom": '"2020-01-01"'}], 7],
         [[{"lastModifiedFrom": '"2021-02-02"'}], 2],
         [[{"lastModifiedFrom": '"2022-01-01"'}], 0],
-        [[{"lastModifiedUntil": '"2022-01-01"'}], 5],
-        [[{"lastModifiedUntil": '"2020-11-27"'}], 3],
+        [[{"lastModifiedUntil": '"2022-01-01"'}], 7],
+        [[{"lastModifiedUntil": '"2020-11-27"'}], 5],
         [[{"lastModifiedUntil": '"2020-01-01"'}], 0],
-        [[{"productGender": "Women"}], 5],
+        [[{"productGender": "Women"}], 7],
         [[{"productGender": "Men"}], 0],
-        [[{"productCategoryId": "1"}], 5],
+        [[{"productCategoryId": "1"}], 7],
         [[{"productCategoryId": "2"}], 0],
         [[{"states": "[MarkedForShipment]"}, {"lastModifiedFrom": '"2021-02-01"'}], 2],
         [[{"states": "[InStock,Lost]"}, {"productGender": "Boy"}], 0],

@@ -11,10 +11,7 @@ shipment_detail = ObjectType("ShipmentDetail")
 @shipment.field("details")
 def resolve_shipment_details(shipment_obj, _):
     authorize(permission="shipment_detail:read")
-    return ShipmentDetail.select().where(
-        ShipmentDetail.shipment == shipment_obj.id,
-        ShipmentDetail.deleted_on.is_null(),
-    )
+    return ShipmentDetail.select().where(ShipmentDetail.shipment == shipment_obj.id)
 
 
 @shipment.field("sourceBase")
@@ -81,6 +78,18 @@ def resolve_shipment_detail_target_location(detail_obj, _):
         ],
     )
     return detail_obj.target_location
+
+
+@shipment_detail.field("sourceSize")
+def resolve_shipment_detail_source_size(detail_obj, _):
+    authorize(permission="size:read")
+    return detail_obj.source_size
+
+
+@shipment_detail.field("targetSize")
+def resolve_shipment_detail_target_size(detail_obj, _):
+    authorize(permission="size:read")
+    return detail_obj.target_size
 
 
 @shipment_detail.field("shipment")
