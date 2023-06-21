@@ -114,7 +114,7 @@ function QrReaderMultiBox({
             {/* show Radio Button only if there are shipments */}
             {shipmentOptions.length > 0 && (
               <>
-                <Radio value="assignShipment">
+                <Radio value="assignShipment" data-testid="AssignShipment">
                   <Stack direction="row" alignItems="center" spacing={2}>
                     <ShipmentIcon boxSize={6} />
                     <Text>Assign to Shipment</Text>

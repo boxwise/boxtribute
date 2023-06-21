@@ -35,10 +35,12 @@ export async function assertOptionsInSelectField(
 
 export async function selectOptionInSelectField(
   user: UserEvent,
-  label: RegExp | string,
+  label: RegExp | string | undefined,
   option: RegExp | string,
+  placeholderText: RegExp | string = "",
 ) {
-  const fieldControlInput = screen.getByLabelText(label);
+  const fieldControlInput =
+    label !== undefined ? screen.getByLabelText(label) : screen.getByText(placeholderText);
   await user.click(fieldControlInput);
   const optionButton = screen.getByRole("button", { name: option });
   expect(optionButton).toBeInTheDocument();

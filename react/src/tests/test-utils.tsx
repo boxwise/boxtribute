@@ -22,7 +22,6 @@ import {
 } from "providers/GlobalPreferencesProvider";
 import { organisation1 } from "mocks/organisations";
 import { base1 } from "mocks/bases";
-import { cache } from "queries/cache";
 
 // Options for Apollo MockProvider
 const defaultOptions: DefaultOptions = {
