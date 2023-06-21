@@ -13,9 +13,11 @@ import {
   IconButton,
   Heading,
   Stack,
+  Tooltip,
 } from "@chakra-ui/react";
+import { BoxIcon } from "components/Icon/Transfer/BoxIcon";
 import { ShipmentIcon } from "components/Icon/Transfer/ShipmentIcon";
-import { BiMinusCircle, BiPackage, BiPlusCircle, BiTrash } from "react-icons/bi";
+import { BiMinusCircle, BiPlusCircle, BiTrash } from "react-icons/bi";
 import { RiFilePaperFill } from "react-icons/ri";
 import { TbMapOff } from "react-icons/tb";
 import { Shipment, ShipmentState } from "types/generated/graphql";
@@ -63,7 +65,7 @@ function ShipmentCard({
         <Flex minWidth="max-content" justifyContent="flex-start" p={4}>
           <VStack alignItems="flex-start">
             <Heading>
-              <Wrap fontSize="2xl" fontWeight="extrabold">
+              <Wrap fontSize={21} fontWeight="extrabold">
                 <WrapItem>Shipment</WrapItem>
                 <WrapItem>{shipment?.id}</WrapItem>
               </Wrap>
@@ -97,42 +99,44 @@ function ShipmentCard({
           )}
         </Flex>
 
-        <Box border={0}>
-          <Flex minWidth="max-content" alignItems="center" gap="2">
-            <Box p="4">
-              <List spacing={1}>
+        <Flex border={0} alignContent="center" justifyContent="center" py={2}>
+          <Flex minWidth="max-content" alignItems="center" gap="4" alignContent="space-between">
+            <Box>
+              <List spacing={2}>
                 <ListItem>
-                  <Flex alignContent="right">
-                    <Text fontSize="xl" fontWeight="bold">
+                  <Flex justifyContent="flex-end">
+                    <Text fontSize="md" fontWeight="semibold" alignContent="right">
                       {shipment?.sourceBase?.name}
                     </Text>
                   </Flex>
                 </ListItem>
                 <ListItem>
-                  <Flex alignContent="right">
-                    <Text fontSize="md">{shipment?.sourceBase?.organisation.name}</Text>
+                  <Flex justifyContent="flex-end">
+                    <Text fontSize="md" alignContent="right">
+                      {shipment?.sourceBase?.organisation.name}
+                    </Text>
                   </Flex>
                 </ListItem>
               </List>
             </Box>
-            <Spacer />
+
             <Box>
               <Flex alignContent="center">
                 <ShipmentIcon boxSize={9} />
               </Flex>
             </Box>
-            <Spacer />
-            <Box p="4">
-              <List spacing={1}>
+
+            <Box>
+              <List spacing={2}>
                 <ListItem>
-                  <Flex alignContent="left">
-                    <Text fontSize="xl" fontWeight="bold">
+                  <Flex justifyContent="flex-start">
+                    <Text fontSize="md" fontWeight="semibold">
                       {shipment?.targetBase?.name}
                     </Text>
                   </Flex>
                 </ListItem>
                 <ListItem>
-                  <Flex alignContent="left">
+                  <Flex justifyContent="flex-start">
                     <Text fontSize="md">{shipment?.targetBase?.organisation.name}</Text>
                   </Flex>
                 </ListItem>
@@ -149,12 +153,12 @@ function ShipmentCard({
               <Spacer />
             </Stack>
           )}
-        </Box>
-        <StackDivider borderColor="blackAlpha.800" marginTop={-1.5} />
+        </Flex>
+        <StackDivider borderColor="blackAlpha.800" marginTop={-3} />
         <Box p={2}>
-          <Flex minWidth="max-content" alignItems="center" gap={2} p={0}>
-            <Box bg="black" p={1} marginTop={-15}>
-              <Text fontSize="xl" fontWeight="bold" color="white">
+          <Flex minWidth="max-content" alignItems="center" p={0}>
+            <Box bg="black" px={1} mt={-10}>
+              <Text fontSize={16} fontWeight="semibold" color="white">
                 TOTAL
               </Text>
             </Box>
@@ -182,7 +186,7 @@ function ShipmentCard({
                 </WrapItem>
                 <WrapItem>
                   <Center>
-                    <BiPackage size={35} />
+                    <BoxIcon boxSize={9} />
                   </Center>
                 </WrapItem>
               </Wrap>
@@ -216,38 +220,39 @@ function ShipmentCard({
               )}
               {shipment.state === ShipmentState.Completed && (
                 <VStack align="stretch" mr={1}>
-                  <Wrap spacing={1} align="center" style={{ color: "#909090" }}>
-                    <WrapItem>
-                      <Text as="p" fontSize={16} fontWeight="extrabold" color="gray.500">
-                        (
-                      </Text>
-                    </WrapItem>
-                    <WrapItem>
-                      <Center>
-                        <Text as="p" fontSize={16} fontWeight="extrabold" color="gray.500">
-                          -{" "}
-                          {
-                            (
-                              shipment.details?.filter(
-                                (item) => item.lostOn !== null && item.removedOn === null,
-                              ) ?? []
-                            ).length
-                          }
+                  <Tooltip label="the number of boxes that didn't arrive">
+                    <Wrap spacing={0} align="center" style={{ color: "#909090" }}>
+                      <WrapItem>
+                        <Text as="p" fontSize={16} fontWeight="extrabold" color="red">
+                          (
                         </Text>
-                      </Center>
-                    </WrapItem>
-                    <WrapItem>
-                      <Center>
-                        <BiPackage size={24} style={{ color: "#909090" }} />
-                      </Center>
-                    </WrapItem>
-
-                    <WrapItem>
-                      <Text as="p" fontSize={16} fontWeight="extrabold" color="gray.500">
-                        )
-                      </Text>
-                    </WrapItem>
-                  </Wrap>
+                      </WrapItem>
+                      <WrapItem>
+                        <Center>
+                          <Text as="p" fontSize={16} fontWeight="extrabold" color="red">
+                            -
+                            {
+                              (
+                                shipment.details?.filter(
+                                  (item) => item.lostOn !== null && item.removedOn === null,
+                                ) ?? []
+                              ).length
+                            }
+                          </Text>
+                        </Center>
+                      </WrapItem>
+                      <WrapItem>
+                        <Center>
+                          <BoxIcon boxSize={6} style={{ color: "red" }} />
+                        </Center>
+                      </WrapItem>
+                      <WrapItem>
+                        <Text as="p" fontSize={16} fontWeight="extrabold" color="red">
+                          )
+                        </Text>
+                      </WrapItem>
+                    </Wrap>
+                  </Tooltip>
                 </VStack>
               )}
             </Box>
