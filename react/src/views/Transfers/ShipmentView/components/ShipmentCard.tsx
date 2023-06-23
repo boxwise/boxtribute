@@ -30,6 +30,7 @@ export interface IShipmentProps {
   shipment: Shipment;
   onRemove: () => void;
   onCancel: () => void;
+  onLost: () => void;
 }
 
 function ShipmentCard({
@@ -40,6 +41,7 @@ function ShipmentCard({
   shipment,
   onRemove,
   onCancel,
+  onLost,
 }: IShipmentProps) {
   return (
     <Box
@@ -86,6 +88,7 @@ function ShipmentCard({
               icon={<TbMapOff size={30} />}
               variant="outline"
               isLoading={isLoadingMutation}
+              onClick={onLost}
               style={{
                 background: "white",
                 color: ShipmentState.Lost === shipment.state ? "red" : "black",
@@ -163,7 +166,8 @@ function ShipmentCard({
                 <WrapItem>
                   <Center>
                     <Text as="h3" fontSize="3xl" fontWeight="bold">
-                      {shipment.details?.length || 0}
+                      {(shipment.details?.filter((item) => item.removedOn === null) ?? []).length ||
+                        0}
                     </Text>
                   </Center>
                 </WrapItem>

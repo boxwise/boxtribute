@@ -67,46 +67,15 @@ function QrReaderContainer({ onSuccess }: IQrReaderContainerProps) {
             navigate(`/bases/${baseId}/boxes/create/${qrResolvedValue?.qrHash}`);
           } else {
             triggerError({
-              message: "No box associated to this QR-Code!",
+              message: "No box associated to this QR code!",
             });
             setIsProcessingQrCodeDelayed(false);
           }
           break;
         }
-        case IQrResolverResultKind.NOT_AUTHORIZED: {
-          triggerError({
-            message: "You don't have permission to access this box!",
-          });
-          setIsProcessingQrCodeDelayed(false);
-          break;
-        }
-        case IQrResolverResultKind.NOT_FOUND: {
-          triggerError({
-            message: "No box found for this QR-Code!",
-          });
-          setIsProcessingQrCodeDelayed(false);
-          break;
-        }
-        case IQrResolverResultKind.NOT_BOXTRIBUTE_QR: {
-          triggerError({
-            message: "This is not a Boxtribute QR-Code!",
-          });
-          setIsProcessingQrCodeDelayed(false);
-          break;
-        }
-        case IQrResolverResultKind.FAIL: {
-          triggerError({
-            message: "The search for this QR-Code failed. Please try again.",
-          });
-          setIsProcessingQrCodeDelayed(false);
-          break;
-        }
         default: {
-          triggerError({
-            message: `The resolved value of the qr-code does not match
-              any case of the IQrResolverResultKind.`,
-            userMessage: "Something went wrong!",
-          });
+          // the following cases should arrive here:
+          // NOT_AUTHORIZED, NOT_BOXTRIBUTE_QR,
           setIsProcessingQrCodeDelayed(false);
         }
       }
