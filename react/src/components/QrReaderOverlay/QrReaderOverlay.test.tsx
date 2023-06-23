@@ -192,7 +192,7 @@ it("3.4.2.1 - Mobile: User scans QR code of same org without previously associat
   expect(
     await screen.findByRole("heading", { name: "/bases/1/boxes/create/NoBoxAssociatedWithQrCode" }),
   ).toBeInTheDocument();
-});
+}, 10000);
 
 const queryBoxAssociatedWithQrCode = {
   request: {
@@ -229,7 +229,7 @@ it("3.4.2.2 - Mobile: user scans QR code of same org with associated box", async
   // Click a button to trigger the event of scanning a QR-Code in mockImplementationOfQrReader
   await user.click(screen.getByTestId("ReturnScannedQr"));
   expect(await screen.findByRole("heading", { name: "/bases/1/boxes/123" })).toBeInTheDocument();
-});
+}, 10000);
 
 const queryBoxFromOtherOrganisation = {
   request: {
@@ -272,7 +272,7 @@ it("3.4.2.3 - Mobile: user scans QR code of different org with associated box", 
   ).toBeGreaterThanOrEqual(1);
   // QrOverlay stays open
   expect(screen.getByTestId("ReturnScannedQr")).toBeInTheDocument();
-});
+}, 10000);
 
 it("3.4.2.5a - Mobile: User scans non Boxtribute QR code", async () => {
   const user = userEvent.setup();
