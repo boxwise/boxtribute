@@ -1,4 +1,4 @@
-from peewee import DateTimeField
+from peewee import DateTimeField, IntegerField
 
 from ...db import db
 from ..fields import UIntForeignKeyField
@@ -22,6 +22,8 @@ class ShipmentDetail(db.Model):
     )
     source_size = UIntForeignKeyField(model=Size, on_update="CASCADE")
     target_size = UIntForeignKeyField(model=Size, on_update="CASCADE", null=True)
+    source_quantity = IntegerField()
+    target_quantity = IntegerField(null=True)
     created_on = DateTimeField(default=utcnow)
     created_by = UIntForeignKeyField(model=User, on_update="CASCADE")
     removed_on = DateTimeField(null=True)

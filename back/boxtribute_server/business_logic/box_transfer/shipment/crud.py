@@ -224,6 +224,7 @@ def _update_shipment_with_prepared_boxes(*, shipment, box_label_identifiers, use
                 "source_product": box.product_id,
                 "source_location": box.location_id,
                 "source_size": box.size_id,
+                "source_quantity": box.number_of_items,
                 "created_by": user_id,
             }
         )
@@ -285,6 +286,7 @@ def _update_shipment_with_received_boxes(
             "target_product_id": i["target_product_id"],
             "target_location_id": i["target_location_id"],
             "target_size_id": i["target_size_id"],
+            "target_quantity": i["target_quantity"],
         }
         for i in shipment_detail_update_inputs or []
     }
@@ -298,6 +300,7 @@ def _update_shipment_with_received_boxes(
         target_product_id = update_input["target_product_id"]
         target_location_id = update_input["target_location_id"]
         target_size_id = update_input["target_size_id"]
+        target_quantity = update_input["target_quantity"]
 
         if (
             not _validate_base_as_part_of_shipment(
@@ -313,16 +316,19 @@ def _update_shipment_with_received_boxes(
         detail.target_product = target_product_id
         detail.target_location = target_location_id
         detail.target_size = target_size_id
+        detail.target_quantity = target_quantity
         detail.box.product = target_product_id
         detail.box.location = target_location_id
         detail.box.size = target_size_id
+        detail.box.number_of_items = target_quantity
         detail.box.state = BoxState.InStock
         details.append(detail)
 
     if details:
         checked_in_boxes = [d.box for d in details]
         Box.bulk_update(
-            checked_in_boxes, [Box.state, Box.product, Box.location, Box.size]
+            checked_in_boxes,
+            [Box.state, Box.product, Box.location, Box.size, Box.number_of_items],
         )
         ShipmentDetail.bulk_update(
             details,
@@ -330,6 +336,7 @@ def _update_shipment_with_received_boxes(
                 ShipmentDetail.target_product,
                 ShipmentDetail.target_location,
                 ShipmentDetail.target_size,
+                ShipmentDetail.target_quantity,
             ],
         )
         TagsRelation.delete().where(
