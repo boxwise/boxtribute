@@ -14,7 +14,7 @@ from utils import (
 
 
 def test_box_query_by_label_identifier(
-    read_only_client, default_box, tags, box_without_qr_code, default_shipment_detail
+    read_only_client, default_box, tags, in_transit_box, default_shipment_detail
 ):
     # Test case 8.1.1
     label_identifier = default_box["label_identifier"]
@@ -60,7 +60,7 @@ def test_box_query_by_label_identifier(
         "shipmentDetail": None,
     }
 
-    label_identifier = box_without_qr_code["label_identifier"]
+    label_identifier = in_transit_box["label_identifier"]
     query = f"""query {{
                 box(labelIdentifier: "{label_identifier}") {{
                     shipmentDetail {{ id }}
@@ -389,18 +389,19 @@ def _format(parameter):
         [[{"states": "[InStock]"}], 1],
         [[{"states": "[Lost]"}], 1],
         [[{"states": "[MarkedForShipment]"}], 3],
+        [[{"states": "[InTransit]"}], 2],
         [[{"states": "[Receiving]"}], 0],
         [[{"states": "[InStock,Lost]"}], 2],
         [[{"states": "[Lost,MarkedForShipment]"}], 4],
-        [[{"lastModifiedFrom": '"2020-01-01"'}], 5],
+        [[{"lastModifiedFrom": '"2020-01-01"'}], 7],
         [[{"lastModifiedFrom": '"2021-02-02"'}], 2],
         [[{"lastModifiedFrom": '"2022-01-01"'}], 0],
-        [[{"lastModifiedUntil": '"2022-01-01"'}], 5],
-        [[{"lastModifiedUntil": '"2020-11-27"'}], 3],
+        [[{"lastModifiedUntil": '"2022-01-01"'}], 7],
+        [[{"lastModifiedUntil": '"2020-11-27"'}], 5],
         [[{"lastModifiedUntil": '"2020-01-01"'}], 0],
-        [[{"productGender": "Women"}], 5],
+        [[{"productGender": "Women"}], 7],
         [[{"productGender": "Men"}], 0],
-        [[{"productCategoryId": "1"}], 5],
+        [[{"productCategoryId": "1"}], 7],
         [[{"productCategoryId": "2"}], 0],
         [[{"states": "[MarkedForShipment]"}, {"lastModifiedFrom": '"2021-02-01"'}], 2],
         [[{"states": "[InStock,Lost]"}, {"productGender": "Boy"}], 0],

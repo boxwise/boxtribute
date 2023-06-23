@@ -130,7 +130,9 @@ export const useAssignBoxesToShipment = () => {
             } as IAssignBoxToShipmentResult;
           }
           const boxesInShipment: IBoxBasicFields[] =
-            data?.updateShipmentWhenPreparing?.details.map((detail) => detail.box) ?? [];
+            data?.updateShipmentWhenPreparing?.details
+              .filter((detail) => detail.removedOn === null)
+              .map((detail) => detail.box) ?? [];
           const failedBoxes: IBoxBasicFields[] = boxes.filter(
             (box) =>
               !boxesInShipment.some(
@@ -162,6 +164,7 @@ export const useAssignBoxesToShipment = () => {
           return {
             kind: IAssignBoxToShipmentResultKind.SUCCESS,
             requestedBoxes: boxes,
+            assignedBoxes,
             error: errors ? errors[0] : undefined,
           } as IAssignBoxToShipmentResult;
         })

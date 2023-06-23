@@ -18,6 +18,8 @@ import { Select } from "chakra-react-select";
 import { IDropdownOption } from "components/Form/SelectField";
 import { ShipmentIcon } from "components/Icon/Transfer/ShipmentIcon";
 import { FaWarehouse, FaTags } from "react-icons/fa";
+import { useReactiveVar } from "@apollo/client";
+import { qrReaderOverlayVar } from "queries/cache";
 
 // eslint-disable-next-line no-shadow
 export enum IMultiBoxAction {
@@ -49,7 +51,12 @@ function QrReaderMultiBox({
   onUndoLastScannedBox,
   onAssignBoxesToShipment,
 }: IQrReaderMultiBoxProps) {
-  const [selectedShipmentOption, setSelectedShipmentOption] = useState<IDropdownOption>();
+  const qrReaderOverlayState = useReactiveVar(qrReaderOverlayVar);
+  const [selectedShipmentOption, setSelectedShipmentOption] = useState<IDropdownOption | undefined>(
+    shipmentOptions.find(
+      (shipmentOption) => shipmentOption.value === qrReaderOverlayState.selectedShipmentId,
+    ),
+  );
 
   function handleSubmit() {
     if (multiBoxAction === IMultiBoxAction.assignShipment && selectedShipmentOption) {
@@ -114,7 +121,7 @@ function QrReaderMultiBox({
             {/* show Radio Button only if there are shipments */}
             {shipmentOptions.length > 0 && (
               <>
-                <Radio value="assignShipment">
+                <Radio value="assignShipment" data-testid="AssignShipment">
                   <Stack direction="row" alignItems="center" spacing={2}>
                     <ShipmentIcon boxSize={6} />
                     <Text>Assign to Shipment</Text>

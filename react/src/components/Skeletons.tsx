@@ -168,7 +168,7 @@ export function ButtonSkeleton() {
 
 export function QrReaderMultiBoxSkeleton() {
   return (
-    <Stack direction="column" spacing={4}>
+    <Stack direction="column" spacing={4} data-testid="QrReaderMultiBoxSkeleton">
       {[1, 2, 3].map((num) => (
         <Skeleton key={num} height="50px" />
       ))}

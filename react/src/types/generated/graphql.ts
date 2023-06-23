@@ -201,6 +201,7 @@ export type BoxPage = {
 export enum BoxState {
   Donated = 'Donated',
   InStock = 'InStock',
+  InTransit = 'InTransit',
   Lost = 'Lost',
   MarkedForShipment = 'MarkedForShipment',
   Receiving = 'Receiving',
