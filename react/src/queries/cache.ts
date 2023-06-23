@@ -1,4 +1,5 @@
 import { InMemoryCache } from "@apollo/client";
+import { IScannedBoxesData } from "types/graphql-local-only";
 import { GET_SCANNED_BOXES } from "./local-only";
 
 export const cache = new InMemoryCache({
@@ -19,5 +20,5 @@ cache.writeQuery({
   query: GET_SCANNED_BOXES,
   data: {
     scannedBoxes: [],
-  },
+  } as IScannedBoxesData,
 });
