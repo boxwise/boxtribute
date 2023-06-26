@@ -17,7 +17,7 @@
     "@hookform/resolvers": "^2.9.11",
     "@sentry/integrations": "^7.38.0",
     "@sentry/react": "^7.38.0",
-    "@sentry/tracing": "^7.38.0",
+    "@sentry/tracing": "^7.56.0",
     "@zxing/browser": "^0.1.1",
     "@zxing/library": "^0.19.1",
     "chakra-react-select": "^4.4.3",
