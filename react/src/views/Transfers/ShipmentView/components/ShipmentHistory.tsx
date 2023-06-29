@@ -31,7 +31,7 @@ function ShipmentHistory({ histories }: IShipmentHistoryProps) {
   };
 
   return (
-    <Box position="relative" pl={10}>
+    <Box position="relative">
       {histories.map(({ date, entries }, index) => (
         <Box key={date}>
           <Flex
@@ -43,7 +43,7 @@ function ShipmentHistory({ histories }: IShipmentHistoryProps) {
             alignItems="center"
             justifyContent="center"
             maxWidth={120}
-            rounded={2}
+            rounded={4}
           >
             <Text fontWeight="bold" color="white" alignItems="center" justifyContent="center">
               {date}
