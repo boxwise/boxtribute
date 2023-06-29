@@ -1,4 +1,4 @@
-import { Box, Text, UnorderedList } from "@chakra-ui/react";
+import { Box, Flex, Text } from "@chakra-ui/react";
 import { IGroupedHistoryEntry, IShipmentHistory, ShipmentActionEvent } from "./ShipmentTabs";
 import TimelineEntry from "./TimelineEntry";
 
@@ -34,20 +34,22 @@ function ShipmentHistory({ histories }: IShipmentHistoryProps) {
     <Box position="relative" pl={10}>
       {histories.map(({ date, entries }, index) => (
         <Box key={date}>
-          <Box
+          <Flex
             border={1}
             borderColor="red.500"
             background="red.500"
             padding={1}
             alignContent="center"
             alignItems="center"
-            maxWidth={140}
+            justifyContent="center"
+            maxWidth={120}
+            rounded={2}
           >
-            <Text fontWeight="bold" color="white" alignItems="center">
+            <Text fontWeight="bold" color="white" alignItems="center" justifyContent="center">
               {date}
             </Text>
-          </Box>
-          <UnorderedList styleType="none">
+          </Flex>
+          <Box>
             {entries?.map((entry, indx) => (
               <TimelineEntry
                 key={`${index + indx}_${new Date().getTime()}}`}
@@ -57,17 +59,9 @@ function ShipmentHistory({ histories }: IShipmentHistoryProps) {
                   .toString()}`}
               />
             ))}
-          </UnorderedList>
+          </Box>
         </Box>
       ))}
-      {/* <Box
-        position="absolute"
-        top={0}
-        bottom={0}
-        left={5}
-        borderLeft="2px solid"
-        borderColor="gray.300"
-      /> */}
     </Box>
   );
 }
