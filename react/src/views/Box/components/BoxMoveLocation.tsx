@@ -3,11 +3,17 @@ import { BoxState, ClassicLocation } from "types/generated/graphql";
 
 export interface IBoxMoveLocationProps {
   boxData: any;
+  boxInTransit: boolean;
   isLoading: boolean;
   onMoveToLocationClick: (locationId: string) => void;
 }
 
-function BoxMoveLocation({ boxData, onMoveToLocationClick, isLoading }: IBoxMoveLocationProps) {
+function BoxMoveLocation({
+  boxData,
+  boxInTransit,
+  onMoveToLocationClick,
+  isLoading,
+}: IBoxMoveLocationProps) {
   return (
     <>
       {isLoading && (
@@ -45,7 +51,9 @@ function BoxMoveLocation({ boxData, onMoveToLocationClick, isLoading }: IBoxMove
                   disabled={
                     (boxData.location as ClassicLocation).defaultBoxState !== BoxState.Lost &&
                     (boxData.location as ClassicLocation).defaultBoxState !== BoxState.Scrap
-                      ? BoxState.Lost === boxData.state || BoxState.Scrap === boxData.state
+                      ? BoxState.Lost === boxData.state ||
+                        BoxState.Scrap === boxData.state ||
+                        boxInTransit
                       : false
                   }
                   border="2px"
