@@ -116,6 +116,21 @@ export const BOX_FIELDS_FRAGMENT = gql`
     size {
       ...SizeFields
     }
+    shipmentDetail {
+      shipment {
+        id
+        state
+        targetBase {
+          id
+          name
+          organisation {
+            id
+            name
+          }
+        }
+      }
+    }
+
     location {
       id
       name

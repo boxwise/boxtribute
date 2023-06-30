@@ -1,8 +1,10 @@
+import { EditIcon } from "@chakra-ui/icons";
 import {
   Box,
   Button,
   Center,
   Flex,
+  IconButton,
   List,
   ListItem,
   Skeleton,
@@ -15,6 +17,7 @@ import {
   Wrap,
   WrapItem,
 } from "@chakra-ui/react";
+import { FaWarehouse } from "react-icons/fa";
 import { ShipmentIcon } from "./Icon/Transfer/ShipmentIcon";
 
 export function TableSkeleton() {
@@ -170,5 +173,71 @@ export function QrReaderMultiBoxSkeleton() {
         <Skeleton key={num} height="50px" />
       ))}
     </Stack>
+  );
+}
+
+export function BoxViewSkeleton() {
+  return (
+    <Flex
+      direction={["column", "column", "row"]}
+      alignItems={["center", "center", "flex-start"]}
+      w="100%"
+      justifyContent="center"
+      data-testid="box-sections"
+    >
+      <Box
+        w={["100%", "80%", "30%", "30%"]}
+        border="2px"
+        borderColor="gray.300"
+        mb={6}
+        pb={2}
+        mr={["0", "0", "4rem", "4rem"]}
+      >
+        <Flex py={2} px={4} alignItems="center">
+          <SkeletonText ml="4" noOfLines={1} width="50%" />
+          <Skeleton ml="auto">
+            <IconButton
+              aria-label="Edit box"
+              borderRadius="0"
+              icon={<EditIcon h={6} w={6} />}
+              border="2px"
+            />
+          </Skeleton>
+        </Flex>
+        <Skeleton height="18rem" />
+      </Box>
+      <Flex>
+        <SkeletonText ml="4" noOfLines={1} width="50%" />
+      </Flex>
+      <Box w={["100%", "80%", "30%", "30%"]}>
+        <Stack direction="column" alignContent="flex-start" p={2}>
+          <Stack direction="row" alignItems="center" alignContent="center" spacing={2}>
+            <Skeleton>
+              <FaWarehouse size={24} />
+            </Skeleton>
+            <SkeletonText
+              ml="4"
+              noOfLines={1}
+              width="50%"
+              alignItems="center"
+              alignContent="center"
+            />
+          </Stack>
+          <Stack direction="row" alignItems="center" alignContent="center" spacing={2}>
+            <Skeleton>
+              <ShipmentIcon boxSize={6} alignItems="center" />
+            </Skeleton>
+            <SkeletonText
+              ml="4"
+              noOfLines={1}
+              width="50%"
+              alignItems="center"
+              alignContent="center"
+            />
+          </Stack>
+        </Stack>
+        <TabsSkeleton />
+      </Box>
+    </Flex>
   );
 }
