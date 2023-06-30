@@ -3,6 +3,7 @@ import { GraphQLError } from "graphql";
 import "@testing-library/jest-dom";
 import { screen, render, waitFor } from "tests/test-utils";
 import userEvent from "@testing-library/user-event";
+import { cache } from "queries/cache";
 import BTBox, {
   UPDATE_NUMBER_OF_ITEMS_IN_BOX_MUTATION,
   UPDATE_STATE_IN_BOX_MUTATION,
@@ -39,6 +40,21 @@ const initialQuery = {
   result: {
     data: {
       box: generateMockBox({}),
+      shipments: null,
+    },
+  },
+};
+
+const initialQueryForChangeNumberOfBoxes = {
+  request: {
+    query: BOX_BY_LABEL_IDENTIFIER_AND_ALL_SHIPMENTS_QUERY,
+    variables: {
+      labelIdentifier: "1235",
+    },
+  },
+  result: {
+    data: {
+      box: generateMockBox({ labelIdentifier: "1235", numberOfItems: 31 }),
       shipments: null,
     },
   },
@@ -123,13 +139,13 @@ const updateNumberOfItemsMutation = {
   request: {
     query: UPDATE_NUMBER_OF_ITEMS_IN_BOX_MUTATION,
     variables: {
-      boxLabelIdentifier: "123",
+      boxLabelIdentifier: "1235",
       numberOfItems: 32,
     },
   },
   result: {
     data: {
-      updateBox: generateMockBox({ numberOfItems: 32 }),
+      updateBox: generateMockBox({ numberOfItems: 32, labelIdentifier: "1235" }),
       shipments: null,
     },
   },
@@ -395,8 +411,9 @@ it("3.1.2 - Change Number of Items", async () => {
   const user = userEvent.setup();
   render(<BTBox />, {
     routePath: "/bases/:baseId/boxes/:labelIdentifier",
-    initialUrl: "/bases/2/boxes/123",
-    mocks: [initialQuery, updateNumberOfItemsMutation],
+    initialUrl: "/bases/2/boxes/1235",
+    mocks: [initialQueryForChangeNumberOfBoxes, updateNumberOfItemsMutation],
+    cache,
     addTypename: true,
     globalPreferences: {
       dispatch: jest.fn(),
@@ -407,7 +424,7 @@ it("3.1.2 - Change Number of Items", async () => {
     },
   });
 
-  const title = await screen.findByRole("heading", { name: "Box 123" });
+  const title = await screen.findByRole("heading", { name: "Box 1235" });
   expect(title).toBeInTheDocument();
 
   expect(screen.getByRole("heading", { name: /31x snow trousers/i }));
@@ -427,15 +444,34 @@ it("3.1.2 - Change Number of Items", async () => {
   await user.type(screen.getByRole("spinbutton"), "{backspace}");
   await user.type(screen.getByRole("spinbutton"), "-");
   await waitFor(() => expect(screen.getByRole("spinbutton")).toHaveValue("-"));
-  await user.click(screen.getByText(/Submit/i));
+
+  await user.click(
+    screen.getByRole("button", {
+      name: /submit/i,
+    }),
+  );
+
   await waitFor(() => expect(screen.getByRole("spinbutton")).toHaveValue("0"));
 
   // // // Test case 3.1.2.2 - Number of Item Validation
   await user.type(screen.getByRole("spinbutton"), "{backspace}");
   await user.type(screen.getByRole("spinbutton"), "1");
   await waitFor(() => expect(screen.getByRole("spinbutton")).toHaveValue("1"));
-  await user.click(screen.getByText(/Submit/i));
-  expect(screen.getByText(/32x snow trousers/i));
+
+  await user.click(
+    screen.getByRole("button", {
+      name: /submit/i,
+    }),
+  );
+
+  await waitFor(() =>
+    expect(mockedCreateToast).toHaveBeenCalledWith(
+      expect.objectContaining({
+        message: expect.stringMatching(/successfully added 1 items to box/i),
+      }),
+    ),
+  );
+  expect(screen.getByTestId("boxview-number-items")).toHaveTextContent(/32x snow trousers/i);
 }, 10000);
 
 // Test case 3.1.3.1
@@ -445,6 +481,7 @@ it("3.1.3.1 - Change State to Scrap", async () => {
     routePath: "/bases/:baseId/boxes/:labelIdentifier",
     initialUrl: "/bases/2/boxes/123",
     mocks: [initialQuery, updateBoxStateToScrapMutation, updateBoxStateToLostMutation],
+    cache,
     addTypename: true,
     globalPreferences: {
       dispatch: jest.fn(),
@@ -477,6 +514,7 @@ it("3.1.3.2 - Change State to Lost", async () => {
     initialUrl: "/bases/2/boxes/123",
     mocks: [initialQuery, updateBoxStateToLostMutation],
     addTypename: true,
+    cache,
     globalPreferences: {
       dispatch: jest.fn(),
       globalPreferences: {
@@ -512,6 +550,7 @@ it("3.1.4 - Move location", async () => {
     routePath: "/bases/:baseId/boxes/:labelIdentifier",
     initialUrl: "/bases/1/boxes/125",
     mocks: [initialQueryMoveLocationOfBox, moveLocationOfBoxMutation],
+    cache,
     addTypename: true,
     globalPreferences: {
       dispatch: jest.fn(),
