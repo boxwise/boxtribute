@@ -151,6 +151,7 @@ function BTBox() {
   const allData = useQuery<BoxByLabelIdentifierQuery, BoxByLabelIdentifierQueryVariables>(
     BOX_BY_LABEL_IDENTIFIER_AND_ALL_SHIPMENTS_QUERY,
     {
+      errorPolicy: "all",
       variables: {
         labelIdentifier,
       },
@@ -210,7 +211,7 @@ function BTBox() {
     updateNumberOfItemsMutationStatus.loading;
 
   const error =
-    allData.error ||
+    (allData.error && allData?.data === undefined) ||
     assignBoxToDistributionEventMutationStatus.error ||
     unassignBoxFromDistributionEventMutationStatus.error;
 
