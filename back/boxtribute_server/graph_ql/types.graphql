@@ -155,6 +155,7 @@ enum BoxState {
   Donated
   Scrap
   InTransit
+  NotDelivered
 }
 
 """

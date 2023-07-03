@@ -204,6 +204,7 @@ export enum BoxState {
   InTransit = 'InTransit',
   Lost = 'Lost',
   MarkedForShipment = 'MarkedForShipment',
+  NotDelivered = 'NotDelivered',
   Receiving = 'Receiving',
   Scrap = 'Scrap'
 }
