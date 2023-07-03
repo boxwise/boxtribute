@@ -97,6 +97,14 @@ def another_in_transit_box_data():
     return data
 
 
+def not_delivered_box_data():
+    data = box_without_qr_code_data()
+    data["id"] = 11
+    data["label_identifier"] = "11113333"
+    data["state"] = BoxState.NotDelivered
+    return data
+
+
 def data():
     return [
         another_box_data(),
@@ -107,6 +115,7 @@ def data():
         another_marked_for_shipment_box_data(),
         in_transit_box_data(),
         another_in_transit_box_data(),
+        not_delivered_box_data(),
         box_in_another_location_with_qr_code_data(),
     ]
 
