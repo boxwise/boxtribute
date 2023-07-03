@@ -63,13 +63,20 @@ def test_shipments_query(
     canceled_shipment,
     another_shipment,
     sent_shipment,
+    receiving_shipment,
 ):
     # Test case 3.1.1
     query = "query { shipments { id } }"
     shipments = assert_successful_request(read_only_client, query)
     assert shipments == [
         {"id": str(s["id"])}
-        for s in [default_shipment, canceled_shipment, another_shipment, sent_shipment]
+        for s in [
+            default_shipment,
+            canceled_shipment,
+            another_shipment,
+            sent_shipment,
+            receiving_shipment,
+        ]
     ]
 
 

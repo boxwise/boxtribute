@@ -11,7 +11,11 @@ from utils import (
 
 
 def test_transfer_agreement_query(
-    read_only_client, default_transfer_agreement, default_shipment, sent_shipment
+    read_only_client,
+    default_transfer_agreement,
+    default_shipment,
+    sent_shipment,
+    receiving_shipment,
 ):
     # Test case 2.1.3
     agreement_id = str(default_transfer_agreement["id"])
@@ -59,7 +63,10 @@ def test_transfer_agreement_query(
         "validUntil": None,
         "sourceBases": [{"id": "1"}, {"id": "2"}],
         "targetBases": [{"id": "3"}],
-        "shipments": [{"id": str(s["id"])} for s in [default_shipment, sent_shipment]],
+        "shipments": [
+            {"id": str(s["id"])}
+            for s in [default_shipment, sent_shipment, receiving_shipment]
+        ],
     }
 
 

@@ -170,5 +170,10 @@ def another_in_transit_box():
     return another_in_transit_box_data()
 
 
+@pytest.fixture
+def not_delivered_box():
+    return not_delivered_box_data()
+
+
 def create():
     Box.insert_many(data()).execute()

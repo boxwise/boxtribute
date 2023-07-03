@@ -22,6 +22,7 @@ from .box import (
     in_transit_box,
     lost_box,
     marked_for_shipment_box,
+    not_delivered_box,
 )
 from .box_state import default_box_state
 from .distribution_event import (
@@ -58,6 +59,7 @@ from .shipment import (
     another_shipment,
     canceled_shipment,
     default_shipment,
+    receiving_shipment,
     sent_shipment,
     shipments,
 )
@@ -137,12 +139,14 @@ __all__ = [
     "lost_box",
     "marked_for_shipment_box",
     "non_default_box_state_location",
+    "not_delivered_box",
     "null_box_state_location",
     "organisations",
     "packing_list_entry",
     "prepared_shipment_detail",
     "products",
     "qr_code_without_box",
+    "receiving_shipment",
     "receiving_transfer_agreement",
     "relative_beneficiary",
     "relative_transaction",
