@@ -251,8 +251,8 @@ def _update_shipment_with_prepared_boxes(*, shipment, box_label_identifiers, use
 def _remove_boxes_from_shipment(
     *, shipment_id, user_id, box_label_identifiers, box_state
 ):
-    """With `box_state=InStock`, return boxes to stock; with `box_state=Lost`, mark
-    boxes as lost. Soft-delete corresponding shipment details.
+    """With `box_state=InStock`, return boxes to stock; with `box_state=NotDelivered`,
+    mark boxes as lost during shipment. Soft-delete corresponding shipment details.
     If boxes are requested to be removed that are not contained in the given shipment,
     they are silently discarded.
     """
@@ -269,7 +269,7 @@ def _remove_boxes_from_shipment(
             detail.removed_on = now
             detail.removed_by = user_id
             fields = [ShipmentDetail.removed_on, ShipmentDetail.removed_by]
-        elif box_state == BoxState.Lost:
+        elif box_state == BoxState.NotDelivered:
             detail.lost_on = now
             detail.lost_by = user_id
             fields = [ShipmentDetail.lost_on, ShipmentDetail.lost_by]
@@ -381,9 +381,10 @@ def _update_shipment_with_received_boxes(
 
 def _complete_shipment_if_applicable(*, shipment, user_id):
     """If all boxes of the shipment that were being sent
-    - are marked as Lost, transition the shipment state to 'Lost',
-    - are marked as InStock or Lost, transition the shipment state to 'Completed', and
-    soft-delete the corresponding shipment details by setting the received_on/by fields.
+    - are marked as NotDelivered, transition the shipment state to 'Lost',
+    - are marked as InStock or NotDelivered, transition the shipment state to
+    'Completed', and soft-delete the corresponding shipment details by setting the
+    received_on/by fields.
     """
     details = _retrieve_shipment_details(
         shipment.id,
@@ -391,21 +392,23 @@ def _complete_shipment_if_applicable(*, shipment, user_id):
     )
     now = utcnow()
 
-    if all(d.box.state_id == BoxState.Lost for d in details):
+    if all(d.box.state_id == BoxState.NotDelivered for d in details):
         shipment.state = ShipmentState.Lost
         shipment.completed_by = user_id
         shipment.completed_on = now
         shipment.save()
 
-    elif all(d.box.state_id in [BoxState.InStock, BoxState.Lost] for d in details):
+    elif all(
+        d.box.state_id in [BoxState.InStock, BoxState.NotDelivered] for d in details
+    ):
         shipment.state = ShipmentState.Completed
         shipment.completed_by = user_id
         shipment.completed_on = now
         shipment.save()
 
         for detail in details:
-            if detail.box.state_id == BoxState.Lost:
-                # Lost boxes must not be marked as received
+            if detail.box.state_id == BoxState.NotDelivered:
+                # NotDelivered boxes must not be marked as received
                 continue
             detail.received_by = user_id
             detail.received_on = now
@@ -489,7 +492,7 @@ def update_shipment_when_receiving(
             shipment_id=shipment.id,
             user_id=user.id,
             box_label_identifiers=lost_box_label_identifiers,
-            box_state=BoxState.Lost,
+            box_state=BoxState.NotDelivered,
         )
         _complete_shipment_if_applicable(shipment=shipment, user_id=user.id)
 
@@ -510,8 +513,8 @@ def _validate_base_as_part_of_shipment(resource_id, *, detail, model):
 
 def mark_shipment_as_lost(*, id, user):
     """Change shipment state to 'Lost'. Update states of all contained
-    'InTransit' boxes to 'Lost' and soft-delete all shipment details by setting the
-    lost_on/by fields.
+    'InTransit' boxes to 'NotDelivered' and soft-delete all shipment details by setting
+    the lost_on/by fields.
     - raise InvalidShipmentState exception if shipment state is different from 'Sent'
     """
     shipment = Shipment.get_by_id(id)
@@ -532,7 +535,7 @@ def mark_shipment_as_lost(*, id, user):
             shipment_id=id,
             user_id=user.id,
             box_label_identifiers=box_label_identifiers,
-            box_state=BoxState.Lost,
+            box_state=BoxState.NotDelivered,
         )
         shipment.save()
     return shipment

@@ -795,9 +795,9 @@ def test_shipment_mutations_on_target_side(
                 "lostBy": {"id": "2"},
                 "receivedBy": None,
                 "box": {
-                    "state": BoxState.Lost.name,
+                    "state": BoxState.NotDelivered.name,
                     "history": [
-                        {"changes": f"{change_prefix} Receiving to Lost"},
+                        {"changes": f"{change_prefix} Receiving to NotDelivered"},
                         {"changes": f"{change_prefix} InTransit to Receiving"},
                     ],
                 },
@@ -837,7 +837,7 @@ def test_shipment_mutations_on_target_side(
                     shipmentDetail {{ id }}
     }} }}"""
     box = assert_successful_request(client, query)
-    assert box == {"state": BoxState.Lost.name, "shipmentDetail": None}
+    assert box == {"state": BoxState.NotDelivered.name, "shipmentDetail": None}
 
 
 def test_shipment_mutations_on_target_side_mark_shipment_as_lost(
@@ -874,8 +874,10 @@ def test_shipment_mutations_on_target_side_mark_shipment_as_lost(
                 "removedBy": None,
                 "lostBy": {"id": "2"},
                 "box": {
-                    "state": BoxState.Lost.name,
-                    "history": [{"changes": f"{change_prefix} InTransit to Lost"}],
+                    "state": BoxState.NotDelivered.name,
+                    "history": [
+                        {"changes": f"{change_prefix} InTransit to NotDelivered"}
+                    ],
                 },
             },
             {
@@ -883,8 +885,10 @@ def test_shipment_mutations_on_target_side_mark_shipment_as_lost(
                 "removedBy": None,
                 "lostBy": {"id": "2"},
                 "box": {
-                    "state": BoxState.Lost.name,
-                    "history": [{"changes": f"{change_prefix} InTransit to Lost"}],
+                    "state": BoxState.NotDelivered.name,
+                    "history": [
+                        {"changes": f"{change_prefix} InTransit to NotDelivered"}
+                    ],
                 },
             },
             {
@@ -905,7 +909,7 @@ def test_shipment_mutations_on_target_side_mark_shipment_as_lost(
                     shipmentDetail {{ id }}
     }} }}"""
     box = assert_successful_request(client, query)
-    assert box == {"state": BoxState.Lost.name, "shipmentDetail": None}
+    assert box == {"state": BoxState.NotDelivered.name, "shipmentDetail": None}
 
 
 def test_shipment_mutations_on_target_side_mark_all_boxes_as_lost(
@@ -956,14 +960,14 @@ def test_shipment_mutations_on_target_side_mark_all_boxes_as_lost(
                 "removedBy": None,
                 "receivedBy": None,
                 "lostBy": {"id": "2"},
-                "box": {"state": BoxState.Lost.name},
+                "box": {"state": BoxState.NotDelivered.name},
             },
             {
                 "id": str(another_shipment_detail["id"]),
                 "removedBy": None,
                 "receivedBy": None,
                 "lostBy": {"id": "2"},
-                "box": {"state": BoxState.Lost.name},
+                "box": {"state": BoxState.NotDelivered.name},
             },
             {
                 "id": str(removed_shipment_detail["id"]),
