@@ -19,7 +19,7 @@ def resolve_box(*_, label_identifier):
         .get()
     )
 
-    if box.state_id in [BoxState.InTransit, BoxState.Receiving]:
+    if box.state_id in [BoxState.InTransit, BoxState.Receiving, BoxState.NotDelivered]:
         # Users of both source and target base of the underlying shipment are allowed to
         # view InTransit or Receiving boxes
         detail = (

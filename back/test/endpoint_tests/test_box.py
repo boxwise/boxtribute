@@ -609,20 +609,31 @@ def test_create_box_with_used_qr_code(
     assert_bad_user_input(read_only_client, mutation)
 
 
-def test_access_in_transit_box(read_only_client, mocker, in_transit_box):
-    label_identifier = in_transit_box["label_identifier"]
-    box_id = str(in_transit_box["id"])
-    query = f"""query {{ box(labelIdentifier: "{label_identifier}") {{ id }} }}"""
+def test_access_in_transit_or_not_delivered_box(
+    read_only_client, mocker, in_transit_box, not_delivered_box
+):
+    def _create_query(label_identifier):
+        return f"""query {{ box(labelIdentifier: "{label_identifier}") {{ id }} }}"""
+
+    queries = {
+        str(in_transit_box["id"]): _create_query(in_transit_box["label_identifier"]),
+        str(not_delivered_box["id"]): _create_query(
+            not_delivered_box["label_identifier"]
+        ),
+    }
 
     # Default user is in the shipment source base (ID 1) and able to view the box
-    box = assert_successful_request(read_only_client, query)
-    assert box == {"id": box_id}
+    for box_id, query in queries.items():
+        box = assert_successful_request(read_only_client, query)
+        assert box == {"id": box_id}
 
     # user is in the shipment target base (ID 3) and able to view the box
     mock_user_for_request(mocker, base_ids=[3], organisation_id=2, user_id=2)
-    box = assert_successful_request(read_only_client, query)
-    assert box == {"id": box_id}
+    for box_id, query in queries.items():
+        box = assert_successful_request(read_only_client, query)
+        assert box == {"id": box_id}
 
     # user is in unrelated base (ID 2) and NOT permitted to view the box
     mock_user_for_request(mocker, base_ids=[2], organisation_id=2, user_id=3)
-    assert_forbidden_request(read_only_client, query)
+    for box_id, query in queries.items():
+        assert_forbidden_request(read_only_client, query)
