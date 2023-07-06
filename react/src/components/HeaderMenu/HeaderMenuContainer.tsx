@@ -1,7 +1,6 @@
 import { useContext, useMemo, useState } from "react";
 import { useAuth0 } from "@auth0/auth0-react";
 import HeaderMenu, { MenuItemsGroupData } from "./HeaderMenu";
-import { useDisclosure } from "@chakra-ui/react";
 import { GlobalPreferencesContext } from "providers/GlobalPreferencesProvider";
 import QrReaderOverlay from "components/QrReaderOverlay/QrReaderOverlay";
 import { qrReaderOverlayVar } from "queries/cache";
@@ -22,7 +21,10 @@ const HeaderMenuContainer = () => {
             link: `${process.env.REACT_APP_OLD_APP_BASE_URL}/mobile.php`,
             name: "Go to classic mobile",
           },
-          { link: `${process.env.REACT_APP_OLD_APP_BASE_URL}/`, name: "Go to classic desktop" },
+          {
+            link: `${process.env.REACT_APP_OLD_APP_BASE_URL}/`,
+            name: "Go to classic desktop",
+          },
         ],
       },
       // {
@@ -94,11 +96,11 @@ const HeaderMenuContainer = () => {
         menuItemsGroups={menuItems}
         currentActiveBaseId={baseId}
         availableBases={globalPreferences.availableBases}
-        onClickScanQrCode={() => qrReaderOverlayVar({isOpen: true})}
+        onClickScanQrCode={() => qrReaderOverlayVar({ isOpen: true })}
       />
       <QrReaderOverlay
         isOpen={qrReaderOverlayState.isOpen}
-        onClose={() => qrReaderOverlayVar({isOpen: false})}
+        onClose={() => qrReaderOverlayVar({ isOpen: false })}
       />
     </>
   );
