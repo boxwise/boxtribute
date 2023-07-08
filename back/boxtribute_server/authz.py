@@ -167,6 +167,7 @@ ALL_ALLOWED_MUTATIONS: Dict[int, Tuple[str, ...]] = {
         "sendShipment",
         "startReceivingShipment",
         "markShipmentAsLost",
+        "moveNotDeliveredBoxesInStock",
     ),
     # + mutations for mobile distribution pages
     99: (
@@ -184,6 +185,7 @@ ALL_ALLOWED_MUTATIONS: Dict[int, Tuple[str, ...]] = {
         "sendShipment",
         "startReceivingShipment",
         "markShipmentAsLost",
+        "moveNotDeliveredBoxesInStock",
         "createDistributionSpot",
         "createDistributionEvent",
         "addPackingListEntryToDistributionEvent",

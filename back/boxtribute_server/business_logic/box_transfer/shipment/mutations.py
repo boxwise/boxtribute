@@ -7,6 +7,7 @@ from .crud import (
     cancel_shipment,
     create_shipment,
     mark_shipment_as_lost,
+    move_not_delivered_boxes_in_stock,
     send_shipment,
     start_receiving_shipment,
     update_shipment_when_preparing,
@@ -72,3 +73,9 @@ def resolve_mark_shipment_as_lost(*_, id):
     )
     authorize(permission="shipment_detail:write")
     return mark_shipment_as_lost(id=id, user=g.user)
+
+
+@mutation.field("moveNotDeliveredBoxesInStock")
+def resolve_move_not_delivered_boxes_in_stock(*_, box_ids):
+    # authorize
+    return move_not_delivered_boxes_in_stock(box_ids=box_ids, user=g.user)

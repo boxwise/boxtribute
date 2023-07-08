@@ -1251,3 +1251,37 @@ def test_shipment_mutations_create_non_existent_resource(
         agreement={"id": 0},
     )
     assert_bad_user_input(read_only_client, mutation)
+
+
+def test_move_not_delivered_box_instock_in_target_base(
+    client, mocker, not_delivered_box
+):
+    mock_user_for_request(mocker, base_ids=[3], organisation_id=2, user_id=2)
+    box_id = str(not_delivered_box["id"])
+    mutation = f"""mutation {{ moveNotDeliveredBoxesInStock(
+                    boxIds: ["{box_id}"]) {{
+                        state
+                        completedOn
+                        completedBy {{ id }}
+                        details {{
+                            lostOn
+                            lostBy {{ id }}
+                            box {{ id state }}
+                        }} }} }}"""
+    shipment = assert_successful_request(client, mutation)
+    assert shipment == {
+        "completedOn": None,
+        "completedBy": None,
+        "state": ShipmentState.Receiving.name,
+        "details": [
+            {
+                "lostOn": None,
+                "lostBy": None,
+                "box": {
+                    "id": box_id,
+                    "state": BoxState.Receiving.name,
+                    # "shipmentDetail": {"id": "5"}
+                },
+            },
+        ],
+    }

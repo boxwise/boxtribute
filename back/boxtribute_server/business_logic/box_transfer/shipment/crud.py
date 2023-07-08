@@ -539,3 +539,42 @@ def mark_shipment_as_lost(*, id, user):
         )
         shipment.save()
     return shipment
+
+
+def move_not_delivered_boxes_in_stock(*, box_ids, user):
+    details = (
+        ShipmentDetail.select(ShipmentDetail, Box, Shipment)
+        .join(Box)
+        .join(Shipment, src=ShipmentDetail)
+        .where(
+            ShipmentDetail.lost_on.is_null(False),
+            ShipmentDetail.box_id << box_ids,
+            Box.state == BoxState.NotDelivered,
+        )
+    )
+    # FE validation already? Throw bad-user-input?
+    shipment_ids = {d.shipment_id for d in details}
+    assert len(shipment_ids) == 1
+
+    shipment = details[0].shipment
+    # authz must take place in resolver already
+    assert shipment.target_base_id in user.authorized_base_ids("shipment:edit")
+
+    shipment.state = ShipmentState.Receiving
+    shipment.completed_on = None
+    shipment.completed_by = None
+
+    for detail in details:
+        detail.lost_on = None
+        detail.lost_by = None
+        detail.box.state = BoxState.Receiving
+
+    with db.database.atomic():
+        if details:
+            Box.bulk_update([d.box for d in details], [Box.state])
+            ShipmentDetail.bulk_update(
+                details, [ShipmentDetail.lost_on, ShipmentDetail.lost_by]
+            )
+        shipment.save()
+
+    return shipment
