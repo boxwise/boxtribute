@@ -558,8 +558,16 @@ def move_not_delivered_boxes_in_stock(*, box_ids, user):
 
     shipment = details[0].shipment
     # authz must take place in resolver already
-    assert shipment.target_base_id in user.authorized_base_ids("shipment:edit")
+    authorized_base_ids_of_user = user.authorized_base_ids("shipment:edit")
+    if shipment.source_base_id in authorized_base_ids_of_user:
+        _move_not_delivered_box_instock_in_source_base(details)
+    elif shipment.target_base_id in authorized_base_ids_of_user:
+        _move_not_delivered_box_instock_in_target_base(shipment, details)
 
+    return shipment
+
+
+def _move_not_delivered_box_instock_in_target_base(shipment, details):
     shipment.state = ShipmentState.Receiving
     shipment.completed_on = None
     shipment.completed_by = None
@@ -577,4 +585,24 @@ def move_not_delivered_boxes_in_stock(*, box_ids, user):
             )
         shipment.save()
 
-    return shipment
+
+def _move_not_delivered_box_instock_in_source_base(details):
+    for detail in details:
+        detail.removed_on = detail.lost_on
+        detail.removed_by = detail.lost_by
+        detail.lost_on = None
+        detail.lost_by = None
+        detail.box.state = BoxState.InStock
+
+    with db.database.atomic():
+        if details:
+            Box.bulk_update([d.box for d in details], [Box.state])
+            ShipmentDetail.bulk_update(
+                details,
+                [
+                    ShipmentDetail.lost_on,
+                    ShipmentDetail.lost_by,
+                    ShipmentDetail.removed_on,
+                    ShipmentDetail.removed_by,
+                ],
+            )

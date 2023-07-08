@@ -1255,28 +1255,73 @@ def test_shipment_mutations_create_non_existent_resource(
     assert_bad_user_input(read_only_client, mutation)
 
 
+def test_move_not_delivered_box_instock_in_source_base(
+    client, mocker, another_not_delivered_box, completed_shipment
+):
+    box_id = str(another_not_delivered_box["id"])
+    mutation = f"""mutation {{ moveNotDeliveredBoxesInStock(
+                    boxIds: ["{box_id}"]) {{
+                        id
+                        state
+                        completedOn
+                        completedBy {{ id }}
+                        details {{
+                            removedOn
+                            removedBy {{ id }}
+                            lostOn
+                            lostBy {{ id }}
+                            box {{ id state }}
+                        }} }} }}"""
+    shipment = assert_successful_request(client, mutation)
+    assert shipment.pop("completedOn").startswith(date.today().isoformat())
+    assert shipment["details"][0].pop("removedOn").startswith(date.today().isoformat())
+    assert shipment == {
+        "id": str(completed_shipment["id"]),
+        "completedBy": {"id": "1"},
+        "state": ShipmentState.Completed.name,
+        "details": [
+            {
+                "removedBy": {"id": "1"},
+                "lostOn": None,
+                "lostBy": None,
+                "box": {
+                    "id": box_id,
+                    "state": BoxState.InStock.name,
+                    # "shipmentDetail": {"id": "5"}
+                },
+            },
+        ],
+    }
+
+
 def test_move_not_delivered_box_instock_in_target_base(
-    client, mocker, not_delivered_box
+    client, mocker, not_delivered_box, receiving_shipment
 ):
     mock_user_for_request(mocker, base_ids=[3], organisation_id=2, user_id=2)
     box_id = str(not_delivered_box["id"])
     mutation = f"""mutation {{ moveNotDeliveredBoxesInStock(
                     boxIds: ["{box_id}"]) {{
+                        id
                         state
                         completedOn
                         completedBy {{ id }}
                         details {{
+                            removedOn
+                            removedBy {{ id }}
                             lostOn
                             lostBy {{ id }}
                             box {{ id state }}
                         }} }} }}"""
     shipment = assert_successful_request(client, mutation)
     assert shipment == {
+        "id": str(receiving_shipment["id"]),
         "completedOn": None,
         "completedBy": None,
         "state": ShipmentState.Receiving.name,
         "details": [
             {
+                "removedOn": None,
+                "removedBy": None,
                 "lostOn": None,
                 "lostBy": None,
                 "box": {
