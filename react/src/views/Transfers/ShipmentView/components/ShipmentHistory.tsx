@@ -7,7 +7,7 @@ export interface IShipmentHistoryProps {
 }
 
 function ShipmentHistory({ histories }: IShipmentHistoryProps) {
-  const changesLabel = (histoty: IShipmentHistory): string => {
+  const changesLabel = (history: IShipmentHistory): string => {
     let changes = "";
     if (
       [
@@ -16,14 +16,14 @@ function ShipmentHistory({ histories }: IShipmentHistoryProps) {
         ShipmentActionEvent.ShipmentSent,
         ShipmentActionEvent.ShipmentStartReceiving,
         ShipmentActionEvent.ShipmentStarted,
-      ].includes(histoty.action)
+      ].includes(history.action)
     ) {
-      changes = `Shipment is ${histoty.action.toLowerCase().replace("shipment", "")} by ${
-        histoty.createdBy?.name
+      changes = `Shipment is ${history.action.toLowerCase().replace("shipment", "")} by ${
+        history.createdBy?.name
       }`;
     } else {
-      changes = `Box ${histoty.box}  is ${histoty.action.toLowerCase().replace("box", "")} by ${
-        histoty.createdBy?.name
+      changes = `Box ${history.box}  is ${history.action.toLowerCase().replace("box", "")} by ${
+        history.createdBy?.name
       }`;
     }
 

@@ -69,6 +69,7 @@ class BoxState(enum.IntEnum):
     Receiving = enum.auto()
     Donated = enum.auto()
     Scrap = enum.auto()
+    InTransit = enum.auto()
 
 
 class ProductGender(enum.IntEnum):

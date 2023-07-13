@@ -7,11 +7,11 @@ import { box123 } from "mocks/boxes";
 import { products } from "mocks/products";
 import { locations } from "mocks/locations";
 import { tags } from "mocks/tags";
+import { BOX_BY_LABEL_IDENTIFIER_AND_ALL_SHIPMENTS_QUERY } from "queries/queries";
 import BoxEditView, {
   BOX_BY_LABEL_IDENTIFIER_AND_ALL_PRODUCTS_WITH_BASEID_QUERY,
   UPDATE_CONTENT_OF_BOX_MUTATION,
 } from "./BoxEditView";
-import { BOX_BY_LABEL_IDENTIFIER_QUERY } from "../Box/BoxView";
 
 const initialQuery = {
   request: {
@@ -81,7 +81,7 @@ const successfulMutation = {
 
 const refetchQuery = {
   request: {
-    query: BOX_BY_LABEL_IDENTIFIER_QUERY,
+    query: BOX_BY_LABEL_IDENTIFIER_AND_ALL_SHIPMENTS_QUERY,
     variables: {
       labelIdentifier: "123",
     },

@@ -17,6 +17,7 @@ import {
 } from "@chakra-ui/react";
 import { BoxIcon } from "components/Icon/Transfer/BoxIcon";
 import { ShipmentIcon } from "components/Icon/Transfer/ShipmentIcon";
+import { qrReaderOverlayVar } from "queries/cache";
 import { BiMinusCircle, BiPlusCircle, BiTrash } from "react-icons/bi";
 import { RiFilePaperFill } from "react-icons/ri";
 import { TbMapOff } from "react-icons/tb";
@@ -205,7 +206,13 @@ function ShipmentCard({
                     height={8}
                     icon={<BiPlusCircle size={30} />}
                     isLoading={isLoadingMutation}
-                    onClick={() => {}}
+                    onClick={() =>
+                      qrReaderOverlayVar({
+                        isOpen: true,
+                        isMultiBox: true,
+                        selectedShipmentId: shipment?.id,
+                      })
+                    }
                     aria-label="add box"
                     style={{ background: "white" }}
                   />
@@ -234,7 +241,14 @@ function ShipmentCard({
                       <WrapItem>
                         <Center>
                           <Text as="p" fontSize={16} fontWeight="extrabold" color="red">
-                            -{totalLostBoxes}
+                            -
+                            {
+                              (
+                                shipment.details?.filter(
+                                  (item) => item.lostOn !== null && item.removedOn === null,
+                                ) ?? []
+                              ).length
+                            }
                           </Text>
                         </Center>
                       </WrapItem>

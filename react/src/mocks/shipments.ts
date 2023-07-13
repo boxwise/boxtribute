@@ -4,6 +4,7 @@ import { base1, base2 } from "./bases";
 import { generateMockBox } from "./boxes";
 import { generateMockLocationWithBase } from "./locations";
 import { product1, product3 } from "./products";
+import { size1, size2 } from "./sizeRanges";
 import { user1 } from "./users";
 
 export const shipment1 = {
@@ -98,6 +99,8 @@ export const generateMockShipment = ({
             product: product1,
             location: generateMockLocationWithBase({}),
           }),
+          sourceSize: size1,
+          sourceQuantity: 10,
           sourceProduct: product1,
           targetProduct: null,
           createdOn: "2023-01-09T17:24:29+00:00",
@@ -113,6 +116,8 @@ export const generateMockShipment = ({
             numberOfItems: 10,
             product: product1,
           }),
+          sourceSize: size1,
+          sourceQuantity: 10,
           sourceProduct: product1,
           targetProduct: null,
           createdOn: "2023-01-11T17:24:29+00:00",
@@ -132,6 +137,8 @@ export const generateMockShipment = ({
             numberOfItems: 12,
             product: product3,
           }),
+          sourceSize: size2,
+          sourceQuantity: 12,
           sourceProduct: product3,
           targetProduct: null,
           createdOn: "2023-02-01T17:24:29+00:00",

@@ -4,7 +4,6 @@ import { useAuth0 } from "@auth0/auth0-react";
 import { BoxReconciliationOverlay } from "components/BoxReconciliationOverlay/BoxReconciliationOverlay";
 import { mockMatchMediaQuery } from "mocks/functions";
 import { mockAuthenticatedUser } from "mocks/hooks";
-import { SHIPMENT_BY_ID_WITH_PRODUCTS_AND_LOCATIONS_QUERY } from "queries/queries";
 import { generateMockShipment } from "mocks/shipments";
 import { ShipmentState } from "types/generated/graphql";
 import { organisation1 } from "mocks/organisations";
@@ -14,6 +13,7 @@ import { generateMockLocationWithBase } from "mocks/locations";
 import { products } from "mocks/products";
 import { tag1, tag2 } from "mocks/tags";
 import userEvent from "@testing-library/user-event";
+import { SHIPMENT_BY_ID_WITH_PRODUCTS_AND_LOCATIONS_QUERY } from "queries/queries";
 
 jest.mock("@auth0/auth0-react");
 

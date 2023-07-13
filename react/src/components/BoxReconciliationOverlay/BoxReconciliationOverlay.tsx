@@ -175,6 +175,7 @@ export function BoxReconciliationOverlay() {
                 targetLocationId: boxReconciliationLocationFormState.locationId,
                 targetProductId: boxReconciliationProductFormState.productId,
                 targetSizeId: boxReconciliationProductFormState.sizeId,
+                targetQuantity: boxReconciliationProductFormState.numberOfItems,
               },
             ],
           },
