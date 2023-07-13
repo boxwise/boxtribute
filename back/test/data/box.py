@@ -105,6 +105,14 @@ def not_delivered_box_data():
     return data
 
 
+def another_not_delivered_box_data():
+    data = box_without_qr_code_data()
+    data["id"] = 12
+    data["label_identifier"] = "64646464"
+    data["state"] = BoxState.NotDelivered
+    return data
+
+
 def data():
     return [
         another_box_data(),
@@ -116,6 +124,7 @@ def data():
         in_transit_box_data(),
         another_in_transit_box_data(),
         not_delivered_box_data(),
+        another_not_delivered_box_data(),
         box_in_another_location_with_qr_code_data(),
     ]
 
@@ -173,6 +182,11 @@ def another_in_transit_box():
 @pytest.fixture
 def not_delivered_box():
     return not_delivered_box_data()
+
+
+@pytest.fixture
+def another_not_delivered_box():
+    return another_not_delivered_box_data()
 
 
 def create():

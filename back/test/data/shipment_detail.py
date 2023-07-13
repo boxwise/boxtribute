@@ -6,6 +6,7 @@ from .box import (
     another_box_data,
     another_in_transit_box_data,
     another_marked_for_shipment_box_data,
+    another_not_delivered_box_data,
     default_box_data,
     in_transit_box_data,
     not_delivered_box_data,
@@ -23,6 +24,7 @@ def data():
     in_transit_box = in_transit_box_data()
     another_in_transit_box = another_in_transit_box_data()
     not_delivered_box = not_delivered_box_data()
+    another_not_delivered_box = another_not_delivered_box_data()
     shippable_box = another_marked_for_shipment_box_data()
     return [
         {
@@ -108,6 +110,21 @@ def data():
             "source_location": not_delivered_box["location"],
             "source_size": not_delivered_box["size"],
             "source_quantity": not_delivered_box["number_of_items"],
+            "created_on": TIME,
+            "created_by": default_user_data()["id"],
+            "removed_on": None,
+            "removed_by": None,
+            "lost_on": TIME,
+            "lost_by": default_user_data()["id"],
+        },
+        {
+            "id": 7,
+            "shipment": shipments[6]["id"],  # completed shipment
+            "box": another_not_delivered_box["id"],
+            "source_product": another_not_delivered_box["product"],
+            "source_location": another_not_delivered_box["location"],
+            "source_size": another_not_delivered_box["size"],
+            "source_quantity": another_not_delivered_box["number_of_items"],
             "created_on": TIME,
             "created_by": default_user_data()["id"],
             "removed_on": None,

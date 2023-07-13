@@ -64,6 +64,7 @@ def test_shipments_query(
     another_shipment,
     sent_shipment,
     receiving_shipment,
+    completed_shipment,
 ):
     # Test case 3.1.1
     query = "query { shipments { id } }"
@@ -76,6 +77,7 @@ def test_shipments_query(
             another_shipment,
             sent_shipment,
             receiving_shipment,
+            completed_shipment,
         ]
     ]
 

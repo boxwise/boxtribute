@@ -13,6 +13,7 @@ from utils import (
 def test_transfer_agreement_query(
     read_only_client,
     default_transfer_agreement,
+    completed_shipment,
     default_shipment,
     sent_shipment,
     receiving_shipment,
@@ -65,7 +66,12 @@ def test_transfer_agreement_query(
         "targetBases": [{"id": "3"}],
         "shipments": [
             {"id": str(s["id"])}
-            for s in [default_shipment, sent_shipment, receiving_shipment]
+            for s in [
+                default_shipment,
+                sent_shipment,
+                receiving_shipment,
+                completed_shipment,
+            ]
         ],
     }
 
