@@ -140,7 +140,7 @@ export function BoxReconciliationOverlay() {
               createToast({
                 title: `Box ${labelIdentifier}`,
                 type: "success",
-                message: "Boxe marked as undelivered",
+                message: "Box marked as undelivered",
               });
             }
           })
