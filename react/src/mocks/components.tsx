@@ -1,5 +1,4 @@
 import { Result } from "@zxing/library";
-import { boxReconciliationOverlayVar } from "queries/cache";
 
 /**
  * Mocking the QrReader component in components/QrReader/QrReader by overriding the implemention of the component with a button.
