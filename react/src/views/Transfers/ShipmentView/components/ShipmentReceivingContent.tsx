@@ -14,8 +14,8 @@ function ShipmentReceivingContent({ items }: IShipmentReceivingContentProps) {
     product: shipmentDetail.sourceProduct?.name,
     comment: shipmentDetail?.box?.comment,
     gender: shipmentDetail.sourceProduct?.gender,
-    size: shipmentDetail.box.size.label,
-    items: shipmentDetail?.box?.numberOfItems || 0,
+    size: shipmentDetail.sourceSize?.label || "fff",
+    items: shipmentDetail?.sourceQuantity || 0,
   }));
 
   // Define columns

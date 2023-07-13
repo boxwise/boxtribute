@@ -5,6 +5,7 @@ import {
   PRODUCT_BASIC_FIELDS_FRAGMENT,
   TAG_FIELDS_FRAGMENT,
   DISTRO_EVENT_FIELDS_FRAGMENT,
+  BOX_BASIC_FIELDS_FRAGMENT,
 } from "./fragments";
 
 export const BOX_DETAILS_BY_LABEL_IDENTIFIER_QUERY = gql`
@@ -17,12 +18,12 @@ export const BOX_DETAILS_BY_LABEL_IDENTIFIER_QUERY = gql`
 `;
 
 export const GET_BOX_LABEL_IDENTIFIER_BY_QR_CODE = gql`
-  ${BOX_FIELDS_FRAGMENT}
+  ${BOX_BASIC_FIELDS_FRAGMENT}
   query GetBoxLabelIdentifierForQrCode($qrCode: String!) {
     qrCode(qrCode: $qrCode) {
       code
       box {
-        ...BoxFields
+        ...BoxBasicFields
       }
     }
   }
