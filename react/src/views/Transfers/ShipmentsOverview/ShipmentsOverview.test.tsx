@@ -4,7 +4,8 @@ import { screen, render } from "tests/test-utils";
 import { mockGraphQLError, mockNetworkError } from "mocks/functions";
 import { generateMockShipment } from "mocks/shipments";
 import { ShipmentState } from "types/generated/graphql";
-import ShipmentsOverviewView, { ALL_SHIPMENTS_QUERY } from "./ShipmentsOverviewView";
+import { ALL_SHIPMENTS_QUERY } from "queries/queries";
+import ShipmentsOverviewView from "./ShipmentsOverviewView";
 
 const mockSuccessfulShipmentsQuery = ({
   query = ALL_SHIPMENTS_QUERY,

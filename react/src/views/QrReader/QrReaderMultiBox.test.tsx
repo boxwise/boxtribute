@@ -1,3 +1,4 @@
+import { GraphQLError } from "graphql";
 import "@testing-library/jest-dom";
 import userEvent from "@testing-library/user-event";
 import { screen, render, waitFor } from "tests/test-utils";
@@ -156,5 +157,134 @@ qrScanningInMultiBoxTabTests.forEach(({ name, hash, mocks, boxCount, toasts }) =
       user.click(deleteScannedBoxesButton);
       expect(await screen.findByText(/boxes selected: 0/i)).toBeInTheDocument();
     }
+  });
+});
+
+const mockFailedQrQuery = ({
+  query = GET_BOX_LABEL_IDENTIFIER_BY_QR_CODE,
+  hash = "",
+  errorCode = "",
+  resultQrCode = null as string | null | undefined,
+  networkError = false,
+}) => ({
+  request: {
+    query,
+    variables: { qrCode: hash },
+  },
+  result: networkError
+    ? undefined
+    : {
+        data:
+          resultQrCode != null
+            ? {
+                qrCode: {
+                  _typename: "QrCode",
+                  code: hash,
+                  box: null,
+                },
+              }
+            : null,
+        errors: [new GraphQLError("Error!", { extensions: { code: errorCode } })],
+      },
+  error: networkError ? new Error() : undefined,
+});
+
+const qrScanningInMultiBoxTabTestsFailing = [
+  {
+    name: "3.4.3.5 - user scans QR code with associated box, but has no access",
+    hash: "QrWithBoxFromOtherOrganisation",
+    isBoxtributeQr: true,
+    mocks: [
+      mockFailedQrQuery({
+        hash: "QrWithBoxFromOtherOrganisation",
+        resultQrCode: "QrWithBoxFromOtherBase",
+        errorCode: "FORBIDDEN",
+      }),
+    ],
+    toasts: [{ message: /have permission to access this box/i, isError: true }],
+  },
+  {
+    name: "3.4.3.7 - user scans non Boxtribute QR code ",
+    hash: "nonBoxtributeQr",
+    isBoxtributeQr: false,
+    mocks: [],
+    toasts: [{ message: /This is not a Boxtribute QR code/i, isError: true }],
+  },
+  {
+    name: "3.4.3.8 - user scans QR code where hash is not found in db",
+    hash: "QrHashNotInDb",
+    isBoxtributeQr: true,
+    mocks: [
+      mockFailedQrQuery({
+        hash: "QrHashNotInDb",
+        resultQrCode: null,
+        errorCode: "BAD_USER_INPUT",
+      }),
+    ],
+    toasts: [{ message: /No box found for this QR code/i, isError: true }],
+  },
+  {
+    name: "3.4.3.9 - user scans QR code and server returns unexpected error",
+    hash: "InternalServerError",
+    isBoxtributeQr: true,
+    mocks: [
+      mockFailedQrQuery({
+        hash: "InternalServerError",
+        resultQrCode: null,
+        errorCode: "INTERNAL_SERVER_ERROR",
+      }),
+    ],
+    toasts: [{ message: /QR code lookup failed/i, isError: true }],
+  },
+  {
+    name: "3.4.3.10 - user scans QR code and a network error is returned",
+    hash: "NetworkError",
+    isBoxtributeQr: true,
+    mocks: [
+      mockFailedQrQuery({
+        hash: "NetworkError",
+        networkError: true,
+      }),
+    ],
+    toasts: [{ message: /QR code lookup failed/i, isError: true }],
+  },
+];
+
+qrScanningInMultiBoxTabTestsFailing.forEach(({ name, hash, isBoxtributeQr, mocks, toasts }) => {
+  it(name, async () => {
+    const user = userEvent.setup();
+    mockImplementationOfQrReader(mockedQrReader, hash, isBoxtributeQr, true);
+    render(<QrReaderView />, {
+      routePath: "/bases/:baseId/qrreader",
+      initialUrl: "/bases/1/qrreader",
+      mocks,
+      cache,
+    });
+
+    // go to the MultiBox Tab
+    const multiBoxTab = await screen.findByRole("tab", { name: /multi box/i });
+    expect(multiBoxTab).toBeInTheDocument();
+    user.click(multiBoxTab);
+
+    // 3.4.3.1 - no QR-codes were successfully scanned yet.
+    const boxesSelectedStatus = await screen.findByText(/boxes selected: 0/i);
+    expect(boxesSelectedStatus).toBeInTheDocument();
+    expect(
+      screen.queryByRole("button", { name: /delete list of scanned boxes/i }),
+    ).not.toBeInTheDocument();
+    expect(screen.queryByRole("button", { name: /undo last scan/i })).not.toBeInTheDocument();
+
+    // Click a button to trigger the event of scanning a QR-Code in mockImplementationOfQrReader
+    const scanButton = await screen.findByTestId("ReturnScannedQr");
+    await user.click(scanButton);
+
+    // toast shown
+    await waitFor(() =>
+      expect(toasts[0].isError ? mockedTriggerError : mockedCreateToast).toHaveBeenCalledWith(
+        expect.objectContaining({
+          message: expect.stringMatching(toasts[0].message),
+        }),
+      ),
+    );
   });
 });

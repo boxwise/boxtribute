@@ -1,6 +1,4 @@
 import { useCallback, useState, useContext } from "react";
-import { useApolloClient } from "@apollo/client";
-import { useNotification } from "hooks/useNotification";
 import { useNavigate } from "react-router-dom";
 import { GlobalPreferencesContext } from "providers/GlobalPreferencesProvider";
 import { useErrorHandling } from "hooks/useErrorHandling";
@@ -10,7 +8,9 @@ import {
   useLabelIdentifierResolver,
 } from "hooks/useLabelIdentifierResolver";
 import { IQrResolvedValue, IQrResolverResultKind, useQrResolver } from "hooks/useQrResolver";
-import { GET_SCANNED_BOXES } from "queries/local-only";
+import { useScannedBoxesActions } from "hooks/useScannedBoxesActions";
+import { useReactiveVar } from "@apollo/client";
+import { qrReaderOverlayVar } from "queries/cache";
 import QrReader from "./components/QrReader";
 
 interface IQrReaderContainerProps {
@@ -18,15 +18,15 @@ interface IQrReaderContainerProps {
 }
 
 function QrReaderContainer({ onSuccess }: IQrReaderContainerProps) {
-  const apolloClient = useApolloClient();
   const { globalPreferences } = useContext(GlobalPreferencesContext);
   const baseId = globalPreferences.selectedBaseId;
   const navigate = useNavigate();
-  const { createToast } = useNotification();
   const { triggerError } = useErrorHandling();
   const { resolveQrCode } = useQrResolver();
   const { loading: findByBoxLabelIsLoading, checkLabelIdentifier } = useLabelIdentifierResolver();
-  const [isMultiBox, setIsMultiBox] = useState(false);
+  const { addBox: addBoxToScannedBoxes } = useScannedBoxesActions();
+  const qrReaderOverlayState = useReactiveVar(qrReaderOverlayVar);
+  const [isMultiBox, setIsMultiBox] = useState(!!qrReaderOverlayState.isMultiBox);
   const [isProcessingQrCode, setIsProcessingQrCode] = useState(false);
   const setIsProcessingQrCodeDelayed = useCallback(
     (state: boolean) => {
@@ -56,46 +56,7 @@ function QrReaderContainer({ onSuccess }: IQrReaderContainerProps) {
           } else {
             // Only execute for Multi Box tab
             // add box reference to query for list of all scanned boxes
-            await apolloClient.cache.updateQuery(
-              {
-                query: GET_SCANNED_BOXES,
-              },
-              (data) => {
-                const existingBoxRefs = data.scannedBoxes.map((box) => ({
-                  __typename: "Box",
-                  labelIdentifier: box.labelIdentifier,
-                }));
-
-                const alreadyExists = existingBoxRefs.some(
-                  (ref) => ref.labelIdentifier === qrResolvedValue.box.labelIdentifier,
-                );
-
-                if (alreadyExists) {
-                  createToast({
-                    message: `Box ${boxLabelIdentifier} is already on the list.`,
-                    type: "info",
-                  });
-
-                  return existingBoxRefs;
-                }
-                // execute rest only if Box is not in the scannedBoxes already
-                createToast({
-                  message: `Box ${boxLabelIdentifier} was added to the list.`,
-                  type: "success",
-                });
-
-                return {
-                  scannedBoxes: [
-                    ...existingBoxRefs,
-                    {
-                      __typename: "Box",
-                      labelIdentifier: qrResolvedValue.box.labelIdentifier,
-                      state: qrResolvedValue.box.labelIdentifier,
-                    },
-                  ],
-                };
-              },
-            );
+            await addBoxToScannedBoxes(qrResolvedValue.box);
             setIsProcessingQrCode(false);
           }
           break;
@@ -106,46 +67,15 @@ function QrReaderContainer({ onSuccess }: IQrReaderContainerProps) {
             navigate(`/bases/${baseId}/boxes/create/${qrResolvedValue?.qrHash}`);
           } else {
             triggerError({
-              message: "No box associated to this QR-Code!",
+              message: "No box associated to this QR code!",
             });
             setIsProcessingQrCodeDelayed(false);
           }
           break;
         }
-        case IQrResolverResultKind.NOT_AUTHORIZED: {
-          triggerError({
-            message: "You don't have permission to access this box!",
-          });
-          setIsProcessingQrCodeDelayed(false);
-          break;
-        }
-        case IQrResolverResultKind.NOT_FOUND: {
-          triggerError({
-            message: "No box found for this QR-Code!",
-          });
-          setIsProcessingQrCodeDelayed(false);
-          break;
-        }
-        case IQrResolverResultKind.NOT_BOXTRIBUTE_QR: {
-          triggerError({
-            message: "This is not a Boxtribute QR-Code!",
-          });
-          setIsProcessingQrCodeDelayed(false);
-          break;
-        }
-        case IQrResolverResultKind.FAIL: {
-          triggerError({
-            message: "The search for this QR-Code failed. Please try again.",
-          });
-          setIsProcessingQrCodeDelayed(false);
-          break;
-        }
         default: {
-          triggerError({
-            message: `The resolved value of the qr-code does not match
-              any case of the IQrResolverResultKind.`,
-            userMessage: "Something went wrong!",
-          });
+          // the following cases should arrive here:
+          // NOT_AUTHORIZED, NOT_BOXTRIBUTE_QR,
           setIsProcessingQrCodeDelayed(false);
         }
       }
@@ -203,6 +133,7 @@ function QrReaderContainer({ onSuccess }: IQrReaderContainerProps) {
       onScan={onScan}
       onFindBoxByLabel={onFindBoxByLabel}
       findBoxByLabelIsLoading={findByBoxLabelIsLoading || isProcessingQrCode}
+      onSuccess={onSuccess}
     />
   );
 }

@@ -1,8 +1,8 @@
-ariadne==0.19.1
+ariadne==0.20.1
 Flask==2.3.2
-Flask-Cors==3.0.10
-sentry-sdk[flask]==1.22.2
-PyMySQL==1.0.3
+Flask-Cors==4.0.0
+sentry-sdk[flask]==1.27.1
+PyMySQL==1.1.0
 peewee==3.16.2
 peewee-moves==2.1.0
 python-dateutil==2.8.2
