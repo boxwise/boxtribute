@@ -101,6 +101,19 @@ export const SIZE_RANGE_FIELDS_FRAGMENT = gql`
   }
 `;
 
+export const BOX_BASIC_FIELDS_FRAGMENT = gql`
+  fragment BoxBasicFields on Box {
+    labelIdentifier
+    state
+    comment
+    location {
+      base {
+        id
+      }
+    }
+  }
+`;
+
 export const BOX_FIELDS_FRAGMENT = gql`
   ${PRODUCT_BASIC_FIELDS_FRAGMENT}
   ${SIZE_FIELDS_FRAGMENT}
@@ -116,6 +129,21 @@ export const BOX_FIELDS_FRAGMENT = gql`
     size {
       ...SizeFields
     }
+    shipmentDetail {
+      shipment {
+        id
+        state
+        targetBase {
+          id
+          name
+          organisation {
+            id
+            name
+          }
+        }
+      }
+    }
+
     location {
       id
       name
@@ -253,13 +281,14 @@ export const PRODUCT_FIELDS_FRAGMENT = gql`
 `;
 
 export const SHIPMENT_DETAIL_FIELDS_FRAGMENT = gql`
-  ${BOX_FIELDS_FRAGMENT}
+  ${BOX_BASIC_FIELDS_FRAGMENT}
   ${USER_BASIC_FIELDS_FRAGMENT}
   ${PRODUCT_FIELDS_FRAGMENT}
+  ${SIZE_FIELDS_FRAGMENT}
   fragment ShipmentDetailFields on ShipmentDetail {
     id
     box {
-      ...BoxFields
+      ...BoxBasicFields
     }
     sourceProduct {
       ...ProductFields
@@ -267,6 +296,14 @@ export const SHIPMENT_DETAIL_FIELDS_FRAGMENT = gql`
     targetProduct {
       ...ProductFields
     }
+    sourceSize {
+      ...SizeFields
+    }
+    targetSize {
+      ...SizeFields
+    }
+    sourceQuantity
+    targetQuantity
     createdOn
     createdBy {
       ...UserBasicFields

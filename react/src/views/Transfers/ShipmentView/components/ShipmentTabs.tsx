@@ -1,6 +1,6 @@
 import { TabList, TabPanels, Tabs, TabPanel, Tab, Center } from "@chakra-ui/react";
 import _ from "lodash";
-import { Box, BoxState, ShipmentDetail, ShipmentState, User } from "types/generated/graphql";
+import { Box, ShipmentDetail, ShipmentState, User } from "types/generated/graphql";
 import ShipmentContent, { IShipmentContent } from "./ShipmentContent";
 import ShipmentHistory from "./ShipmentHistory";
 
@@ -49,22 +49,18 @@ function ShipmentTabs({
 }: IShipmentTabsProps) {
   const boxGroupedByProductGender = _.values(
     _(detail)
-      .groupBy(
-        (shipment) =>
-          `${shipment?.box?.product?.name || shipment?.sourceProduct?.name}_${
-            shipment?.box?.product?.gender || shipment?.sourceProduct?.gender
-          }`,
-      )
+      .groupBy((shipment) => `${shipment?.sourceProduct?.name}_${shipment?.sourceProduct?.gender}`)
       .mapValues((group) => ({
-        product: group[0]?.box?.product ? group[0]?.box?.product : group[0]?.sourceProduct,
-        totalItems: _.sumBy(group, (shipment) => shipment?.box?.numberOfItems || 0),
-        totalLosts: group.filter((item) => item.box.state === BoxState.Lost).length,
+        product: group[0]?.sourceProduct,
+        totalItems: _.sumBy(group, (shipment) => shipment?.sourceQuantity || 0),
         totalBoxes: group.length,
         boxes: group.map(
           (shipment) =>
             ({
               ...shipment.box,
-              product: shipment?.box?.product ?? group[0]?.sourceProduct,
+              size: group[0]?.sourceSize,
+              totalItems: group[0]?.sourceQuantity,
+              product: group[0]?.sourceProduct,
             } as Box),
         ),
       }))

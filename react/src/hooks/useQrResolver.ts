@@ -6,15 +6,16 @@ import {
   GetBoxLabelIdentifierForQrCodeQuery,
   GetBoxLabelIdentifierForQrCodeQueryVariables,
 } from "types/generated/graphql";
+import { useErrorHandling } from "./useErrorHandling";
 
 // eslint-disable-next-line no-shadow
 export enum IQrResolverResultKind {
   SUCCESS = "success",
-  FAIL = "fail",
   NOT_ASSIGNED_TO_BOX = "notAssignedToBox",
-  NOT_FOUND = "notFound",
   NOT_AUTHORIZED = "notAuthorized",
   NOT_BOXTRIBUTE_QR = "noBoxtributeQr",
+  NOT_FOUND = "notFound",
+  FAIL = "fail",
   // TODO: implement the following two edge cases
   DELETED_BOX = "deletedBox",
   LEGACY_BOX = "legacyBox",
@@ -37,6 +38,7 @@ export const extractQrCodeFromUrl = (url): string | undefined => {
 };
 
 export const useQrResolver = () => {
+  const { triggerError } = useErrorHandling();
   const [loading, setLoading] = useState(false);
   const apolloClient = useApolloClient();
 
@@ -53,17 +55,26 @@ export const useQrResolver = () => {
           if ((errors?.length || 0) > 0) {
             const errorCode = errors ? errors[0].extensions.code : undefined;
             if (errorCode === "FORBIDDEN") {
+              triggerError({
+                message: "You don't have permission to access this box!",
+              });
               return {
                 kind: IQrResolverResultKind.NOT_AUTHORIZED,
                 qrHash: hash,
               } as IQrResolvedValue;
             }
             if (errorCode === "BAD_USER_INPUT") {
+              triggerError({
+                message: "No box found for this QR code!",
+              });
               return {
                 kind: IQrResolverResultKind.NOT_FOUND,
                 qrHash: hash,
               } as IQrResolvedValue;
             }
+            triggerError({
+              message: "QR code lookup failed. Please wait a bit and try again.",
+            });
             return {
               kind: IQrResolverResultKind.FAIL,
               qrHash: hash,
@@ -81,14 +92,16 @@ export const useQrResolver = () => {
             box: data?.qrCode?.box,
           } as IQrResolvedValue;
         })
-        .catch(
-          (err) =>
-            ({
-              kind: IQrResolverResultKind.FAIL,
-              qrHash: hash,
-              error: err,
-            } as IQrResolvedValue),
-        );
+        .catch((err) => {
+          triggerError({
+            message: "QR code lookup failed. Please wait a bit and try again.",
+          });
+          return {
+            kind: IQrResolverResultKind.FAIL,
+            qrHash: hash,
+            error: err,
+          } as IQrResolvedValue;
+        });
 
       if (qrResolvedValue.kind === IQrResolverResultKind.SUCCESS) {
         const boxCacheRef = `Box:{"labelIdentifier":"${qrResolvedValue.box.labelIdentifier}"}`;
@@ -104,7 +117,7 @@ export const useQrResolver = () => {
       setLoading(false);
       return qrResolvedValue;
     },
-    [apolloClient],
+    [apolloClient, triggerError],
   );
 
   const resolveQrCode = useCallback(
@@ -112,6 +125,9 @@ export const useQrResolver = () => {
       setLoading(true);
       const extractedQrHashFromUrl = extractQrCodeFromUrl(qrCodeUrl);
       if (extractedQrHashFromUrl == null) {
+        triggerError({
+          message: "This is not a Boxtribute QR code!",
+        });
         setLoading(false);
         return { kind: IQrResolverResultKind.NOT_BOXTRIBUTE_QR } as IQrResolvedValue;
       }
@@ -122,7 +138,7 @@ export const useQrResolver = () => {
       setLoading(false);
       return qrResolvedValue;
     },
-    [resolveQrHash],
+    [resolveQrHash, triggerError],
   );
 
   return {
