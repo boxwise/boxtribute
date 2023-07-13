@@ -46,7 +46,8 @@ function AssignBoxToShipment({
     if (
       selectedShipmentOption &&
       selectedShipmentOption.value !== "" &&
-      boxData?.state !== BoxState.Donated
+      boxData?.state !== BoxState.Donated &&
+      (boxData?.location as any)?.defaultBoxState !== BoxState.Lost
     ) {
       return false;
     }
