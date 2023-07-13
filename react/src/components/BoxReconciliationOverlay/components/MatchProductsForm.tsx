@@ -96,7 +96,7 @@ export function MatchProductsForm({
       value: selectedProduct?.id || "",
     },
     sizeId: { label: selectedSizeId?.label || "Select Size", value: selectedSizeId?.id || "" },
-    numberOfItems: shipmentDetail?.box.numberOfItems ?? 0,
+    numberOfItems: shipmentDetail?.sourceQuantity ?? 0,
   };
 
   // react-hook-form
@@ -207,7 +207,7 @@ export function MatchProductsForm({
               fontWeight="semibold"
               style={{ color: sizeId?.value === "" ? "#FF0000" : "#000" }}
             >
-              {shipmentDetail?.box.size.label}{" "}
+              {shipmentDetail?.sourceSize?.label}{" "}
             </Text>
           </WrapItem>
         </Wrap>
