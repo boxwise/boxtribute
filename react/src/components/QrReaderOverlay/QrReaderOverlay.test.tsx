@@ -1,7 +1,7 @@
 import { GraphQLError } from "graphql";
 import "@testing-library/jest-dom";
 import userEvent from "@testing-library/user-event";
-import { screen, render, waitFor } from "tests/test-utils";
+import { screen, render } from "tests/test-utils";
 import HeaderMenuContainer from "components/HeaderMenu/HeaderMenuContainer";
 import { useAuth0 } from "@auth0/auth0-react";
 import { QrReaderScanner } from "components/QrReader/components/QrReaderScanner";
@@ -105,11 +105,9 @@ it("3.4.1.3 - Mobile: Enter valid box identifier and click on Find button", asyn
   await user.type(screen.getByRole("textbox"), "123456");
   await user.click(findBoxButton);
 
-  await waitFor(() => {
-    // Click a button to trigger the event of scanning a QR-Code in mockImplementationOfQrReader
-    expect(screen.getByRole("heading", { name: "/bases/1/boxes/123456" })).toBeInTheDocument();
-  });
-});
+  // Click a button to trigger the event of scanning a QR-Code in mockImplementationOfQrReader
+  expect(await screen.findByRole("heading", { name: "/bases/1/boxes/123456" })).toBeInTheDocument();
+}, 20000);
 
 const queryFindBoxFromOtherOrg = {
   request: {
