@@ -106,6 +106,11 @@ export const BOX_BASIC_FIELDS_FRAGMENT = gql`
     labelIdentifier
     state
     comment
+    location {
+      base {
+        id
+      }
+    }
   }
 `;
 
