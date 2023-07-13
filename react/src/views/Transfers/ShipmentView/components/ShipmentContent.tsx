@@ -116,8 +116,8 @@ function ShipmentContent({
                     <Box>
                       <Text>
                         {" "}
-                        {item?.product?.name || "Unassigned"}{" "}
-                        {(item?.product?.gender && item?.product?.gender) !== "none"
+                        {item?.product?.name}{" "}
+                        {item?.product?.gender && item?.product?.gender !== "none"
                           ? item?.product?.gender
                           : ""}{" "}
                         ({item.totalItems}x)
