@@ -1,6 +1,6 @@
 from ariadne import QueryType
 
-from ....authz import authorize
+# from ....authz import authorize
 from ....models.definitions.box import Box
 from ....models.definitions.location import Location
 
@@ -15,5 +15,5 @@ def resolve_box(*_, label_identifier):
         .where(Box.label_identifier == label_identifier)
         .get()
     )
-    authorize(permission="stock:read", base_id=box.location.base_id)
+    # authorize(permission="stock:read", base_id=box.location.base_id)
     return box
