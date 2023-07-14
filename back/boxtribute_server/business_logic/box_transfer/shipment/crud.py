@@ -392,7 +392,10 @@ def _complete_shipment_if_applicable(*, shipment, user_id):
     )
     now = utcnow()
 
-    if all(d.box.state_id == BoxState.NotDelivered for d in details):
+    # There must be least one NotDelivered detail because `all([])` would return true;
+    # and hence make a shipment Lost that had all boxes removed before sending
+    not_delivered_details = [d.box.state_id == BoxState.NotDelivered for d in details]
+    if not_delivered_details and all(not_delivered_details):
         shipment.state = ShipmentState.Lost
         shipment.completed_by = user_id
         shipment.completed_on = now
@@ -413,9 +416,10 @@ def _complete_shipment_if_applicable(*, shipment, user_id):
             detail.received_by = user_id
             detail.received_on = now
 
-        ShipmentDetail.bulk_update(
-            details, [ShipmentDetail.received_on, ShipmentDetail.received_by]
-        )
+        if details:
+            ShipmentDetail.bulk_update(
+                details, [ShipmentDetail.received_on, ShipmentDetail.received_by]
+            )
 
 
 def update_shipment_when_preparing(
@@ -560,9 +564,12 @@ def move_not_delivered_boxes_in_stock(*, box_ids, user):
     # authz must take place in resolver already
     authorized_base_ids_of_user = user.authorized_base_ids("shipment:edit")
     if shipment.source_base_id in authorized_base_ids_of_user:
-        _move_not_delivered_box_instock_in_source_base(details)
+        _move_not_delivered_box_instock_in_source_base(user.id, details)
     elif shipment.target_base_id in authorized_base_ids_of_user:
         _move_not_delivered_box_instock_in_target_base(shipment, details)
+
+    if shipment.state != ShipmentState.Completed:
+        _complete_shipment_if_applicable(shipment=shipment, user_id=user.id)
 
     return shipment
 
@@ -586,10 +593,10 @@ def _move_not_delivered_box_instock_in_target_base(shipment, details):
         shipment.save()
 
 
-def _move_not_delivered_box_instock_in_source_base(details):
+def _move_not_delivered_box_instock_in_source_base(user_id, details):
     for detail in details:
-        detail.removed_on = detail.lost_on
-        detail.removed_by = detail.lost_by
+        detail.removed_on = utcnow()
+        detail.removed_by = user_id
         detail.lost_on = None
         detail.lost_by = None
         detail.box.state = BoxState.InStock

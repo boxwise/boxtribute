@@ -45,6 +45,7 @@ def another_box_data():
     data["label_identifier"] = "34567890"
     data["location"] = another_location_data()["id"]
     data["product"] = product_data()[1]["id"]
+    data["state"] = BoxState.InStock
     return data
 
 

@@ -1267,14 +1267,25 @@ def _create_move_not_delivered_boxes_in_stock_mutation(box_id):
                             removedBy {{ id }}
                             lostOn
                             lostBy {{ id }}
-                            box {{ id state }}
+                            box {{ id state shipmentDetail {{ id }} }}
                         }} }} }}"""
 
 
 def test_move_not_delivered_box_instock_in_source_base(
-    client, mocker, another_not_delivered_box, completed_shipment
+    client,
+    mocker,
+    not_delivered_box,
+    another_not_delivered_box,
+    another_box,
+    completed_shipment,
+    receiving_shipment,
 ):
+    # The shipment was already Completed. Now the source side finds a box that was
+    # added to the shipment but then only physically (not digitally) removed before
+    # sending.
+    # The shipment remains Completed but the box is InStock instead of NotDelivered
     box_id = str(another_not_delivered_box["id"])
+    user_id = "8"
     mutation = _create_move_not_delivered_boxes_in_stock_mutation(box_id)
     shipment = assert_successful_request(client, mutation)
     assert shipment.pop("completedOn").startswith(date.today().isoformat())
@@ -1285,13 +1296,50 @@ def test_move_not_delivered_box_instock_in_source_base(
         "state": ShipmentState.Completed.name,
         "details": [
             {
-                "removedBy": {"id": "1"},
+                "removedBy": {"id": user_id},
                 "lostOn": None,
                 "lostBy": None,
                 "box": {
                     "id": box_id,
                     "state": BoxState.InStock.name,
-                    # "shipmentDetail": {"id": "5"}
+                    "shipmentDetail": None,
+                },
+            },
+            {
+                "removedOn": None,
+                "removedBy": None,
+                "lostOn": None,
+                "lostBy": None,
+                "box": {
+                    "id": str(another_box["id"]),
+                    "state": BoxState.InStock.name,
+                    "shipmentDetail": {"id": "8"},
+                },
+            },
+        ],
+    }
+
+    # The shipment is Receiving. Now the source side finds a box that was added to the
+    # shipment but then only physically (not digitally) removed before sending.
+    # The shipment becomes Completed and the box is InStock instead of NotDelivered
+    box_id = str(not_delivered_box["id"])
+    mutation = _create_move_not_delivered_boxes_in_stock_mutation(box_id)
+    shipment = assert_successful_request(client, mutation)
+    assert shipment.pop("completedOn").startswith(date.today().isoformat())
+    assert shipment["details"][0].pop("removedOn").startswith(date.today().isoformat())
+    assert shipment == {
+        "id": str(receiving_shipment["id"]),
+        "completedBy": {"id": user_id},
+        "state": ShipmentState.Completed.name,
+        "details": [
+            {
+                "removedBy": {"id": user_id},
+                "lostOn": None,
+                "lostBy": None,
+                "box": {
+                    "id": box_id,
+                    "state": BoxState.InStock.name,
+                    "shipmentDetail": None,
                 },
             },
         ],
@@ -1299,9 +1347,19 @@ def test_move_not_delivered_box_instock_in_source_base(
 
 
 def test_move_not_delivered_box_instock_in_target_base(
-    client, mocker, not_delivered_box, receiving_shipment
+    client,
+    mocker,
+    not_delivered_box,
+    another_not_delivered_box,
+    another_box,
+    receiving_shipment,
+    completed_shipment,
 ):
     mock_user_for_request(mocker, base_ids=[3], organisation_id=2, user_id=2)
+    # The shipment is Receiving. Person A on the target side has extracted a box from
+    # the shipment without registering. Person B on the target side can't find the box
+    # and marks it as NotDelivered. The target side finds the box again.
+    # The shipment stays Receiving and the box is Receiving instead of NotDelivered
     box_id = str(not_delivered_box["id"])
     mutation = _create_move_not_delivered_boxes_in_stock_mutation(box_id)
     shipment = assert_successful_request(client, mutation)
@@ -1319,7 +1377,45 @@ def test_move_not_delivered_box_instock_in_target_base(
                 "box": {
                     "id": box_id,
                     "state": BoxState.Receiving.name,
-                    # "shipmentDetail": {"id": "5"}
+                    "shipmentDetail": {"id": "6"},
+                },
+            },
+        ],
+    }
+
+    # The shipment is Completed. Person A on the target side has extracted a box from
+    # the shipment without registering. Person B on the target side can't find the box
+    # and marks it as NotDelivered. The target side finds the box again.
+    # The shipment becomes Receiving and the box is Receiving instead of NotDelivered
+    box_id = str(another_not_delivered_box["id"])
+    mutation = _create_move_not_delivered_boxes_in_stock_mutation(box_id)
+    shipment = assert_successful_request(client, mutation)
+    assert shipment == {
+        "id": str(completed_shipment["id"]),
+        "completedOn": None,
+        "completedBy": None,
+        "state": ShipmentState.Receiving.name,
+        "details": [
+            {
+                "removedOn": None,
+                "removedBy": None,
+                "lostOn": None,
+                "lostBy": None,
+                "box": {
+                    "id": box_id,
+                    "state": BoxState.Receiving.name,
+                    "shipmentDetail": {"id": "7"},
+                },
+            },
+            {
+                "removedOn": None,
+                "removedBy": None,
+                "lostOn": None,
+                "lostBy": None,
+                "box": {
+                    "id": str(another_box["id"]),
+                    "state": BoxState.InStock.name,
+                    "shipmentDetail": {"id": "8"},
                 },
             },
         ],
