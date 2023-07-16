@@ -81,7 +81,7 @@ def resolve_shipment_detail_target_product(detail_obj, info):
 
 
 @shipment_detail.field("sourceLocation")
-def resolve_shipment_detail_source_location(detail_obj, _):
+def resolve_shipment_detail_source_location(detail_obj, info):
     authorize(
         permission="location:read",
         base_ids=[
@@ -89,11 +89,11 @@ def resolve_shipment_detail_source_location(detail_obj, _):
             detail_obj.shipment.target_base_id,
         ],
     )
-    return detail_obj.source_location
+    return info.context["location_loader"].load(detail_obj.source_location_id)
 
 
 @shipment_detail.field("targetLocation")
-def resolve_shipment_detail_target_location(detail_obj, _):
+def resolve_shipment_detail_target_location(detail_obj, info):
     authorize(
         permission="location:read",
         base_ids=[
@@ -101,7 +101,7 @@ def resolve_shipment_detail_target_location(detail_obj, _):
             detail_obj.shipment.target_base_id,
         ],
     )
-    return detail_obj.target_location
+    return info.context["location_loader"].load(detail_obj.target_location_id)
 
 
 @shipment_detail.field("box")

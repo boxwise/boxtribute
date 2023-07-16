@@ -45,8 +45,14 @@ def resolve_box_size(box_obj, info):
 
 
 @box.field("location")
-def resolve_box_location(box_obj, info):
-    return info.context["location_loader"].load(box_obj.location_id)
+async def resolve_box_location(box_obj, info):
+    location = await info.context["location_loader"].load(box_obj.location_id)
+    # See comment in resolve_box_product()
+    try:
+        authorize(permission="location:read", base_id=location.base_id)
+        return location
+    except Forbidden:
+        return
 
 
 @box.field("state")
