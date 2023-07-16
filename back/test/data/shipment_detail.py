@@ -3,6 +3,7 @@ from boxtribute_server.models.definitions.shipment_detail import ShipmentDetail
 from boxtribute_server.models.utils import utcnow
 
 from .box import (
+    another_box_data,
     another_in_transit_box_data,
     another_marked_for_shipment_box_data,
     default_box_data,
@@ -17,6 +18,7 @@ TIME = utcnow().replace(tzinfo=None)
 def data():
     shipments = shipment_data()
     default_box = default_box_data()
+    box_in_another_location = another_box_data()
     in_transit_box = in_transit_box_data()
     another_in_transit_box = another_in_transit_box_data()
     shippable_box = another_marked_for_shipment_box_data()
@@ -72,6 +74,19 @@ def data():
             "created_by": default_user_data()["id"],
             "removed_on": TIME,
             "removed_by": second_user_data()["id"],
+        },
+        {
+            "id": 5,
+            "shipment": shipments[2]["id"],  # another shipment
+            "box": box_in_another_location["id"],
+            "source_product": box_in_another_location["product"],
+            "source_location": box_in_another_location["location"],
+            "source_size": box_in_another_location["size"],
+            "source_quantity": box_in_another_location["number_of_items"],
+            "created_on": TIME,
+            "created_by": default_user_data()["id"],
+            "removed_on": None,
+            "removed_by": None,
         },
     ]
 

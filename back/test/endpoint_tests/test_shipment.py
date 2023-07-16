@@ -70,6 +70,37 @@ def test_shipments_query(
     ]
 
 
+def test_source_base_box_product_as_null_for_target_side(
+    read_only_client, another_shipment, another_box
+):
+    shipment_id = str(another_shipment["id"])
+    query = f"""query {{
+                shipment(id: {shipment_id}) {{
+                    details {{
+                        box {{
+                            labelIdentifier
+                            product {{ id }}
+                            location {{ id }}
+                        }}
+                        sourceProduct {{ id }}
+                        sourceLocation {{ id }}
+                    }} }} }}"""
+    shipment = assert_successful_request(read_only_client, query)
+    assert shipment == {
+        "details": [
+            {
+                "box": {
+                    "labelIdentifier": another_box["label_identifier"],
+                    "product": None,
+                    "location": None,
+                },
+                "sourceProduct": {"id": str(another_box["product"])},
+                "sourceLocation": {"id": str(another_box["location"])},
+            },
+        ]
+    }
+
+
 def test_shipment_mutations_on_source_side(
     client,
     default_bases,
