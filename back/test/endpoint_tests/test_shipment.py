@@ -73,6 +73,7 @@ def test_shipments_query(
 def test_source_base_box_product_as_null_for_target_side(
     read_only_client, another_shipment, another_box
 ):
+    # Test case 8.1.12a, 8.1.12b
     shipment_id = str(another_shipment["id"])
     query = f"""query {{
                 shipment(id: {shipment_id}) {{

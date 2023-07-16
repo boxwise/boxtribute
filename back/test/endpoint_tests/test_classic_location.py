@@ -9,7 +9,7 @@ def test_location_query(
     default_location_boxes,
     distribution_spot,
 ):
-    # Test case 8.1.6, 8.1.10
+    # Test case 8.1.6, 8.1.14
     query = f"""query {{
                 location(id: "{default_location['id']}") {{
                     id
@@ -46,7 +46,7 @@ def test_location_query(
 
 
 def test_locations_query(read_only_client, base1_classic_locations):
-    # Test case 8.1.9
+    # Test case 8.1.13
     query = """query { locations { name } }"""
     locations = assert_successful_request(read_only_client, query)
     assert locations == [{"name": loc["name"]} for loc in base1_classic_locations]

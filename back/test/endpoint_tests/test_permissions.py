@@ -10,7 +10,7 @@ from utils import assert_forbidden_request, assert_successful_request
         "base",
         # Test cases 9.1.6, 9.1.7
         "beneficiary",
-        # Test cases 8.1.12, 8.1.13
+        # Test cases 8.1.16, 8.1.17
         "location",
         # Test cases 99.1.9b, 99.1.9c
         "organisation",
@@ -75,7 +75,7 @@ def test_invalid_permission(unauthorized, read_only_client, query):
     [
         # Test case 99.1.5
         """base( id: 2 ) { id }""",
-        # Test case 8.1.14
+        # Test case 8.1.18
         """location( id: 2 ) { id }""",  # ID of another_location fixture
         # Test case 4.1.5
         """tag( id: 4 ) { id }""",
@@ -262,7 +262,7 @@ def test_invalid_permission_when_mutating_box(read_only_client, mutation):
 
 
 def test_invalid_permission_when_creating_box_with_tags(read_only_client, mocker):
-    # Test case 8.1.11
+    # Test case 8.2.11
     # Verify missing tag_relation:assign permission
     mocker.patch("jose.jwt.decode").return_value = create_jwt_payload(
         permissions=["location:read", "stock:write", "product:read"]
