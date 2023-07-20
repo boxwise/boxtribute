@@ -36,26 +36,8 @@ export const boxReconciliationOverlayVar = makeVar<IBoxReconciliationOverlayVar>
   shipmentId: undefined,
 });
 
-// apollo reactive variable for BoxReconciliationProductFormData and BoxReconciliationLocationFormData
-export interface IBoxReconciliationProductFormDataVar {
-  productId: number | undefined;
-  sizeId: number | undefined;
-  numberOfItems: number | undefined;
-}
+// TODO: cache BoxReconciliation
 
-export interface IBoxReconciliationLocationFormDataVar {
-  locationId: number | undefined;
-}
-
-export const boxReconciliationProductFormDataVar = makeVar<IBoxReconciliationProductFormDataVar>({
-  productId: undefined,
-  sizeId: undefined,
-  numberOfItems: undefined,
-});
-
-export const boxReconciliationLocationFormDataVar = makeVar<IBoxReconciliationLocationFormDataVar>({
-  locationId: undefined,
-});
 // apollo reactive variable for QrReaderOverlay
 export interface IQrReaderOverlayVar {
   isOpen: boolean;

@@ -1,10 +1,7 @@
+/* eslint-disable no-console */
 import { useCallback, useContext, useEffect, useMemo } from "react";
 import { useMutation, useQuery, useReactiveVar } from "@apollo/client";
-import {
-  boxReconciliationLocationFormDataVar,
-  boxReconciliationProductFormDataVar,
-  boxReconciliationOverlayVar,
-} from "queries/cache";
+import { boxReconciliationOverlayVar } from "queries/cache";
 import { useErrorHandling } from "hooks/useErrorHandling";
 import { useNotification } from "hooks/useNotification";
 import {
@@ -34,24 +31,12 @@ export function BoxReconciliationOverlay() {
   const { globalPreferences } = useContext(GlobalPreferencesContext);
   const baseId = globalPreferences.selectedBaseId;
   const boxReconciliationOverlayState = useReactiveVar(boxReconciliationOverlayVar);
-  const boxReconciliationProductFormState = useReactiveVar(boxReconciliationProductFormDataVar);
-  const boxReconciliationLocationFormState = useReactiveVar(boxReconciliationLocationFormDataVar);
 
   const onOverlayClose = useCallback(() => {
     boxReconciliationOverlayVar({
       isOpen: false,
       labelIdentifier: undefined,
       shipmentId: undefined,
-    });
-
-    boxReconciliationLocationFormDataVar({
-      locationId: undefined,
-    });
-
-    boxReconciliationProductFormDataVar({
-      productId: undefined,
-      sizeId: undefined,
-      numberOfItems: undefined,
     });
   }, []);
 
@@ -155,27 +140,26 @@ export function BoxReconciliationOverlay() {
   );
 
   const onBoxDelivered = useCallback(
-    (labelIdentifier: string) => {
+    (
+      labelIdentifier: string,
+      locationId: number,
+      productId: number,
+      sizeId: number,
+      numberOfItems: number,
+    ) => {
       const shipmentDetailId = shipmentDetail?.id;
 
-      if (
-        shipmentId &&
-        shipmentDetailId &&
-        boxReconciliationLocationFormState.locationId &&
-        boxReconciliationProductFormState.productId &&
-        boxReconciliationProductFormState.sizeId &&
-        boxReconciliationProductFormState.numberOfItems
-      ) {
+      if (shipmentId && shipmentDetailId && locationId && productId && sizeId && numberOfItems) {
         updateShipmentWhenReceiving({
           variables: {
             id: shipmentId,
             receivedShipmentDetailUpdateInputs: [
               {
                 id: shipmentDetailId,
-                targetLocationId: boxReconciliationLocationFormState.locationId,
-                targetProductId: boxReconciliationProductFormState.productId,
-                targetSizeId: boxReconciliationProductFormState.sizeId,
-                targetQuantity: boxReconciliationProductFormState.numberOfItems,
+                targetLocationId: locationId,
+                targetProductId: productId,
+                targetSizeId: sizeId,
+                targetQuantity: numberOfItems,
               },
             ],
           },
@@ -187,8 +171,7 @@ export function BoxReconciliationOverlay() {
               });
             } else {
               const locationName = allLocations?.find(
-                (location) =>
-                  location.id === boxReconciliationLocationFormState?.locationId?.toString(),
+                (location) => location.id === locationId.toString(),
               )?.name;
               onOverlayClose();
               createToast({
@@ -213,8 +196,6 @@ export function BoxReconciliationOverlay() {
       shipmentId,
       shipmentDetail,
       updateShipmentWhenReceiving,
-      boxReconciliationLocationFormState,
-      boxReconciliationProductFormState,
     ],
   );
 

@@ -1,8 +1,4 @@
 import { Accordion, AccordionButton, AccordionItem, AccordionPanel, Box } from "@chakra-ui/react";
-import {
-  boxReconciliationLocationFormDataVar,
-  boxReconciliationProductFormDataVar,
-} from "queries/cache";
 import { useState } from "react";
 import { BsFillCheckCircleFill } from "react-icons/bs";
 import { RiQuestionFill } from "react-icons/ri";
@@ -17,7 +13,23 @@ interface IBoxReconcilationAccordionProps {
   allLocations: ILocationData[];
   loading: boolean;
   onBoxUndelivered: (labelIdentifier: string) => void;
-  onBoxDelivered: (labelIdentifier: string) => void;
+  onBoxDelivered: (
+    labelIdentifier: string,
+    locationId: number | undefined,
+    productId: number | undefined,
+    sizeId: number | undefined,
+    numberOfItems: number | undefined,
+  ) => void;
+}
+
+export interface IProductFormData {
+  productId: number | undefined;
+  sizeId: number | undefined;
+  numberOfItems: number | undefined;
+}
+
+export interface ILocationFormData {
+  locationId: number | undefined;
 }
 
 export function BoxReconcilationAccordion({
@@ -31,6 +43,14 @@ export function BoxReconcilationAccordion({
   const [accordionIndex, setAccordionIndex] = useState(-1);
   const [productMatched, setProductMatched] = useState<boolean>(false);
   const [locationSpecified, setLocationSpecified] = useState<boolean>(false);
+  const [productFormData, setProductFormData] = useState<IProductFormData>({
+    productId: undefined,
+    sizeId: undefined,
+    numberOfItems: undefined,
+  });
+  const [locationFormData, setLocationFormData] = useState<ILocationFormData>({
+    locationId: undefined,
+  });
 
   return (
     <Accordion allowToggle index={accordionIndex}>
@@ -59,7 +79,7 @@ export function BoxReconcilationAccordion({
             onSubmitMatchProductsForm={(matchedProductsFormData: IMatchProductsFormData) => {
               setProductMatched(true);
               setAccordionIndex(1);
-              boxReconciliationProductFormDataVar({
+              setProductFormData({
                 sizeId: parseInt(matchedProductsFormData.sizeId.value, 10),
                 productId: parseInt(matchedProductsFormData.productId.value, 10),
                 numberOfItems: matchedProductsFormData.numberOfItems,
@@ -92,11 +112,17 @@ export function BoxReconcilationAccordion({
             onSubmitReceiveLocationForm={(receiveLocationFormData: IReceiveLocationFormData) => {
               setLocationSpecified(true);
               setAccordionIndex(-1);
-              boxReconciliationLocationFormDataVar({
+              setLocationFormData({
                 locationId: parseInt(receiveLocationFormData.locationId.value, 10),
               });
 
-              onBoxDelivered(shipmentDetail.box.labelIdentifier);
+              onBoxDelivered(
+                shipmentDetail.box.labelIdentifier,
+                parseInt(receiveLocationFormData.locationId.value, 10),
+                productFormData.productId,
+                productFormData.sizeId,
+                productFormData.numberOfItems,
+              );
             }}
           />
         </AccordionPanel>

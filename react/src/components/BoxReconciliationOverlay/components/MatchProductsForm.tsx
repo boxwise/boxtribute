@@ -4,7 +4,6 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import NumberField from "components/Form/NumberField";
 import SelectField, { IDropdownOption } from "components/Form/SelectField";
 import { groupBy } from "lodash";
-import { boxReconciliationProductFormDataVar } from "queries/cache";
 import { useEffect, useRef, useState } from "react";
 import { useForm } from "react-hook-form";
 import { BiSubdirectoryRight } from "react-icons/bi";
@@ -74,28 +73,13 @@ export function MatchProductsForm({
   onSubmitMatchProductsForm,
   onBoxUndelivered,
 }: IMatchProductsFormProps) {
-  const boxReconciliationProductFormDataState = useReactiveVar(boxReconciliationProductFormDataVar);
-
-  // read from apollo cache
-  const selectedProduct = productAndSizesData.find(
-    (p) => p.id === boxReconciliationProductFormDataState?.productId?.toString(),
-  );
-  const selectedSizeId = selectedProduct?.sizeRange.sizes.find(
-    (size) => size.id === boxReconciliationProductFormDataState?.sizeId?.toString(),
-  );
-
-  const defaultProductLabel = `${selectedProduct?.name}${
-    selectedProduct?.gender !== "none" ? ` (${selectedProduct?.gender})` : ""
-  }`;
-
   // default Values
   const defaultValues: IMatchProductsFormData = {
     productId: {
-      label:
-        (selectedProduct?.name !== undefined && defaultProductLabel) || "Select Product & Gender",
-      value: selectedProduct?.id || "",
+      label: "Select Product & Gender",
+      value: "",
     },
-    sizeId: { label: selectedSizeId?.label || "Select Size", value: selectedSizeId?.id || "" },
+    sizeId: { label: "Select Size", value: "" },
     numberOfItems: shipmentDetail?.sourceQuantity ?? 0,
   };
 

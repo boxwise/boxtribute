@@ -53,7 +53,13 @@ interface IBoxReconciliationContainerProps {
   mutationLoading: boolean;
   onClose: () => void;
   onBoxUndelivered: (labelIdentifier: string) => void;
-  onBoxDelivered: (labelIdentifier: string) => void;
+  onBoxDelivered: (
+    labelIdentifier: string,
+    locationId: number | undefined,
+    productId: number | undefined,
+    sizeId: number | undefined,
+    numberOfItems: number | undefined,
+  ) => void;
 }
 
 export function BoxReconciliationView({
