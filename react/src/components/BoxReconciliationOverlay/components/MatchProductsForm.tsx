@@ -1,4 +1,3 @@
-import { useReactiveVar } from "@apollo/client";
 import { Button, Flex, Text, Wrap, WrapItem } from "@chakra-ui/react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import NumberField from "components/Form/NumberField";

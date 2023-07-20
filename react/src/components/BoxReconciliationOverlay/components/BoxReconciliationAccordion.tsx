@@ -48,9 +48,6 @@ export function BoxReconcilationAccordion({
     sizeId: undefined,
     numberOfItems: undefined,
   });
-  const [locationFormData, setLocationFormData] = useState<ILocationFormData>({
-    locationId: undefined,
-  });
 
   return (
     <Accordion allowToggle index={accordionIndex}>
@@ -112,9 +109,6 @@ export function BoxReconcilationAccordion({
             onSubmitReceiveLocationForm={(receiveLocationFormData: IReceiveLocationFormData) => {
               setLocationSpecified(true);
               setAccordionIndex(-1);
-              setLocationFormData({
-                locationId: parseInt(receiveLocationFormData.locationId.value, 10),
-              });
 
               onBoxDelivered(
                 shipmentDetail.box.labelIdentifier,
