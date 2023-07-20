@@ -27,6 +27,7 @@ import { NavLink } from "react-router-dom";
 import {
   BoxByLabelIdentifierQuery,
   BoxState,
+  ClassicLocation,
   HistoryEntry,
   UpdateLocationOfBoxMutation,
 } from "types/generated/graphql";
@@ -244,7 +245,10 @@ function BoxCard({
             {!isLoading && (
               <Switch
                 id="scrap"
-                isDisabled={boxInTransit}
+                isDisabled={
+                  boxInTransit ||
+                  (boxData?.location as ClassicLocation)?.defaultBoxState === BoxState.Lost
+                }
                 isReadOnly={isLoading}
                 isChecked={boxData?.state === BoxState.Scrap}
                 data-testid="box-scrap-btn"
@@ -270,7 +274,10 @@ function BoxCard({
                 id="lost"
                 isFocusable={false}
                 data-testid="box-lost-btn"
-                isDisabled={boxInTransit}
+                isDisabled={
+                  boxInTransit ||
+                  (boxData?.location as ClassicLocation)?.defaultBoxState === BoxState.Lost
+                }
                 onChange={() =>
                   onStateChange(
                     // If the current box state 'Lost' is toggled, set the defaultBoxState of the box location

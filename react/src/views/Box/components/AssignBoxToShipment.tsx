@@ -46,7 +46,7 @@ function AssignBoxToShipment({
     if (
       selectedShipmentOption &&
       selectedShipmentOption.value !== "" &&
-      boxData?.state !== BoxState.Donated
+      boxData?.state === BoxState.InStock
     ) {
       return false;
     }
@@ -121,6 +121,7 @@ function AssignBoxToShipment({
               colorScheme="blue"
               size="md"
               mt={2}
+              disabled={boxData.state === BoxState.InTransit}
               aria-label="remove to shipment"
               onClick={() => {
                 onUnassignBoxesToShipment(currentShipmentId);

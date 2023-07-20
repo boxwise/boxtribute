@@ -165,7 +165,7 @@ function BTBox() {
   }, [allData]);
 
   const boxInTransit = currentBoxState
-    ? [BoxState.Receiving, BoxState.MarkedForShipment].includes(currentBoxState)
+    ? [BoxState.Receiving, BoxState.MarkedForShipment, BoxState.InTransit].includes(currentBoxState)
     : false;
 
   const [updateNumberOfItemsMutation, updateNumberOfItemsMutationStatus] = useMutation<

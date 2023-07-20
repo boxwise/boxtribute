@@ -76,7 +76,7 @@ def test_invalid_pagination_input(read_only_client):
     [
         # Test case 9.1.5
         "beneficiary",
-        # Test case 8.1.11
+        # Test case 8.1.15
         "location",
         # Test case 8.1.22
         "product",

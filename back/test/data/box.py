@@ -44,6 +44,7 @@ def another_box_data():
     data["id"] = 4
     data["label_identifier"] = "34567890"
     data["location"] = another_location_data()["id"]
+    data["product"] = product_data()[1]["id"]
     return data
 
 
@@ -76,6 +77,7 @@ def box_in_another_location_with_qr_code_data():
     data["id"] = 8
     data["label_identifier"] = "78901234"
     data["location"] = another_location_data()["id"]
+    data["product"] = product_data()[1]["id"]
     data["qr_code"] = another_qr_code_with_box_data()["id"]
     return data
 

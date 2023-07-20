@@ -31,10 +31,6 @@ def memoize(function):
 @memoize
 def fetch_token(username):
     """Grabs a test user access token for Auth0."""
-    token = os.getenv("TEST_AUTH0_JWT")
-    if token is not None:
-        return token
-
     success, response = request_jwt(
         client_id=os.getenv("TEST_AUTH0_CLIENT_ID"),
         client_secret=os.getenv("TEST_AUTH0_CLIENT_SECRET"),
