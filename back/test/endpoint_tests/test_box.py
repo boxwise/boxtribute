@@ -1,6 +1,7 @@
 import time
 
 import pytest
+from auth import create_jwt_payload
 from boxtribute_server.business_logic.warehouse.box.crud import (
     BOX_LABEL_IDENTIFIER_GENERATION_ATTEMPTS,
 )
@@ -8,6 +9,7 @@ from boxtribute_server.enums import BoxState
 from boxtribute_server.models.definitions.history import DbChangeHistory
 from utils import (
     assert_bad_user_input,
+    assert_forbidden_request,
     assert_internal_server_error,
     assert_successful_request,
 )
@@ -583,3 +585,26 @@ def test_create_box_with_used_qr_code(
     mutation = f"""mutation {{
             createBox( creationInput : {creation_input} ) {{ id }} }}"""
     assert_bad_user_input(read_only_client, mutation)
+
+
+def test_access_in_transit_box(read_only_client, mocker, in_transit_box):
+    label_identifier = in_transit_box["label_identifier"]
+    box_id = str(in_transit_box["id"])
+    query = f"""query {{ box(labelIdentifier: "{label_identifier}") {{ id }} }}"""
+
+    # Default user is in the shipment source base (ID 1) and able to view the box
+    box = assert_successful_request(read_only_client, query)
+    assert box == {"id": box_id}
+
+    # user is in the shipment target base (ID 3) and able to view the box
+    mocker.patch("jose.jwt.decode").return_value = create_jwt_payload(
+        base_ids=[3], organisation_id=2, user_id=2
+    )
+    box = assert_successful_request(read_only_client, query)
+    assert box == {"id": box_id}
+
+    # user is in unrelated base (ID 2) and NOT permitted to view the box
+    mocker.patch("jose.jwt.decode").return_value = create_jwt_payload(
+        base_ids=[2], organisation_id=2, user_id=3
+    )
+    assert_forbidden_request(read_only_client, query)

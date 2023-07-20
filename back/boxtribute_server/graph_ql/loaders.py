@@ -42,10 +42,7 @@ class ProductLoader(DataLoader):
 class LocationLoader(DataLoader):
     async def batch_load_fn(self, keys):
         locations = {
-            loc.id: loc
-            for loc in Location.select().where(
-                Location.id << keys, authorized_bases_filter(Location)
-            )
+            loc.id: loc for loc in Location.select().where(Location.id << keys)
         }
         return [locations.get(i) for i in keys]
 
