@@ -8,6 +8,7 @@ import {
   Spacer,
   Table,
   TableContainer,
+  Text,
   Tbody,
   Td,
   Th,
@@ -120,19 +121,27 @@ function ShipmentReceivingTable({ columns, data }: IShipmentReceivingTablePros) 
                       <Flex alignContent="space-around">
                         <Box
                           p={1}
-                          width="120px"
+                          width={["100px", "200px", "250px"]}
                           fontWeight={row.cells[0].column.isSorted ? "bold" : "normal"}
                         >
                           <Wrap>
                             <WrapItem>{row.cells[0].row.original.labelIdentifier}</WrapItem>
                             <WrapItem>
-                              {row.cells[0].row.original.comment && <BsFillChatDotsFill />}
+                              {row.cells[0].row.original.comment && (
+                                <BsFillChatDotsFill color="#696969" />
+                              )}
                             </WrapItem>
                           </Wrap>
                         </Box>
-                        <Box p={1} fontWeight={row.cells[1].column.isSorted ? "bold" : "normal"}>
-                          {row.cells[0].row.original.product}({row.cells[0].row.original.items}
-                          x)
+                        <Box fontWeight={row.cells[1].column.isSorted ? "bold" : "normal"}>
+                          <Wrap spacing={1}>
+                            <WrapItem>
+                              <Text fontSize={16}>{row.cells[0].row.original.product}</Text>
+                            </WrapItem>
+                            <WrapItem>
+                              <Text fontSize={12}>({row.cells[0].row.original.items}x)</Text>
+                            </WrapItem>
+                          </Wrap>
                         </Box>
                       </Flex>
                       <Flex alignContent="space-around">
