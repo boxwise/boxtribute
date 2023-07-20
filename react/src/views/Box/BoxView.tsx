@@ -525,10 +525,7 @@ function BTBox() {
   const shipmentOptions: IDropdownOption[] = useMemo(
     () =>
       shipmentsQueryResult
-        ?.filter(
-          (shipment) =>
-            shipment.state === ShipmentState.Preparing && shipment.sourceBase.id === currentBaseId,
-        )
+        ?.filter((shipment) => shipment.sourceBase.id === currentBaseId)
         ?.map((shipment) => ({
           // eslint-disable-next-line max-len
           label: `${shipment.targetBase.name} - ${shipment.targetBase.organisation.name} (Shipment ${shipment.id})`,
