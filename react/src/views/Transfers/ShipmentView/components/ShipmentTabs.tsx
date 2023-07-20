@@ -1,19 +1,36 @@
 import { TabList, TabPanels, Tabs, TabPanel, Tab, Center } from "@chakra-ui/react";
 import _ from "lodash";
-import { Box, HistoryEntry, ShipmentDetail } from "types/generated/graphql";
+import { Box, ShipmentDetail, ShipmentState, User } from "types/generated/graphql";
 import ShipmentContent, { IShipmentContent } from "./ShipmentContent";
 import ShipmentHistory from "./ShipmentHistory";
 
-export interface IBoxHistoryEntry extends HistoryEntry {
-  labelIdentifier: string;
+// eslint-disable-next-line no-shadow
+export enum ShipmentActionEvent {
+  ShipmentStarted = "Shipment Started",
+  ShipmentCanceled = "Shipment Canceled",
+  ShipmentSent = "Shipment Sent",
+  ShipmentStartReceiving = "Shipment BeingReceived",
+  ShipmentCompleted = "Shipment Completed",
+  BoxAdded = "Box Added",
+  BoxRemoved = "Box Removed",
+  BoxLost = "Box Lost",
+  BoxReceived = "Box Received",
+}
+
+export interface IShipmentHistory {
+  box?: string | undefined;
+  action: ShipmentActionEvent;
+  createdOn: Date;
+  createdBy: User;
 }
 
 export interface IGroupedHistoryEntry {
   date: string;
-  entries: (ShipmentDetail | null | undefined)[];
+  entries: (IShipmentHistory | null | undefined)[];
 }
 
 export interface IShipmentTabsProps {
+  shipmentState: ShipmentState | undefined;
   detail: ShipmentDetail[];
   histories: IGroupedHistoryEntry[];
   isLoadingMutation: boolean | undefined;
@@ -28,6 +45,7 @@ function ShipmentTabs({
   isLoadingMutation,
   onRemoveBox,
   onBulkRemoveBox,
+  shipmentState,
 }: IShipmentTabsProps) {
   const boxGroupedByProductGender = _.values(
     _(detail)
@@ -41,7 +59,7 @@ function ShipmentTabs({
             ({
               ...shipment.box,
               size: group[0]?.sourceSize,
-              totalItems: group[0]?.sourceQuantity,
+              numberOfItems: group[0]?.sourceQuantity,
               product: group[0]?.sourceProduct,
             } as Box),
         ),
@@ -66,6 +84,7 @@ function ShipmentTabs({
             <Center p={8}>No boxes have been assigned to this shipment yet!</Center>
           )}
           <ShipmentContent
+            shipmentState={shipmentState}
             isLoadingMutation={isLoadingMutation}
             items={boxGroupedByProductGender}
             onRemoveBox={onRemoveBox}

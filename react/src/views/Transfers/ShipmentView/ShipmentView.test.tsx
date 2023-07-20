@@ -4,7 +4,14 @@ import { organisation1 } from "mocks/organisations";
 import { GraphQLError } from "graphql";
 import { generateMockShipment } from "mocks/shipments";
 import { ShipmentState } from "types/generated/graphql";
+import { useErrorHandling } from "hooks/useErrorHandling";
+import { useNotification } from "hooks/useNotification";
 import ShipmentView, { SHIPMENT_BY_ID_QUERY } from "./ShipmentView";
+
+const mockedTriggerError = jest.fn();
+const mockedCreateToast = jest.fn();
+jest.mock("hooks/useErrorHandling");
+jest.mock("hooks/useNotification");
 
 const initialQuery = {
   request: {
@@ -20,7 +27,7 @@ const initialQuery = {
   },
 };
 
-const initialQueryWithoutBox = {
+const initialWithoutBoxQuery = {
   request: {
     query: SHIPMENT_BY_ID_QUERY,
     variables: {
@@ -30,6 +37,20 @@ const initialQueryWithoutBox = {
   result: {
     data: {
       shipment: generateMockShipment({ state: ShipmentState.Preparing, hasBoxes: false }),
+    },
+  },
+};
+
+const initialCompletedShipemntQuery = {
+  request: {
+    query: SHIPMENT_BY_ID_QUERY,
+    variables: {
+      id: "1",
+    },
+  },
+  result: {
+    data: {
+      shipment: generateMockShipment({ state: ShipmentState.Completed, hasBoxes: true }),
     },
   },
 };
@@ -81,6 +102,28 @@ const initialRecevingUIAsTargetOrgQuery = {
     },
   },
 };
+
+beforeEach(() => {
+  // we need to mock matchmedia
+  // https://jestjs.io/docs/manual-mocks#mocking-methods-which-are-not-implemented-in-jsdom
+  Object.defineProperty(window, "matchMedia", {
+    writable: true,
+    value: jest.fn().mockImplementation((query) => ({
+      matches: false,
+      media: query,
+      onchange: null,
+      addListener: jest.fn(), // Deprecated
+      removeListener: jest.fn(), // Deprecated
+      addEventListener: jest.fn(),
+      removeEventListener: jest.fn(),
+      dispatchEvent: jest.fn(),
+    })),
+  });
+  const mockedUseErrorHandling = jest.mocked(useErrorHandling);
+  mockedUseErrorHandling.mockReturnValue({ triggerError: mockedTriggerError });
+  const mockedUseNotification = jest.mocked(useNotification);
+  mockedUseNotification.mockReturnValue({ createToast: mockedCreateToast });
+});
 
 describe("4.5 Test Cases", () => {
   beforeEach(() => {
@@ -146,7 +189,7 @@ describe("4.5 Test Cases", () => {
     render(<ShipmentView />, {
       routePath: "/bases/:baseId/transfers/shipments/:id",
       initialUrl: "/bases/1/transfers/shipments/1",
-      mocks: [initialQueryWithoutBox],
+      mocks: [initialWithoutBoxQuery],
       addTypename: true,
       globalPreferences: {
         dispatch: jest.fn(),
@@ -211,13 +254,13 @@ describe("4.5 Test Cases", () => {
     expect(screen.getByTestId("loader")).toBeInTheDocument();
 
     await waitFor(() => {
-      const title = screen.getByRole("heading", { name: /receive shipment/i });
+      const title = screen.getByRole("heading", { name: /receiving shipment/i });
       expect(title);
     });
 
     // eslint-disable-next-line max-len
     expect(
-      screen.getByRole("cell", { name: /124 long sleeves\(12x\) size: mixed/i }),
+      screen.getByRole("cell", { name: /124 long sleeves \(12x\) size: mixed/i }),
     ).toBeInTheDocument();
   }, 10000);
 
@@ -247,3 +290,39 @@ describe("4.5 Test Cases", () => {
     });
   }, 10000);
 });
+
+// Test case 4.5.5
+it("4.5.5 - Shows total count of the boxes when shipment completed", async () => {
+  //   const user = userEvent.setup();
+  render(<ShipmentView />, {
+    routePath: "/bases/:baseId/transfers/shipments/:id",
+    initialUrl: "/bases/1/transfers/shipments/1",
+    mocks: [initialCompletedShipemntQuery],
+    addTypename: true,
+    globalPreferences: {
+      dispatch: jest.fn(),
+      globalPreferences: {
+        selectedOrganisationId: organisation1.id,
+        availableBases: organisation1.bases,
+      },
+    },
+  });
+
+  // eslint-disable-next-line testing-library/prefer-presence-queries
+  expect(screen.getByTestId("loader")).toBeInTheDocument();
+
+  await waitFor(() => {
+    expect(screen.getByRole("tab", { name: /content/i })).toBeInTheDocument();
+  });
+
+  const title = screen.getByText(/view shipment/i);
+  expect(title).toBeInTheDocument();
+
+  expect(screen.getByText(/COMPLETE/)).toBeInTheDocument();
+
+  expect(screen.getByRole("heading", { name: /\b2\b/i })).toBeInTheDocument();
+
+  expect(screen.getByRole("tab", { name: /content/i, selected: true })).toHaveTextContent(
+    "Content",
+  );
+}, 10000);

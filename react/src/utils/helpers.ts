@@ -67,8 +67,12 @@ export const colorIsBright = (hex) => {
   return (r * 299 + g * 587 + b * 114) / 1000 >= 128;
 };
 
+export const formatDateKey = (date: Date): string => {
+  return `${date.toLocaleString("default", { month: "short" })}
+    ${date.getDate()}, ${date.getFullYear()}`;
+};
 // logout handler that redirect the v2 to dropapp related trello: https://trello.com/c/sbIJYHFF
-export const handleLogout =  () => {
+export const handleLogout = () => {
   window.location.href = `${process.env.REACT_APP_OLD_APP_BASE_URL}/index.php?action=logoutfromv2`;
   return null;
 };

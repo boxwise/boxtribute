@@ -312,6 +312,14 @@ export const SHIPMENT_DETAIL_FIELDS_FRAGMENT = gql`
     removedBy {
       ...UserBasicFields
     }
+    lostOn
+    lostBy {
+      ...UserBasicFields
+    }
+    receivedOn
+    receivedBy {
+      ...UserBasicFields
+    }
   }
 `;
 
