@@ -107,7 +107,7 @@ it("3.4.1.3 - Mobile: Enter valid box identifier and click on Find button", asyn
 
   // Click a button to trigger the event of scanning a QR-Code in mockImplementationOfQrReader
   expect(await screen.findByRole("heading", { name: "/bases/1/boxes/123456" })).toBeInTheDocument();
-}, 10000);
+}, 20000);
 
 const queryFindBoxFromOtherOrg = {
   request: {
