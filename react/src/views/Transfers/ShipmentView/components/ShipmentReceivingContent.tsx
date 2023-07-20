@@ -10,7 +10,7 @@ interface IShipmentReceivingContentProps {
 
 function ShipmentReceivingContent({ items, onReconciliationBox }: IShipmentReceivingContentProps) {
   const boxes = _.map(
-    items.filter((b) => b.removedOn === null && b.box.state !== BoxState.InStock),
+    items.filter((b) => b.box.state === BoxState.Receiving),
     (shipmentDetail) => ({
       id: shipmentDetail?.sourceProduct?.id,
       labelIdentifier: shipmentDetail?.box?.labelIdentifier,
