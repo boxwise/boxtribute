@@ -59,12 +59,13 @@ const LoginOrUserMenuButtonMobile = ({
   const { isOpen, onToggle } = useDisclosure();
 
   return isAuthenticated ? (
-    <MenuItem onClick={handleLogout}>
+    <MenuItem onClick={handleLogout} key="logout-menu">
       <Text fontWeight="bold">Logout {user?.email}</Text>
     </MenuItem>
   ) : (
-    <MenuItem>
+    <MenuItem as="button" key="login-menu">
       <Button
+        as="div"
         py={2}
         colorScheme="gray"
         borderRadius="0px"
@@ -109,7 +110,7 @@ const MenuItemsGroupsMobile = ({
   return (
     <>
       <MenuList>
-        <MenuItem>
+        <MenuItem as="div" key="qr-code-menu">
           <Flex
             px={4}
             border="1px"
@@ -144,7 +145,11 @@ const MenuItemsGroupsMobile = ({
         </MenuItem>
 
         {props.menuItemsGroups.map((item, i) => (
-          <MenuItemsGroupMobile key={i} {...item} setIsMenuOpen={setIsMenuOpen} />
+          <MenuItemsGroupMobile
+            key={`menu-${i.toString()}`}
+            {...item}
+            setIsMenuOpen={setIsMenuOpen}
+          />
         ))}
 
         <LoginOrUserMenuButtonMobile
@@ -176,7 +181,7 @@ const MenuItemsGroupMobile = ({
     if (link.link.includes(`${process.env.REACT_APP_OLD_APP_BASE_URL}`)) {
       // Since we are forwarding to an external url we need to use the a tag
       return (
-        <MenuItem>
+        <MenuItem key={link.name}>
           <Box
             as="a"
             href={generateDropappUrl(link.link, baseId, qrCode, labelIdentifier)}
@@ -191,7 +196,7 @@ const MenuItemsGroupMobile = ({
       );
     } else {
       return (
-        <MenuItem>
+        <MenuItem key={link.name}>
           <Box as={NavLink} to={link.link} key={i} py={1} px={4} w="100%">
             {link.name}
           </Box>

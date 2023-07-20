@@ -37,9 +37,7 @@ export interface LoginOrUserMenuButtonProps extends UserMenuProps {
 
 export interface MenuItemsGroupProps extends MenuItemsGroupData {}
 
-export interface MenuItemsGroupsProps
-  extends LoginOrUserMenuButtonProps,
-    LayoutProps {
+export interface MenuItemsGroupsProps extends LoginOrUserMenuButtonProps, LayoutProps {
   menuItemsGroups: MenuItemsGroupData[];
 }
 
