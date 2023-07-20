@@ -64,6 +64,10 @@ function SelectField({
             useBasicStyles
             isMulti={isMulti}
             focusBorderColor="blue.500"
+            menuPortalTarget={document.body}
+            styles={{
+              menuPortal: (provided) => ({ ...provided, zIndex: 9999 }),
+            }}
             chakraStyles={{
               control: (provided) => ({
                 ...provided,
