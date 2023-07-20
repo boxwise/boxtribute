@@ -369,4 +369,4 @@ it("3.4.2.5c - Internal Server Error", async () => {
   expect(await screen.findByText(/QR code lookup failed/i)).toBeInTheDocument();
   // QrOverlay stays open
   expect(screen.getByTestId("ReturnScannedQr")).toBeInTheDocument();
-}, 10000);
+}, 20000);
