@@ -97,7 +97,6 @@ export const generateMockShipment = ({
             labelIdentifier: "123",
             numberOfItems: 10,
             product: product1,
-            state: BoxState.MarkedForShipment,
             location: generateMockLocationWithBase({}),
           }),
           sourceSize: size1,
