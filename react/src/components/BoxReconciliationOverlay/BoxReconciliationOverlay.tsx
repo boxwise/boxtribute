@@ -25,7 +25,7 @@ export interface IBoxReconciliationOverlayData {
   shipmentDetail: ShipmentDetail;
 }
 
-export function BoxReconciliationOverlay() {
+export function BoxReconciliationOverlay({ closeOnOverlayClick = true, closeOnEsc = true }) {
   const { createToast } = useNotification();
   const { triggerError } = useErrorHandling();
   const { globalPreferences } = useContext(GlobalPreferencesContext);
@@ -209,6 +209,8 @@ export function BoxReconciliationOverlay() {
       shipmentDetail={shipmentDetail as ShipmentDetail}
       allLocations={allLocations as ILocationData[]}
       productAndSizesData={productAndSizesData as IProductWithSizeRangeData[]}
+      closeOnOverlayClick={closeOnOverlayClick}
+      closeOnEsc={closeOnEsc}
     />
   );
 }
