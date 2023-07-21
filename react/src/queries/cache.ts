@@ -23,6 +23,21 @@ cache.writeQuery({
   } as IScannedBoxesData,
 });
 
+// apollo reactive variable for BoxReconciliationOverlay
+export interface IBoxReconciliationOverlayVar {
+  isOpen: boolean;
+  labelIdentifier: string | undefined;
+  shipmentId: string | undefined;
+}
+
+export const boxReconciliationOverlayVar = makeVar<IBoxReconciliationOverlayVar>({
+  isOpen: false,
+  labelIdentifier: undefined,
+  shipmentId: undefined,
+});
+
+// TODO: cache BoxReconciliation
+
 // apollo reactive variable for QrReaderOverlay
 export interface IQrReaderOverlayVar {
   isOpen: boolean;

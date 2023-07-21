@@ -1,7 +1,8 @@
 /* eslint-disable indent */
-import { ShipmentState, TransferAgreementType } from "types/generated/graphql";
+import { BoxState, ShipmentState, TransferAgreementType } from "types/generated/graphql";
 import { base1, base2 } from "./bases";
 import { generateMockBox } from "./boxes";
+import { generateMockLocationWithBase } from "./locations";
 import { product1, product3 } from "./products";
 import { size1, size2 } from "./sizeRanges";
 import { user1 } from "./users";
@@ -96,6 +97,7 @@ export const generateMockShipment = ({
             labelIdentifier: "123",
             numberOfItems: 10,
             product: product1,
+            location: generateMockLocationWithBase({}),
           }),
           sourceSize: size1,
           sourceQuantity: 10,
@@ -134,6 +136,13 @@ export const generateMockShipment = ({
             labelIdentifier: "124",
             numberOfItems: 12,
             product: product3,
+            state:
+              // eslint-disable-next-line no-nested-ternary
+              state === ShipmentState.Receiving
+                ? BoxState.Receiving
+                : state === ShipmentState.Sent
+                ? BoxState.InTransit
+                : BoxState.MarkedForShipment,
           }),
           sourceSize: size2,
           sourceQuantity: 12,

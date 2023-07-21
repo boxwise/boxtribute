@@ -1,22 +1,26 @@
 import _ from "lodash";
 import { useMemo } from "react";
-import { ShipmentDetail } from "types/generated/graphql";
+import { BoxState, ShipmentDetail } from "types/generated/graphql";
 import ShipmentReceivingTable from "./ShipmentReceivingTable";
 
 interface IShipmentReceivingContentProps {
   items: ShipmentDetail[];
+  onReconciliationBox: (id: string) => void;
 }
 
-function ShipmentReceivingContent({ items }: IShipmentReceivingContentProps) {
-  const boxes = _.map(items, (shipmentDetail) => ({
-    id: shipmentDetail?.sourceProduct?.id,
-    labelIdentifier: shipmentDetail?.box?.labelIdentifier,
-    product: shipmentDetail.sourceProduct?.name,
-    comment: shipmentDetail?.box?.comment,
-    gender: shipmentDetail.sourceProduct?.gender,
-    size: shipmentDetail.sourceSize?.label || "fff",
-    items: shipmentDetail?.sourceQuantity || 0,
-  }));
+function ShipmentReceivingContent({ items, onReconciliationBox }: IShipmentReceivingContentProps) {
+  const boxes = _.map(
+    items.filter((b) => b.box.state === BoxState.Receiving),
+    (shipmentDetail) => ({
+      id: shipmentDetail?.sourceProduct?.id,
+      labelIdentifier: shipmentDetail?.box?.labelIdentifier,
+      product: shipmentDetail.sourceProduct?.name,
+      comment: shipmentDetail?.box?.comment,
+      gender: shipmentDetail.sourceProduct?.gender,
+      size: shipmentDetail.sourceSize?.label,
+      items: shipmentDetail?.sourceQuantity || 0,
+    }),
+  );
 
   // Define columns
   const columns = useMemo(
@@ -41,7 +45,13 @@ function ShipmentReceivingContent({ items }: IShipmentReceivingContentProps) {
     [],
   );
 
-  return <ShipmentReceivingTable columns={columns} data={boxes} />;
+  return (
+    <ShipmentReceivingTable
+      columns={columns}
+      data={boxes}
+      onReconciliationBox={onReconciliationBox}
+    />
+  );
 }
 
 export default ShipmentReceivingContent;

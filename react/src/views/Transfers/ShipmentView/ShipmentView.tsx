@@ -41,6 +41,9 @@ import { useNotification } from "hooks/useNotification";
 import { SHIPMENT_FIELDS_FRAGMENT } from "queries/fragments";
 import { GlobalPreferencesContext } from "providers/GlobalPreferencesProvider";
 import { ButtonSkeleton, ShipmentCardSkeleton, TabsSkeleton } from "components/Skeletons";
+import { BoxReconciliationOverlay } from "components/BoxReconciliationOverlay/BoxReconciliationOverlay";
+import { UPDATE_SHIPMENT_WHEN_RECEIVING } from "queries/mutations";
+import { boxReconciliationOverlayVar } from "queries/cache";
 import ShipmentCard from "./components/ShipmentCard";
 import ShipmentTabs, { IShipmentHistory, ShipmentActionEvent } from "./components/ShipmentTabs";
 import ShipmentOverlay, { IShipmentOverlayData } from "./components/ShipmentOverlay";
@@ -66,25 +69,6 @@ export const REMOVE_BOX_FROM_SHIPMENT = gql`
         id: $id
         preparedBoxLabelIdentifiers: []
         removedBoxLabelIdentifiers: $removedBoxLabelIdentifiers
-      }
-    ) {
-      ...ShipmentFields
-    }
-  }
-`;
-
-export const UPDATE_SHIPMENT_WHEN_RECEIVING = gql`
-  ${SHIPMENT_FIELDS_FRAGMENT}
-  mutation UpdateShipmentWhenReceiving(
-    $id: ID!
-    $receivedShipmentDetailUpdateInputs: [ShipmentDetailUpdateInput!]
-    $lostBoxLabelIdentifiers: [String!]
-  ) {
-    updateShipmentWhenReceiving(
-      updateInput: {
-        id: $id
-        receivedShipmentDetailUpdateInputs: $receivedShipmentDetailUpdateInputs
-        lostBoxLabelIdentifiers: $lostBoxLabelIdentifiers
       }
     ) {
       ...ShipmentFields
@@ -132,7 +116,13 @@ function ShipmentView() {
   const { triggerError } = useErrorHandling();
   const { globalPreferences } = useContext(GlobalPreferencesContext);
   const { createToast } = useNotification();
-  const { isOpen, onClose, onOpen } = useDisclosure();
+
+  const {
+    isOpen: isShipmentOverlayOpen,
+    onClose: onShipmentOverlayClose,
+    onOpen: onShipmentOverlayOpen,
+  } = useDisclosure();
+
   // State to show minus button near boxes when remove button is triggered
   const [showRemoveIcon, setShowRemoveIcon] = useState(false);
   const [shipmentState, setShipmentState] = useState<ShipmentState | undefined>();
@@ -200,7 +190,7 @@ function ShipmentView() {
         })
           .then((res) => {
             if (!res?.errors) {
-              onClose();
+              onShipmentOverlayClose();
               createToast({
                 type: "success",
                 message:
@@ -218,7 +208,7 @@ function ShipmentView() {
             });
           });
       },
-    [onClose, createToast, triggerError, shipmentId],
+    [onShipmentOverlayClose, createToast, triggerError, shipmentId],
   );
 
   const onCancel = handleShipment(cancelShipment, "cancel");
@@ -239,8 +229,19 @@ function ShipmentView() {
       sourceOrg: data?.shipment?.sourceBase.organisation.name,
       targetOrg: data?.shipment?.targetBase.organisation.name,
     } as IShipmentOverlayData);
-    onOpen();
-  }, [setShipmentOverlayData, onOpen, data]);
+    onShipmentOverlayOpen();
+  }, [setShipmentOverlayData, onShipmentOverlayOpen, data]);
+
+  const openBoxReconciliationOverlay = useCallback(
+    (labelIdentifier: string) => {
+      boxReconciliationOverlayVar({
+        labelIdentifier,
+        isOpen: true,
+        shipmentId,
+      });
+    },
+    [shipmentId],
+  );
 
   const onMinusClick = () => setShowRemoveIcon(!showRemoveIcon);
 
@@ -261,7 +262,7 @@ function ShipmentView() {
             message: "Error: Could not change state of remaining boxes.",
           });
         } else {
-          onClose();
+          onShipmentOverlayClose();
           createToast({
             title: `Box ${lostBoxLabelIdentifiers}`,
             type: "success",
@@ -274,7 +275,14 @@ function ShipmentView() {
           message: "Could not remove the box from the shipment.",
         });
       });
-  }, [triggerError, createToast, updateShipmentWhenReceiving, data, shipmentId, onClose]);
+  }, [
+    triggerError,
+    createToast,
+    updateShipmentWhenReceiving,
+    data,
+    shipmentId,
+    onShipmentOverlayClose,
+  ]);
 
   const onRemoveBox = useCallback(
     (boxLabelIdentifier: string) => {
@@ -540,16 +548,20 @@ function ShipmentView() {
         <Flex direction="column" gap={2}>
           <Heading>Receiving Shipment</Heading>
           <ShipmentReceivingCard shipment={data?.shipment! as Shipment} />
-          <ShipmentReceivingContent items={shipmentContents} />
+          <ShipmentReceivingContent
+            items={shipmentContents}
+            onReconciliationBox={openBoxReconciliationOverlay}
+          />
           {shipmentActionButtons}
         </Flex>
+        <BoxReconciliationOverlay />
 
         <ShipmentOverlay
-          isOpen={isOpen}
+          isOpen={isShipmentOverlayOpen}
           isLoading={isLoadingFromMutation}
           shipmentOverlayData={shipmentOverlayData}
           onRemainingBoxesUndelivered={onRemainingBoxesUndelivered}
-          onClose={onClose}
+          onClose={onShipmentOverlayClose}
           onCancel={onCancel}
         />
       </>
@@ -570,11 +582,11 @@ function ShipmentView() {
         </Flex>
 
         <ShipmentOverlay
-          isOpen={isOpen}
+          isOpen={isShipmentOverlayOpen}
           isLoading={isLoadingFromMutation}
           shipmentOverlayData={shipmentOverlayData}
           onRemainingBoxesUndelivered={onRemainingBoxesUndelivered}
-          onClose={onClose}
+          onClose={onShipmentOverlayClose}
           onCancel={onCancel}
         />
       </>

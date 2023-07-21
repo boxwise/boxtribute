@@ -27,9 +27,14 @@ import { TriangleDownIcon, TriangleUpIcon, ArrowUpDownIcon } from "@chakra-ui/ic
 interface IShipmentReceivingTablePros {
   columns: Array<Column<any>>;
   data: Array<any>;
+  onReconciliationBox: (id: string) => void;
 }
 
-function ShipmentReceivingTable({ columns, data }: IShipmentReceivingTablePros) {
+function ShipmentReceivingTable({
+  columns,
+  data,
+  onReconciliationBox,
+}: IShipmentReceivingTablePros) {
   const tableData = useMemo(() => data, [data]);
 
   const tableInstance = useTable(
@@ -108,7 +113,11 @@ function ShipmentReceivingTable({ columns, data }: IShipmentReceivingTablePros) 
               prepareRow(row);
 
               return (
-                <Tr {...row.getRowProps()} style={{ border: "1px solid black" }}>
+                <Tr
+                  {...row.getRowProps()}
+                  style={{ border: "1px solid black" }}
+                  onClick={() => onReconciliationBox(row.original.labelIdentifier)}
+                >
                   <Td
                     colSpan={3}
                     {...row.cells[1].getCellProps()}

@@ -22,6 +22,10 @@ export interface ISelectFieldProps {
   isMulti?: boolean;
   // eslint-disable-next-line react/require-default-props
   isRequired?: boolean;
+  // eslint-disable-next-line react/require-default-props
+  showLabel?: boolean;
+  // eslint-disable-next-line react/require-default-props
+  showError?: boolean;
 }
 
 // The examples from chakra-react-select were super helpful:
@@ -31,6 +35,8 @@ function SelectField({
   fieldId,
   fieldLabel,
   placeholder,
+  showLabel = true,
+  showError = true,
   options,
   errors,
   control,
@@ -39,7 +45,7 @@ function SelectField({
 }: ISelectFieldProps) {
   return (
     <FormControl isRequired={isRequired} isInvalid={!!errors[fieldId]} id={fieldId}>
-      <FormLabel htmlFor={fieldId}>{fieldLabel}</FormLabel>
+      {showLabel && <FormLabel htmlFor={fieldId}>{fieldLabel}</FormLabel>}
       <Controller
         control={control}
         name={fieldId}
@@ -58,6 +64,10 @@ function SelectField({
             useBasicStyles
             isMulti={isMulti}
             focusBorderColor="blue.500"
+            menuPortalTarget={document.body}
+            styles={{
+              menuPortal: (provided) => ({ ...provided, zIndex: 9999 }),
+            }}
             chakraStyles={{
               control: (provided) => ({
                 ...provided,
@@ -79,7 +89,9 @@ function SelectField({
           />
         )}
       />
-      <FormErrorMessage>{!!errors[fieldId] && errors[fieldId].message}</FormErrorMessage>
+      {showError && (
+        <FormErrorMessage>{!!errors[fieldId] && errors[fieldId].message}</FormErrorMessage>
+      )}
     </FormControl>
   );
 }
