@@ -114,57 +114,6 @@ export const BOX_BASIC_FIELDS_FRAGMENT = gql`
   }
 `;
 
-export const BOX_FIELDS_FRAGMENT = gql`
-  ${PRODUCT_BASIC_FIELDS_FRAGMENT}
-  ${SIZE_FIELDS_FRAGMENT}
-  ${TAG_FIELDS_FRAGMENT}
-  ${BASE_BASIC_FIELDS_FRAGMENT}
-  ${HISTORY_FIELDS_FRAGMENT}
-  fragment BoxFields on Box {
-    labelIdentifier
-    state
-    product {
-      ...ProductBasicFields
-    }
-    size {
-      ...SizeFields
-    }
-    shipmentDetail {
-      shipment {
-        id
-        state
-        targetBase {
-          id
-          name
-          organisation {
-            id
-            name
-          }
-        }
-      }
-    }
-
-    location {
-      id
-      name
-      ... on ClassicLocation {
-        defaultBoxState
-      }
-      base {
-        ...BaseBasicFields
-      }
-    }
-    numberOfItems
-    tags {
-      ...TagFields
-    }
-    comment
-    history {
-      ...HistoryFields
-    }
-  }
-`;
-
 export const BOX_WITH_SIZE_TAG_PRODUCT_FIELDS_FRAGMENT = gql`
   ${SIZE_FIELDS_FRAGMENT}
   ${PRODUCT_BASIC_FIELDS_FRAGMENT}
@@ -299,6 +248,13 @@ export const SHIPMENT_DETAIL_FIELDS_FRAGMENT = gql`
     sourceSize {
       ...SizeFields
     }
+    sourceLocation {
+      id
+      name
+      ... on ClassicLocation {
+        defaultBoxState
+      }
+    }
     targetSize {
       ...SizeFields
     }
@@ -319,6 +275,62 @@ export const SHIPMENT_DETAIL_FIELDS_FRAGMENT = gql`
     receivedOn
     receivedBy {
       ...UserBasicFields
+    }
+  }
+`;
+
+export const BOX_FIELDS_FRAGMENT = gql`
+  ${PRODUCT_BASIC_FIELDS_FRAGMENT}
+  ${SIZE_FIELDS_FRAGMENT}
+  ${TAG_FIELDS_FRAGMENT}
+  ${BASE_BASIC_FIELDS_FRAGMENT}
+  ${HISTORY_FIELDS_FRAGMENT}
+  ${SHIPMENT_DETAIL_FIELDS_FRAGMENT}
+
+  fragment BoxFields on Box {
+    labelIdentifier
+    state
+    product {
+      ...ProductBasicFields
+    }
+    size {
+      ...SizeFields
+    }
+    shipmentDetail {
+      shipment {
+        id
+        state
+        details {
+          ...ShipmentDetailFields
+        }
+        targetBase {
+          id
+          name
+          organisation {
+            id
+            name
+          }
+        }
+      }
+    }
+
+    location {
+      id
+      name
+      ... on ClassicLocation {
+        defaultBoxState
+      }
+      base {
+        ...BaseBasicFields
+      }
+    }
+    numberOfItems
+    tags {
+      ...TagFields
+    }
+    comment
+    history {
+      ...HistoryFields
     }
   }
 `;
