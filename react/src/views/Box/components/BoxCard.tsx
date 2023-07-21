@@ -62,6 +62,27 @@ function BoxCard({
     return color;
   };
 
+  const product =
+    boxData?.state === BoxState.Receiving
+      ? boxData?.shipmentDetail?.shipment.details.filter(
+          (b) => b.box.labelIdentifier === boxData.labelIdentifier,
+        )[0].sourceProduct
+      : boxData?.product;
+
+  const numberOfItems =
+    boxData?.state === BoxState.Receiving
+      ? boxData?.shipmentDetail?.shipment.details.filter(
+          (b) => b.box.labelIdentifier === boxData.labelIdentifier,
+        )[0].sourceQuantity
+      : boxData?.numberOfItems;
+
+  const size =
+    boxData?.state === BoxState.Receiving
+      ? boxData?.shipmentDetail?.shipment.details.filter(
+          (b) => b.box.labelIdentifier === boxData.labelIdentifier,
+        )[0]?.sourceSize
+      : boxData?.size;
+
   return (
     <Box
       w={["100%", "80%", "30%", "30%"]}
@@ -138,14 +159,14 @@ function BoxCard({
         <Flex>
           {!isLoading && (
             <Heading as="h3" fontSize="xl" data-testid="boxview-number-items">
-              {boxData?.numberOfItems}x {boxData?.product?.name}
+              {numberOfItems}x {product?.name}
             </Heading>
           )}
           {isLoading && (
             <>
               <Skeleton width="20px" mr={5} />
               <Heading as="h3" fontSize="xl">
-                {boxData?.product?.name}
+                {product?.name}
               </Heading>
             </>
           )}
@@ -206,18 +227,19 @@ function BoxCard({
         <List spacing={1}>
           <ListItem>
             <Flex alignContent="center">
-              <Text fontWeight="bold">Size: {boxData?.size.label}</Text>
+              <Text fontWeight="bold">Size: {size?.label}</Text>
             </Flex>
           </ListItem>
-          {boxData?.product?.gender !== "none" && (
+          {product?.gender !== "none" && (
             <ListItem>
               <Flex direction="row">
                 <Text fontWeight="bold">
-                  Gender: <b>{boxData?.product?.gender}</b>
+                  Gender: <b>{product?.gender}</b>
                 </Text>
               </Flex>
             </ListItem>
           )}
+
           {boxData?.comment !== "" && boxData?.comment !== null && (
             <ListItem>
               <Flex direction="row">

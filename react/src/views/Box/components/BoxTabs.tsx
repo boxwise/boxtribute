@@ -16,7 +16,7 @@ import { IDropdownOption } from "components/Form/SelectField";
 import { ShipmentIcon } from "components/Icon/Transfer/ShipmentIcon";
 import { BiNetworkChart } from "react-icons/bi";
 import { FaDollyFlatbed, FaWarehouse } from "react-icons/fa";
-import { BoxByLabelIdentifierQuery } from "types/generated/graphql";
+import { BoxByLabelIdentifierQuery, BoxState } from "types/generated/graphql";
 import AssignBoxToShipment from "./AssignBoxToShipment";
 
 import BoxMoveLocation from "./BoxMoveLocation";
@@ -40,6 +40,12 @@ function BoxTabs({
   shipmentOptions,
   isLoading,
 }: IBoxTabsProps) {
+  const location =
+    boxData?.state === BoxState.Receiving
+      ? boxData?.shipmentDetail?.shipment.details.filter(
+          (b) => b.box.labelIdentifier === boxData.labelIdentifier,
+        )[0]?.sourceLocation
+      : boxData?.location;
   return (
     <Box
       alignContent="center"
@@ -49,25 +55,27 @@ function BoxTabs({
     >
       <Flex direction="column">
         <Stack direction="column" alignContent="flex-start" p={2}>
-          <Stack alignContent="flex-start" spacing={2}>
-            <Wrap>
-              <WrapItem alignItems="center">
-                <FaWarehouse size={24} />
-              </WrapItem>
-              <WrapItem alignItems="center">
-                {!isLoading && (
-                  <Text as="h4" fontWeight="bold" fontSize={16}>
-                    {boxData?.location?.name}
-                  </Text>
-                )}
-                {isLoading && (
-                  <SkeletonText width="140px" noOfLines={1}>
-                    <Text as="h4" fontWeight="bold" fontSize={16} />
-                  </SkeletonText>
-                )}
-              </WrapItem>
-            </Wrap>
-          </Stack>
+          {location && (
+            <Stack alignContent="flex-start" spacing={2}>
+              <Wrap>
+                <WrapItem alignItems="center">
+                  <FaWarehouse size={24} />
+                </WrapItem>
+                <WrapItem alignItems="center">
+                  {!isLoading && (
+                    <Text as="h4" fontWeight="bold" fontSize={16}>
+                      {location?.name}
+                    </Text>
+                  )}
+                  {isLoading && (
+                    <SkeletonText width="140px" noOfLines={1}>
+                      <Text as="h4" fontWeight="bold" fontSize={16} />
+                    </SkeletonText>
+                  )}
+                </WrapItem>
+              </Wrap>
+            </Stack>
+          )}
           {boxData?.shipmentDetail && (
             <Stack direction="row" alignItems="center" alignContent="center" spacing={2}>
               <ShipmentIcon boxSize={6} alignItems="center" />
@@ -102,12 +110,14 @@ function BoxTabs({
           </TabList>
           <TabPanels>
             <TabPanel p={4}>
-              <BoxMoveLocation
-                boxData={boxData}
-                boxInTransit={boxInTransit}
-                onMoveToLocationClick={onMoveToLocationClick}
-                isLoading={isLoading}
-              />
+              {boxData?.location !== null && (
+                <BoxMoveLocation
+                  boxData={boxData}
+                  boxInTransit={boxInTransit}
+                  onMoveToLocationClick={onMoveToLocationClick}
+                  isLoading={isLoading}
+                />
+              )}
             </TabPanel>
             <TabPanel>
               {shipmentOptions.length === 0 && (
