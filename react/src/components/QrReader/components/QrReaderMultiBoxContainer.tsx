@@ -1,7 +1,7 @@
 /* eslint-disable indent */
 import { useCallback, useContext, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { gql, useQuery } from "@apollo/client";
+import { useQuery } from "@apollo/client";
 import { GET_SCANNED_BOXES } from "queries/local-only";
 import {
   BoxState,
@@ -20,37 +20,13 @@ import {
 } from "hooks/useAssignBoxesToShipment";
 import { GlobalPreferencesContext } from "providers/GlobalPreferencesProvider";
 import { IMoveBoxesResultKind, useMoveBoxes } from "hooks/useMoveBoxes";
-import { BASE_ORG_FIELDS_FRAGMENT } from "queries/fragments";
+import { MULTI_BOX_ACTION_OPTIONS_FOR_LOCATIONS_AND_SHIPMENTS_QUERY } from "queries/queries";
 import QrReaderMultiBox, { IMultiBoxAction } from "./QrReaderMultiBox";
 import {
   FailedBoxesFromAssingToShipmentAlert,
   FailedBoxesFromMoveBoxesAlert,
   NotInStockAlertText,
 } from "./AlertTexts";
-
-export const MULTI_BOX_ACTION_OPTIONS_FOR_LOCATIONS_AND_SHIPMENTS_QUERY = gql`
-  ${BASE_ORG_FIELDS_FRAGMENT}
-  query MultiBoxActionOptionsForLocationsAndShipments {
-    locations {
-      ... on ClassicLocation {
-        defaultBoxState
-      }
-      id
-      name
-      seq
-    }
-    shipments {
-      id
-      state
-      sourceBase {
-        ...BaseOrgFields
-      }
-      targetBase {
-        ...BaseOrgFields
-      }
-    }
-  }
-`;
 
 interface IQrReaderMultiBoxContainerProps {
   onSuccess: () => void;
