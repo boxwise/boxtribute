@@ -171,7 +171,7 @@ function QrReaderMultiBoxContainer({ onSuccess }: IQrReaderMultiBoxContainerProp
   return (
     <Stack direction="column" spacing={2}>
       {optionsQueryResult.error && (
-        <AlertWithoutAction alertText="Could not fetch location or shipments data! Please reload the page." />
+        <AlertWithoutAction alertText="Could not fetch data for options! Please reload the page." />
       )}
       {multiBoxAction === IMultiBoxAction.assignShipment &&
         notInStockBoxes.length > 0 &&
