@@ -1,5 +1,6 @@
-import { gql, useApolloClient } from "@apollo/client";
+import { useApolloClient } from "@apollo/client";
 import { useCallback, useState } from "react";
+import { generateMoveBoxRequest } from "queries/dynamic-mutations";
 import { useErrorHandling } from "./useErrorHandling";
 import { useNotification } from "./useNotification";
 
@@ -44,48 +45,11 @@ export const useMoveBoxes = () => {
         } as IMoveBoxesResult;
       }
 
-      // prepare graphQL request
-      // It is using aliases and will be similar to:
-      // mutation MoveBoxes($newLocationId: Int!, $labelIdentifier0: String!) {
-      //  moveBox123456: updateBox(
-      //    updateInput: { labelIdentifier: $labelIdentifier0, locationId: $newLocationId }
-      //  ) {
-      //   labelIdentifier
-      //   state
-      //   location {
-      //     id
-      //   }
-      //  }
-      // }
-      let mutationName = "mutation MoveBoxes($newLocationId: Int!";
-      let mutationString = "{";
-      const variables = { newLocationId };
-
-      labelIdentifiers.forEach((labelIdentifier, index) => {
-        mutationName += `, $labelIdentifier${index}: String!`;
-        mutationString += `
-        moveBox${labelIdentifier}: updateBox(
-          updateInput: { labelIdentifier: $labelIdentifier${index}, locationId: $newLocationId }
-        ) {
-          labelIdentifier
-          state
-          location {
-            id
-          }
-        } `;
-        variables[`labelIdentifier${index}`] = labelIdentifier;
-      });
-      mutationName += ")";
-      mutationString += "}";
-
-      const gqlRequest = gql`
-        ${mutationName}
-        ${mutationString}
-      `;
+      const gqlRequestPrep = generateMoveBoxRequest(labelIdentifiers, newLocationId);
 
       // execute mutation
       return apolloClient
-        .mutate({ mutation: gqlRequest, variables })
+        .mutate({ mutation: gqlRequestPrep.gqlRequest, variables: gqlRequestPrep.variables })
         .then(({ data, errors }) => {
           setIsLoading(false);
           if ((errors?.length || 0) > 0) {
@@ -122,6 +86,16 @@ export const useMoveBoxes = () => {
               ),
           );
 
+          if (showToastMessage && movedLabelIdentifiers.length > 0) {
+            createToast({
+              message: `${
+                movedLabelIdentifiers.length === 1
+                  ? "A Box was"
+                  : `${movedLabelIdentifiers.length} Boxes were`
+              } successfully moved.`,
+            });
+          }
+
           // Not all Boxes were moved
           if (failedLabelIdentifiers.length) {
             return {
@@ -133,15 +107,6 @@ export const useMoveBoxes = () => {
           }
 
           // All Boxes were moved
-          if (showToastMessage) {
-            createToast({
-              message: `${
-                movedLabelIdentifiers.length === 1
-                  ? "A Box was"
-                  : `${movedLabelIdentifiers.length} Boxes were`
-              }  successfully moved.`,
-            });
-          }
           return {
             kind: IMoveBoxesResultKind.SUCCESS,
             requestedLabelIdentifiers: labelIdentifiers,
@@ -154,7 +119,7 @@ export const useMoveBoxes = () => {
             setIsLoading(false);
             if (showToastMessage)
               triggerError({
-                message: `Could not move ${
+                message: `Network issue: could not move ${
                   labelIdentifiers.length === 1 ? "box" : "boxes"
                 }. Try again?`,
               });

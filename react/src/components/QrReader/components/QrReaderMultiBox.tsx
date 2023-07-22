@@ -121,13 +121,13 @@ function QrReaderMultiBox({
       <Box border="2px" borderRadius={0} p={4}>
         <RadioGroup onChange={onChangeMultiBoxAction} value={multiBoxAction}>
           <Stack direction="column">
-            <Radio value="moveBox">
+            <Radio value="moveBox" data-testid="moveBox">
               <Stack direction="row" alignItems="center" spacing={2}>
                 <Icon as={FaWarehouse} boxSize={6} />
                 <Text>Move to Location</Text>
               </Stack>
             </Radio>
-            <Radio value="assignTag">
+            <Radio value="assignTag" data-testid="AssignTag">
               <Stack direction="row" alignItems="center" spacing={2}>
                 <Icon as={FaTags} boxSize={6} />
                 Tag Boxes
