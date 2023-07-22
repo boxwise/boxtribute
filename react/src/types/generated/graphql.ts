@@ -1460,6 +1460,11 @@ export type User = {
   validLastDay?: Maybe<Scalars['Date']>;
 };
 
+export type MultiBoxActionOptionsForLocationsAndShipmentsQueryVariables = Exact<{ [key: string]: never; }>;
+
+
+export type MultiBoxActionOptionsForLocationsAndShipmentsQuery = { __typename?: 'Query', locations: Array<{ __typename?: 'ClassicLocation', defaultBoxState?: BoxState | null, id: string, name?: string | null, seq?: number | null }>, shipments: Array<{ __typename?: 'Shipment', id: string, state?: ShipmentState | null, sourceBase: { __typename?: 'Base', id: string, name: string, organisation: { __typename?: 'Organisation', id: string, name: string } }, targetBase: { __typename?: 'Base', id: string, name: string, organisation: { __typename?: 'Organisation', id: string, name: string } } }> };
+
 export type AssignBoxToShipmentMutationVariables = Exact<{
   id: Scalars['ID'];
   labelIdentifiers?: InputMaybe<Array<Scalars['String']> | Scalars['String']>;

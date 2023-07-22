@@ -32,11 +32,13 @@ interface IQrReaderMultiBoxProps {
   isSubmitButtonLoading: boolean;
   multiBoxAction: IMultiBoxAction;
   onChangeMultiBoxAction: (multiBoxAction: IMultiBoxAction) => void;
+  locationOptions: IDropdownOption[];
   shipmentOptions: IDropdownOption[];
   scannedBoxesCount: number;
   notInStockBoxesCount: number;
   onDeleteScannedBoxes: () => void;
   onUndoLastScannedBox: () => void;
+  onMoveBoxes: (locationId: string) => void;
   onAssignBoxesToShipment: (shipmentId: string) => void;
 }
 
@@ -44,14 +46,19 @@ function QrReaderMultiBox({
   isSubmitButtonLoading,
   multiBoxAction,
   onChangeMultiBoxAction,
+  locationOptions,
   shipmentOptions,
   scannedBoxesCount,
   notInStockBoxesCount,
   onDeleteScannedBoxes,
   onUndoLastScannedBox,
+  onMoveBoxes,
   onAssignBoxesToShipment,
 }: IQrReaderMultiBoxProps) {
   const qrReaderOverlayState = useReactiveVar(qrReaderOverlayVar);
+  const [selectedLocationOption, setSelectedLocationOption] = useState<IDropdownOption | undefined>(
+    undefined,
+  );
   const [selectedShipmentOption, setSelectedShipmentOption] = useState<IDropdownOption | undefined>(
     shipmentOptions.find(
       (shipmentOption) => shipmentOption.value === qrReaderOverlayState.selectedShipmentId,
@@ -59,22 +66,31 @@ function QrReaderMultiBox({
   );
 
   function handleSubmit() {
-    if (multiBoxAction === IMultiBoxAction.assignShipment && selectedShipmentOption) {
+    if (multiBoxAction === IMultiBoxAction.moveBox && selectedLocationOption) {
+      onMoveBoxes(selectedLocationOption.value);
+    } else if (multiBoxAction === IMultiBoxAction.assignShipment && selectedShipmentOption) {
       onAssignBoxesToShipment(selectedShipmentOption.value);
     }
   }
 
   const isSubmitButtonDisabled = useMemo(() => {
     if (
-      multiBoxAction === IMultiBoxAction.assignShipment &&
-      notInStockBoxesCount === 0 &&
       scannedBoxesCount > 0 &&
-      selectedShipmentOption
+      ((multiBoxAction === IMultiBoxAction.assignShipment &&
+        notInStockBoxesCount === 0 &&
+        selectedShipmentOption) ||
+        (multiBoxAction === IMultiBoxAction.moveBox && selectedLocationOption))
     ) {
       return false;
     }
     return true;
-  }, [multiBoxAction, notInStockBoxesCount, scannedBoxesCount, selectedShipmentOption]);
+  }, [
+    multiBoxAction,
+    notInStockBoxesCount,
+    scannedBoxesCount,
+    selectedLocationOption,
+    selectedShipmentOption,
+  ]);
 
   return (
     <Stack direction="column">
@@ -152,6 +168,29 @@ function QrReaderMultiBox({
                   </FormControl>
                 )}
               </>
+            )}
+            {multiBoxAction === IMultiBoxAction.moveBox && (
+              <FormControl isRequired>
+                <Select
+                  placeholder="Please select a location ..."
+                  isSearchable
+                  tagVariant="outline"
+                  colorScheme="black"
+                  useBasicStyles
+                  focusBorderColor="blue.500"
+                  chakraStyles={{
+                    control: (provided) => ({
+                      ...provided,
+                      border: "2px",
+                      borderRadius: "0",
+                    }),
+                  }}
+                  options={locationOptions}
+                  value={selectedLocationOption}
+                  onChange={setSelectedLocationOption}
+                />
+                <FormErrorMessage>{false}</FormErrorMessage>
+              </FormControl>
             )}
           </Stack>
         </RadioGroup>
