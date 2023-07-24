@@ -11,12 +11,16 @@ import { mockImplementationOfQrReader } from "mocks/components";
 import { generateMockBox } from "mocks/boxes";
 import { useErrorHandling } from "hooks/useErrorHandling";
 import { useNotification } from "hooks/useNotification";
-import { ALL_SHIPMENTS_QUERY, GET_BOX_LABEL_IDENTIFIER_BY_QR_CODE } from "queries/queries";
+import {
+  GET_BOX_LABEL_IDENTIFIER_BY_QR_CODE,
+  MULTI_BOX_ACTION_OPTIONS_FOR_LOCATIONS_AND_SHIPMENTS_QUERY,
+} from "queries/queries";
 import { BoxState, ShipmentState } from "types/generated/graphql";
 import { cache } from "queries/cache";
-import { generateMockShipment } from "mocks/shipments";
+import { generateMockShipment, generateMockShipmentMinimal } from "mocks/shipments";
 import { selectOptionInSelectField } from "tests/helpers";
 import { ASSIGN_BOX_TO_SHIPMENT } from "hooks/useAssignBoxesToShipment";
+import { locations } from "mocks/locations";
 import QrReaderView from "./QrReaderView";
 
 // extracting a cacheObject to reset the cache correctly later
@@ -44,7 +48,7 @@ const mockSuccessfulQrQuery = ({
 });
 
 const mockShipmentsQuery = ({
-  query = ALL_SHIPMENTS_QUERY,
+  query = MULTI_BOX_ACTION_OPTIONS_FOR_LOCATIONS_AND_SHIPMENTS_QUERY,
   state = ShipmentState.Preparing,
   iAmSource = true,
   networkError = false,
@@ -59,7 +63,8 @@ const mockShipmentsQuery = ({
         data: graphQlError
           ? null
           : {
-              shipments: [generateMockShipment({ state, iAmSource })],
+              shipments: [generateMockShipmentMinimal({ state, iAmSource })],
+              locations,
             },
         errors: graphQlError ? [new GraphQLError("Error!")] : undefined,
       },
@@ -124,13 +129,13 @@ const failingShipmentsQueryTests = [
     name: "3.4.5.3a - Query for shipments returns an error (Network)",
     hash: "QrWithBoxFromSameBase",
     mocks: [mockShipmentsQuery({ networkError: true })],
-    alert: /Could not fetch shipments data/i,
+    alert: /Could not fetch/i,
   },
   {
     name: "3.4.5.3b - Query for shipments returns an error (GraphQL)",
     hash: "QrWithBoxFromSameBase",
     mocks: [mockShipmentsQuery({ graphQlError: true })],
-    alert: /Could not fetch shipments data/i,
+    alert: /Could not fetch/i,
   },
   {
     name: "3.4.5.4 - Query for shipments returns no shipments in preparing state",

@@ -8,6 +8,7 @@ import {
   PRODUCT_BASIC_FIELDS_FRAGMENT,
   TAG_FIELDS_FRAGMENT,
   DISTRO_EVENT_FIELDS_FRAGMENT,
+  BASE_ORG_FIELDS_FRAGMENT,
 } from "./fragments";
 
 export const BOX_DETAILS_BY_LABEL_IDENTIFIER_QUERY = gql`
@@ -123,6 +124,30 @@ export const SHIPMENT_BY_ID_WITH_PRODUCTS_AND_LOCATIONS_QUERY = gql`
 
       products {
         ...ProductFields
+      }
+    }
+  }
+`;
+
+export const MULTI_BOX_ACTION_OPTIONS_FOR_LOCATIONS_AND_SHIPMENTS_QUERY = gql`
+  ${BASE_ORG_FIELDS_FRAGMENT}
+  query MultiBoxActionOptionsForLocationsAndShipments {
+    locations {
+      ... on ClassicLocation {
+        defaultBoxState
+      }
+      id
+      name
+      seq
+    }
+    shipments {
+      id
+      state
+      sourceBase {
+        ...BaseOrgFields
+      }
+      targetBase {
+        ...BaseOrgFields
       }
     }
   }
