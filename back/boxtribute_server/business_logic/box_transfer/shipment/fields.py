@@ -117,15 +117,13 @@ def resolve_shipment_detail_box(detail_obj, info):
 
 
 @shipment_detail.field("sourceSize")
-def resolve_shipment_detail_source_size(detail_obj, _):
-    authorize(permission="size:read")
-    return detail_obj.source_size
+def resolve_shipment_detail_source_size(detail_obj, info):
+    return info.context["size_loader"].load(detail_obj.source_size_id)
 
 
 @shipment_detail.field("targetSize")
-def resolve_shipment_detail_target_size(detail_obj, _):
-    authorize(permission="size:read")
-    return detail_obj.target_size
+def resolve_shipment_detail_target_size(detail_obj, info):
+    return info.context["size_loader"].load(detail_obj.target_size_id)
 
 
 @shipment_detail.field("shipment")
