@@ -1,6 +1,7 @@
 from ariadne import ObjectType
 
 from ....authz import authorize
+from ....models.definitions.shipment import Shipment
 from ....models.definitions.shipment_detail import ShipmentDetail
 
 shipment = ObjectType("Shipment")
@@ -10,7 +11,13 @@ shipment_detail = ObjectType("ShipmentDetail")
 @shipment.field("details")
 def resolve_shipment_details(shipment_obj, _):
     authorize(permission="shipment_detail:read")
-    return ShipmentDetail.select().where(ShipmentDetail.shipment == shipment_obj.id)
+    # Join with Shipment model, such that authorization in ShipmentDetail resolvers
+    # (detail.shipment.source_base_id) don't create additional DB queries
+    return (
+        ShipmentDetail.select(ShipmentDetail, Shipment)
+        .join(Shipment)
+        .where(ShipmentDetail.shipment == shipment_obj.id)
+    )
 
 
 @shipment.field("sourceBase")
