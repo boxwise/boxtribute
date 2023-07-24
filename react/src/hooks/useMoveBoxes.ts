@@ -9,6 +9,21 @@ interface IMove {
   location: { id: string };
 }
 
+// helper function to check type of dynamically created query
+function isMove(move: any): move is IMove {
+  return (
+    typeof move === "object" &&
+    move !== null &&
+    move !== undefined &&
+    "labelIdentifier" in move &&
+    "location" in move &&
+    typeof move.location === "object" &&
+    move.location !== null &&
+    move.location !== undefined &&
+    "id" in move.location
+  );
+}
+
 // eslint-disable-next-line no-shadow
 export enum IMoveBoxesResultKind {
   SUCCESS = "success",
@@ -70,9 +85,11 @@ export const useMoveBoxes = () => {
 
           const movedLabelIdentifiers: string[] = Object.values(data).reduce(
             (result: string[], move) => {
-              const typedMove = move as IMove;
-              if (parseInt(typedMove.location.id, 10) === newLocationId) {
-                result.push(typedMove.labelIdentifier);
+              if (isMove(move)) {
+                const typedMove = move as IMove;
+                if (parseInt(typedMove.location.id, 10) === newLocationId) {
+                  result.push(typedMove.labelIdentifier);
+                }
               }
               return result;
             },

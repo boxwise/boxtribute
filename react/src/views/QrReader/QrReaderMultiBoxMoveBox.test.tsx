@@ -17,10 +17,9 @@ import {
 } from "queries/queries";
 import { BoxState, ShipmentState } from "types/generated/graphql";
 import { cache } from "queries/cache";
-import { generateMockShipment, generateMockShipmentMinimal } from "mocks/shipments";
+import { generateMockShipmentMinimal } from "mocks/shipments";
 import { selectOptionInSelectField } from "tests/helpers";
 import { locations } from "mocks/locations";
-import { gql } from "@apollo/client";
 import { generateMoveBoxRequest } from "queries/dynamic-mutations";
 import QrReaderView from "./QrReaderView";
 
