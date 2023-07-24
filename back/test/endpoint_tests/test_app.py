@@ -1,6 +1,6 @@
 import peewee
 import pytest
-from auth import create_jwt_payload
+from auth import mock_user_for_request
 from utils import assert_bad_user_input, assert_internal_server_error
 
 
@@ -9,7 +9,8 @@ def test_base_specific_permissions(client, mocker):
     available. QR codes can be created regardless of any base but for the front-end the
     base-specific distinction is relevant.
     """
-    mocker.patch("jose.jwt.decode").return_value = create_jwt_payload(
+    mock_user_for_request(
+        mocker,
         organisation_id=2,
         user_id=1,
         permissions=[
@@ -116,7 +117,7 @@ def test_query_non_existent_qr_code(read_only_client):
 def test_query_non_existent_resource_for_god_user(read_only_client, mocker, resource):
     # Test case 99.1.3, 10.1.3
     # Non-god users would not be authorized to access resource ID 0
-    mocker.patch("jose.jwt.decode").return_value = create_jwt_payload(permissions=["*"])
+    mock_user_for_request(mocker, permissions=["*"])
     query = f"query {{ {resource}(id: 0) {{ id }} }}"
     response = assert_bad_user_input(read_only_client, query, field=resource)
     assert "SQL" not in response.json["errors"][0]["message"]

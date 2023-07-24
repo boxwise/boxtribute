@@ -1,5 +1,5 @@
 import pytest
-from auth import create_jwt_payload
+from auth import mock_user_for_request
 from utils import assert_forbidden_request, assert_successful_request
 
 
@@ -264,8 +264,8 @@ def test_invalid_permission_when_mutating_box(read_only_client, mutation):
 def test_invalid_permission_when_creating_box_with_tags(read_only_client, mocker):
     # Test case 8.2.11
     # Verify missing tag_relation:assign permission
-    mocker.patch("jose.jwt.decode").return_value = create_jwt_payload(
-        permissions=["location:read", "stock:write", "product:read"]
+    mock_user_for_request(
+        mocker, permissions=["location:read", "stock:write", "product:read"]
     )
     mutation = """mutation { createBox(
             creationInput : {
@@ -280,9 +280,7 @@ def test_invalid_permission_when_creating_box_with_tags(read_only_client, mocker
 def test_invalid_permission_for_location_boxes(read_only_client, mocker):
     # Test case 8.1.8
     # verify missing stock:read permission
-    mocker.patch("jose.jwt.decode").return_value = create_jwt_payload(
-        permissions=["location:read"]
-    )
+    mock_user_for_request(mocker, permissions=["location:read"])
     query = "query { location(id: 1) { boxes { elements { id } } } }"
     assert_forbidden_request(read_only_client, query, value={"boxes": None})
 
@@ -292,9 +290,7 @@ def test_invalid_permission_for_qr_code_box(
 ):
     # Test case 8.1.10
     # Verify missing stock:read permission
-    mocker.patch("jose.jwt.decode").return_value = create_jwt_payload(
-        permissions=["qr:read"]
-    )
+    mock_user_for_request(mocker, permissions=["qr:read"])
     code = default_qr_code["code"]
     query = f"""query {{ qrCode(qrCode: "{code}") {{ box {{ id }} }} }}"""
     assert_forbidden_request(read_only_client, query, value={"box": None})
@@ -303,7 +299,8 @@ def test_invalid_permission_for_qr_code_box(
     # Verify missing base-specific stock:read permission (the QR code belongs to a box
     # from a base that the user is not authorized for. Hence it's especially prohibited
     # to access beneficiary data through a common tag)
-    mocker.patch("jose.jwt.decode").return_value = create_jwt_payload(
+    mock_user_for_request(
+        mocker,
         permissions=[
             "qr:read",
             "stock:read",
@@ -323,9 +320,7 @@ def test_invalid_permission_for_organisation_bases(
     read_only_client, mocker, default_organisation
 ):
     # verify missing base:read permission
-    mocker.patch("jose.jwt.decode").return_value = create_jwt_payload(
-        permissions=["organisation:read"]
-    )
+    mock_user_for_request(mocker, permissions=["organisation:read"])
     org_id = default_organisation["id"]
     query = f"""query {{ organisation(id: "{org_id}") {{ bases {{ id }} }} }}"""
     assert_forbidden_request(read_only_client, query, value={"bases": None})
@@ -335,9 +330,7 @@ def test_invalid_permission_for_beneficiary_fields(
     read_only_client, mocker, default_beneficiary
 ):
     # verify missing tag:read/transaction:read permission
-    mocker.patch("jose.jwt.decode").return_value = create_jwt_payload(
-        permissions=["beneficiary:read"]
-    )
+    mock_user_for_request(mocker, permissions=["beneficiary:read"])
     id = default_beneficiary["id"]
     query = f"query {{ beneficiary(id: {id}) {{ tokens }} }}"
     assert_forbidden_request(read_only_client, query, value={"tokens": None})
@@ -349,9 +342,7 @@ def test_invalid_permission_for_beneficiary_fields(
 
 def test_invalid_permission_for_base_locations(read_only_client, mocker):
     # verify missing location:read permission
-    mocker.patch("jose.jwt.decode").return_value = create_jwt_payload(
-        permissions=["base:read"]
-    )
+    mock_user_for_request(mocker, permissions=["base:read"])
     query = "query { base(id: 1) { locations { id } } }"
     assert_forbidden_request(read_only_client, query, value=None)
 
@@ -359,9 +350,7 @@ def test_invalid_permission_for_base_locations(read_only_client, mocker):
 def test_invalid_permission_for_tag_resources(read_only_client, mocker, tags):
     # Test case 4.1.7
     # verify missing tag_relation:read permission
-    mocker.patch("jose.jwt.decode").return_value = create_jwt_payload(
-        permissions=["tag:read"]
-    )
+    mock_user_for_request(mocker, permissions=["tag:read"])
     id = tags[0]["id"]
     query = f"query {{ tag(id: {id}) {{ taggedResources {{ ...on Box {{ id }} }} }} }}"
     assert_forbidden_request(read_only_client, query, value={"taggedResources": None})
@@ -370,9 +359,7 @@ def test_invalid_permission_for_tag_resources(read_only_client, mocker, tags):
 @pytest.mark.parametrize("field", ["sourceBases", "targetBases"])
 def test_invalid_permission_for_agreement_bases(read_only_client, mocker, field):
     # verify missing base:read permission
-    mocker.patch("jose.jwt.decode").return_value = create_jwt_payload(
-        permissions=["transfer_agreement:read"]
-    )
+    mock_user_for_request(mocker, permissions=["transfer_agreement:read"])
     query = f"query {{ transferAgreement(id: 1) {{ {field} {{ id }} }} }}"
     assert_forbidden_request(read_only_client, query, value={field: None})
 
@@ -380,9 +367,7 @@ def test_invalid_permission_for_agreement_bases(read_only_client, mocker, field)
 @pytest.mark.parametrize("field", ["sourceBase", "targetBase"])
 def test_invalid_permission_for_shipment_base(read_only_client, mocker, field):
     # verify missing base:read permission
-    mocker.patch("jose.jwt.decode").return_value = create_jwt_payload(
-        permissions=["shipment:read"]
-    )
+    mock_user_for_request(mocker, permissions=["shipment:read"])
     query = f"query {{ shipment(id: 1) {{ {field} {{ id }} }} }}"
     assert_forbidden_request(read_only_client, query)
 
@@ -391,9 +376,7 @@ def test_invalid_permission_for_shipment_base(read_only_client, mocker, field):
 def test_invalid_permission_for_box_field(read_only_client, mocker, default_box, field):
     # Test case 8.1.9
     # verify missing field:read permission
-    mocker.patch("jose.jwt.decode").return_value = create_jwt_payload(
-        permissions=["stock:read"]
-    )
+    mock_user_for_request(mocker, permissions=["stock:read"])
     query = f"""query {{ box(labelIdentifier: "{default_box["label_identifier"]}")
                 {{ {field} {{ id }} }} }}"""
     assert_forbidden_request(read_only_client, query, value={field: None})
@@ -406,9 +389,7 @@ def test_invalid_permission_for_shipment_details_field(
     read_only_client, mocker, default_box, field
 ):
     # verify missing field:read permission
-    mocker.patch("jose.jwt.decode").return_value = create_jwt_payload(
-        permissions=["shipment:read", "shipment_detail:read"]
-    )
+    mock_user_for_request(mocker, permissions=["shipment:read", "shipment_detail:read"])
     query = f"""query {{ shipment(id: 1) {{ details
                 {{ {field} {{ id }} }} }} }}"""
     assert_forbidden_request(
@@ -421,9 +402,7 @@ def test_invalid_permission_for_resource_base(
     read_only_client, mocker, default_product, resource
 ):
     # verify missing base:read permission
-    mocker.patch("jose.jwt.decode").return_value = create_jwt_payload(
-        permissions=[f"{resource}:read"]
-    )
+    mock_user_for_request(mocker, permissions=[f"{resource}:read"])
     query = f"""query {{ {resource}(id: 1)
                 {{ base {{ id }} }} }}"""
     assert_forbidden_request(read_only_client, query, value={"base": None})
@@ -446,9 +425,7 @@ def test_invalid_permission_for_metrics(read_only_client, mocker):
     ],
 )
 def test_permission_scope(read_only_client, mocker, default_bases, method):
-    mocker.patch("jose.jwt.decode").return_value = create_jwt_payload(
-        permissions=[f"base:{method}"]
-    )
+    mock_user_for_request(mocker, permissions=[f"base:{method}"])
     query = "query { bases { id } }"
     bases = assert_successful_request(read_only_client, query)
     assert bases == [{"id": "1"}]
@@ -462,9 +439,7 @@ def test_permission_for_god_user(
     shipments,
     transfer_agreements,
 ):
-    mocker.patch("jose.jwt.decode").return_value = create_jwt_payload(
-        permissions=["*"], organisation_id=None
-    )
+    mock_user_for_request(mocker, permissions=["*"], organisation_id=None)
     # Test case 10.1.1
     query = "query { users { id } }"
     users = assert_successful_request(read_only_client, query)

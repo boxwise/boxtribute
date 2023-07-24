@@ -1,5 +1,5 @@
 import pytest
-from auth import create_jwt_payload
+from auth import mock_user_for_request
 from utils import assert_successful_request
 
 
@@ -127,9 +127,7 @@ def test_metrics_query_for_god_user(
     number_of_families_served,
     number_of_sales,
 ):
-    mocker.patch("jose.jwt.decode").return_value = create_jwt_payload(
-        permissions=["*"], organisation_id=None
-    )
+    mock_user_for_request(mocker, permissions=["*"], organisation_id=None)
     query = f"""query {{ metrics(organisationId: {organisation_id}) {{
                 numberOfFamiliesServed numberOfSales }} }}"""
     response = assert_successful_request(read_only_client, query, field="metrics")
