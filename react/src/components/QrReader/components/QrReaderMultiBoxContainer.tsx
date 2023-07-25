@@ -15,14 +15,14 @@ import { AlertWithAction, AlertWithoutAction } from "components/Alerts";
 import { QrReaderMultiBoxSkeleton } from "components/Skeletons";
 import { Stack } from "@chakra-ui/react";
 import { IBoxBasicFields, IGetScannedBoxesQuery } from "types/graphql-local-only";
+import { GlobalPreferencesContext } from "providers/GlobalPreferencesProvider";
 import { useScannedBoxesActions } from "hooks/useScannedBoxesActions";
+import { IMoveBoxesResultKind, useMoveBoxes } from "hooks/useMoveBoxes";
+import { IAssignTagsResultKind, useAssignTags } from "hooks/useAssignTags";
 import {
   IAssignBoxToShipmentResultKind,
   useAssignBoxesToShipment,
 } from "hooks/useAssignBoxesToShipment";
-import { GlobalPreferencesContext } from "providers/GlobalPreferencesProvider";
-import { IMoveBoxesResultKind, useMoveBoxes } from "hooks/useMoveBoxes";
-
 import QrReaderMultiBox, { IMultiBoxAction } from "./QrReaderMultiBox";
 import {
   FailedBoxesFromAssignTagsAlert,
@@ -72,7 +72,7 @@ function QrReaderMultiBoxContainer({ onSuccess }: IQrReaderMultiBoxContainerProp
 
   // box actions hooks
   const { moveBoxes, isLoading: isMoveBoxesLoading } = useMoveBoxes();
-  // const { assignTags, isLoading: isAssignTagsLoading } = useAssignTags();
+  const { assignTags, isLoading: isAssignTagsLoading } = useAssignTags();
   const { assignBoxesToShipment, isLoading: isAssignBoxesToShipmentLoading } =
     useAssignBoxesToShipment();
 
@@ -101,30 +101,30 @@ function QrReaderMultiBoxContainer({ onSuccess }: IQrReaderMultiBoxContainerProp
     ],
   );
 
-  // const onAssignTags = useCallback(
-  //   async (locationId: string) => {
-  //     const assignTagsResult = await assignTags(
-  //       (scannedBoxesQueryResult.data?.scannedBoxes ?? []).map((box) => box.labelIdentifier),
-  //       parseInt(locationId, 10),
-  //     );
-  //     // remove all moved Boxes from the cache
-  //     if (assignTagsResult?.movedLabelIdentifiers?.length) {
-  //       removeBoxesFromScannedBoxesByLabelIdentifier(assignTagsResult.movedLabelIdentifiers);
-  //     }
-  //     // To show in the UI which boxes failed
-  //     setFailedBoxesFromAssignTags(assignTagsResult?.failedLabelIdentifiers ?? []);
-  //     // only if all Boxes were moved
-  //     if (assignTagsResult.kind === IAssignTagsResultKind.SUCCESS) {
-  //       onSuccess();
-  //     }
-  //   },
-  //   [
-  //     assignTags,
-  //     onSuccess,
-  //     removeBoxesFromScannedBoxesByLabelIdentifier,
-  //     scannedBoxesQueryResult.data?.scannedBoxes,
-  //   ],
-  // );
+  const onAssignTags = useCallback(
+    async (tagIds: string[]) => {
+      const assignTagsResult = await assignTags(
+        (scannedBoxesQueryResult.data?.scannedBoxes ?? []).map((box) => box.labelIdentifier),
+        tagIds.map((tagId) => parseInt(tagId, 10)),
+      );
+      // remove all moved Boxes from the cache
+      if (assignTagsResult?.successfulLabelIdentifiers?.length) {
+        removeBoxesFromScannedBoxesByLabelIdentifier(assignTagsResult.successfulLabelIdentifiers);
+      }
+      // To show in the UI which boxes failed
+      setFailedBoxesFromAssignTags(assignTagsResult?.failedLabelIdentifiers ?? []);
+      // only if all Boxes were moved
+      if (assignTagsResult.kind === IAssignTagsResultKind.SUCCESS) {
+        onSuccess();
+      }
+    },
+    [
+      assignTags,
+      onSuccess,
+      removeBoxesFromScannedBoxesByLabelIdentifier,
+      scannedBoxesQueryResult.data?.scannedBoxes,
+    ],
+  );
 
   const onAssignBoxesToShipment = useCallback(
     async (shipmentId: string) => {
@@ -272,7 +272,9 @@ function QrReaderMultiBoxContainer({ onSuccess }: IQrReaderMultiBoxContainerProp
         />
       )}
       <QrReaderMultiBox
-        isSubmitButtonLoading={isAssignBoxesToShipmentLoading || isMoveBoxesLoading}
+        isSubmitButtonLoading={
+          isAssignBoxesToShipmentLoading || isMoveBoxesLoading || isAssignTagsLoading
+        }
         multiBoxAction={multiBoxAction}
         onChangeMultiBoxAction={setMultiBoxAction}
         locationOptions={locationOptions}
@@ -283,10 +285,7 @@ function QrReaderMultiBoxContainer({ onSuccess }: IQrReaderMultiBoxContainerProp
         onDeleteScannedBoxes={deleteScannedBoxes}
         onUndoLastScannedBox={undoLastScannedBox}
         onMoveBoxes={onMoveBoxes}
-        onAssignTags={(tagIds: string[]) => {
-          // eslint-disable-next-line no-console
-          console.log(tagIds);
-        }}
+        onAssignTags={onAssignTags}
         onAssignBoxesToShipment={onAssignBoxesToShipment}
       />
     </Stack>

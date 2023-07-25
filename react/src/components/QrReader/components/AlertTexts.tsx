@@ -66,7 +66,7 @@ export function FailedBoxesFromAssignTagsAlert({
 }: IFailedBoxesFromMoveBoxesAlertProps) {
   return (
     <Text>
-      The following boxes were not assigned:
+      The following boxes were not assigned tags:
       <UnorderedList>
         {failedBoxes.map((labelIdentifier) => (
           <ListItem fontWeight="bold">{labelIdentifier}</ListItem>
