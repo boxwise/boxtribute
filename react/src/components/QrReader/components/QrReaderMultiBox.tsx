@@ -20,6 +20,7 @@ import { ShipmentIcon } from "components/Icon/Transfer/ShipmentIcon";
 import { FaWarehouse, FaTags } from "react-icons/fa";
 import { useReactiveVar } from "@apollo/client";
 import { qrReaderOverlayVar } from "queries/cache";
+import { colorIsBright } from "utils/helpers";
 
 // eslint-disable-next-line no-shadow
 export enum IMultiBoxAction {
@@ -218,6 +219,20 @@ function QrReaderMultiBox({
                       border: "2px",
                       borderRadius: "0",
                     }),
+                    multiValue: (provided, state) => {
+                      // eslint-disable-next-line no-console
+                      console.log(state);
+                      return {
+                        ...provided,
+                        border: "1px",
+                        borderColor: colorIsBright(state.data?.color ?? "#fff")
+                          ? "gray.300"
+                          : state.data?.color,
+                        color: colorIsBright(state.data?.color ?? "#fff") ? "black" : "white",
+                        background: state.data?.color ?? "gray.100",
+                        borderRadius: "20",
+                      };
+                    },
                   }}
                   options={tagOptions}
                   value={selectedTagOptions}
