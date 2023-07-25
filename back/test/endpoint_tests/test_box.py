@@ -376,6 +376,27 @@ def test_update_box_tag_ids(client, default_box, tags):
     updated_box = assert_successful_request(client, mutation)
     assert updated_box == {"tags": []}
 
+    # Add tag ID 2
+    mutation = f"""mutation {{ updateBox(updateInput : {{
+                    labelIdentifier: "{label_identifier}"
+                    tagIdsToBeAdded: [{tag_id}] }} ) {{ tags {{ id }} }} }}"""
+    updated_box = assert_successful_request(client, mutation)
+    assert updated_box == {"tags": [{"id": tag_id}]}
+
+    # Add the same tag again without an error being thrown
+    mutation = f"""mutation {{ updateBox(updateInput : {{
+                    labelIdentifier: "{label_identifier}"
+                    tagIdsToBeAdded: [{tag_id}] }} ) {{ tags {{ id }} }} }}"""
+    updated_box = assert_successful_request(client, mutation)
+    assert updated_box == {"tags": [{"id": tag_id}]}
+
+    # Add tag ID 3. Both tags are assigned to the box
+    mutation = f"""mutation {{ updateBox(updateInput : {{
+                    labelIdentifier: "{label_identifier}"
+                    tagIdsToBeAdded: [{another_tag_id}] }} ) {{ tags {{ id }} }} }}"""
+    updated_box = assert_successful_request(client, mutation)
+    assert updated_box == {"tags": [{"id": tag_id}, {"id": another_tag_id}]}
+
 
 def _format(parameter):
     try:
