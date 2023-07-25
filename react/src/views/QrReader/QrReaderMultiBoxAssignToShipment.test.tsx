@@ -21,6 +21,7 @@ import { generateMockShipment, generateMockShipmentMinimal } from "mocks/shipmen
 import { selectOptionInSelectField } from "tests/helpers";
 import { ASSIGN_BOX_TO_SHIPMENT } from "hooks/useAssignBoxesToShipment";
 import { locations } from "mocks/locations";
+import { tags } from "mocks/tags";
 import QrReaderView from "./QrReaderView";
 
 // extracting a cacheObject to reset the cache correctly later
@@ -65,7 +66,7 @@ const mockShipmentsQuery = ({
           ? null
           : {
               shipments: [generateMockShipmentMinimal({ state, iAmSource })],
-              base: { locations },
+              base: { locations, tags },
             },
         errors: graphQlError ? [new GraphQLError("Error!")] : undefined,
       },

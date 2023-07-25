@@ -21,6 +21,7 @@ import { generateMockShipmentMinimal } from "mocks/shipments";
 import { selectOptionInSelectField } from "tests/helpers";
 import { locations } from "mocks/locations";
 import { generateMoveBoxRequest } from "queries/dynamic-mutations";
+import { tags } from "mocks/tags";
 import QrReaderView from "./QrReaderView";
 
 // extracting a cacheObject to reset the cache correctly later
@@ -65,7 +66,7 @@ const mockLocationsQuery = ({
               shipments: [
                 generateMockShipmentMinimal({ state: ShipmentState.Preparing, iAmSource: true }),
               ],
-              base: { locations },
+              base: { locations, tags },
             },
         errors: graphQlError ? [new GraphQLError("Error!")] : undefined,
       },

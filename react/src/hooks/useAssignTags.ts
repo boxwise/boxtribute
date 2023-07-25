@@ -22,6 +22,7 @@ function isAssign(obj: any): obj is IAssign {
   );
 }
 
+// eslint-disable-next-line no-shadow
 export enum IAssignTagsResultKind {
   SUCCESS = "success",
   FAIL = "fail",
