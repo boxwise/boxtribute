@@ -35,7 +35,7 @@ import {
 } from "views/Distributions/queries";
 import {
   DISTRO_EVENT_FIELDS_FRAGMENT,
-  TAG_FIELDS_FRAGMENT,
+  TAG_BASIC_FIELDS_FRAGMENT,
   BOX_FIELDS_FRAGMENT,
   PRODUCT_FIELDS_FRAGMENT,
 } from "queries/fragments";
@@ -84,7 +84,7 @@ export const UPDATE_STATE_IN_BOX_MUTATION = gql`
 export const UPDATE_BOX_MUTATION = gql`
   ${BOX_FIELDS_FRAGMENT}
   ${PRODUCT_FIELDS_FRAGMENT}
-  ${TAG_FIELDS_FRAGMENT}
+  ${TAG_BASIC_FIELDS_FRAGMENT}
   ${DISTRO_EVENT_FIELDS_FRAGMENT}
   mutation UpdateLocationOfBox($boxLabelIdentifier: String!, $newLocationId: Int!) {
     updateBox(updateInput: { labelIdentifier: $boxLabelIdentifier, locationId: $newLocationId }) {
@@ -93,7 +93,7 @@ export const UPDATE_BOX_MUTATION = gql`
         ...ProductFields
       }
       tags {
-        ...TagFields
+        ...TagBasicFields
       }
       distributionEvent {
         ...DistroEventFields

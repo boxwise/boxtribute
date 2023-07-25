@@ -13,7 +13,7 @@ import { useErrorHandling } from "hooks/useErrorHandling";
 import { useNotification } from "hooks/useNotification";
 import {
   GET_BOX_LABEL_IDENTIFIER_BY_QR_CODE,
-  MULTI_BOX_ACTION_OPTIONS_FOR_LOCATIONS_AND_SHIPMENTS_QUERY,
+  MULTI_BOX_ACTION_OPTIONS_FOR_LOCATIONS_TAGS_AND_SHIPMENTS_QUERY,
 } from "queries/queries";
 import { BoxState, ShipmentState } from "types/generated/graphql";
 import { cache } from "queries/cache";
@@ -48,7 +48,7 @@ const mockSuccessfulQrQuery = ({
 });
 
 const mockShipmentsQuery = ({
-  query = MULTI_BOX_ACTION_OPTIONS_FOR_LOCATIONS_AND_SHIPMENTS_QUERY,
+  query = MULTI_BOX_ACTION_OPTIONS_FOR_LOCATIONS_TAGS_AND_SHIPMENTS_QUERY,
   state = ShipmentState.Preparing,
   iAmSource = true,
   networkError = false,
@@ -56,6 +56,7 @@ const mockShipmentsQuery = ({
 }) => ({
   request: {
     query,
+    variables: { baseId: "1" },
   },
   result: networkError
     ? undefined
@@ -64,7 +65,7 @@ const mockShipmentsQuery = ({
           ? null
           : {
               shipments: [generateMockShipmentMinimal({ state, iAmSource })],
-              locations,
+              base: { locations },
             },
         errors: graphQlError ? [new GraphQLError("Error!")] : undefined,
       },

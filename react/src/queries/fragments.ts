@@ -30,18 +30,29 @@ export const PRODUCT_BASIC_FIELDS_FRAGMENT = gql`
   }
 `;
 
-export const SIZE_FIELDS_FRAGMENT = gql`
-  fragment SizeFields on Size {
+export const SIZE_BASIC_FIELDS_FRAGMENT = gql`
+  fragment SizeBasicFields on Size {
     id
     label
   }
 `;
 
-export const TAG_FIELDS_FRAGMENT = gql`
-  fragment TagFields on Tag {
+export const LOCATION_BASIC_FIELDS_FRAGMENT = gql`
+  fragment LocationBasicFields on ClassicLocation {
+    defaultBoxState
+    id
+    seq
+    name
+  }
+`;
+
+export const TAG_BASIC_FIELDS_FRAGMENT = gql`
+  fragment TagBasicFields on Tag {
     id
     name
     color
+    description
+    type
   }
 `;
 
@@ -91,12 +102,12 @@ export const HISTORY_FIELDS_FRAGMENT = gql`
 `;
 
 export const SIZE_RANGE_FIELDS_FRAGMENT = gql`
-  ${SIZE_FIELDS_FRAGMENT}
+  ${SIZE_BASIC_FIELDS_FRAGMENT}
   fragment SizeRangeFields on SizeRange {
     id
     label
     sizes {
-      ...SizeFields
+      ...SizeBasicFields
     }
   }
 `;
@@ -116,8 +127,8 @@ export const BOX_BASIC_FIELDS_FRAGMENT = gql`
 
 export const BOX_FIELDS_FRAGMENT = gql`
   ${PRODUCT_BASIC_FIELDS_FRAGMENT}
-  ${SIZE_FIELDS_FRAGMENT}
-  ${TAG_FIELDS_FRAGMENT}
+  ${SIZE_BASIC_FIELDS_FRAGMENT}
+  ${TAG_BASIC_FIELDS_FRAGMENT}
   ${BASE_BASIC_FIELDS_FRAGMENT}
   ${HISTORY_FIELDS_FRAGMENT}
   fragment BoxFields on Box {
@@ -127,7 +138,7 @@ export const BOX_FIELDS_FRAGMENT = gql`
       ...ProductBasicFields
     }
     size {
-      ...SizeFields
+      ...SizeBasicFields
     }
     shipmentDetail {
       shipment {
@@ -156,7 +167,7 @@ export const BOX_FIELDS_FRAGMENT = gql`
     }
     numberOfItems
     tags {
-      ...TagFields
+      ...TagBasicFields
     }
     comment
     history {
@@ -166,15 +177,15 @@ export const BOX_FIELDS_FRAGMENT = gql`
 `;
 
 export const BOX_WITH_SIZE_TAG_PRODUCT_FIELDS_FRAGMENT = gql`
-  ${SIZE_FIELDS_FRAGMENT}
+  ${SIZE_BASIC_FIELDS_FRAGMENT}
   ${PRODUCT_BASIC_FIELDS_FRAGMENT}
-  ${TAG_FIELDS_FRAGMENT}
+  ${TAG_BASIC_FIELDS_FRAGMENT}
   ${DISTRO_EVENT_FIELDS_FRAGMENT}
   fragment BoxWithSizeTagProductFields on Box {
     labelIdentifier
     state
     size {
-      ...SizeFields
+      ...SizeBasicFields
     }
     numberOfItems
     comment
@@ -182,7 +193,7 @@ export const BOX_WITH_SIZE_TAG_PRODUCT_FIELDS_FRAGMENT = gql`
       ...ProductBasicFields
     }
     tags {
-      ...TagFields
+      ...TagBasicFields
     }
     distributionEvent {
       ...DistroEventFields
@@ -284,7 +295,7 @@ export const SHIPMENT_DETAIL_FIELDS_FRAGMENT = gql`
   ${BOX_BASIC_FIELDS_FRAGMENT}
   ${USER_BASIC_FIELDS_FRAGMENT}
   ${PRODUCT_FIELDS_FRAGMENT}
-  ${SIZE_FIELDS_FRAGMENT}
+  ${SIZE_BASIC_FIELDS_FRAGMENT}
   fragment ShipmentDetailFields on ShipmentDetail {
     id
     box {
@@ -297,10 +308,10 @@ export const SHIPMENT_DETAIL_FIELDS_FRAGMENT = gql`
       ...ProductFields
     }
     sourceSize {
-      ...SizeFields
+      ...SizeBasicFields
     }
     targetSize {
-      ...SizeFields
+      ...SizeBasicFields
     }
     sourceQuantity
     targetQuantity

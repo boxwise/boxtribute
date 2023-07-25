@@ -6,8 +6,9 @@ import { GET_SCANNED_BOXES } from "queries/local-only";
 import {
   BoxState,
   ShipmentState,
-  MultiBoxActionOptionsForLocationsAndShipmentsQuery,
+  MultiBoxActionOptionsForLocationsTagsAndShipmentsQuery,
 } from "types/generated/graphql";
+import { MULTI_BOX_ACTION_OPTIONS_FOR_LOCATIONS_TAGS_AND_SHIPMENTS_QUERY } from "queries/queries";
 import { IDropdownOption } from "components/Form/SelectField";
 import { AlertWithAction, AlertWithoutAction } from "components/Alerts";
 import { QrReaderMultiBoxSkeleton } from "components/Skeletons";
@@ -20,7 +21,7 @@ import {
 } from "hooks/useAssignBoxesToShipment";
 import { GlobalPreferencesContext } from "providers/GlobalPreferencesProvider";
 import { IMoveBoxesResultKind, useMoveBoxes } from "hooks/useMoveBoxes";
-import { MULTI_BOX_ACTION_OPTIONS_FOR_LOCATIONS_AND_SHIPMENTS_QUERY } from "queries/queries";
+
 import QrReaderMultiBox, { IMultiBoxAction } from "./QrReaderMultiBox";
 import {
   FailedBoxesFromAssingToShipmentAlert,
@@ -50,8 +51,11 @@ function QrReaderMultiBoxContainer({ onSuccess }: IQrReaderMultiBoxContainerProp
   const scannedBoxesQueryResult = useQuery<IGetScannedBoxesQuery>(GET_SCANNED_BOXES);
 
   // fetch location and shipments data
-  const optionsQueryResult = useQuery<MultiBoxActionOptionsForLocationsAndShipmentsQuery>(
-    MULTI_BOX_ACTION_OPTIONS_FOR_LOCATIONS_AND_SHIPMENTS_QUERY,
+  const optionsQueryResult = useQuery<MultiBoxActionOptionsForLocationsTagsAndShipmentsQuery>(
+    MULTI_BOX_ACTION_OPTIONS_FOR_LOCATIONS_TAGS_AND_SHIPMENTS_QUERY,
+    {
+      variables: { baseId: currentBaseId },
+    },
   );
 
   // scannedBoxes actions hook
@@ -126,7 +130,7 @@ function QrReaderMultiBoxContainer({ onSuccess }: IQrReaderMultiBoxContainerProp
   // These are all the locations that are retrieved from the query which then filtered out the Scrap and Lost according to the defaultBoxState
   const locationOptions: IDropdownOption[] = useMemo(
     () =>
-      optionsQueryResult.data?.locations
+      optionsQueryResult.data?.base?.locations
         .filter(
           (location) =>
             location?.defaultBoxState !== BoxState.Lost &&
@@ -141,7 +145,7 @@ function QrReaderMultiBoxContainer({ onSuccess }: IQrReaderMultiBoxContainerProp
           }`,
           value: location.id,
         })) ?? [],
-    [optionsQueryResult.data?.locations],
+    [optionsQueryResult.data?.base?.locations],
   );
   const shipmentOptions: IDropdownOption[] = useMemo(
     () =>
