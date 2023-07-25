@@ -19,7 +19,10 @@ input BoxUpdateInput {
   locationId: Int
   comment: String
   state: BoxState
+  " List of all tags that shall be assigned to the box "
   tagIds: [Int!]
+  " List of tags that shall be assigned in addition to already assigned tags "
+  tagIdsToBeAdded: [Int!]
 }
 
 input BeneficiaryCreationInput {
