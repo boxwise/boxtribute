@@ -20,11 +20,12 @@ import { ShipmentIcon } from "components/Icon/Transfer/ShipmentIcon";
 import { FaWarehouse, FaTags } from "react-icons/fa";
 import { useReactiveVar } from "@apollo/client";
 import { qrReaderOverlayVar } from "queries/cache";
+import { colorIsBright } from "utils/helpers";
 
 // eslint-disable-next-line no-shadow
 export enum IMultiBoxAction {
   moveBox = "moveBox",
-  assignTag = "assignTag",
+  assignTags = "assignTags",
   assignShipment = "assignShipment",
 }
 
@@ -33,12 +34,14 @@ interface IQrReaderMultiBoxProps {
   multiBoxAction: IMultiBoxAction;
   onChangeMultiBoxAction: (multiBoxAction: IMultiBoxAction) => void;
   locationOptions: IDropdownOption[];
+  tagOptions: IDropdownOption[];
   shipmentOptions: IDropdownOption[];
   scannedBoxesCount: number;
   notInStockBoxesCount: number;
   onDeleteScannedBoxes: () => void;
   onUndoLastScannedBox: () => void;
   onMoveBoxes: (locationId: string) => void;
+  onAssignTags: (tagIds: string[]) => void;
   onAssignBoxesToShipment: (shipmentId: string) => void;
 }
 
@@ -47,18 +50,22 @@ function QrReaderMultiBox({
   multiBoxAction,
   onChangeMultiBoxAction,
   locationOptions,
+  tagOptions,
   shipmentOptions,
   scannedBoxesCount,
   notInStockBoxesCount,
   onDeleteScannedBoxes,
   onUndoLastScannedBox,
   onMoveBoxes,
+  onAssignTags,
   onAssignBoxesToShipment,
 }: IQrReaderMultiBoxProps) {
   const qrReaderOverlayState = useReactiveVar(qrReaderOverlayVar);
   const [selectedLocationOption, setSelectedLocationOption] = useState<IDropdownOption | undefined>(
     undefined,
   );
+  // eslint-disable-next-line max-len
+  const [selectedTagOptions, setSelectedTagOptions] = useState<IDropdownOption[]>([]);
   const [selectedShipmentOption, setSelectedShipmentOption] = useState<IDropdownOption | undefined>(
     shipmentOptions.find(
       (shipmentOption) => shipmentOption.value === qrReaderOverlayState.selectedShipmentId,
@@ -68,6 +75,8 @@ function QrReaderMultiBox({
   function handleSubmit() {
     if (multiBoxAction === IMultiBoxAction.moveBox && selectedLocationOption) {
       onMoveBoxes(selectedLocationOption.value);
+    } else if (multiBoxAction === IMultiBoxAction.assignTags && selectedTagOptions) {
+      onAssignTags(selectedTagOptions.map((tag) => tag.value));
     } else if (multiBoxAction === IMultiBoxAction.assignShipment && selectedShipmentOption) {
       onAssignBoxesToShipment(selectedShipmentOption.value);
     }
@@ -79,7 +88,8 @@ function QrReaderMultiBox({
       ((multiBoxAction === IMultiBoxAction.assignShipment &&
         notInStockBoxesCount === 0 &&
         selectedShipmentOption) ||
-        (multiBoxAction === IMultiBoxAction.moveBox && selectedLocationOption))
+        (multiBoxAction === IMultiBoxAction.moveBox && selectedLocationOption) ||
+        (multiBoxAction === IMultiBoxAction.assignTags && selectedTagOptions.length > 0))
     ) {
       return false;
     }
@@ -90,6 +100,7 @@ function QrReaderMultiBox({
     scannedBoxesCount,
     selectedLocationOption,
     selectedShipmentOption,
+    selectedTagOptions,
   ]);
 
   return (
@@ -121,13 +132,13 @@ function QrReaderMultiBox({
       <Box border="2px" borderRadius={0} p={4}>
         <RadioGroup onChange={onChangeMultiBoxAction} value={multiBoxAction}>
           <Stack direction="column">
-            <Radio value="moveBox" data-testid="moveBox">
+            <Radio value="moveBox" data-testid="MoveBox">
               <Stack direction="row" alignItems="center" spacing={2}>
                 <Icon as={FaWarehouse} boxSize={6} />
                 <Text>Move to Location</Text>
               </Stack>
             </Radio>
-            <Radio value="assignTag" data-testid="AssignTag">
+            <Radio value="assignTags" data-testid="AssignTags">
               <Stack direction="row" alignItems="center" spacing={2}>
                 <Icon as={FaTags} boxSize={6} />
                 Tag Boxes
@@ -188,6 +199,44 @@ function QrReaderMultiBox({
                   options={locationOptions}
                   value={selectedLocationOption}
                   onChange={setSelectedLocationOption}
+                />
+                <FormErrorMessage>{false}</FormErrorMessage>
+              </FormControl>
+            )}
+            {multiBoxAction === IMultiBoxAction.assignTags && (
+              <FormControl isRequired>
+                <Select
+                  placeholder="Please select tags ..."
+                  isSearchable
+                  tagVariant="outline"
+                  colorScheme="black"
+                  useBasicStyles
+                  isMulti
+                  focusBorderColor="blue.500"
+                  chakraStyles={{
+                    control: (provided) => ({
+                      ...provided,
+                      border: "2px",
+                      borderRadius: "0",
+                    }),
+                    multiValue: (provided, state) => {
+                      // eslint-disable-next-line no-console
+                      console.log(state);
+                      return {
+                        ...provided,
+                        border: "1px",
+                        borderColor: colorIsBright(state.data?.color ?? "#fff")
+                          ? "gray.300"
+                          : state.data?.color,
+                        color: colorIsBright(state.data?.color ?? "#fff") ? "black" : "white",
+                        background: state.data?.color ?? "gray.100",
+                        borderRadius: "20",
+                      };
+                    },
+                  }}
+                  options={tagOptions}
+                  value={selectedTagOptions}
+                  onChange={(s: any) => setSelectedTagOptions(s)}
                 />
                 <FormErrorMessage>{false}</FormErrorMessage>
               </FormControl>

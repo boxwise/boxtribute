@@ -60,3 +60,18 @@ export function FailedBoxesFromMoveBoxesAlert({
     </Text>
   );
 }
+
+export function FailedBoxesFromAssignTagsAlert({
+  failedBoxes,
+}: IFailedBoxesFromMoveBoxesAlertProps) {
+  return (
+    <Text>
+      The following boxes were not assigned tags:
+      <UnorderedList>
+        {failedBoxes.map((labelIdentifier) => (
+          <ListItem fontWeight="bold">{labelIdentifier}</ListItem>
+        ))}
+      </UnorderedList>
+    </Text>
+  );
+}

@@ -20,8 +20,8 @@ import { cache } from "queries/cache";
 import { generateMockShipmentMinimal } from "mocks/shipments";
 import { selectOptionInSelectField } from "tests/helpers";
 import { locations } from "mocks/locations";
-import { generateMoveBoxRequest } from "queries/dynamic-mutations";
-import { tags } from "mocks/tags";
+import { generateAssignTagsRequest } from "queries/dynamic-mutations";
+import { tagsArray } from "mocks/tags";
 import QrReaderView from "./QrReaderView";
 
 // extracting a cacheObject to reset the cache correctly later
@@ -48,7 +48,7 @@ const mockSuccessfulQrQuery = ({
   },
 });
 
-const mockLocationsQuery = ({
+const mockTagsQuery = ({
   query = MULTI_BOX_ACTION_OPTIONS_FOR_LOCATIONS_TAGS_AND_SHIPMENTS_QUERY,
   networkError = false,
   graphQlError = false,
@@ -66,57 +66,51 @@ const mockLocationsQuery = ({
               shipments: [
                 generateMockShipmentMinimal({ state: ShipmentState.Preparing, iAmSource: true }),
               ],
-              base: { locations, tags },
+              base: { locations, tags: tagsArray },
             },
         errors: graphQlError ? [new GraphQLError("Error!")] : undefined,
       },
   error: networkError ? new Error() : undefined,
 });
 
-const generateMoveBoxesResponse = ({
-  labelIdentifiers,
-  newLocationId,
-  newBoxState,
-  failLabelIdentifier,
-}) => {
+const generateAssignTagsResponse = ({ labelIdentifiers, newTagId, failLabelIdentifier }) => {
   const response = {};
   labelIdentifiers.forEach((labelIdentifier) => {
     if (labelIdentifier !== failLabelIdentifier) {
-      response[`moveBox${labelIdentifier}`] = {
+      response[`assignTagsToBox${labelIdentifier}`] = {
         labelIdentifier,
-        state: newBoxState,
-        location: {
-          id: newLocationId,
-        },
+        tags: [
+          {
+            id: newTagId,
+          },
+        ],
       };
     } else {
-      response[`moveBox${labelIdentifier}`] = null;
+      response[`assignTagsToBox${labelIdentifier}`] = null;
     }
   });
   return response;
 };
 
-const mockMoveBoxesMutation = ({
+const mockAssignTagsMutation = ({
   networkError = false,
   graphQlError = false,
   labelIdentifiers = ["123"],
-  newLocationId = 2,
-  newBoxState = BoxState.Donated,
+  newTagId = 1,
   failLabelIdentifier = "678",
 }) => ({
   request: {
-    query: generateMoveBoxRequest(labelIdentifiers, newLocationId).gqlRequest,
-    variables: generateMoveBoxRequest(labelIdentifiers, newLocationId).variables,
+    query: generateAssignTagsRequest(labelIdentifiers, [newTagId]).gqlRequest,
+    variables: generateAssignTagsRequest(labelIdentifiers, [newTagId]).variables,
   },
   result: networkError
     ? undefined
     : {
         data: graphQlError
           ? null
-          : generateMoveBoxesResponse({
+          : generateAssignTagsResponse({
               labelIdentifiers,
-              newLocationId,
-              newBoxState,
+              newTagId,
               failLabelIdentifier,
             }),
         errors: graphQlError ? [new GraphQLError("Error!")] : undefined,
@@ -153,37 +147,37 @@ afterEach(() => {
   cache.restore(emptyCache);
 });
 
-const moveBoxesMutationTests = [
+const assignTagsMutationTests = [
   {
-    name: "3.4.6.2 - Mutation to move boxes returns Network Error",
+    name: "3.4.7.6 - Mutation to assign tags returns Network Error",
     mocks: [
       mockSuccessfulQrQuery({ hash: "InStockBox", labelIdentifier: "123" }),
-      mockLocationsQuery({}),
-      mockMoveBoxesMutation({ networkError: true }),
+      mockTagsQuery({}),
+      mockAssignTagsMutation({ networkError: true }),
     ],
-    toast: { isError: true, message: /Network issue: could not move/i },
+    toast: { isError: true, message: /Network issue: could not assign/i },
   },
   {
-    name: "3.4.6.3 - Mutation to move boxes returns GraphQL Error",
+    name: "3.4.7.7 - Mutation to assign tags returns GraphQL Error",
     mocks: [
       mockSuccessfulQrQuery({ hash: "InStockBox", labelIdentifier: "123" }),
-      mockLocationsQuery({}),
-      mockMoveBoxesMutation({ graphQlError: true }),
+      mockTagsQuery({}),
+      mockAssignTagsMutation({ graphQlError: true }),
     ],
-    toast: { isError: true, message: /Could not move/i },
+    toast: { isError: true, message: /Could not assign/i },
   },
   {
-    name: "3.4.6.5 - Boxes are successfully moved",
+    name: "3.4.7.10 - Boxes are successfully tagged",
     mocks: [
       mockSuccessfulQrQuery({ hash: "InStockBox", labelIdentifier: "123" }),
-      mockLocationsQuery({}),
-      mockMoveBoxesMutation({}),
+      mockTagsQuery({}),
+      mockAssignTagsMutation({}),
     ],
-    toast: { isError: false, message: /A Box was successfully moved/i },
+    toast: { isError: false, message: /A Box was successfully assign/i },
   },
 ];
 
-moveBoxesMutationTests.forEach(({ name, mocks, toast }) => {
+assignTagsMutationTests.forEach(({ name, mocks, toast }) => {
   it(name, async () => {
     const user = userEvent.setup();
     mockImplementationOfQrReader(mockedQrReader, "InStockBox", true, true);
@@ -199,20 +193,19 @@ moveBoxesMutationTests.forEach(({ name, mocks, toast }) => {
     expect(multiBoxTab).toBeInTheDocument();
     user.click(multiBoxTab);
 
-    // query for locations returns two options
-    const assignToShipmentOption = await screen.findByTestId("MoveBox");
+    const assignToShipmentOption = await screen.findByTestId("AssignTags");
     await user.click(assignToShipmentOption);
-    await selectOptionInSelectField(user, undefined, /shop/i, /please select a location/i);
+    await selectOptionInSelectField(user, undefined, /tag1/i, /please select tags/i);
 
     // The submit button is not yet shown
-    expect(screen.queryByRole("button", { name: /move all/i })).not.toBeInTheDocument();
+    expect(screen.queryByRole("button", { name: /assign all/i })).not.toBeInTheDocument();
 
     // Click a button to trigger the event of scanning a QR-Code in mockImplementationOfQrReader
     const scanButton = await screen.findByTestId("ReturnScannedQr");
     await user.click(scanButton);
 
     // The submit button is shown
-    const submitButton = await screen.findByRole("button", { name: /move all/i });
+    const submitButton = await screen.findByRole("button", { name: /assign all/i });
     expect(submitButton).not.toBeDisabled();
     await user.click(submitButton);
 
@@ -227,7 +220,7 @@ moveBoxesMutationTests.forEach(({ name, mocks, toast }) => {
   });
 });
 
-it("3.4.6.4 - One Box of two or more Boxes fail for the move Box Mutation", async () => {
+it("3.4.7.8 - One Box of two or more Boxes fail for the assign tag Mutation", async () => {
   const user = userEvent.setup();
   mockImplementationOfQrReader(mockedQrReader, "InStockBox1", true, true);
   const { rerender } = render(<QrReaderView />, {
@@ -236,8 +229,8 @@ it("3.4.6.4 - One Box of two or more Boxes fail for the move Box Mutation", asyn
     mocks: [
       mockSuccessfulQrQuery({ hash: "InStockBox1", labelIdentifier: "123" }),
       mockSuccessfulQrQuery({ hash: "InStockBox2", labelIdentifier: "678" }),
-      mockLocationsQuery({}),
-      mockMoveBoxesMutation({ labelIdentifiers: ["123", "678"] }),
+      mockTagsQuery({}),
+      mockAssignTagsMutation({ labelIdentifiers: ["123", "678"] }),
     ],
     cache,
   });
@@ -257,12 +250,12 @@ it("3.4.6.4 - One Box of two or more Boxes fail for the move Box Mutation", asyn
   expect(await screen.findByText(/boxes selected: 2/i)).toBeInTheDocument();
 
   // 3.4.5.5 - Query for locations returns two locations
-  const moveBoxesOption = await screen.findByTestId("MoveBox");
-  await user.click(moveBoxesOption);
-  await selectOptionInSelectField(user, undefined, /shop/i, /please select a location/i);
+  const assignTagsOption = await screen.findByTestId("AssignTags");
+  await user.click(assignTagsOption);
+  await selectOptionInSelectField(user, undefined, /tag1/i, /please select tags/i);
 
   // The submit button is shown
-  const submitButton = await screen.findByRole("button", { name: /move all/i });
+  const submitButton = await screen.findByRole("button", { name: /assign all/i });
   expect(submitButton).not.toBeDisabled();
   await user.click(submitButton);
 
@@ -273,13 +266,13 @@ it("3.4.6.4 - One Box of two or more Boxes fail for the move Box Mutation", asyn
   await waitFor(() =>
     expect(mockedCreateToast).toHaveBeenCalledWith(
       expect.objectContaining({
-        message: expect.stringMatching(/A box was successfully moved/i),
+        message: expect.stringMatching(/A box was successfully assign/i),
       }),
     ),
   );
 
   // Alert appears
-  expect(await screen.findByText(/The following boxes were not moved/i)).toBeInTheDocument();
+  expect(await screen.findByText(/The following boxes were not assign/i)).toBeInTheDocument();
   expect(screen.getByText(/678/i)).toBeInTheDocument();
 
   // click link to remove all not failed boxes
@@ -287,4 +280,4 @@ it("3.4.6.4 - One Box of two or more Boxes fail for the move Box Mutation", asyn
   expect(await screen.findByText(/boxes selected: 0/i)).toBeInTheDocument();
   expect(screen.queryByRole("alert")).not.toBeInTheDocument();
   expect(screen.queryByRole("button", { name: /move all/i })).not.toBeInTheDocument();
-});
+}, 10000);

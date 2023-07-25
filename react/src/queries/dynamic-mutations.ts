@@ -43,3 +43,45 @@ export const generateMoveBoxRequest = (labelIdentifiers: string[], newLocationId
     variables,
   };
 };
+
+export const generateAssignTagsRequest = (labelIdentifiers: string[], tagIds: number[]) => {
+  // prepare graphQL request
+  // It is using aliases and will be similar to:
+  // mutation AssignTags($tagIds: [Int!]!, $labelIdentifier0: String!) {
+  //  assignTagsToBox123456: updateBox(
+  //    updateInput: { labelIdentifier: $labelIdentifier0, tagIdsToBeAdded: $tagIds }
+  //  ) {
+  //   labelIdentifier
+  //   tags {
+  //     id
+  //   }
+  //  }
+  // }
+  let mutationName = "mutation AssignTags($tagIds: [Int!]!";
+  let mutationString = "{";
+  const variables = { tagIds };
+
+  labelIdentifiers.forEach((labelIdentifier, index) => {
+    mutationName += `, $labelIdentifier${index}: String!`;
+    mutationString += `
+        assignTagsToBox${labelIdentifier}: updateBox(
+          updateInput: { labelIdentifier: $labelIdentifier${index}, tagIdsToBeAdded: $tagIds }
+        ) {
+          labelIdentifier
+          tags {
+            id
+          }
+        } `;
+    variables[`labelIdentifier${index}`] = labelIdentifier;
+  });
+  mutationName += ")";
+  mutationString += "}";
+
+  return {
+    gqlRequest: gql`
+      ${mutationName}
+      ${mutationString}
+    `,
+    variables,
+  };
+};
