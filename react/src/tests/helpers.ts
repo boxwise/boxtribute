@@ -38,6 +38,7 @@ export async function selectOptionInSelectField(
   label: RegExp | string | undefined,
   option: RegExp | string,
   placeholderText: RegExp | string = "",
+  isMulti: boolean = false,
 ) {
   const fieldControlInput =
     label !== undefined ? screen.getByLabelText(label) : screen.getByText(placeholderText);
@@ -45,7 +46,9 @@ export async function selectOptionInSelectField(
   const optionButton = screen.getByRole("button", { name: option });
   expect(optionButton).toBeInTheDocument();
   await user.click(optionButton);
-  expect(screen.queryByRole("button", { name: option })).not.toBeInTheDocument();
+  if (isMulti) {
+    expect(screen.queryByRole("button", { name: option })).not.toBeInTheDocument();
+  }
   expect(screen.getByText(option)).toBeInTheDocument();
 }
 // Returns text content of given element

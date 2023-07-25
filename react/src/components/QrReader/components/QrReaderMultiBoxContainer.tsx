@@ -181,7 +181,7 @@ function QrReaderMultiBoxContainer({ onSuccess }: IQrReaderMultiBoxContainerProp
   const tagOptions: IDropdownOption[] = useMemo(
     () =>
       optionsQueryResult.data?.base?.tags
-        ?.filter((tag) => tag?.type === TagType.Box)
+        ?.filter((tag) => tag?.type === TagType.All || tag?.type === TagType.Box)
         ?.sort((a, b) => {
           const nameA = a.name.toLowerCase();
           const nameB = b.name.toLowerCase();
