@@ -48,8 +48,8 @@ export const generateAssignTagsRequest = (labelIdentifiers: string[], tagIds: nu
   // prepare graphQL request
   // It is using aliases and will be similar to:
   // mutation AssignTags($tagIds: [Int!]!, $labelIdentifier0: String!) {
-  //  assignTags123456: updateBox(
-  //    updateInput: { labelIdentifier: $labelIdentifier0, tagIds: $tagIds }
+  //  assignTagsToBox123456: updateBox(
+  //    updateInput: { labelIdentifier: $labelIdentifier0, tagIdsToBeAdded: $tagIds }
   //  ) {
   //   labelIdentifier
   //   tags {
@@ -64,8 +64,8 @@ export const generateAssignTagsRequest = (labelIdentifiers: string[], tagIds: nu
   labelIdentifiers.forEach((labelIdentifier, index) => {
     mutationName += `, $labelIdentifier${index}: String!`;
     mutationString += `
-        moveBox${labelIdentifier}: updateBox(
-          updateInput: { labelIdentifier: $labelIdentifier${index}, tagIds: $tagIds }
+        assignTagsToBox${labelIdentifier}: updateBox(
+          updateInput: { labelIdentifier: $labelIdentifier${index}, tagIdsToBeAdded: $tagIds }
         ) {
           labelIdentifier
           tags {
