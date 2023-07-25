@@ -1,5 +1,5 @@
 # from boxtribute_server.enums import DistributionEventState
-from auth import create_jwt_payload
+from auth import mock_user_for_request
 from utils import assert_successful_request
 
 
@@ -32,7 +32,8 @@ def test_distribution_event_tracking_group_statistics(
     default_box,
     default_product,
 ):
-    mocker.patch("jose.jwt.decode").return_value = create_jwt_payload(
+    mock_user_for_request(
+        mocker,
         base_ids=[1, 2],
         organisation_id=1,
         user_id=1,
