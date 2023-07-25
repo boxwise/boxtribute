@@ -7,6 +7,7 @@ import {
   BoxState,
   ShipmentState,
   MultiBoxActionOptionsForLocationsTagsAndShipmentsQuery,
+  TagType,
 } from "types/generated/graphql";
 import { MULTI_BOX_ACTION_OPTIONS_FOR_LOCATIONS_TAGS_AND_SHIPMENTS_QUERY } from "queries/queries";
 import { IDropdownOption } from "components/Form/SelectField";
@@ -24,6 +25,7 @@ import { IMoveBoxesResultKind, useMoveBoxes } from "hooks/useMoveBoxes";
 
 import QrReaderMultiBox, { IMultiBoxAction } from "./QrReaderMultiBox";
 import {
+  FailedBoxesFromAssignTagsAlert,
   FailedBoxesFromAssingToShipmentAlert,
   FailedBoxesFromMoveBoxesAlert,
   NotInStockAlertText,
@@ -42,6 +44,8 @@ function QrReaderMultiBoxContainer({ onSuccess }: IQrReaderMultiBoxContainerProp
 
   // state to save boxes that failed from moveBoxes
   const [failedBoxesFromMoveBoxes, setFailedBoxesFromMoveBoxes] = useState<string[]>([]);
+  // state to save boxes that failed from assignTags
+  const [failedBoxesFromAssignTags, setFailedBoxesFromAssignTags] = useState<string[]>([]);
   // state to save boxes that failed to assign to a shipment
   const [failedBoxesFromAssignToShipment, setFailedBoxesFromAssignToShipment] = useState<
     IBoxBasicFields[]
@@ -68,6 +72,7 @@ function QrReaderMultiBoxContainer({ onSuccess }: IQrReaderMultiBoxContainerProp
 
   // box actions hooks
   const { moveBoxes, isLoading: isMoveBoxesLoading } = useMoveBoxes();
+  // const { assignTags, isLoading: isAssignTagsLoading } = useAssignTags();
   const { assignBoxesToShipment, isLoading: isAssignBoxesToShipmentLoading } =
     useAssignBoxesToShipment();
 
@@ -95,6 +100,31 @@ function QrReaderMultiBoxContainer({ onSuccess }: IQrReaderMultiBoxContainerProp
       scannedBoxesQueryResult.data?.scannedBoxes,
     ],
   );
+
+  // const onAssignTags = useCallback(
+  //   async (locationId: string) => {
+  //     const assignTagsResult = await assignTags(
+  //       (scannedBoxesQueryResult.data?.scannedBoxes ?? []).map((box) => box.labelIdentifier),
+  //       parseInt(locationId, 10),
+  //     );
+  //     // remove all moved Boxes from the cache
+  //     if (assignTagsResult?.movedLabelIdentifiers?.length) {
+  //       removeBoxesFromScannedBoxesByLabelIdentifier(assignTagsResult.movedLabelIdentifiers);
+  //     }
+  //     // To show in the UI which boxes failed
+  //     setFailedBoxesFromAssignTags(assignTagsResult?.failedLabelIdentifiers ?? []);
+  //     // only if all Boxes were moved
+  //     if (assignTagsResult.kind === IAssignTagsResultKind.SUCCESS) {
+  //       onSuccess();
+  //     }
+  //   },
+  //   [
+  //     assignTags,
+  //     onSuccess,
+  //     removeBoxesFromScannedBoxesByLabelIdentifier,
+  //     scannedBoxesQueryResult.data?.scannedBoxes,
+  //   ],
+  // );
 
   const onAssignBoxesToShipment = useCallback(
     async (shipmentId: string) => {
@@ -131,13 +161,13 @@ function QrReaderMultiBoxContainer({ onSuccess }: IQrReaderMultiBoxContainerProp
   const locationOptions: IDropdownOption[] = useMemo(
     () =>
       optionsQueryResult.data?.base?.locations
-        .filter(
+        ?.filter(
           (location) =>
             location?.defaultBoxState !== BoxState.Lost &&
             location?.defaultBoxState !== BoxState.Scrap,
         )
-        .sort((a, b) => Number(a?.seq) - Number(b?.seq))
-        .map((location) => ({
+        ?.sort((a, b) => Number(a?.seq) - Number(b?.seq))
+        ?.map((location) => ({
           label: `${location.name}${
             location.defaultBoxState !== BoxState.InStock
               ? ` - Boxes are ${location.defaultBoxState}`
@@ -147,6 +177,27 @@ function QrReaderMultiBoxContainer({ onSuccess }: IQrReaderMultiBoxContainerProp
         })) ?? [],
     [optionsQueryResult.data?.base?.locations],
   );
+
+  const tagOptions: IDropdownOption[] = useMemo(
+    () =>
+      optionsQueryResult.data?.base?.tags
+        ?.filter((tag) => tag?.type === TagType.Box)
+        ?.sort((a, b) => {
+          const nameA = a.name.toLowerCase();
+          const nameB = b.name.toLowerCase();
+
+          if (nameA < nameB) return -1;
+          if (nameA > nameB) return 1;
+          return 0;
+        })
+        ?.map((tag) => ({
+          label: tag.name,
+          value: tag.id,
+          color: tag.color,
+        })) ?? [],
+    [optionsQueryResult.data?.base?.tags],
+  );
+
   const shipmentOptions: IDropdownOption[] = useMemo(
     () =>
       optionsQueryResult.data?.shipments
@@ -196,6 +247,16 @@ function QrReaderMultiBoxContainer({ onSuccess }: IQrReaderMultiBoxContainerProp
           }}
         />
       )}
+      {failedBoxesFromAssignTags.length > 0 && (
+        <AlertWithAction
+          alertText={<FailedBoxesFromAssignTagsAlert failedBoxes={failedBoxesFromAssignTags} />}
+          actionText="Click here to remove all failed boxes from the list."
+          onActionClick={() => {
+            removeBoxesFromScannedBoxesByLabelIdentifier(failedBoxesFromAssignTags);
+            setFailedBoxesFromAssignTags([]);
+          }}
+        />
+      )}
       {failedBoxesFromAssignToShipment.length > 0 && (
         <AlertWithAction
           alertText={
@@ -215,12 +276,17 @@ function QrReaderMultiBoxContainer({ onSuccess }: IQrReaderMultiBoxContainerProp
         multiBoxAction={multiBoxAction}
         onChangeMultiBoxAction={setMultiBoxAction}
         locationOptions={locationOptions}
+        tagOptions={tagOptions}
         shipmentOptions={shipmentOptions}
         scannedBoxesCount={scannedBoxesQueryResult.data?.scannedBoxes.length ?? 0}
         notInStockBoxesCount={notInStockBoxes.length}
         onDeleteScannedBoxes={deleteScannedBoxes}
         onUndoLastScannedBox={undoLastScannedBox}
         onMoveBoxes={onMoveBoxes}
+        onAssignTags={(tagIds: string[]) => {
+          // eslint-disable-next-line no-console
+          console.log(tagIds);
+        }}
         onAssignBoxesToShipment={onAssignBoxesToShipment}
       />
     </Stack>

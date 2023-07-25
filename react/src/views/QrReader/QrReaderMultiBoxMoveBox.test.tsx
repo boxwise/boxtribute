@@ -199,7 +199,7 @@ moveBoxesMutationTests.forEach(({ name, mocks, toast }) => {
     user.click(multiBoxTab);
 
     // query for locations returns two options
-    const assignToShipmentOption = await screen.findByTestId("moveBox");
+    const assignToShipmentOption = await screen.findByTestId("MoveBox");
     await user.click(assignToShipmentOption);
     await selectOptionInSelectField(user, undefined, /shop/i, /please select a location/i);
 
@@ -256,7 +256,7 @@ it("3.4.6.4 - One Box of two or more Boxes fail for the move Box Mutation", asyn
   expect(await screen.findByText(/boxes selected: 2/i)).toBeInTheDocument();
 
   // 3.4.5.5 - Query for locations returns two locations
-  const moveBoxesOption = await screen.findByTestId("moveBox");
+  const moveBoxesOption = await screen.findByTestId("MoveBox");
   await user.click(moveBoxesOption);
   await selectOptionInSelectField(user, undefined, /shop/i, /please select a location/i);
 
