@@ -4,6 +4,8 @@ export const tag1 = {
   color: "#20963f",
   label: "tag1",
   value: "1",
+  type: TagType.All,
+  description: "tag1",
   __typename: "Tag",
 };
 
@@ -11,6 +13,8 @@ export const tag2 = {
   color: "#90d4a2",
   id: "17",
   name: "test tag",
+  type: TagType.All,
+  description: "tag17",
   __typename: "Tag",
 };
 
