@@ -68,31 +68,9 @@ def save_update_to_history(*, id_field_name="id", fields):
             old_resource = model.get(id_field == kwargs[id_field_name])
             new_resource = f(*args, **kwargs)
 
-            now = utcnow()
-            entries = []
-            for field in fields:
-                old_value = getattr(old_resource, field.name)
-                new_value = getattr(new_resource, field.name)
-
-                if old_value == new_value:
-                    continue  # no change in value, hence no need for history entry
-
-                entry = DbChangeHistory()
-                entry.table_name = model._meta.table_name
-                entry.record_id = new_resource.id
-                entry.user = g.user.id
-                entry.ip = None
-                entry.change_date = now
-
-                if issubclass(field.__class__, (IntegerField, ForeignKeyField)):
-                    entry.from_int = old_value
-                    entry.to_int = new_value
-                    entry.changes = field.column_name
-                else:
-                    entry.changes = f"""{field.column_name} changed from "{old_value}" \
-to "{new_value}";"""
-                entries.append(entry)
-
+            entries = create_history_entries(
+                old_resource=old_resource, new_resource=new_resource, fields=fields
+            )
             with db.database.atomic():
                 DbChangeHistory.bulk_create(entries)
 
@@ -101,3 +79,36 @@ to "{new_value}";"""
         return inner
 
     return decorator
+
+
+def create_history_entries(*, old_resource, new_resource, fields):
+    """Return history entries (DbChangeHistory objects) by comparing given fields of old
+    and new resource. For identical values, no history entry is created.
+    """
+    model = fields[0].model
+    now = utcnow()
+    entries = []
+    for field in fields:
+        old_value = getattr(old_resource, field.name)
+        new_value = getattr(new_resource, field.name)
+
+        if old_value == new_value:
+            continue  # no change in value, hence no need for history entry
+
+        entry = DbChangeHistory()
+        entry.table_name = model._meta.table_name
+        entry.record_id = new_resource.id
+        entry.user = g.user.id
+        entry.ip = None
+        entry.change_date = now
+
+        if issubclass(field.__class__, (IntegerField, ForeignKeyField)):
+            entry.from_int = old_value
+            entry.to_int = new_value
+            entry.changes = field.column_name
+        else:
+            entry.changes = f"""{field.column_name} changed from "{old_value}" \
+to "{new_value}";"""
+        entries.append(entry)
+
+    return entries
