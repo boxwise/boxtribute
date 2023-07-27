@@ -625,7 +625,11 @@ function BTBox() {
         onClose={onMinusClose}
         onSubmitTakeItemsFromBox={onSubmitTakeItemsFromBox}
       />
-      <BoxReconciliationOverlay closeOnEsc={false} closeOnOverlayClick={false} />
+      <BoxReconciliationOverlay
+        closeOnEsc={false}
+        closeOnOverlayClick={false}
+        redirectToShipmentView
+      />
     </VStack>
   );
 }
