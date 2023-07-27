@@ -12,13 +12,14 @@ from ....exceptions import (
     InvalidTransferAgreementState,
 )
 from ....models.definitions.box import Box
+from ....models.definitions.history import DbChangeHistory
 from ....models.definitions.location import Location
 from ....models.definitions.product import Product
 from ....models.definitions.shipment import Shipment
 from ....models.definitions.shipment_detail import ShipmentDetail
 from ....models.definitions.tags_relation import TagsRelation
 from ....models.definitions.transfer_agreement import TransferAgreement
-from ....models.utils import utcnow
+from ....models.utils import create_history_entries, utcnow
 from ..agreement.crud import retrieve_transfer_agreement_bases
 
 
@@ -291,7 +292,15 @@ def _update_shipment_with_received_boxes(
         for i in shipment_detail_update_inputs or []
     }
 
+    updated_box_fields = [
+        Box.product,
+        Box.location,
+        Box.size,
+        Box.number_of_items,
+        Box.state,
+    ]
     details = []
+    history_entries = []
     detail_ids = tuple(update_inputs)
     for detail in _retrieve_shipment_details(
         shipment.id, (ShipmentDetail.id << detail_ids), model=Shipment
@@ -323,6 +332,20 @@ def _update_shipment_with_received_boxes(
         detail.box.number_of_items = target_quantity
         detail.box.state = BoxState.InStock
         details.append(detail)
+        history_entries.extend(
+            create_history_entries(
+                # Create a dummy box objects as old resource (won't be saved)
+                old_resource=Box(
+                    product=detail.source_product_id,
+                    location=detail.source_location_id,
+                    size=detail.source_size_id,
+                    number_of_items=detail.source_quantity,
+                    state=BoxState.Receiving,
+                ),
+                new_resource=detail.box,
+                fields=updated_box_fields,
+            )
+        )
 
     if details:
         checked_in_boxes = [d.box for d in details]
@@ -343,6 +366,7 @@ def _update_shipment_with_received_boxes(
             (TagsRelation.object_type == TaggableObjectType.Box),
             TagsRelation.object_id << [box.id for box in checked_in_boxes],
         ).execute()
+        DbChangeHistory.bulk_create(history_entries)
 
 
 def _complete_shipment_if_applicable(*, shipment, user_id):
