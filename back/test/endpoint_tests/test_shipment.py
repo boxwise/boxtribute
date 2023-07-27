@@ -1,7 +1,7 @@
 from datetime import date
 
 import pytest
-from auth import create_jwt_payload
+from auth import mock_user_for_request
 from boxtribute_server.enums import BoxState, ShipmentState
 from utils import (
     assert_bad_user_input,
@@ -453,9 +453,7 @@ def test_shipment_mutations_cancel(
     assert box == {"state": BoxState.InStock.name, "shipmentDetail": None}
 
     # Shipment does not have any details assigned
-    mocker.patch("jose.jwt.decode").return_value = create_jwt_payload(
-        base_ids=[3], organisation_id=2, user_id=2
-    )
+    mock_user_for_request(mocker, base_ids=[3], organisation_id=2, user_id=2)
     shipment_id = str(another_shipment["id"])
     mutation = f"""mutation {{ cancelShipment(id: {shipment_id}) {{ state }} }}"""
     shipment = assert_successful_request(client, mutation)
@@ -480,9 +478,7 @@ def test_shipment_mutations_on_target_side(
     in_transit_box,
     another_in_transit_box,
 ):
-    mocker.patch("jose.jwt.decode").return_value = create_jwt_payload(
-        base_ids=[3], organisation_id=2, user_id=2
-    )
+    mock_user_for_request(mocker, base_ids=[3], organisation_id=2, user_id=2)
 
     # Test cases 3.2.1b, 3.2.1c
     for agreement in [default_transfer_agreement, unidirectional_transfer_agreement]:
@@ -725,7 +721,7 @@ def test_shipment_mutations_on_target_side(
 
     # The box is still registered in the source base, hence any user from the target
     # organisation can't access it
-    mocker.patch("jose.jwt.decode").return_value = create_jwt_payload()
+    mock_user_for_request(mocker)
     box_label_identifier = another_in_transit_box["label_identifier"]
     query = f"""query {{ box(labelIdentifier: "{box_label_identifier}") {{
                     state
@@ -744,9 +740,7 @@ def test_shipment_mutations_on_target_side_mark_shipment_as_lost(
     another_shipment_detail,
     removed_shipment_detail,
 ):
-    mocker.patch("jose.jwt.decode").return_value = create_jwt_payload(
-        base_ids=[3], organisation_id=2, user_id=2
-    )
+    mock_user_for_request(mocker, base_ids=[3], organisation_id=2, user_id=2)
 
     shipment_id = str(sent_shipment["id"])
     mutation = f"""mutation {{ markShipmentAsLost(id: {shipment_id}) {{
@@ -789,7 +783,7 @@ def test_shipment_mutations_on_target_side_mark_shipment_as_lost(
 
     # The box is still registered in the source base, hence any user from the target
     # organisation can't access it
-    mocker.patch("jose.jwt.decode").return_value = create_jwt_payload()
+    mock_user_for_request(mocker)
     box_label_identifier = in_transit_box["label_identifier"]
     query = f"""query {{ box(labelIdentifier: "{box_label_identifier}") {{
                     state
@@ -809,9 +803,7 @@ def test_shipment_mutations_on_target_side_mark_all_boxes_as_lost(
     another_shipment_detail,
     removed_shipment_detail,
 ):
-    mocker.patch("jose.jwt.decode").return_value = create_jwt_payload(
-        base_ids=[3], organisation_id=2, user_id=2
-    )
+    mock_user_for_request(mocker, base_ids=[3], organisation_id=2, user_id=2)
 
     shipment_id = str(sent_shipment["id"])
     mutation = f"""mutation {{ startReceivingShipment(id: {shipment_id}) {{
@@ -964,9 +956,7 @@ def test_shipment_mutations_create_as_member_of_neither_org(
     read_only_client, mocker, default_transfer_agreement
 ):
     # Test case 3.2.4b
-    mocker.patch("jose.jwt.decode").return_value = create_jwt_payload(
-        organisation_id=3, user_id=2
-    )
+    mock_user_for_request(mocker, organisation_id=3, user_id=2)
     mutation = _generate_create_shipment_mutation(
         source_base={"id": 0},
         target_base={"id": 0},
@@ -1015,9 +1005,7 @@ def test_shipment_mutations_cancel_as_member_of_neither_org(
     read_only_client, mocker, default_shipment
 ):
     # Test case 3.2.10
-    mocker.patch("jose.jwt.decode").return_value = create_jwt_payload(
-        organisation_id=3, user_id=2, base_ids=[5]
-    )
+    mock_user_for_request(mocker, organisation_id=3, user_id=2, base_ids=[5])
     mutation = f"mutation {{ cancelShipment(id: {default_shipment['id']}) {{ id }} }}"
     assert_forbidden_request(read_only_client, mutation)
 
@@ -1114,9 +1102,7 @@ def test_shipment_mutations_update_checked_in_boxes_when_shipment_in_non_sent_st
     another_size,
 ):
     # Test case 3.2.36
-    mocker.patch("jose.jwt.decode").return_value = create_jwt_payload(
-        base_ids=[3], organisation_id=2, user_id=2
-    )
+    mock_user_for_request(mocker, base_ids=[3], organisation_id=2, user_id=2)
     # This will use updateShipmentWhenReceiving
     assert_bad_user_input_when_updating_shipment(
         read_only_client,

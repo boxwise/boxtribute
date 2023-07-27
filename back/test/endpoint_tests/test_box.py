@@ -1,7 +1,7 @@
 import time
 
 import pytest
-from auth import create_jwt_payload
+from auth import mock_user_for_request
 from boxtribute_server.business_logic.warehouse.box.crud import (
     BOX_LABEL_IDENTIFIER_GENERATION_ATTEMPTS,
 )
@@ -376,6 +376,27 @@ def test_update_box_tag_ids(client, default_box, tags):
     updated_box = assert_successful_request(client, mutation)
     assert updated_box == {"tags": []}
 
+    # Add tag ID 2
+    mutation = f"""mutation {{ updateBox(updateInput : {{
+                    labelIdentifier: "{label_identifier}"
+                    tagIdsToBeAdded: [{tag_id}] }} ) {{ tags {{ id }} }} }}"""
+    updated_box = assert_successful_request(client, mutation)
+    assert updated_box == {"tags": [{"id": tag_id}]}
+
+    # Add the same tag again without an error being thrown
+    mutation = f"""mutation {{ updateBox(updateInput : {{
+                    labelIdentifier: "{label_identifier}"
+                    tagIdsToBeAdded: [{tag_id}] }} ) {{ tags {{ id }} }} }}"""
+    updated_box = assert_successful_request(client, mutation)
+    assert updated_box == {"tags": [{"id": tag_id}]}
+
+    # Add tag ID 3. Both tags are assigned to the box
+    mutation = f"""mutation {{ updateBox(updateInput : {{
+                    labelIdentifier: "{label_identifier}"
+                    tagIdsToBeAdded: [{another_tag_id}] }} ) {{ tags {{ id }} }} }}"""
+    updated_box = assert_successful_request(client, mutation)
+    assert updated_box == {"tags": [{"id": tag_id}, {"id": another_tag_id}]}
+
 
 def _format(parameter):
     try:
@@ -597,14 +618,10 @@ def test_access_in_transit_box(read_only_client, mocker, in_transit_box):
     assert box == {"id": box_id}
 
     # user is in the shipment target base (ID 3) and able to view the box
-    mocker.patch("jose.jwt.decode").return_value = create_jwt_payload(
-        base_ids=[3], organisation_id=2, user_id=2
-    )
+    mock_user_for_request(mocker, base_ids=[3], organisation_id=2, user_id=2)
     box = assert_successful_request(read_only_client, query)
     assert box == {"id": box_id}
 
     # user is in unrelated base (ID 2) and NOT permitted to view the box
-    mocker.patch("jose.jwt.decode").return_value = create_jwt_payload(
-        base_ids=[2], organisation_id=2, user_id=3
-    )
+    mock_user_for_request(mocker, base_ids=[2], organisation_id=2, user_id=3)
     assert_forbidden_request(read_only_client, query)

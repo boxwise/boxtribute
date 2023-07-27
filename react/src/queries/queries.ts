@@ -6,8 +6,10 @@ import {
   SHIPMENT_FIELDS_FRAGMENT,
   BOX_BASIC_FIELDS_FRAGMENT,
   PRODUCT_BASIC_FIELDS_FRAGMENT,
-  TAG_FIELDS_FRAGMENT,
+  TAG_BASIC_FIELDS_FRAGMENT,
   DISTRO_EVENT_FIELDS_FRAGMENT,
+  BASE_ORG_FIELDS_FRAGMENT,
+  LOCATION_BASIC_FIELDS_FRAGMENT,
 } from "./fragments";
 
 export const BOX_DETAILS_BY_LABEL_IDENTIFIER_QUERY = gql`
@@ -49,7 +51,7 @@ export const ALL_SHIPMENTS_QUERY = gql`
 export const BOX_BY_LABEL_IDENTIFIER_AND_ALL_SHIPMENTS_QUERY = gql`
   ${PRODUCT_BASIC_FIELDS_FRAGMENT}
   ${BOX_FIELDS_FRAGMENT}
-  ${TAG_FIELDS_FRAGMENT}
+  ${TAG_BASIC_FIELDS_FRAGMENT}
   ${DISTRO_EVENT_FIELDS_FRAGMENT}
   ${SHIPMENT_FIELDS_FRAGMENT}
   query BoxByLabelIdentifier($labelIdentifier: String!) {
@@ -59,7 +61,7 @@ export const BOX_BY_LABEL_IDENTIFIER_AND_ALL_SHIPMENTS_QUERY = gql`
         ...ProductBasicFields
       }
       tags {
-        ...TagFields
+        ...TagBasicFields
       }
       distributionEvent {
         ...DistroEventFields
@@ -123,6 +125,32 @@ export const SHIPMENT_BY_ID_WITH_PRODUCTS_AND_LOCATIONS_QUERY = gql`
 
       products {
         ...ProductFields
+      }
+    }
+  }
+`;
+
+export const MULTI_BOX_ACTION_OPTIONS_FOR_LOCATIONS_TAGS_AND_SHIPMENTS_QUERY = gql`
+  ${LOCATION_BASIC_FIELDS_FRAGMENT}
+  ${TAG_BASIC_FIELDS_FRAGMENT}
+  ${BASE_ORG_FIELDS_FRAGMENT}
+  query MultiBoxActionOptionsForLocationsTagsAndShipments($baseId: ID!) {
+    base(id: $baseId) {
+      tags(resourceType: Box) {
+        ...TagBasicFields
+      }
+      locations {
+        ...LocationBasicFields
+      }
+    }
+    shipments {
+      id
+      state
+      sourceBase {
+        ...BaseOrgFields
+      }
+      targetBase {
+        ...BaseOrgFields
       }
     }
   }

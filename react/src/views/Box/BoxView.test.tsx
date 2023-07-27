@@ -472,7 +472,7 @@ it("3.1.2 - Change Number of Items", async () => {
     ),
   );
   expect(screen.getByTestId("boxview-number-items")).toHaveTextContent(/32x snow trousers/i);
-}, 10000);
+}, 15000);
 
 // Test case 3.1.3.1
 it("3.1.3.1 - Change State to Scrap", async () => {

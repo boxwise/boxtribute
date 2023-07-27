@@ -180,3 +180,17 @@ export const generateMockShipment = ({
   canceledBy: null,
   __typename: "Shipment",
 });
+
+export const generateMockShipmentMinimal = ({
+  state = ShipmentState.Preparing,
+  iAmSource = true,
+}) => {
+  const shipment = {
+    id: "1",
+    state,
+    sourceBase: iAmSource ? base1 : base2,
+    targetBase: iAmSource ? base2 : base1,
+  };
+
+  return shipment;
+};

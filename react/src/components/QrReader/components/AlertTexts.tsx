@@ -41,3 +41,37 @@ export function FailedBoxesFromAssingToShipmentAlert({
     </Text>
   );
 }
+
+export interface IFailedBoxesFromMoveBoxesAlertProps {
+  failedBoxes: string[];
+}
+
+export function FailedBoxesFromMoveBoxesAlert({
+  failedBoxes,
+}: IFailedBoxesFromMoveBoxesAlertProps) {
+  return (
+    <Text>
+      The following boxes were not moved:
+      <UnorderedList>
+        {failedBoxes.map((labelIdentifier) => (
+          <ListItem fontWeight="bold">{labelIdentifier}</ListItem>
+        ))}
+      </UnorderedList>
+    </Text>
+  );
+}
+
+export function FailedBoxesFromAssignTagsAlert({
+  failedBoxes,
+}: IFailedBoxesFromMoveBoxesAlertProps) {
+  return (
+    <Text>
+      The following boxes were not assigned tags:
+      <UnorderedList>
+        {failedBoxes.map((labelIdentifier) => (
+          <ListItem fontWeight="bold">{labelIdentifier}</ListItem>
+        ))}
+      </UnorderedList>
+    </Text>
+  );
+}
