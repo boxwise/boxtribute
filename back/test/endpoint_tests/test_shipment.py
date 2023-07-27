@@ -709,6 +709,7 @@ def test_shipment_mutations_on_target_side(
                     location {{ id }}
                     tags {{ id }}
                     shipmentDetail {{ id }}
+                    history {{ changes }}
     }} }}"""
     box = assert_successful_request(client, query)
     assert box == {
@@ -717,6 +718,25 @@ def test_shipment_mutations_on_target_side(
         "location": {"id": target_location_id},
         "tags": [],
         "shipmentDetail": None,
+        "history": [
+            {
+                "changes": "changed box state from Receiving to InStock",
+            },
+            {
+                "changes": f"changed the number of items from 10 to {target_quantity}",
+            },
+            {
+                "changes": f"changed size from small to {another_size['label']}",
+            },
+            {
+                "changes": "changed box location from Location to "
+                + f"{another_location['name']}",
+            },
+            {
+                "changes": "changed product type from indigestion tablets to "
+                + f"{another_product['name']}"
+            },
+        ],
     }
 
     # The box is still registered in the source base, hence any user from the target
