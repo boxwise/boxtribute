@@ -1,6 +1,16 @@
 import { useCallback, useContext, useMemo, useState } from "react";
 import { gql, useMutation, useQuery } from "@apollo/client";
-import { Alert, AlertIcon, Button, Heading, Stack, useDisclosure } from "@chakra-ui/react";
+import {
+  Alert,
+  AlertIcon,
+  Breadcrumb,
+  BreadcrumbItem,
+  BreadcrumbLink,
+  Button,
+  Heading,
+  Stack,
+  useDisclosure,
+} from "@chakra-ui/react";
 import { Link } from "react-router-dom";
 import { GlobalPreferencesContext } from "providers/GlobalPreferencesProvider";
 import { TRANSFER_AGREEMENT_FIELDS_FRAGMENT } from "queries/fragments";
@@ -148,8 +158,8 @@ function TransferAgreementOverviewView() {
     transferAgreementQueryResult: TransferAgreementsQuery | undefined,
   ) =>
     transferAgreementQueryResult?.transferAgreements.map((element) => {
-      if (globalPreferences.selectedOrganisationId !== undefined) {
-        const currentOrgId = parseInt(globalPreferences.selectedOrganisationId, 10);
+      if (globalPreferences.organisation !== undefined) {
+        const currentOrgId = parseInt(globalPreferences.organisation.id, 10);
         const sourceOrgId = parseInt(element.sourceOrganisation.id, 10);
         const targetOrgId = parseInt(element.targetOrganisation.id, 10);
 

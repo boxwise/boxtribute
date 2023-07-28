@@ -17,7 +17,7 @@ export const BASE_DATA = gql`
 
 const BaseDashboardView = () => {
   const { globalPreferences } = useContext(GlobalPreferencesContext);
-  const baseId = globalPreferences.selectedBaseId!;
+  const baseId = globalPreferences.selectedBase?.id!;
 
   const { loading, error, data } = useQuery<BaseDataQuery, BaseDataQueryVariables>(BASE_DATA, {
     variables: {
@@ -34,7 +34,9 @@ const BaseDashboardView = () => {
 
   return (
     <Center>
-      <Heading>Welcome to the base <Text as='u'>{data?.base?.name}</Text></Heading>
+      <Heading>
+        Welcome to the base <Text as="u">{data?.base?.name}</Text>
+      </Heading>
     </Center>
   );
 };

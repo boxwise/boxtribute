@@ -38,7 +38,7 @@ interface IQrReaderMultiBoxContainerProps {
 function QrReaderMultiBoxContainer({ onSuccess }: IQrReaderMultiBoxContainerProps) {
   const navigate = useNavigate();
   const { globalPreferences } = useContext(GlobalPreferencesContext);
-  const currentBaseId = globalPreferences.selectedBaseId;
+  const currentBaseId = globalPreferences.selectedBase?.id;
   // selected radio button
   const [multiBoxAction, setMultiBoxAction] = useState<IMultiBoxAction>(IMultiBoxAction.moveBox);
 

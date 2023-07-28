@@ -87,7 +87,7 @@ function BoxCreateView() {
 
   // variables in URL
   const { globalPreferences } = useContext(GlobalPreferencesContext);
-  const baseId = globalPreferences.selectedBaseId!;
+  const baseId = globalPreferences.selectedBase?.id!;
   const qrCode = useParams<{ qrCode: string }>().qrCode!;
 
   // Query the QR-Code

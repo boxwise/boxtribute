@@ -161,9 +161,9 @@ it("4.7.4.1 - Reconciliation dialog automatically appears when box state equals 
     globalPreferences: {
       dispatch: jest.fn(),
       globalPreferences: {
-        selectedOrganisationId: organisation1.id,
+        organisation: { id: organisation1.id, name: organisation1.name },
         availableBases: organisation1.bases,
-        selectedBaseId: organisation1.bases[0].id,
+        selectedBase: organisation1.bases[0],
       },
     },
   });

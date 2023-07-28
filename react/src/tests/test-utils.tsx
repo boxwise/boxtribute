@@ -85,8 +85,8 @@ function render(
   const globalPreferencesMock: IGlobalPreferencesContext = {
     dispatch: jest.fn(),
     globalPreferences: {
-      selectedBaseId: base1.id,
-      selectedOrganisationId: organisation1.id,
+      selectedBase: { id: base1.id, name: base1.name },
+      organisation: { id: organisation1.id, name: organisation1.name },
       availableBases: organisation1.bases,
     },
   };

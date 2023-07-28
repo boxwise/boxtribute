@@ -99,7 +99,7 @@ const MenuItemsGroupDesktop = ({ ...props }: MenuItemsGroupProps) => {
   const { globalPreferences } = useContext(GlobalPreferencesContext);
 
   function renderMenuItem(link: MenuItemData, i: number) {
-    const baseId = globalPreferences.selectedBaseId;
+    const baseId = globalPreferences.selectedBase?.id;
     let { qrCode, labelIdentifier } = useParams();
 
     if (link.link.includes(`${process.env.REACT_APP_OLD_APP_BASE_URL}`)) {

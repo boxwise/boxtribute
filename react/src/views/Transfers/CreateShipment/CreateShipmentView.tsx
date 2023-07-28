@@ -63,7 +63,7 @@ function CreateShipmentView() {
   const { globalPreferences } = useContext(GlobalPreferencesContext);
 
   // variables in URL
-  const baseId = globalPreferences.selectedBaseId!;
+  const baseId = globalPreferences.selectedBase?.id!;
 
   // Query Data for the Form
   const allAcceptedTransferAgreements = useQuery<AllAcceptedTransferAgreementsQuery>(
@@ -102,7 +102,7 @@ function CreateShipmentView() {
   // Prep data for Form
   const currentBase = allAcceptedTransferAgreements?.data?.base;
   const currentOrganisationLabel = `${currentBase?.organisation?.name} - ${currentBase?.name}`;
-  const currentOrganisationId = globalPreferences.selectedOrganisationId?.toString();
+  const currentOrganisationId = globalPreferences.organisation?.id;
   const acceptedTransferAgreementsPartnerData =
     allAcceptedTransferAgreements.data?.transferAgreements
       ?.filter(

@@ -155,7 +155,7 @@ describe("4.5 Test Cases", () => {
       globalPreferences: {
         dispatch: jest.fn(),
         globalPreferences: {
-          selectedOrganisationId: organisation1.id,
+          organisation: { id: organisation1.id, name: organisation1.name },
           availableBases: organisation1.bases,
         },
       },
@@ -194,7 +194,7 @@ describe("4.5 Test Cases", () => {
       globalPreferences: {
         dispatch: jest.fn(),
         globalPreferences: {
-          selectedOrganisationId: organisation1.id,
+          organisation: { id: organisation1.id, name: organisation1.name },
           availableBases: organisation1.bases,
         },
       },
@@ -222,7 +222,7 @@ describe("4.5 Test Cases", () => {
       globalPreferences: {
         dispatch: jest.fn(),
         globalPreferences: {
-          selectedOrganisationId: organisation1.id,
+          organisation: { id: organisation1.id, name: organisation1.name },
           availableBases: organisation1.bases,
         },
       },
@@ -244,7 +244,7 @@ describe("4.5 Test Cases", () => {
       globalPreferences: {
         dispatch: jest.fn(),
         globalPreferences: {
-          selectedOrganisationId: organisation1.id,
+          organisation: { id: organisation1.id, name: organisation1.name },
           availableBases: organisation1.bases,
         },
       },
@@ -275,7 +275,7 @@ describe("4.5 Test Cases", () => {
       globalPreferences: {
         dispatch: jest.fn(),
         globalPreferences: {
-          selectedOrganisationId: organisation1.id,
+          organisation: { id: organisation1.id, name: organisation1.name },
           availableBases: organisation1.bases,
         },
       },
@@ -302,7 +302,7 @@ it("4.5.5 - Shows total count of the boxes when shipment completed", async () =>
     globalPreferences: {
       dispatch: jest.fn(),
       globalPreferences: {
-        selectedOrganisationId: organisation1.id,
+        organisation: { id: organisation1.id, name: organisation1.name },
         availableBases: organisation1.bases,
       },
     },
