@@ -51,6 +51,8 @@ interface IBoxReconciliationContainerProps {
   allLocations: ILocationData[];
   loading: boolean;
   mutationLoading: boolean;
+  closeOnEsc: boolean;
+  closeOnOverlayClick: boolean;
   onClose: () => void;
   onBoxUndelivered: (labelIdentifier: string) => void;
   onBoxDelivered: (
@@ -71,14 +73,16 @@ export function BoxReconciliationView({
   onClose,
   onBoxUndelivered,
   onBoxDelivered,
+  closeOnOverlayClick = true,
+  closeOnEsc = true,
 }: IBoxReconciliationContainerProps) {
   const boxReconciliationOverlayState = useReactiveVar(boxReconciliationOverlayVar);
 
   return (
     <Modal
       isOpen={boxReconciliationOverlayState.isOpen}
-      closeOnOverlayClick
-      closeOnEsc
+      closeOnOverlayClick={closeOnOverlayClick}
+      closeOnEsc={closeOnEsc}
       onClose={onClose}
     >
       <ModalOverlay />

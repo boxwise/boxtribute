@@ -15,6 +15,7 @@ import {
 import { GlobalPreferencesContext } from "providers/GlobalPreferencesProvider";
 import { SHIPMENT_BY_ID_WITH_PRODUCTS_AND_LOCATIONS_QUERY } from "queries/queries";
 import { UPDATE_SHIPMENT_WHEN_RECEIVING } from "queries/mutations";
+import { useNavigate } from "react-router-dom";
 import {
   BoxReconciliationView,
   ILocationData,
@@ -25,12 +26,17 @@ export interface IBoxReconciliationOverlayData {
   shipmentDetail: ShipmentDetail;
 }
 
-export function BoxReconciliationOverlay() {
+export function BoxReconciliationOverlay({
+  closeOnOverlayClick = true,
+  closeOnEsc = true,
+  redirectToShipmentView = false,
+}) {
   const { createToast } = useNotification();
   const { triggerError } = useErrorHandling();
   const { globalPreferences } = useContext(GlobalPreferencesContext);
   const baseId = globalPreferences.selectedBaseId;
   const boxReconciliationOverlayState = useReactiveVar(boxReconciliationOverlayVar);
+  const navigate = useNavigate();
 
   const onOverlayClose = useCallback(() => {
     boxReconciliationOverlayVar({
@@ -127,6 +133,8 @@ export function BoxReconciliationOverlay() {
                 type: "success",
                 message: "Box marked as undelivered",
               });
+              if (redirectToShipmentView)
+                navigate(`/bases/${baseId}/transfers/shipments/${shipmentId}`);
             }
           })
           .catch(() => {
@@ -136,7 +144,16 @@ export function BoxReconciliationOverlay() {
           });
       }
     },
-    [triggerError, createToast, onOverlayClose, shipmentId, updateShipmentWhenReceiving],
+    [
+      shipmentId,
+      updateShipmentWhenReceiving,
+      triggerError,
+      onOverlayClose,
+      createToast,
+      redirectToShipmentView,
+      navigate,
+      baseId,
+    ],
   );
 
   const onBoxDelivered = useCallback(
@@ -209,6 +226,8 @@ export function BoxReconciliationOverlay() {
       shipmentDetail={shipmentDetail as ShipmentDetail}
       allLocations={allLocations as ILocationData[]}
       productAndSizesData={productAndSizesData as IProductWithSizeRangeData[]}
+      closeOnOverlayClick={closeOnOverlayClick}
+      closeOnEsc={closeOnEsc}
     />
   );
 }

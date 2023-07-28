@@ -10,7 +10,7 @@ import {
   VStack,
 } from "@chakra-ui/react";
 import { GlobalPreferencesContext } from "providers/GlobalPreferencesProvider";
-import { useParams } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import {
   AssignBoxToDistributionEventMutation,
   AssignBoxToDistributionEventMutationVariables,
@@ -50,10 +50,14 @@ import { IBoxBasicFields, IBoxBasicFieldsWithShipmentDetail } from "types/graphq
 import { IDropdownOption } from "components/Form/SelectField";
 import { BOX_BY_LABEL_IDENTIFIER_AND_ALL_SHIPMENTS_QUERY } from "queries/queries";
 import { BoxViewSkeleton } from "components/Skeletons";
+
+import { BoxReconciliationOverlay } from "components/BoxReconciliationOverlay/BoxReconciliationOverlay";
+import { boxReconciliationOverlayVar } from "queries/cache";
 import BoxDetails from "./components/BoxDetails";
 import TakeItemsFromBoxOverlay from "./components/TakeItemsFromBoxOverlay";
 import AddItemsToBoxOverlay from "./components/AddItemsToBoxOverlay";
 
+// Queries and Mutations
 const refetchBoxByLabelIdentifierQueryConfig = (labelIdentifier: string) => ({
   query: BOX_BY_LABEL_IDENTIFIER_AND_ALL_SHIPMENTS_QUERY,
   variables: {
@@ -135,6 +139,7 @@ export interface IChangeNumberOfItemsBoxData {
 }
 
 function BTBox() {
+  const navigate = useNavigate();
   const { triggerError } = useErrorHandling();
   const { createToast } = useNotification();
   const labelIdentifier = useParams<{ labelIdentifier: string }>().labelIdentifier!;
@@ -159,10 +164,6 @@ function BTBox() {
   );
 
   const shipmentsQueryResult = allData.data?.shipments;
-
-  useEffect(() => {
-    setCurrentState(allData.data?.box?.state);
-  }, [allData]);
 
   const boxInTransit = currentBoxState
     ? [BoxState.Receiving, BoxState.MarkedForShipment, BoxState.InTransit].includes(currentBoxState)
@@ -199,6 +200,22 @@ function BTBox() {
   const { isOpen: isMinusOpen, onOpen: onMinusOpen, onClose: onMinusClose } = useDisclosure();
 
   const boxData = allData.data?.box;
+
+  useEffect(() => {
+    setCurrentState(boxData?.state);
+    const shipmentId = boxData?.shipmentDetail?.shipment.id;
+    // open reconciliation overlay if the box state is receiving
+    if (shipmentId && boxData?.state === BoxState.Receiving) {
+      boxReconciliationOverlayVar({
+        labelIdentifier: boxData.labelIdentifier,
+        isOpen: true,
+        shipmentId,
+      });
+    } else if (shipmentId && boxData?.state === BoxState.InTransit) {
+      const newBaseId = globalPreferences?.selectedBaseId;
+      navigate(`/bases/${newBaseId}/transfers/shipments/${shipmentId}`);
+    }
+  }, [boxData, globalPreferences, navigate]);
 
   const loading =
     allData.networkStatus !== NetworkStatus.ready ||
@@ -562,10 +579,17 @@ function BTBox() {
       </Alert>
     );
 
+    const location =
+      boxData?.state === BoxState.Receiving
+        ? boxData?.shipmentDetail?.shipment.details.filter(
+            (b) => b.box.labelIdentifier === boxData.labelIdentifier,
+          )[0]?.sourceLocation
+        : boxData?.location;
+
     shipmentDetail = (
       <>
-        {((boxData?.location as ClassicLocation).defaultBoxState === BoxState.Lost ||
-          (boxData?.location as ClassicLocation).defaultBoxState === BoxState.Scrap) &&
+        {((location as ClassicLocation).defaultBoxState === BoxState.Lost ||
+          (location as ClassicLocation).defaultBoxState === BoxState.Scrap) &&
           boxData?.state !== BoxState.InStock &&
           alertForLagacyBox}
         <BoxDetails
@@ -600,6 +624,11 @@ function BTBox() {
         isOpen={isMinusOpen}
         onClose={onMinusClose}
         onSubmitTakeItemsFromBox={onSubmitTakeItemsFromBox}
+      />
+      <BoxReconciliationOverlay
+        closeOnEsc={false}
+        closeOnOverlayClick={false}
+        redirectToShipmentView
       />
     </VStack>
   );

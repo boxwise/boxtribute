@@ -131,6 +131,7 @@ export const BOX_FIELDS_FRAGMENT = gql`
   ${TAG_BASIC_FIELDS_FRAGMENT}
   ${BASE_BASIC_FIELDS_FRAGMENT}
   ${HISTORY_FIELDS_FRAGMENT}
+  ${LOCATION_BASIC_FIELDS_FRAGMENT}
   fragment BoxFields on Box {
     labelIdentifier
     state
@@ -144,6 +145,27 @@ export const BOX_FIELDS_FRAGMENT = gql`
       shipment {
         id
         state
+        details {
+          box {
+            location {
+              ...LocationBasicFields
+              base {
+                ...BaseBasicFields
+              }
+            }
+            labelIdentifier
+          }
+          sourceQuantity
+          sourceProduct {
+            ...ProductBasicFields
+          }
+          sourceSize {
+            ...SizeBasicFields
+          }
+          sourceLocation {
+            ...LocationBasicFields
+          }
+        }
         targetBase {
           id
           name
@@ -309,6 +331,13 @@ export const SHIPMENT_DETAIL_FIELDS_FRAGMENT = gql`
     }
     sourceSize {
       ...SizeBasicFields
+    }
+    sourceLocation {
+      id
+      name
+      ... on ClassicLocation {
+        defaultBoxState
+      }
     }
     targetSize {
       ...SizeBasicFields

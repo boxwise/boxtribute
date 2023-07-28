@@ -121,7 +121,9 @@ function AssignBoxToShipment({
               colorScheme="blue"
               size="md"
               mt={2}
-              disabled={boxData.state === BoxState.InTransit}
+              disabled={
+                boxData.state === BoxState.InTransit || boxData.state === BoxState.Receiving
+              }
               aria-label="remove to shipment"
               onClick={() => {
                 onUnassignBoxesToShipment(currentShipmentId);
