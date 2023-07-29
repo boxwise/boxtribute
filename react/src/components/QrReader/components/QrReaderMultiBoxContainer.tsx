@@ -1,5 +1,5 @@
 /* eslint-disable indent */
-import { useCallback, useContext, useMemo, useState } from "react";
+import { useCallback, useContext, useEffect, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useQuery } from "@apollo/client";
 import { GET_SCANNED_BOXES } from "queries/local-only";
@@ -211,6 +211,13 @@ function QrReaderMultiBoxContainer({ onSuccess }: IQrReaderMultiBoxContainerProp
         })) ?? [],
     [currentBaseId, optionsQueryResult.data?.shipments],
   );
+
+  // Assign To Shipment is default MultiBoxAction if there are shipments
+  useEffect(() => {
+    if (shipmentOptions.length > 0) {
+      setMultiBoxAction(IMultiBoxAction.assignShipment);
+    }
+  }, [shipmentOptions]);
 
   const notInStockBoxes = useMemo(
     () =>
