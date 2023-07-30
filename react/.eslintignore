@@ -5,7 +5,7 @@ node_modules
 # temporarily disable eslint on the current code
 src/types
 src/components/HeaderMenu
-!src/components/HeaderMenu/HeaderMenuDeskop.tsx
+!src/components/HeaderMenu/HeaderMenuDesktop.tsx
 !src/components/HeaderMenu/HeaderMenuMobile.tsx
 !src/components/HeaderMenu/HeaderMenuContainer.tsx
 !src/components/QrReader

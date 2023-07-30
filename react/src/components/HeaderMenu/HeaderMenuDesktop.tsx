@@ -183,7 +183,7 @@ const HeaderMenuDesktopContainer = ({ children, ...props }) => {
   );
 };
 
-const HeaderMenuDeskop = (props: HeaderMenuProps) => {
+const HeaderMenuDesktop = (props: HeaderMenuProps) => {
   return (
     <HeaderMenuDesktopContainer>
       <Flex w="100%" justifyContent="space-between" alignItems="center">
@@ -205,4 +205,4 @@ const HeaderMenuDeskop = (props: HeaderMenuProps) => {
   );
 };
 
-export default HeaderMenuDeskop;
+export default HeaderMenuDesktop;
