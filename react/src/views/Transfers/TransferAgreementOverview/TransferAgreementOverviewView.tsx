@@ -22,6 +22,7 @@ import { useErrorHandling } from "hooks/useErrorHandling";
 import { useNotification } from "hooks/useNotification";
 import { FilteringSortingTable } from "components/Table/Table";
 import { SelectColumnFilter } from "components/Table/Filter";
+import BreadcrumbNavigation from "components/BreadcrumbNavigation";
 import {
   CanAcceptTransferAgreementState,
   DirectionCell,
@@ -294,6 +295,7 @@ function TransferAgreementOverviewView() {
 
   return (
     <>
+      <BreadcrumbNavigation items={[{ label: "Aid Transfers" }, { label: "My Network" }]} />
       <Heading fontWeight="bold" mb={4} as="h2">
         My Transfer Network
       </Heading>
