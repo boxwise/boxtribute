@@ -29,10 +29,7 @@ import {
   CHANGE_DISTRIBUTION_EVENT_STATE_MUTATION,
   DISTRIBUTION_EVENT_QUERY,
 } from "views/Distributions/queries";
-import {
-  DistributionEventDetails,
-  DistributionEventStateSchema,
-} from "views/Distributions/types";
+import { DistributionEventDetails, DistributionEventStateSchema } from "views/Distributions/types";
 import DistroEventDetailsForPlanningStateContainer from "./State1Planning/DistroEventDetailsForPlanningStateContainer";
 import DistroEventDetailsForPackingStateContainer from "./State2Packing/DistroEventDetailsForPackingStateContainer";
 import DistroEventDetailsForReturnTrackingInProgressStateContainer from "./State4ReturnTrackingInProgress/DistroEventDetailsForReturnTrackingInProgressStateContainer";
@@ -40,9 +37,7 @@ import DistroEventDetailsForReturnTrackingInProgressStateContainer from "./State
 export interface DistroEventContainerProps {
   distributionEventDetails: DistributionEventDetails;
 }
-const DistroEventContainer = ({
-  distributionEventDetails,
-}: DistroEventContainerProps) => {
+const DistroEventContainer = ({ distributionEventDetails }: DistroEventContainerProps) => {
   const [moveEventToStageMutation] = useMutation<
     ChangeDistributionEventStateMutation,
     ChangeDistributionEventStateMutationVariables
@@ -88,11 +83,7 @@ const DistroEventContainer = ({
         },
       });
     },
-    [
-      distributionEventDetails.id,
-      moveEventToStageMutation,
-      nextStageTransitionAlertState,
-    ]
+    [distributionEventDetails.id, moveEventToStageMutation, nextStageTransitionAlertState],
   );
 
   const onConfirmToMarkEventAsReturnedFromDistribution = useCallback(() => {
@@ -103,11 +94,7 @@ const DistroEventContainer = ({
       },
     });
     nextStageTransitionAlertState.onClose();
-  }, [
-    distributionEventDetails.id,
-    moveEventToStageMutation,
-    nextStageTransitionAlertState,
-  ]);
+  }, [distributionEventDetails.id, moveEventToStageMutation, nextStageTransitionAlertState]);
 
   const { getDistroSpotDetailUrlById } = useGetUrlForResourceHelpers();
 
@@ -124,15 +111,16 @@ const DistroEventContainer = ({
         distributionEventDetails={distributionEventDetails}
       />
     ),
-    [DistributionEventState.OnDistro]: () => <Box>This Distro Event is currently on Distribution!</Box>,
+    [DistributionEventState.OnDistro]: () => (
+      <Box>This Distro Event is currently on Distribution!</Box>
+    ),
     [DistributionEventState.ReturnedFromDistribution]: () => (
       <Flex w={[300, 400, 600]} direction="column" mb={4}>
         <Text textAlign={"center"}>
           <Heading as="h3" size="md">
             Returned from Distribution
           </Heading>
-          You didn't start any Return Tracking for this Event yet. <br /> To do
-          so, please go to the{" "}
+          You didn't start any Return Tracking for this Event yet. <br /> To do so, please go to the{" "}
           <Link
             variant={"inline-link"}
             as={RouterLink}
@@ -146,30 +134,25 @@ const DistroEventContainer = ({
     ),
     [DistributionEventState.ReturnTrackingInProgress]: () => (
       <DistroEventDetailsForReturnTrackingInProgressStateContainer
-      distributionEventDetails={distributionEventDetails}
-    />
+        distributionEventDetails={distributionEventDetails}
+      />
     ),
     [DistributionEventState.Completed]: () => <Box>Completed</Box>,
   };
 
-  const StateSpecificComponent =
-    eventStateToComponentMapping[distributionEventDetails.state];
+  const StateSpecificComponent = eventStateToComponentMapping[distributionEventDetails.state];
   return (
     <>
       <VStack spacing={25}>
-        {/* <BTBreadcrumbNavigation
+        {/* <BreadcrumbNavigation
           items={[{ label: 'Base "Subotica"', linkPath: "X" }]}
         /> */}
         <Box>
           <Link
             as={RouterLink}
-            to={getDistroSpotDetailUrlById(
-              distributionEventDetails.distributionSpot.id
-            )}
+            to={getDistroSpotDetailUrlById(distributionEventDetails.distributionSpot.id)}
           >
-            <Text fontSize="xl">
-              {distributionEventDetails.distributionSpot.name}
-            </Text>
+            <Text fontSize="xl">{distributionEventDetails.distributionSpot.name}</Text>
           </Link>
           <Text
             fontSize="xl"
@@ -180,9 +163,7 @@ const DistroEventContainer = ({
             dateTime={distributionEventDetails.plannedStartDateTime.toUTCString()}
           >
             <DistributionEventTimeRangeDisplay
-              plannedStartDateTime={
-                distributionEventDetails.plannedStartDateTime
-              }
+              plannedStartDateTime={distributionEventDetails.plannedStartDateTime}
               plannedEndDateTime={distributionEventDetails.plannedEndDateTime}
             />
           </Text>
@@ -213,9 +194,7 @@ const DistroEventContainer = ({
               Mark as Returned From Distribution
             </AlertDialogHeader>
 
-            <AlertDialogBody>
-              Are you sure? You can't undo this action afterwards.
-            </AlertDialogBody>
+            <AlertDialogBody>Are you sure? You can't undo this action afterwards.</AlertDialogBody>
 
             <AlertDialogFooter>
               <Button
