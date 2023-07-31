@@ -273,7 +273,7 @@ def test_box_mutations(
         .dicts()
     )
     box_id = int(updated_box["id"])
-    assert history[1:] == [
+    assert history[2:] == [
         {
             "changes": "Record created",
             "from_int": None,
