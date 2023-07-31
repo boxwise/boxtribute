@@ -96,6 +96,8 @@ it("4.1.1 - Initial load of Page", async () => {
 
   const title = await screen.findByRole("heading", { name: "New Transfer Agreement" });
   expect(title).toBeInTheDocument();
+  // Breadcrumbs are there
+  expect(screen.getByRole("link", { name: /back to manage agreements/i })).toBeInTheDocument();
   // Test case 4.1.1.1 -  Content: Displays Source Bases Select Options
   const selectSourceBaseDropDown = screen.getByRole("combobox", { name: /boxaid bases/i });
   expect(selectSourceBaseDropDown).toBeInTheDocument();

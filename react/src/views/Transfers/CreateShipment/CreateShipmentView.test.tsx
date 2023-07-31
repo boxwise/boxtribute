@@ -124,6 +124,9 @@ it("4.3.1 - Initial load of Page", async () => {
   // Test case 4.3.1.3 - Content: Displays Partner Bases Select Options When Partner Organisation Selected
   await assertOptionsInSelectField(user, /base/i, [/samos/i, /thessaloniki/i, /athens/i], title);
   await selectOptionInSelectField(user, /base/i, "Samos");
+
+  // Breadcrumbs are there
+  expect(screen.getByRole("link", { name: /back to manage shipments/i })).toBeInTheDocument();
 });
 
 // Test case 4.3.2

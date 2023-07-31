@@ -181,6 +181,8 @@ describe("4.5 Test Cases", () => {
     expect(screen.getByRole("tab", { name: /content/i, selected: true })).toHaveTextContent(
       "Content",
     );
+    // Breadcrumbs are there
+    expect(screen.getByRole("link", { name: /back to manage shipments/i })).toBeInTheDocument();
   }, 10000);
 
   // Test case 4.5.1.4
