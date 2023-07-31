@@ -9,6 +9,9 @@ from utils import (
     assert_successful_request,
 )
 
+# Define common prefix for change messages for shorter line length
+change_prefix = "changed box state from"
+
 
 def test_shipment_query(read_only_client, default_shipment, prepared_shipment_detail):
     # Test case 3.1.2
@@ -191,6 +194,7 @@ def test_shipment_mutations_on_source_side(
                             id
                             state
                             shipmentDetail {{ id }}
+                            history {{ changes }}
                         }}
                         sourceProduct {{ id }}
                         targetProduct {{ id }}
@@ -222,6 +226,9 @@ def test_shipment_mutations_on_source_side(
                     "id": str(another_marked_for_shipment_box["id"]),
                     "state": BoxState.MarkedForShipment.name,
                     "shipmentDetail": {"id": prepared_shipment_detail_id},
+                    "history": [
+                        {"changes": f"{change_prefix} InStock to MarkedForShipment"}
+                    ],
                 },
                 "sourceProduct": {
                     "id": str(another_marked_for_shipment_box["product"])
@@ -245,6 +252,9 @@ def test_shipment_mutations_on_source_side(
                     "id": str(default_box["id"]),
                     "state": BoxState.MarkedForShipment.name,
                     "shipmentDetail": {"id": shipment_detail_id},
+                    "history": [
+                        {"changes": f"{change_prefix} InStock to MarkedForShipment"}
+                    ],
                 },
                 "sourceProduct": {"id": str(default_box["product"])},
                 "targetProduct": None,
@@ -295,7 +305,7 @@ def test_shipment_mutations_on_source_side(
                         id
                         removedOn
                         removedBy {{ id }}
-                        box {{ state }}
+                        box {{ state history {{ changes }} }}
                     }}
                 }} }}"""
     shipment = assert_successful_request(client, mutation)
@@ -305,7 +315,17 @@ def test_shipment_mutations_on_source_side(
         "id": shipment_id,
         "state": ShipmentState.Preparing.name,
         "details": [
-            {"id": i, "removedBy": {"id": "8"}, "box": {"state": BoxState.InStock.name}}
+            {
+                "id": i,
+                "removedBy": {"id": "8"},
+                "box": {
+                    "state": BoxState.InStock.name,
+                    "history": [
+                        {"changes": f"{change_prefix} MarkedForShipment to InStock"},
+                        {"changes": f"{change_prefix} InStock to MarkedForShipment"},
+                    ],
+                },
+            }
             for i in [prepared_shipment_detail_id, shipment_detail_id]
         ],
     }
@@ -380,8 +400,13 @@ def test_shipment_mutations_on_source_side(
                     state
                     sentBy {{ id }}
                     sentOn
-                    details {{ id box {{ state }} }}
-                }} }}"""
+                    details {{
+                        id
+                        box {{
+                            state
+                            history {{ changes }}
+                        }}
+                    }} }} }}"""
     shipment = assert_successful_request(client, mutation)
     assert shipment.pop("sentOn").startswith(date.today().isoformat())
     assert shipment == {
@@ -392,15 +417,37 @@ def test_shipment_mutations_on_source_side(
             # two boxes have been returned to stock
             {
                 "id": prepared_shipment_detail_id,
-                "box": {"state": BoxState.InStock.name},
+                "box": {
+                    "state": BoxState.InStock.name,
+                    "history": [
+                        {"changes": f"{change_prefix} MarkedForShipment to InStock"},
+                        {"changes": f"{change_prefix} InStock to MarkedForShipment"},
+                    ],
+                },
             },
             {
                 "id": shipment_detail_id,
-                "box": {"state": BoxState.InTransit.name},
+                "box": {
+                    "state": BoxState.InTransit.name,
+                    "history": [
+                        {"changes": f"{change_prefix} MarkedForShipment to InTransit"},
+                        {"changes": f"{change_prefix} InStock to MarkedForShipment"},
+                        {"changes": f"{change_prefix} MarkedForShipment to InStock"},
+                        {"changes": f"{change_prefix} InStock to MarkedForShipment"},
+                    ],
+                },
             },
             {
                 "id": newest_shipment_detail_id,
-                "box": {"state": BoxState.InTransit.name},
+                "box": {
+                    "state": BoxState.InTransit.name,
+                    "history": [
+                        {"changes": f"{change_prefix} MarkedForShipment to InTransit"},
+                        {"changes": f"{change_prefix} InStock to MarkedForShipment"},
+                        {"changes": f"{change_prefix} MarkedForShipment to InStock"},
+                        {"changes": f"{change_prefix} InStock to MarkedForShipment"},
+                    ],
+                },
             },
         ],
     }
@@ -425,7 +472,7 @@ def test_shipment_mutations_cancel(
                         id
                         removedOn
                         removedBy {{ id }}
-                        box {{ state }}
+                        box {{ state history {{ changes }} }}
                     }}
                 }} }}"""
     shipment = assert_successful_request(client, mutation)
@@ -439,7 +486,13 @@ def test_shipment_mutations_cancel(
             {
                 "id": str(prepared_shipment_detail["id"]),
                 "removedBy": {"id": "8"},
-                "box": {"state": BoxState.InStock.name},
+                "box": {
+                    "state": BoxState.InStock.name,
+                    "history": [
+                        {"changes": f"{change_prefix} MarkedForShipment to InStock"},
+                        {"changes": f"{change_prefix} InStock to MarkedForShipment"},
+                    ],
+                },
             }
         ],
     }
@@ -542,6 +595,7 @@ def test_shipment_mutations_on_target_side(
                             targetQuantity
                             box {{
                                 state
+                                history {{ changes }}
                             }}
                         }}
                     }} }}"""
@@ -552,8 +606,13 @@ def test_shipment_mutations_on_target_side(
                     state
                     receivingStartedBy {{ id }}
                     receivingStartedOn
-                    details {{ id box {{ state }} }}
-                }} }}"""
+                    details {{
+                        id
+                        box {{
+                            state
+                            history {{ changes }}
+                        }}
+                    }} }} }}"""
     shipment = assert_successful_request(client, mutation)
     assert shipment.pop("receivingStartedOn").startswith(date.today().isoformat())
     assert shipment == {
@@ -561,9 +620,24 @@ def test_shipment_mutations_on_target_side(
         "state": ShipmentState.Receiving.name,
         "receivingStartedBy": {"id": "2"},
         "details": [
-            {"id": detail_id, "box": {"state": BoxState.Receiving.name}},
-            {"id": another_detail_id, "box": {"state": BoxState.Receiving.name}},
-            {"id": removed_detail_id, "box": {"state": BoxState.InStock.name}},
+            {
+                "id": detail_id,
+                "box": {
+                    "state": BoxState.Receiving.name,
+                    "history": [{"changes": f"{change_prefix} InTransit to Receiving"}],
+                },
+            },
+            {
+                "id": another_detail_id,
+                "box": {
+                    "state": BoxState.Receiving.name,
+                    "history": [{"changes": f"{change_prefix} InTransit to Receiving"}],
+                },
+            },
+            {
+                "id": removed_detail_id,
+                "box": {"state": BoxState.InStock.name, "history": []},
+            },
         ],
     }
 
@@ -586,7 +660,31 @@ def test_shipment_mutations_on_target_side(
         "details": [
             {
                 "id": detail_id,
-                "box": {"state": BoxState.InStock.name},
+                "box": {
+                    "state": BoxState.InStock.name,
+                    "history": [
+                        {
+                            "changes": f"{change_prefix} Receiving to InStock",
+                        },
+                        {
+                            "changes": "changed the number of items from 10 to "
+                            + f"{target_quantity}",
+                        },
+                        {
+                            "changes": "changed size from small to "
+                            + f"{another_size['label']}",
+                        },
+                        {
+                            "changes": "changed box location from Location to "
+                            + f"{another_location['name']}",
+                        },
+                        {
+                            "changes": "changed product type from indigestion tablets "
+                            + f"to {another_product['name']}"
+                        },
+                        {"changes": f"{change_prefix} InTransit to Receiving"},
+                    ],
+                },
                 "sourceProduct": {"id": str(default_shipment_detail["source_product"])},
                 "targetProduct": {"id": target_product_id},
                 "sourceLocation": {
@@ -598,7 +696,10 @@ def test_shipment_mutations_on_target_side(
             },
             {
                 "id": another_detail_id,
-                "box": {"state": BoxState.Receiving.name},
+                "box": {
+                    "state": BoxState.Receiving.name,
+                    "history": [{"changes": f"{change_prefix} InTransit to Receiving"}],
+                },
                 "sourceProduct": {"id": str(another_shipment_detail["source_product"])},
                 "targetProduct": None,
                 "sourceLocation": {
@@ -610,7 +711,7 @@ def test_shipment_mutations_on_target_side(
             },
             {
                 "id": removed_detail_id,
-                "box": {"state": BoxState.InStock.name},
+                "box": {"state": BoxState.InStock.name, "history": []},
                 "sourceProduct": {"id": str(removed_shipment_detail["source_product"])},
                 "targetProduct": None,
                 "sourceLocation": {
@@ -669,11 +770,13 @@ def test_shipment_mutations_on_target_side(
                     removedBy {{ id }}
                     lostBy {{ id }}
                     receivedBy {{ id }}
-                    box {{ state }}
+                    box {{ state history {{ changes }} }}
                 }}
             }} }}"""
     shipment = assert_successful_request(client, mutation)
     assert shipment.pop("completedOn").startswith(date.today().isoformat())
+    # box history has been verified before; skip it for brevity
+    assert shipment["details"][0]["box"].pop("history") is not None
     assert shipment == {
         "id": shipment_id,
         "state": ShipmentState.Completed.name,
@@ -691,14 +794,20 @@ def test_shipment_mutations_on_target_side(
                 "removedBy": None,
                 "lostBy": {"id": "2"},
                 "receivedBy": None,
-                "box": {"state": BoxState.Lost.name},
+                "box": {
+                    "state": BoxState.Lost.name,
+                    "history": [
+                        {"changes": f"{change_prefix} Receiving to Lost"},
+                        {"changes": f"{change_prefix} InTransit to Receiving"},
+                    ],
+                },
             },
             {
                 "id": removed_detail_id,
                 "removedBy": {"id": "2"},
                 "lostBy": None,
                 "receivedBy": None,
-                "box": {"state": BoxState.InStock.name},
+                "box": {"state": BoxState.InStock.name, "history": []},
             },
         ],
     }
@@ -709,7 +818,6 @@ def test_shipment_mutations_on_target_side(
                     location {{ id }}
                     tags {{ id }}
                     shipmentDetail {{ id }}
-                    history {{ changes }}
     }} }}"""
     box = assert_successful_request(client, query)
     assert box == {
@@ -718,25 +826,6 @@ def test_shipment_mutations_on_target_side(
         "location": {"id": target_location_id},
         "tags": [],
         "shipmentDetail": None,
-        "history": [
-            {
-                "changes": "changed box state from Receiving to InStock",
-            },
-            {
-                "changes": f"changed the number of items from 10 to {target_quantity}",
-            },
-            {
-                "changes": f"changed size from small to {another_size['label']}",
-            },
-            {
-                "changes": "changed box location from Location to "
-                + f"{another_location['name']}",
-            },
-            {
-                "changes": "changed product type from indigestion tablets to "
-                + f"{another_product['name']}"
-            },
-        ],
     }
 
     # The box is still registered in the source base, hence any user from the target
@@ -771,7 +860,7 @@ def test_shipment_mutations_on_target_side_mark_shipment_as_lost(
                         id
                         removedBy {{ id }}
                         lostBy {{ id }}
-                        box {{ state }}
+                        box {{ state history {{ changes }} }}
                     }}
                 }} }}"""
     shipment = assert_successful_request(client, mutation)
@@ -784,19 +873,25 @@ def test_shipment_mutations_on_target_side_mark_shipment_as_lost(
                 "id": str(default_shipment_detail["id"]),
                 "removedBy": None,
                 "lostBy": {"id": "2"},
-                "box": {"state": BoxState.Lost.name},
+                "box": {
+                    "state": BoxState.Lost.name,
+                    "history": [{"changes": f"{change_prefix} InTransit to Lost"}],
+                },
             },
             {
                 "id": str(another_shipment_detail["id"]),
                 "removedBy": None,
                 "lostBy": {"id": "2"},
-                "box": {"state": BoxState.Lost.name},
+                "box": {
+                    "state": BoxState.Lost.name,
+                    "history": [{"changes": f"{change_prefix} InTransit to Lost"}],
+                },
             },
             {
                 "id": str(removed_shipment_detail["id"]),
                 "removedBy": {"id": "2"},
                 "lostBy": None,
-                "box": {"state": BoxState.InStock.name},
+                "box": {"state": BoxState.InStock.name, "history": []},
             },
         ],
     }
