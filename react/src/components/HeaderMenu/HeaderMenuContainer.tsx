@@ -27,6 +27,19 @@ const HeaderMenuContainer = () => {
           },
         ],
       },
+      {
+        text: "Transfers",
+        links: [
+          {
+            link: "/transfers/shipments",
+            name: "Manage Shipments",
+          },
+          {
+            link: "/transfers/agreements",
+            name: "Manage Agreements",
+          },
+        ],
+      },
       // {
       //   text: "Boxes",
       //   links: [
