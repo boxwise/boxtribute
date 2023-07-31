@@ -1,7 +1,7 @@
 import { useContext } from "react";
 import { GlobalPreferencesContext } from "providers/GlobalPreferencesProvider";
 import { Breadcrumb, BreadcrumbItem, BreadcrumbLink, Button } from "@chakra-ui/react";
-import { ChevronRightIcon } from "@chakra-ui/icons";
+import { ChevronLeftIcon, ChevronRightIcon } from "@chakra-ui/icons";
 import { Link } from "react-router-dom";
 
 interface IBreadcrumbItemData {
@@ -24,6 +24,8 @@ export function MobileBreadcrumbButton({ label, linkPath }: IBreadcrumbItemData)
       to={linkPath ?? "#"}
       border="2px"
       borderRadius={0}
+      mb={4}
+      leftIcon={<ChevronLeftIcon />}
     >
       {label}
     </Button>
@@ -47,8 +49,8 @@ export function BreadcrumbNavigation({ items }: IBreadcrumbNavigationProps) {
         </BreadcrumbLink>
       </BreadcrumbItem>
       {items.map((item) => (
-        <BreadcrumbItem>
-          <BreadcrumbLink as={Link} to={item.linkPath ?? "#"} key={`breadcrumb${item.label}`}>
+        <BreadcrumbItem key={`breadcrumb${item.label}`}>
+          <BreadcrumbLink as={Link} to={item.linkPath ?? "#"}>
             {item.label}
           </BreadcrumbLink>
         </BreadcrumbItem>
