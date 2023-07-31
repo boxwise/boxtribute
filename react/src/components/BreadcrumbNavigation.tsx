@@ -1,36 +1,58 @@
 import { useContext } from "react";
 import { GlobalPreferencesContext } from "providers/GlobalPreferencesProvider";
-import { Breadcrumb, BreadcrumbItem, BreadcrumbLink } from "@chakra-ui/react";
+import { Breadcrumb, BreadcrumbItem, BreadcrumbLink, Button } from "@chakra-ui/react";
 import { ChevronRightIcon } from "@chakra-ui/icons";
+import { Link } from "react-router-dom";
 
-interface IBreadCrumpItemData {
+interface IBreadcrumbItemData {
   label: string;
+  // eslint-disable-next-line react/require-default-props
   linkPath?: string;
 }
 
 interface IBreadcrumbNavigationProps {
-  items: IBreadCrumpItemData[];
+  items: IBreadcrumbItemData[];
 }
 
-function BreadcrumbNavigation({ items }: IBreadcrumbNavigationProps) {
+export function MobileBreadcrumbButton({ label, linkPath }: IBreadcrumbItemData) {
+  return (
+    <Button
+      variant="outline"
+      color="black"
+      borderColor="black"
+      as={Link}
+      to={linkPath ?? "#"}
+      border="2px"
+      borderRadius={0}
+    >
+      {label}
+    </Button>
+  );
+}
+
+export function BreadcrumbNavigation({ items }: IBreadcrumbNavigationProps) {
   const { globalPreferences } = useContext(GlobalPreferencesContext);
   const orgName = globalPreferences.organisation?.name;
   const baseName = globalPreferences.selectedBase?.name;
   return (
     <Breadcrumb separator={<ChevronRightIcon />} fontSize="md" mb={4}>
       <BreadcrumbItem>
-        <BreadcrumbLink href="#">{orgName}</BreadcrumbLink>
+        <BreadcrumbLink as={Link} to="#">
+          {orgName}
+        </BreadcrumbLink>
       </BreadcrumbItem>
       <BreadcrumbItem>
-        <BreadcrumbLink href="#">{baseName}</BreadcrumbLink>
+        <BreadcrumbLink as={Link} to="#">
+          {baseName}
+        </BreadcrumbLink>
       </BreadcrumbItem>
       {items.map((item) => (
         <BreadcrumbItem>
-          <BreadcrumbLink href="#">{item.label}</BreadcrumbLink>
+          <BreadcrumbLink as={Link} to={item.linkPath ?? "#"} key={`breadcrumb${item.label}`}>
+            {item.label}
+          </BreadcrumbLink>
         </BreadcrumbItem>
       ))}
     </Breadcrumb>
   );
 }
-
-export default BreadcrumbNavigation;

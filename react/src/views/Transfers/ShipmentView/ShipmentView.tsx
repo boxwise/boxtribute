@@ -44,6 +44,7 @@ import { ButtonSkeleton, ShipmentCardSkeleton, TabsSkeleton } from "components/S
 import { BoxReconciliationOverlay } from "components/BoxReconciliationOverlay/BoxReconciliationOverlay";
 import { UPDATE_SHIPMENT_WHEN_RECEIVING } from "queries/mutations";
 import { boxReconciliationOverlayVar } from "queries/cache";
+import { MobileBreadcrumbButton } from "components/BreadcrumbNavigation";
 import ShipmentCard from "./components/ShipmentCard";
 import ShipmentTabs, { IShipmentHistory, ShipmentActionEvent } from "./components/ShipmentTabs";
 import ShipmentOverlay, { IShipmentOverlayData } from "./components/ShipmentOverlay";
@@ -593,7 +594,12 @@ function ShipmentView() {
     );
   }
 
-  return shipmentViewComponents;
+  return (
+    <>
+      <MobileBreadcrumbButton label="Back to Manage Shipments" linkPath="/transfers/shipments" />
+      {shipmentViewComponents}
+    </>
+  );
 }
 
 export default ShipmentView;

@@ -17,6 +17,7 @@ import {
   SHIPMENT_FIELDS_FRAGMENT,
   TRANSFER_AGREEMENT_FIELDS_FRAGMENT,
 } from "queries/fragments";
+import { MobileBreadcrumbButton } from "components/BreadcrumbNavigation";
 import CreateShipment, {
   IOrganisationBaseData,
   ICreateShipmentFormData,
@@ -236,14 +237,17 @@ function CreateShipmentView() {
   }
 
   return (
-    <Center>
-      <CreateShipment
-        isLoading={createShipmentMutationState.loading}
-        currentOrganisationLabel={currentOrganisationLabel}
-        organisationBaseData={partnerOrganisationBaseData}
-        onSubmit={onSubmitCreateShipmentForm}
-      />
-    </Center>
+    <>
+      <MobileBreadcrumbButton label="Back to Manage Shipments" linkPath="/transfers/shipments" />
+      <Center>
+        <CreateShipment
+          isLoading={createShipmentMutationState.loading}
+          currentOrganisationLabel={currentOrganisationLabel}
+          organisationBaseData={partnerOrganisationBaseData}
+          onSubmit={onSubmitCreateShipmentForm}
+        />
+      </Center>
+    </>
   );
 }
 
