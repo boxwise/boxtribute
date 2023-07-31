@@ -1,16 +1,28 @@
 import pytest
 from boxtribute_server.models.definitions.history import DbChangeHistory
 
-
-def default_history_data():
-    mock_history = {"id": 112, "changes": "Changes"}
-    return mock_history
+from .box import another_marked_for_shipment_box_data
 
 
-@pytest.fixture()
+def data():
+    return [
+        {
+            # corresponding box was added to a shipment
+            "id": 1,
+            "changes": "box_state_id",
+            "from_int": 1,
+            "to_int": 3,
+            "record_id": another_marked_for_shipment_box_data()["id"],
+            "table_name": "stock",
+        },
+        {"id": 112, "changes": "Changes"},
+    ]
+
+
+@pytest.fixture
 def default_history():
-    return default_history_data()
+    return data()[1]
 
 
 def create():
-    DbChangeHistory.create(**default_history_data())
+    DbChangeHistory.insert_many(data()).execute()
