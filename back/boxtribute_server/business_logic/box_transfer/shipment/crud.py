@@ -116,12 +116,11 @@ def cancel_shipment(*, id, user):
     shipment.canceled_by = user.id
     shipment.canceled_on = now
 
-    details = []
-    for detail in _retrieve_shipment_details(id):
+    details = _retrieve_shipment_details(id)
+    for detail in details:
         detail.removed_by = user.id
         detail.removed_on = now
         detail.box.state = BoxState.InStock
-        details.append(detail)
 
     with db.database.atomic():
         if details:
@@ -202,22 +201,20 @@ def _update_shipment_with_prepared_boxes(*, shipment, box_label_identifiers, use
     base, or have a state different from InStock, they are silently discarded (i.e. not
     added to the ShipmentDetail model).
     """
-    boxes = []
     details = []
     box_label_identifiers = box_label_identifiers or []
 
-    for box in (
+    boxes = (
         Box.select(Box, Location)
         .join(Location)
-        .where(Box.label_identifier << box_label_identifiers)
-    ):
-        if box.location.base_id != shipment.source_base_id:
-            continue
-        if box.state_id != BoxState.InStock:
-            continue
-
+        .where(
+            Box.label_identifier << box_label_identifiers,
+            Box.state == BoxState.InStock,
+            Location.base_id == shipment.source_base,
+        )
+    )
+    for box in boxes:
         box.state = BoxState.MarkedForShipment
-        boxes.append(box)
         details.append(
             {
                 "shipment": shipment.id,
