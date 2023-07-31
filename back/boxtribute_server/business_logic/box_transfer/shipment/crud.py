@@ -201,7 +201,9 @@ def start_receiving_shipment(*, id, user):
     boxes = [
         detail.box
         for detail in _retrieve_shipment_details(
-            id, Box.state == BoxState.InTransit, ShipmentDetail.removed_on.is_null()
+            id,
+            Box.state == BoxState.InTransit,
+            ShipmentDetail.removed_on.is_null(),
         )
     ]
 
