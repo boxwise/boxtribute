@@ -77,9 +77,9 @@ it("4.7.1 - Query for shipment, box, available products, sizes and locations is 
     globalPreferences: {
       dispatch: jest.fn(),
       globalPreferences: {
-        selectedOrganisationId: organisation1.id,
+        organisation: { id: organisation1.id, name: organisation1.name },
         availableBases: organisation1.bases,
-        selectedBaseId: organisation1.bases[0].id,
+        selectedBase: organisation1.bases[0],
       },
     },
   });
@@ -131,9 +131,9 @@ it("4.7.2 - Query for shipment, box, available products, sizes and locations ret
     globalPreferences: {
       dispatch: jest.fn(),
       globalPreferences: {
-        selectedOrganisationId: organisation1.id,
+        organisation: { id: organisation1.id, name: organisation1.name },
         availableBases: organisation1.bases,
-        selectedBaseId: organisation1.bases[0].id,
+        selectedBase: organisation1.bases[0],
       },
     },
   });

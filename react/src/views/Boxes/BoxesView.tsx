@@ -25,9 +25,7 @@ export const BOXES_FOR_BASE_QUERY = gql`
   }
 `;
 
-const graphqlToTableTransformer = (
-  boxesQueryResult: BoxesForBaseQuery | undefined
-) =>
+const graphqlToTableTransformer = (boxesQueryResult: BoxesForBaseQuery | undefined) =>
   boxesQueryResult?.base?.locations?.flatMap(
     (location) =>
       location?.boxes?.elements.map(
@@ -40,27 +38,24 @@ const graphqlToTableTransformer = (
             size: element.size.label,
             state: element.state,
             place: location.name,
-            tags: element.tags?.map(tag => tag.name),
-          } as BoxRow)
-      ) || []
+            tags: element.tags?.map((tag) => tag.name),
+          } as BoxRow),
+      ) || [],
   ) || [];
 
 const Boxes = () => {
   const navigate = useNavigate();
   const { globalPreferences } = useContext(GlobalPreferencesContext);
-  const baseId = globalPreferences.selectedBaseId!;
+  const baseId = globalPreferences.selectedBase?.id!;
 
   const onBoxesRowClick = (labelIdentifier: string) =>
     navigate(`/bases/${baseId}/boxes/${labelIdentifier}`);
 
-  const { loading, error, data } = useQuery<BoxesForBaseQuery>(
-    BOXES_FOR_BASE_QUERY,
-    {
-      variables: {
-        baseId,
-      },
-    }
-  );
+  const { loading, error, data } = useQuery<BoxesForBaseQuery>(BOXES_FOR_BASE_QUERY, {
+    variables: {
+      baseId,
+    },
+  });
   if (loading) {
     return <APILoadingIndicator />;
   }
@@ -70,9 +65,7 @@ const Boxes = () => {
   }
 
   const tableData = graphqlToTableTransformer(data);
-  return (
-      <BoxesTable tableData={tableData} onBoxRowClick={onBoxesRowClick} />
-  );
+  return <BoxesTable tableData={tableData} onBoxRowClick={onBoxesRowClick} />;
 };
 
 export default Boxes;

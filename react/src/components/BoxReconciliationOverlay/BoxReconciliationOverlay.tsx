@@ -34,7 +34,7 @@ export function BoxReconciliationOverlay({
   const { createToast } = useNotification();
   const { triggerError } = useErrorHandling();
   const { globalPreferences } = useContext(GlobalPreferencesContext);
-  const baseId = globalPreferences.selectedBaseId;
+  const baseId = globalPreferences.selectedBase?.id;
   const boxReconciliationOverlayState = useReactiveVar(boxReconciliationOverlayVar);
   const navigate = useNavigate();
 

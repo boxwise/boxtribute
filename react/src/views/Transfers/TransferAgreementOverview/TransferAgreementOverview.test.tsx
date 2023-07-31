@@ -89,6 +89,17 @@ it("4.2.1 - Initial Load of Page", async () => {
   expect(screen.getByRole("link", { name: /thessaloniki \(1\)/i })).toBeInTheDocument();
   expect(screen.getByRole("cell", { name: /Good Comment/i })).toBeInTheDocument();
   expect(screen.getByRole("cell", { name: /1\/1\/2024/i })).toBeInTheDocument();
+  // Breadcrumbs are there
+  expect(
+    screen.getByRole("link", {
+      name: /aid transfers/i,
+    }),
+  ).toBeInTheDocument();
+  expect(
+    screen.getByRole("link", {
+      name: /my network/i,
+    }),
+  ).toBeInTheDocument();
 });
 
 const failedMutationTests = [

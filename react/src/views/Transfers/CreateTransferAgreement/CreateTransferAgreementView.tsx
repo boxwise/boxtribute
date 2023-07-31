@@ -13,6 +13,7 @@ import {
   TransferAgreementType,
 } from "types/generated/graphql";
 import { GlobalPreferencesContext } from "providers/GlobalPreferencesProvider";
+import { MobileBreadcrumbButton } from "components/BreadcrumbNavigation";
 import CreateTransferAgreement, {
   IBasesForOrganisationData,
   ITransferAgreementFormData,
@@ -70,7 +71,7 @@ function CreateTransferAgreementView() {
   const { globalPreferences } = useContext(GlobalPreferencesContext);
 
   // variables in URL
-  const baseId = globalPreferences.selectedBaseId!;
+  const baseId = globalPreferences.selectedBase?.id!;
 
   // Query Data for the Form
   const allFormOptions = useQuery<AllOrganisationsAndBasesQuery>(ALL_ORGS_AND_BASES_QUERY, {});
@@ -104,7 +105,7 @@ function CreateTransferAgreementView() {
   const allOrgsAndTheirBases = allFormOptions.data?.organisations;
 
   // When boxtribute god logs in without predefined organisation id, use organisation id 1
-  const userCurrentOrganisationId = globalPreferences.selectedOrganisationId?.toString() ?? "1";
+  const userCurrentOrganisationId = globalPreferences.organisation?.id ?? "1";
 
   const currentOrganisation = allOrgsAndTheirBases?.find(
     (organisation) => organisation.id === userCurrentOrganisationId,
@@ -117,7 +118,7 @@ function CreateTransferAgreementView() {
   } as IBasesForOrganisationData;
 
   const partnerOrganisationsWithTheirBasesData = allOrgsAndTheirBases?.filter(
-    (organisation) => organisation.id !== globalPreferences.selectedOrganisationId?.toString(),
+    (organisation) => organisation.id !== globalPreferences.organisation?.id,
   );
 
   // Handle Submission
@@ -193,15 +194,18 @@ function CreateTransferAgreementView() {
   }
 
   return (
-    <Center>
-      <CreateTransferAgreement
-        currentOrganisation={currentOrganisationAuthorizedBases}
-        partnerOrganisationsWithTheirBasesData={
-          partnerOrganisationsWithTheirBasesData as unknown as IBasesForOrganisationData[]
-        }
-        onSubmitCreateTransferAgreementForm={onSubmitCreateAgreementForm}
-      />
-    </Center>
+    <>
+      <MobileBreadcrumbButton label="Back to Manage Agreements" linkPath="/transfers/shipments" />
+      <Center>
+        <CreateTransferAgreement
+          currentOrganisation={currentOrganisationAuthorizedBases}
+          partnerOrganisationsWithTheirBasesData={
+            partnerOrganisationsWithTheirBasesData as unknown as IBasesForOrganisationData[]
+          }
+          onSubmitCreateTransferAgreementForm={onSubmitCreateAgreementForm}
+        />
+      </Center>
+    </>
   );
 }
 

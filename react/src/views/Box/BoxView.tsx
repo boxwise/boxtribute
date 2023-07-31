@@ -144,7 +144,7 @@ function BTBox() {
   const { createToast } = useNotification();
   const labelIdentifier = useParams<{ labelIdentifier: string }>().labelIdentifier!;
   const { globalPreferences } = useContext(GlobalPreferencesContext);
-  const currentBaseId = globalPreferences.selectedBaseId;
+  const currentBaseId = globalPreferences.selectedBase?.id;
   const [currentBoxState, setCurrentState] = useState<BoxState | undefined>();
 
   const {
@@ -212,7 +212,7 @@ function BTBox() {
         shipmentId,
       });
     } else if (shipmentId && boxData?.state === BoxState.InTransit) {
-      const newBaseId = globalPreferences?.selectedBaseId;
+      const newBaseId = globalPreferences.selectedBase?.id;
       navigate(`/bases/${newBaseId}/transfers/shipments/${shipmentId}`);
     }
   }, [boxData, globalPreferences, navigate]);

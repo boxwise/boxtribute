@@ -19,7 +19,7 @@ interface IQrReaderContainerProps {
 
 function QrReaderContainer({ onSuccess }: IQrReaderContainerProps) {
   const { globalPreferences } = useContext(GlobalPreferencesContext);
-  const baseId = globalPreferences.selectedBaseId;
+  const baseId = globalPreferences.selectedBase?.id;
   const navigate = useNavigate();
   const { triggerError } = useErrorHandling();
   const { resolveQrCode } = useQrResolver();

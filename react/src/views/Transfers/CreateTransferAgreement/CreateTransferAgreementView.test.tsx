@@ -85,9 +85,9 @@ it("4.1.1 - Initial load of Page", async () => {
     globalPreferences: {
       dispatch: jest.fn(),
       globalPreferences: {
-        selectedOrganisationId: organisation1.id,
+        organisation: { id: organisation1.id, name: organisation1.name },
         availableBases: organisation1.bases,
-        selectedBaseId: base1.id,
+        selectedBase: { id: base1.id, name: base1.name },
       },
     },
   });
@@ -96,6 +96,8 @@ it("4.1.1 - Initial load of Page", async () => {
 
   const title = await screen.findByRole("heading", { name: "New Transfer Agreement" });
   expect(title).toBeInTheDocument();
+  // Breadcrumbs are there
+  expect(screen.getByRole("link", { name: /back to manage agreements/i })).toBeInTheDocument();
   // Test case 4.1.1.1 -  Content: Displays Source Bases Select Options
   const selectSourceBaseDropDown = screen.getByRole("combobox", { name: /boxaid bases/i });
   expect(selectSourceBaseDropDown).toBeInTheDocument();
@@ -129,9 +131,9 @@ it("4.1.2 - Input Validations", async () => {
     globalPreferences: {
       dispatch: jest.fn(),
       globalPreferences: {
-        selectedOrganisationId: organisation1.id,
+        organisation: { id: organisation1.id, name: organisation1.name },
         availableBases: organisation1.bases,
-        selectedBaseId: base1.id,
+        selectedBase: { id: base1.id, name: base1.name },
       },
     },
   });
@@ -185,9 +187,9 @@ it("4.1.3 - Click on Submit Button", async () => {
     globalPreferences: {
       dispatch: jest.fn(),
       globalPreferences: {
-        selectedOrganisationId: organisation1.id,
+        organisation: { id: organisation1.id, name: organisation1.name },
         availableBases: organisation1.bases,
-        selectedBaseId: base1.id,
+        selectedBase: { id: base1.id, name: base1.name },
       },
     },
   });
@@ -218,9 +220,9 @@ it("4.1.3 - Click on Submit Button", async () => {
     globalPreferences: {
       dispatch: jest.fn(),
       globalPreferences: {
-        selectedOrganisationId: organisation1.id,
+        organisation: { id: organisation1.id, name: organisation1.name },
         availableBases: organisation1.bases,
-        selectedBaseId: base1.id,
+        selectedBase: { id: base1.id, name: base1.name },
       },
     },
   });
@@ -249,9 +251,9 @@ it("4.1.4 - Failed to Fetch Initial Data", async () => {
     globalPreferences: {
       dispatch: jest.fn(),
       globalPreferences: {
-        selectedOrganisationId: organisation1.id,
+        organisation: { id: organisation1.id, name: organisation1.name },
         availableBases: organisation1.bases,
-        selectedBaseId: base1.id,
+        selectedBase: { id: base1.id, name: base1.name },
       },
     },
   });

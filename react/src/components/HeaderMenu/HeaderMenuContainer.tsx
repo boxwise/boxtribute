@@ -9,7 +9,7 @@ import { useReactiveVar } from "@apollo/client";
 const HeaderMenuContainer = () => {
   const auth0 = useAuth0();
   const { globalPreferences } = useContext(GlobalPreferencesContext);
-  const baseId = globalPreferences.selectedBaseId!;
+  const baseId = globalPreferences.selectedBase?.id!;
   const qrReaderOverlayState = useReactiveVar(qrReaderOverlayVar);
 
   const menuItems: MenuItemsGroupData[] = useMemo(
@@ -24,6 +24,19 @@ const HeaderMenuContainer = () => {
           {
             link: `${process.env.REACT_APP_OLD_APP_BASE_URL}/`,
             name: "Go to classic desktop",
+          },
+        ],
+      },
+      {
+        text: "Transfers",
+        links: [
+          {
+            link: "/transfers/shipments",
+            name: "Manage Shipments",
+          },
+          {
+            link: "/transfers/agreements",
+            name: "Manage Agreements",
           },
         ],
       },
