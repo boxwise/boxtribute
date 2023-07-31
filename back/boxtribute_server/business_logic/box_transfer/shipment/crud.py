@@ -99,7 +99,9 @@ def _retrieve_shipment_details(shipment_id, *conditions, model=Box):
 
 
 def _bulk_update_box_state(*, boxes, state):
-    """Update state of given boxes, and track these changes in the history table."""
+    """Update state of given boxes, and track these changes in the history table.
+    Must be placed inside a `with db.database.atomic()` context.
+    """
     if not boxes:
         return
 
@@ -136,7 +138,8 @@ def cancel_shipment(*, id, user):
     shipment.canceled_by = user.id
     shipment.canceled_on = now
 
-    details = _retrieve_shipment_details(id)
+    # Only remove details that have not been removed yet
+    details = _retrieve_shipment_details(id, ShipmentDetail.removed_on.is_null())
     for detail in details:
         detail.removed_by = user.id
         detail.removed_on = now
@@ -214,8 +217,8 @@ def _update_shipment_with_prepared_boxes(*, shipment, box_label_identifiers, use
     base, or have a state different from InStock, they are silently discarded (i.e. not
     added to the ShipmentDetail model).
     """
-    details = []
-    box_label_identifiers = box_label_identifiers or []
+    if not box_label_identifiers:
+        return
 
     boxes = (
         Box.select(Box, Location)
@@ -226,18 +229,18 @@ def _update_shipment_with_prepared_boxes(*, shipment, box_label_identifiers, use
             Location.base_id == shipment.source_base,
         )
     )
-    for box in boxes:
-        details.append(
-            {
-                "shipment": shipment.id,
-                "box": box.id,
-                "source_product": box.product_id,
-                "source_location": box.location_id,
-                "source_size": box.size_id,
-                "source_quantity": box.number_of_items,
-                "created_by": user_id,
-            }
-        )
+    details = [
+        {
+            "shipment": shipment.id,
+            "box": box.id,
+            "source_product": box.product_id,
+            "source_location": box.location_id,
+            "source_size": box.size_id,
+            "source_quantity": box.number_of_items,
+            "created_by": user_id,
+        }
+        for box in boxes
+    ]
 
     _bulk_update_box_state(boxes=boxes, state=BoxState.MarkedForShipment)
     ShipmentDetail.insert_many(details).execute()
@@ -249,7 +252,7 @@ def _remove_boxes_from_shipment(
     """With `box_state=InStock`, return boxes to stock; with `box_state=Lost`, mark
     boxes as lost. Soft-delete corresponding shipment details.
     If boxes are requested to be removed that are not contained in the given shipment,
-    or have a state different from MarkedForShipment, they are silently discarded.
+    they are silently discarded.
     """
     box_label_identifiers = box_label_identifiers or []
     if not box_label_identifiers:
