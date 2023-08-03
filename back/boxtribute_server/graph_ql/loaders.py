@@ -17,6 +17,7 @@ from ..models.definitions.size_range import SizeRange
 from ..models.definitions.tag import Tag
 from ..models.definitions.tags_relation import TagsRelation
 from ..models.definitions.user import User
+from ..utils import convert_pascal_to_snake_case
 
 
 class DataLoader(_DataLoader):
@@ -28,46 +29,72 @@ class DataLoader(_DataLoader):
         return super().load(key)
 
 
-class BaseLoader(DataLoader):
+class SimpleDataLoader(DataLoader):
+    """Custom implementation that batch-loads all requested rows of the specified data
+    model, optionally enforcing authorization for the resource.
+    Authorization may be skipped for base-specific resources.
+    """
+
+    def __init__(self, model, skip_authorize=False):
+        super().__init__()
+        self.model = model
+        self.skip_authorize = skip_authorize
+
+    async def batch_load_fn(self, ids):
+        if not self.skip_authorize:
+            resource = convert_pascal_to_snake_case(self.model.__name__)
+            permission = f"{resource}:read"
+            authorize(permission=permission)
+
+        rows = {r.id: r for r in self.model.select().where(self.model.id << ids)}
+        return [rows.get(i) for i in ids]
+
+
+class BaseLoader(SimpleDataLoader):
+    def __init__(self):
+        super().__init__(Base, skip_authorize=True)
+
+
+class ProductLoader(SimpleDataLoader):
+    def __init__(self):
+        super().__init__(Product, skip_authorize=True)
+
+
+class LocationLoader(SimpleDataLoader):
+    def __init__(self):
+        super().__init__(Location, skip_authorize=True)
+
+
+class BoxLoader(SimpleDataLoader):
+    def __init__(self):
+        super().__init__(Box, skip_authorize=True)
+
+
+class SizeLoader(SimpleDataLoader):
+    def __init__(self):
+        super().__init__(Size)
+
+
+class OrganisationLoader(SimpleDataLoader):
+    def __init__(self):
+        super().__init__(Organisation)
+
+
+class UserLoader(SimpleDataLoader):
+    def __init__(self):
+        super().__init__(User)
+
+
+class ProductCategoryLoader(DataLoader):
     async def batch_load_fn(self, keys):
-        bases = {b.id: b for b in Base.select().where(Base.id << keys)}
-        return [bases.get(i) for i in keys]
+        authorize(permission="category:read")
+        categories = {c.id: c for c in ProductCategory.select()}
+        return [categories.get(i) for i in keys]
 
 
-class ProductLoader(DataLoader):
-    async def batch_load_fn(self, keys):
-        products = {p.id: p for p in Product.select().where(Product.id << keys)}
-        return [products.get(i) for i in keys]
-
-
-class LocationLoader(DataLoader):
-    async def batch_load_fn(self, keys):
-        locations = {
-            loc.id: loc for loc in Location.select().where(Location.id << keys)
-        }
-        return [locations.get(i) for i in keys]
-
-
-class SizeLoader(DataLoader):
-    async def batch_load_fn(self, keys):
-        authorize(permission="size:read")
-        sizes = {s.id: s for s in Size.select()}
-        return [sizes.get(i) for i in keys]
-
-
-class OrganisationLoader(DataLoader):
-    async def batch_load_fn(self, keys):
-        authorize(permission="organisation:read")
-        organisations = {
-            s.id: s for s in Organisation.select().where(Organisation.id << keys)
-        }
-        return [organisations.get(i) for i in keys]
-
-
-class BoxLoader(DataLoader):
-    async def batch_load_fn(self, keys):
-        boxes = {b.id: b for b in Box.select().where(Box.id << keys)}
-        return [boxes.get(i) for i in keys]
+class SizeRangeLoader(SimpleDataLoader):
+    def __init__(self):
+        super().__init__(SizeRange)
 
 
 class ShipmentLoader(DataLoader):
@@ -116,20 +143,6 @@ class ShipmentDetailForBoxLoader(DataLoader):
         return [details.get(i) for i in keys]
 
 
-class ProductCategoryLoader(DataLoader):
-    async def batch_load_fn(self, keys):
-        authorize(permission="category:read")
-        categories = {c.id: c for c in ProductCategory.select()}
-        return [categories.get(i) for i in keys]
-
-
-class SizeRangeLoader(DataLoader):
-    async def batch_load_fn(self, keys):
-        authorize(permission="size_range:read")
-        ranges = {s.id: s for s in SizeRange.select()}
-        return [ranges.get(i) for i in keys]
-
-
 class SizesForSizeRangeLoader(DataLoader):
     async def batch_load_fn(self, keys):
         authorize(permission="size:read")
@@ -139,10 +152,3 @@ class SizesForSizeRangeLoader(DataLoader):
             sizes[size.size_range_id].append(size)
         # Keys are in fact size range IDs. Return empty list if size range has no sizes
         return [sizes.get(i, []) for i in keys]
-
-
-class UserLoader(DataLoader):
-    async def batch_load_fn(self, keys):
-        authorize(permission="user:read")
-        users = {s.id: s for s in User.select().where(User.id << keys)}
-        return [users.get(i) for i in keys]
