@@ -7,6 +7,20 @@ from .crud import retrieve_transfer_agreement_bases
 transfer_agreement = ObjectType("TransferAgreement")
 
 
+@transfer_agreement.field("sourceOrganisation")
+def resolve_agreement_source_organisation(transfer_agreement_obj, info):
+    return info.context["organisation_loader"].load(
+        transfer_agreement_obj.source_organisation_id
+    )
+
+
+@transfer_agreement.field("targetOrganisation")
+def resolve_agreement_target_organisation(transfer_agreement_obj, info):
+    return info.context["organisation_loader"].load(
+        transfer_agreement_obj.target_organisation_id
+    )
+
+
 @transfer_agreement.field("sourceBases")
 def resolve_transfer_agreement_source_bases(transfer_agreement_obj, _):
     source_bases = retrieve_transfer_agreement_bases(
