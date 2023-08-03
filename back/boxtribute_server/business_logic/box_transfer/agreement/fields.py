@@ -56,3 +56,18 @@ def resolve_transfer_agreement_shipments(transfer_agreement_obj, _):
         authorized_bases_filter(Shipment, base_fk_field_name="source_base")
         | authorized_bases_filter(Shipment, base_fk_field_name="target_base"),
     )
+
+
+@transfer_agreement.field("requestedBy")
+def resolve_shipment_requested_by(transfer_agreement_obj, info):
+    return info.context["user_loader"].load(transfer_agreement_obj.requested_by_id)
+
+
+@transfer_agreement.field("acceptedBy")
+def resolve_shipment_accepted_by(transfer_agreement_obj, info):
+    return info.context["user_loader"].load(transfer_agreement_obj.accepted_by_id)
+
+
+@transfer_agreement.field("terminatedBy")
+def resolve_shipment_terminated_by(transfer_agreement_obj, info):
+    return info.context["user_loader"].load(transfer_agreement_obj.terminated_by_id)
