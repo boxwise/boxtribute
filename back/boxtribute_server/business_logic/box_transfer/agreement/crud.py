@@ -2,10 +2,12 @@ from datetime import datetime, time
 from datetime import timezone as dtimezone
 
 from dateutil import tz
+from peewee import fn
 
 from ....db import db
 from ....enums import TransferAgreementState, TransferAgreementType
 from ....exceptions import (
+    DuplicateTransferAgreement,
     InvalidTransferAgreementBase,
     InvalidTransferAgreementDates,
     InvalidTransferAgreementOrganisation,
@@ -38,6 +40,47 @@ def _validate_bases_as_part_of_organisation(*, base_ids, organisation_id):
         )
 
 
+def _validate_unique_transfer_agreement(*, organisation_ids, base_ids):
+    """Validate that the agreement with given organisation IDs and base IDs is unique,
+    i.e. no other accepted agreement among the same organisations and with the same set
+    of involved bases (or a superset thereof) must exist.
+    """
+
+    def convert_ids(concat_ids):
+        """Convert a string of comma-separated IDs (returned from GROUP_CONCAT) into a
+        list of integers.
+        """
+        return {int(i) for i in (concat_ids or "").split(",") if i}
+
+    agreements = (
+        TransferAgreement.select(
+            TransferAgreement.id,
+            TransferAgreement.source_organisation,
+            TransferAgreement.target_organisation,
+            fn.GROUP_CONCAT(TransferAgreementDetail.source_base)
+            .python_value(convert_ids)
+            .alias("source_base_ids"),
+            fn.GROUP_CONCAT(TransferAgreementDetail.target_base)
+            .python_value(convert_ids)
+            .alias("target_base_ids"),
+        )
+        .join(TransferAgreementDetail)
+        .where(
+            TransferAgreement.source_organisation << organisation_ids,
+            TransferAgreement.target_organisation << organisation_ids,
+            TransferAgreement.state == TransferAgreementState.Accepted,
+        )
+        .group_by(TransferAgreement.id)
+        .namedtuples()
+    )
+
+    for am in agreements:
+        if organisation_ids.issubset(
+            {am.source_organisation, am.target_organisation}
+        ) and base_ids.issubset(am.source_base_ids.union(am.target_base_ids)):
+            raise DuplicateTransferAgreement(agreement_id=am.id)
+
+
 def create_transfer_agreement(
     *,
     initiating_organisation_id,
@@ -59,6 +102,8 @@ def create_transfer_agreement(
     Convert optional local dates into UTC datetimes using timezone information.
     Raise an InvalidTransferAgreementOrganisation exception if the current user's
     organisation is identical to the target organisation.
+    Raise a DuplicateTransferAgreement exception if the agreement requested to be
+    created would not be unique.
     Raise an InvalidTransferAgreementBase expection if any specified source/target base
     is not part of the source/target organisation.
     """
@@ -74,6 +119,11 @@ def create_transfer_agreement(
         )
     else:
         partner_organisation_base_ids = set(partner_organisation_base_ids)
+
+    _validate_unique_transfer_agreement(
+        organisation_ids={initiating_organisation_id, partner_organisation_id},
+        base_ids=initiating_organisation_base_ids.union(partner_organisation_base_ids),
+    )
 
     if type == TransferAgreementType.ReceivingFrom:
         # Initiating organisation will be transfer target, the partner organisation will

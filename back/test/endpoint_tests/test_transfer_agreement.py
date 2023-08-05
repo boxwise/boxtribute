@@ -188,6 +188,14 @@ def test_transfer_agreement_mutations(
         "shipments": [],
     }
 
+    # Test case 2.2.22
+    creation_input = f"""partnerOrganisationId: {another_organisation['id']},
+        initiatingOrganisationId: {default_organisation['id']}
+        initiatingOrganisationBaseIds: [1]
+        partnerOrganisationBaseIds: [3]
+        type: {TransferAgreementType.Bidirectional.name}"""
+    assert_bad_user_input(client, _create_mutation(creation_input))
+
     mock_user_for_request(mocker, base_ids=[3, 4], organisation_id=2, user_id=2)
     # Test case 2.2.3
     mutation = f"""mutation {{ acceptTransferAgreement(id: {first_agreement_id}) {{

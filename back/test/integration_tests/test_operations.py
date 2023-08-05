@@ -83,7 +83,7 @@ def test_mutations(auth0_client):
 
     mutation = """mutation { createTransferAgreement(creationInput: {
                     initiatingOrganisationId: 1,
-                    partnerOrganisationId: 2,
+                    partnerOrganisationId: 100000000,
                     initiatingOrganisationBaseIds: [1]
                     type: Bidirectional
                 }) { id type } }"""
