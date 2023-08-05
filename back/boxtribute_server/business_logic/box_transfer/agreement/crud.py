@@ -17,14 +17,19 @@ from ....models.definitions.transfer_agreement_detail import TransferAgreementDe
 from ....models.utils import utcnow
 
 
+def _base_ids_of_organisation(organisation_id):
+    """Return IDs of that bases that belong to the organisation with given ID."""
+    return [
+        b.id
+        for b in Base.select(Base.id).where(Base.organisation_id == organisation_id)
+    ]
+
+
 def _validate_bases_as_part_of_organisation(*, base_ids, organisation_id):
     """Raise InvalidTransferAgreementBase exception if any of the given bases is not run
     by the given organisation.
     """
-    organisation_base_ids = [
-        b.id
-        for b in Base.select(Base.id).where(Base.organisation_id == organisation_id)
-    ]
+    organisation_base_ids = _base_ids_of_organisation(organisation_id)
     invalid_base_ids = [i for i in base_ids if i not in organisation_base_ids]
     if invalid_base_ids:
         raise InvalidTransferAgreementBase(
@@ -64,10 +69,9 @@ def create_transfer_agreement(
     # actual base IDs of partner organisation. Avoid duplicate base IDs by creating sets
     initiating_organisation_base_ids = set(initiating_organisation_base_ids)
     if partner_organisation_base_ids is None:
-        partner_organisation_base_ids = [
-            b.id
-            for b in Base.select().where(Base.organisation == partner_organisation_id)
-        ]
+        partner_organisation_base_ids = set(
+            _base_ids_of_organisation(partner_organisation_id)
+        )
     else:
         partner_organisation_base_ids = set(partner_organisation_base_ids)
 
