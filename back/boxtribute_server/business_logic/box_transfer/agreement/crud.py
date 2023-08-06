@@ -227,6 +227,7 @@ def reject_transfer_agreement(*, id, user):
 def cancel_transfer_agreement(*, id, user_id):
     """Transition state of specified transfer agreement to 'Canceled'.
     Raise error if agreement state different from 'UnderReview'/'Accepted'.
+    Any shipments derived from the agreement are not affected.
     """
     agreement = TransferAgreement.get_by_id(id)
     if agreement.state not in [
