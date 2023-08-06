@@ -149,7 +149,6 @@ def test_transfer_agreement_mutations(
         validFrom: "{valid_from}",
         validUntil: "{valid_until}",
         comment: "{comment}",
-        timezone: "Europe/London",
         initiatingOrganisationBaseIds: [1],
         partnerOrganisationBaseIds: [3, 4]"""
     agreement = assert_successful_request(client, _create_mutation(creation_input))

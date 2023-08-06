@@ -40,7 +40,6 @@ export const CREATE_AGREEMENT_MUTATION = gql`
     $type: TransferAgreementType!
     $validFrom: Date
     $validUntil: Date
-    $timezone: String
     $initiatingOrganisationBaseIds: [Int!]!
     $partnerOrganisationBaseIds: [Int!]
     $comment: String
@@ -52,7 +51,6 @@ export const CREATE_AGREEMENT_MUTATION = gql`
         type: $type
         validFrom: $validFrom
         validUntil: $validUntil
-        timezone: $timezone
         initiatingOrganisationBaseIds: $initiatingOrganisationBaseIds
         partnerOrganisationBaseIds: $partnerOrganisationBaseIds
         comment: $comment

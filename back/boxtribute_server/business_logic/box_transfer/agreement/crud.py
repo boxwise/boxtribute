@@ -131,7 +131,6 @@ def create_transfer_agreement(
     partner_organisation_base_ids=None,
     valid_from=None,
     valid_until=None,
-    timezone=None,
     comment=None,
     user,
 ):
@@ -140,7 +139,7 @@ def create_transfer_agreement(
     the agreement is established between all bases of both organisations (indicated by
     NULL for the Detail.source/target_base field). As a result, any base that added to
     an organisation in the future would be part of such an agreement.
-    Convert optional local dates into UTC datetimes using timezone information.
+    Convert optional local dates into UTC datetimes using user timezone information.
     Raise an InvalidTransferAgreementOrganisation exception if the current user's
     organisation is identical to the target organisation.
     Raise a DuplicateTransferAgreement exception if the agreement requested to be
@@ -154,7 +153,7 @@ def create_transfer_agreement(
         raise InvalidTransferAgreementOrganisation()
 
     valid_from, valid_until = _convert_dates_to_utc_datetimes(
-        valid_from, valid_until, timezone
+        valid_from, valid_until, user.timezone
     )
 
     if valid_until and valid_from.date() >= valid_until.date():
