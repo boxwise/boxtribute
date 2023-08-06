@@ -1,7 +1,7 @@
+import zoneinfo
 from datetime import datetime, time
 from datetime import timezone as dtimezone
 
-from dateutil import tz
 from peewee import fn
 
 from ....db import db
@@ -102,7 +102,7 @@ def _convert_dates_to_utc_datetimes(valid_from, valid_until, timezone):
     midnight. Let valid_from default to current UTC time.
     Return converted datetimes (UTC but without timezone information) as tuple.
     """
-    tzinfo = tz.gettz(timezone)
+    tzinfo = zoneinfo.ZoneInfo(timezone)
     if valid_from is not None:
         valid_from = (
             datetime.combine(valid_from, time(), tzinfo=tzinfo)
