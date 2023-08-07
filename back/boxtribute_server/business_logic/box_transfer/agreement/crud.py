@@ -197,6 +197,13 @@ def create_transfer_agreement(
         source_base_ids = initiating_organisation_base_ids
         target_base_ids = partner_organisation_base_ids
 
+    _validate_bases_as_part_of_organisation(
+        base_ids=source_base_ids, organisation_id=source_organisation_id
+    )
+    _validate_bases_as_part_of_organisation(
+        base_ids=target_base_ids, organisation_id=target_organisation_id
+    )
+
     with db.database.atomic():
         transfer_agreement = TransferAgreement.create(
             source_organisation=source_organisation_id,
@@ -206,13 +213,6 @@ def create_transfer_agreement(
             valid_until=valid_until,
             requested_by=user.id,
             comment=comment,
-        )
-
-        _validate_bases_as_part_of_organisation(
-            base_ids=source_base_ids, organisation_id=source_organisation_id
-        )
-        _validate_bases_as_part_of_organisation(
-            base_ids=target_base_ids, organisation_id=target_organisation_id
         )
 
         # Build all combinations of source and target organisation bases under current
