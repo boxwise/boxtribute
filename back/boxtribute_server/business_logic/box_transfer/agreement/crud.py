@@ -103,6 +103,31 @@ def _validate_unique_transfer_agreement(
             raise DuplicateTransferAgreement(agreement_id=am.id)
 
 
+def _convert_dates_to_utc_datetimes(valid_from, valid_until, timezone):
+    """Use given valid_* dates and insert time information such that start/end is at
+    midnight. Let valid_from default to current UTC time.
+    Return converted datetimes (UTC but without timezone information) as tuple.
+    """
+    tzinfo = tz.gettz(timezone)
+    if valid_from is not None:
+        valid_from = (
+            datetime.combine(valid_from, time(), tzinfo=tzinfo)
+            .astimezone(dtimezone.utc)
+            .replace(tzinfo=None)
+        )
+    else:
+        valid_from = datetime.utcnow()
+
+    if valid_until is not None:
+        valid_until = (
+            datetime.combine(valid_until, time(23, 59, 59), tzinfo=tzinfo)
+            .astimezone(dtimezone.utc)
+            .replace(tzinfo=None)
+        )
+
+    return valid_from, valid_until
+
+
 def create_transfer_agreement(
     *,
     initiating_organisation_id,
@@ -128,9 +153,18 @@ def create_transfer_agreement(
     created would not be unique.
     Raise an InvalidTransferAgreementBase expection if any specified source/target base
     is not part of the source/target organisation.
+    Raise InvalidTransferAgreementDates exception if valid_from is not earlier than
+    valid_until.
     """
     if initiating_organisation_id == partner_organisation_id:
         raise InvalidTransferAgreementOrganisation()
+
+    valid_from, valid_until = _convert_dates_to_utc_datetimes(
+        valid_from, valid_until, timezone
+    )
+
+    if valid_until and valid_from.date() >= valid_until.date():
+        raise InvalidTransferAgreementDates()
 
     # In GraphQL input, partner organisation base IDs can be omitted, hence substitute
     # actual base IDs of partner organisation. Avoid duplicate base IDs by creating sets
@@ -145,7 +179,7 @@ def create_transfer_agreement(
     _validate_unique_transfer_agreement(
         organisation_ids={initiating_organisation_id, partner_organisation_id},
         base_ids=initiating_organisation_base_ids.union(partner_organisation_base_ids),
-        valid_from=valid_from or datetime.utcnow(),
+        valid_from=valid_from,
         valid_until=valid_until,
     )
 
@@ -164,26 +198,11 @@ def create_transfer_agreement(
         target_base_ids = partner_organisation_base_ids
 
     with db.database.atomic():
-        if valid_from is not None or valid_until is not None:
-            tzinfo = tz.gettz(timezone)
-            # Insert time information such that start/end is at midnight
-            if valid_from is not None:
-                valid_from = datetime.combine(
-                    valid_from, time(), tzinfo=tzinfo
-                ).astimezone(dtimezone.utc)
-            if valid_until is not None:
-                valid_until = datetime.combine(
-                    valid_until, time(23, 59, 59), tzinfo=tzinfo
-                ).astimezone(dtimezone.utc)
-
-                if valid_from.date() >= valid_until.date():
-                    raise InvalidTransferAgreementDates()
-
         transfer_agreement = TransferAgreement.create(
             source_organisation=source_organisation_id,
             target_organisation=target_organisation_id,
             type=type,
-            valid_from=valid_from or utcnow(),
+            valid_from=valid_from,
             valid_until=valid_until,
             requested_by=user.id,
             comment=comment,
