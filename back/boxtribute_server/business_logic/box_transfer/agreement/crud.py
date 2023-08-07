@@ -40,10 +40,13 @@ def _validate_bases_as_part_of_organisation(*, base_ids, organisation_id):
         )
 
 
-def _validate_unique_transfer_agreement(*, organisation_ids, base_ids):
+def _validate_unique_transfer_agreement(
+    *, organisation_ids, base_ids, valid_from, valid_until
+):
     """Validate that the agreement with given organisation IDs and base IDs is unique,
     i.e. no other accepted agreement among the same organisations and with the same set
-    of involved bases (or a superset thereof) must exist.
+    of involved bases (or a superset thereof), and with a fully overlapping validity
+    period must exist.
     """
 
     def convert_ids(concat_ids):
@@ -57,6 +60,8 @@ def _validate_unique_transfer_agreement(*, organisation_ids, base_ids):
             TransferAgreement.id,
             TransferAgreement.source_organisation,
             TransferAgreement.target_organisation,
+            TransferAgreement.valid_from,
+            TransferAgreement.valid_until,
             fn.GROUP_CONCAT(TransferAgreementDetail.source_base)
             .python_value(convert_ids)
             .alias("source_base_ids"),
@@ -69,15 +74,32 @@ def _validate_unique_transfer_agreement(*, organisation_ids, base_ids):
             TransferAgreement.source_organisation << organisation_ids,
             TransferAgreement.target_organisation << organisation_ids,
             TransferAgreement.state == TransferAgreementState.Accepted,
+            TransferAgreement.valid_from < valid_from,
         )
         .group_by(TransferAgreement.id)
         .namedtuples()
     )
 
     for am in agreements:
-        if organisation_ids.issubset(
-            {am.source_organisation, am.target_organisation}
-        ) and base_ids.issubset(am.source_base_ids.union(am.target_base_ids)):
+        if (
+            organisation_ids.issubset({am.source_organisation, am.target_organisation})
+            and base_ids.issubset(am.source_base_ids.union(am.target_base_ids))
+            and (
+                valid_from > am.valid_from
+                # Logic table for the following conditional
+                # valid_until | am.valid_until | duplicate (if valid_from is newer, too)
+                # ------------|----------------|----------
+                # 2022-01-20  | None           | yes
+                # None        | None           | yes
+                # None        | 2022-03-31     | no
+                # 2022-01-20  | 2022-03-31     | yes
+                # 2022-01-20  | 2022-01-01     | no
+                and (
+                    am.valid_until is None
+                    or (valid_until <= am.valid_until if valid_until else True)
+                )
+            )
+        ):
             raise DuplicateTransferAgreement(agreement_id=am.id)
 
 
@@ -123,6 +145,8 @@ def create_transfer_agreement(
     _validate_unique_transfer_agreement(
         organisation_ids={initiating_organisation_id, partner_organisation_id},
         base_ids=initiating_organisation_base_ids.union(partner_organisation_base_ids),
+        valid_from=valid_from or datetime.utcnow(),
+        valid_until=valid_until,
     )
 
     if type == TransferAgreementType.ReceivingFrom:
