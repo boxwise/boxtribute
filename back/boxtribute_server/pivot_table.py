@@ -20,14 +20,12 @@ delimiter and double-quote as quote char.
 
 import argparse
 import getpass
-import json
 import logging
 import pprint
-from datetime import date, datetime
+from datetime import date
 
-import pandas as pd
 from boxtribute_server.db import create_db_interface, db
-from peewee import fn
+from peewee import SQL, fn
 
 LOGGER = logging.getLogger(__name__)
 LOGGER.addHandler(logging.StreamHandler())
@@ -66,49 +64,20 @@ def run():
     created_on = db.database.truncate_date("day", Beneficiary.created_on)
     age = fn.FLOOR((date.today().year - Beneficiary.date_of_birth.year) / bin_width)
 
-    beneficiaries = list(
+    demographics = (
         Beneficiary.select(
-            Beneficiary.id,
             gender.alias("gender"),
             created_on.alias("created_on"),
             age.alias("age"),
             fn.COUNT(Beneficiary.id).alias("count"),
         )
         .where(Beneficiary.deleted.is_null())  # add base IDs
-        .group_by(gender, age, created_on)
-        .dicts()
+        .group_by(SQL("gender"), SQL("age"), SQL("created_on"))
     )
 
-    LOGGER.debug(pprint.pformat(beneficiaries[:3]))
-    LOGGER.debug(len(beneficiaries))
-
-    class DateTimeEncoder(json.JSONEncoder):
-        def default(self, obj):
-            if isinstance(obj, datetime):
-                return obj.date().isoformat()
-            elif isinstance(obj, date):
-                return obj.isoformat()
-            return super().default(obj)
-
-    with open("simple.json", "w") as f:
-        json.dump(beneficiaries, f, cls=DateTimeEncoder)
-    return
-
-    dataframe = pd.DataFrame.from_records(beneficiaries)
-    LOGGER.debug(dataframe.to_string(max_rows=10))
-    pivot_table = pd.pivot_table(
-        dataframe,
-        values="id",
-        index=["gender", "created_on", "age"],
-        aggfunc="count",
-        fill_value=0,
-    ).rename(columns={"id": "count"})
-    LOGGER.debug(pivot_table.to_string())
-    data_points = pd.DataFrame(pivot_table.to_records()).astype(
-        {"created_on": "str"}
-    ).to_dict("records")
-    LOGGER.debug(pprint.pformat(data_points[:6]))
-    LOGGER.debug(len(data_points))
+    demographics = demographics.dicts()
+    LOGGER.debug(pprint.pformat(demographics[:3]))
+    LOGGER.debug(len(demographics))
 
 
 def main(args=None):
