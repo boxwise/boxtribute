@@ -1,7 +1,6 @@
 from ariadne import ObjectType
 
 from .crud import (
-    compute_beneficiary_demographics,
     compute_moved_stock_overview,
     compute_number_of_beneficiaries_served,
     compute_number_of_families_served,
@@ -45,8 +44,3 @@ def resolve_metrics_moved_stock_overview(metrics_obj, _, after=None, before=None
     return compute_moved_stock_overview(
         organisation_id=metrics_obj["organisation_id"], after=after, before=before
     )
-
-
-@metrics.field("beneficiaryDemographics")
-def resolve_metrics_beneficiary_demographics(metrics_obj, _, base_ids):
-    return compute_beneficiary_demographics(base_ids)

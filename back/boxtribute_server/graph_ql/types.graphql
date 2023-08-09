@@ -665,18 +665,10 @@ type Metrics {
   See `numberOfFamiliesServed` about using the `after` and `before` parameters.
   """
   movedStockOverview(after: Date, before: Date): [StockOverview]
-  beneficiaryDemographics(baseIds: [Int!]!): [BeneficiaryDemographicsResult]
 }
 
 type StockOverview {
   productCategoryName: String
   numberOfBoxes: Int
   numberOfItems: Int
-}
-
-type BeneficiaryDemographicsResult {
-  age: Int
-  gender: HumanGender
-  createdOn: Date
-  count: Int
 }
