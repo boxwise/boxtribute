@@ -6,3 +6,8 @@ def test_query_beneficiary_demographics(read_only_client):
         gender age createdOn count } }"""
     response = assert_successful_request(read_only_client, query, endpoint="public")
     assert len(response) == 2
+
+    query = """query { beneficiaryDemographics {
+        gender age createdOn count } }"""
+    response = assert_successful_request(read_only_client, query, endpoint="public")
+    assert len(response) == 3

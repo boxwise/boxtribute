@@ -6,5 +6,5 @@ query = QueryType()
 
 
 @query.field("beneficiaryDemographics")
-def resolve_beneficiary_demographics(*_, base_ids):
+def resolve_beneficiary_demographics(*_, base_ids=None):
     return compute_beneficiary_demographics(base_ids)

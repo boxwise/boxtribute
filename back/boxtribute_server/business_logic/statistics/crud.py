@@ -7,11 +7,15 @@ from ...enums import HumanGender
 from ...models.definitions.beneficiary import Beneficiary
 
 
-def compute_beneficiary_demographics(base_ids):
+def compute_beneficiary_demographics(base_ids=None):
     bin_width = 5
     gender = fn.IF(Beneficiary.gender == "", "D", Beneficiary.gender)
     created_on = db.database.truncate_date("day", Beneficiary.created_on)
     age = fn.FLOOR((date.today().year - Beneficiary.date_of_birth.year) / bin_width)
+
+    conditions = [Beneficiary.deleted.is_null()]
+    if base_ids is not None:
+        conditions.append(Beneficiary.base << base_ids)
 
     demographics = (
         Beneficiary.select(
@@ -20,7 +24,7 @@ def compute_beneficiary_demographics(base_ids):
             age.alias("age"),
             fn.COUNT(Beneficiary.id).alias("count"),
         )
-        .where(Beneficiary.deleted.is_null(), Beneficiary.base << base_ids)
+        .where(*conditions)
         .group_by(SQL("gender"), SQL("age"), SQL("created_on"))
         .dicts()
     )

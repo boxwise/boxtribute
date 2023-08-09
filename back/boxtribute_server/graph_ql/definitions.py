@@ -18,7 +18,7 @@ query_api_definitions = "\n".join(
 # )
 public_api_definitions = """
 type Query {
-  beneficiaryDemographics(baseIds: [Int!]!): [BeneficiaryDemographicsResult]
+  beneficiaryDemographics(baseIds: [Int!]): [BeneficiaryDemographicsResult]
 }
 
 type BeneficiaryDemographicsResult {
