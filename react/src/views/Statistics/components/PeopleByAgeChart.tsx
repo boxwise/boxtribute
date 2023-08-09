@@ -1,4 +1,4 @@
-import BarChartCenterAxis, { IBarChartCenterAxis } from "components/graphs/BarChartCenterAxis";
+import BarChartCenterAxis from "components/graphs/BarChartCenterAxis";
 import { random, uniq } from "lodash";
 import { HumanGender } from "types/generated/graphql";
 

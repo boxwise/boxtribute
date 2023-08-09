@@ -2,10 +2,9 @@ import { useTooltip, defaultStyles, Tooltip } from "@visx/tooltip";
 import { AxisBottom, AxisLeft } from "@visx/axis";
 import { Grid } from "@visx/grid";
 import { Group } from "@visx/group";
-import { scaleLinear, scaleBand } from "@visx/scale";
+import { scaleLinear } from "@visx/scale";
 import { Bar } from "@visx/shape";
 import { localPoint } from "@visx/event";
-import { BiFontFamily } from "react-icons/bi";
 
 type TooltipData = string;
 
@@ -142,7 +141,7 @@ export default function BarChartCenterAxis(chart: IBarChartCenterAxis) {
             />
           </Group>
           <Group>
-            {fields.dataXl.map((element, index) => {
+            {fields.dataXl.map((element) => {
               const barWidth = halfWidth - scaleXLeft(element.x);
               const x = scaleXLeft(minX) - barWidth;
               const y = scaleY(element.y);
@@ -172,7 +171,7 @@ export default function BarChartCenterAxis(chart: IBarChartCenterAxis) {
               );
             })}
 
-            {fields.dataXr.map((element, index) => {
+            {fields.dataXr.map((element) => {
               const barWidth = halfWidth - scaleXLeft(element.x);
               const x = scaleXRight(minX);
               const y = scaleY(element.y);
