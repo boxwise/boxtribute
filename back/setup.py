@@ -18,7 +18,6 @@ setup(
     entry_points={
         "console_scripts": [
             "bwiz = boxtribute_server.setup_wizard:main",
-            "pivot = boxtribute_server.pivot_table:main",
         ],
     },
 )
