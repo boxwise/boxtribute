@@ -75,6 +75,19 @@ def run():
         .group_by(SQL("gender"), SQL("age"), SQL("created_on"))
     )
 
+    query, raw_parameters = demographics.sql()
+    # db.database.execute_sql("DROP VIEW demographics")
+    db.database.execute_sql(f"CREATE VIEW demographics AS {query}", raw_parameters)
+    print(db.database.get_views())
+
+    class Demographics(Beneficiary):
+        class Meta:
+            db_table = "demographics"
+
+    demographics = Demographics.select(
+        SQL("age"), SQL("gender"), SQL("created_on"), SQL("count")
+    )
+
     demographics = demographics.dicts()
     LOGGER.debug(pprint.pformat(demographics[:3]))
     LOGGER.debug(len(demographics))
