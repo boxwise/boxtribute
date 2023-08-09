@@ -20,9 +20,10 @@ delimiter and double-quote as quote char.
 
 import argparse
 import getpass
+import json
 import logging
 import pprint
-from datetime import date
+from datetime import date, datetime
 
 import pandas as pd
 from boxtribute_server.db import create_db_interface, db
@@ -71,12 +72,27 @@ def run():
             gender.alias("gender"),
             created_on.alias("created_on"),
             age.alias("age"),
+            fn.COUNT(Beneficiary.id).alias("count"),
         )
         .where(Beneficiary.deleted.is_null())  # add base IDs
+        .group_by(gender, age, created_on)
         .dicts()
     )
 
     LOGGER.debug(pprint.pformat(beneficiaries[:3]))
+    LOGGER.debug(len(beneficiaries))
+
+    class DateTimeEncoder(json.JSONEncoder):
+        def default(self, obj):
+            if isinstance(obj, datetime):
+                return obj.date().isoformat()
+            elif isinstance(obj, date):
+                return obj.isoformat()
+            return super().default(obj)
+
+    with open("simple.json", "w") as f:
+        json.dump(beneficiaries, f, cls=DateTimeEncoder)
+    return
 
     dataframe = pd.DataFrame.from_records(beneficiaries)
     LOGGER.debug(dataframe.to_string(max_rows=10))
