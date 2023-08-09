@@ -8,6 +8,11 @@ from ...models.definitions.beneficiary import Beneficiary
 
 
 def compute_beneficiary_demographics(base_ids=None):
+    """For each combination of age, gender, and day-truncated date count the number of
+    beneficiaries in the bases with specified IDs (default: all bases) and return
+    results as list.
+    The 'age' dimensions actually represents a range of ages (e.g. 0-5, 5-10, etc.)
+    """
     bin_width = 5
     gender = fn.IF(Beneficiary.gender == "", "D", Beneficiary.gender)
     created_on = db.database.truncate_date("day", Beneficiary.created_on)
