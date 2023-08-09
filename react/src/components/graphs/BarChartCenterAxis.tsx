@@ -5,6 +5,7 @@ import { Group } from "@visx/group";
 import { scaleLinear, scaleBand } from "@visx/scale";
 import { Bar } from "@visx/shape";
 import { localPoint } from "@visx/event";
+import { BiFontFamily } from "react-icons/bi";
 
 type TooltipData = string;
 
@@ -52,6 +53,11 @@ const marginTop = 20;
 const marginLeft = 40;
 const marginRight = 40;
 const marginBottom = 40;
+
+const labelProps = {
+  fontFamily: "Open Sans",
+  fontSize: 12,
+};
 
 export default function BarChartCenterAxis(chart: IBarChartCenterAxis) {
   const fields = { ...chart.fields };
@@ -122,7 +128,7 @@ export default function BarChartCenterAxis(chart: IBarChartCenterAxis) {
 
   return (
     <>
-      <svg width={fields.width} height={fields.height}>
+      <svg width={fields.width} height={fields.height} style={{ fontFamily: "Open Sans" }}>
         <rect fill={fields.background} width={fields.width} height={fields.height} />
         <Group top={marginTop} left={marginLeft}>
           <Group>
@@ -198,8 +204,18 @@ export default function BarChartCenterAxis(chart: IBarChartCenterAxis) {
             })}
           </Group>
           <Group top={chartHight}>
-            <AxisBottom scale={scaleXLeft} hideZero={settings.hideZeroX} label={fields.labelXl} />
-            <AxisBottom scale={scaleXRight} hideZero={settings.hideZeroX} label={fields.labelXr} />
+            <AxisBottom
+              labelProps={labelProps}
+              scale={scaleXLeft}
+              hideZero={settings.hideZeroX}
+              label={fields.labelXl}
+            />
+            <AxisBottom
+              labelProps={labelProps}
+              scale={scaleXRight}
+              hideZero={settings.hideZeroX}
+              label={fields.labelXr}
+            />
           </Group>
           <Group>
             <AxisLeft
@@ -207,6 +223,7 @@ export default function BarChartCenterAxis(chart: IBarChartCenterAxis) {
               hideZero={settings.hideZeroY}
               labelOffset={25}
               label={fields.labelY}
+              labelProps={labelProps}
             />
           </Group>
         </Group>
