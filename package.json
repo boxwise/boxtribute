@@ -1,0 +1,5 @@
+{
+  "dependencies": {
+    "@visx/grid": "^3.3.0"
+  }
+}
