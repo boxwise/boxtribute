@@ -1,8 +1,23 @@
+import { useTooltip, defaultStyles, Tooltip } from "@visx/tooltip";
 import { AxisBottom, AxisLeft } from "@visx/axis";
 import { Grid } from "@visx/grid";
 import { Group } from "@visx/group";
 import { scaleLinear, scaleBand } from "@visx/scale";
 import { Bar } from "@visx/shape";
+import { localPoint } from "@visx/event";
+import { Tooltip as ChakraTooltip, ScaleFade } from "@chakra-ui/react";
+
+type TooltipData = string;
+
+const tooltipStyles = {
+  ...defaultStyles,
+  backgroundColor: "#000000",
+  color: "white",
+  width: 152,
+  height: 32,
+  padding: 6,
+  fontSize: 12,
+};
 
 export interface IXY {
   x: number;
@@ -22,8 +37,17 @@ export interface IBarChartCenterAxis {
     background: string;
     colorBarLeft: string;
     colorBarRight: string;
+    settings?: {
+      hideZeroY?: boolean;
+      hideZeroX?: boolean;
+    };
   };
 }
+
+const defaultSettings = {
+  hideZeroY: false,
+  hideZeroX: false,
+};
 
 const marginTop = 20;
 const marginLeft = 40;
@@ -33,12 +57,37 @@ const marginBottom = 40;
 export default function BarChartCenterAxis(chart: IBarChartCenterAxis) {
   const fields = { ...chart.fields };
 
+  const {
+    showTooltip,
+    hideTooltip,
+    tooltipOpen,
+    tooltipData,
+    tooltipLeft = 0,
+    tooltipTop = 0,
+  } = useTooltip<TooltipData>({
+    // initial tooltip state
+    tooltipOpen: false,
+    tooltipLeft: fields.width / 3,
+    tooltipTop: fields.height / 3,
+    tooltipData: "",
+  });
+
+  let tooltipTimeout: number;
+
+  if (!fields.settings) {
+    fields.settings = {};
+  }
+  const settings = {
+    ...defaultSettings,
+    ...fields.settings,
+  };
+
   const chartWidth = fields.width - (marginLeft + marginRight);
   const chartHight = fields.height - (marginTop + marginBottom);
 
   const halfWidth = chartWidth / 2;
 
-  const minX = 0; // Math.min(...fields.dataXr.map((e) => e.x), ...fields.dataXl.map((e) => e.x))
+  const minX = 0;
   const maxX = Math.max(...fields.dataXr.map((e) => e.x), ...fields.dataXl.map((e) => e.x)) * 1.05;
 
   const minY = Math.min(...fields.dataY) - 1;
@@ -78,13 +127,6 @@ export default function BarChartCenterAxis(chart: IBarChartCenterAxis) {
       <svg width={fields.width} height={fields.height}>
         <rect fill={fields.background} width={fields.width} height={fields.height} />
         <Group top={marginTop} left={marginLeft}>
-          <Group top={chartHight}>
-            <AxisBottom scale={scaleXLeft} />
-            <AxisBottom scale={scaleXRight} />
-          </Group>
-          <Group>
-            <AxisLeft scale={scaleY} />
-          </Group>
           <Group>
             <Grid width={chartWidth / 2} height={chartHight} xScale={scaleXLeft} yScale={scaleY} />
             <Grid
@@ -100,6 +142,7 @@ export default function BarChartCenterAxis(chart: IBarChartCenterAxis) {
               const barWidth = halfWidth - scaleXLeft(element.x);
               const x = scaleXLeft(minX) - barWidth;
               const y = scaleY(element.y);
+              const tooltipData = `${fields.labelY} ${element.y}, ${fields.labelXl} ${element.x}`;
 
               return (
                 <Bar
@@ -108,6 +151,18 @@ export default function BarChartCenterAxis(chart: IBarChartCenterAxis) {
                   height={barHight}
                   x={x}
                   y={y - barHight / 2}
+                  onMouseLeave={() => {
+                    tooltipTimeout = window.setTimeout(() => hideTooltip(), 300);
+                  }}
+                  onMouseMove={(event) => {
+                    if (tooltipTimeout) clearTimeout(tooltipTimeout);
+                    const localY = localPoint(event)?.y ?? 0;
+                    showTooltip({
+                      tooltipData,
+                      tooltipTop: localY - fields.height,
+                      tooltipLeft: localPoint(event)?.x,
+                    });
+                  }}
                   fill={fields.colorBarLeft}
                 />
               );
@@ -117,6 +172,7 @@ export default function BarChartCenterAxis(chart: IBarChartCenterAxis) {
               const barWidth = halfWidth - scaleXLeft(element.x);
               const x = scaleXRight(minX);
               const y = scaleY(element.y);
+              const tooltipData = `${fields.labelY} ${element.y}, ${fields.labelXr} ${element.x}`;
 
               return (
                 <Bar
@@ -126,12 +182,44 @@ export default function BarChartCenterAxis(chart: IBarChartCenterAxis) {
                   x={x}
                   y={y - barHight / 2}
                   fill={fields.colorBarRight}
+                  onMouseLeave={() => {
+                    tooltipTimeout = window.setTimeout(() => hideTooltip(), 300);
+                  }}
+                  onMouseMove={(event) => {
+                    if (tooltipTimeout) clearTimeout(tooltipTimeout);
+                    const localY = localPoint(event)?.y ?? 0;
+
+                    showTooltip({
+                      tooltipData,
+                      tooltipTop: localY - fields.height,
+                      tooltipLeft: localPoint(event)?.x,
+                    });
+                  }}
                 />
               );
             })}
           </Group>
+          <Group top={chartHight}>
+            <AxisBottom scale={scaleXLeft} hideZero={settings.hideZeroX} label={fields.labelXl} />
+            <AxisBottom scale={scaleXRight} hideZero={settings.hideZeroX} label={fields.labelXr} />
+          </Group>
+          <Group>
+            <AxisLeft
+              scale={scaleY}
+              hideZero={settings.hideZeroY}
+              labelOffset={25}
+              label={fields.labelY}
+            />
+          </Group>
         </Group>
       </svg>
+      <div style={{ position: "relative" }}>
+        {tooltipOpen && tooltipData && (
+          <Tooltip key={Math.random()} left={tooltipLeft} top={tooltipTop} style={tooltipStyles}>
+            <span>{tooltipData}</span>
+          </Tooltip>
+        )}
+      </div>
     </>
   );
 }
