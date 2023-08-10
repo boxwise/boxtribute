@@ -13,8 +13,25 @@ def test_query_beneficiary_demographics(read_only_client):
     assert len(response) == 3
 
 
-def test_query_created_boxes(read_only_client):
+def test_query_created_boxes(read_only_client, products, product_categories):
     query = """query { createdBoxes {
-        createdOn categoryId productId gender boxesCount itemsCount } }"""
-    response = assert_successful_request(read_only_client, query, endpoint="public")
-    assert len(response) == 2
+        facts {
+            createdOn categoryId productId gender boxesCount itemsCount
+        }
+        dimensions {
+            product { id name }
+            category { id name }
+    } } }"""
+    data = assert_successful_request(read_only_client, query, endpoint="public")
+    facts = data.pop("facts")
+    assert len(facts) == 2
+    assert facts[0]["boxesCount"] == 2
+    assert data == {
+        "dimensions": {
+            "product": [{"id": str(p["id"]), "name": p["name"]} for p in products[:2]],
+            "category": [
+                {"id": str(c["id"]), "name": c["name"]}
+                for c in sorted(product_categories, key=lambda c: c["id"])
+            ],
+        }
+    }

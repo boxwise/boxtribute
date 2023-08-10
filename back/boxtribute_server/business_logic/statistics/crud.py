@@ -77,4 +77,16 @@ def compute_created_boxes():
         row["gender"] = ProductGender(row["gender"])
         row["created_on"] = row["created_on"].date()
 
-    return facts
+    products_ids = {f["product_id"] for f in facts}
+    dimensions = {
+        "product": list(
+            Product.select(Product.id, Product.name)
+            .where(Product.id << products_ids)
+            .dicts()
+        ),
+        "category": list(
+            ProductCategory.select(ProductCategory.id, ProductCategory.name).dicts()
+        ),
+    }
+
+    return {"facts": facts, "dimensions": dimensions}
