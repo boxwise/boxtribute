@@ -145,7 +145,7 @@ export default function BarChartCenterAxis(chart: IBarChartCenterAxis) {
               const barWidth = halfWidth - scaleXLeft(element.x);
               const x = scaleXLeft(minX) - barWidth;
               const y = scaleY(element.y);
-              const tooltipData = `${fields.labelY} ${element.y}, ${fields.labelXl} ${element.x}`;
+              const tooltipDataLeft = `${fields.labelY} ${element.y}, ${fields.labelXl} ${element.x}`;
 
               return (
                 <Bar
@@ -161,7 +161,7 @@ export default function BarChartCenterAxis(chart: IBarChartCenterAxis) {
                     if (tooltipTimeout) clearTimeout(tooltipTimeout);
                     const localY = localPoint(event)?.y ?? 0;
                     showTooltip({
-                      tooltipData,
+                      tooltipData: tooltipDataLeft,
                       tooltipTop: localY - fields.height,
                       tooltipLeft: localPoint(event)?.x,
                     });
@@ -175,7 +175,7 @@ export default function BarChartCenterAxis(chart: IBarChartCenterAxis) {
               const barWidth = halfWidth - scaleXLeft(element.x);
               const x = scaleXRight(minX);
               const y = scaleY(element.y);
-              const tooltipData = `${fields.labelY} ${element.y}, ${fields.labelXr} ${element.x}`;
+              const tooltipDataRight = `${fields.labelY} ${element.y}, ${fields.labelXr} ${element.x}`;
 
               return (
                 <Bar
@@ -193,7 +193,7 @@ export default function BarChartCenterAxis(chart: IBarChartCenterAxis) {
                     const localY = localPoint(event)?.y ?? 0;
 
                     showTooltip({
-                      tooltipData,
+                      tooltipData: tooltipDataRight,
                       tooltipTop: localY - fields.height,
                       tooltipLeft: localPoint(event)?.x,
                     });
