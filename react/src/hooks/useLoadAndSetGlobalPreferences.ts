@@ -4,7 +4,7 @@ import { gql, useLazyQuery } from "@apollo/client";
 import { useLocation, useNavigate } from "react-router-dom";
 import { GlobalPreferencesContext } from "providers/GlobalPreferencesProvider";
 import { ApolloAuth0WrapperContext } from "providers/ApolloAuth0Provider";
-import { BasesQuery } from "types/generated/graphql";
+import { OrganisationAndBasesQuery } from "types/generated/graphql";
 
 export const useLoadAndSetGlobalPreferences = () => {
   const { user } = useAuth0();
@@ -14,40 +14,42 @@ export const useLoadAndSetGlobalPreferences = () => {
   const { isAccessTokenInHeader } = useContext(ApolloAuth0WrapperContext);
   const [error, setError] = useState<string>();
 
-  // set organisation id
-  useEffect(() => {
-    if (user) {
-      const organisationId = user["https://www.boxtribute.com/organisation_id"];
-      dispatch({
-        type: "setOrganisationId",
-        payload: organisationId,
-      });
-    }
-  }, [dispatch, user]);
-
   // load available bases
-  const BASES_QUERY = gql`
-    query Bases {
+  const ORGANISATION_AND_BASES_QUERY = gql`
+    query OrganisationAndBases($organisationId: ID!) {
       bases {
+        id
+        name
+      }
+      organisation(id: $organisationId) {
         id
         name
       }
     }
   `;
-  const [runBaseQuery, { loading: isBasesQueryLoading, data }] =
-    useLazyQuery<BasesQuery>(BASES_QUERY);
+  const [runOrganisationAndBasesQuery, { loading: isOrganisationAndBasesQueryLoading, data }] =
+    useLazyQuery<OrganisationAndBasesQuery>(ORGANISATION_AND_BASES_QUERY);
 
   useEffect(() => {
     // run query only if the access token is in the request header from the apollo client
-    if (isAccessTokenInHeader) {
-      runBaseQuery();
+    if (isAccessTokenInHeader && user) {
+      runOrganisationAndBasesQuery({
+        variables: { organisationId: user["https://www.boxtribute.com/organisation_id"] },
+      });
     }
-  }, [runBaseQuery, globalPreferences.availableBases, isAccessTokenInHeader]);
+  }, [runOrganisationAndBasesQuery, globalPreferences.availableBases, isAccessTokenInHeader, user]);
 
   // set available bases
   useEffect(() => {
-    if (!isBasesQueryLoading && data != null) {
-      const { bases } = data;
+    if (!isOrganisationAndBasesQueryLoading && data != null) {
+      const { bases, organisation } = data;
+      if (organisation) {
+        dispatch({
+          type: "setOrganisation",
+          payload: organisation,
+        });
+      }
+
       if (bases.length > 0) {
         dispatch({
           type: "setAvailableBases",
@@ -58,11 +60,12 @@ export const useLoadAndSetGlobalPreferences = () => {
         const baseId = location.pathname.match(/\/bases\/(\d+)(\/)?/);
         // validate if requested base is in the array of available bases
         if (baseId != null) {
-          if (bases.some((base) => base.id === baseId[1])) {
+          const matchingBase = bases.find((base) => base.id === baseId[1]);
+          if (matchingBase) {
             // set selected base
             dispatch({
-              type: "setSelectedBaseId",
-              payload: baseId[1],
+              type: "setSelectedBase",
+              payload: matchingBase,
             });
           } else {
             // this error is set if the requested base is not part of the available bases
@@ -71,7 +74,7 @@ export const useLoadAndSetGlobalPreferences = () => {
         } else {
           // handle the case if the url does not start with "/bases/<number>"
           // prepend /bases/<newBaseId>
-          const newBaseId = globalPreferences?.selectedBaseId ?? bases[0].id;
+          const newBaseId = globalPreferences?.selectedBase?.id ?? bases[0].id;
           navigate(`/bases/${newBaseId}${location.pathname}`);
         }
       } else {
@@ -81,14 +84,14 @@ export const useLoadAndSetGlobalPreferences = () => {
     }
   }, [
     data,
-    isBasesQueryLoading,
+    isOrganisationAndBasesQueryLoading,
     dispatch,
     location.pathname,
-    globalPreferences?.selectedBaseId,
+    globalPreferences?.selectedBase?.id,
     navigate,
   ]);
 
-  const isLoading = !globalPreferences.availableBases || !globalPreferences.selectedBaseId;
+  const isLoading = !globalPreferences.availableBases || !globalPreferences.selectedBase?.id;
 
   return { isLoading, error };
 };

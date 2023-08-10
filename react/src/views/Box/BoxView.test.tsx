@@ -339,7 +339,7 @@ it("3.1.1 - Initial load of Page", async () => {
     globalPreferences: {
       dispatch: jest.fn(),
       globalPreferences: {
-        selectedOrganisationId: organisation1.id,
+        organisation: { id: organisation1.id, name: organisation1.name },
         availableBases: organisation1.bases,
       },
     },
@@ -387,7 +387,7 @@ it("3.1.1.7 - Content: Display an warning note if a box is located in a legacy l
     globalPreferences: {
       dispatch: jest.fn(),
       globalPreferences: {
-        selectedOrganisationId: organisation1.id,
+        organisation: { id: organisation1.id, name: organisation1.name },
         availableBases: organisation1.bases,
       },
     },
@@ -418,7 +418,7 @@ it("3.1.2 - Change Number of Items", async () => {
     globalPreferences: {
       dispatch: jest.fn(),
       globalPreferences: {
-        selectedOrganisationId: organisation1.id,
+        organisation: { id: organisation1.id, name: organisation1.name },
         availableBases: organisation1.bases,
       },
     },
@@ -486,7 +486,7 @@ it("3.1.3.1 - Change State to Scrap", async () => {
     globalPreferences: {
       dispatch: jest.fn(),
       globalPreferences: {
-        selectedOrganisationId: organisation1.id,
+        organisation: { id: organisation1.id, name: organisation1.name },
         availableBases: organisation1.bases,
       },
     },
@@ -518,7 +518,7 @@ it("3.1.3.2 - Change State to Lost", async () => {
     globalPreferences: {
       dispatch: jest.fn(),
       globalPreferences: {
-        selectedOrganisationId: organisation1.id,
+        organisation: { id: organisation1.id, name: organisation1.name },
         availableBases: organisation1.bases,
       },
     },
@@ -555,7 +555,7 @@ it("3.1.4 - Move location", async () => {
     globalPreferences: {
       dispatch: jest.fn(),
       globalPreferences: {
-        selectedOrganisationId: organisation1.id,
+        organisation: { id: organisation1.id, name: organisation1.name },
         availableBases: organisation1.bases,
       },
     },
@@ -602,7 +602,7 @@ it("3.1.5 - Redirect to Edit Box", async () => {
     globalPreferences: {
       dispatch: jest.fn(),
       globalPreferences: {
-        selectedOrganisationId: organisation1.id,
+        organisation: { id: organisation1.id, name: organisation1.name },
         availableBases: organisation1.bases,
       },
     },
@@ -648,7 +648,7 @@ it("3.1.7 - Error Shows Correctly When Trying to Remove (-) Items", async () => 
     globalPreferences: {
       dispatch: jest.fn(),
       globalPreferences: {
-        selectedOrganisationId: organisation1.id,
+        organisation: { id: organisation1.id, name: organisation1.name },
         availableBases: organisation1.bases,
       },
     },
@@ -685,7 +685,7 @@ it("3.1.7.2 - Form data was valid, but the mutation failed", async () => {
     globalPreferences: {
       dispatch: jest.fn(),
       globalPreferences: {
-        selectedOrganisationId: organisation1.id,
+        organisation: { id: organisation1.id, name: organisation1.name },
         availableBases: organisation1.bases,
       },
     },
@@ -720,7 +720,7 @@ it("3.1.8 - Error When Move Locations", async () => {
     globalPreferences: {
       dispatch: jest.fn(),
       globalPreferences: {
-        selectedOrganisationId: organisation1.id,
+        organisation: { id: organisation1.id, name: organisation1.name },
         availableBases: organisation1.bases,
       },
     },
@@ -756,7 +756,7 @@ it("3.1.9 - Given Invalid Box Label Identifier in the URL/Link", async () => {
     globalPreferences: {
       dispatch: jest.fn(),
       globalPreferences: {
-        selectedOrganisationId: organisation1.id,
+        organisation: { id: organisation1.id, name: organisation1.name },
         availableBases: organisation1.bases,
       },
     },
@@ -796,7 +796,7 @@ it("3.1.10 - No Data or Null Data Fetched for a given Box Label Identifier", asy
       globalPreferences: {
         dispatch: jest.fn(),
         globalPreferences: {
-          selectedOrganisationId: organisation1.id,
+          organisation: { id: organisation1.id, name: organisation1.name },
           availableBases: organisation1.bases,
         },
       },
@@ -819,7 +819,7 @@ it("4.6.1.3 - Box is InStock and query for shipments returns no shipments in pre
     globalPreferences: {
       dispatch: jest.fn(),
       globalPreferences: {
-        selectedOrganisationId: organisation1.id,
+        organisation: { id: organisation1.id, name: organisation1.name },
         availableBases: organisation1.bases,
       },
     },

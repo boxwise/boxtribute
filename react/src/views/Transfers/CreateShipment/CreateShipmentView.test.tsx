@@ -104,9 +104,9 @@ it("4.3.1 - Initial load of Page", async () => {
     globalPreferences: {
       dispatch: jest.fn(),
       globalPreferences: {
-        selectedOrganisationId: organisation1.id,
+        organisation: { id: organisation1.id, name: organisation1.name },
         availableBases: organisation1.bases,
-        selectedBaseId: base1.id,
+        selectedBase: { id: base1.id, name: base1.name },
       },
     },
   });
@@ -124,6 +124,9 @@ it("4.3.1 - Initial load of Page", async () => {
   // Test case 4.3.1.3 - Content: Displays Partner Bases Select Options When Partner Organisation Selected
   await assertOptionsInSelectField(user, /base/i, [/samos/i, /thessaloniki/i, /athens/i], title);
   await selectOptionInSelectField(user, /base/i, "Samos");
+
+  // Breadcrumbs are there
+  expect(screen.getByRole("link", { name: /back to manage shipments/i })).toBeInTheDocument();
 });
 
 // Test case 4.3.2
@@ -137,9 +140,9 @@ it("4.3.2 - Input Validations", async () => {
     globalPreferences: {
       dispatch: jest.fn(),
       globalPreferences: {
-        selectedOrganisationId: organisation1.id,
+        organisation: { id: organisation1.id, name: organisation1.name },
         availableBases: organisation1.bases,
-        selectedBaseId: base1.id,
+        selectedBase: { id: base1.id, name: base1.name },
       },
     },
   });
@@ -169,9 +172,9 @@ it("4.3.3 (4.3.3.1 and 4.3.3.2) - Click on Submit Button", async () => {
     globalPreferences: {
       dispatch: jest.fn(),
       globalPreferences: {
-        selectedOrganisationId: organisation1.id,
+        organisation: { id: organisation1.id, name: organisation1.name },
         availableBases: organisation1.bases,
-        selectedBaseId: base1.id,
+        selectedBase: { id: base1.id, name: base1.name },
       },
     },
   });
@@ -213,9 +216,9 @@ it("4.3.3.3 - Form data was valid, but the mutation failed", async () => {
     globalPreferences: {
       dispatch: jest.fn(),
       globalPreferences: {
-        selectedOrganisationId: organisation1.id,
+        organisation: { id: organisation1.id, name: organisation1.name },
         availableBases: organisation1.bases,
-        selectedBaseId: base1.id,
+        selectedBase: { id: base1.id, name: base1.name },
       },
     },
   });
@@ -249,9 +252,9 @@ it("4.3.3.4 - Form data was valid, but the mutation response has errors", async 
     globalPreferences: {
       dispatch: jest.fn(),
       globalPreferences: {
-        selectedOrganisationId: organisation1.id,
+        organisation: { id: organisation1.id, name: organisation1.name },
         availableBases: organisation1.bases,
-        selectedBaseId: base1.id,
+        selectedBase: { id: base1.id, name: base1.name },
       },
     },
   });
@@ -285,9 +288,9 @@ it("4.3.4 - Failed to Fetch Initial Data", async () => {
     globalPreferences: {
       dispatch: jest.fn(),
       globalPreferences: {
-        selectedOrganisationId: organisation1.id,
+        organisation: { id: organisation1.id, name: organisation1.name },
         availableBases: organisation1.bases,
-        selectedBaseId: base1.id,
+        selectedBase: { id: base1.id, name: base1.name },
       },
     },
   });

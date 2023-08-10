@@ -105,7 +105,7 @@ function BoxEdit({
   onSubmitBoxEditForm,
 }: IBoxEditProps) {
   const { globalPreferences } = useContext(GlobalPreferencesContext);
-  const baseId = globalPreferences.selectedBaseId;
+  const baseId = globalPreferences.selectedBase?.id;
   const { labelIdentifier } = useParams<{
     labelIdentifier: string;
   }>();

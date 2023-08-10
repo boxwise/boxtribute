@@ -10,6 +10,7 @@ import { AddIcon } from "@chakra-ui/icons";
 import { TableSkeleton } from "components/Skeletons";
 import { FilteringSortingTable } from "components/Table/Table";
 import { SelectColumnFilter } from "components/Table/Filter";
+import { BreadcrumbNavigation } from "components/BreadcrumbNavigation";
 import { BaseOrgCell, BoxesCell, DirectionCell, StateCell } from "./components/TableCells";
 
 function ShipmentsOverviewView() {
@@ -169,6 +170,12 @@ function ShipmentsOverviewView() {
 
   return (
     <>
+      <BreadcrumbNavigation
+        items={[
+          { label: "Aid Transfers", linkPath: "/transfers/agreements" },
+          { label: "Manage Shipments" },
+        ]}
+      />
       <Heading fontWeight="bold" mb={4} as="h2">
         Manage Shipments
       </Heading>

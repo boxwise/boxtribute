@@ -93,7 +93,7 @@ function BoxEditView() {
   // variables in URL
   const labelIdentifier = useParams<{ labelIdentifier: string }>().labelIdentifier!;
   const { globalPreferences } = useContext(GlobalPreferencesContext);
-  const baseId = globalPreferences.selectedBaseId!;
+  const baseId = globalPreferences.selectedBase?.id!;
 
   // Query Data for the Form
   const allBoxAndFormData = useQuery<

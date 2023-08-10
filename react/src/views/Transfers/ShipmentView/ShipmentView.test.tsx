@@ -155,7 +155,7 @@ describe("4.5 Test Cases", () => {
       globalPreferences: {
         dispatch: jest.fn(),
         globalPreferences: {
-          selectedOrganisationId: organisation1.id,
+          organisation: { id: organisation1.id, name: organisation1.name },
           availableBases: organisation1.bases,
         },
       },
@@ -181,6 +181,8 @@ describe("4.5 Test Cases", () => {
     expect(screen.getByRole("tab", { name: /content/i, selected: true })).toHaveTextContent(
       "Content",
     );
+    // Breadcrumbs are there
+    expect(screen.getByRole("link", { name: /back to manage shipments/i })).toBeInTheDocument();
   }, 10000);
 
   // Test case 4.5.1.4
@@ -194,7 +196,7 @@ describe("4.5 Test Cases", () => {
       globalPreferences: {
         dispatch: jest.fn(),
         globalPreferences: {
-          selectedOrganisationId: organisation1.id,
+          organisation: { id: organisation1.id, name: organisation1.name },
           availableBases: organisation1.bases,
         },
       },
@@ -222,7 +224,7 @@ describe("4.5 Test Cases", () => {
       globalPreferences: {
         dispatch: jest.fn(),
         globalPreferences: {
-          selectedOrganisationId: organisation1.id,
+          organisation: { id: organisation1.id, name: organisation1.name },
           availableBases: organisation1.bases,
         },
       },
@@ -244,7 +246,7 @@ describe("4.5 Test Cases", () => {
       globalPreferences: {
         dispatch: jest.fn(),
         globalPreferences: {
-          selectedOrganisationId: organisation1.id,
+          organisation: { id: organisation1.id, name: organisation1.name },
           availableBases: organisation1.bases,
         },
       },
@@ -275,7 +277,7 @@ describe("4.5 Test Cases", () => {
       globalPreferences: {
         dispatch: jest.fn(),
         globalPreferences: {
-          selectedOrganisationId: organisation1.id,
+          organisation: { id: organisation1.id, name: organisation1.name },
           availableBases: organisation1.bases,
         },
       },
@@ -302,7 +304,7 @@ it("4.5.5 - Shows total count of the boxes when shipment completed", async () =>
     globalPreferences: {
       dispatch: jest.fn(),
       globalPreferences: {
-        selectedOrganisationId: organisation1.id,
+        organisation: { id: organisation1.id, name: organisation1.name },
         availableBases: organisation1.bases,
       },
     },

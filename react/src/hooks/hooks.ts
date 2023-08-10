@@ -12,7 +12,7 @@ export interface INotificationProps extends UseToastOptions {
 
 export const useGetUrlForResourceHelpers = () => {
   const { globalPreferences } = useContext(GlobalPreferencesContext);
-  const baseId = globalPreferences.selectedBaseId;
+  const baseId = globalPreferences.selectedBase?.id;
   if (baseId == null) {
     throw new Error("Could not extract baseId from URL");
   }
@@ -47,7 +47,7 @@ export const useToggle = (initialValue = false) => {
 
 export const useGlobalSiteState = () => {
   const { globalPreferences } = useContext(GlobalPreferencesContext);
-  const currentBaseId = globalPreferences.selectedBaseId!;
+  const currentBaseId = globalPreferences.selectedBase?.id!;
   const navigate = useNavigate();
 
   return {

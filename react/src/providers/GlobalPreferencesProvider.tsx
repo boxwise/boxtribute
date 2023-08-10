@@ -1,63 +1,63 @@
 import React, { Context, createContext, useReducer } from "react";
 
-export interface BaseIdAndNameTuple {
+export interface IIdAndNameTuple {
   id: string;
   name: string;
 }
 
-export interface GlobalPreferences {
-  selectedBaseId?: string;
-  availableBases?: BaseIdAndNameTuple[];
-  selectedOrganisationId?: string;
+export interface IGlobalPreferences {
+  selectedBase?: IIdAndNameTuple;
+  availableBases?: IIdAndNameTuple[];
+  organisation?: IIdAndNameTuple;
 }
 
 export interface IGlobalPreferencesContext {
-  globalPreferences: GlobalPreferences;
-  dispatch: React.Dispatch<SetGlobalPreferencesAction>;
+  globalPreferences: IGlobalPreferences;
+  dispatch: React.Dispatch<ISetGlobalPreferencesAction>;
 }
 
 const GlobalPreferencesContext: Context<IGlobalPreferencesContext> = createContext(
   {} as IGlobalPreferencesContext,
 );
 
-export interface SetAvailableBasesAction {
+export interface ISetAvailableBasesAction {
   type: "setAvailableBases";
-  payload: BaseIdAndNameTuple[];
+  payload: IIdAndNameTuple[];
 }
 
-export interface SetSelectedBaseIdAction {
-  type: "setSelectedBaseId";
-  payload: string;
+export interface ISetSelectedBaseAction {
+  type: "setSelectedBase";
+  payload: IIdAndNameTuple;
 }
 
-export interface SetOrganisationId {
-  type: "setOrganisationId";
-  payload: string;
+export interface ISetOrganisationAction {
+  type: "setOrganisation";
+  payload: IIdAndNameTuple;
 }
 
-export type SetGlobalPreferencesAction =
-  | SetAvailableBasesAction
-  | SetSelectedBaseIdAction
-  | SetOrganisationId;
+export type ISetGlobalPreferencesAction =
+  | ISetAvailableBasesAction
+  | ISetSelectedBaseAction
+  | ISetOrganisationAction;
 
-export const globalPreferencesReduer = (
-  state: GlobalPreferences,
-  action: SetGlobalPreferencesAction,
+export const globalPreferencesReducer = (
+  state: IGlobalPreferences,
+  action: ISetGlobalPreferencesAction,
 ) => {
   switch (action.type) {
     case "setAvailableBases":
       return { ...state, availableBases: action.payload };
-    case "setSelectedBaseId":
-      return { ...state, selectedBaseId: action.payload };
-    case "setOrganisationId":
-      return { ...state, selectedOrganisationId: action.payload };
+    case "setSelectedBase":
+      return { ...state, selectedBase: action.payload };
+    case "setOrganisation":
+      return { ...state, organisation: action.payload };
     default:
       return state;
   }
 };
 
 const GlobalPreferencesProvider = ({ children }) => {
-  const [globalPreferences, dispatch] = useReducer(globalPreferencesReduer, {});
+  const [globalPreferences, dispatch] = useReducer(globalPreferencesReducer, {});
 
   return (
     <GlobalPreferencesContext.Provider value={{ globalPreferences, dispatch }}>

@@ -67,7 +67,7 @@ function CreateShipment({
 }: ICreateShipmentProps) {
   const navigate = useNavigate();
   const { globalPreferences } = useContext(GlobalPreferencesContext);
-  const baseId = globalPreferences.selectedBaseId!;
+  const baseId = globalPreferences.selectedBase?.id!;
 
   // React Hook Form with zod validation
   const {
