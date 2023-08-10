@@ -21,7 +21,10 @@ delimiter and double-quote as quote char.
 import argparse
 import csv
 import getpass
+import json
 import logging
+import time
+from datetime import datetime
 
 from boxtribute_server.db import create_db_interface, db
 
@@ -85,6 +88,10 @@ def _parse_options(args=None):
     clone_products_parser.add_argument(
         "-t", "--target-base-id", type=int, required=True
     )
+
+    convert_parser = subparsers.add_parser("convert")
+    convert_parser.add_argument("-l", "--location-id", type=int, required=True)
+    convert_parser.add_argument("-y", "--oldest-creation-year", type=int)
 
     return vars(parser.parse_args(args=args))
 
@@ -192,6 +199,109 @@ def _clone_products(*, source_base_id, target_base_id):
         )
 
 
+def _reconstruct(box, event):
+    if event.changes == "Box was undeleted.":
+        # The information about when the box was deleted is only available from the
+        # "Record deleted" event. Insert dummy date for now
+        box["deleted"] = "1970-01-01"
+        return True
+
+    if event.changes == "Record deleted":
+        # The box version before the deletion is obviously not deleted
+        box["deleted"] = None
+        return True
+
+    fields = {
+        "box_state_id": "state",
+        "location_id": "location",
+        "product_id": "product",
+        "size_id": "size",
+        "items": "number_of_items",
+    }
+    field = fields.get(event.changes)
+    if field is None:
+        # No relevant change happened
+        return False
+    box[field] = event.from_int
+    return True
+
+
+def _convert(*, location_id, oldest_creation_year=2020):
+    from boxtribute_server.models.definitions.box import Box
+    from boxtribute_server.models.definitions.history import DbChangeHistory
+
+    start = datetime(oldest_creation_year, 1, 1)
+    boxes = Box.select(
+        Box.id,
+        Box.state,
+        Box.created_on,
+        Box.deleted,
+        Box.number_of_items,
+        Box.location,
+        Box.product,
+        Box.size,
+    ).where(
+        Box.created_on > start,
+        Box.location == location_id,
+    )
+    LOGGER.debug(f"Selected {len(boxes)} boxes.")
+
+    # Obtain history entries for selected boxes
+    box_ids = {b.id for b in boxes}
+    history = (
+        DbChangeHistory.select(
+            DbChangeHistory.changes,
+            DbChangeHistory.change_date,
+            DbChangeHistory.from_int,
+            DbChangeHistory.record_id,
+        )
+        .where(
+            DbChangeHistory.table_name == "stock",
+            DbChangeHistory.record_id << box_ids,
+            DbChangeHistory.change_date >= start,
+            ~DbChangeHistory.changes.startswith("comments"),
+        )
+        .order_by(DbChangeHistory.change_date.desc())
+        .namedtuples()
+    )
+    LOGGER.debug(f"Selected {len(history)} history entries.")
+    LOGGER.debug("Starting reconstruction...")
+    start_time = time.perf_counter()
+
+    # Reconstruct box versions grouped by box ID
+    all_boxes_versions = {box.id: [] for box in boxes.namedtuples()}
+    for box in boxes.namedtuples():
+        box_versions = all_boxes_versions[box.id]
+        # Most recent version of box is the data from the box table
+        box_versions.append(box._asdict())
+
+        # Walk back in history
+        for event in history:
+            if event.record_id != box.id:
+                continue
+
+            # For the previous version, copy the current version, and reverse the change
+            # logged in the history table
+            previous_version = box_versions[-1].copy()
+            if not _reconstruct(previous_version, event):
+                continue
+
+            box_versions[-1]["effective_from"] = event.change_date
+            box_versions.append(previous_version)
+
+        box_versions[-1]["effective_from"] = box_versions[-1]["created_on"]
+        box_versions.sort(key=lambda v: v["effective_from"])
+
+    LOGGER.debug(
+        f"""Reconstruction completed after {round(time.perf_counter() -
+    start_time, ndigits=1)}s."""
+    )
+    filename = "box_versions.json"
+    with open(filename, "w") as f:
+        json.dump(all_boxes_versions, f, default=str)
+    LOGGER.debug(f"Exported result to '{filename}'.")
+
+
 def main(args=None):
     options = _parse_options(args=args)
 
@@ -199,7 +309,7 @@ def main(args=None):
     if verbose:  # pragma: no cover
         peewee_logger = logging.getLogger("peewee")
         peewee_logger.setLevel(logging.DEBUG)
-        peewee_logger.parent = LOGGER  # propagate messages to module logger
+        # peewee_logger.parent = LOGGER  # propagate messages to module logger
         LOGGER.setLevel(logging.DEBUG)
 
     db.database = _create_db_interface(
@@ -212,6 +322,8 @@ def main(args=None):
             _import_products(**options)
         elif command == "clone-products":
             _clone_products(**options)
+        elif command == "convert":
+            _convert(**options)
     except Exception as e:
         LOGGER.exception(e) if verbose else LOGGER.error(e)
         raise SystemExit("Exiting due to above error.")
