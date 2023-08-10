@@ -212,7 +212,7 @@ If you persistently want these variables to be set for your environment, export 
 
 You can also run the tests via `docker-compose`:
 
-    docker-compose up --build -d db webapp  # only once
+    docker-compose up --build -d webapp  # only once
     docker-compose exec webapp pytest
 
 ### Test plan
@@ -332,7 +332,7 @@ For the production schema, documentation can be found online at `api.boxtribute.
 You can experiment with the API in the GraphQL playground.
 
 1. Activate the virtual environment
-1. Start the required services by `docker-compose up webapp db`
+1. Start the required services by `docker-compose up webapp`
 1. Open `localhost:5005/graphql` (or `/` for the query-only API; or `/public` for the statistics API, then the next steps can be skipped)
 1. Simulate being a valid, logged-in user by fetching an authorization token: `./fetch_token --test`
 1. Copy the displayed token
