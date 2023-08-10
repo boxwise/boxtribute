@@ -11,5 +11,5 @@ def resolve_beneficiary_demographics(*_, base_ids=None):
 
 
 @query.field("createdBoxes")
-def resolve_created_boxes(*_):
-    return compute_created_boxes()
+def resolve_created_boxes(*_, base_id=None):
+    return compute_created_boxes(base_id)

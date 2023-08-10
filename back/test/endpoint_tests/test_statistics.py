@@ -35,3 +35,7 @@ def test_query_created_boxes(read_only_client, products, product_categories):
             ],
         }
     }
+
+    query = """query { createdBoxes(baseId: 1) { facts { boxesCount } } }"""
+    data = assert_successful_request(read_only_client, query, endpoint="public")
+    assert data == {"facts": [{"boxesCount": 7}]}

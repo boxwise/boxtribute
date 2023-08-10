@@ -7,6 +7,7 @@ from ...enums import HumanGender
 from ...models.definitions.beneficiary import Beneficiary
 from ...models.definitions.box import Box
 from ...models.definitions.history import DbChangeHistory
+from ...models.definitions.location import Location
 from ...models.definitions.product import Product
 from ...models.definitions.product_category import ProductCategory
 
@@ -46,12 +47,13 @@ def compute_beneficiary_demographics(base_ids=None):
     return demographics
 
 
-def compute_created_boxes():
+def compute_created_boxes(base_id=None):
     """For each combination of product ID, category ID, gender, and day-truncated
-    creation date count the number of created boxes, and the contained items.
+    creation date count the number of created boxes, and the contained items, in the
+    base with the specified ID.
     Return fact and dimension tables in the result.
     """
-    facts = (
+    selection = (
         DbChangeHistory.select(
             Product.id.alias("product_id"),
             Product.gender.alias("gender"),
@@ -68,10 +70,18 @@ def compute_created_boxes():
             ),
         )
         .join(Product)
-        .where(
-            DbChangeHistory.table_name == "stock",
-            DbChangeHistory.changes == "Record created",
-        )
+    )
+
+    conditions = [
+        DbChangeHistory.table_name == "stock",
+        DbChangeHistory.changes == "Record created",
+    ]
+    if base_id is not None:
+        selection = selection.join(Location, src=Box)
+        conditions.append(Location.base == base_id)
+
+    facts = (
+        selection.where(*conditions)
         .group_by(
             SQL("product_id"), SQL("category_id"), SQL("gender"), SQL("created_on")
         )

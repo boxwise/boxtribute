@@ -1,6 +1,6 @@
 type Query {
   beneficiaryDemographics(baseIds: [Int!]): [BeneficiaryDemographicsResult]
-  createdBoxes: CreatedBoxesData
+  createdBoxes(baseId: Int): CreatedBoxesData
 }
 
 type BeneficiaryDemographicsResult {
