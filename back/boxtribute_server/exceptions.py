@@ -118,6 +118,14 @@ class InvalidTransferAgreementDates(Exception):
     }
 
 
+class DuplicateTransferAgreement(Exception):
+    def __init__(self, *args, agreement_id, **kwargs):
+        self.extensions = {
+            "code": "BAD_USER_INPUT",
+            "description": f"An identical agreement already exists: ID {agreement_id}",
+        }
+
+
 class InvalidShipmentState(_InvalidResourceState):
     def __init__(self, *args, expected_states, actual_state, **kwargs):
         super().__init__(
