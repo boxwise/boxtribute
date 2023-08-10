@@ -114,7 +114,7 @@ function ShipmentOverlay({
       <VStack align="start" spacing={8}>
         <chakra.span>
           <Text>
-            This will mark the all boxes as undelivered and will mark the shipment as lost.
+            This will mark all the boxes as undelivered and will mark the shipment as lost.
           </Text>
         </chakra.span>
         <chakra.br />
