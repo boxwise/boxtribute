@@ -200,7 +200,7 @@ function BoxEdit({
         if (prepSizesOptionsForCurrentProduct.length === 1) {
           resetField("sizeId", { defaultValue: prepSizesOptionsForCurrentProduct[0] });
         } else {
-          resetField("sizeId", { defaultValue: null });
+          resetField("sizeId", { defaultValue: { value: "", label: "Select Size" } });
         }
       }
     }
