@@ -23,7 +23,6 @@ function ShipmentActionButtons({
   shipmentContents,
   isSender,
   onCancel,
-  onLost,
   onSend,
   onReceive,
   openShipmentOverlay,
