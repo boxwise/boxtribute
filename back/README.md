@@ -319,7 +319,7 @@ The back-end exposes the GraphQL API in two variants.
 1. The auth-protected, 'query-only' API is used by our partners at `/` (for data retrieval; it is deployed on the `api*` subdomains).
 1. The public statistics API is used by our partners at `/public` (for data retrieval; it is deployed on the `api*` subdomains).
 
-Starting the back-end in the first case is achieved via `main.py`, in the latter case via `api_main.py`.
+Starting the back-end in the first case is achieved via `main.py`, in the latter case via `api_main.py`. For development, it is handy to start both with `dev_main.py`.
 
 ### Schema documentation
 
