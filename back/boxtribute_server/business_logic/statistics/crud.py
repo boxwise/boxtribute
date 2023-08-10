@@ -3,7 +3,7 @@ from datetime import date
 from peewee import SQL, fn
 
 from ...db import db
-from ...enums import HumanGender, ProductGender
+from ...enums import HumanGender
 from ...models.definitions.beneficiary import Beneficiary
 from ...models.definitions.box import Box
 from ...models.definitions.history import DbChangeHistory
@@ -55,13 +55,19 @@ def compute_created_boxes():
         DbChangeHistory.select(
             Product.id.alias("product_id"),
             Product.gender.alias("gender"),
-            ProductCategory.id.alias("category_id"),
+            Product.category.alias("category_id"),
             DbChangeHistory.change_date.alias("created_on"),
             fn.COUNT(Box.id).alias("boxes_count"),
+            fn.SUM(Box.number_of_items).alias("items_count"),
         )
-        .join(Box, on=(DbChangeHistory.record_id == Box.id))
+        .join(
+            Box,
+            on=(
+                (DbChangeHistory.record_id == Box.id)
+                & (DbChangeHistory.table_name == "stock")
+            ),
+        )
         .join(Product)
-        .join(ProductCategory)
         .where(
             DbChangeHistory.table_name == "stock",
             DbChangeHistory.changes == "Record created",
@@ -74,7 +80,6 @@ def compute_created_boxes():
 
     # Conversions for GraphQL interface
     for row in facts:
-        row["gender"] = ProductGender(row["gender"])
         row["created_on"] = row["created_on"].date()
 
     products_ids = {f["product_id"] for f in facts}
