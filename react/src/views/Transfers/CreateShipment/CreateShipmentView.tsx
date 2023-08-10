@@ -195,7 +195,9 @@ function CreateShipmentView() {
                 message: "Successfully created a new shipment",
               });
 
-              navigate(`/bases/${baseId}/transfers/shipments`);
+              navigate(
+                `/bases/${baseId}/transfers/shipments/${mutationResult.data?.createShipment?.id}`,
+              );
             }
           })
           .catch((err) => {
