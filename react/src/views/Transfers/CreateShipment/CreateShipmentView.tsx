@@ -189,15 +189,14 @@ function CreateShipmentView() {
                 message: "Error while trying to create a new shipment!",
               });
             } else {
+              const shipmentId = mutationResult.data?.createShipment?.id;
               createToast({
-                title: `Transfer Shipment ${mutationResult.data?.createShipment?.id}`,
+                title: `Transfer Shipment ${shipmentId}`,
                 type: "success",
                 message: "Successfully created a new shipment",
               });
 
-              navigate(
-                `/bases/${baseId}/transfers/shipments/${mutationResult.data?.createShipment?.id}`,
-              );
+              navigate(`/bases/${baseId}/transfers/shipments/${shipmentId}`);
             }
           })
           .catch((err) => {
