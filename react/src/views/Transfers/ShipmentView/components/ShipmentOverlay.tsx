@@ -30,6 +30,7 @@ interface IShipmentsOverlayProps {
   onClose: () => void;
   //   onSend: (id: string) => void;
   //   onStartReceiving: (id: string) => void;
+  onLost: () => void;
   onCancel: (id: string) => void;
   onRemainingBoxesUndelivered: () => void;
 }
@@ -39,8 +40,7 @@ function ShipmentOverlay({
   isOpen,
   shipmentOverlayData: data,
   onClose,
-  //   onSend,
-  //   onStartReceiving,
+  onLost,
   onCancel,
   onRemainingBoxesUndelivered,
 }: IShipmentsOverlayProps) {
@@ -108,6 +108,40 @@ function ShipmentOverlay({
       onClick: () => onRemainingBoxesUndelivered(),
     };
     rightButtonText = "Confirm & Complete";
+  } else if (data?.state === ShipmentState.Sent) {
+    title = "Are you sure?";
+    body = (
+      <VStack align="start" spacing={8}>
+        <chakra.span>
+          <Text>
+            This will mark the all boxes as undelivered and will mark the shipment as lost.
+          </Text>
+        </chakra.span>
+        <chakra.br />
+        <chakra.span>
+          <HStack>
+            <Wrap align="baseline">
+              <AiFillWarning
+                alignmentBaseline="middle"
+                size={20}
+                style={{ cursor: "pointer", color: "orange", fill: "orange" }}
+              />
+              <Text as="b">WARNING:</Text>
+              Neither
+              <Text as="b">{data.sourceOrg}</Text> nor <Text as="b">{data.targetOrg}</Text> will be
+              able to make further changes to the shipment.
+            </Wrap>
+          </HStack>
+        </chakra.span>
+      </VStack>
+    );
+    leftButtonProps = { onClick: () => onClose() };
+    leftButtonText = "Nevermind";
+    rightButtonProps = {
+      colorScheme: "red",
+      onClick: () => onLost(),
+    };
+    rightButtonText = "Confirm";
   }
 
   return (
