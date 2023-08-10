@@ -49,7 +49,7 @@ const defaultSettings = {
 };
 
 const marginTop = 20;
-const marginLeft = 40;
+const marginLeft = 45;
 const marginRight = 40;
 const marginBottom = 40;
 
@@ -87,7 +87,7 @@ export default function BarChartCenterAxis(chart: IBarChartCenterAxis) {
   };
 
   const chartWidth = fields.width - (marginLeft + marginRight);
-  const chartHight = fields.height - (marginTop + marginBottom);
+  const chartHeight = fields.height - (marginTop + marginBottom);
 
   const halfWidth = chartWidth / 2;
 
@@ -97,7 +97,7 @@ export default function BarChartCenterAxis(chart: IBarChartCenterAxis) {
   const minY = Math.min(...fields.dataY) - 1;
   const maxY = Math.max(...fields.dataY);
 
-  let barHight = chartHight / fields.dataY.length;
+  let barHight = chartHeight / fields.dataY.length;
   if (barHight > 10) {
     barHight *= 0.7;
   } else {
@@ -120,7 +120,7 @@ export default function BarChartCenterAxis(chart: IBarChartCenterAxis) {
 
   const scaleY = scaleLinear({
     domain: [minY, maxY],
-    range: [chartHight, marginTop],
+    range: [chartHeight, marginTop],
     nice: true,
     round: true,
   });
@@ -131,11 +131,11 @@ export default function BarChartCenterAxis(chart: IBarChartCenterAxis) {
         <rect fill={fields.background} width={fields.width} height={fields.height} />
         <Group top={marginTop} left={marginLeft}>
           <Group>
-            <Grid width={chartWidth / 2} height={chartHight} xScale={scaleXLeft} yScale={scaleY} />
+            <Grid width={chartWidth / 2} height={chartHeight} xScale={scaleXLeft} yScale={scaleY} />
             <Grid
               left={chartWidth / 2}
               width={chartWidth / 2}
-              height={chartHight}
+              height={chartHeight}
               xScale={scaleXLeft}
               yScale={scaleY}
             />
@@ -202,7 +202,7 @@ export default function BarChartCenterAxis(chart: IBarChartCenterAxis) {
               );
             })}
           </Group>
-          <Group top={chartHight}>
+          <Group top={chartHeight}>
             <AxisBottom
               labelProps={labelProps}
               scale={scaleXLeft}
