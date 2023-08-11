@@ -25,7 +25,8 @@ def test_query_created_boxes(read_only_client, products, product_categories):
     data = assert_successful_request(read_only_client, query, endpoint="public")
     facts = data.pop("facts")
     assert len(facts) == 2
-    assert facts[0]["boxesCount"] == 2
+    assert facts[0]["boxesCount"] == 7
+    assert facts[1]["boxesCount"] == 2
     assert data == {
         "dimensions": {
             "product": [{"id": str(p["id"]), "name": p["name"]} for p in products[:2]],
