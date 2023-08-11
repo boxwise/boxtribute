@@ -1,0 +1,11 @@
+type Query {
+  beneficiaryDemographics(baseIds: [Int!]): [BeneficiaryDemographicsResult]
+}
+
+type BeneficiaryDemographicsResult {
+  age: Int
+  gender: HumanGender
+  createdOn: Date
+  count: Int
+}
+

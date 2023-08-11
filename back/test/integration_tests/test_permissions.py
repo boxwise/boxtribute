@@ -228,3 +228,16 @@ def test_check_beta_feature_access(dropapp_dev_client, mocker):
     response = dropapp_dev_client.post("/graphql", json=data)
     assert response.status_code == 401
     assert response.json["error"] == "No permission to access beta feature"
+
+
+def test_check_public_api_access(dropapp_dev_client, mocker):
+    env_variables = os.environ.copy()
+    env_variables["CI"] = "false"
+    env_variables["ENVIRONMENT"] = "production"
+    mocker.patch("os.environ", env_variables)
+
+    query = "query { beneficiaryDemographics(baseIds: [1]) { count } }"
+    data = {"query": query}
+    response = dropapp_dev_client.post("/public", json=data)
+    assert response.status_code == 401
+    assert response.json["error"] == "No permission to access public API"

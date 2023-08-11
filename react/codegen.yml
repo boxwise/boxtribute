@@ -1,5 +1,5 @@
 overwrite: true
-schema: "../back/boxtribute_server/graph_ql/*"
+schema: "../back/boxtribute_server/graph_ql/definitions/**/*.graphql"
 documents:
   - "./src/**/*.{ts,tsx}"
   - "!./src/queries/local-only.ts"
