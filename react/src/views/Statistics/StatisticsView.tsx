@@ -1,5 +1,5 @@
-import PeopleByAgeChart from "./components/PeopleByAgeChart";
+import DemographicChart from "./components/DemographicChart";
 
 export default function StatisticsView() {
-  return <PeopleByAgeChart />;
+  return <DemographicChart />;
 }

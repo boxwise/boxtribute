@@ -55,7 +55,7 @@ function App() {
         <Route path=":baseId">
           <Route index element={<BaseDashboardView />} />
           <Route path="statistics">
-            <Route index element={<StatisticsView />} />
+            <Route path="demographic" index element={<StatisticsView />} />
           </Route>
           <Route path="transfers">
             <Route path="agreements">
