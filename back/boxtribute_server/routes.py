@@ -60,6 +60,7 @@ def query_api_server():
     origins=[
         "http://localhost:5005",
         "http://localhost:3000",
+        "http://localhost:5173",
         "https://v2-staging.boxtribute.org",
         "https://v2-demo.boxtribute.org",
         "https://v2.boxtribute.org",
