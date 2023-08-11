@@ -14,7 +14,7 @@ import {
   Wrap,
 } from "@chakra-ui/react";
 import { AiFillWarning } from "react-icons/ai";
-import { ShipmentState } from "types/generated/graphql";
+import { BoxState, ShipmentState } from "types/generated/graphql";
 
 export interface IShipmentOverlayData {
   id: string;
@@ -114,7 +114,15 @@ function ShipmentOverlay({
       <VStack align="start" spacing={8}>
         <chakra.span>
           <Text>
-            This will mark all the boxes as undelivered and will mark the shipment as lost.
+            Confirming this will mark the shipment as{" "}
+            <chakra.span color="red.500" fontWeight="semibold">
+              {ShipmentState.Lost}
+            </chakra.span>{" "}
+            and all boxes as{" "}
+            <chakra.span color="red.500" fontWeight="semibold">
+              {BoxState.Lost}
+            </chakra.span>
+            , effectively cancelling the shipment.
           </Text>
         </chakra.span>
         <chakra.br />
@@ -126,10 +134,13 @@ function ShipmentOverlay({
                 size={20}
                 style={{ cursor: "pointer", color: "orange", fill: "orange" }}
               />
-              <Text as="b">WARNING:</Text>
-              Neither
-              <Text as="b">{data.sourceOrg}</Text> nor <Text as="b">{data.targetOrg}</Text> will be
-              able to make further changes to the shipment.
+              <Text as="b">WARNING: This action cannot be undone</Text>
+              <chakra.br />
+              <Text>
+                Neither <Text as="b">{data.sourceOrg}</Text> nor{" "}
+                <Text as="b">{data.targetOrg}</Text> will be able to make further changes to the
+                shipment.
+              </Text>
             </Wrap>
           </HStack>
         </chakra.span>
