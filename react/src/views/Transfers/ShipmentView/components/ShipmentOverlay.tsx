@@ -109,7 +109,7 @@ function ShipmentOverlay({
     };
     rightButtonText = "Confirm & Complete";
   } else if (data?.state === ShipmentState.Sent) {
-    title = "Are you sure?";
+    title = "Cannot Locate Shipment?";
     body = (
       <VStack align="start" spacing={8}>
         <chakra.span>
