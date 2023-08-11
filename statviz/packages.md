@@ -1,5 +1,18 @@
 # What packages in package.json are for what?
 
+## Visualization
+
+- @visx/axis
+- @visx/event
+- @visx/grid
+- @visx/group
+- @visx/mock-data
+- @visx/responsive
+- @visx/scale
+- @visx/shape
+- @visx/tooltip
+
+
 ## General React
 
 - "react"

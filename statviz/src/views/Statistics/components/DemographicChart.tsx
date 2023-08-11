@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Heading } from "@chakra-ui/react";
-import BarChartCenterAxis from "components/graphs/BarChartCenterAxis";
+import BarChartCenterAxis from "../../../components/graphs/BarChartCenterAxis";
 import { range } from "lodash";
 import { HumanGender } from "types/generated/graphql";
 import { beneficiaryDemographicsMock } from "mocks/demographic";
