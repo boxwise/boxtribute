@@ -1,6 +1,10 @@
 type Query {
-  beneficiaryDemographics(baseIds: [Int!]): [BeneficiaryDemographicsResult]
+  beneficiaryDemographics(baseIds: [Int!]): BeneficiaryDemographicsData
   createdBoxes(baseId: Int): CreatedBoxesData
+}
+
+type BeneficiaryDemographicsData {
+  facts: [BeneficiaryDemographicsResult]
 }
 
 type BeneficiaryDemographicsResult {
