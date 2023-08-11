@@ -5,7 +5,7 @@ export const beneficiaryDemographicsMock = {
         __typename: "BeneficiaryDemographicsResult",
         age: 11,
         count: 21,
-        createdOn: "2022-05-10",
+        createdOn: "2023-01-10",
         gender: "Female",
       },
       {
@@ -19,7 +19,7 @@ export const beneficiaryDemographicsMock = {
         __typename: "BeneficiaryDemographicsResult",
         age: 15,
         count: 18,
-        createdOn: "2022-05-10",
+        createdOn: "2023-06-10",
         gender: "Male",
       },
       {

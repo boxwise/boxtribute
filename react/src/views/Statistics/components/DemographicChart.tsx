@@ -25,7 +25,7 @@ export default function DemographicChart() {
 
   const facts = getFacts();
 
-  const prepareDataCube = (facts: IDemographicFact[]) => {
+  const prepareFacts = (facts: IDemographicFact[]) => {
     // eslint-disable-next-line
     console.log(facts);
 
@@ -40,7 +40,7 @@ export default function DemographicChart() {
     return [dataXr, dataXl];
   };
 
-  const [a, b] = prepareDataCube(facts);
+  const [a, b] = prepareFacts(facts);
 
   const [dataXr, SetDataXr] = useState(a);
   const [dataXl, SetDataXl] = useState(b);
@@ -71,7 +71,7 @@ export default function DemographicChart() {
   };
 
   const onFilterChange = (facts: IDemographicFact[]) => {
-    const [a, b] = prepareDataCube(facts);
+    const [a, b] = prepareFacts(facts);
     SetDataXr(a);
     SetDataXl(b);
   };

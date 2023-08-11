@@ -40,8 +40,8 @@ export default function FilterCreatedOn(filter: IFilterInput) {
   });
 
   const onSubmit = (form: IFilterCreateOnFormScheme) => {
-    const start = form.from ?? new Date(1970);
-    const end = form.to ?? new Date(2100);
+    const start = form.from ?? new Date(1970, 1, 1);
+    const end = form.to ?? new Date(2100, 1, 1);
 
     const result = filter.facts.filter((e) => isWithinInterval(e.createdOn, { start, end }));
 
