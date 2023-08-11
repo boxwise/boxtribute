@@ -9,9 +9,9 @@ from .auth import request_jwt, requires_auth
 from .authz import check_beta_feature_access
 from .exceptions import AuthenticationFailed
 from .graph_ql.execution import execute_async
-from .graph_ql.schema import full_api_schema, query_api_schema
+from .graph_ql.schema import full_api_schema, public_api_schema, query_api_schema
 from .logging import API_CONTEXT, WEBAPP_CONTEXT, log_request_to_gcloud
-from .utils import in_development_environment
+from .utils import in_ci_environment, in_development_environment
 
 # Blueprint for query-only API. Deployed on the 'api*' subdomains
 api_bp = Blueprint("api_bp", __name__)
@@ -52,6 +52,18 @@ def query_api_playground():
 def query_api_server():
     log_request_to_gcloud(context=API_CONTEXT)
     return execute_async(schema=query_api_schema, introspection=True)
+
+
+@api_bp.route("/public", methods=["POST"])
+def public_api_server():
+    # Block access unless in CI, or in staging/development
+    if (
+        os.getenv("ENVIRONMENT") not in ["staging", "development"]
+    ) and not in_ci_environment():
+        return {"error": "No permission to access public API"}, 401
+
+    log_request_to_gcloud(context=API_CONTEXT)
+    return execute_async(schema=public_api_schema, introspection=True)
 
 
 @api_bp.route("/token", methods=["POST"])

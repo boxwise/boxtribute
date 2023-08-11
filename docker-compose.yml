@@ -30,6 +30,8 @@ services:
       MYSQL_PORT: 3306
       ENVIRONMENT: ${ENVIRONMENT:-development}
       CI: "true"
+    depends_on:
+      - db
   react:
     build:
       context: ./react

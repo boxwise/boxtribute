@@ -130,6 +130,14 @@ export type BeneficiaryCreationInput = {
   signature?: InputMaybe<Scalars['String']>;
 };
 
+export type BeneficiaryDemographicsResult = {
+  __typename?: 'BeneficiaryDemographicsResult';
+  age?: Maybe<Scalars['Int']>;
+  count?: Maybe<Scalars['Int']>;
+  createdOn?: Maybe<Scalars['Date']>;
+  gender?: Maybe<HumanGender>;
+};
+
 /** Utility type holding a page of [`Beneficiaries`]({{Types.Beneficiary}}). */
 export type BeneficiaryPage = {
   __typename?: 'BeneficiaryPage';
@@ -951,7 +959,6 @@ export type PackingListEntryInput = {
   sizeId: Scalars['Int'];
 };
 
-/** TODO: Add description here once specs are final/confirmed */
 export enum PackingListEntryState {
   NotStarted = 'NotStarted',
   Packed = 'Packed',
@@ -1066,6 +1073,7 @@ export type Query = {
   /**  Return all [`Beneficiaries`]({{Types.Beneficiary}}) that the client is authorized to view.  */
   beneficiaries: BeneficiaryPage;
   beneficiary?: Maybe<Beneficiary>;
+  beneficiaryDemographics?: Maybe<Array<Maybe<BeneficiaryDemographicsResult>>>;
   box?: Maybe<Box>;
   distributionEvent?: Maybe<DistributionEvent>;
   distributionEventsTrackingGroup?: Maybe<DistributionEventsTrackingGroup>;
@@ -1121,6 +1129,11 @@ export type QueryBeneficiariesArgs = {
 
 export type QueryBeneficiaryArgs = {
   id: Scalars['ID'];
+};
+
+
+export type QueryBeneficiaryDemographicsArgs = {
+  baseIds?: InputMaybe<Array<Scalars['Int']>>;
 };
 
 
