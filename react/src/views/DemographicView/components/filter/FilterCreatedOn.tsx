@@ -7,8 +7,8 @@ import { z } from "zod";
 
 // YYYY-MM-DD
 interface IFilterInput {
-  data: Array<{ createdOn: Date }>;
-  onSubmit(e: any): void;
+  facts: Array<{ createdOn: Date }>;
+  onSubmit(facts): void;
 }
 
 export const FilterCreatedOnFormScheme = z.object({
@@ -43,7 +43,7 @@ export default function FilterCreatedOn(filter: IFilterInput) {
     const start = form.from ?? new Date(1970);
     const end = form.to ?? new Date(2100);
 
-    const result = filter.data.filter((e) => isWithinInterval(e.createdOn, { start, end }));
+    const result = filter.facts.filter((e) => isWithinInterval(e.createdOn, { start, end }));
 
     filter.onSubmit(result);
   };
