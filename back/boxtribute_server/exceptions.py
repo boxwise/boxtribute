@@ -28,7 +28,7 @@ def format_database_errors(error, debug=False):
             error.extensions = {}
         from flask import g
 
-        error.extensions["user"] = g.user.__dict__
+        error.extensions["user"] = g.user.__dict__ if hasattr(g, "user") else {}
 
     return error.formatted
 
