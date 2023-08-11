@@ -55,6 +55,21 @@ def query_api_server():
 
 
 @api_bp.route("/public", methods=["POST"])
+@cross_origin(
+    # Allow dev localhost ports, and boxtribute subdomains as origins
+    origins=[
+        "http://localhost:5005",
+        "http://localhost:3000",
+        "https://v2-staging.boxtribute.org",
+        "https://v2-demo.boxtribute.org",
+        "https://v2.boxtribute.org",
+        "https://v2-staging-dot-dropapp-242214.ew.r.appspot.com",
+        "https://v2-demo-dot-dropapp-242214.ew.r.appspot.com",
+        "https://v2-production-dot-dropapp-242214.ew.r.appspot.com",
+    ],
+    methods=["POST"],
+    allow_headers="*" if in_development_environment() else CORS_HEADERS,
+)
 def public_api_server():
     # Block access unless in CI, or in staging/development
     if (
