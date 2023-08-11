@@ -16,6 +16,11 @@
 
 - "react-router-dom"
 
+## Apollo and GraphQL
+
+- "@apollo/client"
+- "graphql"
+
 ## Icons
 
 - "@chakra-ui/icons"
