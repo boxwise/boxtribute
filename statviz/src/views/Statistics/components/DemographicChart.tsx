@@ -2,9 +2,14 @@ import { useState } from "react";
 import { Heading } from "@chakra-ui/react";
 import BarChartCenterAxis from "../../../components/graphs/BarChartCenterAxis";
 import { range } from "lodash";
-import { HumanGender } from "types/generated/graphql";
-import { beneficiaryDemographicsMock } from "mocks/demographic";
+import { beneficiaryDemographicsMock  } from "../../../mocks/demographic";
 import FilterCreatedOn from "./filter/FilterCreatedOn";
+
+enum HumanGender {
+  Female="Female",
+  Male="Male",
+  Diverse="Diverse"
+}
 
 interface IDemographicFact {
   createdOn: Date;
@@ -50,8 +55,8 @@ export default function DemographicChart() {
     return acc;
   }, 0);
 
-  const height = 700;
-  const width = 1000;
+  const height = 600;
+  const width = 800;
 
   const chart = {
     labelY: "Age",

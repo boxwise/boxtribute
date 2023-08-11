@@ -49,13 +49,13 @@ const defaultSettings = {
 };
 
 const marginTop = 0;
-const marginLeft = 45;
+const marginLeft = 70;
 const marginRight = 40;
-const marginBottom = 40;
+const marginBottom = 70;
 
 const labelProps = {
   fontFamily: "Open Sans",
-  fontSize: 12,
+  fontSize: 16,
 };
 
 export default function BarChartCenterAxis(chart: IBarChartCenterAxis) {
