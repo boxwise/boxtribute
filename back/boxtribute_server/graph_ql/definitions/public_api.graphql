@@ -3,7 +3,13 @@ type Query {
   createdBoxes(baseId: Int): CreatedBoxesData
 }
 
-type BeneficiaryDemographicsData {
+interface DataCube {
+  facts: [Result]
+}
+
+union Result = BeneficiaryDemographicsResult | CreatedBoxesResult
+
+type BeneficiaryDemographicsData implements DataCube {
   facts: [BeneficiaryDemographicsResult]
 }
 
@@ -14,7 +20,7 @@ type BeneficiaryDemographicsResult {
   count: Int
 }
 
-type CreatedBoxesData {
+type CreatedBoxesData implements DataCube {
   facts: [CreatedBoxesResult]
   dimensions: CreatedBoxDataDimensions
 }
