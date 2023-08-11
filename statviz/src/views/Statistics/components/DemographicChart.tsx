@@ -4,12 +4,8 @@ import BarChartCenterAxis from "../../../components/graphs/BarChartCenterAxis";
 import { range } from "lodash";
 import { beneficiaryDemographicsMock  } from "../../../mocks/demographic";
 import FilterCreatedOn from "./filter/FilterCreatedOn";
-
-enum HumanGender {
-  Female="Female",
-  Male="Male",
-  Diverse="Diverse"
-}
+import { BeneficiaryDemographicsQuery, BeneficiaryDemographicsQueryVariables, HumanGender } from "../../../types/generated/graphql";
+import { gql, useQuery } from "@apollo/client";
 
 interface IDemographicFact {
   createdOn: Date;
@@ -18,9 +14,26 @@ interface IDemographicFact {
   gender: string;
 }
 
+const DEMOGRAPHIC_QUERY = gql`
+  query BeneficiaryDemographics {
+    beneficiaryDemographics {
+      age
+      gender
+      createdOn
+      count
+    }
+  }
+`
+
+
 export default function DemographicChart() {
   const getFacts = (): IDemographicFact[] => {
-    const dataRaw = [...beneficiaryDemographicsMock.data.beneficiaryDemographics];
+    const { data } = useQuery<
+    BeneficiaryDemographicsQuery,
+    BeneficiaryDemographicsQueryVariables
+    >(DEMOGRAPHIC_QUERY);
+
+    const dataRaw = data?.beneficiaryDemographics;
 
     return dataRaw.map((e) => ({
       ...e,
