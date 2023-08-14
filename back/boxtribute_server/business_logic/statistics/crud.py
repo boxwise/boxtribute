@@ -1,14 +1,15 @@
 from datetime import date
 
-from peewee import SQL, fn
+from peewee import JOIN, SQL, fn
 
 from ...db import db
-from ...enums import HumanGender
+from ...enums import HumanGender, TaggableObjectType
 from ...models.definitions.beneficiary import Beneficiary
 from ...models.definitions.box import Box
 from ...models.definitions.location import Location
 from ...models.definitions.product import Product
 from ...models.definitions.product_category import ProductCategory
+from ...models.definitions.tags_relation import TagsRelation
 
 
 def compute_beneficiary_demographics(base_ids=None):
@@ -31,7 +32,16 @@ def compute_beneficiary_demographics(base_ids=None):
             gender.alias("gender"),
             created_on.alias("created_on"),
             age.alias("age"),
-            fn.COUNT(Beneficiary.id).alias("count"),
+            fn.GROUP_CONCAT(TagsRelation.tag).alias("tag_ids"),
+            fn.COUNT(Beneficiary.id.distinct()).alias("count"),
+        )
+        .join(
+            TagsRelation,
+            JOIN.LEFT_OUTER,
+            on=(
+                (TagsRelation.object_id == Beneficiary.id)
+                & (TagsRelation.object_type == TaggableObjectType.Beneficiary)
+            ),
         )
         .where(*conditions)
         .group_by(SQL("gender"), SQL("age"), SQL("created_on"))

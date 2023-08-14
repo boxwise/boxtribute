@@ -17,6 +17,7 @@ type BeneficiaryDemographicsResult {
   age: Int
   gender: HumanGender
   createdOn: Date
+  tagIds: String
   count: Int
 }
 
