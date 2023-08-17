@@ -74,6 +74,33 @@ const mutationNetworkError = {
   error: new Error(),
 };
 
+const mutationIdenticalAgreementError = {
+  request: {
+    query: CREATE_AGREEMENT_MUTATION,
+    variables: {
+      initiatingOrganisationId: 1,
+      partnerOrganisationId: 2,
+      type: TransferAgreementType.Bidirectional,
+      validFrom: new Date().toISOString().substring(0, 10),
+      validUntil: undefined,
+      initiatingOrganisationBaseIds: [1],
+      partnerOrganisationBaseIds: undefined,
+      comment: "",
+    },
+  },
+  result: {
+    data: { createTransferAgreement: null },
+    errors: [
+      new GraphQLError("Error!", {
+        extensions: {
+          code: "BAD_USER_INPUT",
+          description: "An identical agreement already exists: ID 1",
+        },
+      }),
+    ],
+  },
+};
+
 // Test case 4.1.1
 it("4.1.1 - Initial load of Page", async () => {
   const user = userEvent.setup();
@@ -263,5 +290,43 @@ it("4.1.4 - Failed to Fetch Initial Data", async () => {
     await screen.findByText(
       /could not fetch Organisation and Base data! Please try reloading the page./i,
     ),
+  ).toBeInTheDocument();
+});
+
+// Test case 4.1.5
+it("4.1.5 - Failed due to the identical agreement", async () => {
+  cleanup();
+  const user = userEvent.setup();
+  cleanup();
+  render(<CreateTransferAgreementView />, {
+    routePath: "/bases/:baseId/transfers/agreements/create",
+    initialUrl: "/bases/1/transfers/agreements/create",
+    mocks: [initialQuery, mutationIdenticalAgreementError],
+    addTypename: true,
+    globalPreferences: {
+      dispatch: jest.fn(),
+      globalPreferences: {
+        organisation: { id: organisation1.id, name: organisation1.name },
+        availableBases: organisation1.bases,
+        selectedBase: { id: base1.id, name: base1.name },
+      },
+    },
+  });
+
+  const rerenderedSubmitButton = await screen.findByRole("button", { name: /create agreement/i });
+  expect(rerenderedSubmitButton).toBeInTheDocument();
+  await selectOptionInSelectField(user, /partner organisation/i, "BoxCare");
+  const transferTypeSendingToAndReceivingFromLabel = screen.getByLabelText(
+    "Sending to AND Receiving from",
+  );
+  expect(transferTypeSendingToAndReceivingFromLabel).not.toBeChecked();
+  await user.click(transferTypeSendingToAndReceivingFromLabel);
+  expect(transferTypeSendingToAndReceivingFromLabel).toBeChecked();
+  await user.click(rerenderedSubmitButton);
+  expect(
+    await screen.findByText(/error while trying to create transfer agreement/i),
+  ).toBeInTheDocument();
+  expect(
+    await screen.findByText(/Can’t create agreement, an active identical agreement exists/i),
   ).toBeInTheDocument();
 });
