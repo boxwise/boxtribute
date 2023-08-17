@@ -5,18 +5,26 @@ type Query {
 
 interface DataCube {
   facts: [Result]
+  dimensions: Dimensions
 }
 
 union Result = BeneficiaryDemographicsResult | CreatedBoxesResult
+union Dimensions = BeneficiaryDemographicsDimensions | CreatedBoxDataDimensions
 
 type BeneficiaryDemographicsData implements DataCube {
   facts: [BeneficiaryDemographicsResult]
+  dimensions: BeneficiaryDemographicsDimensions
+}
+
+type BeneficiaryDemographicsDimensions {
+  tag: [ResultIdName]
 }
 
 type BeneficiaryDemographicsResult {
   age: Int
   gender: HumanGender
   createdOn: Date
+  tagIds: [Int!]
   count: Int
 }
 

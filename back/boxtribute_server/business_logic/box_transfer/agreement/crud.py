@@ -16,7 +16,7 @@ from ....exceptions import (
 from ....models.definitions.base import Base
 from ....models.definitions.transfer_agreement import TransferAgreement
 from ....models.definitions.transfer_agreement_detail import TransferAgreementDetail
-from ....models.utils import utcnow
+from ....models.utils import convert_ids, utcnow
 
 
 def _base_ids_of_organisation(organisation_id):
@@ -48,13 +48,7 @@ def _validate_unique_transfer_agreement(
     of involved bases (or a superset thereof), and with a fully overlapping validity
     period must exist.
     """
-
-    def convert_ids(concat_ids):
-        """Convert a string of comma-separated IDs (returned from GROUP_CONCAT) into a
-        list of integers.
-        """
-        return {int(i) for i in (concat_ids or "").split(",") if i}
-
+    convert_ids_to_set = lambda ids: set(convert_ids(ids))
     agreements = (
         TransferAgreement.select(
             TransferAgreement.id,
@@ -63,10 +57,10 @@ def _validate_unique_transfer_agreement(
             TransferAgreement.valid_from,
             TransferAgreement.valid_until,
             fn.GROUP_CONCAT(TransferAgreementDetail.source_base)
-            .python_value(convert_ids)
+            .python_value(convert_ids_to_set)
             .alias("source_base_ids"),
             fn.GROUP_CONCAT(TransferAgreementDetail.target_base)
-            .python_value(convert_ids)
+            .python_value(convert_ids_to_set)
             .alias("target_base_ids"),
         )
         .join(TransferAgreementDetail)
