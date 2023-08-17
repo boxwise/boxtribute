@@ -10,6 +10,7 @@ from ...models.definitions.location import Location
 from ...models.definitions.product import Product
 from ...models.definitions.product_category import ProductCategory
 from ...models.definitions.tags_relation import TagsRelation
+from ...models.utils import convert_ids
 
 
 def compute_beneficiary_demographics(base_ids=None):
@@ -22,6 +23,7 @@ def compute_beneficiary_demographics(base_ids=None):
     gender = fn.IF(Beneficiary.gender == "", "D", Beneficiary.gender)
     created_on = db.database.truncate_date("day", Beneficiary.created_on)
     age = fn.FLOOR((date.today().year - Beneficiary.date_of_birth.year) / bin_width)
+    tag_ids = fn.GROUP_CONCAT(TagsRelation.tag).python_value(convert_ids)
 
     conditions = [Beneficiary.deleted.is_null()]
     if base_ids is not None:
@@ -32,7 +34,7 @@ def compute_beneficiary_demographics(base_ids=None):
             gender.alias("gender"),
             created_on.alias("created_on"),
             age.alias("age"),
-            fn.GROUP_CONCAT(TagsRelation.tag).alias("tag_ids"),
+            tag_ids.alias("tag_ids"),
             fn.COUNT(Beneficiary.id.distinct()).alias("count"),
         )
         .join(
