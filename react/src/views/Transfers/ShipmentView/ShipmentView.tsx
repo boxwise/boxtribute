@@ -535,7 +535,7 @@ function ShipmentView() {
         isLoadingMutation={isLoadingFromMutation}
         onRemove={onMinusClick}
         onCancel={openShipmentOverlay}
-        onLost={onLost}
+        onLost={openShipmentOverlay}
         shipment={data?.shipment! as Shipment}
       />
     );
@@ -564,6 +564,7 @@ function ShipmentView() {
           onRemainingBoxesUndelivered={onRemainingBoxesUndelivered}
           onClose={onShipmentOverlayClose}
           onCancel={onCancel}
+          onLost={onLost}
         />
       </>
     );
@@ -589,6 +590,7 @@ function ShipmentView() {
           onRemainingBoxesUndelivered={onRemainingBoxesUndelivered}
           onClose={onShipmentOverlayClose}
           onCancel={onCancel}
+          onLost={onLost}
         />
       </>
     );
