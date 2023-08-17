@@ -198,7 +198,9 @@ function CreateTransferAgreementView() {
       <MobileBreadcrumbButton label="Back to Manage Agreements" linkPath="/transfers/shipments" />
       {createTransferAgreementMutationState.error &&
         createTransferAgreementMutationState.error.graphQLErrors.some(
-          (error: any) => error.extensions?.code === "BAD_USER_INPUT",
+          (error: any) =>
+            error.extensions?.code === "BAD_USER_INPUT" &&
+            error.extensions?.description.includes("An identical agreement already exists"),
         ) && (
           <Box mx={1} my={1}>
             {" "}
