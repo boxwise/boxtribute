@@ -9,6 +9,7 @@ from ...models.definitions.box import Box
 from ...models.definitions.location import Location
 from ...models.definitions.product import Product
 from ...models.definitions.product_category import ProductCategory
+from ...models.definitions.tag import Tag
 from ...models.definitions.tags_relation import TagsRelation
 from ...models.utils import convert_ids
 
@@ -55,7 +56,12 @@ def compute_beneficiary_demographics(base_ids=None):
         row["gender"] = HumanGender(row["gender"])
         row["created_on"] = row["created_on"].date()
 
-    return {"facts": demographics}
+    selected_tag_ids = {t for t in row["tag_ids"] for row in demographics}
+    dimensions = {
+        "tag": Tag.select(Tag.id, Tag.name).where(Tag.id << selected_tag_ids).dicts()
+    }
+
+    return {"facts": demographics, "dimensions": dimensions}
 
 
 def compute_created_boxes(base_id=None):

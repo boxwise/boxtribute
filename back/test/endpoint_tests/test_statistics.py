@@ -1,11 +1,17 @@
 from utils import assert_successful_request
 
 
-def test_query_beneficiary_demographics(read_only_client):
+def test_query_beneficiary_demographics(read_only_client, tags):
     query = """query { beneficiaryDemographics(baseIds: [1]) {
-        facts { gender age createdOn count tagIds } } }"""
+        facts { gender age createdOn count tagIds }
+        dimensions { tag { id name } } } }"""
     response = assert_successful_request(read_only_client, query, endpoint="public")
     assert len(response["facts"]) == 2
+    assert response["dimensions"] == {
+        "tag": [
+            {"id": str(tag["id"]), "name": tag["name"]} for tag in [tags[0], tags[2]]
+        ]
+    }
 
     query = """query { beneficiaryDemographics {
         facts { gender age createdOn count tagIds } } }"""
