@@ -43,7 +43,7 @@ def compute_beneficiary_demographics(base_ids=None):
         row["gender"] = HumanGender(row["gender"])
         row["created_on"] = row["created_on"].date()
 
-    return demographics
+    return {"facts": demographics}
 
 
 def compute_created_boxes(base_id=None):

@@ -3,14 +3,14 @@ from utils import assert_successful_request
 
 def test_query_beneficiary_demographics(read_only_client):
     query = """query { beneficiaryDemographics(baseIds: [1]) {
-        gender age createdOn count } }"""
+        facts { gender age createdOn count } } }"""
     response = assert_successful_request(read_only_client, query, endpoint="public")
-    assert len(response) == 2
+    assert len(response["facts"]) == 2
 
     query = """query { beneficiaryDemographics {
-        gender age createdOn count } }"""
+        facts { gender age createdOn count } } }"""
     response = assert_successful_request(read_only_client, query, endpoint="public")
-    assert len(response) == 3
+    assert len(response["facts"]) == 3
 
 
 def test_query_created_boxes(read_only_client, products, product_categories):
