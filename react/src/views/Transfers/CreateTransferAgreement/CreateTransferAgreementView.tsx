@@ -1,6 +1,6 @@
 import { useContext } from "react";
 import { gql, useMutation, useQuery } from "@apollo/client";
-import { Alert, AlertIcon, Center } from "@chakra-ui/react";
+import { Alert, AlertIcon, Box, Center } from "@chakra-ui/react";
 import { useErrorHandling } from "hooks/useErrorHandling";
 import { useNotification } from "hooks/useNotification";
 import APILoadingIndicator from "components/APILoadingIndicator";
@@ -196,6 +196,20 @@ function CreateTransferAgreementView() {
   return (
     <>
       <MobileBreadcrumbButton label="Back to Manage Agreements" linkPath="/transfers/shipments" />
+      {createTransferAgreementMutationState.error &&
+        createTransferAgreementMutationState.error.graphQLErrors.some(
+          (error: any) =>
+            error.extensions?.code === "BAD_USER_INPUT" &&
+            error.extensions?.description.includes("An identical agreement already exists"),
+        ) && (
+          <Box mx={1} my={1}>
+            {" "}
+            <Alert status="error">
+              <AlertIcon />
+              Can&rsquo;t create agreement, an active identical agreement exists.
+            </Alert>
+          </Box>
+        )}
       <Center>
         <CreateTransferAgreement
           currentOrganisation={currentOrganisationAuthorizedBases}
