@@ -1,5 +1,6 @@
 type Query {
   beneficiaryDemographics(baseIds: [Int!]): [BeneficiaryDemographicsResult]
+  createdBoxes(baseId: Int): CreatedBoxesData
 }
 
 type BeneficiaryDemographicsResult {
@@ -9,3 +10,26 @@ type BeneficiaryDemographicsResult {
   count: Int
 }
 
+type CreatedBoxesData {
+  facts: [CreatedBoxesResult]
+  dimensions: CreatedBoxDataDimensions
+}
+
+type CreatedBoxesResult {
+  createdOn: Date
+  categoryId: Int
+  productId: Int
+  gender: ProductGender
+  boxesCount: Int
+  itemsCount: Int
+}
+
+type CreatedBoxDataDimensions {
+  product: [ResultIdName]
+  category: [ResultIdName]
+}
+
+type ResultIdName {
+  id: ID
+  name: String
+}
