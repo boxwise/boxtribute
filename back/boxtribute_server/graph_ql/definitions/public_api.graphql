@@ -1,5 +1,16 @@
 type Query {
-  beneficiaryDemographics(baseIds: [Int!]): [BeneficiaryDemographicsResult]
+  beneficiaryDemographics(baseIds: [Int!]): BeneficiaryDemographicsData
+  createdBoxes(baseId: Int): CreatedBoxesData
+}
+
+interface DataCube {
+  facts: [Result]
+}
+
+union Result = BeneficiaryDemographicsResult | CreatedBoxesResult
+
+type BeneficiaryDemographicsData implements DataCube {
+  facts: [BeneficiaryDemographicsResult]
 }
 
 type BeneficiaryDemographicsResult {
@@ -9,3 +20,26 @@ type BeneficiaryDemographicsResult {
   count: Int
 }
 
+type CreatedBoxesData implements DataCube {
+  facts: [CreatedBoxesResult]
+  dimensions: CreatedBoxDataDimensions
+}
+
+type CreatedBoxesResult {
+  createdOn: Date
+  categoryId: Int
+  productId: Int
+  gender: ProductGender
+  boxesCount: Int
+  itemsCount: Int
+}
+
+type CreatedBoxDataDimensions {
+  product: [ResultIdName]
+  category: [ResultIdName]
+}
+
+type ResultIdName {
+  id: ID
+  name: String
+}
