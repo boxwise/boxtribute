@@ -262,6 +262,28 @@ export type ClassicLocationBoxesArgs = {
   paginationInput?: InputMaybe<PaginationInput>;
 };
 
+export type CreatedBoxDataDimensions = {
+  __typename?: 'CreatedBoxDataDimensions';
+  category?: Maybe<Array<Maybe<ResultIdName>>>;
+  product?: Maybe<Array<Maybe<ResultIdName>>>;
+};
+
+export type CreatedBoxesData = {
+  __typename?: 'CreatedBoxesData';
+  dimensions?: Maybe<CreatedBoxDataDimensions>;
+  facts?: Maybe<Array<Maybe<CreatedBoxesResult>>>;
+};
+
+export type CreatedBoxesResult = {
+  __typename?: 'CreatedBoxesResult';
+  boxesCount?: Maybe<Scalars['Int']>;
+  categoryId?: Maybe<Scalars['Int']>;
+  createdOn?: Maybe<Scalars['Date']>;
+  gender?: Maybe<ProductGender>;
+  itemsCount?: Maybe<Scalars['Int']>;
+  productId?: Maybe<Scalars['Int']>;
+};
+
 /** TODO: Add description here once specs are final/confirmed */
 export type DistributionEvent = {
   __typename?: 'DistributionEvent';
@@ -1075,6 +1097,7 @@ export type Query = {
   beneficiary?: Maybe<Beneficiary>;
   beneficiaryDemographics?: Maybe<Array<Maybe<BeneficiaryDemographicsResult>>>;
   box?: Maybe<Box>;
+  createdBoxes?: Maybe<CreatedBoxesData>;
   distributionEvent?: Maybe<DistributionEvent>;
   distributionEventsTrackingGroup?: Maybe<DistributionEventsTrackingGroup>;
   distributionSpot?: Maybe<DistributionSpot>;
@@ -1139,6 +1162,11 @@ export type QueryBeneficiaryDemographicsArgs = {
 
 export type QueryBoxArgs = {
   labelIdentifier: Scalars['String'];
+};
+
+
+export type QueryCreatedBoxesArgs = {
+  baseId?: InputMaybe<Scalars['Int']>;
 };
 
 
@@ -1229,6 +1257,12 @@ export type QueryTransferAgreementsArgs = {
 
 export type QueryUserArgs = {
   id?: InputMaybe<Scalars['ID']>;
+};
+
+export type ResultIdName = {
+  __typename?: 'ResultIdName';
+  id?: Maybe<Scalars['ID']>;
+  name?: Maybe<Scalars['String']>;
 };
 
 export type Shipment = {

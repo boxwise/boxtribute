@@ -82,21 +82,23 @@ function CreateShipmentView() {
     CreateShipmentMutationVariables
   >(CREATE_SHIPMENT_MUTATION, {
     update(cache, { data: returnedShipment }) {
-      cache.modify({
-        fields: {
-          shipments(existingShipments = []) {
-            const newShipmentRef = cache.writeFragment({
-              data: returnedShipment?.createShipment,
-              fragment: gql`
-                fragment NewShipment on Shipment {
-                  id
-                }
-              `,
-            });
-            return existingShipments.concat(newShipmentRef);
+      if (returnedShipment?.createShipment) {
+        cache.modify({
+          fields: {
+            shipments(existingShipments = []) {
+              const newShipmentRef = cache.writeFragment({
+                data: returnedShipment.createShipment,
+                fragment: gql`
+                  fragment NewShipment on Shipment {
+                    id
+                  }
+                `,
+              });
+              return existingShipments.concat(newShipmentRef);
+            },
           },
-        },
-      });
+        });
+      }
     },
   });
 
