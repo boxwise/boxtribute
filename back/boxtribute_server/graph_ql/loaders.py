@@ -43,6 +43,9 @@ class SimpleDataLoader(DataLoader):
     async def batch_load_fn(self, ids):
         if not self.skip_authorize:
             resource = convert_pascal_to_snake_case(self.model.__name__)
+            # work-around for inconsistent RBP naming
+            if resource == "product_category":
+                resource = "category"
             permission = f"{resource}:read"
             authorize(permission=permission)
 
@@ -85,11 +88,9 @@ class UserLoader(SimpleDataLoader):
         super().__init__(User)
 
 
-class ProductCategoryLoader(DataLoader):
-    async def batch_load_fn(self, keys):
-        authorize(permission="category:read")
-        categories = {c.id: c for c in ProductCategory.select()}
-        return [categories.get(i) for i in keys]
+class ProductCategoryLoader(SimpleDataLoader):
+    def __init__(self):
+        super().__init__(ProductCategory)
 
 
 class SizeRangeLoader(SimpleDataLoader):
