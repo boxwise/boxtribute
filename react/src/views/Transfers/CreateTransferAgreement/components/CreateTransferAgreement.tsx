@@ -40,13 +40,6 @@ export const TransferAgreementFormDataSchema = z
       .array()
       .min(1)
       .nonempty("Please select at least one base"),
-    transferType: z
-      .string({
-        required_error: "Please choose a transfer type",
-      })
-      .refine(Boolean, {
-        message: "Please choose a transfer type",
-      }),
 
     partnerOrganisation: singleSelectOptionSchema
       .refine(Boolean, { message: "Please select a partner organisation" })
@@ -197,16 +190,6 @@ function CreateTransferAgreement({
               fieldLabel={`${currentOrganisation?.name} Bases`}
               placeholder="Please select base(s)"
               options={sourceBasesForDropdownGroups}
-              errors={errors}
-              control={control}
-            />
-          </ListItem>
-          <ListItem>
-            <RadioGroupField
-              fieldId="transferType"
-              fieldLabel="Transfer Type"
-              options={["Sending to", "Receiving from", "Sending to AND Receiving from"]}
-              direction="column"
               errors={errors}
               control={control}
             />

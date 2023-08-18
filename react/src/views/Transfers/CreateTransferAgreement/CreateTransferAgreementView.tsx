@@ -82,22 +82,24 @@ function CreateTransferAgreementView() {
     CreateTransferAgreementMutationVariables
   >(CREATE_AGREEMENT_MUTATION, {
     update(cache, { data: returnedTransferAgreement }) {
-      cache.modify({
-        fields: {
-          transferAgreements(existingTransferAgreements = []) {
-            const newTransferAgreementRef = cache.writeFragment({
-              data: returnedTransferAgreement?.createTransferAgreement,
-              fragment: gql`
-                fragment NewTransferAgreement on TransferAgreement {
-                  id
-                  type
-                }
-              `,
-            });
-            return existingTransferAgreements.concat(newTransferAgreementRef);
+      if (returnedTransferAgreement?.createTransferAgreement) {
+        cache.modify({
+          fields: {
+            transferAgreements(existingTransferAgreements = []) {
+              const newTransferAgreementRef = cache.writeFragment({
+                data: returnedTransferAgreement.createTransferAgreement,
+                fragment: gql`
+                  fragment NewTransferAgreement on TransferAgreement {
+                    id
+                    type
+                  }
+                `,
+              });
+              return existingTransferAgreements.concat(newTransferAgreementRef);
+            },
           },
-        },
-      });
+        });
+      }
     },
   });
 
@@ -131,24 +133,11 @@ function CreateTransferAgreementView() {
       (base) => parseInt(base.value, 10),
     );
 
-    let transferType: TransferAgreementType;
-    switch (createTransferAgreementData.transferType) {
-      case "Sending to":
-        transferType = TransferAgreementType.SendingTo;
-        break;
-      case "Receiving from":
-        transferType = TransferAgreementType.ReceivingFrom;
-        break;
-      default:
-        transferType = TransferAgreementType.Bidirectional;
-        break;
-    }
-
     createTransferAgreementMutation({
       variables: {
         initiatingOrganisationId: parseInt(userCurrentOrganisationId, 10),
         partnerOrganisationId: parseInt(createTransferAgreementData.partnerOrganisation.value, 10),
-        type: transferType,
+        type: TransferAgreementType.Bidirectional,
         validFrom: createTransferAgreementData?.validFrom,
         validUntil: createTransferAgreementData?.validUntil,
         initiatingOrganisationBaseIds: currentOrgBaseIds,
