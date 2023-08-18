@@ -1,14 +1,17 @@
 from datetime import date
 
-from peewee import SQL, fn
+from peewee import JOIN, SQL, fn
 
 from ...db import db
-from ...enums import HumanGender
+from ...enums import HumanGender, TaggableObjectType
 from ...models.definitions.beneficiary import Beneficiary
 from ...models.definitions.box import Box
 from ...models.definitions.location import Location
 from ...models.definitions.product import Product
 from ...models.definitions.product_category import ProductCategory
+from ...models.definitions.tag import Tag
+from ...models.definitions.tags_relation import TagsRelation
+from ...models.utils import convert_ids
 
 
 def compute_beneficiary_demographics(base_ids=None):
@@ -21,6 +24,7 @@ def compute_beneficiary_demographics(base_ids=None):
     gender = fn.IF(Beneficiary.gender == "", "D", Beneficiary.gender)
     created_on = db.database.truncate_date("day", Beneficiary.created_on)
     age = fn.FLOOR((date.today().year - Beneficiary.date_of_birth.year) / bin_width)
+    tag_ids = fn.GROUP_CONCAT(TagsRelation.tag).python_value(convert_ids)
 
     conditions = [Beneficiary.deleted.is_null()]
     if base_ids is not None:
@@ -31,7 +35,16 @@ def compute_beneficiary_demographics(base_ids=None):
             gender.alias("gender"),
             created_on.alias("created_on"),
             age.alias("age"),
-            fn.COUNT(Beneficiary.id).alias("count"),
+            tag_ids.alias("tag_ids"),
+            fn.COUNT(Beneficiary.id.distinct()).alias("count"),
+        )
+        .join(
+            TagsRelation,
+            JOIN.LEFT_OUTER,
+            on=(
+                (TagsRelation.object_id == Beneficiary.id)
+                & (TagsRelation.object_type == TaggableObjectType.Beneficiary)
+            ),
         )
         .where(*conditions)
         .group_by(SQL("gender"), SQL("age"), SQL("created_on"))
@@ -43,7 +56,12 @@ def compute_beneficiary_demographics(base_ids=None):
         row["gender"] = HumanGender(row["gender"])
         row["created_on"] = row["created_on"].date()
 
-    return {"facts": demographics}
+    selected_tag_ids = {t for t in row["tag_ids"] for row in demographics}
+    dimensions = {
+        "tag": Tag.select(Tag.id, Tag.name).where(Tag.id << selected_tag_ids).dicts()
+    }
+
+    return {"facts": demographics, "dimensions": dimensions}
 
 
 def compute_created_boxes(base_id=None):

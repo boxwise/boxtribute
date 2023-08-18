@@ -16,6 +16,13 @@ def utcnow():
     return datetime.now(tz=timezone.utc).replace(microsecond=0)
 
 
+def convert_ids(concat_ids):
+    """Convert a string of comma-separated IDs (returned from GROUP_CONCAT) into a
+    list of integers.
+    """
+    return [int(i) for i in (concat_ids or "").split(",") if i]
+
+
 def save_creation_to_history(f):
     """Utility for writing information about creating a resource to the history table,
     intended to decorate a function that modifies a database resource (e.g. a box).
