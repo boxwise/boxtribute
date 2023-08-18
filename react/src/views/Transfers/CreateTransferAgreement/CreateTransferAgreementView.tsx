@@ -82,22 +82,24 @@ function CreateTransferAgreementView() {
     CreateTransferAgreementMutationVariables
   >(CREATE_AGREEMENT_MUTATION, {
     update(cache, { data: returnedTransferAgreement }) {
-      cache.modify({
-        fields: {
-          transferAgreements(existingTransferAgreements = []) {
-            const newTransferAgreementRef = cache.writeFragment({
-              data: returnedTransferAgreement?.createTransferAgreement,
-              fragment: gql`
-                fragment NewTransferAgreement on TransferAgreement {
-                  id
-                  type
-                }
-              `,
-            });
-            return existingTransferAgreements.concat(newTransferAgreementRef);
+      if (returnedTransferAgreement?.createTransferAgreement) {
+        cache.modify({
+          fields: {
+            transferAgreements(existingTransferAgreements = []) {
+              const newTransferAgreementRef = cache.writeFragment({
+                data: returnedTransferAgreement.createTransferAgreement,
+                fragment: gql`
+                  fragment NewTransferAgreement on TransferAgreement {
+                    id
+                    type
+                  }
+                `,
+              });
+              return existingTransferAgreements.concat(newTransferAgreementRef);
+            },
           },
-        },
-      });
+        });
+      }
     },
   });
 
@@ -195,7 +197,7 @@ function CreateTransferAgreementView() {
 
   return (
     <>
-      <MobileBreadcrumbButton label="Back to Manage Agreements" linkPath="/transfers/shipments" />
+      <MobileBreadcrumbButton label="Back to Manage Agreements" linkPath="/transfers/agreements" />
       {createTransferAgreementMutationState.error &&
         createTransferAgreementMutationState.error.graphQLErrors.some(
           (error: any) =>
