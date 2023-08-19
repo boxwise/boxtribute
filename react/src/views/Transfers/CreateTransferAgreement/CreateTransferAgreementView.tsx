@@ -133,24 +133,11 @@ function CreateTransferAgreementView() {
       (base) => parseInt(base.value, 10),
     );
 
-    let transferType: TransferAgreementType;
-    switch (createTransferAgreementData.transferType) {
-      case "Sending to":
-        transferType = TransferAgreementType.SendingTo;
-        break;
-      case "Receiving from":
-        transferType = TransferAgreementType.ReceivingFrom;
-        break;
-      default:
-        transferType = TransferAgreementType.Bidirectional;
-        break;
-    }
-
     createTransferAgreementMutation({
       variables: {
         initiatingOrganisationId: parseInt(userCurrentOrganisationId, 10),
         partnerOrganisationId: parseInt(createTransferAgreementData.partnerOrganisation.value, 10),
-        type: transferType,
+        type: TransferAgreementType.Bidirectional,
         validFrom: createTransferAgreementData?.validFrom,
         validUntil: createTransferAgreementData?.validUntil,
         initiatingOrganisationBaseIds: currentOrgBaseIds,

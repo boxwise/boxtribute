@@ -40,7 +40,7 @@ const successfulMutation = {
     variables: {
       initiatingOrganisationId: 1,
       partnerOrganisationId: 2,
-      type: TransferAgreementType.SendingTo,
+      type: TransferAgreementType.Bidirectional,
       validFrom: new Date().toISOString().substring(0, 10),
       validUntil: undefined,
       initiatingOrganisationBaseIds: [1],
@@ -176,8 +176,6 @@ it("4.1.2 - Input Validations", async () => {
   expect(screen.getByText(/please select at least one base/i)).toBeInTheDocument();
   // Test case 4.1.2.2 - Partner Organisation SELECT field cannot be empty
   expect(screen.getByText(/please select an organisation/i)).toBeInTheDocument();
-  // Test case 4.1.2.3 - Transfer type Radio Button cannot be empty
-  expect(screen.getByText(/please choose a transfer type/i)).toBeInTheDocument();
   // Test case 4.1.2.4 - The "Valid from" field is optional, but only valid date formats should be entered
   const validFrom = screen.getByLabelText(/valid until/i) as HTMLInputElement;
   const testValueForValidFrom = new Date().toJSON().split("T")[0];
@@ -186,11 +184,6 @@ it("4.1.2 - Input Validations", async () => {
 
   // Test case 4.1.2.5 - The "Valid until" field is optional, but only valid date formats should be entered
   await selectOptionInSelectField(user, /partner organisation/i, "BoxCare");
-  const transferTypeSendingToLabel = screen.getByLabelText("Sending to");
-  expect(transferTypeSendingToLabel).not.toBeChecked();
-  await user.click(transferTypeSendingToLabel);
-  expect(transferTypeSendingToLabel).toBeChecked();
-
   const validUntil = screen.getByLabelText(/valid until/i) as HTMLInputElement;
   const testInvalidValueForValidUntil = addDays(new Date(), -2).toJSON().split("T")[0];
   await user.type(validUntil, testInvalidValueForValidUntil);
@@ -226,10 +219,6 @@ it("4.1.3 - Click on Submit Button", async () => {
 
   // Test case 4.1.3.1 - Form data was valid and mutation was successful
   await selectOptionInSelectField(user, /partner organisation/i, "BoxCare");
-  const transferTypeSendingToLabel = screen.getByLabelText("Sending to");
-  expect(transferTypeSendingToLabel).not.toBeChecked();
-  await user.click(transferTypeSendingToLabel);
-  expect(transferTypeSendingToLabel).toBeChecked();
   await user.click(submitButton);
   expect(await screen.findByText(/successfully created a transfer agreement/i)).toBeInTheDocument();
   // Test case 4.1.3.2 - Redirect to Transfers Agreements Page
@@ -257,12 +246,6 @@ it("4.1.3 - Click on Submit Button", async () => {
   const rerenderedSubmitButton = await screen.findByRole("button", { name: /create agreement/i });
   expect(rerenderedSubmitButton).toBeInTheDocument();
   await selectOptionInSelectField(user, /partner organisation/i, "BoxCare");
-  const transferTypeSendingToAndReceivingFromLabel = screen.getByLabelText(
-    "Sending to AND Receiving from",
-  );
-  expect(transferTypeSendingToAndReceivingFromLabel).not.toBeChecked();
-  await user.click(transferTypeSendingToAndReceivingFromLabel);
-  expect(transferTypeSendingToAndReceivingFromLabel).toBeChecked();
   await user.click(rerenderedSubmitButton);
   expect(await screen.findByText(/your changes could not be saved!/i)).toBeInTheDocument();
 });
@@ -316,12 +299,7 @@ it("4.1.5 - Failed due to the identical agreement", async () => {
   const rerenderedSubmitButton = await screen.findByRole("button", { name: /create agreement/i });
   expect(rerenderedSubmitButton).toBeInTheDocument();
   await selectOptionInSelectField(user, /partner organisation/i, "BoxCare");
-  const transferTypeSendingToAndReceivingFromLabel = screen.getByLabelText(
-    "Sending to AND Receiving from",
-  );
-  expect(transferTypeSendingToAndReceivingFromLabel).not.toBeChecked();
-  await user.click(transferTypeSendingToAndReceivingFromLabel);
-  expect(transferTypeSendingToAndReceivingFromLabel).toBeChecked();
+
   await user.click(rerenderedSubmitButton);
   expect(
     await screen.findByText(/error while trying to create transfer agreement/i),
