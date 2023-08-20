@@ -44,7 +44,7 @@
     "react-scripts": "^5.0.1",
     "react-table": "^7.8.0",
     "victory": "^36.6.8",
-    "zod": "^3.19.1"
+    "zod": "^3.21.4"
   },
   "devDependencies": {
     "@chakra-ui/storybook-addon": "^4.0.16",
