@@ -23,7 +23,6 @@ function ShipmentActionButtons({
   shipmentContents,
   isSender,
   onCancel,
-  onLost,
   onSend,
   onReceive,
   openShipmentOverlay,
@@ -64,7 +63,7 @@ function ShipmentActionButtons({
     isDisabled: shipmentContents.length === 0,
     isLoading: isLoadingFromMutation,
     variant: "ghost",
-    onClick: onLost,
+    onClick: openShipmentOverlay,
     size: "md",
     marginTop: 2,
   };
