@@ -82,21 +82,23 @@ function CreateShipmentView() {
     CreateShipmentMutationVariables
   >(CREATE_SHIPMENT_MUTATION, {
     update(cache, { data: returnedShipment }) {
-      cache.modify({
-        fields: {
-          shipments(existingShipments = []) {
-            const newShipmentRef = cache.writeFragment({
-              data: returnedShipment?.createShipment,
-              fragment: gql`
-                fragment NewShipment on Shipment {
-                  id
-                }
-              `,
-            });
-            return existingShipments.concat(newShipmentRef);
+      if (returnedShipment?.createShipment) {
+        cache.modify({
+          fields: {
+            shipments(existingShipments = []) {
+              const newShipmentRef = cache.writeFragment({
+                data: returnedShipment.createShipment,
+                fragment: gql`
+                  fragment NewShipment on Shipment {
+                    id
+                  }
+                `,
+              });
+              return existingShipments.concat(newShipmentRef);
+            },
           },
-        },
-      });
+        });
+      }
     },
   });
 
@@ -189,13 +191,14 @@ function CreateShipmentView() {
                 message: "Error while trying to create a new shipment!",
               });
             } else {
+              const shipmentId = mutationResult.data?.createShipment?.id;
               createToast({
-                title: `Transfer Shipment ${mutationResult.data?.createShipment?.id}`,
+                title: `Transfer Shipment ${shipmentId}`,
                 type: "success",
                 message: "Successfully created a new shipment",
               });
 
-              navigate(`/bases/${baseId}/transfers/shipments`);
+              navigate(`/bases/${baseId}/transfers/shipments/${shipmentId}`);
             }
           })
           .catch((err) => {
