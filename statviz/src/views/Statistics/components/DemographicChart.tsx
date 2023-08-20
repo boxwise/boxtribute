@@ -2,50 +2,32 @@ import { useState } from "react";
 import { Heading } from "@chakra-ui/react";
 import BarChartCenterAxis from "../../../components/graphs/BarChartCenterAxis";
 import { range } from "lodash";
-import { beneficiaryDemographicsMock  } from "../../../mocks/demographic";
 import FilterCreatedOn from "./filter/FilterCreatedOn";
-import { BeneficiaryDemographicsQuery, BeneficiaryDemographicsQueryVariables, HumanGender } from "../../../types/generated/graphql";
-import { gql, useQuery } from "@apollo/client";
+import { HumanGender } from "../../../types/generated/graphql";
 
-interface IDemographicFact {
+export interface IDemographicFact {
   createdOn: Date;
   age: number;
   count: number;
   gender: string;
 }
 
-const DEMOGRAPHIC_QUERY = gql`
-  query BeneficiaryDemographics {
-    beneficiaryDemographics {
-      age
-      gender
-      createdOn
-      count
-    }
+export interface ITag {
+  id: string,
+  name: string
+}
+
+export interface IDemographicCube {
+  facts: IDemographicFact[];
+  dimensions: {
+    tag: ITag[]
   }
-`
+}
 
-
-export default function DemographicChart() {
-  const getFacts = (): IDemographicFact[] => {
-    const { data } = useQuery<
-    BeneficiaryDemographicsQuery,
-    BeneficiaryDemographicsQueryVariables
-    >(DEMOGRAPHIC_QUERY);
-
-    const dataRaw = data?.beneficiaryDemographics;
-
-    return dataRaw.map((e) => ({
-      ...e,
-      createdOn: new Date(e.createdOn),
-    }));
-  };
-
-  const facts = getFacts();
+export default function DemographicChart(props: { cube: IDemographicCube }) {
+  const facts = [ ...props.cube.facts ]
 
   const prepareFacts = (facts: IDemographicFact[]) => {
-    // eslint-disable-next-line
-    console.log(facts);
 
     const dataXr = facts
       .filter((value) => value.gender === HumanGender.Male)
@@ -68,8 +50,8 @@ export default function DemographicChart() {
     return acc;
   }, 0);
 
-  const height = 600;
-  const width = 800;
+  const height = 500;
+  const width = 700;
 
   const chart = {
     labelY: "Age",
