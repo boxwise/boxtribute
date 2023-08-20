@@ -26,7 +26,6 @@ import ShipmentsOverviewView from "views/Transfers/ShipmentsOverview/ShipmentsOv
 import ShipmentView from "views/Transfers/ShipmentView/ShipmentView";
 import QrReaderView from "views/QrReader/QrReaderView";
 import NotFoundView from "views/NotFoundView/NotFoundView";
-import StatisticsView from "views/Statistics/StatisticsView";
 
 function App() {
   const { logout } = useAuth0();
@@ -54,9 +53,6 @@ function App() {
         <Route index />
         <Route path=":baseId">
           <Route index element={<BaseDashboardView />} />
-          <Route path="statistics">
-            <Route path="demographic" index element={<StatisticsView />} />
-          </Route>
           <Route path="transfers">
             <Route path="agreements">
               <Route index element={<TransferAgreementOverviewView />} />
