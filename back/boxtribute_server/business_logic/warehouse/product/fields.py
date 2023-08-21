@@ -22,6 +22,6 @@ def resolve_product_gender(product_obj, _):
 
 
 @product.field("base")
-def resolve_product_base(product_obj, _):
+def resolve_product_base(product_obj, info):
     authorize(permission="base:read", base_id=product_obj.base_id)
-    return product_obj.base
+    return info.context["base_loader"].load(product_obj.base_id)
