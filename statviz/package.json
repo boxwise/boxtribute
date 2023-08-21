@@ -28,6 +28,7 @@
     "@visx/tooltip": "^3.3.0",
     "date-fns": "^2.29.3",
     "framer-motion": "^10.15.1",
+    "chakra-react-select": "^4.4.3",
     "graphql": "^16.7.1",
     "lodash": "^4.17.21",
     "react": "^18.2.0",

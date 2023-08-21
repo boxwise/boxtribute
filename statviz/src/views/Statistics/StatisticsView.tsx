@@ -10,6 +10,7 @@ const DEMOGRAPHIC_QUERY = gql`
 				createdOn
 				age
 				gender
+        tagIds
       }
       dimensions {
         tag {

@@ -18,7 +18,7 @@ const colors = {
   },
   brandGray: "#848689",
   // this was additional generated on https://coolors.co/ to have a fitting green
-  brandGreen: "#60a561",
+  brandGreen: "#60a561"
 };
 
 export const theme = extendTheme({
@@ -34,21 +34,21 @@ export const theme = extendTheme({
       },
       // TODO: we need to define our brand color palette and apply a whole colorScheme to config chakra UI properly.
       variants: {
-        blue: {
+        "blue": {
           bg: "brandBlue.300",
           color: "white",
           borderRadius: 0,
         },
-        green: {
+        "green": {
           bg: "brandGreen",
           color: "white",
           borderRadius: 0,
         },
-        gray: {
+        "gray": {
           bg: "brandGray",
           color: "white",
           borderRadius: 0,
-        },
+        }
       },
     },
     Link: {

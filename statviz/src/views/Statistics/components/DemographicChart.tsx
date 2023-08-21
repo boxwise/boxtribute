@@ -4,12 +4,14 @@ import BarChartCenterAxis from "../../../components/graphs/BarChartCenterAxis";
 import { range } from "lodash";
 import FilterCreatedOn from "./filter/FilterCreatedOn";
 import { HumanGender } from "../../../types/generated/graphql";
+import FilterTag from "./filter/FilterTag";
 
 export interface IDemographicFact {
   createdOn: Date;
   age: number;
   count: number;
   gender: string;
+  tags: number[];
 }
 
 export interface ITag {
@@ -80,7 +82,8 @@ export default function DemographicChart(props: { cube: IDemographicCube }) {
     <>
       <Heading>Demographic Chart</Heading>
       <FilterCreatedOn onSubmit={onFilterChange} facts={facts} />
-      <div id="chart-container" style={{ width: "100%", height: "100%" }}>
+      <FilterTag onSubmit={onFilterChange} facts={facts} dim={props.cube.dimensions} />
+      <div id="chart-container" style={{ marginTop: "20px", width: "100%", height: "100%" }}>
         <BarChartCenterAxis fields={chart} />
       </div>
     </>
