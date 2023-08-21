@@ -40,7 +40,6 @@ export default function FilterTag(filter: IFilterInput) {
   const options = filter.dim.tag.map((e) => ({ label: e.name, value: e.id }))
 
   const onSubmit = (form: IFilterCreateOnFormScheme) => {
-    console.log(form)
     if (form.tagIds === undefined || form.tagIds.length === 0) {
         filter.onSubmit(filter.facts)
         return;
@@ -49,9 +48,8 @@ export default function FilterTag(filter: IFilterInput) {
     const result = filter.facts.filter((fact) => {
         const selectedTags = form.tagIds.map((e) => e.value)
 
-        const filtered = filter.dim.tag.every((tag) => selectedTags.findIndex((id) => id === tag.id) !== -1)
-        console.log(filtered);
-        return filtered;
+        // Return true if all of the selected tags are inside fact.tagIds
+        return selectedTags.every((selectedTag) => fact.tagIds.findIndex((tagId) => tagId.toString() === selectedTag) !== -1)
     })
 
     filter.onSubmit(result);
@@ -65,7 +63,7 @@ export default function FilterTag(filter: IFilterInput) {
       <form onSubmit={handleSubmit(onSubmit)}>
         <HStack>
           <SelectField
-            fieldId="tags"
+            fieldId="tagIds"
             fieldLabel="tags"
             placeholder="Filter Tags"
             isMulti={true}
