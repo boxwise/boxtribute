@@ -16,7 +16,7 @@
     "@fortawesome/react-fontawesome": "^0.2.0",
     "@hookform/resolvers": "^2.9.11",
     "@sentry/integrations": "^7.38.0",
-    "@sentry/react": "^7.38.0",
+    "@sentry/react": "^7.61.0",
     "@sentry/tracing": "^7.38.0",
     "@visx/axis": "^3.3.0",
     "@visx/event": "^3.3.0",
