@@ -30,5 +30,5 @@
     "pretty": true,
     "sourceMap": true
   },
-  "include": ["src", "../statviz/src/views/Statistics", "../statviz/src/components/graphs"]
+  "include": ["src"]
 }
