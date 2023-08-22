@@ -15,6 +15,34 @@ from ...models.definitions.transaction import Transaction
 from ...models.utils import convert_ids
 
 
+def _generate_dimensions(*names, facts):
+    """Return a dictionary holding information (ID, name) about dimensions with
+    specified names.
+    """
+    dimensions = {}
+
+    if "product" in names:
+        product_ids = {f["product_id"] for f in facts}
+        dimensions["product"] = (
+            Product.select(Product.id, Product.name)
+            .where(Product.id << product_ids)
+            .dicts()
+        )
+
+    if "category" in names:
+        dimensions["category"] = ProductCategory.select(
+            ProductCategory.id, ProductCategory.name
+        ).dicts()
+
+    if "tag" in names:
+        tag_ids = {t for f in facts for t in f["tag_ids"]}
+        dimensions["tag"] = (
+            Tag.select(Tag.id, Tag.name).where(Tag.id << tag_ids).dicts()
+        )
+
+    return dimensions
+
+
 def compute_beneficiary_demographics(base_ids=None):
     """For each combination of age, gender, and day-truncated date count the number of
     beneficiaries in the bases with specified IDs (default: all bases) and return
@@ -57,11 +85,7 @@ def compute_beneficiary_demographics(base_ids=None):
         row["gender"] = HumanGender(row["gender"])
         row["created_on"] = row["created_on"].date()
 
-    selected_tag_ids = {t for t in row["tag_ids"] for row in demographics}
-    dimensions = {
-        "tag": Tag.select(Tag.id, Tag.name).where(Tag.id << selected_tag_ids).dicts()
-    }
-
+    dimensions = _generate_dimensions("tag", facts=demographics)
     return {"facts": demographics, "dimensions": dimensions}
 
 
@@ -92,18 +116,7 @@ def compute_created_boxes(base_id=None):
         if row["created_on"] is not None:
             row["created_on"] = row["created_on"].date()
 
-    products_ids = {f["product_id"] for f in facts}
-    dimensions = {
-        "product": list(
-            Product.select(Product.id, Product.name)
-            .where(Product.id << products_ids)
-            .dicts()
-        ),
-        "category": list(
-            ProductCategory.select(ProductCategory.id, ProductCategory.name).dicts()
-        ),
-    }
-
+    dimensions = _generate_dimensions("category", "product", facts=facts)
     return {"facts": facts, "dimensions": dimensions}
 
 
@@ -130,15 +143,5 @@ def compute_top_products_checked_out(base_id):
         row["rank"] = rank
         row["distributed_on"] = row["distributed_on"].date()
 
-    product_ids = {f["product_id"] for f in facts}
-    dimensions = {
-        "product": list(
-            Product.select(Product.id, Product.name)
-            .where(Product.id << product_ids)
-            .dicts()
-        ),
-        "category": list(
-            ProductCategory.select(ProductCategory.id, ProductCategory.name).dicts()
-        ),
-    }
+    dimensions = _generate_dimensions("category", "product", facts=facts)
     return {"facts": facts, "dimensions": dimensions}
