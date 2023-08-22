@@ -1,8 +1,8 @@
 type Query {
   beneficiaryDemographics(baseIds: [Int!]): BeneficiaryDemographicsData
   createdBoxes(baseId: Int): CreatedBoxesData
-  topProductsCheckedOut(baseId: Int!): TopProductsData
-  topProductsDonated(baseId: Int!): TopProductsData
+  topProductsCheckedOut(baseId: Int!): TopProductsCheckedOutData
+  topProductsDonated(baseId: Int!): TopProductsDonatedData
 }
 
 interface DataCube {
@@ -10,7 +10,7 @@ interface DataCube {
   dimensions: Dimensions
 }
 
-union Result = BeneficiaryDemographicsResult | CreatedBoxesResult | TopProductsResult
+union Result = BeneficiaryDemographicsResult | CreatedBoxesResult | TopProductsCheckedOutResult | TopProductsDonatedResult
 union Dimensions = BeneficiaryDemographicsDimensions | CreatedBoxDataDimensions | TopProductsDimensions
 
 type BeneficiaryDemographicsData implements DataCube {
@@ -49,15 +49,27 @@ type CreatedBoxDataDimensions {
   category: [ResultIdName]
 }
 
-type TopProductsData implements DataCube {
-  facts: [TopProductsResult]
+type TopProductsCheckedOutData implements DataCube {
+  facts: [TopProductsCheckedOutResult]
   dimensions: TopProductsDimensions
 }
 
-type TopProductsResult {
+type TopProductsCheckedOutResult {
+  checkedOutOn: Date
+  productId: Int
+  categoryId: Int
+  rank: Int
+  itemsCount: Int
+}
+
+type TopProductsDonatedData implements DataCube {
+  facts: [TopProductsDonatedResult]
+  dimensions: TopProductsDimensions
+}
+
+type TopProductsDonatedResult {
   createdOn: Date
-  " The date items of that product were either checked out, or donated "
-  distributedOn: Date
+  donatedOn: Date
   sizeId: Int
   productId: Int
   categoryId: Int
@@ -66,6 +78,7 @@ type TopProductsResult {
 }
 
 type TopProductsDimensions {
+  " Always null for topProductsCheckedOut query "
   size: [ResultIdName]
   product: [ResultIdName]
   category: [ResultIdName]

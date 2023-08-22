@@ -60,27 +60,27 @@ def test_query_top_products(
     another_size,
 ):
     query = """query { topProductsCheckedOut(baseId: 1) {
-        facts { distributedOn productId categoryId rank itemsCount }
+        facts { checkedOutOn productId categoryId rank itemsCount }
         dimensions { product { id name } } } }"""
     data = assert_successful_request(read_only_client, query, endpoint="public")
     assert data == {
         "facts": [
             {
-                "distributedOn": relative_transaction["created_on"].date().isoformat(),
+                "checkedOutOn": relative_transaction["created_on"].date().isoformat(),
                 "productId": default_product["id"],
                 "categoryId": default_product["category"],
                 "itemsCount": 9,
                 "rank": 1,
             },
             {
-                "distributedOn": another_transaction["created_on"].date().isoformat(),
+                "checkedOutOn": another_transaction["created_on"].date().isoformat(),
                 "productId": products[2]["id"],
                 "categoryId": products[2]["category"],
                 "itemsCount": another_transaction["count"],
                 "rank": 2,
             },
             {
-                "distributedOn": default_transaction["created_on"].date().isoformat(),
+                "checkedOutOn": default_transaction["created_on"].date().isoformat(),
                 "productId": default_product["id"],
                 "categoryId": default_product["category"],
                 "itemsCount": default_transaction["count"],
@@ -96,14 +96,14 @@ def test_query_top_products(
     }
 
     query = """query { topProductsDonated(baseId: 1) {
-        facts { createdOn distributedOn sizeId productId categoryId rank itemsCount }
+        facts { createdOn donatedOn sizeId productId categoryId rank itemsCount }
         dimensions { product { id name } size { id name } } } }"""
     data = assert_successful_request(read_only_client, query, endpoint="public")
     assert data == {
         "facts": [
             {
                 "createdOn": default_box["created_on"].date().isoformat(),
-                "distributedOn": "2022-12-05",
+                "donatedOn": "2022-12-05",
                 "productId": default_product["id"],
                 "categoryId": default_product["category"],
                 "sizeId": default_size["id"],
@@ -112,7 +112,7 @@ def test_query_top_products(
             },
             {
                 "createdOn": default_box["created_on"].date().isoformat(),
-                "distributedOn": "2022-12-05",
+                "donatedOn": "2022-12-05",
                 "productId": products[2]["id"],
                 "categoryId": products[2]["category"],
                 "sizeId": another_size["id"],

@@ -135,7 +135,7 @@ def compute_top_products_checked_out(base_id):
     with rank included, grouped by distribution date and product category.
     """
     selection = Transaction.select(
-        Transaction.created_on.alias("distributed_on"),
+        Transaction.created_on.alias("checked_out_on"),
         Transaction.product.alias("product_id"),
         Product.category.alias("category_id"),
         fn.SUM(Transaction.count).alias("items_count"),
@@ -143,7 +143,7 @@ def compute_top_products_checked_out(base_id):
         Product, on=((Product.base == base_id) & (Transaction.product == Product.id))
     )
     facts = (
-        selection.group_by(SQL("product_id"), SQL("category_id"), SQL("distributed_on"))
+        selection.group_by(SQL("product_id"), SQL("category_id"), SQL("checked_out_on"))
         .order_by(SQL("items_count").desc())
         .dicts()
     )
@@ -151,9 +151,10 @@ def compute_top_products_checked_out(base_id):
     # Data transformations
     for rank, row in enumerate(facts, start=1):
         row["rank"] = rank
-        row["distributed_on"] = row["distributed_on"].date()
+        row["checked_out_on"] = row["checked_out_on"].date()
 
     dimensions = _generate_dimensions("category", "product", facts=facts)
+    dimensions["size"] = None
     return {"facts": facts, "dimensions": dimensions}
 
 
@@ -164,7 +165,7 @@ def compute_top_products_donated(base_id):
     selection = (
         DbChangeHistory.select(
             Box.created_on.alias("created_on"),
-            DbChangeHistory.change_date.alias("distributed_on"),
+            DbChangeHistory.change_date.alias("donated_on"),
             Box.size.alias("size_id"),
             Box.product.alias("product_id"),
             Product.category.alias("category_id"),
@@ -188,7 +189,7 @@ def compute_top_products_donated(base_id):
     facts = (
         selection.group_by(
             SQL("created_on"),
-            SQL("distributed_on"),
+            SQL("donated_on"),
             SQL("size_id"),
             SQL("product_id"),
             SQL("category_id"),
@@ -200,7 +201,7 @@ def compute_top_products_donated(base_id):
     # Data transformations
     for rank, row in enumerate(facts, start=1):
         row["rank"] = rank
-        row["distributed_on"] = row["distributed_on"].date()
+        row["donated_on"] = row["donated_on"].date()
         row["created_on"] = row["created_on"].date()
 
     dimensions = _generate_dimensions("category", "product", "size", facts=facts)
