@@ -1,6 +1,7 @@
 type Query {
   beneficiaryDemographics(baseIds: [Int!]): BeneficiaryDemographicsData
   createdBoxes(baseId: Int): CreatedBoxesData
+  topProductsCheckedOut(baseId: Int!): TopProductsData
 }
 
 interface DataCube {
@@ -8,8 +9,8 @@ interface DataCube {
   dimensions: Dimensions
 }
 
-union Result = BeneficiaryDemographicsResult | CreatedBoxesResult
-union Dimensions = BeneficiaryDemographicsDimensions | CreatedBoxDataDimensions
+union Result = BeneficiaryDemographicsResult | CreatedBoxesResult | TopProductsResult
+union Dimensions = BeneficiaryDemographicsDimensions | CreatedBoxDataDimensions | TopProductsDimensions
 
 type BeneficiaryDemographicsData implements DataCube {
   facts: [BeneficiaryDemographicsResult]
@@ -43,6 +44,28 @@ type CreatedBoxesResult {
 }
 
 type CreatedBoxDataDimensions {
+  product: [ResultIdName]
+  category: [ResultIdName]
+}
+
+type TopProductsData implements DataCube {
+  facts: [TopProductsResult]
+  dimensions: TopProductsDimensions
+}
+
+type TopProductsResult {
+  # createdOn: Date
+  " The date items of that product were either checked out, or donated "
+  distributedOn: Date
+  # sizeId: Int
+  productId: Int
+  categoryId: Int
+  rank: Int
+  itemsCount: Int
+}
+
+type TopProductsDimensions {
+  size: [ResultIdName]
   product: [ResultIdName]
   category: [ResultIdName]
 }

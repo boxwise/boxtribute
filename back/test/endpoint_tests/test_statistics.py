@@ -46,3 +46,48 @@ def test_query_created_boxes(read_only_client, products, product_categories):
     query = """query { createdBoxes(baseId: 1) { facts { boxesCount } } }"""
     data = assert_successful_request(read_only_client, query, endpoint="public")
     assert data == {"facts": [{"boxesCount": 7}]}
+
+
+def test_query_top_products(
+    read_only_client,
+    default_product,
+    products,
+    default_transaction,
+    relative_transaction,
+    another_transaction,
+):
+    query = """query { topProductsCheckedOut(baseId: 1) {
+        facts { distributedOn productId categoryId rank itemsCount }
+        dimensions { product { id name } } } }"""
+    data = assert_successful_request(read_only_client, query, endpoint="public")
+    assert data == {
+        "facts": [
+            {
+                "distributedOn": relative_transaction["created_on"].date().isoformat(),
+                "productId": default_product["id"],
+                "categoryId": default_product["category"],
+                "itemsCount": 9,
+                "rank": 1,
+            },
+            {
+                "distributedOn": another_transaction["created_on"].date().isoformat(),
+                "productId": products[2]["id"],
+                "categoryId": products[2]["category"],
+                "itemsCount": another_transaction["count"],
+                "rank": 2,
+            },
+            {
+                "distributedOn": default_transaction["created_on"].date().isoformat(),
+                "productId": default_product["id"],
+                "categoryId": default_product["category"],
+                "itemsCount": default_transaction["count"],
+                "rank": 3,
+            },
+        ],
+        "dimensions": {
+            "product": [
+                {"id": str(products[i]["id"]), "name": products[i]["name"]}
+                for i in [0, 2]
+            ],
+        },
+    }

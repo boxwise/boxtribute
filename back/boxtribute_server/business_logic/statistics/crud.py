@@ -11,6 +11,7 @@ from ...models.definitions.product import Product
 from ...models.definitions.product_category import ProductCategory
 from ...models.definitions.tag import Tag
 from ...models.definitions.tags_relation import TagsRelation
+from ...models.definitions.transaction import Transaction
 from ...models.utils import convert_ids
 
 
@@ -103,4 +104,41 @@ def compute_created_boxes(base_id=None):
         ),
     }
 
+    return {"facts": facts, "dimensions": dimensions}
+
+
+def compute_top_products_checked_out(base_id):
+    """Return list of most-checked-out products (i.e. highest count in transactions)
+    with rank included, grouped by distribution date and product category.
+    """
+    selection = Transaction.select(
+        Transaction.created_on.alias("distributed_on"),
+        Transaction.product.alias("product_id"),
+        Product.category.alias("category_id"),
+        fn.SUM(Transaction.count).alias("items_count"),
+    ).join(
+        Product, on=((Product.base == base_id) & (Transaction.product == Product.id))
+    )
+    facts = (
+        selection.group_by(SQL("product_id"), SQL("category_id"), SQL("distributed_on"))
+        .order_by(SQL("items_count").desc())
+        .dicts()
+    )
+
+    # Data transformations
+    for rank, row in enumerate(facts, start=1):
+        row["rank"] = rank
+        row["distributed_on"] = row["distributed_on"].date()
+
+    product_ids = {f["product_id"] for f in facts}
+    dimensions = {
+        "product": list(
+            Product.select(Product.id, Product.name)
+            .where(Product.id << product_ids)
+            .dicts()
+        ),
+        "category": list(
+            ProductCategory.select(ProductCategory.id, ProductCategory.name).dicts()
+        ),
+    }
     return {"facts": facts, "dimensions": dimensions}
