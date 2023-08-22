@@ -30,12 +30,12 @@ def test_query_created_boxes(read_only_client, products, product_categories):
     } } }"""
     data = assert_successful_request(read_only_client, query, endpoint="public")
     facts = data.pop("facts")
-    assert len(facts) == 2
-    assert facts[0]["boxesCount"] == 7
+    assert len(facts) == 3
+    assert facts[0]["boxesCount"] == 9
     assert facts[1]["boxesCount"] == 2
     assert data == {
         "dimensions": {
-            "product": [{"id": str(p["id"]), "name": p["name"]} for p in products[:2]],
+            "product": [{"id": str(p["id"]), "name": p["name"]} for p in products[:3]],
             "category": [
                 {"id": str(c["id"]), "name": c["name"]}
                 for c in sorted(product_categories, key=lambda c: c["id"])
@@ -45,7 +45,7 @@ def test_query_created_boxes(read_only_client, products, product_categories):
 
     query = """query { createdBoxes(baseId: 1) { facts { boxesCount } } }"""
     data = assert_successful_request(read_only_client, query, endpoint="public")
-    assert data == {"facts": [{"boxesCount": 7}]}
+    assert data == {"facts": [{"boxesCount": 9}, {"boxesCount": 1}]}
 
 
 def test_query_top_products(
