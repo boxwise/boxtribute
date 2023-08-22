@@ -8,7 +8,7 @@ from .box_state import default_box_state_data
 from .location import another_location_data, default_location_data
 from .product import data as product_data
 from .qr_code import another_qr_code_with_box_data, default_qr_code_data
-from .size import default_data as size_data
+from .size import default_size_data
 from .user import default_user_data
 
 
@@ -23,7 +23,7 @@ def default_box_data():
         "created_on": datetime(2020, 11, 27),
         "created_by": default_user_data()["id"],
         "number_of_items": 0,
-        "size": size_data()["id"],
+        "size": default_size_data()["id"],
         "location": default_location_data()["id"],
         "qr_code": default_qr_code_data()["id"],
     }
