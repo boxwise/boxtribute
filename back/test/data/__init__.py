@@ -70,7 +70,7 @@ from .shipment_detail import (
 from .size import another_size, default_size
 from .size_range import default_size_range
 from .tag import base1_active_tags, tags
-from .transaction import default_transaction, relative_transaction
+from .transaction import another_transaction, default_transaction, relative_transaction
 from .transfer_agreement import (
     default_transfer_agreement,
     expired_transfer_agreement,
@@ -93,6 +93,7 @@ __all__ = [
     "another_shipment",
     "another_shipment_detail",
     "another_size",
+    "another_transaction",
     "another_user",
     "base1_active_tags",
     "base1_classic_locations",
