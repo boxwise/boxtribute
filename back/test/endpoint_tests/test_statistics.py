@@ -55,6 +55,9 @@ def test_query_top_products(
     default_transaction,
     relative_transaction,
     another_transaction,
+    default_box,
+    default_size,
+    another_size,
 ):
     query = """query { topProductsCheckedOut(baseId: 1) {
         facts { distributedOn productId categoryId rank itemsCount }
@@ -88,6 +91,43 @@ def test_query_top_products(
             "product": [
                 {"id": str(products[i]["id"]), "name": products[i]["name"]}
                 for i in [0, 2]
+            ],
+        },
+    }
+
+    query = """query { topProductsDonated(baseId: 1) {
+        facts { createdOn distributedOn sizeId productId categoryId rank itemsCount }
+        dimensions { product { id name } size { id name } } } }"""
+    data = assert_successful_request(read_only_client, query, endpoint="public")
+    assert data == {
+        "facts": [
+            {
+                "createdOn": default_box["created_on"].date().isoformat(),
+                "distributedOn": "2022-12-05",
+                "productId": default_product["id"],
+                "categoryId": default_product["category"],
+                "sizeId": default_size["id"],
+                "itemsCount": 22,
+                "rank": 1,
+            },
+            {
+                "createdOn": default_box["created_on"].date().isoformat(),
+                "distributedOn": "2022-12-05",
+                "productId": products[2]["id"],
+                "categoryId": products[2]["category"],
+                "sizeId": another_size["id"],
+                "itemsCount": 12,
+                "rank": 2,
+            },
+        ],
+        "dimensions": {
+            "product": [
+                {"id": str(products[i]["id"]), "name": products[i]["name"]}
+                for i in [0, 2]
+            ],
+            "size": [
+                {"id": str(s["id"]), "name": s["label"]}
+                for s in [default_size, another_size]
             ],
         },
     }

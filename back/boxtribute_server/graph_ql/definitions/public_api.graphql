@@ -2,6 +2,7 @@ type Query {
   beneficiaryDemographics(baseIds: [Int!]): BeneficiaryDemographicsData
   createdBoxes(baseId: Int): CreatedBoxesData
   topProductsCheckedOut(baseId: Int!): TopProductsData
+  topProductsDonated(baseId: Int!): TopProductsData
 }
 
 interface DataCube {
@@ -54,10 +55,10 @@ type TopProductsData implements DataCube {
 }
 
 type TopProductsResult {
-  # createdOn: Date
+  createdOn: Date
   " The date items of that product were either checked out, or donated "
   distributedOn: Date
-  # sizeId: Int
+  sizeId: Int
   productId: Int
   categoryId: Int
   rank: Int

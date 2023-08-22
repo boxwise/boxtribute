@@ -3,12 +3,14 @@ from datetime import date
 from peewee import JOIN, SQL, fn
 
 from ...db import db
-from ...enums import HumanGender, TaggableObjectType
+from ...enums import BoxState, HumanGender, TaggableObjectType
 from ...models.definitions.beneficiary import Beneficiary
 from ...models.definitions.box import Box
+from ...models.definitions.history import DbChangeHistory
 from ...models.definitions.location import Location
 from ...models.definitions.product import Product
 from ...models.definitions.product_category import ProductCategory
+from ...models.definitions.size import Size
 from ...models.definitions.tag import Tag
 from ...models.definitions.tags_relation import TagsRelation
 from ...models.definitions.transaction import Transaction
@@ -38,6 +40,14 @@ def _generate_dimensions(*names, facts):
         tag_ids = {t for f in facts for t in f["tag_ids"]}
         dimensions["tag"] = (
             Tag.select(Tag.id, Tag.name).where(Tag.id << tag_ids).dicts()
+        )
+
+    if "size" in names:
+        size_ids = {f["size_id"] for f in facts}
+        dimensions["size"] = (
+            Size.select(Size.id, Size.label.alias("name"))
+            .where(Size.id << size_ids)
+            .dicts()
         )
 
     return dimensions
@@ -144,4 +154,54 @@ def compute_top_products_checked_out(base_id):
         row["distributed_on"] = row["distributed_on"].date()
 
     dimensions = _generate_dimensions("category", "product", facts=facts)
+    return {"facts": facts, "dimensions": dimensions}
+
+
+def compute_top_products_donated(base_id):
+    """Return list of most-donated products with rank included, grouped by distribution
+    date, creation date, size, and product category.
+    """
+    selection = (
+        DbChangeHistory.select(
+            Box.created_on.alias("created_on"),
+            DbChangeHistory.change_date.alias("distributed_on"),
+            Box.size.alias("size_id"),
+            Box.product.alias("product_id"),
+            Product.category.alias("category_id"),
+            fn.SUM(Box.number_of_items).alias("items_count"),
+        )
+        .join(
+            Box,
+            on=(
+                (DbChangeHistory.record_id == Box.id)
+                & (DbChangeHistory.table_name == Box._meta.table_name)
+                & (DbChangeHistory.changes == Box.state.column_name)
+                & (DbChangeHistory.from_int == BoxState.InStock)
+                & (DbChangeHistory.to_int == BoxState.Donated)
+            ),
+        )
+        .join(
+            Product,
+            on=((Box.product == Product.id) & (Product.base == base_id)),
+        )
+    )
+    facts = (
+        selection.group_by(
+            SQL("created_on"),
+            SQL("distributed_on"),
+            SQL("size_id"),
+            SQL("product_id"),
+            SQL("category_id"),
+        )
+        .order_by(SQL("items_count").desc())
+        .dicts()
+    )
+
+    # Data transformations
+    for rank, row in enumerate(facts, start=1):
+        row["rank"] = rank
+        row["distributed_on"] = row["distributed_on"].date()
+        row["created_on"] = row["created_on"].date()
+
+    dimensions = _generate_dimensions("category", "product", "size", facts=facts)
     return {"facts": facts, "dimensions": dimensions}
