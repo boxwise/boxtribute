@@ -369,15 +369,15 @@ workflows:
       - build-back:
           context: STAGING
           requires:
-            - install-node-packages
+            - checkout-to-workspace
       - test-back:
           context: STAGING
           requires:
-            - checkout-to-workspace
+            - build-back
       - build-and-test-front:
           context: STAGING
           requires:
-            - checkout-to-workspace
+            - install-node-packages
 
   build-and-deploy:
     jobs:
