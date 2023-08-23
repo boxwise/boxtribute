@@ -127,6 +127,8 @@ jobs:
     executor: node-executor
     working_directory: ~/front
     steps:
+      - attach_workspace:
+          at: ~/
       - run:
           name: Test front app and create reports
           command: |
