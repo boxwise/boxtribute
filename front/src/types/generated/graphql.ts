@@ -130,12 +130,24 @@ export type BeneficiaryCreationInput = {
   signature?: InputMaybe<Scalars['String']>;
 };
 
+export type BeneficiaryDemographicsData = DataCube & {
+  __typename?: 'BeneficiaryDemographicsData';
+  dimensions?: Maybe<BeneficiaryDemographicsDimensions>;
+  facts?: Maybe<Array<Maybe<BeneficiaryDemographicsResult>>>;
+};
+
+export type BeneficiaryDemographicsDimensions = {
+  __typename?: 'BeneficiaryDemographicsDimensions';
+  tag?: Maybe<Array<Maybe<ResultIdName>>>;
+};
+
 export type BeneficiaryDemographicsResult = {
   __typename?: 'BeneficiaryDemographicsResult';
   age?: Maybe<Scalars['Int']>;
   count?: Maybe<Scalars['Int']>;
   createdOn?: Maybe<Scalars['Date']>;
   gender?: Maybe<HumanGender>;
+  tagIds?: Maybe<Array<Scalars['Int']>>;
 };
 
 /** Utility type holding a page of [`Beneficiaries`]({{Types.Beneficiary}}). */
@@ -268,7 +280,7 @@ export type CreatedBoxDataDimensions = {
   product?: Maybe<Array<Maybe<ResultIdName>>>;
 };
 
-export type CreatedBoxesData = {
+export type CreatedBoxesData = DataCube & {
   __typename?: 'CreatedBoxesData';
   dimensions?: Maybe<CreatedBoxDataDimensions>;
   facts?: Maybe<Array<Maybe<CreatedBoxesResult>>>;
@@ -283,6 +295,13 @@ export type CreatedBoxesResult = {
   itemsCount?: Maybe<Scalars['Int']>;
   productId?: Maybe<Scalars['Int']>;
 };
+
+export type DataCube = {
+  dimensions?: Maybe<Dimensions>;
+  facts?: Maybe<Array<Maybe<Result>>>;
+};
+
+export type Dimensions = BeneficiaryDemographicsDimensions | CreatedBoxDataDimensions;
 
 /** TODO: Add description here once specs are final/confirmed */
 export type DistributionEvent = {
@@ -1095,7 +1114,7 @@ export type Query = {
   /**  Return all [`Beneficiaries`]({{Types.Beneficiary}}) that the client is authorized to view.  */
   beneficiaries: BeneficiaryPage;
   beneficiary?: Maybe<Beneficiary>;
-  beneficiaryDemographics?: Maybe<Array<Maybe<BeneficiaryDemographicsResult>>>;
+  beneficiaryDemographics?: Maybe<BeneficiaryDemographicsData>;
   box?: Maybe<Box>;
   createdBoxes?: Maybe<CreatedBoxesData>;
   distributionEvent?: Maybe<DistributionEvent>;
@@ -1258,6 +1277,8 @@ export type QueryTransferAgreementsArgs = {
 export type QueryUserArgs = {
   id?: InputMaybe<Scalars['ID']>;
 };
+
+export type Result = BeneficiaryDemographicsResult | CreatedBoxesResult;
 
 export type ResultIdName = {
   __typename?: 'ResultIdName';
