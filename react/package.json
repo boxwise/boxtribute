@@ -8,7 +8,7 @@
     "@babel/runtime": "^7.20.13",
     "@chakra-ui/icons": "^1.1.7",
     "@chakra-ui/react": "^1.8.9",
-    "@emotion/react": "^11.10.5",
+    "@emotion/react": "^11.11.1",
     "@emotion/styled": "^11.10.5",
     "@fontsource/open-sans": "^4.5.14",
     "@fortawesome/fontawesome-svg-core": "^6.2.1",
