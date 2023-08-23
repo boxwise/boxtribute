@@ -24,7 +24,7 @@ jobs:
           paths:
             - .
 
-  install_node_packages:
+  install-node-packages:
     executor: node-executor
     working_directory: ~/
     steps:
@@ -40,6 +40,10 @@ jobs:
           paths:
             - ./node_modules
             - ./.cache
+      - persist_to_workspace:
+          root: ./
+          paths:
+            - ./node_modules
 
   build-back:
     executor: python-executor
@@ -103,7 +107,7 @@ jobs:
           command: |
             yarn build
       - run:
-          name: Test front app and creat reports
+          name: Test front app and create reports
           command: |
             DEBUG_PRINT_LIMIT=10000 yarn test:coverage --ci --runInBand --reporters=default --reporters=jest-junit
           environment:
@@ -359,11 +363,13 @@ workflows:
   test:
     jobs:
       - checkout-to-workspace
-      - install_node_packages
+      - install-node-packages
+          requires:
+            - checkout-to-workspace
       - build-back:
           context: STAGING
           requires:
-            - checkout-to-workspace
+            - install-node-packages
       - test-back:
           context: STAGING
           requires:
@@ -371,7 +377,7 @@ workflows:
       - build-and-test-front:
           context: STAGING
           requires:
-            - checkout-to-workspace
+            - install-node-packages
 
   build-and-deploy:
     jobs:
@@ -382,7 +388,9 @@ workflows:
               only:
                 - master
                 - production
-      - install_node_packages:
+      - install-node-packages:
+          requires:
+            - checkout-to-workspace
           filters:
             branches:
               only:
@@ -394,7 +402,7 @@ workflows:
           name: build-and-test-front-staging
           context: STAGING
           requires:
-            - checkout-to-workspace
+            - install-node-packages
           filters:
             branches:
               only:
@@ -425,7 +433,7 @@ workflows:
           name: build-and-test-front-demo
           context: DEMO
           requires:
-            - checkout-to-workspace
+            - install-node-packages
           filters:
             tags:
               ignore: /.*/
@@ -465,7 +473,10 @@ workflows:
               only: /^v.*/
             branches:
               ignore: /.*/
-      - install_node_packages:
+      - install-node-packages:
+          name: install-node-packages-production
+          requires:
+            - checkout-to-workspace-production
           filters:
             tags:
               only: /^v.*/
@@ -475,7 +486,7 @@ workflows:
           name: build-and-test-front-production
           context: PRODUCTION
           requires:
-            - checkout-to-workspace-production
+            - install-node-packages-production
           filters:
             tags:
               only: /^v.*/
