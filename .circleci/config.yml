@@ -13,6 +13,15 @@ executors:
   python-executor:
     docker:
       - image: cimg/python:3.10.4
+  python-mysql-executor:
+    docker:
+      - image: cimg/python:3.10.4
+      - image: cimg/mysql:8.0.27
+        environment:
+          MYSQL_ROOT_PASSWORD: dropapp_root
+          MYSQL_DATABASE: dropapp_dev
+          MYSQL_ROOT_HOST: "%"
+        command: --default-authentication-plugin=mysql_native_password --lower_case_table_names=1
 
 jobs:
   checkout-to-workspace:
@@ -106,6 +115,7 @@ jobs:
           name: Build front
           command: |
             yarn build
+
       - run:
           name: Test front app and create reports
           command: |
@@ -129,14 +139,7 @@ jobs:
 
   # following https://circleci.com/docs/2.0/project-walkthrough/
   test-back:
-    docker:
-      - image: cimg/python:3.10.4
-      - image: cimg/mysql:8.0.27
-        environment:
-          MYSQL_ROOT_PASSWORD: dropapp_root
-          MYSQL_DATABASE: dropapp_dev
-          MYSQL_ROOT_HOST: "%"
-        command: --default-authentication-plugin=mysql_native_password --lower_case_table_names=1
+    executor: python-mysql-executor
     working_directory: ~/back
     steps:
       # Attach workspace from build
