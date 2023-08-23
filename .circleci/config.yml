@@ -84,7 +84,7 @@ jobs:
             - back/*
             - .pyenv/versions/3.10.4/envs
 
-  build-and-test-front:
+  build-front:
     executor: node-executor
     working_directory: ~/front
     steps:
@@ -115,7 +115,18 @@ jobs:
           name: Build front
           command: |
             yarn build
+      - slack/notify-on-failure:
+          only_for_branches: master,production
+      # Add build to workspace
+      - persist_to_workspace:
+          root: ~/
+          paths:
+            - front/build
 
+  test-front:
+    executor: node-executor
+    working_directory: ~/front
+    steps:
       - run:
           name: Test front app and create reports
           command: |
@@ -131,11 +142,6 @@ jobs:
           flags: frontend
       - slack/notify-on-failure:
           only_for_branches: master,production
-      # Add build to workspace
-      - persist_to_workspace:
-          root: ~/
-          paths:
-            - front/build
 
   # following https://circleci.com/docs/2.0/project-walkthrough/
   test-back:
@@ -377,8 +383,11 @@ workflows:
           context: STAGING
           requires:
             - build-back
-      - build-and-test-front:
+      - build-front:
           context: STAGING
+          requires:
+            - install-node-packages
+      - test-front:
           requires:
             - install-node-packages
 
@@ -401,8 +410,8 @@ workflows:
                 - production
 
       # staging
-      - build-and-test-front:
-          name: build-and-test-front-staging
+      - build-front:
+          name: build-front-staging
           context: STAGING
           requires:
             - install-node-packages
@@ -415,7 +424,7 @@ workflows:
           context: STAGING
           serviceName: v2-staging
           requires:
-            - build-and-test-front-staging
+            - build-front-staging
           filters:
             branches:
               only:
@@ -432,8 +441,8 @@ workflows:
                 - master
 
       # demo - runs on any commit to the production branch
-      - build-and-test-front:
-          name: build-and-test-front-demo
+      - build-front:
+          name: build-front-demo
           context: DEMO
           requires:
             - install-node-packages
@@ -448,7 +457,7 @@ workflows:
           context: DEMO
           serviceName: v2-demo
           requires:
-            - build-and-test-front-demo
+            - build-front-demo
           filters:
             tags:
               ignore: /.*/
@@ -485,8 +494,8 @@ workflows:
               only: /^v.*/
             branches:
               ignore: /.*/
-      - build-and-test-front:
-          name: build-and-test-front-production
+      - build-front:
+          name: build-front-production
           context: PRODUCTION
           requires:
             - install-node-packages-production
@@ -500,7 +509,7 @@ workflows:
           context: PRODUCTION
           serviceName: v2-production
           requires:
-            - build-and-test-front-production
+            - build-front-production
           filters:
             tags:
               only: /^v.*/
