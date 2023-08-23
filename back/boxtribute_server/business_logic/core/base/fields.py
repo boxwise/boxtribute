@@ -16,6 +16,11 @@ from .crud import get_base_distribution_events
 base = ObjectType("Base")
 
 
+@base.field("organisation")
+def resolve_base_organisation(base_obj, info):
+    return info.context["organisation_loader"].load(base_obj.organisation_id)
+
+
 @base.field("products")
 def resolve_base_products(base_obj, *_):
     authorize(permission="product:read", base_id=base_obj.id)
