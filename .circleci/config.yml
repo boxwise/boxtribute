@@ -363,7 +363,7 @@ workflows:
   test:
     jobs:
       - checkout-to-workspace
-      - install-node-packages
+      - install-node-packages:
           requires:
             - checkout-to-workspace
       - build-back:
