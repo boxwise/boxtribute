@@ -48,7 +48,7 @@ jobs:
   build-and-test-react:
     docker:
       - image: cimg/python:3.10.4-node
-    working_directory: ~/react
+    working_directory: ~/front
     steps:
       - attach_workspace:
           at: ~/
@@ -72,7 +72,7 @@ jobs:
       - restore_cache:
           name: Restore Yarn Package Cache
           keys:
-            - react-yarn-{{ checksum "yarn.lock" }}
+            - front-yarn-{{ checksum "yarn.lock" }}
       - run:
           name: Install Yarn Packages
           command: yarn install --frozen-lockfile
@@ -80,7 +80,7 @@ jobs:
           path: yarn.lock
       - save_cache:
           name: Save Yarn Package Cache
-          key: react-yarn-{{ checksum "yarn.lock" }}
+          key: front-yarn-{{ checksum "yarn.lock" }}
           paths:
             - ~/.cache/yarn
       - run:
@@ -111,7 +111,7 @@ jobs:
       - persist_to_workspace:
           root: ~/
           paths:
-            - react/build
+            - front/build
 
   # following https://circleci.com/docs/2.0/project-walkthrough/
   test-flask:
@@ -194,11 +194,11 @@ jobs:
       - run:
           name: Inject Heap Analytics Script to index.html
           command: |
-            sed -i "s/HEAPIO_APP_ID/${HEAPIO_APP_ID}/" ../react/build/heapanalytics.js
-            sed -i 's|</head>|<script src="/heapanalytics.js"></script></head>|' ../react/build/index.html
+            sed -i "s/HEAPIO_APP_ID/${HEAPIO_APP_ID}/" ../front/build/heapanalytics.js
+            sed -i 's|</head>|<script src="/heapanalytics.js"></script></head>|' ../front/build/index.html
       - run:
           name: Copy react build into flask app for deployment
-          command: mv ../react/build react-build
+          command: mv ../front/build front-build
       - run:
           name: Create version.txt
           command: |
