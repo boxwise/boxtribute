@@ -5,7 +5,6 @@ import { screen, render } from "tests/test-utils";
 import HeaderMenuContainer from "components/HeaderMenu/HeaderMenuContainer";
 import { useAuth0 } from "@auth0/auth0-react";
 import { QrReaderScanner } from "components/QrReader/components/QrReaderScanner";
-import { mockMatchMediaQuery } from "mocks/functions";
 import { mockAuthenticatedUser } from "mocks/hooks";
 import { mockImplementationOfQrReader } from "mocks/components";
 import {
@@ -23,8 +22,6 @@ const mockedUseAuth0 = jest.mocked(useAuth0);
 const mockedQrReader = jest.mocked(QrReaderScanner);
 
 beforeEach(() => {
-  // setting the screensize to
-  mockMatchMediaQuery(true);
   mockAuthenticatedUser(mockedUseAuth0, "dev_volunteer@boxaid.org");
 });
 

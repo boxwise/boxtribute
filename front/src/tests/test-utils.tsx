@@ -22,6 +22,7 @@ import {
 } from "providers/GlobalPreferencesProvider";
 import { organisation1 } from "mocks/organisations";
 import { base1 } from "mocks/bases";
+import { mockMatchMediaQuery } from "mocks/functions";
 
 // Options for Apollo MockProvider
 const defaultOptions: DefaultOptions = {
@@ -35,14 +36,18 @@ const defaultOptions: DefaultOptions = {
 
 /**
  * Renders a React component with Apollo GraphQL client and @testing-library/react.
- * @param ui - The React element to render.
- * @param options - The options object.
- * @param options.mocks - An array of `MockedResponse` objects from `@apollo/client/testing`. These objects define the mocked responses for GraphQL queries and mutations.
- * @param options.routePath - A string representing the path of the route that the `ui` component should be rendered at.
- * @param options.initialUrl - A string representing the initial URL that the `MemoryRouter` should be initialized with.
- * @param options.additionalRoute - A string representing a path the ui component might redirect to.
- * @param options.renderOptions - Additional options that can be passed to the `rtlRender` function from `@testing-library/react`.
- * @returns An object containing the rendered component and functions for interacting with it.
+ *
+ * @param {React.ReactElement} ui - The React element to render.
+ * @param {Object} options - The options object.
+ * @param {MockedResponse[]} options.mocks - An array of `MockedResponse` objects from `@apollo/client/testing`. These objects define the mocked responses for GraphQL queries and mutations.
+ * @param {string} options.routePath - A string representing the path of the route that the `ui` component should be rendered at.
+ * @param {string} options.initialUrl - A string representing the initial URL that the `MemoryRouter` should be initialized with.
+ * @param {string} [options.additionalRoute] - A string representing a path the `ui` component might redirect to.
+ * @param {boolean} [options.addTypename=false] - Whether to include the `__typename` field in query results.
+ * @param {IGlobalPreferencesContext} [options.globalPreferences] - An object representing global preferences context for the rendered component.
+ * @param {boolean} [options.mediaQueryReturnValue=true] - The return value for the mocked `window.matchMedia` function. This function is needed if the useMediaQuery is called.
+ * @param {Object} options.renderOptions - Additional options that can be passed to the `rtlRender` function from `@testing-library/react`.
+ * @returns {Object} An object containing the rendered component and functions for interacting with it.
  */
 
 function render(
@@ -55,6 +60,7 @@ function render(
     additionalRoute = undefined,
     addTypename = false,
     globalPreferences,
+    mediaQueryReturnValue = true,
     ...renderOptions
   }: {
     mocks?: Array<MockedResponse>;
@@ -64,6 +70,7 @@ function render(
     additionalRoute?: string;
     addTypename?: boolean;
     globalPreferences?: IGlobalPreferencesContext;
+    mediaQueryReturnValue?: boolean;
   },
 ) {
   // Log if there is an error in the mock
@@ -90,6 +97,8 @@ function render(
       availableBases: organisation1.bases,
     },
   };
+
+  mockMatchMediaQuery(mediaQueryReturnValue);
 
   const Wrapper: React.FC = ({ children }: any) => (
     <ChakraProvider theme={theme}>

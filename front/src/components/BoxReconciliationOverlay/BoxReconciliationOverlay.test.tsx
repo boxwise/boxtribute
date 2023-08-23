@@ -2,7 +2,6 @@ import "@testing-library/jest-dom";
 import { screen, render } from "tests/test-utils";
 import { useAuth0 } from "@auth0/auth0-react";
 import { BoxReconciliationOverlay } from "components/BoxReconciliationOverlay/BoxReconciliationOverlay";
-import { mockMatchMediaQuery } from "mocks/functions";
 import { mockAuthenticatedUser } from "mocks/hooks";
 import { generateMockShipment } from "mocks/shipments";
 import { ShipmentState } from "types/generated/graphql";
@@ -22,8 +21,6 @@ jest.mock("@auth0/auth0-react");
 const mockedUseAuth0 = jest.mocked(useAuth0);
 
 beforeEach(() => {
-  // setting the screensize to
-  mockMatchMediaQuery(true);
   mockAuthenticatedUser(mockedUseAuth0, "dev_volunteer@boxaid.org");
 });
 
