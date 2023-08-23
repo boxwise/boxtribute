@@ -6,7 +6,7 @@ ENV YARN_VERSION 1.22.5
 
 RUN yarn policies set-version $YARN_VERSION
 
-WORKDIR /app/react
+WORKDIR /app/front
 # install packages seperately to use docker build-caching
 # so we don't need to re-fetch these if code has changed
 # but our package.json hasn't

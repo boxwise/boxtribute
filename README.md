@@ -10,11 +10,12 @@ Build: [![CircleCI](https://circleci.com/gh/boxwise/boxtribute.svg?style=svg)](h
 # boxtribute
 
 This is the repository for version 2 of the humanitarian relief web app [Boxtribute](https://www.boxtribute.org). Built by aid workers for aid workers, it is designed with three top priorities in mind:
-1. Quick deployment into crisis situations,  including an easy integration into all sorts of relief operations, whether they're new or already up and running.
+
+1. Quick deployment into crisis situations, including an easy integration into all sorts of relief operations, whether they're new or already up and running.
 2. Effective even with minimal training - doesn't require any professional expertise to use well. Can be run smoothly with short-term volunteers of all backgrounds.
 3. Dignity and choice-based distribution as a first priority for vulnerable individuals.
 
-The web app consists of a [React front-end](/react) bootstrapped with [Create React App](https://github.com/facebook/create-react-app), and a [Python Flask back-end](/back).
+The web app consists of a [React front-end](/front) bootstrapped with [Create React App](https://github.com/facebook/create-react-app), and a [Python Flask back-end](/back).
 
 Please check out [**Contribution Guidelines**](CONTRIBUTING.md) before you get started!
 
@@ -57,18 +58,18 @@ In (Linux) Docker there is no UI to set the memory limits globally. In that case
 version: "2.4"
 services:
     [...]
-    react:
+    front:
         mem_limit: 4G
 ```
 
 ### Further Steps
 
-- [for front-end including react-testing-library, eslint, prettier](/react/README.md)
+- [for front-end including react-testing-library, eslint, prettier](/front/README.md)
 - [for back-end including pytest, venv, formatting and debugging](/back/README.md)
 
 ## About Docker
 
-We are using Docker containers to make it easy for everyone to spin up an development environment which is the same everywhere. In `docker-compose.yaml` three Docker containers are specified - one for the MySQL database called `db`, one for the Flask back-end called `webapp` and one for the react front-end called `react`.
+We are using Docker containers to make it easy for everyone to spin up an development environment which is the same everywhere. In `docker-compose.yaml` three Docker containers are specified - one for the MySQL database called `db`, one for the Flask back-end called `webapp` and one for the react front-end called `front`.
 
 ## Development Database Seed
 

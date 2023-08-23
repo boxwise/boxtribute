@@ -39,13 +39,13 @@ The following commands need to be run for linting and formatting:
 
 ```sh
 # auto fix
-docker-compose exec react yarn lint
+docker-compose exec front yarn lint
 
 # check formatting
-docker-compose exec react yarn format:check
+docker-compose exec front yarn format:check
 
 # fix formatting
-docker-compose exec react yarn format:write
+docker-compose exec front yarn format:write
 ```
 
 ### General linting and formatting rules
@@ -62,20 +62,20 @@ docker-compose exec react yarn format:write
 
 ## Note about yarn and Docker
 
-We are using docker to spin up our dev environment. The react folder is in sync with the react Docker container. Therefore, the hot-reloading of the yarn development server should function.
+We are using docker to spin up our dev environment. The front folder is in sync with the front Docker container. Therefore, the hot-reloading of the yarn development server should function.
 
 When you wish to add a dependency, e.g. when you make a change to your local `package.json`, you will need to rebuild the docker container and relaunch.
 
 You can add packages during development without rebuilding by installing it inside the container. Your changes will last until you "docker-compose down" and will be saved on host for next build.
 
-For example, to add XYZ to the `package.json` file in the `react` folder while developing, you can run this (make sure you run it in the project's root folder since docker compose is operating in that folder):
+For example, to add XYZ to the `package.json` file in the `front` folder while developing, you can run this (make sure you run it in the project's root folder since docker compose is operating in that folder):
 
-      docker-compose exec react yarn add XYZ
+      docker-compose exec front yarn add XYZ
 
 Afterwards:
 
 1. stop docker-compose and run `docker-compose up` again
-2. run `yarn` in your local react folder (so that your tooling like VSCode also picks up the changes, like new TS types etc)
+2. run `yarn` in your local front folder (so that your tooling like VSCode also picks up the changes, like new TS types etc)
 
 (This advice has come from https://github.com/BretFisher/node-docker-good-defaults)
 
@@ -83,20 +83,20 @@ Afterwards:
 
 Testing is done with React Testing Library and Jest.
 
-Test files are located in the same directory as the files they are testing. For example, `EditBox.test.js` and `EditBox.tsx` are both located in `react/src/views/EditBox`.
+Test files are located in the same directory as the files they are testing. For example, `EditBox.test.js` and `EditBox.tsx` are both located in `front/src/views/EditBox`.
 
 For integration tests, we mock the Apollo client with a `MockedProvider` component instead of the `ApolloProvider` component that is used to handle real data. More information on mocking the Apollo client can be found [here](https://www.apollographql.com/docs/react/development-testing/testing/).
 
-To eliminate repetitive code, a custom renderer was built in `react/src/tests/test-utils.js`. It allows developers to render a component in a test environment where chakra, Apollo and Routes are wrapped around it. The utility also exports the entire react testing library, so you should import from this utility instead of `@testing-library/react`. See `EditBox.test.js` for examples of the custom renderer's use.
+To eliminate repetitive code, a custom renderer was built in `front/src/tests/test-utils.js`. It allows developers to render a component in a test environment where chakra, Apollo and Routes are wrapped around it. The utility also exports the entire react testing library, so you should import from this utility instead of `@testing-library/react`. See `EditBox.test.js` for examples of the custom renderer's use.
 
 Tests and test coverage can be run with the following command:
 
 ```sh
 # run tests
-docker-compose exec react yarn test
+docker-compose exec front yarn test
 
 # test coverage
-docker-compose exec react yarn test:coverage
+docker-compose exec front yarn test:coverage
 ```
 
 Here, a list of best practices you should follow when writing front-end tests with React Testing Library:
@@ -138,7 +138,7 @@ The folder structure is as follows:
 
 ```bash
 
-/react
+/front
 ├── /src
 │   ├── assets
 │   ├── components
