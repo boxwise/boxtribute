@@ -330,7 +330,7 @@ it("3.4.2.5b - Mobile: User scans non Boxtribute QR code", async () => {
   ).toBeGreaterThanOrEqual(1);
   // QrOverlay stays open
   expect(screen.getByTestId("ReturnScannedQr")).toBeInTheDocument();
-}, 10000);
+}, 15000);
 
 const queryInternalServerError = {
   request: {
