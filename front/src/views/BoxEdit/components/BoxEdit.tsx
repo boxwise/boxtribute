@@ -52,7 +52,6 @@ interface ILocationData {
 }
 
 // Definitions for form validation with zod
-
 const singleSelectOptionSchema = z.object({
   label: z.string(),
   value: z.string(),
@@ -66,35 +65,38 @@ export const BoxEditFormDataSchema = z.object({
     .nullable()
     // We make the field nullable and can then check in the next step if it is empty or not with the refine function.
     .refine(Boolean, { message: "Please select a product" })
-    // since the expected return type is an object of strings we have to add this transform at the end.
-    .transform((selectedOption) => selectedOption || { label: "", value: "" }),
-  sizeId: singleSelectOptionSchema
-    .nullable()
+    // since the expected return type should not have a null we add this transform at the en.
+    .transform((selectedOption) => selectedOption || z.NEVER),
+  sizeId: z
+    .nullable(singleSelectOptionSchema)
     .refine(Boolean, { message: "Please select a size" })
-    .transform((selectedOption) => selectedOption || { label: "", value: "" }),
+    .transform((selectedOption) => selectedOption || z.NEVER),
   numberOfItems: z
     .number({
       required_error: "Please enter a number of items",
       invalid_type_error: "Please enter an integer number",
     })
     .int()
-    .nonnegative(),
+    .nonnegative()
+    .nullable()
+    .transform((num) => num || z.NEVER),
   locationId: singleSelectOptionSchema
     .nullable()
     .refine(Boolean, { message: "Please select a location" })
-    .transform((selectedOption) => selectedOption || { label: "", value: "" }),
+    .transform((selectedOption) => selectedOption || z.NEVER),
   tags: singleSelectOptionSchema.array().optional(),
-  comment: z.string().optional(),
+  comment: z.string().optional().nullable(),
 });
 
-export type IBoxEditFormData = z.infer<typeof BoxEditFormDataSchema>;
+export type IBoxEditFormInput = z.input<typeof BoxEditFormDataSchema>;
+export type IBoxEditFormOutput = z.output<typeof BoxEditFormDataSchema>;
 
 interface IBoxEditProps {
   boxData: Exclude<BoxByLabelIdentifierAndAllProductsWithBaseIdQuery["box"], null | undefined>;
   productAndSizesData: IProductWithSizeRangeData[];
   allLocations: ILocationData[];
   allTags: IDropdownOption[] | null | undefined;
-  onSubmitBoxEditForm: (boxEditFormData: IBoxEditFormData) => void;
+  onSubmitBoxEditForm: (boxEditFormData: IBoxEditFormInput) => void;
 }
 
 function BoxEdit({
@@ -112,18 +114,21 @@ function BoxEdit({
   const navigate = useNavigate();
 
   // Form Default Values
-  const defaultValues: IBoxEditFormData = {
-    productId: {
-      label:
-        `${boxData?.product?.name}${
-          boxData?.product?.gender !== "none" ? ` (${boxData?.product?.gender})` : ""
-        }` || "",
-      value: boxData?.product?.id || "",
-    },
-    sizeId: { label: boxData?.size?.label || "", value: boxData?.size?.id || "" },
-    numberOfItems: boxData?.numberOfItems || 0,
-    locationId: { label: boxData?.location?.name || "", value: boxData?.location?.id || "" },
-    comment: boxData?.comment || "",
+  const defaultValues: IBoxEditFormInput = {
+    productId: boxData.product
+      ? {
+          label: `${boxData.product.name}${
+            boxData.product.gender !== "none" ? ` (${boxData.product.gender})` : ""
+          }`,
+          value: boxData.product.id,
+        }
+      : null,
+    sizeId: boxData.size ? { label: boxData.size.label, value: boxData.size.id } : null,
+    numberOfItems: boxData?.numberOfItems || null,
+    locationId: boxData.location?.name
+      ? { label: boxData.location.name, value: boxData.location.id }
+      : null,
+    comment: boxData?.comment,
     tags: boxData?.tags || [],
   };
 
@@ -167,7 +172,7 @@ function BoxEdit({
     resetField,
     watch,
     formState: { errors, isSubmitting },
-  } = useForm<IBoxEditFormData>({
+  } = useForm<IBoxEditFormInput>({
     resolver: zodResolver(BoxEditFormDataSchema),
     defaultValues,
   });
@@ -200,7 +205,7 @@ function BoxEdit({
         if (prepSizesOptionsForCurrentProduct.length === 1) {
           resetField("sizeId", { defaultValue: prepSizesOptionsForCurrentProduct[0] });
         } else {
-          resetField("sizeId", { defaultValue: undefined });
+          resetField("sizeId", { defaultValue: null });
         }
       }
     }
