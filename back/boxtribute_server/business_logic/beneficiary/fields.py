@@ -82,6 +82,6 @@ def resolve_beneficiary_active(beneficiary_obj, _):
 
 
 @beneficiary.field("base")
-def resolve_beneficiary_base(beneficiary_obj, _):
+def resolve_beneficiary_base(beneficiary_obj, info):
     authorize(permission="base:read", base_id=beneficiary_obj.base_id)
-    return beneficiary_obj.base
+    return info.context["base_loader"].load(beneficiary_obj.base_id)
