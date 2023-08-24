@@ -1,11 +1,13 @@
 import { Route, Routes } from "react-router-dom";
-import StatisticsView from "./views/Statistics/StatisticsView";
+import DemographicView from "./views/Statistics/DemographicView";
+import BoxView from "./views/Statistics/BoxView";
 
 function App() {
   return (
     <Routes>
       <Route index />
-      <Route path="demographic" element={<StatisticsView />} />
+      <Route path="demographic" element={<DemographicView />} />
+      <Route path="boxes" element={<BoxView />} />
     </Routes>
   );
 }
