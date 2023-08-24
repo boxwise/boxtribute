@@ -121,23 +121,23 @@ function BoxTabs({
                 />
               )}
             </TabPanel>
-            {shipmentOptions.length === 0 && (
-              <TabPanel>
+
+            <TabPanel>
+              {shipmentOptions.length === 0 && (
                 <Text px={4} py={8} alignContent="center">
                   No shipments are being prepared from your base!
                 </Text>
-
-                {shipmentOptions.length > 0 && (
-                  <AssignBoxToShipment
-                    boxData={boxData}
-                    isAssignBoxesToShipmentLoading={isLoading}
-                    shipmentOptions={shipmentOptions}
-                    onAssignBoxesToShipment={onAssignBoxesToShipment}
-                    onUnassignBoxesToShipment={onUnassignBoxesToShipment}
-                  />
-                )}
-              </TabPanel>
-            )}
+              )}
+              {shipmentOptions.length > 0 && (
+                <AssignBoxToShipment
+                  boxData={boxData}
+                  isAssignBoxesToShipmentLoading={isLoading}
+                  shipmentOptions={shipmentOptions}
+                  onAssignBoxesToShipment={onAssignBoxesToShipment}
+                  onUnassignBoxesToShipment={onUnassignBoxesToShipment}
+                />
+              )}
+            </TabPanel>
           </TabPanels>
         </Tabs>
       </Flex>
