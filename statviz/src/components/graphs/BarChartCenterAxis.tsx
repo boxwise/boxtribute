@@ -238,7 +238,7 @@ export default function BarChartCenterAxis(chart: IBarChartCenterAxis) {
             key={Math.random()}
             left={tooltipLeft}
             top={tooltipTop}
-            style={customStyles}
+            style={tooltipStyles}
           >
             <span>{tooltipData}</span>
           </Tooltip>
