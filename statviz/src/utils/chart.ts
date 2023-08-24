@@ -10,9 +10,13 @@ export const tooltipStyles = {
   backgroundColor: "#000000",
   color: "white",
   width: 152,
-  height: 32,
+  height: 42,
   padding: 6,
   fontSize: 14,
+};
+
+export const tickProps = {
+  fontSize: 12,
 };
 
 export const labelProps = {

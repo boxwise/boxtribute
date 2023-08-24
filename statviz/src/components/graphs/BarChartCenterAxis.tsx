@@ -1,5 +1,5 @@
 import { useTooltip, Tooltip } from "@visx/tooltip";
-import { IXY, tooltipStyles, labelProps } from "../../utils/chart";
+import { IXY, tooltipStyles, labelProps, tickProps } from "../../utils/chart";
 import { AxisBottom, AxisLeft } from "@visx/axis";
 import { Grid } from "@visx/grid";
 import { Group } from "@visx/group";
@@ -210,12 +210,14 @@ export default function BarChartCenterAxis(chart: IBarChartCenterAxis) {
               labelProps={labelProps}
               scale={scaleXLeft}
               hideZero={settings.hideZeroX}
+              tickLabelProps={tickProps}
               label={fields.labelXl}
             />
             <AxisBottom
               labelProps={labelProps}
               scale={scaleXRight}
               hideZero={settings.hideZeroX}
+              tickLabelProps={tickProps}
               label={fields.labelXr}
             />
           </Group>
@@ -236,7 +238,7 @@ export default function BarChartCenterAxis(chart: IBarChartCenterAxis) {
             key={Math.random()}
             left={tooltipLeft}
             top={tooltipTop}
-            style={tooltipStyles}
+            style={customStyles}
           >
             <span>{tooltipData}</span>
           </Tooltip>

@@ -1,16 +1,26 @@
 import { Heading } from "@chakra-ui/react";
 import BarChartVertical from "../../components/graphs/BarChartVertical";
+import _ from "lodash";
 
 export default function BoxView() {
+  const randomData = [];
+  for (let i = 1; i < 20; i++) {
+    randomData.push({ x: `${i}.1.2023`, y: _.random(5, 20) });
+  }
+
+  console.log(randomData);
+
   const fields = {
-    width: 600,
+    width: 800,
     height: 600,
     colorBar: "#31cab5",
     background: "#ffffff",
     labelX: "Day",
     labelY: "Number of Boxes",
-    dataX: [],
-    dataY: [],
+    data: randomData,
+    settings: {
+      yEndMargin: 2,
+    },
   };
 
   return (
