@@ -56,11 +56,10 @@ function HistoryEntries({ data, total }: IHistoryEntriesProps) {
                 mr={1}
                 alignSelf="flex-start"
               />
-              <Box
-                maxWidth="300px" // Adjust the width as needed
-              >
+              <Box>
                 <Text>
-                  <b>{historyEntry?.user?.name}</b> on
+                  <b>{historyEntry?.user?.name}</b>
+                  {" on "}
                   <b>{formatDate(historyEntry?.changeDate)}</b>{" "}
                   {fixTrailingSemicolon(historyEntry?.changes)}
                 </Text>
