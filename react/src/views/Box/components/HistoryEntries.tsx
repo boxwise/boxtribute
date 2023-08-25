@@ -59,9 +59,7 @@ function HistoryEntries({ data, total }: IHistoryEntriesProps) {
               <Box
                 maxWidth="300px" // Adjust the width as needed
               >
-                <Text
-                  noOfLines={2} // Limit text to 2 lines
-                >
+                <Text>
                   <b>{historyEntry?.user?.name}</b> on
                   <b>{formatDate(historyEntry?.changeDate)}</b>{" "}
                   {fixTrailingSemicolon(historyEntry?.changes)}
