@@ -101,12 +101,14 @@ function BoxTabs({
                 <Text>Move</Text>
               </Stack>
             </Tab>
-            <Tab>
-              <Stack direction="row" alignContent="center" alignItems="center">
-                <BiNetworkChart />
-                <Text>Transfer</Text>
-              </Stack>
-            </Tab>
+            {shipmentOptions.length !== 0 && (
+              <Tab>
+                <Stack direction="row" alignContent="center" alignItems="center">
+                  <BiNetworkChart />
+                  <Text>Transfer</Text>
+                </Stack>
+              </Tab>
+            )}
           </TabList>
           <TabPanels>
             <TabPanel p={4}>
@@ -119,6 +121,7 @@ function BoxTabs({
                 />
               )}
             </TabPanel>
+
             <TabPanel>
               {shipmentOptions.length === 0 && (
                 <Text px={4} py={8} alignContent="center">
