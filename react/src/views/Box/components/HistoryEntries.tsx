@@ -1,4 +1,4 @@
-import { ListItem, ListIcon, List, Stack, Flex, Text, chakra, Box } from "@chakra-ui/react";
+import { ListItem, ListIcon, List, Stack, Flex, Text, Box } from "@chakra-ui/react";
 import { IconType } from "react-icons";
 import { MdCheckCircle, MdSettings, MdHistory } from "react-icons/md";
 import { HistoryEntry } from "types/generated/graphql";
