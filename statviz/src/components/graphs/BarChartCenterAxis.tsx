@@ -15,7 +15,7 @@ const tooltipStyles = {
   width: 152,
   height: 32,
   padding: 6,
-  fontSize: 12,
+  fontSize: 14,
 };
 
 export interface IXY {
@@ -48,14 +48,14 @@ const defaultSettings = {
   hideZeroX: false,
 };
 
-const marginTop = 20;
-const marginLeft = 45;
+const marginTop = 0;
+const marginLeft = 70;
 const marginRight = 40;
-const marginBottom = 40;
+const marginBottom = 70;
 
 const labelProps = {
   fontFamily: "Open Sans",
-  fontSize: 12,
+  fontSize: 16,
 };
 
 export default function BarChartCenterAxis(chart: IBarChartCenterAxis) {
@@ -94,7 +94,7 @@ export default function BarChartCenterAxis(chart: IBarChartCenterAxis) {
   const minX = 0;
   const maxX = Math.max(...fields.dataXr.map((e) => e.x), ...fields.dataXl.map((e) => e.x)) * 1.05;
 
-  const minY = Math.min(...fields.dataY) - 1;
+  const minY = Math.min(...fields.dataY);
   const maxY = Math.max(...fields.dataY);
 
   let barHight = chartHeight / fields.dataY.length;
@@ -121,7 +121,6 @@ export default function BarChartCenterAxis(chart: IBarChartCenterAxis) {
   const scaleY = scaleLinear({
     domain: [minY, maxY],
     range: [chartHeight, marginTop],
-    nice: true,
     round: true,
   });
 
