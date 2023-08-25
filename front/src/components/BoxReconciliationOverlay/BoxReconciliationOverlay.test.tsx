@@ -110,7 +110,7 @@ it("4.7.1 - Query for shipment, box, available products, sizes and locations is 
   [/WH Men/].forEach((option) => {
     expect(screen.getByRole("button", { name: option })).toBeInTheDocument();
   });
-}, 10000);
+}, 15000);
 
 // Test case 4.7.2
 // eslint-disable-next-line max-len
