@@ -62,6 +62,8 @@ function BoxCard({
     return color;
   };
 
+  const hasTag = !!boxData?.tags?.length;
+
   const product =
     boxData?.state === BoxState.Receiving
       ? boxData?.shipmentDetail?.shipment.details.filter(
@@ -92,7 +94,7 @@ function BoxCard({
       backgroundColor="brandYellow.100"
       mr={["0", "0", "4rem", "4rem"]}
     >
-      <Wrap py={2} px={4} alignItems="center">
+      <Wrap pt={2} pb={hasTag ? 2 : 0} px={4} alignItems="center">
         <WrapItem>
           <Heading fontWeight="bold" as="h2" data-testid="box-header">
             Box {boxData?.labelIdentifier}
@@ -144,7 +146,7 @@ function BoxCard({
         </Flex>
       )}
 
-      <Flex data-testid="box-subheader" py={2} px={4} direction="row">
+      <Flex data-testid="box-subheader" pb={2} pt={hasTag ? 2 : 0} px={4} direction="row">
         <Text fontWeight="bold">Status:&nbsp;</Text>
         {isLoading && <Skeleton width="60px" alignItems="center" />}
         {!isLoading && (
