@@ -76,7 +76,7 @@ export type DataCube = {
   facts?: Maybe<Array<Maybe<Result>>>;
 };
 
-export type Dimensions = BeneficiaryDemographicsDimensions | CreatedBoxDataDimensions;
+export type Dimensions = BeneficiaryDemographicsDimensions | CreatedBoxDataDimensions | TopProductsDimensions;
 
 /** TODO: Add description here once specs are final/confirmed */
 export enum DistributionEventState {
@@ -139,6 +139,8 @@ export type Query = {
   __typename?: 'Query';
   beneficiaryDemographics?: Maybe<BeneficiaryDemographicsData>;
   createdBoxes?: Maybe<CreatedBoxesData>;
+  topProductsCheckedOut?: Maybe<TopProductsCheckedOutData>;
+  topProductsDonated?: Maybe<TopProductsDonatedData>;
 };
 
 
@@ -151,7 +153,17 @@ export type QueryCreatedBoxesArgs = {
   baseId?: InputMaybe<Scalars['Int']['input']>;
 };
 
-export type Result = BeneficiaryDemographicsResult | CreatedBoxesResult;
+
+export type QueryTopProductsCheckedOutArgs = {
+  baseId: Scalars['Int']['input'];
+};
+
+
+export type QueryTopProductsDonatedArgs = {
+  baseId: Scalars['Int']['input'];
+};
+
+export type Result = BeneficiaryDemographicsResult | CreatedBoxesResult | TopProductsCheckedOutResult | TopProductsDonatedResult;
 
 export type ResultIdName = {
   __typename?: 'ResultIdName';
@@ -180,6 +192,46 @@ export enum TaggableResourceType {
   Beneficiary = 'Beneficiary',
   Box = 'Box'
 }
+
+export type TopProductsCheckedOutData = DataCube & {
+  __typename?: 'TopProductsCheckedOutData';
+  dimensions?: Maybe<TopProductsDimensions>;
+  facts?: Maybe<Array<Maybe<TopProductsCheckedOutResult>>>;
+};
+
+export type TopProductsCheckedOutResult = {
+  __typename?: 'TopProductsCheckedOutResult';
+  categoryId?: Maybe<Scalars['Int']['output']>;
+  checkedOutOn?: Maybe<Scalars['Date']['output']>;
+  itemsCount?: Maybe<Scalars['Int']['output']>;
+  productId?: Maybe<Scalars['Int']['output']>;
+  rank?: Maybe<Scalars['Int']['output']>;
+};
+
+export type TopProductsDimensions = {
+  __typename?: 'TopProductsDimensions';
+  category?: Maybe<Array<Maybe<ResultIdName>>>;
+  product?: Maybe<Array<Maybe<ResultIdName>>>;
+  /**  Always null for topProductsCheckedOut query  */
+  size?: Maybe<Array<Maybe<ResultIdName>>>;
+};
+
+export type TopProductsDonatedData = DataCube & {
+  __typename?: 'TopProductsDonatedData';
+  dimensions?: Maybe<TopProductsDimensions>;
+  facts?: Maybe<Array<Maybe<TopProductsDonatedResult>>>;
+};
+
+export type TopProductsDonatedResult = {
+  __typename?: 'TopProductsDonatedResult';
+  categoryId?: Maybe<Scalars['Int']['output']>;
+  createdOn?: Maybe<Scalars['Date']['output']>;
+  donatedOn?: Maybe<Scalars['Date']['output']>;
+  itemsCount?: Maybe<Scalars['Int']['output']>;
+  productId?: Maybe<Scalars['Int']['output']>;
+  rank?: Maybe<Scalars['Int']['output']>;
+  sizeId?: Maybe<Scalars['Int']['output']>;
+};
 
 export enum TransferAgreementState {
   Accepted = 'Accepted',
