@@ -329,7 +329,7 @@ function BoxCard({
                 <HistoryEntries data={boxData?.history as unknown as HistoryEntry[]} total={1} />
               )}
               {isLoading && (
-                <SkeletonText noOfLines={5} width="100%" py={2} px={2} alignContent="center" />
+                <SkeletonText noOfLines={3} width="100%" py={2} px={2} alignContent="center" />
               )}
             </Flex>
           </Stack>
