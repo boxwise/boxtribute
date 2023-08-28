@@ -130,26 +130,6 @@ export type BeneficiaryCreationInput = {
   signature?: InputMaybe<Scalars['String']>;
 };
 
-export type BeneficiaryDemographicsData = DataCube & {
-  __typename?: 'BeneficiaryDemographicsData';
-  dimensions?: Maybe<BeneficiaryDemographicsDimensions>;
-  facts?: Maybe<Array<Maybe<BeneficiaryDemographicsResult>>>;
-};
-
-export type BeneficiaryDemographicsDimensions = {
-  __typename?: 'BeneficiaryDemographicsDimensions';
-  tag?: Maybe<Array<Maybe<ResultIdName>>>;
-};
-
-export type BeneficiaryDemographicsResult = {
-  __typename?: 'BeneficiaryDemographicsResult';
-  age?: Maybe<Scalars['Int']>;
-  count?: Maybe<Scalars['Int']>;
-  createdOn?: Maybe<Scalars['Date']>;
-  gender?: Maybe<HumanGender>;
-  tagIds?: Maybe<Array<Scalars['Int']>>;
-};
-
 /** Utility type holding a page of [`Beneficiaries`]({{Types.Beneficiary}}). */
 export type BeneficiaryPage = {
   __typename?: 'BeneficiaryPage';
@@ -273,35 +253,6 @@ export type ClassicLocationBoxesArgs = {
   filterInput?: InputMaybe<FilterBoxInput>;
   paginationInput?: InputMaybe<PaginationInput>;
 };
-
-export type CreatedBoxDataDimensions = {
-  __typename?: 'CreatedBoxDataDimensions';
-  category?: Maybe<Array<Maybe<ResultIdName>>>;
-  product?: Maybe<Array<Maybe<ResultIdName>>>;
-};
-
-export type CreatedBoxesData = DataCube & {
-  __typename?: 'CreatedBoxesData';
-  dimensions?: Maybe<CreatedBoxDataDimensions>;
-  facts?: Maybe<Array<Maybe<CreatedBoxesResult>>>;
-};
-
-export type CreatedBoxesResult = {
-  __typename?: 'CreatedBoxesResult';
-  boxesCount?: Maybe<Scalars['Int']>;
-  categoryId?: Maybe<Scalars['Int']>;
-  createdOn?: Maybe<Scalars['Date']>;
-  gender?: Maybe<ProductGender>;
-  itemsCount?: Maybe<Scalars['Int']>;
-  productId?: Maybe<Scalars['Int']>;
-};
-
-export type DataCube = {
-  dimensions?: Maybe<Dimensions>;
-  facts?: Maybe<Array<Maybe<Result>>>;
-};
-
-export type Dimensions = BeneficiaryDemographicsDimensions | CreatedBoxDataDimensions;
 
 /** TODO: Add description here once specs are final/confirmed */
 export type DistributionEvent = {
@@ -1114,9 +1065,7 @@ export type Query = {
   /**  Return all [`Beneficiaries`]({{Types.Beneficiary}}) that the client is authorized to view.  */
   beneficiaries: BeneficiaryPage;
   beneficiary?: Maybe<Beneficiary>;
-  beneficiaryDemographics?: Maybe<BeneficiaryDemographicsData>;
   box?: Maybe<Box>;
-  createdBoxes?: Maybe<CreatedBoxesData>;
   distributionEvent?: Maybe<DistributionEvent>;
   distributionEventsTrackingGroup?: Maybe<DistributionEventsTrackingGroup>;
   distributionSpot?: Maybe<DistributionSpot>;
@@ -1174,18 +1123,8 @@ export type QueryBeneficiaryArgs = {
 };
 
 
-export type QueryBeneficiaryDemographicsArgs = {
-  baseIds?: InputMaybe<Array<Scalars['Int']>>;
-};
-
-
 export type QueryBoxArgs = {
   labelIdentifier: Scalars['String'];
-};
-
-
-export type QueryCreatedBoxesArgs = {
-  baseId?: InputMaybe<Scalars['Int']>;
 };
 
 
@@ -1276,14 +1215,6 @@ export type QueryTransferAgreementsArgs = {
 
 export type QueryUserArgs = {
   id?: InputMaybe<Scalars['ID']>;
-};
-
-export type Result = BeneficiaryDemographicsResult | CreatedBoxesResult;
-
-export type ResultIdName = {
-  __typename?: 'ResultIdName';
-  id?: Maybe<Scalars['ID']>;
-  name?: Maybe<Scalars['String']>;
 };
 
 export type Shipment = {

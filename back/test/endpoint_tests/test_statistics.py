@@ -1,15 +1,17 @@
+from boxtribute_server.enums import ProductGender
 from utils import assert_successful_request
 
 
 def test_query_beneficiary_demographics(read_only_client, tags):
     query = """query { beneficiaryDemographics(baseIds: [1]) {
         facts { gender age createdOn count tagIds }
-        dimensions { tag { id name } } } }"""
+        dimensions { tag { id name color } } } }"""
     response = assert_successful_request(read_only_client, query, endpoint="public")
     assert len(response["facts"]) == 2
     assert response["dimensions"] == {
         "tag": [
-            {"id": str(tag["id"]), "name": tag["name"]} for tag in [tags[0], tags[2]]
+            {"id": str(tag["id"]), "name": tag["name"], "color": tag["color"]}
+            for tag in [tags[0], tags[2]]
         ]
     }
 
@@ -25,7 +27,7 @@ def test_query_created_boxes(read_only_client, products, product_categories):
             createdOn categoryId productId gender boxesCount itemsCount
         }
         dimensions {
-            product { id name }
+            product { id name gender }
             category { id name }
     } } }"""
     data = assert_successful_request(read_only_client, query, endpoint="public")
@@ -35,7 +37,14 @@ def test_query_created_boxes(read_only_client, products, product_categories):
     assert facts[1]["boxesCount"] == 2
     assert data == {
         "dimensions": {
-            "product": [{"id": str(p["id"]), "name": p["name"]} for p in products[:3]],
+            "product": [
+                {
+                    "id": str(p["id"]),
+                    "name": p["name"],
+                    "gender": ProductGender(p["gender"]).name,
+                }
+                for p in products[:3]
+            ],
             "category": [
                 {"id": str(c["id"]), "name": c["name"]}
                 for c in sorted(product_categories, key=lambda c: c["id"])

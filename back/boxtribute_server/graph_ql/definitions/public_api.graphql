@@ -19,7 +19,7 @@ type BeneficiaryDemographicsData implements DataCube {
 }
 
 type BeneficiaryDemographicsDimensions {
-  tag: [ResultIdName]
+  tag: [TagDimensionInfo]
 }
 
 type BeneficiaryDemographicsResult {
@@ -45,8 +45,8 @@ type CreatedBoxesResult {
 }
 
 type CreatedBoxDataDimensions {
-  product: [ResultIdName]
-  category: [ResultIdName]
+  product: [ProductDimensionInfo]
+  category: [DimensionInfo]
 }
 
 type TopProductsCheckedOutData implements DataCube {
@@ -79,12 +79,30 @@ type TopProductsDonatedResult {
 
 type TopProductsDimensions {
   " Always null for topProductsCheckedOut query "
-  size: [ResultIdName]
-  product: [ResultIdName]
-  category: [ResultIdName]
+  size: [DimensionInfo]
+  product: [ProductDimensionInfo]
+  category: [DimensionInfo]
 }
 
-type ResultIdName {
+interface BasicDimensionInfo {
   id: ID
   name: String
+}
+
+type DimensionInfo implements BasicDimensionInfo {
+  id: ID
+  name: String
+}
+
+type TagDimensionInfo implements BasicDimensionInfo {
+  id: ID
+  name: String
+  " Hex color code "
+  color: String
+}
+
+type ProductDimensionInfo implements BasicDimensionInfo {
+  id: ID
+  name: String
+  gender: ProductGender
 }
