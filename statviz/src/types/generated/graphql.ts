@@ -18,6 +18,11 @@ export type Scalars = {
   Datetime: { input: any; output: any; }
 };
 
+export type BasicDimensionInfo = {
+  id?: Maybe<Scalars['ID']['output']>;
+  name?: Maybe<Scalars['String']['output']>;
+};
+
 export type BeneficiaryDemographicsData = DataCube & {
   __typename?: 'BeneficiaryDemographicsData';
   dimensions?: Maybe<BeneficiaryDemographicsDimensions>;
@@ -26,7 +31,7 @@ export type BeneficiaryDemographicsData = DataCube & {
 
 export type BeneficiaryDemographicsDimensions = {
   __typename?: 'BeneficiaryDemographicsDimensions';
-  tag?: Maybe<Array<Maybe<ResultIdName>>>;
+  tag?: Maybe<Array<Maybe<TagDimensionInfo>>>;
 };
 
 export type BeneficiaryDemographicsResult = {
@@ -51,8 +56,8 @@ export enum BoxState {
 
 export type CreatedBoxDataDimensions = {
   __typename?: 'CreatedBoxDataDimensions';
-  category?: Maybe<Array<Maybe<ResultIdName>>>;
-  product?: Maybe<Array<Maybe<ResultIdName>>>;
+  category?: Maybe<Array<Maybe<DimensionInfo>>>;
+  product?: Maybe<Array<Maybe<DimensionInfo>>>;
 };
 
 export type CreatedBoxesData = DataCube & {
@@ -74,6 +79,12 @@ export type CreatedBoxesResult = {
 export type DataCube = {
   dimensions?: Maybe<Dimensions>;
   facts?: Maybe<Array<Maybe<Result>>>;
+};
+
+export type DimensionInfo = BasicDimensionInfo & {
+  __typename?: 'DimensionInfo';
+  id?: Maybe<Scalars['ID']['output']>;
+  name?: Maybe<Scalars['String']['output']>;
 };
 
 export type Dimensions = BeneficiaryDemographicsDimensions | CreatedBoxDataDimensions | TopProductsDimensions;
@@ -165,12 +176,6 @@ export type QueryTopProductsDonatedArgs = {
 
 export type Result = BeneficiaryDemographicsResult | CreatedBoxesResult | TopProductsCheckedOutResult | TopProductsDonatedResult;
 
-export type ResultIdName = {
-  __typename?: 'ResultIdName';
-  id?: Maybe<Scalars['ID']['output']>;
-  name?: Maybe<Scalars['String']['output']>;
-};
-
 export enum ShipmentState {
   Canceled = 'Canceled',
   Completed = 'Completed',
@@ -179,6 +184,14 @@ export enum ShipmentState {
   Receiving = 'Receiving',
   Sent = 'Sent'
 }
+
+export type TagDimensionInfo = BasicDimensionInfo & {
+  __typename?: 'TagDimensionInfo';
+  /**  Hex color code  */
+  color?: Maybe<Scalars['String']['output']>;
+  id?: Maybe<Scalars['ID']['output']>;
+  name?: Maybe<Scalars['String']['output']>;
+};
 
 /** Classificators for [`Tag`]({{Types.Tag}}) type. */
 export enum TagType {
@@ -210,10 +223,10 @@ export type TopProductsCheckedOutResult = {
 
 export type TopProductsDimensions = {
   __typename?: 'TopProductsDimensions';
-  category?: Maybe<Array<Maybe<ResultIdName>>>;
-  product?: Maybe<Array<Maybe<ResultIdName>>>;
+  category?: Maybe<Array<Maybe<DimensionInfo>>>;
+  product?: Maybe<Array<Maybe<DimensionInfo>>>;
   /**  Always null for topProductsCheckedOut query  */
-  size?: Maybe<Array<Maybe<ResultIdName>>>;
+  size?: Maybe<Array<Maybe<DimensionInfo>>>;
 };
 
 export type TopProductsDonatedData = DataCube & {
@@ -250,7 +263,7 @@ export enum TransferAgreementType {
 export type BeneficiaryDemographicsQueryVariables = Exact<{ [key: string]: never; }>;
 
 
-export type BeneficiaryDemographicsQuery = { __typename?: 'Query', beneficiaryDemographics?: { __typename?: 'BeneficiaryDemographicsData', facts?: Array<{ __typename?: 'BeneficiaryDemographicsResult', count?: number | null, createdOn?: any | null, age?: number | null, gender?: HumanGender | null } | null> | null, dimensions?: { __typename?: 'BeneficiaryDemographicsDimensions', tag?: Array<{ __typename?: 'ResultIdName', name?: string | null, id?: string | null } | null> | null } | null } | null };
+export type BeneficiaryDemographicsQuery = { __typename?: 'Query', beneficiaryDemographics?: { __typename?: 'BeneficiaryDemographicsData', facts?: Array<{ __typename?: 'BeneficiaryDemographicsResult', count?: number | null, createdOn?: any | null, age?: number | null, gender?: HumanGender | null } | null> | null, dimensions?: { __typename?: 'BeneficiaryDemographicsDimensions', tag?: Array<{ __typename?: 'TagDimensionInfo', name?: string | null, id?: string | null } | null> | null } | null } | null };
 
 
 export const BeneficiaryDemographicsDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"query","name":{"kind":"Name","value":"BeneficiaryDemographics"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"beneficiaryDemographics"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"facts"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"count"}},{"kind":"Field","name":{"kind":"Name","value":"createdOn"}},{"kind":"Field","name":{"kind":"Name","value":"age"}},{"kind":"Field","name":{"kind":"Name","value":"gender"}}]}},{"kind":"Field","name":{"kind":"Name","value":"dimensions"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"tag"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"name"}},{"kind":"Field","name":{"kind":"Name","value":"id"}}]}}]}}]}}]}}]} as unknown as DocumentNode<BeneficiaryDemographicsQuery, BeneficiaryDemographicsQueryVariables>;

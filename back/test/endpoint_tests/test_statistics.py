@@ -4,12 +4,13 @@ from utils import assert_successful_request
 def test_query_beneficiary_demographics(read_only_client, tags):
     query = """query { beneficiaryDemographics(baseIds: [1]) {
         facts { gender age createdOn count tagIds }
-        dimensions { tag { id name } } } }"""
+        dimensions { tag { id name color } } } }"""
     response = assert_successful_request(read_only_client, query, endpoint="public")
     assert len(response["facts"]) == 2
     assert response["dimensions"] == {
         "tag": [
-            {"id": str(tag["id"]), "name": tag["name"]} for tag in [tags[0], tags[2]]
+            {"id": str(tag["id"]), "name": tag["name"], "color": tag["color"]}
+            for tag in [tags[0], tags[2]]
         ]
     }
 

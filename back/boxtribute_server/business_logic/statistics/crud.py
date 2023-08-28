@@ -39,7 +39,7 @@ def _generate_dimensions(*names, facts):
     if "tag" in names:
         tag_ids = {t for f in facts for t in f["tag_ids"]}
         dimensions["tag"] = (
-            Tag.select(Tag.id, Tag.name).where(Tag.id << tag_ids).dicts()
+            Tag.select(Tag.id, Tag.name, Tag.color).where(Tag.id << tag_ids).dicts()
         )
 
     if "size" in names:
