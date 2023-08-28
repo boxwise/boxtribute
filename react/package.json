@@ -3,7 +3,7 @@
   "version": "0.1.0",
   "private": true,
   "dependencies": {
-    "@apollo/client": "^3.7.1",
+    "@apollo/client": "^3.8.1",
     "@auth0/auth0-react": "^2.2.0",
     "@babel/runtime": "^7.20.13",
     "@chakra-ui/icons": "^1.1.7",
