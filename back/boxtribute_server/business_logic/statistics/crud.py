@@ -26,7 +26,7 @@ def _generate_dimensions(*names, facts):
     if "product" in names:
         product_ids = {f["product_id"] for f in facts}
         dimensions["product"] = (
-            Product.select(Product.id, Product.name)
+            Product.select(Product.id, Product.name, Product.gender)
             .where(Product.id << product_ids)
             .dicts()
         )

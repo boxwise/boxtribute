@@ -45,7 +45,7 @@ type CreatedBoxesResult {
 }
 
 type CreatedBoxDataDimensions {
-  product: [DimensionInfo]
+  product: [ProductDimensionInfo]
   category: [DimensionInfo]
 }
 
@@ -80,7 +80,7 @@ type TopProductsDonatedResult {
 type TopProductsDimensions {
   " Always null for topProductsCheckedOut query "
   size: [DimensionInfo]
-  product: [DimensionInfo]
+  product: [ProductDimensionInfo]
   category: [DimensionInfo]
 }
 
@@ -99,4 +99,10 @@ type TagDimensionInfo implements BasicDimensionInfo {
   name: String
   " Hex color code "
   color: String
+}
+
+type ProductDimensionInfo implements BasicDimensionInfo {
+  id: ID
+  name: String
+  gender: ProductGender
 }

@@ -1,3 +1,4 @@
+from boxtribute_server.enums import ProductGender
 from utils import assert_successful_request
 
 
@@ -26,7 +27,7 @@ def test_query_created_boxes(read_only_client, products, product_categories):
             createdOn categoryId productId gender boxesCount itemsCount
         }
         dimensions {
-            product { id name }
+            product { id name gender }
             category { id name }
     } } }"""
     data = assert_successful_request(read_only_client, query, endpoint="public")
@@ -36,7 +37,14 @@ def test_query_created_boxes(read_only_client, products, product_categories):
     assert facts[1]["boxesCount"] == 2
     assert data == {
         "dimensions": {
-            "product": [{"id": str(p["id"]), "name": p["name"]} for p in products[:3]],
+            "product": [
+                {
+                    "id": str(p["id"]),
+                    "name": p["name"],
+                    "gender": ProductGender(p["gender"]).name,
+                }
+                for p in products[:3]
+            ],
             "category": [
                 {"id": str(c["id"]), "name": c["name"]}
                 for c in sorted(product_categories, key=lambda c: c["id"])

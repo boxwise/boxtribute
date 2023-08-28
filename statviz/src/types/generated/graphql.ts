@@ -57,7 +57,7 @@ export enum BoxState {
 export type CreatedBoxDataDimensions = {
   __typename?: 'CreatedBoxDataDimensions';
   category?: Maybe<Array<Maybe<DimensionInfo>>>;
-  product?: Maybe<Array<Maybe<DimensionInfo>>>;
+  product?: Maybe<Array<Maybe<ProductDimensionInfo>>>;
 };
 
 export type CreatedBoxesData = DataCube & {
@@ -131,6 +131,13 @@ export enum PackingListEntryState {
   Packed = 'Packed',
   PackingInProgress = 'PackingInProgress'
 }
+
+export type ProductDimensionInfo = BasicDimensionInfo & {
+  __typename?: 'ProductDimensionInfo';
+  gender?: Maybe<ProductGender>;
+  id?: Maybe<Scalars['ID']['output']>;
+  name?: Maybe<Scalars['String']['output']>;
+};
 
 /** Classificators for [`Product`]({{Types.Product}}) gender. */
 export enum ProductGender {
@@ -224,7 +231,7 @@ export type TopProductsCheckedOutResult = {
 export type TopProductsDimensions = {
   __typename?: 'TopProductsDimensions';
   category?: Maybe<Array<Maybe<DimensionInfo>>>;
-  product?: Maybe<Array<Maybe<DimensionInfo>>>;
+  product?: Maybe<Array<Maybe<ProductDimensionInfo>>>;
   /**  Always null for topProductsCheckedOut query  */
   size?: Maybe<Array<Maybe<DimensionInfo>>>;
 };
