@@ -88,8 +88,8 @@ def test_distribution_event_tracking_group_statistics(
         creationInput: {{
           distributionSpotId: {distribution_spot_1['id']}
           name: "Test Event"
-          plannedStartDateTime: "2022-08-30T14:00:00.023Z"
-          plannedEndDateTime: "2022-08-30T16:00:00.023Z"
+          plannedStartDateTime: "2022-08-30T14:00:00"
+          plannedEndDateTime: "2022-08-30T16:00:00"
         }}
       ) {{
         id
@@ -166,8 +166,8 @@ def test_distribution_event_tracking_group_statistics(
         creationInput: {{
           distributionSpotId: {distribution_spot_2['id']}
           name: "Test Event"
-          plannedStartDateTime: "2022-08-30T14:00:00.023Z"
-          plannedEndDateTime: "2022-08-30T16:00:00.023Z"
+          plannedStartDateTime: "2022-08-30T14:00:00"
+          plannedEndDateTime: "2022-08-30T16:00:00"
         }}
       ) {{
         id
