@@ -48,6 +48,7 @@ jobs:
   build-and-test-react:
     docker:
       - image: cimg/python:3.10.4-node
+    resource_class: medium
     working_directory: ~/react
     steps:
       - attach_workspace:
