@@ -1,5 +1,5 @@
 import "@testing-library/jest-dom";
-import { screen, render } from "tests/test-utils";
+import { screen, render, waitFor } from "tests/test-utils";
 import { useAuth0 } from "@auth0/auth0-react";
 import { BoxReconciliationOverlay } from "components/BoxReconciliationOverlay/BoxReconciliationOverlay";
 import { mockMatchMediaQuery } from "mocks/functions";
@@ -14,7 +14,20 @@ import { products } from "mocks/products";
 import { tag1, tag2 } from "mocks/tags";
 import userEvent from "@testing-library/user-event";
 import { SHIPMENT_BY_ID_WITH_PRODUCTS_AND_LOCATIONS_QUERY } from "queries/queries";
+import { UPDATE_SHIPMENT_WHEN_RECEIVING } from "queries/mutations";
+import { useErrorHandling } from "hooks/useErrorHandling";
+import { useNotification } from "hooks/useNotification";
 
+// extracting a cacheObject to reset the cache correctly later
+const emptyCache = cache.extract();
+
+// Toasts are persisting throughout the tests since they are rendered in the wrapper and not in the render.
+// Therefore, we need to mock them since otherwise we easily get false negatives
+// Everywhere where we have more than one occation of a toast we should do this.
+const mockedTriggerError = jest.fn();
+const mockedCreateToast = jest.fn();
+jest.mock("hooks/useErrorHandling");
+jest.mock("hooks/useNotification");
 jest.mock("@auth0/auth0-react");
 
 // .mocked() is a nice helper function from jest for typescript support
@@ -25,6 +38,14 @@ beforeEach(() => {
   // setting the screensize to
   mockMatchMediaQuery(true);
   mockAuthenticatedUser(mockedUseAuth0, "dev_volunteer@boxaid.org");
+  const mockedUseErrorHandling = jest.mocked(useErrorHandling);
+  mockedUseErrorHandling.mockReturnValue({ triggerError: mockedTriggerError });
+  const mockedUseNotification = jest.mocked(useNotification);
+  mockedUseNotification.mockReturnValue({ createToast: mockedCreateToast });
+});
+
+afterEach(() => {
+  cache.restore(emptyCache);
 });
 
 const queryShipmentDetailForBoxReconciliation = {
@@ -113,7 +134,7 @@ it("4.7.1 - Query for shipment, box, available products, sizes and locations is 
   [/WH Men/].forEach((option) => {
     expect(screen.getByRole("button", { name: option })).toBeInTheDocument();
   });
-}, 10000);
+}, 20000);
 
 // Test case 4.7.2
 // eslint-disable-next-line max-len
@@ -138,8 +159,133 @@ it("4.7.2 - Query for shipment, box, available products, sizes and locations ret
     },
   });
 
-  // error message appears
-  expect(
-    (await screen.findAllByText(/Could not fetch data! Please try reloading the page/i)).length,
-  ).toBeGreaterThanOrEqual(1);
+  // toast shown
+  await waitFor(() =>
+    expect(mockedTriggerError).toHaveBeenCalledWith(
+      expect.objectContaining({
+        message: expect.stringMatching(/Could not fetch data! Please try reloading the page/i),
+      }),
+    ),
+  );
+});
+
+const mockUpdateShipmentWhenReceivingMutation = ({
+  networkError = false,
+  graphQlError = false,
+  shipmentId = "1",
+  lostBoxLabelIdentifiers = ["123"],
+}) => ({
+  request: {
+    query: UPDATE_SHIPMENT_WHEN_RECEIVING,
+    variables: {
+      id: shipmentId,
+      lostBoxLabelIdentifiers,
+    },
+  },
+  result: networkError
+    ? undefined
+    : {
+        data: graphQlError
+          ? null
+          : {
+              updateShipmentWhenReceiving: generateMockShipment({ state: ShipmentState.Receiving }),
+            },
+        errors: graphQlError ? [new GraphQLError("Error!")] : undefined,
+      },
+  error: networkError ? new Error() : undefined,
+});
+
+const noDeliveryTests = [
+  {
+    name: "4.7.3.1 - Mark as Lost Mutation fails due to GraphQL error",
+    mocks: [
+      queryShipmentDetailForBoxReconciliation,
+      mockUpdateShipmentWhenReceivingMutation({ graphQlError: true }),
+    ],
+    toast: { isError: true, message: /Could not change state of the box./i },
+  },
+  {
+    name: "4.7.3.2 - Mark as Lost Mutation fails due to Network error",
+    mocks: [
+      queryShipmentDetailForBoxReconciliation,
+      mockUpdateShipmentWhenReceivingMutation({ networkError: true }),
+    ],
+    toast: { isError: true, message: /Could not change state of the box./i },
+  },
+  {
+    name: "4.7.3.3 - Mark as Lost Mutation is succesfull",
+    mocks: [queryShipmentDetailForBoxReconciliation, mockUpdateShipmentWhenReceivingMutation({})],
+    toast: { isError: false, message: /Box marked as undelivered/i },
+  },
+];
+
+noDeliveryTests.forEach(({ name, mocks, toast }) => {
+  it(
+    name,
+    async () => {
+      const user = userEvent.setup();
+      boxReconciliationOverlayVar({
+        isOpen: true,
+        labelIdentifier: "123",
+        shipmentId: "1",
+      } as IBoxReconciliationOverlayVar);
+      render(<BoxReconciliationOverlay />, {
+        routePath: "/bases/:baseId",
+        initialUrl: "/bases/1",
+        mocks,
+        cache,
+        globalPreferences: {
+          dispatch: jest.fn(),
+          globalPreferences: {
+            organisation: { id: organisation1.id, name: organisation1.name },
+            availableBases: organisation1.bases,
+            selectedBase: organisation1.bases[0],
+          },
+        },
+      });
+
+      // BoxReconciliation is visible
+      expect(await screen.findByText(/box 123/i)).toBeInTheDocument();
+
+      // Click trashIcon Button
+      const noDeliveryIconButton = screen.getByTestId("NoDeliveryIcon");
+      expect(noDeliveryIconButton).toBeInTheDocument();
+      user.click(noDeliveryIconButton);
+
+      // AYS is open
+      expect(await screen.findByText(/box not delivered\?/i)).toBeInTheDocument();
+      const noButton = screen.getByRole("button", { name: /no/i });
+      expect(noButton).toBeInTheDocument();
+      user.click(noButton);
+
+      // BoxReconciliation is visible
+      expect(await screen.findByText(/box 123/i)).toBeInTheDocument();
+
+      // 4.7.3 - Click NoDelivery Button
+      const matchProductButton = await screen.findByRole("button", {
+        name: /1\. match products/i,
+      });
+      expect(matchProductButton).toBeInTheDocument();
+      user.click(matchProductButton);
+      const noDeliveryButton = screen.getByTestId("NoDeliveryButton");
+      expect(noDeliveryButton).toBeInTheDocument();
+      user.click(noDeliveryButton);
+
+      // AYS is open
+      expect(await screen.findByText(/box not delivered\?/i)).toBeInTheDocument();
+      const yesButton = screen.getByRole("button", { name: /yes/i });
+      expect(yesButton).toBeInTheDocument();
+      user.click(yesButton);
+
+      // toast shown
+      await waitFor(() =>
+        expect(toast.isError ? mockedTriggerError : mockedCreateToast).toHaveBeenCalledWith(
+          expect.objectContaining({
+            message: expect.stringMatching(toast.message),
+          }),
+        ),
+      );
+    },
+    15000,
+  );
 });
