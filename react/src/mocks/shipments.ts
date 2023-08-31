@@ -194,3 +194,62 @@ export const generateMockShipmentMinimal = ({
 
   return shipment;
 };
+
+export const generateMockShipmentWithCustomDetails = ({
+  state = ShipmentState.Preparing,
+  iAmSource = true,
+  details = [generateMockShipmentDetail({})],
+}) => ({
+  id: "1",
+  state,
+  details,
+  sourceBase: iAmSource ? base1 : base2,
+  targetBase: iAmSource ? base2 : base1,
+  transferAgreement: {
+    id: "1",
+    comment: "",
+    type: TransferAgreementType.Bidirectional,
+    __typename: "TransferAgreement",
+  },
+  startedOn: "2023-01-08T17:24:29+00:00",
+  startedBy: user1,
+  sentOn: null,
+  sentBy: null,
+  receivingStartedOn: null,
+  receivingStartedBy: null,
+  completedOn: null,
+  completedBy: null,
+  canceledOn: null,
+  canceledBy: null,
+  __typename: "Shipment",
+});
+
+export const generateMockShipmentDetail = ({
+  id = "1",
+  box = generateMockBox({
+    labelIdentifier: "123",
+    numberOfItems: 10,
+    product: product1,
+    location: generateMockLocationWithBase({}),
+  }),
+  sourceQuantity = 10,
+  sourceSize = size1,
+  sourceProduct = product1,
+  targetProduct = null,
+  createdOn = "2023-01-09T17:24:29+00:00",
+  createdBy = user1,
+  removedOn = null,
+  removedBy = null,
+}) => ({
+  id,
+  box,
+  sourceSize,
+  sourceQuantity,
+  sourceProduct,
+  targetProduct,
+  createdOn,
+  createdBy,
+  removedOn,
+  removedBy,
+  __typename: "ShipmentDetail",
+});
