@@ -59,7 +59,7 @@ function ShipmentTabs({
             ({
               ...shipment.box,
               size: group[0]?.sourceSize,
-              numberOfItems: group[0]?.sourceQuantity,
+              numberOfItems: shipment.sourceQuantity,
               product: group[0]?.sourceProduct,
             } as Box),
         ),
