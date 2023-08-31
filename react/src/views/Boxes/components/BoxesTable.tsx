@@ -23,6 +23,13 @@ import {
   AccordionPanel,
   Box,
   Checkbox,
+  Popover,
+  PopoverArrow,
+  PopoverBody,
+  PopoverCloseButton,
+  PopoverContent,
+  PopoverTrigger,
+  Select,
 } from "@chakra-ui/react";
 import {
   Column,
@@ -38,6 +45,8 @@ import { GlobalFilter } from "./GlobalFilter";
 import { SelectColumnFilter } from "components/Table/Filter";
 import IndeterminateCheckbox from "./Checkbox";
 import { FilteringSortingTableHeader } from "components/Table/TableHeader";
+import { render } from "react-dom";
+import { MdFilterListAlt, MdFilterList } from "react-icons/md";
 
 export type BoxesTableProps = {
   tableData: BoxRow[];
@@ -87,17 +96,14 @@ const ColumnSelector = ({
 
   return (
     <Box maxW="400px" minW="250px">
-      <Accordion allowToggle>
-        <AccordionItem>
-          <h2>
-            <AccordionButton>
-              <Box flex="1" textAlign="left">
-                Columns
-              </Box>
-              <AccordionIcon />
-            </AccordionButton>
-          </h2>
-          <AccordionPanel pb={4}>
+      <Popover>
+        <PopoverTrigger>
+          <button>Test</button>
+        </PopoverTrigger>
+        <PopoverContent>
+          <PopoverArrow />
+          <PopoverCloseButton />
+          <PopoverBody textStyle="h1">
             <Flex flexWrap="wrap">
               {allAvailableColumnOptions.map((columnOption) => (
                 <Checkbox
@@ -118,9 +124,9 @@ const ColumnSelector = ({
                 </Checkbox>
               ))}
             </Flex>
-          </AccordionPanel>
-        </AccordionItem>
-      </Accordion>
+          </PopoverBody>
+        </PopoverContent>
+      </Popover>
     </Box>
   );
 };
