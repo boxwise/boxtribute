@@ -1,17 +1,8 @@
-import React, { useEffect, useMemo, useState } from "react";
+import React, { useCallback, useEffect, useMemo, useState } from "react";
+import { ChevronRightIcon, ChevronLeftIcon } from "@chakra-ui/icons";
 import {
-  TriangleDownIcon,
-  TriangleUpIcon,
-  ChevronRightIcon,
-  ChevronLeftIcon,
-} from "@chakra-ui/icons";
-import {
-  Button,
   Table,
-  Thead,
   Tr,
-  Th,
-  chakra,
   Tbody,
   Td,
   Flex,
@@ -43,6 +34,7 @@ import IndeterminateCheckbox from "./Checkbox";
 import { FilteringSortingTableHeader } from "components/Table/TableHeader";
 import { useMoveBoxes } from "hooks/useMoveBoxes";
 import { SelectButton } from "./ActionButtons";
+import { TableSkeleton } from "components/Skeletons";
 
 export type BoxesTableProps = {
   tableData: BoxRow[];
@@ -208,9 +200,17 @@ const BoxesTable = ({ tableData, locationOptions, onBoxRowClick }: BoxesTablePro
   );
 
   // Actions on Selected Boxes
-  const [selectedBoxes, setSelectedBoxes] = useState<Row<object>[]>([]);
+  const [selectedBoxes, setSelectedBoxes] = useState<Row<any>[]>([]);
   // Move Boxes
   const { isLoading: moveBoxesIsLoading, moveBoxes } = useMoveBoxes();
+  const onMoveBoxes = useCallback(
+    (locationId: string) =>
+      moveBoxes(
+        selectedBoxes.map((box) => box.values.labelIdentifier),
+        parseInt(locationId, 10),
+      ),
+    [moveBoxes, selectedBoxes],
+  );
 
   return (
     <>
@@ -220,19 +220,18 @@ const BoxesTable = ({ tableData, locationOptions, onBoxRowClick }: BoxesTablePro
         setSelectedColumns={setSelectedColumns}
       />
       <ButtonGroup>
-        <SelectButton
-          label="Move Boxes"
-          options={locationOptions}
-          onSelect={(value: string) => {}}
-        />
+        <SelectButton label="Move Boxes" options={locationOptions} onSelect={onMoveBoxes} />
       </ButtonGroup>
-      <ActualTable
-        columns={orderedSelectedColumns}
-        tableData={tableData}
-        onBoxRowClick={onBoxRowClick}
-        onSelectedRowsChange={setSelectedBoxes}
-      />
-      ;
+      {moveBoxesIsLoading ? (
+        <TableSkeleton />
+      ) : (
+        <ActualTable
+          columns={orderedSelectedColumns}
+          tableData={tableData}
+          onBoxRowClick={onBoxRowClick}
+          onSelectedRowsChange={setSelectedBoxes}
+        />
+      )}
     </>
   );
 };
@@ -242,7 +241,7 @@ interface IActualTableProps {
   show?: boolean;
   tableData: BoxRow[];
   onBoxRowClick: (labelIdentified: string) => void;
-  onSelectedRowsChange: (selectedRows: Row<object>[]) => void;
+  onSelectedRowsChange: (selectedRows: Row<any>[]) => void;
 }
 const ActualTable = ({
   show = true,
