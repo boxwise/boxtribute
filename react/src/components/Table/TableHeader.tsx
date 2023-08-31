@@ -1,7 +1,8 @@
 /* eslint-disable no-nested-ternary */
-import { TriangleDownIcon, TriangleUpIcon, ArrowUpDownIcon } from "@chakra-ui/icons";
-import { Thead, Tr, Th, Flex, chakra, Spacer, IconButton } from "@chakra-ui/react";
-import { HeaderGroup } from "react-table";
+import { TriangleDownIcon, TriangleUpIcon } from "@chakra-ui/icons";
+import { Thead, Tr, Th, Flex, chakra, Spacer } from "@chakra-ui/react";
+import { ReactElement, ReactNode } from "react";
+import { Column, HeaderGroup } from "react-table";
 
 interface IFilteringSortingTableHeaderProps {
   headerGroups: HeaderGroup<any>[];
@@ -12,34 +13,26 @@ export function FilteringSortingTableHeader({ headerGroups }: IFilteringSortingT
     <Thead>
       {headerGroups.map((headerGroup: HeaderGroup) => (
         <Tr {...headerGroup.getHeaderGroupProps()}>
-          {headerGroup.headers.map((column) => (
-            <Th {...column.getHeaderProps()}>
+          {headerGroup.headers.map((header: HeaderGroup<any>) => (
+            <Th {...header.getHeaderProps()}>
               <Flex alignItems="center">
-                {/* {JSON.stringify(column)} */}
-                {column.Filter && column.canFilter && (
-                  <chakra.span pr="1">{column.render("Filter")}</chakra.span>
-                )}
-                {column.render("Header")}
+                <div {...header.getSortByToggleProps()}>
+                  <chakra.span pl="1">
+                    {header.isSorted && header.isSortedDesc && (
+                      <TriangleDownIcon aria-label="sorted descending" />
+                    )}
+                    {header.isSorted && !header.isSortedDesc && (
+                      <TriangleUpIcon aria-label="sorted ascending" />
+                    )}
+                  </chakra.span>
+                  <Spacer />
+                  {header.render("Header") as ReactElement}
+                </div>
+
                 <Spacer />
-                <chakra.span pl="1">
-                  <IconButton
-                    size="xs"
-                    background="inherit"
-                    aria-label={`Toggle SortBy for '${column.render("Header")}'`}
-                    icon={
-                      column.isSorted ? (
-                        column.isSortedDesc ? (
-                          <TriangleDownIcon aria-label="sorted descending" />
-                        ) : (
-                          <TriangleUpIcon aria-label="sorted ascending" />
-                        )
-                      ) : (
-                        <ArrowUpDownIcon />
-                      )
-                    }
-                    {...column.getSortByToggleProps()}
-                  />
-                </chakra.span>
+                {header.Filter && header.canFilter && (
+                  <chakra.span pr="1">{header.render("Filter") as ReactElement}</chakra.span>
+                )}
               </Flex>
             </Th>
           ))}
