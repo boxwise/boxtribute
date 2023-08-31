@@ -47,12 +47,12 @@ jobs:
       - save_cache:
           key: dependency-cache-{{ checksum "yarn.lock" }}
           paths:
-            - ./node_modules
-            - ./.cache
+            - ~/react/node_modules
+            - ~/react/.cache
       - persist_to_workspace:
-          root: ./
+          root: ~/
           paths:
-            - ./node_modules
+            - react/node_modules
 
   build-back:
     executor: python-executor
