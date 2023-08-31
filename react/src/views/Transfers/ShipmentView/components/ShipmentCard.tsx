@@ -174,18 +174,7 @@ function ShipmentCard({
                 <WrapItem>
                   <Center>
                     <Text as="h3" fontSize="3xl" fontWeight="bold">
-                      {
-                        (
-                          shipment.details?.filter(
-                            (item) =>
-                              (item.lostOn === null &&
-                                item.removedOn === null &&
-                                shipment.state === ShipmentState.Completed) ||
-                              (item.removedOn === null &&
-                                shipment.state !== ShipmentState.Completed),
-                          ) ?? []
-                        ).length
-                      }
+                      {(shipment.details?.filter((item) => item.removedOn === null) ?? []).length}
                     </Text>
                   </Center>
                 </WrapItem>
