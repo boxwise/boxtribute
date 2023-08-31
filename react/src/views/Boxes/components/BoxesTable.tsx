@@ -135,12 +135,14 @@ const BoxesTable = ({ tableData, onBoxRowClick }: BoxesTableProps) => {
         id: "productName",
         Filter: SelectColumnFilter,
         filter: "includesSome",
+        disableGlobalFilter: true,
       },
       {
         Header: "Box Number",
         accessor: "labelIdentifier",
         id: "labelIdentifier",
         disableFilters: true,
+        disableGlobalFilter: true,
       },
       {
         Header: "Gender",
@@ -149,6 +151,7 @@ const BoxesTable = ({ tableData, onBoxRowClick }: BoxesTableProps) => {
         // disableFilters: false,
         Filter: SelectColumnFilter,
         filter: "includesSome",
+        disableGlobalFilter: true,
       },
       {
         Header: "Size",
@@ -156,12 +159,14 @@ const BoxesTable = ({ tableData, onBoxRowClick }: BoxesTableProps) => {
         id: "size",
         Filter: SelectColumnFilter,
         filter: "includesSome",
+        disableGlobalFilter: true,
       },
       {
         Header: "Items",
         accessor: "numberOfItems",
         id: "numberOfItems",
         disableFilters: true,
+        disableGlobalFilter: true,
       },
       {
         Header: "State",
@@ -169,6 +174,7 @@ const BoxesTable = ({ tableData, onBoxRowClick }: BoxesTableProps) => {
         id: "state",
         Filter: SelectColumnFilter,
         filter: "includesSome",
+        disableGlobalFilter: true,
       },
       {
         Header: "Place",
@@ -176,6 +182,7 @@ const BoxesTable = ({ tableData, onBoxRowClick }: BoxesTableProps) => {
         id: "place",
         Filter: SelectColumnFilter,
         filter: "includesSome",
+        disableGlobalFilter: true,
       },
       {
         Header: "Tags",
@@ -183,6 +190,7 @@ const BoxesTable = ({ tableData, onBoxRowClick }: BoxesTableProps) => {
         id: "tags",
         Filter: SelectColumnFilter,
         filter: "includesSome",
+        disableGlobalFilter: true,
       },
     ],
     [],

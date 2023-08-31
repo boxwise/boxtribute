@@ -6,14 +6,14 @@ import { Input, InputGroup, InputRightElement } from "@chakra-ui/react";
 export function GlobalFilter({ globalFilter, setGlobalFilter }) {
   const [value, setValue] = useState(globalFilter);
   const onChange = useAsyncDebounce((value) => {
+    // debugger;
     setGlobalFilter(value || undefined);
   }, 200);
 
   return (
-    <InputGroup width='auto'>
+    <InputGroup width="auto">
       <InputRightElement pointerEvents="none" children={<SearchIcon color="gray.300" />} />
       <Input
-
         value={value || ""}
         onChange={(e) => {
           setValue(e.target.value);
