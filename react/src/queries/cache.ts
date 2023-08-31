@@ -46,3 +46,11 @@ export interface IQrReaderOverlayVar {
 }
 
 export const qrReaderOverlayVar = makeVar<IQrReaderOverlayVar>({ isOpen: false });
+
+export interface ITableConfig {
+  selectedRowIds: string[];
+  // TODO: add here more props or even refactor the data structure, to support e.g. sorting config, filter configs and and selected columns
+}
+export type TableViewIdentifier = string;
+export type TableConfigsVar = Map<TableViewIdentifier, ITableConfig>;
+export const tableConfigsVar = makeVar<TableConfigsVar>(new Map());

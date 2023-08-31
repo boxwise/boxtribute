@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from "react";
+import React, { useContext, useEffect, useMemo, useState } from "react";
 import { ChevronRightIcon, ChevronLeftIcon } from "@chakra-ui/icons";
 import {
   Button,
@@ -33,6 +33,10 @@ import IndeterminateCheckbox from "./Checkbox";
 import { FilteringSortingTableHeader } from "components/Table/TableHeader";
 
 import { PopoverTrigger as OrigPopoverTrigger } from "@chakra-ui/react";
+import { tableConfigsVar } from "queries/cache";
+import { useReactiveVar } from "@apollo/client";
+
+import { GlobalPreferencesContext } from "providers/GlobalPreferencesProvider";
 
 export const PopoverTrigger: React.FC<{ children: React.ReactNode }> = OrigPopoverTrigger;
 
@@ -210,10 +214,9 @@ interface ActualTableProps {
   onBoxRowClick: (labelIdentified: string) => void;
 }
 
-type ColumnType = Column<BoxRow>[];
-type DataType = BoxRow[];
-
 const ActualTable = ({ show = true, columns, tableData, onBoxRowClick }: ActualTableProps) => {
+  const { globalPreferences } = useContext(GlobalPreferencesContext);
+  const currentBaseId = globalPreferences.selectedBase?.id;
   const {
     headerGroups,
     prepareRow,
@@ -223,7 +226,9 @@ const ActualTable = ({ show = true, columns, tableData, onBoxRowClick }: ActualT
     canPreviousPage,
     canNextPage,
     pageOptions,
-
+    selectedFlatRows,
+    // setRowSel
+    toggleRowSelected,
     nextPage,
     previousPage,
   } = useTable(
@@ -265,9 +270,38 @@ const ActualTable = ({ show = true, columns, tableData, onBoxRowClick }: ActualT
     },
   );
 
+  const baseId = globalPreferences.selectedBase?.id!;
+  const tableConfigsState = useReactiveVar(tableConfigsVar);
+  const tableConfigKey = `boxes-view--base-id-${baseId}`;
+
+  useEffect(() => {
+    const tableConfig = tableConfigsState.get(tableConfigKey);
+    tableConfig?.selectedRowIds.map((rowId) => toggleRowSelected(rowId, true));
+  }, [tableConfigsState, baseId, tableConfigKey]);
+
+  useEffect(() => {
+    const tableConfig = tableConfigsState.set(tableConfigKey, {
+      selectedRowIds: selectedFlatRows.map((r) => r.id),
+    });
+  }, [selectedFlatRows]);
+
   if (!show) {
     return <></>;
   }
+
+  // const [filterConfig, setFilterConfig] = useLocalStorage(
+  //   `boxes-view-filters--base-${currentBaseId}`,
+  //   "{}",
+  // );
+
+  // console.log("filterConfig", filterConfig);
+
+  // useEffect(() => {
+  //   toggleRowSelected("0", true);
+  // }, []);
+
+  console.log("selectedFlatRows", selectedFlatRows);
+  // setRowState()
 
   return (
     <>
