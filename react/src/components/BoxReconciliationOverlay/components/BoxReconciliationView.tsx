@@ -1,4 +1,3 @@
-import { useReactiveVar } from "@apollo/client";
 import {
   Modal,
   ModalOverlay,
@@ -11,7 +10,6 @@ import {
   SkeletonText,
   ModalFooter,
 } from "@chakra-ui/react";
-import { boxReconciliationOverlayVar } from "queries/cache";
 import { BiTrash } from "react-icons/bi";
 import { ProductGender, ShipmentDetail } from "types/generated/graphql";
 
@@ -45,10 +43,11 @@ export interface ILocationData {
   seq?: number | null | undefined;
 }
 
-interface IBoxReconciliationContainerProps {
+interface IBoxReconciliationViewProps {
   shipmentDetail: ShipmentDetail;
   productAndSizesData: IProductWithSizeRangeData[];
   allLocations: ILocationData[];
+  isOpen: boolean;
   loading: boolean;
   mutationLoading: boolean;
   closeOnEsc: boolean;
@@ -68,6 +67,7 @@ export function BoxReconciliationView({
   shipmentDetail,
   productAndSizesData,
   allLocations,
+  isOpen,
   loading,
   mutationLoading,
   onClose,
@@ -75,12 +75,10 @@ export function BoxReconciliationView({
   onBoxDelivered,
   closeOnOverlayClick = true,
   closeOnEsc = true,
-}: IBoxReconciliationContainerProps) {
-  const boxReconciliationOverlayState = useReactiveVar(boxReconciliationOverlayVar);
-
+}: IBoxReconciliationViewProps) {
   return (
     <Modal
-      isOpen={boxReconciliationOverlayState.isOpen}
+      isOpen={isOpen}
       closeOnOverlayClick={closeOnOverlayClick}
       closeOnEsc={closeOnEsc}
       onClose={onClose}
@@ -97,6 +95,7 @@ export function BoxReconciliationView({
                 style={{ background: "white" }}
                 aria-label="no delivery"
                 onClick={() => onBoxUndelivered(shipmentDetail?.box.labelIdentifier)}
+                data-testid="NoDeliveryIcon"
               />
             </WrapItem>
           </Wrap>

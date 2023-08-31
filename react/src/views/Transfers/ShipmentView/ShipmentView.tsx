@@ -556,43 +556,21 @@ function ShipmentView() {
           {shipmentActionButtons}
         </Flex>
         <BoxReconciliationOverlay />
-
-        <ShipmentOverlay
-          isOpen={isShipmentOverlayOpen}
-          isLoading={isLoadingFromMutation}
-          shipmentOverlayData={shipmentOverlayData}
-          onRemainingBoxesUndelivered={onRemainingBoxesUndelivered}
-          onClose={onShipmentOverlayClose}
-          onCancel={onCancel}
-          onLost={onLost}
-        />
       </>
     );
   } else {
     shipmentViewComponents = (
-      <>
-        <Flex direction="column" gap={2}>
-          <Center>
-            <VStack>
-              {shipmentTitle}
-              {shipmentCard}
-            </VStack>
-          </Center>
-          <Spacer />
-          <Box>{shipmentTab}</Box>
-          {shipmentActionButtons}
-        </Flex>
-
-        <ShipmentOverlay
-          isOpen={isShipmentOverlayOpen}
-          isLoading={isLoadingFromMutation}
-          shipmentOverlayData={shipmentOverlayData}
-          onRemainingBoxesUndelivered={onRemainingBoxesUndelivered}
-          onClose={onShipmentOverlayClose}
-          onCancel={onCancel}
-          onLost={onLost}
-        />
-      </>
+      <Flex direction="column" gap={2}>
+        <Center>
+          <VStack>
+            {shipmentTitle}
+            {shipmentCard}
+          </VStack>
+        </Center>
+        <Spacer />
+        <Box>{shipmentTab}</Box>
+        {shipmentActionButtons}
+      </Flex>
     );
   }
 
@@ -600,6 +578,15 @@ function ShipmentView() {
     <>
       <MobileBreadcrumbButton label="Back to Manage Shipments" linkPath="/transfers/shipments" />
       {shipmentViewComponents}
+      <ShipmentOverlay
+        isOpen={isShipmentOverlayOpen}
+        isLoading={isLoadingFromMutation}
+        shipmentOverlayData={shipmentOverlayData}
+        onRemainingBoxesUndelivered={onRemainingBoxesUndelivered}
+        onClose={onShipmentOverlayClose}
+        onCancel={onCancel}
+        onLost={onLost}
+      />
     </>
   );
 }
