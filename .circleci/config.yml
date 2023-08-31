@@ -87,6 +87,7 @@ jobs:
   build-front:
     executor: node-executor
     working_directory: ~/react
+    resource_class: large
     steps:
       - attach_workspace:
           at: ~/
