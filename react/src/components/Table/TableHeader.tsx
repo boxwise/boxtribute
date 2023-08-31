@@ -1,8 +1,7 @@
 /* eslint-disable no-nested-ternary */
 import { TriangleDownIcon, TriangleUpIcon } from "@chakra-ui/icons";
 import { Thead, Tr, Th, Flex, chakra, Spacer } from "@chakra-ui/react";
-import { ReactElement, ReactNode } from "react";
-import { Column, HeaderGroup } from "react-table";
+import { HeaderGroup } from "react-table";
 
 interface IFilteringSortingTableHeaderProps {
   headerGroups: HeaderGroup<any>[];
@@ -13,25 +12,23 @@ export function FilteringSortingTableHeader({ headerGroups }: IFilteringSortingT
     <Thead>
       {headerGroups.map((headerGroup: HeaderGroup) => (
         <Tr {...headerGroup.getHeaderGroupProps()}>
-          {headerGroup.headers.map((header: HeaderGroup<any>) => (
-            <Th {...header.getHeaderProps()}>
+          {headerGroup.headers.map((column) => (
+            <Th {...column.getHeaderProps()}>
               <Flex alignItems="center">
-                <div {...header.getSortByToggleProps()}>
-                  <chakra.span pl="1">
-                    {header.isSorted && header.isSortedDesc && (
-                      <TriangleDownIcon aria-label="sorted descending" />
-                    )}
-                    {header.isSorted && !header.isSortedDesc && (
-                      <TriangleUpIcon aria-label="sorted ascending" />
-                    )}
-                  </chakra.span>
-                  <Spacer />
-                  {header.render("Header") as ReactElement}
-                </div>
+                <chakra.span pl="1">
+                  {column.isSorted && column.isSortedDesc && (
+                    <TriangleDownIcon aria-label="sorted descending" />
+                  )}
+                  {column.isSorted && !column.isSortedDesc && (
+                    <TriangleUpIcon aria-label="sorted ascending" />
+                  )}
+                </chakra.span>
+                <Spacer />
+                <div {...column.getSortByToggleProps()}>{column.render("Header")}</div>
 
                 <Spacer />
-                {header.Filter && header.canFilter && (
-                  <chakra.span pr="1">{header.render("Filter") as ReactElement}</chakra.span>
+                {column.Filter && column.canFilter && (
+                  <chakra.span pr="1">{column.render("Filter")}</chakra.span>
                 )}
               </Flex>
             </Th>
