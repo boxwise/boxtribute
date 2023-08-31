@@ -15,7 +15,7 @@ export function FilteringSortingTableHeader({ headerGroups }: IFilteringSortingT
           {headerGroup.headers.map((column) => (
             <Th {...column.getHeaderProps()}>
               <Flex alignItems="center">
-                {column.canFilter && <chakra.span pr="1">{column.render("Filter")}</chakra.span>}
+                {/* {column.canFilter && <chakra.span pr="1">{column.render("Filter")}</chakra.span>} */}
                 {column.render("Header")}
                 <Spacer />
                 <chakra.span pl="1">

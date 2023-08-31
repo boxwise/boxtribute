@@ -36,8 +36,9 @@ import {
 } from "react-table";
 import { BoxRow } from "./types";
 import { GlobalFilter } from "./GlobalFilter";
-import { SelectColumnFilter } from "./SelectColumnFilter";
+import { SelectColumnFilter } from "components/Table/Filter";
 import IndeterminateCheckbox from "./Checkbox";
+import { FilteringSortingTableHeader } from "components/Table/TableHeader";
 
 export type BoxesTableProps = {
   tableData: BoxRow[];
@@ -65,7 +66,7 @@ const ColumnSelector = ({
 }: ColumnSelectorProps) => {
   const allAvailableColumnOptions = useMemo(
     () => mapColumnsToColumnOptionCollection(availableColumns),
-    [availableColumns]
+    [availableColumns],
   );
 
   const onCheckboxChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -75,9 +76,7 @@ const ColumnSelector = ({
     if (column != null) {
       if (checked) {
         setSelectedColumns(
-          selectedColumns.includes(column)
-            ? selectedColumns
-            : [...selectedColumns, column]
+          selectedColumns.includes(column) ? selectedColumns : [...selectedColumns, column],
         );
       } else {
         setSelectedColumns(selectedColumns.filter((c) => c !== column));
@@ -85,8 +84,7 @@ const ColumnSelector = ({
     }
   };
 
-  const selectedColumnOptions =
-    mapColumnsToColumnOptionCollection(selectedColumns);
+  const selectedColumnOptions = mapColumnsToColumnOptionCollection(selectedColumns);
 
   return (
     <Box maxW="400px" minW="250px">
@@ -136,6 +134,7 @@ const BoxesTable = ({ tableData, onBoxRowClick }: BoxesTableProps) => {
         accessor: "productName",
         id: "productName",
         Filter: SelectColumnFilter,
+        filter: "includesSome",
         show: false,
       },
       {
@@ -147,8 +146,6 @@ const BoxesTable = ({ tableData, onBoxRowClick }: BoxesTableProps) => {
         Header: "Gender",
         accessor: "gender",
         id: "gender",
-        Filter: SelectColumnFilter,
-        filter: "equals",
       },
       {
         Header: "Size",
@@ -164,35 +161,25 @@ const BoxesTable = ({ tableData, onBoxRowClick }: BoxesTableProps) => {
         Header: "State",
         accessor: "state",
         id: "state",
-        Filter: SelectColumnFilter,
-        filter: "equals",
       },
       {
         Header: "Place",
         accessor: "place",
         id: "place",
-        Filter: SelectColumnFilter,
-        filter: "equals",
       },
       {
         Header: "Tags",
         accessor: "tags",
         id: "tags",
-        Filter: SelectColumnFilter,
-        filter: "equals",
       },
     ],
-    []
+    [],
   );
 
-  const [selectedColumns, setSelectedColumns] =
-    useState<Column<BoxRow>[]>(availableColumns);
+  const [selectedColumns, setSelectedColumns] = useState<Column<BoxRow>[]>(availableColumns);
   const orderedSelectedColumns = useMemo(
-    () =>
-      selectedColumns.sort(
-        (a, b) => availableColumns.indexOf(a) - availableColumns.indexOf(b)
-      ),
-    [selectedColumns, availableColumns]
+    () => selectedColumns.sort((a, b) => availableColumns.indexOf(a) - availableColumns.indexOf(b)),
+    [selectedColumns, availableColumns],
   );
 
   return (
@@ -218,12 +205,7 @@ interface ActualTableProps {
   tableData: BoxRow[];
   onBoxRowClick: (labelIdentified: string) => void;
 }
-const ActualTable = ({
-  show = true,
-  columns,
-  tableData,
-  onBoxRowClick,
-}: ActualTableProps) => {
+const ActualTable = ({ show = true, columns, tableData, onBoxRowClick }: ActualTableProps) => {
   const {
     headerGroups,
     prepareRow,
@@ -237,12 +219,12 @@ const ActualTable = ({
     nextPage,
     previousPage,
   } = useTable(
-  // TODO: remove this ts-ignore again and try to fix the type error properly
-  // was most likely caused by setting one of the following flags in .tsconfig:
-  // "strictNullChecks": true
-  // "strictFunctionTypes": false
+    // TODO: remove this ts-ignore again and try to fix the type error properly
+    // was most likely caused by setting one of the following flags in .tsconfig:
+    // "strictNullChecks": true
+    // "strictFunctionTypes": false
     {
-  // @ts-ignore
+      // @ts-ignore
       columns,
       data: tableData,
       initialState: {
@@ -272,7 +254,7 @@ const ActualTable = ({
         },
         ...columns,
       ]);
-    }
+    },
   );
 
   if (!show) {
@@ -282,44 +264,11 @@ const ActualTable = ({
   return (
     <>
       <Flex alignItems="center" flexWrap="wrap">
-        <GlobalFilter
-          globalFilter={globalFilter}
-          setGlobalFilter={setGlobalFilter}
-        />
-
-        {headerGroups.map((headerGroup) => {
-          return headerGroup.headers.map((column) =>
-            column.Filter ? (
-              <Button m={2} key={column.id} borderRadius='0px'>
-                <label htmlFor={column.id}>{column.render("Header")}</label>
-                {column.render("Filter")}
-              </Button>
-            ) : null
-          );
-        })}
+        <GlobalFilter globalFilter={globalFilter} setGlobalFilter={setGlobalFilter} />
       </Flex>
 
       <Table>
-        <Thead>
-          {headerGroups.map((headerGroup, i) => (
-            <Tr {...headerGroup.getHeaderGroupProps()} key={i}>
-              {headerGroup.headers.map((column) => (
-                <Th {...column.getHeaderProps(column.getSortByToggleProps())} title={`Toggle SortBy for '${column.render("Header")}'`}>
-                  {column.render("Header")}
-                  <chakra.span pl="4">
-                    {column.isSorted ? (
-                      column.isSortedDesc ? (
-                        <TriangleDownIcon aria-label="sorted descending" />
-                      ) : (
-                        <TriangleUpIcon aria-label="sorted ascending" />
-                      )
-                    ) : null}
-                  </chakra.span>
-                </Th>
-              ))}
-            </Tr>
-          ))}
-        </Thead>
+        <FilteringSortingTableHeader headerGroups={headerGroups} />
         <Tbody>
           {page.map((row, i) => {
             prepareRow(row);
@@ -327,7 +276,7 @@ const ActualTable = ({
               <Tr
                 cursor="pointer"
                 {...row.getRowProps()}
-                onClick={() => onBoxRowClick(row.original['labelIdentifier'])}
+                onClick={() => onBoxRowClick(row.original["labelIdentifier"])}
                 key={i}
               >
                 {row.cells.map((cell, i) => {
