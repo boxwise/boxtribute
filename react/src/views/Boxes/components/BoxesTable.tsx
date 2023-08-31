@@ -1,26 +1,14 @@
 import React, { useMemo, useState } from "react";
-import {
-  TriangleDownIcon,
-  TriangleUpIcon,
-  ChevronRightIcon,
-  ChevronLeftIcon,
-} from "@chakra-ui/icons";
+import { ChevronRightIcon, ChevronLeftIcon } from "@chakra-ui/icons";
 import {
   Button,
   Table,
-  Thead,
   Tr,
-  Th,
   Tbody,
   Td,
   Flex,
   Text,
   IconButton,
-  Accordion,
-  AccordionButton,
-  AccordionIcon,
-  AccordionItem,
-  AccordionPanel,
   Box,
   Checkbox,
   Popover,
@@ -28,8 +16,6 @@ import {
   PopoverBody,
   PopoverCloseButton,
   PopoverContent,
-  PopoverTrigger,
-  Select,
 } from "@chakra-ui/react";
 import {
   Column,
@@ -45,8 +31,10 @@ import { GlobalFilter } from "./GlobalFilter";
 import { SelectColumnFilter } from "components/Table/Filter";
 import IndeterminateCheckbox from "./Checkbox";
 import { FilteringSortingTableHeader } from "components/Table/TableHeader";
-import { render } from "react-dom";
-import { MdFilterListAlt, MdFilterList } from "react-icons/md";
+
+import { PopoverTrigger as OrigPopoverTrigger } from "@chakra-ui/react";
+
+export const PopoverTrigger: React.FC<{ children: React.ReactNode }> = OrigPopoverTrigger;
 
 export type BoxesTableProps = {
   tableData: BoxRow[];
@@ -95,10 +83,10 @@ const ColumnSelector = ({
   const selectedColumnOptions = mapColumnsToColumnOptionCollection(selectedColumns);
 
   return (
-    <Box maxW="400px" minW="250px">
+    <Box maxW="400px" minW="250px" paddingBottom={4}>
       <Popover>
         <PopoverTrigger>
-          <Button onClick={() => {}}>Test</Button>
+          <Button>Columns shown</Button>
         </PopoverTrigger>
         <PopoverContent>
           <PopoverArrow />
