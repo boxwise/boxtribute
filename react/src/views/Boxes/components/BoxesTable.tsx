@@ -98,7 +98,7 @@ const ColumnSelector = ({
     <Box maxW="400px" minW="250px">
       <Popover>
         <PopoverTrigger>
-          <button>Test</button>
+          <Button onClick={() => {}}>Test</Button>
         </PopoverTrigger>
         <PopoverContent>
           <PopoverArrow />
