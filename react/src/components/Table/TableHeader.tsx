@@ -13,9 +13,11 @@ export function FilteringSortingTableHeader({ headerGroups }: IFilteringSortingT
       {headerGroups.map((headerGroup) => (
         <Tr {...headerGroup.getHeaderGroupProps()}>
           {headerGroup.headers.map((column) => (
+            // console.log("column", column);
             <Th {...column.getHeaderProps()}>
               <Flex alignItems="center">
-                {/* {column.canFilter && <chakra.span pr="1">{column.render("Filter")}</chakra.span>} */}
+                {/* {JSON.stringify(column)} */}
+                {column.canFilter && <chakra.span pr="1">{column.render("Filter")}</chakra.span>}
                 {column.render("Header")}
                 <Spacer />
                 <chakra.span pl="1">

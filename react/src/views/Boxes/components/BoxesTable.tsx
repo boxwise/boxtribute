@@ -141,37 +141,38 @@ const BoxesTable = ({ tableData, onBoxRowClick }: BoxesTableProps) => {
         Header: "Box Number",
         accessor: "labelIdentifier",
         id: "labelIdentifier",
+        disableFilters: true,
       },
-      {
-        Header: "Gender",
-        accessor: "gender",
-        id: "gender",
-      },
-      {
-        Header: "Size",
-        accessor: "size",
-        id: "size",
-      },
-      {
-        Header: "Items",
-        accessor: "numberOfItems",
-        id: "numberOfItems",
-      },
-      {
-        Header: "State",
-        accessor: "state",
-        id: "state",
-      },
-      {
-        Header: "Place",
-        accessor: "place",
-        id: "place",
-      },
-      {
-        Header: "Tags",
-        accessor: "tags",
-        id: "tags",
-      },
+      // {
+      //   Header: "Gender",
+      //   accessor: "gender",
+      //   id: "gender",
+      // },
+      // {
+      //   Header: "Size",
+      //   accessor: "size",
+      //   id: "size",
+      // },
+      // {
+      //   Header: "Items",
+      //   accessor: "numberOfItems",
+      //   id: "numberOfItems",
+      // },
+      // {
+      //   Header: "State",
+      //   accessor: "state",
+      //   id: "state",
+      // },
+      // {
+      //   Header: "Place",
+      //   accessor: "place",
+      //   id: "place",
+      // },
+      // {
+      //   Header: "Tags",
+      //   accessor: "tags",
+      //   id: "tags",
+      // },
     ],
     [],
   );
