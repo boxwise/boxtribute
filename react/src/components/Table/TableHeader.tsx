@@ -12,40 +12,39 @@ export function FilteringSortingTableHeader({ headerGroups }: IFilteringSortingT
     <Thead>
       {headerGroups.map((headerGroup) => (
         <Tr {...headerGroup.getHeaderGroupProps()}>
-          {headerGroup.headers.map((column) => {
-            console.log("column", column);
-            const FOO = <div>BAR</div>;
-            return (
-              // console.log("column", column);
-              <Th {...column.getHeaderProps()}>
-                <Flex alignItems="center">
-                  {/* {JSON.stringify(column)} */}
-                  {column.canFilter && <chakra.span pr="1">{FOO}</chakra.span>}
-                  {column.render("Header")}
-                  <Spacer />
-                  <chakra.span pl="1">
-                    <IconButton
-                      size="xs"
-                      background="inherit"
-                      aria-label={`Toggle SortBy for '${column.render("Header")}'`}
-                      icon={
-                        column.isSorted ? (
-                          column.isSortedDesc ? (
-                            <TriangleDownIcon aria-label="sorted descending" />
-                          ) : (
-                            <TriangleUpIcon aria-label="sorted ascending" />
-                          )
+          {headerGroup.headers.map((column) => (
+            // console.log("column", column);
+            // column.render;
+            // const FOO = <div>BAR</div>;
+            // console.log("column", column);
+            <Th {...column.getHeaderProps()}>
+              <Flex alignItems="center">
+                {/* {JSON.stringify(column)} */}
+                {column.Filter && <chakra.span pr="1">{column.render("Filter")}</chakra.span>}
+                {column.render("Header")}
+                <Spacer />
+                <chakra.span pl="1">
+                  <IconButton
+                    size="xs"
+                    background="inherit"
+                    aria-label={`Toggle SortBy for '${column.render("Header")}'`}
+                    icon={
+                      column.isSorted ? (
+                        column.isSortedDesc ? (
+                          <TriangleDownIcon aria-label="sorted descending" />
                         ) : (
-                          <ArrowUpDownIcon />
+                          <TriangleUpIcon aria-label="sorted ascending" />
                         )
-                      }
-                      {...column.getSortByToggleProps()}
-                    />
-                  </chakra.span>
-                </Flex>
-              </Th>
-            );
-          })}
+                      ) : (
+                        <ArrowUpDownIcon />
+                      )
+                    }
+                    {...column.getSortByToggleProps()}
+                  />
+                </chakra.span>
+              </Flex>
+            </Th>
+          ))}
         </Tr>
       ))}
     </Thead>
