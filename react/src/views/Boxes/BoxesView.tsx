@@ -6,13 +6,24 @@ import BoxesTable from "./components/BoxesTable";
 import { BoxRow } from "./components/types";
 import APILoadingIndicator from "components/APILoadingIndicator";
 import { BoxesForBaseQuery } from "types/generated/graphql";
-import { BOX_FIELDS_FRAGMENT } from "queries/fragments";
+import {
+  BASE_ORG_FIELDS_FRAGMENT,
+  BOX_FIELDS_FRAGMENT,
+  LOCATION_BASIC_FIELDS_FRAGMENT,
+  TAG_BASIC_FIELDS_FRAGMENT,
+} from "queries/fragments";
+import { locationToDropdownOptionTransformer } from "utils/transformers";
 
 export const BOXES_FOR_BASE_QUERY = gql`
+  ${LOCATION_BASIC_FIELDS_FRAGMENT}
+  ${TAG_BASIC_FIELDS_FRAGMENT}
+  ${BASE_ORG_FIELDS_FRAGMENT}
   ${BOX_FIELDS_FRAGMENT}
   query BoxesForBase($baseId: ID!) {
     base(id: $baseId) {
       locations {
+        id
+        seq
         name
         boxes {
           totalCount
@@ -20,6 +31,19 @@ export const BOXES_FOR_BASE_QUERY = gql`
             ...BoxFields
           }
         }
+      }
+      tags(resourceType: Box) {
+        ...TagBasicFields
+      }
+    }
+    shipments {
+      id
+      state
+      sourceBase {
+        ...BaseOrgFields
+      }
+      targetBase {
+        ...BaseOrgFields
       }
     }
   }
@@ -56,6 +80,7 @@ const Boxes = () => {
       baseId,
     },
   });
+
   if (loading) {
     return <APILoadingIndicator />;
   }
@@ -65,7 +90,16 @@ const Boxes = () => {
   }
 
   const tableData = graphqlToTableTransformer(data);
-  return <BoxesTable tableData={tableData} onBoxRowClick={onBoxesRowClick} />;
+
+  const locationOptions = locationToDropdownOptionTransformer(data?.base?.locations ?? []);
+
+  return (
+    <BoxesTable
+      tableData={tableData}
+      locationOptions={locationOptions}
+      onBoxRowClick={onBoxesRowClick}
+    />
+  );
 };
 
 export default Boxes;

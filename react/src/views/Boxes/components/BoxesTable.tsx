@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import {
   TriangleDownIcon,
   TriangleUpIcon,
@@ -24,6 +24,7 @@ import {
   AccordionPanel,
   Box,
   Checkbox,
+  ButtonGroup,
 } from "@chakra-ui/react";
 import {
   Column,
@@ -33,15 +34,19 @@ import {
   useSortBy,
   useRowSelect,
   usePagination,
+  Row,
 } from "react-table";
 import { BoxRow } from "./types";
 import { GlobalFilter } from "./GlobalFilter";
 import { SelectColumnFilter } from "components/Table/Filter";
 import IndeterminateCheckbox from "./Checkbox";
 import { FilteringSortingTableHeader } from "components/Table/TableHeader";
+// import { useMoveBoxes } from "hooks/useMoveBoxes";
+// import { SelectButton } from "./ActionButtons";
 
 export type BoxesTableProps = {
   tableData: BoxRow[];
+  locationOptions: { label: string; value: string }[];
   onBoxRowClick: (labelIdentified: string) => void;
 };
 
@@ -126,7 +131,7 @@ const ColumnSelector = ({
   );
 };
 
-const BoxesTable = ({ tableData, onBoxRowClick }: BoxesTableProps) => {
+const BoxesTable = ({ tableData, locationOptions, onBoxRowClick }: BoxesTableProps) => {
   const availableColumns: Column<BoxRow>[] = React.useMemo(
     () => [
       {
@@ -202,6 +207,10 @@ const BoxesTable = ({ tableData, onBoxRowClick }: BoxesTableProps) => {
     [selectedColumns, availableColumns],
   );
 
+  // Actions on Selected Boxes
+  const [selectedBoxes, setSelectedBoxes] = useState<Row<object>[]>([]);
+  // const { isLoading: moveBoxesIsLoading, moveBoxes } = useMoveBoxes();
+
   return (
     <>
       <ColumnSelector
@@ -209,23 +218,38 @@ const BoxesTable = ({ tableData, onBoxRowClick }: BoxesTableProps) => {
         selectedColumns={selectedColumns}
         setSelectedColumns={setSelectedColumns}
       />
+      {/* <ButtonGroup>
+        <SelectButton
+          label="Move Boxes"
+          options={locationOptions}
+          onSelect={(value: string) => {}}
+        />
+      </ButtonGroup> */}
       <ActualTable
         columns={orderedSelectedColumns}
         tableData={tableData}
         onBoxRowClick={onBoxRowClick}
+        onSelectedRowsChange={setSelectedBoxes}
       />
       ;
     </>
   );
 };
 
-interface ActualTableProps {
+interface IActualTableProps {
   columns: Column<BoxRow>[];
   show?: boolean;
   tableData: BoxRow[];
   onBoxRowClick: (labelIdentified: string) => void;
+  onSelectedRowsChange: (selectedRows: Row<object>[]) => void;
 }
-const ActualTable = ({ show = true, columns, tableData, onBoxRowClick }: ActualTableProps) => {
+const ActualTable = ({
+  show = true,
+  columns,
+  tableData,
+  onBoxRowClick,
+  onSelectedRowsChange,
+}: IActualTableProps) => {
   const {
     headerGroups,
     prepareRow,
@@ -235,9 +259,9 @@ const ActualTable = ({ show = true, columns, tableData, onBoxRowClick }: ActualT
     canPreviousPage,
     canNextPage,
     pageOptions,
-
     nextPage,
     previousPage,
+    selectedFlatRows,
   } = useTable(
     // TODO: remove this ts-ignore again and try to fix the type error properly
     // was most likely caused by setting one of the following flags in .tsconfig:
@@ -276,6 +300,11 @@ const ActualTable = ({ show = true, columns, tableData, onBoxRowClick }: ActualT
       ]);
     },
   );
+
+  // Update selected rows
+  useEffect(() => {
+    onSelectedRowsChange(selectedFlatRows);
+  }, [onSelectedRowsChange, selectedFlatRows]);
 
   if (!show) {
     return <></>;
