@@ -8,7 +8,7 @@ import {
   generateMockShipmentWithCustomDetails,
 } from "mocks/shipments";
 import { generateMockBox } from "mocks/boxes";
-import { ShipmentState } from "types/generated/graphql";
+import { BoxState, ShipmentState } from "types/generated/graphql";
 import { useErrorHandling } from "hooks/useErrorHandling";
 import { useNotification } from "hooks/useNotification";
 import userEvent from "@testing-library/user-event";
@@ -81,7 +81,27 @@ const initialCompletedShipemntQuery = {
   },
   result: {
     data: {
-      shipment: generateMockShipment({ state: ShipmentState.Completed, hasBoxes: true }),
+      shipment: generateMockShipmentWithCustomDetails({
+        state: ShipmentState.Completed,
+        details: [
+          // eslint-disable-next-line no-undef
+          generateMockShipmentDetail({ id: "1", box: generateMockBox({ labelIdentifier: "123" }) }),
+          generateMockShipmentDetail({
+            id: "2",
+            box: generateMockBox({ labelIdentifier: "124", numberOfItems: 20 }),
+            sourceQuantity: 20,
+          }),
+          generateMockShipmentDetail({
+            id: "3",
+            box: generateMockBox({
+              labelIdentifier: "125",
+              numberOfItems: 20,
+              state: BoxState.Lost,
+            }),
+            sourceQuantity: 20,
+          }),
+        ],
+      }),
     },
   },
 };
@@ -399,7 +419,7 @@ it("4.5.5 - Shows total count of the boxes when shipment completed", async () =>
 
   expect(screen.getByText(/COMPLETE/)).toBeInTheDocument();
 
-  expect(screen.getByRole("heading", { name: /\b2\b/i })).toBeInTheDocument();
+  expect(screen.getByRole("heading", { name: /\b3\b/i })).toBeInTheDocument();
 
   expect(screen.getByRole("tab", { name: /content/i, selected: true })).toHaveTextContent(
     "Content",
