@@ -2,10 +2,16 @@ import "@testing-library/jest-dom";
 import { screen, render, waitFor } from "tests/test-utils";
 import { organisation1 } from "mocks/organisations";
 import { GraphQLError } from "graphql";
-import { generateMockShipment } from "mocks/shipments";
+import {
+  generateMockShipment,
+  generateMockShipmentDetail,
+  generateMockShipmentWithCustomDetails,
+} from "mocks/shipments";
+import { generateMockBox } from "mocks/boxes";
 import { ShipmentState } from "types/generated/graphql";
 import { useErrorHandling } from "hooks/useErrorHandling";
 import { useNotification } from "hooks/useNotification";
+import userEvent from "@testing-library/user-event";
 import ShipmentView, { SHIPMENT_BY_ID_QUERY } from "./ShipmentView";
 
 const mockedTriggerError = jest.fn();
@@ -23,6 +29,31 @@ const initialQuery = {
   result: {
     data: {
       shipment: generateMockShipment({ state: ShipmentState.Preparing }),
+    },
+  },
+};
+
+const initialWithGroupedItemQuery = {
+  request: {
+    query: SHIPMENT_BY_ID_QUERY,
+    variables: {
+      id: "1",
+    },
+  },
+  result: {
+    data: {
+      shipment: generateMockShipmentWithCustomDetails({
+        state: ShipmentState.Preparing,
+        details: [
+          // eslint-disable-next-line no-undef
+          generateMockShipmentDetail({ id: "1", box: generateMockBox({ labelIdentifier: "123" }) }),
+          generateMockShipmentDetail({
+            id: "2",
+            box: generateMockBox({ labelIdentifier: "124", numberOfItems: 20 }),
+            sourceQuantity: 20,
+          }),
+        ],
+      }),
     },
   },
 };
@@ -212,6 +243,52 @@ describe("4.5 Test Cases", () => {
     expect(
       screen.getByText(/no boxes have been assigned to this shipment yet!/i),
     ).toBeInTheDocument();
+  }, 10000);
+
+  // Test case 4.5.1.6
+  // eslint-disable-next-line max-len
+  it("4.5.1.6 - Show the number of items per box and the sum of the items grouped together", async () => {
+    const user = userEvent.setup();
+    render(<ShipmentView />, {
+      routePath: "/bases/:baseId/transfers/shipments/:id",
+      initialUrl: "/bases/1/transfers/shipments/1",
+      mocks: [initialWithGroupedItemQuery],
+      addTypename: true,
+      globalPreferences: {
+        dispatch: jest.fn(),
+        globalPreferences: {
+          organisation: { id: organisation1.id, name: organisation1.name },
+          availableBases: organisation1.bases,
+        },
+      },
+    });
+
+    await waitFor(() => {
+      expect(screen.getByRole("tab", { name: /content/i })).toBeInTheDocument();
+    });
+
+    const title = screen.getByText(/prepare shipment/i);
+    expect(title).toBeInTheDocument();
+
+    // Test case 4.5.1.6 - Show the number of items per box and the sum of the items grouped together
+    const groupItemNameWithCount = screen.getByTestId("shipment-grouped-item-name");
+    expect(groupItemNameWithCount).toHaveTextContent("Long Sleeves Women (30x)");
+
+    const groupedItemAccordionButton = screen.getByTestId("shipment-accordion-button-1");
+    expect(groupedItemAccordionButton).toBeInTheDocument();
+    // expanding the accordion
+    user.click(groupedItemAccordionButton);
+    await waitFor(() => {
+      // check if cell with number of items equals to 20 is displayed
+      screen.getByRole("cell", {
+        name: /20/i,
+      });
+      // check if cell with number of items equals to 10 is displayed
+      screen.getByRole("cell", {
+        name: /10/i,
+      });
+    });
+    expect(screen.getByText(/30/i)).toBeInTheDocument();
   }, 10000);
 
   // Test case 4.5.2

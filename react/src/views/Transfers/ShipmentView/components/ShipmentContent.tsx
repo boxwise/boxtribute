@@ -134,7 +134,7 @@ function ShipmentContent({
                 <Box alignItems="center">
                   <h2>
                     <Box>
-                      <Text>
+                      <Text data-testid="shipment-grouped-item-name">
                         {" "}
                         {item?.product?.name}{" "}
                         {item?.product?.gender && item?.product?.gender !== "none"
@@ -157,6 +157,7 @@ function ShipmentContent({
                   )}
                 </Flex>
                 <AccordionButton
+                  data-testid={`shipment-accordion-button-${item?.product?.id}`}
                   _expanded={{ bg: "#F4E6A0" }}
                   maxWidth={5}
                   _hover={{ bgColor: "white" }}
