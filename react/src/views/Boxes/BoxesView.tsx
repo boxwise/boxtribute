@@ -31,6 +31,9 @@ export const BOXES_FOR_BASE_QUERY = gql`
             ...BoxFields
           }
         }
+        ... on ClassicLocation {
+          defaultBoxState
+        }
       }
       tags(resourceType: Box) {
         ...TagBasicFields

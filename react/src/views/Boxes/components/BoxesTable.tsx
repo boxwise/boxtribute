@@ -41,8 +41,8 @@ import { GlobalFilter } from "./GlobalFilter";
 import { SelectColumnFilter } from "components/Table/Filter";
 import IndeterminateCheckbox from "./Checkbox";
 import { FilteringSortingTableHeader } from "components/Table/TableHeader";
-// import { useMoveBoxes } from "hooks/useMoveBoxes";
-// import { SelectButton } from "./ActionButtons";
+import { useMoveBoxes } from "hooks/useMoveBoxes";
+import { SelectButton } from "./ActionButtons";
 
 export type BoxesTableProps = {
   tableData: BoxRow[];
@@ -209,7 +209,8 @@ const BoxesTable = ({ tableData, locationOptions, onBoxRowClick }: BoxesTablePro
 
   // Actions on Selected Boxes
   const [selectedBoxes, setSelectedBoxes] = useState<Row<object>[]>([]);
-  // const { isLoading: moveBoxesIsLoading, moveBoxes } = useMoveBoxes();
+  // Move Boxes
+  const { isLoading: moveBoxesIsLoading, moveBoxes } = useMoveBoxes();
 
   return (
     <>
@@ -218,13 +219,13 @@ const BoxesTable = ({ tableData, locationOptions, onBoxRowClick }: BoxesTablePro
         selectedColumns={selectedColumns}
         setSelectedColumns={setSelectedColumns}
       />
-      {/* <ButtonGroup>
+      <ButtonGroup>
         <SelectButton
           label="Move Boxes"
           options={locationOptions}
           onSelect={(value: string) => {}}
         />
-      </ButtonGroup> */}
+      </ButtonGroup>
       <ActualTable
         columns={orderedSelectedColumns}
         tableData={tableData}
