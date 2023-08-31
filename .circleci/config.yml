@@ -108,11 +108,6 @@ jobs:
               REACT_APP_ENVIRONMENT=${ENVIRONMENT}
             " > .env
       - run:
-          name: tmp
-          command: |
-            ls -al
-            pwd
-      - run:
           name: Run style checks
           command: |
             yarn lint

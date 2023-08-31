@@ -236,7 +236,10 @@ export function BoxReconciliationOverlay({
       />
       <BoxUndeliveredAYS
         title="Box Not Delivered?"
-        body="Confirming this means that this box never arrived as part of this shipment. We’ll record this as NotDelivered and remove it from the shipment receive list."
+        body={
+          "Confirming this means that this box never arrived as part of this shipment." +
+          "We’ll record this as NotDelivered and remove it from the shipment receive list."
+        }
         isOpen={boxUndeliveredAYSState !== ""}
         isLoading={loading}
         leftButtonText="Yes"
