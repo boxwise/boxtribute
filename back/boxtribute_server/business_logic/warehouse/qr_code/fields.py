@@ -11,7 +11,7 @@ qr_code = ObjectType("QrCode")
 def resolve_qr_code_box(qr_code_obj, _):
     try:
         box = (
-            Box.select(Box, Location.base)
+            Box.select(Box, Location)
             .join(Location)
             .where(Box.qr_code == qr_code_obj.id)
             .get()
