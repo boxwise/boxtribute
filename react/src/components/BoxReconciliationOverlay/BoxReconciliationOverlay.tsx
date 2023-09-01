@@ -98,18 +98,7 @@ export function BoxReconciliationOverlay({
   const allLocations = useMemo(
     () =>
       data?.base?.locations
-        .filter(
-          (location) =>
-            location?.defaultBoxState !== BoxState.Lost &&
-            location?.defaultBoxState !== BoxState.Scrap,
-        )
-        .map((location) => ({
-          ...location,
-          name:
-            (location.defaultBoxState !== BoxState.InStock
-              ? `${location.name} - Boxes are ${location.defaultBoxState}`
-              : location.name) ?? "",
-        }))
+        .filter((location) => location?.defaultBoxState === BoxState.InStock)
         .sort((a, b) => Number(a?.seq) - Number(b?.seq)),
     [data],
   );
