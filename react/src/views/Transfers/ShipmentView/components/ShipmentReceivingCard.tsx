@@ -46,13 +46,13 @@ function ShipmentReceivingCard({ shipment }: IShipmentReceivingCardProps) {
             fontSize="sm"
             fontWeight="semibold"
           >
-            REMAINING
+            RECEIVED
           </Box>
           <Box pr={2}>
             <Flex alignItems="flex-end" justifyContent="flex-end">
               <Wrap>
                 <WrapItem fontWeight="extrabold" fontSize="lg">
-                  {shipment.details.filter((b) => b.box.state === BoxState.Receiving).length} /{" "}
+                  {shipment.details.filter((b) => b.box.state === BoxState.InStock).length} /{" "}
                   {shipment.details.filter((b) => b.removedOn === null).length}
                 </WrapItem>
                 <WrapItem alignItems="center">
