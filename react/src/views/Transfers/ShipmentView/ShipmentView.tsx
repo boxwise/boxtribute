@@ -140,6 +140,8 @@ function ShipmentView() {
       variables: {
         id: shipmentId,
       },
+      // returns cache first, but syncs with server in background
+      fetchPolicy: "cache-and-network",
     },
   );
 
