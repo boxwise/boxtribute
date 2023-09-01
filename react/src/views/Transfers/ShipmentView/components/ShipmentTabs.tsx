@@ -1,6 +1,6 @@
 import { TabList, TabPanels, Tabs, TabPanel, Tab, Center } from "@chakra-ui/react";
 import _ from "lodash";
-import { Box, ShipmentDetail, ShipmentState, User } from "types/generated/graphql";
+import { Box, BoxState, ShipmentDetail, ShipmentState, User } from "types/generated/graphql";
 import ShipmentContent, { IShipmentContent } from "./ShipmentContent";
 import ShipmentHistory from "./ShipmentHistory";
 
@@ -54,6 +54,7 @@ function ShipmentTabs({
         product: group[0]?.sourceProduct,
         totalItems: _.sumBy(group, (shipment) => shipment?.sourceQuantity || 0),
         totalBoxes: group.length,
+        totalLosts: group.filter((shipment) => shipment?.box?.state === BoxState.Lost).length,
         boxes: group.map(
           (shipment) =>
             ({
