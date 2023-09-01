@@ -52,8 +52,14 @@ function ShipmentReceivingCard({ shipment }: IShipmentReceivingCardProps) {
             <Flex alignItems="flex-end" justifyContent="flex-end">
               <Wrap>
                 <WrapItem fontWeight="extrabold" fontSize="lg">
-                  {shipment.details.filter((b) => b.box.state === BoxState.InStock).length} /{" "}
-                  {shipment.details.filter((b) => b.removedOn === null).length}
+                  {
+                    shipment.details.filter(
+                      (b) => b.box.state === BoxState.InStock && b.removedOn === null,
+                    ).length
+                  }{" "}
+                  /{" "}
+                  {shipment.details.filter((b) => b.removedOn === null).length -
+                    shipment.details.filter((b) => b.lostOn !== null).length}
                 </WrapItem>
                 <WrapItem alignItems="center">
                   <Center>
