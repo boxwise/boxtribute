@@ -227,15 +227,19 @@ export function BoxReconciliationOverlay({
         title="Box Not Delivered?"
         body={
           "Confirming this means that this box never arrived as part of this shipment." +
+          " " +
           "We’ll record this as NotDelivered and remove it from the shipment receive list."
         }
+        rightButtonProps={{
+          colorScheme: "red",
+        }}
         isOpen={boxUndeliveredAYSState !== ""}
         isLoading={loading}
-        leftButtonText="Yes"
-        rightButtonText="No"
+        leftButtonText="Nevermind"
+        rightButtonText="Confirm"
         onClose={() => setBoxUndeliveredAYSState("")}
-        onLeftButtonClick={() => onBoxUndelivered(boxUndeliveredAYSState)}
-        onRightButtonClick={() => setBoxUndeliveredAYSState("")}
+        onLeftButtonClick={() => setBoxUndeliveredAYSState("")}
+        onRightButtonClick={() => onBoxUndelivered(boxUndeliveredAYSState)}
       />
     </>
   );
