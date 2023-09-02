@@ -254,7 +254,7 @@ noDeliveryTests.forEach(({ name, mocks, toast }) => {
 
       // AYS is open
       expect(await screen.findByText(/box not delivered\?/i)).toBeInTheDocument();
-      const noButton = screen.getByRole("button", { name: /no/i });
+      const noButton = screen.getByRole("button", { name: /nevermind/i });
       expect(noButton).toBeInTheDocument();
       user.click(noButton);
 
@@ -273,7 +273,7 @@ noDeliveryTests.forEach(({ name, mocks, toast }) => {
 
       // AYS is open
       expect(await screen.findByText(/box not delivered\?/i)).toBeInTheDocument();
-      const yesButton = screen.getByRole("button", { name: /yes/i });
+      const yesButton = screen.getByRole("button", { name: /confirm/i });
       expect(yesButton).toBeInTheDocument();
       user.click(yesButton);
 
