@@ -226,7 +226,6 @@ const ActualTable = ({ show = true, columns, tableData, onBoxRowClick }: ActualT
     tableConfigsState.set(tableConfigKey, {
       globalFilter: undefined,
       columnFilters: [],
-      selectedRowIds: [],
     });
     tableConfigsVar(tableConfigsState);
   }
@@ -286,14 +285,14 @@ const ActualTable = ({ show = true, columns, tableData, onBoxRowClick }: ActualT
   );
 
   useEffect(() => {
-    if (tableConfig != null) {
-      tableConfigsState.set(tableConfigKey, {
-        ...tableConfig,
-        globalFilter,
-        columnFilters: filters,
-      });
-      tableConfigsVar(tableConfigsState);
-    }
+    // if (tableConfig != null) {
+    tableConfigsState.set(tableConfigKey, {
+      // ...tableConfig,
+      globalFilter,
+      columnFilters: filters,
+    });
+    tableConfigsVar(tableConfigsState);
+    // }
   }, [globalFilter, filters, tableConfig]);
 
   if (!show) {

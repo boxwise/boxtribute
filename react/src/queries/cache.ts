@@ -49,7 +49,6 @@ export interface IQrReaderOverlayVar {
 export const qrReaderOverlayVar = makeVar<IQrReaderOverlayVar>({ isOpen: false });
 
 export interface ITableConfig {
-  selectedRowIds: string[];
   globalFilter: any;
   columnFilters: Filters<any>;
   // TODO: add here more props or even refactor the data structure, to support e.g. sorting config, filter configs and and selected columns
