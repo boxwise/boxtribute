@@ -216,17 +216,22 @@ interface ActualTableProps {
 
 const ActualTable = ({ show = true, columns, tableData, onBoxRowClick }: ActualTableProps) => {
   const { globalPreferences } = useContext(GlobalPreferencesContext);
-  const currentBaseId = globalPreferences.selectedBase?.id;
+
+  const baseId = globalPreferences.selectedBase?.id!;
+  const tableConfigsState = useReactiveVar(tableConfigsVar);
+  const tableConfigKey = `boxes-view--base-id-${baseId}`;
+
+  const tableConfig = tableConfigsState.get(tableConfigKey);
+
   const {
     headerGroups,
     prepareRow,
-    state: { globalFilter, pageIndex },
+    state: { globalFilter, pageIndex, selectedRowIds },
     setGlobalFilter,
     page,
     canPreviousPage,
     canNextPage,
     pageOptions,
-    selectedFlatRows,
     // setRowSel
     toggleRowSelected,
     nextPage,
@@ -243,6 +248,13 @@ const ActualTable = ({ show = true, columns, tableData, onBoxRowClick }: ActualT
       initialState: {
         pageIndex: 0,
         pageSize: 20,
+        selectedRowIds:
+          tableConfig?.selectedRowIds?.reduce((acc, curr) => {
+            const FOO = curr[0];
+            const BAR = curr[1] === "true";
+            acc[FOO] = BAR;
+            return acc;
+          }, {} as Record<string, boolean>) || {},
       },
     },
     useFilters,
@@ -270,20 +282,11 @@ const ActualTable = ({ show = true, columns, tableData, onBoxRowClick }: ActualT
     },
   );
 
-  const baseId = globalPreferences.selectedBase?.id!;
-  const tableConfigsState = useReactiveVar(tableConfigsVar);
-  const tableConfigKey = `boxes-view--base-id-${baseId}`;
-
-  useEffect(() => {
-    const tableConfig = tableConfigsState.get(tableConfigKey);
-    tableConfig?.selectedRowIds.map((rowId) => toggleRowSelected(rowId, true));
-  }, [tableConfigsState, baseId, tableConfigKey]);
-
-  useEffect(() => {
-    const tableConfig = tableConfigsState.set(tableConfigKey, {
-      selectedRowIds: selectedFlatRows.map((r) => r.id),
-    });
-  }, [selectedFlatRows]);
+  // useEffect(() => {
+  //   const tableConfig = tableConfigsState.set(tableConfigKey, {
+  //     selectedRowIds: selectedRowIds.map((r) => r.id),
+  //   });
+  // }, [selectedRowIds]);
 
   if (!show) {
     return <></>;
@@ -300,7 +303,7 @@ const ActualTable = ({ show = true, columns, tableData, onBoxRowClick }: ActualT
   //   toggleRowSelected("0", true);
   // }, []);
 
-  console.log("selectedFlatRows", selectedFlatRows);
+  // console.log("selectedFlatRows", selectedFlatRows);
   // setRowState()
 
   return (
