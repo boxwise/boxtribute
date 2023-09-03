@@ -1,10 +1,11 @@
 import { useContext, useEffect, useState } from "react";
 import { useAuth0 } from "@auth0/auth0-react";
-import { gql, useLazyQuery } from "@apollo/client";
+import { useLazyQuery } from "@apollo/client";
 import { useLocation, useNavigate } from "react-router-dom";
 import { GlobalPreferencesContext } from "providers/GlobalPreferencesProvider";
 import { ApolloAuth0WrapperContext } from "providers/ApolloAuth0Provider";
 import { OrganisationAndBasesQuery } from "types/generated/graphql";
+import { ORGANISATION_AND_BASES_QUERY } from "queries/queries";
 
 export const useLoadAndSetGlobalPreferences = () => {
   const { user } = useAuth0();
@@ -14,25 +15,12 @@ export const useLoadAndSetGlobalPreferences = () => {
   const { isAccessTokenInHeader } = useContext(ApolloAuth0WrapperContext);
   const [error, setError] = useState<string>();
 
-  // load available bases
-  const ORGANISATION_AND_BASES_QUERY = gql`
-    query OrganisationAndBases($organisationId: ID!) {
-      bases {
-        id
-        name
-      }
-      organisation(id: $organisationId) {
-        id
-        name
-      }
-    }
-  `;
   const [runOrganisationAndBasesQuery, { loading: isOrganisationAndBasesQueryLoading, data }] =
     useLazyQuery<OrganisationAndBasesQuery>(ORGANISATION_AND_BASES_QUERY);
 
   useEffect(() => {
     // run query only if the access token is in the request header from the apollo client
-    if (isAccessTokenInHeader && user) {
+    if (user) {
       runOrganisationAndBasesQuery({
         variables: { organisationId: user["https://www.boxtribute.com/organisation_id"] },
       });
