@@ -221,12 +221,14 @@ const ActualTable = ({ show = true, columns, tableData, onBoxRowClick }: ActualT
   const tableConfigsState = useReactiveVar(tableConfigsVar);
   const tableConfigKey = `boxes-view--base-id-${baseId}`;
 
-  const tableConfig = tableConfigsState.get(tableConfigKey);
+  const tableConfig = tableConfigsState?.get(tableConfigKey);
   if (tableConfig == null) {
     tableConfigsState.set(tableConfigKey, {
+      globalFilter: undefined,
       columnFilters: [],
       selectedRowIds: [],
     });
+    tableConfigsVar(tableConfigsState);
   }
 
   const {
@@ -252,7 +254,10 @@ const ActualTable = ({ show = true, columns, tableData, onBoxRowClick }: ActualT
       initialState: {
         pageIndex: 0,
         pageSize: 20,
-        filters: tableConfig?.columnFilters || [],
+        filters: tableConfig?.columnFilters ?? [],
+        ...(tableConfig?.globalFilter != null
+          ? { globalFilter: tableConfig?.globalFilter }
+          : undefined),
       },
     },
     useFilters,
@@ -282,14 +287,14 @@ const ActualTable = ({ show = true, columns, tableData, onBoxRowClick }: ActualT
 
   useEffect(() => {
     if (tableConfig != null) {
-      const FOO = {
+      tableConfigsState.set(tableConfigKey, {
         ...tableConfig,
+        globalFilter,
         columnFilters: filters,
-      };
-      // tableConfig.columnFilters = filters;
-      tableConfigsState.set(tableConfigKey, FOO);
+      });
+      tableConfigsVar(tableConfigsState);
     }
-  }, [filters, tableConfig]);
+  }, [globalFilter, filters, tableConfig]);
 
   if (!show) {
     return <></>;
