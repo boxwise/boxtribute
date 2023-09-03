@@ -24,6 +24,9 @@ export const useLoadAndSetGlobalPreferences = () => {
       runOrganisationAndBasesQuery({
         variables: { organisationId: user["https://www.boxtribute.com/organisation_id"] },
       });
+    } else {
+      // The user MUST be set by the logic of the app. The checking of user is actually just for type checking.
+      setError("Unexpected Error!");
     }
   }, [runOrganisationAndBasesQuery, globalPreferences.availableBases, isAccessTokenInHeader, user]);
 
