@@ -1,7 +1,6 @@
-import React, { useContext, useEffect, useMemo, useState } from "react";
+import React, { useCallback, useContext, useEffect, useMemo, useState } from "react";
 import { ChevronRightIcon, ChevronLeftIcon } from "@chakra-ui/icons";
 import {
-  Button,
   Table,
   Tr,
   Tbody,
@@ -16,6 +15,8 @@ import {
   PopoverBody,
   PopoverCloseButton,
   PopoverContent,
+  Button,
+  ButtonGroup,
 } from "@chakra-ui/react";
 import {
   Column,
@@ -25,12 +26,17 @@ import {
   useSortBy,
   useRowSelect,
   usePagination,
+  Row,
 } from "react-table";
 import { BoxRow } from "./types";
 import { GlobalFilter } from "./GlobalFilter";
 import { SelectColumnFilter } from "components/Table/Filter";
 import IndeterminateCheckbox from "./Checkbox";
 import { FilteringSortingTableHeader } from "components/Table/TableHeader";
+import { useMoveBoxes } from "hooks/useMoveBoxes";
+import { SelectButton } from "./ActionButtons";
+import { TableSkeleton } from "components/Skeletons";
+import { BOXES_FOR_BASE_QUERY } from "../BoxesView";
 
 import { PopoverTrigger as OrigPopoverTrigger } from "@chakra-ui/react";
 import { tableConfigsVar } from "queries/cache";
@@ -42,6 +48,7 @@ export const PopoverTrigger: React.FC<{ children: React.ReactNode }> = OrigPopov
 
 export type BoxesTableProps = {
   tableData: BoxRow[];
+  locationOptions: { label: string; value: string }[];
   onBoxRowClick: (labelIdentified: string) => void;
 };
 
@@ -123,7 +130,7 @@ const ColumnSelector = ({
   );
 };
 
-const BoxesTable = ({ tableData, onBoxRowClick }: BoxesTableProps) => {
+const BoxesTable = ({ tableData, locationOptions, onBoxRowClick }: BoxesTableProps) => {
   const availableColumns: Column<BoxRow>[] = React.useMemo(
     () => [
       {
@@ -194,6 +201,26 @@ const BoxesTable = ({ tableData, onBoxRowClick }: BoxesTableProps) => {
   const baseId = globalPreferences.selectedBase?.id!;
   const tableConfigKey = `boxes-view--base-id-${baseId}`;
 
+  // Actions on Selected Boxes
+  const [selectedBoxes, setSelectedBoxes] = useState<Row<any>[]>([]);
+  // Move Boxes
+  const { isLoading: moveBoxesIsLoading, moveBoxes } = useMoveBoxes([
+    {
+      query: BOXES_FOR_BASE_QUERY,
+      variables: {
+        baseId: 1,
+      },
+    },
+  ]);
+  const onMoveBoxes = useCallback(
+    (locationId: string) =>
+      moveBoxes(
+        selectedBoxes.map((box) => box.values.labelIdentifier),
+        parseInt(locationId, 10),
+      ),
+    [moveBoxes, selectedBoxes],
+  );
+
   return (
     <>
       <ColumnSelector
@@ -201,18 +228,24 @@ const BoxesTable = ({ tableData, onBoxRowClick }: BoxesTableProps) => {
         selectedColumns={selectedColumns}
         setSelectedColumns={setSelectedColumns}
       />
-      <ActualTable
-        tableConfigKey={tableConfigKey}
-        columns={orderedSelectedColumns}
-        tableData={tableData}
-        onBoxRowClick={onBoxRowClick}
-      />
-      ;
+      <ButtonGroup>
+        <SelectButton label="Move Boxes" options={locationOptions} onSelect={onMoveBoxes} />
+      </ButtonGroup>
+      {moveBoxesIsLoading ? (
+        <TableSkeleton />
+      ) : (
+        <ActualTable
+          tableConfigKey={tableConfigKey}
+          columns={orderedSelectedColumns}
+          tableData={tableData}
+          onBoxRowClick={onBoxRowClick}
+        />
+      )}
     </>
   );
 };
 
-interface ActualTableProps {
+interface IActualTableProps {
   columns: Column<BoxRow>[];
   show?: boolean;
   tableData: BoxRow[];
@@ -226,7 +259,7 @@ const ActualTable = ({
   columns,
   tableData,
   onBoxRowClick,
-}: ActualTableProps) => {
+}: IActualTableProps) => {
   const tableConfigsState = useReactiveVar(tableConfigsVar);
 
   const tableConfig = tableConfigsState?.get(tableConfigKey);
@@ -249,6 +282,7 @@ const ActualTable = ({
     pageOptions,
     nextPage,
     previousPage,
+    selectedFlatRows,
   } = useTable(
     // TODO: remove this ts-ignore again and try to fix the type error properly
     // was most likely caused by setting one of the following flags in .tsconfig:
@@ -293,14 +327,11 @@ const ActualTable = ({
   );
 
   useEffect(() => {
-    // if (tableConfig != null) {
     tableConfigsState.set(tableConfigKey, {
-      // ...tableConfig,
       globalFilter,
       columnFilters: filters,
     });
     tableConfigsVar(tableConfigsState);
-    // }
   }, [globalFilter, filters, tableConfig]);
 
   if (!show) {
