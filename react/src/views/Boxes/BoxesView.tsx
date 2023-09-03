@@ -82,6 +82,7 @@ const Boxes = () => {
     variables: {
       baseId,
     },
+    fetchPolicy: "cache-and-network",
   });
 
   if (loading) {

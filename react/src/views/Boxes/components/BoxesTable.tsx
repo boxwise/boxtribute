@@ -35,6 +35,7 @@ import { FilteringSortingTableHeader } from "components/Table/TableHeader";
 import { useMoveBoxes } from "hooks/useMoveBoxes";
 import { SelectButton } from "./ActionButtons";
 import { TableSkeleton } from "components/Skeletons";
+import { BOXES_FOR_BASE_QUERY } from "../BoxesView";
 
 export type BoxesTableProps = {
   tableData: BoxRow[];
@@ -202,7 +203,14 @@ const BoxesTable = ({ tableData, locationOptions, onBoxRowClick }: BoxesTablePro
   // Actions on Selected Boxes
   const [selectedBoxes, setSelectedBoxes] = useState<Row<any>[]>([]);
   // Move Boxes
-  const { isLoading: moveBoxesIsLoading, moveBoxes } = useMoveBoxes();
+  const { isLoading: moveBoxesIsLoading, moveBoxes } = useMoveBoxes([
+    {
+      query: BOXES_FOR_BASE_QUERY,
+      variables: {
+        baseId: 1,
+      },
+    },
+  ]);
   const onMoveBoxes = useCallback(
     (locationId: string) =>
       moveBoxes(
