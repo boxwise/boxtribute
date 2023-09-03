@@ -226,14 +226,14 @@ const ActualTable = ({ show = true, columns, tableData, onBoxRowClick }: ActualT
   const {
     headerGroups,
     prepareRow,
-    state: { globalFilter, pageIndex, selectedRowIds },
+    state: { globalFilter, pageIndex },
     setGlobalFilter,
     page,
     canPreviousPage,
     canNextPage,
     pageOptions,
     // setRowSel
-    toggleRowSelected,
+    // toggleRowSelected,
     nextPage,
     previousPage,
   } = useTable(
@@ -248,13 +248,13 @@ const ActualTable = ({ show = true, columns, tableData, onBoxRowClick }: ActualT
       initialState: {
         pageIndex: 0,
         pageSize: 20,
-        selectedRowIds:
-          tableConfig?.selectedRowIds?.reduce((acc, curr) => {
-            const FOO = curr[0];
-            const BAR = curr[1] === "true";
-            acc[FOO] = BAR;
-            return acc;
-          }, {} as Record<string, boolean>) || {},
+        // selectedRowIds:
+        //   tableConfig?.selectedRowIds?.reduce((acc, curr) => {
+        //     const FOO = curr[0];
+        //     const BAR = curr[1] === "true";
+        //     acc[FOO] = BAR;
+        //     return acc;
+        //   }, {} as Record<string, boolean>) || {},
       },
     },
     useFilters,
