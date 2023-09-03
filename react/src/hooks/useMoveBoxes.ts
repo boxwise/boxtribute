@@ -41,6 +41,15 @@ export interface IMoveBoxesResult {
   error?: any;
 }
 
+export interface IUseMoveBoxesReturnType {
+  moveBoxes: (
+    labelIdentifiers: string[],
+    newLocationId: number,
+    showToastMessage?: boolean,
+  ) => IMoveBoxesResult | Promise<IMoveBoxesResult>;
+  isLoading: boolean;
+}
+
 export const useMoveBoxes = (
   refetchQueries: Array<{ query: DocumentNode; variables?: any }> = [],
 ) => {

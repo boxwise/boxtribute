@@ -32,7 +32,7 @@ import { GlobalFilter } from "./GlobalFilter";
 import { SelectColumnFilter } from "components/Table/Filter";
 import IndeterminateCheckbox from "./Checkbox";
 import { FilteringSortingTableHeader } from "components/Table/TableHeader";
-import { useMoveBoxes } from "hooks/useMoveBoxes";
+import { IUseMoveBoxesReturnType, useMoveBoxes } from "hooks/useMoveBoxes";
 import { SelectButton } from "./ActionButtons";
 import { TableSkeleton } from "components/Skeletons";
 import { BOXES_FOR_BASE_QUERY } from "../BoxesView";
@@ -40,6 +40,7 @@ import { BOXES_FOR_BASE_QUERY } from "../BoxesView";
 export type BoxesTableProps = {
   tableData: BoxRow[];
   locationOptions: { label: string; value: string }[];
+  moveBoxesAction: IUseMoveBoxesReturnType;
   onBoxRowClick: (labelIdentified: string) => void;
 };
 
@@ -124,7 +125,12 @@ const ColumnSelector = ({
   );
 };
 
-const BoxesTable = ({ tableData, locationOptions, onBoxRowClick }: BoxesTableProps) => {
+const BoxesTable = ({
+  tableData,
+  locationOptions,
+  moveBoxesAction,
+  onBoxRowClick,
+}: BoxesTableProps) => {
   const availableColumns: Column<BoxRow>[] = React.useMemo(
     () => [
       {
@@ -203,21 +209,13 @@ const BoxesTable = ({ tableData, locationOptions, onBoxRowClick }: BoxesTablePro
   // Actions on Selected Boxes
   const [selectedBoxes, setSelectedBoxes] = useState<Row<any>[]>([]);
   // Move Boxes
-  const { isLoading: moveBoxesIsLoading, moveBoxes } = useMoveBoxes([
-    {
-      query: BOXES_FOR_BASE_QUERY,
-      variables: {
-        baseId: 1,
-      },
-    },
-  ]);
   const onMoveBoxes = useCallback(
     (locationId: string) =>
-      moveBoxes(
+      moveBoxesAction.moveBoxes(
         selectedBoxes.map((box) => box.values.labelIdentifier),
         parseInt(locationId, 10),
       ),
-    [moveBoxes, selectedBoxes],
+    [moveBoxesAction.moveBoxes, selectedBoxes],
   );
 
   return (
@@ -230,7 +228,7 @@ const BoxesTable = ({ tableData, locationOptions, onBoxRowClick }: BoxesTablePro
       <ButtonGroup>
         <SelectButton label="Move Boxes" options={locationOptions} onSelect={onMoveBoxes} />
       </ButtonGroup>
-      {moveBoxesIsLoading ? (
+      {moveBoxesAction.isLoading ? (
         <TableSkeleton />
       ) : (
         <ActualTable

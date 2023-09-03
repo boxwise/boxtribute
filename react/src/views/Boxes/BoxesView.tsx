@@ -2,6 +2,7 @@ import { useContext } from "react";
 import { gql, useQuery } from "@apollo/client";
 import { useNavigate } from "react-router-dom";
 import { GlobalPreferencesContext } from "providers/GlobalPreferencesProvider";
+import { useMoveBoxes } from "hooks/useMoveBoxes";
 import BoxesTable from "./components/BoxesTable";
 import { BoxRow } from "./components/types";
 import APILoadingIndicator from "components/APILoadingIndicator";
@@ -85,6 +86,15 @@ const Boxes = () => {
     fetchPolicy: "cache-and-network",
   });
 
+  const moveBoxesAction = useMoveBoxes([
+    {
+      query: BOXES_FOR_BASE_QUERY,
+      variables: {
+        baseId,
+      },
+    },
+  ]);
+
   if (loading) {
     return <APILoadingIndicator />;
   }
@@ -101,6 +111,7 @@ const Boxes = () => {
     <BoxesTable
       tableData={tableData}
       locationOptions={locationOptions}
+      moveBoxesAction={moveBoxesAction}
       onBoxRowClick={onBoxesRowClick}
     />
   );
