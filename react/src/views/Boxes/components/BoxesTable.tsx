@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useMemo, useState } from "react";
+import React, { useCallback, useContext, useEffect, useMemo, useState } from "react";
 import { ChevronRightIcon, ChevronLeftIcon } from "@chakra-ui/icons";
 import {
   Table,
@@ -8,13 +8,14 @@ import {
   Flex,
   Text,
   IconButton,
-  Accordion,
-  AccordionButton,
-  AccordionIcon,
-  AccordionItem,
-  AccordionPanel,
   Box,
   Checkbox,
+  Popover,
+  PopoverArrow,
+  PopoverBody,
+  PopoverCloseButton,
+  PopoverContent,
+  Button,
   ButtonGroup,
 } from "@chakra-ui/react";
 import {
@@ -36,6 +37,14 @@ import { IUseMoveBoxesReturnType, useMoveBoxes } from "hooks/useMoveBoxes";
 import { SelectButton } from "./ActionButtons";
 import { TableSkeleton } from "components/Skeletons";
 import { BOXES_FOR_BASE_QUERY } from "../BoxesView";
+
+import { PopoverTrigger as OrigPopoverTrigger } from "@chakra-ui/react";
+import { tableConfigsVar } from "queries/cache";
+import { useReactiveVar } from "@apollo/client";
+
+import { GlobalPreferencesContext } from "providers/GlobalPreferencesProvider";
+
+export const PopoverTrigger: React.FC<{ children: React.ReactNode }> = OrigPopoverTrigger;
 
 export type BoxesTableProps = {
   tableData: BoxRow[];
@@ -86,18 +95,15 @@ const ColumnSelector = ({
   const selectedColumnOptions = mapColumnsToColumnOptionCollection(selectedColumns);
 
   return (
-    <Box maxW="400px" minW="250px">
-      <Accordion allowToggle>
-        <AccordionItem>
-          <h2>
-            <AccordionButton>
-              <Box flex="1" textAlign="left">
-                Columns
-              </Box>
-              <AccordionIcon />
-            </AccordionButton>
-          </h2>
-          <AccordionPanel pb={4}>
+    <Box maxW="400px" minW="250px" paddingBottom={4}>
+      <Popover>
+        <PopoverTrigger>
+          <Button>Columns shown</Button>
+        </PopoverTrigger>
+        <PopoverContent>
+          <PopoverArrow />
+          <PopoverCloseButton />
+          <PopoverBody textStyle="h1">
             <Flex flexWrap="wrap">
               {allAvailableColumnOptions.map((columnOption) => (
                 <Checkbox
@@ -118,9 +124,9 @@ const ColumnSelector = ({
                 </Checkbox>
               ))}
             </Flex>
-          </AccordionPanel>
-        </AccordionItem>
-      </Accordion>
+          </PopoverBody>
+        </PopoverContent>
+      </Popover>
     </Box>
   );
 };
@@ -139,23 +145,19 @@ const BoxesTable = ({
         id: "productName",
         Filter: SelectColumnFilter,
         filter: "includesSome",
-        // disableGlobalFilter: true,
       },
       {
         Header: "Box Number",
         accessor: "labelIdentifier",
         id: "labelIdentifier",
         disableFilters: true,
-        // disableGlobalFilter: true,
       },
       {
         Header: "Gender",
         accessor: "gender",
         id: "gender",
-        // disableFilters: false,
         Filter: SelectColumnFilter,
         filter: "includesSome",
-        // disableGlobalFilter: true,
       },
       {
         Header: "Size",
@@ -163,14 +165,12 @@ const BoxesTable = ({
         id: "size",
         Filter: SelectColumnFilter,
         filter: "includesSome",
-        // disableGlobalFilter: true,
       },
       {
         Header: "Items",
         accessor: "numberOfItems",
         id: "numberOfItems",
         disableFilters: true,
-        // disableGlobalFilter: true,
       },
       {
         Header: "State",
@@ -178,7 +178,6 @@ const BoxesTable = ({
         id: "state",
         Filter: SelectColumnFilter,
         filter: "includesSome",
-        // disableGlobalFilter: true,
       },
       {
         Header: "Place",
@@ -186,7 +185,6 @@ const BoxesTable = ({
         id: "place",
         Filter: SelectColumnFilter,
         filter: "includesSome",
-        // disableGlobalFilter: true,
       },
       {
         Header: "Tags",
@@ -194,7 +192,6 @@ const BoxesTable = ({
         id: "tags",
         Filter: SelectColumnFilter,
         filter: "includesSome",
-        // disableGlobalFilter: true,
       },
     ],
     [],
@@ -205,6 +202,10 @@ const BoxesTable = ({
     () => selectedColumns.sort((a, b) => availableColumns.indexOf(a) - availableColumns.indexOf(b)),
     [selectedColumns, availableColumns],
   );
+  const { globalPreferences } = useContext(GlobalPreferencesContext);
+
+  const baseId = globalPreferences.selectedBase?.id!;
+  const tableConfigKey = `boxes-view--base-id-${baseId}`;
 
   // Actions on Selected Boxes
   const [selectedBoxes, setSelectedBoxes] = useState<Row<any>[]>([]);
@@ -232,10 +233,10 @@ const BoxesTable = ({
         <TableSkeleton />
       ) : (
         <ActualTable
+          tableConfigKey={tableConfigKey}
           columns={orderedSelectedColumns}
           tableData={tableData}
           onBoxRowClick={onBoxRowClick}
-          onSelectedRowsChange={setSelectedBoxes}
         />
       )}
     </>
@@ -246,20 +247,32 @@ interface IActualTableProps {
   columns: Column<BoxRow>[];
   show?: boolean;
   tableData: BoxRow[];
+  tableConfigKey: string;
   onBoxRowClick: (labelIdentified: string) => void;
-  onSelectedRowsChange: (selectedRows: Row<any>[]) => void;
 }
+
 const ActualTable = ({
+  tableConfigKey,
   show = true,
   columns,
   tableData,
   onBoxRowClick,
-  onSelectedRowsChange,
 }: IActualTableProps) => {
+  const tableConfigsState = useReactiveVar(tableConfigsVar);
+
+  const tableConfig = tableConfigsState?.get(tableConfigKey);
+  if (tableConfig == null) {
+    tableConfigsState.set(tableConfigKey, {
+      globalFilter: undefined,
+      columnFilters: [],
+    });
+    tableConfigsVar(tableConfigsState);
+  }
+
   const {
     headerGroups,
     prepareRow,
-    state: { globalFilter, pageIndex },
+    state: { globalFilter, pageIndex, filters },
     setGlobalFilter,
     page,
     canPreviousPage,
@@ -280,6 +293,10 @@ const ActualTable = ({
       initialState: {
         pageIndex: 0,
         pageSize: 20,
+        filters: tableConfig?.columnFilters ?? [],
+        ...(tableConfig?.globalFilter != null
+          ? { globalFilter: tableConfig?.globalFilter }
+          : undefined),
       },
     },
     useFilters,
@@ -307,10 +324,13 @@ const ActualTable = ({
     },
   );
 
-  // Update selected rows
   useEffect(() => {
-    onSelectedRowsChange(selectedFlatRows);
-  }, [onSelectedRowsChange, selectedFlatRows]);
+    tableConfigsState.set(tableConfigKey, {
+      globalFilter,
+      columnFilters: filters,
+    });
+    tableConfigsVar(tableConfigsState);
+  }, [globalFilter, filters, tableConfig]);
 
   if (!show) {
     return <></>;
