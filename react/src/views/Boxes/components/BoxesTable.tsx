@@ -222,18 +222,22 @@ const ActualTable = ({ show = true, columns, tableData, onBoxRowClick }: ActualT
   const tableConfigKey = `boxes-view--base-id-${baseId}`;
 
   const tableConfig = tableConfigsState.get(tableConfigKey);
+  if (tableConfig == null) {
+    tableConfigsState.set(tableConfigKey, {
+      columnFilters: [],
+      selectedRowIds: [],
+    });
+  }
 
   const {
     headerGroups,
     prepareRow,
-    state: { globalFilter, pageIndex },
+    state: { globalFilter, pageIndex, filters },
     setGlobalFilter,
     page,
     canPreviousPage,
     canNextPage,
     pageOptions,
-    // setRowSel
-    // toggleRowSelected,
     nextPage,
     previousPage,
   } = useTable(
@@ -248,13 +252,7 @@ const ActualTable = ({ show = true, columns, tableData, onBoxRowClick }: ActualT
       initialState: {
         pageIndex: 0,
         pageSize: 20,
-        // selectedRowIds:
-        //   tableConfig?.selectedRowIds?.reduce((acc, curr) => {
-        //     const FOO = curr[0];
-        //     const BAR = curr[1] === "true";
-        //     acc[FOO] = BAR;
-        //     return acc;
-        //   }, {} as Record<string, boolean>) || {},
+        filters: tableConfig?.columnFilters || [],
       },
     },
     useFilters,
@@ -282,29 +280,20 @@ const ActualTable = ({ show = true, columns, tableData, onBoxRowClick }: ActualT
     },
   );
 
-  // useEffect(() => {
-  //   const tableConfig = tableConfigsState.set(tableConfigKey, {
-  //     selectedRowIds: selectedRowIds.map((r) => r.id),
-  //   });
-  // }, [selectedRowIds]);
+  useEffect(() => {
+    if (tableConfig != null) {
+      const FOO = {
+        ...tableConfig,
+        columnFilters: filters,
+      };
+      // tableConfig.columnFilters = filters;
+      tableConfigsState.set(tableConfigKey, FOO);
+    }
+  }, [filters, tableConfig]);
 
   if (!show) {
     return <></>;
   }
-
-  // const [filterConfig, setFilterConfig] = useLocalStorage(
-  //   `boxes-view-filters--base-${currentBaseId}`,
-  //   "{}",
-  // );
-
-  // console.log("filterConfig", filterConfig);
-
-  // useEffect(() => {
-  //   toggleRowSelected("0", true);
-  // }, []);
-
-  // console.log("selectedFlatRows", selectedFlatRows);
-  // setRowState()
 
   return (
     <>

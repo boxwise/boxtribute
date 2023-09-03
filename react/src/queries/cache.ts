@@ -1,5 +1,6 @@
 import { InMemoryCache, makeVar } from "@apollo/client";
 import { IScannedBoxesData } from "types/graphql-local-only";
+import { Filters } from "react-table";
 import { GET_SCANNED_BOXES } from "./local-only";
 
 export const cache = new InMemoryCache({
@@ -49,6 +50,7 @@ export const qrReaderOverlayVar = makeVar<IQrReaderOverlayVar>({ isOpen: false }
 
 export interface ITableConfig {
   selectedRowIds: string[];
+  columnFilters: Filters<any>;
   // TODO: add here more props or even refactor the data structure, to support e.g. sorting config, filter configs and and selected columns
 }
 export type TableViewIdentifier = string;
