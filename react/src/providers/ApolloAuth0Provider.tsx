@@ -2,8 +2,8 @@
 // https://github.com/samjulien/apollo-auth0-fullstack/blob/master/habit-tracker/src/ApolloWrapper.js
 // https://www.youtube.com/watch?v=FROhOGcnQxs
 
-import { useState, useEffect, ReactNode, createContext, Context, useMemo } from "react";
-import { ApolloClient, HttpLink, ApolloProvider, DefaultOptions, ApolloLink } from "@apollo/client";
+import { useState, useEffect, ReactNode, createContext, Context } from "react";
+import { ApolloClient, HttpLink, ApolloProvider, DefaultOptions } from "@apollo/client";
 import { setContext } from "@apollo/client/link/context";
 import { useAuth0 } from "@auth0/auth0-react";
 import { onError } from "@apollo/client/link/error";
