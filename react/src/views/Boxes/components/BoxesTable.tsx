@@ -189,6 +189,10 @@ const BoxesTable = ({ tableData, onBoxRowClick }: BoxesTableProps) => {
     () => selectedColumns.sort((a, b) => availableColumns.indexOf(a) - availableColumns.indexOf(b)),
     [selectedColumns, availableColumns],
   );
+  const { globalPreferences } = useContext(GlobalPreferencesContext);
+
+  const baseId = globalPreferences.selectedBase?.id!;
+  const tableConfigKey = `boxes-view--base-id-${baseId}`;
 
   return (
     <>
@@ -198,6 +202,7 @@ const BoxesTable = ({ tableData, onBoxRowClick }: BoxesTableProps) => {
         setSelectedColumns={setSelectedColumns}
       />
       <ActualTable
+        tableConfigKey={tableConfigKey}
         columns={orderedSelectedColumns}
         tableData={tableData}
         onBoxRowClick={onBoxRowClick}
@@ -211,15 +216,18 @@ interface ActualTableProps {
   columns: Column<BoxRow>[];
   show?: boolean;
   tableData: BoxRow[];
+  tableConfigKey: string;
   onBoxRowClick: (labelIdentified: string) => void;
 }
 
-const ActualTable = ({ show = true, columns, tableData, onBoxRowClick }: ActualTableProps) => {
-  const { globalPreferences } = useContext(GlobalPreferencesContext);
-
-  const baseId = globalPreferences.selectedBase?.id!;
+const ActualTable = ({
+  tableConfigKey,
+  show = true,
+  columns,
+  tableData,
+  onBoxRowClick,
+}: ActualTableProps) => {
   const tableConfigsState = useReactiveVar(tableConfigsVar);
-  const tableConfigKey = `boxes-view--base-id-${baseId}`;
 
   const tableConfig = tableConfigsState?.get(tableConfigKey);
   if (tableConfig == null) {
