@@ -15,7 +15,9 @@ export function SelectButton({ label, options, onSelect }: ISelectButtonProps) {
       </MenuButton>
       <MenuList>
         {options.map(({ label, value }) => (
-          <MenuItem onClick={() => onSelect(value)}>{label}</MenuItem>
+          <MenuItem key={`SelectButtonOption${value}`} onClick={() => onSelect(value)}>
+            {label}
+          </MenuItem>
         ))}
       </MenuList>
     </Menu>
