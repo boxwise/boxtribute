@@ -3,7 +3,7 @@
   "version": "0.1.0",
   "private": true,
   "dependencies": {
-    "@apollo/client": "^3.7.1",
+    "@apollo/client": "^3.8.1",
     "@auth0/auth0-react": "^2.2.0",
     "@babel/runtime": "^7.20.13",
     "@chakra-ui/icons": "^1.1.7",
@@ -45,9 +45,9 @@
     "@graphql-codegen/typescript-operations": "^3.0.4",
     "@graphql-codegen/typescript-react-query": "^4.1.0",
     "@sentry/types": "^7.38.0",
-    "@storybook/addon-actions": "^6.5.16",
+    "@storybook/addon-actions": "^7.3.2",
     "@storybook/addon-essentials": "^7.2.3",
-    "@storybook/addon-interactions": "^6.5.16",
+    "@storybook/addon-interactions": "^7.3.2",
     "@storybook/addon-links": "^7.2.3",
     "@storybook/builder-webpack5": "^6.5.16",
     "@storybook/jest": "^0.1.0",
@@ -83,7 +83,7 @@
     "prop-types": "^15.8.1",
     "regenerator-runtime": "^0.13.11",
     "typescript": "^4.8.4",
-    "webpack": "^5.76.0"
+    "webpack": "^5.88.2"
   },
   "scripts": {
     "chromatic": "npx chromatic --project-token=2763da0ce36c",

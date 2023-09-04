@@ -28,7 +28,8 @@ import {
   MenuItemsGroupsProps,
   UserMenuProps,
 } from "./HeaderMenu";
-import { generateDropappUrl, handleLogout } from "utils/helpers";
+import { generateDropappUrl } from "utils/helpers";
+import { useHandleLogout } from "hooks/hooks";
 
 const Logo = () => <Image src={BoxtributeLogo} maxH={"3.5em"} />;
 
@@ -50,6 +51,7 @@ const BaseSwitcher = ({ currentActiveBaseId, availableBases }: BaseSwitcherProps
 };
 
 const UserMenu = ({ logout, user, currentActiveBaseId, availableBases }: UserMenuProps) => {
+  const handleLogout = useHandleLogout();
   return (
     <Menu>
       <MenuButton as={IconButton} icon={<Img src={user?.picture} width={10} height={10} />} />

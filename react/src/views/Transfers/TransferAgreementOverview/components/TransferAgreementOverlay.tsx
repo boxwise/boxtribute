@@ -1,20 +1,8 @@
 import { CheckIcon, RepeatIcon, SmallCloseIcon } from "@chakra-ui/icons";
-import {
-  Modal,
-  ModalBody,
-  ModalCloseButton,
-  ModalContent,
-  ModalFooter,
-  ModalHeader,
-  ModalOverlay,
-  Button,
-  VStack,
-  Text,
-  chakra,
-  HStack,
-} from "@chakra-ui/react";
+import { VStack, Text, chakra } from "@chakra-ui/react";
 import { useNavigate } from "react-router-dom";
 import { TransferAgreementState } from "types/generated/graphql";
+import { AreYouSureDialog } from "components/AreYouSure";
 import { CanAcceptTransferAgreementState } from "./TableCells";
 
 interface ITransferAgreementsOverlayPropsProps {
@@ -40,10 +28,12 @@ function TransferAgreementsOverlay({
 
   let title = "";
   let body;
-  let leftButtonProps = {};
   let leftButtonText = "Nevermind";
-  let rightButtonProps = {};
+  let leftButtonProps = {};
+  let onLeftButtonClick = () => onClose();
   let rightButtonText = "Nevermind";
+  let rightButtonProps = {};
+  let onRightButtonClick = () => onClose();
   if (data.state === CanAcceptTransferAgreementState.CanAccept) {
     title = "Transfer Agreement Request Open";
     body = (
@@ -60,18 +50,18 @@ function TransferAgreementsOverlay({
         </chakra.span>
       </VStack>
     );
+    leftButtonText = "Reject";
     leftButtonProps = {
       colorScheme: "red",
       leftIcon: <SmallCloseIcon />,
-      onClick: () => onReject(data.id),
     };
-    leftButtonText = "Reject";
+    onLeftButtonClick = () => onReject(data.id);
+    rightButtonText = "Accept";
     rightButtonProps = {
       colorScheme: "green",
       leftIcon: <CheckIcon />,
-      onClick: () => onAccept(data.id),
     };
-    rightButtonText = "Accept";
+    onRightButtonClick = () => onAccept(data.id);
   } else if (data.state === TransferAgreementState.Accepted) {
     title = "Terminate Transfer Agreement";
     body = (
@@ -87,13 +77,12 @@ function TransferAgreementsOverlay({
         </chakra.span>
       </VStack>
     );
-    leftButtonProps = { onClick: () => onClose() };
+    rightButtonText = "Terminate";
     rightButtonProps = {
       colorScheme: "red",
       leftIcon: <SmallCloseIcon />,
-      onClick: () => onCancel(data.id),
     };
-    rightButtonText = "Terminate";
+    onRightButtonClick = () => onCancel(data.id);
   } else if (data.state === TransferAgreementState.Rejected) {
     title = "Retry Transfer Agreement Request";
     body = (
@@ -106,13 +95,12 @@ function TransferAgreementsOverlay({
         </chakra.span>
       </VStack>
     );
-    leftButtonProps = { onClick: () => onClose() };
+    rightButtonText = "Retry";
     rightButtonProps = {
       colorScheme: "green",
       leftIcon: <RepeatIcon />,
-      onClick: () => navigate("create"),
     };
-    rightButtonText = "Retry";
+    onRightButtonClick = () => navigate("create");
   } else if (
     data.state === TransferAgreementState.Expired ||
     data.state === TransferAgreementState.Canceled
@@ -131,34 +119,28 @@ function TransferAgreementsOverlay({
         </chakra.span>
       </VStack>
     );
-    leftButtonProps = { onClick: () => onClose() };
+    rightButtonText = "Renew";
     rightButtonProps = {
       colorScheme: "green",
       leftIcon: <RepeatIcon />,
-      onClick: () => navigate("create"),
     };
-    rightButtonText = "Renew";
+    onRightButtonClick = () => navigate("create");
   }
 
   return (
-    <Modal isOpen={isOpen} onClose={onClose}>
-      <ModalOverlay />
-      <ModalContent borderRadius="0">
-        <ModalHeader>{title}</ModalHeader>
-        <ModalCloseButton />
-        <ModalBody>{body}</ModalBody>
-        <ModalFooter>
-          <HStack spacing={4}>
-            <Button isLoading={isLoading} {...leftButtonProps}>
-              {leftButtonText}
-            </Button>
-            <Button isLoading={isLoading} {...rightButtonProps}>
-              {rightButtonText}
-            </Button>
-          </HStack>
-        </ModalFooter>
-      </ModalContent>
-    </Modal>
+    <AreYouSureDialog
+      title={title}
+      body={body}
+      leftButtonText={leftButtonText}
+      leftButtonProps={leftButtonProps}
+      rightButtonText={rightButtonText}
+      rightButtonProps={rightButtonProps}
+      isLoading={isLoading}
+      isOpen={isOpen}
+      onClose={onClose}
+      onLeftButtonClick={onLeftButtonClick}
+      onRightButtonClick={onRightButtonClick}
+    />
   );
 }
 

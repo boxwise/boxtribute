@@ -75,6 +75,7 @@ def test_authorized_user():
             "location:write": [4, 5],
             "product:read": [1],
         },
+        timezone="Europe/London",
     )
     assert authorize(user, permission="qr:create")
     assert authorize(user, permission="qr:create", base_id=3)
@@ -84,6 +85,7 @@ def test_authorized_user():
     assert authorize(user, permission="location:write", base_ids=[3, 4])
     assert authorize(user, permission="location:write", base_ids=[4, 5])
     assert authorize(user, permission="location:write", base_ids=[5, 6])
+    assert user.timezone == "Europe/London"
 
     # This is called in authorized_bases_filter for model=Product
     assert _authorize(user, permission="product:read", ignore_missing_base_info=True)
@@ -175,6 +177,7 @@ def test_user_with_multiple_roles():
         f"{JWT_CLAIM_PREFIX}/organisation_id": 1,
         f"{JWT_CLAIM_PREFIX}/base_ids": [2],
         f"{JWT_CLAIM_PREFIX}/permissions": [permission, f"base_1/{permission}"],
+        f"{JWT_CLAIM_PREFIX}/timezone": "Europe/Berlin",
         "sub": "auth0|42",
     }
     user = CurrentUser.from_jwt(payload)

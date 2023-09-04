@@ -1,6 +1,8 @@
 type Query {
   beneficiaryDemographics(baseIds: [Int!]): BeneficiaryDemographicsData
   createdBoxes(baseId: Int): CreatedBoxesData
+  topProductsCheckedOut(baseId: Int!): TopProductsCheckedOutData
+  topProductsDonated(baseId: Int!): TopProductsDonatedData
 }
 
 interface DataCube {
@@ -8,8 +10,8 @@ interface DataCube {
   dimensions: Dimensions
 }
 
-union Result = BeneficiaryDemographicsResult | CreatedBoxesResult
-union Dimensions = BeneficiaryDemographicsDimensions | CreatedBoxDataDimensions
+union Result = BeneficiaryDemographicsResult | CreatedBoxesResult | TopProductsCheckedOutResult | TopProductsDonatedResult
+union Dimensions = BeneficiaryDemographicsDimensions | CreatedBoxDataDimensions | TopProductsDimensions
 
 type BeneficiaryDemographicsData implements DataCube {
   facts: [BeneficiaryDemographicsResult]
@@ -17,7 +19,7 @@ type BeneficiaryDemographicsData implements DataCube {
 }
 
 type BeneficiaryDemographicsDimensions {
-  tag: [ResultIdName]
+  tag: [TagDimensionInfo]
 }
 
 type BeneficiaryDemographicsResult {
@@ -43,11 +45,64 @@ type CreatedBoxesResult {
 }
 
 type CreatedBoxDataDimensions {
-  product: [ResultIdName]
-  category: [ResultIdName]
+  product: [ProductDimensionInfo]
+  category: [DimensionInfo]
 }
 
-type ResultIdName {
+type TopProductsCheckedOutData implements DataCube {
+  facts: [TopProductsCheckedOutResult]
+  dimensions: TopProductsDimensions
+}
+
+type TopProductsCheckedOutResult {
+  checkedOutOn: Date
+  productId: Int
+  categoryId: Int
+  rank: Int
+  itemsCount: Int
+}
+
+type TopProductsDonatedData implements DataCube {
+  facts: [TopProductsDonatedResult]
+  dimensions: TopProductsDimensions
+}
+
+type TopProductsDonatedResult {
+  createdOn: Date
+  donatedOn: Date
+  sizeId: Int
+  productId: Int
+  categoryId: Int
+  rank: Int
+  itemsCount: Int
+}
+
+type TopProductsDimensions {
+  " Always null for topProductsCheckedOut query "
+  size: [DimensionInfo]
+  product: [ProductDimensionInfo]
+  category: [DimensionInfo]
+}
+
+interface BasicDimensionInfo {
   id: ID
   name: String
+}
+
+type DimensionInfo implements BasicDimensionInfo {
+  id: ID
+  name: String
+}
+
+type TagDimensionInfo implements BasicDimensionInfo {
+  id: ID
+  name: String
+  " Hex color code "
+  color: String
+}
+
+type ProductDimensionInfo implements BasicDimensionInfo {
+  id: ID
+  name: String
+  gender: ProductGender
 }

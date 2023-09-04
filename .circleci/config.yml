@@ -3,10 +3,29 @@ orbs:
   gcp-cli: circleci/gcp-cli@1.8.4
   slack: circleci/slack@3.4.2
   codecov: codecov/codecov@1.1.3
+executors:
+  python-node-executor:
+    docker:
+      # The node version is 16.19.1 and the yarn version is 1.22.5
+      # TODO: change to a node only image since we do not need python in the front-end jobs
+      # TODO: update node and yarn version in the whole repo
+      - image: cimg/python:3.10.4-node
+  python-executor:
+    docker:
+      - image: cimg/python:3.10.4
+  python-mysql-executor:
+    docker:
+      - image: cimg/python:3.10.4
+      - image: cimg/mysql:8.0.27
+        environment:
+          MYSQL_ROOT_PASSWORD: dropapp_root
+          MYSQL_DATABASE: dropapp_dev
+          MYSQL_ROOT_HOST: "%"
+        command: --default-authentication-plugin=mysql_native_password --lower_case_table_names=1
+
 jobs:
   checkout-to-workspace:
-    docker:
-      - image: cimg/python:3.10.4-node
+    executor: python-executor
     steps:
       - checkout
       - persist_to_workspace:
@@ -14,9 +33,29 @@ jobs:
           paths:
             - .
 
-  build-flask:
-    docker:
-      - image: cimg/python:3.10.4
+  install-node-packages:
+    executor: python-node-executor
+    working_directory: ~/react
+    steps:
+      - attach_workspace:
+          at: ~/
+      - restore_cache:
+          key: dependency-cache-{{ checksum "yarn.lock" }}
+      - run:
+          name: Install node packages for all front-ends
+          command: yarn install --frozen-lockfile
+      - save_cache:
+          key: dependency-cache-{{ checksum "yarn.lock" }}
+          paths:
+            - ~/react/node_modules
+            - ~/react/.cache
+      - persist_to_workspace:
+          root: ~/
+          paths:
+            - react/node_modules
+
+  build-back:
+    executor: python-executor
     working_directory: ~/back
     steps:
       - attach_workspace:
@@ -45,10 +84,10 @@ jobs:
             - back/*
             - .pyenv/versions/3.10.4/envs
 
-  build-and-test-react:
-    docker:
-      - image: cimg/python:3.10.4-node
+  build-front:
+    executor: python-node-executor
     working_directory: ~/react
+    resource_class: medium+
     steps:
       - attach_workspace:
           at: ~/
@@ -68,32 +107,31 @@ jobs:
               REACT_APP_SENTRY_TRACES_SAMPLE_RATE=${SENTRY_TRACES_SAMPLE_RATE}
               REACT_APP_ENVIRONMENT=${ENVIRONMENT}
             " > .env
-      # following https://circleci.com/docs/2.0/yarn/
-      - restore_cache:
-          name: Restore Yarn Package Cache
-          keys:
-            - react-yarn-{{ checksum "yarn.lock" }}
       - run:
-          name: Install Yarn Packages
-          command: yarn install --frozen-lockfile
-      - store_artifacts:
-          path: yarn.lock
-      - save_cache:
-          name: Save Yarn Package Cache
-          key: react-yarn-{{ checksum "yarn.lock" }}
-          paths:
-            - ~/.cache/yarn
-      - run:
-          name: Build React App
-          command: |
-            yarn build
-      - run:
-          name: Run FE style checks
+          name: Run style checks
           command: |
             yarn lint
             yarn format:write
       - run:
-          name: Test React App creating reports
+          name: Build front
+          command: |
+            yarn build
+      - slack/notify-on-failure:
+          only_for_branches: master,production
+      # Add build to workspace
+      - persist_to_workspace:
+          root: ~/
+          paths:
+            - react/build
+
+  test-front:
+    executor: python-node-executor
+    working_directory: ~/react
+    steps:
+      - attach_workspace:
+          at: ~/
+      - run:
+          name: Test front app and create reports
           command: |
             DEBUG_PRINT_LIMIT=10000 yarn test:coverage --ci --runInBand --reporters=default --reporters=jest-junit
           environment:
@@ -107,22 +145,10 @@ jobs:
           flags: frontend
       - slack/notify-on-failure:
           only_for_branches: master,production
-      # Add build to workspace
-      - persist_to_workspace:
-          root: ~/
-          paths:
-            - react/build
 
   # following https://circleci.com/docs/2.0/project-walkthrough/
-  test-flask:
-    docker:
-      - image: cimg/python:3.10.4
-      - image: cimg/mysql:8.0.27
-        environment:
-          MYSQL_ROOT_PASSWORD: dropapp_root
-          MYSQL_DATABASE: dropapp_dev
-          MYSQL_ROOT_HOST: "%"
-        command: --default-authentication-plugin=mysql_native_password --lower_case_table_names=1
+  test-back:
+    executor: python-mysql-executor
     working_directory: ~/back
     steps:
       # Attach workspace from build
@@ -182,8 +208,7 @@ jobs:
     parameters:
       serviceName:
         type: string
-    docker:
-      - image: cimg/python:3.10.4-node
+    executor: python-executor
     working_directory: ~/back
     steps:
       # Attach workspace from build
@@ -256,8 +281,7 @@ jobs:
     parameters:
       serviceName:
         type: string
-    docker:
-      - image: cimg/python:3.10.4-node
+    executor: python-node-executor
     working_directory: ~/back
     steps:
       # Attach workspace from build
@@ -351,18 +375,25 @@ workflows:
   test:
     jobs:
       - checkout-to-workspace
-      - build-flask:
+      - install-node-packages:
+          requires:
+            - checkout-to-workspace
+      - build-back:
           context: STAGING
           requires:
             - checkout-to-workspace
-      - test-flask:
+      - test-back:
           context: STAGING
           requires:
-            - build-flask
-      - build-and-test-react:
+            - build-back
+      - build-front:
           context: STAGING
           requires:
-            - checkout-to-workspace
+            - install-node-packages
+      - test-front:
+          context: STAGING
+          requires:
+            - install-node-packages
 
   build-and-deploy:
     jobs:
@@ -373,13 +404,21 @@ workflows:
               only:
                 - master
                 - production
-
-      # staging
-      - build-and-test-react:
-          name: build-and-test-react-staging
-          context: STAGING
+      - install-node-packages:
           requires:
             - checkout-to-workspace
+          filters:
+            branches:
+              only:
+                - master
+                - production
+
+      # staging
+      - build-front:
+          name: build-front-staging
+          context: STAGING
+          requires:
+            - install-node-packages
           filters:
             branches:
               only:
@@ -389,7 +428,7 @@ workflows:
           context: STAGING
           serviceName: v2-staging
           requires:
-            - build-and-test-react-staging
+            - build-front-staging
           filters:
             branches:
               only:
@@ -406,11 +445,11 @@ workflows:
                 - master
 
       # demo - runs on any commit to the production branch
-      - build-and-test-react:
-          name: build-and-test-react-demo
+      - build-front:
+          name: build-front-demo
           context: DEMO
           requires:
-            - checkout-to-workspace
+            - install-node-packages
           filters:
             tags:
               ignore: /.*/
@@ -422,7 +461,7 @@ workflows:
           context: DEMO
           serviceName: v2-demo
           requires:
-            - build-and-test-react-demo
+            - build-front-demo
           filters:
             tags:
               ignore: /.*/
@@ -450,11 +489,20 @@ workflows:
               only: /^v.*/
             branches:
               ignore: /.*/
-      - build-and-test-react:
-          name: build-and-test-react-production
-          context: PRODUCTION
+      - install-node-packages:
+          name: install-node-packages-production
           requires:
             - checkout-to-workspace-production
+          filters:
+            tags:
+              only: /^v.*/
+            branches:
+              ignore: /.*/
+      - build-front:
+          name: build-front-production
+          context: PRODUCTION
+          requires:
+            - install-node-packages-production
           filters:
             tags:
               only: /^v.*/
@@ -465,7 +513,7 @@ workflows:
           context: PRODUCTION
           serviceName: v2-production
           requires:
-            - build-and-test-react-production
+            - build-front-production
           filters:
             tags:
               only: /^v.*/
