@@ -2,9 +2,11 @@ from ariadne import QueryType
 
 from ....authz import authorize
 from ....enums import BoxState
+from ....graph_ql.filtering import derive_box_filter
 from ....graph_ql.pagination import load_into_page
 from ....models.definitions.box import Box
 from ....models.definitions.location import Location
+from ....models.definitions.product import Product
 from ....models.definitions.shipment import Shipment
 from ....models.definitions.shipment_detail import ShipmentDetail
 
@@ -44,11 +46,22 @@ def resolve_box(*_, label_identifier):
 
 
 @query.field("boxes")
-def resolve_boxes(*_, base_id, pagination_input=None):
+def resolve_boxes(*_, base_id, pagination_input=None, filter_input=None):
     authorize(permission="stock:read", base_id=base_id)
+
+    if filter_input is not None and any(
+        [f in filter_input for f in ["product_gender", "product_category_id"]]
+    ):
+        selection = (
+            Box.select(Box, Location, Product).join(Location).join(Product, src=Box)
+        )
+    else:
+        selection = Box.select(Box, Location).join(Location)
+
     return load_into_page(
         Box,
         Location.base == base_id,
-        selection=Box.select(Box, Location).join(Location),
+        derive_box_filter(filter_input),
+        selection=selection,
         pagination_input=pagination_input,
     )

@@ -90,6 +90,11 @@ def test_boxes_query(read_only_client, default_location_boxes):
     boxes = assert_successful_request(read_only_client, query)
     assert boxes == {"totalCount": len(default_location_boxes)}
 
+    query = f"""query {{ boxes(baseId: {base_id}, filterInput: {{productGender: Men}})
+                        {{ totalCount }} }}"""
+    boxes = assert_successful_request(read_only_client, query)
+    assert boxes == {"totalCount": 0}
+
 
 def test_box_mutations(
     client,
