@@ -1,14 +1,82 @@
+import { ApolloError, useQuery, gql } from "@apollo/client";
 import { Heading } from "@chakra-ui/react";
 import BarChartVertical from "../../components/graphs/BarChartVertical";
 import _ from "lodash";
+import {
+  CreatedBoxesData,
+  CreatedBoxesResult,
+  QueryCreatedBoxesArgs,
+} from "../../types/generated/graphql";
+
+const CREATED_BOXES_QUERY = gql`
+  query createdBoxes($baseId: Int!) {
+    createdBoxes(baseId: $baseId) {
+      facts {
+        boxesCount
+        productId
+        categoryId
+        createdOn
+        gender
+        itemsCount
+      }
+      dimensions {
+        product {
+          id
+          name
+        }
+        category {
+          id
+          name
+        }
+      }
+    }
+  }
+`;
 
 export default function BoxView() {
-  const randomData = [];
-  for (let i = 1; i < 20; i++) {
-    randomData.push({ x: `${i}.1.2023`, y: _.random(5, 20) });
+  const { data, loading, error } = useQuery<
+    CreatedBoxesData,
+    QueryCreatedBoxesArgs
+  >(CREATED_BOXES_QUERY, { variables: { baseId: 1 } });
+
+  if (error instanceof ApolloError) {
+    return <p>{error.message}</p>;
+  }
+  if (loading) {
+    return <p>loading...</p>;
   }
 
-  console.log(randomData);
+  const createdBoxes = data.createdBoxes;
+
+  const groupByDay = (dataCube: CreatedBoxesData) => {
+    const result = [];
+    let acc: CreatedBoxesResult;
+
+    dataCube.facts.forEach((fact, index) => {
+      if (index === 0) {
+        acc = fact;
+        return;
+      }
+      if (fact?.createdOn === acc.createdOn) {
+        acc.boxesCount += fact.boxesCount;
+        return;
+      }
+      result.push(acc);
+      acc = fact;
+    });
+
+    return {
+      ...dataCube,
+      facts: result,
+    };
+  };
+
+  const groupedBoxes = groupByDay(createdBoxes);
+
+  const chartData = groupedBoxes.facts.map((fact) => ({
+    x: fact?.createdOn,
+    y: fact?.boxesCount,
+  }));
 
   const fields = {
     width: 800,
@@ -17,7 +85,7 @@ export default function BoxView() {
     background: "#ffffff",
     labelX: "Day",
     labelY: "Number of Boxes",
-    data: randomData,
+    data: chartData,
     settings: {
       yEndMargin: 2,
     },

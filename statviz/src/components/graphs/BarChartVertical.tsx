@@ -80,7 +80,7 @@ export default function BarChartVertical(chart: IBarChartVertical) {
   }
   const yMax = Math.max(...y) + settings.yEndMargin;
 
-  const scaleX = scaleBand<string>(x, [0, chartWidth]).padding(0.5);
+  const scaleX = scaleBand<string>(x, [0, chartWidth]).padding(0.4);
 
   const scaleY = scaleLinear<number>({
     domain: [yMax, yMin],
@@ -129,7 +129,7 @@ export default function BarChartVertical(chart: IBarChartVertical) {
               const barHeight = chartHeight - scaleY(y[index]);
               const barX = scaleX(xValue);
               const barY = chartHeight - barHeight;
-              const tooltip = `${fields.labelY} ${y[index]}, ${fields.labelX} ${xValue}`;
+              const tooltip = `${fields.labelY} ${y[index]} ${fields.labelX} ${xValue}`;
 
               return (
                 <Bar
