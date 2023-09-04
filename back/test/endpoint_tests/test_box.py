@@ -84,6 +84,13 @@ def test_box_query_by_qr_code(read_only_client, default_box, default_qr_code):
     assert queried_box["labelIdentifier"] == default_box["label_identifier"]
 
 
+def test_boxes_query(read_only_client, default_location_boxes):
+    base_id = 1
+    query = f"""query {{ boxes(baseId: {base_id}) {{ totalCount }} }}"""
+    boxes = assert_successful_request(read_only_client, query)
+    assert boxes == {"totalCount": len(default_location_boxes)}
+
+
 def test_box_mutations(
     client,
     qr_code_without_box,

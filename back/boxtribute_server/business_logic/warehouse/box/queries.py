@@ -2,6 +2,7 @@ from ariadne import QueryType
 
 from ....authz import authorize
 from ....enums import BoxState
+from ....graph_ql.pagination import load_into_page
 from ....models.definitions.box import Box
 from ....models.definitions.location import Location
 from ....models.definitions.shipment import Shipment
@@ -40,3 +41,14 @@ def resolve_box(*_, label_identifier):
 
     authorize(permission="stock:read", **authz_kwargs)
     return box
+
+
+@query.field("boxes")
+def resolve_boxes(*_, base_id, pagination_input=None):
+    authorize(permission="stock:read", base_id=base_id)
+    return load_into_page(
+        Box,
+        Location.base == base_id,
+        selection=Box.select(Box, Location).join(Location),
+        pagination_input=pagination_input,
+    )
