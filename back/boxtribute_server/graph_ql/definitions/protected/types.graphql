@@ -433,6 +433,8 @@ input FilterBoxInput {
   lastModifiedUntil: Date
   productGender: ProductGender
   productCategoryId: Int
+  productId: Int
+  sizeId: Int
 }
 
 """

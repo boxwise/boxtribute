@@ -78,4 +78,12 @@ def derive_box_filter(filter_input):
     if product_category_id is not None:
         condition &= Box.product.category == product_category_id
 
+    product_id = filter_input.get("product_id")
+    if product_id is not None:
+        condition &= Box.product == product_id
+
+    size_id = filter_input.get("size_id")
+    if size_id is not None:
+        condition &= Box.size == size_id
+
     return condition
