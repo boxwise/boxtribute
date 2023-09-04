@@ -273,7 +273,7 @@ def test_box_mutations(
         .dicts()
     )
     box_id = int(updated_box["id"])
-    assert history[2:] == [
+    assert history[19:] == [
         {
             "changes": "Record created",
             "from_int": None,
@@ -417,15 +417,15 @@ def _format(parameter):
         [[{"states": "[NotDelivered]"}], 2],
         [[{"states": "[InStock,Lost]"}], 2],
         [[{"states": "[Lost,MarkedForShipment]"}], 4],
-        [[{"lastModifiedFrom": '"2020-01-01"'}], 9],
+        [[{"lastModifiedFrom": '"2020-01-01"'}], 12],
         [[{"lastModifiedFrom": '"2021-02-02"'}], 2],
         [[{"lastModifiedFrom": '"2022-01-01"'}], 0],
-        [[{"lastModifiedUntil": '"2022-01-01"'}], 9],
-        [[{"lastModifiedUntil": '"2020-11-27"'}], 7],
+        [[{"lastModifiedUntil": '"2022-01-01"'}], 12],
+        [[{"lastModifiedUntil": '"2020-11-27"'}], 10],
         [[{"lastModifiedUntil": '"2020-01-01"'}], 0],
-        [[{"productGender": "Women"}], 9],
+        [[{"productGender": "Women"}], 12],
         [[{"productGender": "Men"}], 0],
-        [[{"productCategoryId": "1"}], 9],
+        [[{"productCategoryId": "1"}], 12],
         [[{"productCategoryId": "2"}], 0],
         [[{"states": "[MarkedForShipment]"}, {"lastModifiedFrom": '"2021-02-01"'}], 2],
         [[{"states": "[InStock,Lost]"}, {"productGender": "Boy"}], 0],

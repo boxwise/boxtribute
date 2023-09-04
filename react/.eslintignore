@@ -13,7 +13,6 @@ src/components/HeaderMenu
 !src/components/Form
 !src/components/Layout.tsx
 !src/mocks
-src/providers/GlobalPreferencesProvider.tsx
 src/utils
 src/views/BaseDashboard
 *.stories.*

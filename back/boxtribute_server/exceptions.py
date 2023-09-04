@@ -28,7 +28,7 @@ def format_database_errors(error, debug=False):
             error.extensions = {}
         from flask import g
 
-        error.extensions["user"] = g.user.__dict__
+        error.extensions["user"] = g.user.__dict__ if hasattr(g, "user") else {}
 
     return error.formatted
 
@@ -116,6 +116,14 @@ class InvalidTransferAgreementDates(Exception):
         "code": "BAD_USER_INPUT",
         "description": "'Valid until' date must be later than 'valid from' date.",
     }
+
+
+class DuplicateTransferAgreement(Exception):
+    def __init__(self, *args, agreement_id, **kwargs):
+        self.extensions = {
+            "code": "BAD_USER_INPUT",
+            "description": f"An identical agreement already exists: ID {agreement_id}",
+        }
 
 
 class InvalidShipmentState(_InvalidResourceState):

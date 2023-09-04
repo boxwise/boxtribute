@@ -63,7 +63,7 @@ def org2_base3_beneficiary_data():
         "first_name": "No",
         "last_name": "One",
         "base": base_data()[2]["id"],
-        "created_on": datetime(2022, 1, 30),
+        "created_on": datetime(2022, 1, 20),
         "created_by": None,
         "family_id": 12,
         "seq": 1,

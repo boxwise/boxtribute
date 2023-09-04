@@ -26,3 +26,9 @@ def resolve_tag_tagged_resources(tag_obj, _):
             authorized_bases_filter(Beneficiary),
         )
     ) + list(Box.select().where(Box.id << [r.object_id for r in box_relations]))
+
+
+@tag.field("base")
+def resolve_tag_base(tag_obj, info):
+    authorize(permission="base:read", base_id=tag_obj.base_id)
+    return info.context["base_loader"].load(tag_obj.base_id)

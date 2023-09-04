@@ -236,7 +236,8 @@ def test_shipment_mutations_on_source_side(
                     "state": BoxState.MarkedForShipment.name,
                     "shipmentDetail": {"id": prepared_shipment_detail_id},
                     "history": [
-                        {"changes": f"{change_prefix} InStock to MarkedForShipment"}
+                        {"changes": "created record"},
+                        {"changes": f"{change_prefix} InStock to MarkedForShipment"},
                     ],
                 },
                 "sourceProduct": {
@@ -262,7 +263,8 @@ def test_shipment_mutations_on_source_side(
                     "state": BoxState.MarkedForShipment.name,
                     "shipmentDetail": {"id": shipment_detail_id},
                     "history": [
-                        {"changes": f"{change_prefix} InStock to MarkedForShipment"}
+                        {"changes": f"{change_prefix} InStock to MarkedForShipment"},
+                        {"changes": "created record"},
                     ],
                 },
                 "sourceProduct": {"id": str(default_box["product"])},
@@ -320,6 +322,8 @@ def test_shipment_mutations_on_source_side(
     shipment = assert_successful_request(client, mutation)
     assert shipment["details"][0].pop("removedOn").startswith(date.today().isoformat())
     assert shipment["details"][1].pop("removedOn").startswith(date.today().isoformat())
+    assert len(shipment["details"][0]["box"].pop("history")) == 3
+    assert len(shipment["details"][1]["box"].pop("history")) == 3
     assert shipment == {
         "id": shipment_id,
         "state": ShipmentState.Preparing.name,
@@ -327,13 +331,7 @@ def test_shipment_mutations_on_source_side(
             {
                 "id": i,
                 "removedBy": {"id": "8"},
-                "box": {
-                    "state": BoxState.InStock.name,
-                    "history": [
-                        {"changes": f"{change_prefix} MarkedForShipment to InStock"},
-                        {"changes": f"{change_prefix} InStock to MarkedForShipment"},
-                    ],
-                },
+                "box": {"state": BoxState.InStock.name},
             }
             for i in [prepared_shipment_detail_id, shipment_detail_id]
         ],
@@ -430,6 +428,7 @@ def test_shipment_mutations_on_source_side(
                     "state": BoxState.InStock.name,
                     "history": [
                         {"changes": f"{change_prefix} MarkedForShipment to InStock"},
+                        {"changes": "created record"},
                         {"changes": f"{change_prefix} InStock to MarkedForShipment"},
                     ],
                 },
@@ -443,6 +442,7 @@ def test_shipment_mutations_on_source_side(
                         {"changes": f"{change_prefix} InStock to MarkedForShipment"},
                         {"changes": f"{change_prefix} MarkedForShipment to InStock"},
                         {"changes": f"{change_prefix} InStock to MarkedForShipment"},
+                        {"changes": "created record"},
                     ],
                 },
             },
@@ -455,6 +455,7 @@ def test_shipment_mutations_on_source_side(
                         {"changes": f"{change_prefix} InStock to MarkedForShipment"},
                         {"changes": f"{change_prefix} MarkedForShipment to InStock"},
                         {"changes": f"{change_prefix} InStock to MarkedForShipment"},
+                        {"changes": "created record"},
                     ],
                 },
             },
@@ -499,6 +500,7 @@ def test_shipment_mutations_cancel(
                     "state": BoxState.InStock.name,
                     "history": [
                         {"changes": f"{change_prefix} MarkedForShipment to InStock"},
+                        {"changes": "created record"},
                         {"changes": f"{change_prefix} InStock to MarkedForShipment"},
                     ],
                 },
@@ -633,19 +635,28 @@ def test_shipment_mutations_on_target_side(
                 "id": detail_id,
                 "box": {
                     "state": BoxState.Receiving.name,
-                    "history": [{"changes": f"{change_prefix} InTransit to Receiving"}],
+                    "history": [
+                        {"changes": f"{change_prefix} InTransit to Receiving"},
+                        {"changes": "created record"},
+                    ],
                 },
             },
             {
                 "id": another_detail_id,
                 "box": {
                     "state": BoxState.Receiving.name,
-                    "history": [{"changes": f"{change_prefix} InTransit to Receiving"}],
+                    "history": [
+                        {"changes": f"{change_prefix} InTransit to Receiving"},
+                        {"changes": "created record"},
+                    ],
                 },
             },
             {
                 "id": removed_detail_id,
-                "box": {"state": BoxState.InStock.name, "history": []},
+                "box": {
+                    "state": BoxState.InStock.name,
+                    "history": [{"changes": "created record"}],
+                },
             },
         ],
     }
@@ -692,6 +703,7 @@ def test_shipment_mutations_on_target_side(
                             + f"to {another_product['name']}"
                         },
                         {"changes": f"{change_prefix} InTransit to Receiving"},
+                        {"changes": "created record"},
                     ],
                 },
                 "sourceProduct": {"id": str(default_shipment_detail["source_product"])},
@@ -707,7 +719,10 @@ def test_shipment_mutations_on_target_side(
                 "id": another_detail_id,
                 "box": {
                     "state": BoxState.Receiving.name,
-                    "history": [{"changes": f"{change_prefix} InTransit to Receiving"}],
+                    "history": [
+                        {"changes": f"{change_prefix} InTransit to Receiving"},
+                        {"changes": "created record"},
+                    ],
                 },
                 "sourceProduct": {"id": str(another_shipment_detail["source_product"])},
                 "targetProduct": None,
@@ -720,7 +735,10 @@ def test_shipment_mutations_on_target_side(
             },
             {
                 "id": removed_detail_id,
-                "box": {"state": BoxState.InStock.name, "history": []},
+                "box": {
+                    "state": BoxState.InStock.name,
+                    "history": [{"changes": "created record"}],
+                },
                 "sourceProduct": {"id": str(removed_shipment_detail["source_product"])},
                 "targetProduct": None,
                 "sourceLocation": {
@@ -808,6 +826,7 @@ def test_shipment_mutations_on_target_side(
                     "history": [
                         {"changes": f"{change_prefix} Receiving to NotDelivered"},
                         {"changes": f"{change_prefix} InTransit to Receiving"},
+                        {"changes": "created record"},
                     ],
                 },
             },
@@ -816,7 +835,10 @@ def test_shipment_mutations_on_target_side(
                 "removedBy": {"id": "2"},
                 "lostBy": None,
                 "receivedBy": None,
-                "box": {"state": BoxState.InStock.name, "history": []},
+                "box": {
+                    "state": BoxState.InStock.name,
+                    "history": [{"changes": "created record"}],
+                },
             },
         ],
     }
@@ -885,7 +907,8 @@ def test_shipment_mutations_on_target_side_mark_shipment_as_lost(
                 "box": {
                     "state": BoxState.NotDelivered.name,
                     "history": [
-                        {"changes": f"{change_prefix} InTransit to NotDelivered"}
+                        {"changes": f"{change_prefix} InTransit to NotDelivered"},
+                        {"changes": "created record"},
                     ],
                 },
             },
@@ -896,7 +919,8 @@ def test_shipment_mutations_on_target_side_mark_shipment_as_lost(
                 "box": {
                     "state": BoxState.NotDelivered.name,
                     "history": [
-                        {"changes": f"{change_prefix} InTransit to NotDelivered"}
+                        {"changes": f"{change_prefix} InTransit to NotDelivered"},
+                        {"changes": "created record"},
                     ],
                 },
             },
@@ -904,7 +928,10 @@ def test_shipment_mutations_on_target_side_mark_shipment_as_lost(
                 "id": str(removed_shipment_detail["id"]),
                 "removedBy": {"id": "2"},
                 "lostBy": None,
-                "box": {"state": BoxState.InStock.name, "history": []},
+                "box": {
+                    "state": BoxState.InStock.name,
+                    "history": [{"changes": "created record"}],
+                },
             },
         ],
     }

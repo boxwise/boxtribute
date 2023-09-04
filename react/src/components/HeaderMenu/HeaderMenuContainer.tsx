@@ -29,6 +29,7 @@ const HeaderMenuContainer = () => {
       },
       {
         text: "Transfers",
+        minBeta: 2,
         links: [
           {
             link: "/transfers/shipments",
@@ -102,11 +103,32 @@ const HeaderMenuContainer = () => {
     [baseId],
   );
 
+  const authorizedMenuItems: MenuItemsGroupData[] = useMemo(() => {
+    return menuItems.filter((menuItem) => {
+      // If no minimum beta requirement exists for the menu item, it should be included.
+      if (!menuItem.minBeta) {
+        return true;
+      }
+
+      // Ensure that auth0.user is defined and parse the beta_user value.
+      if (auth0.user) {
+        const userBetaValue = parseInt(
+          auth0.user["https://www.boxtribute.com/beta_user"] ?? "0",
+          10,
+        );
+        return userBetaValue >= menuItem.minBeta;
+      }
+
+      // If auth0.user is not defined, then don't show items that have a beta requirement.
+      return false;
+    });
+  }, [menuItems, auth0.user]);
+
   return (
     <>
       <HeaderMenu
         {...auth0}
-        menuItemsGroups={menuItems}
+        menuItemsGroups={authorizedMenuItems}
         currentActiveBaseId={baseId}
         availableBases={globalPreferences.availableBases}
         onClickScanQrCode={() => qrReaderOverlayVar({ isOpen: true })}

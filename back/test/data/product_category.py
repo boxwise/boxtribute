@@ -4,6 +4,8 @@ from boxtribute_server.models.definitions.product_category import ProductCategor
 
 def data():
     return [
+        # Categories that serve as parents must be listed first such that foreign key
+        # constraints function at the time of insertion
         {"id": 12, "name": "Clothing", "parent": None},
         {"id": 13, "name": "Equipment", "parent": None},
         {"id": 1, "name": "Underwear / Nightwear", "parent": 12},
@@ -16,9 +18,14 @@ def default_product_category_data():
     return data()[2]
 
 
-@pytest.fixture()
+@pytest.fixture
 def default_product_category():
     return default_product_category_data()
+
+
+@pytest.fixture
+def product_categories():
+    return data()
 
 
 def create():

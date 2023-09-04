@@ -831,16 +831,44 @@ it("4.6.1.3 - Box is InStock and query for shipments returns no shipments in pre
 
   expect(screen.getByRole("tab", { name: /move/i, selected: true })).toHaveTextContent("Move");
 
-  const transferTab = screen.getByRole("tab", { name: /transfer/i });
-  await user.click(transferTab);
+  // The following code is commented out as a temporary workaround (refer to Trello card at https://trello.com/c/4lxf6jY3).
 
-  expect(screen.getByRole("tab", { name: /transfer/i, selected: true })).toHaveTextContent(
-    "Transfer",
-  );
+  // const transferTab = screen.getByRole("tab", { name: /transfer/i });
+  // await user.click(transferTab);
 
-  await waitFor(() =>
-    expect(
-      screen.getByText(/no shipments are being prepared from your base!/i),
-    ).toBeInTheDocument(),
-  );
+  // expect(screen.getByRole("tab", { name: /transfer/i, selected: true })).toHaveTextContent(
+  //   "Transfer",
+  // );
+
+  // await waitFor(() =>
+  //   expect(
+  //     screen.getByText(/no shipments are being prepared from your base!/i),
+  //   ).toBeInTheDocument(),
+  // );
+}, 10000);
+
+// Test case 4.6.1.3b
+it('4.6.1.3b - When there are no shipments, the "Transfer" tab should not be visible', async () => {
+  const user = userEvent.setup();
+  render(<BTBox />, {
+    routePath: "/bases/:baseId/boxes/:labelIdentifier",
+    initialUrl: "/bases/2/boxes/129",
+    mocks: [initialWithoutShipmentQuery],
+    addTypename: true,
+    globalPreferences: {
+      dispatch: jest.fn(),
+      globalPreferences: {
+        organisation: { id: organisation1.id, name: organisation1.name },
+        availableBases: organisation1.bases,
+      },
+    },
+  });
+
+  await waitFor(async () => {
+    expect(await screen.getByRole("heading", { name: /box 129/i })).toBeInTheDocument();
+  });
+
+  expect(screen.getByRole("tab", { name: /move/i, selected: true })).toHaveTextContent("Move");
+
+  expect(screen.queryByRole("tab", { name: /transfer/i, selected: true })).not.toBeInTheDocument();
 }, 10000);

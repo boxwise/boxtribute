@@ -140,6 +140,8 @@ function ShipmentView() {
       variables: {
         id: shipmentId,
       },
+      // returns cache first, but syncs with server in background
+      fetchPolicy: "cache-and-network",
     },
   );
 
@@ -535,7 +537,7 @@ function ShipmentView() {
         isLoadingMutation={isLoadingFromMutation}
         onRemove={onMinusClick}
         onCancel={openShipmentOverlay}
-        onLost={onLost}
+        onLost={openShipmentOverlay}
         shipment={data?.shipment! as Shipment}
       />
     );
@@ -556,41 +558,21 @@ function ShipmentView() {
           {shipmentActionButtons}
         </Flex>
         <BoxReconciliationOverlay />
-
-        <ShipmentOverlay
-          isOpen={isShipmentOverlayOpen}
-          isLoading={isLoadingFromMutation}
-          shipmentOverlayData={shipmentOverlayData}
-          onRemainingBoxesUndelivered={onRemainingBoxesUndelivered}
-          onClose={onShipmentOverlayClose}
-          onCancel={onCancel}
-        />
       </>
     );
   } else {
     shipmentViewComponents = (
-      <>
-        <Flex direction="column" gap={2}>
-          <Center>
-            <VStack>
-              {shipmentTitle}
-              {shipmentCard}
-            </VStack>
-          </Center>
-          <Spacer />
-          <Box>{shipmentTab}</Box>
-          {shipmentActionButtons}
-        </Flex>
-
-        <ShipmentOverlay
-          isOpen={isShipmentOverlayOpen}
-          isLoading={isLoadingFromMutation}
-          shipmentOverlayData={shipmentOverlayData}
-          onRemainingBoxesUndelivered={onRemainingBoxesUndelivered}
-          onClose={onShipmentOverlayClose}
-          onCancel={onCancel}
-        />
-      </>
+      <Flex direction="column" gap={2}>
+        <Center>
+          <VStack>
+            {shipmentTitle}
+            {shipmentCard}
+          </VStack>
+        </Center>
+        <Spacer />
+        <Box>{shipmentTab}</Box>
+        {shipmentActionButtons}
+      </Flex>
     );
   }
 
@@ -598,6 +580,15 @@ function ShipmentView() {
     <>
       <MobileBreadcrumbButton label="Back to Manage Shipments" linkPath="/transfers/shipments" />
       {shipmentViewComponents}
+      <ShipmentOverlay
+        isOpen={isShipmentOverlayOpen}
+        isLoading={isLoadingFromMutation}
+        shipmentOverlayData={shipmentOverlayData}
+        onRemainingBoxesUndelivered={onRemainingBoxesUndelivered}
+        onClose={onShipmentOverlayClose}
+        onCancel={onCancel}
+        onLost={onLost}
+      />
     </>
   );
 }

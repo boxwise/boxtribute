@@ -1,6 +1,6 @@
 import { useContext } from "react";
 import { gql, useMutation, useQuery } from "@apollo/client";
-import { Alert, AlertIcon, Center } from "@chakra-ui/react";
+import { Alert, AlertIcon, Box, Center } from "@chakra-ui/react";
 import { useErrorHandling } from "hooks/useErrorHandling";
 import { useNotification } from "hooks/useNotification";
 import APILoadingIndicator from "components/APILoadingIndicator";
@@ -40,7 +40,6 @@ export const CREATE_AGREEMENT_MUTATION = gql`
     $type: TransferAgreementType!
     $validFrom: Date
     $validUntil: Date
-    $timezone: String
     $initiatingOrganisationBaseIds: [Int!]!
     $partnerOrganisationBaseIds: [Int!]
     $comment: String
@@ -52,7 +51,6 @@ export const CREATE_AGREEMENT_MUTATION = gql`
         type: $type
         validFrom: $validFrom
         validUntil: $validUntil
-        timezone: $timezone
         initiatingOrganisationBaseIds: $initiatingOrganisationBaseIds
         partnerOrganisationBaseIds: $partnerOrganisationBaseIds
         comment: $comment
@@ -82,22 +80,24 @@ function CreateTransferAgreementView() {
     CreateTransferAgreementMutationVariables
   >(CREATE_AGREEMENT_MUTATION, {
     update(cache, { data: returnedTransferAgreement }) {
-      cache.modify({
-        fields: {
-          transferAgreements(existingTransferAgreements = []) {
-            const newTransferAgreementRef = cache.writeFragment({
-              data: returnedTransferAgreement?.createTransferAgreement,
-              fragment: gql`
-                fragment NewTransferAgreement on TransferAgreement {
-                  id
-                  type
-                }
-              `,
-            });
-            return existingTransferAgreements.concat(newTransferAgreementRef);
+      if (returnedTransferAgreement?.createTransferAgreement) {
+        cache.modify({
+          fields: {
+            transferAgreements(existingTransferAgreements = []) {
+              const newTransferAgreementRef = cache.writeFragment({
+                data: returnedTransferAgreement.createTransferAgreement,
+                fragment: gql`
+                  fragment NewTransferAgreement on TransferAgreement {
+                    id
+                    type
+                  }
+                `,
+              });
+              return existingTransferAgreements.concat(newTransferAgreementRef);
+            },
           },
-        },
-      });
+        });
+      }
     },
   });
 
@@ -131,24 +131,11 @@ function CreateTransferAgreementView() {
       (base) => parseInt(base.value, 10),
     );
 
-    let transferType: TransferAgreementType;
-    switch (createTransferAgreementData.transferType) {
-      case "Sending to":
-        transferType = TransferAgreementType.SendingTo;
-        break;
-      case "Receiving from":
-        transferType = TransferAgreementType.ReceivingFrom;
-        break;
-      default:
-        transferType = TransferAgreementType.Bidirectional;
-        break;
-    }
-
     createTransferAgreementMutation({
       variables: {
         initiatingOrganisationId: parseInt(userCurrentOrganisationId, 10),
         partnerOrganisationId: parseInt(createTransferAgreementData.partnerOrganisation.value, 10),
-        type: transferType,
+        type: TransferAgreementType.Bidirectional,
         validFrom: createTransferAgreementData?.validFrom,
         validUntil: createTransferAgreementData?.validUntil,
         initiatingOrganisationBaseIds: currentOrgBaseIds,
@@ -195,7 +182,21 @@ function CreateTransferAgreementView() {
 
   return (
     <>
-      <MobileBreadcrumbButton label="Back to Manage Agreements" linkPath="/transfers/shipments" />
+      <MobileBreadcrumbButton label="Back to Manage Agreements" linkPath="/transfers/agreements" />
+      {createTransferAgreementMutationState.error &&
+        createTransferAgreementMutationState.error.graphQLErrors.some(
+          (error: any) =>
+            error.extensions?.code === "BAD_USER_INPUT" &&
+            error.extensions?.description.includes("An identical agreement already exists"),
+        ) && (
+          <Box mx={1} my={1}>
+            {" "}
+            <Alert status="error">
+              <AlertIcon />
+              Can&rsquo;t create agreement, an active identical agreement exists.
+            </Alert>
+          </Box>
+        )}
       <Center>
         <CreateTransferAgreement
           currentOrganisation={currentOrganisationAuthorizedBases}

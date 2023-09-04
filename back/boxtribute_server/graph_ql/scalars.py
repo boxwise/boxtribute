@@ -1,6 +1,5 @@
 from datetime import datetime, timezone
 
-import dateutil.parser
 from ariadne import ScalarType
 
 datetime_scalar = ScalarType("Datetime")
@@ -25,5 +24,6 @@ def parse_date(value):
 
 @datetime_scalar.value_parser
 def parse_datetime(value):
-    # return datetime.from strptime(value, "%Y-%m-%dT%H:%M:%S.%fZ")
-    return dateutil.parser.isoparse(value)
+    # Datetime string must be of format '2022-08-30T14:00:00'.
+    # With Python 3.11 more formats will be supported
+    return datetime.fromisoformat(value)

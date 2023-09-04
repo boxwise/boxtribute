@@ -142,7 +142,13 @@ function TransferAgreementOverviewView() {
   const onCancel = handleTransferAgreement(cancelTransferAgreementMutation, "cancel");
 
   // fetch agreements data
-  const { loading, error, data } = useQuery<TransferAgreementsQuery>(ALL_TRANSFER_AGREEMENTS_QUERY);
+  const { loading, error, data } = useQuery<TransferAgreementsQuery>(
+    ALL_TRANSFER_AGREEMENTS_QUERY,
+    {
+      // returns cache first, but syncs with server in background
+      fetchPolicy: "cache-and-network",
+    },
+  );
 
   // transform agreements data for UI
   const graphqlToTableTransformer = (
