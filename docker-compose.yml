@@ -83,7 +83,7 @@ services:
       MYSQL_ROOT_HOST: "%"
       MYSQL_DATABASE: dropapp_dev
     volumes:
-      - ./back/init.sql:/docker-entrypoint-initdb.d/init.sql
+      - ./back/dump-dropapp_production-202311012331.sql:/docker-entrypoint-initdb.d/init.sql
     ports:
       # <Port exposed> : < MySQL Port running inside container>
       - 32000:3306
