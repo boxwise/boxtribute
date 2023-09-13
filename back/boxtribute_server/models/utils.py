@@ -16,11 +16,11 @@ def utcnow():
     return datetime.now(tz=timezone.utc).replace(microsecond=0)
 
 
-def convert_ids(concat_ids):
+def convert_ids(concat_ids, new_type=int):
     """Convert a string of comma-separated IDs (returned from GROUP_CONCAT) into a
     list of integers.
     """
-    return [int(i) for i in (concat_ids or "").split(",") if i]
+    return [new_type(i) if i else None for i in (concat_ids or "").split(",")]
 
 
 today = date.today()

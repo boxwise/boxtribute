@@ -24,12 +24,15 @@ import getpass
 import json
 import logging
 import time
+from collections import namedtuple
 from datetime import datetime
 
 from boxtribute_server.db import create_db_interface, db
 
 LOGGER = logging.getLogger(__name__)
-LOGGER.addHandler(logging.StreamHandler())
+handler = logging.StreamHandler()
+handler.setFormatter(logging.Formatter(fmt="%(created)f | %(message)s"))
+LOGGER.addHandler(handler)
 LOGGER.setLevel(logging.INFO)
 
 PRODUCT_COLUMN_NAMES = {
@@ -92,6 +95,7 @@ def _parse_options(args=None):
     convert_parser = subparsers.add_parser("convert")
     convert_parser.add_argument("-l", "--location-id", type=int, required=True)
     convert_parser.add_argument("-y", "--oldest-creation-year", type=int)
+    convert_parser.add_argument("-g", "--grouped-algorithm", action="store_true")
 
     return vars(parser.parse_args(args=args))
 
@@ -226,11 +230,111 @@ def _reconstruct(box, event):
     return True
 
 
-def _convert(*, location_id, oldest_creation_year=2020):
+Event = namedtuple("Event", ["changes", "from_int"])
+
+
+def _grouped_convert(*, location_id, start):
+    from boxtribute_server.models.definitions.box import Box
+    from boxtribute_server.models.definitions.history import DbChangeHistory
+    from boxtribute_server.models.utils import convert_ids
+    from peewee import fn
+
+    def convert_str(concat_strings):
+        return convert_ids(concat_strings, new_type=str)
+
+    query = (
+        DbChangeHistory.select(
+            fn.GROUP_CONCAT(DbChangeHistory.changes)
+            .python_value(convert_str)
+            .alias("changes"),
+            fn.GROUP_CONCAT(DbChangeHistory.change_date)
+            .python_value(convert_str)
+            .alias("change_dates"),
+            fn.GROUP_CONCAT(fn.IFNULL(DbChangeHistory.from_int, ""))
+            .python_value(convert_ids)
+            .alias("from_ints"),
+            Box.id,
+            Box.state,
+            Box.created_on,
+            Box.deleted,
+            Box.number_of_items,
+            Box.location,
+            Box.product,
+            Box.size,
+        )
+        .join(
+            Box,
+            on=(
+                (DbChangeHistory.table_name == "stock")
+                & (DbChangeHistory.record_id == Box.id)
+                & (DbChangeHistory.change_date >= start)
+                & (~DbChangeHistory.changes.startswith("comments"))
+                & (Box.created_on > start)
+                & (Box.location == location_id)
+            ),
+        )
+        .group_by(Box.id)
+    )
+
+    LOGGER.debug(f"Selected {len(query)} boxes.")
+    LOGGER.debug("Starting reconstruction...")
+    start_time = time.perf_counter()
+
+    all_boxes_versions = {e.box.id: [] for e in query}
+    for entry in query:
+        box_versions = all_boxes_versions[entry.box.id]
+        # Most recent version of box is the data from the box table
+        box_versions.append(
+            {
+                "id": entry.box.id,
+                "state": entry.box.state_id,
+                "created_on": entry.box.created_on,
+                "deleted": entry.box.deleted,
+                "number_of_items": entry.box.number_of_items,
+                "location": entry.box.location_id,
+                "product": entry.box.product_id,
+                "size": entry.box.size_id,
+            }
+        )
+
+        # Walk back in history
+        for change, change_date, from_int in reversed(
+            list(zip(entry.changes, entry.change_dates, entry.from_ints))
+        ):
+            # For the previous version, copy the current version, and reverse the change
+            # logged in the history table
+            event = Event(change, from_int)
+            previous_version = box_versions[-1].copy()
+            if not _reconstruct(previous_version, event):
+                continue
+
+            box_versions[-1]["effective_from"] = change_date
+            box_versions.append(previous_version)
+
+        box_versions[-1]["effective_from"] = box_versions[-1]["created_on"]
+        box_versions.sort(key=lambda v: str(v["effective_from"]))
+
+    LOGGER.debug(
+        f"""Reconstruction completed after {round(time.perf_counter() -
+    start_time, ndigits=1)}s."""
+    )
+    filename = "box_versions_grouped.json"
+    with open(filename, "w") as f:
+        json.dump(all_boxes_versions, f, default=str, indent=2)
+    LOGGER.debug(f"Exported result to '{filename}'.")
+
+
+def _convert(*, location_id, grouped_algorithm, oldest_creation_year=2020):
     from boxtribute_server.models.definitions.box import Box
     from boxtribute_server.models.definitions.history import DbChangeHistory
 
+    LOGGER.debug("Starting program")
     start = datetime(oldest_creation_year, 1, 1)
+
+    if grouped_algorithm:
+        _grouped_convert(location_id=location_id, start=start)
+        return
+
     boxes = Box.select(
         Box.id,
         Box.state,
@@ -298,7 +402,7 @@ def _convert(*, location_id, oldest_creation_year=2020):
     )
     filename = "box_versions.json"
     with open(filename, "w") as f:
-        json.dump(all_boxes_versions, f, default=str)
+        json.dump(all_boxes_versions, f, default=str, indent=2)
     LOGGER.debug(f"Exported result to '{filename}'.")
 
 
