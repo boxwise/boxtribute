@@ -395,6 +395,8 @@ export type FilterBoxInput = {
   sizeId?: InputMaybe<Scalars['Int']>;
   /**  Filter for all boxes that have *one* of the specified states.  */
   states?: InputMaybe<Array<BoxState>>;
+  /**  Filter for all boxes that have *at least one* of the specified tags.  */
+  tagIds?: InputMaybe<Array<Scalars['Int']>>;
 };
 
 export type HistoryEntry = {

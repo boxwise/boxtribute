@@ -1,6 +1,8 @@
+from ..enums import TaggableObjectType
 from ..models.definitions.beneficiary import Beneficiary
 from ..models.definitions.box import Box
 from ..models.definitions.product import Product
+from ..models.definitions.tags_relation import TagsRelation
 
 
 def derive_beneficiary_filter(filter_input):
@@ -52,8 +54,9 @@ def derive_beneficiary_filter(filter_input):
 
 
 def derive_box_filter(filter_input, selection=None):
-    """Derive filter condition for select-query from given filter parameters. If no
-    parameters given, return True (i.e. no filtering applied).
+    """Derive filter condition for select-query from given filter parameters, along with
+    corresponding model selection. If no parameters given, return True (i.e. no
+    filtering applied) and `Box.select()`.
     """
     selection = selection or Box.select()
     if not filter_input:
@@ -90,6 +93,18 @@ def derive_box_filter(filter_input, selection=None):
     size_id = filter_input.get("size_id")
     if size_id is not None:
         condition &= Box.size == size_id
+
+    tag_ids = filter_input.get("tag_ids")
+    if tag_ids is not None:
+        selection = selection.join(
+            TagsRelation,
+            src=Box,
+            on=(
+                (TagsRelation.object_type == TaggableObjectType.Box)
+                & (TagsRelation.object_id == Box.id)
+                & (TagsRelation.tag << tag_ids)
+            ),
+        )
 
     if join_with_product_required:
         selection = selection.join(Product, src=Box)
