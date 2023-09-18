@@ -3,6 +3,7 @@ type Query {
   createdBoxes(baseId: Int): CreatedBoxesData
   topProductsCheckedOut(baseId: Int!): TopProductsCheckedOutData
   topProductsDonated(baseId: Int!): TopProductsDonatedData
+  movedBoxes(baseId: Int!): MovedBoxesData
 }
 
 interface DataCube {
@@ -10,8 +11,8 @@ interface DataCube {
   dimensions: Dimensions
 }
 
-union Result = BeneficiaryDemographicsResult | CreatedBoxesResult | TopProductsCheckedOutResult | TopProductsDonatedResult
-union Dimensions = BeneficiaryDemographicsDimensions | CreatedBoxDataDimensions | TopProductsDimensions
+union Result = BeneficiaryDemographicsResult | CreatedBoxesResult | TopProductsCheckedOutResult | TopProductsDonatedResult | MovedBoxesResult
+union Dimensions = BeneficiaryDemographicsDimensions | CreatedBoxDataDimensions | TopProductsDimensions | MovedBoxDataDimensions
 
 type BeneficiaryDemographicsData implements DataCube {
   facts: [BeneficiaryDemographicsResult]
@@ -82,6 +83,35 @@ type TopProductsDimensions {
   size: [DimensionInfo]
   product: [ProductDimensionInfo]
   category: [DimensionInfo]
+}
+
+type MovedBoxesData implements DataCube {
+  facts: [MovedBoxesResult]
+  dimensions: MovedBoxDataDimensions
+}
+
+"""
+A box can be moved in various ways:
+- within a base (location ID with InStock/Donated)
+- because it's lost (Lost)
+- because it becomes scrap (Scrap)
+- because it's about to be shipped (target base ID with MarkedForShipment)
+- because it's being shipped (target base ID with InTransit/Receiving)
+"""
+type MovedBoxesResult {
+  movedOn: Date!
+  boxState: BoxState!
+  locationId: Int
+  baseId: Int
+  categoryId: Int!
+  boxesCount: Int!
+}
+
+type MovedBoxDataDimensions {
+  category: [DimensionInfo]
+  tag: [TagDimensionInfo]
+  location: [DimensionInfo]
+  base: [DimensionInfo]
 }
 
 interface BasicDimensionInfo {
