@@ -1,5 +1,6 @@
 from ..models.definitions.beneficiary import Beneficiary
 from ..models.definitions.box import Box
+from ..models.definitions.product import Product
 
 
 def derive_beneficiary_filter(filter_input):
@@ -50,13 +51,15 @@ def derive_beneficiary_filter(filter_input):
     return condition
 
 
-def derive_box_filter(filter_input):
+def derive_box_filter(filter_input, selection=None):
     """Derive filter condition for select-query from given filter parameters. If no
     parameters given, return True (i.e. no filtering applied).
     """
+    selection = selection or Box.select()
     if not filter_input:
-        return True
+        return True, selection
 
+    join_with_product_required = False
     condition = True
     states = filter_input.get("states")
     if states:
@@ -73,10 +76,12 @@ def derive_box_filter(filter_input):
     product_gender = filter_input.get("product_gender")
     if product_gender is not None:
         condition &= Box.product.gender == product_gender
+        join_with_product_required = True
 
     product_category_id = filter_input.get("product_category_id")
     if product_category_id is not None:
         condition &= Box.product.category == product_category_id
+        join_with_product_required = True
 
     product_id = filter_input.get("product_id")
     if product_id is not None:
@@ -86,4 +91,7 @@ def derive_box_filter(filter_input):
     if size_id is not None:
         condition &= Box.size == size_id
 
-    return condition
+    if join_with_product_required:
+        selection = selection.join(Product, src=Box)
+
+    return condition, selection
