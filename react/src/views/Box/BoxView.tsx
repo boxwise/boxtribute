@@ -27,6 +27,8 @@ import {
   UpdateStateMutation,
   ClassicLocation,
   ShipmentState,
+  User,
+  HistoryEntry,
 } from "types/generated/graphql";
 import {
   ASSIGN_BOX_TO_DISTRIBUTION_MUTATION,
@@ -53,6 +55,10 @@ import { BoxViewSkeleton } from "components/Skeletons";
 
 import { BoxReconciliationOverlay } from "components/BoxReconciliationOverlay/BoxReconciliationOverlay";
 import { boxReconciliationOverlayVar } from "queries/cache";
+import HistoryOverlay from "components/HistoryOverlay/HistoryOverlay";
+import { ITimelineEntry } from "components/Timeline/TimelineContainer";
+import _ from "lodash";
+import { formatDateKey, prepareBoxHistoryEntryText } from "utils/helpers";
 import BoxDetails from "./components/BoxDetails";
 import TakeItemsFromBoxOverlay from "./components/TakeItemsFromBoxOverlay";
 import AddItemsToBoxOverlay from "./components/AddItemsToBoxOverlay";
@@ -146,7 +152,7 @@ function BTBox() {
   const { globalPreferences } = useContext(GlobalPreferencesContext);
   const currentBaseId = globalPreferences.selectedBase?.id;
   const [currentBoxState, setCurrentState] = useState<BoxState | undefined>();
-
+  const { isOpen: isHistoryOpen, onOpen: onHistoryOpen, onClose: onHistoryClose } = useDisclosure();
   const {
     assignBoxesToShipment,
     unassignBoxesToShipment,
@@ -168,6 +174,38 @@ function BTBox() {
   const boxInTransit = currentBoxState
     ? [BoxState.Receiving, BoxState.MarkedForShipment, BoxState.InTransit].includes(currentBoxState)
     : false;
+
+  // map over each box HistoryEntry to compile its timeline records
+  const boxLogs: ITimelineEntry[] = (allData.data?.box?.history as HistoryEntry[])?.flatMap(
+    (histories) =>
+      _.compact([
+        histories?.user && {
+          action: prepareBoxHistoryEntryText(`${histories.user.name} ${histories.changes}`),
+          createdBy: histories.user as User,
+          createdOn: new Date(histories.changeDate),
+        },
+      ]),
+  ) as unknown as ITimelineEntry[];
+
+  const allLogs = _.orderBy(
+    _.sortBy(_.concat([...(boxLogs || [])]), "createdOn"),
+    ["createdOn"],
+    ["asc", "desc"],
+  );
+  const groupedHistoryEntries: _.Dictionary<ITimelineEntry[]> = _.groupBy(
+    allLogs,
+    (log) => `${formatDateKey(log?.createdOn)}`,
+  );
+
+  // sort each array of history entries in descending order
+  const sortedGroupedHistoryEntries = _(groupedHistoryEntries)
+    .toPairs()
+    .map(([date, entries]) => ({
+      date,
+      entries: _.orderBy(entries, (entry) => new Date(entry?.createdOn), "desc"),
+    }))
+    .orderBy((entry) => new Date(entry.date), "desc")
+    .value();
 
   const [updateNumberOfItemsMutation, updateNumberOfItemsMutationStatus] = useMutation<
     UpdateNumberOfItemsMutation,
@@ -596,6 +634,7 @@ function BTBox() {
           boxData={boxData}
           boxInTransit={boxInTransit}
           onPlusOpen={onPlusOpen}
+          onHistoryOpen={onHistoryOpen}
           onMinusOpen={onMinusOpen}
           onMoveToLocationClick={onMoveBoxToLocationClick}
           onStateChange={onStateChange}
@@ -629,6 +668,11 @@ function BTBox() {
         closeOnEsc={false}
         closeOnOverlayClick={false}
         redirectToShipmentView
+      />
+      <HistoryOverlay
+        isOpen={isHistoryOpen}
+        onClose={onHistoryClose}
+        data={sortedGroupedHistoryEntries}
       />
     </VStack>
   );

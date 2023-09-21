@@ -777,6 +777,7 @@ it("3.1.10 - No Data or Null Data Fetched for a given Box Label Identifier", asy
     <BoxDetails
       boxData={undefined}
       boxInTransit={false}
+      onHistoryOpen={mockFunction}
       onMoveToLocationClick={mockFunction}
       onPlusOpen={mockFunction}
       onMinusOpen={mockFunction}
