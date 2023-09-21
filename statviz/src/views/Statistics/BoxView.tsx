@@ -73,6 +73,9 @@ export default function BoxView() {
 
   const groupedBoxes = groupByDay(createdBoxes);
 
+  console.log(createdBoxes);
+  console.log(groupedBoxes);
+
   const chartData = groupedBoxes.facts.map((fact) => ({
     x: fact?.createdOn,
     y: fact?.boxesCount,

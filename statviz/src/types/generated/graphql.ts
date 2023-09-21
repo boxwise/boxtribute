@@ -272,7 +272,7 @@ export type CreatedBoxesQueryVariables = Exact<{
 }>;
 
 
-export type CreatedBoxesQuery = { __typename?: 'Query', createdBoxes?: { __typename?: 'CreatedBoxesData', facts?: Array<{ __typename?: 'CreatedBoxesResult', boxesCount?: number | null, productId?: number | null, categoryId?: number | null, createdOn?: any | null, gender?: ProductGender | null, itemsCount?: number | null } | null> | null, dimensions?: { __typename?: 'CreatedBoxDataDimensions', product?: Array<{ __typename?: 'ResultIdName', id?: string | null, name?: string | null } | null> | null, category?: Array<{ __typename?: 'ResultIdName', id?: string | null, name?: string | null } | null> | null } | null } | null };
+export type CreatedBoxesQuery = { __typename?: 'Query', createdBoxes?: { __typename?: 'CreatedBoxesData', facts?: Array<{ __typename?: 'CreatedBoxesResult', boxesCount?: number | null, productId?: number | null, categoryId?: number | null, createdOn?: any | null, gender?: ProductGender | null, itemsCount?: number | null } | null> | null, dimensions?: { __typename?: 'CreatedBoxDataDimensions', product?: Array<{ __typename?: 'ProductDimensionInfo', id?: string | null, name?: string | null } | null> | null, category?: Array<{ __typename?: 'DimensionInfo', id?: string | null, name?: string | null } | null> | null } | null } | null };
 
 export type BeneficiaryDemographicsQueryVariables = Exact<{ [key: string]: never; }>;
 

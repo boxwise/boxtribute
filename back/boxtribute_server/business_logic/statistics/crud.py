@@ -115,7 +115,7 @@ def compute_created_boxes(base_id=None):
             fn.SUM(Box.number_of_items).alias("items_count"),
         )
         .join(Product)
-        .order_by(Box.created_on.desc())
+        .order_by(Box.created_on.asc())
     )
 
     if base_id is not None:
