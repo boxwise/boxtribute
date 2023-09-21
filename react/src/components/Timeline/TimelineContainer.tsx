@@ -18,9 +18,6 @@ export interface ITimelineProps {
 }
 
 function TimelineContainer({ records }: ITimelineProps) {
-  // eslint-disable-next-line no-console
-  console.log(records);
-
   return (
     <Box position="relative">
       {records.map(({ date, entries }, index) => (
