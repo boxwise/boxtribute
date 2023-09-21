@@ -13,7 +13,7 @@ export enum ShipmentActionEvent {
   ShipmentCompleted = "Shipment Completed",
   BoxAdded = "Box Added",
   BoxRemoved = "Box Removed",
-  BoxLost = "Box Marked Lost",
+  BoxLost = "Box Marked Not Delivered",
   BoxReceived = "Box Received",
 }
 
@@ -54,7 +54,7 @@ function ShipmentTabs({
         product: group[0]?.sourceProduct,
         totalItems: _.sumBy(group, (shipment) => shipment?.sourceQuantity || 0),
         totalBoxes: group.length,
-        totalLosts: group.filter((shipment) => shipment?.box?.state === BoxState.Lost).length,
+        totalLosts: group.filter((shipment) => shipment?.box?.state === BoxState.NotDelivered).length,
         boxes: group.map(
           (shipment) =>
             ({

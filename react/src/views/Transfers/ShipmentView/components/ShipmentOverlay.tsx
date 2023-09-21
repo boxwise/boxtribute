@@ -103,7 +103,7 @@ function ShipmentOverlay({
             </chakra.span>{" "}
             and all boxes as{" "}
             <chakra.span color="red.500" fontWeight="semibold">
-              {BoxState.Lost}
+              {BoxState.NotDelivered}
             </chakra.span>
             , effectively cancelling the shipment.
           </Text>

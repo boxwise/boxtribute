@@ -104,6 +104,7 @@ function BoxCard({
         <WrapItem>
           {(BoxState.Lost === boxData?.state ||
             BoxState.Scrap === boxData?.state ||
+            BoxState.NotDelivered === boxData?.state ||
             boxInTransit) && (
             <IconButton
               aria-label="Edit box"
@@ -116,6 +117,7 @@ function BoxCard({
           {!(
             BoxState.Lost === boxData?.state ||
             BoxState.Scrap === boxData?.state ||
+            BoxState.NotDelivered === boxData?.state ||
             boxInTransit
           ) && (
             <NavLink to="edit">
@@ -181,6 +183,7 @@ function BoxCard({
                   disabled={
                     BoxState.Lost === boxData?.state ||
                     BoxState.Scrap === boxData?.state ||
+                    BoxState.NotDelivered === boxData?.state ||
                     boxInTransit
                   }
                   size="sm"
@@ -209,6 +212,7 @@ function BoxCard({
                   disabled={
                     BoxState.Lost === boxData?.state ||
                     BoxState.Scrap === boxData?.state ||
+                    BoxState.NotDelivered === boxData?.state ||
                     boxInTransit
                   }
                   borderRadius="0"

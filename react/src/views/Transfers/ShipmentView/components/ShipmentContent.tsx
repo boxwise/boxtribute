@@ -49,7 +49,7 @@ function ShipmentContent({
         id: box?.product?.id,
         labelIdentifier: box.labelIdentifier,
         shipmentState,
-        isLost: box.state === BoxState.Lost,
+        isLost: box.state === BoxState.NotDelivered,
         product: `${box?.size?.label} ${
           (box?.product?.gender && box?.product?.gender) !== "none" ? box?.product?.gender : ""
         } ${box?.product?.name || "Unassigned"}`,
