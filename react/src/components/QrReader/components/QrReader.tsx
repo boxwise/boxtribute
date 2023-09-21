@@ -1,10 +1,9 @@
-import { useCallback, useMemo, useState } from "react";
+import { useCallback, useState } from "react";
 import { Result } from "@zxing/library";
 import {
   FormControl,
   FormErrorMessage,
   FormLabel,
-  HStack,
   IconButton,
   Input,
   InputGroup,
@@ -15,7 +14,7 @@ import {
   TabPanels,
   Tabs,
 } from "@chakra-ui/react";
-import { AddIcon, MinusIcon, SearchIcon } from "@chakra-ui/icons";
+import { SearchIcon } from "@chakra-ui/icons";
 import { QrReaderScanner } from "./QrReaderScanner";
 import QrReaderMultiBoxContainer from "./QrReaderMultiBoxContainer";
 
@@ -37,11 +36,7 @@ function QrReader({
   onSuccess,
 }: IQrReaderProps) {
   // Zoom
-  const [zoomLevel, setZoomLevel] = useState(1);
-  const browserSupportsZoom = useMemo(
-    () => navigator?.mediaDevices?.getSupportedConstraints?.().zoom != null,
-    [],
-  );
+  const [zoomLevel] = useState(1);
 
   // Did the QrReaderScanner catch a QrCode? --> call onScan with text value
   const onResult = useCallback(
