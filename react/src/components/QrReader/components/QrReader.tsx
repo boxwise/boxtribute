@@ -84,24 +84,6 @@ function QrReader({
         scanPeriod={1000}
         onResult={onResult}
       />
-      {browserSupportsZoom && (
-        <HStack>
-          <IconButton
-            disabled={zoomLevel <= 1}
-            onClick={() => setZoomLevel((curr) => (curr > 1 ? curr - 1 : curr))}
-            aria-label="Decrease zoom level"
-          >
-            <MinusIcon />
-          </IconButton>
-          <IconButton
-            disabled={zoomLevel >= 8}
-            onClick={() => setZoomLevel((curr) => (curr < 8 ? curr + 1 : curr))}
-            aria-label="Increase zoom level"
-          >
-            <AddIcon />
-          </IconButton>
-        </HStack>
-      )}
       <Tabs index={isMultiBox ? 1 : 0} onChange={onTabSwitch}>
         <TabList justifyContent="center">
           <Tab>SOLO BOX</Tab>
