@@ -65,6 +65,7 @@ function ShipmentTabs({
             } as Box),
         ),
       }))
+      .orderBy((value) => value.totalLosts, "asc")
       .mapKeys(
         (value) =>
           // eslint-disable-next-line max-len
