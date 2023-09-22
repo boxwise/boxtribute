@@ -1,6 +1,6 @@
 import { Box, Flex, Text } from "@chakra-ui/react";
+import TimelineEntry from "components/Timeline/components/TimelineEntry";
 import { IGroupedHistoryEntry, IShipmentHistory, ShipmentActionEvent } from "./ShipmentTabs";
-import TimelineEntry from "./TimelineEntry";
 
 export interface IShipmentHistoryProps {
   histories: IGroupedHistoryEntry[];
@@ -29,13 +29,6 @@ function ShipmentHistory({ histories }: IShipmentHistoryProps) {
 
     return changes;
   };
-
-  function formatTime(date: Date): string {
-    const hours = date.getHours().toString().padStart(2, "0");
-    const minutes = date.getMinutes().toString().padStart(2, "0");
-    return `${hours}:${minutes}`;
-  }
-
   return (
     <Box position="relative">
       {histories.map(({ date, entries }, index) => (
@@ -60,7 +53,7 @@ function ShipmentHistory({ histories }: IShipmentHistoryProps) {
               <TimelineEntry
                 key={`${index + indx}_${new Date().getTime()}}`}
                 content={entry ? changesLabel(entry) : ""}
-                time={entry ? formatTime(new Date(entry?.createdOn)) : ""}
+                time={entry?.createdOn}
               />
             ))}
           </Box>
