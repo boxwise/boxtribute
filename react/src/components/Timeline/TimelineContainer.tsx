@@ -42,9 +42,7 @@ function TimelineContainer({ records }: ITimelineProps) {
               <TimelineEntry
                 key={`${index + indx}_${new Date().getTime()}}`}
                 content={entry?.action}
-                time={`${entry?.createdOn.getHours().toString()}:${entry?.createdOn
-                  .getMinutes()
-                  .toString()}`}
+                time={entry?.createdOn}
               />
             ))}
           </Box>
