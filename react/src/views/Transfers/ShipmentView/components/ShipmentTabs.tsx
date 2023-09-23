@@ -1,38 +1,13 @@
 import { TabList, TabPanels, Tabs, TabPanel, Tab, Center } from "@chakra-ui/react";
+import ShipmentHistory, { IGroupedRecordEntry } from "components/Timeline/TimelineContainer";
 import _ from "lodash";
-import { Box, BoxState, ShipmentDetail, ShipmentState, User } from "types/generated/graphql";
+import { Box, BoxState, ShipmentDetail, ShipmentState } from "types/generated/graphql";
 import ShipmentContent, { IShipmentContent } from "./ShipmentContent";
-import ShipmentHistory from "./ShipmentHistory";
-
-// eslint-disable-next-line no-shadow
-export enum ShipmentActionEvent {
-  ShipmentStarted = "Shipment Started",
-  ShipmentCanceled = "Shipment Canceled",
-  ShipmentSent = "Shipment Sent",
-  ShipmentStartReceiving = "Shipment Being Received",
-  ShipmentCompleted = "Shipment Completed",
-  BoxAdded = "Box Added",
-  BoxRemoved = "Box Removed",
-  BoxLost = "Box Marked Lost",
-  BoxReceived = "Box Received",
-}
-
-export interface IShipmentHistory {
-  box?: string | undefined;
-  action: ShipmentActionEvent;
-  createdOn: Date;
-  createdBy: User;
-}
-
-export interface IGroupedHistoryEntry {
-  date: string;
-  entries: (IShipmentHistory | null | undefined)[];
-}
 
 export interface IShipmentTabsProps {
   shipmentState: ShipmentState | undefined;
   detail: ShipmentDetail[];
-  histories: IGroupedHistoryEntry[];
+  histories: IGroupedRecordEntry[];
   isLoadingMutation: boolean | undefined;
   showRemoveIcon: Boolean;
   onRemoveBox: (id: string) => void;
@@ -94,7 +69,7 @@ function ShipmentTabs({
           />
         </TabPanel>
         <TabPanel>
-          <ShipmentHistory histories={histories} />
+          <ShipmentHistory records={histories} />
         </TabPanel>
       </TabPanels>
     </Tabs>
